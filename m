@@ -1,16 +1,15 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Sat, 16 Oct 2004 15:30:58 +0200
-References: <411EAF08.3000401@shorewall.net>
-	<200408192010.28417.bdschuym@pandora.be>
-	<416DC6EF.9050001@shorewall.net>
-In-Reply-To: <416DC6EF.9050001@shorewall.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Message-ID: <88240e9404101711465b4f0f6b@mail.gmail.com>
+Date: Sun, 17 Oct 2004 11:46:12 -0700
+From: TEJAS VORA <voratejas@gmail.com>
+Subject: Re: [Bridge] Bridge / Transparent Proxy
+In-Reply-To: <88240e94041015202366a6b6a6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410161530.58439.bdschuym@pandora.be>
-Subject: [Bridge] Re: Policy match with a bridge
+References: <88240e9404100618443d96907e@mail.gmail.com>
+	<1097275463.16787.110.camel@localhost.localdomain>
+	<88240e94041015202366a6b6a6@mail.gmail.com>
+Reply-To: TEJAS VORA <voratejas@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,30 +18,106 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Tom Eastep <teastep@shorewall.net>
-Cc: netfilter-devel@lists.netfilter.org, bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Thursday 14 October 2004 02:23, Tom Eastep wrote:
-> Bart De Schuymer wrote:
-> > On Monday 16 August 2004 03:31, Patrick McHardy wrote:
-> >>The problem is ipv4_sabotage_out in the briding code. It prevents the
-> >>packet from hitting the LOCAL_OUT hook while it is still unencrypted.
-> >>When it hits the bridging code and its LOCAL_OUT hook it's too late.
-> >>Not sure how to handle it yet.
+Hi,
+
+I am sending you the ASCII pic with this mail - which has some idea
+about configuration.
+
+Bridge Machine (br0) IP : 192.168.11.201
+(Gateway machine / need to be used as Transparent proxy)
+       +---------------------------------------------+
+       |                       |
+       |                       |
+       |                       |
+       |                       |
+       |                       |
+       |                       |
+       +---------------------------------------------+
+               |       |
+               eth0    eth1
+               |       |
+               |       |
+               |       | FTP Content Server (192.168.11.60)
+               |       +------------------------>
+               |
+               |
+               |
+               | TO INTRANET / INTERNET
+               +-------------------------------->
+
+People tries to access the FTP Content Server from Intranet and
+Internet Side. The Bridge machine is running on Bridge Mode and
+Transpwerent Proxy.
+
+For passing packets to T-PROXY, I have setup IPTABLES rules like -
+
+iptables -t nat -A PREROUTING -p tcp -d 0/0 -s 0/0 --dport 21 -J DNAT
+--to 192.168.11.201:2370
+
+But it seems that packet is forwarded by Brdige before it reaches the
+iptables rule and thus T-PROXY tool is not able to process the packet.
+
+Also, I am running Redhat 7.3 with kernel 2.18-3 and iptables 1.2.5
+version. I am using the latest bridge utils - and while I run brdige
+utils and setup iptables rule together - the kernel panics saying
+
+Aiee - Killing interrupt handler
+interrupt - no syncing
+
+What should I do to handle these two problems - please reply asap.
+
+Thanks fopr help
+Tejas Vora
+
+
+
+On Fri, 08 Oct 2004 15:44:23 -0700, Stephen Hemminger
+<shemminger@osdl.org> wrote:
+> On Wed, 2004-10-06 at 18:44 -0700, TEJAS VORA wrote:
+> > Hi,
 > >
-> > I'll have a look at that after I'm finished with the IPv6 bridge
+> > I am using my machine as a Bridge and running transparent proxy on it.
+> > My question is - where the brdige will work?
 >
-> firewalling
 >
-> > stuff.
+> What does the it look like in more detail.  What are machine's
+> interfaces and IP addresses, more config info or picture (ASCII).
 >
-> Any progress on this?
-
-You should be able to do what you want in the iptables mangle OUTPUT chain 
-instead of the one in the filter table.
-Patrick, a hack solution would be to temporarily change out->hard_start_xmit 
-to something else than br_dev_xmit, that way you fool ipv4_sabotage_out.
-
-cheers,
-Bart
-
+>
+> > Do brdige will forward the packet before it reaches to iptables rule?
+> > If yes then what is the solution - as I want to use my machine as
+> > Transparent proxy and I have setup iptables rules on it.
+> >
+> > I have tried so many times - look at the tcpdump also - but it seems
+> > that packets are not following iptables rule and just being forwarded
+> > normally.
+> >
+> > Config is :
+> >
+> > FTP server - 192.168.11.160
+> > Bridge - 192.168.11.201
+> >
+> > I have setup jftpgw FTP transparent proxy on bridge. Which listens on
+> > port 2370. I have set a iptables rule
+> >
+> > iptables -t nat -A PREROUTING -p tcp -d 0/0 -s 0/0 --dport 21 -J DNAT
+> > --to 192.168.11.201:2370
+> >
+> > Now I am trying to access FTP Server (192.168.11.160) from out side -
+> > and checking the tcpdump on the Brdige (proxy) machine for port 2370 -
+> > but nothingis coming up. Also on FTP machine the tcpdump shows direct
+> > connection. So it seems my transparent porxy is not coming in between
+> > and bridge is directly forwarding packet.
+> >
+> > What is the solution to this problem?
+> >
+> > Thanks,
+> > Tejas
+> > _______________________________________________
+> > Bridge mailing list
+> > Bridge@lists.osdl.org
+> > http://lists.osdl.org/mailman/listinfo/bridge
+>
+>
