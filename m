@@ -1,12 +1,11 @@
-Date: Wed, 17 Mar 2004 09:40:19 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
+Date: Wed, 17 Mar 2004 12:40:19 -0500 (EST)
+From: "Mark S. Mathews" <mark@linux-wlan.com>
 Subject: Re: [Bridge] bridge wlan-eth
-Message-Id: <20040317094019.1e52bea9@dell_ss3.pdx.osdl.net>
 In-Reply-To: <200403171813.58862.mangel@gmx.de>
+Message-ID: <Pine.LNX.4.58.0403171239010.13699@chef.linux-wlan.com>
 References: <200403171813.58862.mangel@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,8 +17,15 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 To: Christoph Kaminski <mangel@gmx.de>
 Cc: bridge@lists.osdl.org
 
-On Wed, 17 Mar 2004 18:13:58 +0100
-Christoph Kaminski <mangel@gmx.de> wrote:
+
+The answer to this is in the bridge FAQ at:
+
+http://bridge.sourceforge.net/faq.html
+
+Have Fun!
+-M
+
+On Wed, 17 Mar 2004, Christoph Kaminski wrote:
 
 > Hi!
 > 
@@ -42,14 +48,12 @@ Christoph Kaminski <mangel@gmx.de> wrote:
 > Bridge mailing list
 > Bridge@lists.osdl.org
 > http://lists.osdl.org/mailman/listinfo/bridge
+> 
 
 
+Mark S. Mathews
 
-More info in bridge FAQ
-	http://bridge.sourceforge.net/faq.html
-
-It doesn't work with my Wireless card!
-This is a known problem, and it is not caused by the bridge code. Many wireless cards don't allow spoofing of the source address. It is a firmware restriction with some chipsets. You might find some information in the bridge mailing list archives to help.
--- 
-Stephen Hemminger 		mailto:shemminger@osdl.org
-Open Source Development Lab	http://developer.osdl.org/shemminger
+AbsoluteValue Systems      Web:    http://www.linux-wlan.com
+715-D North Drive          e-mail: mark@linux-wlan.com
+Melbourne, FL 32934        Phone:  321.259.0737
+USA                        Fax:    321.259.0286
