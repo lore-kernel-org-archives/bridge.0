@@ -1,12 +1,10 @@
-Date: Mon, 3 Jan 2005 10:42:37 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge Utils & 2.6.7 Kernel
-Message-Id: <20050103104237.76a0445f@dxpl.pdx.osdl.net>
-In-Reply-To: <1104271176.17168.11.camel@honeycomb>
-References: <1104271176.17168.11.camel@honeycomb>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <41DAD768.8020800@phreaker.net>
+Date: Wed, 05 Jan 2005 01:50:32 +0800
+From: ro0ot <ro0ot@phreaker.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Neighbour table overflow.
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,36 +13,45 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: raj@roinet.com
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Tue, 28 Dec 2004 16:59:37 -0500
-Rajashekhar Mansanpally <raj@roinet.com> wrote:
+Hi,
 
-> Hi everyone,
-> I am trying to get bridging working with 2.6.7 kernel.
-> I have noticed quite a few additions to the bridge code, last one I used
-> was with 2.4.x series, most importantly Sysfs.
+I had setup my bridge (br0) as below: -
 
-sysfs support for bridge may not have been available to 2.6.8
-Look for net/bridge/br_sysfs_br.c in source.
+ifconfig eth0 0.0.0.0
+ifconfig eth5 0.0.0.0
 
-> Can someone tell me what I need to do to enable sysfs support ?
+brctl addbr br0
 
-Sysfs is enabled in the kernel (unless you configure it for embedded and turn off sysfs).
-There needs to be an entry in mount table /etc/mtab to mount it. All 2.6 based
-distro's mount it in /sys.  The bridge-utils configure tries to figure out
-if you have libsysfs to access it.  Early 2.6 distro's did not have a package
-for it, so you may have to download it and build it.
+brctl addif br0 eth0
+brctl addif br0 eth5
 
-> I did not find the bridge module in /sys directory structure even after
-> adding couple of interfaces to the bridge. Is there anything
-> else I need to do?
+brctl stp br0 on
 
-The bridge shows up as /sys/class/net/br0/bridge and /sys/class/net/eth0/brif/
+Once I connect both the interface (eth0 and eth5) to my network.  I 
+can't ping to my router (connect to eth0) or ping to my other IP 
+addresses (connect to eth5).  I check around and found out some messages 
+pops up in /var/log/syslog file as below: -
 
-> Thanks in advance.
-> 
-> -Raj
-> 
-> 
+Jan  2 10:44:22 fw01 kernel: ipt_tcpmss_target: bad length (64 bytes)
+Jan  2 10:44:32 fw01 last message repeated 11 times
+Jan  2 12:27:08 fw01 kernel: Neighbour table overflow.
+Jan  2 12:27:11 fw01 last message repeated 9 times
+Jan  2 12:27:13 fw01 kernel: NET: 10 messages suppressed.
+Jan  2 12:27:13 fw01 kernel: Neighbour table overflow.
+Jan  2 12:27:18 fw01 kernel: NET: 27 messages suppressed.
+Jan  2 12:27:18 fw01 kernel: Neighbour table overflow.
+
+Once I disconnect the cable from the eth5 interface, I can ping to my 
+router.  I try to reconnect the cable back to the eth5 interface and run 
+a ping to my router.  As the result, I can't ping the router and the 
+similar messages pops up in the /var/log/syslog file.
+
+How can I resolve this issue?
+
+Regards,
+ro0ot
+
+
+
