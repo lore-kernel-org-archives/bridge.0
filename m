@@ -1,10 +1,10 @@
-Date: Mon, 26 Jan 2004 16:28:12 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20040126162812.4f584a9e.shemminger@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] web site update
+Message-ID: <4016B8E3.6050701@draigBrady.com>
+Date: Tue, 27 Jan 2004 19:15:47 +0000
+From: P@draigBrady.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] forwarding delay
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,19 +15,18 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-The data on the bridge http://bridge.sourceforge.net 
-web site was getting out of date.  So I did a
-cleanup rewrite of the info.  The main changes are:
-	* adding a howto that is up to date with 2.4/2.6
-	* removing all the 2.2 related info since the
-	  2.2 patches are no longer supported (at least by me).
-Any comments or feedback would be appreciated.
+Hi,
 
-Expect the following in the next couple weeks:
-	- better info about Spanning Tree Protocol (STP)
+I'm using linux 2.4.20 here and noticed that even
+when STP is disabled for a bridge, the forwarding delay
+still takes affect. Is this correct? I.E. Does the
+bridge need to spend time in the "listening" and
+"learning" states when STP isn't used?
 
-	- new version of bridge-utilities; better error handling
+It's an easy work around to set the delay to 0,
+I'm just wondering whether it's a buglet or
+by design.
 
-	- pre-built packages of new utilities for Fedora Core-1
-	  and SuSe 9.
+thanks,
+Pádraig.
 
