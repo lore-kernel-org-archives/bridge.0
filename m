@@ -1,10 +1,12 @@
-Date: Mon, 28 Jul 2003 13:59:47 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20030728135947.4aa9ad06.shemminger@osdl.org>
+Date: Mon, 28 Jul 2003 13:59:38 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20030728135938.38188485.davem@redhat.com>
+In-Reply-To: <20030728135947.4aa9ad06.shemminger@osdl.org>
+References: <20030728135947.4aa9ad06.shemminger@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH] Change MAINTAINERS reference to bridge mailing list
+Subject: [Bridge] Re: [PATCH] Change MAINTAINERS reference to bridge mailing list
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -15,22 +17,12 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: "David S. Miller" <davem@redhat.com>
+To: Stephen Hemminger <shemminger@osdl.org>
 Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-List moved to osdl.org
+On Mon, 28 Jul 2003 13:59:47 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-diff -Nru a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS	Mon Jul 28 13:57:06 2003
-+++ b/MAINTAINERS	Mon Jul 28 13:57:06 2003
-@@ -666,7 +666,7 @@
- ETHERNET BRIDGE
- P:	Stephen Hemminger
- M:	shemminger@osdl.org
--L:	bridge@math.leidenuniv.nl
-+L:	bridge@osdl.org
- W:	http://bridge.sourceforge.net/
- S:	Maintained
- 
+> List moved to osdl.org
 
-
+Applied, thanks.
