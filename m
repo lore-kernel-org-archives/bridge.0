@@ -1,12 +1,10 @@
-Message-ID: <009b01c3e429$6db90560$0201a8c0@hawk>
-From: "Christopher S. Aker" <caker@theshore.net>
-References: <Pine.LNX.4.33.0401191551410.3962-100000@ns.varna.net>
-Subject: Re: [Bridge] received packet with  own address as source address
-Date: Mon, 26 Jan 2004 10:28:24 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Date: Mon, 26 Jan 2004 16:28:12 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040126162812.4f584a9e.shemminger@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] web site update
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,19 +15,19 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-> just my $0.02:
->
-> ethertap interfaces has fake mac addresses, generated somehow by the
-> tun/tap driver, and they are same on both sides in your case. Don't know
-> why.
->
-> -- Nikolay Datchev
+The data on the bridge http://bridge.sourceforge.net 
+web site was getting out of date.  So I did a
+cleanup rewrite of the info.  The main changes are:
+	* adding a howto that is up to date with 2.4/2.6
+	* removing all the 2.2 related info since the
+	  2.2 patches are no longer supported (at least by me).
+Any comments or feedback would be appreciated.
 
-Not sure what gave me the idea to use the same MAC on the TAP and inside the UML.
-Since the earlier versions of bridge didn't complain about it, perhaps I figured I
-should fight it :)  Anyways, using a different MAC for the TAP and the UML seems
-to have solved all of the issues.
+Expect the following in the next couple weeks:
+	- better info about Spanning Tree Protocol (STP)
 
-Thanks for the help!
--Chris
+	- new version of bridge-utilities; better error handling
+
+	- pre-built packages of new utilities for Fedora Core-1
+	  and SuSe 9.
 
