@@ -1,14 +1,9 @@
-Subject: Re: [Bridge] Re: Problem in changed VLAN code can cause systems to
-	hang.
+Subject: Re: [Bridge] Problem in changed VLAN code can cause systems to hang.
 From: Tommy Christensen <tommy.christensen@tpack.net>
-In-Reply-To: <20040910045603.32e8ded3@linux.site>
+In-Reply-To: <414057B1.1020902@siennax.com>
 References: <414057B1.1020902@siennax.com>
-	<20040909082129.62059694.davem@davemloft.net>
-	<4405.131.188.28.69.1094744038.squirrel@www.osdl.org>
-	<20040909085149.1d483349.davem@davemloft.net>
-	<20040910045603.32e8ded3@linux.site>
 Content-Type: text/plain
-Message-Id: <1094819889.32556.63.camel@cyan.cph.tpack.net>
+Message-Id: <1094820204.32553.67.camel@cyan.cph.tpack.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
@@ -19,17 +14,15 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Fri, 10 Sep 2004 12:38:19 -0000
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "David S. Miller" <davem@davemloft.net>, bridge@lists.osdl.org
+Date: Fri, 10 Sep 2004 12:43:32 -0000
+To: Mark Ruijter <bridge@siennax.com>
+Cc: "David S. Miller" <davem@redhat.com>, bridge@lists.osdl.org, Stephen Hemminger <shemminger@osdl.org>
 
-On Fri, 2004-09-10 at 13:56, Stephen Hemminger wrote:
-> [root@dev4-009 root]# mii-tool eth2:1
-> SIOCGMIIPHY on 'eth2:1' failed: Operation not supported
+On Thu, 2004-09-09 at 15:16, Mark Ruijter wrote:
+>                  if (real_dev->do_ioctl && netif_device_present(real_dev))
+>                          err = real_dev->do_ioctl(dev, &ifrr, cmd);
 
-This is not the VLAN interface. It is typically named
-eth2.1 (or possibly vlan1).
-    ^
+I guess do_ioctl should be called with real_dev as parameter here.
 
 -Tommy
 
