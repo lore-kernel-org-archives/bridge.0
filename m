@@ -1,15 +1,16 @@
-Message-ID: <41E2BE29.8090800@redhat.com>
-Date: Mon, 10 Jan 2005 12:40:57 -0500
-From: Neil Horman <nhorman@redhat.com>
-MIME-Version: 1.0
+Date: Mon, 10 Jan 2005 20:11:33 +0100
+From: Gergely Madarasz <gorgo@broadband.hu>
+Message-ID: <20050110191133.GM7529@thunderchild.debian.net>
 References: <20050110140638.GH7529@thunderchild.debian.net>
 	<41E299D4.2010605@redhat.com>
 	<20050110154506.GJ7529@thunderchild.debian.net>
 	<41E2A7A7.3060109@redhat.com>
 	<20050110161855.GK7529@thunderchild.debian.net>
-In-Reply-To: <20050110161855.GK7529@thunderchild.debian.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	<41E2BE29.8090800@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E2BE29.8090800@redhat.com>
 Subject: [Bridge] Re: tg3 bridge problems
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -19,116 +20,38 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Gergely Madarasz <gorgo@broadband.hu>
+To: Neil Horman <nhorman@redhat.com>
 Cc: linux-net@vger.kernel.org, bridge@lists.osdl.org
 
-Gergely Madarasz wrote:
-> On Mon, Jan 10, 2005 at 11:04:55AM -0500, Neil Horman wrote:
-> 
->>Gergely Madarasz wrote:
->>
->>>On Mon, Jan 10, 2005 at 10:05:56AM -0500, Neil Horman wrote:
->>>
->>>
->>>>Gergely Madarasz wrote:
->>>>
->>>>
->>>>>The bpdu's from the cisco switches simply cannot be seen on the server,
->>>>>causing loops in l2 traffic. I've tested with sticking a hub between the
->>>>>c3550 and the server, the switch sends out the bpdu's, but they are not
->>>>>seen by linux (running tethereal). This happens only on eth0, on eth1
->>>>>everything seems fine. Any IP traffic on eth0 goes through, no packet
->>>>>loss, no errors.
->>>>>
->>>>>And something even more strange: if I do an 
->>>>>ifconfig eth0 0 up; brctl addif br0 eth0; 
->>>>>it seems to be working fine, if I do it the other way
->>>>>round, then the bpdu's sent by the switches are lost somewhere.
->>>>>
->>>>>Considering all these, the problem seems to me a strange interaction
->>>>>between the bridge driver, the tg3 driver and the hardware in question. 
->>>>
->>>>It looks to me like either order should work just fine, as long as the 
->>>>IFF_PROMISC flag isn't cleared when you bring up the interface.  Is 
->>>>IF_PROMISC clear in ifconfig after you issue your ifconfig eth0 up 
->>>>command?
->>>
->>>
->>>ifconfig has never showed PROMISC on either of my bridged servers. 
->>>ip shows it though. I noticed this before but couldn't find the reason and
->>>didn't seem important.
->>>
->>>This is on a machine with working bridge:
->>>
->>># ifconfig eth0
->>>eth0      Link encap:Ethernet  HWaddr 00:09:6B:49:89:80
->>>         UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>>         ...
->>># ip link list eth0
->>>2: eth0: <BROADCAST,MULTICAST,PROMISC,UP> mtu 1500 qdisc pfifo_fast qlen 
->>>1000
->>>   link/ether 00:09:6b:49:89:80 brd ff:ff:ff:ff:ff:ff
->>>
->>>And this is on the problematic machine:
->>>
->>># ifconfig eth0
->>>eth0      Link encap:Ethernet  HWaddr 00:0D:60:55:3B:02
->>>         UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>>         ....
->>># ip addr list eth0
->>>2: eth0: <BROADCAST,MULTICAST,PROMISC,UP> mtu 1500 qdisc pfifo_fast qlen 
->>>1000
->>>   link/ether 00:0d:60:55:3b:02 brd ff:ff:ff:ff:ff:ff
->>>
->>
->>Strange.  My concern was that the tg3 interface has its hardware reset 
->>whenever its set to be up, and part of that is a resetting of its 
->>receive mode.  If for some reason IFF_PROMISC was cleared after you set 
->>it using brctl, the interface might be taken out of promisc mode.  Do 
->>you have any iptables rules running that might drop bpdus?
-> 
-> 
-> No iptables rules az all. Btw iptables wouldn't prevent tcpdump from
-> seeing the packets, would it?
-> Could it be that the driver perhaps has a problem setting promisc mode
-> when resetting the hardware?
-> 
-Not really sure about this.  One experiment is worth a thousand guesses 
-I suppose.......  I'll try and let you know. :)
+On Mon, Jan 10, 2005 at 12:40:57PM -0500, Neil Horman wrote:
+> Gergely Madarasz wrote:
+> >On Mon, Jan 10, 2005 at 11:04:55AM -0500, Neil Horman wrote:
+> >
+> >>Strange.  My concern was that the tg3 interface has its hardware reset 
+> >>whenever its set to be up, and part of that is a resetting of its 
+> >>receive mode.  If for some reason IFF_PROMISC was cleared after you set 
+> >>it using brctl, the interface might be taken out of promisc mode.  Do 
+> >>you have any iptables rules running that might drop bpdus?
+> >
+> >
+> >No iptables rules az all. Btw iptables wouldn't prevent tcpdump from
+> >seeing the packets, would it?
+> >Could it be that the driver perhaps has a problem setting promisc mode
+> >when resetting the hardware?
+> >
+> Not really sure about this.  One experiment is worth a thousand guesses 
+> I suppose.......  I'll try and let you know. :)
 
-> 
->>>And even if didn't get promisc, tcpdump or tethereal would have made it
->>>so, when I was looking for the bpdu packets. Tethereal shows only this:
->>>
->>
->>Thats not entirely true.  ethereal/tcpdump/etc use the PF_PACKET 
->>interface, which talks directly to the driver to set the receive list, 
->>and doesn't always go through the device layer, which is where 
->>IFF_PROMISC gets asserted.  Agruably it should set promisc, but not 
->>doing so doesn't prevent ethereal and friends from capturing in 
->>promiscuous mode.
-> 
-> 
-> Well, my point was that not even ethereal or tcpdump show the packets,
-> not even in promisc mode... :)
-> 
-Good point, hadn't thought about that.  Although if you start tcpdump on 
-the interface before you issue you're brctl/ifconfig commands, you may 
-be limiting what tcpdump will be able to see.  It could be that if you 
-are doing things that order (tcpdump, brctl, ifconfig), you could still 
-be resetting the hardware in such a way that you're still only going to 
-get frames bound for your MAC address and broadcasts.
+I did some other checks, like adding an explicit ifconfig eth0 promisc,
+then looking at tcpdump output - I didn't see any stray packets like I
+usually do, just ethernet broadcasts and unicasts to my mac, this also
+points to a problem that the ethernet interface is actually not in
+promisc, while the driver thinks it is.
 
-Neil
-> Greg.
+And it is probably not a driver-only issue. I've got older machines with
+tg3 running fine with bridge (with an older tg3 driver), and eth1 on the
+same machine also runs fine. On another machine I tested today, an IBM
+x326, the same thing happens - eth0 broken, eth1 fine. Would access to one
+of these machines help? :)
 
-
--- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+Greg
