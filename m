@@ -1,15 +1,12 @@
-From: Alessandro Fiorino <a.fiorino@chibacity.it>
-Date: Wed, 17 Mar 2004 09:29:46 +0100
-References: <20040316082837.1797.qmail@daitarn.register.it>
-	<20040316110702.589a76e8@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040316110702.589a76e8@dell_ss3.pdx.osdl.net>
+From: Christoph Kaminski <mangel@gmx.de>
+Date: Wed, 17 Mar 2004 18:13:58 +0100
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403170929.46220.a.fiorino@chibacity.it>
-Subject: [Bridge] Re: Strange DHCP behaviour with bridging
+Message-Id: <200403171813.58862.mangel@gmx.de>
+Subject: [Bridge] bridge wlan-eth
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,25 +15,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Tuesday 16 March 2004 20:07, you wrote:
->
-> So the packet makes it into the tap0 device, but the bridge doesn't know
-> where to send the output.  Are you running spanning tree protocol or not?
+Hi!
 
-No, btrcl showstp br0 says it's disabled
+I have some problems with an bridge between wlan0 and eth0 device...
 
-> Look at the contents of the forwarding table (brctl showmacs br0)
-> Spanning tree does take a while to settle on startup so it could be that
-> you need to wait about a minute till the bridge starts running.
->
-> Or may the tap device doesn't have a real hardware mac
-> address is confusing it.
+It works and I can from both sides ping the router with the bridge device but 
+I cant ping the devices from other net so I cant ping wlan devs from eth net 
+and other way around
 
-brctl showmacs br0 shows the mac address of the local virtual tap interface as 
-local, and shows the mac address of the remote virtual interface as remote 
-(which I think it's correct)
+the wlan card is an atmel usbw11 from linksys and eth is a intel e100 
+10/100mbit nic
 
+I have configured the bridge according to the how to and dont see any errors 
+in kern.log or somewhere else....
 
+What is wrong?
 
+PS: sorry for my english but I hope you can understand what I mean
