@@ -1,14 +1,13 @@
-Message-ID: <41B03950.5000106@web.de>
-Date: Fri, 03 Dec 2004 11:00:48 +0100
-From: Michael Renzmann <mrenzmann@web.de>
+From: "kingz" <jzhang@cienettechnologies.com>
+Date: Fri, 3 Dec 2004 22:12:39 -0800
+Message-ID: <000001c4d9c8$44a18860$1201a8c0@kingz>
 MIME-Version: 1.0
-Subject: Re: [Bridge] bridge in 'hub' mode possible?
-References: <87d5xw4uui.fsf@aka.i.naked.iki.fi>	<20041129102432.24888dad@zqx3.pdx.osdl.net>	<87ekic1p6w.fsf@aka.i.naked.iki.fi>
-	<20041202112002.444fdff0@dxpl.pdx.osdl.net>
-In-Reply-To: <20041202112002.444fdff0@dxpl.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: mrenzmann@web.de
+Content-Type: text/plain; charset="gb2312"
+In-Reply-To: <20041202094823.0e3472d5@dxpl.pdx.osdl.net>
+Content-Transfer-Encoding: base64
+Subject: [Bridge] RE: My configuration in Bridge, 802.1Q VLAN,
+	and hotmail login, Thanks to all
+Reply-To: jzhang@cienettechnologies.com
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,25 +16,61 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: 'Stephen Hemminger' <shemminger@osdl.org>
+Cc: stuge-vlan@cdy.org, bdschuym@pandora.be, 'Derek Storvik' <it@consultech.net>, greearb@candelatech.com, ebtables-user@lists.sourceforge.net, bridge@lists.osdl.org, vlan@lanforge.com
 
-Hi.
-
-Stephen Hemminger wrote:
-> Have you tried "brctl setageingtime br0 0" to turn off 
-> forwarding table?
-
-I wonder if it would be worth to introduce some kind of "monitor 
-interface" for a brigde (as can be found on switches, don't know if 
-"monitor port" would be the correct term for it).
-
-The bridge could work as usual, while this virtual interface sees every 
-packet that traverses the bridge. tcpdump & co could be used on this 
-interface when needed. As an addition it should be possible to 
-enable/disable this interface using a new brctl command (something like 
-"brctl br0 monitor on|off").
-
-Comments? If there's interest in such a function I possibly could spend 
-some time on it after christmas.
-
-Bye, Mike
+VGhhbmtzIHRvIEFsbCEKCkkgY2hhbmdlZCBhbGwgdHdvIE5JQ3Mgb24gbXkgQnJpZGdlIGJveCB0
+byBJbnRlbCBQcm8vMTAwMCBNVCBjYXJkKHdpdGgKSW50ZWwgZTEwMDAgZHJpdmVyKS4gSSB0aGlu
+ayB0aGV5IGNhbiBoYW5kbGUgbGFyZ2VyIGZyYW1lcyB3aXRoIFZMQU4KdGFnLiAoIFRoYW5rcyB0
+byBCZW4sIFBldGVyKQoKSSBhbHNvIGhhdmUgb25lIGRvdWJ0OiBob3cgdG8gY29uZmlndXJlIE5J
+Q3MgYW5kIG15IGJyaWRnZSBmb3IgbGFyZ2VyCmZyYW1lcyB3aXRoIFZMQU4gdGFnPwpJIGd1ZXNz
+IEkgbmVlZCBkbyBzbzogKHBsZWFzZSBjb3JyZWN0IG1lKQpCcmlkZ2UgYm94OiBSZWRoYXQgOS4w
+ICBMaW51eCAyLjQuMjgga2VybmVsCjEuIENoYW5nZSBOSUNzIG9uIGJyaWRnZSBNVFUgdG8gMTUw
+NCAoIDByIG90aGVyIHZhbHVlKUlzIGl0IG5lY2Vzc2FyeT8KICBpZmNvbmZpZyBldGgwKDEpIG10
+dSAxNTA0CgoyLiBDaGFuZ2UgYnJpZGdlIE1UVSB0byBsYXJnZXIgdmFsdWU/ICggaXMgaXQgbmVj
+ZXNzYXJ5PykgCkkgY291bGRuJ3QgY2hhbmdlIHRoZSBNVFUgb2YgYnIwLCBJIGdvdCB0aGUgIiBT
+SU9DU0lGTVRVOiBJbnZhbGlkCmFyZ3VtZW50IiBlcnJvci4gV2hhdCdzIHdyb25nIHdpdGggaXQ/
+CgpIZW1taW5nZXI6IEZvciB0aGlzIHBhdGNoIGluIHlvdXIgcmVwbHksIERvIEkgbmVlZCBhcHBs
+eSBpdCB0byB0aGUKYnJpZGdlIGNvZGU/IEFzIHlvdSBrbm93LCB0aGUgYnJpZGdlIGNvZGUgaXMg
+YnVpbHQgaW4gdGhlIDIuNC4yOCBrZXJuZWwsCkkgYWxzbyBuZWVkIGFwcGx5IHRoaXMgY2hhbmdl
+IHRvIGJyaWRnZSBjb2RlPyBBbmQgYSBzdHVwaWQgcXVlc3Rpb246CndoZXJlIEkgYXBwbHkgaXQg
+dG8/IFdoaWNoIGZpbGU/CgpUaGFua3MhCgpLaW5negoKCgoKCgoKLS0tLS1PcmlnaW5hbCBNZXNz
+YWdlLS0tLS0KRnJvbTogU3RlcGhlbiBIZW1taW5nZXIgW21haWx0bzpzaGVtbWluZ2VyQG9zZGwu
+b3JnXSAKU2VudDogMjAwNMTqMTLUwjLI1SA5OjQ4ClRvOiBqemhhbmdAY2llbmV0dGVjaG5vbG9n
+aWVzLmNvbQpDYzogdmxhbkBsYW5mb3JnZS5jb207IGVidGFibGVzLXVzZXJAbGlzdHMuc291cmNl
+Zm9yZ2UubmV0OwpicmlkZ2VAbGlzdHMub3NkbC5vcmc7ICdEZXJlayBTdG9ydmlrJzsgZ3JlZWFy
+YkBjYW5kZWxhdGVjaC5jb207CnN0dWdlLXZsYW5AY2R5Lm9yZzsgYmRzY2h1eW1AcGFuZG9yYS5i
+ZQpTdWJqZWN0OiBSZTogTXkgY29uZmlndXJhdGlvbiBpbiBCcmlkZ2UsODAyLjFRIFZMQU4sIGFu
+ZCBob3RtYWlsIGxvZ2luLApUaGFua3MgdG8gYWxsCgpPbiBUaHUsIDIgRGVjIDIwMDQgMjA6MTA6
+NTggLTA4MDAKImtpbmd6IiA8anpoYW5nQGNpZW5ldHRlY2hub2xvZ2llcy5jb20+IHdyb3RlOgoK
+PiBIaSBBbGwsCj4gCj4gRm9yIG15IGlzc3VlLCBmaXJzdCB0aGFua3MgdG8gQUxMLCBJIGhhdmUg
+c29tZSBpZGVhIG9mIGl0Lgo+IEFsc28gVGhhbmsgUGV0ZXIgZm9yIGhpcyBraW5kIHJlbWluZCwg
+SSB3b3VsZCBiZWNvbWUgb25lIGdvb2QgZ3V5IGluCj4gdGhpcyBsaXN0Lgo+IAo+IE1vc3QgbWVu
+dGlvbmVkIE1UVSwgYnV0IGhvdyBJIGFzc3VyZSB0aGF0IHRoZSBwcm9ibGVtIGlzIGp1c3QgTVRV
+LCBob3cKSQo+IGRlYnVnIGl0Pwo+IEhlcmUgaXMgbXkgYnJpZGdlIGNvbmZpZ3VyYXRpb246Cj4g
+SW50ZXJuZXQKPiAgICAgICAgfAo+ICAgICAgICB8Cj4gICBHYXRld2F5Cj4gICAgICAgIHwKPiAg
+ICAgICAgfCAgIGV0aDAKPiBFdGhlcm5ldCBCcmlkZ2UKPiAgICAgICAgfCAgIGV0aDEKPiAgICAg
+ICAgfAo+ICAgICAgSCB1IGIgICAgKCBvbmUgbm9ybWFsIGh1YiBvciBzd2l0Y2ggLCBubyBWTEFO
+IHNldHRpbmdzKQo+ICAgICAgIHwgICBcCj4gICAgICAgfCAgICAgXAo+ICAgRC1MaW5rICA4MDIu
+MVEgVkxBTiBTd2l0Y2hlcyAodGhlaXIgdXBsaW5rIHBvcnQtcG9ydCAxICBjb25uZWN0ZWQgdG8K
+PiB0aGUgdXBwZXIgaHViIGFyZSB0YWdnZWQsIHRob3NlIHBvcnRzIGNvbm5lY3RlZCB3aXRoIFBD
+cyBhcmUKdW50YWdnZWQpLgo+IAo+IEJyaWRnZSBjb25maWd1cmF0aW9uOgo+IExpbnV4IDIuNC4y
+NiAoIGtlcm5lbCBidWlsdCBpbiBicmlkZ2UgZnVuY3Rpb24pCj4gRXRoMCAgIFJUTDgxMzkgZHJp
+dmVyCj4gRXRoMSAgIEludGVsIGUxMDAgTklDIHdpdGggZWVwcm8xMDAgZHJpdmVyCj4gCj4gV2l0
+aCBWTEFOIHRhZywgSSBtZXQgdGhlIGhvdG1haWwgbG9naW4gZXJyb3IsIGlmIHdpdGhvdXQgVkxB
+TiB0YWcsIGFsbAo+IGFyZSBPSyEKPiAKPiBQZXRlciBhbmQgQmVuIHN1Z2dlc3RlZCBtZSB1c2Ug
+aW50ZWwgTklDcywgSSBoYXZlIG9uZSBpbnRlbCBlMTAwIE5JQwphbmQKPiBlMTAwMCBOSUMsIGUx
+MDAwIE5JQyBpcyBPSywgYnV0IEkgY2FubnQgdXNlIHRoZSBlMTAwIGNhcmQgd2l0aCB0aGUKZTEw
+MAo+IGRyaXZlciggZnJvbSBib3RoIExpbnV4IDIuNC4yNiBhbmQgSW50ZWwgc2l0ZSBlMTAwLTMu
+Mi4zKSwgc28gSSBvbmx5CnVzZQo+IGVlcHJvMTAwIGRyaXZlci4KPiBIb3cgSSBjYW4gdXNlIHRo
+ZSBlMTAwIHdpdGggZTEwMCBkcml2ZXI/IENhbiBJIHVzZSBlMTAwIGFuZCBlMTAwMAo+IHRvZ2V0
+aGVyKCB1c2UgdGhlbSBhcyBldGgwLDEpPwo+IEFueSBvbmUgY2FuIGhlbHAgbWU/CgpUaGVyZSBp
+cyBzb21lIGNvbmZ1c2lvbiBhYm91dCBtdHUgYW5kIFZMQU4uIERvZXMgbXR1IGluY2x1ZGUgVkxB
+TiB0YWcgb3IKbm90PwpFMTAwIGFsbG93cyB0aGUgVkxBTiB0YWcgdG8gYmUgaW5jbHVkZWQgKGll
+LiBhY3R1YWxfc2l6ZSA+Cm5pYy0+bmV0ZGV2LT5tdHUKKyBWTEFOX0VUSF9ITEVOKQpidXQgb3Ro
+ZXIgZHJpdmVycyBkb24ndCBhbmQgdGhlIE1UVSByZXBvcnRlZCB0byB0aGUgYnJpZGdlIGRvZXNu
+J3QKaW5jbHVkZQp0aGUKVkxBTiB0YWcuIAoKWW91IGNvdWxkIGNoYW5nZToKCQppbnQgYnJfZGV2
+X3F1ZXVlX3B1c2hfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQp7CglpZiAoc2tiLT5sZW4gPiBz
+a2ItPmRldi0+bXR1KSAKCQlrZnJlZV9za2Ioc2tiKTsKdG86CgppbnQgYnJfZGV2X3F1ZXVlX3B1
+c2hfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQp7CglpZiAoc2tiLT5sZW4gPiBza2ItPmRldi0+
+bXR1ICsgNCkgCgkJa2ZyZWVfc2tiKHNrYik7CgoKCg==
