@@ -1,12 +1,9 @@
-Message-ID: <33053.63.170.215.71.1088569335.squirrel@www.osdl.org>
-In-Reply-To: <1bde01c45e35$79cb70f0$8805640a@internal.watertech.com>
-References: <1bde01c45e35$79cb70f0$8805640a@internal.watertech.com>
-Date: Tue, 29 Jun 2004 21:22:15 -0700 (PDT)
-Subject: Re: [Bridge] MTU Question
-From: shemminger@osdl.org
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: "Adam Hewgill" <ahewgill@hotmail.com>
+Date: Wed, 30 Jun 2004 11:30:30 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY19-F11htXQxNnGvI000dbb71@hotmail.com>
+Subject: [Bridge] Bringing up bridge at boot (properly)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,31 +12,26 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Chris Shaw <chriss@watertech.com>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-> I have a bridge that has gigabit interfaces. The machine in question has
-> the
-> fun job of being a Bridge, Firewall and SMB server. Both of the Gigabit
-> interfaces are connected to workstations directly via Xover cable (well
-> MDI-X to be exact). My question is, if I enable jumbo frames on the
-> gigabit
-> interfaces will that make any difference in overall transfer rate of the
-> bridge? I was thinking it might because even though the NIC is enslaved,
-> it
-> IS the device that the workstations communicate to. But also it might not
-> because when applications talk to the network they're using BR(n) at
-> 1500bytes.. can a bridging guru shed some light on this for me?
->
-> -Thank you in advance
-> Chris
 
-The bridge does not care about frame size at all. It should be able
-to handle large frames, provided:
-* all interfaces in the bridge can handle the same big mtu, there is
-  no way a bridge can fragment.
-* also, the mtu of the bridge itself will always appear as 1500, but
-  you could change that with ifconfig.  Thought about having bridge mtu
-  appear as min(ports mtu), but don't think that is in the current version.
+Currently my ethernet bridge has 2 intel 100mps NIC's that are
+both part of a bridge. ( I followed the sample setup on the bridge.sf.net
+page.)
+
+In addition to this I would like to access the internet from within the
+ethernet bridge and when using the sample instructions I have no
+gateway setup and no default route (0.0.0.0).  I know this data has
+to be attached to the bridge device and not to an ethX card but I
+don't know how to do this.
+
+Also I would like the bridge to come up and the ethX cards to be
+added and the bridge configured at boot.  I don't like the idea
+of using a rc.local script and would like to use /etc/sysconfig/network
+if this is possible.   Is there a setup doc that describes this somewhere?
+
+Thanks for the help
+
+Adam :o)
 
 
