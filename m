@@ -1,16 +1,13 @@
-Date: Tue, 18 Jan 2005 13:57:35 -0800
-From: "David S. Miller" <davem@davemloft.net>
-Message-Id: <20050118135735.4b77d38d.davem@davemloft.net>
-In-Reply-To: <1105133241.3375.16.camel@localhost.localdomain>
-References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
-	<p73zn0ccaee.fsf@verdi.suse.de>
-	<1105117559.11753.34.camel@baythorne.infradead.org>
-	<20050107100017.454ddadc@dxpl.pdx.osdl.net>
-	<1105133241.3375.16.camel@localhost.localdomain>
+Date: Wed, 19 Jan 2005 02:33:17 +0100
+From: Jody Belka <lists-bridging@pimb.org>
+Subject: Re: [Bridge] bridge in 'hub' mode possible?
+Message-ID: <20050119013317.GA22664@faith.gentoo.org>
+References: <41B03950.5000106@web.de> <017001c4d957$f0f29b70$0100a8c0@raider>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: do_IRQ: stack overflow: 872..
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <017001c4d957$f0f29b70$0100a8c0@raider>
+Sender: "Jody Belka,,,,knew@pimb.org" <jmb@mccarroll.org.uk>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,27 +16,32 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netdev@oss.sgi.com, bridge@osdl.org, snort2004@mail.ru, rusty@rustcorp.com.au, dwmw2@infradead.org, ak@suse.de, shemminger@osdl.org
+To: bridge@osdl.org
 
-On Fri, 07 Jan 2005 22:27:21 +0100
-Bart De Schuymer <bdschuym@pandora.be> wrote:
-
-> How about something like the patch below (untested but compiles)?
-> The current netfilter scheme adds one function call to the call chain
-> for each NF_HOOK and NF_HOOK_THRESH. This can be prevented by executing
-> the okfn in the calling function instead of in nf_hook_slow().
-> I didn't check if there's any code that actually uses the return value
-> from NF_HOOK. If so, this patch won't work well in its current form as -
-> EPERM is now also returned for NF_QUEUE and NF_STOLEN.
+On Fri, Dec 03, 2004 at 11:48:35AM -0500, Roman Chertov wrote:
+> > I wonder if it would be worth to introduce some kind of "monitor
+> > interface" for a brigde (as can be found on switches, don't know if
+> > "monitor port" would be the correct term for it).
+> > 
+> I have already made one for the 2.4.20 kernel module and the 1.0.4
+> bridge-utils.  Since I was making this for the Emulab testbed I also had
+> to change the src/dst MACs that were going to the tap; otherwise, the
+> underlying switch would drop the mirrored packets as their MAC's were
+> not registered on the VLAN where the tap sat.  
 > 
-> Another 2 calls of okfn can be postponed in br_netfilter.c by adding
-> NF_STOP, which would work like NF_STOLEN except that okfn is still
-> called. But I'd first like to get the IPv4/IPv6 fix for br_netfilter.c
-> accepted (see another thread on netdev).
+> If people have any interest in this I can share with the code.
 
-I believe I put in your ipv4/ipv6 br_netfilter fix already.
+I'd be interested in something like this. Maybe something along the lines of:
 
-This NF_HOOK() change looks interesting.  Could we also do something like
-running the deeper ->hard_start_xmit() via a triggered tasklet or something
-similar?
+brctl addtap <bridge> <device>    # only allow 1 tap? i'd guess so, but if not
+brctl deltap <bridge>             # then add a <device> param to deltap
+
+This would be very useful for me, as it would make hooking up snort
+to a linux bridge very nice and easy.
+
+
+J
+
+-- 
+Jody Belka
+knew (at) pimb (dot) org
