@@ -1,9 +1,11 @@
-Date: Tue, 18 May 2004 08:54:21 -0700
+Date: Tue, 18 May 2004 15:33:10 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] BPDU generation problem
-Message-Id: <20040518085421.5a2bae86@dell_ss3.pdx.osdl.net>
-In-Reply-To: <s0aa7d92.047@EMAIL>
-References: <s0aa7d92.047@EMAIL>
+Subject: Re: [Bridge] bridging bluetooth bnep devices with kernel 2.6.6-*
+Message-Id: <20040518153310.6ca39ef5@dell_ss3.pdx.osdl.net>
+In-Reply-To: <1084788177.21864.54.camel@igno>
+References: <1084467136.3083.27.camel@igno>
+	<20040513102829.5d5e1484@dell_ss3.pdx.osdl.net>
+	<1084472140.3354.9.camel@igno> <1084788177.21864.54.camel@igno>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,24 +17,49 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Kishore A K <kishoreak@myw.ltindia.com>
-Cc: bridge@lists.osdl.org
+To: Diego Liziero <liziero.diego@unimore.it>
+Cc: bluez-devel@lists.sourceforge.net, bridge@lists.osdl.org
 
-On Tue, 18 May 2004 21:18:01 +0530
-"Kishore A K" <kishoreak@myw.ltindia.com> wrote:
+On Mon, 17 May 2004 12:02:58 +0200
+Diego Liziero <liziero.diego@unimore.it> wrote:
 
-> Hi Stephen,
+> Thanks for your support.
 > 
-> I have been studying the bridge source & analyzing its flow by putting printks
-> at various places. I am using kernel 2.6.6. I found something really strange 
-> happening..
+> I'm back with the "brige freezes when bluetooth bnep0 disconnects
+> before bnep1" issue.
 > 
-> I have setup a bridge with two ports. I havent enabled stp on the bridge. Which
-> I have confirmed by doing a "brctl show" also. However from the printks I find 
-> that BPDUs are getting generated & sent on the ports. Isnt this not supposed to 
-> happen?
+> As reported in the bluez-devel mailing list, in a bridge
+> called pan0 with the interfaces bnep0, bnep1, .. bnep6
+> connected, if the interface bnep6 is disconnected first,
+> everything works fine, but if bnep0 is disconnected before
+> the others, the bridge stops to work.
+> 
+> Arping from bnep1 to the brige results in just the first
+> answer received.
+> 
+> To make it work again I have to use the following dirty hack:
+>  brctl delif pan0 bnep1
+>  brctl addif pan0 bnep1
+> 
+> Someone in the bluez-devel mailing list told that also setting the
+> bridge in promiscuous mode with tcpdump makes the bridge
+> back to work.
+> 
+> Now I'm removing and re-adding all the bridge components
+> when hotplug detects that a "bnep?" device ceases to exist.
+> 
+> Any better solution?
 > 
 > Regards,
-> Kishore
+> Diego
 
-Probably just a stupid bug. 
+Sounds like an issue with how the bnep does promiscious mode.
+Do you see messages on the console like:
+	device bnep0 left promiscious mode
+
+Also, the bnep driver seems to need BT_BNEP_MC_FILTER enabled
+to do multicast.  
+
+When you remove bnep0 first, what does "brctl showstp pan0" show?
+
+
