@@ -1,12 +1,11 @@
-Message-ID: <006501c40c49$bbf3cec0$7005640a@internal.watertech.com>
-From: "Chris Shaw" <chriss@watertech.com>
-References: <200403171813.58862.mangel@gmx.de>
-Subject: Re: [Bridge] bridge wlan-eth
-Date: Wed, 17 Mar 2004 10:00:16 -0800
+Message-Id: <200403181835.i2IIZpo4031856@mail.kaixo.com>
+Date: Thu, 18 Mar 2004 19:35:51 -0000
+From: "Zaikxtox" <zaikxtox@kaixo.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="iso-8859-1";
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Iptables does not filter on 2.4.25 - Continued
+Reply-To: Zaikxtox <zaikxtox@kaixo.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,50 +16,28 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-I know this is off topic but...
+Hello.
+I have tested again and the default policy for INPUT, FORWARD and OUTPUT is
+DROP
+also there is a single rule matching anything as source and anything as
+destination with action DROP
+also
+"cat /proc/sys/net/ipv4/ip_forward "
+says "0"
+The connecting machine has a single cable to my bridge, so there is no other
+way to go trough the net.
+But netfilter does not stop the trafic!!!
+i tried with a stock debian 2.4.25 kernel, and a 2.4.25 kernel comiled in
+house.
+I have already used bridge + iptables with 2.4.19 kernel, so i know how it
+should work.
+some help or know bugs??
+is someone used bridge + netfilter on a 2.4.25 kernel and it works please
+write me!
+thanks.
+IVan
 
-check out the Jouni Malinen's HostAP driver homepage at:
 
-http://hostap.epitest.fi
-
-It enables the special "HostAP" functionality of the Harris/Intersil Prism
-2/2.5/3 chipset which allows your card to act as a full AP (and also do
-wireless -> ethernet bridging.)
-
-Some Atmels work with this driver, YMMV...
-
-    -Chris
-
-
------ Original Message -----
-From: "Christoph Kaminski" <mangel@gmx.de>
-To: <bridge@lists.osdl.org>
-Sent: Wednesday, March 17, 2004 9:13 AM
-Subject: [Bridge] bridge wlan-eth
-
-
-> Hi!
->
-> I have some problems with an bridge between wlan0 and eth0 device...
->
-> It works and I can from both sides ping the router with the bridge device
-but
-> I cant ping the devices from other net so I cant ping wlan devs from eth
-net
-> and other way around
->
-> the wlan card is an atmel usbw11 from linksys and eth is a intel e100
-> 10/100mbit nic
->
-> I have configured the bridge according to the how to and dont see any
-errors
-> in kern.log or somewhere else....
->
-> What is wrong?
->
-> PS: sorry for my english but I hope you can understand what I mean
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
-
+________________________________________________
+Kaixo! (http://www.kaixo.com)
+Portal de Euskadi - Euskadiko ataria
