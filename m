@@ -1,14 +1,11 @@
-Date: Fri, 16 Jan 2004 11:07:52 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Freezing bridges
-Message-Id: <20040116110752.1c70ff18.shemminger@osdl.org>
-In-Reply-To: <1074155350.3994.16.camel@haruka>
-References: <1074096593.12422.1.camel@haruka>
-	<20040114124305.5a68c7c2.shemminger@osdl.org>
-	<1074155350.3994.16.camel@haruka>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <001401c3dc66$520a7da0$0201a8c0@hawk>
+From: "Christopher S. Aker" <caker@theshore.net>
+Date: Fri, 16 Jan 2004 13:24:09 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] received packet with  own address as source address
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,33 +14,49 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jeroen Hoek <jeroen.hoek@dcf.nl>
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-On Thu, 15 Jan 2004 09:29:11 +0100
-Jeroen Hoek <jeroen.hoek@dcf.nl> wrote:
+Hello,
 
-> On Wed, 2004-01-14 at 21:43, Stephen Hemminger wrote:
-> > Sounds like the bridge freezes, but the server doesn't really crash.
-> > Is there any console output or message log when this occurs?
-> > 
-> > Are you running spanning tree protocol?
-> > Are the machines SMP or UP?
-> > What is the output of brctl show and ifconfig when the network freezes?
-> 
-> Well, the servers become unapproachable. Ssh fails (although ping and
-> daytime/xinetd work) and attaching a monitor and keyboard to the
-> physical machine shows only a blank screen instead of a loginprompt. The
-> logs show nothing at all afterwards. There seems to be some life left in
-> the server during these freezes, but no ssh or tunnels.
-> 
-> I have STP turned on on the bridges, although there is no chance of a
-> networkloop. Should this be turned off?
+I manage a number of servers all running 2.4 (same problem exists with 2.6).  My
+problem is that since a few bridge versions ago, I've had to modify
+net/bridge/br_fdb.c in the br_fdb_insert() function -- to get rid of the checks
+that produce this error:
 
-Unless, you need to discover other bridges turn it off.
-Just looking for what could disturb your system after it is running.
-In 2.6 (and later 2.4) kernels STP defaults to off, to avoid potential
-problems with those that don't need it.
+Jan 16 10:35:31 host15 kernel: tap_0: received packet with  own address as source
+address
+Jan 16 10:35:33 host15 kernel: tap_0: received packet with  own address as source
+address
 
-You could try 2.6 (2.6.1) on one machine, it would at least provide information
-about whether this problem has already been fixed.
+My specific setup is: br0 assigned an IP, with eth0 added to the bridge with no
+IP.  I create tap devices, assign them no IP address but a unique MAC.  On the
+other end of each tap device is an UML virtual machine's eth0.   My machines are
+SuperMicro 6013 dual xeon boxes with e1000, and a 5012 box with e100 NICs.  I
+don't believe this is a checksum issue raised a while back.  STP is off.  Settings
+for setfd and sethello make no difference.   As soon as UML brings up its eth0
+interface, the messages appear.
+
+I'm really not a kernel hacker, but I was able to look at previous versions of the
+file and more or less just comment out the "if (unlikely(fdb->is_local))"
+statement.  This is what I've been using for the past few months.  It seems to
+work as it did before this new check was put in place.  But, I still have a
+problem where showmacs displays this for each tap interface:
+
+  2     fe:fd:45:38:ad:f1       no                 4.88
+  2     fe:fd:45:38:ad:f1       yes                0.00
+
+Two entries for the same interface -- a local, non-expiring fdb entry, and a
+non-local expiring fdb entry.  Once the non-local fdb entry times out, the tap
+loses connectivity from the world.  If I log into the host machine locally and
+ping an IP on the TAP interface, it comes back alive.  Same goes for logging into
+the UML's console and pinging the host.  I've had this problem even with the older
+bridge code.  I think all this is related to the real problem.  Looks like
+something isn't detecting traffic as local, or perhaps it needs special handling
+for this case?
+
+Others have been using the identical bridge setup, minus the e100/1000 cards, and
+haven't reported either of these problems.  Any advice would be appreciated.
+
+Regards,
+-Chris
+
