@@ -1,15 +1,10 @@
-Date: Sat, 12 Jun 2004 02:42:11 -0600
-From: Erik Andersen <andersen@codepoet.org>
-Subject: Re: [uClibc] Re: [Bridge] Little problem with 1.x versions
-	(if_indextoname)
-Message-ID: <20040612084211.GB3491@codepoet.org>
-References: <s0bef17a.034@post2.controlware.de>
-	<20040603104100.2ae94cb2@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040603104100.2ae94cb2@dell_ss3.pdx.osdl.net>
-Reply-To: andersen@codepoet.org
+Message-ID: <40CEF596.1090000@ieee.org>
+Date: Tue, 15 Jun 2004 09:11:50 -0400
+From: Bob Beers <bbeers@ieee.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge wlan-eth
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,27 +13,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: uclibc@uclibc.org, "Harald =?ISO-8859-1?B?S/x0aGUi?= <Harald.Kuethe@controlware.de>"@osdl.org, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
+Cc: bbeers@ieee.org
 
-On Thu Jun 03, 2004 at 10:41:00AM -0700, Stephen Hemminger wrote:
-> Rather than copy more code back into the bridge-utilities, how
-> about applying this change to uClibc?  I hate when packages get
-> cluttered for workarounds for other incompatibilities.
-> 
-> The problem is that SIOCGIFCONF only lists interfaces that have
-> IP addresses, so it doesn't find the other interfaces that are
-> being used for bridging. It could be fixed in the kernel to
-> return all interfaces, but then something else might break; and
-> still it mean a kernel update for the 2.4 users. 
-> 
-> The whole use of ifindex in the bridge API is a bad idea. But
-> we probably have to live with it for compatibility.
+Hi list,
 
-Thanks.  Patch applied,
+I am not subscribed to this list, but I hope someone will
+know the solution to my problem ...
 
- -Erik
+I have checked the archives and there was a thread:
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+<http://lists.osdl.org/pipermail/bridge/2004-March/000224.html>
+
+that did not really get resolved.  I have discovered something
+about this situation that I hope someone can shed more light on.
+
+Using hostap driver in AP mode, with a netgear MA311 or
+  linksys WMP11, (both PCI), with older firmware
+
+NIC: id=0x8013 v1.0.0
+PRI: id=0x15 v1.0.7
+STA: id=0x1f v1.3.6
+
+bridge eth-wlan works great, but after "upgrading" to newer
+  firmware (to get essid hiding feature),
+
+NIC: id=0x8013 v1.0.0
+PRI: id=0x0015 v1.1.1
+STA: id=0x001f v1.7.4
+
+bridge no longer works, even though there is no apparent (to me)
+indication of error.
+
+Is there info somewhere that tells about what was "fixed" in
+different firmware versions for prism chips, or better is there
+some workaround in the bridge code that I don't yet know about
+to overcome this issue?
+
+I guess I will test all the firmware versions I can get onto
+  my cards and see where it broke, but if anyone already knows
+  where the problem really comes from, please let us all know.
+
+Thanks,
+
+-Bob
+-- 
+Bob Beers
+MIEEE 2415966
+
