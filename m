@@ -1,12 +1,11 @@
-Subject: Re: [Bridge] [PATCH] netlink message on bridge address change
-From: Stephen Hemminger <shemminger@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0409300921430.13917-100000@dane-linux.ai.aiinet.com>
-References: <Pine.LNX.4.44.0409300921430.13917-100000@dane-linux.ai.aiinet.com>
-Content-Type: text/plain
-Date: Thu, 30 Sep 2004 09:44:33 -0700
-Message-Id: <1096562673.17672.0.camel@localhost.localdomain>
+Message-ID: <b53e36d604100104544b58c49b@mail.gmail.com>
+Date: Fri, 1 Oct 2004 17:24:26 +0530
+From: "Jothis T.V" <jothistv@gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridge + Teql!
+Reply-To: "Jothis T.V" <jothistv@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,13 +14,26 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: dane@aiinet.com
-Cc: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Thu, 2004-09-30 at 09:23 -0400, Dan Eble wrote:
-> Is this an acceptable way to notify a daemon when a bridge address 
-> changes?
+Dear Gurus,
 
-Probably, but you need to do it against the 2.6 code (which is
-different).  I consider the 2.4 pretty firmly frozen.
+	Can you please help/guide me with the following:
 
+	I have 3 NICs in my Linux RH 9 (kernel 2.4.20) machine. (eth0, eth1
+and eth2). I want to setup a 'link equalizer' (teql) between eth0 and
+eth1. This I am able to do with the required commands (using the
+utilities 'tc' and 'ip').
+
+	Now I need to setup a bridge between eth2 and this new interface
+'teql0'. This is not possible as 'teql' is not a 'bridgable'
+interface.
+
+	Is it possible to rewrite the 'teql' in such a way as to enable it to
+be bridged? Or should I look into any different approach for attaining
+this?
+
+Thanks in advance for any help/pointers you can provide.
+
+regards,
+Jothis
