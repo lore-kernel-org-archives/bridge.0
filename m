@@ -1,6 +1,6 @@
 From: Daniel Risacher <magnus@alum.mit.edu>
-Message-Id: <E1CsVkJ-0004R5-00@m5.risacher.org>
-Date: Sat, 22 Jan 2005 19:36:51 -0500
+Message-Id: <E1CssQO-0006qt-00@m5.risacher.org>
+Date: Sun, 23 Jan 2005 19:49:48 -0500
 Subject: [Bridge] Unexpected bridge behavior (Bug? You decide.)
 Reply-To: magnus@alum.mit.edu
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
@@ -11,8 +11,10 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org, netdev@oss.sgi.com
+To: bridge@lists.osdl.org
 
+
+[resend; wrong address]
 
 While using the linux bridge module in 2.6.10, the kernel seems to
 munge the source IP address of broadcast UDP packets if they come from
