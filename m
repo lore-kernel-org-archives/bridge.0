@@ -1,13 +1,14 @@
-Message-ID: <408D36CC.10903@candelatech.com>
-Date: Mon, 26 Apr 2004 09:20:28 -0700
-From: Ben Greear <greearb@candelatech.com>
+From: Bart De Schuymer <bdschuym@pandora.be>
+Subject: Re: [Bridge] ethernet bridge + iptables
+Date: Tue, 27 Apr 2004 19:51:16 +0200
+References: <010701c42ba3$288f2570$41317d9e@keziah>
+In-Reply-To: <010701c42ba3$288f2570$41317d9e@keziah>
 MIME-Version: 1.0
-Subject: Re: [Bridge] br: memory squeeze!
-References: <4086A897.50305@austin.rr.com>
-	<20040426085941.0cb17f53@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040426085941.0cb17f53@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404271951.16326.bdschuym@pandora.be>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,43 +17,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: Mark Sandford <J.M.Sandford@lboro.ac.uk>, bridge@osdl.org
 
-Stephen Hemminger wrote:
-> On Wed, 21 Apr 2004 12:00:07 -0500
-> TC Hough <tchough@austin.rr.com> wrote:
-> 
-> 
->>I set up a bridge for my network and I'm having some trouble.  At first 
->>everything worked great, but after about 3 days of continuous bridging, 
->>my bridge machine died.  Approximately once a second, the message: "br: 
->>memory squeeze!" would appear on the console.  Keyboard input was mostly 
->>frozen, as well.  I could switch virtual consoles, but I couldn't type.  
->>No traffic would pass through the bridge.  When I rebooted, everything 
->>seemed fine.
-> 
-> 
-> 
-> You have a memory leak in the kernel. What kernel and distro are you
-> using.  Also, what kind of NIC's and other interfaces (tun, ppp, etc).
-> 
-> Also, what is the state of the bridge?	br showstp br0
-> and the forwarding table?	br showmacs br0
+On Monday 26 April 2004 17:28, Mark Sandford wrote:
+> I've since been using 2.4.25 kernel (and then 2.4.26).  Kernel compiles and
+> the system doesn't hang when the bridge comes up but I don't seem to be
+> able to get it to actually do the bridging.  (Bridging does work with
+> initial rh9 install).  The ethernet cards work fine until I bring the
+> bridge up.  After that I can't ping from the bridge or forward packets
+> through the bridge.
+>
+> I'm wondering whether I've incorrectly set/missed some options while
+> configuring the kernel but I don't know what to try.
+>
+> Any clues / pointers hugely appreciated.
 
-I agree it is probably a memory leak, but it is *possible* to get this
-error if you just run out of available memory.  I have been able to
-reproduce this type of error by setting my send/receive packet socket
-buffers very high and then flooding 200 connections with traffic, for example.
-(I had a 256MB RAM machine)
+Please check your firewalling rules.
 
-You might want to make sure that your netdev-backlog settings are not too
-big, for example.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+cheers,
+Bart
 
