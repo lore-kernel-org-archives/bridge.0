@@ -1,9 +1,9 @@
-Date: Thu, 2 Dec 2004 11:14:42 -0800
+Date: Thu, 2 Dec 2004 11:16:12 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] About simple bridging using Fedora Core 2
-Message-Id: <20041202111442.7dd3dbb3@dxpl.pdx.osdl.net>
-In-Reply-To: <1097297374.41676ddf020df@webmail.cuhk.edu.hk>
-References: <1097297374.41676ddf020df@webmail.cuhk.edu.hk>
+Subject: Re: [Bridge] ebtables configuration in 2.6.8 kernel
+Message-Id: <20041202111612.312ec1c9@dxpl.pdx.osdl.net>
+In-Reply-To: <34494.192.168.36.204.1097052936.squirrel@192.168.36.204>
+References: <34494.192.168.36.204.1097052936.squirrel@192.168.36.204>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,51 +15,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Wu Yiu Kei <wuyiukei@cuhk.edu.hk>
+To: pkumar@students.iiit.net
 Cc: bridge@lists.osdl.org
 
-On Sat,  9 Oct 2004 12:49:35 +0800
-Wu Yiu Kei <wuyiukei@cuhk.edu.hk> wrote:
+On Wed, 6 Oct 2004 14:25:36 +0530 (IST)
+pkumar@students.iiit.net wrote:
 
-> Hi, I am a beginner of bridge. I have a problem of using Fedora Core 2 to make a
-> simple bridge. Here is my setup:
+> Hi everyone,
+>             I am working on packet filtering at mac layer.
+> I want to use ebtables.
 > 
-> The bridge computer is installed with Fedore Core 2 (with the SE Linux patch).
-> As I know that kernel 2.6.5 is already support bridging by default, so I didn't
-> recompile the kernel. Then I installed bridge-utils-0.9.6-1.i386. And no
-> additional configuration is made. After comfirming that the 2 ethernet cards
-> for bridging (eth1 & eth2) are working properly, I build up a bridge by the
-> following commands:
-
-The bridge-utils package on sourceforge.net is up to 1.0.4, with 1.0.5
-due out today.
-
-
-> #ifconfig eth1 0.0.0.0 promisc
-> #ifconfig eth2 0.0.0.0 promisc
-Dont need to put them in promiscious mode.
-
-> #brctl addbr mybridge
-> #brctl addif eth1
-> #brctl addif eth2
-> #ifconfig mybridge up
-
-How are you adding the IP address to mybridge (assuming you want that host
-to talk on the internet). Usual is:
-	ifconfig mybridge xx.xx.xx.xx
-
-
-> Notice that eth1 is connect to the internet directly, and eth2 is connected to a
-> host. After setting up the bridge, I tried to use the host to access the
-> internet, but the behaviour is very strange. It seems that the traffic through
-> the bridge is extremely slow. It's too slow to request even a webpage. But some
-> tcp connection can really be established, like up2date. I have checked the
-> memory of the bridge, but it doesn't seem to be run out of memory.
+> I am using Fedora core 2.
 > 
-> So, what's wrong with my bridge? Could anyone help me?
-
-Some useful info:
-
-brctl show
-brctl showstp mybridge
-brclt showmacs mybridge
+> But I am unable use the ebtables eventhough all the modules are enabled at
+> the time of kernel compilation.
+> 
+> Plz suggest me how to use ebtables in Fedora core 2
+>
+Look at http://ebtables.sourceforge.net/
+and ask on ebtables-users@lists.sourceforge.net
