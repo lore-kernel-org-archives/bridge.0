@@ -1,9 +1,9 @@
-Date: Mon, 26 Apr 2004 08:54:38 -0700
+Date: Mon, 26 Apr 2004 08:57:31 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Which NICs are the best for bridges?
-Message-Id: <20040426085438.048785f5@dell_ss3.pdx.osdl.net>
-In-Reply-To: <D5906FCC-9392-11D8-814D-000502CB9573@bauwut.de>
-References: <D5906FCC-9392-11D8-814D-000502CB9573@bauwut.de>
+Subject: Re: [Bridge] bridging ipv6
+Message-Id: <20040426085731.433ffcab@dell_ss3.pdx.osdl.net>
+In-Reply-To: <408C4DAF.5000206@netcabo.pt>
+References: <408C4DAF.5000206@netcabo.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,39 +15,60 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: christian funk <c.funk@bauwut.de>
+To: filipe abrantes <filipe_abrantes@netcabo.pt>
 Cc: bridge@lists.osdl.org
 
-On Wed, 21 Apr 2004 14:53:06 +0200
-christian funk <c.funk@bauwut.de> wrote:
+On Mon, 26 Apr 2004 00:45:51 +0100
+filipe abrantes <filipe_abrantes@netcabo.pt> wrote:
 
-> Hello,
+> hello all:
 > 
-> I seem to remember seeing a notice about NICs with RealTek Chips 
-> (specifically those using the 8139 Chip) being unstable and slow. This 
-> notice has since vanished (removed or reworded?).
+> im trying to set up a bridge for ipv6, but i cant manage to get it 
+> working, does someone have experience with this?
 
-They have problems in 2.4 because they have a relatively small receive
-buffer (32k), and need to copy the data into socket buffers during the
-receive interrupt.  The 2.6 driver uses NAPI, so the interrupt load should
-be less, and allocation/copying doesn't happen with interrupts disabled.
+Kernel version, and other info please.
 
-> Can someone tell me if this problem has been fixed, or suggest stable 
-> (and fast) NICs I could use instead. My options seem to be Intel, 
-> VIA-Rhine or RealTek 8139C based models only.
+> i used the common :
 > 
-> I'm trying to set up a box that will support multiple independent 
-> bridges, i.e. with 4 or more dedicated hardware interfaces. 4 Port NICs 
-> would be great for this, but since they are expensive, it would be nice 
-> to know if they work, before buying them.
+> brctl addbr br0
+> brctl addif br0 eth0
+> brctl addif br0 eth2
+> 
+> then to set up the ip's i tried
+> 
+> ifconfig eth0 inet6 add ::/0
 
-My experience with Intel cards has been good, the new e100 driver is
-much cleaner better than the old 2.4 driver. The eepro driver seems to
-work as well, but it is pretty much unmaintained.
+There is no point in using ipv6, here it is just enabling the
+interfaces.
+	ifconfig eth0 up
+or	ifconfig eth0 0.0.0.0
+does the same thing.
 
-> Thanks
+> ifconfig eth2 inet6 add ::/0
+> ifconfig br0 inet6 add 2020::2/128
 > 
-> Christian Funk
+> and also tried(the above didnt work for me):
+> 
+> removing all addresses from all bridged interfaces (even the link local 
+> ones).
+ 
+What is the state of eth0, eth2, and br0?
+Does the bridge work for packets going through?
+Can you ping anything?
+What about doing a tcpdump on br0?
+
+
+> Another question:
+> 
+> Is there any way i can set up a bridge and then block all level 2 
+> forwarding between the bridged interfaces?
+
+That is called bonding, use it instead of bridging.
+
+> I know it seems odd, but the idea was to have only one interface to 
+> handle the other two - its good for ipv6 multicasting,  that way you 
+> dont need to bind sockets to all interfaces.
 > 
 > 
+> thanks a lot
 > 
