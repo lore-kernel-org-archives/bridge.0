@@ -1,14 +1,9 @@
-Date: Mon, 10 May 2004 12:21:49 -0400
-From: Ali Bahar <alih@internetDog.org>
-Subject: Re: [Bridge] RSTP Implementarion for Linux
-Message-ID: <20040510162149.GA2190@internetDog.org>
-References: <200405071501.48203.fmtrindade@inf.ufrgs.br>
-	<20040509032323.GA19986@internetDog.org> <409F16DD.2090600@web.de>
+From: "Joanne Ooi" <missjoanneooi@hotmail.com>
+Date: Mon, 10 May 2004 23:59:50 +0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <409F16DD.2090600@web.de>
-Reply-To: alih@internetDog.org
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY13-F26DgTHyKVujz00009790@hotmail.com>
+Subject: [Bridge] bridge between wireless and ethernet card?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,24 +12,17 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
 
-You're right. that's the one.
-thanks,
-ali
+Hi, now i am using cqureap doing the project, i know the cqureap 2.5 is 
+build on bridge utils, so i want to check with you guys, it's that possible 
+to bridge between eth0 with the wlan0? Now, i got three computers, one i 
+used it as a bridge, it contains two network cards one is wireless card and 
+another one is ethernet card. So, i read through the documentation you all 
+provided, i am curious to know how to configure between ethernet and 
+wireless card. thanks for willing to help.
 
-On Mon, May 10, 2004 at 07:45:01AM +0200, Michael Renzmann wrote:
-> Ali Bahar wrote:
-> >>Does anybody know if there is a implementation of the RSTP (Rapid 
+_________________________________________________________________
+Download the latest MSN Messenger http://messenger.msn.com.my
 
-> >I saw something on freshmeat.net a while ago. AFAIK there is nothing
-
-> Freshmeat doesn't give any results when searching for "rstp", but sf.net
-> has the following project listed:
-> 
-> http://rstplib.sourceforge.net/
-
--- 
-                     Single State Solution
-     Israeli Citizenship & Democratic Rights For All in Gaza & West Bank
