@@ -1,7 +1,7 @@
-Message-ID: <AD59566A9D83864F871AE2E52503064001663DA7@aimail.aiinet.priv>
-From: "Eble, Dan" <DanE@aiinet.com>
+Message-ID: <85FF18B4F608D6119F100002A5CE7B890D13BFE3@rocmx1.cs.myharris.net>
+From: "Wise, John" <jwise03@harris.com>
 Subject: RE: [Bridge] Brctl addif <bridge> ppp0
-Date: Tue, 24 Feb 2004 07:21:30 -0500
+Date: Tue, 24 Feb 2004 08:22:20 -0500
 MIME-Version: 1.0
 Content-Type: text/plain
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
@@ -12,18 +12,41 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "'Wise, John'" <jwise03@harris.com>
+To: "'Eble, Dan'" <DanE@aiinet.com>, "Wise, John" <jwise03@harris.com>
 Cc: bridge@osdl.org
+
+Dan,
+
+Thanks for the info. I did a Google groups search to see if I could find details
+of your previous work, but didn't find it. The system I am working with is i386,
+2.4.20-8 for kernel and 2.4.1-10 for pppd. Any details you can share about how
+to progress will be greatly appreciated.
+
+Regards,
+John Wise
+Harris Corporation - RF Communications Division
+john.wise@harris.com
++1 585 242-3295
+
+
+
+
+-----Original Message-----
+From: Eble, Dan [mailto:DanE@aiinet.com] 
+Sent: Tuesday, February 24, 2004 7:22 AM
+To: 'Wise, John'
+Cc: bridge@osdl.org
+Subject: RE: [Bridge] Brctl addif <bridge> ppp0
+
 
 Duh, I should have noticed this the first time.
 You can't bridge ppp0 because Linux doesn't support BCP without patching the
 kernel and pppd.
 
-I posted such patches about 8 months ago.  There have been a few
-enhancements and bug fixes since then.  Would you like me to put new ones
-together?  The drawback is that they would apply to kernel 2.4.21-pre4
-(PowerPC) and pppd 2.4.1, not the latest and greatest.  Would that work for
-you?
+I posted such patches about 8 months ago.  There have been a few enhancements
+and bug fixes since then.  Would you like me to put new ones together?  The
+drawback is that they would apply to kernel 2.4.21-pre4
+(PowerPC) and pppd 2.4.1, not the latest and greatest.  Would that work for you?
 
 --
 Dan Eble <dane@aiinet.com>  _____  .
@@ -48,16 +71,16 @@ Thanks for the reply. Yes, here's the dialog
 br_add_interface: Invalid argument
 
 Note - it doesn't seem to matter if I set any of the interfaces down or to
-0.0.0.0. It appears as though it really doesn't like ppp interfaces. BTW,
-making all ethernet bridges works just fine, so it's not like bridging
-itself doesn't work.
+0.0.0.0. It appears as though it really doesn't like ppp interfaces. BTW, making
+all ethernet bridges works just fine, so it's not like bridging itself doesn't
+work.
 
 Thanks again.
 Regards, 
 John Wise 
 Harris Corporation - RF Communications Division 
 john.wise@harris.com 
-+1 585 242-3295 
++1 585 242-3295
 
 
 -----Original Message-----
