@@ -1,12 +1,12 @@
-content-class: urn:content-classes:message
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="Windows-1252"
-Date: Wed, 14 Jul 2004 12:38:18 -0500
-Message-ID: <30F5491FC3F68047925F0F51C190BCD701571028@ACDFWMAIL1.acd.de.ittind.com>
-From: "Saxer, John -ACDSD" <John.Saxer@itt.com>
+	charset="us-ascii"
+Subject: RE: [Bridge] Bridge support unavailable
+Date: Wed, 14 Jul 2004 17:37:35 -0500
+Message-ID: <D1BBAADDE65D9646B5F0C6332C038B4E06F147@mbgexc.mbgdocs.com>
+From: "Bert Hubbs" <bhubbs@mbgdocs.com>
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Making a bridge work without source address spoofing
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,22 +15,102 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Bruce Ferrell <bferrell@baywinds.org>
+Cc: bridge@lists.osdl.org
+
+I don't have a modules.conf. I have modprobe.conf and it has alias
+entries for network adapter/driver. I added "alias br0 bridge" but no
+change.
+During boot something is trying to call the bridge up but it can't find
+brctl. Loopback loads then bridge then the three network cards.
+This may come as no surprise but I just discovered that even though I
+was able to build the bridge, when I performed a ifup br0 I got the same
+message I get at boot time.
+
+I'm wondering now if I didn't get brctl installed properly. I never
+found definitive installation instruction so I wondering if anyone knows
+the installation procedure. Do I do a "configure" then a "make" and then
+a "make install" or just "install"?
 
 
-So, I agree, the curent wireless card I have been given does not allow source address spoofing, but I still would like to use bridging. I wonder if anyone has tried modifying the bridge code to encapsulate the actual packet in some way so that the desired source address can be preserved?
+Bert Hubbs
+McGlinchey Stafford and
+Youngblood & Bendalin, PLLC
+2711 N. Haskell Ave.
+Suite 2700, LB 25
+Dallas, TX 75204
+214-257-1817 (direct dial)
+469-235-1817 (mobile)
+214-257-1881 (fax)
 
-I am thinking of something like duplicating the ETH header, adding it to the beginning of the packet, so that there are 2 headers. I know that the wireless card strips the header off, adding its own header, and so it would strip off the extra one, leaving the original unchanged. Then, when the packet arrives, I would add software to strip the wireless header off again, leaving me with the original packet again!
 
-I guess I am thinking that I could add this "extra" header processing in the wireless driver. Do you think this might work?
+-----Original Message-----
+From: Bruce Ferrell [mailto:bferrell@baywinds.org] 
+Sent: Wednesday, July 14, 2004 12:58 AM
+To: Stephen Hemminger
+Cc: Bert Hubbs; bridge@lists.osdl.org
+Subject: Re: [Bridge] Bridge support unavailable
 
-John Saxer
-ITT A/CD San Diego
+OK Stephen,
 
-************************************
-This email and any files transmitted with it are proprietary and intended solely for the use of the individual or entity to whom they are addressed. If you have received this email
-in error please notify the sender. Please note that any views or opinions presented in this email are solely those of the author and do not necessarily represent those of ITT Industries, Inc.
-The recipient should check this email and any attachments for the presence of viruses. ITT Industries accepts no liability for any damage caused by any virus transmitted by this
-email.
-************************************
+I will stipulate the code fragment you've provided is supposed to load 
+the bridge.o module... BUT from the previous statements, it doesn't work
+
+that way for Bert.  As I mentioned my compile of the module has all 
+those nasty undefined symbol errors so until I get that right all I can 
+do is talk about the way other modules work.
+
+Is that fragment from brctl BTW?
+
+Stephen Hemminger wrote:
+> On Tue, 13 Jul 2004 13:15:57 -0700
+> bferrell@baywinds.org wrote:
+> 
+> 
+>>Stephen,
+>>
+>>The module will only autoload if /etc/modules.conf is setup for it.
+Checking  redhat 7.3, redhat 9.0, WhiteBox EL3, Suse 8.0 and Suse 9.0
+systems, none have anything to cause bridge.o to alias to br0.  Those
+are the only systems I have to look at.  I don't know what other distros
+like debian or mandrake do for bridge.o.  They might have it in the
+modules.conf file... Dunno.
+>>
+> 
+> 
+> Wrong!  It gets done by:
+> 	static int sock_ioctl(struct inode *inode, struct file *file,
+unsigned int cmd,
+> 		      unsigned long arg)
+> {
+> 	...
+> 	switch(cmd) {
+> 	...
+> 		case SIOCGIFBR:
+> 		case SIOCSIFBR:
+> 		case SIOCBRADDBR:
+> 		case SIOCBRDELBR:
+> 			err = -ENOPKG;
+> 			if (!br_ioctl_hook)
+> 				request_module("bridge");
+> 
+> 
+> 
+>>So, Bert, you'll need to add something like this to /etc/modules.conf:
+>>
+>>alias br0 bridge
+> 
+> 
+> Don't do that.  It will autoload the bridge, but br0 will not be
+created automatically!
+> I.e. if the configuration script does:
+> 	ifconfig br0 up
+> 
+> Then it will load the bridge module, but since the bridge hasn't been
+created you will
+> get "no such device" error.
+> 
+
+
+The information contained in this e-mail message is intended only for the personal and confidential use of the recipient(s) named above. This message may be an attorney-client communication and/or work product and as such is privileged and confidential. If the reader of this message is not the intended recipient or an agent responsible for delivering it to the intended recipient, you are hereby notified that you have received this document in error and that any review, dissemination, distribution, or copying of this message is strictly prohibited. If you have received this communication in error, please notify us immediately by e-mail, and delete the original message. 
 
