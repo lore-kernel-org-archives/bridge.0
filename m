@@ -1,9 +1,10 @@
-Message-ID: <564DE4477544D411AD2C00508BDF0B6A1DE4F221@USAHM018.amer.corp.eds.com>
-From: "Small, Jim" <jim.small@eds.com>
-Date: Mon, 8 Mar 2004 13:40:35 -0500 
+Message-ID: <018001c404f2$0ce0c3b0$6400a8c0@Wesley>
+From: "Wesley GDS" <wesley@gds.co.za>
+Date: Mon, 8 Mar 2004 11:45:06 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] Bridging on Sparc64
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_017D_01C40502.CCFC8070"
+Subject: [Bridge] Permanent after reboot
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,15 +15,50 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-Using Kernel 2.4.25 and bridge-utils64, I still can not get bridging working
-on the Sparc64 platform.
+This is a multi-part message in MIME format...
 
-Is anyone interested in helping me figure out what's wrong?  If so, what can
-I do?
+------=_NextPart_000_017D_01C40502.CCFC8070
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Would I have better luck using 2.6.X?
+Hi there
 
-Any comments would be greatly appreciated.
+I was just wondering if you could help me.  I have set up a bridge between =
+my two eth cards, works fine.  The problem i have is that when i reboot my =
+PC the bridge is lost.  Is there any way i can make this permanent.
 
-<> Jim
+I am running slackware 9.1
 
+Kind Regards=20
+Wesley Coleman
+------=_NextPart_000_017D_01C40502.CCFC8070
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2800.1400" name=3DGENERATOR>
+<DEFANGED_style_0 </STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hi there</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>I was just wondering if you could help me.=
+&nbsp; I=20
+have set up a bridge between my two eth cards, works fine.&nbsp; The proble=
+m i=20
+have is that when i reboot my PC the bridge is lost.&nbsp; Is there any way=
+ i=20
+can make this permanent.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>I am running slackware 9.1</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Kind Regards </FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Wesley Coleman</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_017D_01C40502.CCFC8070--
