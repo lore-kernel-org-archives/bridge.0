@@ -1,12 +1,9 @@
-Date: Wed, 16 Jun 2004 10:19:04 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20040616101904.27121bd8@dell_ss3.pdx.osdl.net>
-In-Reply-To: <1087379588.72784.vanyew@mail2000.com.tw>
-References: <1087379588.72784.vanyew@mail2000.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: bridge can't get ip by "dhcpcd br0"
+Message-ID: <20040616040423.39364.qmail@web90110.mail.scd.yahoo.com>
+Date: Tue, 15 Jun 2004 21:04:23 -0700 (PDT)
+From: Derek Smalls <dsmalls321@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: [Bridge] Bridging between user processes 
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,63 +12,62 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: vanyew@mail2000.com.tw
-Cc: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 16 Jun 2004 17:53:08 +0800 (CST)
-"vanyew" <vanyew@mail2000.com.tw> wrote:
+Hi, 
 
-> Dear Stephen,
-> 
-> I'm a Linux embedded developer.
-> We want to build the bridge function on our product.
-> 
-> We use brctl to build the bridge device.
-> 
-> [root@localhost /]# brctl show
-> bridge name     bridge id               STP enabled     interfaces
-> [root@localhost /]# brctl addbr br0
-> [root@localhost /]# brctl show
-> bridge name     bridge id               STP enabled     interfaces
-> br0             8000.000000000000       yes
-> [root@localhost /]# brctl addif br0 eth1
-> [root@localhost /]# brctl addif br0 eth2
-> [root@localhost /]# brctl show
-> bridge name     bridge id               STP enabled     interfaces
-> br0             8000.000c294b1073       yes             eth1
->                                                         eth2
-> [root@localhost /]#
-> 
-> By default,we hope our bridge device can get ip from both staic and dhcp.
-> 
-> We can successfully set static ip to br0 by
-> ifconfig br0 192.168.1.99 netmask 255.255.255.0 up
-> 
-> But when we try to get ip from dhcp server for br0,
-> we failed to do this.
-> [root@localhost /]#dhcpcd br0
-> 
-> The bridge device get no ip from dhcpcd server,
-> and I also use ethereal to listen the traffic on eth1 and eth2,
-> we found no any dhcp discover packet was sent out.
-> Only 802.1d (Spanning Tree Protocol) packet was seen.
-> 
-> I have read all articles on http://bridge.sourceforge.net/.
-> I found no any solution to this problem.
-> Do you have any idea to this problem?
+What is the easiest way to bridge between two
+user-space processes that talk directly to Ethernet
+interfaces? 
 
-It is possible to use DHCP on the bridge device.  The problem is that
-the bridge takes some time to go through initial learning states to acquire
-the addresses of other bridges.  This delay is required by the 802 spec to keep
-bridges from disturbing networks.
+I have two applications that write/read Ethernet
+frames to/from Linux Ethernet ports (e.g. eth0). The
+applications can successfully talk to each other when
+they run on two machines connected over Ethernet. I
+would like to be able to test them on a single machine
+without employing the physical network. Would TAP +
+bridging do the job? 
 
-You can see the state by doing:
-	brctl showstp br0
+If so, what am I doing wrong?  Linux 2.4.20, root
+user. I set up tap interfaces like this: 
 
-After the port is in the "Forwarding" state, it is fully operational.
-At that point, you can start dhcp.  
+>tunctl tap4 
+>ifconfig tap4 4.4.4.4 promisc up 
+>tunctl tap5 
+>ifconfig tap5 5.5.5.5 promisc up 
+
+I then set up the bridge and add the tap interfaces to
+it: 
+
+>brctl addbr tapbr 
+>brctl setfd tapbr 0 
+>brctl sethello tapbr 0 
+>brctl stp tapbr off 
+>ifconfig tapbr 7.7.7.7 netmask 255.255.255.0 up
+>brctl addif tapbr tap4 
+>brctl addif tapbr tap5 
+
+I then do a ping over tap4: 
+>ping -I tap4 8.8.8.8 
+
+and tcpdump on tap5: 
+>tcpdump -i tap5 
+
+and see nothing. Shouldn't I see the ping requests on
+tap5 now? 
+
+BTW, if I enable STP on the bridge I start seeing the
+STP frames on tap5. 
+
+Thanks! 
+
+Derek 
 
 
--- 
-Stephen Hemminger 		mailto:shemminger@osdl.org
-Open Source Development Lab	http://developer.osdl.org/shemminger
+
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 
