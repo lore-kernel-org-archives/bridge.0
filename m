@@ -1,10 +1,10 @@
-Date: Thu, 10 Mar 2005 15:44:29 -0800
+Date: Thu, 10 Mar 2005 15:44:32 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20050310154429.0f879894@dxpl.pdx.osdl.net>
+Message-ID: <20050310154432.1163ad2d@dxpl.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH] (1/4) bridge: use jenkins hash
+Subject: [Bridge] [PATCH] (2/4) bridge: get rid of unneeded include
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,42 +14,21 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@oss.sgi.com, bridge@osdl.org
+Cc: netdev@oss.sgi.com, bridge@lists.osdl.org
 
-Replace the existing mac hash in the bridge code with the nice
-inline jenkins hash. This should provide better distribution across
-hash buckets and compiles to code that is similar in complexity.
+Get rid of unneeded include.
 
 Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-diff -Nru a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
---- a/net/bridge/br_fdb.c	2005-03-10 15:05:11 -08:00
-+++ b/net/bridge/br_fdb.c	2005-03-10 15:05:11 -08:00
-@@ -19,6 +19,7 @@
- #include <linux/times.h>
+
+diff -Nru a/net/bridge/br.c b/net/bridge/br.c
+--- a/net/bridge/br.c	2005-03-10 15:06:38 -08:00
++++ b/net/bridge/br.c	2005-03-10 15:06:38 -08:00
+@@ -16,7 +16,6 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+-#include <linux/miscdevice.h>
  #include <linux/netdevice.h>
  #include <linux/etherdevice.h>
-+#include <linux/jhash.h>
- #include <asm/atomic.h>
- #include "br_private.h"
- 
-@@ -57,18 +58,7 @@
- 
- static __inline__ int br_mac_hash(const unsigned char *mac)
- {
--	unsigned long x;
--
--	x = mac[0];
--	x = (x << 2) ^ mac[1];
--	x = (x << 2) ^ mac[2];
--	x = (x << 2) ^ mac[3];
--	x = (x << 2) ^ mac[4];
--	x = (x << 2) ^ mac[5];
--
--	x ^= x >> 8;
--
--	return x & (BR_HASH_SIZE - 1);
-+	return jhash(mac, ETH_ALEN, 0) & (BR_HASH_SIZE - 1);
- }
- 
- static __inline__ void fdb_delete(struct net_bridge_fdb_entry *f)
+ #include <linux/init.h>
