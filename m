@@ -1,14 +1,10 @@
-Date: Wed, 8 Oct 2003 09:33:54 -0700
-From: "David S. Miller" <davem@redhat.com>
-Subject: Re: [Bridge] RE: [VLAN] Re: [PATCH/RFC] Let {ip, arp}tables "see"
-	bridged VLAN tagged{I,AR}P packets
-Message-Id: <20031008093354.265b34a5.davem@redhat.com>
-In-Reply-To: <3F843C8C.4030100@candelatech.com>
-References: <5B537508CDBED3118403009027745A210B8C14A1@knant18.kna.flextronics.com>
-	<3F843C8C.4030100@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-Id: <200310120222.h9C2M5x4026949@fire-1.osdl.org>
+From: Mrs Serena Jones <serenajones1997$@netscape.net>
+Date: Sun, 12 Oct 2003 04:22:08 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="462e5940-b98a-4b0d-96a1-4526f7ed2f3d"
+Subject: [Bridge] DONATION FOR THE LORD.
+Reply-To: serenajones1997@netscape.net
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,24 +13,65 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Ben Greear <greearb@candelatech.com>
-Cc: netdev@oss.sgi.com, vlan@wanfear.com, bridge@osdl.org, tommy.christensen@tpack.net
-
-On Wed, 08 Oct 2003 09:34:20 -0700
-Ben Greear <greearb@candelatech.com> wrote:
-
-> So, what good is skb_share_check then?
-> Maybe we should have a skb_share_or_cloned_check() ?
-
-What input handlers are supposed to do is first:
-
-	skb = skb_share_check(...);
+To: bridge@lists.osdl.org
 
 
-then look at packet contents etc., then if they need to write
-to the header do something like skb_cow().
+This is a multi-part message in MIME format
+--462e5940-b98a-4b0d-96a1-4526f7ed2f3d
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-The best example, as usual, is ipv4 input.  Look at how ip_rcv()
-makes sure it can safely get at the packet header parts it needs
-to parse, then look at ip_forward and how it cows the IPV4 header
-so it can modify the TTL field.
+From: Mrs Serena Jones
+PLEASE ENDEAVOUR TO USED IT FOR THE CHILDREN OF GOD.
+I am the above named person from Kuwait. I am married to Dr.Harry Jones who
+worked with Kuwait embassy in Ivory Coast for nine yearsbefore he died in
+the year 2000.We were married for eleven years without a child. He died
+after a brief illness that lasted for only four days. Before his death we
+were both born again Christians.Since his death I decided not to re-marry or
+get a child outside my  matrimonial home which the Bible is against.When my
+late husband was alive he deposited the sum of$8.6Million (Eight Millionsix
+hundred  thousand U.S. Dollars) with one finance/security company in
+Amsterderm Holland. Presently, this money is still with the Security
+Company. Recently, my Doctor told me that I would not last for the next
+three months due to cancer problem. Though what disturbs me most is my
+stroke sickness. Having known my condition I decided to donate this fund to
+church or better still a christian individual that will utilize this money
+the way I am going to instruct here in. I want a church that will
+use this fund to fund churches, orphanages and widows propagating the word
+of God and to ensure  that the house of God is maintained. The Bible made us
+to understand that Blessed is the hand that giveth.
+I took this decision because I don't have any child that will  inherit this
+money and my husband relatives are not Christians and I don't want my
+husband's hard earned money to be misused by unbelievers. I don'twant a
+situation where this money will be used in an ungodly manner.
+Hence the reason for taking this bold decision. I am not afraid of death
+hence I know where I am going. I know that I am going to be in the bosom of
+the Lord. Exodus 14 VS 14 says that  the lord will fight my case and I shall
+hold my peace. I don't need any telephone communication in this
+regard because of my health because of the presence of my husband's
+relatives around me always. I don't want them to know about this
+development.
+With God all things are possible.  As soon as I receiveyour reply I shall
+give you the contact of the Finance/Security Company in Amsterderm Holland.
+I will also issue you a letter of authority that will prove you as the
+original- beneficiary of this fund. I want you and the church to always pray
+for me because the lord is my shephard. My
+happiness is that I lived a life of a worthy Christian. Whoever that wants
+to serve the Lord must serve him in spirit and truth. Please always be
+prayerful all through your life. Any delay  in your reply will give me room
+in sourcing for a chuch or christian individual for this
+same purpose. Please assure me that you will act accordingly as I stated
+herein.  Hoping to hearing from you. N.B-PLEASE I WILL ADVICE YOU TO GIVE
+THE LAWYER IN CHARGE A CALL IN HOLLAND IMMEDIATELY, HE DOES EVERYTHING ON MY =
+BEHALF AND HE'S VERY UNDERSTANDING AND I BELIEVE HE WILL LEAD YOU TO YOUR
+SUCCESS IN JESUS
+NAME:     Gerry Sly
+Tell:     0031645246626
+Email:   gerrysly@rediffmail.com
+Remain blessed in the name of the Lord.
+Yours in Christ,
+Mrs Serena Jones
+
+  
+--462e5940-b98a-4b0d-96a1-4526f7ed2f3d--
+
