@@ -1,12 +1,13 @@
-Date: Wed, 12 Nov 2003 13:18:06 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20031112131806.2fdfccd1.shemminger@osdl.org>
-In-Reply-To: <20031028112416.GA32122@prolix.local.igalia.com>
+Message-ID: <3FB2C726.4000503@gmx.net>
+Date: Thu, 13 Nov 2003 00:49:58 +0100
+From: David GLAUDE <dglaudemailing@gmx.net>
+MIME-Version: 1.0
 References: <20031028112416.GA32122@prolix.local.igalia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Re: [ethernet bridge] 802.1G ampliation
+	<20031112131806.2fdfccd1.shemminger@osdl.org>
+In-Reply-To: <20031112131806.2fdfccd1.shemminger@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridge that do MSS CLAMP
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,41 +16,26 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "=?ISO-8859-1?Q?Jos=E9?= J. =?ISO-8859-1?Q?Gonz=E1lez?= Alonso" <jjgonzalez@igalia.com>
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-On Tue, 28 Oct 2003 12:24:16 +0100
-Jos=E9 J. Gonz=E1lez Alonso <jjgonzalez@igalia.com> wrote:
+In order to transparently help packet go inside a vpn/tunnel without 
+having to solve the security problem of permiting ICMP packet getting 
+accross a firewal...
 
-> Hi!=20
->=20
-> I am very interested in your project. Concretely, I am interested in the
-> possibility of extending your implementation so that it fulfills the
-> specifications of 802.1G. I read this specifications and they seem
-> "simple" extensions of 802.1D standard.
->=20
-> what do you think about?=20
-> would be it very hard?
-> Is there any documentation of your code?=20
-> (to read the code directly is being a little tedious)
->=20
-> Regards,
-> 	Jos=E9 J. Gonz=E1lez Alonso
->=20
+I would like to use "clamp-mss-to-pmtu" inside a bridge (firewall bridge).
 
-There have been several discussions about this, but very little in concrete=
- work.
-The bridge mailing list might have others that have done something.
+It would bridge every traffic, but alter the Maximum Segment of TCP 
+connection.
 
-A long term goal is to move all the discovery and spanning tree out of the =
-kernel
-and into a user space process.  This user space process would use netlink to
-see interface state changes and as API to the bridge driver.  Also a new im=
-plementation
-in user space could use the standard LLC interface to read bridge spanning =
-tree traffic.
+Before attempting this, could anybody give us a hint on the possibility 
+for this to work... Was this attempted before (or should I ask for a 
+"software patent" on this) :-)
 
-Unfortunately, I don't have a lot of time to dedicate to new feature work r=
-ight now,
-especially when 2.6 is trying to get released.
+It sound a little bit like what a "Packet Shaper"TM does by altering 
+windows size computation.
+
+David GLAUDE
+
+
+
 
