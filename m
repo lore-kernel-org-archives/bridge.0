@@ -1,12 +1,10 @@
-Message-Id: <200502242249.j1OMnqqh007342@smtp.osdl.org>
-From: "Dan Grigsby" <dan@unpossible.com>
-Subject: RE: [Bridge] Bridge not working...
-Date: Thu, 24 Feb 2005 16:49:51 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <421CEB46.5010707@abwaters.com>
+Message-Id: <6.2.1.2.2.20050219083721.05a17f48@mail.modemsoft.it>
+Date: Fri, 25 Feb 2005 15:18:30 +0100
+From: Claudio Mantegna <zerocool@modemsoft.it>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="=====================_1378722==.ALT"
+Subject: [Bridge] Code Bridge nf vs. 2.4.29 
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,34 +13,54 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Bryan Waters' <bryanw@abwaters.com>, bridge@osdl.org
+To: bridge@lists.osdl.org
 
-Try "ifconfig br0 up"
+This is a multi-part message in MIME format...
 
------Original Message-----
-From: bridge-bounces@lists.osdl.org [mailto:bridge-bounces@lists.osdl.org]
-On Behalf Of Bryan Waters
-Sent: Wednesday, February 23, 2005 2:45 PM
-To: bridge@osdl.org
-Subject: [Bridge] Bridge not working...
+--=====================_1378722==.ALT
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Disposition: inline
 
-I've got a 2.6.8 kernel with bridging enabled as a module, two nics 
-(LNE100TX and RTL8139) and i've run the following commands with no errors
+Good Morning,
 
-modprobe -v bridge
-brctl addbr br0
-brctl addif br0 eth0
-brctl addif br0 eth1
-
-both interfaces have 0.0.0.0 as their addresses and brctl showmacs br0 
-shows the macs for both internal cards.  However, bridging doesn't seem 
-to be working at all.  What am I missing or what else can I try to debug 
-what might be wrong?
-
-thanks
-_______________________________________________
-Bridge mailing list
-Bridge@lists.osdl.org
-http://lists.osdl.org/mailman/listinfo/bridge
+do excuse me, but has the development been abandoned for the kernel 2.4.x?
 
 
+Regards,
+Claudio Mantegna
+
+This e-mail is intended solely for the person or entity to which it is 
+addressed and may contain confidential and/or privileged
+information.
+Any review, dissemination, copying, printing or other use of this e-mail by 
+persons or entities other than the addressee is prohibited.
+If you have received this e-mail in error, please contact the sender 
+immediately and delete the material from any computer.
+
+PGP key on keyservers - ID 0x24DC57BA
+
+--=====================_1378722==.ALT
+Content-Type: text/html; charset="us-ascii"
+Content-Disposition: inline
+
+<html>
+<body>
+Good Morning,<br><br>
+do excuse me, but has the development been abandoned for the kernel
+2.4.x?<br><br>
+<x-sigsep><p></x-sigsep>
+<font color="#008000"><b>Regards,<br>
+</font><font color="#000080">Claudio
+Mantegna</font><font color="#0000FF">&nbsp;&nbsp; <br><br>
+</b></font>This e-mail is intended solely for the person or entity to
+which it is addressed and may contain confidential and/or privileged<br>
+information.<br>
+Any review, dissemination, copying, printing or other use of this e-mail
+by persons or entities other than the addressee is prohibited.<br>
+If you have received this e-mail in error, please contact the sender
+immediately and delete the material from any computer.<br><br>
+PGP key on keyservers - ID 0x24DC57BA<br>
+</body>
+</html>
+
+--=====================_1378722==.ALT--
