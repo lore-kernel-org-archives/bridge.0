@@ -1,12 +1,13 @@
+Date: Thu, 13 May 2004 11:19:04 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [Bridge] bridging bluetooth bnep devices with kernel 2.6.6-*
-From: Diego Liziero <liziero.diego@unimore.it>
-In-Reply-To: <20040513102829.5d5e1484@dell_ss3.pdx.osdl.net>
+Message-Id: <20040513111904.6001c62a@dell_ss3.pdx.osdl.net>
+In-Reply-To: <1084472140.3354.9.camel@igno>
 References: <1084467136.3083.27.camel@igno>
 	<20040513102829.5d5e1484@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1084472140.3354.9.camel@igno>
+	<1084472140.3354.9.camel@igno>
 Mime-Version: 1.0
-Date: Thu, 13 May 2004 20:15:40 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -16,27 +17,8 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
+To: Diego Liziero <liziero.diego@unimore.it>
 Cc: bridge@lists.osdl.org
 
-Sorry, I've been too quick in writing without realizing
-that the patch had been already posted to this mailing list.
-
-This patch solved everything.
-
-Thank you.
-
-BTW, there is another issue that may be related to the bridge
-that is being discussed on bluez-devel mailing list:
-
-http://thread.gmane.org/gmane.linux.bluez.devel/2160
-
-Regards,
-
-Diego
-
-On Thu, 2004-05-13 at 19:28, Stephen Hemminger wrote:
-> 2.6.6 got too picky about multiple interfaces with the same
-> address. This patch has been already integrated for later releases.
-
-
+I do think each bluetooth device should have a different hardware
+address to keep themselves sane.
