@@ -1,14 +1,13 @@
-Message-ID: <1121.80.133.183.165.1093360386.squirrel@80.133.183.165>
-In-Reply-To: <20040824014502.066779f0.fambrosini@nerim.fr>
-References: <3739.80.133.187.52.1092948476.squirrel@80.133.187.52>
-	<20040823103126.72631cf6@dell_ss3.pdx.osdl.net>
-	<20040824014502.066779f0.fambrosini@nerim.fr>
-Date: Tue, 24 Aug 2004 17:13:06 +0200 (CEST)
+Date: Wed, 25 Aug 2004 00:10:21 +0200
+From: Francois Ambrosini <fambrosini@nerim.fr>
 Subject: Re: [Bridge] Encrypting Bridge?
-From: "Rene Bartsch" <Rene@Bartschnet.de>
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-Id: <20040825001021.6b780366.fambrosini@nerim.fr>
+In-Reply-To: <412B607E.6030109@joshua.raleigh.nc.us>
+References: <1196.80.133.183.165.1093361732.squirrel@80.133.183.165>
+	<412B607E.6030109@joshua.raleigh.nc.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,72 +16,42 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Josh Wyatt <jdwyatt@joshua.raleigh.nc.us>
+Cc: ML@bartschnet.de, bridge@lists.osdl.org
 
-On Di, 24.08.2004, 01:45, Francois Ambrosini sagte:
-> On Mon, 23 Aug 2004 10:31:26 -0700
-> Stephen Hemminger <shemminger@osdl.org> wrote:
->
-> [snip]
->> The encrypting bridge isn't a bad idea, just not sure it is worth
->> maintaining
->> yet another VPN solution.
->>
->
-> Greetings,
->
-> IMHO, and in addition to what Rene Bartsch said, providing an encrypted
-> tunnel at layer 2 can be really useful when it comes to bandwidth and/or
-> latency matters.
-> Moreover, paranoid network administrators will always be interested in
-> such a feature. It would be the closest solution to direct physical
-> encryption without having to buy any special hardware, and without the
-> overhead of a layer 3 tunnel (just like the encryption part of WPA is to
-> Wi-Fi).
->
-> Alas, adding encryption to the brigde features is not enough: it should
-> scale well, meaning that a decent key management system would have to be
-> provided as well, in user space. To make things clear, I am only speaking
-> of managing the keys on the different nodes of the encrypted switched
-> network (no things like authentication, certificates, PKI and alike). On
-> the top of that, if direct interoperability with other OSes was to be
-> achieved with such a feature, one would have to provide drivers for this
-> to work.
->
-> Isn't all this getting outside the limits of the bridge ? Maybe encryption
-> should be provided by a seperate piece of code that would stand beetween
-> the ethernet driver(s) and the bridge (or the IP stack) ? I am no
-> specialist of neither the bridging code nor the networking implementation
-> in the Linux kernel, so correct me if I'm going in the wrong direction.
->
+On Tue, 24 Aug 2004 11:36:30 -0400
+Josh Wyatt <jdwyatt@joshua.raleigh.nc.us> wrote:
 
-My idea is the following:
+[snip]
+> >>IMHO, and in addition to what Rene Bartsch said, providing an encrypted
+> > 
+> > tunnel at layer 2 can be really useful when it comes to bandwidth and/or
+> > latency matters.
+> > 
+> 
+> There is already a tool to do layer-2 bridging with encryption.  Check out vtun:
+> 
+> http://vtun.sourceforge.net/
+> 
+> I use it a great deal to do layer-2 bridging.  It works with the kernel tun/tap 
+> driver and works very well.  It can use TCP or UDP as the transport, offers 
+> compression, etc.  Key management is up to you, however.
+> 
+> Thanks,
+> Josh
+> 
+> 
 
-If you add an GRE-tunnel to the bridge, you have a OS interoperable and
-protocol independent tunneling. That means we just need encryption which
-could be done by a additional bridge-nf/netfilter target "enc" with the
-options "cipher" and "key".
+Hello Josh,
 
-So, in case of an ebtables rule
+VTun certainly provides virtual interfaces which look like Ethernet or IP interfaces from the kernel point of view, but if you start from the physical medium, you will find a bunch of protocol layers before reaching the Ethernet or IP data sent respectively through the tap or tun (because of TCP or UDP used as transport). I was talking about direct encryption of the layer 2 payload as a solution to prevent all this protocol overhead.
 
-ebtables [yourmatches, e.g. "-o gre0"] -t enc --cipher [cipher, e.g. AES]
---key [public key of remote host]
+Please note, I am not saying that using a tunneled solution is not a good choice. It is when one can sacrifice bandwidth or latency for security and useful functionalities (that's almost always the case).
 
-all traffic going to gre0 would pass the target enc which doesn't do
-anything else than passing the data and keys to the kernel cipher [cipher]
-(e.g. AES) encrypting the data.
+I went through the patch against kernel 2.4.19-pre8 found on http://www.arnor.net/encryptingbridge/ : it actually takes care of the UDP payload only. No true Ethernet encryption as I though first. Having said that, I wonder if that kind of encryption is possible without breaking the Ethernet standard. For example, think of the Ethernet Type field for which a registered identifier would have to be provided.
 
-And for data coming from the tunnel a rule like
+Anyway, I misanderstood Rene Bartsch's query in the first place, as "encrypted bridge" made me think of "encrypted layer 2 payload". I like the later concept but I agree with Stephen that it has nothing to do with the bridging standard.
 
-ebtables [yourmatches, e.g. "-i gre0"] -t enc --cipher [cipher, e.g. AES]
---key [private key of local host]
+Regards,
 
-would cause decryption.
-
-And if the PadLock functions of the VIA Nehemia cores could be used, we'd
-have powerful but cheap VPN routers.
-
-Comments?
-
-Rene
-
+Francois
