@@ -1,14 +1,10 @@
-Subject: Re: [Bridge] Static arp entries in showmacs?
-From: Matthew Hall <matt@ecsc.co.uk>
-In-Reply-To: <20040514094330.7d27aa36@dell_ss3.pdx.osdl.net>
-References: <1084545329.3681.65.camel@miyazaki>
-	<20040514094330.7d27aa36@dell_ss3.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-I8ZMMtKUMHYISOQys5fZ"
-Date: Fri, 14 May 2004 18:04:32 +0100
-Message-Id: <1084554272.3681.100.camel@miyazaki>
-Mime-Version: 1.0
+Message-ID: <40A72B0E.20104@gmx.net>
+Date: Sun, 16 May 2004 10:49:18 +0200
+From: Eicke Friedrich <tady@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge latency
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,40 +13,48 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
+
+Hi list,
+
+we did an investigation of a firewalling Linux bridge in terms of 
+latency and throughput using DAG 3.5E interfaces for precise 
+timestamping of ip packets [1]. The overall results are very good but 
+one fact we can't explain. The following URL points to an image of 
+such an measuring where we push 60MBits/s TCP traffic through the 
+bridge in one direction:
+http://kea.informatik.uni-leipzig.de/ipp2p/delay/color_60e_plain_out.png
+
+If you look at the image you'll see the max line showing regular (one 
+per minute) spikes. I've absolutly no idea where these spikes may come 
+from. So I want to ask you, if you could imagine a reason for these 
+spikes? These are only few packets but for us it's important to find 
+out why they get sometimes delayed this much longer.
+
+Some background about the bridging box:
+Hardware:
+Pentium4 1.7GHz, 1.024MB RAM, 2 x 3Com 3c905 [Boomerang] being br0, 
+3Com 3c905B as management interface.
+
+Software:
+vanilla Linux Kernel 2.6.3 with patched in CONNMARK extension, STP was 
+disabled
+
+Other:
+The bridge was running in plain mode wich means no other modules like 
+iptables, ebtables or packet scheduler were loaded. It was running in 
+runlevel 3, multiuser networking without x-system.
+
+For comparison only this link shows what happens if we push as much 
+TCP traffic in one direction (~97.5 MBits/s) through the bridge having 
+iptables loaded:
+http://kea.informatik.uni-leipzig.de/ipp2p/delay/color_max_ipp2p_120c_delay-0.png
+
+Thanks in advance for any comments or suggestions!
+
+Cheers,
+Eicke
 
 
---=-I8ZMMtKUMHYISOQys5fZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2004-05-14 at 09:43 -0700, Stephen Hemminger wrote:
-> Since it is a multicast address, it isn't bound to any particular interfa=
-ce.
-
-Ack. As I expected.
-
-> The simplest fix would be to just add filtering rule to block that addres=
-s
-> leaking back out other interfaces.
-
-Yep, sounds like a plan, so onto ebtables I go.
-
-Thanks,
-Matt
-
---=-I8ZMMtKUMHYISOQys5fZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBApPwfw5xT5S6r89URAgqwAJ9MzjF+wRCA//aS3s2+DgxjbI4LCACfXHYi
-/jaB7+4VZmEaFPrivuHJQuw=
-=twXS
------END PGP SIGNATURE-----
-
---=-I8ZMMtKUMHYISOQys5fZ--
-
+[1] Endace Measurement Systems: http://www.endace.com/
