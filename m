@@ -1,11 +1,12 @@
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C52629.F2D799B3"
-Date: Fri, 11 Mar 2005 12:03:22 +0100
-Message-ID: <2AF8FF7D89242541B12E7A47F6ECB4BE01B9D21D@ftrdmel3.rd.francetelecom.fr>
+	boundary="----_=_NextPart_001_01C5287D.19D6A7C0"
+Date: Mon, 14 Mar 2005 11:03:40 +0100
+Message-ID: <2AF8FF7D89242541B12E7A47F6ECB4BE01B9D7BD@ftrdmel3.rd.francetelecom.fr>
 From: "CHOU Sovatha RD-CORE-ISS" <sovatha.chou@francetelecom.com>
-Subject: [Bridge] Need help: brctl and isis packets
+Subject: [Bridge] Need help: bridge does not flood ethernet frame with mtu >
+	1500
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,7 +19,7 @@ To: bridge@lists.osdl.org
 
 This is a multi-part message in MIME format...
 
-------_=_NextPart_001_01C52629.F2D799B3
+------_=_NextPart_001_01C5287D.19D6A7C0
 Content-Type: text/plain;
 	charset="US-ASCII"
 Content-Transfer-Encoding: quoted-printable
@@ -26,37 +27,32 @@ Content-Disposition: inline
 
 Hello all,
 
-First thanks to all for helping me. I have an issue to bring up bridging
-isis packets using BRCTL.
-As i am quite a newbie, maybe this is not possible or maybe I forget to
-load modules so that the bridging I am trying to put in place work
-properly.
+On my previous post I maked a mistake on my analyze. The bridge forward
+well any kind of frames it received. The problem was I used frame with
+VLAN. On Is-Is hello frame, the frame has an MTU greater than 1500
+because of the 4 bytes VLAN enclosed. So all Is-Is hello packets were
+dropped.
 
-Here is the configuration I used:
+The architecture used is:
 
-	I1 ------ eth1 (physical interface of my linux machine)
------------ BRIDGE ----------- n1-eth0 (tuntap interface) ---- I2
+	eth1 (real physical interface) ---- BRIDGE ---- uml0 (tuntap
+interface to UML)
 
-Where I1 and I2 are two ISIS processes.
+I solve the this problem with the real interface by changing the mtu to
+1520. But the issue remains on the virtual side. I can not modify the
+tuntap's MTU to something greater then 1500.=20
 
-On both eth1 and n1-eth0, there are ISIS packets send by I1 and I2
-processes.
-With an analyzer (ethereal), I can see ISIS packets sent by ISIS process
-(I1) on eth1 but no ISIS packet from I2 (and vice versa).
+Does someone know how I can do to change the mtu of the tuptap device ?=20
 
-However, if I make a capture on the BRIDGE, I have ISIS packets from
-both ISIS processes (I1 and I2).=20
+In advance thanks.
 
-Bridge configuration:
-	-bridge-utils-1.0.4
-	-linux kernel: 2.6
-
-Anyone can help me ?
-
-Thank you
 Sovatha
 
-------_=_NextPart_001_01C52629.F2D799B3
+PS: The MTU must not be lower than 1500 because the simulated Is-Is has
+to form topology with a real router where the interface MTU can not set
+to a value lower than 1500.
+
+------_=_NextPart_001_01C5287D.19D6A7C0
 Content-Type: text/html;
 	charset="US-ASCII"
 Content-Transfer-Encoding: quoted-printable
@@ -67,7 +63,8 @@ Content-Disposition: inline
 <HEAD>
 <META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
 <META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6.5.7226.0">
-<TITLE>Need help: brctl and isis packets</TITLE>
+<TITLE>Need help: bridge does not flood ethernet frame with mtu &gt; 1500</=
+TITLE>
 </HEAD>
 <BODY>
 <!-- Converted from text/rtf format -->
@@ -75,59 +72,42 @@ Content-Disposition: inline
 <P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Hello all,</FONT></SPAN>
 </P>
 
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">First thanks to all for =
-helping me. I have an issue to bring up bridging isis packets using BRCTL.<=
-/FONT></SPAN>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">On my previous post I ma=
+ked a mistake on my analyze. The bridge forward well any kind of frames it =
+received. The problem was I used frame with VLAN. On Is-Is hello frame, the=
+ frame has an MTU greater than 1500 because of the 4 bytes VLAN enclosed. S=
+o all Is-Is hello packets were dropped.</FONT></SPAN></P>
 
-<BR><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">As i am quite a newbie,=
- maybe this is not possible or maybe I forget to load modules so that the b=
-ridging I am trying to put in place work properly.</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Here is the configuratio=
-n I used:</FONT></SPAN>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">The architecture used is=
+:</FONT></SPAN>
 </P>
 
 <P><SPAN LANG=3D"fr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <FONT SIZE=
-=3D2 FACE=3D"Arial">I1 ------ eth1 (physical interface of my linux machine)=
- ----------- BRIDGE ----------- n1-eth0 (tuntap interface) ---- I2</FONT></=
-SPAN></P>
-
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Where I1 and I2 are two =
-ISIS processes.</FONT></SPAN>
+=3D2 FACE=3D"Arial">eth1 (real physical interface) ---- BRIDGE ---- uml0 (t=
+untap interface to UML)</FONT></SPAN>
 </P>
 
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">On both eth1 and n1-eth0=
-, there are ISIS packets send by I1 and I2 processes.</FONT></SPAN>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">I solve the this problem=
+ with the real interface by changing the mtu to 1520. But the issue remains=
+ on the virtual side. I can not modify the tuntap's MTU to something greate=
+r then 1500. </FONT></SPAN></P>
 
-<BR><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">With an analyzer (ether=
-eal), I can see ISIS packets sent by ISIS process (I1) on eth1 but no ISIS =
-packet from I2 (and vice versa).</FONT></SPAN></P>
-
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">However, if I make a cap=
-ture on the BRIDGE, I have ISIS packets from both ISIS processes (I1 and I2=
-). </FONT></SPAN>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Does someone know how I =
+can do to change the mtu of the tuptap device ? </FONT></SPAN>
 </P>
 
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Bridge configuration:</F=
-ONT></SPAN>
-
-<BR><SPAN LANG=3D"fr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <FONT SIZE=
-=3D2 FACE=3D"Arial">-bridge-utils-1.0.4</FONT></SPAN>
-
-<BR><SPAN LANG=3D"fr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <FONT SIZE=
-=3D2 FACE=3D"Arial">-linux kernel: 2.6</FONT></SPAN>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">In advance thanks.</FONT=
+></SPAN>
 </P>
 
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Anyone can help me ?</FO=
-NT></SPAN>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Sovatha</FONT></SPAN>
 </P>
 
-<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Thank you</FONT></SPAN>
-
-<BR><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">Sovatha</FONT></SPAN><S=
-PAN LANG=3D"en-us"></SPAN>
-</P>
+<P><SPAN LANG=3D"fr"><FONT SIZE=3D2 FACE=3D"Arial">PS: The MTU must not be =
+lower than 1500 because the simulated Is-Is has to form topology with a rea=
+l router where the interface MTU can not set to a value lower than 1500.</F=
+ONT></SPAN><SPAN LANG=3D"en-us"></SPAN></P>
 
 </BODY>
 </HTML>
-------_=_NextPart_001_01C52629.F2D799B3--
+------_=_NextPart_001_01C5287D.19D6A7C0--
