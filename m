@@ -1,10 +1,10 @@
-Message-ID: <402190E4.1080506@fastwebnet.it>
-Date: Thu, 05 Feb 2004 01:40:04 +0100
-From: Sergio Tota <sergio.tota@fastwebnet.it>
+From: simon.pelckmans@pandora.be
+Message-ID: <W5187425376257131075952373@asteria.telenet-ops.be>
+Date: Thu, 05 Feb 2004 03:39:33 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Bridge, NAT and Multicast traffic
+Subject: [Bridge] how many pc's does a bridge supports
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,24 +15,10 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-Hi all.
+Hi,
 
-I write this mail to understand if someone can help me.
+I'm currently testing bridging on my server at home, and I just wonder if there is a limit of the number of PC's supported in one bridge. Or is it just dependant of the memory and the processor?
 
-I configured a linux bridge and it works perfectly.
-I applied the patch to make filtering on the traffic and it also works.
-My problem are in natting(DNAT) multicast traffic (UDP stream packets).
-Netfilter doesn't see multicast traffic at all when a NAT must be executed.
-For what I read this is due the need of netfilter of connections track.
-Multicast traffic has not connection track so netfilter can't act at 
-all(only filtering,no natting).
-Can you help me?
-
-If not, do you know a way to make DNAT on multicast traffic with a 
-trasparent linux bridge?
-
-Thanks a lot!
-
-Sergio Tota
+Simon
 
 
