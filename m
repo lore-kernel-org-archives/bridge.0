@@ -1,13 +1,12 @@
-Date: Wed, 8 Oct 2003 08:58:59 -0700
-From: "David S. Miller" <davem@redhat.com>
+Message-ID: <3F843C8C.4030100@candelatech.com>
+Date: Wed, 08 Oct 2003 09:34:20 -0700
+From: Ben Greear <greearb@candelatech.com>
+MIME-Version: 1.0
 Subject: Re: [Bridge] RE: [VLAN] Re: [PATCH/RFC] Let {ip, arp}tables "see"
 	bridged VLAN tagged{I,AR}P packets
-Message-Id: <20031008085859.28750553.davem@redhat.com>
-In-Reply-To: <1065600565.2572.209.camel@cyan.cph.tpack.net>
-References: <5B537508CDBED3118403009027745A210B8C1499@knant18.kna.flextronics.com>
-	<1065600565.2572.209.camel@cyan.cph.tpack.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <5B537508CDBED3118403009027745A210B8C14A1@knant18.kna.flextronics.com>
+In-Reply-To: <5B537508CDBED3118403009027745A210B8C14A1@knant18.kna.flextronics.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -17,14 +16,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Tommy Christensen <tommy.christensen@tpack.net>
-Cc: netdev@oss.sgi.com, vlan@wanfear.com, Christian.Darnell@se.flextronics.com, bdschuym@pandora.be, bridge@osdl.org
+To: "Linux 802.1Q VLAN" <vlan@wanfear.com>
+Cc: netdev@oss.sgi.com, bridge <bridge@osdl.org>, 'Tommy Christensen' <tommy.christensen@tpack.net>
 
-On 08 Oct 2003 10:09:25 +0200
-Tommy Christensen <tommy.christensen@tpack.net> wrote:
+Christian Darnell wrote:
+> -----Original Message-----
+> 
+>>From: Tommy Christensen [mailto:tommy.christensen@tpack.net]
+>>Sent: Wednesday, October 08, 2003 10:09 AM
+>>To: Christian Darnell
+>>Cc: 'Linux 802.1Q VLAN'; Bart De Schuymer; netdev@oss.sgi.com; bridge
+>>Subject: Re: [Bridge] RE: [VLAN] Re: [PATCH/RFC] Let {ip, arp}tables
+>>"see" bridged VLAN tagged{I,AR}P packets
+>>
+>>
+>>
+>>This is because the VLAN code is mangling shared data.
+>>You need to do something like this:
+>>
+>>
+>>--- linux-2.4/net/8021q/vlan_dev.c.org	2003-02-25 15:23:09.000000000
+>>+0100
+>>+++ linux-2.4/net/8021q/vlan_dev.c	2003-10-07 16:01:29.000000000 +0200
+>>@@ -75,7 +75,12 @@
+>>static inline struct sk_buff *vlan_check_reorder_header(struct sk_buff
+>>*skb)
+>>{
+>>	if (VLAN_DEV_INFO(skb->dev)->flags & 1) {
+>>-		skb = skb_share_check(skb, GFP_ATOMIC);
+>>+		if (skb_shared(skb) || skb_cloned(skb)) {
+>>+			struct sk_buff *nskb;
+>>+			nskb = skb_copy(skb, GFP_ATOMIC);
+>>+			kfree_skb(skb);
+>>+			skb = nskb;
+>>+		}
 
-> This is because the VLAN code is mangling shared data.
-> You need to do something like this:
+Thanks for catching that!
 
-This fix is definitely needed and correct, patch applied
-thanks.
+So, what good is skb_share_check then?
+Maybe we should have a skb_share_or_cloned_check() ?
+
+Ben
+
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
+
