@@ -1,9 +1,12 @@
-From: "Joanne Ooi" <missjoanneooi@hotmail.com>
-Date: Mon, 10 May 2004 23:59:50 +0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY13-F26DgTHyKVujz00009790@hotmail.com>
-Subject: [Bridge] bridge between wireless and ethernet card?
+From: Francisco Maestri Trindade <fmtrindade@inf.ufrgs.br>
+Date: Mon, 10 May 2004 16:03:38 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405101603.39025.fmtrindade@inf.ufrgs.br>
+Subject: [Bridge] Bridge Source Code
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,17 +15,20 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
 
-Hi, now i am using cqureap doing the project, i know the cqureap 2.5 is 
-build on bridge utils, so i want to check with you guys, it's that possible 
-to bridge between eth0 with the wlan0? Now, i got three computers, one i 
-used it as a bridge, it contains two network cards one is wireless card and 
-another one is ethernet card. So, i read through the documentation you all 
-provided, i am curious to know how to configure between ethernet and 
-wireless card. thanks for willing to help.
 
-_________________________________________________________________
-Download the latest MSN Messenger http://messenger.msn.com.my
+ Hi,
+
+ Im trying to find the bridge source code in my kernel implementation. 
+Im running a SUSE Linux kernek 2.4.21-99-default, and I couldnt file the codes 
+I wanted. Maybe I havent installed it correctly, but I dont know then what 
+should I install to have the source codes in my computer.
+ Any help would be appreciated.
+
+Thanks
+-- 
+Francisco Trindade
+fmtrindade@inf.ufrgs.br
 
