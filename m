@@ -1,12 +1,12 @@
-Date: Mon, 10 May 2004 14:39:25 -0700
+Date: Mon, 10 May 2004 14:44:20 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20040510143925.4e86594d@dell_ss3.pdx.osdl.net>
-In-Reply-To: <24091224.1084150678092.JavaMail.www-data@c007.oddpost.com>
-References: <24091224.1084150678092.JavaMail.www-data@c007.oddpost.com>
+Message-Id: <20040510144420.7c033086@dell_ss3.pdx.osdl.net>
+In-Reply-To: <200405100816.i4A8Grhl020664@ns.bginfo.net>
+References: <200405100816.i4A8Grhl020664@ns.bginfo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: 4 port ethernet card bridge question
+Subject: [Bridge] [PATCH] bridge -- fix for multiple ports with same address
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,25 +15,65 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Matthew Tanase <tanase@qaddisin.com>
+To: Krasiyan Andreev <krasiyan@bginfo.net>, "David S. Miller" <davem@redhat.com>
 Cc: bridge@osdl.org
 
-On Sun, 9 May 2004 17:57:58 -0700 (PDT)
-Matthew Tanase <tanase@qaddisin.com> wrote:
+> hi 
+> seems a bug due to changes in 2.6.6 in mcast and bridge infrastructure 
+> under 2.6.5 same thing works 
+> description 
+> I want to add some vlans with same adress , in one bridge 
+> for pppoe server access concentrator , and some clients with static ip adresses , but in
+> different vlans
 
->  Hi 
->   
-> I have a question for you - I know you probably get a lot but I figured I'd try. I've setup several bridges before using the code. Never had any problems. Recently I set Mandrake 10.0 up on a rackmount, with a builtin NIC and a 4 port ethernet card. Initially, I plugged 2 links into the 4 port ethernet card (eth1 and eth2) - and for the life of me, could not get it to work. Fiddled around, FINALLY got it to work but only with the following config. WAN link (link to the switch) in eth1 of the 4 port card and a PC plugged into eth0 - the onboard NIC. That's the ONLY way it will work (vice versa will not oddly enough). Any ideas? Linux recognizes the 4 port card as eth1-4 - is there something I'm missing? Thanks. 
->   
-> mt 
->   
-> -- 
-> Matthew Tanase 
-> President, Qaddisin 
-> www.qaddisin.com 
-> 314.496.2408 
+The bridge code was being to picky. The bridge will still work fine when
+there are two interfaces with the same local address, because it is only
+used for setting the source address on the outgoing bridge packets.
 
-Let's start with the obvious.  You need to make sure all the NIC's you want use work standalone
-before you try bridging.  Usually, a simple test like bringing them up and doing a ping will verify
-that packets are being successfully sent and received.  Also, were there any potential routing loops?
-If somewhere downstream two ports are connected into the same hub or switch, then bridging won't work.
+This should fix it.
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1543  -> 1.1544 
+#	 net/bridge/br_fdb.c	1.11    -> 1.12   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/05/10	shemminger@osdl.org	1.1544
+# Allow multiple interfaces with same address (necessary for VLAN's).
+# --------------------------------------------
+#
+diff -Nru a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+--- a/net/bridge/br_fdb.c	Mon May 10 13:45:50 2004
++++ b/net/bridge/br_fdb.c	Mon May 10 13:45:50 2004
+@@ -277,18 +277,18 @@
+ 		if (!memcmp(fdb->addr.addr, addr, ETH_ALEN)) {
+ 			/* attempt to update an entry for a local interface */
+ 			if (unlikely(fdb->is_local)) {
+-				if (is_local) 
+-					printk(KERN_INFO "%s: attempt to add"
+-					       " interface with same source address.\n",
+-					       source->dev->name);
+-				else if (net_ratelimit()) 
+-					printk(KERN_WARNING "%s: received packet with "
+-					       " own address as source address\n",
+-					       source->dev->name);
+-				ret = -EEXIST;
++				/* it is okay to have multiple ports with same 
++				 * address, just don't allow to be spoofed.
++				 */
++				if (!is_local) {
++					if (net_ratelimit()) 
++						printk(KERN_WARNING "%s: received packet with "
++						       " own address as source address\n",
++						       source->dev->name);
++					ret = -EEXIST;
++				}
+ 				goto out;
+ 			}
+-
+ 
+ 			if (likely(!fdb->is_static || is_local)) {
+ 				/* move to end of age list */
