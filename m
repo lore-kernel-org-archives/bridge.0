@@ -1,11 +1,9 @@
-From: Richard Gavenda <rgavenda@et.trz.cz>
-Date: Mon, 9 Aug 2004 08:56:34 +0000 (UTC)
-Message-ID: <loom.20040809T103648-672@post.gmane.org>
-Mime-Version: 1.0
+Message-ID: <20040809080311.79580.qmail@web52701.mail.yahoo.com>
+Date: Mon, 9 Aug 2004 01:03:11 -0700 (PDT)
+From: Roman Havelka <r_havelka@yahoo.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: news <news@sea.gmane.org>
-Subject: [Bridge] Bridging between multiple VLANs
+Subject: [Bridge] ebtables for RH-ES 3.0
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,19 +12,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-Hi,
-I'm nearly amateur in Linux bridging. I have a bridge based on old Red Hat
-distro. On this bridge i was able to build bridge from logical devices (eth0.2,
-eth0.7, eth0.8, eth0.9) created using vconfig. Than I test, if packet comes
-through eth0.2 device, from specified MAC source with defined MAC destination,
-and such packet i let leave bridge through device eth0.7. All goes well, until i
-try to make new bridge, based on Fedora Core 2 distro. There's a new version of
-bridge, which makes building such bridge no longer possible.
-And here comes a question: is there a way how to build a bridge with same
-functionality as the old bridge has?
+Dear all,
 
-Thanks
-Richard Gavenda
+is there any way how to use ebtables with RedHat ES
+3.0 ? I've tried to use a kernel patch for 2.4.21
+(also for 2.4.22, 20) but with no success (RH support
+told me bridging is unsupported).
 
+By the way what (a stable) version of RH-Fedora is the
+best for ebtables ? I'm not very keen on developing,
+changing kernels...
+
+Till now I've been using the old "2.4.18-10brnf0.0.7"
++ iptables (based on RH 7.3.). It works very well, but
+as for the replacing it to the new HW, it is not very
+up-to-date...(also out of any support)
+
+Thank you,
+Roman
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail
