@@ -1,12 +1,13 @@
-Date: Wed, 19 Jan 2005 10:31:28 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge port states
-Message-ID: <20050119103128.08310478@dxpl.pdx.osdl.net>
-In-Reply-To: <41EE9D8E.20208@student.ethz.ch>
-References: <41EE9D8E.20208@student.ethz.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <41EECDA0.4090909@jbaw.iba.by>
+Date: Wed, 19 Jan 2005 23:14:08 +0200
+From: "Bogdan B. Rudas" <rudas@jbaw.iba.by>
+MIME-Version: 1.0
+Subject: Re: [Bridge] bridge with ppp0
+References: <41C3675E.1010402@langhofer.at>
+In-Reply-To: <41C3675E.1010402@langhofer.at>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="------------enigC9B0C7395CAD2A537D6D35EE"
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,29 +16,76 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: stuedip@student.ethz.ch
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 19 Jan 2005 18:49:02 +0100
-Patrick Stuedi <stuedip@student.ethz.ch> wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC9B0C7395CAD2A537D6D35EE
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hi all,
+You should use interfaces with same MTU size. In same situaion I made 
+OpenVPN tunel over ppp conntction with MTU 1500 (same as in ethernet 
+network)
+
+On Sat, 18 Dec 2004 00:10:22 +0100
+armin langhofer <office@langhofer.at> wrote:
+
+> hi there
 > 
-> Can anyone explain me why we need all this per port state information. A 
-> bridge port seems to be either in BR_STATE_LISTENING, BR_STATE_LEARNING 
-> or BR_STATE_FORWARDING. I don't get it, thought the bridge is learning 
-> from MAC addresses of the received packets, therefore while listening. 
-> Why a bridge port distinquishes these states?
+> i found your project and tried to bridge two ppp devices.
 > 
-> Thanx,
-> Patrick
 > 
+> you say (http://bridge.sourceforge.net/faq.html) that this is possible:
+> 
+> ... "Linux bridging is very flexible; the LAN's can be either 
+> traditional Ethernet device's, or pseudo-devices such as PPP, VPN's or 
+> VLAN's. The only restrictions are that the devices:" ...
+> 
+> 
+> i tried this but got "br_add_interface: Invalid argument" when adding a 
+> ppp device to the bridge. adding an ethernet device works perfectly!
+> 
+> 00:07:21 protector ~ # brctl addbr br0
+> 00:07:22 protector ~ # brctl addif br0 eth2
+> 00:07:30 protector ~ # brctl addif br0 ppp0
+> br_add_interface: Invalid argument
+> 
+> 
+> 
+> the ppp's are done with pppd and pptpd (poptop)
+> 00:09:39 protector ~ # pppd --version
+> pppd version 2.4.2
+> 00:09:44 protector ~ # pptpd --version
+> PoPToP v1.1.4-b4
+> 
+> 
+> any ideas?
+> 
+> best regards, armin.
+> -- 
+> armin langhofer
+> snail:  fischer von erlachstr. 29
+> snail:  a-5020 salzburg
+> phone:  +43 699 11648495
+> email:  office@langhofer.at
+> gnupg:  http://langhofer.at/pubkey.txt
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/bridge
 
-For full detail get the IEEE spec for bridging 802.1G
+--------------enigC9B0C7395CAD2A537D6D35EE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-http://standards.ieee.org/getieee802/802.1.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Port states are described in lots of detail in 7.4
+iD8DBQFB7s2gC2VaeYaW2NkRAtvjAJ406NQABiLckt82GOPgS8JKkfOpVgCfQssI
+QtHk4CSKwq40AdQCIOAfmJ0=
+=4nxX
+-----END PGP SIGNATURE-----
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>
+--------------enigC9B0C7395CAD2A537D6D35EE--
