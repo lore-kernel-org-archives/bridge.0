@@ -1,14 +1,12 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
 Subject: Re: [Bridge] Bridge and PACKET-socket
-Date: Tue, 6 Jan 2004 00:13:38 +0100
 References: <lhznd2do0m.fsf@dodo.bluetail.com>
-In-Reply-To: <lhznd2do0m.fsf@dodo.bluetail.com>
+	<200401060013.38748.bdschuym@pandora.be>
+From: Luke Gorrie <luke@member.fsf.org>
+In-Reply-To: <200401060013.38748.bdschuym@pandora.be>
+Message-ID: <lhr7yedkfn.fsf@dodo.bluetail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401060013.38748.bdschuym@pandora.be>
+Content-Type: text/plain; charset=us-ascii
+Sender: Luke Gorrie <lgorrie@nortelnetworks.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,41 +15,28 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Luke Gorrie <luke@member.fsf.org>, bridge@osdl.org
+Date: Mon, 05 Jan 2004 23:50:40 -0000
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: bridge@osdl.org
 
-On Monday 05 January 2004 23:33, Luke Gorrie wrote:
-> My interpretation is that ETH_P_ALL handlers are expected to be
-> programs like tcpdump which can safely be fed all packets, whereas
-> more specific handlers are expected to be actual protocol
-> implementations that shouldn't run directly on enslaved ports.
->
-> Is that correct?
+Bart De Schuymer <bdschuym@pandora.be> writes:
 
-Well, with the ebtables BROUTING chain it is possible to have an enslaved port 
-as input device for the protocol handlers. In the case of IP, to make any 
-sense, this enslaved port should then have its own IP address.
+> Well, if you're sending all IP packets to userspace I doubt that's faster than 
+> an ebtables kernel module...
 
-> In my case I am implementing a specific protocol in userspace (via
-> PACKET-socket) and this protocol must run directly on enslaved
-> ports. It's an old layer-2 neighbour-discovery protocol that has to
-> operate on physical ports, below other abstractions like
-> bridges. ("don't ask.") It looks like I can't do this today, unless I
-> use ETH_P_ALL, perhaps with a BPF filter -- but I'm fearful of
-> introducing overhead on all packets.
+Right, I forgot to mention that in this case it's only 802.3 frames
+that I'm interested in. I expect to get very few packets, and don't
+want to impact the performance of the other IP-based traffic.
 
-Well, if you're sending all IP packets to userspace I doubt that's faster than 
-an ebtables kernel module...
+Also, I've already implemented the protocol in userspace and don't
+wanna move it into the kernel ;-)
 
-> I was thinking of adding an extra hashtable in dev.c, like ptype_base
-> but processed before offering packets to the bridge. Then an ioctl to
-> have a PACKET-socket moved into this table if it's supposed to receive
-> packets on enslaved interfaces.
->
-> Does that sound like a good solution?
+> I don't know the details, but can't you hook some kernel function onto 
+> ETH_P_ALL that only sends IP packets to userspace?
 
-I don't know the details, but can't you hook some kernel function onto 
-ETH_P_ALL that only sends IP packets to userspace?
+This still sounds like packet-socket territory to me. Wouldn't it be
+better to clarify/extend the packet-socket interface to cover bridged
+ports?
 
-cheers,
-Bart
+-Luke
 
