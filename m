@@ -1,9 +1,12 @@
-Message-ID: <20040531071612.68077.qmail@web41004.mail.yahoo.com>
-Date: Mon, 31 May 2004 00:16:12 -0700 (PDT)
-From: Yong Chu Eu <ceyong@yahoo.com>
-MIME-Version: 1.0
+Date: Tue, 1 Jun 2004 10:43:43 +0200
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Subject: Re: [Bridge] Bridging
+Message-ID: <20040601084343.GA5090@man.manty.net>
+References: <20040531071612.68077.qmail@web41004.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Subject: [Bridge] Bridging
+Content-Disposition: inline
+In-Reply-To: <20040531071612.68077.qmail@web41004.mail.yahoo.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,40 +15,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: Yong Chu Eu <ceyong@yahoo.com>
+Cc: bridge@osdl.org
 
-Hi:
+Just a quick note for those reading this on the list, version 1.X up to, and
+including, 1.0.3 doesn't work on 2.4 kernels, Stephen is looking at that and
+there should be a new version :-)
 
-when i type ./configure then make then make install to bridge-utils-1.0.3,
-but u come out with error said lsysfs cannot found?
+> when i type ./configure then make then make install to bridge-utils-1.0.3,
+> but u come out with error said lsysfs cannot found?
 
-what is the problem even i am install bridge-utils-1.0.
+Yes, by default new versions of the tools require libsysfs, you'll have to
+specify a parameter to configure to build without libsysfs.
 
-But when i install bridge-utils-0.9.6, it succeedful install but nothing
-come out, i type lsmod, i did not see any brctl
+> But when i install bridge-utils-0.9.6, it succeedful install but nothing
+> come out, i type lsmod, i did not see any brctl
 
-=====
-Happy and Healthy Always ! ^_^ !
-My Homepage   : http://planet.time.net.my/sunwaycity/ceyong
-My Buddhist Pages: http://planet.time.net.my/SunwayCity/ceyong/artikel.htm
+brctl is a tool to control the bridge, not a kernel module, thus it cannot
+be seen on lsmod, but if it installed well you can surelly run brctl and get
+its help or do a man brctl, ...
 
-Charity free donate Links :                  
-http://www.clearlandmines.com           
-http://www.thehungersite.com             
-http://www.freedonation.com               
-http://www.stopthehunger.com
-http://www.ecologyfund.com
-http://www.care2.com
-http://www.wildglobe.com
-http://hungrychildren.com
-http://www.buildaschool.org
-http://www.feedsa.co.za
-http://www.iwantcleanair.com
+BTW: there are bridge-utils packages on most distros out there, maybe you
+should install the binary package that comes with your distribution.
 
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Friends.  Fun.  Try the all-new Yahoo! Messenger.
-http://messenger.yahoo.com/ 
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
