@@ -1,12 +1,10 @@
-Date: Thu, 3 Jun 2004 10:41:00 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Little problem with 1.x versions (if_indextoname)
-Message-Id: <20040603104100.2ae94cb2@dell_ss3.pdx.osdl.net>
-In-Reply-To: <s0bef17a.034@post2.controlware.de>
-References: <s0bef17a.034@post2.controlware.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Date: Thu, 03 Jun 2004 18:41:43 +0200
+From: Derek Ditch <derek.ditch@us.army.mil>
+Message-id: <E5838291-B57C-11D8-800E-000A95BC99E4@us.army.mil>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: [Bridge] Wireless Bridge problems
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,94 +13,169 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Harald =?ISO-8859-1?B?S/x0aGUi?= <Harald.Kuethe@controlware.de>"@osdl.org
-Cc: uclibc@uclibc.org, bridge@lists.osdl.org
+To: bridge@osdl.org
 
-On Thu, 03 Jun 2004 09:37:34 +0200
-"Harald K=FCthe" <Harald.Kuethe@controlware.de> wrote:
 
-> Hi,=20
-> I have used bridge-utils 0.9.6 so far in a kernel 2.4.26, uClibc and ppc =
-environment.
->=20
-> When I use version 1.0.3 I have the problem that I do not see the brige w=
-ith the 'brctl show' command if it is not fully set up. It was working with=
- 0.9.6.
-> I tracked the problem down to an 'incompatibility' in bridge/uClibc/kerne=
-l.
->=20
-> 0.9.6 uses its own if_indextoname function which uses the SIOCGIFNAME ioc=
-tl which works with the kernel.
-> Version 1.x uses the libc if_indextoname (here uClibc) which uses the SIO=
-CGIFCONF ioctl and scans the if list to resolv the name for an if_index.=20
-> The kernel will not send back interfaces which do not have an ip address =
-(or exactly only for protocol family inet or decnet).=20
-> So if the bridge does not have an ip address the name resolution fails an=
-d old_foreach_bridge() fails as well.
->=20
-> I'm not sure who has the problem now (kernel, uClibc, bridge) , but I thi=
-nk I will insert if_indextoname() back to the bridge.
->=20
-> I hope that this information is useful.
->=20
-> Regards
-> Harald K=FCthe
+I am using the madwifi driver with the patch to allow changing of the 
+MAC address
+and I have two other ethernet interfaces plus a pppoe interface.  My 
+outbound
+connection is ppp0.  I have ath0, eth1, eth2 for internal interfaces.  
+I have
+added these three interfaces to br0. Once the traffic leaves the linux 
+router, it gets
+NAT'd and goes out through ppp0.  All traffic on all segments works
+to reach the internet.  Traffic cannot pass between the physical
+bridge interfaces. eth1 cannot talk to eth2 or ath0 and so on.
 
-Rather than copy more code back into the bridge-utilities, how about applyi=
-ng this
-change to uClibc?  I hate when packages get cluttered for workarounds for o=
-ther
-incompatibilities.
+I need some suggestions.  Below is my debian interfaces file. Below 
+that is my
+iptables configuration script.
 
-The problem is that SIOCGIFCONF only lists interfaces that have IP addresse=
-s, so it
-doesn't find the other interfaces that are being used for bridging. It coul=
-d be fixed
-in the kernel to return all interfaces, but then something else might break=
-; and still
-it mean a kernel update for the 2.4 users.=20
+Derek Ditch
 
-The whole use of ifindex in the bridge API is a bad idea. But we probably h=
-ave to live
-with it for compatibility.
+Please CC: me in your answers as I just subscribed and awaiting 
+moderator approval.
 
-Patch against uClibc 0.9.26
-------------------------------------------------------------
---- if_nametoindex.c.orig	2002-12-04 10:27:15.000000000 -0800
-+++ if_nametoindex.c	2004-06-03 10:31:34.732707064 -0700
-@@ -148,6 +148,27 @@
-=20
- char * if_indextoname (unsigned int ifindex, char *ifname)
- {
-+#ifdef SIOCGIFNAME
-+  /* Use ioctl to avoid searching the list. */
-+  struct ifreq ifr;
-+  int fd, saved_errno;
-+
-+  fd =3D __opensock ();
-+ =20
-+  if (fd < 0)
-+      return NULL;
-+
-+  ifr.ifr_ifindex =3D ifindex;
-+  if (ioctl (fd, SIOCGIFNAME, &ifr) < 0) {
-+      saved_errno =3D errno;
-+      close (fd);
-+      __set_errno (saved_errno);
-+      return NULL;
-+  }
-+  close (fd);
-+
-+  return strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
-+#else
-     struct if_nameindex *idx;
-     struct if_nameindex *p;
-     char *result =3D NULL;
-@@ -163,5 +184,6 @@
- 	if_freenameindex (idx);
-     }
-     return result;
-+#endif
- }
-=20
+
+
+# /etc/network/interfaces -- configuration file for ifup(8), ifdown(8)
+
+# The loopback interface
+auto lo
+iface lo inet loopback
+
+# The first network card - this entry was created during the Debian 
+installation
+# (network, broadcast and gateway are optional)
+# Via-Rhine Built-in 10/100 Card
+auto eth0
+iface eth0 inet static
+         address 192.168.0.254
+         netmask 255.255.255.0
+         network 192.168.0.0
+         broadcast 192.168.0.255
+
+# Atheos Wireless Card and virtual interface
+auto ath0 eth1 eth2 br0
+
+iface ath0 inet static
+         address 0.0.0.0
+         netmask 255.255.255.0
+         wireless_essid CannonCops
+         wireless_mode Master
+         wireless_rate 54Mb
+         wireless_enc off
+         wireless_channel 1
+
+# Second Internal Net
+iface eth1 inet static
+         address 0.0.0.0
+         netmask 255.255.255.0
+
+# Third Internal Net
+iface eth2 inet static
+         address 0.0.0.0
+         netmask 255.255.255.0
+
+iface br0 inet static
+         pre-up brctl addbr br0
+         pre-up brctl addif br0 ath0
+         pre-up brctl addif br0 eth1
+         pre-up brctl addif br0 eth2
+         pre-up brctl stp br0 on
+         post-down brctl delbr br0
+         address 10.0.100.1
+         netmask 255.255.255.0
+         network 10.0.100.0
+
+#====================End of 
+/etc/network/interfaces===========================
+
+
+#!/bin/sh
+#
+# This script will initialize the firewall when executed.
+# Created on 11 Mar 2004
+#
+
+echo -e "\n\nLoading firewall..\n"
+
+# Location of iptables and kernel module programs
+
+IPTABLES=/sbin/iptables
+DEPMOD=/sbin/depmod
+MODPROBE=/sbin/modprobe
+IFCONFIG=/sbin/ifconfig
+
+# Set external and internal interfaces
+EXTIF="ppp0"
+INTIF="br0"
+
+FILTER_NET="192.168.0.0/16"
+
+echo "  External Interface:  $EXTIF"
+echo "  Internal Interface:  $INTIF"
+
+#--------------------------------------------------
+#----- No editing is required below this line -----
+
+echo -en "  loading modules: "
+
+# Load the general IPTABLES NAT code - "iptable_nat"
+
+echo -en " iptable_nat,"
+$MODPROBE iptable_nat
+
+# Load the FTP NAT functionality into the core IPTABLES code
+# Allows use of non-PASV FTP.
+echo -en " ip_nat_ftp,"
+$MODPROBE ip_nat_ftp
+
+# Load the IRC NAT functionality into the core IPTABLES code
+# Allows support of NAT of IRC DCC requests
+echo -en " ip_nat_irc"
+$MODPROBE ip_nat_irc
+
+#---------------- End of prep ----------------------
+#---------- Let the tables begin -------------------
+
+# Turn on forwarding
+echo "1" > /proc/sys/net/ipv4/ip_forward
+
+# Enable dynamic-address hacking
+echo "1" > /proc/sys/net/ipv4/ip_dynaddr
+
+# Clear any previous configuration
+$IPTABLES -P INPUT ACCEPT
+$IPTABLES -F INPUT
+$IPTABLES -P OUTPUT ACCEPT
+$IPTABLES -F OUTPUT
+$IPTABLES -P FORWARD DROP
+$IPTABLES -F FORWARD
+$IPTABLES -t nat -F
+
+# Redirect unregistered users to the info page
+$IPTABLES -t nat -A PREROUTING -p tcp -s $FILTER_NET --dport 80 -j DNAT 
+--to-destination 192.168.100.1:80
+
+# Prevent hosts on 192.168.x.x subnet from reaching the Internet
+$IPTABLES -t filter -A FORWARD --source $FILTER_NET -j DROP
+
+# Block KaZaa because it is a bandwidth hog
+iptables -A FORWARD --protocol tcp --dport 1214 -j REJECT
+
+# Allow all connections OUT and only existing and related ones IN
+$IPTABLES -A FORWARD -i $EXTIF -o $INTIF -m state --state 
+ESTABLISHED,RELATED -j ACCEPT
+$IPTABLES -A FORWARD -i $EXTIF -o $INTIF -j ACCEPT
+$IPTABLES -A FORWARD -i $INTIF -o $EXTIF -j ACCEPT
+
+$IPTABLES -A FORWARD -j LOG
+
+# Enable simple NAT
+$IPTABLES -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
+
+echo -en "\n\nFirewall loaded. System secure\n"
+transmogrifier:~#
 
