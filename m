@@ -1,12 +1,10 @@
-Date: Fri, 04 Jun 2004 21:33:48 +0200
-From: Derek Ditch <derek.ditch@us.army.mil>
-In-reply-to: <200406040729.i547TgCp019626@ns.bginfo.net>
-Message-id: <1A1E00DA-B65E-11D8-800E-000A95BC99E4@us.army.mil>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <200406040729.i547TgCp019626@ns.bginfo.net>
-Subject: [Bridge] Re: re : atheros bridge problem
+Date: Tue, 8 Jun 2004 11:24:30 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040608112430.794f7fcf@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [ANNOUNCE] bridge-utils-1.0.4
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,55 +13,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
 
-I'm not sure how this particular solution works for my arrangement.  I 
-have two 10/100 ethernet interfaces on the local net and one atheros 
-interface.  I understand the issues w/ the 802.11a/b/g/i protocols, but 
-this particular solution sounds as if I want to bridge two networks 
-that are separated by a network segment, like a VPN.  But I have all 
-these interfaces on one machine that I want bridged.  Also, it appears 
-as if the two ethernet interfaces aren't forwarding traffic to each 
-other either.  I am currently attached to an access point that is 
-directly connected to one ethernet interface.  I can ping and establish 
-an HTTP connection to that AP.  I can also ping and establish 
-connections with the linux gateway router/bridge.  I cannot, however, 
-pass any IP traffic past the linux/router to the AP on the other end, 
-unless I move to use that AP instead.  The linux router can access both 
-access points and there is no problem with externally routed traffic.
+Released a new version of bridge utilities that supports both new 2.6.7
+interface and older 2.6/2.4 releases.  The only changes since 1.0 were
+internal to fix compatibility issues. 
 
-Also, I was wondering, one of the AP's I have is the ASUS WL300g.  This 
-is a linux based router/ap.  It bridges the wifi interface and the 
-ethernet interface.  I was curious if anyone knew how this worked?
-
-Thanks,
-
-Derek
+The tarball can be downloaded from:
+	http://prdownloads.sourceforge.net/bridge
 
 
-On 04 Jun 2004, at 09:32, Krasiyan Andreev wrote:
+Getting full functionality requires a build system with:
+	- libsysfs from the sysfsutils package 
+	  http://linux-diag.sourceforge.net/Sysfsutils.html
+	- kernel (and headers) from 2.6.7-rc1 or later
 
->
->
-> hi
-> problem are well defined and known
-> seems you are not reading it ... so explanation are described at
-> http://bruno.pmi.lv/mailman/public/routeros/2003-May/001924.html
-> and solution at
-> http://www.mikrotik.com/Documentation/HowTo.html#How_bridge
-> if you want to use opensource linux distribution , not commersial one 
-> , only
-> change kind of tunneling protocol from eoip to tap ( 
-> http://vtun.sf.net)
-> if you dont understand something , feel free to mail me for detailed 
-> instructions
-> but , I am sure that that point of description will be enough
->                         regards , Krasiyan
->
->
-> ---------------------------------------------
-> This message was sent using ComNet WebMail Server.
-> http://www.bginfo.net/mail/
->
->
+Note: libsysfs has not been fully integrated by the main linux vendors.
+So producing a full functional package is not possible with the default spec 
+file.
 
+The utilities will build (and run) on earlier systems it will just default to 
+the old interface and which doesn't have 32/64 bit compatibility.
