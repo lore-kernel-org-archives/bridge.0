@@ -1,13 +1,11 @@
-Date: Wed, 2 Jun 2004 11:43:20 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridging
-Message-Id: <20040602114320.7c1bdcb5@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040601084343.GA5090@man.manty.net>
-References: <20040531071612.68077.qmail@web41004.mail.yahoo.com>
-	<20040601084343.GA5090@man.manty.net>
+Message-Id: <s0bef17a.034@post2.controlware.de>
+Date: Thu, 03 Jun 2004 09:37:34 +0200
+From: "=?ISO-8859-1?Q?Harald=20K=FCthe?=" <Harald.Kuethe@controlware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Little problem with 1.x versions (if_indextoname)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,17 +14,32 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Santiago Garcia Mantinan <bridge@manty.net>
-Cc: bridge@osdl.org, Yong Chu Eu <ceyong@yahoo.com>
+To: bridge@lists.osdl.org
 
-On Tue, 1 Jun 2004 10:43:43 +0200
-Santiago Garcia Mantinan <bridge@manty.net> wrote:
+Hi,=20
+I have used bridge-utils 0.9.6 so far in a kernel 2.4.26, uClibc and ppc en=
+vironment.
 
-> Just a quick note for those reading this on the list, version 1.X up to, and
-> including, 1.0.3 doesn't work on 2.4 kernels, Stephen is looking at that and
-> there should be a new version :-)
+When I use version 1.0.3 I have the problem that I do not see the brige wit=
+h the 'brctl show' command if it is not fully set up. It was working with 0=
+.9.6.
+I tracked the problem down to an 'incompatibility' in bridge/uClibc/kernel.
 
-There is a 1.0.4-rc1 out on sourceforge, that should address the 2.4 issues.
-Will make it 1.0.4 if I get feedback that all the people with problems are happy.
+0.9.6 uses its own if_indextoname function which uses the SIOCGIFNAME ioctl=
+ which works with the kernel.
+Version 1.x uses the libc if_indextoname (here uClibc) which uses the SIOCG=
+IFCONF ioctl and scans the if list to resolv the name for an if_index.=20
+The kernel will not send back interfaces which do not have an ip address (o=
+r exactly only for protocol family inet or decnet).=20
+So if the bridge does not have an ip address the name resolution fails and =
+old_foreach_bridge() fails as well.
 
-I tried it on 2.6.7 and 2.4.
+I'm not sure who has the problem now (kernel, uClibc, bridge) , but I think=
+ I will insert if_indextoname() back to the bridge.
+
+I hope that this information is useful.
+
+Regards
+Harald K=FCthe
+
+
