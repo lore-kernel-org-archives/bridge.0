@@ -1,12 +1,10 @@
-Date: Mon, 12 Jan 2004 13:41:48 -0800
+Date: Mon, 12 Jan 2004 13:46:45 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Max length of bridge device name?
-Message-Id: <20040112134148.2049ef83.shemminger@osdl.org>
-In-Reply-To: <4002E392.3010300@hcssystems.com>
-References: <4002E392.3010300@hcssystems.com>
+Message-Id: <20040112134645.461f125e.shemminger@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] bridge use read_lock when scanning device list
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,22 +13,28 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-On Mon, 12 Jan 2004 13:12:34 -0500
-Josh Wyatt <Josh.Wyatt@hcssystems.com> wrote:
+On 2.6.1, bridge is using rtnl_shlock which is equivalent to rtnl_lock when
+all it really needs to do is read_lock(&dev_base_lock).
 
-> Hi all,
-> 
-> Does anyone know the maximum length of the interface name created by 'brctl addbr'? 
-	IFNAMSIZ-1 = 15 chars
 
- How about any other restrictions on 
-> usable alphanumerics, for example is "-" (dash) or "_" (underscore) allowed, commas, periods, etc allowed?
-
-Well all should work (except "." and "..").
-
-> Most docs I see refer to this as br0, but I'd like to use more descriptive names, such as vlan_105, etc.
-> 
-> Thanks in advance,
-> Josh
+diff -Nru a/net/bridge/br_if.c b/net/bridge/br_if.c
+--- a/net/bridge/br_if.c	Mon Jan 12 13:45:44 2004
++++ b/net/bridge/br_if.c	Mon Jan 12 13:45:44 2004
+@@ -252,12 +252,12 @@
+ 	struct net_device *dev;
+ 	int i = 0;
+ 
+-	rtnl_shlock();
++	read_lock(&dev_base_lock);
+ 	for (dev = dev_base; dev && i < num; dev = dev->next) {
+ 		if (dev->priv_flags & IFF_EBRIDGE) 
+ 			indices[i++] = dev->ifindex;
+ 	}
+-	rtnl_shunlock();
++	read_unlock(&dev_base_lock);
+ 
+ 	return i;
+ }
