@@ -1,10 +1,9 @@
-Date: Tue, 29 Mar 2005 14:21:43 -0800
+Date: Tue, 29 Mar 2005 14:27:19 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] connecting PDA (wlan) to Linux laptop with bridged
-	connections (eth + wlan) ...
-Message-ID: <20050329142143.77c50a41@dxpl.pdx.osdl.net>
-In-Reply-To: <1112132591.19443.19.camel@voyager.the-khannas.com>
-References: <1112132591.19443.19.camel@voyager.the-khannas.com>
+Subject: Re: [Bridge] [PATCH] bridge hub_enabled option
+Message-ID: <20050329142719.4bd7cb57@dxpl.pdx.osdl.net>
+In-Reply-To: <20050326224030.GA31822@darkalpt>
+References: <20050326224030.GA31822@darkalpt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -16,51 +15,55 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Sandeep Khanna <sandeep.khanna@villanova.edu>
-Cc: bridge@lists.osdl.org
+To: Alpt <alpt@freaknet.org>
+Cc: netdev@oss.sgi.com, bridge@lists.osdl.org
 
-On Tue, 29 Mar 2005 16:43:11 -0500
-"Sandeep Khanna" <sandeep.khanna@villanova.edu> wrote:
+On Sat, 26 Mar 2005 23:40:30 +0100
+Alpt <alpt@freaknet.org> wrote:
 
-> Hi All,
 > 
-> After hours of reading and trials, I got the following setup working...
+> Bridge hub_enabled patch:
+> this patch adds the hub_enabled option for bridge.
 > 
-> 1. Dell Axim X30 PocketPC with 802.11b wireless using DHCP with Open WEP
-> 
-> -- successfully connected to -->
-> 
-> 2. Laptop with DLink Airplus DWL-650+ PCMCIA wireless with ndiswrapper
-> v1.1 driver with network bridge (wired + wireless) and running a DHCP
-> server listening on interface br0 (eth0 + wlan0)
-> 
-> Here is the situation:
-> - The Dell Axim X30 PDA shows connected to the laptop in Ad-Hoc wireless
-> mode.
-> - It successfully gets an MAC address based IP address from the DHCP
-> server running on the laptop.
-> - I can successfully ping the PDA (10.3.2.209) from the
-> laptop(10.3.2.175).
-> - I can successfully ping the laptop(10.3.2.175) from the
-> PDA(10.3.2.209).
-> - When I open a browser on the PDA and try to open www.dell.com, tcpdump
-> shows the following: 
-> 
-> 16:26:09.XXXXXX arp who-has 10.47.12.29 tell 10.3.2.209
-> 16:26:10.XXXXXX arp who-has 10.47.12.27 tell 10.3.2.209
-> 
-> The above shows:
-> time | protocol | who-has | Nameserver | tell | source IP address (PDA)
-> 
-> - Internet browsing using the above Nameservers(10.47.12.29,
-> 10.47.12.27) works on the laptop but apparently the PDA doesn't seem to
-> even know about the Nameservers(10.47.12.29, 10.47.12.27)!!
-> 
-> Going forward, if the above the setup works then, I would be able to
-> browse Internet, use ActiveSync and more on my PDA not only in office
-> (laptop eth0 active) but also at home (laptop wlan0 active).
+> By default the hub_enabled flag is set to 1. In this case nothing changes, the
+> bridge, as usually, acts as a hub and flood_forward the input pkts to all its
+> ports. When hun_enabled is set to 0, the bridge stops to flood_forward the input
+> traffic and takes only the pkts sent to it.
+> Disabling the hub option is useful to join multiple interfaces into a unique virtual
+> one, thus becomes possible to have easily an ad-hoc network topology using multiple
+> interfaces.
+
+Could you give a better example of how this would be useful?
+Why would you not want A to talk to C? 
+Why not enforce the policy with ebtables?
 
 
-Since you only really want to handle one device and a limited range of protocols
-you probably would have better success with routing and/or socks. The problem
-is that most wireless interfaces don't allow source address spoofing.
+> 
+> For example:
+> 
+> 
+> 	A(eth0) --- (eth1)B(eth0) --- (eth1)C
+> 		       BRIDGE
+> 		       NO HUB
+> 		        br0
+> A and C must not be directly connected, and B must have only one interface, in
+> this case br0.
+> This scenario is possible only disabling the hub behavior of the bridge.
+> 
+> To clarify, this topology is the same of having:
+> 
+> 	A(wlan0)\	     /(wlan0)C
+> 		 \	    /
+> 		  \	   /
+> 		    (wlan0)
+> 		      B
+> A and C don't see each other.
+> 
+> 
+> Maybe the hub_enabled option may be useful for something else ^_-
+> 
+> The patch is simple and stupid, and it seems to work.
+> 
+
+Also, since you broken the connectivity, anybody who is using multiple bridges
+and spanning tree is going to create dead zones.
