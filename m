@@ -1,10 +1,12 @@
-Message-ID: <421CEB46.5010707@abwaters.com>
-Date: Wed, 23 Feb 2005 13:44:54 -0700
-From: Bryan Waters <bryanw@abwaters.com>
+Message-Id: <200502242249.j1OMnqqh007342@smtp.osdl.org>
+From: "Dan Grigsby" <dan@unpossible.com>
+Subject: RE: [Bridge] Bridge not working...
+Date: Thu, 24 Feb 2005 16:49:51 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Bridge not working...
+In-Reply-To: <421CEB46.5010707@abwaters.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,7 +15,16 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
+To: 'Bryan Waters' <bryanw@abwaters.com>, bridge@osdl.org
+
+Try "ifconfig br0 up"
+
+-----Original Message-----
+From: bridge-bounces@lists.osdl.org [mailto:bridge-bounces@lists.osdl.org]
+On Behalf Of Bryan Waters
+Sent: Wednesday, February 23, 2005 2:45 PM
 To: bridge@osdl.org
+Subject: [Bridge] Bridge not working...
 
 I've got a 2.6.8 kernel with bridging enabled as a module, two nics 
 (LNE100TX and RTL8139) and i've run the following commands with no errors
@@ -29,3 +40,9 @@ to be working at all.  What am I missing or what else can I try to debug
 what might be wrong?
 
 thanks
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+http://lists.osdl.org/mailman/listinfo/bridge
+
+
