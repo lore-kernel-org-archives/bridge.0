@@ -1,9 +1,13 @@
-Message-ID: <20050318154437.46151.qmail@web51607.mail.yahoo.com>
-Date: Fri, 18 Mar 2005 07:44:36 -0800 (PST)
-From: Victor Igbe <ikedec@yahoo.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-242555261-1111160676=:46019"
-Subject: [Bridge] Enquiry: Bridge HOWTO
+Date: Sun, 20 Mar 2005 00:04:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+Message-ID: <20050319230458.GB18495@stusta.de>
+References: <20050316181532.GA3251@stusta.de>
+	<200503172036.j2HKadfm000732@ginger.cmf.nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503172036.j2HKadfm000732@ginger.cmf.nrl.navy.mil>
+Subject: [Bridge] Re: [2.6 patch] fix bridge <-> ATM compile error
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,40 +16,27 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: chas3@users.sourceforge.net
+Cc: netdev@oss.sgi.com, linux-atm-general@lists.sourceforge.net, bridge@osdl.org, linux-kernel@vger.kernel.org, shemminger@osdl.org
 
-This is a multi-part message in MIME format...
+On Thu, Mar 17, 2005 at 03:36:40PM -0500, chas williams - CONTRACTOR wrote:
+> In message <20050316181532.GA3251@stusta.de>,Adrian Bunk writes:
+> >Letting CONFIG_BRIDGE depend on CONFIG_ATM doesn't sound like a good 
+> >idea, since I doubt all people using the Bridge code require ATM 
+> >support.
+> 
+> how about the following?
+>...
 
---0-242555261-1111160676=:46019
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Looks good.
 
+cu
+Adrian
 
-Dear Stephen,
+-- 
 
-I went through your dosumnetation on bridging and everything seem ok and working. But when I restart my system all configurations reset. It does not retain the bridge settings. I have to reconfigure it again each time.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Could you please advice on how I can fix this?
-
-Thanks
-
-Victor
-
-
-		
----------------------------------
-Do you Yahoo!?
- Yahoo! Small Business - Try our new resources site! 
---0-242555261-1111160676=:46019
-Content-Type: text/html; charset=us-ascii
-Content-Disposition: inline
-
-<DIV><FONT size=2>
-<P>Dear Stephen,</P>
-<P>I went through your dosumnetation on bridging and everything seem ok and working. But when I restart my system all configurations reset. It does not retain the bridge settings. I have to reconfigure it again each time.</P>
-<P>Could you please advice on how I can fix this?</P>
-<P>Thanks</P>
-<P>Victor</P></FONT></DIV><p>
-		<hr size=1>Do you Yahoo!?<br> 
-Yahoo! Small Business - <a href="http://us.rd.yahoo.com/evt=31637/*http://smallbusiness.yahoo.com/resources/">Try our new resources site!</a> 
---0-242555261-1111160676=:46019--
