@@ -1,22 +1,8 @@
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-In-Reply-To: <1106484019.3376.5.camel@localhost.localdomain>
-References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
-	<p73zn0ccaee.fsf@verdi.suse.de>
-	<1105117559.11753.34.camel@baythorne.infradead.org>
-	<20050107100017.454ddadc@dxpl.pdx.osdl.net>
-	<1105133241.3375.16.camel@localhost.localdomain>
-	<20050118135735.4b77d38d.davem@davemloft.net>
-	<1106433059.4486.11.camel@localhost.localdomain>
-	<1106436153.20995.42.camel@tux.rsn.bth.se>
-	<1106484019.3376.5.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-fuimzzHstOWacJ6oQqa5"
-Date: Sun, 23 Jan 2005 17:08:29 +0100
-Message-Id: <1106496509.1085.1.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in netfilter
-	(was: Re: do_IRQ: stack overflow: 872..)
+From: Daniel Risacher <magnus@alum.mit.edu>
+Message-Id: <E1CsVkJ-0004R5-00@m5.risacher.org>
+Date: Sat, 22 Jan 2005 19:36:51 -0500
+Subject: [Bridge] Unexpected bridge behavior (Bug? You decide.)
+Reply-To: magnus@alum.mit.edu
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -25,57 +11,48 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netdev@oss.sgi.com, bridge@osdl.org, snort2004@mail.ru, Rusty Russell <rusty@rustcorp.com.au>, dwmw2@infradead.org, "David S. Miller" <davem@davemloft.net>, shemminger@osdl.org, ak@suse.de
+To: bridge@osdl.org, netdev@oss.sgi.com
 
 
---=-fuimzzHstOWacJ6oQqa5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+While using the linux bridge module in 2.6.10, the kernel seems to
+munge the source IP address of broadcast UDP packets if they come from
+"0.0.0.1", and sticks on an address of the linux host.
 
-On Sun, 2005-01-23 at 13:40 +0100, Bart De Schuymer wrote:
+I humbly submit that re-writing the source address of packets is not
+proper behavior for a bridge, even if those source addresses are not
+traditionally valid.
 
-> Hi Martin,
+Sure, 0.0.0.1 isn't a valid address, but it's used by the XBOX games
+for "System Link" play.  See http://caia.swin.edu.au/genius/020802A/
+for more details, but basically XBOXes talk to each other by sending
+UDP port 3074 packets with 0.0.0.1 as the source address.  When
+searching for other XBOX systems, these are broadcast packets
+addressed to 255.255.255.255/ff:ff:ff:ff:ff:ff.
 
-Hi Bart
+So I was trying to get two XBOXes to talk to each other through a
+Linux machine configured as a bridge, (mostly so I could watch the
+traffic) and it didn't work.  Here's what tcpdump saw:
 
-> > I guess you never testcompiled with CONFIG_NETFILTER_DEBUG set :)
->=20
-> Oops, no. I was imagining I could code that without error...
-> There was another compile error with CONFIG_NETFILTER_DEBUG in the patch
-> (skb that should have been (*pskb)) :(
+$ sudo brctl show br0
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.00112f9de921       yes             eth0
+                                                        eth2
 
-:)
+$ sudo tcpdump -n -e -i eth0 port 3074
+tcpdump: WARNING: eth0: no IPv4 address assigned
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 96 bytes
+19:28:27.715755 00:50:f2:f1:fb:07 > ff:ff:ff:ff:ff:ff, ethertype IPv4 (0x0800), length 102: IP 0.0.0.1.3074 > 255.255.255.255.3074: UDP, length: 60
+### line above appears to be xbox 1 broadcasting to find other hosts
+19:28:28.772223 00:50:f2:ba:39:89 > ff:ff:ff:ff:ff:ff, ethertype IPv4 (0x0800), length 102: IP 66.92.162.116.3074 > 255.255.255.255.3074: UDP, length: 60
+### line above is linux bridge forwarding packet from xbox 2, I think. Note IP address is of linux box, not 0.0.0.1
 
-> > > +			if (verdict > NF_MAX_VERDICT) {
-> > > +				NFDEBUG("Evil return from %p(%u).\n",
-> > > +				        elem->hook, hook);
-> > > +				continue;
-> > > +			}
-> >=20
-> > Maybe add unlikely() around the test?
->=20
-> OK. I added another one around another debugging if-statement.
+$ sudo tcpdump -n -e -i eth2 port 3074
+tcpdump: WARNING: eth2: no IPv4 address assigned
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth2, link-type EN10MB (Ethernet), capture size 96 bytes
+19:28:27.715816 00:50:f2:f1:fb:07 > ff:ff:ff:ff:ff:ff, ethertype IPv4 (0x0800), length 102: IP 66.92.162.116.3074 > 255.255.255.255.3074: UDP, length: 60
+### line above is linux bridge forwarding packet from xbox 1. Note IP address is of linux box, not 0.0.0.1
+19:28:28.772135 00:50:f2:ba:39:89 > ff:ff:ff:ff:ff:ff, ethertype IPv4 (0x0800), length 102: IP 0.0.0.1.3074 > 255.255.255.255.3074: UDP, length: 60
+### line above is xbox 2 broadcasting to find other hosts
 
-I'm now running a kernel with this patch and everything seems to still
-be working.
-So unless someone else has something to comment I think this should be
-applied.
-The decrease in call-depth is important.
-
---=20
-/Martin
-
---=-fuimzzHstOWacJ6oQqa5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB88v8Wm2vlfa207ERAr8iAKCnEC6wtsFBsBXnNqjMy9u9gt/TjQCeM2BL
-qaJeTtbB5wOKFi7J9BfBX4E=
-=3U0/
------END PGP SIGNATURE-----
-
---=-fuimzzHstOWacJ6oQqa5--
