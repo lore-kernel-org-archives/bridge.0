@@ -1,12 +1,15 @@
-From: jamal <hadi@cyberus.ca>
-In-Reply-To: <C0170D0AF1277849A4B4518034F855DD0CFC3B@aiexchange.ai.aiinet.com>
-References: <C0170D0AF1277849A4B4518034F855DD0CFC3B@aiexchange.ai.aiinet.com>
-Content-Type: text/plain
-Message-Id: <1091130000.1022.185.camel@jzny.localdomain>
+Date: Thu, 29 Jul 2004 22:34:55 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+Subject: Re: [Bridge] Assertion failed in bridge code on 2.4.27-rc3
+Message-ID: <20040729203455.GA6101@man.manty.net>
+References: <20040728195957.GA2621@man.manty.net>
+	<20040728132128.22bed751@dell_ss3.pdx.osdl.net>
+	<20040728222722.GA2688@man.manty.net>
+	<20040728162802.6a297248@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] RE: [PATCH] (3/4) bridge linkstate handling
-Reply-To: hadi@cyberus.ca
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728162802.6a297248@dell_ss3.pdx.osdl.net>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,34 +18,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Thu, 29 Jul 2004 19:40:09 -0000
-To: "Eble, Dan" <DanE@aiinet.com>
-Cc: netdev@oss.sgi.com, bridge@osdl.org, Stephen Hemminger <shemminger@osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, bridge@lists.osdl.org
 
-On Thu, 2004-07-29 at 12:36, Eble, Dan wrote:
+> The code path for some ioctl's is different in 2.4 than 2.6 (it goes
+> through IP in 2.4).  Therefore the following is needed.
 
-> His patch ensures that when a port regains carrier, it is Blocked.
-> Before the patch, a Forwarding port would remain Forwarding if the other
-> end of the cable were unplugged and then plugged into some other place.
+Well... it cured the message, but the bridge used to work when we had the
+messages, and now brctl gets stuck and doesn't exit.
 
-Ok, this is sensible. With a user space control you could probably do
-more interesting things with that link info.
+Let me explain the thing...
 
-> 
-> I think I see.  So then when an event happens that might affect the port
-> state, the bridge should temporarily block traffic on the port (in case
-> the policy daemon will tell it to start blocking) and wait for the
-> daemon to respond with a "start blocking" or "continue forwarding"
-> decision.  Is that the idea, or have I completely misunderstood?
+Before this patch, in 2.4.27-rc3 we had those messages I told you about
+yesterday, but the bridge was setup.
 
-Everything is still driven by the STP state machine. So no smartness on
-the bridge itself; it is just told what to do and it transitions state.
-On startup, the port is in blocked state. Only passes BPDUs to user
-space. Based on BPDUs and other input (like link info of say unrelated
-port) the port state is transitioned. Since all state control is in user
-space i.e at one location, no loops should happen. Not sure if it makese
-sense.
+Now, with this patch you sent, brctl doesn't make the kernel output those
+messages, but execution of:
+	brctl addbr br0
+does not end.
 
-cheers,
-jamal 
+Hope that helps, if you need more info, just ask me.
 
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
+
+PS: I won't be around during the weekend, I'm leaving tomorrow afternoon CET
