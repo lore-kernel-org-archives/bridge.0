@@ -1,14 +1,11 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Subject: Re: [Bridge] IPv6 + ip6tables packet bridging?
-Date: Tue, 10 Aug 2004 20:43:08 +0200
-References: <20040810174239.97547.qmail@web13906.mail.yahoo.com>
-In-Reply-To: <20040810174239.97547.qmail@web13906.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Date: Wed, 11 Aug 2004 18:16:31 +0300
+From: Yuval Kogman <nothingmuch@woobling.org>
+Message-ID: <20040811151631.GA12305@woobling.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-Message-Id: <200408102043.08578.bdschuym@pandora.be>
+Subject: [Bridge] eth1394 interface support?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,20 +14,55 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Scott MacKay <scottmackay@yahoo.com>, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Tuesday 10 August 2004 19:42, Scott MacKay wrote:
-> Hiyas,
->    Is there a patch for the 2.4.x series to do
-> ip6tables bridging of IPv6 packets?  I was unable to
-> go to 2.6 due to issues with large packets so still
-> living in 2.4 land.  If there are no patches, any
-> ideas on what gets patched in IPv4 to allow this
-> bridging?
 
-In 2.6 ip6tables doesn't see bridged IPv6 packets either. It should be easy to 
-add, though.
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-cheers,
-Bart
+I have a linux box which sits in the living room and plays
+ti^H^Hfreevo.
 
+Among other things it also talks to the cable modem via interface
+eth0, and does NAT transformations for eth1.
+
+Yesterday i was sitting in the living room with my laptop, thinking
+about the fact that my wireless access point will only arrive next
+week, and then remembered they both the laptop and the linux boxhave
+firewire. The plot thickens.
+
+I enabled bridging support in the kernel, and i got to
+
+	brctl addbr br0
+	brctl addif br0 eth1 # LAN interface
+	brctl addif br0 eth2 # firewire interface
+	br_add_interface: Invalid argument
+
+I reckon eth1394 is at fault, but I'd like to know what the bridge
+code expects from it.
+
+eth1394 on a different subnet works, and I can also manipulate the
+routing table in funny ways. I'd like to not do that.
+
+Thanks
+
+--=20
+ ()  Yuval Kogman <nothingmuch@woobling.org> 0xEBD27418  perl hacker &
+ /\  kung foo master: /me sneaks up from another MIME part: neeyah!!!!!
+
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBGjhPVCwRwOvSdBgRAtlgAJ4ic634aRLHdDJRFA29xEu1tHIdYgCgtzgX
+b/fFPNb2Icg/485843fI7HI=
+=6pRw
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--
