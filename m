@@ -1,12 +1,12 @@
-Date: Fri, 16 Apr 2004 13:43:14 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] MAC address -> interface mapping
-Message-Id: <20040416134314.6ebd31ec@dell_ss3.pdx.osdl.net>
-In-Reply-To: <4436.128.8.244.28.1082141218.squirrel@www.flacp.fujitsulabs.com>
-References: <4436.128.8.244.28.1082141218.squirrel@www.flacp.fujitsulabs.com>
+Date: Fri, 16 Apr 2004 14:12:57 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20040416141257.345e916b.davem@redhat.com>
+In-Reply-To: <20040413151630.710042e3@dell_ss3.pdx.osdl.net>
+References: <20040413151630.710042e3@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH 2.6.5] (1/9) bridge - include file cleanup
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,28 +15,15 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: prabha@fla.fujitsu.com
-Cc: bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-On Fri, 16 Apr 2004 14:46:58 -0400 (EDT)
-prabha@fla.fujitsu.com wrote:
+On Tue, 13 Apr 2004 15:16:30 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-> Hi,
-> 
-> I have a quick question - where is the <MAC address , associated
-> interface> mapping stored in the bridge/brctl source code? I want to know
-> on which interface (say eth0,eth1,..) a given MAC address is seen by the
-> bridge.
+> Cleanup some of the include file's in the bridge code.
+> * if_bridge.h defines net_bridge, but not needed as part of the API.
+> * get rid of places that include if_bridge.h and uaccess.h but don't
+>   actually do API work.
 
-Bridge forwarding database (kernel net/bridge/br_fdb.c)
-displayed by
-	brctl showmacs <bridgename>
-
-
-> Could someone please help..
-> Thanks!
-> Prabha
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
+Applied.
