@@ -1,7 +1,7 @@
-Message-Id: <200309251512.h8PFCLOt025929@fire-1.osdl.org>
+Message-Id: <200309251721.h8PHLUOt007664@fire-1.osdl.org>
 From: yourmetaylor@latinmail.com
-Content-Type: multipart/mixed; boundary="----------=_1064502743-22973-74"
-Date: Thu, 25 Sep 2003 17:14:55 +0200
+Content-Type: multipart/mixed; boundary="----------=_1064510491-5575-242"
+Date: Thu, 25 Sep 2003 19:24:04 +0200
 MIME-Version: 1.0
 Subject: [Bridge] IMPORTANT/URGENT RESPONSE
 Reply-To: yourmetaylor@latinmail.com
@@ -17,7 +17,7 @@ To: bridge@lists.osdl.org
 
 This is a multi-part message in MIME format...
 
-------------=_1064502743-22973-74
+------------=_1064510491-5575-242
 Content-Type: text/plain;
 	charset="US-ASCII"
 Content-Disposition: inline
@@ -107,7 +107,7 @@ Yourme Taylor.
 
 
 
-------------=_1064502743-22973-74
+------------=_1064510491-5575-242
 Content-Type: text/plain; name="SpamAssassinReport.txt"
 Content-Disposition: inline; filename="SpamAssassinReport.txt"
 Content-Transfer-Encoding: 7bit
@@ -133,4 +133,4 @@ NIGERIAN_BODY      (2.9 points)  Message body has multiple indications of Nigeri
 
 
 
-------------=_1064502743-22973-74--
+------------=_1064510491-5575-242--
