@@ -1,14 +1,12 @@
-Date: Mon, 14 Mar 2005 21:40:22 -0800
-From: "David S. Miller" <davem@davemloft.net>
-Message-Id: <20050314214022.623ff3b0.davem@davemloft.net>
-In-Reply-To: <20050311102636.30934f12@dxpl.pdx.osdl.net>
-References: <20050310154437.1223b6e9@dxpl.pdx.osdl.net>
-	<20050310185152.12ed9819.davem@davemloft.net>
-	<20050311102636.30934f12@dxpl.pdx.osdl.net>
+Date: Tue, 15 Mar 2005 09:13:05 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20050315091305.3fc07561@dxpl.pdx.osdl.net>
+In-Reply-To: <20050315121930.GE3189@stusta.de>
+References: <20050315121930.GE3189@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] bridge: no update when hold time is zero
+Subject: [Bridge] Re: [2.6 patch] fix bridge <-> ATM compile error
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,17 +15,8 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@oss.sgi.com, bridge@lists.osdl.org
+To: Adrian Bunk <bunk@stusta.de>
+Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net, bridge@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.co
 
-On Fri, 11 Mar 2005 10:26:36 -0800
-Stephen Hemminger <shemminger@osdl.org> wrote:
-
-> Some users, set hold time to zero on bridge so it always does
-> flooding. This is usually when using it with wireless.  The new RCU
-> based code changed the behaviour so the bridge would not flood for
-> one GC interval. This patch restores the original behaviour.
-
-Applied, thanks Stephen.
-
-Please don't forget the signed-off-by line next time :-)
+Given the #ifdef mess, perhaps bridge should have the hooks available
+independent of the configuration.
