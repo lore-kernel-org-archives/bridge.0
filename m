@@ -1,10 +1,10 @@
-Message-ID: <001901c41415$f8cf2410$f9cd00d5@kastrup>
-From: =?iso-8859-1?Q?Ferm=EDn_Gal=E1n?= <fgalan@teleline.es>
-Date: Sat, 27 Mar 2004 17:10:05 +0100
+Message-ID: <405E6CF0.5040900@cox.net>
+Date: Sun, 21 Mar 2004 20:34:56 -0800
+From: "D@7@k|N&" <dataking@cox.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Limitation in virtual bridge number
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Sparc Bridge problems
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,37 +13,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@osdl.org
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-Hello,
+Hey guys!
 
-I would like to know wether the number of
-virtual bridges that can be created (with
-'brctl addbr') is limited to a given number.
+I'm having a little trouble with a sprc bridge setup.  I am running SuSe 7.3 for sparc on a Sun Ultra1 Creator3D.
+I compiled 2.4.25 kernel with 802.1d Ethernet Bridging support, and installed
+bridge-utils 0.9.6.  I've read all of the documentation that I could find (Bridging FAQ and
+Bridging HOWTO).  But I still get the following errors:
 
-My question is due to certain tests that I have
-performed, the number of virtual bridges cann't be
-greater than 32. Triying to add the 33rd bridge
-with 'brctl addbr' works, but causes the removal
-of the oldest one (the first in the 'brctl show' list):
-the number of existing virtual bridges is never
-more than 32.
+brctl addbr br0
+brctl addif br0 eth0
+bridge br0 doesn't exist!
 
-As reference, I have performed these tests in
-a Linux 2.4.21 kernel, with bridge support compiled
-as module (I can give you more information, if you
-need it).
+Why not?
 
-Where resides the limitation? In the virtual bridge
-kernel support? In the brctl tool? In the way of
-compiling? Maybe is a bug?
+brctl addbr br0
+device br0 already exists; can't create bridge with the same name
 
-I would like to know how can I create more
-than 32 virtual bridges (if possible).
+I've found on other mailing-lists that sparc systems require the bridge-utils64 package, but can only find it for Debian.
 
-Thank you very much for your attention!
+Any thoughts on what's going on here?  If I compiled the utils from source, shouldn't they be the right ones for my system/kernel?
 
--------
-Ferm=EDn
+Any help would be greatly appreciated.
+
+Thanks,
+Charlie
+
 
