@@ -1,14 +1,14 @@
-Message-ID: <41407CAE.4000504@siennax.com>
-Date: Thu, 09 Sep 2004 17:54:22 +0200
-From: Mark Ruijter <bridge@siennax.com>
+Message-ID: <41407E10.7040000@candelatech.com>
+Date: Thu, 09 Sep 2004 09:00:16 -0700
+From: Ben Greear <greearb@candelatech.com>
 MIME-Version: 1.0
-References: <414057B1.1020902@siennax.com>
-	<20040909082129.62059694.davem@davemloft.net>
+Subject: Re: [Bridge] Re: Problem in changed VLAN code can cause systems to
+	hang.
+References: <414057B1.1020902@siennax.com>	<20040909082129.62059694.davem@davemloft.net>
 	<4405.131.188.28.69.1094744038.squirrel@www.osdl.org>
 In-Reply-To: <4405.131.188.28.69.1094744038.squirrel@www.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: Problem in changed VLAN code can cause systems to hang.
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -39,26 +39,19 @@ shemminger@osdl.org wrote:
 > If that is true, then the code is doing the right thing (and net-snmp)
 > is being too dependant on MII.
 
-Stephen,
+Why would it cause a hang though?  I would expect net-snmp to immediately
+fail the IOCTL and continue on it's merry way.
 
-The production system that I use went down completely on this bug.
-My laptop didn't go down but it became unstable. (ifconfig -a would 
-freeze etc.).
+Ben
 
-net-snmp is not the problem, it just shows it.
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/bridge
+> 
 
-However when I type :
-mii-tool eth0
-SIOCGMIIPHY on 'eth0' failed: Operation not supported
-
-This is the case for all interfaces in the production machine as well as 
-my laptop.
-
-So you're right about the not supported mii interface. But my point is 
-that it shouldn't be possible to make the system unstable with an ioctl.
-
-
-Mark.
 
 -- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
