@@ -1,14 +1,14 @@
-Date: Sat, 11 Sep 2004 15:29:08 +0200
-Subject: Re: [Bridge] sparc64: add bridge failed: Operation not supported
-Message-ID: <20040911152908.U15021@macwheel.xs4all.nl>
-References: <20040910223011.Q15021@macwheel.xs4all.nl>
-	<20040911080956.T15021@macwheel.xs4all.nl>
+Date: Sun, 12 Sep 2004 14:11:23 +0200
+Subject: Re: [Bridge] Sparc64 bug in 1.0.4
+Message-ID: <20040912141123.A22682@macwheel.xs4all.nl>
+References: <20040804010230.GH21309@riseup.net>
+	<33094.63.170.215.71.1091592938.squirrel@www.osdl.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1LW0Rr0Uq98qh6Rv"
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 Content-Disposition: inline
-In-Reply-To: <20040911080956.T15021@macwheel.xs4all.nl>;
-	from stappers@stappers.nl on Sat, Sep 11, 2004 at 08:09:56AM +0200
+In-Reply-To: <33094.63.170.215.71.1091592938.squirrel@www.osdl.org>;
+	from shemmingeratosdl.org on Tue, Aug 03, 2004 at 08:15:38PM +0000
 From: stappers@stappers.nl (Geert Stappers)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -21,51 +21,45 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 To: bridge@lists.osdl.org
 
 
---1LW0Rr0Uq98qh6Rv
+--mYCpIKhGyMATD0i+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 11, 2004 at 08:09:56AM +0200, Geert Stappers wrote:
-> On Fri, Sep 10, 2004 at 10:30:11PM +0200, Geert Stappers wrote:
-> > Hello,
-> Here so more information,
->=20
-> > On a Sun Sparc Ultra5, where `uname -m` reports "sparc64",
-> > and the bridge kernel modules is loaded (`insmod bridge`),
-> the kernel is version 2.4.26
-And the brctl I use is 1.0.4
-
-> > reports on `brctl addbr br0` with
+On Tue, Aug 03, 2004 at 08:15:38PM +0000, shemminger@osdl.org wrote:
+> >
+> > Under sparc64, with the bridge module loaded, running brctl addbr br0
+> > results in:
+> >
 > > add bridge failed: Operation not supported
-> >=20
-> > That failure writes in /var/log/kern.log
-> > sys32_ioctl(brctl:572): Unknown cmd fd(3) cmd(000089a0) arg(effffcbd)
-> the 572 is the process id
-89a0 is  SIOCBRADDBR,
-but SIOCBRADDBR is a 2.6 kernel item ( not in 2.4)
+> > sys32_ioctl(brctl:6667): Unknown cmd fd(3) cmd(000089a0) arg(effffbf9)
+>=20
+> What version is the kernel you are using?
+I can reproduce it on 2.4.26
+
+> If it isn't 2.6.7 or later it probably won't work.
+What does that mean?
+brctl needs 2.6.7 or later?
+When kernel older then 2.6.7, then brctl fails?
+
+And additional:
+Are other 64 bits architectures like powerpc effected?
+Or is about all architectures?
 
 
-> > My questions are:
-> >=20
-> > * Are there succesfull reported sparc64 systems doing bridging?
-> > * What should I do to get that sparc64 acting as a bridge?
-> A recompile with gcc-2.95 did not show improvement.
-AFAICT it is brctl 1.0.4 that needs a 2.6 kernel.
+Cheers
+Geert Stappers
 
-> > Cheers
-> > Geert Stappers
-
---1LW0Rr0Uq98qh6Rv
+--mYCpIKhGyMATD0i+
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFBQv2kOSINbgwa/7sRAmcvAKCELcBUlO2WODgjldaEvvo8L5opoQCgiBvz
-/s9nn2IQbXE/Boc3ocDK704=
-=B580
+iD8DBQFBRDzrOSINbgwa/7sRAnBhAKDHlP0v7c+QkWxF6dr1tv+RsTNUxQCcC3Jv
+YhV95KStJKitZKm9q9q/vzQ=
+=lrKn
 -----END PGP SIGNATURE-----
 
---1LW0Rr0Uq98qh6Rv--
+--mYCpIKhGyMATD0i+--
