@@ -1,12 +1,13 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Date: Thu, 29 Jul 2004 11:11:02 -0400
-Message-ID: <C0170D0AF1277849A4B4518034F855DD0CFC3A@aiexchange.ai.aiinet.com>
-From: "Eble, Dan" <DanE@aiinet.com>
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] RE: [PATCH] (3/4) bridge linkstate handling
+Date: Thu, 29 Jul 2004 09:31:20 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040729093120.58258ba9@dell_ss3.pdx.osdl.net>
+In-Reply-To: <1091103164.1046.591.camel@jzny.localdomain>
+References: <20040728162413.0de73ea3@dell_ss3.pdx.osdl.net>
+	<1091103164.1046.591.camel@jzny.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH] (3/4) bridge linkstate handling
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,30 +17,24 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: hadi@cyberus.ca
-Cc: netdev@oss.sgi.com, bridge@osdl.org, Stephen Hemminger <shemminger@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com, bridge@osdl.org
 
-> -----Original Message-----
-> From: jamal [mailto:hadi@cyberus.ca] 
+On 29 Jul 2004 08:12:44 -0400
+jamal <hadi@cyberus.ca> wrote:
+
+> On Wed, 2004-07-28 at 19:24, Stephen Hemminger wrote:
+> > This makes bridge port status reflect both the state of the interface
+> > from software (up/down) and the carrier.  It makes STP handle link failure
+> > (cable breakage, etc).  The original concept comes from a 
+> > Mark Ruijter <bridge@siennax.com> who implemented it differently.
+> > My way is simpler and requires no polling.
+> > 
+> > Obviously, this link state detection will only work if the network card
+> > handles the events properly.
+> > 
 > 
-> On Thu, 2004-07-29 at 09:24, Eble, Dan wrote:
-> > Even if STP were implemented in user space, this part 
-> should be done in
-> > the kernel to make sure that there is no window of time for 
-> a packet to
-> > be received or transmitted after the link state changes.  
-> 
-> Your main problem there would be STP convergence time. Transfering the
-> packet to user space and reacting should be several factors 
-> of magnitude
-> faster than it takes STP to converge.
-> The STP state should stay in the kernel. Control of it and 
-> BPDU handling
-> is what i am suggesting to take out.
+> nice. Does this entrench STP further in the kernel?
+> Still planning to move it out to user space?
 
-Is the time it takes STP to converge really the issue in this case?
-When a port loses and then regains carrier, it needs to enter the
-Blocking state without delay.  If the carrier state change were handled
-by a daemon, the bridge driver would have some time to transmit or
-receive packets via that port before the daemon could tell it to block
-the port, wouldn't it?
-
+The same logic would apply in user space, it would just use the netlink
+events that come from netlink messages (RTM_NEWLINK) rather than notifier chain (NETDEV_CHANGE).
