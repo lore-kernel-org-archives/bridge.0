@@ -1,11 +1,7 @@
-Date: Sat, 29 May 2004 03:50:13 +0200
-From: Santiago Garcia Mantinan <manty@debian.org>
-Message-ID: <20040529015012.GA5863@man.manty.net>
-References: <1ge3one.1m2b8mcymi2u4M@geos.net.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <1ge3one.1m2b8mcymi2u4M@geos.net.eu.org>
+From: geos@epost.de (Georg Schwarz)
+Date: Sun, 30 May 2004 12:45:12 +0200
+Message-ID: <1gelkt3.1hchrzdd83yzeM@geos.net.eu.org>
 Subject: [Bridge] Re: Linux bridging code bounces back frames?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -15,62 +11,71 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Georg Schwarz <geos@epost.de>
-Cc: bridge@osdl.org
+To: buytenh@gnu.org, bridge@osdl.org, manty@debian.org
 
+Thanks to all of you that have responded to my initial plea for help. In
+the mean time I also tried kernel 2.6.6, but with identical results.
+Interestingly that kernel constantly reported that it was reciving IP
+packets with its own IP address as a source on eth1 (being the built-in
+ICL EtherTeam 16i). Probably this is the same effect that for some reson
+frames get reflected or or sent-incorectly to that interface.
+So I built in another NIC. I tried both an Intel EtherExpress Pro/10+
+ISA and a 3COM Etherlink III Combo (3c5x9): with both of them the
+problem does not show up, and things work fine (so far :-). BTW, which
+of the two would would prefer?
+My ethernet setup (kernel 2.4.26) now looks like this, with only eth0
+and eth1 being used for the bridge (eth2 remains unfonfigured for the
+time being):
+
+Kernel command line: auto BOOT_IMAGE=Linux ro root=301
+ether=10,0x280,0xd0000,eth0 ether=11,0x300,eth1 ether=15,0x240,2,eth2
+idebus=33
+
+wd.c:v1.10 9/23/94 Donald Becker (becker@cesdis.gsfc.nasa.gov)
+eth0: WD80x3 at 0x280, 00 00 C0 0A 2C 2F WD8003-old, IRQ 10, shared
+memory at 0x
+d0000-0xd1fff.
+ id: 0xb4  io: 0x300 eth1: Intel EtherExpress Pro/10+ ISA
+ at 0x300, 00:a0:c9:29:f1:29, IRQ 11, 10BaseT.
+eth16i.c: v0.35 01-Jul-1999 Mika Kuoppala (miku@iki.fi)
+eth2: ICL EtherTeam 16i/32 at 0x240, IRQ 15, 00:00:4b:07:b3:9f TP 
+interface.
+
+
+the Intel EtherExpress Pro/10+ does not say it is eth1 in the dmesg. Is
+this a cosmetic bug of the driver?
+
+So it looks like the ICL EtherTeam 16i/32 driver is not compatible with
+the bridging code. :-( Hard to say, for me at least, where the fault
+is...     
+
+If there is anything more I could do to track down the problem please
+let me know.
+
+Georg
+
+PS: if you have any tips for improving bridging latency (pings in the
+LAN are about 10 ms via the bridge) on my admittingly old system I would
+appreciate if you could let me now.
+
+Georg Schwarz <geos@epost.de> wrote:
+
+> I'm trying to build a bridge using a 486DX2/66 with two 10 Mbit Ethernet
+> NICs. The machine (tsushima) is running Debian stable and kernel 2.4.26.
+> Previously I used it as a router, so I know the hardware (NICs) is
+> working.
+> The NICs are as follows:
+> eth0: WD80x3 at 0x280, 00 00 C0 0A 2C 2F WD8003-old, IRQ 10, shared
+> memory at 0xd0000-0xd1fff.
+> eth16i.c: v0.35 01-Jul-1999 Mika Kuoppala (miku@iki.fi)
+> eth1: ICL EtherTeam 16i/32 at 0x240, IRQ 15, 00:00:4b:07:b3:9f TP
+> interface.
+> 
 > eth0 is a BNC network, if that matters.
-
-> Now the problem is that the bridge appears to sometimes "reflect" frames
-> received on eth0 back to eth0. When I ping from one PC another PC on the
-
-I was going to tell you to check the terminators, I've seen many weird
-things in BNC nets because of terminator problems, but reading this...
+> 
 
 
-> On the bridge with brctl showmacs br0 I can see where 00:A0:24:CF:E8:8E
-> is supposed to be. It should be on port no. 1. Nevertheless,  
-> brctl showmacs br0 sometimes shows the 00:a0:24:cf:e8:8e on port no. 2,
-> i.e. eth1. This is when the duplicates/reflections occur.
 
-The bridge should not learn that that mac is on port 2 if it is not, are you
-shure there is no loop in the net, or another thing that could be causing
-packages with that mac to be on port 2?
-
->   2     00:00:c0:0a:26:69       no                10.52
->   2     00:a0:24:cf:e8:8e       no                 0.37
-> then after unplugging eth1 on the bridge and pinging from 192.168.0.1 to
-> 192.168.0.39:
->   1     00:00:c0:0a:26:69       no                36.85
->   1     00:a0:24:cf:e8:8e       no                44.13
-
-Note that not only one machine is changing the interface, I see two on the
-output you sent, don't know if there can be even more at some other time.
-
-> The bride does not work; I cannot ping through it; strangely though dhcp
-> does work through it, as does arp resolution.
-> My network is very simple. There's only that one bridge linking two
-> ethernet collission domains.
-
-After reading this I don't know what to say, I see no logic in any of this
-things, I wouldn't blame the bridge, maybe a harware/driver problem, I
-wouldn't know, I'm thinking in some interrupt sharing or something, but it
-doesn't make sense at all.
-
-> Unlike what /usr/share/doc/bridge-utils/README.Debian.gz says, STP seems
-> to be disabled by default.
-
-Yes, there was a change in the kernel default since I wrote that document,
-and as the document says, they can change anytime.
-
-> Any help on figuring out what's going wrong would be very much
-> appreciated.
-
-I'm sorry but I wouldn't know what to say about all this.
-
-> completely puzzled, Georg
-
-Me too, if you find what is going on... just post it on the list.
-
-Regards...
 -- 
-Manty/BestiaTester -> http://manty.net
+Georg Schwarz    http://home.pages.de/~schwarz/
+ geos@epost.de     +49 177 8811442
