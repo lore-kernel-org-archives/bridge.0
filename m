@@ -1,11 +1,12 @@
-Date: Thu, 5 Aug 2004 15:10:42 +0200 (CEST)
-From: Henrik Nordstrom <hno@marasystems.com>
-In-Reply-To: <W5101410375481091705422@asteria.telenet-ops.be>
-Message-ID: <Pine.LNX.4.61.0408051507530.405@filer.marasystems.com>
-References: <W5101410375481091705422@asteria.telenet-ops.be>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: [Bridge] Re:  Any way of knowing a packet's been defragmented
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [Bridge] Re:  Any way of knowing a packet's been defragmented
+Date: Thu, 5 Aug 2004 10:35:14 -0400
+Message-ID: <C0170D0AF1277849A4B4518034F855DD0CFC54@aiexchange.ai.aiinet.com>
+From: "Eble, Dan" <DanE@aiinet.com>
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,21 +15,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
+To: Henrik Nordstrom <hno@marasystems.com>, Bart De Schuymer <bdschuym@pandora.be>
 Cc: netfilter-devel <netfilter-devel@lists.netfilter.org>, bridge <bridge@osdl.org>, shemminger@osdl.org
 
-On Thu, 5 Aug 2004 bdschuym@pandora.be wrote:
+> -----Original Message-----
+> From: bridge-bounces@lists.osdl.org 
+> [mailto:bridge-bounces@lists.osdl.org] On Behalf Of Henrik Nordstrom
+> 
+> Eh.. I do not claim to be a bridge guru, but won't such bridge cause 
+> serious havoc on the network much like PMTU blackholes does?
+> 
+> You should either reject creating such bridge,
 
-> As Stephen explained, bridge ports of the same bridge device no longer 
-> need to have the same mtu. So the bridge code needs to drop packets 
-> (ARP, IP, whatever) that will be too long for the output port.
+IMO, the driver should not bridge any packets from a device with a
+larger MTU to a device with a smaller MTU, which I suppose is almost the
+same as forbidding such a bridge to be created, but I seem to remember
+Stephen's commenting that the 802 bridge spec says it should be done the
+way it is now.
 
-Eh.. I do not claim to be a bridge guru, but won't such bridge cause 
-serious havoc on the network much like PMTU blackholes does?
+> or make sure to fragment packets including ICMP MUST
+> FRAGMENT generation when not allowed (which requires an IP).
 
-You should either reject creating such bridge, or make sure to fragment 
-packets including ICMP MUST FRAGMENT generation when not allowed (which 
-requires an IP).
+The ethernet bridge driver is the wrong place to do IP or any other
+higher-layer protocol.  Its job is to be a LAN in a box.  If a device
+claims that it can only send packets up to a certain size, the bridge
+honors that claim.
 
-Regards
-Henrik
+If connection tracking is coalescing ethernet packets into a size
+greater than would otherwise be received from a device, then connection
+tracking should be responsible for undoing that damage (where and when,
+I don't know), otherwise the ethernet bridge driver will become a
+monstrosity of stuff unrelated to ethernet.
+
