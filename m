@@ -1,9 +1,12 @@
-Date: Wed, 2 Feb 2005 19:24:08 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-Message-ID: <Pine.LNX.4.62.0502021921100.19651@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1751054372-1107390248=:19651"
-Subject: [Bridge] [PATCH] Crash on "brctl stp br0"
+Date: Thu, 3 Feb 2005 11:54:07 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] recent 2.6 kernels hang on bridge shutdown
+Message-ID: <20050203115407.5e7fc195@dxpl.pdx.osdl.net>
+In-Reply-To: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
+References: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,38 +15,62 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de>
+Cc: bridge@lists.osdl.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 2 Feb 2005 18:56:52 +0100
+Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de> wrote:
 
---8323328-1751054372-1107390248=:19651
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+> With recent 2.6 kernels, the command
+>   brctl delbr br0
+> hangs during shutdown, and the kernel prints this message again and again:
+>   unregister_netdevice: waiting for br0 to become free. Usage count = 1
 
-Hello!
+Are you running IPV6? if so it is most likely related to IPV6.
 
-"brctl stp br0" would crash brctl provided that br0 is a bridge.  This is 
-caused by incorrect number of arguments in the commands table. "stp" needs 
-at least 2 arguments after "stp".  The patch against version 1.0.4 is 
-attached.
+
+> I was able to reproduce this problem with several kernels between 
+> (and including) 2.6.9-rc1 and 2.6.11-rc2-bk9.
+> I haven't tried later versions than 2.6.11-rc2-bk9 yet.
+> 2.6.8.1-bk2 still works fine.
+> 
+> My .config was taken from the Debian kernel-image-2.6.10-1-686 package,
+> adapted to the kernel.org kernels and the processor type set to Pentium
+> Classic. I can email it on request.
+> 
+> This script should reproduce the problem reliably:
+> #!/bin/bash
+> set -x
+> mount proc -t proc /proc
+> ifconfig lo 127.0.0.1
+> brctl addbr br0
+> modprobe e100   # also works with 3c5x9
+> brctl addif br0 eth0
+> ifconfig br0 192.168.1.1
+> ifconfig eth0 up
+> sleep 5
+> ifconfig lo down
+> lsmod | grep bridge
+> brctl delif br0 eth0
+> ifconfig br0 down
+> brctl delbr br0
+> 
+> To run it, I booted with init=/bin/bash to make sure the distribution's 
+> startup scripts don't interfere (although it might work anyway).
+> 
+> I already reported this to the linux-kernel list, since I couldn't tell
+> whether this is a bug in the bridging code or somewhere else.  On second
+> reading of REPORTING-BUGS, I probably should have sent it here first.
+> 
+> For reference, these are my postings to linux-kernel:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0501.3/2222.html
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0502.0/0139.html
+> 
+> Please let me know if you need any further information,
+> and please Cc me on replies, since I am not subscribed to the bridge list.
+> 
+> Mirko
+
 
 -- 
-Regards,
-Pavel Roskin
---8323328-1751054372-1107390248=:19651
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=stp_crash.diff
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.62.0502021924080.19651@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=stp_crash.diff
-
-LS0tIGJyY3RsL2JyY3RsX2NtZC5jDQorKysgYnJjdGwvYnJjdGxfY21kLmMN
-CkBAIC0zOTQsNyArMzk0LDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBjb21t
-YW5kIGNvbW1hbmRzW10gPQ0KIAkgICI8YnJpZGdlPlx0XHRzaG93IGEgbGlz
-dCBvZiBtYWMgYWRkcnMifSwNCiAJeyAxLCAic2hvd3N0cCIsIGJyX2NtZF9z
-aG93c3RwLCANCiAJICAiPGJyaWRnZT5cdFx0c2hvdyBicmlkZ2Ugc3RwIGlu
-Zm8ifSwNCi0JeyAxLCAic3RwIiwgYnJfY21kX3N0cCwNCisJeyAyLCAic3Rw
-IiwgYnJfY21kX3N0cCwNCiAJICAiPGJyaWRnZT4gPHN0YXRlPlx0dHVybiBz
-dHAgb24vb2ZmIiB9LA0KIH07DQogDQo=
-
---8323328-1751054372-1107390248=:19651--
+Stephen Hemminger	<shemminger@osdl.org>
