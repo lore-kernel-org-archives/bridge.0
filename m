@@ -1,13 +1,11 @@
-Message-ID: <4120114F.60906@shorewall.net>
-Date: Sun, 15 Aug 2004 18:43:43 -0700
-From: Tom Eastep <teastep@shorewall.net>
+Date: Tue, 17 Aug 2004 18:28:00 +0400
+From: Aleksey Serba <lucky@rbcmail.ru>
+Message-ID: <562736197.20040817182800@rbcmail.ru>
 MIME-Version: 1.0
-References: <411EAF08.3000401@shorewall.net> <411F5D5E.4000001@trash.net>
-	<411F7B87.7060303@shorewall.net> <41200E80.2000005@trash.net>
-In-Reply-To: <41200E80.2000005@trash.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: Policy match with a bridge
+Subject: [Bridge] bridge and ip aliasing on Debian
+Reply-To: Aleksey Serba <lucky@rbcmail.ru>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,43 +14,41 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>
-Cc: netfilter-devel@lists.netfilter.org, bridge@osdl.org
+To: bridge@lists.osdl.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+   Hello,
 
-Patrick McHardy wrote:
-| Tom Eastep wrote:
-|
-|> | Have you applied the ipsec+netfilter patches ? Without them, packets
-|> are
-|> | only seen encrypted in the OUTPUT chain.
-|> |
-|> Yes -- the ipsec+netfilter patches are applied. Here is the same test
-|> with the bridge removed and the local ip address transfered to one of
-|> the network cards:
-|
-|
-| The problem is ipv4_sabotage_out in the briding code. It prevents the
-| packet from hitting the LOCAL_OUT hook while it is still unencrypted.
-| When it hits the bridging code and its LOCAL_OUT hook it's too late.
-| Not sure how to handle it yet.
-|
+   I can't figure out how to set up several IP addresses on bridge
+   interface in Debian way.
 
-Thanks for the update.
+   Server - Debian GNU/Linux 2.6.7-1-k7
+   Interfaces - br0 ( eth0, eth1 )
 
-- -Tom
-- --
-Tom Eastep    \ Nothing is foolproof to a sufficiently talented fool
-Shoreline,     \ http://shorewall.net
-Washington USA  \ teastep@shorewall.net
+------------- /etc/network/interfaces.conf ---------------
+auto br0
+iface br0 inet static
+    address X.X.X.X
+    netmask X.X.X.X
+    network X.X.X.X
+    broadcast X.X.X.X
+    gateway X.X.X.X
+    bridge_ports eth0 eth1
+----------------------------------------------------------
+   It works fine.
+   I need to add unroutable ip address on bridge interface.
+   I doubt, adding new bridge interface - this is the right way to do it.
+----------------------------------------------------------
+auto br1
+iface br1 inet static
+    address 192.168.0.1
+    netmask 255.255.255.0
+    network 192.168.0.0
+    broadcast 192.168.0.255
+    bridge_ports eth0 eth1
+----------------------------------------------------------
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+   Any ideas? Any help will be greatly appreciated.
+   Please CC all replies, i'm not subscribed.
 
-iD8DBQFBIBFOO/MAbZfjDLIRAvS4AJ9eGQhcxVi09h8gmLZ/CpauSYlw1wCePgBQ
-trHWmX/wZV/DyIjSz05IGyQ=
-=mL/B
------END PGP SIGNATURE-----
+          Aleksey
+
