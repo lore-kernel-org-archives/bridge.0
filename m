@@ -1,14 +1,13 @@
 From: Bart De Schuymer <bdschuym@pandora.be>
-Subject: Re: [Bridge] Mirroring an interface to an other by using bridge ?
-Date: Mon, 29 Mar 2004 19:48:42 +0200
-References: <000e01c4128b$8c13f9d0$7f619082@simba>
-In-Reply-To: <000e01c4128b$8c13f9d0$7f619082@simba>
+Subject: Re: [Bridge] Limitation in virtual bridge number
+Date: Mon, 29 Mar 2004 20:23:56 +0200
+References: <001901c41415$f8cf2410$f9cd00d5@kastrup>
+In-Reply-To: <001901c41415$f8cf2410$f9cd00d5@kastrup>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-Message-Id: <200403291948.42235.bdschuym@pandora.be>
+Message-Id: <200403292023.56131.bdschuym@pandora.be>
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,39 +16,24 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Rein van Koten <rein@vankoten.com>, bridge@osdl.org
-Cc: shemminger@osdl.org
+To: =?utf-8?q?Ferm=C3=ADn=20Gal=C3=A1n?= <fgalan@teleline.es>, shemminger@osdl.org
+Cc: bridge@osdl.org
 
-On Thursday 25 March 2004 18:06, Rein van Koten wrote:
-> Hi,
-> Anyway,
->
-> I would appreciate your opinion on this or whether you know someone working
-> along the same lines... I myself am not C savvy enough to rewrite the
-> bridge module without additional input on this idea. And then again, maybe
-> it already exists.
+On Saturday 27 March 2004 17:10, Fermín Galán wrote:
+> I would like to know how can I create more
+> than 32 virtual bridges (if possible).
 
-It should be simple, removing the following code from 
-br_input.c::br_handle_frame_finish() should probably be enough:
-	dst = br_fdb_get(br, dest);
-	if (dst != NULL && dst->is_local) {
-		if (!passedup)
-			br_pass_frame_up(br, skb);
-		else
-			kfree_skb(skb);
-		br_fdb_put(dst);
-		goto out;
-	}
+The kernel actually creates any number of bridges. It turns out the userspace 
+code only handles 32 bridges. It turns out that the kernel code that is 
+executed for the show command only handles 64 bridges.
 
-	if (dst != NULL) {
-		br_forward(dst->dst, skb);
-		br_fdb_put(dst);
-		goto out;
-	}
+You can test this yourself by creating 33 bridges and then deleting a bridge 
+that wasn't the first one you created. When listing the bridges, the first 
+one you created will show up again.
 
-It would probably be interesting to have a bridge userspace tool option so 
-that the bridge acts like a hub, which is basically what you want.
+The userspace tool and kernel code will need to be rewritten.
 
 cheers,
 Bart
+
 
