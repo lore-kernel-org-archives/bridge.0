@@ -1,12 +1,10 @@
-Date: Mon, 1 Mar 2004 19:15:46 +0100
-From: Software-team <software-team@wp.pl>
-Message-Id: <20040301191546.7f0731fa@localhost.localdomain>
-In-Reply-To: <200402282000.i1SK06E28411@mail.osdl.org>
-References: <200402282000.i1SK06E28411@mail.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] problems with compiling kernel modules
+Message-ID: <404384BC.2010402@wp.pl>
+Date: Mon, 01 Mar 2004 19:45:16 +0100
+From: Software Team <software-team@wp.pl>
+MIME-Version: 1.0
+Subject: [Bridge] i need some help with compiling bridge module
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,43 +15,52 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
+On ?, 2004-03-01 at 10:31, Software-team wrote:
+ > I am trying to improve bridge module towards 802.1w (RSTP) but I am 
+new to kernel and modules programming. I dont want to compile the whole 
+modules every time I make some changes. Could you give me some clues how 
+to set up environment to compile only selected module (bridge 802.1d) 
+for a given kernel version, written in Makefile like:
+ > VERSION = 2
+ > PATCHLEVEL = 4
+ > SUBLEVEL = 20
+ > EXTRAVERSION =-8 etc.
+ > How to make a Makefile so the bridge module could be compiled 
+separately for that kernel (or another)?
+ > Thanks for any specyfic help.
 
-I finally found a solution to compile kernel module "bridge" with the same (!) kernel headers I once compiled my kernel with success. Makefile contains the same version of kernel (2.4.20, event the same extraersion -8). But when I try to insert that module into a kernel with insmod I get a lot of errors.
-Could anyone tell me whats wrong? What am I doing wrong? I guess there is some way to compile only a module, not the whole kernel, which is very useful for developers. Does anyone know how to do so?
-Thanks, there comes my errors....
+It's pretty easy. do make menuconfig, and under Networking Options put
+'M' where it says 802.1d Ethernet Bridging.
 
+Save your config, and then do make dep && make bzImage modules
+modules_install
+Move the /usr/src/linux/arch/i386/boot/bzImage to somewhere in /boot
+(renaming it if you like), make the appropriate modification to
+lilo.conf (and then rerun lilo) or change /boot/grub/grub.conf and
+reboot. When it starts up again, just modprobe bridge.
 
-[root@localhost linux-2.4.20]# insmod net/bridge/bridge.o
-net/bridge/bridge.o: unresolved symbol __dev_get_by_name_Rsmp_dff2466c
-net/bridge/bridge.o: unresolved symbol register_netdev_Rsmp_807e44f8
-net/bridge/bridge.o: unresolved symbol ether_setup_Rsmp_66797dc6
-net/bridge/bridge.o: unresolved symbol eth_type_trans_Rsmp_697fcdb3
-net/bridge/bridge.o: unresolved symbol netif_rx_Rsmp_c5346eca
-net/bridge/bridge.o: unresolved symbol __write_lock_failed
-net/bridge/bridge.o: unresolved symbol add_timer_Rsmp_a19eacf8
-net/bridge/bridge.o: unresolved symbol del_timer_Rsmp_fc62f16d
-net/bridge/bridge.o: unresolved symbol __out_of_line_bug_Rsmp_8b0fd3c5
-net/bridge/bridge.o: unresolved symbol dev_get_by_index_Rsmp_604eff36
-net/bridge/bridge.o: unresolved symbol dev_set_promiscuity_Rsmp_c4ed559b
-net/bridge/bridge.o: unresolved symbol unregister_netdevice_notifier_Rsmp_fe769456
-net/bridge/bridge.o: unresolved symbol __generic_copy_to_user_Rsmp_d523fdd3
-net/bridge/bridge.o: unresolved symbol skb_over_panic_Rsmp_8f714d09
-net/bridge/bridge.o: unresolved symbol skb_under_panic_Rsmp_26d771ad
-net/bridge/bridge.o: unresolved symbol br_ioctl_hook_Rsmp_1fb9705f
-net/bridge/bridge.o: unresolved symbol __br_write_unlock_Rsmp_702da97e
-net/bridge/bridge.o: unresolved symbol __read_lock_failed
-net/bridge/bridge.o: unresolved symbol __kfree_skb_Rsmp_fb8e515b
-net/bridge/bridge.o: unresolved symbol printk_Rsmp_1b7d4074
-net/bridge/bridge.o: unresolved symbol kfree_Rsmp_037a0cba
-net/bridge/bridge.o: unresolved symbol unregister_netdev_Rsmp_091a1ac4
-net/bridge/bridge.o: unresolved symbol kmalloc_Rsmp_93d4cfe6
-net/bridge/bridge.o: unresolved symbol register_netdevice_notifier_Rsmp_63ecad53
-net/bridge/bridge.o: unresolved symbol netdev_finish_unregister_Rsmp_d29730a1
-net/bridge/bridge.o: unresolved symbol alloc_skb_Rsmp_6505afe0
-net/bridge/bridge.o: unresolved symbol do_softirq_Rsmp_f0a529b7
-net/bridge/bridge.o: unresolved symbol br_handle_frame_hook_Rsmp_aed5cfaa
-net/bridge/bridge.o: unresolved symbol irq_stat_Rsmp_ed7388c8
-net/bridge/bridge.o: unresolved symbol dev_queue_xmit_Rsmp_38e4c261
-net/bridge/bridge.o: unresolved symbol __br_write_lock_Rsmp_13836e40
-net/bridge/bridge.o: unresolved symbol jiffies_Rsmp_0da02d67
-net/bridge/bridge.o: unresolved symbol skb_clone_Rsmp_b0b1927a
+I also found that I had to do make mrproper before I could get the
+bridge module to load. In this case, make sure you save your .config
+file to somewhere else first, or you'll lose it.
+
+HTH.
+-----------------------------------------------
+
+Yes,
+What you wrote is sure both right, and simple. But it takes a lot of 
+time. But that is not what I want. I want to compile a bridge module 
+separately, like you compile some modules that come you add later to 
+your kernel (like i did for example with a NTFS module, which I 
+downloaded and compilet separately from my kernel 2.4.20-8). I would 
+like to do the same with Bridge module. I want to make some changes and 
+compile it with kernel headers from my kernel. But I dont want to 
+compile the whole kernel (ang go through that process you described) 
+every time I make some minor changes to the module which uses the same 
+kernel header files. There should be some way to do it, I sure. But I 
+dont know how:( I can bet this, because nobody would write kernel if he 
+should compile it every time one makes some change. This would take ages 
+to finish the project.
+Still hoping for an answer.
+
+Software Team
+
