@@ -1,11 +1,11 @@
-Date: Sat, 26 Mar 2005 23:40:30 +0100
+Date: Sun, 27 Mar 2005 10:19:03 +0200
 From: Alpt <alpt@freaknet.org>
-Message-ID: <20050326224030.GA31822@darkalpt>
+Message-ID: <20050327081903.GA18714@nihil>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+	protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
 Content-Disposition: inline
-Subject: [Bridge] [PATCH] bridge hub_enabled option
+Subject: [Bridge] [PATCH bridge-2.6.11] bridge hub_enabled option
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,12 +18,12 @@ To: netdev@oss.sgi.com
 Cc: bridge@lists.osdl.org
 
 
---NDin8bjvE/0mNLFQ
-Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
+--z6Eq5LdranGa6ru8
+Content-Type: multipart/mixed; boundary="9amGYk9869ThD9tj"
 Content-Disposition: inline
 
 
---4Ckj6UjgE2iN1+kY
+--9amGYk9869ThD9tj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -80,6 +80,8 @@ http://freaknet.org/alpt/src/bridge-hub/bridge-utils-1.0.6-hub.patch
 Here attached there is only the patch for the net/bridge code.
 
 Best Regards
+
+PS: I'm resending this mail because after 7 hours I don't see it in the ml.
 --=20
 :wq!
 "I don't know nothing" The One Who reached the Thinking Matter   '.'
@@ -88,7 +90,7 @@ Best Regards
 [ GPG Key ID 441CF0EE ]
 [ Key fingerprint =3D 8B02 26E8 831A 7BB9 81A9  5277 BFF8 037E 441C F0EE ]
 
---4Ckj6UjgE2iN1+kY
+--9amGYk9869ThD9tj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename="bridge-2.6.11-hub.patch"
 Content-Transfer-Encoding: quoted-printable
@@ -222,18 +224,18 @@ diff -ru a-2.6.11/net/bridge/br_sysfs_br.c b-2.6.11/net/bridge/br_sysfs_br.c
  	&class_device_attr_priority.attr,
  	&class_device_attr_bridge_id.attr,
 
---4Ckj6UjgE2iN1+kY--
+--9amGYk9869ThD9tj--
 
---NDin8bjvE/0mNLFQ
+--z6Eq5LdranGa6ru8
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFCReTev/gDfkQc8O4RAsmzAKC8Qn/t8CRbc4FLDg9xUUzeomp0lgCgpUku
-mK1BIJrsUl723VdbEKdl/kg=
-=dnQS
+iD8DBQFCRmx2v/gDfkQc8O4RAtQRAKDNfsqItVPixFmhybp0+nQtxGD4QQCgrwGW
+zkwwi/CTjeDRCBkRv16qdaQ=
+=hIh0
 -----END PGP SIGNATURE-----
 
---NDin8bjvE/0mNLFQ--
+--z6Eq5LdranGa6ru8--
