@@ -1,9 +1,13 @@
-Message-ID: <1097297374.41676ddf020df@webmail.cuhk.edu.hk>
-From: Wu Yiu Kei <wuyiukei@cuhk.edu.hk>
+Message-ID: <416DC6EF.9050001@shorewall.net>
+From: Tom Eastep <teastep@shorewall.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=BIG5
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] About simple bridging using Fedora Core 2
+References: <411EAF08.3000401@shorewall.net> <411F7B87.7060303@shorewall.net>
+	<41200E80.2000005@trash.net>
+	<200408192010.28417.bdschuym@pandora.be>
+In-Reply-To: <200408192010.28417.bdschuym@pandora.be>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: Policy match with a bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,34 +16,41 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Sat, 09 Oct 2004 04:49:46 -0000
-To: bridge@lists.osdl.org
+Date: Thu, 14 Oct 2004 00:23:16 -0000
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: netfilter-devel@lists.netfilter.org, bridge@osdl.org
 
-Hi, I am a beginner of bridge. I have a problem of using Fedora Core 2 to make a
-simple bridge. Here is my setup:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The bridge computer is installed with Fedore Core 2 (with the SE Linux patch).
-As I know that kernel 2.6.5 is already support bridging by default, so I didn't
-recompile the kernel. Then I installed bridge-utils-0.9.6-1.i386. And no
-additional configuration is made. After comfirming that the 2 ethernet cards
-for bridging (eth1 & eth2) are working properly, I build up a bridge by the
-following commands:
+Bart De Schuymer wrote:
+> On Monday 16 August 2004 03:31, Patrick McHardy wrote:
+>
+>>The problem is ipv4_sabotage_out in the briding code. It prevents the
+>>packet from hitting the LOCAL_OUT hook while it is still unencrypted.
+>>When it hits the bridging code and its LOCAL_OUT hook it's too late.
+>>Not sure how to handle it yet.
+>
+>
+> I'll have a look at that after I'm finished with the IPv6 bridge
+firewalling
+> stuff.
+>
 
-#ifconfig eth1 0.0.0.0 promisc
-#ifconfig eth2 0.0.0.0 promisc
-#brctl addbr mybridge
-#brctl addif eth1
-#brctl addif eth2
-#ifconfig mybridge up
+Any progress on this?
 
-Notice that eth1 is connect to the internet directly, and eth2 is connected to a
-host. After setting up the bridge, I tried to use the host to access the
-internet, but the behaviour is very strange. It seems that the traffic through
-the bridge is extremely slow. It's too slow to request even a webpage. But some
-tcp connection can really be established, like up2date. I have checked the
-memory of the bridge, but it doesn't seem to be run out of memory.
+Thanks,
+- -Tom
+- --
+Tom Eastep    \ Nothing is foolproof to a sufficiently talented fool
+Shoreline,     \ http://shorewall.net
+Washington USA  \ teastep@shorewall.net
+PGP Public Key   \ https://lists.shorewall.net/teastep.pgp.key
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-So, what's wrong with my bridge? Could anyone help me?
-
--------------------------------------------------
-This e-mail is sent by CUHK WebMail http://webmail.cuhk.edu.hk
+iD8DBQFBbcbvO/MAbZfjDLIRAmBsAJsFlFdf6+c5tzT8Z5OGG/nnxoL//wCghS8L
+hX2rkQdtF2v7YIwRyfRDLIY=
+=6sB9
+-----END PGP SIGNATURE-----
