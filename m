@@ -1,9 +1,12 @@
-Message-ID: <20040604072706.67129.qmail@web41008.mail.yahoo.com>
-Date: Fri, 4 Jun 2004 00:27:06 -0700 (PDT)
-From: Yong Chu Eu <ceyong@yahoo.com>
-MIME-Version: 1.0
+Date: Fri, 4 Jun 2004 12:42:17 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+Subject: Re: [Bridge] Wireless Bridge problems
+Message-ID: <20040604104216.GA4401@man.manty.net>
+References: <E5838291-B57C-11D8-800E-000A95BC99E4@us.army.mil>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Subject: [Bridge] Static bridge
+Content-Disposition: inline
+In-Reply-To: <E5838291-B57C-11D8-800E-000A95BC99E4@us.army.mil>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,35 +15,30 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org, buytenh@users.sourceforge.net, shemminger@users.sourceforge.net
+To: Derek Ditch <derek.ditch@us.army.mil>
+Cc: bridge@osdl.org
 
-Hi, i am using bridge-utils-1.0.4 in my redhat 9.0 pc, even i configure my
-bridge called br0 which bridging wlan0 & eth0 but after computer restart,
-it disapprear, how can we statically set it. I did write configuration and
-save as ifcfg-br0 . Anyone can help, Thanks! 
+> I need some suggestions.  Below is my debian interfaces file. Below 
+> that is my iptables configuration script.
 
-=====
-Happy and Healthy Always ! ^_^ !
-My Homepage   : http://planet.time.net.my/sunwaycity/ceyong
-My Buddhist Pages: http://planet.time.net.my/SunwayCity/ceyong/artikel.htm
+The ip you use on the machine should be set on the bridge, not in one of its
+interfaces
 
-Charity free donate Links :                  
-http://www.clearlandmines.com           
-http://www.thehungersite.com             
-http://www.freedonation.com               
-http://www.stopthehunger.com
-http://www.ecologyfund.com
-http://www.care2.com
-http://www.wildglobe.com
-http://hungrychildren.com
-http://www.buildaschool.org
-http://www.feedsa.co.za
-http://www.iwantcleanair.com
+> iface eth0 inet static
+>         address 192.168.0.254
 
+It seems you want to use this up, set it on the bridge interface then and
+leave this one like it is.
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Friends.  Fun.  Try the all-new Yahoo! Messenger.
-http://messenger.yahoo.com/ 
+On Debian we have a method for setting up bridges described in
+/usr/share/doc/bridge-utils/README.Debian.gz that should make things easier
+to setup a bridge, of course you can also use your own method like you do
+;-)
+
+If after having all interfaces on the bridge without IP (ip 0.0.0.0) and
+setting the local IP on the br0 interface, you still have problems, I'd say
+you have a look at your firewall, the logs may help you.
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
