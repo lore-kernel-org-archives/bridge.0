@@ -1,12 +1,10 @@
-From: "Roman Chertov" <rchertov@purdue.edu>
-Subject: RE: [Bridge] bridge in 'hub' mode possible?
-Date: Fri, 3 Dec 2004 11:48:35 -0500
-Message-ID: <017001c4d957$f0f29b70$0100a8c0@raider>
+Message-ID: <AD8D39C727CBD411BB2C0090273A72740CBF1DB3@mortimer.law.uconn.edu>
+From: "Hurley, Michael" <MHurley@law.uconn.edu>
+Date: Thu, 2 Dec 2004 15:11:18 -0500 
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <41B03950.5000106@web.de>
+	charset="iso-8859-1"
+Subject: [Bridge] One NIC not bridging?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,46 +13,79 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Michael Renzmann' <mrenzmann@web.de>, bridge@osdl.org
+To: "'bridge@osdl.org'" <bridge@osdl.org>
 
-> 
-> Hi.
-> 
-> Stephen Hemminger wrote:
-> > Have you tried "brctl setageingtime br0 0" to turn off
-> > forwarding table?
-> 
-> I wonder if it would be worth to introduce some kind of "monitor
-> interface" for a brigde (as can be found on switches, don't know if
-> "monitor port" would be the correct term for it).
-> 
-> The bridge could work as usual, while this virtual interface sees
-every
-> packet that traverses the bridge. tcpdump & co could be used on this
-> interface when needed. As an addition it should be possible to
-> enable/disable this interface using a new brctl command (something
-like
-> "brctl br0 monitor on|off").
-> 
-> Comments? If there's interest in such a function I possibly could
-spend
-> some time on it after christmas.
+Hello,
 
-I have already made one for the 2.4.20 kernel module and the 1.0.4
-bridge-utils.  Since I was making this for the Emulab testbed I also had
-to change the src/dst MACs that were going to the tap; otherwise, the
-underlying switch would drop the mirrored packets as their MAC's were
-not registered on the VLAN where the tap sat.  
+I'm having a problem getting two (working) NICs enslaved to a bridge to both
+work in the bridge.
 
-If people have any interest in this I can share with the code.
+The setup is just for testing and looks like this:
 
-Roman
+(NETWORK)-------|bridge|---------|test PC|
 
+I'm building a bridge from an old Dell Optiplex GX1 desktop. Using
+kernel-2.6.9-gentoo-r4, with bridging and ebtables compiled into the kernel;
+the two PCI NICs are Intel, and the e100 module compiled, installed, and
+works fine (tested both NICs with DHCP and got network access w/o a
+problem). Also installed the bridge-tools with emerge. (FWIW, The test PC is
+also an old Dell Optiplex GX1, running Fedora 3.)
 
-> 
-> Bye, Mike
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
+So far so good. I create the bridge:
 
+brctl addbr br0
+brctl stp br0 off
+brctl addif eth0
+brctl addif eth1
+ifconfig eth0 0.0.0.0 down
+ifconfig eth1 0.0.0.0 down
+ifconfig eth0 0.0.0.0 up
+ifconfig eth1 0.0.0.0 up
+ifconfig br0 up
+
+'brctl show' shows there is an interface br0 with eth0 and eth1 enslaved to
+it. ebtables (& iptables) rules are all set to ACCEPT packets/frames across
+the bridge.
+
+Now, the Problem:
+I connect the eth1 interface to the network side, and the eth0 interface to
+the testPC side. The eth1 NIC lights go green and it's connected to the
+network. eth0, connected to my test PC, does NOTHING. On the test PC, I
+'ifdown eth0' and 'ifup eth0' but get the result: "no link present. Check
+cable?" The test PC eth0 is configged to get an IP via DHCP, and does so
+without a problem without the bridge in between.
+
+A quick look at dmesg on the bridge shows the following:
+
+device eth0 entered promiscuous mode
+device eth1 entered promiscuous mode
+e100: eth1: e100_watchdog: link up, 100Mbps, full-duplex
+br0: port2(eth1) entering learning state
+br0: topology change detected, propogating
+br0: port2(eth1) entering forwarding state
+
+All that looks fine for eth1. But after eth0 enters promiscuous mode, it
+never enters a learning state, and never a forwading state.
+
+What I've tried so far:
+* echo "1" > /proc/sys/net/ipv4/ip_forward
+* Checked for IRQ conflicts w/ the NICs.
+* Moved NICs to different PCI slots
+* switched cable so network side is in eth0, local side on eth1. Same
+results as above but reversed, i.e. eth1 then has the problem, and eth0
+connects to the network, but eth1 just sits there.
+
+Totally stumped on this especially since I've set up a bridge before with
+similar hardware.
+
+Any help is *greatly* appreciated.
+
+Thanks
+
+-Mike
+
+Michael Hurley
+Webmaster/SysAdmin
+University of Connecticut School of Law
+mhurley@law.uconn.edu
+(860) 570-5233
