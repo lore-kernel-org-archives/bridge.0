@@ -1,12 +1,12 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [Bridge] Bridge performance problem
-Date: Thu, 26 Aug 2004 09:29:09 -0400
-Message-ID: <C0170D0AF1277849A4B4518034F855DD0CFC97@aiexchange.ai.aiinet.com>
-From: "Eble, Dan" <DanE@aiinet.com>
-Content-Transfer-Encoding: 8bit
+Date: Thu, 26 Aug 2004 09:15:53 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Bridge performance problem
+Message-Id: <20040826091553.5b691020@dell_ss3.pdx.osdl.net>
+In-Reply-To: <1093490432.23223.86.camel@localhost.localdomain>
+References: <1093490432.23223.86.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,40 +15,14 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Joubert Berger <joubert@berger-family.org>, bridge <bridge@osdl.org>
+To: Joubert Berger <joubert@berger-family.org>
+Cc: bridge@osdl.org
 
-Compared to the direct connection, the software bridge has a large
-latency.  It takes longer for one packet to go from machine A to machine
-B (& vice versa) when the bridge has to process it.
+On Wed, 25 Aug 2004 23:20:32 -0400
+Joubert Berger <joubert@berger-family.org> wrote:
 
-In the request/response test, the machines take turns sending each other
-packets, so the latency is added to each exchange.
-
-In the streaming test, the sending machine is able to send many packets
-before the receiver acknowledges them, so the latency is divided among
-many packets.
-
-Is your bridge configured to do anything fancy, such as connection
-tracking?  That would degrade performance for the connection test.  (But
-I've never used it, so I don't know by how much.)
--- 
-Dan Eble <dane@aiinet.com>  _____  .
-Software Engineer          |  _  |/|
-Applied Innovation Inc.    | |_| | |
-http://www.aiinet.com/     |__/|_|_|
-
-> -----Original Message-----
-> From: bridge-bounces@lists.osdl.org 
-> [mailto:bridge-bounces@lists.osdl.org] On Behalf Of Joubert Berger
-> Sent: Wednesday, August 25, 2004 11:21 PM
-> To: bridge@osdl.org
-> Subject: [Bridge] Bridge performance problem
-> 
-> 
-> I need some help understanding a strange bridge performance 
-> problem I am
-> seeing.  Maybe I am making more out of this than I need to.  
-> I need your
+> I need some help understanding a strange bridge performance problem I am
+> seeing.  Maybe I am making more out of this than I need to.  I need your
 > opinions.
 > 
 > The setup:
@@ -76,15 +50,24 @@ http://www.aiinet.com/     |__/|_|_|
 > connections per second, but in the second configuration I are getting
 > around 700-800 connections per second.  Why am I getting this big of a
 > difference?
-> 
+
+Because you have to process the packet twice on the bridge.
+What hardware are you using?  If you use NIC's that have NAPI latency
+will be worse (but better throughput).  If you use NIC's that have
+to copy every packet (like 8139) then it will be worse as well.
+
 > I am running Redhat kernel 2.4.20-30.9 (RH9).  I also changed the
 > txqueuelen on the two bridge interfaces to 50000.
-> 
+
+Increasing queuelen shouldn't do anything but make the problem worse. 
+If the queue is building up, then your performance is already shot.
+If you use a 2.6 based kernel (like Fedora Core 2 or Suse 9.1) the
+numbers might be better.
+
 > Anyone have any idea why I am seeing such a big difference in the
 > TCP_CRR test?  The introduction of the Linux bridge cause me some real
 > performance problems.
 > 
 > --joubert
-> 
-> 
 
+What is the ping time?
