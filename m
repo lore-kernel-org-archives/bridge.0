@@ -1,12 +1,13 @@
-From: "Gareth Wheelton" <gareth@hasslemonkey.net>
-Subject: RE: [Bridge] SUSE 8.1 build failure
-Date: Wed, 18 Aug 2004 17:26:20 +0100
-Message-ID: <000b01c48540$189cb1e0$ba00a8c0@hasslemonkey.net>
+Date: Thu, 19 Aug 2004 14:00:57 +0200 (CEST)
+From: Henrik Nordstrom <hno@marasystems.com>
+In-Reply-To: <20040819114604.GQ3921@sunbeam.de.gnumonks.org>
+Message-ID: <Pine.LNX.4.61.0408191346500.2389@filer.marasystems.com>
+References: <W5101410375481091705422@asteria.telenet-ops.be>
+	<Pine.LNX.4.61.0408051507530.405@filer.marasystems.com>
+	<20040819114604.GQ3921@sunbeam.de.gnumonks.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <1092728709.2909.4.camel@scaramouche>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] Re: Any way of knowing a packet's been defragmented
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,59 +16,42 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Harald Welte <laforge@netfilter.org>
+Cc: bridge <bridge@osdl.org>, netfilter-devel <netfilter-devel@lists.netfilter.org>, Bart De Schuymer <bdschuym@pandora.be>, shemminger@osdl.org
 
-I think 'libbride_private.h' was missing '#include <linux/hz.h>'
+On Thu, 19 Aug 2004, Harald Welte wrote:
 
-OK that's sorts out the compile, leaving the following link error:
+>> Eh.. I do not claim to be a bridge guru, but won't such bridge cause
+>> serious havoc on the network much like PMTU blackholes does?
+>
+> Nobody ever replied to that question.
 
-gcc  brctl.o brctl_cmd.o brctl_disp.o  -L ../libbridge -lbridge  -o brctl
-../libbridge/libbridge.a(libbridge_devif.o): In function `get_hz':
-/usr/src/linux/include/linux/hz.h:19: undefined reference to `__HZ'
-collect2: ld returned 1 exit status
-make: *** [brctl] Error 1
+Actually it was replied but with other words.
 
+The bridge has to drop oversized frames when bridgeing between media of 
+different MTU size due to the simple fact that it can not send them out 
+without violating the specifications of the target media. A bridge can not 
+be responsible for fragmenting oversized packets mainly due to the fact 
+that the bridge is not a router and fragmenting of packets is not defined 
+at the ethernet level. In addition it can not respond with ICMP MUST 
+FRAGMENT as it does not have an IP. It is also from the fine details about 
+which level the bridge operates at (Ethernet, not IP).
 
-Using 'nm' I found many modules under '/lib/modules/2.4.21-241-athlon'
-referencing an undefined symbol '__HZ_R799069f6'. Maybe this is related?
+It is the administrators responsibility to make sure he does not build a 
+IP network where bridgeing between different media will cause packets to 
+be dropped. This means that it is theoretically OK to bridge between media 
+of different physical MTU size as long as all hosts on the side with 
+larger MTU knows the actual MTU of the full network segment, not just 
+their physical media. This for example makes perfect sense in a transit 
+network.
 
-My kernel is configured correctly i.e. CONFIG_BRIDGE=m
+As I view it it is just a minor issue on bridge specification compliance, 
+nothing really important. The resolution is to modify slightly where in 
+the process the bridge drops oversized packets. It should be on transmit, 
+not forward, where the difference between the two is mainly which 
+Netfilter hooks has been called. This change also allows conntrack to do 
+it's work like normal as the bridge will then only drop packets if 
+oversized after it has left all the netfilter bridge hooks.
 
-
-So where does '__HZ' live?
-
-
-Cheers again.
-
-
-gareth
-
-
-
------Original Message-----
-From: Torsten Luettgert [mailto:t.luettgert@pressestimmen.de] 
-Sent: 17 August 2004 08:45
-To: Gareth Wheelton
-Cc: bridge@lists.osdl.org
-Subject: RE: [Bridge] SUSE 8.1 build failure
-
-On Die, 2004-08-17 at 02:35, Gareth Wheelton wrote:
-> Does anyone know where 'HZ' is declared in the 2.4.xx source?
-
-grep is your friend:
-
-# fgrep -r '#define HZ' /usr/src/linux
-[...]
-/usr/src/linux/include/asm-i386/param.h:#define HZ 100
-[...]
-
-so, you should insert
-
-#include <asm/param.h>
-
-into the module that doesn't compile.
-
-- Torsten
-
-
-
+Regards
+Henrik
