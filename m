@@ -1,9 +1,9 @@
-Date: Thu, 17 Mar 2005 09:44:10 -0800
+Date: Thu, 17 Mar 2005 09:45:44 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] max number of enslaved devices
-Message-ID: <20050317094410.19446b8a@dxpl.pdx.osdl.net>
-In-Reply-To: <200503171032.j2HAWqCU025245@thewayout.net>
-References: <200503171032.j2HAWqCU025245@thewayout.net>
+Subject: Re: [Bridge] (no subject)
+Message-ID: <20050317094544.081aed75@dxpl.pdx.osdl.net>
+In-Reply-To: <200503171730.j2HHUrqh029418@smtp.osdl.org>
+References: <200503171730.j2HHUrqh029418@smtp.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,22 +15,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Osama Abu Elsorour <osama@wayout.net>
-Cc: bridge@lists.osdl.org
+To: dyf <duziziii@163.com>
+Cc: bridge <bridge@osdl.org>
 
-On Thu, 17 Mar 2005 12:32:55 +0200
-"Osama Abu Elsorour" <osama@wayout.net> wrote:
+On Fri, 18 Mar 2005 01:30:43 +0800
+"dyf" <duziziii@163.com> wrote:
 
-> What is the maximum number of devices that can be enslaved in a bridge
-> interface?
+> hi:
+> i want to build a bridge through my ethernet card and my wireless device,which connects with
+> the mainboard by synchronization serial controller.
 > 
-> I have tried enslaving 512 devices. Although the brctl tool did not complain
-> while adding them, when I use brctl show command it only shows 255.
+> anybody can give me some ideas? 
 > 
-> Thanks
-> 
+> and can i get the idea in this maillist??
 
-Depends on the kernel version.  With the 2.6 kernel and current bridge utilities,
-the sysfs interface (/sys) is used and it can handle a infinite number of devices
-because it walks the subdirectory /sys/class/net/br0/port to see the enslaved
-devices. The older interface was limited by the response buffer size of the ioctl.
+
+Read the FAQ, at http://bridge.sourceforge.net
+Most wireless devices, won't work as bridges because they can't send with different
+Ethernet source address.  Also, devices that don't use Ethernet framing (like Irda, PPP)
+will not work in a bridge.
