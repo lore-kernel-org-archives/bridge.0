@@ -1,13 +1,12 @@
-Message-ID: <416DC6EF.9050001@shorewall.net>
-From: Tom Eastep <teastep@shorewall.net>
-MIME-Version: 1.0
-References: <411EAF08.3000401@shorewall.net> <411F7B87.7060303@shorewall.net>
-	<41200E80.2000005@trash.net>
-	<200408192010.28417.bdschuym@pandora.be>
-In-Reply-To: <200408192010.28417.bdschuym@pandora.be>
-Content-Type: text/plain; charset=UTF-8
+Date: Thu, 4 Nov 2004 16:42:27 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20041104164227.67e5e028@zqx3.pdx.osdl.net>
+In-Reply-To: <4839.1099563244@www16.gmx.net>
+References: <4839.1099563244@www16.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: Policy match with a bridge
+Subject: [Bridge] Re: Problems using kernel 2.6
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,41 +15,36 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Thu, 14 Oct 2004 00:23:16 -0000
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netfilter-devel@lists.netfilter.org, bridge@osdl.org
+To: Thomas Franke <thomas-carsten.franke@gmx.de>, bridge@osdl.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 4 Nov 2004 11:14:04 +0100 (MET)
+"Thomas Franke" <thomas-carsten.franke@gmx.de> wrote:
 
-Bart De Schuymer wrote:
-> On Monday 16 August 2004 03:31, Patrick McHardy wrote:
->
->>The problem is ipv4_sabotage_out in the briding code. It prevents the
->>packet from hitting the LOCAL_OUT hook while it is still unencrypted.
->>When it hits the bridging code and its LOCAL_OUT hook it's too late.
->>Not sure how to handle it yet.
->
->
-> I'll have a look at that after I'm finished with the IPv6 bridge
-firewalling
-> stuff.
->
+> Hi, 
+>  
+> first of all - sorry that I'm contacting directly, but I'm in time 
+> critical situation ... hopefully you can help me. 
+> I'm using SuSE 9.2 kernel 2.6.8-24.3-smp (latest version from suse) 
+> I wanted to bringup a bridge on my machine. After setting up the bridge 
+> (addbr, addif, addif, reset ips, bring bridge up, give bridge ip via dhcp) 
+> the brindging machine can ping other machines on both sides of the bridge 
+> (eth0 and eth1 outgoing). The other machines can ping the bridging machine 
+> but can't ping each other. The bridging machine seems not to forward any 
+> packets. Same setup on 2.4.22 - kernel and 1.0.4 - version of bridge-utils 
+> it works fine. I've used the cvs version of bridge-utils for support of 
+> 2.6-kernel. 
+>  
+> Perhaps you have an idea ? 
 
-Any progress on this?
+What is the state of the bridge with:
+	brctl showstp br0
+and are addresses showing up in forward table
+	brctl showmacs br0
 
-Thanks,
-- -Tom
-- --
-Tom Eastep    \ Nothing is foolproof to a sufficiently talented fool
-Shoreline,     \ http://shorewall.net
-Washington USA  \ teastep@shorewall.net
-PGP Public Key   \ https://lists.shorewall.net/teastep.pgp.key
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFBbcbvO/MAbZfjDLIRAmBsAJsFlFdf6+c5tzT8Z5OGG/nnxoL//wCghS8L
-hX2rkQdtF2v7YIwRyfRDLIY=
-=6sB9
------END PGP SIGNATURE-----
+> Thx 
+> Thomas Carsten   
+> 
+> -- 
+> Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
+> ++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++
