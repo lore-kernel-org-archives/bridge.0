@@ -1,13 +1,22 @@
-Subject: Re: [Bridge] Unexpected bridge behavior (Bug? You decide.)
-References: <E1CssQO-0006qt-00@m5.risacher.org>
-	<20050124120440.4b792108@dxpl.pdx.osdl.net>
-From: Daniel Risacher <magnus@alum.mit.edu>
-Date: Tue, 25 Jan 2005 23:31:05 -0500
-In-Reply-To: <20050124120440.4b792108@dxpl.pdx.osdl.net> (Stephen
-	Hemminger's message of "Mon, 24 Jan 2005 12:04:40 -0800")
-Message-ID: <87y8egn75i.fsf@m5.risacher.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Tue, 25 Jan 2005 22:05:58 -0800
+From: "David S. Miller" <davem@davemloft.net>
+Message-Id: <20050125220558.6e824f8a.davem@davemloft.net>
+In-Reply-To: <1106496509.1085.1.camel@tux.rsn.bth.se>
+References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
+	<p73zn0ccaee.fsf@verdi.suse.de>
+	<1105117559.11753.34.camel@baythorne.infradead.org>
+	<20050107100017.454ddadc@dxpl.pdx.osdl.net>
+	<1105133241.3375.16.camel@localhost.localdomain>
+	<20050118135735.4b77d38d.davem@davemloft.net>
+	<1106433059.4486.11.camel@localhost.localdomain>
+	<1106436153.20995.42.camel@tux.rsn.bth.se>
+	<1106484019.3376.5.camel@localhost.localdomain>
+	<1106496509.1085.1.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in netfilter
+ (was: Re: do_IRQ: stack overflow: 872..)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,56 +25,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: netdev@oss.sgi.com, bridge@osdl.org, snort2004@mail.ru, bdschuym@pandora.be, rusty@rustcorp.com.au, dwmw2@infradead.org, ak@suse.de, shemminger@osdl.org
 
->>>>> "Stephen" == Stephen Hemminger <shemminger@osdl.org> writes:
+On Sun, 23 Jan 2005 17:08:29 +0100
+Martin Josefsson <gandalf@wlug.westbo.se> wrote:
 
-    Stephen> On Sun, 23 Jan 2005 19:49:48 -0500
-    Stephen> Daniel Risacher <magnus@alum.mit.edu> wrote:
+> I'm now running a kernel with this patch and everything seems to still
+> be working.
+> So unless someone else has something to comment I think this should be
+> applied.
+> The decrease in call-depth is important.
 
-    >> While using the linux bridge module in 2.6.10, the kernel seems
-    >> to munge the source IP address of broadcast UDP packets if they
-    >> come from "0.0.0.1", and sticks on an address of the linux
-    >> host.
+I would like to see at least one ACK from the netfilter
+folks.  Bart or Rusty, could you forward to patch to
+netfilter-devel for review?
 
-    Stephen> That seems real surprising.
-
-Agreed!    
-
-    >> I humbly submit that re-writing the source address of packets
-    >> is not proper behavior for a bridge, even if those source
-    >> addresses are not traditionally valid.
-
-    Stephen> Are you running bridging with filtering (ebtables) or
-    Stephen> just pure bridging.  The bridge code itself never looks
-    Stephen> at IP portion of the packet at all!
-
-When I originally saw the problem, I did not have ebtables loaded.  I
-since loaded it as a module and see no change.  I do have iptables
-loaded, and had a MASQUERADE rule in POSTROUTE chain of the nat table.
-Thinking this might be related, I deleted this rule and turned off
-ip_forward; no change.
-
-I removed the ipt_MASQUERADE module; no change.  I removed the
-iptable_nat module; eureka!  Even when I had no rules in the nat
-table, the iptable_nat module was modifying my source addresses.
-
-    >> [SNIP] removed problem description, see original article at :
-    >> http://lists.osdl.org/pipermail/bridge/2005-January/000802.html
-
-    Stephen> [SNIP] removed other troubleshooting questions (and the
-    Stephen> answers I was composing).
-
-That solves my specific problem, but leads me to ponder if there's not
-a bug lurking in the iptable_nat module.
-
-I had similar problems with locally-generated UDP a few months ago: it
-seemed like the kernel slapped on some source address that was
-different from address of the bound socket.  As it turns out, this
-problem also goes away if I remove the iptable_nat module.
-
--- 
-     "The blues are multicolored."   -- Dave Lambert
-
-Daniel Risacher                      magnus@alum.mit.edu
+I have some other ideas about how bridging might be able
+to save some call chain depth... but I need to think about
+it some more before proposing or even trying to implement.
+(basically something akin to how we do route level packet
+ output, via dst_output(), but instead we're doing this
+ at ->hard_start_xmit() time)
