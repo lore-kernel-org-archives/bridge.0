@@ -1,10 +1,11 @@
-Message-ID: <20040803032754.16047.qmail@web13902.mail.yahoo.com>
-Date: Mon, 2 Aug 2004 20:27:54 -0700 (PDT)
-From: Scott MacKay <scottmackay@yahoo.com>
-Subject: Re: [Bridge] Bridge not bridging NFS fragments?
-In-Reply-To: <200408022322.00768.bdschuym@pandora.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Tue, 3 Aug 2004 13:07:03 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040803130703.29a1c161@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH 2.6] bridge -- rmmod device while bridge is down
+	fails
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,83 +14,77 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: bridge@osdl.org
 
-Actually, I think I saw this very same thing when I
-was testing FC2.  I have a QUEUE iptables target. 
-When I got packets larger than the MTU (cannot
-remember the exact number it has problems with) my
-packets were useless.  I have conntrack enabled,
-needed because I want the packets reassembled (to
-obviously get fragmented later in the process).  It
-worked perfectly fine under 2.4.26 but did not under
-2.6.  I think I may have posted on the netfilter list
-to no avail so had to revert to 2.4.26....
+The changes to bridge notifier to handle link state changes introduced
+a bug. The case of device unregistering while bridge is down was no
+longer being handled. Add comment so maintainer doesn't forget.
 
-
---- Bart De Schuymer <bdschuym@pandora.be> wrote:
-
-> On Sunday 01 August 2004 14:46, Matthias Andree
-> wrote:
-> > Hi,
-> >
-> > please Cc: all replies, I'm not subscribed
-> >
-> > I seem to have troubles with my Linux bridge
-> (2.6.8-rc2), which is
-> > apparently not bridging UDP fragments (NFS) when
-> passing packets through
-> > iptables, but I do not see in the iptables stats
-> where the packets are
-> > dropped. Policies for INPUT, FORWARD, OUTPUT are
-> all "ACCEPT", and I
-> > grepped for all REJECT and DROP rules in iptables
-> -nvL, their counters
-> > are constant, i. e. they aren't rejecting or
-> dropping packets.
-> 
-> The patch below fixes this.
-> I'm not sure if removing this test, which was
-> recently added, doesn't cause
-> problems elsewhere. AFAIK if a too large packet
-> arrives at that place in the
-> code, there is a bug somewhere else.
-> Stephen, please apply the patch below, except if you
-> think it can cause
-> problems, in which case we'll need a different
-> approach.
-> The problem occurs when connection tracking is
-> enabled in the kernel.
-> Packets are then first defragmented, making skb->len
-> bigger than the mtu.
-> 
-> cheers,
-> Bart
-> 
-> --- linux-2.6.8-rc2-bk9/net/bridge/br_forward.c.old
-> 2004-08-02 23:15:42.000000000 +0200
-> +++ linux-2.6.8-rc2-bk9/net/bridge/br_forward.c
-> 2004-08-02 23:15:55.000000000 +0200
-> @@ -23,7 +23,6 @@ static inline int
-> should_deliver(const s
->  				 const struct sk_buff *skb)
->  {
->  	if (skb->dev == p->dev ||
-> -	    skb->len > p->dev->mtu ||
->  	    p->state != BR_STATE_FORWARDING)
->  		return 0;
->  
-> 
-> > _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
-> 
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+ 
+diff -Nru a/net/bridge/br_notify.c b/net/bridge/br_notify.c
+--- a/net/bridge/br_notify.c	2004-08-03 13:06:30 -07:00
++++ b/net/bridge/br_notify.c	2004-08-03 13:06:30 -07:00
+@@ -23,32 +23,39 @@
+ 	.notifier_call = br_device_event
+ };
+ 
++/*
++ * Handle changes in state of network devices enslaved to a bridge.
++ * 
++ * Note: don't care about up/down if bridge itself is down, because
++ *     port state is checked when bridge is brought up.
++ */
+ static int br_device_event(struct notifier_block *unused, unsigned long event, void *ptr)
+ {
+ 	struct net_device *dev = ptr;
+ 	struct net_bridge_port *p = dev->br_port;
+ 	struct net_bridge *br;
+ 
++	/* not a port of a bridge */
+ 	if (p == NULL)
+ 		return NOTIFY_DONE;
+ 
+ 	br = p->br;
+-	if ( !(br->dev->flags & IFF_UP))
+-		return NOTIFY_DONE;
+-
+-	if (event == NETDEV_CHANGEMTU) {
+-		dev_set_mtu(br->dev, br_min_mtu(br));
+-		return NOTIFY_DONE;
+-	}
+ 
+ 	spin_lock_bh(&br->lock);
+ 	switch (event) {
++	case NETDEV_CHANGEMTU:
++		dev_set_mtu(br->dev, br_min_mtu(br));
++		break;
++
+ 	case NETDEV_CHANGEADDR:
+ 		br_fdb_changeaddr(p, dev->dev_addr);
+ 		br_stp_recalculate_bridge_id(br);
+ 		break;
+ 
+ 	case NETDEV_CHANGE:	/* device is up but carrier changed */
++		if (!(br->dev->flags & IFF_UP))
++			break;
++
+ 		if (netif_carrier_ok(dev)) {
+ 			if (p->state == BR_STATE_DISABLED)
+ 				br_stp_enable_port(p);
+@@ -59,11 +66,12 @@
+ 		break;
+ 
+ 	case NETDEV_DOWN:
+-		br_stp_disable_port(p);
++		if (br->dev->flags & IFF_UP)
++			br_stp_disable_port(p);
+ 		break;
+ 
+ 	case NETDEV_UP:
+-		if (netif_carrier_ok(dev)) 
++		if (netif_carrier_ok(dev) && (br->dev->flags & IFF_UP)) 
+ 			br_stp_enable_port(p);
+ 		break;
+ 
