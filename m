@@ -1,7 +1,7 @@
-Date: Tue, 18 May 2004 15:33:10 -0700
+Date: Tue, 18 May 2004 15:36:08 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [Bridge] bridging bluetooth bnep devices with kernel 2.6.6-*
-Message-Id: <20040518153310.6ca39ef5@dell_ss3.pdx.osdl.net>
+Message-Id: <20040518153608.707e1f81@dell_ss3.pdx.osdl.net>
 In-Reply-To: <1084788177.21864.54.camel@igno>
 References: <1084467136.3083.27.camel@igno>
 	<20040513102829.5d5e1484@dell_ss3.pdx.osdl.net>
@@ -33,33 +33,9 @@ Diego Liziero <liziero.diego@unimore.it> wrote:
 > connected, if the interface bnep6 is disconnected first,
 > everything works fine, but if bnep0 is disconnected before
 > the others, the bridge stops to work.
-> 
-> Arping from bnep1 to the brige results in just the first
-> answer received.
-> 
-> To make it work again I have to use the following dirty hack:
->  brctl delif pan0 bnep1
->  brctl addif pan0 bnep1
-> 
-> Someone in the bluez-devel mailing list told that also setting the
-> bridge in promiscuous mode with tcpdump makes the bridge
-> back to work.
-> 
-> Now I'm removing and re-adding all the bridge components
-> when hotplug detects that a "bnep?" device ceases to exist.
-> 
-> Any better solution?
-> 
-> Regards,
-> Diego
+>
 
-Sounds like an issue with how the bnep does promiscious mode.
-Do you see messages on the console like:
-	device bnep0 left promiscious mode
-
-Also, the bnep driver seems to need BT_BNEP_MC_FILTER enabled
-to do multicast.  
-
-When you remove bnep0 first, what does "brctl showstp pan0" show?
-
-
+Hmm, since all the blue tooth devices have the same address.
+Deleting the first one will cause the entry in the forwarding table
+to be deleted, that might cause your problem.  Perhaps we need a
+reference count on the number of interfaces with the same address (yuck).
