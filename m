@@ -1,12 +1,10 @@
-Date: Thu, 12 Feb 2004 12:05:45 -0800
-From: "David S. Miller" <davem@redhat.com>
-Message-Id: <20040212120545.2c61a518.davem@redhat.com>
-In-Reply-To: <33981.65.172.181.23.1076454426.squirrel@www.osdl.org>
-References: <33981.65.172.181.23.1076454426.squirrel@www.osdl.org>
+From: "Paul P. Pongco" <paulp@mozcom.com>
+Content-Type: text/plain
+Message-Id: <1076657825.735.72.camel@amidala.mozcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 13 Feb 2004 15:37:05 +0800
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [RFC] bridge kernel API change
+Subject: [Bridge] maximum throughput for linux bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,27 +13,33 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-On Tue, 10 Feb 2004 15:07:06 -0800 (PST)
-Stephen Hemminger <shemminger@osdl.org> wrote:
+Hi,
 
-> Here is what I am thinking.
-> 
-> get version 		 - not needed?
+Apologies if I am not suscribed to this list.
 
-Don't do this, it makes it tempting to use the version to make incompatible
-ABI changes.
+I have setup a linux bridge using 3c905C-TX/TX-M [Tornado] cards. Im
+running it on RH 7.3 2.4.19 kernel.
+Lately, I have seen the following errors on the bridge
 
-> add bridge		 - SIOCBR_ADD_BRIDGE
-> del bridge		 - SIOCBR_DEL_BRIDGE
-> add if		 - SIOCBR_ADD_IF
-> delete if		 - SIOCBR_DEL_IF
- ...
-> Other alternatives:
->  - Use just ioctl's
->  - Use just /proc (ugh) or sysctl's (double ugh)
+Feb 10 07:40:24 safe kernel: eth2: Too much work in interrupt, status e401.
+Feb 10 07:40:52 safe last message repeated 3 times
+Feb 10 08:12:16 safe kernel: br0: received tcn bpdu on port 1(eth2)
+Feb 10 08:12:16 safe kernel: br0: topology change detected, sending tcn bpdu
+Feb 10 08:13:09 safe kernel: br0: received tcn bpdu on port 1(eth2)
+Feb 10 08:13:09 safe kernel: br0: topology change detected, sending tcn bpdu
 
-The mix of ioctls and /sys looks fine.  I also have no strong preference for
-this vs. the BSD ioctls you mentioned in a later mail.
+Im currently pushing around 45Mbs/20Mbs (down/up)  of traffic on the
+bridge (doing some bandwidth management) and Im concerned about its
+performance and how it would scale.
+Thanks in advance for your advice. 
+
+-- 
+Cheers,
+
+Paul P. Pongco
+Mosaic Communications Inc.
+
+
+
