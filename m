@@ -1,12 +1,13 @@
-Date: Fri, 7 Jan 2005 10:00:17 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20050107100017.454ddadc@dxpl.pdx.osdl.net>
-In-Reply-To: <1105117559.11753.34.camel@baythorne.infradead.org>
+From: David Woodhouse <dwmw2@infradead.org>
+In-Reply-To: <20050107100017.454ddadc@dxpl.pdx.osdl.net>
 References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
 	<p73zn0ccaee.fsf@verdi.suse.de>
 	<1105117559.11753.34.camel@baythorne.infradead.org>
+	<20050107100017.454ddadc@dxpl.pdx.osdl.net>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 19:06:52 +0100
+Message-Id: <1105121212.6500.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: [Bridge] Re: do_IRQ: stack overflow: 872..
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
@@ -17,42 +18,38 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: David Woodhouse <dwmw2@infradead.org>, Bart De Schuymer <bdschuym@pandora.be>
-Cc: Crazy AMD K7 <snort2004@mail.ru>, bridge@osdl.org, Andi Kleen <ak@suse.de>, netdev@oss.sgi.com
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Crazy AMD K7 <snort2004@mail.ru>, bridge@osdl.org, Bart De Schuymer <bdschuym@pandora.be>, Andi Kleen <ak@suse.de>, netdev@oss.sgi.com
 
-On Fri, 07 Jan 2005 17:05:59 +0000
-David Woodhouse <dwmw2@infradead.org> wrote:
-
-> On Sat, 2004-12-18 at 08:50 +0100, Andi Kleen wrote:
-> > It's not really an oops, just a warning that stack space got quiet
-> > tight.
-> > 
-> > The problem seems to be that the br netfilter code is nesting far too
-> > deeply and recursing several times. Looks like a design bug to me,
-> > it shouldn't do that.
+On Fri, 2005-01-07 at 10:00 -0800, Stephen Hemminger wrote:
+> > I don't think it's recursing -- I think the stack trace is just a bit
+> > noisy. The problem is that the bridge code, especially with br_netfilter
+> > in the equation, is implicated in code paths which are just _too_ deep.
+> > This happens when you're bridging packets received in an interrupt while
+> > you were deep in journalling code, and it's also been seen with a call
+> > trace something like nfs->sunrpc->ip->bridge->br_netfilter.
 > 
-> I don't think it's recursing -- I think the stack trace is just a bit
-> noisy. The problem is that the bridge code, especially with br_netfilter
-> in the equation, is implicated in code paths which are just _too_ deep.
-> This happens when you're bridging packets received in an interrupt while
-> you were deep in journalling code, and it's also been seen with a call
-> trace something like nfs->sunrpc->ip->bridge->br_netfilter.
+> Sounds like an argument for interrupt stacks.
 
-Sounds like an argument for interrupt stacks.
+The NFS case didn't involve hardware interrupts. Except for the one
+which actually detected that the stack had overflowed.
 
-> One option might be to make br_dev_xmit() just queue the packet rather
-> than trying to deliver it to all the slave devices immediately. Then the
-> actual retransmission can be handled from a context where we're _not_
-> short of stack; perhaps from a dedicated kernel thread. 
+> Probably the solution would be to handle it in the filter code
+> that way if we are not filtering, we can use the interrupt path,
+> but if filtering just defer to a safer context (like soft irq).
 
-Probably the solution would be to handle it in the filter code
-that way if we are not filtering, we can use the interrupt path,
-but if filtering just defer to a safer context (like soft irq).
+That's also a possibility.
 
-> Unfortunately that approach would introduce a lot of latency on all
-> packets we pass. Another option would be to have all architectures
-> provide a stack_available() function and for br_dev_xmit() to queue the
-> packet only if we're short of stack, while still sending most packets
-> immediately. 
+> > Unfortunately that approach would introduce a lot of latency on all
+> > packets we pass. Another option would be to have all architectures
+> > provide a stack_available() function and for br_dev_xmit() to queue the
+> > packet only if we're short of stack, while still sending most packets
+> > immediately. 
+> 
+> NO, that looks like a testablity and portablity nightmare.
 
-NO, that looks like a testablity and portablity nightmare.
+Yeah, I suppose I'm inclined to agree.
+
+-- 
+dwmw2
+
