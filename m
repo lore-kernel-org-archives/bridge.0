@@ -1,5 +1,5 @@
 From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Thu, 14 Oct 2004 08:24:25 +0200
+Date: Sat, 16 Oct 2004 15:30:58 +0200
 References: <411EAF08.3000401@shorewall.net>
 	<200408192010.28417.bdschuym@pandora.be>
 	<416DC6EF.9050001@shorewall.net>
@@ -9,7 +9,7 @@ Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200410140824.25414.bdschuym@pandora.be>
+Message-Id: <200410161530.58439.bdschuym@pandora.be>
 Subject: [Bridge] Re: Policy match with a bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -38,9 +38,10 @@ On Thursday 14 October 2004 02:23, Tom Eastep wrote:
 >
 > Any progress on this?
 
-It's in the back of my mind, but I haven't had time yet to look into the ipsec 
-code. I'll try next weekend. It's probably non-trivial, as Patrick didn't see 
-a direct solution.
+You should be able to do what you want in the iptables mangle OUTPUT chain 
+instead of the one in the filter table.
+Patrick, a hack solution would be to temporarily change out->hard_start_xmit 
+to something else than br_dev_xmit, that way you fool ipv4_sabotage_out.
 
 cheers,
 Bart
