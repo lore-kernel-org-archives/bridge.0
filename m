@@ -1,12 +1,11 @@
-Date: Wed, 10 Nov 2004 09:15:19 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge utilities compatible driver
-Message-Id: <20041110091519.64948657@zqx3.pdx.osdl.net>
-In-Reply-To: <41917B5A.6020501@anu.edu.au>
-References: <41917B5A.6020501@anu.edu.au>
+Message-ID: <88240e9404111010486cfbd495@mail.gmail.com>
+Date: Wed, 10 Nov 2004 10:48:16 -0800
+From: TEJAS VORA <voratejas@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridge Problem with RedHat and iptables
+Reply-To: TEJAS VORA <voratejas@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,62 +14,68 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: ggb112 <gerard.borg@anu.edu.au>
+To: shemminger@osdl.org
 Cc: bridge@lists.osdl.org
 
-On Wed, 10 Nov 2004 13:22:18 +1100
-ggb112 <gerard.borg@anu.edu.au> wrote:
+Hello,
 
-> Hi guys
-> 
-> I am writing a serial network driver. My aim is to bridge two ethernets 
-> across a serial bridge.
-> Unfortunately the channel is noisy and slip and ppp are too unreliable.
+I am running into a strange problem here. I wrote you a mail earlier
+also regarding this.
 
-Full stop.  Then bridging is not the answer. You need to have a reliable
-(no corruption), packetized link to do bridging. Otherwise, you would
-be introducing corrupted packets from you link onto the Ethernet you
-are bridging onto. If you can't get ppp to work, then bridging it isn't
-the answer.
+1. I am trying to run the bridge mode over Redhat 7.3 (kernel 2.4.18).
+I tried the latest version of brdige mode utility and also I tried
+version 0.94 as well. But whenever I run the brdige mode on this
+kernel - the kernel goes panic saying "aiee - killing interrupt
+handler". Now I am in a crutial situation here. We are building a
+product based on kernel version 2.4.18 and running on Redhat 7.3 - and
+we have to setup bridge mode on the machine. But due to this problem
+we are not able to do that. So please help me what is the problem here
+and what could be the solution?
 
-> The driver appears to work by itself and allows two computers  to ping 
-> each other across a
-> null modem cable.
-> 
-> The network driver code permits Linux OS ARPing support for ethernet and 
->  MAC addresses
-> are manually assigned by insmod.
-> 
-> The driver is based on  mkiss.c: the packet radio driver for serial ttys 
-> except that I have eliminated
-> ax25 specific code, interfaced to IP directly and added some ethernet 
-> support.
-> 
-> Now the problem...
-> 
-> The network driver cannot be bridged to an ethernet card using the 
-> bridge-utilities layer 2
-> bridge tools.
+2. Now the second problem is regarding iptables. As brdige was not
+working on redhat 7.3 due to kernel panicing - I tried it temporarily
+in redhat 9.0 (jkernel 2.4.20-8) - where it is working fine. I setup a
+FTP transparent proxy on the machine. The configuration is - our
+machine (with brdige mode and transparent proxy) seats between client
+and server. And it forwards or the traffice to and fro and for FTP
+traffic we want to have transparent proxy in between. The
+configuration is as shiown below.
 
-The device has to say it does ethernet encapsulation, the addresses
-and headers must be the same as ethernet.
+Bridge Machine (br0) IP : 192.168.11.201
+(need to be used as Transparent proxy)
+       +---------------------------------------------+
+       |                       |
+       |                       |
+       |                       |
+       |                       |
+       |                       |
+       |                       |
+       +---------------------------------------------+
+               |       |
+               eth0    eth1
+               |       |
+               |       |
+               |       | FTP Content Server (192.168.11.60) and Internet
+               |       +------------------------>
+               |
+               |
+               |
+               | TO INTRANET 
+               +-------------------------------->
 
-> Note that I have  successfully bridged between the ethernet  card and 
-> other  ethernet like hardware such as
-> cisco pci340 WiFi by using these tools.
-> 
-> I am using bridge-utilities-0.9.6-1 on linux 2.4.18-14 and linux 2.20-8.
-> 
-> Any ideas about what I should include as software support in the driver 
-> code that will make bridge-utilities
-> happy?
-> 
-> What does bridge-utilities expect to have available to do its job?
-> 
-> Cheers
-> 
-> Gerard Borg
-> Australian National Univesrity
-> 
-> 
-> 
+Now the thing is on bridge machine I am running FTP transparent proxy
+(jftpgw) and I have setup iptables rule as follow.
+
+iptables -t nat -A PREROUTING -p tcp -d 0/0 -s 0/0 --dport 21 -J DNAT
+--to 192.168.11.201:2370
+
+But the strange thing is before the packet is redirected to port 2370
+(to Transparent PROXY) - brdige forwards it to the other machine and
+the packet does not reach port 2370 on the same machine. So what could
+be the problem here and what could be the solution for that?
+
+I am in a urgent help. Please help  me and let me know the solution
+ofr these problems.
+
+Thanks you,
+Tejas Vora
