@@ -1,12 +1,11 @@
-Content-class: urn:content-classes:message
+Message-ID: <413CD055.7040102@wlan-international.com>
+Date: Mon, 06 Sep 2004 23:02:13 +0200
+From: Axel Christiansen <axel.christiansen@wlan-international.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C494B4.B5F1ABB2"
-Date: Tue, 7 Sep 2004 10:28:52 +0200
-Message-ID: <3418F3471F1CA4409901547349FFAE2E0226D24B@ftrdmel2.rd.francetelecom.fr>
-From: "zze-gandhi PERESSE M ext RD-RESA-REN"
-	<mperesse.ext@rd.francetelecom.com>
-Subject: [Bridge] Wired iface + Wireless iface configuration in managed mode
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] topology change on a bunch of mesh-cubes with multiple
+	wlan interfaces
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,143 +16,63 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Hi list,
 
-------_=_NextPart_001_01C494B4.B5F1ABB2
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+i was searching the archiv but could not find
+something matching.
 
-Hi all,
+In a setup with a number of mesh-cubes
+(http://www.meshcube.org/) a have troble with
+topology change under specific conditions.
 
+Setup is:
 
-I have to set up a bridge in the following configuration:
+The cubes are running kernel 2.4.24.
+Between root and repeaters WDS is used.
 
-1 Wired Interface
-1 Wireless Interface in Managed Mode (ie connected to an access point)
+root cube A
+bridge br0 has interfaces:
+eth0         to copper ethernet
+wlan0        Managed
+wlan1wds0    Repeater to cube B
+wlan1wds1    Repeater to cube C
 
+bridge cube B
+bridge br0 has interfaces:
+wlan0        Managed
+wlan1wds0    Repeater to cube A
 
-The architecture is as follows:
+bridge cube C
+bridge br0 has interfaces:
+wlan0        Managed
+wlan1wds0    Repeater to cube A
 
+STP on
+WDS auto_add off (host_ap stuff)
 
-Private Internet ------- Wireless Router/AP ----     air     ----- Linux
-Bridge ----wire----- Host A
+There are no wireless clients connected to
+the network. Basicly there are 3 ethernet
+links:
+                                    Managed 802.11
+                                              |
+                                /-(2)-> bridge_cube_B
+some_eth <-(1)-> root_cube_A <=
+                   |            \-(3)-> bridge_cube_C
+                   |                          |
+              Managed 802.11        Managed 802.11
 
-So let's say I have a host (Host A) connected to the wired interface of
-that bridge, I would like to be able to communicate with hosts that are
-behind the wireless router (ie the private Internet)
+When i either turn off cube B or cube C the root
+cube A gets or makes "topology change" all the time.
+This takes out the interface on cube A most of the time,
+making the thing completely unusable.
 
-The problem is that when the Linux bridge forwards Host A's Ethernet
-frames to the AP, the AP doesn't allow these frames to pass through,
-because Host A isn't a regular wireless client who has been
-authenticated/associated (802.11).
+Today, i did a test with 4 cubes (1 root / 3 repeater)
+and the oddly thing was, when taking out 1 repeater,
+only one more link became unusable. So 1 link where
+left operational. In the above setup all wireless
+links became unusable (there are only 2, so OK).
 
-One solution is to implement an authentication/association proxy in the
-Linux Bridge  (I think D-LINK does that in their APs):
-- The bridge would do the association/authentication process on behalf
-of the wired hosts..
+Please let me know witch more in depth iformation
+are required.
 
-Another solution would be to spoof the mac address of the Wireless
-Interface of the Linux Bridge but there is no way to multiplex frames
-for multiple wired hosts (is there any ?).
-
-Are there plans for solving_this_"issue" / adding_this_feature ?
-
-
-Thanks a lot.
-
-Mathieu.
-
-PS: I NEED to do this for an experiment only, I can't use another
-architecure.
-
-
-
-
-
-
-------_=_NextPart_001_01C494B4.B5F1ABB2
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6.5.6980.72">
-<TITLE>Wired iface + Wireless iface configuration in managed mode</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/rtf format -->
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">Hi all,</FONT>
-</P>
-<BR>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">I have to set up a bridge in the following=
- configuration:</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">1 Wired Interface</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Arial">1 Wireless Interface in Managed Mode (ie =
-connected to an access point)</FONT>
-</P>
-<BR>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">The architecture is as follows:</FONT>
-</P>
-<BR>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">Private Internet ------- Wireless Router/A=
-P ----&nbsp;&nbsp;&nbsp;&nbsp; air&nbsp;&nbsp;&nbsp;&nbsp; ----- Linux Brid=
-ge ----wire----- Host A</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">So let's say I have a host (Host A) connec=
-ted to the wired interface of that bridge, I would like to be able to commu=
-nicate with hosts that are behind the wireless router (ie the private Inter=
-net)</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">The problem is that when the Linux bridge =
-forwards Host A's Ethernet frames to the AP, the AP doesn't allow these fra=
-mes to pass through, because Host A isn't a regular wireless client who has=
- been authenticated/associated (802.11).</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">One solution is to implement an authentica=
-tion/association proxy in the Linux Bridge&nbsp; (I think D-LINK does that =
-in their APs):</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">- The bridge would do the association/auth=
-entication process on behalf of the wired hosts..</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">Another solution would be to spoof the mac=
- address of the Wireless Interface of the Linux Bridge but there is no way =
-to multiplex frames for multiple wired hosts (is there any ?).</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">Are there plans for solving_this_&quot;iss=
-ue&quot; / adding_this_feature ?</FONT>
-</P>
-<BR>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">Thanks a lot.</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">Mathieu.</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial">PS: I NEED to do this for an experiment on=
-ly, I can't use another architecure.</FONT>
-</P>
-<BR>
-<BR>
-<BR>
-<BR>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C494B4.B5F1ABB2--
+thx, Axel
