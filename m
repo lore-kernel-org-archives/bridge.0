@@ -1,12 +1,12 @@
-Date: Wed, 30 Jun 2004 11:15:59 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <03d801c45ece$5e3aeb10$8805640a@internal.watertech.com>
+From: "Chris Saw" <chriss@watertech.com>
 Subject: Re: [Bridge] MTU Question
-Message-Id: <20040630111559.4e2a36b1@dell_ss3.pdx.osdl.net>
-In-Reply-To: <C0170D0AF1277849A4B4518034F855DD0CFBFD@aiexchange.ai.aiinet.com>
-References: <C0170D0AF1277849A4B4518034F855DD0CFBFD@aiexchange.ai.aiinet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Wed, 30 Jun 2004 11:16:30 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Reply-To: Chris Saw <chriss@watertech.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,30 +15,94 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Eble, Dan" <DanE@aiinet.com>
-Cc: Chris Shaw <chriss@watertech.com>, bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 30 Jun 2004 14:03:28 -0400
-"Eble, Dan" <DanE@aiinet.com> wrote:
+forgot to CC the list on this one...
 
-> What if someone (or something) attempts to change the MTU on the port after
-> it has been added to the bridge?  Perhaps SIOCSIFMTU should do something
-> special for bridge ports, such as return -EBUSY, or maybe ask the bridge
-> whether or not the new MTU is acceptable?  If a port's MTU changes, the
-> bridge may have to adjust its own MTU to maintain consistency.  It could get
-> hairy.
+> * also, the mtu of the bridge itself will always appear as 1500, but
+>   you could change that with ifconfig.  Thought about having bridge mtu
+>   appear as min(ports mtu), but don't think that is in the current version
 
-That can be handled by a notifier callback.
+I tried changing the MTU > 1500 on the bridge and I get "SIOCSIFMTU: Invalid
+argument" (I'm using 2.4.24 W/ latest ebtables) but if I understand you
+correctly that dosen't really matter anyway.
 
-> I faced this question recently when trying to implement bridging over Cisco
-> HDLC.  I finally decided not to try to maintain consistency of MTUs between
-> two devices, but rather to drop *all* transmitted packets when the MTU of
-> the lower-layer device was insufficient to handle the largest possible
-> packets from the upper-layer device.  I decided that would be enough to
-> prevent someone from wrongly thinking they had configured it properly, since
-> not even a cheap a 64-byte ping would work.
+> The bridge does not care about frame size at all. It should be able
+> to handle large frames, provided:
+> * all interfaces in the bridge can handle the same big mtu, there is
+>   no way a bridge can fragment.
 
-Probably a good idea as well.
+That's kinda what I was afraid of... If I understand you correctly, if I
+have some 100Mbit NICs in the same bridge, then even if I change the MTU of
+the 1Gig NICs the MTU of packets coming in/out of the bridge will be that of
+the slowest NIC (1500bytes) correct?
 
-Also, we could check when adding interface to a bridge that the MTU is big
-enough for the existing ports in the bridge.
+The reason I even care is that I am getting horrible speeds from the gigabit
+NICs. In the neighborhood of about 150-200Mbps from the gigabit NICs when
+doing a netcat between systems using /dev/zero -> /dev/null... That's just
+crappy... even from 33Mhz PCI I should be getting like around 40-50MB/sec or
+more I would think with RAM -> RAM. They're good NICs too, both EEPRO1000
+using NAPI.
+
+I can't really break up the bridges by speed either because you can't
+enslave the same NICs to different bridges and I only have 1 cable modem ;)
+
+I may have to just live with it because the bridge is working beautifully
+as-is, firewalling cable modem traffic like a champ and serving files
+perfectly through SAMBA too. I just don't like to leave things alone :)
+
+Thank you for your quick reply on the last message, hopefully my questions
+aren't too dumb... :)
+
+    -Chris
+
+
+
+----- Original Message -----
+From: <shemminger@osdl.org>
+To: "Chris Shaw" <chriss@watertech.com>
+Cc: <bridge@lists.osdl.org>
+Sent: Tuesday, June 29, 2004 9:22 PM
+Subject: Re: [Bridge] MTU Question
+
+
+> > I have a bridge that has gigabit interfaces. The machine in question has
+> > the
+> > fun job of being a Bridge, Firewall and SMB server. Both of the Gigabit
+> > interfaces are connected to workstations directly via Xover cable (well
+> > MDI-X to be exact). My question is, if I enable jumbo frames on the
+> > gigabit
+> > interfaces will that make any difference in overall transfer rate of the
+> > bridge? I was thinking it might because even though the NIC is enslaved,
+> > it
+> > IS the device that the workstations communicate to. But also it might
+not
+> > because when applications talk to the network they're using BR(n) at
+> > 1500bytes.. can a bridging guru shed some light on this for me?
+> >
+> > -Thank you in advance
+> > Chris
+>
+> The bridge does not care about frame size at all. It should be able
+> to handle large frames, provided:
+> * all interfaces in the bridge can handle the same big mtu, there is
+>   no way a bridge can fragment.
+> * also, the mtu of the bridge itself will always appear as 1500, but
+>   you could change that with ifconfig.  Thought about having bridge mtu
+>   appear as min(ports mtu), but don't think that is in the current
+version.
+>
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/bridge
+
+
+Chris Shaw
+IS Manager
+Water Tech Industries
+Phone: (888)-254-8412
+Fax: (503)-261-9118
+E-Mail: chriss@watertech.com
+
