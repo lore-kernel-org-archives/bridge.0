@@ -1,10 +1,14 @@
-From: "Lefti" <lefti_99@hotmail.com>
-Date: Sat, 25 Sep 2004 14:28:29 +0100
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0057_01C4A30B.ED86D1E0"
-Message-ID: <BAY1-DAV13Ogl4rhYQY0003d46a@hotmail.com>
-Subject: [Bridge] kernel support bridging?
+Date: Sat, 25 Sep 2004 16:46:50 +0200
+Subject: Re: [Bridge] kernel support bridging?
+Message-ID: <20040925164650.U9523@macwheel.xs4all.nl>
+References: <BAY1-DAV13Ogl4rhYQY0003d46a@hotmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LXqH7sWsIplhrbjF"
+Content-Disposition: inline
+In-Reply-To: <BAY1-DAV13Ogl4rhYQY0003d46a@hotmail.com>;
+	from lefti_99@hotmail.com on Sat, Sep 25, 2004 at 02:28:29PM +0100
+From: stappers@stappers.nl (Geert Stappers)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,55 +19,42 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
 
-------=_NextPart_000_0057_01C4A30B.ED86D1E0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+--LXqH7sWsIplhrbjF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+
+On Sat, Sep 25, 2004 at 02:28:29PM +0100, Lefti wrote:
+> Hi all,
+>=20
+> Does anyone know whether the following kernel supports bridging with fire=
+walling capacity?
+>=20
+> 2.4.20-2.3 sparc sparc 64 -- running Aurora 1.0.
+>=20
+> Do I need to be recompiling the kernel?
+
+ http://lists.osdl.org/pipermail/bridge/2004-September/000647.html
+
+>=20
+> Many thanks,
+>=20
+> Lefti
+
+Cheers
+Geert Stappers
+
+--LXqH7sWsIplhrbjF
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
-Hi all,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Does anyone know whether the following kernel supports bridging with firewa=
-lling capacity?
+iD8DBQFBVYTaOSINbgwa/7sRAluCAKCN3f8fU+KklCgWFuYddNjbo0DXGQCfXFSr
+w4h5GSFTvNe5r8dMxN9ikz4=
+=E+zj
+-----END PGP SIGNATURE-----
 
-2.4.20-2.3 sparc sparc 64 -- running Aurora 1.0.
-
-Do I need to be recompiling the kernel?
-
-Many thanks,
-
-Lefti
-
-------=_NextPart_000_0057_01C4A30B.ED86D1E0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2743.600" name=3DGENERATOR>
-<DEFANGED_style_0 </STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>Hi all,</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Does anyone know whether the following ker=
-nel=20
-supports bridging with firewalling capacity?</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>2.4.20-2.3 sparc sparc 64 -- running Auror=
-a=20
-1.0.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Do I need to be recompiling the=20
-kernel?</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Many thanks,</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Lefti</FONT></DIV></BODY></HTML>
-
-------=_NextPart_000_0057_01C4A30B.ED86D1E0--
+--LXqH7sWsIplhrbjF--
