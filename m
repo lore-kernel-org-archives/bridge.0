@@ -1,11 +1,11 @@
-Date: Fri, 21 May 2004 16:39:18 -0700
+Date: Fri, 21 May 2004 16:39:20 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20040521163918.14c799d6@dell_ss3.pdx.osdl.net>
+Message-Id: <20040521163920.641635c1@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH] (9/11) bridge -- new ioctl interface for 32/64
- compatiablity
+Subject: [Bridge] [PATCH] (10/11) bridge -- compat hooks for new-ioctl
+	interface
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,237 +17,86 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@redhat.com>
 Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-Add four new ioctl's for the operations that can't be done through sysfs.
-The existing bridge ioctl's are multiplexed, and most go through SIOCDEVPRIVATE
-so they won't work in a mixed 32/64bit environment.
+Replacement 64 bit compatibility code for the new ioctl's.  The new 
+ioctl's all pass through clean, but for the old style ioctl's it uses
+the mis-feature of the earlier bridge-utils that they check the API version.
 
-The new release of bridge-utils will use these if possible, and fall
-back to the old interface.
- 
-diff -Nru a/include/linux/if_bridge.h b/include/linux/if_bridge.h
---- a/include/linux/if_bridge.h	2004-05-20 14:46:10 -07:00
-+++ b/include/linux/if_bridge.h	2004-05-20 14:46:10 -07:00
-@@ -104,7 +104,7 @@
- 
- #include <linux/netdevice.h>
- 
--extern void brioctl_set(int (*ioctl_hook)(unsigned long));
-+extern void brioctl_set(int (*ioctl_hook)(unsigned int, unsigned long));
- extern int (*br_handle_frame_hook)(struct sk_buff *skb);
- extern int (*br_should_route_hook)(struct sk_buff **pskb);
- 
-diff -Nru a/include/linux/sockios.h b/include/linux/sockios.h
---- a/include/linux/sockios.h	2004-05-20 14:46:10 -07:00
-+++ b/include/linux/sockios.h	2004-05-20 14:46:10 -07:00
-@@ -116,6 +116,12 @@
- #define SIOCBONDINFOQUERY      0x8994	/* rtn info about bond state    */
- #define SIOCBONDCHANGEACTIVE   0x8995   /* update to a new active slave */
- 			
-+/* bridge calls */
-+#define SIOCBRADDBR     0x89a0		/* create new bridge device     */
-+#define SIOCBRDELBR     0x89a1		/* remove bridge device         */
-+#define SIOCBRADDIF	0x89a2		/* add interface to bridge      */
-+#define SIOCBRDELIF	0x89a3		/* remove interface from bridge */
-+
- /* Device private ioctl calls */
- 
- /*
-diff -Nru a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
---- a/net/bridge/br_ioctl.c	2004-05-20 14:46:10 -07:00
-+++ b/net/bridge/br_ioctl.c	2004-05-20 14:46:10 -07:00
-@@ -78,13 +78,36 @@
- 	return num;
+So if an old 32bit version of brctl is run on a 64bit platform it will
+report
+	bridge utilities not compatible with kernel version
+
+Tested on Itanium 1; but should solve issue for sparc, ppc, and x86_64
+
+diff -Nru a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+--- a/fs/compat_ioctl.c	2004-05-20 14:44:03 -07:00
++++ b/fs/compat_ioctl.c	2004-05-20 14:44:03 -07:00
+@@ -20,6 +20,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/ioctl.h>
+ #include <linux/if.h>
++#include <linux/if_bridge.h>
+ #include <linux/slab.h>
+ #include <linux/hdreg.h>
+ #include <linux/raid/md.h>
+@@ -3072,18 +3073,19 @@
+ 	return sys_ioctl(fd, cmd, (unsigned long) iwr);
  }
  
--int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+static int add_del_if(struct net_bridge *br, int ifindex, int isadd)
-+{
-+	struct net_device *dev;
-+	int ret;
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	dev = dev_get_by_index(ifindex);
-+	if (dev == NULL)
-+		return -EINVAL;
-+	
-+	if (isadd)
-+		ret = br_add_if(br, dev);
-+	else
-+		ret = br_del_if(br, dev);
-+
-+	dev_put(dev);
-+	return ret;
-+}
-+
-+/*
-+ * Legacy ioctl's through SIOCDEVPRIVATE
-+ * This interface is deprecated because it was too difficult to
-+ * to do the translation for 32/64bit ioctl compatability.
+-/* Emulate old style bridge ioctls */
+-static int do_bridge_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++/* Since old style bridge ioctl's endup using SIOCDEVPRIVATE
++ * for some operations; this forces use of the newer bridge-utils that
++ * use compatiable ioctls
 + */
-+static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
++static int old_bridge_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
  {
- 	struct net_bridge *br = netdev_priv(dev);
- 	unsigned long args[4];
--
--	if (cmd != SIOCDEVPRIVATE)
--		return -EOPNOTSUPP;
- 	
- 	if (copy_from_user(args, rq->ifr_data, sizeof(args)))
- 		return -EFAULT;
-@@ -92,25 +115,7 @@
- 	switch (args[0]) {
- 	case BRCTL_ADD_IF:
- 	case BRCTL_DEL_IF:
--	{
--		struct net_device *dev;
--		int ret;
--
--		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--
--		dev = dev_get_by_index(args[1]);
--		if (dev == NULL)
--			return -EINVAL;
--
--		if (args[0] == BRCTL_ADD_IF)
--			ret = br_add_if(br, dev);
--		else
--			ret = br_del_if(br, dev);
--
--		dev_put(dev);
--		return ret;
+ 	u32 tmp;
+-	unsigned long *argbuf = compat_alloc_user_space(3 * sizeof(unsigned long)); 
+-	int i;	
+-	for (i = 0; i < 3; i++) {
+-		if (get_user(tmp, i + ((u32 *)arg)) ||
+-		    put_user(tmp, i + argbuf))
+-			return -EFAULT;
 -	}
-+		return add_del_if(br, args[1], args[0] == BRCTL_ADD_IF);
- 
- 	case BRCTL_GET_BRIDGE_INFO:
- 	{
-@@ -303,8 +308,7 @@
- 	return -EOPNOTSUPP;
+-	return sys_ioctl(fd, cmd, (unsigned long)argbuf);
++
++	if (get_user(tmp, (u32 *) arg))
++		return -EFAULT;
++	if (tmp == BRCTL_GET_VERSION)
++		return BRCTL_VERSION + 1;
++	return -EINVAL;
  }
  
--
--int br_ioctl_deviceless_stub(unsigned long uarg)
-+static int old_deviceless(unsigned long uarg)
- {
- 	unsigned long args[3];
+ #undef CODE
+@@ -3133,6 +3135,8 @@
+ HANDLE_IOCTL(SIOCBONDCHANGEACTIVE, bond_ioctl)
+ HANDLE_IOCTL(SIOCADDRT, routing_ioctl)
+ HANDLE_IOCTL(SIOCDELRT, routing_ioctl)
++HANDLE_IOCTL(SIOCBRADDIF, dev_ifsioc)
++HANDLE_IOCTL(SIOCBRDELIF, dev_ifsioc)
+ /* Note SIOCRTMSG is no longer, so this is safe and * the user would have seen just an -EINVAL anyways. */
+ HANDLE_IOCTL(SIOCRTMSG, ret_einval)
+ HANDLE_IOCTL(SIOCGSTAMP, do_siocgstamp)
+@@ -3263,8 +3267,8 @@
+ HANDLE_IOCTL(SIOCGIWNICKN, do_wireless_ioctl)
+ HANDLE_IOCTL(SIOCSIWENCODE, do_wireless_ioctl)
+ HANDLE_IOCTL(SIOCGIWENCODE, do_wireless_ioctl)
+-HANDLE_IOCTL(SIOCSIFBR, do_bridge_ioctl)
+-HANDLE_IOCTL(SIOCGIFBR, do_bridge_ioctl)
++HANDLE_IOCTL(SIOCSIFBR, old_bridge_ioctl)
++HANDLE_IOCTL(SIOCGIFBR, old_bridge_ioctl)
  
-@@ -354,5 +358,51 @@
- 	}
- 	}
- 
-+	return -EOPNOTSUPP;
-+}
-+
-+int br_ioctl_deviceless_stub(unsigned int cmd, unsigned long uarg)
-+{
-+	switch (cmd) {
-+	case SIOCGIFBR:
-+	case SIOCSIFBR:
-+		return old_deviceless(uarg);
-+		
-+	case SIOCBRADDBR:
-+	case SIOCBRDELBR:
-+	{
-+		char buf[IFNAMSIZ];
-+
-+		if (!capable(CAP_NET_ADMIN))
-+			return -EPERM;
-+
-+		if (copy_from_user(buf, (void __user *) uarg, IFNAMSIZ))
-+			return -EFAULT;
-+
-+		buf[IFNAMSIZ-1] = 0;
-+		if (cmd == SIOCBRADDBR)
-+			return br_add_bridge(buf);
-+
-+		return br_del_bridge(buf);
-+	}
-+	}
-+	return -EOPNOTSUPP;
-+}
-+
-+int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+{
-+	struct net_bridge *br = netdev_priv(dev);
-+
-+	switch(cmd) {
-+	case SIOCDEVPRIVATE:
-+		return old_dev_ioctl(dev, rq, cmd);
-+
-+	case SIOCBRADDIF:
-+	case SIOCBRDELIF:
-+		return add_del_if(br, rq->ifr_ifindex, cmd == SIOCBRADDIF);
-+
-+	}
-+
-+	printk(KERN_DEBUG "Bridge does not support ioctl 0x%x\n", cmd);
- 	return -EOPNOTSUPP;
- }
-diff -Nru a/net/bridge/br_private.h b/net/bridge/br_private.h
---- a/net/bridge/br_private.h	2004-05-20 14:46:10 -07:00
-+++ b/net/bridge/br_private.h	2004-05-20 14:46:10 -07:00
-@@ -173,8 +173,8 @@
- extern int br_handle_frame(struct sk_buff *skb);
- 
- /* br_ioctl.c */
--extern int br_ioctl_deviceless_stub(unsigned long arg);
- extern int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
-+extern int br_ioctl_deviceless_stub(unsigned int cmd, unsigned long arg);
- 
- /* br_netfilter.c */
- extern int br_netfilter_init(void);
-diff -Nru a/net/core/dev.c b/net/core/dev.c
---- a/net/core/dev.c	2004-05-20 14:46:10 -07:00
-+++ b/net/core/dev.c	2004-05-20 14:46:10 -07:00
-@@ -2519,6 +2519,8 @@
- 			    cmd == SIOCGMIIPHY ||
- 			    cmd == SIOCGMIIREG ||
- 			    cmd == SIOCSMIIREG ||
-+			    cmd == SIOCBRADDIF ||
-+			    cmd == SIOCBRDELIF ||
- 			    cmd == SIOCWANDEV) {
- 				err = -EOPNOTSUPP;
- 				if (dev->do_ioctl) {
-@@ -2673,6 +2675,8 @@
- 		case SIOCBONDSLAVEINFOQUERY:
- 		case SIOCBONDINFOQUERY:
- 		case SIOCBONDCHANGEACTIVE:
-+		case SIOCBRADDIF:
-+		case SIOCBRDELIF:
- 			if (!capable(CAP_NET_ADMIN))
- 				return -EPERM;
- 			dev_load(ifr.ifr_name);
-diff -Nru a/net/socket.c b/net/socket.c
---- a/net/socket.c	2004-05-20 14:46:10 -07:00
-+++ b/net/socket.c	2004-05-20 14:46:10 -07:00
-@@ -727,9 +727,9 @@
-  */
- 
- static DECLARE_MUTEX(br_ioctl_mutex);
--static int (*br_ioctl_hook)(unsigned long arg) = NULL;
-+static int (*br_ioctl_hook)(unsigned int cmd, unsigned long arg) = NULL;
- 
--void brioctl_set(int (*hook)(unsigned long))
-+void brioctl_set(int (*hook)(unsigned int, unsigned long))
- {
- 	down(&br_ioctl_mutex);
- 	br_ioctl_hook = hook;
-@@ -794,13 +794,15 @@
- 			break;
- 		case SIOCGIFBR:
- 		case SIOCSIFBR:
-+		case SIOCBRADDBR:
-+		case SIOCBRDELBR:
- 			err = -ENOPKG;
- 			if (!br_ioctl_hook)
- 				request_module("bridge");
- 
- 			down(&br_ioctl_mutex);
- 			if (br_ioctl_hook) 
--				err = br_ioctl_hook(arg);
-+				err = br_ioctl_hook(cmd, arg);
- 			up(&br_ioctl_mutex);
- 			break;
- 		case SIOCGIFVLAN:
+ #undef DECLARES
+ #endif
+diff -Nru a/include/linux/compat_ioctl.h b/include/linux/compat_ioctl.h
+--- a/include/linux/compat_ioctl.h	2004-05-20 14:44:03 -07:00
++++ b/include/linux/compat_ioctl.h	2004-05-20 14:44:03 -07:00
+@@ -275,6 +275,8 @@
+ COMPATIBLE_IOCTL(SIOCSMIIREG)
+ COMPATIBLE_IOCTL(SIOCGIFVLAN)
+ COMPATIBLE_IOCTL(SIOCSIFVLAN)
++COMPATIBLE_IOCTL(SIOCBRADDBR)
++COMPATIBLE_IOCTL(SIOCBRDELBR)
+ /* SG stuff */
+ COMPATIBLE_IOCTL(SG_SET_TIMEOUT)
+ COMPATIBLE_IOCTL(SG_GET_TIMEOUT)
