@@ -1,12 +1,12 @@
-Date: Thu, 10 Mar 2005 18:51:52 -0800
-From: "David S. Miller" <davem@davemloft.net>
-Message-Id: <20050310185152.12ed9819.davem@davemloft.net>
-In-Reply-To: <20050310154437.1223b6e9@dxpl.pdx.osdl.net>
-References: <20050310154437.1223b6e9@dxpl.pdx.osdl.net>
+Date: Fri, 11 Mar 2005 09:34:47 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20050311093447.6559ab1d@dxpl.pdx.osdl.net>
+In-Reply-To: <20050311014602.GA29420@nambi>
+References: <20050311014602.GA29420@nambi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] (4/4) bridge: forwarding table lockless update
+Subject: [Bridge] Re: 2.6.8 bridging with large packets question
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,17 +15,36 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@oss.sgi.com, bridge@lists.osdl.org
+To: Ted Deppner <ted@psyber.com>, bridge@osdl.org
 
-On Thu, 10 Mar 2005 15:44:37 -0800
-Stephen Hemminger <shemminger@osdl.org> wrote:
+On Thu, 10 Mar 2005 17:46:02 -0800
+Ted Deppner <ted@psyber.com> wrote:
 
-> Optimize bridge forwarding table for the fastpath of updating
-> an existing entry. Use RCU to find the entry and change it's time.
-> Fallback to normal locking for insert. This gives about a 1/3
-> improvement in packets forwarding per second on SMP.
+> I've got a multicast video application where I'm using a bridge to get
+> duplicated multicast output on each of two physical interfaces.
 > 
-> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> eg br0 -> eth0 & eth1.  
+> ifconfig br0 x.x.x.x
+> route add -net 224.0.0.0/4 br0
+> 
+> This works perfectly for standard 1500 byte data packets (meaning they
+> don't need to fragment).  However, if I use 4096 byte data packets, which
+> obviously must fragment to go on the ethernet, then the packets only go
+> out the last interface in the bridge, ie eth1.  There's no packets going
+> out eth0.
 
-Applied, thanks.
+Bridging implements a IEEE 802.2 bridge.  This means it is protocol independent,
+it doesn't know what a IP packet is.  It's the standard, this is the correct
+behaviour.
+
+> Can you comment on this?  Has this been resolved in a later version of the
+> kernel, or is there an option I can tweak?
+
+You could use ebtables (netfilter for bridging), to process data and fragment
+as needed.
+
+> Thank you.
+> 
+> -- 
+> Ted Deppner
+> http://www.deppner.us/
