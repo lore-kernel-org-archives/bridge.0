@@ -1,12 +1,14 @@
-Date: Fri, 1 Apr 2005 09:07:08 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] bridge problem, please help me
-Message-ID: <20050401090708.03b12fe2@dxpl.pdx.osdl.net>
-In-Reply-To: <000601c536b7$6d2bcfb0$0b05a8c0@suzo>
-References: <000601c536b7$6d2bcfb0$0b05a8c0@suzo>
+Date: Mon, 4 Apr 2005 18:22:01 +0200
+From: Alpt <alpt@freaknet.org>
+Message-ID: <20050404162201.GA10070@nihil>
+References: <20050327092700.GA19972@nihil>
+	<20050329112733.GA6274@darkalpt.hinezumilabs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+In-Reply-To: <20050329112733.GA6274@darkalpt.hinezumilabs.org>
+Subject: [Bridge] Re: [PATCH bridge-2.6.11] bridge hub_enabled option
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,27 +17,46 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: zok <zok@suzo.sk>
-Cc: bridge@lists.osdl.org
+To: linux-net@vger.kernel.org, netdev@oss.sgi.com, bridge@lists.osdl.org
 
-On Fri, 1 Apr 2005 14:36:27 +0200
-"zok" <zok@suzo.sk> wrote:
 
-> I'm a problem with bridge please help me
-> 
-> My configuration:
-> 
-> eth0,eth1,wlan0
-> 
-> bridge is br0 on devices eth0 and wlan0. Device eth1 is not in bridge.
-> 
-> br0 ip is 192.168.1.1
-> eth1 ip is 192.168.2.1
-> 
-> ethernet (eth0,eth1) is in one switch.
-> 
-> all is ok if eth1 not in system, if eth1 plugged into system and up interface eth1 network crash :(
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You don't want to assign IP address to eth1 unless you are doing other things
-to turn the configuration into a brouter.
+On Tue, Mar 29, 2005 at 01:27:33PM +0200, Alpt wrote  :
+~> The document describing this patch is here:
+~> http://www.freaknet.org/alpt/src/bridge-hub/readme
+~>=20
+~> There is a small correction for this patch. The new version is attached
+~> here and be be found also here:
+~> http://www.freaknet.org/alpt/src/bridge-hub/bridge-2.6.11-hub.patch
+~>=20
+~> The patch for the bridge-utils:
+~> http://www.freaknet.org/alpt/src/bridge-hub/bridge-utils-1.0.6-hub.patch
 
+so.. is it applied or not?
+
+Best Regards
+--=20
+:wq!
+"I don't know nothing" The One Who reached the Thinking Matter   '.'
+
+[ Alpt --- Freaknet Medialab ]
+[ GPG Key ID 441CF0EE ]
+[ Key fingerprint =3D 8B02 26E8 831A 7BB9 81A9  5277 BFF8 037E 441C F0EE ]
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFCUWmpv/gDfkQc8O4RAhPXAJwNGJMFHkVEPVrV5reo3bknUdtJygCgxBWM
+fMqPves8wmP6yoXMCdDaBXQ=
+=xnaj
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
