@@ -1,15 +1,10 @@
-From: Nick Fedchik <nick@fedchik.org.ua>
-Reply-To: nick@fedchik.org.ua
-Subject: Re: [Bridge] ebtables?
-Date: Thu, 24 Jul 2003 09:16:23 +0400
-References: <3F1EE540.4050909@datajunction.com>
-In-Reply-To: <3F1EE540.4050909@datajunction.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-u"
+Date: Mon, 28 Jul 2003 13:59:47 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20030728135947.4aa9ad06.shemminger@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307240916.23515.nick@fedchik.org.ua>
+Subject: [Bridge] [PATCH] Change MAINTAINERS reference to bridge mailing list
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -20,27 +15,22 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: bridge@lists.osdl.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-On Wednesday 23 July 2003 23:42, David Barcelo wrote:
-> What is the point of ebtables?  
-See to http://ebtables.sourceforge.net/
+List moved to osdl.org
 
-> Why would I need it?
-Who know why?... ;)
-To filter ethernet frames (on link Layer), but not only an ip packets 
-(on Network Layer) on Your Linux-powered bridge (because bridge is [mostly] 
-Layer 2 (Linkk Layer) device)
+diff -Nru a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS	Mon Jul 28 13:57:06 2003
++++ b/MAINTAINERS	Mon Jul 28 13:57:06 2003
+@@ -666,7 +666,7 @@
+ ETHERNET BRIDGE
+ P:	Stephen Hemminger
+ M:	shemminger@osdl.org
+-L:	bridge@math.leidenuniv.nl
++L:	bridge@osdl.org
+ W:	http://bridge.sourceforge.net/
+ S:	Maintained
+ 
 
-> Does it offer any features over iptables for just IP users?
-See the iptables/ebtables interaction:
-http://ebtables.sourceforge.net/br_fw_ia/br_fw_ia.html
-
-> Does that mean (and I think it does) that without ebtables IPX traffic 
-would pass a bridge, such as the one this list is for, uninhibited?
-http://ebtables.sourceforge.net/documentation.html#what
-
--- 
-Best regards, Nick Fedchik
-FNM3-RIPE(-UANIC) http://www.fedchik.org.ua
 
