@@ -1,17 +1,12 @@
-Date: Fri, 10 Sep 2004 06:17:15 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Re: Problem in changed VLAN code can cause systems to
-	hang.
-Message-Id: <20040910061715.47dc3c32@linux.site>
-In-Reply-To: <1094819889.32556.63.camel@cyan.cph.tpack.net>
-References: <414057B1.1020902@siennax.com>
-	<20040909082129.62059694.davem@davemloft.net>
-	<4405.131.188.28.69.1094744038.squirrel@www.osdl.org>
-	<20040909085149.1d483349.davem@davemloft.net>
-	<20040910045603.32e8ded3@linux.site>
-	<1094819889.32556.63.camel@cyan.cph.tpack.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4141AC53.1000102@siennax.com>
+Date: Fri, 10 Sep 2004 15:29:55 +0200
+From: Mark Ruijter <bridge@siennax.com>
+MIME-Version: 1.0
+Subject: Re: [Bridge] Problem in changed VLAN code can cause systems to hang.
+References: <414057B1.1020902@siennax.com>	<1094820204.32553.67.camel@cyan.cph.tpack.net>
+	<20040910061424.29657cf3@linux.site>
+In-Reply-To: <20040910061424.29657cf3@linux.site>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -21,18 +16,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Tommy Christensen <tommy.christensen@tpack.net>
-Cc: "David S. Miller" <davem@davemloft.net>, bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, bridge@lists.osdl.org, netdev@premium.geo.yahoo.akadns.net, Tommy Christensen <tommy.christensen@tpack.net>
 
-On 10 Sep 2004 14:38:10 +0200
-Tommy Christensen <tommy.christensen@tpack.net> wrote:
-
-> On Fri, 2004-09-10 at 13:56, Stephen Hemminger wrote:
-> > [root@dev4-009 root]# mii-tool eth2:1
-> > SIOCGMIIPHY on 'eth2:1' failed: Operation not supported
+Stephen Hemminger wrote:
+> Thanks Tommy, the vlan MII ioctl pass through was passing the wrong device.
 > 
-> This is not the VLAN interface. It is typically named
-> eth2.1 (or possibly vlan1).
->     ^
+> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> --
+> diff -Nru a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
+> --- a/net/8021q/vlan_dev.c	2004-09-10 06:12:16 -07:00
+> +++ b/net/8021q/vlan_dev.c	2004-09-10 06:12:16 -07:00
+> @@ -772,7 +772,7 @@
+>  	case SIOCGMIIREG:
+>  	case SIOCSMIIREG:
+>  		if (real_dev->do_ioctl && netif_device_present(real_dev)) 
+> -			err = real_dev->do_ioctl(dev, &ifrr, cmd);
+> +			err = real_dev->do_ioctl(real_dev, &ifrr, cmd);
+>  		break;
+>  
+>  	case SIOCETHTOOL:
+> 
 
-Thanks, brain misfunction...
+I tested the patch and it fixes the problem as expected.
+
+Mark.
+
+-- 
+
