@@ -1,9 +1,10 @@
-Message-Id: <200503161824.j2GIOArr007631@ginger.cmf.nrl.navy.mil>
-In-reply-to: <20050316181532.GA3251@stusta.de> 
-Date: Wed, 16 Mar 2005 13:24:11 -0500
-From: "chas williams - CONTRACTOR" <chas@cmf.nrl.navy.mil>
-Subject: [Bridge] Re: [2.6 patch] fix bridge <-> ATM compile error 
-Reply-To: chas3@users.sourceforge.net
+Date: Wed, 16 Mar 2005 12:38:28 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20050316123828.0eb78fd3@dxpl.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [ANNOUNCE] bridge utilities 1.0.6
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,17 +13,13 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: netdev@oss.sgi.com, linux-atm-general@lists.sourceforge.net, bridge@osdl.org, linux-kernel@vger.kernel.org, shemminger@osdl.org
+To: bridge@osdl.org
+Cc: linux-net@vger.kernel.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 
-In message <20050316181532.GA3251@stusta.de>,Adrian Bunk writes:
->Letting CONFIG_BRIDGE depend on CONFIG_ATM doesn't sound like a good 
->idea, since I doubt all people using the Bridge code require ATM 
->support.
+Minor update to bridge utilities for 2.4/2.6. The changes are:
+ + Better usage of autoconf to manage detecting sysfs library
+ + Support multiple interfaces for add/delete interface commands.
+	Example: brctl addif br0 eth0 eth1 eth2 
+ - Remove code that was dead and no longer used
 
-i agree.
-
->Moving the hooks to the bridge code will give you exactly the same 
->problems the other way round.
-
-how about moving them to a third location like net/core/dev.c?
+http://prdownloads.sourceforge.net/bridge/bridge-utils-1.0.6.tar.gz?download
