@@ -1,10 +1,14 @@
-Message-ID: <463B9B514A01D6119A0400A0C9B761A382CA76@postkontor.tekblad.no>
-From: Kjetil Lund <kjetil.lund@tekblad.no>
-Subject: RE: [Bridge] bridge at start up
-Date: Fri, 28 Jan 2005 19:53:47 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Date: Fri, 28 Jan 2005 15:23:33 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Benchmarking bridging vs. routing on same
+	hardware/network
+Message-ID: <20050128152333.5e718a26@dxpl.pdx.osdl.net>
+In-Reply-To: <200501280417.j0S4HjTV020777@fire-1.osdl.org>
+References: <20050126130903.02aaea4a@dxpl.pdx.osdl.net>
+	<200501280417.j0S4HjTV020777@fire-1.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,584 +17,523 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Dominic Anyanna ' <dominic@afrione.net>, "'bridge@lists.osdl.org '" <bridge@lists.osdl.org>
+To: dan-linuxbridge@unpossible.com
+Cc: bridge@lists.osdl.org
 
-Create a simple startup-script in init.d, as described here for example:
-http://commmunity.linux.com/howtos/Bridge+Firewall+DSL-3.shtml
+Please try this patch,  it does:
+	* don't spin_lock on the update path unless entry
+	  is missing
+	* increase size of hash table
+	* use jenkins hash which might distribute better
+	* run gc timer at fixed interval.
 
-
---
-Regards
-K. Lund
-
------Original Message-----
-From: Dominic Anyanna
-To: bridge@lists.osdl.org
-Sent: 28.01.2005 18:55
-Subject: [Bridge] bridge at start up
+Purely experimental, but I'm running it here. If it works, will
+split into pieces for inclusion
 
 
-hi i have gone through the achieves but still could not get my bridge to
-suvive a reboot .
-please can anyone help me am using fedora core 2
-
-
------Original message-----
-From: bridge-request@lists.osdl.org
-Date: Fri, 28 Jan 2005 03:08:06 +0100
-To: bridge@lists.osdl.org
-Subject: Bridge Digest, Vol 17, Issue 25
-
->  Send Bridge mailing list submissions to
->  	bridge@lists.osdl.org
->  
->  To subscribe or unsubscribe via the World Wide Web, visit
->  	http://lists.osdl.org/mailman/listinfo/bridge
->  or, via email, send a message with subject or body 'help' to
->  	bridge-request@lists.osdl.org
->  
->  You can reach the person managing the list at
->  	bridge-owner@lists.osdl.org
->  
->  When replying, please edit your Subject line so it is more specific
->  than "Re: Contents of Bridge digest..."
->  
->  
->  Today's Topics:
->  
->     1. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (Bart De Schuymer)
->     2. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (Patrick McHardy)
->     3. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (David S. Miller)
->     4. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (Patrick McHardy)
->     5. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (David S. Miller)
->     6. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (Patrick McHardy)
->     7. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (Rusty Russell)
->     8. Re: [PATCH/RFC] Reduce call chain length in netfilter
->        (Rusty Russell)
->  
->  
->
-----------------------------------------------------------------------
->  
->  Message: 1
->  Date: Thu, 27 Jan 2005 22:16:04 +0100
->  From: Bart De Schuymer <bdschuym@pandora.be>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: "David S. Miller" <davem@davemloft.net>
->  Cc: netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
->  	bridge@osdl.org,	snort2004@mail.ru,
-gandalf@wlug.westbo.se,
->  	rusty@rustcorp.com.au,	dwmw2@infradead.org, ak@suse.de,
->  	shemminger@osdl.org
->  Message-ID: <1106860564.3389.4.camel@localhost.localdomain>
->  Content-Type: text/plain
->  
->  Op do, 27-01-2005 te 11:47 -0800, schreef David S. Miller:
->  > On Thu, 27 Jan 2005 18:50:50 +0100
->  > Patrick McHardy <kaber@trash.net> wrote:
->  > 
->  > >  From what I can see it doesn't generate tail-calls currently:
->  > 
->  > Indeed... It even doesn't do this on Sparc64 either, even for
->  > the okfn(skb) call which I was sure it would.
->  > 
->  > It won't tail-call for function pointers for some strance reason
->  > as exhibited by this simple test:
->  > 
->  > struct sk_buff {
->  > 	int foo;
->  > };
->  > 
->  > int invoke(struct sk_buff *skb, int (*okfn)(struct sk_buff *))
->  > {
->  > 	return okfn(skb);
->  > }
->  > 
->  > extern int test_func(struct sk_buff *);
->  > 
->  > int invoke2(struct sk_buff *skb)
->  > {
->  > 	return test_func(skb);
->  > }
->  > 
->  > In the generated asm on sparc64, invoke2() gets a tail-call
->  > whereas invoke() does not.  Hmmm...
->  
->  Pasha (<snort2004@mail.ru>) is currently using a bridge-nf patch vs
->  2.4.29 with the changes I sent to you. After two days he sent me
->  (yesterday) a message that all is well. Without the patch he was
-getting
->  the stack overflow oopses.
->  
->  cheers,
->  Bart
->  
->  
->  
->  ------------------------------
->  
->  Message: 2
->  Date: Thu, 27 Jan 2005 23:48:04 +0100
->  From: Patrick McHardy <kaber@trash.net>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: "David S. Miller" <davem@davemloft.net>
->  Cc: netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
->  	bdschuym@pandora.be, bridge@osdl.org, snort2004@mail.ru,
->  	rusty@rustcorp.com.au, dwmw2@infradead.org, ak@suse.de,
->  	shemminger@osdl.org, gandalf@wlug.westbo.se
->  Message-ID: <41F96FA4.4000105@trash.net>
->  Content-Type: text/plain; charset=ISO-8859-1; format=flowed
->  
->  David S. Miller wrote:
->  
->  >In the generated asm on sparc64, invoke2() gets a tail-call
->  >whereas invoke() does not.  Hmmm...
->  >
->  >
->  Apparently support for indirect tail-calls was added to gcc 3.4.
->  
->  gcc-3.3.5:
->  0x0000000000000000 <invoke+0>:  sub    $0x8,%rsp
->  0x0000000000000004 <invoke+4>:  callq  *%esi
->  0x0000000000000006 <invoke+6>:  add    $0x8,%rsp
->  0x000000000000000a <invoke+10>: retq  
->  
->  gcc-3.4.4:
->  0x0000000000000000 <invoke+0>:  mov    %rsi,%r11
->  0x0000000000000003 <invoke+3>:  jmpq   *%r11d
->  
->  Regards
->  Patrick
->  
->  
->  ------------------------------
->  
->  Message: 3
->  Date: Thu, 27 Jan 2005 15:24:50 -0800
->  From: "David S. Miller" <davem@davemloft.net>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: Patrick McHardy <kaber@trash.net>
->  Cc: netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
->  	bdschuym@pandora.be, bridge@osdl.org, snort2004@mail.ru,
->  	rusty@rustcorp.com.au, dwmw2@infradead.org, ak@suse.de,
->  	shemminger@osdl.org, gandalf@wlug.westbo.se
->  Message-ID: <20050127152450.6daba4fa.davem@davemloft.net>
->  Content-Type: text/plain; charset=US-ASCII
->  
->  On Thu, 27 Jan 2005 23:48:04 +0100
->  Patrick McHardy <kaber@trash.net> wrote:
->  
->  > David S. Miller wrote:
->  > 
->  > >In the generated asm on sparc64, invoke2() gets a tail-call
->  > >whereas invoke() does not.  Hmmm...
->  >
->  > Apparently support for indirect tail-calls was added to gcc 3.4.
->  
->  Good data point.
->  
->  I've been trying to figure out ways to decrease the number of
->  args that get sent to nf_hook_slow but this would require
->  some API changes unfortunately.
->  
->  One idea goes like this, we create little descriptors of the form:
->  
->  struct nf_hook_desc {
->  	int (*okfn)(struct sk_buff *);
->  	int pf;
->  	int hook;
->  };
->  
->  Then NF_HOOK*() callsites do something like this:
->  
->  static const struct nf_hook_desc nf_ip_local_out = {
->  	.okfn = dst_output,
->  	.pf = PF_INET,
->  	.hook = NF_IP_LOCAL_OUT,
->  };
->  
->  ...
->  
->  	/* Send it out. */
->  	return NF_HOOK(&nf_ip_local_out, skb, NULL, rt->u.dst.dev);
->  
->  This gets us down to 4 arguments from 6.  I think we can kill
->  one more.
->  
->  It is never the case that both indev and outdev are both
->  set, so we can use some nf_hook_desc piece of state to
->  indicate which (in or out) the passed device pointer is.
->  
->  Oh yes, we can nicely add the thresh thing in here too
->  while we're at it.
->  
->  So the final nf_hook_desc might look something something like:
->  
->  struct nf_hook_desc {
->  	int (*okfn)(struct sk_buff *);
->  	int hook;
->  	int thresh;
->  	u8 pf; /* AF_MAX is 32 */
->  	u8 is_output;
->  };
->  
->  Hook could possibly use a smaller type as well to condense
->  the size of this thing even further.  I don't know if there
->  are any nice assumptions we can make about the hook numbers.
->  
->  Now, back to the compatability issue.  We could create a
->  new macro, NF_HOOK_DESC() and keep the existing ones around
->  via some nf_hook_slow() that basically does:
->  
->  int nf_hook_slow(int pf, unsigned int hook, struct sk_buff *skb,
->  		 struct net_device *indev, struct net_device *outdev,
->  		 int (*okfn)(struct sk_buff *), int thresh)
->  {
->  	struct nf_hook_desc desc;
->  
->  	desc.okfn = okfn;
->  	desc.hook = hook;
->  	desc.thresh = thresh;
->  	desc.pf = pf;
->  	desc.is_output = (outdev != NULL);
->  	return nf_hook_desc(&desc, skb, (outdev ? outdev : indev));
->  }
->  
->  So the final new stuff looks something like:
->  
->  #ifdef CONFIG_NETFILTER
->  struct nf_hook_desc {
->  	int (*okfn)(struct sk_buff *);
->  	int hook;
->  	int thresh;
->  	u8 pf; /* AF_MAX is 32 */
->  	u8 is_output;
->  };
->  #define NF_DESC_DECLARE(_name, _okfn, _hook, _thresh, _pf,
-_is_output) \
->  static const struct nf_hook_desc _name = { \
->  	.okfn = _okfn, \
->  	.hook = _hook, \
->  	.thresh = _thresh, \
->  	.pf = _pf, \
->  	.is_output = _is_output, \
->  };
->  
->  extern int nf_hook_desc(struct nf_hook_desc *desc, struct sk_buff
-*skb,
->  			struct net_device *dev);
->  
->  #define NF_HOOK_DESC(_desc, _skb, _dev) \
->  	nf_hook_desc(_desc, _skb, _dev)
->  #endif
->  
->  Just throwing around ideas... comments?
->  
->  ------------------------------
->  
->  Message: 4
->  Date: Fri, 28 Jan 2005 01:08:54 +0100
->  From: Patrick McHardy <kaber@trash.net>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: "David S. Miller" <davem@davemloft.net>
->  Cc: netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
->  	bdschuym@pandora.be, bridge@osdl.org, snort2004@mail.ru,
->  	rusty@rustcorp.com.au, dwmw2@infradead.org, ak@suse.de,
->  	shemminger@osdl.org, gandalf@wlug.westbo.se
->  Message-ID: <41F98296.9040804@trash.net>
->  Content-Type: text/plain; charset=us-ascii; format=flowed
->  
->  David S. Miller wrote:
->  
->  >I've been trying to figure out ways to decrease the number of
->  >args that get sent to nf_hook_slow but this would require
->  >some API changes unfortunately.
->  >
->  >One idea goes like this, we create little descriptors of the form:
->  >
->  >struct nf_hook_desc {
->  >	int (*okfn)(struct sk_buff *);
->  >	int pf;
->  >	int hook;
->  >};
->  >
->  >Then NF_HOOK*() callsites do something like this:
->  >
->  >static const struct nf_hook_desc nf_ip_local_out = {
->  >	.okfn = dst_output,
->  >	.pf = PF_INET,
->  >	.hook = NF_IP_LOCAL_OUT,
->  >};
->  >
->  >...
->  >
->  >	/* Send it out. */
->  >	return NF_HOOK(&nf_ip_local_out, skb, NULL, rt->u.dst.dev);
->  >
->  >This gets us down to 4 arguments from 6.  I think we can kill
->  >one more.
->  >
->  >It is never the case that both indev and outdev are both
->  >set, so we can use some nf_hook_desc piece of state to
->  >indicate which (in or out) the passed device pointer is.
->  >  
->  >
->  indev and outdev are both set in the forward hook.
->  
->  >Oh yes, we can nicely add the thresh thing in here too
->  >while we're at it.
->  >
->  >So the final nf_hook_desc might look something something like:
->  >
->  >struct nf_hook_desc {
->  >	int (*okfn)(struct sk_buff *);
->  >	int hook;
->  >	int thresh;
->  >	u8 pf; /* AF_MAX is 32 */
->  >	u8 is_output;
->  >};
->  >
->  >Hook could possibly use a smaller type as well to condense
->  >the size of this thing even further.  I don't know if there
->  >are any nice assumptions we can make about the hook numbers.
->  >  
->  >
->  There are currently five hooks. I really hope we'll never reach
->  256, so u8 should be big enough.
->  
->  >Now, back to the compatability issue.  We could create a
->  >new macro, NF_HOOK_DESC() and keep the existing ones around
->  >via some nf_hook_slow() that basically does:
->  >
->  >int nf_hook_slow(int pf, unsigned int hook, struct sk_buff *skb,
->  >		 struct net_device *indev, struct net_device *outdev,
->  >		 int (*okfn)(struct sk_buff *), int thresh)
->  >{
->  >	struct nf_hook_desc desc;
->  >
->  >	desc.okfn = okfn;
->  >	desc.hook = hook;
->  >	desc.thresh = thresh;
->  >	desc.pf = pf;
->  >	desc.is_output = (outdev != NULL);
->  >	return nf_hook_desc(&desc, skb, (outdev ? outdev : indev));
->  >}
->  >
->  >So the final new stuff looks something like:
->  >
->  >#ifdef CONFIG_NETFILTER
->  >struct nf_hook_desc {
->  >	int (*okfn)(struct sk_buff *);
->  >	int hook;
->  >	int thresh;
->  >	u8 pf; /* AF_MAX is 32 */
->  >	u8 is_output;
->  >};
->  >#define NF_DESC_DECLARE(_name, _okfn, _hook, _thresh, _pf,
-_is_output) \
->  >static const struct nf_hook_desc _name = { \
->  >	.okfn = _okfn, \
->  >	.hook = _hook, \
->  >	.thresh = _thresh, \
->  >	.pf = _pf, \
->  >	.is_output = _is_output, \
->  >};
->  >
->  >extern int nf_hook_desc(struct nf_hook_desc *desc, struct sk_buff
-*skb,
->  >			struct net_device *dev);
->  >
->  >#define NF_HOOK_DESC(_desc, _skb, _dev) \
->  >	nf_hook_desc(_desc, _skb, _dev)
->  >#endif
->  >
->  >Just throwing around ideas... comments?
->  >  
->  >
->  Sounds like a good idea to get rid of the static arguments to
->  nf_hook_slow. Keeping both devices we are still down from 7 to
->  4 arguments with your suggestion.
->  
->  Regards
->  Patrick
->  
->  
->  ------------------------------
->  
->  Message: 5
->  Date: Thu, 27 Jan 2005 17:10:23 -0800
->  From: "David S. Miller" <davem@davemloft.net>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: Rusty Russell <rusty@rustcorp.com.au>
->  Cc: netdev@oss.sgi.com, bdschuym@pandora.be, bridge@osdl.org,
->  	snort2004@mail.ru,	gandalf@wlug.westbo.se,
->  	netfilter-devel@lists.netfilter.org,	dwmw2@infradead.org,
-ak@suse.de,
->  	shemminger@osdl.org
->  Message-ID: <20050127171023.2e8547e1.davem@davemloft.net>
->  Content-Type: text/plain; charset=US-ASCII
->  
->  On Fri, 28 Jan 2005 11:29:29 +1100
->  Rusty Russell <rusty@rustcorp.com.au> wrote:
->  
->  > No, let's just fix them all.
->  
->  In tree, yes.  But leaving the NF_HOOK()/NF_HOOK_THRESH() compat
->  macros in there for out-of-tree modules I feel is mandatory, it's
->  a major API change.
->  
->  ------------------------------
->  
->  Message: 6
->  Date: Fri, 28 Jan 2005 02:35:42 +0100
->  From: Patrick McHardy <kaber@trash.net>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: Rusty Russell <rusty@rustcorp.com.au>
->  Cc: netdev@oss.sgi.com, bdschuym@pandora.be, bridge@osdl.org,
->  	snort2004@mail.ru,	gandalf@wlug.westbo.se, Netfilter
-development
->  	mailing list	<netfilter-devel@lists.netfilter.org>,
->  	dwmw2@infradead.org,	ak@suse.de, shemminger@osdl.org, "David
-S.
->  	Miller" <davem@davemloft.net>
->  Message-ID: <41F996EE.2030409@trash.net>
->  Content-Type: text/plain; charset=us-ascii; format=flowed
->  
->  Rusty Russell wrote:
->  
->  >On Thu, 2005-01-27 at 17:10 -0800, David S. Miller wrote:
->  >
->  >>In tree, yes.  But leaving the NF_HOOK()/NF_HOOK_THRESH() compat
->  >>macros in there for out-of-tree modules I feel is mandatory, it's
->  >>a major API change.
->  >>
->  >
->  >I'm not so sure.  The hook functions which are registered, sure (ie.
->  >keep the calling convention the same).  But do any external modules
-use
->  >NF_HOOK()?  That implies they're writing their own network stack for
->  >some protocol, which I would expect to be uncommon.
->  >
->  Freeswan comes to mind. But I guess one more #ifdef can't hurt :)
->  
->  Regards
->  Patrick
->  
->  
->  ------------------------------
->  
->  Message: 7
->  Date: Fri, 28 Jan 2005 11:29:29 +1100
->  From: Rusty Russell <rusty@rustcorp.com.au>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: "David S. Miller" <davem@davemloft.net>
->  Cc: netdev@oss.sgi.com, bdschuym@pandora.be, bridge@osdl.org,
->  	snort2004@mail.ru,	gandalf@wlug.westbo.se, Netfilter
-development
->  	mailing list	<netfilter-devel@lists.netfilter.org>,
->  	dwmw2@infradead.org,	ak@suse.de, shemminger@osdl.org
->  Message-ID: <1106872169.18360.6.camel@localhost.localdomain>
->  Content-Type: text/plain
->  
->  On Thu, 2005-01-27 at 15:24 -0800, David S. Miller wrote:
->  > It is never the case that both indev and outdev are both
->  > set, so we can use some nf_hook_desc piece of state to
->  > indicate which (in or out) the passed device pointer is.
->  
->  NF_IP_FORWARD... it's really *really* useful for filtering forwarded
->  packets.  However, is it ever the case that indev != skb->dev?  If
-not,
->  we can simply drop that arg and use skb->dev.
->  
->  > Now, back to the compatability issue.  We could create a
->  > new macro, NF_HOOK_DESC() and keep the existing ones around
->  > via some nf_hook_slow() that basically does:
->  
->  No, let's just fix them all.  Also, gcc 3.4 will discard unused
-static
->  variables, so I prefer the kernel start just declaring structs as
->  normal, and have them "used" in the !CONFIG case by an inline
-function
->  which allows gcc to realize that it can be eliminated, but suppresses
->  unused warnings.  This also means you get type checking etc without
-the
->  config option.
->  
->  BTW, someone should go through and start ripping out #ifdef
->  CONFIG_PROC_FS around those structs, too...
->  
->  Cheers,
->  Rusty.
->  -- 
->  A bad analogy is like a leaky screwdriver -- Richard Braakman
->  
->  
->  ------------------------------
->  
->  Message: 8
->  Date: Fri, 28 Jan 2005 12:32:25 +1100
->  From: Rusty Russell <rusty@rustcorp.com.au>
->  Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in
->  	netfilter
->  To: "David S. Miller" <davem@davemloft.net>
->  Cc: netdev@oss.sgi.com, bdschuym@pandora.be, bridge@osdl.org,
->  	snort2004@mail.ru,	gandalf@wlug.westbo.se, Netfilter
-development
->  	mailing list	<netfilter-devel@lists.netfilter.org>,
->  	dwmw2@infradead.org,	ak@suse.de, shemminger@osdl.org
->  Message-ID: <1106875946.18360.29.camel@localhost.localdomain>
->  Content-Type: text/plain
->  
->  On Thu, 2005-01-27 at 17:10 -0800, David S. Miller wrote:
->  > On Fri, 28 Jan 2005 11:29:29 +1100
->  > Rusty Russell <rusty@rustcorp.com.au> wrote:
->  > 
->  > > No, let's just fix them all.
->  > 
->  > In tree, yes.  But leaving the NF_HOOK()/NF_HOOK_THRESH() compat
->  > macros in there for out-of-tree modules I feel is mandatory, it's
->  > a major API change.
->  
->  I'm not so sure.  The hook functions which are registered, sure (ie.
->  keep the calling convention the same).  But do any external modules
-use
->  NF_HOOK()?  That implies they're writing their own network stack for
->  some protocol, which I would expect to be uncommon.
->  
->  Rusty.
->  -- 
->  A bad analogy is like a leaky screwdriver -- Richard Braakman
->  
->  
->  ------------------------------
->  
->  _______________________________________________
->  Bridge mailing list
->  Bridge@lists.osdl.org
->  http://lists.osdl.org/mailman/listinfo/bridge
->  
->  
->  End of Bridge Digest, Vol 17, Issue 25
->  **************************************
->  
-
-
-
-
-
-AfriOne Mail - AfriOne Cares!!!
- <<ATT01947.txt>> 
+diff -Nru a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+--- a/net/bridge/br_fdb.c	2005-01-28 15:20:03 -08:00
++++ b/net/bridge/br_fdb.c	2005-01-28 15:20:03 -08:00
+@@ -19,12 +19,17 @@
+ #include <linux/times.h>
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
++#include <linux/jhash.h>
++
+ #include <asm/atomic.h>
+ #include "br_private.h"
+ 
++static struct net_bridge_fdb_entry *fdb_create(struct hlist_head *head,
++					       struct net_bridge_port *source,
++					       const unsigned char *addr,
++					       int is_local);
++
+ static kmem_cache_t *br_fdb_cache;
+-static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+-		      const unsigned char *addr, int is_local);
+ 
+ void __init br_fdb_init(void)
+ {
+@@ -43,40 +48,28 @@
+ /* if topology_changing then use forward_delay (default 15 sec)
+  * otherwise keep longer (default 5 minutes)
+  */
+-static __inline__ unsigned long hold_time(const struct net_bridge *br)
++static inline unsigned long hold_time(const struct net_bridge *br)
+ {
+ 	return br->topology_change ? br->forward_delay : br->ageing_time;
+ }
+ 
+-static __inline__ int has_expired(const struct net_bridge *br,
++static inline int has_expired(const struct net_bridge *br,
+ 				  const struct net_bridge_fdb_entry *fdb)
+ {
+ 	return !fdb->is_static 
+ 		&& time_before_eq(fdb->ageing_timer + hold_time(br), jiffies);
+ }
+ 
+-static __inline__ int br_mac_hash(const unsigned char *mac)
++static inline struct hlist_head *br_mac_hash(struct net_bridge *br,
++					     const unsigned char *mac)
+ {
+-	unsigned long x;
+-
+-	x = mac[0];
+-	x = (x << 2) ^ mac[1];
+-	x = (x << 2) ^ mac[2];
+-	x = (x << 2) ^ mac[3];
+-	x = (x << 2) ^ mac[4];
+-	x = (x << 2) ^ mac[5];
+-
+-	x ^= x >> 8;
+-
+-	return x & (BR_HASH_SIZE - 1);
++	u32 hash = jhash(mac, ETH_ALEN, 0);
++	return &br->hash[hash & ((1<<BR_HASH_BITS)-1)];
+ }
+ 
+-static __inline__ void fdb_delete(struct net_bridge_fdb_entry *f)
++static inline void fdb_delete(struct net_bridge_fdb_entry *f)
+ {
+ 	hlist_del_rcu(&f->hlist);
+-	if (!f->is_static)
+-		list_del(&f->u.age_list);
+-
+ 	br_fdb_put(f);
+ }
+ 
+@@ -113,40 +106,34 @@
+ 		}
+ 	}
+  insert:
+-	/* insert new address,  may fail if invalid address or dup. */
+-	fdb_insert(br, p, newaddr, 1);
+-
+ 
++	if (is_valid_ether_addr(newaddr))
++		fdb_create(br_mac_hash(br, newaddr), p, newaddr, 1);
+ 	spin_unlock_bh(&br->hash_lock);
+ }
+ 
+ void br_fdb_cleanup(unsigned long _data)
+ {
+ 	struct net_bridge *br = (struct net_bridge *)_data;
+-	struct list_head *l, *n;
+-	unsigned long delay;
++	unsigned long delay = hold_time(br);
++	int i;
+ 
+ 	spin_lock_bh(&br->hash_lock);
+-	delay = hold_time(br);
+-
+-	list_for_each_safe(l, n, &br->age_list) {
++	for (i = 0; i < BR_HASH_SIZE; i++) {
+ 		struct net_bridge_fdb_entry *f;
+-		unsigned long expires;
++		struct hlist_node *h, *n;
+ 
+-		f = list_entry(l, struct net_bridge_fdb_entry, u.age_list);
+-		expires = f->ageing_timer + delay;
+-
+-		if (time_before_eq(expires, jiffies)) {
+-			WARN_ON(f->is_static);
+-			pr_debug("expire age %lu jiffies %lu\n",
+-				 f->ageing_timer, jiffies);
+-			fdb_delete(f);
+-		} else {
+-			mod_timer(&br->gc_timer, expires);
+-			break;
++		hlist_for_each_entry_safe(f, h, n, &br->hash[i], hlist) {
++			if (!f->is_static 
++			    && time_before_eq(f->ageing_timer + delay,
++					      jiffies)) {
++				fdb_delete(f);
++			}
+ 		}
+ 	}
+ 	spin_unlock_bh(&br->hash_lock);
++
++	mod_timer(&br->gc_timer, jiffies + HZ/10);
+ }
+ 
+ void br_fdb_delete_by_port(struct net_bridge *br, struct net_bridge_port *p)
+@@ -191,10 +178,11 @@
+ struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+ 					  const unsigned char *addr)
+ {
++	struct hlist_head *head = br_mac_hash(br,addr);
+ 	struct hlist_node *h;
+ 	struct net_bridge_fdb_entry *fdb;
+ 
+-	hlist_for_each_entry_rcu(fdb, h, &br->hash[br_mac_hash(addr)], hlist) {
++	hlist_for_each_entry_rcu(fdb, h, head, hlist) {
+ 		if (!memcmp(fdb->addr.addr, addr, ETH_ALEN)) {
+ 			if (unlikely(has_expired(br, fdb)))
+ 				break;
+@@ -205,6 +193,7 @@
+ 	return NULL;
+ }
+ 
++#if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
+ /* Interface used by ATM hook that keeps a ref count */
+ struct net_bridge_fdb_entry *br_fdb_get(struct net_bridge *br, 
+ 					unsigned char *addr)
+@@ -218,19 +207,20 @@
+ 	rcu_read_unlock();
+ 	return fdb;
+ }
++#endif
++
+ 
+ static void fdb_rcu_free(struct rcu_head *head)
+ {
+-	struct net_bridge_fdb_entry *ent
+-		= container_of(head, struct net_bridge_fdb_entry, u.rcu);
+-	kmem_cache_free(br_fdb_cache, ent);
++	kmem_cache_free(br_fdb_cache, 
++			container_of(head, struct net_bridge_fdb_entry, rcu));
+ }
+ 
+ /* Set entry up for deletion with RCU  */
+ void br_fdb_put(struct net_bridge_fdb_entry *ent)
+ {
+ 	if (atomic_dec_and_test(&ent->use_count))
+-		call_rcu(&ent->u.rcu, fdb_rcu_free);
++		call_rcu(&ent->rcu, fdb_rcu_free);
+ }
+ 
+ /*
+@@ -278,80 +268,103 @@
+ 	return num;
+ }
+ 
+-static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+-		  const unsigned char *addr, int is_local)
++static inline struct net_bridge_fdb_entry *
++fdb_find(struct hlist_head *head, const unsigned char *addr)
+ {
+ 	struct hlist_node *h;
+ 	struct net_bridge_fdb_entry *fdb;
+-	int hash = br_mac_hash(addr);
+ 
+-	if (!is_valid_ether_addr(addr))
+-		return -EADDRNOTAVAIL;
++	hlist_for_each_entry_rcu(fdb, h, head, hlist) {
++		if (!memcmp(fdb->addr.addr, addr, ETH_ALEN))
++			return fdb;
++	}
++	return NULL;
++}
+ 
+-	hlist_for_each_entry(fdb, h, &br->hash[hash], hlist) {
+-		if (!memcmp(fdb->addr.addr, addr, ETH_ALEN)) {
+-			/* attempt to update an entry for a local interface */
+-			if (fdb->is_local) {
+-				/* it is okay to have multiple ports with same 
+-				 * address, just don't allow to be spoofed.
+-				 */
+-				if (is_local) 
+-					return 0;
+-
+-				if (net_ratelimit()) 
+-					printk(KERN_WARNING "%s: received packet with "
+-					       " own address as source address\n",
+-					       source->dev->name);
+-				return -EEXIST;
+-			}
++static struct net_bridge_fdb_entry *
++fdb_create(struct hlist_head *head,
++	   struct net_bridge_port *source,
++	   const unsigned char *addr, int is_local)
++{
++	struct net_bridge_fdb_entry *fdb;
+ 
+-			if (is_local) {
+-				printk(KERN_WARNING "%s adding interface with same address "
+-				       "as a received packet\n",
+-				       source->dev->name);
+-				goto update;
+-			}
++	/* No match found */
++	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
++	if (fdb) {
++		memcpy(fdb->addr.addr, addr, ETH_ALEN);
++		atomic_set(&fdb->use_count, 1);
++
++		hlist_add_head_rcu(&fdb->hlist, head);
++
++		fdb->dst = source;
++		fdb->is_local = is_local;
++		fdb->is_static = is_local;
++		fdb->ageing_timer = jiffies;
++	}
+ 
+-			if (fdb->is_static)
+-				return 0;
++	return fdb;
++}
+ 
+-			/* move to end of age list */
+-			list_del(&fdb->u.age_list);
+-			goto update;
+-		}
+-	}
+ 
+-	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
+-	if (!fdb)
+-		return ENOMEM;
++int br_fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
++		  const unsigned char *addr)
++{
++	struct hlist_head *head = br_mac_hash(br, addr);
++	struct net_bridge_fdb_entry *fdb;
++	int ret = 0;
++
++	if (!is_valid_ether_addr(addr))
++		return -EINVAL;
+ 
+-	memcpy(fdb->addr.addr, addr, ETH_ALEN);
+-	atomic_set(&fdb->use_count, 1);
+-	hlist_add_head_rcu(&fdb->hlist, &br->hash[hash]);
+-
+-	if (!timer_pending(&br->gc_timer)) {
+-		br->gc_timer.expires = jiffies + hold_time(br);
+-		add_timer(&br->gc_timer);
++	spin_lock_bh(&br->hash_lock);
++	fdb = fdb_find(head, addr);
++	if (fdb) {
++		/* it is okay to have multiple ports with same 
++		 * address, just use the first one.
++		 */
++		if (fdb->is_local) 
++			goto out;
++
++		printk(KERN_WARNING "%s adding interface with same address "
++		       "as a received packet\n",
++		       source->dev->name);
++		fdb_delete(fdb);
+ 	}
+ 
+- update:
+-	fdb->dst = source;
+-	fdb->is_local = is_local;
+-	fdb->is_static = is_local;
+-	fdb->ageing_timer = jiffies;
+-	if (!is_local) 
+-		list_add_tail(&fdb->u.age_list, &br->age_list);
++	if (!fdb_create(head, source, addr, 1))
++		ret = -ENOMEM;
+ 
+-	return 0;
++ out:
++	spin_unlock_bh(&br->hash_lock);
++	return ret;
+ }
+ 
+-int br_fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+-		  const unsigned char *addr, int is_local)
++void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
++		  const unsigned char *addr)
+ {
+-	int ret;
++	struct hlist_head *head = br_mac_hash(br,addr);
++	struct net_bridge_fdb_entry *fdb;
++
++	rcu_read_lock();
++	fdb = fdb_find(head, addr);
++	if (likely(fdb)) {
++		/* attempt to update an entry for a local interface */
++		if (fdb->is_local) {
++			if (net_ratelimit()) 
++				printk(KERN_WARNING "%s: received packet with "
++				       " own address as source address\n",
++				       source->dev->name);
++		}
++
++		/* racy but okay */
++		fdb->dst = source;
++		fdb->ageing_timer = jiffies;
++		rcu_read_unlock();
++		return;
++	}
+ 
+ 	spin_lock_bh(&br->hash_lock);
+-	ret = fdb_insert(br, source, addr, is_local);
++	if (!fdb_find(head, addr))
++		fdb_create(head, source, addr, 0);
+ 	spin_unlock_bh(&br->hash_lock);
+-	return ret;
+ }
+diff -Nru a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+--- a/net/bridge/br_forward.c	2005-01-28 15:20:03 -08:00
++++ b/net/bridge/br_forward.c	2005-01-28 15:20:03 -08:00
+@@ -22,36 +22,28 @@
+ static inline int should_deliver(const struct net_bridge_port *p, 
+ 				 const struct sk_buff *skb)
+ {
+-	if (skb->dev == p->dev ||
+-	    p->state != BR_STATE_FORWARDING)
+-		return 0;
+-
+-	return 1;
++	return (skb->dev != p->dev && p->state == BR_STATE_FORWARDING);
+ }
+ 
+ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ {
+-	if (skb->len > skb->dev->mtu) 
++	if (unlikely(skb->len > skb->dev->mtu)) {
+ 		kfree_skb(skb);
+-	else {
++		return 0;
++	}
+ #ifdef CONFIG_BRIDGE_NETFILTER
+-		/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
+-		nf_bridge_maybe_copy_header(skb);
++	/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
++	nf_bridge_maybe_copy_header(skb);
+ #endif
+-		skb_push(skb, ETH_HLEN);
+-
+-		dev_queue_xmit(skb);
+-	}
+-
+-	return 0;
++	skb_push(skb, ETH_HLEN);
++	
++	return dev_queue_xmit(skb);
+ }
+ 
+ int br_forward_finish(struct sk_buff *skb)
+ {
+-	NF_HOOK(PF_BRIDGE, NF_BR_POST_ROUTING, skb, NULL, skb->dev,
++	return NF_HOOK(PF_BRIDGE, NF_BR_POST_ROUTING, skb, NULL, skb->dev,
+ 			br_dev_queue_push_xmit);
+-
+-	return 0;
+ }
+ 
+ static void __br_deliver(const struct net_bridge_port *to, struct sk_buff *skb)
+@@ -73,7 +65,7 @@
+ 	skb->ip_summed = CHECKSUM_NONE;
+ 
+ 	NF_HOOK(PF_BRIDGE, NF_BR_FORWARD, skb, indev, skb->dev,
+-			br_forward_finish);
++	        br_forward_finish);
+ }
+ 
+ /* called with rcu_read_lock */
+diff -Nru a/net/bridge/br_if.c b/net/bridge/br_if.c
+--- a/net/bridge/br_if.c	2005-01-28 15:20:03 -08:00
++++ b/net/bridge/br_if.c	2005-01-28 15:20:03 -08:00
+@@ -165,7 +165,6 @@
+ 	br->topology_change = 0;
+ 	br->topology_change_detected = 0;
+ 	br->ageing_time = 300 * HZ;
+-	INIT_LIST_HEAD(&br->age_list);
+ 
+ 	br_stp_timer_init(br);
+ 
+@@ -258,6 +257,7 @@
+ 
+ 	if (ret) 
+ 		unregister_netdev(dev);
++
+  out:
+ 	return ret;
+ 
+@@ -332,7 +332,7 @@
+ 	if (IS_ERR(p = new_nbp(br, dev, br_initial_port_cost(dev))))
+ 		return PTR_ERR(p);
+ 
+- 	if ((err = br_fdb_insert(br, p, dev->dev_addr, 1)))
++ 	if ((err = br_fdb_insert(br, p, dev->dev_addr)))
+ 		destroy_nbp(p);
+  
+ 	else if ((err = br_sysfs_addif(p)))
+@@ -347,6 +347,9 @@
+ 		if ((br->dev->flags & IFF_UP) 
+ 		    && (dev->flags & IFF_UP) && netif_carrier_ok(dev))
+ 			br_stp_enable_port(p);
++		
++		mod_timer(&br->gc_timer, jiffies + HZ/10);
++	
+ 		spin_unlock_bh(&br->lock);
+ 
+ 		dev_set_mtu(br->dev, br_min_mtu(br));
+diff -Nru a/net/bridge/br_input.c b/net/bridge/br_input.c
+--- a/net/bridge/br_input.c	2005-01-28 15:20:03 -08:00
++++ b/net/bridge/br_input.c	2005-01-28 15:20:03 -08:00
+@@ -101,16 +101,17 @@
+ {
+ 	struct sk_buff *skb = *pskb;
+ 	const unsigned char *dest = eth_hdr(skb)->h_dest;
++	const unsigned char *src = eth_hdr(skb)->h_source;
+ 
+ 	if (p->state == BR_STATE_DISABLED)
+ 		goto err;
+ 
+-	if (eth_hdr(skb)->h_source[0] & 1)
++	if (!is_valid_ether_addr(src))
+ 		goto err;
+ 
+ 	if (p->state == BR_STATE_LEARNING ||
+ 	    p->state == BR_STATE_FORWARDING)
+-		br_fdb_insert(p->br, p, eth_hdr(skb)->h_source, 0);
++		br_fdb_update(p->br, p, src);
+ 
+ 	if (p->br->stp_enabled &&
+ 	    !memcmp(dest, bridge_ula, 5) &&
+diff -Nru a/net/bridge/br_private.h b/net/bridge/br_private.h
+--- a/net/bridge/br_private.h	2005-01-28 15:20:03 -08:00
++++ b/net/bridge/br_private.h	2005-01-28 15:20:03 -08:00
+@@ -16,10 +16,9 @@
+ #define _BR_PRIVATE_H
+ 
+ #include <linux/netdevice.h>
+-#include <linux/miscdevice.h>
+ #include <linux/if_bridge.h>
+ 
+-#define BR_HASH_BITS 8
++#define BR_HASH_BITS 10
+ #define BR_HASH_SIZE (1 << BR_HASH_BITS)
+ 
+ #define BR_HOLD_TIME (1*HZ)
+@@ -46,15 +45,12 @@
+ {
+ 	struct hlist_node		hlist;
+ 	struct net_bridge_port		*dst;
+-	union {
+-		struct list_head	age_list;
+-		struct rcu_head		rcu;
+-	} u;
+ 	atomic_t			use_count;
+ 	unsigned long			ageing_timer;
+ 	mac_addr			addr;
+ 	unsigned char			is_local;
+ 	unsigned char			is_static;
++	struct rcu_head			rcu;
+ };
+ 
+ struct net_bridge_port
+@@ -91,7 +87,6 @@
+ 	struct net_device_stats		statistics;
+ 	spinlock_t			hash_lock;
+ 	struct hlist_head		hash[BR_HASH_SIZE];
+-	struct list_head		age_list;
+ 
+ 	/* STP */
+ 	bridge_id			designated_root;
+@@ -148,8 +143,10 @@
+ 			  unsigned long count, unsigned long off);
+ extern int br_fdb_insert(struct net_bridge *br,
+ 			 struct net_bridge_port *source,
+-			 const unsigned char *addr,
+-			 int is_local);
++			 const unsigned char *addr);
++extern void br_fdb_update(struct net_bridge *br,
++			  struct net_bridge_port *source,
++			  const unsigned char *addr);
+ 
+ /* br_forward.c */
+ extern void br_deliver(const struct net_bridge_port *to,
