@@ -1,9 +1,9 @@
-Date: Mon, 9 Aug 2004 12:47:38 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] ebtables for RH-ES 3.0
-Message-Id: <20040809124738.3ff13417@dell_ss3.pdx.osdl.net>
-In-Reply-To: <ISSMTP.2002_3_.20040809135212.332E@unilever.com>
-References: <ISSMTP.2002_3_.20040809135212.332E@unilever.com>
+Date: Mon, 9 Aug 2004 16:52:37 -0700
+From: "David S. Miller" <davem@redhat.com>
+Subject: Re: Fw: [Bridge] Re:  Any way of knowing a packet's been defragmented
+Message-Id: <20040809165237.18cda881.davem@redhat.com>
+In-Reply-To: <20040806091305.4d405664@dell_ss3.pdx.osdl.net>
+References: <20040806091305.4d405664@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,7 +15,16 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Roman Havelka <Roman.Havelka@unilever.com>
-Cc: "bridge@lists.osdl.org" <bridge@lists.osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: bridge@osdl.org
 
-Try the ebtables@lists.sourceforge.net list.
+On Fri, 6 Aug 2004 09:13:05 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
+
+> Dave, this patch from Bart De Schuymer <bdschuym@pandora.be> fixes problems
+> when using filtering and defragmentation.  The bridge needs to enforce the
+> MTU restriction after going through the filtering chain not before, because
+> the incoming filter may have reassembled an IP packet, that then needs to
+> be fragmented on the output chain.
+
+Applied.
