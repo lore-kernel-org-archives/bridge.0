@@ -1,12 +1,13 @@
-Date: Tue, 1 Jun 2004 10:43:43 +0200
-From: Santiago Garcia Mantinan <bridge@manty.net>
+Date: Wed, 2 Jun 2004 11:43:20 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [Bridge] Bridging
-Message-ID: <20040601084343.GA5090@man.manty.net>
+Message-Id: <20040602114320.7c1bdcb5@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040601084343.GA5090@man.manty.net>
 References: <20040531071612.68077.qmail@web41004.mail.yahoo.com>
+	<20040601084343.GA5090@man.manty.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040531071612.68077.qmail@web41004.mail.yahoo.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,29 +16,17 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Yong Chu Eu <ceyong@yahoo.com>
-Cc: bridge@osdl.org
+To: Santiago Garcia Mantinan <bridge@manty.net>
+Cc: bridge@osdl.org, Yong Chu Eu <ceyong@yahoo.com>
 
-Just a quick note for those reading this on the list, version 1.X up to, and
-including, 1.0.3 doesn't work on 2.4 kernels, Stephen is looking at that and
-there should be a new version :-)
+On Tue, 1 Jun 2004 10:43:43 +0200
+Santiago Garcia Mantinan <bridge@manty.net> wrote:
 
-> when i type ./configure then make then make install to bridge-utils-1.0.3,
-> but u come out with error said lsysfs cannot found?
+> Just a quick note for those reading this on the list, version 1.X up to, and
+> including, 1.0.3 doesn't work on 2.4 kernels, Stephen is looking at that and
+> there should be a new version :-)
 
-Yes, by default new versions of the tools require libsysfs, you'll have to
-specify a parameter to configure to build without libsysfs.
+There is a 1.0.4-rc1 out on sourceforge, that should address the 2.4 issues.
+Will make it 1.0.4 if I get feedback that all the people with problems are happy.
 
-> But when i install bridge-utils-0.9.6, it succeedful install but nothing
-> come out, i type lsmod, i did not see any brctl
-
-brctl is a tool to control the bridge, not a kernel module, thus it cannot
-be seen on lsmod, but if it installed well you can surelly run brctl and get
-its help or do a man brctl, ...
-
-BTW: there are bridge-utils packages on most distros out there, maybe you
-should install the binary package that comes with your distribution.
-
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+I tried it on 2.6.7 and 2.4.
