@@ -1,13 +1,13 @@
-Date: Sun, 15 Feb 2004 13:02:54 +0100
-From: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-Subject: Re: [Bridge] maximum throughput for linux bridge
-Message-ID: <20040215120254.GA13054@gareth.mathematik.tu-chemnitz.de>
-References: <1076657825.735.72.camel@amidala.mozcom.com>
-	<402D1112.4040902@osdl.org>
+Date: Mon, 16 Feb 2004 09:05:06 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] SIOCDEVPRIVATE
+Message-Id: <20040216090506.4a252b08@dell_ss3.pdx.osdl.net>
+In-Reply-To: <402D6682.80801@nortelnetworks.com>
+References: <200402132000.i1DK09E17599@mail.osdl.org>
+	<402D6682.80801@nortelnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402D1112.4040902@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,22 +16,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-net@vger.kernel.org, "Paul P. Pongco" <paulp@mozcom.com>, bridge@osdl.org
+To: Abhijit Kumbhare <abhijitk@nortelnetworks.com>
+Cc: bridge@lists.osdl.org
 
-On Fri, Feb 13, 2004 at 10:01:54AM -0800 or thereabouts, Stephen Hemminger wrote:
-> 
-> The problem is that the 3c905 cards don't support interrupt mitigation, 
-> so when lots
-> of network traffic hits, they drop data.  The 3c59x driver allocates and 
-> copies every
-> received frame in the interrupt routine.  What is needed is a new driver 
-> that does NAPI
-> (any volunteers)? 
-> 
+On Fri, 13 Feb 2004 16:06:26 -0800
+Abhijit Kumbhare <abhijitk@nortelnetworks.com> wrote:
 
-Is seems that it is not possible to get the technical reference
-for the 3c905 cards from the 3com webpage any more.
-Filling out the cgi form at 
-http://support.3com.com/partners/developer/developer_form.html
-will leed to a server error.
+> The bridge module uses this ioctl - but in the comment in 
+> include/linux/sockios.h where it is defined says that the device private 
+> IOCTL are "deprecated" and will disappear in 2.5.X (comment by DaveM).
+> 
+> I still see it being used in the 2.6.X bridge code - what's the story 
+> behind this? Will SIOCDEVPRIVATE disappear or its just an invalid 
+> comment because too many people/modules are using it (that it will never 
+> be removed.
+
+It probably won't disappear any time soon. I am working on a replacing the bridge
+ioctl interface used now, because it doesn't work in mixed mode (32 bit command
+talking to a 64bit kernel).  After that is done, maybe it will go away, but
+there may be other devices that use it as well.  
+
+Final decision would be up to Dave Miller.
+
