@@ -1,17 +1,14 @@
-Date: Mon, 10 Jan 2005 20:11:33 +0100
-From: Gergely Madarasz <gorgo@broadband.hu>
-Message-ID: <20050110191133.GM7529@thunderchild.debian.net>
+Date: Mon, 10 Jan 2005 11:34:54 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Re: tg3 bridge problems
+Message-ID: <20050110113454.086ec0e2@dxpl.pdx.osdl.net>
+In-Reply-To: <20050110154506.GJ7529@thunderchild.debian.net>
 References: <20050110140638.GH7529@thunderchild.debian.net>
 	<41E299D4.2010605@redhat.com>
 	<20050110154506.GJ7529@thunderchild.debian.net>
-	<41E2A7A7.3060109@redhat.com>
-	<20050110161855.GK7529@thunderchild.debian.net>
-	<41E2BE29.8090800@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E2BE29.8090800@redhat.com>
-Subject: [Bridge] Re: tg3 bridge problems
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -20,38 +17,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Neil Horman <nhorman@redhat.com>
-Cc: linux-net@vger.kernel.org, bridge@lists.osdl.org
+To: Gergely Madarasz <gorgo@broadband.hu>
+Cc: linux-net@vger.kernel.org, Neil Horman <nhorman@redhat.com>, bridge@lists.osdl.org
 
-On Mon, Jan 10, 2005 at 12:40:57PM -0500, Neil Horman wrote:
-> Gergely Madarasz wrote:
-> >On Mon, Jan 10, 2005 at 11:04:55AM -0500, Neil Horman wrote:
-> >
-> >>Strange.  My concern was that the tg3 interface has its hardware reset 
-> >>whenever its set to be up, and part of that is a resetting of its 
-> >>receive mode.  If for some reason IFF_PROMISC was cleared after you set 
-> >>it using brctl, the interface might be taken out of promisc mode.  Do 
-> >>you have any iptables rules running that might drop bpdus?
-> >
-> >
-> >No iptables rules az all. Btw iptables wouldn't prevent tcpdump from
-> >seeing the packets, would it?
-> >Could it be that the driver perhaps has a problem setting promisc mode
-> >when resetting the hardware?
-> >
-> Not really sure about this.  One experiment is worth a thousand guesses 
-> I suppose.......  I'll try and let you know. :)
+On Mon, 10 Jan 2005 16:45:06 +0100
+Gergely Madarasz <gorgo@broadband.hu> wrote:
 
-I did some other checks, like adding an explicit ifconfig eth0 promisc,
-then looking at tcpdump output - I didn't see any stray packets like I
-usually do, just ethernet broadcasts and unicasts to my mac, this also
-points to a problem that the ethernet interface is actually not in
-promisc, while the driver thinks it is.
+> On Mon, Jan 10, 2005 at 10:05:56AM -0500, Neil Horman wrote:
+> > Gergely Madarasz wrote:
+> > >Hello,
+> > >
+> > >I've got a very strange problem. Lately I've been setting up my linux
+> > >servers for network (layer2) redundancy with a bridge interface containing
+> > >two ethernet interfaces connecting to two switches. So far I didn't have
+> > >any problems with it, but now a very strange thing happens with a new
+> > >server I'm installing. The server is an ibm x346 having two onboard
+> > >BCM5721 cards, the switches are cisco 3550, and I've tested with kernel
+> > >versions 2.6.10 and 2.4.28.
 
-And it is probably not a driver-only issue. I've got older machines with
-tg3 running fine with bridge (with an older tg3 driver), and eth1 on the
-same machine also runs fine. On another machine I tested today, an IBM
-x326, the same thing happens - eth0 broken, eth1 fine. Would access to one
-of these machines help? :)
+It could be the switch? Some switches require configuring the port as monitor
+mode (othewise they do MAC filtering).
 
-Greg
+I have a machine with:
+03:02.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5703X Gigabit Ethernet (rev 02)
+        Subsystem: IBM: Unknown device 026f
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 28
+        Memory at c0200000 (64-bit, non-prefetchable) [size=64K]
+        Capabilities: [40] PCI-X non-bridge device.
+        Capabilities: [48] Power Management version 2
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable
+
+but haven't tried bridging with it.
