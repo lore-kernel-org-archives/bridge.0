@@ -1,14 +1,12 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Subject: Re: [Bridge] [RELEASE] ebtables-brnf-3-vs-2.4.22 and ebtables-2-0-6
-Date: Mon, 3 Nov 2003 22:54:43 +0100
-References: <20031103152817.1022.qmail@web13910.mail.yahoo.com>
-In-Reply-To: <20031103152817.1022.qmail@web13910.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311032254.43243.bdschuym@pandora.be>
+Date: Wed, 12 Nov 2003 13:18:06 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20031112131806.2fdfccd1.shemminger@osdl.org>
+In-Reply-To: <20031028112416.GA32122@prolix.local.igalia.com>
+References: <20031028112416.GA32122@prolix.local.igalia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Re: [ethernet bridge] 802.1G ampliation
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,27 +15,41 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Scott MacKay <scottmackay@yahoo.com>, ebtables-user <ebtables-user@lists.sourceforge.net>, bridge <bridge@osdl.org>
+To: "=?ISO-8859-1?Q?Jos=E9?= J. =?ISO-8859-1?Q?Gonz=E1lez?= Alonso" <jjgonzalez@igalia.com>
+Cc: bridge@osdl.org
 
-On Monday 03 November 2003 16:28, Scott MacKay wrote:
-> Is there a way to indicate the changes performed for
-> the userspace mangle bug?  Currently, I am a bit tied
-> to 2.4.20 until a new round of kernel upgrades are
-> allowed....
+On Tue, 28 Oct 2003 12:24:16 +0100
+Jos=E9 J. Gonz=E1lez Alonso <jjgonzalez@igalia.com> wrote:
 
-Dave's fix for 2.6 looks like this:
+> Hi!=20
+>=20
+> I am very interested in your project. Concretely, I am interested in the
+> possibility of extending your implementation so that it fulfills the
+> specifications of 802.1G. I read this specifications and they seem
+> "simple" extensions of 802.1D standard.
+>=20
+> what do you think about?=20
+> would be it very hard?
+> Is there any documentation of your code?=20
+> (to read the code directly is being a little tedious)
+>=20
+> Regards,
+> 	Jos=E9 J. Gonz=E1lez Alonso
+>=20
 
---- net/core/skbuff.c.~1~       Tue Oct 28 06:54:49 2003
-+++ net/core/skbuff.c   Tue Oct 28 06:58:38 2003
-@@ -591,8 +591,8 @@
-        /* Set the tail pointer and length */
-        skb_put(n, skb->len);
- 
--       /* Copy the data only. */
--       if (skb_copy_bits(skb, 0, n->data, skb->len))
-+       /* Copy the linear data and header. */
-+       if (skb_copy_bits(skb, -newheadroom, n->head, newheadroom + skb->len))
-                BUG();
- 
-        copy_skb_header(n, skb);
+There have been several discussions about this, but very little in concrete=
+ work.
+The bridge mailing list might have others that have done something.
+
+A long term goal is to move all the discovery and spanning tree out of the =
+kernel
+and into a user space process.  This user space process would use netlink to
+see interface state changes and as API to the bridge driver.  Also a new im=
+plementation
+in user space could use the standard LLC interface to read bridge spanning =
+tree traffic.
+
+Unfortunately, I don't have a lot of time to dedicate to new feature work r=
+ight now,
+especially when 2.6 is trying to get released.
 
