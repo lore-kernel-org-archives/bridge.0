@@ -1,13 +1,12 @@
-Message-ID: <40F4CB5B.2070408@baywinds.org>
-Date: Tue, 13 Jul 2004 22:57:47 -0700
-From: Bruce Ferrell <bferrell@baywinds.org>
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Subject: Re: [Bridge] Bridge support unavailable
-References: <1089749757.31365@baywinds.org>
-	<20040713134334.03c62ab8@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040713134334.03c62ab8@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="Windows-1252"
+Date: Wed, 14 Jul 2004 12:38:18 -0500
+Message-ID: <30F5491FC3F68047925F0F51C190BCD701571028@ACDFWMAIL1.acd.de.ittind.com>
+From: "Saxer, John -ACDSD" <John.Saxer@itt.com>
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Making a bridge work without source address spoofing
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,57 +15,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Bert Hubbs <bhubbs@mbgdocs.com>, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-OK Stephen,
 
-I will stipulate the code fragment you've provided is supposed to load 
-the bridge.o module... BUT from the previous statements, it doesn't work 
-that way for Bert.  As I mentioned my compile of the module has all 
-those nasty undefined symbol errors so until I get that right all I can 
-do is talk about the way other modules work.
+So, I agree, the curent wireless card I have been given does not allow source address spoofing, but I still would like to use bridging. I wonder if anyone has tried modifying the bridge code to encapsulate the actual packet in some way so that the desired source address can be preserved?
 
-Is that fragment from brctl BTW?
+I am thinking of something like duplicating the ETH header, adding it to the beginning of the packet, so that there are 2 headers. I know that the wireless card strips the header off, adding its own header, and so it would strip off the extra one, leaving the original unchanged. Then, when the packet arrives, I would add software to strip the wireless header off again, leaving me with the original packet again!
 
-Stephen Hemminger wrote:
-> On Tue, 13 Jul 2004 13:15:57 -0700
-> bferrell@baywinds.org wrote:
-> 
-> 
->>Stephen,
->>
->>The module will only autoload if /etc/modules.conf is setup for it.  Checking  redhat 7.3, redhat 9.0, WhiteBox EL3, Suse 8.0 and Suse 9.0 systems, none have anything to cause bridge.o to alias to br0.  Those are the only systems I have to look at.  I don't know what other distros like debian or mandrake do for bridge.o.  They might have it in the modules.conf file... Dunno.
->>
-> 
-> 
-> Wrong!  It gets done by:
-> 	static int sock_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
-> 		      unsigned long arg)
-> {
-> 	...
-> 	switch(cmd) {
-> 	...
-> 		case SIOCGIFBR:
-> 		case SIOCSIFBR:
-> 		case SIOCBRADDBR:
-> 		case SIOCBRDELBR:
-> 			err = -ENOPKG;
-> 			if (!br_ioctl_hook)
-> 				request_module("bridge");
-> 
-> 
-> 
->>So, Bert, you'll need to add something like this to /etc/modules.conf:
->>
->>alias br0 bridge
-> 
-> 
-> Don't do that.  It will autoload the bridge, but br0 will not be created automatically!
-> I.e. if the configuration script does:
-> 	ifconfig br0 up
-> 
-> Then it will load the bridge module, but since the bridge hasn't been created you will
-> get "no such device" error.
-> 
+I guess I am thinking that I could add this "extra" header processing in the wireless driver. Do you think this might work?
+
+John Saxer
+ITT A/CD San Diego
+
+************************************
+This email and any files transmitted with it are proprietary and intended solely for the use of the individual or entity to whom they are addressed. If you have received this email
+in error please notify the sender. Please note that any views or opinions presented in this email are solely those of the author and do not necessarily represent those of ITT Industries, Inc.
+The recipient should check this email and any attachments for the presence of viruses. ITT Industries accepts no liability for any damage caused by any virus transmitted by this
+email.
+************************************
 
