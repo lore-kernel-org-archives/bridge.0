@@ -1,15 +1,10 @@
-Date: Tue, 7 Oct 2003 12:12:58 -0700
-From: "David S. Miller" <davem@redhat.com>
-Subject: Re: [Bridge] Re: [PATCH/RFC] Let {ip, arp}tables "see" bridged VLAN
-	tagged {I,AR}P packets
-Message-Id: <20031007121258.35c65486.davem@redhat.com>
-In-Reply-To: <200310072112.53821.bdschuym@pandora.be>
-References: <200310062204.07230.bdschuym@pandora.be>
-	<20031007080640.50de4d45.davem@redhat.com>
-	<200310072112.53821.bdschuym@pandora.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-Id: <200310071940.h97JeTOs013481@fire-1.osdl.org>
+From: Mrs Serena Jones <serenajones1@netscape.net>
+Date: Tue, 07 Oct 2003 21:40:31 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b55a3952-248c-4527-af12-ba84aadd4dc9"
+Subject: [Bridge] DONATION FOR THE LORD.
+Reply-To: serenajones2@netscape.net
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,16 +13,71 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netdev@oss.sgi.com, greearb@candelatech.com, bridge@osdl.org, vlan@wanfear.com, shemminger@osdl.org
+To: bridge@lists.osdl.org
 
-On Tue, 7 Oct 2003 21:12:53 +0200
-Bart De Schuymer <bdschuym@pandora.be> wrote:
 
-> I've used Stephen's suggestion (out->priv_flags & IFF_802_1Q_VLAN), this
-> removes all that cruft.
+This is a multi-part message in MIME format
+--b55a3952-248c-4527-af12-ba84aadd4dc9
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-The new patch definitely looks better.  Unless someone barks
-I'll apply this after I catch some sleep.
+From: Mrs Serena Jones
 
-Thanks Bart.
+  PLEASE ENDEAVOUR TO USED IT FOR THE CHILDREN OF GOD.
+       I am the above named person from Kuwait. I am married to Dr. Harry =
+Jones who worked with Kuwait embassy in Ivory Coast for nine years before he =
+died in the year
+2000.
+    We were married for eleven years without a child. He died after a brief =
+illness that lasted for only
+four days. Before his death we were both born again Christians.Since his =
+death I decided not to re-marry or get a child outside my  matrimonial home =
+which the Bible is against.When my late husband was alive he deposited the =
+sum of$8.6Million (Eight Million six hundred  thousand U.S. Dollars) with one =
+finance/security company in Amsterderm Holland. Presently, this money is =
+still with the Security  Company. Recently, my Doctor told me that I would =
+not last for the next three 
+months due to cancer problem. Though what disturbs me most is my  stroke =
+sickness. Having known my condition I decided to donate this fund to church =
+or better still a christian individual that will utilize this money the way I =
+am going to instruct here in. I want a church that will use this fund to fund =
+churches, orphanages and widows propagating the word of God and to ensure  =
+that the house of God is maintained. The Bible made us to understand that =
+Blessed is the hand that giveth.
+I took this decision because I don=92t have any child that will  inherit this =
+money and my husband relatives are not Christians and I don=92t want my =
+husband=92s hard earned money to be misused by unbelievers. I don=92t want a =
+situation where this money will be used in an ungodly manner. Hence the =
+reason for taking this bold decision. I am not afraid of death hence I know =
+where I am going. I know that I am going to be in the bosom of the Lord. =
+Exodus 14 VS 14 says that  the lord will fight my case and I shall hold my =
+peace. I don=92t need any telephone communication in this regard because of =
+my health because of the presence of my husband=92s relatives around me =
+always. I don=92t want them to know about this development. With God all =
+things are possible.  As soon as I receive your reply I shall give you the =
+contact of the Finance/Security Company in Amsterderm Holland. I will also =
+issue you a letter of authority that will prove you as the original- =
+beneficiary of this fund. I want you and the church to always pray for me =
+because the lord is my shephard. My 
+happiness is that I lived a life of a worthy Christian. Whoever that wants to =
+serve the Lord must serve him in spirit and truth. Please always be prayerful =
+all through your life. Any delay  in your reply will give me room in sourcing =
+for a chuch or christian individual for this  same purpose. Please assure me =
+that you will act accordingly as I  stated herein.  Hoping to hearing from =
+you. 
+
+N.B-PLEASE I WILL ADVICE YOU TO GIVE THE LAWYER IN CHARGE A CALL IN HOLLAND =
+IMMEDIATELY, HE DOES EVERYTHING ON MY BEHALF AND HE'S VERY UNDERSTANDING AND =
+I BELIEVE HE WILL LEAD YOU TO YOUR SUCCESS IN JESUS NAME, THE LAWYER'S NUMBER =
+IS 0031620668086.
+
+Remain blessed in the name of the Lord.
+
+Yours in Christ,
+
+Mrs Serena Jones
+
+
+  
+--b55a3952-248c-4527-af12-ba84aadd4dc9--
+
