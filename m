@@ -1,13 +1,13 @@
-Date: Fri, 4 Feb 2005 23:32:04 +0100
-Subject: Re: [Bridge] recent 2.6 kernels hang on bridge shutdown - solved
-Message-ID: <20050204223204.GA15585@stilzchen.informatik.tu-chemnitz.de>
-References: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
-	<20050203115407.5e7fc195@dxpl.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050203115407.5e7fc195@dxpl.pdx.osdl.net>
-From: Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de>
+Message-ID: <42048053.6080309@web.de>
+Date: Sat, 05 Feb 2005 09:14:11 +0100
+From: Michael Renzmann <mrenzmann@web.de>
+MIME-Version: 1.0
+Subject: Re: [Bridge] Wireless bridge
+References: <33113.24.85.247.221.1107543328.squirrel@heteromail.com>
+In-Reply-To: <33113.24.85.247.221.1107543328.squirrel@heteromail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: mrenzmann@web.de
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,19 +16,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: Jordan Eunson <maillist@heteromail.com>
+Cc: bridge@osdl.org
 
-On Thu, Feb 03, 2005 at 11:54:07AM -0800, Stephen Hemminger wrote:
-> > With recent 2.6 kernels, the command
-> >   brctl delbr br0
-> > hangs during shutdown, and the kernel prints this message again and again:
-> >   unregister_netdevice: waiting for br0 to become free. Usage count = 1
-> 
-> Are you running IPV6? if so it is most likely related to IPV6.
+Hi.
 
-Yes, indeed.
-Since I currently don't need IPv6, I disabled it - problem solved.
+Jordan Eunson wrote:
+> running madwifi on the other. I want the linux box to be a bridge between
+> the hard wired clients connect to the linux router and wireless linksys
+> box on the other side of the office. 
 
-Thanks a lot!
-Mirko
+You need to use the WDS mode which allows to bridge two networks over a 
+wireless connection. This mode isn't supported yet by madwifi, don't 
+know about the Linksys. In other words: your constellation currently 
+doesn't allow bridging.
+
+In case you only want to make use of IP protocols you could make use of 
+proxy arp. http://freshmeat.net/projects/parprouted/ might be of help 
+for such a setup.
+
+Bye, Mike
