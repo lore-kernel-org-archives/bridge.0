@@ -1,14 +1,11 @@
-Date: Sat, 25 Sep 2004 16:46:50 +0200
-Subject: Re: [Bridge] kernel support bridging?
-Message-ID: <20040925164650.U9523@macwheel.xs4all.nl>
-References: <BAY1-DAV13Ogl4rhYQY0003d46a@hotmail.com>
+Date: Mon, 27 Sep 2004 12:26:40 +0100
+From: "John P. Looney" <valen@tuatha.org>
+Message-ID: <20040927112640.GB31689@magicbluesmoke.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LXqH7sWsIplhrbjF"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BAY1-DAV13Ogl4rhYQY0003d46a@hotmail.com>;
-	from lefti_99@hotmail.com on Sat, Sep 25, 2004 at 02:28:29PM +0100
-From: stappers@stappers.nl (Geert Stappers)
+Subject: [Bridge] linux as a switch
+Reply-To: valen@tuatha.org
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,42 +16,24 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
+ I've been playing with Linux bridging for a while, in small low-volume
+environments as well as with UML, without problems.
 
---LXqH7sWsIplhrbjF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ However, I'm looking for something more out of a switch than I can get
+currently, and I was wondering if I could configure Linux to be a switch -
+bridge over eight or so interfaces efficently.
 
-On Sat, Sep 25, 2004 at 02:28:29PM +0100, Lefti wrote:
-> Hi all,
->=20
-> Does anyone know whether the following kernel supports bridging with fire=
-walling capacity?
->=20
-> 2.4.20-2.3 sparc sparc 64 -- running Aurora 1.0.
->=20
-> Do I need to be recompiling the kernel?
+ Has anyone done this ? What sort of traffic can your average linux box
+handle like this ? I'm looking at using it on the NexCom boxes;
+    http://www.ipc2u.de/servlet/comp?22785&22752&22780
+which have 8 e100 nics and 4 e1000 nics on a 64bit/66Mhz bus. Seems nice,
+if it'll work. Then i'd need to make sure that ucd-snmp etc. will let me
+get traffic stats per real (not bridged) interface, just like a normal
+managed switch.
 
- http://lists.osdl.org/pipermail/bridge/2004-September/000647.html
+ I went through the archives of the list, and there seems to be some
+problems with VLANs, historically. This would be for use in a very
+production environment. I'll do loads of testing, but I'd like to know
+any caveats from day one.
 
->=20
-> Many thanks,
->=20
-> Lefti
-
-Cheers
-Geert Stappers
-
---LXqH7sWsIplhrbjF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBVYTaOSINbgwa/7sRAluCAKCN3f8fU+KklCgWFuYddNjbo0DXGQCfXFSr
-w4h5GSFTvNe5r8dMxN9ikz4=
-=E+zj
------END PGP SIGNATURE-----
-
---LXqH7sWsIplhrbjF--
+John
