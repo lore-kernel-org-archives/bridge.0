@@ -1,10 +1,16 @@
-From: Rajashekhar Mansanpally <raj@roinet.com>
-Content-Type: text/plain
-Message-Id: <1074003527.27920.4.camel@honeycomb>
-Mime-Version: 1.0
+From: Bart De Schuymer <bdschuym@pandora.be>
+Subject: Re: [Bridge] Bridge and PACKET-socket
+Date: Tue, 13 Jan 2004 20:35:26 +0100
+References: <lhznd2do0m.fsf@dodo.bluetail.com>
+	<200401122247.11045.bdschuym@pandora.be>
+	<lhwu7wyful.fsf@dodo.bluetail.com>
+In-Reply-To: <lhwu7wyful.fsf@dodo.bluetail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] ebtables
-Reply-To: raj@roinet.com
+Content-Disposition: inline
+Message-Id: <200401132035.26330.bdschuym@pandora.be>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,33 +19,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Tue, 13 Jan 2004 14:18:55 -0000
-To: bridge@lists.osdl.org
+To: Luke Gorrie <luke@member.fsf.org>
+Cc: bridge@osdl.org, Jason Lunz <lunz@falooley.org>
 
-Hi Stephen,
-Thanks for your prompt response.
-What I wanted to tell was:
-the following cmd DOES NOT WORK..(here 0x828 is my protocol no. that
-encapsulates the IP data, like VLAN)
-ebtables -A INPUT -p 0x828 -j DROP
+On Monday 12 January 2004 23:14, Luke Gorrie wrote:
+> I agree that dev.c is not confusing, but the PACKET(7) interface
+> is. If you bind to ETH_P_ALL you will receive every packet, but if you
+> bind to any other protocol you will only receive packets the bridge
+> doesn't take. The manpage doesn't say anything about this, and one
+> might actually want different semantics (as in my case). IMO it would
+> be nicer to have an interface that treats "what protocol do I want to
+> see" and "do I want bridged packets" as orthogonal.
 
-BUT the following does work...
-ebtables -A INPUT -p 0x800 -j DROP
+Reading the man page is indeed confusing for a user, w.r.t. bridge ports.
+I think it would be more logical if all PF_PACKETsockets see the frames before 
+the bridge code.
+How about placing the call to __handle_bridge() right after the second 
+list_for_each? If I'm not mistaken the relevant pt_pre->func that would deal 
+with the packet will not have been executed yet, while those PF_PACKET 
+functions will already have been called...
 
-So, ebtables is not seeing the frame before decapsulation. For that as
-Bart schuymer said I need to register my function on NF_BR_PRE_ROUTING
-with lower priority.
-I don't want any new filter table or extension modules.
-I only want the ability to do regular stuff like:
-ebtables -A INPUT -p 0x828 -j DROP
+If you want the opinion of someone more knowledgeable than my humble self, the 
+network guru's are located at netdev@oss.sgi.com.
 
-So, do you think I still need to create a module.? or
-get away editing some stuff..?
-
-PS: OUTPUT and FORWARD chains work..I didn't check for
-prerouting, postrouting yet.
-
-Thanks in advance,
-
-Raj
+cheers,
+Bart
 
