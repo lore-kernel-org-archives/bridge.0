@@ -1,14 +1,10 @@
-Date: Wed, 12 May 2004 12:03:50 -0700
-From: "David S. Miller" <davem@redhat.com>
-Message-Id: <20040512120350.52932c22.davem@redhat.com>
-In-Reply-To: <20040510144420.7c033086@dell_ss3.pdx.osdl.net>
-References: <200405100816.i4A8Grhl020664@ns.bginfo.net>
-	<20040510144420.7c033086@dell_ss3.pdx.osdl.net>
+From: Diego Liziero <liziero.diego@unimore.it>
+Content-Type: text/plain
+Message-Id: <1084467136.3083.27.camel@igno>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Thu, 13 May 2004 18:52:16 +0200
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] bridge -- fix for multiple ports with same
-	address
+Subject: [Bridge] bridging bluetooth bnep devices with kernel 2.6.6-*
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,23 +13,61 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: krasiyan@bginfo.net, bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Mon, 10 May 2004 14:44:20 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
+It seems that switching from 2.4.x to 2.6.x
+caused the bridge of more than a bnep (Bluetooth)
+device to stop to work.
 
-> > seems a bug due to changes in 2.6.6 in mcast and bridge infrastructure 
-> > under 2.6.5 same thing works 
-> > description 
-> > I want to add some vlans with same adress , in one bridge 
-> > for pppoe server access concentrator , and some clients with static ip adresses , but in
-> > different vlans
-> 
-> The bridge code was being to picky. The bridge will still work fine when
-> there are two interfaces with the same local address, because it is only
-> used for setting the source address on the outgoing bridge packets.
-> 
-> This should fix it.
+Details on this kind of bridging at:
+http://www.cs.ucla.edu/~cclljj/interest/notes/bluez/pand_bridge_nap.html
 
-Applied, thanks Stephen.
+Note that the MAC address of all these devices is the same,
+as they belong to the same bluetooth device.
+
+# ifconfig bnep0
+bnep0     Link encap:Ethernet  HWaddr 00:02:72:80:1B:3B
+          inet6 addr: fe80::202:72ff:fe80:1b3b/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:537 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:138 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:69267 (67.6 KiB)  TX bytes:24779 (24.1 KiB)
+
+# ifconfig bnep1
+bnep1     Link encap:Ethernet  HWaddr 00:02:72:80:1B:3B
+          inet6 addr: fe80::202:72ff:fe80:1b3b/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:14 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:5094 (4.9 KiB)  TX bytes:356 (356.0 b)
+
+What I did is:
+
+# brctl addbr pan0
+# ifconfig pan0 192.168.111.1
+# brctl setfd pan0 0
+# brctl stp pan0 disable
+
+# brctl addif pan0 bnep0
+# ifconfig bnep0 0.0.0.0
+
+And the first bluetooth link works fine,
+but when I try to add a second link I get:
+
+# brctl addif pan0 bnep1
+can't add bnep1 to bridge pan0: File exists
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+if I try to remove bnep1:
+# brctl delif pan0 bnep1
+device bnep1 is not a slave of pan0
+
+With kernel 2.4.x instead everything works.
+Any suggestion?
+
+Regards,
+
+Diego.
+
