@@ -1,13 +1,10 @@
-Date: Wed, 30 Mar 2005 13:14:24 +0200
-From: Alpt <alpt@freaknet.org>
-Subject: Re: [Bridge] [PATCH] bridge hub_enabled option
-Message-ID: <20050330111424.GA16289@nihil>
-References: <20050326224030.GA31822@darkalpt>
-	<20050329142719.4bd7cb57@dxpl.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050329142719.4bd7cb57@dxpl.pdx.osdl.net>
+Message-ID: <000601c536b7$6d2bcfb0$0b05a8c0@suzo>
+From: "zok" <zok@suzo.sk>
+Date: Fri, 1 Apr 2005 14:36:27 +0200
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0003_01C536C8.2FEC6DB0"
+Subject: [Bridge] bridge problem, please help me
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,38 +13,67 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@oss.sgi.com, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Tue, Mar 29, 2005 at 02:27:19PM -0800, Stephen Hemminger wrote  :
-~> On Sat, 26 Mar 2005 23:40:30 +0100
-~> Alpt <alpt@freaknet.org> wrote:
-~> > Bridge hub_enabled patch:
-~> > this patch adds the hub_enabled option for bridge.
-~> > 
-~> > By default the hub_enabled flag is set to 1. In this case nothing changes, the
-~> > bridge, as usually, acts as a hub and flood_forward the input pkts to all its
-~> > ports. When hun_enabled is set to 0, the bridge stops to flood_forward the input
-~> > traffic and takes only the pkts sent to it.
-~> > Disabling the hub option is useful to join multiple interfaces into a unique virtual
-~> > one, thus becomes possible to have easily an ad-hoc network topology using multiple
-~> > interfaces.
-~> 
-~> Could you give a better example of how this would be useful?
-~> Why would you not want A to talk to C? 
+This is a multi-part message in MIME format...
 
-For example to test a routing protocol.
+------=_NextPart_000_0003_01C536C8.2FEC6DB0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-~> Why not enforce the policy with ebtables?
+I'm a problem with bridge please help me
 
-To not rely to the ip addresses but just having x interfaces merged and to have
-a cleaner and simpler way to do it.
+My configuration:
 
-Regards
--- 
-:wq!
-"I don't know nothing" The One Who reached the Thinking Matter   '.'
+eth0,eth1,wlan0
 
-[ Alpt --- Freaknet Medialab ]
-[ GPG Key ID 441CF0EE ]
-[ Key fingerprint = 8B02 26E8 831A 7BB9 81A9  5277 BFF8 037E 441C F0EE ]
+bridge is br0 on devices eth0 and wlan0. Device eth1 is not in bridge.
+
+br0 ip is 192.168.1.1
+eth1 ip is 192.168.2.1
+
+ethernet (eth0,eth1) is in one switch.
+
+all is ok if eth1 not in system, if eth1 plugged into system and up interfa=
+ce eth1 network crash :(
+
+thanx.
+------=_NextPart_000_0003_01C536C8.2FEC6DB0
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 6.00.2900.2604" name=3DGENERATOR>
+<DEFANGED_style_0 </STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>I'm a problem with bridge please help=20
+me</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>My configuration:</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>eth0,eth1,wlan0</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>bridge is br0 on devices eth0 and wlan0. D=
+evice=20
+eth1 is not in bridge.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>br0 ip is 192.168.1.1</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>eth1 ip is 192.168.2.1</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>ethernet (eth0,eth1) is in one switch.</FO=
+NT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>all is ok if eth1 not in system, if eth1 p=
+lugged=20
+into system and up interface eth1 network crash :(</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>thanx.</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0003_01C536C8.2FEC6DB0--
