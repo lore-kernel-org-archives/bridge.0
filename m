@@ -1,11 +1,13 @@
+Date: Tue, 25 May 2004 10:59:07 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20040525105907.1211ffe1.davem@redhat.com>
+In-Reply-To: <20040524144209.5449d829@dell_ss3.pdx.osdl.net>
+References: <Pine.LNX.4.58.0405230121530.13087@parcelfarce.linux.theplanet.co.uk>
+	<20040524144209.5449d829@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Message-Id: <p05111b04bcd8e06e0455@[10.96.96.13]>
-In-Reply-To: <E1BRpXa-0002dM-L9@www9.emo.freenet-rz.de>
-References: <E1BRpXa-0002dM-L9@www9.emo.freenet-rz.de>
-Date: Tue, 25 May 2004 13:42:07 +0200
-From: Hannes Schulz <schulz@schwaar.com>
-Subject: Re: [Bridge] ebtables rules dont work
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH] update  Documentation/networking/bridge.txt
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,40 +16,13 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: monade@freenet.de, bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com, bridge@osdl.org, taj@www.linux.org.uk
 
-At 11:45 Uhr +0200 23.05.2004, monade@freenet.de wrote:
-Hello,
-i have some problems with testing the ebtables on my machine.
-It's a Vanilla Kernel 2.6.5 and I selected:
+On Mon, 24 May 2004 14:42:09 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-- [*] 802.1d Ethernet Bridging
-- Netfilter iptables option
+> Trent Jarvi <taj@www.linux.org.uk> noticed this.  The file was out of date
+> with current web site and maintainer.  Please apply to 2.4 and 2.6.
 
-and all ebtables options to compile new for a bridge machine.
-This works sucesfully and i installed ebtables v2.0.6.
-
-Now my Problem is that all packets will be Droped in the Forward Chain.
-It makes the appearance that it's unimportant wich rule i use.
-
-Here my very simple rule Setup only for testing:
-ebtables -P FORWARD DROP
-ebtables -P INPUT DROP
-ebtables -P OUTPUT DROP
-ebtables -A FORWARD -p IPv4 --ip-proto tcp --ip-sport 80 -j ACCEPT
-
-When i use iptables for filtering i can/must see the same effect.
-
-What I'have done wrong ? forgot options in the kernel, forgot rules ?
-
-I don't use ebtables myself but I think there is a rule missing:
-
-	ebtables -A FORWARD -p IPv4 --ip-proto tcp --ip-dport 80 -j ACCEPT
-
-Your rule only covers traffic server --> browser. My rule ACCEPTS the 
-traffic from the browser to the web server.
-
-
-Yours
-
-Hannes Schulz
+Applied, thanks Stephen.
