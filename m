@@ -1,13 +1,13 @@
-Message-Id: <6.2.0.14.2.20050106170041.057fc620@pop.lonestar.it>
-Date: Thu, 06 Jan 2005 17:01:14 +0100
-From: Claudio Mantegna <zerocool@lonestar.it>
-Subject: Re: [Bridge] Compiling Bridge Utils 1.04
-In-Reply-To: <48069.70.17.154.20.1103910037.squirrel@www.osdl.org>
-References: <6.2.0.14.2.20041224132024.055a6b90@mail.modemsoft.it>
-	<48069.70.17.154.20.1103910037.squirrel@www.osdl.org>
+Date: Tue, 4 Jan 2005 17:50:00 -0800
+From: Chris Wright <chrisw@osdl.org>
+Message-ID: <20050104175000.O2357@build.pdx.osdl.net>
+References: <3d53b71204122004254a4d379b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="=====================_2842988==.ALT"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3d53b71204122004254a4d379b@mail.gmail.com>;
+	from kingkhan@gmail.com on Mon, Dec 20, 2004 at 05:55:22PM +0530
+Subject: [Bridge] Re: LSM hooks for bridge module.
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,58 +16,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@osdl.org
-Cc: bridge@lists.osdl.org
+To: Syed Ahemed <kingkhan@gmail.com>
+Cc: bridge@osdl.org, linux-security-module@wirex.com
 
-This is a multi-part message in MIME format...
+[bridge list Cc:'d]
 
---=====================_2842988==.ALT
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-Content-Disposition: inline
+* Syed Ahemed (kingkhan@gmail.com) wrote:
+> Hi 
+> The LSM patch  patch-2.5.72-lsm1.gz does not apply security hooks to
+> net/bridge/br_stp_bpdu.c
+> Has there been an effort to include security hooks at this level.
 
-At 18.40 24/12/2004, shemminger@osdl.org wrote:
- >Brctld is dead code and is not used in the current code.
- >It is removed in the next version.
+No, I don't recall LSM code in any form ever touching bridge code.
+Would the ebtables code be useful for you?  (And as a side note, 2.5.72
+is an ancient kernel, you should really work against something newer if
+at all possible).
 
-Thanks of all also if in delay :-)
+> I have a requirement that the STP requirement needs to check for DOS
+> BPDU's affecting the linux bridge running 2.4.28 or 2.5.72.
+> Please correct if am offtopic and sense.
 
+I'm not sure if/how LSM would help you here.  I'm no spanning
+tree protocol expert, perhaps the bridge developers could help you
+(bridge@osdl.org Cc:'d).  I suspect this may be the wrong list.
 
-Regards,
-Claudio Mantegna
-
-This e-mail is intended solely for the person or entity to which it is 
-addressed and may contain confidential and/or privileged
-information.
-Any review, dissemination, copying, printing or other use of this e-mail by 
-persons or entities other than the addressee is prohibited.
-If you have received this e-mail in error, please contact the sender 
-immediately and delete the material from any computer.
-
-PGP key on keyservers - ID 0x24DC57BA
-
---=====================_2842988==.ALT
-Content-Type: text/html; charset="us-ascii"
-Content-Disposition: inline
-
-<html>
-<body>
-At 18.40 24/12/2004, shemminger@osdl.org wrote:<br>
-&gt;Brctld is dead code and is not used in the current code.<br>
-&gt;It is removed in the next version.<br><br>
-Thanks of all also if in delay :-)<br><br>
-<x-sigsep><p></x-sigsep>
-<font color="#008000"><b>Regards,<br>
-</font><font color="#000080">Claudio
-Mantegna</font><font color="#0000FF">&nbsp;&nbsp; <br><br>
-</b></font>This e-mail is intended solely for the person or entity to
-which it is addressed and may contain confidential and/or privileged<br>
-information.<br>
-Any review, dissemination, copying, printing or other use of this e-mail
-by persons or entities other than the addressee is prohibited.<br>
-If you have received this e-mail in error, please contact the sender
-immediately and delete the material from any computer.<br><br>
-PGP key on keyservers - ID 0x24DC57BA<br>
-</body>
-</html>
-
---=====================_2842988==.ALT--
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
