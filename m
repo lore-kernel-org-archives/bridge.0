@@ -1,11 +1,10 @@
-Date: Mon, 12 Jul 2004 09:48:00 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Packets go through the bridge one-way only
-Message-Id: <20040712094800.575d6a60@dell_ss3.pdx.osdl.net>
-In-Reply-To: <30F5491FC3F68047925F0F51C190BCD701571018@ACDFWMAIL1.acd.de.ittind.com>
-References: <30F5491FC3F68047925F0F51C190BCD701571018@ACDFWMAIL1.acd.de.ittind.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Subject: RE: [Bridge] Packets go through the bridge one-way only
+Date: Mon, 12 Jul 2004 12:00:24 -0500
+Message-ID: <30F5491FC3F68047925F0F51C190BCD701571019@ACDFWMAIL1.acd.de.ittind.com>
+From: "Saxer, John -ACDSD" <John.Saxer@itt.com>
 Content-Transfer-Encoding: quoted-printable
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -15,39 +14,71 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Saxer, John -ACDSD" <John.Saxer@itt.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
+
+
+Thanks for the reply - I had read this part of the FAQ already, but I guess=
+ I did not think this was the problem. I am still not sure. I guess if I wa=
+s bridging wireless to wireless, I would know this, but it is wireless to w=
+ired, and I am sure the wired interface allows me to spoof the source addre=
+ss.
+
+Perhaps I just still don't understand what is happening internally. I do ad=
+mit that I had hoped to not have to learn the "deep, down, nitty gritty det=
+ails" of bridging, and would just be able to use it, but I don't mind - kno=
+wledge is good.
+
+How can I determine that the failure is address spoofing? With TCPDUMP, I s=
+hould be able to look at the entire packet that arrives from the wireless i=
+nterface, and I guess I should be able to go somewhere on the other side of=
+ the wired interface and look at it there. Would that show it?
+
+I am guessing that what is supposed to happen is the packet arrives on inte=
+rface A, with source address B, is passed to the bridge code, which changes=
+ the source address to C, and passes it out interface D. Then, when the rep=
+ly arrives on D (because of source address C), the bridge code changes it b=
+ack to B and sends it back out A. Correct?
+
+John Saxer
+
+
+-----Original Message-----
+From:	Stephen Hemminger [mailto:shemminger@osdl.org]
+Sent:	Mon 7/12/2004 9:48 AM
+To:	Saxer, John -ACDSD
+Cc:	bridge@lists.osdl.org
+Subject:	Re: [Bridge] Packets go through the bridge one-way only
 On Mon, 12 Jul 2004 11:34:26 -0500
 "Saxer, John -ACDSD" <John.Saxer@itt.com> wrote:
 
->=20
+>
 > Hello all,
->=20
+>
 > I am new to this list, and to bridging, and am having a problem. Perhaps =
 I just don't understand something, am setting it up incorrectly, or just pl=
 ain missed something, but I could use some help.
->=20
+>
 > I am using 2 Redhat 7.3 systems to work out the configuration issues for =
 a bridge, before transferring all my accumulated knowledge to an embedded s=
 ystem. One of the systems has only a wireless card, while the other has a w=
 ireless card and a wired interface. The plan is to use the 2nd machine to a=
 llow the first to access the wired world.
->=20
+>
 > I followed the directions in setting up a bridge on the 2nd machine, brid=
 ging the wireless card and the wired interface. However, even something as =
 simple as ping on the first card does not work. I run TCPDUMP on the 2nd ma=
 chine, and it reports the "apr-whohas" packets arriving, but either they th=
 en don't go out, or the responses get lost, or something.
->=20
+>
 > I can ping the 2nd machine from the first, using the bridge IP address, j=
 ust fine. Even telnet works. But only addressing the 2nd machine - everythi=
 ng else is a black hole.
->=20
+>
 > Any ideas? What did I do wrong?
->=20
+>
 > Thanks,
->=20
+>
 > John Saxer
 > ITT Industries, San Diego
 
@@ -102,4 +133,21 @@ tty solid understanding of 802.11, it's modes, and the frame header format.
 
 
 
+
+
+
+
+
+************************************
+This email and any files transmitted with it are proprietary and intended s=
+olely for the use of the individual or entity to whom they are addressed. I=
+f you have received this email
+in error please notify the sender. Please note that any views or opinions p=
+resented in this email are solely those of the author and do not necessaril=
+y represent those of ITT Industries, Inc.
+The recipient should check this email and any attachments for the presence =
+of viruses. ITT Industries accepts no liability for any damage caused by an=
+y virus transmitted by this
+email.
+************************************
 
