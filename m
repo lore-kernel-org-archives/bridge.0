@@ -1,9 +1,10 @@
-From: "Lefti C" <lefti_99@hotmail.com>
-Date: Sat, 25 Sep 2004 00:33:33 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY1-F99IJsaJbqJGNz000630d4@hotmail.com>
-Subject: [Bridge] problem with Honeynet Project's rc.firewall script
+From: "Lefti" <lefti_99@hotmail.com>
+Date: Sat, 25 Sep 2004 14:28:29 +0100
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0057_01C4A30B.ED86D1E0"
+Message-ID: <BAY1-DAV13Ogl4rhYQY0003d46a@hotmail.com>
+Subject: [Bridge] kernel support bridging?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,35 +13,57 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bridge@lists.osdl.org
+To: bridge@lists.osdl.org
+
+This is a multi-part message in MIME format...
+
+------=_NextPart_000_0057_01C4A30B.ED86D1E0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
 Hi all,
 
-I'm new to the world of bridging and the mailing list but I am hopeful my 
-initial problems are fairly trivial.  I am running the Honeynet Project's 
-rc.firewall script at boot time (on my Sparc running Aurora) but the script 
-is having trouble establishing the bridge.
+Does anyone know whether the following kernel supports bridging with firewa=
+lling capacity?
 
-In my logs, I have found the following error:
+2.4.20-2.3 sparc sparc 64 -- running Aurora 1.0.
 
-tSIOCSIFADDR : No such device
-eth1: unknown interface: No such device
-
-Meanwhile my eth0 interface is successfully negotiated.
-I am unsure as to why my second interface has not been initialised and I am 
-hoping you guys can help.
-
-My second interface does have a link light on the hub, but I havent 
-configured anything since installing the NIC.  I just plugged it in and 
-tried to get going.
-Do I need to configure the second NIC, or does Linux know that it is 
-there?!!
+Do I need to be recompiling the kernel?
 
 Many thanks,
 
 Lefti
 
-_________________________________________________________________
-Stay in touch with absent friends - get MSN Messenger 
-http://www.msn.co.uk/messenger
+------=_NextPart_000_0057_01C4A30B.ED86D1E0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2743.600" name=3DGENERATOR>
+<DEFANGED_style_0 </STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hi all,</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Does anyone know whether the following ker=
+nel=20
+supports bridging with firewalling capacity?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>2.4.20-2.3 sparc sparc 64 -- running Auror=
+a=20
+1.0.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Do I need to be recompiling the=20
+kernel?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Many thanks,</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Lefti</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0057_01C4A30B.ED86D1E0--
