@@ -1,9 +1,12 @@
-Message-ID: <FD52892BD296D71183B400065BFCB6900694F706@il02exm12>
-From: Lewis Adam-CAL022 <Adam.Lewis@motorola.com>
-Date: Wed, 10 Mar 2004 13:51:54 -0600
+From: Alessandro Fiorino <a.fiorino@chibacity.it>
+Date: Fri, 12 Mar 2004 14:33:36 +0100
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----_=_NextPart_000_01C406D9.23A3315B"
-Subject: [Bridge] Question on time to bring up bridge
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403121433.36583.a.fiorino@chibacity.it>
+Subject: [Bridge] Strange DHCP behaviour with bridging
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,130 +17,25 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-This is a multi-part message in MIME format...
+Here is the scenario: I have one server with kernel 2.4.24 with a bridge br0 
+made of 2 interfaces, eth0 and tap0 (the last is an OpenVPN tunnel), and one 
+remote computer connetting through tap0. If I assign a static IP to the 
+remote computer, the bridge works perfecly (so I think the problem is not 
+OpenVPN-related). If I start a DHCPd on the server and I configure the remote 
+client to get the IP from it, something strange happens: if I "sniff" on the 
+br0 interface, I can see the DHCP requests coming from the client (from 
+0.0.0.0.bootpc to 255.255.255.bootps) and the DHCPd answers going back from 
+ip.of.the.server.bootps to 255.255.255.255.bootpc; also sniffing on eth0 
+gives the same result, but if I sniff on the tap0 interface, I don't see the 
+replies! So the client never get its own IP. What I'm doing wrong? To add 
+some mistery, sometimes (one try out of 10)  the reply flows correctly to the 
+remote client. All the three interfaces (eth0, br0, tap0) doesn't have  
+firewalling enabled, and under /proc ip_forwarding is enabled and rp_filter 
+is disabled for all interfaces. brctl showmacs br0 correctly shows the remote 
+virtual interface MAC address as not local.Both eth0 and tap0 have been 
+configured with ifconfig 0.0.0.0 promisc up.
+Thanks in advance.
 
-------_=_NextPart_000_01C406D9.23A3315B
-Content-Type: multipart/alternative;
-	boundary="----------=_1078948324-22015-849"
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
+Alessandro Fiorino
 
-This is a multi-part message in MIME format...
 
-------------=_1078948324-22015-849
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Disposition: inline
-
-Hello,
- 
-I am using the bridge utils to connect two interfaces on my computer.  Currently it takes 30sec-1min before full propagation occurs.  Is there any way to reduce this?  The delay is due to the code going into a learning state, but if I want the bridge to be dumb (e.g. in one and out the other, always) can this learning process be skipped?
- 
-Thanks!
-Adam
-
-------------=_1078948324-22015-849
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBU
-cmFuc2l0aW9uYWwvL0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgSFRUUC1F
-UVVJVj0iQ29udGVudC1UeXBlIiBDT05URU5UPSJ0ZXh0L2h0bWw7IGNoYXJz
-ZXQ9aXNvLTg4NTktMSI+DQo8VElUTEU+R2xhY2llcjwvVElUTEU+DQoNCjxE
-RUZBTkdFRF9TVFlMRSBCT0RZIHsNCglNQVJHSU4tVE9QOiAyMHB4OyBGT05U
-LVNJWkU6IDEwcHQ7IE1BUkdJTi1MRUZUOiA1MHB4OyBDT0xPUjogIzAwNjY2
-NjsgRk9OVC1GQU1JTFk6IEFyaWFsLCBIZWx2ZXRpY2ENCn0NCj48L0RFRkFO
-R0VEX1NUWUxFPg0KDQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNS41MC40OTM3
-LjgwMCIgbmFtZT1HRU5FUkFUT1I+PC9IRUFEPg0KPEJPRFkgREVGQU5HRURf
-YmFja2dyb3VuZD0iY2lkOjk2NjUyNTAxOUAxMDAzMjAwNC0wMDcwIj4NCjxE
-SVY+PFNQQU4gY2xhc3M9OTY2NTI1MDE5LTEwMDMyMDA0PkhlbGxvLDwvU1BB
-Tj48L0RJVj4NCjxESVY+PFNQQU4gY2xhc3M9OTY2NTI1MDE5LTEwMDMyMDA0
-PjwvU1BBTj4mbmJzcDs8L0RJVj4NCjxESVY+PFNQQU4gY2xhc3M9OTY2NTI1
-MDE5LTEwMDMyMDA0PkkgYW0gdXNpbmcgdGhlIGJyaWRnZSB1dGlscyB0byBj
-b25uZWN0IHR3byANCmludGVyZmFjZXMgb24gbXkgY29tcHV0ZXIuJm5ic3A7
-IEN1cnJlbnRseSBpdCB0YWtlcyAzMHNlYy0xbWluIGJlZm9yZSBmdWxsIA0K
-cHJvcGFnYXRpb24gb2NjdXJzLiZuYnNwOyBJcyB0aGVyZSBhbnkgd2F5IHRv
-IHJlZHVjZSB0aGlzPyZuYnNwOyBUaGUgZGVsYXkgaXMgDQpkdWUgdG8gdGhl
-IGNvZGUgZ29pbmcgaW50byBhIGxlYXJuaW5nIHN0YXRlLCBidXQgaWYgSSB3
-YW50IHRoZSBicmlkZ2UgdG8gYmUgZHVtYiANCihlLmcuIGluIG9uZSBhbmQg
-b3V0IHRoZSBvdGhlciwgYWx3YXlzKSBjYW4gdGhpcyBsZWFybmluZyBwcm9j
-ZXNzIGJlIA0Kc2tpcHBlZD88L1NQQU4+PC9ESVY+DQo8RElWPjxTUEFOIGNs
-YXNzPTk2NjUyNTAxOS0xMDAzMjAwND48L1NQQU4+Jm5ic3A7PC9ESVY+DQo8
-RElWPjxTUEFOIGNsYXNzPTk2NjUyNTAxOS0xMDAzMjAwND5UaGFua3MhPEJS
-PkFkYW08L1NQQU4+PC9ESVY+PC9CT0RZPjwvSFRNTD4NCg==
-
-------------=_1078948324-22015-849--
-
-------_=_NextPart_000_01C406D9.23A3315B
-Content-Type: image/jpeg;
-	name="Glacier Bkgrd.jpg"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Glacier Bkgrd.jpg"
-Content-ID: <966525019@10032004-0070>
-
-/9j/4AAQSkZJRgABAgEASABIAAD/7QSqUGhvdG9zaG9wIDMuMAA4QklNA+kA
-AAAAAHgAAwAAAEgASAAAAAAC2gIo/+H/4QL5AkUDRwUoA/wAAgAAAEgASAAA
-AAAC2AIoAAEAAABkAAAAAQADAwMAAAABJw8AAQABAAAAAAAAAAAAAAAAYAgA
-GQGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4QklNA+0AAAAA
-ABAASAAAAAEAAQBIAAAAAQABOEJJTQPzAAAAAAAIAAAAAAAAAAA4QklNBAoA
-AAAAAAEAADhCSU0nEAAAAAAACgABAAAAAAAAAAI4QklNA/UAAAAAAEgAL2Zm
-AAEAbGZmAAYAAAAAAAEAL2ZmAAEAoZmaAAYAAAAAAAEAMgAAAAEAWgAAAAYA
-AAAAAAEANQAAAAEALQAAAAYAAAAAAAE4QklNA/gAAAAAAHAAAP//////////
-//////////////////8D6AAAAAD/////////////////////////////A+gA
-AAAA/////////////////////////////wPoAAAAAP//////////////////
-//////////8D6AAAOEJJTQQAAAAAAAACAAA4QklNBAIAAAAAAAIAADhCSU0E
-CAAAAAAAEAAAAAEAAAJAAAACQAAAAAA4QklNBAkAAAAAApkAAAABAAAAgAAA
-AAEAAAGAAAABgAAAAn0AGAAB/9j/4AAQSkZJRgABAgEASABIAAD//gAnRmls
-ZSB3cml0dGVuIGJ5IEFkb2JlIFBob3Rvc2hvcKggNC4wAP/uAA5BZG9iZQBk
-gAAAAAH/2wCEAAwICAgJCAwJCQwRCwoLERUPDAwPFRgTExUTExgRDAwMDAwM
-EQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBDQsLDQ4NEA4OEBQODg4U
-FA4ODg4UEQwMDAwMEREMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM
-DAwMDP/AABEIAAEAgAMBIgACEQEDEQH/3QAEAAj/xAE/AAABBQEBAQEBAQAA
-AAAAAAADAAECBAUGBwgJCgsBAAEFAQEBAQEBAAAAAAAAAAEAAgMEBQYHCAkK
-CxAAAQQBAwIEAgUHBggFAwwzAQACEQMEIRIxBUFRYRMicYEyBhSRobFCIyQV
-UsFiMzRygtFDByWSU/Dh8WNzNRaisoMmRJNUZEXCo3Q2F9JV4mXys4TD03Xj
-80YnlKSFtJXE1OT0pbXF1eX1VmZ2hpamtsbW5vY3R1dnd4eXp7fH1+f3EQAC
-AgECBAQDBAUGBwcGBTUBAAIRAyExEgRBUWFxIhMFMoGRFKGxQiPBUtHwMyRi
-4XKCkkNTFWNzNPElBhaisoMHJjXC0kSTVKMXZEVVNnRl4vKzhMPTdePzRpSk
-hbSVxNTk9KW1xdXl9VZmdoaWprbG1ub2JzdHV2d3h5ent8f/2gAMAwEAAhED
-EQA/APTqPon4/wAAir5XSQGyn6oSXyukip+qEl8rpJKfqhJfK6SSn6oSXyuk
-kp+qEl8rpJKfqhJfK6SSn6oSXyukkp//2QA4QklNBAYAAAAAAAcABAAAAAEB
-AP/+ACdGaWxlIHdyaXR0ZW4gYnkgQWRvYmUgUGhvdG9zaG9wqCA0LjAA/+4A
-DkFkb2JlAGQAAAAAAf/bAIQABgQEBwUHCwYGCw4KCAoOEQ4ODg4RFhMTExMT
-FhEMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAEHCQkTDBMi
-ExMiFA4ODhQUDg4ODhQRDAwMDAwREQwMDAwMDBEMDAwMDAwMDAwMDAwMDAwM
-DAwMDAwMDAwMDAwM/8AAEQgAAwZAAwERAAIRAQMRAf/dAAQAyP/EAaIAAAAH
-AQEBAQEAAAAAAAAAAAQFAwIGAQAHCAkKCwEAAgIDAQEBAQEAAAAAAAAAAQAC
-AwQFBgcICQoLEAACAQMDAgQCBgcDBAIGAnMBAgMRBAAFIRIxQVEGE2EicYEU
-MpGhBxWxQiPBUtHhMxZi8CRygvElQzRTkqKyY3PCNUQnk6OzNhdUZHTD0uII
-JoMJChgZhJRFRqS0VtNVKBry4/PE1OT0ZXWFlaW1xdXl9WZ2hpamtsbW5vY3
-R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+Ck5SVlpeYmZqbnJ2en5KjpKWmp6
-ipqqusra6voRAAICAQIDBQUEBQYECAMDbQEAAhEDBCESMUEFURNhIgZxgZEy
-obHwFMHR4SNCFVJicvEzJDRDghaSUyWiY7LCB3PSNeJEgxdUkwgJChgZJjZF
-GidkdFU38qOzwygp0+PzhJSktMTU5PRldYWVpbXF1eX1RlZmdoaWprbG1ub2
-R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+DlJWWl5iZmpucnZ6fkqOkpaanqK
-mqq6ytrq+v/aAAwDAQACEQMRAD8A9N/vv+Lv+SWFhv5/7F377/i7/kliu/n/
-ALFbJ63H/dv0+lTFd/P/AGKj++/y/wDkliu/n/sVa29Tl8fSn7fCn/JPfFIR
-H/AYGTv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq
-7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFX
-f8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wAB
-irv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gM
-Vd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Bi
-rv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+
-AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/w
-GKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8A
-gMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3
-/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/
-4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd
-/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq
-7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFX
-f8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wAB
-irv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gM
-Vd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Bi
-rv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+
-AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq/wD/2Q==
-
-------_=_NextPart_000_01C406D9.23A3315B--
