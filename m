@@ -1,13 +1,11 @@
-Mime-Version: 1.0
-Message-Id: <p05111b00bb740b63506b@[10.96.96.13]>
-In-Reply-To: <20030827132810.65010eac.shemminger@osdl.org>
-References: <p05111b01bb728bc8972e@[10.96.96.13]>
- <20030827132810.65010eac.shemminger@osdl.org>
-Date: Thu, 28 Aug 2003 22:24:52 +0200
-From: Hannes Schulz <schulz@schwaar.com>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
-Subject: [Bridge] [more info] Re: [2.4.22] bad interaction between e100 and bridge:
- BUG at dev.c:991!
+Date: Sat, 30 Aug 2003 15:25:07 +0700 (OMSST)
+From: Mail Delivery Subsystem <MAILER-DAEMON@relay.sotline.ru>
+Message-Id: <200308300825.h7U8P7V8068165@relay.sotline.ru>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="h7U8P7V8068165.1062231907/relay.sotline.ru"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Returned mail: see transcript for details
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -18,129 +16,62 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: scott.feldman@intel.com, jgarzik@pobox.com, linux-net@vger.kernel.org, bridge@osdl.org
+To: bridge@osdl.org
 
->Could the problem be that the e100 can do IP receive checksumming on 
->the board,
->but the eepro driver doesn't enable it.  When the board is doing checksum
->offload, then the csum field isn't set.
->
->Please try disabling receive checksumming on the e100 driver
->
->	modprobe e100 XsumRX=0
->
->If this is the problem, it exists both 2.4 and 2.6.
+This is a MIME-encapsulated message
 
-Indeed: with  XsumRX=0,0 the BUG doesn't happen. I put some debugging 
-code in dev.c:
+--h7U8P7V8068165.1062231907/relay.sotline.ru
 
-=== CUT HERE ===
---- dev.c.orig	2003-08-28 20:00:22.000000000 +0200
-+++ dev.c	2003-08-28 20:59:19.000000000 +0200
-@@ -987,9 +987,29 @@
-  	offset = skb->tail - skb->h.raw;
-  	if (offset <= 0)
-  		BUG();
--	if (skb->csum+2 > offset)
-+/*	if (skb->csum+2 > offset)
-  		BUG();
--
-+*/
-+	if (skb->csum+2 > offset) {
-+		printk (KERN_EMERG "skb->csum+2=%d, offset=%d, 
-skb->ip_summed=%d\n", skb->csum+2, offset, (int)(skb->ip_summed));
-+		printk (KERN_EMERG 
-"skb->mac.ethernet->h_dest=%0.2x:%0.2x:%0.2x:%0.2x:%0.2x:%0.2x\n",
-+				(unsigned int)(skb->mac.ethernet->h_dest [0]),
-+				(unsigned int)(skb->mac.ethernet->h_dest [1]),
-+				(unsigned int)(skb->mac.ethernet->h_dest [2]),
-+				(unsigned int)(skb->mac.ethernet->h_dest [3]),
-+				(unsigned int)(skb->mac.ethernet->h_dest [4]),
-+				(unsigned int)(skb->mac.ethernet->h_dest [5])
-+		);
-+		printk (KERN_EMERG 
-"skb->mac.ethernet->h_source=%0.2x:%0.2x:%0.2x:%0.2x:%0.2x:%0.2x\n",
-+				(unsigned 
-int)(skb->mac.ethernet->h_source [0]),
-+				(unsigned 
-int)(skb->mac.ethernet->h_source [1]),
-+				(unsigned 
-int)(skb->mac.ethernet->h_source [2]),
-+				(unsigned 
-int)(skb->mac.ethernet->h_source [3]),
-+				(unsigned 
-int)(skb->mac.ethernet->h_source [4]),
-+				(unsigned int)(skb->mac.ethernet->h_source [5])
-+		);
-+		BUG ();
-+	}
-  	*(u16*)(skb->h.raw + skb->csum) = csum_fold(csum);
-  	skb->ip_summed = CHECKSUM_NONE;
-  	return skb;
-=== CUT HERE ===
+The original message was received at Sat, 30 Aug 2003 15:25:05 +0700 (OMSST)
+from host002.rtk-48.sotline.ru [81.176.48.2]
 
-It says (just before the BUG):
-skb->csum+2=33323, offset=168, skb->ip_summed=1
-skb->mac.ethernet->h_dest=ff:ff:ff:ff:ff:ff
-skb->mac.ethernet->h_source=00:d0:b7:3c:78:0a
+   ----- The following addresses had permanent fatal errors -----
+<niasia@infomsk.ru>
+    (reason: 550 5.1.1 <niasia@infomsk.ru>... User unknown)
 
-I also put a few lines in e100_main.c:
+   ----- Transcript of session follows -----
+... while talking to mx.infomsk.ru.:
+>>> DATA
+<<< 550 5.1.1 <niasia@infomsk.ru>... User unknown
+550 5.1.1 <niasia@infomsk.ru>... User unknown
+<<< 503 5.0.0 Need RCPT (recipient)
 
-=== CUT HERE ===
---- e100_main.c.orig	2003-08-28 21:01:07.000000000 +0200
-+++ e100_main.c	2003-08-28 21:07:10.000000000 +0200
-@@ -2051,11 +2051,14 @@
-  		if (bdp->flags & DF_CSUM_OFFLOAD) {
-  			if (bdp->rev_id >= D102_REV_ID) {
-  				skb->ip_summed = e100_D102_check_checksum(rfd);
-+				printk (KERN_ERR "e100_D102: 
-skb->csum+2=%d,offset=%d, skb->ip_summed=%d\n", skb->csum+2, 
-skb->tail - skb->h.raw, (int)(skb->ip_summed));
-  			} else {
-  				skb->ip_summed = e100_D101M_checksum(bdp, skb);
-+				printk (KERN_ERR "e100_D101M: 
-skb->csum+2=%d,offset=%d, skb->ip_summed=%d\n", skb->csum+2, 
-skb->tail - skb->h.raw, (int)(skb->ip_summed));
-  			}
-  		} else {
-  			skb->ip_summed = CHECKSUM_NONE;
-+			printk (KERN_ERR "e100_NOOFF: 
-skb->csum+2=%d,offset=%d, skb->ip_summed=%d\n", skb->csum+2, 
-skb->tail - skb->h.raw, (int)(skb->ip_summed));
-  		}
+--h7U8P7V8068165.1062231907/relay.sotline.ru
+Content-Type: message/delivery-status
 
-  		bdp->drv_stats.net_stats.rx_bytes += skb->len;
-=== CUT HERE ===
+Reporting-MTA: dns; relay.sotline.ru
+Received-From-MTA: DNS; host002.rtk-48.sotline.ru
+Arrival-Date: Sat, 30 Aug 2003 15:25:05 +0700 (OMSST)
 
-and my console was flooded with these:
-e100_D101M: skb->csum+2=47564,offset=-2789414, skb->ip_summed=1
-e100_D101M: skb->csum+2=38865,offset=3991018, skb->ip_summed=0
-e100_D101M: skb->csum+2=33998,offset=4009612, skb->ip_summed=1
-e100_D101M: skb->csum+2=11471,offset=845290, skb->ip_summed=1
-e100_D101M: skb->csum+2=33323,offset=4036692, skb->ip_summed=1
-                         ^^^^^
-this line was printed just above the BUG. The bug itself is 
-essentially the same as before; just different offsets.
+Final-Recipient: RFC822; niasia@infomsk.ru
+Action: failed
+Status: 5.1.1
+Remote-MTA: DNS; mx.infomsk.ru
+Diagnostic-Code: SMTP; 550 5.1.1 <niasia@infomsk.ru>... User unknown
+Last-Attempt-Date: Sat, 30 Aug 2003 15:25:07 +0700 (OMSST)
 
-I think the packet in question is a broadcast of linux-ha sent out by 
-a completely unrelated machine that happens to be on the same network:
+--h7U8P7V8068165.1062231907/relay.sotline.ru
+Content-Type: text/rfc822-headers
+Content-Transfer-Encoding: 8bit
 
-uml:/usr/src/linux/drivers/net/e100# tcpdump -i br0 -e -n -q ether 
-host 00:d0:b7:3c:78:0a
-tcpdump: listening on br0
-22:11:40.413171 0:d0:b7:3c:78:a ff:ff:ff:ff:ff:ff 182: 
-10.96.96.25.1025 > 10.96.96.255.694: udp 140
-22:11:42.413154 0:d0:b7:3c:78:a ff:ff:ff:ff:ff:ff 182: 
-10.96.96.25.1025 > 10.96.96.255.694: udp 140
-[and so on; the machine is idle at that time of the day]
+Return-Path: <bridge@osdlab.org>
+Received: from astral.omskcity.com (host002.rtk-48.sotline.ru [81.176.48.2])
+	by relay.sotline.ru (8.x.x) with ESMTP id h7U8P5V8068163
+	for <niasia@infomsk.ru>; Sat, 30 Aug 2003 15:25:05 +0700 (OMSST)
+	(envelope-from bridge@osdlab.org)
+Received: from compuserve.com ([211.152.179.3])
+	by astral.omskcity.com (8.x.x) with SMTP id PAA3f505ed9368f
+	for <niasia@infomsk.ru>; Sat, 30 Aug 2003 15:22:49 +0700 (OSS)
+Date: Sat, 30 Aug 2003 16:24:11 +0000
+From: �������� <bridge@osdlab.org>
+Subject: ��� �������� ��������, � �������� ��� ����.                 ... Fttec urDQWma 14730 WIBt PyCkCOU 921
+To: Niasia <niasia@infomsk.ru>
+References: <EDL4C277GCGKI668@infomsk.ru>
+In-Reply-To: <EDL4C277GCGKI668@infomsk.ru>
+Message-ID: <B242GD7K0JK0KH2D@osdlab.org>
+Reply-To: ARBAT <ARBAT@USERLINE.RU>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="----=_NextPart_5L_K76_A9H43KC9J0DK2672BD"
 
+--h7U8P7V8068165.1062231907/relay.sotline.ru--
 
-Q: the 'offset' looks wrong in my code in e100_main.c [I didn't 
-further investigate this]; but the skb->csum shows strong 
-coincidence. What is happening here ?
-
-
-Thanks in advance
-
-Hannes
