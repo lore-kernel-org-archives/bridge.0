@@ -1,12 +1,12 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Thu, 11 Sep 2003 20:44:10 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Date: Thu, 11 Sep 2003 18:02:35 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20030911180235.3d5c91f6.davem@redhat.com>
+In-Reply-To: <20030908093649.5b6dafc1.shemminger@osdl.org>
+References: <20030908093649.5b6dafc1.shemminger@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309112044.10635.bdschuym@pandora.be>
-Subject: [Bridge] [RELEASE] ebtables-brnf vs 2.4.20 try 2
+Subject: [Bridge] Re: [PATCH 2.6] clear hw checksum flags when bridging
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,17 +15,12 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge <bridge@osdl.org>, ebtables-user <ebtables-user@lists.sourceforge.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-Hi,
+On Mon, 8 Sep 2003 09:36:49 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-The first patch had the problem that it was twice as long as intended, due to 
-a '>>' instead of '>' in my script. I'm sure many of you figured that one out 
-:)
-You can find the new, again untested, patch here:
+> same patch as 2.4, just the offsets are changed.
 
-http://sourceforge.net/projects/ebtables/
-
-cheers,
-Bart
-
+Both 2.4.x and 2.6.x versions applied, thanks Stephen.
