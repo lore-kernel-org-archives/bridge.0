@@ -1,11 +1,12 @@
-Message-Id: <s0dc91e5.045@EMAIL>
-Date: Fri, 25 Jun 2004 20:57:46 +0530
-From: "Kishore A K" <kishoreak@myw.ltindia.com>
-Subject: Re: [Bridge] Re: [Patch] [2.6.7] Bridge - Fix BPDU message_age
+Date: Mon, 28 Jun 2004 09:38:46 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040628093846.6b417369@dell_ss3.pdx.osdl.net>
+In-Reply-To: <web-127174921@intranet.ru>
+References: <web-127174921@intranet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Re: hang on PPC
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,165 +15,158 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@osdl.org
-Cc: davem@redhat.com, bridge@lists.osdl.org
+To: arkady-parabel@ngs.ru
+Cc: bridge@osdl.org
 
-Hi Stephen,
+On Sun, 27 Jun 2004 15:43:30 +0700
+<arkady-parabel@ngs.ru> wrote:
 
-The patch looks good except that br_send_config_bpdu() returns zero in either case.
-
-But I would suggest you try & keep the logic in the function br_transmit_config(). So 
-that it would remain in sync with the IEEE 802.1D spec. And that way it would easier
-to debug any problems and maintain the code in the future.
-
-Oneway would be incrementing the message age by a factor,
-   ((HZ > 255) ? ( HZ  >> 8 ) : 1)
-
-I know you would now say that when (HZ <= 255),  an increment of 1 jiffie here would be 
-greater than a corresponding increment in (1/256) ticks. But the protocol allows for a
-Message Age Increment overestimate of 1 second.
-
-Otherwise the patch looks really fine.
-
-Regards,
-Kishore
-
- 
-
->>> Stephen Hemminger <shemminger@osdl.org> 06/24/04 10:24PM >>>
-On Thu, 24 Jun 2004 15:02:26 +0530
-"Kishore A K" <kishoreak@myw.ltindia.com> wrote:
-
-> Hi Stephen,
+> Hi.
 > 
-> >>First, we shouldn't send out the config info if our info about the root is too old.
+> I'm using a powerpc-based board (CPU - Motorolla 82855, 50
+> Mhz) with 32 Mb of RAM, Big Endian.
+> Linux kernel - 2.4.22, bridge - statically linked & as a
+> module
+> brctl - 0.9.6
+> Ethernet - fec (arch/ppc/8xx_io/fec.c)
+> All this was compiled with gcc version 3.2.2 20030217
+> (Yellow Dog Linux 3.0 3.2.2-2a_1)) with math emulation
+> enabled in gcc and in kernel.
 > 
-> Thats why I had introduced the check "if (bpdu.message_age < br->max_age)".
-> The purpose of maintaining the message_age parameter is to enable a bridge to 
-> discard information whose age exceeds Max Age. So I think this would be the right 
-> way of doing it. You may refer the section "8.6.1.3.3 step 3" in the IEEE 802.1D spec. 
-> Above that I really did not get the logic behind doing "if (age < stp_t_to_jiffies(2))".
-> Pls clarify.
+> When I do
+> # ifconfig eth0 0.0.0.0
+> # brctl addbr br0
+> # brctl addif br0 eth0
+> eth0: Promiscuous mode enabled.
+> device eth0 entered promiscuous mode
+> # brctl show
+> bridge name     bridge id               STP enabled
+> interfaces
+> br0             8000.ce3dfa010010       no              eth0
+> # ifconfig br0 up
 > 
-> >>Second, since the time values in the BPDU are scaled from jiffies to 1/256 sec later
-> >>in the send process, need to increment age by the appropriate value.
+> I get
+> br0: port 1(eth0) entering learning state
+> br0: port 1(eth0) entering forwarding state
+> br0: topology change detected, propagating
 > 
-> I had completely forgotten about this. However, the purpose of doing the increment is to 
-> avoid underestimating the age, which is very unlikely to happen. Anyway this can be easily 
-> done by incrementing the age by a factor ( (1 * HZ)>>8) instead of 1.
-> 
-> >>+		long age = (long) root->message_age_timer.expires
-> >>+			- (long)jiffies;
+> Now brctl is sleeping, forever...
+Any brctl or which command? The usual way of debugging this is
+to enable SysRq in kernel and hit SysRq-t to see what is happening.
+Also SysRq-p to show processes.
 
-> "message_age_timer.expires - jiffies" does not give the message age. Instead it gives
-> the time left before the message age timer expires. Whereas Message age is the time
-> elapsed since the generation of the configuration BPDU by the root. So the right way
-> of getting the message age according to me would be 
+> On i386 with 2.4.24 I've tested the same - bridge works
+> fine.
+
+The 2.4 code hasn't changed much in a long time. It could be a PPC issue
+You could rebuild a kernel with just an update of the the bridge code (net/bridge)
+from 2.4.27. 
+
+
+> Can anybody advice me a solution ?
 > 
-> message_age = max_age - (message_age_timer.expires - jiffies) + (HZ>>8)
+> I have enough experience in kernel development to fix it
+> myself. The question is where ?
 > 
-> Pls correct me if I am wrong here.
+> Please, reply to pavel[AT]parabel.inc.ru
+> OSDL rejected my mail with:
+> Failed to deliver to 'shemminger@osdl.org'
+> SMTP module(domain osdl.org) reports:
+>  message text rejected by smtp.osdl.org:
+>  554 5.7.1 Your server (195.161.113.6) is not listed as an
+> IP for the domain 'da.ru' -- please have your
+> misconfiguration corrected
 
-Doesn't work if HZ == 100 because then 100 >> 8 = 0.  
 
-Here is an alternative that pushes the increment and message_age < max_age
-check down into the send_config_bpdu routine where the conversion to (1/256) ticks
-has already taken place.
+OSDL does anti-spam detection by doing a reverse DNS lookup of incoming
+mail. Since most spammers use bogus addresses, it filters about 10% of spam.
 
-diff -Nru a/net/bridge/br_private_stp.h b/net/bridge/br_private_stp.h
---- a/net/bridge/br_private_stp.h	2004-06-24 09:52:25 -07:00
-+++ b/net/bridge/br_private_stp.h	2004-06-24 09:52:25 -07:00
-@@ -52,7 +52,7 @@
- extern void br_topology_change_detection(struct net_bridge *br);
- 
- /* br_stp_bpdu.c */
--extern void br_send_config_bpdu(struct net_bridge_port *, struct br_config_bpdu *);
-+extern int br_send_config_bpdu(struct net_bridge_port *, struct br_config_bpdu *);
- extern void br_send_tcn_bpdu(struct net_bridge_port *);
- 
- #endif
-diff -Nru a/net/bridge/br_stp.c b/net/bridge/br_stp.c
---- a/net/bridge/br_stp.c	2004-06-24 09:52:25 -07:00
-+++ b/net/bridge/br_stp.c	2004-06-24 09:52:25 -07:00
-@@ -157,24 +157,25 @@
- 	bpdu.root_path_cost = br->root_path_cost;
- 	bpdu.bridge_id = br->bridge_id;
- 	bpdu.port_id = p->port_id;
--	bpdu.message_age = 0;
--	if (!br_is_root_bridge(br)) {
-+
-+	if (br_is_root_bridge(br)) 
-+		bpdu.message_age = 0;
-+	else {
- 		struct net_bridge_port *root
- 			= br_get_port(br, br->root_port);
--		bpdu.max_age = root->message_age_timer.expires - jiffies;
--
--		if (bpdu.max_age <= 0) bpdu.max_age = 1;
-+		bpdu.message_age = br->max_age 
-+			- (root->message_age_timer.expires - jiffies);
- 	}
-+
- 	bpdu.max_age = br->max_age;
- 	bpdu.hello_time = br->hello_time;
- 	bpdu.forward_delay = br->forward_delay;
- 
--	br_send_config_bpdu(p, &bpdu);
--
--	p->topology_change_ack = 0;
--	p->config_pending = 0;
--	
--	mod_timer(&p->hold_timer, jiffies + BR_HOLD_TIME);
-+	if (br_send_config_bpdu(p, &bpdu)) {
-+		p->topology_change_ack = 0;
-+		p->config_pending = 0;
-+		mod_timer(&p->hold_timer, jiffies + BR_HOLD_TIME);
-+	}
- }
- 
- /* called under bridge lock */
-diff -Nru a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
---- a/net/bridge/br_stp_bpdu.c	2004-06-24 09:52:25 -07:00
-+++ b/net/bridge/br_stp_bpdu.c	2004-06-24 09:52:25 -07:00
-@@ -72,9 +72,10 @@
- }
- 
- /* called under bridge lock */
--void br_send_config_bpdu(struct net_bridge_port *p, struct br_config_bpdu *bpdu)
-+int br_send_config_bpdu(struct net_bridge_port *p, struct br_config_bpdu *bpdu)
- {
- 	unsigned char buf[38];
-+	u16 max_age;
- 
- 	buf[0] = 0x42;
- 	buf[1] = 0x42;
-@@ -108,12 +109,26 @@
- 	buf[28] = (bpdu->port_id >> 8) & 0xFF;
- 	buf[29] = bpdu->port_id & 0xFF;
- 
--	br_set_ticks(buf+30, bpdu->message_age);
--	br_set_ticks(buf+32, bpdu->max_age);
-+	max_age = JIFFIES_TO_TICKS(bpdu->max_age);
-+	if (bpdu->message_age) {
-+		u16 age = JIFFIES_TO_TICKS(bpdu->message_age)+1;
-+		if (age >= max_age)
-+			return 0;
-+		buf[30] = (age >> 8) & 0xFF;
-+		buf[31] = age & 0xFF;
-+	} else {
-+		buf[30] = 0;
-+		buf[31] = 0;
-+	}
-+
-+	buf[32] = (max_age >> 8) & 0xFF;
-+	buf[33] = max_age & 0xFF;
-+
- 	br_set_ticks(buf+34, bpdu->hello_time);
- 	br_set_ticks(buf+36, bpdu->forward_delay);
- 
- 	br_send_bpdu(p, buf, 38);
-+	return 0;
- }
- 
- /* called under bridge lock */
+
+> Thanks in advance.
+> 
+> BTW: My final task is make a patch for kernel to make bridge
+> working with cisco-hdlc devices (hdlc_cisco.c will have type
+> = ARPHRD_ETHER, and do appropriate encapsulation). Maybe
+> someone already made this, but I don't know ?
+> 
+> Kernel boot log:
+> 
+> Linux package found at 200000
+> Kernel size 777k (compressed)
+> Ramdisk size 2913k (compressed)
+> Decompressing kernel...ok
+> Linux version 2.4.22 (root@knight) (gcc version 3.2.2
+> 20030217 (Yellow Dog Linux
+> 3.0 3.2.2-2a_1)) #30 Sun Jun 27 13:31:17 NOVST 2004
+> On node 0 totalpages: 8192
+> zone(0): 8192 pages.
+> zone(1): 0 pages.
+> zone(2): 0 pages.
+> Kernel command line: root=/dev/ram rw ramdisk_size=8000
+> init=/sbin/fl
+> Decrementer Frequency = 184320000/60
+> Calibrating delay loop... 48.84 BogoMIPS
+> Memory: 27560k available (1372k kernel code, 440k data, 84k
+> init, 0k highmem)
+> Dentry cache hash table entries: 4096 (order: 3, 32768
+> bytes)
+> Inode cache hash table entries: 2048 (order: 2, 16384 bytes)
+> Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+> Buffer cache hash table entries: 1024 (order: 0, 4096 bytes)
+> Page-cache hash table entries: 8192 (order: 3, 32768 bytes)
+> POSIX conformance testing by UNIFIX
+> Linux NET4.0 for Linux 2.4
+> Based upon Swansea University Computer Society NET3.039
+> Initializing RT netlink socket
+> Starting kswapd
+> CPM UART driver version 0.03
+> ttyS00 at 0x0280 is a SMC
+> pty: 256 Unix98 ptys configured
+> Generic RTC Driver v1.07
+> DLCI driver v0.35, 4 Jan 1997, mike.mclagan@linux.org.
+> eth0: FEC ENET Version 0.2, FEC irq 9, MII irq 10, addr
+> ce:3d:fa:01:00:10
+> RAMDISK driver initialized: 16 RAM disks of 8000K size 1024
+> blocksize
+> loop: loaded (max 8 devices)
+> PPP generic driver version 2.4.2
+> PPP Deflate Compression module registered
+> Cronyx Ltd, Synchronous PPP and CISCO HDLC (c) 1994
+> Linux port (c) 1998 Building Number Three Ltd & Jan "Yenya"
+> Kasprzak.
+> LAPB Ethernet driver version 0.01
+> NET4: Linux TCP/IP 1.0 for NET4.0
+> IP Protocols: ICMP, UDP, TCP, IGMP
+> IP: routing cache hash table of 512 buckets, 4Kbytes
+> TCP: Hash tables configured (established 2048 bind 4096)
+> IPv4 over IPv4 tunneling driver
+> ip_conntrack version 2.1 (256 buckets, 2048 max) - 292 bytes
+> per conntrack
+> ip_tables: (C) 2000-2002 Netfilter core team
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> NET4: Ethernet Bridge 008 for NET4.0
+> X.25 for Linux. Version 0.2 for Linux 2.1.15
+> NET4: LAPB for Linux. Version 0.01 for NET4.0
+> 802.1Q VLAN Support v1.8 Ben Greear
+> <greearb@candelatech.com>
+> All bugs added by David S. Miller <davem@redhat.com>
+> RAMDISK: Compressed image found at block 0
+> Freeing initrd memory: 2913k freed
+> VFS: Mounted root (ext2 filesystem).
+> Freeing unused kernel memory: 84k init
+> 
+> -- 
+> Regards
+> Pavel
+> 
+> ______ "______________"
+> web: http://parabel.inc.ru/
+> mail: pavel[AT]parabel.inc.ru
+> phone: +7 (3832) 13-87-07
+> ---------------------------------------------------------
+> http://relax.ngs.ru - ______ __ ____________ __ ________________________ __ ________________________!
+> 
+> 
+> 
+> 
 
