@@ -1,14 +1,11 @@
-Date: Mon, 4 Apr 2005 18:22:01 +0200
-From: Alpt <alpt@freaknet.org>
-Message-ID: <20050404162201.GA10070@nihil>
-References: <20050327092700.GA19972@nihil>
-	<20050329112733.GA6274@darkalpt.hinezumilabs.org>
+Message-ID: <e5d0c6b05040407121aebf6d3@mail.gmail.com>
+Date: Mon, 4 Apr 2005 10:12:39 -0400
+From: jorge Matus <jorgematus1976@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-In-Reply-To: <20050329112733.GA6274@darkalpt.hinezumilabs.org>
-Subject: [Bridge] Re: [PATCH bridge-2.6.11] bridge hub_enabled option
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] ayuda con brige en kernel 2.6
+Reply-To: jorge Matus <jorgematus1976@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,46 +14,16 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: linux-net@vger.kernel.org, netdev@oss.sgi.com, bridge@lists.osdl.org
+To: "bridge@lists.osdl.org" <bridge@lists.osdl.org>
 
+hola he visto vuestro trabajo y la verdad es bastante interesante, la
+verdad es que yo soy nuevo en linux, pero he aprendido mucho este
+ultimo tiempo le escribo para ver si pueden ayudarme
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 29, 2005 at 01:27:33PM +0200, Alpt wrote  :
-~> The document describing this patch is here:
-~> http://www.freaknet.org/alpt/src/bridge-hub/readme
-~>=20
-~> There is a small correction for this patch. The new version is attached
-~> here and be be found also here:
-~> http://www.freaknet.org/alpt/src/bridge-hub/bridge-2.6.11-hub.patch
-~>=20
-~> The patch for the bridge-utils:
-~> http://www.freaknet.org/alpt/src/bridge-hub/bridge-utils-1.0.6-hub.patch
-
-so.. is it applied or not?
-
-Best Regards
---=20
-:wq!
-"I don't know nothing" The One Who reached the Thinking Matter   '.'
-
-[ Alpt --- Freaknet Medialab ]
-[ GPG Key ID 441CF0EE ]
-[ Key fingerprint =3D 8B02 26E8 831A 7BB9 81A9  5277 BFF8 037E 441C F0EE ]
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFCUWmpv/gDfkQc8O4RAhPXAJwNGJMFHkVEPVrV5reo3bknUdtJygCgxBWM
-fMqPves8wmP6yoXMCdDaBXQ=
-=xnaj
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
+estoy trabajando con fedora core 2 kernel 2.6 he instalado una
+herramienta "bridge-utils-0.9.6-1.i386.rpm"  para que funcione el
+comando brctl
+hasta aqui no tengo problemas, lo que necesito saber es si en este
+distro tengo que realizar alguna configuracion adicional. por vuestra
+ayuda gracias espero su respuesta tambien me incribire en la lista
+para ver si puedo aportar algo
