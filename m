@@ -1,14 +1,14 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Subject: Re: [Bridge] ethernet bridge + iptables
-Date: Tue, 27 Apr 2004 19:51:16 +0200
+Message-ID: <002b01c42c83$f27d6aa0$0201a8c0@hawk>
+From: "Christopher S. Aker" <caker@theshore.net>
 References: <010701c42ba3$288f2570$41317d9e@keziah>
-In-Reply-To: <010701c42ba3$288f2570$41317d9e@keziah>
+	<200404271951.16326.bdschuym@pandora.be>
+Date: Tue, 27 Apr 2004 13:17:46 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+	charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404271951.16326.bdschuym@pandora.be>
+Subject: [Bridge] unregister_netdevice: waiting for tap_0 to become free.
+	Usage count = 2
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,23 +17,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mark Sandford <J.M.Sandford@lboro.ac.uk>, bridge@osdl.org
+To: bridge@osdl.org
 
-On Monday 26 April 2004 17:28, Mark Sandford wrote:
-> I've since been using 2.4.25 kernel (and then 2.4.26).  Kernel compiles and
-> the system doesn't hang when the bridge comes up but I don't seem to be
-> able to get it to actually do the bridging.  (Bridging does work with
-> initial rh9 install).  The ethernet cards work fine until I bring the
-> bridge up.  After that I can't ping from the bridge or forward packets
-> through the bridge.
->
-> I'm wondering whether I've incorrectly set/missed some options while
-> configuring the kernel but I don't know what to try.
->
-> Any clues / pointers hugely appreciated.
+Hello,
 
-Please check your firewalling rules.
+I'm using tap devices connected to bridge, and I've been seeing these messages on
+my 2.6 hosts during a script which brings down the interface and then back up.
 
-cheers,
-Bart
+unregister_netdevice: waiting for tap_0 to become free. Usage count = 2
+
+Does this look like a refcount leak, and if so, I'm assuming it's in the tuntap
+code and I'm barking up the wrong tree :)
+
+Thanks,
+-Chris
 
