@@ -1,10 +1,13 @@
-Date: Fri, 04 Feb 2005 10:55:28 -0800 (PST)
-From: Jordan Eunson <maillist@heteromail.com>
-Message-id: <33113.24.85.247.221.1107543328.squirrel@heteromail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8bit
-Subject: [Bridge] Wireless bridge
+Date: Fri, 4 Feb 2005 23:32:04 +0100
+Subject: Re: [Bridge] recent 2.6 kernels hang on bridge shutdown - solved
+Message-ID: <20050204223204.GA15585@stilzchen.informatik.tu-chemnitz.de>
+References: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
+	<20050203115407.5e7fc195@dxpl.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050203115407.5e7fc195@dxpl.pdx.osdl.net>
+From: Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,19 +16,19 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: bridge@lists.osdl.org
 
-This isn't a question directly about brctl per se. I have a WRT54G linksys
-box on one side of my office and a linux router with an Atheros G card
-running madwifi on the other. I want the linux box to be a bridge between
-the hard wired clients connect to the linux router and wireless linksys
-box on the other side of the office. So what I did was, on the linux box
-told it the essid and MAC address to connect to. This was tested by
-assigning an ip the atheros interface and ping the linksys box, test came
-back good. I zero'd the IP on the atheros card and bridge the atheros and
-the local eth0 together. I connect a my laptop to the eth0 port and try
-ping the linksys box, but the pings wont flow. This is the problem, now
-maybe I'm expecting something that just isn't going to happen because of
-the way wifi works, but that's why I'm posting.
+On Thu, Feb 03, 2005 at 11:54:07AM -0800, Stephen Hemminger wrote:
+> > With recent 2.6 kernels, the command
+> >   brctl delbr br0
+> > hangs during shutdown, and the kernel prints this message again and again:
+> >   unregister_netdevice: waiting for br0 to become free. Usage count = 1
+> 
+> Are you running IPV6? if so it is most likely related to IPV6.
 
+Yes, indeed.
+Since I currently don't need IPv6, I disabled it - problem solved.
 
+Thanks a lot!
+Mirko
