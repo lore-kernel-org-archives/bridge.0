@@ -1,11 +1,11 @@
-Date: Mon, 27 Sep 2004 12:26:40 +0100
-From: "John P. Looney" <valen@tuatha.org>
-Message-ID: <20040927112640.GB31689@magicbluesmoke.net>
+Message-ID: <88240e94040927191716269955@mail.gmail.com>
+Date: Mon, 27 Sep 2004 19:17:21 -0700
+From: TEJAS VORA <voratejas@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] linux as a switch
-Reply-To: valen@tuatha.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] FTP and HTTP Passing over bridge
+Reply-To: TEJAS VORA <voratejas@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,26 +14,52 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
- I've been playing with Linux bridging for a while, in small low-volume
-environments as well as with UML, without problems.
+Hi All,
 
- However, I'm looking for something more out of a switch than I can get
-currently, and I was wondering if I could configure Linux to be a switch -
-bridge over eight or so interfaces efficently.
+We are developing a Gateway product which sits between Content Server
+(provides FTP, HTTP and HTTPS service).
+The main functionality of the gateway is to provide faster data
+transfer over TCP in Wireless Networks. For this we have changed the
+kernel and
+it is working fine.
 
- Has anyone done this ? What sort of traffic can your average linux box
-handle like this ? I'm looking at using it on the NexCom boxes;
-    http://www.ipc2u.de/servlet/comp?22785&22752&22780
-which have 8 e100 nics and 4 e1000 nics on a 64bit/66Mhz bus. Seems nice,
-if it'll work. Then i'd need to make sure that ucd-snmp etc. will let me
-get traffic stats per real (not bridged) interface, just like a normal
-managed switch.
+For all opther protocols to pass through normally - we have installed
+the Bridge Mode service on the gateway. But gateway silently pass
+through data -
+so any TCP packet passing through gateway DOES NOT GO UP TO TCP Layer
+in TCP / IP stack.
 
- I went through the archives of the list, and there seems to be some
-problems with VLANs, historically. This would be for use in a very
-production environment. I'll do loads of testing, but I'd like to know
-any caveats from day one.
+To solve this problem - we are using jftpgw (FTP proxy) and Squid
+(HTTP Proxy) so that FTP and HTTP packets go up to TCP layer in TCP/IP
+Stack.
 
-John
+Our main needs are
+
+1. Machine performace should not get affected
+2. FTP, HTTP and HTTPS packet should go through TCP layer rather
+silently pass through by Bridge Mode
+3. The source IP address should not be changed while connecting to
+content Server - Becuase Content Server is using IP Authentication
+   (as SQUID Does)
+4. FTP Data Source port (port 20) should not get changed while sending
+data back to Client
+
+Now questions are
+
+1. Is this solution - using proxy - is appropriate or is there any
+alternate solution?
+2. Are this tools efficient and do they effect the Machine performance
+in terms of CPU and Memory Utilization - if not which is best
+3. If not then is there any COMMERCIAL proxy software available to
+achieve this desired functionality
+4. What is the solution for HTTPS?
+5. Squid changes the Source IP address while connecting to Content
+Server - we do not want this - as server is using IP Authentication -
+what is the solution for this
+
+Looking for a help.
+
+Thanks,
+Tejas
