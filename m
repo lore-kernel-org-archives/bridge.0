@@ -1,12 +1,11 @@
-Message-ID: <48069.70.17.154.20.1103910037.squirrel@www.osdl.org>
-In-Reply-To: <6.2.0.14.2.20041224132024.055a6b90@mail.modemsoft.it>
-References: <6.2.0.14.2.20041224132024.055a6b90@mail.modemsoft.it>
-Date: Fri, 24 Dec 2004 09:40:37 -0800 (PST)
-Subject: Re: [Bridge] Compiling Bridge Utils 1.04
-From: shemminger@osdl.org
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Rajashekhar Mansanpally <raj@roinet.com>
+Content-Type: text/plain
+Message-Id: <1104271176.17168.11.camel@honeycomb>
+Mime-Version: 1.0
+Date: Tue, 28 Dec 2004 16:59:37 -0500
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridge Utils & 2.6.7 Kernel
+Reply-To: raj@roinet.com
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,16 +14,19 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Claudio Mantegna <zerocool@lonestar.it>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-> Hello All,
->
-> sorry for all my error of writing...
-> I have tried to compile the bridge util in formality brctld and just tried
-> to compile it has given me this error:
->
-> /usr/src/bridge-utils-1.0.4/brctl# make brctld
+Hi everyone,
+I am trying to get bridging working with 2.6.7 kernel.
+I have noticed quite a few additions to the bridge code, last one I used
+was with 2.4.x series, most importantly Sysfs.
 
-Brctld is dead code and is not used in the current code.
-It is removed in the next version.
+Can someone tell me what I need to do to enable sysfs support ?
+
+I did not find the bridge module in /sys directory structure even after
+adding couple of interfaces to the bridge. Is there anything
+else I need to do?
+
+Thanks in advance.
+
+-Raj
