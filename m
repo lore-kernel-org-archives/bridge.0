@@ -1,10 +1,9 @@
-Message-ID: <018001c404f2$0ce0c3b0$6400a8c0@Wesley>
-From: "Wesley GDS" <wesley@gds.co.za>
-Date: Mon, 8 Mar 2004 11:45:06 +0200
+Message-ID: <FD52892BD296D71183B400065BFCB6900694F706@il02exm12>
+From: Lewis Adam-CAL022 <Adam.Lewis@motorola.com>
+Date: Wed, 10 Mar 2004 13:51:54 -0600
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_017D_01C40502.CCFC8070"
-Subject: [Bridge] Permanent after reboot
+Content-Type: multipart/mixed; boundary="----_=_NextPart_000_01C406D9.23A3315B"
+Subject: [Bridge] Question on time to bring up bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,48 +16,128 @@ To: bridge@osdl.org
 
 This is a multi-part message in MIME format...
 
-------=_NextPart_000_017D_01C40502.CCFC8070
+------_=_NextPart_000_01C406D9.23A3315B
+Content-Type: multipart/alternative;
+	boundary="----------=_1078948324-22015-849"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+
+This is a multi-part message in MIME format...
+
+------------=_1078948324-22015-849
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi there
+Hello,
+ 
+I am using the bridge utils to connect two interfaces on my computer.  Currently it takes 30sec-1min before full propagation occurs.  Is there any way to reduce this?  The delay is due to the code going into a learning state, but if I want the bridge to be dumb (e.g. in one and out the other, always) can this learning process be skipped?
+ 
+Thanks!
+Adam
 
-I was just wondering if you could help me.  I have set up a bridge between =
-my two eth cards, works fine.  The problem i have is that when i reboot my =
-PC the bridge is lost.  Is there any way i can make this permanent.
-
-I am running slackware 9.1
-
-Kind Regards=20
-Wesley Coleman
-------=_NextPart_000_017D_01C40502.CCFC8070
+------------=_1078948324-22015-849
 Content-Type: text/html;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: base64
 Content-Disposition: inline
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2800.1400" name=3DGENERATOR>
-<DEFANGED_style_0 </STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>Hi there</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>I was just wondering if you could help me.=
-&nbsp; I=20
-have set up a bridge between my two eth cards, works fine.&nbsp; The proble=
-m i=20
-have is that when i reboot my PC the bridge is lost.&nbsp; Is there any way=
- i=20
-can make this permanent.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>I am running slackware 9.1</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Kind Regards </FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Wesley Coleman</FONT></DIV></BODY></HTML>
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBU
+cmFuc2l0aW9uYWwvL0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgSFRUUC1F
+UVVJVj0iQ29udGVudC1UeXBlIiBDT05URU5UPSJ0ZXh0L2h0bWw7IGNoYXJz
+ZXQ9aXNvLTg4NTktMSI+DQo8VElUTEU+R2xhY2llcjwvVElUTEU+DQoNCjxE
+RUZBTkdFRF9TVFlMRSBCT0RZIHsNCglNQVJHSU4tVE9QOiAyMHB4OyBGT05U
+LVNJWkU6IDEwcHQ7IE1BUkdJTi1MRUZUOiA1MHB4OyBDT0xPUjogIzAwNjY2
+NjsgRk9OVC1GQU1JTFk6IEFyaWFsLCBIZWx2ZXRpY2ENCn0NCj48L0RFRkFO
+R0VEX1NUWUxFPg0KDQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNS41MC40OTM3
+LjgwMCIgbmFtZT1HRU5FUkFUT1I+PC9IRUFEPg0KPEJPRFkgREVGQU5HRURf
+YmFja2dyb3VuZD0iY2lkOjk2NjUyNTAxOUAxMDAzMjAwNC0wMDcwIj4NCjxE
+SVY+PFNQQU4gY2xhc3M9OTY2NTI1MDE5LTEwMDMyMDA0PkhlbGxvLDwvU1BB
+Tj48L0RJVj4NCjxESVY+PFNQQU4gY2xhc3M9OTY2NTI1MDE5LTEwMDMyMDA0
+PjwvU1BBTj4mbmJzcDs8L0RJVj4NCjxESVY+PFNQQU4gY2xhc3M9OTY2NTI1
+MDE5LTEwMDMyMDA0PkkgYW0gdXNpbmcgdGhlIGJyaWRnZSB1dGlscyB0byBj
+b25uZWN0IHR3byANCmludGVyZmFjZXMgb24gbXkgY29tcHV0ZXIuJm5ic3A7
+IEN1cnJlbnRseSBpdCB0YWtlcyAzMHNlYy0xbWluIGJlZm9yZSBmdWxsIA0K
+cHJvcGFnYXRpb24gb2NjdXJzLiZuYnNwOyBJcyB0aGVyZSBhbnkgd2F5IHRv
+IHJlZHVjZSB0aGlzPyZuYnNwOyBUaGUgZGVsYXkgaXMgDQpkdWUgdG8gdGhl
+IGNvZGUgZ29pbmcgaW50byBhIGxlYXJuaW5nIHN0YXRlLCBidXQgaWYgSSB3
+YW50IHRoZSBicmlkZ2UgdG8gYmUgZHVtYiANCihlLmcuIGluIG9uZSBhbmQg
+b3V0IHRoZSBvdGhlciwgYWx3YXlzKSBjYW4gdGhpcyBsZWFybmluZyBwcm9j
+ZXNzIGJlIA0Kc2tpcHBlZD88L1NQQU4+PC9ESVY+DQo8RElWPjxTUEFOIGNs
+YXNzPTk2NjUyNTAxOS0xMDAzMjAwND48L1NQQU4+Jm5ic3A7PC9ESVY+DQo8
+RElWPjxTUEFOIGNsYXNzPTk2NjUyNTAxOS0xMDAzMjAwND5UaGFua3MhPEJS
+PkFkYW08L1NQQU4+PC9ESVY+PC9CT0RZPjwvSFRNTD4NCg==
 
-------=_NextPart_000_017D_01C40502.CCFC8070--
+------------=_1078948324-22015-849--
+
+------_=_NextPart_000_01C406D9.23A3315B
+Content-Type: image/jpeg;
+	name="Glacier Bkgrd.jpg"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="Glacier Bkgrd.jpg"
+Content-ID: <966525019@10032004-0070>
+
+/9j/4AAQSkZJRgABAgEASABIAAD/7QSqUGhvdG9zaG9wIDMuMAA4QklNA+kA
+AAAAAHgAAwAAAEgASAAAAAAC2gIo/+H/4QL5AkUDRwUoA/wAAgAAAEgASAAA
+AAAC2AIoAAEAAABkAAAAAQADAwMAAAABJw8AAQABAAAAAAAAAAAAAAAAYAgA
+GQGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4QklNA+0AAAAA
+ABAASAAAAAEAAQBIAAAAAQABOEJJTQPzAAAAAAAIAAAAAAAAAAA4QklNBAoA
+AAAAAAEAADhCSU0nEAAAAAAACgABAAAAAAAAAAI4QklNA/UAAAAAAEgAL2Zm
+AAEAbGZmAAYAAAAAAAEAL2ZmAAEAoZmaAAYAAAAAAAEAMgAAAAEAWgAAAAYA
+AAAAAAEANQAAAAEALQAAAAYAAAAAAAE4QklNA/gAAAAAAHAAAP//////////
+//////////////////8D6AAAAAD/////////////////////////////A+gA
+AAAA/////////////////////////////wPoAAAAAP//////////////////
+//////////8D6AAAOEJJTQQAAAAAAAACAAA4QklNBAIAAAAAAAIAADhCSU0E
+CAAAAAAAEAAAAAEAAAJAAAACQAAAAAA4QklNBAkAAAAAApkAAAABAAAAgAAA
+AAEAAAGAAAABgAAAAn0AGAAB/9j/4AAQSkZJRgABAgEASABIAAD//gAnRmls
+ZSB3cml0dGVuIGJ5IEFkb2JlIFBob3Rvc2hvcKggNC4wAP/uAA5BZG9iZQBk
+gAAAAAH/2wCEAAwICAgJCAwJCQwRCwoLERUPDAwPFRgTExUTExgRDAwMDAwM
+EQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBDQsLDQ4NEA4OEBQODg4U
+FA4ODg4UEQwMDAwMEREMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM
+DAwMDP/AABEIAAEAgAMBIgACEQEDEQH/3QAEAAj/xAE/AAABBQEBAQEBAQAA
+AAAAAAADAAECBAUGBwgJCgsBAAEFAQEBAQEBAAAAAAAAAAEAAgMEBQYHCAkK
+CxAAAQQBAwIEAgUHBggFAwwzAQACEQMEIRIxBUFRYRMicYEyBhSRobFCIyQV
+UsFiMzRygtFDByWSU/Dh8WNzNRaisoMmRJNUZEXCo3Q2F9JV4mXys4TD03Xj
+80YnlKSFtJXE1OT0pbXF1eX1VmZ2hpamtsbW5vY3R1dnd4eXp7fH1+f3EQAC
+AgECBAQDBAUGBwcGBTUBAAIRAyExEgRBUWFxIhMFMoGRFKGxQiPBUtHwMyRi
+4XKCkkNTFWNzNPElBhaisoMHJjXC0kSTVKMXZEVVNnRl4vKzhMPTdePzRpSk
+hbSVxNTk9KW1xdXl9VZmdoaWprbG1ub2JzdHV2d3h5ent8f/2gAMAwEAAhED
+EQA/APTqPon4/wAAir5XSQGyn6oSXyukip+qEl8rpJKfqhJfK6SSn6oSXyuk
+kp+qEl8rpJKfqhJfK6SSn6oSXyukkp//2QA4QklNBAYAAAAAAAcABAAAAAEB
+AP/+ACdGaWxlIHdyaXR0ZW4gYnkgQWRvYmUgUGhvdG9zaG9wqCA0LjAA/+4A
+DkFkb2JlAGQAAAAAAf/bAIQABgQEBwUHCwYGCw4KCAoOEQ4ODg4RFhMTExMT
+FhEMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAEHCQkTDBMi
+ExMiFA4ODhQUDg4ODhQRDAwMDAwREQwMDAwMDBEMDAwMDAwMDAwMDAwMDAwM
+DAwMDAwMDAwMDAwM/8AAEQgAAwZAAwERAAIRAQMRAf/dAAQAyP/EAaIAAAAH
+AQEBAQEAAAAAAAAAAAQFAwIGAQAHCAkKCwEAAgIDAQEBAQEAAAAAAAAAAQAC
+AwQFBgcICQoLEAACAQMDAgQCBgcDBAIGAnMBAgMRBAAFIRIxQVEGE2EicYEU
+MpGhBxWxQiPBUtHhMxZi8CRygvElQzRTkqKyY3PCNUQnk6OzNhdUZHTD0uII
+JoMJChgZhJRFRqS0VtNVKBry4/PE1OT0ZXWFlaW1xdXl9WZ2hpamtsbW5vY3
+R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+Ck5SVlpeYmZqbnJ2en5KjpKWmp6
+ipqqusra6voRAAICAQIDBQUEBQYECAMDbQEAAhEDBCESMUEFURNhIgZxgZEy
+obHwFMHR4SNCFVJicvEzJDRDghaSUyWiY7LCB3PSNeJEgxdUkwgJChgZJjZF
+GidkdFU38qOzwygp0+PzhJSktMTU5PRldYWVpbXF1eX1RlZmdoaWprbG1ub2
+R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+DlJWWl5iZmpucnZ6fkqOkpaanqK
+mqq6ytrq+v/aAAwDAQACEQMRAD8A9N/vv+Lv+SWFhv5/7F377/i7/kliu/n/
+ALFbJ63H/dv0+lTFd/P/AGKj++/y/wDkliu/n/sVa29Tl8fSn7fCn/JPfFIR
+H/AYGTv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq
+7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFX
+f8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wAB
+irv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gM
+Vd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Bi
+rv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+
+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/w
+GKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8A
+gMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3
+/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/
+4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd
+/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq
+7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFX
+f8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wAB
+irv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gM
+Vd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Bi
+rv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+
+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq/wD/2Q==
+
+------_=_NextPart_000_01C406D9.23A3315B--
