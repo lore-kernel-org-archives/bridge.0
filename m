@@ -1,11 +1,13 @@
-Message-ID: <5B537508CDBED3118403009027745A210B8C1499@knant18.kna.flextronics.com>
-From: Christian Darnell <Christian.Darnell@se.flextronics.com>
-Date: Tue, 7 Oct 2003 11:06:13 +0200 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: [Bridge] RE: [VLAN] Re: [PATCH/RFC] Let {ip,
-	arp}tables "see" bridged VLAN tagged{I,AR}P packets
+Date: Tue, 7 Oct 2003 08:06:40 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20031007080640.50de4d45.davem@redhat.com>
+In-Reply-To: <200310062204.07230.bdschuym@pandora.be>
+References: <200310062204.07230.bdschuym@pandora.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH/RFC] Let {ip,
+ arp}tables "see" bridged VLAN tagged {I,AR}P packets
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,73 +16,21 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "'Linux 802.1Q VLAN'" <vlan@wanfear.com>, Bart De Schuymer <bdschuym@pandora.be>
-Cc: netdev@oss.sgi.com, bridge <bridge@osdl.org>
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: netdev@oss.sgi.com, greearb@candelatech.com, bridge@osdl.org, vlan@wanfear.com, shemminger@osdl.org
 
+On Mon, 6 Oct 2003 22:04:07 +0200
+Bart De Schuymer <bdschuym@pandora.be> wrote:
 
+> -	unsigned long hh[16 / sizeof(unsigned long)];
+> +	unsigned char hh[18];
 
->-----Original Message-----
->From: Ben Greear [mailto:greearb@candelatech.com]
->Sent: Monday, October 06, 2003 10:24 PM
->To: Bart De Schuymer
->Cc: netdev@oss.sgi.com; vlan@wanfear.com; bridge
->Subject: [VLAN] Re: [PATCH/RFC] Let {ip,arp}tables "see" bridged VLAN
->tagged{I,AR}P packets
->
->
->Bart De Schuymer wrote:
->> - add some code in vlan_dev.c::vlan_dev_hard_start_xmit():
->> skb->protocol = __constant_htons(ETH_P_8021Q);
->> skb->mac.raw -= VLAN_HLEN;
->> skb->nh.raw -= VLAN_HLEN;
->
->I wonder if this is what was messing up the tcpdump packet capture
->as well?
+Maybe don't do this?  It should be aligned on a 'long' boundry I
+think.
 
-Hi Ben and all others, 
+The only real hard objection I have with the patch is the vlan xmit
+routine pointer crap, just export the symbol.
 
-Just to clarify for other who hasn't been a part of this discussion before. 
+Once you fix that I'll apply your patch as long as Stephen has no
+objections.
 
----- 8< ----
-When trying to grab a packet with pcap when using VLAN the beginning of the
-packet is corrupt an the VLAN TCI bits are missing. This is only a problem
-when sniffing on incoming traffic not outgoing.
-
-00 60 08 50 00 60 08 50 26 2a 00 60 08 6a b4 53 xx xx xx xx 08 00 45 00
-^^^^^^^^^^^                                     ^^^^^^^^^^^^
-Where does these bytes come from?               Bytes missing (VLAN header)?
-
-The correct MAC addresses here are:
-00 60 08 50 26 2a and 00 60 08 6a b4 53
----- 8< ----
-
-
-I added those lines (see above) to vlan_dev.c but it didn't solve the
-problem with tcpdump (pcap) incoming packets. vlan_dev_hard_start_xmit()
-tells me that this is only outgoing packets right? For outgoing packets
-tcpdump works (and Ethereal for Windows sees the packet correctly on the
-wire) so the problem doesn't occur when sending packets. I added following
-line to vlan_dev.c:
-
-vlan_dev.c:: int vlan_skb_recv(struct sk_buff *skb, struct net_device *dev,
-struct packet_type* ptype):
-
-vlan_TCI = ntohs(vhdr->h_vlan_TCI);
-
-+ /* Print the 802.1p priority */
-+printk("VLAN Prio: %hx\n", vlan_TCI >> 13);
-
-vid = (vlan_TCI & VLAN_VID_MASK);
-
-With the code above I get the 802.1p correctly. Does anyone know how and
-when pcap grabs the packet (does pcap grab the packet before or after
-vlan_skb_recv is called)?
-
-When I'm sniffing with pcap I sniff the Ethernet interface, so the VLAN
-stuff isn't really involved when pcap grab the packet or have I
-misunderstand how it works?
-
-
-Best Regards, 
-
-Christian Darnell
