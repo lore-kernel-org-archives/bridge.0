@@ -1,15 +1,12 @@
-Subject: Re: [Bridge] bridge in 'hub' mode possible?
-References: <87d5xw4uui.fsf@aka.i.naked.iki.fi>
-	<20041129102432.24888dad@zqx3.pdx.osdl.net>
-	<87ekic1p6w.fsf@aka.i.naked.iki.fi>
-	<20041202112002.444fdff0@dxpl.pdx.osdl.net>
-From: Nuutti Kotivuori <naked@iki.fi>
-Date: Thu, 02 Dec 2004 22:29:53 +0200
-In-Reply-To: <20041202112002.444fdff0@dxpl.pdx.osdl.net> (Stephen
-	Hemminger's message of "Thu, 2 Dec 2004 11:20:02 -0800")
-Message-ID: <87mzwwxx32.fsf@aka.i.naked.iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Thu, 2 Dec 2004 16:45:59 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20041202164559.429d90e8@dxpl.pdx.osdl.net>
+In-Reply-To: <41AF57D7.10608@nefty.hu>
+References: <41AF57D7.10608@nefty.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: IPv6 bridging
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,32 +15,33 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@osdl.org
+To: Zoltan NAGY <nagyz@nefty.hu>
+Cc: bridge@osdl.org, linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> Have you tried "brctl setageingtime br0 0" to turn off 
-> forwarding table?
+On Thu, 02 Dec 2004 18:58:47 +0100
+Zoltan NAGY <nagyz@nefty.hu> wrote:
 
-Actually, yes, it works.
+> Hello!
+> 
+> Is it possible to bridge ip tunnels (IPv6 in IPv4)? brctl gives me an 
+> error "Invalid argument",
+> and from strace it seems it misses some ioctls from kernel...
 
-I started digging into the code soon after my inquiry and determined
-that if I do:
-
-  brctl stp br0 off
-  brctl setageing br0 0
-  brctl setfd br0 0
-
-I get it to behave as wanted. The last setting is just paranoia, in
-case the bridge decided it was reconfiguring itself for some odd
-reason.
-
-Ofcourse the bridge still learns the MAC addresses, but since it
-always considers them expired, it is just wasted effort.
-
-So, thanks for your assistance, problem resolved.
-
--- Naked
+That is because the bridge code works at the Ethernet level.
+It is an 802 Ethernet bridge, not an IP tunnel.
 
 
-
+> any ideas?
+> 
+> I need it to be able to give my UMLs a public ipv6 address.
+> 
+> Regrads,
+> 
+> Zoltan NAGY,
+> Software Engineer
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
