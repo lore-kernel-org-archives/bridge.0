@@ -1,11 +1,12 @@
-Message-Id: <200501131831.j0DIVf7r022639@fire-1.osdl.org>
-From: "Dan Grigsby" <dan@unpossible.com>
-Date: Thu, 13 Jan 2005 12:31:35 -0600
+Message-Id: <200501132155.j0DLtk7r012114@fire-1.osdl.org>
+From: <dan-linuxbridge@unpossible.com>
+Sender: "Dan Grigsby" <dan@unpossible.com>
+Date: Thu, 13 Jan 2005 15:55:37 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Packet loss/performance question
+Subject: [Bridge] Packet loss / performance
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -44,7 +45,7 @@ Next I brought up the bridge.  I reconfigured pktgen on one test machine to
 send packets to the IP and MAC address on the other test machine (across the
 bridge).  When I run pktgen I have about 20% packet loss.
 
-I sent 100,000 packets; 
+I sent 100,000 packets;
 eth4 received ~80,000 packets; dropper/errs of ~70,000; ~20,000 fifo
 eth3 sent ~77,000 packets
 
