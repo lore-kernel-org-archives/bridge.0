@@ -1,12 +1,11 @@
-Date: Thu, 13 Jan 2005 11:17:33 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] RE: [Xen-devel] nfsroot and brige (fwd)
-Message-ID: <20050113111733.2c5286fb@dxpl.pdx.osdl.net>
-In-Reply-To: <Pine.BSF.4.61.0501121638530.30246@www.missl.cs.umd.edu>
-References: <Pine.BSF.4.61.0501121638530.30246@www.missl.cs.umd.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-Id: <200501131831.j0DIVf7r022639@fire-1.osdl.org>
+From: "Dan Grigsby" <dan@unpossible.com>
+Date: Thu, 13 Jan 2005 12:31:35 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Packet loss/performance question
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,65 +14,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Adam Sulmicki <adam@cfar.umd.edu>
-Cc: Bridge mailing list <bridge@osdl.org>
+To: bridge@lists.osdl.org
 
-On Wed, 12 Jan 2005 16:40:25 -0500 (EST)
-Adam Sulmicki <adam@cfar.umd.edu> wrote:
+Hello,
 
-> 
-> any comments?
-> 
-> if nothing else, is there any way to atomically setup bridge?
-> 
-> not on list, please cc.
-> 
-> ---------- Forwarded message ----------
-> Date: Wed, 12 Jan 2005 21:08:15 -0000
-> From: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
-> To: Adam Sulmicki <adam@cfar.umd.edu>, xen-devel@lists.sourceforge.net
-> Subject: RE: [Xen-devel] nfsroot and brige
-> 
-> > hello,
-> >  	it seems like a catch-22 to me. I boot xen0 with nfsroot,
-> >  	and then try to setup bridge stuff. something like this
-> >
-> > /sbin/brctl addbr xen-br0
-> > /sbin/brctl addif xen-br0 eth0
-> > /sbin/ifconfig xen-br0 10.0.10.103 netmask 255.255.255.0 up
-> > /sbin/ifconfig eth0 0.0.0.0 promisc up
-> >
-> >  	however, once I start it running it crashes down with error
-> >  	that nfs server is not available.
-> >
-> >  	does it mean that I must use initramfs to configure bridge
-> >  	first, or is there some other way?
-> 
-> It really bugs me that there's no atomic way to configure a bridge and
-> transfer an IP address already active on another interface to it. I'm
-> not 100% convinced that the current behaviour is actually what the
-> bridge code author's intend: a the host can still transmit packet's with
-> an IP associated with an eth interface that is part of a bridge, it just
-> can't receive packets on that IP. I'd certainly appreciate it if someone
-> could ask the question on the bridge mailing list...
-> 
-> The workarounds for using nfsroot in dom0 at the moment are: a) use a
-> ramfs to configure the bridge; b) use a routed rather than bridged
-> setup.
-> 
-> I'm actually going off the whole idea of bridging rather than routeing
-> as the default...
-> 
-> Ian
+I am attempting to build a bridge capable of functioning as near to gigabit
+speeds as possible, with as many hundreds of thousands of packets per second
+capabilities as possible.
+
+My bridge system is a dual Opteron 246 (2.0Ghz); Tyan 2882 motherboard; 2 GB
+PC3200 memory (1 GB in each CPU's bank; 128bit configuration); dual e1000
+based NIC; 2.6.9 Kernel; NAPI enabled in the kernel and the NIC drivers; CPU
+affinity ties each eth to a specific CPU; system otherwise idle.
+
+Two test systems are connected, one to each interface in the Opteron.  Each
+has a custom kernel with the Linux packet generator pktgen compiled as a
+module.  Each test system can generate approximately 300,000 packets per
+second.
+
+Before testing the bridge, I tested each eth interface separately.  I
+brought up one interface on the Opteron, configured pktgen on the test
+machine attached to that interface (set the IP address and destination mac
+address) and sent the packets.  Using /proc/net/dev I could see the packets
+being received at the Opteron and zero errors.  I repeated this test on the
+other interface with the same results.  Results the same regardless of
+number of packets sent.  It was able to handle the 300,000pps without issue.
+
+Next I brought up the bridge.  I reconfigured pktgen on one test machine to
+send packets to the IP and MAC address on the other test machine (across the
+bridge).  When I run pktgen I have about 20% packet loss.
+
+I sent 100,000 packets; 
+eth4 received ~80,000 packets; dropper/errs of ~70,000; ~20,000 fifo
+eth3 sent ~77,000 packets
+
+Somewhere I lost 20,000 packets at the receiving interface and another three
+thousand before transmitting to the other side of the bridge.
+
+I built this system based on specs that should do better.  If this were
+running netfilter then I'd expect a capacity of around 700Kpps.  What's
+happening is fairly opaque to me, so I'm not sure what to tune or where to
+look.  Any assistance will be greatly appreciated.
+
+Best regards,
+
+Dan 
 
 
-It wouldn't be that hard to write a small command that does the ioctl's
-you need to setup the bridge and ip addresses at one time.  To just
-create a bridge, add interface and move the IP address would be relatively
-easy.
 
-Or just put brctl and ifconfig in a ram filesystem (like initrd).
-
-
--- 
-Stephen Hemminger	<shemminger@osdl.org>
