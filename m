@@ -1,13 +1,10 @@
-Message-ID: <410BA02F.9080901@maxent.cz>
-Date: Sat, 31 Jul 2004 15:35:43 +0200
-From: Karel Rericha <karel@maxent.cz>
-MIME-Version: 1.0
-Subject: Re: [Bridge] Re: Bridge for linux
-References: <200407302227.43830.xavier@xaviervl.com>
-	<20040730171222.54cfe8df@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040730171222.54cfe8df@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Sun, 1 Aug 2004 14:46:30 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+Message-ID: <20040801124629.GA11603@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Bridge not bridging NFS fragments?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,78 +13,54 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: Matthias Andree <matthias.andree@gmx.de>
 
-Stephen Hemminger napsal(a):
+Hi,
 
->On Fri, 30 Jul 2004 22:27:43 +0200
->Xavier Van Laethem <xavier@xaviervl.com> wrote:
->
->  
->
->>>From FAQ
->>------------------------------------------------------
->>It doesn't work with my Wireless card!
->>
->>This is a known problem, and it is not caused by the bridge code. Many 
->>wireless cards don't allow spoofing of the source address. It is a firmware 
->>restriction with some chipsets. You might find some information in the bridge 
->>mailing list archives to help.
->>------------------------------------------------------
->>
->>Trying with hostap driver for wifi card. It work when wifi card is in master 
->>mode but it is no more working with wifi card in managed or ad-hoc mode. 
->>So y try changing hardfware (ethernet) address of the wireless card (using the 
->>one of bridge interface) with "ip link set wlan0 address..."  and it seems to 
->>work well... (it should also work with "ifconfig..." but  y an using the one  
->>comming from busybox and it doesn't allow to change hw address)
->>y dont find any such solution in the mailing list....
->>    
->>
->
->It seems that hostap doesn't provide the same interface as normal ethernet card.
->One problem is that it doesn't forward packets between nodes connected to the
->same access point.  These are hostap problems, and should be fixed there, the bridge
->code shouldn't need to have special code for the hostap devices.
->  
->
-Hostap in master mode does forward packets between stations connected to 
-the same access point. This is
-default behaviour. But alas, not always welcome (read "traffic 
-shaping"). It can be switched of by
-iwpriv wlan0 bridge_packets 0
-but after that no packets sourced from wlan0 arrive back to wlan0 if 
-this is bridged interface. Bridge code
-doesn't allow this, even if these packets are destined to stations 
-connected to hostap. Stephen some time
-ago suggested implementing "layered" hostap driver to overcome this, but 
-I don't know what does it mean.
+please Cc: all replies, I'm not subscribed
 
->  
->
->>By the way, why is the hardware address of the bridge chanching at each 
->>interface added to the bridge? Solution would be simpler if the bridge keep 
->>hardware addres of the first interface added, and by adding wireless 
->>interface first, no?
->>    
->>
->
->Probably just a stupid day one coding bug..  The problem is what if the 
->first interface goes away?
->
->
->  
->
->>Xavier Van Laethem
->>    
->>
->>------------------------------------------------------------------------
->>
->>_______________________________________________
->>Bridge mailing list
->>Bridge@lists.osdl.org
->>http://lists.osdl.org/mailman/listinfo/bridge
->>    
->>
+I seem to have troubles with my Linux bridge (2.6.8-rc2), which is
+apparently not bridging UDP fragments (NFS) when passing packets through
+iptables, but I do not see in the iptables stats where the packets are
+dropped. Policies for INPUT, FORWARD, OUTPUT are all "ACCEPT", and I
+grepped for all REJECT and DROP rules in iptables -nvL, their counters
+are constant, i. e. they aren't rejecting or dropping packets.
 
+Setup:
 
+FreeBSD5                 Linux Bridge                   FreeBSD4
+    xl0  ----10base2---- eth2    eth0 ----100baseTx---- fxp0
+
+The FreeBSD machines are attempting to talk NFS with each other, the
+machine on the left sends a read request, which is bridged, and the
+machine on the right sends a fragmented UDP packet of 8K, this is as
+observed on eth0:
+
+14:33:59.320397 192.168.0.49.1749359354 > 192.168.0.2.2049: 108 read fh 985,985790/5042 8192 bytes @ 0x000000000
+14:33:59.321676 192.168.0.2.2049 > 192.168.0.49.1749359354: reply ok 1472 read (frag 8235:1480@0+)
+14:33:59.321798 192.168.0.2 > 192.168.0.49: (frag 8235:1480@1480+)
+14:33:59.321922 192.168.0.2 > 192.168.0.49: (frag 8235:1480@2960+)
+14:33:59.322044 192.168.0.2 > 192.168.0.49: (frag 8235:1480@4440+)
+14:33:59.322169 192.168.0.2 > 192.168.0.49: (frag 8235:1480@5920+)
+14:33:59.322215 192.168.0.2 > 192.168.0.49: (frag 8235:928@7400)
+
+This traffic will only appear on the other interface when
+bridge-nf-call-iptables is 0.
+
+Am I missing something in my setup; what kernel options should I check,
+or is there some incompatibility between bridge-nf-call-iptables and
+fragmented traffic?
+
+.config options containing BRIDGE are:
+
+CONFIG_BRIDGE_NETFILTER=y
+# CONFIG_BRIDGE_NF_EBTABLES is not set
+CONFIG_BRIDGE=y
+
+Thanks in advance,
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
