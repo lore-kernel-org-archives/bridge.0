@@ -1,12 +1,13 @@
-Date: Thu, 17 Jun 2004 13:28:49 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <40D20843.2020109@siennax.com>
+Date: Thu, 17 Jun 2004 23:08:19 +0200
+From: Mark Ruijter <bridge@siennax.com>
+MIME-Version: 1.0
 Subject: Re: [Bridge] Bridge code enhancement (link state detection) and bug
 	fix. (patches included).
-Message-Id: <20040617132849.0b64c799@dell_ss3.pdx.osdl.net>
-In-Reply-To: <40D1E993.3060801@siennax.com>
 References: <40D1E993.3060801@siennax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	<20040617132849.0b64c799@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040617132849.0b64c799@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -16,46 +17,54 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mark Ruijter <bridge@siennax.com>
+To: Stephen Hemminger <shemminger@osdl.org>
 Cc: bridge@lists.osdl.org
 
-On Thu, 17 Jun 2004 20:57:23 +0200
-Mark Ruijter <bridge@siennax.com> wrote:
+
+> Rather than add another state, it should just go to DISABLED state.
+
+I did think about doing just that. But the problem then is that the 
+bridge needs to be reenabled by hand when the link comes back.
+
+You can't automatically enable a disabled interface when the link goes 
+down/up. It would also not be clear why a port is disabled. Link problem 
+or human intervention?
+
+So that's the reason why I made up the nolink state.
+> 
+>>I did encounter a second problem when writing the link monitoring code.
+>>When you add a vlan interface like eth0.10 then it's not possible to
+>>obtain link state information from this interface.
+> 
+> That is a VLAN problem, fix it there.  Sorry.
+
+Hmmm.... I'll investigate the amount of work that needs to be done for this.
 
 > 
-> 1. Link state monitoring added.
-> We discovered the following problem with the existing bridge code.
-> The code doesn't monitor the link state of the interfaces. When using
-> two cisco switches with two Linux bridging firewalls the following
-> problem exists. When the Cisco switch that has the blocking (stp) Linux
-> bridge attached dies, the Linux bridge no longer receives stp packets
-> and changes it's state from blocking to forwarding. As soon as the Cisco
-> switch comes back alive a loop is created in the network for a short but
-> long enough period of time. :-(
 > 
-
-Rather than add another state, it should just go to DISABLED state.
-
-
-> To fix this I added link state monitoring to the code. This is only
-> active when stp is turned on. When a link fails the bridge port goes to
-> blocked and then to the new 'nolink' status. The bridge-utils patch
-> makes it possible to see the status with brctl showstp.
 > 
-> I did encounter a second problem when writing the link monitoring code.
-> When you add a vlan interface like eth0.10 then it's not possible to
-> obtain link state information from this interface.
-
-
-That is a VLAN problem, fix it there.  Sorry.
-
-
-> The fix I wrote is that brctl now allows you to specify the interface
-> that contains the link state.
+>>The fix I wrote is that brctl now allows you to specify the interface
+>>that contains the link state.
+>>
+>>Example : brctl addif NUM1 eth0.10 eth0
 > 
-> Example : brctl addif NUM1 eth0.10 eth0
+> 
+> I prefer to eschew needless complexity.
 
-I prefer to eschew needless complexity.
+It might be complex but this is also true for a swiss army knife. :-)
+If the vlan interfaces are the only ones that don't allow link state 
+monitoring then I do agree that it would be best to fix the vlan 
+interface status.
 
-That doesn't mean I won't consider adding it, but let me look at the problem
-a little more before accepting your solution as is.
+If the are more types of interfaces that don't support state checking 
+then the current solution might be better. It is highly flexible....
+> 
+> That doesn't mean I won't consider adding it, but let me look at the problem
+> a little more before accepting your solution as is.
+
+Thanks for considering it. It probably needs some work. I hope that you 
+do agree that some form of link state monitoring is useful.
+
+Regards,
+
+Mark.
