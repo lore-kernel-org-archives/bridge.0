@@ -1,11 +1,14 @@
-Message-ID: <413CD055.7040102@wlan-international.com>
-Date: Mon, 06 Sep 2004 23:02:13 +0200
-From: Axel Christiansen <axel.christiansen@wlan-international.com>
+Message-ID: <078d01c49507$e9751290$8805640a@chriss>
+From: "Chris Shaw" <chriss@watertech.com>
+References: <3418F3471F1CA4409901547349FFAE2E0226D24B@ftrdmel2.rd.francetelecom.fr>
+Subject: Re: [Bridge] Wired iface + Wireless iface configuration in managed
+	mode
+Date: Tue, 7 Sep 2004 11:24:28 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] topology change on a bunch of mesh-cubes with multiple
-	wlan interfaces
+Reply-To: Chris Shaw <chriss@watertech.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,63 +19,62 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi list,
+Wired iface + Wireless iface configuration in managed mode----- Original
+Message -----
+From: zze-gandhi PERESSE M ext RD-RESA-REN
+To: bridge@lists.osdl.org
+Sent: Tuesday, September 07, 2004 1:28 AM
+Subject: [Bridge] Wired iface + Wireless iface configuration in managed mode
 
-i was searching the archiv but could not find
-something matching.
 
-In a setup with a number of mesh-cubes
-(http://www.meshcube.org/) a have troble with
-topology change under specific conditions.
+Hi all,
 
-Setup is:
 
-The cubes are running kernel 2.4.24.
-Between root and repeaters WDS is used.
+I have to set up a bridge in the following configuration:
+1 Wired Interface
+1 Wireless Interface in Managed Mode (ie connected to an access point)
 
-root cube A
-bridge br0 has interfaces:
-eth0         to copper ethernet
-wlan0        Managed
-wlan1wds0    Repeater to cube B
-wlan1wds1    Repeater to cube C
 
-bridge cube B
-bridge br0 has interfaces:
-wlan0        Managed
-wlan1wds0    Repeater to cube A
+The architecture is as follows:
 
-bridge cube C
-bridge br0 has interfaces:
-wlan0        Managed
-wlan1wds0    Repeater to cube A
 
-STP on
-WDS auto_add off (host_ap stuff)
+Private Internet ------- Wireless Router/AP ----     air     ----- Linux
+Bridge ----wire----- Host A
+So let's say I have a host (Host A) connected to the wired interface of that
+bridge, I would like to be able to communicate with hosts that are behind
+the wireless router (ie the private Internet)
+The problem is that when the Linux bridge forwards Host A's Ethernet frames
+to the AP, the AP doesn't allow these frames to pass through, because Host A
+isn't a regular wireless client who has been authenticated/associated
+(802.11).
+One solution is to implement an authentication/association proxy in the
+Linux Bridge  (I think D-LINK does that in their APs):
+- The bridge would do the association/authentication process on behalf of
+the wired hosts..
+Another solution would be to spoof the mac address of the Wireless Interface
+of the Linux Bridge but there is no way to multiplex frames for multiple
+wired hosts (is there any ?).
+Are there plans for solving_this_"issue" / adding_this_feature ?
 
-There are no wireless clients connected to
-the network. Basicly there are 3 ethernet
-links:
-                                    Managed 802.11
-                                              |
-                                /-(2)-> bridge_cube_B
-some_eth <-(1)-> root_cube_A <=
-                   |            \-(3)-> bridge_cube_C
-                   |                          |
-              Managed 802.11        Managed 802.11
 
-When i either turn off cube B or cube C the root
-cube A gets or makes "topology change" all the time.
-This takes out the interface on cube A most of the time,
-making the thing completely unusable.
+Thanks a lot.
+Mathieu.
+PS: I NEED to do this for an experiment only, I can't use another
+architecure.
 
-Today, i did a test with 4 cubes (1 root / 3 repeater)
-and the oddly thing was, when taking out 1 repeater,
-only one more link became unusable. So 1 link where
-left operational. In the above setup all wireless
-links became unusable (there are only 2, so OK).
+----------------------------REPLY BEGINS HERE------------------------
 
-Please let me know witch more in depth iformation
-are required.
+This is not a linux bridging issue, what you want is an AP that can operate
+in "Bridge Mode", that is, it associates with the MAC address of another AP
+(Your linux bridge in Managed Mode) and allows frames to be passed through
+the virtual "wire" that is created between the two APs.
 
-thx, Axel
+There are several NetGear APs that function this way, the WG302 comes to
+mind but it's a bit expensive.. Very nice piece of hardware though...
+
+I have a question though, why do you want to use an AP? Why not just set up
+another linux bridge with a wireless card and have that act as an AP?  You
+can buy Prism2.5/3 based cards for like $20-30 now...
+
+    -Chris
+
