@@ -1,10 +1,10 @@
-Message-ID: <88240e94040927191716269955@mail.gmail.com>
-Date: Mon, 27 Sep 2004 19:17:21 -0700
+Message-ID: <88240e940409272226737b5aaf@mail.gmail.com>
+Date: Mon, 27 Sep 2004 22:26:19 -0700
 From: TEJAS VORA <voratejas@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] FTP and HTTP Passing over bridge
+Subject: [Bridge] FTP and HTTP Proxy over Bridge
 Reply-To: TEJAS VORA <voratejas@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -14,7 +14,7 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
 Hi All,
 
