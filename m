@@ -1,10 +1,10 @@
-Message-ID: <41C3675E.1010402@langhofer.at>
-Date: Sat, 18 Dec 2004 00:10:22 +0100
+Message-ID: <41C493D5.4080404@langhofer.at>
+Date: Sat, 18 Dec 2004 21:32:21 +0100
 From: armin langhofer <office@langhofer.at>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge with ppp0
+Subject: [Bridge] bridge with ppp0, ppp1,..
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -54,3 +54,4 @@ snail:  a-5020 salzburg
 phone:  +43 699 11648495
 email:  office@langhofer.at
 gnupg:  http://langhofer.at/pubkey.txt
+
