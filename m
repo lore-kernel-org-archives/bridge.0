@@ -1,15 +1,14 @@
-Date: Thu, 29 Jul 2004 22:34:55 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-Subject: Re: [Bridge] Assertion failed in bridge code on 2.4.27-rc3
-Message-ID: <20040729203455.GA6101@man.manty.net>
-References: <20040728195957.GA2621@man.manty.net>
-	<20040728132128.22bed751@dell_ss3.pdx.osdl.net>
-	<20040728222722.GA2688@man.manty.net>
-	<20040728162802.6a297248@dell_ss3.pdx.osdl.net>
+Date: Thu, 29 Jul 2004 14:51:28 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20040729145128.35791769.davem@redhat.com>
+In-Reply-To: <20040729105931.25815479@dell_ss3.pdx.osdl.net>
+References: <20040728153725.7ace281c@dell_ss3.pdx.osdl.net>
+	<20040728191724.4afacdce.davem@redhat.com>
+	<20040729105931.25815479@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040728162802.6a297248@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH] (1/4) propgate bridge internal MTU changes
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,28 +18,12 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "David S. Miller" <davem@redhat.com>, bridge@lists.osdl.org
+Cc: netdev@oss.sgi.com, bridge@osdl.org
 
-> The code path for some ioctl's is different in 2.4 than 2.6 (it goes
-> through IP in 2.4).  Therefore the following is needed.
+On Thu, 29 Jul 2004 10:59:31 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-Well... it cured the message, but the bridge used to work when we had the
-messages, and now brctl gets stuck and doesn't exit.
+> Follow up to earlier RCU patch.  Since now using RCU, need to use
+> deferred free.  
 
-Let me explain the thing...
-
-Before this patch, in 2.4.27-rc3 we had those messages I told you about
-yesterday, but the bridge was setup.
-
-Now, with this patch you sent, brctl doesn't make the kernel output those
-messages, but execution of:
-	brctl addbr br0
-does not end.
-
-Hope that helps, if you need more info, just ask me.
-
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
-
-PS: I won't be around during the weekend, I'm leaving tomorrow afternoon CET
+All bridge patches applied, thanks Stephen.
