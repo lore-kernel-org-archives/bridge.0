@@ -1,12 +1,11 @@
-Date: Mon, 31 Jan 2005 08:45:35 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge MAC address
-Message-ID: <20050131084535.10db250a@dxpl.pdx.osdl.net>
-In-Reply-To: <87pszl99je.fsf@aka.i.naked.iki.fi>
-References: <87pszl99je.fsf@aka.i.naked.iki.fi>
+Message-ID: <f946675f05013105387a277d2d@mail.gmail.com>
+Date: Mon, 31 Jan 2005 08:38:42 -0500
+From: Jason Davis <jason.lee.davis@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Multi-interface bridge configuration help
+Reply-To: Jason Davis <jason.lee.davis@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,29 +16,10 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-On Mon, 31 Jan 2005 12:29:09 +0200
-Nuutti Kotivuori <naked@iki.fi> wrote:
-
-> Sorry, if this question has been answered before, but I could not find
-> out with a brief look.
-> 
-> How can I set the MAC address for a bridge? The MAC address given for
-> the bridge device seems to be the one it sends network packets with if
-> the bridge device has an IP address set. Apparently the bridge starts
-> with a zero MAC address and when the first interface is attached to
-> it, it takes its MAC address. When I try to set the MAC address, I
-> just get operation unsupported as a result.
-> 
-> I know I can probably cheat this by making a dummy interface, giving
-> it the MAC address I want and then attaching it to the bridge, but
-> this is but a crude workaround.
-> 
-> -- Naked
-
-The question is why do you need to set it at all? If this is some ISP
-mac filtering issue, then set it on the first device before putting it into
-the bridge.  I would be reluctant to change the bridge driver to accept
-MAC address changes because of Spanning Tree and other standards related issues.
-
--- 
-Stephen Hemminger	<shemminger@osdl.org>
+I want to configure a bridge that has one LAN interface (eth0) and
+multiple WAN interfaces.  However this environment will have a lot of
+multicast traffic so I don't want any data received on the WAN
+interfaces to be forwarded to each other, only to eth0.  Traffic
+originating from eth0 would be transmitted in the normal bridging
+manner on the WAN interfaces.  STP is not used in this network.  Is it
+possible to configure a bridge to behave like this?  Thanks.
