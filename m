@@ -2,8 +2,8 @@ Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Date: Thu, 29 Jul 2004 09:24:53 -0400
-Message-ID: <C0170D0AF1277849A4B4518034F855DD0CFC39@aiexchange.ai.aiinet.com>
+Date: Thu, 29 Jul 2004 11:11:02 -0400
+Message-ID: <C0170D0AF1277849A4B4518034F855DD0CFC3A@aiexchange.ai.aiinet.com>
 From: "Eble, Dan" <DanE@aiinet.com>
 Content-Transfer-Encoding: 8bit
 Subject: [Bridge] RE: [PATCH] (3/4) bridge linkstate handling
@@ -15,31 +15,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: hadi@cyberus.ca, Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@oss.sgi.com, bridge@osdl.org
+To: hadi@cyberus.ca
+Cc: netdev@oss.sgi.com, bridge@osdl.org, Stephen Hemminger <shemminger@osdl.org>
 
-> > This makes bridge port status reflect both the
-> > state of the interface from software (up/down)
-> > and the carrier.  It makes STP handle link failure
-> > (cable breakage, etc).
+> -----Original Message-----
+> From: jamal [mailto:hadi@cyberus.ca] 
 > 
-> nice. Does this entrench STP further in the kernel?
-> Still planning to move it out to user space?
+> On Thu, 2004-07-29 at 09:24, Eble, Dan wrote:
+> > Even if STP were implemented in user space, this part 
+> should be done in
+> > the kernel to make sure that there is no window of time for 
+> a packet to
+> > be received or transmitted after the link state changes.  
 > 
+> Your main problem there would be STP convergence time. Transfering the
+> packet to user space and reacting should be several factors 
+> of magnitude
+> faster than it takes STP to converge.
+> The STP state should stay in the kernel. Control of it and 
+> BPDU handling
+> is what i am suggesting to take out.
 
-Even if STP were implemented in user space, this part should be done in
-the kernel to make sure that there is no window of time for a packet to
-be received or transmitted after the link state changes.  Cable failure
-is not the worst problem here.  Imagine some dunce pulling out a cable,
-realizing he pulled the wrong one, and then plugging it back into the
-wrong port.  If he has created a loop in the network, even a single
-packet getting through can cause problems.
-
-One could be really paranoid and flush the hardware transmit queue too.
-Is there a way to do that for a port from the bridge driver?  (Or should
-the device drivers do that anyway after a link change?)
-
-Are there any ethernet controllers that can automatically disable tx/rx
-after a link change, requiring the driver to reenable them?  That would
-also be useful.
+Is the time it takes STP to converge really the issue in this case?
+When a port loses and then regains carrier, it needs to enter the
+Blocking state without delay.  If the carrier state change were handled
+by a daemon, the bridge driver would have some time to transmit or
+receive packets via that port before the daemon could tell it to block
+the port, wouldn't it?
 
