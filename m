@@ -1,11 +1,15 @@
-Date: Sat, 30 Aug 2003 15:25:07 +0700 (OMSST)
-From: Mail Delivery Subsystem <MAILER-DAEMON@relay.sotline.ru>
-Message-Id: <200308300825.h7U8P7V8068165@relay.sotline.ru>
-MIME-Version: 1.0
-Content-Type: multipart/report; report-type=delivery-status;
-	boundary="h7U8P7V8068165.1062231907/relay.sotline.ru"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Returned mail: see transcript for details
+Date: Sat, 30 Aug 2003 19:01:00 -0700
+From: "David S. Miller" <davem@redhat.com>
+Message-Id: <20030830190100.4eac4504.davem@redhat.com>
+In-Reply-To: <p05111b00bb740b63506b@[10.96.96.13]>
+References: <p05111b01bb728bc8972e@[10.96.96.13]>
+	<20030827132810.65010eac.shemminger@osdl.org>
+	<p05111b00bb740b63506b@[10.96.96.13]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [more info] Re: [2.4.22] bad interaction between e100 and
+ bridge: BUG at dev.c:991!
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -16,62 +20,28 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: bridge@osdl.org
+To: Hannes Schulz <schulz@schwaar.com>
+Cc: shemminger@osdl.org, scott.feldman@intel.com, jgarzik@pobox.com, linux-net@vger.kernel.org, bridge@osdl.org
 
-This is a MIME-encapsulated message
+On Thu, 28 Aug 2003 22:24:52 +0200
+Hannes Schulz <schulz@schwaar.com> wrote:
 
---h7U8P7V8068165.1062231907/relay.sotline.ru
+> >Could the problem be that the e100 can do IP receive checksumming on 
+> >the board,
+> >but the eepro driver doesn't enable it.  When the board is doing checksum
+> >offload, then the csum field isn't set.
+> >
+> >Please try disabling receive checksumming on the e100 driver
+> >
+> >	modprobe e100 XsumRX=0
+> >
+> >If this is the problem, it exists both 2.4 and 2.6.
+> 
+> Indeed: with  XsumRX=0,0 the BUG doesn't happen. I put some debugging 
+> code in dev.c:
 
-The original message was received at Sat, 30 Aug 2003 15:25:05 +0700 (OMSST)
-from host002.rtk-48.sotline.ru [81.176.48.2]
+Looks like bridging is taking an input packet, transmitting it but not
+initializing skb->csum, skb->ip_summed, and other fields before doing
+so.
 
-   ----- The following addresses had permanent fatal errors -----
-<niasia@infomsk.ru>
-    (reason: 550 5.1.1 <niasia@infomsk.ru>... User unknown)
-
-   ----- Transcript of session follows -----
-... while talking to mx.infomsk.ru.:
->>> DATA
-<<< 550 5.1.1 <niasia@infomsk.ru>... User unknown
-550 5.1.1 <niasia@infomsk.ru>... User unknown
-<<< 503 5.0.0 Need RCPT (recipient)
-
---h7U8P7V8068165.1062231907/relay.sotline.ru
-Content-Type: message/delivery-status
-
-Reporting-MTA: dns; relay.sotline.ru
-Received-From-MTA: DNS; host002.rtk-48.sotline.ru
-Arrival-Date: Sat, 30 Aug 2003 15:25:05 +0700 (OMSST)
-
-Final-Recipient: RFC822; niasia@infomsk.ru
-Action: failed
-Status: 5.1.1
-Remote-MTA: DNS; mx.infomsk.ru
-Diagnostic-Code: SMTP; 550 5.1.1 <niasia@infomsk.ru>... User unknown
-Last-Attempt-Date: Sat, 30 Aug 2003 15:25:07 +0700 (OMSST)
-
---h7U8P7V8068165.1062231907/relay.sotline.ru
-Content-Type: text/rfc822-headers
-Content-Transfer-Encoding: 8bit
-
-Return-Path: <bridge@osdlab.org>
-Received: from astral.omskcity.com (host002.rtk-48.sotline.ru [81.176.48.2])
-	by relay.sotline.ru (8.x.x) with ESMTP id h7U8P5V8068163
-	for <niasia@infomsk.ru>; Sat, 30 Aug 2003 15:25:05 +0700 (OMSST)
-	(envelope-from bridge@osdlab.org)
-Received: from compuserve.com ([211.152.179.3])
-	by astral.omskcity.com (8.x.x) with SMTP id PAA3f505ed9368f
-	for <niasia@infomsk.ru>; Sat, 30 Aug 2003 15:22:49 +0700 (OSS)
-Date: Sat, 30 Aug 2003 16:24:11 +0000
-From: �������� <bridge@osdlab.org>
-Subject: ��� �������� ��������, � �������� ��� ����.                 ... Fttec urDQWma 14730 WIBt PyCkCOU 921
-To: Niasia <niasia@infomsk.ru>
-References: <EDL4C277GCGKI668@infomsk.ru>
-In-Reply-To: <EDL4C277GCGKI668@infomsk.ru>
-Message-ID: <B242GD7K0JK0KH2D@osdlab.org>
-Reply-To: ARBAT <ARBAT@USERLINE.RU>
-MIME-Version: 1.0
-Content-Type: multipart/related; boundary="----=_NextPart_5L_K76_A9H43KC9J0DK2672BD"
-
---h7U8P7V8068165.1062231907/relay.sotline.ru--
-
+Definitely a bridging bug.
