@@ -1,15 +1,10 @@
-Date: Mon, 2 Aug 2004 15:42:21 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20040803032754.16047.qmail@web13902.mail.yahoo.com>
+Date: Mon, 2 Aug 2004 20:27:54 -0700 (PDT)
+From: Scott MacKay <scottmackay@yahoo.com>
 Subject: Re: [Bridge] Bridge not bridging NFS fragments?
-Message-Id: <20040802154221.5c6a59de@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040802223329.GA21577@merlin.emma.line.org>
-References: <20040801124629.GA11603@merlin.emma.line.org>
-	<200408022322.00768.bdschuym@pandora.be>
-	<20040802152516.7a76bb63@dell_ss3.pdx.osdl.net>
-	<20040802223329.GA21577@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200408022322.00768.bdschuym@pandora.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,22 +13,83 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: bridge@osdl.org, Matthias Andree <matthias.andree@gmx.de>, Bart De Schuymer <bdschuym@pandora.be>
+To: bridge@osdl.org
 
-On Tue, 3 Aug 2004 00:33:29 +0200
-Matthias Andree <matthias.andree@gmx.de> wrote:
+Actually, I think I saw this very same thing when I
+was testing FC2.  I have a QUEUE iptables target. 
+When I got packets larger than the MTU (cannot
+remember the exact number it has problems with) my
+packets were useless.  I have conntrack enabled,
+needed because I want the packets reassembled (to
+obviously get fragmented later in the process).  It
+worked perfectly fine under 2.4.26 but did not under
+2.6.  I think I may have posted on the netfilter list
+to no avail so had to revert to 2.4.26....
 
-> On Mon, 02 Aug 2004, Stephen Hemminger wrote:
+
+--- Bart De Schuymer <bdschuym@pandora.be> wrote:
+
+> On Sunday 01 August 2004 14:46, Matthias Andree
+> wrote:
+> > Hi,
+> >
+> > please Cc: all replies, I'm not subscribed
+> >
+> > I seem to have troubles with my Linux bridge
+> (2.6.8-rc2), which is
+> > apparently not bridging UDP fragments (NFS) when
+> passing packets through
+> > iptables, but I do not see in the iptables stats
+> where the packets are
+> > dropped. Policies for INPUT, FORWARD, OUTPUT are
+> all "ACCEPT", and I
+> > grepped for all REJECT and DROP rules in iptables
+> -nvL, their counters
+> > are constant, i. e. they aren't rejecting or
+> dropping packets.
 > 
-> > I am worried what happens if you bridge a 4K mtu lan to a 1500 mtu lan..
-> > It is likely that the ethernet driver of the smaller mtu lan will oops or
-> > hang while trying to send the huge skb. No other code path would hand
-> > a huge mtu to a device.
+> The patch below fixes this.
+> I'm not sure if removing this test, which was
+> recently added, doesn't cause
+> problems elsewhere. AFAIK if a too large packet
+> arrives at that place in the
+> code, there is a bug somewhere else.
+> Stephen, please apply the patch below, except if you
+> think it can cause
+> problems, in which case we'll need a different
+> approach.
+> The problem occurs when connection tracking is
+> enabled in the kernel.
+> Packets are then first defragmented, making skb->len
+> bigger than the mtu.
 > 
-> Is this something that can be simulated in ethernet, by setting one
-> net's MTU to 500 or something?
+> cheers,
+> Bart
+> 
+> --- linux-2.6.8-rc2-bk9/net/bridge/br_forward.c.old
+> 2004-08-02 23:15:42.000000000 +0200
+> +++ linux-2.6.8-rc2-bk9/net/bridge/br_forward.c
+> 2004-08-02 23:15:55.000000000 +0200
+> @@ -23,7 +23,6 @@ static inline int
+> should_deliver(const s
+>  				 const struct sk_buff *skb)
+>  {
+>  	if (skb->dev == p->dev ||
+> -	    skb->len > p->dev->mtu ||
+>  	    p->state != BR_STATE_FORWARDING)
+>  		return 0;
+>  
+> 
+> > _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/bridge
+> 
 
-You could set the mtu smaller, but the hardware still would accept
-bigger packets. A simple test would be to setup something like a tun or tap
-connection bridged to an ethernet device.
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail
