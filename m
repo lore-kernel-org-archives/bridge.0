@@ -1,10 +1,14 @@
-From: Petter Larsen <petter.larsen@morecom.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093004112.2195.134.camel@pla.lokal.lan>
+Date: Mon, 23 Aug 2004 10:11:46 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040823101146.4597eb53@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040819114604.GQ3921@sunbeam.de.gnumonks.org>
+References: <W5101410375481091705422@asteria.telenet-ops.be>
+	<Pine.LNX.4.61.0408051507530.405@filer.marasystems.com>
+	<20040819114604.GQ3921@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
-Date: Fri, 20 Aug 2004 14:15:12 +0200
-Subject: [Bridge] BCP status
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: Any way of knowing a packet's been defragmented
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,25 +17,27 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: dan@aiinet.com
-Cc: bridge@lists.osdl.org, shemminger@osdl.org
+To: Harald Welte <laforge@netfilter.org>
+Cc: bridge <bridge@osdl.org>, netfilter-devel <netfilter-devel@lists.netfilter.org>, Bart De Schuymer <bdschuym@pandora.be>, Henrik Nordstrom <hno@marasystems.com>
 
-Hello
+On Thu, 19 Aug 2004 13:46:04 +0200
+Harald Welte <laforge@netfilter.org> wrote:
 
-I can see that BCP is implemeted and posted as patches on the
-mailinglist.
+> On Thu, Aug 05, 2004 at 03:10:42PM +0200, Henrik Nordstrom wrote:
+> > On Thu, 5 Aug 2004 bdschuym@pandora.be wrote:
+> > 
+> > >As Stephen explained, bridge ports of the same bridge device no longer 
+> > >need to have the same mtu. So the bridge code needs to drop packets 
+> > >(ARP, IP, whatever) that will be too long for the output port.
+> > 
+> > Eh.. I do not claim to be a bridge guru, but won't such bridge cause 
+> > serious havoc on the network much like PMTU blackholes does?
+> 
+> Nobody ever replied to that question.
+> 
+> Bart, Stephen, what is your take on this?   How was this resolved?
 
-Can you tell me the status of this work?
-What is the status of getting this code integrated directly in the
-vanilla kernel at kernel.org both 2.4.x and 2.6.x?
-
-Are the patches for pppd sent to the maintainers of the pppd?
-
-We are evaluating to use this under a XScale processor.
-
-Best regards
--- 
-Petter Larsen
-cand. scient.
-moreCom as
-913 17 222
+Yes, it would create PMTU black holes, so it shouldn't be recommended
+but it is allowed by the standard and might be useful in some specialized
+environments. In other words, I can't think why anyone would want to do
+it but maybe they will so why stop them?
