@@ -1,13 +1,11 @@
-Date: Wed, 15 Sep 2004 14:01:44 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Transparently bridge Vlans to eth0
-Message-Id: <20040915140144.2c8b4505@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040915134345.77495.qmail@web25105.mail.ukl.yahoo.com>
-References: <20040914095620.7cb835ae@dell_ss3.pdx.osdl.net>
-	<20040915134345.77495.qmail@web25105.mail.ukl.yahoo.com>
+Message-ID: <5f3f2c610409160928252d34b1@mail.gmail.com>
+Date: Thu, 16 Sep 2004 12:28:46 -0400
+From: Lionel Litty <llitty@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Setting the interfaces in promiscuous mode
+Reply-To: Lionel Litty <llitty@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,75 +14,43 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: liam sharp <piccalo_clark@yahoo.co.uk>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 15 Sep 2004 14:43:45 +0100 (BST)
-liam sharp <piccalo_clark@yahoo.co.uk> wrote:
+Hello,
 
-> If filtering with ebtables is whats required, then I
-> will do that.
-> 
-> I don't think I want the bridge to have an IP address.
-> What I really would like is for all Vlans to be
-> forwarding to eth0, which maintains its IP address.
-> I'd like it simply to see all data coming from each
-> Vlan, without the vlan tags.
-> 
-> Imagine a LAN with gateway 10.0.0.1 and no vlans. All
-> clients have either static of dynamic IP address on
-> the 10.0.0.0 network.
-> 
-> Now I want to prevent hosts the 10.0.0.0 network
-> talking with any other host other than 10.0.0.1. I
-> have no control over the clients. 
+I have been using the bridging facilities provided by Linux (vanilla
+2.6.7 SMP with UML skas host patch applied) to bridge a regular
+physical ethernet network (on interface eth0) with a virtual network
+(on interface tap0, cf uml_switch,
+http://user-mode-linux.sourceforge.net/networking.html). A couple of
+virtual machines (run using user-mode linux, a tool that enables you
+to run linux inside linux) are connected to the virtual network.
 
+This is the script I use to set up the bridge:
 
-So what you want is:
+brctl addbr br0
+ifconfig eth0 0.0.0.0 promisc up
+ifconfig tap0 0.0.0.0 promisc up
+ifconfig br0 abc.def.ghi.jkl netmask 255.255.255.0 up
+brctl stp br0 off #This is to ensure the bridge does not send spanning
+tree protocol packets.
+brctl setfd br0 1
+brctl sethello br0 1
+brctl addif br0 eth0
+brctl addif br0 tap0
 
-	10.0.0.2------------- eth0.2-\ 
-				      \
-	10.0.0.3------------- eth0.3-- br0 -- eth0 ---------------------- 10.0.0.1
-				      /
-	10.0.0.X------------- eth0.4-/
+This worked fine. I then tried to set the two interfaces (eth0, tap0)
+in non-promiscuous mode. My expectation was that the bridge would not
+work anymore. Nevertheless, it kept working and my two networks were
+still bridged. Virtual machines on the tap0 side of the bridge were
+still able to communicate with physical machines on the eth0 side.
+Moreover, network benchmarks showed that performance on the machine I
+use as a bridge were better, which indicates that setting the
+interfaces in non promiscuous mode had an influence on the behavior of
+the network stack (which is not surprising).
 
-A couple of things:
-  * it isn't clear if the bridge machine and 10.0.0.1 are separate machines?
+I am puzzled by the fact that interfaces do not need to be in
+promiscuous mode for the bridge to function properly. Anyone has an
+idea why?
 
-  * if you are a using a VLAN switch then eth0 can't be both tagged and untagged.
-    I.e. either the switch thinks that eth0 is another VLAN switch and add forwards the
-    VLAN tags or it assumes eth0 is assigned to a particular VLAN and filter/strips them.
-    Probably what you want is to reserve a VLAN between the bridge and 10.0.0.1 (eth0.1?)
-
-If you want to talk IP on the bridge, then assign a static IP to br0.
-
-	10.0.0.2------------- eth0.2-\ 
-				      \  10.0.0.99
-	10.0.0.3------------- eth0.3-- br0 -- eth0.1---------------------- 10.0.0.1
-				      /
-	10.0.0.X------------- eth0.4-/
-
-> What I have done is configure each port in the network
-> to be on a unique Vlan. This now prevents any pier to
-> pier communication.
-> 
-> However the gateway, 10.0.0.1 is plugged into a trunk
-> port which transports all Vlans to the network
-> interface, eth0. To read this data I can configure
-> many sub interfaces, one for each vlan.
-
-See ebtables for how to set up the filtering rules.
-
-> The problem is as it stand I belive each must have its
-> own IP, which I don't want to have to do. I'd like to
-> somehow bridge each Vlan, to eth0 transparently. This
-> way I don't have to change my dhcp server of anything
-> else, just set up the Vlans and bridge them (I hope).
-
-No IP should be assigned to eth0 or the VLAN interfaces.
-
-> Has anyone ever done this or something similar ?
-> 
-> Many thanks for reading !
-> Piccalo
->
+Thanks, Lionel.
