@@ -1,12 +1,12 @@
 From: "Andrew Athan" <aathan-linux-bridge-1524@cloakmail.com>
 Subject: RE: [Bridge] Bridge + tc filter
-Date: Thu, 8 Jul 2004 21:08:19 -0400
-Message-ID: <OMEGLKPBDPDHAGCIBHHJIEDHEEAA.aathan-linux-bridge-1524@cloakmail.com>
+Date: Thu, 8 Jul 2004 21:13:27 -0400
+Message-ID: <OMEGLKPBDPDHAGCIBHHJKEDHEEAA.aathan-linux-bridge-1524@cloakmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <NFBBICMEBHKIKEFBPLMCAECCHNAA.aathan-linux-bridge-1524@cloakmail.com>
+In-Reply-To: <OMEGLKPBDPDHAGCIBHHJIEDHEEAA.aathan-linux-bridge-1524@cloakmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,6 +16,31 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
+
+
+Just an additional blurb on this for anyone looking into it...
+
+If ip_forward is on, the tc rules don't fire ... at least, not all the time.
+I managed to get some of them to fire.  Perhaps only when the received
+packets were not considered for forwarding (??? dest ip = this machine's ip,
+and/or originating locally ???)  Even when transfering 500K via TCP, only
+about 50-100 packets would fall into this category with ip_forwarding on.
+
+I tested this by adding a rule
+
+.... u32 match u8 0x00 0x00 at 0 classid 1:10
+
+only a few packets ended up in 1:10 and the rest ended up in the top level
+htb.
+
+A.
+
+-----Original Message-----
+From: Andrew Athan [mailto:aathan-linux-bridge-1524@cloakmail.com]
+Sent: Thursday, July 08, 2004 9:08 PM
+To: bridge@lists.osdl.org
+Subject: RE: [Bridge] Bridge + tc filter
+
 
 
 All:
