@@ -1,10 +1,9 @@
-Date: Wed, 2 Feb 2005 18:56:52 +0100
-Message-ID: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-From: Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de>
-Subject: [Bridge] recent 2.6 kernels hang on bridge shutdown
+Date: Wed, 2 Feb 2005 19:20:51 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+Message-ID: <Pine.LNX.4.62.0502021914300.19651@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-154342888-1107390051=:19651"
+Subject: [Bridge] [PATCH] Better test for libsysfs
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,51 +12,46 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-With recent 2.6 kernels, the command
-  brctl delbr br0
-hangs during shutdown, and the kernel prints this message again and again:
-  unregister_netdevice: waiting for br0 to become free. Usage count = 1
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I was able to reproduce this problem with several kernels between 
-(and including) 2.6.9-rc1 and 2.6.11-rc2-bk9.
-I haven't tried later versions than 2.6.11-rc2-bk9 yet.
-2.6.8.1-bk2 still works fine.
+--8323328-154342888-1107390051=:19651
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-My .config was taken from the Debian kernel-image-2.6.10-1-686 package,
-adapted to the kernel.org kernels and the processor type set to Pentium
-Classic. I can email it on request.
+Hello!
 
-This script should reproduce the problem reliably:
-#!/bin/bash
-set -x
-mount proc -t proc /proc
-ifconfig lo 127.0.0.1
-brctl addbr br0
-modprobe e100   # also works with 3c5x9
-brctl addif br0 eth0
-ifconfig br0 192.168.1.1
-ifconfig eth0 up
-sleep 5
-ifconfig lo down
-lsmod | grep bridge
-brctl delif br0 eth0
-ifconfig br0 down
-brctl delbr br0
+Testing for a library is not sufficient if you also need the headers. 
+Many distributions install libraries without headers by default.  This is 
+the case for Fedora Core 3 and libsysfs.  The library is in sysfsutils, 
+but the headers are in sysfsutils-devel.
 
-To run it, I booted with init=/bin/bash to make sure the distribution's 
-startup scripts don't interfere (although it might work anyway).
+The patch for configure.in tests for both the headers and the library and 
+makes the configure script print a warning if libsysfs cannot be used.
 
-I already reported this to the linux-kernel list, since I couldn't tell
-whether this is a bug in the bridging code or somewhere else.  On second
-reading of REPORTING-BUGS, I probably should have sent it here first.
+The patch is against bridge-utils-1.0.4.
 
-For reference, these are my postings to linux-kernel:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0501.3/2222.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0502.0/0139.html
+-- 
+Regards,
+Pavel Roskin
+--8323328-154342888-1107390051=:19651
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=libsysfs.diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.62.0502021920510.19651@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=libsysfs.diff
 
-Please let me know if you need any further information,
-and please Cc me on replies, since I am not subscribed to the bridge list.
+LS0tIGNvbmZpZ3VyZS5pbg0KKysrIGNvbmZpZ3VyZS5pbg0KQEAgLTI0LDcg
+KzI0LDE0IEBADQogQUNfRlVOQ19NRU1DTVANCiBBQ19DSEVDS19GVU5DUyhn
+ZXRob3N0bmFtZSBzb2NrZXQgc3RyZHVwIHVuYW1lKQ0KIEFDX0NIRUNLX0ZV
+TkNTKGlmX25hbWV0b2luZGV4IGlmX2luZGV4dG9uYW1lKQ0KLUFDX0NIRUNL
+X0xJQihzeXNmcywgc3lzZnNfb3Blbl9kaXJlY3RvcnkpDQorDQorZG5sIENo
+ZWNrIGZvciBsaWJzeXNmcw0KK2xpYnN5c2ZzX2ZvdW5kPTANCitBQ19DSEVD
+S19IRUFERVIoc3lzZnMvbGlic3lzZnMuaCwNCisJCVtBQ19DSEVDS19MSUIo
+c3lzZnMsIHN5c2ZzX29wZW5fZGlyZWN0b3J5LCBsaWJzeXNmc19mb3VuZD0x
+KV0pDQoraWYgdGVzdCAkbGlic3lzZnNfZm91bmQgIT0gMTsgdGhlbg0KKwlB
+Q19NU0dfV0FSTihbQ29tcGlsaW5nIHdpdGhvdXQgbGlic3lzZnMgc3VwcG9y
+dCFdKQ0KK2ZpDQogDQogQUNfU1VCU1QoS0VSTkVMX0hFQURFUlMpDQogDQo=
 
-Mirko
+--8323328-154342888-1107390051=:19651--
