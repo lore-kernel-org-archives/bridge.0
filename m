@@ -1,10 +1,14 @@
-From: bdschuym@pandora.be
-Message-ID: <W1746121773184611091718134@asteria.telenet-ops.be>
-Date: Thu, 05 Aug 2004 15:02:14 +0000
+From: Bart De Schuymer <bdschuym@pandora.be>
 Subject: Re: [Bridge] Re:  Any way of knowing a packet's been defragmented
+Date: Thu, 5 Aug 2004 18:01:25 +0200
+References: <C0170D0AF1277849A4B4518034F855DD0CFC55@aiexchange.ai.aiinet.com>
+In-Reply-To: <C0170D0AF1277849A4B4518034F855DD0CFC55@aiexchange.ai.aiinet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408051801.25373.bdschuym@pandora.be>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,27 +17,45 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Henrik Nordstrom <hno@marasystems.com>, Bart De Schuymer <bdschuym@pandora.be>
+To: "Eble, Dan" <DanE@aiinet.com>, Henrik Nordstrom <hno@marasystems.com>
 Cc: netfilter-devel <netfilter-devel@lists.netfilter.org>, bridge <bridge@osdl.org>, shemminger@osdl.org
 
->----- Oorspronkelijk bericht -----
->Van
-: Henrik Nordstrom [mailto:hno@marasystems.com]
->Verzonden
-: donderdag
-, augustus
- 5, 2004 01:10 PM
->Eh.. I do not claim to be a bridge guru, but won't such bridge cause 
->serious havoc on the network much like PMTU blackholes does?
+On Thursday 05 August 2004 16:58, Eble, Dan wrote:
+> > The check should be after all
+> > netfilter hooks just before the packet is given to the NIC
+> > driver, dropped
+> > on transmit because it can not be sent out on the target media, not
+> > dropped in "bridge forwarding" because it seems to be bigger than the
+> > intended target device.
+>
+> That makes sense.
 
-Someone who sets up such a bridge should obviously know what she is doing. That's not our problem.
+I agree.
 
->You should either reject creating such bridge, or make sure to fragment 
->packets including ICMP MUST FRAGMENT generation when not allowed (which 
->requires an IP).
+Stephen, how about this patch?
 
-It's connection tracking that is responsible for the defragmentation and connection tracking WILL refragment the packets, BUT only if the bridge code doesn't drop the packet first.
-The bridge code should obviously not send any ICMP message.
+cheers,
+Bart
 
-
+--- linux-2.6.8-rc2-bk9/net/bridge/br_forward.c.old	2004-08-02 23:15:42.000000000 +0200
++++ linux-2.6.8-rc2-bk9/net/bridge/br_forward.c	2004-08-05 17:57:52.000000000 +0200
+@@ -23,7 +23,6 @@ static inline int should_deliver(const s
+ 				 const struct sk_buff *skb)
+ {
+ 	if (skb->dev == p->dev ||
+-	    skb->len > p->dev->mtu ||
+ 	    p->state != BR_STATE_FORWARDING)
+ 		return 0;
+ 
+@@ -32,6 +31,10 @@ static inline int should_deliver(const s
+ 
+ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ {
++	if (skb->len > skb->dev->mtu) {
++		kfree_skb(skb);
++		return 0;
++	}
+ #ifdef CONFIG_BRIDGE_NETFILTER
+ 	/* ip_refrag calls ip_fragment, which doesn't copy the MAC header. */
+ 	nf_bridge_maybe_copy_header(skb);
 
