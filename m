@@ -1,11 +1,11 @@
-Message-Id: <200403181835.i2IIZpo4031856@mail.kaixo.com>
-Date: Thu, 18 Mar 2004 19:35:51 -0000
-From: "Zaikxtox" <zaikxtox@kaixo.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="iso-8859-1";
+From: "Jeremy Jones" <jjones@djc.state.id.us>
+Date: Wed, 24 Mar 2004 19:50:33 -0700
+Message-ID: <000301c41213$f4a6d7b0$f80210ac@djc.state.id.us>
 MIME-Version: 1.0
-Subject: [Bridge] Iptables does not filter on 2.4.25 - Continued
-Reply-To: Zaikxtox <zaikxtox@kaixo.com>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Bridging vlans...
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,28 +16,67 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hello.
-I have tested again and the default policy for INPUT, FORWARD and OUTPUT is
-DROP
-also there is a single rule matching anything as source and anything as
-destination with action DROP
-also
-"cat /proc/sys/net/ipv4/ip_forward "
-says "0"
-The connecting machine has a single cable to my bridge, so there is no other
-way to go trough the net.
-But netfilter does not stop the trafic!!!
-i tried with a stock debian 2.4.25 kernel, and a 2.4.25 kernel comiled in
-house.
-I have already used bridge + iptables with 2.4.19 kernel, so i know how it
-should work.
-some help or know bugs??
-is someone used bridge + netfilter on a 2.4.25 kernel and it works please
-write me!
-thanks.
-IVan
+<I apologize if this arrives twice...  I sent it first from an
+non-subscribed address, don't know if that'll get to the list or not --JJ>
+
+Hi folks,
+
+I have an implementation question regarding bridging on a linux box between
+a catalyst trunk port and a cisco 26something w/802.1q subinterfaces.
+
+So right now, there's no vlan trunking going on on the link my bridging
+firewall sits on, but I'm going to need to bridge two vlans, 4 and 51.  My
+question is this:  should the vlan interfaces on the linux firewall be
+created first, then bridged; or should the bridge interface be created, then
+vlans bound to that?
+
+Here's the first:
+
+ip link set eth0 up
+ip link set eth1 up
+vconfig set_bind_mode PER_DEVICE
+vconfig set_name_type DEV_PLUS_VID_NO_PAD
+vconfig add eth0 4
+vconfig add eth1 4
+vconfig add eth0 51
+vconfig add eth1 51
+ip link set eth0.4 up
+ip link set eth1.4 up
+ip link set eth0.51 up
+ip link set eth1.51 up
+brctl addbr br0 
+brctl addif br0 eth0.4
+brctl addif br0 eth1.4
+brctl stp br0 off
+ip link set br0 up
+brctl addbr br1 
+brctl addif br1 eth0.51
+brctl addif br1 eth1.51
+brctl stp br1 off
+ip link set br1 up
+
+And the second:
+
+ip link set eth0 up
+ip link set eth1 up
+brctl addbr br0 
+brctl addif br0 eth0
+brctl addif br0 eth1
+brctl stp br0 off
+ip link set br0 up
+vconfig set_bind_mode PER_KERNEL
+vconfig set_name_type DEV_PLUS_VID_NO_PAD
+vconfig add br0 4
+vconfig add br0 51
+ip link set br0.4 up
+ip link set br0.51 up
+
+I lean towards the first, as it gives me more interfaces to filter, and thus
+more flexibility with my iptables rules.  Just looking for the wisdom of
+experience...
+
+Thanks,
+Jeremy Jones
 
 
-________________________________________________
-Kaixo! (http://www.kaixo.com)
-Portal de Euskadi - Euskadiko ataria
+
