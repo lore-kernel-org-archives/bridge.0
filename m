@@ -1,9 +1,10 @@
-Message-ID: <564DE4477544D411AD2C00508BDF0B6A1E7E361D@USAHM018.amer.corp.eds.com>
-From: "Small, Jim" <jim.small@EDS.COM>
-Subject: RE: [Bridge] Sparc Bridge problems
-Date: Mon, 29 Mar 2004 12:24:45 -0500
+Message-ID: <564DE4477544D411AD2C00508BDF0B6A1E7E362A@USAHM018.amer.corp.eds.com>
+From: "Small, Jim" <jim.small@eds.com>
+Subject: RE: [Bridge] br_add_bridge: Package not installed
+Date: Mon, 29 Mar 2004 12:28:17 -0500
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,46 +13,63 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "D@7@k|N&" <dataking@cox.net>, bridge@osdl.org
+To: "Feierfeil, Jeff" <firefly@netapp.com>, bridge@osdl.org
 
-I was never able to get bridging working on the UltraSPARC architecture.
-From what I have gathered, there is some kind of issue between the 32bit
-userland (brctl) and 64bit kernel.  If you use Debian, you can get a 64bit
-version of brctl, but even with that I could never get it to work.  I could
-never find anyone who has gotten it to work on the UltraSPARC/Sparc64
-architecture.
+If you do an lsmod, is the bridge module getting loaded?  If not, is it
+compiled into your kernel?  If not, you will need to rebuild your kernel
+with bridging support.
 
-If you're a kernel hacker, you might be able to get some help debugging the
-problems if you can suggest new code.  Otherwise you'll have to use an x86
-based platform (there bridging works beautifully).
-
-Perhaps with time this will bill sorted out in the 2.6 kernel???
+In the kernel configuration menu, go to Networking Options, 802.1d Ethernet
+Bridging.  Make sure this is Yes or M and then rebuild your kernel.
 
 <> Jim
 
-> -----Original Message-----
-> I'm having a little trouble with a sprc bridge setup.  I am running SuSe
-> 7.3 for sparc on a Sun Ultra1 Creator3D.
-> I compiled 2.4.25 kernel with 802.1d Ethernet Bridging support, and
-> installed
-> bridge-utils 0.9.6.  I've read all of the documentation that I could find
-> (Bridging FAQ and
-> Bridging HOWTO).  But I still get the following errors:
-> 
-> brctl addbr br0
-> brctl addif br0 eth0
-> bridge br0 doesn't exist!
-> 
-> Why not?
-> 
-> brctl addbr br0
-> device br0 already exists; can't create bridge with the same name
-> 
-> I've found on other mailing-lists that sparc systems require the bridge-
-> utils64 package, but can only find it for Debian.
-> 
-> Any thoughts on what's going on here?  If I compiled the utils from
-> source, shouldn't they be the right ones for my system/kernel?
-> 
-> Any help would be greatly appreciated.
+-----Original Message-----
+I am having a tough time simply getting the bridging to work with RedHat.=A0
+Any help would be greatly appreciated.
+=A0
+[root@redman root]# brctl addbr br0
+br_add_bridge: Package not installed
+=A0
+[root@redman temp]# uname -a
+Linux redman 2.4.21-9.0.1.EL #1 Mon Feb 9 22:44:14 EST 2004 i686 i686 i386
+GNU/Linux
+=A0
+[root@redman root]# rpm -q --all 'kernel*'
+kernel-2.4.21-9.0.1.EL
+kernel-source-2.4.21-9.0.1.EL
+kernel-pcmcia-cs-3.1.31-13
+kernel-utils-2.4-8.37.1
+=A0
+[root@redman temp]# rpm -q --all 'bridge*'
+bridge-utils-0.9.6-1
+=A0
+=A0
+[root@redman root]# brctl
+commands:
+addbr=A0=A0<bridge> add bridge
+addif=A0=A0<bridge> <device> add interface to bridge
+delbr <bridge> delete bridge
+delif <bridge> <device> delete interface from bridge
+show show a list of bridges
+showmacs <bridge> show a list of mac addrs
+showstp <bridge> show bridge stp info
+setageing <bridge> <time> set ageing time
+setbridgeprio <bridge> <prio> set bridge priority
+setfd <bridge> <time> set bridge forward delay
+setgcint <bridge> <time> set garbage collection interval
+sethello <bridge> <time> set hello time
+setmaxage <bridge> <time> set max message age
+setpathcost <bridge> <port> <cost> set path cost
+setportprio <bridge> <port> <prio> set port priority
+stp <bridge> <state> turn stp on/off
+[root@redman root]#
+thanks........
+=A0
+Jeff Feierfeil - Sales Engineer GE
+Network Appliance, Inc.
+firefly@netapp.com
+Office: (248) 263-3239
+Cell: (248) 514-1248
+=A0
 
