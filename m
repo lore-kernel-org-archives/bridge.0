@@ -1,9 +1,12 @@
-From: "herwam herwam" <dedmoroz3000@hotmail.com>
-Date: Thu, 29 Apr 2004 17:20:29 +0200
+Date: Fri, 30 Apr 2004 09:16:46 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] FW: [Openvpn-users] linux bridge is bad
+Message-Id: <20040430091646.0251ae07@dell_ss3.pdx.osdl.net>
+In-Reply-To: <BAY16-F92EuW6qVKUyg000109ae@hotmail.com>
+References: <BAY16-F92EuW6qVKUyg000109ae@hotmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_1083252035-11007-828"
-Message-ID: <BAY16-F92EuW6qVKUyg000109ae@hotmail.com>
-Subject: [Bridge] FW: [Openvpn-users] linux bridge is bad
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,62 +15,43 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: herwam herwam <dedmoroz3000@hotmail.com>
+Cc: bridge@osdl.org
 
-This is a multi-part message in MIME format...
+On Thu, 29 Apr 2004 17:20:29 +0200
+"herwam herwam" <dedmoroz3000@hotmail.com> wrote:
 
-------------=_1083252035-11007-828
-Content-Type: text/html; charset=iso-8859-1
-Content-Disposition: inline
+> 
+> 
+>  
+> Hi All,
+> I am using a bridge with openvpn .Linux Server with dhcp and a debian client .With Windows Client evrything looks great i have 2 Ip opne
+> public from provider other private from dhcp one from vpn.
+> With Linux Client i have problem with this setup: up.sh
+> >
+> >#!/bin/sh
+> >/sbin/modprobe tun
+> >/sbin/modprobe bridge
+> >ifconfig eth0 down
+> >/usr/sbin/openvpn --mktun --dev tap0
+> >/usr/sbin/brctl addbr br0
+> >/usr/sbin/brctl addif br0 tap0
+> >/usr/sbin/brctl addif br0 eth0
+> >/sbin/ifconfig tap0 0.0.0.0 promisc up
+> >/sbin/ifconfig eth0 0.0.0.0 promisc up
+Turning on promiscious here is not necessary.  addif does it already.
+You probably want to do:
 
-<html><div DEFANGED_style="background-color:"><P><BR><BR></P>
-<DIV>
-<DIV class=RTE>&nbsp;</DIV>
-<DIV></DIV>Hi All, 
-<DIV></DIV>I am using a bridge with openvpn .Linux Server&nbsp;with dhcp and a debian client&nbsp;.With Windows Client evrything looks great i have 2 Ip opne 
-<DIV></DIV>public from provider other private from dhcp one from vpn. 
-<DIV></DIV>With Linux Client i have problem with this setup: up.sh 
-<DIV></DIV>&gt; 
-<DIV></DIV>&gt;#!/bin/sh 
-<DIV></DIV>&gt;/sbin/modprobe tun 
-<DIV></DIV>&gt;/sbin/modprobe bridge 
-<DIV></DIV>&gt;ifconfig eth0 down 
-<DIV></DIV>&gt;/usr/sbin/openvpn --mktun --dev tap0 
-<DIV></DIV>&gt;/usr/sbin/brctl addbr br0 
-<DIV></DIV>&gt;/usr/sbin/brctl addif br0 tap0 
-<DIV></DIV>&gt;/usr/sbin/brctl addif br0 eth0 
-<DIV></DIV>&gt;/sbin/ifconfig tap0 0.0.0.0 promisc up 
-<DIV></DIV>&gt;/sbin/ifconfig eth0 0.0.0.0 promisc up 
-<DIV></DIV>&gt;ifconfig br0 xxx.xxx.xxx.240 netmask 255.255.0.0 broadcast xxx.xxx.255.255&nbsp;&nbsp; 
-<DIV></DIV>&gt;opvpn.conf: 
-<DIV></DIV>&gt;remote xxx.xxx.xxx.46 
-<DIV></DIV>&gt;port 5001 
-<DIV></DIV>&gt;dev tap0 
-<DIV></DIV>&gt;up ./up.sh 
-<DIV></DIV>&gt;ping 10 
-<DIV></DIV>&gt;tun-mtu 1500 
-<DIV></DIV>&gt;tun-mtu-extra 32 
-<DIV></DIV>&gt;tls-client 
-<DIV></DIV>&gt;ca my-ca.crt 
-<DIV></DIV>&gt;cert test2.crt 
-<DIV></DIV>&gt;key test2.key 
-<DIV></DIV>&gt;verb 6 
-<DIV></DIV>&gt; 
-<DIV></DIV>&gt; 
-<DIV></DIV>&gt;I can not get the ip for the tap0 it stays in promisc mode(?ifconfig 
-<DIV></DIV>&gt;show no ip for tap0). 
-<DIV></DIV>&gt;I also tryed to switch Spanning tree for br0 
-<DIV></DIV>&gt;/usr/sbin/brctl stp br0 on 
-<DIV></DIV>&gt;Dos not bring anything. 
-<DIV></DIV>&gt;So i can not connect to vpn network.Can somewhone help me. Or is the 
-<DIV></DIV>&gt;Windows better then Linux??? 
-<DIV></DIV>&gt; 
-<DIV></DIV>&gt;&nbsp;&nbsp;&nbsp;&nbsp;Thanks, 
-<DIV></DIV>
-<P>&gt;&nbsp;&nbsp;Herwam </P>
-<P>&gt;_______________________________________________ </P>
-<DIV></DIV>&gt;Openvpn-users mailing list 
-<DIV></DIV>&gt;Openvpn-users@lists.sourceforge.net 
-<DIV></DIV></DIV></div><br clear=all><hr>MSN Mobile - Hotmail Nachrichten aufs Handy <a href="http://g.msn.com/8HMADEDE/2746??PS=">Hier klicken </a> </html>
+ modprobe tun
+ modprobe bridge
+ ifconfig eth0 0.0.0.0
+ openvpn --mktun --dev tap0
+ ifconfig tap0 0.0.0.0
+ brctl addbr br0
+ brctl addif br0 tap0
+ brctl addif br0 eth0
+ ifconfig br0 xxx.xxx.xxx.240 netmask 255.255.0.0 broadcast xxx.xxx.255.255  
 
-------------=_1083252035-11007-828--
+Since bridging is at link level (2) not network level (3), you should have an IP
+for the bridge and none for eth0 and tap0.  If you need to forward packets but
+have separate IP subnets, than you want to use IP forwarding not bridging.
