@@ -1,9 +1,11 @@
-Message-ID: <FD52892BD296D71183B400065BFCB6900DBF8845@il02exm12>
-From: Lewis Adam-CAL022 <Adam.Lewis@motorola.com>
-Date: Fri, 13 Aug 2004 14:00:58 -0500
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----_=_NextPart_000_01C48167.DE49A726"
-Subject: [Bridge] Was SKB receive from a bridge or local?
+Date: Sat, 14 Aug 2004 17:36:48 +0200
+Message-ID: <20040814153648.GB3815@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+From: Norbert Preining <preining@logic.at>
+Subject: [Bridge] bridge/nf/ebtables patch for 2.4.27?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,137 +14,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge <bridge@osdl.org>
 
-This is a multi-part message in MIME format...
+Hiall!
 
-------_=_NextPart_000_01C48167.DE49A726
-Content-Type: multipart/alternative;
-	boundary="----------=_1092423663-20056-311"
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
+Is there un updated patch for bridge/nf/ebtables for 2.4.27? I tried the
+patch for 2.4.26 but there were several rejects. Then I patched in the
+rejects by hand and it zorked, at leqst for now. But to be sure I want
+someone with knowledge to update the patch instead of me nokey ;-)
 
-This is a multi-part message in MIME format...
 
-------------=_1092423663-20056-311
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Disposition: inline
+Best wishes
 
-Hi,
- 
-This sort of relates to the last e-mail I sent out, but different enough to warrant its own thread.
-I have written a WLAN driver which I am tying to eth0 via Linux bridging.  Is there any way, inside my hard_start_xmit() routine, to know if I have received this from the eth0 (via the bridge) vs. it was sourced locally?  I am hoping a flag gets set somewhere in the skb, but I cannot find one.
- 
-Thanks again,
-Adam
+Norbert
 
-------------=_1092423663-20056-311
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBU
-cmFuc2l0aW9uYWwvL0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgSFRUUC1F
-UVVJVj0iQ29udGVudC1UeXBlIiBDT05URU5UPSJ0ZXh0L2h0bWw7IGNoYXJz
-ZXQ9aXNvLTg4NTktMSI+DQo8VElUTEU+R2xhY2llcjwvVElUTEU+DQoNCjxE
-RUZBTkdFRF9TVFlMRSBCT0RZIHsNCglNQVJHSU4tVE9QOiAyMHB4OyBGT05U
-LVNJWkU6IDEwcHQ7IE1BUkdJTi1MRUZUOiA1MHB4OyBDT0xPUjogIzAwNjY2
-NjsgRk9OVC1GQU1JTFk6IEFyaWFsLCBIZWx2ZXRpY2ENCn0NCj48L0RFRkFO
-R0VEX1NUWUxFPg0KDQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4wMC4yODAw
-LjE0NTgiIG5hbWU9R0VORVJBVE9SPjwvSEVBRD4NCjxCT0RZIERFRkFOR0VE
-X2JhY2tncm91bmQ9ImNpZDozNjcyOTU5MThAMTMwODIwMDQtMzcyYSI+DQo8
-RElWPjxTUEFOIGNsYXNzPTM2NzI5NTkxOC0xMzA4MjAwND5IaSw8L1NQQU4+
-PC9ESVY+DQo8RElWPjxTUEFOIGNsYXNzPTM2NzI5NTkxOC0xMzA4MjAwND48
-L1NQQU4+Jm5ic3A7PC9ESVY+DQo8RElWPjxTUEFOIGNsYXNzPTM2NzI5NTkx
-OC0xMzA4MjAwND5UaGlzIHNvcnQgb2YgcmVsYXRlcyB0byB0aGUgbGFzdCBl
-LW1haWwgSSANCnNlbnQgb3V0LCBidXQgZGlmZmVyZW50IGVub3VnaCB0byB3
-YXJyYW50IGl0cyBvd24gdGhyZWFkLjwvU1BBTj48L0RJVj4NCjxESVY+PFNQ
-QU4gY2xhc3M9MzY3Mjk1OTE4LTEzMDgyMDA0PkkgaGF2ZSB3cml0dGVuIGEg
-V0xBTiBkcml2ZXIgd2hpY2ggSSBhbSANCnR5aW5nIHRvIGV0aDAgdmlhIExp
-bnV4IGJyaWRnaW5nLiZuYnNwOyBJcyB0aGVyZSBhbnkgd2F5LCBpbnNpZGUg
-bXkgDQpoYXJkX3N0YXJ0X3htaXQoKSByb3V0aW5lLCB0byBrbm93IGlmIEkg
-aGF2ZSByZWNlaXZlZCB0aGlzIGZyb20gdGhlIGV0aDAgKHZpYSANCnRoZSBi
-cmlkZ2UpIHZzLiBpdCB3YXMgc291cmNlZCBsb2NhbGx5PyZuYnNwOyBJIGFt
-IGhvcGluZyBhIGZsYWcgZ2V0cyBzZXQgDQpzb21ld2hlcmUgaW4gdGhlIHNr
-YiwgYnV0IEkgY2Fubm90IGZpbmQgb25lLjwvU1BBTj48L0RJVj4NCjxESVY+
-PFNQQU4gY2xhc3M9MzY3Mjk1OTE4LTEzMDgyMDA0PjwvU1BBTj4mbmJzcDs8
-L0RJVj4NCjxESVY+PFNQQU4gY2xhc3M9MzY3Mjk1OTE4LTEzMDgyMDA0PlRo
-YW5rcyBhZ2Fpbiw8L1NQQU4+PC9ESVY+DQo8RElWPjxTUEFOIGNsYXNzPTM2
-NzI5NTkxOC0xMzA4MjAwND5BZGFtPC9TUEFOPjwvRElWPjwvQk9EWT48L0hU
-TUw+DQo=
-
-------------=_1092423663-20056-311--
-
-------_=_NextPart_000_01C48167.DE49A726
-Content-Type: image/jpeg;
-	name="Glacier Bkgrd.jpg"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Glacier Bkgrd.jpg"
-Content-ID: <367295918@13082004-372a>
-
-/9j/4AAQSkZJRgABAgEASABIAAD/7QSqUGhvdG9zaG9wIDMuMAA4QklNA+kA
-AAAAAHgAAwAAAEgASAAAAAAC2gIo/+H/4QL5AkUDRwUoA/wAAgAAAEgASAAA
-AAAC2AIoAAEAAABkAAAAAQADAwMAAAABJw8AAQABAAAAAAAAAAAAAAAAYAgA
-GQGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4QklNA+0AAAAA
-ABAASAAAAAEAAQBIAAAAAQABOEJJTQPzAAAAAAAIAAAAAAAAAAA4QklNBAoA
-AAAAAAEAADhCSU0nEAAAAAAACgABAAAAAAAAAAI4QklNA/UAAAAAAEgAL2Zm
-AAEAbGZmAAYAAAAAAAEAL2ZmAAEAoZmaAAYAAAAAAAEAMgAAAAEAWgAAAAYA
-AAAAAAEANQAAAAEALQAAAAYAAAAAAAE4QklNA/gAAAAAAHAAAP//////////
-//////////////////8D6AAAAAD/////////////////////////////A+gA
-AAAA/////////////////////////////wPoAAAAAP//////////////////
-//////////8D6AAAOEJJTQQAAAAAAAACAAA4QklNBAIAAAAAAAIAADhCSU0E
-CAAAAAAAEAAAAAEAAAJAAAACQAAAAAA4QklNBAkAAAAAApkAAAABAAAAgAAA
-AAEAAAGAAAABgAAAAn0AGAAB/9j/4AAQSkZJRgABAgEASABIAAD//gAnRmls
-ZSB3cml0dGVuIGJ5IEFkb2JlIFBob3Rvc2hvcKggNC4wAP/uAA5BZG9iZQBk
-gAAAAAH/2wCEAAwICAgJCAwJCQwRCwoLERUPDAwPFRgTExUTExgRDAwMDAwM
-EQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBDQsLDQ4NEA4OEBQODg4U
-FA4ODg4UEQwMDAwMEREMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM
-DAwMDP/AABEIAAEAgAMBIgACEQEDEQH/3QAEAAj/xAE/AAABBQEBAQEBAQAA
-AAAAAAADAAECBAUGBwgJCgsBAAEFAQEBAQEBAAAAAAAAAAEAAgMEBQYHCAkK
-CxAAAQQBAwIEAgUHBggFAwwzAQACEQMEIRIxBUFRYRMicYEyBhSRobFCIyQV
-UsFiMzRygtFDByWSU/Dh8WNzNRaisoMmRJNUZEXCo3Q2F9JV4mXys4TD03Xj
-80YnlKSFtJXE1OT0pbXF1eX1VmZ2hpamtsbW5vY3R1dnd4eXp7fH1+f3EQAC
-AgECBAQDBAUGBwcGBTUBAAIRAyExEgRBUWFxIhMFMoGRFKGxQiPBUtHwMyRi
-4XKCkkNTFWNzNPElBhaisoMHJjXC0kSTVKMXZEVVNnRl4vKzhMPTdePzRpSk
-hbSVxNTk9KW1xdXl9VZmdoaWprbG1ub2JzdHV2d3h5ent8f/2gAMAwEAAhED
-EQA/APTqPon4/wAAir5XSQGyn6oSXyukip+qEl8rpJKfqhJfK6SSn6oSXyuk
-kp+qEl8rpJKfqhJfK6SSn6oSXyukkp//2QA4QklNBAYAAAAAAAcABAAAAAEB
-AP/+ACdGaWxlIHdyaXR0ZW4gYnkgQWRvYmUgUGhvdG9zaG9wqCA0LjAA/+4A
-DkFkb2JlAGQAAAAAAf/bAIQABgQEBwUHCwYGCw4KCAoOEQ4ODg4RFhMTExMT
-FhEMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAEHCQkTDBMi
-ExMiFA4ODhQUDg4ODhQRDAwMDAwREQwMDAwMDBEMDAwMDAwMDAwMDAwMDAwM
-DAwMDAwMDAwMDAwM/8AAEQgAAwZAAwERAAIRAQMRAf/dAAQAyP/EAaIAAAAH
-AQEBAQEAAAAAAAAAAAQFAwIGAQAHCAkKCwEAAgIDAQEBAQEAAAAAAAAAAQAC
-AwQFBgcICQoLEAACAQMDAgQCBgcDBAIGAnMBAgMRBAAFIRIxQVEGE2EicYEU
-MpGhBxWxQiPBUtHhMxZi8CRygvElQzRTkqKyY3PCNUQnk6OzNhdUZHTD0uII
-JoMJChgZhJRFRqS0VtNVKBry4/PE1OT0ZXWFlaW1xdXl9WZ2hpamtsbW5vY3
-R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+Ck5SVlpeYmZqbnJ2en5KjpKWmp6
-ipqqusra6voRAAICAQIDBQUEBQYECAMDbQEAAhEDBCESMUEFURNhIgZxgZEy
-obHwFMHR4SNCFVJicvEzJDRDghaSUyWiY7LCB3PSNeJEgxdUkwgJChgZJjZF
-GidkdFU38qOzwygp0+PzhJSktMTU5PRldYWVpbXF1eX1RlZmdoaWprbG1ub2
-R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+DlJWWl5iZmpucnZ6fkqOkpaanqK
-mqq6ytrq+v/aAAwDAQACEQMRAD8A9N/vv+Lv+SWFhv5/7F377/i7/kliu/n/
-ALFbJ63H/dv0+lTFd/P/AGKj++/y/wDkliu/n/sVa29Tl8fSn7fCn/JPfFIR
-H/AYGTv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq
-7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFX
-f8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wAB
-irv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gM
-Vd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Bi
-rv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+
-AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/w
-GKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8A
-gMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3
-/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/
-4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd
-/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq
-7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFX
-f8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wAB
-irv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gM
-Vd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Bi
-rv8AgMVd/wABirv+AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+
-AxV3/AYq7/gMVd/wGKu/4DFXf8Birv8AgMVd/wABirv+AxV3/AYq/wD/2Q==
-
-------_=_NextPart_000_01C48167.DE49A726--
+---------------------------------------------------------------------------=
+----
+Norbert Preining <preining AT logic DOT at>         Technische Universit=E4=
+t Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 =
+B094
+---------------------------------------------------------------------------=
+----
+`The best way to get a drink out of a Vogon is to stick
+your finger down his throat...'
+                 --- The Book, on one of the Vogon's social inadequacies.
+                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy
