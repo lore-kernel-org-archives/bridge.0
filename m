@@ -1,9 +1,9 @@
-Date: Mon, 26 Apr 2004 09:01:24 -0700
+Date: Mon, 26 Apr 2004 08:59:41 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] ethernet bridge + iptables
-Message-Id: <20040426090124.272b7de8@dell_ss3.pdx.osdl.net>
-In-Reply-To: <010701c42ba3$288f2570$41317d9e@keziah>
-References: <010701c42ba3$288f2570$41317d9e@keziah>
+Subject: Re: [Bridge] br: memory squeeze!
+Message-Id: <20040426085941.0cb17f53@dell_ss3.pdx.osdl.net>
+In-Reply-To: <4086A897.50305@austin.rr.com>
+References: <4086A897.50305@austin.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,41 +15,56 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mark Sandford <J.M.Sandford@lboro.ac.uk>
-Cc: bridge@osdl.org
+To: TC Hough <tchough@austin.rr.com>
+Cc: bridge@lists.osdl.org
 
-On Mon, 26 Apr 2004 16:28:43 +0100
-"Mark Sandford" <J.M.Sandford@lboro.ac.uk> wrote:
+On Wed, 21 Apr 2004 12:00:07 -0500
+TC Hough <tchough@austin.rr.com> wrote:
 
-> I'm trying to get iptables working with ethernet bridging.
+> I set up a bridge for my network and I'm having some trouble.  At first 
+> everything worked great, but after about 3 days of continuous bridging, 
+> my bridge machine died.  Approximately once a second, the message: "br: 
+> memory squeeze!" would appear on the console.  Keyboard input was mostly 
+> frozen, as well.  I could switch virtual consoles, but I couldn't type.  
+> No traffic would pass through the bridge.  When I rebooted, everything 
+> seemed fine.
 
-If you don't get a good answer here try the ebtables list:
-	ebtables-user@lists.sourceforge.net
 
-> I'm starting with a clean rh9 installation.  
+You have a memory leak in the kernel. What kernel and distro are you
+using.  Also, what kind of NIC's and other interfaces (tun, ppp, etc).
+
+Also, what is the state of the bridge?	br showstp br0
+and the forwarding table?	br showmacs br0
+
+> I don't have a whole lot of memory on the bridge machine, but I feel 
+> like it should be sufficient, since bridging is all it ever does and I 
+> have plenty of swap space.  The system log doesn't should anything I 
+> thought to be abnormal.  The memory squeeze messages were not logged.  
+> Here's the output of /proc/meminfo:
 > 
-> I've tried applying the ebtables-brnf-5_vs_2.4.24.diff patch.  This compiles ok but my machine completely hangs moments after I bring the bridge up.
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  29655040 28917760   737280        0 13750272  6123520
+> Swap: 67104768   434176 66670592
+> MemTotal:        28960 kB
+> MemFree:           720 kB
+> MemShared:           0 kB
+> Buffers:         13428 kB
+> Cached:           5700 kB
+> SwapCached:        280 kB
+> Active:           4344 kB
+> Inactive:        18036 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:        28960 kB
+> LowFree:           720 kB
+> SwapTotal:       65532 kB
+> SwapFree:        65108 kB
 > 
-> http://article.gmane.org/gmane.linux.network.bridge.ebtables.devel/221  describes same problem (I emailed author who just suggested moving on to newer kernel which is what I've tried)
+> Any suggestions?
 > 
-> I've since been using 2.4.25 kernel (and then 2.4.26).  Kernel compiles and the system doesn't hang when the bridge comes up but I don't seem to be able to get it to actually do the bridging.  (Bridging does work with initial rh9 install).  The ethernet cards work fine until I bring the bridge up.  After that I can't ping from the bridge or forward packets through the bridge.
+> TC
 > 
-> I'm wondering whether I've incorrectly set/missed some options while configuring the kernel but I don't know what to try.
-> 
-> Any clues / pointers hugely appreciated.
-> 
-> Mark.
-> 
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> Mark Sandford,
-> Research Associate,
-> Department of Electronic and Electrical Engineering,
-> Loughborough University,
-> Loughborough,
-> Leicestershire.
-> LE11 3TU
-> 
-> tel: (01509) 227079
-> e-mail: <j.m.sandford@lboro.ac.uk>
-> http://www.lboro.ac.uk/departments/el/
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/bridge
