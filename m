@@ -1,13 +1,12 @@
-Content-class: urn:content-classes:message
-Subject: RE: [Bridge] Bridge code enhancement (link state detection) and
-	bugfix. (patches included).
+Message-ID: <40FD2385.7000601@ieee.org>
+Date: Tue, 20 Jul 2004 09:52:05 -0400
+From: Bob Beers <bbeers@ieee.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Date: Tue, 20 Jul 2004 09:02:18 -0400
-Message-ID: <C0170D0AF1277849A4B4518034F855DD0CFC1D@aiexchange.ai.aiinet.com>
-From: "Eble, Dan" <DanE@aiinet.com>
-Content-Transfer-Encoding: 8bit
+References: <40CEF596.1090000@ieee.org>
+In-Reply-To: <40CEF596.1090000@ieee.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: bridge wlan-eth
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,48 +15,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mark Ruijter <bridge@siennax.com>, Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Adding an STP state seems like a bad idea.  Aren't br->stp_enabled and
-(dev->flags & IFF_UP) sufficient to determine whether check_link()
-should reenable a port?
 
-> -----Original Message-----
-> From: bridge-bounces@lists.osdl.org 
-> [mailto:bridge-bounces@lists.osdl.org] On Behalf Of Mark Ruijter
-> Sent: Tuesday, July 20, 2004 7:25 AM
-> To: Stephen Hemminger
-> Cc: bridge@lists.osdl.org
-> Subject: Re: [Bridge] Bridge code enhancement (link state 
-> detection) and bugfix. (patches included).
-> 
-> 
-> Stephen Hemminger wrote:
-> 
-> > 
-> > Could you split out the link state monitoring, and look at 
-> bonding to see
-> > how they are doing it?
-> > 
-> > I have a fix for vlan code that passes MII and ethtool 
-> requests from the virtual
-> > to physical device, so the bridge code wouldn't need to the 
-> hack about root device.
-> > 
-> 
-> Stephen,
-> 
-> I've attached two patches that implement link state monitoring as 
-> described above.
-> 
-> De bridge-utils patch also fixes a small bug:
-> 
-> ./brctl stp TEST
-> Segmentation fault
-> 
-> --
-> Mark Ruijter.
-> bridge@siennax.com
-> 
+
+Bob Beers wrote:
+   apparently a bunch of nonsense ...
+
+Sorry for the noise on the list, but let me close this thread,
+  just incase someone hits it in the archives during a search.
+
+The hardware I was testing on had (unknown to me) changed, for the worse.
+I can't say exactly what in the hardware was causing the problem, but
+I'm not using it any more.
+
+The newer firmware does support bridging between eth and wlan just fine.
+
+-- 
+Bob Beers
+MIEEE 2415966
 
