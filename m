@@ -1,10 +1,10 @@
-Message-Id: <200309251721.h8PHLUOt007664@fire-1.osdl.org>
-From: yourmetaylor@latinmail.com
-Content-Type: multipart/mixed; boundary="----------=_1064510491-5575-242"
-Date: Thu, 25 Sep 2003 19:24:04 +0200
-MIME-Version: 1.0
-Subject: [Bridge] IMPORTANT/URGENT RESPONSE
-Reply-To: yourmetaylor@latinmail.com
+Date: Sat, 27 Sep 2003 22:22:01 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+Message-ID: <20030927202200.GA612@man.beta.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] bridge breaks loopback on 2.4.22
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,124 +13,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: linux-kernel@vger.kernel.org
+Cc: bridge@osdl.org
 
-This is a multi-part message in MIME format...
+Hi!
 
-------------=_1064510491-5575-242
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Disposition: inline
+Since the change to 2.4.22 I've been experimenting problems here, after
+many tests I have seen what I think is the problem that is causing this.
 
-Good day,
+The problem I'm seing is the loopback starts loosing packages, I don't know
+if this could also happen on other interfaces. I'm testing this by starting
+a:
+	tcpdump -n -i lo port
+then a:
+	nc -n -l port >/dev/null
+and a:
+	nc localhost port </dev/zero
 
-My proposal to you will be very surprising, as we have
-not had any Personal contact before. However, I
-sincerely seek your confidence in this transaction,
-which I propose to you as a person of transparency,
-honesty and high caliber.
+If everything is fine my cpu goes to 100% and I see the packages all the way
+in my tcpdump screen, great. But there are sometimes when this doesn't go
+smooth and the tcpdump starts to show only one or two packages each N
+seconds, till it ends up showing the resend of the last package which is
+never acknowledged, you can even see that the timings of this packages that
+are being repeated match those of tcp backoff, my cpu charge is then really
+really low, nc disconnects after a while, ...
 
-Let me first start by introducing myself properly to
-you. My name is Yourme Taylor,i am the son to
-President Charles Taylor, the President of Republic of
-Liberia. I got your email address from network
-directory. I apologize if I have infringed on your
-privacy.
+When does this happen?
 
-It may interest you to know that my Father (former
-President Charles Taylor)has been fighting serious
-civil war with the Liberia United for the Restoration
-of Democracy (LURDS) for quite some years now. The
-LURDS has been backed (all along) by some foreign
-powerful countries.
+It took me a while to find this out, but it happens when you have a bridge
+interface and one of the ports of the bridge is told to drop packages, like
+when they detect a loop in the net and an interface is set to a blocking
+state.
 
-Not quite long ago, the American government ordered My
-Father to leave Liberia or be forced out of power.
-Knowing fully well the capabilities of America and
-other powerful members of the United Nations,
-my Father(President Charles Taylor) decided on the
-11th of August 2003 to go into exile in a neighboring
-country Nigeria to seek asylum. He is presently in a
-town called calabar in Nigeria.A new government headed
-by Vice President Mr Moses Blah has been sworn in.
+Of course that the loopback is not a part of any bridge in any of my setups,
+and I've seen this in a couple of machines, one SMP and the other one single
+micro, 2.4.21 worked ok, at least I could not reproduce this on that one. If
+the interfaces have been in a forwarding state all the time since the bridge
+was setup, without being in a blocking state, then this problem does not
+seem to happen.
 
-Based on these developments, the various foreign bank
-accounts of my Father are already being investigated.
-News just came in that one of the fattest accounts he
-has in Switzerland has been frozen. In the light of
-all
-these sad happenings, my Father, through the help of
-his loyalists has secretly moved a sum of
-US$30m(THIRTY MILLION UNITED STATES DOLLARS]to a
-private security company vault in europe and right
-now,my Father wants the services of a highly reliable
-foreigner that will receive the funds into his/her 
-bank account for the future survival of my family
-because he cannot presently operate any foreign bank
-account on his name.
+I believe that the changes the bridge went through from 2.4.21 to 2.4.22 are
+to blame on this one, but this is just a guess.
 
-These funds (US$30m) arose from various compensation
-he received from the sales of rubber, timber and
-diamonds which are abound in great quantity
-around the coastal areas of the country.
+Hope we can find a fix for this so that it is integrated in 2.4.23 kernel,
+I'll be happy to make any tests you want to track this farther down.
 
-My father and I have decided that if you are able
-assist us,you shall be compensated with 20% commission
-of the funds, 5% of this money shall be set aside to
-take care of any local or foreign expenses that might
-be incurred along the line. My family will make do
-with the remaining 70% of the funds. It might also
-interest you to note that all security arrangements
-regarding this transaction has been put in place,
-therefore,you have nothing whatsoever to fear 
-or worry about.
-
-Most part of this share (80%) for my family will also
-be invested in your country courtesy of your full
-advice and assistance because that is the most
-importat part of this transaction.
-
-As you indicate interest to assist my family,I will be
-expecting to receive your kind and urgent response
-through this more confidential email address
-(yourme_taylor@yahoo.co.uk) for us to proceed to more
-details on this pending transaction.
-
-God bless you as you respond promptly.
-
-Best regards,
-
-Yourme Taylor.
-
-
-
-
-
-
-------------=_1064510491-5575-242
-Content-Type: text/plain; name="SpamAssassinReport.txt"
-Content-Disposition: inline; filename="SpamAssassinReport.txt"
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-
-This mail is probably spam.  The original message has been attached
-along with this report, so you can recognize or block similar unwanted
-mail in future.  See http://spamassassin.org/tag/ for more details.
-
-Content preview:  Good day, My proposal to you will be very surprising,
-  as we have not had any Personal contact before. However, I sincerely
-  seek your confidence in this transaction, which I propose to you as a
-  person of transparency, honesty and high caliber. [...] 
-
-Content analysis details:   (8.10 points, 5 required)
-X_LIBRARY          (1.5 points)  Message has X-Library header
-NO_REAL_NAME       (1.1 points)  From: does not include a real name
-MILLION_USD        (1.0 points)  BODY: Nigerian scam key phrase (millions of dollars)
-MSG_ID_ADDED_BY_MTA_3 (0.5 points)  'Message-Id' was added by a relay (3)
-SUBJ_ALL_CAPS      (1.1 points)  Subject is all capitals
-NIGERIAN_BODY      (2.9 points)  Message body has multiple indications of Nigerian spam
-
-
-
-------------=_1064510491-5575-242--
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
