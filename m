@@ -1,8 +1,8 @@
-Message-Id: <200310221304.h9MD4nFO031160@fire-1.osdl.org>
+Message-Id: <200310221304.h9MD4nFO031161@fire-1.osdl.org>
 From: "btyping4dollars@erols.com" <btyping4dollars@erols.com>
 Date: Wed, 22 Oct 2003 21:03:54 +0800
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_1066827896-26634-152"
+Content-Type: multipart/mixed; boundary="----------=_1066827898-26634-158"
 Subject: [Bridge] feeling sluggish?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -12,11 +12,11 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "bridge@osdlab.org" <bridge@osdl.org>
+To: "bridge@osdl.org" <bridge@osdl.org>
 
 This is a multi-part message in MIME format...
 
-------------=_1066827896-26634-152
+------------=_1066827898-26634-158
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: base64
@@ -52,7 +52,7 @@ ImJsdWUiPjxiPkNsaWNrIEhlcmUgRm9yIE1vcmUgSW5mbzwvYj48L2ZvbnQ+
 PC9hPjxicj48YnI+DQo8L3RkPjwvdHI+PC90YWJsZT4NCjwvREVGQU5HRURf
 ZGl2PjwvQk9EWT48L0hUTUw+DQo=
 
-------------=_1066827896-26634-152
+------------=_1066827898-26634-158
 Content-Type: text/plain; name="SpamAssassinReport.txt"
 Content-Disposition: inline; filename="SpamAssassinReport.txt"
 Content-Transfer-Encoding: 7bit
@@ -84,4 +84,4 @@ MIME_HTML_ONLY     (0.1 points)  Message only has text/html MIME parts
 
 
 
-------------=_1066827896-26634-152--
+------------=_1066827898-26634-158--
