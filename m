@@ -1,15 +1,14 @@
-Date: Wed, 3 Sep 2003 08:38:59 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20030903083859.18365849.shemminger@osdl.org>
+From: Bart De Schuymer <bdschuym@pandora.be>
+Subject: Re: [Bridge] Re: [2.4.22] bad interaction between e100 and bridge: BUG at dev.c:991!
+Date: Wed, 3 Sep 2003 18:49:19 +0200
+References: <p05111b01bb728bc8972e@[10.96.96.13]> <20030827132810.65010eac.shemminger@osdl.org> <p05111b01bb7a6c4659d6@[10.96.96.13]>
 In-Reply-To: <p05111b01bb7a6c4659d6@[10.96.96.13]>
-References: <p05111b01bb728bc8972e@[10.96.96.13]>
-	<20030827132810.65010eac.shemminger@osdl.org>
-	<p05111b01bb7a6c4659d6@[10.96.96.13]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [2.4.22] bad interaction between e100 and bridge: BUG at
- dev.c:991!
+Content-Disposition: inline
+Message-Id: <200309031849.19208.bdschuym@pandora.be>
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -20,42 +19,38 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: Hannes Schulz <schulz@schwaar.com>
+To: Hannes Schulz <schulz@schwaar.com>, Stephen Hemminger <shemminger@osdl.org>
 Cc: bridge@osdl.org
 
-On Wed, 3 Sep 2003 16:56:06 +0200
-Hannes Schulz <schulz@schwaar.com> wrote:
-
-> >Could the problem be that the e100 can do IP receive checksumming on 
-> >the board,
-> >but the eepro driver doesn't enable it.  When the board is doing checksum
-> >offload, then the csum field isn't set.
-> >
-> >Please try disabling receive checksumming on the e100 driver
-> >
-> >	modprobe e100 XsumRX=0
-> >
-> >If this is the problem, it exists both 2.4 and 2.6.
-> 
-> If have just booted into 2.6.0-test4. Unplugging works, but the 
+On Wednesday 03 September 2003 16:56, Hannes Schulz wrote:
+> If have just booted into 2.6.0-test4. Unplugging works, but the
 > console is flooded with:
-> last-F IN=br0 OUT=br0 PHYSIN=eth1 PHYSOUT=eth0 SRC=10.96.96.25 DST=10.96.96.255
-> 
+> last-F IN=br0 OUT=br0 PHYSIN=eth1 PHYSOUT=eth0 SRC=10.96.96.25
+> DST=10.96.96.255
+>
 > [last-F ist the last rule in my FORWARDING iptable and does log+drop]
-> 
+>
 > Obviously I must allow forwarding br0 <=> br0.
-> 
-> While I am writing this the counter on the FORWARDING rule -i br0 -o 
-> br0 -j ACCEPT has reaches 2000+ packets with eth0 unplugged and the 
+>
+> While I am writing this the counter on the FORWARDING rule -i br0 -o
+> br0 -j ACCEPT has reaches 2000+ packets with eth0 unplugged and the
 > kernel ist still running.
-> 
-> 
-> In both 2.4.22 and 2.6.0-test4 all of netfilter and advanced routing 
+>
+>
+> In both 2.4.22 and 2.6.0-test4 all of netfilter and advanced routing
 > ist set to M. In 2.6.0-test4 this includes ebtables.
-> 
-> 
-> Hope that helps
-> 
-> Hannes
 
-You enabled NETFILTER_DEBUG in your config
+Hi,
+I don't quite get it, is the above text describing a problem?
+
+On Wednesday 03 September 2003 17:38, Stephen Hemminger wrote:
+>
+> You enabled NETFILTER_DEBUG in your config
+
+Enabling or disabling netfilter debugging has no effect on logged messages.
+All messages on the bridge list about problems with these are from people 
+using outdated 2.4 bridge-nf patches.
+
+cheers,
+Bart
+
