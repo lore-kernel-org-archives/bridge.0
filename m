@@ -1,9 +1,9 @@
-Date: Thu, 2 Dec 2004 11:11:08 -0800
+Date: Thu, 2 Dec 2004 11:14:42 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Problem with bridge/8139too module under 2.4.27?
-Message-Id: <20041202111108.25448eb8@dxpl.pdx.osdl.net>
-In-Reply-To: <9EB50F1A91413F4FA63019487FCD251DACA2@WEBBASEDDC.webbasedltd.local>
-References: <9EB50F1A91413F4FA63019487FCD251DACA2@WEBBASEDDC.webbasedltd.local>
+Subject: Re: [Bridge] About simple bridging using Fedora Core 2
+Message-Id: <20041202111442.7dd3dbb3@dxpl.pdx.osdl.net>
+In-Reply-To: <1097297374.41676ddf020df@webmail.cuhk.edu.hk>
+References: <1097297374.41676ddf020df@webmail.cuhk.edu.hk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,69 +15,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mark Cave-Ayland <m.cave-ayland@webbased.co.uk>
+To: Wu Yiu Kei <wuyiukei@cuhk.edu.hk>
 Cc: bridge@lists.osdl.org
 
-On Mon, 15 Nov 2004 10:29:35 -0000
-"Mark Cave-Ayland" <m.cave-ayland@webbased.co.uk> wrote:
+On Sat,  9 Oct 2004 12:49:35 +0800
+Wu Yiu Kei <wuyiukei@cuhk.edu.hk> wrote:
 
-> Hi there,
+> Hi, I am a beginner of bridge. I have a problem of using Fedora Core 2 to make a
+> simple bridge. Here is my setup:
 > 
-> I'm currently experiencing a minor problem using the bridge module under
-> kernel 2.4.27 part of the Devil Linux distribution
-> (http://www.devil-linux.org). The problem I am having is that when the
-> bridge is unloaded during a reboot I receive the following errors in
-> /var/log/messages:
-> 
-> Nov 14 13:22:13 src@Devil kernel: unregister_netdevice: waiting for br0 to
-> become free. Usage count = 2
-> 
-> This message is repeatedly output to the console until I manually go and
-> power cycle it. I've traced this through the startup/shutdown scripts, and
-> have determine that the problem exists in the following sequence of
-> commands:
-> 
-> brctl addbr br0
-> brctl addif br0 eth0
-> brctl addif br0 eth1
-> ifconfig eth0 up
-> ifconfig eth1 up
-> 
-> ifconfig eth0 down
-> ifconfig eth1 down
-> brctl delif eth0
-> brctl delif eth1
+> The bridge computer is installed with Fedore Core 2 (with the SE Linux patch).
+> As I know that kernel 2.6.5 is already support bridging by default, so I didn't
+> recompile the kernel. Then I installed bridge-utils-0.9.6-1.i386. And no
+> additional configuration is made. After comfirming that the 2 ethernet cards
+> for bridging (eth1 & eth2) are working properly, I build up a bridge by the
+> following commands:
 
-ifconfig br0 down
+The bridge-utils package on sourceforge.net is up to 1.0.4, with 1.0.5
+due out today.
 
-Take take the bridge down as well. The code on 2.4 is not as robust
-or complete as 2.6 and probably needs that.
 
-> brctl delbr br0   <------ This is where the problem occurs
+> #ifconfig eth1 0.0.0.0 promisc
+> #ifconfig eth2 0.0.0.0 promisc
+Dont need to put them in promiscious mode.
+
+> #brctl addbr mybridge
+> #brctl addif eth1
+> #brctl addif eth2
+> #ifconfig mybridge up
+
+How are you adding the IP address to mybridge (assuming you want that host
+to talk on the internet). Usual is:
+	ifconfig mybridge xx.xx.xx.xx
+
+
+> Notice that eth1 is connect to the internet directly, and eth2 is connected to a
+> host. After setting up the bridge, I tried to use the host to access the
+> internet, but the behaviour is very strange. It seems that the traffic through
+> the bridge is extremely slow. It's too slow to request even a webpage. But some
+> tcp connection can really be established, like up2date. I have checked the
+> memory of the bridge, but it doesn't seem to be run out of memory.
 > 
-> The machine running the kernel is a brouter with 4 NICs all running under
-> the 8139too driver - eth0 and eth1 form a bridge while eth2 and eth3 are
-> connected to different internal networks. I'm guessing that this is either a
-> problem with the bridge or 8139too modules, and so any advice would be
-> gratefully received :)
-> 
-> 
-> Many thanks,
-> 
-> Mark.
-> 
-> ------------------------
-> WebBased Ltd
-> South West Technology Centre
-> Tamar Science Park
-> Plymouth
-> PL6 8BT 
-> 
-> T: +44 (0)1752 791021
-> F: +44 (0)1752 791023
-> W: http://www.webbased.co.uk
->  
-> 
-> 
-> 
-> 
+> So, what's wrong with my bridge? Could anyone help me?
+
+Some useful info:
+
+brctl show
+brctl showstp mybridge
+brclt showmacs mybridge
