@@ -1,11 +1,11 @@
-Date: Thu, 26 Feb 2004 08:35:01 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] RE: BCP protocol
-Message-Id: <20040226083501.2302f1bd@dell_ss3.pdx.osdl.net>
-In-Reply-To: <AD59566A9D83864F871AE2E52503064001663DB2@aimail.aiinet.priv>
-References: <AD59566A9D83864F871AE2E52503064001663DB2@aimail.aiinet.priv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <403FFECA.7050407@cox.net>
+Date: Fri, 27 Feb 2004 19:36:58 -0700
+From: Greg Morgan <drkludge@cox.net>
+MIME-Version: 1.0
+Subject: Re: [Bridge] Bridging with kernel-2.6
+References: <DBAC6BAF12D1D64289EC75515BD86577CA653C@exch101>
+In-Reply-To: <DBAC6BAF12D1D64289EC75515BD86577CA653C@exch101>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -15,21 +15,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Eble, Dan" <DanE@aiinet.com>
-Cc: linux-ppp <linux-ppp@vger.kernel.org>, bridge@osdl.org
+To: Wouter Coppens <wouter.coppens@dedigate.com>
+Cc: bridge@osdl.org
 
-On Wed, 25 Feb 2004 11:51:13 -0500
-"Eble, Dan" <DanE@aiinet.com> wrote:
-
-> > -----Original Message-----
-> > From: Stephen Hemminger [mailto:shemminger@osdl.org] 
-> > Sent: Wednesday, February 25, 2004 11:41 AM
-> > 
-> > Could you work with 2.6 rather than 2.4?
+Wouter Coppens wrote:
+> Hey,
 > 
-> I'm truly sorry, but I get paid to work with 2.4.  My employer understands
-> the value of giving back to the open source community, and this is what we
-> have at the moment.  Someone else is going to have to port it to kernel 2.6
-> and pppd 2.4.2.
+> Has anybody got bridging working with kernel-2.6?
+> Are their things that need special attention?
+> 
+> I have read about the iptables physdev match module for 2.6. Is it required to get the bridge up and running?
 
-How about if I make a version to integrate in 2.6, can you test it?
+I thought you had to have the ebtables patch applied before the bridging 
+patch.  However, with ebtables being in the 2.5 and above kernels, I've 
+lost track of the order of the patches these days.  A quick look at 
+http://bridge.sourceforge.net/devel.html shows this "The code is updated 
+as part of the current kernels available at kernel.org."  A link to 
+ebtables is on the same page.  Are you experiencing some sort of problem?
+
+Greg
+
