@@ -1,13 +1,10 @@
-Message-ID: <40D11F57.9070504@web.de>
-Date: Thu, 17 Jun 2004 06:34:31 +0200
-From: Michael Renzmann <mrenzmann@web.de>
+Message-ID: <40D193A7.2020805@phys.rug.nl>
+Date: Thu, 17 Jun 2004 14:50:47 +0200
+From: Maarten Hilgenga <M.L.Hilgenga@phys.rug.nl>
 MIME-Version: 1.0
-Subject: Re: [Bridge] Bridging between user processes
-References: <20040616221738.29758.qmail@web90108.mail.scd.yahoo.com>
-In-Reply-To: <20040616221738.29758.qmail@web90108.mail.scd.yahoo.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: mrenzmann@web.de
+Subject: [Bridge] bridge only works from certain ip addresses
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,27 +13,27 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Derek Smalls <dsmalls321@yahoo.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Hi.
+Dear all,
 
-Derek Smalls wrote:
- >>I have not played with tun/tap myself, but the
- >>kernel documentation in
- >>Documentation/networking/tuntap.txt seems to
- >>indicate that you need a program to listen on two
- >>opened /dev/net/tun devices and copy the frames
- >>from one to the other.
-> Thanks! I was afraid this was the reason ... :(
-> 
-> I actually tried writing an application that would
-> open /dev/tap4 as a file and do a select() on it. 
+after putting up a bridge to be used as a firewall with the following 
+configuration:
 
-The standalone tun-package [1] contains two example applications that 
-act as simple bridges, one using SIGIO, one using select(). I guess it 
-could be helpful for you to take a look at these examples.
+linux 2.6.4-52-smp kernel
+bridge-utils 0.9.6-121
+Bridge is setup standard with 2 NIC's and STP off.
 
-[1] http://vtun.sourceforge.net/tun/tun-1.1.tar.gz
+I noticed  a strange behaviour; when connecting from an outside machine 
+with the same iprange as the inside machines (a.b.xxx.xxx) I could 
+connect. When trying the same from a non-local machine(c.d.xxx.xxx), 
+this didn't work. In both cases the first package arrives at the 
+firewallmachine at the INPUT chain, and the destination MAC-address is 
+correct in both cases. The package from a.b.xxx.xxx also enters the 
+FORWARD chain, but this doesn't work for c.d.xxx.xxx. I'd really 
+appreciate any help, if you need more info please tell me
 
-Bye, Mike
+Thanks in advance,
+
+Maarten Hilgenga
+
