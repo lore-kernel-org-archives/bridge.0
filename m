@@ -1,10 +1,10 @@
-From: Rajashekhar Mansanpally <raj@roinet.com>
-Content-Type: text/plain
-Message-Id: <1075830500.4867.116.camel@honeycomb>
-Mime-Version: 1.0
+Message-ID: <402190E4.1080506@fastwebnet.it>
+Date: Thu, 05 Feb 2004 01:40:04 +0100
+From: Sergio Tota <sergio.tota@fastwebnet.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] priority number lower??
-Reply-To: raj@roinet.com
+Subject: [Bridge] Bridge, NAT and Multicast traffic
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,46 +13,26 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Tue, 03 Feb 2004 17:48:30 -0000
-To: bridge@lists.osdl.org
-Cc: ebtables-devel@lists.sourceforge.net
+To: bridge@osdl.org
 
-In the past when I said:
-ebtables -A INPUT -p 0x828 -j DROP    !!DOES NOT WORK!!
- 
-ebtables -A INPUT -p 0x800 -j DROP    !!WORKS!!
+Hi all.
 
-Group members told me that:
-> What you need to do is register your function 
-> on the existing NF_BR_PRE_ROUTING hook, with a priority number lower than 
-> that of the ebtables nat PREROUTING chain (prio=NF_BR_PRI_NAT_SRC).
+I write this mail to understand if someone can help me.
 
-		      ebt INPUT
-			|
-			|
-ebt (PREROUTING)------Bridging-----ebt (FORWARD)
+I configured a linux bridge and it works perfectly.
+I applied the patch to make filtering on the traffic and it also works.
+My problem are in natting(DNAT) multicast traffic (UDP stream packets).
+Netfilter doesn't see multicast traffic at all when a NAT must be executed.
+For what I read this is due the need of netfilter of connections track.
+Multicast traffic has not connection track so netfilter can't act at 
+all(only filtering,no natting).
+Can you help me?
 
+If not, do you know a way to make DNAT on multicast traffic with a 
+trasparent linux bridge?
 
-I think my code is decapsulating (changing eth hdr) before INPUT chain
-is traversed. So, I am confused as to what the priority number should
-be.
+Thanks a lot!
 
-Since encap/ decap functions are called by main code. If the prio is
-Lower than NF_BR_PRI_NAT_SRC, encapsulation is taking place even before
-ebt-PREROUTING chain is traversed. So is decapsulation.
-Then I don't think I could filter the packets in the above fashion using
-protocol 0x828.
-
-So, I am wondering what is the right prio to choose. It is important I 
-have a right piority.
-
-Thanks in advance,
-
--Raj
-
-
-
-
-
+Sergio Tota
 
 
