@@ -1,12 +1,10 @@
-Date: Thu, 3 Feb 2005 11:54:07 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] recent 2.6 kernels hang on bridge shutdown
-Message-ID: <20050203115407.5e7fc195@dxpl.pdx.osdl.net>
-In-Reply-To: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
-References: <20050202175652.GA1531@stilzchen.informatik.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Fri, 04 Feb 2005 10:55:28 -0800 (PST)
+From: Jordan Eunson <maillist@heteromail.com>
+Message-id: <33113.24.85.247.221.1107543328.squirrel@heteromail.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8bit
+Subject: [Bridge] Wireless bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,62 +13,19 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-On Wed, 2 Feb 2005 18:56:52 +0100
-Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de> wrote:
-
-> With recent 2.6 kernels, the command
->   brctl delbr br0
-> hangs during shutdown, and the kernel prints this message again and again:
->   unregister_netdevice: waiting for br0 to become free. Usage count = 1
-
-Are you running IPV6? if so it is most likely related to IPV6.
-
-
-> I was able to reproduce this problem with several kernels between 
-> (and including) 2.6.9-rc1 and 2.6.11-rc2-bk9.
-> I haven't tried later versions than 2.6.11-rc2-bk9 yet.
-> 2.6.8.1-bk2 still works fine.
-> 
-> My .config was taken from the Debian kernel-image-2.6.10-1-686 package,
-> adapted to the kernel.org kernels and the processor type set to Pentium
-> Classic. I can email it on request.
-> 
-> This script should reproduce the problem reliably:
-> #!/bin/bash
-> set -x
-> mount proc -t proc /proc
-> ifconfig lo 127.0.0.1
-> brctl addbr br0
-> modprobe e100   # also works with 3c5x9
-> brctl addif br0 eth0
-> ifconfig br0 192.168.1.1
-> ifconfig eth0 up
-> sleep 5
-> ifconfig lo down
-> lsmod | grep bridge
-> brctl delif br0 eth0
-> ifconfig br0 down
-> brctl delbr br0
-> 
-> To run it, I booted with init=/bin/bash to make sure the distribution's 
-> startup scripts don't interfere (although it might work anyway).
-> 
-> I already reported this to the linux-kernel list, since I couldn't tell
-> whether this is a bug in the bridging code or somewhere else.  On second
-> reading of REPORTING-BUGS, I probably should have sent it here first.
-> 
-> For reference, these are my postings to linux-kernel:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0501.3/2222.html
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0502.0/0139.html
-> 
-> Please let me know if you need any further information,
-> and please Cc me on replies, since I am not subscribed to the bridge list.
-> 
-> Mirko
+This isn't a question directly about brctl per se. I have a WRT54G linksys
+box on one side of my office and a linux router with an Atheros G card
+running madwifi on the other. I want the linux box to be a bridge between
+the hard wired clients connect to the linux router and wireless linksys
+box on the other side of the office. So what I did was, on the linux box
+told it the essid and MAC address to connect to. This was tested by
+assigning an ip the atheros interface and ping the linksys box, test came
+back good. I zero'd the IP on the atheros card and bridge the atheros and
+the local eth0 together. I connect a my laptop to the eth0 port and try
+ping the linksys box, but the pings wont flow. This is the problem, now
+maybe I'm expecting something that just isn't going to happen because of
+the way wifi works, but that's why I'm posting.
 
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>
