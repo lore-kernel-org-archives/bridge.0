@@ -1,12 +1,10 @@
-From: "kingz" <jzhang@cienettechnologies.com>
-Date: Tue, 30 Nov 2004 20:08:58 -0800
-Message-ID: <000101c4d75b$7ec82c20$6c01a8c0@kingz>
+From: "Mark Cave-Ayland" <m.cave-ayland@webbased.co.uk>
+Message-ID: <9EB50F1A91413F4FA63019487FCD251DACA2@WEBBASEDDC.webbasedltd.local>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Ethernet bridge and 802.1Q VLAN , hotmail login error
-Reply-To: jzhang@cienettechnologies.com
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Problem with bridge/8139too module under 2.4.27?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,59 +13,59 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
+Date: Mon, 15 Nov 2004 10:29:48 -0000
 To: bridge@lists.osdl.org
 
-Hi All,
+Hi there,
+
+I'm currently experiencing a minor problem using the bridge module under
+kernel 2.4.27 part of the Devil Linux distribution
+(http://www.devil-linux.org). The problem I am having is that when the
+bridge is unloaded during a reboot I receive the following errors in
+/var/log/messages:
+
+Nov 14 13:22:13 src@Devil kernel: unregister_netdevice: waiting for br0 to
+become free. Usage count = 2
+
+This message is repeatedly output to the console until I manually go and
+power cycle it. I've traced this through the startup/shutdown scripts, and
+have determine that the problem exists in the following sequence of
+commands:
+
+brctl addbr br0
+brctl addif br0 eth0
+brctl addif br0 eth1
+ifconfig eth0 up
+ifconfig eth1 up
+
+ifconfig eth0 down
+ifconfig eth1 down
+brctl delif eth0
+brctl delif eth1
+brctl delbr br0   <------ This is where the problem occurs
+
+The machine running the kernel is a brouter with 4 NICs all running under
+the 8139too driver - eth0 and eth1 form a bridge while eth2 and eth3 are
+connected to different internal networks. I'm guessing that this is either a
+problem with the bridge or 8139too modules, and so any advice would be
+gratefully received :)
+
+
+Many thanks,
+
+Mark.
+
+------------------------
+WebBased Ltd
+South West Technology Centre
+Tamar Science Park
+Plymouth
+PL6 8BT 
+
+T: +44 (0)1752 791021
+F: +44 (0)1752 791023
+W: http://www.webbased.co.uk
  
-I posted this question several days before, as if no one reply, any
-help, hint would be highly appreciated!
 
-PLEASE SAVE ME!
-
-Now I am having trouble in Ethernet bridge and 802.1Q VLAN, I have the
-following network:
-   Internet
-       |
-       |
-  Gateway
-       |
-       |    <---------  If insert one Ethernet bridge box in here
-,somethings changes
-       |
-     H u b    ( one normal hub or switch , no VLAN settings)
-      |   \
-      |     \
-  D-Link  802.1Q VLAN Switches (their uplink port-port 1  connected to
-the upper hub are tagged, those ports connected with PCs are untagged).
- 
-Our client PCs connect to these VLAN Switches, they access Internet
-through that UPNP gateway, It works all OK; Every PC connects to one
-untagged port in a 802.1Q VLAN Switch , this untagged port and the
-tagged  uplink port (e.g. port 1) make up of one VLAN,  the tagged port
-1 is a common uplink port , So from the gateway we can see these VLAN ID
-of PCs, so far it all work fine;  but when I insert one Ethernet bridge
-box ( one linux box, kernel 2.4.26, ebtables-brnf-6_vs_2.4.26 patch, one
-rt8139 NIC, one e100 NIC) between the gateway and the Hub, somethings
-changed: 
-I was not able to log  in hotmail, maybe also on certain websites. 
-For example, I access  www.hotmail.com <http://www.hotmail.com/> , it
-loads OK. When I input my account, and hit Login, it goes to a error
-page(DNS error or server not found)  after a moment. Except the above
-site, maybe also have others, but most sites work fine, very strange! I
-am sure that this Linux Ethernet bridge is only transparent bridge, no
-any Iptables filter and rule. 
-If I remove the tag for VLAN(just change the port 1 to untagged),  also
-with this Linux Ethernet bridge it works all OK, also have no hotmail
-login error. Very strange, it as if the issue is on VLAN , tag, or Linux
-Ethernet  bridge , I have no idea of it now! Is it a MTU issue on
-Bridge?
-
-I am stuck here now! 
-
-Any help, comments, hints would be greatly appreciated!
-If you need more info on it, please let me know soon!
-Thanks!
-
-Kingz
 
 
