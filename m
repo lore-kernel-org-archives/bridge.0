@@ -1,13 +1,11 @@
-From: "kingz" <jzhang@cienettechnologies.com>
-Date: Fri, 3 Dec 2004 22:12:39 -0800
-Message-ID: <000001c4d9c8$44a18860$1201a8c0@kingz>
+Message-ID: <41B07B61.9010603@student.ethz.ch>
+Date: Fri, 03 Dec 2004 15:42:41 +0100
+From: Patrick Stuedi <stuedip@student.ethz.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-In-Reply-To: <20041202094823.0e3472d5@dxpl.pdx.osdl.net>
-Content-Transfer-Encoding: base64
-Subject: [Bridge] RE: My configuration in Bridge, 802.1Q VLAN,
-	and hotmail login, Thanks to all
-Reply-To: jzhang@cienettechnologies.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridge Performance 2
+Reply-To: stuedip@student.ethz.ch
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,61 +14,17 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Stephen Hemminger' <shemminger@osdl.org>
-Cc: stuge-vlan@cdy.org, bdschuym@pandora.be, 'Derek Storvik' <it@consultech.net>, greearb@candelatech.com, ebtables-user@lists.sourceforge.net, bridge@lists.osdl.org, vlan@lanforge.com
+To: bridge@lists.osdl.org
 
-VGhhbmtzIHRvIEFsbCEKCkkgY2hhbmdlZCBhbGwgdHdvIE5JQ3Mgb24gbXkgQnJpZGdlIGJveCB0
-byBJbnRlbCBQcm8vMTAwMCBNVCBjYXJkKHdpdGgKSW50ZWwgZTEwMDAgZHJpdmVyKS4gSSB0aGlu
-ayB0aGV5IGNhbiBoYW5kbGUgbGFyZ2VyIGZyYW1lcyB3aXRoIFZMQU4KdGFnLiAoIFRoYW5rcyB0
-byBCZW4sIFBldGVyKQoKSSBhbHNvIGhhdmUgb25lIGRvdWJ0OiBob3cgdG8gY29uZmlndXJlIE5J
-Q3MgYW5kIG15IGJyaWRnZSBmb3IgbGFyZ2VyCmZyYW1lcyB3aXRoIFZMQU4gdGFnPwpJIGd1ZXNz
-IEkgbmVlZCBkbyBzbzogKHBsZWFzZSBjb3JyZWN0IG1lKQpCcmlkZ2UgYm94OiBSZWRoYXQgOS4w
-ICBMaW51eCAyLjQuMjgga2VybmVsCjEuIENoYW5nZSBOSUNzIG9uIGJyaWRnZSBNVFUgdG8gMTUw
-NCAoIDByIG90aGVyIHZhbHVlKUlzIGl0IG5lY2Vzc2FyeT8KICBpZmNvbmZpZyBldGgwKDEpIG10
-dSAxNTA0CgoyLiBDaGFuZ2UgYnJpZGdlIE1UVSB0byBsYXJnZXIgdmFsdWU/ICggaXMgaXQgbmVj
-ZXNzYXJ5PykgCkkgY291bGRuJ3QgY2hhbmdlIHRoZSBNVFUgb2YgYnIwLCBJIGdvdCB0aGUgIiBT
-SU9DU0lGTVRVOiBJbnZhbGlkCmFyZ3VtZW50IiBlcnJvci4gV2hhdCdzIHdyb25nIHdpdGggaXQ/
-CgpIZW1taW5nZXI6IEZvciB0aGlzIHBhdGNoIGluIHlvdXIgcmVwbHksIERvIEkgbmVlZCBhcHBs
-eSBpdCB0byB0aGUKYnJpZGdlIGNvZGU/IEFzIHlvdSBrbm93LCB0aGUgYnJpZGdlIGNvZGUgaXMg
-YnVpbHQgaW4gdGhlIDIuNC4yOCBrZXJuZWwsCkkgYWxzbyBuZWVkIGFwcGx5IHRoaXMgY2hhbmdl
-IHRvIGJyaWRnZSBjb2RlPyBBbmQgYSBzdHVwaWQgcXVlc3Rpb246CndoZXJlIEkgYXBwbHkgaXQg
-dG8/IFdoaWNoIGZpbGU/CgpUaGFua3MhCgpLaW5negoKCgoKCgoKLS0tLS1PcmlnaW5hbCBNZXNz
-YWdlLS0tLS0KRnJvbTogU3RlcGhlbiBIZW1taW5nZXIgW21haWx0bzpzaGVtbWluZ2VyQG9zZGwu
-b3JnXSAKU2VudDogMjAwNMTqMTLUwjLI1SA5OjQ4ClRvOiBqemhhbmdAY2llbmV0dGVjaG5vbG9n
-aWVzLmNvbQpDYzogdmxhbkBsYW5mb3JnZS5jb207IGVidGFibGVzLXVzZXJAbGlzdHMuc291cmNl
-Zm9yZ2UubmV0OwpicmlkZ2VAbGlzdHMub3NkbC5vcmc7ICdEZXJlayBTdG9ydmlrJzsgZ3JlZWFy
-YkBjYW5kZWxhdGVjaC5jb207CnN0dWdlLXZsYW5AY2R5Lm9yZzsgYmRzY2h1eW1AcGFuZG9yYS5i
-ZQpTdWJqZWN0OiBSZTogTXkgY29uZmlndXJhdGlvbiBpbiBCcmlkZ2UsODAyLjFRIFZMQU4sIGFu
-ZCBob3RtYWlsIGxvZ2luLApUaGFua3MgdG8gYWxsCgpPbiBUaHUsIDIgRGVjIDIwMDQgMjA6MTA6
-NTggLTA4MDAKImtpbmd6IiA8anpoYW5nQGNpZW5ldHRlY2hub2xvZ2llcy5jb20+IHdyb3RlOgoK
-PiBIaSBBbGwsCj4gCj4gRm9yIG15IGlzc3VlLCBmaXJzdCB0aGFua3MgdG8gQUxMLCBJIGhhdmUg
-c29tZSBpZGVhIG9mIGl0Lgo+IEFsc28gVGhhbmsgUGV0ZXIgZm9yIGhpcyBraW5kIHJlbWluZCwg
-SSB3b3VsZCBiZWNvbWUgb25lIGdvb2QgZ3V5IGluCj4gdGhpcyBsaXN0Lgo+IAo+IE1vc3QgbWVu
-dGlvbmVkIE1UVSwgYnV0IGhvdyBJIGFzc3VyZSB0aGF0IHRoZSBwcm9ibGVtIGlzIGp1c3QgTVRV
-LCBob3cKSQo+IGRlYnVnIGl0Pwo+IEhlcmUgaXMgbXkgYnJpZGdlIGNvbmZpZ3VyYXRpb246Cj4g
-SW50ZXJuZXQKPiAgICAgICAgfAo+ICAgICAgICB8Cj4gICBHYXRld2F5Cj4gICAgICAgIHwKPiAg
-ICAgICAgfCAgIGV0aDAKPiBFdGhlcm5ldCBCcmlkZ2UKPiAgICAgICAgfCAgIGV0aDEKPiAgICAg
-ICAgfAo+ICAgICAgSCB1IGIgICAgKCBvbmUgbm9ybWFsIGh1YiBvciBzd2l0Y2ggLCBubyBWTEFO
-IHNldHRpbmdzKQo+ICAgICAgIHwgICBcCj4gICAgICAgfCAgICAgXAo+ICAgRC1MaW5rICA4MDIu
-MVEgVkxBTiBTd2l0Y2hlcyAodGhlaXIgdXBsaW5rIHBvcnQtcG9ydCAxICBjb25uZWN0ZWQgdG8K
-PiB0aGUgdXBwZXIgaHViIGFyZSB0YWdnZWQsIHRob3NlIHBvcnRzIGNvbm5lY3RlZCB3aXRoIFBD
-cyBhcmUKdW50YWdnZWQpLgo+IAo+IEJyaWRnZSBjb25maWd1cmF0aW9uOgo+IExpbnV4IDIuNC4y
-NiAoIGtlcm5lbCBidWlsdCBpbiBicmlkZ2UgZnVuY3Rpb24pCj4gRXRoMCAgIFJUTDgxMzkgZHJp
-dmVyCj4gRXRoMSAgIEludGVsIGUxMDAgTklDIHdpdGggZWVwcm8xMDAgZHJpdmVyCj4gCj4gV2l0
-aCBWTEFOIHRhZywgSSBtZXQgdGhlIGhvdG1haWwgbG9naW4gZXJyb3IsIGlmIHdpdGhvdXQgVkxB
-TiB0YWcsIGFsbAo+IGFyZSBPSyEKPiAKPiBQZXRlciBhbmQgQmVuIHN1Z2dlc3RlZCBtZSB1c2Ug
-aW50ZWwgTklDcywgSSBoYXZlIG9uZSBpbnRlbCBlMTAwIE5JQwphbmQKPiBlMTAwMCBOSUMsIGUx
-MDAwIE5JQyBpcyBPSywgYnV0IEkgY2FubnQgdXNlIHRoZSBlMTAwIGNhcmQgd2l0aCB0aGUKZTEw
-MAo+IGRyaXZlciggZnJvbSBib3RoIExpbnV4IDIuNC4yNiBhbmQgSW50ZWwgc2l0ZSBlMTAwLTMu
-Mi4zKSwgc28gSSBvbmx5CnVzZQo+IGVlcHJvMTAwIGRyaXZlci4KPiBIb3cgSSBjYW4gdXNlIHRo
-ZSBlMTAwIHdpdGggZTEwMCBkcml2ZXI/IENhbiBJIHVzZSBlMTAwIGFuZCBlMTAwMAo+IHRvZ2V0
-aGVyKCB1c2UgdGhlbSBhcyBldGgwLDEpPwo+IEFueSBvbmUgY2FuIGhlbHAgbWU/CgpUaGVyZSBp
-cyBzb21lIGNvbmZ1c2lvbiBhYm91dCBtdHUgYW5kIFZMQU4uIERvZXMgbXR1IGluY2x1ZGUgVkxB
-TiB0YWcgb3IKbm90PwpFMTAwIGFsbG93cyB0aGUgVkxBTiB0YWcgdG8gYmUgaW5jbHVkZWQgKGll
-LiBhY3R1YWxfc2l6ZSA+Cm5pYy0+bmV0ZGV2LT5tdHUKKyBWTEFOX0VUSF9ITEVOKQpidXQgb3Ro
-ZXIgZHJpdmVycyBkb24ndCBhbmQgdGhlIE1UVSByZXBvcnRlZCB0byB0aGUgYnJpZGdlIGRvZXNu
-J3QKaW5jbHVkZQp0aGUKVkxBTiB0YWcuIAoKWW91IGNvdWxkIGNoYW5nZToKCQppbnQgYnJfZGV2
-X3F1ZXVlX3B1c2hfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQp7CglpZiAoc2tiLT5sZW4gPiBz
-a2ItPmRldi0+bXR1KSAKCQlrZnJlZV9za2Ioc2tiKTsKdG86CgppbnQgYnJfZGV2X3F1ZXVlX3B1
-c2hfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQp7CglpZiAoc2tiLT5sZW4gPiBza2ItPmRldi0+
-bXR1ICsgNCkgCgkJa2ZyZWVfc2tiKHNrYik7CgoKCg==
+Hi there,
+
+I was asking this question already a few days go, but I'm not sure whether anyone noticed due to the mailserver outtage. So I'm just re-posting it, sorry, but it's an important issue for me, I would be glad to hear some insight on this.  
+ 
+The question is regarding throughput performance using linux 2.4.5.1. My setup is very simple : I have two laptops with a wireless card. On each laptop I configure the wireless cards to be in ad hoc mode, create a bridge and include the interface within the bridge (stp is off). Then of course I'm assigning an IP address to the bridge while assigning 0.0.0.0 to the wireless interface (eth1). After having setup both machines I run throughput tests using iperf. What I measure is around 1.5 Mbit/s for TCP traffic. This is about 1/3 of what I get when communicating directly through the wireless interface on both machines, without any bridge on top. Where all this performance gets lost? Does anyone have an idea? The same performance degradation I measured on a 2.6 Kernel.
+ 
+Any help would be appreciated.
+ 
+Best Regards, 
+Patrick
+
+
