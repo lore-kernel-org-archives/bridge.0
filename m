@@ -1,10 +1,11 @@
-Message-ID: <3FFAD0C1.5080806@corp.lcom.net>
-Date: Tue, 06 Jan 2004 09:14:09 -0600
-From: "Andrew J. Meader" <ameader@corp.lcom.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] RHEL3
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: [Bridge] Bridge and PACKET-socket
+Date: Thu, 8 Jan 2004 16:34:33 +0000 (UTC)
+Message-ID: <slrnbvr1kp.gtv.lunz@absolut.localnet>
+References: <lhznd2do0m.fsf@dodo.bluetail.com>
+	<200401060013.38748.bdschuym@pandora.be>
+	<lhr7yedkfn.fsf@dodo.bluetail.com>
+Sender: news <news@sea.gmane.org>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,12 +16,14 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-Hi All,
+luke@member.fsf.org said:
+> This still sounds like packet-socket territory to me. Wouldn't it be
+> better to clarify/extend the packet-socket interface to cover bridged
+> ports?
 
-The last time I setup bridging I used RH8. At that time, I had to patch 
-the kernel to get bridging to work with Iptables. Does anyone have 
-experience with RHEL3? Does the kernel need patched, how did it go? I 
-appreciate any information, thanks!
+I think you can just use a packet socket with BPF; that's what dhcpd
+does and it doesn't seem to incur noticable overhead on non-dhcp
+traffic.
 
-Andy
+Jason
 
