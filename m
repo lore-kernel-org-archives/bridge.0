@@ -1,13 +1,12 @@
-Date: Tue, 29 Jun 2004 16:21:19 -0700
-From: "David S. Miller" <davem@redhat.com>
-Message-Id: <20040629162119.41f7bed9.davem@redhat.com>
-In-Reply-To: <20040629153740.11e35bb1@dell_ss3.pdx.osdl.net>
-References: <s0dc91e5.046@EMAIL>
-	<20040629153740.11e35bb1@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <1bde01c45e35$79cb70f0$8805640a@internal.watertech.com>
+From: "Chris Shaw" <chriss@watertech.com>
+Date: Tue, 29 Jun 2004 17:02:03 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH 2.4] Bridge STP message age
+Subject: [Bridge] MTU Question
+Reply-To: Chris Shaw <chriss@watertech.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,14 +15,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: kishoreak@myw.ltindia.com, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Tue, 29 Jun 2004 15:37:40 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
+I have a bridge that has gigabit interfaces. The machine in question has the
+fun job of being a Bridge, Firewall and SMB server. Both of the Gigabit
+interfaces are connected to workstations directly via Xover cable (well
+MDI-X to be exact). My question is, if I enable jumbo frames on the gigabit
+interfaces will that make any difference in overall transfer rate of the
+bridge? I was thinking it might because even though the NIC is enslaved, it
+IS the device that the workstations communicate to. But also it might not
+because when applications talk to the network they're using BR(n) at
+1500bytes.. can a bridging guru shed some light on this for me?
 
-> This is the 2.4 version which incorporates the observations from Kishore
-> about 2.6. The existing 2.4 code set the age properly, but did not increment
-> correctly for HZ=1000 and could send a stale (expired) configuration.
+-Thank you in advance
+Chris
 
-Both 2.4.x and 2.6.x variants applied, thanks Stephen.
