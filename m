@@ -1,12 +1,9 @@
-From: <Administrator>
-Date: Wed, 3 Sep 2003 06:55:11 +0300
-Message-ID: <091c01c371cf$2c3e3870$d400000a@newworld.com.tr>
+From: ST03/Stockholm/MYDATA%MYDATA_NOTES@mydata.com
+Date: Wed, 3 Sep 2003 06:11:19 +0200
+Message-ID: <OFCC2CC495.565C3D62-ONC1256D96.00170262@mydata.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Class: urn:content-classes:message
-Subject: [Bridge] [MailServer Notification]To Recipient file blocking settings matched and action taken.
+Content-type: text/plain; charset=us-ascii
+Subject: [Bridge] Report to Recipient(s)
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -19,14 +16,15 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
 To: bridge@lists.osdl.org
 
-ScanMail for Microsoft Exchange has blocked an attachment.
+Incident Information:-
+Originator: bridge-admin@lists.osdl.org
+Recipients: bridge@lists.osdl.org
+Subject:    [Bridge] Meeting notice
 
-Sender = name
-Recipient(s) = bridge@lists.osdl.org
-Subject = [Bridge] Meeting notice
-Scanning time = 09/03/2003 06:55:10
+The file / html you received was infected with the Exploit-MIME.gen.b virus
+and was deleted.
+The file Ton.scr you received was infected with the W32/Klez.h@MM virus and
+was deleted.
 
-Action on file blocking:
-The attachment Ton.scr matches the file blocking settings. ScanMail has Quarantined it.  The attachment was quarantined to C:\Program Files\Trend\Smex\Alert\Ton3f55661e492.scr_.
 
-Warning to Recipient: Action taken by attachment blocking.
+
