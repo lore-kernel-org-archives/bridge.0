@@ -1,13 +1,10 @@
-Date: Fri, 16 Apr 2004 14:24:15 -0700
-From: "David S. Miller" <davem@redhat.com>
-Message-Id: <20040416142415.07572f56.davem@redhat.com>
-In-Reply-To: <20040414120434.2029b567@dell_ss3.pdx.osdl.net>
-References: <20040413151630.710042e3@dell_ss3.pdx.osdl.net>
-	<20040414120434.2029b567@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0 (Apple Message framework v612)
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH 2.6.5] bridge - replace CLEAR_BITMAP with memset
+Message-Id: <D5906FCC-9392-11D8-814D-000502CB9573@bauwut.de>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+From: christian funk <c.funk@bauwut.de>
+Date: Wed, 21 Apr 2004 14:53:06 +0200
+Subject: [Bridge] Which NICs are the best for bridges?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,12 +13,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@oss.sgi.com, bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 14 Apr 2004 12:04:34 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
+Hello,
 
-> It looks like a recent patch to 2.6.5 got rid of CLEAR_BITMAP.
+I seem to remember seeing a notice about NICs with RealTek Chips 
+(specifically those using the 8139 Chip) being unstable and slow. This 
+notice has since vanished (removed or reworded?).
 
-Applied.
+Can someone tell me if this problem has been fixed, or suggest stable 
+(and fast) NICs I could use instead. My options seem to be Intel, 
+VIA-Rhine or RealTek 8139C based models only.
+
+I'm trying to set up a box that will support multiple independent 
+bridges, i.e. with 4 or more dedicated hardware interfaces. 4 Port NICs 
+would be great for this, but since they are expensive, it would be nice 
+to know if they work, before buying them.
+
+Thanks
+
+Christian Funk
+
+
