@@ -1,16 +1,10 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Subject: Re: [Bridge] Strange, my transparent squid stoped working
-Date: Wed, 1 Oct 2003 08:07:43 +0200
-References: <002901c3876b$bae6bc80$6700a8c0@fredrik>
-	<001a01c38799$8f8b4140$3601a8c0@lappis>
-	<012c01c3879a$8b585080$7005640a@internal.watertech.com>
-In-Reply-To: <012c01c3879a$8b585080$7005640a@internal.watertech.com>
+Date: Wed, 1 Oct 2003 09:51:33 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20030927202200.GA612@man.beta.es>
+Message-ID: <Pine.LNX.4.44.0309301531530.2511-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310010807.43910.bdschuym@pandora.be>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [Bridge] Re: bridge breaks loopback on 2.4.22
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,16 +13,61 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Chris Shaw <chriss@watertech.com>, Fredrik =?iso-8859-1?q?Win=E4s?= <fredrik@winas.com>
-Cc: bridge@lists.osdl.org
+To: Santiago Garcia Mantinan <manty@manty.net>, bridge@osdl.org, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
 
-On Tuesday 30 September 2003 23:33, Chris Shaw wrote:
-> I was wrong then. They must have changed a few things in the br-nf code or
-> I was doing something wrong. I thought that NAT only applied to packets
-> destined for the same box.
 
-transparant NAT has been working a long time.
+Stephen, 
 
-cheers,
-Bart
+Have you looked into this? 
+
+Thank you 
+
+On Sat, 27 Sep 2003, Santiago Garcia Mantinan wrote:
+
+> Hi!
+> 
+> Since the change to 2.4.22 I've been experimenting problems here, after
+> many tests I have seen what I think is the problem that is causing this.
+> 
+> The problem I'm seing is the loopback starts loosing packages, I don't know
+> if this could also happen on other interfaces. I'm testing this by starting
+> a:
+> 	tcpdump -n -i lo port
+> then a:
+> 	nc -n -l port >/dev/null
+> and a:
+> 	nc localhost port </dev/zero
+> 
+> If everything is fine my cpu goes to 100% and I see the packages all the way
+> in my tcpdump screen, great. But there are sometimes when this doesn't go
+> smooth and the tcpdump starts to show only one or two packages each N
+> seconds, till it ends up showing the resend of the last package which is
+> never acknowledged, you can even see that the timings of this packages that
+> are being repeated match those of tcp backoff, my cpu charge is then really
+> really low, nc disconnects after a while, ...
+> 
+> When does this happen?
+> 
+> It took me a while to find this out, but it happens when you have a bridge
+> interface and one of the ports of the bridge is told to drop packages, like
+> when they detect a loop in the net and an interface is set to a blocking
+> state.
+> 
+> Of course that the loopback is not a part of any bridge in any of my setups,
+> and I've seen this in a couple of machines, one SMP and the other one single
+> micro, 2.4.21 worked ok, at least I could not reproduce this on that one. If
+> the interfaces have been in a forwarding state all the time since the bridge
+> was setup, without being in a blocking state, then this problem does not
+> seem to happen.
+> 
+> I believe that the changes the bridge went through from 2.4.21 to 2.4.22 are
+> to blame on this one, but this is just a guess.
+> 
+> Hope we can find a fix for this so that it is integrated in 2.4.23 kernel,
+> I'll be happy to make any tests you want to track this farther down.
+> 
+> Regards...
+> 
+
+
 
