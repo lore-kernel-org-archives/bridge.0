@@ -1,10 +1,10 @@
-From: Gerard Borg <ggb112@rsphy1.anu.edu.au>
-Message-ID: <4346.203.214.64.233.1090148614.squirrel@rsphyweb.anu.edu.au>
-Date: Sun, 18 Jul 2004 21:03:34 +1000 (EST)
+Message-ID: <40FBB78C.5070209@tv.debian.net>
+Date: Mon, 19 Jul 2004 14:59:08 +0300
+From: Tommi Virtanen <tv@tv.debian.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Ethernet network driver
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] typo in br_stp.c: propgating -> propagating
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,24 +15,18 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-Hi all
+Hi. I'm not subscribed, so please Cc: me.
 
-I am trying to bridge an ethernet card to mkiss.c which implements the
-ax25 protocol for serial ttys. I have had trouble getting this to work and
-I have a few general questions...
-(i) Would one expect ax25's acknowledgement to cause trouble with
-forwarding non-source ip packets like the wlan firmware is reputed to(And in so doing make bridging impossible).
+This trivial patch fixes a typo that irritates me every time I boot..
 
-(ii) If one were to write a device driver for the serial port that does the
-KISS procotol without ax25 at all (ie imitate Ethernet and use  line
-disciplines to talk to the serial port but avoid ax25), then is there a
-format or model on which  to base such a driver?
-For example, the driver SNULL in Alessandro Rubini's book on LINUX DEVICE
-DRIVERS is said to be Ethernet compatible and is generally available in
-source.
-What about PLIP? Maybe I could model the driver on PLIP which is Ethernet
-compatible?
+--- linux-2.5.orig/net/bridge/br_stp.c	2004-07-19 14:43:44.000000000 +0300
++++ linux-2.5/net/bridge/br_stp.c	2004-07-19 14:53:15.000000000 +0300
+@@ -299,7 +299,7 @@
+  	int isroot = br_is_root_bridge(br);
 
-Gerard
+  	pr_info("%s: topology change detected, %s\n", br->dev->name,
+-		isroot ? "propgating" : "sending tcn bpdu");
++		isroot ? "propagating" : "sending tcn bpdu");
 
-
+  	if (isroot) {
+  		br->topology_change = 1;
