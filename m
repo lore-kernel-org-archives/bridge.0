@@ -1,11 +1,14 @@
-Date: Tue, 17 Aug 2004 18:28:00 +0400
-From: Aleksey Serba <lucky@rbcmail.ru>
-Message-ID: <562736197.20040817182800@rbcmail.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge and ip aliasing on Debian
-Reply-To: Aleksey Serba <lucky@rbcmail.ru>
+Date: Thu, 19 Aug 2004 13:46:04 +0200
+From: Harald Welte <laforge@netfilter.org>
+Message-ID: <20040819114604.GQ3921@sunbeam.de.gnumonks.org>
+References: <W5101410375481091705422@asteria.telenet-ops.be>
+	<Pine.LNX.4.61.0408051507530.405@filer.marasystems.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="74hf9PSALuoWtOh/"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0408051507530.405@filer.marasystems.com>
+Subject: [Bridge] Re: Any way of knowing a packet's been defragmented
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,41 +17,54 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Henrik Nordstrom <hno@marasystems.com>
+Cc: bridge <bridge@osdl.org>, netfilter-devel <netfilter-devel@lists.netfilter.org>, Bart De Schuymer <bdschuym@pandora.be>, shemminger@osdl.org
 
-   Hello,
 
-   I can't figure out how to set up several IP addresses on bridge
-   interface in Debian way.
+--74hf9PSALuoWtOh/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-   Server - Debian GNU/Linux 2.6.7-1-k7
-   Interfaces - br0 ( eth0, eth1 )
+On Thu, Aug 05, 2004 at 03:10:42PM +0200, Henrik Nordstrom wrote:
+> On Thu, 5 Aug 2004 bdschuym@pandora.be wrote:
+>=20
+> >As Stephen explained, bridge ports of the same bridge device no longer=
+=20
+> >need to have the same mtu. So the bridge code needs to drop packets=20
+> >(ARP, IP, whatever) that will be too long for the output port.
+>=20
+> Eh.. I do not claim to be a bridge guru, but won't such bridge cause=20
+> serious havoc on the network much like PMTU blackholes does?
 
-------------- /etc/network/interfaces.conf ---------------
-auto br0
-iface br0 inet static
-    address X.X.X.X
-    netmask X.X.X.X
-    network X.X.X.X
-    broadcast X.X.X.X
-    gateway X.X.X.X
-    bridge_ports eth0 eth1
-----------------------------------------------------------
-   It works fine.
-   I need to add unroutable ip address on bridge interface.
-   I doubt, adding new bridge interface - this is the right way to do it.
-----------------------------------------------------------
-auto br1
-iface br1 inet static
-    address 192.168.0.1
-    netmask 255.255.255.0
-    network 192.168.0.0
-    broadcast 192.168.0.255
-    bridge_ports eth0 eth1
-----------------------------------------------------------
+Nobody ever replied to that question.
 
-   Any ideas? Any help will be greatly appreciated.
-   Please CC all replies, i'm not subscribed.
+Bart, Stephen, what is your take on this?   How was this resolved?
 
-          Aleksey
+> Regards
+> Henrik
 
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--74hf9PSALuoWtOh/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBJJL8XaXGVTD0i/8RAk+tAJsE/nw7IQzURImMS9CuXryxEa11twCaAk7i
+jLZk5i2Wp2FZMFk4f91VfCc=
+=kKiS
+-----END PGP SIGNATURE-----
+
+--74hf9PSALuoWtOh/--
