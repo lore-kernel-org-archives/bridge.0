@@ -1,14 +1,12 @@
-Date: Mon, 4 Apr 2005 09:30:36 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20050404093036.1065a465@dxpl.pdx.osdl.net>
-In-Reply-To: <20050404162201.GA10070@nihil>
-References: <20050327092700.GA19972@nihil>
-	<20050329112733.GA6274@darkalpt.hinezumilabs.org>
-	<20050404162201.GA10070@nihil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4251855E.9010302@abwaters.com>
+Date: Mon, 04 Apr 2005 12:20:14 -0600
+From: Bryan Waters <bryanw@abwaters.com>
+MIME-Version: 1.0
+Subject: Re: [Bridge] ayuda con brige en kernel 2.6
+References: <e5d0c6b05040407121aebf6d3@mail.gmail.com>
+In-Reply-To: <e5d0c6b05040407121aebf6d3@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH bridge-2.6.11] bridge hub_enabled option
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,27 +15,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Alpt <alpt@freaknet.org>
-Cc: linux-net@vger.kernel.org, netdev@oss.sgi.com, bridge@lists.osdl.org
+To: jorge Matus <jorgematus1976@gmail.com>, bridge@osdl.org
 
-On Mon, 4 Apr 2005 18:22:01 +0200
-Alpt <alpt@freaknet.org> wrote:
+Ha leido esta pagina?  http://bridge.sourceforge.net/faq.html
 
-> On Tue, Mar 29, 2005 at 01:27:33PM +0200, Alpt wrote  :
-> ~> The document describing this patch is here:
-> ~> http://www.freaknet.org/alpt/src/bridge-hub/readme
-> ~> 
-> ~> There is a small correction for this patch. The new version is attached
-> ~> here and be be found also here:
-> ~> http://www.freaknet.org/alpt/src/bridge-hub/bridge-2.6.11-hub.patch
-> ~> 
-> ~> The patch for the bridge-utils:
-> ~> http://www.freaknet.org/alpt/src/bridge-hub/bridge-utils-1.0.6-hub.patch
-> 
-> so.. is it applied or not?
-> 
-> Best Regards
+o esta?  http://bridge.sourceforge.net/howto.html
 
-I would rather it not be applied to mainline since it only has specialized usage.
-I am willing to hold keep it in the patches area of the bridge site so others
-can find it.
+No nos dice cual problemas que tiene?  "bridging" fucione para mi en FC2.
+
+-bryanw
+
+jorge Matus wrote:
+
+>hola he visto vuestro trabajo y la verdad es bastante interesante, la
+>verdad es que yo soy nuevo en linux, pero he aprendido mucho este
+>ultimo tiempo le escribo para ver si pueden ayudarme
+>
+>estoy trabajando con fedora core 2 kernel 2.6 he instalado una
+>herramienta "bridge-utils-0.9.6-1.i386.rpm"  para que funcione el
+>comando brctl
+>hasta aqui no tengo problemas, lo que necesito saber es si en este
+>distro tengo que realizar alguna configuracion adicional. por vuestra
+>ayuda gracias espero su respuesta tambien me incribire en la lista
+>para ver si puedo aportar algo
+>_______________________________________________
+>Bridge mailing list
+>Bridge@lists.osdl.org
+>http://lists.osdl.org/mailman/listinfo/bridge
+>
+>
+>
+>  
+>
