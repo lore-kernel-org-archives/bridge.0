@@ -1,10 +1,13 @@
-Message-ID: <20040617222940.79616.qmail@web90104.mail.scd.yahoo.com>
-Date: Thu, 17 Jun 2004 15:29:40 -0700 (PDT)
-From: Derek Smalls <dsmalls321@yahoo.com>
+Date: Thu, 17 Jun 2004 15:52:05 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [Bridge] Bridging between user processes - TAP question
-In-Reply-To: <40D11F57.9070504@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20040617155205.38b9dbff@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040617222940.79616.qmail@web90104.mail.scd.yahoo.com>
+References: <40D11F57.9070504@web.de>
+	<20040617222940.79616.qmail@web90104.mail.scd.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="Multipart=_Thu__17_Jun_2004_15_52_05_-0700_=q97pnXHaQaRoE0k"
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,92 +16,279 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Derek Smalls <dsmalls321@yahoo.com>
+Cc: bridge@lists.osdl.org
 
-Thanks again to everybody who responded!
+This is a multi-part message in MIME format.
 
-I've redone everything from scratch with no result, I
-think I'm missing something with respect to tap
-devices -- hopefully this is the forum to get help.
+--Multipart=_Thu__17_Jun_2004_15_52_05_-0700_=q97pnXHaQaRoE0k
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I'm trying to write a trivial application that would
-do read/write between a pair of tap devices. For
-starters I'm just trying to do a read on a single tap
-device -- just to make sure that it works. On a
-freshly booted 2.4.20 system I do:
-
->tunctl -u root -t tap0
->mknod /dev/tap0 c 36 16 
->ifconfig tap0 promisc up
-
-BTW, "tunctl" does not create the /dev/tap0 file so I
-am using "mknod" to do it -- is this correct? 
-
-I then start a very simple program derived from the
-example in tun-1.1 package to do a select on
-"/dev/tap0":
-
-int main(int argc, char *argv[]) 
-{ 
-   int f1, fm; 
-   fd_set fds; 
-  
-   f1 = open("/dev/tap0", O_RDWR); 
-   ioctl(f1, TUNSETNOCSUM, 1); 
-   fm = f1 + 1; 
-  
-   FD_ZERO(&fds); 
-   FD_SET(f1, &fds); 
-  
-   select(fm, &fds, NULL, NULL, NULL); 
-  
-   printf("Received data on tap0 \n"); 
-   return 0; 
-} 
-
-I then do "ping -I tap0 6.6.6.6" , or start my own
-application that talks to ethernet ports giving it
-tap0 as the port to talk to... Nothing. The select()
-never returns. BTW, tcpdump does show packets on tap0
-in both cases.
-
-I suspect that tap0 is not set up correctly, what am I
-doing wrong?
-
-Thank you,
+Do either of these help?  I used them about a year ago when updating
+tun and tap to new netdevice model.
 
 
---- Michael Renzmann <mrenzmann@web.de> wrote:
-> Hi.
-> 
-> Derek Smalls wrote:
->  >>I have not played with tun/tap myself, but the
->  >>kernel documentation in
->  >>Documentation/networking/tuntap.txt seems to
->  >>indicate that you need a program to listen on two
->  >>opened /dev/net/tun devices and copy the frames
->  >>from one to the other.
-> > Thanks! I was afraid this was the reason ... :(
-> > 
-> > I actually tried writing an application that would
-> > open /dev/tap4 as a file and do a select() on it. 
-> 
-> The standalone tun-package [1] contains two example
-> applications that 
-> act as simple bridges, one using SIGIO, one using
-> select(). I guess it 
-> could be helpful for you to take a look at these
-> examples.
-> 
-> [1] http://vtun.sourceforge.net/tun/tun-1.1.tar.gz
-> 
-> Bye, Mike
-> 
+--Multipart=_Thu__17_Jun_2004_15_52_05_-0700_=q97pnXHaQaRoE0k
+Content-Type: text/plain;
+ name="taptest.c"
+Content-Disposition: attachment;
+ filename="taptest.c"
+Content-Transfer-Encoding: quoted-printable
 
+/* Simple program to listen to /dev/tap0 and reply to pings. */
+#include <fcntl.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#if defined(__GLIBC__) && (__GLIBC__ =3D=3D 2)
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#else
+#include <linux/tcp.h>
+#include <linux/udp.h>
+#endif
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
 
+u_int16_t csum_partial(void *buffer, unsigned int len, u_int16_t prevsum)
+{
+	u_int32_t sum =3D 0;
+	u_int16_t *ptr =3D buffer;
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - Helps protect you from nasty viruses.
-http://promotions.yahoo.com/new_mail
+	while (len > 1)  {
+		sum +=3D *ptr++;
+		len -=3D 2;
+	}
+	if (len) {
+		union {
+			u_int8_t byte;
+			u_int16_t wyde;
+		} odd;
+		odd.wyde =3D 0;
+		odd.byte =3D *((u_int8_t *)ptr);
+		sum +=3D odd.wyde;
+	}
+	sum =3D (sum >> 16) + (sum & 0xFFFF);
+	sum +=3D prevsum;
+	return (sum + (sum >> 16));
+}
+
+int main()
+{
+	int fd, len;
+	union {
+		struct {
+			char etherhdr[16];
+			struct iphdr ip;
+		} fmt;
+		unsigned char raw[65536];
+	} u;
+
+	fd =3D open("/dev/tap0", O_RDWR);
+	if (fd < 0) {
+		perror("Opening `/dev/tap0'");
+		return 1;
+	}
+
+	/* u.fmt.ip.ihl in host order!  Film at 11. */
+	while ((len =3D read(fd, &u, sizeof(u))) > 0) {
+		u_int32_t tmp;
+ 		struct icmphdr *icmp
+			=3D (void *)((u_int32_t *)&u.fmt.ip + u.fmt.ip.ihl );
+		struct tcphdr *tcp =3D (void *)icmp;
+		struct udphdr *udp =3D (void *)icmp;
+	=09
+		fprintf(stderr, "SRC =3D %u.%u.%u.%u DST =3D %u.%u.%u.%u\n",
+			(ntohl(u.fmt.ip.saddr) >> 24) & 0xFF,
+			(ntohl(u.fmt.ip.saddr) >> 16) & 0xFF,
+			(ntohl(u.fmt.ip.saddr) >> 8) & 0xFF,
+			(ntohl(u.fmt.ip.saddr) >> 0) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 24) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 16) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 8) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 0) & 0xFF);
+
+		switch (u.fmt.ip.protocol) {
+		case IPPROTO_ICMP:
+			if (icmp->type =3D=3D ICMP_ECHO) {
+				fprintf(stderr, "PONG! (iphdr =3D %u bytes)\n",
+					(unsigned int)((char *)icmp
+						       - (char *)&u.fmt.ip));
+
+				/* Turn it around */
+				tmp =3D u.fmt.ip.saddr;
+				u.fmt.ip.saddr =3D u.fmt.ip.daddr;
+				u.fmt.ip.daddr =3D tmp;
+
+				icmp->type =3D ICMP_ECHOREPLY;
+				icmp->checksum =3D 0;
+				icmp->checksum
+					=3D ~csum_partial(icmp,
+							ntohs(u.fmt.ip.tot_len)
+							- u.fmt.ip.ihl*4, 0);
+
+				{
+					unsigned int i;
+					for (i =3D 44;
+					     i < ntohs(u.fmt.ip.tot_len); i++){
+						printf("%u:0x%02X ", i,
+						       ((unsigned char *)
+							&u.fmt.ip)[i]);
+					}
+					printf("\n");
+				}
+				write(fd, &u, len);
+			}
+			break;
+		case IPPROTO_TCP:
+			fprintf(stderr, "TCP: %u -> %u\n", ntohs(tcp->source),
+				ntohs(tcp->dest));
+			break;
+
+		case IPPROTO_UDP:
+			fprintf(stderr, "UDP: %u -> %u\n", ntohs(udp->source),
+				ntohs(udp->dest));
+			break;
+		}
+	}
+	if (len < 0)
+		perror("Reading from `/dev/tap0'");
+	else fprintf(stderr, "Empty read from `/dev/tap0'");
+	return len < 0 ? 1 : 0;
+}
+		=09
+
+--Multipart=_Thu__17_Jun_2004_15_52_05_-0700_=q97pnXHaQaRoE0k
+Content-Type: application/octet-stream;
+ name="taptest.c"
+Content-Disposition: attachment;
+ filename="taptest.c"
+Content-Transfer-Encoding: quoted-printable
+
+/* Simple program to listen to /dev/tap0 and reply to pings. */
+#include <fcntl.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#if defined(__GLIBC__) && (__GLIBC__ =3D=3D 2)
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#else
+#include <linux/tcp.h>
+#include <linux/udp.h>
+#endif
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+
+u_int16_t csum_partial(void *buffer, unsigned int len, u_int16_t prevsum)
+{
+	u_int32_t sum =3D 0;
+	u_int16_t *ptr =3D buffer;
+
+	while (len > 1)  {
+		sum +=3D *ptr++;
+		len -=3D 2;
+	}
+	if (len) {
+		union {
+			u_int8_t byte;
+			u_int16_t wyde;
+		} odd;
+		odd.wyde =3D 0;
+		odd.byte =3D *((u_int8_t *)ptr);
+		sum +=3D odd.wyde;
+	}
+	sum =3D (sum >> 16) + (sum & 0xFFFF);
+	sum +=3D prevsum;
+	return (sum + (sum >> 16));
+}
+
+int main()
+{
+	int fd, len;
+	union {
+		struct {
+			char etherhdr[16];
+			struct iphdr ip;
+		} fmt;
+		unsigned char raw[65536];
+	} u;
+
+	fd =3D open("/dev/tap0", O_RDWR);
+	if (fd < 0) {
+		perror("Opening `/dev/tap0'");
+		return 1;
+	}
+
+	/* u.fmt.ip.ihl in host order!  Film at 11. */
+	while ((len =3D read(fd, &u, sizeof(u))) > 0) {
+		u_int32_t tmp;
+ 		struct icmphdr *icmp
+			=3D (void *)((u_int32_t *)&u.fmt.ip + u.fmt.ip.ihl );
+		struct tcphdr *tcp =3D (void *)icmp;
+		struct udphdr *udp =3D (void *)icmp;
+	=09
+		fprintf(stderr, "SRC =3D %u.%u.%u.%u DST =3D %u.%u.%u.%u\n",
+			(ntohl(u.fmt.ip.saddr) >> 24) & 0xFF,
+			(ntohl(u.fmt.ip.saddr) >> 16) & 0xFF,
+			(ntohl(u.fmt.ip.saddr) >> 8) & 0xFF,
+			(ntohl(u.fmt.ip.saddr) >> 0) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 24) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 16) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 8) & 0xFF,
+			(ntohl(u.fmt.ip.daddr) >> 0) & 0xFF);
+
+		switch (u.fmt.ip.protocol) {
+		case IPPROTO_ICMP:
+			if (icmp->type =3D=3D ICMP_ECHO) {
+				fprintf(stderr, "PONG! (iphdr =3D %u bytes)\n",
+					(unsigned int)((char *)icmp
+						       - (char *)&u.fmt.ip));
+
+				/* Turn it around */
+				tmp =3D u.fmt.ip.saddr;
+				u.fmt.ip.saddr =3D u.fmt.ip.daddr;
+				u.fmt.ip.daddr =3D tmp;
+
+				icmp->type =3D ICMP_ECHOREPLY;
+				icmp->checksum =3D 0;
+				icmp->checksum
+					=3D ~csum_partial(icmp,
+							ntohs(u.fmt.ip.tot_len)
+							- u.fmt.ip.ihl*4, 0);
+
+				{
+					unsigned int i;
+					for (i =3D 44;
+					     i < ntohs(u.fmt.ip.tot_len); i++){
+						printf("%u:0x%02X ", i,
+						       ((unsigned char *)
+							&u.fmt.ip)[i]);
+					}
+					printf("\n");
+				}
+				write(fd, &u, len);
+			}
+			break;
+		case IPPROTO_TCP:
+			fprintf(stderr, "TCP: %u -> %u\n", ntohs(tcp->source),
+				ntohs(tcp->dest));
+			break;
+
+		case IPPROTO_UDP:
+			fprintf(stderr, "UDP: %u -> %u\n", ntohs(udp->source),
+				ntohs(udp->dest));
+			break;
+		}
+	}
+	if (len < 0)
+		perror("Reading from `/dev/tap0'");
+	else fprintf(stderr, "Empty read from `/dev/tap0'");
+	return len < 0 ? 1 : 0;
+}
+		=09
+
+--Multipart=_Thu__17_Jun_2004_15_52_05_-0700_=q97pnXHaQaRoE0k--
