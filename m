@@ -1,11 +1,12 @@
-Message-ID: <005e01c361b0$89584e30$7005640a@internal.watertech.com>
-From: "Chris Shaw" <chriss@watertech.com>
-Date: Wed, 13 Aug 2003 08:35:34 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] BRIDGE + NFSROOT + IPTABLES (IP Conntrack) trouble
+Date: Wed, 13 Aug 2003 12:06:16 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20030813120616.29b02cb4.shemminger@osdl.org>
+In-Reply-To: <3F39A29A.2070009@metavize.com>
+References: <3F39A29A.2070009@metavize.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: bug: 2.6.0-test2 ethernet bridge kernel panic
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -16,18 +17,20 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: bridge@lists.osdl.org
+To: dmorris <dmorris@metavize.com>
+Cc: bridge@osdl.org
 
-Did my last post make sense? Is this a known issue with the bridge-nf code?
-Is there something I can do to help? Should I just shut up now?
+On Tue, 12 Aug 2003 19:29:46 -0700
+dmorris <dmorris@metavize.com> wrote:
 
-    -Thanks in advance
-    Chris
+> bug: 2.6.0-test2 ethernet bridge kernel panic
+> 
+> Sorry if this has already been reported.
+> Please email me if I can help, or give any other info.
+> It is a consistent panic, and it appeared sometime between 2.5.68(works 
+> fine for me except with SMP) and 2.6.0-test2
 
-Chris Shaw
-IS Manager
-Water Tech Industries
-Phone: (888)-254-8412
-Fax: (503)-261-9118
-E-Mail: chriss@watertech.com
+Can not reproduce it with 2.6.0-test3,  there were a several patches
+to bridging to fix state transition bugs, so it is probably already
+fixed.
 
