@@ -1,12 +1,11 @@
-Date: Wed, 23 Jun 2004 14:22:38 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20040623142238.43cfa58f@dell_ss3.pdx.osdl.net>
-In-Reply-To: <s0d894d5.034@EMAIL>
-References: <s0d894d5.034@EMAIL>
+Message-Id: <s0daed1b.002@EMAIL>
+Date: Thu, 24 Jun 2004 15:02:26 +0530
+From: "Kishore A K" <kishoreak@myw.ltindia.com>
+Subject: [Bridge] Re: [Patch] [2.6.7] Bridge - Fix BPDU message_age
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [Patch] [2.6.7] Bridge - Fix BPDU message_age
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,129 +14,80 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Kishore A K <kishoreak@myw.ltindia.com>
-Cc: "David S. Miller" <davem@redhat.com>, bridge@lists.osdl.org
+To: shemminger@osdl.org
+Cc: davem@redhat.com, bridge@lists.osdl.org
 
-On Tue, 22 Jun 2004 20:21:24 +0530
-"Kishore A K" <kishoreak@myw.ltindia.com> wrote:
+Hi Stephen,
 
-> Fixes message_age field update in config BPDUs. Also checks whether the BPDU 
-> message age has exceeded bridge max age before transmitting config BPDUs.
-> 
+>>First, we shouldn't send out the config info if our info about the root is too old.
 
-The idea is correct, but there are a couple of other issues.
-First, we shouldn't send out the config info if our info about the root is too old.
-Second, since the time values in the BPDU are scaled from jiffies to 1/256 sec later
-in the send process, need to increment age by the appropriate value.
+Thats why I had introduced the check "if (bpdu.message_age < br->max_age)".
+The purpose of maintaining the message_age parameter is to enable a bridge to 
+discard information whose age exceeds Max Age. So I think this would be the right 
+way of doing it. You may refer the section "8.6.1.3.3 step 3" in the IEEE 802.1D spec. 
+Above that I really did not get the logic behind doing "if (age < stp_t_to_jiffies(2))".
+Pls clarify.
 
-Try this instead please. If it works, I'll send it to Dave.
+>>Second, since the time values in the BPDU are scaled from jiffies to 1/256 sec later
+>>in the send process, need to increment age by the appropriate value.
 
+I had completely forgotten about this. However, the purpose of doing the increment is to 
+avoid underestimating the age, which is very unlikely to happen. Anyway this can be easily 
+done by incrementing the age by a factor ( (1 * HZ)>>8) instead of 1.
 
-diff -Nru a/net/bridge/br_private_stp.h b/net/bridge/br_private_stp.h
---- a/net/bridge/br_private_stp.h	2004-06-23 14:18:53 -07:00
-+++ b/net/bridge/br_private_stp.h	2004-06-23 14:18:53 -07:00
-@@ -26,7 +26,7 @@
- 	int		root_path_cost;
- 	bridge_id	bridge_id;
- 	port_id		port_id;
--	int		message_age;
-+	u16		message_age;
- 	int		max_age;
- 	int		hello_time;
- 	int		forward_delay;
-@@ -39,6 +39,17 @@
- 		(p->designated_port == p->port_id);
- }
- 
-+
-+/* convert system to ticks to 1/256 sec */
-+static inline u16 jiffies_to_stp_t(unsigned long j)
-+{
-+	return (j * 256) / HZ;
-+}
-+
-+static inline unsigned long stp_t_to_jiffies(u16 t)
-+{
-+	return ((unsigned long) t * HZ) / 256;
-+}
- 
- /* br_stp.c */
- extern void br_become_root_bridge(struct net_bridge *br);
-diff -Nru a/net/bridge/br_stp.c b/net/bridge/br_stp.c
---- a/net/bridge/br_stp.c	2004-06-23 14:18:53 -07:00
-+++ b/net/bridge/br_stp.c	2004-06-23 14:18:53 -07:00
-@@ -157,14 +157,21 @@
- 	bpdu.root_path_cost = br->root_path_cost;
- 	bpdu.bridge_id = br->bridge_id;
- 	bpdu.port_id = p->port_id;
--	bpdu.message_age = 0;
--	if (!br_is_root_bridge(br)) {
--		struct net_bridge_port *root
--			= br_get_port(br, br->root_port);
+>>+		long age = (long) root->message_age_timer.expires
+>>+			- (long)jiffies;
+
+"message_age_timer.expires - jiffies" does not give the message age. Instead it gives
+the time left before the message age timer expires. Whereas Message age is the time
+elapsed since the generation of the configuration BPDU by the root. So the right way
+of getting the message age according to me would be 
+
+message_age = max_age - (message_age_timer.expires - jiffies) + (HZ>>8)
+
+Pls correct me if I am wrong here.
+
+Hence the updated patch,
+
+Signed-off-by: Kishore A K <KishoreAK@myw.ltindia.com>
+
+Index: linux-2.6.7/net/bridge/br_stp.c
+=============================================================
+
+--- linux-2.6.7/net/bridge/br_stp.c.orig	2004-06-17 20:17:27.000000000 +0530
++++ linux-2.6.7/net/bridge/br_stp.c	2004-06-24 14:45:22.318961664 +0530
+@@ -161,20 +161,19 @@ void br_transmit_config(struct net_bridg
+ 	if (!br_is_root_bridge(br)) {
+ 		struct net_bridge_port *root
+ 			= br_get_port(br, br->root_port);
 -		bpdu.max_age = root->message_age_timer.expires - jiffies;
- 
+-
 -		if (bpdu.max_age <= 0) bpdu.max_age = 1;
-+	if (br_is_root_bridge(br)) 
-+		bpdu.message_age = 0;
-+	else {
-+		struct net_bridge_port *root = br_get_port(br, br->root_port);
-+		long age = (long) root->message_age_timer.expires
-+			- (long)jiffies;
-+
-+		/* our info about the root is stale */
-+		if (age < stp_t_to_jiffies(2))
-+			return;
-+
-+		bpdu.message_age = jiffies_to_stp_t(age) + 1;
++		bpdu.message_age = br->max_age - 
++			(root->message_age_timer.expires - jiffies) + (HZ >> 8);
  	}
-+
  	bpdu.max_age = br->max_age;
  	bpdu.hello_time = br->hello_time;
  	bpdu.forward_delay = br->forward_delay;
-diff -Nru a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
---- a/net/bridge/br_stp_bpdu.c	2004-06-23 14:18:53 -07:00
-+++ b/net/bridge/br_stp_bpdu.c	2004-06-23 14:18:53 -07:00
-@@ -19,9 +19,6 @@
- #include "br_private.h"
- #include "br_private_stp.h"
  
--#define JIFFIES_TO_TICKS(j) (((j) << 8) / HZ)
--#define TICKS_TO_JIFFIES(j) (((j) * HZ) >> 8)
+-	br_send_config_bpdu(p, &bpdu);
 -
- static void br_send_bpdu(struct net_bridge_port *p, unsigned char *data, int length)
- {
- 	struct net_device *dev;
-@@ -57,18 +54,17 @@
- 		dev_queue_xmit);
- }
- 
--static __inline__ void br_set_ticks(unsigned char *dest, int jiff)
-+static inline void br_set_ticks(unsigned char *dest, int jiff)
- {
--	__u16 ticks;
-+	__u16 ticks = jiffies_to_stp_t(jiff);
- 
--	ticks = JIFFIES_TO_TICKS(jiff);
- 	dest[0] = (ticks >> 8) & 0xFF;
- 	dest[1] = ticks & 0xFF;
- }
- 
--static __inline__ int br_get_ticks(unsigned char *dest)
-+static inline int br_get_ticks(const unsigned char *dest)
- {
--	return TICKS_TO_JIFFIES((dest[0] << 8) | dest[1]);
-+	return stp_t_to_jiffies((dest[0] << 8) | dest[1]);
+-	p->topology_change_ack = 0;
+-	p->config_pending = 0;
+-	
+-	mod_timer(&p->hold_timer, jiffies + BR_HOLD_TIME);
++	if (bpdu.message_age < br->max_age) {
++		br_send_config_bpdu(p, &bpdu);
++		p->topology_change_ack = 0;
++		p->config_pending = 0;
++		mod_timer(&p->hold_timer, jiffies + BR_HOLD_TIME);
++	}
  }
  
  /* called under bridge lock */
-@@ -108,7 +104,9 @@
- 	buf[28] = (bpdu->port_id >> 8) & 0xFF;
- 	buf[29] = bpdu->port_id & 0xFF;
+
  
--	br_set_ticks(buf+30, bpdu->message_age);
-+	buf[30] = (bpdu->message_age >> 8) & 0xFF;
-+	buf[31] = bpdu->message_age & 0xFF;
-+
- 	br_set_ticks(buf+32, bpdu->max_age);
- 	br_set_ticks(buf+34, bpdu->hello_time);
- 	br_set_ticks(buf+36, bpdu->forward_delay);
+
+
+
+
