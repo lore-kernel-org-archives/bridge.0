@@ -1,12 +1,10 @@
-Subject: Re: Re: [Bridge] The problem of bridge+netfilter+nat
-From: Bart De Schuymer <bdschuym@pandora.be>
-In-Reply-To: <20050324162043.SM02616@zhengcb>
-References: <20050324162043.SM02616@zhengcb>
-Content-Type: text/plain
-Date: Thu, 24 Mar 2005 19:02:07 +0100
-Message-Id: <1111687328.3388.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <4242B362.1070309@asenovgrad.net>
+Date: Thu, 24 Mar 2005 14:32:34 +0200
+From: jiv <jiv@asenovgrad.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Transparent shaper with 2.6 kernel
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,29 +13,28 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Zheng Chuanbo <zhengcb@netpower.com.cn>
-Cc: bridge <bridge@lists.osdl.org>
+To: bridge@lists.osdl.org
 
-Op do, 24-03-2005 te 16:25 +0800, schreef Zheng Chuanbo:
-> Hi,
-> 
-> Thanks for reply.
-> 
-> There is no dhcp client on our firewall. I tried to get rid of the problem
-> by blocking broadcast packets with the command below,
-> 
-> iptables -I FORWARD -d 192.168.0.255 -j DROP
-> 
-> But it still remained the same. So is there any quick solutions to that?
-> Thanks.
+Hi all!
 
-Upgrade to a recent kernel or change net/core/dev.c::handle_bridge()
-so that it looks like this (add the PACKET_LOOPBACK stuff):
-	if ((*pskb)->pkt_type == PACKET_LOOPBACK ||
-	    (port = rcu_dereference((*pskb)->dev->br_port)) == NULL)
-		return 0;
+I'm trying to make a transparent shaper with kernel 2.6.11
+I have done this and used it many times on 2.4.25 kernel and 
+ebtables-brnf-5_vs_2.4.25.diff
+On 2.4.25 I have been using U32 classifiers and HTB.
+On 2.6.11 even with :
 
-cheers,
-Bart
+newserver ~ # zcat /proc/config.gz | grep -i BRIDGE_NETFILTER
+CONFIG_BRIDGE_NETFILTER=y
 
+newserver ~ # ls /proc/sys/net/bridge/
+bridge-nf-call-arptables  bridge-nf-call-ip6tables  
+bridge-nf-call-iptables  bridge-nf-filter-vlan-tagged
+newserver ~ # cat /proc/sys/net/bridge/*
+1
+1
+1
+1
 
+I'm still not succeeding ti shape the traffic on the bridge interface
+
+Any ideas please???
