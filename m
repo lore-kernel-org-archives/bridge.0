@@ -1,8 +1,8 @@
-Message-Id: <200310230126.h9N1QDFO001097@fire-1.osdl.org>
+Message-Id: <200310230126.h9N1QDFO001096@fire-1.osdl.org>
 From: "bcharlie@gte.net" <bcharlie@gte.net>
 Date: Thu, 23 Oct 2003 10:24:21 +0900
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_1066872374-28354-280"
+Content-Type: multipart/mixed; boundary="----------=_1066872374-31352-22"
 Subject: [Bridge] reverse the aging process now
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -12,11 +12,11 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "bridge@osdlab.org" <bridge@osdl.org>
+To: "bridge@osdl.org" <bridge@osdl.org>
 
 This is a multi-part message in MIME format...
 
-------------=_1066872374-28354-280
+------------=_1066872374-31352-22
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: base64
@@ -55,7 +55,7 @@ dWUiPjxiPlRoaXMgTGluayBXb3JrcyBUaGlzIFRpbWUhPC9iPjwvZm9udD48
 L2E+PGJyPjxicj4NCjwvdGQ+PC90cj48L3RhYmxlPg0KPC9ERUZBTkdFRF9k
 aXY+PC9CT0RZPjwvSFRNTD4NCg==
 
-------------=_1066872374-28354-280
+------------=_1066872374-31352-22
 Content-Type: text/plain; name="SpamAssassinReport.txt"
 Content-Disposition: inline; filename="SpamAssassinReport.txt"
 Content-Transfer-Encoding: 7bit
@@ -87,4 +87,34 @@ MIME_HTML_ONLY     (0.1 points)  Message only has text/html MIME parts
 
 
 
-------------=_1066872374-28354-280--
+------------=_1066872374-31352-22
+Content-Type: text/plain; name="SpamAssassinReport.txt"
+Content-Disposition: inline; filename="SpamAssassinReport.txt"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+
+This mail is probably spam.  The original message has been attached
+along with this report, so you can recognize or block similar unwanted
+mail in future.  See http://spamassassin.org/tag/ for more details.
+
+Content preview:  .. candi LATEST BREAKTHROUGH - NEWS FLASH The BAD News:
+  As you Age your body produces less hormones causing you to look older,
+  feel older and be weaker! [...] 
+
+Content analysis details:   (5.20 points, 5 required)
+TO_ADDRESS_EQ_REAL (0.6 points)  To: repeats address as real name
+HGH                (0.5 points)  BODY: Human Growth Hormone
+HTML_60_70         (0.5 points)  BODY: Message is 60% to 70% HTML
+HTML_FONT_COLOR_RED (0.1 points)  BODY: HTML font color is red
+HTML_MESSAGE       (0.1 points)  BODY: HTML included in message
+HTML_FONT_COLOR_NAME (0.4 points)  BODY: HTML font color has unusual name
+HTML_FONT_BIG      (0.2 points)  BODY: FONT Size +2 and up or 3 and up
+HTML_FONT_COLOR_BLUE (0.1 points)  BODY: HTML font color is blue
+USERPASS           (1.5 points)  URI: URL contains username and (optional) password
+HTTP_USERNAME_USED (0.7 points)  URI: Uses a username in a URL
+MSG_ID_ADDED_BY_MTA_3 (0.5 points)  'Message-Id' was added by a relay (3)
+
+
+
+------------=_1066872374-31352-22--
