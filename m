@@ -1,14 +1,12 @@
-Date: Mon, 10 May 2004 16:35:31 -0400
-From: Ali Bahar <alih@internetDog.org>
-Subject: Re: [Bridge] Bridge Source Code
-Message-ID: <20040510203531.GA2573@internetDog.org>
-References: <200405101603.39025.fmtrindade@inf.ufrgs.br>
-	<20040510130443.7b825ed5@dell_ss3.pdx.osdl.net>
+Date: Mon, 10 May 2004 14:39:25 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040510143925.4e86594d@dell_ss3.pdx.osdl.net>
+In-Reply-To: <24091224.1084150678092.JavaMail.www-data@c007.oddpost.com>
+References: <24091224.1084150678092.JavaMail.www-data@c007.oddpost.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510130443.7b825ed5@dell_ss3.pdx.osdl.net>
-Reply-To: alih@internetDog.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: 4 port ethernet card bridge question
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,26 +15,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Matthew Tanase <tanase@qaddisin.com>
+Cc: bridge@osdl.org
 
+On Sun, 9 May 2004 17:57:58 -0700 (PDT)
+Matthew Tanase <tanase@qaddisin.com> wrote:
 
-I did send them to you!
-But, if you must use your own CDs, then:
-  If the kernel source is not included along with the binary CDs, then
-  you need to have the _source_ CDs. The source CDs will definitly
-  have the kernel source code in them.
+>  Hi 
+>   
+> I have a question for you - I know you probably get a lot but I figured I'd try. I've setup several bridges before using the code. Never had any problems. Recently I set Mandrake 10.0 up on a rackmount, with a builtin NIC and a 4 port ethernet card. Initially, I plugged 2 links into the 4 port ethernet card (eth1 and eth2) - and for the life of me, could not get it to work. Fiddled around, FINALLY got it to work but only with the following config. WAN link (link to the switch) in eth1 of the 4 port card and a PC plugged into eth0 - the onboard NIC. That's the ONLY way it will work (vice versa will not oddly enough). Any ideas? Linux recognizes the 4 port card as eth1-4 - is there something I'm missing? Thanks. 
+>   
+> mt 
+>   
+> -- 
+> Matthew Tanase 
+> President, Qaddisin 
+> www.qaddisin.com 
+> 314.496.2408 
 
-later,
-ali
-
-> Francisco Maestri Trindade <fmtrindade@inf.ufrgs.br> wrote:
-
-> >  Im trying to find the bridge source code in my kernel implementation. 
-
-> > I wanted. Maybe I havent installed it correctly, but I dont know then what 
-> > should I install to have the source codes in my computer.
-
-
--- 
-                     Single State Solution
-     Israeli Citizenship & Democratic Rights For All in Gaza & West Bank
+Let's start with the obvious.  You need to make sure all the NIC's you want use work standalone
+before you try bridging.  Usually, a simple test like bringing them up and doing a ping will verify
+that packets are being successfully sent and received.  Also, were there any potential routing loops?
+If somewhere downstream two ports are connected into the same hub or switch, then bridging won't work.
