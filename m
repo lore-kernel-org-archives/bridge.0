@@ -1,13 +1,13 @@
-Date: Wed, 26 Jan 2005 13:09:03 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Benchmarking bridging vs. routing on same
-	hardware/network
-Message-ID: <20050126130903.02aaea4a@dxpl.pdx.osdl.net>
-In-Reply-To: <200501262052.j0QKqETV007434@fire-1.osdl.org>
-References: <200501262052.j0QKqETV007434@fire-1.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <41F82C6D.7020006@trash.net>
+Date: Thu, 27 Jan 2005 00:49:01 +0100
+From: Patrick McHardy <kaber@trash.net>
+MIME-Version: 1.0
+References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>	<p73zn0ccaee.fsf@verdi.suse.de>	<1105117559.11753.34.camel@baythorne.infradead.org>	<20050107100017.454ddadc@dxpl.pdx.osdl.net>	<1105133241.3375.16.camel@localhost.localdomain>	<20050118135735.4b77d38d.davem@davemloft.net>	<1106433059.4486.11.camel@localhost.localdomain>	<1106436153.20995.42.camel@tux.rsn.bth.se>	<1106484019.3376.5.camel@localhost.localdomain>	<1106496509.1085.1.camel@tux.rsn.bth.se>	<20050125220558.6e824f8a.davem@davemloft.net>
+	<1106730510.4041.4.camel@localhost.localdomain>
+In-Reply-To: <1106730510.4041.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH/RFC] Reduce call chain length in netfilter
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,40 +16,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: dan-linuxbridge@unpossible.com
-Cc: bridge@lists.osdl.org
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org, bridge@osdl.org, snort2004@mail.ru, Martin Josefsson <gandalf@wlug.westbo.se>, rusty@rustcorp.com.au, dwmw2@infradead.org, ak@suse.de, shemminger@osdl.org, "David S. Miller" <davem@davemloft.net>
 
-On Wed, 26 Jan 2005 14:52:13 -0600
-<dan-linuxbridge@unpossible.com> wrote:
+Bart De Schuymer wrote:
 
-> I have been running benchmarks to compare the performance of bridging to
-> routing on the same hardware.  
-> 
-> The bridge/router system is a dual Opteron 246 (2.0Ghz); Tyan 2882
-> motherboard; 2 GB PC3200 memory (1 GB in each CPU's bank; 128bit
-> configuration); dual e1000 based NIC; PCI-X 133Mhz; 2.6.9 Kernel; NAPI
-> enabled in the kernel and the NIC drivers; CPU affinity ties each eth to a
-> specific CPU; system otherwise idle.  
-> 
-> My test configuration is:
-> 
-> Packet Generator System <--> Bridge/Router <--> Packet Recipient
-> 
-> The network and hosts are otherwise idle.
-> 
-> Using pktgen (the Linux packet generator) I can send 459,000pps through this
-> hardware when it is configured as a router.  I only get 252,000pps through
-> the hardware when configured as a bridge.  
-> 
-> Needless to say, I use two IP subnets when routing, and a single subnet
-> while bridging.  Also, when routing I set the mac addr destination for
-> pktgen to the router interface (otherwise it won't pick up the packets),
-> whereas when bridging I set it to the recipient's mac address.
-> 
-> Any ideas why the performance of the bridge is so bad?  
+>Does anyone have objections to this patch, which reduces the netfilter
+>call chain length?
+>
+Looks fine to me.
 
-No, but perhaps oprofile would help.
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 
+Regards
+Patrick
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>
