@@ -1,13 +1,9 @@
-From: Diego Liziero <diego.liziero@unimore.it>
-In-Reply-To: <20040521154511.1d7b896d@dell_ss3.pdx.osdl.net>
-References: <20040521154511.1d7b896d@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1085389690.6767.15.camel@igno>
-Mime-Version: 1.0
-Date: Mon, 24 May 2004 11:08:11 +0200
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [1/11] bridge - handle delete of multiple devices with
-	same address
+From: monade@freenet.de
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----------=_1085305521-13101-268"
+Message-Id: <E1BRpXa-0002dM-L9@www9.emo.freenet-rz.de>
+Date: Sun, 23 May 2004 11:45:10 +0200
+Subject: [Bridge] ebtables rules dont work
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,58 +12,81 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bluez-devel@lists.sourceforge.net, bridge@osdl.org, kishoreak@myw.ltindia.com
+To: bridge@lists.osdl.org
 
-Great work Stephen, just tested with Bluetooth PAN
-and everything works now.
+This is a multi-part message in MIME format...
 
-For the bluetooth people, here is the bk link to the patch:
-http://linux.bkbits.net:8080/linux-2.5/cset@40afb9c8_3WOgNFCBlahWsksS_5icQ?nav=index.html|ChangeSet@-3d
+------------=_1085305521-13101-268
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks to all the people that helped me.
-Regards,
-Diego.
+Hello,<br>
+i have some problems with testing the ebtables on my machine.<br>
+It's a Vanilla Kernel 2.6.5 and I selected:<br>
+<br>
+- [*] 802.1d Ethernet Bridging<br>
+- Netfilter iptables option  <br>
+<br>
+and all ebtables options to compile new for a bridge machine.<br>
+This works sucesfully and i installed ebtables v2.0.6.<br>
+<br>
+Now my Problem is that all packets will be Droped in the Forward Chain.<br>
+It makes the appearance that it's unimportant wich rule i use.<br>
+<br>
+Here my very simple rule Setup only for testing:<br>
+ebtables -P FORWARD DROP<br>
+ebtables -P INPUT DROP<br>
+ebtables -P OUTPUT DROP<br>
+ebtables -A FORWARD -p IPv4 --ip-proto tcp --ip-sport 80 -j ACCEPT <br>
+<br>
+When i use iptables for filtering i can/must see the same effect. <br>
+<br>
+What I'have done wrong ? forgot options in the kernel, forgot rules ?<br>
+<br>
+<br>
+greets
 
-On Sat, 2004-05-22 at 00:45, Stephen Hemminger wrote:
-> This fixes the issue discovered when removing bluetooth devices from a bridge.
-> Need to add special case code when forwarding table is being cleaned up to 
-> handle the case where several devices share the same hardware address.
-> 
-> (Could fix on 2.4 if there is demand for it)
->  
-> diff -Nru a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> --- a/net/bridge/br_fdb.c	2004-05-20 08:43:46 -07:00
-> +++ b/net/bridge/br_fdb.c	2004-05-20 08:43:46 -07:00
-> @@ -157,9 +157,28 @@
->  		hlist_for_each_safe(h, g, &br->hash[i]) {
->  			struct net_bridge_fdb_entry *f
->  				= hlist_entry(h, struct net_bridge_fdb_entry, hlist);
-> -			if (f->dst == p) {
-> -				fdb_delete(f);
-> +			if (f->dst != p) 
-> +				continue;
-> +
-> +			/*
-> +			 * if multiple ports all have the same device address
-> +			 * then when one port is deleted, assign
-> +			 * the local entry to other port
-> +			 */
-> +			if (f->is_local) {
-> +				struct net_bridge_port *op;
-> +				list_for_each_entry(op, &br->port_list, list) {
-> +					if (op != p && 
-> +					    !memcmp(op->dev->dev_addr,
-> +						    f->addr.addr, ETH_ALEN)) {
-> +						f->dst = op;
-> +						goto skip_delete;
-> +					}
-> +				}
->  			}
-> +
-> +			fdb_delete(f);
-> +		skip_delete: ;
->  		}
->  	}
->  	write_unlock_bh(&br->hash_lock);
 
+<br>--<br><!-- AdSpace freenet EMO Webmail Banner -->=20
+<a href=3D"http://adserver.freenet.de/click.ng/site=3Dfn&prod=3Dchetools&ka=
+t=3Drub&tbl=3Dwebmail&ppos=3D1&TransactionID=3D1085305510568287&rgtg=3D256"=
+ target=3D"_blank"><img DEFANGED_src=3D"http://adserver.freenet.de/image.ng=
+/site=3Dfn&prod=3Dchetools&kat=3Drub&tbl=3Dwebmail&ppos=3D1&TransactionID=
+=3D1085305510568287&rgtg=3D256" border=3D0></a><!-- / AdSpace -->
+
+
+------------=_1085305521-13101-268
+Content-Type: text/plain; name="SpamAssassinReport.txt"
+Content-Disposition: inline; filename="SpamAssassinReport.txt"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+
+Spam detection software, running on the system "fire-2.osdl.org", has
+identified this incoming email as possible spam.  The original message
+has been attached to this so you can view it (if it isn't spam) or block
+similar future email.  If you have any questions, see
+the administrator of that system for details.
+
+Content preview:  Hello, i have some problems with testing the ebtables
+  on my machine. It's a Vanilla Kernel 2.6.5 and I selected: - [*] 802.1d
+  Ethernet Bridging - Netfilter iptables option and all ebtables options
+  to compile new for a bridge machine. This works sucesfully and i
+  installed ebtables v2.0.6. [...] 
+
+Content analysis details:   (6.4 points, 5.0 required)
+
+ pts rule name              description
+---- ---------------------- --------------------------------------------------
+ 1.1 NO_REAL_NAME           From: does not include a real name
+ 0.8 HTML_30_40             BODY: Message is 30% to 40% HTML
+ 0.2 HTML_MESSAGE           BODY: HTML included in message
+ 0.5 HTML_IMAGE_ONLY_08     BODY: HTML: images with 600-800 bytes of words
+ 2.0 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
+ 1.1 HTML_MIME_NO_HTML_TAG  HTML-only message, but there is no HTML tag
+ 0.7 PRIORITY_NO_NAME       Message has priority setting, but no X-Mailer
+
+
+
+------------=_1085305521-13101-268--
