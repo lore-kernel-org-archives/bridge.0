@@ -1,12 +1,12 @@
-Date: Fri, 11 Mar 2005 09:34:47 -0800
+Date: Fri, 11 Mar 2005 09:38:57 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20050311093447.6559ab1d@dxpl.pdx.osdl.net>
-In-Reply-To: <20050311014602.GA29420@nambi>
-References: <20050311014602.GA29420@nambi>
+Message-ID: <20050311093857.42785b5d@dxpl.pdx.osdl.net>
+In-Reply-To: <4231AF70.7000005@agro.uba.ar>
+References: <4231AF70.7000005@agro.uba.ar>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: 2.6.8 bridging with large packets question
+Subject: [Bridge] Re: Virtual IP
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,36 +15,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Ted Deppner <ted@psyber.com>, bridge@osdl.org
+To: Mariano Wahlmann <wahlmann@agro.uba.ar>, bridge@osdl.org
 
-On Thu, 10 Mar 2005 17:46:02 -0800
-Ted Deppner <ted@psyber.com> wrote:
+On Fri, 11 Mar 2005 11:47:12 -0300
+Mariano Wahlmann <wahlmann@agro.uba.ar> wrote:
 
-> I've got a multicast video application where I'm using a bridge to get
-> duplicated multicast output on each of two physical interfaces.
+> hi, i'm trying brigde to use with qemu. my configuration is one 
+> interface eth0 with two virtual ips 168.96.156.X and 10.1.1.X, but when 
+> i use brigde i can only use one ip for br0 do you know how can i create 
+> bridge br0 (to be used with qemu) and mantein my two ip's address config?.
 > 
-> eg br0 -> eth0 & eth1.  
-> ifconfig br0 x.x.x.x
-> route add -net 224.0.0.0/4 br0
-> 
-> This works perfectly for standard 1500 byte data packets (meaning they
-> don't need to fragment).  However, if I use 4096 byte data packets, which
-> obviously must fragment to go on the ethernet, then the packets only go
-> out the last interface in the bridge, ie eth1.  There's no packets going
-> out eth0.
+> Thanks
 
-Bridging implements a IEEE 802.2 bridge.  This means it is protocol independent,
-it doesn't know what a IP packet is.  It's the standard, this is the correct
-behaviour.
-
-> Can you comment on this?  Has this been resolved in a later version of the
-> kernel, or is there an option I can tweak?
-
-You could use ebtables (netfilter for bridging), to process data and fragment
-as needed.
-
-> Thank you.
-> 
-> -- 
-> Ted Deppner
-> http://www.deppner.us/
+no, i don't know the answer.  the bridge device really doesn't know
+anything about ip.  If you can do it for any other device (for example dummy),
+then you should be able to do it for bridge.
