@@ -1,12 +1,10 @@
-Date: Tue, 22 Jun 2004 09:01:18 -0700
+Date: Tue, 22 Jun 2004 16:30:23 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] how to get bridge-nf-0.0.7-against-2.4.18.diff?
-Message-Id: <20040622090118.3dca7ea6@dell_ss3.pdx.osdl.net>
-In-Reply-To: <200406220400.i5M406wr002296@fire-2.osdl.org>
-References: <200406220400.i5M406wr002296@fire-2.osdl.org>
+Message-Id: <20040622163023.29a1862a@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] turn off debug error message in bridge ioctl
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,23 +13,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: bridge@osdl.org
 
-On Tue, 22 Jun 2004 12:04:46 +0800
-"xcl"<cd_xcl@sina.com> wrote:
+Trivial patch to turn off a debug message.  It seems some SNMP daemons just
+periodically trying to look at MII state.
 
-> hello,everyone
->    I have installed bridge-utils.I want to combine   bridge and iptables.But I can't get bridge-nf-0.0.7-against-2.4.18.diff .
-> Who can tell me where i can get it? 
->    thanks!
-> 
-> 		
-> 
-> ________________________
-> ________________________ cd_xcl@sina.com
-> 
-> 
-The netfilter + bridging is under the ebtables project.
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-	http://prdownloads.sourceforge.net/ebtables
-
+ 
+diff -Nru a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+--- a/net/bridge/br_ioctl.c	2004-06-22 16:28:20 -07:00
++++ b/net/bridge/br_ioctl.c	2004-06-22 16:28:20 -07:00
+@@ -403,6 +403,6 @@
+ 
+ 	}
+ 
+-	printk(KERN_DEBUG "Bridge does not support ioctl 0x%x\n", cmd);
++	pr_debug("Bridge does not support ioctl 0x%x\n", cmd);
+ 	return -EOPNOTSUPP;
+ }
