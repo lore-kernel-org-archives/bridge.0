@@ -1,10 +1,10 @@
 From: Paul Schulz <pschulz@foursticks.com>
 Content-Type: multipart/signed; micalg=pgp-sha1;
 	protocol="application/pgp-signature";
-	boundary="=-IFfJIamslVdKW0bQFdw7"
-Message-Id: <1077146815.3779.14.camel@localhost>
+	boundary="=-HsjsU+1kn1lasE9Xr0Ti"
+Message-Id: <1077146945.3779.17.camel@localhost>
 Mime-Version: 1.0
-Date: Thu, 19 Feb 2004 09:56:56 +1030
+Date: Thu, 19 Feb 2004 09:59:05 +1030
 Subject: [Bridge] Bridging on broken Broadcom hardware.
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -18,15 +18,15 @@ To: bridge@lists.osdl.org
 Cc: sjolly@foursticks.com
 
 
---=-IFfJIamslVdKW0bQFdw7
+--=-HsjsU+1kn1lasE9Xr0Ti
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Greetings (first post to the list)...
+Greetings (first post to the list, with patch)...
 
 The following patch is required to allow bridging to occur on an
-IBM x305 (1RU server).  (It has been posted to the kernel-developers
-mailing list previously.)
+IBM x305 (1RU server) - with the tg3 module. =20
+(This has been posted to the kernel-developers mailing list.)
 
 Background:
   - The Dual Broadcom NICs in the IBM x305 have a broken checksum
@@ -45,18 +45,36 @@ effect any hosts using this chipset. Does anyone have any pointers?
 
 Paul Schulz <pschulz@foursticks.com>
 
+--------------------------------------------------------------------
+diff -Naur linux-2.4.20/drivers/net/tg3.c linux-2.4.20-np/drivers/net/tg3.c
+--- linux-2.4.20/drivers/net/tg3.c	Fri Nov 29 10:23:14 2002
++++ linux-2.4.20-np/drivers/net/tg3.c	Thu Jan 23 14:46:54 2003
+@@ -6161,6 +6161,11 @@
+ 	if (tp->pci_chip_rev_id =3D=3D CHIPREV_ID_5700_B0)
+ 		tp->tg3_flags |=3D TG3_FLAG_BROKEN_CHECKSUMS;
+=20
++	/* 5703 A2 have issues with checksumming too. (sarah) */
++	if (tp->pci_chip_rev_id =3D=3D CHIPREV_ID_5703_A2)
++		tp->tg3_flags |=3D TG3_FLAG_BROKEN_CHECKSUMS;
++
+ 	/* Regardless of whether checksums work or not, we configure
+ 	 * the StrongARM chips to not compute the pseudo header checksums
+ 	 * in either direction.  Because of the way Linux checksum support
 
---=-IFfJIamslVdKW0bQFdw7
+
+
+
+--=-HsjsU+1kn1lasE9Xr0Ti
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQBAM/S+R7GbvP4HDg8RApjkAKDJCCCOX4B1Nen1tRerlHCzzNAXFwCfS1u5
-YhzUYquC8U+52y6TdYRX0BA=
-=3vFV
+iD8DBQBAM/VBR7GbvP4HDg8RAjEtAKDV9fU1BTLLtRi74UTmpLEJnLQm2ACfSvtQ
+NR+lAgCxS3vuLW/N3jVNoyc=
+=iEnp
 -----END PGP SIGNATURE-----
 
---=-IFfJIamslVdKW0bQFdw7--
+--=-HsjsU+1kn1lasE9Xr0Ti--
 
