@@ -1,12 +1,13 @@
-From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Fri, 8 Aug 2003 01:14:09 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308080114.09148.bdschuym@pandora.be>
-Subject: [Bridge] [ANNOUNCE] ebtables + bridge-nf patch 3 for 2.4.21
+Date: Fri, 8 Aug 2003 10:14:12 +1000
+From: Cameron Simpson <cs@zip.com.au>
+Message-id: <20030808001412.GB1269@cskk.homeip.net>
+Reply-to: cs@zip.com.au
+References: <AD59566A9D83864F871AE2E525030640050722@aimail.aiinet.priv>
+Mime-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+In-reply-to: <AD59566A9D83864F871AE2E525030640050722@aimail.aiinet.priv>
+Subject: [Bridge] Re: ebtables target to disable an interface
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -17,15 +18,22 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: ebtables-user <ebtables-user@lists.sourceforge.net>, bridge <bridge@osdl.org>
+To: bridge@osdl.org
 
-It's available at the usual place.
-Change: remove vlan patch from Bassem Armanyous. Kernel oopses were reported 
-in kernels that have an unloaded but compiled vlan module.
-I currently lack the time to figure out the solution, so for now it's removed.
-If you're not getting an oops, there is no need to switch from patch 2 to the 
-new patch (3).
+On 16:44 07 Aug 2003, Eble, Dan <DanE@aiinet.com> wrote:
+| I would like to set up an ACL for an ethernet port using ebtables rules, and
+| if a security violation occurs, to physically disable the port (i.e.
+| whatever "ifconfig down" does).  I did not see such a feature in the
+| ebtables man page.  Does this exist anywhere, or do I have to create a new
+| extension for it?
 
-cheers,
-Bart
+You could log the event, and monitor the log with a
+	tail -f logfile | ...
+to turn it off. No extension needed.
+-- 
+Cameron Simpson <cs@zip.com.au> DoD#743
+http://www.cskk.ezoshosting.com/cs/
 
+Loud Pipes make noise.
+Skill and experience save lives.
+        - Ed Morandi, edm@cbnewsj.att.com, DoD#0733
