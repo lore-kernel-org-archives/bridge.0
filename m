@@ -1,9 +1,11 @@
-Message-ID: <AD59566A9D83864F871AE2E525030640050736@aimail.aiinet.priv>
-From: "Eble, Dan" <DanE@aiinet.com>
-Subject: RE: [Bridge] Re: ebtables target to disable an interface
-Date: Tue, 12 Aug 2003 11:29:27 -0400
+Message-ID: <005e01c361b0$89584e30$7005640a@internal.watertech.com>
+From: "Chris Shaw" <chriss@watertech.com>
+Date: Wed, 13 Aug 2003 08:35:34 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] BRIDGE + NFSROOT + IPTABLES (IP Conntrack) trouble
 Sender: bridge-admin@lists.osdl.org
 Errors-To: bridge-admin@lists.osdl.org
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -14,22 +16,18 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 List-Archive: <http://lists.osdl.org/pipermail/bridge/>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-> You could log the event, and monitor the log with a
-> 	tail -f logfile | ...
-> to turn it off. No extension needed.
-> -- 
-> Cameron Simpson <cs@zip.com.au> DoD#743
-> http://www.cskk.ezoshosting.com/cs/
+Did my last post make sense? Is this a known issue with the bridge-nf code?
+Is there something I can do to help? Should I just shut up now?
 
-I just discovered the iptables ULOG target, which sends packets to user
-space through a netlink socket.  I may try to convert it into an ebtables
-watcher, but I will experiment with iptables ULOG first, to see how easy it
-is to use.
+    -Thanks in advance
+    Chris
 
--- 
-Dan Eble <dane@aiinet.com>  _____  .
-                           |  _  |/|
-Applied Innovation Inc.    | |_| | |            "All Protocols MUST be odd"
-http://www.aiinet.com/     |__/|_|_|              -- RFC 1661 (PPP)
+Chris Shaw
+IS Manager
+Water Tech Industries
+Phone: (888)-254-8412
+Fax: (503)-261-9118
+E-Mail: chriss@watertech.com
+
