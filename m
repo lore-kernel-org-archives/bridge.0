@@ -1,10 +1,9 @@
-Message-ID: <41C493D5.4080404@langhofer.at>
-Date: Sat, 18 Dec 2004 21:32:21 +0100
-From: armin langhofer <office@langhofer.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge with ppp0, ppp1,..
+Message-Id: <6.2.0.14.2.20041224132024.055a6b90@mail.modemsoft.it>
+Date: Fri, 24 Dec 2004 13:21:47 +0100
+From: Claudio Mantegna <zerocool@lonestar.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: [Bridge] Compiling Bridge Utils 1.04 
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,43 +14,32 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-hi there
+Hello All,
 
-i found your project and tried to bridge two ppp devices.
+sorry for all my error of writing...
+I have tried to compile the bridge util in formality brctld and just tried 
+to compile it has given me this error:
 
+/usr/src/bridge-utils-1.0.4/brctl# make brctld
 
-you say (http://bridge.sourceforge.net/faq.html) that this is possible:
-
-... "Linux bridging is very flexible; the LAN's can be either 
-traditional Ethernet device's, or pseudo-devices such as PPP, VPN's or 
-VLAN's. The only restrictions are that the devices:" ...
-
-
-i tried this but got "br_add_interface: Invalid argument" when adding a 
-ppp device to the bridge. adding an ethernet device works perfectly!
-
-00:07:21 protector ~ # brctl addbr br0
-00:07:22 protector ~ # brctl addif br0 eth2
-00:07:30 protector ~ # brctl addif br0 ppp0
-br_add_interface: Invalid argument
-
-
-
-the ppp's are done with pppd and pptpd (poptop)
-00:09:39 protector ~ # pppd --version
-pppd version 2.4.2
-00:09:44 protector ~ # pptpd --version
-PoPToP v1.1.4-b4
+gcc -Wall -g -O2    brctld.c   -o brctld
+brctld.c: In function `runchild':
+brctld.c:122: warning: implicit declaration of function `br_find_bridge'
+brctld.c:122: warning: assignment makes pointer from integer without a cast
+brctld.c:132: warning: implicit declaration of function `br_command_lookup'
+brctld.c:132: warning: assignment makes pointer from integer without a cast
+brctld.c:137: error: structure has no member named `needs_bridge_argument'
+brctld.c:143: warning: passing arg 1 of pointer to function from 
+incompatible pointer type
+brctld.c:143: error: too many arguments to function
+make: *** [brctld] Error 1
 
 
-any ideas?
+How i can resolve this problem?
 
-best regards, armin.
--- 
-armin langhofer
-snail:  fischer von erlachstr. 29
-snail:  a-5020 salzburg
-phone:  +43 699 11648495
-email:  office@langhofer.at
-gnupg:  http://langhofer.at/pubkey.txt
+
+N.B. : I use Slackware 10 patched.....
+
+Thanks for all...
+Claudio !
 
