@@ -1,6 +1,6 @@
-Date: Tue, 7 Oct 2003 08:06:40 -0700
-From: "David S. Miller" <davem@redhat.com>
-Message-Id: <20031007080640.50de4d45.davem@redhat.com>
+Date: Tue, 7 Oct 2003 08:52:41 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20031007085241.7410611a.shemminger@osdl.org>
 In-Reply-To: <200310062204.07230.bdschuym@pandora.be>
 References: <200310062204.07230.bdschuym@pandora.be>
 Mime-Version: 1.0
@@ -17,20 +17,25 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netdev@oss.sgi.com, greearb@candelatech.com, bridge@osdl.org, vlan@wanfear.com, shemminger@osdl.org
+Cc: "David S.Miller" <davem@redhat.com>, netdev@oss.sgi.com, Ben Greear <greearb@candelatech.com>, bridge <bridge@osdl.org>, vlan@wanfear.com
 
-On Mon, 6 Oct 2003 22:04:07 +0200
-Bart De Schuymer <bdschuym@pandora.be> wrote:
+Instead of using vlan_dev_hard_start_xmit_p which causes looking
+too deep inside vlan, use the fact that all bridges and vlan devices
+are marked with dev->priv_flags.
 
-> -	unsigned long hh[16 / sizeof(unsigned long)];
-> +	unsigned char hh[18];
+Instead of:
 
-Maybe don't do this?  It should be aligned on a 'long' boundry I
-think.
+#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+	    || (out->hard_start_xmit == vlan_dev_hard_start_xmit_p &&
+	    VLAN_DEV_INFO(out)->real_dev->hard_start_xmit == br_dev_xmit
+#endif
 
-The only real hard objection I have with the patch is the vlan xmit
-routine pointer crap, just export the symbol.
+Try:
 
-Once you fix that I'll apply your patch as long as Stephen has no
-objections.
+#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+	    || (out->priv_flags & IFF_802_1Q_VLAN) &&
+	    (VLAN_DEV_INFO(out)->real_dev->priv_vlags & IFF_EBRIDGE)
+#endif
 
+
+Gets rid of all the symbol export and other nastiness
