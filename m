@@ -1,15 +1,10 @@
-Date: Tue, 14 Oct 2003 13:23:42 +0200
-From: Gergely Madarasz <gorgo@thunderchild.debian.net>
-Subject: Re: [Bridge] hw checksum problems
-Message-ID: <20031014112342.GQ8160@thunderchild.debian.net>
-References: <20031013111647.GK8160@thunderchild.debian.net>
-	<20031013121901.GM8160@thunderchild.debian.net>
-	<20031013151454.GN8160@thunderchild.debian.net>
-	<p05111b01bbb180787e47@[10.96.96.13]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p05111b01bbb180787e47@[10.96.96.13]>
+Date: Mon, 20 Oct 2003 16:07:12 +0200
+From: Christian Schroeder <christian.schroeder@imms.de>
+Message-ID: <1066658832.3f93ec10cdf08@memphis.imms.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] rapid spanning tree 
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,34 +13,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Hannes Schulz <schulz@schwaar.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Tue, Oct 14, 2003 at 12:35:48PM +0200, Hannes Schulz wrote:
-> >> Oh, I forgot :) The kernel is 2.4.22 with the execshield patch. The cards
-> >> work nicely when there is no bridge. One more specific info: when 
-> >> bridged,
-> >> under normal circumstances the hme port is in blocking state (it should
-> >> start forwarding only if the tg3 link is down).
-> 
-> 
-> There are 2 patches regarding bridging:
-> 
-> shemminger	1.1109.2.4 
-> 	[BRIDGE]: Clear hw checksum flags when bridging.
-> karlis	1.1063.40.5	[BRIDGE]: kfree --> kfree_skb.
-> [these are messages from the bitkeeper log]
-> 
-> Both of them are in 2.4.23pre4. Either retry with 2.4.23pre4 or apply 
-> those patches manually. I think you mentioned that you have applied 
-> the first patch. The second patch fixed a memory corruption problem. 
-> I have a bridged environment and *no* problems with it.
+Hi list,
 
-Thanks, so far it seems my problem has been fixed (2.4.23pre7 installed
-now). My machine survived a ping -s 2000 -f <broadcastaddr> ;). 2.4.22
-crashed instantly from this command :).
+I'm very new to this list, but we have the task to realize a linux
+based bridging device with fast loop detection support. We want to
+built an embedded linux device ( arm7 or arm9 based) with 3 ethernet
+interfaces. As I understood, the linux bridging code contains already
+stp (802.1d) support. So we could try to use this and to play with the
+stp timing constants, but I think, it would be much better to implement
+the 802.1w extensions in the bridging code. Are there any hints re-
+garding this subject and is there any detailed documentation about
+the linux bridging code (besides the source code itself) or is there
+already a project running to implement 802.1w for a recent linux kernel?
 
--- 
-Madarasz Gergely   gorgo@thunderchild.debian.net   gorgo@linux.rulez.org
-    It's practically impossible to look at a penguin and feel angry.
-        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
+thanks a lot and best regards
+Christian Schroeder
+
+Dr.-Ing. Christian Schroeder
+Institut fuer Mikroelektronik- und Mechatronik-Systeme
+Langewiesener Strasse 22
+98693 Ilmenau
+Telefon: +49 3677 678315
+Telefax: +49 3677 678337
+Mobil:   +49 173 5789172
+e-mail:  christian.schroeder@imms.de
+e-mail:  christian.schroeder.ik@gmx.de
+
