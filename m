@@ -1,5 +1,5 @@
-Message-ID: <40A72B0E.20104@gmx.net>
-Date: Sun, 16 May 2004 10:49:18 +0200
+Message-ID: <40A876DC.8060703@gmx.net>
+Date: Mon, 17 May 2004 10:25:00 +0200
 From: Eicke Friedrich <tady@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -46,8 +46,9 @@ iptables, ebtables or packet scheduler were loaded. It was running in
 runlevel 3, multiuser networking without x-system.
 
 For comparison only this link shows what happens if we push as much 
-TCP traffic in one direction (~97.5 MBits/s) through the bridge having 
-iptables loaded:
+TCP traffic in one direction (~97.5 MBits/s) through the bridge, in 
+second image having iptables loaded:
+http://kea.informatik.uni-leipzig.de/ipp2p/delay/color_max_120c_delay-0.png
 http://kea.informatik.uni-leipzig.de/ipp2p/delay/color_max_ipp2p_120c_delay-0.png
 
 Thanks in advance for any comments or suggestions!
