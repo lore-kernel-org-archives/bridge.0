@@ -1,8 +1,8 @@
 From: jamal <hadi@cyberus.ca>
-In-Reply-To: <C0170D0AF1277849A4B4518034F855DD0CFC39@aiexchange.ai.aiinet.com>
-References: <C0170D0AF1277849A4B4518034F855DD0CFC39@aiexchange.ai.aiinet.com>
+In-Reply-To: <C0170D0AF1277849A4B4518034F855DD0CFC3A@aiexchange.ai.aiinet.com>
+References: <C0170D0AF1277849A4B4518034F855DD0CFC3A@aiexchange.ai.aiinet.com>
 Content-Type: text/plain
-Message-Id: <1091111561.1021.17.camel@jzny.localdomain>
+Message-Id: <1091116989.1033.53.camel@jzny.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Subject: [Bridge] RE: [PATCH] (3/4) bridge linkstate handling
@@ -15,53 +15,58 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Thu, 29 Jul 2004 14:32:55 -0000
+Date: Thu, 29 Jul 2004 16:03:20 -0000
 To: "Eble, Dan" <DanE@aiinet.com>
 Cc: netdev@oss.sgi.com, bridge@osdl.org, Stephen Hemminger <shemminger@osdl.org>
 
-On Thu, 2004-07-29 at 09:24, Eble, Dan wrote:
-> > > This makes bridge port status reflect both the
-> > > state of the interface from software (up/down)
-> > > and the carrier.  It makes STP handle link failure
-> > > (cable breakage, etc).
-> > 
-> > nice. Does this entrench STP further in the kernel?
-> > Still planning to move it out to user space?
-> > 
+On Thu, 2004-07-29 at 11:11, Eble, Dan wrote:
+> > -----Original Message-----
+> > From: jamal [mailto:hadi@cyberus.ca] 
+
+> > Your main problem there would be STP convergence time. Transfering the
+> > packet to user space and reacting should be several factors 
+> > of magnitude faster than it takes STP to converge.
+> > The STP state should stay in the kernel. Control of it and 
+> > BPDU handling is what i am suggesting to take out.
 > 
-> Even if STP were implemented in user space, this part should be done in
-> the kernel to make sure that there is no window of time for a packet to
-> be received or transmitted after the link state changes.  Cable failure
-> is not the worst problem here.  Imagine some dunce pulling out a cable,
-> realizing he pulled the wrong one, and then plugging it back into the
-> wrong port.  If he has created a loop in the network, even a single
-> packet getting through can cause problems.
+> Is the time it takes STP to converge really the issue in this case?
+> When a port loses and then regains carrier, it needs to enter the
+> Blocking state without delay. 
 
-Your main problem there would be STP convergence time. Transfering the
-packet to user space and reacting should be several factors of magnitude
-faster than it takes STP to converge.
-The STP state should stay in the kernel. Control of it and BPDU handling
-is what i am suggesting to take out.
+I must have misunderstood Stevens patch then. Are you saying it opens a
+port that was previously blocked because a link was reinserted?
+Or the other way round: it would put a port that was previously blocked
+into forwarding state because a previously forwarding link had a link
+going down?
+I think all this needs to be policy driven.
 
-> One could be really paranoid and flush the hardware transmit queue too.
-> Is there a way to do that for a port from the bridge driver?  (Or should
-> the device drivers do that anyway after a link change?)
+> If the carrier state change were handled
+> by a daemon, the bridge driver would have some time to transmit or
+> receive packets via that port before the daemon could tell it to block
+> the port, wouldn't it?
 
-A admin down/up should help via utilities like ifconfig. You are right
-though, there should be an optional scheme to flush the s/ware queues as
-well reset the device tx DMAs on link down. Note emphasis on optional.
+Refer to my note above; opening or closing ports should be serialized
+via user space. Let me clarify.
 
-> Are there any ethernet controllers that can automatically disable tx/rx
-> after a link change, requiring the driver to reenable them?  That would
-> also be useful.
+I think there are two issues at stake:
+1) STP state - derived from the BPDUs. The state transition machinery
+should run in kernel. The inteligence to transition the state machine
+should reside in user space (call it control plane if it makes it more
+palatable).
 
-Havent heard of any; if any exist it should be optional. There could be
-use to continue a transmit right after pluging a cable back. Think of a
-single port TCP server.
+2) Other inputs like Links going up or down or VRRP state changes for HA
+or somebody farting (pardon my language, just trying to drive a point)
+also need to feed to the same policy decision making engine. The result
+of the policy engine is a STP state transition for a port.
 
-In general i think link management would be safer to decouple. As it is
-right now for capable drivers we have a multicast netlink msg being
-sent; should be able to listen to that and do something with result.
+For the policy decision you need to make certain assumptions
+about the STP topology i.e you need to have some knowledge of what
+connects to you. Or you need to compute such things. 
+All such decisions in my opinion belong to some policy decision engine
+which should reside in user space.
+CISCOs UplinkFast, portFast (assumes a end host connected to port),
+RSTP, dynamic 802.1w or whatever new "innovation" comes up ends being
+very easy to add.
 
 cheers,
 jamal
