@@ -1,14 +1,12 @@
-From: Joao Carvalho <Joao.Carvalho@fe.up.pt>
-Subject: Re: [Bridge] Permanent after reboot
-Date: Mon, 15 Mar 2004 08:27:42 +0000
-References: <018001c404f2$0ce0c3b0$6400a8c0@Wesley> <405526F4.5040101@cox.net>
-In-Reply-To: <405526F4.5040101@cox.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Date: Tue, 16 Mar 2004 11:07:02 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-Id: <20040316110702.589a76e8@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040316082837.1797.qmail@daitarn.register.it>
+References: <20040316082837.1797.qmail@daitarn.register.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403150827.43103.Joao.Carvalho@fe.up.pt>
+Subject: [Bridge] Re: Strange DHCP behaviour with bridging
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,52 +15,42 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: a.fiorino@chibacity.it, bridge@osdl.org
 
-just put it in
-/etc/rc.d/rc.local
-its simple and it works ;-)
-if you even so want to use an System V script
-you will have to create the dirs
-/etc/rc.d/init.d
-/etc/rc.d/rc3.d/
-/etc/rc.d/rc5.d/
-copy the script to init.d and create the links in rc3 and rc5.
-i would recopmend you using the rc.local just invoke your script.
-cheers
-JC
+On Tue, 16 Mar 2004 09:28:37 +0100
+<a.fiorino@chibacity.it> wrote:
+> I sent this message to the briding mailing list, but I didn't get any answer and I can't find how to subscribe;
+> I think you are the mailing list manager so I send this hoping for better luck.
 
-On Monday 15 March 2004 03:45, Greg Morgan wrote:
-> Wesley GDS wrote:
-> > Hi there
-> >
-> > I was just wondering if you could help me.  I have set up a bridge
-> > between my two eth cards, works fine.  The problem i have is that when i
-> > reboot my PC the bridge is lost.  Is there any way i can make this
-> > permanent.
-> >
-> > I am running slackware 9.1
->
-> There are a set of initialization files or init files in Linux.  You
-> will need to write a script.  All the steps that you used to create the
-> bridge by hand is what will be stored in this script.   The your script
-> will need to be called in runlevel 3 and runlevel 5.  This is how Linux
-> systems startup.  You may want to search on System V ( as in five )
-> startup files.  Each distro puts their startup file in a different
-> directory.  On Redhat systems it is in /etc/rc.d but I am not sure if
-> this is the same for Slackware.
->
-> I hope this helps,
-> Greg
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
+http://lists.osdl.org/mailman/listinfo/bridge
 
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Joao de Deus Carvalho         Phone: +351-225081635      Fax: +351-225081537
-Faculdade de Engenharia da            Email: Joao.Carvalho@foxlink.org
-Universidade do Porto         
-   PGP Key fingerprint = F9D4 EC6A 2BA2 BCD6 0585  1682 891F 156F 8833 E56E
+> Here is the scenario: I have one server with kernel 2.4.24 with a
+> bridge br0 made of 2 interfaces, eth0 and tap0 (the last is an OpenVPN
+> tunnel), and one remote computer connetting through tap0. 
+> 
+> If I assign a static IP to the remote computer, the bridge works perfecly 
+> (so I think the problem is not OpenVPN-related). If I start a DHCPd on the
+> server and I configure the remote client to get the IP from it,
+> something strange happens: if I "sniff" on the br0 interface, I can
+> see the DHCP requests coming from the client (from 0.0.0.0.bootpc to
+> 255.255.255.bootps) and the DHCPd answers going back from
+> ip.of.the.server.bootps to 255.255.255.255.bootpc; also sniffing on
+> eth0 gives the same result, but if I sniff on the tap0 interface, I
+> don't see the replies! So the client never get its own IP. What I'm
+> doing wrong? To add some mistery, sometimes (one try out of 10) the
+> reply flows correctly to the remote client. All the three interfaces
+> (eth0, br0, tap0) doesn't have firewalling enabled, and under /proc
+> ip_forwarding is enabled and rp_filter is disabled for all
+> interfaces. brctl showmacs br0 correctly shows the remote virtual
+> interface MAC address as not local.Both eth0 and tap0 have been
+> configured with ifconfig 0.0.0.0 promisc up.
+
+So the packet makes it into the tap0 device, but the bridge doesn't know
+where to send the output.  Are you running spanning tree protocol or not?
+Look at the contents of the forwarding table (brctl showmacs br0)
+Spanning tree does take a while to settle on startup so it could be that
+you need to wait about a minute till the bridge starts running.
+
+Or may the tap device doesn't have a real hardware mac
+address is confusing it.
+
