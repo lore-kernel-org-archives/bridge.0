@@ -1,9 +1,13 @@
-From: "Kafa" <kafa@layer1hk.com>
-Message-ID: <002001c4cc77$9182a7d0$6e7ba8c0@kafa>
+Subject: Re: [Bridge] bridge in 'hub' mode possible?
+References: <87d5xw4uui.fsf@aka.i.naked.iki.fi>
+	<20041129102432.24888dad@zqx3.pdx.osdl.net>
+From: Nuutti Kotivuori <naked@iki.fi>
+Date: Mon, 29 Nov 2004 20:32:23 +0200
+In-Reply-To: <20041129102432.24888dad@zqx3.pdx.osdl.net> (Stephen
+	Hemminger's message of "Mon, 29 Nov 2004 10:24:32 -0800")
+Message-ID: <87ekic1p6w.fsf@aka.i.naked.iki.fi>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0021_01C4CCBA.9FA5E7D0"
-Subject: [Bridge] about cpu usage of linux bridge
+Content-Type: text/plain; charset=us-ascii
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,124 +16,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Wed, 17 Nov 2004 07:32:44 -0000
-To: bridge@osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: bridge@osdl.org
 
-This is a multi-part message in MIME format...
+Stephen Hemminger wrote:
+> On Mon, 29 Nov 2004 16:01:57 +0200
+> Nuutti Kotivuori <naked@iki.fi> wrote:
+>> That is, effectively to just turn off MAC address learning and
+>> treat all packets on the bridge level effectively as broadcasts.
+>
+> Why, are you trying to work around flaws in the underlying Ethernet
+> layer. If so, fix it there.
 
-------=_NextPart_000_0021_01C4CCBA.9FA5E7D0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+No, I am trying to allow tcpdumping of all traffic travelling through
+the bridge at any port of the bridge, most of which are running UML
+virtual machines.
 
-Dear,
+This isn't fixing some flaw, or trying to work around features - for
+example it is a legitimate need to be able to set up a dumper for some
+part of the network. At my former workplace, we used to have a
+'guaranteed hub' - an old 10Mbit hub that was guaranteed to do no MAC
+address learning - that we used when we needed to dump some traffic
+for a certain computer.
 
-     I'm using the bridge + iptables to be level 4 switch ,but I want to
-know how about the cpu usage of linux bridge ?
+And no, the bridge will not be running spanning tree protocol either.
 
-     Thank you very much ^_^
+>> Or could this be done with some ebtables hack?
+>
+> Yes
 
- 
+Instructions appreciated, then.
 
- 
-
-Regards,
-
-Kafa. 
-
-
-------=_NextPart_000_0021_01C4CCBA.9FA5E7D0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-
-
-<meta name=3DGenerator content=3D"Microsoft Word 10 (filtered)">
-
-<DEFANGED_style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:PMingLiU;
-	panose-1:2 2 3 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:PMingLiU;
-	panose-1:2 2 3 0 0 0 0 0 0 0;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{font-family:Arial;
-	color:windowtext;}
- /* Page Definitions */
- @page Section1
-	{size:595.3pt 841.9pt;
-	margin:72.0pt 90.0pt 72.0pt 90.0pt;
-	layout-grid:18.0pt;}
-div.Section1
-	{page:Section1;}
--->
-</DEFANGED_style>
-
-</head>
-
-<body lang=3D"ZH-TW" link=3D"blue" vlink=3D"purple" DEFANGED_style=3D"text-=
-justify-trim:punctuation">
-
-<div class=3D"Section1" DEFANGED_style=3D"layout-grid:18.0pt">
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">Dear,</span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">&nbsp;&nbsp;&nbsp;&nbsp; I&#8217;m using the bridg=
-e + iptables
-to be level 4 switch ,but I want to know how about the cpu usage of linux
-bridge ?</span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">&nbsp;&nbsp;&nbsp; &nbsp;Thank you very much ^_^</=
-span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">Regards,</span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span lang=3D"EN-US" DEFAN=
-GED_style=3D"font-size:
-9.0pt;font-family:Arial">Kafa. </span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0021_01C4CCBA.9FA5E7D0--
+-- Naked
