@@ -1,10 +1,9 @@
-Message-ID: <4154B668.4080400@jxvf.net>
-Date: Sat, 25 Sep 2004 02:06:00 +0200
-From: Fredrik Laestadius <lists@jxvf.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] problem, vlan and a bridge.
+From: "Lefti C" <lefti_99@hotmail.com>
+Date: Sat, 25 Sep 2004 00:33:33 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F99IJsaJbqJGNz000630d4@hotmail.com>
+Subject: [Bridge] problem with Honeynet Project's rc.firewall script
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,34 +12,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Bridge@lists.osdl.org
 
-Hello world.
+Hi all,
 
-I'm new to this list so bare with me.
+I'm new to the world of bridging and the mailing list but I am hopeful my 
+initial problems are fairly trivial.  I am running the Honeynet Project's 
+rc.firewall script at boot time (on my Sparc running Aurora) but the script 
+is having trouble establishing the bridge.
 
-I have a procurve 2424m with 3 vlans configured.
-I get the internet from another procurve that is connected to vlan1, and 
-the bridge is connected between vlan1 and vlan2 (doing some filtering here)
+In my logs, I have found the following error:
 
-So, internet > vlan1 > bridge > vlan2
+tSIOCSIFADDR : No such device
+eth1: unknown interface: No such device
 
-The problem is that I get a packet loss between 30% and 70% and the logs 
-on the bridge looks okay, same with the logs on the procurve.
+Meanwhile my eth0 interface is successfully negotiated.
+I am unsure as to why my second interface has not been initialised and I am 
+hoping you guys can help.
 
-The bridge works like a charm if I use another switch instead of vlan1.
-like this: Internet > another switch > bridge > vlan2
-Internet > vlan1 > bridge > another switch gives the same positive result.
+My second interface does have a link light on the hub, but I havent 
+configured anything since installing the NIC.  I just plugged it in and 
+tried to get going.
+Do I need to configure the second NIC, or does Linux know that it is 
+there?!!
 
-The bridge is actually configured to serve as both a bridge between 2 
-vlans and as a NAT-box for another vlan with workstations, dont think 
-that is relevant to this problem though.
-I used to use a router between those 2 vlans to filter, that also worked.
+Many thanks,
 
-Any clues on where to even start looking? It might be a problem with the 
-switch, but I might as well ask here.
+Lefti
 
-Oh, and the vlans are all untagged, and there is no stp running on the 
-switch.
+_________________________________________________________________
+Stay in touch with absent friends - get MSN Messenger 
+http://www.msn.co.uk/messenger
 
-Cheers, Fredrik Laestadius. .se
