@@ -1,7 +1,9 @@
-Date: Fri, 6 Aug 2004 09:13:05 -0700
+Date: Fri, 6 Aug 2004 09:15:50 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Fw: [Bridge] Re:  Any way of knowing a packet's been defragmented
-Message-Id: <20040806091305.4d405664@dell_ss3.pdx.osdl.net>
+Subject: Re: [Bridge] add bridge failed: Package not installed
+Message-Id: <20040806091550.12efbbb2@dell_ss3.pdx.osdl.net>
+In-Reply-To: <000801c47a9d$b353bc40$c701050a@CKCHEUNG>
+References: <000801c47a9d$b353bc40$c701050a@CKCHEUNG>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -13,47 +15,17 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "David S. Miller" <davem@redhat.com>
+To: CK <ckcheung@astri.org>
 Cc: bridge@osdl.org
 
-Dave, this patch from Bart De Schuymer <bdschuym@pandora.be> fixes problems
-when using filtering and defragmentation.  The bridge needs to enforce the
-MTU restriction after going through the filtering chain not before, because
-the incoming filter may have reassembled an IP packet, that then needs to
-be fragmented on the output chain.
+On Thu, 5 Aug 2004 11:38:39 +0800
+"CK" <ckcheung@astri.org> wrote:
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> Dear support,
+>  
+> What I need to install in order to add a bridge??
 
-diff -Nru a/net/bridge/br_forward.c b/net/bridge/br_forward.c
---- a/net/bridge/br_forward.c	2004-08-06 09:12:41 -07:00
-+++ b/net/bridge/br_forward.c	2004-08-06 09:12:41 -07:00
-@@ -23,7 +23,6 @@
- 				 const struct sk_buff *skb)
- {
- 	if (skb->dev == p->dev ||
--	    skb->len > p->dev->mtu ||
- 	    p->state != BR_STATE_FORWARDING)
- 		return 0;
- 
-@@ -32,13 +31,17 @@
- 
- int br_dev_queue_push_xmit(struct sk_buff *skb)
- {
-+	if (skb->len > skb->dev->mtu) 
-+		kfree_skb(skb);
-+	else {
- #ifdef CONFIG_BRIDGE_NETFILTER
--	/* ip_refrag calls ip_fragment, which doesn't copy the MAC header. */
--	nf_bridge_maybe_copy_header(skb);
-+		/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
-+		nf_bridge_maybe_copy_header(skb);
- #endif
--	skb_push(skb, ETH_HLEN);
-+		skb_push(skb, ETH_HLEN);
- 
--	dev_queue_xmit(skb);
-+		dev_queue_xmit(skb);
-+	}
- 
- 	return 0;
- }
+A kernel (2.4,2.6) with the bridge configured. Most vendor kernels configure
+it on already.  And the bridge utilities package.
+
+Read http://bridge.sourceforge.net for more info.
