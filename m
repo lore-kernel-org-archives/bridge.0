@@ -1,12 +1,10 @@
-Date: Mon, 12 Jan 2004 08:27:01 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge Netfilter question
-Message-Id: <20040112082701.53651d08.shemminger@osdl.org>
-In-Reply-To: <1073921027.25629.21.camel@honeycomb>
-References: <1073921027.25629.21.camel@honeycomb>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4002E392.3010300@hcssystems.com>
+Date: Mon, 12 Jan 2004 13:12:34 -0500
+From: Josh Wyatt <Josh.Wyatt@hcssystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Max length of bridge device name?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,15 +13,15 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: raj@roinet.com
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-You shouldn't have to change an existing line of code to do what you want!
-Make your new filter a module.
+Hi all,
 
-In the routine called by module_init(), add a call to ebt_register_table()
-You need to setup an struct ebt_table to describe your new filter.
+Does anyone know the maximum length of the interface name created by 'brctl addbr'?  How about any other restrictions on 
+usable alphanumerics, for example is "-" (dash) or "_" (underscore) allowed, commas, periods, etc allowed?
 
-Look at source for exist ebtable modules to see how to do it.
+Most docs I see refer to this as br0, but I'd like to use more descriptive names, such as vlan_105, etc.
 
-Of course, make sure and unregister and cleanup on module removal.
+Thanks in advance,
+Josh
+
