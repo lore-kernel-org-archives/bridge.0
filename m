@@ -1,12 +1,10 @@
-Date: Tue, 30 Nov 2004 11:38:31 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-Id: <20041130113831.56950b83@zqx3.pdx.osdl.net>
-In-Reply-To: <31F5998A44B92447BD334F8FBBA0B01F081412B7@orsmsx401.amr.corp.intel.com>
-References: <31F5998A44B92447BD334F8FBBA0B01F081412B7@orsmsx401.amr.corp.intel.com>
+Message-ID: <4d04422d04111612021740a8@mail.gmail.com>
+From: Harald Sauff <2gr84u@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: Bridge Query...
+Subject: [Bridge] bridge doesn't broadcast properly
+Reply-To: Harald Sauff <2gr84u@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,51 +13,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Awasthi, Vinay K" <vinay.k.awasthi@intel.com>
-Cc: bridge@osdl.org
+Date: Tue, 16 Nov 2004 20:08:53 -0000
+To: bridge@lists.osdl.org
 
-On Tue, 30 Nov 2004 09:41:59 -0800
-"Awasthi, Vinay K" <vinay.k.awasthi@intel.com> wrote:
+Hello list,
 
-> Stephen,
-> 
-> I am running a bidirectional test after adding 2 adapters to the bridge.
-> I am seeing that rate at one port is higher that the other. This does
-> not happen when I run uni-directional traffic on either adapter. My
-> configuration is as follows.
-> 
+I'm setting up a virtual network consisting of several UMLs (User Mode
+Linux) connected with the virtual bridge.
+Communications works quite well between the host and the virtual machines.
 
-Is the bridge able to learn the addresses?  (ie brctl showmacs br0)
-Also are you using ebtables as well?
+Setup:
+2 UMLs connected via tap-devices to the bridge (tap1,tap2).
+The host uses the bridge-device br0 to talk to the clients.
 
-What happens if you just send a few frames, what shows up on the 
-network?
+Now I want to tcpdump the traffic between host and UML1 on virtual machine UML2.
 
-> 
-> SMART BITS <----> ADAPTER1 <----> BRIDGE <----> ADAPTER2 <----> SMART
-> BITS.
-> 
->  
-> 
-> STP is not enabled on the bridge.
-> 
->  
-> 
-> To run bidirectional traffic I set both smart bits to send broadcast
-> packets to both adapters and see how many of these packets are received
-> on each end...This error is more pronounced at jumbo frame sizes. I
-> could not adjust MTU for BR0 device (this device is bridge). Now if I
-> add devices in different order, I get different performance...(i.e. poor
-> performance seems to follow the first adapter that was added...this does
-> not happen all the time...).
+With the standard-settings UML2 only catches the initial
+ARP-broadcasts (but that's the intended behaviour of the
+bridge/switch). :-)
 
-MTU of bridge br0 (in 2.6 kernel) is the minimum of the devices in bridge.
+Now I set "brctl setageingtime br0 0", so that the bridge behaves like
+a hub (it forgets the MAC-addresses immediately) and broadcasts all
+packets on all connected ports. Checking this with "brctl showmacs
+br0" shows, that this is working, the MAC-table is always empty.
 
-> 
-> Can you tell me how I can configure bridge to simply pass ALL packets
-> from one interface to other without looking into headers?
+BUT: on UML2 (the listening machine) I see only the complete traffic
+coming from the host (via br0 into the bridge), but the answers from
+UML2 to the host (entering the bridge on tap2) are hidden (only
+broadcasts can be seen).
 
-Not possible. That isn't what a 802.2 bridge does.
+Why does the broadcasting of all packets only work from the bridge
+directly (br0) and not from the connected tap-devices?
 
-Other than performance test, what are you really trying to accomplish.
-You just gave me facts, not a description of the real goa.
+Could this have to do with the fact, that with version 1.0.4 of the
+bridge-utils (Debian 3.1, testing) I can't control the GC-time of the
+bridge?
+
+In the mailing-list archive I found a thread, where someone wanted the
+bridge to be configured as a hub, but the advice to remove some lines
+of code from the bridge-code didn't work for me, the bridge is
+unusable after removing the code.
+
+Can someone give me a hint, how to get the desired behaviour? An
+option for switching between hub- and switch-behaviour would be
+nice... ;-)
+
+
+thanx in advance,
+ Harald Sauff
