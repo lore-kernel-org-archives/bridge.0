@@ -1,11 +1,12 @@
-content-class: urn:content-classes:message
+From: "Gareth Wheelton" <gareth@hasslemonkey.net>
+Subject: RE: [Bridge] SUSE 8.1 build failure
+Date: Tue, 17 Aug 2004 01:35:42 +0100
+Message-ID: <000f01c483f2$20f35a00$ba00a8c0@hasslemonkey.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C483B8.C60E1740"
-Date: Mon, 16 Aug 2004 13:45:09 -0400
-Message-ID: <41835390D82844498545FEDF792606A9C8911B@tvachaxch1.cha.tva.gov>
-From: "Dalloul, Shukri A." <sadalloul@tva.gov>
-Subject: [Bridge] Non-IP Bridge
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+In-Reply-To: <023e01c482d1$d7915c20$ba00a8c0@hasslemonkey.net>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,58 +17,55 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Does anyone know where 'HZ' is declared in the 2.4.xx source?
 
-------_=_NextPart_001_01C483B8.C60E1740
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-I am attempting to build a firewall/bridge that would pass through all
-non-IP traffic (such as DECNET/LAT/...) and would apply firewall rules
-to all IP traffic.=20=20
-=20
-I am new to the Linux world and would appreciate any help.
-=20
-Thanks...
-=20
-Shukri A. Dalloul
-TVAN/Computer Engineering Group
-(423)751-7010
-=20
+Cheers gareth
 
-------_=_NextPart_001_01C483B8.C60E1740
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+-----Original Message-----
+From: bridge-bounces@lists.osdl.org [mailto:bridge-bounces@lists.osdl.org]
+On Behalf Of Gareth Wheelton
+Sent: 15 August 2004 15:12
+To: bridge@lists.osdl.org
+Subject: [Bridge] SUSE 8.1 build failure
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE>Message</TITLE>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
-<META content=3D"MSHTML 6.00.2800.1400" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV><FONT face=3DArial size=3D2><SPAN class=3D859484017-16082004>I am atte=
-mpting to=20
-build a firewall/bridge that would pass through all non-IP traffic (such as=
-=20
-DECNET/LAT/...) and would apply firewall rules to all IP traffic.&nbsp;=20
-</SPAN></FONT></DIV>
-<DIV><FONT face=3DArial size=3D2><SPAN=20
-class=3D859484017-16082004></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2><SPAN class=3D859484017-16082004>I am new =
-to the=20
-Linux world and would appreciate any help.</SPAN></FONT></DIV>
-<DIV><FONT face=3DArial size=3D2><SPAN=20
-class=3D859484017-16082004></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2><SPAN=20
-class=3D859484017-16082004>Thanks...</SPAN></FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>Shukri A. Dalloul</FONT></DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>TVAN/Computer Engineering=20
-Group</FONT></DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>(423)751-7010</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV></BODY></HTML>
+Hi
 
-------_=_NextPart_001_01C483B8.C60E1740--
+RE: bridge-utils-1.0.4, linux 2.4.21-241-athlon
+
+
+I'm receiving the following groan when I attempt to build bridge-utils on
+SUSE 8.1(linux 2.4.21-241-athlon)
+
+Any help most appreciated.
+
+
+for x in libbridge brctl doc; do make  -C $x ; done
+make[1]: Entering directory `/home/gareth/bridge-utils-1.0.4/libbridge'
+gcc -Wall -g -I/usr/src/linux/include  -c libbridge_devif.c
+In file included from libbridge_devif.c:28:
+libbridge_private.h: In function `__tv_to_jiffies':
+libbridge_private.h:68: `HZ' undeclared (first use in this function)
+libbridge_private.h:68: (Each undeclared identifier is reported only once
+libbridge_private.h:68: for each function it appears in.)
+libbridge_private.h: In function `__jiffies_to_tv':
+libbridge_private.h:75: `HZ' undeclared (first use in this function)
+make[1]: *** [libbridge_devif.o] Error 1
+make[1]: Leaving directory `/home/gareth/bridge-utils-1.0.4/libbridge'
+make[1]: Entering directory `/home/gareth/bridge-utils-1.0.4/brctl'
+gcc -Wall -g -O2 -I../libbridge -I/usr/src/linux/include  -c brctl.c
+gcc -Wall -g -O2 -I../libbridge -I/usr/src/linux/include  -c brctl_cmd.c
+gcc -Wall -g -O2 -I../libbridge -I/usr/src/linux/include  -c brctl_disp.c
+make[1]: *** No rule to make target `../libbridge/libbridge.a', needed by
+`brctl'.  Stop.
+make[1]: Leaving directory `/home/gareth/bridge-utils-1.0.4/brctl'
+make[1]: Entering directory `/home/gareth/bridge-utils-1.0.4/doc'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/gareth/bridge-utils-1.0.4/doc'
+
+
+cheers gareth
+
+
+
+
