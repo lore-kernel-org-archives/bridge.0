@@ -1,13 +1,12 @@
-Message-ID: <008701c3f698$a9c88ae0$1910a8c0@Christy>
-From: "AJM" <ameader@corp.Lcom.net>
-References: <002101c3f5c2$cdd191b0$1910a8c0@Christy> <40342BA6.9020505@cox.net>
-Subject: Re: [Bridge] Fedora 2.4.22-1.2166.nptl
-Date: Wed, 18 Feb 2004 21:30:02 -0600
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Reply-To: AJM <ameader@corp.Lcom.net>
+Date: Mon, 23 Feb 2004 17:42:35 +0100
+Message-ID: <DBAC6BAF12D1D64289EC75515BD86577CA653C@exch101>
+From: "Wouter Coppens" <wouter.coppens@dedigate.com>
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Bridging with kernel-2.6
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,13 +15,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Greg Morgan <drkludge@cox.net>
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-Greg,
+Hey,
 
-Thanks for the reply. I ended up downloading 2.4.22 from kernel.org and the
-patch went in just peachy. I'll send some feedback to Red Hat.
+Has anybody got bridging working with kernel-2.6?
+Are their things that need special attention?
 
-Andy
+I have read about the iptables physdev match module for 2.6. Is it required to get the bridge up and running?
+
+Thanks in advance,
+
+Wouter
+
+
 
