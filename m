@@ -1,15 +1,10 @@
-Date: Tue, 27 Apr 2004 11:35:52 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] unregister_netdevice: waiting for tap_0 to become
-	free.	Usage count = 2
-Message-Id: <20040427113552.5887c69e@dell_ss3.pdx.osdl.net>
-In-Reply-To: <002b01c42c83$f27d6aa0$0201a8c0@hawk>
-References: <010701c42ba3$288f2570$41317d9e@keziah>
-	<200404271951.16326.bdschuym@pandora.be>
-	<002b01c42c83$f27d6aa0$0201a8c0@hawk>
+From: Torsten Luettgert <t.luettgert@pressestimmen.de>
+Content-Type: text/plain
+Message-Id: <1083253016.24333.39.camel@scaramouche>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Thu, 29 Apr 2004 17:36:56 +0200
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] NAT on a bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,22 +13,38 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Tue, 27 Apr 2004 13:17:46 -0500
-"Christopher S. Aker" <caker@theshore.net> wrote:
+Hello all,
 
-> Hello,
-> 
-> I'm using tap devices connected to bridge, and I've been seeing these messages on
-> my 2.6 hosts during a script which brings down the interface and then back up.
-> 
-> unregister_netdevice: waiting for tap_0 to become free. Usage count = 2
-> 
-> Does this look like a refcount leak, and if so, I'm assuming it's in the tuntap
-> code and I'm barking up the wrong tree :)
+I can't get "invisible" NAT on a bridge to work.
+What I wanted to do is redirecting HTTP requests to
+another machine (or the same machine, that'd be
+good enough, too).
 
-Since the tuntap device has an api in user space. Probably means you still have
-an application with the tun tap device open.  It can't complete unregister until
-the application closes the file.
+I set up a bridge. It worked fine just bridging.
+Then I added the following iptables rule:
+
+iptables -t nat -A PREROUTING -m physdev --physdev-in eth0 -p tcp \
+	--dport 80 -j DNAT --to (new address)
+
+This resulted in the frames just disappearing in the bridge.
+So, I thought, perhaps there's some problem with the address, what
+with the bridge not knowing where it is and so on (both interfaces
+are 0.0.0.0), perhaps I'll just try
+
+iptables -t nat -A PREROUTING -m physdev --physdev-in eth0 -p tcp \
+	--dport 80 -j REDIRECT --to-ports 80
+
+so everything should just go to my local machine, that's good enough.
+The effect was the same, the SYN frame just disappears.
+
+I tried this with linux 2.4.25 with the bridging patches and with
+2.6.5. Same effect.
+
+If I configure the machine as a router, it works perfectly.
+
+What am I doing wrong?
+
+-Torsten
+
