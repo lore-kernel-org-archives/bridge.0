@@ -1,12 +1,10 @@
-From: Stuart Luppescu <s-luppescu@uchicago.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-2JyNSjRQHoAjzcks9S9s"
-Message-Id: <1076433752.23155.21.camel@musuko.uchicago.edu>
-Mime-Version: 1.0
-Date: Tue, 10 Feb 2004 11:22:32 -0600
-Subject: [Bridge] Problem loading bridge.o
-Reply-To: s-luppescu@uchicago.edu
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <33981.65.172.181.23.1076454426.squirrel@www.osdl.org>
+Date: Tue, 10 Feb 2004 15:07:06 -0800 (PST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [RFC] bridge kernel API change
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,56 +13,45 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bridge List <bridge@lists.osdl.org>
+To: davem@redhat.com
+Cc: bridge@osdl.org
+
+Here is the proposed revision to the bridge utilities
+interface to the kernel.  The driving force is that the
+existing interface can't easily be converted to 32/64 bit
+compat.  Right now, the bridge-utils (brctl) tries to handle
+32bit command on 64 bit kernel, but the code is limited to sparc
+and wrong.
+
+Here is what I am thinking.
+
+get version 		 - not needed?
+get bridges		 - /sys/class/bridge/*
+add bridge		 - SIOCBR_ADD_BRIDGE
+del bridge		 - SIOCBR_DEL_BRIDGE
+add if			 - SIOCBR_ADD_IF
+delete if		 - SIOCBR_DEL_IF
+get bridge info		 - /sys/class/bridge/brX/
+get port list		 - /sys/class/bridge/brX/ports/*
+set bridge forward delay - /sys/class/bridge/brX/forward_delay
+set bridge hello time	 - /sys/class/bridge/brX/hello_time
+set bridge max age	 - /sys/class/bridge/brX/max_age
+set ageing time		 - /sys/class/bridge/brX/ageing_time
+set gc interval		 - deprecated does nothing anymore
+set get port info	 - /sys/class/bridge/brX/ports/ethX/*
+set bridge stp state	 - /sys/class/bridge/brX/stp
+set bridge priority	 - /sys/class/bridge/brX/priority
+set port priority	 - /sys/class/bridge/brX/ports/ethX/priority
+set path cost		 - /sys/class/bridge/brX/ports/ethX/cost
+get fdb entries		 - /proc/net/bridge/brX
+
+Other alternatives:
+ - Use just ioctl's
+ - Use just /proc (ugh) or sysctl's (double ugh)
+
+I expect that for 2.6 the kernel will accept (but warn) the old ioctl
+interface.  The new utility will not generate the old ioctl's
+it would only work with new interface...
 
 
---=-2JyNSjRQHoAjzcks9S9s
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hello, I want to add wireless capability to my Gentoo-linux based
-firewall/router at home, so I bought a Netgear MA311 PCI and installed
-the hostap package. I load the hostap_pci module and the wlan0 interface
-comes up fine. I can detect the signal from a wireless enabled laptop.
-
-Now I'm thinking I'm going to bridge the wlan0 interface and the eth1
-interface, and run the firewall with br0 as the internal interface. I
-compiled the kernel (2.4.23) with
-CONFIG_BRIDGE=3Dm
-but when I modprobe bridge, I get this stuff:
-
-/lib/modules/2.4.23-ck1/kernel/net/bridge/bridge.o: unresolved symbol br_io=
-ctl_hook
-/lib/modules/2.4.23-ck1/kernel/net/bridge/bridge.o: unresolved symbol br_ha=
-ndle_frame_hook
-/lib/modules/2.4.23-ck1/kernel/net/bridge/bridge.o: insmod /lib/modules/2.4=
-.23-ck1/kernel/net/bridge/bridge.o failed
-/lib/modules/2.4.23-ck1/kernel/net/bridge/bridge.o: insmod bridge failed
-
-I can't figure it out. Do I need to patch the kernel? (I thought 2.4.21
-and beyond needed no patches.) Do I need to configure something else?
-
-Thanks in advance.
---=20
-Stuart Luppescu -=3D- s-luppescu .at. uchicago.edu       =20
-University of Chicago -=3D- CCSR=20
-=1B$B:MJ8$HCRF`H~$NIc=1B(B -=3D-    Kernel 2.6.1-gentoo               =20
-Wishing without work is like fishing without bait.=20
- -- Frank Tyger=20
-=20
-
-
---=-2JyNSjRQHoAjzcks9S9s
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAKRNYDBHcBS0tWxMRAqJNAKCYcCDWiGVtmmBk33Oz1iA2PSisiQCfeEUw
-5d3A+LHarxAKv/Fc29YXAUM=
-=bOey
------END PGP SIGNATURE-----
-
---=-2JyNSjRQHoAjzcks9S9s--
 
