@@ -1,12 +1,9 @@
-Date: Wed, 13 Apr 2005 10:09:51 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20050413100951.05bc87fb@dxpl.pdx.osdl.net>
-In-Reply-To: <FB1B41082DF4844084E737A58460C49018ED8C@master01.ecofilmes.pt>
-References: <FB1B41082DF4844084E737A58460C49018ED8C@master01.ecofilmes.pt>
+Message-Id: <5.2.0.9.1.20050418141522.03375db0@mailhost.csse.uwa.edu.au>
+Date: Mon, 18 Apr 2005 14:40:57 +0800
+From: Ryan McConigley <ryan@csse.uwa.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Re: Linux Bridging
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: [Bridge] Unexpected behaviour
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,84 +12,98 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Andre Santos (Ecofilmes)" <andre.santos@ecofilmes.pt>, bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 13 Apr 2005 10:50:15 +0100
-"Andre Santos \(Ecofilmes\)" <andre.santos@ecofilmes.pt> wrote:
 
-> Hi there,
-> =20
-> I want to have a computer betwen the internet and the network to see the =
-trafic and control.=20
-> I used windows, but its somehow limited, and want to try linux...=20
-> I installed Fedora linux in server mode, and now Im trying to put 2 nics =
-in bridge.=20
-> =20
-> First, I tried to do like this (the first part):
-> http://www.sjdjweis.com/linux/bridging/ <BLOCKED::http://www.sjdjweis.com=
-/linux/bridging/>=20
-> =20
-> It didnt worked..
-> I did  brctl show and not bridge configured...
-> =20
-> Then I enabled all the services I turned off from this article again.
-> =20
-> In the file    /etc/sysctl.conf:  =20
-> I Xchanged the 0 to 1 ..  net.ipv4.ip_forward =3D 1=20
-> =20
-> =20
-> In the console I wrote:
->  ifconfig eth0 0.0.0.0 up=20
->  ifconfig eth1 0.0.0.0 up=20
->  brctl addbr br0=20
->  brctl addif br0 eth0=20
->  brctl addif br0 eth1=20
->  ifconfig br0 X.X.X.X netmask 255.255.255.0=20
-> =20
-> For testing I put  Workstation -> Hub -> Bridge -> network=20
-> I want to see if bridge works, if the workstation has to be able to ping =
-the network its working.
->=20
-> I can ping server from the linux , but from the computer behim bridge to =
-network it cant ping, and the conection is limited, cant get ip.
+	Hi, I've set up a bridge using the 2.6.11.6 kernel.  The machine is 
+running Debian testing with three NICs in it.  eth0 is a standard 100Mb 
+Intel NIC, eth1 and eth2 are both Intel gigabit cards using the e1000 driver.
 
-Fid you wait for the STP status to change to forwarding?=20
-It has to go through a learning period first.
+	I tested everything at 100Mb and it worked fine.  I moved the machine into 
+production, eth1 plugging into a dumb 100Mb D-link switch, eth2 plugging 
+into a shiney new Cisco 2950.
 
-What is the output of 'brctl showstp br0'
+	eth2 connects fine, giving me messages such as:
+Apr 18 13:58:39 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Down
+Apr 18 13:58:56 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Up 100 Mbps Full Duplex
+Apr 18 13:58:56 portcullis kernel: br0: port 2(eth2) entering learning state
+Apr 18 13:59:11 portcullis kernel: br0: topology change detected, propagating
+Apr 18 13:59:11 portcullis kernel: br0: port 2(eth2) entering forwarding state
 
-> =20
-> Tried to instal, bridge-utils-1.0.4.tar , ran configure  and config.statu=
-s in console and install-sh in the folder but, I dont know if it had any ef=
-fect.. as Im a newie at linux.
-> The location  /bridge-utils-1.0.4/    dont know if I had to put in some o=
-ther folder...
+	eth1 however is a different story.  If I plugged that into the D-Link it 
+would come up for a few seconds, then down again, then up and just cycle 
+between being up and down.  Example:
 
-Latest is 1.0.5
+Apr 18 13:58:26 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Down
+Apr 18 13:58:26 portcullis kernel: br0: port 2(eth2) entering disabled state
+Apr 18 13:58:27 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Up 100 Mbps Full Duplex
+Apr 18 13:58:27 portcullis kernel: br0: port 2(eth2) entering learning state
+Apr 18 13:58:27 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Down
+Apr 18 13:58:28 portcullis kernel: br0: port 2(eth2) entering disabled state
+Apr 18 13:58:29 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Up 100 Mbps Full Duplex
+Apr 18 13:58:29 portcullis kernel: br0: port 2(eth2) entering learning state
+Apr 18 13:58:29 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Down
+Apr 18 13:58:30 portcullis kernel: br0: port 2(eth2) entering disabled state
+Apr 18 13:58:32 portcullis kernel: e1000: eth2: e1000_watchdog: NIC Link is 
+Up 100 Mbps Full Duplex
+Apr 18 13:58:32 portcullis kernel: br0: port 2(eth2) entering learning state
 
-If you do:
-	./configure
-	make
-You will build the utilities.
-Then you need to run
-	make install
-as root.  By default it puts the new brctl in /usr/local/sbin/brctl
+	I do have it running now by plugging it into a gigabit switch where it 
+connects at 1G, then plugging the gig switch into the D-link, not an ideal 
+solution, but one that appears to be working ok.
 
-You can figure out what version is running by doing 'brctl -V'
-Also, unless you have problems, I recommend starting with the bridge-utilit=
-ies
-included with your linux distribution. The utilities have been stable long =
-enough
-that little changes.
+	I'm curious if anyone knows why this is happening.  Its a first for me, 
+but this also is the first bridge I've made which features gigabit 
+cards.  Interestingly if I swap over eth1 and eth2 (so eth1 goes into the 
+Cisco and eth2 goes to the D-link) the same flipflop state occurs.
 
-> =20
-> =20
-> Could you help me on this?
-> =20
-> Much apreciated!!
-> =20
-> Thanks for your time.
-> =20
-> Best regards,
-> Andr=E9 Santos
+	If it helps, here is the relevant ifconfig:
+
+br0       Link encap:Ethernet  HWaddr 00:03:47:DF:7A:61
+           inet6 addr: fe80::203:47ff:fedf:7a61/64 Scope:Link
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:34792 errors:0 dropped:0 overruns:0 frame:0
+           TX packets:5 errors:0 dropped:0 overruns:0 carrier:0
+           collisions:0 txqueuelen:0
+           RX bytes:2778388 (2.6 MiB)  TX bytes:378 (378.0 b)
+
+eth1      Link encap:Ethernet  HWaddr 00:03:47:DF:7A:7F
+           inet6 addr: fe80::203:47ff:fedf:7a7f/64 Scope:Link
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:737391 errors:3 dropped:0 overruns:0 frame:2
+           TX packets:745309 errors:0 dropped:0 overruns:0 carrier:744737
+           collisions:0 txqueuelen:1000
+           RX bytes:164455079 (156.8 MiB)  TX bytes:132234584 (126.1 MiB)
+           Memory:dffa0000-dffc0000
+
+eth2      Link encap:Ethernet  HWaddr 00:03:47:DF:7A:61
+           inet6 addr: fe80::203:47ff:fedf:7a61/64 Scope:Link
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:780490 errors:0 dropped:0 overruns:0 frame:0
+           TX packets:736398 errors:0 dropped:0 overruns:0 carrier:725057
+           collisions:0 txqueuelen:1000
+           RX bytes:137698592 (131.3 MiB)  TX bytes:164346713 (156.7 MiB)
+           Memory:dff60000-dff80000
+
+	As I said, everything is working now, but I'd like to know a cause and 
+possibly a cure if its available.
+
+	Cheers,
+		Ryan.
+--
+           Ryan McConigley - Systems Administrator                  _.-,
+      Computer Science   University of Western Australia        .--'  '-._
+        Tel: (+61 8) 6488 7082 - Fax: (+61 8) 6488 1089       _/`-  _      '.
+Ryan[@]csse.uwa.edu.au - http://www.csse.uwa.edu.au/~ryan  '----'._`.----. \
+                                                                      `     \;
+  "You're just jealous because the voices are talking to me"                ;_\
+
+
 
