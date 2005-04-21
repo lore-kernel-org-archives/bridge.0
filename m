@@ -1,13 +1,10 @@
-Date: Fri, 22 Apr 2005 13:09:11 +1000
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] bridge  stp problem
-Message-ID: <20050422130911.1417ea1c@localhost.localdomain>
-In-Reply-To: <42686072.7060509@smartbridges.com>
-References: <200504211900.j3LJ07s5017482@smtp.osdl.org>
-	<42686072.7060509@smartbridges.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Thu, 21 Apr 2005 12:48:50 +0200 (MEST)
+From: "Sascha Dikhoff" <SaschaDikhoff@gmx.de>
+MIME-Version: 1.0
+Message-ID: <8164.1114080530@www11.gmx.net>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Error in usb0 and eth0 bridging on an ARM9 Plattform
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,50 +13,53 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: munro <munro.biswal@smartbridges.com>
-Cc: munro <munro.biswal@smartbridges.com>, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Fri, 22 Apr 2005 10:24:50 +0800
-munro <munro.biswal@smartbridges.com> wrote:
+Hello,=20
+I=B4m using the Linux Bridge on an Atmel Arm9 Plattform with the kernel
+2.6.11rc3.
 
-> Hi, ppl,
-> 
-> I am using kernel 2.4.25 and  having this peculiar problem on my 
-> ixp425.  When i have 2 ethernet ports of the board connected to the same 
-> linksys switch running STP.  ixp0  and ixp1 are the name of my ethernet 
-> ports  enslaved to the same bridge( br0)and my PC is also connected to 
-> the switch.
->                       
->  
->                IXP425 -br0 (192.168.2.1)
-> 
->              |_ixp0|---  |        |          (192.168.2.11)
->              |_ixp1|---- |Linksys |----------<PC>  
-> 
->  
-> When i ping from my PC to the  board (when both ixp0 and ixp1 are 
-> connected to the switch), everything works fine.
-> In that case ixp1 is in blocking state and ixp0 is in  forwarding state.
-> 
-> The issue here is  when i unplug ixp0 from the switch (the one which is 
-> forwading state),  ixp1 comes to forwardinmg state after the state 
-> changes(listening-learning---forwading), but there is a huge delay of 
-> around 15-17 mins till i can ping  the board(IXP425) from my PC. i went 
-> through the bridging code and put debug messages to see that it comes to 
-> forwarding state immediately.
-> 
+The configuration is the following:
 
-It may not help, but 2.6 kernel has support for detecting carrier transistions
-and failing over faster.
+LAN<--Arm9(Ethernet)--Bridge--Arm9(USB-Device)-->Notebook (USB-Host)
 
-> On the board if i sniff using ethereal, it shows that my ICMP request 
-> never goes through till 17 mins..
-> 
-> AFter 17 mins, it starts pining ok.
-> 
-> Now thats very strange. WHo induces this delay of 17 mins after the 
-> topology changes.
-> Pls. advise !! very urgent .
-> 
+or=20
 
-Is there a chance some other bridge changing and becoming root
+LAN<--Arm9(Ethernet)--Bridge--Arm9(USB-Host)-->Notebook (USB-Host)
+(with a Trust USB2.0 Host to Host cable)
+
+When I try to ping my Notebook from LAN and reverse, everything seems to be
+fine. But when I use the tool "netio", wich provides a server to client
+connection for measuring the ethernet bandwith, only one direction works.
+While trying a TCP connection with netio, or trying to open a Website in
+Firefox every connection fails.
+
+A measurement between LAN and the bridge (with IP) and Notebook to Bridge
+works fine. So I suppose there is a misconfiguration in the bridge.
+
+A second configuration with bridging a USB Host to Host connection and the
+Ethernet on my Linux-Notebook, was succesful.
+But using the same Host to Host connection on my Arm9 board shows the same
+problems like the USB Host to Device connection.
+
+My configuration of the bridge is like:
+ifconfig usb0 0.0.0.0 up
+ifconfig eth0 0.0.0.0 up
+brctl addbr brd
+brctl setfd brd 100
+brctl addif eth0
+brctl addif usb0
+ifconfig brd 192.168.1.1
+
+Anybody there who can help?
+
+Regards=20
+Sascha Dikhoff
+
+P.S.: For interested readers the link from the tool netio
+http://ftp.leo.org/historic/comp/os/os2/leo/systools/netio123.zip
+
+--=20
++++ GMX - Die erste Adresse f=FCr Mail, Message, More +++
+
+1 GB Mailbox bereits in GMX FreeMail http://www.gmx.net/de/go/mail
