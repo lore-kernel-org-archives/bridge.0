@@ -1,10 +1,10 @@
-Date: Thu, 21 Apr 2005 12:48:50 +0200 (MEST)
-From: "Sascha Dikhoff" <SaschaDikhoff@gmx.de>
-MIME-Version: 1.0
-Message-ID: <8164.1114080530@www11.gmx.net>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Error in usb0 and eth0 bridging on an ARM9 Plattform
+Message-Id: <200504241453.j3OErSs3024030@smtp.osdl.org>
+Date: Sun, 24 Apr 2005 22:54:56 +0800
+From: "wan" <wrath8x@163.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Subject: [Bridge] A question about modify bridge source
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,53 +13,42 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: shemminger <shemminger@osdl.org>, bridge <bridge@lists.osdl.org>
 
-Hello,=20
-I=B4m using the Linux Bridge on an Atmel Arm9 Plattform with the kernel
-2.6.11rc3.
-
-The configuration is the following:
-
-LAN<--Arm9(Ethernet)--Bridge--Arm9(USB-Device)-->Notebook (USB-Host)
-
-or=20
-
-LAN<--Arm9(Ethernet)--Bridge--Arm9(USB-Host)-->Notebook (USB-Host)
-(with a Trust USB2.0 Host to Host cable)
-
-When I try to ping my Notebook from LAN and reverse, everything seems to be
-fine. But when I use the tool "netio", wich provides a server to client
-connection for measuring the ethernet bandwith, only one direction works.
-While trying a TCP connection with netio, or trying to open a Website in
-Firefox every connection fails.
-
-A measurement between LAN and the bridge (with IP) and Notebook to Bridge
-works fine. So I suppose there is a misconfiguration in the bridge.
-
-A second configuration with bridging a USB Host to Host connection and the
-Ethernet on my Linux-Notebook, was succesful.
-But using the same Host to Host connection on my Arm9 board shows the same
-problems like the USB Host to Device connection.
-
-My configuration of the bridge is like:
-ifconfig usb0 0.0.0.0 up
-ifconfig eth0 0.0.0.0 up
-brctl addbr brd
-brctl setfd brd 100
-brctl addif eth0
-brctl addif usb0
-ifconfig brd 192.168.1.1
-
-Anybody there who can help?
-
-Regards=20
-Sascha Dikhoff
-
-P.S.: For interested readers the link from the tool netio
-http://ftp.leo.org/historic/comp/os/os2/leo/systools/netio123.zip
-
---=20
-+++ GMX - Die erste Adresse f=FCr Mail, Message, More +++
-
-1 GB Mailbox bereits in GMX FreeMail http://www.gmx.net/de/go/mail
+CkhlbGxvLAoKSSBqdXN0IG1hZGUgc29tZSBjaGFuZ2Ugb2YgdGhlIGJyaWRnZSBzb3VyY2Ugd2hp
+Y2ggdW5kZXIga2VybmVsIDIuNC4yMCAsdG8gbWFrZSBpdCB3b3JrIGF1dG9tYXRpY2FsbHkgd2l0
+aG91dCBhbnkgaW9jdGwgY29tbWFuZHMgc3VjaCBhcyBicmN0bCAuSW4gdGhpcyBtb2R1bGUgSSBk
+byAsaXQgaGFzIG9ubHkgb25lIGJyIG5hbWVkIEJSSURHRSB3aGljaCBhdXRvIGNvbnN0cnVjdGVk
+IGluIHRoZSBtb2R1bGUgaW5pdGlhdGlvbiAsYW5kIGRlZmluZWQgYXMgYSBnbG9iYWwgdmFyaWFi
+bGUgImJyZyIuQW5kIEkgYWRkIG9uZSBldGggY2FyZChldGgwKSB0byB0aGUgYnIgYXMgYSBwb3J0
+IC5UaGUgbWFpbiBwcm9ncmFtIGlzIGp1c3QgYmVsb3cgdGhpcyBwYWdlLgoKQnV0IG5vdyBJIG1l
+ZXQgb25lIHF1ZXN0aW9uICx0aGF0IGlzICx3aGVuIEkgd2FudCBwYXNzdXAgYSBza2IgdG8gdGhl
+IGhpZ2hlciBwcm90b2NvbCBsYXllciB1c2UgZnVuY3Rpb24gbmV0aWZfcnggLHRoZSBoaWdoZXIg
+bGF5ZXIgbm90IHJlc3BvbnNlICx0aGUgc2tiIG11c3QgaGF2ZSBub3QgcGFzc3VwIHlldCAuV2h5
+ID9JJ20gcHV6emxpbmcgYWJvdXQgaXQgZm9yIHNvbWUgZGF5cyAuCgpTb3JyeSBteSBlbmdsaXNo
+IGlzIHNvIHBvb3I6KQoKVGhhbmtzICEKICAgCiAgIAovL215IG93biBicmlkZ2Ugc3RydWN0CnN0
+cnVjdCBCcmlkZ2V7Cglyd2xvY2tfdCBsb2NrOwoJcndsb2NrX3QgaGFzaF9sb2NrOwoJc3RydWN0
+IG5ldF9kZXZpY2UgZGV2OwoJc3RydWN0IEJyaWRnZV9mZGJfZW50cnkgKmhhc2hbQlJfSEFTSF9T
+SVpFXTsKfTsKCmV4dGVybiBzdHJ1Y3QgQnJpZGdlICpicmc7CgovL3RoZSBicmlkZ2UgaW5pdGlh
+dGlvbiAsIHdpbGwgYmUgY2FsbGVkIGluIG1vZHVsZV9pbml0CnN0cnVjdCBCcmlkZ2UgKkJyaWRn
+ZV9mZGJfaW5pdCgpCnsKCXN0cnVjdCBCcmlkZ2UgKmJyOwoJaWYgKChiciA9IGttYWxsb2Moc2l6
+ZW9mKCpiciksR0ZQX0tFUk5FTCkpID09IE5VTEwpCgkJcmV0dXJuIE5VTEw7CgkJCgltZW1zZXQo
+YnIsMCxzaXplb2YoKmJyKSk7CglzdHJuY3B5KGJyLT5kZXYubmFtZSwiQlJJREdFIixJRk5BTVNJ
+Wik7CglldGhlcl9zZXR1cCgmYnItPmRldik7CglCcmlkZ2VfZGV2X3NldHVwKCZici0+ZGV2KTsK
+CQoJYnItPmxvY2sgPSBSV19MT0NLX1VOTE9DS0VEOwoJYnItPmhhc2hfbG9jayA9IFJXX0xPQ0tf
+VU5MT0NLRUQ7CgkKCXJlZ2lzdGVyX25ldGRldigmYnItPmRldik7Ci8vCW5ldGlmX3N0YXJ0X3F1
+ZXVlKCZici0+ZGV2KTsKCglldGhkZXYgPSBkZXZfZ2V0X2J5X25hbWUoImV0aDAiKTsKCWV0aGRl
+di0+YnJfcG9ydCA9IChzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICopYnI7CglkZXZfc2V0X3Byb21p
+c2N1aXR5KGV0aGRldiwxKTsKCWRldl9ob2xkKGV0aGRldik7CglyZXR1cm4gYnI7Cn0KCnN0YXRp
+YyB2b2lkIEJyaWRnZV9wYXNzdXAoc3RydWN0IHNrX2J1ZmYgKnNrYikKewoJc2tiLT5kZXYgPSAm
+YnJnLT5kZXY7Cglza2ItPnBrdF90eXBlID0gUEFDS0VUX0hPU1Q7Cglza2JfcHVzaChza2IsRVRI
+X0hMRU4pOwoJc2tiLT5wcm90b2NvbCA9IGV0aF90eXBlX3RyYW5zKHNrYiwmYnJnLT5kZXYpOwoJ
+bmV0aWZfcngoc2tiKTsKCXJldHVybjsKfQoKdm9pZCBCcmlkZ2VfZGV2X3NldHVwKHN0cnVjdCBu
+ZXRfZGV2aWNlICpkZXYpCnsKCXVuc2lnbmVkIGNoYXIgZGRbNl0gPSB7MHgxMiwweDEyLDB4MTIs
+MHgxMiwweDEyLDB4MTJ9OwoJbWVtY3B5KGRldi0+ZGV2X2FkZHIsZGQsRVRIX0FMRU4pOwoJZGV2
+LT5kb19pb2N0bCA9IE5VTEw7CglkZXYtPmdldF9zdGF0cyA9IE5VTEw7CglkZXYtPmhhcmRfc3Rh
+cnRfeG1pdCA9IE5VTEw7CglkZXYtPm9wZW4gPSBOVUxMOwoJZGV2LT5zZXRfbXVsdGljYXN0X2xp
+c3QgPSBOVUxMOwoJZGV2LT5zdG9wID0gTlVMTDsKCWRldi0+YWNjZXB0X2Zhc3RwYXRoID0gTlVM
+TDsKCWRldi0+dHhfcXVldWVfbGVuID0gMDsKCWRldi0+c2V0X21hY19hZGRyZXNzID0gTlVMTDsK
+fQqhoaGhoaGhoaGhoaGhoaGhd3JhdGg4eEAxNjMuY29tCqGhoaGhoaGhoaGhoaGhoaGhoaGhMjAw
+NS0wNC0yNAoK
