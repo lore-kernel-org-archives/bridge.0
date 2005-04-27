@@ -1,10 +1,10 @@
-Message-Id: <200504241453.j3OErSs3024030@smtp.osdl.org>
-Date: Sun, 24 Apr 2005 22:54:56 +0800
-From: "wan" <wrath8x@163.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Subject: [Bridge] A question about modify bridge source
+Message-ID: <426F8635.2000503@uku.co.uk>
+Date: Wed, 27 Apr 2005 13:31:49 +0100
+From: Robert Stannard <robert.stannard@uku.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Security question
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,42 +13,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger <shemminger@osdl.org>, bridge <bridge@lists.osdl.org>
+To: bridge@lists.osdl.org
 
-CkhlbGxvLAoKSSBqdXN0IG1hZGUgc29tZSBjaGFuZ2Ugb2YgdGhlIGJyaWRnZSBzb3VyY2Ugd2hp
-Y2ggdW5kZXIga2VybmVsIDIuNC4yMCAsdG8gbWFrZSBpdCB3b3JrIGF1dG9tYXRpY2FsbHkgd2l0
-aG91dCBhbnkgaW9jdGwgY29tbWFuZHMgc3VjaCBhcyBicmN0bCAuSW4gdGhpcyBtb2R1bGUgSSBk
-byAsaXQgaGFzIG9ubHkgb25lIGJyIG5hbWVkIEJSSURHRSB3aGljaCBhdXRvIGNvbnN0cnVjdGVk
-IGluIHRoZSBtb2R1bGUgaW5pdGlhdGlvbiAsYW5kIGRlZmluZWQgYXMgYSBnbG9iYWwgdmFyaWFi
-bGUgImJyZyIuQW5kIEkgYWRkIG9uZSBldGggY2FyZChldGgwKSB0byB0aGUgYnIgYXMgYSBwb3J0
-IC5UaGUgbWFpbiBwcm9ncmFtIGlzIGp1c3QgYmVsb3cgdGhpcyBwYWdlLgoKQnV0IG5vdyBJIG1l
-ZXQgb25lIHF1ZXN0aW9uICx0aGF0IGlzICx3aGVuIEkgd2FudCBwYXNzdXAgYSBza2IgdG8gdGhl
-IGhpZ2hlciBwcm90b2NvbCBsYXllciB1c2UgZnVuY3Rpb24gbmV0aWZfcnggLHRoZSBoaWdoZXIg
-bGF5ZXIgbm90IHJlc3BvbnNlICx0aGUgc2tiIG11c3QgaGF2ZSBub3QgcGFzc3VwIHlldCAuV2h5
-ID9JJ20gcHV6emxpbmcgYWJvdXQgaXQgZm9yIHNvbWUgZGF5cyAuCgpTb3JyeSBteSBlbmdsaXNo
-IGlzIHNvIHBvb3I6KQoKVGhhbmtzICEKICAgCiAgIAovL215IG93biBicmlkZ2Ugc3RydWN0CnN0
-cnVjdCBCcmlkZ2V7Cglyd2xvY2tfdCBsb2NrOwoJcndsb2NrX3QgaGFzaF9sb2NrOwoJc3RydWN0
-IG5ldF9kZXZpY2UgZGV2OwoJc3RydWN0IEJyaWRnZV9mZGJfZW50cnkgKmhhc2hbQlJfSEFTSF9T
-SVpFXTsKfTsKCmV4dGVybiBzdHJ1Y3QgQnJpZGdlICpicmc7CgovL3RoZSBicmlkZ2UgaW5pdGlh
-dGlvbiAsIHdpbGwgYmUgY2FsbGVkIGluIG1vZHVsZV9pbml0CnN0cnVjdCBCcmlkZ2UgKkJyaWRn
-ZV9mZGJfaW5pdCgpCnsKCXN0cnVjdCBCcmlkZ2UgKmJyOwoJaWYgKChiciA9IGttYWxsb2Moc2l6
-ZW9mKCpiciksR0ZQX0tFUk5FTCkpID09IE5VTEwpCgkJcmV0dXJuIE5VTEw7CgkJCgltZW1zZXQo
-YnIsMCxzaXplb2YoKmJyKSk7CglzdHJuY3B5KGJyLT5kZXYubmFtZSwiQlJJREdFIixJRk5BTVNJ
-Wik7CglldGhlcl9zZXR1cCgmYnItPmRldik7CglCcmlkZ2VfZGV2X3NldHVwKCZici0+ZGV2KTsK
-CQoJYnItPmxvY2sgPSBSV19MT0NLX1VOTE9DS0VEOwoJYnItPmhhc2hfbG9jayA9IFJXX0xPQ0tf
-VU5MT0NLRUQ7CgkKCXJlZ2lzdGVyX25ldGRldigmYnItPmRldik7Ci8vCW5ldGlmX3N0YXJ0X3F1
-ZXVlKCZici0+ZGV2KTsKCglldGhkZXYgPSBkZXZfZ2V0X2J5X25hbWUoImV0aDAiKTsKCWV0aGRl
-di0+YnJfcG9ydCA9IChzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICopYnI7CglkZXZfc2V0X3Byb21p
-c2N1aXR5KGV0aGRldiwxKTsKCWRldl9ob2xkKGV0aGRldik7CglyZXR1cm4gYnI7Cn0KCnN0YXRp
-YyB2b2lkIEJyaWRnZV9wYXNzdXAoc3RydWN0IHNrX2J1ZmYgKnNrYikKewoJc2tiLT5kZXYgPSAm
-YnJnLT5kZXY7Cglza2ItPnBrdF90eXBlID0gUEFDS0VUX0hPU1Q7Cglza2JfcHVzaChza2IsRVRI
-X0hMRU4pOwoJc2tiLT5wcm90b2NvbCA9IGV0aF90eXBlX3RyYW5zKHNrYiwmYnJnLT5kZXYpOwoJ
-bmV0aWZfcngoc2tiKTsKCXJldHVybjsKfQoKdm9pZCBCcmlkZ2VfZGV2X3NldHVwKHN0cnVjdCBu
-ZXRfZGV2aWNlICpkZXYpCnsKCXVuc2lnbmVkIGNoYXIgZGRbNl0gPSB7MHgxMiwweDEyLDB4MTIs
-MHgxMiwweDEyLDB4MTJ9OwoJbWVtY3B5KGRldi0+ZGV2X2FkZHIsZGQsRVRIX0FMRU4pOwoJZGV2
-LT5kb19pb2N0bCA9IE5VTEw7CglkZXYtPmdldF9zdGF0cyA9IE5VTEw7CglkZXYtPmhhcmRfc3Rh
-cnRfeG1pdCA9IE5VTEw7CglkZXYtPm9wZW4gPSBOVUxMOwoJZGV2LT5zZXRfbXVsdGljYXN0X2xp
-c3QgPSBOVUxMOwoJZGV2LT5zdG9wID0gTlVMTDsKCWRldi0+YWNjZXB0X2Zhc3RwYXRoID0gTlVM
-TDsKCWRldi0+dHhfcXVldWVfbGVuID0gMDsKCWRldi0+c2V0X21hY19hZGRyZXNzID0gTlVMTDsK
-fQqhoaGhoaGhoaGhoaGhoaGhd3JhdGg4eEAxNjMuY29tCqGhoaGhoaGhoaGhoaGhoaGhoaGhMjAw
-NS0wNC0yNAoK
+I don't know if anybody can help me?
+
+ I have just set up a Linux server with bridging and I have a security 
+question. I tried to enable the default firewall on the system but found 
+that I have to have my bridge set as a trusted device. This is obviously 
+not what I want for a secure system. I have a small number of ports that 
+I want open on my server, but the rest I want firewalled. However on one 
+side of my bridge I have my internet connection and on the other side is 
+a winXP machine that needs to be able to use all parts of the internet 
+(ie all traffic needs to be forwarded through the bridge and not 
+dependent on ports.)
+
+The default firewall included with Fedora core 3 seems to affect all the 
+traffic flowing across the bridge.
+
+Is there a way the firewall can sit after the bridge and just filter 
+incoming traffic from the bridge with the bridge's assigned IP address?
+
+Sorry if this does not make a great deal of sense. I can elaborate 
+further if required. I am quite new to Linux and still have a lot to learn.
+Am I thinking along the right lines that I need to learn about iptables 
+or would ebtables be a better route to go down?
+The simplest solution that does not require too much learning would be best!
+
+Best Regards
+Robert Stannard
