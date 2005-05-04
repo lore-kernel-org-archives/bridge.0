@@ -1,11 +1,11 @@
-Message-ID: <42791696.7090106@purdue.edu>
-Date: Wed, 04 May 2005 13:38:14 -0500
-From: Roman Chertov <rchertov@purdue.edu>
-MIME-Version: 1.0
+Date: Wed, 4 May 2005 11:53:52 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [Bridge] Introducing latency
-References: <EDF30175FE4D804B83444FB153172A50509A4D@louexch.KiZAN.net>
+Message-ID: <20050504115352.2d046516@dxpl.pdx.osdl.net>
 In-Reply-To: <EDF30175FE4D804B83444FB153172A50509A4D@louexch.KiZAN.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <EDF30175FE4D804B83444FB153172A50509A4D@louexch.KiZAN.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -18,27 +18,14 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 To: Jeff Gercken <JeffG@kizan.com>
 Cc: bridge@lists.osdl.org
 
-Jeff Gercken wrote:
+On Wed, 4 May 2005 14:07:46 -0400
+"Jeff Gercken" <JeffG@kizan.com> wrote:
+
 > Does anyone know how I might introduce latency on the packets that I
 > bridge?  I'm trying to develop a system for simulating wan links and
 > often bandwidth isn't as big an issue as delay, especially when talking
 > wireless (dot11 or satellite).
 
-You can use the dummynet of the ipfw in FreeBSD to add delays/link 
-limitations/loss.  You can also create a bridge with ipfw as well.  I am 
-not sure what Linux has for traffic shaping.
-
-Roman
-
-> 
-> Thanks,
-> jeff
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
+You can use netem (part of recent 2.4 and 2.6 kernels).
+More info at:
+http://developer.osdl.org/shemminger/netem
