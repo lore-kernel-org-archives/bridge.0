@@ -1,12 +1,10 @@
-Content-class: urn:content-classes:message
+Message-ID: <20050506193333.10987.qmail@web30201.mail.mud.yahoo.com>
+Date: Fri, 6 May 2005 12:33:33 -0700 (PDT)
+From: Scott MacKay <scottmackay@yahoo.com>
+Subject: Re: [Bridge] How to keep bridge up after reboot
+In-Reply-To: <20050506120016.6b3d2673@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [Bridge] How to keep bridge up after reboot
-Date: Fri, 6 May 2005 15:28:04 -0400
-Message-ID: <EDF30175FE4D804B83444FB153172A5054974C@louexch.KiZAN.net>
-From: "Jeff Gercken" <JeffG@kizan.com>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,56 +13,67 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Scott Ellerbrock <sellerbrock@saferent.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Sorry, I shouldn't try to answer questions w/o my first cup of coffee.
+One thing what has worked for me on RH[89] is
+modification of a
+/etc/sysconfig/network-scripts/ifcfg-br0
+In it, you have the normal IP resolving stuff and then
+add some script at the end (this file is acutally
+sourced).  In example, if br0 was eth0 and eth1 and
+your IP was dhcp:
 
-On SUSE most ppl seem to create a script in /etc/init.d/ then put a
-symlink pointing to it in the runlevel rc you're using.  A quick who -r
-should tell you which runlevel you use (typ runlevel 5)
+DEVICE=br0
+ONBOOT=yes
+BOOTPROTO=dhcp
+if [ "$0" = "/sbin/ifup" -o "$0" = "./ifup" ] ; then
+  ip link set eth0 up
+  ip link set eth1 up
+  brctl addbr br0
+  brctl addif br0 eth0
+  brctl addif br0 eth1
+fi
+if [ "$0" =
+"/etc/sysconfig/network-scripts/ifdown-post" ] ; then
+  brctl delbr br0
+  ip link set eth0 down
+  ip link set eth1 down
+fi
 
-So in /etc/init.d/ create a file called bridge
-	#!/bin/sh
-	brctrl addbr bla...
-	brctrl addif bla...
-	whatever else...
+--- Stephen Hemminger <shemminger@osdl.org> wrote:
 
-make it executable:
-	chmod 700 /etc/init.d/bridge
-
-put a symlink in /etc/init.d/rc5.d:
-	ln -s /etc/init.d/rc5.d/S99bridge /etc/init.d/bridge 
-
-That should be it.  Check the YaST runlevel editor to be sure.
-
------Original Message-----
-From: bridge-bounces@lists.osdl.org
-[mailto:bridge-bounces@lists.osdl.org] On Behalf Of Stephen Hemminger
-Sent: Friday, May 06, 2005 3:00 PM
-To: Scott Ellerbrock
-Cc: bridge@lists.osdl.org
-Subject: Re: [Bridge] How to keep bridge up after reboot
-
-On Thu, 5 May 2005 16:06:59 -0600 
-Scott Ellerbrock <sellerbrock@saferent.com> wrote:
-
-> I am sorry for the newbie question. I am working with SUSE 9.2 and I
-have
-> followed the instructions at
-> http://tldp.org/HOWTO/Ethernet-Bridge-netfilter-HOWTO-4.html
+> On Thu, 5 May 2005 16:06:59 -0600 
+> Scott Ellerbrock <sellerbrock@saferent.com> wrote:
 > 
-> I have gotten my bridge to work flawlessly, but I can't figure out how
-to
-> get the bridge to come up after a reboot. 
+> > I am sorry for the newbie question. I am working
+> with SUSE 9.2 and I have
+> > followed the instructions at
+> >
+>
+http://tldp.org/HOWTO/Ethernet-Bridge-netfilter-HOWTO-4.html
+> > 
+> > I have gotten my bridge to work flawlessly, but I
+> can't figure out how to
+> > get the bridge to come up after a reboot. 
+> > 
+> > Any help or pointers to docs that will get me
+> going in the right direction
+> > would be greatly appreciated.
+> > 
+> > Scott
+> >  
+> It is really depends on the distribution, some of
+> the firewall's etc have
+> gui's and startup scripts to handle.  You might look
+> in the SUSE doc's.
+> > _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/bridge
 > 
-> Any help or pointers to docs that will get me going in the right
-direction
-> would be greatly appreciated.
-> 
-> Scott
->  
-It is really depends on the distribution, some of the firewall's etc
-have
-gui's and startup scripts to handle.  You might look in the SUSE doc's.
 
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
