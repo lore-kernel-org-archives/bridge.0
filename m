@@ -1,10 +1,11 @@
-Message-ID: <20050506193333.10987.qmail@web30201.mail.mud.yahoo.com>
-Date: Fri, 6 May 2005 12:33:33 -0700 (PDT)
-From: Scott MacKay <scottmackay@yahoo.com>
-Subject: Re: [Bridge] How to keep bridge up after reboot
-In-Reply-To: <20050506120016.6b3d2673@dxpl.pdx.osdl.net>
+Message-ID: <427D8B20.7010301@SiuLung.com>
+Date: Sun, 08 May 2005 11:44:32 +0800
+From: Alan Tam <Tam@SiuLung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] How to disable verbose kernel logs for linux ethernet
+	bridge?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,65 +16,122 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-One thing what has worked for me on RH[89] is
-modification of a
-/etc/sysconfig/network-scripts/ifcfg-br0
-In it, you have the normal IP resolving stuff and then
-add some script at the end (this file is acutally
-sourced).  In example, if br0 was eth0 and eth1 and
-your IP was dhcp:
+Hi,
 
-DEVICE=br0
-ONBOOT=yes
-BOOTPROTO=dhcp
-if [ "$0" = "/sbin/ifup" -o "$0" = "./ifup" ] ; then
-  ip link set eth0 up
-  ip link set eth1 up
-  brctl addbr br0
-  brctl addif br0 eth0
-  brctl addif br0 eth1
-fi
-if [ "$0" =
-"/etc/sysconfig/network-scripts/ifdown-post" ] ; then
-  brctl delbr br0
-  ip link set eth0 down
-  ip link set eth1 down
-fi
+This is part of my dmesg output which is generated whenever some network 
+topology changes. It is very annoying. Any ways for me to inhibit those 
+which are only informational but not warnings which I need to take care? 
+I am running the all bridges on tap* interfaces emulated by OpenVPN. I 
+am running stock 2.6.8 kernel from Debian sarge.
 
---- Stephen Hemminger <shemminger@osdl.org> wrote:
+Please CC me Thanks!
 
-> On Thu, 5 May 2005 16:06:59 -0600 
-> Scott Ellerbrock <sellerbrock@saferent.com> wrote:
-> 
-> > I am sorry for the newbie question. I am working
-> with SUSE 9.2 and I have
-> > followed the instructions at
-> >
->
-http://tldp.org/HOWTO/Ethernet-Bridge-netfilter-HOWTO-4.html
-> > 
-> > I have gotten my bridge to work flawlessly, but I
-> can't figure out how to
-> > get the bridge to come up after a reboot. 
-> > 
-> > Any help or pointers to docs that will get me
-> going in the right direction
-> > would be greatly appreciated.
-> > 
-> > Scott
-> >  
-> It is really depends on the distribution, some of
-> the firewall's etc have
-> gui's and startup scripts to handle.  You might look
-> in the SUSE doc's.
-> > _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/bridge
-> 
+---8<---8<---8<---8<---8<---8<---8<---8<---8<---
+br0: port 1(tap0) entering listening state
+br0: port 1(tap0) entering learning state
+br0: topology change detected, propagating
+br0: port 1(tap0) entering forwarding state
+br0: port 1(tap0) entering disabled state
+device tap1 entered promiscuous mode
+br0: port 2(tap1) entering listening state
+br0: port 1(tap0) entering listening state
+br0: port 2(tap1) entering learning state
+br0: port 1(tap0) entering learning state
+br0: topology change detected, propagating
+br0: port 2(tap1) entering forwarding state
+br0: topology change detected, propagating
+br0: port 1(tap0) entering forwarding state
+eth0: no IPv6 routers present
+tap0: no IPv6 routers present
+br0: no IPv6 routers present
+tap1: no IPv6 routers present
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: neighbor 8000.00:ff:04:c8:95:4e lost on port 1(tap0)
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering forwarding state
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, propagating
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: neighbor 8000.00:ff:05:d2:76:ca lost on port 1(tap0)
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering forwarding state
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, sending tcn bpdu
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, sending tcn bpdu
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, sending tcn bpdu
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, sending tcn bpdu
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+tap0: received packet with  own address as source address
+tap0: received packet with  own address as source address
+tap0: received packet with  own address as source address
+tap0: received packet with  own address as source address
+tap0: received packet with  own address as source address
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering forwarding state
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, propagating
+tap0: received packet with  own address as source address
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering forwarding state
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: neighbor 8000.00:ff:05:d2:76:ca lost on port 1(tap0)
+br0: port 2(tap1) entering listening state
+br0: received tcn bpdu on port 1(tap0)
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering learning state
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+br0: topology change detected, propagating
+br0: port 2(tap1) entering forwarding state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering forwarding state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering blocking state
+br0: neighbor 8000.00:ff:05:d2:76:ca lost on port 1(tap0)
+br0: port 2(tap1) entering listening state
+br0: port 2(tap1) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(tap1) entering forwarding state
+br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
+br0: topology change detected, propagating
+---8<---8<---8<---8<---8<---8<---8<---8<---8<---
 
+-- 
+Regards,
+Alan
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
