@@ -1,11 +1,11 @@
-Message-ID: <427D8B20.7010301@SiuLung.com>
-Date: Sun, 08 May 2005 11:44:32 +0800
-From: Alan Tam <Tam@SiuLung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] How to disable verbose kernel logs for linux ethernet
-	bridge?
+Message-Id: <6.1.2.0.2.20050509184627.05a787d0@luna.tlmat.unican.es>
+Date: Mon, 09 May 2005 18:59:54 +0200
+From: Jorge Lanza <jlanza@tlmat.unican.es>
+In-Reply-To: <427D8B20.7010301@SiuLung.com>
+References: <427D8B20.7010301@SiuLung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: [Bridge] Port link status disconnect 
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,122 +16,43 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi,
+Hi all.
 
-This is part of my dmesg output which is generated whenever some network 
-topology changes. It is very annoying. Any ways for me to inhibit those 
-which are only informational but not warnings which I need to take care? 
-I am running the all bridges on tap* interfaces emulated by OpenVPN. I 
-am running stock 2.6.8 kernel from Debian sarge.
+I have been working with bridges on kernel 2.4.X but now I have upgrade to 
+kernel 2.6.11 and the behaviour seems to be different.
+I face problem when I include a wireless device as in /var/log/messages I 
+get (3-5) which before I didn't.
 
-Please CC me Thanks!
+1)May  5 10:53:01 fuj1 kernel: br0: topology change detected, propagating
+2)May  5 10:53:01 fuj1 kernel: br0: port 2(eth2) entering forwarding state
+3)May  5 10:53:06 fuj1 kernel: eth2: New link status: Disconnected (0002)
+4)May  5 10:53:06 fuj1 kernel: ip_tables: (C) 2000-2002 Netfilter core team
+5)May  5 10:53:07 fuj1 kernel: eth2: New link status: Connected (0001)
+6)May  5 10:53:20 fuj1 kernel: br0: port 2(eth2) entering disabled state
 
----8<---8<---8<---8<---8<---8<---8<---8<---8<---
-br0: port 1(tap0) entering listening state
-br0: port 1(tap0) entering learning state
-br0: topology change detected, propagating
-br0: port 1(tap0) entering forwarding state
-br0: port 1(tap0) entering disabled state
-device tap1 entered promiscuous mode
-br0: port 2(tap1) entering listening state
-br0: port 1(tap0) entering listening state
-br0: port 2(tap1) entering learning state
-br0: port 1(tap0) entering learning state
-br0: topology change detected, propagating
-br0: port 2(tap1) entering forwarding state
-br0: topology change detected, propagating
-br0: port 1(tap0) entering forwarding state
-eth0: no IPv6 routers present
-tap0: no IPv6 routers present
-br0: no IPv6 routers present
-tap1: no IPv6 routers present
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: neighbor 8000.00:ff:04:c8:95:4e lost on port 1(tap0)
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering forwarding state
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, propagating
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: neighbor 8000.00:ff:05:d2:76:ca lost on port 1(tap0)
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering forwarding state
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, sending tcn bpdu
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, sending tcn bpdu
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, sending tcn bpdu
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, sending tcn bpdu
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-tap0: received packet with  own address as source address
-tap0: received packet with  own address as source address
-tap0: received packet with  own address as source address
-tap0: received packet with  own address as source address
-tap0: received packet with  own address as source address
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering forwarding state
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, propagating
-tap0: received packet with  own address as source address
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering forwarding state
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: neighbor 8000.00:ff:05:d2:76:ca lost on port 1(tap0)
-br0: port 2(tap1) entering listening state
-br0: received tcn bpdu on port 1(tap0)
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering learning state
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
-br0: topology change detected, propagating
-br0: port 2(tap1) entering forwarding state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering forwarding state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering blocking state
-br0: neighbor 8000.00:ff:05:d2:76:ca lost on port 1(tap0)
-br0: port 2(tap1) entering listening state
-br0: port 2(tap1) entering learning state
-br0: topology change detected, sending tcn bpdu
-br0: port 2(tap1) entering forwarding state
-br0: neighbor 8000.00:ff:16:cb:25:97 lost on port 2(tap1)
-br0: topology change detected, propagating
----8<---8<---8<---8<---8<---8<---8<---8<---8<---
 
--- 
-Regards,
-Alan
+Lets explain the steps I follow. Brigde ports  --- eth1 wired 
+interface      eth2 wireless interface
+To set up the bridge and include both ports I run the following.
+
+brctl addbr br0
+brctl addif br0 eth1
+brctl addif br0 eth2
+ifconfig eth1 0.0.0.0
+ifconfig eth2 0.0.0.0
+ifconfig br0 10.0.1.4 up
+
+As you can see I set the eth2 ip address to 0.0.0.0. However after a while 
+the eth2 returns by it self to the previous configured IP address (i.e. 
+128.0.1.50). So, in order to make things work in the correct way I have to 
+retype ifconfig eth2 0.0.0.0 and the second time seems that everything 
+works as expected and the eth2 doesn't go back to the previous state.
+
+Why does it happen? What can I do? I need the device not to "get out of the 
+brigde" and reconfigured. I have try to brctl br0 setfd 0  but still have 
+the same problem.
+
+Any help is really welcomed.
+
+TA.
 
