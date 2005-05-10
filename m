@@ -1,13 +1,13 @@
-Date: Mon, 9 May 2005 10:52:53 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] How to disable verbose kernel logs for linux ethernet
-	bridge?
-Message-ID: <20050509105253.293e60b9@dxpl.pdx.osdl.net>
-In-Reply-To: <427D8B20.7010301@SiuLung.com>
-References: <427D8B20.7010301@SiuLung.com>
+Message-ID: <ace3f33d05050917531641fb@mail.gmail.com>
+Date: Tue, 10 May 2005 06:23:24 +0530
+From: srinivas naga vutukuri <srinivas.vutukuri@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Can it possible to call the bridge ioctl calls from
+	another module code...
+Reply-To: srinivas naga vutukuri <srinivas.vutukuri@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,28 +16,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Alan Tam <Tam@SiuLung.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Sun, 08 May 2005 11:44:32 +0800
-Alan Tam <Tam@SiuLung.com> wrote:
+Hi,
 
-> Hi,
-> 
-> This is part of my dmesg output which is generated whenever some network 
-> topology changes. It is very annoying. Any ways for me to inhibit those 
-> which are only informational but not warnings which I need to take care? 
-> I am running the all bridges on tap* interfaces emulated by OpenVPN. I 
-> am running stock 2.6.8 kernel from Debian sarge.
-> 
-> Please CC me Thanks!
-> 
->
+          I am using 2.4.x kernel and the kernel native bridge code
+(for bridging).
+I am creating Pseudo net_devices'  which should be added to the bridge
+interfaces.
+without intervention of bridge-utils (ie., brctl) to add interface
+from the userland,
+can i able to call the br_ioctl (), br_ioctl_deviceless_stub () which
+is calling the static br_ioctl_deviceless () function, which is
+adding/deleting the interface from the
+bridge. But my doubt is they are not defined as static, am thought global scope,
+but no where exported those function symbols, so using directly into
+another module is correct way of usage?
 
-The easiest way would be to change all those printk's you don't want to see
-in the br_stp_if.c from:
-	printk(KERN_INFO "%s: port ...
-to
-	printk(KERN_DEBUG "%s: port ...
+         Thanks for help in advance.
 
-then they will show up only in /var/log/messages.
+best regards,
+srinivas.
+
