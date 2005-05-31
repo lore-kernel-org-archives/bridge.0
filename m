@@ -1,13 +1,13 @@
-Date: Tue, 31 May 2005 09:29:45 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Source code bug or doubt - Not freeing port struct
-Message-ID: <20050531092945.74ae1fcc@dxpl.pdx.osdl.net>
-In-Reply-To: <6.1.2.0.2.20050531103813.03ffb590@luna.tlmat.unican.es>
+Subject: Re: [Bridge] Strange problem, please help
+From: Jaime Nebrera <jnebrera@eneotecnologia.com>
+In-Reply-To: <20050531092253.6b0797dd@dxpl.pdx.osdl.net>
 References: <5.2.0.9.1.20050530155338.024bd488@mailhost.csse.uwa.edu.au>
 	<1117523207.32760.84.camel@buttercup>
-	<6.1.2.0.2.20050531103813.03ffb590@luna.tlmat.unican.es>
+	<20050531092253.6b0797dd@dxpl.pdx.osdl.net>
+Content-Type: text/plain
+Date: Tue, 31 May 2005 18:41:25 +0200
+Message-Id: <1117557685.9462.34.camel@buttercup>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -17,35 +17,43 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jorge Lanza <jlanza@tlmat.unican.es>
-Cc: bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Ryan McConigley <ryan@csse.uwa.edu.au>, bridge@lists.osdl.org
 
-On Tue, 31 May 2005 10:45:28 +0200
-Jorge Lanza <jlanza@tlmat.unican.es> wrote:
+  Hi,
 
-> Hi all.
+> If you use the sk98lin driver it wants to do it's own spanning tree type
+> failover so it multicasts STP packets all the time.
+
+  Ok, I will ask my teammate
+
+> You need to somehow figure out what those packets are (ethereal, tcpdump, ...)
+> and go from there.
+
+  They were HSRP packages going to IP multicast address 224.0.0.1 or
+224.0.0.2 cant recall from the real IP of the two routers and going to
+port 1985. These were clearly HSRP related packages.
+
+> >   Regarding this point, we are using the same software solution with a
+> > much cheaper box (Via 1Ghz, 4x Realtek 100 Ethernets) working as a
+> > bridge and have been able to mange more than 20Mbps without a problem.
+> > The difference is they dont have that HSRP set up.
 > 
-> During the last few days I've been going through the code in order to 
-> understand how can I hack it to make the things I want to a packet on layer 2.
-> First of all, congratulations. I have learnt a lot.
-> 
-> However I have a doubt. In n<http://lxr.linux.no/ident?i=new_nbp>ew_nbp() 
-> funtion in br_if.c you make a kalloc for the port. While reading the code I 
-> haven't seen any kfree for that memory, which should be done in 
-> <http://lxr.linux.no/ident?i=del_nbp>del_nbp or similar functions. In 
-> <http://lxr.linux.no/ident?i=destroy_nbp>destroy_nbp you set the pointer to 
-> null, but I think that's not enough. I don't know if it is a bug or is sth 
-> that is done somewhere else.
+> You need to use a driver with NAPI or the interrupt per packet overhead
+> will swamp the box.
 
-What kernel version?
-	For 2.6
-		kmalloc of port data is in br_if:new_nbp
-		kfree is done by:
-		del_nbp calls destroy_nbp (via rcu)
-		   calls br_sysfs_freeif which does kobject_put(of port kobj)
-			when ref == 0 calls brport_release (through brport_ktype)
+  Yes, we are using NAPI with those Intel (100Mbps) and Marvel (GE).
+Also, we discovered there is a port to Realtek with NAPI support for
+kernel 2.4.x but we are just evaluating that and we are just trying to
+figure if we are loading and using it right
+(ftp://ftp.ovh.net/made-in-ovh/kernel/) Do you know how to know if its
+using it or not? Yes, I know Realtek is not a pro driver, but this is
+for an embedded system and cant be replaced.
 
-This complexity comes because application could have /sys/class/net/ethX/brif/port_id
-or other file open, in which case the bridge port can't be deleted. Until last
-reference is zero.
-		
+  Regards
+
+-- 
+Jaime Nebrera - jnebrera@eneotecnologia.com
+Consultor TI - ENEO Tecnologia SL
+Telf.- 95 455 40 62 - 619 04 55 18
+
