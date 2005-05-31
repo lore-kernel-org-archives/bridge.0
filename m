@@ -1,13 +1,11 @@
-Subject: Re: [Bridge] Strange problem, please help
-From: Jaime Nebrera <jnebrera@eneotecnologia.com>
-In-Reply-To: <20050531092253.6b0797dd@dxpl.pdx.osdl.net>
-References: <5.2.0.9.1.20050530155338.024bd488@mailhost.csse.uwa.edu.au>
-	<1117523207.32760.84.camel@buttercup>
-	<20050531092253.6b0797dd@dxpl.pdx.osdl.net>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 18:41:25 +0200
-Message-Id: <1117557685.9462.34.camel@buttercup>
+Date: Tue, 31 May 2005 09:40:24 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Bridge not working on arm embedded platform
+Message-ID: <20050531094024.75098a16@dxpl.pdx.osdl.net>
+In-Reply-To: <34d8b2fe05053002387a1942bf@mail.gmail.com>
+References: <34d8b2fe05053002387a1942bf@mail.gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -17,43 +15,63 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Ryan McConigley <ryan@csse.uwa.edu.au>, bridge@lists.osdl.org
+To: Louis Croisez <louis.croisez@gmail.com>
+Cc: bridge@lists.osdl.org
 
-  Hi,
+On Mon, 30 May 2005 11:38:59 +0200
+Louis Croisez <louis.croisez@gmail.com> wrote:
 
-> If you use the sk98lin driver it wants to do it's own spanning tree type
-> failover so it multicasts STP packets all the time.
-
-  Ok, I will ask my teammate
-
-> You need to somehow figure out what those packets are (ethereal, tcpdump, ...)
-> and go from there.
-
-  They were HSRP packages going to IP multicast address 224.0.0.1 or
-224.0.0.2 cant recall from the real IP of the two routers and going to
-port 1985. These were clearly HSRP related packages.
-
-> >   Regarding this point, we are using the same software solution with a
-> > much cheaper box (Via 1Ghz, 4x Realtek 100 Ethernets) working as a
-> > bridge and have been able to mange more than 20Mbps without a problem.
-> > The difference is they dont have that HSRP set up.
+> Hi,
+> i want to implement the bridging feature on an arm (cpu intel ixp425), 
+> running busybox+linux kernel 2.6.11.
+> For this, I have recompiled the kernel to enable bridging and ebtables, and 
+> I have compiled and installed brctl utility for arm.
 > 
-> You need to use a driver with NAPI or the interrupt per packet overhead
-> will swamp the box.
+> Here is my network setup:
+> [PC_A] eth0 10.0.0.10/24  ======== eth0 --+-- eth1 ======== [PC_B] eth0 10.10.0.1/24
+>                                           | 
+>                                           br0 
+>                                           [ARM]
 
-  Yes, we are using NAPI with those Intel (100Mbps) and Marvel (GE).
-Also, we discovered there is a port to Realtek with NAPI support for
-kernel 2.4.x but we are just evaluating that and we are just trying to
-figure if we are loading and using it right
-(ftp://ftp.ovh.net/made-in-ovh/kernel/) Do you know how to know if its
-using it or not? Yes, I know Realtek is not a pro driver, but this is
-for an embedded system and cant be replaced.
+What is IP address of bridge? (br0) or do you not
+want the ARM box to be IP accessible?
 
-  Regards
+> 
+> Here is how I setup my bridge on the ARM:
+> brctl addbr br0
+> brctl addif br0 eth0
+> brctl addif br0 eth1
+> brctl setfd br0 1
+why set forwarding delay so low, please don't
+> ifconfig eth0 promisc
+Don't do this you don't need to, unless something is
+broken in driver.
 
--- 
-Jaime Nebrera - jnebrera@eneotecnologia.com
-Consultor TI - ENEO Tecnologia SL
-Telf.- 95 455 40 62 - 619 04 55 18
+> ifconfig eth1 promisc
+> ifconfig eth0 0.0.0.0 <http://0.0.0.0>
+What is http:// stuff? some filter got it?
+expect:
+   ifconfig eth0 0.0.0.0
+to bring up without IP address
 
+> ifconfig eth1 0.0.0.0 <http://0.0.0.0>
+> ifconfig eth0 up
+unneeded device is already up.
+> ifconfig eth1 up
+> ifconfig br0 0.0.0.0 <http://0.0.0.0>
+
+You forgot to assign IP address to bridge, expect:
+   ifconfig br0
+
+> ifconfig br0 up
+Likewise unneeded.
+
+> ip route add 0.0.0.0/0 <http://0.0.0.0/0> dev br0
+
+In addition to configuration issues, I would also suspect the ARM ethernet
+driver.  Possible issues:
+	1) Does each ethernet device have a valid unique ethernet address? (ifconfig -a)
+	2) Does promiscuous work correctly? 
+           Can you snoop the net correctly with tcpdump without the bridge and without forcing
+	   eth into promiscuous mode.
+ 
