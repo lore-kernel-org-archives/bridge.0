@@ -1,14 +1,16 @@
+Message-ID: <34d8b2fe05060106074da8df04@mail.gmail.com>
+Date: Wed, 1 Jun 2005 15:07:41 +0200
+From: Louis Croisez <louis.croisez@gmail.com>
 Subject: Re: [Bridge] Bridge not working on arm embedded platform
-From: Bart De Schuymer <bdschuym@pandora.be>
-In-Reply-To: <34d8b2fe050531121736623672@mail.gmail.com>
+In-Reply-To: <1117609420.3384.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_863_16749177.1117631261792"
 References: <34d8b2fe05053002387a1942bf@mail.gmail.com>
 	<20050531094024.75098a16@dxpl.pdx.osdl.net>
 	<34d8b2fe050531121736623672@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 01 Jun 2005 07:03:40 +0000
-Message-Id: <1117609420.3384.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	<1117609420.3384.1.camel@localhost.localdomain>
+Reply-To: Louis Croisez <louis.croisez@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,52 +19,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Louis Croisez <louis.croisez@gmail.com>
-Cc: bridge@lists.osdl.org, Stephen Hemminger <shemminger@osdl.org>
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: bridge@lists.osdl.org
 
-Op di, 31-05-2005 te 21:17 +0200, schreef Louis Croisez:
-> I am currently debugging. To have idea of where is the network packet
-> in the stack, I use the ebtables/iptables log feature, that show the
-> traject of a packet.
-> Here is the result of my last test.
-> Goal:
->             [PC_A] ping [PC_B] thru [ARM].
-> Result:
->             icmp request is even not sent, because first an arp
-> request is broadcast on the lan to resolve PC_B hw address. Problem is
-> that this arp request never reach PC_B. It is stopped inside ARM.
-> Here is the path followed by this packet:
-> ebt:BRoute:BRouting
-> ebt:Nat:PreRouting
-> ipt:Mangle:PreRouting
-> ipt:Nat:PreRouting
-> ebt:Filter:Input
-> 
-> I don't understand this behavior of the Bridgin Decision... The arp
-> request is a broadcast. It should  not be kept only by br0.
-> 
-> To workaround this, I have set br0 to promisc mode.
-> The result of the test is the following:
-> ebt:BRoute:BRouting
-> ebt:Nat:PreRouting
-> ipt:Mangle:PreRouting
-> ipt:Nat:PreRouting
-> ebt:Filter:Input
-> ebt:Filter:Forward
-> ipt:Mangle:Forward
-> ipt:Filter:Forward
-> ebt:Nat:PostRouting
-> 
-> The packet is stopped here. I don't know why!!
-> 
-> I feel there is a config problem, because it cannot be a bridge source
-> problem, or a bug.
-> I thing about some /proc configuration related to arp. Do you have an
-> idea?
+This is a multi-part message in MIME format...
+
+------=_Part_863_16749177.1117631261792
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi Bart, Hi kind bridge listers,
 
 Just my 2 cents: make sure arptables doesn't drop the ARP packets...
+>=20
 
-cheers,
-Bart
+How can I be sure that arptables is not interferring?
+is it by putting 0 inside /proc/sys/net/bridge/bridge-nf-call-arptables ?
 
+The symptom is : the arp broadcast (not the unicast arp response) is blocke=
+d=20
+just after ebt:Nat:PostRouting.
+Note: ebt:Nat:PostRouting is the trace printed by the following ebtable=20
+entry:
+> ebtables -t nat -A POSTROUTING -j ACCEPT --log --log-prefix=3D"=20
+ebt:Nat:PostRouting "
 
+------=_Part_863_16749177.1117631261792
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi Bart, Hi kind bridge listers,<br>
+<br>
+<blockquote DEFANGED_style=3D"border-left: 1px solid rgb(204, 204, 204); ma=
+rgin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;" class=3D"gmail_quote">Just my =
+2 cents: make sure arptables doesn't drop the ARP packets...<br>
+</blockquote>
+<br>
+How can I be sure that arptables is not interferring?<br>
+is it by putting 0 inside /proc/sys/net/bridge/bridge-nf-call-arptables ?<b=
+r><br>The symptom is : the arp broadcast (not the unicast arp response) is =
+blocked just after ebt:Nat:PostRouting.<br>
+Note: ebt:Nat:PostRouting is the trace printed by the following ebtable ent=
+ry:<br>
+&gt; ebtables -t nat -A POSTROUTING -j ACCEPT --log --log-prefix=3D&quot; e=
+bt:Nat:PostRouting &quot;<br>
+
+------=_Part_863_16749177.1117631261792--
