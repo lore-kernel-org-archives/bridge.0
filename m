@@ -1,12 +1,12 @@
-Subject: Re: [Bridge] persistent settings
-From: Jeremy Jones <jjones@djc.state.id.us>
-In-Reply-To: <42A3B066.60600@secure-mind.net>
-References: <42A3B066.60600@secure-mind.net>
-Content-Type: text/plain
-Date: Mon, 06 Jun 2005 11:39:48 -0600
-Message-Id: <1118079588.21081.10.camel@jjones-lnx.idjc.idaho.gov>
+Date: Mon, 6 Jun 2005 10:55:34 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20050606105534.3d73afa7@dxpl.pdx.osdl.net>
+In-Reply-To: <20050606105333.BF827443A4@service.i-think-future.de>
+References: <20050606105333.BF827443A4@service.i-think-future.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: kernel 2.6.x.y + bridging operational?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,21 +15,49 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Nils Radtke <Nils.Radtke@Think-Future.de>, bridge@osdl.org
 
-Hi,
+On Mon, 6 Jun 2005 12:53:33 +0200
+Nils Radtke <Nils.Radtke@Think-Future.de> wrote:
 
-On Sun, 2005-06-05 at 22:09 -0400, Hugh Crissman wrote:
-> Google did not turn up much on this so I figured I would come to the 
-> source. I got my bridge working great. I wanted to know, how do I make 
-> the setting persistent? So when I reboot the machine, the bridge comes 
-> up and is operational automatically. Basically I followed the directions 
-> off of the site. I am not running STP. My bridge does have a private ip.
+> 
+>   Hi Stephen,
+> 
+>  the transition from kernels of the 2.4.x series to 2.6 series ones broke
+>  my bridge. And other peoples bridges additionally, as I learned from 
+>  various emails I received adressing this problem.
 
-Add all the commands you run to build your bridge to a script & execute
-that script when you startup.  Look for a file somewhere in /etc called,
-say, rc.local.  Really, where you put the commands depends on your
-distro.
+"broke" is not a complete description of the problem.  Did it not boot?
+Not forward packets? Crash, please be more precise.  Also what emails
+on what list, the official Linux network developers list is netdev@oss.sgi.com
+and the bridge mailing list is bridge@osdl.org.
 
-Jeremy
+Also, which functionality? Bridging or bridging and filtering (netfilter).
 
+
+>  I'd like to see clear about the why and where.
+>  Could you give me any hints? 
+>  The setup that worked previously is a std one. Two ethx ifs below the
+>  br0 if.
+> 
+>  Afterwards, I'll update my HOWTO
+>  (http://www.think-future.de/DOCUMENTATION/Ethernet-Bridge-netfilter-HOWTO/)
+>
+
+The current site to look for about netfilter and bridging is the ebables.sourceforge.net
+info.
+
+
+>  Thanks for your hints,
+> 
+>     Nils
+> 
+> BTW: on http://bridge.sourceforge.net/links.html the link to the HOWTO
+>  leads to tldp.org basically ok, but the tldp people do not manage the
+>  update I sent to them so the tldp version of my HOWTO is horribly
+>  outdated. The above link (leading to think-future.de) reflects the
+>  actual HOWTO's version. So you might update your link section leading
+>  to the actual one.
+>
+
+I'll cleanup the site some time soon and get rid of old links thanks.
