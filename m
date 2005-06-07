@@ -1,7 +1,7 @@
-Message-Id: <200506060623.j566Nilo025218@thewayout.net>
+Message-Id: <200506060635.j566ZijA028535@smtp.osdl.org>
 From: "Osama Abu Elsorour" <osama@wayout.net>
 Subject: RE: [Bridge] ARP weirdness
-Date: Tue, 7 Jun 2005 09:22:02 +0300
+Date: Tue, 7 Jun 2005 09:33:51 +0300
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
