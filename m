@@ -1,11 +1,11 @@
-Message-ID: <42A70AE5.8070308@candelatech.com>
-Date: Wed, 08 Jun 2005 08:12:37 -0700
-From: Ben Greear <greearb@candelatech.com>
-MIME-Version: 1.0
-Subject: Re: [Bridge] is possible to create vlan capable switch use linux?
-References: <EDF30175FE4D804B83444FB153172A50061487@louexch.KiZAN.net>
-In-Reply-To: <EDF30175FE4D804B83444FB153172A50061487@louexch.KiZAN.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Wed, 8 Jun 2005 09:31:52 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Multicast
+Message-ID: <20050608093152.32e3c9c5@unknown-215.office.pdx.osdl.net>
+In-Reply-To: <03b001c56bfd$cd346c70$825810ac@amon>
+References: <03b001c56bfd$cd346c70$825810ac@amon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
@@ -15,20 +15,20 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jeff Gercken <JeffG@kizan.com>
-Cc: ipuk s <qasuari@yahoo.com>, bridge@lists.osdl.org
+To: Tomo Ceferin <tomo@activetools.si>
+Cc: bridge@lists.osdl.org
 
-Jeff Gercken wrote:
-> Try http://scry.wanfear.com/~greear/vlan.html
+On Wed, 8 Jun 2005 09:43:46 +0200
+"Tomo Ceferin" <tomo@activetools.si> wrote:
+
+> Hi,
 > 
-> -jeff
+> I checked archives but I haven't found this subject before.
+> 
+> Does bridge support multicast or not? I checked the code and it would seem
+> that bridge will flood multicast frames to all but source port.
+> 
+> Rgds, Tomo Ceferin
+> Active Tools
 
-It's:  http://www.candelatech.com/~greear/vlan.html
-now, actually :)
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+Yes, that is what multicast is.
