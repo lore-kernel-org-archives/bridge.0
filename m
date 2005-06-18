@@ -1,12 +1,11 @@
-From: FEANORKND <FEANORKND@terra.es>
-Message-ID: <72f7d6cdee.6cdee72f7d@teleline.es>
-Date: Sun, 12 Jun 2005 04:38:11 +0200
-MIME-Version: 1.0
-Content-Language: es
-Content-Type: text/plain; charset="iso-8859-1"
+Date: Sat, 18 Jun 2005 21:19:27 +0200
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Message-ID: <20050618191926.GA17671@pul.manty.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Bridging........... necesito entender algo...
+Subject: [Bridge] 2.6.12: iptables connection tracking broken on bridge
+	interfaces
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,54 +16,53 @@ List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hola, en primer lugar, agradecer una gu=EDa como la que teneis publicada,=20
-y desde la cual, recojo la direccion mail para escribiros... es un=20
-placer encontrar en espa=F1ol manuales tan bien explicados, y que=20
-resultan practicos.
+Hi!
 
-Mi caso particular es el siguiente:=20
+As noted by Chris Rankin on a mail to netfilter-devel and to the
+linux-kernel mailing list (subject: 2.6.12: connection tracking broken?),
+there is a problem with the connection tracking of iptables when one of the
+interfaces is a bridge.
 
-En un hotel, acabo de instalar un firewall/router linux debian 2.6.8,=20
-que enruta el tr=E1fico de las habitaciones de un eth1 (local) a un eth0=20
-(wan)... he a=F1adido un sistema de autentificacion web por php,=20
-gestionado desde recepcion, de forma, que con iptables, al mismo tiempo=20
-que hago DROP en FORWARD a MACs no registradas, redirijo su trafico web=20
-con -j REDIRECT al servidor apache, para que tecleen la url que=20
-tecleen, le aparezca la web del hotel... cuando se registran, php=20
-ejecuta shell para introducir las reglas de filtrado por MAC dandoles=20
-acceso completo a internet...
+On my tests here I have setup a connection between two machines using a real
+interface (eth0) and then the same setup using a bridge interface (br0) to
+which that interface had been enslaved:
 
-EL PROBLEMA!!! tengo puesto un servidor DHCP, pero me interesa que los=20
-clientes no tengan que tocar la configuraci=F3n TCPIP para poder=20
-conectarse... es decir, me hace falta que la eth1 est=E9 en modo=20
-promiscuo, y reciba los paquetes de cualquier puerta de enlace que un=20
-cliente tenga configurada...... los paquetes salientes saldrian sin=20
-problemas, supongo... pero los entrantes, se perder=EDan... por mucho=20
-nat..
+The setup had modules ipt_LOG, ipt_state, ip_conntrack, iptable_filter and
+ip_tables loaded, as well as bridge and I loaded a simple set of rules,
+exactly the same set each time but changing the interface name, I'll just
+write the setup for br0, but the setup was the same one for eth0 with that
+little change:
 
-LA POSIBLE SOLUCION..... usar un brigde, y filtrar igualmente por=20
-iptables como bien dice vuestra guia.... si los eth est=E1n en modo=20
-promiscuo, todos los paquetes saldr=EDan sin problemas sea cual fuera la=20
-gateway configurada en los clientes, e igualmente les llegarian de=20
-vuelta las respuestas por nat...=20
+iptables -A INPUT -i br0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -i br0 -j LOG --log-level 7 --log-prefix "NOTESTABLISHED "
+iptables -A INPUT -i br0 -j DROP
 
-LAS PREGUNTAS.... =BFestoy en lo cierto?=BFel bridging permitiria enrutar=20
-trafico por nat sin importar las configuraciones ip de los clientes?
-=BFaun asi, y puesto que he leido algo m=E1s de ebtables, y de bridges...=20
-podria filtrar por -m mac en la tabla FILTER EN FORWARD (dicen creo que=20
-la mac ya llegar=EDa a =E9ste punto cambiada por la del bridge)?=BFse me va=
-=20
-la cabeza y quizas con poner mi eth1 en modo promiscuo funcionaria el=20
-invento sin usar bridge?=BFtendria que a=F1adir 'routes' o solo me valdria =
+this set of rules with eth0 on them worked ok when I tried to telnet a port
+on a remote machine (192.168.0.1) from the local machine (192.168.0.2),
+concretelly the test was a telnet to port 22 where the ssh daemon was
+listening. However, when I did the same test using the br0 interface, I got
+this logged:
 
-con el default, en el caso de que use un bridge?
+NOTESTABLISHED IN=br0 OUT= PHYSIN=eth0
+MAC=00:50:ba:54:39:8c:00:48:54:6a:58:90:08:00 SRC=192.168.0.1
+DST=192.168.0.2 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=0 DF PROTO=TCP SPT=22
+DPT=48448 WINDOW=5792 RES=0x00 ACK SYN URGP=0 
 
-UFFFF......... me estoy volviendo un poco loco con =E9sto, y es que soy=20
-un poco novato.. el lunes o martes tengo que resolver =E9ste problema...=20
-y es que los clientes son un poco torpes, y la mayoria no sabe ni poner=20
-la IP en modo automatico (DHCP), y claro, yo no estoy en el hotel...=20
+doing a grep for 192.168.0.1 on /proc/net/ip_conntrack* returned nothing,
+however netstat showed the connection:
+tcp        0      1 192.168.0.2:48448       192.168.0.1:22          SYN_SENT
 
-muchas gracias de antemano... espero que podais ayudarme.
+I believe that iptables works ok execept for the connection tracking, but I
+have not tested this fully.
 
+Machines were I tried this were a Pentium III and an AMD K6II both with
+kernel 2.6.12, I know this is happening at least from RC5, but at that time
+I didn't have the time to check and I thought it was due to the kernel
+bridge firewall being loaded, the tests I did today with 2.6.12 final didn't
+have the kernel bridge firewall, just normal bridge and normal iptables.
 
+If you need any other info to check this just ask for it.
 
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
