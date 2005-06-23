@@ -1,10 +1,11 @@
-Date: Tue, 21 Jun 2005 10:53:25 +0530
-From: Jitendra <jitendra_k@asianitg.com>
-Message-id: <000801c57621$5a2db370$6800a8c0@asianitg2>
-MIME-version: 1.0
-Content-type: multipart/alternative;
-	boundary="Boundary_(ID_sScUbQLwtWc9T2Kj/RnKgg)"
-Subject: [Bridge] Help on Brctl
+Message-Id: <200506220848.j5M8m2jA000868@smtp.osdl.org>
+From: "Osama Abu Elsorour" <osama@wayout.net>
+Subject: RE: [Bridge] Help on Brctl
+Date: Thu, 23 Jun 2005 11:46:10 +0300
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+In-Reply-To: <000801c57621$5a2db370$6800a8c0@asianitg2>
+Content-Transfer-Encoding: quoted-printable
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,52 +14,44 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
+To: 'Jitendra' <jitendra_k@asianitg.com>, bridge@osdl.org
+
+
+Looks like you may have misconfigured your interfaces. Remember:
+- Enslaved Ethernet interfaces should not have any IP addresses configured
+(bridge ports).
+- The bridge interface is the one that should be configured with your IP
+addresses
+
+The reason is that the Ethernet interfaces are just bridging ports (layer 2)
+and the new bridge interface(s) (br0, br1, etc) are the enslaving logical
+interfaces.
+
+You may use ifconfig or ip commands to perform IP configuration on the
+bridge interface.
+
+________________________________________
+From: bridge-bounces@lists.osdl.org [mailto:bridge-bounces@lists.osdl.org]
+On Behalf Of Jitendra
+Sent: Tuesday, June 21, 2005 8:23 AM
 To: bridge@osdl.org
-
-This is a multi-part message in MIME format...
-
---Boundary_(ID_sScUbQLwtWc9T2Kj/RnKgg)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-Disposition: inline
+Subject: [Bridge] Help on Brctl
 
 Respected sir,
-                I have created the Bridge using "brctl" utilities and I have successfully established the Bridge between the two Ethernet card and Its also working fine but the problem is like ......Its not pinging from the other machine ( i mean to say that machine is not any more accessible in network) so can you please help , why these is so happening b'cos the bridge is still working perfectly but  i want able to access that machine from my network, so please help
-
-
-
-Thanking You 
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 I have created the Bridge usi=
+ng "brctl" utilities and I have
+successfully established the Bridge between the two Ethernet card and Its
+also working fine but the problem is like ......Its not pinging from the
+other machine ( i mean to say that machine is not any more accessible in
+network) so can you please help , why these is so happening b'cos the bridge
+is still working perfectly but=A0 i want able to access that machine from my
+network, so please help
+=A0
+=A0
+=A0
+Thanking You=20
 Jitendra
+=A0
+=A0
 
 
-
---Boundary_(ID_sScUbQLwtWc9T2Kj/RnKgg)
-Content-type: text/html; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-Disposition: inline
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-<META content="MSHTML 6.00.2600.0" name=GENERATOR>
-<DEFANGED_style_0 </STYLE>
-</HEAD>
-<BODY bgColor=#ffffff>
-<DIV><FONT face=Arial size=2>Respected sir,</FONT></DIV>
-<DIV><FONT face=Arial 
-size=2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-I have created the Bridge using "brctl" utilities and I have successfully 
-established the Bridge between the two Ethernet card and Its also working fine 
-but the problem is like ......Its not pinging from the other machine ( i mean to 
-say that machine is not any more accessible in network) so can you please help , 
-why these is so happening b'cos the bridge is still working perfectly but&nbsp; 
-i want able to access that machine from my network, so please help</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>Thanking You </FONT></DIV>
-<DIV><FONT face=Arial size=2>Jitendra</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV></BODY></HTML>
-
---Boundary_(ID_sScUbQLwtWc9T2Kj/RnKgg)--
