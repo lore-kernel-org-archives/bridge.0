@@ -1,11 +1,10 @@
-Message-Id: <200506220848.j5M8m2jA000868@smtp.osdl.org>
-From: "Osama Abu Elsorour" <osama@wayout.net>
-Subject: RE: [Bridge] Help on Brctl
-Date: Thu, 23 Jun 2005 11:46:10 +0300
+Message-ID: <42C0F0E2.1000501@smartbridges.com>
+Date: Tue, 28 Jun 2005 14:40:34 +0800
+From: munro <munro.biswal@smartbridges.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-In-Reply-To: <000801c57621$5a2db370$6800a8c0@asianitg2>
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Possibility of  copying over fdb entries. 
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,44 +13,30 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <http://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Jitendra' <jitendra_k@asianitg.com>, bridge@osdl.org
+To: bridge@lists.osdl.org
 
 
-Looks like you may have misconfigured your interfaces. Remember:
-- Enslaved Ethernet interfaces should not have any IP addresses configured
-(bridge ports).
-- The bridge interface is the one that should be configured with your IP
-addresses
 
-The reason is that the Ethernet interfaces are just bridging ports (layer 2)
-and the new bridge interface(s) (br0, br1, etc) are the enslaving logical
-interfaces.
+Hi, all,
 
-You may use ifconfig or ip commands to perform IP configuration on the
-bridge interface.
+I wish to copy over fdb(forwarding database  entries) learnt over from 
+one interface  onto  as  they are from another interface.
 
-________________________________________
-From: bridge-bounces@lists.osdl.org [mailto:bridge-bounces@lists.osdl.org]
-On Behalf Of Jitendra
-Sent: Tuesday, June 21, 2005 8:23 AM
-To: bridge@osdl.org
-Subject: [Bridge] Help on Brctl
+Like for eg :
+ brctl showmacs br0
+port no mac addr                is local?       ageing timer
+  1     00:30:1a:01:6f:e4       no                 0.46
+  1     00:30:1a:1c:3d:b7       yes                0.00
+  2     00:30:1a:1c:3d:b8       yes                0.00
 
-Respected sir,
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 I have created the Bridge usi=
-ng "brctl" utilities and I have
-successfully established the Bridge between the two Ethernet card and Its
-also working fine but the problem is like ......Its not pinging from the
-other machine ( i mean to say that machine is not any more accessible in
-network) so can you please help , why these is so happening b'cos the bridge
-is still working perfectly but=A0 i want able to access that machine from my
-network, so please help
-=A0
-=A0
-=A0
-Thanking You=20
-Jitendra
-=A0
-=A0
+Instead of the above in line 1 if i wish to forcefully add mac  "  
+00:30:1a:01:6f:e4 "  from port 2 instated of port 1.
 
+
+Do i need to create a separate ioctl for it from the brctl to the kernel 
+code or is thier some provision for doing it.
+
+
+Regards,
+Munro.
 
