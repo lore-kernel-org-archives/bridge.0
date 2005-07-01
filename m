@@ -1,14 +1,12 @@
-Date: Fri, 1 Jul 2005 11:36:23 -0400
-From: Hugh Crissman <hcrissman@secure-mind.net>
-Subject: Re: [Bridge] bridge firewall
-Message-ID: <20050701153623.GA7841@secure-mind.net>
-References: <20050630121553.GA19988@secure-mind.net>
-	<5.2.0.9.1.20050701083251.02ea5438@mailhost.csse.uwa.edu.au>
+Date: Fri, 1 Jul 2005 10:51:47 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] STP Explanation (2)
+Message-ID: <20050701105147.4f253939@dxpl.pdx.osdl.net>
+In-Reply-To: <5403437.1120128719825.JavaMail.www@wwinf4104>
+References: <5403437.1120128719825.JavaMail.www@wwinf4104>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.2.0.9.1.20050701083251.02ea5438@mailhost.csse.uwa.edu.au>
-Reply-To: hcrissman@secure-mind.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,54 +15,81 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Ryan McConigley <ryan@csse.uwa.edu.au>
-Cc: bridge@lists.osdl.org
+To: shenry82@voila.fr
+Cc: Bridge@lists.osdl.org
 
-Thanks Ryan,
+On Thu, 30 Jun 2005 12:51:59 +0200 (CEST)
+shenry82 <shenry82@voila.fr> wrote:
 
-That answers one of my major questions. I was not sure if I should have snort sniff on /dev/eth1 (a nic that is part of my bridge) or /dev/br0 
-(the bridge interface I created). I would assume that snort capture is very similar to tcpdump and sniffing on /dev/br0 would work fine. I will 
-give that a shot. Now I wonder if iptables can block traffic on the bridge? If so, would the recipes call the bridge interface or one of the 
-specific interfaces that are active in the bridge ie. /dev/br0 or /dev/eth1?
+> I saw some big mistakes, here's the correct version :
+> --------------------------------------------------------------------
+> void br_send_config_bpdu(struct net_bridge_port *p, struct bpdu *bpdu)
+> {
+> 	unsigned char buf[42];
+> 
+> 	buf[0] = bpdu->bpdu_header.protocol[0]; //0x00
+> 	buf[1] = bpdu->bpdu_header.protocol[1]; //0x00
+> 	buf[2] = bpdu->bpdu_header.version; //0x02
+> 	buf[3] = BPDU_TYPE_CONFIG;
+> 	buf[4] = bpdu->bpdu_body.flags.topo_change;
+> 	buf[5] = bpdu->bpdu_body.flags.proposal;
+> 	buf[6] = bpdu->bpdu_body.flags.port_role[0];
+> 	buf[7] = bpdu->bpdu_body.flags.port_role[1];
+> 	buf[8] = bpdu->bpdu_body.flags.learning;
+> 	buf[9] = bpdu->bpdu_body.flags.forwarding;
+> 	buf[10] = bpdu->bpdu_body.flags.agreement;
+> 	buf[11] = bpdu->bpdu_body.flags.topo_change_ack;	
+> 	buf[12] = bpdu->bpdu_body.root_id.prio[0];
+> 	buf[13] = bpdu->bpdu_body.root_id.prio[1];
+> 	buf[14] = bpdu->bpdu_body.root_id.addr[0];
+> 	buf[15] = bpdu->bpdu_body.root_id.addr[1];
+> 	buf[16] = bpdu->bpdu_body.root_id.addr[2];
+> 	buf[17] = bpdu->bpdu_body.root_id.addr[3];
+> 	buf[18] = bpdu->bpdu_body.root_id.addr[4];
+> 	buf[19] = bpdu->bpdu_body.root_id.addr[5];
+> 	buf[20] = (bpdu->bpdu_body.root_path_cost >> 24) & 0xFF;
+> 	buf[21] = (bpdu->bpdu_body.root_path_cost >> 16) & 0xFF;
+> 	buf[22] = (bpdu->bpdu_body.root_path_cost >> 8) & 0xFF;
+> 	buf[23] = bpdu->bpdu_body.root_path_cost & 0xFF;
+> 	buf[24] = bpdu->bpdu_body.bridge_id.prio[0];
+> 	buf[25] = bpdu->bpdu_body.bridge_id.prio[1];
+> 	buf[26] = bpdu->bpdu_body.bridge_id.addr[0];
+> 	buf[27] = bpdu->bpdu_body.bridge_id.addr[1];
+> 	buf[28] = bpdu->bpdu_body.bridge_id.addr[2];
+> 	buf[29] = bpdu->bpdu_body.bridge_id.addr[3];
+> 	buf[30] = bpdu->bpdu_body.bridge_id.addr[4];
+> 	buf[31] = bpdu->bpdu_body.bridge_id.addr[5];
+> 	buf[32] = (bpdu->bpdu_body.port_id >> 8) & 0xFF;
+> 	buf[33] = bpdu->bpdu_body.port_id & 0xFF;
+> 
+> 	br_set_ticks(buf+34, bpdu->bpdu_body.message_age);
+> 	br_set_ticks(buf+36, bpdu->bpdu_body.max_age);
+> 	br_set_ticks(buf+38, bpdu->bpdu_body.hello_time);
+> 	br_set_ticks(buf+40, bpdu->bpdu_body.forward_delay);
+> 
+> 	br_send_bpdu(p, buf, 42);
+> }
+> -------------------------------------------------------------------------
+> I also modified the following function like this :
+> ------------------------------------------------------------------------------
+> /* called under bridge lock */
+> void br_send_tcn_bpdu(struct net_bridge_port *p)
+> {
+> 	unsigned char buf[4];
+> 
+> 	buf[0] = bpdu->bpdu_header.protocol[0]; //0x00
+> 	buf[1] = bpdu->bpdu_header.protocol[1]; //0x00
+> 	buf[2] = bpdu->bpdu_header.version; //0x02
+> 	buf[3] = BPDU_TYPE_TCN;
+> 	br_send_bpdu(p, buf, 4);
+> }
+> 
+> static unsigned char header[3] = {0x00, 0x00, 0x02};
+> ------------------------------------------------------------------------
+> 
+> please tell me what do you think of because if i'm getting the wrong way, i prefer to know it quickly. ^^
+> 
 
-Thanks,
-
-Hugh
-
-* Ryan McConigley <ryan@csse.uwa.edu.au> [2005-07-01 08:35:21]:
-
-> At 08:15 AM 30/06/2005 -0400, you wrote:
-> >I am in the process of building a bridge firewall to place as the gateway 
-> >to my network. I have a couple
-> >questions that I can't seem to find clear answers to. Can snort sniff on a 
-> >bridged interface? Second, can
-> >ebtables block by IP? I know IP is layer 3 and a Bridge is Layer 2 but 
-> >some of the recipes I have seen for
-> >ebtables have ips in them.
-> 
->         I assume it can.  Just tell snort to use the bridge interface as 
-> opposed to the actually enternet cards.  Thats how I do packet capture on 
-> our bridge using tcpdump.  You'll probably get a better answer from the 
-> list though.
-> 
->         And I thought that ebtables was only layer2, but I know with 
-> iptables you can specify mac addresses, so I wouldn't be surprised if 
-> ebtables has the same style of functionality or plugins.
-> 
->         Just my $0.02 worth.
-> 
->         Cheers,
->                 Ryan.
-> 
-> --
->           Ryan McConigley - Systems Administrator                  _.-,
->      Computer Science   University of Western Australia        .--'  '-._
->        Tel: (+61 8) 6488 7082 - Fax: (+61 8) 6488 1089       _/`-  _      '.
-> Ryan[@]csse.uwa.edu.au - http://www.csse.uwa.edu.au/~ryan  '----'._`.----. \
->                                                                      `     
->                                                                      \;
->  "You're just jealous because the voices are talking to me"                
->  ;_\
-> 
-> 
-> 
+This matches the style of the existing code, but I really don't like that style.
+I would prefer to rework that code to define the STP protocol header as a structure
+and overlay structure on an skb.  More like the existing IP code does.  
