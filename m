@@ -1,10 +1,12 @@
-Message-ID: <42C59E66.8050906@ntbox.com>
-Date: Fri, 01 Jul 2005 12:49:58 -0700
-From: North Antara <north@ntbox.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge-utils + Linksys WET11
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [Bridge] bridge-utils + Linksys WET11
+Date: Fri, 1 Jul 2005 16:28:58 -0400
+Message-ID: <EDF30175FE4D804B83444FB153172A5063602D@louexch.KiZAN.net>
+From: "Jeff Gercken" <JeffG@kizan.com>
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,7 +15,20 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
+To: North Antara <north@ntbox.com>, bridge@lists.osdl.org
+
+You could try tcpdump -i <port> ether host 00:02:a5:d3:a2:a9
+This might give you some insight as to why the port assignment changes.
+Loop maybe?
+
+-jeff
+
+-----Original Message-----
+From: bridge-bounces@lists.osdl.org
+[mailto:bridge-bounces@lists.osdl.org] On Behalf Of North Antara
+Sent: Friday, July 01, 2005 3:50 PM
 To: bridge@lists.osdl.org
+Subject: [Bridge] bridge-utils + Linksys WET11
 
 So, I'm setting up my first bridge, and I'm running into an interesting
 issue.
@@ -51,7 +66,8 @@ after pinging Client B from Client A...Client B moves.
 
 [root@deadbeef root]# brctl showmacs br100
 port no mac addr                is local?       ageing timer
-  4     00:02:a5:d3:a2:a9       no                 0.10   <-- note the port change
+  4     00:02:a5:d3:a2:a9       no                 0.10   <-- note the
+port change
   1     00:04:5a:6f:f4:66       no                 0.00
   4     00:12:17:47:90:43       no                 0.49
   4     00:13:10:16:1e:19       no                12.76
@@ -97,7 +113,8 @@ ${i}"
                                 continue
                         }
                         ifconfig ${i} 0.0.0.0 promisc || \
-                                echo $? "Failed to set up interface ${i}"
+                                echo $? "Failed to set up interface
+${i}"
                 done
                 ifconfig $b $(eval echo \$\{bridge_${b}_ip\})
 
@@ -111,6 +128,10 @@ ${i}"
 
         echo -e "$return"
         ;;
-    [snip]the rest of the script isn't relevant[/snip]
-esac
+    [snip]the rest of the script isn't relevant[/snip] esac
+
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/bridge
 
