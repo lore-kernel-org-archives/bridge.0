@@ -1,10 +1,10 @@
-Message-ID: <20050707154743.16581.qmail@webmaild.fe1.aruba.it>
-From: "Giuseppe Gottardi" <overet@securitydate.it>
-Date: Thu, 07 Jul 2005 17:47:43 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Message-ID: <42CD5A33.10604@fokus.fraunhofer.de>
+Date: Thu, 07 Jul 2005 18:37:07 +0200
+From: Olaf Menzel <olaf.menzel@fokus.fraunhofer.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] SAS: a new security tool patch for bridge
+Subject: [Bridge] Linux bridge on linksys WRT54GS running OpenWRT
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,41 +15,45 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi, I'm an electronic engineer involved in security and embedded systems and 
-I have developed an algorithm for a secure switching named SAS (Secure 
-Active Switch) for my MS thesis. 
+Hello,
 
-This algorithm has been developed as plug-in in the bridge module
-(kernel 2.6.10) and I have recently done a patch for this version of
-kernel. 
+I am experimenting with delivering IPv6 multicast traffic over the
+WRT54GS, running OpenWRT. OpenWrt is currently running linux-2.4.30 for
+the mipsel architecture and the OpenWRT distribution has bridged the 4
+port LAN switch (vlan0) with the WLAN interface (eth1) by default.  On
+the IP layer both devices are represented via the br0 interface. The
+bridge work fine for IPv4 Unicast and Multicast and for IPv6 Unicast but
+not for IPv6 multicast.
 
-SAS works making several checks at layer 2 and 3 of packet passing through 
-the bridge (working as switch) and sending an ARP request from bridge to the 
-host that is being attacked by ARP poisoning, to check the real status of 
-the host. 
-
-During this phase the two ports are in blocking/waiting state and if it 
-discovers a poisoner it disables the attacker's port for a variable delay 
-that can be set in /proc fs (4 seconds as default). 
-
-I and others researchers have tested the algorithm in a little LAN of our
-University and it seems to work properly against ARP attacks. 
-
-I think that this code must be tested by other people now to discover 
-possible bugs and receive suggestions. 
-
-The code are downloadable at this link:
-http://overet.securitydate.it/codes/patch-linux-2.6.10-SASv1.1.diff 
-
-
-Best regards,
-Giuseppe Gottardi 
+I went into a problem with forwarding the MLDv2_report message over the
+bridge from a mobile client, connected over WLAN. The MLDv2 report
+messages are received in in the eth1 (WLAN IF), but not in the eth0 nore
+in the br0 interface. Does the bridge support IPv6 multicast compliant
+MAC addresses, starting with 3333+LowByte(Ipv6 MulticastAddress) ?
+Usually a bridge is working on L2 and should forward any ICMPv6 packages
+.? The bridge  is forwarding any other IPv6 traffic without problems
+e.g. ICMPv6 messages generated with ping6. MLDv2 report messages are a
+subset of IPv6 ICMP messages with the link local IPv6 multicast address
+FF02::16 ( all MLDv2 compliant router)  as destination address. The same
+behavior I figured out with the MLDv2 query messages, sent by the
+Multicast router to all nodes (FF02::1) on the local link. The MLD query
+I have seen at the eth0  IF but not at the wireless link. Any other IPv6
+link local multicast adresses are forwarded e.g. IPv6 router
+advertisements or neighbour soicitation messages. Do you have any idea,
+how to solve the problem ??
 
 
- ----------------------------------------
-Giuseppe Gottardi (aka oveRet)
-University of Ancona (Italy)
-Dept of Electronics AI and Telecommunications 
+with best regards
 
-Email: overet(at)securitydate<dot>it, overet(at)spine-group<dot>org 
+Olaf
+
+
+-- 
+Dipl. Ing. Olaf Menzel - System Engineer
+FOKUS - Fraunhofer Institute for Open Communication Systems:
+- Competence Center for Advanced Satellite Communication
+Schloss Birlinghoven, 53754 Sankt Augustin, Germany
+Phone: +49-2241-14-3494 Mobile: +49-175-2616161 Fax:+49-2241-14-43494
+email: olaf.menzel@fokus.fhg.de Internet: http://www.fokus.fhg.de/satcom
+
 
