@@ -1,15 +1,11 @@
-Message-ID: <d4cc500a05071822231e209517@mail.gmail.com>
-Date: Tue, 19 Jul 2005 08:23:44 +0300
-From: Garik E <kiragon@gmail.com>
-Subject: Re: [Bridge] Problem with bond interface in bridge
-In-Reply-To: <E1DubTc-0003tw-00@smtp08.web.de>
+Message-ID: <4162411.1121766885440.JavaMail.www@wwinf4104>
+From: shenry82 <shenry82@voila.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-References: <200507111901.j6BJ09jC011023@smtp.osdl.org>
-	<E1DubTc-0003tw-00@smtp08.web.de>
-Content-Transfer-Encoding: 8bit
-Reply-To: Garik E <kiragon@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Date: Tue, 19 Jul 2005 11:54:45 +0200 (CEST)
+Subject: [Bridge] BPDU Hello time
+Reply-To: shenry82@voila.fr
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,19 +14,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Alexander Stolle <alexlists@web.de>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On 7/18/05, Alexander Stolle <alexlists@web.de> wrote:
-> Hi @all,
-> 
-> I have a strange problem. 
->Here is the setup: I have a bridging linux box
 
-There was a similar discussion on the linux bonding list recently:
-http://sourceforge.net/mailarchive/message.php?msg_id=12260447
+Hi,
 
-See if the last patch fix your problem.
+    I tried to send the BDPU at less than 1 second in a STP implementation.
+When I look at STP info with brctl in tells me that the bpdu are send under the second
+but in fact it's "only" every second. Is it because we can't send BPDU less than 1 second
+or something else ?
 
-Garik
+Thanks for your response
+
+HENRY Simon
+------------------------------------------
+
+Faites un voeu et puis Voila ! www.voila.fr 
+
+
 
