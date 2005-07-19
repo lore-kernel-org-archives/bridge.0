@@ -1,13 +1,15 @@
-From: "Alexander Stolle" <alexlists@web.de>
-Date: Mon, 18 Jul 2005 21:40:32 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <200507111901.j6BJ09jC011023@smtp.osdl.org>
-Message-Id: <E1DubTc-0003tw-00@smtp08.web.de>
-Sender: alexlists@web.de
-Subject: [Bridge] Problem with bond interface in bridge
+Message-ID: <d4cc500a05071822231e209517@mail.gmail.com>
+Date: Tue, 19 Jul 2005 08:23:44 +0300
+From: Garik E <kiragon@gmail.com>
+Subject: Re: [Bridge] Problem with bond interface in bridge
+In-Reply-To: <E1DubTc-0003tw-00@smtp08.web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+References: <200507111901.j6BJ09jC011023@smtp.osdl.org>
+	<E1DubTc-0003tw-00@smtp08.web.de>
+Content-Transfer-Encoding: 8bit
+Reply-To: Garik E <kiragon@gmail.com>
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,40 +18,19 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Alexander Stolle <alexlists@web.de>
+Cc: bridge@lists.osdl.org
 
-Hi @all,
+On 7/18/05, Alexander Stolle <alexlists@web.de> wrote:
+> Hi @all,
+> 
+> I have a strange problem. 
+>Here is the setup: I have a bridging linux box
 
-I have a strange problem. Here is the setup: I have a bridging linux box
-with 3 NICs (Intel e1000). 1 NIC (eth0) connected to the internet interface
-and the other both (eth1 and eth2) are each connected to a different switch
-in the bridged network.
+There was a similar discussion on the linux bonding list recently:
+http://sourceforge.net/mailarchive/message.php?msg_id=12260447
 
-I setup bonding (bond0) with active failover for eth1 and eth2. Then I added
-eth0 and bond0 to br0 and brought it up with an ip. I am able to ping into
-the internet and I can also ping servers in the bridged network from my
-bridging linux box.
+See if the last patch fix your problem.
 
-internet---bridging box---bridged network
-		   br0
-		eth0  bond0
-
-But if I try to ping from the internet via the bridging box to the bridged
-network, I get a "host not reachable". Looks like the bridge does not
-forward anything. Has anybody ever had an equal problem or are there other
-possible solutions for my setup? I have tried to add the 3 interfaces to the
-br0, but this did not work either (amnd as far as I kniow there is no auto
-failover for bridge ports).
-
-Could someone please advise me or give me some tips, so that I can track
-down the problem?
-Thanks in advance :)
-
-Best, Alex
-
-Versions:
-Dist debian sarge
-Bonding Driver, v2.6.0
-Kernel 2.4.31
-bridge-utils, 1.0.4
+Garik
 
