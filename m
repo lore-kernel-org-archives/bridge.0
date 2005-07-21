@@ -1,12 +1,11 @@
-Date: Tue, 19 Jul 2005 14:00:24 -0700 (PDT)
-Message-Id: <20050719.140024.131914996.davem@davemloft.net>
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050719135529.GH5031@stusta.de>
-References: <20050719135529.GH5031@stusta.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Message-ID: <42DFBB23.6000308@grc.nasa.gov>
+Date: Thu, 21 Jul 2005 11:11:31 -0400
+From: Tad Kollar <tkollar@grc.nasa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [2.6 patch] BRIDGE_EBT_ARPREPLY must depend on INET
+Subject: [Bridge] Bridge not working with jumbo frames
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,12 +14,25 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bunk@stusta.de
-Cc: coreteam@netfilter.org, bridge@osdl.org, netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org, shemminger@osdl.org
+To: bridge@lists.osdl.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Tue, 19 Jul 2005 15:55:29 +0200
+Hi,
 
-> BRIDGE_EBT_ARPREPLY=y and INET=n results in the following compile error:
+I searched the mailman archives for this topic and there were some older
+messages that indicate that a large MTU should work, but it's not going
+too well here.  I've got three systems (A, B, and C) with kernel
+2.6.12.2; there are back-to-back gigabit connections between A & B and
+between B & C. Testing prior to bridging, the MTU is set to 9000 on
+every interface and a 100 MB iperf transfer is made between A & B and
+then between B & C with no problems.
 
-Applied, thanks Adrian.
+When the two interfaces on B are bridged and an A to C transfer
+attempted, a few packets (four, in the test I'm looking at now) go
+through and the session freezes. One of the bridged interfaces on B
+shows some frame errors. With an MTU of 1500, and everything else left
+the same, the bridge works perfectly.
+
+What additional information can I provide?
+
+Thanks,
+Tad
