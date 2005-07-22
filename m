@@ -1,11 +1,12 @@
-Message-ID: <42DFBB23.6000308@grc.nasa.gov>
-Date: Thu, 21 Jul 2005 11:11:31 -0400
-From: Tad Kollar <tkollar@grc.nasa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1
+Date: Fri, 22 Jul 2005 11:51:36 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20050722115136.5c116977@dxpl.pdx.osdl.net>
+In-Reply-To: <42DFB70E.7000200@inrets.fr>
+References: <42DFB70E.7000200@inrets.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Bridge not working with jumbo frames
+Subject: [Bridge] Re: [Bridge-utils] some feedback with kernel 2.6.12 FC4
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,25 +15,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Christophe GRANSART <christophe.gransart@inrets.fr>
+Cc: bridge@osdl.org, Christophe GRANSART <christophe.gransart@inrets.fr>
 
-Hi,
+On Thu, 21 Jul 2005 16:54:06 +0200
+Christophe GRANSART <christophe.gransart@inrets.fr> wrote:
 
-I searched the mailman archives for this topic and there were some older
-messages that indicate that a large MTU should work, but it's not going
-too well here.  I've got three systems (A, B, and C) with kernel
-2.6.12.2; there are back-to-back gigabit connections between A & B and
-between B & C. Testing prior to bridging, the MTU is set to 9000 on
-every interface and a 100 MB iperf transfer is made between A & B and
-then between B & C with no problems.
+> Hello,
+> 
+> Some feedback about bridge-utils on FC4 :
+> 
+> i tried bridge-utils 1.0.4 and 1.0.6 on FC4 2.6.12-1.1398_FC4
+> On a dell D800
+> With eth0 : Broadcom NetXtreme BCM5705M Gigabit Ethernet
+> and ath0 : DLink DWL-AG650 driver madwifi
+> 
+> On both 1.0.4 and 1.0.6, my system freezes after 30 - 60 sec after
+> the bridge is up (even with promisc mode on both ath0 and eth0).
+> 
+> When eth0 and ath0 are up, they are both on irq 11.
+> Is this a parameter to change?
+> 
+> Regards,
+> Christophe
 
-When the two interfaces on B are bridged and an A to C transfer
-attempted, a few packets (four, in the test I'm looking at now) go
-through and the session freezes. One of the bridged interfaces on B
-shows some frame errors. With an MTU of 1500, and everything else left
-the same, the bridge works perfectly.
+It is almost certainly not a utilities issue.  The command does almost
+nothing but setup the bridge.  Most times when whole system freezes, it
+is a panic. If you are running X windows the kernel is unable to display
+output, so you either need to add a serial console (and another system
+to capture the output) or the virtual terminal 0 console to avoid X
+running (ALT-F1). 
 
-What additional information can I provide?
 
-Thanks,
-Tad
