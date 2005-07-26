@@ -1,12 +1,11 @@
-Date: Mon, 25 Jul 2005 09:39:37 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Making a bridge work without source address spoofing
-Message-ID: <20050725093937.41f03a46@dxpl.pdx.osdl.net>
-In-Reply-To: <30F5491FC3F68047925F0F51C190BCD701571028@ACDFWMAIL1.acd.de.ittind.com>
-References: <30F5491FC3F68047925F0F51C190BCD701571028@ACDFWMAIL1.acd.de.ittind.com>
+Message-ID: <4391574.1122387030898.JavaMail.www@wwinf4103>
+From: shenry82 <shenry82@voila.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Jul 2005 16:10:30 +0200 (CEST)
+Subject: [Bridge] Timer problem
+Reply-To: shenry82@voila.fr
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,37 +14,60 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Saxer, John -ACDSD" <John.Saxer@itt.com>
-Cc: bridge@lists.osdl.org
+To: Bridge@lists.osdl.org
 
-On Wed, 14 Jul 2004 12:38:18 -0500
-"Saxer, John -ACDSD" <John.Saxer@itt.com> wrote:
+Hi all,
 
-> 
-> So, I agree, the curent wireless card I have been given does not
-> allow source address spoofing, but I still would like to use
-> bridging. I wonder if anyone has tried modifying the bridge code to
-> encapsulate the actual packet in some way so that the desired source
-> address can be preserved?
-> 
-> I am thinking of something like duplicating the ETH header, adding it
-> to the beginning of the packet, so that there are 2 headers. I know
-> that the wireless card strips the header off, adding its own header,
-> and so it would strip off the extra one, leaving the original
-> unchanged. Then, when the packet arrives, I would add software to
-> strip the wireless header off again, leaving me with the original
-> packet again!
-> 
+    I try to reduce the time of link break detection for the STP. I want to make a timer who detect a link failure
+within a few times instead of waiting max age timeout. The problem is that my timer isn't take in account by the bride and i really don't know why, can someone help me ?
+Here's what I've done :
 
-It won't work the data is sequential.
+in file br_stp_timer.c :
 
-You could hack up a  your custom wireless driver to custom bridge code.
-At which point you might as well forget bridging and just do routing
-or tunneling.
+/* called under bridge lock */
+static void br_loss_timer_expired(struct net_bridge_port *p)
+{	
+	printk(KERN_INFO "il y a perte de connection \n");
+	br_timer_set(&p->loss_timer, jiffies); // for the moment I just want my function to be take in account.
+}
 
-> I guess I am thinking that I could add this "extra" header processing
-> in the wireless driver. Do you think this might work?
-> 
+/* called under bridge lock */
+static void br_check_port_timers(struct net_bridge_port *p)
+{
+	if (br_timer_has_expired(&p->message_age_timer, p->br->max_age)) {
+		br_timer_clear(&p->message_age_timer);
+		br_message_age_timer_expired(p);
+	}
 
-Why bother? The point of the bridge is to be transparent.  If you
-don't want it to be transparent?
+	if (br_timer_has_expired(&p->forward_delay_timer, p->br->forward_delay)) {
+		br_timer_clear(&p->forward_delay_timer);
+		br_forward_delay_timer_expired(p);
+	}
+
+	if (br_timer_has_expired(&p->hold_timer, BR_HOLD_TIME)) {
+		br_timer_clear(&p->hold_timer);
+		br_hold_timer_expired(p);
+	}
+
+	if (br_timer_has_expired(&p->loss_timer, (1*HZ)))  // This condition is never true !?
+	{
+		printk(KERN_INFO "On a perdu la connection \n");
+		br_timer_clear(&p->loss_timer);
+		br_loss_timer_expired(p);
+	}
+
+}
+
+I also tried to check if my timer is running with br_timer_is_running(&p->loss_timer) but it's also never true.
+
+Thanks for your help,
+
+HENRY Simon
+
+PS : if someone tried to implement RSTP with brctl and succeed I'm interest in ^^
+------------------------------------------
+
+Faites un voeu et puis Voila ! www.voila.fr 
+
+
+
