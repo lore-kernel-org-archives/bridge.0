@@ -1,12 +1,9 @@
-Date: Wed, 27 Jul 2005 10:48:26 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] heterogenous bridging
-Message-ID: <20050727104826.4cadad1b@dxpl.pdx.osdl.net>
-In-Reply-To: <20040726225949.0FBBB41606B@ws5-2.us4.outblaze.com>
-References: <20040726225949.0FBBB41606B@ws5-2.us4.outblaze.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <42E968FF.6000607@metaloft.com>
+Date: Thu, 28 Jul 2005 16:23:43 -0700
+From: Dirk Morris <dmorris@metaloft.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="------------040005000906070502070105"
+Subject: [Bridge] mac table updates
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,36 +12,49 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Tejas Kokje <kokje@linuxmail.org>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Mon, 26 Jul 2004 14:59:48 -0800
-"Tejas Kokje" <kokje@linuxmail.org> wrote:
+This is a multi-part message in MIME format.
+--------------040005000906070502070105
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> 
-> Hello,
-> 
-> I understand that bridge can make two ethernet interfaces appear as
-> one logical interface. 
-> 
-> Now how does Linux Kernel does bridging between two different types
-> of interfaces (Eg. 802.3 & 802.11). 
-> 
-> I am working on Linksys WRT54GS wireless router which runs Linux and
-> have only one interface (br0) for both ethernet and wireless
-> interface. All the packets I get on br0 have Ethernet (802.3) header.
-> 
-> Any inputs will be appreciated.
-> 
-> Regards,
-> 
-> Tejas Kokje
-> Graduate Student (Computer Science)
-> University of Southern California
-> URL : http://www-scf.usc.edu/~kokje
-> Registered Linux User #: 337673
-> 
+I think the new mac ageing (sometime since 2.6.8.1) may be too aggressive.
+Now it updates the table at a much later time, with a comment in the 
+code that leads me to believe
+this is to prevent counting spoofed packets and a DOS.
 
-802.11 looks the same at the device level in the kernel. The wireless
-devices accept the same data format packets and provide the same
-control hooks.
+My problem is that the update occurs after the netfilter hooks which may 
+do weird things to change the course of the packet so that it does not 
+get counted.
+(in my case, redirecting, queueing to userspace, nonlocally bound 
+sockets, etc).
+For me this causes packets to go spewing out on the wrong interface when 
+the timer expires.
+
+I used the attached patch to revert back to the old method.
+
+-Dirk
+
+--------------040005000906070502070105
+Content-Type: text/x-patch;
+ name="bridge-mac-ageing-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bridge-mac-ageing-fix.patch"
+
+diff -urN linux-2.6.12.3/net/bridge/br_input.c linux-2.6.12.3-bridgefix/net/bridge/br_input.c
+--- linux-2.6.12.3/net/bridge/br_input.c	2005-07-15 14:18:57.000000000 -0700
++++ linux-2.6.12.3-bridgefix/net/bridge/br_input.c	2005-07-25 23:19:30.903355408 -0700
+@@ -111,7 +111,8 @@
+ 	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
+ 		goto err;
+ 
+-	if (p->state == BR_STATE_LEARNING)
++	if (p->state == BR_STATE_LEARNING ||
++        p->state == BR_STATE_FORWARDING)
+ 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source);
+ 
+ 	if (p->br->stp_enabled &&
+
+--------------040005000906070502070105--
