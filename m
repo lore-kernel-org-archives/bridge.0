@@ -1,10 +1,10 @@
-Message-ID: <20050802103816.50321.qmail@web31009.mail.mud.yahoo.com>
-Date: Tue, 2 Aug 2005 03:38:16 -0700 (PDT)
-From: Vinay Sharma <vinaysharma2k@yahoo.com>
+Message-ID: <8135BF451955D5119DE200203567D82A060ED4D4@ge-muc-exch-01.azlan.ger>
+From: Josef Brunner <Josef.Brunner@azlan.com>
+Subject: RE: [Bridge] bridge firewall problem
+Date: Tue, 2 Aug 2005 11:46:50 +0100 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] bridge firewall problem
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,7 +13,20 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
+To: 'Vinay Sharma ' <vinaysharma2k@yahoo.com>, "'bridge@lists.osdl.org '" <bridge@lists.osdl.org>
+
+hi,
+
+what error occurs ? does your kernel support ebtables ? Do you have a
+userland problem ? Pls. deliver some more details regarding your problem.
+
+josef
+
+-----Original Message-----
+From: Vinay Sharma
 To: bridge@lists.osdl.org
+Sent: 8/2/2005 12:38 PM
+Subject: [Bridge] bridge firewall problem
 
 hello 
             i am a new user for this group. i am
@@ -39,3 +52,17 @@ __________________________________________________
 Do You Yahoo!?
 Tired of spam?  Yahoo! Mail has the best spam protection around 
 http://mail.yahoo.com 
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/bridge
+
+_______________________________________________________________________________
+Disclaimer
+
+This message may contain confidential information solely for its
+intended recipients and others may not distribute, copy or use it. If
+you have received this communication in error please tell us either by
+return e-mail or at the numbers above and delete it, and any copies of
+it.
+
