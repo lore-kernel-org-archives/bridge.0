@@ -1,12 +1,12 @@
-Date: Thu, 4 Aug 2005 09:33:27 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Problem with Routed mode using br2684ctl tool
-Message-ID: <20050804093327.273b9187@dxpl.pdx.osdl.net>
-In-Reply-To: <20050804123705.10680.qmail@web34108.mail.mud.yahoo.com>
-References: <20050804123705.10680.qmail@web34108.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [Bridge] Election of root port
+Date: Thu, 4 Aug 2005 12:36:38 -0400
+Message-ID: <EDF30175FE4D804B83444FB153172A506D73FB@louexch.KiZAN.net>
+From: "Jeff Gercken" <JeffG@kizan.com>
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,108 +15,45 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Zoran s <s_zoran@yahoo.com>
-Cc: bridge@lists.osdl.org
+To: sameer.neugui@tatainfotech.com, bridge@lists.osdl.org
 
-On Thu, 4 Aug 2005 05:37:05 -0700 (PDT)
-Zoran s <s_zoran@yahoo.com> wrote:
+STP root port selection is based on port priority which, by default, is
+based upon the interface speed.  If they're equal I believe the lowest
+port address wins.
+http://www.hojmark.net/stp-port-cost.html
 
-> Hi,
-> 
-> I am writing this email in sincere hope that somebody
-> experienced similar/same problem and found solution to
-> it.
-> 
-> The classical bridge setup could be achieved using
-> brctl tool, which could be found at:
-> http://home.regit.org/br2684.html
-> 
-> I have an ADSL CO line card Linux based [2.4.24
-> kernel] with 8 nas interfaces and eth0. Rather than
-> having bridge, the decision was to have a router,
-> which does routing functionality between nasx
-> interfaces and eth0.
-> 
-> >From user space, setting up a bridge connection is
-> quite simple. First, the linking an ATM VC with an
-> interface should be done followed by configuring this
-> interface.
-> 
-> The syntax of the command is the following:
-> 
-> br2684ctl [-c n -e 0|1 -b 0|1 -s buf_size -a
-> [itf].vpi.vci ]+
-> 
-> -a [itf].vpi.vci : ATM PVC number, VPI and VCI.
-> Mandatory
-> -c n             : BR2684 interface number such as
-> nas0,
->                    nas1,... Mandatory
-> -e 0|1           : Encapsulation method. 0=LLC, 1=VC
-> mux.
->                    default is 0, LLC
-> -b 0|1           : Running background. 1=background,
->                    0=foreground. Default is 0
-> -s buf_size      : send buffer size. Default is 8192.
-> 
-> The problem with setting bridge with brctl tool is
-> lack of option p 0|1 [bridged or routed
-> functionality]. I'm using more advanced tool based on
-> brctl with additional option p:
-> 
-> -p 0|1           : Bridged or routed. 0=routed,
-> 1=bridged
->                    Default is 0 [routed].
-> 
-> In other words using ADSL CO line card as IP router
-> makes every nasx and eth0 interfaces to have their own
-> IP addresses. The example of setting a nas0 interface:
-> 
-> br2684ctl -b -c 0 -e 0 -p 0 -a 0.0.40, where p is used
-> as Routed mode option.
-> 
-> When there is need to configure a WAN connection on
-> CPE side [ADSL modem on other side of twisted pair],
-> there are 5 possible options for WAN connection
-> creation:
-> 
-> [1] RFC1483 Bridge
-> [2] RFC1483 Route
-> [3] PPP over ATM
-> [4] PPP over Ethernet
-> [5] IP over ATM [CLIP]
-> 
-> Choosing option 2 [RFC1483 Route] as an option follows
-> usage of brctl tool for nas0 interface creation on CO
-> side in routed mode.
-> 
-> The actual problem is that routed mode does NOT work
-> after setting the parameters as shown [CPE modem
-> receives packets on WAN, but discards them, finding
-> them as bad].
-> 
-> The problem is solved by creating [on CO side] nasx
-> interfaces in bridged mode. As example, the nas0
-> interface creation syntax looks a bit different:
-> 
-> br2684ctl -b -c 0 -e 0 -p 1 -a 0.0.40, where -p is
-> used as Bridged mode option.
-> 
-> On other [CPE] side, the option 1 is used [RFC1483
-> Bridge (with NAT)] for creating the WAN interface.
-> This works perfectly, albeit both CO and CPE sides are
-> set as routers!
-> 
-> Any ideas why RFC1483 Route mode does NOT work? I'll
-> apprecate any ideas which can show me some direction.
-> 
-> Best Regards,
-> 
->
+You're talking switches right?  Why post to a bridge list?  You'd be
+better off at http://www.tek-tips.com/threadminder.cfm?pid=558
 
-This list is about the IEEE 802 based bridging and your
-questions is about ATM based bridging.  Perhaps you should ask on
-the ATM list linux-atm-general@lists.sourceforge.net
+-Jeff
 
-Also see: http://home.regit.org/br2684.html
+-----Original Message-----
+From: bridge-bounces@lists.osdl.org
+[mailto:bridge-bounces@lists.osdl.org] On Behalf Of sameer
+Sent: Thursday, August 04, 2005 4:39 AM
+To: bridge@lists.osdl.org
+Subject: [Bridge] Election of root port
+
+Hi,
+
+I have a situation where in there are 2 switches A and B.
+
+port 0 of A is connected to port 0 of B
+port 1 of A is connected to port 1 of B
+
+all the four ports are in auto negotiation and 100mbps
+
+Last byte of MAC of A = 7F
+Last byte of MAC of B = 7E
+(remaining bytes of the MAC address are identical)
+
+Considering the switch B will be elected as root bridge which port of
+switch A will be root port.
+
+Will this configuration work perpetually?
+
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/bridge
 
