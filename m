@@ -1,12 +1,10 @@
-Message-ID: <42F6FDCA.7090809@netd.com>
-Date: Mon, 08 Aug 2005 12:08:02 +0530
-From: Prasenjit Manna <pmanna@netd.com>
+Date: Mon, 8 Aug 2005 09:33:06 +0300 (EEST)
+From: =?iso-8859-1?Q?Martin-=C9ric_Racine?= <q-funk@iki.fi>
+Message-ID: <Pine.LNX.4.62.0508080930090.29573@localhost.localdomain>
 MIME-Version: 1.0
-References: <EDF30175FE4D804B83444FB153172A506D73FB@louexch.KiZAN.net>
-In-Reply-To: <EDF30175FE4D804B83444FB153172A506D73FB@louexch.KiZAN.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Designated port Selection
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] how to silence the "br0: port X(ethX) doing something"
+	messages?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,24 +15,15 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi,
+Greetings,
 
-I have two questions:
+I'm just wondering how one can make the bridging tools stop spamming the virtual 
+consoles? I would rather have all those "entering forwarding state", "entering 
+learning state" and "entering disabled state" messages go to a log than have 
+them plastered all over whichever console I happened to be logged into to work.
 
-1. br_designated_port_selection() in br_stp.c:
-    In this function, the port, which is not DISABLED and
-    br_should_become_designated_port, then the port is becoming
-    designated port.
+Thanks!
 
-    Question: Why the port state(DISABLED) is checking here? According to
-              standard, there should not be any checking for disabled.
-
-2. br_stp_set_bridge_priority() in br_stp_if.c:
-    In this function also, the same DISABLED checking is done.
-
-    Question: Why the port state(DISABLED) is checking here also for
-              updating the bridge priority?
-
-
-Thanks and Regards,
-Prasenjit
+-- 
+Martin-Eric Racine
+http://q-funk.iki.fi
