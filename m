@@ -1,12 +1,12 @@
-Content-class: urn:content-classes:message
+Message-ID: <42F6FDCA.7090809@netd.com>
+Date: Mon, 08 Aug 2005 12:08:02 +0530
+From: Prasenjit Manna <pmanna@netd.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [Bridge] Election of root port
-Date: Thu, 4 Aug 2005 12:36:38 -0400
-Message-ID: <EDF30175FE4D804B83444FB153172A506D73FB@louexch.KiZAN.net>
-From: "Jeff Gercken" <JeffG@kizan.com>
-Content-Transfer-Encoding: 8bit
+References: <EDF30175FE4D804B83444FB153172A506D73FB@louexch.KiZAN.net>
+In-Reply-To: <EDF30175FE4D804B83444FB153172A506D73FB@louexch.KiZAN.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Designated port Selection
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,45 +15,26 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: sameer.neugui@tatainfotech.com, bridge@lists.osdl.org
-
-STP root port selection is based on port priority which, by default, is
-based upon the interface speed.  If they're equal I believe the lowest
-port address wins.
-http://www.hojmark.net/stp-port-cost.html
-
-You're talking switches right?  Why post to a bridge list?  You'd be
-better off at http://www.tek-tips.com/threadminder.cfm?pid=558
-
--Jeff
-
------Original Message-----
-From: bridge-bounces@lists.osdl.org
-[mailto:bridge-bounces@lists.osdl.org] On Behalf Of sameer
-Sent: Thursday, August 04, 2005 4:39 AM
 To: bridge@lists.osdl.org
-Subject: [Bridge] Election of root port
 
 Hi,
 
-I have a situation where in there are 2 switches A and B.
+I have two questions:
 
-port 0 of A is connected to port 0 of B
-port 1 of A is connected to port 1 of B
+1. br_designated_port_selection() in br_stp.c:
+    In this function, the port, which is not DISABLED and
+    br_should_become_designated_port, then the port is becoming
+    designated port.
 
-all the four ports are in auto negotiation and 100mbps
+    Question: Why the port state(DISABLED) is checking here? According to
+              standard, there should not be any checking for disabled.
 
-Last byte of MAC of A = 7F
-Last byte of MAC of B = 7E
-(remaining bytes of the MAC address are identical)
+2. br_stp_set_bridge_priority() in br_stp_if.c:
+    In this function also, the same DISABLED checking is done.
 
-Considering the switch B will be elected as root bridge which port of
-switch A will be root port.
+    Question: Why the port state(DISABLED) is checking here also for
+              updating the bridge priority?
 
-Will this configuration work perpetually?
 
-_______________________________________________
-Bridge mailing list
-Bridge@lists.osdl.org
-https://lists.osdl.org/mailman/listinfo/bridge
-
+Thanks and Regards,
+Prasenjit
