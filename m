@@ -1,13 +1,12 @@
-Date: Tue, 9 Aug 2005 14:34:03 -0700
+Date: Tue, 9 Aug 2005 14:36:39 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] how to silence the "br0: port X(ethX) doing something"
-	messages?
-Message-ID: <20050809143403.4c0602b9@dxpl.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.62.0508080930090.29573@localhost.localdomain>
-References: <Pine.LNX.4.62.0508080930090.29573@localhost.localdomain>
+Subject: Re: [Bridge] ppp0 to eth0
+Message-ID: <20050809143639.423bf696@dxpl.pdx.osdl.net>
+In-Reply-To: <933ef85e05080911512c36b226@mail.gmail.com>
+References: <933ef85e05080911512c36b226@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,34 +15,36 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: =?ISO-8859-1?B?TWFydGluLclyaWM=?= Racine <q-funk@iki.fi>
+To: Eduardo Osorio <eduardo.osorio.armenta@gmail.com>
 Cc: bridge@lists.osdl.org
 
-On Mon, 8 Aug 2005 09:33:06 +0300 (EEST)
-Martin-=C9ric Racine <q-funk@iki.fi> wrote:
+On Tue, 9 Aug 2005 13:51:40 -0500
+Eduardo Osorio <eduardo.osorio.armenta@gmail.com> wrote:
 
-> Greetings,
->=20
-> I'm just wondering how one can make the bridging tools stop spamming
-> the virtual consoles? I would rather have all those "entering
-> forwarding state", "entering learning state" and "entering disabled
-> state" messages go to a log than have them plastered all over
-> whichever console I happened to be logged into to work.
->=20
-> Thanks!
->=20
+> Hi,
+> 
+> i wonder if there's some howto information to 
+> bridge ppp0 to eth0
+> 
+> my distribution is a Hoary Ubuntu 5.04
+> 
+> i install :    apt-get install bridge-utlis
+> 
+> what i need it's connect to internet thru a modem 56k (ppp0)
+> and then give internet access to my laptop thru a crosspair cable
+> attached to a eth0 in my linux box .
+> 
+> i was following the article
+> http://www.linuxjournal.com/article/8261
+> 
+> does anyone knows where i can find that information
+> 
+> the FAQ of bridge http://bridge.sourceforge.net/
+> mencion that ppp it's posible.
+> 
+> thanks in advance for clarification, commets etc
+> 
 
-Assuming you are running relatively recent kernel, the messages show up
-at loglevel 6 (informational).
-
-You need to change the console log level and possibly
-change syslog.conf.  To change console log level, either boot
-without "debug" on the command line, preferably with "quiet"
-on the command line. In /etc/syslog.conf look for anylines
-of the form:
-
-	kern.*	/dev/console
-and either comment it out completely, or change the '*'
-to
-	kern.notice	/dev/console
-
+You will have better luck using routing and NAT to do this.
+Otherwise, your ISP will have to allow multiple IP's over a single
+PPP connection.
