@@ -1,10 +1,11 @@
-Date: Mon, 8 Aug 2005 09:33:06 +0300 (EEST)
-From: =?iso-8859-1?Q?Martin-=C9ric_Racine?= <q-funk@iki.fi>
-Message-ID: <Pine.LNX.4.62.0508080930090.29573@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: [Bridge] how to silence the "br0: port X(ethX) doing something"
-	messages?
+Message-ID: <933ef85e05080911512c36b226@mail.gmail.com>
+Date: Tue, 9 Aug 2005 13:51:40 -0500
+From: Eduardo Osorio <eduardo.osorio.armenta@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] ppp0 to eth0
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,15 +16,26 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Greetings,
+Hi,
 
-I'm just wondering how one can make the bridging tools stop spamming the virtual 
-consoles? I would rather have all those "entering forwarding state", "entering 
-learning state" and "entering disabled state" messages go to a log than have 
-them plastered all over whichever console I happened to be logged into to work.
+i wonder if there's some howto information to 
+bridge ppp0 to eth0
 
-Thanks!
+my distribution is a Hoary Ubuntu 5.04
 
--- 
-Martin-Eric Racine
-http://q-funk.iki.fi
+i install :    apt-get install bridge-utlis
+
+what i need it's connect to internet thru a modem 56k (ppp0)
+and then give internet access to my laptop thru a crosspair cable
+attached to a eth0 in my linux box .
+
+i was following the article
+http://www.linuxjournal.com/article/8261
+
+does anyone knows where i can find that information
+
+the FAQ of bridge http://bridge.sourceforge.net/
+mencion that ppp it's posible.
+
+thanks in advance for clarification, commets etc
+
