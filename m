@@ -1,11 +1,12 @@
-Date: Thu, 11 Aug 2005 10:26:22 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] STP with only 2 switches
-Message-ID: <20050811102622.5d934330@dxpl.pdx.osdl.net>
-In-Reply-To: <002401c59e64$3fa3ba20$7f2c7aa3@SameerDnD>
+Message-ID: <003f01c59ee2$c6a61da0$63c3650a@ATULSPC>
+From: "Atul Sabharwal" <iamatul@comcast.net>
 References: <002401c59e64$3fa3ba20$7f2c7aa3@SameerDnD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	<20050811102622.5d934330@dxpl.pdx.osdl.net>
+Subject: Re: [Bridge] STP with only 2 switches
+Date: Thu, 11 Aug 2005 19:08:47 -0700
+MIME-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
@@ -15,83 +16,118 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: sameer.neugui@tatainfotech.com
+To: Stephen Hemminger <shemminger@osdl.org>, sameer.neugui@tatainfotech.com
 Cc: bridge@lists.osdl.org
 
-On Thu, 11 Aug 2005 16:33:01 +0530
-"sameer" <sameer.neugui@tatainfotech.com> wrote:
+One thing which would be useful to see is the Address Resolution table
+in the switch.  Also, if you chipset supports TX/RX counters per port,
+see if these are changing for port 1 & port 2.
 
-> Hi all,
-> 
-> We are facing a problem with STP implementation. We have only 2
-> switches. Thats the constraint, but we feel STP should work.
-> 
-> Background:
-> 
-> We have developed a layer 2 switch. This uses Cirrus logic's ep9301
-> processor, embedded Linux 2.4.21 kernel as the OS and zarlink's switch
-> controller.
-> 
-> The observation:
-> 
-> 1)we have 2 switches, switch A and switch B
-> 
-> 2)port 1 and port 2 of switch A are connected to port 1 and port 2 of
-> switch B
-> 
-> 3)1 PC is connected to port 0 of switch A and another to COM port of
-> switch A to observe STP
+Also, ping has an option to transmit X number of packets.  (At least in
+busybox version of ping ).  So, if there is no OOPS message and kernel
+and rest of the system is working, then its just that the ping is not timing
+out. Maybe, try strace on ping to see which system call hangs.
+Alternately, kernel lockmeter patch can tell you the time taken in
+ticks for each system call.
 
-                            
-	PC-A  ---0 switch A 1 ---- 1 switch B
-			    2 ---- 2
+This wont solve it but help identify the problem area.  Check the
+write system call in your driver.  Alternately, try static ARP entries.
+
+--
+Atul
+----- Original Message ----- 
+From: "Stephen Hemminger" <shemminger@osdl.org>
+To: <sameer.neugui@tatainfotech.com>
+Cc: <bridge@lists.osdl.org>
+Sent: Thursday, August 11, 2005 10:26 AM
+Subject: Re: [Bridge] STP with only 2 switches
 
 
-> 4)We restart the 2 switches and observe that one of the links is
-> blocked and the other in forwarding state. STP is always enabled on
-> reboot
+> On Thu, 11 Aug 2005 16:33:01 +0530
+> "sameer" <sameer.neugui@tatainfotech.com> wrote:
+>
+>> Hi all,
+>>
+>> We are facing a problem with STP implementation. We have only 2
+>> switches. Thats the constraint, but we feel STP should work.
+>>
+>> Background:
+>>
+>> We have developed a layer 2 switch. This uses Cirrus logic's ep9301
+>> processor, embedded Linux 2.4.21 kernel as the OS and zarlink's switch
+>> controller.
+>>
+>> The observation:
+>>
+>> 1)we have 2 switches, switch A and switch B
+>>
+>> 2)port 1 and port 2 of switch A are connected to port 1 and port 2 of
+>> switch B
+>>
+>> 3)1 PC is connected to port 0 of switch A and another to COM port of
+>> switch A to observe STP
+>
+>
+> PC-A  ---0 switch A 1 ---- 1 switch B
+>     2 ---- 2
+>
+>
+>> 4)We restart the 2 switches and observe that one of the links is
+>> blocked and the other in forwarding state. STP is always enabled on
+>> reboot
+>
+> That is good.
+>
+>> 6)We start to ping switch A and the switches and the two PC hang.
+>
+> How are you setting up switch A? what are the equivalent bridge
+> commands and ip configuration?  Are you assigning IP to eth device
+> or br device?
+>
+> Define hang? is network not responsive? system not responsive?
+> Did one of the switches produce a OOPS on console?
+>
+>> 7)the LEDs on the switch device that signify the activity are seen
+>> continuously glowing.
+>
+> You may have created a packet loop because of STP problem.
+> Simple test is to just unplug the port 2 connection.
+>
+>> 8)switch A and B, PC 1 and 2 cannot be accessed at all.
+>>
+>> 9) We remove one of the links and the STP reconfigures and the switch
+>> A can be pinged.
+>>
+>> 10)Most of the time we have observed, although not a confirmed
+>> pattern, that if we remove the blocked link, the STP just disables
+>> the port on switch A (we have not observed the counter part on the
+>> switch B
+>>
+>> 11)Neither the switches nor the PCs were on the rest of the company
+>> network
+>>
+>> Its not a hang exactly as upon some topology change the system is
+>> back to working. I also checked on the internet. On cisco site I
+>> found something called unicast flooding.
+>>
+>> 1)Is this the reason for the system to blog down?
+>> 2) How do I find which version of STP I am using? The person who has
+>> originally implemented has quit.
+>>
+>> what would be the fix or some pointer in this regard?
+>>
+>
+> You could start by using a newer kernel.  Using 2.6 might be impossible
+> but linux-2.4.21 is old. You might compare the current 2.4 net/bridge
+> directory with your kernel source.
+>
 
-That is good.
 
-> 6)We start to ping switch A and the switches and the two PC hang.
+--------------------------------------------------------------------------------
 
-How are you setting up switch A? what are the equivalent bridge
-commands and ip configuration?  Are you assigning IP to eth device
-or br device?
 
-Define hang? is network not responsive? system not responsive?
-Did one of the switches produce a OOPS on console?
- 
-> 7)the LEDs on the switch device that signify the activity are seen
-> continuously glowing.
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/bridge
 
-You may have created a packet loop because of STP problem.
-Simple test is to just unplug the port 2 connection.
-
-> 8)switch A and B, PC 1 and 2 cannot be accessed at all.
-> 
-> 9) We remove one of the links and the STP reconfigures and the switch
-> A can be pinged.
-> 
-> 10)Most of the time we have observed, although not a confirmed
-> pattern, that if we remove the blocked link, the STP just disables
-> the port on switch A (we have not observed the counter part on the
-> switch B
-> 
-> 11)Neither the switches nor the PCs were on the rest of the company
-> network
-> 
-> Its not a hang exactly as upon some topology change the system is
-> back to working. I also checked on the internet. On cisco site I
-> found something called unicast flooding.
-> 
-> 1)Is this the reason for the system to blog down?
-> 2) How do I find which version of STP I am using? The person who has
-> originally implemented has quit.
-> 
-> what would be the fix or some pointer in this regard?
-> 
-
-You could start by using a newer kernel.  Using 2.6 might be impossible
-but linux-2.4.21 is old. You might compare the current 2.4 net/bridge
-directory with your kernel source.
