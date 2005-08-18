@@ -1,11 +1,11 @@
-Message-ID: <61361.198.74.20.73.1124321266.squirrel@mail.outboxes.com>
-Date: Wed, 17 Aug 2005 16:27:46 -0700 (PDT)
-From: "North Antara" <north@ntbox.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Wireless bridge - revisited
-Reply-To: north@ntbox.com
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C5A3EE.9EFA7E0C"
+Date: Thu, 18 Aug 2005 15:16:11 +0300
+Message-ID: <52F6342A567975489F83368EB54C0D7D069F36@VRZIL-EX01.il.veraznetworks.com>
+From: "Yossi Boaron" <Yossi.Boaron@veraznetworks.com>
+Subject: [Bridge] Spanning tree code
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,50 +16,55 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Several weeks ago (July 1st), you may remember me asking about using a
-Linksys WET11 (ethernet to wireless bridge) with bridge-utils.
+This is a multi-part message in MIME format...
 
-Mark Mathews was kind enough to respond and described a situation he
-called "b/mcast echo".  From his reply:
-"
-Because of the games that have to be played to build WLAN station bridge
-devices, some have a problem with what I call 'b/mcast echo'.  Basically,
-what happens is this:
-   1) the WLAN bridge (call it WB) device picks up a broadcast frame (like
-      the arp request from a2:a9) from it's ethernet interface,
-   2) WB forwards the the bcast frame to the WLAN AP via a unicast WLAN
-      frame (this is normal behavior),
-   3) WLAN APs, by default, take 'unicast encapsulated' broadcast frames
-      received on the WLAN interface and rebroadcast them on the air _as_
-      broadcast frames (this occurs inside the WLAN mac layer so any
-      bridging in the AP itself would have no effect on this problem),
-   4) The WB picks up the rebroadcasted bcast frame and forwards it to the
-      wire, hence the broadcast frame shows up on the wire twice.
+------_=_NextPart_001_01C5A3EE.9EFA7E0C
+Content-Type: text/plain;
+	charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-In a bridge situation, the bridge would first see the bcast frame on port
-2 (the original transmission), then some time later it would see it again
-on port 4 (the echo).  When the bridge sees the frame arrive on port 4, it
-moves the port assignment for that macaddr thus misdirecting any
-subsequent unicast traffic sent to that macaddr.
-"
-
-I'm now in the process of redesigning my network and I have a multipart
-question.
-
-A=Linux router with bridge-utils and 4 bridged ports (eth1-eth4)
-B=Unmanaged switch
-C=WET11
-
-1) If I were to move C from A to B (which will be on A), will this same
-type of problem occur?
-
-2) If so, what are some recommendations on what I could do to avoid this
-problem?
-
-I'd like to keep the WET11 on the same vlan if at all possible.
+Hi
 
 
-Any help would be greatly appreciated.
+I'm looking for code that implements the 802.1d spanning tree.
+Do you have an idea where can I download this code?
 
-Thanks,
-    North.
+
+Thanks
+Yossi
+
+------_=_NextPart_001_01C5A3EE.9EFA7E0C
+Content-Type: text/html;
+	charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1=
+255">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6.5.7226.0">
+<TITLE>Spanning tree code</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
+
+<P DIR=3DLTR><FONT SIZE=3D2 FACE=3D"Arial">Hi</FONT></P>
+<BR>
+
+<P DIR=3DLTR><FONT SIZE=3D2 FACE=3D"Arial">I'm looking for code that implem=
+ents the 802.1d spanning tree.</FONT></P>
+
+<P DIR=3DLTR><FONT SIZE=3D2 FACE=3D"Arial">Do you have an idea where can I =
+download this code?</FONT></P>
+<BR>
+
+<P DIR=3DLTR><FONT SIZE=3D2 FACE=3D"Arial">Thanks</FONT></P>
+
+<P DIR=3DLTR><FONT SIZE=3D2 FACE=3D"Arial">Yossi</FONT></P>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01C5A3EE.9EFA7E0C--
