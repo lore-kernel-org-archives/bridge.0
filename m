@@ -1,11 +1,12 @@
-Message-ID: <652bbbf50508190018373b6f18@mail.gmail.com>
-Date: Fri, 19 Aug 2005 09:18:45 +0200
-From: Sylvain Desbureaux <sylvain.desbureaux@gmail.com>
+Date: Fri, 19 Aug 2005 07:35:24 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Problem of lock when deleting a bridge
+Message-ID: <20050819073524.3ffbf0d2@localhost.localdomain>
+In-Reply-To: <34d8b2fe05081823522b9bc5b6@mail.gmail.com>
+References: <34d8b2fe05081823522b9bc5b6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Bridge and lots of VLAN
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,18 +15,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bridge@lists.osdl.org
+To: Louis Croisez <louis.croisez@gmail.com>
+Cc: bridge@lists.osdl.org
 
-Hello all,
-I want to use a Linux box as a sniffer for my network.
-So I created a bridge with my ethernet ports.
-Because the VLAN are created automatically between other boxes, I
-can't know wat VLAN are used on the network.
-I just did an "ifup" ont the eth ports. But all the vlan trafic is
-discarded. Is there a way to let pass all the vlan possible on the
-bridge ?
+On Fri, 19 Aug 2005 08:52:21 +0200
+Louis Croisez <louis.croisez@gmail.com> wrote:
 
-Thanks in advance,
+> When i want to delete my test bridge, using:
+> ifconfig eth0 down
+> ifconfig eth1 down
+> ifconfig br0 down
+> brctl delif br0 eth0
+> brctl delif br0 eth1
+> brctl delbr br0
+> 
+> i get this error message from the kernel on the console:
+> unregister_netdevice: waiting for br0 to become free. Usage count = 2
+> The brctl user-level command is blocked.
+> 
+> Could you explain me what could likely be the cause of this error?
 
-Sylvain Desbureaux
+IPV6 is usually the culprit.  All protocols have to keep reference
+counts for devices, and there have been several ref count bugs
+in ipv6.  If you don't need it build your kernel without it.
 
+Also, which kernel version.  The bug should be fixed in the latest
+2.6 kernels.
