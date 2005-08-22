@@ -1,12 +1,12 @@
-Date: Fri, 19 Aug 2005 07:35:24 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Problem of lock when deleting a bridge
-Message-ID: <20050819073524.3ffbf0d2@localhost.localdomain>
-In-Reply-To: <34d8b2fe05081823522b9bc5b6@mail.gmail.com>
-References: <34d8b2fe05081823522b9bc5b6@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050822092532.76960.qmail@web34112.mail.mud.yahoo.com>
+Date: Mon, 22 Aug 2005 02:25:32 -0700 (PDT)
+From: Zoran s <s_zoran@yahoo.com>
+Subject: Re: [BRIDGE]A basic question: what's the relationship of the Rx/Tx
+	packets count between the bridge and its enslaved NIC.
+In-Reply-To: <20050817092132.3160f383@dxpl.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,29 +15,70 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Louis Croisez <louis.croisez@gmail.com>
+To: Stephen Hemminger <shemminger@osdl.org>, Steven Zhang <zhangseven@gmail.com>
 Cc: bridge@lists.osdl.org
 
-On Fri, 19 Aug 2005 08:52:21 +0200
-Louis Croisez <louis.croisez@gmail.com> wrote:
+Steven,
 
-> When i want to delete my test bridge, using:
-> ifconfig eth0 down
-> ifconfig eth1 down
-> ifconfig br0 down
-> brctl delif br0 eth0
-> brctl delif br0 eth1
-> brctl delbr br0
+In addition to what Stephen wrote, you can perform
+simple tests just assigning the IP address to bridge
+interface br0 issuing command:
+
+ifconfig br0 x.y.z.w up
+
+where x.y.z.w is a unused subnet IP address (class C
+x.y.z.0) you are bridging.
+
+Then you can ping any member via the bridge and
+observe br0, eth0 and eth1 stats, and also you can
+ping br0 itself by using ping x.y.z.w command and see
+stats as well.
+
+Regards,
+Zoran
+
+--- Stephen Hemminger <shemminger@osdl.org> wrote:
+
+> On Tue, 16 Aug 2005 11:40:40 +0800
+> Steven Zhang <zhangseven@gmail.com> wrote:
 > 
-> i get this error message from the kernel on the console:
-> unregister_netdevice: waiting for br0 to become free. Usage count = 2
-> The brctl user-level command is blocked.
+> > I have a bridge br0, it enslaves two NICs: eth0
+> and eth1. 
+> > By using "cat /proc/net/dev ", i can see the Rx/Tx
+> packets and bytes
+> > through each interface. just like this:
 > 
-> Could you explain me what could likely be the cause of this error?
+> 
+> 
+> > I wonder the meaning of the value of the br0, 
+> it's Rx/Tx packets is
+> > less than both eth0 and eth1.
+> > what's the relationship of the values between
+> bridge and it's enslaved NIC?
+> > 
+> 
+> The pseudo-device br0 is used for locally generated
+> traffic
+> 
+> There will be several possible flows through a
+> bridge:
+> 
+> Traffic going from 
+> 	eth0 to eth1 will increase eth0:Rx and eth1:Tx
+> 	eth1 to eth0               eth1:Rx     eth0:Tx
+> Locally transmits to eth0          br0:Tx  and
+> eth0:Tx
+> Locally received via eth0          br0:Rx  and
+> eth0:Rx
+> 
+> Also, packets generated locally with unknown
+> destination
+> will be flooded to both eth0 and eth1.
+> 
+> You get the idea
 
-IPV6 is usually the culprit.  All protocols have to keep reference
-counts for devices, and there have been several ref count bugs
-in ipv6.  If you don't need it build your kernel without it.
 
-Also, which kernel version.  The bug should be fixed in the latest
-2.6 kernels.
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
