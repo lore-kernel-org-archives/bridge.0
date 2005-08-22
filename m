@@ -1,5 +1,5 @@
-Message-ID: <20050822092532.76960.qmail@web34112.mail.mud.yahoo.com>
-Date: Mon, 22 Aug 2005 02:25:32 -0700 (PDT)
+Message-ID: <20050822093430.57927.qmail@web34103.mail.mud.yahoo.com>
+Date: Mon, 22 Aug 2005 02:34:30 -0700 (PDT)
 From: Zoran s <s_zoran@yahoo.com>
 Subject: Re: [BRIDGE]A basic question: what's the relationship of the Rx/Tx
 	packets count between the bridge and its enslaved NIC.
@@ -15,8 +15,7 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>, Steven Zhang <zhangseven@gmail.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
 Steven,
 
