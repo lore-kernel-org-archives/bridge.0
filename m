@@ -1,9 +1,8 @@
-Message-ID: <20050822093430.57927.qmail@web34103.mail.mud.yahoo.com>
-Date: Mon, 22 Aug 2005 02:34:30 -0700 (PDT)
+Message-ID: <20050823072540.15385.qmail@web34109.mail.mud.yahoo.com>
+Date: Tue, 23 Aug 2005 00:25:40 -0700 (PDT)
 From: Zoran s <s_zoran@yahoo.com>
-Subject: Re: [BRIDGE]A basic question: what's the relationship of the Rx/Tx
-	packets count between the bridge and its enslaved NIC.
-In-Reply-To: <20050817092132.3160f383@dxpl.pdx.osdl.net>
+Subject: Re: [Bridge] ppp0 to eth0
+In-Reply-To: <20050809143639.423bf696@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
@@ -15,66 +14,70 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>, Eduardo Osorio <eduardo.osorio.armenta@gmail.com>
+Cc: bridge@lists.osdl.org
 
-Steven,
+There is an interesting article covering bridging, but
+I think the interfaces are considered to type of
+ethernet, no ppp ever considered!
 
-In addition to what Stephen wrote, you can perform
-simple tests just assigning the IP address to bridge
-interface br0 issuing command:
+http://www.linuxjournal.com/article/8172
 
-ifconfig br0 x.y.z.w up
+The problem with ppp is that for the dial-up, as I
+understand, ppp is NOT over eth (PPPoE), but rather
+over some specific Data Link Layer described in V.90
+standards.
 
-where x.y.z.w is a unused subnet IP address (class C
-x.y.z.0) you are bridging.
+As I also understand, the web portal for dial-up is on
+the linux machine, where the whole process of PAP/CHAP
+and autentification with ISP takes place. The ISP
+assigns dynamic IP address to dial-up interface, so
+NAT is required to maintain xla to private subnet
+residing on the ethernet interface.
 
-Then you can ping any member via the bridge and
-observe br0, eth0 and eth1 stats, and also you can
-ping br0 itself by using ping x.y.z.w command and see
-stats as well.
+Then, every node of private subnet will automatically
+have access to the internet.
 
-Regards,
-Zoran
+Routing is the magic word. :)
 
 --- Stephen Hemminger <shemminger@osdl.org> wrote:
 
-> On Tue, 16 Aug 2005 11:40:40 +0800
-> Steven Zhang <zhangseven@gmail.com> wrote:
+> On Tue, 9 Aug 2005 13:51:40 -0500
+> Eduardo Osorio <eduardo.osorio.armenta@gmail.com>
+> wrote:
 > 
-> > I have a bridge br0, it enslaves two NICs: eth0
-> and eth1. 
-> > By using "cat /proc/net/dev ", i can see the Rx/Tx
-> packets and bytes
-> > through each interface. just like this:
-> 
-> 
-> 
-> > I wonder the meaning of the value of the br0, 
-> it's Rx/Tx packets is
-> > less than both eth0 and eth1.
-> > what's the relationship of the values between
-> bridge and it's enslaved NIC?
+> > Hi,
+> > 
+> > i wonder if there's some howto information to 
+> > bridge ppp0 to eth0
+> > 
+> > my distribution is a Hoary Ubuntu 5.04
+> > 
+> > i install :    apt-get install bridge-utlis
+> > 
+> > what i need it's connect to internet thru a modem
+> 56k (ppp0)
+> > and then give internet access to my laptop thru a
+> crosspair cable
+> > attached to a eth0 in my linux box .
+> > 
+> > i was following the article
+> > http://www.linuxjournal.com/article/8261
+> > 
+> > does anyone knows where i can find that
+> information
+> > 
+> > the FAQ of bridge http://bridge.sourceforge.net/
+> > mencion that ppp it's posible.
+> > 
+> > thanks in advance for clarification, commets etc
 > > 
 > 
-> The pseudo-device br0 is used for locally generated
-> traffic
-> 
-> There will be several possible flows through a
-> bridge:
-> 
-> Traffic going from 
-> 	eth0 to eth1 will increase eth0:Rx and eth1:Tx
-> 	eth1 to eth0               eth1:Rx     eth0:Tx
-> Locally transmits to eth0          br0:Tx  and
-> eth0:Tx
-> Locally received via eth0          br0:Rx  and
-> eth0:Rx
-> 
-> Also, packets generated locally with unknown
-> destination
-> will be flooded to both eth0 and eth1.
-> 
-> You get the idea
+> You will have better luck using routing and NAT to
+> do this.
+> Otherwise, your ISP will have to allow multiple IP's
+> over a single
+> PPP connection.
 
 
 __________________________________________________
