@@ -1,12 +1,11 @@
-Date: Wed, 31 Aug 2005 13:25:33 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20050831132533.0b922bcc@dxpl.pdx.osdl.net>
-In-Reply-To: <000301c5ae41$d4a493f0$6401000a@operator>
-References: <000301c5ae41$d4a493f0$6401000a@operator>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0 (Apple Message framework v734)
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: Please help with bridge
+Message-Id: <8189B9F5-DF6E-4032-8D2D-D5301A02A081@axentra.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+From: Robert Scott <rbscott@axentra.net>
+Date: Wed, 31 Aug 2005 19:04:01 -0700
+Subject: [Bridge] unregister_netdevice: waiting for br0 to become free.
+	Usage count = 1 (2.6.12.3)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,27 +14,33 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: InterClub <intclub@voliacable.com>
-Cc: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 31 Aug 2005 18:37:00 +0300
-"InterClub" <intclub@voliacable.com> wrote:
+Hello,
 
-> I need to add to bridge virtual interface with MAC address.
-> How can I do so?
-> 
->             
->                           +-----+
-> NET 1     eth0---|  br   |---eth1    NET 2
->                           +-----+
->                                |
->                          virtuarl if
-> 
-> virtual if mast be visible from network with its own macaddress 
-> and can be able to get IP by DHCP (dhcpcd) from any network
-> 
-> I need this very much.
-> Sanks 
+I know that this bug has been discussed before at length on this  
+mailing list, but previous post seemed to indicate that it was fixed  
+before kernel 2.6.12.  I am still seeing this occasionally in kernel  
+2.6.12.3.  The system is running knoppix, and IPV6 is not compiled  
+into the kernel(other posts mentioned numerous problems with the IPV6  
+code).  But every so often, when bringing down the bridge (it doesn't  
+happen every time), the process hangs, and the following message  
+appears in dmesg repeatedly:
 
-What kind of virtual interface?  The bridge code expects the devices
-in the bridge to behave like linux ethernet devices.
+'unregister_netdevice: waiting for br0 to become free. Usage count = 1'
+
+None of the processes involved can be killed, and an attempt to run  
+an ifconfig results in a process that is also waiting forever.  At  
+this point the box must be rebooted forcefully.
+
+Two questions.
+1. In a previous post, someone mentioned one solution was to  
+commenting out the check that is hanging in the kernel.   Does this  
+check preventing something terrible from happening(i assumed that it  
+does), or is it safe to remove it.
+2. Any ideas of something to try in order to make this repeatable?
+
+thanks,
+--robert scott
+
+
