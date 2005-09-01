@@ -1,10 +1,15 @@
-Message-ID: <20050901135348.10868.qmail@webmaild.fe1.aruba.it>
-From: overet@securitydate.it
-Date: Thu, 01 Sep 2005 15:53:48 +0200
+Date: Thu, 1 Sep 2005 09:24:53 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] unregister_netdevice: waiting for br0 to become free.
+	Usage count = 1 (2.6.12.3)
+Message-ID: <20050901092453.29c45716@dxpl.pdx.osdl.net>
+In-Reply-To: <4E543B45-7887-419E-9E72-36643093C0AC@axentra.net>
+References: <8189B9F5-DF6E-4032-8D2D-D5301A02A081@axentra.net>
+	<20050831213749.6bc8dd50@localhost.localdomain>
+	<4E543B45-7887-419E-9E72-36643093C0AC@axentra.net>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] rcu_dereference() error in coldfire arch
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,35 +18,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Robert Scott <rbscott@axentra.net>
+Cc: bridge@lists.osdl.org
 
-Hi,
-i'm trying to develop an embedded system with ColdFire architecture (similar 
-at m68k) and i have some problems. 
+On Wed, 31 Aug 2005 23:33:22 -0700
+Robert Scott <rbscott@axentra.net> wrote:
 
-The bridge module is loaded properly in the kernel. When an ARP packet is 
-sent to the port of the bridge there are 2 situations: 
+> > Two other recent reports are:
+> > 1. Buggy applications that hold packets in their input queue forever,
+> >    and/or netfilters.  The socket buffer's contain a reference for
+> >    packets in flight.
+> 
+> that may be it, but I am not sure which queue you are talking about,  
+> but there is an application that is using the netfiler ip_queue to  
+> queue packets to user space.  in this application, these packets can  
+> be held in user space for extended periods of time (up to 30/60  
+> seconds), and then they are either dropped or released.  Could this  
+> possibly be creating a problem?
 
- - If destination MAC address is FF:FF:FF:FF:FF:FF the packet is forwarded.
- - If destination MAC address is not a broadcast address the packet is 
-droped. 
-
-Then, if i send an ICMP packet whit static ARP entries on the two hosts the 
-packet are droped. 
-
-
-So, i look in the source tree to search the bug and i can see that in the 
-handle_bridge() function in net/core/dev.c at this point:
- ---------------------------------------------------------------------
-       if ((*pskb)->pkt_type == PACKET_LOOPBACK ||
-           (port = rcu_dereference((*pskb)->dev->br_port)) == NULL)
-               return 0;
- ---------------------------------------------------------------------
-the condition if () succeded whit port == NULL (but it shouldn't) and the 
-packet are droped. 
-
-How can i do to resolv this problem in m68k compliant architecture? 
-
-Best regards,
-oveRet 
-
+That could be it, ask Patrick McHardy, Harald, or netfilter-devel
