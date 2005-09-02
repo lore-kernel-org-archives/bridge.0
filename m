@@ -1,11 +1,10 @@
-Message-ID: <34d8b2fe05090200376d8182ce@mail.gmail.com>
-Date: Fri, 2 Sep 2005 09:37:31 +0200
-From: Louis Croisez <louis.croisez@gmail.com>
+Message-ID: <434f7cd7050902102561a0cc84@mail.gmail.com>
+Date: Fri, 2 Sep 2005 20:25:35 +0300
+From: Daniel Gheorghica <gheodan@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_Part_10887_33204500.1125646651136"
-Subject: [Bridge] unregister_netdevice: waiting for br0 to become free.
-	Usage count = 1 (2.6.12.3)
+	boundary="----=_Part_20119_24048333.1125681935881"
+Subject: [Bridge] STP problem
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,136 +13,197 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org, rbscott@axentra.net
+To: Bridge@lists.osdl.org
 
 This is a multi-part message in MIME format...
 
-------=_Part_10887_33204500.1125646651136
+------=_Part_20119_24048333.1125681935881
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi Robert,
+Hi all,=20
+ I have to use STP function between too bridges. The network topology are:
+ /--------------\ / ------ Wireless Link ----\ /--------------------\
+|=3D=3DLAN1=3D=3D| ---- | BRIDGE 1| | BRIDGE 2| -----| =3D=3D=3DLAN 2=3D=3D=
+=3D |=20
+\---------------/ \ -----TINC vpn tunnel ------/ \---------------------/
+ When one of link failed the ping from one to other site stop to works.=20
+I use bridge-utils-1.0.6 and tinc-1.0.4=20
+ I wait any suggestion about this
+ Daniel=20
+  The bridege setup script is:=20
+=20=20
+#! /bin/bash
 
-2. Any ideas of something to try in order to make this repeatable?
->=20
+PATH=3D$PATH:/usr/local/sbin:/sbin
+BR=3Dbr0
+IP=3D"172.16.3.223 <http://172.16.3.223>"
+MASK=3D"255.255.252.0 <http://255.255.252.0>"
+BROADCAST=3D"172.16.3.255 <http://172.16.3.255>"
 
-What i would do to reproduce it, is make a script establishing the bridge,=
-=20
-then flooding the bridge with some external ping -f, then shuting down the=
-=20
-bridge. If there is a refcount release problem, it should appear on eavy=20
-load (some buffer overflow, or something like that).
-Also, are you playing with ebtables? How do you use this bridge?
-#Louis.
+return=3D$rc_done
+case "$1" in
 
+start)
+echo "Starting service bridge $BR"
+tincd -n vpn
+brctl addbr $BR
+brctl setbridgeprio $BR 0 || return=3D$rc_failed
+brctl addif $BR eth0 || return=3D$rc_failed
+brctl addif $BR eth1 || return=3D$rc_failed
+brctl addif $BR vpn || return=3D$rc_failed
+ifconfig eth0 0.0.0.0 <http://0.0.0.0> || return=3D$rc_failed
+ifconfig eth1 0.0.0.0 <http://0.0.0.0> || return=3D$rc_failed
+ifconfig vpn 0.0.0.0 <http://0.0.0.0> || return=3D$rc_failed
+brctl sethello $BR 1 || return=3D$rc_failed
+brctl setmaxage $BR 4 || return=3D$rc_failed
+brctl setpathcost $BR eth1 100 || return=3D$rc_failed
 
-Date: Wed, 31 Aug 2005 19:04:01 -0700
-> From: Robert Scott <rbscott@axentra.net>
-> Subject: [Bridge] unregister_netdevice: waiting for br0 to become
-> free. Usage count =3D 1 (2.6.12.3 <http://2.6.12.3/>)
-> To: bridge@lists.osdl.org
-> Message-ID: <8189B9F5-DF6E-4032-8D2D-D5301A02A081@axentra.net>
-> Content-Type: text/plain; charset=3DUS-ASCII; delsp=3Dyes; format=3Dflowed
->=20
-> Hello,
->=20
-> I know that this bug has been discussed before at length on this
-> mailing list, but previous post seemed to indicate that it was fixed
-> before kernel 2.6.12. I am still seeing this occasionally in kernel
-> 2.6.12.3 <http://2.6.12.3/>. The system is running knoppix, and IPV6 is=
-=20
-> not compiled
-> into the kernel(other posts mentioned numerous problems with the IPV6
-> code). But every so often, when bringing down the bridge (it doesn't
-> happen every time), the process hangs, and the following message
-> appears in dmesg repeatedly:
->=20
-> 'unregister_netdevice: waiting for br0 to become free. Usage count =3D 1'
->=20
-> None of the processes involved can be killed, and an attempt to run
-> an ifconfig results in a process that is also waiting forever. At
-> this point the box must be rebooted forcefully.
->=20
-> Two questions.
-> 1. In a previous post, someone mentioned one solution was to
-> commenting out the check that is hanging in the kernel. Does this
-> check preventing something terrible from happening(i assumed that it
-> does), or is it safe to remove it.
-> 2. Any ideas of something to try in order to make this repeatable?
->=20
-> thanks,
-> --robert scott
+brctl setpathcost $BR vpn 100 || return=3D$rc_failed
+brctl setportprio $BR eth1 20 || return=3D$rc_failed
+brctl setportprio $BR vpn 20 || return=3D$rc_failed
+# brctl setageing $BR 20 || return=3D$rc_failed
+brctl setfd $BR 4 || return=3D$rc_failed
+brctl stp $BR on
+/sbin/ifconfig $BR inet $IP netmask $MASK broadcast $BROADCAST up
+echo -e "$return"
+;;
 
-------=_Part_10887_33204500.1125646651136
+stop)
+tincd -k -n vpn
+/sbin/ifconfig $BR down
+echo "Shutting down service bridge $BR"
+brctl delif $BR vpn || return=3D$rc_failed
+brctl delif $BR eth0 || return=3D$rc_failed
+brctl delif $BR eth1 || return=3D$rc_failed
+brctl delbr $BR || return=3D$rc_failed
+rmmod bridge || return=3D$rc_failed
+echo -e "$return"
+;;
+
+status)
+ifconfig $BR
+brctl showstp $BR
+brctl show
+;;
+
+restart)
+$0 stop && $0 start || return=3D$rc_failed
+;;
+
+*)
+
+echo "Usage: $0 {start|stop|status|restart}"
+exit 1
+esac
+
+test "$return" =3D "$rc_done" || exit 1
+exit 0
+
+------=_Part_20119_24048333.1125681935881
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-<div><div>Hi Robert,<br>
-&nbsp;</div><br>
-<blockquote DEFANGED_style=3D"border-left: 1px solid rgb(204, 204, 204); ma=
-rgin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;" class=3D"gmail_quote">2. Any i=
-deas of something to try in order to make this repeatable?<br>
-</blockquote>
-<br>
-What i would do to reproduce it, is make a script establishing the
-bridge, then flooding the bridge with some external ping -f, then
-shuting down the bridge. If there is a refcount release problem, it
-should appear on eavy load (some buffer overflow, or something like
-that).<br>
-Also, are you playing with ebtables? How do you use this bridge?<br>
-#Louis.<br>
-<br>
-</div><br>
-<blockquote DEFANGED_style=3D"border-left: 1px solid rgb(204, 204, 204); ma=
-rgin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;" class=3D"gmail_quote">Date: We=
-d, 31 Aug 2005 19:04:01 -0700<br>
-From: Robert Scott &lt;<a DEFANGED_onclick=3D"return top.js.OpenExtLink(win=
-dow,event,this)" href=3D"mailto:rbscott@axentra.net">rbscott@axentra.net</a=
->&gt;<br>
-Subject: [Bridge] unregister_netdevice: waiting for br0 to become<br>
- &nbsp; &nbsp; &nbsp; &nbsp;free. &nbsp; Usage count =3D 1 (<a DEFANGED_onc=
-lick=3D"return top.js.OpenExtLink(window,event,this)" href=3D"http://2.6.12=
-.3/" target=3D"_blank">2.6.12.3</a>)<br>
-To: <a DEFANGED_onclick=3D"return top.js.OpenExtLink(window,event,this)" hr=
-ef=3D"mailto:bridge@lists.osdl.org">bridge@lists.osdl.org</a><br>
-Message-ID: &lt;<a DEFANGED_onclick=3D"return top.js.OpenExtLink(window,eve=
-nt,this)" href=3D"mailto:8189B9F5-DF6E-4032-8D2D-D5301A02A081@axentra.net">=
-8189B9F5-DF6E-4032-8D2D-D5301A02A081@axentra.net</a>&gt;<br>
-Content-Type: text/plain; charset=3DUS-ASCII; delsp=3Dyes; format=3Dflowed<=
-br>
-  <br>
-Hello,<br>
-  <br>
-I know that this bug has been discussed before at length on this<br>
-mailing list, but previous post seemed to indicate that it was fixed<br>
-before kernel 2.6.12. &nbsp;I am still seeing this occasionally in kernel<b=
-r>
-  <a DEFANGED_onclick=3D"return top.js.OpenExtLink(window,event,this)" href=
-=3D"http://2.6.12.3/" target=3D"_blank">2.6.12.3</a>. &nbsp;The system is r=
-unning knoppix, and IPV6 is not compiled<br>
-into the kernel(other posts mentioned numerous problems with the IPV6<br>
-code). &nbsp;But every so often, when bringing down the bridge (it doesn't<=
-br>
-happen every time), the process hangs, and the following message<br>
-appears in dmesg repeatedly:<br>
-  <br>
-'unregister_netdevice: waiting for br0 to become free. Usage count =3D 1'<b=
-r>
-  <br>
-None of the processes involved can be killed, and an attempt to run<br>
-an ifconfig results in a process that is also waiting forever. &nbsp;At<br>
-this point the box must be rebooted forcefully.<br>
-  <br>
-Two questions.<br>
-1. In a previous post, someone mentioned one solution was to<br>
-commenting out the check that is hanging in the kernel. &nbsp; Does this<br>
-check preventing something terrible from happening(i assumed that it<br>
-does), or is it safe to remove it.<br>
-2. Any ideas of something to try in order to make this repeatable?<br>
-  <br>
-thanks,<br>
---robert scott</blockquote>
+<div>Hi all, </div>
+<div>&nbsp;</div>
+<div>I have to use STP function between too bridges. The network topology a=
+re:</div>
+<div>&nbsp;</div>
+<div>/--------------\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; / ------ Wireless Link ----\&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;/-----------------=
+---\</div>
+<div>|=3D=3DLAN1=3D=3D| ---- | BRIDGE 1|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | BRIDGE 2| -----| =3D=3D=3DLAN 2=3D=
+=3D=3D |&nbsp;</div>
+<div>\---------------/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp; \ -----TINC vpn tunnel ------/&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \---------------------/</di=
+v>
+<div>&nbsp;</div>
+<div>When one of link failed the ping from one to other site stop to works.=
+ </div>
+<div>I use bridge-utils-1.0.6 and tinc-1.0.4 </div>
+<div>&nbsp;</div>
+<div>I wait any suggestion about this</div>
+<div>&nbsp;</div>
+<div>Daniel </div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>The bridege setup script is: </div>
+<div>&nbsp;</div>
+<div>
+<p>#! /bin/bash<br><br>PATH=3D$PATH:/usr/local/sbin:/sbin<br>BR=3Dbr0<br>IP=
+=3D&quot;<a href=3D"http://172.16.3.223">172.16.3.223</a>&quot;<br>MASK=3D&=
+quot;<a href=3D"http://255.255.252.0">255.255.252.0</a>&quot;<br>BROADCAST=
+=3D&quot;<a href=3D"http://172.16.3.255">
+172.16.3.255</a>&quot;</p>
+<p>return=3D$rc_done<br>case &quot;$1&quot; in</p>
+<p>&nbsp;&nbsp;&nbsp; start)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+echo &quot;Starting service bridge $BR&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; tincd -n vpn<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+brctl addbr $BR<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl setbrid=
+geprio $BR 0 || return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp; brctl addif $BR eth0 ||&nbsp; return=3D$rc_failed
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl addif $BR eth1 ||&nbsp=
+; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl a=
+ddif $BR vpn&nbsp; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp; ifconfig eth0 <a href=3D"http://0.0.0.0">0.0.0.0</a>&nbs=
+p; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p; ifconfig eth1 <a href=3D"http://0.0.0.0">
+0.0.0.0</a>&nbsp; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; ifconfig vpn <a href=3D"http://0.0.0.0">0.0.0.0</a>&nbsp;=
+ ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+ brctl sethello $BR 1&nbsp; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; brctl setmaxage $BR 4&nbsp; ||&nbsp; return=3D$=
+rc_failed
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl setpathcost $BR eth1 1=
+00&nbsp; ||&nbsp; return=3D$rc_failed<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl setpathcost $BR vpn 100=
+&nbsp; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp; brctl setportprio $BR eth1 20&nbsp; ||&nbsp; return=3D$rc_failed<br>=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl setportprio $BR vpn 20&nbs=
+p; ||&nbsp; return=3D$rc_failed<br>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp; brctl setageing $BR 20&nbsp; ||&nbsp; return=3D$rc_failed
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl setfd $BR 4&nbsp; ||&n=
+bsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brct=
+l stp $BR on<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /sbin/ifconfig $=
+BR inet $IP netmask $MASK broadcast $BROADCAST up<br>&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; echo -e &quot;$return&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; ;;</p>
+<p>&nbsp;&nbsp;&nbsp; stop)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t=
+incd -k -n vpn<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /sbin/ifconfig=
+ $BR down<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo &quot;Shutting=
+ down service bridge $BR&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+; brctl delif $BR vpn&nbsp; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; brctl delif $BR eth0&nbsp; ||&nbsp; return=3D$r=
+c_failed
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl delif $BR eth1&nbsp; |=
+|&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b=
+rctl delbr $BR&nbsp; ||&nbsp; return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; rmmod bridge || return=3D$rc_failed<br>&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; echo -e &quot;$return&quot;<br>&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp; ;;</p>
+<p>&nbsp;&nbsp;&nbsp; status)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+ ifconfig $BR<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl showstp $=
+BR<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; brctl show<br>&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;;</p>
+<p>&nbsp;&nbsp;&nbsp; restart)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+; $0 stop &amp;&amp; $0 start || return=3D$rc_failed<br>&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp; ;;</p>
+<p>&nbsp;&nbsp;&nbsp; *)<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo &quot;Usage: $0 {start|s=
+top|status|restart}&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exi=
+t 1<br>esac</p>
+<p>test &quot;$return&quot; =3D &quot;$rc_done&quot; || exit 1<br>exit 0<br=
+></p></div>
 
-------=_Part_10887_33204500.1125646651136--
+------=_Part_20119_24048333.1125681935881--
