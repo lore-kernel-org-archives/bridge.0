@@ -1,12 +1,10 @@
-Message-ID: <43251154.8080209@osdl.org>
-Date: Sun, 11 Sep 2005 22:25:40 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <432B3C8E.1070503@mvista.com>
+Date: Fri, 16 Sep 2005 14:43:42 -0700
+From: Tom McNeal <tmcneal@mvista.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] ioctl function definition?
-References: <4120021E9E68D345810AD6B696DCA8E80E7FDC@icex4.ic.ac.uk>
-In-Reply-To: <4120021E9E68D345810AD6B696DCA8E80E7FDC@icex4.ic.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] stresstest.sh
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,18 +13,33 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Ahsan, Ahmad" <ahmad.ahsan@imperial.ac.uk>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Ahsan, Ahmad wrote:
+Hi -
 
-> hi!
->  
-> i have read the bridge source code, in order to modify the bridge so 
-> that it acts as a bridge + firewall in one. in this way, the firewall 
-> would be faster as data does not have to go up to the application 
-> layer, but only need to go up to the data link layer (where the bridge 
-> works).
->  
+When running the stress tests, after a few hours, a panic occurs
+due to a kernel page fault for address 0x0 while executing one
+of the brctl commands.  We don't know which one, yet.  Has anyone
+run across this?
 
-That is what ebtables already does!
+do_cpu invoked from kernel context! in	traps.c:do_cpu, line 787:
+...snip...
+Process brctl (pid: 23999,  stackpage=813d8000)
+...snip...
+note: brctl[23999] exited with preempt_count 2
+Unable to handle kernel paging request at virtual address 00000000,
+epc ==
+801131e8, ra == 8011c5d8
+Oops in fault.c:do_page_fault, line 213:
+...etc....
+
+This is basically in the 2.4.17 kernel, with some of the security
+fixes.
+
+Tom
+
+-- 
+Tom McNeal
+MontaVista Software
+408-992-4459
+
