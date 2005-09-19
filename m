@@ -1,12 +1,13 @@
-Content-class: urn:content-classes:message
+Message-ID: <432EDE02.8090106@mvista.com>
+Date: Mon, 19 Sep 2005 08:49:22 -0700
+From: Tom McNeal <tmcneal@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Date: Mon, 19 Sep 2005 11:38:13 -0400
-Message-ID: <87ABB5B9BD11A240B9CBB3F0485AEC8950CBC4@IMCSRV4.MITRE.ORG>
-From: "Feighery,Patrick D." <feighery@mitre.org>
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Bridging eth0 and tap0 stop working after a while
+Subject: Re: [Bridge] stresstest.sh
+References: <432B3C8E.1070503@mvista.com>
+	<20050916151835.3bc8e5cc@dxpl.pdx.osdl.net>
+In-Reply-To: <20050916151835.3bc8e5cc@dxpl.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,47 +16,52 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: bridge@lists.osdl.org
 
-I've developed an TCP proxing application to improve performance over
-satellite and wireless links.  When I ported it to linux I used a
-combination of bridging and the tap interface to read and write
-packets/frames to the physical interface.
+Stephen Hemminger wrote:
+> On Fri, 16 Sep 2005 14:43:42 -0700
+> Tom McNeal <tmcneal@mvista.com> wrote:
+> 
+>>Hi -
+>>
+>>When running the stress tests, after a few hours, a panic occurs
+>>due to a kernel page fault for address 0x0 while executing one
+>>of the brctl commands.  We don't know which one, yet.  Has anyone
+>>run across this?
+>>
+>>This is basically in the 2.4.17 kernel, with some of the security
+>>fixes.
+>>
+>>Tom
+> 
+> 
+> Some basics:
+> 	* 2.4.17 is pretty old, can you at least try 2.4.30 or later.
+>           Better yet, 2.6
+> 	* Why are you doing bridge commands during the stress test?
+> 	  it is pretty much a setup and forget it thing.
+> 	* are you using SMP?  Locking in bridge code for 2.4 is pretty
+> 	  weak and there are probably holes. I ended up reworking the whole
+> 	  locking model of bridge code for 2.6 for speed and correctness.
+> 
 
-I created two separate bridges:  aif bridges between eth2 and tap0
-while bif bridges between eth1 and tap1.  After a while I noticed that
-the bridge stops working.  It seems to bridge correctly for at least 8
-hours then for some reason just stops.
+By 'bridge commands' I meant the brctl command, used by the stress
+tests posted in the bridge-utils-1.0.6 test directory.  The tests
+add and delete bridges while independently adding and deleting
+interfaces to the supposedly existing bridge, in independent loops.
+How real world is that?
 
-If I tcpdump eth2, I see packets.  If I tcpdump aif, I see packets.
-However if I tcpdump tap0, nothing.
+I'm pretty sure it is SMP; are there fixes, like the ones you added
+in 2.4.22 and 2.4.27, which are relevant?  I'm looking at trying to
+patch 2.4.17 right now (I can't upgrade, but I can patch).  I do
+seem some locking stuff that I'm going to look at now....
 
-I've currently using a 2.4.22-1.2115 kernel. But I believe the problem
-also occurs with a 2.6.9 based kernel.
+Thanks -
 
-Below is a list of commands to set up the bridge.
-
-:: ip link set dev tap0 up
-:: ip link set dev tap1 up
-:: brctl addbr aif
-:: brctl addif aif tap0
-:: brctl addif aif eth2
-:: brctl stp aif off
-:: ifconfig aif up
-:: brctl addbr bif
-:: brctl addif bif tap1
-:: brctl addif bif eth0
-:: brctl stp bif off
-:: ifconfig bif up
-:: ip addr del 10.50.5.4 dev eth2
-:: ifconfig aif 10.50.5.4 netmask 255.255.255.0
-:: ip addr del 10.60.5.4 dev eth0
-:: ifconfig bif 10.60.5.4 netmask 255.255.255.0
-
-Has anyone seen anything like this?  Any pointers to what I could be
-doing wrong, or pointers to how I can debug thus?
-
-Many thanks
-
-	Pat
+Tom
+-- 
+Tom McNeal
+MontaVista Software
+408-992-4459
 
