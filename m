@@ -1,13 +1,14 @@
-Message-ID: <43318C62.8010005@mvista.com>
-Date: Wed, 21 Sep 2005 09:37:54 -0700
-From: Tom McNeal <tmcneal@mvista.com>
-MIME-Version: 1.0
-Subject: Re: [Bridge] stresstest.sh
-References: <432B3C8E.1070503@mvista.com>	<20050916151835.3bc8e5cc@dxpl.pdx.osdl.net>	<432EDE02.8090106@mvista.com>
-	<20050919093412.0ea59042@dxpl.pdx.osdl.net>
-In-Reply-To: <20050919093412.0ea59042@dxpl.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Wed, 21 Sep 2005 09:47:13 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20050921094713.6e2046d3@localhost.localdomain>
+In-Reply-To: <1127307186.15678.63.camel@quant>
+References: <1127239659.12488.26.camel@quant>
+	<20050921.001427.27575173.davem@davemloft.net>
+	<1127307186.15678.63.camel@quant>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH] TSO fix in br_dev_queue_push_xmit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,34 +17,38 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: Vlad Drukker <vlad@storewiz.com>
+Cc: bridge@osdl.org, "; David S. Miller" <davem@davemloft.net>, ";
+	Henrik Nordstrom" <hno@marasystems.com>
 
-Hi -
+On Wed, 21 Sep 2005 15:53:06 +0300
+Vlad Drukker <vlad@storewiz.com> wrote:
 
-We are still hitting a panic while running the bridge-utils-1.0.6
-stress tests, apparently due to a page fault in the kernel
-at address 0, or at least we see that before seeing the panic
-message (Kernel panic: Aiee, killing interrupt handler!)
-
-Anyway, the bridge code in the 2.4.17 kernel (net/bridge) was
-upgraded to 2.4.31 code as suggested.  In addition, the process
-running at the time of the panic is the 'brctl delbr brtmp1' call
-in the newdel function of the stress tests, which is looping with
-addbr and delbr calls to create and delete a temporary, unused bridge.
-
-Any suggestions?
-
-Tom
-
-Stephen Hemminger wrote:
+> Hi,
 > 
-> You probably could just copy whole net/bridge directory over from
-> current 2.4 tree.
+> I see you all agree to apply :)
+> 
+> Stephen, repost of this patch to proper places below.
+> 
+> Thank you Henrik for clarification of bridge standard.
+> However, silent drop of locally generated packets on 99% idle carrier
+> grade machine looks like a hardware problem.
+> 
+> David, don't you think that having software packet drop counters is a
+> bad idea? I thought, software drop counters are there to help identify
+> hardware problems or lack of resources. In this case, tcp stack produced
+> output that just gone. TSO is there over years and no one even noticed
+> given TSO/bridge conflict mainly because there is no stats. (IMHO)
+> Let's blame standards, right? 
 > 
 
--- 
-Tom McNeal
-MontaVista Software
-408-992-4459
+Patch is fine.
 
+Putting in a counter would be good, but there is no good
+structure to put it in.  The bridge device (br0) counters
+make sense for locally generated packets, the network devices
+(ethX) forwarding packets are under control of the other device
+driver.
+
+There is a whole bridge MIB defined in the standard, but adding
+it would be a lot of work, and not sure if anyone would care.
