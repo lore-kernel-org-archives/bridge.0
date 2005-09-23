@@ -1,14 +1,10 @@
-Date: Thu, 22 Sep 2005 23:36:48 -0700 (PDT)
-Message-Id: <20050922.233648.78337836.davem@davemloft.net>
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1127307186.15678.63.camel@quant>
-References: <1127239659.12488.26.camel@quant>
-	<20050921.001427.27575173.davem@davemloft.net>
-	<1127307186.15678.63.camel@quant>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] TSO fix in br_dev_queue_push_xmit
+Message-ID: <8135BF451955D5119DE200203567D82A060ED6F5@ge-muc-exch-01.azlan.ger>
+From: Josef Brunner <Josef.Brunner@azlan.com>
+Subject: RE: [Bridge] Bridging VLANs
+Date: Fri, 23 Sep 2005 08:00:34 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,22 +13,55 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: vlad@storewiz.com
-Cc: bridge@osdl.org, hno@marasystems.com, shemminger@osdl.org
+To: 'R Harper ' <rharper333@hotmail.com>, "'bridge@lists.osdl.org '" <bridge@lists.osdl.org>
 
-From: Vlad Drukker <vlad@storewiz.com>
-Date: Wed, 21 Sep 2005 15:53:06 +0300
+remember the use of the vconfig command. it helps you to define "access
+ports" that means that you can tell the system what default vlan (or vlans)
+to use for a certain interface (so that it can remove the vlan tag from the
+trunked packet)...
 
-> I see you all agree to apply :)
-> 
-> Stephen, repost of this patch to proper places below.
+if you want to bridge all your  traffic - including vlan traffic - just
+confige the bridge in a "normal behaviour".=20
 
-Applied, but please learn how to send patches properly
-next time.  Your email client mangled all the tab
-characters into spaces, so I had to add the patch by
-hand.
+just one question: by saying vlan traffic you mean trunk or trunked or
+tagged traffic, right ?=20
 
-I'm sure you can convince Evolution to not do that, or simply use
-attachments.
+josef=20
+=20
 
-Thanks.
+-----Original Message-----
+From: R Harper
+To: bridge@lists.osdl.org
+Sent: 22.09.2005 14:34
+Subject: [Bridge] Bridging VLANs
+
+Hi I have a simple question
+
+I want to bridge both normal ethernet frames and VLAN packets
+do I have to explicitly bridge the VLAN packets (e.g. vconfig br0 30)
+or=20
+are they bridge by default
+Is it sufficient to configure a VLAN bridge like this or am I forgetting
+
+something?
+
+regards
+R.Harper
+
+_________________________________________________________________
+F=E5 alle de nye og sjove ikoner med MSN Messenger
+http://messenger.msn.dk/
+
+ <<ATT38976.txt>>=20
+
+___________________________________________________________________________=
+____
+Disclaimer
+
+This message may contain confidential information solely for its
+intended recipients and others may not distribute, copy or use it. If
+you have received this communication in error please tell us either by
+return e-mail or at the numbers above and delete it, and any copies of
+it.
+
+
