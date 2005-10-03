@@ -1,10 +1,9 @@
-Message-ID: <4340F1B3.6000401@inaphone.com>
-Date: Mon, 03 Oct 2005 10:54:11 +0200
-From: Baldur Norddahl <bbn-bridge@inaphone.com>
+Date: Mon, 3 Oct 2005 11:25:53 +0200 (CEST)
+From: Bartek Kania <bartek@scandichosting.com>
+Message-ID: <Pine.LNX.4.62.0510031118030.1429@bartek.icepage.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] combining vlan tagging and spanning tree
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] Bridging with STP seems to learn mac-address on wrong ports
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,30 +14,34 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi,
+I have two multi-port bridges connected together with a lot of cables.
+Current setup is as follows:
 
-I am configuring some servers in a high availability setup. The servers
-are connected to two switches with two LAN cards in each server. The two
-switches are connected directly to each other.
+     --------eth0-------
+    |                   |
+[Bridge A] <-eth1-> [Bridge B]
+    |                   |
+     --------eth5-------
 
-The servers are configured to bridge eth0 and eth1 with spanning tree.
-Usually this makes sure eth1 is disabled, unless something happens to
-eth0. This way I can have one IP address on each server.
+Bridge A is root-bridge, and eth0 is set to lowest path-cost.
+Consequently on Bridge B interfaces eth1 and eth5 are in blocking state.
 
-Now I also want to use vlan tagging on some of the servers.
+However, when looking at the mac-address table on bridge B I see that it has
+learned the mac-address of bridge A on the eth1-port (which is in
+blocking state) and tries to use that port to communicate with 
+bridge A, and since the port is blocking this fails.
 
-I am unsure if I am supposed to bridge before or after applying vlan
-tagging. That is, if the bridge should be between eth0 and eth1, or
-between eth0.2 and eth1.2. I suppose it would also be possible to have a
-br0.2.
+It seems that the STP-bpdu's are responsible for the bridge learning
+the mac-address on the wrong port.
+This is tested with kernel 2.6.11.12 and 2.6.13.2, and both exhibit
+this problem.
 
-I managed to get it working sort of. But as soon I enable spanning tree,
-I lose contact on the bridge device. Tcpdump still shows traffic on the
-underlying device.
+The following fix solved it for me on 2.6.11.12:
+In net/bridge/br_stp_bpdu.c, in function br_stp_handle_bpdu i changed
+         br_fdb_insert(p->br, p, eth_hdr(skb)->h_source,0);
+to
+         if (!br->stp_enabled || p->state == BR_STATE_LEARNING
+             || p->state == BR_STATE_FORWARDING)
+             br_fdb_insert(p->br, p, eth_hdr(skb)->h_source, 0);
 
-I am using gentoo linux 2.6.12.
-
-Thanks,
-
-Baldur
-
+/B
