@@ -1,10 +1,10 @@
-Message-ID: <8135BF451955D5119DE200203567D82A060ED71E@ge-muc-exch-01.azlan.ger>
-From: Josef Brunner <Josef.Brunner@azlan.com>
-Subject: RE: [Bridge] Bridge benchmarks?
-Date: Thu, 29 Sep 2005 08:17:04 +0100
+Message-ID: <4340F1B3.6000401@inaphone.com>
+Date: Mon, 03 Oct 2005 10:54:11 +0200
+From: Baldur Norddahl <bbn-bridge@inaphone.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] combining vlan tagging and spanning tree
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,54 +13,32 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Ben Greear ' <greearb@candelatech.com>, "'bridge@lists.osdl.org '" <bridge@lists.osdl.org>
-
-same thing with me.
-
-hw setup, x86 pentium driven box, 512 ram and other standard things (benhur
-box). but i was not able to have more than 900mbps (but with some VERY basic
-firewalling activated), 900 was even the peak. kernel is stack protected
-(pax) with some basic rules for grsec submitted. kernel flags
-(/proc/sys/net/ipv4/..... almost standard, just routing enabled)
-
-would also love to hear some configuration tuning tips, as i thing hw tuning
-is the easier way ;)
-
-test was performed using a trunk port (between two cisco boxes. cisco -
-bridge - cisco)
-
-brgds
-josef
-
------Original Message-----
-From: Ben Greear
 To: bridge@lists.osdl.org
-Sent: 28.09.2005 19:15
-Subject: [Bridge] Bridge benchmarks?
 
-I am curious if anyone has benchmarks for bridging GigE networks.
+Hi,
 
-On my hardware, I am unable to go much beyound about 920Mbps
-(bi-directional).  I was hoping for 970+ Mbps (MTU sized pkts).
+I am configuring some servers in a high availability setup. The servers
+are connected to two switches with two LAN cards in each server. The two
+switches are connected directly to each other.
 
-If anyone has been able to get these sorts of numbers, I'd love
-to hear the hardware setup and/or tuning parameters.
+The servers are configured to bridge eth0 and eth1 with spanning tree.
+Usually this makes sure eth1 is disabled, unless something happens to
+eth0. This way I can have one IP address on each server.
+
+Now I also want to use vlan tagging on some of the servers.
+
+I am unsure if I am supposed to bridge before or after applying vlan
+tagging. That is, if the bridge should be between eth0 and eth1, or
+between eth0.2 and eth1.2. I suppose it would also be possible to have a
+br0.2.
+
+I managed to get it working sort of. But as soon I enable spanning tree,
+I lose contact on the bridge device. Tcpdump still shows traffic on the
+underlying device.
+
+I am using gentoo linux 2.6.12.
 
 Thanks,
-Ben
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
- <<ATT222785.txt>> 
-
-_______________________________________________________________________________
-Disclaimer
-
-This message may contain confidential information solely for its
-intended recipients and others may not distribute, copy or use it. If
-you have received this communication in error please tell us either by
-return e-mail or at the numbers above and delete it, and any copies of
-it.
+Baldur
 
