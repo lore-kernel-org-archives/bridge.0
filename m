@@ -1,9 +1,10 @@
-Date: Mon, 24 Oct 2005 16:30:55 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+Date: Tue, 25 Oct 2005 01:56:07 +0200
+From: Michel Pastor <K@codefx.org>
 Subject: Re: [Bridge] single briged network internet access problems
-Message-ID: <20051024163055.5b3d4f2f@dxpl.pdx.osdl.net>
-In-Reply-To: <20051025010230.2d6f330f.K@codefx.org>
+Message-Id: <20051025015607.2cd2c189.K@codefx.org>
+In-Reply-To: <20051024163055.5b3d4f2f@dxpl.pdx.osdl.net>
 References: <20051025010230.2d6f330f.K@codefx.org>
+	<20051024163055.5b3d4f2f@dxpl.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,82 +16,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Michel Pastor <K@codefx.org>
+To: Stephen Hemminger <shemminger@osdl.org>
 Cc: bridge@lists.osdl.org
 
-On Tue, 25 Oct 2005 01:02:30 +0200
-Michel Pastor <K@codefx.org> wrote:
 
-> Hi,
-> 
-> I've some problems with this network :
-> 
-> [ host1 eth0: 10.22.2.4/8 ]        [ host2 eth0:10.22.2.5/8 default route host3]
->                                          \      /
->                                        SWITCH                           internet
->                                             |                                       |
->                                             |                                       |
->                              [ host3 eth0-eth1: 10.22.2.3/8 -- eth2: 8X.242.21.225/8 ]
->                                                     |
->                                                     |
->                                      [ host4 eth0:10.22.2.2/8 default route host3]
-> 
-> On host3 I use this rule to translate addresses of packets going through eth2 to the internet:
-> # iptables -t nat -A POSTROUTING -o eth2 -j MASQUERADE
-> 
-> If host1 default route is set to host2, no problem but when host4 is used as default route, see:
-> 
-> host1# route
-> Kernel IP routing table
-> Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-> 10.0.0.0          *                      255.0.0.0       U     0      0        0 eth0
-> default            10.22.2.2         0.0.0.0         UG    0      0        0 eth0
-> 
-> host1# ping 195.101.94.80
-> PING 195.101.94.80 (195.101.94.80): 56 data bytes
-> 92 bytes from 10.22.2.2 (10.22.2.2): Redirect Host(New addr: 10.22.2.3)
-> Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst
->  4  5  00 0054 0777   0 0000  3f  01 4662 10.22.2.4  195.101.94.80 
-> 
-> 
-> --- janus-2-20.x-echo.com ping statistics ---
-> 2 packets transmitted, 0 packets received, 100% packet loss
-> 
-> 
-> iptables -t filter -A FORWARD -p icmp -j LOG --log-ip-options --log-prefix --FILTER-FORWARD--
-> iptables -t filter -A PREROUTING -p icmp -j LOG --log-ip-options --log-prefix --NAT-PREROUTING--
-> iptables -t filter -A POSTROUTING -p icmp -j LOG --log-ip-options --log-prefix --NAT-POSTROUTING--
-> 
-> Oct 25 00:19:42 host3 --NAT-PREROUTING--IN=bridge OUT= PHYSIN=eth0 MAC=00:e0:4c:ff:02:5e:00:0a:95:f5:1b:fc:08:00 SRC=10.22.2.4 DST=212.27.33.225 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=2197 PROTO=ICMP TYPE=8 CODE=0 ID=233 SEQ=0 
-> Oct 25 00:19:42 host3 --FILTER-FORWARD--IN=bridge OUT=bridge PHYSIN=eth0 PHYSOUT=eth1 SRC=10.22.2.4 DST=212.27.33.225 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=2197 PROTO=ICMP TYPE=8 CODE=0 ID=233 SEQ=0 
-> Oct 25 00:19:42 host3 --NAT-POSTROUTING--IN= OUT=bridge PHYSIN=eth0 PHYSOUT=eth1 SRC=10.22.2.4 DST=212.27.33.225 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=2197 PROTO=ICMP TYPE=8 CODE=0 ID=233 SEQ=0
-> Oct 25 00:19:42 host3 --FILTER-FORWARD--IN=bridge OUT=eth2 PHYSIN=eth1 SRC=10.22.2.4 DST=212.27.33.225 LEN=84 TOS=0x00 PREC=0x00 TTL=62 ID=2197 PROTO=ICMP TYPE=8 CODE=0 ID=233 SEQ=0 
-> Oct 25 00:19:43 host3 --FILTER-FORWARD--IN=bridge OUT=bridge PHYSIN=eth0 PHYSOUT=eth1 SRC=10.22.2.4 DST=212.27.33.225 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=2199 PROTO=ICMP TYPE=8 CODE=0 ID=233 SEQ=1
-> 
-> As you can see packets doesnt pass through POSTROUTING when routed to internet. I think that's the problem. But why do they pass through it when host2 is the default route and not when it is host4 ?
-> 
-> ohoh, weird, I launched "tcpdump -i bridge icmp" to see what's happening and it is working when tcpdump is listening !
-> If I kill tcpdump it  stops working...
-> 
-> Oct 25 00:46:14 host3 --NAT-PREROUTING--IN=bridge OUT= PHYSIN=eth0 MAC=00:50:22:b1:0d:19:00:50:22:b0:90:98:08:00 SRC=10.22.2.4 DST=152.2.210.81 LEN=84 TOS=0x00 PREC=0x00 TTL=63 ID=1882 PROTO=ICMP TYPE=8 CODE=0 ID=231 SEQ=0 
-> Oct 25 00:46:14 host3 --FILTER-FORWARD--IN=bridge OUT=eth2 PHYSIN=eth0 SRC=10.22.2.4 DST=152.2.210.81 LEN=84 TOS=0x00 PREC=0x00 TTL=62 ID=1882 PROTO=ICMP TYPE=8 CODE=0 ID=231 SEQ=0 
-> Oct 25 00:46:14 host3 --NAT-POSTROUTING--IN= OUT=eth2 PHYSIN=eth0 SRC=10.22.2.4 DST=152.2.210.81 LEN=84 TOS=0x00 PREC=0x00 TTL=62 ID=1882 PROTO=ICMP TYPE=8 CODE=0 ID=231 SEQ=0 
-> Oct 25 00:46:14 host3 --FILTER-FORWARD--IN=eth2 OUT=bridge PHYSOUT=eth0 SRC=152.2.210.81 DST=10.22.2.4 LEN=84 TOS=0x00 PREC=0x00 TTL=45 ID=54251 PROTO=ICMP TYPE=0 CODE=0 ID=231 SEQ=0 
-> Oct 25 00:46:15 host3 --NAT-PREROUTING--IN=bridge OUT= PHYSIN=eth0 MAC=00:50:22:b1:0d:19:00:0a:95:f5:1b:fc:08:00 SRC=10.22.2.4 DST=152.2.210.81 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=1886 PROTO=ICMP TYPE=8 CODE=0 ID=231 SEQ=1 
-> Oct 25 00:46:15 host3 --FILTER-FORWARD--IN=bridge OUT=eth2 PHYSIN=eth0 SRC=10.22.2.4 DST=152.2.210.81 LEN=84 TOS=0x00 PREC=0x00 TTL=63 ID=1886 PROTO=ICMP TYPE=8 CODE=0 ID=231 SEQ=1 
-> Oct 25 00:46:15 host3 --NAT-POSTROUTING--IN= OUT=eth2 PHYSIN=eth0 SRC=10.22.2.4 DST=152.2.210.81 LEN=84 TOS=0x00 PREC=0x00 TTL=63 ID=1886 PROTO=ICMP TYPE=8 CODE=0 ID=231 SEQ=1 
-> Oct 25 00:46:15 host3 --FILTER-FORWARD--IN=eth2 OUT=bridge PHYSOUT=eth0 SRC=152.2.210.81 DST=10.22.2.4 LEN=84 TOS=0x00 PREC=0x00 TTL=45 ID=54252 PROTO=ICMP TYPE=0 CODE=0 ID=231 SEQ=1
-> 
-> Do you have any idea ? Do you need more informations ?
-> Thanks in advance.
-> 
-> - Michel
+Forget the part about tcpdump, I rebooted the machine and the default route was reset to host2.
+It seems I was right. As you can see packets is output through eth2 with an internal ip even with the MASQUERADE rule...
 
-TCP dump turns on promiscuous mode. and for some reason the driver wasn't seeing
-it when the bridge turned on promiscuous mode. What is the kernel version? and
-what are the ethernet cards?
+# tcpdump -i eth2 icmp
+listening on eth2, link-type EN10MB (Ethernet), capture size 96 bytes
+01:25:50.114069 IP 10.22.2.4 > mutu.nuxit.net: ICMP echo request, id 247, seq 0, length 64
+01:25:51.113813 IP 10.22.2.4 > mutu.nuxit.net: ICMP echo request, id 247, seq 1, length 64
 
+but with host2 as default route it'ok :
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+# tcpdump -i eth2 icmp
+listening on eth2, link-type EN10MB (Ethernet), capture size 96 bytes
+01:54:12.666919 IP 8X.242.21.225 > janus-2-20.x-echo.com: ICMP echo request, id 250, seq 0, length 64
+01:54:12.719119 IP janus-2-20.x-echo.com > 8X.242.21.225: ICMP echo reply, id 250, seq 0, length 64
+01:54:13.666751 IP 8X.242.21.225 > janus-2-20.x-echo.com: ICMP echo request, id 250, seq 1, length 64
+01:54:13.706618 IP janus-2-20.x-echo.com > 8X.242.21.225: ICMP echo reply, id 250, seq 1, length 64
+
+This confirm that the packets didn't get through the NAT-POSTROUTING chain.
+So, why ?
+
+Thanks
+- Michel
