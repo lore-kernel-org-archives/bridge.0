@@ -1,13 +1,10 @@
-Date: Tue, 25 Oct 2005 01:56:07 +0200
-From: Michel Pastor <K@codefx.org>
-Subject: Re: [Bridge] single briged network internet access problems
-Message-Id: <20051025015607.2cd2c189.K@codefx.org>
-In-Reply-To: <20051024163055.5b3d4f2f@dxpl.pdx.osdl.net>
-References: <20051025010230.2d6f330f.K@codefx.org>
-	<20051024163055.5b3d4f2f@dxpl.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Thu, 27 Oct 2005 11:34:41 +0200
+From: =?UTF-8?Q?=69=63=61=20=69=63=61?= <ica_ica@walla.com>
+Message-Id: <1130405680.096000-30129449-16124@walla.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="------=_EREZ_P_WallaMail_46959_8934_P_0"
+Subject: [Bridge] MSTP implementation - help
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,29 +13,50 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
+Cc: ica_ica@walla.com
 
+This is a multi-part message in MIME format...
 
-Forget the part about tcpdump, I rebooted the machine and the default route was reset to host2.
-It seems I was right. As you can see packets is output through eth2 with an internal ip even with the MASQUERADE rule...
+--------=_EREZ_P_WallaMail_46959_8934_P_0
+Content-Type: multipart/alternative; boundary="----------=_1130408235-1090-497"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
 
-# tcpdump -i eth2 icmp
-listening on eth2, link-type EN10MB (Ethernet), capture size 96 bytes
-01:25:50.114069 IP 10.22.2.4 > mutu.nuxit.net: ICMP echo request, id 247, seq 0, length 64
-01:25:51.113813 IP 10.22.2.4 > mutu.nuxit.net: ICMP echo request, id 247, seq 1, length 64
+This is a multi-part message in MIME format...
 
-but with host2 as default route it'ok :
+------------=_1130408235-1090-497
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-# tcpdump -i eth2 icmp
-listening on eth2, link-type EN10MB (Ethernet), capture size 96 bytes
-01:54:12.666919 IP 8X.242.21.225 > janus-2-20.x-echo.com: ICMP echo request, id 250, seq 0, length 64
-01:54:12.719119 IP janus-2-20.x-echo.com > 8X.242.21.225: ICMP echo reply, id 250, seq 0, length 64
-01:54:13.666751 IP 8X.242.21.225 > janus-2-20.x-echo.com: ICMP echo request, id 250, seq 1, length 64
-01:54:13.706618 IP janus-2-20.x-echo.com > 8X.242.21.225: ICMP echo reply, id 250, seq 1, length 64
+DQo8Qk9EWSBERUZBTkdFRF9vbmNvbnRleHRtZW51PSJyZXR1cm4gZmFsc2Ui
+IGRpcj0icnRsIiBERUZBTkdFRF9zdHlsZT0iT1ZFUkZMT1ctWTogc2Nyb2xs
+IiBsZWZ0TWFyZ2luPTAgdG9wTWFyZ2luPTAgcmlnaHRNYXJnaW49MD48RElW
+IGlkPSJ3cnRlcGxhY2Vob2xkZXIiIERFRkFOR0VEX3N0eWxlPSJGT05ULUZB
+TUlMWTogQXJpYWwiIG5hbWU9IndydGVwbGFjZWhvbGRlciI+DQo8RElWPg0K
+PERJViBERUZBTkdFRF9zdHlsZT0iVEVYVC1BTElHTjogbGVmdCI+DQo8RElW
+IERFRkFOR0VEX3N0eWxlPSJURVhULUFMSUdOOiBsZWZ0Ij4NCjxESVYgREVG
+QU5HRURfc3R5bGU9IlRFWFQtQUxJR046IGxlZnQiPg0KPERJViBERUZBTkdF
+RF9zdHlsZT0iRElSRUNUSU9OOiBsdHIiPg0KPERJViBERUZBTkdFRF9zdHls
+ZT0iRElSRUNUSU9OOiBsdHIiPg0KPERJViBERUZBTkdFRF9zdHlsZT0iRElS
+RUNUSU9OOiBsdHI7IFRFWFQtQUxJR046IGxlZnQiPg0KPERJViBERUZBTkdF
+RF9zdHlsZT0iRElSRUNUSU9OOiBsdHI7IFRFWFQtQUxJR046IGxlZnQiPg0K
+PERJViBERUZBTkdFRF9zdHlsZT0iRElSRUNUSU9OOiBsdHIiPiZuYnNwOzwv
+RElWPkhlbGxvLCA8QlI+PEJSPjwvRElWPg0KPERJViBERUZBTkdFRF9zdHls
+ZT0iRElSRUNUSU9OOiBsdHI7IFRFWFQtQUxJR046IGxlZnQiPkknbSBsb29r
+aW5nIGZvciBhbiBNU1RQKE11bHRpcGxlIFNwYW5uaW5nIFRyZWUgUHJvdG9j
+b2wpIGltcGxlbWVudGF0aW9uLCA8QlI+SSdsbCZuYnNwO2dyZWF0bHkgYXBw
+cmVjaWF0ZSBhbnkgaGVscC9saW5rJm5ic3A7YW55b25lIGNhbiBnaXZlIG1l
+LiAoQy9DKysgc291cmNlIGNvZGUpPEJSPjxCUj5UaGFua3MgYSBsb3QsPEJS
+PiZuYnNwOzxCUj5JY2E8QlI+PEJSPjwvRElWPjwvRElWPjwvRElWPjwvRElW
+PjwvRElWPjwvRElWPjwvRElWPjwvRElWPjwvRElWPjwvQk9EWT48aHI+PGRp
+diBERUZBTkdFRF9zdHlsZT0iYmFja2dyb3VuZC1jb2xvcjp3aGl0ZTtjb2xv
+cjpibGFjazsiPldhbGxhISBNYWlsIC0gPGEgaHJlZj0iaHR0cDovL3d3dy53
+YWxsYS5jby5pbCIgREVGQU5HRURfc3R5bGU9ImNvbG9yOmJsdWUiPmdldCB5
+b3VyIGZyZWUgM0cgbWFpbCB0b2RheTwvYT48L2Rpdj4A
 
-This confirm that the packets didn't get through the NAT-POSTROUTING chain.
-So, why ?
+------------=_1130408235-1090-497--
 
-Thanks
-- Michel
+--------=_EREZ_P_WallaMail_46959_8934_P_0--
