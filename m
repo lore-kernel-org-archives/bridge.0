@@ -1,8 +1,9 @@
-Message-ID: <000e01c5c59a$497f92a0$6502a8c0@tim>
+Message-ID: <001701c5de02$7f634440$6502a8c0@tim>
 From: "Tim Keupen" <timbub@uni-koblenz.de>
+Date: Mon, 31 Oct 2005 11:04:32 +0100
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000B_01C5C5AB.0AB5E720"
+	boundary="----=_NextPart_000_0014_01C5DE0A.DF570AF0"
 Subject: [Bridge] device eth0 is already a member of a bridge;
 	can't enslave it to bridge Net6
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
@@ -13,12 +14,11 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Mon, 31 Oct 2005 09:39:50 -0000
 To: bridge@lists.osdl.org
 
 This is a multi-part message in MIME format...
 
-------=_NextPart_000_000B_01C5C5AB.0AB5E720
+------=_NextPart_000_0014_01C5DE0A.DF570AF0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -65,7 +65,7 @@ UML2   /
 
 Thanks for your help
 Tim Keupen
-------=_NextPart_000_000B_01C5C5AB.0AB5E720
+------=_NextPart_000_0014_01C5DE0A.DF570AF0
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -149,4 +149,4 @@ size=3D2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
 <DIV><FONT face=3DArial size=3D2>Thanks for your help</FONT></DIV>
 <DIV><FONT face=3DArial size=3D2>Tim Keupen</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_000B_01C5C5AB.0AB5E720--
+------=_NextPart_000_0014_01C5DE0A.DF570AF0--
