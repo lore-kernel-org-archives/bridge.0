@@ -1,15 +1,9 @@
-Date: Mon, 31 Oct 2005 10:51:20 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] device eth0 is already a member of a bridge;
-	can'tenslave it to bridge Net6
-Message-ID: <20051031105120.103dd809@dxpl.pdx.osdl.net>
-In-Reply-To: <003c01c5de4a$ee95fb80$6502a8c0@tim>
-References: <001701c5de02$7f634440$6502a8c0@tim>
-	<20051031094106.7294520d@dxpl.pdx.osdl.net>
-	<003c01c5de4a$ee95fb80$6502a8c0@tim>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <20051102162444.60029.qmail@web32815.mail.mud.yahoo.com>
+Date: Wed, 2 Nov 2005 08:24:44 -0800 (PST)
+From: jess patel <indian214soni@yahoo.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-649150180-1130948684=:58583"
+Subject: [Bridge] bridge-util
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,32 +12,33 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Tim Keupen <timbub@uni-koblenz.de>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-On Mon, 31 Oct 2005 19:43:01 +0100
-"Tim Keupen" <timbub@uni-koblenz.de> wrote:
+This is a multi-part message in MIME format...
 
-> > Have you looked at umlsim
-> no, problem has to be solved with vnuml
-> 
->    >> Is this a bug or a feature? Why is it not allowed to bind an Interface 
-> to two different bridges?
->    >> Is there a workaround for this issue?
-> > There was no good reason to allow it, I guess. Also, I would worry about 
-> > races on deleting
-> > a bridge and the RCU issues.
-> But what should be a reasen not to allow it?
+--0-649150180-1130948684=:58583
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-Because it the input path hook how bridge's get data would
-cause increased stack depth (if it even worked).
+I was looking into how to install bridge-util on linux once it is downloaded.
+ 
+--p
 
-> What du you mean with races and RCU issues?
-Look at how interfaces are removed from bridges, and the
-code that notifies a bridge about interface changes. It would
-probably break as well.
+		
+---------------------------------
+ Yahoo! FareChase - Search multiple travel sites in one click.  
+--0-649150180-1130948684=:58583
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
+<DIV>I was looking into how to install bridge-util on linux once it is downloaded.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>--p</DIV><p>
+		<hr size=1> <a href="http://us.lrd.yahoo.com/_ylc=X3oDMTFqODRtdXQ4BF9TAzMyOTc1MDIEX3MDOTY2ODgxNjkEcG9zAzEEc2VjA21haWwtZm9vdGVyBHNsawNmYw--/SIG=110oav78o/**http%3a//farechase.yahoo.com/">Yahoo! FareChase - Search multiple travel sites in one click.</a>
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+ 
+
+ 
+--0-649150180-1130948684=:58583--
