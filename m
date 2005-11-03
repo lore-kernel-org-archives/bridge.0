@@ -1,9 +1,10 @@
-Message-ID: <20051102162444.60029.qmail@web32815.mail.mud.yahoo.com>
-Date: Wed, 2 Nov 2005 08:24:44 -0800 (PST)
-From: jess patel <indian214soni@yahoo.com>
+Message-ID: <30be90270511031416u205882b4tcdc769f1ec203a77@mail.gmail.com>
+Date: Thu, 3 Nov 2005 17:16:45 -0500
+From: Hai Wang <u2.ireland@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-649150180-1130948684=:58583"
-Subject: [Bridge] bridge-util
+Content-Type: multipart/alternative;
+	boundary="----=_Part_3561_27495203.1131056205290"
+Subject: [Bridge] Bridge question
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,33 +13,58 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
 This is a multi-part message in MIME format...
 
---0-649150180-1130948684=:58583
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+------=_Part_3561_27495203.1131056205290
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-I was looking into how to install bridge-util on linux once it is downloaded.
- 
---p
+Hello,
 
-		
----------------------------------
- Yahoo! FareChase - Search multiple travel sites in one click.  
---0-649150180-1130948684=:58583
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+ Do you know why it is impossible to add more than #254 interfaces on a
+bridge, why we need such a limit, how it can be exceeded?
+
+  Thanks!
+
+ Regards!
+
+------=_Part_3561_27495203.1131056205290
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-<DIV>I was looking into how to install bridge-util on linux once it is downloaded.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>--p</DIV><p>
-		<hr size=1> <a href="http://us.lrd.yahoo.com/_ylc=X3oDMTFqODRtdXQ4BF9TAzMyOTc1MDIEX3MDOTY2ODgxNjkEcG9zAzEEc2VjA21haWwtZm9vdGVyBHNsawNmYw--/SIG=110oav78o/**http%3a//farechase.yahoo.com/">Yahoo! FareChase - Search multiple travel sites in one click.</a>
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">Hello,</span></font></p>
 
- 
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
 
- 
---0-649150180-1130948684=:58583--
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">&nbsp;&nbsp;&nbsp;&nbsp; Do you k=
+now why it is=20
+impossible to add more than #254 interfaces on a bridge, why we need such a=
+=20
+limit, how it can be exceeded?</span></font></p>
+
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
+
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
+
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">Thanks!</span></font></p>
+
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
+
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">Regards!</span></font></p>
+
+<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
+=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
+
+------=_Part_3561_27495203.1131056205290--
