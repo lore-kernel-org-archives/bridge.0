@@ -1,10 +1,12 @@
-Message-ID: <30be90270511031416u205882b4tcdc769f1ec203a77@mail.gmail.com>
-Date: Thu, 3 Nov 2005 17:16:45 -0500
-From: Hai Wang <u2.ireland@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_3561_27495203.1131056205290"
-Subject: [Bridge] Bridge question
+Date: Thu, 3 Nov 2005 15:00:34 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] bridge-util
+Message-ID: <20051103150034.0da54a1a@dxpl.pdx.osdl.net>
+In-Reply-To: <20051102162444.60029.qmail@web32815.mail.mud.yahoo.com>
+References: <20051102162444.60029.qmail@web32815.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,56 +17,24 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+On Wed, 2 Nov 2005 08:24:44 -0800 (PST)
+jess patel <indian214soni@yahoo.com> wrote:
 
-------=_Part_3561_27495203.1131056205290
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> I was looking into how to install bridge-util on linux once it is downloaded.
+>  
+> --p
+> 
+> 		
+> ---------------------------------
+>  Yahoo! FareChase - Search multiple travel sites in one click.  
 
-Hello,
+Usual open source package build method:
+ $ cd bridge-utils-1.0.6
+ $ ./configure
+ $ make
 
- Do you know why it is impossible to add more than #254 interfaces on a
-bridge, why we need such a limit, how it can be exceeded?
+ $ sudo make install
 
-  Thanks!
-
- Regards!
-
-------=_Part_3561_27495203.1131056205290
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">Hello,</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">&nbsp;&nbsp;&nbsp;&nbsp; Do you k=
-now why it is=20
-impossible to add more than #254 interfaces on a bridge, why we need such a=
-=20
-limit, how it can be exceeded?</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">Thanks!</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">Regards!</span></font></p>
-
-<p class=3D"MsoNormal"><font face=3D"Arial" size=3D"2"><span DEFANGED_style=
-=3D"font-size: 10pt; font-family: Arial;">&nbsp;</span></font></p>
-
-------=_Part_3561_27495203.1131056205290--
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger
