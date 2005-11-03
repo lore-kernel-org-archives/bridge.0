@@ -1,9 +1,9 @@
-Date: Thu, 3 Nov 2005 15:00:34 -0800
+Date: Thu, 3 Nov 2005 15:05:55 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] bridge-util
-Message-ID: <20051103150034.0da54a1a@dxpl.pdx.osdl.net>
-In-Reply-To: <20051102162444.60029.qmail@web32815.mail.mud.yahoo.com>
-References: <20051102162444.60029.qmail@web32815.mail.mud.yahoo.com>
+Subject: Re: [Bridge] Bridge question
+Message-ID: <20051103150555.21ad7228@dxpl.pdx.osdl.net>
+In-Reply-To: <30be90270511031416u205882b4tcdc769f1ec203a77@mail.gmail.com>
+References: <30be90270511031416u205882b4tcdc769f1ec203a77@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,25 +15,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Hai Wang <u2.ireland@gmail.com>
+Cc: bridge@lists.osdl.org
 
-On Wed, 2 Nov 2005 08:24:44 -0800 (PST)
-jess patel <indian214soni@yahoo.com> wrote:
+On Thu, 3 Nov 2005 17:16:45 -0500
+Hai Wang <u2.ireland@gmail.com> wrote:
 
-> I was looking into how to install bridge-util on linux once it is downloaded.
->  
-> --p
+> Hello,
 > 
-> 		
-> ---------------------------------
->  Yahoo! FareChase - Search multiple travel sites in one click.  
+>  Do you know why it is impossible to add more than #254 interfaces on a
+> bridge, why we need such a limit, how it can be exceeded?
+> 
+>   Thanks!
+> 
+>  Regards!
 
-Usual open source package build method:
- $ cd bridge-utils-1.0.6
- $ ./configure
- $ make
-
- $ sudo make install
+You can have up 1023 interfaces with 2.6.  I didn't want to change the 2.4
+code, only critical bug fixes get backported.
 
 -- 
 Stephen Hemminger <shemminger@osdl.org>
