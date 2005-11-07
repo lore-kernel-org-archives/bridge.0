@@ -1,10 +1,10 @@
-Message-ID: <436FB61C.7030406@berlin.de>
-Date: Mon, 07 Nov 2005 21:16:28 +0100
-From: Michael Bueker <m.bueker@berlin.de>
+Message-ID: <30be90270511071302vbcad09fl148b5e742ae489b9@mail.gmail.com>
+Date: Mon, 7 Nov 2005 16:02:41 -0500
+From: Hai Wang <u2.ireland@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Simple list of tun devices?
+Content-Type: multipart/alternative;
+	boundary="----=_Part_4305_9421096.1131397361889"
+Subject: [Bridge] Backport
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,20 +15,34 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hello,
+This is a multi-part message in MIME format...
 
-I'm using acustom script to bring up and take down my bridge. For that, 
-I need to know the bridge devices that are currently active for use in a 
-bash for-loop.
-I reckon that I could grep and sed the output of ifconfig or brctl show, 
-but that seems very kludgy to me. The tun* devices do not appear in /dev 
-and neither did a grep in all of /proc return any useful result.
+------=_Part_4305_9421096.1131397361889
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-So, is there a simple way to tell which tun devices are up at any moment?
+Hell everyone,
+  I am wondering if any of you had backported bridge driver to kernel 2.4.x?
+ Thanks!
+ Hai
 
-Cheers,
-~Mik
+------=_Part_4305_9421096.1131397361889
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
--- 
-Was passiert, wenn man einem Therapiepatienten ein asymmetrisches 
-Mandala zum Ausmalen gibt? Wird er dann erst recht wahnsinnig?
+<div>Hell everyone,</div>
+<div>&nbsp;</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I am wondering if any of you had =
+backported bridge driver to kernel 2.4.x?</div>
+<div>&nbsp;</div>
+<div>Thanks!</div>
+<div>&nbsp;</div>
+<div>Hai&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+
+------=_Part_4305_9421096.1131397361889--
