@@ -1,14 +1,10 @@
-In-Reply-To: <20051107103140.3cc54f3f@localhost.localdomain>
-References: <269ECEEB-C04F-45C9-9F16-46ACF4703265@cam.ac.uk>
-	<20051107103140.3cc54f3f@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <E16AB8CD-63E8-4878-A97F-266F8AA8B835@cam.ac.uk>
+Message-ID: <436FB61C.7030406@berlin.de>
+Date: Mon, 07 Nov 2005 21:16:28 +0100
+From: Michael Bueker <m.bueker@berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: James Blackburn <fjb31@cam.ac.uk>
-Subject: Re: [Bridge] <kernel BUG> generated on bridge up/down & other issues
-Date: Mon, 7 Nov 2005 19:45:20 +0000
-Sender: James Blackburn <fjb31@hermes.cam.ac.uk>
+Subject: [Bridge] Simple list of tun devices?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,35 +13,22 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Thanks for the prompt response.
+Hello,
 
->> problem is likely a config issues, but docs appear to be sparse and I
->> can't find much reference to the problem/solution on the 'net; trial
->> and error really isn't working...
-> Has this been logged in Ubuntu bug tracker. It would help.
+I'm using acustom script to bring up and take down my bridge. For that, 
+I need to know the bridge devices that are currently active for use in a 
+bash for-loop.
+I reckon that I could grep and sed the output of ifconfig or brctl show, 
+but that seems very kludgy to me. The tun* devices do not appear in /dev 
+and neither did a grep in all of /proc return any useful result.
 
-The vtun package is currently unsupported by ubuntu and taken from  
-the debian universe.  There's currently a bug (#148808) in the debian  
-bug system on vtun's terse documentation.
+So, is there a simple way to tell which tun devices are up at any moment?
 
-> Yes, most likely brctl is sending request to vtun
-> and it is crashing.
+Cheers,
+~Mik
 
-vtun or brctl?  Surely vtun is just connected to the tap0 interface  
-and brctl sets up the kernel to bridge between that and eth1?  I  
-suppose it only crashes on vtun restart because one (or more) of the  
-up/down lines are ordered incorrectly.  Is it valid to remove/add  
-interfaces in this order?  Would it be valid to just have tap0  
-sitting there with IP 0.0.0.0 and the bridge set up statically?  Is  
-there any reason why on initial connection setup brctly show shows  
-"can't get port info: Function not implemented", but on restart it  
-shows the interfaces correctly?
-
-Sorry for the many questions, just trying to work out how this all  
-fits together.  Thanks again for your quick response.
-
-James
-
+-- 
+Was passiert, wenn man einem Therapiepatienten ein asymmetrisches 
+Mandala zum Ausmalen gibt? Wird er dann erst recht wahnsinnig?
