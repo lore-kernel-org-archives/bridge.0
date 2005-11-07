@@ -1,9 +1,9 @@
-Date: Mon, 7 Nov 2005 13:17:28 -0800
+Date: Mon, 7 Nov 2005 13:18:36 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Simple list of tun devices?
-Message-ID: <20051107131728.571d1107@dxpl.pdx.osdl.net>
-In-Reply-To: <436FB61C.7030406@berlin.de>
-References: <436FB61C.7030406@berlin.de>
+Subject: Re: [Bridge] Backport
+Message-ID: <20051107131836.3ce41eb0@dxpl.pdx.osdl.net>
+In-Reply-To: <30be90270511071302vbcad09fl148b5e742ae489b9@mail.gmail.com>
+References: <30be90270511071302vbcad09fl148b5e742ae489b9@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,27 +15,19 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Michael Bueker <m.bueker@berlin.de>
+To: Hai Wang <u2.ireland@gmail.com>
 Cc: bridge@lists.osdl.org
 
-On Mon, 07 Nov 2005 21:16:28 +0100
-Michael Bueker <m.bueker@berlin.de> wrote:
+On Mon, 7 Nov 2005 16:02:41 -0500
+Hai Wang <u2.ireland@gmail.com> wrote:
 
-> Hello,
-> 
-> I'm using acustom script to bring up and take down my bridge. For that, 
-> I need to know the bridge devices that are currently active for use in a 
-> bash for-loop.
-> I reckon that I could grep and sed the output of ifconfig or brctl show, 
-> but that seems very kludgy to me. The tun* devices do not appear in /dev 
-> and neither did a grep in all of /proc return any useful result.
-> 
-> So, is there a simple way to tell which tun devices are up at any moment?
-> 
-> Cheers,
-> ~Mik
+> Hell everyone,
+>   I am wondering if any of you had backported bridge driver to kernel 2.4.x?
+>  Thanks!
+>  Hai
 
-you could look at /sys/class/net/*/brport
+There already is a bridge driver in 2.4 but it is older.
+The 2.6 code relies on RCU, which is not in 2.4.
 
 
 -- 
