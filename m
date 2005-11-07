@@ -1,12 +1,11 @@
-Date: Fri, 4 Nov 2005 12:36:55 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge Up takes 30s - any remedy?
-Message-ID: <20051104123655.7975e927@dxpl.pdx.osdl.net>
-In-Reply-To: <436BBFC4.2030606@berlin.de>
-References: <436BBFC4.2030606@berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0 (Apple Message framework v746.2)
 Content-Transfer-Encoding: 7bit
+Message-Id: <269ECEEB-C04F-45C9-9F16-46ACF4703265@cam.ac.uk>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+From: James Blackburn <fjb31@cam.ac.uk>
+Date: Mon, 7 Nov 2005 18:07:37 +0000
+Sender: James Blackburn <fjb31@hermes.cam.ac.uk>
+Subject: [Bridge] <kernel BUG> generated on bridge up/down & other issues
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,50 +14,81 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Michael Bueker <m.bueker@berlin.de>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Fri, 04 Nov 2005 21:08:36 +0100
-Michael Bueker <m.bueker@berlin.de> wrote:
+Hi,
 
-> Hi,
-> 
-> In order to be able to use qemu's bridged networking without taking my
-> network down, I set up my primary network (eth0) to work through a
-> bridge (br0) right from boot, so that later on the virtual machines can
-> just connect to the bridge and talk to the outside.
-> 
-> The downside is that it now takes 30s for the network to acquire an IP
-> from my DHCP server, whereas before, when using only eth0, it took about 3s.
-> 
-> I've collected the messages that bridge prints out in the kernel, and
-> I'm hoping that you find something I can do about it - maybe specify
-> some parameters so there's no need for bridge to go trial and error.
-> 
-> Anyways, here's the log (I didn't know if the RPC messages were related,
-> so I left them in):
-> 
-> > Nov  4 19:29:55 terra kernel: ACPI: PCI Interrupt 0000:02:01.0[A] -> Link [L3CM] -> GSI 11 (level, low) -> IRQ 11
-> > Nov  4 19:29:56 terra kernel: eth0: Setting promiscuous mode.
-> > Nov  4 19:29:56 terra kernel: device eth0 entered promiscuous mode
-> > Nov  4 19:29:56 terra kernel: br0: port 1(eth0) entering learning state
-> > Nov  4 19:30:03 terra kernel: RPC: sendmsg returned error 101
-> > Nov  4 19:30:11 terra kernel: br0: topology change detected, propagating
-> > Nov  4 19:30:11 terra kernel: br0: port 1(eth0) entering forwarding state
-> > Nov  4 19:30:16 terra kernel: RPC: sendmsg returned error 101
-> > Fri Nov  4 19:30:24 CET 2005
-> 
-> The last line is from using the command 'dhcpcd br0 && date >>
-> /var/log/messages', so I knew how long it took (which turned out to be 29s).
-> 
-> Any hints are greatly appreciated.
-> 
-> Cheers,
-> ~Mik
+I've been encountering some problems with bridging under linux  
+2.6.12-9 (ubuntu Breezy Badger).  Apologies for the newbie-ish email:  
+problem is likely a config issues, but docs appear to be sparse and I  
+can't find much reference to the problem/solution on the 'net; trial  
+and error really isn't working...
 
-Shorten the forward delay.
+Am attempting to bridge an offsite network to the central network  
+over the internet with vtun (2.6-4).  The configuration I have works  
+intermittently.  vtun seems to work reliably - am using the -p  
+(persist) option to force reconnect on disconnect.  However I have  
+the following problems:
+
+1)    On system startup vtun connects to the server correctly, but  
+the bridge does not come up.  (my vtund.conf attached)
+brctl show - shows the "brookf" bridge, but 'Interfaces' declares:  
+"can't get port info: Function not implemented"
+Restarting vtun with /etc/init.d/vtun restart brings the bridge up  
+correctly. Why is this?  Currently I'm having to restart vtun on  
+system startup to have it function at all.
+
+2)    At the moment if I perform /etc/init.d/vtun restart as often as  
+not there will be a kernel bug dump to the console.  It begins:
+<kernel BUG at <bad filename>:21387!
+	invalid operand: 0000[#1]
+...  Process brctl
+(For some reason it's not being logged to kern.log, but I could  
+attempt to resolve that and get the whole dump if it would be useful...)
+ From then on, ifconfig, hangs the console, as does sudo.  Also  
+restart/halt freezes on putting down the interfaces.  This means  
+that, with the persist option (as up/down are called on every connect/ 
+disconnect), the box quickly becomes unusable.
+
+I've read that there may be issues with IPv6 and kernel support.   
+Although I don't use it, it's enabled by default on this kernel -  
+should this be disabled?
+
+I presume I'm doing something wrong in the vtund.conf.  Should I be  
+creating and removing the bridge here, or should I create the bridge  
+once when the system starts up?  How would vutn interact with the tap  
+interface - should I configure it (eg tap0)  with IP 0.0.0.0 on  
+startup, then specify the interface in vtun and change persist yes; - 
+ > persist keep;?
+
+If anyone can give any suggestions, I would be most grateful!
+
+Many thanks,
+
+James
 
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+   persist yes;
+   type  ether;          # Ethernet tunnel
+   up {
+         program /usr/sbin/brctl "addbr brookf";
+         ifconfig "%% 0.0.0.0";    #i.e. first available tap interface
+         ifconfig "eth1 down";
+         ifconfig "eth1 promisc";
+         program /usr/sbin/brctl "addif brookf %d";
+         program /usr/sbin/brctl "addif brookf eth1";
+         #Bring the bridge up
+         ifconfig "eth1 0.0.0.0";
+         ifconfig "brookf 172.28.22.223 netmask 255.255.255.0";
+   };
+   down {
+         ifconfig "brookf down";
+         ifconfig "%% down";
+         ifconfig "eth1 down";
+
+         # Clear up bridge stuff
+         program /usr/sbin/brctl "delif brookf %%";
+         program /usr/sbin/brctl "delif brookf eth1";
+         program /usr/sbin/brctl "delbr brookf";
+   };
+
