@@ -1,22 +1,10 @@
-Date: Tue, 8 Nov 2005 09:28:11 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridge question
-Message-ID: <20051108092811.52f8694e@localhost.localdomain>
-In-Reply-To: <30be90270511080550i42c62b21webe50c58f16959f1@mail.gmail.com>
-References: <DE026503646E7F40AF97BAB98334333BF0C972@uss-republic.finepoint.com>
-	<30be90270511040955t7362da37m640573ff06c24243@mail.gmail.com>
-	<30be90270511041016i25b04841o18e3fdf6a855d0f7@mail.gmail.com>
-	<30be90270511041046n7b4ef6dalb3a235da6fba37a@mail.gmail.com>
-	<20051104105720.02a93a7e@dxpl.pdx.osdl.net>
-	<30be90270511041108l3c9414afp8526a70130e0f1dd@mail.gmail.com>
-	<20051104113910.322bb270@dxpl.pdx.osdl.net>
-	<30be90270511041214w2be63458s854bd8e51f850d05@mail.gmail.com>
-	<20051104123442.0d12d7ed@dxpl.pdx.osdl.net>
-	<30be90270511041319o2f97b74co83e64b2ca2937968@mail.gmail.com>
-	<30be90270511080550i42c62b21webe50c58f16959f1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <8DA338857B4F404282EE2088005079EA7701EC@eammlex037-nb.lmc.ericsson.se>
+From: "Andre Beliveau (QB/EMC)" <andre.beliveau@ericsson.com>
+Date: Wed, 9 Nov 2005 09:35:54 -0600 
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C5E541.88CBE168"
+Subject: [Bridge] Bridging EAPOL
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -25,38 +13,117 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Hai Wang <u2.ireland@gmail.com>
-Cc: bridge@lists.osdl.org
+To: "'bridge@lists.osdl.org'" <bridge@lists.osdl.org>
 
-On Tue, 8 Nov 2005 08:50:28 -0500
-Hai Wang <u2.ireland@gmail.com> wrote:
+This is a multi-part message in MIME format...
 
-> Hello Stephen,
->   I have two questions for you, please help me.
->   1. Are you aware that kernel panic issue when brtcl managed to remove
-> interfaces on the bridge on RH9 (2.4.X)? it is random, it seems to me that
-> it is racing issue? any fix?
+------_=_NextPart_001_01C5E541.88CBE168
+Content-Type: text/plain
+Content-Disposition: inline
 
-Try 2.4.X latest first. Redhat kernels were a mix of 2.4 and 2.6.
+Hi, 
 
->   2. I went through ChangeLog of kernel, I found
->  -------------------------------------------------------------------------------------------------
-> 
-> *Summary of changes from v2.6.6 to v2.6.7*
-> 
-> shemminger@osdl.org
-> 
->       [BRIDGE]: Allow multiple interfaces with same address (necessary
-> for VLAN's).
-> 
-> -----------------------------------------------------
-> 
-> it seems to me that ethernet bridge allows interfaces with same MACs
-> address only on kernel 2.6.7 or later, right? If I want to backport
-> the feature to kernel 2.4.x, what I should take care?
+I'm trying to bridge a WLAN interface to a Wired interface on a WRTG54GS.
+I'm using openwrt package.
 
-I only fix crashes on 2.4
+I want to let EAPol messages go through the bridge but it does not work.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+EAPOL start message uses as destination mac 01:80:c2:00:00:03.  If I run
+tcpdump on the
+Wireless interface I can see the packet come in.  But it never gets out on
+the network interface.
+
+I wrote a program to listen in promisc. mode and send back the packet toward
+the outgoing interface
+(vlan0) and I can see the packet in tcpdump on vlan0 interface now.
+
+The problem is that even if I see the packet in tcpdump on vlan0 (and I even
+tried to send it to eth0 with
+the same results) I don't see the packet transmitted on the wire.
+
+I am running ethereal on a client pc connected to a lan port and nothing
+shows up on ethereal.
+
+If I change the destination address to another multicast address
+(01:80:c3:00:00:03) instead, the 
+Packet goes through and reaches my client PC and I can see the packet in
+Ethereal.
+
+Question:  What do I have to do to let packets with d-mac 01:80:c2:00:00:03
+through the switch/bridge/firewall/
+
+For you info.  EAP packets have ethertype=0x888e.
+
+Regards, Andre Beliveau
+
+
+
+------_=_NextPart_001_01C5E541.88CBE168
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 5.5.2658.2">
+<TITLE>Bridging EAPOL</TITLE>
+</HEAD>
+<BODY>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">Hi, </FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">I'm trying to bridge a WLAN interface to a=
+ Wired interface on a WRTG54GS.&nbsp; I'm using openwrt package.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">I want to let EAPol messages go through th=
+e bridge but it does not work.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">EAPOL start message uses as destination ma=
+c 01:80:c2:00:00:03.&nbsp; If I run tcpdump on the</FONT>
+<BR><FONT SIZE=3D2 FACE=3D"Arial">Wireless interface I can see the packet c=
+ome in.&nbsp; But it never gets out on the network interface.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">I wrote a program to listen in promisc. mo=
+de and send back the packet toward the outgoing interface</FONT>
+<BR><FONT SIZE=3D2 FACE=3D"Arial">(vlan0) and I can see the packet in tcpdu=
+mp on vlan0 interface now.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">The problem is that even if I see the pack=
+et in tcpdump on vlan0 (and I even tried to send it to eth0 with</FONT>
+<BR><FONT SIZE=3D2 FACE=3D"Arial">the same results) I don't see the packet =
+transmitted on the wire.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">I am running ethereal on a client pc conne=
+cted to a lan port and nothing shows up on ethereal.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">If I change the destination address to ano=
+ther multicast address (01:80:c3:00:00:03) instead, the </FONT>
+<BR><FONT SIZE=3D2 FACE=3D"Arial">Packet goes through and reaches my client=
+ PC and I can see the packet in Ethereal.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">Question:&nbsp; What do I have to do to le=
+t packets with d-mac 01:80:c2:00:00:03 through the switch/bridge/firewall/<=
+/FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">For you info.&nbsp; EAP packets have ether=
+type=3D0x888e.</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">Regards, Andre Beliveau</FONT>
+</P>
+<BR>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01C5E541.88CBE168--
