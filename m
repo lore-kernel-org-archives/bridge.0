@@ -1,10 +1,10 @@
-Message-ID: <8DA338857B4F404282EE2088005079EA7701F0@eammlex037-nb.lmc.ericsson.se>
-From: "Andre Beliveau (QB/EMC)" <andre.beliveau@ericsson.com>
-Subject: RE: [Bridge] Bridging EAPOL
-Date: Wed, 9 Nov 2005 13:32:36 -0600 
+Message-ID: <4372D918.3050209@bway.net>
+Date: Thu, 10 Nov 2005 05:22:32 +0000
+From: "Ryan B. Lynch" <rlynch@bway.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C5E563.EA581EB6"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] 'dhcpcd' fails when run on wireless-wired bridge device
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,114 +13,71 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: 'Stephen Hemminger' <shemminger@osdl.org>
-Cc: "'bridge@lists.osdl.org'" <bridge@lists.osdl.org>
+To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Hi,
 
-------_=_NextPart_001_01C5E563.EA581EB6
-Content-Type: text/plain
-Content-Disposition: inline
+I'm experiencing a DHCP client failure when running 'dhcpcd' on the
+bridge interface itself.  Here are the basics:
 
-Hi, 
- I had gotten that far also.  What I was going to try now was enable
-ebtables and see if I can force packet to go through with some clever
-filter.
+"eth0" is ordinary, wired ethernet
+"eth1" is a wireless 802.11b/g device (ipw2200 driver)
 
-Do you think it would work?
+There is a working DHCP server on the wireless network, which has been
+tested and works when trying to run 'dhcpcd' on the wireless device
+itself.  At the beginning, everthing is "down" with no IP addresses
+assigned.  I bring up the bridge and add the devices in this order:
 
-/AB
+    > ip link set eth0 up
+    > ip link set eth1 up
+    > iwconfig eth1 essid "my_essid"
+    > iwconfig eth1 key "my_key"
 
-> -----Original Message-----
-> From: Stephen Hemminger [mailto:shemminger@osdl.org] 
-> Sent: Wednesday, November 09, 2005 2:02 PM
-> To: Andre Beliveau (QB/EMC)
-> Cc: 'bridge@lists.osdl.org'
-> Subject: Re: [Bridge] Bridging EAPOL
-> 
-> This is what is trapping your frames.
-> 
-> br_input.c:br_handle_frame
-> 	if (p->br->stp_enabled &&
-> 	    !memcmp(dest, bridge_ula, 5) &&
-> 	    !(dest[5] & 0xF0)) {
-> 
-> I didn't write it (Lennert did), and wouldn't change it 
-> without finding the relevant place in the standard.  I 
-> looked, and the 802.1d standard is kind of obtuse about 
-> multicast addresses. They often write these standards as 
-> spec's with yet another spec on how to map the standard to 
-> real LAN's...
-> 
-> 
-> --
-> Stephen Hemminger <shemminger@osdl.org>
-> OSDL http://developer.osdl.org/~shemminger
-> 
+    > (pause to let the wireless client associate)
 
-------_=_NextPart_001_01C5E563.EA581EB6
-Content-Type: text/html
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+    > brctl addbr br0
+    > brctl addif br0 eth0
+    > brctl addif br0 eth1
+    > ip link set br0 up
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 5.5.2658.2">
-<TITLE>RE: [Bridge] Bridging EAPOL</TITLE>
-</HEAD>
-<BODY>
+Now, I try to get a DHCP lease for the "br0" device, using 'dhcpcd':
 
-<P><FONT SIZE=3D2>Hi, </FONT>
-<BR><FONT SIZE=3D2>&nbsp;I had gotten that far also.&nbsp; What I was going=
- to try now was enable ebtables and see if I can force packet to go through=
- with some clever filter.</FONT></P>
+    > dhcpcd -C -t 10 -d br0
 
-<P><FONT SIZE=3D2>Do you think it would work?</FONT>
-</P>
+'dhcpcd' times out, never receiving a DHCP response.  The DHCP server
+hears the DHCP request, though, and sends responses back--this is
+confirmed with 'tcpdump' and by looking at the logs on the server.  It
+appears that the client machine is ignoring or missing the DHCP
+responses.  As noted above, this process works perfectly without the
+bridging, when I just bring up "eth1" and run 'dhcpcd' on it--I get a
+DHCP response, no problem.
 
-<P><FONT SIZE=3D2>/AB</FONT>
-</P>
+The system logs on the client appear to agree with this, but I don't
+understand most of what I see:
 
-<P><FONT SIZE=3D2>&gt; -----Original Message-----</FONT>
-<BR><FONT SIZE=3D2>&gt; From: Stephen Hemminger [<A HREF=3D"mailto:shemming=
-er@osdl.org">mailto:shemminger@osdl.org</A>] </FONT>
-<BR><FONT SIZE=3D2>&gt; Sent: Wednesday, November 09, 2005 2:02 PM</FONT>
-<BR><FONT SIZE=3D2>&gt; To: Andre Beliveau (QB/EMC)</FONT>
-<BR><FONT SIZE=3D2>&gt; Cc: 'bridge@lists.osdl.org'</FONT>
-<BR><FONT SIZE=3D2>&gt; Subject: Re: [Bridge] Bridging EAPOL</FONT>
-<BR><FONT SIZE=3D2>&gt; </FONT>
-<BR><FONT SIZE=3D2>&gt; This is what is trapping your frames.</FONT>
-<BR><FONT SIZE=3D2>&gt; </FONT>
-<BR><FONT SIZE=3D2>&gt; br_input.c:br_handle_frame</FONT>
-<BR><FONT SIZE=3D2>&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (p-&gt;br-&gt;stp=
-_enabled &amp;&amp;</FONT>
-<BR><FONT SIZE=3D2>&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; !=
-memcmp(dest, bridge_ula, 5) &amp;&amp;</FONT>
-<BR><FONT SIZE=3D2>&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; !=
-(dest[5] &amp; 0xF0)) {</FONT>
-<BR><FONT SIZE=3D2>&gt; </FONT>
-<BR><FONT SIZE=3D2>&gt; I didn't write it (Lennert did), and wouldn't chang=
-e it </FONT>
-<BR><FONT SIZE=3D2>&gt; without finding the relevant place in the standard.=
-&nbsp; I </FONT>
-<BR><FONT SIZE=3D2>&gt; looked, and the 802.1d standard is kind of obtuse a=
-bout </FONT>
-<BR><FONT SIZE=3D2>&gt; multicast addresses. They often write these standar=
-ds as </FONT>
-<BR><FONT SIZE=3D2>&gt; spec's with yet another spec on how to map the stan=
-dard to </FONT>
-<BR><FONT SIZE=3D2>&gt; real LAN's...</FONT>
-<BR><FONT SIZE=3D2>&gt; </FONT>
-<BR><FONT SIZE=3D2>&gt; </FONT>
-<BR><FONT SIZE=3D2>&gt; --</FONT>
-<BR><FONT SIZE=3D2>&gt; Stephen Hemminger &lt;shemminger@osdl.org&gt;</FONT>
-<BR><FONT SIZE=3D2>&gt; OSDL <A HREF=3D"http://developer.osdl.org/~shemming=
-er" TARGET=3D"_blank">http://developer.osdl.org/~shemminger</A></FONT>
-<BR><FONT SIZE=3D2>&gt; </FONT>
-</P>
+Nov  9 23:58:10 caffeine net.agent[3388]: how do I bring interfaces up
+on this distro?
+Nov  9 23:58:10 caffeine net.agent[3388]: add event not handled
+Nov  9 23:58:10 caffeine kernel: device eth0 entered promiscuous mode
+Nov  9 23:58:10 caffeine kernel: device eth1 entered promiscuous mode
+Nov  9 23:58:11 caffeine kernel: br0: port 2(eth1) entering learning state
+Nov  9 23:58:11 caffeine kernel: eth1: received packet with  own address
+as source address
+Nov  9 23:58:19 caffeine last message repeated 2 times
+Nov  9 23:58:26 caffeine kernel: br0: topology change detected, propagating
+Nov  9 23:58:26 caffeine kernel: br0: port 2(eth1) entering forwarding state
+Nov  9 23:58:30 caffeine dhcpcd[3480]: timed out waiting for a valid
+DHCP server response
 
-</BODY>
-</HTML>
-------_=_NextPart_001_01C5E563.EA581EB6--
+The message "eth1: recieved packet with own address as source address"
+seems like the culprit.  Is my bridge device, or the "eth1" interface
+device, discarding the DHCP responses for some reason?  Why would it do
+that?  Is this an expected behavior with bridges and DHCP clients?
+
+Or is there something else I'm missing?
+
+Thanks for taking the time to consider my problem--I'm just at a loss as
+to what's happening.
+
+Thanks,
+Ryan B. Lynch
