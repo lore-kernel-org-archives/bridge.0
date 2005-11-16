@@ -1,11 +1,12 @@
-Message-ID: <30be90270511141352o305e13bfn99cc3931f620d394@mail.gmail.com>
-Date: Mon, 14 Nov 2005 16:52:13 -0500
-From: Hai Wang <u2.ireland@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Bridge performance issue
+Date: Wed, 16 Nov 2005 09:22:48 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Bridging EAPOL
+Message-ID: <20051116092248.6dcd376c@dxpl.pdx.osdl.net>
+In-Reply-To: <8DA338857B4F404282EE2088005079EA7701EC@eammlex037-nb.lmc.ericsson.se>
+References: <8DA338857B4F404282EE2088005079EA7701EC@eammlex037-nb.lmc.ericsson.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,39 +15,12 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: "Andre Beliveau (QB/EMC)" <andre.beliveau@ericsson.com>
+Cc: "'bridge@lists.osdl.org'" <bridge@lists.osdl.org>
 
-Hello everyone,
+IMHO reading the standard. It looks like the EAPOL shouldn't be
+forwarded because it is intended for link level protection.  What would
+happen if there were two wireless interfaces in the same bridge?
 
-
-    I encountered a performance issue regarding bridge, please let me
-know your thoughts:
-
-
-        I am doing the stress test against bridge with two scenarios
-
-        I created two br2684 interfaces (nas0 and nas1) on a Linux box
-and create 1 VLAN interfaces (eth0.32) on eth0 and then do the
-followings
-
-       1. Bridge nas0 and eth0.32
-       2. Bridge nas0, nas1 and eth0.32
-
-
-
-Start 100% traffic load on nas0 for scenario 1, no traffic loss Start
-100% traffic load on nas0 and nas1 for scenario 2, 40-50% traffic
-mis-inserted /duplicated.
-
-If I added more nas interfaces to the bridge
-
-# of the mis-inserted/duplicated packets will increase up to 100%
-
-I am on kernel 2.4.31,
-
-Please let me know your thoughts!
-
-Thanks!
-
---
-
+If you want implement something use EAPOL, it should probably
+be done at the 802.11 layer before the bridge module receives it.
