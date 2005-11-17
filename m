@@ -1,12 +1,12 @@
-Date: Wed, 16 Nov 2005 09:22:48 -0800
+Date: Thu, 17 Nov 2005 09:10:10 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridging EAPOL
-Message-ID: <20051116092248.6dcd376c@dxpl.pdx.osdl.net>
-In-Reply-To: <8DA338857B4F404282EE2088005079EA7701EC@eammlex037-nb.lmc.ericsson.se>
-References: <8DA338857B4F404282EE2088005079EA7701EC@eammlex037-nb.lmc.ericsson.se>
+Message-ID: <20051117091010.186d0420@dxpl.pdx.osdl.net>
+In-Reply-To: <47ef310511170301sc3dac74x1a14bd75f8c8bdb6@mail.gmail.com>
+References: <47ef310511170301sc3dac74x1a14bd75f8c8bdb6@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: Linux bridge on linksys WRT54GS running OpenWRT
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,12 +15,42 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Andre Beliveau (QB/EMC)" <andre.beliveau@ericsson.com>
-Cc: "'bridge@lists.osdl.org'" <bridge@lists.osdl.org>
+To: Sebastien Chaumontet <sebastien@chaumontet.net>
+Cc: =?UTF-8?B?TWlja2HDq2w=?= Hoerdt <hoerdt@clarinet.u-strasbg.fr>, bridge@lists.osdl.org, Olaf Menzel <olaf.menzel@fokus.fraunhofer.de>
 
-IMHO reading the standard. It looks like the EAPOL shouldn't be
-forwarded because it is intended for link level protection.  What would
-happen if there were two wireless interfaces in the same bridge?
+On Thu, 17 Nov 2005 12:01:47 +0100
+Sebastien Chaumontet <sebastien@chaumontet.net> wrote:
 
-If you want implement something use EAPOL, it should probably
-be done at the 802.11 layer before the bridge module receives it.
+> Hi all,
+> 
+> Following the this thread opened by Olaf
+> (http://lists.osdl.org/mailman/htdig/bridge/2005-July/001026.html)
+> 
+> We performed some more tests with and without wireless. Latest one was
+> to remove CONFIG_BRIDGE_NETFILTER from kernel option at compilation
+> time on a 2.6.14-rc4. This change solved the problem and the bridge
+> was able to forward correctly MLD packets (IPv6 multicast subscription
+> message).
+> 
+> So the problem seems to be related to etables. Something related to
+> IP/SABOTAGE in br_netfilter.c?
+
+The netfilter interface is really the responsibility of the ebtables
+project. I maintain the hooks for them, but what happens in the filters
+is their doing.
+
+> As specified on the bridge FAQ "The bridge knows nothing about
+> protocols, it only sees Ethernet frames." it should not look at the
+> content of the packet.
+> 
+> Most of performed tests are described on
+> http://dbeacon.innerghost.net/LinuxBridgingMulticast
+> 
+
+If you want put a link on http://linux-net.osdl.org on the bridge page.
+
+
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger
