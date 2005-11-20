@@ -1,12 +1,9 @@
-Message-ID: <47ef310511170301sc3dac74x1a14bd75f8c8bdb6@mail.gmail.com>
-Date: Thu, 17 Nov 2005 12:01:47 +0100
-From: Sebastien Chaumontet <sebastien@chaumontet.net>
-Sender: schaumon@gmail.com
+Sender: seniorr@aracnet.com
+From: seniorr@aracnet.com (Russell S. Senior)
+Message-ID: <s4m1x1bubch.fsf@onyx.spiritone.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Linux bridge on linksys WRT54GS running OpenWRT
+Content-Type: text/plain; charset=us-ascii
+Subject: [Bridge] 802.11 bridging problems
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,32 +12,45 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org, shemminger@osdl.org
-Cc: =?ISO-8859-1?Q?Micka=EBl_Hoerdt?= <hoerdt@clarinet.u-strasbg.fr>, Olaf Menzel <olaf.menzel@fokus.fraunhofer.de>
+Date: Sun, 20 Nov 2005 05:39:29 -0000
+To: bridge@lists.osdl.org
 
-Hi all,
 
-Following the this thread opened by Olaf
-(http://lists.osdl.org/mailman/htdig/bridge/2005-July/001026.html)
+I've got a problem with 802.11 bridging (they radios involved are in
+WDS mode).  Basically the problem is managed (i.e. client) radio
+interfaces that are part of a bridge see their sent packets twice
+(once when they send and again when the master radio rebroadcasts).
+In /var/log/messages I see:
 
-We performed some more tests with and without wireless. Latest one was
-to remove CONFIG_BRIDGE_NETFILTER from kernel option at compilation
-time on a 2.6.14-rc4. This change solved the problem and the bridge
-was able to forward correctly MLD packets (IPv6 multicast subscription
-message).
+  ath0: received packet with  own address as source address
 
-So the problem seems to be related to etables. Something related to
-IP/SABOTAGE in br_netfilter.c?
+It appears that perhaps these packets are confusing the bridge about
+which MAC lives on which port and results in a failure to deliver
+packets in the correct direction.  For example:
 
-As specified on the bridge FAQ "The bridge knows nothing about
-protocols, it only sees Ethernet frames." it should not look at the
-content of the packet.
+    A            B            C              D
+ bridge:      bridge:      bridge:        host:
+   eth0         eth0         eth0 --------- eth1
+   ath0(cl)     ath0(ma)     ath0(cl)
 
-Most of performed tests are described on
-http://dbeacon.innerghost.net/LinuxBridgingMulticast
+Pings from D to A disappear in the ICMP reply direction when they get
+to C.  They appear there but never show up at D.  Likewise, pings from
+A to D disappear in the ICMP request direction when they get to C, and
+never appear at D.  I say never, but actually they do sometimes, about
+2% of the time.  Pings from D to B and vice versa are fine.  Even
+pings from D to other hosts hanging off of B's eth0 are fine.
 
-Thanks
-Regards
+I'd like to figure out if I can somehow disregard the rebroadcasts or
+at least not let them booger the bridge tables, if that's what they
+are
+doing.
 
-S=E9bastien
+Ideas how to better diagnose the problem are welcome.
+
+Thanks!
+
+
+-- 
+Russell Senior         ``I have nine fingers; you have ten.''
+seniorr@aracnet.com
 
