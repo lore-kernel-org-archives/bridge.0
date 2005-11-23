@@ -1,9 +1,11 @@
-Sender: seniorr@aracnet.com
-From: seniorr@aracnet.com (Russell S. Senior)
-Message-ID: <s4m1x1bubch.fsf@onyx.spiritone.com>
+Message-ID: <4e85b8310511230910p44aa27b8uab8f1a2f9fa6388f@mail.gmail.com>
+Date: Wed, 23 Nov 2005 09:10:56 -0800
+From: Bob Snyder <oceansidebob@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Subject: [Bridge] 802.11 bridging problems
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Long delays through bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -12,45 +14,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-Date: Sun, 20 Nov 2005 05:39:29 -0000
-To: bridge@lists.osdl.org
+To: Bridge@lists.osdl.org
 
+Hello,
 
-I've got a problem with 802.11 bridging (they radios involved are in
-WDS mode).  Basically the problem is managed (i.e. client) radio
-interfaces that are part of a bridge see their sent packets twice
-(once when they send and again when the master radio rebroadcasts).
-In /var/log/messages I see:
+I have built a data link system (i.e. microwave radio) with bridges at
+both ends of the link (sort of back-to-back). The data link boxes have
+highly asymetrical RS-422 serial interfaces which are interfaced to
+the bridges with dscc4/hdlc/syncppp modules. Also, the bridges each
+have one regular ethernet port. The intention is to have the ethernet
+at one end appear to be connected to the ethernet at the other end.
+Also, one end is usually connected to a busy lan with lots of
+broadcast traffic. The bridges are running on 266 MHz Pentiums with no
+other load.
 
-  ath0: received packet with  own address as source address
+The system works in general, but sometimes there are very long and
+erratic delay times (up to  several seconds) when pinging through the
+link. If the radio link is brought up before the bridges are started,
+things seem to work well (ping times of ~10-15 ms). The problem seems
+to occur if the bridges are started before the radio link is brought
+up. Once the problem appears it will persist until the bridge is
+restarted.
 
-It appears that perhaps these packets are confusing the bridge about
-which MAC lives on which port and results in a failure to deliver
-packets in the correct direction.  For example:
+I wondered if the problems is that the MAC table was getting too big.
+I reduced the ageing time from 300 to 30 seconds, and this seemed to
+help (the MAC table got smaller), but the problem persists. Also the
+problem can be seen sometimes when not connected to the lan, so maybe
+I just don't have the bridge configured properly.
 
-    A            B            C              D
- bridge:      bridge:      bridge:        host:
-   eth0         eth0         eth0 --------- eth1
-   ath0(cl)     ath0(ma)     ath0(cl)
+Any help or suggestions appreciated.
 
-Pings from D to A disappear in the ICMP reply direction when they get
-to C.  They appear there but never show up at D.  Likewise, pings from
-A to D disappear in the ICMP request direction when they get to C, and
-never appear at D.  I say never, but actually they do sometimes, about
-2% of the time.  Pings from D to B and vice versa are fine.  Even
-pings from D to other hosts hanging off of B's eth0 are fine.
-
-I'd like to figure out if I can somehow disregard the rebroadcasts or
-at least not let them booger the bridge tables, if that's what they
-are
-doing.
-
-Ideas how to better diagnose the problem are welcome.
-
-Thanks!
-
-
--- 
-Russell Senior         ``I have nine fingers; you have ten.''
-seniorr@aracnet.com
+Bob Snyder
 
