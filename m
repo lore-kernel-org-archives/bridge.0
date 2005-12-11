@@ -1,12 +1,10 @@
-Date: Fri, 9 Dec 2005 09:09:50 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Unable to learn macs on bridge ports
-Message-ID: <20051209090950.09075491@unknown-222.office.pdx.osdl.net>
-In-Reply-To: <43992197.5010902@innomedia.soft.net>
-References: <43992197.5010902@innomedia.soft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <439BDC54.30008@phreaker.net>
+Date: Sun, 11 Dec 2005 15:59:16 +0800
+From: ro0ot <ro0ot@phreaker.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridging Firewall with Kernel 2.6 failed
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,35 +13,21 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: kanhu <kanhu@innomedia.soft.net>
-Cc: bridge@lists.osdl.org
+To: netfilter@lists.netfilter.org, bridge@lists.osdl.org
 
-On Fri, 09 Dec 2005 11:47:59 +0530
-kanhu <kanhu@innomedia.soft.net> wrote:
+Hi all,
 
-> Hi list,
-> 
-> I am using bridge-utils with uClinux having kernel-2.4.19.
-> All the commands with brctl is working fine except the showmacs.
-> when i execute the command
-> 
-> />brctl showmacs test
-> 
-> bridge name     bridge id               STP enabled     interfaces
-> 
-> It does not show any learned mac, So the bride(test) is not functioning 
-> properly for unicast packets.
-> Bridging option is already enabled in kernel.
-> 
-> Any help to proceed is welcome
-> 
-> With Thanks & Regards
->              Kanhu
+I have a bridging firewall running fine with kernel 2.4.31 (Slackware 
+10.1) and iptables 1.2.11
+
+Yesterday I install the new kernel 2.6.14.3 and iptables 1.3.4 but the 
+bridging firewall doesn't work anymore.
+
+Do I need to patch the kernel 2.6 as what I did it for kernel 2.4? Or 
+what I have missed?
+
+Regards,
+ro0ot
 
 
-What architecture? and are perhaps bridge-utils thought it had sysfs
-support in the build, but it 2.4.19 doesn't have that.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
