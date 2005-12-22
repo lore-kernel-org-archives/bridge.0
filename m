@@ -1,14 +1,10 @@
-Date: Wed, 21 Dec 2005 19:51:07 -0800 (PST)
-Message-Id: <20051221.195107.113618698.davem@davemloft.net>
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051221132527.1ef12bcf@dxpl.pdx.osdl.net>
-References: <20051221195527.GA24213@localhost.localdomain>
-	<20051221132527.1ef12bcf@dxpl.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] BRIDGE: Fix faulty check in
- br_stp_recalculate_bridge_id()
+Message-ID: <20051222223423.35638.qmail@web35609.mail.mud.yahoo.com>
+Date: Thu, 22 Dec 2005 14:34:23 -0800 (PST)
+From: Ady Deac <adydeac@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] htb accounting on bridge interface
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,39 +13,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@osdl.org
-Cc: mikukkon@iki.fi, bridge@osdl.org, linux-kernel@vger.kernel.org
+To: bridge@lists.osdl.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Wed, 21 Dec 2005 13:25:27 -0800
+Hi!
 
-> On Wed, 21 Dec 2005 21:55:27 +0200
-> mikukkon@iki.fi wrote:
-> 
-> > I did a compile with extra gcc warnings, and found a bug in
-> > net/bridge/br_stp_if.c function br_stp_recalculate_bridge_id():
-> > compare_ether_addr() returns 0 if match, positive if not, so
-> > checking it for negative is wrong. 
-> > 
-> > Signed-of-by: Mika Kukkonen <mikukkon@iki.fi>
- ...
-> > diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-> > index ac09b6a..08c52c2 100644
-> > --- a/net/bridge/br_stp_if.c
-> > +++ b/net/bridge/br_stp_if.c
-> > @@ -158,7 +158,7 @@ void br_stp_recalculate_bridge_id(struct
-> >  
-> >  	list_for_each_entry(p, &br->port_list, list) {
-> >  		if (addr == br_mac_zero ||
-> > -		    compare_ether_addr(p->dev->dev_addr, addr) < 0)
-> > +		    compare_ether_addr(p->dev->dev_addr, addr))
-> >  			addr = p->dev->dev_addr;
-> >  
-> >  	}
-> 
-> Actually that compare_ether_addr needs to be replaced by memcmp again.
-> Because for bridge id calc it wants the min() of all the device addresses.
+I am using a linux bridge as an internet gateway. I have eth0 as the external interface, eth1 and
+tap0 (OpenVPN) bridged together (br0). I was trying to make a seamless accounting for br0 with tc
+and htb (hand made scripts). The accounting is not working for br0, instead I have to make
+accounting on eth1 and tap0.
+Is this the right way? I only want to limit the trafic between eth1 and eth0 + viceversa and tap0
+and eth + viceversa.
 
-I'll hold on this patch until that is worked out.
+Thanks in advance,
+Ady Deac
 
-Thanks.
+
+	
+		
+__________________________________ 
+Yahoo! for Good - Make a difference this year. 
+http://brand.yahoo.com/cybergivingweek2005/
