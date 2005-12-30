@@ -1,10 +1,13 @@
-Message-ID: <20051230173928.99908.qmail@web33513.mail.mud.yahoo.com>
-Date: Fri, 30 Dec 2005 09:39:28 -0800 (PST)
-From: Jeff Sadowski <jeff_sadowski@yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] trouble shooting?
+Date: Fri, 30 Dec 2005 09:47:30 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] eth0- can't enslave to br0,	but eth0 is down and not
+	part of a bridge!
+Message-ID: <20051230094730.14498125@localhost.localdomain>
+In-Reply-To: <dbf855d00512300011t6c4c445w2109458b1c036083@mail.gmail.com>
+References: <dbf855d00512300011t6c4c445w2109458b1c036083@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,95 +16,51 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org, madwifi-users@lists.sourceforge.net
+To: wandering.womble@gmail.com
+Cc: bridge@lists.osdl.org
 
-Ok here is what I know so far.
+On Fri, 30 Dec 2005 00:11:33 -0800
+<wandering.womble@gmail.com> wrote:
 
-I am bridging an openvpn tap0 device with a eth0
-ethernet device.
-Works just fine.
-here is how I do that
+> Hi there-
+> 
+> perhaps I'm missing something obvious, but the subject summerizes what
+> I get everytime when I try the following:
+> 
+> eth0 is up and running, as bought up by booting.
+> 
+> $ ifconfig eth0 down
+> $ brctl show
+> -> empty list, no bridges
+> $ brctl addbr br0
+> $ brctl show
+> -> shows br0, no enslaved devices
+> $ brctl addif br0 eth0
+> -> Device eth0 is already a member of a bridge: can't enslave it to bridge br0.
+> $ brctl addif br0 tap0
+> -> ok
+> $ brctl show
+> -> lists br0, with tap0 as interface
+> 
+> What am I doing wrong?
+> 
+> Or is this not the expected behaviour- and if not, any suggestions for
+> how to fix it?
+> 
+> Note: I'm also getting kernel panics (see my previous post), but I've
+> found the above ordering at least doesn't take the system down.
+> 
+> Further note: eth0 is using the sis900 driver, loaded as a module.
+> 
+> Any help greatly appreciated- this is a real annoyance.
+> 
+> Thanks in advance-
+> 
+> Julian
 
-ifconfig eth0 up promisc 0.0.0.0
-ifconfig tap0 up promisc 0.0.0.0
-brctl addbr br0
-brctl addif br0 eth0
-brctl addif br0 tap0
-dhclient br0
-
-and then any machine that connects to the tap0 device
-can also get a
-dhcp ipaddress through the bridge.
-
-ok that all said and done that all works great now for
-the tricky part
-I want to change the ethernet device to a wireless
-ethernet device.
-
-I am using the madwifi-ng drivers and try to keep them
-up to date.
-I think I got it working some of the times and only
-times I was bridging
-through wired ethernet first. then I would add
-wireless and remove the
-wired from the bridge. But receintly I havn't even
-gotten this to work
-the madwifi-ng drivers supposidly allow for seemless
-bridging and should
-allow this to work. If anyone has some experience with
-this I'd like some
-help.
-
-this is what I tried
-
-ifconfig wifi0 up promisc 0.0.0.0
-wlanconfig ath0 create wlandev wifi0
-iwpriv ath0 wds 1
-ifconfig ath0 up promisc 0.0.0.0
-wpa_supplicant -Bw -Dmadwifi -iath0
--c/etc/wpa_supplicant.conf
-ifconfig tap0 up promisc 0.0.0.0
-
-then I check till im connected using
-wpa_cli -i ath0 status
-to check
-
-then I start the bridge
-brctl addbr br0
-brctl addif br0 ath0
-brctl addif br0 tap0
-dhclient br0
-(which gets an address)
-
-but all my openvpn clients cannot get an ipaddress
-I'm not sure why. If there are some trouble shooting
-steps
-I'd like to know how to begin. I have tried sniffing
-ath0
-using ethereal.
-
-When using ethereal I see dhcp requests from the
-openvpn clients
-but no replys.
-
-I'm filtering of the mac address of the openvpn
-clients tap device
-Its as though madwifi-ng drivers aren't really in
-promisc mode
-but when I check with ifconfig it still says promisc
-
-Does anyone have any further things I can try to
-trouble shoot what
-is going wrong?
-
-Thanks
-
-Jeff Sadowski
-
-
-
-	
-		
-__________________________________ 
-Yahoo! for Good - Make a difference this year. 
-http://brand.yahoo.com/cybergivingweek2005/
+Need to know. Kernel version, and what kind of device eth0 is.
+I suspect there is a build problem or module mismatch, since the test
+for a device being member of a bridge is just a check for pointer in
+device structure.  If you built bridge separately, and kernel was not configured
+to enable bridging, then the bridge pointer in the net device structure would not
+have existed and would be used for something elese.
