@@ -1,12 +1,15 @@
-Date: Tue, 3 Jan 2006 09:51:53 -0800
+Date: Tue, 3 Jan 2006 10:41:57 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] mac address
-Message-ID: <20060103095153.0f9a63ba@dxpl.pdx.osdl.net>
-In-Reply-To: <20051230182527.14448.qmail@web33501.mail.mud.yahoo.com>
-References: <20051230182527.14448.qmail@web33501.mail.mud.yahoo.com>
+Message-ID: <20060103104157.1512f5fa@dxpl.pdx.osdl.net>
+In-Reply-To: <20051221.195107.113618698.davem@davemloft.net>
+References: <20051221195527.GA24213@localhost.localdomain>
+	<20051221132527.1ef12bcf@dxpl.pdx.osdl.net>
+	<20051221.195107.113618698.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] BRIDGE: Fix faulty check in
+	br_stp_recalculate_bridge_id()
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,20 +18,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jeff Sadowski <jeff_sadowski@yahoo.com>
-Cc: bridge@lists.osdl.org
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mikukkon@iki.fi, bridge@osdl.org, linux-kernel@vger.kernel.org
 
-On Fri, 30 Dec 2005 10:25:27 -0800 (PST)
-Jeff Sadowski <jeff_sadowski@yahoo.com> wrote:
+One of the conversions from memcmp to compare_ether_addr is incorrect.
+We need to do relative comparison to determine min MAC address to
+use in bridge id. 
 
-> is there a way to set the mac address of a bridge?
-Not till 2.6.16.  In 2.6.16 mac address of bridge can be set with
-ifconfig (or other tools) to any of the enslaved device address
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-> How is the mac address determined on a bridge?
-The minimum of all the mac addresses of all the enslaved devices.
-This is part of the STP code. Related to assigning bridge id.
-
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+--- linux-2.6.15.orig/net/bridge/br_stp_if.c
++++ linux-2.6.15/net/bridge/br_stp_if.c
+@@ -158,7 +158,7 @@ void br_stp_recalculate_bridge_id(struct
+ 
+ 	list_for_each_entry(p, &br->port_list, list) {
+ 		if (addr == br_mac_zero ||
+-		    compare_ether_addr(p->dev->dev_addr, addr) < 0)
++		    memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
+ 			addr = p->dev->dev_addr;
+ 
+ 	}
