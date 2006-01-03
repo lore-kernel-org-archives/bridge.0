@@ -1,11 +1,12 @@
-Message-ID: <dbf855d00512302312n6029bd75i3690666c77e26f06@mail.gmail.com>
-Date: Fri, 30 Dec 2005 23:12:54 -0800
-From: <wandering.womble@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] definite bridging bug in sis 900 driver for kernel 2.6.14
+Date: Tue, 3 Jan 2006 09:51:53 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] mac address
+Message-ID: <20060103095153.0f9a63ba@dxpl.pdx.osdl.net>
+In-Reply-To: <20051230182527.14448.qmail@web33501.mail.mud.yahoo.com>
+References: <20051230182527.14448.qmail@web33501.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,20 +15,20 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Jeff Sadowski <jeff_sadowski@yahoo.com>
+Cc: bridge@lists.osdl.org
 
-Hi there-
-continuing the saga of kernel panics, I threw a spare pci ethernet
-card ('tulip' driver), and can now successfully add the new eth1 to a
-bridge, and so far it hasn't taken out the kernel ;-).
+On Fri, 30 Dec 2005 10:25:27 -0800 (PST)
+Jeff Sadowski <jeff_sadowski@yahoo.com> wrote:
 
-This is on the same kernel & module compile, so I don't think I have a
-build problem with the sis 900 module as someone suggested.
+> is there a way to set the mac address of a bridge?
+Not till 2.6.16.  In 2.6.16 mac address of bridge can be set with
+ifconfig (or other tools) to any of the enslaved device address
 
-So it looks like the sis 900 kernel module is broken for bridging.  If
-anyone is willing to take a look at this, I'm happy to try patches and
-re-test.
+> How is the mac address determined on a bridge?
+The minimum of all the mac addresses of all the enslaved devices.
+This is part of the STP code. Related to assigning bridge id.
 
-Regards
-
-Julian
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger
