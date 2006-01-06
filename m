@@ -1,10 +1,12 @@
-Date: Fri, 6 Jan 2006 09:20:25 +0800
-From: "Haisen.Zhang" <zhs@cybertan.com.cn>
+Date: Fri, 6 Jan 2006 09:53:05 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] Re: Re: a problem about brctl
+Message-ID: <20060106095305.6dfa5d09@dxpl.pdx.osdl.net>
+In-Reply-To: <OA939893907741.15789@receive16.inner-21cn.com>
+References: <OA939893907741.15789@receive16.inner-21cn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Message-ID: <OA939893907741.15789@receive16.inner-21cn.com>
-Content-Transfer-Encoding: base64
-Subject: [Bridge] Re: Re: a problem about brctl
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,65 +15,21 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
+To: "Haisen.Zhang" <zhs@cybertan.com.cn>
 Cc: "bridge@osdl.org" <bridge@osdl.org>
 
-U3RlcGhlbiBIZW1taW5nZXIsCgkKCglZZXMsSSB1c2UgVjIuNC4xNy4KCVdoaWNoIHBhdGNoIGNh
-biBJIHVzZT8KCU9yIGNhbiB5b3UgdGVsbCBtZSB0aGUgcmVhc29uLHNvIHRoYXQgaSBjYW4gbW9k
-aWZ5IG15IEtlcm5lbC5JIHVzZSB0aGlzIGtlcm5lbCBhdCAgdGhlIGVtYmVkZWQgc3lzdGVtLgoK
-PkhhaXNlbi5aaGFuZyB3cm90ZToKPgo+PnNoZW1taW5nZXKjrAo+Pgo+PiAgICBJIGhhdmUgYSBw
-cm9ibGVtIHdpdGggYnJjdGwgYXBwbGljYXRpb24sZm9sbG93aW5nIGlzIG15IG9wZXJhdGlvbnM6
-Cj4+CQo+Pgl2Y29uZmlnIGFkZCBldGgwIDMKPj4KPj4JYnJjdGwgYWRkYnIgIGJyMAo+PgkKPj4J
-YnJjdGwgYWRkYnIgIGJyMQo+Pgo+PglicmN0bCBhZGRpZiBicjAgZXRoMC4zCj4+CQo+PglicmN0
-bCBkZWxpZiBicjAgZXRoMC4zCj4+Cj4+CWJyY3RsIGFkZGlmIGJyMSBldGgwLjMKPj4KPj6hoSAg
-YnJjdGwgZGVsaWYgYnIwIGV0aDAuMwo+Pgo+PglicmN0bCBkZWxpZiBicjAgZXRoMC4zCj4+Cj4+
-CUF0IGxhc3Rlc3Qgb3BlcmF0aW9uLEkgZGVsaWYgZXRoMC4zIGZyb20gYnIwIHNldmVyYWwgdGlt
-ZXMsYW5kIHRoZSBzeXN0ZW0gd2lsbCBjcmFjayBkb3duLCBhbmQgdGhlIGZvbGxvd2luZyBpbmZv
-bWF0aW9uIHdpbGwgZGlzcGxheSBhdCBjb25zb2xlOgo+PiMgYnJjdGwgZGVsaWYgYnIwIGV0aDAu
-Mwo+Pnpoc2RlYnVnOiAgbWFpbigpIGxpbmUgNjAuLi4uCj4+PDQ+emhzX2RlYnVnOmJyX2lvY3Rs
-X2RldmljZWxlc3Nfc3R1YigpIGxpbmUgMzE0IAo+Pjw0PmJyX2lvY3RsX2RldmljZWxlc3MoKSBz
-dGFydCxhcmcwPTB4MDAwMDAwMDAsYXJnMT0wLi4uCj4+PDQ+emhzX2RlYnVnOmJyX2lvY3RsX2Rl
-dmljZWxlc3Nfc3R1YigpIGxpbmUgMzE2IAo+Pjw0Pnpoc19kZWJ1Zzpicl9pb2N0bF9kZXZpY2Vs
-ZXNzX3N0dWIoKSBsaW5lIDMxNCAKPj48ND5icl9pb2N0bF9kZXZpY2VsZXNzKCkgc3RhcnQsYXJn
-MD0weDdmZmY3ZDY4LGFyZzE9MzIuLi4KPj48ND56aHNfZGVidWc6YnJfaW9jdGxfZGV2aWNlbGVz
-cygpIGxpbmUgMjY2IAo+Pjw0Pnpoc19kZWJ1Zzpicl9nZXRfYnJpZGdlX2lmaW5kaWNlcygpIGxp
-bmUgMjcwIAo+Pjw0Pnpoc19kZWJ1Zzpicl9nZXRfYnJpZGdlX2lmaW5kaWNlcygpIGxpbmUgMjgw
-IAo+Pjw0PmJyX2dldF9icmlkZ2VfaWZpbmRpY2VzKCkgcmV0dXJuIDIuLi4uCj4+PDQ+YnJfaW9j
-dGxfZGV2aWNlbGVzcygpIGdldCBhcmcxPTIuLi4KPj48ND50b1VzZXI6MEQgMDAgMDAgMDAgIDBB
-IDAwIDAwIDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgLi4uLi4uLi4KPj48ND56aHNfZGVi
-dWc6YnJfaW9jdGxfZGV2aWNlbGVzcygpIGxpbmUgMjc1IAo+Pjw0Pnpoc19kZWJ1Zzpicl9pb2N0
-bF9kZXZpY2VsZXNzX3N0dWIoKSBsaW5lIDMxNiAKPj5Pb3BzIGluIGZhdWx0LmM6ZG9fcGFnZV9m
-YXVsdCwgbGluZSAyMDQ6Cj4+JDAgOiAwMDAwMDAwMCAxMDAwZmMwMCAwMDAwMDJkMCAwMDAwMDBi
-NCA5NTY2ZTAwMCA5NDFlM2QzNCA5NWFhZThjMCAwMDAwMDAwMAo+PiQ4IDogMDAwMDAwMDAgMDAw
-MDAwMDAgOTU1ZjM4MzIgMDAwMDAwMDAgOTQyMjk1NGEgZmZmZmZmZjkgOTU1ZjM3ZWEgZmZmZmZm
-ZmYKPj4kMTY6IDk0MWUzZDM0IDk0MWUzY2VjIDk1YmM1ODAwIDk1NWYzOWIwIDAwMDAwMDA3IDdm
-ZmY3OTMwIDk1YmM1ODAwIDAwNDU2M2IwCj4+JDI0OiAwMDAwMDAwYSAwMDAwMDAwMiAgICAgICAg
-ICAgICAgICAgICA5NTVmMjAwMCA5NTVmMzkyOCA3ZmZmNzhiMCA5NDE4MWQzOAo+PkhpIDogMDAw
-MDAwMDAKPj5MbyA6IDAwMDAwMDAwCj4+ZXBjICA6IDk0MTgxZDUwICAgIE5vdCB0YWludGVkCj4+
-U3RhdHVzOiAxMDAwZmMwMwo+PkNhdXNlIDogMTA4MDAwMDgKPj5Qcm9jZXNzIGJyY3RsIChwaWQ6
-IDM0NSwgc3RhY2twYWdlPTk1NWYyMDAwKQo+PlN0YWNrOiA5NDFlM2NlYyA5NDFlM2QzNCAwMDAw
-MDEyMSAwMDAwMDAwMCA5NTVmMzliMCA3ZmZmN2QyZiA5NWJjNTgwMCA3ZmZmNzkzMAo+PiAgICAg
-ICA5NDE4MjZkYyA5NDE4MjRjNCA5NDFlM2ZlYyA5NDFlNDAwOCAwMDAwMDAzOSAwMDAwMDAwMCAw
-ZTAwMDA4MCBmZjQ0YWEwYQo+PiAgICAgICAwZTAwMDA4MCBmZjQ0YWEwYSAwMDAwMDAwMCAwMDAw
-MDI1OCAwMDAwMDBjOCAwMDAwMDE5MCAwMDAwMDI1OCAwMDAwMDBjOAo+PiAgICAgICAwMDAwMDE5
-MCAwMDAwMDAwMCAwMDAwNzUzMCAwMDAwMDE5MCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAw
-MDAwMDAwMAo+PiAgICAgICAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAw
-MDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMAo+PiAgICAgICAwMDAwMDAwMCAuLi4KPj5D
-YWxsIFRyYWNlOiBbPDk0MWUzY2VjPl0gWzw5NDFlM2QzND5dIFs8OTQxODI2ZGM+XSBbPDk0MTgy
-NGM0Pl0gWzw5NDFlM2ZlYz5dIFs8OTQxZTQwMDg+XQo+PiBbPDk0MDM1MjIwPl0gWzw5NDAyZGFl
-OD5dIFs8OTQxZTQwMDQ+XSBbPDk0MWU0MTAwPl0gWzw5NDFlM2ZlYz5dIFs8OTQxZTQxMDA+XQo+
-PiBbPDk0MWUzZmVjPl0gWzw5NDE4MmY3ND5dIFs8OTQxODJmMzg+XSBbPDk0MWUzZmVjPl0gWzw5
-NDFlNDEwMD5dIFs8OTQxODAyODg+XQo+PiBbPDk0MGQ3ZjA4Pl0gWzw5NDBkZjljOD5dIFs8OTQw
-ZGQ2MDg+XSBbPDk0MDczZDRjPl0gWzw5NDBkZmNlND5dIFs8OTQwNzRkMzQ+XQo+PiBbPDk0MTJm
-OWIwPl0gWzw5NDA1Y2U4ND5dIFs8OTQwZDVjNzA+XSBbPDk0MDZjZDY4Pl0gWzw5NDA2Y2Q3ND5d
-IFs8OTQwNWI3ZDA+XQo+PiBbPDk0MDJkYWU4Pl0KPj4KPj5Db2RlOiA4Y2MyMDAwYyAgOGNjMzAw
-MDggIDAwMDIxMDgwIDw4YzY0MDAzYz4gMDA1MzEwMjEgIGFjNDQwMDAwICA4Y2M2MDAwMCAgNTRj
-MGZmZjkgIDhjYzIwMDBjIAo+PlNlZ21lbnRhdGlvbiBmYXVsdAo+PgkJCQo+Pgo+Pgl3aHk/IGNh
-biB5b3UgaGVscCBtZT8KPj4JVGhhbmsgeW91IHZlcnkgbXVjaC4KPj4gCQkJCQo+Pgo+PqGhoaGh
-oaGhoaGhoaGhoaFIYWlzZW4uWmhhbmcKPj6hoaGhoaGhoaGhoaGhoaGhemhzQGN5YmVydGFuLmNv
-bS5jbgo+PqGhoaGhoaGhoaGhoaGhoaGhoaGhMjAwNi0wMS0wNQo+PiAgCj4+Cj5XaGljaCBrZXJu
-ZWwgdmVyc2lvbiBhcmUgeW91IHVzaW5nPyBBIGJ1ZyBsaWtlIHRoYXQgZXhpc3RlZCBpbiBlYXJs
-aWVyIDIuNAo+dmVyc2lvbnMuCj4KCj0gPSA9ID0gPSA9ID0gPSA9ID0gPSA9ID0gPSA9ID0gPSA9
-ID0gPQoJCQkKCiAKCQkJCSAKoaGhoaGhoaGhoaGhoaGhoUhhaXNlbi5aaGFuZwqhoaGhoaGhoaGh
-oaGhoaGhemhzQGN5YmVydGFuLmNvbS5jbgqhoaGhoaGhoaGhoaGhoaGhoaGhoTIwMDYtMDEtMDYK
-Cgo=
+On Fri, 6 Jan 2006 09:20:25 +0800
+"Haisen.Zhang" <zhs@cybertan.com.cn> wrote:
+
+> Stephen Hemminger,
+> 	
+> 
+> 	Yes,I use V2.4.17.
+> 	Which patch can I use?
+> 	Or can you tell me the reason,so that i can modify my Kernel.I use this kernel at  the embeded system.
+
+I don't keep track of patches for older kernels.
+There were a number of fixes for bridging that went into 2.4 in the last year.
+If you are using a vendor kernel, see if they picked up some of the fixes.
+If you are building your own kernel, I recommend the latest from kernel.org (2.4.32).
+The 2.4 kernel is in maintenance only mode at this point.
