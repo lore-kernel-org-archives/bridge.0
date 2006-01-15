@@ -1,10 +1,10 @@
-Message-ID: <20060115174355.90128.qmail@web33513.mail.mud.yahoo.com>
-Date: Sun, 15 Jan 2006 09:43:55 -0800 (PST)
-From: Jeff Sadowski <jeff_sadowski@yahoo.com>
+Date: Sun, 15 Jan 2006 20:22:14 +0100
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Message-ID: <20060115192213.GA12659@pul.manty.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] setting the hardware address
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] bridge-utils and sysfsutils version 2.0.0
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,36 +13,21 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-reading through the changelogs for 2.6.15-git11 I
-found
+Hi!
 
-    [BRIDGE]: allow setting hardware address of bridge
-pseudo-dev
-    
-    Some people are using bridging to hide multiple
-machines from an ISP
-    that restricts by MAC address. So in that case
-allow the bridge mac
-    address to be set to any of the existing
-interfaces.  I don't want to
-    allow any arbitrary value and confuse STP.
+I have not read about any work on this on the list till now, I was wondering
+if somebody had worked out this, as it seems that bridge-utils need a little
+work to get adapted to the new libsysfs version.
 
-How would an arbitrary value confuse STP?
-I think I know what STP(Spanning Tree Protocal) is.
-Isn't it what determins which switch to go to next if
-a mac isn't found on the local switch?
-In which case I might want to change the mac
-specifically for this purpose.
-I was more wanting to change the mac for the purpose
-of it having its own
-mac address so it gets a different ip from dhcp. Thats
-why I asked the question before. That and for testing
-purposes. Changing the mac to an arbitrary value would
-be extreamly usefull for testing purposes.
+What happens with bridge-utils version 1.0.6 is that if you try to compile
+them against version 2.0.0 they detect the libsysfs headers but then don't
+find the sysfs_open_directory function as this seems to be removed in the
+new api, so bridge-utils gets built without sysfs support.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Anybody working on this or any plans to work on it?
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
