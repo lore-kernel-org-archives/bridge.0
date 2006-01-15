@@ -1,10 +1,10 @@
-Date: Mon, 9 Jan 2006 09:06:33 +0800
-From: "Haisen.Zhang" <zhs@cybertan.com.cn>
-Subject: Re: Re: [Bridge] Re: Re: a problem about brctl
-Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Message-ID: <B1939890909177.08503@receive13>
-Content-Transfer-Encoding: base64
+Message-ID: <20060115174355.90128.qmail@web33513.mail.mud.yahoo.com>
+Date: Sun, 15 Jan 2006 09:43:55 -0800 (PST)
+From: Jeff Sadowski <jeff_sadowski@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] setting the hardware address
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,23 +13,36 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "bridge@osdl.org" <bridge@osdl.org>
+To: bridge@lists.osdl.org
 
-U3RlcGhlbiBIZW1taW5nZXIsCiAJVGhhbmsgWW91Lkkgd2lsbCBtb2RpZnkgbXkga2VybmVsIHJl
-ZmVyZW5jaW5nIHRoZSBLZXJuZWwgVjIuNi4KCgkKCj09PT09PT0gPT09PT09PSAgICAgICAgICAg
-ICAgICAgICAgICAgICAKCj5PbiBGcmksIDYgSmFuIDIwMDYgMDk6MjA6MjUgKzA4MDAKPiJIYWlz
-ZW4uWmhhbmciIDx6aHNAY3liZXJ0YW4uY29tLmNuPiB3cm90ZToKPgo+PiBTdGVwaGVuIEhlbW1p
-bmdlciwKPj4gCQo+PiAKPj4gCVllcyxJIHVzZSBWMi40LjE3Lgo+PiAJV2hpY2ggcGF0Y2ggY2Fu
-IEkgdXNlPwo+PiAJT3IgY2FuIHlvdSB0ZWxsIG1lIHRoZSByZWFzb24sc28gdGhhdCBpIGNhbiBt
-b2RpZnkgbXkgS2VybmVsLkkgdXNlIHRoaXMga2VybmVsIGF0ICB0aGUgZW1iZWRlZCBzeXN0ZW0u
-Cj4KPkkgZG9uJ3Qga2VlcCB0cmFjayBvZiBwYXRjaGVzIGZvciBvbGRlciBrZXJuZWxzLgo+VGhl
-cmUgd2VyZSBhIG51bWJlciBvZiBmaXhlcyBmb3IgYnJpZGdpbmcgdGhhdCB3ZW50IGludG8gMi40
-IGluIHRoZSBsYXN0IHllYXIuCj5JZiB5b3UgYXJlIHVzaW5nIGEgdmVuZG9yIGtlcm5lbCwgc2Vl
-IGlmIHRoZXkgcGlja2VkIHVwIHNvbWUgb2YgdGhlIGZpeGVzLgo+SWYgeW91IGFyZSBidWlsZGlu
-ZyB5b3VyIG93biBrZXJuZWwsIEkgcmVjb21tZW5kIHRoZSBsYXRlc3QgZnJvbSBrZXJuZWwub3Jn
-ICgyLjQuMzIpLgo+VGhlIDIuNCBrZXJuZWwgaXMgaW4gbWFpbnRlbmFuY2Ugb25seSBtb2RlIGF0
-IHRoaXMgcG9pbnQuCj4KCj0gPSA9ID0gPSA9ID0gPSA9ID0gPSA9ID0gPSA9ID0gPSA9ID0gPQoJ
-CQkKCqGhoaGhoaGhoaGhoaGhoaHWwgrA8aOhCiAKCQkJCSAKoaGhoaGhoaGhoaGhoaGhoUhhaXNl
-bi5aaGFuZwqhoaGhoaGhoaGhoaGhoaGhemhzQGN5YmVydGFuLmNvbS5jbgqhoaGhoaGhoaGhoaGh
-oaGhoaGhoTIwMDYtMDEtMDkKCgo=
+reading through the changelogs for 2.6.15-git11 I
+found
+
+    [BRIDGE]: allow setting hardware address of bridge
+pseudo-dev
+    
+    Some people are using bridging to hide multiple
+machines from an ISP
+    that restricts by MAC address. So in that case
+allow the bridge mac
+    address to be set to any of the existing
+interfaces.  I don't want to
+    allow any arbitrary value and confuse STP.
+
+How would an arbitrary value confuse STP?
+I think I know what STP(Spanning Tree Protocal) is.
+Isn't it what determins which switch to go to next if
+a mac isn't found on the local switch?
+In which case I might want to change the mac
+specifically for this purpose.
+I was more wanting to change the mac for the purpose
+of it having its own
+mac address so it gets a different ip from dhcp. Thats
+why I asked the question before. That and for testing
+purposes. Changing the mac to an arbitrary value would
+be extreamly usefull for testing purposes.
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
