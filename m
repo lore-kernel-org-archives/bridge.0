@@ -1,12 +1,10 @@
-Message-ID: <43CBC338.9040202@phreaker.net>
-Date: Tue, 17 Jan 2006 00:00:56 +0800
-From: ro0ot <ro0ot@phreaker.net>
+Message-ID: <4bbd421b0601191250o47dba515h64b961a80c658fd4@mail.gmail.com>
+Date: Thu, 19 Jan 2006 14:50:11 -0600
+From: Jason Alpers <jasealpers@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] 1 system with 3 bridges
-References: <43CBB729.9030007@phreaker.net> <43CBC962.9070408@osdl.org>
-In-Reply-To: <43CBC962.9070408@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_Part_1243_745362.1137703811311"
+Subject: [Bridge] Source IP Modified on Broadcast Packet Through Bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,67 +13,66 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-My system specifications is as below: -
+This is a multi-part message in MIME format...
 
-Intel Pentium 4 2.4GHz
-1024MB DDR RAM
+------=_Part_1243_745362.1137703811311
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-eth1 and eth2 is National Semiconductor
-eth3 and eth4 is Realtek 8139
-eth5 and eth6 is Via-Rhine
+I am encountering a problem where the source address on broadcast packets
+seems to be altered to the local IP by the bridge netfilter.  The details on
+the issue are documented here
+http://forums.gentoo.org/viewtopic-t-420158-highlight-.html.  As a
+workaround to this issue, I have disabled the bridge netfilter through the
+proc filesystem with:
 
+echo "0" > /proc/sys/net/bridge/bridge-nf-call-iptables
 
+This workaround stops the source address of the broadcast packets from being
+altered.  However, it also precludes a firewall on the bridge adapter.
+Based on http://lists.osdl.org/pipermail/bridge/2005-January/000804.html, it
+seems that another workaround is to remove the iptable_nat module.
 
-Stephen Hemminger wrote:
+Has this been identified as a bug?
 
-> ro0ot wrote:
->
->> Hi all,
->>
->> I have one bridge system (used for controlling bandwidth) connected 
->> to three different DSL ISP provider.  I have the following setup 
->> below: -
->>
->> +-------------+
->> |   br0             |
->> |   -> eth1       | -> DSL_1
->> |   -> eth2       |
->> +-------------+
->> |   br1             |
->> |   -> eth3       | -> DSL_2
->> |   -> eth4       |
->> +-------------+
->> |   br2             |
->> |   -> eth5       | -> DSL_3
->> |   -> eth6       |
->> +-------------+
->>
->> br0 has eth1 and eth2; br0 has no ip address
->>
->> br1 has eth3 and eth4; br0 has no ip address
->>
->> br2 has eth5 and eth6; br0 has no ip address
->>
->> The traffic of DSL_1 ISP will pass thru br0.  The traffic of DSL_2 
->> ISP will pass thru br1.  The traffic of DSL_3 ISP will pass thru br2.
->>
->> I have a question.  Is it ok I do it as above in 1 system with 3 
->> bridges or separate it to 3 system with each system have their own 
->> bridge?
->>
->> Regards,
->> ro0ot
->>
-> One system with three bridges will work fine. The only advantage of 
-> separate systems would be the increased CPU and bandwidth available. 
-> As long as you are using a fast enough processor and memory, you 
-> should be fine. A normal 32 bit/33 Mhz PCI bus peaks at about 600 
-> Mbits/sec. Double that for 64 bit and double again for 66 Mhz (PCI-X). 
-> PCI-express, not sure yet.
->
->
+As I'm not subscribed to the list, please cc me on response.
 
+Thanks again,
 
+--Jase
 
+------=_Part_1243_745362.1137703811311
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<div>I am encountering a problem where the source address on broadcast pack=
+ets seems to be altered&nbsp;to the&nbsp;local IP&nbsp;by the bridge netfil=
+ter.&nbsp; The details on the issue are documented here <a href=3D"http://f=
+orums.gentoo.org/viewtopic-t-420158-highlight-.html">
+http://forums.gentoo.org/viewtopic-t-420158-highlight-.html</a>.&nbsp; As a=
+ workaround to this issue, I have disabled the bridge netfilter through the=
+ proc filesystem with:</div>
+<div>&nbsp;</div>
+<div>echo &quot;0&quot; &gt; /proc/sys/net/bridge/bridge-nf-call-iptables</=
+div>
+<div>&nbsp;</div>
+<div>This workaround&nbsp;stops the source address of&nbsp;the broadcast pa=
+ckets from being altered.&nbsp; However, it also precludes a firewall on th=
+e bridge adapter.&nbsp; Based on <a href=3D"http://lists.osdl.org/pipermail=
+/bridge/2005-January/000804.html">
+http://lists.osdl.org/pipermail/bridge/2005-January/000804.html</a>, it see=
+ms that another workaround is to remove the iptable_nat module.</div>
+<div>&nbsp;</div>
+<div>Has this been identified as a bug?</div>
+<div>&nbsp;</div>
+<div>As I'm not subscribed to the list,&nbsp;please cc me on response.</div>
+<div>&nbsp;</div>
+<div>Thanks again,</div>
+<div>&nbsp;</div>
+<div>--Jase</div>
+
+------=_Part_1243_745362.1137703811311--
