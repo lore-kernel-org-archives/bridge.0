@@ -1,12 +1,12 @@
-Date: Thu, 19 Jan 2006 20:01:22 -0800
+Date: Tue, 24 Jan 2006 09:21:43 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Bridging multiple tap interfaces
-Message-ID: <20060119200122.68b89183@localhost.localdomain>
-In-Reply-To: <425BE87409B6BA49954C7D375C69F9ED03270833@ms09.mse4.exchange.ms>
-References: <425BE87409B6BA49954C7D375C69F9ED03270833@ms09.mse4.exchange.ms>
+Message-ID: <20060124092143.21ff20eb@dxpl.pdx.osdl.net>
+In-Reply-To: <43D55D37.23391.4DDFB40@spam.atomtrap.com>
+References: <43D55D37.23391.4DDFB40@spam.atomtrap.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: Interface MAC address assignment
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,33 +15,75 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Elangovan, Anush" <anush@fireeye.com>
-Cc: bridge@osdl.org
+To: Ashley Hatch <spam@atomtrap.com>
+Cc: bridge@lists.osdl.org
 
-On Thu, 19 Jan 2006 21:05:01 -0500
-"Elangovan, Anush" <anush@fireeye.com> wrote:
+On Mon, 23 Jan 2006 22:48:23 -0800
+"Ashley Hatch" <spam@atomtrap.com> wrote:
 
-> Is it possible to bridge multiple "tap" interfaces in Linux?
+> - SUMMARY - 
 > 
-> When two tap interfaces are bridged together they are unable to "see"
-> each other but they can bridge to external Ethernet interfaces or the
-> hosts IP attached on the bridge. 
+> It seems like you should be able to assign your MAC on the bridging 
+> interfaces for IP L2 -> L3 mappings, or at least choose which NIC 
+> supplies the MAC.
 > 
-> I saw some mention in the mailing list archives on bridging two user
-> space processes but it didn't seem to have any conclusion. I also
-> noticed some other wireless interfaces and tap interfaces are not able
-> to be bridged. 
+> Since my L2 mapping to my L3 address has nothing to do with my STP 
+> bridge ID, why can't we decouple them and have MAC locking or setting 
+> as an option to BRCTL and the kernel module so that brctl could 
+> prefer a NIC or ifconfig could set it for the purposes of IP?
 > 
-> http://lists.osdl.org/pipermail/bridge/2005-December/001215.html
+> - END SUMMARY -
 > 
+> Presently the system choose the lowest MAC for the purposes of STP 
+> and also assigns this MAC for the purposes of IP. This is fine for 
+> STP but certainly unnecessary for IP. The bridge ID and the IP/MAC do 
+> not need to be the same and in some cases certainly should not be 
+> (unless I'm missing something obvious).
 > 
-> So does the bridging code differentiate between the pseudo-devices
-> before making forwarding decisions?
+> I have looked through the code of brctl and the ethernet bridging 
+> code in the kernel and I have not found a way to resolve the 
+> following issue short of recoding it, and I can't seem to get a 
+> google search to help either.
 > 
-> Thanks
-> Anush
+> When I create a bridging interface doing something like this:
+> 
+> brctl addbr br0
+> brctl addif br0 eth0
+> brctl addif br0 eth1
+> 
+> The resulting MAC address of the interface br0 is the lowest of all 
+> MACs. From an STP standpoint, this makes sense. I am using VMWARE 
+> virtual interfaces on a few machines, and these MACs are lower than 
+> some of my real NICs. They are not unique however. So when I bridge 
+> my virtual net and vmnet I sometimes get non-unique MACs on my real 
+> L2 network and the machines with the non-unique MAC of course cannot 
+> communicate. What I am doing to get around this is assign my REAL NIC 
+> MACs from OUIs which make them lower than the vmnet OUI. That feels 
+> tacky and wrong.
+> 
+> I thought to myself, "I'll just assign BR0 the MAC of my NIC (which 
+> is higher than VMNET2)." Alas 
+> 
+> ifconfig br0 hw ether aa:bb:cc:dd:ee:ff
+> 
+> Gives an ioctl error, and indeed is insupported in the kernel as far 
+> as I can tell. A buddy of mine and I are trying to hack it in, but it 
+> seems like something that should be in the mainline of the kernel.
+> 
+> If noone in briding is willing to support it, will someone consider a 
+> patch to do it?
+> 
+> Thanks,
+> Ashley Hatch
+> Senior Network Engineer - UNLV
 
-It could work now, since each tap should have it's own unique source
-address. But remember anything being bridge has to "look and feel" like
-a standard Ethernet for it to work.  That means broadcast and address
-filtering has to work as well.
+In 2.6.15 or later it can be changed to any of the existing interfaces.
+I allowed that because it won't break the forwarding tables, and only
+slightly effects STP.  (There is a higher risk of STP cycles).
+
+
+
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger
