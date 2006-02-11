@@ -1,12 +1,12 @@
-Date: Thu, 9 Feb 2006 09:18:02 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] Information needed about bridge c code
-Message-ID: <20060209091802.2cb9aa1d@dxpl.pdx.osdl.net>
-In-Reply-To: <34d8b2fe0602010131n884f73bt@mail.gmail.com>
-References: <34d8b2fe0602010131n884f73bt@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Date: Sat, 11 Feb 2006 16:32:35 +0300
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602111632.36093.arvidjaar@mail.ru>
+Subject: [Bridge] [PATCH] [2.6.15.4] Fix has_bridge_parent undefined with
+	CONFIG_NETFILTER_DEBUG
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,45 +15,56 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Louis Croisez <louis.croisez@gmail.com>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: linux-kernel@vger.kernel.org
 
-On Wed, 1 Feb 2006 10:31:07 +0100
-Louis Croisez <louis.croisez@gmail.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hello,
-> i need to write a little personal patch in the bridge code.
-> For this patch, i need to know the original src and dst mac addresses
-> of the packet incoming to the bridge. As i work on a brouter (some
-> packets are bridged, some are routed based on ebtable rules), packets
-> that are routed have their mac addresses modified by the IP stack).
+Apparently introduced in the latest stable set; I am not sure if this is a 
+right fix but given that bridge parent already exists at this point it was 
+rather silly to fetch it again.
 
-At start of br_handle_frame, dst mac address in skb is as received on
-wire. Call sequence is:
+- -regards
 
-netif_receive_skb
-	handle_bridge
-		br_handle_frame
-			
-The skb on the pre-routing chain is actually after brouting but before
-going through bridge forwarding.
+- -andrey
 
-> I put a software probe in br_input.c::br_handle_frame( ), but there,
-> the dst mac address is already replaced by the bridge local mac
-> address.
-> My question is: where must i put the probe to get the original src and
-> dst mac addresses? At the driver level? In the bridge, but where?
-> 
-> Thx in advance.
-> PS: please CC  to louis.croisezATgmail.com, because i am receiving the
-> digest once per day.
-> 
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/bridge
+Subject: [PATCH] [2.6.15.4] Fix has_bridge_parent undefined with 
+CONFIG_NETFILTER_DEBUG
+
+This changes br_nf_post_routing to use realoutdev in debug print. At this
+time it is equal to bridge_parent and is guaranteed to be not NULL.
+
+Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
 
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+- ---
+
+ net/bridge/br_netfilter.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
+
+db15f4ffe50096ba1585cfa344a440626724cfda
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 0770664..37e085b 100644
+- --- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -793,9 +793,7 @@ static unsigned int br_nf_post_routing(u
+ #ifdef CONFIG_NETFILTER_DEBUG
+ print_error:
+ 	if (skb->dev != NULL) {
+- -		printk("[%s]", skb->dev->name);
+- -		if (has_bridge_parent(skb->dev))
+- -			printk("[%s]", bridge_parent(skb->dev)->name);
++		printk("[%s][%s]", skb->dev->name, realoutdev->name);
+ 	}
+ 	printk(" head:%p, raw:%p, data:%p\n", skb->head, skb->mac.raw,
+ 					      skb->data);
+- -- 
+1.1.6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD7edzR6LMutpd94wRAngvAJsGuZqITozDySJ1UOHH2fs9zkoRMACfXT19
+RvWlH+TGksJk+hDU9d2pR+o=
+=yXVz
+-----END PGP SIGNATURE-----
