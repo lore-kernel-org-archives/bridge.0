@@ -1,9 +1,9 @@
-Date: Tue, 14 Feb 2006 17:43:29 -0500 (EST)
+Date: Tue, 14 Feb 2006 18:07:46 -0500 (EST)
 From: Adrian Drzewiecki <z@drze.net>
-Message-ID: <Pine.LNX.4.44.0602141735400.17028-100000@truch.net>
+Message-ID: <Pine.LNX.4.44.0602141806160.17321-100000@truch.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Subject: [Bridge] [PATCH] Fix deadlock in br_stp_disable_bridge
+Subject: [Bridge] [PATCH] Fix deadlock in br_stp_disable_bridge (2nd try)
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,6 +19,9 @@ Looks like somebody forgot to use the _bh spin_lock variant. We ran into a
 deadlock where br->hello_timer expired while br_stp_disable_br() walked 
 br->port_list. Anush can provide you with a test program.
 Patch against 2.6.16-rc3 inlined.
+
+Signed-off-by: Adrian Drzewiecki
+
 
 diff -rup linux-2.6.16-rc3/net/bridge/br_stp_if.c 
 linux-2.6.16-rc3-brfix/net/bridge/br_stp_if.c
@@ -42,5 +45,7 @@ linux-2.6.16-rc3-brfix/net/bridge/br_stp_if.c
 
         del_timer_sync(&br->hello_timer);
         del_timer_sync(&br->topology_change_timer);
+
+
 
 
