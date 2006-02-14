@@ -1,11 +1,9 @@
-Message-ID: <34d8b2fe0602140042q68e4c93eleb7be79c83f6da18@mail.gmail.com>
-Date: Tue, 14 Feb 2006 09:42:32 +0100
-From: Louis Croisez <louis.croisez@gmail.com>
+Date: Tue, 14 Feb 2006 17:43:29 -0500 (EST)
+From: Adrian Drzewiecki <z@drze.net>
+Message-ID: <Pine.LNX.4.44.0602141735400.17028-100000@truch.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Lost TCP packet
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [Bridge] [PATCH] Fix deadlock in br_stp_disable_bridge
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,37 +12,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: shemminger@osdl.org
 
-Hi,
-i am testing two bridges by sending to it random packets using hping2.
-First i create a random-length file, then i send it a lot of time on
-the wire using this command:
-for ($i=0; $i<50000; $i++) {  hping2 -q -c 1 -d $data_len -E
-random.file 10.0.0.10  }
+Looks like somebody forgot to use the _bh spin_lock variant. We ran into a 
+deadlock where br->hello_timer expired while br_stp_disable_br() walked 
+br->port_list. Anush can provide you with a test program.
+Patch against 2.6.16-rc3 inlined.
 
-My problem is that some packets are lost.
-Here is my setup:
-               PC1 (10.0.0.1) ===== BR1 --------- BR2 ===== PC2 (10.0.0.10)
+diff -rup linux-2.6.16-rc3/net/bridge/br_stp_if.c 
+linux-2.6.16-rc3-brfix/net/bridge/br_stp_if.c
+--- linux-2.6.16-rc3/net/bridge/br_stp_if.c     2006-02-12 16:27:25.000000000 -0800
++++ linux-2.6.16-rc3-brfix/net/bridge/br_stp_if.c       2006-02-14 14:33:14.000000000 -0800
+@@ -67,7 +67,7 @@ void br_stp_disable_bridge(struct net_br
+ {
+        struct net_bridge_port *p;
 
-After analysis, i determined that these packets were lost because one
-of the two bridges was in BR_STATE_DISABLED state when the lost packet
-arrived.
-In fact, the packet is thrown by the bridge because, in
-br_input.c::br_handle_frame(), state==BR_STATE_DISABLED which force
-the code to jump to the err: tag at the end of this function.
-The state is set to this value while an event is received inside
-br_notify.c::br_device_event(), which do a br_stp_disable_port().
-After putting some printk in br_notify.c, i remarked that this event
-come regularly, and always related to the same bridge port (eth1).
-It don't hurt me that this event come regularly, but problem is when a
-packet is flowing in the same time thru the bridge, which cause it to
-be lost.
+-       spin_lock(&br->lock);
++       spin_lock_bh(&br->lock);
+        list_for_each_entry(p, &br->port_list, list) {
+                if (p->state != BR_STATE_DISABLED)
+                        br_stp_disable_port(p);
+@@ -76,7 +76,7 @@ void br_stp_disable_bridge(struct net_br
 
-I suspect a wrong bridge configuration from me. What i would like to know is:
--  what do i wrong to get this events fired?
--  what should i do to correct this behavior?
+        br->topology_change = 0;
+        br->topology_change_detected = 0;
+-       spin_unlock(&br->lock);
++       spin_unlock_bh(&br->lock);
 
-Cheers,
-Louis.
+        del_timer_sync(&br->hello_timer);
+        del_timer_sync(&br->topology_change_timer);
+
 
