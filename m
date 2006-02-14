@@ -1,13 +1,11 @@
-Date: Mon, 13 Feb 2006 10:32:23 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-Message-Id: <20060213103223.70f1b9f6.lcapitulino@mandriva.com.br>
-In-Reply-To: <200602111632.36093.arvidjaar@mail.ru>
-References: <200602111632.36093.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] [2.6.15.4] Fix has_bridge_parent undefined with
- CONFIG_NETFILTER_DEBUG
+Message-ID: <34d8b2fe0602140042q68e4c93eleb7be79c83f6da18@mail.gmail.com>
+Date: Tue, 14 Feb 2006 09:42:32 +0100
+From: Louis Croisez <louis.croisez@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Lost TCP packet
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,76 +14,37 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: chrisw@sous-sol.org, apatard@mandriva.com, bridge@osdl.org, linux-kernel@vger.kernel.org
+To: bridge@lists.osdl.org
 
+Hi,
+i am testing two bridges by sending to it random packets using hping2.
+First i create a random-length file, then i send it a lot of time on
+the wire using this command:
+for ($i=0; $i<50000; $i++) {  hping2 -q -c 1 -d $data_len -E
+random.file 10.0.0.10  }
 
- Hi Andrey,
+My problem is that some packets are lost.
+Here is my setup:
+               PC1 (10.0.0.1) ===== BR1 --------- BR2 ===== PC2 (10.0.0.10)
 
-On Sat, 11 Feb 2006 16:32:35 +0300
-Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+After analysis, i determined that these packets were lost because one
+of the two bridges was in BR_STATE_DISABLED state when the lost packet
+arrived.
+In fact, the packet is thrown by the bridge because, in
+br_input.c::br_handle_frame(), state==BR_STATE_DISABLED which force
+the code to jump to the err: tag at the end of this function.
+The state is set to this value while an event is received inside
+br_notify.c::br_device_event(), which do a br_stp_disable_port().
+After putting some printk in br_notify.c, i remarked that this event
+come regularly, and always related to the same bridge port (eth1).
+It don't hurt me that this event come regularly, but problem is when a
+packet is flowing in the same time thru the bridge, which cause it to
+be lost.
 
-| -----BEGIN PGP SIGNED MESSAGE-----
-| Hash: SHA1
-| 
-| Apparently introduced in the latest stable set; I am not sure if this is a 
-| right fix but given that bridge parent already exists at this point it was 
-| rather silly to fetch it again.
+I suspect a wrong bridge configuration from me. What i would like to know is:
+-  what do i wrong to get this events fired?
+-  what should i do to correct this behavior?
 
- There is a fix in Linus's tree already: 3c791925da0e6108cda15e3c2c7bfaebcd9ab9cf
+Cheers,
+Louis.
 
- (pointed out by Arnaud Patard)
-
-| 
-| - -regards
-| 
-| - -andrey
-| 
-| Subject: [PATCH] [2.6.15.4] Fix has_bridge_parent undefined with 
-| CONFIG_NETFILTER_DEBUG
-| 
-| This changes br_nf_post_routing to use realoutdev in debug print. At this
-| time it is equal to bridge_parent and is guaranteed to be not NULL.
-| 
-| Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
-| 
-| 
-| - ---
-| 
-|  net/bridge/br_netfilter.c |    4 +---
-|  1 files changed, 1 insertions(+), 3 deletions(-)
-| 
-| db15f4ffe50096ba1585cfa344a440626724cfda
-| diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-| index 0770664..37e085b 100644
-| - --- a/net/bridge/br_netfilter.c
-| +++ b/net/bridge/br_netfilter.c
-| @@ -793,9 +793,7 @@ static unsigned int br_nf_post_routing(u
-|  #ifdef CONFIG_NETFILTER_DEBUG
-|  print_error:
-|  	if (skb->dev != NULL) {
-| - -		printk("[%s]", skb->dev->name);
-| - -		if (has_bridge_parent(skb->dev))
-| - -			printk("[%s]", bridge_parent(skb->dev)->name);
-| +		printk("[%s][%s]", skb->dev->name, realoutdev->name);
-|  	}
-|  	printk(" head:%p, raw:%p, data:%p\n", skb->head, skb->mac.raw,
-|  					      skb->data);
-| - -- 
-| 1.1.6
-| -----BEGIN PGP SIGNATURE-----
-| Version: GnuPG v1.4.2 (GNU/Linux)
-| 
-| iD8DBQFD7edzR6LMutpd94wRAngvAJsGuZqITozDySJ1UOHH2fs9zkoRMACfXT19
-| RvWlH+TGksJk+hDU9d2pR+o=
-| =yXVz
-| -----END PGP SIGNATURE-----
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-
-
--- 
-Luiz Fernando N. Capitulino
