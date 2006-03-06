@@ -1,6 +1,6 @@
 From: Eriberto <eriberto@eriberto.pro.br>
-Date: Mon, 06 Mar 2006 14:34:13 -0300
-Message-ID: <duhrsj$o2j$20@sea.gmane.org>
+Date: Mon, 06 Mar 2006 13:09:59 -0300
+Message-ID: <duhmuk$4t3$3@sea.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
 Content-Transfer-Encoding: quoted-printable
@@ -32,14 +32,18 @@ address. So, HLBR is invisible to attackers. Traffic filtering
 Version 1.0 can use regular expressions to filter the packets. Below
 is an example of rule with regular expressions:
 
-(please see http://hlbr.sourceforge.net/hlbr-rule-1.gif)
+<rule>
+ip dst(email)
+tcp dst(25)
+tcp regex(filename=3D"[^\n]+\.scr")
+message=3D(mailvirus-1-re) .scr attach
+action=3Dvirus
+</rule>
 
 In short, all TCP traffic destined to port 25 of the e-mail server
 will be filtered. If the text:
 
-filename=3D"anything_different_of_line_breaks.s__c__r"
-
-(please ignore underlines in s__c__r)
+filename=3D"anything_different_of_line_breaks.scr"
 
 is found inside the packet, that means there are an attachment .scr in
 the e-mail (virus). So this packet will suffer the action named 'virus'.
@@ -47,7 +51,13 @@ This action logs the event, dumps the malicious traffic in tcpdump
 format and drops the packet. Below is an example of rule against a type
 of buffer overflow attempt against DNS servers:
 
-(please see http://hlbr.sourceforge.net/hlbr-rule-2.gif)
+<rule>
+ip dst(dns)
+udp dst(53)
+udp nocase(|41cd 80c7 062f 6269 6ec7 4604 2f73 6800  89f0 83c0 0889 4608|)
+message=3D(dnsattacks-1) tsl bind attack
+action=3Daction1
+</rule>
 
 In this case, due to the use of pipe characters (|), HLBR will check
 the traffic for the hexadecimal sequence given as an attack signature.
