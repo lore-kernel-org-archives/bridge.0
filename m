@@ -1,12 +1,11 @@
-Message-ID: <441D6E5D.50905@artcom.pl>
-Date: Sun, 19 Mar 2006 15:44:45 +0100
-From: =?UTF-8?B?UGF3ZcWCIFN0YXN6ZXdza2k=?= <pstaszewski@artcom.pl>
+From: =?utf-8?Q?Ferm=C3=ADn_Gal=C3=A1n_M=C3=A1rquez?= <fermin.galan@cttc.es>
+Date: Wed, 22 Mar 2006 09:50:23 +0100
+Message-ID: <HIEIIOOHBDMEDPLIJKEFGELACAAA.fermin.galan@cttc.es>
 MIME-Version: 1.0
-References: <200603162000.k2GK06Db004082@smtp.osdl.org>
-In-Reply-To: <200603162000.k2GK06Db004082@smtp.osdl.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <441D6E5D.50905@artcom.pl>
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Re: Bridge Digest, Vol 31, Issue 6
+Subject: [Bridge] RE: Bridge Digest, Vol 31, Issue 6
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,7 +14,31 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org, fermin.galan@cttc.es
+To: Pawel Staszewski <pstaszewski@artcom.pl>, bridge@lists.osdl.org
+
+Dear Pawel,
+
+We have been discussing the issue recently in the VLAN mailing list (http://www.lanforge.com/pipermail/vlan/2006-March/000618.html) and, finally, the problem seemed related with hardware VLAN acceleration in the network card driver (e1000).
+
+Anyway, thanks for your interest! :)
+
+Best regards,
+
+--------------------
+Fermn Gal n Mrquez
+CTTC - Centre Tecnol gic de Telecomunicacions de Catalunya
+Parc Mediterrani de la Tecnologia, Av. del Canal Olmpic s/n, 08860 Castelldefels, Spain
+Room 1.02
+Tel : +34 93 645 29 12 
+Fax : +34 93 645 29 01
+Email address: fermin.galan@cttc.es 
+
+-----Mensaje original-----
+De: Pawel Staszewski [mailto:pstaszewski@artcom.pl]
+Enviado el: domingo, 19 de marzo de 2006 15:45
+Para: bridge@lists.osdl.org; fermin.galan@cttc.es
+Asunto: Re: Bridge Digest, Vol 31, Issue 6
+
 
 Hello
 
@@ -117,43 +140,5 @@ bridge-request@lists.osdl.org wrote:
 >Tel : +34 93 645 29 12
 >Fax : +34 93 645 29 01
 >Email address: fermin.galan@cttc.es
->
->
->------------------------------
->
->_______________________________________________
->Bridge mailing list
->Bridge@lists.osdl.org
->https://lists.osdl.org/mailman/listinfo/bridge
->
->
->End of Bridge Digest, Vol 31, Issue 6
->*************************************
->  
->
->------------------------------------------------------------------------
->
->Spam detection software, running on the system "fire-2.osdl.org", has
->identified this incoming email as possible spam.  The original message
->has been attached to this so you can view it (if it isn't spam) or block
->similar future email.  If you have any questions, see
->the administrator of that system for details.
->
->Content preview:  Send Bridge mailing list submissions to
->  bridge@lists.osdl.org To subscribe or unsubscribe via the World Wide
->  Web, visit https://lists.osdl.org/mailman/listinfo/bridge or, via
->  email, send a message with subject or body 'help' to
->  bridge-request@lists.osdl.org [...] 
->
->Content analysis details:   (6.3 points, 5.0 required)
->
-> pts rule name              description
->---- ---------------------- --------------------------------------------------
-> 1.5 DATE_MISSING           Missing Date: header
-> 1.1 NO_REAL_NAME           From: does not include a real name
-> 3.7 MSGID_FROM_MTA_SHORT   Message-Id was added by a relay
->
->
->  
->
+
 
