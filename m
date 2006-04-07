@@ -1,12 +1,12 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Date: Thu, 6 Apr 2006 15:12:13 -0400
-Message-ID: <F021020DA23B6641A05E616D5EAD146373A7CF@de01exm60.ds.mot.com>
-From: "Miller Seth-G19426" <seth.miller@motorola.com>
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] RE: Rapid Spanning Tree support
+Date: Fri, 7 Apr 2006 16:59:28 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [Bridge] [PATCH] fix 802.3ad multicast
+Message-ID: <20060407165928.022d4ad8@dxpl.pdx.osdl.net>
+In-Reply-To: <1144340106.17145.8.camel@quant>
+References: <1144340106.17145.8.camel@quant>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,36 +15,30 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Bui Khanh-E12360C <E12360C@motorola.com>, bridge@osdl.org
+To: Vlad Drukker <vlad@storewiz.com>
+Cc: bridge@osdl.org
 
-Stephen,
+On Thu, 06 Apr 2006 19:15:06 +0300
+Vlad Drukker <vlad@storewiz.com> wrote:
 
-This sounds like the right approach. I'm still not sure what you 
-are proposing in terms of where the RSTP code should come from. 
-would you expect we should be able to pull the code out of the 
-existing bridge module?
+> Hi Stephen,
+> 
+> there was a bug in bridging bonds.
+> multicast packets needed for 802.3ad netif_carrier_ok() were dropped.
+> attached patch works for me.
+> 
+> Cheers,
+> Vlad.
+> 
+> 
+> 
 
-Thanks
+Making a bonding specific hack like this seems wrong. The
+port could also be disabled during shutdown (for RCU removal),
+and in that case we need to drop the packet.
 
-Seth
+There must be a better solution.
 
-
-> -----Original Message-----
-> Actually, I would like to make RSTP (and all the spanning tree
-> protocols)
-> a user space utility.  There are some infrastructure changes necessary
-> to propagate sufficient information to do it.
-
-I was going to leave existing STP in kernel for now, but not enable it.
-For 2.6.17, I made sure that  STP packets are received so application
-can receive them (via LLC).
-
-The next part would be adding a netlink interface to bridge module
-to report and modify:
-	* interface added/deleted from bridge
-	* interface status change (carrier up/down)
-	* interface forwarding enable/disable
-	* forwarding table flush by interface.
-
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger
