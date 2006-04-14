@@ -1,9 +1,9 @@
-Date: Fri, 14 Apr 2006 14:00:34 -0700
+Date: Fri, 14 Apr 2006 15:17:45 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060414140034.2fd7100c@localhost.localdomain>
-In-Reply-To: <20060414205815.15338.qmail@web52911.mail.yahoo.com>
-References: <20060414135321.53e60516@dxpl.pdx.osdl.net>
-	<20060414205815.15338.qmail@web52911.mail.yahoo.com>
+Message-ID: <20060414151745.062981e0@localhost.localdomain>
+In-Reply-To: <20060414221312.64298.qmail@web52901.mail.yahoo.com>
+References: <20060414140034.2fd7100c@localhost.localdomain>
+	<20060414221312.64298.qmail@web52901.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -19,14 +19,18 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 To: Chris Rankin <rankincj@yahoo.com>
 Cc: nfs@lists.sourceforge.net, bridge@osdl.org
 
-On Fri, 14 Apr 2006 21:58:15 +0100 (BST)
+On Fri, 14 Apr 2006 23:13:12 +0100 (BST)
 Chris Rankin <rankincj@yahoo.com> wrote:
 
 > --- Stephen Hemminger <shemminger@osdl.org> wrote:
-> > What is the mtu of eth0 and eth1 on the bridge?
+> > Are you doing brouting or filtering? or vlan's?
+> > Are the ethernet devices on the bridge doing hardware checksumming?
+> > What version of kernel and configuration are running on the bridge?
 > 
-> 1500 on both eth0 and eth1, and on the actual bridge device too.
+> The gateway is running 2.6.16.2, and all its ethernet devices are e100s. They might well do
+> hardware checksumming, but the configuration used to work fine. There is no brouting / ebfilters,
+> and I don't think that there's any vlan either (on the basis that I can't have it if I don't know
+> what it is ;-).)
+> 
 
-Are you doing brouting or filtering? or vlan's?
-Are the ethernet devices on the bridge doing hardware checksumming?
-What version of kernel and configuration are running on the bridge?
+If you have the patience, then "git bisect" will pin down the regression.
