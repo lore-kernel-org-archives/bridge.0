@@ -1,11 +1,10 @@
-Date: Fri, 14 Apr 2006 15:17:45 -0700
+Message-ID: <44408207.1070404@osdl.org>
+Date: Fri, 14 Apr 2006 22:17:59 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060414151745.062981e0@localhost.localdomain>
-In-Reply-To: <20060414221312.64298.qmail@web52901.mail.yahoo.com>
-References: <20060414140034.2fd7100c@localhost.localdomain>
-	<20060414221312.64298.qmail@web52901.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+References: <20060414235008.66335.qmail@web52913.mail.yahoo.com>
+In-Reply-To: <20060414235008.66335.qmail@web52913.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: [Bridge] Re: No UDP NFS over bridges in Linux 2.6.16.x?
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
@@ -19,18 +18,11 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 To: Chris Rankin <rankincj@yahoo.com>
 Cc: nfs@lists.sourceforge.net, bridge@osdl.org
 
-On Fri, 14 Apr 2006 23:13:12 +0100 (BST)
-Chris Rankin <rankincj@yahoo.com> wrote:
+Then get a packet trace of a failing session with tcpdump. You may need 
+to get two, one
+one the client and one on the server to be able to see which packet 
+isn't getting past the
+bridge.
 
-> --- Stephen Hemminger <shemminger@osdl.org> wrote:
-> > Are you doing brouting or filtering? or vlan's?
-> > Are the ethernet devices on the bridge doing hardware checksumming?
-> > What version of kernel and configuration are running on the bridge?
-> 
-> The gateway is running 2.6.16.2, and all its ethernet devices are e100s. They might well do
-> hardware checksumming, but the configuration used to work fine. There is no brouting / ebfilters,
-> and I don't think that there's any vlan either (on the basis that I can't have it if I don't know
-> what it is ;-).)
-> 
-
-If you have the patience, then "git bisect" will pin down the regression.
+There are tools to santize tcpdump files if you are paranoid about IP 
+adresses, etc.
