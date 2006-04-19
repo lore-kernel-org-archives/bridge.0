@@ -1,10 +1,10 @@
-Message-ID: <20060419072239.5846.qmail@webmaild.fe1.aruba.it>
+Message-ID: <20060419073424.9133.qmail@webmaild.fe1.aruba.it>
 From: "Fulvio Ricciardi" <fulvio.ricciardi@zeroshell.net>
-Date: Wed, 19 Apr 2006 09:22:39 +0200
+Date: Wed, 19 Apr 2006 09:34:23 +0200
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] packet size
+Subject: [Bridge] large packet size doesn't work
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -25,6 +25,4 @@ size works ok.
 What is wrong? 
 
 Best Regards
-   Fulvio Ricciardi 
-
-
+ Fulvio Ricciardi
