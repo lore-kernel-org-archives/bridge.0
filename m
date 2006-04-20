@@ -1,16 +1,11 @@
-Date: Wed, 19 Apr 2006 16:13:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-Message-Id: <20060419161324.02e46449.akpm@osdl.org>
-In-Reply-To: <20060419.160328.128989267.davem@davemloft.net>
-References: <20060419065025.GE17192@random.pao.digeo.com>
-	<20060419.154126.64036253.davem@davemloft.net>
-	<20060419155925.7aae7d25.akpm@osdl.org>
-	<20060419.160328.128989267.davem@davemloft.net>
+Date: Thu, 20 Apr 2006 14:44:19 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20060420144419.71f0c03d@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [RESEND][PATCH] ebtables: clean up vmalloc usage in
- net/bridge/netfilter/ebtables.c
+Subject: [Bridge] [PATCH] bridge: allow full size vlan tagged packets to be
+	bridged
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -20,25 +15,38 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: "David S. Miller" <davem@davemloft.net>
-Cc: bdschuym@pandora.be, jchandra@digeo.com, bridge@osdl.org, netdev@vger.kernel.org
+Cc: netdev@vger.kernel.org, bridge@osdl.org
 
-"David S. Miller" <davem@davemloft.net> wrote:
->
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Wed, 19 Apr 2006 15:59:25 -0700
-> 
-> > "David S. Miller" <davem@davemloft.net> wrote:
-> > >
-> > > An earlier variant of your patch was applied already, included below.
-> > > You'll need to submit the newer parts relative to the current tree.
-> > 
-> > This is a similar-but-different patch.  It applies OK.
-> > 
-> > I reviewed it (mostly - it's somewhat non-trivial to do this) and queued it
-> > up and was planning on sending it to you for post-2.6.17.
-> 
-> It's at least fixing a few bugs, and the parts which are cleanups
-> undoubtedly should prevent bugs in the future, so I think we
-> should consider it for 2.6.17 right?
+The Ethernet bridge code silently drops packets when forwarding a packet
+that is too large for the destination interface (as per 802.1d). But it
+should allow for VLAN tagged frames.
 
-afaict it's just a cleanup, but whatever - I'll send it over now.
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+
+--- bridge.orig/net/bridge/br_forward.c	2006-04-10 16:17:51.000000000 -0700
++++ bridge/net/bridge/br_forward.c	2006-04-19 13:50:42.000000000 -0700
+@@ -16,6 +16,7 @@
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
++#include <linux/if_vlan.h>
+ #include <linux/netfilter_bridge.h>
+ #include "br_private.h"
+ 
+@@ -29,10 +30,15 @@
+ 	return 1;
+ }
+ 
++static inline unsigned packet_length(const struct sk_buff *skb)
++{
++	return skb->len - (skb->protocol == htons(ETH_P_8021Q) ? VLAN_HLEN : 0);
++}
++
+ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ {
+ 	/* drop mtu oversized packets except tso */
+-	if (skb->len > skb->dev->mtu && !skb_shinfo(skb)->tso_size)
++	if (packet_length(skb) > skb->dev->mtu && !skb_shinfo(skb)->tso_size)
+ 		kfree_skb(skb);
+ 	else {
+ #ifdef CONFIG_BRIDGE_NETFILTER
