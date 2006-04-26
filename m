@@ -1,11 +1,12 @@
-Date: Thu, 20 Apr 2006 14:44:19 -0700
+Date: Wed, 26 Apr 2006 10:41:33 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060420144419.71f0c03d@localhost.localdomain>
+Subject: Re: [Bridge] help adding RSTP (802.1w) support
+Message-ID: <20060426104133.36ed3044@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0604191347290.8661@yukonho.teaktechnologies.com>
+References: <Pine.LNX.4.64.0604191347290.8661@yukonho.teaktechnologies.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH] bridge: allow full size vlan tagged packets to be
-	bridged
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,39 +15,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@osdl.org
+To: Edward K Chien <edchien@teaktechnologies.com>
+Cc: bridge@osdl.org
 
-The Ethernet bridge code silently drops packets when forwarding a packet
-that is too large for the destination interface (as per 802.1d). But it
-should allow for VLAN tagged frames.
+On Wed, 19 Apr 2006 14:06:45 -0700 (PDT)
+Edward K Chien <edchien@teaktechnologies.com> wrote:
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+> 
+> I am interested in finding out about the current efforts in adding RSTP 
+> (802.1w) support to the current bridging module (more interested in 2.6 
+> tree).  I am a developer and can offer my help in either developing the 
+> code, porting over work from a 2.4 tree, or in a testing capacity.
+> 
+> I would appreciate it if people who are working on this can contact me and 
+> let me know the status of the efforts.  I'd hate to have to write it from 
+> scratch, only to throw it away a year later.  Thanks. :-)
+> 
+> eddie
 
---- bridge.orig/net/bridge/br_forward.c	2006-04-10 16:17:51.000000000 -0700
-+++ bridge/net/bridge/br_forward.c	2006-04-19 13:50:42.000000000 -0700
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
-+#include <linux/if_vlan.h>
- #include <linux/netfilter_bridge.h>
- #include "br_private.h"
- 
-@@ -29,10 +30,15 @@
- 	return 1;
- }
- 
-+static inline unsigned packet_length(const struct sk_buff *skb)
-+{
-+	return skb->len - (skb->protocol == htons(ETH_P_8021Q) ? VLAN_HLEN : 0);
-+}
-+
- int br_dev_queue_push_xmit(struct sk_buff *skb)
- {
- 	/* drop mtu oversized packets except tso */
--	if (skb->len > skb->dev->mtu && !skb_shinfo(skb)->tso_size)
-+	if (packet_length(skb) > skb->dev->mtu && !skb_shinfo(skb)->tso_size)
- 		kfree_skb(skb);
- 	else {
- #ifdef CONFIG_BRIDGE_NETFILTER
+I added a project to the "Google Summer of Code" to do the RSTP user space
+daemon. Patches to provide netlink information are being tested.
