@@ -1,12 +1,10 @@
-Date: Wed, 26 Apr 2006 10:41:33 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [Bridge] help adding RSTP (802.1w) support
-Message-ID: <20060426104133.36ed3044@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0604191347290.8661@yukonho.teaktechnologies.com>
-References: <Pine.LNX.4.64.0604191347290.8661@yukonho.teaktechnologies.com>
+From: Petr Rajchman <p.rajchman@satca.net>
+Content-Type: text/plain
+Date: Tue, 02 May 2006 12:56:09 +0200
+Message-Id: <1146567369.26014.69.camel@lucas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] MAC/ID setting
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,23 +13,13 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Edward K Chien <edchien@teaktechnologies.com>
-Cc: bridge@osdl.org
+To: bridge@osdl.org
 
-On Wed, 19 Apr 2006 14:06:45 -0700 (PDT)
-Edward K Chien <edchien@teaktechnologies.com> wrote:
+Hi,
+I am not able to find the relevant links about IFHWADDR feature for the
+bridge. It only inherits the MAC from the first interface added into the
+bridge and it is not possible to change it via ip/ifconfig. What is the
+matter?
+Thank you,
+Peter
 
-> 
-> I am interested in finding out about the current efforts in adding RSTP 
-> (802.1w) support to the current bridging module (more interested in 2.6 
-> tree).  I am a developer and can offer my help in either developing the 
-> code, porting over work from a 2.4 tree, or in a testing capacity.
-> 
-> I would appreciate it if people who are working on this can contact me and 
-> let me know the status of the efforts.  I'd hate to have to write it from 
-> scratch, only to throw it away a year later.  Thanks. :-)
-> 
-> eddie
-
-I added a project to the "Google Summer of Code" to do the RSTP user space
-daemon. Patches to provide netlink information are being tested.
