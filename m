@@ -1,12 +1,13 @@
-From: "Paul C. Diem" <PCDiem@FoxValley.net>
-Subject: RE: [Bridge] Interface Statistics
-Date: Thu, 4 May 2006 17:01:40 -0500
-Message-ID: <FFEPKIHJDEDDAAFOFDGFMEJGCBAA.PCDiem@FoxValley.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1250"
+Date: Thu, 4 May 2006 16:10:19 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <20060504161019.17feb2aa@localhost.localdomain>
+In-Reply-To: <FFEPKIHJDEDDAAFOFDGFMEJGCBAA.PCDiem@FoxValley.net>
+References: <20060504143624.324274f6@localhost.localdomain>
+	<FFEPKIHJDEDDAAFOFDGFMEJGCBAA.PCDiem@FoxValley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <20060504143624.324274f6@localhost.localdomain>
+Subject: [Bridge] [PATCH] bridge: keep track of received multicast packets
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,47 +16,21 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: "Paul C. Diem" <PCDiem@foxvalley.net>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.osdl.org
 
-Yes, I did. ip -s link show always shows zero for multicast packets too.
+It makes sense to add this simple statistic to keep track of received
+multicast packets.
 
-Paul C. Diem
-PCDiem@FoxValley.net
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
------Original Message-----
-From: Stephen Hemminger [mailto:shemminger@osdl.org]
-Sent: Thursday, May 04, 2006 4:36 PM
-To: Paul C. Diem
-Cc: bridge@lists.osdl.org
-Subject: Re: [Bridge] Interface Statistics
-
-
-On Thu, 4 May 2006 16:16:33 -0500
-"Paul C. Diem" <PCDiem@foxvalley.net> wrote:
-
-> Is there anyway to get interface statistics such as multicast packets
-> received/transmitted for the individual interfaces in a bridge or for the
-> bridge as a whole?
->
-> Do the Receive/Transmit bytes/packets counters in /proc/net/dev reflect
-all
-> packets received/transmitted (even those that were only bridged) or only
-> those actually targeted to/irrigated from the server?
->
-> Thank you,
->
-> Paul C. Diem
-> PCDiem@FoxValley.net
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/bridge
-
-did you look at 'ip -s link'?
-
---
-No virus found in this incoming message.
-Checked by AVG Free Edition.
-Version: 7.1.385 / Virus Database: 268.5.2/329 - Release Date: 5/2/2006
-
+--- bridge.orig/net/bridge/br_input.c	2006-04-21 14:28:55.000000000 -0700
++++ bridge/net/bridge/br_input.c	2006-05-04 16:07:24.000000000 -0700
+@@ -66,6 +66,7 @@
+ 	}
+ 
+ 	if (is_multicast_ether_addr(dest)) {
++		br->statistics.multicast++;
+ 		br_flood_forward(br, skb, !passedup);
+ 		if (!passedup)
+ 			br_pass_frame_up(br, skb);
