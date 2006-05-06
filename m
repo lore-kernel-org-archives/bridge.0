@@ -1,15 +1,11 @@
-Date: Fri, 05 May 2006 17:07:24 -0700 (PDT)
-Message-Id: <20060505.170724.14479364.davem@davemloft.net>
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060504161019.17feb2aa@localhost.localdomain>
-References: <20060504143624.324274f6@localhost.localdomain>
-	<FFEPKIHJDEDDAAFOFDGFMEJGCBAA.PCDiem@FoxValley.net>
-	<20060504161019.17feb2aa@localhost.localdomain>
+Date: Sat, 6 May 2006 19:54:14 +0200
+From: Tadeusz Andrzej =?iso-8859-2?Q?Kad=B3ubowski?= <yess@hell.org.pl>
+Message-ID: <20060506175414.GB11857@hell.org.pl>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] bridge: keep track of received multicast
-	packets
+Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Google SoC proposal
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,15 +14,123 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@osdl.org
-Cc: bridge@lists.osdl.org, netdev@vger.kernel.org
+To: bridge@lists.osdl.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Thu, 4 May 2006 16:10:19 -0700
 
-> It makes sense to add this simple statistic to keep track of received
-> multicast packets.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thanks Stephen.
+Hello,
+
+I am a student considering participating in Google Summer of Code program.
+
+I came across Stephen Hemminger's idea of implementing a RSTP posted on
+http://developer.osdl.org/dev/soc/ and found it interesting.
+
+In attachment there's my proposal, which I just submitted to google.
+
+Please share your comments.
+
+--=20
+tadeusz andrzej kad=B3ubowski
+
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Disposition: attachment; filename=zgl
+Content-Transfer-Encoding: quoted-printable
+
+			Linux RSTP implementation
+			 Google SoC Application
+
+Name:	Tadeusz Andrzej Kad=B3ubowski
+Email:  yess @ hell org pl
+IRC:	yess @ freenode
+
+The aim of this project is to create a Linux Rapid Spanning Tree
+Protocol implementation as proposed by Mr Stephen Hemminger on
+http://developer.osdl.org/dev/soc/
+
+The system will be written in C and work as a daemon. It will be
+configurable with a command line tool similar to brctl (probably a
+modified brctl).
+
+The tests will be a set of scripts - most likely perl or python unit
+testing library will be used.
+
+SCHEDULE OUTLINE
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+The project will take 13 weeks. We can assume 40 hours in a working
+week.  My current duties occupy 2 days a week.
+
+May:
+	Reading and learning (IEEE standard, linux/net/core/,
+	linux/net/bridge/, brctl sources, maybe documentation from UNH
+	mentioned on http://developer.osdl.org/dev/soc/)
+June:
+	Messages from and to the kernel via rtnetlink interface
+	Sending, receiving and parsing of BDPU messages
+	Graph theory logic
+	Exam in numerical mathematics will occupy my attention for=20
+	about a week. :|
+July:
+	State machine logic
+	Timers
+	User interface
+	Framework for unit testing
+	Numerous test units
+August:
+	Building scripts, packaging and release (if standalone)
+	More documentation
+	More testing
+=09
+DELIVERABLES
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+* Linux RSTP daemon
+* Command line tool to operate it
+* Kernel bridge module patch in order to notify the userland (as
+  needed)
+* Set of test units
+* Documentation (both for end-user and concerning inner structure)
+
+MY USEFUL SKILLS
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+* 6 years of C experience on Linux (with tools such as gdb, strace, vallgri=
+nd
+  etc.)
+* General idea of ,,Unix way of doing things'' and devotion for simplicity.
+* Excellent understanding of graph theory, finite state automata and other
+  necessary theoretical concepts.
+* Some experience with low-level things (I took a small part in developing
+  acpi4asus Linux driver having its main developer as a roommate)
+* Enthusiasm for scripting languages (mostly python, bash and perl)
+
+BIO + MOTIVATION
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+I'm a third year student at a CS faculty of the University of Gda=F1sk, Pol=
+and.
+Having completed most of my courses on straight A's I feel perfectly capable
+of completing this project.
+
+I've been using Linux since '99. One of my computers operated as a STP-enab=
+led
+bridge in my high school network - that's where I learned basic networking
+concepts. In those times I also learned C, which now I am perfectly familiar
+with.
+
+Recently I've completed third semester of Cisco CCNA course. This course ga=
+ve
+me insight into the world of embedded networking equipment and taught me a =
+lot
+about numerous aspects of networks. On the other hand their proprietary att=
+itude
+seemed odd and cumbersome to me. I started to see a great potential for
+Linux-based networking equipment.
+
+
+--dDRMvlgZJXvWKvBx--
