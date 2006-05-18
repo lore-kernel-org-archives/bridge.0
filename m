@@ -1,9 +1,9 @@
-Date: Thu, 18 May 2006 08:40:23 +0200
-From: Gergely Madarasz <gorgo@broadband.hu>
+Date: Thu, 18 May 2006 10:40:05 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
 Subject: Re: [Bridge] VLAN translation + PVST+
-Message-ID: <20060518064022.GF20794@broadband.hu>
+Message-ID: <20060518143959.GB21325@tuxdriver.com>
 References: <446BC951.2050803@us.checkpoint.com>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <446BC951.2050803@us.checkpoint.com>
@@ -24,31 +24,14 @@ On Wed, May 17, 2006 at 06:09:37PM -0700, Ian Schwimmer wrote:
 > physical interface (for example: a bridge consisting of eth1.100 and 
 > eth1.110). This physical interface is being connected to modern Cisco 
 > switches running PVST+.
-> 
-> The Cisco switch does not like this configuration as the tags on its 
-> BPDUs are being changed but the contents of the BPDUs are left unchanged.
-> 
-> I need to be running PVST+ because there will be multiple Linux servers 
-> performing this VLAN translation/remapping (so there are going to be 
-> some loops that I will need blocked).
-> 
-> Has anyone succeeded in getting VLAN translation/remapping (bridging 
-> between two different VLAN tags) working with Cisco PVST+? (not simply 
-> disabling spanning tree). Thank you!
 
-Actually I have just written a patch for 2.6.16 the other day which
-supports PVST+ packet format. It adds a pvst_vlan attribute to each port
-in a bridge, which, if not 0, causes the bpdu's sent on that port to use
-the pvst+ llc header and add the vlan tlv at the end of the packet. 
+I'm curious as to how this is useful?  What is the point of having
+two VLANs on the same segment if you are just going to bridge them
+together?  Is this useful for something beyond some sort of migration?
 
-For example you can bridge two vlan interfaces like eth0.4 and eth1.7,
-with setting pvst_vlan to 4 on eth0.4 and to 7 on eth1.7 (no automatic
-voodoo). Your example can be done too, briding two vlans on the same
-trunk.
+Curious,
 
-Should I send the patch to the list or just in private?
-
+John
 -- 
-Madarasz Gergely        gorgo@broadband.hu         gorgo@linux.rulez.org
-    It's practically impossible to look at a penguin and feel angry.
-        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
+John W. Linville
+linville@tuxdriver.com
