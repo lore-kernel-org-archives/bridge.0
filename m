@@ -1,13 +1,15 @@
-Date: Tue, 23 May 2006 11:06:24 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+Message-ID: <a9a0929d0605231816u28c5515ay19b2527d60724cef@mail.gmail.com>
+Date: Wed, 24 May 2006 10:46:20 +0930
+From: "Mark Zipp" <mark.r.zipp@gmail.com>
 Subject: Re: [Bridge] Problem bridging frames with bridge and real interface
-	MTU	> 1527
-Message-ID: <20060523110624.2984f2d5@localhost.localdomain>
-In-Reply-To: <a9a0929d0605221737r17af6c16sd32d5f6717d274c0@mail.gmail.com>
+	MTU > 1527
+In-Reply-To: <20060523110624.2984f2d5@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
 References: <a9a0929d0605221737r17af6c16sd32d5f6717d274c0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20060523110624.2984f2d5@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging  <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,56 +18,55 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Mark Zipp <mark.r.zipp@gmail.com>
+To: Stephen Hemminger <shemminger@osdl.org>
 Cc: bridge@osdl.org
 
-On Tue, 23 May 2006 10:07:13 +0930
-"Mark Zipp" <mark.r.zipp@gmail.com> wrote:
+Hi Stephen,
 
-> Hi,
-> 
-> I'm doing some fault finding where we suspect that the (non-linux)
-> device with the fault is generating frames with an MTU / maximum size
-> greater than 1500 / 1518 bytes. This device is performing GRE
-> tunneling, and it seems that it isn't performing fragmentation or
-> PMTUD before it attempts to send a normal, 1500 byte IP packet with
-> the GRE header out a GigE interface with a 1500 byte MTU.
-> 
-> I've been asked by the vendor of this device to perform some packet
-> captures. As I have a Linux box with a couple of interfaces that
-> support > 1500 byte MTUs (an Intel GigE, and a Netgear FA311 (that
-> supports an MTU up to 2024 bytes)), I figured I could bridge this
-> traffic through this Linux box, and then perform some packet captures
-> on the bridge virtual interface.
-> 
-> I set that all up, and it seemed to all be ok. I set both the real
-> interface MTUs to 2024 bytes, and when I added them into a bridge, the
-> bridge inherited this MTU.
-> 
-> Unfortunately I found that when I attempted to forward frames through
-> this bridge configuration, certain sized ones were silently dropped.
-> As the devices attached to the bridge shouldn't be generating frames
-> with an MTU larger than 1500 (this is our work around solution as a
-> reference), it seems that with this 2024 bridge MTU, even normal 1500
-> byte MTU frames are dropped.
-> 
-> Through experimentation, by sending packets  and changing the MTU of
-> the real and bridge interfaces, it seems that the bridge will only
-> forward frames up to 1527 bytes MTU. Fortunately I think this will be
-> enough to diagnose the fault we are having.
-> 
-> Is this expected behaviour ? A maximum of 1527 bytes seems to be an
-> unsual value for the maxiumum supported bridge MTU.
+Thanks very much for getting back to me.
 
-The only bridge related dropping is here in br_forward.c
+On 24/05/06, Stephen Hemminger <shemminger@osdl.org> wrote:
+> On Tue, 23 May 2006 10:07:13 +0930
+> "Mark Zipp" <mark.r.zipp@gmail.com> wrote:
+>
 
-int br_dev_queue_push_xmit(struct sk_buff *skb)
-{
-	/* drop mtu oversized packets except tso */
-	if (packet_length(skb) > skb->dev->mtu && !skb_shinfo(skb)->tso_size)
-		kfree_skb(skb);
+<snip>
+>
+> The only bridge related dropping is here in br_forward.c
+>
+> int br_dev_queue_push_xmit(struct sk_buff *skb)
+> {
+>         /* drop mtu oversized packets except tso */
+>         if (packet_length(skb) > skb->dev->mtu && !skb_shinfo(skb)->tso_size)
+>                 kfree_skb(skb);
+>
+> Are you doing VLAN's?  There was a bug not fixed until 2.6.17 that didn't
+> account for VLAN header properly.
+>
 
-Are you doing VLAN's?  There was a bug not fixed until 2.6.17 that didn't
-account for VLAN header properly.
+No I'm not doing VLANs, just plain IP inside ethernet frames.
 
-Are you doing filtering?  Some netfilter module might be dropping the packets.
+There was a new ArchLinux kernel package available, which, going by
+its version number, corresponds to the 2.6.16.18 kernel. I've
+installed that, and been able to send 2000 byte IP pings through the
+bridge, so my problem seems to have disappeared.
+
+> Are you doing filtering?  Some netfilter module might be dropping the packets.
+>
+
+I did have some filtering enabled originally, I've just tested my 2K
+pings with and without having blanket permit lines in the incoming and
+outgoing iptables rules, and have had complete success in either case.
+
+I haven't tested it with the traffic IP/GRE traffic I originally
+encountered it with yesterday, I doubt I'll now have a problem with
+it, I'll let you know if I do.
+
+(I'll create a new email to the list to start a new thread about
+another thing that I think could be another bug in the bridge code -
+ports go through some, if not all of the STP port states even when STP
+is not running)
+
+Thanks for your help,
+Mark.
+
