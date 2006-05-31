@@ -1,11 +1,13 @@
-From: "JPP" <jpp1@frws.com>
-Date: Tue, 30 May 2006 18:16:39 -0600
-Message-Id: <20060531000606.M43398@frws.com>
+Message-ID: <447E0456.10609@arcoscom.com>
+Date: Wed, 31 May 2006 23:02:14 +0200
+From: =?UTF-8?B?U2FtdWVsIETDrWF6IEdhcmPDrWE=?= <samueldg@arcoscom.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-Subject: [Bridge] WAS Building 1.1? Now - can we get a NAT over a bridge
-	working yet?
+References: <447CBD31.2090802@arcoscom.com>	<20060530162106.30702d1b@dxpl.pdx.osdl.net>	<447D77A4.5050205@arcoscom.com>
+	<20060531091022.12361f66@localhost.localdomain>
+In-Reply-To: <20060531091022.12361f66@localhost.localdomain>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] setportprio problem with bridge-utils 1.0.6
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,47 +16,52 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: bridge@lists.osdl.org
 
-Hey All
+Thanks Stepen, again, and sorry for my english, perhaps is this the 
+problem too: my english.
 
-Thanks - I have gotten the 1.1 brctl to build and its installed and the server 
-rebooted.
+I want to set port prio, to values as 1, 2, 3, 4, etc.. (little values), 
+my problem is that when I run:
 
-NAT is still in its un-working state using iptables and NAT rules that run 
-normally without the bridge.
+brctl setportprio br0 eth1 3
 
-I understand that firewalling/bridging and in turn, NAT is really something 
-that should not happen. But my question is: Can Fedora C4 and iptables 1.3 
-along with the newest bridging code provide for a NAT solution on a 2 NIC 
-gateway/router/bridge/firewall ???
-If not - any suggestions?
+That "3" goes to "port cost" no goes into "port priority", that is my 
+problem.
 
-Logs show that the br0 interface is getting the traffic destined for the NAT'd 
-machines, so its apparent that adding the newest bridge with the old iptables 
-rules does not do the trick.
-Log excerpt:
-May 30 18:10:34 gw-ccfo kernel: IPT FORWARD packet died: IN=eth0 OUT=br0 
-PHYSOUT=eth1 SRC=XXX.XXX.105.11 DST=192.168.68.200 LEN=66 TOS=0x00 PREC=0x00 
-TTL=60 ID=60954 DF PROTO=TCP SPT=80 DPT=3665 WINDOW=8576 RES=0x00 ACK PSH 
-URGP=0
+Any help more?
 
-IPTABLES basic NAT rule:
-iptables -t nat -A PREROUTING -d XXX.194.217.191 -p tcp \
-  -j DNAT --to 192.168.68.200
-iptables -t nat -A PREROUTING -d XXX.194.217.191 -p udp \
-  -j DNAT --to 192.168.68.200
+Stephen Hemminger escribió:
+> On Wed, 31 May 2006 13:01:56 +0200
+> Samuel Díaz García <samueldg@arcoscom.com> wrote:
+> 
+>> Thanks Stephen.
+>>
+>> The problem is I want to set the port prio, not the cost. The cost is 
+>> working (at least brctl showstp br0 shows fine, gg).
+>>
+>> Would work with ..../port_prio too?
+> 
+> You know that port_prio is limited to 6 bits now that bridge can have up
+> to 1024 ports.
+> 
 
-iptables -t nat -A POSTROUTING -s 192.168.68.200 -o $EXTIF \
-      -j SNAT --to-source XXX.194.217.191
+-- 
+    Samuel Díaz García
+     Director Gerente
+ArcosCom Wireless, S.L.L.
 
-Thanks in advance for any help.
+CIF: B11828068
+c/ Romero Gago, 19
+Arcos de la Frontera
+11630 - Cadiz
 
-Regards,
-Jerome
+http://www.arcoscom.com
 
+mailto:samueldg@arcoscom.com
+msn: samueldg@arcoscom.com
 
---
-FRWS WebMail (http://www.frws.com)
-Cause you deserve Spam and Virus free email...
-
+Móvil: 651 93 72 48
+Tlfn.: 956 70 13 15
+Fax:   956 70 34 83
