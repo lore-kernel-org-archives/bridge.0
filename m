@@ -1,10 +1,11 @@
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <419221E9-C6B5-4538-ADA4-8B3E39D61E96@mac.com>
-Content-Transfer-Encoding: 7bit
-From: Jim Lloyd <jim.lloyd@mac.com>
-Date: Wed, 31 May 2006 19:10:59 -0700
-Subject: [Bridge] Minimal transparent bridge
+Message-ID: <447E612C.6090309@triplehelix.org>
+Date: Wed, 31 May 2006 20:38:20 -0700
+From: Joshua Kwan <joshk@triplehelix.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="------------enigE90E230A2EAF84891F4D91C5"
+Subject: [Bridge] Bridging a wireless/wired LAN and a PPPoE connection
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,71 +14,78 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge <bridge@lists.osdl.org>
-Cc: Nils.Radtke_@_Think-Future.de
+To: bridge@lists.osdl.org
 
-Hi folks,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE90E230A2EAF84891F4D91C5
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-I have some ambitious plans to set up a Fedora Core 5 node as a  
-transparent bridge between my host's gateway and the remainder of a  
-rack of nodes colocated at the host that I share with some friends.  
-I've had a hard time getting this working. I seem to be stuck at a  
-pretty basic level, so I am hoping there is something obvious someone  
-can point out for me. For example, I just noticed one warning against  
-using 2.6 kernels. Is that still true, even for the most current 2.6  
-kernels (2.6.16.1)?
+Hi all,
 
-I'd like to start with a very simple question: what is the minimal  
-steps to set up a server with two ethernet interfaces (eth0 and eth1)  
-as a transparent bridge?
+I'm trying out bridging for my wireless and wired LAN, so that they can
+both use my PPPoE connection. Here's the network structure, pretty easy:
 
-I'm following the Nils Radtke's how-to here:
-http://www.tldp.org/HOWTO/Ethernet-Bridge-netfilter-HOWTO.html
+darjeeling (192.168.1.7)                    ringo (192.168.1.3)
+(mtu 1500)                                       (mtu 1500)
+\                                                    /
+ \   wlan0      <--br0 (mtu 1500)-->      eth1      /
+  -- 802.11 --- influx (192.168.1.1) --- Ethernet --
+ /  (mtu 1500)          |                (mtu 1500) \
+=2E..                    eth0                         ...
+                    (mtu 1500)
+                        |
+                        v
+                  ppp0 (mtu 1492)
+                        |
+                        v
+                  (( Internet ))
 
-Assume I have a 3 node network:
+My problem is that certain websites are inaccessible from darjeeling and
+ringo if I don't set the MTU to 1492 on each client. Changing the MTU to
+1492 on eth0 just fubars my PPP connection.
 
-L:eth0 <-> eth0:B:eth1 <-> eth0:R
+Alternatively, setting up a HTTP proxy on br0 works as well, and is the
+solution I'm using for my clients at home right now.
 
-B is my bridge. L and R are nodes on the same subnet that can ping  
-each other if the bridge is replace by a hub.
+Could somebody explain to me what is going on? What I would prefer to do
+is use a solution that doesn't require me to use the proxy or change
+everyone's MTU to 1492.
 
- From what I know so far, I thought the following steps on the bridge  
-should be enough:
+If I'm being unclear please ask me to clarify, I'm not quite sure I have
+all this understood myself.
 
-1) remove all iptable rules.
-2) do the following
+Please CC me as I'm not subscribed to the list.
 
-     (ifdown eth0 1>/dev/null 2>&1;);
-     (ifdown eth1 1>/dev/null 2>&1;);
-     brctl addbr br0;
-     brctl stp br0 on;
-     brctl addif br0 eth0;
-     brctl addif br0 eth1;
-     ifconfig eth0 0.0.0.0 up;
-     ifconfig eth1 0.0.0.0 up;
-     ifconfig br0  up
+Thanks!
 
-The above commands are taken from <http://www.tldp.org/HOWTO/Ethernet- 
-Bridge-netfilter-HOWTO-3.html#ss3.3>, but reordered and stripped  
-down. Note in particular I don't assign the br0 interface an ip address.
+--=20
+Joshua Kwan
 
-After doing the above, should I be able to once again ping R from L  
-and vice versa? Or is setting proxy_arp and forwarding required?
 
-     for file in br0 eth0 eth1;
-     do
-       echo "1" > /proc/sys/net/ipv4/conf/${file}/proxy_arp;
-       echo "1" > /proc/sys/net/ipv4/conf/${file}/forwarding;
-     done;
-     echo "1" > /proc/sys/net/ipv4/ip_forward;
+--------------enigE90E230A2EAF84891F4D91C5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
- From reading Nils's how-to, these steps seem to be necessary.  
-However, the bridge wiki page doesn't mention them <http://linux- 
-net.osdl.org/index.php/Bridge>, and another page makes it seem like  
-they might only be necessary for "pseduo-bridges": <http://lartc.org/ 
-howto/lartc.bridging.proxy-arp.html>.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Thanks in advance for any answers.
+iQIVAwUBRH5hLqOILr94RG8mAQLoGA/+PpJntehPSqUMiNIZusnrKwfevm3xME6w
+KHgQhQ9V0quYKO6dR7nf0qxMoge3Cgwie4qjQZcBSgUo5mhEMmlr0KY10iGSvLlk
+jyAO4GiBkQ/jojrwDMYNffOlcWlMHjkToKTFCU4du81cBkBmvixUNV5MD0XJgzF8
+bSCrm29HyOWoHjMEI1K4CCTPHmlMtY3fyMu/h4iEM2i4797dyg7k3Ijpb6IkKuLB
+wP1aCARnQVi3SBrq7QyWqGHVAJy7eaR/sV63AoIxQRVdoyWUiQDG8LJ63ew1Y9cL
+R7eEuvCWYrRJzWd9yGfzC4pIxEPqTwesJIS1hspzKFALTnTtaAVxWgWsvN0d8feI
+l3AaB7WuoABS3Uxpepot3djRU/JLpXJz6wEgYkASNNAbo0Wk7EZu6+nx4Fgqut5B
+kCIkMjk7TmLP5lIdCQdhNqRWE/b5QxUDePffOHPZ36+2WzyJhu7TcEIpOAMo5GBC
+kzOOCCR489SdZIHvbZXM0Q/38h9Rl3q4mW2E4yNXFtYIOdfshpekjSFNWjwX4DMJ
+JQFDPtVcRLvJEtgFV4+HrN18zuoib79hJSZgqgR8/DX9sj9MTGZEoWgTbw8UiJQX
+gl5ZD5k/c81h9oNeGVxcc/ceP2M/236/0XvJHFhSn+GQ+IGFOnOe7AtTHXsWdiaf
+MtPvAv0dDfk=
+=UyJM
+-----END PGP SIGNATURE-----
 
-Jim Lloyd
-
+--------------enigE90E230A2EAF84891F4D91C5--
