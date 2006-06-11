@@ -1,15 +1,10 @@
-Date: Fri, 2 Jun 2006 12:29:55 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060602122955.3fb9f72f@localhost.localdomain>
-In-Reply-To: <469803EC-611C-4AA6-89ED-88D7EE1CFB2E@mac.com>
-References: <419221E9-C6B5-4538-ADA4-8B3E39D61E96@mac.com>
-	<1AE04F07-13CF-4514-9914-D978CDC12C7D@mac.com>
-	<20060602104328.304a5d4d@localhost.localdomain>
-	<469803EC-611C-4AA6-89ED-88D7EE1CFB2E@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <448C7F02.7000700@freemail.hu>
+Date: Sun, 11 Jun 2006 22:37:22 +0200
+From: =?UTF-8?B?S3Vuc3p0IMOBcnDDoWQ=?= <kunszt@freemail.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Minimal transparent bridge
+Subject: [Bridge] 802.1Q tagging
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,24 +13,34 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jim Lloyd <jim.lloyd@mac.com>
-Cc: bridge-list <bridge@lists.osdl.org>
+To: bridge@lists.osdl.org
 
-On Fri, 2 Jun 2006 12:15:29 -0700
-Jim Lloyd <jim.lloyd@mac.com> wrote:
+	Hi!
 
-> Hi Stephen,
-> 
-> Thanks, I'm familiar with your wiki, which has high quality content,  
-> albeit a little light on quantity. :)
-> 
-> My original email asked what is the minimal steps to make a working  
-> bridge for two links with identical network configurations. I think  
-> this would be an excellent addition to the wiki. I'd volunteeer to  
-> make the first pass at that, but so far I'm failing to achieve it  
-> with the hardware+os platforms I have available to me. It seems like  
-> it should be simple enough, and my initial reaction was to ignore the  
-> hearsay, but when after trying several things still didn't have  
-> success, I had to be able to rule out the hearsay.
+I'm new on the list and I'm Hungarian so please forgive my terribly bad
+English.
+First greetings to all.
+I want to create a Linux box which will be act as a rate limiter ( with
+tc ) and an IP<->MAC checker ( now iptables on br0 ).
+I have three interfaces. Two Gigabits ( eth1 and eth2 ) and 100Mbps (
+eth0 ) for management. On the eth1 and eth2 there are approx 60 802.1Q
+tagged VLANs so I don't want to create one bridge for every single VLAN.
+I want to use one bridge. This is br0.
+I set up iptables it's mainly stands lines like -A <chain> -m mac
+--mac-source <...> -s <...> -j ACCEPT then DROP without -m mac stuff.
+Then I set up tc on eth1 and eth2 using HTB, PRIO and SFQ. The
+classifier was U32.
+The bridge and the iptables worked ( the counters increased ) . I can
+arping from a machine from the eth1 interface to another machine on the
+eth2 interface. The tc didn't worked, the classifer didn't matched any
+packet ( I used ip dst addr/32 ). I thought this is because the 4 byte
+802.1Q header.
+I tried to correct this but suddenly the bridge was stopped. ( There
+wasn't outgoing traffic on one interface. Only one, the second was okay. )
+I'm using Gentoo with 2.6.16-gentoo-r9 kernel.
+Did I something wrong? Is this configuration/idea good? Or is there any
+fundamental errors? Expected somebody this symptoms?
+Any helps or ideas are welcome.
+Thanks,
 
-Go ahead, make edits.  It can always be fixed later or reverted.
+Arpad
