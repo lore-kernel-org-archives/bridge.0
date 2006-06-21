@@ -1,10 +1,11 @@
-Message-ID: <448C7F02.7000700@freemail.hu>
-Date: Sun, 11 Jun 2006 22:37:22 +0200
-From: =?UTF-8?B?S3Vuc3p0IMOBcnDDoWQ=?= <kunszt@freemail.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Message-Id: <1150887156.13125.264319106@webmail.messagingengine.com>
+From: paul05@mailsent.net
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] 802.1Q tagging
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+Date: Wed, 21 Jun 2006 22:52:36 +1200
+Subject: [Bridge] bridge and transparent squid proxy
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,32 +16,51 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-	Hi!
+Hi all,
 
-I'm new on the list and I'm Hungarian so please forgive my terribly bad
-English.
-First greetings to all.
-I want to create a Linux box which will be act as a rate limiter ( with
-tc ) and an IP<->MAC checker ( now iptables on br0 ).
-I have three interfaces. Two Gigabits ( eth1 and eth2 ) and 100Mbps (
-eth0 ) for management. On the eth1 and eth2 there are approx 60 802.1Q
-tagged VLANs so I don't want to create one bridge for every single VLAN.
-I want to use one bridge. This is br0.
-I set up iptables it's mainly stands lines like -A <chain> -m mac
---mac-source <...> -s <...> -j ACCEPT then DROP without -m mac stuff.
-Then I set up tc on eth1 and eth2 using HTB, PRIO and SFQ. The
-classifier was U32.
-The bridge and the iptables worked ( the counters increased ) . I can
-arping from a machine from the eth1 interface to another machine on the
-eth2 interface. The tc didn't worked, the classifer didn't matched any
-packet ( I used ip dst addr/32 ). I thought this is because the 4 byte
-802.1Q header.
-I tried to correct this but suddenly the bridge was stopped. ( There
-wasn't outgoing traffic on one interface. Only one, the second was okay. )
-I'm using Gentoo with 2.6.16-gentoo-r9 kernel.
-Did I something wrong? Is this configuration/idea good? Or is there any
-fundamental errors? Expected somebody this symptoms?
-Any helps or ideas are welcome.
-Thanks,
+This is my first post to this list. I hope someone can help me, I have
+been getting grey hairs trying to make this work!
 
-Arpad
+I have a bridge setup on a debian sarge box. The bridge is called br0
+and sits between my cable modem and a non-name brand router/switch:
+
+[cable modem]----[eth1]---[br0]----[eth2]-----[no-name brand router]
+
+I have squid setup on the linux box and it works, I have tested it.
+
+This is how I setup the bridge:
+
+ifconfig eth1 0.0.0.0 promisc up
+ifconfig eth2 0.0.0.0 promisc up
+brctl addbr br0
+brctl addif br0 eth1
+brctl addif br0 eth2
+ifconfig br0 192.168.0.88 netmask 255.255.255.0 up
+route add default gw 192.168.0.1 dev br0
+
+
+The output of uname -a:
+
+Linux sarge 2.6.8-2-386 #1 Tue Aug 16 12:46:35 UTC 2005 i686 GNU/Linux
+
+I have one other nic in the sarge box, eth0, which has the ip
+192.168.0.2
+
+My gateway (the no-name brand router), has the IP address 192.168.0.1
+
+I have tried every howto I can find to setup squid as a transparent
+proxy but have not had any luck (including
+http://freshmeat.net/articles/view/1433/ and
+http://www.tldp.org/HOWTO/TransparentProxy.html). Every time I try these
+I have to reboot because I cannot get the bridge to act as normal, all
+web traffic does not go through. 
+
+Can anyone tell me the ip/ebtables commands I need to get this working?
+Also, if there is a way to avoid rebooting if it does not work can you
+please tell me that as well.
+
+Thank you *very* much.
+
+Cheers
+
+Paul
