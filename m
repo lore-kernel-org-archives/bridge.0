@@ -1,11 +1,10 @@
-Message-Id: <1150887156.13125.264319106@webmail.messagingengine.com>
-From: paul05@mailsent.net
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
+Message-ID: <44996B9E.8030704@kingsley.co.za>
+Date: Wed, 21 Jun 2006 17:54:06 +0200
+From: Etienne Pretorius <etiennep@kingsley.co.za>
 MIME-Version: 1.0
-Date: Wed, 21 Jun 2006 22:52:36 +1200
-Subject: [Bridge] bridge and transparent squid proxy
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Newbie at work - need some advise/guidence please.
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,51 +15,119 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi all,
+Hello all,
 
-This is my first post to this list. I hope someone can help me, I have
-been getting grey hairs trying to make this work!
+I am new to Linux Ethernet bridging. Let me first start with what I am 
+trying to achieve. Well you see - I am attempting to have 2 main 
+firewall running at the same time - one as a master and the other one as 
+a slave. Yes, I would like to make use of Ethernet bridging in this 
+scenario - as I understand it, all I need are two machines and STP 
+enabled. I am running Debian Stable/Sarge and have installed Kernel 
+2.6.8, and I am using brctl as my user space util, I also have ebtables 
+and iptables on the same machine (the slave) running fine and well. At 
+the moment I have the main firewall doing little then just a grandeur 
+network switch with iptables filtering on.
 
-I have a bridge setup on a debian sarge box. The bridge is called br0
-and sits between my cable modem and a non-name brand router/switch:
+My slave machine is broken into 2 logical bridge devices, br0 (internal 
+network) with 2 ports and br1 (external network) with 4 ports. I needed 
+to give both IP addresses as I am forwarding packets from the internal 
+network (br0) though to the internal via (br1). This slave firewall 
+machine is doing mail-scanning and ftp/http proxying as well.
 
-[cable modem]----[eth1]---[br0]----[eth2]-----[no-name brand router]
+My problem exists when I attempt to plug in the slave machine into my 
+network - I assume that I am receiving masses of packets looping in our 
+network:
+    Jun 21 12:46:58 geminus kernel: eth4: Oversized Ethernet frame, 
+status 0118c600.
+    Jun 21 12:47:24 geminus kernel: eth0: received packet with  own 
+address as source address
+And sluggish tty response when entering into console.
 
-I have squid setup on the linux box and it works, I have tested it.
+I have attempted to enable STP on both network bridges and I am still 
+faced with the same scenario. I am either missing something crucial - as 
+it seems that BOTH seem to be trying to relay traffic...
 
-This is how I setup the bridge:
+                                               +------------[Internet]
+                                                |
+                                        |-[router1]-|
+                                        |-[router2]-|
+[Master Firewall]---------|-[router3]-|------------[Slave Firewall]
+                                        |-[router4]-|
+                                        |-[router5]-|
+                                                 |
+         [internal network]--------+
 
-ifconfig eth1 0.0.0.0 promisc up
-ifconfig eth2 0.0.0.0 promisc up
-brctl addbr br0
-brctl addif br0 eth1
-brctl addif br0 eth2
-ifconfig br0 192.168.0.88 netmask 255.255.255.0 up
-route add default gw 192.168.0.1 dev br0
+I have attempted to assign different bridge priorities to both an yet I 
+am still having the same issues. Here are some configs of both machines.
+-------------------[slave]--------------------
+    # The internal network interface
+    auto br0
+    iface br0 inet static
+        address 192.168.5.11
+        netmask 255.255.255.0
+        bridge_ports eth0 eth1
+
+    # The external network interface
+    auto br1
+    iface br1 inet static
+        address [public ip address]
+        netmask 255.255.0.0
+        bridge_ports eth2 eth3 eth4 eth5 eth6
+
+    #Using ip route2 to do policy based routing.
+<<EOF
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.0008a17aaf17       yes              eth0
+                                                        eth1
+br1             8000.000d88687d2c       yes              eth2
+                                                        eth3
+                                                        eth4
+                                                        eth5
+                                                        eth6
+Bridge table: filter
+Bridge chain: INPUT, entries: 2, policy: DROP
+-p IPv4 -j ACCEPT
+-p ARP -j ACCEPT
+Bridge chain: FORWARD, entries: 2, policy: DROP
+-p IPv4 -j ACCEPT
+-p ARP -j ACCEPT
+Bridge chain: OUTPUT, entries: 2, policy: DROP
+-p IPv4 -j ACCEPT
+-p ARP -j ACCEPT
+-------------------[master]--------------------
+### bridging interface
+auto br0
+iface br0 inet static
+    address 192.168.0.1
+    netmask 255.255.255.255
+
+    bridge_ports eth1 eth2 eth3 eth4 eth5
+    bridge_maxwait 3
+
+    post-up /sbin/ip address del dev br0 192.168.0.1/32
+    post-up /sbin/ip route add dev br0 via  [public ip address] src 
+[public ip address]
+    post-up /sbin/ifconfig br0:1 192.168.5.1 netmask 255.255.255.0 up
+    pre-down /sbin/ip address flush dev br0
+<<EOF
+
+bridge name     bridge id               STP enabled     interfaces
+br0             0000.000d885348c4       yes             eth1
+                                                        eth2
+                                                        eth3
+                                                        eth4
+                                                        eth5
+
+Bridge table: filter
+Bridge chain: INPUT, entries: 0, policy: ACCEPT
+Bridge chain: FORWARD, entries: 0, policy: ACCEPT
+Bridge chain: OUTPUT, entries: 0, policy: ACCEPT
+---------------------------------------------------------------------
+
+If there is more you need please ask me and I'll gladly post it.
+
+-- 
+Kind Regards
+Etienne
 
 
-The output of uname -a:
-
-Linux sarge 2.6.8-2-386 #1 Tue Aug 16 12:46:35 UTC 2005 i686 GNU/Linux
-
-I have one other nic in the sarge box, eth0, which has the ip
-192.168.0.2
-
-My gateway (the no-name brand router), has the IP address 192.168.0.1
-
-I have tried every howto I can find to setup squid as a transparent
-proxy but have not had any luck (including
-http://freshmeat.net/articles/view/1433/ and
-http://www.tldp.org/HOWTO/TransparentProxy.html). Every time I try these
-I have to reboot because I cannot get the bridge to act as normal, all
-web traffic does not go through. 
-
-Can anyone tell me the ip/ebtables commands I need to get this working?
-Also, if there is a way to avoid rebooting if it does not work can you
-please tell me that as well.
-
-Thank you *very* much.
-
-Cheers
-
-Paul
