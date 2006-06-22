@@ -1,10 +1,10 @@
-Message-ID: <44997DC7.60605@kingsley.co.za>
-Date: Wed, 21 Jun 2006 19:11:35 +0200
+Message-ID: <449A4B0E.1070705@kingsley.co.za>
+Date: Thu, 22 Jun 2006 09:47:26 +0200
 From: Etienne Pretorius <etiennep@kingsley.co.za>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge and transparent squid proxy
+Subject: Re: [Bridge] Newbie at work - need some advise/guidence please.
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,45 +15,32 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hello Paul,
+Just so that I might complete my own post,
 
-I am also newly registered. I do think that I have the above subject covered, but I might be mistaken. I have 2 bridge instances (br0 and br1) - 
-external link and internal link respectively. Here are the rules I used in my Debian Sarge machine - 
+It seems that with my slave firewall that ebtables was set up to drop 
+all non ARP and IPv4 packets -
+this was intended, but to my surprise it also blocked all STPBPDU 
+packets. I am unable to figure out
+a rule to allow those packets through - but the setup is working thus far.
 
-IPT="/sbin/iptables"
-EBT="/sbin/ebtables"
+Jun 22 09:14:51 geminus kernel: EBFW-INPUT IN=eth0 OUT= MAC source = 
+00:10:b5:4b:f5:ea MAC dest = 01:80:c2:00:00:00 proto = 0x0026
+Jun 22 09:14:51 geminus kernel: EBFW-INPUT IN=eth3 OUT= MAC source = 
+00:0d:88:53:48:c5 MAC dest = 01:80:c2:00:00:00 proto = 0x0026
+Jun 22 09:14:52 geminus kernel: EBFW-OUTPUT IN= OUT=eth6 MAC source = 
+00:0d:88:68:7d:2f MAC dest = 01:80:c2:00:00:00 proto = 0x0026
+Jun 22 09:14:52 geminus kernel: EBFW-OUTPUT IN= OUT=eth5 MAC source = 
+00:0d:88:68:7d:2e MAC dest = 01:80:c2:00:00:00 proto = 0x0026
+Jun 22 09:14:52 geminus kernel: EBFW-OUTPUT IN= OUT=eth4 MAC source = 
+00:0d:88:68:7d:2d MAC dest = 01:80:c2:00:00:00 proto = 0x0026
+Jun 22 09:14:52 geminus kernel: EBFW-OUTPUT IN= OUT=eth3 MAC source = 
+00:0d:88:68:7d:2c MAC dest = 01:80:c2:00:00:00 proto = 0x0026
 
-EXTIF="br1"
+I would like to know if anyone has been able to allow only ARP,IPv4 and 
+STPBPDU (proto = 0x0026) packets through by means of ebtables rules,
+ie can someone give me a push in the right direction in making a rule to 
+allow STPBPDU (proto = 0x0026) packet through?
 
-# Firewall start, the basics....
-# __________________________________________________________
-
-# Lets Lockdown this machine and then open up the required services
-
-$EBT -A FORWARD -p IPv4 -j ACCEPT
-$EBT -A FORWARD -p ARP -j ACCEPT
-$EBT -A INPUT -p IPv4 -j ACCEPT
-$EBT -A INPUT -p ARP -j ACCEPT
-$EBT -A OUTPUT -p IPv4 -j ACCEPT
-$EBT -A OUTPUT -p ARP -j ACCEPT
-
--------<cut>-----
-
-$EBT -t broute -A BROUTING -p IPv4 --ip-protocol 6 --ip-destination-port 80      -j redirect --redirect-target          ACCEPT
-$IPT -t nat -A PREROUTING -p tcp --dport 3128                                                      			-j DROP
-$IPT -t nat -A PREROUTING -p tcp --dport www -m iprange --src-range $INTNWRANGE                                    	-j REDIRECT --to-port 3128
-$IPT -A INPUT  -p tcp -i ${EXTIF%[0-9]}+ --dport 3128                            -m state --state NEW,ESTABLISHED       -j ACCEPT
-$IPT -A OUTPUT -p tcp -o ${EXTIF%[0-9]}+ --sport 3128                            -m state --state ESTABLISHED           -j ACCEPT
-
-Two additional things that I would like to point out... I did add IP addresses to both of my brX's but in your case try add an IP address to your br0.
-It seems that when you run services on the machine with bridging on the device you are going through that you need to give an IP address on that device
-otherwise it just plainly doesn't work - well I didn't get it right anyway. I am doing the same for SMTP and FTP and it seems to work fine. I was hoping,
-after my other post, to ask an aditional question about the having only an IP address on my WAN side and service my LAN through the internal bridge with
-proxy-arp on... so that I can set the gateway of my LAN to the WAN address or a machine another hop beyound it.
-
-
--- 
 Kind Regards
 Etienne
-
 
