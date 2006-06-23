@@ -1,10 +1,10 @@
-Message-ID: <449AA3EF.9080300@kingsley.co.za>
-Date: Thu, 22 Jun 2006 16:06:39 +0200
-From: Etienne Pretorius <etiennep@kingsley.co.za>
+Message-ID: <449B4D3D.9070703@gac.edu>
+Date: Thu, 22 Jun 2006 21:09:01 -0500
+From: Ethan Sommer <sommere@gac.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Network seperation and ethernet bridge...
+Subject: [Bridge] Performance problems on vlan bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,33 +15,59 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hello all,
-
-I would like to know if it is possible to have 2 bridge instances 
-running - one for the internal network and the other for the external 
-network.
-What I need to explain is that I need the internal bridge to go though 
-the Linux Kernel and pass its packets to the external network bridge.
-I am also hopeful that the internal network bridge will not need an IP 
-address as I am hoping to allocate the internal network clients a gateway
-address beyond the external network bridge and so when I have 2 similar 
-machines running with both internal and external network bridges
-that when one machine dies completely then the other will take over. 
-Sooooo what I need to know is will I require proxy-arp and/or ip_forwarding?
+We have been having some performance problems with our linux bridge. I 
+have no idea where to look to start diagnosing the problem, so I'll 
+explain what we've done and hope that you might tell me where to start 
+looking. Almost everything appears to work fine, but when I try to 
+stream music using WMP or mp3 streaming, I can only stream about 30 
+seconds before it cuts out. I used to be able to stream for hours.
 
 
-[internal NW] ---> [internal bridge port 1 of  2]----[external bridge 
-port 4 of 4] --->[GW router]----> www.google.com
+We used to have a firewall which seperated our wireless network from the 
+rest of the network. It is a dual 2.8ghz xeon with two Intel GB network 
+cards. It used to have two interfaces, eth0 which was the default 
+gateway and eth1 which was the wireless subnet.
 
 
-I would like to make it so that no request can obviously enter the 
-internal network via the external bridge without having been requested 
-from the
-internal network --- something similar to tcp state marking but for all 
-protocals and/or ether types.
+The Problem:
+We had a large amount of broadcast traffic on the network (often about 
+1Mpbs), and occasionally would have network storms where we would have 
+50-60Mbps of broadcast traffic (clearly not desirable for a network 
+specifically for wireless clients.) We considered subnetting the 
+network, but we'd like to allow people to register once with our 
+wireless network and be able to roam anywhere we have wireless APs.
 
--- 
-Kind Regards
-Etienne
+Our solution (well, if we can get it to work):
+
+One day I had an epiphany: we could use a linux bridge and use iptables 
+to block unwanted broadcast packets from going between buildings.
+
+So I started setting up one vlan per building specifically for wireless 
+and added them to br0. (I only got 2 buildings done before I noticed the 
+problems though)
+
+now the firewall has eth0 pointing to the internet and brctl show looks 
+like this:
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.00e0812a0540       no              eth1.307
+                                                        eth1.336
+                                                        eth1.6
+where eth1.6 is everything I haven't done yet, and 307 and 336 are the 
+buildings I separated off. I haven't added any iptables rules to block 
+anything yet.
+
+So, as I said in the beginning, everything but streaming music seems to 
+work. The load average on the router/bridge is very low (ususally below 
+.03) as is the cpu percentage. There isn't a lot of traffic this time of 
+year, so I expect that the problem will get worse if we keep things as 
+they are when students return in the fall.
+
+The number of conntracks isn't anywhere near the limit we set. There is 
+plenty of memory free...
+
+Any ideas about how to find the problem would be appreciated.
 
 
+Ethan Sommer
+UNIX Systems Administrator
+Gustavus Adolphus College
