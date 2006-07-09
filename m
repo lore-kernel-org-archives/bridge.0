@@ -1,15 +1,10 @@
-Date: Sat, 8 Jul 2006 22:32:40 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060708223240.57cfd14f@localhost.localdomain>
-In-Reply-To: <43150.217.5.191.115.1152350639.squirrel@sesamstrasse.dyndns.tv>
-References: <65170.217.5.191.115.1152028122.squirrel@sesamstrasse.dyndns.tv>
-	<20060707153648.694f84c2@dxpl.pdx.osdl.net>
-	<43150.217.5.191.115.1152350639.squirrel@sesamstrasse.dyndns.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [BUG/PATCH/RFC] bridge: locally generated broadcast
- traffic may block sender
+Date: Sun, 9 Jul 2006 12:44:35 +0200
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Message-ID: <20060709104435.GA2547@pul.manty.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] couple of bugs and patches for bridge-utils
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,36 +13,26 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Bernd Kischnick <kisch@sesamstrasse.dyndns.tv>
-Cc: netdev@kernel.org, bridge@lists.osdl.org, Wolfgang Denk <wd@denx.de>
+To: bridge@osdl.org
 
-On Sat, 8 Jul 2006 11:23:59 +0200 (CEST)
-"Bernd Kischnick" <kisch@sesamstrasse.dyndns.tv> wrote:
+Hi!
 
-> 
-> On Sa, 8.07.2006, 00:36, Stephen Hemminger explained:
-> 
-> > The fix is not acceptable, because it eliminatess the whole sender memory
-> > flow control limitation.
-> >
-> > The root cause is that the device incorrectly holds onto packets when
-> > the carrier is lost. The device should clear it's own queue.
-> > What hardware is this?
-> >
-> 
-> That's the built-in Ethernet MAC of the 82xx series Motorola PowerQUICC
-> CPUs. The driver is 2.4.32:arch/ppc/cpm2_io/fcc_enet.c, or
-> 2.6.17.3:arch/ppc/8260_io/fcc_enet.c, with modifications by
-> Wolfgang Denk to support a specific PHY chip.
-> 
-> Of course I've been examinating the driver first. It's obvious that the
-> bridge code experiences much broader testing than the odd driver for
-> the odd embedded target. But I didn't see a way to have the driver handle
-> this problem correctly.
+We have received at Debian a couple of bugs and typos that apply to the
+bridge-utils code and I'd like to share them with the community so that they
+can be fixed for everybody, most of the bugreports have patches or show the
+typos made on doc.
 
-The driver doesn't handle carrier properly.
-It needs to call netif_carrier_off when carrier is lost, and netif_carrier_on
-when carrier is detected. This is done in some drivers by phy interrupt, and
-in others by polling the carrier status.
+Here they are:
 
-Bridging can't detect lost links and do fail over without it.
+http://bugs.debian.org/296881
+http://bugs.debian.org/348617
+http://bugs.debian.org/376914
+
+Last one seems quite important, I'm wondering if there will be a new version
+because of that one.
+
+Thanks in advance!
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
