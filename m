@@ -1,10 +1,9 @@
-Date: Sun, 9 Jul 2006 12:44:35 +0200
-From: Santiago Garcia Mantinan <bridge@manty.net>
-Message-ID: <20060709104435.GA2547@pul.manty.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] couple of bugs and patches for bridge-utils
+From: Jason Lunz <lunz@falooley.org>
+Date: Sun, 9 Jul 2006 18:21:59 +0000 (UTC)
+Message-ID: <e8rhg7$262$1@sea.gmane.org>
+References: <988346560607082052g6e2eb040s8e578909d1fdd69d@mail.gmail.com>
+Sender: news <news@sea.gmane.org>
+Subject: Re: [Bridge] Bridging two private lans w/ PPP and brtcl
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,24 +14,16 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@osdl.org
 
-Hi!
+cyberfunk@gmail.com said:
+> Hi all, I'm trying to do the following (ASCII art diagram viewable in
+> fixed-width font at end of message):
+>
+> Take 2 private LANs, seperated by the internet, and bridge them by
+> creating a bridge from 2 ethernet devices and a ppp interface tunneled
+> over ssh between the two linux boxes concerned.
 
-We have received at Debian a couple of bugs and typos that apply to the
-bridge-utils code and I'd like to share them with the community so that they
-can be fixed for everybody, most of the bugreports have patches or show the
-typos made on doc.
+You might want to investigate how openvpn works. In its simplest use,
+it's just an implementation of bridging in userspace using tap devices.
 
-Here they are:
+Jason
 
-http://bugs.debian.org/296881
-http://bugs.debian.org/348617
-http://bugs.debian.org/376914
-
-Last one seems quite important, I'm wondering if there will be a new version
-because of that one.
-
-Thanks in advance!
-
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
