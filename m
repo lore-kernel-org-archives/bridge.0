@@ -1,11 +1,13 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C6B4CF.005DE6B7"
-Date: Mon, 31 Jul 2006 14:27:37 -0400
-Message-ID: <FFB6B142F6616B49A22FCE96AFB9ED1ADF4CE8@de01exm61.ds.mot.com>
-From: "Kullberg Alan-G19424" <alan.kullberg@motorola.com>
-Subject: [Bridge] SoC - RSTP
+Date: Thu, 3 Aug 2006 09:05:11 +1000
+From: David McCullough <david_mccullough@au.securecomputing.com>
+Message-ID: <20060802230511.GA3547@beast>
+References: <44C77FD2.2030208@seskion.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44C77FD2.2030208@seskion.de>
+Sender: David McCullough <davidm@snapgear.com>
+Subject: Re: [Bridge] [uClinux-dev] Is bridgeing possible with kernel 2.6.10
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,55 +16,30 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: uClinux development list <uclinux-dev@uclinux.org>
+Cc: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
 
-------_=_NextPart_001_01C6B4CF.005DE6B7
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Jivin Juergen Pfeiffer lays it down ...
+> Hi
+> 
+> I didn't get bridgeing to work with Linux kernel 2.6.10 (coldfire 5485) 
+> yet. When i try to configure bridgeing
+> with "brctl", everything seems to be ok, but i if i try to ping through 
+> my bridge, i see ARP-Request arriving on the other side, but the
+> ARP-Responses do not go back through the bridge.
+> Now i could read in 
+> "http://www.tldp.org/HOWTO/Ethernet-Bridge-netfilter-HOWTO-2.html#ss2.1"
+> that "Use of kernel 2.6 is not yet a good idea".
+> So do i have a change to get it working?
 
-What's the status of the RSTP - Summer of Code project?
-Is there code available for trying out and/or testing?
-I checked the website
-http://code.google.com/soc/osdl/appinfo.html?csaid=3DC0F61CA7F642B875
-and couldn't find any recent information.
-Regards,
-Alan
-=20
+One of the guys here has been testing bridging with 2.6.17 from the
+uClinux-dist and it is working fine.  Probably can't offer you much more
+than that though,
 
-------_=_NextPart_001_01C6B4CF.005DE6B7
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Cheers,
+Davidm
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
-<META content=3D"MSHTML 6.00.2800.1555" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV><SPAN class=3D250141918-31072006><FONT face=3DArial size=3D2>What's th=
-e status of=20
-the RSTP - Summer of Code project?</FONT></SPAN></DIV>
-<DIV><SPAN class=3D250141918-31072006><FONT face=3DArial size=3D2>Is there =
-code=20
-available for trying out and/or testing?</FONT></SPAN></DIV>
-<DIV><SPAN class=3D250141918-31072006><FONT face=3DArial size=3D2>I checked=
- the=20
-website <A=20
-href=3D"http://code.google.com/soc/osdl/appinfo.html?csaid=3DC0F61CA7F642B8=
-75">http://code.google.com/soc/osdl/appinfo.html?csaid=3DC0F61CA7F642B875</=
-A></FONT></SPAN></DIV>
-<DIV><SPAN class=3D250141918-31072006><FONT face=3DArial size=3D2>and could=
-n't find=20
-any recent information.</FONT></SPAN></DIV>
-<DIV><SPAN class=3D250141918-31072006><FONT face=3DArial=20
-size=3D2>Regards,</FONT></SPAN></DIV>
-<DIV><SPAN class=3D250141918-31072006><FONT face=3DArial=20
-size=3D2>Alan</FONT></SPAN></DIV>
-<DIV><SPAN class=3D250141918-31072006></SPAN>&nbsp;</DIV></BODY></HTML>
-
-------_=_NextPart_001_01C6B4CF.005DE6B7--
+-- 
+David McCullough,  david_mccullough@securecomputing.com,   Ph:+61 734352815
+Secure Computing - SnapGear  http://www.uCdot.org http://www.cyberguard.com
