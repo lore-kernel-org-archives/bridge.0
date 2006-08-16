@@ -1,12 +1,12 @@
-Date: Wed, 16 Aug 2006 11:03:21 -0700
+Date: Wed, 16 Aug 2006 11:09:31 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060816110321.54a7c66d@localhost.localdomain>
-In-Reply-To: <003601c6c0e4$72058a40$6514a8c0@home.djasolutions.com>
-References: <003601c6c0e4$72058a40$6514a8c0@home.djasolutions.com>
+Message-ID: <20060816110931.731d166d@localhost.localdomain>
+In-Reply-To: <2fe13191741861f3e39da4d79f9b7c42@shee.org>
+References: <2fe13191741861f3e39da4d79f9b7c42@shee.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] VLAN handling in br_netfilter.c:br_nf_pre_routing
+Subject: Re: [Bridge] Dead loop on virtual device - how to interpret it ?
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,34 +15,52 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jon Sjoberg <jsjoberg@djasolutions.com>
-Cc: bridge@osdl.org
+To: Moire <sec@shee.org>
+Cc: "<bridge@osdl.org> <bridge@osdl.org>" <bridge@osdl.org>
 
-On Tue, 15 Aug 2006 23:31:21 -0400
-"Jon Sjoberg" <jsjoberg@djasolutions.com> wrote:
+On Wed, 16 Aug 2006 14:05:26 +0200
+Moire <sec@shee.org> wrote:
 
-> Hi all,
+> Dear List,
 > 
-> Noticed that br_nf_pre_routing has some code to handle VLANs, but does not
-> update the nh header.  This appears to cause the IP validity checks to fail
-> (i.e. "if (iph->ihl < 5...").
+> i am not so familiar with the deep art of
+> network internals more with the basics one.
+> Therefore i have a problem to interpret this
+> error message:
 > 
-> There is a check:
-> if (skb->protocol == __constant_htons(ETH_P_8021Q)){
-> sk_pull(skb, VLAN_HLEN);
-> }
+> Dead loop on virtual device br0, fix it urgently!
 > 
-> If this was changed to:
-> if (skb->protocol == __constant_htons(ETH_P_8021Q)){
-> sk_pull(skb, VLAN_HLEN);
-> skb->nh.raw += VLAN_HLEN;
-> }
+> In the corresponding kernel code i found this quote:
 > 
-> the checks pass.  Note that this updated behavior is already doen elsewhere
-> in the code.
+> /* It may be transient configuration error,
+>     when hard_start_xmit() recurses. We detect
+>     it by checking xmit owner and drop the
+>     packet when deadloop is detected.
+> */
 > 
-> Thanks,
-> Jon
+> but i still have no idea what could be wrong.
 
-You are looking at old code, it was fixed in the current 2.6 tree.
-The skb_pull had to be changed to skb_pull_rcsum as well.
+What are the devices you are putting in the bridge?
+What kernel version?
+What are the commands being used to put the devices into
+the bridge.
+
+It looks like a bridge ended up including itself some how.
+
+> 
+> My setup is an bridge (two interfaces) and local
+> interface. The bridge connects the dmz with the internet.
+> 
+> How can i reproduce this error message - to find the cause.
+> 
+> What does it mean (for a not so advanced admin;).
+> 
+> Thanks in advance for any help.
+> 
+> C. Moire
+> 
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/bridge
+> 
