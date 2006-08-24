@@ -1,10 +1,11 @@
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Date: 24 Aug 2006 22:17:11 +0200
-Message-ID: <m3u041yjlk.fsf@ursa.amorsen.dk>
-References: <44EDE259.4050009@dotr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: news <news@sea.gmane.org>
+Message-ID: <44EE22AB.1090903@dotr.com>
+Date: Thu, 24 Aug 2006 23:05:31 +0100
+From: Julian Lyndon-Smith <asterisk@dotr.com>
+MIME-Version: 1.0
+References: <44EDE259.4050009@dotr.com> <44EE094C.5080803@volunteermatch.org>
+In-Reply-To: <44EE094C.5080803@volunteermatch.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] transparent bridge and proxies
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
@@ -14,26 +15,79 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: Melissa Meyer <melissa@volunteermatch.org>
+Cc: bridge@lists.osdl.org
 
->>>>> "JL-S" == Julian Lyndon-Smith <asterisk@dotr.com> writes:
+Thanks Melissa for responding
 
-JL-S> So, I changed the ip address to 0.0.0.0. Everything except squid
-JL-S> still worked. I presume that's because it does not know how to
-JL-S> route the data to get stuff.
+I was trying to play with physdev.
 
-JL-S> Can I add a rule to iptables or something to say "anything
-JL-S> that's come from eth1 into the local box, after processing send
-JL-S> to eth0" and vice-versa ?
+Ignoring all the inbound stuff, if I was on the console of this machine 
+(Mybox)
+                     MyBox
+                +-----br0----+
+                |            |
+router<--->eth0+            +eth1<--->Lan
 
-How about using 127.0.0.1 or something else on the local subnet?
-iptables should be able to redirect to that.
+Where br0, eth0 and eth1 had no ip address, and I wanted to "yum update" 
+  (which I presume uses port 80) what rules would I need to put in place 
+? I was looking for something to do with 127.0.0.1 (the lo interface) 
+and eth0.
 
-I don't know how you'll get traffic from squid out of the box though.
-If you know a way to make squid reuse the original clients address in
-the outgoing connection, I'm all ears.
+If I got that to work, the squid proxy should automatically follow, no ?
 
+Julian
 
-/Benny
-
+Melissa Meyer wrote:
+> 
+> In the 2.6 kernel, there's an iptables module called physdev to match 
+> the bridge's physical in and out devices so something like:
+> 
+> iptables -A FORWARD -m physdev -p tcp --dport 25
+> --physdev-in eth0 -j ACCEPT
+> 
+> to allow smtp traffic through.
+> 
+> 
+> Julian Lyndon-Smith wrote:
+>> I want to be able to install a box that is a transparent bridge, but 
+>> that is also running a transparent proxy, but with a twist ..
+>>
+>> i am a newbie in all things linux, so bear with me :)
+>>
+>> So far I have managed to install centos 4.3, and following various 
+>> guides on the net, created a bridge between eth1 (connected to lan) and 
+>> eth0 (connected to router). That works great.
+>>
+>> I also managed to install squid, get it running transparently and added 
+>> a rule to iptables to make all that work just fine. So now, all my 
+>> clients attached to the lan run through the squid proxy without them 
+>> knowing.
+>>
+>> Now, for the twist. For development and testing, I assigned an ip 
+>> address and gateway to the bridge. I need to be able for a "non-it" 
+>> person to install this box without having to set it up at all , so it 
+>> cannot have an ip address assigned, as it *may* be in use somewhere else 
+>> on the lan or router.
+>>
+>> So, I changed the ip address to 0.0.0.0. Everything except squid still 
+>> worked. I presume that's because it does not know how to route the data 
+>> to get stuff.
+>>
+>> Can I add a rule to iptables or something to say "anything that's come 
+>> from eth1 into the local box, after processing send to eth0" and 
+>> vice-versa ?
+>>
+>> Julian.
+>> _______________________________________________
+>> Bridge mailing list
+>> Bridge@lists.osdl.org
+>> https://lists.osdl.org/mailman/listinfo/bridge
+>>   
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/bridge
+> 
+> 
 
