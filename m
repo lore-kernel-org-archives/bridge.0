@@ -1,12 +1,13 @@
-Message-ID: <44EE2B45.6090301@kingsley.co.za>
-Date: Fri, 25 Aug 2006 00:42:13 +0200
-From: Etienne Pretorius <etiennep@kingsley.co.za>
+Message-ID: <8cbd14710608250346g2147f993h248488f7d52a8b6b@mail.gmail.com>
+Date: Fri, 25 Aug 2006 06:46:04 -0400
+From: Skept <impossibleprobability@gmail.com>
+In-Reply-To: <mailman.3.1156446009.32505.bridge@lists.osdl.org>
 MIME-Version: 1.0
-References: <44EDE259.4050009@dotr.com> <m3u041yjlk.fsf@ursa.amorsen.dk>
-In-Reply-To: <m3u041yjlk.fsf@ursa.amorsen.dk>
-Content-Type: multipart/alternative;
-	boundary="------------050503000004030002010206"
-Subject: Re: [Bridge] transparent bridge and proxies
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <mailman.3.1156446009.32505.bridge@lists.osdl.org>
+Subject: Re: [Bridge] Bridge Digest, Vol 36, Issue 8
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,129 +16,93 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Julian,
 
---------------050503000004030002010206
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I did not understand what you meant by this paragraph.
 
-I am also all ears,
+"Now, for the twist. For development and testing, I assigned an ip
+address and gateway to the bridge. I need to be able for a "non-it"
+person to install this box without having to set it up at all , so it
+cannot have an ip address assigned, as it *may* be in use somewhere else
+on the lan or router."
 
-The transparent proxy without an IP address was my first attempt - but 
-then I succumbed to the pressures of a due date and just eventually 
-assigned an IP address to the bridged interfaces.
-I suspect that it will have to be done with ip route 2 package - but 
-even the one-way NAT does not make your machine transparent as you need 
-to reply to ARP requests to allow the returning packet to find your 
-machine/application....
+Did your bridge + transparent proxy work without you adding an ip[\and
+route] to the bridge interface? I mean, before the "twist".
 
-PS, could this list please add a reply-to field to just allow me to 
-reply to the list and not to the poster.... (so sorry Benny Amorsen for 
-the other email).
+Skept
 
-Kind Regards
-Etienne
-
-Benny Amorsen wrote:
->>>>>> "JL-S" == Julian Lyndon-Smith <asterisk@dotr.com> writes:
->>>>>>             
+On 8/24/06, bridge-request@lists.osdl.org <bridge-request@lists.osdl.org> wrote:
+> Send Bridge mailing list submissions to
+> 	bridge@lists.osdl.org
 >
-> JL-S> So, I changed the ip address to 0.0.0.0. Everything except squid
-> JL-S> still worked. I presume that's because it does not know how to
-> JL-S> route the data to get stuff.
+> To subscribe or unsubscribe via the World Wide Web, visit
+> 	https://lists.osdl.org/mailman/listinfo/bridge
+> or, via email, send a message with subject or body 'help' to
+> 	bridge-request@lists.osdl.org
 >
-> JL-S> Can I add a rule to iptables or something to say "anything
-> JL-S> that's come from eth1 into the local box, after processing send
-> JL-S> to eth0" and vice-versa ?
+> You can reach the person managing the list at
+> 	bridge-owner@lists.osdl.org
 >
-> How about using 127.0.0.1 or something else on the local subnet?
-> iptables should be able to redirect to that.
->
-> I don't know how you'll get traffic from squid out of the box though.
-> If you know a way to make squid reuse the original clients address in
-> the outgoing connection, I'm all ears.
+> When replying, please edit your Subject line so it is more specific
+> than "Re: Contents of Bridge digest..."
 >
 >
-> /Benny
+> Today's Topics:
 >
+>    1. transparent bridge and proxies (Julian Lyndon-Smith)
+>
+>
+> ----------------------------------------------------------------------
+>
+> Message: 1
+> Date: Thu, 24 Aug 2006 18:31:05 +0100
+> From: Julian Lyndon-Smith <asterisk@dotr.com>
+> Subject: [Bridge] transparent bridge and proxies
+> To: bridge@lists.osdl.org
+> Message-ID: <44EDE259.4050009@dotr.com>
+> Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+>
+> I want to be able to install a box that is a transparent bridge, but
+> that is also running a transparent proxy, but with a twist ..
+>
+> i am a newbie in all things linux, so bear with me :)
+>
+> So far I have managed to install centos 4.3, and following various
+> guides on the net, created a bridge between eth1 (connected to lan) and
+> eth0 (connected to router). That works great.
+>
+> I also managed to install squid, get it running transparently and added
+> a rule to iptables to make all that work just fine. So now, all my
+> clients attached to the lan run through the squid proxy without them
+> knowing.
+>
+> Now, for the twist. For development and testing, I assigned an ip
+> address and gateway to the bridge. I need to be able for a "non-it"
+> person to install this box without having to set it up at all , so it
+> cannot have an ip address assigned, as it *may* be in use somewhere else
+> on the lan or router.
+>
+> So, I changed the ip address to 0.0.0.0. Everything except squid still
+> worked. I presume that's because it does not know how to route the data
+> to get stuff.
+>
+> Can I add a rule to iptables or something to say "anything that's come
+> from eth1 into the local box, after processing send to eth0" and
+> vice-versa ?
+>
+> Julian.
+>
+>
+> ------------------------------
 >
 > _______________________________________________
 > Bridge mailing list
 > Bridge@lists.osdl.org
 > https://lists.osdl.org/mailman/listinfo/bridge
->   
-
---------------050503000004030002010206
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-I am also all ears,<br>
-<br>
-The transparent proxy without an IP address was my first attempt - but
-then I succumbed to the pressures of a due date and just eventually
-assigned an IP address to the bridged interfaces.<br>
-I suspect that it will have to be done with ip route 2 package - but
-even the one-way NAT does not make your machine transparent as you need
-to reply to ARP requests to allow the returning packet to find your
-machine/application.... <br>
-<br>
-PS, could this list please add a reply-to field to just allow me to
-reply to the list and not to the poster.... (so sorry Benny Amorsen for
-the other email).
-<pre class="moz-signature" DEFANGED_cols="72">Kind Regards
-Etienne
-</pre>
-Benny Amorsen wrote:
-<blockquote cite="midm3u041yjlk.fsf@ursa.amorsen.dk" type="cite">
-  <blockquote type="cite">
-    <blockquote type="cite">
-      <blockquote type="cite">
-        <blockquote type="cite">
-          <blockquote type="cite">
-            <pre wrap="">"JL-S" == Julian Lyndon-Smith <a class="moz-txt-link-rfc2396E" href="mailto:asterisk@dotr.com">&lt;asterisk@dotr.com&gt;</a> writes:
-            </pre>
-          </blockquote>
-        </blockquote>
-      </blockquote>
-    </blockquote>
-  </blockquote>
-  <pre wrap=""><!---->
-JL-S&gt; So, I changed the ip address to 0.0.0.0. Everything except squid
-JL-S&gt; still worked. I presume that's because it does not know how to
-JL-S&gt; route the data to get stuff.
-
-JL-S&gt; Can I add a rule to iptables or something to say "anything
-JL-S&gt; that's come from eth1 into the local box, after processing send
-JL-S&gt; to eth0" and vice-versa ?
-
-How about using 127.0.0.1 or something else on the local subnet?
-iptables should be able to redirect to that.
-
-I don't know how you'll get traffic from squid out of the box though.
-If you know a way to make squid reuse the original clients address in
-the outgoing connection, I'm all ears.
-
-
-/Benny
-
-
-_______________________________________________
-Bridge mailing list
-<a class="moz-txt-link-abbreviated" href="mailto:Bridge@lists.osdl.org">Bridge@lists.osdl.org</a>
-<a class="moz-txt-link-freetext" href="https://lists.osdl.org/mailman/listinfo/bridge">https://lists.osdl.org/mailman/listinfo/bridge</a>
-  </pre>
-</blockquote>
-</body>
-</html>
-
---------------050503000004030002010206--
+>
+>
+> End of Bridge Digest, Vol 36, Issue 8
+> *************************************
+>
