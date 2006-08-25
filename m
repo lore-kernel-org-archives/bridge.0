@@ -1,11 +1,11 @@
-Message-ID: <8cbd14710608250353t559ef848n2802452309d67689@mail.gmail.com>
-Date: Fri, 25 Aug 2006 06:53:47 -0400
+Message-ID: <8cbd14710608250422w16b92f21g595e02f32c0a2ea0@mail.gmail.com>
+Date: Fri, 25 Aug 2006 07:22:37 -0400
 From: Skept <impossibleprobability@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Subject: Re: [Bridge] transparent bridge and proxies
+Subject: [Bridge] Bridge-MIB and 802.1d linux bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,17 +16,21 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Julian,
+Hello folks,
 
-I did not understand what you meant by this paragraph.
+Is it possible to gather snmp statistics from a linux bridge using the
+Bridge-MIB [rfc 1493 or rfc 4188]?
 
-"Now, for the twist. For development and testing, I assigned an ip
-address and gateway to the bridge. I need to be able for a "non-it"
-person to install this box without having to set it up at all , so it
-cannot have an ip address assigned, as it *may* be in use somewhere else
-on the lan or router."
+The difference between the two rfc's, I think, is the latter's ability
+to support SMIv2 syntax. I have started with extracting the MIB from
+the rfc's and generating dot1dbridge.c and .h files using mib2c.
+Then i realized that the .c and .h files so generated are just
+templates and that I need to edit them to
+add semantics [ie. how should the agent collect the statistics from
+the bridge/kernel. code?]
 
-Did your bridge + transparent proxy work without you adding an ip[\and
-route] to the bridge interface? I mean, before the "twist".
+So, to expand the original question, if the linux bridge code does
+support collection of snmp stats, where do I start to learn more about
+it[I would like to enable Bridge-MIB support in the snmp agent]?
 
 Skept
