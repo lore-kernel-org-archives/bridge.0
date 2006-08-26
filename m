@@ -1,12 +1,10 @@
-Date: Thu, 24 Aug 2006 20:20:32 +0200
-From: Marek Kierdelewicz <marek@koba.pl>
-Message-ID: <20060824202032.1e27d458@localhost.localdomain>
-In-Reply-To: <44EDE259.4050009@dotr.com>
-References: <44EDE259.4050009@dotr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] transparent bridge and proxies
+Date: Sat, 26 Aug 2006 19:41:28 +0200
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Message-ID: <20060826174128.GA5052@pul.manty.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] patch for a message bug
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,38 +13,45 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-> Now, for the twist. For development and testing, I assigned an ip=20
-> address and gateway to the bridge. I need to be able for a "non-it"=20
-> person to install this box without having to set it up at all , so it=20
-> cannot have an ip address assigned, as it *may* be in use somewhere
-> else on the lan or router.
+Hi!
 
-One sure and elegant solution is using dhcpcd for bridge adressing.
-Unfortunately this requires dhcp server on the net. Dhcp would also
-ensure ip clashes avoidance.
+Jens Seidel reported a bug to Debian about a wrong message on brctl, you can
+see it at http://bugs.debian.org/383938, it is kind of the continuation of
+the ENODEV bug #348617 that was already patched by Stephen on the git.
 
-Loot at http://www.isc.org/index.pl?/sw/dhcp/.
+I have applied the same solution that Stephen applied for the first one,
+follows the patch against git plus a minor exclamation mark modification I
+did so that all ENODEV messages were exclamative (Stephen patch had missed
+that mark).
 
-> So, I changed the ip address to 0.0.0.0. Everything except squid
-> still worked. I presume that's because it does not know how to route
-> the data to get stuff.
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
 
-I don't think you could make squid work without IP address assigned.
-
-> Can I add a rule to iptables or something to say "anything that's
-> come from eth1 into the local box, after processing send to eth0" and=20
-> vice-versa ?
-
-Squid needs dns access and needs to know where to direct it's
-requests.
-
-regards,
---=20
-Marek Kierdelewicz
-Kierownik Dzia?u System=F3w Sieciowych, KoBa
-Manager of Network Systems Department, KoBa
-tel. (85) 7406466; fax. (85) 7406467
-e-mail: admin@koba.pl
-
+diff -u -r bridge-utils.old/brctl/brctl_cmd.c bridge-utils-1.1/brctl/brctl_cmd.c
+--- bridge-utils.old/brctl/brctl_cmd.c	2006-08-26 19:31:23.000000000 +0200
++++ bridge-utils-1.1/brctl/brctl_cmd.c	2006-08-26 19:31:49.000000000 +0200
+@@ -99,7 +99,7 @@
+ 			if (if_nametoindex(ifname) == 0)
+ 				fprintf(stderr, "interface %s does not exist!\n", ifname);
+ 			else
+-				fprintf(stderr, "bridge %s does not exist\n", brname);
++				fprintf(stderr, "bridge %s does not exist!\n", brname);
+ 			break;
+ 
+ 		case EBUSY:
+@@ -139,8 +139,10 @@
+ 			continue;
+ 
+ 		case ENODEV:
+-			fprintf(stderr, "interface %s does not exist!\n", 
+-				ifname);
++			if (if_nametoindex(ifname) == 0)
++				fprintf(stderr, "interface %s does not exist!\n", ifname);
++			else
++				fprintf(stderr, "bridge %s does not exist!\n", brname);
+ 			break;
+ 
+ 		case EINVAL:
