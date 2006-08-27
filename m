@@ -1,10 +1,12 @@
-Date: Sat, 26 Aug 2006 19:41:28 +0200
-From: Santiago Garcia Mantinan <bridge@manty.net>
-Message-ID: <20060826174128.GA5052@pul.manty.net>
+Message-ID: <82b0add70608270705t7dc2bb67h108317b34cdc12f3@mail.gmail.com>
+Date: Sun, 27 Aug 2006 10:05:01 -0400
+From: "Joubert Berger" <joubertb@gmail.com>
+Sender: joubert@berger-family.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Subject: [Bridge] patch for a message bug
+Subject: [Bridge] SMP vs UNP performance
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,45 +15,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-Hi!
+I was running a frame loss test the other day against an rhel4 smp
+kernel and a non-smp kernel.  I noticed I was getting better numbers
+when I ran the non-smp kernel.  I was surprised by that.  Anyone have
+any insight into this?  I am running this with e1000 dirvers.
 
-Jens Seidel reported a bug to Debian about a wrong message on brctl, you can
-see it at http://bugs.debian.org/383938, it is kind of the continuation of
-the ENODEV bug #348617 that was already patched by Stephen on the git.
+I also ran a test where I ran the smp kernel with hyper threading
+turned on and off.  There, the frame loss numbers were worse when
+hyper threading was turned off.  I would not have thought that having
+hyperthreading turned off would make such a big difference.
 
-I have applied the same solution that Stephen applied for the first one,
-follows the patch against git plus a minor exclamation mark modification I
-did so that all ENODEV messages were exclamative (Stephen patch had missed
-that mark).
+Just trying to make sense of these numbers :-)
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
-
-diff -u -r bridge-utils.old/brctl/brctl_cmd.c bridge-utils-1.1/brctl/brctl_cmd.c
---- bridge-utils.old/brctl/brctl_cmd.c	2006-08-26 19:31:23.000000000 +0200
-+++ bridge-utils-1.1/brctl/brctl_cmd.c	2006-08-26 19:31:49.000000000 +0200
-@@ -99,7 +99,7 @@
- 			if (if_nametoindex(ifname) == 0)
- 				fprintf(stderr, "interface %s does not exist!\n", ifname);
- 			else
--				fprintf(stderr, "bridge %s does not exist\n", brname);
-+				fprintf(stderr, "bridge %s does not exist!\n", brname);
- 			break;
- 
- 		case EBUSY:
-@@ -139,8 +139,10 @@
- 			continue;
- 
- 		case ENODEV:
--			fprintf(stderr, "interface %s does not exist!\n", 
--				ifname);
-+			if (if_nametoindex(ifname) == 0)
-+				fprintf(stderr, "interface %s does not exist!\n", ifname);
-+			else
-+				fprintf(stderr, "bridge %s does not exist!\n", brname);
- 			break;
- 
- 		case EINVAL:
+--joubert
