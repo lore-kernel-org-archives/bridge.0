@@ -1,11 +1,10 @@
-Message-ID: <8cbd14710609010117n60b7e35bge7147abe8f3c259e@mail.gmail.com>
-Date: Fri, 1 Sep 2006 04:17:41 -0400
-From: Skept <impossibleprobability@gmail.com>
+Message-ID: <17657.58029.396742.856781@fisica.ufpr.br>
+Date: Sat, 2 Sep 2006 16:59:41 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Subject: Re: [Bridge] Trouble with ARP traffic
+From: carlos@fisica.ufpr.br (Carlos Carvalho)
+Subject: [Bridge] problems with bridging and dhcp
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,20 +13,41 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
-Raffaele
+Hello,
 
-If you don't want to see much arp traffic on eth1, assuming that you
-have a subnet 10.190.190.0/24, with 10.190.190.1 on eth1 and the rest
-of the hosts on eth0, you can use for example, the following filter
+I'm trying to use bridging in our servers and found a problem with
+dhcp. Some clients manage to get an IP from the server, using
+DHCPDISCOVER/DHCPREQUEST. However others use BOOTREQUEST and these
+don't seem to get an answer. The server sends a BOOTREPLY but the
+clients continue to send BOOTREQUEST for ever. There are also some
+(occasional) messages from the dhcp server like "ip length 576
+disagrees with bytes received 590" followed by "accepting packet with
+data after udp payload".
 
-ebtables -N f1
-ebtables -P f1 DROP
-ebtables -t filter -A FORWARD -i eth0 -o eth1 -p ARP -j f1
-ebtables -t filter -A f1 -p ARP --arp-ip-src 10.190.190.0/24
---arp-ip-dst 10.190.190.1 -j ACCEPT
+I'm using kernel.org's 2.6.17.11. The bridge is created like this:
 
-That way you wont see much arp broadcast traffic on eth1. Hope it helps.
+ifconfig eth1 up
+vconfig set_name_type DEV_PLUS_VID_NO_PAD
+brctl addbr br0
 
-Skept
+for i in <range of vlan tags>; do
+   vconfig add eth1 $i
+   vconfig set_flag eth1.$i 1 0
+   brctl addif br0 eth1.$i
+done
+
+for i in <range of vlan tags>; do
+   ifconfig eth1.$i up
+done   
+
+ifconfig br0 <internal-ip>
+
+Note that eth1 doesn't get an IP.
+
+I also have a question. With the above setup shouldn't the bridge
+forward packets between all vlans automatically? ebtables says the
+default policy is accept but pinging between machines in different
+vlans doesn't work. Does the bridge adjusts the tags (I'd think so)?
+If it doesn't the switch will block the frames.
