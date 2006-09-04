@@ -1,10 +1,10 @@
-Message-ID: <17657.58029.396742.856781@fisica.ufpr.br>
-Date: Sat, 2 Sep 2006 16:59:41 -0300
+Message-ID: <20060904153922.22148.qmail@web54303.mail.yahoo.com>
+Date: Mon, 4 Sep 2006 08:39:22 -0700 (PDT)
+From: pfer <forgamedev@yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: carlos@fisica.ufpr.br (Carlos Carvalho)
-Subject: [Bridge] problems with bridging and dhcp
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] q-bridge-mib and snmp question
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,41 +13,56 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-Hello,
+Hello people!
 
-I'm trying to use bridging in our servers and found a problem with
-dhcp. Some clients manage to get an IP from the server, using
-DHCPDISCOVER/DHCPREQUEST. However others use BOOTREQUEST and these
-don't seem to get an answer. The server sends a BOOTREPLY but the
-clients continue to send BOOTREQUEST for ever. There are also some
-(occasional) messages from the dhcp server like "ip length 576
-disagrees with bytes received 590" followed by "accepting packet with
-data after udp payload".
+Sorry if this is a bit off-topic, but I was not able
+to find a more appropriate mailing list for this.
 
-I'm using kernel.org's 2.6.17.11. The bridge is created like this:
+I would like to set forwarding rule entries in an
+ethernet switch, with snmp.
 
-ifconfig eth1 up
-vconfig set_name_type DEV_PLUS_VID_NO_PAD
-brctl addbr br0
+Problem is, it works with the D-link web-manager and
+terminal, but not with snmp.
 
-for i in <range of vlan tags>; do
-   vconfig add eth1 $i
-   vconfig set_flag eth1.$i 1 0
-   brctl addif br0 eth1.$i
-done
+I'd be happy if you could point me to a more
+appropriate list too :D
 
-for i in <range of vlan tags>; do
-   ifconfig eth1.$i up
-done   
+dot1qStaticUnicastTable stores the per-vlan entries I
+wish to fill (da-mac address, etc), but when I try to
+use something like:
 
-ifconfig br0 <internal-ip>
+#snmpset -c private -v2c 10.4.2.102
+.1.3.6.1.2.1.17.7.1.3.1.1.3.4.0.16.90.177.25.152.0 x
+00004000
 
-Note that eth1 doesn't get an IP.
+(the 00004000 egress ports for the 4 numbered vlan for
 
-I also have a question. With the above setup shouldn't the bridge
-forward packets between all vlans automatically? ebtables says the
-default policy is accept but pinging between machines in different
-vlans doesn't work. Does the bridge adjusts the tags (I'd think so)?
-If it doesn't the switch will block the frames.
+ the 0.16.90.177.25.152 mac, for all ports (0 at end)
+)
+
+I get a "non-writeable" error, contrary to what the
+q-brigde-mib rfc says of this entry. (read-write)
+
+The same value can be read back after it is set with
+other methods, so it shall be working.
+
+My guess is that I shall set another variable
+somewhere, but I can't find it.
+
+I use net-snmp, worked for many stuff fine, so the
+problem is not there.
+
+
+Any suggestions? Someone tried to set static
+forwarding rules with 802.1q?
+
+Thanks for help,
+
+Ferenc Pint=E9r
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around=20
+http://mail.yahoo.com=20
