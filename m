@@ -1,10 +1,12 @@
-Date: Mon, 11 Sep 2006 10:49:28 -0700
+Date: Mon, 11 Sep 2006 10:57:44 -0700
 From: David Kimdon <david.kimdon@devicescape.com>
-Message-ID: <20060911174928.GA3451@devicescape.com>
+Message-ID: <20060911175744.GA3490@devicescape.com>
+References: <20060911174928.GA3451@devicescape.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Subject: [Bridge] RFC: [PATCH] bridge vlan integration
+In-Reply-To: <20060911174928.GA3451@devicescape.com>
+Subject: Re: [Bridge] RFC: [PATCH] bridge vlan integration
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,530 +15,302 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: David Kimdon <david.kimdon@devicescape.com>
+Cc: bridge@lists.osdl.org
 
 Hi,
 
-The attached patches enables the bridge to filter and forward packets
-according to their IEEE 802.1q headers.  The goals behind this change
-include :
+Here is the corresponding patch to brctl.
 
-- Enable running STP on 802.1q tagged networks.  STP packets
-  must be untagged.  It isn't obvious how else to enable STP
-  with the current bridge and vlan code.
-- Add native support for an untagged vlan.  Currently an untagged
-  vlan can be implimented using ebtables or similar.
-- On devices bridging a large number of interfaces across various
-  vlans this significantly simplifies configuration and, depending on
-  configuration, can improve performance.
+-David
 
-Comments appreciated,
-
-David
-
-From: Simon Barber <simon@devicescape.com>
-
-Signed-off-by: Simon Barber <simon@devicescape.com>
-Signed-off-by: David Kimdon <david.kimdon@devicescape.com>
-
-Index: wireless-dev/include/linux/if_bridge.h
+Index: bridge-utils-1.1/brctl/brctl_cmd.c
 ===================================================================
---- wireless-dev.orig/include/linux/if_bridge.h
-+++ wireless-dev/include/linux/if_bridge.h
-@@ -44,6 +44,10 @@
- #define BRCTL_SET_PORT_PRIORITY 16
- #define BRCTL_SET_PATH_COST 17
- #define BRCTL_GET_FDB_ENTRIES 18
-+#define BRCTL_SET_PORT_UNTAGGED_VLAN 19
-+#define BRCTL_ADD_PORT_VLAN 20
-+#define BRCTL_DEL_PORT_VLAN 21
-+#define BRCTL_GET_PORT_VLAN_INFO 22
- 
- #define BR_STATE_DISABLED 0
- #define BR_STATE_LISTENING 1
-@@ -91,6 +95,12 @@ struct __port_info
- 	__u32 hold_timer_value;
- };
- 
-+struct __vlan_info
-+{
-+	__u32 untagged;
-+	__u8 filter[4096/8];
-+};
-+
- struct __fdb_entry
- {
- 	__u8 mac_addr[6];
-Index: wireless-dev/include/linux/skbuff.h
-===================================================================
---- wireless-dev.orig/include/linux/skbuff.h
-+++ wireless-dev/include/linux/skbuff.h
-@@ -296,6 +296,9 @@ struct sk_buff {
- #endif
- 	__u32			nfmark;
- #endif /* CONFIG_NETFILTER */
-+#ifdef CONFIG_BRIDGE_VLAN
-+	unsigned int 		vlan;
-+#endif
- #ifdef CONFIG_NET_SCHED
- 	__u16			tc_index;	/* traffic control index */
- #ifdef CONFIG_NET_CLS_ACT
-Index: wireless-dev/net/bridge/br_forward.c
-===================================================================
---- wireless-dev.orig/net/bridge/br_forward.c
-+++ wireless-dev/net/bridge/br_forward.c
-@@ -24,7 +24,16 @@
- static inline int should_deliver(const struct net_bridge_port *p, 
- 				 const struct sk_buff *skb)
- {
--	return (skb->dev != p->dev && p->state == BR_STATE_FORWARDING);
-+	if (skb->dev == p->dev ||
-+	    p->state != BR_STATE_FORWARDING)
-+		return 0;
-+
-+#ifdef CONFIG_BRIDGE_VLAN
-+	if (skb->vlan && br_vlan_filter(skb, &p->vlan))
-+		return 0;
-+#endif
-+
-+	return 1;
+--- bridge-utils-1.1.orig/brctl/brctl_cmd.c
++++ bridge-utils-1.1/brctl/brctl_cmd.c
+@@ -390,6 +390,105 @@ static int br_cmd_showmacs(int argc, cha
+ 	return 0;
  }
  
- static inline unsigned packet_length(const struct sk_buff *skb)
-@@ -47,6 +56,10 @@ int br_dev_queue_push_xmit(struct sk_buf
- 		{
- 			skb_push(skb, ETH_HLEN);
- 
-+	 		if (br_vlan_output_frame(&skb,
-+ 						 skb->dev->br_port->vlan.untagged))
-+ 				return 0;
++static int br_cmd_setuntagged(int argc, char*const* argv)
++{
++	int vlan_id, err;
 +
- 			dev_queue_xmit(skb);
- 		}
- 	}
-Index: wireless-dev/net/bridge/br_if.c
-===================================================================
---- wireless-dev.orig/net/bridge/br_if.c
-+++ wireless-dev/net/bridge/br_if.c
-@@ -227,6 +227,7 @@ static struct net_device *new_bridge_dev
- 	INIT_LIST_HEAD(&br->age_list);
- 
- 	br_stp_timer_init(br);
-+	br_vlan_init(&br->vlan);
- 
- 	return dev;
- }
-@@ -278,6 +279,7 @@ static struct net_bridge_port *new_nbp(s
- 	p->state = BR_STATE_DISABLED;
- 	INIT_WORK(&p->carrier_check, port_carrier_check, dev);
- 	br_stp_port_timer_init(p);
-+	br_vlan_init(&p->vlan);
- 
- 	kobject_init(&p->kobj);
- 	kobject_set_name(&p->kobj, SYSFS_BRIDGE_PORT_ATTR);
-Index: wireless-dev/net/bridge/br_input.c
-===================================================================
---- wireless-dev.orig/net/bridge/br_input.c
-+++ wireless-dev/net/bridge/br_input.c
-@@ -26,12 +26,20 @@ static void br_pass_frame_up(struct net_
- {
- 	struct net_device *indev;
- 
-+	if (br_vlan_filter(skb, &br->vlan)) {
-+		kfree_skb(skb);
-+		return;
++	if (!strcmp(argv[3], "none"))
++		vlan_id = 0;
++	else	if (sscanf(argv[3], "%i", &vlan_id) != 1 ||
++			vlan_id < 1 || vlan_id > 4094) {
++		fprintf(stderr, "vlan id must be 'none' or from 1 to 4094\n");
++		return 1;
 +	}
 +
- 	br->statistics.rx_packets++;
- 	br->statistics.rx_bytes += skb->len;
- 
- 	indev = skb->dev;
- 	skb->dev = br->dev;
- 
-+	if (br_vlan_output_frame(&skb, br->vlan.untagged))
-+		return;
-+
- 	NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, indev, NULL,
- 		netif_receive_skb);
- }
-@@ -136,6 +144,10 @@ int br_handle_frame(struct net_bridge_po
- 	}
- 
- 	if (p->state == BR_STATE_FORWARDING || p->state == BR_STATE_LEARNING) {
-+		if (br_vlan_input_frame(skb, &p->vlan)) {
-+			return 1;
-+		}
-+
- 		if (br_should_route_hook) {
- 			if (br_should_route_hook(pskb)) 
- 				return 0;
-Index: wireless-dev/net/bridge/br_ioctl.c
-===================================================================
---- wireless-dev.orig/net/bridge/br_ioctl.c
-+++ wireless-dev/net/bridge/br_ioctl.c
-@@ -302,6 +302,18 @@ static int old_dev_ioctl(struct net_devi
- 	case BRCTL_GET_FDB_ENTRIES:
- 		return get_fdb_entries(br, (void __user *)args[1], 
- 				       args[2], args[3]);
-+
-+#ifdef CONFIG_BRIDGE_VLAN
-+	case BRCTL_SET_PORT_UNTAGGED_VLAN:
-+		return br_vlan_set_untagged(br, args[1], args[2]);
-+
-+	case BRCTL_ADD_PORT_VLAN:
-+	case BRCTL_DEL_PORT_VLAN:
-+		return br_vlan_set_filter(br, args[0], args[1], args[2]);
-+
-+	case BRCTL_GET_PORT_VLAN_INFO:
-+		return br_vlan_get_info(br, (void *)args[1], args[2]);
-+#endif
- 	}
- 
- 	return -EOPNOTSUPP;
-Index: wireless-dev/net/bridge/br_private.h
-===================================================================
---- wireless-dev.orig/net/bridge/br_private.h
-+++ wireless-dev/net/bridge/br_private.h
-@@ -59,6 +59,14 @@ struct net_bridge_fdb_entry
- 	unsigned char			is_static;
- };
- 
-+#ifdef CONFIG_BRIDGE_VLAN
-+struct net_bridge_port_vlan
-+{
-+	int				untagged;
-+	u8				filter[4096/8];
-+};
-+#endif
-+
- struct net_bridge_port
- {
- 	struct net_bridge		*br;
-@@ -84,6 +92,9 @@ struct net_bridge_port
- 	struct kobject			kobj;
- 	struct work_struct		carrier_check;
- 	struct rcu_head			rcu;
-+#ifdef CONFIG_BRIDGE_VLAN
-+	struct net_bridge_port_vlan 	vlan;
-+#endif
- };
- 
- struct net_bridge
-@@ -96,6 +107,9 @@ struct net_bridge
- 	struct hlist_head		hash[BR_HASH_SIZE];
- 	struct list_head		age_list;
- 	unsigned long			feature_mask;
-+#ifdef CONFIG_BRIDGE_VLAN
-+	struct net_bridge_port_vlan 	vlan;
-+#endif
- 
- 	/* STP */
- 	bridge_id			designated_root;
-@@ -258,4 +272,32 @@ extern void br_sysfs_delbr(struct net_de
- #define br_sysfs_delbr(dev)	do { } while(0)
- #endif /* CONFIG_SYSFS */
- 
-+#ifdef CONFIG_BRIDGE_VLAN
-+#include <linux/if_vlan.h>
-+
-+static inline int br_vlan_filter(const struct sk_buff *skb,
-+				 const struct net_bridge_port_vlan *vlan)
-+{
-+	return !(vlan->filter[skb->vlan / 8] & (1 << (skb->vlan & 7)));
-+}
-+
-+/* br_vlan.c */
-+extern int br_vlan_input_frame(struct sk_buff *skb,
-+			       struct net_bridge_port_vlan *vlan);
-+extern int br_vlan_output_frame(struct sk_buff **pskb, unsigned int untagged);
-+extern void br_vlan_init(struct net_bridge_port_vlan *vlan);
-+extern int br_vlan_set_untagged(struct net_bridge *br,
-+				unsigned int port, unsigned int vid);
-+extern int br_vlan_set_filter(struct net_bridge *br,
-+			      unsigned int cmd,
-+			      unsigned int port, unsigned int vid);
-+extern int br_vlan_get_info(struct net_bridge *br,
-+			    void *user_mem, unsigned long port);
-+#else
-+
-+#define br_vlan_filter(skb, vlan)		(0)
-+#define br_vlan_input_frame(skb, vlan)		(0)
-+#define br_vlan_output_frame(pskb, untagged)	(0)
-+#define br_vlan_init(vlan)			do { } while(0)
-+#endif /* CONFIG_BRIDGE_VLAN */
- #endif
-Index: wireless-dev/net/bridge/br_vlan.c
-===================================================================
---- /dev/null
-+++ wireless-dev/net/bridge/br_vlan.c
-@@ -0,0 +1,203 @@
-+/*
-+ *	VLAN support
-+ *	Linux ethernet bridge
-+ *
-+ *	Authors:
-+ *	Simon Barber			<simon@devicescape.com>
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/netdevice.h>
-+#include <linux/inetdevice.h>
-+#include <linux/skbuff.h>
-+#include <linux/if_bridge.h>
-+#include <linux/netfilter_bridge.h>
-+#include <asm/uaccess.h>
-+#include "br_private.h"
-+
-+int br_vlan_input_frame(struct sk_buff *skb, struct net_bridge_port_vlan *vlan)
-+{
-+	if (skb->protocol != htons(ETH_P_8021Q)) {
-+		skb->vlan = vlan->untagged;
-+	} else {
-+		struct vlan_ethhdr *vhdr = (struct vlan_ethhdr *)(skb->mac.raw);
-+		unsigned short vlan_TCI = ntohs(vhdr->h_vlan_TCI);
-+		unsigned short vid = (vlan_TCI & VLAN_VID_MASK);
-+
-+		skb->vlan = vid ? vid : vlan->untagged;
-+	}
-+
-+	if (skb->vlan == 0)
-+		goto err;
-+
-+	if (br_vlan_filter(skb, vlan))
-+		goto err;
-+
-+	return 0;
-+
-+err:
-+	kfree_skb(skb);
-+	return 1;
-+}
-+
-+int br_vlan_output_frame(struct sk_buff **pskb, unsigned int untagged)
-+{
-+	struct sk_buff *skb = *pskb;
-+
-+	if (skb->vlan == 0)	/* don't touch the frame */
-+		return 0;
-+
-+	if (skb->vlan == untagged) {
-+		/* frame should be untagged */
-+		if (eth_hdr(skb)->h_proto == htons(ETH_P_8021Q)) {
-+			/* remove VLAN tag */
-+			if (skb_cloned(skb) || skb_shared(skb)) {
-+				struct sk_buff *new_skb;
-+
-+				new_skb = skb_copy(skb, GFP_ATOMIC);
-+				kfree_skb(skb);
-+				if (!new_skb)
-+					return 1;
-+				*pskb = skb = new_skb;
-+			}
-+
-+			skb->mac.raw += VLAN_HLEN;
-+			memmove(skb->mac.raw, skb->data, ETH_ALEN * 2);
-+			skb_pull(skb, VLAN_HLEN);
-+		}
-+	} else {
-+		/* frame should be tagged */
-+		if (eth_hdr(skb)->h_proto != htons(ETH_P_8021Q)) {
-+			/* add VLAN tag */
-+			struct vlan_ethhdr *vhdr;
-+			if (skb_cloned(skb) || skb_shared(skb)) {
-+				struct sk_buff *new_skb;
-+
-+				new_skb = skb_copy(skb, GFP_ATOMIC);
-+				kfree_skb(skb);
-+				if (!new_skb)
-+					return 1;
-+				*pskb = skb = new_skb;
-+			}
-+
-+			if (skb_headroom(skb) < VLAN_HLEN) {
-+				if (pskb_expand_head(skb, VLAN_HLEN, 0,
-+						     GFP_ATOMIC)) {
-+					kfree_skb(skb);
-+					return 1;
-+				}
-+			}
-+
-+			skb_push(skb, VLAN_HLEN);
-+
-+			skb->mac.raw -= VLAN_HLEN;
-+			memmove(skb->mac.raw, skb->mac.raw + VLAN_HLEN,
-+				ETH_ALEN * 2);
-+			vhdr = (struct vlan_ethhdr *)skb->mac.raw;
-+			vhdr->h_vlan_proto = htons(ETH_P_8021Q);
-+			vhdr->h_vlan_TCI = htons(skb->vlan);
-+		} else {
-+			/* ensure VID is correct */
-+			struct vlan_ethhdr *vhdr =
-+				(struct vlan_ethhdr *)skb->mac.raw;
-+			vhdr->h_vlan_TCI = (vhdr->h_vlan_TCI & htons(~VLAN_VID_MASK)) |
-+					    htons(skb->vlan);
-+		}
-+		// TODO: set priority in tag correctly
-+	}
-+
-+	return 0;
-+}
-+
-+void br_vlan_init(struct net_bridge_port_vlan *vlan)
-+{
-+	vlan->untagged = 1;
-+	vlan->filter[0] = 1 << 1;
-+}
-+
-+/* ioctl functions */
-+int br_vlan_set_untagged(struct net_bridge *br,
-+			 unsigned int port, unsigned int vid)
-+{
-+	struct net_bridge_port_vlan *vlan;
-+
-+	if (vid > 4094)
-+		return -EINVAL;
-+
-+	if (port) {
-+		struct net_bridge_port *p = br_get_port(br, port);
-+
-+		if (p == NULL)
-+			return -EINVAL;
-+		vlan = &p->vlan;
-+	} else {
-+		vlan = &br->vlan;
-+	}
-+
-+	vlan->untagged = vid;
-+
-+	return 0;
-+}
-+
-+int br_vlan_set_filter(struct net_bridge *br,
-+		       unsigned int cmd, unsigned int port, unsigned int vid)
-+{
-+	struct net_bridge_port_vlan *vlan;
-+	int add = (cmd == BRCTL_ADD_PORT_VLAN);
-+
-+	if (vid > 4094)
-+		return -EINVAL;
-+
-+	if (port) {
-+		struct net_bridge_port *p = br_get_port(br, port);
-+
-+		if (p == NULL)
-+			return -EINVAL;
-+		vlan = &p->vlan;
-+	} else {
-+		vlan = &br->vlan;
-+	}
-+
-+	if (vid == 0) {
-+		/* special case - add/del for all vlans */
-+		memset(vlan->filter, add ? 255 : 0, 4096 / 8);
-+		if (add) {
-+			vlan->filter[4095 / 8] &= ~(1 << (4095 & 7));
-+		}
-+	} else if (add)
-+		vlan->filter[vid / 8] |= 1 << (vid & 7);
++	if (!strcmp(argv[2], "local"))
++		err = br_set_port_untagged_vlan(argv[1], 0, vlan_id);
 +	else
-+		vlan->filter[vid / 8] &= ~(1 << (vid & 7));
++		err = br_set_port_untagged_vlan(argv[1], argv[2], vlan_id);
 +
-+	return 0;
++	if (err)
++		fprintf(stderr, "set untagged vlan failed: %s\n",
++			strerror(err));
++	return err != 0;
 +}
 +
-+int br_vlan_get_info(struct net_bridge *br, void *user_mem, unsigned long port)
++static int br_cmd_vlanfilter(char*const* argv, int (*func)(const char *, const char *, unsigned int))
 +{
-+	struct net_bridge_port_vlan *vlan;
-+	struct __vlan_info v;
++	int vlan_id, err;
 +
-+	if (port) {
-+		struct net_bridge_port *p = br_get_port(br, port);
-+
-+		if (p == NULL)
-+			return -EINVAL;
-+		vlan = &p->vlan;
-+	} else {
-+		vlan = &br->vlan;
++	if (!strcmp(argv[3], "all"))
++		vlan_id = 0;
++	else	if (sscanf(argv[3], "%i", &vlan_id) != 1 ||
++			vlan_id < 1 || vlan_id > 4094) {
++		fprintf(stderr, "vlan id must be 'all' or from 1 to 4094\n");
++		return 1;
 +	}
 +
-+	memset(&v, 0, sizeof(v));
-+	v.untagged = vlan->untagged;
-+	memcpy(v.filter, vlan->filter, 4096 / 8);
++	err = func(argv[1], strcmp(argv[2], "local")?argv[2]:0, vlan_id);
++	if (err)
++		fprintf(stderr, "set vlan filter failed: %s\n",
++			strerror(err));
++	return err != 0;
++}
 +
-+	if (copy_to_user((void __user *)user_mem, &v, sizeof(v)))
-+		return -EFAULT;
++static int br_cmd_addvlan(int argc, char*const* argv)
++{
++	return br_cmd_vlanfilter(argv, br_add_vlan);
++}
++
++static int br_cmd_delvlan(int argc, char*const* argv)
++{
++	return br_cmd_vlanfilter(argv, br_del_vlan);
++}
++
++int show_port_vlan(const char *brname, const char *port,
++					   void *arg )
++{
++	int err, count = 0, i;
++	struct vlan_info v;
++
++	err = br_get_port_vlan_info(brname, port, &v);
++	if (err)
++		fprintf(stderr, "get single vlan failed: %s\n",
++			strerror(err));
++
++	printf("%s\t", port?port:brname);
++
++	if (v.untagged)
++		printf("%d\t\t", v.untagged);
++	else
++		printf("none\t\t");
++
++	for(i = 1; i < 4095; i++)
++		if (v.filter[i / 8] & (1 << (i & 7)))
++			count++;
++
++	if (count == 4094)
++		printf("all\n");
++	else if (count == 0)
++		printf("none\n");
++	else {
++		int first = 1;
++
++		for(i = 1; i < 4095; i++)
++			if (v.filter[i / 8] & (1 << (i & 7))) {
++				printf("%s%d", first?"":", ", i);
++				first = 0;
++			}
++		printf("\n");
++	}
++
++	return err != 0;
++}
++
++static int br_cmd_showvlans(int argc, char*const* argv)
++{
++	printf("Port\tUntagged vlan\tEnabled Vlans\n");
++	show_port_vlan(argv[1], 0, 0);
++	return br_foreach_port(argv[1], show_port_vlan, 0);
++}
++
+ static const struct command commands[] = {
+ 	{ 1, "addbr", br_cmd_addbr, "<bridge>\t\tadd bridge" },
+ 	{ 1, "delbr", br_cmd_delbr, "<bridge>\t\tdelete bridge" },
+@@ -418,6 +517,14 @@ static const struct command commands[] =
+ 	  "<bridge>\t\tshow bridge stp info"},
+ 	{ 2, "stp", br_cmd_stp,
+ 	  "<bridge> {on|off}\tturn stp on/off" },
++ 	{ 3, "setuntagged", br_cmd_setuntagged,
++ 	  "<bridge> <port>|local <vlan_id>|none\tset untagged vlan id" },
++ 	{ 3, "addvlan", br_cmd_addvlan,
++ 	  "<bridge> <port>|local <vlan_id>|all\tenable specific or all vlans" },
++ 	{ 3, "delvlan", br_cmd_delvlan,
++ 	  "<bridge> <port>|local <vlan_id>|all\tdisable specific or all vlans" },
++ 	{ 1, "showvlans", br_cmd_showvlans,
++ 	  "<bridge>\t\tshow vlan info"},
+ };
+ 
+ const struct command *command_lookup(const char *cmd)
+Index: bridge-utils-1.1/libbridge/libbridge.h
+===================================================================
+--- bridge-utils-1.1.orig/libbridge/libbridge.h
++++ bridge-utils-1.1/libbridge/libbridge.h
+@@ -76,6 +76,12 @@ struct port_info
+ 	struct timeval hold_timer_value;
+ };
+ 
++struct vlan_info
++{
++	unsigned untagged;
++	unsigned char filter[4096/8];
++};
++
+ extern int br_init(void);
+ extern int br_refresh(void);
+ extern void br_shutdown(void);
+@@ -107,4 +113,13 @@ extern int br_set_path_cost(const char *
+ 			    int path_cost);
+ extern int br_read_fdb(const char *br, struct fdb_entry *fdbs, 
+ 		       unsigned long skip, int num);
++
++int br_set_port_untagged_vlan(const char *brname, const char *port,
++		     unsigned int vlan_id);
++int br_add_vlan(const char *brname, const char *port,
++		     unsigned int vlan_id);
++int br_del_vlan(const char *brname, const char *port,
++		     unsigned int vlan_id);
++int br_get_port_vlan_info(const char *brname, const char *port,
++		     struct vlan_info *info);
+ #endif
+Index: bridge-utils-1.1/libbridge/libbridge_devif.c
+===================================================================
+--- bridge-utils-1.1.orig/libbridge/libbridge_devif.c
++++ bridge-utils-1.1/libbridge/libbridge_devif.c
+@@ -506,3 +506,129 @@ int br_read_fdb(const char *bridge, stru
+ 	
+ 	return n;
+ }
++
++static int br_dev_ioctl(const char *br_name, unsigned long cmd,
++	unsigned long arg0, unsigned long arg1, unsigned long arg2)
++{
++	int fd;
++	struct ifreq ifr;
++	unsigned long args[4];
++	int rv;
++
++	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
++		perror("socket[AF_INET,SOCK_STREAM]");
++		return -1;
++	}
++
++	args[0] = cmd;
++	args[1] = arg0;
++	args[2] = arg1;
++	args[3] = arg2;
++
++	strncpy(ifr.ifr_name, br_name, sizeof(ifr.ifr_name));
++	ifr.ifr_data = (__caddr_t) args;
++
++	rv = ioctl(fd, SIOCDEVPRIVATE, &ifr);
++
++	if (rv) {
++		perror("ioctl[SIOCDEVPRIVATE]");
++		close(fd);
++		return -1;
++	}
++
++	close(fd);
++	return 0;
++}
++
++int br_set_port_untagged_vlan(const char *brname, const char *port,
++		     unsigned int vlan_id)
++{
++	int index;
++
++	if (port) {
++		index = get_portno(brname, port);
++		if (index < 1)
++			return errno;
++	} else
++		index = 0;
++
++	if (br_dev_ioctl(brname, BRCTL_SET_PORT_UNTAGGED_VLAN,
++		index, vlan_id, 0)) {
++		dprintf("can't set port %s(%d) untagged vlan %s\n",
++			brname, index, strerror(errno));
++		return errno;
++	}
 +
 +	return 0;
 +}
-Index: wireless-dev/net/bridge/Makefile
-===================================================================
---- wireless-dev.orig/net/bridge/Makefile
-+++ wireless-dev/net/bridge/Makefile
-@@ -12,4 +12,6 @@ bridge-$(CONFIG_SYSFS) += br_sysfs_if.o 
- 
- bridge-$(CONFIG_BRIDGE_NETFILTER) += br_netfilter.o
- 
-+bridge-$(CONFIG_BRIDGE_VLAN) += br_vlan.o
 +
- obj-$(CONFIG_BRIDGE_NF_EBTABLES) += netfilter/
-Index: wireless-dev/net/core/skbuff.c
-===================================================================
---- wireless-dev.orig/net/core/skbuff.c
-+++ wireless-dev/net/core/skbuff.c
-@@ -486,6 +486,9 @@ struct sk_buff *skb_clone(struct sk_buff
- 	nf_bridge_get(skb->nf_bridge);
- #endif
- #endif /*CONFIG_NETFILTER*/
-+#ifdef CONFIG_BRIDGE_VLAN
-+	C(vlan);
-+#endif
- #ifdef CONFIG_NET_SCHED
- 	C(tc_index);
- #ifdef CONFIG_NET_CLS_ACT
-@@ -550,6 +553,9 @@ static void copy_skb_header(struct sk_bu
- 	nf_bridge_get(old->nf_bridge);
- #endif
- #endif
-+#ifdef CONFIG_BRIDGE_VLAN
-+	new->vlan	= old->vlan;
-+#endif
- #ifdef CONFIG_NET_SCHED
- #ifdef CONFIG_NET_CLS_ACT
- 	new->tc_verd = old->tc_verd;
-Index: wireless-dev/net/bridge/Kconfig
-===================================================================
---- wireless-dev.orig/net/bridge/Kconfig
-+++ wireless-dev/net/bridge/Kconfig
-@@ -30,3 +30,13 @@ config BRIDGE
- 	  will be called bridge.
- 
- 	  If unsure, say N.
++int br_add_vlan(const char *brname, const char *port,
++		     unsigned int vlan_id)
++{
++	int index;
 +
-+config BRIDGE_VLAN
-+	bool "802.1Q bridge support"
-+	depends on BRIDGE
-+	---help---
-+	  If you say Y here, then your bridge will be able to filter and
-+	  forward packets according to their IEEE 802.1Q headers.
++	if (port) {
++		index = get_portno(brname, port);
++		if (index < 1)
++			return errno;
++	} else
++		index = 0;
 +
-+	  If unsure, say N.
++	if (br_dev_ioctl(brname, BRCTL_ADD_PORT_VLAN,
++		index, vlan_id, 0)) {
++		dprintf("can't add vlan %d on port %s(%d)  %s\n",
++			vlan_id, brname, index, strerror(errno));
++		return errno;
++	}
 +
-Index: wireless-dev/net/bridge/br_device.c
-===================================================================
---- wireless-dev.orig/net/bridge/br_device.c
-+++ wireless-dev/net/bridge/br_device.c
-@@ -34,6 +34,9 @@ int br_dev_xmit(struct sk_buff *skb, str
- 	const unsigned char *dest = skb->data;
- 	struct net_bridge_fdb_entry *dst;
- 
-+	if (br_vlan_input_frame(skb, &br->vlan))
-+		return 0;
++	return 0;
++}
 +
- 	br->statistics.tx_packets++;
- 	br->statistics.tx_bytes += skb->len;
- 
++int br_del_vlan(const char *brname, const char *port,
++		     unsigned int vlan_id)
++{
++	int index;
++
++	if (port) {
++		index = get_portno(brname, port);
++		if (index < 1)
++			return errno;
++	} else
++		index = 0;
++
++	if (br_dev_ioctl(brname, BRCTL_DEL_PORT_VLAN,
++		index, vlan_id, 0)) {
++		dprintf("can't delete vlan %d on port %s(%d)  %s\n",
++			vlan_id, brname, index, strerror(errno));
++		return errno;
++	}
++
++	return 0;
++}
++
++int br_get_port_vlan_info(const char *brname, const char *port,
++		     struct vlan_info *info)
++{
++	struct __vlan_info i;
++	int index = 0;
++
++	memset(info, 0, sizeof(*info));
++
++	if (port) {
++		index = get_portno(brname, port);
++		if (index < 1)
++			return errno;
++	} else
++		index = 0;
++
++	if (br_dev_ioctl(brname, BRCTL_GET_PORT_VLAN_INFO,
++		(unsigned long) &i, index, 0)) {
++		dprintf("old can't get port %s(%d) info %s\n",
++			brname, index, strerror(errno));
++		return errno;
++	}
++
++	info->untagged = i.untagged;
++	memcpy(&info->filter, &i.filter, 4096/8);
++	return 0;
++}
