@@ -1,10 +1,9 @@
-Message-ID: <4505B4ED.9080901@candelatech.com>
-Date: Mon, 11 Sep 2006 12:11:41 -0700
+Message-ID: <4505B58F.8000905@candelatech.com>
+Date: Mon, 11 Sep 2006 12:14:23 -0700
 From: Ben Greear <greearb@candelatech.com>
 MIME-Version: 1.0
-References: <20060911174928.GA3451@devicescape.com>
-	<bdfc5d6e0609111155s58677c8bx2533330a18238aca@mail.gmail.com>
-In-Reply-To: <bdfc5d6e0609111155s58677c8bx2533330a18238aca@mail.gmail.com>
+References: <20060911174928.GA3451@devicescape.com> <4505B312.4030606@gac.edu>
+In-Reply-To: <4505B312.4030606@gac.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] RFC: [PATCH] bridge vlan integration
@@ -16,61 +15,29 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Andy Gospodarek <andy@greyhouse.net>
+To: Ethan Sommer <sommere@gac.edu>
 Cc: bridge@lists.osdl.org
 
-Andy Gospodarek wrote:
-> On 9/11/06, David Kimdon <david.kimdon@devicescape.com> wrote:
->> Hi,
->>
->> The attached patches enables the bridge to filter and forward packets
->> according to their IEEE 802.1q headers.  The goals behind this change
->> include :
->>
->> - Enable running STP on 802.1q tagged networks.  STP packets
->>   must be untagged.  It isn't obvious how else to enable STP
->>   with the current bridge and vlan code.
->> - Add native support for an untagged vlan.  Currently an untagged
->>   vlan can be implimented using ebtables or similar.
->> - On devices bridging a large number of interfaces across various
->>   vlans this significantly simplifies configuration and, depending on
->>   configuration, can improve performance.
->>
->> Comments appreciated,
->>
->> David
+Ethan Sommer wrote:
+> Have you tested this in a real world scenario?
 > 
+> I attempted to use a linux bridge to bridge a few vlans and found that 
+> it didn't work as expected. At first I thought it was a performance 
+> problem relating to the linux bridge code because it was dropping 
+> packets, but I believe the problem is inherent in using a bridge in a 
+> vlan environment.
 > 
-> David,
-> 
-> It looks like this code specifically ignores (which is OK for now) and
-> clears (which is not OK) the frame's 802.1p priority.  Have you tested
-> priority-tagged frames to see if they are passed correctly?  It seems
-> like you should consider adding another field to the sk_buff structure
-> so priority of the incoming frame can be tracked as well as add logic
-> to br_vlan_output_frame and br_vlan_input_frame so the tag is saved.
-> Something like this would probably be fine:
-> 
-> Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
-> 
-> --- ./include/linux/skbuff.h.gospo      2006-09-11 14:41:54.000000000 -0400
-> +++ ./include/linux/skbuff.h    2006-09-11 14:43:27.000000000 -0400
-> @@ -297,6 +297,7 @@ struct sk_buff {
->         __u32                   nfmark;
->  #endif /* CONFIG_NETFILTER */
->  #ifdef CONFIG_BRIDGE_VLAN
-> +       unsigned int            vlan_priority;
->         unsigned int            vlan;
->  #endif
+> The problem lies in the fact that the switch connected to the bridge 
+> (which has the vlans tagged) gets confused as to which port that 
+> particular mac address is out of. Take the following scenario: (based on 
+> my understanding of how things should work)
 
-SKB bloat is not good for performance.  You can store the priority and the VID in
-a single 32-bit number with room to spare...
+Cisco switches have this bug, though it can be worked around on some
+switches.  The Netgear switches I've used do not have any problem with
+the same MAC on different vlans.
 
-The skb->priority is also a possible place to store the VLAN priority.
-
-The actual VLAN code has a mapping from vlan-priority -> skb priority on ingress,
-and another mapping of skb->priority -> vlan-priority on egress.  You probably
-don't need to worry about this mapping for a bridge, however.
+Either way, you can change the MAC of the Linux VLAN device using the
+standard ifconfig or ip tool commands.
 
 Ben
 
