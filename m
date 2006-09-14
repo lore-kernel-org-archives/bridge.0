@@ -1,7 +1,6 @@
-Date: Fri, 15 Sep 2006 09:15:28 +0900
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060915091528.7b5912e9@localhost.localdomain>
-In-Reply-To: <6.0.1.1.2.20060914174624.05055480@mail.expressoweb.co.uk>
+Date: Thu, 14 Sep 2006 17:21:43 -0400
+From: Andy Gospodarek <gospo@redhat.com>
+Message-ID: <20060914212142.GB12665@gospo.rdu.redhat.com>
 References: <OF1AE42FF9.06C5D926-ON852571E7.005804CC-852571E7.0057EE7E@ieee.org>
 	<45076B88.80104@bristyle.com>
 	<6.0.1.1.2.20060913075410.04133280@mail.expressoweb.co.uk>
@@ -9,8 +8,9 @@ References: <OF1AE42FF9.06C5D926-ON852571E7.005804CC-852571E7.0057EE7E@ieee.org>
 	<20060914100619.76cb1828@localhost.localdomain>
 	<6.0.1.1.2.20060914174624.05055480@mail.expressoweb.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6.0.1.1.2.20060914174624.05055480@mail.expressoweb.co.uk>
 Subject: Re: [Bridge] 802.1D/Linux STP issue
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
@@ -21,11 +21,9 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: Tony Jeffree <tony@jeffree.co.uk>
-Cc: netdev@vger.kernel.org, mick_seaman@ieee.org, Rajesh Mishra <rajesh_mish@yahoo.com>, bridge@osdl.org, Brian Braunstein <brian@bristyle.com>
+Cc: bridge@osdl.org, netdev@vger.kernel.org, Brian Braunstein <brian@bristyle.com>, mick_seaman@ieee.org, Stephen Hemminger <shemminger@osdl.org>, Rajesh Mishra <rajesh_mish@yahoo.com>
 
-On Thu, 14 Sep 2006 17:51:50 +0100
-Tony Jeffree <tony@jeffree.co.uk> wrote:
-
+On Thu, Sep 14, 2006 at 05:51:50PM +0100, Tony Jeffree wrote:
 > Steve/Brian -
 > 
 > You've probably seen Mick Seaman's comments on this by now - as he points 
@@ -36,8 +34,13 @@ Tony Jeffree <tony@jeffree.co.uk> wrote:
 > Linux community to replace the existing STP support with an implementation 
 > of RSTP.
 > 
-> Regards,
-> Tony
 
-Work is already in progress to do RSTP (by several different people),
-but the effort is going slowly.
+While we are at it can we rip it out of the kernel and develop a
+user-space daemon that does it instead?  Setting the spanning-tree state
+of a port could be done with a simple ioctl (well not too simple because
+it would be good to support multiple STP instances so someone could
+code up 802.1w support and the kernel interface would already be there).
+
+Thoughts?
+
+
