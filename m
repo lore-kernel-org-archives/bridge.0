@@ -1,12 +1,13 @@
-Date: Tue, 19 Sep 2006 10:27:35 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060919102735.789ea14a@localhost.localdomain>
-In-Reply-To: <20060915141905.18847.qmail@web37010.mail.mud.yahoo.com>
-References: <20060915141905.18847.qmail@web37010.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Linux bridge and virtual interfaces
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Date: Tue, 19 Sep 2006 11:59:25 -0700
+Message-ID: <C86180A8C204554D8A3323D8F6B0A29F01785735@dhost002-46.dex002.intermedia.net>
+In-Reply-To: <20060919102449.2a9753fc@localhost.localdomain>
+From: "Simon Barber" <simon@devicescape.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] how do i bridge eth0 with eth1 by bridging?
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,20 +16,61 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Ken Peirce <thewirelessmacdude@yahoo.com>
-Cc: bridge@osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>, Labhesh Popli <labhesh_popli@yahoo.co.in>
+Cc: bridge@lists.osdl.org
 
-On Fri, 15 Sep 2006 07:19:05 -0700 (PDT)
-Ken Peirce <thewirelessmacdude@yahoo.com> wrote:
+Devicescape has released under GPL a module that performs L2-NAT as
+required for bridging to work between an 802.11 client and ethernet.
 
-> Do STP BPDUs get delivered to all interfaces, including virtual interfaces?
->   Cheers,
->   Ken Peirce
+If someone would volunteer to do the work to incorporate this module
+into the kernel we would be very happy for that to happen.
+
+Simon
+ 
+
+-----Original Message-----
+From: bridge-bounces@lists.osdl.org
+[mailto:bridge-bounces@lists.osdl.org] On Behalf Of Stephen Hemminger
+Sent: Wednesday, September 20, 2006 3:25 AM
+To: Labhesh Popli
+Cc: bridge@lists.osdl.org
+Subject: Re: [Bridge] how do i bridge eth0 with eth1 by bridging?
+
+On Tue, 19 Sep 2006 06:25:39 +0100 (BST) Labhesh Popli
+<labhesh_popli@yahoo.co.in> wrote:
+
+> hi,
 >    
+>   i have my wireless LAN card connected in USB port of linux machine 
+> at eth1,
+>    
+>   and another wireless LAN card connected to USB port of windows
+machine. 
+>    
+>   the LAN card of windows has been plugged out. now, i want to access 
+> the
+>    
+>   internet sites on windows machine through the wireless LAN b/w the 2
+>    
+>   machines.
+>    
+>   I have successfully made a bridge b/w eth0 and eth1 of my linux 
+> machine using
+>    
+>   the "brctl" etc commands,
+>    
+>   entered the ip adress of WLAN of linux machine in internet
+explorer/tools/internet options/connections/LAN settings/proxy server of
+windows machine.
+> 
 
-Any interface that is part of bridge will get STP BPDU's sent on it.
-If you want to receive STP BPDU's you need to be using latest kernel and
-use LLC. Normally STP BPDU's were just absorbed by the bridge code.
+If you read the FAQ on http://linux-net.osdl.org/index.php/bridge
+you will see that bridging to wireless is going to work because Linux
+bridging doesn't support NDS.  The problem isn't just in the bridge
+code, it would require more extensive work to the wireless drivers as
+well.
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/bridge
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
