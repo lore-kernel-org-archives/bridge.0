@@ -1,12 +1,10 @@
-Date: Thu, 21 Sep 2006 15:56:29 -0700
+Date: Fri, 22 Sep 2006 16:24:36 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20060921155629.6d3eb7b3@localhost.localdomain>
-In-Reply-To: <451296BE.1060002@cambridgebroadband.com>
-References: <451296BE.1060002@cambridgebroadband.com>
+Message-ID: <20060922162436.21ff5bea@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge_list orphans in linux-2.4
+Subject: [Bridge] [ANNOUNCE] bridge-utils 1.2
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,48 +13,17 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Alex Zeffertt <ajz@cambridgebroadband.com>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: netdev@vger.kernel.org, xen-devel@lists.xensource.com
 
-On Thu, 21 Sep 2006 14:42:22 +0100
-Alex Zeffertt <ajz@cambridgebroadband.com> wrote:
+This is a minor release update to the bridge utilities to fix some
+build issues and remove the usage of libsysfs. libsysfs wasn't making the
+code easier and it was a pain for other build environments.
 
-> Hi all,
-> 
-> We use linux-2.4.20 in one of our products and we've found what looks
-> to be a problem in the bridge module.  (I know this is old code but we
-> don't send our customers kernel upgrades unless we really have to!)
-> 
-> The problem is that some of our bridges have become orphaned from the
-> bridge module.  Specifically
-> 
-> 	ifconfig ourbridgename
-> 
-> shows that the device "ourbridgename" is known to the kernel, but
-> 
-> 	brctl show
-> 
-> does not list "ourbridgename".
+Also some error messages and spelling fixes, etc.
 
-You need to find a sequence of commands that reproduces it.
-Unless you run multiple commands in parallel, I don't think
-there should be a problem with 2.4.
-
-> I've looked through the bridge module and it seems that the most likely
-> explanation is that bridge_list in br_if.c has become corrupted, causing
-> the bridge called "ourbridgename" to become orphaned.
-> 
-> I cannot see how this would happen, however, since bridge_list is only
-> ever referenced under the ioctl_mutex.  I should also point out that
-> br_del_bridge() is not called by our application.
-> 
-> I noticed that in later kernels the ioctl_mutex has been replaced by
-> the rtnl_lock().  Why was this done?  Could this be related to our
-> problem?
-
-In 2.6 it was observed that all changes to bridge list were already
-being done under the RT netlink mutex, so no additional locking
-was needed.
+Download from:
+	http://prdownloads.sourceforge.net/bridge/bridge-utils-1.2.tar.gz?download
 
 -- 
 Stephen Hemminger <shemminger@osdl.org>
