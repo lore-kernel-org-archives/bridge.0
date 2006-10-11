@@ -1,11 +1,12 @@
-Message-ID: <cab05a880610090952g2e94b7aka84ccb0ef8fd8013@mail.gmail.com>
-Date: Mon, 9 Oct 2006 18:52:27 +0200
-From: "Alexander Indenbaum" <alexander.indenbaum@gmail.com>
+Message-ID: <452CB1E0.9020008@cambridgebroadband.com>
+Date: Wed, 11 Oct 2006 09:57:04 +0100
+From: Alex Zeffertt <ajz@cambridgebroadband.com>
 MIME-Version: 1.0
+References: <cab05a880610090952g2e94b7aka84ccb0ef8fd8013@mail.gmail.com>
+In-Reply-To: <cab05a880610090952g2e94b7aka84ccb0ef8fd8013@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Subject: [Bridge] Link fail over - bridge slow learning !?!
+Subject: Re: [Bridge] Link fail over - bridge slow learning !?!
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,37 +15,49 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@osdl.org
-Cc: bridge@lists.osdl.org
+To: Alexander Indenbaum <alexander.indenbaum@gmail.com>
+Cc: bridge@lists.osdl.org, shemminger@osdl.org
 
-Hello,
+Alexander Indenbaum wrote:
+> Hello,
+> 
+> I'm playing with dual-port NIC driver level link failover:
+> * Driver exposes single network interface to the OS and operates both
+> ports in active-passive failover mode.
+> * Upon Link down event on active port, driver switches active and
+> passive ports transparently for the OS.
+> 
+> I'm testing the driver using Linux bridge module: "failover" dual-port
+> NIC connected with two cables back-to-back to eth0 and eth1 which are
+> part of br0 bridge.
+> 
+> I simulate link fail with following scenario:
+> * At t0 both eth0 and eth1 port links are UP, traffic is accepted by
+> eth0 and forwarded to br0
+> * At t1 I manually unplug eth0 cable, causing link to go down.
+> "Failover" driver switches the traffic immediately from eth0 to eth1,
+> while using the same MAC address.
+> * From t1 till t1+12 secs packets are accepted by eth1 but dropped by
+> bridge and not forwarded to br0.
+> * At t1+12 secs bridge starts forwarding packets from eth1 to br0
+> 
+> Hmm... I would expect that eth0 link down event would flush from
+> bridge's table any MAC address associated with the port and that the
+> bridge would start forwarding packets from eth1 to br0 immediately.
+> 
+> Why does it take ~12 secs for bridge to learn that MAC address moved
+> from eth0 to eth1 in the described scenario?
+> 
 
-I'm playing with dual-port NIC driver level link failover:
-* Driver exposes single network interface to the OS and operates both
-ports in active-passive failover mode.
-* Upon Link down event on active port, driver switches active and
-passive ports transparently for the OS.
+It may be spanning tree, rather than MAC address learning that takes
+so long.  Bridges spend a while just listening before forwarding, to
+avoid becoming part of a bridging loop.
 
-I'm testing the driver using Linux bridge module: "failover" dual-port
-NIC connected with two cables back-to-back to eth0 and eth1 which are
-part of br0 bridge.
+Experiment with:
 
-I simulate link fail with following scenario:
-* At t0 both eth0 and eth1 port links are UP, traffic is accepted by
-eth0 and forwarded to br0
-* At t1 I manually unplug eth0 cable, causing link to go down.
-"Failover" driver switches the traffic immediately from eth0 to eth1,
-while using the same MAC address.
-* From t1 till t1+12 secs packets are accepted by eth1 but dropped by
-bridge and not forwarded to br0.
-* At t1+12 secs bridge starts forwarding packets from eth1 to br0
+   brctl showstp br0
+   brctl stp br0 off
+   brctl setfd br0 1
 
-Hmm... I would expect that eth0 link down event would flush from
-bridge's table any MAC address associated with the port and that the
-bridge would start forwarding packets from eth1 to br0 immediately.
+Alex
 
-Why does it take ~12 secs for bridge to learn that MAC address moved
-from eth0 to eth1 in the described scenario?
-
-Thank you for your help,
-   Alexander Indenbaum
