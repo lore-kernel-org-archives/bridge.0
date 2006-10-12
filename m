@@ -1,14 +1,15 @@
-Date: Thu, 12 Oct 2006 13:31:23 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061012133123.0a37c77d@freekitty>
+From: jamal <hadi@cyberus.ca>
 In-Reply-To: <20061012201043.GA29253@gospo.rdu.redhat.com>
 References: <20061012112431.0550b252@dxpl.pdx.osdl.net>
 	<20061012201043.GA29253@gospo.rdu.redhat.com>
+Content-Type: text/plain
+Date: Thu, 12 Oct 2006 17:30:33 -0400
+Message-Id: <1160688633.5047.5.camel@jzny2>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: flush forwarding table when device
 	carrier off
+Reply-To: hadi@cyberus.ca
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,11 +19,9 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: Andy Gospodarek <andy@greyhouse.net>
-Cc: netdev@vger.kernel.org, bridge@osdl.org, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@osdl.org, "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <shemminger@osdl.org>
 
-On Thu, 12 Oct 2006 16:10:44 -0400
-Andy Gospodarek <andy@greyhouse.net> wrote:
-
+On Thu, 2006-12-10 at 16:10 -0400, Andy Gospodarek wrote:
 > On Thu, Oct 12, 2006 at 11:24:31AM -0700, Stephen Hemminger wrote:
 > > Flush the forwarding table when carrier is lost. This helps for
 > > availability because we don't want to forward to a downed device and
@@ -33,20 +32,19 @@ Andy Gospodarek <andy@greyhouse.net> wrote:
 > 
 > Stephen,
 > 
-> This is an excellent idea and all looks good except this check
-> 
-> +			if (f->is_static & !do_all)
-> +				continue;
-> 
-> should be this: 
-> 
-> +			if (f->is_static && !do_all)
-> +				continue;
-> 
+> This is an excellent idea 
 
-Agreed, but it probably worked during testing because both flags
-are strict booleans (ie 0/1)
+I am on the other extreme - this is problematic if you have a large
+table already learnt. Agrevate that with an unstable link and it gets a
+lot worse. Both of which dont sound unrealistic in say a wireless AP.
+
+A more sane policy i have seen is a timer that flushes the table after a
+programmed period; this way you counter a flipflop-ing link.
+IOW, the best place is to have this in some user space daemon. If it has
+to be in the kernel, can you add a systcl to disable it?
+
+cheers,
+jamal
 
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+
