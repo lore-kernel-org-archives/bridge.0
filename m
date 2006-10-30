@@ -1,12 +1,11 @@
-From: Dmitry Mishin <dim@openvz.org>
-Date: Mon, 30 Oct 2006 15:27:14 +0300
+Message-ID: <20061030230004.18431.qmail@web56910.mail.re3.yahoo.com>
+Date: Mon, 30 Oct 2006 15:00:03 -0800 (PST)
+From: Douglas Chen <g5ranger@yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610301527.15018.dim@openvz.org>
-Subject: [Bridge] Bridge & it's MAC address question
+Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] problem with bridge on soho router,
+	when lan interface down, all go down
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,17 +15,17 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@vger.kernel.org, bridge@osdl.org, devel@openvz.org
+Cc: bridge@lists.osdl.org
 
-Hi,
+>> I was wondering if anyone has experienced this before and appreciate for any solutions!!
+>> Can bridge recognize these ports separately so it doesn't take down everything as a whole?
+>> 
+>
+>Only if they are separate interfaces.
 
-Could somebody explain, why bridge uses minimal MAC of the attached devices?
-It makes this address instable, variable during bridge life-cycle, which is 
-not good for DHCP. For example, I want to attach multiple virtual devices to 
-one physical. Then, I need to make sure that after each virtual device 
-addition, bridge addr is not changed and still addr of the physical device.  
-Why not to use MAC of the first attached device?
+Can the bridge avoid entering the disabled state then?  At least, I want the interface to respond when there's any traffic coming in from the WAN port.
 
--- 
-Thanks,
-Dmitry.
+Thanks!
+
+
+
