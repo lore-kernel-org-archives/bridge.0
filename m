@@ -1,5 +1,5 @@
-Message-ID: <20061031013543.24062.qmail@web56907.mail.re3.yahoo.com>
-Date: Mon, 30 Oct 2006 17:35:42 -0800 (PST)
+Message-ID: <20061031112113.24306.qmail@web56902.mail.re3.yahoo.com>
+Date: Tue, 31 Oct 2006 03:21:13 -0800 (PST)
 From: Douglas Chen <g5ranger@yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ascii
@@ -17,22 +17,20 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 To: Stephen Hemminger <shemminger@osdl.org>
 Cc: bridge@lists.osdl.org
 
+Hi again Stephen,
+
+
 >The bridge disables by port, each port is a network device. If the network devices
 >correctly implement carrier, then it can work with some down and some up.
 >It sounds like either they are all coming on one device, or the device driver is
 >buggy.
 
-Thanks for your speedy reply!! Much appreciated ..
 
-Before I dive in and start digging the source code, I want to confirm something.
-I am not too well versed on STP and bridge yet.  Pardon me if this sounds weird or funny.
+I think you hit the jackpot!  I looked into the driver code and the carrier is not implemented as it is supposed to.  Whenever there is a LAN port status change, the change is used to set the carrier.  This is the reason why when one port is disconnected, it brings down the whole interface.  I've changed that to check the status of other ports before setting the carrier flag.  
 
-1. If STP is disabled, do these blocking/learning/forwarding... states still matter?
-I guess I need to keep the bridge constantly in the forwarding states.  Any suggestions?
+Thank you very much!!  You are a big help!
 
-2. I also went back and read the spec one more time.  It seems that the switch (LAN) interface uses a special tagging mode similar to 802.1Q to identify the port numbers.  It is used for IGMP snooping and can be used by other applications as well.  But I guess, the current bridge code doesn't support this?  Or does it at least support the normal tagging mode?  Sorry if this doesn't make any sense.
-
-Thanks!
+Douglas
 
 
 
