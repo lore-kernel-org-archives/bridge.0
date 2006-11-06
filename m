@@ -1,6 +1,6 @@
-Message-ID: <454F5FF0.4010500@cambridgebroadband.com>
-Date: Mon, 06 Nov 2006 16:16:48 +0000
-From: Alex Zeffertt <ajz@cambridgebroadband.com>
+Message-ID: <454F65AA.4040608@osdl.org>
+Date: Mon, 06 Nov 2006 08:41:14 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
 MIME-Version: 1.0
 References: <20061106152538.20092.qmail@web27903.mail.ukl.yahoo.com>
 In-Reply-To: <20061106152538.20092.qmail@web27903.mail.ukl.yahoo.com>
@@ -23,15 +23,15 @@ Filippo Graziola wrote:
 > I'm a student of Trento University and I'm working on
 > a network
 > project. I need to create a network like this:
->=20
+>
 > PC.1>--ethernet cable-->MAIN_PC(ubuntu
 > linux)>------wireless----->PC.2
->=20
+>
 > PC.1 ip: 192.168.0.1
 > MAIN_PC ip: 192.168.0.2
 > PC.2 ip: 192.168.0.3
 > netmask 255.255.255.0
->=20
+>
 > I followed the instruction of the HOWTO and I made a
 > bridge on MAIN_PC.
 > Previously I set the wireless interface (eth0 - intel
@@ -44,57 +44,17 @@ Filippo Graziola wrote:
 > and I can ping
 > from PC.2 the MAIN_PC only for a short start time
 > (problem nr=B02).
->=20
+>
 > When I give this command as root:
->=20
+>
 > echo "1" > /proc/sys/net/ipv4/ip_forward
->=20
-> this is the answer:
->=20
-> bash: /proc/sys/net/ipv4/ip_forward: Permission denied
->=20
+>  =20
+1. You are Bridging (layer 2) not Routing (layer 3).=20
 
-This is not the cause of your problem.  You are trying to
-bridge ethernet packets at layer 2, not route IP packets
-at layer 3.
+2. Bridging ethernet to wireless doesn't work in most cases because wireless
+    bridging requires NDS support which is not in the bridge code, and=20
+would also
+    require different wireless device drivers (using softmac).
 
-
-> Maybe I think this is the reason because I get problem
-> nr=B01, is it
-> true?
-> What should I do?
->=20
-
-  * Do a "brctl show" and send the results to the list.
-
-  * Do an "ifconfig -a" and send the results to the list.
-
-You may have an IP address problem.  After you have added interfaces
-(e.g. eth0 and wlan0) to a bridge (br0) you must remove the IP addresses
-from the interfaces with, for example,  "ifconfig eth0 0.0.0.0 up" and "ifc=
-onfig
-wlan 0.0.0.0 up", and then apply the IP address to br0, e.g. "ifconfig
-br0 192.168.0.2 up"
-
-Alex
-
-
-> I have no idea for the second problem.
-> Can you please help.
-> Sorry for my english, I hope that my explanation were
-> enough clear
-> Thanks a lot
->=20
-> Filippo Graziola
->=20
->=20
-> __________________________________________________
-> Do You Yahoo!?
-> Poco spazio e tanto spam? Yahoo! Mail ti protegge dallo spam e ti da tant=
-o spazio gratuito per i tuoi file e i messaggi=20
-> http://mail.yahoo.it=20
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/bridge
+See the FAQ on http://linux-net.osdl.org/index.php/Bridge
 
