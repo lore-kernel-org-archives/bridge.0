@@ -1,11 +1,9 @@
-Message-ID: <20061031112113.24306.qmail@web56902.mail.re3.yahoo.com>
-Date: Tue, 31 Oct 2006 03:21:13 -0800 (PST)
-From: Douglas Chen <g5ranger@yahoo.com>
+Message-ID: <20061106152538.20092.qmail@web27903.mail.ukl.yahoo.com>
+Date: Mon, 6 Nov 2006 16:25:38 +0100 (CET)
+From: Filippo Graziola <graziolafilippo@yahoo.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] problem with bridge on soho router,
-	when lan interface down, all go down
+Content-Type: text/plain; charset="iso-8859-1"
+Subject: [Bridge] Problems with Bridging 3 pc's network
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,23 +12,59 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi again Stephen,
+Hi sir,
+I'm a student of Trento University and I'm working on
+a network
+project. I need to create a network like this:
+
+PC.1>--ethernet cable-->MAIN_PC(ubuntu
+linux)>------wireless----->PC.2
+
+PC.1 ip: 192.168.0.1
+MAIN_PC ip: 192.168.0.2
+PC.2 ip: 192.168.0.3
+netmask 255.255.255.0
+
+I followed the instruction of the HOWTO and I made a
+bridge on MAIN_PC.
+Previously I set the wireless interface (eth0 - intel
+2200B/G) with
+ad-hoc mode and I gave it a essid and a channel.
+Without the bridge I can
+ping from MAIN_PC all the others but I noticed that
+when the bridge is
+up I can't ping from the PC.2 the PC.1 (problem nr=B01)
+and I can ping
+from PC.2 the MAIN_PC only for a short start time
+(problem nr=B02).
+
+When I give this command as root:
+
+echo "1" > /proc/sys/net/ipv4/ip_forward
+
+this is the answer:
+
+bash: /proc/sys/net/ipv4/ip_forward: Permission denied
+
+Maybe I think this is the reason because I get problem
+nr=B01, is it
+true?
+What should I do?
+
+I have no idea for the second problem.
+Can you please help.
+Sorry for my english, I hope that my explanation were
+enough clear
+Thanks a lot
+
+Filippo Graziola
 
 
->The bridge disables by port, each port is a network device. If the network devices
->correctly implement carrier, then it can work with some down and some up.
->It sounds like either they are all coming on one device, or the device driver is
->buggy.
-
-
-I think you hit the jackpot!  I looked into the driver code and the carrier is not implemented as it is supposed to.  Whenever there is a LAN port status change, the change is used to set the carrier.  This is the reason why when one port is disconnected, it brings down the whole interface.  I've changed that to check the status of other ports before setting the carrier flag.  
-
-Thank you very much!!  You are a big help!
-
-Douglas
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Poco spazio e tanto spam? Yahoo! Mail ti protegge dallo spam e ti da tanto =
+spazio gratuito per i tuoi file e i messaggi=20
+http://mail.yahoo.it=20
