@@ -1,12 +1,11 @@
-Message-ID: <4558F86D.6010504@volunteermatch.org>
-Date: Mon, 13 Nov 2006 14:57:49 -0800
-From: Melissa Meyer <melissa@volunteermatch.org>
+Message-ID: <455BBBD2.4060705@lisco.com>
+Date: Wed, 15 Nov 2006 19:16:02 -0600
+From: Tom Miller <tmiller@lisco.com>
 MIME-Version: 1.0
-References: <4554f533.18d37d8d.5d69.ffffc5a2@mx.google.com>
-In-Reply-To: <4554f533.18d37d8d.5d69.ffffc5a2@mx.google.com>
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bridge - canopy - cisco catalyst 2950
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridge works, but how host is limited
+Reply-To: tmiller@lisco.com
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,69 +14,39 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: "Alonso Enero V." <alonso.enero@gmail.com>
-Cc: bridge@lists.osdl.org, bridge@siennax.com
+To: bridge@osdl.org
 
+I've got a bridge up on my Suse 10 box, let's call it the bridge host.
+The 2 NICs are connected, and my main box (Suse 10.1) can print to the
+printer on the other side of the bridge host. Everything pings
+everywhere, i.e. the LAN extends across the bridge as expected. Cool!
 
+I used the basic configuration:
 
-Did you get an answer to this?
+   1. ifconfig eth0 0.0.0.0
+   2. ifconfig eth1 0.0.0.0
+   3. brctl addbr mybridge
+   4. brctl addif mybridge eth0
+   5. brctl addif mybridge eth1
 
-I had a similar experience. To fix, I had to turn off spanning tree on=20
-the cisco switch connected to the bridges as well as turn on dot1q=20
-trunking on the ports on the switch the bridges used.
+plus:
 
-So the cisco config for my bridge ports:
+    ifconfig mybridge 192.168.100.5 netmask 255.255.255.0
 
-switchport trunk encapsulation dot1q
-switchport mode trunk
-switchport nonegotiate
+On the bridge host, I can browse to an Apache-served web page on my main
+box, but cannot browse to the Internet or print on the printer. Wonder
+what is wrong? Any suggestions?
 
-For the other ports on the switch, the switchport mode was set to access.
+Is there some way to configure the bridge itself as a network device?
 
-Hope this helps.
+Thanks
+Tom
 
+-- 
 
+Miller Associates, Inc.
+www.meddevsqa.com
+VOX IA 641.469.3535
+VOX MN 612.284.2833
+FAX 413.581.6326
 
-Alonso Enero V. wrote:
->
-> Hi Friends!
->
-> Sorry for disturb you=85
->
-> I want to ask you something about a bridge implementation that I need=20
-> to make work.
->
-> This implementation uses *Motorola* *Canopy* (a wireless=20
-> implementation) to link two sites of my work company backing up an=20
-> optic fiber link (the main link) like appears in the following picture:
->
-> Everything works ok in a laboratory environment, without the Cisco=20
-> Catalyst switch, but when link the #1 bridge to the Cisco Catalyst=20
-> respective port (the one with the needed VLAN), starts a horrible loop=20
-> in our LAN. I think something happens inside the Cisco switch that=20
-> difficult the STP traffic between the #1 bridge and out site 3. I=20
-> heard of something called *bdpufilter*, which is not set in out=20
-> Catalyst switch, said our ISP. I read a page were you give some=20
-> suggestions of tweak the Linux Kernel that I did=20
-> (http://lists.osdl.org/pipermail/bridge/2005-October/001116.html), but=20
-> still didn=92t tested, until have a clear idea of what happens inside=20
-> the Cisco switch.
->
-> Thanks in advice!
->
-> Alonso Enero V.
->
-> alonso.enero@gmail.com <mailto:alonso.enero@gmail.com>
->
-> Santiago, Chile
->
->
-> ------------------------------------------------------------------------
->
-> ------------------------------------------------------------------------
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/bridge
->  =20
