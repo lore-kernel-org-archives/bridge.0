@@ -1,12 +1,10 @@
-Date: Wed, 15 Nov 2006 21:37:40 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061115213740.17f8253f@localhost.localdomain>
-In-Reply-To: <455BBBD2.4060705@lisco.com>
-References: <455BBBD2.4060705@lisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bridge works, but how host is limited
+Message-ID: <49002b820611170149n645e35e6n76edc98fe6c9596@mail.gmail.com>
+Date: Fri, 17 Nov 2006 17:49:02 +0800
+From: "d tbsky" <tbskyd@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_14156_8283905.1163756942797"
+Subject: [Bridge] bridge physical to several dummy interface
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,39 +13,50 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: tmiller@lisco.com
-Cc: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-On Wed, 15 Nov 2006 19:16:02 -0600
-Tom Miller <tmiller@lisco.com> wrote:
+This is a multi-part message in MIME format...
 
-> I've got a bridge up on my Suse 10 box, let's call it the bridge host.
-> The 2 NICs are connected, and my main box (Suse 10.1) can print to the
-> printer on the other side of the bridge host. Everything pings
-> everywhere, i.e. the LAN extends across the bridge as expected. Cool!
-> 
-> I used the basic configuration:
-> 
->    1. ifconfig eth0 0.0.0.0
->    2. ifconfig eth1 0.0.0.0
->    3. brctl addbr mybridge
->    4. brctl addif mybridge eth0
->    5. brctl addif mybridge eth1
-> 
-> plus:
-> 
->     ifconfig mybridge 192.168.100.5 netmask 255.255.255.0
-> 
-> On the bridge host, I can browse to an Apache-served web page on my main
-> box, but cannot browse to the Internet or print on the printer. Wonder
-> what is wrong? Any suggestions?
-> 
-> Is there some way to configure the bridge itself as a network device?
-> 
-> Thanks
-> Tom
-> 
+------=_Part_14156_8283905.1163756942797
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-You have no default route. You created a static IP entry, but there is no
-route to your gateway.  If you use DHCP, then it sets up default route
-as well.
+Hi:
+    i want to bridge my eth0 interface to several dummy interface, like
+vmware or xen did,
+so i can request several dhcp ip address via several mac addresses.
+   but i am stuck in the first step:
+   assume my eth0 is 192.168.10.1, and it can ping 192.168.10.254.
+    ifconfig br0 up
+    brctl setfd br0 0
+    brctl addif br0 eth0
+
+    now i can not ping 192.168.10.254 anymore.
+    but if i set 192.168.10.2 to br0, i can ping 192.168.10.254.
+    and "dhclient eth0" can get ip addess from dhcp server(that surprise
+me!!)
+    i try to add dummy interface to br0, but dummy interface can not work,
+like eth0.
+    "brctl showmac br0" give me may mac addresses, so i think bridging is
+working.
+
+    i think i must misunderstanding the brindge concept.
+    can i keep eth0 work after it join br0?
+    thanks a lot for your help!!
+
+Regards,
+tbsky
+
+------=_Part_14156_8283905.1163756942797
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hi:<br>&nbsp;&nbsp;&nbsp; i want to bridge my eth0 interface to several dummy interface, like vmware or xen did,<br>so i can request several dhcp ip address via several mac addresses.<br>&nbsp;&nbsp; but i am stuck in the first step:<br>&nbsp;&nbsp; assume my eth0 is 
+<a href="http://192.168.10.1">192.168.10.1</a>, and it can ping <a href="http://192.168.10.254">192.168.10.254</a>.<br>&nbsp;&nbsp;&nbsp; ifconfig br0 up<br>&nbsp;&nbsp;&nbsp; brctl setfd br0 0<br>&nbsp;&nbsp;&nbsp; brctl addif br0 eth0<br><br>&nbsp;&nbsp;&nbsp; now i can not ping 
+<a href="http://192.168.10.254">192.168.10.254</a> anymore.&nbsp; <br>&nbsp;&nbsp;&nbsp; but if i set <a href="http://192.168.10.2">192.168.10.2</a> to br0, i can ping <a href="http://192.168.10.254">192.168.10.254</a>.<br>&nbsp;&nbsp;&nbsp; and &quot;dhclient eth0&quot; can get ip addess from dhcp server(that surprise me!!)
+<br>&nbsp;&nbsp;&nbsp; i try to add dummy interface to br0, but dummy interface can not work, like eth0.<br>&nbsp;&nbsp;&nbsp; &quot;brctl showmac br0&quot; give me may mac addresses, so i think bridging is working.<br><br>&nbsp;&nbsp;&nbsp; i think i must misunderstanding the brindge concept.
+<br>&nbsp;&nbsp;&nbsp; can i keep eth0 work after it join br0?<br>&nbsp;&nbsp;&nbsp; thanks a lot for your help!!<br><br>Regards,<br>tbsky<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; <br>
+
+------=_Part_14156_8283905.1163756942797--
