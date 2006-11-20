@@ -1,17 +1,12 @@
-Date: Mon, 20 Nov 2006 08:01:02 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061120080102.66b03991@localhost.localdomain>
-In-Reply-To: <49002b820611191955i1928c129ic93d5ce8b014b5ff@mail.gmail.com>
-References: <49002b820611170149n645e35e6n76edc98fe6c9596@mail.gmail.com>
-	<915136920611180514q663e65d1oec82391ed3fac700@mail.gmail.com>
-	<49002b820611180825u628eb95cud9d52b0125a645be@mail.gmail.com>
-	<915136920611190902q33930830oe414066422c3d995@mail.gmail.com>
-	<49002b820611191952y208408a7q40d8f0160024c99d@mail.gmail.com>
-	<49002b820611191955i1928c129ic93d5ce8b014b5ff@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <82b0add70611201515i4831f77eh8d119966f5793304@mail.gmail.com>
+Date: Mon, 20 Nov 2006 18:15:22 -0500
+From: "Joubert Berger" <joubertb@gmail.com>
+Sender: joubert@berger-family.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge physical to several dummy interface
+Content-Disposition: inline
+Subject: [Bridge] setting STP values via brctl
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -20,21 +15,49 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: d tbsky <tbskyd@gmail.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Mon, 20 Nov 2006 11:55:12 +0800
-"d tbsky" <tbskyd@gmail.com> wrote:
+I have been playing around with the STP settings of brctl and saw
+something strange.
 
-> hi:
-> >    my purpose is to get several ip address  from dhcp server via single
-> > ethernet card, like xen or vmware can do.
-> >
-> > Regards,
-> > sky_li
-> >
+I was setting the hello time, so I executed the following:
 
-That isn't going to work for a number of reasons. Probably the biggest is
-that Linux doesn't bind IP addresses to interfaces, so the ARP etc is going
-to be messed up.  You need to have separated IP stacks, like Xen, UML, etc
-to make this work.
+# brctl sethello br0 30
+
+Then I had a look at the value that was set:
+
+# cat /sys/class/net/br0/bridge/hello_time
+2999
+
+Much bigger than expected.
+
+I started looking at the source.  In the libbridge/libbridge_devif.c
+file of brctl, we have the following routine:
+
+int br_set_bridge_hello_time(const char *br, struct timeval *tv)
+{
+        return br_set(br, "hello_time", __tv_to_jiffies(tv),
+                      BRCTL_SET_BRIDGE_HELLO_TIME);
+}
+
+Note the tv_to_jiffies() call.
+
+Then, I looked in the kernel file linux/net/bridge/br_sysfs_br.c at
+the following function:
+
+static void set_hello_time(struct net_bridge *br, unsigned long val)
+{
+        unsigned long t = clock_t_to_jiffies(val);
+        br->hello_time = t;
+        if (br_is_root_bridge(br))
+                br->bridge_hello_time = t;
+}
+
+Note the clock_t_to_jiffies() call.
+
+Are we converting the time in brctl to jiffies and then when it enters
+the kernel, we again change the value again to jiffies?
+
+Or have I misses something completely?
+
+--joubert
