@@ -1,15 +1,9 @@
-Message-ID: <bdfc5d6e0611221020w53bc331h314a172f99e103bb@mail.gmail.com>
-Date: Wed, 22 Nov 2006 13:20:10 -0500
-From: "Andy Gospodarek" <andy@greyhouse.net>
-Sender: adgospod@gmail.com
-In-Reply-To: <BAY128-F390D1C30D9837B677EDF7CD9E30@phx.gbl>
+Message-ID: <20061125074439.45592.qmail@web54210.mail.yahoo.com>
+Date: Fri, 24 Nov 2006 23:44:39 -0800 (PST)
+From: kasra kangavari <kasra_kng@yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <BAY128-F390D1C30D9837B677EDF7CD9E30@phx.gbl>
-Subject: Re: [Bridge] how to configure RSTP (802.1w) on SUSE 10 (kernel
-	2.6.13-15)
+Content-Type: multipart/alternative; boundary="0-405759832-1164440679=:45227"
+Subject: [Bridge] Passing vlan tagged packets through linux bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,24 +12,35 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: nas was <whaque09@hotmail.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On 11/22/06, nas was <whaque09@hotmail.com> wrote:
-> Hi there,
->
-> I am a student and working on a project where i need to configure RSTP
-> (802.1w) on SUSE 10  kernel 2.6 so that i can able to analyse efficient link
-> fail-over time, i have found STP configuration at  (
-> http://linux-net.osdl.org/index.php/Bridge )  but coulnt find partticular
-> RSTP configuration.
-> i would appriciate if you could help me in this regard.
->
-> cheers,
-> was
->
+This is a multi-part message in MIME format...
 
-I'm not sure STP is exactly what you want to use to solve this problem
-and since RSTP is not available yet it might not be the best idea.
+--0-405759832-1164440679=:45227
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-Have you considered using bonding for dealing with redundancy/high-availability?
+Hi
+ 
+ I have some problem with passing vlan tagged packets through linux bridge.
+ In the linux box eth0 , eth1  are add to br0 and the bridge is up and working correctly. 
+ I 've connected eth0 to trunk port of switch A and eth1 to trunk port of switch B.
+ port 1,2,3 of each switch are in vlan 1. I've 2 client in the same subnet , client A connected to port 1 of switch A and client B connected to port 1 of switch . the problem is when I ping client A from clinet B or viceversa ,I can't ping with more than 1470bytes packet size!
+ ping will work fine by 1470byte packet size but ping with more than 1470bytes packet size will fail.
+ any idea??
+ 
+ KasrA
+ 
+ 
+---------------------------------
+Check out the all-new Yahoo! Mail beta - Fire up a more powerful email and get things done faster.
+--0-405759832-1164440679=:45227
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+
+Hi<br> <br> I have some problem with passing vlan tagged packets through linux bridge.<br> In the linux box eth0 , eth1&nbsp; are add to br0 and the bridge is up and working correctly. <br> I 've connected eth0 to trunk port of switch A and eth1 to trunk port of switch B.<br> port 1,2,3 of each switch are in vlan 1. I've 2 client in the same subnet , client A connected to port 1 of switch A and client B connected to port 1 of switch . <span DEFANGED_style="font-weight: bold;">the problem is</span> when I ping client A from clinet B or viceversa ,I can't ping with more than 1470bytes packet size!<br> ping will work fine by 1470byte packet size but ping with more than 1470bytes packet size will fail.<br> any idea??<br> <br> KasrA<br> <p>&#32;
+
+<hr size=1>Check out <a href="http://us.rd.yahoo.com/evt=43257/*http://advision.webevents.yahoo.com/mailbeta">the all-new Yahoo! Mail beta</a> - Fire up a more powerful email and get things done faster.
+--0-405759832-1164440679=:45227--
