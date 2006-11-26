@@ -1,9 +1,10 @@
-Message-ID: <20061126060423.50525.qmail@web54212.mail.yahoo.com>
-Date: Sat, 25 Nov 2006 22:04:23 -0800 (PST)
-From: kasra kangavari <kasra_kng@yahoo.com>
+Message-ID: <4569FA06.6050004@kingsley.co.za>
+Date: Sun, 26 Nov 2006 22:33:10 +0200
+From: Etienne Pretorius <etiennep@kingsley.co.za>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-293929382-1164521063=:50289"
-Subject: Re: [Bridge] Passing vlan tagged packets through linux bridge
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] ARP spoofing.
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,25 +15,46 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Hello all.
 
---0-293929382-1164521063=:50289
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+I know this does not directly relay to Ethernet bridging but I need some 
+advise... anyone want to give me some info/help on the subject.
+In the interest of multipath routing I need to know if it is possible to 
+do a one-way arp spoof. Lets start with the machines layout...
 
-Dear Roman
+    br1------ADSL
+
+    br2------cisco router-----serial line.
  
- If I don't use trunk over linux bridges(packets without vlan tag) then I can ping more than 1500bytes(MTU).the problem is vlan tagged packets. r u sure about jumbo frames that solve this problem ?
+    br0-----Internal network.
 
- 
----------------------------------
-Cheap Talk? Check out Yahoo! Messenger's low PC-to-Phone call rates.
---0-293929382-1164521063=:50289
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
 
-Dear Roman<br> <br> If I don't use trunk over linux bridges(packets without vlan tag) then I can ping more than 1500bytes(MTU).the problem is vlan tagged packets. r u sure about jumbo frames that solve this problem ?<br><p>&#32;
-<hr size=1>Cheap Talk? <a href="http://us.rd.yahoo.com/mail_us/taglines/postman8/*http://us.rd.yahoo.com/evt=39663/*http://voice.yahoo.com">Check out</a> Yahoo! Messenger's low PC-to-Phone call rates.
---0-293929382-1164521063=:50289--
+I already have ebtables setup to do the following:
+# Make this the router for all packets from our networks.
+# " MAC destination is the router, IP destination is the actual box
+# you want to communicate with. (That's how routing works) " - EBTABLES
+$EBT -t broute -A BROUTING --logical-in $NWIF -p IPv4 --destination ! 
+$NWIF_MAC \
+   -j dnat --to-destination $NWIF_MAC
+
+Now.... I would like the "cisco router" to have a second ip address in 
+the same range as the internal network on eth0. My desire is to make the 
+gw's on all of the internal network machines point to the cisco router's 
+ip address and would like ARP packets to pass between the internal 
+network and the cisco router only. Obviously I will drop all packet 
+attempting to access the cisco router's second ip address if not from 
+br0. So is it possible to make this machine spoof the arp packets 
+because I have 2 such machines working in the network and I see this as 
+a seemless way to setup multipath routing to survive if one of these 
+machines fail.
+
+
+
+
+
+
+-- 
+Kind Regards
+Etienne
+
+
