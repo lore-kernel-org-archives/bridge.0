@@ -1,8 +1,9 @@
-Date: Wed, 29 Nov 2006 17:14:20 -0800
+Date: Wed, 29 Nov 2006 18:36:52 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061129171420.3d45ed78@freekitty>
-In-Reply-To: <587BB495FD172F43931DE54C0AFD218616F9FF@reset6.ad2.felines.org>
+Message-ID: <20061129183652.4cebb4cc@localhost.localdomain>
+In-Reply-To: <20061129171420.3d45ed78@freekitty>
 References: <587BB495FD172F43931DE54C0AFD218616F9FF@reset6.ad2.felines.org>
+	<20061129171420.3d45ed78@freekitty>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -16,30 +17,34 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Jay Libove <libove@felines.org>
-Cc: bridge@lists.osdl.org
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jay Libove <libove@felines.org>, bridge@lists.osdl.org
 
-On Wed, 29 Nov 2006 19:29:17 -0500
-"Jay Libove" <libove@felines.org> wrote:
+On Wed, 29 Nov 2006 17:14:20 -0800
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-> Recently, possibly since the most recent one or two kernel upgrades in
-> Linux Fedora Core 5, my system has been crashing with a kernel panic.
-> The panic prevents anything useful from being written to any log files,
-> but on the crash trace left on the screen each time I always see
-> something which looks like it is in the bridge code.
+> On Wed, 29 Nov 2006 19:29:17 -0500
+> "Jay Libove" <libove@felines.org> wrote:
+> 
+> > Recently, possibly since the most recent one or two kernel upgrades in
+> > Linux Fedora Core 5, my system has been crashing with a kernel panic.
+> > The panic prevents anything useful from being written to any log files,
+> > but on the crash trace left on the screen each time I always see
+> > something which looks like it is in the bridge code.
+> > 
+> 
+> If it is a server, please capture the console log during the panic output,
+> then developers can analyze it.
+> 
+> Ways of doing that are (in order of usefulness):
+> 
+> 1. Serial console - most reliable
+> 2. Camera picture with digital camera.  Problem is screen resolution limits
+>    the amount of info. Also not easy to get a good picture
+> 3. Netconsole. Problem is that for networking bugs, the panic output
+>    may never make it out.
 > 
 
-If it is a server, please capture the console log during the panic output,
-then developers can analyze it.
-
-Ways of doing that are (in order of usefulness):
-
-1. Serial console - most reliable
-2. Camera picture with digital camera.  Problem is screen resolution limits
-   the amount of info. Also not easy to get a good picture
-3. Netconsole. Problem is that for networking bugs, the panic output
-   may never make it out.
-
-
--- 
-Stephen Hemminger <shemminger@osdl.org>
+It's dying not in the bridge itself but in the netfilter hooks.
+What netfilter's are you running, and are you doing VLAN's?
+What hardware is being used?
