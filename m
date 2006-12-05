@@ -1,12 +1,10 @@
-Sender: fulvio@zeroshell.net
-From: "Fulvio Ricciardi" <fulvio.ricciardi@zeroshell.net>
-Date: Sat, 02 Dec 2006 10:37:38 +0100
-Message-id: <45714962.4f.4649.1265894375@webmailh1.aruba.it>
+Date: Tue, 5 Dec 2006 13:37:29 +0100
+From: Tino Keitel <tino.keitel@innominate.com>
+Message-ID: <20061205123729.GA24251@tkeitel002.bln.innominate.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Subject: Re: [Bridge] Passing vlan tagged packets through linux
-	bridge(2.6.19)
-Reply-To: fulvio.ricciardi@zeroshell.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Clarification regarding device matches in bridge-netfilter
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,39 +13,34 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: kasra kangavari <kasra_kng@yahoo.com>
-Cc: bridge@osdl.org
+To: bridge@lists.osdl.org
 
+Hi folks,
 
------ Original Message Follows -----
-From: kasra kangavari <kasra_kng@yahoo.com>
-To: fulvio.ricciardi@zeroshell.net
-Subject: Re: [Bridge] Passing vlan tagged packets through
-linux bridge(2.6.19)
-Date: Sat, 2 Dec 2006 00:16:12 -0800 (PST)
+in 2.4 kernels, device matching for bridged packets was done with
+iptables -i/-o. Since 2.6, I was used to use -m physdev here.
 
-> Dear Fulvio
->   
->   I wanna know if your linux box ethernets are 1000 or 100
-> ?
->  and are you sure about kernels < 2.6.15 that large tagged
-> packets correctly forward ?
+In 2.6.18, This seems to be more complicated. At least the filter/INPUT
+chain now doesn't match with -m physdev --physdev-in anymore, but
+FORWARD and OUTPUT does. I also read the note that -m phydev is now
+deprecated for non-bridged traffic.
 
-I use ZeroShell that is a Linux distribution for servers and
-embedded devices and I remember when I tested it with older
-kernel than the 2.6.15 one it correctly worked with bridges
-and  large 802.1q tagged packets. I don't remember exactly 
-the kernel release (2.6.12 2.6.13 2.6.14) but I am sure It
-worked fine.
-I used 3com 3c905c e Intel e100 10/100mb interfaces whose
-kernel modules work fine with VLAN.
-I have also tried  to bridge TAP devices by using OpenVPN
-software to obtain a layer 2 VPN bridged to fast ethernet
-interfaces which successfully tunneled 802.1q VLANs.
+Does this mean that
 
+1. I have to use the physdev match for bridged traffic, e.g. FORWARD,
+   POSTROUTING, PREROUTING
 
---------------------------------------------------------------------
-Fulvio Ricciardi
-web: http://www.zeroshell.net/eng/
-skype: zeroshellnet
-Phone: +3908321835630
+2. I have to use iptables -i in the INPUT chain and on PREROUTING
+
+3. I have to use the physdev match in the OUTPUT chain
+
+4. I have to distinguish between bridged and locally processed or
+   routed traffic in PREROUTING, since bridged traffic needs -m
+   physdev, whereas the other traffic need -i
+
+5. until now, outgoing traffic is always matched with -m physdev, but
+   this will change in the future. If the change is made, I'll have to
+   distinguish in the same way as for incoming traffic
+
+Regards,
+Tino
