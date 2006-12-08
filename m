@@ -1,18 +1,10 @@
-Message-ID: <34d8b2fe0612080835m2c6ae98cy6f9c78e0c6e8a1be@mail.gmail.com>
-Date: Fri, 8 Dec 2006 17:35:33 +0100
-From: "Louis Croisez" <louis.croisez@gmail.com>
-In-Reply-To: <20061208071715.67d18616@localhost.localdomain>
+Message-ID: <4579F417.4050007@schaus.ca>
+Date: Fri, 08 Dec 2006 18:24:07 -0500
+From: Cameron Schaus <cam@schaus.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <34d8b2fe0612070918k63845693hd57936ad17e2e53b@mail.gmail.com>
-	<ec7cefb0612071133r8117db8m1db014f1e2783f6e@mail.gmail.com>
-	<ec7cefb0612071831k18cf1839xe4185c268254b1d7@mail.gmail.com>
-	<34d8b2fe0612080119v5989fe08m800137d27b9f9508@mail.gmail.com>
-	<20061208071715.67d18616@localhost.localdomain>
-Subject: Re: [Bridge] Help needed about IP class finding in a bridge
-	netfilter module
+Subject: [Bridge] BPDU's not passing through bridge when STP is disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -21,32 +13,38 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Thx a lot everybody.
-It works as i want now.
-inet_addr_type() gives me unicast/multicast information at bridge level.
-is_broadcast_ether_addr() gives me broadcast information at bridge level.
-Cheers.
-LOUIS
+I have noticed a change in the linux bridge implementation between 
+2.1.15 and 2.1.17.  Specifically, I do not think BPDU's (generated from 
+another bridge) are passed across the bridge when STP is disabled.  I 
+think this relates to the LLC handling of BPDU's directly invoking 
+br_bpdu_rcv.
 
-2006/12/8, Stephen Hemminger <shemminger@osdl.org>:
-> On Fri, 8 Dec 2006 10:19:57 +0100
-> "Louis Croisez" <louis.croisez@gmail.com> wrote:
->
-> > Hi Eric,
-> > first, thx for your responses.
-> > I have tried to hping on destination IP 239.255.255.250 (a Multicast
-> > ip used for example in the uPnP discovery process).
-> > The inet_addr_type() function detect multicast well.
-> >
-> > For the question of the broadcast, your idea of using the mac dest
-> > address is great. I will check this and give a feedback.
-> > Cheers,
-> > LOUIS
->
-> You could also look at the destination ethernet address using
->         is_multicast_ether_addr()
-> and     is_broadcast_ether_addr()
->
+In 2.6.15, the br_handle_frame function would pass a BPDU to the 
+br_handle_frame_finish function which would transmit it across the 
+bridge.  But in 2.6.17, the br_bpdu_rcv function is invoked directly by 
+the LLC layer, which does nothing if stp is disabled.
+
+Was this change intentional?  The reason I ask is that I can introduce a 
+loop into the network by doing the following:
+
+Two machines, both with eth0 and eth1 bridged and STP is enabled:
+
+        ----- A -----
+-----+                +------
+        ----- B -----
+
+
+When I disable STP on machine A, it reverts to a standard bridge, with 
+both eth0 and eth1 in the forwarding state.  Bridge B has STP enabled, 
+and is sending out BPDU's.  Bridge B should disable one of its ports to 
+prevent a loop in the network, but it doesn't, because bridge A does not 
+pass the BPDU's across, so bridge B cannot detect the loop.  With the 
+2.6.15 kernel, this loop was prevented.
+
+Can br_handle_frame_finish be called from br_stp_rcv in the event that 
+stp is not enabled, or would doing so cause problems?
+
+Cam
+
