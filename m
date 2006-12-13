@@ -1,12 +1,12 @@
-Date: Wed, 13 Dec 2006 10:07:53 -0800
+Date: Wed, 13 Dec 2006 10:14:42 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061213100753.4fc7ed59@dxpl.pdx.osdl.net>
-In-Reply-To: <bae22be11b2e93ffe2c4c4cc5e25d9a3@shee.org>
-References: <bae22be11b2e93ffe2c4c4cc5e25d9a3@shee.org>
+Message-ID: <20061213101442.058d4968@dxpl.pdx.osdl.net>
+In-Reply-To: <200612101909.39202.mail@patrick-nagel.net>
+References: <200612101909.39202.mail@patrick-nagel.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Dead loop: "bridge ended up including itself"
+Subject: Re: [Bridge] Man-in-the-middle scenario within vmware - problem
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,60 +15,73 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Moire <sec@shee.org>
-Cc: bridge@osdl.org
+To: Patrick Nagel <mail@patrick-nagel.net>
+Cc: bridge@lists.osdl.org
 
-On Tue, 12 Dec 2006 16:17:46 +0100
-Moire <sec@shee.org> wrote:
+On Sun, 10 Dec 2006 19:09:27 +0100
+Patrick Nagel <mail@patrick-nagel.net> wrote:
 
-> Hello List,
+> Hi there,
 > 
-> some time ago i already asked this, in the meanwhile i did
-> not found a solution nor i have any idea why this happens.
+> I'm trying to set up a man-in-the-middle scenario within a VMWare Workstation 
+> team, using brctl. What I want is the following:
 > 
-> Scenario:
+> PC1 eth0 >---LAN-segment-1---< eth0 PCMITM eth1 >---LAN-segment-2---< eth0 PC2
 > 
-> Every now and then i get this urgent warning:
+> Now I did the following on PCMITM (PC man in the middle):
 > 
-> 1 Time(s): Dead loop on virtual device br0, fix it urgently!
+> ifconfig eth0 down
+> ifconfig eth1 down
+> brctl addbr lnxbr0
+> brctl addif lnxbr0 eth0
+> brctl addif lnxbr0 eth1
+> ifconfig eth0 0.0.0.0
+> ifconfig eth1 0.0.0.0
+> ifconfig lnxbr0 up
 > 
-> Stephen Hemminger wrote (16.08.2006 20:09) this:
-> > It looks like a bridge ended up including itself some how.
+> All commands exit successfully and I get eth0, eth1 and lnxbr0 listed in 
+> ifconfig.
+> brctl show says:
 > 
-> Its for me unclear when this happens and what trigger this.
->
+> bridge name	bridge id		STP enabled	interfaces
+> lnxbr0		8000.000c296df055	no		eth1
+> 							eth0
+> 
+> which also seems alright to me.
+> 
+> But now the problem: although PC1 and PC2 are in the same IP subnet (addresses 
+> 192.168.222.1 and 192.168.222.2), a ping doesn't pass the bridge. By 
+> starting "ping pc2" on PC1 and "ping pc1" on PC2, I ensure that both machines 
+> are transmitting data frequently, and thus should show up in "brctl 
+> showmacs", but
+> brctl showmacs lnxbr0 says:
+> 
+> port no	mac addr		is local?	ageing timer
+>   1	00:0c:29:6d:f0:55	yes		   0.00
+>   2	00:0c:29:6d:f0:5f	yes		   0.00
+>   2	00:0c:29:97:e3:a6	no		   0.14
+> 
+> So there is one NIC missing - that one of PC1.
+> 
+> Does anyone have an explanation? I don't know what could be wrong in my setup, 
+> I don't even know where to start... Any help is appreciated.
+> 
+> By the way: The LAN segments within VMWare seem to be working. If I give each 
+> NIC on PCMITM an IP address (with no bridge on PCMITM), I can transfer data 
+> from PC1 to PCMITM (and vice versa) and from PC2 to PCMITM (and vice versa).
+> 
+> Patrick.
 
-Could it be the fact that sk98lin driver has some code in it that
-sends spanning tree packets itself!  This crap is because the driver
-has some vendor specific code to do failover on the dual port versions
-of the driver.  Since SysKonnect was big in the FDDI world, I suspect
-they wanted the same management features in their gigabit cards.
+Did you wait until after the "forwarding delay" expired (30 seconds) or set
+turn forwarding delay off?
 
-You have some choices:
-1) use a different card
-2) comment out the code in the sk98lin driver that generates and receives
-   the management frames
-3) use 2.6 and the skge driver that works on the same hardware.
-4) backport the skge driver to 2.4.
+It may be that the ehternet driver doesn't support promiscious mode
+and/or doesn't expect non-local source adresses. You need to see where packets
+are being dropped, could be the ethernet driver, or switch with network access
+control or inside the bridge.
 
-> I would appreciate any info to some resources. For example
-> a technical document covering this issue or similar.
-> 
-> My setup is a kernel 2.4.31 with bridge-utils 1.0.4. The box
-> have three network interfaces eth[0-2]. Bridged interfaces
-> are eth[1-2] (router,dmz), eth0 is my intranet.
-> I use DLINK network cards with sk98lin driver.
-> 
-> 
-> Many thanks in advance.
-> 
-> Best regards
-> 
-> C. Moire
-> 
-> 
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/bridge
-> 
+Also check that the drivers correctly report carrier state.
+
+brctl show lnxbr0
+
+Should show both devices in forwarding atate.
