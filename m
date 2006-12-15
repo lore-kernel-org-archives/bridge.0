@@ -1,6 +1,6 @@
-Date: Fri, 15 Dec 2006 10:24:17 -0800
+Date: Fri, 15 Dec 2006 10:31:30 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061215102417.763cf873@freekitty>
+Message-ID: <20061215103130.237b58c6@freekitty>
 In-Reply-To: <4582B8DF.2010702@cambridgebroadband.com>
 References: <AA48EE0D609E8547912F0039B5E47BC261BE14@SHI-EXCHBE1.shipara.hcltech.com>
 	<4582B8DF.2010702@cambridgebroadband.com>
@@ -34,8 +34,7 @@ Alex Zeffertt <ajz@cambridgebroadband.com> wrote:
 > HTH,
 > 
 > Alex
->
 
-I'll clean this up, and submit it. The current bridge-utils already supports
-both 2.4 and 2.6, and handles up to 1024 bridges.
-
+Actually, I would prefer NOT to send this upstream for later 2.4 releases because
+the 2.4 code is in long term stability mode, and support >32 bridges is an enhancement,
+not a bug.
