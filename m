@@ -1,10 +1,12 @@
-Date: Fri, 15 Dec 2006 15:32:13 +0100
-From: Ion Alberdi <ialberdi@laas.fr>
-Message-ID: <20061215143213.GB17538@laas.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] Virtual network and bridges
+Message-ID: <4582B8DF.2010702@cambridgebroadband.com>
+Date: Fri, 15 Dec 2006 15:01:51 +0000
+From: Alex Zeffertt <ajz@cambridgebroadband.com>
+MIME-Version: 1.0
+References: <AA48EE0D609E8547912F0039B5E47BC261BE14@SHI-EXCHBE1.shipara.hcltech.com>
+In-Reply-To: <AA48EE0D609E8547912F0039B5E47BC261BE14@SHI-EXCHBE1.shipara.hcltech.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] bridge_list orphans in linux-2.4
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,107 +15,122 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: "Majjari Vikram(TLS-ESG), Bangalore" <Majjari.Vikram@hcl.in>, bridge@lists.osdl.org
 
-Hi everybody !
+Hi Majjari,
 
-I'll try to explain first what I would like to do with the functionalities of tap and bridge interfaces, qemu, some isos(I used slax(slackware live cd))
-and the forwarding mechanisms of the Linux kernel.
+We've solved the problem now.  It turned out that the bridge_list in the
+kernel was not being corrupted.   The problem was actually that
+"brctl show" was only returning the last 32 bridges created.  We upped
+this to 2048, which required a brctl change and also a kernel module change.
 
-I'd like to simulate such a network:
-        Internet        
-          | 
-   (eth0:@public address) 
-         * host *
-          |
-         br0 (@192.168.0.254)
-          |
-    tap0      ...                  NETWORK 192.168.0.0/24
-     |              
-    qemu_nic1(@192.168.0.5)
-  * QEMU1 *
-    qemu_nic2@(192.168.1.254)
-     |
-    tap1
-          |
-         br1                      NETWORK 192.168.1.0/24
-          |
-    tap2    ....
-     |
-    qemu_nic3@(192.168.1.5)
-   * QEMU 2*
-	
-(I hope this picture has been properly displayed on your mail clients...)
+The patch is attached.
 
-To do that I created the two bridges  added tap0 to br0,  tap1 and tap2 to br1, put routing tables:
-on * host*:
-Destination           Gateway           Genmask         Flags Metric Ref    Use Iface
-192.168.0.0             *               255.255.255.0    U     0      0        0 br0
-192.168.1.0           192.168.0.5       255.255.255.0    UG    0      0        0 br0
-<public_add_network>      *           <public_add_mac>   U     0      0        0 eth0
-default               gateway            0.0.0.0         UG    0      0        0 eth0
+HTH,
 
-on * QEMU 1*:
-Destination           Gateway           Genmask         Flags Metric Ref    Use Iface
-192.168.0.0            *                255.255.255.0   U      0      0       0 eth0
-192.168.1.0            *                255.255.255.0   U      0      0       0 eth1 
-loopback               *                255.0.0.0       U      0      0       0 lo
-default               192.168.0.254     0.0.0.0         UG     0      0       0 eth0
+Alex
 
-on *QEMU 2*:
-Destination           Gateway           Genmask         Flags Metric Ref    Use Iface
-192.168.0.0            *                255.255.255.0   U      0      0       0 eth0
-loopback               *                255.0.0.0       U      0      0       0 lo
-default               192.168.0.254       0.0.0.0         UG     0      0       0 eth0
+===================================================================
+RCS file: /newcvs/intel-linux/net/bridge/br_ioctl.c,v
+retrieving revision 1.3
+retrieving revision 1.3.14.1
+diff -u -r1.3 -r1.3.14.1
+--- br_ioctl.c  20 Jul 2004 10:13:42 -0000      1.3
++++ br_ioctl.c  2 Nov 2006 16:59:14 -0000       1.3.14.1
+@@ -5,7 +5,7 @@
+   *     Authors:
+   *     Lennert Buytenhek               <buytenh@gnu.org>
+   *
+- *     $Id: br_ioctl.c,v 1.3 2004/07/20 10:13:42 ajz Exp $
++ *     $Id: br_ioctl.c,v 1.3.14.1 2006/11/02 16:59:14 srowe Exp $
+   *
+   *     This program is free software; you can redistribute it and/or
+   *     modify it under the terms of the GNU General Public License
+@@ -233,18 +233,22 @@
 
-I put 1 to /proc/sys/net/ip4/ip_forward to QEMU 1 and QEMU 2 and host, and here are the results I have:
-I can ping all the computers from all the hosts.
+         case BRCTL_GET_BRIDGES:
+         {
+-               int i;
+-               int indices[64];
++               int *indices;
++               int ret = 0;
 
-Then I wanted to give internet access to everybody, so I added the rule:
-iptables -A POSTROUTING -o eth0 -j SNAT --to-source <public_internet_address>.
+-               for (i=0;i<64;i++)
+-                       indices[i] = 0;
++               if (arg1 >= 2048)
++                       return -ENOMEM;
++               indices = kmalloc(arg1*sizeof(int), GFP_KERNEL);
++               if (indices == NULL)
++                       return -ENOMEM;
++
++               memset(indices, 0, arg1*sizeof(int));
 
-The results: QEMU1 can access the net but not QEMU2, apparently netfilter doesn't want to 
-SNAT packets coming from QEMU2.(the packets are sent (from what I saw in tcpdump), with
-the source address 192.168.1.5 to the internet).
+-               if (arg1 > 64)
+-                       arg1 = 64;
+                 arg1 = br_get_bridge_ifindices(indices, arg1);
+-               if (copy_to_user((void *)arg0, indices, arg1*sizeof(int)))
+-                       return -EFAULT;
++               ret = copy_to_user((void *)arg0, indices, arg1*sizeof(int))
++                       ? -EFAULT : arg1;
 
-So I investigated the problem and after adding some printks in the netfilter code I saw that in syslog(after ping ing google from QEMU1 and QEMU2):
++               kfree(indices);
+                 return arg1;
+         }
 
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* treating 192.168.0.5
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* interfaces in:br0,out:
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* treating 192.168.0.5
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* interfaces in:br0,out:eth0
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* treating 192.168.0.5
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* interfaces in:,out:eth0
-Dec 15 13:26:52 localhost kernel: *ipt_do_table* we are applying the target SNAT
-Dec 15 13:26:52 localhost kernel: *ipt_snat_target* hooknum:4 source:192.168.0.5
-Dec 15 13:26:52 localhost kernel: *ipt_snat_target* from interface:<NULL> to interface:eth0
-Dec 15 13:26:52 localhost kernel: *manip_pkt* changing packet 192.168.0.5 into 140.93.64.76
-...
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* treating 192.168.1.5
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* interfaces in:br1,out:
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* treating 192.168.1.5
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* interfaces in:br1,out:br1
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* treating 192.168.1.5
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* interfaces in:,out:br1
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* treating 192.168.1.5
-Dec 15 13:31:47 localhost kernel: *ipt_do_table* interfaces in:br0,out:eth0
-...
 
-So aparently, from QEMU2, the packets don't pass to the state "interfaces in:null,out:eth0", which seems to be the state
-that netfilter matches with "-o eth0", and so the packet isn't natted.
+===================================================================
+RCS file: /newcvs/third-party/bridge-utils/libbridge/libbridge_init.c,v
+retrieving revision 1.3
+retrieving revision 1.3.14.1
+diff -u -r1.3 -r1.3.14.1
+--- libbridge_init.c    25 May 2004 16:42:58 -0000      1.3
++++ libbridge_init.c    2 Nov 2006 16:59:55 -0000       1.3.14.1
+@@ -158,10 +158,10 @@
+  int br_make_bridge_list()
+  {
+         int i;
+-       int ifindices[32];
++       int ifindices[2047];
+         int num;
 
-I would like to know if there is a reason why packets from QEMU2 don't pass in this state, whereas they are with QEMU1, 
-and of course I would like to know all the dumb things I have done implementing this architecture :-D.
-
-Anyway big thanks to all the contributors of bridge and tun/tap devices, 
-for having added this functionnality to the linux kernel, after this problem is solved, it will 
-be perfect for what I want to do :-D. 
-
-Best regards.
+-       num = br_ioctl(BRCTL_GET_BRIDGES, (unsigned long)ifindices, 32);
++       num = br_ioctl(BRCTL_GET_BRIDGES, (unsigned long)ifindices, 2047);
+         if (num < 0)
+                 return errno;
 
 
 
--- 
-Ion Alberdi
-LAAS/CNRS - Groupe OLC
-Email: ialberdi[at]laas.fr
+
+Majjari Vikram(TLS-ESG), Bangalore wrote:
+> Hi I have a similar problem. Can u please send me how u have solved it.
+> 
+>  
+> 
+> /*/ /*/
+> 
+> /*/Regards,/*/
+> 
+> /*/Vikram./*/////
+> 
+>  
+> 
+> DISCLAIMER:
+> -----------------------------------------------------------------------------------------------------------------------
+> 
+> The contents of this e-mail and any attachment(s) are confidential and 
+> intended for the named recipient(s) only.
+> It shall not attach any liability on the originator or HCL or its 
+> affiliates. Any views or opinions presented in
+> this email are solely those of the author and may not necessarily 
+> reflect the opinions of HCL or its affiliates.
+> Any form of reproduction, dissemination, copying, disclosure, 
+> modification, distribution and / or publication of
+> this message without the prior written consent of the author of this 
+> e-mail is strictly prohibited. If you have
+> received this email in error please delete it and notify the sender 
+> immediately. Before opening any mail and
+> attachments please check them for viruses and defect.
+> 
+> -----------------------------------------------------------------------------------------------------------------------
+> 
+
