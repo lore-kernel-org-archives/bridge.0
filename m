@@ -1,13 +1,13 @@
-Date: Fri, 15 Dec 2006 10:31:30 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-Message-ID: <20061215103130.237b58c6@freekitty>
-In-Reply-To: <4582B8DF.2010702@cambridgebroadband.com>
-References: <AA48EE0D609E8547912F0039B5E47BC261BE14@SHI-EXCHBE1.shipara.hcltech.com>
-	<4582B8DF.2010702@cambridgebroadband.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20061213100753.4fc7ed59@dxpl.pdx.osdl.net>
+References: <bae22be11b2e93ffe2c4c4cc5e25d9a3@shee.org>
+	<20061213100753.4fc7ed59@dxpl.pdx.osdl.net>
+Mime-Version: 1.0 (Apple Message framework v624)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <aa502292d1f9e262608428897c7bfcd5@shee.org>
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge_list orphans in linux-2.4
+From: Moire <sec@shee.org>
+Date: Sun, 17 Dec 2006 12:39:55 +0100
+Subject: Re: [Bridge] Dead loop: "bridge ended up including itself"
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,25 +16,54 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Alex Zeffertt <ajz@cambridgebroadband.com>
-Cc: "Majjari Vikram(TLS-ESG), Bangalore" <Majjari.Vikram@hcl.in>, bridge@lists.osdl.org
+To: bridge@osdl.org
 
-On Fri, 15 Dec 2006 15:01:51 +0000
-Alex Zeffertt <ajz@cambridgebroadband.com> wrote:
+On 13.12.2006 Stephen Hemminger wrote:
 
-> Hi Majjari,
-> 
-> We've solved the problem now.  It turned out that the bridge_list in the
-> kernel was not being corrupted.   The problem was actually that
-> "brctl show" was only returning the last 32 bridges created.  We upped
-> this to 2048, which required a brctl change and also a kernel module change.
-> 
-> The patch is attached.
-> 
-> HTH,
-> 
-> Alex
+> On Tue, 12 Dec 2006 Moire <sec@shee.org> wrote:
+>
+>> ...
+>> Scenario:
+>>
+>> Every now and then i get this urgent warning:
+>>
+>> 1 Time(s): Dead loop on virtual device br0, fix it urgently!
+>>
+>> Stephen Hemminger wrote (16.08.2006 20:09) this:
+>>> It looks like a bridge ended up including itself some how.
+>>
+>> Its for me unclear when this happens and what trigger this.
+>>
+>> I would appreciate any info to some resources. For example
+>> a technical document covering this issue or similar.
+>>
+>> My setup is a kernel 2.4.31 with bridge-utils 1.0.4. The box
+>> have three network interfaces eth[0-2]. Bridged interfaces
+>> are eth[1-2] (router,dmz), eth0 is my intranet.
+>> I use DLINK network cards with sk98lin driver.
+>
+> Could it be the fact that sk98lin driver has some code in it that
+> sends spanning tree packets itself!  This crap is because the driver
+> has some vendor specific code to do failover on the dual port versions
+> of the driver.  Since SysKonnect was big in the FDDI world, I suspect
+> they wanted the same management features in their gigabit cards.
+>
+> You have some choices:
+> 1) use a different card
+> 2) comment out the code in the sk98lin driver that generates and 
+> receives
+>    the management frames
+> 3) use 2.6 and the skge driver that works on the same hardware.
+> 4) backport the skge driver to 2.4.
 
-Actually, I would prefer NOT to send this upstream for later 2.4 releases because
-the 2.4 code is in long term stability mode, and support >32 bridges is an enhancement,
-not a bug.
+Hello,
+
+thanks for your reply. I noticed that you provide a backport of the
+skge driver. I will test it and do report if it is successful. I hope
+that it is possible to build it into the kernel because i don't use
+a modularized kernel.
+
+Thanks
+
+C. Moire
+
