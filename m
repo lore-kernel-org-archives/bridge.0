@@ -1,9 +1,9 @@
-Date: Mon, 18 Dec 2006 18:18:25 -0800 (PST)
-From: hong zhang <henryzhang@arrowspan.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-261723958-1166494705=:21181"
-Message-ID: <420859.21181.qm@web815.biz.mail.mud.yahoo.com>
-Subject: [Bridge] entery deleted in forward table and no longer added
+Message-ID: <BAY104-F2142DB44B21DC4DEBEF1FEFDCF0@phx.gbl>
+From: "Jie Chen" <cj70286@hotmail.com>
+Date: Wed, 20 Dec 2006 21:26:18 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Subject: [Bridge] Monitor the status of two ethernet interface
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,27 +14,22 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Hi everybody,
 
---0-261723958-1166494705=:21181
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+Just have myself added into the maillist. I have a few linux boxes with 
+Kernel 2.6.9. Each box has 2 ethernet interfaces, one 3COM, one Intel. I 
+connected one with Power Line Modem, and one with Wifi Modem. They form a 
+nice network with bridge. I have a few questions here.
 
-Folks,
-   
-  I tried to create a forward table on GW2348 (avila) board. Dummy network interface is created to simulate sending traffics to kernel from virtual remote port with mac addresses every 5 seconds. It works perfectly in fedora 5 that means "brctl showmacs br0" returns remote mac address on table all the time.
-   
-  But in GW2348 board, remote mac entry only shows before forwarding timer expired. After that no more remote entries show up after "brctl showmacs br0".
-   
-  Anyone knows why? 
-   
-  ---henry
+Suppose I have two path from box A to box D, which path will packets go 
+through? If I want to monitor the condition (throughput) of each interface, 
+and pick the better one, how do I do it? If I want to use both interfaces to 
+transfer data, how do I do it?
 
---0-261723958-1166494705=:21181
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+Thanks in advance for your answers,
+cj
 
-<div>Folks,</div>  <div>&nbsp;</div>  <div>I tried to create a forward table on GW2348 (avila) board. Dummy network interface is created to&nbsp;simulate sending traffics to kernel from virtual remote port with mac addresses every 5 seconds. It works perfectly in fedora 5 that means "brctl showmacs br0" returns remote mac address on table all the time.</div>  <div>&nbsp;</div>  <div>But in GW2348 board, remote mac entry only shows before forwarding timer expired. After that no more remote entries show up after "brctl showmacs br0".</div>  <div>&nbsp;</div>  <div>Anyone knows why? </div>  <div>&nbsp;</div>  <div>---henry</div>
---0-261723958-1166494705=:21181--
+_________________________________________________________________
+Type your favorite song.� Get a customized station.� Try MSN Radio powered 
+by Pandora. http://radio.msn.com/?icid=T002MSN03A07001
+
