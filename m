@@ -1,10 +1,10 @@
-Message-ID: <BAY131-F36EA0C0FFE54BCDC89420BE2C60@phx.gbl>
-In-Reply-To: <50F73B338A7FD943B7937BBCF99BFBDE01BF08F8@mail.sofaware.com>
-From: "saravanan chanemouganandam" <saravanan_sprt@hotmail.com>
-Date: Fri, 29 Dec 2006 14:50:14 +0530
+Message-ID: <BAY104-F32A17633D3A02378CE13B2FDC60@phx.gbl>
+In-Reply-To: <458ACFAC.6070006@schaus.ca>
+From: "Jie Chen" <cj70286@hotmail.com>
+Date: Fri, 29 Dec 2006 15:59:33 +0000
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_1167384023-28885-92"
-Subject: Re: [Bridge] bridge-utils compilation bug
+Content-Type: text/plain; format=flowed
+Subject: Re: [Bridge] Monitor the status of two ethernet interface
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,32 +13,68 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: UriS@sofaware.com, bridge@osdl.org
+To: cam@schaus.ca, bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Hi Cam,
 
-------------=_1167384023-28885-92
-Content-Type: text/html; format=flowed
-Content-Disposition: inline
+Thank you very much. The book is a very good one, it cleared out all 
+problems I had in implementation. I also located those source codes, which 
+are also very helpful.
 
-<html><div DEFANGED_style="background-color:"><DIV class=RTE>
-<P>Hi Uri,</P>
-<P>I too fasced the same problem in cross compiling bridge-utils-1.2 for my target Xscale&nbsp;on x86 host development machin&nbsp;. After download and untar , first I couldn't find ./configure file except ./configure.in . Simple make on x86 machine throws error like "No rule to make target" etc and the following error </P>
-<P>sara:/schane/bridge-utils-1.2# ./configure.in<BR>./configure.in: line 1: dnl: command not found<BR>./configure.in: line 2: syntax error near unexpected token `bridge-utils,'<BR>./configure.in: line 2: `AC_INIT(bridge-utils, 1.2)'<BR>sara:/schane/bridge-utils-1.2#</P>
-<DIV class=RTE>&nbsp;</DIV>
-<DIV class=RTE>then I tried to do autoconf and got </DIV>
-<DIV class=RTE><BR>sara:/schane/bridge-utils-1.2# autoconf<BR>autoconf: Undefined macros:<BR>configure.in:3:AC_CONFIG_HEADERS(libbridge/config.h)<BR>sara:/schane/bridge-utils-1.2#</DIV>
-<P>I couldn't find enough information in the README or /docs for how to compile / cross compile the tools. If you find any information cld you share it. &nbsp;<BR></P>
-<P>1. how to compile on native x86 machine.</P>
-<P>2. how to cross compile for other target by hand edit in make file.</P>
-<P>Thanks</P>
-<P>Sara<BR></P></DIV>
-<DIV></DIV>
-<BLOCKQUOTE DEFANGED_style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #a0c6e5 2px solid; MARGIN-RIGHT: 0px"><FONT DEFANGED_style="FONT-SIZE: 11px; FONT-FAMILY: tahoma,sans-serif">
-<HR color=#a0c6e5 SIZE=1>
+For guys who are trying to cross compile v1.2, actually I have the same 
+problem, and I just gave up and use v1.1. Anybody can clear it up?
 
-<DIV></DIV>From:&nbsp;&nbsp;<I>"Uri Simchoni" &lt;UriS@sofaware.com&gt;</I><BR>To:&nbsp;&nbsp;<I>&lt;bridge@osdl.org&gt;</I><BR>Subject:&nbsp;&nbsp;<I>[Bridge] bridge-utils compilation bug</I><BR>Date:&nbsp;&nbsp;<I>Thu, 28 Dec 2006 12:16:17 +0200</I><BR>&gt;Hi,<BR>&gt;<BR>&gt;I tried to cross-compile bridge-utils, and think I have found a bug in<BR>&gt;Makefile.in:<BR>&gt;<BR>&gt;--- /cygdrive/d/sources/bridge-utils-1.1/libbridge/Makefile.in<BR>&gt;2004-06-02 20:38:20.000000000 +0300<BR>&gt;+++ libbridge/Makefile.in&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2006-12-28 11:56:56.576468700 +0200<BR>&gt;@@ -5,7 +5,8 @@<BR>&gt;&nbsp;&nbsp;RANLIB=@RANLIB@<BR>&gt;<BR>&gt;&nbsp;&nbsp;CC=@CC@<BR>&gt;-CFLAGS = -Wall -g $(KERNEL_HEADERS)<BR>&gt;+CFLAGS = -Wall 
-@CFLAGS@<BR>&gt;+INCLUDE=$(KERNEL_HEADERS)<BR>&gt;<BR>&gt;&nbsp;&nbsp;prefix=@prefix@<BR>&gt;&nbsp;&nbsp;exec_prefix=@exec_prefix@<BR>&gt;<BR>&gt;<BR>&gt;<BR>&gt;Thanks,<BR>&gt;Uri.<BR>&gt;<BR>&gt;_______________________________________________<BR>&gt;Bridge mailing list<BR>&gt;Bridge@lists.osdl.org<BR>&gt;https://lists.osdl.org/mailman/listinfo/bridge<BR></FONT></BLOCKQUOTE></div><br clear=all><hr>Get up-to-date with movies, music and TV. <a href="http://g.msn.com/8HMBENIN/2746??PS=47575" target="_top">Its happening on MSN Entertainment</a> </html>
+Thanks and have a wonderful long weekend.
+
+Jie
 
 
-------------=_1167384023-28885-92--
+>From: Cameron Schaus <cam@schaus.ca>
+>To: Jie Chen <cj70286@hotmail.com>, bridge@lists.osdl.org
+>Subject: Re: [Bridge] Monitor the status of two ethernet interface
+>Date: Thu, 21 Dec 2006 13:17:16 -0500
+>
+>Jie Chen wrote:
+>>Hi Stephen,
+>>
+>>I've been reading the source code for a few days. I can locate these two 
+>>files:
+>>/usr/include/linux/sockios.h
+>>/usr/include/sys/ioctl.h
+>>and I want to look at the codes for the function ioctl(), since there are 
+>>so many files includes ioctl() under /usr/ folder. Do you have any idea 
+>>which specific one we are using? For example, does the one in following 
+>>file look the correct one?
+>>/usr/src/linux-2.6.15_gz/net/socket.c
+>The bridge ioctls are in net/bridge/br_ioctl.c, but some of the bridge 
+>functionality is done using the sysfs interface, whose code in is 
+>br_sys_{br,if}.c.
+>
+>>Thanks for the nice architecture drawing. What is the relationship between 
+>>TCP/IP architecture and the architecture you showed me? The bridge driver 
+>>should be considered as physical layer and IP layer is above that?
+>You will want to check out the netif_receive_skb function in net/core/dev.c 
+>and note the bridge hooks used to pass packets to the bride code.  This is 
+>done prior to IP processing.
+>
+>>For STP, if there's no Daemon running behind, who's maintaining the STP 
+>>table and who decide which interface to go with?
+>This is done by the kernel bridge code, using timers and incoming packets 
+>to trigger STP state changes.  The code of interest is in 
+>/usr/src/linux/net/bridge/br_stp.*, with some of the timer creation/init 
+>done when bridge entities are created.  Search for br_stp_timer_init and 
+>br_stp_port_timer_init.
+>
+>All of the bridge code is in net/bridge/ and I would recommend the 
+>"Understanding Linux Network Internals" book published by O'Reilly 
+>publishing.  This book has several chapters that explain in detail the 
+>linux bridge and STP implementation, as well as a chapter that explains STP 
+>in detail.
+>
+>Cam
+>
+
+_________________________________________________________________
+Get FREE Web site and company branded e-mail from Microsoft Office Live 
+http://clk.atdmt.com/MRT/go/mcrssaub0050001411mrt/direct/01/
+
