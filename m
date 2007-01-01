@@ -1,10 +1,12 @@
-Message-ID: <BAY104-F32A17633D3A02378CE13B2FDC60@phx.gbl>
-In-Reply-To: <458ACFAC.6070006@schaus.ca>
-From: "Jie Chen" <cj70286@hotmail.com>
-Date: Fri, 29 Dec 2006 15:59:33 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Subject: Re: [Bridge] Monitor the status of two ethernet interface
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Date: Mon, 1 Jan 2007 09:30:36 +0200
+Message-ID: <50F73B338A7FD943B7937BBCF99BFBDE01C3E1B3@mail.sofaware.com>
+From: "Uri Simchoni" <UriS@sofaware.com>
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] libbridge<->sysfs interface - some bugs
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,68 +15,83 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: cam@schaus.ca, bridge@lists.osdl.org
+To: bridge@osdl.org
 
-Hi Cam,
+Hi,
+ 
+I think I detected some bugs in libbridge 1.2. Probably none detected
+them so far because of the fallback to ioctl() whenever anything fails.
+On my system (user 32 bits, kernel 64 bits) the fallback doesn't work.
 
-Thank you very much. The book is a very good one, it cleared out all 
-problems I had in implementation. I also located those source codes, which 
-are also very helpful.
+It would be nice BTW to have a compile time option that leaves the ioctl
+fallback out...
 
-For guys who are trying to cross compile v1.2, actually I have the same 
-problem, and I just gave up and use v1.1. Anybody can clear it up?
+Here's what I've found (first patch is a compilation patch I posted last
+week):
 
-Thanks and have a wonderful long weekend.
-
-Jie
-
-
->From: Cameron Schaus <cam@schaus.ca>
->To: Jie Chen <cj70286@hotmail.com>, bridge@lists.osdl.org
->Subject: Re: [Bridge] Monitor the status of two ethernet interface
->Date: Thu, 21 Dec 2006 13:17:16 -0500
->
->Jie Chen wrote:
->>Hi Stephen,
->>
->>I've been reading the source code for a few days. I can locate these two 
->>files:
->>/usr/include/linux/sockios.h
->>/usr/include/sys/ioctl.h
->>and I want to look at the codes for the function ioctl(), since there are 
->>so many files includes ioctl() under /usr/ folder. Do you have any idea 
->>which specific one we are using? For example, does the one in following 
->>file look the correct one?
->>/usr/src/linux-2.6.15_gz/net/socket.c
->The bridge ioctls are in net/bridge/br_ioctl.c, but some of the bridge 
->functionality is done using the sysfs interface, whose code in is 
->br_sys_{br,if}.c.
->
->>Thanks for the nice architecture drawing. What is the relationship between 
->>TCP/IP architecture and the architecture you showed me? The bridge driver 
->>should be considered as physical layer and IP layer is above that?
->You will want to check out the netif_receive_skb function in net/core/dev.c 
->and note the bridge hooks used to pass packets to the bride code.  This is 
->done prior to IP processing.
->
->>For STP, if there's no Daemon running behind, who's maintaining the STP 
->>table and who decide which interface to go with?
->This is done by the kernel bridge code, using timers and incoming packets 
->to trigger STP state changes.  The code of interest is in 
->/usr/src/linux/net/bridge/br_stp.*, with some of the timer creation/init 
->done when bridge entities are created.  Search for br_stp_timer_init and 
->br_stp_port_timer_init.
->
->All of the bridge code is in net/bridge/ and I would recommend the 
->"Understanding Linux Network Internals" book published by O'Reilly 
->publishing.  This book has several chapters that explain in detail the 
->linux bridge and STP implementation, as well as a chapter that explains STP 
->in detail.
->
->Cam
->
-
-_________________________________________________________________
-Get FREE Web site and company branded e-mail from Microsoft Office Live 
-http://clk.atdmt.com/MRT/go/mcrssaub0050001411mrt/direct/01/
-
+diff -ru --strip-trailing-cr bridge-utils-1.2/libbridge/Makefile.in
+/Arrow75/CN3XXX-SDK/linux/embedded_rootfs/build/bridge-utils-1.2/libbrid
+ge/Makefile.in
+--- bridge-utils-1.2/libbridge/Makefile.in	2006-09-09
+09:30:32.000000000 +0300
++++
+/Arrow75/CN3XXX-SDK/linux/embedded_rootfs/build/bridge-utils-1.2/libbrid
+ge/Makefile.in	2006-12-31 10:21:01.584005800 +0200
+@@ -5,7 +5,8 @@
+ RANLIB=@RANLIB@
+ 
+ CC=@CC@
+-CFLAGS = -Wall -g $(KERNEL_HEADERS)
++CFLAGS = -Wall @CFLAGS@
++INCLUDE=$(KERNEL_HEADERS)
+ 
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+diff -ru --strip-trailing-cr
+bridge-utils-1.2/libbridge/libbridge_devif.c
+/Arrow75/CN3XXX-SDK/linux/embedded_rootfs/build/bridge-utils-1.2/libbrid
+ge/libbridge_devif.c
+--- bridge-utils-1.2/libbridge/libbridge_devif.c	2006-09-09
+09:30:32.000000000 +0300
++++
+/Arrow75/CN3XXX-SDK/linux/embedded_rootfs/build/bridge-utils-1.2/libbrid
+ge/libbridge_devif.c	2007-01-01 08:22:29.063200300 +0200
+@@ -56,7 +56,7 @@
+ 	if (!f) 
+ 		fprintf(stderr, "%s: %s\n", dev, strerror(errno));
+ 	else {
+-		fscanf(f, "%d", &value);
++		fscanf(f, "%i", &value);
+ 		fclose(f);
+ 	}
+ 	return value;
+@@ -282,7 +282,7 @@
+ 	char path[SYSFS_PATH_MAX];
+ 	FILE *f;
+ 
+-	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/%s", bridge,
+name);
++	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/bridge/%s",
+bridge, name);
+ 
+ 	f = fopen(path, "w");
+ 	if (f) {
+diff -ru --strip-trailing-cr bridge-utils-1.2/libbridge/libbridge_init.c
+/Arrow75/CN3XXX-SDK/linux/embedded_rootfs/build/bridge-utils-1.2/libbrid
+ge/libbridge_init.c
+--- bridge-utils-1.2/libbridge/libbridge_init.c	2006-09-09
+09:30:32.000000000 +0300
++++
+/Arrow75/CN3XXX-SDK/linux/embedded_rootfs/build/bridge-utils-1.2/libbrid
+ge/libbridge_init.c	2007-01-01 07:35:25.610075300 +0200
+@@ -186,7 +186,7 @@
+ 	struct dirent **namelist;
+ 	char path[SYSFS_PATH_MAX];
+ 
+-	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/brport",
+brname);
++	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/brif",
+brname);
+ 	count = scandir(path, &namelist, 0, alphasort);
+ 	if (count < 0)
+ 		return old_foreach_port(brname, iterator, arg);
