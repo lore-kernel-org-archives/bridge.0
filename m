@@ -1,13 +1,10 @@
-Content-class: urn:content-classes:message
+Message-ID: <45B797C1.50803@pacbell.net>
+Date: Wed, 24 Jan 2007 09:30:41 -0800
+From: Michael Boutte <mboutte@pacbell.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C73FE8.3B70F380"
-Date: Wed, 24 Jan 2007 10:46:48 -0800
-Message-ID: <8764B2C538F2C44B845C4B608D4515D31A48C6@EXVBE012-5.exch012.intermedia.net>
-References: <8764B2C538F2C44B845C4B608D4515D31A48C2@EXVBE012-5.exch012.intermedia.net>
-	<45B7A3ED.4080607@schaus.ca>
-From: "Jake Farrell" <jake@amperion.com>
-Subject: Re: [Bridge] STP Loop not blocking
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] LAN-WAN Bridging Problem
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,113 +13,39 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Cameron Schaus <cam@schaus.ca>, bridge@lists.osdl.org
+To: bridge@osdl.org
 
-This is a multi-part message in MIME format...
+Hello,
+I am experiencing what may be a unique problem with operating the 
+bridge. My hardware is custom Freescale MPC875 processor based with one 
+ethernet (eth0) and one hdlc (hdlc0) WAN port and I am connecting two of 
+these boards together using the WAN ports over a long distance - 
+essentially two bridges in series.  They are running Linux 2.6.15 with 
+bridging enabled in the kernel configuration. When I first power up both 
+boards the bridge comes up fine and the two outside LANs are connected 
+as if it were one LAN with a smart long cable in between. brctl works to 
+set it up and the "showmacs" properly shows all of the MACs on each end.
 
-------_=_NextPart_001_01C73FE8.3B70F380
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+The problem occurs If I disconnect the ethernet cable directly from the 
+bridge at either end. The console on the disconnected units says "br0: 
+port 2(eth0) entering disabled state". When I reconnect the cable it 
+shows "br0: port 2(eth0) entering learning state" plus messages about 
+network topology change detected. That LAN end no longer has a link to 
+the other end, yet at the console of the unit disconnected and 
+reconnected I can ping in either direction to any device in both LAN 
+segments. Time makes no difference, but if I issue the command "ifconfig 
+eth0 down" and then back "up" the link is almost immediately restored. 
+This works either while the cable is disconnected or after it is 
+reconnected.
 
-The setup is as follows
+I compared the effect of a cable disconnect with a standard PC running 
+Linux and it seems to be identical, that is, ifconfig shows the port as 
+up even when the cable is disconnected on both. I tried having STP 
+enabled or disabled, and adding the ports into br0 in the opposite order 
+with no difference either. Any ideas on why the bridge does not 
+automatically restore? and especially on how I can make it automatically 
+restore itself?
 
-ixp4xx #1:  br0 (eth0, eth1, ath0, ath1) STP enabled
-                  |                 |
-                  |                 |
-                  |                 |
-ixp4xx #2:  br0 (eth0, eth1, ath0, ath1) STP enabled
+Thank you for your kind attention.
 
-with 2.6.16 one of the interfaces goes to blocking and the other is left to=
- forward. In 2.6.18 the interfaces always stay forwarding.
-
-Jake
-
-
->
-> Recently ran into a problem with the 2.6.18 kernel on Xscale arch when=20
-> a bridge, with multiple interfaces on it, is configured with a=20
-> redundant loop. All interfaces are left on forwarding and nexer switch=20
-> to block when the loop is introduced. This was tested against a 2.6.16=20
-> kernel and the problem did not occur, interfaces forwared and blocked=20
-> correctly. Any help would be appreciated.
->
-Since you haven't give much detail on your setup (is stp enabled on both=20
-bridges, for example), I'm not 100% clear what may be happening.  But it=20
-does sound like something I ran into before.
-
-See my post, and Stephen's reply:
-http://lists.osdl.org/pipermail/bridge/2006-December/001573.html
-
-Cam
-
-
-
-------_=_NextPart_001_01C73FE8.3B70F380
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-=
-1">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6.5.7650.28">
-<TITLE>RE: [Bridge] STP Loop not blocking</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/plain format -->
-
-<P><FONT SIZE=3D2>The setup is as follows<BR>
-<BR>
-ixp4xx #1:&nbsp; br0 (eth0, eth1, ath0, ath1) STP enabled<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<BR>
-ixp4xx #2:&nbsp; br0 (eth0, eth1, ath0, ath1) STP enabled<BR>
-<BR>
-with 2.6.16 one of the interfaces goes to blocking and the other is left to=
- forward. In 2.6.18 the interfaces always stay forwarding.<BR>
-<BR>
-Jake<BR>
-<BR>
-<BR>
-&gt;<BR>
-&gt; Recently ran into a problem with the 2.6.18 kernel on Xscale arch when=
-<BR>
-&gt; a bridge, with multiple interfaces on it, is configured with a<BR>
-&gt; redundant loop. All interfaces are left on forwarding and nexer switch=
-<BR>
-&gt; to block when the loop is introduced. This was tested against a 2.6.16=
-<BR>
-&gt; kernel and the problem did not occur, interfaces forwared and blocked<=
-BR>
-&gt; correctly. Any help would be appreciated.<BR>
-&gt;<BR>
-Since you haven't give much detail on your setup (is stp enabled on both<BR>
-bridges, for example), I'm not 100% clear what may be happening.&nbsp; But =
-it<BR>
-does sound like something I ran into before.<BR>
-<BR>
-See my post, and Stephen's reply:<BR>
-<A HREF=3D"http://lists.osdl.org/pipermail/bridge/2006-December/001573.html=
-">http://lists.osdl.org/pipermail/bridge/2006-December/001573.html</A><BR>
-<BR>
-Cam<BR>
-<BR>
-<BR>
-</FONT>
-</P>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C73FE8.3B70F380--
+Mike Boutte
