@@ -1,9 +1,14 @@
-Message-ID: <221D807539D4EF408B4C2A4F3277D76533A7A9@EVS-BOS.campus.unn.ac.uk>
-From: "udu.ogah" <udu.ogah@unn.ac.uk>
-Date: Tue, 30 Jan 2007 13:36:55 -0000
+From: Daniele Palumbo <daniele@retaggio.net>
+References: <200701301408.22029.daniele@retaggio.net>
+In-Reply-To: <200701301408.22029.daniele@retaggio.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] Multiple bridges in one box
+Content-Disposition: inline
+Date: Tue, 30 Jan 2007 21:23:43 +0100
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200701302123.43313.daniele@retaggio.net>
+Subject: Re: [Bridge] tagged vlan + bridge: good with xen bad otherwise
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,33 +19,36 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Hi,
+sorry for double posting, was from non registered address.
 
-I'm looking at building a box like this and I'm wondering if it's doable.
+On Tuesday 30 January 2007 14:08, Daniele Palumbo wrote:
+> first of all, this is not xen-related, but i found the problem managing
+> with xen.
+> so, knowledge of xen is only suggested.
 
-My box has 13 NiCS made up of 1 onboard NIC and 3 4-port NiCs.
-I want to make  bridges consisting say br0(bridging eth0 and eth1),
-br1(briding eth2 and eth3), br2(briding eth4 and eth5), and so on.
+find out why:
+xen do (not by its choise, it's a "bug"):
+eth1 - xenbr1 - veth1 - ifconfig veth1 up
+                      \ vconfig add veth1 600 - veth1.600 - xenbr1.600
+                      \ vconfig add veth1 14 - veth1.14 - xenbr1.14
 
-Secondly can I bridge a tun device with a physical device, say tun0 and eth0
-bridged to form br0.
+> i want two type of bridge:
+> xenbr1 (with eth1 and other interfaces added later)
+> xenbr1.14 (with eth1.14 and other interfaces added later)
+>
+> xenbr1 must have all the traffic tagged.
+> xenbr1.14 must have untagged traffic for vlan 14.
 
+so now:
+how can i manage something like:
 
-Thanks,
+eth1 - xenbr1
+     \ vconfig add eth1 600 - eth1.600 - xenbr1.600
+     \ vconfig add eth1 14 - eth1.14 - xenbr1.14
+?
 
+in first (working) scenario, the problem is that ALL traffic goes through 
+xenbr1... with one more step against second scenario.
 
-Philologus...
-
-
-====
-This e-mail is intended solely for the addressee. It may contain private and
-confidential information. If you are not the intended addressee, please take
-no action based on it nor show a copy to anyone. Please reply to this e-mail
-to highlight the error. You should also be aware that all electronic mail
-from, to, or within Northumbria University may be the subject of a request
-under the Freedom of Information Act 2000 and related legislation, and
-therefore may be required to be disclosed to third parties.
-This e-mail and attachments have been scanned for viruses prior to leaving
-Northumbria University. Northumbria University will not be liable for any
-losses as a result of any viruses being passed on.
-
+thanks
+d.
