@@ -1,12 +1,12 @@
-Date: Tue, 30 Jan 2007 11:05:22 +1100
-From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
-Message-ID: <H000006900127bb1.1170115520.mail.pacificwireless.net.au@MHS>
+From: Daniele Palumbo <daniele@retaggio.net>
+Date: Tue, 30 Jan 2007 14:08:21 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] VLAN headers disappearing
+Message-Id: <200701301408.22029.daniele@retaggio.net>
+Subject: [Bridge] tagged vlan + bridge: good with xen bad otherwise
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,62 +15,54 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge <bridge@lists.osdl.org>
+To: bridge@lists.osdl.org
 
-Hi all, 
- I'm having trouble bridging VLANs.
-By doing the following:
+hi.
 
-vconfig add eth1 10
-vconfig add eth2 10
-brctl addbr br10
-brctl addif br10 eth1.10
-brctl addif br10 eth2.10
-ifconfig eth1.10 up
-ifconfig eth2.10 up
-ifconfig br10 up
+first of all, this is not xen-related, but i found the problem managing with 
+xen.
+so, knowledge of xen is only suggested.
 
-I create a bridge which bridges packets tagged with VLAN ID 10.
-Doing 
+the problem:
+i want two type of bridge:
+xenbr1 (with eth1 and other interfaces added later)
+xenbr1.14 (with eth1.14 and other interfaces added later)
 
-ebtables -A FORWARD --log -j ACCEPT
+xenbr1 must have all the traffic tagged.
+xenbr1.14 must have untagged traffic for vlan 14.
 
-Results in lots of log entries in /var/log/messages, as one would expect.
-However, 
+i did the following (with eth1 unconfigured)
+brctl addbr xenbr1
+brctl addif xenbr1 eth1
+ifconfig xenbr1 up
+ifconfig eth1 up
 
-ebtables -F
-ebtables -A FORWARD -p 8021q --log -j ACCEPT
+and xenbr1 is working.
+but, when i do a
+vconfig add eth1 14
+xenbr1 stop working.
 
-Results in absolutely nothing in /var/log/messages, which would indicate that at some point, the VLAN headers are disappearing from my bridged packets.
+if i build up xenbr1.14, with eth1.14, xenbr1.14 works and xenbr1 no.
 
-Having had somebody else have a look at this to confirm that I had it right, I got this response from them:
+i have found this: http://ebtables.sourceforge.net/brnf-faq.html
+but also setting bridge-nf-filter-vlan-tagged to 0 doesn't help.
 
->  eth1 -> eth1.10 -> br0 -> eth2.10 -> eth2
->
->This works fine using *untagged* vlan packets.
->
->Using that layout with *tagged* vlan packets, however, reveals what
->seems to be a bug in the Linux bridge code in combination with the vlan
->code.
->
->I was able, in that configuration, to see tagged packets come in on eth1
->and eth1.10, and to see them matched by the ebtables rules on eth1.10.
->
->The *outbound* packets, on eth2, were sent as untagged Ethernet frames;
->something in the bridge or vlan process had stripped the vlan header
->entirely.
->
->I was able to reproduce this issue with a stock Linux 2.6.17 kernel,
->without any of my code involved, so I believe it to be a bug in the
->underlying kernel networking code.
->
+but, if i do a xend start, same parameter as my manual config, both xenbr1 and 
+xenbr1.14 is working.
 
-So, is this a bug? Or have I got something horribly wrong?
- 
-Regards,
-             Leigh
- 
-Leigh Sharpe
-Network Systems Engineer
-Pacific Wireless
+there are two notable difference (better, that i noted) between the setup:
+- xen rename the interface eth1 in peth1, than it create bridge xenbr1 with 
+peth1 and vif0.1, that is a loopback connected to a new interface called eth1 
+(that is virtual, not real). 
+to understand xen networking: 
+http://wiki.xensource.com/xenwiki/XenNetworking?highlight=%28network%29#head-602e26cd4a03b992f3938fe1bea03fa0fea0ed8b
+anyway, /proc seems the same between my and xen config, and ifconfig, 
+brctl, ... also seems the same.
 
+- in xenbr1, when i setup vconfig add eth1 14, after a while, seems to send 
+eth1 in "disabled" mode (brctl showstp xenbr1)
+
+many thank you in advance!
+
+bye
+d.
