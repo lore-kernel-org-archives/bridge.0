@@ -1,12 +1,13 @@
-Message-ID: <45BFE8FE.8010309@atmark-techno.com>
-Date: Wed, 31 Jan 2007 09:55:26 +0900
-From: chris mcharg <chris@atmark-techno.com>
+Date: Wed, 31 Jan 2007 15:54:13 +1100
+From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
+Message-ID: <H000006900129071.1170219237.mail.pacificwireless.net.au@MHS>
+In-Reply-To: <m3tzy8uqb3.fsf@ursa.amorsen.dk>
 MIME-Version: 1.0
-References: <H000006900128c81.1170203983.mail.pacificwireless.net.au@MHS>
-In-Reply-To: <H000006900128c81.1170203983.mail.pacificwireless.net.au@MHS>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Multiple bridges in one box
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] VLAN headers disappearing
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,28 +16,48 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
-Cc: bridge <bridge@lists.osdl.org>
+To: benny+usenet <benny+usenet@amorsen.dk>, bridge <bridge@osdl.org>
 
-  > Hi,
+So, 
+Any idea how to turn it off? Using an e1000 driver. 
 
-Gidday
 
-> 
-> I'm looking at building a box like this and I'm wondering if it's doable.
-[...]
-> 
-> Secondly can I bridge a tun device with a physical device, say tun0 and eth0
-> bridged to form br0.
-> 
+Regards,
+             Leigh
+ 
+Leigh Sharpe
+Network Systems Engineer
+Pacific Wireless
+Ph +61 3 9584 8966
+Mob 0408 009 502
+email lsharpe@pacificwireless.com.au
+web www.pacificwireless.com.au
 
-I think this is pretty much standard practice when using openvpn.
+-----Original Message-----
+From: Benny Amorsen [mailto:benny+usenet@amorsen.dk] 
+Sent: Wednesday, January 31, 2007 9:02 AM
+To: bridge@osdl.org
+Subject: Re: [Bridge] VLAN headers disappearing
 
-http://openvpn.net/bridge.html
+>>>>> "LS" == Leigh Sharpe <lsharpe@pacificwireless.com.au> writes:
 
-However, I think you might want to use a tap device as tun is IP level, 
-according to this doc:
+LS> As far as I'm aware, theres no vlan acceleration in the system
+LS> anywhere. Tested on several different machines, all with the same
+LS> result.
 
-http://www.linux-m32r.org/lxr/http/source/Documentation/networking/tuntap.txt
+If your system is using an even remotely modern card, it will have
+VLAN acceleration.
 
-Chris
+
+/Benny
+
+
+
+
+
+_______________________________________________
+Bridge mailing list
+Bridge@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/bridge
+
+
