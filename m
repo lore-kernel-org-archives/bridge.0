@@ -1,14 +1,15 @@
-From: Daniele Palumbo <daniele.palumbo@mail.ing.unibo.it>
-Date: Tue, 30 Jan 2007 18:07:59 +0100
-References: <200701301408.22029.daniele@retaggio.net>
-In-Reply-To: <200701301408.22029.daniele@retaggio.net>
+Message-ID: <bdfc5d6e0701311043n7f7de0f6vd056d976c0edb2f@mail.gmail.com>
+Date: Wed, 31 Jan 2007 13:43:31 -0500
+From: "Andy Gospodarek" <andy@greyhouse.net>
+Sender: adgospod@gmail.com
+In-Reply-To: <H000006900129071.1170219237.mail.pacificwireless.net.au@MHS>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200701301807.59265.daniele.palumbo@mail.ing.unibo.it>
-Subject: Re: [Bridge] tagged vlan + bridge: good with xen bad otherwise
+References: <m3tzy8uqb3.fsf@ursa.amorsen.dk>
+	<H000006900129071.1170219237.mail.pacificwireless.net.au@MHS>
+Subject: Re: [Bridge] VLAN headers disappearing
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,36 +18,18 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
+Cc: bridge <bridge@osdl.org>, benny+usenet <benny+usenet@amorsen.dk>
 
-On Tuesday 30 January 2007 14:08, Daniele Palumbo wrote:
-> first of all, this is not xen-related, but i found the problem managing
-> with xen.
-> so, knowledge of xen is only suggested.
-
-find out why:
-xen do (not by its choise, it's a "bug"):
-eth1 - xenbr1 - veth1 - ifconfig veth1 up
-                      \ vconfig add veth1 600 - veth1.600 - xenbr1.600
-                      \ vconfig add veth1 14 - veth1.14 - xenbr1.14
-
-> i want two type of bridge:
-> xenbr1 (with eth1 and other interfaces added later)
-> xenbr1.14 (with eth1.14 and other interfaces added later)
+On 1/30/07, Leigh Sharpe <lsharpe@pacificwireless.com.au> wrote:
+> So,
+> Any idea how to turn it off? Using an e1000 driver.
 >
-> xenbr1 must have all the traffic tagged.
-> xenbr1.14 must have untagged traffic for vlan 14.
+>
+> Regards,
+>              Leigh
+>
 
-so now:
-how can i manage something like:
 
-eth1 - xenbr1
-     \ vconfig add eth1 600 - eth1.600 - xenbr1.600
-     \ vconfig add eth1 14 - eth1.14 - xenbr1.14
-?
-
-in first (working) scenario, the problem is that ALL traffic goes through 
-xenbr1... with one more step against second scenario.
-
-thanks
-d.
+I think there were some changes 'recently' that might deal with this
+better.  Have you tried any kernels later than 2.6.17?
