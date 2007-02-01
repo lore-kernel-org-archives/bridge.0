@@ -1,10 +1,12 @@
-Message-ID: <ba7529fb0701311612n44b4e78bp2df0e60ac2406ae2@mail.gmail.com>
-Date: Wed, 31 Jan 2007 19:12:24 -0500
-From: "Chris Taylor" <chtaylo4@gmail.com>
+Message-ID: <45C134BB.9090804@candelatech.com>
+Date: Wed, 31 Jan 2007 16:30:51 -0800
+From: Ben Greear <greearb@candelatech.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_9968_13128755.1170288744911"
-Subject: [Bridge] Recommendation for PCI or PCIe NIC card
+References: <ba7529fb0701311612n44b4e78bp2df0e60ac2406ae2@mail.gmail.com>
+In-Reply-To: <ba7529fb0701311612n44b4e78bp2df0e60ac2406ae2@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Recommendation for PCI or PCIe NIC card
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,25 +15,32 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: Chris Taylor <chtaylo4@gmail.com>
+Cc: bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Chris Taylor wrote:
+> Does anyone have a recommendation for a good 2 port PCI or PCIx (x2 or 
+> x4) Ethernet card for bridging?
 
-------=_Part_9968_13128755.1170288744911
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Intel e1000 PCI-X and PCI-e nics perform very nicely for me..I've found
+nothing faster.  You can get 2 and 4 ports all over, and can get 6 port
+nics from silicom-usa.com.
 
-Does anyone have a recommendation for a good 2 port PCI or PCIx (x2 or x4)
-Ethernet card for bridging?
+Ben
 
--Chris
+> 
+> -Chris
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/bridge
 
-------=_Part_9968_13128755.1170288744911
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Does anyone have a recommendation for a good 2 port PCI or PCIx (x2 or x4) Ethernet card for bridging? <br><br>-Chris<br>
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-------=_Part_9968_13128755.1170288744911--
