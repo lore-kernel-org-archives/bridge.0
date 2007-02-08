@@ -1,5 +1,5 @@
-Message-ID: <45CACED5.50701@gmail.com>
-Date: Thu, 08 Feb 2007 08:18:45 +0100
+Message-ID: <45CACDBF.7030504@gmail.com>
+Date: Thu, 08 Feb 2007 08:14:07 +0100
 From: Hotbelgo <hotbelgo@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -13,7 +13,7 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
 I am so out of my depth on this one, but I would welcome some help.  I
 have the following network and did get it to work with m0n0wall (a BSD
@@ -48,5 +48,4 @@ But that did not enable my STB to connect and meanwhile I had of course
 lost connectivity for the PCs.
 
 HB
-
 
