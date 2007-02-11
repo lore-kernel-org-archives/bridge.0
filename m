@@ -1,10 +1,11 @@
-Message-ID: <45CACDBF.7030504@gmail.com>
-Date: Thu, 08 Feb 2007 08:14:07 +0100
-From: Hotbelgo <hotbelgo@gmail.com>
+Message-ID: <45CE9940.2060501@mattstone.net>
+Date: Sun, 11 Feb 2007 04:19:12 +0000
+From: Matt Richards <matt@mattstone.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Help: Bridge and NAT through same NIC?
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="------------enig8B7C372E82A2BAD86420E8D0"
+Subject: [Bridge] bridge wont forward when ip address changes
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,39 +14,61 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-I am so out of my depth on this one, but I would welcome some help.  I
-have the following network and did get it to work with m0n0wall (a BSD
-firewall) an option called "transparent bridge".  I've switched to Clark
-Connect because of its support for content filtering, and installed
-bridge-utils.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8B7C372E82A2BAD86420E8D0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I have a home network based a single WAN-facing NIC, eth0, that gets a
-public IP address from DHCP and two internal NICs:
-	- eth1: that provides simple NAT for several PCs
-	- eth2: a cable set-top-box that needs an IP address from a specific,
-and separate, DHCP server (that checks MAC addresses so that only STBs
-can connect to it).
+hello :)
 
-The diagram summarises:
+I have been using the bridge utils for a long time now and its been very
+good but there are a couple of issues that I came across when trying to
+setup a wireless bridge...
 
-Internet --- DHCP server ------ eth0 ------- eth1 ---- Home network
-              (public IP)     |            |
-                              |            |
-TV-content --DHCP (server) ---            -- eth2 ---- TV set-top box
-              (Private IP)
+Firstly I currently have a setup like the following ...
 
-I tried to set up a bridge of eth0 and eth2 using:
-ifconfig eth0 0.0.0.0
-ifconfig eth2 0.0.0.0
-brctl addbr mybridge
-brctl addif mybridge eth2
-brctl addif mybridge eth0
-ifconfig mybridge up
+Computer A --- Wired Network --- linux box ---- wireless link ------
+linux box ----- Wired Network --- Computer B
 
-But that did not enable my STB to connect and meanwhile I had of course
-lost connectivity for the PCs.
+I have bridged the wireless interfaces and the wired interfaces together
+on both of the linux box's and data can travel across the wireless
+bridge without any trouble but if I attempt to change the IP addresses /
+subnet of Computers A and B the bridges seem to stop forwarding packets
+and no data get through at all, its like they aren't learning the new
+addresses.
 
-HB
+If I restart the 2 Linux boxes then everything starts flowing properly
+again.
+
+The 'Linux boxes' are a couple of Motorola Wireless Access points
+running OpenWRT.
+
+Does anybody know why this might be happening and what I might be able
+to do about it?
+
+The other issue is that the this bridge setup doesn't seem to forward
+any NetBIOS traffic, however, i'm not too worried about this its more of
+just bring curious.
+
+Thanks for your help,
+
+Matty.
+
+
+--------------enig8B7C372E82A2BAD86420E8D0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFzplErmnybSDmzlsRAmjYAKDM5yxnFObHA8Fu4ME54zfNTGoftACfRqsV
+elaRYl2KKxjYo4PrTz0I8c0=
+=jmvk
+-----END PGP SIGNATURE-----
+
+--------------enig8B7C372E82A2BAD86420E8D0--
 
