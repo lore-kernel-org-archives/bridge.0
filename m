@@ -1,10 +1,11 @@
-Date: Wed, 14 Feb 2007 13:26:31 +0900
-From: Simon Horman <horms@verge.net.au>
-Message-ID: <20070214042631.GB3327@verge.net.au>
+Date: Thu, 15 Feb 2007 17:54:39 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+In-Reply-To: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0702151753450.786@yvahk01.tjqt.qr>
+References: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] Update OSDL/Linux-Foundation maintainer addresses
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [Bridge] bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,92 +14,23 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org, akpm@linux-foundation.org, netem@lists.osdl.org, linux-pm@lists.osdl.org
+To: saravanan chanemouganandam <saravanan_sprt@hotmail.com>
+Cc: netfilter@lists.netfilter.org, bridge@lists.osdl.org
 
-Hi,
 
-I'm not sure if this is apprriate or not, but here goes anyway.
+On Feb 15 2007 22:06, saravanan chanemouganandam wrote:
+>
+> ifconfig eth0 0.0.0.0
+> ifconfig eth1 0.0.0.0
 
-The patch below updates MAINTAIER address 
-  Individuals (Only Andrew :): osdl.org -> linux-foundation.org
-  Lists:                       osdl.org -> lists.osdl.org
+That's a no-op. What you need is `ip l s eth0 up` (same for eth1)
 
-I assume the latter will change at some stage, but at least
-with this change the osdl/linux-foundation lists are consistent.
+> are configured. The problem is that, I can't ping the Router from the Host. But
 
-Signed-off-by: Simon Horman <horms@verge.net.au>
+brctl sethello br0 1
 
-Index: linux-2.6/MAINTAINERS
-===================================================================
---- linux-2.6.orig/MAINTAINERS	2007-02-14 13:09:28.000000000 +0900
-+++ linux-2.6/MAINTAINERS	2007-02-14 13:18:54.000000000 +0900
-@@ -1283,7 +1283,7 @@
- ETHERNET BRIDGE
- P:	Stephen Hemminger
- M:	shemminger@linux-foundation.org
--L:	bridge@osdl.org
-+L:	bridge@lists.osdl.org
- W:	http://bridge.sourceforge.net/
- S:	Maintained
- 
-@@ -1298,13 +1298,13 @@
- 
- EXT3 FILE SYSTEM
- P:	Stephen Tweedie, Andrew Morton
--M:	sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com
-+M:	sct@redhat.com, akpm@linux-foundation.org, adilger@clusterfs.com
- L:	linux-ext4@vger.kernel.org
- S:	Maintained
- 
- EXT4 FILE SYSTEM
- P:	Stephen Tweedie, Andrew Morton
--M:	sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com
-+M:	sct@redhat.com, akpm@linux-foundation.org, adilger@clusterfs.com
- L:	linux-ext4@vger.kernel.org
- S:	Maintained
- 
-@@ -1901,7 +1901,7 @@
- 
- JOURNALLING LAYER FOR BLOCK DEVICES (JBD)
- P:	Stephen Tweedie, Andrew Morton
--M:	sct@redhat.com, akpm@osdl.org
-+M:	sct@redhat.com, akpm@linux-foundation.org
- L:	linux-ext4@vger.kernel.org
- S:	Maintained
- 
-@@ -1972,7 +1972,7 @@
- M:	ebiederm@xmission.com
- W:	http://www.xmission.com/~ebiederm/files/kexec/
- L:	linux-kernel@vger.kernel.org
--L:	fastboot@osdl.org
-+L:	fastboot@lists.osdl.org
- S:	Maintained
- 
- KPROBES
-@@ -2310,7 +2310,7 @@
- NETEM NETWORK EMULATOR
- P:	Stephen Hemminger
- M:	shemminger@linux-foundation.org
--L:	netem@osdl.org
-+L:	netem@lists.osdl.org
- S:	Maintained
- 
- NETFILTER/IPTABLES/IPCHAINS
-@@ -2349,7 +2349,7 @@
- 
- NETWORK DEVICE DRIVERS
- P:	Andrew Morton
--M:	akpm@osdl.org
-+M:	akpm@linux-foundation.org
- P:	Jeff Garzik
- M:	jgarzik@pobox.com
- L:	netdev@vger.kernel.org
-@@ -3044,7 +3044,7 @@
- SOFTWARE SUSPEND:
- P:	Pavel Machek
- M:	pavel@suse.cz
--L:	linux-pm@osdl.org
-+L:	linux-pm@lists.osdl.org
- S:	Maintained
- 
- SONIC NETWORK DRIVER
+
+
+Jan
+-- 
+ft: http://freshmeat.net/p/chaostables/
