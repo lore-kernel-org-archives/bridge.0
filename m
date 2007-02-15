@@ -1,9 +1,12 @@
-Message-ID: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
-From: "saravanan chanemouganandam" <saravanan_sprt@hotmail.com>
-Date: Thu, 15 Feb 2007 22:06:44 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Subject: [Bridge] bridge problem
+Message-ID: <1031.204.10.124.3.1171560450.squirrel@squirrel.ouraynet.com>
+In-Reply-To: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
+References: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
+Date: Thu, 15 Feb 2007 10:27:30 -0700 (MST)
+From: kevin@ouraynet.com
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,46 +16,34 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
-Cc: netfilter@lists.netfilter.org
 
-Hi,
+> On the target board
+>
+> ifconfig eth0 0.0.0.0
+> ifconfig eth1 0.0.0.0
+> brctl addbr br0
+> brctl addif br0 eth0
+> brctl addif br0 eth1
+> ifconfig br0 10.1.111.1 netmask 255.255.255.0 up
+> echo 1 > /proc/sys/net/ipv4/ip_forward
 
-I am a newbie to use the bridge utils and after some serious tests I am 
-posting this issue. Actually, I am fascing packet forwarding problem in the 
-following network setup under linux 2.6.16. The 2.6.16 kernel is also 
-configured to include 802.1d Ethernet bridging, Network packet filtering, IP 
-netfilter configuration and Bridge netfilter configuration.
+Bridging works transparently and is not routing.
 
-The target ARM board is made to act as a bridge between the Host and the 
-Router as shown below.
+You will not need ip_forwarding set, nor and ip in the same subnet.
 
-10.1.111.3 Host(eth0)<---->{ eth0 bridge(10.1.111.1) eth1 }<--->Router( 
-10.1.111.254)
+forget setting the ip_forward, just bring up your bridge with:
 
-On the target board
+ifconfig br0 0.0.0.0 up
 
-ifconfig eth0 0.0.0.0
-ifconfig eth1 0.0.0.0
-brctl addbr br0
-brctl addif br0 eth0
-brctl addif br0 eth1
-ifconfig br0 10.1.111.1 netmask 255.255.255.0 up
-echo 1 > /proc/sys/net/ipv4/ip_forward
+If you have everything plugged in properly, and two ips in the same
+subnet on either side, they will start pinging.
 
-are configured. The problem is that, I can't ping the Router from the Host. 
-But from the bridge, I can ping Router and Host. The "arp reply" from the 
-Router is not reaching the Host as there's a problem in the bridge 
-(bridge-utils 1.2) interface.
+As mentioned on this list many times prior it does take 30 seconds for
+the forwarding to take place unless you set it to 0 with:
 
-I have cross checked the kernel configuration to include all the packet 
-forwarding and bridging. But still panic.
+brctl setfd br0 0
 
-Can any one please precise what could cause this packet forward problem ?
-
-Thanks
-Sara
-
-_________________________________________________________________
-Gossips, movie reviews, photogallery and more 
-http://content.msn.co.in/Entertainment/Default
+Hope that helps,
+Kevin Karsh
+Ouraynet
 
