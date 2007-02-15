@@ -1,11 +1,10 @@
-Date: Thu, 15 Feb 2007 17:54:39 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-In-Reply-To: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0702151753450.786@yvahk01.tjqt.qr>
-References: <BAY131-F1857AFF907BF1716A253BBE2960@phx.gbl>
+In-Reply-To: <Pine.LNX.4.61.0702151753450.786@yvahk01.tjqt.qr>
+Message-ID: <OFDE48EAC7.0467EEA3-ON85257283.006CCEC9-85257283.006D1E64@smsc.com>
+From: Marc.Obbad@smsc.com
+Date: Thu, 15 Feb 2007 14:51:30 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Subject: Re: [Bridge] bridge problem
+Content-type: text/plain; charset=US-ASCII
+Subject: [Bridge] brctl question?
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,23 +13,16 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: saravanan chanemouganandam <saravanan_sprt@hotmail.com>
-Cc: netfilter@lists.netfilter.org, bridge@lists.osdl.org
+To: bridge@lists.osdl.org, bridge-bounces@lists.osdl.org
 
+Hi,
 
-On Feb 15 2007 22:06, saravanan chanemouganandam wrote:
->
-> ifconfig eth0 0.0.0.0
-> ifconfig eth1 0.0.0.0
+I need to add new commands for the an embedded bridge application.
+I was looking for the code that configure the bridge and could not find it.
 
-That's a no-op. What you need is `ip l s eth0 up` (same for eth1)
+I need  some help finding the bridge control commands, can anyone tell me where it is or how it work?
 
-> are configured. The problem is that, I can't ping the Router from the Host. But
+Thank you,
 
-brctl sethello br0 1
+-Marc
 
-
-
-Jan
--- 
-ft: http://freshmeat.net/p/chaostables/
