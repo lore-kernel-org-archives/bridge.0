@@ -1,12 +1,10 @@
-From: Linux Looser <mb4rt0l0@gmail.com>
-Date: Fri, 16 Feb 2007 12:36:34 +0100
+Message-ID: <45DB0B1C.4020703@gmx.net>
+Date: Tue, 20 Feb 2007 15:52:12 +0100
+From: Michael Rennt <m.rennt@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200702161236.34899.mb4rt0l0@gmail.com>
-Subject: [Bridge] Bridge between ethernet and tuntap problem
+Subject: [Bridge] Measuring Bridge Performance (+ebtables/iptables)
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,73 +15,33 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-	
 Hello,
 
-I have problem, i have bridge between ethernet interface and tuntap interface   
+has anyone done any performance measuring of Linux Bridge + firewalling?
 
-   application <-> tap0   Bridge0  eth0 <->   Network
+I did search the net for a long time, to find out what would be the best way to measure the
+(maximum) performance/throughput. I didn't really come to a conclusion I'm satisfied with.
 
-everythings seem to be OK, bridge is bridging correctly, but when application 
-do connect to some destination first Syn paket i see on tap0 if, and i see it 
-on eth0 if, it goes to destination. The return Syn/Ack paket from destination 
-i see on eth0, but not goes through bridge0 if to the tap0 interface. 
-Application connect times out (3 seconnds )  and  send second Syn packet and 
-receive Syn/ack , handshake complete and everything goes correctly. But for 
-every connection initiated by application is situation same.
+Nevertheless I did create a small bridged test setup with 4 servers (gbit nics) and a linux bridge
+(2 x 100 mbit nic), all on 2.6.19. Two servers are in the MZ and two in the DMZ, the bridge is (of
+course) in the middle. There are two gbit switches (MZ and DMZ). iptables has ~400 rules loaded.
 
+For actually testing the performance I ran packetgenerator as well as netperf on the servers.
+Starting with one server and ending up with all machines sending and receiving. On the bridge I used
+vnstat and iptraf to measure the throughput. I also wrote a perl script which is reading the device
+counters from /proc to calculate an average.
 
-tcpdump on eth0:
+On my search I found this, which is pretty interessting, but I don't have an Ixia testing device.
+http://facweb.cti.depaul.edu/jyu/Publications/Yu-Linux-TSM2004.pdf
+Is it worth to rent such a device or are there any good ways to create a similar setup?
 
- 11:02:18.941680 IP 10.1.2.2.38894 > 195.28.64.118.25: S 1905693472:1905693472
-(0) win 5840 <mss 1460,sackOK,timestamp 605391412 0,nop,wscale 2>
-11:02:19.043882 IP 195.28.64.118.25 > 10.1.2.2.38894: S 3816891714:3816891714
-(0) ack 1905693473 win 65535 <mss 1460,nop,wscale 1,nop,nop,timestamp 
-2989341090 605391412,sackOK,eol>
-11:02:21.938529 IP 10.1.2.2.38894 > 195.28.64.118.25: S 1905693472:1905693472
-(0) win 5840 <mss 1460,sackOK,timestamp 605392162 0,nop,wscale 2>
-11:02:22.030111 IP 195.28.64.118.25 > 10.1.2.2.38894: S 3816891714:3816891714
-(0) ack 1905693473 win 65535 <mss 1460,nop,wscale 1,nop,nop,timestamp 
-2989344076 605392162,sackOK,eol>
-11:02:22.030204 IP 10.1.2.2.38894 > 195.28.64.118.25: . ack 1 win 1460 
-<nop,nop,timestamp 605392184 2989344076>
-11:02:22.410047 IP 195.28.64.118.25 > 10.1.2.2.38894: P 1:41(40) ack 1 win 
-33304 <nop,nop,timestamp 2989344445 605392184>
+Why I'm not satisfied with my tests? There's a production setup running, which is working at much
+higher packet/throughput rates than I was able to reproduce in the lab. This is really bugging me. I
+know about the different packet sizes involved when looking at real life traffic.
 
+As I know that performance always depends on the setup, I'd really be interessted in your experience
+in creating a test setup that is getting as close to real traffic as possible.
 
-tcpdump on tap0:
- 
-11:02:18.941468 IP 10.1.2.2.38894 > 195.28.64.118.25: S 1905693472:1905693472
-(0) win 5840 <mss 1460,sackOK,timestamp 605391412 0,nop,wscale 2>
-11:02:21.938516 IP 10.1.2.2.38894 > 195.28.64.118.25: S 1905693472:1905693472
-(0) win 5840 <mss 1460,sackOK,timestamp 605392162 0,nop,wscale 2>
-11:02:22.030119 IP 195.28.64.118.25 > 10.1.2.2.38894: S 3816891714:3816891714
-(0) ack 1905693473 win 65535 <mss 1460,nop,wscale 1,nop,nop,timestamp 
-2989344076 605392162,sackOK,eol>
-11:02:22.030198 IP 10.1.2.2.38894 > 195.28.64.118.25: . ack 1 win 1460 
-<nop,nop,timestamp 605392184 2989344076>
-11:02:22.410055 IP 195.28.64.118.25 > 10.1.2.2.38894: P 1:41(40) ack 1 win 
-33304 <nop,nop,timestamp 2989344445 605392184>
-11:02:22.410490 IP 10.1.2.2.38894 > 195.28.64.118.25: . ack 41 win 1460 
-<nop,nop,timestamp 605392279 2989344445>
-11:02:40.269133 IP 10.1.2.2.38894 > 195.28.64.118.25: F 1:1(0) ack 41 win 1460 
-<nop,nop,timestamp 605396743 2989344445>
+Best,
 
-tcpdump on bridge0:
-
-11:02:18.941588 IP 10.1.2.2.38894 > 195.28.64.118.25: S 1905693472:1905693472
-(0) win 5840 <mss 1460,sackOK,timestamp 605391412 0,nop,wscale 2>
-11:02:21.938516 IP 10.1.2.2.38894 > 195.28.64.118.25: S 1905693472:1905693472
-(0) win 5840 <mss 1460,sackOK,timestamp 605392162 0,nop,wscale 2>
-11:02:22.030111 IP 195.28.64.118.25 > 10.1.2.2.38894: S 3816891714:3816891714
-(0) ack 1905693473 win 65535 <mss 1460,nop,wscale 1,nop,nop,timestamp 
-2989344076 605392162,sackOK,eol>
-11:02:22.030198 IP 10.1.2.2.38894 > 195.28.64.118.25: . ack 1 win 1460 
-<nop,nop,timestamp 605392184 2989344076>
-11:02:22.410047 IP 195.28.64.118.25 > 10.1.2.2.38894: P 1:41(40) ack 1 win 
-33304 <nop,nop,timestamp 2989344445 605392184>
-11:02:22.410490 IP 10.1.2.2.38894 > 195.28.64.118.25: . ack 41 win 1460 
-<nop,nop,timestamp 605392279 2989344445>
-
-Thanks for any help/guidance!
-Barto
+Michael
