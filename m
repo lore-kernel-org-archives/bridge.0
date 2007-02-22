@@ -1,12 +1,10 @@
-Date: Thu, 22 Feb 2007 01:11:05 -0800 (PST)
-Message-Id: <20070222.011105.31752704.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070221224107.741532037@linux-foundation.org>
-References: <20070221224107.741532037@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Message-ID: <45DD680A.9060309@elitecore.com>
+Date: Thu, 22 Feb 2007 15:23:14 +0530
+From: Darshak <darshak@elitecore.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 0/4] bridge patches
+Subject: [Bridge] Outgoing Pkt interface
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,14 +13,12 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
+To: bridge@lists.osdl.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Wed, 21 Feb 2007 14:41:07 -0800
+Hi,
+ I want to change outgoing packets interface after dnating . How can I 
+do that ?
 
-> Several patches to bridge. #1 is a nit, #2 is a bug fix,
-> #3 and #4 are manageability enhancements (they can wait for
-> 2.6.22 if needed).
 
-I've added #1 and #2, #3 and #4 are for 2.6.22
+Thanxs
+Darshak
