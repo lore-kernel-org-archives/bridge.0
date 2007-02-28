@@ -1,10 +1,14 @@
-Date: Wed, 28 Feb 2007 10:04:01 +0800
-From: "=?utf-8?B?5p2O5rW35bOw?=" <lihaifeng@ninemax.com>
-Message-ID: <200702281003553593321@ninemax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] =?utf-8?q?_Bridging_between_multiple_VLANs?=
+Message-ID: <45E5C2BE.3070808@candelatech.com>
+Date: Wed, 28 Feb 2007 09:58:22 -0800
+From: Ben Greear <greearb@candelatech.com>
+MIME-Version: 1.0
+References: <34d8b2fe0702270811h5098894aia299857618e8dde@mail.gmail.com>
+	<34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>
+In-Reply-To: <34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] About support of 802.1p standard into 2.6 linux Bridge
+ code
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -13,31 +17,33 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: =?utf-8?B?YnJpZGdl?= <bridge@lists.osdl.org>
+To: Louis Croisez <louis.croisez@gmail.com>
+Cc: bridge@lists.osdl.org
 
-Dear:
+Louis Croisez wrote:
+> Hello,
+> i would like to know if the 802.1p (QoS for Ethernet frames) standard 
+> is implemented into last 2.6 kernel Bridging code?
+> Cheers,
+> Louis.
+It's implemented in the VLAN code, at least as far as being able to map 
+a socket priority to a vlan priority.  There
+is no special queue handling based on the priority bits at this time, at 
+least in vlan code.
 
-	I have encountered the same problem,and would you please tell me how do you solve it ? 
-Or if you did not solve it ,would you please tell me your the version of your old Red Hat distro?
+Ben
 
-	Below is your msg:
-Mon, 09 Aug 2004 02:08:17 -0700
-Hi,
-I'm nearly amateur in Linux bridging. I have a bridge based on old Red Hat
-distro. On this bridge i was able to build bridge from logical devices (eth0.2,
-eth0.7, eth0.8, eth0.9) created using vconfig. Than I test, if packet comes
-through eth0.2 device, from specified MAC source with defined MAC destination,
-and such packet i let leave bridge through device eth0.7. All goes well, until i
-try to make new bridge, based on Fedora Core 2 distro. There's a new version of
-bridge, which makes building such bridge no longer possible.
-And here comes a question: is there a way how to build a bridge with same
-functionality as the old bridge has?
+> ------------------------------------------------------------------------
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/bridge
+>   
 
-Thanks
-Richard Gavenda
 
-		best regards
-	
-              			lhf
-　　　　　　　　　　　　2007-02-28
+-- 
+Ben Greear <greearb@candelatech.com> 
+Candela Technologies Inc  http://www.candelatech.com
+
 
