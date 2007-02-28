@@ -1,14 +1,12 @@
-Date: Tue, 27 Feb 2007 09:56:03 -0800 (PST)
-Message-Id: <20070227.095603.18302562.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070227095251.0c20eebd@freekitty>
-References: <20070221224107.741532037@linux-foundation.org>
-	<20070221224255.790379091@linux-foundation.org>
-	<20070227095251.0c20eebd@freekitty>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 3+/4] bridge: fix locking of set path cost
+Message-ID: <34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>
+Date: Wed, 28 Feb 2007 15:25:06 +0100
+From: "Louis Croisez" <louis.croisez@gmail.com>
+In-Reply-To: <34d8b2fe0702270811h5098894aia299857618e8dde@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_39190_19140440.1172672706484"
+References: <34d8b2fe0702270811h5098894aia299857618e8dde@mail.gmail.com>
+Subject: [Bridge] About support of 802.1p standard into 2.6 linux Bridge code
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,18 +15,27 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: netdev@vger.kernel.org, bridge@linux-foundation.org, Aji_Srinivas@emc.com
+To: bridge@lists.osdl.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Tue, 27 Feb 2007 09:52:51 -0800
+This is a multi-part message in MIME format...
 
-> This change goes with earlier change to get rid of 
-> work queue for path cost. Now stp_set_path_cost does its own
-> locking. This is to allow it to call br_path_cost() which calls
-> ethtool interfaces (might sleep).
-> 
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
+------=_Part_39190_19140440.1172672706484
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Applied, thanks Stephen.
+Hello,
+i would like to know if the 802.1p (QoS for Ethernet frames) standard is
+implemented into last 2.6 kernel Bridging code?
+Cheers,
+Louis.
+
+------=_Part_39190_19140440.1172672706484
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hello,<br>i would like to know if the 802.1p (QoS for Ethernet frames) standard is implemented into last 2.6 kernel Bridging code?<br>Cheers,<br><span class="sg">Louis.<br>
+</span>
+
+------=_Part_39190_19140440.1172672706484--
