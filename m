@@ -1,16 +1,11 @@
-Message-ID: <45E708B6.5070800@candelatech.com>
-Date: Thu, 01 Mar 2007 09:09:10 -0800
-From: Ben Greear <greearb@candelatech.com>
+From: "Fernando Rodriguez" <frod@aitelecom.net>
+Date: Thu, 1 Mar 2007 11:47:40 -0600
+Message-ID: <000101c75c29$b4ecc9a0$988086c9@sam>
 MIME-Version: 1.0
-References: <34d8b2fe0702270811h5098894aia299857618e8dde@mail.gmail.com>	
-	<34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>	
-	<45E5C2BE.3070808@candelatech.com>
-	<34d8b2fe0703010109r2f881419wbae1f2c8869e6252@mail.gmail.com>
-In-Reply-To: <34d8b2fe0703010109r2f881419wbae1f2c8869e6252@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] About support of 802.1p standard into 2.6 linux Bridge
- code
+Subject: [Bridge] Bridge IP not answering
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -19,58 +14,57 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Louis Croisez <louis.croisez@gmail.com>
-Cc: bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-Louis Croisez wrote:
-> Ok, thx.
-> Is there any netfilter patch or code available to be able to filter 
-> frames on base of such QoS parameter?
-There is probably a way to filter based off on the skb->priority, but I 
-have never tried.
+Hello, 
 
-Ben
+I have set up a bridge with the following script that starts after the
+network interfaces are started
 
->
-> On 2/28/07, *Ben Greear* < greearb@candelatech.com 
-> <mailto:greearb@candelatech.com>> wrote:
->
->     Louis Croisez wrote:
->     > Hello,
->     > i would like to know if the 802.1p (QoS for Ethernet frames)
->     standard
->     > is implemented into last 2.6 kernel Bridging code?
->     > Cheers,
->     > Louis.
->     It's implemented in the VLAN code, at least as far as being able
->     to map
->     a socket priority to a vlan priority.  There
->     is no special queue handling based on the priority bits at this
->     time, at
->     least in vlan code.
->
->     Ben
->
->     >
->     ------------------------------------------------------------------------
->     >
->     > _______________________________________________
->     > Bridge mailing list
->     > Bridge@lists.osdl.org <mailto:Bridge@lists.osdl.org>
->     > https://lists.osdl.org/mailman/listinfo/bridge
->     >
->
->
->     --
->     Ben Greear <greearb@candelatech.com <mailto:greearb@candelatech.com>>
->     Candela Technologies Inc  http://www.candelatech.com
->
->
->
+BRIDGENAME="BRQ"
+GATEWAY="192.168.0.1"
+BRIDGE_IP="192.168.0.122"
+BRIDGE_NETMASK="255.255.255.0"
+STP_ON="yes"
+STP_PRIO="1"
+RETVAL=0
+
+start() {
+        echo "Starting service bridge"
+       ifconfig eth2 promisc up
+        ifconfig eth3 promisc up
+        brctl addbr $BRIDGENAME  ||  return=$rc_failed
+        brctl addif $BRIDGENAME eth2  ||  return=$rc_failed
+        brctl addif $BRIDGENAME eth3  ||  return=$rc_failed
+        ifconfig eth2 0.0.0.0  ||  return=$rc_failed
+        ifconfig eth3 0.0.0.0  ||  return=$rc_failed
+        brctl sethello $BRIDGENAME 1  ||  return=$rc_failed
+        brctl setmaxage $BRIDGENAME 4  ||  return=$rc_failed
+        brctl setfd $BRIDGENAME 4  ||  return=$rc_failed
+        brctl stp $BRIDGENAME $STP_ON
+        brctl setbridgeprio $BRIDGENAME $STP_PRIO
+        ifconfig $BRIDGENAME $BRIDGE_IP netmask $BRIDGE_NETMASK up
+
+        ip route flush cache
+        ip route add default via $GATEWAY
+
+But the problem i have is that i am not able to contact the bridge on its IP
+192.168.0.122 i am running Centos 4.4 on a 2.6.18 kernel, i have tested this
+setup on 3 different sets of network cards tg3, b44, via-rhine and in all of
+them i have the same results no connection, i know the bridge is working
+otherwise packets couldnt flow on the network, im using bridge utils 1.0.4-4
+
+If any one knows what could be wrong??
+
+Or does any one has a script or an example on how they set up their bridge
+in order to be able to access it via its IP
+
+
+Thanks
 
 
 -- 
-Ben Greear <greearb@candelatech.com> 
-Candela Technologies Inc  http://www.candelatech.com
-
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
 
