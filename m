@@ -1,15 +1,17 @@
-Message-ID: <34d8b2fe0703010109r2f881419wbae1f2c8869e6252@mail.gmail.com>
-Date: Thu, 1 Mar 2007 10:09:56 +0100
-From: "Louis Croisez" <louis.croisez@gmail.com>
-In-Reply-To: <45E5C2BE.3070808@candelatech.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_57764_28230689.1172740196919"
-References: <34d8b2fe0702270811h5098894aia299857618e8dde@mail.gmail.com>
-	<34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>
-	<45E5C2BE.3070808@candelatech.com>
-Subject: Re: [Bridge] About support of 802.1p standard into 2.6 linux Bridge
-	code
+From: jamal <hadi@cyberus.ca>
+In-Reply-To: <20070228.233034.74746721.davem@davemloft.net>
+References: <45E67B04.2060702@linux-foundation.org>
+	<20070228.232224.74746939.davem@davemloft.net>
+	<45E6802C.2090708@linux-foundation.org>
+	<20070228.233034.74746721.davem@davemloft.net>
+Content-Type: text/plain
+Date: Thu, 01 Mar 2007 06:47:44 -0500
+Message-Id: <1172749664.4857.40.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: J Hadi Salim <j.hadi123@gmail.com>
+Subject: Re: [Bridge] [PATCH] bridge: avoid ptype_all packet handling
+Reply-To: hadi@cyberus.ca
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -18,62 +20,44 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Ben Greear <greearb@candelatech.com>
-Cc: bridge@lists.osdl.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, greearb@candelatech.com, bridge@linux-foundation.org
 
-This is a multi-part message in MIME format...
+On Wed, 2007-28-02 at 23:30 -0800, David Miller wrote:
 
-------=_Part_57764_28230689.1172740196919
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> That would be perfect for new applications.
+> But we have to support all the old ones, so we're stuck
+> providing correctly functioning AF_PACKET handling on
+> all devices, sorry.
+> 
 
-Ok, thx.
-Is there any netfilter patch or code available to be able to filter frames
-on base of such QoS parameter?
+It also breaks all the ingress tc code by making that change.
 
-On 2/28/07, Ben Greear <greearb@candelatech.com> wrote:
->
-> Louis Croisez wrote:
-> > Hello,
-> > i would like to know if the 802.1p (QoS for Ethernet frames) standard
-> > is implemented into last 2.6 kernel Bridging code?
-> > Cheers,
-> > Louis.
-> It's implemented in the VLAN code, at least as far as being able to map
-> a socket priority to a vlan priority.  There
-> is no special queue handling based on the priority bits at this time, at
-> least in vlan code.
->
-> Ben
->
-> > ------------------------------------------------------------------------
-> >
-> > _______________________________________________
-> > Bridge mailing list
-> > Bridge@lists.osdl.org
-> > https://lists.osdl.org/mailman/listinfo/bridge
-> >
->
->
-> --
-> Ben Greear <greearb@candelatech.com>
-> Candela Technologies Inc  http://www.candelatech.com
->
->
->
+The two scenarios i see in respect to performance are:
+- run a sniffer and you will see a substantial performance degradation
+as the pps goes up.  There is no rocket science to that. This has
+nothing to do with bridging and will happen still even if that patch
+went in. 
 
-------=_Part_57764_28230689.1172740196919
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+- dont run any tap with the current codepath and you still see the
+_substantial_ performance drop then we have an opportunity
+to optimize. Not _by avoiding the code_ as in Stephens patch but by
+tunning that tap code path. [For example, you should still see a _tiny_
+performance degradation if you turned on TC actions on ingress at
+compile time but had zero policies at run time - but that code path has
+been reduce to a single compare]. 
 
-Ok, thx.<br>Is there any netfilter patch or code available to be able to filter frames on base of such QoS parameter?<br><br><div><span class="gmail_quote">On 2/28/07, <b class="gmail_sendername">Ben Greear</b> &lt;<a href="mailto:greearb@candelatech.com">
-greearb@candelatech.com</a>&gt; wrote:</span><blockquote class="gmail_quote" DEFANGED_style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">Louis Croisez wrote:<br>&gt; Hello,<br>&gt; i would like to know if the 
-802.1p (QoS for Ethernet frames) standard<br>&gt; is implemented into last 2.6 kernel Bridging code?<br>&gt; Cheers,<br>&gt; Louis.<br>It&#39;s implemented in the VLAN code, at least as far as being able to map<br>a socket priority to a vlan priority.&nbsp;&nbsp;There
-<br>is no special queue handling based on the priority bits at this time, at<br>least in vlan code.<br><br>Ben<br><br>&gt; ------------------------------------------------------------------------<br>&gt;<br>&gt; _______________________________________________
-<br>&gt; Bridge mailing list<br>&gt; <a href="mailto:Bridge@lists.osdl.org">Bridge@lists.osdl.org</a><br>&gt; <a href="https://lists.osdl.org/mailman/listinfo/bridge">https://lists.osdl.org/mailman/listinfo/bridge</a><br>
-&gt;<br><br><br>--<br>Ben Greear &lt;<a href="mailto:greearb@candelatech.com">greearb@candelatech.com</a>&gt;<br>Candela Technologies Inc&nbsp;&nbsp;<a href="http://www.candelatech.com">http://www.candelatech.com</a><br><br><br></blockquote>
-</div><br>
 
-------=_Part_57764_28230689.1172740196919--
+> And in fact that effectively makes the new socket option
+> pointless, since it doesn't buy us anything since we have
+> to support the old stuff fully anyways.
+
+agreed.
+
+I have been tied up elsewhere so havent been following netdev closely:
+There seem to be complaints of bridging performance going down in recent
+kernels - or is that someone misconfiguring their drivers?
+
+cheers,
+jamal
+
