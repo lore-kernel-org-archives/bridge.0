@@ -1,14 +1,10 @@
-Message-ID: <45E5C2BE.3070808@candelatech.com>
-Date: Wed, 28 Feb 2007 09:58:22 -0800
-From: Ben Greear <greearb@candelatech.com>
-MIME-Version: 1.0
-References: <34d8b2fe0702270811h5098894aia299857618e8dde@mail.gmail.com>
-	<34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>
-In-Reply-To: <34d8b2fe0702280625y1d1184f2h2f1f0792ac105977@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Wed, 28 Feb 2007 17:18:46 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070228171846.679d8733@dxpl.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] About support of 802.1p standard into 2.6 linux Bridge
- code
+Subject: [Bridge] [PATCH] bridge: avoid ptype_all packet handling
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -17,33 +13,53 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Louis Croisez <louis.croisez@gmail.com>
-Cc: bridge@lists.osdl.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-Louis Croisez wrote:
-> Hello,
-> i would like to know if the 802.1p (QoS for Ethernet frames) standard 
-> is implemented into last 2.6 kernel Bridging code?
-> Cheers,
-> Louis.
-It's implemented in the VLAN code, at least as far as being able to map 
-a socket priority to a vlan priority.  There
-is no special queue handling based on the priority bits at this time, at 
-least in vlan code.
+I was measuring bridging/routing performance and noticed this.
 
-Ben
+The current code runs the "all packet" type handlers before calling the
+bridge hook.  If an application (like some DHCP clients) is using AF_PACKET,
+this means that each received packet gets run through the Berkeley Packet Filter
+code in sk_run_filter (slow).
 
-> ------------------------------------------------------------------------
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/bridge
->   
+By moving the bridging hook to run first, the packets flowing through
+the bridge get filtered out there. This results in a 14%
+improvement in performance, but it does mean that some snooping applications
+would miss packets if being used on a bridge.  The correct way to see all
+packets on a bridge is to set the bridge pseudo-device to promiscuous
+mode.
 
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
+---
+ net/core/dev.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
+diff --git a/net/core/dev.c b/net/core/dev.c
+index cf71614..dc2cda6 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -1792,6 +1792,10 @@ int netif_receive_skb(struct sk_buff *skb)
+ 
+ 	rcu_read_lock();
+ 
++	if (handle_bridge(&skb, &pt_prev, &ret, orig_dev))
++		goto out;
++
++
+ #ifdef CONFIG_NET_CLS_ACT
+ 	if (skb->tc_verd & TC_NCLS) {
+ 		skb->tc_verd = CLR_TC_NCLS(skb->tc_verd);
+@@ -1826,9 +1830,6 @@ int netif_receive_skb(struct sk_buff *skb)
+ ncls:
+ #endif
+ 
+-	if (handle_bridge(&skb, &pt_prev, &ret, orig_dev))
+-		goto out;
+-
+ 	type = skb->protocol;
+ 	list_for_each_entry_rcu(ptype, &ptype_base[ntohs(type)&15], list) {
+ 		if (ptype->type == type &&
 -- 
-Ben Greear <greearb@candelatech.com> 
-Candela Technologies Inc  http://www.candelatech.com
-
+1.4.4.2
 
