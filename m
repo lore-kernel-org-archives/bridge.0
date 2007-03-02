@@ -1,6 +1,6 @@
-Date: Fri, 2 Mar 2007 14:09:29 -0800
+Date: Fri, 2 Mar 2007 14:15:41 -0800
 From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20070302140929.262e8460@freekitty>
+Message-ID: <20070302141541.2a67eb59@freekitty>
 In-Reply-To: <20070302.132638.38710461.davem@davemloft.net>
 References: <20070228171846.679d8733@dxpl.pdx.osdl.net>
 	<20070302.132638.38710461.davem@davemloft.net>
