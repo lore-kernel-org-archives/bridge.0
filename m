@@ -1,14 +1,14 @@
-Sender: ak@suse.de
-References: <45E67B04.2060702@linux-foundation.org>
-	<20070228.232224.74746939.davem@davemloft.net>
-	<45E6802C.2090708@linux-foundation.org>
-	<20070228.233034.74746721.davem@davemloft.net>
+Date: Sat, 3 Mar 2007 13:30:58 +0100
 From: Andi Kleen <andi@firstfloor.org>
-Date: 03 Mar 2007 03:14:29 +0100
-In-Reply-To: <20070228.233034.74746721.davem@davemloft.net>
-Message-ID: <p733b4ncbui.fsf@bingen.suse.de>
-MIME-Version: 1.0
+Message-ID: <20070303123058.GA5357@one.firstfloor.org>
+References: <45E6802C.2090708@linux-foundation.org>
+	<20070228.233034.74746721.davem@davemloft.net>
+	<p733b4ncbui.fsf@bingen.suse.de>
+	<20070302.202211.21926049.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070302.202211.21926049.davem@davemloft.net>
 Subject: Re: [Bridge] [PATCH] bridge: avoid ptype_all packet handling
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
@@ -19,28 +19,31 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, greearb@candelatech.com, bridge@linux-foundation.org
+Cc: netdev@vger.kernel.org, greearb@candelatech.com, andi@firstfloor.org, bridge@linux-foundation.org
 
-David Miller <davem@davemloft.net> writes:
+On Fri, Mar 02, 2007 at 08:22:11PM -0800, David Miller wrote:
+> From: Andi Kleen <andi@firstfloor.org>
+> Date: 03 Mar 2007 03:14:29 +0100
 > 
-> And in fact that effectively makes the new socket option
-> pointless, since it doesn't buy us anything since we have
-> to support the old stuff fully anyways.
+> > That's pretty common with many x86 server boards because 
+> > they come with two NICs by default but must people only
+> > plug the cable into one. However the distro installers
+> > run DHCP on all.
+> 
+> Nope, that's not what I've seen them do, instead they run dhcp on
+> interfaces that report a link being present.
 
-I don't think it's pointless because it would still allow
-newer DHCP clients to have less impact on other packets
-when they are active. 
+I've seen otherwise.
 
-This can matter when you have a system with multiple
-interfaces where DHCP doesn't get a address on one.
+And that's also bad. It means that when the user moves the machine
+and happens to plug the Ethernet into the other port network
+will be a notwork until the configuration is manually changed.
+Similar when the cable is not plugged in yet at install time.
+All not good.
 
-That's pretty common with many x86 server boards because 
-they come with two NICs by default but must people only
-plug the cable into one. However the distro installers
-run DHCP on all.
-
-When this happens all packets are always forced through
-ptype_all chains before being rejected by AF_PACKETs device
-bind, which adds some overhead to them. 
+Allowing low overhead DHCP is useful imho. The main problem
+with running it always is that it will use more power because
+it will IFF_UP the interface. But longer term that can be only
+properly solved by real idle network power management I think.
 
 -Andi
