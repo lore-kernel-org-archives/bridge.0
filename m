@@ -1,14 +1,14 @@
-Date: Sat, 3 Mar 2007 17:42:22 +1100
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Message-ID: <20070303064222.GA1805@gondor.apana.org.au>
-References: <20070302.151803.74748558.davem@davemloft.net>
-	<E1HNMxB-0000MP-00@gondolin.me.apana.org.au>
-	<20070302.215905.74747266.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Stefan Rompf <stefan@loplof.de>
+Date: Sat, 3 Mar 2007 13:04:17 +0100
+References: <20070228171846.679d8733@dxpl.pdx.osdl.net>
+	<20070302.132638.38710461.davem@davemloft.net>
+In-Reply-To: <20070302.132638.38710461.davem@davemloft.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20070302.215905.74747266.davem@davemloft.net>
-Subject: Re: [Bridge] [RFC 1/2] bridge: avoid ptype_all packet handling
+Message-Id: <200703031304.17375.stefan@loplof.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] bridge: avoid ptype_all packet handling
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -20,18 +20,14 @@ List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-On Fri, Mar 02, 2007 at 09:59:05PM -0800, David Miller wrote:
-> 
-> So it's still a mystery why dhcp is causing bridge devices
-> to trigger the network tap paths on Stephen's machine.
+Am Freitag, 2. M=E4rz 2007 22:26 schrieb David Miller:
 
-If this is the ISC DHCP daemon then perhaps it's because Stephen
-didn't specify an interface for it to listen on? By default it'll
-enumerate all broadcast interfaces and listen to each one of them.
+> The DHCP client should only care about a particular interface's
+> traffic, the one it wants to listen on.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Also, a DHCP client should close the socket between address acquisition and=
+=20
+renewal. The only interesting events in that period are operstate changes.
+
+Stefan
+
