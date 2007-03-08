@@ -1,12 +1,12 @@
-Content-class: urn:content-classes:message
+Message-ID: <45EFE02A.9010306@cambridgebroadband.com>
+Date: Thu, 08 Mar 2007 10:06:34 +0000
+From: Alex Zeffertt <ajz@cambridgebroadband.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C76132.13071DEB"
-Date: Wed, 7 Mar 2007 22:30:09 -0500
-Message-ID: <DE026503646E7F40AF97BAB98334333B267A1B@uss-republic.finepoint.com>
-References: <20070307160355.0e27f425@dxpl.pdx.osdl.net>
-From: "Hai Wang" <hwang@finepoint.com>
-Subject: [Bridge] brctl issue
+References: <DE026503646E7F40AF97BAB98334333B018A6F21@uss-republic.finepoint.com>
+In-Reply-To: <DE026503646E7F40AF97BAB98334333B018A6F21@uss-republic.finepoint.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [Linux-ATM-General] BR2684-rt and brctl
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -15,120 +15,91 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
+To: Hai Wang <hwang@finepoint.com>
+Cc: linux-atm-general@lists.sourceforge.net, bridge@lists.osdl.org
 
-This is a multi-part message in MIME format...
+Hai Wang wrote:
+> Hello,
+> 
+>  
+> 
+>         I am wondering if any of you knows how to add BR2684-rt nas 
+> interfaces into a Ethernet bridge, I know that brctl will work with 
+> BR2684-br, but not for BR2684-rt.
+> 
+>  
+>
 
-------_=_NextPart_001_01C76132.13071DEB
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Hai,
 
-Hello,
-=20
-     I have a question regarding brctl and br2684, I have a network scenrio=
- where I have to add br2684-rt into a bridge. but I could not do so with br=
-ctl, please let me if you have any suggestion on the issue.
-=20
-My scenario :
-=20
-                                       (vpi/vci)=20
-      192.168.2.16             0/32               nas0
-    DSLAM1 (BR2684-rt)  --------------|-----------------
-       192.168.3.26            0/33                |                       =
-  |                                    192.168.1.18
-    DSLAM 2(BR2684-rt)  --------------| nas1 (LINUX)  Eth0     ------------=
------PC1 (OAM)
-        192.168.4.36            0/34               |                       =
-  |
-    DSLAM 3(BR2684-rt)  --------------|nas2------------
-=20
-=20
-    I want to put nas0, nas1, nas2 and eth0 on a bridge so that PC1 is able=
- to communicate with DSLAMS.
-=20
-=20
-  Note that we do not want to assign any IP on nas0, nas1 and nas2.
-=20
-=20
-Please help with your suggestion.
-=20
-=20
-HAI
-=20
-=20
-=20
-=20=20
+Looking at the RFC, it doesn't appear that the MAC address is even
+present in routed RFC2684 PDUs.  It would seem to me that this makes
+it impossible to add routed interfaces to a bridge.
 
-------_=_NextPart_001_01C76132.13071DEB
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+See below,
 
-<HTML dir=3Dltr><HEAD><TITLE>[Bridge] [PATCH] bridge: adding new device to =
-bridge should enableif up</TITLE>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dunicode">
-<META content=3D"MSHTML 6.00.6000.16414" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV id=3DidOWAReplyText52168 dir=3Dltr>
-<DIV dir=3Dltr>Hello,</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp; I have a question regarding brctl a=
-nd br2684, I have a network scenrio where I have to add br2684-rt into a br=
-idge. but I could not do&nbsp;so with brctl, please let me if you have any =
-suggestion on the issue.</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>My scenario :</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;(vpi/vci)&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.2.16&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0/32&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;nas0</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp; DSLAM1 (BR2684-rt)&nbsp; --------------|-=
-----------------</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.3.26&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0/33&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;=
- |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&n=
-bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
-bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.1.1=
-8</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;DSLAM 2(BR2684-rt)&nbsp; -----------=
----|&nbsp;nas1&nbsp;(LINUX)&nbsp;&nbsp;Eth0&nbsp;&nbsp;&nbsp;&nbsp; -------=
-----------PC1 (OAM)</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.4.36=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;0/34&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
-bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-; |</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp; DSLAM 3(BR2684-rt)&nbsp; --------------|n=
-as2------------</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp; I want to put nas0, nas1, nas2 and eth0 o=
-n&nbsp;a bridge so that PC1 is able to communicate with DSLAMS.</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp; Note that we do not want to assign any IP on nas0, na=
-s1 and nas2.</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>Please help with&nbsp;your suggestion.</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>HAI</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;</DIV>
-<DIV dir=3Dltr>&nbsp;&nbsp;</DIV></DIV></BODY></HTML>
-------_=_NextPart_001_01C76132.13071DEB--
+Alex
+
+---snip---
+5.1.  LLC Encapsulation for Routed Protocols
+
+    In LLC Encapsulation, the protocol type of routed PDUs MUST be
+    identified by prefixing an IEEE 802.2 LLC header to each PDU.  In
+    some cases, the LLC header MUST be followed by an IEEE 802.1a
+    SubNetwork Attachment Point (SNAP) header.  In LLC Type 1 operation,
+    the LLC header MUST consist of three one octet fields:
+
+                     +------+------+------+
+                     | DSAP | SSAP | Ctrl |
+                     +------+------+------+
+
+    In LLC Encapsulation for routed protocols, the Control field MUST be
+    set to 0x03, specifying a Unnumbered Information (UI) Command PDU.
+
+    The LLC header value 0xFE-FE-03 MUST be used to identify a routed PDU
+    in the ISO NLPID format (see [6] and Appendix B). For NLPID-formatted
+    routed PDUs,  the content of the AAL5 CPCS-PDU Payload field MUST be
+    as follows:
+
+             Payload Format for Routed NLPID-formatted PDUs
+                  +-------------------------------+
+                  |       LLC  0xFE-FE-03         |
+                  +-------------------------------+
+                  |     NLPID (1 octet)           |
+                  +-------------------------------+
+                  |             .                 |
+                  |            PDU                |
+                  |     (up to 2^16 - 4 octets)   |
+                  |             .                 |
+                  +-------------------------------+
+--/snip---
+
+
+
+
+
+> Many thanks!
+> 
+>  
+> 
+>  
+> 
+> Hai
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> -------------------------------------------------------------------------
+> Take Surveys. Earn Cash. Influence the Future of IT
+> Join SourceForge.net's Techsay panel and you'll get the chance to share your
+> opinions on IT & business topics through brief surveys-and earn cash
+> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> Linux-atm-general mailing list
+> Linux-atm-general@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-atm-general
+
