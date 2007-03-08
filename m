@@ -1,13 +1,12 @@
-Date: Wed, 07 Mar 2007 16:12:03 -0800 (PST)
-Message-Id: <20070307.161203.26532896.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070307160355.0e27f425@dxpl.pdx.osdl.net>
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C76132.13071DEB"
+Date: Wed, 7 Mar 2007 22:30:09 -0500
+Message-ID: <DE026503646E7F40AF97BAB98334333B267A1B@uss-republic.finepoint.com>
 References: <20070307160355.0e27f425@dxpl.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: adding new device to bridge should
-	enable if up
+From: "Hai Wang" <hwang@finepoint.com>
+Subject: [Bridge] brctl issue
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,31 +15,120 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: shemminger@linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
 Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Wed, 7 Mar 2007 16:03:55 -0800
+This is a multi-part message in MIME format...
 
-> One change introduced by the workqueue removal patch is that adding an
-> interface that is up to a bridge which is also up does not ever call
-> br_stp_enable_port(), leaving the port in DISABLED state until we do
-> ifconfig down and up or link events occur.
-> 
-> The following patch to the br_add_if function fixes it.
-> This is a regression introduced in 2.6.21.
-> 
-> Submitted-by: Aji_Srinivas@emc.com
-> Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
+------_=_NextPart_001_01C76132.13071DEB
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Applied, but:
+Hello,
+=20
+     I have a question regarding brctl and br2684, I have a network scenrio=
+ where I have to add br2684-rt into a bridge. but I could not do so with br=
+ctl, please let me if you have any suggestion on the issue.
+=20
+My scenario :
+=20
+                                       (vpi/vci)=20
+      192.168.2.16             0/32               nas0
+    DSLAM1 (BR2684-rt)  --------------|-----------------
+       192.168.3.26            0/33                |                       =
+  |                                    192.168.1.18
+    DSLAM 2(BR2684-rt)  --------------| nas1 (LINUX)  Eth0     ------------=
+-----PC1 (OAM)
+        192.168.4.36            0/34               |                       =
+  |
+    DSLAM 3(BR2684-rt)  --------------|nas2------------
+=20
+=20
+    I want to put nas0, nas1, nas2 and eth0 on a bridge so that PC1 is able=
+ to communicate with DSLAMS.
+=20
+=20
+  Note that we do not want to assign any IP on nas0, nas1 and nas2.
+=20
+=20
+Please help with your suggestion.
+=20
+=20
+HAI
+=20
+=20
+=20
+=20=20
 
-> +	if ((dev->flags & IFF_UP) && netif_carrier_ok(dev) &&
-> +	    (br->dev->flags & IFF_UP)) 
+------_=_NextPart_001_01C76132.13071DEB
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I had to fix up the trailing whitespace on that second line.
-
-Please use "git apply --check --whitespace=error-all"
-or similar to validate the patches you send me.
-
-Thanks.
+<HTML dir=3Dltr><HEAD><TITLE>[Bridge] [PATCH] bridge: adding new device to =
+bridge should enableif up</TITLE>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dunicode">
+<META content=3D"MSHTML 6.00.6000.16414" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV id=3DidOWAReplyText52168 dir=3Dltr>
+<DIV dir=3Dltr>Hello,</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp; I have a question regarding brctl a=
+nd br2684, I have a network scenrio where I have to add br2684-rt into a br=
+idge. but I could not do&nbsp;so with brctl, please let me if you have any =
+suggestion on the issue.</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>My scenario :</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(vpi/vci)&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.2.16&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0/32&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;nas0</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp; DSLAM1 (BR2684-rt)&nbsp; --------------|-=
+----------------</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.3.26&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0/33&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;=
+ |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.1.1=
+8</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;DSLAM 2(BR2684-rt)&nbsp; -----------=
+---|&nbsp;nas1&nbsp;(LINUX)&nbsp;&nbsp;Eth0&nbsp;&nbsp;&nbsp;&nbsp; -------=
+----------PC1 (OAM)</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;192.168.4.36=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;0/34&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+; |</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp; DSLAM 3(BR2684-rt)&nbsp; --------------|n=
+as2------------</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;&nbsp; I want to put nas0, nas1, nas2 and eth0 o=
+n&nbsp;a bridge so that PC1 is able to communicate with DSLAMS.</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp; Note that we do not want to assign any IP on nas0, na=
+s1 and nas2.</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>Please help with&nbsp;your suggestion.</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>HAI</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;</DIV>
+<DIV dir=3Dltr>&nbsp;&nbsp;</DIV></DIV></BODY></HTML>
+------_=_NextPart_001_01C76132.13071DEB--
