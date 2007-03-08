@@ -1,11 +1,11 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C760E6.5EA0933A"
-Date: Wed, 7 Mar 2007 13:28:14 -0500
-Message-ID: <DE026503646E7F40AF97BAB98334333B018A6F21@uss-republic.finepoint.com>
-From: "Hai Wang" <hwang@finepoint.com>
-Subject: Re: [Bridge] BR2684-rt and brctl
+Date: Wed, 7 Mar 2007 16:03:55 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070307160355.0e27f425@dxpl.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] bridge: adding new device to bridge should enable
+	if up
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,139 +14,32 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org, linux-atm-general@lists.sourceforge.net
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-This is a multi-part message in MIME format...
+One change introduced by the workqueue removal patch is that adding an
+interface that is up to a bridge which is also up does not ever call
+br_stp_enable_port(), leaving the port in DISABLED state until we do
+ifconfig down and up or link events occur.
 
-------_=_NextPart_001_01C760E6.5EA0933A
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+The following patch to the br_add_if function fixes it.
+This is a regression introduced in 2.6.21.
 
-Hello,
+Submitted-by: Aji_Srinivas@emc.com
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-=20
+diff -Naur a/net/bridge/br_if.c b/net/bridge/br_if.c
+--- a/net/bridge/br_if.c	2007-02-28 15:34:38.000000000 +0530
++++ b/net/bridge/br_if.c	2007-03-08 01:49:20.000000000 +0530
+@@ -428,6 +428,10 @@
+ 	spin_lock_bh(&br->lock);
+ 	br_stp_recalculate_bridge_id(br);
+ 	br_features_recompute(br);
++
++	if ((dev->flags & IFF_UP) && netif_carrier_ok(dev) &&
++	    (br->dev->flags & IFF_UP)) 
++		br_stp_enable_port(p);
+ 	spin_unlock_bh(&br->lock);
+ 
+ 	dev_set_mtu(br->dev, br_min_mtu(br));
 
-        I am wondering if any of you knows how to add BR2684-rt nas
-interfaces into a Ethernet bridge, I know that brctl will work with
-BR2684-br, but not for BR2684-rt.
-
-=20
-
-Many thanks!
-
-=20
-
-=20
-
-Hai
-
-
-------_=_NextPart_001_01C760E6.5EA0933A
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html DEFANGED_xmlns:o=3D"urn:schemas-microsoft-com:office:office" DEFANGED=
-_xmlns:w=3D"urn:schemas-microsoft-com:office:word" DEFANGED_xmlns=3D"http:/=
-/www.w3.org/TR/REC-html40">
-
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<DEFANGED_style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:SimSun;
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:"\@SimSun";
-	panose-1:0 0 0 0 0 0 0 0 0 0;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-p
-	{mso-margin-top-alt:auto;
-	margin-right:0in;
-	mso-margin-bottom-alt:auto;
-	margin-left:0in;
-	font-size:12.0pt;
-	font-family:SimSun;}
-span.EmailStyle18
-	{mso-style-type:personal;
-	font-family:Arial;
-	color:windowtext;}
-span.EmailStyle19
-	{mso-style-type:personal-reply;
-	font-family:Arial;
-	color:navy;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</DEFANGED_style>
-
-</head>
-
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span DEFANGED_style=3D"fo=
-nt-size:10.0pt;
-font-family:Arial">Hello,<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span DEFANGED_style=3D"fo=
-nt-size:10.0pt;
-font-family:Arial"><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span DEFANGED_style=3D"fo=
-nt-size:10.0pt;
-font-family:Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I am wonderin=
-g if
-any of you knows how to add BR2684-rt nas interfaces into a Ethernet bridge=
-, I
-know that brctl will work with BR2684-br, but not for BR2684-rt.<o:p></o:p>=
-</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span DEFANGED_style=3D"fo=
-nt-size:10.0pt;
-font-family:Arial"><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span DEFANGED_style=3D"fo=
-nt-size:10.0pt;
-font-family:Arial">Many thanks!<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span DEFANGE=
-D_style=3D"font-size:
-10.0pt;font-family:Arial;color:navy"><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span DEFANGE=
-D_style=3D"font-size:
-10.0pt;font-family:Arial;color:navy"><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span DEFANGE=
-D_style=3D"font-size:
-10.0pt;font-family:Arial;color:navy">Hai<o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------_=_NextPart_001_01C760E6.5EA0933A--
