@@ -1,12 +1,13 @@
-Message-ID: <45EFE02A.9010306@cambridgebroadband.com>
-Date: Thu, 08 Mar 2007 10:06:34 +0000
-From: Alex Zeffertt <ajz@cambridgebroadband.com>
-MIME-Version: 1.0
-References: <DE026503646E7F40AF97BAB98334333B018A6F21@uss-republic.finepoint.com>
-In-Reply-To: <DE026503646E7F40AF97BAB98334333B018A6F21@uss-republic.finepoint.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Thu, 8 Mar 2007 13:14:25 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070308131425.3f31c811@freekitty>
+In-Reply-To: <DE026503646E7F40AF97BAB98334333B267A1B@uss-republic.finepoint.com>
+References: <20070307160355.0e27f425@dxpl.pdx.osdl.net>
+	<DE026503646E7F40AF97BAB98334333B267A1B@uss-republic.finepoint.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [Linux-ATM-General] BR2684-rt and brctl
+Subject: Re: [Bridge] brctl issue
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,90 +17,38 @@ List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
 To: Hai Wang <hwang@finepoint.com>
-Cc: linux-atm-general@lists.sourceforge.net, bridge@lists.osdl.org
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-Hai Wang wrote:
+On Wed, 7 Mar 2007 22:30:09 -0500
+"Hai Wang" <hwang@finepoint.com> wrote:
+
 > Hello,
-> 
 >  
-> 
->         I am wondering if any of you knows how to add BR2684-rt nas 
-> interfaces into a Ethernet bridge, I know that brctl will work with 
-> BR2684-br, but not for BR2684-rt.
-> 
+>      I have a question regarding brctl and br2684, I have a network scenrio where I have to add br2684-rt into a bridge. but I could not do so with brctl, please let me if you have any suggestion on the issue.
 >  
->
-
-Hi Hai,
-
-Looking at the RFC, it doesn't appear that the MAC address is even
-present in routed RFC2684 PDUs.  It would seem to me that this makes
-it impossible to add routed interfaces to a bridge.
-
-See below,
-
-Alex
-
----snip---
-5.1.  LLC Encapsulation for Routed Protocols
-
-    In LLC Encapsulation, the protocol type of routed PDUs MUST be
-    identified by prefixing an IEEE 802.2 LLC header to each PDU.  In
-    some cases, the LLC header MUST be followed by an IEEE 802.1a
-    SubNetwork Attachment Point (SNAP) header.  In LLC Type 1 operation,
-    the LLC header MUST consist of three one octet fields:
-
-                     +------+------+------+
-                     | DSAP | SSAP | Ctrl |
-                     +------+------+------+
-
-    In LLC Encapsulation for routed protocols, the Control field MUST be
-    set to 0x03, specifying a Unnumbered Information (UI) Command PDU.
-
-    The LLC header value 0xFE-FE-03 MUST be used to identify a routed PDU
-    in the ISO NLPID format (see [6] and Appendix B). For NLPID-formatted
-    routed PDUs,  the content of the AAL5 CPCS-PDU Payload field MUST be
-    as follows:
-
-             Payload Format for Routed NLPID-formatted PDUs
-                  +-------------------------------+
-                  |       LLC  0xFE-FE-03         |
-                  +-------------------------------+
-                  |     NLPID (1 octet)           |
-                  +-------------------------------+
-                  |             .                 |
-                  |            PDU                |
-                  |     (up to 2^16 - 4 octets)   |
-                  |             .                 |
-                  +-------------------------------+
---/snip---
-
-
-
-
-
-> Many thanks!
-> 
+> My scenario :
 >  
-> 
+>                                        (vpi/vci) 
+>       192.168.2.16             0/32               nas0
+>     DSLAM1 (BR2684-rt)  --------------|-----------------
+>        192.168.3.26            0/33                |                         |                                    192.168.1.18
+>     DSLAM 2(BR2684-rt)  --------------| nas1 (LINUX)  Eth0     -----------------PC1 (OAM)
+>         192.168.4.36            0/34               |                         |
+>     DSLAM 3(BR2684-rt)  --------------|nas2------------
 >  
-> 
-> Hai
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys-and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> _______________________________________________
-> Linux-atm-general mailing list
-> Linux-atm-general@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-atm-general
+>  
+>     I want to put nas0, nas1, nas2 and eth0 on a bridge so that PC1 is able to communicate with DSLAMS.
+>  
+>  
+>   Note that we do not want to assign any IP on nas0, nas1 and nas2.
+>  
+>  
+> Please help with your suggestion.
+>  
 
+There is support for ATM bridging but never tried it (don't have ATM)
+Did you look at?
+
+	http://home.regit.org/?page_id=8
+-- 
+Stephen Hemminger <shemminger@linux-foundation.org>
