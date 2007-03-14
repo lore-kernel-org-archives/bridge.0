@@ -1,13 +1,9 @@
-Date: Fri, 9 Mar 2007 12:31:38 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20070309123138.5133ee91@freekitty>
-In-Reply-To: <OF42CFC367.708609B4-ON85257299.006F9010-85257299.006FB2D0@smsc.com>
-References: <20070309105513.387bfa93@freekitty>
-	<OF42CFC367.708609B4-ON85257299.006F9010-85257299.006FB2D0@smsc.com>
+Message-ID: <BAY137-F24034DC7B4E8519C2B0A80FD730@phx.gbl>
+From: "Jie Chen" <cj70286@hotmail.com>
+Date: Wed, 14 Mar 2007 17:50:50 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] rstp for 2.4 kernel: port state keeps changing
+Content-Type: text/plain; format=flowed
+Subject: [Bridge] tracking packets through bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -16,21 +12,24 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: Marc.Obbad@smsc.com
-Cc: bridge-bounces@lists.osdl.org, bridge@linux-foundation.org, netdev@vger.kernel.org
+To: bridge@lists.osdl.org
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-On Fri, 9 Mar 2007 15:20:02 -0500
-Marc.Obbad@smsc.com wrote:
-
-> I have downloaded RSTP from this site:
-> 
-> 
->       http://developer.osdl.org/shemminger/prototypes/rstp-2.4.zip
-> 
-> 
-
-That's cool, I didn't know anyone got the old code to work!
+Hi,
 
 
--- 
-Stephen Hemminger <shemminger@linux-foundation.org>
+
+I got a question about tracking the packets on bridge. I have a few linux 
+boxes set up with bridge and STP running, which has two interfaces enslaved 
+to the bridge, if I want to send packets from one to another, how do I track 
+which interface I'm using to send packets?
+
+Thanks,
+
+Jie
+
+_________________________________________________________________
+With tax season right around the corner, make sure to follow these few 
+simple tips. 
+http://articles.moneycentral.msn.com/Taxes/PreparationTips/PreparationTips.aspx?icid=HMFebtagline
+
