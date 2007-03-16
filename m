@@ -1,11 +1,10 @@
-Content-class: urn:content-classes:message
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Date: Fri, 16 Mar 2007 02:19:39 +0000
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C7665F.1B0F695D"
-Date: Wed, 14 Mar 2007 13:35:06 -0400
-Message-ID: <4FC64C3133EDDF4AB442C6F52A4646B60303308E@nmr001oldmsx07.enterprisenet.org>
-From: "Chen, Jie" <Jie.Chen@nielsen.com>
-Subject: [Bridge] tracking packets on bridge
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_76f+F8UT5CZoBz+"
+Message-Id: <200703160219.39993.s0348365@sms.ed.ac.uk>
+Subject: [Bridge] bridge-utils doesn't like name "bridge"
 List-Id: Linux Ethernet Bridging <bridge.lists.osdl.org>
 List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=unsubscribe>
@@ -14,58 +13,62 @@ List-Post: <mailto:bridge@lists.osdl.org>
 List-Help: <mailto:bridge-request@lists.osdl.org?subject=help>
 List-Subscribe: <https://lists.osdl.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.osdl.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: shemminger@osdl.org
 
-This is a multi-part message in MIME format...
-
-------_=_NextPart_001_01C7665F.1B0F695D
+--Boundary-00=_76f+F8UT5CZoBz+
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Hi,
 
+The "brctl show" (and probably other commands) do not work properly in the 
+current git version of bridge-utils, and at least the 1.2 release in Debian 
+testing.
 
-I got a question about tracking the packets on bridge. I have two
-interfaces enslaved to my bridge, how do I track which interface I'm
-using to send packets?=20
+The reason is that some sloppy code detects bridges under sysfs by simply 
+matching dirents matching "%s/bridge" under /sys/class/net. Unfortunately, if 
+a bridge is actually _called_ "bridge", this logic fails because the "." 
+directory matches.
 
-Thanks,
+Since the expected files do not exist under /sys/class/net/./bridge, but 
+under /sys/class/net/bridge/bridge, it causes a segfault.
 
-Jie
+The attached patch fixes the problem by excluding any dirent with '.' at the 
+beginning, which risks breaking nothing but does filter out ".", etc. as 
+possible matches for bridge interfaces.
 
-------_=_NextPart_001_01C7665F.1B0F695D
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Please apply.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6.5.7652.14">
-<TITLE>tracking packets on bridge</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/rtf format -->
+-- 
+Cheers,
+Alistair.
 
-<P><SPAN LANG=3D"zh-cn"><FONT SIZE=3D2 FACE=3D"Arial">Hi,</FONT></SPAN>
-</P>
-<BR>
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.
 
-<P><SPAN LANG=3D"zh-cn"><FONT SIZE=3D2 FACE=3D"Arial">I got a question abou=
-t tracking the packets on bridge. I have two interfaces enslaved to my brid=
-ge, how do I track which interface I'm using to send packets? </FONT></SPAN=
-></P>
+--Boundary-00=_76f+F8UT5CZoBz+
+Content-Type: text/x-diff; charset="us-ascii";
+	name="bridge-utils-1.2-bridge-name-fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="bridge-utils-1.2-bridge-name-fix.diff"
 
-<P><SPAN LANG=3D"zh-cn"><FONT SIZE=3D2 FACE=3D"Arial">Thanks,</FONT></SPAN>
-</P>
+diff -Nudr bridge-utils-1.2/libbridge/libbridge_init.c bridge-utils-1.2.new/libbridge/libbridge_init.c
+--- bridge-utils-1.2/libbridge/libbridge_init.c 2006-09-09 06:30:31.000000000 +0100
++++ bridge-utils-1.2.new/libbridge/libbridge_init.c     2007-03-16 01:45:26.080465228 +0000
+@@ -49,6 +49,10 @@
+ 	char path[SYSFS_PATH_MAX];
+ 	struct stat st;
 
-<P><SPAN LANG=3D"zh-cn"><FONT SIZE=3D2 FACE=3D"Arial">Jie</FONT></SPAN>
-</P>
++	/* the bridge might actually be called "bridge", so don't match '.' */
++	if (entry->d_name[0] == '.')
++		return 0;
++
+ 	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/bridge", entry->d_name);
+ 	return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+ }
 
-</BODY>
-</HTML>
-------_=_NextPart_001_01C7665F.1B0F695D--
+--Boundary-00=_76f+F8UT5CZoBz+--
