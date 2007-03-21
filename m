@@ -1,14 +1,10 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Date: Tue, 20 Mar 2007 09:40:34 -0000
-Message-ID: <BB501CE635E5144CA5E30956E5E32C52271F18@exchange-be5.lancs.local>
-References: <BB501CE635E5144CA5E30956E5E32C52271F0E@exchange-be5.lancs.local><BB501CE635E5144CA5E30956E5E32C52271F0F@exchange-be5.lancs.local><eth3uu$drn$1@sea.gmane.org>
-	<20070319112751.3a227ccd@dxpl.pdx.osdl.net>
-From: "Egi, Norbert" <n.egi@lancaster.ac.uk>
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] Performance loss with bridging+routing.
+Date: Wed, 21 Mar 2007 19:28:50 +0800
+From: "Alex" <alex@4ever-light.com>
+Message-ID: <200703211928494846240@4ever-light.com>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="=====003_Dragon182425183822_====="
+Subject: [Bridge] why ./brctl showmacs br0 display nothing?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,27 +13,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>, Jason Lunz <lunz@falooley.org>
-Cc: bridge@linux-foundation.org
+To: bridge <bridge@lists.linux-foundation.org>
 
-Hi
+This is a multi-part message in MIME format...
+
+--=====003_Dragon182425183822_=====
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+hi:
+my box use eth0 connect my pc. but I type command "./brctl showmacs br0", no mac addr display and the" brctl showmacs program" not exit,always exec
+
+# ./brctl show
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.000123456789       no              eth0
+                                                        hdlc0
+# ./brctl showmacs br0
+port no mac addr                is local?       ageing timer
+
+
+
  
->If you are doing simple bridging or routing performance is about
->the same. I see about 380K packets per second or more depending
->on bus speed and network interface card.
->
->But if you do filtering then your performance can easily get CPU
->limited, especially if you are doing connection tracking.  The problem
->is that filtering ends up reading the whole packet.
-
-The case is that I'm not doing any filtering at all, the packet entering the bridge goes up to the IP layer (instead of bridged to another interface) where it is recognized that it has to be routed to another port and after routing it leaves the machine on another port directly. On its way out it shouldn't even enter the bridge attached to the outgoing interface, so the extra processing is done only in the incoming port's bridge compared to simple routing. However, I have been tracing the packet in the kernel so now I more or less know what path the packet 'travels' in the kernel and now I'm going to use oprofile to find out where the bottleneck is and where the packets got dropped. Hopefully can find the answer to the question...
-
-Norbert
 
 
-_______________________________________________
-Bridge mailing list
-Bridge@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/bridge
 
+Alex
+2007-03-21
 
+--=====003_Dragon182425183822_=====
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=Content-Type content="text/html; charset=gb2312">
+<META content="MSHTML 6.00.2900.3059" name=GENERATOR></HEAD>
+<BODY>
+<DIV><FONT face=Verdana><FONT size=2></FONT>&nbsp;</DIV>
+<DIV><FONT size=2>hi:</FONT></DIV>
+<DIV><FONT size=2>my box use eth0 connect my pc. but I type command "./brctl 
+showmacs br0", no mac addr display and the" brctl showmacs program" not 
+exit,always exec</FONT></DIV>
+<DIV><FONT size=2></FONT>&nbsp;</DIV>
+<DIV># ./brctl show<BR>bridge name&nbsp;&nbsp;&nbsp;&nbsp; bridge 
+id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+STP enabled&nbsp;&nbsp;&nbsp;&nbsp; 
+interfaces<BR>br0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+8000.000123456789&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+no&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+eth0<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+hdlc0<BR># ./brctl showmacs br0<BR>port no mac 
+addr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+is local?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ageing timer</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV><BR>&nbsp;</DIV>
+<DIV align=left><FONT size=2>
+<HR DEFANGED_style="WIDTH: 122px; HEIGHT: 2px" SIZE="2">
+</FONT></DIV>
+<DIV><FONT color=#c0c0c0><FONT size=2>Alex</FONT></DIV>
+<DIV><FONT size=2>2007-03-21</FONT></FONT></DIV></FONT></BODY></HTML>
+
+--=====003_Dragon182425183822_=====--
