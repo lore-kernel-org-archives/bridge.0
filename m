@@ -1,12 +1,11 @@
-Message-ID: <460D5750.6030001@linux-foundation.org>
-Date: Fri, 30 Mar 2007 11:30:40 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <59452.84.123.233.184.1175286636.squirrel@www.arcoscom.com>
+Date: Fri, 30 Mar 2007 22:30:36 +0200 (CEST)
+From: "ArcosCom Linux User" <linux@arcoscom.com>
 MIME-Version: 1.0
-References: <AFB2687AB4F98E419EDFA205E376D41330621A@BLR-HCLT-EVS01.HCLT.CORP.HCL.IN>
-In-Reply-To: <AFB2687AB4F98E419EDFA205E376D41330621A@BLR-HCLT-EVS01.HCLT.CORP.HCL.IN>
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bridging in linux 2.4.20 kernel
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Why TTL is changing when sending a ping?
+Reply-To: linux@arcoscom.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,69 +14,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Majjari Vikram(TLS-ESG), Bangalore" <Majjari.Vikram@hcl.in>
-Cc: bridge@lists.linux-foundation.org
+To: LARTC@mailman.ds9a.nl, bridge@lists.linux-foundation.org
 
-Majjari Vikram(TLS-ESG), Bangalore wrote:
+The situation is this:
 
-Please stop sending HTML messages, it triggers spam filters.
->
-> Hi all
->
-> Iam working on Bridging code in linux 2.4.20 kernel. I just want to=20
-> know whether this bridge works with two different kinds of interfaces=20
-> attached to bridge.
->
-No
->
-> Like
->
-> 1. a bridge with 802.3 interface and 802.5 interface
->
-No address format is different
->
-> 2. a bridge with 802.3 interface and 802.16 interface(wireless).
->
-No see http://linux-net.osdl.org/index.php/bridge
+INTERNET -- ROUTER -- ETHERNET+WIFI -- PC's
+
+The conection between INTERNET and ROUTER is done with 2 LINKs with static
+IP's.
+
+The conection between ROUTER and PC's is done via ETHERNET lan with many
+bridges and ACCESSPOINTS.
+
+The PC's are in a IP subnet, the BRIDGES in another IP subnet, the AP's in
+another IP subnet. The ROUTER has 1 bridge interface (2 real ethernets in
+the bridge) connected to the LAN.
+
+In the router exists then br0, br0:1, br0:2, br0:3 (PCs, APs, BRIDGEs IP
+subnets) to allow IP connection over the ETHERNET+WIFI between ROUTER and
+clients.
+
+The principal purpose of the ROUTER is to allow internet acces to PC's.
+The BRIDGES and AP's have got implemented STP protocol and appears to be
+working fine (ap's and bridges are embedded linux boxes).
+
+In router I have enabled rp_filter in all interfaces, default and each one.
+The ip routing is enabled too (obviously).
+
+I detected that a normal ping from ROUTER to one PC usually has a TTL=64,
+but many times that TTL changes to 128.
+
+What could be the problem? The "routing" enabled in bridge devices?
+Some TCP/IP parameter I don't configured fine?
+Any idea?
+
+Thanks
 
 
-Wireless needs NDS support.
->
-> I think the present bridge code in linux 2.4.20 kernel doesn=92t support =
-
-> this kind of bridging and this code doesn=92t do the protocol=20
-> conversions necessary. I just want to confirm.
->
-> Eagerly Waiting for reply
->
-> Vikram.
->
-> DISCLAIMER:
-> -------------------------------------------------------------------------=
-----------------------------------------------
->
-> The contents of this e-mail and any attachment(s) are confidential and=20
-> intended for the named recipient(s) only.
-> It shall not attach any liability on the originator or HCL or its=20
-> affiliates. Any views or opinions presented in
-> this email are solely those of the author and may not necessarily=20
-> reflect the opinions of HCL or its affiliates.
-> Any form of reproduction, dissemination, copying, disclosure,=20
-> modification, distribution and / or publication of
-> this message without the prior written consent of the author of this=20
-> e-mail is strictly prohibited. If you have
-> received this email in error please delete it and notify the sender=20
-> immediately. Before opening any mail and
-> attachments please check them for viruses and defect.
->
-> -------------------------------------------------------------------------=
-----------------------------------------------
->
-> ------------------------------------------------------------------------
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->  =20
 
