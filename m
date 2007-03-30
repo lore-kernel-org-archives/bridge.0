@@ -1,11 +1,13 @@
-Message-ID: <59452.84.123.233.184.1175286636.squirrel@www.arcoscom.com>
-Date: Fri, 30 Mar 2007 22:30:36 +0200 (CEST)
-From: "ArcosCom Linux User" <linux@arcoscom.com>
+Message-ID: <460C8BA5.5060407@osdl.org>
+Date: Thu, 29 Mar 2007 21:01:41 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Why TTL is changing when sending a ping?
-Reply-To: linux@arcoscom.com
+References: <AFB2687AB4F98E419EDFA205E376D4132C7CFB@BLR-HCLT-EVS01.HCLT.CORP.HCL.IN>
+In-Reply-To: <AFB2687AB4F98E419EDFA205E376D4132C7CFB@BLR-HCLT-EVS01.HCLT.CORP.HCL.IN>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Static filtering entries in bridging -- linux 2.4.20
+ kernel
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,41 +16,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: LARTC@mailman.ds9a.nl, bridge@lists.linux-foundation.org
+To: "Majjari Vikram(TLS-ESG), Bangalore" <Majjari.Vikram@hcl.in>
+Cc: bridge@lists.linux-foundation.org
 
-The situation is this:
+Majjari Vikram(TLS-ESG), Bangalore wrote:
+>
+> Hi all
+>
+>             Iam working on bridging in linux 2.4.20 kernel. can any 
+> one help me on these questions.
+>
+2.4 code is in stable (dormant) mode, major bug fixes only.
 
-INTERNET -- ROUTER -- ETHERNET+WIFI -- PC's
+>  
+>
+>    1. how to make static filtering entries and
+>
 
-The conection between INTERNET and ROUTER is done with 2 LINKs with static
-IP's.
+Bridging in linux does not have a way to add static entries. Why do you 
+need them?
+>
+>   1.
+>
+>
+>    2. how to make group MAC addresses (multicast addresses) in bridging.
+>
+You don't need to. All mulitcasts are forwarded automatically as per
+802.1d spec.
 
-The conection between ROUTER and PC's is done via ETHERNET lan with many
-bridges and ACCESSPOINTS.
-
-The PC's are in a IP subnet, the BRIDGES in another IP subnet, the AP's in
-another IP subnet. The ROUTER has 1 bridge interface (2 real ethernets in
-the bridge) connected to the LAN.
-
-In the router exists then br0, br0:1, br0:2, br0:3 (PCs, APs, BRIDGEs IP
-subnets) to allow IP connection over the ETHERNET+WIFI between ROUTER and
-clients.
-
-The principal purpose of the ROUTER is to allow internet acces to PC's.
-The BRIDGES and AP's have got implemented STP protocol and appears to be
-working fine (ap's and bridges are embedded linux boxes).
-
-In router I have enabled rp_filter in all interfaces, default and each one.
-The ip routing is enabled too (obviously).
-
-I detected that a normal ping from ROUTER to one PC usually has a TTL=64,
-but many times that TTL changes to 128.
-
-What could be the problem? The "routing" enabled in bridge devices?
-Some TCP/IP parameter I don't configured fine?
-Any idea?
-
-Thanks
-
-
+>  
+>
+> Eagerly waiting for reply.
+>
 
