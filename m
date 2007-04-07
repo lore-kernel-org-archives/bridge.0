@@ -1,16 +1,13 @@
-Message-ID: <bdfc5d6e0704051058j598f56bdi5cafc0686564c364@mail.gmail.com>
-Date: Thu, 5 Apr 2007 13:58:51 -0400
-From: "Andy Gospodarek" <andy@greyhouse.net>
-Sender: adgospod@gmail.com
-In-Reply-To: <461537F5.90106@endian.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Bart De Schuymer <bdschuym@pandora.be>
+In-Reply-To: <BB501CE635E5144CA5E30956E5E32C52271F0F@exchange-be5.lancs.local>
+References: <BB501CE635E5144CA5E30956E5E32C52271F0E@exchange-be5.lancs.local>
+	<BB501CE635E5144CA5E30956E5E32C52271F0F@exchange-be5.lancs.local>
+Content-Type: text/plain
+Date: Sat, 07 Apr 2007 16:16:19 +0200
+Message-Id: <1175955379.2974.9.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4614ED97.8090002@endian.it>
-	<bdfc5d6e0704050607h224bfc8wcfd6779786eade7d@mail.gmail.com>
-	<461537F5.90106@endian.it>
-Subject: Re: [Bridge] strange networking behaviour with a bridge in game
+Subject: Re: [Bridge] Performance loss with bridging+routing.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,21 +16,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Peter Warasin <peter@endian.it>
-Cc: bridge@osdl.org
+To: "Egi, Norbert" <n.egi@lancaster.ac.uk>
+Cc: bridge@lists.osdl.org
 
-On 4/5/07, Peter Warasin <peter@endian.it> wrote:
-> hi andy
->
-> Andy Gospodarek wrote:
-> > On 4/5/07, Peter Warasin <peter@endian.it> wrote:
-> > Check out the ip sysctl/proc arp_ignore
->
-> wow!
-> this solved my problem.
-> thank you very much for your answer!
->
-> i will raise a statue for you :)
->
+Op do, 15-03-2007 te 17:59 +0000, schreef Egi, Norbert:
+> Sorry, it looks like the spaces have different sizes in my mailing
+> system. I hope the graphs are more readable now.
 
-Hahahaha!  Glad that helped you out! :-)
+The performance drop comes from the fact that your routed traffic is
+buffered twice. The first time before the bridge code gets its hands on
+it, the second time when the bridge code decides the packet is destined
+for the bridge itself and sends it back to the buffer. I've at times
+wondered if it were feasible and acceptable to get rid of this second
+buffering... At first glance it seems quite feasible, but maybe it would
+cause performance trouble elsewhere. Dunno...
+You can probably circumvent the performance drop using the ebtables
+brouting chain. See
+http://ebtables.sourceforge.net/examples/example2.html
+
+cheers,
+Bart
+
+PS: try to make your mailer cut lines @ 78 characters when sending
+messages to Linux lists
+
+
