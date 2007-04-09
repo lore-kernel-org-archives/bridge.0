@@ -1,10 +1,18 @@
-Date: Sat, 7 Apr 2007 18:57:07 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Message-ID: <20070407095707.GC4660@APFDCB5C>
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Date: Mon, 09 Apr 2007 20:30:12 +0200
+Message-ID: <eve0nv$ang$1@sea.gmane.org>
+References: <200610301527.15018.dim@openvz.org>
+	<20061030072837.51177183@localhost.localdomain>
+	<20061215131908.GC11579@xi.wantstofly.org>
+	<20061215075236.321e6a07@localhost.localdomain>
+	<20061215160429.GC12679@xi.wantstofly.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [PATCH] bridge: check kmem_cache_create() error
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="------------enig1061B7BCFA9BE5D055CB8C32"
+In-Reply-To: <20061215160429.GC12679@xi.wantstofly.org>
+Sender: news <news@sea.gmane.org>
+Subject: Re: [Bridge] Bridge & it's MAC address question
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,77 +21,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.osdl.org
+To: bridge@osdl.org
+Cc: netdev@vger.kernel.org
 
-This patch checks kmem_cache_create() error and aborts loading module
-on failure.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1061B7BCFA9BE5D055CB8C32
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Cc: Stephen Hemminger <shemminger@linux-foundation.org>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+>>>> The bridge physical address is the minimum of all the attached devic=
+es.
+>>>> This is done because the STP standard requires it.  You can reset it=
 
----
- net/bridge/br.c         |    7 ++++++-
- net/bridge/br_fdb.c     |    4 +++-
- net/bridge/br_private.h |    2 +-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+>>>> to be the same as any of the attached devices. This will not cause a=
 
-Index: 2.6-mm/net/bridge/br.c
-===================================================================
---- 2.6-mm.orig/net/bridge/br.c
-+++ 2.6-mm/net/bridge/br.c
-@@ -37,7 +37,9 @@ static int __init br_init(void)
- 		return -EADDRINUSE;
- 	}
- 
--	br_fdb_init();
-+	err = br_fdb_init();
-+	if (err)
-+		goto err_out0;
- 
- 	err = br_netfilter_init();
- 	if (err)
-@@ -63,7 +65,10 @@ err_out3:
- err_out2:
- 	br_netfilter_fini();
- err_out1:
-+	br_fdb_fini();
-+err_out0:
- 	llc_sap_put(br_stp_sap);
-+
- 	return err;
- }
- 
-Index: 2.6-mm/net/bridge/br_fdb.c
-===================================================================
---- 2.6-mm.orig/net/bridge/br_fdb.c
-+++ 2.6-mm/net/bridge/br_fdb.c
-@@ -27,12 +27,14 @@ static struct kmem_cache *br_fdb_cache _
- static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
- 		      const unsigned char *addr);
- 
--void __init br_fdb_init(void)
-+int __init br_fdb_init(void)
- {
- 	br_fdb_cache = kmem_cache_create("bridge_fdb_cache",
- 					 sizeof(struct net_bridge_fdb_entry),
- 					 0,
- 					 SLAB_HWCACHE_ALIGN, NULL, NULL);
-+
-+	return br_fdb_cache ? 0 : -ENOMEM;
- }
- 
- void __exit br_fdb_fini(void)
-Index: 2.6-mm/net/bridge/br_private.h
-===================================================================
---- 2.6-mm.orig/net/bridge/br_private.h
-+++ 2.6-mm/net/bridge/br_private.h
-@@ -133,7 +133,7 @@ extern void br_dev_setup(struct net_devi
- extern int br_dev_xmit(struct sk_buff *skb, struct net_device *dev);
- 
- /* br_fdb.c */
--extern void br_fdb_init(void);
-+extern int br_fdb_init(void);
- extern void br_fdb_fini(void);
- extern void br_fdb_changeaddr(struct net_bridge_port *p,
- 			      const unsigned char *newaddr);
+>>>> problem unless using STP.
+>>> You can in fact use any MAC address.  The STP standard recommends usi=
+ng
+>>> the minimum address, as that is deterministic, and so it doesn't depe=
+nd
+>>> on the order in which you enslave subdevices.
+>> So should restriction be lifted?
+>=20
+> We should definitely allow users to override the MAC address of a
+> bridge interface.
+
+Yes, i would love to have that feature.
+
+I'm using a bridge for a Xen host machine. Interfaces of the Xen guests
+are dynamically added to and removed from the bridge. At the moment, i
+create and add a tun interface to the bridge, so the bridge has a valid
+mac address at all.
+
+
+
+--------------enig1061B7BCFA9BE5D055CB8C32
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFGGoY07Ww7FjRBE4ARAhMiAJsGB9iky4m+w2mKJbSVlePBjkJUuwCfb85u
+m0xiaTudL9NmPtJ7qfbF3rI=
+=J6Zj
+-----END PGP SIGNATURE-----
+
+--------------enig1061B7BCFA9BE5D055CB8C32--
+
