@@ -1,11 +1,16 @@
-Content-class: urn:content-classes:message
+Message-ID: <461B5615.3010304@cambridgebroadband.com>
+Date: Tue, 10 Apr 2007 10:17:09 +0100
+From: "Alex Zeffertt" <ajz@cambridgebroadband.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C77B2A.204C30BE"
-Date: Tue, 10 Apr 2007 14:38:46 +1000
-Message-ID: <C953BD512FDBF641B6AC6D59B46B55F002484DBA@WSMSG2154V.srv.dir.telstra.com>
-From: "Bainbridge, David D" <David.D.Bainbridge@team.telstra.com>
-Subject: [Bridge] Bridge Problem: Ping works, nothing else does...
+References: <AFB2687AB4F98E419EDFA205E376D41330618C@BLR-HCLT-EVS01.HCLT.CORP.HCL.IN>
+In-Reply-To: <AFB2687AB4F98E419EDFA205E376D41330618C@BLR-HCLT-EVS01.HCLT.CORP.HCL.IN>
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1"
+Content-Class: urn:content-classes:message
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] Static filtering entries in bridging --
+	linux	2.4.20kernel
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,103 +19,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: "Majjari Vikram(TLS-ESG), Bangalore" <Majjari.Vikram@hcl.in>, bridge@lists.linux-foundation.org
 
-This is a multi-part message in MIME format...
+Majjari Vikram(TLS-ESG), Bangalore wrote:
+> 
+> Hi all
+> 
+> I think Static filtering entries are needed in bridging for security
+> purposes. I read that we can add static filtering entries in to the
+> bridge filtering database. The entry information includes the
+> destination MAC address and the port number(other fields as required)so
+> that when a packet/frame arrives with the destination mac address that
+> was specified in static filtering entry the frame gets bridged/forwarded
+> to the interface/port that we have specified in the table(as a static
+> filtering entry).
+> 
+> 
 
-------_=_NextPart_001_01C77B2A.204C30BE
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Perhaps what you are looking for is MAC address based vlans.  Consult the
+linux-vlan project - the latest code is able to do this.
 
-Hi,
-I'm a newbie to linux to an extent but have a need to set up a linux
-bridge to do some paclet loss testing using netem.  I have a PC with two
-NIC cards and Fedora 6.  I have created the bridge using the following
-commands
+Use the vlan module to create multiple interfaces layered over eth0 that
+filter for the static MAC addresses you're interested in.  Then choose
+which bridge to add each interface to, based on the services you wish that
+MAC to access.
 
-#brctl addbr mybridge
-#brctl addif mybridge eth0
-#brctl addif mybridge eth1
-#brctl mybridge up
+(BTW, I haven't actually used this code myself.  I submitted the original
+patch, but I handed it over to the vlan maintainers and they've added
+a lot of functionality and changed the usage.  In short, I can't help with
+the details - you'll have to look it up in the linux-vlan documentation.)
 
-Physically I have two IP devices with static IP addresses connected to
-the two NIC cards via cross over cables.  I have tested the NIC cards in
-a non bridged mode and they work fine as normal NICs.  In bridged mode I
-can ping the other IP device.  The IP devices are actually realtime
-audio over IP codec devices and they stream using RTP on UDP port 5000.
-If I connect the cross over cable directly between the two codec devices
-the audio is transferred fine, if I put the linux bridge between them I
-get nothing but I can still ping.....
+Alex
 
-A brctl showstp shows the eth0 and eth1 are in forwarding status but
-nothing is happenig.  Can anyone help.  Both Eth1 and 0 are set to Ip
-address of 0.0.0.0
+------------------------------------------------------------------------------
 
-Thanks
+Cambridge Broadband appoints telecoms industry veteran John Cronin as chairman <<http://www.cambridgebroadband.com/mi20feb07.htm>
 
-
-Regards
-David Bainbridge
+Maxis to upgrade its backhaul network using Cambridge Broadband; Alcatel-Lucent selected to manage entire upgrade project <http://www.cambridgebroadband.com/mi12feb07.htm>
 
 
-------_=_NextPart_001_01C77B2A.204C30BE
-Content-Type: text/html;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+------------------------------------------------------------------------------
+Cambridge Broadband Networks Limited
+Registered in England and Wales under company number: 03879840
+Registered office: Selwyn House, Cambridge Business Park, Cowley Road, Cambridge CB4 0WZ, UK
+ 
+This email and any attachments are private and confidential. If you believe you have received this email in error please inform the sender and delete it from your mailbox or any other storage mechanism. Cambridge Broadband Networks Limited cannot accept liability for any statements made which are clearly the individual sender's own and not expressly made on behalf of Cambridge Broadband Networks Limited.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6.5.7651.14">
-<TITLE>Bridge Problem: Ping works, nothing else does...</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/rtf format -->
 
-<P><FONT SIZE=3D2 FACE=3D"Tahoma">Hi,</FONT>
 
-<BR><FONT SIZE=3D2 FACE=3D"Tahoma">I'm a newbie to linux to an extent but h=
-ave a need to set up a linux bridge to do some paclet loss testing using ne=
-tem.&nbsp; I have a PC with two NIC cards and Fedora 6.&nbsp; I have create=
-d the bridge using the following commands</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Tahoma">#brctl addbr mybridge</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Tahoma">#brctl addif mybridge eth0</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Tahoma">#brctl addif mybridge eth1</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Tahoma">#brctl mybridge up</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Tahoma">Physically I have two IP devices with sta=
-tic IP addresses connected to the two NIC cards via cross over cables.&nbsp=
-; I have tested the NIC cards in a non bridged mode and they work fine as n=
-ormal NICs.&nbsp; In bridged mode I can ping the other IP device.&nbsp; The=
- IP devices are actually realtime audio over IP codec devices and they stre=
-am using RTP on UDP port 5000.&nbsp; If I connect the cross over cable dire=
-ctly between the two codec devices the audio is transferred fine, if I put =
-the linux bridge between them I get nothing but I can still ping&#8230;..</=
-FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Tahoma">A brctl showstp shows the eth0 and eth1 a=
-re in forwarding status but nothing is happenig.&nbsp; Can anyone help.&nbs=
-p; Both Eth1 and 0 are set to Ip address of 0.0.0.0</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Tahoma">Thanks</FONT>
-</P>
-<BR>
-
-<P><FONT COLOR=3D"#0000FF" SIZE=3D2 FACE=3D"Tahoma">Regards</FONT>
-
-<BR><B><FONT COLOR=3D"#0000FF" SIZE=3D2 FACE=3D"Tahoma">David Bainbridge</F=
-ONT></B>
-</P>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C77B2A.204C30BE--
