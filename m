@@ -1,10 +1,12 @@
-Message-ID: <2eceaddb0704161410i3a4b7d5al430a4165063f0684@mail.gmail.com>
-Date: Mon, 16 Apr 2007 17:10:37 -0400
-From: "Ravi Ramamirtham" <rrshanks@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_57557_11560395.1176757837265"
-Subject: [Bridge] Bridging over a bonded interface?
+From: Dylan Hall <dylan@citylink.co.nz>
+In-Reply-To: <20070416111137.2b046ae8@dxpl.pdx.osdl.net>
+References: <1176676171.3713.16.camel@collymore.citylink.co.nz>
+	<20070416111137.2b046ae8@dxpl.pdx.osdl.net>
+Content-Type: multipart/alternative; boundary="=-uOmHBkUQgFFtWlkcI9aa"
+Date: Tue, 17 Apr 2007 09:58:58 +1200
+Message-Id: <1176760738.5336.11.camel@collymore.citylink.co.nz>
+Mime-Version: 1.0
+Subject: Re: [Bridge] Feature enhancement - Disable unicast flooding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,40 +15,135 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: bridge@linux-foundation.org
 
 This is a multi-part message in MIME format...
 
-------=_Part_57557_11560395.1176757837265
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--=-uOmHBkUQgFFtWlkcI9aa
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Hi,
-  This may sound crazy but I will go ahead anyway. Here's my scenario:
+I looked at ebtables initially. My first plan was to use a perl script
+using pcap to listen on the interfaces and generate ebtables rules as
+new hosts are detected.
 
-ifconfig bond0 10.10.10.1 netmask 255.0.0.0
-ifenslave bond0 eth0
-ifenslave bond0 eth1
+I had two concerns with this approach, the first is that there are
+approx 1000 hosts on the vlans I'm working with, which is a lot of
+ebtables rules (linked-lists are used, and hence forwarding performance
+would suffer - is this correct?). 
 
-brctl addbr stp0
-brctl addif stp0 bond0
-brctl stp stp0 on
+The second concern is that the hardware I'm using are little embedded
+boxes (Soekris), so with only a 133Mhz CPU, any helper scripts I use to
+maintain the ebtables rules are going to use precious CPU resources I
+would rather were available for forwarding.
 
-Is this a valid scenario? I am trying to bond two interfaces and run STP
-over the bonded interface..The problem I am trying to solve is to run STP
-over aggregated links between two nodes. Any suggestions/pointers would be
-much appreciated.
+Given those concerns, I decided I was essentially duplicating the
+learning process that already exists in the bridging code, and hence
+duplicating effort rather inefficiently.
 
-Thanks
+That said, a dedicated ebtables module, one that possibly references the
+existing bridging database might be a plan? I have no experience writing
+modules like that, how easy/hard would it be to write such a module?
 
-------=_Part_57557_11560395.1176757837265
-Content-Type: text/html; charset=ISO-8859-1
+Thanks,
+
+Dylan
+
+
+On Mon, 2007-04-16 at 11:11 -0700, Stephen Hemminger wrote:
+
+> On Mon, 16 Apr 2007 10:29:31 +1200
+> Dylan Hall <dylan@citylink.co.nz> wrote:
+> 
+> > For the project I'm working on I require that the bridging code not
+> > flood unicast frames when the destination mac address is unknown,
+> > similar to Cisco's "switchport block unicast" feature
+> > (http://www.cisco.com/en/US/products/ps6406/products_configuration_guide_chapter09186a00805a761a.html#wp1087814).
+> > 
+> > I have produced a small patch (against 2.6.20.4) to control this feature
+> > per bridge (rather than per port like a Cisco).
+> > 
+> > Have I gone about implementing this correctly?
+> > 
+> > Is this something other people may find useful, and hence worth
+> > incorporating into the mainstream code?
+> > 
+> > Is it worth the effort of taking this one step further, and controlling
+> > the behaviour per port rather than per bridge?
+> > 
+> > Thanks,
+> > 
+> > Dylan
+> > 
+> > 
+> > 
+> 
+> Maybe. But this kind of thing is better done with a ebtables module.
+> That way it can be more easily integrated with other security stuff.
+
+--=-uOmHBkUQgFFtWlkcI9aa
+Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Hi,<br>&nbsp; This may sound crazy but I will go ahead anyway. Here&#39;s my scenario:<br><br>ifconfig bond0 <a href="http://10.10.10.1">10.10.10.1</a> netmask <a href="http://255.0.0.0">255.0.0.0</a><br>ifenslave bond0 eth0<br>
-ifenslave bond0 eth1<br><br>brctl addbr stp0<br>brctl addif stp0 bond0<br>brctl stp stp0 on<br><br>Is this a valid scenario? I am trying to bond two interfaces and run STP over the bonded interface..The problem I am trying to solve is to run STP over aggregated links between two nodes. Any suggestions/pointers would be much appreciated.
-<br><br>Thanks<br>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+  <META NAME="GENERATOR" CONTENT="GtkHTML/3.12.1">
+</HEAD>
+<BODY>
+I looked at ebtables initially. My first plan was to use a perl script using pcap to listen on the interfaces and generate ebtables rules as new hosts are detected.<BR>
+<BR>
+I had two concerns with this approach, the first is that there are approx 1000 hosts on the vlans I'm working with, which is a lot of ebtables rules (linked-lists are used, and hence forwarding performance would suffer - is this correct?). <BR>
+<BR>
+The second concern is that the hardware I'm using are little embedded boxes (Soekris), so with only a 133Mhz CPU, any helper scripts I use to maintain the ebtables rules are going to use precious CPU resources I would rather were available for forwarding.<BR>
+<BR>
+Given those concerns, I decided I was essentially duplicating the learning process that already exists in the bridging code, and hence duplicating effort rather inefficiently.<BR>
+<BR>
+That said, a dedicated ebtables module, one that possibly references the existing bridging database might be a plan? I have no experience writing modules like that, how easy/hard would it be to write such a module?<BR>
+<BR>
+Thanks,<BR>
+<BR>
+Dylan<BR>
+<BR>
+<BR>
+On Mon, 2007-04-16 at 11:11 -0700, Stephen Hemminger wrote:
+<BLOCKQUOTE TYPE=CITE>
+<PRE>
+<FONT COLOR="#000000">On Mon, 16 Apr 2007 10:29:31 +1200</FONT>
+<FONT COLOR="#000000">Dylan Hall &lt;<A HREF="mailto:dylan@citylink.co.nz">dylan@citylink.co.nz</A>&gt; wrote:</FONT>
 
-------=_Part_57557_11560395.1176757837265--
+<FONT COLOR="#000000">&gt; For the project I'm working on I require that the bridging code not</FONT>
+<FONT COLOR="#000000">&gt; flood unicast frames when the destination mac address is unknown,</FONT>
+<FONT COLOR="#000000">&gt; similar to Cisco's &quot;switchport block unicast&quot; feature</FONT>
+<FONT COLOR="#000000">&gt; (<A HREF="http://www.cisco.com/en/US/products/ps6406/products_configuration_guide_chapter09186a00805a761a.html#wp1087814">http://www.cisco.com/en/US/products/ps6406/products_configuration_guide_chapter09186a00805a761a.html#wp1087814</A>).</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; I have produced a small patch (against 2.6.20.4) to control this feature</FONT>
+<FONT COLOR="#000000">&gt; per bridge (rather than per port like a Cisco).</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; Have I gone about implementing this correctly?</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; Is this something other people may find useful, and hence worth</FONT>
+<FONT COLOR="#000000">&gt; incorporating into the mainstream code?</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; Is it worth the effort of taking this one step further, and controlling</FONT>
+<FONT COLOR="#000000">&gt; the behaviour per port rather than per bridge?</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; Thanks,</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; Dylan</FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+<FONT COLOR="#000000">&gt; </FONT>
+
+<FONT COLOR="#000000">Maybe. But this kind of thing is better done with a ebtables module.</FONT>
+<FONT COLOR="#000000">That way it can be more easily integrated with other security stuff.</FONT>
+</PRE>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+
+--=-uOmHBkUQgFFtWlkcI9aa--
