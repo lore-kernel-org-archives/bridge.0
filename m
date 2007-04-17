@@ -1,11 +1,16 @@
-Message-ID: <4624B44A.9040509@sw.ru>
-Date: Tue, 17 Apr 2007 15:49:30 +0400
-From: Pavel Emelianov <xemul@sw.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 17 Apr 2007 13:37:23 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070417133723.00031f82@mini>
+In-Reply-To: <20070417.130929.59470175.davem@davemloft.net>
+References: <4624B44A.9040509@sw.ru>
+	<20070417.123135.56861973.davem@davemloft.net>
+	<4625263D.1000709@linux-foundation.org>
+	<20070417.130929.59470175.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [BRIDGE] Unaligned access on IA64 when comparing ethernet
-	addresses
+Subject: Re: [Bridge] [BRIDGE] Unaligned access on IA64 when comparing
+ ethernet addresses
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,10 +19,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>, shemminger@linux-foundation.org, Linux Netdev List <netdev@vger.kernel.org>
-Cc: bridge@lists.osdl.org, devel@openvz.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, xemul@sw.ru, devel@openvz.org, bridge@lists.osdl.org
 
-From: Evgeny Kravtsunov <emkravts@openvz.org>
+The previous patch relied on the bridge id being aligned by
+the compiler (which happens as a side effect). So please use
+this instead.
 
 compare_ether_addr() implicitly requires that the addresses
 passed are 2-bytes aligned in memory.
@@ -29,35 +36,73 @@ is unsigned char *, and thus may not be 2-bytes aligned.
 Signed-off-by: Evgeny Kravtsunov <emkravts@openvz.org>
 Signed-off-by: Kirill Korotaev <dev@openvz.org>
 Signed-off-by: Pavel Emelianov <xemul@openvz.org>
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
 ---
 
---- a/net/bridge/br_stp_if.c	2006-09-20 07:42:06.000000000 +0400
-+++ b/net/bridge/br_stp_if.c	2007-04-13 12:28:08.000000000 +0400
-@@ -124,7 +124,9 @@ void br_stp_disable_port(struct net_brid
+--- linux-2.6.orig/net/bridge/br_stp_if.c	2007-04-16
+20:03:04.000000000 -0700 +++ linux-2.6/net/bridge/br_stp_if.c
+2007-04-17 13:25:52.000000000 -0700 @@ -126,23 +126,22 @@
  /* called under bridge lock */
- void br_stp_change_bridge_id(struct net_bridge *br, const unsigned char *addr)
- {
+ void br_stp_change_bridge_id(struct net_bridge *br, const unsigned
+char *addr) {
 -	unsigned char oldaddr[6];
-+	/* should be aligned on 2 bytes for compare_ether_addr() */
-+	unsigned short oldaddr_aligned[ETH_ALEN >> 1];
-+	unsigned char *oldaddr = (unsigned char *)oldaddr_aligned;
++	bridge_id old_id;
  	struct net_bridge_port *p;
  	int wasroot;
  
-@@ -149,11 +151,14 @@ void br_stp_change_bridge_id(struct net_
+ 	wasroot = br_is_root_bridge(br);
+ 
+-	memcpy(oldaddr, br->bridge_id.addr, ETH_ALEN);
++	old_id = br->bridge_id;
+ 	memcpy(br->bridge_id.addr, addr, ETH_ALEN);
+ 	memcpy(br->dev->dev_addr, addr, ETH_ALEN);
+ 
+ 	list_for_each_entry(p, &br->port_list, list) {
+-		if (!compare_ether_addr(p->designated_bridge.addr,
+oldaddr))
++		if (!compare_ether_addr(p->designated_bridge.addr,
+old_id.addr)) memcpy(p->designated_bridge.addr, addr, ETH_ALEN);
+ 
+-		if (!compare_ether_addr(p->designated_root.addr,
+oldaddr))
++		if (!compare_ether_addr(p->designated_root.addr,
+old_id.addr)) memcpy(p->designated_root.addr, addr, ETH_ALEN);
+-
+ 	}
+ 
+ 	br_configuration_update(br);
+@@ -151,19 +150,17 @@
  		br_become_root_bridge(br);
  }
  
 -static const unsigned char br_mac_zero[6];
-+/* should be aligned on 2 bytes for compare_ether_addr() */
-+static const unsigned short br_mac_zero_aligned[ETH_ALEN >> 1];
- 
+-
  /* called under bridge lock */
  void br_stp_recalculate_bridge_id(struct net_bridge *br)
  {
-+	const unsigned char *br_mac_zero =
-+			(const unsigned char *)br_mac_zero_aligned;
- 	const unsigned char *addr = br_mac_zero;
+-	const unsigned char *addr = br_mac_zero;
++	static const bridge_id id_zero;
++	const unsigned char *addr = id_zero.addr;
  	struct net_bridge_port *p;
  
+ 	list_for_each_entry(p, &br->port_list, list) {
+-		if (addr == br_mac_zero ||
++		if (addr == id_zero.addr ||
+ 		    memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
+ 			addr = p->dev->dev_addr;
+-
+ 	}
+ 
+ 	if (compare_ether_addr(br->bridge_id.addr, addr))
+--- linux-2.6.orig/net/bridge/br_private.h	2007-04-17
+13:26:48.000000000 -0700 +++ linux-2.6/net/bridge/br_private.h
+2007-04-17 13:30:29.000000000 -0700 @@ -36,7 +36,7 @@
+ {
+ 	unsigned char	prio[2];
+ 	unsigned char	addr[6];
+-};
++} __attribute__((aligned(8)));
+ 
+ struct mac_addr
+ {
