@@ -1,15 +1,14 @@
-Date: Thu, 19 Apr 2007 13:01:01 -0700 (PDT)
-Message-Id: <20070419.130101.91442981.davem@davemloft.net>
+Message-ID: <4627D128.7060707@cosmosbay.com>
+Date: Thu, 19 Apr 2007 22:29:28 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+MIME-Version: 1.0
 Subject: Re: [BRIDGE] Unaligned access on IA64 when comparing ethernet
 	addresses
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070419161423.a8f5c4f0.dada1@cosmosbay.com>
-References: <20070418074439.1ba41718@localhost.localdomain>
-	<20070418.130422.88477383.davem@davemloft.net>
-	<20070419161423.a8f5c4f0.dada1@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+References: <20070418074439.1ba41718@localhost.localdomain>	<20070418.130422.88477383.davem@davemloft.net>	<20070419161423.a8f5c4f0.dada1@cosmosbay.com>
+	<20070419.130101.91442981.davem@davemloft.net>
+In-Reply-To: <20070419.130101.91442981.davem@davemloft.net>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,52 +17,98 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: dada1@cosmosbay.com
+To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, xemul@sw.ru, devel@openvz.org, bridge@lists.osdl.org
 
-From: Eric Dumazet <dada1@cosmosbay.com>
-Date: Thu, 19 Apr 2007 16:14:23 +0200
+David Miller a =E9crit :
+> From: Eric Dumazet <dada1@cosmosbay.com>
+> Date: Thu, 19 Apr 2007 16:14:23 +0200
+>=20
+>> On Wed, 18 Apr 2007 13:04:22 -0700 (PDT)
+>> David Miller <davem@davemloft.net> wrote:
+>>
+>>> Although I don't think gcc does anything fancy since we don't
+>>> use memcmp().  It's a tradeoff, we'd like to use unsigned long
+>>> comparisons when both objects are aligned correctly but we also
+>>> don't want it to use any more than one potentially mispredicted
+>>> branch.
+>> Again, memcmp() *cannot* be optimized, because its semantic is to compar=
+e bytes.
+>>
+>> memcpy() can take into account alignement if known at compile time, not =
+memcmp()
+>>
+>> http://lists.openwall.net/netdev/2007/03/13/31
+>=20
+> I was prehaps thinking about strlen() where I know several
+> implementations work a word at a time even though it is
+> a byte-based operation:
+>=20
+> --------------------
+> #define LO_MAGIC 0x01010101
+> #define HI_MAGIC 0x80808080
+>  ...
+> 	 sethi	%hi(HI_MAGIC), %o4
+>  ...
+> 	 or	%o4, %lo(HI_MAGIC), %o3
+>  ...
+> 	 sethi	%hi(LO_MAGIC), %o4
+>  ...
+> 	 or	%o4, %lo(LO_MAGIC), %o2
+>  ...
+> 8:
+> 	ld	[%o0], %o5
+> 2:
+> 	sub	%o5, %o2, %o4
+> 	andcc	%o4, %o3, %g0
+> 	be,pt	%icc, 8b
+> 	 add	%o0, 4, %o0
+> --------------------
+>=20
+> I figured some similar trick could be done with strcmp() and
+> memcmp().
+>=20
+>=20
 
-> On Wed, 18 Apr 2007 13:04:22 -0700 (PDT)
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > 
-> > Although I don't think gcc does anything fancy since we don't
-> > use memcmp().  It's a tradeoff, we'd like to use unsigned long
-> > comparisons when both objects are aligned correctly but we also
-> > don't want it to use any more than one potentially mispredicted
-> > branch.
-> 
-> Again, memcmp() *cannot* be optimized, because its semantic is to compare bytes.
-> 
-> memcpy() can take into account alignement if known at compile time, not memcmp()
-> 
-> http://lists.openwall.net/netdev/2007/03/13/31
+Hum, I was refering to IA64 (or the more spreaded x86 arches), that is litl=
+e=20
+endian AFAIK.
 
-I was prehaps thinking about strlen() where I know several
-implementations work a word at a time even though it is
-a byte-based operation:
+On big endian machines, a compiler can indeed perform some word tricks for =
 
---------------------
-#define LO_MAGIC 0x01010101
-#define HI_MAGIC 0x80808080
- ...
-	 sethi	%hi(HI_MAGIC), %o4
- ...
-	 or	%o4, %lo(HI_MAGIC), %o3
- ...
-	 sethi	%hi(LO_MAGIC), %o4
- ...
-	 or	%o4, %lo(LO_MAGIC), %o2
- ...
-8:
-	ld	[%o0], %o5
-2:
-	sub	%o5, %o2, %o4
-	andcc	%o4, %o3, %g0
-	be,pt	%icc, 8b
-	 add	%o0, 4, %o0
---------------------
+memcmp() if it knows at compile time both pointers are word aligned.
 
-I figured some similar trick could be done with strcmp() and
-memcmp().
+PowerPc example (xlc compiler)
+
+int func(const unsigned int *a, const unsigned int *b)
+{
+return memcmp(a, b, 6);
+}
+
+.func:                                  # 0x00000000 (H.10.NO_SYMBOL)
+         l       r5,0(r3)
+         l       r0,0(r4)
+         cmp     0,r5,r0
+         bc      BO_IF_NOT,CR0_EQ,__L2c
+         lhz     r3,4(r3)
+         lhz     r0,4(r4)
+         sf      r0,r0,r3
+         sfze    r3,r0
+         a       r0,r3,r0
+         aze     r3,r0
+         bcr     BO_ALWAYS,CR0_LT
+__L2c:                                  # 0x0000002c (H.10.NO_SYMBOL+0x2c)
+         sf      r0,r0,r5
+         sfze    r3,r0
+         a       r0,r3,r0
+         aze     r3,r0
+         bcr     BO_ALWAYS,CR0_LT
+
+
+But to compare 6 bytes, known to be aligned to even addresses, current code=
+ is=20
+just fine and portable. We *could* use arch/endian specific tricks to save =
+one=20
+or two cycles, but who really wants that ?
+
+
