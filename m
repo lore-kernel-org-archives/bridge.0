@@ -1,9 +1,9 @@
-Message-Id: <20070425234950.847694502@linux-foundation.org>
+Message-Id: <20070425234950.768857110@linux-foundation.org>
 References: <20070425234737.727790594@linux-foundation.org>
-Date: Wed, 25 Apr 2007 16:47:41 -0700
+Date: Wed, 25 Apr 2007 16:47:40 -0700
 From: Stephen Hemminger <shemminger@linux-foundation.org>
-Content-Disposition: inline; filename=br-sysfs-rtnl.patch
-Subject: [Bridge] [PATCH 4/4] bridge: missing rtnl
+Content-Disposition: inline; filename=bridge-no-stp-bpdu.patch
+Subject: [Bridge] [PATCH 3/4] bridge: if no STP then forward all BPDUs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,29 +15,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-Writing to /sys/class/net/brX/bridge/stp_state causes a warning because
-RTNL is not held when call br_stp_if.c
+If a bridge is not running STP, then it has no way to detect a cycle
+in the network. But if it is not running STP and some other machine
+or device is running STP, then if STP BPDU's get forwarded to it can
+detect the cycle.
+
+This is how the old 2.4 and early 2.6 code worked.
 
 Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
 ---
- net/bridge/br_sysfs_br.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/bridge/br_input.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- bridge-2.6.22.orig/net/bridge/br_sysfs_br.c
-+++ bridge-2.6.22/net/bridge/br_sysfs_br.c
-@@ -149,9 +149,11 @@ static ssize_t show_stp_state(struct dev
+--- bridge-2.6.22.orig/net/bridge/br_input.c
++++ bridge-2.6.22/net/bridge/br_input.c
+@@ -136,8 +136,14 @@ struct sk_buff *br_handle_frame(struct n
+ 		if (skb->protocol == htons(ETH_P_PAUSE))
+ 			goto drop;
  
- static void set_stp_state(struct net_bridge *br, unsigned long val)
- {
-+	rtnl_lock();
- 	spin_unlock_bh(&br->lock);
- 	br_stp_set_enabled(br, val);
- 	spin_lock_bh(&br->lock);
-+	rtnl_unlock();
- }
+-		return (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
+-				NULL, br_handle_local_finish) == 0) ? skb : NULL;
++		/* Process STP BPDU's through normal netif_receive_skb() path */
++		if (p->br->stp_enabled != BR_NO_STP) {
++			if (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
++				    NULL, br_handle_local_finish))
++				return NULL;
++			else
++				return skb;
++		}
+ 	}
  
- static ssize_t store_stp_state(struct device *d,
+ 	switch (p->state) {
 
 -- 
 
