@@ -1,15 +1,9 @@
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Date: 25 Apr 2007 08:55:54 +0200
-Message-ID: <m3vefleydh.fsf@ursa.amorsen.dk>
-References: <60846.193.196.136.17.1177202163.squirrel@sleon.dyndns.org>
-	<462B9243.6070804@linux-foundation.org>
-	<24321.193.196.136.17.1177322032.squirrel@sleon.dyndns.org>
-	<60386.193.196.136.17.1177336334.squirrel@sleon.dyndns.org>
-	<20070423165614.6eadfaae@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: news <news@sea.gmane.org>
-Subject: [Bridge] Re: linux bridge does not bridge bpdu packets
+Message-Id: <20070425234950.610323798@linux-foundation.org>
+References: <20070425234737.727790594@linux-foundation.org>
+Date: Wed, 25 Apr 2007 16:47:38 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Content-Disposition: inline; filename=bridge-stp-multicast.patch
+Subject: [Bridge] [PATCH 1/4] bridge: don't change packet type
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,20 +12,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
->>>>> "SH" == Stephen Hemminger <shemminger@linux-foundation.org> writes:
+The change to forward STP bpdu's (for usermode STP) through normal path,
+changed the packet type in the process. Since link local stuff is multicast, it
+should stay pkt_type = PACKET_MULTICAST.  The code was probably copy/pasted
+incorrectly from the bridge pseudo-device receive path.
 
-SH> -	if (unlikely(is_link_local(dest))) {
-SH> -		skb->pkt_type = PACKET_HOST;
-SH> +	/* Don't forward 802.1x packets */
-SH> +	if (p->br->stp_enabled != BR_NO_STP && is_link_local(dest)) {
-SH> +		skb->pkt_type = PACKET_MULTICAST;
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-Maybe I'm stupid here, but why change behaviour even in the case where
-STP is enabled? (The PACKET_HOST -> PACKET_MULTICAST change)
+--- bridge-2.6.22.orig/net/bridge/br_input.c
++++ bridge-2.6.22/net/bridge/br_input.c
+@@ -131,12 +131,9 @@ struct sk_buff *br_handle_frame(struct n
+ 	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
+ 		goto drop;
+ 
+-	if (unlikely(is_link_local(dest))) {
+-		skb->pkt_type = PACKET_HOST;
+-
++	if (unlikely(is_link_local(dest)))
+ 		return (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
+ 				NULL, br_handle_local_finish) == 0) ? skb : NULL;
+-	}
+ 
+ 	switch (p->state) {
+ 	case BR_STATE_FORWARDING:
 
-
-/Benny
-
+-- 
 
