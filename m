@@ -1,9 +1,13 @@
-Message-Id: <20070425234950.768857110@linux-foundation.org>
+Date: Wed, 25 Apr 2007 22:05:17 -0700 (PDT)
+Message-Id: <20070425.220517.62667709.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20070425234950.610323798@linux-foundation.org>
 References: <20070425234737.727790594@linux-foundation.org>
-Date: Wed, 25 Apr 2007 16:47:40 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Content-Disposition: inline; filename=bridge-no-stp-bpdu.patch
-Subject: [Bridge] [PATCH 3/4] bridge: if no STP then forward all BPDUs
+	<20070425234950.610323798@linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH 1/4] bridge: don't change packet type
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,41 +16,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
+To: shemminger@linux-foundation.org
 Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-If a bridge is not running STP, then it has no way to detect a cycle
-in the network. But if it is not running STP and some other machine
-or device is running STP, then if STP BPDU's get forwarded to it can
-detect the cycle.
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Date: Wed, 25 Apr 2007 16:47:38 -0700
 
-This is how the old 2.4 and early 2.6 code worked.
+> The change to forward STP bpdu's (for usermode STP) through normal path,
+> changed the packet type in the process. Since link local stuff is multicast, it
+> should stay pkt_type = PACKET_MULTICAST.  The code was probably copy/pasted
+> incorrectly from the bridge pseudo-device receive path.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
-
----
- net/bridge/br_input.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
---- bridge-2.6.22.orig/net/bridge/br_input.c
-+++ bridge-2.6.22/net/bridge/br_input.c
-@@ -136,8 +136,14 @@ struct sk_buff *br_handle_frame(struct n
- 		if (skb->protocol == htons(ETH_P_PAUSE))
- 			goto drop;
- 
--		return (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
--				NULL, br_handle_local_finish) == 0) ? skb : NULL;
-+		/* Process STP BPDU's through normal netif_receive_skb() path */
-+		if (p->br->stp_enabled != BR_NO_STP) {
-+			if (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
-+				    NULL, br_handle_local_finish))
-+				return NULL;
-+			else
-+				return skb;
-+		}
- 	}
- 
- 	switch (p->state) {
-
--- 
+Applied.
 
