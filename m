@@ -1,14 +1,10 @@
-DKIM-Signature: a=rsa-sha1; c=relaxed/relaxed; d=gmail.com; s=beta;
-	h=domainkey-signature:received:received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-	b=XL/CGBP3Ad6xvI04dztmIC8A8vWKL3QrU5gcbbUi/tlosJYOVM3vhFkEhUBmwNNqopnYDtcl0fmucXwdjAW5lN/it7Cz16mthGjjS28RshrOyd2cwQEFHM2E5sJRF2VgwIYhJJXZPIf50smQJIzXEozGjMLwb+0r1UEYYqYaiEI=
-Message-ID: <e0c54c2d0704261251h241b694fx61f854c739b63363@mail.gmail.com>
-Date: Thu, 26 Apr 2007 15:51:21 -0400
-From: "Larry Cromwell" <lcromwellnc@gmail.com>
+Date: Fri, 27 Apr 2007 10:47:42 +1000
+From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
+Message-ID: <H00000690017cb31.1177634858.mail.pacificwireless.net.au@MHS>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_128755_18389302.1177617081006"
-Subject: [Bridge] Bridging ppp0 and eth0
-Reply-To: lcromwell@edgewaternetworks.com
+Content-Type: multipart/alternative;
+	boundary="2_0_14c_9fb456MHTML_=_01"
+Subject: [Bridge] PVST
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,28 +13,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge <bridge@lists.linux-foundation.org>
 
-------=_Part_128755_18389302.1177617081006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--2_0_14c_9fb456MHTML_=_01
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-I am trying to bridge a ppp connection to an ethernet connection.  The
-documentation says this is possible but when issuing the following:
+Hi All,=20
+Does the current bridging code handle PVST properly, or just ordinary
+STP?
+=20
+Regards,
+             Leigh
+=20
+Leigh Sharpe
+Network Systems Engineer
+Pacific Wireless
+Ph +61 3 9584 8966
+Mob 0408 009 502
+Helpdesk 1300 300 616
+email lsharpe@pacificwireless.com.au
+web www.pacificwireless.com.au
+=20
 
-brctl addif myBridge ppp0
 
-a short message is displayed
-
-br_add_interface: Cannot assign requested address
-
-------=_Part_128755_18389302.1177617081006
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+--2_0_14c_9fb456MHTML_=_01
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-I am trying to bridge a ppp connection to an ethernet connection.&nbsp; The documentation says this is possible but when issuing the following:<br><br>brctl addif myBridge ppp0<br><br>a short message is displayed<br><br>br_add_interface: Cannot assign requested address
-<br clear="all"><br><br><br>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
 
-------=_Part_128755_18389302.1177617081006--
+<META content=3D"MSHTML 6.00.2800.1491" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><SPAN class=3D547084800-27042007><FONT face=3DArial size=3D2>Hi All,=
+=20
+</FONT></SPAN></DIV>
+<DIV><SPAN class=3D547084800-27042007><FONT face=3DArial size=3D2>Does th=
+e current=20
+bridging code handle PVST properly, or just ordinary STP?</FONT></SPAN></=
+DIV>
+<DIV>&nbsp;</DIV>
+<DIV align=3Dleft>
+<DIV align=3Dleft><FONT face=3DArial=20
+size=3D2>Regards,<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;=20
+Leigh</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Leigh Sharpe<BR>Network Systems Engineer=
+<BR>Pacific=20
+Wireless<BR>Ph +61 3 9584 8966<BR>Mob 0408 009 502</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Helpdesk 1300 300 616<BR>email <A=20
+title=3Dmailto:lsharpe@pacificwireless.com.au=20
+href=3D"blocked::mailto:lsharpe@pacificwireless.com.au">lsharpe@pacificwi=
+reless.com.au</A><BR>web=20
+<A title=3Dhttp://www.pacificwireless.com.au/=20
+href=3D"blocked::http://www.pacificwireless.com.au/">www.pacificwireless.=
+com.au</A></FONT></DIV></DIV>
+<DIV>&nbsp;</DIV></BODY></HTML>
+--2_0_14c_9fb456MHTML_=_01--
