@@ -1,12 +1,13 @@
-Date: Thu, 26 Apr 2007 21:07:21 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] PVST
-Message-ID: <20070426210721.3fcf9f08@localhost.localdomain>
-In-Reply-To: <H00000690017cb31.1177634858.mail.pacificwireless.net.au@MHS>
-References: <H00000690017cb31.1177634858.mail.pacificwireless.net.au@MHS>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Fri, 27 Apr 2007 14:53:05 +1000
+From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
+Message-ID: <H00000690017cf61.1177649582.mail.pacificwireless.net.au@MHS>
+In-Reply-To: <20070426210721.3fcf9f08@localhost.localdomain>
+Subject: RE: [Bridge] PVST
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,8 +16,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
+To: shemminger <shemminger@linux-foundation.org>
 Cc: bridge <bridge@lists.linux-foundation.org>
+
+So, if I put a linux bridge in a network which has PVST packets flying around, will it pass them, or silently drop them?
+Should I have STP disabled on my linux box?
+(I'm particularly referring to a 6.2.19-ish kernel, before the patches of the last few days) 
+
+
+Regards,
+             Leigh
+ 
+Leigh Sharpe
+Network Systems Engineer
+Pacific Wireless
+Ph +61 3 9584 8966
+Mob 0408 009 502
+Helpdesk 1300 300 616
+email lsharpe@pacificwireless.com.au
+web www.pacificwireless.com.au
+
+-----Original Message-----
+From: shemminger@linux-foundation.org [mailto:shemminger@linux-foundation.org] 
+Sent: Friday, April 27, 2007 2:07 PM
+To: Leigh Sharpe
+Cc: bridge
+Subject: Re: [Bridge] PVST
 
 On Fri, 27 Apr 2007 10:47:42 +1000
 "Leigh Sharpe" <lsharpe@pacificwireless.com.au> wrote:
@@ -35,4 +60,6 @@ aren't there yet. Eventually, full MSTP 802.Q seems like a good idea.
 Someone had sent some patches to do PVST, but PVST seems to be Cisco
 centric. and the patched version was too inflexible, so I didn't put
 it in mainline.
+
+
 
