@@ -1,7 +1,7 @@
-Date: Fri, 27 Apr 2007 14:53:05 +1000
+Date: Fri, 27 Apr 2007 20:38:06 +1000
 From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
-Message-ID: <H00000690017cf61.1177649582.mail.pacificwireless.net.au@MHS>
-In-Reply-To: <20070426210721.3fcf9f08@localhost.localdomain>
+Message-ID: <H00000690017d371.1177670277.mail.pacificwireless.net.au@MHS>
+In-Reply-To: <H00000690017cf61.1177649582.mail.pacificwireless.net.au@MHS>
 Subject: RE: [Bridge] PVST
 MIME-Version: 1.0
 Content-Type: text/plain;
@@ -16,8 +16,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger <shemminger@linux-foundation.org>
+To: Leigh Sharpe <lsharpe@pacificwireless.com.au>, shemminger <shemminger@linux-foundation.org>
 Cc: bridge <bridge@lists.linux-foundation.org>
+
+>(I'm particularly referring to a 6.2.19-ish kernel, before the patches of the last few days) 
+
+Err, perhaps I actually mean 2.6.19-ish....
+
+-----Original Message-----
+From: Leigh Sharpe 
+Sent: Friday, 27 April 2007 2:53 PM
+To: shemminger
+Cc: bridge
+Subject: RE: [Bridge] PVST
+
 
 So, if I put a linux bridge in a network which has PVST packets flying around, will it pass them, or silently drop them?
 Should I have STP disabled on my linux box?
@@ -62,4 +74,9 @@ centric. and the patched version was too inflexible, so I didn't put
 it in mainline.
 
 
+
+_______________________________________________
+Bridge mailing list
+Bridge@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/bridge
 
