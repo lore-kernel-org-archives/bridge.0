@@ -1,16 +1,12 @@
-In-Reply-To: <ECE5C33E-2B09-4231-BEC3-4F0D7C677449@mac.com>
-References: <2638DE26-D672-4245-BE88-D13B7F0F34A9@mac.com>
-	<46429ED2.10809@candelatech.com>
-	<EE6715FC-176D-4DA3-A0B3-6BDCC16122A6@mac.com>
-	<ECE5C33E-2B09-4231-BEC3-4F0D7C677449@mac.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7CD8681B-DC79-458A-91E4-81717AF26906@mac.com>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Date: Sat, 12 May 2007 08:13:56 -0400
-Subject: [Bridge] Re: [BUG][debian-2.6.20-1-686] bridging + vlans + "vconfig
-	rem" == stuck kernel
+Date: Mon, 14 May 2007 09:04:46 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: Re: [Bridge] Performance and limitations of virtual bridges
+Message-ID: <20070514090446.485e5dd2@freepuppy>
+In-Reply-To: <005301c790d6$0d61c1e0$303d5854@cttc.es>
+References: <005301c790d6$0d61c1e0$303d5854@cttc.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,54 +15,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ben Greear <greearb@candelatech.com>
-Cc: netdev@vger.kernel.org, OSDL Linux Bridging <bridge@osdl.org>, LKML Kernel <linux-kernel@vger.kernel.org>
+To: =?UTF-8?B?RmVybcOtbiBHYWzDoW4gTcOhcnF1ZXo=?= <fermin.galan@cttc.es>
+Cc: bridge@lists.osdl.org, xen-users@lists.xensource.com
 
-On May 11, 2007, at 01:49:27, Kyle Moffett wrote:
-> On May 10, 2007, at 00:34:11, Kyle Moffett wrote:
->> On May 10, 2007, at 00:25:54, Ben Greear wrote:
->>> Looks like a deadlock in the vlan code.  Any chance you can run  
->>> this test with lockdep enabled?
->>>
->>> You could also add a printk in vlan_device_event() to check which  
->>> event it is hanging on, and the netdevice that is passed in.
->>
->> Ok, I'll try building a 2.6.21 kernel with lockdep and some  
->> debugging printk()s in the vlan_device_event() function and get  
->> back to you tomorrow.  Thanks for the quick response!
+On Mon, 7 May 2007 20:32:17 +0200
+Fermín Galán Márquez <fermin.galan@cttc.es> wrote:
 
-[snip]
+> Hi,
+> 
+> Is there a limit in the number of interfaces a virtual bridge (created with
+> brctl) can support without having a severe impact in performance?
 
-> ifup -a brings up the interfaces in this order (See previous email  
-> for configuration details):
-> lo net0 wfi0 world0 lan lan:0 world
->
-> ifdown -a appears to bring them down in the same order (at least,  
-> until it gets stuck).
+The problem with lots of interfaces is that if destination address is not
+known (or multicast/broadcast) the packet has to be copied and sent N times.
 
-Hmm, turns out that it always hung downing this entry in my  
-interfaces file, independent of ordering:
+> I guess that there is no absolute answer for that question :), but maybe
+> there is some kind of procedure/tool to know the "stress" or "load" that a
+> virtual bridge is supporting in a given moment (in a similar way that a
+> "top" can show you the CPU load).
 
-iface world0 inet manual
-	mac-address 8b:8d:cb:91:e2:4c
-	minimally-up yes
-	vlan-dev net0
-	vlan-id 4094
+Worst case is the flooding problem.
 
-By commenting out the MAC address line it worked.  Yes, I realize the  
-MAC address specified there is bogus, I managed to {think,type}o that  
-one somehow.  I had been intending to specify a locally-allocated  
-virtual MAC address on world0 but instead I managed to somehow assign  
-one with the MAC multicast bit set (01:00:00:00:00:00)
-If I change the above garbage MAC to 02:00:00:00:00:01 (first 02 is  
-the locally-administrated bit) then it seems to work perfectly fine,   
-My guess that the bridging code doesn't properly drop all references  
-to world0 when it has that garbage MAC address on it (since the  
-problem only shows up when both the invalid mac-address is present  
-*AND* I start the "world" bridge).  I suppose this isn't really a big  
-problem, but it would be nice if things didn't leak refcounts on  
-invalid input.
+> My question is due to I'm using a virtual bridge with 14 interfaces (each
+> interface correspond to a Xen virtual machine in the same physical host)
+> and, given that I'm experiencing transmission delays in the network
+> supported by the bridge, I'm suspecting about a loss of performance of it.
 
-Cheers,
-Kyle Moffett
+Probably when flooding it has to wake up all the guest machines and
+that is sucking your performance on hypervisor switches.
+
+> Thanks in advance!
+> 
+> Best regards,
+> 
+> --------------------
+> Fermín Galán Márquez
+> CTTC - Centre Tecnològic de Telecomunicacions de Catalunya
+> Parc Mediterrani de la Tecnologia, Av. del Canal Olímpic s/n, 08860
+> Castelldefels, Spain
+> Room 1.02
+> Tel : +34 93 645 29 12
+> Fax : +34 93 645 29 01
+> Email address: fermin dot galan at cttc dot es 
+> 
+> 
+> 
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
+
+
+-- 
+Stephen Hemminger <shemminger@linux-foundation.org>
 
