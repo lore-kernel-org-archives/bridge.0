@@ -1,16 +1,13 @@
-From: Ingo Oeser <ioe-lkml@rameria.de>
-Subject: Re: [Bridge] [BUG] Dropping fragmented IP packets within VLAN frames
-	on bridge
-Date: Sat, 26 May 2007 16:20:59 +0200
-References: <20070525081750.5ba4a411@zonk.pl>
-	<20070525174925.41bd6b2e@zonk.pl> <4657EC24.1030407@trash.net>
-In-Reply-To: <4657EC24.1030407@trash.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Date: Wed, 30 May 2007 12:12:52 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070530121252.1248f506@freepuppy>
+In-Reply-To: <20070519224605.GG14235@galon.ev-en.org>
+References: <20070519224605.GG14235@galon.ev-en.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200705261621.00385.ioe-lkml@rameria.de>
+Subject: [Bridge] [PATCH 1/2] bridge: reduce frequency of forwarding cleanup
+ timer in bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,60 +16,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>
-Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, Baruch Even <baruch@ev-en.org>, power@bughost.org, bridge@linux-foundation.org
 
-On Saturday 26 May 2007, Patrick McHardy wrote:
-> Adam Osuchowski wrote:
-> >     if (((skb->protocol == htons(ETH_P_IP) && skb->len > skb->dev->mtu) ||
-> >         (IS_VLAN_IP(skb) && skb->len > skb->dev->mtu - VLAN_HLEN)) &&
-> > 	!skb_is_gso(skb))
-> > 	    return ip_fragment ...
-> 
-> 
-> net/8021q ignores the VLAN header overhead, so we should probably do the
-> same here for consistency. Using IS_VLAN_IP (and IS_PPPOE_IP for current
-> -rc) looks fine, additionally we should probably also check for
-> skb->nfct != NULL to make sure that at least without connection tracking
-> the bridge doesn't perform fragmentation.
+The bridge cleanup timer is fired 10 times a second for timers that are
+at least 15 seconds ahead in time and that are not critical to be
+cleaned asap.
 
-And could we separe the conditions for that into a static helper function
-explaining each of these conditions? e.g. sth. like that:
+This patch calculates the next time to run the timer as the minimum of
+all timers or a minimum based on the current state.
 
-static bool br_nf_need_fragment(struct sk_buff *skb)
-{
-	/* Plain IP packet does not fit in MTU */
-	if (!(skb->protocol == htons(ETH_P_IP) && skb->len > skb->dev->mtu))
-		return true;
+Signed-off-by: Baruch Even <baruch@ev-en.org>
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-	/* VLAN encapsulated IP packet does not fit in MTU */
-	if (IS_VLAN_IP(skb) && skb->len > skb->dev->mtu - VLAN_HLEN)
-		return true;
+--- 2.6.22-rc2/net/bridge/br_fdb.c	2007-05-20 00:51:11.000000000 +0300
++++ 2.6-rc2/net/bridge/br_fdb.c	2007-05-20 00:50:31.000000000 +0300
+@@ -121,6 +121,7 @@
+ {
+ 	struct net_bridge *br = (struct net_bridge *)_data;
+ 	unsigned long delay = hold_time(br);
++	unsigned long next_timer = jiffies + br->forward_delay;
+ 	int i;
+ 
+ 	spin_lock_bh(&br->hash_lock);
+@@ -129,14 +130,21 @@
+ 		struct hlist_node *h, *n;
+ 
+ 		hlist_for_each_entry_safe(f, h, n, &br->hash[i], hlist) {
++			unsigned long this_timer;
++			if (f->is_static)
++				continue;
++			this_timer = f->ageing_timer + delay;
++			if (time_before_eq(this_timer, jiffies))
+-			if (!f->is_static &&
+-			    time_before_eq(f->ageing_timer + delay, jiffies))
+ 				fdb_delete(f);
++			else if (this_timer < next_timer)
++				next_timer = this_timer;
+ 		}
+ 	}
+ 	spin_unlock_bh(&br->hash_lock);
+ 
++	/* Add HZ/4 to ensure we round the jiffies upwards to be after the next
++	 * timer, otherwise we might round down and will have no-op run. */
++	mod_timer(&br->gc_timer, round_jiffies(next_timer + HZ/4));
+-	mod_timer(&br->gc_timer, jiffies + HZ/10);
+ }
+ 
+ /* Completely flush all dynamic entries in forwarding database.*/
 
-	/* PPPoE encapsulated IP packet does not fit in MTU */
-	if (IS_PPPOE_IP(skb) && skb->len > skb->dev->mtu - PPPOE_SES_HLEN)
-		return true;
-
-	return false;
-}
-
-and then br_nf_dev_queue_xmit() becomes:
-
-static int br_nf_dev_queue_xmit(struct sk_buff *skb)
-{
-        if (br_nf_need_fragment(skb) &&  !skb_is_gso(skb))
-                return ip_fragment(skb, br_dev_queue_push_xmit);
-        else
-                return br_dev_queue_push_xmit(skb);
-}
-
-which is much more readable, more documented and doesn't contain a condition monster :-)
-
-@Patrick: Could you check, wether the PPPoE case is correct?
-
-What do you think? Should I submit a patch for that?
-
-
-Best Regards
-
-Ingo Oeser
