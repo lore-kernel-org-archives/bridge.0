@@ -1,14 +1,10 @@
-Date: Thu, 31 May 2007 01:21:52 -0700 (PDT)
-Message-Id: <20070531.012152.11957542.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070530121422.0cdd90eb@freepuppy>
-References: <20070519224605.GG14235@galon.ev-en.org>
-	<20070530121252.1248f506@freepuppy>
-	<20070530121422.0cdd90eb@freepuppy>
+Message-ID: <BAY109-F2557BB29373E21AABDBC46A82D0@phx.gbl>
+In-Reply-To: <20070530222848.3af6b9c8@localhost>
+From: "Fabio Costa Flores" <binhocf@hotmail.com>
+Subject: Re: [Bridge] bridge with ipw2200 wireless card
+Date: Thu, 31 May 2007 14:01:38 +0000
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH 2/2] bridge: round off STP perodic timers
+Content-Type: text/plain; format=flowed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,15 +14,38 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: shemminger@linux-foundation.org
-Cc: netdev@vger.kernel.org, baruch@ev-en.org, power@bughost.org, bridge@linux-foundation.org
+Cc: bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Wed, 30 May 2007 12:14:22 -0700
+I found this website  http://sourceforge.net/projects/ipw2200-ap but its 
+down at the moment, not sure if this is it.
 
-> Peroidic STP timers don't have to be exact.
-> The hold timer runs at 1HZ, and the hello timer normally runs
-> at 2HZ; save power by aligning it them to next second.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
+Unfortunatly im not able to use NAT with Xen, only bridge.
 
-Applied, thanks Stephen.
+
+>From: Stephen Hemminger <shemminger@linux-foundation.org>
+>To: "Fabio Costa Flores" <binhocf@hotmail.com>
+>CC: bridge@lists.linux-foundation.org
+>Subject: Re: [Bridge] bridge with ipw2200 wireless card
+>Date: Wed, 30 May 2007 22:28:48 -0700
+>
+>On Thu, 31 May 2007 03:23:41 +0000
+>"Fabio Costa Flores" <binhocf@hotmail.com> wrote:
+>
+> > Im trying to setup xen hypervisor with my ipw2200 wireless card. Xen 
+>uses
+> > Linux bridge and Im aware that its not easy to get it running with a
+> > wireless card.
+> >
+> > Im not sure where to go from now, any help would be apreciated.
+> >
+>
+>Gross oversimplification:
+>Wireless is point-to-point (sort of) and doesn't work with normal bridging.
+>You need a driver than can act as an access point.
+>
+>http://linux-net.osdl.org/index.php/bridge
+
+_________________________________________________________________
+MSN Messenger: instale gr�tis e converse com seus amigos. 
+http://messenger.msn.com.br
+
