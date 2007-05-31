@@ -1,12 +1,14 @@
-Date: Wed, 30 May 2007 22:28:48 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] bridge with ipw2200 wireless card
-Message-ID: <20070530222848.3af6b9c8@localhost>
-In-Reply-To: <BAY109-F35B09D22292458C0966C52A82D0@phx.gbl>
-References: <BAY109-F35B09D22292458C0966C52A82D0@phx.gbl>
+Date: Thu, 31 May 2007 01:21:52 -0700 (PDT)
+Message-Id: <20070531.012152.11957542.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20070530121422.0cdd90eb@freepuppy>
+References: <20070519224605.GG14235@galon.ev-en.org>
+	<20070530121252.1248f506@freepuppy>
+	<20070530121422.0cdd90eb@freepuppy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: [PATCH 2/2] bridge: round off STP perodic timers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,21 +17,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Fabio Costa Flores <binhocf@hotmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@linux-foundation.org
+Cc: netdev@vger.kernel.org, baruch@ev-en.org, power@bughost.org, bridge@linux-foundation.org
 
-On Thu, 31 May 2007 03:23:41 +0000
-"Fabio Costa Flores" <binhocf@hotmail.com> wrote:
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Date: Wed, 30 May 2007 12:14:22 -0700
 
-> Im trying to setup xen hypervisor with my ipw2200 wireless card. Xen uses 
-> Linux bridge and Im aware that its not easy to get it running with a 
-> wireless card.
+> Peroidic STP timers don't have to be exact.
+> The hold timer runs at 1HZ, and the hello timer normally runs
+> at 2HZ; save power by aligning it them to next second.
 > 
-> Im not sure where to go from now, any help would be apreciated.
-> 
+> Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-Gross oversimplification:
-Wireless is point-to-point (sort of) and doesn't work with normal bridging.
-You need a driver than can act as an access point.
-
-http://linux-net.osdl.org/index.php/bridge
+Applied, thanks Stephen.
