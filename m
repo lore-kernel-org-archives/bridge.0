@@ -1,10 +1,14 @@
-Message-ID: <BAY109-F2557BB29373E21AABDBC46A82D0@phx.gbl>
-In-Reply-To: <20070530222848.3af6b9c8@localhost>
-From: "Fabio Costa Flores" <binhocf@hotmail.com>
-Subject: Re: [Bridge] bridge with ipw2200 wireless card
-Date: Thu, 31 May 2007 14:01:38 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
+DKIM-Signature: a=rsa-sha1; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+	b=Nm0b7QGSkhZrxRX1S0VS1IL0I/BJXysZU27BLx1JfvadfDnB3A6H5o0oKweMtMmWeVufkxYgCCjBy5paaQzzQ/nmiA0gyElHxnZ1e8975+9PSkKH2OIl/XDBK5s0VCygy6bhe/N23dejtISLKSoFAT7w8KbWIX4CeuUax+SzAxs=
+Message-ID: <bcba51a0706131332p4aef4a38sdc9cafd726528cd9@mail.gmail.com>
+Date: Wed, 13 Jun 2007 16:32:09 -0400
+From: "Dimitry Golubovsky" <golubovsky@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Subject: [Bridge] Is it possible to put an aliased ethernet card on a bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,39 +17,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-I found this website  http://sourceforge.net/projects/ipw2200-ap but its 
-down at the moment, not sure if this is it.
+Hi,
 
-Unfortunatly im not able to use NAT with Xen, only bridge.
+Suppose we have two aliases of the same ethernet card:
 
+ifconfig eth0 192.168.0.1
+ifconfig eth0:1 192.168.1.1
 
->From: Stephen Hemminger <shemminger@linux-foundation.org>
->To: "Fabio Costa Flores" <binhocf@hotmail.com>
->CC: bridge@lists.linux-foundation.org
->Subject: Re: [Bridge] bridge with ipw2200 wireless card
->Date: Wed, 30 May 2007 22:28:48 -0700
->
->On Thu, 31 May 2007 03:23:41 +0000
->"Fabio Costa Flores" <binhocf@hotmail.com> wrote:
->
-> > Im trying to setup xen hypervisor with my ipw2200 wireless card. Xen 
->uses
-> > Linux bridge and Im aware that its not easy to get it running with a
-> > wireless card.
-> >
-> > Im not sure where to go from now, any help would be apreciated.
-> >
->
->Gross oversimplification:
->Wireless is point-to-point (sort of) and doesn't work with normal bridging.
->You need a driver than can act as an access point.
->
->http://linux-net.osdl.org/index.php/bridge
+Is it possible to add eth0:1 to a bridge, not adding its "physical parent" eth0?
 
-_________________________________________________________________
-MSN Messenger: instale gr�tis e converse com seus amigos. 
-http://messenger.msn.com.br
+Sorry if this was answered before.
 
+Thanks.
+
+-- 
+Dimitry Golubovsky
+
+Anywhere on the Web
