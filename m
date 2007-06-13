@@ -1,13 +1,13 @@
+Date: Wed, 13 Jun 2007 14:28:54 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
 Subject: Re: [Bridge] Is it possible to put an aliased ethernet card on a
 	bridge?
-From: Brad Dameron <brad.dameron@clearwire.com>
+Message-ID: <20070613142854.3a572013@localhost>
 In-Reply-To: <bcba51a0706131332p4aef4a38sdc9cafd726528cd9@mail.gmail.com>
 References: <bcba51a0706131332p4aef4a38sdc9cafd726528cd9@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 13 Jun 2007 13:51:42 -0700
-Message-Id: <1181767902.28541.1.camel@linux-2n2q.site>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,9 +19,9 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Dimitry Golubovsky <golubovsky@gmail.com>
 Cc: bridge@lists.linux-foundation.org
 
+On Wed, 13 Jun 2007 16:32:09 -0400
+"Dimitry Golubovsky" <golubovsky@gmail.com> wrote:
 
-
-On Wed, 2007-06-13 at 16:32 -0400, Dimitry Golubovsky wrote:
 > Hi,
 > 
 > Suppose we have two aliases of the same ethernet card:
@@ -33,14 +33,6 @@ On Wed, 2007-06-13 at 16:32 -0400, Dimitry Golubovsky wrote:
 > 
 > Sorry if this was answered before.
 > 
-> Thanks.
-> 
 
-
-Yes this is allowed. Along with eth0.10:1 which is a VLAN tagged
-interface with an alias.
-
-Brad Dameron
-Systems Engineer
-Clearw're
-
+You can do it, you won't get anything usable.
+What are you trying to. Simple bridging is at level 2 not level 3 (IP).
