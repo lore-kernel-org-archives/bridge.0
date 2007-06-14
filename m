@@ -1,13 +1,12 @@
-Date: Wed, 13 Jun 2007 14:28:54 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] Is it possible to put an aliased ethernet card on a
-	bridge?
-Message-ID: <20070613142854.3a572013@localhost>
-In-Reply-To: <bcba51a0706131332p4aef4a38sdc9cafd726528cd9@mail.gmail.com>
-References: <bcba51a0706131332p4aef4a38sdc9cafd726528cd9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Date: Thu, 14 Jun 2007 10:22:42 -0700
+Message-ID: <63CB92BFF23FC54A8CF2F4A67654B24601F5D686@i-worx-srv-02.i-worx.ca>
+From: "Roman Lisagor" <RLisagor@wurldtech.com>
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Trouble with bridged interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,23 +15,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dimitry Golubovsky <golubovsky@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Wed, 13 Jun 2007 16:32:09 -0400
-"Dimitry Golubovsky" <golubovsky@gmail.com> wrote:
+Hi,
 
-> Hi,
-> 
-> Suppose we have two aliases of the same ethernet card:
-> 
-> ifconfig eth0 192.168.0.1
-> ifconfig eth0:1 192.168.1.1
-> 
-> Is it possible to add eth0:1 to a bridge, not adding its "physical parent" eth0?
-> 
-> Sorry if this was answered before.
-> 
+We need to bridge several interfaces together, but still retain the
+ability to communicate through the individual interfaces. So for
+example, we have eth0 and eth1 bridged and we bind IP addresses to both
+of them, in order to inject packets into communication between two
+devices connected to our interfaces.
 
-You can do it, you won't get anything usable.
-What are you trying to. Simple bridging is at level 2 not level 3 (IP).
+It seems that several problems arise intermittently:
+
+1. When sending ping requests, replies sometimes come in on eth0/1, but
+sometimes on br0. We can work around this, but it would be great to get
+some idea of why and when this happens (and possibly whether we can
+prevent it from occurring);
+
+2. Occasionally, ARP requests sent by external devices for the IPs of
+eth0/1 are ignored.
+
+We are running Fedora Core 6 (2.6.13-15-smp).
+Any ideas?
+ 
+Thanks in advance for your help.
+
+Roman
+
