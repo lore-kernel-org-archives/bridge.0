@@ -2,8 +2,8 @@ Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Date: Thu, 14 Jun 2007 10:22:42 -0700
-Message-ID: <63CB92BFF23FC54A8CF2F4A67654B24601F5D686@i-worx-srv-02.i-worx.ca>
+Date: Wed, 13 Jun 2007 18:28:07 -0700
+Message-ID: <63CB92BFF23FC54A8CF2F4A67654B24601F5D163@i-worx-srv-02.i-worx.ca>
 From: "Roman Lisagor" <RLisagor@wurldtech.com>
 Content-Transfer-Encoding: 8bit
 Subject: [Bridge] Trouble with bridged interfaces
@@ -15,7 +15,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
 Hi,
 
