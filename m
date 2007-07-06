@@ -1,11 +1,16 @@
-Date: Fri, 6 Jul 2007 13:46:20 +1000
-From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
-Message-ID: <H0000069001d36e5.1183693579.mail.pacificwireless.net.au@MHS>
-In-Reply-To: <2e59e6970707051702x7d264db4te7a34f7b6db0a5ee@mail.gmail.com>
-Subject: RE: [Bridge] jumpstart stp port to forwarding state
+DKIM-Signature: a=rsa-sha1; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+	b=trIXR9gpBSAjLHdhVML72cMSSDJEUN3Hik2VEYyeO5jYOpyaVeUIrEY6TS9Uvi58FvlekzqL4S7avK3k7icf9dhqnapAtD8u2gxYvXD2m5YcVXvJqzJfsX056XvslGfItZ1/p8rc1hgVylMe3In2CAK27RjCHFVA7s/pdZMQGSA=
+Message-ID: <2e59e6970707052153v3a9a554cl98e1f40c89e11135@mail.gmail.com>
+Date: Thu, 5 Jul 2007 23:53:37 -0500
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Subject: Re: [Bridge] jumpstart stp port to forwarding state
+In-Reply-To: <H0000069001d36e5.1183693579.mail.pacificwireless.net.au@MHS>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="2_0_16f_d1fd20MHTML_=_01"
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_147341_33190459.1183697617108"
+References: <2e59e6970707051702x7d264db4te7a34f7b6db0a5ee@mail.gmail.com>
+	<H0000069001d36e5.1183693579.mail.pacificwireless.net.au@MHS>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,213 +19,198 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge <bridge@lists.linux-foundation.org>, richardvoigt <richardvoigt@gmail.com>
+To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
+Cc: bridge <bridge@lists.linux-foundation.org>
 
---2_0_16f_d1fd20MHTML_=_01
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+------=_Part_147341_33190459.1183697617108
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-brctl setfd br0 0
-=20
-Sets the forwarding delay on the bridge to 0, making it forward
-immediately, instead of going into 'learning' mode. This affects the
-entire bridge, not just a single port.
-=20
-=20
+On 7/5/07, Leigh Sharpe <lsharpe@pacificwireless.com.au> wrote:
+>
+>  brctl setfd br0 0
+>
+> Sets the forwarding delay on the bridge to 0, making it forward
+> immediately, instead of going into 'learning' mode. This affects the entire
+> bridge, not just a single port.
+>
+
+
+Thanks for the suggestions.  I already reduced it to 1, but was wary of
+trying 0.
+
+Would that make spanning tree flap?  Or is there still some hysteresis loop
+allowing it to stabilize?
+
+We have a transparent traffic shaper which sometimes locks up.  The port to
+the bandwidth shaper I know will always need to be in forwarding mode.  When
+spanning tree detects that the traffic shaper is no longer passing traffic,
+the other port will need to start forwarding in order to bypass it and reach
+the routers beyond.
+
+
 Regards,
-             Leigh
-=20
-Leigh Sharpe
-Network Systems Engineer
-Pacific Wireless
-Ph +61 3 9584 8966
-Mob 0408 009 502
-Helpdesk 1300 300 616
-email lsharpe@pacificwireless.com.au
-web www.pacificwireless.com.au
-=20
+>              Leigh
+>
+> Leigh Sharpe
+> Network Systems Engineer
+> Pacific Wireless
+> Ph +61 3 9584 8966
+> Mob 0408 009 502
+> Helpdesk 1300 300 616
+> email lsharpe@pacificwireless.com.au
+> web www.pacificwireless.com.au
+>
+>
+>  ------------------------------
+>    *From:* richardvoigt@gmail.com [mailto:richardvoigt@gmail.com]
+> *Sent:* Friday, July 06, 2007 10:03 AM
+> *To:* bridge@lists.linux-foundation.org
+> *Subject:* [Bridge] jumpstart stp port to forwarding state
+>
+>  Sorry if this is a dupe, but the mailing list join email got delayed by
+> 10 or 12 hours and so I think this message wasn't accepted:
+>
+> ----------------
+>
+> I've googled for this, but since there are so many pages talking about
+> linux boxes connected to CIsco equipment, I can't find anything relevant.
+>
+> Does linux bridging support anything like cisco's portfast (port starts in
+> forwarding state)?  Is there a way (sysfs, ioctl) to at least change a port
+> to forwarding immediately?  Even bridges with stp disabled take some time
+> bringing ports up after a topology change.  If the delay can't be
+> eliminated, can I wait for it somehow in my startup scripts to avoid initial
+> connection failures?
+>
+> My preference would be to have something like:
+>
+> brctl portfast br0 bond0.10 on
+>
+> or
+>
+> brctl initialstate br0 bond0.10 forwarding
+>
+>
+>
+> Also, can stp disable all ports in the same bridge?  I would assume not, a
+> minimum spanning tree needs at least one port forwarding (could that port
+> somehow be a different interface on the same box, not a member of the
+> bridge?).  If at least one port is always forwarding, could the minimum cost
+> port be set to forwarding by default when the bridge is brought up (ip link
+> set br0 up) irrespective of any portfast-alike setting?
+>
+> I'm trying to minimize startup time on a firewall.
+>
+> Thanks for any information you can provide.
+>
+> Ben Voigt
+>
 
-  _____ =20
-
-From: richardvoigt@gmail.com [mailto:richardvoigt@gmail.com]=20
-Sent: Friday, July 06, 2007 10:03 AM
-To: bridge@lists.linux-foundation.org
-Subject: [Bridge] jumpstart stp port to forwarding state
-
-
-Sorry if this is a dupe, but the mailing list join email got delayed by
-10 or 12 hours and so I think this message wasn't accepted:
-
-----------------
-
-I've googled for this, but since there are so many pages talking about
-linux boxes connected to CIsco equipment, I can't find anything
-relevant.=20
-
-Does linux bridging support anything like cisco's portfast (port starts
-in forwarding state)?  Is there a way (sysfs, ioctl) to at least change
-a port to forwarding immediately?  Even bridges with stp disabled take
-some time bringing ports up after a topology change.  If the delay can't
-be eliminated, can I wait for it somehow in my startup scripts to avoid
-initial connection failures?=20
-
-My preference would be to have something like:
-
-brctl portfast br0 bond0.10 on
-
-or
-
-brctl initialstate br0 bond0.10 forwarding
-
-
-
-Also, can stp disable all ports in the same bridge?  I would assume not,
-a minimum spanning tree needs at least one port forwarding (could that
-port somehow be a different interface on the same box, not a member of
-the bridge?).  If at least one port is always forwarding, could the
-minimum cost port be set to forwarding by default when the bridge is
-brought up (ip link set br0 up) irrespective of any portfast-alike
-setting?=20
-
-I'm trying to minimize startup time on a firewall.
-
-Thanks for any information you can provide.
-
-Ben Voigt
-
-
-
-
---2_0_16f_d1fd20MHTML_=_01
-Content-Type: text/html
-Content-Transfer-Encoding: quoted-printable
+------=_Part_147341_33190459.1183697617108
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-
-<META content=3D"MSHTML 6.00.2800.1491" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D986184703-06072007><FONT face=3D=
-Arial=20
-size=3D2>brctl setfd br0 0</FONT></SPAN>
-</DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D986184703-06072007><FONT face=3D=
-Arial=20
-size=3D2></FONT></SPAN>&nbsp;
-</DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D986184703-06072007><FONT face=3D=
-Arial=20
-size=3D2>Sets the forwarding delay on the bridge to 0, making it forward=20
-immediately, instead of going into 'learning' mode. This affects the enti=
-re=20
-bridge, not just a single port.</FONT></SPAN>
-</DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D986184703-06072007></SPAN>&nbsp=
-;
-</DIV>
-<DIV>&nbsp;
-</DIV>
-<DIV align=3Dleft>
-<DIV align=3Dleft><FONT face=3DArial=20
-size=3D2>Regards,<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-Leigh</FONT>
-</DIV>
-<DIV>&nbsp;
-</DIV>
-<DIV><FONT face=3DArial size=3D2>Leigh Sharpe<BR>
-Network Systems Engineer<BR>
-Pacific=20
-Wireless<BR>
-Ph +61 3 9584 8966<BR>
-Mob 0408 009 502</FONT>
-</DIV>
-<DIV><FONT face=3DArial size=3D2>Helpdesk 1300 300 616<BR>
-email <A=20
-title=3Dmailto:lsharpe@pacificwireless.com.au=20
-href=3D"blocked::mailto:lsharpe@pacificwireless.com.au">lsharpe@pacificwi=
-reless.com.au</A><BR>
-web=20
-<A title=3Dhttp://www.pacificwireless.com.au/=20
-href=3D"blocked::http://www.pacificwireless.com.au/">www.pacificwireless.=
-com.au</A></FONT>
-</DIV></DIV>
-<DIV>&nbsp;
-</DIV><BR>
-
-<DIV class=3DOutlookMessageHeader lang=3Den-us dir=3Dltr align=3Dleft>
-<HR tabIndex=3D-1>&#160;&#160;
+On 7/5/07, <b class="gmail_sendername">Leigh Sharpe</b> &lt;<a href="mailto:lsharpe@pacificwireless.com.au">lsharpe@pacificwireless.com.au</a>&gt; wrote:<div><span class="gmail_quote"></span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
 
 
-<FONT face=3DTahoma size=3D2><B>From:</B> richardvoigt@gmail.com=20
-[mailto:richardvoigt@gmail.com] <BR>
-<B>Sent:</B> Friday, July 06, 2007 10:03=20
-AM<BR>
-<B>To:</B> bridge@lists.linux-foundation.org<BR>
-<B>Subject:</B> [Bridge]=20
-jumpstart stp port to forwarding state<BR>
-</FONT><BR>
-
-</DIV>
-<DIV></DIV><SPAN class=3Dgmail_quote>
-<P>Sorry if this is a dupe, but the mailing list join email got delayed b=
-y 10 or=20
-12 hours and so I think this message wasn't=20
-accepted:<BR>
-<BR>
-----------------<BR>
-<BR>
-</SPAN>I've googled for this, but since=20
-there are so many pages talking about linux boxes connected to CIsco equi=
-pment,=20
-I can't find anything relevant. <BR>
-<BR>
-Does linux bridging support anything=20
-like cisco's portfast (port starts in forwarding state)?&nbsp; Is there a=
- way=20
-(sysfs, ioctl) to at least change a port to forwarding immediately?&nbsp;=
- Even=20
-bridges with stp disabled take some time bringing ports up after a topolo=
-gy=20
-change.&nbsp; If the delay can't be eliminated, can I wait for it somehow=
- in my=20
-startup scripts to avoid initial connection failures? <BR>
-<BR>
-My preference=20
-would be to have something like:<BR>
-<BR>
-brctl portfast br0 bond0.10=20
-on<BR>
-<BR>
-or<BR>
-<BR>
-brctl initialstate br0 bond0.10=20
-forwarding<BR>
-<BR>
-<BR>
-<BR>
-Also, can stp disable all ports in the same=20
-bridge?&nbsp; I would assume not, a minimum spanning tree needs at least o=
-ne=20
-port forwarding (could that port somehow be a different interface on the s=
-ame=20
-box, not a member of the bridge?).&nbsp; If at least one port is always=20
-forwarding, could the minimum cost port be set to forwarding by default w=
-hen the=20
-bridge is brought up (ip link set br0 up) irrespective of any portfast-al=
-ike=20
-setting? <BR>
-<BR>
-I'm trying to minimize startup time on a=20
-firewall.<BR>
-<BR>
-Thanks for any information you can provide.<BR>
-<BR>
-Ben=20
-Voigt<BR>
 
 
-</P></BODY></HTML>
---2_0_16f_d1fd20MHTML_=_01--
+<div>
+<div dir="ltr" align="left"><span><font face="Arial" size="2">brctl setfd br0 0</font></span>
+</div>
+<div dir="ltr" align="left"><span><font face="Arial" size="2"></font></span>&nbsp;
+</div>
+<div dir="ltr" align="left"><span><font face="Arial" size="2">Sets the forwarding delay on the bridge to 0, making it forward 
+immediately, instead of going into &#39;learning&#39; mode. This affects the entire 
+bridge, not just a single port.</font></span></div></div></blockquote><div><br><br>Thanks for the suggestions.&nbsp; I already reduced it to 1, but was wary of trying 0. <br></div><div><br>Would that make spanning tree flap?&nbsp; Or is there still some hysteresis loop allowing it to stabilize?
+<br><br>We have a transparent traffic shaper which sometimes locks up.&nbsp; The port to the bandwidth shaper I know will always need to be in forwarding mode.&nbsp; When spanning tree detects that the traffic shaper is no longer passing traffic, the other port will need to start forwarding in order to bypass it and reach the routers beyond.
+<br>&nbsp;</div><br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div><div align="left"><div align="left"><font face="Arial" size="2">Regards,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+Leigh</font>
+</div>
+<div>&nbsp;
+</div>
+<div><font face="Arial" size="2">Leigh Sharpe<br>
+Network Systems Engineer<br>
+Pacific 
+Wireless<br>
+Ph +61 3 9584 8966<br>
+Mob 0408 009 502</font>
+</div>
+<div><font face="Arial" size="2">Helpdesk 1300 300 616<br>
+email <a title="mailto:lsharpe@pacificwireless.com.au">lsharpe@pacificwireless.com.au</a><br>
+web 
+<a title="http://www.pacificwireless.com.au/">www.pacificwireless.com.au</a></font>
+</div></div>
+<div>&nbsp;
+</div><br>
+
+<div dir="ltr" align="left" lang="en-us">
+<hr>&nbsp;&nbsp;
+
+
+<font face="Tahoma" size="2"><b>From:</b> <a href="mailto:richardvoigt@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">richardvoigt@gmail.com</a> 
+[mailto:<a href="mailto:richardvoigt@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">richardvoigt@gmail.com</a>] <br>
+<b>Sent:</b> Friday, July 06, 2007 10:03 
+AM<br>
+<b>To:</b> <a href="mailto:bridge@lists.linux-foundation.org" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">bridge@lists.linux-foundation.org</a><br>
+<b>Subject:</b> [Bridge] 
+jumpstart stp port to forwarding state<br>
+</font><br>
+
+</div><div><span class="e" id="q_11399a2b8e7fa108_1">
+<div></div><span class="gmail_quote">
+<p>Sorry if this is a dupe, but the mailing list join email got delayed by 10 or 
+12 hours and so I think this message wasn&#39;t 
+accepted:<br>
+<br>
+----------------<br>
+<br>
+</p></span>I&#39;ve googled for this, but since 
+there are so many pages talking about linux boxes connected to CIsco equipment, 
+I can&#39;t find anything relevant. <br>
+<br>
+Does linux bridging support anything 
+like cisco&#39;s portfast (port starts in forwarding state)?&nbsp; Is there a way 
+(sysfs, ioctl) to at least change a port to forwarding immediately?&nbsp; Even 
+bridges with stp disabled take some time bringing ports up after a topology 
+change.&nbsp; If the delay can&#39;t be eliminated, can I wait for it somehow in my 
+startup scripts to avoid initial connection failures? <br>
+<br>
+My preference 
+would be to have something like:<br>
+<br>
+brctl portfast br0 bond0.10 
+on<br>
+<br>
+or<br>
+<br>
+brctl initialstate br0 bond0.10 
+forwarding<br>
+<br>
+<br>
+<br>
+Also, can stp disable all ports in the same 
+bridge?&nbsp; I would assume not, a minimum spanning tree needs at least one 
+port forwarding (could that port somehow be a different interface on the same 
+box, not a member of the bridge?).&nbsp; If at least one port is always 
+forwarding, could the minimum cost port be set to forwarding by default when the 
+bridge is brought up (ip link set br0 up) irrespective of any portfast-alike 
+setting? <br>
+<br>
+I&#39;m trying to minimize startup time on a 
+firewall.<br>
+<br>
+Thanks for any information you can provide.<br>
+<br>
+Ben 
+Voigt<br>
+
+
+</span></div></div></blockquote></div><br>
+
+------=_Part_147341_33190459.1183697617108--
