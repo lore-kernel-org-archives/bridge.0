@@ -1,10 +1,10 @@
-Message-ID: <468DF148.4070109@ho.teac.co.jp>
-Date: Fri, 06 Jul 2007 16:37:44 +0900
-From: EBI <ebi@ho.teac.co.jp>
+Message-ID: <4691E8DF.4060704@snapgear.com>
+Date: Mon, 09 Jul 2007 17:50:55 +1000
+From: Philip Craig <philipc@snapgear.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] (no subject)
+Subject: [Bridge] delay in bridge learning when forward delay is 0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,3 +15,25 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
+Hi,
+
+If you set the bridge forward delay to 0 with:
+	brctl setfd br0 0
+then the bridge does not learn addresses for the first 20 seconds,
+and so it floods everything during this time.
+
+The reason for this is that hold_time() returns 0 after a topology
+change, br_fdb_update() is a no-op if hold_time() is 0 (so that
+'brctl setmaxage br0 0' can be used to disable learning), and the
+topology change flag isn't cleared for max_age seconds, so nothing
+is learnt during that time.
+
+It seems that the intent of hold_time() is to expire entries that are
+older than forward_delay seconds at the time of the topology change,
+which it does, but then it keeps on checking this expiry again for
+max_age seconds, and bases these checks on the current time rather
+than the time of the change.
+
+A quick fix for the forward delay 0 case would be to skip the
+topology change check if stp is disabled, but if I understand things
+correctly then the expiry isn't right for non-zero cases either.
