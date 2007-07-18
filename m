@@ -1,10 +1,13 @@
-Message-ID: <4691E8DF.4060704@snapgear.com>
-Date: Mon, 09 Jul 2007 17:50:55 +1000
-From: Philip Craig <philipc@snapgear.com>
+DKIM-Signature: a=rsa-sha1; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:mime-version:content-type;
+	b=mL/C7jJCCcCO6PftBwhkQ/puiXX647RY9yhV5PiSz52uLcYZTuvs7Tzueawk4YYg6yOb1GP4keNbGYts0soxxBJzPAsvYCty1fVOe8dsuWcz7Onmv9+v+rV0i9B27owY+Kk74xWQ68bF29v1Om8zgp5Onp0in+ByqxUNaA+8OPw=
+Message-ID: <228b46650707180606y2036a573kd2d2d1759a7d7d6@mail.gmail.com>
+Date: Wed, 18 Jul 2007 18:36:22 +0530
+From: "rajneesh rana" <rana.rajneesh@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] delay in bridge learning when forward delay is 0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_54858_22173606.1184763982727"
+Subject: [Bridge] (no subject)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,25 +18,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hi,
+------=_Part_54858_22173606.1184763982727
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-If you set the bridge forward delay to 0 with:
-	brctl setfd br0 0
-then the bridge does not learn addresses for the first 20 seconds,
-and so it floods everything during this time.
+I'm trying to trap ethernet frames from a user process over the wire,
+using the linux tap device. I see a lot of docs/threads about using tun
+device, but none for tap device.
 
-The reason for this is that hold_time() returns 0 after a topology
-change, br_fdb_update() is a no-op if hold_time() is 0 (so that
-'brctl setmaxage br0 0' can be used to disable learning), and the
-topology change flag isn't cleared for max_age seconds, so nothing
-is learnt during that time.
+I am able to open Tap device and attach it to bridge but getting no clue how
+to read and write  data from tap device.
 
-It seems that the intent of hold_time() is to expire entries that are
-older than forward_delay seconds at the time of the topology change,
-which it does, but then it keeps on checking this expiry again for
-max_age seconds, and bases these checks on the current time rather
-than the time of the change.
+thanx
 
-A quick fix for the forward delay 0 case would be to skip the
-topology change check if stp is disabled, but if I understand things
-correctly then the expiry isn't right for non-zero cases either.
+------=_Part_54858_22173606.1184763982727
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I&#39;m trying to trap ethernet frames from a user process over the wire,<br>using the linux tap device. I see a lot of docs/threads about using tun<br>device, but none for tap device.<br><br>I am able to open Tap device and attach it to bridge but getting no clue how to read and write&nbsp; data from tap device.
+<br><br>thanx<br><br>
+
+------=_Part_54858_22173606.1184763982727--
