@@ -1,9 +1,9 @@
-Date: Fri,  3 Aug 2007 18:50:28 +0200 (CEST)
+Date: Fri,  3 Aug 2007 18:53:30 +0200 (CEST)
 From: MAILER-DAEMON@mbug18.uni-graz.at (Mail Delivery System)
 MIME-Version: 1.0
 Content-Type: multipart/report; report-type=delivery-status;
-	boundary="C97B1703265.1186159828/mbug18.uni-graz.at"
-Message-Id: <20070803165028.EF3D9721D39@mbug18.uni-graz.at>
+	boundary="C97B1703265.1186160010/mbug18.uni-graz.at"
+Message-Id: <20070803165330.1F74A721FE1@mbug18.uni-graz.at>
 Subject: [Bridge] Delayed Mail (still being retried)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -17,7 +17,7 @@ To: bridge@lists.osdl.org
 
 This is a MIME-encapsulated message.
 
---C97B1703265.1186159828/mbug18.uni-graz.at
+--C97B1703265.1186160010/mbug18.uni-graz.at
 Content-Description: Notification
 Content-Type: text/plain
 
@@ -40,7 +40,7 @@ delete your own text from the attached returned message.
 <peter.kroisel@meduni-graz.at>: delivery temporarily suspended: connect to
     mbug28.uni-graz.at[143.50.5.28]: Connection timed out
 
---C97B1703265.1186159828/mbug18.uni-graz.at
+--C97B1703265.1186160010/mbug18.uni-graz.at
 Content-Description: Delivery report
 Content-Type: message/delivery-status
 
@@ -56,7 +56,7 @@ Diagnostic-Code: X-Symantec-Mail-Security; delivery temporarily suspended:
 	connect to mbug28.uni-graz.at[143.50.5.28]: Connection timed out
 Will-Retry-Until: Wed,  8 Aug 2007 13:44:42 +0200 (CEST)
 
---C97B1703265.1186159828/mbug18.uni-graz.at
+--C97B1703265.1186160010/mbug18.uni-graz.at
 Content-Description: Undelivered Message Headers
 Content-Type: text/rfc822-headers
 
@@ -82,4 +82,4 @@ Content-Type: text/html;
 Content-Transfer-Encoding: 7bit
 X-Brightmail-Tracker: AAAAAwDLV7MA19YZBe7cNg==
 
---C97B1703265.1186159828/mbug18.uni-graz.at--
+--C97B1703265.1186160010/mbug18.uni-graz.at--
