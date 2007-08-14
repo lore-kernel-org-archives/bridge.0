@@ -1,11 +1,15 @@
-Message-ID: <46C1AF5A.5000602@mpexnet.de>
-Date: Tue, 14 Aug 2007 15:34:18 +0200
-From: Lars Braeuer <lb@mpexnet.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 14 Aug 2007 14:50:52 +0100
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070814145052.2d135d2f@oldman.hamilton.local>
+In-Reply-To: <20070814131822.GA13676@xi.wantstofly.org>
+References: <46BCE380.60508@cluded.net>
+	<20070812012037.0195b610.akpm@linux-foundation.org>
+	<20070814141105.0a4b8dde@oldman.hamilton.local>
+	<20070814131822.GA13676@xi.wantstofly.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Reset of setpathcost after link comes back up
-Reply-To: lb@mpexnet.de
+Subject: [Bridge] [PATCH] bridge: sysfs locking fix.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,25 +18,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bridge@lists.linux-foundation.org
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: netdev@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, bridge@linux-foundation.org
 
-In a redundant setup (2 bridges), I usally set the path cost of external ports
-to 1 und internal ports to 100. So that the external port of the backup bridge
-is in forwarding and the internal port in blocking state.
+Forget earlier patch, it is wrong...
 
-But, when the physical link goes down and comes back up (i.e. link failure or
-cable unplug and replug) the path cost of the links automatically reset to
-values like 4 and 19.
+The stp change code generates "sleeping function called from invalid context"
+because rtnl_lock() called with BH disabled. This fixes it by not acquiring then
+dropping the bridge lock.
 
-Is this a desired behaviour, shouldn't the path cost remain at the values specified?
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-
-I'm using bridge support in Kernel 2.6.19. As I can't test a new Kernel yet, I'm
-just asking if this might be a bug and maybe someone knows if this has been
-fixed lately?
-
-Thanks in advance.
-
-Best,
-
-Lars
+--- a/net/bridge/br_sysfs_br.c	2007-08-06 09:26:48.000000000 +0100
++++ b/net/bridge/br_sysfs_br.c	2007-08-14 14:29:52.000000000 +0100
+@@ -147,20 +147,26 @@ static ssize_t show_stp_state(struct dev
+ 	return sprintf(buf, "%d\n", br->stp_enabled);
+ }
+ 
+-static void set_stp_state(struct net_bridge *br, unsigned long val)
+-{
+-	rtnl_lock();
+-	spin_unlock_bh(&br->lock);
+-	br_stp_set_enabled(br, val);
+-	spin_lock_bh(&br->lock);
+-	rtnl_unlock();
+-}
+ 
+ static ssize_t store_stp_state(struct device *d,
+ 			       struct device_attribute *attr, const char *buf,
+ 			       size_t len)
+ {
+-	return store_bridge_parm(d, buf, len, set_stp_state);
++	struct net_bridge *br = to_bridge(d);
++	char *endp;
++	unsigned long val;
++
++	if (!capable(CAP_NET_ADMIN))
++		return -EPERM;
++
++	val = simple_strtoul(buf, &endp, 0);
++	if (endp == buf)
++		return -EINVAL;
++
++	rtnl_lock();
++	br_stp_set_enabled(br, val);
++	rtnl_unlock();
++
+ }
+ static DEVICE_ATTR(stp_state, S_IRUGO | S_IWUSR, show_stp_state,
+ 		   store_stp_state);
