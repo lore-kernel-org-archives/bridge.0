@@ -1,14 +1,13 @@
-Message-ID: <46BD8D93.1060200@pp.inet.fi>
-Date: Sat, 11 Aug 2007 13:21:07 +0300
-From: Jussi Kivilinna <jussi.kivilinna@pp.inet.fi>
-MIME-Version: 1.0
-References: <46BB63B0.9060509@pp.inet.fi>
-	<20070810094347.24c70480@oldman.hamilton.local>
-In-Reply-To: <20070810094347.24c70480@oldman.hamilton.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 14 Aug 2007 14:11:05 +0100
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070814141105.0a4b8dde@oldman.hamilton.local>
+In-Reply-To: <20070812012037.0195b610.akpm@linux-foundation.org>
+References: <46BCE380.60508@cluded.net>
+	<20070812012037.0195b610.akpm@linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] Fix typo in net/bridge/br_stp_if.c
-Reply-To: jussi.kivilinna@mbnet.fi
+Subject: [Bridge] Re: BUG: when using 'brctl stp'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,28 +16,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+To: Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-Stephen Hemminger kirjoitti:
-> 
-> Okay, but I can't forward patch through directly without Signed-off-by:
-> 
+Bridge locking for /sys/class/net/br0/bridge/stp_enabled
+was wrong.  Another bug in bridge utilities makes it such that
+this interface, meant it wasn't being used.  The locking needs to be removed
+from set_stp_state(), the lock is already acquired down in
+br_stp_start()/br_stp_stop.
 
-Oh, sorry, didn't know about DCO/Signed-off-by, but I do now.
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-Fixes a typo in net/bridge/br_stp_if.c
 
-Signed-off-by: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
-
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -132,7 +132,7 @@ static void br_stp_start(struct net_bridge *br)
-         } else {
-                 br->stp_enabled = BR_KERNEL_STP;
-                 printk(KERN_INFO "%s: starting userspace STP failed, "
--                               "staring kernel STP\n", br->dev->name);
-+                               "starting kernel STP\n", br->dev->name);
-
-                 /* To start timers on any ports left in blocking */
-                 spin_lock_bh(&br->lock);
+--- a/net/bridge/br_sysfs_br.c	2007-07-16 14:24:18.000000000 +0100
++++ b/net/bridge/br_sysfs_br.c	2007-08-14 13:44:23.000000000 +0100
+@@ -150,9 +150,7 @@ static ssize_t show_stp_state(struct dev
+ static void set_stp_state(struct net_bridge *br, unsigned long val)
+ {
+ 	rtnl_lock();
+-	spin_unlock_bh(&br->lock);
+ 	br_stp_set_enabled(br, val);
+-	spin_lock_bh(&br->lock);
+ 	rtnl_unlock();
+ }
+ 
