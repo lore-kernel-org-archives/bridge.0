@@ -1,13 +1,13 @@
-Date: Wed, 29 Aug 2007 15:05:15 -0700
+Date: Thu, 30 Aug 2007 07:49:49 -0700
 From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] bridge problem when one interface is in blocking mode
-Message-ID: <20070829150515.54dd7ecf@freepuppy.rosehill.hemminger.net>
-In-Reply-To: <465348.90860.qm@web51908.mail.re2.yahoo.com>
-References: <20070823112321.41991a9e@freepuppy.rosehill.hemminger.net>
-	<465348.90860.qm@web51908.mail.re2.yahoo.com>
+Message-ID: <20070830074949.7cd25b04@freepuppy.rosehill.hemminger.net>
+In-Reply-To: <1188475530.2963.20.camel@johannes.berg>
+References: <20070829223752.GA6969@seehuhn.de>
+	<1188475530.2963.20.camel@johannes.berg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: oops with recent wireless-dev tree
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,81 +16,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: wang dengyi <dy_wang@yahoo.com>
-Cc: bridge@lists.linux-foundation.org
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: bridge@linux-foundation.org, Matthew Wilcox <matthew@wil.cx>, netdev <netdev@vger.kernel.org>, Jochen Voss <voss@seehuhn.de>, linux wireless list <linux-wireless@vger.kernel.org>
 
-On Wed, 29 Aug 2007 14:27:44 -0700 (PDT)
-wang dengyi <dy_wang@yahoo.com> wrote:
+On Thu, 30 Aug 2007 14:05:30 +0200
+Johannes Berg <johannes@sipsolutions.net> wrote:
 
-> --- Stephen Hemminger
-> <shemminger@linux-foundation.org> wrote:
+> Hi Jochen,
 > 
-> > On Thu, 23 Aug 2007 11:17:44 -0700 (PDT)
-> > wang dengyi <dy_wang@yahoo.com> wrote:
+> [added CCs since it affects bridge code]
+> 
+> > If I read this correctly, the EIP in the last line corresponds to
+> > net/bridge/br_if.c, line 36:
 > > 
-> > > Hi Stephen,
-> > > 
-> > > Here is the detail
-> > > kernel version: 2.6.14
-> > > architecture: PPC
-> > > ehternet: from the processor mpc5200b
-> > > wifi manufactor: Netgate 5004 MP, Atheros chipset
-> > > wifi driver: madwifi 0.91
-> > > WDS on wifi: enabled.
-> > > 
-> > > I guess it's an issue combined by ethernet
-> > driver/wifi
-> > > driver and bridge. Is there anything you suspect
-> > that
-> > > I can check? 
-> > > 
-> > > I believe the 2 actions: updating forwarding
-> > database
-> > > when a stp package is received and delivering the
-> > > package based on the forwarding database, are
-> > correct.
-> > > I must miss something. For example, STP detection
-> > set
-> > > an interface as blocking and remove it from the
-> > > forwarding database? It's just my wild guess. 
-> > > 
-> > > By the way, I found Bartek reported the same issue
-> > on
-> > > 2.6.11.12 and 2.6.13.2. Here is the link:
-> > >
-> >
-> https://lists.linux-foundation.org/pipermail/bridge/2005-October/004710.html
-> > > He has 3 ethernet nic for each machine and his fix
-> > is
-> > > to update the forwarding database only when the
-> > port
-> > > is in learning or forwarding state.
-> > >
+> >     static int port_cost(struct net_device *dev)
+> >     {
+> > 	    if (dev->ethtool_ops->get_settings) {
+> >                                ^^^^
 > > 
-> > There was a bug fix in later kernel (2.6.19) that
-> > causes the forwarding
-> > database to be purged when STP decides not to use
-> > interface.
+> > As far as I can figure out, dev->ethtool_ops is NULL and the crash
+> > happens while trying to derefernce ...->get_settings.
 > > 
+> > Is dev->ethtool_ops allowed to be NULL?  In this case the appended
+> > patch might be the correct fix.  At least it makes the oops disappear
+> > for me.  Another possible fix would be to add an ethtool_ops structure
+> > to the device created by b43.
 > 
-> Hi Stephen, 
-> 
-> I merged the bridge code from the kernel source tree
-> 2.6.19. But it's the same thing: packages are sent
-> through the blocking interface. Anyway, I am worried
-> that something is missing when I merged the code.
-> Could you give me more information about the patch? If
-> it's possible, please send me  your patch for 2.6.19?
-> Thank you very much. 
-> 
-> At the same time, I am looking for the relationship
-> between blocking interface and the forwarding table
-> from the stp source code. No luck until now. Any hint?
-> 
-> 
+> I don't think adding ethtool_ops in mac80211 should be necessary.
+> Stephen?
 
-Perhaps you are getting packets in over the blocked device,
-and they are getting into the forwarding table?
+Devices aren't required to have ethtool_ops. The code there used to
+call ethtool directly, and it would handle the error cases. I'll rollup
+a fix this morning.
+
+The bug was introduced by this:
+
+commit 61a44b9c4b20d40c41fd1b70a4ceb13b75ea79a4
+Author: Matthew Wilcox <matthew@wil.cx>
+Date:   Tue Jul 31 14:00:02 2007 -0700
+
+    [NET]: ethtool ops are the only way
+    
+    During the transition to the ethtool_ops way of doing things, we supported
+    calling the device's ->do_ioctl method to allow unconverted drivers to
+    continue working.  Those days are long behind us, all in-tree drivers
+    use the ethtool_ops way, and so we no longer need to support this.
+    
+    The bonding driver is the biggest beneficiary of this; it no longer
+    needs to call ioctl() as a fallback if ethtool_ops aren't supported.
+    
+    Also put a proper copyright statement on ethtool.c.
+    
+    Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
 
 -- 
 Stephen Hemminger <shemminger@linux-foundation.org>
