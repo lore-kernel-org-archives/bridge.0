@@ -1,15 +1,10 @@
-Date: Thu, 30 Aug 2007 22:16:42 -0700 (PDT)
-Message-Id: <20070830.221642.41875712.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070830164812.GW14130@parisc-linux.org>
-References: <20070830145840.GU14130@parisc-linux.org>
-	<20070830082932.71272c3d@freepuppy.rosehill.hemminger.net>
-	<20070830164812.GW14130@parisc-linux.org>
+Date: Fri, 31 Aug 2007 14:22:08 +0800
+From: "kylix" <kylix13@163.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: [PATCH] bridge: fix OOPS when bridging device without
-	ethtool
+Content-Type: text/plain; charset="gb2312"
+Message-Id: <46D7B3AF.0C9BDC.30676@m12-12.163.com>
+Content-Transfer-Encoding: base64
+Subject: [Bridge] configure linux bridge 
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,28 +13,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: matthew@wil.cx
-Cc: bridge@linux-foundation.org, voss@seehuhn.de, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, johannes@sipsolutions.net
+To: bridge <bridge@osdl.org>
 
-From: Matthew Wilcox <matthew@wil.cx>
-Date: Thu, 30 Aug 2007 10:48:13 -0600
-
-> On Thu, Aug 30, 2007 at 08:29:32AM -0700, Stephen Hemminger wrote:
-> > Bridge code calls ethtool to get speed. The conversion to using
-> > only ethtool_ops broke the case of devices without ethtool_ops.
-> > This is a new regression in 2.6.23.
-> > 
-> > Rearranged the switch to a logical order, and use gcc initializer.
-> > 
-> > Ps: speed should have been part of the network device structure from
-> >     the start rather than burying it in ethtool.
-> 
-> Feel free to do the conversion ;-)  One of the things I like about the
-> ethtool framework is it gives us a way to take stuff out of the drivers
-> and put it in the midlayer without disturbing userspace.
-> 
-> > Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
-> 
-> Acked-by: Matthew Wilcox <matthew@wil.cx>
-
-Applied, thanks!
+ZGVhciBhbGw6CgogICBJIHRyeSB0byBjb25maWd1cmUgYSBicmlkZ2UgaW4gbXkgZW1iZWRkZWQg
+bGludXguIEkgaGFkIGZpbmluc2hlZAp0aGVzZSBvcGVyYXRpb25zIGJlbG93OgoKICAgMSkgY29u
+ZmlndXJlIGtlcm5lbCwgc2VsZWN0IHRoZSBvcHRpb24gIjgwMi4xZCBicmlkZ2UiCgogICAyKSBj
+b21waWxlIGJyaWRnZS11dGlscwoKICAgMykgaXNzdWUgdGhlc2UgY29tbWFuZHM6CiAgICAgIGlm
+Y29uZmlnIGV0aDAgMC4wLjAuMAogICAgICBpZmNvbmZpZyBldGgxIDAuMC4wLjAKICAgICAgYnJj
+dGwgYWRkYnIgdmIKICAgICAgYnJjdGwgYWRkaWYgdmIgZXRoMAogICAgICBicmN0bCBhZGRpZiB2
+YiBldGgxCiAgICAgIGlmY29uZmlnIHZiIDE5Mi4xNjguMTEwLjI0IHVwCgogICA0KSBjZCAvcHJv
+Yy9zeXMvbmV0L2JyaWRnZQogICAgICBmb3IgeCBpbiBicmlkZ2UtKjsgZG8gZWNobyAwID4gJHg7
+IGRvbmUKCiAgIDUpIFRoZW4gSSBjb25uZWN0IFBDMCB0byB0aGUgZXRoMCwgYW5kIGNvbm5lY3Qg
+UEMxIHRvIGV0aDEuIFRoZSBQQzAKSVAgaXMgMTkyLjE2OC4xMTAuMjIsIHRoZSBQQzEgSVAgaXMg
+MTkyLjE2OC4xMTAuNjAuIEl0IGlzIHN1Y2Nlc3NmdWwgcGluZwoxOTIuMTY4LjExMC4yNChicmlk
+Z2UpIGZyb20gUEMwLCBJdCBpcyBmYWlsZWQgcGluZyAxOTIuMTY4LjExMC4yNCBmcm9tIFBDMSwK
+IGFuZCBmYWlsZWQgcGluZyBQQzEgZnJvbSBQQzAuCiAgICAgIAogICBJIGlucHV0IGJyY3RsIGNv
+bW1hbmQgLCBhbmQgZ2V0IHRoZXNlIGluZm9tYXRpb25zOgoqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqICAgCiMgLi9icmN0bCBzaG93CmJyaWRnZSBuYW1lICAgICBicmlkZ2UgaWQgICAg
+ICAgICAgICAgICBTVFAgZW5hYmxlZCAgICAgaW50ZXJmYWNlcwp2YiAgICAgICAgICAgICAgODAw
+MC4wMDUwYzIwYzMwMDAgICAgICAgbm8gICAgICAgICAgICAgIGV0aDAKICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBldGgxCiMgLi9icmN0bCBz
+aG93bWFjcyB2Ygpwb3J0IG5vIG1hYyBhZGRyICAgICAgICAgICAgICAgIGlzIGxvY2FsPyAgICAg
+ICBhZ2VpbmcgdGltZXIKICAxICAgICAwMDoxNjoxNzo0Yzo3Yjo0ZSAgICAgICBubyAgICAgICAg
+ICAgICAgICA2NS42NgogIDEgICAgIDAwOjE2OjE3OjkxOjZmOjBiICAgICAgIG5vICAgICAgICAg
+ICAgICAgIDM2Ljg3CiAgMSAgICAgMDA6MTY6MTc6OTE6NmY6MGMgICAgICAgbm8gICAgICAgICAg
+ICAgICAyOTIuNzgKICAxICAgICAwMDoxNzozMTo0OToyYzo3YSAgICAgICBubyAgICAgICAgICAg
+ICAgIDIyMy45MQogIDEgICAgIDAwOjE3OjMxOjRhOjRkOmJkICAgICAgIG5vICAgICAgICAgICAg
+ICAgIDE0LjI4CiAgMSAgICAgMDA6MzA6NGY6MjY6OGM6YmIgICAgICAgbm8gICAgICAgICAgICAg
+ICAxNjUuNTAKICAxICAgICAwMDo0MDo3MTowMDo0MzoyYSAgICAgICBubyAgICAgICAgICAgICAg
+ICAgNC44NAogIDEgICAgIDAwOjQwOjcxOjAwOjQzOjhlICAgICAgIG5vICAgICAgICAgICAgICAg
+ICAzLjcwCiAgMSAgICAgMDA6NTA6YzI6MGM6MzA6MDAgICAgICAgeWVzICAgICAgICAgICAgICAg
+IDAuMDAgICAgLyogZXRoMCAqLwogIDIgICAgIDAwOjUwOmMyOjBjOjMwOjAxICAgICAgIHllcyAg
+ICAgICAgICAgICAgICAwLjAwICAgIC8qIGV0aDEgKi8KCiMgLi9icmN0bCBzaG93c3RwIHZiCnZi
+CiBicmlkZ2UgaWQgICAgICAgICAgICAgIDgwMDAuMDA1MGMyMGMzMDAwCiBkZXNpZ25hdGVkIHJv
+b3QgICAgICAgIDgwMDAuMDA1MGMyMGMzMDAwCiByb290IHBvcnQgICAgICAgICAgICAgICAgIDAg
+ICAgICAgICAgICAgICAgICAgIHBhdGggY29zdCAgICAgICAgICAgICAgICAgIDAKIG1heCBhZ2Ug
+ICAgICAgICAgICAgICAgICAyMC4wMCAgICAgICAgICAgICAgICAgYnJpZGdlIG1heCBhZ2UgICAg
+ICAgICAgIDIwMC4wMAogaGVsbG8gdGltZSAgICAgICAgICAgICAgICAyLjAwICAgICAgICAgICAg
+ICAgICBicmlkZ2UgaGVsbG8gdGltZSAgICAgICAgIDIwLjAwCiBmb3J3YXJkIGRlbGF5ICAgICAg
+ICAgICAxNTAuMDAgICAgICAgICAgICAgICAgIGJyaWRnZSBmb3J3YXJkIGRlbGF5ICAgICAgMTUu
+MDAKIGFnZWluZyB0aW1lICAgICAgICAgICAgIDMwMC4wMAogaGVsbG8gdGltZXIgICAgICAgICAg
+ICAgICAwLjI5ICAgICAgICAgICAgICAgICB0Y24gdGltZXIgICAgICAgICAgICAgICAgICAwLjAw
+CiB0b3BvbG9neSBjaGFuZ2UgdGltZXIgICAgIDAuMDAgICAgICAgICAgICAgICAgIGdjIHRpbWVy
+ICAgICAgICAgICAgICAgICAgIDAuMDkKIGZsYWdzCgoKZXRoMCAoMSkKIHBvcnQgaWQgICAgICAg
+ICAgICAgICAgODAwMSAgICAgICAgICAgICAgICAgICAgc3RhdGUgICAgICAgICAgICAgICAgZm9y
+d2FyZGluZwogZGVzaWduYXRlZCByb290ICAgICAgICA4MDAwLjAwNTBjMjBjMzAwMCAgICAgICBw
+YXRoIGNvc3QgICAgICAgICAgICAgICAgIDE5CiBkZXNpZ25hdGVkIGJyaWRnZSAgICAgIDgwMDAu
+MDA1MGMyMGMzMDAwICAgICAgIG1lc3NhZ2UgYWdlIHRpbWVyICAgICAgICAgIDAuMDAKIGRlc2ln
+bmF0ZWQgcG9ydCAgICAgICAgODAwMSAgICAgICAgICAgICAgICAgICAgZm9yd2FyZCBkZWxheSB0
+aW1lciAgICAgICAgMC4wMAogZGVzaWduYXRlZCBjb3N0ICAgICAgICAgICAwICAgICAgICAgICAg
+ICAgICAgICBob2xkIHRpbWVyICAgICAgICAgICAgICAgICAwLjAwCiBmbGFncwoKZXRoMSAoMikK
+IHBvcnQgaWQgICAgICAgICAgICAgICAgODAwMiAgICAgICAgICAgICAgICAgICAgc3RhdGUgICAg
+ICAgICAgICAgICAgZm9yd2FyZGluZwogZGVzaWduYXRlZCByb290ICAgICAgICA4MDAwLjAwNTBj
+MjBjMzAwMCAgICAgICBwYXRoIGNvc3QgICAgICAgICAgICAgICAgMTAwCiBkZXNpZ25hdGVkIGJy
+aWRnZSAgICAgIDgwMDAuMDA1MGMyMGMzMDAwICAgICAgIG1lc3NhZ2UgYWdlIHRpbWVyICAgICAg
+ICAgIDAuMDAKIGRlc2lnbmF0ZWQgcG9ydCAgICAgICAgODAwMiAgICAgICAgICAgICAgICAgICAg
+Zm9yd2FyZCBkZWxheSB0aW1lciAgICAgICAgMC4wMAogZGVzaWduYXRlZCBjb3N0ICAgICAgICAg
+ICAwICAgICAgICAgICAgICAgICAgICBob2xkIHRpbWVyICAgICAgICAgICAgICAgICAwLjAwCiBm
+bGFncwoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioKCiAgIERvZXMgYW55b25lIHRl
+bGwgbWUgaG93IHRvIHNldCBpdCA/ICBHcmF0aXR1ZGUgZm9yIHlvdXIgaGVscC4gCgoJCgqhoaGh
+oaGhoaGhoaGhoQogICAgQmVzdCByZWdhcmRzCiAJCQkJCgqhoaGhoaGhoaGhoaGhoaGha3lsaXgK
+oaGhoaGhoaGhoaGhoaGhoWt5bGl4MTNAMTYzLmNvbQqhoaGhoaGhoaGhoaGhoaGhoaGhoTIwMDct
+MDgtMzEKCg==
