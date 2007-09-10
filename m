@@ -1,10 +1,10 @@
-Date: Fri, 7 Sep 2007 12:02:19 +0800
+Date: Mon, 10 Sep 2007 16:01:23 +0800
 From: "kylix" <kylix13@163.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="gb2312"
-Message-Id: <46E0CD68.0133F6.07241@m12-11.163.com>
+Message-Id: <46E4F9F3.02AC7F.13980@m12-11.163.com>
 Content-Transfer-Encoding: base64
-Subject: [Bridge] Badness in local_bh_enable at kernel/softirq.c
+Subject: [Bridge] Badness in local_bh_enable at kernel/softirq.c:144
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,13 +13,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge <bridge@lists.linux-foundation.org>
+To: bridge <bridge@osdl.org>
 
 RGVhciBhbGw6CgogICAgSSBidWlsZGVkIGEgYnJpZGdlIG9uIG15IGVtYmVkZGVkIHN5c3RlbSwg
 dGhlIGxpbnV4IGtlcm5lbCB2ZXJzaW9uIDIuNi4xMjsKdGhlIGJyY3RsIHZlcnNpb24gMS4wLjYu
 CiAgICBJIGNvbm5lY3QgUEMwIHRvIGV0aDAsIGNvbm5lY3QgUEMxIHRvIGV0aDEsIHRoZW4gSSBw
 aW5nIFBDMSBmcm9tIFBDMCwgSXQKaXMgc3VjY2Vzc2Z1bC4KCUJ1dCBJIGdvdCB0aGUgZXJyb3Jz
-IGJsb3cgZnJvbSBsaW51eCBjb25zb2xlIHdoZW4gSXQgZm9yd2FyZGluZyBlcnZyeSBldGhlcm5l
+IGJsb3cgZnJvbSBsaW51eCBjb25zb2xlIHdoZW4gSXQgZm9yd2FyZGluZyBldmVyeSBldGhlcm5l
 dCBwYWNrYWdlLgogICAgQ2FuIGFueW9uZSBoZWxwIG1lID8gCgoqKioqKioqKioqKioqKioqKioq
 KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
 KioqKioKQmFkbmVzcyBpbiBsb2NhbF9iaF9lbmFibGUgYXQga2VybmVsL3NvZnRpcnEuYzoxNDQK
@@ -102,4 +102,4 @@ OTQKIFs8ODBiMjAwMDA+XSBpcF9hdXRvX2NvbmZpZ19zZXR1cCsweGU0LzB4MjM0CiBbPDgwOWQ0
 OTBjPl0gaWRyX2NhY2hlX2N0b3IrMHgwLzB4YwogWzw4MGIwNzBiMD5dIHVua25vd25fYm9vdG9w
 dGlvbisweDAvMHgyYzQKCgkKCqGhoaGhoaGhoaGhoaGhCiAgICBCZXN0IHJlZ2FyZHMKIAkJCQkK
 CqGhoaGhoaGhoaGhoaGhoaFreWxpeAqhoaGhoaGhoaGhoaGhoaGha3lsaXgxM0AxNjMuY29tCqGh
-oaGhoaGhoaGhoaGhoaGhoaGhMjAwNy0wOS0wNwoK
+oaGhoaGhoaGhoaGhoaGhoaGhMjAwNy0wOS0xMAoK
