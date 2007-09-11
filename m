@@ -1,10 +1,12 @@
-Date: Mon, 10 Sep 2007 16:01:23 +0800
-From: "kylix" <kylix13@163.com>
+Date: Tue, 11 Sep 2007 11:00:42 +0200
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: Re: [Bridge] Badness in local_bh_enable at kernel/softirq.c:144
+Message-ID: <20070911110042.38c2055e@oldman>
+In-Reply-To: <46E4F9F3.02AC7F.13980@m12-11.163.com>
+References: <46E4F9F3.02AC7F.13980@m12-11.163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Message-Id: <46E4F9F3.02AC7F.13980@m12-11.163.com>
-Content-Transfer-Encoding: base64
-Subject: [Bridge] Badness in local_bh_enable at kernel/softirq.c:144
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,93 +15,125 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge <bridge@osdl.org>
+To: kylix <kylix13@163.com>
+Cc: bridge <bridge@linux-foundation.org>
 
-RGVhciBhbGw6CgogICAgSSBidWlsZGVkIGEgYnJpZGdlIG9uIG15IGVtYmVkZGVkIHN5c3RlbSwg
-dGhlIGxpbnV4IGtlcm5lbCB2ZXJzaW9uIDIuNi4xMjsKdGhlIGJyY3RsIHZlcnNpb24gMS4wLjYu
-CiAgICBJIGNvbm5lY3QgUEMwIHRvIGV0aDAsIGNvbm5lY3QgUEMxIHRvIGV0aDEsIHRoZW4gSSBw
-aW5nIFBDMSBmcm9tIFBDMCwgSXQKaXMgc3VjY2Vzc2Z1bC4KCUJ1dCBJIGdvdCB0aGUgZXJyb3Jz
-IGJsb3cgZnJvbSBsaW51eCBjb25zb2xlIHdoZW4gSXQgZm9yd2FyZGluZyBldmVyeSBldGhlcm5l
-dCBwYWNrYWdlLgogICAgQ2FuIGFueW9uZSBoZWxwIG1lID8gCgoqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioKQmFkbmVzcyBpbiBsb2NhbF9iaF9lbmFibGUgYXQga2VybmVsL3NvZnRpcnEuYzoxNDQK
-Q2FsbCBUcmFjZToKIFs8ODBhMjAwOWM+XSBBcHBEbWFjRW1hY1NlbmREYXRhKzB4ZGMvMHgxMDAK
-IFs8ODBhMjAwODg+XSBBcHBEbWFjRW1hY1NlbmREYXRhKzB4YzgvMHgxMDAKIFs8ODA5MmQwZDg+
-XSBsb2NhbF9iaF9lbmFibGUrMHg0NC8weDkwCiBbPDgwYTk1YjBjPl0gZGVzdHJveV9jb25udHJh
-Y2srMHg1OC8weDIxOAogWzw4MGEzNDJkYz5dIF9fa2ZyZWVfc2tiKzB4MWNjLzB4Mjg0CiBbPDgw
-YTFiYzAwPl0gYXUxMDAwX3R4KzB4Mjc4LzB4NGM4CiBbPDgwYTFiYzAwPl0gYXUxMDAwX3R4KzB4
-Mjc4LzB4NGM4CiBbPDgwYTFiZTI0Pl0gYXUxMDAwX3R4KzB4NDljLzB4NGM4CiBbPDgwYWFkN2Mw
-Pl0gYnJfZGV2X3F1ZXVlX3B1c2hfeG1pdCsweDAvMHgxYTAKIFs8ODBhYWQ3YzA+XSBicl9kZXZf
-cXVldWVfcHVzaF94bWl0KzB4MC8weDFhMAogWzw4MGE0YWE3OD5dIG5mX2l0ZXJhdGUrMHg5NC8w
-eDEwOAogWzw4MGE0Y2IwOD5dIHFkaXNjX3Jlc3RhcnQrMHgxNzAvMHgzMDQKIFs8ODBhYWQ3YzA+
-XSBicl9kZXZfcXVldWVfcHVzaF94bWl0KzB4MC8weDFhMAogWzw4MGFhZDdjMD5dIGJyX2Rldl9x
-dWV1ZV9wdXNoX3htaXQrMHgwLzB4MWEwCiBbPDgwYTNiZjk0Pl0gZGV2X3F1ZXVlX3htaXQrMHgx
-MDQvMHgyYzgKIFs8ODA5MDFhOTA+XSBtaXBzX3RpbWVyX2ludGVycnVwdCsweGEwLzB4MTBjCiBb
-PDgwYWFkOTRjPl0gYnJfZGV2X3F1ZXVlX3B1c2hfeG1pdCsweDE4Yy8weDFhMAogWzw4MGFhZDdj
-MD5dIGJyX2Rldl9xdWV1ZV9wdXNoX3htaXQrMHgwLzB4MWEwCiBbPDgwYWI0N2NjPl0gYnJfbmZf
-cG9zdF9yb3V0aW5nKzB4MTc4LzB4MTk4CiBbPDgwYTFmNDA0Pl0gQXBwRG1hY0VtYWNDbGVhclR4
-UmVzdWx0KzB4NDgvMHg2NAogWzw4MGExZjNkND5dIEFwcERtYWNFbWFjQ2xlYXJUeFJlc3VsdCsw
-eDE4LzB4NjQKIFs8ODBhYWQ3YzA+XSBicl9kZXZfcXVldWVfcHVzaF94bWl0KzB4MC8weDFhMAog
-Wzw4MGE0YWE3OD5dIG5mX2l0ZXJhdGUrMHg5NC8weDEwOAogWzw4MGE5YTNiOD5dIGlwdF9kb190
-YWJsZSsweDNkMC8weDQyMAogWzw4MGFiM2VhMD5dIGJyX25mX2ZvcndhcmRfZmluaXNoKzB4MC8w
-eDEzOAogWzw4MGFhZDdjMD5dIGJyX2Rldl9xdWV1ZV9wdXNoX3htaXQrMHgwLzB4MWEwCiBbPDgw
-YWFkN2MwPl0gYnJfZGV2X3F1ZXVlX3B1c2hfeG1pdCsweDAvMHgxYTAKIFs8ODBhNGIzYWM+XSBu
-Zl9ob29rX3Nsb3crMHg5Yy8weDFkOAogWzw4MGFiM2VhMD5dIGJyX25mX2ZvcndhcmRfZmluaXNo
-KzB4MC8weDEzOAogWzw4MGFhZDdjMD5dIGJyX2Rldl9xdWV1ZV9wdXNoX3htaXQrMHgwLzB4MWEw
-CiBbPDgwOTQ4ODljPl0gaGFuZGxlX0lSUV9ldmVudCsweDY0LzB4ZDgKIFs8ODBhYWQ5NjA+XSBi
-cl9mb3J3YXJkX2ZpbmlzaCsweDAvMHg3MAogWzw4MGFhZDlhYz5dIGJyX2ZvcndhcmRfZmluaXNo
-KzB4NGMvMHg3MAogWzw4MGFhZDk2MD5dIGJyX2ZvcndhcmRfZmluaXNoKzB4MC8weDcwCiBbPDgw
-YWFkN2MwPl0gYnJfZGV2X3F1ZXVlX3B1c2hfeG1pdCsweDAvMHgxYTAKIFs8ODBhYjNmYzQ+XSBi
-cl9uZl9mb3J3YXJkX2ZpbmlzaCsweDEyNC8weDEzOAogWzw4MGFiM2ZiND5dIGJyX25mX2Zvcndh
-cmRfZmluaXNoKzB4MTE0LzB4MTM4CiBbPDgwYWFkOTYwPl0gYnJfZm9yd2FyZF9maW5pc2grMHgw
-LzB4NzAKIFs8ODBhYjQxMzA+XSBicl9uZl9mb3J3YXJkX2lwKzB4MTU4LzB4MTZjCiBbPDgwYWIz
-ZWEwPl0gYnJfbmZfZm9yd2FyZF9maW5pc2grMHgwLzB4MTM4CiBbPDgwYjIwMDAwPl0gaXBfYXV0
-b19jb25maWdfc2V0dXArMHhlNC8weDIzNAogWzw4MDlkOWQ4OD5dIG1lbXNldF9wYXJ0aWFsKzB4
-NGMvMHg2YwogWzw4MGE0YWE3OD5dIG5mX2l0ZXJhdGUrMHg5NC8weDEwOAogWzw4MDkwNDZiYz5d
-IHJldF9mcm9tX2lycSsweDAvMHgxMAogWzw4MGFhMTUzMD5dIGlwX25hdF9zZXR1cF9pbmZvKzB4
-Njg4LzB4N2E0CiBbPDgwYWExMzhjPl0gaXBfbmF0X3NldHVwX2luZm8rMHg0ZTQvMHg3YTQKIFs8
-ODBhYWQ5NjA+XSBicl9mb3J3YXJkX2ZpbmlzaCsweDAvMHg3MAogWzw4MGFhZDk2MD5dIGJyX2Zv
-cndhcmRfZmluaXNoKzB4MC8weDcwCiBbPDgwYTRiM2FjPl0gbmZfaG9va19zbG93KzB4OWMvMHgx
-ZDgKIFs8ODBhYWQ5NjA+XSBicl9mb3J3YXJkX2ZpbmlzaCsweDAvMHg3MAogWzw4MGFhZGFhOD5d
-IF9fYnJfZm9yd2FyZCsweDYwLzB4ODAKIFs8ODBhYWVkNzA+XSBicl9oYW5kbGVfZnJhbWVfZmlu
-aXNoKzB4YTQvMHgxYzgKIFs8ODBhYWQ5NjA+XSBicl9mb3J3YXJkX2ZpbmlzaCsweDAvMHg3MAog
-Wzw4MGFhZWU1Yz5dIGJyX2hhbmRsZV9mcmFtZV9maW5pc2grMHgxOTAvMHgxYzgKIFs8ODBhYWVk
-N2M+XSBicl9oYW5kbGVfZnJhbWVfZmluaXNoKzB4YjAvMHgxYzgKIFs8ODBhYjM0YjQ+XSBicl9u
-Zl9wcmVfcm91dGluZ19maW5pc2grMHg1MDgvMHg1MjgKIFs8ODBhYjM0YTQ+XSBicl9uZl9wcmVf
-cm91dGluZ19maW5pc2grMHg0ZjgvMHg1MjgKIFs8ODBhYWVjY2M+XSBicl9oYW5kbGVfZnJhbWVf
-ZmluaXNoKzB4MC8weDFjOAogWzw4MGFiMmZhYz5dIGJyX25mX3ByZV9yb3V0aW5nX2ZpbmlzaCsw
-eDAvMHg1MjgKIFs8ODBhYjJmYWM+XSBicl9uZl9wcmVfcm91dGluZ19maW5pc2grMHgwLzB4NTI4
-CiBbPDgwYWIyZmFjPl0gYnJfbmZfcHJlX3JvdXRpbmdfZmluaXNoKzB4MC8weDUyOAogWzw4MGE0
-YWE3OD5dIG5mX2l0ZXJhdGUrMHg5NC8weDEwOAogWzw4MGE0YWE3OD5dIG5mX2l0ZXJhdGUrMHg5
-NC8weDEwOAogWzw4MGEzM2VhOD5dIGFsbG9jX3NrYisweDU4LzB4ZjAKIFs8ODBhYjJmYWM+XSBi
-cl9uZl9wcmVfcm91dGluZ19maW5pc2grMHgwLzB4NTI4CiBbPDgwYWIyZmFjPl0gYnJfbmZfcHJl
-X3JvdXRpbmdfZmluaXNoKzB4MC8weDUyOAogWzw4MGE0YjNhYz5dIG5mX2hvb2tfc2xvdysweDlj
-LzB4MWQ4CiBbPDgwYWI0MmQ4Pl0gYnJfbmZfZm9yd2FyZF9hcnArMHgxOTQvMHgxYWMKIFs8ODBh
-YjJmYWM+XSBicl9uZl9wcmVfcm91dGluZ19maW5pc2grMHgwLzB4NTI4CiBbPDgwYWFlY2NjPl0g
-YnJfaGFuZGxlX2ZyYW1lX2ZpbmlzaCsweDAvMHgxYzgKIFs8ODBhYWVjY2M+XSBicl9oYW5kbGVf
-ZnJhbWVfZmluaXNoKzB4MC8weDFjOAogWzw4MGFiM2Q3OD5dIGJyX25mX3ByZV9yb3V0aW5nKzB4
-ODU4LzB4ODg4CiBbPDgwYWIzZDY0Pl0gYnJfbmZfcHJlX3JvdXRpbmcrMHg4NDQvMHg4ODgKIFs8
-ODBhYjJmYWM+XSBicl9uZl9wcmVfcm91dGluZ19maW5pc2grMHgwLzB4NTI4CiBbPDgwYWFkOTYw
-Pl0gYnJfZm9yd2FyZF9maW5pc2grMHgwLzB4NzAKIFs8ODBhYWVjY2M+XSBicl9oYW5kbGVfZnJh
-bWVfZmluaXNoKzB4MC8weDFjOAogWzw4MGE0YWE3OD5dIG5mX2l0ZXJhdGUrMHg5NC8weDEwOAog
-Wzw4MGFhZDk2MD5dIGJyX2ZvcndhcmRfZmluaXNoKzB4MC8weDcwCiBbPDgwYWFlY2NjPl0gYnJf
-aGFuZGxlX2ZyYW1lX2ZpbmlzaCsweDAvMHgxYzgKIFs8ODBhYWVjY2M+XSBicl9oYW5kbGVfZnJh
-bWVfZmluaXNoKzB4MC8weDFjOAogWzw4MGE0YjNhYz5dIG5mX2hvb2tfc2xvdysweDljLzB4MWQ4
-CiBbPDgwYWFkYWE4Pl0gX19icl9mb3J3YXJkKzB4NjAvMHg4MAogWzw4MGFhZWNjYz5dIGJyX2hh
-bmRsZV9mcmFtZV9maW5pc2grMHgwLzB4MWM4CiBbPDgwYjIwMDAwPl0gaXBfYXV0b19jb25maWdf
-c2V0dXArMHhlNC8weDIzNAogWzw4MGFhZjA2MD5dIGJyX2hhbmRsZV9mcmFtZSsweDFjYy8weDJi
-YwogWzw4MGExZjFlYz5dIEh3RG1hY1JkUSsweDVjLzB4ZTgKIFs8ODBhYWVjY2M+XSBicl9oYW5k
-bGVfZnJhbWVfZmluaXNoKzB4MC8weDFjOAogWzw4MGEzM2VhOD5dIGFsbG9jX3NrYisweDU4LzB4
-ZjAKIFs8ODBhM2NhNjQ+XSBuZXRpZl9yZWNlaXZlX3NrYisweDI2OC8weDQ2YwogWzw4MGExYzIx
-ND5dIGF1MTAwMF9pbnRlcnJ1cHQrMHgzYzQvMHg0NjgKIFs8ODBhM2NkNDQ+XSBwcm9jZXNzX2Jh
-Y2tsb2crMHhkYy8weDJjNAogWzw4MGEzY2VmND5dIHByb2Nlc3NfYmFja2xvZysweDI4Yy8weDJj
-NAogWzw4MGEzY2ZkYz5dIG5ldF9yeF9hY3Rpb24rMHhiMC8weDIwMAogWzw4MDkyY2Y3Yz5dIF9f
-ZG9fc29mdGlycSsweDZjLzB4ZjgKIFs8ODA5MmQwNjA+XSBkb19zb2Z0aXJxKzB4NTgvMHg4Ywog
-Wzw4MDkwNWM2MD5dIGRvX0lSUSsweDI0LzB4MzQKIFs8ODA5MDQ2YmM+XSByZXRfZnJvbV9pcnEr
-MHgwLzB4MTAKIFs8ODA5MDQ2YmM+XSByZXRfZnJvbV9pcnErMHgwLzB4MTAKIFs8ODA5MDQyODQ+
-XSByNGtfd2FpdCsweDAvMHg4CiBbPDgwYjIwOGMwPl0gaXBfbmF0X3J1bGVfaW5pdCsweDU0LzB4
-OTQKIFs8ODBiMjAwMDA+XSBpcF9hdXRvX2NvbmZpZ19zZXR1cCsweGU0LzB4MjM0CiBbPDgwOWQ0
-OTBjPl0gaWRyX2NhY2hlX2N0b3IrMHgwLzB4YwogWzw4MGIwNzBiMD5dIHVua25vd25fYm9vdG9w
-dGlvbisweDAvMHgyYzQKCgkKCqGhoaGhoaGhoaGhoaGhCiAgICBCZXN0IHJlZ2FyZHMKIAkJCQkK
-CqGhoaGhoaGhoaGhoaGhoaFreWxpeAqhoaGhoaGhoaGhoaGhoaGha3lsaXgxM0AxNjMuY29tCqGh
-oaGhoaGhoaGhoaGhoaGhoaGhMjAwNy0wOS0xMAoK
+> Dear all:
+> 
+>     I builded a bridge on my embedded system, the linux kernel
+> version 2.6.12; the brctl version 1.0.6.
+>     I connect PC0 to eth0, connect PC1 to eth1, then I ping PC1 from
+> PC0, It is successful.
+> 	But I got the errors blow from linux console when It
+> forwarding every ethernet package. Can anyone help me ? 
+> 
+> *********************************************************************************
+> Badness in local_bh_enable at kernel/softirq.c:144
+> Call Trace:
+>  [<80a2009c>] AppDmacEmacSendData+0xdc/0x100
+>  [<80a20088>] AppDmacEmacSendData+0xc8/0x100
+>  [<8092d0d8>] local_bh_enable+0x44/0x90
+>  [<80a95b0c>] destroy_conntrack+0x58/0x218
+>  [<80a342dc>] __kfree_skb+0x1cc/0x284
+>  [<80a1bc00>] au1000_tx+0x278/0x4c8
+>  [<80a1bc00>] au1000_tx+0x278/0x4c8
+>  [<80a1be24>] au1000_tx+0x49c/0x4c8
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80a4aa78>] nf_iterate+0x94/0x108
+>  [<80a4cb08>] qdisc_restart+0x170/0x304
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80a3bf94>] dev_queue_xmit+0x104/0x2c8
+>  [<80901a90>] mips_timer_interrupt+0xa0/0x10c
+>  [<80aad94c>] br_dev_queue_push_xmit+0x18c/0x1a0
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80ab47cc>] br_nf_post_routing+0x178/0x198
+>  [<80a1f404>] AppDmacEmacClearTxResult+0x48/0x64
+>  [<80a1f3d4>] AppDmacEmacClearTxResult+0x18/0x64
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80a4aa78>] nf_iterate+0x94/0x108
+>  [<80a9a3b8>] ipt_do_table+0x3d0/0x420
+>  [<80ab3ea0>] br_nf_forward_finish+0x0/0x138
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80a4b3ac>] nf_hook_slow+0x9c/0x1d8
+>  [<80ab3ea0>] br_nf_forward_finish+0x0/0x138
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<8094889c>] handle_IRQ_event+0x64/0xd8
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aad9ac>] br_forward_finish+0x4c/0x70
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aad7c0>] br_dev_queue_push_xmit+0x0/0x1a0
+>  [<80ab3fc4>] br_nf_forward_finish+0x124/0x138
+>  [<80ab3fb4>] br_nf_forward_finish+0x114/0x138
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80ab4130>] br_nf_forward_ip+0x158/0x16c
+>  [<80ab3ea0>] br_nf_forward_finish+0x0/0x138
+>  [<80b20000>] ip_auto_config_setup+0xe4/0x234
+>  [<809d9d88>] memset_partial+0x4c/0x6c
+>  [<80a4aa78>] nf_iterate+0x94/0x108
+>  [<809046bc>] ret_from_irq+0x0/0x10
+>  [<80aa1530>] ip_nat_setup_info+0x688/0x7a4
+>  [<80aa138c>] ip_nat_setup_info+0x4e4/0x7a4
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80a4b3ac>] nf_hook_slow+0x9c/0x1d8
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aadaa8>] __br_forward+0x60/0x80
+>  [<80aaed70>] br_handle_frame_finish+0xa4/0x1c8
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aaee5c>] br_handle_frame_finish+0x190/0x1c8
+>  [<80aaed7c>] br_handle_frame_finish+0xb0/0x1c8
+>  [<80ab34b4>] br_nf_pre_routing_finish+0x508/0x528
+>  [<80ab34a4>] br_nf_pre_routing_finish+0x4f8/0x528
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80a4aa78>] nf_iterate+0x94/0x108
+>  [<80a4aa78>] nf_iterate+0x94/0x108
+>  [<80a33ea8>] alloc_skb+0x58/0xf0
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80a4b3ac>] nf_hook_slow+0x9c/0x1d8
+>  [<80ab42d8>] br_nf_forward_arp+0x194/0x1ac
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80ab3d78>] br_nf_pre_routing+0x858/0x888
+>  [<80ab3d64>] br_nf_pre_routing+0x844/0x888
+>  [<80ab2fac>] br_nf_pre_routing_finish+0x0/0x528
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80a4aa78>] nf_iterate+0x94/0x108
+>  [<80aad960>] br_forward_finish+0x0/0x70
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80a4b3ac>] nf_hook_slow+0x9c/0x1d8
+>  [<80aadaa8>] __br_forward+0x60/0x80
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80b20000>] ip_auto_config_setup+0xe4/0x234
+>  [<80aaf060>] br_handle_frame+0x1cc/0x2bc
+>  [<80a1f1ec>] HwDmacRdQ+0x5c/0xe8
+>  [<80aaeccc>] br_handle_frame_finish+0x0/0x1c8
+>  [<80a33ea8>] alloc_skb+0x58/0xf0
+>  [<80a3ca64>] netif_receive_skb+0x268/0x46c
+>  [<80a1c214>] au1000_interrupt+0x3c4/0x468
+>  [<80a3cd44>] process_backlog+0xdc/0x2c4
+>  [<80a3cef4>] process_backlog+0x28c/0x2c4
+>  [<80a3cfdc>] net_rx_action+0xb0/0x200
+>  [<8092cf7c>] __do_softirq+0x6c/0xf8
+>  [<8092d060>] do_softirq+0x58/0x8c
+>  [<80905c60>] do_IRQ+0x24/0x34
+>  [<809046bc>] ret_from_irq+0x0/0x10
+>  [<809046bc>] ret_from_irq+0x0/0x10
+>  [<80904284>] r4k_wait+0x0/0x8
+>  [<80b208c0>] ip_nat_rule_init+0x54/0x94
+>  [<80b20000>] ip_auto_config_setup+0xe4/0x234
+>  [<809d490c>] idr_cache_ctor+0x0/0xc
+>  [<80b070b0>] unknown_bootoption+0x0/0x2c4
+
+What is the ethernet driver? It looks like a possible driver bug.
+Where is the driver source, I don' see AppDmacEmacSendData in
+mainline kernel source.
