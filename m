@@ -1,12 +1,15 @@
-Message-Id: <46FA2C17.76E4.0078.0@novell.com>
-Date: Wed, 26 Sep 2007 08:53:27 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
+Date: Wed, 26 Sep 2007 14:06:08 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20070926140608.6e6d3d0c@freepuppy.rosehill>
+In-Reply-To: <E1Iae5t-0007Sk-Vu@flower>
+References: <46FA2C17.76E4.0078.0@novell.com>
+	<20070926083705.6bc65ea5@fujitsu-loaner> <E1Iae5t-0007Sk-Vu@flower>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] Module use count must be updated as bridges are
-	created/destroyed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Re: why network devices don't do reference counting? (Re:
+ [PATCH]
+ Module use count must be updated as bridges are created/destroyed)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,51 +18,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
 
-Otherwise 'modprobe -r' on a module having a dependency on bridge will
-implicitly unload bridge, bringing down all connectivity that was using
-bridges.
+On Wed, 26 Sep 2007 23:06:53 +0200
+Oleg Verych <olecom@flower.upol.cz> wrote:
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> * Wed, 26 Sep 2007 08:37:05 -0700
+> * Organization: Linux Foundation
+> >
+> > On Wed, 26 Sep 2007 08:53:27 +0100
+> > "Jan Beulich" <jbeulich@novell.com> wrote:
+> >
+> >> Otherwise 'modprobe -r' on a module having a dependency on bridge will
+> >> implicitly unload bridge, bringing down all connectivity that was
+> >> using bridges.
+> >> 
+> >> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> >>
+> >
+> > No, network devices don't do reference counting.
+> 
+> Could you explain why, please?
+> 
+> After `udevd` on boot loads lots of unused crap, i surrendered, and use
+> $(rmmod `lsmod | just first column`). Networing bravely wipes away. OK,
+> there are lots of configs: udev, hotplug, modprobe, that somebody might
+> like to fix. But it came to the end with me. I just don't care. So,
+> please answer :)
+> ____
 
- net/bridge/br_if.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+For hotplug and other reasons, the network developers decided that being
+able to remove a network module at any time was a good thing. It works.
 
---- linux-2.6.23-rc8/net/bridge/br_if.c	2007-09-26 09:23:54.000000000 +0200
-+++ 2.6.23-rc8-bridge-module-get-put/net/bridge/br_if.c	2007-09-25 14:31:01.000000000 +0200
-@@ -276,6 +276,11 @@ int br_add_bridge(const char *name)
- 	if (!dev)
- 		return -ENOMEM;
- 
-+	if (!try_module_get(THIS_MODULE)) {
-+		free_netdev(dev);
-+		return -ENOENT;
-+	}
-+
- 	rtnl_lock();
- 	if (strchr(dev->name, '%')) {
- 		ret = dev_alloc_name(dev, dev->name);
-@@ -294,6 +299,8 @@ int br_add_bridge(const char *name)
- 		unregister_netdevice(dev);
-  out:
- 	rtnl_unlock();
-+	if (ret)
-+		module_put(THIS_MODULE);
- 	return ret;
- }
- 
-@@ -321,6 +328,8 @@ int br_del_bridge(const char *name)
- 		del_br(netdev_priv(dev));
- 
- 	rtnl_unlock();
-+	if (ret == 0)
-+		module_put(THIS_MODULE);
- 	return ret;
- }
- 
-
-
-
-
+-- 
+Stephen Hemminger <shemminger@linux-foundation.org>
