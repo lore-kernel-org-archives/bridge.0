@@ -1,9 +1,11 @@
-Date: Wed, 26 Sep 2007 14:06:08 -0700
+Date: Wed, 26 Sep 2007 15:33:30 -0700
 From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20070926140608.6e6d3d0c@freepuppy.rosehill>
-In-Reply-To: <E1Iae5t-0007Sk-Vu@flower>
+Message-ID: <20070926153330.77aade4d@freepuppy.rosehill>
+In-Reply-To: <Pine.LNX.4.64.0709270017120.17414@fbirervta.pbzchgretzou.qr>
 References: <46FA2C17.76E4.0078.0@novell.com>
 	<20070926083705.6bc65ea5@fujitsu-loaner> <E1Iae5t-0007Sk-Vu@flower>
+	<20070926140608.6e6d3d0c@freepuppy.rosehill>
+	<Pine.LNX.4.64.0709270017120.17414@fbirervta.pbzchgretzou.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -18,38 +20,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Oleg Verych <olecom@flower.upol.cz>
-Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
+To: Jan Engelhardt <jengelh@computergmbh.de>
+Cc: Oleg Verych <olecom@flower.upol.cz>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
 
-On Wed, 26 Sep 2007 23:06:53 +0200
-Oleg Verych <olecom@flower.upol.cz> wrote:
+On Thu, 27 Sep 2007 00:18:55 +0200 (CEST)
+Jan Engelhardt <jengelh@computergmbh.de> wrote:
 
-> * Wed, 26 Sep 2007 08:37:05 -0700
-> * Organization: Linux Foundation
-> >
-> > On Wed, 26 Sep 2007 08:53:27 +0100
-> > "Jan Beulich" <jbeulich@novell.com> wrote:
-> >
-> >> Otherwise 'modprobe -r' on a module having a dependency on bridge will
-> >> implicitly unload bridge, bringing down all connectivity that was
-> >> using bridges.
+> 
+> On Sep 26 2007 14:06, Stephen Hemminger wrote:
+> >> >
+> >> > No, network devices don't do reference counting.
 > >> 
-> >> Signed-off-by: Jan Beulich <jbeulich@novell.com>
-> >>
+> >> Could you explain why, please?
+> >> 
+> >> After `udevd` on boot loads lots of unused crap, i surrendered, and use
+> >> $(rmmod `lsmod | just first column`). Networing bravely wipes away. OK,
+> >> there are lots of configs: udev, hotplug, modprobe, that somebody might
+> >> like to fix. But it came to the end with me. I just don't care. So,
+> >> please answer :)
 > >
-> > No, network devices don't do reference counting.
+> >For hotplug and other reasons, the network developers decided that being
+> >able to remove a network module at any time was a good thing. It works.
 > 
-> Could you explain why, please?
-> 
-> After `udevd` on boot loads lots of unused crap, i surrendered, and use
-> $(rmmod `lsmod | just first column`). Networing bravely wipes away. OK,
-> there are lots of configs: udev, hotplug, modprobe, that somebody might
-> like to fix. But it came to the end with me. I just don't care. So,
-> please answer :)
-> ____
+> Except that for ipv6.ko, it's all opposite. After modprobe,
+> it already got a refcount like 8 and you're wondering how
+> to get rid of that.
 
-For hotplug and other reasons, the network developers decided that being
-able to remove a network module at any time was a good thing. It works.
+ipv6 is not a network driver, it is a protocol. You might be able to remove it if you zap
+all the routes and applications, ...
 
 -- 
 Stephen Hemminger <shemminger@linux-foundation.org>
