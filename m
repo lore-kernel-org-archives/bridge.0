@@ -1,19 +1,19 @@
-Date: Thu, 27 Sep 2007 07:51:02 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20070927075102.4335a263@freepuppy.rosehill>
-In-Reply-To: <46FB99EF.4020806@aitel.hist.no>
+Message-Id: <46FBE2DD.76E4.0078.0@novell.com>
+Date: Thu, 27 Sep 2007 16:05:33 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
 References: <46FA2C17.76E4.0078.0@novell.com>
-	<20070926083705.6bc65ea5@fujitsu-loaner> <E1Iae5t-0007Sk-Vu@flower>
-	<20070926140608.6e6d3d0c@freepuppy.rosehill>
-	<Pine.LNX.4.64.0709270017120.17414@fbirervta.pbzchgretzou.qr>
-	<20070926153330.77aade4d@freepuppy.rosehill>
-	<46FB99EF.4020806@aitel.hist.no>
+	<20070926083705.6bc65ea5@fujitsu-loaner>
+	<46FAA013.76E4.0078.0@novell.com>
+	<20070926101252.3ccbb987@freepuppy.rosehill>
+	<46FB7A7A.76E4.0078.0@novell.com>
+	<20070927074849.074fdb88@freepuppy.rosehill>
+In-Reply-To: <20070927074849.074fdb88@freepuppy.rosehill>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: why network devices don't do reference counting? (Re:
- [PATCH]
- Module use count must be updated as bridges are created/destroyed)
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Re: [PATCH] Module use count must be updated as bridges are
+	created/destroyed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,93 +22,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Jan Engelhardt <jengelh@computergmbh.de>, Oleg Verych <olecom@flower.upol.cz>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2007 13:54:23 +0200
-Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+>> >Sounds like a module utilities problem since unloading one module doesn't
+>> >normally unload others.
+>> 
+>> I have to disagree here - 'modprobe -r' is specifically unloading all modules the
+>> specified one references as long as they have a use count of zero. The
+>> difference to other networking modules is that the latter normally don't export
+>> symbols, and hence don't have dependent modules (and thus cannot be
+>> subject of implicit unloading). Bridge does have dependents, and hence must
+>> avoid implicit unloading by managing its use count.
+>
+>I want keep the behavior that:
+>	modprobe -r bridge
+>removes all bridges.  It is too useful and may already be in some user scripts.
 
-> Stephen Hemminger wrote:
-> > On Thu, 27 Sep 2007 00:18:55 +0200 (CEST)
-> > Jan Engelhardt <jengelh@computergmbh.de> wrote:
-> >
-> >   
-> >> On Sep 26 2007 14:06, Stephen Hemminger wrote:
-> >>     
-> >>>>> No, network devices don't do reference counting.
-> >>>>>           
-> >>>> Could you explain why, please?
-> >>>>
-> >>>> After `udevd` on boot loads lots of unused crap, i surrendered, and use
-> >>>> $(rmmod `lsmod | just first column`). Networing bravely wipes away. OK,
-> >>>> there are lots of configs: udev, hotplug, modprobe, that somebody might
-> >>>> like to fix. But it came to the end with me. I just don't care. So,
-> >>>> please answer :)
-> >>>>         
-> >>> For hotplug and other reasons, the network developers decided that being
-> >>> able to remove a network module at any time was a good thing. It works.
-> >>>       
-> >> Except that for ipv6.ko, it's all opposite. After modprobe,
-> >> it already got a refcount like 8 and you're wondering how
-> >> to get rid of that.
-> >>     
-> >
-> > ipv6 is not a network driver, it is a protocol. You might be able to remove it if you zap
-> > all the routes and applications, ...
-> >   
-> Wouldn't it be enough to down all the interfaces and close all the sockets?
-> No need to bring down every app.
+So we have an unsolvable problem here then, unless infrastructure gets added
+that allows a module to declare itself as not-implicit-unload-safe, forcing
+modprobe -r to keep its hands off it. Ugly.
 
-You need every socket to close and all routes to go away including the routes through
-loopback device, and still there probably are control sockets buried inside ipv6
-that hold ref count.
+Jan
 
-IMHO the kernel should just admit that IPV6 can't be removed.
 
---- a/net/ipv6/af_inet6.c	2007-09-26 16:28:01.000000000 -0700
-+++ b/net/ipv6/af_inet6.c	2007-09-26 17:38:23.000000000 -0700
-@@ -914,6 +914,9 @@ out_unregister_tcp_proto:
- }
- module_init(inet6_init);
- 
-+/* Disabled at present because it is impossible to remove all references */
-+#ifdef IPV6_UNLOAD
-+
- static void __exit inet6_exit(void)
- {
- 	/* First of all disallow new sockets creation. */
-@@ -952,5 +955,6 @@ static void __exit inet6_exit(void)
- 	proto_unregister(&tcpv6_prot);
- }
- module_exit(inet6_exit);
-+#endif
- 
- MODULE_ALIAS_NETPROTO(PF_INET6);
---- a/net/ipv6/addrconf.c	2007-09-26 15:07:35.000000000 -0700
-+++ b/net/ipv6/addrconf.c	2007-09-26 17:36:52.000000000 -0700
-@@ -4255,6 +4255,7 @@ errout:
- 	return err;
- }
- 
-+#ifdef IPV6_UNLOAD
- void __exit addrconf_cleanup(void)
- {
- 	struct net_device *dev;
-@@ -4308,3 +4309,4 @@ void __exit addrconf_cleanup(void)
- 	proc_net_remove(&init_net, "if_inet6");
- #endif
- }
-+#endif
---- a/net/ipv6/ipv6_sockglue.c	2007-09-26 15:07:35.000000000 -0700
-+++ b/net/ipv6/ipv6_sockglue.c	2007-09-26 17:36:17.000000000 -0700
-@@ -1132,7 +1132,9 @@ void __init ipv6_packet_init(void)
- 	dev_add_pack(&ipv6_packet_type);
- }
- 
--void ipv6_packet_cleanup(void)
-+#ifdef IPV6_UNLOAD
-+void __exit ipv6_packet_cleanup(void)
- {
- 	dev_remove_pack(&ipv6_packet_type);
- }
-+#endif
