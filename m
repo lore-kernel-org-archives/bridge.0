@@ -1,14 +1,17 @@
-Date: Wed, 26 Sep 2007 15:57:26 -0700 (PDT)
-Message-Id: <20070926.155726.43027883.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20070926153330.77aade4d@freepuppy.rosehill>
-References: <20070926140608.6e6d3d0c@freepuppy.rosehill>
-	<Pine.LNX.4.64.0709270017120.17414@fbirervta.pbzchgretzou.qr>
-	<20070926153330.77aade4d@freepuppy.rosehill>
+Message-Id: <46FB7A7A.76E4.0078.0@novell.com>
+Date: Thu, 27 Sep 2007 08:40:10 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+References: <46FA2C17.76E4.0078.0@novell.com>
+	<20070926083705.6bc65ea5@fujitsu-loaner>
+	<46FAA013.76E4.0078.0@novell.com>
+	<20070926101252.3ccbb987@freepuppy.rosehill>
+In-Reply-To: <20070926101252.3ccbb987@freepuppy.rosehill>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Re: why network devices don't do reference counting?
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Re: [PATCH] Module use count must be updated as bridges are
+	created/destroyed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,16 +20,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: jengelh@computergmbh.de, olecom@flower.upol.cz, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jbeulich@novell.com
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Wed, 26 Sep 2007 15:33:30 -0700
+>>> Stephen Hemminger <shemminger@linux-foundation.org> 26.09.07 19:12 >>>
+>On Wed, 26 Sep 2007 17:08:19 +0100
+>"Jan Beulich" <jbeulich@novell.com> wrote:
+>
+>> >>> Stephen Hemminger <shemminger@linux-foundation.org> 26.09.07 17:37 >>>
+>> >On Wed, 26 Sep 2007 08:53:27 +0100
+>> >"Jan Beulich" <jbeulich@novell.com> wrote:
+>> >
+>> >> Otherwise 'modprobe -r' on a module having a dependency on bridge will
+>> >> implicitly unload bridge, bringing down all connectivity that was
+>> >> using bridges.
+>> >> 
+>> >> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+>> >>
+>> >
+>> >No, network devices don't do reference counting.
+>> >What is the dependency? Where is the source of the module interacting
+>> >with the  bridge?
+>> 
+>> On a Xen system, I loaded and then unloaded ebtable_broute. The unload
+>> implicitly unloaded bridge, destroying the network. The only way I could see
+>> to avoid the implicit unload was to bump the reference count on bridge
+>> creation. Otherwise I would have to ask why bridge has a zero reference
+>> count despite a bridge being configured.
+>> 
+>> Jan
+>
+>Sounds like a module utilities problem since unloading one module doesn't
+>normally unload others.
 
-> ipv6 is not a network driver, it is a protocol. You might be able to
-> remove it if you zap all the routes and applications, ...
+I have to disagree here - 'modprobe -r' is specifically unloading all modules the
+specified one references as long as they have a use count of zero. The
+difference to other networking modules is that the latter normally don't export
+symbols, and hence don't have dependent modules (and thus cannot be
+subject of implicit unloading). Bridge does have dependents, and hence must
+avoid implicit unloading by managing its use count.
 
-It is purposefully set to have a permanent elevated reference
-count because it is not designed to be unloaded safely.
+Jan
 
-It has been unloadable forever.
+
