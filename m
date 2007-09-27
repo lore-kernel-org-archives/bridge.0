@@ -1,10 +1,10 @@
-Date: Thu, 27 Sep 2007 12:01:14 -0700 (PDT)
-Message-Id: <20070927.120114.95884344.davem@davemloft.net>
+Date: Thu, 27 Sep 2007 12:15:22 -0700 (PDT)
+Message-Id: <20070927.121522.52884745.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <46FB99EF.4020806@aitel.hist.no>
-References: <Pine.LNX.4.64.0709270017120.17414@fbirervta.pbzchgretzou.qr>
-	<20070926153330.77aade4d@freepuppy.rosehill>
-	<46FB99EF.4020806@aitel.hist.no>
+In-Reply-To: <Pine.LNX.4.64.0709271654270.30621@fbirervta.pbzchgretzou.qr>
+References: <46FB99EF.4020806@aitel.hist.no>
+	<20070927075102.4335a263@freepuppy.rosehill>
+	<Pine.LNX.4.64.0709271654270.30621@fbirervta.pbzchgretzou.qr>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -17,20 +17,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: helge.hafting@aitel.hist.no
-Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jbeulich@novell.com, jengelh@computergmbh.de, olecom@flower.upol.cz
+To: jengelh@computergmbh.de
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jbeulich@novell.com, helge.hafting@aitel.hist.no, olecom@flower.upol.cz
 
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-Date: Thu, 27 Sep 2007 13:54:23 +0200
+From: Jan Engelhardt <jengelh@computergmbh.de>
+Date: Thu, 27 Sep 2007 16:55:36 +0200 (CEST)
 
-> Wouldn't it be enough to down all the interfaces and close all the sockets?
-> No need to bring down every app.
+> 
+> On Sep 27 2007 07:51, Stephen Hemminger wrote:
+> >
+> >You need every socket to close and all routes to go away including the 
+> >routes through loopback device, and still there probably are control 
+> >sockets buried inside ipv6 that hold ref count.
+> >
+> >IMHO the kernel should just admit that IPV6 can't be removed.
+> 
+> I cannot accept that. If ipv6.ko has a way to tack ipv6 structs onto all 
+> sockets, interfaces and addresses, it should also be able to untack it 
+> again.
 
-And there are routes, and neighbour cache entries, and all sorts
-of external references to the stack.  For example, if a packet
-gets stuck in a device because the link just went down, that
-can hold references to the ipv6 module from several angles.
+Then you do the work and see how incredibly difficult the
+implementation is, others have tried.  It's not trivial
+and at best it's a very time consuming piece of work to
+embark on.
 
-But you have to add code to actually keep track of all of these
-references and there is no such code in the ipv6 module at all
-and it's a nontrivial time consuming job to implement it.
+Until then it's un-removable, plain as that :-)
+
+I don't know why we're wasting our fingers discussing this
+at all to be honest with you.
