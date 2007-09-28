@@ -1,19 +1,20 @@
-Message-ID: <20070928160245.ze2mcs5uogc0w40s@webapps>
-Date: Fri, 28 Sep 2007 16:02:45 -0400
-From: "Mark S. Mathews" <mark@linux-wlan.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+	bh=o+h9jkSLqfYjw+aRVm7SmQlIZ9xHfGq27K2oHGn++h8=;
+	b=FEotja3FZBFMGw8YhZ9n/b1Bn6bryhHq4GkMmHwxoZDwzHMOWC+xdtVvxm9uNzlT6Qr2e9V7Y08X4gPbxp1er/YfzEtS1xEiauVe+7J9Zs1JVvIe9XCTT/2Tn4zCxqA3LNHSys6gPnlpH3A6RFqgrbtuFoOmOd+N9atQlMrV+qk=
+Message-ID: <2e59e6970709281600t79bd168cj9a733e9cf5d2e17e@mail.gmail.com>
+Date: Fri, 28 Sep 2007 18:00:52 -0500
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
 Subject: Re: [Bridge] Flushing MAC-tables(?)
+In-Reply-To: <20070928160245.ze2mcs5uogc0w40s@webapps>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_3953_27509024.1191020452367"
 References: <46FCB3F4.4080802@googlemail.com>
 	<2e59e6970709281007g7cc3dd95gddca21e540ea886a@mail.gmail.com>
 	<20070928134115.z8bvj5ws0oc00k0g@webapps>
 	<2e59e6970709281151v69915609qf221bb5052fdd6a6@mail.gmail.com>
-In-Reply-To: <2e59e6970709281151v69915609qf221bb5052fdd6a6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+	<20070928160245.ze2mcs5uogc0w40s@webapps>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,53 +23,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+To: "Mark S. Mathews" <mark@linux-wlan.com>
 Cc: bridge@lists.linux-foundation.org
 
+------=_Part_3953_27509024.1191020452367
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Quoting "richardvoigt@gmail.com" <richardvoigt@gmail.com>:
-
-> On 9/28/07, Mark S. Mathews <mark@linux-wlan.com> wrote:
->>
->> Good catch Richard, I forgot about the stale association problem.
->>
->> Actually, my note about having the 'new AP' wlan stack generate a
->> bcast frame in reponse to the association event should take care of
->> this problem as well.  When the old AP's wlan stack sees a frame
->> coming in from above (i.e. off the wire) with a source address equal
->> to one of its associated stations, it _should_ immediately disassoc
->> that station thus breaking the mac-level STA-to-STA frame path.
->>
->> I think this 'send a bcast to the wire upon assoc' behavior is listed
->> in a recommended-practices somewhere (been a long time).  It's
->> basically a trick to enforce the 'STA shall be associated to
->> one-and-only-one BSS within an ESS' rule.
+> The 'most stations' note though...;-) we've learned the hard way that
+> there are plenty of mac/driver/host combinations that only issue DHCP
+> requests on ESS transitions.
 >
-> Most stations will send a broadcast upon association even without help from
-> the AP (DHCP-REQUEST for example).
 >
-> In this case, the station that moved can still hear the other station, which
-> makes me believe there is not a stale association, or stale MAC entries,
-> because the stationary node obviously found the new location of the mobile
-> node correctly.  It's the mobile node that can't transmit.  That's backwards
-> from the breakage you'd get from a stale association/stale bridge learn
-> table.
+Didn't think of that.  I guess seamless roaming would require that handoff
+isn't considered as a disconnect and reconnect.
 
-Too true.  I had to reread the problem description and you're quite  
-correct, sorry for the confusion.
+------=_Part_3953_27509024.1191020452367
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The 'most stations' note though...;-) we've learned the hard way that  
-there are plenty of mac/driver/host combinations that only issue DHCP  
-requests on ESS transitions.
+<br><div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">The &#39;most stations&#39; note though...;-) we&#39;ve learned the hard way that<br>
+there are plenty of mac/driver/host combinations that only issue DHCP<br>requests on ESS transitions.<br><br></blockquote></div><br>Didn&#39;t think of that.&nbsp; I guess seamless roaming would require that handoff isn&#39;t considered as a disconnect and reconnect.
+<br>
 
--Mark
-
-
-Mark S. Mathews
-
-AbsoluteValue Systems      Web:    http://www.linux-wlan.com
-721-D North Drive          e-mail: mark@linux-wlan.com
-Melbourne, FL 32934        Phone:  321.259.0737
-USA                        Fax:    321.259.0286
-
-
+------=_Part_3953_27509024.1191020452367--
