@@ -1,6 +1,6 @@
-Date: Tue, 9 Oct 2007 16:28:50 +0200
-From: Francesco Dolcini <fdolcini@sysnetsistemi.it>
-Message-ID: <20071009142850.GA29180@fd.sysnet.local>
+Date: Tue, 9 Oct 2007 14:57:37 +0200
+From: Francesco Dolcini <francesco@dolcini.it>
+Message-ID: <20071009125737.GA19446@fd.sysnet.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,10 +18,6 @@ To: bridge@lists.linux-foundation.org
 In kernel 2.4, br_record_config_information update message_age_timer
 with jiffies in the past. In 2.6 is already fixed and a similar fix
 appeared in v2.4.35.3.
-
-sorry if you receive this twice, I had problem sending to the list (I
-think my previous mail got filtered)
-
 
 Signed-off-by: Francesco Dolcini <fdolcini@sysnetsistemi.it>
 
