@@ -1,12 +1,13 @@
-Message-ID: <470CE5EB.7010501@sysnetsistemi.it>
-Date: Wed, 10 Oct 2007 16:47:07 +0200
-From: Francesco Dolcini <fdolcini@sysnetsistemi.it>
-MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH] stp timer fix, linux version 2.4
-References: <20071009125737.GA19446@fd.sysnet.local>
-In-Reply-To: <20071009125737.GA19446@fd.sysnet.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Resent-Message-ID: <20071016160000.GA31488@rere.qmqm.pl>
+Resent-To: bridge@lists.linux-foundation.org
+Date: Mon, 15 Oct 2007 23:48:12 +0200
+From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+Message-ID: <20071015214812.GA789@rere.qmqm.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] [PATCH 2.6.23.1] Kill STP hello timer if STP is not enabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,11 +16,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Francesco Dolcini <francesco@dolcini.it>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-Francesco Dolcini wrote:
-> In kernel 2.4, br_record_config_information update message_age_timer
-> with jiffies in the past. In 2.6 is already fixed and a similar fix
-> appeared in v2.4.35.3.
-sorry, just broken.
+Quick CPU eater kill. This might be not the best fix possible.
+
+Without this patch, hello_timer is firing 250 times/sec and eating about
+8% CPU time on my an otherwise idle system (dynticks enabled). 2.6.21.5 was
+even worse - 20% (HZ=3D1000). (br->hello_time was supposedly 0 when STP was
+disabled).
+
+Signed-off-by: Micha=B3 Miros=B3aw <mirq-linux@rere.qmqm.pl>
+
+--- qmqm/net/bridge/br_stp_if.c.orig	2007-10-15 10:30:24.000000000 +0200
++++ qmqm/net/bridge/br_stp_if.c	2007-10-15 10:34:07.000000000 +0200
+@@ -47,10 +47,12 @@
+ 	struct net_bridge_port *p;
+=20
+ 	spin_lock_bh(&br->lock);
+-	mod_timer(&br->hello_timer, jiffies + br->hello_time);
++	if (br->stp_enabled =3D=3D BR_KERNEL_STP)
++		mod_timer(&br->hello_timer, jiffies + br->hello_time);
+ 	mod_timer(&br->gc_timer, jiffies + HZ/10);
+=20
+-	br_config_bpdu_generation(br);
++	if (br->stp_enabled =3D=3D BR_KERNEL_STP)
++		br_config_bpdu_generation(br);
+=20
+ 	list_for_each_entry(p, &br->port_list, list) {
+ 		if ((p->dev->flags & IFF_UP) && netif_carrier_ok(p->dev))
