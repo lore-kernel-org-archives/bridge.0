@@ -1,11 +1,12 @@
-From: "Vaidas M" <admin@vdx.lt>
-Date: Sat, 20 Oct 2007 13:56:56 +0300
-Message-ID: <001301c81307$ee5cb110$cb161330$@lt>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0014_01C81321.13A9E910"
-Content-Language: lt
-Subject: [Bridge] vlan, bridge?
+Date: Sun, 21 Oct 2007 00:21:57 -0400
+From: s24067@rmc.ca
+Message-id: <f64cba9929b9.471a9ba5@rmc.ca>
+MIME-version: 1.0
+Content-type: multipart/alternative;
+	boundary="Boundary_(ID_gGZLmaJeGlz2zd5O0Kvs5Q)"
+Content-language: en
+Subject: [Bridge] Bridging firewall issue - which interface are packets
+	coming from?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,220 +15,88 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-This is a multipart message in MIME format.
+This is a multi-part message in MIME format.
 
-------=_NextPart_000_0014_01C81321.13A9E910
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+--Boundary_(ID_gGZLmaJeGlz2zd5O0Kvs5Q)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
 
-Hello to everyone,
+Hello folks, I'm hoping someone can help me here. I'll try to describe the problem in detail.
 
- 
+I'm attempting to set up a bridging firewall using libipq. I'm running on Ubuntu Server 7.04, out of the box kernel (2.6.20)
+My bridge is set up with the following commands:
+--
+brctl addbr br0 
+brctl stp br0 off
+brctl addif br0 eth1
+brctl addif br0 eth2
+ifconfig eth1 down
+ifconfig eth2 down
+ifconfig eth1 0.0.0.0 up
+ifconfig eth2 0.0.0.0 up
+ifconfig br0 0.0.0.0 up
+--
 
-Here is the situation:
-
- 
-
-[LAN1] ---- [eth3] /----------\
-
-                   | LinuxBR  | [eth2] ---- [LAN0] ----- [linuxgateway] ---
-[internet]
-
-[LAN2] ---- [eth4] \----------/
-
- 
-
-Whole LAN is in subnet 10.0.0.0/24.
-
- 
-
-So I need LAN0, LAN1, LAN2 could not see each other.
-
-LAN0, LAN1, LAN2 is in same subnet (10.0.0.0/24).
-
-All LANs have to get only internet.
-
- 
-
-How can I configure LinuxBR to do so?
-
- 
-
-Do I have to do only bridge? Or only vlan? Or both?
-
- 
-
-Thanks.
-
- 
-
-_      _     _    _   _  _ _ __ ___ ____ _____
-
-Vaidas M. [Noxius]
-
- 
+IP queue is set up with the following:
+--
+iptables -A FORWARD -j QUEUE
+modprobe ip_queue
+--
 
 
-------=_NextPart_000_0014_01C81321.13A9E910
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The bridge works fine. Traffic is sent back and forth. My libipq app can see traffic and stop it. However, one thing I would like to be able to find out in user space is which interface a packet arrived on (ie/ which direction it's going). As far as IPQ is concerned, all packets are arriving and leaving on br0.
+After reading a bit more about netfilter, iptables and the FIREWALL document distributed with brctl, I figured my best bet would be do something like this:
+iptables -A INPUT -i eth1 -j MARK --set-mark 1
+iptables -A INPUT -i eth2 -j MARK --set-mark 2
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
+This way I could just check the mark value when the packet got sent to QUEUE (and up to user space) from the FORWARD chain. However, this doesn't work. From everything I can tell, packets traversing the bridge do not even go through the INPUT chain, as I can put in this rule:
+iptables -A INPUT -j DROP
 
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 12 (filtered medium)">
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:Tahoma;
-	panose-1:2 11 6 4 3 5 4 4 2 4;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Tahoma","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;}
-@page Section1
-	{size:612.0pt 792.0pt;
-	margin:3.0cm 1.0cm 2.0cm 3.0cm;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-<!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <o:shapelayout v:ext=3D"edit">
-  <o:idmap v:ext=3D"edit" data=3D"1" />
- </o:shapelayout></xml><![endif]-->
-</head>
+yet traffic still flows through fine (as long as my libipq app is running).
 
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
 
-<div class=3DSection1>
+Does anyone here have any ideas? I would really appreciate any suggestions.
 
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>Hello to =
-everyone,<o:p></o:p></span></p>
+Cheers,
+David Vessey
 
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
 
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>Here is =
-the
-situation:<o:p></o:p></span></p>
 
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
+--Boundary_(ID_gGZLmaJeGlz2zd5O0Kvs5Q)
+Content-type: text/html; charset=us-ascii
+Content-transfer-encoding: quoted-printable
+Content-disposition: inline
 
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>[LAN1] =
----- [eth3] /----------\<o:p></o:p></span></p>
+Hello folks=2C I=27m hoping someone can help me here=2E I=27ll try to de=
+scribe the problem in detail=2E=3Cbr=3E=3Cbr=3EI=27m attempting to set u=
+p a bridging firewall using libipq=2E I=27m running on Ubuntu Server 7=2E=
+04=2C out of the box kernel (2=2E6=2E20)=3Cbr=3EMy bridge is set up with=
+ the following commands=3A=3Cbr=3E--=3Cbr=3Ebrctl addbr br0 =3Cbr=3Ebrct=
+l stp br0 off=3Cbr=3Ebrctl addif br0 eth1=3Cbr=3Ebrctl addif br0 eth2=3C=
+br=3Eifconfig eth1 down=3Cbr=3Eifconfig eth2 down=3Cbr=3Eifconfig eth1 0=
+=2E0=2E0=2E0 up=3Cbr=3Eifconfig eth2 0=2E0=2E0=2E0 up=3Cbr=3Eifconfig br=
+0 0=2E0=2E0=2E0 up=3Cbr=3E--=3Cbr=3E=3Cbr=3EIP queue is set up with the =
+following=3A=3Cbr=3E--=3Cbr=3Eiptables -A FORWARD -j QUEUE=3Cbr=3Emodpro=
+be ip=5Fqueue=3Cbr=3E--=3Cbr=3E=3Cbr=3E=3Cbr=3EThe bridge works fine=2E =
+Traffic is sent back and forth=2E My libipq app can see traffic and stop=
+ it=2E However=2C one thing I would like to be able to find out in user =
+space is which interface a packet arrived on (ie/ which direction it=27s=
+ going)=2E As far as IPQ is concerned=2C all packets are arriving and le=
+aving on br0=2E=3Cbr=3EAfter reading a bit more about netfilter=2C iptab=
+les and the FIREWALL document distributed with brctl=2C I figured my bes=
+t bet would be do something like this=3A=3Cbr=3Eiptables -A INPUT -i eth=
+1 -j MARK --set-mark 1=3Cbr=3Eiptables -A INPUT -i eth2 -j MARK --set-ma=
+rk 2=3Cbr=3E=3Cbr=3EThis way I could just check the mark value when the =
+packet got sent to QUEUE (and up to user space) from the FORWARD chain=2E=
+ However=2C this doesn=27t work=2E From everything I can tell=2C packets=
+ traversing the bridge do not even go through the INPUT chain=2C as I ca=
+n put in this rule=3A=3Cbr=3Eiptables -A INPUT -j DROP=3Cbr=3E=3Cbr=3Eye=
+t traffic still flows through fine (as long as my libipq app is running)=
+=2E=3Cbr=3E=3Cbr=3E=3Cbr=3EDoes anyone here have any ideas=3F I would re=
+ally appreciate any suggestions=2E=3Cbr=3E=3Cbr=3ECheers=2C=3Cbr=3EDavid=
+ Vessey=3Cbr=3E=3Cbr=3E
 
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| LinuxBR &nbsp;| [eth2] ---- =
-[LAN0] -----
-[linuxgateway] --- [internet]<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>[LAN2] =
----- [eth4] \----------/<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>Whole LAN =
-is in
-subnet 10.0.0.0/24.<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>So I need =
-LAN0,
-LAN1, LAN2 could not see each other.<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>LAN0, =
-LAN1, LAN2 is
-in same subnet (10.0.0.0/24).<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>All LANs =
-have to get
-only internet.<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>How can I =
-configure
-LinuxBR to do so?<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier New"'>Do I have =
-to do only
-bridge? Or only vlan? Or both?<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'>Thanks.<o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-<p class=3DMsoNormal align=3Dright style=3D'text-align:right'><span =
-style=3D'font-size:
-10.0pt;font-family:"Courier New"'>_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-_&nbsp;&nbsp;&nbsp;&nbsp; _&nbsp;&nbsp;&nbsp; _&nbsp;&nbsp; _&nbsp; _ _ =
-__ ___
-____ _____<o:p></o:p></span></p>
-
-<p class=3DMsoNormal align=3Dright style=3D'text-align:right'><b><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>Vaidas =
-M</span></b><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>. =
-<b>[</b>Noxius<b>]</b><o:p></o:p></span></p>
-
-<p class=3DMsoNormal><span style=3D'font-family:"Courier =
-New"'><o:p>&nbsp;</o:p></span></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0014_01C81321.13A9E910--
-
+--Boundary_(ID_gGZLmaJeGlz2zd5O0Kvs5Q)--
