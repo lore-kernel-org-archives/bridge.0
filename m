@@ -1,13 +1,15 @@
-Date: Mon, 22 Oct 2007 09:13:50 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] Bridging firewall issue - which interface are packets
-	coming from?
-Message-ID: <20071022091350.284c7040@freepuppy.rosehill>
-In-Reply-To: <f64cba9929b9.471a9ba5@rmc.ca>
-References: <f64cba9929b9.471a9ba5@rmc.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+	bh=OQBAZLFa0t/Z0isUme3ihnv4e3jI7BcMQZ2wUl8xPc8=;
+	b=kUd88cXPRQ0wwCLx1qlwgDd/V3ovyr0EiU+1Xj6FYYO83SSnAo2Esghmq5PqCZFnvbhuNBA5JsMNEMyoqbgmuahF1tpoo3IakQ2VM0DK7ZnZltURYYyDXulmrYpsxX8L3VCQdYawaDk6uX+ATKxhcwVvaujNyeKhPek00xSGEzg=
+Message-ID: <9e0cf0bf0710281323y6e91241fgfa1c2a93ed371430@mail.gmail.com>
+Date: Sun, 28 Oct 2007 22:23:27 +0200
+From: "Alon Bar-Lev" <alon.barlev@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Subject: [Bridge] TCP/IP requirement for bridge-utils
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,54 +18,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: s24067@rmc.ca
-Cc: bridge@linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Sun, 21 Oct 2007 00:21:57 -0400
-s24067@rmc.ca wrote:
+Hello,
 
-> Hello folks, I'm hoping someone can help me here. I'll try to describe the problem in detail.
-> 
-> I'm attempting to set up a bridging firewall using libipq. I'm running on Ubuntu Server 7.04, out of the box kernel (2.6.20)
-> My bridge is set up with the following commands:
-> --
-> brctl addbr br0 
-> brctl stp br0 off
-> brctl addif br0 eth1
-> brctl addif br0 eth2
-> ifconfig eth1 down
-> ifconfig eth2 down
-> ifconfig eth1 0.0.0.0 up
-> ifconfig eth2 0.0.0.0 up
-> ifconfig br0 0.0.0.0 up
-> --
-> 
-> IP queue is set up with the following:
-> --
-> iptables -A FORWARD -j QUEUE
-> modprobe ip_queue
-> --
-> 
-> 
-> The bridge works fine. Traffic is sent back and forth. My libipq app can see traffic and stop it. However, one thing I would like to be able to find out in user space is which interface a packet arrived on (ie/ which direction it's going). As far as IPQ is concerned, all packets are arriving and leaving on br0.
-> After reading a bit more about netfilter, iptables and the FIREWALL document distributed with brctl, I figured my best bet would be do something like this:
-> iptables -A INPUT -i eth1 -j MARK --set-mark 1
-> iptables -A INPUT -i eth2 -j MARK --set-mark 2
-> 
-> This way I could just check the mark value when the packet got sent to QUEUE (and up to user space) from the FORWARD chain. However, this doesn't work. From everything I can tell, packets traversing the bridge do not even go through the INPUT chain, as I can put in this rule:
-> iptables -A INPUT -j DROP
-> 
-> yet traffic still flows through fine (as long as my libipq app is running).
-> 
-> 
-> Does anyone here have any ideas? I would really appreciate any suggestions.
-> 
-> Cheers,
-> David Vessey
-> 
-> 
+I am trying to install TCP/IP-less Linux bridge. I was quite surprised
+to see that bridge-utils communicate with kernel via TCP socket.
 
-Ask on netfilter-devel mailing list and Patrick McHardy.
+Since bridge git is not online, I could not check if this have changed
+since version 1.2.
 
--- 
-Stephen Hemminger <shemminger@linux-foundation.org>
+I see that there is a sysfs interface, but I am not sure how I can add
+new bridge via this interface.
+
+Can the TCP/IP dependency be dropped?
+
+Best Regards,
+Alon Bar-Lev.
