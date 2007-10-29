@@ -1,12 +1,17 @@
-Content-class: urn:content-classes:message
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+	bh=OpMB7stwW8NeOUc1rLmz6y32t9PFgynD+3+xwJnwEng=;
+	b=iQliF3D0BlS0MDOHituC2kKqsPHLrrwyO9QEAspWtlmmZgRT+3NNFiSmYl7b/WNfWwny1K6Sm6LV8s4fidpYXqK45D7k3F4eo6h1S1KHQ5pXOVP4QzxuolpGDfP9MNomBGhv9M2Z19MO5qKVTkSkUTw1Fuvlufo0RlWcqmUkuMo=
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+Date: Mon, 29 Oct 2007 14:08:37 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: [Bridge] Small packets
-Date: Mon, 29 Oct 2007 16:40:42 +1100
-Message-ID: <96CF49BD8B56384395D698BA99007FA32D06@exchange.pacwire.local>
-From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
-Content-Transfer-Encoding: 8bit
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200710291408.41267.alon.barlev@gmail.com>
+Subject: [Bridge] [PATCH] Allow bridge-utils to run when no TCP/IP is
+	available
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,46 +20,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@osdl.org>, bridge@lists.linux-foundation.org
 
+
+This simple patch create AF_LOCAL socket instead of AF_INET so if TCP/IP
+is not linked into kernel it still works.
+
+Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
+
+---
+
+diff -urNp bridge-utils-1.2.org/libbridge/libbridge_init.c bridge-utils-1.2/libbridge/libbridge_init.c
+--- bridge-utils-1.2.org/libbridge/libbridge_init.c	2006-09-09 08:30:31.000000000 +0300
++++ bridge-utils-1.2/libbridge/libbridge_init.c	2007-10-30 05:11:10.000000000 +0200
+@@ -32,7 +32,7 @@ int br_socket_fd = -1;
  
-
------Original Message-----
-From: Stephen Hemminger [mailto:shemminger@linux-foundation.org] 
-Sent: Monday, 29 October 2007 4:12 PM
-To: Leigh Sharpe
-Cc: bridge@lists.linux-foundation.org
-Subject: Re: [Bridge] Small packets
-
-On Mon, 29 Oct 2007 15:37:52 +1100
-"Leigh Sharpe" <lsharpe@pacificwireless.com.au> wrote:
-
->> Which seems to bridge OK. However, I have noticed that the bridge
->> appears to be truncating some packets. In particular, I am worried
->> about packets such as IP ACK's, which are entering the bridge as
->> 64-byte packets, but coming out the other side as 60-byte packets.
->> As I recall, the smallest valid ehternet packet is 64 bytes. The
->> bridge seems to be removing any padding in the packet and sending it
->> on it's way as a packet smaller than the minimum ethernet packet
->> size. Looking at the packet distribution on other devices connected
->> to the bridge, it seems to be doing the same to lots of other
-> packets, too. Anybody got any idea why the bridge might be truncating
-> packets? Any idea why it's sending 60-byte packets, when the minimu
-> should be 64? Or where to tell it to pad all packets out to 64 bytes?
->  
->  
-> Leigh.
->  
-
->What hardware? It could be a driver bug.
->Also if you use VLAN's then the driver may send 60 byte packet (because
->of the 4 byte VLAN tag).
-
-Standard e1000 hardware.
-The packets being bridged contain a VLAN tag, which is included in the
-60 bytes.
-
-
-
-
+ int br_init(void)
+ {
+-	if ((br_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
++	if ((br_socket_fd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0)
+ 		return errno;
+ 	return 0;
+ }
