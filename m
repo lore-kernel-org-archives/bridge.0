@@ -1,21 +1,11 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
-	h=domainkey-signature:received:received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-	bh=Y0fAXbTel9MceF0LfUrfCmZTwA9f3K6MhV7uSEwXZcs=;
-	b=mUihaJwvmMT3XAjHdk+iEO6eEH2GXDcdwQRaISqbj3XRLd60OtmJrnEzadq6kCzbR1KWnwK2/QspqUrSrmx0Yqd/85JqKoXRkBgcykPsuBK4wCFZWoZ3f/08P4b6vu11YO6QZjZPHMn6IdThjvNxGP0AAORzWjl416hocNw9eVM=
-Message-ID: <bdfc5d6e0710290915x79c6bd43ie687090910b068e3@mail.gmail.com>
-Date: Mon, 29 Oct 2007 12:15:22 -0400
-From: "Andy Gospodarek" <andy@greyhouse.net>
-Sender: adgospod@gmail.com
-Subject: Re: [Bridge] Re: Small packets
-In-Reply-To: <472600E6.7060203@candelatech.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <96CF49BD8B56384395D698BA99007FA32D06@exchange.pacwire.local>
-	<m3k5p6hxye.fsf@ursa.amorsen.dk>
-	<bdfc5d6e0710290806o81321bbhcaaa7d936a50bb0c@mail.gmail.com>
-	<472600E6.7060203@candelatech.com>
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C81C09.66767AF0"
+Date: Thu, 1 Nov 2007 09:00:07 +1100
+Message-ID: <96CF49BD8B56384395D698BA99007FA32D14@exchange.pacwire.local>
+From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
+Subject: [Bridge] Lowering CPU utilisation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,45 +14,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ben Greear <greearb@candelatech.com>
-Cc: bridge@osdl.org, Benny Amorsen <benny+usenet@amorsen.dk>
+To: bridge@lists.linux-foundation.org
 
-On 10/29/07, Ben Greear <greearb@candelatech.com> wrote:
-> Andy Gospodarek wrote:
-> > On 10/29/07, Benny Amorsen <benny+usenet@amorsen.dk> wrote:
-> >>>>>>> "LS" == Leigh Sharpe <lsharpe@pacificwireless.com.au> writes:
-> >> LS> Standard e1000 hardware. The packets being bridged contain a VLAN
-> >> LS> tag, which is included in the 60 bytes.
-> >>
-> >> The e1000 has VLAN acceleration. The VLAN tag is sent in a separate
-> >> register. If you do packet capture on the sender, the packet will
-> >> likely look 60 bytes long, even if it is 64 bytes on the wire.
-> >>
-> >> The same thing happens on receive. Packet dumping with VLAN's is a bit
-> >> of a mess in Linux. If you're lucky you can find a card without VLAN
-> >> acceleration to do the packet dump.
-> >>
-> >>
-> >> /Benny
-> >>
-> >
-> > Are these the lengths on the wire or when captured on the host?   The
-> > smallest VLAN tagged frame should be 68 bytes IIRC.  A tagged frame
-> > that is 64 bytes seems too small.
->
-> That is not correct per the 802.1Q VLAN RFC, though
-> I don't have the reference handy at the moment.
->
-> 64 bytes is fine, vlan tagged or otherwise.
->
->
-> Thanks,
-> Ben
->
->
+This is a multi-part message in MIME format.
 
-Ah, you are correct, Ben.  Thanks for pointing that out.  Section
-C.4.4.1 of the IEEE 802.1Q spec does state that 64-byte tagged frames
-are OK, but that is only if you are able to drop padding from a
-64-byte untagged one.  Transmitting a 60-byte frame on the wire is
-incorrect.
+------_=_NextPart_001_01C81C09.66767AF0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+Hi All,=20
+ I have a box with 12 bridges on it, each of which has 2 ports.
+When the traffic level on the box reaches around 15-20Mbps on each
+bridge, my CPU utilisation gets to about 90-95%.
+I would like to avoid working the CPU that hard. Is there anything which
+can be done to get the CPU utlilisation down a bit? I have plans for an
+even bigger bridge, but these results indicate that it may not scale
+quite that well.
+=20
+Regards,
+             Leigh
+=20
+=20
+
+------_=_NextPart_001_01C81C09.66767AF0
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2800.1491" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><SPAN class=3D129215621-31102007><FONT face=3DArial size=3D2>Hi =
+All,=20
+</FONT></SPAN></DIV>
+<DIV><SPAN class=3D129215621-31102007><FONT face=3DArial =
+size=3D2>&nbsp;I have a box=20
+with 12 bridges on it, each of which has 2 ports.</FONT></SPAN></DIV>
+<DIV><SPAN class=3D129215621-31102007><FONT face=3DArial size=3D2>When =
+the traffic=20
+level on the box reaches around 15-20Mbps on each bridge, my CPU =
+utilisation=20
+gets to about 90-95%.</FONT></SPAN></DIV>
+<DIV><SPAN class=3D129215621-31102007><FONT face=3DArial size=3D2>I =
+would like to=20
+avoid working the CPU that hard. Is there anything which can be done to =
+get the=20
+CPU utlilisation down a bit? I have plans for an even bigger bridge, but =
+these=20
+results indicate that it may not scale quite that =
+well.</FONT></SPAN></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV align=3Dleft>
+<DIV align=3Dleft><FONT face=3DArial=20
+size=3D2>Regards,<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;=20
+Leigh</FONT></DIV>
+<DIV align=3Dleft>&nbsp;</DIV></DIV>
+<DIV>&nbsp;</DIV></BODY></HTML>
+
+------_=_NextPart_001_01C81C09.66767AF0--
