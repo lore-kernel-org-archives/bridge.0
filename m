@@ -1,12 +1,12 @@
-Date: Tue, 13 Nov 2007 14:46:40 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] Rx Buffer sizes on e1000
-Message-ID: <20071113144640.56356b0f@freepuppy.rosehill>
-In-Reply-To: <96CF49BD8B56384395D698BA99007FA32D4B@exchange.pacwire.local>
-References: <96CF49BD8B56384395D698BA99007FA32D4B@exchange.pacwire.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: [Bridge] Rx Buffer sizes on e1000
+Date: Wed, 14 Nov 2007 10:11:29 +1100
+Message-ID: <96CF49BD8B56384395D698BA99007FA32D4D@exchange.pacwire.local>
+From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
+Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,8 +15,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
+To: Stephen Hemminger <shemminger@linux-foundation.org>
 Cc: bridge@lists.linux-foundation.org
+
+Hi Steven,
+
+>You are using ebtables, so that adds a lot of overhead processing the
+rules. The problem is that each packet means a CPU cache miss.  What is
+the memory bus bandwidth of the Xeon's?
+
+
+I'll re-run that oprofile. The last set of tests I did was with ebtables
+disabled, and it was still dropping packets. Ultimately, however, I need
+ebtables (and tc) running.
+
+ Memory is DDR333. 
+
+Having installed irqbalance as you suggested, initial tests look
+promising....
+
+Leigh. 
+
+-----Original Message-----
+From: Stephen Hemminger [mailto:shemminger@linux-foundation.org] 
+Sent: Wednesday, 14 November 2007 9:47 AM
+To: Leigh Sharpe
+Cc: bridge@lists.linux-foundation.org
+Subject: Re: [Bridge] Rx Buffer sizes on e1000
 
 On Wed, 14 Nov 2007 09:24:18 +1100
 "Leigh Sharpe" <lsharpe@pacificwireless.com.au> wrote:
@@ -78,7 +103,8 @@ cache miss.  What is the memory bus bandwidth of the Xeon's?
 > 
 > As reported by 'top'.
 > 
-> >Andrew Morton wrote a cyclesoaker to do this, if you want it, I'll dig
+> >Andrew Morton wrote a cyclesoaker to do this, if you want it, I'll
+dig
 > it up.
 > 
 > Please.
@@ -86,7 +112,8 @@ cache miss.  What is the memory bus bandwidth of the Xeon's?
 > >And the dual-port e1000's add a layer of PCI bridge that also hurts
 > latency/bandwidth.
 > 
-> I need bypass-cards in this particular application, so I don't have much
+> I need bypass-cards in this particular application, so I don't have
+much
 > choice in the matter.
 > 
 > Thanks,
@@ -97,3 +124,4 @@ cache miss.  What is the memory bus bandwidth of the Xeon's?
 
 -- 
 Stephen Hemminger <shemminger@linux-foundation.org>
+
