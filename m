@@ -1,12 +1,10 @@
-Message-ID: <473B0287.6090303@gurutech.it>
-Date: Wed, 14 Nov 2007 15:13:27 +0100
-From: gianluca <gianluca@gurutech.it>
+Message-ID: <473B180D.9000600@cs.wisc.edu>
+Date: Wed, 14 Nov 2007 09:45:17 -0600
+From: Vivek Shrivastava <viveks@cs.wisc.edu>
 MIME-Version: 1.0
-Subject: Re: [Bridge] bypass bridge for backup
-References: <96CF49BD8B56384395D698BA99007FA32D48@exchange.pacwire.local>
-In-Reply-To: <96CF49BD8B56384395D698BA99007FA32D48@exchange.pacwire.local>
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [Bridge] NFS over bridged interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,41 +15,15 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Thank you.
-in fact this is what i need, but i've a problem: my device is an
-embedded platform
-http://www.pcengines.ch/alix2c3.htm
-so i need something external or a link to a do-it-yourself instructions
-(i'm able with solder and electronics part)
+Hi,
+     I am running NFS over my soekris boxes, with eth0 as the primary 
+wired interface (that gets dhcp ip address from the server and loads the 
+entire NFS filesystem). Now I want to bridge traffic from (some traffic) 
+eth0 to eth1 (another interface). But as soon as I add eth0 to the 
+bridge, the box stops responding.  I have waited more than 30 sec (the 
+default bridging fwd delay), but still see no response. I am a new to 
+this community so I am not sure if this has been already discussed. Any 
+help will be greatly appreciated.
 
-Bye
-Gianluca
-
-Leigh Sharpe escribio':
-> Portwell have some 2-port and 4-port bypass cards which will do the job.
-> So do some other manufacturers.
->  
->
-> -----Original Message-----
-> From: bridge-bounces@lists.linux-foundation.org
-> [mailto:bridge-bounces@lists.linux-foundation.org] On Behalf Of gianluca
-> Sent: Saturday, 10 November 2007 9:24 AM
-> To: bridge@lists.linux-foundation.org
-> Subject: [Bridge] bypass bridge for backup
->
-> Hi everyone,
-> I'm using linux bridging for a trasparent firewall.
-> There is some kind of external hardware that I can use to bypass
-> my firewall in case of failure?
-> I mean: if I power off my firewall I want to join physically the
-> two network segments without reconnecting any wire (and possibly without
-> touching any button)
->
-> Thank You
-> Gianluca
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->   
-
+Thanks
+Vivek
