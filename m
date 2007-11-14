@@ -3,8 +3,8 @@ MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="US-ASCII"
 Subject: RE: [Bridge] Rx Buffer sizes on e1000
-Date: Wed, 14 Nov 2007 12:34:14 +1100
-Message-ID: <96CF49BD8B56384395D698BA99007FA32D50@exchange.pacwire.local>
+Date: Wed, 14 Nov 2007 16:26:36 +1100
+Message-ID: <96CF49BD8B56384395D698BA99007FA32D53@exchange.pacwire.local>
 From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
 Content-Transfer-Encoding: 8bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -15,8 +15,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
+To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
 Cc: bridge@lists.linux-foundation.org
+
+ 
+Looking at this a little further, the stats on the ethernet card (from
+ifconfig) tell me that it has transmitted as many bytes as it has
+received, which indicates that the bridge itself is not dropping the
+packets. I'm back to the idea that the card sn't delivering them to the
+bridge somehow. Hence my first guess about buffer sizes.
+
+As far as MSI goes, I have it enabled in the kernel (looks like it's
+default for 2.6.18?), but I see nothing in the logs referring to MSI. Is
+there any way of checking whether it's enabled and working? Or is it
+only a PCI-X thing?
+
+Leigh.
+
+
+-----Original Message-----
+From: bridge-bounces@lists.linux-foundation.org
+[mailto:bridge-bounces@lists.linux-foundation.org] On Behalf Of Leigh
+Sharpe
+Sent: Wednesday, 14 November 2007 12:34 PM
+To: Stephen Hemminger
+Cc: bridge@lists.linux-foundation.org
+Subject: RE: [Bridge] Rx Buffer sizes on e1000
 
 >I'll re-run that oprofile. The last set of tests I did was with
 ebtables disabled, and it was still dropping packets. Ultimately,
@@ -162,6 +186,11 @@ much
 
 -- 
 Stephen Hemminger <shemminger@linux-foundation.org>
+
+_______________________________________________
+Bridge mailing list
+Bridge@lists.linux-foundation.org
+https://lists.linux-foundation.org/mailman/listinfo/bridge
 
 _______________________________________________
 Bridge mailing list
