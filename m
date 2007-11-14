@@ -1,18 +1,12 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
-	h=domainkey-signature:received:received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-	bh=HztxT6wScaxGm/tdF2TQCOGBGsyYVV9YNmDaYTrtIhI=;
-	b=KysAI9NUMiQSBLcru9nfEv21xt/VLFPvSZOhwzHeJlYPjGRviz5Tj02lAWaO2syiu6Qj5LE4I757pc0b9I2ErWFFT48dgX6+++Bzj53YSBibBboJnt2/QjL24cGj4Lo7vQckYfDCi3fObKZJIyRMRJaADHsROJQ0OXq4weFvtXc=
-Message-ID: <bdfc5d6e0711140809oa82deefg2aa72722dc91d5ba@mail.gmail.com>
-Date: Wed, 14 Nov 2007 11:09:46 -0500
-From: "Andy Gospodarek" <andy@greyhouse.net>
-Sender: adgospod@gmail.com
-Subject: Re: [Bridge] Rx Buffer sizes on e1000
-In-Reply-To: <96CF49BD8B56384395D698BA99007FA32D53@exchange.pacwire.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 14 Nov 2007 12:39:42 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: Re: [Bridge] NFS over bridged interface
+Message-ID: <20071114123942.00c7278c@freepuppy.rosehill>
+In-Reply-To: <473B180D.9000600@cs.wisc.edu>
+References: <473B180D.9000600@cs.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <96CF49BD8B56384395D698BA99007FA32D53@exchange.pacwire.local>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,24 +15,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Vivek Shrivastava <viveks@cs.wisc.edu>
+Cc: bridge@lists.linux-foundation.org
 
-On Nov 14, 2007 12:26 AM, Leigh Sharpe <lsharpe@pacificwireless.com.au> wrote:
->
-> Looking at this a little further, the stats on the ethernet card (from
-> ifconfig) tell me that it has transmitted as many bytes as it has
-> received, which indicates that the bridge itself is not dropping the
-> packets. I'm back to the idea that the card sn't delivering them to the
-> bridge somehow. Hence my first guess about buffer sizes.
+On Wed, 14 Nov 2007 09:45:17 -0600
+Vivek Shrivastava <viveks@cs.wisc.edu> wrote:
 
-The e1000 module does have options for Tx/RxDescriptors (buffers), but
-I'm not sure that's going to help you too much.
+> Hi,
+>      I am running NFS over my soekris boxes, with eth0 as the primary 
+> wired interface (that gets dhcp ip address from the server and loads the 
+> entire NFS filesystem). Now I want to bridge traffic from (some traffic) 
+> eth0 to eth1 (another interface). But as soon as I add eth0 to the 
+> bridge, the box stops responding.  I have waited more than 30 sec (the 
+> default bridging fwd delay), but still see no response. I am a new to 
+> this community so I am not sure if this has been already discussed. Any 
+> help will be greatly appreciated.
+> 
+> Thanks
+> Vivek
 
-> As far as MSI goes, I have it enabled in the kernel (looks like it's
-> default for 2.6.18?), but I see nothing in the logs referring to MSI. Is
-> there any way of checking whether it's enabled and working? Or is it
-> only a PCI-X thing?
->
+You need to use dhcp on the bridge interface.
+
+# brctl addbr br0
+# ifconfig eth0 0.0.0.0    # mark up with no address
+# ifconfig eth1 0.0.0.0
+# brctl setfd br0 0        # turn off forwarding delay
+# brctl addif br0 eth0 eth1
+# dhclient br0
 
 
-$ cat /proc/interrupts
+-- 
+Stephen Hemminger <shemminger@linux-foundation.org>
