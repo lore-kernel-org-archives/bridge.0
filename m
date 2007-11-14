@@ -1,10 +1,18 @@
-Message-ID: <473B180D.9000600@cs.wisc.edu>
-Date: Wed, 14 Nov 2007 09:45:17 -0600
-From: Vivek Shrivastava <viveks@cs.wisc.edu>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
+	h=domainkey-signature:received:received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+	bh=HztxT6wScaxGm/tdF2TQCOGBGsyYVV9YNmDaYTrtIhI=;
+	b=KysAI9NUMiQSBLcru9nfEv21xt/VLFPvSZOhwzHeJlYPjGRviz5Tj02lAWaO2syiu6Qj5LE4I757pc0b9I2ErWFFT48dgX6+++Bzj53YSBibBboJnt2/QjL24cGj4Lo7vQckYfDCi3fObKZJIyRMRJaADHsROJQ0OXq4weFvtXc=
+Message-ID: <bdfc5d6e0711140809oa82deefg2aa72722dc91d5ba@mail.gmail.com>
+Date: Wed, 14 Nov 2007 11:09:46 -0500
+From: "Andy Gospodarek" <andy@greyhouse.net>
+Sender: adgospod@gmail.com
+Subject: Re: [Bridge] Rx Buffer sizes on e1000
+In-Reply-To: <96CF49BD8B56384395D698BA99007FA32D53@exchange.pacwire.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] NFS over bridged interface
+Content-Disposition: inline
+References: <96CF49BD8B56384395D698BA99007FA32D53@exchange.pacwire.local>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,15 +23,22 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hi,
-     I am running NFS over my soekris boxes, with eth0 as the primary 
-wired interface (that gets dhcp ip address from the server and loads the 
-entire NFS filesystem). Now I want to bridge traffic from (some traffic) 
-eth0 to eth1 (another interface). But as soon as I add eth0 to the 
-bridge, the box stops responding.  I have waited more than 30 sec (the 
-default bridging fwd delay), but still see no response. I am a new to 
-this community so I am not sure if this has been already discussed. Any 
-help will be greatly appreciated.
+On Nov 14, 2007 12:26 AM, Leigh Sharpe <lsharpe@pacificwireless.com.au> wrote:
+>
+> Looking at this a little further, the stats on the ethernet card (from
+> ifconfig) tell me that it has transmitted as many bytes as it has
+> received, which indicates that the bridge itself is not dropping the
+> packets. I'm back to the idea that the card sn't delivering them to the
+> bridge somehow. Hence my first guess about buffer sizes.
 
-Thanks
-Vivek
+The e1000 module does have options for Tx/RxDescriptors (buffers), but
+I'm not sure that's going to help you too much.
+
+> As far as MSI goes, I have it enabled in the kernel (looks like it's
+> default for 2.6.18?), but I see nothing in the logs referring to MSI. Is
+> there any way of checking whether it's enabled and working? Or is it
+> only a PCI-X thing?
+>
+
+
+$ cat /proc/interrupts
