@@ -1,15 +1,10 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=beta;
-	h=domainkey-signature:received:received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-	bh=i6e8yoK26DGvcBVuaZH4mtfmvpjBTd+Ber7gYFhx3YE=;
-	b=HhBbTmRXiuw4WqPQglrWvEhEOEU5g1dL9t7wroJ/UZ/l57lT4WcmMSUGEzYQ5oQt7A5/lcblNnLrE8sSvraJ3IBIF6GJ7iFEyAmlU7h2JpDWn/rp4vXYjHWy0kARdXuiDUPTDnNwS2VOUKLRuP4nc138unXd9BcQprHjKD/SV1k=
-Message-ID: <81c11a560711220316n60921656md0aaefd95a82e63a@mail.gmail.com>
-Date: Thu, 22 Nov 2007 12:16:38 +0100
-From: "Edouard Thuleau" <doudouyam@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Johannes Berg <johannes@sipsolutions.net>
+Content-Type: text/plain
+Date: Thu, 22 Nov 2007 14:23:28 +0100
+Message-Id: <1195737808.6323.102.camel@johannes.berg>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Subject: [Bridge] Conflict between net/if.h and linux/if.h
+Subject: [Bridge] [RFC] bridging: don't forward EAPOL frames
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,36 +13,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: netdev <netdev@vger.kernel.org>, bridge <bridge@linux-foundation.org>
 
-Hi,
+This patch makes the bridging code drop EAPOL frames as recommended by
+802.1X-2004 in C.3.3.
 
-I use the libbridge and an other lib (libnl) in a same project.
-I include the headers files of the two lib (libnl first and libbridgge
-after) and I've a conflict with the inclusion of linux/if.h (in libnl
-headers) and net/if.h (in libbridge.h), I've this error :
+Is this really the right place to put it?
+---
+ include/linux/if_ether.h |    1 +
+ include/net/ieee80211.h  |    6 ------
+ net/bridge/br_input.c    |    3 +++
+ 3 files changed, 4 insertions(+), 6 deletions(-)
 
-/usr/include/net/if.h:45: error: parse error before numeric constant
-/usr/include/net/if.h:111: error: redefinition of `struct ifmap'
-/usr/include/net/if.h:126: error: redefinition of `struct ifreq'
-/usr/include/net/if.h:176: error: redefinition of `struct ifconf'
+--- everything.orig/include/linux/if_ether.h	2007-11-22 11:47:14.178686360 +0100
++++ everything/include/linux/if_ether.h	2007-11-22 11:48:21.438679036 +0100
+@@ -74,6 +74,7 @@
+ #define ETH_P_ATMFATE	0x8884		/* Frame-based ATM Transport
+ 					 * over Ethernet
+ 					 */
++#define ETH_P_PAE	0x888E		/* Port Access Entity (IEEE 802.1X) */
+ #define ETH_P_AOE	0x88A2		/* ATA over Ethernet		*/
+ #define ETH_P_TIPC	0x88CA		/* TIPC 			*/
+ 
+--- everything.orig/include/net/ieee80211.h	2007-11-22 11:46:29.908682888 +0100
++++ everything/include/net/ieee80211.h	2007-11-22 11:48:51.908679037 +0100
+@@ -183,12 +183,6 @@ const char *escape_essid(const char *ess
+ #endif
+ #include <net/iw_handler.h>	/* new driver API */
+ 
+-#ifndef ETH_P_PAE
+-#define ETH_P_PAE 0x888E	/* Port Access Entity (IEEE 802.1X) */
+-#endif				/* ETH_P_PAE */
+-
+-#define ETH_P_PREAUTH 0x88C7	/* IEEE 802.11i pre-authentication */
+-
+ #ifndef ETH_P_80211_RAW
+ #define ETH_P_80211_RAW (ETH_P_ECONET + 1)
+ #endif
+--- everything.orig/net/bridge/br_input.c	2007-11-22 11:54:44.798683106 +0100
++++ everything/net/bridge/br_input.c	2007-11-22 11:57:23.248680285 +0100
+@@ -145,6 +145,9 @@ struct sk_buff *br_handle_frame(struct n
+ 		}
+ 	}
+ 
++	if (unlikely(skb->protocol = htons(ETH_P_PAE)))
++		goto drop;
++
+ 	switch (p->state) {
+ 	case BR_STATE_FORWARDING:
+ 
 
-I modify the libbridge.h to include the net/if.h only if the
-linux/if.h is not define :
 
---- libbridge.h 2007-11-22 12:16:17.000000000 +0100
-+++ libbridge_modify.h  2007-11-22 12:15:58.000000000 +0100
-@@ -19,7 +19,9 @@
- #ifndef _LIBBRIDGE_H
- #define _LIBBRIDGE_H
-
-+#ifndef _LINUX_IF_H
- #include <net/if.h>
-+#endif
- #include <linux/if_bridge.h>
-
- struct bridge_id
-
-
-Do you think it's a good solution ?
-Doude.
