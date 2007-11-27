@@ -1,18 +1,14 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
-	h=domainkey-signature:received:received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-	bh=X6DTdXvhxSZYri4VqxtChVybtk7BfqlJeGkTNDNpdOI=;
-	b=BZZQTmtQFTKc0KvqKsCWbF/RxgXKqy5pc55KCa9D0PQVM7eAORDnOAEIHaYPXMqJyLd8jjsC0qhzcmsk++APyVqLBXGGkAZtEVpbsYCwoloI7ipuaY89fxo8P/cbo1z9kRQ9RgkB0BynmvXpSXS1oUj52YMuj0PRIOUQIVLp7uU=
-Message-ID: <81c11a560711270149r3f21151qe5097180fe986723@mail.gmail.com>
-Date: Tue, 27 Nov 2007 10:49:14 +0100
-From: "Edouard Thuleau" <doudouyam@gmail.com>
-Subject: Re: [Bridge] Conflict between net/if.h and linux/if.h
-In-Reply-To: <20071126090154.10c8ec1e@freepuppy.rosehill.pdx.hemminger.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <81c11a560711220316n60921656md0aaefd95a82e63a@mail.gmail.com>
-	<20071126090154.10c8ec1e@freepuppy.rosehill.pdx.hemminger.net>
+From: Johannes Berg <johannes@sipsolutions.net>
+In-Reply-To: <20071126093626.08c22a9d@freepuppy.rosehill.pdx.hemminger.net>
+References: <1195737808.6323.102.camel@johannes.berg>
+	<20071126093626.08c22a9d@freepuppy.rosehill.pdx.hemminger.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-s4FunQb3jpUchbD9j7s5"
+Date: Tue, 27 Nov 2007 14:24:13 +0100
+Message-Id: <1196169854.6058.16.camel@johannes.berg>
+Mime-Version: 1.0
+Subject: [Bridge] Re: [RFC] bridging: don't forward EAPOL frames
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,48 +18,58 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+Cc: netdev <netdev@vger.kernel.org>, bridge <bridge@linux-foundation.org>
 
-Ok,
 
-Thanks for your solution, it works nicely.
+--=-s4FunQb3jpUchbD9j7s5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Nov 26, 2007 6:01 PM, Stephen Hemminger
-<shemminger@linux-foundation.org> wrote:
-> I fixed the problem differently because I don't want more conditional
-> compilation.  The ideal fix would be to get glibc
-> to the headers fixed to be compatible.
->
->  Use linux/if.h rather than net/if.h for compatiablity with
->  other headers.
->
-> Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
-> ---
->  libbridge/libbridge.h |    8 +++++++-
->  1 files changed, 7 insertions(+), 1 deletions(-)
->
-> diff --git a/libbridge/libbridge.h b/libbridge/libbridge.h
-> index 20d5bb5..016acea 100644
-> --- a/libbridge/libbridge.h
-> +++ b/libbridge/libbridge.h
-> @@ -19,9 +19,15 @@
->  #ifndef _LIBBRIDGE_H
->  #define _LIBBRIDGE_H
->
-> -#include <net/if.h>
-> +#include <sys/socket.h>
-> +#include <linux/if.h>
->  #include <linux/if_bridge.h>
->
-> +/* defined in net/if.h but that conflicts with linux/if.h... */
-> +extern unsigned int if_nametoindex (const char *__ifname);
-> +extern char *if_indextoname (unsigned int __ifindex, char *__ifname);
-> +
-> +
->  struct bridge_id
->  {
->         unsigned char prio[2];
-> --
-> 1.5.3.4
->
->
+
+> > +	if (unlikely(skb->protocol =3D htons(ETH_P_PAE)))
+> > +		goto drop;
+> > +
+> >  	switch (p->state) {
+> >  	case BR_STATE_FORWARDING:
+>=20
+> Not needed because the bridge is already handling it:
+>=20
+> 1) If running STP (ie true bridge), then all link local multicast is only=
+ received by
+> the bridge and never forwarded.
+
+Well, typical access point setups bridge the wireless AP interface with
+wired, EAPOL frames can be unicast (and 802.11 specifies to do so) and
+we want to avoid having them unicast to another host.
+
+Also, 802.1X in C.3.3 recommends not bridging the *ethertype* rather
+than depending on the link-local multicast address because otherwise
+eapol frames can be unicast into the network behind the (authorized)
+port which is undesirable.
+
+johannes
+
+--=-s4FunQb3jpUchbD9j7s5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIVAwUAR0wafKVg1VMiehFYAQJJLw/+KrHUQAvf/h2hb1wlS4vu4DXdinHA5EhH
+tjWjNBVz3bNx6jyN6P89+q+Mr9KHEzro27fbj1mCnXTG+g6vt581TnLg/v4s7Qeh
+eTg2A5L4AVjOmc8c53ZKZynCGqIQuPFmKKyyUI2v0MBwR+4gCQWqt7s7Z7msETfD
+XXhWNCaWpzcMdX1regrfWKekRm3/stFpAS4GpKGIWj/TkwQQWElXhtmXGa/SAChb
+msi8qSi/kB5+e5c84ay5qLsdCODF4cSm5siAgu+CdvNZTUpQMauS/mud+NSN2H0B
+4DLaOifYkSwlThE19vKWLWx/2X0NdMNLpB292EY+FasFuv7XaskHvQ8S0blv+Uj+
+1jtRWkFA+S+XztMGvJ+NuyG/M2bbvJ5wfTExHp3CTFyMnYTqH5fECVLwHPpR41/Q
+IIA6TnYk2Ox6ALADaQWwsOCwfdHliqtgZ1bqYNyX2OZLq8BgW3k3F8agOcktneQr
+rlnKsI14ILzz5aCFA12FHp20ocSPRxCAm/YYyoIlLYYQ3ZFNEdlTkZnTRBQV2v+4
+1lX6ljgzIkIGoKOGqK6KNUPDrMh9wLhViXQrE1ii1frCZlhS8VBE3E/kFjyl/7EC
+JUiHlnDWyuyf/lL6oqz3gQxKGngdiFTuzLFYL2xybQWqOPMHah32MochSm9NQwCB
++rg0BJQQOeY=
+=T8vE
+-----END PGP SIGNATURE-----
+
+--=-s4FunQb3jpUchbD9j7s5--
+
