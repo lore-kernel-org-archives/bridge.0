@@ -1,11 +1,14 @@
-Message-ID: <474C43F4.5080704@openvz.org>
-Date: Tue, 27 Nov 2007 19:21:08 +0300
-From: Pavel Emelyanov <xemul@openvz.org>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Subject: [PATCH (resubmit)][BRIDGE] Properly dereference the
-	br_should_route_hook
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Date: Wed, 28 Nov 2007 08:22:56 -0500
+Message-ID: <8A55DBB97B4FBF4D9A6F23C92FE0F117EA43B1@BE08.exg3.exghost.com>
+In-Reply-To: <200711261705.lAQH5qT1004343@smtp2.linux-foundation.org>
+References: <200711261705.lAQH5qT1004343@smtp2.linux-foundation.org>
+From: "Jay Libove" <libove@felines.org>
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] RE: BitTorrent crashes Linux firewall running bridging
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,66 +17,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: Linux Netdev List <netdev@vger.kernel.org>, bridge@lists.osdl.org, devel@openvz.org
+To: bridge@lists.linux-foundation.org
 
-This hook is protected with the RCU, so simple
+Many thanks to Ryan for his comment that multiple Digital Tulip Ethernet
+adapters in a system have been known in the past to crack up the kernel.
+Looks like that problem still exists.
 
-	if (br_should_route_hook)
-		br_should_route_hook(...)
+I hope I'm not speaking too soon and jinxing myself, but last night I
+pulled out the single quad Tulip card and replaced it with three
+independent Ethernet controllers (of various parentage, none of them
+Digital), and have since BitTorrent downloaded a few hundred megabytes
+with no crashes at all.
 
-is not enough on some architectures.
 
-Use the rcu_dereference/rcu_assign_pointer in this case.
+To Stephen, thank you too for replying. I should have been more
+specific, you're right. The "Crash" I'm referring to is the whole kernel
+going down so hard and fast that nothing even gets left in a memory
+buffer to be picked up on reboot. It's as if someone hit the hard reset
+switch on the system.
 
-Fixed Stephen's comment concerning using the typeof().
+Unfortunately, due to my complex network design, it is difficult to test
+with the bridging rules out, because without the bridging rules, I can't
+talk through this firewall.  That's because I have a static IP address
+range which runs through a Vonage customized not-very-smart bridge/NAT
+device which doesn't actually understand how to have one IP address on
+its public interface and bridge all other traffic that comes its way. It
+doesn't answer ARPs for anything but itself. So, I have to have bridging
+rules on the firewall on an interface peeking at the outside segment and
+replying to ARPs, so that the packets can get through this Vonage box.
+To test without bridging, I'd have to discombobulate the whole darn
+network, which I've been trying to avoid.
 
-Signed-off-by: Pavel Emelyanov <xemul@openvz.org>
+Hopefully, the problem was just with the Tulip card or drivers.
 
----
+Thanks again everyone,
+-Jay
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 3cedd4e..0ee79a7 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -122,6 +122,7 @@ static inline int is_link_local(const unsigned char *dest)
- struct sk_buff *br_handle_frame(struct net_bridge_port *p, struct sk_buff *skb)
- {
- 	const unsigned char *dest = eth_hdr(skb)->h_dest;
-+	int (*rhook)(struct sk_buff *skb);
- 
- 	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
- 		goto drop;
-@@ -147,9 +148,9 @@ struct sk_buff *br_handle_frame(struct net_bridge_port *p, struct sk_buff *skb)
- 
- 	switch (p->state) {
- 	case BR_STATE_FORWARDING:
--
--		if (br_should_route_hook) {
--			if (br_should_route_hook(skb))
-+		rhook = rcu_dereference(br_should_route_hook);
-+		if (rhook != NULL) {
-+			if (rhook(skb))
- 				return skb;
- 			dest = eth_hdr(skb)->h_dest;
- 		}
-diff --git a/net/bridge/netfilter/ebtable_broute.c b/net/bridge/netfilter/ebtable_broute.c
-index e44519e..be6f186 100644
---- a/net/bridge/netfilter/ebtable_broute.c
-+++ b/net/bridge/netfilter/ebtable_broute.c
-@@ -70,13 +70,13 @@ static int __init ebtable_broute_init(void)
- 	if (ret < 0)
- 		return ret;
- 	/* see br_input.c */
--	br_should_route_hook = ebt_broute;
-+	rcu_assign_pointer(br_should_route_hook, ebt_broute);
- 	return ret;
- }
- 
- static void __exit ebtable_broute_fini(void)
- {
--	br_should_route_hook = NULL;
-+	rcu_assign_pointer(br_should_route_hook, NULL);
- 	synchronize_net();
- 	ebt_unregister_table(&broute_table);
- }
+
+
