@@ -1,11 +1,11 @@
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
 	h=domainkey-signature:received:received:received:user-agent:date:from:to:subject:content-disposition:message-id;
 	bh=tgwDXcRqVcdyRC128lJBBpbXkggH/8G3PPxU/tlYiFU=;
-	b=ioYPJgzYZfan/SzhB1Ms+GKpnoV33ZY682wkMaw1f0vIv9vipM/u0zbAtWUA6eyGoQWR25ipGMmb7hXpN/Yc0pwyuHYYYZYCkGnvIFPTjbkMPwyh7rGNoan2O21KNh6VCi8OFpQnUAvmx0/l6dNZ8Qs8Vt2izOsDwuWS6lvrdLo=
+	b=LdRkoL4YOgX2pxewY6ZCX34Ot0zAoBO4iZF4IZzs/sc/TdFrvEg/fLDpz2oDEB1TNakWoVlFoDu6PJmfMej0LWf4dQoF6CEm/zg60IqemI4UWeyqqEFfrHUm7mcqGWFy5Q5SWF5XsSLvVhozMkI3EMuhLexLTx9/vGmero7ylCA=
 Date: Mon, 17 Dec 2007 17:13:09 +0100
 From: Jaime Medrano <jaime.medrano@gmail.com>
 Content-Disposition: inline; filename=vlan.diff
-Message-ID: <4766a1b9.06c7100a.5269.6cf0@mx.google.com>
+Message-ID: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
 Subject: [Bridge] [PATCH] Add vlan id to bridge forward database
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,7 +15,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@lists.osdl.org
 
 Hi!
 
