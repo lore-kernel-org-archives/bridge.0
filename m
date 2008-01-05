@@ -1,14 +1,10 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
-	h=domainkey-signature:received:received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-	bh=Xdbj4LU7bGZDK0P4qmpD52XGL5PnuE3+7wOyn5yMcHA=;
-	b=XFk/W1uEgT3RBwTO++39zvUykvwtXrvakvJkz7oSweL0Fqy90DvQbM9Jn0jF7c6dBamn/5vIOtY2CYf7/ErQO2cwu661Ekgg8+yjacTdgwiSZz/LDcTjeTpv1Br3U2fWJoSBl0rxFTxZq3nfBO/wFqK5cHREYhOw7uLimdNtGIU=
-Message-ID: <4781728A.8070108@gmail.com>
-Date: Mon, 07 Jan 2008 02:30:02 +0200
-From: Casper Gripenberg <casper.cg@gmail.com>
+Message-ID: <478010E3.3020409@kotiportti.fi>
+Date: Sun, 06 Jan 2008 01:21:07 +0200
+From: Casper Gripenberg <casper.gripenberg@kotiportti.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Bridge with IP address -> unable to connect to bridge
+Subject: [Bridge] Bridge with DHCP IP address 
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,53 +16,40 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: bridge@lists.linux-foundation.org
 
 
-Hi,
+Hi. I'm trying to run a bridge between my "internal"
+network (eth1) and the external internet (eth0). I.e.
+a very basic setup.
 
-I tried sending this earlier, but it didn't come through.
-Apologies if this appers twice on the list.
+But I also want the bridge to have an IP address. I
+read the docs here:
+http://www.linux-foundation.org/en/Net:Bridge
 
-I'm running bridging using the brouter setup described on
-this page:
+Which say to set the forwarding delay to 0 and then run
+dhclient on eth0:
 
-http://ebtables.sourceforge.net/examples.html
-"Making a brouter".
+# ifconfig eth0 0.0.0.0
+# ifconfig eth1 0.0.0.0
+# brctl setfd br0 0
+# brctl addif br0 eth0
+# dhclient eth0
+# brctl addif br0 eth1
+# ifconfig br0 up
 
-The setup described there is like this:
+The bridge works fine as a bridge, and eth0 gets
+an IP address (although it takes a very long time
+for the dhclient to aquire it).
 
-ifconfig br0 0.0.0.0
-ifconfig eth0 172.16.1.1 netmask 255.255.255.0
-ifconfig eth1 172.16.2.1 netmask 255.255.255.0
-ebtables -t broute -A BROUTING -p ipv4 -i eth0 --ip-dst 172.16.1.1 -j DROP
-ebtables -t broute -A BROUTING -p ipv4 -i eth1 --ip-dst 172.16.2.1 -j DROP
-ebtables -t broute -A BROUTING -p arp -i eth0 -d $MAC_OF_ETH0 -j DROP
-ebtables -t broute -A BROUTING -p arp -i eth1 -d $MAC_OF_ETH1 -j DROP
+But I can't reach the eth0 address from anywhere
+except localhost. And I can't get out of the bridge
+either to any other address..even though the routing
+table it set up correctly I get destination unreachable
+when I try to ping an external IP address from the
+bridge box (logged in through the console).
 
-My setup is different in that I use a public DHCP IP address
-for eth0, and an interal private IP for eth1.
-
-Internet <-> DHCP <-> eth0 br0 eth1 <-> my internal net
-
-The bridge bridges traffic fine, but the problems come when
-I try to access eth0 from my internal network.
-
-I can get to eth0 fine if I access it from the internet,
-but if I try to access it from my internal network then
-it won't work.
-
-The computer on the internal net has a public internet
-IP (aquired from the same DHCP box that gave eth0 its
-address). So that should not be the problem.
-
-If I look at the arp table on my computer on the
-internal net it has the ARP address of eth1 for the
-IP of eth0. This seems correct, right?..since we want
-to get to eth1 in order to jump to eth0.
-
-Is there some way to get this to work? In the end I want
-to be able to filter different ports on eth0 based on if
-the traffic comes from the internet or from the internal
-net. I think there is just some magic ebtables potion
-that will solve it(?)..but I don't know how to make it :-/
+What I want is for the bridge to have an IP address
+and then I want to allow access to specific ports on
+the bridge depending on if the packets are coming in
+through eth0 or eth1. Is this possible to do?
 
 Thanks.
 
