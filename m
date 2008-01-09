@@ -1,12 +1,18 @@
-From: "Denys Fedoryshchenko" <denys@visp.net.lb>
-Date: Wed, 9 Jan 2008 08:40:35 +0200
-Message-Id: <20080109063654.M87339@visp.net.lb>
-In-Reply-To: <20080108085607.37ab168f@deepthought>
-References: <20080108085607.37ab168f@deepthought>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+	bh=qhS+WFsfotTQhM6S2VRz8+4ZyOz3iZDf3lzxEcbeIKI=;
+	b=tEyGVoct5F4KWzV51XXy29mSltmMxRK5ifhSqfUQzfLgfC7+HRkxxdVnCIhfagYeHN9i3ZGiyKWe+5TMKwCngMJDTnXjRiDyozQkO1MQFwiXDLlGpJnim7i5p0388l+fxNmouIj7RfSoE7vqZCjUfYVvI+UUdiqVs/cvJmTDKRk=
+Message-ID: <9e0cf0bf0801091016n50f1f3f7kfb0326ca3014dbfd@mail.gmail.com>
+Date: Wed, 9 Jan 2008 20:16:48 +0200
+From: "Alon Bar-Lev" <alon.barlev@gmail.com>
+Subject: Re: [Bridge] Re: [ANNOUNCE] bridge-utils 1.4
+In-Reply-To: <20080109063654.M87339@visp.net.lb>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=koi8-r
-Subject: [Bridge] Re: [ANNOUNCE] bridge-utils 1.4
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20080108085607.37ab168f@deepthought>
+	<20080109063654.M87339@visp.net.lb>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,50 +21,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>, bridge@linux-foundation.org
-Cc: netdev@vger.kernel.org
+To: Denys Fedoryshchenko <denys@visp.net.lb>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
+On 1/9/08, Denys Fedoryshchenko <denys@visp.net.lb> wrote:
+>
+> As mentioned in
+> http://marc.info/?l=linux-bridge&m=113105949718826&w=2
+>
+> Released package doesn't contain ./configure script
+>
+> For people who know what is make on, it is easy to run autoconf , but some
+> know only how to use ./configure :-)
 
-As mentioned in
-http://marc.info/?l=linux-bridge&m=113105949718826&w=2
+Also use of automake will be great!
+If you like, I can provide new autoconf/automake build for this package.
 
-Released package doesn't contain ./configure script
-
-For people who know what is make on, it is easy to run autoconf , but some 
-know only how to use ./configure :-)
-
-Other than this, it is works fine with me, but i didn't test it deeply yet.
-
-On Tue, 8 Jan 2008 08:56:07 -0800, Stephen Hemminger wrote
-> Minor update to bridge-utils. Mostly fixing bugs in usage of sysfs.
-> 
-> Release tarball:
->   http://downloads.sourceforge.net/bridge/bridge-utils-1.4.tar.gz
-> 
-> Alon Bar-Lev (1):
->       Allow bridge-utils to run when no TCP/IP is available
-> 
-> Denys Vlasenko (1):
->       fix use of sysfs (affects 32/64 bit compat)
-> 
-> Jeremy Jackson (1):
->       Fix parsing of port_id's (hex).
-> 
-> Stephen Hemminger (3):
->       Add ignore for generated files.
->       Update gitignore
->       Use linux/if.h rather than net/if.h
-> 
-> -- 
-> Stephen Hemminger <stephen.hemminger@vyatta.com>
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
---
-Denys Fedoryshchenko
-Technical Manager
-Virtual ISP S.A.L.
-
+Alon.
