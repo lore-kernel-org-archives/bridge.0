@@ -1,11 +1,10 @@
-From: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
-Date: Wed, 16 Jan 2008 00:45:19 +0100
-Message-ID: <001001c857d0$b06b1140$114133c0$@tjernlund@transmode.se>
+Message-ID: <478E102C.8050006@satca.net>
+Date: Wed, 16 Jan 2008 15:09:48 +0100
+From: Marian Jancar <m.jancar@satca.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Language: sv
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Fw: Retain an IP address on a i/f partcipating in a bridge?
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] MAC addresses on ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,29 +15,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Found this list after sending 'bridge@osdl.org'. Not sure which one
-to use so I send it here too.
+Hi,
 
------Ursprungligt meddelande-----
-Fr=E5n: Joakim Tjernlund [mailto:joakim.tjernlund@transmode.se]=20
-Skickat: den 16 januari 2008 00:33
-Till: 'bridge@osdl.org'
-=C4mne: Retain an IP address on a i/f partcipating in a bridge?
+I need some explanation/help with a probably bit uncommon bridge setup. I have
+devices that come with their manufacturer MAC addresses, and I need to create
+a bridge that uses my MAC address instead and has to look about like this:
 
-Currently one must unset the IP address on an i/f that is included in a
-bridge and
-move the IP address to the bridge i/f instead if one wants to maintain
-connectivity with
-the box. This is a problem for us as one loses all routes. The rename of the
-i/f=20
-is also a problem.
+br0:    unique MAC address from my range
+wlan0:  same MAC as br0
+        (madwifi supports 4 MAC frames in STA mode so the actual bridging works,
+        just if you are curious :p)
+eth0:   any MAC address higher than the br0 MAC,
+        and as long as the assumptions below hold, unique in just this bridge,
+eth1:   ditto
+...
+ethN:   ditto
 
-Is there a fundamental reason one cannot keep the IP address on one i/f that
-is a member in a bride? I only have two real interfaces in the bridge if
-that=20
-makes it any easier.
-Any pointers where I need to adjust the bride code would be appreciated.
 
-     Jocke
+Now, the only reason I can think about from my naive point of view, why the bridge
+cares about port MAC address at all, is maintaining a reliable and persistent
+connection between the logical port and the actual physical device for STP
+purposes.
 
+So if I'm right, I can assign any MAC addresses to the ethernet ports, as long
+as they are higher than the wlan0 address, to ensure that the bridge selects
+the wlan0 MAC as its own, and as long as they are locally unique.
+The MAC addresses of the ethernet ports will not appear in any non-STP
+packets and don't have to be globally unique, because they identify ports in
+just this bridge and STP handles that, just a port has always to have the
+same address and not a random one.
+
+Is this correct? If not, is there any other way to create a bridge and
+not to have to allocate a unique MAC to each port?
+
+Any comments and/or pointers to relevant documentation are highly appreciated.
+
+
+Best Regards
+Marian
 
