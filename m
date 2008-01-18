@@ -1,11 +1,11 @@
-Date: Sat, 19 Jan 2008 09:43:08 +0100 (CET)
-From: seg@bunten.de
-Message-ID: <Pine.LNX.4.62.0801190941270.28735@wadonga.seg>
+Date: Fri, 18 Jan 2008 22:35:59 +0100 (CET)
+From: andreas@bunten.de
+Message-ID: <Pine.LNX.4.62.0801182226450.20707@wadonga.seg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: [Bridge] bridging eth0 & usb0 but arp requests go to the wrong
-	network
-Reply-To: seg@bunten.de
+Subject: [Bridge] trying to bridge eth0 & usb0 but arp requests go to the
+	wrong network
+Reply-To: andreas@bunten.de
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,11 +20,11 @@ Hello,
 
 I'm trying to get bridging to work between eth0 and usb0:
 
-   192.168.13.2  <--->  br0:192.168.13.47  <---> 192.168.13.1
-                        usb0         eth0
+192.168.13.2  <--->  br0:192.168.13.47  <---> 192.168.13.1
+                      usb0         eth0
 
-   192.168.13.2:~ # ping 192.168.13.1
-   ... 100 % packet loss
+192.168.13.2:~ # ping 192.168.13.1
+... 100 % packet loss
 
 On 192.168.13.1 I do see the arp requests but no icmp packet :-/
 
@@ -48,10 +48,8 @@ andreas
 
 
 PS: The bridge system is a SUSE 10.2 with kernel 2.6.18.8-0.7-default 
-(incl.
-suse patches) usb0 is a MosChip usb nic using the mcs7830 driver and eth0 
-is
-an on board intel nic. both work fine in non bridging mode.
+(incl. suse patches) usb0 is a MosChip usb nic using the mcs7830 driver 
+and eth0 is an on board intel nic. both work fine in non bridging mode.
 
 my routing table (just ignore the vmnet stuff):
 
@@ -79,10 +77,8 @@ Filtering is not enabled as far as I can see:
    # iptables -vnL
    Chain INPUT (policy ACCEPT 842 packets, 683K bytes)
    pkts bytes target     prot opt in     out     source  destination
-
    Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
    pkts bytes target     prot opt in     out     source  destination
-
    Chain OUTPUT (policy ACCEPT 885 packets, 98734 bytes)
    pkts bytes target     prot opt in     out     source  destination
 
