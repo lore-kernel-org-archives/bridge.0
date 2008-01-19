@@ -1,12 +1,11 @@
-Date: Wed, 16 Jan 2008 10:31:17 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] MAC addresses on ports
-Message-ID: <20080116103117.4392ae65@speedy>
-In-Reply-To: <478E102C.8050006@satca.net>
-References: <478E102C.8050006@satca.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Sat, 19 Jan 2008 09:43:08 +0100 (CET)
+From: seg@bunten.de
+Message-ID: <Pine.LNX.4.62.0801190941270.28735@wadonga.seg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] bridging eth0 & usb0 but arp requests go to the wrong
+	network
+Reply-To: seg@bunten.de
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,46 +14,87 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Marian Jancar <m.jancar@satca.net>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Wed, 16 Jan 2008 15:09:48 +0100
-Marian Jancar <m.jancar@satca.net> wrote:
+Hello,
 
-> Hi,
-> 
-> I need some explanation/help with a probably bit uncommon bridge setup. I have
-> devices that come with their manufacturer MAC addresses, and I need to create
-> a bridge that uses my MAC address instead and has to look about like this:
-> 
-> br0:    unique MAC address from my range
-> wlan0:  same MAC as br0
->         (madwifi supports 4 MAC frames in STA mode so the actual bridging works,
->         just if you are curious :p)
-> eth0:   any MAC address higher than the br0 MAC,
->         and as long as the assumptions below hold, unique in just this bridge,
-> eth1:   ditto
-> ...
-> ethN:   ditto
-> 
-> 
-> Now, the only reason I can think about from my naive point of view, why the bridge
-> cares about port MAC address at all, is maintaining a reliable and persistent
-> connection between the logical port and the actual physical device for STP
-> purposes.
-> 
-> So if I'm right, I can assign any MAC addresses to the ethernet ports, as long
-> as they are higher than the wlan0 address, to ensure that the bridge selects
-> the wlan0 MAC as its own, and as long as they are locally unique.
-> The MAC addresses of the ethernet ports will not appear in any non-STP
-> packets and don't have to be globally unique, because they identify ports in
-> just this bridge and STP handles that, just a port has always to have the
-> same address and not a random one.
-> 
-> Is this correct? If not, is there any other way to create a bridge and
-> not to have to allocate a unique MAC to each port?
-> 
-> Any comments and/or pointers to relevant documentation are highly appreciated.
+I'm trying to get bridging to work between eth0 and usb0:
 
-Latest version of code allows bridge to have any mac address.
-You do HAVE to make sure device in bridge has a unique mac address.
+   192.168.13.2  <--->  br0:192.168.13.47  <---> 192.168.13.1
+                        usb0         eth0
+
+   192.168.13.2:~ # ping 192.168.13.1
+   ... 100 % packet loss
+
+On 192.168.13.1 I do see the arp requests but no icmp packet :-/
+
+Just like "No traffic gets trough (except ARP and STP)" in the
+FAQ on http://www.linux-foundation.org/en/Net:Bridge
+
+Except ...
+
+I can ping 192.168.13.1 from the bridge (192.168.13.47)
+Trying to ping 192.168.13.2 from the bridge does not work
+I do see the arp requests for 192.168.13.2 on 192.168.13.1 (!)
+
+I get the same result if if enable STP on the bridge.
+
+What is going wrong here? :-/
+
+Any hint appreciated!
+
+Regards,
+andreas
+
+
+PS: The bridge system is a SUSE 10.2 with kernel 2.6.18.8-0.7-default 
+(incl.
+suse patches) usb0 is a MosChip usb nic using the mcs7830 driver and eth0 
+is
+an on board intel nic. both work fine in non bridging mode.
+
+my routing table (just ignore the vmnet stuff):
+
+bibo:/proc/sys/net/ipv4 # route -n
+Kernel IP routing table
+Destination  Gateway      Genmask       Flags Metric Ref Use Iface
+10.0.0.0     0.0.0.0      255.255.255.0 U     0      0     0 vmnet8
+192.168.13.0 0.0.0.0      255.255.255.0 U     0      0     0 br0
+10.0.10.0    0.0.0.0      255.255.255.0 U     0      0     0 vmnet1
+127.0.0.0    0.0.0.0      255.0.0.0     U     0      0     0 lo
+0.0.0.0      192.168.13.1 0.0.0.0       UG    0      0     0 br0
+
+Filtering is not enabled as far as I can see:
+
+   bibo:/proc/sys/net/bridge # ls
+   bridge-nf-call-arptables  bridge-nf-call-iptables
+   bridge-nf-call-ip6tables  bridge-nf-filter-vlan-tagged
+   bibo:/proc/sys/net/bridge # cat *
+   0
+   0
+   0
+   0
+   bibo:/proc/sys/net/bridge #
+
+   # iptables -vnL
+   Chain INPUT (policy ACCEPT 842 packets, 683K bytes)
+   pkts bytes target     prot opt in     out     source  destination
+
+   Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+   pkts bytes target     prot opt in     out     source  destination
+
+   Chain OUTPUT (policy ACCEPT 885 packets, 98734 bytes)
+   pkts bytes target     prot opt in     out     source  destination
+
+How I set up the bridge:
+
+   # ifconfig usb0 0.0.0.0 down
+   # ifconfig eth0 0.0.0.0 down
+   # brctl addbr br0
+   # brctl addif br0 eth0
+   # brctl addif br0 usb0
+   # ifconfig br0 192.168.13.47 up
+   # brctl show br0
+   bridge name   bridge id               STP enabled     interfaces
+   br0           8000.000d6080dcd6       no              eth0
+                                                         usb0
