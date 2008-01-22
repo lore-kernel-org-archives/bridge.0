@@ -1,13 +1,17 @@
-Date: Sat, 19 Jan 2008 13:16:12 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] trying to bridge eth0 & usb0 but arp requests go to
-	the wrong network
-Message-ID: <20080119131612.1777e3e4@deepthought>
-In-Reply-To: <Pine.LNX.4.62.0801182226450.20707@wadonga.seg>
-References: <Pine.LNX.4.62.0801182226450.20707@wadonga.seg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
+	h=domainkey-signature:received:received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+	bh=a//zAdLgiKJgQKN5hwOJqgn2nS6qPfhxeooso47v4LY=;
+	b=K6Pe+9N/L+S3tMxKADqX9hok4o12Vqy9iajPSaoPlNPmWODXHpcJyQyQ8t36VS6YPY6+yq0uFSP3eXojxxggihQw/u2mAr7wC2enrrXjYJ/W8quPxapR6hUsnXmcVbZ1jnXY4ys1h75fT2TtlRhQZ9E8bkT3C9NnMOFtDEq61Yg=
+Message-ID: <2e59e6970801212158s42350483n75941bb4f58124a5@mail.gmail.com>
+Date: Tue, 22 Jan 2008 05:58:11 +0000
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Subject: Re: [Bridge] MAC addresses on ports
+In-Reply-To: <478E102C.8050006@satca.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <478E102C.8050006@satca.net>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,62 +20,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: andreas@bunten.de
+To: Marian Jancar <m.jancar@satca.net>
 Cc: bridge@lists.linux-foundation.org
 
-On Fri, 18 Jan 2008 22:35:59 +0100 (CET)
-andreas@bunten.de wrote:
+On Jan 16, 2008 2:09 PM, Marian Jancar <m.jancar@satca.net> wrote:
+> Hi,
+>
+> I need some explanation/help with a probably bit uncommon bridge setup. I have
+> devices that come with their manufacturer MAC addresses, and I need to create
+> a bridge that uses my MAC address instead and has to look about like this:
+>
+> br0:    unique MAC address from my range
+> wlan0:  same MAC as br0
+>         (madwifi supports 4 MAC frames in STA mode so the actual bridging works,
+>         just if you are curious :p)
+> eth0:   any MAC address higher than the br0 MAC,
+>         and as long as the assumptions below hold, unique in just this bridge,
+> eth1:   ditto
+> ...
+> ethN:   ditto
+>
+>
+> Now, the only reason I can think about from my naive point of view, why the bridge
+> cares about port MAC address at all, is maintaining a reliable and persistent
+> connection between the logical port and the actual physical device for STP
+> purposes.
+>
+> So if I'm right, I can assign any MAC addresses to the ethernet ports, as long
+> as they are higher than the wlan0 address, to ensure that the bridge selects
+> the wlan0 MAC as its own, and as long as they are locally unique.
+> The MAC addresses of the ethernet ports will not appear in any non-STP
+> packets and don't have to be globally unique, because they identify ports in
+> just this bridge and STP handles that, just a port has always to have the
+> same address and not a random one.
+>
+> Is this correct? If not, is there any other way to create a bridge and
+> not to have to allocate a unique MAC to each port?
 
-> Hello,
-> 
-> I'm trying to get bridging to work between eth0 and usb0:
-> 
-> 192.168.13.2  <--->  br0:192.168.13.47  <---> 192.168.13.1
->                       usb0         eth0
-> 
-> 192.168.13.2:~ # ping 192.168.13.1
-> ... 100 % packet loss
-> 
-> On 192.168.13.1 I do see the arp requests but no icmp packet :-/
-> 
-> Just like "No traffic gets trough (except ARP and STP)" in the
-> FAQ on http://www.linux-foundation.org/en/Net:Bridge
-> 
-> Except ...
-> 
-> I can ping 192.168.13.1 from the bridge (192.168.13.47)
-> Trying to ping 192.168.13.2 from the bridge does not work
-> I do see the arp requests for 192.168.13.2 on 192.168.13.1 (!)
-> 
-> I get the same result if if enable STP on the bridge.
-> 
-> What is going wrong here? :-/
-> 
-> Any hint appreciated!
-> 
-> Regards,
-> andreas
-> 
-> 
-> PS: The bridge system is a SUSE 10.2 with kernel 2.6.18.8-0.7-default 
-> (incl. suse patches) usb0 is a MosChip usb nic using the mcs7830 driver 
-> and eth0 is an on board intel nic. both work fine in non bridging mode.
-> 
-> my routing table (just ignore the vmnet stuff):
-> 
-> bibo:/proc/sys/net/ipv4 # route -n
-> Kernel IP routing table
-> Destination  Gateway      Genmask       Flags Metric Ref Use Iface
-> 10.0.0.0     0.0.0.0      255.255.255.0 U     0      0     0 vmnet8
-> 192.168.13.0 0.0.0.0      255.255.255.0 U     0      0     0 br0
-> 10.0.10.0    0.0.0.0      255.255.255.0 U     0      0     0 vmnet1
-> 127.0.0.0    0.0.0.0      255.0.0.0     U     0      0     0 lo
-> 0.0.0.0      192.168.13.1 0.0.0.0       UG    0      0     0 br0
+I'm pretty sure you have it nailed except for one thing... what is all
+this "higher than" another MAC address?  There's no ordering defined
+for MAC addresses, and it wouldn't matter anyway, in my experience the
+bridge takes the MAC address of the lowest-numbered port, that is the
+first one added to the bridge, without regard for the addresses.
 
-Please reproduce without the interference of the proprietary VMware
-network. Since VM networking does it's own bridging, I suspect interference.
+So you can just let ethX use the manufacturer assigned addresses, as
+long as you add wlan0 to the bridge before ethX.
 
-Or go bug SUSE support
-
--- 
-Stephen Hemminger <stephen.hemminger@vyatta.com>
+>
+> Any comments and/or pointers to relevant documentation are highly appreciated.
+>
+>
+> Best Regards
+> Marian
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
+>
