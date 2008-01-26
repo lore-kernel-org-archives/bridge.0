@@ -1,18 +1,11 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
-	h=domainkey-signature:received:received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-	bh=8hB2l3IDWSt0dzvDD4pMRWPpyQ2gyap/LyZ9+90qr9Y=;
-	b=DWxzK7jN5sCB0Bh+RtnboOuDAkqe1yeci5Jls0DyOwg9xqoTBUmF5MTuDBaaL2YkMbdb7Ljep8gfMdT8AW4GJ3+FcNb1ZyBZ5T9NmUlrsjTjFR2FQJI4GwEFZ4kJ/MskyvDWq98u6Kwuem8NMA/CCu+IT8vKzrrIbZRmNvB4z8Y=
-Message-ID: <2e59e6970801232217h26a11499h112e0e049e553c84@mail.gmail.com>
-Date: Thu, 24 Jan 2008 06:17:41 +0000
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Subject: Re: [Bridge] trying to bridge eth0 & usb0 but arp requests go to the
-	wrong network
-In-Reply-To: <Pine.LNX.4.62.0801182226450.20707@wadonga.seg>
+Date: Sat, 26 Jan 2008 22:56:22 +0600
+From: Oleg Serditov <zir@pinta.ws>
+Message-ID: <189835152.20080126225622@pinta.ws>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0801182226450.20707@wadonga.seg>
+Subject: [Bridge] Learning BPDU source MACs in BLOCKING state => loss of IP
+	connectivity
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,102 +14,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: andreas@bunten.de
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Jan 18, 2008 9:35 PM,  <andreas@bunten.de> wrote:
-> Hello,
->
-> I'm trying to get bridging to work between eth0 and usb0:
->
-> 192.168.13.2  <--->  br0:192.168.13.47  <---> 192.168.13.1
->                       usb0         eth0
->
-> 192.168.13.2:~ # ping 192.168.13.1
-> ... 100 % packet loss
->
-> On 192.168.13.1 I do see the arp requests but no icmp packet :-/
->
-> Just like "No traffic gets trough (except ARP and STP)" in the
-> FAQ on http://www.linux-foundation.org/en/Net:Bridge
->
-> Except ...
->
-> I can ping 192.168.13.1 from the bridge (192.168.13.47)
-> Trying to ping 192.168.13.2 from the bridge does not work
-> I do see the arp requests for 192.168.13.2 on 192.168.13.1 (!)
->
-> I get the same result if if enable STP on the bridge.
->
-> What is going wrong here? :-/
->
-> Any hint appreciated!
->
-> Regards,
-> andreas
->
->
-> PS: The bridge system is a SUSE 10.2 with kernel 2.6.18.8-0.7-default
-> (incl. suse patches) usb0 is a MosChip usb nic using the mcs7830 driver
-> and eth0 is an on board intel nic. both work fine in non bridging mode.
->
-> my routing table (just ignore the vmnet stuff):
->
-> bibo:/proc/sys/net/ipv4 # route -n
-> Kernel IP routing table
-> Destination  Gateway      Genmask       Flags Metric Ref Use Iface
-> 10.0.0.0     0.0.0.0      255.255.255.0 U     0      0     0 vmnet8
-> 192.168.13.0 0.0.0.0      255.255.255.0 U     0      0     0 br0
-> 10.0.10.0    0.0.0.0      255.255.255.0 U     0      0     0 vmnet1
-> 127.0.0.0    0.0.0.0      255.0.0.0     U     0      0     0 lo
-> 0.0.0.0      192.168.13.1 0.0.0.0       UG    0      0     0 br0
->
-> Filtering is not enabled as far as I can see:
->
->    bibo:/proc/sys/net/bridge # ls
->    bridge-nf-call-arptables  bridge-nf-call-iptables
->    bridge-nf-call-ip6tables  bridge-nf-filter-vlan-tagged
->    bibo:/proc/sys/net/bridge # cat *
->    0
->    0
->    0
->    0
->    bibo:/proc/sys/net/bridge #
->
->    # iptables -vnL
->    Chain INPUT (policy ACCEPT 842 packets, 683K bytes)
->    pkts bytes target     prot opt in     out     source  destination
->    Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
->    pkts bytes target     prot opt in     out     source  destination
->    Chain OUTPUT (policy ACCEPT 885 packets, 98734 bytes)
->    pkts bytes target     prot opt in     out     source  destination
->
-> How I set up the bridge:
->
->    # ifconfig usb0 0.0.0.0 down
->    # ifconfig eth0 0.0.0.0 down
+Hello to all.
 
-I've always had the best luck bringing bridge member interfaces "up"
-(but with no IP address).
+I'm running 2.6.12, uClinux distribution for the Blackfin processor. I
+am experiencing a problem which prevents two boxes connected by a pair
+of links from being able to ping each other.
 
-On my system, which uses the newer networking utilities, that would be
+The  network  setup  described  below  is presumably rather common - I
+don't do anything special.
 
-ip link set usb0 up
-ip link set eth0 up
+The problem arises when you have specific combination of interface MAC
+addresses  (and/or  STP  bridge  priorities,  port priorities and link
+costs;  if  you're  unlucky  enough,  like  in  my  case, standard STP
+settings will do).
 
-Also I configure the bridge IP address and bring it up before adding
-slave interfaces, but I don't think the order should matter.
+I've  read the list archive carefully, and searched the Web, wondering
+if  this problem was solved in more recent kernels, but didn't find an
+answer. So, please, don't blame me too much if I'll tell you something
+already well known :)
 
->    # brctl addbr br0
->    # brctl addif br0 eth0
->    # brctl addif br0 usb0
->    # ifconfig br0 192.168.13.47 up
->    # brctl show br0
->    bridge name   bridge id               STP enabled     interfaces
->    br0           8000.000d6080dcd6       no              eth0
->                                                          usb0
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+The  network consists of two uClinux boxes. The boxes are connected by
+two   links  to  provide  failover.  Each  of  them  has  two  network
+interfaces,  grouped into a bridge. The bridges have IP addresses from
+the  same  subnet,  so they should be able to ping each other. And, of
+course, they run STP.
+
+ Box 1                         Box 2
+
+ ----- eth1               eth1 -----
+|     |--------Link 1---------|     |
+|     |--------Link 2---------|     |
+ ----- eth2               eth2 -----
+
+  br1                           br2
+10.0.0.1                      10.0.0.2
+
+
+Let's  assume  Box  1 is elected as the root bridge, and Box 2 has its
+eth2  in  BLOCKING  state.  Then br2 shouldn't learn any MAC addresses
+from eth2, as proposed by the IEEE Std 802.1D-2004:
+
+> Clause 7.8 The Learning Process
+> 
+> The Learning Process shall create or update a Dynamic Filtering Entry
+> (7.9, 7.9.2) in the Filtering Database, associating the MAC Address in
+> the source address field of the frame with the receiving Port, if and
+> only if
+> a) The receiving Port is in the Learning State or the
+> Forwarding State (7.4), and
+<other conditions follow, ANDed together>
+
+But,  in my case, it isn't so: "brctl showmacs br2" on Box 2 shows two
+permanent  entries  for  the  addresses of local eth1 and eth2 and two
+dynamic  entries  for  remote  eth1  and eth2, which are updated every
+HELLO_TIME.  Note that if br1 floods non-STP frames (ARP requests, for
+example)  out  of its ports, the source addresses get learned by br2's
+ports as expected (i.e., by eth1 and not eth2 which is BLOCKING).
+
+Let's  assume  that the MAC address of br1's eth2 is less than that of
+eth1.  Then br1 will get its MAC address from eth2 (which is connected
+to the link that is seen as BLOCKING by br2, remember?)
+
+Now we've got a problem.
+
+Symptoms.
+
+I'm able to ping Box 2 from Box 1, but, when pinging Box 1 from Box 2,
+I  get  packet  losses  about  90%  (for  the  default HELLO_TIME of 2
+seconds).
+
+Cause, as it is seen by me.
+
+1) Consider the case when I ping Box 2 from Box 1 (successfully).
+a) Box 1 floods an ARP request; Box 2 sees it on its eth1, learns that
+the  source is connected to eth1 and unicasts a reply; br1 learns that
+br2's MAC address is connected to eth1.
+b) ICMP echo request is unicast by br1 through eth1.
+c) br2  again  learns that br1's MAC address is connected to eth1 and
+unicasts an echo reply.
+d) Repeat b) and c) as needed.
+All works OK.
+
+2) I ping Box 1 from Box 2.
+a) br2  floods  an  ARP  request  (but  its  eth2  is BLOCKING, so it
+broadcasts  the request out of eth1); br1 learns that br2 is connected
+to eth1 and unicasts a reply; br2 learns about br1 on eth1.
+b) br2 unicasts an echo request through eth1 and gets a reply.
+c) From  now, b) should have been repeated as many times as needed...
+but  as  soon  as  the hello timer of br1 expires, it will send a BPDU
+through  eth2.  Then  br2  (incorrectly) assumes that now br1's MAC is
+connected  to eth2, which is BLOCKING. So br1 becomes unreachable, and
+the following echo requests can't be sent.
+d) After  some  time passes, br2 succeeds in sending up to HELLO_TIME
+more pings. Maybe it is caused by NUD subsystem, which eventually ARPs
+for br2's address to check if it is still can be reached? Flushing the
+ARP cache of Box 2 also returns us to the step a).
+
+Note  that  the situation doesn't depend on br2's MAC address (I mean,
+is  it  equal  to  its  eth1's  or  eth2's address). However, if br1's
+address equals to the address of its eth1, pinging is possible in both
+directions, as expected.
+
+I'd  like  to know if the problem is specific to the kernel version or
+distribution  I'm  running. Any comments or suggestions will be highly
+appreciated. Thanks.
+
+-- 
+Best regards,
+Oleg
+
