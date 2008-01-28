@@ -1,13 +1,18 @@
-Date: Sat, 26 Jan 2008 09:28:11 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [Bridge] Learning BPDU source MACs in BLOCKING state => loss of
-	IP connectivity
-Message-ID: <20080126092811.6b8aef48@deepthought>
-In-Reply-To: <189835152.20080126225622@pinta.ws>
-References: <189835152.20080126225622@pinta.ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
+	h=domainkey-signature:received:received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
+	bh=X4h/38y5evICF3oRmm5opaJ4gCZoHeqtLatlW3dU/rw=;
+	b=DNTG2wkiv4o27w3oezbf5YztlIVmgkKOc8P4ggg4xrL9FYQ/ecDZ8B1dkIdmKKaeqfZAWO9QZDcdmpIee2MGSTYVfWGgmNNpnMDK1urEZxEa2TCnbvJ30zFn9dtxYf8kfUrZObDMF7BYFYMUqN0/i5TkoqOFplhHuleOEl9nH60=
+Date: Mon, 28 Jan 2008 16:39:14 +0100
+From: Jaime Medrano <jaime.medrano@gmail.com>
+Subject: Re: [Bridge] [PATCH] Add vlan id to bridge forward database
+Message-ID: <20080128153914.GA5880@localhost>
+References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
+	<20071217085349.729e5c17@deepthought>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20071217085349.729e5c17@deepthought>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,72 +21,407 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Oleg Serditov <zir@pinta.ws>
-Cc: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: bridge@lists.osdl.org
 
-On Sat, 26 Jan 2008 22:56:22 +0600
-Oleg Serditov <zir@pinta.ws> wrote:
+I'm resending this mail since I got no answer.
 
-> Hello to all.
-> 
-> I'm running 2.6.12, uClinux distribution for the Blackfin processor. I
-> am experiencing a problem which prevents two boxes connected by a pair
-> of links from being able to ping each other.
+Is there any major problem in this?
+
+Stephen Hemminger wrote:
+>
+> What about the nested vlan case?
 >
 
-Fixed in 2.6.23.
+Below is a new patch that handles the double-tagging case. I'm not sure
+if it is worth a more generic case. =BFAre triple-tagging and so really use=
+d?
 
-commit df1c0b8468b34628ed12b103804a4576cd9af8bb
-Author: Stephen Hemminger <shemminger@linux-foundation.org>
-Date:   Thu Aug 30 22:15:35 2007 -0700
+> This is a user/kernel ABI change. Does it break old tools?
 
-    [BRIDGE]: Packets leaking out of disabled/blocked ports.
-    
-    This patch fixes some packet leakage in bridge.  The bridging code was
-    allowing forward table entries to be generated even if a device was
-    being blocked. The fix is to not add forwarding database entries
-    unless the port is active.
-    
-    The bug arose as part of the conversion to processing STP frames
-    through normal receive path (in 2.6.17).
-    
-    Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
-    Acked-by: John W. Linville <linville@tuxdriver.com>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
+New patch gets rid of the unused field but it still doesn't break old tools.
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 69b7097..eb57502 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -384,6 +384,11 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 	if (hold_time(br) == 0)
+Anyway, the user part is not really needed. I just think it could be useful.
+
+Regards,
+Jaime.
+
+---
+Subject: [PATCH] Add vlan id to bridge forward database
+
+This makes forwarding table aware of 802.1Q vlan ids and stores
+id with MACs in the table. Up to two vlan tags are handled.
+
+It solves problems when having same MAC on diffent pairs
+(vlan, port). Current code gets confused at that situation.
+
+Local MACs are managed as present on every vlan.
+
+Signed-off-by: Jaime Medrano <jaime.medrano@gmail.com>=20
+---
+ include/linux/if_bridge.h |    3 ++-
+ net/atm/lec.c             |    2 +-
+ net/bridge/br_device.c    |   25 +++++++++++++++++++++----
+ net/bridge/br_fdb.c       |   42 ++++++++++++++++++++++++++++++------------
+ net/bridge/br_input.c     |   36 ++++++++++++++++++++++++++++++++----
+ net/bridge/br_private.h   |   18 ++++++++++++++----
+ 6 files changed, 100 insertions(+), 26 deletions(-)
+
+Index: linux-2.6.23.1/net/bridge/br_private.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.23.1.orig/net/bridge/br_private.h	2007-12-04 22:16:53.0000000=
+00 +0100
++++ linux-2.6.23.1/net/bridge/br_private.h	2008-01-24 20:29:23.000000000 +0=
+100
+@@ -55,6 +55,8 @@
+ 	atomic_t			use_count;
+ 	unsigned long			ageing_timer;
+ 	mac_addr			addr;
++	unsigned short			vlan_first_id;
++	unsigned short			vlan_second_id;
+ 	unsigned char			is_local;
+ 	unsigned char			is_static;
+ };
+@@ -150,9 +152,13 @@
+ extern void br_fdb_delete_by_port(struct net_bridge *br,
+ 				  const struct net_bridge_port *p, int do_all);
+ extern struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+-						 const unsigned char *addr);
++						 const unsigned char *addr,
++						 unsigned short vlan_first_id,
++						 unsigned short vlan_second_id);
+ extern struct net_bridge_fdb_entry *br_fdb_get(struct net_bridge *br,
+-					       unsigned char *addr);
++					       unsigned char *addr,
++					       unsigned short vlan_first_id,
++					       unsigned short vlan_second_id);
+ extern void br_fdb_put(struct net_bridge_fdb_entry *ent);
+ extern int br_fdb_fillbuf(struct net_bridge *br, void *buf,
+ 			  unsigned long count, unsigned long off);
+@@ -161,7 +167,9 @@
+ 			 const unsigned char *addr);
+ extern void br_fdb_update(struct net_bridge *br,
+ 			  struct net_bridge_port *source,
+-			  const unsigned char *addr);
++			  const unsigned char *addr,
++			  unsigned short vlan_first_id,
++			  unsigned short vlan_second_id);
+=20
+ /* br_forward.c */
+ extern void br_deliver(const struct net_bridge_port *to,
+@@ -237,7 +245,9 @@
+=20
+ /* br.c */
+ extern struct net_bridge_fdb_entry *(*br_fdb_get_hook)(struct net_bridge *=
+br,
+-						       unsigned char *addr);
++						       unsigned char *addr,
++						       unsigned short vlan_first_id,
++						       unsigned short vlan_second_id);
+ extern void (*br_fdb_put_hook)(struct net_bridge_fdb_entry *ent);
+=20
+=20
+Index: linux-2.6.23.1/net/bridge/br_device.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.23.1.orig/net/bridge/br_device.c	2007-12-04 22:16:53.00000000=
+0 +0100
++++ linux-2.6.23.1/net/bridge/br_device.c	2008-01-24 20:27:41.000000000 +01=
+00
+@@ -17,6 +17,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+ #include <linux/ethtool.h>
++#include <linux/if_vlan.h>
+=20
+ #include <asm/uaccess.h>
+ #include "br_private.h"
+@@ -42,10 +43,26 @@
+=20
+ 	if (dest[0] & 1)
+ 		br_flood_deliver(br, skb);
+-	else if ((dst =3D __br_fdb_get(br, dest)) !=3D NULL)
+-		br_deliver(dst->dst, skb);
+-	else
+-		br_flood_deliver(br, skb);
++	else {
++		struct vlan_ethhdr *veth =3D vlan_eth_hdr(skb);
++		unsigned short vlan_first_id =3D 0;
++		unsigned short vlan_second_id =3D 0;
++		if (veth->h_vlan_proto =3D=3D __constant_htons(ETH_P_8021Q)) {
++			vlan_first_id =3D ntohs(veth->h_vlan_TCI) & VLAN_VID_MASK;
++			if (veth->h_vlan_encapsulated_proto =3D=3D
++			    __constant_htons(ETH_P_8021Q)) {
++				struct vlan_hdr *veth2 =3D (struct vlan_hdr *)
++							 veth + 1;
++				vlan_second_id =3D ntohs(veth2->h_vlan_TCI) &
++						 VLAN_VID_MASK;
++			}
++		}
++		if ((dst =3D __br_fdb_get(br, dest, vlan_first_id,
++				vlan_second_id)) !=3D NULL)
++			br_deliver(dst->dst, skb);
++		else
++			br_flood_deliver(br, skb);
++	}
+=20
+ 	return 0;
+ }
+Index: linux-2.6.23.1/net/bridge/br_fdb.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.23.1.orig/net/bridge/br_fdb.c	2007-12-04 22:16:53.000000000 +=
+0100
++++ linux-2.6.23.1/net/bridge/br_fdb.c	2007-12-17 23:15:37.000000000 +0100
+@@ -211,13 +211,17 @@
+=20
+ /* No locking or refcounting, assumes caller has no preempt (rcu_read_lock=
+) */
+ struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+-					  const unsigned char *addr)
++					  const unsigned char *addr,
++					  unsigned short vlan_first_id,
++					  unsigned short vlan_second_id)
+ {
+ 	struct hlist_node *h;
+ 	struct net_bridge_fdb_entry *fdb;
+=20
+ 	hlist_for_each_entry_rcu(fdb, h, &br->hash[br_mac_hash(addr)], hlist) {
+-		if (!compare_ether_addr(fdb->addr.addr, addr)) {
++		if (!compare_ether_addr(fdb->addr.addr, addr)
++		    && (fdb->is_local || (fdb->vlan_first_id =3D=3D vlan_first_id &&
++			fdb->vlan_second_id =3D=3D vlan_second_id))) {
+ 			if (unlikely(has_expired(br, fdb)))
+ 				break;
+ 			return fdb;
+@@ -229,12 +233,14 @@
+=20
+ /* Interface used by ATM hook that keeps a ref count */
+ struct net_bridge_fdb_entry *br_fdb_get(struct net_bridge *br,
+-					unsigned char *addr)
++					unsigned char *addr,
++					unsigned short vlan_first_id,
++					unsigned short vlan_second_id)
+ {
+ 	struct net_bridge_fdb_entry *fdb;
+=20
+ 	rcu_read_lock();
+-	fdb =3D __br_fdb_get(br, addr);
++	fdb =3D __br_fdb_get(br, addr, vlan_first_id, vlan_second_id);
+ 	if (fdb && !atomic_inc_not_zero(&fdb->use_count))
+ 		fdb =3D NULL;
+ 	rcu_read_unlock();
+@@ -289,6 +295,8 @@
+ 			fe->is_local =3D f->is_local;
+ 			if (!f->is_static)
+ 				fe->ageing_timer_value =3D jiffies_to_clock_t(jiffies - f->ageing_time=
+r);
++			fe->vlan_first_id =3D f->vlan_first_id;
++			fe->vlan_second_id =3D f->vlan_second_id;
+ 			++fe;
+ 			++num;
+ 		}
+@@ -301,13 +309,17 @@
+ }
+=20
+ static inline struct net_bridge_fdb_entry *fdb_find(struct hlist_head *hea=
+d,
+-						    const unsigned char *addr)
++						    const unsigned char *addr,
++						    unsigned short vlan_first_id,
++						    unsigned short vlan_second_id)
+ {
+ 	struct hlist_node *h;
+ 	struct net_bridge_fdb_entry *fdb;
+=20
+ 	hlist_for_each_entry_rcu(fdb, h, head, hlist) {
+-		if (!compare_ether_addr(fdb->addr.addr, addr))
++		if (!compare_ether_addr(fdb->addr.addr, addr)
++		    && (fdb->is_local || (fdb->vlan_first_id =3D=3D vlan_first_id
++			&& fdb->vlan_second_id =3D=3D vlan_second_id)))
+ 			return fdb;
+ 	}
+ 	return NULL;
+@@ -316,6 +328,8 @@
+ static struct net_bridge_fdb_entry *fdb_create(struct hlist_head *head,
+ 					       struct net_bridge_port *source,
+ 					       const unsigned char *addr,
++					       unsigned short vlan_first_id,
++					       unsigned short vlan_second_id,
+ 					       int is_local)
+ {
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -323,6 +337,8 @@
+ 	fdb =3D kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
+ 	if (fdb) {
+ 		memcpy(fdb->addr.addr, addr, ETH_ALEN);
++		fdb->vlan_first_id =3D vlan_first_id;
++		fdb->vlan_second_id =3D vlan_second_id;
+ 		atomic_set(&fdb->use_count, 1);
+ 		hlist_add_head_rcu(&fdb->hlist, head);
+=20
+@@ -343,7 +359,7 @@
+ 	if (!is_valid_ether_addr(addr))
+ 		return -EINVAL;
+=20
+-	fdb =3D fdb_find(head, addr);
++	fdb =3D fdb_find(head, addr, 0, 0);
+ 	if (fdb) {
+ 		/* it is okay to have multiple ports with same
+ 		 * address, just use the first one.
+@@ -357,7 +373,7 @@
+ 		fdb_delete(fdb);
+ 	}
+=20
+-	if (!fdb_create(head, source, addr, 1))
++	if (!fdb_create(head, source, addr, 0, 0, 1))
+ 		return -ENOMEM;
+=20
+ 	return 0;
+@@ -375,7 +391,8 @@
+ }
+=20
+ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+-		   const unsigned char *addr)
++		   const unsigned char *addr, unsigned short vlan_first_id,
++		   unsigned short vlan_second_id)
+ {
+ 	struct hlist_head *head =3D &br->hash[br_mac_hash(addr)];
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -389,7 +406,7 @@
+ 	      source->state =3D=3D BR_STATE_FORWARDING))
  		return;
- 
-+	/* ignore packets unless we are using this port */
-+	if (!(source->state == BR_STATE_LEARNING ||
-+	      source->state == BR_STATE_FORWARDING))
-+		return;
-+
- 	fdb = fdb_find(head, addr);
+=20
+-	fdb =3D fdb_find(head, addr);
++	fdb =3D fdb_find(head, addr, vlan_first_id, vlan_second_id);
  	if (likely(fdb)) {
  		/* attempt to update an entry for a local interface */
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 5c18595..6f468fc 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -101,9 +101,8 @@ static int br_handle_local_finish(struct sk_buff *skb)
+ 		if (unlikely(fdb->is_local)) {
+@@ -404,8 +421,9 @@
+ 		}
+ 	} else {
+ 		spin_lock(&br->hash_lock);
+-		if (!fdb_find(head, addr))
+-			fdb_create(head, source, addr, 0);
++		if (!fdb_find(head, addr, vlan_first_id, vlan_second_id))
++			fdb_create(head, source, addr, vlan_first_id,
++				   vlan_second_id, 0);
+ 		/* else  we lose race and someone else inserts
+ 		 * it first, don't bother updating
+ 		 */
+Index: linux-2.6.23.1/net/bridge/br_input.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.23.1.orig/net/bridge/br_input.c	2007-12-04 22:16:53.000000000=
+ +0100
++++ linux-2.6.23.1/net/bridge/br_input.c	2008-01-24 20:24:43.000000000 +0100
+@@ -17,6 +17,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+ #include <linux/netfilter_bridge.h>
++#include <linux/if_vlan.h>
+ #include "br_private.h"
+=20
+ /* Bridge group multicast address 802.1d (pg 51). */
+@@ -44,13 +45,26 @@
+ 	struct net_bridge *br;
+ 	struct net_bridge_fdb_entry *dst;
+ 	struct sk_buff *skb2;
++	struct vlan_ethhdr *veth =3D vlan_eth_hdr(skb);
++	unsigned short vlan_first_id =3D 0;
++	unsigned short vlan_second_id =3D 0;
+=20
+ 	if (!p || p->state =3D=3D BR_STATE_DISABLED)
+ 		goto drop;
+=20
+ 	/* insert into forwarding database after filtering to avoid spoofing */
++	if (veth->h_vlan_proto =3D=3D __constant_htons(ETH_P_8021Q)) {
++		vlan_first_id =3D ntohs(veth->h_vlan_TCI) & VLAN_VID_MASK;
++		if (veth->h_vlan_encapsulated_proto =3D=3D
++				__constant_htons(ETH_P_8021Q)) {
++			struct vlan_hdr *veth2 =3D (struct vlan_hdr *) veth+1;
++			vlan_second_id =3D ntohs(veth2->h_vlan_TCI) &
++					 VLAN_VID_MASK;
++		}
++	}
+ 	br =3D p->br;
+-	br_fdb_update(br, p, eth_hdr(skb)->h_source);
++	br_fdb_update(br, p, eth_hdr(skb)->h_source, vlan_first_id,
++		      vlan_second_id);
+=20
+ 	if (p->state =3D=3D BR_STATE_LEARNING)
+ 		goto drop;
+@@ -66,7 +80,8 @@
+ 	if (is_multicast_ether_addr(dest)) {
+ 		br->statistics.multicast++;
+ 		skb2 =3D skb;
+-	} else if ((dst =3D __br_fdb_get(br, dest)) && dst->is_local) {
++	} else if ((dst =3D __br_fdb_get(br, dest, vlan_first_id,
++		    vlan_second_id)) && dst->is_local) {
+ 		skb2 =3D skb;
+ 		/* Do not forward the packet since it's local. */
+ 		skb =3D NULL;
+@@ -96,9 +111,22 @@
+ static int br_handle_local_finish(struct sk_buff *skb)
  {
- 	struct net_bridge_port *p = rcu_dereference(skb->dev->br_port);
- 
--	if (p && p->state != BR_STATE_DISABLED)
-+	if (p)
- 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source);
+ 	struct net_bridge_port *p =3D rcu_dereference(skb->dev->br_port);
 -
++	struct vlan_ethhdr *veth =3D vlan_eth_hdr(skb);
++	unsigned short vlan_first_id =3D 0;
++	unsigned short vlan_second_id =3D 0;
++
++	if (veth->h_vlan_proto =3D=3D __constant_htons(ETH_P_8021Q)) {
++		vlan_first_id =3D ntohs(veth->h_vlan_TCI) & VLAN_VID_MASK;
++		if (veth->h_vlan_encapsulated_proto =3D=3D
++				__constant_htons(ETH_P_8021Q)) {
++			struct vlan_hdr *veth2 =3D (struct vlan_hdr *) veth+1;
++			vlan_second_id =3D ntohs(veth2->h_vlan_TCI) &
++					 VLAN_VID_MASK;
++		}
++	}
+ 	if (p)
+-		br_fdb_update(p->br, p, eth_hdr(skb)->h_source);
++		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vlan_first_id,
++			      vlan_second_id);
  	return 0;	 /* process further */
  }
- 
+=20
+Index: linux-2.6.23.1/net/atm/lec.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.23.1.orig/net/atm/lec.c	2007-12-04 22:16:53.000000000 +0100
++++ linux-2.6.23.1/net/atm/lec.c	2007-12-17 23:05:20.000000000 +0100
+@@ -557,7 +557,7 @@
+ 				break;
+=20
+ 			f =3D br_fdb_get_hook(dev->br_port->br,
+-					    mesg->content.proxy.mac_addr);
++					    mesg->content.proxy.mac_addr, 0, 0);
+ 			if (f !=3D NULL && f->dst->dev !=3D dev
+ 			    && f->dst->state =3D=3D BR_STATE_FORWARDING) {
+ 				/* hit from bridge table, send LE_ARP_RESPONSE */
+Index: linux-2.6.23.1/include/linux/if_bridge.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.23.1.orig/include/linux/if_bridge.h	2007-12-17 23:15:01.00000=
+0000 +0100
++++ linux-2.6.23.1/include/linux/if_bridge.h	2007-12-17 23:15:37.000000000 =
++0100
+@@ -97,7 +97,8 @@
+ 	__u8 port_no;
+ 	__u8 is_local;
+ 	__u32 ageing_timer_value;
+-	__u32 unused;
++	__u16 vlan_first_id;
++	__u16 vlan_second_id;
+ };
+=20
+ #ifdef __KERNEL__
 
-
-
--- 
-Stephen Hemminger <stephen.hemminger@vyatta.com>
