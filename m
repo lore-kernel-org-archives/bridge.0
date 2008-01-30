@@ -1,14 +1,10 @@
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Date: Mon, 28 Jan 2008 21:29:53 +0100
-Message-ID: <m37ihtelry.fsf@ursa.amorsen.dk>
-References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
-	<20071217085349.729e5c17@deepthought>
-	<20080128153914.GA5880@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: news <news@ger.gmane.org>
-Subject: [Bridge] Re: [PATCH] Add vlan id to bridge forward database
+Message-ID: <47A0D6F8.5010600@navigue.com>
+Date: Wed, 30 Jan 2008 14:58:48 -0500
+From: Jonathan Thibault <jonathan@navigue.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Bridged vlan issue.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,25 +13,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
-Jaime Medrano <jaime.medrano@gmail.com> writes:
+I have a strange issue with bridged vlan interfaces.  I've discussed it 
+at length in the ebtables mailing list and have gotten a fair bit of 
+valuable feedback from there.  It is still a bit unclear where the 
+problem resides but it definitely seems ARP related.
 
-> Below is a new patch that handles the double-tagging case. I'm not sure
-> if it is worth a more generic case. ¿Are triple-tagging and so really used?
+First of all, this is kernel 2.6.23.  I have two tg3 gigabit interfaces 
+on the box, conveniently named:  'out' and 'in'.  The vlans are on the 
+'in' side of the bridge, so in.2, in.3, in.4 ... in.6 while the 'out' 
+interface is plain untagged ethernet.
 
-Yes. The company I work for doesn't do it with Linux right now,
-because double tagging is problematic enough already, but it would be
-great if we could.
+As it is now, I only use ebtables to filter out anything that isn't ipv4 
+or arp, I do the rest of my filtering through iptables.  There is also 
+no STP on the bridge or anywhere in our network, though we might use it 
+once I get this fixed.
 
-We're getting lots of layer-2 connections to many locations through
-one provider, and each connection is double-tagged by the provider
-when delivered to the central "office" (in order to make it possible
-to have more than 4096 locations). We'd like to be able to deliver
-more than one VLAN to each location, and that requires triple-tagging.
-Do the same with two providers -- welcome to quadruple-tagging.
+In its current, working condition, the bridge (br0) has interfaces 
+'in.2' and 'out' with the clients on the 'in' side of the bridge, and 
+the internet gateway on the 'out' side.  Does the job brilliantly.
 
+I start having problems when in.3 is added to the bridge (it exists and 
+is up on the box, just not on the bridge).  There are still no clients 
+in vlan 3, but when I add it to the bridge, the bridge won't relay ARP 
+replies from the gateway to some of my clients in vlan2, effectively 
+disabling their internet.
 
-/Benny
+The strange thing is that I see the reply come into the 'out' interface 
+(with tcpdump), I see it on the 'br0' interface, and I also see it on 
+the in.2 interface where it should be on its way to the customer.  But 
+putting a hub between the customer and the bridge box, I never see it.  
+It's as if the arp reply just vanished just before it got fed to the 
+ethernet cable.  To the linux box, it's been sent, but it never shows up 
+on the trunk.
 
+I've also validated this by testing when only 'in.2' and 'out' are on 
+the bridge, I see both requests and replies for affected customers go 
+through the hub and everything works.
 
+I know the tg3 driver does some vlan acceleration of sorts, that might 
+have something to do with it, but something tells me I'd have the same 
+problem with just one vlan interface on the bridge then.
+
+As I said before, this only manifests in our production environment, so 
+I have to be pretty careful with scheduling tests and what not, but I'd 
+very much love some ideas to figure out where the vanishing packets go.
+
+Jonathan
