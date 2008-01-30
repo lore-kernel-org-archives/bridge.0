@@ -1,10 +1,9 @@
-Message-ID: <47A0D6F8.5010600@navigue.com>
-Date: Wed, 30 Jan 2008 14:58:48 -0500
-From: Jonathan Thibault <jonathan@navigue.com>
+Date: Wed, 30 Jan 2008 14:15:11 -0800 (PST)
+From: Alex Shnitman <alexta69@yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Bridged vlan issue.
+Content-Type: text/plain; charset=us-ascii
+Message-ID: <994021.28860.qm@web60421.mail.yahoo.com>
+Subject: [Bridge] Bridge not functional after disconnect / connect
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,51 +12,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@lists.linux-foundation.org
 
-I have a strange issue with bridged vlan interfaces.  I've discussed it 
-at length in the ebtables mailing list and have gotten a fair bit of 
-valuable feedback from there.  It is still a bit unclear where the 
-problem resides but it definitely seems ARP related.
+Hi,
 
-First of all, this is kernel 2.6.23.  I have two tg3 gigabit interfaces 
-on the box, conveniently named:  'out' and 'in'.  The vlans are on the 
-'in' side of the bridge, so in.2, in.3, in.4 ... in.6 while the 'out' 
-interface is plain untagged ethernet.
+I have two NICs on my machine, one connected to a router and is always up, and the other connected back-to-back to a laptop, and this one I disconnect and connect all the time. I created a bridge on top of these two interfaces, and it functions fine, except when I disconnect and connect the laptop, I have to remove it from the bridge and add it back before it starts bridging! In other words, I need to do "brctl delif br0 eth0; brctl addif br0 eth0".
 
-As it is now, I only use ebtables to filter out anything that isn't ipv4 
-or arp, I do the rest of my filtering through iptables.  There is also 
-no STP on the bridge or anywhere in our network, though we might use it 
-once I get this fixed.
+The output of "brctl showmacs br0" and "brctl showstp br0" looks the same and perfectly correct before the removal/adding and after it. From playing around with Wireshark it seems to me that before delif/addif only broadcasts are received from the laptop; unicast packets do not appear there. I got all zeros in /proc/sys/net/bridge/*. It looks like everything is configured correctly.
 
-In its current, working condition, the bridge (br0) has interfaces 
-'in.2' and 'out' with the clients on the 'in' side of the bridge, and 
-the internet gateway on the 'out' side.  Does the job brilliantly.
+Any idea at all why I see this behavior? Any tips as to how I might debug it?
 
-I start having problems when in.3 is added to the bridge (it exists and 
-is up on the box, just not on the bridge).  There are still no clients 
-in vlan 3, but when I add it to the bridge, the bridge won't relay ARP 
-replies from the gateway to some of my clients in vlan2, effectively 
-disabling their internet.
+The kernel I'm running is 2.6.18 from Debian Etch.
 
-The strange thing is that I see the reply come into the 'out' interface 
-(with tcpdump), I see it on the 'br0' interface, and I also see it on 
-the in.2 interface where it should be on its way to the customer.  But 
-putting a hub between the customer and the bridge box, I never see it.  
-It's as if the arp reply just vanished just before it got fed to the 
-ethernet cable.  To the linux box, it's been sent, but it never shows up 
-on the trunk.
+Please, if any more information is required, let me know. I don't want to spam the list with long dumps of everything if it's not needed.
 
-I've also validated this by testing when only 'in.2' and 'out' are on 
-the bridge, I see both requests and replies for affected customers go 
-through the hub and everything works.
+Thanks in advance,
+--Alex
 
-I know the tg3 driver does some vlan acceleration of sorts, that might 
-have something to do with it, but something tells me I'd have the same 
-problem with just one vlan interface on the bridge then.
 
-As I said before, this only manifests in our production environment, so 
-I have to be pretty careful with scheduling tests and what not, but I'd 
-very much love some ideas to figure out where the vanishing packets go.
 
-Jonathan
+
+
+      ____________________________________________________________________________________
+Be a better friend, newshound, and 
+know-it-all with Yahoo! Mobile.  Try it now.  http://mobile.yahoo.com/;_ylt=Ahu06i62sR8HDtDypao8Wcj9tAcJ 
+
