@@ -1,14 +1,12 @@
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
-	h=domainkey-signature:received:received:message-id:date:from:to:subject:mime-version:content-type;
-	bh=u+3B6xOOTZts88Cu2/q3rUjWank7OvIq8gjDasf1j0E=;
-	b=bZiXNjZ9EBbOXjmJ9QC1SHIQn1d2N4SaBjq/z7gAGHsCcJDIQHnnLYSJ9S8t5F9oq7thQKkUFidTmN9Zq9WWAi2vMiu0oAOFflMBZZP505q+J6SNmm9K0Ho6osojzB7LNU+h0P47bNfHEx3JZebbWMFfQCqvY3X6JY2OBfmwh/E=
-Message-ID: <71e4505a0802040455v519fae8aieed95a0fa3ba6372@mail.gmail.com>
-Date: Mon, 4 Feb 2008 13:55:27 +0100
-From: "Spigao spigao" <spigao@gmail.com>
+Message-ID: <47A8BF49.2020004@navigue.com>
+Date: Tue, 05 Feb 2008 14:55:53 -0500
+From: Jonathan Thibault <jonathan@navigue.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_5755_29257137.1202129727416"
-Subject: [Bridge] Bridge two tun/tap interfaces and keep their IP address
+Subject: Re: [Bridge] Bridged vlan issue.
+References: <47A0D6F8.5010600@navigue.com>
+In-Reply-To: <47A0D6F8.5010600@navigue.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,51 +15,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@lists.osdl.org
 
-------=_Part_5755_29257137.1202129727416
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Anybody with input on this?  We're certainly willing to pay to get this 
+one fixed if that's an incentive.
 
-Hello everybody,
+Jonathan
+> I have a strange issue with bridged vlan interfaces.  I've discussed 
+> it at length in the ebtables mailing list and have gotten a fair bit 
+> of valuable feedback from there.  It is still a bit unclear where the 
+> problem resides but it definitely seems ARP related.
+>
+> First of all, this is kernel 2.6.23.  I have two tg3 gigabit 
+> interfaces on the box, conveniently named:  'out' and 'in'.  The vlans 
+> are on the 'in' side of the bridge, so in.2, in.3, in.4 ... in.6 while 
+> the 'out' interface is plain untagged ethernet.
+>
+> As it is now, I only use ebtables to filter out anything that isn't 
+> ipv4 or arp, I do the rest of my filtering through iptables.  There is 
+> also no STP on the bridge or anywhere in our network, though we might 
+> use it once I get this fixed.
+>
+> In its current, working condition, the bridge (br0) has interfaces 
+> 'in.2' and 'out' with the clients on the 'in' side of the bridge, and 
+> the internet gateway on the 'out' side.  Does the job brilliantly.
+>
+> I start having problems when in.3 is added to the bridge (it exists 
+> and is up on the box, just not on the bridge).  There are still no 
+> clients in vlan 3, but when I add it to the bridge, the bridge won't 
+> relay ARP replies from the gateway to some of my clients in vlan2, 
+> effectively disabling their internet.
+>
+> The strange thing is that I see the reply come into the 'out' 
+> interface (with tcpdump), I see it on the 'br0' interface, and I also 
+> see it on the in.2 interface where it should be on its way to the 
+> customer.  But putting a hub between the customer and the bridge box, 
+> I never see it.  It's as if the arp reply just vanished just before it 
+> got fed to the ethernet cable.  To the linux box, it's been sent, but 
+> it never shows up on the trunk.
+>
+> I've also validated this by testing when only 'in.2' and 'out' are on 
+> the bridge, I see both requests and replies for affected customers go 
+> through the hub and everything works.
+>
+> I know the tg3 driver does some vlan acceleration of sorts, that might 
+> have something to do with it, but something tells me I'd have the same 
+> problem with just one vlan interface on the bridge then.
+>
+> As I said before, this only manifests in our production environment, 
+> so I have to be pretty careful with scheduling tests and what not, but 
+> I'd very much love some ideas to figure out where the vanishing 
+> packets go.
+>
+> Jonathan
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
 
-I am new in this mailing list and quite new with the brctl too; so, I'm
-sorry if this is a very obvious or absurd question.
-
-
-I am performing network emulations, with a very particular emulator that
-uses tap devices. Also, I want to run UML virtual machines as if they are
-binded to those tap device. But it is not possible to use the same tap,
-because the network emulator doesn't allow UML to access it (the emulator
-manages the file descriptor of the tap). So, I am thinking on building a
-bridge with two virtual interfaces, one for the emulator and one for the
-UML.
-
-The problem is that I can't manage to build a bridge joining the two tap
-interfaces, which also should keep their IP address. The reason why they
-should keep it is that in the emulator tap, a routing daemon must take the
-IP address from the interface; so, if I change it to 0.0.0.0, it doesn't
-work properly.
-
-Until now, the interfaces only receive some of the packets, the bridge is
-not completely transparent.
-
-In other words, what I need is two tap interfaces working as one, is it
-possible? how would you do it?
-
-
-Best regards,
-Sergio
-
-------=_Part_5755_29257137.1202129727416
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hello everybody,<br><br>I am new in this mailing list and quite new with the brctl too; so, I&#39;m sorry if this is a very obvious or absurd question.<br><br><br>I am performing network emulations, with a very particular emulator that uses tap devices. Also, I want to run UML virtual machines as if they are binded to those tap device. But it is not possible to use the same tap, because the network emulator doesn&#39;t allow UML to access it (the emulator manages the file descriptor of the tap). So, I am thinking on building a bridge with two virtual interfaces, one for the emulator and one for the UML.<br>
-<br>The problem is that I can&#39;t manage to build a bridge joining the two tap interfaces, which also should keep their IP address. The reason why they should keep it is that in the emulator tap, a routing daemon must take the IP address from the interface; so, if I change it to <a href="http://0.0.0.0">0.0.0.0</a>, it doesn&#39;t work properly.<br>
-<br>Until now, the interfaces only receive some of the packets, the bridge is not completely transparent.<br><br>In other words, what I need is two tap interfaces working as one, is it possible? how would you do it?<br><br>
-<br>Best regards,<br>Sergio<br>
-
-------=_Part_5755_29257137.1202129727416--
