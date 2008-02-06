@@ -1,12 +1,11 @@
-Message-ID: <47A8BF49.2020004@navigue.com>
-Date: Tue, 05 Feb 2008 14:55:53 -0500
-From: Jonathan Thibault <jonathan@navigue.com>
+Message-ID: <82b0add70802061207r1fe5780cp142a6afcfb5a1548@mail.gmail.com>
+Date: Wed, 6 Feb 2008 15:07:26 -0500
+From: "Joubert Berger" <joubertb@gmail.com>
+Sender: joubert@berger-family.org
 MIME-Version: 1.0
-Subject: Re: [Bridge] Bridged vlan issue.
-References: <47A0D6F8.5010600@navigue.com>
-In-Reply-To: <47A0D6F8.5010600@navigue.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_6876_5885252.1202328446385"
+Subject: [Bridge] interaction of bridge with netfilter
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,59 +16,55 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.osdl.org
 
-Anybody with input on this?  We're certainly willing to pay to get this 
-one fixed if that's an incentive.
+------=_Part_6876_5885252.1202328446385
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Jonathan
-> I have a strange issue with bridged vlan interfaces.  I've discussed 
-> it at length in the ebtables mailing list and have gotten a fair bit 
-> of valuable feedback from there.  It is still a bit unclear where the 
-> problem resides but it definitely seems ARP related.
->
-> First of all, this is kernel 2.6.23.  I have two tg3 gigabit 
-> interfaces on the box, conveniently named:  'out' and 'in'.  The vlans 
-> are on the 'in' side of the bridge, so in.2, in.3, in.4 ... in.6 while 
-> the 'out' interface is plain untagged ethernet.
->
-> As it is now, I only use ebtables to filter out anything that isn't 
-> ipv4 or arp, I do the rest of my filtering through iptables.  There is 
-> also no STP on the bridge or anywhere in our network, though we might 
-> use it once I get this fixed.
->
-> In its current, working condition, the bridge (br0) has interfaces 
-> 'in.2' and 'out' with the clients on the 'in' side of the bridge, and 
-> the internet gateway on the 'out' side.  Does the job brilliantly.
->
-> I start having problems when in.3 is added to the bridge (it exists 
-> and is up on the box, just not on the bridge).  There are still no 
-> clients in vlan 3, but when I add it to the bridge, the bridge won't 
-> relay ARP replies from the gateway to some of my clients in vlan2, 
-> effectively disabling their internet.
->
-> The strange thing is that I see the reply come into the 'out' 
-> interface (with tcpdump), I see it on the 'br0' interface, and I also 
-> see it on the in.2 interface where it should be on its way to the 
-> customer.  But putting a hub between the customer and the bridge box, 
-> I never see it.  It's as if the arp reply just vanished just before it 
-> got fed to the ethernet cable.  To the linux box, it's been sent, but 
-> it never shows up on the trunk.
->
-> I've also validated this by testing when only 'in.2' and 'out' are on 
-> the bridge, I see both requests and replies for affected customers go 
-> through the hub and everything works.
->
-> I know the tg3 driver does some vlan acceleration of sorts, that might 
-> have something to do with it, but something tells me I'd have the same 
-> problem with just one vlan interface on the bridge then.
->
-> As I said before, this only manifests in our production environment, 
-> so I have to be pretty careful with scheduling tests and what not, but 
-> I'd very much love some ideas to figure out where the vanishing 
-> packets go.
->
-> Jonathan
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
+I am seeing some strange behavior and was hoping someone might be able to
+shed some light
+on what I am seeing.
 
+First my setup:
+Running rhel4 (2.6.9-42-EL kernel)
+
+----> (eth1) Linux Bridge (eth2) -->  10.10.3.101
+
+I only have one machine sitting off of eth2.
+
+I have the iptables rule:
+
+iptables -A FORWARD -j LOG
+
+So, I am logging everything that goes over the bridge.  I
+am expecting to see all traffic to 10.10.3.101 and anything that
+is broadcast address. (Is that a correct assumption?)
+
+I was looking at http://ebtables.sourceforge.net/br_fw_ia/PacketFlow.png,
+and if I read it correctly, the bridge decision is being done before the
+packet reaches the FORWARD chain of the filter table.
+
+The problem is that I am seeing SYN packets for machines that are
+not on the eth2 segment of the bridge.  Is this correct behavior?  I am
+seeing
+the packet in the LOG output as well as running ethereal on eth2 shows these
+packets.
+
+Anyone have any ideas why this is happening?  Or is it working as expected?
+
+--joubert
+
+------=_Part_6876_5885252.1202328446385
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I am seeing some strange behavior and was hoping someone might be able to shed some light<br>on what I am seeing.<br><br>First my setup:<br>Running rhel4 (2.6.9-42-EL kernel)<br><br>----&gt; (eth1) Linux Bridge (eth2) --&gt;&nbsp; <a href="http://10.10.3.101">10.10.3.101</a><br>
+<br>I only have one machine sitting off of eth2.<br><br>I have the iptables rule:<br><br>iptables -A FORWARD -j LOG<br><br>So, I am logging everything that goes over the bridge.&nbsp; I <br>am expecting to see all traffic to <a href="http://10.10.3.101">10.10.3.101</a> and anything that<br>
+is broadcast address. (Is that a correct assumption?)<br><br>I was looking at <a href="http://ebtables.sourceforge.net/br_fw_ia/PacketFlow.png">http://ebtables.sourceforge.net/br_fw_ia/PacketFlow.png</a>,<br>and if I read it correctly, the bridge decision is being done before the<br>
+packet reaches the FORWARD chain of the filter table.<br><br>The problem is that I am seeing SYN packets for machines that are <br>
+not on the eth2 segment of the bridge.&nbsp; Is this correct behavior?&nbsp; I am seeing<br>the packet in the LOG output as well as running ethereal on eth2 shows these packets.<br><br>Anyone have any ideas why this is happening?&nbsp; Or is it working as expected?<br>
+<br>--joubert<br>
+<br>
+
+------=_Part_6876_5885252.1202328446385--
