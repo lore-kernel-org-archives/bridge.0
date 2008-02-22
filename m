@@ -1,13 +1,10 @@
-Message-ID: <2e59e6970802132127g4ed777f3ide5784a2b7d5ed74@mail.gmail.com>
-Date: Thu, 14 Feb 2008 05:27:13 +0000
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-In-Reply-To: <96CF49BD8B56384395D698BA99007FA32FA10F@exchange.pacwire.local>
+Message-ID: <eab08af20802221231w35d80434ie9bda84bafcd342c@mail.gmail.com>
+Date: Fri, 22 Feb 2008 15:31:30 -0500
+From: jieryn@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <96CF49BD8B56384395D698BA99007FA32FA10F@exchange.pacwire.local>
-Subject: Re: [Bridge] Bridge and iptables
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_2163_15881995.1203712290450"
+Subject: [Bridge] bridge-utils-1.4 unknown symbols
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,92 +13,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Feb 14, 2008 3:41 AM, Leigh Sharpe <lsharpe@pacificwireless.com.au> wrote:
-> Bridged traffic is not seen by iptables. You need ebtables instead.
+------=_Part_2163_15881995.1203712290450
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Bridged traffic is not seen by iptables alone. You need bridge-nf as well.
+Greetings,
 
-There, I fixed it for you.
+I'm on a Gentoo vanilla-sources-2.6.24.2 kernel, with
+bridge-utils-1.4installed. When I try to modprobe bridge dmesg shows:
 
-"The br-nf code makes bridged IP frames/packets go through the iptables chains."
-http://ebtables.sourceforge.net/brnf-faq.html
+Feb 22 15:22:51 indigo bridge: Unknown symbol br_handle_frame_hook
+Feb 22 15:22:51 indigo bridge: Unknown symbol nf_register_hooks
+Feb 22 15:22:51 indigo bridge: Unknown symbol br_fdb_put_hook
+Feb 22 15:22:51 indigo bridge: Unknown symbol nf_unregister_hooks
+Feb 22 15:22:51 indigo bridge: Unknown symbol nf_hook_slow
+Feb 22 15:22:51 indigo bridge: Unknown symbol br_fdb_get_hook
 
+indigo ~ # uname -a
+Linux indigo 2.6.24.2 #2 SMP PREEMPT Tue Feb 19 13:48:26 EST 2008 i686
+Intel(R) Core(TM)2 Duo CPU T7700 @ 2.40GHz GenuineIntel GNU/Linux
 
->
-> Regards,
->              Leigh
->
-> Leigh Sharpe
-> Network Systems Engineer
-> Pacific Wireless
-> Ph +61 3 9584 8966
-> Mob 0408 009 502
-> Helpdesk 1300 300 616
-> email lsharpe@pacificwireless.com.au
-> web www.pacificwireless.com.au
->
->
->
-> -----Original Message-----
-> From: bridge-bounces@lists.linux-foundation.org
-> [mailto:bridge-bounces@lists.linux-foundation.org] On Behalf Of Sathyan
-> M
-> Sent: Wednesday, 13 February 2008 5:20 PM
-> To: bridge@lists.linux-foundation.org
-> Subject: [Bridge] Bridge and iptables
->
-> Hi,
->
-> I am using linux kernle-2.6.15, iptables-1.4 and bridge-utils-1.4.
-> Everything intslled without any issue and i am able to enable the
-> bridge and traffic is also flowing without any issue.
->
-> But i did not see any traffic on the iptables forward chain due to
-> which i am not able to control the traffic.
->
-> Do i requie enable anything more to make the traffic pass through
-> iptables forward chain.
->
-> Please look into the configuration
-> ip addr
-> 1: lo: <LOOPBACK> mtu 16436 qdisc noqueue
->     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-> 2: tunl0: <NOARP> mtu 1480 qdisc noop
->     link/ipip 0.0.0.0 brd 0.0.0.0
-> 3: gre0: <NOARP> mtu 1476 qdisc noop
->     link/gre 0.0.0.0 brd 0.0.0.0
-> 10: eth0: <BROADCAST,MULTICAST,PROMISC,UP> mtu 1500 qdisc pfifo_fast
-> qlen 1000
->     link/ether 00:07:d9:0d:67:5a brd ff:ff:ff:ff:ff:ff
-> 11: eth1: <BROADCAST,MULTICAST,PROMISC,UP> mtu 1500 qdisc pfifo_fast
-> qlen 1000
->     link/ether 00:07:d9:0d:67:03 brd ff:ff:ff:ff:ff:ff
-> 12: br0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue
->     link/ether 00:07:d9:0d:67:03 brd ff:ff:ff:ff:ff:ff
->     inet 10.10.5.2/24 brd 10.10.5.255 scope global br0
->
-> iptables -L -nvx
-> Chain INPUT (policy ACCEPT 4484 packets, 330543 bytes)
->     pkts      bytes target     prot opt in     out     source
->      destination
->
-> Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
->     pkts      bytes target     prot opt in     out     source
->      destination
->
-> Chain OUTPUT (policy ACCEPT 4105 packets, 2046064 bytes)
->     pkts      bytes target     prot opt in     out     source
->      destination
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+indigo ~ # modinfo bridge
+filename:       /lib/modules/2.6.24.2/kernel/net/bridge/bridge.ko
+version:        2.3
+license:        GPL
+srcversion:     917D0E52D3401B0EEDE6742
+depends:        llc
+vermagic:       2.6.24.2 SMP preempt mod_unload CORE2
+
+indigo ~ # modinfo llc
+filename:       /lib/modules/2.6.24.2/kernel/net/llc/llc.ko
+description:    LLC IEEE 802.2 core support
+author:         Procom 1997, Jay Schullist 2001, Arnaldo C. Melo 2001-2003
+license:        GPL
+depends:
+vermagic:       2.6.24.2 SMP preempt mod_unload CORE2
+
+Any help on this would be appreciated. Thanks! :-)
+-jesse
+
+-- 
+There are 10 types of people in this world, those
+that can read binary and those that can not.
+
+------=_Part_2163_15881995.1203712290450
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Greetings,<br><br>I&#39;m on a Gentoo vanilla-sources-2.6.24.2 kernel, with bridge-utils-1.4 installed. When I try to modprobe bridge dmesg shows:<br><br>Feb 22 15:22:51 indigo bridge: Unknown symbol br_handle_frame_hook<br>
+Feb 22 15:22:51 indigo bridge: Unknown symbol nf_register_hooks<br>Feb 22 15:22:51 indigo bridge: Unknown symbol br_fdb_put_hook<br>Feb 22 15:22:51 indigo bridge: Unknown symbol nf_unregister_hooks<br>Feb 22 15:22:51 indigo bridge: Unknown symbol nf_hook_slow<br>
+Feb 22 15:22:51 indigo bridge: Unknown symbol br_fdb_get_hook<br><br>indigo ~ # uname -a<br>
+Linux indigo <a href="http://2.6.24.2">2.6.24.2</a> #2 SMP PREEMPT Tue Feb 19 13:48:26 EST 2008 i686
+Intel(R) Core(TM)2 Duo CPU T7700 @ 2.40GHz GenuineIntel GNU/Linux<br>
+<br>indigo ~ # modinfo bridge<br>filename:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /lib/modules/2.6.24.2/kernel/net/bridge/bridge.ko<br>version:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3<br>license:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GPL<br>srcversion:&nbsp;&nbsp;&nbsp;&nbsp; 917D0E52D3401B0EEDE6742<br>depends:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; llc<br>vermagic:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://2.6.24.2">2.6.24.2</a> SMP preempt mod_unload CORE2 <br>
+<br>indigo ~ # modinfo llc<br>filename:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /lib/modules/2.6.24.2/kernel/net/llc/llc.ko<br>description:&nbsp;&nbsp;&nbsp; LLC IEEE 802.2 core support<br>author:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Procom 1997, Jay Schullist 2001, Arnaldo C. Melo 2001-2003<br>license:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GPL<br>
+depends:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>vermagic:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://2.6.24.2">2.6.24.2</a> SMP preempt mod_unload CORE2 <br><br>Any help on this would be appreciated. Thanks! :-)<br>-jesse<br clear="all"><br>-- <br>There are 10 types of people in this world, those<br>
+that can read binary and those that can not.
+
+------=_Part_2163_15881995.1203712290450--
