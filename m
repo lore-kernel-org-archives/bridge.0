@@ -1,12 +1,10 @@
-Date: Fri, 22 Feb 2008 12:49:53 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20080222124953.7629cc3d@extreme>
-In-Reply-To: <eab08af20802221231w35d80434ie9bda84bafcd342c@mail.gmail.com>
-References: <eab08af20802221231w35d80434ie9bda84bafcd342c@mail.gmail.com>
+Date: Tue, 26 Feb 2008 01:20:24 +0100
+From: Fabio Checconi <fabio@gandalf.sssup.it>
+Message-ID: <20080226002024.GA36411@gandalf.sssup.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge-utils-1.4 unknown symbols
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [PATCH] bridge: use time_before() in br_fdb_cleanup()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,32 +13,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jieryn@gmail.com
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@linux-foundation.org
+Cc: bridge@lists.linux-foundation.org, fabio@gandalf.sssup.it
 
-On Fri, 22 Feb 2008 15:31:30 -0500
-jieryn@gmail.com wrote:
+In br_fdb_cleanup() next_timer and this_timer are in jiffies, so they
+should be compared using the time_after() macro.
 
-> Greetings,
-> 
-> I'm on a Gentoo vanilla-sources-2.6.24.2 kernel, with
-> bridge-utils-1.4installed. When I try to modprobe bridge dmesg shows:
-> 
-> Feb 22 15:22:51 indigo bridge: Unknown symbol br_handle_frame_hook
-> Feb 22 15:22:51 indigo bridge: Unknown symbol nf_register_hooks
-> Feb 22 15:22:51 indigo bridge: Unknown symbol br_fdb_put_hook
-> Feb 22 15:22:51 indigo bridge: Unknown symbol nf_unregister_hooks
-> Feb 22 15:22:51 indigo bridge: Unknown symbol nf_hook_slow
-> Feb 22 15:22:51 indigo bridge: Unknown symbol br_fdb_get_hook
-> 
->
+Signed-off-by: Fabio Checconi <fabio@gandalf.sssup.it>
+---
 
-Your kernel wasn't built with bridging enabled. You can't just build the
-bridge module standalone, the kernel itself needs to include bridging.
-
-Save your kernel config and then rebuild:
-
-cp .config config.sav
-make mrproper
-make
-
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index bc40377..9326c37 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -136,7 +136,7 @@ void br_fdb_cleanup(unsigned long _data)
+ 			this_timer = f->ageing_timer + delay;
+ 			if (time_before_eq(this_timer, jiffies))
+ 				fdb_delete(f);
+-			else if (this_timer < next_timer)
++			else if (time_before(this_timer, next_timer))
+ 				next_timer = this_timer;
+ 		}
+ 	}
