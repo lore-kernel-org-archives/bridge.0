@@ -1,12 +1,15 @@
-Date: Fri, 7 Mar 2008 18:17:50 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20080307181750.2e7d8c33@extreme>
-In-Reply-To: <2387247e0803071710n116bc1b6j577104db2b56b5c9@mail.gmail.com>
-References: <2387247e0803071710n116bc1b6j577104db2b56b5c9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <47D2BE18.7030405@navigue.com>
+Date: Sat, 08 Mar 2008 11:26:00 -0500
+From: Jonathan Thibault <jonathan@navigue.com>
+MIME-Version: 1.0
+References: <47D19BC9.6060702@navigue.com>	
+	<bdfc5d6e0803071208p4ba7a38fl9beee59a4ab874b0@mail.gmail.com>	
+	<47D1B45F.7020409@navigue.com>
+	<bdfc5d6e0803071423ia2c794fn662a6e875ffafe09@mail.gmail.com>
+In-Reply-To: <bdfc5d6e0803071423ia2c794fn662a6e875ffafe09@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] span/monitor port
+Subject: Re: [Bridge] bridge, vlan and *no* stp/bpdu
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,26 +18,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Gabriel Somlo <gsomlo@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.osdl.org
 
-On Fri, 7 Mar 2008 20:10:46 -0500
-"Gabriel Somlo" <gsomlo@gmail.com> wrote:
+Andy Gospodarek wrote:
+> Configurations like this can get tricky at times.  Though it seems to
+> make perfect sense to put two interfaces like this in the same bridge
+> the current setup of the linux networking stack makes it hard to get
+> things working sometimes.  Let me make sure I can understand what you
+> are trying to accomplish.  Do you want to prevent traffic from vlan 2
+> and vlan 3 from ever talking while still allowing them to talk to the
+> gateway?  Will you want vlan 2 and vlan3 to communicate with each
+> other at all?
+>   
+Well, the plan is to let the vlans communicate together 'freely', for
+now.  I'm essentially using the vlan tag as a way to 'figure out' where
+the packet is coming from.  The network spans a little over 100km in a
+large, flat /22 subnet.  I wish I could do this the usual way with
+subnets and what not, but we don't really control the routing and
+gateway side of things.  So basically, we want to assign a vlan to each
+branch of the network and avoid having to add a new NIC to the bridge
+each time we add a new branch.  Feeding it a trunk into it and adding
+vlan interfaces as needed works better for us since bandwidth is not
+really the limiting factor.  Well, it would be better if it worked :P
 
-> Hi,
-> 
-> I was wondering if there's an established way to set up one or more
-> ports of a bridge as 'span'
-> or 'monitor' ports. I.e., once a port is in this state, it discards
-> any packets it receives, and gets
-> a copy of any other packet the bridge is forwarding out any other
-> port. Kind-of like cisco's span
-> monitor session.
-> 
-> If not, I'd be interested in having a go at it, but wanted to see if
-> there's anything already there
-> that I'm missing...
-> 
+Now I fully understand that it's not how 90% of people would approach
+this, including myself, but it's the only option we have given what's on
+either side of the bridge, which we can't change right now.  The
+alternative is having a switch split the trunk and then feed that into
+real (as opposed to vlan) interfaces on the bridge, wich I haven't fully
+tested yet but am sure would work fine.
 
-It isn't really a bridge function, the way to do this is to use
-other facilities like the mirred action (see tc action).
+I'd rather focus on solving the bridged vlan thing though, it just might
+be useful to someone else someday and definitely falls into the 'should
+work' category as far as I'm concerned.
+
+Jonathan
+
+P.S.:  Sorry, forgot to reply to the list.
