@@ -1,12 +1,12 @@
-Message-ID: <2e59e6970803082338n20c9037p6ccae93654c58a69@mail.gmail.com>
-Date: Sun, 9 Mar 2008 07:38:24 +0000
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-In-Reply-To: <47D05B55.404@operations.com>
+Message-ID: <47D3ED21.6050903@operations.com>
+Date: Sun, 09 Mar 2008 09:58:57 -0400
+From: Lou Steinberg <lspam5@operations.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 References: <47D05B55.404@operations.com>
+	<2e59e6970803082338n20c9037p6ccae93654c58a69@mail.gmail.com>
+In-Reply-To: <2e59e6970803082338n20c9037p6ccae93654c58a69@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] bridge-utils and ppp
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -16,35 +16,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Lou Steinberg <lspam5@operations.com>
+To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
 Cc: bridge@lists.linux-foundation.org
 
-On Thu, Mar 6, 2008 at 9:00 PM, Lou Steinberg <lspam5@operations.com> wrote:
-> Hi Folks-
->
->  Forgive the newbie question, but my attempts to answer this through
->  google have left me confused.
->
->  I'm trying to bridge between a pair of ppp and eth interfaces in an
->  embedded linux distribution called SlugOS.  The kernel is 2.6.21 and my
->  understanding was that the 2.6 kernels have the mods to support ppp
->  interfaces.  When I try to add my ppp0 interface to a bridge, I get:
->  > $ brctl addif test ppp0
->  > can't add ppp0 to bridge test: Invalid argument
+Hi Richard-
 
-Does a bridge "test" exist?  What is the output of brctl show?
+[snip]
+> 
+> Does a bridge "test" exist?  What is the output of brctl show?
+> 
+[snip]
 
->
->  MTUs are set the same for all interfaces.  Is there a specific version
->  of the bridge-utils package I need?  The version packed for my
->  distribution claims to be 1.2-r0
->
->  Thanks in advance,
->  Lou
->
->
->  _______________________________________________
->  Bridge mailing list
->  Bridge@lists.linux-foundation.org
->  https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+Yes, the bridge exists.  brctl shows:
+
+ > root@wan-bridge:~$ brctl addif test ppp0
+ > can't add ppp0 to bridge test: Invalid argument
+ > root@wan-bridge:~$ echo $?
+ > 1
+ > root@wan-bridge:~$ brctl show
+ > bridge name     bridge id               STP enabled     interfaces
+ > test            8000.000000000000       no
+
+Thanks,
+Lou
