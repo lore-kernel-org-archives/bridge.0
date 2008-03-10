@@ -1,12 +1,10 @@
-Content-class: urn:content-classes:message
+Message-ID: <47D57881.2020503@redfish-solutions.com>
+Date: Mon, 10 Mar 2008 11:05:53 -0700
+From: Philip Prindeville <philipp_subx@redfish-solutions.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 11 Mar 2008 11:43:59 +1100
-Message-ID: <96CF49BD8B56384395D698BA99007FA32FA16A@exchange.pacwire.local>
-From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
-Subject: Re: [Bridge] bridge, vlan and *no* stp/bpdu
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Question about using brctl and changing MAC addresses
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,73 +13,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: bridge@osdl.org
 
+I'm using Linux 2.6.20 (yes, I'll be upgrading to 2.6.24 as soon as it's
+stable).
 
-Can you do a brctl showmacs br0, and see if the machines which are not
-receiving an ARP response are being seen by the bridge as being on the
-wrong VLAN?
+I have 4 VIA rhine ethernet controllers on my Soekris net5501, plus an
+ADSL PCI card (a Sangoma S-518) that runs in AAL5-SNAP mode, so it looks
+like an Ethernet controller.
 
+I'm trying to bridge eth0 and w1ad (the ADSL interface) into "br0".  And
+I'm trying to force the traffic on br0 to have the MAC address that my
+ISP insists I use (i.e. that of the crappy little Westell 6100 modem
+they sent me).
 
-Ie, I'm wondering if the bridge sees their MAC address on an interface
-other than the one they are really connected to. If that's the case, the
-bridge would send their response out of the wrong interface, which may
-result in the symptoms you are describing. I think there may be some
-ebtables rules which could help here, but my memory fails me at this
-point.
+The issue is the following.  If I do:
 
-Regards,
-             Leigh
-=20
-Leigh Sharpe
-Network Systems Engineer
-Pacific Wireless
-Ph +61 3 9584 8966
-Mob 0408 009 502
-Helpdesk 1300 300 616
-email lsharpe@pacificwireless.com.au
-web www.pacificwireless.com.au
-=20
+ifconfig w1ad down hw ether x:x:x:x:x:x up
 
------Original Message-----
-From: bridge-bounces@lists.linux-foundation.org
-[mailto:bridge-bounces@lists.linux-foundation.org] On Behalf Of Jonathan
-Thibault
-Sent: Monday, 10 March 2008 2:53 AM
-To: bridge@lists.osdl.org
-Subject: Re: [Bridge] bridge, vlan and *no* stp/bpdu
+followed by either:
 
-Sorry, that's was in another mistakenly off-list reply.
+brctl addbr br0
+brctl addif br0 eth0
+brctl addif br0 w1ad
 
-Kernel is 2.6.24, been seeing this problem since 2.6.16 when I started=20
-the setup.
+or:
 
-richardvoigt@gmail.com wrote:
->
-> You still didn't tell us any version numbers, and I've got a similar
-> setup which "works for me".  The only real difference is that my box
-> routes between two logical bridges, and the bridged interfaces are
-> multiple vlans in the same trunk.  I can even protect individual vlans
-> from each other with netfilter rules.
->
-> What if you routed "out" as a new vlan on the same cable as "in"?
->
->  =20
-That's an interesting idea which I haven't tried yet.  An interesting=20
-tidbit is that there is a handful of machines in the lot which are=20
-affected right away (as soon as I add a second vlan interface to the=20
-bridge).  It may just be that they just have a very short arp timeout. =20
-I tried to find a pattern in their MAC addresses or hardware but there=20
-isn't really one.  I first assumed there was a problem with those=20
-machines but given that the ARP reply never gets to the trunk cable=20
-going their way, I concluded otherwise.
+brctl addbr br0
+brctl addif br0 w1ad
+brctl addif br0 eth0
 
-Thanks a lot for the help.  The fact that you have a setup that works=20
-gives me some confidence that I'm not just trying to do something insane
-;)
+the bridge ends up taking the MAC address of eth0 either way, which I
+don't get (how does it decide which to use?).
 
-Jonathan
-_______________________________________________
-Bridge mailing list
-Bridge@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/bridge
+I can clone the same MAC address to both eth0 and w1ad, but I don't know
+if that would cause me any problems or not (I haven't read the STP spec
+in about 15 years).
+
+What's the solution?
+
+Is there a way to explicitly set the MAC address of the bridge interface?
+
+I tried:
+
+ifconfig br0 down hw ether x:x:x:x:x:x up
+
+but that just results in:
+
+ifconfig: SIOCSIFHWADDR: Cannot assign requested address
+
+So, I'm not clear what the best solution is.
+
+Any guidance is appreciated.
+
+Thanks,
+
+-Philip
