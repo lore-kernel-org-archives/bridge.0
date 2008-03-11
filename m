@@ -3,8 +3,8 @@ MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 11 Mar 2008 11:43:24 +1100
-Message-ID: <96CF49BD8B56384395D698BA99007FA32FA169@exchange.pacwire.local>
+Date: Tue, 11 Mar 2008 11:43:59 +1100
+Message-ID: <96CF49BD8B56384395D698BA99007FA32FA16A@exchange.pacwire.local>
 From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
 Subject: Re: [Bridge] bridge, vlan and *no* stp/bpdu
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -15,7 +15,8 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jonathan Thibault <jonathan@navigue.com>, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
+
 
 Can you do a brctl showmacs br0, and see if the machines which are not
 receiving an ARP response are being seen by the bridge as being on the
