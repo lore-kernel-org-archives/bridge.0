@@ -1,11 +1,14 @@
-Date: Sat, 15 Mar 2008 10:14:02 -0700 (PDT)
-From: Scott MacKay <scottmackay@yahoo.com>
-In-Reply-To: <20080315120730.GB1766@mattstone.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-ID: <288286.64188.qm@web52410.mail.re2.yahoo.com>
-Subject: Re: [Bridge] catching all packets on an interface
+Date: Mon, 17 Mar 2008 11:35:37 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20080317113537.496d9347@extreme>
+In-Reply-To: <20080128153914.GA5880@localhost>
+References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
+	<20071217085349.729e5c17@deepthought>
+	<20080128153914.GA5880@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] Add vlan id to bridge forward database
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,81 +17,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Matt Richards <matt@mattstone.net>, Bridge Mailing List <bridge@linux-foundation.org>
+To: Jaime Medrano <jaime.medrano@gmail.com>
+Cc: bridge@lists.osdl.org
 
-Ah great I did not realize you could use physdev on
-both.  My need was to pass all packets which go thru
-the interface to QUEUE for mangling or at least
-investigation (so ideally after fragments are
-recombined and such).
+On Mon, 28 Jan 2008 16:39:14 +0100
+Jaime Medrano <jaime.medrano@gmail.com> wrote:
 
-I saw a nice flow diagram
-(http://ebtables.sourceforge.net/br_fw_ia/PacketFlow.png)
- showing the interactions of bridged packets and
-normal iptables flow.  It *seemed* like
-prerouting/postrouting caught all local/passthru
-packets coming in/out of the interface, so maybe:
-iptables -I PREROUTING -m physdev --physdev-in eth0 -t
-mangle -j QUEUE
-iptables -I POSTROUTING -m physdev --physdev-out eth0
--t mangle -j QUEUE
-?
-
--Scott
-
-
---- Matt Richards <matt@mattstone.net> wrote:
-
-> Hello, 
-> 
-> by capture I'm guessing you mean match?
-> 
-> With bridges and iptables i normally use physdev
-> 
-> iptables -I FORWARD -m physdev --physdev-in eth0
-> --physdev-out eth1
-> 
-> Hth,
-> 
-> Matt.
-> 
-> On Sat, Mar 15, 2008 at 04:50:39AM -0700, Scott
-> MacKay wrote:
-> > In a simple bridge design, eth0, eth1, bridged to
-> br0,
-> > what iptables rules would be needed to capture all
-> of
-> > the packets?
-> > 
-> > It looked like one in PREROUTING/mangle and
-> > POSTROUTING/mangle would do it for all locally
-> > delivered/received and passthru....
-> > 
-> > -Scott
-> > 
-> > 
-> >      
->
-____________________________________________________________________________________
-> > Never miss a thing.  Make Yahoo your home page. 
-> > http://www.yahoo.com/r/hs
-> > _______________________________________________
-> > Bridge mailing list
-> > Bridge@lists.linux-foundation.org
+> I'm resending this mail since I got no answer.
+>=20
+> Is there any major problem in this?
+>=20
+> Stephen Hemminger wrote:
 > >
->
-https://lists.linux-foundation.org/mailman/listinfo/bridge
-> 
-> -- 
-> Matt Richards
-> > _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
->
-https://lists.linux-foundation.org/mailman/listinfo/bridge
+> > What about the nested vlan case?
+> >
+>=20
+> Below is a new patch that handles the double-tagging case. I'm not sure
+> if it is worth a more generic case. =C2=BFAre triple-tagging and so reall=
+y used?
+>=20
+> > This is a user/kernel ABI change. Does it break old tools?
+>=20
+> New patch gets rid of the unused field but it still doesn't break old too=
+ls.
+>=20
+> Anyway, the user part is not really needed. I just think it could be usef=
+ul.
+>=20
+> Regards,
+> Jaime.
+>=20
 
 
+Minor stuff:
+1. Please use shorter variable names, rather than:
+              unsigned short vlan_first_id;
+      I would choose:
+              u16 vlan1;
 
-      ____________________________________________________________________________________
-Never miss a thing.  Make Yahoo your home page. 
-http://www.yahoo.com/r/hs
+2. You probably can use skb->protocol rather than having to look at the pac=
+ket
+    contents to check for 8021Q.
+
+3. Don't use __constant_htons(), just use htons().
+   The macro is smart enough to handle the
+   constant case, and it reads better, without the __constant_prefix.
+
+
+Major stuff:
+1. This won't work with hardware accel VLAN receive. The tag is not put in
+   the skb?
+
