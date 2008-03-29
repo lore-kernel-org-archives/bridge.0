@@ -1,14 +1,9 @@
-From: "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se>
-Date: Sat, 29 Mar 2008 17:21:57 +0100
-Message-ID: <018f01c891b9$02e02380$08a06a80$@Tjernlund@transmode.se>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Language: sv
-Subject: [Bridge] RSTP in
-	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
-	a=summary problems
+From: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date: Sat, 29 Mar 2008 18:07:56 +0100
+Message-Id: <1206810476-27078-1-git-send-email-Joakim.Tjernlund@transmode.se>
+In-Reply-To: <>
+References: <>
+Subject: [Bridge] [PATCH] Fix typo in bridge-stp script
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,23 +13,33 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Bridge@lists.linux-foundation.org
-
-Hi List
-
-I cloned the above RSTP imp. and cross-compiled it to powerpc and tried
-in on my 2.6.23 kernel, but didn't get very far:
-
-Created a bridge, br0, with brctl and added two interfaces.
-started rstpd without args and ran rstpctl
-  rstpctl showbridge br0
-and all I get is
-  CTL_get_bridge_state: Got return code 0, 1003
-  Failed to get bridge state: Err_Bridge_is_down
-
-The br0 i/f is UP amd RUNNING and so is the interfaces I added.
-I probably forgot to do something I suppose, but what?
-
-    Jocke
+Cc: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
 
 
+Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+---
+
+Just noticed a minor typo
+
+ bridge-stp |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/bridge-stp b/bridge-stp
+index 49d5a41..5e663a9 100755
+--- a/bridge-stp
++++ b/bridge-stp
+@@ -53,9 +53,9 @@ start() {
+ case $2 in
+      start) 
+ 	daemon
+-	exec /sbin/rstpctl $bridge on ;;
++	exec /sbin/rstpctl rstp $bridge on ;;
+      stop)  
+-	exec /sbin/rstpctl $bridge off ;;
++	exec /sbin/rstpctl rstp $bridge off ;;
+      *)
+      	echo "Unknown action:" $2
+ 	echo "Usage: bridge-stp <bridge> {start|stop}"
+-- 
+1.5.4.3
 
