@@ -1,9 +1,16 @@
-From: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
-Date: Sat, 29 Mar 2008 18:07:56 +0100
-Message-Id: <1206810476-27078-1-git-send-email-Joakim.Tjernlund@transmode.se>
-In-Reply-To: <>
-References: <>
-Subject: [Bridge] [PATCH] Fix typo in bridge-stp script
+From: "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se>
+References: 
+In-Reply-To: 
+Date: Sat, 29 Mar 2008 18:10:24 +0100
+Message-ID: <019201c891bf$c76a1b60$563e5220$@Tjernlund@transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Language: sv
+Subject: Re: [Bridge] RSTP in
+	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
+	a=summary problems
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,33 +20,34 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Bridge@lists.linux-foundation.org
-Cc: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
 
+> -----Original Message-----
+> From: Joakim Tjernlund [mailto:Joakim.Tjernlund@transmode.se]
+> Sent: den 29 mars 2008 17:22
+> To: 'Bridge@lists.linux-foundation.org'
+> Subject: RSTP in http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;a=summary problems
+> 
+> Hi List
+> 
+> I cloned the above RSTP imp. and cross-compiled it to powerpc and tried
+> in on my 2.6.23 kernel, but didn't get very far:
+> 
+> Created a bridge, br0, with brctl and added two interfaces.
+> started rstpd without args and ran rstpctl
+>   rstpctl showbridge br0
+> and all I get is
+>   CTL_get_bridge_state: Got return code 0, 1003
+>   Failed to get bridge state: Err_Bridge_is_down
+> 
+> The br0 i/f is UP amd RUNNING and so is the interfaces I added.
+> I probably forgot to do something I suppose, but what?
+> 
+>     Jocke
 
-Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
----
+Never mind, user error on my part.
 
-Just noticed a minor typo
+I do wonder though if rstpd is production ready or still needs more
+testing/fixes?
 
- bridge-stp |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/bridge-stp b/bridge-stp
-index 49d5a41..5e663a9 100755
---- a/bridge-stp
-+++ b/bridge-stp
-@@ -53,9 +53,9 @@ start() {
- case $2 in
-      start) 
- 	daemon
--	exec /sbin/rstpctl $bridge on ;;
-+	exec /sbin/rstpctl rstp $bridge on ;;
-      stop)  
--	exec /sbin/rstpctl $bridge off ;;
-+	exec /sbin/rstpctl rstp $bridge off ;;
-      *)
-      	echo "Unknown action:" $2
- 	echo "Usage: bridge-stp <bridge> {start|stop}"
--- 
-1.5.4.3
+   Jocke
 
