@@ -1,15 +1,9 @@
 From: "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se>
-References: <8571495929364495836@unknownmsgid>	
-	<fed120860803300232v678efc1dr862e5d3ba5fbf16d@mail.gmail.com>	
-	<7423344835968003573@unknownmsgid>	
-	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>	
-	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>	
-	<fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>	
-	<1206949458.7589.447.camel@gentoo-jocke.transmode.se>
-	<fed120860803310959g7d70a5e6s6f40c4275d14592a@mail.gmail.com>
-In-Reply-To: <fed120860803310959g7d70a5e6s6f40c4275d14592a@mail.gmail.com>
-Date: Mon, 31 Mar 2008 19:54:38 +0200
-Message-ID: <039301c89358$49dc0420$dd940c60$@Tjernlund@transmode.se>
+References: <019201c891bf$c76a1b60$563e5220$@Tjernlund@transmode.se>	<20080331090642.55fc2b60@extreme>	<1206983174.7589.477.camel@gentoo-jocke.transmode.se>
+	<20080331100832.61492b78@extreme>
+In-Reply-To: <20080331100832.61492b78@extreme>
+Date: Mon, 31 Mar 2008 19:59:58 +0200
+Message-ID: <039601c89359$092744c0$1b75ce40$@Tjernlund@transmode.se>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -26,73 +20,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "'Srinivas M.A.'" <srinivas.aji@gmail.com>
+To: 'Stephen Hemminger' <shemminger@vyatta.com>
 Cc: Bridge@lists.linux-foundation.org
 
 > -----Original Message-----
-> From: Srinivas M.A. [mailto:srinivas.aji@gmail.com]
-> Sent: den 31 mars 2008 19:00
+> From: Stephen Hemminger [mailto:shemminger@vyatta.com]
+> Sent: den 31 mars 2008 19:09
 > To: joakim.tjernlund@transmode.se
 > Cc: Bridge@lists.linux-foundation.org
 > Subject: Re: [Bridge] RSTP in http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git; a=summary
 > problems
 > 
-> >
-> >  So I both get a SEGV and the kernel thinks userspace is running STP, not
-> >  ideal.
-> 
-> Segfault is fixed by this:
-> 
-> diff --git a/log.h b/log.h
-> index ce0d94e..2fcdcfb 100644
-> --- a/log.h
-> +++ b/log.h
-> @@ -63,7 +63,7 @@ extern int log_level;
->  #ifdef NO_DAEMON
-> 
->  #define ERROR(_fmt, _args...) \
-> -       PRINT(LOG_LEVEL_ERROR, "%s: " _fmt, ##_args)
-> +       PRINT(LOG_LEVEL_ERROR, "%s: " _fmt, __PRETTY_FUNCTION__, ##_args)
-> 
->  #else
->  #define ERROR(_fmt, _args...) \
-
-Thanks
-
-> 
+> On Mon, 31 Mar 2008 19:06:14 +0200
+> Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
 > 
 > >
-> >  I really think one should be able to start RSTP with rtspctl too so
-> >  one doesn't need /sbin/bridge-stp
+> > On Mon, 2008-03-31 at 09:06 -0700, Stephen Hemminger wrote:
+> > > On Sat, 29 Mar 2008 18:10:24 +0100
+> > > "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se> wrote:
+> > >
+> > > > > -----Original Message-----
+> > > > > From: Joakim Tjernlund [mailto:Joakim.Tjernlund@transmode.se]
+> > > > > Sent: den 29 mars 2008 17:22
+> > > > > To: 'Bridge@lists.linux-foundation.org'
+> > > > > Subject: RSTP in http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;a=summary
+> problems
+> > > > >
+> > > > > Hi List
+> > > > >
+> > > > > I cloned the above RSTP imp. and cross-compiled it to powerpc and tried
+> > > > > in on my 2.6.23 kernel, but didn't get very far:
+> > > > >
+> > > > > Created a bridge, br0, with brctl and added two interfaces.
+> > > > > started rstpd without args and ran rstpctl
+> > > > >   rstpctl showbridge br0
+> > > > > and all I get is
+> > > > >   CTL_get_bridge_state: Got return code 0, 1003
+> > > > >   Failed to get bridge state: Err_Bridge_is_down
+> > > > >
+> > > > > The br0 i/f is UP amd RUNNING and so is the interfaces I added.
+> > > > > I probably forgot to do something I suppose, but what?
+> > > > >
+> > > > >     Jocke
+> > > >
+> > > > Never mind, user error on my part.
+> > > >
+> > > > I do wonder though if rstpd is production ready or still needs more
+> > > > testing/fixes?
+> > > >
+> > > >    Jocke
+> > >
+> > > The rstpd stuff isn't widely used, more because of the administration,
+> > > packaging, startup issues etc. It is kind of a chicken/egg problem, no
+> > > one uses it so no one reports bugs.The RSTP code library has been
+> > > around for a long while and doesn't have any known issues.
+> >
+> > I see, what do you think of Srinivas rewrite? I looks
+> > much cleaner, have you had a chance to test it?
 > 
-> bridge-stp is a way to tell the kernel whether it should run its STP
-> or not. This was set up to make it possible for users to run "brctl
-> stp <bridge_name> on" without directly being concerned with whether
-> kernel STP or userspace STP will be run.
-> But that doesn't really happen in practice I guess.
-> 
-> Unfortunately, bridge-stp is run with the kernel holding the RTNL
-> lock, so the set of things it can do without causing a hang is
-> limited. With the current kernel infrastructure, my preference would
-> be to start rstpd from the network init scripts in the system and use
-> bridge-stp just to decide whether to enable RSTP or kernel STP for the
-> given bridge, perhaps based on a setting in ifcfg-<bridge_name> (in
-> Redhat network config).
+> He did most of the original rstp code, just haven't had chance to merge it.
+> Dirty secret, I don't use bridging normally, and have to go out of my way to setup
+> tests so that is part of the reason I don't merge things until they have settled.
 
-I don't like the bridge-stp <bridge> start/stop interface. Why
-would bridge-stp know what bridge to run RTSP on? A more natural
-way, IMHO, would to extend brctl with a "rstp on" method. Why
-is there one rstpctl tool and one brctl tool?
+:), maybe you could add a testing branch where the new code could be?
 
-> 
-> For more robustness, maybe we need additional kernel infrastructure
-> where the daemon can tell the kernel it will handle STP (this can be
-> done now by setting stp off and then on when bridge-stp will return
-> 0), but where the kernel can also tell (maybe by polling) if the
-> daemon quits and fall back to kernel STP in that case.
+One reason for lack of testing of RSTP is that it is hard to find. The
+bridge homepage just mentions that there is ongoing work w.r.t RSTP
 
-Yes, something is needed but I don't know the bride interface so I can't
-really comment on how to do it.
+ Jocke
 
-    Jocke
 
