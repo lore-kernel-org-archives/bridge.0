@@ -1,16 +1,21 @@
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-In-Reply-To: <20080331090642.55fc2b60@extreme>
-References: <019201c891bf$c76a1b60$563e5220$@Tjernlund@transmode.se>
-	<20080331090642.55fc2b60@extreme>
-Content-Type: text/plain
+Message-ID: <fed120860803311010o54a44f16hf86225c81e5ae837@mail.gmail.com>
+Date: Mon, 31 Mar 2008 22:40:02 +0530
+From: "Srinivas M.A." <srinivas.aji@gmail.com>
+In-Reply-To: <1206964119.7589.456.camel@gentoo-jocke.transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Mar 2008 19:06:14 +0200
-Message-Id: <1206983174.7589.477.camel@gentoo-jocke.transmode.se>
-Mime-Version: 1.0
-Subject: Re: [Bridge] RSTP
-	in	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
-	a=summary	problems
-Reply-To: joakim.tjernlund@transmode.se
+Content-Disposition: inline
+References: <8571495929364495836@unknownmsgid>
+	<fed120860803300232v678efc1dr862e5d3ba5fbf16d@mail.gmail.com>
+	<7423344835968003573@unknownmsgid>
+	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>
+	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>
+	<fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>
+	<1206964119.7589.456.camel@gentoo-jocke.transmode.se>
+Subject: Re: [Bridge] RSTP in
+	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
+	a=summary problems
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,50 +24,14 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
+To: joakim.tjernlund@transmode.se
 Cc: Bridge@lists.linux-foundation.org
 
+>  Here is a quick hack to make bridge-stp work at all.
+>  The biggest problem is that rstpd cant start if stdio isn't present.
+>  rstpd needs to properly daemonize.
 
-On Mon, 2008-03-31 at 09:06 -0700, Stephen Hemminger wrote:
-> On Sat, 29 Mar 2008 18:10:24 +0100
-> "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se> wrote:
-> 
-> > > -----Original Message-----
-> > > From: Joakim Tjernlund [mailto:Joakim.Tjernlund@transmode.se]
-> > > Sent: den 29 mars 2008 17:22
-> > > To: 'Bridge@lists.linux-foundation.org'
-> > > Subject: RSTP in http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;a=summary problems
-> > > 
-> > > Hi List
-> > > 
-> > > I cloned the above RSTP imp. and cross-compiled it to powerpc and tried
-> > > in on my 2.6.23 kernel, but didn't get very far:
-> > > 
-> > > Created a bridge, br0, with brctl and added two interfaces.
-> > > started rstpd without args and ran rstpctl
-> > >   rstpctl showbridge br0
-> > > and all I get is
-> > >   CTL_get_bridge_state: Got return code 0, 1003
-> > >   Failed to get bridge state: Err_Bridge_is_down
-> > > 
-> > > The br0 i/f is UP amd RUNNING and so is the interfaces I added.
-> > > I probably forgot to do something I suppose, but what?
-> > > 
-> > >     Jocke
-> > 
-> > Never mind, user error on my part.
-> > 
-> > I do wonder though if rstpd is production ready or still needs more
-> > testing/fixes?
-> > 
-> >    Jocke
-> 
-> The rstpd stuff isn't widely used, more because of the administration,
-> packaging, startup issues etc. It is kind of a chicken/egg problem, no
-> one uses it so no one reports bugs.The RSTP code library has been
-> around for a long while and doesn't have any known issues.
-
-I see, what do you think of Srinivas rewrite? I looks
-much cleaner, have you had a chance to test it? 
-
- Jocke
+Your change should help (for Debian?), but it maybe best to start
+rstpd from the network init scripts, rather than from bridge-stp.
+Also, we should not stop the daemon from bridge-stp if there could be
+multiple bridges.
