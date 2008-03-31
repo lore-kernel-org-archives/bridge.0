@@ -1,10 +1,19 @@
-Message-Id: <4BE92402-91E0-48D2-8A18-2FC659F88685@gmail.com>
-From: Osama Abu Elsorour <fobowise@gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Message-ID: <fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>
+Date: Mon, 31 Mar 2008 12:55:24 +0530
+From: "Srinivas M.A." <srinivas.aji@gmail.com>
+In-Reply-To: <1206911933.7589.426.camel@gentoo-jocke.transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0 (Apple Message framework v919.2)
-Date: Mon, 31 Mar 2008 09:11:31 +0200
-Subject: [Bridge] Bridge sysfs port_no overflow
+Content-Disposition: inline
+References: <8571495929364495836@unknownmsgid>
+	<fed120860803300232v678efc1dr862e5d3ba5fbf16d@mail.gmail.com>
+	<7423344835968003573@unknownmsgid>
+	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>
+	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>
+Subject: Re: [Bridge] RSTP in
+	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
+	a=summary problems
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +22,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: joakim.tjernlund@transmode.se
+Cc: Bridge@lists.linux-foundation.org
 
-All
+>
+>  Ahh, I didn't copy bridge-stp to /sbin because I didn't think it was
+>  needed. Just to test I blindly copied it to /sbin and did:
+>   brclt addbr br0
+>
+>  brctl addif br0 eth0
+>   brctl stp br0
+>  and it hung my board :(
 
-We are running a setup with a large number of bridge ports that  
-reaches the 900 ports. After switching to recent kernel and brctl- 
-utils that uses the sysfs interface, we started noticing that the port  
-numbers are mis-reported when issues the command:
-brctl showmacs br1
-After tracing the code, we found that the problem lies in the sysfs  
-structure called __fdb_entry. The port_no is declared as a u8 while it  
-is u16 in the rest of the bridge structure. This causes the port_no to  
-overflow when the bridge port number exceeds 255.
+What did your /sbin/bridge-stp have. The file from the tarball? Try a
+simple one which just does exit 0.
 
-The overflow line is in file br_fdb.c function br_fdb_fillbuf:
-                         fe->port_no = f->dst->port_no;
-where left hand port_no is _u8 and right hand is _u16.
+>  Meanwhile I got 2 patches for you:
+>
 
-Even if it is unusual to have this number of ports on a single bridge  
-it should be changed to the sake of consistency.
-	
-This patch shows the change:
+I didn't realize offsetof() was in stddef.h. Thanks.
 
-@@ -94,7 +94,7 @@ struct __port_info
-struct __fdb_entry
-{
-	__u8 mac_addr[6];
--	__u8 port_no;
-+	__u16 port_no;
-	__u8 is_local;
-	__u32 ageing_timer_value;
-	__u32 unused;
+The __builtin_choose_expr stuff is there to trigger a compiler error
+if I try to compare or copy two structs of different sizes. I should
+just make that portion dependent on having a new enough gcc.
