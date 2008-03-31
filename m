@@ -1,9 +1,15 @@
 From: "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se>
-References: <019201c891bf$c76a1b60$563e5220$@Tjernlund@transmode.se>	<20080331090642.55fc2b60@extreme>	<1206983174.7589.477.camel@gentoo-jocke.transmode.se>
-	<20080331100832.61492b78@extreme>
-In-Reply-To: <20080331100832.61492b78@extreme>
-Date: Mon, 31 Mar 2008 19:59:58 +0200
-Message-ID: <039601c89359$092744c0$1b75ce40$@Tjernlund@transmode.se>
+References: <8571495929364495836@unknownmsgid>	
+	<fed120860803300232v678efc1dr862e5d3ba5fbf16d@mail.gmail.com>	
+	<7423344835968003573@unknownmsgid>	
+	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>	
+	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>	
+	<fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>	
+	<1206964119.7589.456.camel@gentoo-jocke.transmode.se>
+	<fed120860803311010o54a44f16hf86225c81e5ae837@mail.gmail.com>
+In-Reply-To: <fed120860803311010o54a44f16hf86225c81e5ae837@mail.gmail.com>
+Date: Mon, 31 Mar 2008 20:05:19 +0200
+Message-ID: <039901c89359$c8215820$58640860$@Tjernlund@transmode.se>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -20,73 +26,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'Stephen Hemminger' <shemminger@vyatta.com>
+To: "'Srinivas M.A.'" <srinivas.aji@gmail.com>
 Cc: Bridge@lists.linux-foundation.org
 
 > -----Original Message-----
-> From: Stephen Hemminger [mailto:shemminger@vyatta.com]
-> Sent: den 31 mars 2008 19:09
+> From: Srinivas M.A. [mailto:srinivas.aji@gmail.com]
+> Sent: den 31 mars 2008 19:10
 > To: joakim.tjernlund@transmode.se
 > Cc: Bridge@lists.linux-foundation.org
 > Subject: Re: [Bridge] RSTP in http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git; a=summary
 > problems
 > 
-> On Mon, 31 Mar 2008 19:06:14 +0200
-> Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+> >  Here is a quick hack to make bridge-stp work at all.
+> >  The biggest problem is that rstpd cant start if stdio isn't present.
+> >  rstpd needs to properly daemonize.
 > 
-> >
-> > On Mon, 2008-03-31 at 09:06 -0700, Stephen Hemminger wrote:
-> > > On Sat, 29 Mar 2008 18:10:24 +0100
-> > > "Joakim Tjernlund" <Joakim.Tjernlund@transmode.se> wrote:
-> > >
-> > > > > -----Original Message-----
-> > > > > From: Joakim Tjernlund [mailto:Joakim.Tjernlund@transmode.se]
-> > > > > Sent: den 29 mars 2008 17:22
-> > > > > To: 'Bridge@lists.linux-foundation.org'
-> > > > > Subject: RSTP in http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;a=summary
-> problems
-> > > > >
-> > > > > Hi List
-> > > > >
-> > > > > I cloned the above RSTP imp. and cross-compiled it to powerpc and tried
-> > > > > in on my 2.6.23 kernel, but didn't get very far:
-> > > > >
-> > > > > Created a bridge, br0, with brctl and added two interfaces.
-> > > > > started rstpd without args and ran rstpctl
-> > > > >   rstpctl showbridge br0
-> > > > > and all I get is
-> > > > >   CTL_get_bridge_state: Got return code 0, 1003
-> > > > >   Failed to get bridge state: Err_Bridge_is_down
-> > > > >
-> > > > > The br0 i/f is UP amd RUNNING and so is the interfaces I added.
-> > > > > I probably forgot to do something I suppose, but what?
-> > > > >
-> > > > >     Jocke
-> > > >
-> > > > Never mind, user error on my part.
-> > > >
-> > > > I do wonder though if rstpd is production ready or still needs more
-> > > > testing/fixes?
-> > > >
-> > > >    Jocke
-> > >
-> > > The rstpd stuff isn't widely used, more because of the administration,
-> > > packaging, startup issues etc. It is kind of a chicken/egg problem, no
-> > > one uses it so no one reports bugs.The RSTP code library has been
-> > > around for a long while and doesn't have any known issues.
-> >
-> > I see, what do you think of Srinivas rewrite? I looks
-> > much cleaner, have you had a chance to test it?
-> 
-> He did most of the original rstp code, just haven't had chance to merge it.
-> Dirty secret, I don't use bridging normally, and have to go out of my way to setup
-> tests so that is part of the reason I don't merge things until they have settled.
+> Your change should help (for Debian?), but it maybe best to start
+> rstpd from the network init scripts, rather than from bridge-stp.
+> Also, we should not stop the daemon from bridge-stp if there could be
+> multiple bridges.
 
-:), maybe you could add a testing branch where the new code could be?
+Yes, but I was surprised rstpd just hangs when trying to start it this way.
+Could it be the RTNL lock causing this? Maybe rstpd should daemonize earlier
+to prevent this from happening?
 
-One reason for lack of testing of RSTP is that it is hard to find. The
-bridge homepage just mentions that there is ongoing work w.r.t RSTP
-
- Jocke
+   Jocke
 
 
