@@ -1,12 +1,21 @@
-Date: Mon, 31 Mar 2008 08:42:17 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20080331084217.26bd1d7f@extreme>
-In-Reply-To: <4BE92402-91E0-48D2-8A18-2FC659F88685@gmail.com>
-References: <4BE92402-91E0-48D2-8A18-2FC659F88685@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <fed120860803310959g7d70a5e6s6f40c4275d14592a@mail.gmail.com>
+Date: Mon, 31 Mar 2008 22:29:55 +0530
+From: "Srinivas M.A." <srinivas.aji@gmail.com>
+In-Reply-To: <1206949458.7589.447.camel@gentoo-jocke.transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bridge sysfs port_no overflow
+Content-Disposition: inline
+References: <8571495929364495836@unknownmsgid>
+	<fed120860803300232v678efc1dr862e5d3ba5fbf16d@mail.gmail.com>
+	<7423344835968003573@unknownmsgid>
+	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>
+	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>
+	<fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>
+	<1206949458.7589.447.camel@gentoo-jocke.transmode.se>
+Subject: Re: [Bridge] RSTP in
+	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
+	a=summary problems
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,72 +24,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Osama Abu Elsorour <fobowise@gmail.com>
-Cc: bridge@linux-foundation.org
+To: joakim.tjernlund@transmode.se
+Cc: Bridge@lists.linux-foundation.org
 
-On Mon, 31 Mar 2008 09:11:31 +0200
-Osama Abu Elsorour <fobowise@gmail.com> wrote:
+>
+>  So I both get a SEGV and the kernel thinks userspace is running STP, not
+>  ideal.
 
-> All
-> 
-> We are running a setup with a large number of bridge ports that  
-> reaches the 900 ports. After switching to recent kernel and brctl- 
-> utils that uses the sysfs interface, we started noticing that the port  
-> numbers are mis-reported when issues the command:
-> brctl showmacs br1
-> After tracing the code, we found that the problem lies in the sysfs  
-> structure called __fdb_entry. The port_no is declared as a u8 while it  
-> is u16 in the rest of the bridge structure. This causes the port_no to  
-> overflow when the bridge port number exceeds 255.
-> 
-> The overflow line is in file br_fdb.c function br_fdb_fillbuf:
->                          fe->port_no = f->dst->port_no;
-> where left hand port_no is _u8 and right hand is _u16.
-> 
-> Even if it is unusual to have this number of ports on a single bridge  
-> it should be changed to the sake of consistency.
-> 	
-> This patch shows the change:
-> 
-> @@ -94,7 +94,7 @@ struct __port_info
-> struct __fdb_entry
-> {
-> 	__u8 mac_addr[6];
-> -	__u8 port_no;
-> +	__u16 port_no;
-> 	__u8 is_local;
-> 	__u32 ageing_timer_value;
-> 	__u32 unused;
+Segfault is fixed by this:
 
-The problem is that this changes the size of the binary data structure
-and therefore changes the API. Better to do something with the unused
-field and maintain binary compatibility.
+diff --git a/log.h b/log.h
+index ce0d94e..2fcdcfb 100644
+--- a/log.h
++++ b/log.h
+@@ -63,7 +63,7 @@ extern int log_level;
+ #ifdef NO_DAEMON
 
-Like this:
+ #define ERROR(_fmt, _args...) \
+-       PRINT(LOG_LEVEL_ERROR, "%s: " _fmt, ##_args)
++       PRINT(LOG_LEVEL_ERROR, "%s: " _fmt, __PRETTY_FUNCTION__, ##_args)
 
---- a/include/linux/if_bridge.h	2008-03-31 08:37:57.000000000 -0700
-+++ b/include/linux/if_bridge.h	2008-03-31 08:39:02.000000000 -0700
-@@ -94,10 +94,11 @@ struct __port_info
- struct __fdb_entry
- {
- 	__u8 mac_addr[6];
--	__u8 port_no;
-+	__u8 old_port_no;
- 	__u8 is_local;
- 	__u32 ageing_timer_value;
--	__u32 unused;
-+	__u16 port_no;
-+	__u16 unused;
- };
- 
- #ifdef __KERNEL__
---- a/net/bridge/br_fdb.c	2008-03-31 08:39:23.000000000 -0700
-+++ b/net/bridge/br_fdb.c	2008-03-31 08:41:32.000000000 -0700
-@@ -285,6 +285,7 @@ int br_fdb_fillbuf(struct net_bridge *br
- 
- 			/* convert from internal format to API */
- 			memcpy(fe->mac_addr, f->addr.addr, ETH_ALEN);
-+			fe->old_port_no = f->dst->port_no;
- 			fe->port_no = f->dst->port_no;
- 			fe->is_local = f->is_local;
- 			if (!f->is_static)
+ #else
+ #define ERROR(_fmt, _args...) \
+
+
+>
+>  I really think one should be able to start RSTP with rtspctl too so
+>  one doesn't need /sbin/bridge-stp
+
+bridge-stp is a way to tell the kernel whether it should run its STP
+or not. This was set up to make it possible for users to run "brctl
+stp <bridge_name> on" without directly being concerned with whether
+kernel STP or userspace STP will be run.
+But that doesn't really happen in practice I guess.
+
+Unfortunately, bridge-stp is run with the kernel holding the RTNL
+lock, so the set of things it can do without causing a hang is
+limited. With the current kernel infrastructure, my preference would
+be to start rstpd from the network init scripts in the system and use
+bridge-stp just to decide whether to enable RSTP or kernel STP for the
+given bridge, perhaps based on a setting in ifcfg-<bridge_name> (in
+Redhat network config).
+
+For more robustness, maybe we need additional kernel infrastructure
+where the daemon can tell the kernel it will handle STP (this can be
+done now by setting stp off and then on when bridge-stp will return
+0), but where the kernel can also tell (maybe by polling) if the
+daemon quits and fall back to kernel STP in that case.
