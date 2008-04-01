@@ -1,13 +1,24 @@
-Message-Id: <0ED72525-0863-4570-A8C9-1B13D77EBF13@gmail.com>
-From: Osama Abu Elsorour <fobowise@gmail.com>
-In-Reply-To: <20080331084217.26bd1d7f@extreme>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Message-ID: <fed120860804010257h3aa9ab3etafa3d5c2e3db30dd@mail.gmail.com>
+Date: Tue, 1 Apr 2008 15:27:34 +0530
+From: "Srinivas M.A." <srinivas.aji@gmail.com>
+In-Reply-To: <1207033045.7589.485.camel@gentoo-jocke.transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0 (Apple Message framework v919.2)
-Date: Tue, 1 Apr 2008 09:30:47 +0200
-References: <4BE92402-91E0-48D2-8A18-2FC659F88685@gmail.com>
-	<20080331084217.26bd1d7f@extreme>
-Subject: Re: [Bridge] Bridge sysfs port_no overflow
+Content-Disposition: inline
+References: <8571495929364495836@unknownmsgid>
+	<7423344835968003573@unknownmsgid>
+	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>
+	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>
+	<fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>
+	<1206949458.7589.447.camel@gentoo-jocke.transmode.se>
+	<fed120860803310959g7d70a5e6s6f40c4275d14592a@mail.gmail.com>
+	<-2617425004832712825@unknownmsgid>
+	<fed120860803311309x68edff7cie8e5290133f9a011@mail.gmail.com>
+	<1207033045.7589.485.camel@gentoo-jocke.transmode.se>
+Subject: Re: [Bridge] RSTP in
+	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
+	a=summary problems
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,79 +27,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@linux-foundation.org
+To: joakim.tjernlund@transmode.se
+Cc: Bridge@lists.linux-foundation.org
 
-Yes. I guess the unused field came in handy. Thanks!
+>
+>  Curious, why is RSTP in user space? Lots of protocols are in the kernel,
+>  why not RSTP too?
 
-On Mar 31, 2008, at 5:42 PM, Stephen Hemminger wrote:
-> On Mon, 31 Mar 2008 09:11:31 +0200
-> Osama Abu Elsorour <fobowise@gmail.com> wrote:
->
->> All
->>
->> We are running a setup with a large number of bridge ports that
->> reaches the 900 ports. After switching to recent kernel and brctl-
->> utils that uses the sysfs interface, we started noticing that the  
->> port
->> numbers are mis-reported when issues the command:
->> brctl showmacs br1
->> After tracing the code, we found that the problem lies in the sysfs
->> structure called __fdb_entry. The port_no is declared as a u8 while  
->> it
->> is u16 in the rest of the bridge structure. This causes the port_no  
->> to
->> overflow when the bridge port number exceeds 255.
->>
->> The overflow line is in file br_fdb.c function br_fdb_fillbuf:
->>                         fe->port_no = f->dst->port_no;
->> where left hand port_no is _u8 and right hand is _u16.
->>
->> Even if it is unusual to have this number of ports on a single bridge
->> it should be changed to the sake of consistency.
->> 	
->> This patch shows the change:
->>
->> @@ -94,7 +94,7 @@ struct __port_info
->> struct __fdb_entry
->> {
->> 	__u8 mac_addr[6];
->> -	__u8 port_no;
->> +	__u16 port_no;
->> 	__u8 is_local;
->> 	__u32 ageing_timer_value;
->> 	__u32 unused;
->
-> The problem is that this changes the size of the binary data structure
-> and therefore changes the API. Better to do something with the unused
-> field and maintain binary compatibility.
->
-> Like this:
->
-> --- a/include/linux/if_bridge.h	2008-03-31 08:37:57.000000000 -0700
-> +++ b/include/linux/if_bridge.h	2008-03-31 08:39:02.000000000 -0700
-> @@ -94,10 +94,11 @@ struct __port_info
-> struct __fdb_entry
-> {
-> 	__u8 mac_addr[6];
-> -	__u8 port_no;
-> +	__u8 old_port_no;
-> 	__u8 is_local;
-> 	__u32 ageing_timer_value;
-> -	__u32 unused;
-> +	__u16 port_no;
-> +	__u16 unused;
-> };
->
-> #ifdef __KERNEL__
-> --- a/net/bridge/br_fdb.c	2008-03-31 08:39:23.000000000 -0700
-> +++ b/net/bridge/br_fdb.c	2008-03-31 08:41:32.000000000 -0700
-> @@ -285,6 +285,7 @@ int br_fdb_fillbuf(struct net_bridge *br
->
-> 			/* convert from internal format to API */
-> 			memcpy(fe->mac_addr, f->addr.addr, ETH_ALEN);
-> +			fe->old_port_no = f->dst->port_no;
-> 			fe->port_no = f->dst->port_no;
-> 			fe->is_local = f->is_local;
-> 			if (!f->is_static)
+For one thing it is easier from a development standpoint. The kernel
+just needs to provide hooks for allowing userspace programs to send
+and receive BPDUs and to change port states. The STP logic can then be
+moved to userspace and it is easier to develop and debug.
 
+>
+>  Are any known issues with the in kernel STP?
+>
+>  I haven't read 802.1D-2004 but I know RSTP is in there, does RSTP
+>  replace the old STP protocol? If not, is there any reason to prefer STP
+>  before RSTP in some cases?
+
+In 802.1D-2004, RSTP replaces the old STP. RSTP provides additional
+mechanisms to give faster convergence when the network involves only
+point-to-point links. It is backward compatible with STP, i.e., it
+will interoperate correctly when there are other STP bridges, though
+you lose the fast convergence then. So, in general, there is no reason
+to prefer STP to RSTP. Currently, the main reason would be that the
+STP implementation has been around much longer and that this RSTP
+implementation is new.
