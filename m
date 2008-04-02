@@ -1,15 +1,14 @@
-Message-ID: <47F24943.3050307@linux-foundation.org>
-Date: Tue, 01 Apr 2008 07:40:03 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
+Date: Wed, 2 Apr 2008 11:30:04 +0200
+From: Jaime Medrano <jaime.medrano@gmail.com>
+Message-ID: <20080402093004.GA13430@localhost>
+References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
+	<20071217085349.729e5c17@deepthought>
+	<20080128153914.GA5880@localhost> <20080317113537.496d9347@extreme>
 MIME-Version: 1.0
-References: <8571495929364495836@unknownmsgid>	<7423344835968003573@unknownmsgid>	<fed120860803301213r6f1e1aadwf26d269a4224b768@mail.gmail.com>	<1206911933.7589.426.camel@gentoo-jocke.transmode.se>	<fed120860803310025p33efd12ds6cbba5d0f978caf5@mail.gmail.com>	<1206949458.7589.447.camel@gentoo-jocke.transmode.se>	<fed120860803310959g7d70a5e6s6f40c4275d14592a@mail.gmail.com>	<-2617425004832712825@unknownmsgid>	<fed120860803311309x68edff7cie8e5290133f9a011@mail.gmail.com>	<1207033045.7589.485.camel@gentoo-jocke.transmode.se>	<fed120860804010257h3aa9ab3etafa3d5c2e3db30dd@mail.gmail.com>
-	<1207049456.9675.37.camel@gentoo-jocke.transmode.se>
-In-Reply-To: <1207049456.9675.37.camel@gentoo-jocke.transmode.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge]
- RSTP	in	http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;
- a=summary	problems
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20080317113537.496d9347@extreme>
+Subject: Re: [Bridge] [PATCH] Add vlan id to bridge forward database
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,76 +17,356 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: joakim.tjernlund@transmode.se
-Cc: Bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: bridge@lists.osdl.org
 
-Joakim Tjernlund wrote:
-> On Tue, 2008-04-01 at 15:27 +0530, Srinivas M.A. wrote:
->   
->>>  Curious, why is RSTP in user space? Lots of protocols are in the kernel,
->>>  why not RSTP too?
->>>       
->> For one thing it is easier from a development standpoint. The kernel
->> just needs to provide hooks for allowing userspace programs to send
->> and receive BPDUs and to change port states. The STP logic can then be
->> moved to userspace and it is easier to develop and debug.
->>     
->
-> Yes, but this cannot the only reason to move xSTP to user space? I bet
-> that is true for lots of stuff currently in kernel, i.e one could move
-> ARP to user space too. You can probably get better performance with
-> an in kernel xSTP and possible more robust as you don't depend on a
-> external process that could get killed by OOM or by user mistake.
->
->   
->>>  Are any known issues with the in kernel STP?
->>>
->>>  I haven't read 802.1D-2004 but I know RSTP is in there, does RSTP
->>>  replace the old STP protocol? If not, is there any reason to prefer STP
->>>  before RSTP in some cases?
->>>       
->> In 802.1D-2004, RSTP replaces the old STP. RSTP provides additional
->> mechanisms to give faster convergence when the network involves only
->> point-to-point links. It is backward compatible with STP, i.e., it
->> will interoperate correctly when there are other STP bridges, though
->> you lose the fast convergence then. So, in general, there is no reason
->> to prefer STP to RSTP. Currently, the main reason would be that the
->> STP implementation has been around much longer and that this RSTP
->> implementation is new.
->>     
->
-> Thanks you for the info, much appreciated. I guess the reason why
-> in kernel STP hasn't been converted to RSTP is the user space approach? 
->
-> Sorry for all the questions/criticism, this is all fairly new to me and
-> I wanted share my initial feelings about RSTP and how it works. Once I
-> get used to how it all works I generally stop asking myself why/how
-> things work and just get on with it.
->
->  Jocke
->
-> PS.
->     I really think you need publish the RSTP work somewhere on the bride
->     home page, I had a hard time finding this and I am sure others too
->     have problems finding it. 
->   
+On Mon, Mar 17, 2008 at 11:35:37AM -0700, Stephen Hemminger wrote:
+> Minor stuff:
+> 1. Please use shorter variable names, rather than:
+>               unsigned short vlan_first_id;
+>       I would choose:
+>               u16 vlan1;
 
-There are several motivations for moving it to user space:
-  1. As a userspace application it is less vulnerable to being used for 
-remote exploits.  Buffer overflows etc
-      in kernel are more damaging.
-  2. Rstplib is pre-existing code, and can be incorporated easier into 
-user application
-  3. The real reason is that there are many flavors of STP and and 
-configuration and research are more
-      easily managed in userspace.
+Done.
 
-Note: performance is not an issue for STP.
+> 2. You probably can use skb->protocol rather than having to look at the packet
+>     contents to check for 8021Q.
 
-But:
-   1. Robustness is harder in userspace
-   2. Close coupling of kernel and daemons is maintance pain
-   3. Backwards compatibility problems.
+Done for non-nested case. Unavoidable for nested vlan tags.
 
-Maybe RSTP in userspace is a bad idea, it is possible to go back.
+> 3. Don't use __constant_htons(), just use htons().
+>    The macro is smart enough to handle the
+>    constant case, and it reads better, without the __constant_prefix.
+
+Done.
+
+> Major stuff:
+> 1. This won't work with hardware accel VLAN receive. The tag is not put in
+>    the skb?
+
+It will work with drivers with hardware accel VLAN receive support if no
+vlan device is attached to the network device of one of the ports of the
+bridge. It will also work if a vlan device is attached to the bridge
+device. In those cases, hw accel is not used.
+
+However, it won't work if a vlan device is attached to the network
+device of one of the ports. Hw accel will be used and the vlan tag won't
+be available. Anyway, this is a bad idea since normal bridging won't work
+either. The vlan won't be regenerated at bridge output since current
+bridge code doesn't get that tag.
+
+If the vlan device is attached to the bridge device then bridging has no
+problems as hw accel receiving is not used.
+
+The patch has also been generalized to support any number of vlan nested
+tags. Vlan tag recording can be disabled at all if BR_MAX_VLAN_TAGS is
+set to 0.
+
+---
+Subject: [PATCH] Add vlan tags to bridge forward database
+
+This makes forwarding table aware of 802.1Q vlan tags and stores
+vlan ids with MACs in the table.
+
+It solves problems when having same MAC on diffent pairs
+(vlan, port). Current code gets confused at that situation.
+
+Nested vlan tags are also handled.
+
+Local MACs are managed as present on every vlan.
+
+Signed-off-by: Jaime Medrano <jaime.medrano@gmail.com>
+---
+ net/bridge/br_device.c  |   11 +++--
+ net/bridge/br_fdb.c     |   91 ++++++++++++++++++++++++++++++++++++++++++------
+ net/bridge/br_input.c   |   15 ++++---
+ net/bridge/br_private.h |    9 +++-
+ 4 files changed, 103 insertions(+), 23 deletions(-)
+
+Index: linux-2.6.25-rc7/net/bridge/br_private.h
+===================================================================
+--- linux-2.6.25-rc7.orig/net/bridge/br_private.h	2008-04-01 23:54:49.000000000 +0200
++++ linux-2.6.25-rc7/net/bridge/br_private.h	2008-04-01 23:55:13.000000000 +0200
+@@ -26,6 +26,8 @@
+ #define BR_PORT_BITS	10
+ #define BR_MAX_PORTS	(1<<BR_PORT_BITS)
+ 
++#define BR_MAX_VLAN_TAGS	2
++
+ #define BR_VERSION	"2.3"
+ 
+ /* Path to usermode spanning tree program */
+@@ -55,6 +57,7 @@
+ 	atomic_t			use_count;
+ 	unsigned long			ageing_timer;
+ 	mac_addr			addr;
++	__be16				vlan_tags[BR_MAX_VLAN_TAGS];
+ 	unsigned char			is_local;
+ 	unsigned char			is_static;
+ };
+@@ -150,7 +153,8 @@
+ extern void br_fdb_delete_by_port(struct net_bridge *br,
+ 				  const struct net_bridge_port *p, int do_all);
+ extern struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+-						 const unsigned char *addr);
++						 const unsigned char *addr,
++						 const struct sk_buff *skb);
+ extern struct net_bridge_fdb_entry *br_fdb_get(struct net_bridge *br,
+ 					       unsigned char *addr);
+ extern void br_fdb_put(struct net_bridge_fdb_entry *ent);
+@@ -161,7 +165,8 @@
+ 			 const unsigned char *addr);
+ extern void br_fdb_update(struct net_bridge *br,
+ 			  struct net_bridge_port *source,
+-			  const unsigned char *addr);
++			  const unsigned char *addr,
++			  const struct sk_buff *skb);
+ 
+ /* br_forward.c */
+ extern void br_deliver(const struct net_bridge_port *to,
+Index: linux-2.6.25-rc7/net/bridge/br_device.c
+===================================================================
+--- linux-2.6.25-rc7.orig/net/bridge/br_device.c	2008-04-01 23:54:49.000000000 +0200
++++ linux-2.6.25-rc7/net/bridge/br_device.c	2008-04-01 23:55:13.000000000 +0200
+@@ -42,10 +42,13 @@
+ 
+ 	if (dest[0] & 1)
+ 		br_flood_deliver(br, skb);
+-	else if ((dst = __br_fdb_get(br, dest)) != NULL)
+-		br_deliver(dst->dst, skb);
+-	else
+-		br_flood_deliver(br, skb);
++	else {
++		dst = __br_fdb_get(br, dest, skb);
++		if (dst != NULL)
++			br_deliver(dst->dst, skb);
++		else
++			br_flood_deliver(br, skb);
++	}
+ 
+ 	return 0;
+ }
+Index: linux-2.6.25-rc7/net/bridge/br_fdb.c
+===================================================================
+--- linux-2.6.25-rc7.orig/net/bridge/br_fdb.c	2008-04-01 23:54:49.000000000 +0200
++++ linux-2.6.25-rc7/net/bridge/br_fdb.c	2008-04-01 23:55:13.000000000 +0200
+@@ -24,6 +24,7 @@
+ #include <asm/atomic.h>
+ #include <asm/unaligned.h>
+ #include "br_private.h"
++#include <linux/if_vlan.h>
+ 
+ static struct kmem_cache *br_fdb_cache __read_mostly;
+ static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+@@ -209,15 +210,79 @@
+ 	spin_unlock_bh(&br->hash_lock);
+ }
+ 
++#if BR_MAX_VLAN_TAGS > 0
++static void set_vlan_tags(const struct sk_buff *skb, __be16 *tags)
++{
++	__be16 proto;
++	int i, off;
++	struct vlan_hdr _hdr;
++	struct vlan_hdr *hdr;
++
++	if (!skb || skb->protocol != htons(ETH_P_8021Q)) {
++		tags[0] = 0;
++		return;
++	}
++
++	proto = skb->protocol;
++
++	for (i = 0, off = 0 ;
++	     i < BR_MAX_VLAN_TAGS && proto == htons(ETH_P_8021Q) ;
++	     i++, off += VLAN_HLEN) {
++		hdr = skb_header_pointer(skb, off, sizeof(_hdr), &_hdr);
++		tags[i] = hdr->h_vlan_TCI & htons(VLAN_VID_MASK);
++		proto = hdr->h_vlan_encapsulated_proto;
++	}
++
++	if (i < BR_MAX_VLAN_TAGS)
++		tags[i] = 0;
++}
++
++static int compare_vlan_tags(const struct sk_buff *skb, const __be16 *tags)
++{
++	__be16 proto;
++	int i, off;
++	struct vlan_hdr _hdr;
++	struct vlan_hdr *hdr;
++
++	if (!skb || skb->protocol != htons(ETH_P_8021Q))
++		return tags[0] != 0;
++
++	proto = skb->protocol;
++
++	for (i = 0, off = 0 ;
++	     i < BR_MAX_VLAN_TAGS && tags[i] && proto == htons(ETH_P_8021Q) ;
++	     i++, off += VLAN_HLEN) {
++		hdr = skb_header_pointer(skb, off, sizeof(_hdr), &_hdr);
++		if ((hdr->h_vlan_TCI & htons(VLAN_VID_MASK)) != tags[i])
++			return 1;
++		proto = hdr->h_vlan_encapsulated_proto;
++	}
++
++	return i < BR_MAX_VLAN_TAGS && (tags[i] || proto == htons(ETH_P_8021Q));
++}
++
++#else
++static void set_vlan_tags(const struct sk_buff *skb, __be16 *tags)
++{
++}
++
++static int compare_vlan_tags(const struct sk_buff *skb, const __be16 *tags)
++{
++	return 0;
++}
++#endif
++
+ /* No locking or refcounting, assumes caller has no preempt (rcu_read_lock) */
+ struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+-					  const unsigned char *addr)
++					  const unsigned char *addr,
++					  const struct sk_buff *skb)
+ {
+ 	struct hlist_node *h;
+ 	struct net_bridge_fdb_entry *fdb;
+ 
+ 	hlist_for_each_entry_rcu(fdb, h, &br->hash[br_mac_hash(addr)], hlist) {
+-		if (!compare_ether_addr(fdb->addr.addr, addr)) {
++		if (!compare_ether_addr(fdb->addr.addr, addr) && (fdb->is_local
++		    || !compare_vlan_tags(skb, fdb->vlan_tags))) {
+ 			if (unlikely(has_expired(br, fdb)))
+ 				break;
+ 			return fdb;
+@@ -234,7 +299,7 @@
+ 	struct net_bridge_fdb_entry *fdb;
+ 
+ 	rcu_read_lock();
+-	fdb = __br_fdb_get(br, addr);
++	fdb = __br_fdb_get(br, addr, NULL);
+ 	if (fdb && !atomic_inc_not_zero(&fdb->use_count))
+ 		fdb = NULL;
+ 	rcu_read_unlock();
+@@ -301,13 +366,15 @@
+ }
+ 
+ static inline struct net_bridge_fdb_entry *fdb_find(struct hlist_head *head,
+-						    const unsigned char *addr)
++						    const unsigned char *addr,
++						    const struct sk_buff *skb)
+ {
+ 	struct hlist_node *h;
+ 	struct net_bridge_fdb_entry *fdb;
+ 
+ 	hlist_for_each_entry_rcu(fdb, h, head, hlist) {
+-		if (!compare_ether_addr(fdb->addr.addr, addr))
++		if (!compare_ether_addr(fdb->addr.addr, addr) &&
++		    (fdb->is_local || !compare_vlan_tags(skb, fdb->vlan_tags)))
+ 			return fdb;
+ 	}
+ 	return NULL;
+@@ -316,6 +383,7 @@
+ static struct net_bridge_fdb_entry *fdb_create(struct hlist_head *head,
+ 					       struct net_bridge_port *source,
+ 					       const unsigned char *addr,
++					       const struct sk_buff *skb,
+ 					       int is_local)
+ {
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -323,6 +391,7 @@
+ 	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
+ 	if (fdb) {
+ 		memcpy(fdb->addr.addr, addr, ETH_ALEN);
++		set_vlan_tags(skb, fdb->vlan_tags);
+ 		atomic_set(&fdb->use_count, 1);
+ 		hlist_add_head_rcu(&fdb->hlist, head);
+ 
+@@ -343,7 +412,7 @@
+ 	if (!is_valid_ether_addr(addr))
+ 		return -EINVAL;
+ 
+-	fdb = fdb_find(head, addr);
++	fdb = fdb_find(head, addr, NULL);
+ 	if (fdb) {
+ 		/* it is okay to have multiple ports with same
+ 		 * address, just use the first one.
+@@ -357,7 +426,7 @@
+ 		fdb_delete(fdb);
+ 	}
+ 
+-	if (!fdb_create(head, source, addr, 1))
++	if (!fdb_create(head, source, addr, NULL, 1))
+ 		return -ENOMEM;
+ 
+ 	return 0;
+@@ -375,7 +444,7 @@
+ }
+ 
+ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+-		   const unsigned char *addr)
++		   const unsigned char *addr, const struct sk_buff *skb)
+ {
+ 	struct hlist_head *head = &br->hash[br_mac_hash(addr)];
+ 	struct net_bridge_fdb_entry *fdb;
+@@ -389,7 +458,7 @@
+ 	      source->state == BR_STATE_FORWARDING))
+ 		return;
+ 
+-	fdb = fdb_find(head, addr);
++	fdb = fdb_find(head, addr, skb);
+ 	if (likely(fdb)) {
+ 		/* attempt to update an entry for a local interface */
+ 		if (unlikely(fdb->is_local)) {
+@@ -404,8 +473,8 @@
+ 		}
+ 	} else {
+ 		spin_lock(&br->hash_lock);
+-		if (!fdb_find(head, addr))
+-			fdb_create(head, source, addr, 0);
++		if (!fdb_find(head, addr, skb))
++			fdb_create(head, source, addr, skb, 0);
+ 		/* else  we lose race and someone else inserts
+ 		 * it first, don't bother updating
+ 		 */
+Index: linux-2.6.25-rc7/net/bridge/br_input.c
+===================================================================
+--- linux-2.6.25-rc7.orig/net/bridge/br_input.c	2008-04-01 23:54:49.000000000 +0200
++++ linux-2.6.25-rc7/net/bridge/br_input.c	2008-04-01 23:55:13.000000000 +0200
+@@ -50,7 +50,7 @@
+ 
+ 	/* insert into forwarding database after filtering to avoid spoofing */
+ 	br = p->br;
+-	br_fdb_update(br, p, eth_hdr(skb)->h_source);
++	br_fdb_update(br, p, eth_hdr(skb)->h_source, skb);
+ 
+ 	if (p->state == BR_STATE_LEARNING)
+ 		goto drop;
+@@ -66,10 +66,13 @@
+ 	if (is_multicast_ether_addr(dest)) {
+ 		br->statistics.multicast++;
+ 		skb2 = skb;
+-	} else if ((dst = __br_fdb_get(br, dest)) && dst->is_local) {
+-		skb2 = skb;
+-		/* Do not forward the packet since it's local. */
+-		skb = NULL;
++	} else {
++		dst = __br_fdb_get(br, dest, skb);
++		if (dst && dst->is_local) {
++			skb2 = skb;
++			/* Do not forward the packet since it's local. */
++			skb = NULL;
++		}
+ 	}
+ 
+ 	if (skb2 == skb)
+@@ -98,7 +101,7 @@
+ 	struct net_bridge_port *p = rcu_dereference(skb->dev->br_port);
+ 
+ 	if (p)
+-		br_fdb_update(p->br, p, eth_hdr(skb)->h_source);
++		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, skb);
+ 	return 0;	 /* process further */
+ }
  
