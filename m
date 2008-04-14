@@ -1,12 +1,11 @@
-Date: Sun, 13 Apr 2008 11:59:23 +0100 (BST)
-From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
-In-Reply-To: <47FFA849.7050103@navigue.com>
-Message-ID: <alpine.DEB.1.10.0804131157470.6843@callisto.moose.malc.org.uk>
-References: <96CF49BD8B56384395D698BA99007FA32FA187@exchange.pacwire.local>
-	<47E12A1B.9020201@navigue.com> <47FFA849.7050103@navigue.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: Re: [Bridge] bridge, vlan and *no* stp/bpdu
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C89DEA.1B2EEB70"
+Date: Mon, 14 Apr 2008 14:43:38 +1000
+Message-ID: <96CF49BD8B56384395D698BA99007FA32FA1BE@exchange.pacwire.local>
+From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
+Subject: [Bridge] default values
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,28 +14,71 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jonathan Thibault <jonathan@navigue.com>
-Cc: ebtables-user@lists.sourceforge.net, bridge@lists.osdl.org
+To: bridge@lists.osdl.org
 
-On Fri, 11 Apr 2008, Jonathan Thibault wrote:
+This is a multi-part message in MIME format.
 
-> Apr 11 11:59:03 ordralphabetix IN=out OUT= MAC source =
-> 00:18:18:62:3e:80 MAC dest = 08:10:17:0d:70:61 proto = 0x0806
->
-> Why don't I see 'OUT=in.2'.  If the arp reply reached my host, it
-> obviously had to go through the bridge.  That is in the 'out' interface
-> and out the 'in.2' interface.
+------_=_NextPart_001_01C89DEA.1B2EEB70
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-A hunch (which I haven't had time to verify yet): empty OUT= probably means 
-the frame will be flooded to all output interfaces.
+Hi all,=20
+Can anybody tell me what the default values for setageingtimer and
+setgcint are?
+=20
+=20
+Regards,
+             Leigh
+=20
+Leigh Sharpe
+Network Systems Engineer
+Pacific Wireless
+Ph +61 3 9584 8966
+Mob 0408 009 502
+Helpdesk 1300 300 616
+email lsharpe@pacificwireless.com.au
+<blocked::mailto:lsharpe@pacificwireless.com.au>=20
+web www.pacificwireless.com.au
+<blocked::http://www.pacificwireless.com.au/>=20
+=20
 
-Someone who knows the code better than I do will no doubt be able to confirm 
-or deny :)
+------_=_NextPart_001_01C89DEA.1B2EEB70
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Malcolm
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2800.1491" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><SPAN class=3D932383104-14042008><FONT face=3DArial size=3D2>Hi =
+all,=20
+</FONT></SPAN></DIV>
+<DIV><SPAN class=3D932383104-14042008><FONT face=3DArial size=3D2>Can =
+anybody tell me=20
+what the default values for setageingtimer and setgcint =
+are?</FONT></SPAN></DIV>
+<DIV><SPAN class=3D932383104-14042008></SPAN>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV align=3Dleft>
+<DIV align=3Dleft><FONT face=3DArial=20
+size=3D2>Regards,<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;=20
+Leigh</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Leigh Sharpe<BR>Network Systems =
+Engineer<BR>Pacific=20
+Wireless<BR>Ph +61 3 9584 8966<BR>Mob 0408 009 502</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Helpdesk 1300 300 616<BR>email <A=20
+title=3Dmailto:lsharpe@pacificwireless.com.au=20
+href=3D"blocked::mailto:lsharpe@pacificwireless.com.au">lsharpe@pacificwi=
+reless.com.au</A><BR>web=20
+<A title=3Dhttp://www.pacificwireless.com.au/=20
+href=3D"blocked::http://www.pacificwireless.com.au/">www.pacificwireless.=
+com.au</A></FONT></DIV></DIV>
+<DIV>&nbsp;</DIV></BODY></HTML>
 
--- 
-Malcolm Scott
-Research Assistant
-University of Cambridge Computer Laboratory
-
+------_=_NextPart_001_01C89DEA.1B2EEB70--
