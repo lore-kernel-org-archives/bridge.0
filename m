@@ -1,12 +1,10 @@
-Date: Fri, 18 Apr 2008 09:25:29 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20080418092529.7596fc15@extreme>
-In-Reply-To: <26b26d180804180221g479ee428u5c4e15a66152ceee@mail.gmail.com>
-References: <26b26d180804180221g479ee428u5c4e15a66152ceee@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] how to block STP bpdus on a particular port?
+Message-ID: <480C9FA2.2050805@morch.com>
+Date: Mon, 21 Apr 2008 16:07:30 +0200
+From: =?ISO-8859-1?Q?Peter_Valdemar_M=F8rch?= <lists@morch.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] USB device for Layer 2 Wireless Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,29 +13,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: saurav barik <saurav.barik@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Fri, 18 Apr 2008 09:21:21 +0000
-"saurav barik" <saurav.barik@gmail.com> wrote:
+Bridging with wireless apparently is not trivial with linux as "Many=20
+wireless cards don't allow spoofing of the source address" according to=20
+http://www.linux-foundation.org/en/Net:Bridge#It_doesn.27t_work_with_my_Wir=
+eless_card.21
 
-> Hi,
-> 
-> Can I refrain a particular port/interface on my linux bridge, to send
-> and receive STP BPDUs?
-> Is there any filter available for the same or should I customize linux
-> bridge code?
-> 
-> I googled and browsed through the mailing list archives but could not
-> find any solution.
-> Please share some pointers.
-> Thanks for your time.
-> 
-> Regards,
-> Saurav
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
+Basically, I just want a USB wireless device, that works for Ubuntu=20
+Gutsy out of the box, supports WEP, WPA, bridging and that won't give me=20
+any hassles under linux. I'm prepared to pay for it too, if need be!=20
+Does such a thing exist? I don't feel hopeful after reading the above=20
+link...
 
-ebtables has an stp module.
+Peter
+--=20
+Peter Valdemar M=F8rch
+http://www.morch.com
