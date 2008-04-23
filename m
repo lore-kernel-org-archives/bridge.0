@@ -1,10 +1,11 @@
-From: Koen Vermeer <koen@vermeer.tv>
-Content-Type: text/plain
-Date: Wed, 23 Apr 2008 23:22:02 +0200
-Message-Id: <1208985722.3713.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Set second IP on bridge
+Date: Wed, 23 Apr 2008 23:59:15 +0100 (BST)
+From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
+In-Reply-To: <1208985722.3713.2.camel@localhost.localdomain>
+Message-ID: <alpine.DEB.1.10.0804232358250.20981@callisto.moose.malc.org.uk>
+References: <1208985722.3713.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: [Bridge] Set second IP on bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,31 +14,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Koen Vermeer <koen@vermeer.tv>
+Cc: bridge@lists.linux-foundation.org
 
-[I posted this before subscribing; I couldn't find it in the archives
-after a few hours, so I'm trying again now. Apologies if it reaches the
-list twice!]
+At 23:22 today, Koen Vermeer wrote:
 
-Hi,
+> Now, for virtualization, I want to set up a bridge on my one ethernet
+> interface. I can do this just fine, and end up with (let's say) br0.
+> Then, I can set an IP address to br0. But what I want to do is set two
+> IP addresses. I have been unable to do so thus far. Trying to use br0:1
+> didn't produce anything useful.
 
-I am connected through one ethernet interface to a network on which two
-subnets are available. One is in the 192.168.11.0 range, the other in
-the 172.31.1.0 range. On the first one, I have a static IP, on the
-second on, I obtain one by DHCP. Without bridging, I can set this up by
-using eth0 and eth0:1.
+That should work.  What happens?
 
-Now, for virtualization, I want to set up a bridge on my one ethernet
-interface. I can do this just fine, and end up with (let's say) br0.
-Then, I can set an IP address to br0. But what I want to do is set two
-IP addresses. I have been unable to do so thus far. Trying to use br0:1
-didn't produce anything useful.
+You can also try "ip address add (...) dev br0" to avoid the old-style 
+subinterfaces.
 
-So, before trying further with br0:1 or something similar, I was
-wondering whether what I like to do is actually possible. If it is, am I
-on the right track? If it isn't, is there some other way to work around
-this?
-
-Best,
-Koen
+-- 
+Malcolm Scott
+Research Assistant
+University of Cambridge Computer Laboratory
 
