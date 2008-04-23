@@ -1,12 +1,10 @@
-Date: Wed, 23 Apr 2008 10:43:40 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20080423104340.2416280e@extreme>
-In-Reply-To: <96CF49BD8B56384395D698BA99007FA32FA1E1@exchange.pacwire.local>
-References: <96CF49BD8B56384395D698BA99007FA32FA1E1@exchange.pacwire.local>
+From: Koen Vermeer <koen@vermeer.tv>
+Content-Type: text/plain
+Date: Wed, 23 Apr 2008 23:22:02 +0200
+Message-Id: <1208985722.3713.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Getting statistics from a bridge
+Subject: [Bridge] Set second IP on bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,23 +13,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Wed, 23 Apr 2008 10:53:12 +1000
-"Leigh Sharpe" <lsharpe@pacificwireless.com.au> wrote:
+[I posted this before subscribing; I couldn't find it in the archives
+after a few hours, so I'm trying again now. Apologies if it reaches the
+list twice!]
 
-> Hi All,
->  Is there any way of getting detailed statistics from a bridge?
-> Specifically, I need to know how many frames may have been dropped
-> because they exceed the MTU of the underlying port. I'm having a few
-> issues with MTUs not agreeing.
->  
-> Regards,
->              Leigh
->  
+Hi,
 
-It would not be hard to modify kernel to use one of the existing statistics on
-the bridge interface to keep track of the dropped packets. I'll look into it
-if no one else gets to it first (hint, hint)
+I am connected through one ethernet interface to a network on which two
+subnets are available. One is in the 192.168.11.0 range, the other in
+the 172.31.1.0 range. On the first one, I have a static IP, on the
+second on, I obtain one by DHCP. Without bridging, I can set this up by
+using eth0 and eth0:1.
+
+Now, for virtualization, I want to set up a bridge on my one ethernet
+interface. I can do this just fine, and end up with (let's say) br0.
+Then, I can set an IP address to br0. But what I want to do is set two
+IP addresses. I have been unable to do so thus far. Trying to use br0:1
+didn't produce anything useful.
+
+So, before trying further with br0:1 or something similar, I was
+wondering whether what I like to do is actually possible. If it is, am I
+on the right track? If it isn't, is there some other way to work around
+this?
+
+Best,
+Koen
 
