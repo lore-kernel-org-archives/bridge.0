@@ -1,14 +1,12 @@
-Message-ID: <bdfc5d6e0804241117w43c9a1c0p6d11272899de5946@mail.gmail.com>
-Date: Thu, 24 Apr 2008 14:17:36 -0400
-From: "Andy Gospodarek" <andy@greyhouse.net>
-Sender: adgospod@gmail.com
-In-Reply-To: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
+Message-ID: <4811ACBC.1080708@sneakemail.com>
+Date: Fri, 25 Apr 2008 12:04:44 +0200
+From: =?ISO-8859-1?Q?Peter_Valdemar_M=F8rch?= <4ux6as402@sneakemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
-Subject: Re: [Bridge] Access the bridge through the userspace (Rx/Tx)
+References: <480C9FA2.2050805@morch.com> <000701c8a44c$ede7a470$3a00a8c0@info1>
+In-Reply-To: <000701c8a44c$ede7a470$3a00a8c0@info1>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] USB device for Layer 2 Wireless Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,23 +15,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Faruk Keskin <faruk@eit.uni-kl.de>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Thu, Apr 24, 2008 at 1:30 AM, Faruk Keskin <faruk@eit.uni-kl.de> wrote:
-> Hello everybody,
->
->  I'm trying to implement Layer 2 packet processing, where I need  to
->  transfer packets arriving at the Linux Bridge to a dedicated userspace
->  application. So my very basic question would be whether you could
->  recommend a strategy to achieve this.
->
->  Can I use TUN/TAP or do I need to implement specific code around a socket?
->
->  Thanks in advance,
->  Faruk
->
+Peter M=F8rch wrote:
+> Bridging with wireless apparently is not trivial with linux as "Many
+> wireless cards don't allow spoofing of the source address" according
+> to
+>=20
+http://www.linux-foundation.org/en/Net:Bridge#It_doesn.27t_work_with_my_Wir=
+eless_card.21
 
-Yes that would work fine.  I've seen userspace apps that handle frames
-work well with the tap driver.  I've also seen vpn clients in
-userspace that do the same and successfully forward traffic.
+To which Becskei Robert replied:
+> I did it and it still works bridging with linux + 2 wireless pairs.
+>=20
+> See my guide=20
+> http://www.linuxhelp.net/forums/Channel_Bonding_load_balancing_t8478.html
+> ,
+>=20
+> the important part was
+>=20
+> NOTE : I've had a hell of time making the 2 wireless links work
+> together nicely, in order to make them work in a bonding scenario
+> like this, I had to enable a certain option called MAC ADDRESS
+> CLONING, and had to use different SSID , and different CHANNEL.
+
+Please excuse my ignorance, but doesn't the above link assume
+that brctl and ifconfig will work bridging wireless and ethernet?
+
+I could not get a bridge between my wireless (using the ipw3945 driver)
+and eth0 interfaces to work.
+
+As I read
+http://www.linux-foundation.org/en/Net:Bridge#It_doesn.27t_work_with_my_Wir=
+eless_card.21=20
+
+
+
+it seems to me bridging wireless and ethernet won't work in the most
+common cases. Is that true at least?
+
+I would really like to create a layer 2 bridge between my ethernet and
+wireless networks, but right now have no clue how to continue... brctl
+and ifconfig did not work for me with my hardware... Any help or
+enlightenment appreciated!
+
+Peter
+--=20
+Peter Valdemar M=F8rch
+http://www.morch.com
