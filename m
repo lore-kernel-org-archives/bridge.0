@@ -1,11 +1,13 @@
-Date: Mon, 28 Apr 2008 20:57:56 +0100 (BST)
+Date: Mon, 28 Apr 2008 21:02:01 +0100 (BST)
 From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
-In-Reply-To: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
-Message-ID: <alpine.DEB.1.10.0804282057310.5194@callisto.moose.malc.org.uk>
-References: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
+In-Reply-To: <1209034195.3829.13.camel@koenws.oogziekenhuis.lan>
+Message-ID: <alpine.DEB.1.10.0804282058311.5194@callisto.moose.malc.org.uk>
+References: <1208985722.3713.2.camel@localhost.localdomain>
+	<alpine.DEB.1.10.0804232358250.20981@callisto.moose.malc.org.uk>
+	<1209034195.3829.13.camel@koenws.oogziekenhuis.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: Re: [Bridge] Access the bridge through the userspace (Rx/Tx)
+Subject: Re: [Bridge] Set second IP on bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,20 +16,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Faruk Keskin <faruk@eit.uni-kl.de>
+To: Koen Vermeer <koen@vermeer.tv>
 Cc: bridge@lists.linux-foundation.org
 
-On Thu, 24 Apr 2008, Faruk Keskin wrote:
+On Thu, 24 Apr 2008, Koen Vermeer wrote:
 
-> I'm trying to implement Layer 2 packet processing, where I need  to
-> transfer packets arriving at the Linux Bridge to a dedicated userspace
-> application. So my very basic question would be whether you could
-> recommend a strategy to achieve this.
->
-> Can I use TUN/TAP or do I need to implement specific code around a socket?
+> I'm still strugling to get this incorporated in my
+> Debian /etc/network/interfaces file, but I guess that's off-topic here.
+> In case it isn't, or if you know the right place to ask about that,
+> please let me know.
 
-You could alternatively use libpcap, if I understand your requirements 
-properly.
+This should work:
+
+auto br0:1
+iface br0:1 inet static
+   address ...
+   netmask ...
+
+(after your definition for br0)
+
+Or alternatively
+
+auto br0
+iface br0 inet (...)
+   ...
+   up ip address add ... dev $IFACE
+   down ip address del ... dev $IFACE
 
 -- 
 Malcolm Scott
