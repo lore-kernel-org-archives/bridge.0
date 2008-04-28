@@ -1,9 +1,14 @@
-Date: Mon, 28 Apr 2008 15:40:43 +0200
-Message-Id: <200804281340.m3SDehP8018539@plam.pdb.fsc.net>
-From: bstroesser@fujitsu-siemens.com
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: base64
-Subject: [Bridge] bridge: kernel panic when unloading bridge.ko
+Message-ID: <4815ED77.3030306@sneakemail.com>
+Date: Mon, 28 Apr 2008 17:29:59 +0200
+From: =?ISO-8859-1?Q?=22Peter_Valdemar_M=F8rch_=28Lists=29=22?=
+	<4ux6as402@sneakemail.com>
+MIME-Version: 1.0
+References: <481597F3.6060400@sneakemail.com>	<20080428125307.GB3499@tuxdriver.com>
+	<20080428100453.156604um6fopq938@webapps.ghq.linux-wlan.com>
+In-Reply-To: <20080428100453.156604um6fopq938@webapps.ghq.linux-wlan.com>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Ethernet+Wireless Bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,37 +17,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: bstroesser@fujitsu-siemens.com, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-SGksCgpoZXJlIGlzIGEgcGF0Y2ggZm9yIDIuNi4yMi41LCBidXQgQUZBSUNTIGl0IGlzIHJl
-bGV2YW50CmZvciAyLjYuMjUgYWxzby4KClBsZWFzZSBDQyBtZSwgSSdtIG5vdCBvbiB0aGUg
-bGlzdC4KCkJlc3QgcmVnYXJkcwpCb2RvCgoKPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ClRoZXJlIGlzIGEgcmFjZSBjb25k
-aXRpb24gd2hlbiB1bmxvYWRpbmcgYnJpZGdlLmtvCgpUaGUgcHJvYmxlbSBoYXBwZW5zIGlm
-IF9fZmFrZV9ydGFibGUgaXMgaW4gdXNlIGJ5IGEgc2tiCmNvbWluZyBpbiwgd2hpbGUgc29t
-ZW9uZSBzdGFydHMgdG8gdW5sb2FkIGJyaWRnZS5rby4KYnJfbmV0ZmlsdGVyX2ZpbmkoKSBp
-cyBjYWxsZWQgYXQgdGhlIGJlZ2lubmluZyBvZiB1bmxvYWQKaW4gYnJfZGVpbml0KCkgd2hp
-bGUgc2ticyBzdGlsbCBhcmUgYmVpbmcgZm9yd2FyZGVkIGFuZAp0cmFuc2ZlcnJlZCB0byBs
-b2NhbCBpcCBzdGFjay4gVGh1cyB0aGVyZSBpcyBhIHBvc3NpYmlsaXR5Cm9mIHRoZSBfX2Zh
-a2VfcnRhYmxlIHBvaW50ZXIgbm90IGJlaW5nIHJlbW92ZWQgaW4gYSBza2IgdGhhdApnb2Vz
-IHVwIHRvIGlwIHN0YWNrLiBUaGlzIHJlc3VsdHMgaW4gYSBrZXJuZWwgcGFuaWMsIGFzCmlw
-X3JjdigpIGNhbGxzIHRoZSBpbnB1dC1mdW5jdGlvbiBvZiBfX2Zha2VfcnRhYmxlLCB3aGlj
-aAppcyBOVUxMLgoKTW92aW5nIHRoZSBjYWxsIG9mIGJyX25ldGZpbHRlcl9maW5pKCkgdG8g
-dGhlIGVuZCBvZgpicl9kZWluaXQoKSBzb2x2ZXMgdGhlIHByb2JsZW0uCgpTaWduZWQtb2Zm
-LWJ5OiBCb2RvIFN0cm9lc3NlciA8YnN0cm9lc3NlckBmdWppdHN1LXNpZW1lbnMuY29tPgot
-LS0KIG5ldC9icmlkZ2UvYnIuYyB8ICAgIDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2Vy
-dGlvbigrKSwgMSBkZWxldGlvbigtKQoKSW5kZXg6IGxpbnV4LTIuNi4yMi41LTMxL25ldC9i
-cmlkZ2UvYnIuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMjIuNS0zMS5vcmlnL25l
-dC9icmlkZ2UvYnIuYworKysgbGludXgtMi42LjIyLjUtMzEvbmV0L2JyaWRnZS9ici5jCkBA
-IC03NCw3ICs3NCw2IEBAIHN0YXRpYyB2b2lkIF9fZXhpdCBicl9kZWluaXQodm9pZCkKIAly
-Y3VfYXNzaWduX3BvaW50ZXIoYnJfc3RwX3NhcC0+cmN2X2Z1bmMsIE5VTEwpOwogCiAJYnJf
-bmV0bGlua19maW5pKCk7Ci0JYnJfbmV0ZmlsdGVyX2ZpbmkoKTsKIAl1bnJlZ2lzdGVyX25l
-dGRldmljZV9ub3RpZmllcigmYnJfZGV2aWNlX25vdGlmaWVyKTsKIAlicmlvY3RsX3NldChO
-VUxMKTsKIApAQCAtODIsNiArODEsNyBAQCBzdGF0aWMgdm9pZCBfX2V4aXQgYnJfZGVpbml0
-KHZvaWQpCiAKIAlzeW5jaHJvbml6ZV9uZXQoKTsKIAorCWJyX25ldGZpbHRlcl9maW5pKCk7
-CiAJbGxjX3NhcF9wdXQoYnJfc3RwX3NhcCk7CiAJYnJfZmRiX2dldF9ob29rID0gTlVMTDsK
-IAlicl9mZGJfcHV0X2hvb2sgPSBOVUxMOwo=
+Thank you so much for your replies! REALLY!!!!
 
+Mark S. Mathews mark-at-linux-wlan.com |Lists| wrote:
+> Heh.  I think the reason most folks think this should 'just work' is
+>  because: "hey, it's wireless ethernet, right?", wrong.  You can't=20
+> ether-bridge natively across rs232, or bluetooth, or [any one of a=20
+> hundred non-ethernet media]  either.
 
+Ok, thanks! So all the howto's that simply suggest to do brctl and
+ifconfig as if there are no problems are simply *wrong*. Glad to get
+that cleared up. I thought I was going mad!
+
+> If your config consists of a STA and an AP, then the most forthright
+>  solution (not necessarily easy, mind you...takes a bit of tweaking
+> to get it right) is to tunnel your ethernet frames across that link.
+> I've used vtun for this purpose in the past.
+>=20
+> And, as John pointed out, using routing, with or without NAT, is even
+>  easier. Do you _really_ have to have a bridge?
+
+No, I don't _really_ have to. :-) But it annoys me not knowing *why* it
+doesn't work, especially with bozos telling me it is easy.
+
+The ADSL / phone line comes into the house in a very impractical place.
+I have servers + switch in one place, and some other equipment in
+another. I'd like to connect these into a single subnet with a
+wireless+ethernet bridge in each island. Sorta like the Linksys Wet 54
+claims to do:
+http://www.linksys.com/servlet/Satellite?c=3DL_Product_C2&childpagename=3DU=
+S%2FLayout&cid=3D1134692497433&pagename=3DLinksys%2FCommon%2FVisitorWrapper=
+&lid=3D9743339789B05
+
+ From http://en.wikipedia.org/wiki/Wi-Fi :
+> Wireless network bridges connect a wired network to a wireless
+> network. This is different from an access point in the sense that an
+> access point connects wireless devices to a wired network at the
+> data-link layer.
+
+So now I'm still clueless. The Linksys apparatus seems to do what I=20
+need. It seems not to be an Access Point. Does this mean the Linksys=20
+above is "using a WDS interface", and does not run as STA?
+
+Honestly, from your emails I can hear it is not easy, but I'm still not
+clear whether this is possible under Linux. Apparently it *is* possible
+for the Linksys to do it...
+
+Peter
+--=20
+Peter Valdemar M=F8rch
+http://www.morch.com
