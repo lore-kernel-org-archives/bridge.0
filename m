@@ -1,11 +1,13 @@
-Message-ID: <481597F3.6060400@sneakemail.com>
-Date: Mon, 28 Apr 2008 11:25:07 +0200
-From: =?ISO-8859-1?Q?=22Peter_Valdemar_M=F8rch_=28Lists=29=22?=
-	<4ux6as402@sneakemail.com>
+Date: Mon, 28 Apr 2008 08:53:07 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+Message-ID: <20080428125307.GB3499@tuxdriver.com>
+References: <481597F3.6060400@sneakemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Ethernet+Wireless Bridge?
+In-Reply-To: <481597F3.6060400@sneakemail.com>
+Subject: Re: [Bridge] Ethernet+Wireless Bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,49 +16,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Peter Valdemar =?iso-8859-1?Q?M=F8rch_=28Lists=29?= <4ux6as402@sneakemail.com>
+Cc: bridge@lists.linux-foundation.org
 
-Hi,
+On Mon, Apr 28, 2008 at 11:25:07AM +0200, "Peter Valdemar M=F8rch (Lists)" =
+wrote:
 
-Sorry for posting again, but I must have been asking the wrong question.
-
-How do I get a bridge with an ethernet and a wireless interface to work?
-
-I see many HOWTOs on the internet using brctl and ifconfig doing what I=20
-would do with two ethernet interfaces, but I simply have not been
-successful using my wireless interface with the ipw3945 driver. Is that=20
-because of the hardware+driver or is there some magic I'm missing (apart=20
-from parprouted or iptables, which does work but is not what I want) ?
-
-http://www.linux-foundation.org/en/Net:Bridge#It_doesn.27t_work_with_my_Wir=
-eless_card.21
-tells me to expect this.
-
-It says:
-> FAQ 7.16: It doesn't work with my Wireless card!
+> http://www.linux-foundation.org/en/Net:Bridge#It_doesn.27t_work_with_my_W=
+ireless_card.21
+> tells me to expect this.
 >=20
-> This is a known problem, and it is not caused by the bridge code.
-> Many wireless cards don't allow spoofing of the source address. It is
-> a firmware restriction with some chipsets. You might find some
-> information in the bridge mailing list archives to help.
+> It says:
+> > FAQ 7.16: It doesn't work with my Wireless card!
+> >=20
+> > This is a known problem, and it is not caused by the bridge code.
+> > Many wireless cards don't allow spoofing of the source address. It is
+> > a firmware restriction with some chipsets. You might find some
+> > information in the bridge mailing list archives to help.
+>=20
+> ... HELP! Are the HOWTOs wrong, or is the above FAQ info wrong?
 
-... HELP! Are the HOWTOs wrong, or is the above FAQ info wrong?
+Spoofing the source MAC is actually forbidden by the 802.11 standard.
 
-What cards can I buy that are not part of "many wireless cards"? I=20
-prefer USB hardware but I don't know what to buy.
+Bridging between ethernet and wireless is really only possible if
+either your host is an access point or you are using a WDS interface
+(or both).  The upstream mac80211 code does not currently support
+being an access point (although there are patches floating around
+that enable it).  IIRC, a patch to enable using WDS has recently
+been merged.  Whether or not that is useful depends on what equipment
+you have, and honestly I haven't really used it myself.
 
-I got two responses to my last post:
-https://lists.linux-foundation.org/pipermail/bridge/2008-April/005797.html
-One to use brctl (which doesn't work for me!) and one to run my linux=20
-bridge under VMware on a windows host (which is not what I want).
+What is the goal you are trying to achieve?  In many cases it might
+be easier for you to simply setup NAT routing between your ethernet
+and wireless connections.
 
-I'm wondering about the lack of answers. Am I asking a stupid question?=20
-Is there any obvious reading I haven't done? Even an answer like "Forget=20
-it. You'll never get a ethernet/wireless bridge to work under Linux. The=20
-FAQ should be changed from 'many' to 'all'." would also be helpful, as I=20
-would stop trying and stop posting! :D
-
-Peter
+John
 --=20
-Peter Valdemar M=F8rch
-http://www.morch.com
+John W. Linville
+linville@tuxdriver.com
