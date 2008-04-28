@@ -1,11 +1,11 @@
-Date: Mon, 28 Apr 2008 20:53:23 +0100 (BST)
+Date: Mon, 28 Apr 2008 20:57:56 +0100 (BST)
 From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
-In-Reply-To: <481596F2.2060000@sneakemail.com>
-Message-ID: <alpine.DEB.1.10.0804282051500.5194@callisto.moose.malc.org.uk>
-References: <481596F2.2060000@sneakemail.com>
+In-Reply-To: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
+Message-ID: <alpine.DEB.1.10.0804282057310.5194@callisto.moose.malc.org.uk>
+References: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678377473-789574134-1209412405=:5194"
-Subject: Re: [Bridge] Searchable archives?
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: [Bridge] Access the bridge through the userspace (Rx/Tx)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,27 +14,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?=22Peter_Valdemar_M=C3=B8rch_=28Lists=29=22?= <4ux6as402@sneakemail.com>
+To: Faruk Keskin <faruk@eit.uni-kl.de>
 Cc: bridge@lists.linux-foundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Thu, 24 Apr 2008, Faruk Keskin wrote:
 
---1678377473-789574134-1209412405=:5194
-Content-Type: TEXT/PLAIN; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+> I'm trying to implement Layer 2 packet processing, where I need  to
+> transfer packets arriving at the Linux Bridge to a dedicated userspace
+> application. So my very basic question would be whether you could
+> recommend a strategy to achieve this.
+>
+> Can I use TUN/TAP or do I need to implement specific code around a socket?
 
-At 11:20 today, "Peter Valdemar Mørch (Lists)" wrote:
-
-> Is searching this mailing list possible? How?
-
-http://www.google.co.uk/search?q=site%3Alists.linux-foundation.org+inurl%3A%2Fpipermail%2Fbridge%2Fsearchterm
-
-:)
+You could alternatively use libpcap, if I understand your requirements 
+properly.
 
 -- 
 Malcolm Scott
 Research Assistant
 University of Cambridge Computer Laboratory
 
---1678377473-789574134-1209412405=:5194--
