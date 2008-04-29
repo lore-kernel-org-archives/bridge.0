@@ -1,19 +1,15 @@
-Message-ID: <48173D49.50608@sneakemail.com>
-Date: Tue, 29 Apr 2008 17:22:49 +0200
-From: =?ISO-8859-1?Q?=22Peter_Valdemar_M=F8rch_=28Lists=29=22?=
-	<4ux6as402@sneakemail.com>
+Date: Tue, 29 Apr 2008 17:18:43 +0200
+From: Jaime Medrano <jaime.medrano@gmail.com>
+Message-ID: <20080429151843.GA10576@localhost>
+References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
+	<20071217085349.729e5c17@deepthought>
+	<20080128153914.GA5880@localhost> <20080428135754.2ae382b4@extreme>
+	<20080429082414.GA6475@localhost> <m31w4oltkx.fsf@ursa.amorsen.dk>
 MIME-Version: 1.0
-References: <481597F3.6060400@sneakemail.com>
-	<20080428125307.GB3499@tuxdriver.com>
-	<20080428100453.156604um6fopq938@webapps.ghq.linux-wlan.com>
-	<4815ED77.3030306@sneakemail.com>
-	<20080428162846.GA17786@tuxdriver.com>
-	<4816F896.4040802@sneakemail.com>
-	<20080429131543.GA4887@tuxdriver.com>
-In-Reply-To: <20080429131543.GA4887@tuxdriver.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Ethernet+Wireless Bridge?
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m31w4oltkx.fsf@ursa.amorsen.dk>
+Subject: Re: [Bridge] [PATCH] Add vlan id to bridge forward database
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,40 +18,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Cc: bridge@lists.linux-foundation.org
+To: Benny Amorsen <benny+usenet@amorsen.dk>
+Cc: bridge@osdl.org
 
-Hi all you wonderful people,
+On Tue, Apr 29, 2008 at 02:43:42PM +0200, Benny Amorsen wrote:
+> Jaime Medrano <jaime.medrano@gmail.com> writes:
+> > Yes, I know. However, AFAIK out of band passing of the vlan tag is only
+> > done when a vlan device is created and attached to the ethernet device
+> > of the port. 
+> 
+> If the driver supports VLAN acceleration, it is usually on by default.
+> At least I can't tcpdump VLAN packets with intact VLAN tags on my
+> notebook's tg3 card -- even if I haven't loaded the 8021q module at
+> all. It's rather annoying, really.
 
-Srinivas M.A. srinivas.aji-at-gmail.com |Lists| wrote:
- > The equivalent solution on Linux seems like parprouted
- > (http://www.hazard.maks.net/parprouted/), which also seems to be
- > packaged for Debian, etc. I haven't used it, just found it searching
- > for "arp proxy" and linux. But it seems worth a look.
+That's weird.
 
-Yes, I tried parprouted. It works well within what it promises to do.
-But broadcast (e.g. for DHCP!) is not supported. It, in turn suggests to
-use dhcrelay to support DHCP with parprouted. But I didn't try that. I
-still hadn't given up on getting a bridge to work.
+I've got a tg3 card and I see the tags in tcpdump unless I register a vlan
+device to it.
 
-But I have now.
-
-John W. Linville linville-at-tuxdriver.com |Lists| wrote:
-> For now, my previous recommendation (routing w/ or w/o IP NAT) still
-> stands as the simplest and best documented approach.  If that does
-> not appeal to you, I suspect that bridging combined with L2 NAT via
-> ebtables as described in the URL cited above will work...YMMV.
-
-I've just purchased a 3Com 3CRUSB10075 based on the zd1211 driver. Like
-always with Linux it seems, buying hardware is a pseudo-man-month job
-understanding the underlying technologies and so forth. Is the zd1211
-driver "good"? No idea. Does it support WDS?  Promiscuous mode? No idea.
-Will I ever need either? No idea.
-
-The fact that I'm frustrated is not an indication that I'm less than in
-awe of the response and attention I've gotten here. Thanks a bundle. I'm
-off to enjoying my 3com with parprouted when it arrives and to
-experiment with nat, routing and ebtables just in case.
-
-In respect,
-
-Peter
+I've taken a look at the source code of the tg3 driver and
+vlan_hwaccel_receive_skb() only gets called if a prior
+tg3_vlan_rx_register() has been made.
