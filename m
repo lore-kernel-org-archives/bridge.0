@@ -1,12 +1,10 @@
-Date: Tue, 29 Apr 2008 10:06:03 -0700
+Date: Tue, 29 Apr 2008 10:04:58 -0700
 From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20080429100603.7348f36d@extreme>
-In-Reply-To: <20080429100458.58249ba7@extreme>
-References: <20080429100458.58249ba7@extreme>
+Message-ID: <20080429100458.58249ba7@extreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [RFT 2/2] bridge: network device statistics changes
+Subject: [Bridge] [RFT 1/2] bridge: internal statistics
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,75 +15,102 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@linux-foundation.org
 
-The other untested patch for 2.6.25
---------------------------------------
-Keep track of dropped frames in bridge.
+I am too busy to setup a reasonable good test for this, but surely someone
+else can validate it for me.  Patch against 2.6.25
+--------------------------------------------------------------------------
+Subject: bridge: network device statistics changes
+
+Use internal network device stats structure.
 
 Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
 ---
- net/bridge/br_forward.c |   30 +++++++++++++++++++-----------
- net/bridge/br_input.c   |    3 +++
- 2 files changed, 22 insertions(+), 11 deletions(-)
+ net/bridge/br_device.c  |   11 ++---------
+ net/bridge/br_forward.c |    2 +-
+ net/bridge/br_input.c   |    9 +++++----
+ net/bridge/br_private.h |    1 -
+ 4 files changed, 8 insertions(+), 15 deletions(-)
 
---- a/net/bridge/br_forward.c	2008-04-29 09:09:01.000000000 -0700
-+++ b/net/bridge/br_forward.c	2008-04-29 09:16:18.000000000 -0700
-@@ -34,20 +34,28 @@ static inline unsigned packet_length(con
+--- a/net/bridge/br_device.c	2008-04-29 09:07:44.000000000 -0700
++++ b/net/bridge/br_device.c	2008-04-29 09:09:01.000000000 -0700
+@@ -21,12 +21,6 @@
+ #include <asm/uaccess.h>
+ #include "br_private.h"
  
- int br_dev_queue_push_xmit(struct sk_buff *skb)
+-static struct net_device_stats *br_dev_get_stats(struct net_device *dev)
+-{
+-	struct net_bridge *br = netdev_priv(dev);
+-	return &br->statistics;
+-}
+-
+ /* net device transmit always called with no BH (preempt_disabled) */
+ int br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
  {
-+	struct net_device *dev = skb->dev;
-+	struct net_bridge_port *p;
-+
- 	/* drop mtu oversized packets except gso */
--	if (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))
--		kfree_skb(skb);
--	else {
--		/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
--		if (nf_bridge_maybe_copy_header(skb))
--			kfree_skb(skb);
--		else {
--			skb_push(skb, ETH_HLEN);
-+	if (packet_length(skb) > dev->mtu && !skb_is_gso(skb))
-+		goto drop;
+@@ -34,8 +28,8 @@ int br_dev_xmit(struct sk_buff *skb, str
+ 	const unsigned char *dest = skb->data;
+ 	struct net_bridge_fdb_entry *dst;
  
--			dev_queue_xmit(skb);
--		}
--	}
-+	/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
-+	if (nf_bridge_maybe_copy_header(skb))
-+		goto drop;
-+
-+	skb_push(skb, ETH_HLEN);
+-	br->statistics.tx_packets++;
+-	br->statistics.tx_bytes += skb->len;
++	dev->stats.tx_packets++;
++	dev->stats.tx_bytes += skb->len;
  
-+	dev_queue_xmit(skb);
-+	return 0;
-+
-+drop:
-+	p = rcu_dereference(dev->br_port);
-+	if (p && p->br)
-+		p->br->dev->stats.tx_dropped++;
-+
-+	kfree_skb(skb);
- 	return 0;
- }
+ 	skb_reset_mac_header(skb);
+ 	skb_pull(skb, ETH_HLEN);
+@@ -161,7 +155,6 @@ void br_dev_setup(struct net_device *dev
+ 	ether_setup(dev);
  
---- a/net/bridge/br_input.c	2008-04-29 09:15:56.000000000 -0700
-+++ b/net/bridge/br_input.c	2008-04-29 09:25:57.000000000 -0700
-@@ -89,6 +89,8 @@ int br_handle_frame_finish(struct sk_buf
- out:
- 	return 0;
- drop:
-+	if (p && p->br)
-+		p->br->dev->stats.rx_dropped++;
- 	kfree_skb(skb);
- 	goto out;
- }
-@@ -165,6 +167,7 @@ struct sk_buff *br_handle_frame(struct n
- 		break;
- 	default:
- drop:
-+		p->br->dev->stats.rx_dropped++;
- 		kfree_skb(skb);
- 	}
- 	return NULL;
+ 	dev->do_ioctl = br_dev_ioctl;
+-	dev->get_stats = br_dev_get_stats;
+ 	dev->hard_start_xmit = br_dev_xmit;
+ 	dev->open = br_dev_open;
+ 	dev->set_multicast_list = br_dev_set_multicast_list;
+--- a/net/bridge/br_forward.c	2008-04-29 09:07:44.000000000 -0700
++++ b/net/bridge/br_forward.c	2008-04-29 09:09:01.000000000 -0700
+@@ -115,7 +115,7 @@ static void br_flood(struct net_bridge *
+ 				struct sk_buff *skb2;
+ 
+ 				if ((skb2 = skb_clone(skb, GFP_ATOMIC)) == NULL) {
+-					br->statistics.tx_dropped++;
++					br->dev->stats.tx_dropped++;
+ 					kfree_skb(skb);
+ 					return;
+ 				}
+--- a/net/bridge/br_input.c	2008-04-29 09:07:44.000000000 -0700
++++ b/net/bridge/br_input.c	2008-04-29 09:15:56.000000000 -0700
+@@ -25,12 +25,13 @@ const u8 br_group_address[ETH_ALEN] = { 
+ static void br_pass_frame_up(struct net_bridge *br, struct sk_buff *skb)
+ {
+ 	struct net_device *indev;
++	struct net_device *brdev = br->dev;
+ 
+-	br->statistics.rx_packets++;
+-	br->statistics.rx_bytes += skb->len;
++	brdev->stats.rx_packets++;
++	brdev->stats.rx_bytes += skb->len;
+ 
+ 	indev = skb->dev;
+-	skb->dev = br->dev;
++	skb->dev = brdev;
+ 
+ 	NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, indev, NULL,
+ 		netif_receive_skb);
+@@ -64,7 +65,7 @@ int br_handle_frame_finish(struct sk_buf
+ 	dst = NULL;
+ 
+ 	if (is_multicast_ether_addr(dest)) {
+-		br->statistics.multicast++;
++		br->dev->stats.multicast++;
+ 		skb2 = skb;
+ 	} else if ((dst = __br_fdb_get(br, dest)) && dst->is_local) {
+ 		skb2 = skb;
+--- a/net/bridge/br_private.h	2008-04-29 09:07:44.000000000 -0700
++++ b/net/bridge/br_private.h	2008-04-29 09:09:01.000000000 -0700
+@@ -90,7 +90,6 @@ struct net_bridge
+ 	spinlock_t			lock;
+ 	struct list_head		port_list;
+ 	struct net_device		*dev;
+-	struct net_device_stats		statistics;
+ 	spinlock_t			hash_lock;
+ 	struct hlist_head		hash[BR_HASH_SIZE];
+ 	struct list_head		age_list;
