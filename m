@@ -1,13 +1,20 @@
-Message-ID: <1150.85.216.121.168.1209491243.squirrel@postamt.eit.uni-kl.de>
-In-Reply-To: <alpine.DEB.1.10.0804282057310.5194@callisto.moose.malc.org.uk>
-References: <2327.91.89.6.59.1209015008.squirrel@postamt.eit.uni-kl.de>
-	<alpine.DEB.1.10.0804282057310.5194@callisto.moose.malc.org.uk>
-Date: Tue, 29 Apr 2008 19:47:23 +0200 (CEST)
-From: "Faruk Keskin" <faruk@eit.uni-kl.de>
+Date: Tue, 29 Apr 2008 13:22:22 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+Message-ID: <20080429172222.GA11866@tuxdriver.com>
+References: <481597F3.6060400@sneakemail.com>
+	<20080428125307.GB3499@tuxdriver.com>
+	<20080428100453.156604um6fopq938@webapps.ghq.linux-wlan.com>
+	<4815ED77.3030306@sneakemail.com>
+	<20080428162846.GA17786@tuxdriver.com>
+	<4816F896.4040802@sneakemail.com>
+	<20080429131543.GA4887@tuxdriver.com>
+	<48173D49.50608@sneakemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] Access the bridge through the userspace (Rx/Tx)
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <48173D49.50608@sneakemail.com>
+Subject: Re: [Bridge] Ethernet+Wireless Bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,72 +23,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Malcolm Scott  Andy Gospodarek <andy@greyhouse.net>
-Cc: Faruk Keskin <faruk@eit.uni-kl.de>, bridge@lists.linux-foundation.org
+To: Peter Valdemar =?iso-8859-1?Q?M=F8rch_=28Lists=29?= <4ux6as402@sneakemail.com>
+Cc: bridge@lists.linux-foundation.org
 
-First of all,
+On Tue, Apr 29, 2008 at 05:22:49PM +0200, "Peter Valdemar M=F8rch (Lists)" =
+wrote:
+> Hi all you wonderful people,
+>=20
+> Srinivas M.A. srinivas.aji-at-gmail.com |Lists| wrote:
+>  > The equivalent solution on Linux seems like parprouted
+>  > (http://www.hazard.maks.net/parprouted/), which also seems to be
+>  > packaged for Debian, etc. I haven't used it, just found it searching
+>  > for "arp proxy" and linux. But it seems worth a look.
+>=20
+> Yes, I tried parprouted. It works well within what it promises to do.
+> But broadcast (e.g. for DHCP!) is not supported. It, in turn suggests to
+> use dhcrelay to support DHCP with parprouted. But I didn't try that. I
+> still hadn't given up on getting a bridge to work.
+>=20
+> But I have now.
 
-Thanks for the quick response, Andy and Malcolm. Looking at the the last
-sentence below, I recognize how much I like conditional expressions - it
-makes you look into specifics.
+Discussion of parprouted is probably off-topic here, but I'm glad
+someone mentioned it because I didn't know about it.  I have, however,
+been manually using the techniques it seems to use for some time to
+good effect.
 
-To be honest with you - I'm kind of stuck with the socket approach (using
-the standard Linux Socket Filter). Because, with a socket, I either get
-packets of a specific protocol type (I would like to have any/several
-types of control packets) or all packets it seems. Right ?
+I have had trouble getting either dhcrelay or dhcp-fwd to work in
+this kind of environment.  If you figure-out how to make it work,
+let me know!  I suspect that the authors of those utilities did not
+anticipate that sort of usage, and therefore are not using APIs that
+direct outgoing frames appropriately.  However, I could be wrong --
+I haven't dug very deeply.
 
-At the current stage, I hope to find something else that possibly is more
-suited to my application, as specified below.
+> John W. Linville linville-at-tuxdriver.com |Lists| wrote:
+> > For now, my previous recommendation (routing w/ or w/o IP NAT) still
+> > stands as the simplest and best documented approach.  If that does
+> > not appeal to you, I suspect that bridging combined with L2 NAT via
+> > ebtables as described in the URL cited above will work...YMMV.
+>=20
+> I've just purchased a 3Com 3CRUSB10075 based on the zd1211 driver. Like
+> always with Linux it seems, buying hardware is a pseudo-man-month job
+> understanding the underlying technologies and so forth. Is the zd1211
+> driver "good"? No idea. Does it support WDS?  Promiscuous mode? No idea.
+> Will I ever need either? No idea.
 
-I'm trying to find a socket type of a tools which offers the possibility
-to selectively pass packets from the bridge to the desired host
-application running in the userspace.
+Unfortunately, I don't think you will see any different (or at least
+not better) behavior with that driver either -- it is also based
+on mac80211.
 
-In particular, I only want to receive packets that are send to host(bridge
-MAC), multicast, broadcast or to unknown destinations (no FDB entry). I
-would also be nice to exclusively filter control packets, if possible.
+> The fact that I'm frustrated is not an indication that I'm less than in
+> awe of the response and attention I've gotten here. Thanks a bundle. I'm
+> off to enjoying my 3com with parprouted when it arrives and to
+> experiment with nat, routing and ebtables just in case.
 
-The packet flow of common data traffic should be preserved, as I don't
-want my userspace application (doing network management) to have a
-remarkable effect on the data links.
+Good plan... :-)
 
-
-
-At the moment I would just like to now, if the desired configuration is
-not  possible with the socket approach. Actually, I'm hoping it does ...
-
-But if not, can ebtables solve the issue ? (never had a look into it)
-
-Or, as a more preferable alternative, do I need to extend the current
-handle_bridge function and its hooks within the bridge implementation?
-(I probably don't want to do that)
-
-
-Anyway, thanks to everybody who's on the list for sharing your experience.
-
-Faruk Keskin
-
-
-
-> On Thu, 24 Apr 2008, Faruk Keskin wrote:
->
->> I'm trying to implement Layer 2 packet processing, where I need  to
->> transfer packets arriving at the Linux Bridge to a dedicated userspace
->> application. So my very basic question would be whether you could
->> recommend a strategy to achieve this.
->>
->> Can I use TUN/TAP or do I need to implement specific code around a
->> socket?
->
-> You could alternatively use libpcap, if I understand your requirements
-> properly.
->
-> --
-> Malcolm Scott
-> Research Assistant
-> University of Cambridge Computer Laboratory
->
->
->
-
-
+John
+--=20
+John W. Linville
+linville@tuxdriver.com
