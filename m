@@ -1,10 +1,19 @@
-Message-ID: <85c88fd30804290737o33c91b94g44a53d92b2ae855d@mail.gmail.com>
-Date: Tue, 29 Apr 2008 16:37:39 +0200
-From: "=?ISO-8859-1?Q?S=E9bastien_JEFFROY?=" <sebastien.jeffroy.cxr@gmail.com>
+Message-ID: <48173D49.50608@sneakemail.com>
+Date: Tue, 29 Apr 2008 17:22:49 +0200
+From: =?ISO-8859-1?Q?=22Peter_Valdemar_M=F8rch_=28Lists=29=22?=
+	<4ux6as402@sneakemail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_9001_31612220.1209479859223"
-Subject: [Bridge] how to get port status (spanning tree)
+References: <481597F3.6060400@sneakemail.com>
+	<20080428125307.GB3499@tuxdriver.com>
+	<20080428100453.156604um6fopq938@webapps.ghq.linux-wlan.com>
+	<4815ED77.3030306@sneakemail.com>
+	<20080428162846.GA17786@tuxdriver.com>
+	<4816F896.4040802@sneakemail.com>
+	<20080429131543.GA4887@tuxdriver.com>
+In-Reply-To: <20080429131543.GA4887@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Ethernet+Wireless Bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,43 +22,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+Cc: bridge@lists.linux-foundation.org
 
-------=_Part_9001_31612220.1209479859223
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi all you wonderful people,
 
-Hi all,
-I'm working on an hardware switch and I try to implement spanning tree.
-I need to modify the linux bridge to get bridge port status because i have
-to set hardware registers in my switch.
-I looked in bridge source code and I found br_log_state() function.
-This function is called by br_make_forwarding() and br_make_blocking().
+Srinivas M.A. srinivas.aji-at-gmail.com |Lists| wrote:
+ > The equivalent solution on Linux seems like parprouted
+ > (http://www.hazard.maks.net/parprouted/), which also seems to be
+ > packaged for Debian, etc. I haven't used it, just found it searching
+ > for "arp proxy" and linux. But it seems worth a look.
 
-I plan to add some code to send IOCTLS to my switch driver when port state
-change.
+Yes, I tried parprouted. It works well within what it promises to do.
+But broadcast (e.g. for DHCP!) is not supported. It, in turn suggests to
+use dhcrelay to support DHCP with parprouted. But I didn't try that. I
+still hadn't given up on getting a bridge to work.
 
-Is there one function that is called when state changed ?
-I need to have the 5 states ?
+But I have now.
 
-Best Regards,
-S=E9bastien JEFFROY
+John W. Linville linville-at-tuxdriver.com |Lists| wrote:
+> For now, my previous recommendation (routing w/ or w/o IP NAT) still
+> stands as the simplest and best documented approach.  If that does
+> not appeal to you, I suspect that bridging combined with L2 NAT via
+> ebtables as described in the URL cited above will work...YMMV.
 
-------=_Part_9001_31612220.1209479859223
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I've just purchased a 3Com 3CRUSB10075 based on the zd1211 driver. Like
+always with Linux it seems, buying hardware is a pseudo-man-month job
+understanding the underlying technologies and so forth. Is the zd1211
+driver "good"? No idea. Does it support WDS?  Promiscuous mode? No idea.
+Will I ever need either? No idea.
 
-Hi all,<br>I&#39;m working on an hardware switch and I try to implement spa=
-nning tree.<br>I need to modify the linux bridge to get bridge port status =
-because i have to set hardware registers in my switch.<br>I looked in bridg=
-e source code and I found br_log_state() function.<br>
-This function is called by br_make_forwarding() and br_make_blocking().<br>=
-<br>I plan to add some code to send IOCTLS to my switch driver when port st=
-ate change.<br><br>Is there one function that is called when state changed =
-?<br>
-I need to have the 5 states ?<br><br>Best Regards,<br>S=E9bastien JEFFROY<b=
-r>
+The fact that I'm frustrated is not an indication that I'm less than in
+awe of the response and attention I've gotten here. Thanks a bundle. I'm
+off to enjoying my 3com with parprouted when it arrives and to
+experiment with nat, routing and ebtables just in case.
 
-------=_Part_9001_31612220.1209479859223--
+In respect,
+
+Peter
