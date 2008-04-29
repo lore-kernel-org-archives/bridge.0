@@ -1,15 +1,12 @@
-Date: Tue, 29 Apr 2008 17:18:43 +0200
-From: Jaime Medrano <jaime.medrano@gmail.com>
-Message-ID: <20080429151843.GA10576@localhost>
-References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>
-	<20071217085349.729e5c17@deepthought>
-	<20080128153914.GA5880@localhost> <20080428135754.2ae382b4@extreme>
-	<20080429082414.GA6475@localhost> <m31w4oltkx.fsf@ursa.amorsen.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m31w4oltkx.fsf@ursa.amorsen.dk>
-Subject: Re: [Bridge] [PATCH] Add vlan id to bridge forward database
+Date: Tue, 29 Apr 2008 10:06:03 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20080429100603.7348f36d@extreme>
+In-Reply-To: <20080429100458.58249ba7@extreme>
+References: <20080429100458.58249ba7@extreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [RFT 2/2] bridge: network device statistics changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,25 +15,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Benny Amorsen <benny+usenet@amorsen.dk>
-Cc: bridge@osdl.org
+To: bridge@linux-foundation.org
 
-On Tue, Apr 29, 2008 at 02:43:42PM +0200, Benny Amorsen wrote:
-> Jaime Medrano <jaime.medrano@gmail.com> writes:
-> > Yes, I know. However, AFAIK out of band passing of the vlan tag is only
-> > done when a vlan device is created and attached to the ethernet device
-> > of the port. 
-> 
-> If the driver supports VLAN acceleration, it is usually on by default.
-> At least I can't tcpdump VLAN packets with intact VLAN tags on my
-> notebook's tg3 card -- even if I haven't loaded the 8021q module at
-> all. It's rather annoying, really.
+The other untested patch for 2.6.25
+--------------------------------------
+Keep track of dropped frames in bridge.
 
-That's weird.
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-I've got a tg3 card and I see the tags in tcpdump unless I register a vlan
-device to it.
+---
+ net/bridge/br_forward.c |   30 +++++++++++++++++++-----------
+ net/bridge/br_input.c   |    3 +++
+ 2 files changed, 22 insertions(+), 11 deletions(-)
 
-I've taken a look at the source code of the tg3 driver and
-vlan_hwaccel_receive_skb() only gets called if a prior
-tg3_vlan_rx_register() has been made.
+--- a/net/bridge/br_forward.c	2008-04-29 09:09:01.000000000 -0700
++++ b/net/bridge/br_forward.c	2008-04-29 09:16:18.000000000 -0700
+@@ -34,20 +34,28 @@ static inline unsigned packet_length(con
+ 
+ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ {
++	struct net_device *dev = skb->dev;
++	struct net_bridge_port *p;
++
+ 	/* drop mtu oversized packets except gso */
+-	if (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))
+-		kfree_skb(skb);
+-	else {
+-		/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
+-		if (nf_bridge_maybe_copy_header(skb))
+-			kfree_skb(skb);
+-		else {
+-			skb_push(skb, ETH_HLEN);
++	if (packet_length(skb) > dev->mtu && !skb_is_gso(skb))
++		goto drop;
+ 
+-			dev_queue_xmit(skb);
+-		}
+-	}
++	/* ip_refrag calls ip_fragment, doesn't copy the MAC header. */
++	if (nf_bridge_maybe_copy_header(skb))
++		goto drop;
++
++	skb_push(skb, ETH_HLEN);
+ 
++	dev_queue_xmit(skb);
++	return 0;
++
++drop:
++	p = rcu_dereference(dev->br_port);
++	if (p && p->br)
++		p->br->dev->stats.tx_dropped++;
++
++	kfree_skb(skb);
+ 	return 0;
+ }
+ 
+--- a/net/bridge/br_input.c	2008-04-29 09:15:56.000000000 -0700
++++ b/net/bridge/br_input.c	2008-04-29 09:25:57.000000000 -0700
+@@ -89,6 +89,8 @@ int br_handle_frame_finish(struct sk_buf
+ out:
+ 	return 0;
+ drop:
++	if (p && p->br)
++		p->br->dev->stats.rx_dropped++;
+ 	kfree_skb(skb);
+ 	goto out;
+ }
+@@ -165,6 +167,7 @@ struct sk_buff *br_handle_frame(struct n
+ 		break;
+ 	default:
+ drop:
++		p->br->dev->stats.rx_dropped++;
+ 		kfree_skb(skb);
+ 	}
+ 	return NULL;
