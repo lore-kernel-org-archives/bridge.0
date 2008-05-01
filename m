@@ -1,14 +1,11 @@
-Message-ID: <4817D8A6.7080208@navigue.com>
-Date: Tue, 29 Apr 2008 22:25:42 -0400
-From: Jonathan Thibault <jonathan@navigue.com>
-MIME-Version: 1.0
-References: <4766a3d1.02ab100a.0be8.6fdc@mx.google.com>	<20071217085349.729e5c17@deepthought>	<20080128153914.GA5880@localhost>
-	<20080428135754.2ae382b4@extreme>	<20080429082414.GA6475@localhost>
-	<2e59e6970804291616l5e6685edw7299be09c0dd2384@mail.gmail.com>
-In-Reply-To: <2e59e6970804291616l5e6685edw7299be09c0dd2384@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Thu, 1 May 2008 13:42:09 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20080501134209.3012de69@extreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] Add vlan id to bridge forward database
+Subject: [Bridge] [PATCH] bridge: forwarding table information for >256
+	devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,37 +14,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.osdl.org
+To: netdev@vger.kernel.org
+Cc: bridge@linux-foundation.org
+
+The forwarding table binary interface (my bad choice), only exposes the
+port number of the first 8 bits. The bridge code was limited to 256 ports
+at the time, but now the kernel supports up 1024 ports, so the upper bits
+are lost when doing:
+   brctl showmacs
+
+The fix is to squeeze the extra bits into small hole left in data structure,
+to maintain binary compatiablity.
+
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
 
-I've been trying to get something like that to work for over a year now. 
-  It mostly works, only the bridge will stop forwarding some arp replies 
-coming in from a non-vlan interface to the trunk.  Bridge sees the 
-replies but they never make it onto the wire.  If this was an STP (it's 
-not enabled) issue, I assume the port would simply stop forwarding 
-alltogether, not just ARP *replies*.
-
-(yeah, I know I sound like a broken record to those who've been 
-following my posts ;)
-
-If there's any tests I can do to help on that front, just ask!  I would 
-be happy just knowing *why* it doesn't work so far but I don't know the 
-code well enough to figure out where the packets might get discarded.
-
-Jonathan
-
-richardvoigt@gmail.com wrote:
-
-> 
-> That's for bridging a trunk, but what about bridging between vlans:
-> 
-> vconfig add eth0 5
-> vconfig add eth0 6
-> brctl add br0 eth0.5
-> brctl add br0 eth0.6
-> 
-> While you could combine the vlans, doing this allows you to force all
-> traffic through packet filtering/traffic shaping/IDS.
-> 
-> Usually you wouldn't then see the same MAC on two different VLAN but
-> you might on spanning tree packets.
+--- a/include/linux/if_bridge.h	2008-04-28 15:27:05.000000000 -0700
++++ b/include/linux/if_bridge.h	2008-04-28 15:31:38.000000000 -0700
+@@ -97,7 +97,9 @@ struct __fdb_entry
+ 	__u8 port_no;
+ 	__u8 is_local;
+ 	__u32 ageing_timer_value;
+-	__u32 unused;
++	__u8 port_hi;
++	__u8 pad0;
++	__u16 unused;
+ };
+ 
+ #ifdef __KERNEL__
+--- a/net/bridge/br_fdb.c	2008-04-28 15:27:05.000000000 -0700
++++ b/net/bridge/br_fdb.c	2008-04-28 15:31:38.000000000 -0700
+@@ -285,7 +285,11 @@ int br_fdb_fillbuf(struct net_bridge *br
+ 
+ 			/* convert from internal format to API */
+ 			memcpy(fe->mac_addr, f->addr.addr, ETH_ALEN);
++
++			/* due to ABI compat need to split into hi/lo */
+ 			fe->port_no = f->dst->port_no;
++			fe->port_hi = f->dst->port_no >> 8;
++
+ 			fe->is_local = f->is_local;
+ 			if (!f->is_static)
+ 				fe->ageing_timer_value = jiffies_to_clock_t(jiffies - f->ageing_timer);
