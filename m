@@ -1,13 +1,12 @@
-Date: Fri, 02 May 2008 16:53:48 -0700 (PDT)
-Message-Id: <20080502.165348.226972498.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20080501134209.3012de69@extreme>
-References: <20080501134209.3012de69@extreme>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: forwarding table information for >256
-	devices
+Date: Fri, 2 May 2008 12:24:27 -0700
+From: Jason Lunz <lunz@acm.org>
+Message-ID: <20080502192425.GA32302@falooley.org>
+References: <96CF49BD8B56384395D698BA99007FA32FA1E8@exchange.pacwire.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <96CF49BD8B56384395D698BA99007FA32FA1E8@exchange.pacwire.local>
+Subject: Re: [Bridge] Preventing packet reassembly
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,23 +15,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
+To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@vyatta.com>
-Date: Thu, 1 May 2008 13:42:09 -0700
+In gmane.linux.network.bridge, you wrote:
+> I have iptables rules on the management interface of the box, but not on
+> any of the ports which participate in bridging.
+> By removing iptables from my bootup, I get a properly functioning
+> bridge.
+>
+> Why would iptables rules on one interface affect traffic bridged on
+> other interfaces? I'm presuming it's some kind of interaction with the
+> ip_conntrack module? Any way to stop it from loading?
 
-> The forwarding table binary interface (my bad choice), only exposes the
-> port number of the first 8 bits. The bridge code was limited to 256 ports
-> at the time, but now the kernel supports up 1024 ports, so the upper bits
-> are lost when doing:
->    brctl showmacs
-> 
-> The fix is to squeeze the extra bits into small hole left in data structure,
-> to maintain binary compatiablity.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+You might find the iptables NOTRACK target helpful.
 
-At least you had somewhere to stick the high bits :)
-
-Applied, thanks.
+Jason
