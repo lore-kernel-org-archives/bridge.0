@@ -1,13 +1,13 @@
-Message-ID: <481B034B.70606@no-spam.net>
-Date: Fri, 02 May 2008 14:04:27 +0200
-From: Nicolas <nicolas@no-spam.net>
+Date: Fri, 2 May 2008 18:30:39 +0200
+From: Bernhard Fischer <rep.dot.nop@gmail.com>
+Message-ID: <20080502163039.GA9589@mx.loc>
+References: <20080502090138.GA15508@mx.loc> <20080502081746.64e967bb@extreme>
 MIME-Version: 1.0
-References: <481597F3.6060400@sneakemail.com>
-	<20080428125307.GB3499@tuxdriver.com>
-In-Reply-To: <20080428125307.GB3499@tuxdriver.com>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] Ethernet+Wireless Bridge?
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20080502081746.64e967bb@extreme>
+Subject: Re: [Bridge] [RFA,
+	PATCH] enable transition to sysfs-only bridge manipulation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,38 +16,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: buytenh@gnu.org, rep.dot.nop@gmail.com, bridge@lists.linux-foundation.org
 
-John W. Linville a =E9crit :
->=20
-> Spoofing the source MAC is actually forbidden by the 802.11 standard.
+On Fri, May 02, 2008 at 08:17:46AM -0700, Stephen Hemminger wrote:
+>On Fri, 2 May 2008 11:01:38 +0200
+>Bernhard Fischer <rep.dot.nop@gmail.com> wrote:
+>
+>> Hi,
+>> 
+>> It was rumored that the ioctl interface for bridges is deprecated.
+>> There is, however, one crucial gap when trying to implement brctl
+>> without using any ioctl: AFAICS it is impossible to create a bridge via
+>> sysfs.
+>> 
+>> The attached quick.. erm patch strives to fill this gap.
+>> Some further details are at the top of the patchlet which received only
+>> cursory testing, fwiw.
+>> 
+>> Thanks and cheers,
+>> Bernhard
+>
+>Why bother. The old API has to live on because it part of the
+>kernel ABI.
 
-My two cents :
-
-We all agree about the fact that most current wireless implementations=20
-do not permit spoofing the source MAC, probably for many good and=20
-several bad reasons.
-
-But wouldn't it be possible, as a temporary and dirty fix, to simply=20
-send any outgoing frames with the wireless interface MAC as the source=20
-MAC when the bridge send on a wireless interface ?
-
-Of course, this breaks the bridge transparency principle and might cause=20
-serious problem with BPDU, but on a simple (or simpler) configuration,=20
-without STP, this might work well for most level 3+ services. For=20
-example, an ARP answer can come for a different source MAC than the one=20
-stated in the ARP payload. So ARP should work well, even if the source=20
-MAC might look strange for someone having a close look at the frame.
-
-Also, the bridge global MAC (of br0) might be forced to the MAC of the=20
-wireless interface if there is only a single wireless interface in the=20
-bridge, probably causing BPDU to work well too.
-
-This is only theoretical and - I admit - a very dirty fix into the=20
-bridge code, but... better than noting. And by the way, may be this can=20
-be setup using ebtable, which is cleaner !
-
-Any comments ?
-
-	Nicolas.
-
+I'm bothering since i either want the ioctl interface _or_ the sysfs
+interface. I currently use the ioctl interface but as long as the sysfs
+is incomplete i cannot switch to it even if i wanted.
