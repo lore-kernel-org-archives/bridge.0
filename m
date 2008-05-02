@@ -1,11 +1,13 @@
-Date: Thu, 1 May 2008 13:42:09 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20080501134209.3012de69@extreme>
+Date: Fri, 2 May 2008 08:17:46 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20080502081746.64e967bb@extreme>
+In-Reply-To: <20080502090138.GA15508@mx.loc>
+References: <20080502090138.GA15508@mx.loc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH] bridge: forwarding table information for >256
-	devices
+Subject: Re: [Bridge] [RFA,
+	PATCH] enable transition to sysfs-only bridge manipulation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,45 +16,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@linux-foundation.org
+To: Bernhard Fischer <rep.dot.nop@gmail.com>
+Cc: buytenh@gnu.org, rep.dot.nop@gmail.com, bridge@lists.linux-foundation.org
 
-The forwarding table binary interface (my bad choice), only exposes the
-port number of the first 8 bits. The bridge code was limited to 256 ports
-at the time, but now the kernel supports up 1024 ports, so the upper bits
-are lost when doing:
-   brctl showmacs
+On Fri, 2 May 2008 11:01:38 +0200
+Bernhard Fischer <rep.dot.nop@gmail.com> wrote:
 
-The fix is to squeeze the extra bits into small hole left in data structure,
-to maintain binary compatiablity.
+> Hi,
+> 
+> It was rumored that the ioctl interface for bridges is deprecated.
+> There is, however, one crucial gap when trying to implement brctl
+> without using any ioctl: AFAICS it is impossible to create a bridge via
+> sysfs.
+> 
+> The attached quick.. erm patch strives to fill this gap.
+> Some further details are at the top of the patchlet which received only
+> cursory testing, fwiw.
+> 
+> Thanks and cheers,
+> Bernhard
 
-Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
-
-
---- a/include/linux/if_bridge.h	2008-04-28 15:27:05.000000000 -0700
-+++ b/include/linux/if_bridge.h	2008-04-28 15:31:38.000000000 -0700
-@@ -97,7 +97,9 @@ struct __fdb_entry
- 	__u8 port_no;
- 	__u8 is_local;
- 	__u32 ageing_timer_value;
--	__u32 unused;
-+	__u8 port_hi;
-+	__u8 pad0;
-+	__u16 unused;
- };
- 
- #ifdef __KERNEL__
---- a/net/bridge/br_fdb.c	2008-04-28 15:27:05.000000000 -0700
-+++ b/net/bridge/br_fdb.c	2008-04-28 15:31:38.000000000 -0700
-@@ -285,7 +285,11 @@ int br_fdb_fillbuf(struct net_bridge *br
- 
- 			/* convert from internal format to API */
- 			memcpy(fe->mac_addr, f->addr.addr, ETH_ALEN);
-+
-+			/* due to ABI compat need to split into hi/lo */
- 			fe->port_no = f->dst->port_no;
-+			fe->port_hi = f->dst->port_no >> 8;
-+
- 			fe->is_local = f->is_local;
- 			if (!f->is_static)
- 				fe->ageing_timer_value = jiffies_to_clock_t(jiffies - f->ageing_timer);
+Why bother. The old API has to live on because it part of the
+kernel ABI.
