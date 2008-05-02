@@ -1,14 +1,13 @@
-Date: Fri, 2 May 2008 14:32:39 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-Message-ID: <20080502183239.GC13183@tuxdriver.com>
-References: <481597F3.6060400@sneakemail.com>
-	<20080428125307.GB3499@tuxdriver.com> <481B034B.70606@no-spam.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <481B034B.70606@no-spam.net>
-Subject: Re: [Bridge] Ethernet+Wireless Bridge?
+Date: Fri, 02 May 2008 16:53:48 -0700 (PDT)
+Message-Id: <20080502.165348.226972498.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20080501134209.3012de69@extreme>
+References: <20080501134209.3012de69@extreme>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: forwarding table information for >256
+	devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,24 +16,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nicolas <nicolas@no-spam.net>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@vyatta.com
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-On Fri, May 02, 2008 at 02:04:27PM +0200, Nicolas wrote:
-> John W. Linville a =E9crit :
-> >=20
-> > Spoofing the source MAC is actually forbidden by the 802.11 standard.
+From: Stephen Hemminger <shemminger@vyatta.com>
+Date: Thu, 1 May 2008 13:42:09 -0700
 
-> But wouldn't it be possible, as a temporary and dirty fix, to simply=20
-> send any outgoing frames with the wireless interface MAC as the source=20
-> MAC when the bridge send on a wireless interface ?
+> The forwarding table binary interface (my bad choice), only exposes the
+> port number of the first 8 bits. The bridge code was limited to 256 ports
+> at the time, but now the kernel supports up 1024 ports, so the upper bits
+> are lost when doing:
+>    brctl showmacs
+> 
+> The fix is to squeeze the extra bits into small hole left in data structure,
+> to maintain binary compatiablity.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-Having given this almost no thought, I suppose it might be possible to
-make it 'work' (for some definition of 'work'), in combination with
-routing and proxy ARP.  Of course if you are going to route anyway,
-it is hard to see why you would need to bridge.
+At least you had somewhere to stick the high bits :)
 
-John
---=20
-John W. Linville
-linville@tuxdriver.com
+Applied, thanks.
