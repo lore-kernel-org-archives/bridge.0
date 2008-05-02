@@ -1,13 +1,14 @@
-Date: Fri, 2 May 2008 18:30:39 +0200
-From: Bernhard Fischer <rep.dot.nop@gmail.com>
-Message-ID: <20080502163039.GA9589@mx.loc>
-References: <20080502090138.GA15508@mx.loc> <20080502081746.64e967bb@extreme>
+Date: Fri, 2 May 2008 14:32:39 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+Message-ID: <20080502183239.GC13183@tuxdriver.com>
+References: <481597F3.6060400@sneakemail.com>
+	<20080428125307.GB3499@tuxdriver.com> <481B034B.70606@no-spam.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20080502081746.64e967bb@extreme>
-Subject: Re: [Bridge] [RFA,
-	PATCH] enable transition to sysfs-only bridge manipulation
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <481B034B.70606@no-spam.net>
+Subject: Re: [Bridge] Ethernet+Wireless Bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +17,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: buytenh@gnu.org, rep.dot.nop@gmail.com, bridge@lists.linux-foundation.org
+To: Nicolas <nicolas@no-spam.net>
+Cc: bridge@lists.linux-foundation.org
 
-On Fri, May 02, 2008 at 08:17:46AM -0700, Stephen Hemminger wrote:
->On Fri, 2 May 2008 11:01:38 +0200
->Bernhard Fischer <rep.dot.nop@gmail.com> wrote:
->
->> Hi,
->> 
->> It was rumored that the ioctl interface for bridges is deprecated.
->> There is, however, one crucial gap when trying to implement brctl
->> without using any ioctl: AFAICS it is impossible to create a bridge via
->> sysfs.
->> 
->> The attached quick.. erm patch strives to fill this gap.
->> Some further details are at the top of the patchlet which received only
->> cursory testing, fwiw.
->> 
->> Thanks and cheers,
->> Bernhard
->
->Why bother. The old API has to live on because it part of the
->kernel ABI.
+On Fri, May 02, 2008 at 02:04:27PM +0200, Nicolas wrote:
+> John W. Linville a =E9crit :
+> >=20
+> > Spoofing the source MAC is actually forbidden by the 802.11 standard.
 
-I'm bothering since i either want the ioctl interface _or_ the sysfs
-interface. I currently use the ioctl interface but as long as the sysfs
-is incomplete i cannot switch to it even if i wanted.
+> But wouldn't it be possible, as a temporary and dirty fix, to simply=20
+> send any outgoing frames with the wireless interface MAC as the source=20
+> MAC when the bridge send on a wireless interface ?
+
+Having given this almost no thought, I suppose it might be possible to
+make it 'work' (for some definition of 'work'), in combination with
+routing and proxy ARP.  Of course if you are going to route anyway,
+it is hard to see why you would need to bridge.
+
+John
+--=20
+John W. Linville
+linville@tuxdriver.com
