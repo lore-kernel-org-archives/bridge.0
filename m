@@ -1,11 +1,13 @@
-Date: Fri, 2 May 2008 11:01:38 +0200
-From: Bernhard Fischer <rep.dot.nop@gmail.com>
-Message-ID: <20080502090138.GA15508@mx.loc>
+Message-ID: <481B034B.70606@no-spam.net>
+Date: Fri, 02 May 2008 14:04:27 +0200
+From: Nicolas <nicolas@no-spam.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="x+6KMIRAuhnl3hBn"
-Content-Disposition: inline
-Subject: [Bridge] [RFA,
-	PATCH] enable transition to sysfs-only bridge manipulation
+References: <481597F3.6060400@sneakemail.com>
+	<20080428125307.GB3499@tuxdriver.com>
+In-Reply-To: <20080428125307.GB3499@tuxdriver.com>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Ethernet+Wireless Bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,167 +16,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: buytenh@gnu.org, rep.dot.nop@gmail.com, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
+John W. Linville a =E9crit :
+>=20
+> Spoofing the source MAC is actually forbidden by the 802.11 standard.
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+My two cents :
 
-Hi,
+We all agree about the fact that most current wireless implementations=20
+do not permit spoofing the source MAC, probably for many good and=20
+several bad reasons.
 
-It was rumored that the ioctl interface for bridges is deprecated.
-There is, however, one crucial gap when trying to implement brctl
-without using any ioctl: AFAICS it is impossible to create a bridge via
-sysfs.
+But wouldn't it be possible, as a temporary and dirty fix, to simply=20
+send any outgoing frames with the wireless interface MAC as the source=20
+MAC when the bridge send on a wireless interface ?
 
-The attached quick.. erm patch strives to fill this gap.
-Some further details are at the top of the patchlet which received only
-cursory testing, fwiw.
+Of course, this breaks the bridge transparency principle and might cause=20
+serious problem with BPDU, but on a simple (or simpler) configuration,=20
+without STP, this might work well for most level 3+ services. For=20
+example, an ARP answer can come for a different source MAC than the one=20
+stated in the ARP payload. So ARP should work well, even if the source=20
+MAC might look strange for someone having a close look at the frame.
 
-Thanks and cheers,
-Bernhard
+Also, the bridge global MAC (of br0) might be forced to the MAC of the=20
+wireless interface if there is only a single wireless interface in the=20
+bridge, probably causing BPDU to work well too.
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.6.25-brctrl-sysfs-fixup.01.diff"
+This is only theoretical and - I admit - a very dirty fix into the=20
+bridge code, but... better than noting. And by the way, may be this can=20
+be setup using ebtable, which is cleaner !
 
-enable transition to sysfs-only bridge manipulation
+Any comments ?
 
-  All bridge-operations except the creation of a bridge are
-  already operable via sysfs. The attached patchlet provides means to fill
-  this gap in order to completely deprecate the ioctl interface to bridges.
-  $ echo add mybr0 > /sys/class/bridge/ctrl
-  $ echo add mybr1 > /sys/class/bridge/ctrl
-  $ echo del mybr1 > /sys/class/bridge/ctrl
+	Nicolas.
 
-
-add/remove: 3/0 grow/shrink: 4/0 up/down: 490/0 (490)
-function                                     old     new   delta
-brctl                                          -     230    +230
-init_module                                  186     265     +79
-br_init                                      186     265     +79
-cleanup_module                               103     142     +39
-br_deinit                                    103     142     +39
-class_attr_ctrl                                -      20     +20
-br_class                                       -       4      +4
-
-Signed-off-by:  Bernhard Fischer <rep.dot.nop@gmail.com>
-
-diff -rdup linux-2.6.25.oorig/net/bridge/br.c linux-2.6.25/net/bridge/br.c
---- linux-2.6.25.oorig/net/bridge/br.c	2008-04-17 04:49:44.000000000 +0200
-+++ linux-2.6.25/net/bridge/br.c	2008-05-02 10:28:40.000000000 +0200
-@@ -20,11 +20,91 @@
- #include <linux/init.h>
- #include <linux/llc.h>
- #include <net/llc.h>
-+#include <linux/ctype.h> /* isspace() */
- 
- #include "br_private.h"
- 
- int (*br_should_route_hook)(struct sk_buff *skb);
- 
-+#ifdef CONFIG_SYSFS
-+static ssize_t brctl(struct class *cls, const char *buf, size_t buf_len)
-+{
-+	unsigned op_add;
-+	size_t sz = buf_len;
-+	char *br;
-+	int ret;
-+
-+	if (sz < 3)
-+		goto err;
-+
-+	if (buf[0] == 'a')
-+		op_add = 1;
-+	else if (buf[0] == 'd')
-+		op_add = 0;
-+	else
-+		goto err;
-+
-+	if (buf[buf_len - 1] == '\n')
-+		--sz;
-+
-+	/* skip to bridge name */
-+	while (!isspace(*buf)) {
-+		++buf;
-+		--sz;
-+	}
-+	while (isspace(*buf)) {
-+		++buf;
-+		--sz;
-+	}
-+	if (!buf || !sz)
-+		goto err;
-+	br = kzalloc(sz, GFP_KERNEL);
-+	if (!br)
-+		return -ENOMEM;
-+	strncpy(br, buf, sz);
-+
-+	if (op_add)
-+		ret = br_add_bridge(br);
-+	else
-+		ret = br_del_bridge(br);
-+	kfree(br);
-+	return (ret < 0) ? ret : buf_len;
-+err:
-+	return -EINVAL;
-+}
-+static struct class *br_class;
-+static CLASS_ATTR(ctrl, 0200, NULL, brctl);
-+static inline int br_sysfs_init(void)
-+{
-+	int ret;
-+
-+	br_class = class_create(THIS_MODULE, "bridge");
-+	if (IS_ERR(br_class))
-+		return PTR_ERR(br_class);
-+
-+	ret = class_create_file(br_class, &class_attr_ctrl);
-+	if (ret < 0) {
-+		class_destroy(br_class);
-+		br_class = NULL;
-+	}
-+	return ret;
-+}
-+static inline void br_sysfs_fini(void)
-+{
-+	if (br_class) {
-+		class_remove_file(br_class, &class_attr_ctrl);
-+		class_destroy(br_class);
-+		br_class = NULL;
-+	}
-+}
-+#else
-+static inline int br_sysfs_init(void)
-+{
-+	return 0;
-+}
-+static inline void br_sysfs_fini(void) {;}
-+#endif
-+
- static struct llc_sap *br_stp_sap;
- 
- static int __init br_init(void)
-@@ -53,6 +133,10 @@ static int __init br_init(void)
- 	if (err)
- 		goto err_out3;
- 
-+	err = br_sysfs_init();
-+	if (err)
-+		goto err_out3;
-+
- 	brioctl_set(br_ioctl_deviceless_stub);
- 	br_handle_frame_hook = br_handle_frame;
- 
-@@ -73,6 +157,7 @@ err_out:
- 
- static void __exit br_deinit(void)
- {
-+	br_sysfs_fini();
- 	rcu_assign_pointer(br_stp_sap->rcv_func, NULL);
- 
- 	br_netlink_fini();
-
---x+6KMIRAuhnl3hBn--
