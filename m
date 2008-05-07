@@ -1,12 +1,11 @@
-Message-ID: <481F4D82.3000804@trash.net>
-Date: Mon, 05 May 2008 20:10:10 +0200
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
-References: <96CF49BD8B56384395D698BA99007FA32FA1E8@exchange.pacwire.local>
-In-Reply-To: <96CF49BD8B56384395D698BA99007FA32FA1E8@exchange.pacwire.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Preventing packet reassembly
+Date: Wed, 07 May 2008 11:22:01 +0200
+Message-Id: <1210152122.32216.95.camel@gentoo-jocke.transmode.se>
+Mime-Version: 1.0
+Subject: [Bridge] STP bug, loop not detetcted
+Reply-To: joakim.tjernlund@transmode.se
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,20 +14,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Leigh Sharpe <lsharpe@pacificwireless.com.au>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
+To: Bridge@lists.linux-foundation.org
 
-Leigh Sharpe wrote:
-> I have iptables rules on the management interface of the box, but not on
-> any of the ports which participate in bridging.
-> By removing iptables from my bootup, I get a properly functioning
-> bridge.
+Got a bridge with 4 optical VLAN interfaces, eth1.1, eth1.2, eth1.3 and
+eth1.4, attached and the builtin STP enabled. eth1 is connected to
+a "switch" with 4 real interfaces, each real interface maps to one of
+the above mentioned VLANs.  
 
-Connection tracking performs defragmentation for all packets,
-independant of the ruleset. For briding the packets should get
-re-fragmented when leaving the bridge device though.
+If I loop two or more interfaces by connecting each interface's output
+to its own input, I get a loop that STP doesn't detect.
+Looping by connecting an output from one interface to another interface
+input works fine.
 
-Please try "iptables -t raw -I PREROUTING -i <br-dev> -j TRACE",
+Bug or limitation in STP? If limitation, would RSTP help here?
 
-load the ipt_LOG module and post the output.
+Kernel 2.6.25
 
+ Jocke  
