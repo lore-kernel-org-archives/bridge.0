@@ -1,11 +1,10 @@
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Date: Wed, 07 May 2008 12:42:04 +0200
-Message-ID: <m363tq2y6b.fsf@ursa.amorsen.dk>
-References: <1210152122.32216.95.camel@gentoo-jocke.transmode.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: news <news@ger.gmane.org>
-Subject: Re: [Bridge] STP bug, loop not detetcted
+Message-ID: <48218D4C.10108@free.fr>
+Date: Wed, 07 May 2008 13:06:52 +0200
+From: Benoit PAPILLAULT <benoit.papillault@free.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] RSTP user mode implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,19 +13,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: Bridge@lists.linux-foundation.org
 
-Joakim Tjernlund <joakim.tjernlund@transmode.se> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> If I loop two or more interfaces by connecting each interface's output
-> to its own input, I get a loop that STP doesn't detect.
-> Looping by connecting an output from one interface to another interface
-> input works fine.
+Hello,
 
-Do you see BPDU packets come back when you do the loops? tcpdump can
-probably help. It sounds like the switch is eating your BPDU's.
+I'm new to STP and RSTP. I'm however trying to implement a new bridge
+protocol. I'm trying the RSTP code available at :
 
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/rstp.git
 
-/Benny
+It compiles fine. However, it segfaults using a 2.6.22 kernel from
+Ubuntu. Since the documentation is pretty scare, are there requirements
+on the kernel version or kernel features?
 
+Moreover, it seems the last commit was done in May 2007. Are new
+developments taking place at some other location? Or is the project
+dead? I really like the idea of implementing bridging at user level, it
+should allow me to try a new bridge protocol pretty easily.
 
+Regards,
+Benoit
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFIIY1MOR6EySwP7oIRAsULAKDuR3667Gsmc9hTulKrlXZeuXYb5ACgyGnA
+R8cRMbR98E06PK0kEn6Nlms=
+=x0MY
+-----END PGP SIGNATURE-----
