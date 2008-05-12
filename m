@@ -1,13 +1,19 @@
-Message-ID: <fed120860805080927y427788f3m90db4bd20f4bfa11@mail.gmail.com>
-Date: Thu, 8 May 2008 21:57:29 +0530
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-In-Reply-To: <48218D4C.10108@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+In-Reply-To: <1210251508.32216.160.camel@gentoo-jocke.transmode.se>
+References: <1210152122.32216.95.camel@gentoo-jocke.transmode.se>
+	<2e59e6970805071916r701987fdx49bab341420ba2d@mail.gmail.com>
+	<1210233718.32216.121.camel@gentoo-jocke.transmode.se>
+	<4822C20B.3050303@sysnetsistemi.it>
+	<1210240896.32216.146.camel@gentoo-jocke.transmode.se>
+	<4822EE5C.8030404@sysnetsistemi.it>
+	<1210251508.32216.160.camel@gentoo-jocke.transmode.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <48218D4C.10108@free.fr>
-Subject: Re: [Bridge] RSTP user mode implementation
+Date: Mon, 12 May 2008 11:37:45 +0200
+Message-Id: <1210585065.32216.218.camel@gentoo-jocke.transmode.se>
+Mime-Version: 1.0
+Subject: Re: [Bridge] STP bug, loop not detetcted
+Reply-To: joakim.tjernlund@transmode.se
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,50 +22,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Benoit PAPILLAULT <benoit.papillault@free.fr>
-Cc: Bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: bridge@lists.linux-foundation.org
 
-Hi,
 
-Independent of my plug for the newer version, could you send more
-information from your segfault, like a stack trace? I could help with
-debugging the crash.
+On Thu, 2008-05-08 at 14:58 +0200, Joakim Tjernlund wrote:
+> On Thu, 2008-05-08 at 14:13 +0200, Francesco Dolcini wrote:
+> > Joakim Tjernlund wrote:
+> > > On Thu, 2008-05-08 at 11:04 +0200, Francesco Dolcini wrote:
+> > >> cisco and others solved this kind of problem using proprietary 
+> > >> unidirectional link detection protocols (see cisco informational rfc 
+> > >> 5171 for example). No standard exists as far as I know (BFD rfc does not 
+> > >> consider the layer 2 case).
+> > > 
+> > > Are these proprietary unidirectional link detection protocols the only
+> > > way to solve the problem?
+> > spanning tree protocol, in the various IEEE incarnation (802.1D, 802.1Q) 
+> > and cisco (PVSTP) does not handle this problem, so an external mechanism 
+> > is needed.
+> 
+> Do they explicitly ban it? Otherwise I don't see why not the kernel STP
+> can be enchanted. You could even view it as an external mechanism.
+> 
+> > 
+> > > Would STP break if the interface was set to "non forwarding" in this
+> > > case until the bridge stops seeing its own STP messages?
+> > At least this will not solve the more general problem of a 
+> > unidirectional link (rx working and tx broken).
+> 
+> hmm, if TX is broken there won't be a loop anyway?
+> 
+> Anyhow, even if my proposed change doesn't solve all cases it seems like
+> a useful, very simple, ad don to STP. I am just concerned that it can
+> break some other aspect of STP. So far it seems OK.
+> 
+> What is the bridge maintainers view on this?
 
-Kernels later than 2.6.21 should be good enough.
+Stephen, whats is your view about extending the bridge code according to
+above? Also, after looking at the bride code I don't see where this
+should be added, I must be getting old :(
 
-On Wed, May 7, 2008 at 4:36 PM, Benoit PAPILLAULT
-<benoit.papillault@free.fr> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Hello,
->
-> I'm new to STP and RSTP. I'm however trying to implement a new bridge
-> protocol. I'm trying the RSTP code available at :
->
-> git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/rstp.git
->
-> It compiles fine. However, it segfaults using a 2.6.22 kernel from
-> Ubuntu. Since the documentation is pretty scare, are there requirements
-> on the kernel version or kernel features?
->
-> Moreover, it seems the last commit was done in May 2007. Are new
-> developments taking place at some other location? Or is the project
-> dead? I really like the idea of implementing bridging at user level, it
-> should allow me to try a new bridge protocol pretty easily.
->
-> Regards,
-> Benoit
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.6 (GNU/Linux)
-> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
->
-> iD8DBQFIIY1MOR6EySwP7oIRAsULAKDuR3667Gsmc9hTulKrlXZeuXYb5ACgyGnA
-> R8cRMbR98E06PK0kEn6Nlms=
-> =x0MY
-> -----END PGP SIGNATURE-----
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+        Jocke
