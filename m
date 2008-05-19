@@ -1,13 +1,10 @@
-Message-ID: <482A9A10.3080909@sysnetsistemi.it>
-Date: Wed, 14 May 2008 09:51:44 +0200
-From: Francesco Dolcini <fdolcini@sysnetsistemi.it>
+Message-ID: <4831D97F.1010907@free.fr>
+Date: Mon, 19 May 2008 21:48:15 +0200
+From: Benoit PAPILLAULT <benoit.papillault@free.fr>
 MIME-Version: 1.0
-References: <1210152122.32216.95.camel@gentoo-jocke.transmode.se>	<2e59e6970805071916r701987fdx49bab341420ba2d@mail.gmail.com>	<1210233718.32216.121.camel@gentoo-jocke.transmode.se>	<2e59e6970805122010v50dcd5al101ae3466b897ad6@mail.gmail.com>
-	<20080513102806.55f16b36@extreme>
-In-Reply-To: <20080513102806.55f16b36@extreme>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] STP bug, loop not detetcted
+Subject: [Bridge] bridge protocol family
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,48 +13,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Bridge@lists.linux-foundation.org, joakim.tjernlund@transmode.se
+To: bridge@lists.linux-foundation.org
 
-Stephen Hemminger wrote:
-> Spanning Tree absolutely has to follow the standard. What ever the standard
-> says, that is what it should do. No special cases, no changes. Get the standard
-> for free from IEEE (get 802) and read it.
-I do not agree, I absolutely think that linux STP must be 100% 
-compatible with IEEE standard, but if we can improve it, adding 
-additional functions without breaking 100% compatibility, why not do it?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> That said, we really need to get the STP updated to RSTP. There are currently
-> four options:
-> 
-> 1) Existing userlevel RSTP daemon based on rstplib.  
-> 2) New RSTP code (from EMC) as daemon
-> 3) Update of old STP kernel code to RSTP, this was done on ancient 2.4
->    for embedded system
-> 4) Port EMC RSTP code to kernel
->
+Hello there,
 
-> There doesn't appear to be lots of advantages to user space RSTP long term
-> and the conversion process would be more painful.
-I think that having user space STP can make easier to have different 
-implementation of STP algorithms available:
-- plain old 802.1D legacy slow STP
-- 802.1D-2004 RSTP
-- 802.1Q-2005 MSTP
-- Cisco proprietary PVSTP
-- Cisco proprietary PVRSTP
+I've been studying routing protocol during my studies, like OSPF, BGP, 
+EGP, IGP, RIP, OLSR...... All those protocols are based on the routing 
+table concept and each of them has its own way to compute routing table 
+which is then used by the Linux kernel. But this is for IPv4 (or IPv6), 
+ie layer 3.
 
-Or we just need "one protocol to rule them all"?
+I'm new at layer2 and I've read 802.1D-2004, learning STP and RSTP. I'd 
+like to know if there are some other protocols (be it standard or 
+proprietary) that achieve this goal of connecting layer2 cloud. Is there 
+a concept of routing table at layer2?
 
-What I think that is really missing at the moment, apart from RSTP, is a 
-vlan aware forwarding engine in the bridge code.
+Regards,
+Benoit
 
-> EMC code is slightly uglier (sorry) but has advantage of being recently
-> interop tested.
-The original rstplib is outdated, it implement the old 802.1w standard. 
-We have a working implementation updated to the latest standard (802.1D 
-2004) of rstplib, if it can be usefull we can think about releasing it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Francesco
-
+iD8DBQFIMdl+OR6EySwP7oIRArESAJ4w5908pH7Z9IRAQOwz3wdcftA84wCePfkK
+vBX9yupof+1IXip3C8q0OOo=
+=rLUK
+-----END PGP SIGNATURE-----
 
