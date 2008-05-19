@@ -1,11 +1,10 @@
-Date: Tue, 20 May 2008 00:12:52 +0100 (BST)
-From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
-In-Reply-To: <4831D97F.1010907@free.fr>
-Message-ID: <alpine.DEB.1.00.0805200009020.6633@pandora.retrosnub.co.uk>
-References: <4831D97F.1010907@free.fr>
+Date: Tue, 20 May 2008 01:08:34 +0300
+From: Adrian Bunk <bunk@kernel.org>
+Message-ID: <20080519220834.GT17716@cs181133002.pp.htv.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: Re: [Bridge] bridge protocol family
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Subject: [Bridge] [2.6 patch] bridge: update URL
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,33 +13,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Benoit PAPILLAULT <benoit.papillault@free.fr>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@linux-foundation.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-At 21:48 yesterday, Benoit PAPILLAULT wrote:
+This patch updates the URL of the bridge homepage.
 
-> I'm new at layer2 and I've read 802.1D-2004, learning STP and RSTP. I'd
-> like to know if there are some other protocols (be it standard or
-> proprietary) that achieve this goal of connecting layer2 cloud. Is there
-> a concept of routing table at layer2?
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
 
-This is somewhat off-topic for the list but I'll answer anyway...
+---
 
-Most existing layer 2 protocols don't do routing.  The closest thing an 
-Ethernet switch/bridge has to a routing table is the MAC address table, 
-indicating on which port a particular host can be found.
+ Documentation/networking/bridge.txt |    2 +-
+ MAINTAINERS                         |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-There have been efforts to add IP-style routing to layer 2 (Rbridges etc., 
-and indeed my own work which is yet to be published) but they're not in 
-common use and were never adopted as standards.
-
-If you're interested in this topic, I suggest we continue this discussion 
-off-list.
-
-Malcolm
-
--- 
-Malcolm Scott
-Research Assistant
-University of Cambridge Computer Laboratory
+442926ef29170feab89570cbe478e8dff2946f6d diff --git a/Documentation/networking/bridge.txt b/Documentation/networking/bridge.txt
+index bdae2db..bec69a8 100644
+--- a/Documentation/networking/bridge.txt
++++ b/Documentation/networking/bridge.txt
+@@ -1,6 +1,6 @@
+ In order to use the Ethernet bridging functionality, you'll need the
+ userspace tools. These programs and documentation are available
+-at http://bridge.sourceforge.net.  The download page is
++at http://www.linux-foundation.org/en/Net:Bridge.  The download page is
+ http://prdownloads.sourceforge.net/bridge.
+ 
+ If you still have questions, don't hesitate to post to the mailing list 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bfbe353..52b7035 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1591,7 +1591,7 @@ ETHERNET BRIDGE
+ P:	Stephen Hemminger
+ M:	shemminger@linux-foundation.org
+ L:	bridge@lists.linux-foundation.org
+-W:	http://bridge.sourceforge.net/
++W:	http://www.linux-foundation.org/en/Net:Bridge
+ S:	Maintained
+ 
+ ETHERTEAM 16I DRIVER
 
