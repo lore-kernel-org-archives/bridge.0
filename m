@@ -1,10 +1,11 @@
-Date: Tue, 20 May 2008 01:08:34 +0300
-From: Adrian Bunk <bunk@kernel.org>
-Message-ID: <20080519220834.GT17716@cs181133002.pp.htv.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Subject: [Bridge] [2.6 patch] bridge: update URL
+From: =?ISO-8859-1?Q?L=E1szl=F3?= Monda <laci@monda.hu>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-8DyabCFXGfNiT8rXbRYD"
+Date: Wed, 21 May 2008 04:09:07 +0200
+Message-Id: <1211335747.6338.9.camel@whisper.dnsalias.net>
+Mime-Version: 1.0
+Subject: [Bridge] Testing TAP interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,42 +14,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: bridge@lists.linux-foundation.org
 
-This patch updates the URL of the bridge homepage.
 
-Signed-off-by: Adrian Bunk <bunk@kernel.org>
+--=-8DyabCFXGfNiT8rXbRYD
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
----
+Hi List,
 
- Documentation/networking/bridge.txt |    2 +-
- MAINTAINERS                         |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+How can I test whether a bridged TAP interface is functioning correctly
+(whether I can send data through it) in the simplest manner?
 
-442926ef29170feab89570cbe478e8dff2946f6d diff --git a/Documentation/networking/bridge.txt b/Documentation/networking/bridge.txt
-index bdae2db..bec69a8 100644
---- a/Documentation/networking/bridge.txt
-+++ b/Documentation/networking/bridge.txt
-@@ -1,6 +1,6 @@
- In order to use the Ethernet bridging functionality, you'll need the
- userspace tools. These programs and documentation are available
--at http://bridge.sourceforge.net.  The download page is
-+at http://www.linux-foundation.org/en/Net:Bridge.  The download page is
- http://prdownloads.sourceforge.net/bridge.
- 
- If you still have questions, don't hesitate to post to the mailing list 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index bfbe353..52b7035 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1591,7 +1591,7 @@ ETHERNET BRIDGE
- P:	Stephen Hemminger
- M:	shemminger@linux-foundation.org
- L:	bridge@lists.linux-foundation.org
--W:	http://bridge.sourceforge.net/
-+W:	http://www.linux-foundation.org/en/Net:Bridge
- S:	Maintained
- 
- ETHERTEAM 16I DRIVER
+I use TAP interfaces for VirtualBox and I got connection errors which
+are extremely frustrating and I'd like to have a way to test TAP
+interfaces reliabily in the most basic manner without restarting new
+virtual machines.
+
+Thanks in advance!
+
+--=20
+Laci  <http://monda.hu>
+
+
+--=-8DyabCFXGfNiT8rXbRYD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQBIM4RD5t2qLX5n7ZgRApiXAJ0d8LfiPKhZ4HQEeU5gTE7MzxBH2ACglJzt
+gUYL522+PdJXMqyWz7lErPg=
+=22f5
+-----END PGP SIGNATURE-----
+
+--=-8DyabCFXGfNiT8rXbRYD--
 
