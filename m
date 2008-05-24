@@ -1,11 +1,11 @@
-From: =?ISO-8859-1?Q?L=E1szl=F3?= Monda <laci@monda.hu>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-8DyabCFXGfNiT8rXbRYD"
-Date: Wed, 21 May 2008 04:09:07 +0200
-Message-Id: <1211335747.6338.9.camel@whisper.dnsalias.net>
-Mime-Version: 1.0
-Subject: [Bridge] Testing TAP interfaces
+Message-ID: <2115.78.42.27.128.1211616272.squirrel@postamt.eit.uni-kl.de>
+Date: Sat, 24 May 2008 10:04:32 +0200 (CEST)
+From: "Faruk Keskin" <faruk@eit.uni-kl.de>
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] How to determine where bridged packets originally come
+	from ?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,38 +16,18 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
+Hi all,
 
---=-8DyabCFXGfNiT8rXbRYD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I ended up using raw packet sockets (ETH_P_ALL) with BPF filters attached
+(binded on the bridge interface) to capture packets for the userspace
+host.
 
-Hi List,
+Now having captured these packets from the bridge interface, how do I know
+which interface (eth0, wifi0, ..) the packets were send from originally ?
 
-How can I test whether a bridged TAP interface is functioning correctly
-(whether I can send data through it) in the simplest manner?
+Is there a handy solution to this without modifying the packet content ?
 
-I use TAP interfaces for VirtualBox and I got connection errors which
-are extremely frustrating and I'd like to have a way to test TAP
-interfaces reliabily in the most basic manner without restarting new
-virtual machines.
+Please help me out I you got the answer down pat.
 
-Thanks in advance!
-
---=20
-Laci  <http://monda.hu>
-
-
---=-8DyabCFXGfNiT8rXbRYD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQBIM4RD5t2qLX5n7ZgRApiXAJ0d8LfiPKhZ4HQEeU5gTE7MzxBH2ACglJzt
-gUYL522+PdJXMqyWz7lErPg=
-=22f5
------END PGP SIGNATURE-----
-
---=-8DyabCFXGfNiT8rXbRYD--
+BR, Faruk
 
