@@ -1,14 +1,12 @@
-Message-ID: <1886.91.89.6.94.1211779636.squirrel@postamt.eit.uni-kl.de>
-In-Reply-To: <47BCD7FA-6D04-4D81-9F51-1A7274C05872@citylink.co.nz>
-References: <2115.78.42.27.128.1211616272.squirrel@postamt.eit.uni-kl.de>
-	<47BCD7FA-6D04-4D81-9F51-1A7274C05872@citylink.co.nz>
-Date: Mon, 26 May 2008 07:27:16 +0200 (CEST)
-From: "Faruk Keskin" <faruk@eit.uni-kl.de>
+Message-ID: <44844.195.55.244.106.1211964939.squirrel@www.arcoscom.com>
+Date: Wed, 28 May 2008 10:55:39 +0200 (CEST)
+From: "ArcosCom Linux User" <linux@arcoscom.com>
 MIME-Version: 1.0
 Content-Type: text/plain;charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] How to determine where bridged packets originally come
- from ?
+Subject: [Bridge] Problem accessing to Windows Terminal Server in load
+	balancing.
+Reply-To: linux@arcoscom.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,56 +15,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dylan Hall <dylan@citylink.co.nz>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-Thanks Dylan. I guess I have to try a similar workaround.
+Hi guys, I have this configuration:
 
-Bye, Faruk
 
-> I was doing something similar with libpcap and hit the same problem.
->
-> My initial fix was to query the bridge forwarding table for each
-> incoming packet on the basis that the src mac will have been learnt
-> and the forwarding table updated.  To keep things vaguely efficient I
-> cached the forwarding table and only queried it when the src mac
-> wasn't found.
->
-> Later I opened multiple pcap sessions, one for each ethernet interface
-> in the bridge and used a select statement to monitor them all.
->
->
-> Dylan
->
->
->
-> On 24/05/2008, at 8:04 PM, Faruk Keskin wrote:
->
->> Hi all,
->>
->> I ended up using raw packet sockets (ETH_P_ALL) with BPF filters
->> attached
->> (binded on the bridge interface) to capture packets for the userspace
->> host.
->>
->> Now having captured these packets from the bridge interface, how do
->> I know
->> which interface (eth0, wifi0, ..) the packets were send from
->> originally ?
->>
->> Is there a handy solution to this without modifying the packet
->> content ?
->>
->> Please help me out I you got the answer down pat.
->>
->> BR, Faruk
->>
->> _______________________________________________
->> Bridge mailing list
->> Bridge@lists.linux-foundation.org
->> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
->
->
+LAN -- LINUX BRIDGE -- LINUX BRIDGE -- TS
 
+The linux's bridges are for wifi purposes (2 centos machines) and is
+working fine.
+
+The problem I have is that the TS are 3 windows TS in load balancing
+configuration. There is 1 IP for general purposes and every TS has its own
+IP.
+For example, the configuration is:
+
+    192.168.0.1/24  TS1
+    192.168.0.2/24  TS2
+    192.168.0.3/24  TS3
+    192.168.0.10/24 (TS server IP for load balancing)
+
+The problem I encountered is that every PC into the LAN has access from
+the LAN to every TS (tested with ping), but them have no access to the IP
+for load balancing.
+
+I observed that all TSn IP's has their ARP entry in the ARP table, but the
+IP for load balancing not.
+
+How can I solve this problem at the bridge level? I think that there is
+something that the bridges are filtering and perhaps is because the TS
+load balancing software uses various "virtual macs" for the load balancing
+IP.
+
+Perhaps I must change any /proc/sys/net/ipv4/conf/<dev>/ file to bypass
+this filter, I'm thinking in "arp_ignore", put a "1" into it, but is a
+production environment and I don't want to loss the access to the devices.
+
+Any help?
 
