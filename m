@@ -3,8 +3,8 @@ MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 May 2008 23:00:40 -0700
-Message-ID: <1E3D081C7B502B4A988F643E604CF96305610D@INDEXCH.corp.proxim.com>
+Date: Wed, 28 May 2008 23:03:29 -0700
+Message-ID: <1E3D081C7B502B4A988F643E604CF96305610E@INDEXCH.corp.proxim.com>
 From: "Ritesh Majumdar" <ritesh@proxim.com>
 Subject: [Bridge] Please help me to know MAX Forwarding Table Size in Linux
 	Bridge
@@ -16,7 +16,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.osdl.org
 
 
 Hello,
