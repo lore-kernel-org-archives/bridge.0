@@ -1,12 +1,12 @@
-Date: Tue, 03 Jun 2008 16:00:10 -0700 (PDT)
-Message-Id: <20080603.160010.252001854.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20080519220834.GT17716@cs181133002.pp.htv.fi>
-References: <20080519220834.GT17716@cs181133002.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Message-ID: <2b38e39a0806041500t645fa6e4raaf8c20d971733df@mail.gmail.com>
+Date: Wed, 4 Jun 2008 15:00:27 -0700
+From: "yordanos beyene" <yordanosb@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [2.6 patch] bridge: update URL
+Content-Disposition: inline
+Subject: [Bridge] linux bridging to forward traffic from physical to virtual
+	interface of my linux box
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,14 +15,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bunk@kernel.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: bridge@lists.linux-foundation.org
 
-From: Adrian Bunk <bunk@kernel.org>
-Date: Tue, 20 May 2008 01:08:34 +0300
+Hi all,
 
-> This patch updates the URL of the bridge homepage.
-> 
-> Signed-off-by: Adrian Bunk <bunk@kernel.org>
+I am new to Linux Bridge, and need some help.
+I am trying to use Linux bridge (brctl) and ebtables to forward
+incoming frames from my local interface into a set of virtual
+interfaces in my linux box. I believe "ebtables" can be used to
+selectively forward packets to virtual interfaces- for instance, based
+on the source mac address of the frame (or source interface of frame).
+I have created virtual interfaces but I am not able to add the virtual
+interfaces to the bridge. I can i can only add physical interfaces.
 
-Applied, thanks Adrian.
+Can any one advice me if Linux bridge works with virtual interfaces?
+Let me know if you have any idea on this or other better mechanism.
+
+Thanks.
+Jordi
