@@ -1,12 +1,11 @@
-Message-ID: <2b38e39a0806041500t645fa6e4raaf8c20d971733df@mail.gmail.com>
-Date: Wed, 4 Jun 2008 15:00:27 -0700
-From: "yordanos beyene" <yordanosb@gmail.com>
+Message-ID: <3357.78.42.24.243.1212696483.squirrel@postamt.eit.uni-kl.de>
+Date: Thu, 5 Jun 2008 22:08:03 +0200 (CEST)
+From: "Faruk Keskin" <faruk@eit.uni-kl.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Subject: [Bridge] linux bridging to forward traffic from physical to virtual
-	interface of my linux box
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] VLAN-aware bridge : [PATCH] Add vlan id to bridge forward
+	database
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,21 +14,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+Cc: jaime.medrano@gmail.com
 
-Hi all,
+Hello everybody, hi Jaime,
 
-I am new to Linux Bridge, and need some help.
-I am trying to use Linux bridge (brctl) and ebtables to forward
-incoming frames from my local interface into a set of virtual
-interfaces in my linux box. I believe "ebtables" can be used to
-selectively forward packets to virtual interfaces- for instance, based
-on the source mac address of the frame (or source interface of frame).
-I have created virtual interfaces but I am not able to add the virtual
-interfaces to the bridge. I can i can only add physical interfaces.
+I'm mailing to get more information about whether your patch
+[PATCH] Add vlan id to bridge forward database
+has been accepted so far.
+I couldn't find the patched version yet - could you please tell me where I
+can get the latest version of the patch or point out a reference to it ?
 
-Can any one advice me if Linux bridge works with virtual interfaces?
-Let me know if you have any idea on this or other better mechanism.
+Has the vlan-aware bridge forwarding already been tested ?
 
-Thanks.
-Jordi
+And how about forwarding tagged packets ?
+Until now, the bridge always stripped off the tag if present.
+
+I'm currently thinking about extending the sk_buff data structure to
+incorporate the vlan tag - to keep the VLAN information present when
+exchanging packets from or to the bridge with the 8021q module and also
+when a socket is bind to a interface (extending the sockaddr_ll struct in
+that case).
+
+Do you think thats's a sane approach ?
+
+Thanks in advance, Faruk
+
+
+
+
+
