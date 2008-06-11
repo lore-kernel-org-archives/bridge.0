@@ -1,13 +1,12 @@
-Message-ID: <2570.78.42.27.203.1213157385.squirrel@postamt.eit.uni-kl.de>
-In-Reply-To: <2115.78.42.27.128.1211616272.squirrel@postamt.eit.uni-kl.de>
-References: <2115.78.42.27.128.1211616272.squirrel@postamt.eit.uni-kl.de>
-Date: Wed, 11 Jun 2008 06:09:45 +0200 (CEST)
-From: "Faruk Keskin" <faruk@eit.uni-kl.de>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] How to determine where bridged packets originally come
-	from ?
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 11 Jun 2008 10:27:54 +0200
+Message-ID: <E88155B5BD67CE4D87A3F1F70950B96A2FF8A8@berta.maurer-it.com>
+From: "Dietmar Maurer" <dietmar@proxmox.com>
+Subject: [Bridge] Bridge MAC selection
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,25 +17,35 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-> Hi all,
->
-> I ended up using raw packet sockets (ETH_P_ALL) with BPF filters attached
-> (binded on the bridge interface) to capture packets for the userspace
-> host.
->
-> Now having captured these packets from the bridge interface, how do I know
-> which interface (eth0, wifi0, ..) the packets were send from originally ?
->
-> Is there a handy solution to this without modifying the packet content ?
->
-> Please help me out I you got the answer down pat.
->
-> BR, Faruk
->
+Hi all,
 
-Hi all, there's been a patch which introduced a new option for packet
-sockets returning the original device which was eventually bonded. It's
-called ORIGDEV.
+We provid a management plattform for virtual machines (pve.proxmox.com),
+and=20
+use a bridge access the network.
 
-BR, Faruk
+Currently the system choose the lowest MAC for the purposes of STP=20
+and also assigns this MAC to the bridge. This is a problem because the=20
+Bridge MAC changes when we start/stop virtual machines - leading to=20
+Network outage for several seconds.
+
+Using the first (insteasd of lowest) MAC would avoid the problem. So are
+
+There any side effects with the following patch?
+
+--- br_stp_if.c.org     2008-06-11 09:15:16.000000000 +0200
++++ br_stp_if.c 2008-06-11 09:44:53.000000000 +0200
+@@ -217,10 +217,7 @@
+        struct net_bridge_port *p;
+
+        list_for_each_entry(p, &br->port_list, list) {
+-               if (addr =3D=3D br_mac_zero ||
+-                   memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
+-                       addr =3D p->dev->dev_addr;
+-
++               addr =3D p->dev->dev_addr;
+        }
+
+        if (compare_ether_addr(br->bridge_id.addr, addr))
+
+
 
