@@ -1,27 +1,11 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-In-Reply-To: <1213297144.3730.35.camel@johannes.berg>
-	(sfid-20080612_210012_582330_752DF319)
-References: <1213232760.6645.24.camel@localhost>
-	(sfid-20080612_030607_332834_1EFDE126)
-	<1213255570.3871.8.camel@johannes.berg>
-	<1213294793.6615.16.camel@localhost>
-	(sfid-20080612_202000_504292_98E93460)
-	<1213294852.3730.31.camel@johannes.berg>
-	<1213295643.6615.20.camel@localhost>
-	(sfid-20080612_203408_119945_EA437275)
-	<1213296250.3730.33.camel@johannes.berg>
-	<1213296815.6615.24.camel@localhost>
-	(sfid-20080612_205338_785787_5D25D535)
-	<1213297144.3730.35.camel@johannes.berg>
-	(sfid-20080612_210012_582330_752DF319)
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-PZ5tEEvCAOr5Or1J9bNu"
-Date: Thu, 12 Jun 2008 21:01:24 +0200
-Message-Id: <1213297284.3730.37.camel@johannes.berg>
-Mime-Version: 1.0
-Subject: Re: [Bridge] [RFC] Do not activate promiscuous mode on wlan
-	interfaces for	bridging.
+Message-ID: <DBB171FED24842C6AB5F4ECCA91302D2@vpn.com>
+Date: Wed, 18 Jun 2008 09:11:46 +0800
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_002F_01C8D123.552AADA0"
+From: "c.j" <c.james.cj@gmail.com>
+Subject: [Bridge] kernel doesn't support  bridge with a ppp interface ?
+Reply-To: "c.j" <C.James.CJ@gmail.com>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,53 +14,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Luis Carlos Cobo <luisca@cozybit.com>
-Cc: j@w1.fi, bridge@linux-foundation.org, linux-wireless@vger.kernel.org, Linux Netdev List <netdev@vger.kernel.org>
+To: bridge@lists.linux-foundation.org
 
+This is a multi-part message in MIME format.
 
---=-PZ5tEEvCAOr5Or1J9bNu
-Content-Type: text/plain
+------=_NextPart_000_002F_01C8D123.552AADA0
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2008-06-12 at 20:59 +0200, Johannes Berg wrote:
-> On Thu, 2008-06-12 at 11:53 -0700, Luis Carlos Cobo wrote:
-> > On Thu, 2008-06-12 at 20:44 +0200, Johannes Berg wrote:
-> > > But in response to what mac80211 command are you sending the promisc
-> > > mode to the hw?
-> >=20
-> > In the function associated to .configure_filter (struct ieee80211_ops)
-> > in the driver, when (*new_flags & (FIF_PROMISC_IN_BSS))
->=20
-> But it is a "real promisc" mode not restricted to the BSS? Maybe the
-> solution is to just not promote promisc-in-bss to real-promisc when AP
-> mode is active.
+Hi list,
 
-In fact, if it stops the firmware from ACKing packets you want to never
-enable it if you have any interfaces at all.
+From kernel code, I found it doesn't support bridge with a port that is =
+a ppp interface:
+# brctl addif br_name ppp0
+# Invalid arg...
 
-johannes
+Is there a patch or way to do it if I want to make a kernel bridge with =
+eth and ppp ports?
 
---=-PZ5tEEvCAOr5Or1J9bNu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Reg&Tks
 
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
+--
+c.j
+------=_NextPart_000_002F_01C8D123.552AADA0
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
 
-iQIcBAABAgAGBQJIUXKAAAoJEKVg1VMiehFYUsMP/0EWezsJofDRGIOM8D5KyAci
-Nca1KZv/tCe7rSU5U5u/rjPSyjYLikJYPmuD3Y00fM2UqVB5MgK9tROkZi//tsAI
-fbebp6eT2zHDu1FLGslvs7oFUPfl7gqkvEelcd+9k1neqI7FEW33yIPHrLSSipGI
-GSHGaldEDlAAsBCRiHzhjp6+bRnMy16IyaPZA849s3Ky8wOc5U5V/VaN+y2gI5NT
-75AZJ02NvMtDcyYX4swRw4Zu/freklNxC1h+Kmy0Tgi0hVDtiTX0kjYvoqI+B4cB
-oD2zEtkL5uO5StENQRwvFIXm4OmjhmDveY/FPqOjZB8mwcjOC2FEsrDmwgRpPILe
-gBwi7KSBr17X1vf84SQvfOobhVcM5lBUA5PomCYzCH+efmWCKBMhXX9WbADWKufB
-8ugHaisOG+SIkuFLFfVXuzuC4XSisHkdn8qx7ky4JgEhbJv6v65q14gQhCD3REcg
-Rhly2lbOyzpfWou1QKDFIOAEV+1L4sThvg6Jpwmy7UlIOAtx8+sxwrp8fUZYchmx
-1ziwdY9Vr9PYtpDNGq18w/aFbGZ7kk1F7mtMLbbbx217uceRe6CCIP10KQljCLXp
-hH5SDjtio62FfXJ9/tZeDAtGcHKDsiM2G+AflhOoi0PEQvVIh9hS4yjPn0gOib5w
-cmtpIarZQNX23o4UcwSK
-=0Wym
------END PGP SIGNATURE-----
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dgb2312">
+<META content=3D"MSHTML 6.00.2900.5583" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hi list,</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>From kernel code, I found it doesn't =
+support bridge=20
+with a port that is a ppp interface:</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2># brctl addif br_name ppp0</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2># Invalid arg...</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Is there a patch or way to do it if I =
+want to make=20
+a kernel bridge with eth and ppp ports?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Reg&amp;Tks</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>--</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>c.j</FONT></DIV></BODY></HTML>
 
---=-PZ5tEEvCAOr5Or1J9bNu--
+------=_NextPart_000_002F_01C8D123.552AADA0--
 
