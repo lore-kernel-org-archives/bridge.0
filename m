@@ -1,16 +1,11 @@
-From: Dylan Hall <dylan@citylink.co.nz>
-In-Reply-To: <56CC982A1CAD43C483A8F97167A6094C@vpn.com>
-References: <DBB171FED24842C6AB5F4ECCA91302D2@vpn.com>
-	<20080618073354.371e7fbd@catlap>	<DCFB0C9FA9884224936EBAEC97D6FD0A@vpn.com>
-	<alpine.DEB.1.00.0806181605330.20500@callisto.moose.malc.org.uk>
-	<48592CB7.7050103@sysnetsistemi.it>
-	<1213846319.2342.17.camel@collymore.citylink.co.nz>
-	<56CC982A1CAD43C483A8F97167A6094C@vpn.com>
-Content-Type: multipart/alternative; boundary="=-+S4DVjtChw5wT4kCcPmf"
-Date: Fri, 20 Jun 2008 10:28:23 +1200
-Message-Id: <1213914503.16230.22.camel@collymore.citylink.co.nz>
-Mime-Version: 1.0
-Subject: Re: [Bridge] kernel doesn't support bridge with a ppp interface ?
+Date: 22 Jun 2008 14:05:30 -0000
+Message-ID: <20080622140530.2091.qmail@f4mail-235-239.rediffmail.com>
+MIME-Version: 1.0
+From: "Sibu Thomas Mathew" <sibumatrix@rediffmail.com>
+Content-type: multipart/alternative;
+	boundary="Next_1214143530---0-202.137.235.239-2088"
+Subject: [Bridge] Queries about Bridging
+Reply-To: Sibu Thomas Mathew <sibumatrix@rediffmail.com>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,160 +14,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "c.j" <C.James.CJ@gmail.com>, bridge@lists.linux-foundation.org
-Cc: linux-ppp@vger.kernel.org
+To: bridge@osdl.org
+
+ This is a multipart mime message
 
 
---=-+S4DVjtChw5wT4kCcPmf
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+--Next_1214143530---0-202.137.235.239-2088
+Content-type: text/plain;
+	charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-It's a little unclear what your setup is, but let me take a guess and
-make some suggestions :)
+Sir,=0AI shared internet on a LAN using my machine. It has got two ethernet=
+ cards. I installed Ubuntu 8.04. I did the bridging using "bridge-utils". E=
+ven though it turned out to be successful, I came across certain other prob=
+lems:=0A1) I couldn't use the internet using my machine.=0A2) After every r=
+estart, I had to redo the whole bridging configuration.=0A=0AThis is how i =
+configured.=0AThe two ethernet cards are eth0 and eth1. eth1 is the one con=
+nected to the internet. This is what I typed:=0A    brctl addbr br0=0A    b=
+rctl addif br0 eth0=0A    brctl addif br0 eth1=0A    ifconfig br0 up=0AThen=
+ i edited the /etc/network/interfaces as follows:=0A    auto lo=0A    iface=
+ lo inet loopback=0A=0A    iface eth0 inet dhcp=0A=0A    auto eth1=0A    if=
+ace eth1 inet dhcp=0A=0A    auto br0=0A    iface br0 inet dhcp=0A=0AAfter t=
+hat i restarted the service by typing =0A        /etc/init.d/networking res=
+tart=0AThe bridging worked. The client machine could access the internet ex=
+cept mine i.e. the server. Where did I go wrong? What can I do to solve thi=
+s. =0A=0ALooking forward for a solution. =0AThanking you.=0A=0AYours sincer=
+ely,=0ASibu Thomas Mathew
+--Next_1214143530---0-202.137.235.239-2088
+Content-type: text/html;
+	charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-1)  Assuming a setup something like the following
-
-LAN A --- (ETH) [LINUX A] (PPP) [LINUX B] (ETH) --- LAN B
-
-In the above, I would assume the goal is to join (bridge) LAN A and LAN
-B together?
-
-You could configure basic IP across the PPP link so that the two linux
-boxes can reach each other. 
-
-You then configure something like vtun or etherip to run over the IP/PPP
-link between the two linux boxes.
-
-Finally you setup bridges at each end, the result would look something
-like:
-
-LAN A --- (ETH){BR on LINUX A}(TUN) --- (PPP) --- (TUN){BR on LINUX
-B}(ETH) --- LAN B
-
-The etherip has the caveat that it doesn't support fragmentation so will
-only work if the PPP link supports a large MTU, say 1540 or greater.
-
-
-2) A less likely scenario is
-
-PPP Client --- (ETH)[LINUX](ETH) --- PPP Server
-
-In the above you want to get your PPP session going through a linux box
-in the middle.
-
-If the PPP is PPPoE, adding the ETH's to a bridge on the linux box
-should be sufficient. 
-
-If it's some other variant of PPP you might be able to use L2TP to
-tunnel the PPP between end points. I've seen this done in a DSL/BRAS
-environment where the BRAS wasn't directly attached to the DSLAMs. I
-suspect this is far from straight forward.
-
-
-
-Dylan
-
-
-
-
-On Thu, 2008-06-19 at 23:49 +0800, c.j wrote:
-
-> ﻿ 
-> 
-> >We use vtun which is a userland option, a little slow but offers
-> rate-limiting and some other nice to have features.
-> 
-> >When we require the lowest possible overhead option, we use the
-> etherip kernel patches.
->  
-> Thanks for your kind suggestion.  Whether the etherip patches can
-> transmit ppp packet? Since I'm not  familiar  with them , I need some
-> time to read them if so.
->  
-> Regards~
->  
-> --
-> c.j
-
---=-+S4DVjtChw5wT4kCcPmf
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
-<HTML>
-<HEAD>
-  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
-  <META NAME="GENERATOR" CONTENT="GtkHTML/3.16.3">
-</HEAD>
-<BODY BGCOLOR="#ffffff">
-It's a little unclear what your setup is, but let me take a guess and make some suggestions :)<BR>
-<BR>
-1)&nbsp; Assuming a setup something like the following<BR>
-<BR>
-LAN A --- (ETH) [LINUX A] (PPP) [LINUX B] (ETH) --- LAN B<BR>
-<BR>
-In the above, I would assume the goal is to join (bridge) LAN A and LAN B together?<BR>
-<BR>
-You could configure basic IP across the PPP link so that the two linux boxes can reach each other. <BR>
-<BR>
-You then configure something like vtun or etherip to run over the IP/PPP link between the two linux boxes.<BR>
-<BR>
-Finally you setup bridges at each end, the result would look something like:<BR>
-<BR>
-LAN A --- (ETH){BR on LINUX A}(TUN) --- (PPP) --- (TUN){BR on LINUX B}(ETH) --- LAN B<BR>
-<BR>
-The etherip has the caveat that it doesn't support fragmentation so will only work if the PPP link supports a large MTU, say 1540 or greater.<BR>
-<BR>
-<BR>
-2) A less likely scenario is<BR>
-<BR>
-PPP Client --- (ETH)[LINUX](ETH) --- PPP Server<BR>
-<BR>
-In the above you want to get your PPP session going through a linux box in the middle.<BR>
-<BR>
-If the PPP is PPPoE, adding the ETH's to a bridge on the linux box should be sufficient. <BR>
-<BR>
-If it's some other variant of PPP you might be able to use L2TP to tunnel the PPP between end points. I've seen this done in a DSL/BRAS environment where the BRAS wasn't directly attached to the DSLAMs. I suspect this is far from straight forward.<BR>
-<BR>
-<BR>
-<BR>
-Dylan<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-On Thu, 2008-06-19 at 23:49 +0800, c.j wrote:<BR>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT COLOR="#000000">&#65279; </FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT COLOR="#000000">&gt;We use vtun which is a userland option, a little slow but offers rate-limiting and some other nice to have features.</FONT><BR>
-    <BR>
-    <FONT COLOR="#000000">&gt;When we require the lowest possible overhead option, we use the etherip kernel patches.</FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT COLOR="#000000">&nbsp;</FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT SIZE="2"><FONT COLOR="#000000">Thanks for your kind suggestion.&nbsp; Whether the etherip patches can transmit ppp packet?&nbsp;Since I'm not&nbsp;&nbsp;familiar&nbsp; with them , I need some time to read them if so.</FONT></FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT COLOR="#000000">&nbsp;</FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT SIZE="2"><FONT COLOR="#000000">Regards~</FONT></FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT COLOR="#000000">&nbsp;</FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT SIZE="2"><FONT COLOR="#000000">--</FONT></FONT>
-</BLOCKQUOTE>
-<BLOCKQUOTE TYPE=CITE>
-    <FONT SIZE="2"><FONT COLOR="#000000">c.j</FONT></FONT>
-</BLOCKQUOTE>
-</BODY>
-</HTML>
-
---=-+S4DVjtChw5wT4kCcPmf--
+<P>=0ASir,<BR>=0AI shared internet on a LAN using my machine. It has got tw=
+o ethernet cards. I installed Ubuntu 8.04. I did the bridging using &quot;b=
+ridge-utils&quot;. Even though it turned out to be successful, I came acros=
+s certain other problems:<BR>=0A1) I couldn't use the internet using my mac=
+hine.<BR>=0A2) After every restart, I had to redo the whole bridging config=
+uration.<BR>=0A<BR>=0AThis is how i configured.<BR>=0AThe two ethernet card=
+s are eth0 and eth1. eth1 is the one connected to the internet. This is wha=
+t I typed:<BR>=0A&nbsp; &nbsp; brctl addbr br0<BR>=0A&nbsp; &nbsp; brctl ad=
+dif br0 eth0<BR>=0A&nbsp; &nbsp; brctl addif br0 eth1<BR>=0A&nbsp; &nbsp; i=
+fconfig br0 up<BR>=0AThen i edited the /etc/network/interfaces as follows:<=
+BR>=0A&nbsp; &nbsp; auto lo<BR>=0A&nbsp; &nbsp; iface lo inet loopback<BR>=
+=0A<BR>=0A&nbsp; &nbsp; iface eth0 inet dhcp<BR>=0A<BR>=0A&nbsp; &nbsp; aut=
+o eth1<BR>=0A&nbsp; &nbsp; iface eth1 inet dhcp<BR>=0A<BR>=0A&nbsp; &nbsp; =
+auto br0<BR>=0A&nbsp; &nbsp; iface br0 inet dhcp<BR>=0A<BR>=0AAfter that i =
+restarted the service by typing <BR>=0A&nbsp; &nbsp; &nbsp; &nbsp; /etc/ini=
+t.d/networking restart<BR>=0AThe bridging worked. The client machine could =
+access the internet except mine i.e. the server. Where did I go wrong? What=
+ can I do to solve this. <BR>=0A<BR>=0ALooking forward for a solution. <BR>=
+=0AThanking you.<BR>=0A<BR>=0AYours sincerely,<BR>=0ASibu Thomas Mathew=0A<=
+/P>=0A<br><br>=0A
+--Next_1214143530---0-202.137.235.239-2088--
 
