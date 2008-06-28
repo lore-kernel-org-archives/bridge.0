@@ -1,10 +1,14 @@
-Sender: fulvio@zeroshell.net
-From: "Fulvio Ricciardi" <fulvio.ricciardi@zeroshell.net>
-Date: Sat, 28 Jun 2008 21:50:33 +0200
-Message-id: <48669609.123.61e8.180046555@webmaildh2.aruba.it>
+Message-ID: <d16ee5ea0806281355w6a4c24lee2c33553b93bbd3@mail.gmail.com>
+Date: Sat, 28 Jun 2008 13:55:58 -0700
+From: "John Cavanaugh" <john_p_cavanaugh@yahoo.com>
+Sender: john.p.cavanaugh@gmail.com
+In-Reply-To: <E88155B5BD67CE4D87A3F1F70950B96A2FF94F@berta.maurer-it.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Subject: Re: [Bridge] 802.1q packets
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_8490_7651632.1214686558365"
+References: <d16ee5ea0806251817k4e5b5dew9b7e60c7d94a9c80@mail.gmail.com>
+	<E88155B5BD67CE4D87A3F1F70950B96A2FF94F@berta.maurer-it.com>
+Subject: Re: [Bridge] [Bulk] AW:  A bridge with a single interface???
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,53 +17,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>, Fulvio Ricciardi <fulvio.ricciardi@zeroshell.net>
-Cc: bridge@linuxfoundation.org
+To: Dietmar Maurer <dietmar@proxmox.com>
+Cc: bridge@osdl.org
 
+------=_Part_8490_7651632.1214686558365
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > > Hi,
-> > > 
-> > > I notice that with the Kernel 2.6.25.9 the 802.1q VLAN
-> > > tagged packets larger than 1470 bytes are not
-> > > forwarded at all by a bridge.
-> > > I think there is a bad interaction between bridge and
-> > > netfilter codes. Any chance to a have a patch to solve
-> > > this problem that limit the possibility to use the
-> > > Linux bridges in a environment with VLANs?
-> > 
-> > With the following command it works:
-> > 
-> > echo 0 > /proc/sys/net/bridge/bridge-nf-call-iptables
-> > 
-> > but this disable the iptables support that it's
-> > important for obtaining complex bridge-firewall
-> > scenarios. 
-> > Regards
-> > Fulvio Ricciardi
-> 
-> Your iptables need to know about VLAN's as well.
-> I bet your default action is to DROP.
-> 
-No, the default policy is ACCEPT for the FORWARD chain. In
-any case the problem takes place only with large packets.
-For example if I try
+FWIW, Im on a 64-bit system.   So I might be falling under the wierdness
+others have observed on 64-bit...
 
-ping -s 1472 192.168.99.74
+--
+John Cavanaugh
 
-it works, but
+On Fri, Jun 27, 2008 at 10:18 AM, Dietmar Maurer <dietmar@proxmox.com>
+wrote:
 
-ping -s 1473 192.168.99.74
+> The Bridge changes the MAC if you add/del something.
+>
+> I already suggested to change that behaviour.
+>
+> - Dietmar
+>
+> > Am I doing something wrong??  I wouldnt think a bridge would
+> > die if only a single interface.
+>
+>
 
-it does not.
-I am sure that the network cards are VLAN 802.1q aware
-because only the forwarding process is broken. If instead I
-just ping the IP of the bridge interface it works fine.
+------=_Part_8490_7651632.1214686558365
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Regards
-Fulvio
+FWIW, Im on a 64-bit system.&nbsp;&nbsp; So I might be falling under the wierdness others have observed on 64-bit...<br><br>--<br>John Cavanaugh<br><br><div class="gmail_quote">On Fri, Jun 27, 2008 at 10:18 AM, Dietmar Maurer &lt;<a href="mailto:dietmar@proxmox.com" class="linkifierplus">dietmar@proxmox.com</a>&gt; wrote:<br>
+<blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">The Bridge changes the MAC if you add/del something.<br>
+<br>
+I already suggested to change that behaviour.<br>
+<font color="#888888"><br>
+- Dietmar<br>
+</font><div><div></div><div class="Wj3C7c"><br>
+&gt; Am I doing something wrong?? &nbsp;I wouldnt think a bridge would<br>
+&gt; die if only a single interface.<br>
+<br>
+</div></div></blockquote></div><br>
 
---------------------------------------------------------------------
-Fulvio Ricciardi
-web: http://www.zeroshell.net/eng/
-skype: zeroshellnet
-Phone: +3908321835630
+------=_Part_8490_7651632.1214686558365--
