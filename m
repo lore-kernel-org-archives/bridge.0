@@ -1,14 +1,10 @@
-Content-class: urn:content-classes:message
+Sender: fulvio@zeroshell.net
+From: "Fulvio Ricciardi" <fulvio.ricciardi@zeroshell.net>
+Date: Sat, 28 Jun 2008 06:56:07 +0200
+Message-id: <4865c467.386.27ed.998123722@webmaildh4.aruba.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 27 Jun 2008 19:18:52 +0200
-Message-ID: <E88155B5BD67CE4D87A3F1F70950B96A2FF94F@berta.maurer-it.com>
-In-Reply-To: <d16ee5ea0806251817k4e5b5dew9b7e60c7d94a9c80@mail.gmail.com>
-References: <d16ee5ea0806251817k4e5b5dew9b7e60c7d94a9c80@mail.gmail.com>
-From: "Dietmar Maurer" <dietmar@proxmox.com>
-Subject: Re: [Bridge] A bridge with a single interface???
+Content-Type: text/plain; charset="iso-8859-1"
+Subject: [Bridge] 802.1q packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,14 +13,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: John Cavanaugh <john_p_cavanaugh@yahoo.com>, bridge@osdl.org
+To: bridge@osdl.org
 
-The Bridge changes the MAC if you add/del something.
+Hi,
 
-I already suggested to change that behaviour.
+I notice that with the Kernel 2.6.25.9 the 802.1q VLAN
+tagged packets larger than 1470 bytes are not forwarded at
+all by a bridge.
+I think there is a bad interaction between bridge and
+netfilter codes. Any chance to a have a patch to solve this
+problem that limit the possibility to use the Linux bridges
+in a environment with VLANs?
 
-- Dietmar
-=20
-> Am I doing something wrong??  I wouldnt think a bridge would=20
-> die if only a single interface.
+Best Regards
+Fulvio Ricciardi
 
+--------------------------------------------------------------------
+Fulvio Ricciardi
+web: http://www.zeroshell.net/eng/
+skype: zeroshellnet
+Phone: +3908321835630
