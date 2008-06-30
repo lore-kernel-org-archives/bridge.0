@@ -1,12 +1,11 @@
-Content-class: urn:content-classes:message
+From: "John Van Boxtel" <johnvb@broadcom.com>
+Date: Mon, 30 Jun 2008 09:29:20 -0700
+Message-ID: <AED19734ADE06A4191FFC760030362C705BD6DD410@IRVEXCHCCR01.corp.ad.broadcom.com>
+Content-Language: en-US
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 30 Jun 2008 15:53:50 +1000
-Message-ID: <96CF49BD8B56384395D698BA99007FA32FA2B8@exchange.pacwire.local>
-From: "Leigh Sharpe" <lsharpe@pacificwireless.com.au>
-Subject: Re: [Bridge] 802.1q packets
+Content-Type: multipart/alternative;
+	boundary=_000_AED19734ADE06A4191FFC760030362C705BD6DD410IRVEXCHCCR01c_
+Subject: [Bridge] Flooding before or after NF_BR_LOCAL_OUT hook
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,53 +14,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Fulvio Ricciardi <fulvio.ricciardi@zeroshell.net>, bridge@osdl.org
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-I had a similar problem not long ago. Make sure that ip_conntrack is not
-loaded. In my case, it was re-assembling all fragmented packets passing
-through the bridge, and not fragmenting them again. The resulting large
-packet was too big for the interface, and it got dropped.=20
+
+--_000_AED19734ADE06A4191FFC760030362C705BD6DD410IRVEXCHCCR01c_
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+Hi all,
+
+Has it been previously discussed whether bridge flooding should be done bef=
+ore or after the NF_BR_LOCAL_OUT hook?
+
+Today it is done AFTER but logically it seems like it should be done BEFORE=
+ (on "ingress").  I think this would be analogous to operation of the NF_IP=
+_LOCAL_OUT hook when IP multicasting.
 
 Regards,
-             Leigh
-=20
-Leigh Sharpe
-Network Systems Engineer
-Pacific Wireless
-Ph +61 3 9584 8966
-Mob 0408 009 502
-Helpdesk 1300 300 616
-email lsharpe@pacificwireless.com.au
-web www.pacificwireless.com.au
-=20
 
------Original Message-----
-From: bridge-bounces@lists.linux-foundation.org
-[mailto:bridge-bounces@lists.linux-foundation.org] On Behalf Of Fulvio
-Ricciardi
-Sent: Saturday, 28 June 2008 2:56 PM
-To: bridge@osdl.org
-Subject: [Bridge] 802.1q packets
+John A. Van Boxtel
 
-Hi,
 
-I notice that with the Kernel 2.6.25.9 the 802.1q VLAN
-tagged packets larger than 1470 bytes are not forwarded at
-all by a bridge.
-I think there is a bad interaction between bridge and
-netfilter codes. Any chance to a have a patch to solve this
-problem that limit the possibility to use the Linux bridges
-in a environment with VLANs?
+--_000_AED19734ADE06A4191FFC760030362C705BD6DD410IRVEXCHCCR01c_
+Content-Type: text/html;
+ charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-Best Regards
-Fulvio Ricciardi
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2900.3314" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial size=3D2>Hi=20
+all,</FONT></SPAN></DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial size=3D2>Has it be=
+en=20
+previously&nbsp;discussed&nbsp;whether bridge flooding should be done befor=
+e or=20
+after the NF_BR_LOCAL_OUT hook?</FONT></SPAN></DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial size=3D2>Today it =
+is done=20
+AFTER&nbsp;but logically it seems like it should be done BEFORE (on=20
+"ingress").&nbsp; I think this would be analogous to operation of=20
+the&nbsp;NF_IP_LOCAL_OUT hook when IP multicasting.</FONT></SPAN></DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial=20
+size=3D2>Regards,</FONT></SPAN></DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial size=3D2>John A. V=
+an=20
+Boxtel</FONT></SPAN></DIV>
+<DIV><SPAN class=3D316225415-30062008><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV></BODY></HTML>
 
---------------------------------------------------------------------
-Fulvio Ricciardi
-web: http://www.zeroshell.net/eng/
-skype: zeroshellnet
-Phone: +3908321835630
-_______________________________________________
-Bridge mailing list
-Bridge@lists.linux-foundation.org
-https://lists.linux-foundation.org/mailman/listinfo/bridge
+--_000_AED19734ADE06A4191FFC760030362C705BD6DD410IRVEXCHCCR01c_--
+
