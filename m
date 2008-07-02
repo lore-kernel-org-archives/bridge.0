@@ -1,13 +1,12 @@
-Message-ID: <fed120860807020937v1a6d42br5b3643b997801cfc@mail.gmail.com>
-Date: Wed, 2 Jul 2008 22:07:53 +0530
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-In-Reply-To: <20080604211254.GB22523@linux-wlan.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 2 Jul 2008 09:48:17 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20080702094817.646c6c60@extreme>
+In-Reply-To: <486B7CCE.2@trash.net>
+References: <486B7CCE.2@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20080604211254.GB22523@linux-wlan.com>
-Subject: Re: [Bridge] [patch] data element sizes netlink fixes for rstpd
+Subject: Re: [Bridge] bridge: fix use-after-free in br_cleanup_bridges()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,28 +15,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Solomon Peachy <solomon@linux-wlan.com>
-Cc: bridge@lists.linux-foundation.org
+To: Patrick McHardy <kaber@trash.net>
+Cc: Linux Netdev List <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-Sorry for the delayed reply.
-Thanks for the fix.
-I have applied this to my local git repository.
+On Wed, 02 Jul 2008 15:04:14 +0200
+Patrick McHardy <kaber@trash.net> wrote:
 
-On Thu, Jun 5, 2008 at 2:42 AM, Solomon Peachy <solomon@linux-wlan.com> wrote:
-> The attached patch, against Srinivas's git snapshot of May 7, fixes
-> two releated problems.  The kernel's netlink handlers relating to the
-> IFLA_OPERSTATE attribute use an 8-bit field, while the rstpd code was
-> assuming a 32-bit integer.
->
-> This might have worked on little-endian target, but the BE boxen I'm
-> using crap all over the place with bogus numbers.
->
-> With this patch, my BE boxen (with 2.6.22.x) come up and RSTP-away.
->
->  - Solomon
-> --
-> Solomon Peachy                        solomon@linux-wlan.com
-> AbsoluteValue Systems                 http://www.linux-wlan.com
-> 721-D North Drive                     +1 (321) 259-0737  (office)
-> Melbourne, FL 32934                   +1 (321) 259-0286  (fax)
->
+> commit 96f1dd78dad10d61bdd487edadea6adda5425e4c
+> Author: Patrick McHardy <kaber@trash.net>
+> Date:   Wed Jul 2 15:02:23 2008 +0200
+> 
+>     bridge: fix use-after-free in br_cleanup_bridges()
+> 
+>     Unregistering a bridge device may cause virtual devices stacked on the
+>     bridge, like vlan or macvlan devices, to be unregistered as well.
+>     br_cleanup_bridges() uses for_each_netdev_safe() to iterate over all
+>     devices during cleanup. This is not enough however, if one of the
+>     additionally unregistered devices is next in the list to the bridge
+>     device, it will get freed as well and the iteration continues on
+>     the freed element.
+> 
+>     Restart iteration after each bridge device removal from the beginning to
+>     fix this, similar to what rtnl_link_unregister() does.
+> 
+>     Signed-off-by: Patrick McHardy <kaber@trash.net>
+
+Acked-by: Stephen Hemminger <shemminger@vyatta.com>
