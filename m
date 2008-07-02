@@ -1,13 +1,14 @@
-Date: Thu, 03 Jul 2008 03:54:08 -0700 (PDT)
-Message-Id: <20080703.035408.214725711.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20080702094817.646c6c60@extreme>
-References: <486B7CCE.2@trash.net>
-	<20080702094817.646c6c60@extreme>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge: fix use-after-free in br_cleanup_bridges()
+Date: Wed, 2 Jul 2008 16:23:57 -0400
+From: Solomon Peachy <solomon@linux-wlan.com>
+Message-ID: <20080702202357.GC21344@linux-wlan.com>
+References: <20080604211254.GB22523@linux-wlan.com>
+	<fed120860807020937v1a6d42br5b3643b997801cfc@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+Content-Disposition: inline
+In-Reply-To: <fed120860807020937v1a6d42br5b3643b997801cfc@mail.gmail.com>
+Subject: Re: [Bridge] [patch] data element sizes netlink fixes for rstpd
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,34 +17,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: "Srinivas M.A." <srinivas.aji@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@vyatta.com>
-Date: Wed, 2 Jul 2008 09:48:17 -0700
 
-> On Wed, 02 Jul 2008 15:04:14 +0200
-> Patrick McHardy <kaber@trash.net> wrote:
-> 
-> > commit 96f1dd78dad10d61bdd487edadea6adda5425e4c
-> > Author: Patrick McHardy <kaber@trash.net>
-> > Date:   Wed Jul 2 15:02:23 2008 +0200
-> > 
-> >     bridge: fix use-after-free in br_cleanup_bridges()
-> > 
-> >     Unregistering a bridge device may cause virtual devices stacked on the
-> >     bridge, like vlan or macvlan devices, to be unregistered as well.
-> >     br_cleanup_bridges() uses for_each_netdev_safe() to iterate over all
-> >     devices during cleanup. This is not enough however, if one of the
-> >     additionally unregistered devices is next in the list to the bridge
-> >     device, it will get freed as well and the iteration continues on
-> >     the freed element.
-> > 
-> >     Restart iteration after each bridge device removal from the beginning to
-> >     fix this, similar to what rtnl_link_unregister() does.
-> > 
-> >     Signed-off-by: Patrick McHardy <kaber@trash.net>
-> 
-> Acked-by: Stephen Hemminger <shemminger@vyatta.com>
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thanks everyone.
+On Wed, Jul 02, 2008 at 10:07:53PM +0530, Srinivas M.A. wrote:
+> Sorry for the delayed reply.
+> Thanks for the fix.
+> I have applied this to my local git repository.
+
+Have there been any other changes since the last snapshot you published?
+
+We've had some unexplained crashes of rstpd that I'm trying to diagnose=20
+now, but my gut feeling is that there are other endian-related bugs in=20
+the codebase.=20
+
+ - Solomon
+--=20
+Solomon Peachy                        solomon@linux-wlan.com
+AbsoluteValue Systems                 http://www.linux-wlan.com
+721-D North Drive                     +1 (321) 259-0737  (office)
+Melbourne, FL 32934                   +1 (321) 259-0286  (fax)
+
+--i9LlY+UWpKt15+FH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQFIa+PdhinxHf95MjYRAhlKAJ9Cy6A4oqypiF1o5vdRfRcFZkjNvgCgm2VM
+DEa4xWUBvzthGFsPY5sqOpc=
+=1IMn
+-----END PGP SIGNATURE-----
+
+--i9LlY+UWpKt15+FH--
