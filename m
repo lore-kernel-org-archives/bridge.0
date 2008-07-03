@@ -1,15 +1,13 @@
-Message-ID: <fed120860807022310t5039a5efx455de5f31fa7b71b@mail.gmail.com>
-Date: Thu, 3 Jul 2008 11:40:23 +0530
+Message-ID: <fed120860807022323u5147beedn33960694ab4e05a5@mail.gmail.com>
+Date: Thu, 3 Jul 2008 11:53:06 +0530
 From: "Srinivas M.A." <srinivas.aji@gmail.com>
-In-Reply-To: <20080702202357.GC21344@linux-wlan.com>
+In-Reply-To: <20080702230917.GD21344@linux-wlan.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20080604211254.GB22523@linux-wlan.com>
-	<fed120860807020937v1a6d42br5b3643b997801cfc@mail.gmail.com>
-	<20080702202357.GC21344@linux-wlan.com>
-Subject: Re: [Bridge] [patch] data element sizes netlink fixes for rstpd
+References: <20080702230917.GD21344@linux-wlan.com>
+Subject: Re: [Bridge] [patch] rstpd crashes with GARP/GMRP packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,17 +19,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Solomon Peachy <solomon@linux-wlan.com>
 Cc: bridge@lists.linux-foundation.org
 
-On Thu, Jul 3, 2008 at 1:53 AM, Solomon Peachy <solomon@linux-wlan.com> wrote:
-> On Wed, Jul 02, 2008 at 10:07:53PM +0530, Srinivas M.A. wrote:
+This looks like the earlier patch, for NETLINK size fixes. Could you
+resend the intended patch. Thanks.
 
-> Have there been any other changes since the last snapshot you published?
-
-Nothing of significance. I put in a slightly simpler bridge-stp script.
-
+On Thu, Jul 3, 2008 at 4:39 AM, Solomon Peachy <solomon@linux-wlan.com> wrote:
+> The attached patch, against Shrinivas's May 7, 2008 snapshot, fixes a
+> null pointer dereference that occurs when we receive a packet from the
+> brige interface that bears the STP MACADDR, but is *not* a STP packet.
 >
-> We've had some unexplained crashes of rstpd that I'm trying to diagnose
-> now, but my gut feeling is that there are other endian-related bugs in
-> the codebase.
+> Specifically, I was receiving GMRP packets (see 802.1D-2004 10.1) from a
+> 3Com switch.
+>
+> I don't know what we should do with these -- but crashing isn't it.  I
+> can send over a packet dump and more debugging info if desired.
 
-Possible, we have only tested on x86 and x86_64.
-If you can send me backtraces of the crashes, I will try and debug.
+Looks like we aren't validating the BPDU as we should be. Please send
+any debugging information you have.
