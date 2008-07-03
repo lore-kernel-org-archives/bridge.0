@@ -1,12 +1,15 @@
-Date: Wed, 2 Jul 2008 09:48:17 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20080702094817.646c6c60@extreme>
-In-Reply-To: <486B7CCE.2@trash.net>
-References: <486B7CCE.2@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <fed120860807022310t5039a5efx455de5f31fa7b71b@mail.gmail.com>
+Date: Thu, 3 Jul 2008 11:40:23 +0530
+From: "Srinivas M.A." <srinivas.aji@gmail.com>
+In-Reply-To: <20080702202357.GC21344@linux-wlan.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge: fix use-after-free in br_cleanup_bridges()
+Content-Disposition: inline
+References: <20080604211254.GB22523@linux-wlan.com>
+	<fed120860807020937v1a6d42br5b3643b997801cfc@mail.gmail.com>
+	<20080702202357.GC21344@linux-wlan.com>
+Subject: Re: [Bridge] [patch] data element sizes netlink fixes for rstpd
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,29 +18,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Linux Netdev List <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Solomon Peachy <solomon@linux-wlan.com>
+Cc: bridge@lists.linux-foundation.org
 
-On Wed, 02 Jul 2008 15:04:14 +0200
-Patrick McHardy <kaber@trash.net> wrote:
+On Thu, Jul 3, 2008 at 1:53 AM, Solomon Peachy <solomon@linux-wlan.com> wrote:
+> On Wed, Jul 02, 2008 at 10:07:53PM +0530, Srinivas M.A. wrote:
 
-> commit 96f1dd78dad10d61bdd487edadea6adda5425e4c
-> Author: Patrick McHardy <kaber@trash.net>
-> Date:   Wed Jul 2 15:02:23 2008 +0200
-> 
->     bridge: fix use-after-free in br_cleanup_bridges()
-> 
->     Unregistering a bridge device may cause virtual devices stacked on the
->     bridge, like vlan or macvlan devices, to be unregistered as well.
->     br_cleanup_bridges() uses for_each_netdev_safe() to iterate over all
->     devices during cleanup. This is not enough however, if one of the
->     additionally unregistered devices is next in the list to the bridge
->     device, it will get freed as well and the iteration continues on
->     the freed element.
-> 
->     Restart iteration after each bridge device removal from the beginning to
->     fix this, similar to what rtnl_link_unregister() does.
-> 
->     Signed-off-by: Patrick McHardy <kaber@trash.net>
+> Have there been any other changes since the last snapshot you published?
 
-Acked-by: Stephen Hemminger <shemminger@vyatta.com>
+Nothing of significance. I put in a slightly simpler bridge-stp script.
+
+>
+> We've had some unexplained crashes of rstpd that I'm trying to diagnose
+> now, but my gut feeling is that there are other endian-related bugs in
+> the codebase.
+
+Possible, we have only tested on x86 and x86_64.
+If you can send me backtraces of the crashes, I will try and debug.
