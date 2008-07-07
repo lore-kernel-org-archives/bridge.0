@@ -1,12 +1,12 @@
-Message-ID: <4872838B.1060603@trash.net>
-Date: Mon, 07 Jul 2008 22:58:51 +0200
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
-References: <cover.1215460681.git.notting@redhat.com>
-	<4872819E.3040604@trash.net>
-	<20080707205342.GA19710@nostromo.devel.redhat.com>
-In-Reply-To: <20080707205342.GA19710@nostromo.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Date: Mon, 07 Jul 2008 14:52:59 -0700 (PDT)
+Message-Id: <20080707.145259.103902820.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20080707213420.GA20089@nostromo.devel.redhat.com>
+References: <20080707205342.GA19710@nostromo.devel.redhat.com>
+	<4872838B.1060603@trash.net>
+	<20080707213420.GA20089@nostromo.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [RFC PATCH 0/2] Allow full bridge configuration via
 	sysfs
@@ -18,34 +18,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Linux Netdev List <netdev@vger.kernel.org>
+To: notting@redhat.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Bill Nottingham wrote:
-> Patrick McHardy (kaber@trash.net) said: 
->> Bill Nottingham wrote:
->>> Right now, you can configure most bridge device parameters via sysfs.
->>> However, you cannot either:
->>> - add or remove bridge interfaces
->>> - add or remove physical interfaces from a bridge
->>>
->>> The attached patch set rectifies this. With this patch set, brctl
->>> (theoretically) becomes completely optional, much like ifenslave is
->>> now for bonding. (In fact, the idea for this patch, and the syntax
->>> used herein, is inspired by the sysfs bonding configuration.)
->> Both should use netlink instead of extending their sysfs interfaces.
->> For bridging I have a patch for the bridge device itself, the API
->> is so far missing support for adding ports though.
+From: Bill Nottingham <notting@redhat.com>
+Date: Mon, 7 Jul 2008 17:34:20 -0400
+
+> I could look at wireless network configuration, but I doubt that's going to
+> help your argument.
+
+Just like any system with age, we have a lot of legacy to
+convert over.  But it will happen.
+
+> That being said, how is moving from adding a bonding slave from:
+>   echo "+eth0" >  /sys/class/net/bond0/bonding/slaves to:
+> to:
+>   http://www.linuxfoundation.org/en/Net:Generic_Netlink_HOWTO
 > 
-> How does that improve the situation for bridge devices? Are all
-> bridging parameters (forward_delay, stp, etc.) going to be configurable
-> via netlink, or would we still then have multiple tools/interfaces
-> to configuration?
+> a worthwhile improvement for the admin? Let's see, a kernel-userspace
+> protocol with magic message formats. Hey, we reinvented ioctl!
+> 
+> Why, if netlink is the standard (and it's been around for a long
+> damn time), was sysfs configuration for bonding added in 2005? Why
+> was bridge configuration added in 2005, and *extended* in 2006 and
+> 2007? Why were the user-space tools such as brctl ported from ioctl
+> to sysfs?
 
-Of course its all going to be configurable via netlink, otherwise
-it really wouldn't make sense.
+Because often a lot of shit slips in when someone who understands
+the ramifications is too busy or on vacation.
 
-> Also, moving bonding configuration to netlink seems
-> like a step backwards.
+We do want everything to be netlink based.
 
-Please read up on what the standard interface for network
-configuration is, I'm tired of reiterating this once a week.
+Why?
+
+Because it means that you can run one monitoring tool to listen
+for netlink events and report them to the user for diagnosis.
+
+It means that network configuration events can be sent over
+the wire and used remotely at some point.
+
+The latter can never happen as long as we keep adding ad-hoc
+config stuff.
+
