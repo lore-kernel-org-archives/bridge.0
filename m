@@ -1,7 +1,14 @@
+Date: Mon, 7 Jul 2008 16:53:42 -0400
 From: Bill Nottingham <notting@redhat.com>
-Date: Mon,  7 Jul 2008 16:05:02 -0400
-Message-Id: <cover.1215460681.git.notting@redhat.com>
-Subject: [Bridge] [RFC PATCH 0/2] Allow full bridge configuration via sysfs
+Message-ID: <20080707205342.GA19710@nostromo.devel.redhat.com>
+References: <cover.1215460681.git.notting@redhat.com>
+	<4872819E.3040604@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4872819E.3040604@trash.net>
+Subject: Re: [Bridge] [RFC PATCH 0/2] Allow full bridge configuration via
+	sysfs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -10,28 +17,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
+To: Patrick McHardy <kaber@trash.net>
+Cc: Linux Netdev List <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Right now, you can configure most bridge device parameters via sysfs.
-However, you cannot either:
-- add or remove bridge interfaces
-- add or remove physical interfaces from a bridge
+Patrick McHardy (kaber@trash.net) said: 
+> Bill Nottingham wrote:
+>> Right now, you can configure most bridge device parameters via sysfs.
+>> However, you cannot either:
+>> - add or remove bridge interfaces
+>> - add or remove physical interfaces from a bridge
+>>
+>> The attached patch set rectifies this. With this patch set, brctl
+>> (theoretically) becomes completely optional, much like ifenslave is
+>> now for bonding. (In fact, the idea for this patch, and the syntax
+>> used herein, is inspired by the sysfs bonding configuration.)
+>
+> Both should use netlink instead of extending their sysfs interfaces.
+> For bridging I have a patch for the bridge device itself, the API
+> is so far missing support for adding ports though.
 
-The attached patch set rectifies this. With this patch set, brctl
-(theoretically) becomes completely optional, much like ifenslave is
-now for bonding. (In fact, the idea for this patch, and the syntax
-used herein, is inspired by the sysfs bonding configuration.)
+How does that improve the situation for bridge devices? Are all
+bridging parameters (forward_delay, stp, etc.) going to be configurable
+via netlink, or would we still then have multiple tools/interfaces
+to configuration? Also, moving bonding configuration to netlink seems
+like a step backwards.
 
-Patchset is against net-next-2.6, but should apply to anything reasonably
-recent with minimal fuzz.
-
-Bill Nottingham (2):
-  Add a 'bridging_masters' file in sysfs under class/net
-  Add a 'interfaces' file to the bridge device configuration in sysfs
-
- net/bridge/br.c          |    2 +
- net/bridge/br_private.h  |    4 ++
- net/bridge/br_sysfs_br.c |  136 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 142 insertions(+), 0 deletions(-)
-
+Bill
