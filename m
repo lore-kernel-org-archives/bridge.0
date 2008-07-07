@@ -1,13 +1,11 @@
-Message-ID: <486DB4F4.6050604@kolumbus.fi>
-Date: Fri, 04 Jul 2008 08:28:20 +0300
-From: =?ISO-8859-1?Q?Pekka_J=E4rvinen?= <pekkajarvinen@kolumbus.fi>
+Message-ID: <OF2FABFA21.696CFD64-ONC125747F.002D87B7-C125747F.00303B13@uha.fr>
+From: Nicolas.CLEMENTZ@uha.fr
+Date: Mon, 7 Jul 2008 10:46:59 +0200
 MIME-Version: 1.0
-References: <486D6A80.3010600@kolumbus.fi>
-	<fed120860807032159x5785ece4sa7e68f222a5e8833@mail.gmail.com>
-In-Reply-To: <fed120860807032159x5785ece4sa7e68f222a5e8833@mail.gmail.com>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] VLAN Bridge routing problem
+Content-type: multipart/alternative; 
+	Boundary="0__=4EBBFEECDFBE01278f9e8a93df938690918c4EBBFEECDFBE0127"
+Content-Disposition: inline
+Subject: [Bridge] netlink/ioctl/proc/sys
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,279 +14,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-Okay, now Linux router can access internet.
-
-So then that br0 and br2 NAT problem
-iptables -t nat -A POSTROUTING -o br0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -o br2 -j MASQUERADE
-This doesn't seem to have any effect.
-
-# ip route
-62.204.1.0/25 dev br1  proto kernel  scope link  src 62.204.1.12
-192.168.1.0/24 dev br2  proto kernel  scope link  src 192.168.1.1
-192.168.0.0/24 dev br0  proto kernel  scope link  src 192.168.0.1
-default via 62.204.1.1 dev br1
-
-# route -n
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use=20
-Iface
-62.204.1.0      0.0.0.0         255.255.255.128 U     0      0        0 br1
-192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 br2
-192.168.0.0     0.0.0.0         255.255.255.0   U     0      0        0 br0
-0.0.0.0         62.204.1.1      0.0.0.0         UG    0      0        0 br1
+--0__=4EBBFEECDFBE01278f9e8a93df938690918c4EBBFEECDFBE0127
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: quoted-printable
 
 
-Srinivas M.A. kirjoitti:
-> This seems to be a IP routing issue, not a bridging issue at all.
->
-> You have set up default gateways for your own IP in the interfaces
-> configuration for br0 and br2. Things should be better if you get rid
-> of the gateway lines in the br0 and br2 sections.
->
-> On Fri, Jul 4, 2008 at 5:40 AM, Pekka J=E4rvinen
-> <pekkajarvinen@kolumbus.fi> wrote:
->  =20
->> Hi,
->>
->> I have
->> br0 - LAN
->> br1 - Internet
->> br2 - WLAN
->>
->> First problem:
->> Main Linux machine which is running all this can't connect to internet.
->> Physical machines connected to this bridge via switches can access inter=
-net.
->> So how I add default route as br1 or straight vlan 333? For some weird
->> reason it seems to get only one packet.
->> Like:
->> # ping -c 4 ping.funet.fi
->> PING ns-secondary.funet.fi (128.214.248.132) 56(84) bytes of data.
->>  From 192.168.1.1 icmp_seq=3D2 Destination Host Unreachable
->>  From 192.168.1.1 icmp_seq=3D3 Destination Host Unreachable
->>  From 192.168.1.1 icmp_seq=3D4 Destination Host Unreachable
->>
->> --- ns-secondary.funet.fi ping statistics ---
->> 4 packets transmitted, 0 received, +3 errors, 100% packet loss, time 300=
-0ms
->> , pipe 3
->>
->> # ping -c 4 -I br1 ping.funet.fi
->> PING ns-secondary.funet.fi (128.214.248.132) from 62.204.1.12 br1:
->> 56(84) bytes of data.
->>  From 62.204.1.12 icmp_seq=3D2 Destination Host Unreachable
->>  From 62.204.1.12 icmp_seq=3D3 Destination Host Unreachable
->>  From 62.204.1.12 icmp_seq=3D4 Destination Host Unreachable
->>
->> --- ns-secondary.funet.fi ping statistics ---
->> 4 packets transmitted, 0 received, +3 errors, 100% packet loss, time 299=
-9ms
->> , pipe 3
->>
->> # ping -c 4 -I eth1.333 ping.funet.fi
->> PING ns-secondary.funet.fi (128.214.248.132) from 192.168.0.1 eth1.333:
->> 56(84) bytes of data.
->>  From 192.168.0.1 icmp_seq=3D2 Destination Host Unreachable
->>  From 192.168.0.1 icmp_seq=3D3 Destination Host Unreachable
->>  From 192.168.0.1 icmp_seq=3D4 Destination Host Unreachable
->>
->> --- ns-secondary.funet.fi ping statistics ---
->> 4 packets transmitted, 0 received, +3 errors, 100% packet loss, time 300=
-1ms
->> , pipe 3
->>
->> How it sends UDP packet (DNS) through br1 and gets answer and then nothi=
-ng?
->>
->> Second problem:
->> What do I add to br0 and br2 so those can access internet through br1?
->>
->>
->>
->> # route -n
->> Kernel IP routing table
->> Destination     Gateway         Genmask         Flags Metric Ref    Use
->> Iface
->> 62.204.1.0      0.0.0.0         255.255.255.128 U     0      0        0 =
-br1
->> 192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 =
-br2
->> 192.168.0.0     0.0.0.0         255.255.255.0   U     0      0        0 =
-br0
->> 0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 =
-br2
->> 0.0.0.0         62.204.1.1      0.0.0.0         UG    0      0        0 =
-br1
->> 0.0.0.0         192.168.0.1     0.0.0.0         UG    0      0        0 =
-br0
->>
->>
->> # ip route
->> 62.204.1.0/25 dev br1  proto kernel  scope link  src 62.204.1.12
->> 192.168.1.0/24 dev br2  proto kernel  scope link  src 192.168.1.1
->> 192.168.0.0/24 dev br0  proto kernel  scope link  src 192.168.0.1
->> default via 192.168.1.1 dev br2  scope link
->> default via 62.204.1.1 dev br1
->> default via 192.168.0.1 dev br0  scope link
->>
->>
->> # cat /etc/network/interfaces
->> auto lo
->> iface lo inet loopback
->>
->> # The primary network interface
->> allow-hotplug eth0
->> allow-hotplug eth1
->>
->> iface eth0 inet static
->> iface eth1 inet static
->>
->> auto vlan111
->> auto vlan222
->> auto vlan333
->> auto vlan444
->> auto br0
->> auto br1
->> auto br2
->>
->> # LAN
->> iface vlan111 inet static
->>        vlan_raw_device eth0
->>
->> # WLAN
->> iface vlan222 inet static
->>        vlan_raw_device eth0
->>
->> # ADSL Modem
->> iface vlan333 inet static
->>        vlan_raw_device eth1
->>
->> # Internet
->> iface vlan444 inet static
->>        vlan_raw_device eth0
->>
->> # LAN
->> iface br0 inet static
->>        address 192.168.0.1
->>        netmask 255.255.255.0
->>        gateway 192.168.0.1
->>        bridge_ports eth0.111
->>        bridge_stp on
->>
->> # Internet
->> iface br1 inet static
->>        address 62.204.1.12
->>        netmask 255.255.255.128
->>        gateway 62.204.1.1
->>        bridge_ports eth1.333 eth0.444
->>        bridge_stp on
->>
->> # WLAN
->> iface br2 inet static
->>        address 192.168.1.1
->>        netmask 255.255.255.0
->>        gateway 192.168.1.1
->>        bridge_ports eth0.222
->>        bridge_stp on
->>
->>
->> # ifconfig
->> br0       Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:2677 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:200 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:745000 (727.5 KiB)  TX bytes:18490 (18.0 KiB)
->>
->> br1       Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet addr:62.204.1.12  Bcast:62.204.1.127  Mask:255.255.255.128
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:16720 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:1094 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:849739 (829.8 KiB)  TX bytes:140600 (137.3 KiB)
->>
->> br2       Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet addr:192.168.1.1  Bcast:192.168.1.255  Mask:255.255.255.0
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:396 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:0 (0.0 b)  TX bytes:16848 (16.4 KiB)
->>
->> eth0      Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:25682 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:74974 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:1000
->>          RX bytes:5266514 (5.0 MiB)  TX bytes:20590320 (19.6 MiB)
->>          Interrupt:177 Base address:0xd000
->>
->> eth1      Link encap:Ethernet  HWaddr 00:40:63:E9:1B:61
->>          inet6 addr: fe80::240:63ff:fee9:1b61/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:73147 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:24442 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:1000
->>          RX bytes:20674811 (19.7 MiB)  TX bytes:4443148 (4.2 MiB)
->>          Interrupt:185 Base address:0xe800
->>
->> eth0.111  Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:2685 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:2673 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:758720 (740.9 KiB)  TX bytes:157778 (154.0 KiB)
->>
->> eth0.222  Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:2838 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:0 (0.0 b)  TX bytes:155184 (151.5 KiB)
->>
->> eth0.444  Link encap:Ethernet  HWaddr 00:40:63:E9:1B:60
->>          inet6 addr: fe80::240:63ff:fee9:1b60/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:22728 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:69254 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:4101153 (3.9 MiB)  TX bytes:20264742 (19.3 MiB)
->>
->> eth1.333  Link encap:Ethernet  HWaddr 00:40:63:E9:1B:61
->>          inet6 addr: fe80::240:63ff:fee9:1b61/64 Scope:Link
->>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->>          RX packets:66276 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:24338 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:19135092 (18.2 MiB)  TX bytes:4436880 (4.2 MiB)
->>
->> lo        Link encap:Local Loopback
->>          inet addr:127.0.0.1  Mask:255.0.0.0
->>          inet6 addr: ::1/128 Scope:Host
->>          UP LOOPBACK RUNNING  MTU:16436  Metric:1
->>          RX packets:48 errors:0 dropped:0 overruns:0 frame:0
->>          TX packets:48 errors:0 dropped:0 overruns:0 carrier:0
->>          collisions:0 txqueuelen:0
->>          RX bytes:5146 (5.0 KiB)  TX bytes:5146 (5.0 KiB)
->>
->>
->> --
->> Pekka J=E4rvinen
->> _______________________________________________
->> Bridge mailing list
->> Bridge@lists.linux-foundation.org
->> https://lists.linux-foundation.org/mailman/listinfo/bridge
->>
->>    =20
+
+Hi,
+
+      I'm trying to add IGMP Snooping function (RFC 4541) in bridge mod=
+ule.
+Basic funtionality (only IPv4) is working and now I would like configur=
+e it
+(like activate/desactivate igmpsnooping) with a userspace program as br=
+ctl.
+Netbridge uses many ways to communicate (procfs, sysfs, ioct, netlink) =
+but
+which is perenial ? Which you advise me ?
+
+thanks.
+
+--------------------------------------------------------
+Nicolas Clementz
+Service Informatique R=E9seaux et T=E9l=E9com.
+IUT de Colmar
+T=E9l : 03.89.20.23.63
+=
+
+--0__=4EBBFEECDFBE01278f9e8a93df938690918c4EBBFEECDFBE0127
+Content-type: text/html; charset=ISO-8859-1
+Content-Disposition: inline
+Content-transfer-encoding: quoted-printable
+
+<html><body>
+<p>Hi,<br>
+<br>
+	I'm trying to add IGMP Snooping function (RFC 4541) in bridge module. =
+Basic funtionality (only IPv4) is working and now I would like configur=
+e it (like activate/desactivate igmpsnooping) with a userspace program =
+as brctl. Netbridge uses many ways to communicate (procfs, sysfs, ioct,=
+ netlink) but which is perenial ? Which you advise me ? <br>
+<br>
+thanks.<br>
+<br>
+--------------------------------------------------------<br>
+Nicolas Clementz<br>
+Service Informatique R=E9seaux et T=E9l=E9com.<br>
+IUT de Colmar<br>
+T=E9l : 03.89.20.23.63<br>
+<br>
+</body></html>=
+
+--0__=4EBBFEECDFBE01278f9e8a93df938690918c4EBBFEECDFBE0127--
 
