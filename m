@@ -1,16 +1,12 @@
-Date: Wed, 9 Jul 2008 22:34:29 -0400
-From: Bill Nottingham <notting@redhat.com>
-Message-ID: <20080710023429.GB24665@nostromo.devel.redhat.com>
-References: <20080707205342.GA19710@nostromo.devel.redhat.com>
-	<4872838B.1060603@trash.net>
-	<20080707213420.GA20089@nostromo.devel.redhat.com>
-	<20080707.145259.103902820.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20080707.145259.103902820.davem@davemloft.net>
-Subject: Re: [Bridge] [RFC PATCH 0/2] Allow full bridge configuration via
-	sysfs
+Date: Thu, 10 Jul 2008 14:07:28 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20080710140728.503a04c7@extreme>
+In-Reply-To: <89ADFB63BC286B49BC71F1D34A7E38D612D860@EXVS01.aenigmacorp.com>
+References: <89ADFB63BC286B49BC71F1D34A7E38D612D860@EXVS01.aenigmacorp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] openBSD Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,41 +15,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Geoff Wiener <gwiener@aenigmacorp.com>
+Cc: bridge@linuxfoundation.org
 
-David Miller (davem@davemloft.net) said: 
-> > Why, if netlink is the standard (and it's been around for a long
-> > damn time), was sysfs configuration for bonding added in 2005? Why
-> > was bridge configuration added in 2005, and *extended* in 2006 and
-> > 2007? Why were the user-space tools such as brctl ported from ioctl
-> > to sysfs?
+On Wed, 9 Jul 2008 11:25:38 +0100
+"Geoff Wiener" <gwiener@aenigmacorp.com> wrote:
+
+> Dear List;
 > 
-> Because often a lot of shit slips in when someone who understands
-> the ramifications is too busy or on vacation.
-
-Duly noted, will time all patch submissions to land during your
-vacations in the future.
-
-More seriously, if there's not a mechanism to prevent ABIs the
-kernel doesn't want like this being added, that's a problem.
-
-> We do want everything to be netlink based.
+>  
 > 
-> Why?
-> 
-> Because it means that you can run one monitoring tool to listen
-> for netlink events and report them to the user for diagnosis.
-> 
-> It means that network configuration events can be sent over
-> the wire and used remotely at some point.
-> 
-> The latter can never happen as long as we keep adding ad-hoc
-> config stuff.
+> This is my first post to this list, I have tried to find the answer to
+> this question on my own but have not been able to get anything
+> definitive.  Please excuse me if this question has been asked before.
+> The main question is this.  "Is this bridge code the same as what is
+> implemented in openBSD?"  Can someone point me to some definitive
+> information about this?
 
-Sure, but it does make them more opaque to the normal user,
-leaving them wrapped in the same old ip/brctl/ifenslave/vconfig
-tools - for better or worse, people like the discoverability
-and obviousness of sysfs.
-
-Bill
+OpenBSD is a completely different code base. So the rest of your questions
+are pretty much irrelevant.
