@@ -1,12 +1,11 @@
-Date: Thu, 10 Jul 2008 14:07:28 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20080710140728.503a04c7@extreme>
-In-Reply-To: <89ADFB63BC286B49BC71F1D34A7E38D612D860@EXVS01.aenigmacorp.com>
-References: <89ADFB63BC286B49BC71F1D34A7E38D612D860@EXVS01.aenigmacorp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4876FDF0.1030807@iki.fi>
+Date: Fri, 11 Jul 2008 09:30:08 +0300
+From: =?ISO-8859-1?Q?Timo_Ter=E4s?= <timo.teras@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] openBSD Bridge
+Sender: =?UTF-8?B?VGltbyBUZXLDpHM=?= <timo.teras@gmail.com>
+Subject: [Bridge] bridging with gre tunnel
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,22 +14,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Geoff Wiener <gwiener@aenigmacorp.com>
-Cc: bridge@linuxfoundation.org
+To: bridge@lists.linux-foundation.org, netdev@vger.kernel.org
 
-On Wed, 9 Jul 2008 11:25:38 +0100
-"Geoff Wiener" <gwiener@aenigmacorp.com> wrote:
+Hi all,
 
-> Dear List;
-> 
->  
-> 
-> This is my first post to this list, I have tried to find the answer to
-> this question on my own but have not been able to get anything
-> definitive.  Please excuse me if this question has been asked before.
-> The main question is this.  "Is this bridge code the same as what is
-> implemented in openBSD?"  Can someone point me to some definitive
-> information about this?
+It looks the current kernel still do not support bridging over gre
+tunnels.
 
-OpenBSD is a completely different code base. So the rest of your questions
-are pretty much irrelevant.
+I did find an old patch for ip_gre that would enable this [1]. But
+it needs porting from 2.4 to 2.6 kernels and looks like it needs
+cleaning up too.
+
+Is there newer/better patches to achieve this? Any thoughts about
+doing bridging with gre tunnels?
+
+Cheers,
+  Timo
+
+[1] http://mailman.ds9a.nl/pipermail/lartc/2003q4/010327.html
