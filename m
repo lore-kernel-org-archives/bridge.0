@@ -1,11 +1,12 @@
-Message-ID: <487B4352.6040408@trash.net>
-Date: Mon, 14 Jul 2008 14:15:14 +0200
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
+Date: Mon, 14 Jul 2008 20:20:08 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-ID: <20080714122008.GA28651@gondor.apana.org.au>
 References: <E1KIMV2-0007Na-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1KIMV2-0007Na-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	<487B4352.6040408@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <487B4352.6040408@trash.net>
 Subject: Re: [Bridge] bridging with gre tunnel
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,26 +16,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Herbert Xu <herbert@gondor.apana.org.au>
+To: Patrick McHardy <kaber@trash.net>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Philip Craig <philipc@snapgear.com>, timo.teras@iki.fi
 
-Herbert Xu wrote:
-> Philip Craig <philipc@snapgear.com> wrote:
->> Actually, this change doesn't really belong in GRE either, because
->> that forces you to choose between ethernet encapsulation and not.
->> It could be a new device that sits on top of GRE and simply does
->> ethernet encapsulation then passes it to the raw GRE device.
->> That's a lot of infrastructure for something so simple though,
->> and I don't think people will want to use both devices at once.
-> 
-> What's the problem with using Ethernet encapsulation on such a
-> GRE device? If you're referring to the fact that user-space uses
-> the encapsulation type to determine whether a device is a tunnel,
-> then we should fix those tools instead.
-> 
-> Rather than trying to resuscitate the ioctl interface, please
-> create a new extensible netlink interface and make ip(8) use it
-> where available.
+On Mon, Jul 14, 2008 at 02:15:14PM +0200, Patrick McHardy wrote:
+>
+> Or use rtnl_link, which was created for this purpose :)
 
-
-Or use rtnl_link, which was created for this purpose :)
+Excellent, now there is even less excuse to bother with the ioctls :)
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
