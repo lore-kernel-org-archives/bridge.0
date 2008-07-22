@@ -1,10 +1,13 @@
-Sender: fulvio@zeroshell.net
-From: "Fulvio Ricciardi" <fulvio.ricciardi@zeroshell.net>
-Date: Tue, 22 Jul 2008 19:40:32 +0200
-Message-id: <48861b90.378.7eff.1867149638@webmaildh6.aruba.it>
+Date: Tue, 22 Jul 2008 21:35:46 +0200
+From: Adam Osuchowski <Adam.Osuchowski@polsl.pl>
+Message-ID: <20080722193546.6b8b4567@polsl.pl>
+References: <48861b90.378.7eff.1867149638@webmaildh6.aruba.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <48861b90.378.7eff.1867149638@webmaildh6.aruba.it>
 Subject: Re: [Bridge] 802.1q packets
+Reply-To: Adam Osuchowski <Adam.Osuchowski@polsl.pl>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,39 +16,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Adam Osuchowski <Adam.Osuchowski@polsl.pl>, Fulvio Ricciardi <fulvio.ricciardi@zeroshell.net>
+To: Fulvio Ricciardi <fulvio.ricciardi@zeroshell.net>
 Cc: bridge@osdl.org
 
+Fulvio Ricciardi wrote:
+> Thanks for the patch
 
-> Fulvio Ricciardi wrote:
-> > I notice that with the Kernel 2.6.25.9 the 802.1q VLAN
-> > tagged packets larger than 1470 bytes are not forwarded
-> > at all by a bridge.
-> > I think there is a bad interaction between bridge and
-> > netfilter codes. Any chance to a have a patch to solve
-> > this problem that limit the possibility to use the Linux
-> > bridges in a environment with VLANs?
-> 
-> Is it maybe problem described here?
-> 
->  
->
-https://lists.linux-foundation.org/pipermail/bridge/2007-May/005436.html
-> 
-> If so, it was reported more than one year ago and still
-> none of developers care about it.
-> 
+This patch has one shortcoming. Better version (with PPPoE support as well)
+is here:
 
-Yes, it is exactly the same problem. Thanks for the patch
-that I hope developers will include it in the vanilla Kernel
-as soon as possible.
+https://lists.linux-foundation.org/pipermail/bridge/2007-May/005447.html
 
-Regards 
-Fulvio Ricciardi
+> that I hope developers will include it in the vanilla Kernel
+> as soon as possible.
 
+Don't be under the illusion that it will be done quickly (if at all).
+I have been waiting for that since I reported bug.
 
---------------------------------------------------------------------
-Fulvio Ricciardi
-web: http://www.zeroshell.net/eng/
-skype: zeroshellnet
-Phone: +3908321835630
+-- 
+##  Adam Osuchowski                            Adam.Osuchowski@polsl.pl
+##  Silesian University of Technology, Computer Centre, Gliwice, Poland
