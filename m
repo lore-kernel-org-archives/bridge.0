@@ -1,13 +1,13 @@
-Message-ID: <487B18CD.5020502@katalix.com>
-Date: Mon, 14 Jul 2008 10:13:49 +0100
-From: James Chapman <jchapman@katalix.com>
+Date: Tue, 22 Jul 2008 13:09:26 +0200
+From: Adam Osuchowski <Adam.Osuchowski@polsl.pl>
+Message-ID: <20080722110926.6b8b4567@polsl.pl>
+References: <4865c467.386.27ed.998123722@webmaildh4.aruba.it>
 MIME-Version: 1.0
-References: <4876FDF0.1030807@iki.fi> <487AA0CD.9090600@snapgear.com>
-	<487AFF82.4090707@iki.fi> <487B11D9.7090800@snapgear.com>
-In-Reply-To: <487B11D9.7090800@snapgear.com>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bridging with gre tunnel
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4865c467.386.27ed.998123722@webmaildh4.aruba.it>
+Subject: Re: [Bridge] 802.1q packets
+Reply-To: Adam Osuchowski <Adam.Osuchowski@polsl.pl>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +16,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Philip Craig <philipc@snapgear.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, =?ISO-8859-1?Q?Timo_Ter=E4s?= <timo.teras@iki.fi>
+To: Fulvio Ricciardi <fulvio.ricciardi@zeroshell.net>
+Cc: bridge@osdl.org
 
-Philip Craig wrote:
-> Timo Ter=E4s wrote:
-> I posted a cleaner version that's similar to what the old patch
-> did, see http://marc.info/?l=3Dlinux-netdev&m=3D115449948503549&w=3D2
->=20
-> But I don't think that is the right approach:
-> - it forces you to use bridging if you only want ethernet over GRE
-> - the change fundamentally has nothing to do with bridging
+Fulvio Ricciardi wrote:
+> I notice that with the Kernel 2.6.25.9 the 802.1q VLAN
+> tagged packets larger than 1470 bytes are not forwarded at
+> all by a bridge.
+> I think there is a bad interaction between bridge and
+> netfilter codes. Any chance to a have a patch to solve this
+> problem that limit the possibility to use the Linux bridges
+> in a environment with VLANs?
 
-I agree.
+Is it maybe problem described here?
 
-> It could be a new device that sits on top of GRE and simply does
-> ethernet encapsulation then passes it to the raw GRE device.
+  https://lists.linux-foundation.org/pipermail/bridge/2007-May/005436.html
 
-This would be my preferred approach. There are other drivers that use a=20
-netdev to do some encap/decap processing on packets which are then=20
-passed on to another driver, e.g. macvlan, and it works well.
+If so, it was reported more than one year ago and still none of developers
+care about it.
 
---=20
-James Chapman
-Katalix Systems Ltd
-http://www.katalix.com
-Catalysts for your Embedded Linux software development
-
+-- 
+##  Adam Osuchowski                            Adam.Osuchowski@polsl.pl
+##  Silesian University of Technology, Computer Centre, Gliwice, Poland
