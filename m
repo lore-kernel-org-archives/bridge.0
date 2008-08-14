@@ -1,12 +1,11 @@
-Date: Fri, 15 Aug 2008 21:17:27 +0100 (BST)
-From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
-In-Reply-To: <48A5E1E3.5060907@free.fr>
-Message-ID: <alpine.DEB.1.10.0808152114540.27001@callisto.moose.malc.org.uk>
-References: <48A0B4AD.6030703@free.fr> <20080811163159.49cf9980@extreme>
-	<48A5E1E3.5060907@free.fr>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: Re: [Bridge] frame destinated to individual port MAC address
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C8FE57.B6D7A519"
+Date: Fri, 15 Aug 2008 00:50:05 +0300
+Message-ID: <30CDFF93154A1B47814BD152CC5F9201089E4C73@YTMAIL.youtravel.local>
+From: "Elias Chatzigeorgiou" <echatzigeorgiou@youtravel.com>
+Subject: [Bridge] Bridging under vmware esx 3.0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,26 +14,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Benoit PAPILLAULT <benoit.papillault@free.fr>
-Cc: Bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-At 22:06 today, Benoit PAPILLAULT wrote:
+This is a multi-part message in MIME format.
 
-> I am in a very preliminary phase, trying to learn how to implement
-> routing and bridging under Linux. In order for the routing protocol to
-> have proper topology view, it somehow needs to assign a unique IP on all
-> interfaces and for bridging and those interfaces needs to be in the same
-> bridge.
+------_=_NextPart_001_01C8FE57.B6D7A519
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-By my understanding (and it's a while since I read that paper so I might be 
-wrong) you don't need unique IP addresses on all interfaces; everything uses 
-MAC addresses.  To quote section 4.2 of the draft:
+SGVsbG8sDQogICAgSSB0cmllZCB0byBzZXR1cCBhIGJyaWRnZSBpbiBhIChkZWJpYW4tYmFzZWQp
+IHZpcnR1YWwgbWFjaGluZSB1c2luZyBlc3ggc2VydmVyLiBJIGFkZGVkIHR3byBuaWNzIG9uIG15
+IHZtIGNvbm5lY3RlZCB0aGVuIGluIHR3byBkaWZmZXJlbnQgbmV0d29ya3MgYW5kIHVzZWQgdGhl
+IGJyaWRnZSB1dGlsaXR5IChicmN0bCkgdG8gYnJpZGdlIHRoZW0uIEkgZ2F2ZSB0aGUgYnJpZGdl
+IGFuIGlwIGFkZHJlc3Mgc28gdGhhdCBpdCB3b3VsZCBiZSB2aXNpYmxlIGZyb20gdGhlIG5ldHdv
+cmsuDQoNCkkgY2FuIGFjY2VzcyBib3RoIG5ldHdvcmtzIGZyb20gdGhhdCB2bSwgYW5kIG1hY2hp
+bmVzIG9uIGJvdGggbmV0d29ya3MgY2FuIGFjY2VzcyB0aGUgdm0uDQoNCkJVVCBQQUNLRVRTIGZy
+b20gbmV0MSBkbyBub3QgcmVhY2ggbmV0MiBhbmQgdmlzZS12ZXJzYS4NCg0KSSBoYXZlIG5vIGlw
+L2VidGFibGUgcnVsZXMgYW5kIC9wcm9jL3N5cy9uZXQvYnJpZGdlLyogZmlsZXMgYXJlIHNldCB0
+byB6ZXJvLg0KDQpBcyBhIGxhc3QgY2hlY2ssIEkgdXNlZCB0Y3BkdW1wIHRvIGR1bXAgcGFja2V0
+cyBjb21taW5nIGZyb20gZS5nLiB0aGUgbmV0MSB0byB0aGUgYXR0YWNoZWQgbmljIChldGgwKSBh
+bmQgdGhleSBzZWVtIHRvIHJlYWNoIG9ubHkgaWYgZXRoMCBpcyBub3QgcGFydCBvZiB0aGUgYnJp
+ZGdlLiANCg0KUExFQVNFIEFEVklTRS4NCg0KVGhhbmtzDQpFbGlhcyBDaGF0emlnZW9yZ2lvdQ0K
 
-    o  it runs directly over Layer 2, so therefore may be run with zero
-       configuration (no IP addresses need to be assigned)
+------_=_NextPart_001_01C8FE57.B6D7A519
+Content-Type: text/html;
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
 
--- 
-Malcolm Scott
-Research Assistant
-University of Cambridge Computer Laboratory
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDMuMi8vRU4iPg0KPEhUTUw+
+DQo8SEVBRD4NCjxNRVRBIEhUVFAtRVFVSVY9IkNvbnRlbnQtVHlwZSIgQ09OVEVOVD0idGV4dC9o
+dG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxNRVRBIE5BTUU9IkdlbmVyYXRvciIgQ09OVEVOVD0iTVMg
+RXhjaGFuZ2UgU2VydmVyIHZlcnNpb24gNi41Ljc2MzguMSI+DQo8VElUTEU+QnJpZGdpbmcgdW5k
+ZXIgdm13YXJlIGVzeCAzLjA8L1RJVExFPg0KPC9IRUFEPg0KPEJPRFk+DQo8IS0tIENvbnZlcnRl
+ZCBmcm9tIHRleHQvcGxhaW4gZm9ybWF0IC0tPg0KDQo8UD48Rk9OVCBTSVpFPTI+SGVsbG8sPEJS
+Pg0KJm5ic3A7Jm5ic3A7Jm5ic3A7IEkgdHJpZWQgdG8gc2V0dXAgYSBicmlkZ2UgaW4gYSAoZGVi
+aWFuLWJhc2VkKSB2aXJ0dWFsIG1hY2hpbmUgdXNpbmcgZXN4IHNlcnZlci4gSSBhZGRlZCB0d28g
+bmljcyBvbiBteSB2bSBjb25uZWN0ZWQgdGhlbiBpbiB0d28gZGlmZmVyZW50IG5ldHdvcmtzIGFu
+ZCB1c2VkIHRoZSBicmlkZ2UgdXRpbGl0eSAoYnJjdGwpIHRvIGJyaWRnZSB0aGVtLiBJIGdhdmUg
+dGhlIGJyaWRnZSBhbiBpcCBhZGRyZXNzIHNvIHRoYXQgaXQgd291bGQgYmUgdmlzaWJsZSBmcm9t
+IHRoZSBuZXR3b3JrLjxCUj4NCjxCUj4NCkkgY2FuIGFjY2VzcyBib3RoIG5ldHdvcmtzIGZyb20g
+dGhhdCB2bSwgYW5kIG1hY2hpbmVzIG9uIGJvdGggbmV0d29ya3MgY2FuIGFjY2VzcyB0aGUgdm0u
+PEJSPg0KPEJSPg0KQlVUIFBBQ0tFVFMgZnJvbSBuZXQxIGRvIG5vdCByZWFjaCBuZXQyIGFuZCB2
+aXNlLXZlcnNhLjxCUj4NCjxCUj4NCkkgaGF2ZSBubyBpcC9lYnRhYmxlIHJ1bGVzIGFuZCAvcHJv
+Yy9zeXMvbmV0L2JyaWRnZS8qIGZpbGVzIGFyZSBzZXQgdG8gemVyby48QlI+DQo8QlI+DQpBcyBh
+IGxhc3QgY2hlY2ssIEkgdXNlZCB0Y3BkdW1wIHRvIGR1bXAgcGFja2V0cyBjb21taW5nIGZyb20g
+ZS5nLiB0aGUgbmV0MSB0byB0aGUgYXR0YWNoZWQgbmljIChldGgwKSBhbmQgdGhleSBzZWVtIHRv
+IHJlYWNoIG9ubHkgaWYgZXRoMCBpcyBub3QgcGFydCBvZiB0aGUgYnJpZGdlLjxCUj4NCjxCUj4N
+ClBMRUFTRSBBRFZJU0UuPEJSPg0KPEJSPg0KVGhhbmtzPEJSPg0KRWxpYXMgQ2hhdHppZ2Vvcmdp
+b3U8L0ZPTlQ+DQo8L1A+DQoNCjwvQk9EWT4NCjwvSFRNTD4=
 
+------_=_NextPart_001_01C8FE57.B6D7A519--
