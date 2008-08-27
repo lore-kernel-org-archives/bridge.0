@@ -1,12 +1,10 @@
-Date: Wed, 27 Aug 2008 08:17:32 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20080827081732.68fefb51@extreme>
-In-Reply-To: <FB2A2D2F36FC264282887DD51732C0200160D2D8@magmsg03.ad.magnumsemi.com>
-References: <FB2A2D2F36FC264282887DD51732C0200160D2D8@magmsg03.ad.magnumsemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Socket Buffer bridging of Ethernet frames
+Date: Thu, 28 Aug 2008 00:20:54 +0200
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Message-ID: <20080827222054.GA3225@dis.manty.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Patches on Debian not yet on git
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,98 +13,91 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Suresh Bhaskaran <Suresh.Bhaskaran@magnumsemi.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Tue, 26 Aug 2008 19:29:12 -0700
-"Suresh Bhaskaran" <Suresh.Bhaskaran@magnumsemi.com> wrote:
+Hi!
 
-> Hello,
-> 
->  
-> 
-> I am requesting a sanity check on my "driver-level" bridging approach in
-> this e-mail.  Please let me know if you see any "gotcha's" in this
-> approach.
-> 
->  
-> 
-> Problem:
-> 
-> *	I have a single physical ethernet device on my embedded linux
-> target, and I want to bridge packets to/from a device across on the
-> other side of a shared memory, that also processes ethernet data.
-> *	For a variety of reasons, I can't use the "brctl addbr" utility
-> (I've tried!), so I'm implementing the bridging functionality for this
-> specific case, at the driver level.
-> 
->  
-> 
-> My approach:
-> 
-> *	Modify the existing ethernet driver by adding some additional
-> code:
-> *	Whenever I receive a packet on the physical ethernet:
-> 
-> 	*	Just before sending the skb to the network interface
-> (netif_rx(skb)), also push the packet to shmem.
-> 
-> *	Whenever I send a packet to the physical ethernet:
-> 
-> 	*	Before pushing the packet to the physical ethernet
-> device, also push the packet to shared memory.
-> 
-> *	When I receive a packet from the "shared memory" device:
-> 
-> 	*	Build up two copies of an skb
-> 	*	Get the handle to the network device by doing a
-> dev_get_by_name("eth0")
-> 	*	Push one up to the netif (netif_rx(skb))
-> 	*	Push the other (identical) skb to the physical ethernet
-> device.
-> 	*	dev_put("eth0") when I'm done.
-> 
-> *	I use netif_stop_queue() and netif_wake_queue() for flow control
-> to the network interface, but for shmem congestion, I just drop packets
-> (for now), since I don't have "easy" queue api's for flow control
-> handy..
-> 
->  
-> 
-> Some questions/concerns I have:
-> 
->  
-> 
-> *	is there something in the skb that has "directionality"?
-> 
-> 	*	That is, if I take and skb that is intended to go to the
-> network interface (e.g. netif_rx(skb)), and "push" it down to physical
-> device, will something get usynchronized?
-> 	*	Or, if I get an skb from the system (from the
-> hard_start_xmit()), can I "push" it up again to the netif, or will some
-> "directionality" thing in the skb make things go out of whack?
-> 	*	Also, if I push all these additional created skb's up to
-> the interface, or down, is there some "count" between the system netif
-> and the physical device that may get out of whack, and out of sync?
-> 
-> *	Also, is there something like a "man" pages for the above api's,
-> and also skb questions? (other than the source code)?  I wasn't to find
-> a good man page on the above by few minutes "google"
-> 
->  
-> 
-> In any case, I'm already partially along this approach, but I sure could
-> use any advance warning of potential issues and workarounds!
-> 
->  
-> 
-> Thanks again.
-> 
->  
-> 
-> Suresh Bhaskaran
-> 
->  
-> 
+I have just added a patch on Debian to fix http://bugs.debian.org/496491 and
+have seen that other patches are yet unapplied on git, so I'm adding them
+here.
 
-You just reinvented AF_PACKET with mmap. I don't see why you want to.
+For http://bugs.debian.org/496491 It resulted that the problem was bigger
+than what the user reports and almost all setting commands, if not all, were
+failing. The problem seems to be with the path as the user reported.
+
+diff -ru bridge-utils/libbridge/libbridge_devif.c bridge-utils-1.4/libbridge/libbridge_devif.c
+--- bridge-utils/libbridge/libbridge_devif.c	2008-08-27 23:37:29.000000000 +0200
++++ bridge-utils-1.4/libbridge/libbridge_devif.c	2008-08-27 23:38:11.000000000 +0200
+@@ -282,7 +282,7 @@
+ 	char path[SYSFS_PATH_MAX];
+ 	FILE *f;
+ 
+-	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/%s", bridge, name);
++	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/bridge/%s", bridge, name);
+ 
+ 	f = fopen(path, "w");
+ 	if (f) {
+
+For http://bugs.debian.org/431860 segfault if a bridge is called bridge:
+
+diff -ru bridge-utils/libbridge/libbridge_init.c bridge-utils-1.4/libbridge/libbridge_init.c
+--- bridge-utils/libbridge/libbridge_init.c	2008-08-27 23:37:29.000000000 +0200
++++ bridge-utils-1.4/libbridge/libbridge_init.c	2008-08-27 23:38:11.000000000 +0200
+@@ -49,6 +49,9 @@
+ 	char path[SYSFS_PATH_MAX];
+ 	struct stat st;
+ 
++	if(entry->d_name[0] == '.')
++		return 0;
++
+ 	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/bridge", entry->d_name);
+ 	return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+ }
+
+For http://bugs.debian.org/406907 wrong printing when command not understood:
+
+diff -ru bridge-utils/brctl/brctl.c bridge-utils-1.4/brctl/brctl.c
+--- bridge-utils/brctl/brctl.c	2008-08-27 23:37:29.000000000 +0200
++++ bridge-utils-1.4/brctl/brctl.c	2008-08-27 23:38:11.000000000 +0200
+@@ -69,7 +69,7 @@
+ 	argc -= optind;
+ 	argv += optind;
+ 	if ((cmd = command_lookup(*argv)) == NULL) {
+-		fprintf(stderr, "never heard of command [%s]\n", argv[1]);
++		fprintf(stderr, "never heard of command [%s]\n", argv[0]);
+ 		goto help;
+ 	}
+ 	
+Patch for some bugs on the documentation:
+
+diff -ru bridge-utils/doc/FAQ bridge-utils-1.4/doc/FAQ
+--- bridge-utils/doc/FAQ	2008-08-27 23:37:29.000000000 +0200
++++ bridge-utils-1.4/doc/FAQ	2008-08-27 23:38:11.000000000 +0200
+@@ -1,4 +1,4 @@
+ The FAQ is now located at
+ 
+-	http://bridge.sourceforge.net/faq.html
++	http://www.linux-foundation.org/en/Net:Bridge
+ 
+diff -ru bridge-utils/doc/FIREWALL bridge-utils-1.4/doc/FIREWALL
+--- bridge-utils/doc/FIREWALL	2008-08-27 23:37:29.000000000 +0200
++++ bridge-utils-1.4/doc/FIREWALL	2008-08-27 23:38:11.000000000 +0200
+@@ -7,10 +7,9 @@
+ How do bridging and firewalling go together?  First of all, you need a
+ kernel patch against the 2.4 kernel to actually make firewalling bridged
+ packets possible.  You need to apply this patch to your kernel and recompile
+-it, or alternatively, download a pre-patched Red Hat 7.2 kernel RPM and use
+-that.  The patch and kernel RPM are located at:
++it. The patch is maitained at:
+ 
+-	http://bridge.sourceforge.net/devel/bridge-nf/
++	http://ebtables.sourceforge.net/
+ 
+ Now if you boot with this kernel, you can use the regular iptables
+ firewalling as if you were doing routing.  So, rules for forwarding are
+
+Hope that helps!
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
