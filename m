@@ -1,11 +1,11 @@
-Message-ID: <2ced936d0809162304o5ab63f10x623771fa88174f53@mail.gmail.com>
-Date: Wed, 17 Sep 2008 03:04:03 -0300
-From: "Breno Jacinto" <breno@freeunix.com.br>
+Date: Wed, 17 Sep 2008 09:49:37 +0100 (BST)
+From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
+In-Reply-To: <fb7befa20809161211m3ec7ba60gb10f4ff044cb3979@mail.gmail.com>
+Message-ID: <alpine.DEB.1.10.0809170949120.23831@callisto.moose.malc.org.uk>
+References: <fb7befa20809161211m3ec7ba60gb10f4ff044cb3979@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-Subject: [Bridge] Bridging heterogeneous networks
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: [Bridge] Bridge with one interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,35 +14,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Adayadil Thomas <adayadil.thomas@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-Hello, this is my first post here, I'm glad I found out this great
-piece of work, congratulations to everyone involved.
+At 15:11 yesterday, Adayadil Thomas wrote:
 
-    I'm working on a project where we intend to integrate different
-link-layer technologies, specifically, Bluetooth, 802.11 networks and
-Ethernet. Since we want to escape IP routing and stay layer 3
-independent, we are studing solutions at a level like MPLS's layer
-2.5.
+> I wanted to know if anyone has any info or experience to share with a
+> configuration/setup where there is only one interface added to the
+> bridge.
+>
+> say br0 with only eth0 added.
+>
+> I am doing this to have packets seen by the bridge code but do need them
+> forwarded anywhere.
+>
+> Are there any issues in this setup?
 
-    After reading some documentation on the page about the Linux
-Ethernet Bridge, I'm wondering if someone has had a similar experience
-and can tell me if there's a possibility of this being achieved. If
-not, what are the challenges? Is there any driver-specific issues
-involving any of the technologies?
+I've had no problems doing this in the past.
 
-   My feeling is that this is possible since Bluetooth supports BNEP
-(Ethernet emulation), 802.11 is supposed to be ethernet-like and
-Ethernet is already supported.
+Malcolm
 
-thanks in advance,
+-- 
+Malcolm Scott
+Research Assistant
+University of Cambridge Computer Laboratory
 
---=20
---=20
-:: Breno Jacinto ::
-:: breno - at - gprt.ufpe.br ::
-:: FingerPrint ::
- 2F15 8A61 F566 E442 8581
- E3C0 EFF4 E202 74B7 7484
-:: Persistir no dif=EDcil =E9 a =FAnica maneira de torn=E1-lo f=E1cil algum=
- dia. ::
