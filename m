@@ -1,11 +1,12 @@
-Date: Wed, 17 Sep 2008 09:49:37 +0100 (BST)
-From: Malcolm Scott <Malcolm.Scott@cl.cam.ac.uk>
-In-Reply-To: <fb7befa20809161211m3ec7ba60gb10f4ff044cb3979@mail.gmail.com>
-Message-ID: <alpine.DEB.1.10.0809170949120.23831@callisto.moose.malc.org.uk>
-References: <fb7befa20809161211m3ec7ba60gb10f4ff044cb3979@mail.gmail.com>
+From: Uli Luckas <luckas@musoft.de>
+Date: Thu, 18 Sep 2008 21:33:59 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: Re: [Bridge] Bridge with one interface
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200809182133.59751.luckas@musoft.de>
+Subject: [Bridge] delay in bridge learning when forward delay is 0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,28 +15,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Adayadil Thomas <adayadil.thomas@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-At 15:11 yesterday, Adayadil Thomas wrote:
+Hi,
+In July 2007 Philip Craig reported the following issue with 'forward delay'=0 
+in great detail without receiving an answer. Has Philip's message got lost or 
+was his analysis wrong?
+The problem becomes a real problem if you bridge a fast LAN to a slow port 
+like a bluetooth pan for example.
 
-> I wanted to know if anyone has any info or experience to share with a
-> configuration/setup where there is only one interface added to the
-> bridge.
+
+https://lists.linux-foundation.org/pipermail/bridge/2007-July/005476.html
+Philip Craig philipc at snapgear.com 
+> Hi,
 >
-> say br0 with only eth0 added.
+> If you set the bridge forward delay to 0 with:
+>         brctl setfd br0 0
+> then the bridge does not learn addresses for the first 20 seconds,
+> and so it floods everything during this time.
 >
-> I am doing this to have packets seen by the bridge code but do need them
-> forwarded anywhere.
+> The reason for this is that hold_time() returns 0 after a topology
+> change, br_fdb_update() is a no-op if hold_time() is 0 (so that
+> 'brctl setmaxage br0 0' can be used to disable learning), and the
+> topology change flag isn't cleared for max_age seconds, so nothing
+> is learnt during that time.
 >
-> Are there any issues in this setup?
-
-I've had no problems doing this in the past.
-
-Malcolm
-
--- 
-Malcolm Scott
-Research Assistant
-University of Cambridge Computer Laboratory
-
+> It seems that the intent of hold_time() is to expire entries that are
+> older than forward_delay seconds at the time of the topology change,
+> which it does, but then it keeps on checking this expiry again for
+> max_age seconds, and bases these checks on the current time rather
+> than the time of the change.
+>
+> A quick fix for the forward delay 0 case would be to skip the
+> topology change check if stp is disabled, but if I understand things
+> correctly then the expiry isn't right for non-zero cases either.
