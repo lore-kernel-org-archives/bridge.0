@@ -1,12 +1,15 @@
-From: Uli Luckas <luckas@musoft.de>
-Date: Thu, 18 Sep 2008 21:33:59 +0200
+Date: Sat, 20 Sep 2008 22:47:43 +0200
+From: Adam Osuchowski <adwol@zonk.pl>
+Message-ID: <20080920204743.6b8b4567@zonk.pl>
+References: <48861b90.378.7eff.1867149638@webmaildh6.aruba.it>
+	<20080722193546.6b8b4567@polsl.pl>
+	<20080722145920.4a8e0cbe@extreme>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200809182133.59751.luckas@musoft.de>
-Subject: [Bridge] delay in bridge learning when forward delay is 0
+In-Reply-To: <20080722145920.4a8e0cbe@extreme>
+Subject: Re: [Bridge] 802.1q packets
+Reply-To: Adam Osuchowski <adwol@zonk.pl>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,37 +18,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: bridge@linuxfoundation.org
 
-Hi,
-In July 2007 Philip Craig reported the following issue with 'forward delay'=0 
-in great detail without receiving an answer. Has Philip's message got lost or 
-was his analysis wrong?
-The problem becomes a real problem if you bridge a fast LAN to a slow port 
-like a bluetooth pan for example.
+Stephen Hemminger wrote:
+> Problem has been fixed since 2.6.17 (over 2 yrs ago).
+> Look before you whine.
 
-
-https://lists.linux-foundation.org/pipermail/bridge/2007-July/005476.html
-Philip Craig philipc at snapgear.com 
-> Hi,
->
-> If you set the bridge forward delay to 0 with:
->         brctl setfd br0 0
-> then the bridge does not learn addresses for the first 20 seconds,
-> and so it floods everything during this time.
->
-> The reason for this is that hold_time() returns 0 after a topology
-> change, br_fdb_update() is a no-op if hold_time() is 0 (so that
-> 'brctl setmaxage br0 0' can be used to disable learning), and the
-> topology change flag isn't cleared for max_age seconds, so nothing
-> is learnt during that time.
->
-> It seems that the intent of hold_time() is to expire entries that are
-> older than forward_delay seconds at the time of the topology change,
-> which it does, but then it keeps on checking this expiry again for
-> max_age seconds, and bases these checks on the current time rather
-> than the time of the change.
->
-> A quick fix for the forward delay 0 case would be to skip the
-> topology change check if stp is disabled, but if I understand things
-> correctly then the expiry isn't right for non-zero cases either.
+No, it is not this problem. That one which I'm talking about was observed
+by me in kernel 2.6.21 first time and still exists in recent version
+(2.6.26.5). Check it once again, please.
