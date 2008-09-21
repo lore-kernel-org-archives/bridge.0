@@ -1,15 +1,10 @@
-Date: Sat, 20 Sep 2008 22:47:43 +0200
-From: Adam Osuchowski <adwol@zonk.pl>
-Message-ID: <20080920204743.6b8b4567@zonk.pl>
-References: <48861b90.378.7eff.1867149638@webmaildh6.aruba.it>
-	<20080722193546.6b8b4567@polsl.pl>
-	<20080722145920.4a8e0cbe@extreme>
+Message-ID: <48D6DF9D.10708@126.com>
+Date: Mon, 22 Sep 2008 07:58:21 +0800
+From: czj <linuxdemo@126.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20080722145920.4a8e0cbe@extreme>
-Subject: Re: [Bridge] 802.1q packets
-Reply-To: Adam Osuchowski <adwol@zonk.pl>
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] 4 ports bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,13 +13,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: bridge@linuxfoundation.org
+To: bridge@lists.linux-foundation.org
 
-Stephen Hemminger wrote:
-> Problem has been fixed since 2.6.17 (over 2 yrs ago).
-> Look before you whine.
+Hi all,
+I work on a SOC based on AMCC/glacier based on PPC460GT. (
+http://WWW.AMCC.com <http://micrel.com/page.do?page=product-info/sys_on_chip.jsp>)
+This component has 4 network interfaces. 
 
-No, it is not this problem. That one which I'm talking about was observed
-by me in kernel 2.6.21 first time and still exists in recent version
-(2.6.26.5). Check it once again, please.
+Every one is connected to a PC.
+
+eth0 =>192.168.1.11
+eth1 => 192.168.1.22
+eth2 => 192.168.1.33
+eth3 => 192.168.1.44
+
+I want to make a bridge with these 4 ports
+
+#brctl addbr br0
+
+#ifconfig br0 192.168.1.20 netmask 255.255.255.0
+
+#ifconfig eth0 0.0.0.0 up
+
+#ifconfig eth1 0.0.0.0 up
+
+#ifconfig eth2 0.0.0.0 up
+
+#ifconfig eth3 0.0.0.0 up
+
+# brctl addif br0 eth0
+
+# brctl addif br0 eth1
+
+# brctl addif br0 eth2
+
+# brctl addif br0 eth3
+
+#brctl stp on
+
+but my problem is that when I used the PC(which IP is 192.168.1.11/24) to ping other PCs,
+
+the ping reply time from 192.168.1.22 was about 1000ms;
+the ping reply time from 192.168.1.33 was about 0.2ms;
+the ping reply time form 192.168.1.44 was about 300ms;
+
+Why? and how to configure  the 4 ethernet-ports glacier board to be a bridge or switch correctly? thanks a lot.
+
+
+Thanks,
+Cheng Zijing
+
+
