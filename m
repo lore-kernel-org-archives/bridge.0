@@ -1,12 +1,13 @@
-Message-ID: <48D7AD8B.3000805@gmx.net>
-Date: Mon, 22 Sep 2008 16:36:59 +0200
-From: Michael Rennt <m.rennt@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Packets dropped at certain traffic (bridge performance
-	tuning)
-Reply-To: m.rennt@gmx.net
+Date: Mon, 22 Sep 2008 08:33:22 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20080922083322.22fcc415@extreme>
+In-Reply-To: <205854.34099.qm@web8807.mail.in.yahoo.com>
+References: <205854.34099.qm@web8807.mail.in.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] bridge is not forwarding the packet <Urgent,
+ Please reply ASAP>
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,128 +16,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bridge@lists.linux-foundation.org
+To: rahul bhardwaj <rahul_bhardwaj36in@yahoo.co.in>
+Cc: bridge@lists.linux-foundation.org
 
-Hi,
+On Mon, 22 Sep 2008 16:24:00 +0530 (IST)
+rahul bhardwaj <rahul_bhardwaj36in@yahoo.co.in> wrote:
 
-I'm trying to tweak the last bit out of our bridge/firewall. What is the maximum
-anyone else is getting out of it's bridge in terms of packets per second (pps)?
+> Hello to all,
+>=20
+> I am stating my problem below in detail so that you all can understand it=
+ properly.
+>=20
+> I am having setup of Linux box. In that box I am having one Ethernet inte=
+rface eth0 and one wireless interface ath0. I have also configured one vlan=
+ port as eth0.100 with the help of vconfig (vconfig add eth 100).=C2=A0 Now=
+ I have created two bridges br1 and br100. I have added eth0 into br1 so br=
+1 is having only one interface. I have added ath0 and eth0.100 into br100. =
+Physically eth0 is connected to a switch which is configured to handle vlan=
+ 100. DHCP server is also running into that switch to provide IP address to=
+ wireless stations. This is all about my setup.
+>=20
+> After this I am associating one wireless station with the ath0. After suc=
+cessful association station issues a dhclient to get ip address, which reac=
+hes to ath0 interface of my Linux box. ath0 bridges that request to eth0.10=
+0. Now eth0.100 adds it's vlan tags and forward that request to the switch.=
+ Because switch is configured to support vlan 100, so it process the dhcp r=
+equest and send back the dhcp response with vlan tag 100.=20
+>=20
+> Now I don't know but this response is not reaching to ath0. I have putted=
+ wireshark and figured out that those dhcp responses are reaching on eth0 a=
+nd as eth0 is part of br1 so this packet is reaching to br1 which is just d=
+iscarding them all. So the wireless station is not getting the ip address. =
+According to me eth0 should give these packets to eth0.100 port instead of =
+br1. Or what I mean to say first vlan handling should be done priror then=
+=C2=A0 bridge handling. Do I need to change something into Linux kernel for=
+ that or there is some other problem with my setup?
+>=20
+> Can anybody help me in this? If anybody want more detail I will provide. =
+I am using Linux 2.6.15 kernel. Any kind of help will be much appreciated.=
+=20
+>=20
+>=20
+> With Regards=20
+>=20
+> Rahul Bhardwaj=20
 
-Whenever outgoing traffic rises above a certain level, packets are getting
-dropped at eth1 rx. Tweaking some of the well known sysctl variables doesn't
-help either.
+Full bridging to wireless requires WDS which Linux wireless does not suppor=
+t (yet).
 
-Here's the setup:
-
-                    -----------------
-(switch) ---- eth0 |      bridge     | eth1 -------- (switch)
-                    -----------------
-  dmz                                                   mz
-
-
-* Kernel 2.6.26.4 (see more on bottom of this mail)
-* Dual-Core AMD Opteron(tm) Processor 2210
-* 4 GB RAM
-* bridge-utils 1.2
-* iptables
-* eth0: Intel 82545GM Gigabit Ethernet (64-Bit PCI-X Slot)
-  latest e1000
-* eth1: Broadcom BCM5780 Gigabit Ethernet (onboard 64-Bit)
-* 14 vlans, 1 bridge per vlan (i.e. br1 = eth0.1 + eth1.1, etc.)
-* Cisco GBit switches
-
-Here's what I tested so far:
-
-* Setting sysctl variables to higher values (no effect)
-* Changing TCP congestion control algorithm (no effect)
-* Changing CPU affinity for eth0/eth1
-  (slight improvement when eth0 -> CPU0, eth1 -> CPU1-3)
-* Removing all iptables rules (slight improvement ~ +10k pps)
-* nf_conntrack_max = 260864 (current usage ~ 140k entries)
-
-
-When testing with a spare system in our lab, with 2 test machines in the dmz and
-2 test machines in the mz, I'm reaching near wire speed (full duplex) in both
-directions. On the live system maximum is something like this:
-
-
-          mbit/s |   pkts/s |  drops/s | rx+tx pps | rx+tx mbps
-eth0-rx      219 |    64344 |        0 |
-eth0-tx      641 |    80846 |        0 |   145190 |      861
-eth1-rx      618 |    76973 |     1119 |
-eth1-tx      206 |    60326 |        0 |   137299 |      824
-
-Note: This is messured on the production system.
-
-Packets are getting dropped on eth1-rx at a level of around 55k pps rx / 42k pps
-tx. Dropped packets are messured at /proc/net/dev.
-
-Of course, the test setup mentioned doesn't simulate different packet sizes and
-all of that. I'm rather using a fixed average size of around 1000 bytes per
-packet, running iperf as well as pktgen to simulate the same amount of incoming
-traffic, while trying to reach the maximum throughput for outgoing traffic.
-
-But does the mixed packet sizes really cost about 350-380 MBit of throughput on
-eth1-rx?
-
-Any suggestions on how to further debug or even fix the problem are really
-appreciated. I don't mind supplying more output if needed.
-
-
-
-
-
-Important Kernel parameters:
-
-
-<*> Packet socket
-[*]   Packet socket: mmapped IO
-<*> Unix domain sockets
-< > PF_KEY sockets
-[*] TCP/IP networking
-[*]   IP: multicasting
-[*]   IP: advanced router
-       Choose IP: FIB lookup algorithm (choose FIB_HASH if unsure) (FIB_HASH)  --->
-[*]   IP: policy routing
-[*]   IP: equal cost multipath
-[*]   IP: verbose route monitoring
-[ ]   IP: kernel level autoconfiguration
-<*>   IP: tunneling
-< >   IP: GRE tunnels over IP
-[ ]   IP: multicast routing
-[ ]   IP: ARP daemon support (EXPERIMENTAL)
-[*]   IP: TCP syncookie support (disabled per default)
-< >   IP: AH transformation
-< >   IP: ESP transformation
-< >   IP: IPComp transformation
-< >   IP: IPsec transport mode
-< >   IP: IPsec tunnel mode
-< >   IP: IPsec BEET mode
-< >   Large Receive Offload (ipv4/tcp)
-<*>   INET: socket monitoring interface
-[*]   TCP: advanced congestion control  --->
-[ ]   TCP: MD5 Signature Option support (RFC2385) (EXPERIMENTAL)
-< >   IP virtual server support (EXPERIMENTAL)  --->
-< >   The IPv6 protocol  --->
-[ ] Security Marking
-[*] Network packet filtering framework (Netfilter)  --->
-< > The DCCP Protocol (EXPERIMENTAL)  --->
-< > The SCTP Protocol (EXPERIMENTAL)  --->
-< > The TIPC Protocol (EXPERIMENTAL)  --->
-< > Asynchronous Transfer Mode (ATM)
-<*> 802.1d Ethernet Bridging
-<*> 802.1Q VLAN Support
-< > DECnet Support
-< > ANSI/IEEE 802.2 LLC type 2 Support
-< > The IPX protocol
-< > Appletalk protocol support
-< > CCITT X.25 Packet Layer (EXPERIMENTAL)
-< > LAPB Data Link Driver (EXPERIMENTAL)
-< > Acorn Econet/AUN protocols (EXPERIMENTAL)
-< > WAN router
-[*] QoS and/or fair queueing  --->
-
-
-Best,
-
-Michael
+http://www.linuxfoundation.org/en/Net:Bridge#It_doesn.27t_work_with_my_Wire=
+less_card.21
