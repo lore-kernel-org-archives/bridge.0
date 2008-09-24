@@ -1,13 +1,14 @@
-Message-ID: <48D94C42.4020605@free.fr>
-Date: Tue, 23 Sep 2008 22:06:26 +0200
-From: =?UTF-8?B?Tmljb2xhcyBkZSBQZXNsb8O8YW4=?=
- <nicolas.2p.debian@free.fr>
+From: Uli Luckas <u.luckas@road.de>
+Date: Wed, 24 Sep 2008 13:57:28 +0200
+References: <200809182133.59751.luckas@musoft.de>
+In-Reply-To: <200809182133.59751.luckas@musoft.de>
 MIME-Version: 1.0
-References: <694310.58969.qm@web8804.mail.in.yahoo.com>
-In-Reply-To: <694310.58969.qm@web8804.mail.in.yahoo.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] bridge is not forwarding the packet
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200809241357.28552.u.luckas@road.de>
+Subject: Re: [Bridge] delay in bridge learning when forward delay is 0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,25 +17,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: rahul bhardwaj <rahul_bhardwaj36in@yahoo.co.in>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-rahul bhardwaj a écrit :
+Is any one willing to look into this problem? Or even aknowledege it's 
+existence? 
+If the description is not clear, please let me know.
 
-> Actually my problem is not related to MAC address restrictions from 
-> wireless interface/driver. The problem lies mainly in multiple bridges 
-> for different vlans. Since bridging happens first, the packet ends up on 
-> wrong bridge and gets discarded form that bridge.  If Vlan handling is 
-> done prior to bridge handling, my setup will work fine.
+Any response would be appreciated.
 
+regards,
+Uli
 
-Hi Rahul,
-
-Did you try to use ebtables, to arrange for the first bridge to ignore 
-the packet tagged as VLAN 100, to give a chance for the second bridge to 
-see it ?
-
-I remember seeing this a few month ago in the list, but failed to find 
-the exact post. 'hope you will find it by yourself.
-
-	Nicolas.
+> Hi,
+> In July 2007 Philip Craig reported the following issue with 'forward
+> delay'=0 in great detail without receiving an answer. Has Philip's message
+> got lost or was his analysis wrong?
+> The problem becomes a real problem if you bridge a fast LAN to a slow port
+> like a bluetooth pan for example.
+>
+>
+> https://lists.linux-foundation.org/pipermail/bridge/2007-July/005476.html
+> Philip Craig philipc at snapgear.com
+>
+> > Hi,
+> >
+> > If you set the bridge forward delay to 0 with:
+> >         brctl setfd br0 0
+> > then the bridge does not learn addresses for the first 20 seconds,
+> > and so it floods everything during this time.
+> >
+> > The reason for this is that hold_time() returns 0 after a topology
+> > change, br_fdb_update() is a no-op if hold_time() is 0 (so that
+> > 'brctl setmaxage br0 0' can be used to disable learning), and the
+> > topology change flag isn't cleared for max_age seconds, so nothing
+> > is learnt during that time.
+> >
+> > It seems that the intent of hold_time() is to expire entries that are
+> > older than forward_delay seconds at the time of the topology change,
+> > which it does, but then it keeps on checking this expiry again for
+> > max_age seconds, and bases these checks on the current time rather
+> > than the time of the change.
+> >
+> > A quick fix for the forward delay 0 case would be to skip the
+> > topology change check if stp is disabled, but if I understand things
+> > correctly then the expiry isn't right for non-zero cases either.
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
