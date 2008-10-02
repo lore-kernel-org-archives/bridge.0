@@ -1,9 +1,9 @@
-Message-ID: <BAY143-W9684F63E3C44284A5A6B3A63D0@phx.gbl>
+Message-ID: <BAY143-W259AA8EA71D7D77498511CA63D0@phx.gbl>
 Content-Type: multipart/alternative;
-	boundary="_8897628e-f1c8-4114-b73c-8ab085e7e7c7_"
+	boundary="_af8be291-87aa-4122-8a3f-49e30b046557_"
 From: "SYED JAHANZAiB ~!~ AA Internet Cable.Network Services"
 	<aacable@hotmail.com>
-Date: Thu, 2 Oct 2008 11:10:39 +0000
+Date: Thu, 2 Oct 2008 11:10:45 +0000
 MIME-Version: 1.0
 Subject: [Bridge] route few users to another server ?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: bridge@lists.linux-foundation.org
 Cc: cool_mudasir@hotmail.com
 
---_8897628e-f1c8-4114-b73c-8ab085e7e7c7_
+--_af8be291-87aa-4122-8a3f-49e30b046557_
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -46,12 +46,11 @@ Email  :  aacable@hotmail.com [MSN Messenger]=20
 
 Mobile : 0333-3021909=20
 _________________________________________________________________
-Invite your mail contacts to join your friends list with Windows Live Space=
-s. It's easy!
-http://spaces.live.com/spacesapi.aspx?wx_action=3Dcreate&wx_url=3D/friends.=
-aspx&mkt=3Den-us=
+Connect to the next generation of MSN Messenger=A0
+http://imagine-msn.com/messenger/launch80/default.aspx?locale=3Den-us&sourc=
+e=3Dwlmailtagline=
 
---_8897628e-f1c8-4114-b73c-8ab085e7e7c7_
+--_af8be291-87aa-4122-8a3f-49e30b046557_
 Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -101,10 +100,9 @@ tmail.com [MSN Messenger] </FONT></DIV>
 <DIV></DIV>
 <DIV></DIV>
 <DIV><FONT color=3D#000000>Mobile : 0333-3021909 </FONT></DIV></DIV><br /><=
-hr />Invite your mail contacts to join your friends list with Windows Live =
-Spaces. It's easy! <a href=3D'http://spaces.live.com/spacesapi.aspx?wx_acti=
-on=3Dcreate&wx_url=3D/friends.aspx&mkt=3Den-us' target=3D'_new'>Try it!</a>=
-</body>
+hr />Connect to the next generation of MSN Messenger=A0  <a href=3D'http://=
+imagine-msn.com/messenger/launch80/default.aspx?locale=3Den-us&source=3Dwlm=
+ailtagline' target=3D'_new'>Get it now! </a></body>
 </html>=
 
---_8897628e-f1c8-4114-b73c-8ab085e7e7c7_--
+--_af8be291-87aa-4122-8a3f-49e30b046557_--
