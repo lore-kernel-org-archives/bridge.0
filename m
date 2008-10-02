@@ -1,14 +1,11 @@
-Message-ID: <fed120860810011401i33a7d752qd5abf1490b3900f4@mail.gmail.com>
-Date: Thu, 2 Oct 2008 02:31:04 +0530
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-In-Reply-To: <20081001173246.5ee6696e@speedy>
+Message-ID: <BAY143-W9684F63E3C44284A5A6B3A63D0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_8897628e-f1c8-4114-b73c-8ab085e7e7c7_"
+From: "SYED JAHANZAiB ~!~ AA Internet Cable.Network Services"
+	<aacable@hotmail.com>
+Date: Thu, 2 Oct 2008 11:10:39 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6f6192b30810010757j408cbcb7jd5ee33b8da832cbe@mail.gmail.com>
-	<20081001173246.5ee6696e@speedy>
-Subject: Re: [Bridge] RSTP location and GPL info
+Subject: [Bridge] route few users to another server ?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,53 +14,97 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: M T <m.t.linuxbridge@gmail.com>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
+Cc: cool_mudasir@hotmail.com
 
-MT,
+--_8897628e-f1c8-4114-b73c-8ab085e7e7c7_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-The rstplib/ directory in Stephen's git repo is the RSTPLIB library
-also available at sourceforge (http://rstplib.sourceforge.net/), but
-with some small modifications for our purposes.
-RSTPLIB itself is under LGPL, and if you intend to use it, it may be
-better to start with the original version from sourceforge.
 
-I wrote another RSTP library to replace RSTPLIB and be compliant with
-802.1D-2004. I have not hosted that anywhere yet. That library is
-licensed, together with the rest of my RSTP work, as GPL v >= 2.
+users   =3D=3D=3D=3D>      Bridge    =3D=3D=3D=3D=3D> PROXY IP: 10.0.0.1=20
+=20
+My local LAN using these ip series 10.0.0.x 10.0.1.x 10.0.2.x=20
+Now I want that all internet request for specific 20-30 ip's should redirec=
+t to another pc e.g=20
+10.0.0.10 10.0.0.15 10.0.1.50 10.0.2.70 . . . .=20
+to another server on my LAN let's 10.0.0.2.=20
+How to do this ???
+=20
+ Regards=2C=20
 
-I will email that to you separately to avoid the attachment on the mailing list.
+SYED JAHANZAIB
+=20
 
-On Wed, Oct 1, 2008 at 9:02 PM, Stephen Hemminger <shemminger@vyatta.com> wrote:
-> On Wed, 1 Oct 2008 10:57:42 -0400
-> "M T" <m.t.linuxbridge@gmail.com> wrote:
->
->> I am currently working on a project for work where I need to implement RSTP
->> on non-Linux platforms (possibly ThreadX). I saw that there was a form by
->> Mr. Srinivas Aji that implemented RSTP on Linux Bridge. Can someone please
->> tell me if that fork is somewhere on the kernel.org git repository?
->>
->> I would like to use this work (without changing any code). I don't
->> understand the intricacies of GPL.
->>
->> * Can someone please point me to resources that say what I can and cannot
->> use in my project?
->> * I cannot open source my project but I am willing to contribute back any
->> changes I make to portions of linux bridge. I don't mind testing it on linux
->> before submitting changes. Is this alright?
->> * Also, I just need to use portions of the project. For example, I only care
->> about the state machines and not the interaction with the Linux OS. Can I
->> just use bits and pieces of the linux bridge project?
->>
->> Thanks,
->> MT
->
-> Did you look at
-> git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/rstp.git
->
-> It is GPL v2.
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+
+AA iNTERNET CABLE.NETWORK SERViCES
+
+Web   :  http://www.aacablenet.org
+
+Email  :  aacable@hotmail.com [MSN Messenger]=20
+
+
+Mobile : 0333-3021909=20
+_________________________________________________________________
+Invite your mail contacts to join your friends list with Windows Live Space=
+s. It's easy!
+http://spaces.live.com/spacesapi.aspx?wx_action=3Dcreate&wx_url=3D/friends.=
+aspx&mkt=3Den-us=
+
+--_8897628e-f1c8-4114-b73c-8ab085e7e7c7_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<style>
+.hmmessage P
+{
+margin:0px=3B
+padding:0px
+}
+body.hmmessage
+{
+FONT-SIZE: 10pt=3B
+FONT-FAMILY:Tahoma
+}
+</style>
+</head>
+<body class=3D'hmmessage'>
+users&nbsp=3B&nbsp=3B =3D=3D=3D=3D&gt=3B&nbsp=3B&nbsp=3B&nbsp=3B&nbsp=3B&nb=
+sp=3B Bridge&nbsp=3B&nbsp=3B&nbsp=3B =3D=3D=3D=3D=3D&gt=3B PROXY IP: 10.0.0=
+.1 <BR>
+&nbsp=3B<BR>
+My local LAN using these ip series <BR>10.0.0.x <BR>10.0.1.x <BR>10.0.2.x <=
+BR>
+Now I want that all internet request for specific 20-30 ip's should redirec=
+t to another pc e.g <BR>
+10.0.0.10 <BR>10.0.0.15 <BR>10.0.1.50 <BR>10.0.2.70 . . . . <BR>
+to another server on my LAN let's 10.0.0.2. <BR>
+How to do this ???<BR>
+<BR><BR>&nbsp=3B<BR>
+<DIV>&nbsp=3B<BR><FONT color=3D#0066ff><STRONG><FONT color=3D#000000>Regard=
+s=2C</FONT> </STRONG></FONT><BR>
+<DIV><FONT color=3D#0066ff></FONT></DIV>
+<DIV><STRONG><FONT color=3D#0033ff>SYED JAHANZAIB</FONT></STRONG></DIV>
+<DIV><STRONG><FONT color=3D#0033ff></FONT></STRONG>&nbsp=3B</DIV>
+<DIV></DIV>
+<DIV><FONT color=3D#0066ff></FONT></DIV>
+<DIV><FONT color=3D#000000>AA iNTERNET CABLE.NETWORK SERViCES</FONT></DIV>
+<DIV></DIV>
+<DIV><FONT color=3D#000000>Web&nbsp=3B&nbsp=3B :&nbsp=3B&nbsp=3B<A href=3D"=
+http://www.aacablenet.org/" target=3D_blank>http://www.aacablenet.org</A></=
+FONT></DIV>
+<DIV><FONT color=3D#000000></FONT></DIV>
+<DIV><FONT color=3D#000000>Email&nbsp=3B&nbsp=3B:&nbsp=3B&nbsp=3Baacable@ho=
+tmail.com [MSN Messenger] </FONT></DIV>
+<DIV></DIV>
+<DIV></DIV>
+<DIV><FONT color=3D#000000>Mobile : 0333-3021909 </FONT></DIV></DIV><br /><=
+hr />Invite your mail contacts to join your friends list with Windows Live =
+Spaces. It's easy! <a href=3D'http://spaces.live.com/spacesapi.aspx?wx_acti=
+on=3Dcreate&wx_url=3D/friends.aspx&mkt=3Den-us' target=3D'_new'>Try it!</a>=
+</body>
+</html>=
+
+--_8897628e-f1c8-4114-b73c-8ab085e7e7c7_--
