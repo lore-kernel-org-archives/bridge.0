@@ -1,14 +1,12 @@
-Date: Mon, 13 Oct 2008 11:10:16 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20081013111016.7b0b1ab9@extreme>
-In-Reply-To: <200810131805.54024.u.luckas@road.de>
-References: <200809182133.59751.luckas@musoft.de>
-	<200809241357.28552.u.luckas@road.de>
-	<200810131805.54024.u.luckas@road.de>
+From: Alexis Huxley <ahuxley@gmx.net>
+Date: Mon, 13 Oct 2008 20:28:20 +0000 (UTC)
+Message-ID: <slrngf7br4.5fa.ahuxley@dione.no-ip.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] delay in bridge learning when forward delay is 0
+Sender: news <news@ger.gmane.org>
+Subject: [Bridge] pinging other side (normal bridge ok,
+	anonymous bridge not ok)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,76 +15,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Uli Luckas <u.luckas@road.de>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-On Mon, 13 Oct 2008 18:04:37 +0200
-Uli Luckas <u.luckas@road.de> wrote:
+Hi, if I set up a bridge, assign an IP address to it, remove the
+IP from a real interface (in my case dummy0, but the same situation
+might apply to an physically unconnected eth1 NIC), plumb that real
+interface into the bridge and plumb one end of a virtual cross-over
+cable (tap0 <-> eth0-in-a-VM) into the bridge too, like this:
 
-> > Is any one willing to look into this problem? Or even aknowledege it's
-> > existence?
-> > If the description is not clear, please let me know.
-> >
-> > Any response would be appreciated.
-> >
-> > regards,
-> > Uli
-> >
-> > > Hi,
-> > > In July 2007 Philip Craig reported the following issue with 'forward
-> > > delay'=0 in great detail without receiving an answer. Has Philip's
-> > > message got lost or was his analysis wrong?
-> > > The problem becomes a real problem if you bridge a fast LAN to a slow
-> > > port like a bluetooth pan for example.
-> > >
-> > >
-> > > https://lists.linux-foundation.org/pipermail/bridge/2007-July/005476.html
-> > > Philip Craig philipc at snapgear.com
-> > >
-> > > > Hi,
-> > > >
-> > > > If you set the bridge forward delay to 0 with:
-> > > >         brctl setfd br0 0
-> > > > then the bridge does not learn addresses for the first 20 seconds,
-> > > > and so it floods everything during this time.
-> > > >
-> > > > The reason for this is that hold_time() returns 0 after a topology
-> > > > change, br_fdb_update() is a no-op if hold_time() is 0 (so that
-> > > > 'brctl setmaxage br0 0' can be used to disable learning), and the
-> > > > topology change flag isn't cleared for max_age seconds, so nothing
-> > > > is learnt during that time.
-> > > >
-> > > > It seems that the intent of hold_time() is to expire entries that are
-> > > > older than forward_delay seconds at the time of the topology change,
-> > > > which it does, but then it keeps on checking this expiry again for
-> > > > max_age seconds, and bases these checks on the current time rather
-> > > > than the time of the change.
-> > > >
-> > > > A quick fix for the forward delay 0 case would be to skip the
-> > > > topology change check if stp is disabled, but if I understand things
-> > > > correctly then the expiry isn't right for non-zero cases either.
-> > >
-> > > _______________________________________________
-> > > Bridge mailing list
-> > > Bridge@lists.linux-foundation.org
-> > > https://lists.linux-foundation.org/mailman/listinfo/bridge
-> >
-> > _______________________________________________
-> > Bridge mailing list
-> > Bridge@lists.linux-foundation.org
-> > https://lists.linux-foundation.org/mailman/listinfo/bridge
-> Hello Stephen,
-> you are mentioned in the MAINTAINERS file in the linux kernel tree for 
-> "ETHERNET BRIDGE". Could you at least, please acknowledge the reception of 
-> this mail? And maybe let us know what you think of the bug report?
-> 
-> regards,
-> Uli
-> 
-> 
+	brctl addbr br0 
+	ifconfig br0 192.168.1.42 up
+	ifconfig dummy0 0.0.0.0
+	brctl addif br0 dummy0
+	brctl addif br0 tap0
 
-Yes, I saw it but the resulting patches were too messy and was
-more concerned about breaking other things. It is on my todo list
-to go back and fix the hold and forwarding timers in general for
-the non STP case. For example, the hold timer keeps running but
-is unused when STP is disabled.
+then I can now ping the other side, from both sides. Good.
+
+Actually, dummy0 is superfluous; I might just as well not use it
+in the above lines.
+
+However, purely because I want my bridge to behave like a physical
+bridge/hub/switch which I am used to not having an IP address, I would
+like to use an *anonymous* bridge instead based on a command sequence 
+like this:
+
+brctl addbr br0
+ifconfig dummy0 192.168.1.42 up
+brctl addif br0 dummy0
+brctl addif br0 tap0
+
+But all attempts to do this have fail: I cannot ping the other side
+from either side.
+
+What is odd is than a tcpdump on the physical host shows that packets
+are arriving on br0 but not on dummy0, also both sides ARP tables
+contain the IP of the other side. It's almost like the bridge is saying
+"I'll let ARP traffic through but not IP!"
+
+I googled that this might be an iptables issue, so I flushed all
+rules from all tables and set policy to ACCEPT. No dice.
+
+Also, and please correct me if I am wrong in this assumption, I assume
+that forwarding is not needed in this scenario; the bridge does not
+behave as a computer and actually *require* forwarding to be turned on.
+(Sure, if I wanted the VM to be able to reach something *beyond* the
+physical machine then I would need to tell the physical machine to
+do forwarding and maybe masquerading.)
+
+I've also echoed '1' onto various things under /proc as per googled
+docs. All to no avail.
+
+Finally, I wanted to plumb dummy0 into an anonymous br0 to be analogous
+with real hardware, but is there an advantage to doing it the usual
+bridge-with-an-ip-address way? (Other than that it seems to work
+whereas the anonymous way doesn't - for me.)
+
+Many thanks for any assistance you can offer!
+
+Alexis
+
