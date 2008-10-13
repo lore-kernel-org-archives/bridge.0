@@ -1,14 +1,14 @@
-Date: Mon, 13 Oct 2008 05:52:27 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20081013055227.74dd4d8d@extreme>
-In-Reply-To: <fed120860810011401i33a7d752qd5abf1490b3900f4@mail.gmail.com>
-References: <6f6192b30810010757j408cbcb7jd5ee33b8da832cbe@mail.gmail.com>
-	<20081001173246.5ee6696e@speedy>
-	<fed120860810011401i33a7d752qd5abf1490b3900f4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Uli Luckas <u.luckas@road.de>
+Date: Mon, 13 Oct 2008 18:04:37 +0200
+References: <200809182133.59751.luckas@musoft.de>
+	<200809241357.28552.u.luckas@road.de>
+In-Reply-To: <200809241357.28552.u.luckas@road.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart14749816.rRxFWdMqVK";
+	protocol="application/pgp-signature"; micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] RSTP location and GPL info
+Message-Id: <200810131805.54024.u.luckas@road.de>
+Subject: Re: [Bridge] delay in bridge learning when forward delay is 0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,53 +17,89 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Srinivas M.A." <srinivas.aji@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@linux-foundation.org
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-On Thu, 2 Oct 2008 02:31:04 +0530
-"Srinivas M.A." <srinivas.aji@gmail.com> wrote:
+--nextPart14749816.rRxFWdMqVK
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> MT,
-> 
-> The rstplib/ directory in Stephen's git repo is the RSTPLIB library
-> also available at sourceforge (http://rstplib.sourceforge.net/), but
-> with some small modifications for our purposes.
-> RSTPLIB itself is under LGPL, and if you intend to use it, it may be
-> better to start with the original version from sourceforge.
-> 
-> I wrote another RSTP library to replace RSTPLIB and be compliant with
-> 802.1D-2004. I have not hosted that anywhere yet. That library is
-> licensed, together with the rest of my RSTP work, as GPL v >= 2.
-> 
-> I will email that to you separately to avoid the attachment on the mailing list.
-> 
-> On Wed, Oct 1, 2008 at 9:02 PM, Stephen Hemminger <shemminger@vyatta.com> wrote:
-> > On Wed, 1 Oct 2008 10:57:42 -0400
-> > "M T" <m.t.linuxbridge@gmail.com> wrote:
+> Is any one willing to look into this problem? Or even aknowledege it's
+> existence?
+> If the description is not clear, please let me know.
+>
+> Any response would be appreciated.
+>
+> regards,
+> Uli
+>
+> > Hi,
+> > In July 2007 Philip Craig reported the following issue with 'forward
+> > delay'=3D0 in great detail without receiving an answer. Has Philip's
+> > message got lost or was his analysis wrong?
+> > The problem becomes a real problem if you bridge a fast LAN to a slow
+> > port like a bluetooth pan for example.
 > >
-> >> I am currently working on a project for work where I need to implement RSTP
-> >> on non-Linux platforms (possibly ThreadX). I saw that there was a form by
-> >> Mr. Srinivas Aji that implemented RSTP on Linux Bridge. Can someone please
-> >> tell me if that fork is somewhere on the kernel.org git repository?
-> >>
-> >> I would like to use this work (without changing any code). I don't
-> >> understand the intricacies of GPL.
-> >>
-> >> * Can someone please point me to resources that say what I can and cannot
-> >> use in my project?
-> >> * I cannot open source my project but I am willing to contribute back any
-> >> changes I make to portions of linux bridge. I don't mind testing it on linux
-> >> before submitting changes. Is this alright?
-> >> * Also, I just need to use portions of the project. For example, I only care
-> >> about the state machines and not the interaction with the Linux OS. Can I
-> >> just use bits and pieces of the linux bridge project?
-> >>
-> >> Thanks,
-> >> MT
 > >
-> > Did you look at
-> > git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/rstp.git
+> > https://lists.linux-foundation.org/pipermail/bridge/2007-July/005476.ht=
+ml
+> > Philip Craig philipc at snapgear.com
+> >
+> > > Hi,
+> > >
+> > > If you set the bridge forward delay to 0 with:
+> > >         brctl setfd br0 0
+> > > then the bridge does not learn addresses for the first 20 seconds,
+> > > and so it floods everything during this time.
+> > >
+> > > The reason for this is that hold_time() returns 0 after a topology
+> > > change, br_fdb_update() is a no-op if hold_time() is 0 (so that
+> > > 'brctl setmaxage br0 0' can be used to disable learning), and the
+> > > topology change flag isn't cleared for max_age seconds, so nothing
+> > > is learnt during that time.
+> > >
+> > > It seems that the intent of hold_time() is to expire entries that are
+> > > older than forward_delay seconds at the time of the topology change,
+> > > which it does, but then it keeps on checking this expiry again for
+> > > max_age seconds, and bases these checks on the current time rather
+> > > than the time of the change.
+> > >
+> > > A quick fix for the forward delay 0 case would be to skip the
+> > > topology change check if stp is disabled, but if I understand things
+> > > correctly then the expiry isn't right for non-zero cases either.
+> >
+> > _______________________________________________
+> > Bridge mailing list
+> > Bridge@lists.linux-foundation.org
+> > https://lists.linux-foundation.org/mailman/listinfo/bridge
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
+Hello Stephen,
+you are mentioned in the MAINTAINERS file in the linux kernel tree for=20
+"ETHERNET BRIDGE". Could you at least, please acknowledge the reception of=
+=20
+this mail? And maybe let us know what you think of the bug report?
+
+regards,
+Uli
 
 
-EMC code is also in same repository on a branch (emc)
 
+--nextPart14749816.rRxFWdMqVK
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEUEABECAAYFAkjzcZwACgkQG/Gdq+fBSQt6nACWIHPTOuvZ/qon1VCFN8lHcUbQ
+GQCdHUBxPxx84AXn0RMwp135TTqghEM=
+=IJMc
+-----END PGP SIGNATURE-----
+
+--nextPart14749816.rRxFWdMqVK--
