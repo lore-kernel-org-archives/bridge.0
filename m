@@ -1,10 +1,11 @@
-Message-ID: <9054873a0810191144t218b7fbfi6f09f534cad54c8c@mail.gmail.com>
-Date: Mon, 20 Oct 2008 00:14:13 +0530
-From: "rinku buragohain" <rinkuburagohain@gmail.com>
+Message-ID: <5ff1e2470810232052w26e13b74paa61197db397938@mail.gmail.com>
+Date: Fri, 24 Oct 2008 09:22:52 +0530
+From: "Sathyan M" <sathym@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_75848_28979528.1224441853654"
-Subject: [Bridge] help
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Subject: [Bridge] ip alias in linux bridge mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,21 +14,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.linux-foundation.org
 
-------=_Part_75848_28979528.1224441853654
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi,
 
-sir ,, i m not able to install bridge utilities plz give me some help..step
-by step. thanks
+Is it possible to configure ip alias in bridge interface?
 
-------=_Part_75848_28979528.1224441853654
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+So that i will make squid-tproxy to bind outgoing address with
+different ip address for corresponding LAN.
 
-<div dir="ltr">sir ,, i m not able to install bridge utilities plz give me some help..step by step. thanks<br></div>
+And also like to know whether bridge will allow VPN traffic with
+default configuration.
 
-------=_Part_75848_28979528.1224441853654--
+Thanks,
+Sathy
