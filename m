@@ -1,12 +1,10 @@
-Message-ID: <4901CF79.7090100@navigue.com>
-Date: Fri, 24 Oct 2008 09:36:57 -0400
-From: Jonathan Thibault <jonathan@navigue.com>
+Message-ID: <490762EE.9000605@kth.se>
+Date: Tue, 28 Oct 2008 20:07:26 +0100
+From: Mattias Kjellsson <mkje@kth.se>
 MIME-Version: 1.0
-References: <5ff1e2470810232052w26e13b74paa61197db397938@mail.gmail.com>
-In-Reply-To: <5ff1e2470810232052w26e13b74paa61197db397938@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] ip alias in linux bridge mode
+Subject: [Bridge] Bridge with a tweak...
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,33 +13,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sathyan M <sathym@gmail.com>, bridge@lists.osdl.org
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-Hello Sathy,
+Hi list,
 
-You can configure ip aliasing on a bridge interface just as you would on 
-a regular interface.  I wouldn't know the specifics involved with tproxy 
-however.
+I have a question regarding bridges in general, and my bridge in 
+particular. I want to take all the packages flowing one way over the 
+bridge (say eth0->eth1) and pack them in my own packet- structure (extra 
+headers added, and the content modulated for further wireless 
+transportation), and all the packages flowing in the other direction 
+(say eth1->eth0) needs to be "de- packed" (stripped of my custom 
+headers, and demodulated).
 
-The bridge just forwards ethernet frames, so it probably doesn't make a 
-distinction between vpn traffic and other traffic.  ebtables and 
-iptables decide what would go through or not.
+What I'm basically doing is trying to make my software radio (connected 
+to one of the network- devices) work as a wireless network adapter, but 
+with my own signaling- scheme, but I don't want to use the same computer 
+for the radio, as for "browsing the web", since the radio- part is a bit 
+on the heavy side to the processor.
 
-Hope this helps,
-Jonathan
+Is there an easy way to do this? Where would you start? I have been 
+looking at the code for the kernel- module, but haven't really got any 
+really useful clues from it.
 
-Sathyan M wrote:
-> Hi,
->
-> Is it possible to configure ip alias in bridge interface?
->
-> So that i will make squid-tproxy to bind outgoing address with
-> different ip address for corresponding LAN.
->
-> And also like to know whether bridge will allow VPN traffic with
-> default configuration.
->
-> Thanks,
-> Sathy
->   
+Any pointers towards where to start looking, poking and dragging would 
+be greatly appreciated.
 
+BR
+Mattias Kjellsson
