@@ -1,13 +1,11 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Nov 2008 12:25:46 +0100
-Message-ID: <7B7881568CF40E4388B615CD06F87B98057A06@clara.maurer-it.com>
-In-Reply-To: <492A8A22.1090509@gmxpro.de>
+From: Thomas Mueller <thomas@chaschperli.ch>
+Date: Tue, 25 Nov 2008 07:21:33 +0000 (UTC)
+Message-ID: <ggg91t$jtk$1@ger.gmane.org>
 References: <492A8A22.1090509@gmxpro.de>
-From: "Dietmar Maurer" <dietmar@proxmox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: news <news@ger.gmane.org>
 Subject: Re: [Bridge] Using 2 Bridges Simultaneously for "Load Balancing"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -17,21 +15,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: noway@gmx.org, bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-I think you do not need 2 addresses - try the following instead:
 
-iface br0 inet static
-	address xxx.xxx.xxx.1
-	netmask 255.255.255.0
-	gateway xxx.xxx.xxx.254
-	bridge_ports eth0=09
-	bridge_stp off
-	bridge_fd 0
 
-iface br1 inet manual
-	bridge_ports eth1
-	bridge_stp off
-	bridge_fd 0
+> 
+> Now I thought it was possible to create to of those bridges, each one
+> with one physical NIC. Then I could assign two virtual machines to each
+> bridge/NIC in order to balance or distribute the load.
+
+if you just want load balancing/distribute the load on the two NIC's: why 
+dont you create a bond (some people/manufacturers  call it also "trunk" 
+or "LAG" ) out of physical NIC's and then bridge the bond?
+
+http://www.mjmwired.net/kernel/Documentation/networking/bonding.txt
+http://www.debianhelp.co.uk/bonding.htm
+
+- Thomas
 
 
