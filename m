@@ -1,10 +1,10 @@
 From: Ivan Chernyavsky <camposer@yandex.ru>
-In-Reply-To: <20081203113042.392f078d@extreme>
+In-Reply-To: <b008c6a40812040839k102518dbncea5c8dc28e562a9@mail.gmail.com>
 References: <495641228242344@webmail54.yandex.ru>
-	<20081203113042.392f078d@extreme>
+	<b008c6a40812040839k102518dbncea5c8dc28e562a9@mail.gmail.com>
 MIME-Version: 1.0
-Message-Id: <179361228409606@webmail43.yandex.ru>
-Date: Thu, 04 Dec 2008 19:53:26 +0300
+Message-Id: <76991228411407@webmail21.yandex.ru>
+Date: Thu, 04 Dec 2008 20:23:27 +0300
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain
 Subject: Re: [Bridge] ethernet bridging and http header enrichment
@@ -16,18 +16,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
+To: Jaime Medrano <jaime.medrano@gmail.com>
 Cc: bridge@lists.linux-foundation.org
 
 
 
-03.12.08, 22:30, "Stephen Hemminger" <shemminger@vyatta.com>:
+04.12.08, 19:39, "Jaime Medrano" <jaime.medrano@gmail.com>:
 
+> Maybe this is what wou want:
+> http://www.balabit.com/support/community/products/tproxy/
+> Regards,
+> Jaime.
 
-> Use iptables, and queue?
-
-Silly me. Thanks! Seems that's what I need. I will prepare a prototype 
-application and test... 
+Thanks! But I think the solution proposed by Stephen Hemminger several mails
+above is more straightforward... I will evaluate it now.
 
 -- 
    Ivan
+
