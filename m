@@ -1,8 +1,13 @@
-From: Jay Vosburgh <fubar@us.ibm.com>
-In-reply-to: <1228350057.4344.141.camel@fuego>
+Message-ID: <2e59e6970812032018lcedac31o4de5cd71de718bd0@mail.gmail.com>
+Date: Thu, 4 Dec 2008 04:18:54 +0000
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+In-Reply-To: <25142.1228351616@death.nxdomain.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 References: <1228350057.4344.141.camel@fuego>
-Date: Wed, 03 Dec 2008 16:46:56 -0800
-Message-ID: <25142.1228351616@death.nxdomain.ibm.com>
+	<25142.1228351616@death.nxdomain.ibm.com>
 Subject: Re: [Bridge] [Bonding-devel] received packet with own address as
 	source address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -13,46 +18,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Matthew Kent <matt@bravenet.com>
+To: Jay Vosburgh <fubar@us.ibm.com>
 Cc: bridge@lists.linux-foundation.org, bonding-devel@lists.sourceforge.net
 
-Matthew Kent <matt@bravenet.com> wrote:
-
->Trying to determine if I have a misconfiguration, misunderstanding or
->have stumbled on a bug.
+On Thu, Dec 4, 2008 at 12:46 AM, Jay Vosburgh <fubar@us.ibm.com> wrote:
+> Matthew Kent <matt@bravenet.com> wrote:
 >
->Have a CentOS 5.2 server with 2 e1000e nics in a balance-xor bond, check
->this out: 
+>>Trying to determine if I have a misconfiguration, misunderstanding or
+>>have stumbled on a bug.
 
-	I suspect your switch is misconfigured.
-	
-	The balance-xor mode is nominally "Etherchannel compatible" and
-the switch ports connected to bonding balance-xor should be in
-Etherchannel mode ("Trunking", etc, but not "LACP" or "802.3ad").
+I think there is a bug here although the description doesn't sound
+like the buggy case.
 
-	If the switch doesn't know the ports are aggregated, it may very
-well send broadcasts recieved on one port back out the other port, which
-may be the cause of what you're seeing.  The switch might also whine
-about flapping of the MAC address.
+Here is the specific configuration that produces the same message and
+I think should not:
 
-	If I set up bonding here with the switch unconfigured for
-Etherchannel, I see the same behavior as this:
+A bond in fail-over mode, either both or just one PHY connected.
 
-ARPING 172.16.0.117 from 172.16.0.116 eth0
-Unicast reply from 172.16.0.117 [00:15:17:70:A3:88]  0.607ms
-Unicast reply from 172.16.0.117 [00:15:17:70:A3:88]  0.648ms
-Sent 1 probes (1 broadcast(s))
-Received 2 response(s)
+VLANs configured on the bond device.
 
-	Specifically the "Received 2 response(s)" part.  This happens
-because the bond receives one copy of the packet on each port, and
-responds to each.
+Two of the bond VLAN interfaces members of the same bridge, stp
+enabled.  An external bridge device (actually a fancy transparent
+traffic shaper with a history of occasional seizure) connecting the
+same two VLANs.  A router on the higher-numbered (so less preferred by
+STP) VLAN.  So the nominal case is for STP to block forwarding, but if
+the traffic shaper fails then the bridge will start sending traffic
+direct to the router.
 
-	After I configure the switch ports correctly for Etherchannel,
-there is only 1 response.  Without the switch configuration IPv6
-addrconf also complains about duplicate address detected.
-
-	-J
-
----
-	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com
+Now when the traffic shaper is forwarding traffic, the BPDUs sent out
+the preferred port come back on the non-preferred port and force it
+into blocking mode as desired.  But the "received packet with own
+address as source address" message is logged.
