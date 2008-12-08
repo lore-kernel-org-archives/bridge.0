@@ -1,14 +1,10 @@
-From: Matthew Kent <matt@bravenet.com>
-In-Reply-To: <25142.1228351616@death.nxdomain.ibm.com>
-References: <1228350057.4344.141.camel@fuego>
-	<25142.1228351616@death.nxdomain.ibm.com>
-Content-Type: text/plain
-Date: Thu, 04 Dec 2008 10:46:51 -0800
-Message-Id: <1228416411.4344.148.camel@fuego>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [Bonding-devel] received packet with own address as
-	source	address
+Message-ID: <13ab752e0812080532g1e42917al40e5e836418f570d@mail.gmail.com>
+Date: Mon, 8 Dec 2008 21:32:04 +0800
+From: "=?GB2312?B?sszBosj9?=" <cailisan1985@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_63852_5514816.1228743124474"
+Subject: [Bridge] Hello, I meet a problem, I help you can give me some advice
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,50 +13,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jay Vosburgh <fubar@us.ibm.com>
-Cc: bridge@lists.linux-foundation.org, bonding-devel@lists.sourceforge.net
+To: bridge@osdl.org
 
-On Wed, 2008-12-03 at 16:46 -0800, Jay Vosburgh wrote:
-> Matthew Kent <matt@bravenet.com> wrote:
-> 
-> >Trying to determine if I have a misconfiguration, misunderstanding or
-> >have stumbled on a bug.
-> >
-> >Have a CentOS 5.2 server with 2 e1000e nics in a balance-xor bond, check
-> >this out: 
-> 
-> 	I suspect your switch is misconfigured.
-> 	
-> 	The balance-xor mode is nominally "Etherchannel compatible" and
-> the switch ports connected to bonding balance-xor should be in
-> Etherchannel mode ("Trunking", etc, but not "LACP" or "802.3ad").
-> 
-> 	If the switch doesn't know the ports are aggregated, it may very
-> well send broadcasts recieved on one port back out the other port, which
-> may be the cause of what you're seeing.  The switch might also whine
-> about flapping of the MAC address.
-> 
-> 	If I set up bonding here with the switch unconfigured for
-> Etherchannel, I see the same behavior as this:
-> 
-> ARPING 172.16.0.117 from 172.16.0.116 eth0
-> Unicast reply from 172.16.0.117 [00:15:17:70:A3:88]  0.607ms
-> Unicast reply from 172.16.0.117 [00:15:17:70:A3:88]  0.648ms
-> Sent 1 probes (1 broadcast(s))
-> Received 2 response(s)
-> 
-> 	Specifically the "Received 2 response(s)" part.  This happens
-> because the bond receives one copy of the packet on each port, and
-> responds to each.
-> 
-> 	After I configure the switch ports correctly for Etherchannel,
-> there is only 1 response.  Without the switch configuration IPv6
-> addrconf also complains about duplicate address detected.
-> 
-> 	-J
+------=_Part_63852_5514816.1228743124474
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Ah of course! :) Thanks for the helpful information. I should have read
-the later section on balance-xor in bonding.txt more closely.
--- 
-Matthew Kent \ SA \ bravenet.com
+Dear sir:
 
+I have met a problem.
+The situation is that, I port bridge-utils to a Embedded linux system.
+It works well.
+I can use brctl command to add a bridge.
+And I implement the blow command.
+
+./brctl addbr br0
+./brctl stp br0 off
+./brctl addif br0 eth0
+./brctl addif br0 wlan0
+ifconfig eth0 down
+ifconfig wlan0 down
+ifconfig eth0 0.0.0.0 up
+ifconfig wlan0 0.0.0.0 up
+ifconfig br0 192.168.1.3 netmask 255.255.255.0
+ echo "1" > /proc/sys/net/ipv4/ip_forward
+cat /proc/sys/net/ipv4/ip_forward
+route add default gw 192.168.1.1
+route
+
+The command execute correctly.
+But I cannot ping through it.
+I can just ping from the wireless terminal to br0 and ping from the wired
+terminal to br0.
+The wireless terminal cannot ping to wired terminal through br0.
+the version of linux system is 2.6.8.1 and the version of the bridge-utils
+is 1.0.6
+
+I hope you can give me some advice.
+Thank you.
+
+sincerely
+
+Cai Lisan
+
+------=_Part_63852_5514816.1228743124474
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Dear sir:<br><br>I have met a problem.<br>The situation is that, I port bridge-utils to a Embedded linux system.<br>It works well.<br>I can use brctl command to add a bridge.<br>And I implement the blow command.<br><br>./brctl addbr br0 <br>
+./brctl stp br0 off <br>./brctl addif br0 eth0 <br>./brctl addif br0 wlan0 <br>ifconfig eth0 down <br>ifconfig wlan0 down <br>ifconfig eth0 <a href="http://0.0.0.0">0.0.0.0</a> up <br>ifconfig wlan0 <a href="http://0.0.0.0">0.0.0.0</a> up <br>
+ifconfig br0 <a href="http://192.168.1.3">192.168.1.3</a> netmask <a href="http://255.255.255.0">255.255.255.0</a> <br>&nbsp;echo &quot;1&quot; &gt; /proc/sys/net/ipv4/ip_forward <br>cat /proc/sys/net/ipv4/ip_forward <br>route add default gw <a href="http://192.168.1.1">192.168.1.1</a> <br>
+route <br><br>The command execute correctly.<br>But I cannot ping through it.<br>I can just ping from the wireless terminal to br0 and ping from the wired terminal to br0.<br>The wireless terminal cannot ping to wired terminal through br0.<br>
+the version of linux system is <a href="http://2.6.8.1">2.6.8.1</a> and the version of the bridge-utils is 1.0.6<br><br>I hope you can give me some advice.<br>Thank you.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sincerely<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cai Lisan<br><br>
+
+------=_Part_63852_5514816.1228743124474--
