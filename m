@@ -1,10 +1,13 @@
-Message-ID: <c0bb1def0901020953v1b7722baw7f0daafdc8d02abb@mail.gmail.com>
-Date: Fri, 2 Jan 2009 18:53:55 +0100
-From: "Antonio Di Bacco" <a.dibacco@gmail.com>
+Message-ID: <fed120860901021101s6d52f6cfi7e91c126f3488577@mail.gmail.com>
+Date: Sat, 3 Jan 2009 00:31:17 +0530
+From: "Srinivas M.A." <srinivas.aji@gmail.com>
+In-Reply-To: <c0bb1def0901020953v1b7722baw7f0daafdc8d02abb@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_108347_15511659.1230918835172"
-Subject: [Bridge] RSTPD user mode daemon segfaults with kernel 2.6.24
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <c0bb1def0901020953v1b7722baw7f0daafdc8d02abb@mail.gmail.com>
+Subject: Re: [Bridge] RSTPD user mode daemon segfaults with kernel 2.6.24
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,33 +16,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Antonio Di Bacco <a.dibacco@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-------=_Part_108347_15511659.1230918835172
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi, the fix for this is:
 
-Hi,
+commit 8172012df1d981ef1934ede430c4936eae50e5f7
+Author: Srinivas Aji <Aji_Srinivas@emc.com>
+Date:   Thu Jul 3 22:45:03 2008 +0530
 
-I have downloaded rstp from sourceforge and I get a segfaults when running
-the daemon.
-This is the line where the problem arises:
+    Fix crash when BPDU received on bridge if.
 
-    TST(ifc->master->stp_up,);
+    We could receive non STP BPDU's on bridge interface, or even STP BPDUs
+    if STP is off for the bridge. The crash is avoided by checking for bridge
+    interface and not processing further in that case.
 
-just at the beginning of function:
+    Patch based on one from Solomon Peachy <solomon@linux-wlan.com>
 
-  void bridge_bpdu_rcv(int if_index, const unsigned char *data, int len)
+diff --git a/bridge_track.c b/bridge_track.c
+index e93c014..802db7a 100644
+--- a/bridge_track.c
++++ b/bridge_track.c
+@@ -447,6 +447,12 @@ void bridge_bpdu_rcv(int if_index, const unsigned char *dat
+        if (!ifc)
+                return;
 
-in file bridge_track.c
++       /* We could get a STP BPDU from a bridge interface if STP is off,
++          or a non STP packet as well, e.g. GMRP, even when STP is on.
++          Don't process it, else we will crash at ifc->master->stp_up */
++       if (ifc->is_bridge)
++               return;
++
+        TST(ifc->up,);
+        if (!ifc->master->stp_up)
+                return;
 
-------=_Part_108347_15511659.1230918835172
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi,<br><br>I have downloaded rstp from sourceforge and I get a segfaults when running the daemon. <br>This is the line where the problem arises:<br><br>&nbsp;&nbsp;&nbsp; TST(ifc-&gt;master-&gt;stp_up,);<br><br>just at the beginning of function:<br>
-<br>&nbsp; void bridge_bpdu_rcv(int if_index, const unsigned char *data, int len)<br><br>in file bridge_track.c<br><br>
-
-------=_Part_108347_15511659.1230918835172--
+On Fri, Jan 2, 2009 at 11:23 PM, Antonio Di Bacco <a.dibacco@gmail.com> wrote:
+> Hi,
+>
+> I have downloaded rstp from sourceforge and I get a segfaults when running
+> the daemon.
+> This is the line where the problem arises:
+>
+>     TST(ifc->master->stp_up,);
+>
+> just at the beginning of function:
+>
+>   void bridge_bpdu_rcv(int if_index, const unsigned char *data, int len)
+>
+> in file bridge_track.c
+>
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
+>
