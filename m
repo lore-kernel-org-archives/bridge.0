@@ -1,13 +1,11 @@
-Message-ID: <fed120860901021101s6d52f6cfi7e91c126f3488577@mail.gmail.com>
-Date: Sat, 3 Jan 2009 00:31:17 +0530
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-In-Reply-To: <c0bb1def0901020953v1b7722baw7f0daafdc8d02abb@mail.gmail.com>
+Date: Mon, 5 Jan 2009 14:31:59 +0000 (GMT)
+From: Simon Detheridge <simon@widgit.com>
+Message-ID: <1604972349.79441231165919715.JavaMail.root@ken>
+In-Reply-To: <1789230353.79391231165863451.JavaMail.root@ken>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <c0bb1def0901020953v1b7722baw7f0daafdc8d02abb@mail.gmail.com>
-Subject: Re: [Bridge] RSTPD user mode daemon segfaults with kernel 2.6.24
+Subject: [Bridge] Bridging without forwarding? (not bonding)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,60 +14,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Antonio Di Bacco <a.dibacco@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-Hi, the fix for this is:
+Hello,
 
-commit 8172012df1d981ef1934ede430c4936eae50e5f7
-Author: Srinivas Aji <Aji_Srinivas@emc.com>
-Date:   Thu Jul 3 22:45:03 2008 +0530
+It's entirely possible that I'm going about this all the wrong way... I'm new here. :-)
 
-    Fix crash when BPDU received on bridge if.
+I'm trying to set up an environment that works a bit like a private LAN within Amazon's EC2 cloud. EC2 allows me to provision a bunch of servers on demand, but they don't have predictable internal IP addresses for communicating with one another, which makes things a little complicated.
 
-    We could receive non STP BPDU's on bridge interface, or even STP BPDUs
-    if STP is off for the bridge. The crash is avoided by checking for bridge
-    interface and not processing further in that case.
+What I'm trying to do is use a combination of vtun tap tunnels and bridging, to make my servers feel like they're on a LAN together.
 
-    Patch based on one from Solomon Peachy <solomon@linux-wlan.com>
+The topology I've been experimenting with for now is one where I have a "master" server, a "slave" server, and many "client" servers. I'd like the "master" and "slave" servers to have static IPs, and the "client" servers to get their addresses via DHCP. I have it so that the master and slave have a tap tunnel between them, and every client has a tap tunnel to both the master and the slave (but not to the other clients). Each client should be able to ping both the master and slave. I don't care if they can ping the other clients or not.
 
-diff --git a/bridge_track.c b/bridge_track.c
-index e93c014..802db7a 100644
---- a/bridge_track.c
-+++ b/bridge_track.c
-@@ -447,6 +447,12 @@ void bridge_bpdu_rcv(int if_index, const unsigned char *dat
-        if (!ifc)
-                return;
+I've got it set up so that the master and slave each have a bridge interface that aggregates all of the tunnels from each client (and the one to each other). Each client has a bridge interface that aggregates the two tunnels to the master and slave. All are called br0.
 
-+       /* We could get a STP BPDU from a bridge interface if STP is off,
-+          or a non STP packet as well, e.g. GMRP, even when STP is on.
-+          Don't process it, else we will crash at ifc->master->stp_up */
-+       if (ifc->is_bridge)
-+               return;
-+
-        TST(ifc->up,);
-        if (!ifc->master->stp_up)
-                return;
+I'm not adding any eth interfaces to the bridge, just the tap interfaces.
 
+I'm running a DHCP server on the master and slave in failover mode and listening on br0, and on each client I'm attempting to obtain an IP address for the br0 interface using a DHCP client.
 
-On Fri, Jan 2, 2009 at 11:23 PM, Antonio Di Bacco <a.dibacco@gmail.com> wrote:
-> Hi,
->
-> I have downloaded rstp from sourceforge and I get a segfaults when running
-> the daemon.
-> This is the line where the problem arises:
->
->     TST(ifc->master->stp_up,);
->
-> just at the beginning of function:
->
->   void bridge_bpdu_rcv(int if_index, const unsigned char *data, int len)
->
-> in file bridge_track.c
->
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+I have stp switched on everywhere. If I disable stp all hell breaks loose and I get duplicate packets all over the place.
+
+I basically want each server to appear to have one interface, despite the fact that there are multiple tunnels. I also want the system to work if either the master or the slave server goes away.
+
+What I was hoping would happen is that packets would take the shortest route to where they want to go. They should only ever have to go over one tunnel, except for clients attempting to contact each other (this never happens) or broadcast packets (which only really need to go to the master/slave for DHCP anyway)
+
+In practice, it seems that packets sent from a client server to a master or slave are always going over the same tap interface, even if it is not the shortest route. (Pings sent to both the master and slave are going out over tap0, all that I can see on tap1 is stp traffic).
+
+Really what I want to do is forget about stp and just have each bridge interface send out packets over the correct tap interface based on what mac address is at the other end, but not bother to forward anything on, as it should never be necessary.
+
+What am I missing?
+
+Thanks,
+Simon
+
+-- 
+Simon Detheridge - CTO, Widgit Software
+26 Queen Street, Cubbington, CV32 7NA - Tel: +44 (0)1926 333680
