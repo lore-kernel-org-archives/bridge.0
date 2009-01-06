@@ -1,14 +1,10 @@
-Message-ID: <2e59e6970901061335s1976941eo70cf01e73eaed192@mail.gmail.com>
-Date: Tue, 6 Jan 2009 21:35:46 +0000
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-In-Reply-To: <49639295.9060309@candelatech.com>
+Message-ID: <4963E41D.40904@navigue.com>
+Date: Tue, 06 Jan 2009 18:07:09 -0500
+From: Jonathan Thibault <jonathan@navigue.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <0598BD8415F140D9BE986E3AB9FFF35F@lzheng>
-	<49639295.9060309@candelatech.com>
-Subject: Re: [Bridge] vlan and bond integration in bridge
+Subject: [Bridge] new gretap, bridging and mtu
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,34 +13,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Bridge Linux <bridge@lists.linux-foundation.org>
+To: bridge@lists.linux-foundation.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
 
-On Tue, Jan 6, 2009 at 5:19 PM, Ben Greear <greearb@candelatech.com> wrote:
-> Lv Zheng wrote:
->
->> Since VLAN device in Linux cannot support VID duplication
->> across multiple lowers, that is, following commands will fail:
->>
->> vconfig set_name_type DEV_PLUS_VID_NO_PAD
->> vconfig add eth0 1
->> vconfig add eth1 1 <--- failure
->
-> This should work fine..what are the errors?
+Greetings all,
 
-And what kernel version is being discussed?  Many devices matching
-"hardware VLAN aware switch engine in the appliance" are still on
-2.4.x
+I've setup a new gretap device as per Herbert Xu's new patches and it 
+works as expected for smaller MTU.  I'm wondering if gretap tunnels 
+handle fragmentation at all or if this might be a bridge related issue.
 
->
-> Ben
->
-> --
-> Ben Greear <greearb@candelatech.com>
-> Candela Technologies Inc  http://www.candelatech.com
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+The same setup works quite well if I use vtun with a tap device however, 
+so while this isn't entirely bridge-related, Maybe someone here might 
+have experienced the same problem or might have insight as to what's 
+causing the problem.  I imagine this might be more of an inherent 
+limitation in gretap than a bug but as I am not to good with coding, I 
+figured I'd ask smarter people ;)
+
+                     network1        box1       network2       
+box2        network1
+801.2q (1504 bytes max) <-> (eth1-br0-gretap eth0) <-> (eth0 
+gretap-br0-eth1) <-> 801.2q (1504 bytes max)
+
+Jonathan
+
+
