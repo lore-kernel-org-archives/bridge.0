@@ -1,13 +1,11 @@
-Message-ID: <75DE1DFEFA044F8F905300B6A7AFCC14@lzheng>
-From: "Lv Zheng" <lv.zheng@soliton.com.cn>
-References: <0598BD8415F140D9BE986E3AB9FFF35F@lzheng>
-	<49639295.9060309@candelatech.com>
-	<2e59e6970901061335s1976941eo70cf01e73eaed192@mail.gmail.com>
-In-Reply-To: <2e59e6970901061335s1976941eo70cf01e73eaed192@mail.gmail.com>
-Date: Wed, 7 Jan 2009 09:56:16 +0800
+Message-ID: <49640E77.2090108@candelatech.com>
+Date: Tue, 06 Jan 2009 18:07:51 -0800
+From: Ben Greear <greearb@candelatech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1";
-	reply-type=original
+References: <0598BD8415F140D9BE986E3AB9FFF35F@lzheng>	<49639295.9060309@candelatech.com>
+	<83475D0A79834C4C964DFE7F73FABFFD@lzheng>
+In-Reply-To: <83475D0A79834C4C964DFE7F73FABFFD@lzheng>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] vlan and bond integration in bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,13 +16,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: richardvoigt@gmail.com, Ben Greear <greearb@candelatech.com>
+To: Lv Zheng <lv.zheng@soliton.com.cn>
 Cc: Bridge Linux <bridge@lists.linux-foundation.org>
 
-> And what kernel version is being discussed?  Many devices matching
-> "hardware VLAN aware switch engine in the appliance" are still on
-> 2.4.x
+Lv Zheng wrote:
+> >> vconfig set_name_type DEV_PLUS_VID_NO_PAD
+>  
+> I made a mistake here. As we want single
+> management interface per VLAN (single L3
+> management address per VLAN, we will run
+> single L3 authentication service instance
+> -- such as DHCP -- per VLAN), we tried
+> VLAN_PLUS_VID_NO_PAD.
 
-We are building our application on stock kernel 2.6.23.x.
+Maybe leave the naming as DEV_PLUS_VID and then add all of those VLAN 
+interfaces
+to a bridge and put your mgt IP on that bridge?
 
-Best regards/Lv Zheng
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com> 
+Candela Technologies Inc  http://www.candelatech.com
+
+
