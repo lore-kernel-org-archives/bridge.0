@@ -1,10 +1,10 @@
-Message-ID: <c0bb1def0901091401m6087a122m8ef5ca6bb23eca9a@mail.gmail.com>
-Date: Fri, 9 Jan 2009 23:01:19 +0100
+Message-ID: <c0bb1def0901091608x5ea494e5l75803e0b8c8be677@mail.gmail.com>
+Date: Sat, 10 Jan 2009 01:08:56 +0100
 From: "Antonio Di Bacco" <a.dibacco@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/alternative; 
-	boundary="----=_Part_32584_9771055.1231538479808"
-Subject: [Bridge] Network with some switches without STP/RSTP support
+	boundary="----=_Part_34106_7414514.1231546136137"
+Subject: [Bridge] Multiple vconfig
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,41 +15,33 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge <bridge@lists.linux-foundation.org>
 
-------=_Part_32584_9771055.1231538479808
+------=_Part_34106_7414514.1231546136137
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-I have a network with three RSTP enabled swithes connected to form a
-triangle (a ring with three nodes).
-Let us say the switches are A, B , C
-B and C are not connected with simple ethernet cable but they are
-connected through an additional
-small switch that doesn't support STP/RSTP. This simple switch has 3 ports,
-one is connected to B,
-another to C and the third port to a PC.
+Hi,
 
-Does the RSTP will manage to resolve the loop (open the ring)? Will I manage
-to reach anyway the PC?
+I did the following:
 
-Thank you in advance,
+vconfig add eth0 10
+I got interface eth0.10
+Then I did:
+vconfig add eth0.10 11
+I got inteface eth0.10.11
+
+Anyone imagine which kind of packets will come out over the wire, double
+tagged packets?
+
+Bye,
 Antonio.
 
-------=_Part_32584_9771055.1231538479808
+------=_Part_34106_7414514.1231546136137
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-<div>I have a network with three RSTP enabled swithes connected to form a triangle (a ring with three nodes).</div>
-<div>Let us say the switches&nbsp;are A, B , C&nbsp;</div>
-<div>B&nbsp;and C are not connected with simple ethernet cable but they are connected&nbsp;through an additional </div>
-<div>small switch that doesn&#39;t support STP/RSTP. This simple switch has 3 ports, one is connected to B, </div>
-<div>another to C and the third port to a PC.</div>
-<div>&nbsp;</div>
-<div>Does the RSTP will manage to resolve the loop (open the ring)? Will I manage to reach anyway the PC?</div>
-<div>&nbsp;</div>
-<div>Thank you in advance,</div>
-<div>Antonio.</div>
-<div>&nbsp;</div>
+Hi,<br><br>I did the following:<br><br>vconfig add eth0 10<br>I got interface eth0.10<br>Then I did:<br>vconfig add eth0.10 11<br>I got inteface eth0.10.11<br><br>Anyone imagine which kind of packets will come out over the wire, double tagged packets?<br>
+<br>Bye,<br>Antonio.<br>
 
-------=_Part_32584_9771055.1231538479808--
+------=_Part_34106_7414514.1231546136137--
