@@ -1,10 +1,12 @@
-Message-ID: <c0bb1def0901091608x5ea494e5l75803e0b8c8be677@mail.gmail.com>
-Date: Sat, 10 Jan 2009 01:08:56 +0100
-From: "Antonio Di Bacco" <a.dibacco@gmail.com>
+From: Ross Vandegrift <ross@kallisti.us>
+Date: Fri, 9 Jan 2009 19:27:27 -0500
+Message-ID: <20090110002727.GA30394@kallisti.us>
+References: <c0bb1def0901091401m6087a122m8ef5ca6bb23eca9a@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_34106_7414514.1231546136137"
-Subject: [Bridge] Multiple vconfig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c0bb1def0901091401m6087a122m8ef5ca6bb23eca9a@mail.gmail.com>
+Subject: Re: [Bridge] Network with some switches without STP/RSTP support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +15,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge <bridge@lists.linux-foundation.org>
+To: Antonio Di Bacco <a.dibacco@gmail.com>
+Cc: bridge <bridge@lists.linux-foundation.org>
 
-------=_Part_34106_7414514.1231546136137
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, Jan 09, 2009 at 11:01:19PM +0100, Antonio Di Bacco wrote:
+> Does the RSTP will manage to resolve the loop (open the ring)? Will I manage
+> to reach anyway the PC?
 
-Hi,
+Probably yes, but the answer could be no.  All the non-STP switches I've
+ever seen do forward BPDUs.
 
-I did the following:
+Strictly speaking, 802.1D bridges should never forward frames addressed
+to the reserved bridge management MAC addresses.  This would lead both
+B & C to believe they were connected to an edge port, which will never
+block.
 
-vconfig add eth0 10
-I got interface eth0.10
-Then I did:
-vconfig add eth0.10 11
-I got inteface eth0.10.11
 
-Anyone imagine which kind of packets will come out over the wire, double
-tagged packets?
+-- 
+Ross Vandegrift
+ross@kallisti.us
 
-Bye,
-Antonio.
-
-------=_Part_34106_7414514.1231546136137
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi,<br><br>I did the following:<br><br>vconfig add eth0 10<br>I got interface eth0.10<br>Then I did:<br>vconfig add eth0.10 11<br>I got inteface eth0.10.11<br><br>Anyone imagine which kind of packets will come out over the wire, double tagged packets?<br>
-<br>Bye,<br>Antonio.<br>
-
-------=_Part_34106_7414514.1231546136137--
+"If the fight gets hot, the songs get hotter.  If the going gets tough,
+the songs get tougher."
+	--Woody Guthrie
