@@ -1,9 +1,9 @@
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C97D21.983D4EB6"
-Date: Fri, 23 Jan 2009 11:42:39 +0530
-Message-ID: <339FB3905798284FA015E7DC8A13E4A601E212D2@nda-hclt-egw02.HCLT.CORP.HCL.IN>
+	boundary="----_=_NextPart_001_01C97D22.445CB382"
+Date: Fri, 23 Jan 2009 11:47:28 +0530
+Message-ID: <339FB3905798284FA015E7DC8A13E4A601E212DB@nda-hclt-egw02.HCLT.CORP.HCL.IN>
 From: "Abhishek Mathur" <abhishek_mathur@hcl.in>
 Subject: [Bridge]  RSTP user mode implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,31 +18,25 @@ To: bridge@lists.linux-foundation.org
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C97D21.983D4EB6
+------_=_NextPart_001_01C97D22.445CB382
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 
-Hi,
+Hi
 
 =20
 
-=20
-
-I am working on implementations of RSTP and MSTP=2E
+git://git=2Ekernel=2Eorg/pub/scm/linux/kernel/git/shemminger/rstp=2Egit
 
 =20
 
-It would be of great help of me if you could provide me with a robust
-open source implementation of RSTP and MSTP which I can have a look upon
-and some guidelines on how to implement/configure on Linux=2E
+I was not able to access the link, probably the info has been removed=2E
 
 =20
 
-=20
-
-Looking for a positive response soon=2E
+Kindly help me out=2E
 
 =20
 
@@ -55,6 +49,7 @@ Abhishek=2E
 DISCLAIMER:
 ---------------------------------------------------------------------------=
 --------------------------------------------
+
 The contents of this e-mail and any attachment(s) are confidential and=
  intended for the named recipient(s) only=2E=20
 It shall not attach any liability on the originator or HCL or its=
@@ -68,9 +63,10 @@ this message without the prior written consent of the author of this e-mail=
 received this email in error please delete it and notify the sender=
  immediately=2E Before opening any mail and=20
 attachments please check them for viruses and defect=2E
+
 ---------------------------------------------------------------------------=
 --------------------------------------------
-------_=_NextPart_001_01C97D21.983D4EB6
+------_=_NextPart_001_01C97D22.445CB382
 Content-Type: text/html;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -117,7 +113,7 @@ div=2ESection1
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
-font-family:Arial'>Hi,<o:p></o:p></span></font></p>
+font-family:Arial'>Hi<o:p></o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
@@ -125,25 +121,9 @@ font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>I am working on implementations of RSTP and MSTP=
-=2E<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>It would be of great help of me if you could provide me=
- with
-a robust open source implementation of RSTP and MSTP which I can have a=
- look
-upon and some guidelines on how to implement/configure on Linux=
-=2E<o:p></o:p></span></font></p>
+font-family:Arial'>git://git=2Ekernel=
+=2Eorg/pub/scm/linux/kernel/git/shemminger/rstp=
+=2Egit<o:p></o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
@@ -151,12 +131,16 @@ font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
+font-family:Arial'>I was not able to access the link, probably the info has
+been removed=2E<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
 font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
-font-family:Arial'>Looking for a positive response soon=
-=2E<o:p></o:p></span></font></p>
+font-family:Arial'>Kindly help me out=2E<o:p></o:p></span></font></p>
 
 <p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
 =3D'font-size:10=2E0pt;
@@ -179,6 +163,7 @@ font-family:Arial'>Abhishek=2E<o:p></o:p></span></font></p>
 <table><tr><td bgcolor=3D#ffffff><font color=3D#000000>DISCLAIMER:<br>
 ---------------------------------------------------------------------------=
 --------------------------------------------<br>
+<br>
 The contents of this e-mail and any attachment(s) are confidential and=
  intended for the named recipient(s) only=2E <br>
 It shall not attach any liability on the originator or HCL or its=
@@ -192,7 +177,8 @@ this message without the prior written consent of the author of this e-mail=
 received this email in error please delete it and notify the sender=
  immediately=2E Before opening any mail and <br>
 attachments please check them for viruses and defect=2E<br>
+<br>
 ---------------------------------------------------------------------------=
 --------------------------------------------<br>
 </font></td></tr></table>
-------_=_NextPart_001_01C97D21.983D4EB6--
+------_=_NextPart_001_01C97D22.445CB382--
