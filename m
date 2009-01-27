@@ -1,9 +1,10 @@
 MIME-Version: 1.0
-Date: Mon, 26 Jan 2009 11:53:16 +0200
-Message-ID: <8ffbf9ad0901260153y5feb5151re701afb757ae7a3a@mail.gmail.com>
+Date: Tue, 27 Jan 2009 13:52:25 +0200
+Message-ID: <8ffbf9ad0901270352iff6091cg9751c3d16ab5cea1@mail.gmail.com>
 From: aras as <arunelis007@gmail.com>
-Content-Type: multipart/alternative; boundary=000e0cd28df22ef80c04615fb5bf
-Subject: [Bridge] Does ebtables support --arp-opcode on vlan's?
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge]  Multiple vconfig
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,39 +15,26 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
---000e0cd28df22ef80c04615fb5bf
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+> Hi,
+>
+> I did the following:
+>
+> vconfig add eth0 10
+> I got interface eth0.10
+> Then I did:
+> vconfig add eth0.10 11
+> I got inteface eth0.10.11
+>
+> Anyone imagine which kind of packets will come out over the wire, double
+> tagged packets?
+>
+> Bye,
+> Antonio.
+> -------------- next part --------------
+> An HTML attachment was scrubbed...
+> URL: http://lists.linux-foundation.org/pipermail/bridge/attachments/20090110/9308ad42/attachment.htm
 
-Hello,
 
-
-I  have an issue with ebtables --arp-opcode and vlan support on the bridge.
-
-Ebtables support --arp-opcode witch is used for arp manipulation.
-
-ebtables -t nat -A PREROUTING -p arp --arp-opcode Request -j arpreply
---arpreply-mac 10:11:12:13:14:15 --arpreply-target ACCEPT -i eth1
-
-But it does not work when Ethernet frame comes tag with vlan pid. Can i
-overcome this limitation?
-
-
-Fanks
-
---000e0cd28df22ef80c04615fb5bf
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-<p><span lang="EN-US">Hello, <br></span></p><p><span lang="EN-US"><br>
-I&nbsp; have an issue with ebtables --arp-opcode and vlan support on the bridge.<br>
-<br>
-Ebtables support --arp-opcode witch is used for arp manipulation.<br>
-<br>
-ebtables -t nat -A PREROUTING -p arp --arp-opcode Request -j arpreply
---arpreply-mac 10:11:12:13:14:15 --arpreply-target ACCEPT -i eth1<br>
-<br>
-But it does not work when Ethernet frame comes tag with vlan pid. Can i
-overcome this limitation?</span></p><p><br></p>Fanks 
-
---000e0cd28df22ef80c04615fb5bf--
+You will get Q-in-Q (double vlan) package. I can do even eth0.10.11.12
+and so on. But you should not forget that every vlan tag adds 4baits
+in ethernet package.
