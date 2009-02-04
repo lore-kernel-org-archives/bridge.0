@@ -1,9 +1,12 @@
 From: Bernhard Weirich <bernhard.weirich@riedel.net>
-Content-Type: multipart/alternative; boundary="=-EgrRHVNTgSXf4jbtFH6R"
-Date: Tue, 3 Feb 2009 18:03:49 +0100
-Message-ID: <1233680629.6415.12.camel@hactar.vie.riedel.net>
+In-Reply-To: <1233680629.6415.12.camel@hactar.vie.riedel.net>
+References: <1233680629.6415.12.camel@hactar.vie.riedel.net>
+Content-Type: text/plain
+Date: Wed, 4 Feb 2009 12:56:17 +0100
+Message-ID: <1233748577.6465.7.camel@hactar.vie.riedel.net>
 MIME-Version: 1.0
-Subject: [Bridge] RSTP problem after ifupdown
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] RSTP problem after ifupdown
 Reply-To: bernhard.weirich@riedel.net
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,68 +18,69 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
---=-EgrRHVNTgSXf4jbtFH6R
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I have fixed the problem for myself by adding some code to
+bridge_track.c
+Here is the patch...
 
-Hello,
+Signed-off-by: Bernhard Weririch <bernhard.weirich@riedel.net>
+--- rstp-09-02/./bridge_track.c	2009-02-04 12:12:03.000000000 +0100
++++ rstp-09/./bridge_track.c 2009-02-04 11:59:48.000000000 +0100
+@@ -72,6 +72,7 @@
+ 	/* If port */
+ 	int speed;
+ 	int duplex;
++	__u8 state;
+ 	struct ifdata *master;
+ 	struct ifdata *port_next;
+ 	/* STP port index */
+@@ -403,12 +404,20 @@
+ void set_br_up(struct ifdata *br, int up)
+ {
+ 	int stp_up = stp_enabled(br);
+-	INFO("%s was %s stp was %s", br->name,up ? "up" : "down", br->stp_up ?
+"up" : "down");
++	INFO("%s was %s stp was %s", br->name,br->up ? "up" : "down",
+br->stp_up ? "up" : "down");
+ 	INFO("Set bridge %s %s stp %s" , br->name,
+ 	     up ? "up" : "down", stp_up ? "up" : "down");
+ 
+-	if (up != br->up)
++	if (up != br->up) {
+ 		br->up = up;
++		if (br->up && br->stp_up && stp_up) {
++			struct ifdata *port = br->port_list;
++			for (port = br->port_list; port; port = port->next) {
++				if (port->up) 
++					bridge_set_state(port->if_index, port->state);
++			}
++		}
++	}
+ 	
+ 	if (br->stp_up != stp_up) {
+ 		if (stp_up)
+@@ -491,8 +500,10 @@
+ 			return -1;
+ 		}
+ 		/* Bridge must be up if we get such notifications */
+-		if (!br->up)
+-			set_br_up(br, 1);
++		/* bwe: in fact, the bridge gets the notifications even when down
++		 * therefore commented out */
++		//if (!br->up)
++		//	set_br_up(br, 1);
+ 	}
+ 
+ 	struct ifdata *ifc = find_if(if_index);
+@@ -742,8 +753,10 @@
+ 		fprintf(stderr, "set_port_state: Unexpected state %d\n", state);
+ 		return -1;
+ 	}
+-	if (port->up)
++	if (port->up) {
++		port->state = br_state;
+ 		bridge_set_state(port->if_index, br_state);
++	}
+ 	return 0;
+ }
+ 
 
-I'm using RSTP which is working most of the time, but there is one
-problem I ran into when I tried to reconfigure the bridge interface.
-
-I have a bridge br0 with an interface eth0.
-both are up and running,
-then I do :
-# ifconfig br0 down
-br0: port 1(eth0) entering disabled state
-# ifconfig br0 up
-#
-
-The strange thing is that eth0 is still up but the stp link is not
-reactivated from disabled to learning.
-When I unplug eth0 and replug it the link enters learning and forwarding
-stages as usual.
-So I assume that the kernel deactivates the link without the knowledge
-of the bridge, and so for the bridge there is no need to reactivate it.
-
-Is this a problem just with my config or can someone else confirm this
-behaviour?
-
-Regards,
-Bernhard Weirich
-
---=-EgrRHVNTgSXf4jbtFH6R
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
-<HTML>
-<HEAD>
-  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
-  <META NAME="GENERATOR" CONTENT="GtkHTML/3.18.3">
-</HEAD>
-<BODY>
-Hello,<BR>
-<BR>
-I'm using RSTP which is working most of the time, but there is one problem I ran into when I tried to reconfigure the bridge interface.<BR>
-<BR>
-I have a bridge br0 with an interface eth0.<BR>
-both are up and running,<BR>
-then I do :<BR>
-# ifconfig br0 down<BR>
-br0: port 1(eth0) entering disabled state<BR>
-# ifconfig br0 up<BR>
-#<BR>
-<BR>
-The strange thing is that eth0 is still up but the stp link is not reactivated from disabled to learning.<BR>
-When I unplug eth0 and replug it the link enters learning and forwarding stages as usual.<BR>
-So I assume that the kernel deactivates the link without the knowledge of the bridge, and so for the bridge there is no need to reactivate it.<BR>
-<BR>
-Is this a problem just with my config or can someone else confirm this behaviour?<BR>
-<BR>
-Regards,<BR>
-Bernhard Weirich
-</BODY>
-</HTML>
-
---=-EgrRHVNTgSXf4jbtFH6R--
