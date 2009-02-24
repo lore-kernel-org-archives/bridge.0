@@ -1,11 +1,10 @@
-Date: Sun, 22 Feb 2009 13:32:49 +0100
-From: Udo Hortian <udo_hortian@web.de>
-Message-ID: <20090222123249.GA21690@an>
+Date: Mon, 23 Feb 2009 21:31:31 -0500
+From: "L. Gabriel Somlo" <gsomlo@gmail.com>
+Message-ID: <20090224023129.GA17642@hedwig.net.cmu.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Sender: udo_hortian@web.de
-Subject: [Bridge] Bridging problems after Upgrade to Debian Lenny
+Subject: [Bridge] PVSTP+ support ?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,43 +15,53 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hello all,
+Hi,
 
-I subscribed newly to this list, since I got an bridging problem after an
-upgrade from Debian etch to Debian lenny (before everything worked fine).
+Is there any support at all for Cisco's PVST+ in Linux (kernel and 
+brctl) ? Please read on for what I'm trying to accomplish:
 
-The situation is as follows:
+I'm trying to set up a redundant pair of filtering bridges connected 
+to two cisco 6500 hybrid L2/L3 switch/routers. At the edge of the 
+network I have a bunch of untrusted devices on a layer-2 subnet, and
+the idea is to offer selective access to the subnet's default router 
+on the trusted side of the network. Here's a quick picture:
 
-# brctl show
-bridge name     bridge id               STP enabled     interfaces
-br0             8000.000347729835       no              eth0
-                                                        tap0
 
-tap0 is associated with an OpenVPN tunnel.
+            +---------------+                 +---------------+
+            |      .2       |   .1 (HSRP)     |      .3       |
+    +-------+ - - - - - - - +-----------------+ - - - - - - - +-------+
+    |   X   |               | vlanX (trusted) |               |   X   |
+  Linux     |     Cisco     |                 |     Cisco     |     Linux
+  Bridge    |      6500     |                 |      6500     |     Bridge
+    |   Y   |               |      vlan Y     |               |   Y   |
+    +-------+ - + - + - + - +-----------------+ - + - + - + - +-------+
+            |   |   |   |   |   (untrusted)   |   |   |   |   |
+            +---+---+---+---+                 +---+---+---+---+
+                |   |   |                         |   |   |
+                |   |   |     +-------------+     |   |   |
+                |   |   +-----+ edge switch +-----+   |   |
+                |   |         +-------------+         |   |
+                |   |                                 |   |
+                |   |         +-------------+         |   |
+                |   +---------+ edge switch +---------+   |
+                |             +-------------+             |
+                |                                         |
+                |             +-------------+             |
+                +-------------+ edge switch +-------------+
+                              +-------------+
 
-The strange thing now is the following:
+The ciscos use pvstp+, and the problem is that when a Vlan-X BPDU is received
+on a Vlan-Y (sub)interface, that subinterface is shut down due to a perceived
+misconfiguration.
 
-Packets from eth0 to IP addresses within tap0 pass the bridge and reach
-the destination (the other side of an OpenVPN tunnel).
+Is Linux equipped to handle this (by, e.g., translating the BPDUs received
+over vlan X into BPDUs that would be appropriate to forward into vlan Y, and
+vice versa) ?
 
-But packets from the other side of the OpenVPN tunnel do not reach
-destinations behind eth0. I think this is not an OpenVPN problem, since
-I can see packets, as described here, using "tcpdump -i tap0" and also
-using "tcpdump -i br0". But I do not see them using "tcpdump -i eth0".
+If not, any other ideas on how to accomplish redundancy would be much
+appreciated. The topology prevents me from inserting the linux bridge in
+a way that would allow bridging between the same vlan on two different
+physical interfaces.
 
-The only thing which happens is that there are sometimes packets like
-this on eth0: "igmp v3 report, 1 group record(s)" (from tcpdump) with
-source address the one from the OpenVPN client. I do now know where
-these packets come from.
-
-There is now firewall activated.
-
-Here are a few informations about my system:
-Debian lenny
-Linux 2.6.18-6-686 (Debian Kernel)
-bridge-utils 1.4-5 (Debian packet)
-
-Any ideas what might be the reason for this and how to solve it?
-
-Best regards
-Udo
+Thanks much,
+--Gabriel
