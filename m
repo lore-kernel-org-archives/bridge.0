@@ -1,12 +1,10 @@
-Date: Wed, 25 Feb 2009 18:19:24 -0500
-From: "L. Gabriel Somlo" <gsomlo@gmail.com>
-Message-ID: <20090225231923.GA10931@hedwig.net.cmu.edu>
-References: <20090224023129.GA17642@hedwig.net.cmu.edu>
+Message-ID: <49A83E0C.6010403@reachone.com>
+Date: Fri, 27 Feb 2009 11:25:00 -0800
+From: Christopher Hunt <chunt@reachone.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20090224023129.GA17642@hedwig.net.cmu.edu>
-Subject: Re: [Bridge] PVSTP+ support ?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] CentOS bridge not recognizing external Designated Root
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,65 +15,159 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Thanks to all who responded. To sum it up, if X and Y are separate
-physical ports on the Cisco, configured in access mode, things seem to
-work and the loop is detected. What does not work is having X and Y be
-trunked over the same physical port. That is when the Cisco will shut
-down the trunked port due to "inconsistent BPDUs". The trunked vlans
-scenario only works when spanning-tree is disabled on the Cisco, and
-that is mutually exclusive with STP-based failover between two boxes.
+	I have a core Foundry switch connected (through a dot1Q vlan trunk) to a linux (Centos5) server on eth0. The linux box's eth1 is connected (through a dot1Q vlan trunk) to a Cisco 2960.  Note that I do have 2 more interfaces on the linux box, one more "outside" and another "inside", which I plan to turn up once I can get STP working properly.  
+	The Foundry is set to be the STP Designated Root (DR) using a Priority of 12000.  The Foundry and the Cisco both agree, but the linux server insists that it is the DR.  I do have ebtables and iptables installed.  One thing I noticed is that when I restart networking, the server does show the Foundry as the DR for approximately 20 seconds, then falls back to itself as the DR.  I think this coincides with the server transitioning its ports from LEARN to FWD.  Another interesting note is that i do have another box, same linux kernel, same distribution connected to the same Foundry and it _does_ recognize the Foundry as the DR.
 
-Thanks again,
---Gabriel
+Can anyone shed some light on this situation?  
 
-On Mon, Feb 23, 2009 at 09:31:31PM -0500, L. Gabriel Somlo wrote:
-> Hi,
-> 
-> Is there any support at all for Cisco's PVST+ in Linux (kernel and 
-> brctl) ? Please read on for what I'm trying to accomplish:
-> 
-> I'm trying to set up a redundant pair of filtering bridges connected 
-> to two cisco 6500 hybrid L2/L3 switch/routers. At the edge of the 
-> network I have a bunch of untrusted devices on a layer-2 subnet, and
-> the idea is to offer selective access to the subnet's default router 
-> on the trusted side of the network. Here's a quick picture:
-> 
-> 
->             +---------------+                 +---------------+
->             |      .2       |   .1 (HSRP)     |      .3       |
->     +-------+ - - - - - - - +-----------------+ - - - - - - - +-------+
->     |   X   |               | vlanX (trusted) |               |   X   |
->   Linux     |     Cisco     |                 |     Cisco     |     Linux
->   Bridge    |      6500     |                 |      6500     |     Bridge
->     |   Y   |               |      vlan Y     |               |   Y   |
->     +-------+ - + - + - + - +-----------------+ - + - + - + - +-------+
->             |   |   |   |   |   (untrusted)   |   |   |   |   |
->             +---+---+---+---+                 +---+---+---+---+
->                 |   |   |                         |   |   |
->                 |   |   |     +-------------+     |   |   |
->                 |   |   +-----+ edge switch +-----+   |   |
->                 |   |         +-------------+         |   |
->                 |   |                                 |   |
->                 |   |         +-------------+         |   |
->                 |   +---------+ edge switch +---------+   |
->                 |             +-------------+             |
->                 |                                         |
->                 |             +-------------+             |
->                 +-------------+ edge switch +-------------+
->                               +-------------+
-> 
-> The ciscos use pvstp+, and the problem is that when a Vlan-X BPDU is received
-> on a Vlan-Y (sub)interface, that subinterface is shut down due to a perceived
-> misconfiguration.
-> 
-> Is Linux equipped to handle this (by, e.g., translating the BPDUs received
-> over vlan X into BPDUs that would be appropriate to forward into vlan Y, and
-> vice versa) ?
-> 
-> If not, any other ideas on how to accomplish redundancy would be much
-> appreciated. The topology prevents me from inserting the linux bridge in
-> a way that would allow bridging between the same vlan on two different
-> physical interfaces.
-> 
-> Thanks much,
-> --Gabriel
+##Foundry output:
+FES9604 Switch#show span vlan 950
+
+VLAN 950 BPDU cam_index is 0 and the DMA master Are(HEX) 0 D  
+STP instance owned by VLAN 950
+
+Global STP (IEEE 802.1D) Parameters:
+
+VLAN Root             Root Root Prio Max He- Ho- Fwd Last     Chg  Bridge      
+ ID   ID              Cost Port rity Age llo ld  dly Chang    cnt  Address     
+                                Hex  sec sec sec sec sec                       
+ 950 2ee0000480e6a03c 20095100  2ee0 20  2   1   15  935      16   000480e6fcd0
+
+Port STP Parameters:
+
+Port  Prio Path  State       Fwd    Design   Designated       Designated       
+Num   rity Cost              Trans  Cost     Root             Bridge           
+      Hex                                                                      
+1     80   19    FORWARDING  6      20095    2ee0000480e6a03c 2ee0000480e6fcd0 
+2     80   0     DISABLED    0      0        0000000000000000 0000000000000000 
+100   80   19    FORWARDING  1      20076    2ee0000480e6a03c 80000090f2b2490a 
+
+
+##Cisco output:
+##Cisco is in pvst mode
+
+as01-vlanfw01#show spanning-tree vlan 950                                       
+                                                                                
+VLAN0950                                                                        
+  Spanning tree enabled protocol ieee                                           
+  Root ID    Priority    12000                                                  
+             Address     0004.80e6.a03c                                         
+             Cost        4                                                      
+             Port        25 (GigabitEthernet0/1)                                
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec           
+                                                                                
+  Bridge ID  Priority    33718  (priority 32768 sys-id-ext 950)                 
+             Address     0022.913f.e700                                         
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec           
+             Aging Time 300                                                     
+                                                                                
+Interface           Role Sts Cost      Prio.Nbr Type                            
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Root FWD 4         128.25   P2p                             
+Gi0/2               Altn BLK 19        128.26   P2p
+
+
+##Centos output:
+[root@vlan-fw-02 ]# cat /etc/issue
+CentOS release 5 (Final)
+Kernel \r on an \m
+
+[root@vlan-fw-02 ]# ebtables-save
+# Generated by ebtables-save v1.0 on Tue Oct  7 19:37:59 PDT 2003
+*broute
+:BROUTING ACCEPT
+-A BROUTING -p 802_1Q --vlan-id 950 -j DROP
+
+*nat
+:PREROUTING ACCEPT
+:OUTPUT ACCEPT
+:POSTROUTING ACCEPT
+
+*filter
+:INPUT ACCEPT
+:FORWARD ACCEPT
+:OUTPUT ACCEPT
+
+[root@vlan-fw-02 ]# iptables-save
+# Generated by iptables-save v1.3.5 on Tue Oct  7 19:38:22 2003
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [14116:1889409]
+:RH-Firewall-1-INPUT - [0:0]
+-A INPUT -j RH-Firewall-1-INPUT 
+-A FORWARD -j RH-Firewall-1-INPUT 
+-A RH-Firewall-1-INPUT -i lo -j ACCEPT 
+-A RH-Firewall-1-INPUT -p icmp -m icmp --icmp-type any -j ACCEPT 
+-A RH-Firewall-1-INPUT -p esp -j ACCEPT 
+-A RH-Firewall-1-INPUT -p ah -j ACCEPT 
+-A RH-Firewall-1-INPUT -d 224.0.0.251 -p udp -m udp --dport 5353 -j ACCEPT 
+-A RH-Firewall-1-INPUT -p udp -m udp --dport 631 -j ACCEPT 
+-A RH-Firewall-1-INPUT -p tcp -m tcp --dport 631 -j ACCEPT 
+-A RH-Firewall-1-INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT 
+-A RH-Firewall-1-INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT 
+-A RH-Firewall-1-INPUT -j REJECT --reject-with icmp-host-prohibited 
+COMMIT
+# Completed on Tue Oct  7 19:38:22 2003
+
+[root@vlan-fw-02 ]# brctl show
+bridge name     bridge id               STP enabled     interfaces
+br0.950         8000.00065b8bce3e       yes             eth3.950
+                                                        eth2.950
+                                                        eth1.950
+                                                        eth0.950
+br0             8000.00065b8bce3e       yes             eth0
+                                                        eth1
+
+[root@vlan-fw-02 ]# brctl showstp br0.950
+br0.950
+ bridge id              8000.00065b8bce3e
+ designated root        8000.00065b8bce3e
+ root port                 0                    path cost                  0
+ max age                  19.99                 bridge max age            19.99
+ hello time                1.99                 bridge hello time          1.99
+ forward delay            14.99                 bridge forward delay      14.99
+ ageing time             299.95
+ hello timer               0.83                 tcn timer                  0.00
+ topology change timer     0.00                 gc timer                   0.08
+ flags
+
+
+eth3.950 (4)
+ port id                8004                    state                  disabled
+ designated root        8000.00065b8bce3e       path cost                100
+ designated bridge      8000.00065b8bce3e       message age timer          0.00
+ designated port        8004                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.00
+ flags
+
+eth2.950 (3)
+ port id                8003                    state                  disabled
+ designated root        8000.00065b8bce3e       path cost                100
+ designated bridge      8000.00065b8bce3e       message age timer          0.00
+ designated port        8003                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.00
+ flags
+
+eth1.950 (2)
+ port id                8002                    state                forwarding
+ designated root        8000.00065b8bce3e       path cost                100
+ designated bridge      8000.00065b8bce3e       message age timer          0.00
+ designated port        8002                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.00
+ flags
+
+eth0.950 (1)
+ port id                8001                    state                forwarding
+ designated root        8000.00065b8bce3e       path cost                 19
+ designated bridge      8000.00065b8bce3e       message age timer          0.00
+ designated port        8001                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.00
+ flags
+
+
+
+TIA,
+Chris Hunt
+
+
