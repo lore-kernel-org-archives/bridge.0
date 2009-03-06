@@ -1,11 +1,11 @@
-Message-ID: <49B00385.1010401@superduper.net>
-Date: Thu, 05 Mar 2009 08:53:25 -0800
-From: Simon Barber <simon@superduper.net>
+From: Dirk Gouders <gouders@et.bocholt.fh-gelsenkirchen.de>
+In-Reply-To: <49B00385.1010401@superduper.net> (Simon Barber's message of
+	"Thu\, 05 Mar 2009 08\:53\:25 -0800")
+References: <giab80caq6.fsf@karga.hank.lab> <49B00385.1010401@superduper.net>
+Date: Fri, 06 Mar 2009 12:45:05 +0100
+Message-ID: <giy6vi98ou.fsf@karga.hank.lab>
 MIME-Version: 1.0
-References: <giab80caq6.fsf@karga.hank.lab>
-In-Reply-To: <giab80caq6.fsf@karga.hank.lab>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Subject: Re: [Bridge] IP address on bridged interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,50 +15,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dirk Gouders <gouders@et.bocholt.fh-gelsenkirchen.de>
+To: Simon Barber <simon@superduper.net>
 Cc: bridge@lists.linux-foundation.org
 
-Normally it does not make sense to put any L3 protocol address on port 
-interfaces - because incoming packets are diverted to the bridge 
-interface before the L3 protocol is examined. This means the L3 protocol 
-running on the port interface will never see any incoming packets.
 
-There are a few rare circumstances where it makes sense to have IP 
-addresses on the port interfaces - it can be done with the use of the 
-ebtables BROUTE chain - this allows one to selectively pass frames to 
-the L3 protocol decode on a port rather than passing them to the bridge 
-interface. One situation where I have used this trick is on an NFS root 
-mounted networking device. On kernel boot the kernel NFS code assigns an 
-IP address directly to the ethernet port. Once my networking code starts 
-it creates a bridge and puts the ethernet port into the bridge. This 
-stops the NFS root mount from working, and the machine halts. The work 
-around is to put an ebtables rule in place to allow the NFS root mount 
-IP address to continue working.
+> Normally it does not make sense to put any L3 protocol address on port 
+> interfaces - because incoming packets are diverted to the bridge 
+> interface before the L3 protocol is examined. This means the L3 protocol 
+> running on the port interface will never see any incoming packets.
 
-Simon
+Meanwhile, I played with a one-port setup that works with an IP address
+(out of 192.168.106.0/24) only on the port interface:
 
+brctl addbr br0
+ip link set br0 up
+# delete the network-route via the eth0 interface
+ip route del 192.168.106.0/24
+ip route add default dev br0
+brctl addif br0 eth0
 
-Dirk Gouders wrote:
-> Hello,
->
-> I am currently playing with bridging to learn about various
-> possibilities to setup a bridge to enable networking for KVM guests.
->
-> I learned that I cannot use an IP address on one of the bridged
-> interfaces but have to assign that IP address to the bridge interface if
-> I want to use it to reach the bridge itself.
->
-> The documentation I found does not say much about this subject and I am
-> wondering whether there are situations when I can use IP addresses on
-> bridged interfaces or if it absolutely makes no sense to have an IP
-> address assigned to a bridged interface.
->
-> Any explanation or pointers are very welcome.
->
-> Dirk
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->   
+After I put the one and only interface eth0 into this experimental
+"bridge", network connections are possible as if eth0 was used directly.
+As br0 does not have an L3 protocol address, isn't it the port interface
+eth0 that sees the L3 packets in this case?
 
+Dirk
