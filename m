@@ -1,14 +1,14 @@
-Date: Tue, 10 Mar 2009 10:19:59 -0700 (PDT)
-Message-Id: <20090310.101959.142777275.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <fa686aa40903101013j2324e8acw18830c930e12ae46@mail.gmail.com>
-References: <20090218.134852.118040610.davem@davemloft.net>
-	<ae4f76fd0902190145r7ed5fadbwfca18c97dbfc9ed1@mail.gmail.com>
-	<fa686aa40903101013j2324e8acw18830c930e12ae46@mail.gmail.com>
+Date: Tue, 10 Mar 2009 10:26:48 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20090310102648.125aa7e5@nehalam>
+In-Reply-To: <74b87ec3359e6e65d59cd6fb62a83fb469e6c8ae.1236702228.git.scott@canonical.com>
+References: <cover.1236702228.git.scott@canonical.com>
+	<74b87ec3359e6e65d59cd6fb62a83fb469e6c8ae.1236702228.git.scott@canonical.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] net_device_ops support in bridging and fec_mpc52xx.c
+Subject: Re: [Bridge] [PATCH 01/31] bridge: Auto-load bridge module when
+ socket opened.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,18 +17,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: grant.likely@secretlab.ca
-Cc: linuxppc-dev@ozlabs.org, netdev@vger.kernel.org, henk.stegeman@gmail.com, bridge@osdl.org, jgarzik@pobox.com
+To: Scott James Remnant <scott@canonical.com>
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-From: Grant Likely <grant.likely@secretlab.ca>
-Date: Tue, 10 Mar 2009 11:13:02 -0600
+On Mon, 2 Mar 2009 16:40:10 +0000
+Scott James Remnant <scott@canonical.com> wrote:
 
-> Hi Henk,
+> The bridge module is missing the net-pf-7 alias that would cause it to
+> be auto-loaded when a socket of that type is opened.  This patch adds
+> the alias.
 > 
-> Acked-by: Grant Likely <grant.likely@secretlab.ca>
- ...
-> Jeff, after Henk provides his s-o-b line, do you want to pick it up,
-> or should I merge it through my mpc52xx powerpc tree (via benh).
+> Signed-off-by: Scott James Remnant <scott@canonical.com>
+> Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+> ---
+>  net/bridge/br.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/net/bridge/br.c b/net/bridge/br.c
+> index 4d2c1f1..229daee 100644
+> --- a/net/bridge/br.c
+> +++ b/net/bridge/br.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/netdevice.h>
+>  #include <linux/etherdevice.h>
+>  #include <linux/init.h>
+> +#include <linux/net.h>
+>  #include <linux/llc.h>
+>  #include <net/llc.h>
+>  #include <net/stp.h>
+> @@ -108,3 +109,4 @@ module_init(br_init)
+>  module_exit(br_deinit)
+>  MODULE_LICENSE("GPL");
+>  MODULE_VERSION(BR_VERSION);
+> +MODULE_ALIAS_NETPROTO(PF_BRIDGE);
 
-Send it to netdev, CC:'d to me, Jeff hasn't been handling networking
-driver changes for a while now.
+Hmm. It looks okay, but there is not real direct socket interface
+for PF_BRIDGE/AF_BRIDGE.
