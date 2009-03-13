@@ -1,15 +1,14 @@
-MIME-Version: 1.0
-In-Reply-To: <20090310.101959.142777275.davem@davemloft.net>
-References: <20090218.134852.118040610.davem@davemloft.net>
-	<ae4f76fd0902190145r7ed5fadbwfca18c97dbfc9ed1@mail.gmail.com>
-	<fa686aa40903101013j2324e8acw18830c930e12ae46@mail.gmail.com>
-	<20090310.101959.142777275.davem@davemloft.net>
-Date: Tue, 10 Mar 2009 11:36:22 -0600
-Message-ID: <fa686aa40903101036v430d968cs436902698be53c95@mail.gmail.com>
-From: Grant Likely <grant.likely@secretlab.ca>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 13 Mar 2009 14:27:18 -0700 (PDT)
+Message-Id: <20090313.142718.21189207.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <74b87ec3359e6e65d59cd6fb62a83fb469e6c8ae.1236702228.git.scott@canonical.com>
+References: <cover.1236702228.git.scott@canonical.com>
+	<74b87ec3359e6e65d59cd6fb62a83fb469e6c8ae.1236702228.git.scott@canonical.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] net_device_ops support in bridging and fec_mpc52xx.c
+Subject: Re: [Bridge] [PATCH 01/31] bridge: Auto-load bridge module when
+ socket opened.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,18 +17,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: linuxppc-dev@ozlabs.org, netdev@vger.kernel.org, henk.stegeman@gmail.com, bridge@osdl.org, jgarzik@pobox.com
+To: scott@canonical.com
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On Tue, Mar 10, 2009 at 11:19 AM, David Miller <davem@davemloft.net> wrote:
-> Send it to netdev, CC:'d to me, Jeff hasn't been handling networking
-> driver changes for a while now.
+From: Scott James Remnant <scott@canonical.com>
+Date: Mon, 2 Mar 2009 16:40:10 +0000
 
-Ah, okay.  I didn't know.  I looked in MAINTAINERS today, and Jeff is
-listed there for NETWORK DEVICE DRIVERS.
+> The bridge module is missing the net-pf-7 alias that would cause it to
+> be auto-loaded when a socket of that type is opened.  This patch adds
+> the alias.
+> 
+> Signed-off-by: Scott James Remnant <scott@canonical.com>
+> Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
 
-g.
+Bridging has no sockets, so this patch won't do anything.
 
--- 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Did you verify that these changes actually do something?
+Or did you blindly run around peppering source files with
+these annotations?
