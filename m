@@ -1,13 +1,16 @@
-Date: Fri, 13 Mar 2009 22:39:32 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20090313223932.50ebbd88@nehalam>
-In-Reply-To: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
-References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
+From: Scott James Remnant <scott@canonical.com>
+In-Reply-To: <20090313.142718.21189207.davem@davemloft.net>
+References: <cover.1236702228.git.scott@canonical.com>
+	<74b87ec3359e6e65d59cd6fb62a83fb469e6c8ae.1236702228.git.scott@canonical.com>
+	<20090313.142718.21189207.davem@davemloft.net>
+Content-Type: multipart/signed; micalg="pgp-sha1";
+	protocol="application/pgp-signature";
+	boundary="=-dDC1ANfaqXwhvNJEzGrz"
+Date: Sat, 14 Mar 2009 10:36:34 +0000
+Message-Id: <1237026994.29975.19.camel@quest>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
- work properly in bridge
+Subject: Re: [Bridge] [PATCH 01/31] bridge: Auto-load bridge module when
+ socket opened.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,45 +19,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jiri Pirko <jpirko@redhat.com>
-Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, davem@davemloft.net
+To: David Miller <davem@davemloft.net>
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On Fri, 13 Mar 2009 19:33:04 +0100
-Jiri Pirko <jpirko@redhat.com> wrote:
 
-> Hi all.
-> 
-> This is only a draft of patch to consult. I'm aware that it should be divided
-> into multiple patches. I want to know opinion from you folks.
-> 
-> The problem is described in following bugzilla:
-> https://bugzilla.redhat.com/show_bug.cgi?id=487763
-> 
-> Basically here's what's going on. In every mode, bonding interface uses the same
-> mac address for all enslaved devices. Except for mode balance-alb. When you put
-> this kind of bond device into a bridge it will only add one of mac adresses into
-> a hash list of mac addresses, say X. This mac address is marked as local. But
-> this bonding interface also has mac address Y. Now then packet arrives with
-> destination address Y, this address is not marked as local and the packed looks
-> like it needs to be forwarded. This packet is then lost which is wrong.
-> 
-> Notice that interfaces can be added and removed from bond while it is in bridge.
-> Therefore I introduce another function pointer in struct net_device_ops -
-> ndo_check_mac_address. This function when it's implemented should check passed
-> mac address against the one set in device. I'm using this in bonding driver when
-> the bond is in mode balance-alb to walk thru all slaves and checking if any of
-> them equals passed address.
-> 
-> Then in bridge function br_handle_frame_finish() I'm using ndo_check_mac_address
-> to recognize the destination mac address as local.
-> 
-> Please look at this and tell me what you think about it.
-> 
-> Thanks
-> 
-> Jirka
->
+--=-dDC1ANfaqXwhvNJEzGrz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-A better and more general way to do this have the dev_set_mac_address
-function check the return of the notifier and unwind. Then any protocol
-can easily prevent address from changing.
+On Fri, 2009-03-13 at 14:27 -0700, David Miller wrote:
+
+> Did you verify that these changes actually do something?
+> Or did you blindly run around peppering source files with
+> these annotations?
+>=20
+I converted existing modprobe aliases that most distributions are
+carrying around into the one-line kernel patches.
+
+I tested the important ones such as the floppy and ch changes.
+
+If the patches are wrong, which I personally suspected many of them
+were, then it's a good example as to why distributions shouldn't hack
+around the kernel in userspace, or keep their own patches.
+
+So yes, they're a bit stinky (hell, I even fluffed up the covering mail
+subject line <g>) - but distros including Ubuntu were trying to do these
+aliases in modprobe rules, so it's a good thing to find out that they're
+wrong; no?
+
+Scott
+--=20
+Scott James Remnant
+scott@canonical.com
+
+--=-dDC1ANfaqXwhvNJEzGrz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkm7iLIACgkQSnQiFMl4yK75vQCfbMVoqidrsrcITKItzKaAc5SC
+1OoAnioB4Tjlo9IBrxphSw/1wFq/h+D8
+=yi2y
+-----END PGP SIGNATURE-----
+
+--=-dDC1ANfaqXwhvNJEzGrz--
+
