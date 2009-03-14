@@ -1,15 +1,13 @@
-Date: Fri, 13 Mar 2009 15:28:29 -0700 (PDT)
-Message-Id: <20090313.152829.165834070.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20090313151200.1cc16255@nehalam>
-References: <74b87ec3359e6e65d59cd6fb62a83fb469e6c8ae.1236702228.git.scott@canonical.com>
-	<20090313.142718.21189207.davem@davemloft.net>
-	<20090313151200.1cc16255@nehalam>
+Date: Fri, 13 Mar 2009 22:39:32 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20090313223932.50ebbd88@nehalam>
+In-Reply-To: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
+References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 01/31] bridge: Auto-load bridge module when
- socket opened.
+Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
+ work properly in bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,19 +16,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: scott@canonical.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Jiri Pirko <jpirko@redhat.com>
+Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, davem@davemloft.net
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Fri, 13 Mar 2009 15:12:00 -0700
+On Fri, 13 Mar 2009 19:33:04 +0100
+Jiri Pirko <jpirko@redhat.com> wrote:
 
-> Let's be supportive of Ubuntu maintainers actually working on
-> upstream resolution for a change. The normal distro maintainer is
-> "patch and ignore".
+> Hi all.
+> 
+> This is only a draft of patch to consult. I'm aware that it should be divided
+> into multiple patches. I want to know opinion from you folks.
+> 
+> The problem is described in following bugzilla:
+> https://bugzilla.redhat.com/show_bug.cgi?id=487763
+> 
+> Basically here's what's going on. In every mode, bonding interface uses the same
+> mac address for all enslaved devices. Except for mode balance-alb. When you put
+> this kind of bond device into a bridge it will only add one of mac adresses into
+> a hash list of mac addresses, say X. This mac address is marked as local. But
+> this bonding interface also has mac address Y. Now then packet arrives with
+> destination address Y, this address is not marked as local and the packed looks
+> like it needs to be forwarded. This packet is then lost which is wrong.
+> 
+> Notice that interfaces can be added and removed from bond while it is in bridge.
+> Therefore I introduce another function pointer in struct net_device_ops -
+> ndo_check_mac_address. This function when it's implemented should check passed
+> mac address against the one set in device. I'm using this in bonding driver when
+> the bond is in mode balance-alb to walk thru all slaves and checking if any of
+> them equals passed address.
+> 
+> Then in bridge function br_handle_frame_finish() I'm using ndo_check_mac_address
+> to recognize the destination mac address as local.
+> 
+> Please look at this and tell me what you think about it.
+> 
+> Thanks
+> 
+> Jirka
+>
 
-This has nothing to do with being supportive or not.
-
-If the changes are wrong, many of these in fact were, and they were
-not even tested on top of it, I cannot be happy at all about that.
-
-And that goes for anyone submitting patches here.
+A better and more general way to do this have the dev_set_mac_address
+function check the return of the notifier and unwind. Then any protocol
+can easily prevent address from changing.
