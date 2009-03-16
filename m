@@ -1,15 +1,10 @@
-Date: Sun, 15 Mar 2009 16:12:17 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20090315161217.7fa2c3a7@nehalam>
-In-Reply-To: <20090314094911.GA3455@psychotron.englab.brq.redhat.com>
-References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
-	<20090313223932.50ebbd88@nehalam>
-	<20090314094911.GA3455@psychotron.englab.brq.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <49BE6B66.2070103@reachone.com>
+Date: Mon, 16 Mar 2009 08:08:22 -0700
+From: Christopher Hunt <chunt@reachone.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
- work properly in bridge
+Subject: [Bridge] STP FD when STP is disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,120 +13,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jiri Pirko <jpirko@redhat.com>
-Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, davem@davemloft.net
+To: Bridge@lists.linux-foundation.org
 
-On Sat, 14 Mar 2009 10:49:11 +0100
-Jiri Pirko <jpirko@redhat.com> wrote:
+It appears that interfaces participate in STP's forwarding delay even when STP is disabled for a given bridge. I can remedy by setting the FD to 0 for each new bridge, but I'm wondering if this is by design or oversight. 
 
-> Sat, Mar 14, 2009 at 06:39:32AM CET, shemminger@linux-foundation.org wrote:
-> >On Fri, 13 Mar 2009 19:33:04 +0100
-> >Jiri Pirko <jpirko@redhat.com> wrote:
-> >
-> >> Hi all.
-> >> 
-> >> This is only a draft of patch to consult. I'm aware that it should be divided
-> >> into multiple patches. I want to know opinion from you folks.
-> >> 
-> >> The problem is described in following bugzilla:
-> >> https://bugzilla.redhat.com/show_bug.cgi?id=487763
-> >> 
-> >> Basically here's what's going on. In every mode, bonding interface uses the same
-> >> mac address for all enslaved devices. Except for mode balance-alb. When you put
-> >> this kind of bond device into a bridge it will only add one of mac adresses into
-> >> a hash list of mac addresses, say X. This mac address is marked as local. But
-> >> this bonding interface also has mac address Y. Now then packet arrives with
-> >> destination address Y, this address is not marked as local and the packed looks
-> >> like it needs to be forwarded. This packet is then lost which is wrong.
-> >> 
-> >> Notice that interfaces can be added and removed from bond while it is in bridge.
-> >> Therefore I introduce another function pointer in struct net_device_ops -
-> >> ndo_check_mac_address. This function when it's implemented should check passed
-> >> mac address against the one set in device. I'm using this in bonding driver when
-> >> the bond is in mode balance-alb to walk thru all slaves and checking if any of
-> >> them equals passed address.
-> >> 
-> >> Then in bridge function br_handle_frame_finish() I'm using ndo_check_mac_address
-> >> to recognize the destination mac address as local.
-> >> 
-> >> Please look at this and tell me what you think about it.
-> >> 
-> >> Thanks
-> >> 
-> >> Jirka
-> >>
-> >
-> >A better and more general way to do this have the dev_set_mac_address
-> >function check the return of the notifier and unwind. Then any protocol
-> >can easily prevent address from changing.
-> 
-> Can you please describe this thougth a bit more? I can't understand it now...
-> 
-> Thanks
-> 
-> Jirka
+[root@ ~]# brctl show
+bridge name     bridge id               STP enabled     interfaces
 
-Something like this:
+br0.690         8000.00065b8bce3e       no              eth1.690
+                                                        eth0.690
 
---- a/net/core/dev.c	2009-03-15 15:55:02.098126056 -0700
-+++ b/net/core/dev.c	2009-03-15 16:02:43.999251305 -0700
-@@ -3830,6 +3830,7 @@ int dev_set_mac_address(struct net_devic
- {
- 	const struct net_device_ops *ops = dev->netdev_ops;
- 	int err;
-+	char save_addr[MAX_ADDR_LEN];
- 
- 	if (!ops->ndo_set_mac_address)
- 		return -EOPNOTSUPP;
-@@ -3837,9 +3838,17 @@ int dev_set_mac_address(struct net_devic
- 		return -EINVAL;
- 	if (!netif_device_present(dev))
- 		return -ENODEV;
-+
-+	memcpy(save_addr, dev->dev_addr, dev->addr_len);
- 	err = ops->ndo_set_mac_address(dev, sa);
--	if (!err)
--		call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
-+	if (err)
-+		return err;
-+
-+	err = call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
-+	if (err) {
-+		memcpy(sa->sa_data, save_addr, dev->addr_len);
-+		ops->ndo_set_mac_address(dev, sa);
-+	}
- 	return err;
- }
- 
-
-And something like this:
-
---- a/drivers/net/bonding/bond_main.c	2009-03-15 16:03:53.909000973 -0700
-+++ b/drivers/net/bonding/bond_main.c	2009-03-15 16:11:43.227127031 -0700
-@@ -3534,6 +3534,7 @@ static int bond_slave_netdev_event(unsig
- {
- 	struct net_device *bond_dev = slave_dev->master;
- 	struct bonding *bond = netdev_priv(bond_dev);
-+	int err;
- 
- 	switch (event) {
- 	case NETDEV_UNREGISTER:
-@@ -3570,6 +3571,15 @@ static int bond_slave_netdev_event(unsig
- 		 * servitude.
- 		 */
- 		break;
-+	case NETDEV_CHANGEADDR:
-+		if (bond->params.mode == BOND_MODE_ALB)
-+			err = bond_alb_check_mac_address(bond);
-+		else if (compare_ether_addr(bond_dev->dev_addr, addr) != 0)
-+			err = -EINVAL;
-+
-+		if (err)
-+			return notifier_from_errno(err);
-+		break;
- 	case NETDEV_CHANGENAME:
- 		/*
- 		 * TODO: handle changing the primary's name
+[root@ ~]# brctl showstp br0.690
+br0.690
+ bridge id              8000.00065b8bce3e
+ designated root        8000.00065b8bce3e
+ root port                 0                    path cost                  0
+ max age                  19.99                 bridge max age            19.99
+ hello time                1.99                 bridge hello time          1.99
+ forward delay            14.99                 bridge forward delay      14.99
+ ageing time             299.95
+ hello timer               1.09                 tcn timer                  0.00
+ topology change timer     0.00                 gc timer                   0.00
+ flags
 
 
+eth1.690 (2)
+ port id                8002                    state                forwarding
+ designated root        8000.00065b8bce3e       path cost                100
+ designated bridge      8000.00065b8bce3e       message age timer          0.00
+ designated port        8002                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.09
+ flags
 
+eth0.690 (1)
+ port id                8001                    state                forwarding
+ designated root        8000.00065b8bce3e       path cost                 19
+ designated bridge      8000.00065b8bce3e       message age timer          0.00
+ designated port        8001                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.09
+ flags
+
+!! when i restart networking:
+[root@vlan-fw-02 ~]# tail /var/log/messages -n50 | grep 690
+Mar 16 08:01:33 vlan-fw-02 kernel: br0.690: port 2(eth1.690) entering disabled state
+Mar 16 08:01:33 vlan-fw-02 kernel: br0.690: port 1(eth0.690) entering disabled state
+Mar 16 08:01:33 vlan-fw-02 kernel: device eth0.690 left promiscuous mode
+Mar 16 08:01:33 vlan-fw-02 kernel: br0.690: port 1(eth0.690) entering disabled state
+Mar 16 08:01:34 vlan-fw-02 kernel: device eth1.690 left promiscuous mode
+Mar 16 08:01:34 vlan-fw-02 kernel: br0.690: port 2(eth1.690) entering disabled state
+Mar 16 08:01:35 vlan-fw-02 kernel: eth0.690: dev_set_promiscuity(master, -1)
+Mar 16 08:01:36 vlan-fw-02 kernel: eth1.690: dev_set_promiscuity(master, -1)
+Mar 16 08:01:36 vlan-fw-02 kernel: eth0.690: dev_set_promiscuity(master, 1)
+Mar 16 08:01:36 vlan-fw-02 kernel: device eth0.690 entered promiscuous mode
+Mar 16 08:01:36 vlan-fw-02 kernel: eth1.690: dev_set_promiscuity(master, 1)
+Mar 16 08:01:36 vlan-fw-02 kernel: device eth1.690 entered promiscuous mode
+Mar 16 08:01:37 vlan-fw-02 kernel: br0.690: port 2(eth1.690) entering learning state
+Mar 16 08:01:37 vlan-fw-02 kernel: br0.690: port 1(eth0.690) entering learning state
+Mar 16 08:01:52 vlan-fw-02 kernel: br0.690: topology change detected, propagating
+Mar 16 08:01:52 vlan-fw-02 kernel: br0.690: port 2(eth1.690) entering forwarding state
+Mar 16 08:01:52 vlan-fw-02 kernel: br0.690: topology change detected, propagating
+Mar 16 08:01:52 vlan-fw-02 kernel: br0.690: port 1(eth0.690) entering forwarding state
