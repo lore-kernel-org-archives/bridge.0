@@ -1,16 +1,13 @@
-Date: Mon, 16 Mar 2009 12:11:28 +0100
-From: Jiri Pirko <jpirko@redhat.com>
-Message-ID: <20090316111127.GB3484@psychotron.englab.brq.redhat.com>
-References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
-	<20090313223932.50ebbd88@nehalam>
-	<20090314094911.GA3455@psychotron.englab.brq.redhat.com>
-	<20090315161217.7fa2c3a7@nehalam>
+Message-ID: <49BFBA86.2050603@gmail.com>
+Date: Tue, 17 Mar 2009 14:58:14 +0000
+From: Saikiran Madugula <hummerbliss@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20090315161217.7fa2c3a7@nehalam>
-Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
-	work	properly in bridge
+References: <486912e7.a6.3013.6700211@webmaildh6.aruba.it>	<2e59e6970806301542t405646das78baa26f0cda8f6e@mail.gmail.com>
+	<486A48D0.8040102@trash.net>
+In-Reply-To: <486A48D0.8040102@trash.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] 802.1q packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,138 +16,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, davem@davemloft.net
+To: Patrick McHardy <kaber@trash.net>
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@linuxfoundation.org
 
-Mon, Mar 16, 2009 at 12:12:17AM CET, shemminger@linux-foundation.org wrote:
->On Sat, 14 Mar 2009 10:49:11 +0100
->Jiri Pirko <jpirko@redhat.com> wrote:
->
->> Sat, Mar 14, 2009 at 06:39:32AM CET, shemminger@linux-foundation.org wrote:
->> >On Fri, 13 Mar 2009 19:33:04 +0100
->> >Jiri Pirko <jpirko@redhat.com> wrote:
->> >
->> >> Hi all.
->> >> 
->> >> This is only a draft of patch to consult. I'm aware that it should be divided
->> >> into multiple patches. I want to know opinion from you folks.
->> >> 
->> >> The problem is described in following bugzilla:
->> >> https://bugzilla.redhat.com/show_bug.cgi?id=487763
->> >> 
->> >> Basically here's what's going on. In every mode, bonding interface uses the same
->> >> mac address for all enslaved devices. Except for mode balance-alb. When you put
->> >> this kind of bond device into a bridge it will only add one of mac adresses into
->> >> a hash list of mac addresses, say X. This mac address is marked as local. But
->> >> this bonding interface also has mac address Y. Now then packet arrives with
->> >> destination address Y, this address is not marked as local and the packed looks
->> >> like it needs to be forwarded. This packet is then lost which is wrong.
->> >> 
->> >> Notice that interfaces can be added and removed from bond while it is in bridge.
->> >> Therefore I introduce another function pointer in struct net_device_ops -
->> >> ndo_check_mac_address. This function when it's implemented should check passed
->> >> mac address against the one set in device. I'm using this in bonding driver when
->> >> the bond is in mode balance-alb to walk thru all slaves and checking if any of
->> >> them equals passed address.
->> >> 
->> >> Then in bridge function br_handle_frame_finish() I'm using ndo_check_mac_address
->> >> to recognize the destination mac address as local.
->> >> 
->> >> Please look at this and tell me what you think about it.
->> >> 
->> >> Thanks
->> >> 
->> >> Jirka
->> >>
->> >
->> >A better and more general way to do this have the dev_set_mac_address
->> >function check the return of the notifier and unwind. Then any protocol
->> >can easily prevent address from changing.
->> 
->> Can you please describe this thougth a bit more? I can't understand it now...
->> 
->> Thanks
->> 
->> Jirka
->
->Something like this:
->
->--- a/net/core/dev.c	2009-03-15 15:55:02.098126056 -0700
->+++ b/net/core/dev.c	2009-03-15 16:02:43.999251305 -0700
->@@ -3830,6 +3830,7 @@ int dev_set_mac_address(struct net_devic
-> {
-> 	const struct net_device_ops *ops = dev->netdev_ops;
-> 	int err;
->+	char save_addr[MAX_ADDR_LEN];
+Patrick McHardy wrote:
+> richardvoigt@gmail.com wrote:
+>> On Mon, Jun 30, 2008 at 5:07 PM, Fulvio Ricciardi <
+>> fulvio.ricciardi@zeroshell.net> wrote:
+>>
+>>>> That mostly rules out other devices in the path as the
+>>>> cause of the problem.  There's just one chance of a
+>>>> netfilter interaction that I can think of: netfilter may
+>>>> cause fragments to be recombined, without netfilter the
+>>>> fragments could be bridged.  Are you running the ping
+>>>> command from the bridge itself, or across the bridge? (I
+>>>> presume across the bridge because you are discussing the
+>>>> FORWARD chain only)
+>>> I ping across the bridge. If instead a ping from the bridge
+>>> itself, all works right.
+>>>
+>>>> Do the large ping requests show up in the iptables
+>>>> counters?
+>>> Yes, in any case (either ping -s 1472 and ping -s 1473) the
+>>> packets are counted in the FORWARD chain.
+>>>
+>>>> What happens if you set no fragmentation when you run
+>>>> ping?
+>>> it's the same
+>>
+>> Just to verify, you mean that with no fragmentation, large pings go through
+>> if and only if bridge-nf-call-iptables is disabled?
 > 
-> 	if (!ops->ndo_set_mac_address)
-> 		return -EOPNOTSUPP;
->@@ -3837,9 +3838,17 @@ int dev_set_mac_address(struct net_devic
-> 		return -EINVAL;
-> 	if (!netif_device_present(dev))
-> 		return -ENODEV;
->+
->+	memcpy(save_addr, dev->dev_addr, dev->addr_len);
-> 	err = ops->ndo_set_mac_address(dev, sa);
->-	if (!err)
->-		call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
->+	if (err)
->+		return err;
->+
->+	err = call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
->+	if (err) {
->+		memcpy(sa->sa_data, save_addr, dev->addr_len);
->+		ops->ndo_set_mac_address(dev, sa);
->+	}
-> 	return err;
-> }
 > 
->
->And something like this:
->
->--- a/drivers/net/bonding/bond_main.c	2009-03-15 16:03:53.909000973 -0700
->+++ b/drivers/net/bonding/bond_main.c	2009-03-15 16:11:43.227127031 -0700
->@@ -3534,6 +3534,7 @@ static int bond_slave_netdev_event(unsig
-> {
-> 	struct net_device *bond_dev = slave_dev->master;
-> 	struct bonding *bond = netdev_priv(bond_dev);
->+	int err;
+> Just FYI for all affected, I'm looking into this. One
+> problem is that only packets with skb->protocol == ETH_P_IP
+> are refragmented, but not ETH_P_8021Q. That change alone
+> doesn't fix it though, still trying to track it down.
 > 
-> 	switch (event) {
-> 	case NETDEV_UNREGISTER:
->@@ -3570,6 +3571,15 @@ static int bond_slave_netdev_event(unsig
-> 		 * servitude.
-> 		 */
-> 		break;
->+	case NETDEV_CHANGEADDR:
->+		if (bond->params.mode == BOND_MODE_ALB)
->+			err = bond_alb_check_mac_address(bond);
->+		else if (compare_ether_addr(bond_dev->dev_addr, addr) != 0)
->+			err = -EINVAL;
->+
->+		if (err)
->+			return notifier_from_errno(err);
->+		break;
-> 	case NETDEV_CHANGENAME:
-> 		/*
-> 		 * TODO: handle changing the primary's name
->
-Yes, I think the changing mac address of slaves should be also handled by
-bonding driver. But my patch fixes a different issue. See, unlike in any other
-bonding modes, in balance-alb mode incoming packets have multiple MAC adresses
-(of any of enslaved devices). This causes problem because bridge only recognize
-one of them (the mac of master which is the mac on one of the slaves) as local -
-the other MAC's are not recognized as they are a part of port and therefore
-handled as general MAC adresses. This is the problem.
 
-I can see two solutions. Either like my patch or somehow allow bridge to know
-more MAC addressses per port (maybe netdev can be changed to know more then
-one MAC address).
+Is this problem fixed ? I am unable to find if this problem is fixed in later 
+commits in the tree.
 
-Any thoughts?
-
-Thanks
-
-Jirka
->
->
+Thanks,
+Saikiran.
