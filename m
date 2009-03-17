@@ -1,10 +1,10 @@
-Message-ID: <49BFBA86.2050603@gmail.com>
-Date: Tue, 17 Mar 2009 14:58:14 +0000
+Message-ID: <49BFCF3F.5020103@gmail.com>
+Date: Tue, 17 Mar 2009 16:26:39 +0000
 From: Saikiran Madugula <hummerbliss@gmail.com>
 MIME-Version: 1.0
 References: <486912e7.a6.3013.6700211@webmaildh6.aruba.it>	<2e59e6970806301542t405646das78baa26f0cda8f6e@mail.gmail.com>
-	<486A48D0.8040102@trash.net>
-In-Reply-To: <486A48D0.8040102@trash.net>
+	<486A48D0.8040102@trash.net> <49BFBA86.2050603@gmail.com>
+In-Reply-To: <49BFBA86.2050603@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] 802.1q packets
@@ -19,43 +19,47 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Patrick McHardy <kaber@trash.net>
 Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@linuxfoundation.org
 
-Patrick McHardy wrote:
-> richardvoigt@gmail.com wrote:
->> On Mon, Jun 30, 2008 at 5:07 PM, Fulvio Ricciardi <
->> fulvio.ricciardi@zeroshell.net> wrote:
->>
->>>> That mostly rules out other devices in the path as the
->>>> cause of the problem.  There's just one chance of a
->>>> netfilter interaction that I can think of: netfilter may
->>>> cause fragments to be recombined, without netfilter the
->>>> fragments could be bridged.  Are you running the ping
->>>> command from the bridge itself, or across the bridge? (I
->>>> presume across the bridge because you are discussing the
->>>> FORWARD chain only)
->>> I ping across the bridge. If instead a ping from the bridge
->>> itself, all works right.
+Saikiran Madugula wrote:
+> Patrick McHardy wrote:
+>> richardvoigt@gmail.com wrote:
+>>> On Mon, Jun 30, 2008 at 5:07 PM, Fulvio Ricciardi <
+>>> fulvio.ricciardi@zeroshell.net> wrote:
 >>>
->>>> Do the large ping requests show up in the iptables
->>>> counters?
->>> Yes, in any case (either ping -s 1472 and ping -s 1473) the
->>> packets are counted in the FORWARD chain.
+>>>>> That mostly rules out other devices in the path as the
+>>>>> cause of the problem.  There's just one chance of a
+>>>>> netfilter interaction that I can think of: netfilter may
+>>>>> cause fragments to be recombined, without netfilter the
+>>>>> fragments could be bridged.  Are you running the ping
+>>>>> command from the bridge itself, or across the bridge? (I
+>>>>> presume across the bridge because you are discussing the
+>>>>> FORWARD chain only)
+>>>> I ping across the bridge. If instead a ping from the bridge
+>>>> itself, all works right.
+>>>>
+>>>>> Do the large ping requests show up in the iptables
+>>>>> counters?
+>>>> Yes, in any case (either ping -s 1472 and ping -s 1473) the
+>>>> packets are counted in the FORWARD chain.
+>>>>
+>>>>> What happens if you set no fragmentation when you run
+>>>>> ping?
+>>>> it's the same
 >>>
->>>> What happens if you set no fragmentation when you run
->>>> ping?
->>> it's the same
+>>> Just to verify, you mean that with no fragmentation, large pings go 
+>>> through
+>>> if and only if bridge-nf-call-iptables is disabled?
 >>
->> Just to verify, you mean that with no fragmentation, large pings go through
->> if and only if bridge-nf-call-iptables is disabled?
+>>
+>> Just FYI for all affected, I'm looking into this. One
+>> problem is that only packets with skb->protocol == ETH_P_IP
+>> are refragmented, but not ETH_P_8021Q. That change alone
+>> doesn't fix it though, still trying to track it down.
+>>
 > 
-> 
-> Just FYI for all affected, I'm looking into this. One
-> problem is that only packets with skb->protocol == ETH_P_IP
-> are refragmented, but not ETH_P_8021Q. That change alone
-> doesn't fix it though, still trying to track it down.
+> Is this problem fixed ? I am unable to find if this problem is fixed in 
+> later commits in the tree.
 > 
 
-Is this problem fixed ? I am unable to find if this problem is fixed in later 
-commits in the tree.
-
-Thanks,
-Saikiran.
+I realized that commit (fbd8104c2eb2f00a031a3e472a0fc08e40d04c0b) disables 
+bridge netfilter code on PPOE and VLAN tagged frames entirely. Is it because the 
+problem mentioned in the above thread still there ?
