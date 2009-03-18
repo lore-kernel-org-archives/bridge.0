@@ -1,10 +1,12 @@
+Message-ID: <2831.119.40.3.91.1237373805.squirrel@norman.zultron.com>
+In-Reply-To: <1349.119.40.3.91.1236078245.squirrel@norman.zultron.com>
+References: <1349.119.40.3.91.1236078245.squirrel@norman.zultron.com>
+Date: Wed, 18 Mar 2009 18:56:45 +0800 (CST)
+From: "John Morris" <jman@zultron.com>
 MIME-Version: 1.0
-Date: Wed, 18 Mar 2009 06:12:19 +0000
-Message-ID: <fed120860903172312u1635ac3dj94be3a5c4811ff0a@mail.gmail.com>
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge]  RSTP timeout calculations
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] bridge dropping packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,164 +16,108 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
-Cc: Bernhard Weirich <bernhard.weirich@riedel.net>
 
-Hi,
+Same problem again here, this time with phone from a different vendor. 
+The dom0 had been running VLANs, but these are removed and the eth0 device
+directly connected to the bridge for testing.
 
-Bernhard Weirich pointed out that using gettimeofday(2) for timeout
-calculations can cause problems when system date/time is changed.
+Here are some tcpdumps that help illustrate the problem.  In this output,
+sipura1 is the phone, and pbx0 is the domU.  Pbx0 is connected through the
+interface vif8.0.  Sergey is the dom0, with a bridge 'bo1br'.
 
-Here is a patch to use times(2) instead of gettimeofday(2) to avoid
-being affected by changes in system date/time. times(2) returns the
-tick count of a clock which is running constantly since system boot.
-But the times(2) man page seems to recommend against using it for
-elapsed time and recommends gettimeofday(2) instead. Any comments
-about that?
+[root@sergey ~]# jobs
+[7]-  Running    tcpdump -i vif8.0 -l -A host sipura1 and not port 5061 \
+    | sed 's/^/vif8.0-s:       /' &
+[8]+  Running    tcpdump -i bo1br -l -e -A host sipura1 and not port 5061 \
+    | sed 's/^/bo1br-s:      /' &
 
-Thanks,
-Srinivas
+Here are some sample packets that are never forwarded from the bridge to
+vif8.0:
+[...]
+bo1br-s:        18:30:37.948378 00:0e:08:ab:6a:78 (oui Unknown) \
+    > 00:16:ee:68:03:13 (oui Unknown), ethertype IPv4 (0x0800), \
+    length 543: sipura1.zultron.com.sip > pbx0.zultron.com.sip: \
+    SIP, length: 501
+bo1br-s:        [...]REGISTER sip:pbx0.zultron.com SIP/2.0
+bo1br-s:        Via: SIP/2.0/UD
+bo1br-s:        18:30:39.948675 00:0e:08:ab:6a:78 (oui Unknown) \
+    > 00:16:ee:68:03:13 (oui Unknown), ethertype IPv4 (0x0800), \
+    length 543: sipura1.zultron.com.sip > pbx0.zultron.com.sip: \
+    SIP, length: 501
+bo1br-s:        [...]REGISTER sip:pbx0.zultron.com SIP/2.0
+bo1br-s:        Via: SIP/2.0/UD
+[...]
 
----------------- begin patch ------------------------
+A ping from pbx0 to sipura1 makes it through just fine, however:
+[...]
+vif8.0-s:       18:39:40.986555 IP pbx0.zultron.com > \
+    sipura1.zultron.com: ICMP echo request, id 2318, seq 5, length 64
+bo1br-s:        18:39:40.986555 00:16:ee:68:03:13 (oui Unknown) \
+    > 00:0e:08:ab:6a:78 (oui Unknown), ethertype IPv4 (0x0800), \
+    length 98: pbx0.ablesky.com > sipura1.ablesky.com: ICMP echo \
+    request, id 2318, seq 5, length 64
+bo1br-s:        18:39:40.987507 00:0e:08:ab:6a:78 (oui Unknown) \
+    > 00:16:ee:68:03:13 (oui Unknown), ethertype IPv4 (0x0800), \
+    length 98: sipura1.ablesky.com > pbx0.ablesky.com: ICMP echo \
+    reply, id 2318, seq 5, length 64
+vif8.0-s:       18:39:40.987516 IP sipura1.ablesky.com > \
+    pbx0.ablesky.com: ICMP echo reply, id 2318, seq 5, length 64
 
---- a/epoll_loop.c
-+++ b/epoll_loop.c
-@@ -26,7 +26,7 @@
+The relevant entries in the MAC table:
+[root@sergey ~]# brctl showmacs bo1br | grep -e 6a:78 -e 03:13
+  1     00:0e:08:ab:6a:78       no                26.80
+  9     00:16:ee:68:03:13       no                 3.38
 
- #include <sys/epoll.h>
- #include <errno.h>
--#include <sys/time.h>
-+#include <sys/times.h>
- #include <time.h>
- #include <stdio.h>
- #include <unistd.h>
-@@ -35,7 +35,8 @@
+Strangest of all, sipura1, an ATA, has two phone ports, and the software
+registers them separately, one from port 5060, the other from port 5061. 
+The registration from port 5061 works just fine.  What's more, immediately
+after a reboot of sergey, the dom0, the phones register fine; it is after
+some time that the traffic suddenly begins being dropped.
 
- // globals
- int epoll_fd = -1;
--struct timeval nexttimeout;
-+clock_t nexttimeout;
-+clock_t clks_per_sec;
+Should I be suspecting packet corruption?  Tcpdump seems to be able to
+recognize the packets just fine.  Are the packets being forwarded out
+another port?  The dest MACs aren't duplicated on the network, and I've
+put a tcpdump on each switch port interface just to be sure.  Is it the
+physical switch that sergey is connected to?  I've moved sergey to another
+switch to test.  Is it the phone itself?  But different phones from
+different vendors exhibit the same problem, and sipura1 has the problem on
+one line, but not the other.  Obviously, I'm missing something here. 
+Thanks for any and all wild suggestions.
 
- int init_epoll(void)
- {
-@@ -45,6 +46,9 @@ int init_epoll(void)
-                return -1;
-        }
-        epoll_fd = r;
-+
-+       clks_per_sec = (clock_t)sysconf(_SC_CLK_TCK);
-+
-        return 0;
- }
-
-@@ -83,22 +87,15 @@ void clear_epoll(void)
-                close(epoll_fd);
- }
-
--int time_diff(struct timeval *second, struct timeval *first)
--{
--       return (second->tv_sec - first->tv_sec) * 1000
--           + (second->tv_usec - first->tv_usec) / 1000;
--}
--
- void run_timeouts(void)
- {
-        bridge_one_second();
--       nexttimeout.tv_sec++;
-+       nexttimeout += clks_per_sec;
- }
-
- int epoll_main_loop(void)
- {
--       gettimeofday(&nexttimeout, NULL);
--       nexttimeout.tv_sec++;
-+       nexttimeout = times(NULL) + clks_per_sec;
- #define EV_SIZE 8
-        struct epoll_event ev[EV_SIZE];
-
-@@ -106,12 +103,13 @@ int epoll_main_loop(void)
-                int r, i;
-                int timeout;
-
--               struct timeval tv;
--               gettimeofday(&tv, NULL);
--               timeout = time_diff(&nexttimeout, &tv);
--               if (timeout < 0) {
-+               clock_t now = times(NULL);
-+               long clocks_left = (long)(nexttimeout - now);
-+               if (clocks_left <= 0) {
-                        run_timeouts();
-                        timeout = 0;
-+               } else {
-+                       timeout = (clocks_left * 1000) / clks_per_sec;
-                }
-
-                r = epoll_wait(epoll_fd, ev, EV_SIZE, timeout);
-
---------------------- end patch ------------------------
+    John
 
 
-On Mon, Feb 9, 2009 at 1:55 PM, Bernhard Weirich
-<bernhard.weirich@riedel.net> wrote:
-> On Sun, 2009-02-08 at 07:15 +0100, Srinivas M.A. wrote:
+On Tue, March 3, 2009 7:04 pm, John Morris wrote:
+> We have about 20 IP phones connecting to a Xen-based PBX, and in the past
+> month or two, a problem has been popping up.
 >
->>diff -Naur rstp/brmon.c rstp-2/brmon.c
->>--- rstp/brmon.c        2008-07-02 07:06:25.000000000 +0200
->>+++ rstp-2/brmon.c      2009-02-06 15:08:21.000000000 +0100
->>@@ -109,7 +109,7 @@
->>
->>
->>        if (tb[IFLA_OPERSTATE]) {
->>-               int state = *(int*)RTA_DATA(tb[IFLA_OPERSTATE]);
->>+               int state = *(uint8_t*)RTA_DATA(tb[IFLA_OPERSTATE]);
->>                switch (state) {
->>                case IF_OPER_UNKNOWN:
->>                        fprintf(fp, "Unknown "); break;
+> About once a week, some, but not all, of the phones lose their
+> registration with the PBX.  The PBX can ping the unregistered phones, and
+> the phone ARP requests for the PBX IP are answered.  However, the UDP 5060
+> registration traffic originating from those phones enters the dom0's
+> bridge and is then dropped; it is never forwarded onto the vif associated
+> with the pbx.
 >
-> Okay. The fix "Netlink data element size fixes" by Solomon Peachy
-> fixed some other places where this was happening, but missed this
-> logging part.
+> Rebooting the dom0 is the only way I've found to fix it so far.  Reloading
+> the bridge kernel module doesn't seem to solve the problem, though the set
+> of phones that are unable to register changes (I haven't looked closely to
+> see if there's a pattern to it).
 >
-> Well I found the size problems as well but he was faster with the patch.
+> There's no packet filtering going on here, and this problem seems to pop
+> up after random, infrequent intervals.  I've verified that there are no
+> hosts with duplicate MAC addresses.  I can't for the life of me think of
+> why some packets from some IPs would be forwarded correctly and others
+> would not.  Another post in the archives described some similar-sounding
+> symptoms, but the OP found it to be an MTU-related problem; these packets
+> are all 356 bytes long, too short to be the problem.
 >
+> Thanks-
 >
+>         John
 >
->>diff -Naur rstp/epoll_loop.c rstp-2/epoll_loop.c
->>--- rstp/epoll_loop.c   2008-02-27 19:05:49.000000000 +0100
->>+++ rstp-2/epoll_loop.c 2009-02-06 14:22:30.000000000 +0100
->>@@ -32,6 +32,8 @@
->> #include <unistd.h>
->>
->> #include "bridge_ctl.h"
->>+#include "log.h"
->>+
->>
->> // globals
->> int epoll_fd = -1;
->>@@ -109,7 +111,13 @@
->>                struct timeval tv;
->>                gettimeofday(&tv, NULL);
->>                timeout = time_diff(&nexttimeout, &tv);
->>-               if (timeout < 0) {
->>+               if (timeout > 1000 * 2 || timeout < -1000 * 60) {
->>+                       gettimeofday(&nexttimeout, NULL);
->>+                       nexttimeout.tv_sec++;
->>+                       INFO("Time leap detected. Refusing to wait: %d
->> sec\n", timeout / 1000);
->>+                       continue;
->>+               }
->>+               if (timeout < 0) {
->>                        run_timeouts();
->>                        timeout = 0;
->>                }
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
 >
-> It looks like this is to account for the case where the system time is
-> externally changed. Is that the case?
->
-> Precisely.
->
-> Maybe I should be using the return value of times(2) instead of
-> gettimeofday, since times() is returning clock ticks from boot time
-> with an arbitrary initial offset.
->
-> This is much better than my solution.
+
