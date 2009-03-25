@@ -1,10 +1,8 @@
-Date: Mon, 23 Mar 2009 15:47:51 -0700 (PDT)
-Message-Id: <20090323.154751.190788467.davem@davemloft.net>
+Date: Tue, 24 Mar 2009 23:40:51 -0700 (PDT)
+Message-Id: <20090324.234051.60226102.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20090323154517.2146a357@nehalam>
-References: <20090323085122.4c9d21f2@nehalam>
-	<20090323.152028.205335400.davem@davemloft.net>
-	<20090323154517.2146a357@nehalam>
+In-Reply-To: <1237539869-30721-1-git-send-email-leoli@freescale.com>
+References: <1237539869-30721-1-git-send-email-leoli@freescale.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -18,23 +16,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: bridge@lists.linux-foundation.org, leoli@freescale.com, netdev@vger.kernel.org
+To: leoli@freescale.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Mon, 23 Mar 2009 15:45:17 -0700
+From: Li Yang <leoli@freescale.com>
+Date: Fri, 20 Mar 2009 17:04:29 +0800
 
-> So you dynamically compute the additional space but if the space was
-> an awkward size, could it cause driver to breaks alignment assumptions?
+> The bridging device used a constant hard_header_len.  This will cause
+> headroom shortage for ports with additional hardware header.  The patch
+> makes bridging device to use the maximum value of all ports.
+> 
+> Signed-off-by: Li Yang <leoli@freescale.com>
 
-Yes, you'd need to 16-byte align or something like that.
+Your driver must be able to cope with any amount of
+available headroom, no matter what hacks we put into
+the bridging layer.
 
-> And you didn't fixup the skb that is about to gag in the skb to make
-> more space, so transmitting device driver (gfar) is going to overwrite or die.
-
-This particular instance will do the headroom reallocation,
-that's unavoidable during the size transition event.
-
-The headroom checks can't ever be removed, but we won't hit
-them in the fast path after the adjustment is made by my
-patch.
+Please fix your driver, I'm not applying this patch.
