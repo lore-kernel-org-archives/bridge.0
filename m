@@ -1,16 +1,13 @@
+Date: Wed, 25 Mar 2009 14:04:43 +0100
+From: Jiri Pirko <jpirko@redhat.com>
+Message-ID: <20090325130443.GG3437@psychotron.englab.brq.redhat.com>
+References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
 MIME-Version: 1.0
-Sender: pku.leo@gmail.com
-In-Reply-To: <20090323.152028.205335400.davem@davemloft.net>
-References: <1237539869-30721-1-git-send-email-leoli@freescale.com>
-	<20090323085122.4c9d21f2@nehalam>
-	<20090323.152028.205335400.davem@davemloft.net>
-Date: Wed, 25 Mar 2009 16:43:53 +0800
-Message-ID: <2a27d3730903250143u58a3c67dp132a8a5755d50d93@mail.gmail.com>
-From: Li Yang <leoli@freescale.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] net/bridge: use the maximum hard_header_len of
-	ports for bridging device
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
+Subject: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to work
+	properly	in bridge -try2
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,102 +16,164 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, davem@davemloft.net
 
-On Tue, Mar 24, 2009 at 6:20 AM, David Miller <davem@davemloft.net> wrote:
-> From: Stephen Hemminger <shemminger@linux-foundation.org>
-> Date: Mon, 23 Mar 2009 08:51:22 -0700
->
->> That ensures big enough header for locally generated packets, but
->> any drivers that need bigger headroom still must handle bridged packets
->> that come in with smaller space. When bridging packets, the skb comes
->> from the allocation by the receiving driver. Almost all drivers will
->> use dev_alloc_skb() which will allocate NET_SKB_PAD (16) bytes of
->> additional headroom. This is used to hold copy of ethernet header for
->> the bridge/netfilter code.
->>
->> So your patch is fine as an optimization but a driver can not safely
->> depend on any additional headroom. The driver must check if there
->> is space, and if no space is available, reallocate and copy.
->
-> We had some plans to deal with this kind of issue for wireless
-> too. =C2=A0Let me see if I can find the RFC patch from that discussion...
->
-> Here it is, similar code would be added to the ipv4/ipv6 forwarding
-> paths:
->
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index 7c1d446..6c06fba 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -600,6 +600,7 @@ struct net_device
-> =C2=A0* Cache line mostly used on receive path (including eth_type_trans(=
-))
-> =C2=A0*/
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned long =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 last_rx; =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Time of last Rx =C2=A0 =C2=A0 =
-=C2=A0*/
-> + =C2=A0 =C2=A0 =C2=A0 unsigned int =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0rx_alloc_extra;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Interface address info used in eth_type_tra=
-ns() */
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned char =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 dev_addr[MAX_ADDR_LEN]; /* hw address, (before bcast
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0because most packets are un=
-icast) */
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index bdd7c35..531e483 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -42,6 +42,22 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (nf_bridge_mayb=
-e_copy_header(skb))
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0kfree_skb(skb);
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0else {
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 unsigned int headroom =3D skb_headroom(skb);
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 unsigned int hh_len =3D LL_RESERVED_SPACE(skb->dev);
-> +
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 if (headroom < hh_len) {
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct net_device *in_dev;
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unsigned int extra;
-> +
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 in_dev =3D __dev_get_by_index(dev_net(sk=
-b->dev),
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 skb->iif);
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 BUG_ON(!in_dev);
-> +
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 extra =3D hh_len - headroom;
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (extra >=3D in_dev->rx_alloc_extra)
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 in_dev->rx_a=
-lloc_extra =3D extra;
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 }
-> +
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0skb_push(skb, ETH_HLEN);
->
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0dev_queue_xmit(skb);
+(resend)
 
-Dynamically adjusting is a good idea, but the rx_alloc_extra can only
-go up not the other way down in your code.  Another thought is that if
-you re-allocate skb here the driver would be saved from checking the
-headroom in the fastpath, am I right?
+Hi all.
 
-- Leo
+The problem is described in following bugzilla:
+https://bugzilla.redhat.com/show_bug.cgi?id=487763
+
+Basically here's what's going on. In every mode, bonding interface uses the same
+mac address for all enslaved devices. Except for mode balance-alb. When you put
+this kind of bond device into a bridge it will only add one of mac adresses into
+a hash list of mac addresses, say X. This mac address is marked as local. But
+this bonding interface also has mac address Y. Now then packet arrives with
+destination address Y, this address is not marked as local and the packed looks
+like it needs to be forwarded. This packet is then lost which is wrong.
+
+Notice that interfaces can be added and removed from bond while it is in bridge.
+
+This patch solves the situation in the bonding without touching bridge code,
+as Patrick suggested. For every incoming frame to bonding it searches the
+destination address in slaves list and if any of slave addresses matches, it
+rewrites the address in frame by the adress of bonding master. This ensures that
+all frames comming thru the bonding in alb mode have the same address.
+
+Jirka
+
+
+Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+
+diff --git a/drivers/net/bonding/bond_alb.c b/drivers/net/bonding/bond_alb.c
+index 27fb7f5..2838be0 100644
+--- a/drivers/net/bonding/bond_alb.c
++++ b/drivers/net/bonding/bond_alb.c
+@@ -1762,6 +1762,26 @@ int bond_alb_set_mac_address(struct net_device *bond_dev, void *addr)
+ 	return 0;
+ }
+ 
++void bond_alb_change_dest(struct sk_buff *skb)
++{
++	struct net_device *bond_dev = skb->dev;
++	struct bonding *bond = netdev_priv(bond_dev);
++	unsigned char *dest = eth_hdr(skb)->h_dest;
++	struct slave *slave;
++	int i;
++
++	if (!memcmp(dest, bond_dev->dev_addr, ETH_ALEN))
++		return;
++	read_lock(&bond->lock);
++	bond_for_each_slave(bond, slave, i) {
++		if (!memcmp(slave->dev->dev_addr, dest, ETH_ALEN)) {
++			memcpy(dest, bond_dev->dev_addr, ETH_ALEN);
++			break;
++		}
++	}
++	read_unlock(&bond->lock);
++}
++
+ void bond_alb_clear_vlan(struct bonding *bond, unsigned short vlan_id)
+ {
+ 	if (bond->alb_info.current_alb_vlan &&
+diff --git a/drivers/net/bonding/bond_alb.h b/drivers/net/bonding/bond_alb.h
+index 50968f8..77f36fb 100644
+--- a/drivers/net/bonding/bond_alb.h
++++ b/drivers/net/bonding/bond_alb.h
+@@ -127,6 +127,7 @@ void bond_alb_handle_active_change(struct bonding *bond, struct slave *new_slave
+ int bond_alb_xmit(struct sk_buff *skb, struct net_device *bond_dev);
+ void bond_alb_monitor(struct work_struct *);
+ int bond_alb_set_mac_address(struct net_device *bond_dev, void *addr);
++void bond_alb_change_dest(struct sk_buff *skb);
+ void bond_alb_clear_vlan(struct bonding *bond, unsigned short vlan_id);
+ #endif /* __BOND_ALB_H__ */
+ 
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 3d76686..b62fdc4 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -4294,6 +4294,19 @@ unwind:
+ 	return res;
+ }
+ 
++/*
++ * Called via bond_change_dest_hook.
++ * note: already called with rcu_read_lock (preempt_disabled)
++ */
++void bond_change_dest(struct sk_buff *skb)
++{
++	struct net_device *bond_dev = skb->dev;
++	struct bonding *bond = netdev_priv(bond_dev);
++
++	if (bond->params.mode == BOND_MODE_ALB)
++		bond_alb_change_dest(skb);
++}
++
+ static int bond_xmit_roundrobin(struct sk_buff *skb, struct net_device *bond_dev)
+ {
+ 	struct bonding *bond = netdev_priv(bond_dev);
+@@ -5243,6 +5256,8 @@ static int __init bonding_init(void)
+ 	register_inetaddr_notifier(&bond_inetaddr_notifier);
+ 	bond_register_ipv6_notifier();
+ 
++	bond_change_dest_hook = bond_change_dest;
++
+ 	goto out;
+ err:
+ 	list_for_each_entry(bond, &bond_dev_list, bond_list) {
+@@ -5266,6 +5281,8 @@ static void __exit bonding_exit(void)
+ 	unregister_inetaddr_notifier(&bond_inetaddr_notifier);
+ 	bond_unregister_ipv6_notifier();
+ 
++	bond_change_dest_hook = NULL;
++
+ 	bond_destroy_sysfs();
+ 
+ 	rtnl_lock();
+diff --git a/drivers/net/bonding/bonding.h b/drivers/net/bonding/bonding.h
+index ca849d2..df92b70 100644
+--- a/drivers/net/bonding/bonding.h
++++ b/drivers/net/bonding/bonding.h
+@@ -375,5 +375,7 @@ static inline void bond_unregister_ipv6_notifier(void)
+ }
+ #endif
+ 
++extern void (*bond_change_dest_hook)(struct sk_buff *skb);
++
+ #endif /* _LINUX_BONDING_H */
+ 
+diff --git a/net/core/dev.c b/net/core/dev.c
+index e3fe5c7..abe68d9 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2061,6 +2061,13 @@ static inline int deliver_skb(struct sk_buff *skb,
+ 	return pt_prev->func(skb, skb->dev, pt_prev, orig_dev);
+ }
+ 
++#if defined(CONFIG_BONDING) || defined(CONFIG_BONDING_MODULE)
++void (*bond_change_dest_hook)(struct sk_buff *skb) __read_mostly;
++EXPORT_SYMBOL(bond_change_dest_hook);
++#else
++#define bond_change_dest_hook(skb) do {} while (0)
++#endif
++
+ #if defined(CONFIG_BRIDGE) || defined (CONFIG_BRIDGE_MODULE)
+ /* These hooks defined here for ATM */
+ struct net_bridge;
+@@ -2251,10 +2258,12 @@ int netif_receive_skb(struct sk_buff *skb)
+ 	null_or_orig = NULL;
+ 	orig_dev = skb->dev;
+ 	if (orig_dev->master) {
+-		if (skb_bond_should_drop(skb))
++		if (skb_bond_should_drop(skb)) {
+ 			null_or_orig = orig_dev; /* deliver only exact match */
+-		else
++		} else {
+ 			skb->dev = orig_dev->master;
++			bond_change_dest_hook(skb);
++		}
+ 	}
+ 
+ 	__get_cpu_var(netdev_rx_stat).total++;
