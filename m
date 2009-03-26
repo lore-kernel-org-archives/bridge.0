@@ -1,15 +1,15 @@
-Date: Wed, 25 Mar 2009 14:35:58 -0700 (PDT)
-Message-Id: <20090325.143558.35670359.davem@davemloft.net>
+Date: Wed, 25 Mar 2009 17:24:27 -0700 (PDT)
+Message-Id: <20090325.172427.98374994.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <2a27d3730903250143u58a3c67dp132a8a5755d50d93@mail.gmail.com>
-References: <20090323085122.4c9d21f2@nehalam>
-	<20090323.152028.205335400.davem@davemloft.net>
-	<2a27d3730903250143u58a3c67dp132a8a5755d50d93@mail.gmail.com>
+In-Reply-To: <20090325174405.GM3437@psychotron.englab.brq.redhat.com>
+References: <20090325151937.GI3437@psychotron.englab.brq.redhat.com>
+	<28445.1237998713@death.nxdomain.ibm.com>
+	<20090325174405.GM3437@psychotron.englab.brq.redhat.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net/bridge: use the maximum hard_header_len of
- ports for bridging device
+Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
+ work properly in bridge -try3
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,19 +18,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: leoli@freescale.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: jpirko@redhat.com
+Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, fubar@us.ibm.com, linux-kernel@vger.kernel.org, mschmidt@redhat.com, jgarzik@pobox.com, dada1@cosmosbay.com, bonding-devel@lists.sourceforge.net
 
-From: Li Yang <leoli@freescale.com>
-Date: Wed, 25 Mar 2009 16:43:53 +0800
+From: Jiri Pirko <jpirko@redhat.com>
+Date: Wed, 25 Mar 2009 18:44:05 +0100
 
-> Dynamically adjusting is a good idea, but the rx_alloc_extra can only
-> go up not the other way down in your code.
+> Wed, Mar 25, 2009 at 05:31:53PM CET, fubar@us.ibm.com wrote:
+> >Jiri Pirko <jpirko@redhat.com> wrote:
+> >
+> >>Basically here's what's going on. In every mode, bonding interface uses the same
+> >>mac address for all enslaved devices. Except for mode balance-alb. 
+> >
+> >	I think you mean "only balance-alb will simultaneously use
+> >multiple MAC addresses across different slaves."  Yes?
+> Yes I do. I will refolmulate the phrase and repost the patch if you want...
 
-That's not a problem.
+I'll let you guys discuss this some more.
 
-> Another thought is that if you re-allocate skb here the driver would
-> be saved from checking the headroom in the fastpath, am I right?
-
-You're going to need it for other paths.  There are other kinds of
-tunnels et al. that eat that headroom space on you.
+It looks like we could have some more tweaks before this patch is
+finalized.
