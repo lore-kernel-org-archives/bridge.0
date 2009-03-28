@@ -1,9 +1,9 @@
 From: Denys Fedoryschenko <denys@visp.net.lb>
-Date: Sat, 28 Mar 2009 15:36:48 +0200
+Date: Sat, 28 Mar 2009 16:46:35 +0200
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_wfizJ7yEgxgr7x+"
-Message-Id: <200903281536.48296.denys@visp.net.lb>
+  boundary="Boundary-00=_LhjzJn5VzVO9/8z"
+Message-Id: <200903281646.35761.denys@visp.net.lb>
 Subject: [Bridge] [PATCH] rstp compiling under gcc 4.3.3 fixes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,35 +15,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
---Boundary-00=_wfizJ7yEgxgr7x+
+--Boundary-00=_LhjzJn5VzVO9/8z
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-After fetching current git code and compiling with gcc 4.3.3 got errors
-Here is fix, so rstp compile fine with gcc 4.3.3
+Sorry, properly formatted
 
-bridge_track.c and main.c have functions where is return value not checked.
- Because of -Werror it won't compile.
-Example:
-gcc -Wall -Werror -O2 -g -D_REENTRANT -D__LINUX__ -DVERSION=0.16 -DBUILD=1 -I. -I./include -I./rstplib   -c -o 
-main.o main.c
-cc1: warnings being treated as errors
-main.c: In function 'main':
-main.c:81: error: ignoring return value of 'daemon', declared with attribute 
-warn_unused_result
+rstp git tree:
+After fetching current git code and compiling with gcc 4.3.3 got errors 
+related to Werror (2 functions was ignoring return value), and ulimits.h was 
+not declared, but INT_MAX used
+Here is fix, so rstp compile fine with gcc 4.3.3.
 
+Signed-off-by: Denys Fedoryschenko <denys@visp.net.lb>
+---
 
-Other fix is missing header file
-gcc -Wall -O2 -g -D_REENTRANT -D__LINUX__ -DVERSION=0.16 -DBUILD=1 -I. -I./include -I./rstplib   -c -o 
-netif_utils.o netif_utils.c
-netif_utils.c: In function 'get_bridge_portno':
-netif_utils.c:130: error: 'INT_MAX' undeclared (first use in this function)
-netif_utils.c:130: error: (Each undeclared identifier is reported only once
-netif_utils.c:130: error: for each function it appears in.)
-
---Boundary-00=_wfizJ7yEgxgr7x+
+--Boundary-00=_LhjzJn5VzVO9/8z
 Content-Type: text/x-diff;
   charset="us-ascii";
   name="rstp-fixes.diff"
@@ -123,4 +112,4 @@ diff -Naur rstp/netif_utils.c rstp-new/netif_utils.c
  #include <net/if.h>
  #include <linux/if_ether.h>
 
---Boundary-00=_wfizJ7yEgxgr7x+--
+--Boundary-00=_LhjzJn5VzVO9/8z--
