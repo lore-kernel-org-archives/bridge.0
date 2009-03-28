@@ -1,18 +1,10 @@
-Date: Fri, 27 Mar 2009 10:47:32 +0100
-From: Jiri Pirko <jpirko@redhat.com>
-Message-ID: <20090327094731.GB4582@psychotron.englab.brq.redhat.com>
-References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
-	<20090326155205.GA28868@psychotron.englab.brq.redhat.com>
-	<20090327.003819.234492275.davem@davemloft.net>
-	<49CC85E9.7070903@trash.net>
-	<20090327084138.GA4582@psychotron.englab.brq.redhat.com>
-	<49CC948B.8020005@trash.net>
+From: Denys Fedoryschenko <denys@visp.net.lb>
+Date: Sat, 28 Mar 2009 15:36:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <49CC948B.8020005@trash.net>
-Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
-	work	properly in bridge -try4
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_wfizJ7yEgxgr7x+"
+Message-Id: <200903281536.48296.denys@visp.net.lb>
+Subject: [Bridge] [PATCH] rstp compiling under gcc 4.3.3 fixes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,37 +13,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>
-Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, dada1@cosmosbay.com, David Miller <davem@davemloft.net>
+To: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-Fri, Mar 27, 2009 at 09:55:39AM CET, kaber@trash.net wrote:
-> Jiri Pirko wrote:
->> Fri, Mar 27, 2009 at 08:53:13AM CET, kaber@trash.net wrote:
->>> >
->>> > Me neither, but I don't think this approach can be done without the
->>> > hook. While I still find it questionable whether this mode really
->>> > needs to be supported for a bridge at all
->>
->> Well there is I think nothing unusual in this net scheme. And by for example
->> the increasing setups with kvm/bridging it will be needed more and more.
->
-> Mangling ARP packets for load-balancing purposes seems quite unusual.
+--Boundary-00=_wfizJ7yEgxgr7x+
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Well, there are many unusual things, that do not imply that they should not be
-supported...
+After fetching current git code and compiling with gcc 4.3.3 got errors
+Here is fix, so rstp compile fine with gcc 4.3.3
 
->>> , an alternative approach
->>> would be to have bonding add FDB entries for all secondary MACs to
->>> make bridging treat them as local.
->>
->> Yes - that is the clear way. But there's not really straihtforward way to do
->> this. The clear approach would be to extend struct net_device for list of these
->> mac addresses and let the drivers (binding) fill it and bridge to process it.
->> But I don't know.
->
-> We have a list of secondary unicast addresses, but that might not
-> be suitable in this case since the addresses are (mostly) intended
-> not to be visible to the stack if I understood correctly.
+bridge_track.c and main.c have functions where is return value not checked.
+ Because of -Werror it won't compile.
+Example:
+gcc -Wall -Werror -O2 -g -D_REENTRANT -D__LINUX__ -DVERSION=0.16 -DBUILD=1 -I. -I./include -I./rstplib   -c -o 
+main.o main.c
+cc1: warnings being treated as errors
+main.c: In function 'main':
+main.c:81: error: ignoring return value of 'daemon', declared with attribute 
+warn_unused_result
 
-I agree this list is not suitable for this - it's used for different purpose and
-I think it would be not wise to mix it with what we want...
+
+Other fix is missing header file
+gcc -Wall -O2 -g -D_REENTRANT -D__LINUX__ -DVERSION=0.16 -DBUILD=1 -I. -I./include -I./rstplib   -c -o 
+netif_utils.o netif_utils.c
+netif_utils.c: In function 'get_bridge_portno':
+netif_utils.c:130: error: 'INT_MAX' undeclared (first use in this function)
+netif_utils.c:130: error: (Each undeclared identifier is reported only once
+netif_utils.c:130: error: for each function it appears in.)
+
+--Boundary-00=_wfizJ7yEgxgr7x+
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="rstp-fixes.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="rstp-fixes.diff"
+
+diff -Naur rstp/bridge_track.c rstp-new/bridge_track.c
+--- rstp/bridge_track.c	2009-03-28 15:27:04.000000000 +0200
++++ rstp-new/bridge_track.c	2009-03-28 15:30:15.000000000 +0200
+@@ -386,6 +386,7 @@
+ static int stp_enabled(struct ifdata *br)
+ {
+ 	char path[40 + IFNAMSIZ];
++	int ret;
+ 	sprintf(path, "/sys/class/net/%s/bridge/stp_state", br->name);
+ 	FILE *f = fopen(path, "r");
+ 	if (!f) {
+@@ -393,7 +394,11 @@
+ 		return 0;
+ 	}
+ 	int enabled = 0;
+-	fscanf(f, "%d", &enabled);
++	ret = fscanf(f, "%d", &enabled);
++	if (!ret) {
++		LOG("%s, stp_state parsing error", path);
++		return 0;
++	}
+ 	fclose(f);
+ 	INFO("STP on %s state %d", br->name, enabled);
+ 
+diff -Naur rstp/ctl_main.c rstp-new/ctl_main.c
+--- rstp/ctl_main.c	2009-03-28 15:27:04.000000000 +0200
++++ rstp-new/ctl_main.c	2009-03-28 15:26:33.000000000 +0200
+@@ -16,6 +16,7 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <unistd.h>
++#include <limits.h>
+ 
+ #include "ctl_socket_client.h"
+ #include "ctl_functions.h"
+diff -Naur rstp/main.c rstp-new/main.c
+--- rstp/main.c	2009-03-28 15:27:04.000000000 +0200
++++ rstp-new/main.c	2009-03-28 15:32:12.000000000 +0200
+@@ -42,7 +42,7 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-	int c;
++	int c,ret;
+ 	while ((c = getopt(argc, argv, "dv:")) != -1) {
+ 		switch (c) {
+ 		case 'd':
+@@ -78,7 +78,11 @@
+ 			return -1;
+ 		}
+ 		openlog("rstpd", 0, LOG_DAEMON);
+-		daemon(0, 0);
++		ret = daemon(0, 0);
++		if (ret) {
++			ERROR("daemon() failed");
++			return -1;		    
++		}
+ 		is_daemon = 1;
+ 		fprintf(f, "%d", getpid());
+ 		fclose(f);
+diff -Naur rstp/netif_utils.c rstp-new/netif_utils.c
+--- rstp/netif_utils.c	2009-03-28 15:27:04.000000000 +0200
++++ rstp-new/netif_utils.c	2009-03-28 15:26:06.000000000 +0200
+@@ -32,6 +32,7 @@
+ #include <sys/socket.h>
+ #include <sys/ioctl.h>
+ #include <fcntl.h>
++#include <limits.h>
+ 
+ #include <net/if.h>
+ #include <linux/if_ether.h>
+
+--Boundary-00=_wfizJ7yEgxgr7x+--
