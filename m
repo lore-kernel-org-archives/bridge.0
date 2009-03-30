@@ -1,14 +1,17 @@
-Message-ID: <49D0B549.3050900@trash.net>
-Date: Mon, 30 Mar 2009 14:04:25 +0200
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
-References: <20090326155205.GA28868@psychotron.englab.brq.redhat.com>	<20090327.003819.234492275.davem@davemloft.net>	<49CC85E9.7070903@trash.net>
+Date: Mon, 30 Mar 2009 14:40:56 +0200
+From: Jiri Pirko <jpirko@redhat.com>
+Message-ID: <20090330124049.GD3438@psychotron.englab.brq.redhat.com>
+References: <20090326155205.GA28868@psychotron.englab.brq.redhat.com>
+	<20090327.003819.234492275.davem@davemloft.net>
+	<49CC85E9.7070903@trash.net>
 	<20090329.135355.109115565.davem@davemloft.net>
-In-Reply-To: <20090329.135355.109115565.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	<49D0B549.3050900@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <49D0B549.3050900@trash.net>
 Subject: Re: [Bridge] [PATCH] bonding: allow bond in mode balance-alb to
- work properly in bridge -try4
+	work	properly in bridge -try4
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +20,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: fubar@us.ibm.com, jpirko@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, dada1@cosmosbay.com, jgarzik@pobox.com, bonding-devel@lists.sourceforge.net
+To: Patrick McHardy <kaber@trash.net>
+Cc: fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, jgarzik@pobox.com, dada1@cosmosbay.com, David Miller <davem@davemloft.net>
 
-David Miller wrote:
-> From: Patrick McHardy <kaber@trash.net>
-> Date: Fri, 27 Mar 2009 08:53:13 +0100
-> 
->> ... an alternative approach
->> would be to have bonding add FDB entries for all secondary MACs to
->> make bridging treat them as local.
-> 
-> Do you guys foresee any possibility of an alternative implementation
-> any time soon?
-> 
-> Otherwise we're just stalling by not putting something into the tree,
-> and as far as I can tell this patch here might as well be it.
+Mon, Mar 30, 2009 at 02:04:25PM CEST, kaber@trash.net wrote:
+> David Miller wrote:
+>> From: Patrick McHardy <kaber@trash.net>
+>> Date: Fri, 27 Mar 2009 08:53:13 +0100
+>>
+>>> ... an alternative approach
+>>> would be to have bonding add FDB entries for all secondary MACs to
+>>> make bridging treat them as local.
+>>
+>> Do you guys foresee any possibility of an alternative implementation
+>> any time soon?
+>>
+>> Otherwise we're just stalling by not putting something into the tree,
+>> and as far as I can tell this patch here might as well be it.
+>
+> Adding bridge FDB entries seems like the best fix. It might
+> need some minor ugliness to avoid new dependencies between
+> bonding and bridging, but it definitely beats having new hooks
+> in the core in my opinion.
 
-Adding bridge FDB entries seems like the best fix. It might
-need some minor ugliness to avoid new dependencies between
-bonding and bridging, but it definitely beats having new hooks
-in the core in my opinion.
+Agree with this.
+>
+> But I have no idea whether Jiri is actually implementing this.
 
-But I have no idea whether Jiri is actually implementing this.
+Currently I'm thinking the way. What I have on mind:
+I would like to add a list into struct net_device to contain all mac addresses
+of the device. I would also like to use similar interface to handle them as
+currently is for uc_list and mc_list. However I do not like that these lists are
+not using standard list_head but they are propriate lists only for this purpose.
+I'm thinking about converting them to use list_head first. Or maybe ignore them
+and do the new list for macs in parallel?
+
+Then we can fill this list with macs in bonding driver and let bridge check it
+and make fdb entries.
