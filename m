@@ -1,15 +1,14 @@
-Date: Mon, 13 Apr 2009 07:56:38 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20090413075638.61839874@nehalam>
-In-Reply-To: <20090413084614.GE23734@psychotron.englab.brq.redhat.com>
+Date: Mon, 13 Apr 2009 07:58:26 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20090413075826.7c8b758e@nehalam>
+In-Reply-To: <20090413083848.GB23734@psychotron.englab.brq.redhat.com>
 References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
 	<20090413083729.GA23734@psychotron.englab.brq.redhat.com>
-	<20090413084614.GE23734@psychotron.englab.brq.redhat.com>
+	<20090413083848.GB23734@psychotron.englab.brq.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 4/4] net: bonding: add slave device addresses
- in mode alb
+Subject: Re: [Bridge] [PATCH 1/4] net: introduce dev_mac_address_changed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,53 +20,58 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Jiri Pirko <jpirko@redhat.com>
 Cc: ivecera@redhat.com, fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, dada1@cosmosbay.com, jgarzik@pobox.com, davem@davemloft.net
 
-On Mon, 13 Apr 2009 10:46:15 +0200
+On Mon, 13 Apr 2009 10:38:48 +0200
 Jiri Pirko <jpirko@redhat.com> wrote:
 
-> When in mode alb, add all device addresses which belong to an enslaved slave
-> device to the bond device. This ensures that all mac addresses will be
-> treated as local and bonding in this mode will work fine in bridge.
+> Introducing function dev_mac_address_changed which can be called from driver
+> which changed his mac address to force notifiers to be called.
 > 
 > Signed-off-by: Jiri Pirko <jpirko@redhat.com>
 > ---
->  drivers/net/bonding/bond_main.c |   30 +++++++++++++++++++++++++++++-
->  1 files changed, 29 insertions(+), 1 deletions(-)
+>  include/linux/netdevice.h |    1 +
+>  net/core/dev.c            |   12 ++++++++++++
+>  2 files changed, 13 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-> index 99610f3..47795c7 100644
-> --- a/drivers/net/bonding/bond_main.c
-> +++ b/drivers/net/bonding/bond_main.c
-> @@ -1385,6 +1385,11 @@ static void bond_setup_by_slave(struct net_device *bond_dev,
->  	bond->setup_by_slave = 1;
+> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> index 2e7783f..ff8db51 100644
+> --- a/include/linux/netdevice.h
+> +++ b/include/linux/netdevice.h
+> @@ -1461,6 +1461,7 @@ extern int		dev_change_net_namespace(struct net_device *,
+>  extern int		dev_set_mtu(struct net_device *, int);
+>  extern int		dev_set_mac_address(struct net_device *,
+>  					    struct sockaddr *);
+> +extern void		dev_mac_address_changed(struct net_device *);
+>  extern int		dev_hard_start_xmit(struct sk_buff *skb,
+>  					    struct net_device *dev,
+>  					    struct netdev_queue *txq);
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 91d792d..1adc89b 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -3833,6 +3833,18 @@ int dev_set_mac_address(struct net_device *dev, struct sockaddr *sa)
+>  	return err;
 >  }
 >  
-> +static inline int should_copy_dev_addrs(struct bonding *bond)
+> +/**
+> + *	dev_mac_address_changed - Notify Media Access Control Address changed
+> + *	@dev: device
+> + *
+> + *	Notifies the change of the hardware (MAC) address of the device
+> + */
+> +void dev_mac_address_changed(struct net_device *dev)
 > +{
-> +	return bond->params.mode == BOND_MODE_ALB ? 1 : 0;
+> +	call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
 > +}
+> +EXPORT_SYMBOL(dev_mac_address_changed);
+> +
+>  /*
+>   *	Perform the SIOCxIFxxx calls, inside read_lock(dev_base_lock)
+>   */
 
-static inline bool should_copy_dev_addrs(const struct bonding *bond)
-{
-	return (bond->params.mode == BOND_MODE_ALB);
-}
+The original version of this that I send, allowed notifiers to return
+an error to block changing address (error would go back to application).
+This is how other notifier hooks work (mtu, etc).
 
-Three things are wrong with your style here:
-   1. Needless use of tri-graph operator, just return the result
-   2. Use const for test_foo() type functions
-   3. Use bool to make it clearer what the result is.
-
->  /* enslave device <slave> to bond device <master> */
->  int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
->  {
-> @@ -1510,6 +1515,13 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
->  	 */
->  	new_slave->original_flags = slave_dev->flags;
->  
-> +	if (should_copy_dev_addrs(bond)) {
-> +		res = dev_addr_add_multiple(bond_dev, slave_dev);
-> +		if (res)
-> +			goto err_free;
-> +		dev_mac_address_changed(bond_dev);
-
-The notifier (dev_mac_address_changed) should be part of dev_addr_add
+Why is dev_set_mac_address_changed called out separately, it should
+be inside dev_set_mac_address. 
 
