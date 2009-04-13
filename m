@@ -1,10 +1,15 @@
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----_=_NextPart_001_01C9BC15.FF50A88A"
-Date: Mon, 13 Apr 2009 16:58:20 +0800
-Message-ID: <E9E3926FA9CDBF489EA1684042C8A026012DBAA9@zmy16exm72.ds.mot.com>
-From: "Tekale Sharad-FHJN78" <FHJN78@motorola.com>
-Subject: [Bridge]  Out of memory problem
+Date: Mon, 13 Apr 2009 07:49:17 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20090413074917.4e317115@nehalam>
+In-Reply-To: <20090413084201.GC23734@psychotron.englab.brq.redhat.com>
+References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
+	<20090413083729.GA23734@psychotron.englab.brq.redhat.com>
+	<20090413084201.GC23734@psychotron.englab.brq.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 2/4] net: introduce a list of device addresses
+ dev_addr_list
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,116 +18,84 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Jiri Pirko <jpirko@redhat.com>
+Cc: ivecera@redhat.com, fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, dada1@cosmosbay.com, jgarzik@pobox.com, davem@davemloft.net
 
-This is a multi-part message in MIME format.
+On Mon, 13 Apr 2009 10:42:02 +0200
+Jiri Pirko <jpirko@redhat.com> wrote:
 
-------_=_NextPart_001_01C9BC15.FF50A88A
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_002_01C9BC15.FF50A88A"
+> This patch introduces a new list in struct net_device and brings a set of
+> functions to handle the work with device address list. The list is a replacement
+> for the original dev_addr field and because in some situations there is need to
+> carry several device addresses with the net device. To be backward compatible,
+> dev_addr is made to point to the first member of the list so original drivers
+> sees no difference.
+> 
+> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+> ---
+>  include/linux/netdevice.h |   51 +++++++++-
+>  net/core/dev.c            |  264 +++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 313 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> index ff8db51..8cf62f1 100644
+> --- a/include/linux/netdevice.h
+> +++ b/include/linux/netdevice.h
+> @@ -210,6 +210,12 @@ struct dev_addr_list
+>  #define dmi_users	da_users
+>  #define dmi_gusers	da_gusers
+>  
+> +struct hw_addr {
+> +	struct list_head	list;
+> +	unsigned char		addr[MAX_ADDR_LEN];
+> +	int			refcount;
+> +};
+> +
+>  struct hh_cache
+>  {
+>  	struct hh_cache *hh_next;	/* Next entry			     */
+> @@ -776,8 +782,12 @@ struct net_device
+>   */
+>  	unsigned long		last_rx;	/* Time of last Rx	*/
+>  	/* Interface address info used in eth_type_trans() */
+> -	unsigned char		dev_addr[MAX_ADDR_LEN];	/* hw address, (before bcast
+> -							   because most packets are unicast) */
+> +	unsigned char		*dev_addr;	/* hw address, (before bcast
+> +						   because most packets are
+> +						   unicast) */
+> +
+> +	struct list_head	dev_addr_list; /* list of device hw addresses */
+> +	spinlock_t              dev_addr_list_lock;
+>  
+>  	unsigned char		broadcast[MAX_ADDR_LEN];	/* hw bcast add	*/
+>  
+> @@ -1779,6 +1789,32 @@ static inline void netif_addr_unlock_bh(struct net_device *dev)
+>  	spin_unlock_bh(&dev->addr_list_lock);
+>  }
+>  
+> +/* Locking helpers for spinlock guarding dev_addr_list */
+> +
+> +static inline void netif_dev_addr_lock(struct net_device *dev)
+> +{
+> +	spin_lock(&dev->dev_addr_list_lock);
+> +}
+> +
+> +static inline void netif_dev_addr_lock_bh(struct net_device *dev)
+> +{
+> +	spin_lock_bh(&dev->dev_addr_list_lock);
+> +}
+> +
+> +static inline void netif_dev_addr_unlock(struct net_device *dev)
+> +{
+> +	spin_unlock(&dev->dev_addr_list_lock);
+> +}
+> +
+> +static inline void netif_dev_addr_unlock_bh(struct net_device *dev)
+> +{
+> +	spin_unlock_bh(&dev->dev_addr_list_lock);
+> +}
+> +
 
-
-------_=_NextPart_002_01C9BC15.FF50A88A
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-Hi, I'm using linux 2.6.21.5 and our kernel is freeze.
-=20
-The problem is, if I create a Software bridge using $brctl command. and
-add two interfaces say, eth0.0 and eth0.1 using
-
-$brctl addbr br-lan
-$brctl addif br-lan eth0.0
-$brctl addif br-lan eth0.1
-=20
-and when i send traffic from a host connected to one port to host
-connected at other end, soon all the memory is dried up and and kernel
-crashes,=20
-then oom-killer gets invoked which kills all the processes finally
-system reboots.
-=20
-Can any one help me to refer to some patch  or point some location in
-code from where memory is failed to deallocate.
-=20
-Thanks,
-Sharad.
-
-------_=_NextPart_002_01C9BC15.FF50A88A
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<META content=3D"MSHTML 6.00.2900.3492" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV dir=3Dltr align=3Dleft><FONT face=3D"Trebuchet MS" color=3D#000080 =
-size=3D2><SPAN=20
-class=3D240183609-09042009>Hi, I'm using linux 2.6.21.5 and our kernel =
-is=20
-freeze.</SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>The problem is, if I create a =
-Software&nbsp;bridge=20
-using <STRONG>$brctl</STRONG> command. and add two interfaces say, =
-eth0.0 and=20
-eth0.1 using</SPAN></FONT></DIV>
-<DIV><FONT size=3D2><SPAN class=3D240183609-09042009><SPAN=20
-class=3D240183609-09042009><BR><FONT face=3D"Trebuchet MS" =
-color=3D#000080>$brctl=20
-addbr br-lan</FONT></SPAN></SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>$brctl addif br-lan =
-eth0.0</SPAN></FONT></DIV>
-<DIV><SPAN class=3D240183609-09042009>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>$brctl addif br-lan =
-eth0.1</SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>and when i send&nbsp;traffic from a host =
-connected to=20
-one port to host connected&nbsp;at other end, soon all =
-the&nbsp;<STRONG>memory=20
-is dried up and and kernel crashes</STRONG>, </SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>then oom-killer gets invoked which kills all =
-the=20
-processes finally system&nbsp;reboots.</SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>Can any one help me to refer to some =
-patch&nbsp;<SPAN=20
-class=3D711315608-13042009>&nbsp;or</SPAN> point some location in code =
-from where=20
-memory is failed to deallocate.</SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>Thanks,</SPAN></FONT></DIV>
-<DIV><FONT face=3D"Trebuchet MS" color=3D#000080 size=3D2><SPAN=20
-class=3D240183609-09042009>Sharad.</SPAN></FONT></DIV></SPAN></DIV></BODY=
-></HTML>
-
-------_=_NextPart_002_01C9BC15.FF50A88A--
-
-------_=_NextPart_001_01C9BC15.FF50A88A
-Content-Type: text/plain;
-	name="ATT5660628.txt"
-Content-Transfer-Encoding: base64
-Content-Description: ATT5660628.txt
-Content-Disposition: inline;
-	filename="ATT5660628.txt"
-
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCkJyaWRnZSBt
-YWlsaW5nIGxpc3QNCkJyaWRnZUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZw0KaHR0cHM6Ly9s
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2JyaWRnZQ==
-
-------_=_NextPart_001_01C9BC15.FF50A88A--
+This lock is unnecessary, use RCU list for read.
+Since all changes are under RTNL mutex, there is no chance
+for conflict on update.
