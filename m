@@ -1,5 +1,5 @@
 From: Ed Tomlinson <edt@aei.ca>
-Date: Tue, 14 Apr 2009 19:54:27 -0400
+Date: Tue, 14 Apr 2009 21:27:02 -0400
 References: <200904121124.07193.edt@aei.ca> <200904141854.43205.edt@aei.ca>
 	<20090414160926.52e07a3d@nehalam>
 In-Reply-To: <20090414160926.52e07a3d@nehalam>
@@ -8,7 +8,7 @@ Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200904141954.28044.edt@aei.ca>
+Message-Id: <200904142127.03151.edt@aei.ca>
 Subject: Re: [Bridge] 2.6.30-rc1 A few issues and a stall (nmi_watchdog
 	traceback)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -75,7 +75,8 @@ On Tuesday 14 April 2009 19:09:26 Stephen Hemminger wrote:
 > > 
 > > (Yes I really did have to run iptables twice and it did work the second time...)
 
-QEMU_AUDIO_DRV=alsa kvm -m 1024 -cdrom /mnt/sdc4/divx/archlinux-2009.02-ftp-i686.iso -boot c -smp 3 -usb -usbdevice tablet -vga std -drive file=arch.img -net nic,macaddr=52:54:00:12:34:23 -net tap,ifname=qtap0,script=no -soundhw all -mem-path /hugepages
+With rc2 the need to manually load nf_nat, ipt_MASQUERADE and run iptables twice is fixed.  The
+bridge still triggers the nmi_watchdog.
 
 > > Looks like the spinning lock is the the bridge code.
 > > 
@@ -172,14 +173,5 @@ QEMU_AUDIO_DRV=alsa kvm -m 1024 -cdrom /mnt/sdc4/divx/archlinux-2009.02-ftp-i686
 > 
 > Since bridge is echoing back packets to TUN device (flood),
 > maybe there is some way the tun socket is still locked in that path?
-
-If so its a regression since the exact same sequence of commands (without having to
-do the iptables command twice or load nf_nat or ipt_MASQUERADE) worked with .29
-
-br0: port 1(qtap0) entering forwarding state
-
-Suspect the above message is telling us that forwarding should be active...
-
-Thanks,
-
-Ed
+> 
+> 
