@@ -1,10 +1,18 @@
-Message-ID: <49E8B0B2.1000900@mclink.it>
-Date: Fri, 17 Apr 2009 18:39:14 +0200
-From: Mauro Condarelli <mc5686@mclink.it>
+Date: Sat, 18 Apr 2009 09:01:52 +0200
+From: Jiri Pirko <jpirko@redhat.com>
+Message-ID: <20090418070151.GA3370@psychotron.englab.brq.redhat.com>
+References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
+	<20090415081720.GA21342@psychotron.englab.brq.redhat.com>
+	<20090415081819.GB21342@psychotron.englab.brq.redhat.com>
+	<20090415180215.GA22540@psychotron.englab.brq.redhat.com>
+	<20090417115723.GE9556@psychotron.englab.brq.redhat.com>
+	<20090417083315.2f089755@nehalam>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] sanity check
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20090417083315.2f089755@nehalam>
+Subject: Re: [Bridge] [PATCH 1/3] net: introduce a list of device
+	addresses	dev_addr_list (v3)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,120 +21,88 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: ivecera@redhat.com, fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, dada1@cosmosbay.com, jgarzik@pobox.com, davem@davemloft.net
 
-Hi all,
-I have managed to get my bridging setup working, but I'm unsure I did 
-everything ok, so I would like someone to double-check what I did.
+Fri, Apr 17, 2009 at 05:33:15PM CEST, shemminger@vyatta.com wrote:
 
-Thanks in advance.
+<snip>
 
-Problem:
+>> +struct netdev_hw_addr {
+>> +	struct list_head	list;
+>> +	unsigned char		addr[MAX_ADDR_LEN];
+>> +	int			refcount;
+>> +	struct rcu_head		rcu_head;
+>> +};
+>
+>Minor nit, the ordering of elements cause holes that might not be
+>needed.
 
-    * I have an upstream network connection to my ISP via VPN: I have a
-      dedicate router that gives me a non routable address in the
-      192.168.120.xxx subnet and that will route in th "non routable"
-      range 192.168.yyy.xxx.
-    * I need to open a VPN (OpenVPN) with a well defined server
-      (192.168.12.74) and I will get my fixed public address (80.79.62.xxx).
-    * I have a front-end machine (ubuntu) that hosts two virtualized
-      clients to act as firewall and "public host" on a DMZ.
-    * The firewall is IPCop.
-    * The host is another ubuntu (server) installation.
-    * All networking is handled via bridging.
+Agree that ordering might be done better. Will do.
+>
+>Space saving? is rcu_head needed or would using synchronize_net
+>make code cleaner and save space. 
+>
 
-Solution:
-/etc/network/interfaces:
-===============
-auto lo
-iface lo inet loopback
+Well I originaly had this done by synchronize_rcu(). Eric argued that it might
+cause especially __hw_addr_del_multiple_ii() to run long and suggested to use
+call_rcu() instead. I plan to switch this to kfree_rcu() (or whatever it's
+called) once it hits the tree.
 
-# LAN -------------------------------
-auto eth0 tap0 br0
+<snip>
 
-iface eth0 inet manual
+>> +	ha = kzalloc(max(sizeof(*ha), L1_CACHE_BYTES), GFP_ATOMIC);
+>> +	if (!ha)
+>> +		return -ENOMEM;
+>Since you are initializing all fields, kzalloc isn't really needed
 
-iface tap0 inet manual
-    up   ifconfig $IFACE 0.0.0.0 up
-    down ifconfig $IFACE down
-    tunctl_user mauro
+Noted.
+>
+>> +	memcpy(ha->addr, addr, addr_len);
+>> +	ha->refcount = 1;
+>> +	list_add_tail_rcu(&ha->list, list);
+>> +	return 0;
+>> +}
 
-iface br0 inet static
-    address 192.168.0.5
-    netmask 255.255.255.0
-    #gateway 192.168.0.254
-    bridge_ports eth0 tap0
-    bridge_maxwait 0
-#-----------------------------------
+<snip>
 
-# WAN ------------------------------
-auto eth2 tap2 tap4 br2
+>> +static void dev_addr_flush(struct net_device *dev)
+>> +{
+>> +	ASSERT_RTNL();
+>> +
+>Since this is local you should be able to audit all
+>the callers and remove this ASSERT.
 
-# physical interface to Ydea net
-iface eth2 inet static
-    address 192.168.120.5
-    netmask 255.255.255.0
+Okay. I will at least put a comment instead of this.
+>
+>> +	__hw_addr_flush(&dev->dev_addr_list);
+>> +	dev->dev_addr = NULL;
+>> +}
+>> +
+>> +static int dev_addr_init(struct net_device *dev)
+>> +{
+>> +	unsigned char addr[MAX_ADDR_LEN];
+>> +	struct netdev_hw_addr *ha;
+>> +	int err;
+>> +
+>> +	ASSERT_RTNL();
+>Ditto, ASSERT_RTNL makes sense for exposed kernel API and
+>initial testing.
+>
+>> +	INIT_LIST_HEAD(&dev->dev_addr_list);
+>> +	memset(addr, 0, sizeof(*addr));
+>> +	err = __hw_addr_add(&dev->dev_addr_list, addr, sizeof(*addr));
+>> +	if (!err) {
+>> +		/*
+>> +		 * Get the first (previously created) address from the list
+>> +		 * and set dev_addr pointer to this location.
+>> +		 */
+>> +		ha = list_first_entry(&dev->dev_addr_list,
+>> +				      struct netdev_hw_addr, list);
+>> +		dev->dev_addr = ha->addr;
+>> +	}
+>> +	return err;
+>> +}
 
-iface tap2 inet manual
-    up   ifconfig $IFACE 0.0.0.0 up
-    down ifconfig $IFACE down
-    tunctl_user mauro
+<snip>
 
-iface tap4 inet manual
-    up   /root/Ydea/tap-up.sh
-    down /root/Ydea/tap-down.sh
-    tunctl_user mauro
-
-iface br2 inet manual
-#    address 192.168.120.5
-#    netmask 255.255.255.0
-    bridge_ports tap4 tap2
-    bridge_maxwait 0
-#-----------------------------------
-
-# DMZ ------------------------------
-auto tap1 tap3 br1
-
-iface tap1 inet manual
-    up   ifconfig $IFACE 0.0.0.0 up
-    down ifconfig $IFACE down
-    tunctl_user mauro
-
-iface tap3 inet manual
-    up   ifconfig $IFACE 0.0.0.0 up
-    down ifconfig $IFACE down
-    tunctl_user mauro
-
-iface br1 inet static
-    address 192.168.77.5
-    netmask 255.255.255.0
-    bridge_ports tap1 tap3
-    bridge_maxwait 0
-#-----------------------------------
-===============
-The idea is:
-
-    * to have direct connection (using eth2) to my ISP and use that ONLY
-      to setup the VPN tunnel (tap4)  connected with the RED interface
-      of  IPCop (tap2).
-    * to have a direct bridge between ORANGE if of IPCop (tap2) to the
-      virtual if of my "server" (tap4).
-    * to have the other "real" ethernet (eth0) on host connected to my
-      internal home net bridged to the virtual GREEN if  of IPCop (tap0).
-
-This *does* work, but I would like to be sure that:
-
-    * host will only respond to his own internal address (192.168.0.5)
-      and not to other addresses.
-    * None can access the ISP net (192.168.120.xxx); this is currently
-      not true: the cost can access it. I need it in order to setup the
-      VPN. Is there any way to close this door after the VPN is up?
-    * Sometimes some "internal" PC (in the GREEN net 192.168.0.xxx) gets
-      a dhcp address in the range 129.168.120.xxx; probably gettingit
-      from the dhacp server in the ISP's router and not from IPCop.
-      Invariably a "sudo dhclient" cures the issue. What's happening there?
-    * What are the security isues of such a setup?
-
-Can someone enlighten me?
-TiA
-Mauro
