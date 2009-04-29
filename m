@@ -1,5 +1,5 @@
-Message-ID: <49F882F9.4010100@gmail.com>
-Date: Wed, 29 Apr 2009 18:40:25 +0200
+Message-ID: <49F88343.6020405@gmail.com>
+Date: Wed, 29 Apr 2009 18:41:39 +0200
 From: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
 MIME-Version: 1.0
 References: <2e59e6970904271436nd66745cv1c64ba792cf76d2f@mail.gmail.com>
@@ -13,7 +13,7 @@ References: <2e59e6970904271436nd66745cv1c64ba792cf76d2f@mail.gmail.com>
 	<49F87D4E.4060705@gmail.com> <20090429162651.GA9455@kallisti.us>
 In-Reply-To: <20090429162651.GA9455@kallisti.us>
 Content-Type: multipart/alternative;
-	boundary="------------030106040407090106020906"
+	boundary="------------080709090005080402020203"
 Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
  connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -28,7 +28,7 @@ To: Ross Vandegrift <ross@kallisti.us>
 Cc: bridge@lists.linux-foundation.org
 
 This is a multi-part message in MIME format.
---------------030106040407090106020906
+--------------080709090005080402020203
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -51,7 +51,7 @@ I also tried statically, but no improvements :-( ...
 
 Jochen
 
---------------030106040407090106020906
+--------------080709090005080402020203
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -86,4 +86,4 @@ Jochen<br>
 </body>
 </html>
 
---------------030106040407090106020906--
+--------------080709090005080402020203--
