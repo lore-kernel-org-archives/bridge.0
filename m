@@ -1,17 +1,18 @@
-Message-ID: <49FDD890.1090302@free.fr>
-Date: Sun, 03 May 2009 19:46:56 +0200
-From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-References: <20090428124009.GA26387@kallisti.us>	<2e59e6970904281200u44e3ebbfga0f074dfaa78c1ab@mail.gmail.com>	<49F77248.1050800@gmail.com>	<2e59e6970904281600u42142392vb8e0eb45c4ede15c@mail.gmail.com>	<49F87D4E.4060705@gmail.com>
-	<20090429162651.GA9455@kallisti.us>	<49F882F9.4010100@gmail.com>
-	<20090429165329.GA9893@kallisti.us>	<49F8C4C3.9020504@gmail.com>	<2e59e6970904292118u71ff441ft19448f753c1b6dd9@mail.gmail.com>
+In-Reply-To: <49FDD890.1090302@free.fr>
+References: <20090428124009.GA26387@kallisti.us>
+	<20090429162651.GA9455@kallisti.us> <49F882F9.4010100@gmail.com>
+	<20090429165329.GA9893@kallisti.us> <49F8C4C3.9020504@gmail.com>
+	<2e59e6970904292118u71ff441ft19448f753c1b6dd9@mail.gmail.com>
 	<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>
 	<49FA1E28.5020604@free.fr> <49FC4764.3030707@gmail.com>
-In-Reply-To: <49FC4764.3030707@gmail.com>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+	<49FDD890.1090302@free.fr>
+Date: Sun, 3 May 2009 22:59:03 -0500
+Message-ID: <2e59e6970905032059u44da74e1x6b96b6c3d0144294@mail.gmail.com>
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Content-Type: multipart/alternative; boundary=0015175cb606e40e0304690e2efa
 Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
- connection fails
+	connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,176 +21,108 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+Cc: bridge@lists.linux-foundation.org, Jochen Hebbrecht <jochenhebbrecht@gmail.com>
 
-Jochen Hebbrecht wrote:
-> Nicolas de Peslo=FCan schreef:
->>
->> Can you also explain why you are trying to use bridge ?
+--0015175cb606e40e0304690e2efa
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> Nicolas,
->=20
-> I'm not sure that bonding is the thing I need. I'll explain what I want=20
-> to do.
->=20
-> Please check this image: http://www.jochus.be/brol/networking.png
-> * Purple lines: wired (UTP)
-> * Blue (dashed) lines: wireless
->=20
-> So in this building, there are 2 locations. Location A and B. There's no =
+On Sun, May 3, 2009 at 12:46 PM, Nicolas de Peslo=FCan <
+nicolas.2p.debian@free.fr> wrote:
 
-> possibility to link them using a wired cable, and I don't like the net=20
-> adapters who transmits packets using the 50Hz channel.
->=20
-> In location A, there's a desktop and a notebook a. In location B,=20
-> there's a notebook, a server which maintains e-mails, backup,=20
-> Subversion, Archiva, ... and there's also printer (a network printer).
+> Jochen Hebbrecht wrote:
+> > Nicolas de Peslo=FCan schreef:
+> >>
+> >> Can you also explain why you are trying to use bridge ?
+>
+> > Nicolas,
+> >
+> > I'm not sure that bonding is the thing I need. I'll explain what I want
+> > to do.
+> >
+> > Please check this image: http://www.jochus.be/brol/networking.png
+> > * Purple lines: wired (UTP)
+> > * Blue (dashed) lines: wireless
+> >
+> > So in this building, there are 2 locations. Location A and B. There's n=
+o
+> > possibility to link them using a wired cable, and I don't like the net
+> > adapters who transmits packets using the 50Hz channel.
+> >
+> > In location A, there's a desktop and a notebook a. In location B,
+> > there's a notebook, a server which maintains e-mails, backup,
+> > Subversion, Archiva, ... and there's also printer (a network printer).
+>
+> Ok, now we understand what you are trying to do. In particular, I assume
+> the DHCP server is on the subnet of location B (or behind a router
+> connected on this subnet), so the expected DHCP offer will come from the
+> wire interface (eth0) and definitely not from the wireless interface
+> (eth1).
 
-Ok, now we understand what you are trying to do. In particular, I assume=20
-the DHCP server is on the subnet of location B (or behind a router=20
-connected on this subnet), so the expected DHCP offer will come from the=20
-wire interface (eth0) and definitely not from the wireless interface=20
-(eth1).
 
-> So, notebook B needs to print to the network printer, which is very easy =
 
-> by using the switch that's on location B. So that works. But now I want=20
-> to print from location A on the desktop and notebook A. So I needed to=20
-> connect them in the same subnet of the networkprinter.
+Looking at "router" in the provided diagram, plus the placement of A and B,
+I am led to believe that location A is the primary network providing DHCP
+and outbound access.  Furthermore, Jochen was getting a DHCP assignment ove=
+r
+his wireless interface before he tried to enable bridging.
 
-Let's try a step-by-step bridge configuration :
+Your suggestion of configuration as a router could work.  But NAT would not
+if A is the primary location, because the printer would no longer have a
+address visible to location A.
 
-1/ Try to setup a non-bridge configuration and ensure you successfully=20
-get a DHCP answer using eth0.
+--0015175cb606e40e0304690e2efa
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-auto eth0
-iface eth0 inet dhcp
+<br><br><div class=3D"gmail_quote">On Sun, May 3, 2009 at 12:46 PM, Nicolas=
+ de Peslo=FCan <span dir=3D"ltr">&lt;<a href=3D"mailto:nicolas.2p.debian@fr=
+ee.fr">nicolas.2p.debian@free.fr</a>&gt;</span> wrote:<br><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex;">
+<div class=3D"im">Jochen Hebbrecht wrote:<br>
+&gt; Nicolas de Peslo=FCan schreef:<br>
+&gt;&gt;<br>
+&gt;&gt; Can you also explain why you are trying to use bridge ?<br>
+<br>
+</div><div class=3D"im">&gt; Nicolas,<br>
+&gt;<br>
+&gt; I&#39;m not sure that bonding is the thing I need. I&#39;ll explain wh=
+at I want<br>
+&gt; to do.<br>
+&gt;<br>
+&gt; Please check this image: <a href=3D"http://www.jochus.be/brol/networki=
+ng.png" target=3D"_blank">http://www.jochus.be/brol/networking.png</a><br>
+&gt; * Purple lines: wired (UTP)<br>
+&gt; * Blue (dashed) lines: wireless<br>
+&gt;<br>
+&gt; So in this building, there are 2 locations. Location A and B. There&#3=
+9;s no<br>
+&gt; possibility to link them using a wired cable, and I don&#39;t like the=
+ net<br>
+&gt; adapters who transmits packets using the 50Hz channel.<br>
+&gt;<br>
+&gt; In location A, there&#39;s a desktop and a notebook a. In location B,<=
+br>
+&gt; there&#39;s a notebook, a server which maintains e-mails, backup,<br>
+&gt; Subversion, Archiva, ... and there&#39;s also printer (a network print=
+er).<br>
+<br>
+</div>Ok, now we understand what you are trying to do. In particular, I ass=
+ume<br>
+the DHCP server is on the subnet of location B (or behind a router<br>
+connected on this subnet), so the expected DHCP offer will come from the<br=
+>
+wire interface (eth0) and definitely not from the wireless interface<br>
+(eth1).</blockquote><div><br></div><div><br></div><div>Looking at &quot;rou=
+ter&quot; in the provided diagram, plus the placement of A and B, I am led =
+to believe that location A is the primary network providing DHCP and outbou=
+nd access. =A0Furthermore, Jochen was getting a DHCP assignment over his wi=
+reless interface before he tried to enable bridging.</div>
+<div><br></div><div>Your suggestion of configuration as a router could work=
+. =A0But NAT would not if A is the primary location, because the printer wo=
+uld no longer have a address visible to location A.</div><div>=A0</div></di=
+v>
 
-#auto eth1
-#iface eth1 inet dhcp
-#wpa-driver wext
-#wpa-ssid ##SSID##
-#wpa-ap-scan 1
-#wpa-proto RSN
-#wpa-pairwise CCMP
-#wpa-group CCMP
-#wpa-key-mgmt WPA-PSK
-#wpa-psk ##PSK KEY##
-
-#auto br0
-#iface br0 inet dhcp
-#bridge_ports eth0 eth1
-
-2/ Try to setup a bridge with only eth0 (wire interface) and ensure this=20
-work well, using a static IP address.
-
-#auto eth0
-iface eth0 inet manual
-
-#auto eth1
-iface eth1 inet manual
-
-auto br0
-iface br0 inet static
-bridge_ports eth0
-address 192.168.1.111
-netmask 255.255.255.0
-
-3/ Try to setup a bridge with only eth0 (wire interface) and ensure this=20
-work well, using DHCP.
-
-#auto eth0
-iface eth0 inet manual
-
-#auto eth1
-iface eth1 inet manual
-
-auto br0
-iface br0 inet dhcp
-bridge_ports eth0
-
-4/ Then add the eth1 (wireless interface).
-
-#auto eth0
-iface eth0 inet manual
-
-auto eth1
-iface eth1 inet manual
-wpa-driver wext
-wpa-ssid ##SSID##
-wpa-ap-scan 1
-wpa-proto RSN
-wpa-pairwise CCMP
-wpa-group CCMP
-wpa-key-mgmt WPA-PSK
-wpa-psk ##PSK KEY##
-# The wpa-bridge option is expected to instruct wpa_supplicant
-# to listen on br0 instead of eth1. This is a workaround which
-# should net be necessary after kernel 2.6.28 or 2.6.29, for
-# as far as I remember.
-wpa-bridge br0
-
-auto br0
-iface br0 inet dhcp
-bridge_ports eth0 eth1
-
-5/ If the previous fail, can you please test the following configuration:
-
-#auto eth0
-iface eth0 inet manual
-
-#auto eth1
-iface eth1 inet manual
-
-auto br0
-iface br0 inet dhcp
-bridge_ports eth0 eth1
-# the wpa-iface option is expected to instruct wpa_supplicant
-# to setup the wifi link using eth1 instead of br0.
-wpa-iface eth1
-wpa-driver wext
-wpa-ssid ##SSID##
-wpa-ap-scan 1
-wpa-proto RSN
-wpa-pairwise CCMP
-wpa-group CCMP
-wpa-key-mgmt WPA-PSK
-wpa-psk ##PSK KEY##
-# The wpa-bridge option is expected to instruct wpa_supplicant
-# to listen on br0 instead of eth1. This is a workaround which
-# should net be necessary after kernel 2.6.28 or 2.6.29, for
-# as far as I remember.
-wpa-bridge br0
-
-6/ If all this fail, please try the above (#5), without the wpa-bridge=20
-option.
-
-7/ If all this fail... let's try something really different (and totally=20
-out of topic for the bridge list, sorry guys) :
-
-Why do you need location A to be in the same subnet as the printer in=20
-location B ? The Ubuntu server in location B might be setup as a normal=20
-router (with two different IP in two different subnets). Then, the=20
-default route on the printer should be set to the LAN IP address of the=20
-ubuntu server.
-
-If you cannot change de default route for the printer, then add a route=20
-on the router of this subnet. This new route should ask the router to=20
-forward packet for the subnet of  location A through the Ubuntu server.
-
-If you cannot change de routing table in this router, then I suggest you=20
-try some sort of NAT configuration to arrange for all host in location A=20
-to be NATted to an IP address of location B subnet (using proxy ARP).
-
-	Nicolas.
-
-> So, I wanted to created a bridge on the Ubuntu server (who has a=20
-> wireless WMP54G network card), and on eth0 an ethernet controller. So by =
-
-> connecting eth0 to the switch, all notebooks and desktop would be able=20
-> to print to the networkprinter
->=20
-> This situation works fine if the server is running Windows, but not=20
-> Ubuntu as the bridge isn't working there :-(
-
+--0015175cb606e40e0304690e2efa--
