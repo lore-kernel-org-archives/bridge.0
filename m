@@ -1,9 +1,18 @@
+Message-ID: <49FF41C4.4090404@gmail.com>
+Date: Mon, 04 May 2009 21:28:04 +0200
+From: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
 MIME-Version: 1.0
-Date: Mon, 4 May 2009 09:47:47 -0500
-Message-ID: <45a1b53e0905040747p48466d3aye289314499c01a2e@mail.gmail.com>
-From: Wade Maxfield <wmaxfield@gmail.com>
-Content-Type: multipart/alternative; boundary=0016e647643af033360469173ead
-Subject: [Bridge] /dev/tap on uClinux and bridging
+References: <20090428124009.GA26387@kallisti.us>	<2e59e6970904281200u44e3ebbfga0f074dfaa78c1ab@mail.gmail.com>	<49F77248.1050800@gmail.com>	<2e59e6970904281600u42142392vb8e0eb45c4ede15c@mail.gmail.com>	<49F87D4E.4060705@gmail.com>
+	<20090429162651.GA9455@kallisti.us>	<49F882F9.4010100@gmail.com>
+	<20090429165329.GA9893@kallisti.us>	<49F8C4C3.9020504@gmail.com>	<2e59e6970904292118u71ff441ft19448f753c1b6dd9@mail.gmail.com>
+	<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>
+	<49FA1E28.5020604@free.fr> <49FC4764.3030707@gmail.com>
+	<49FDD890.1090302@free.fr>
+In-Reply-To: <49FDD890.1090302@free.fr>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
+ connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,67 +21,144 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bridge@lists.linux-foundation.org
+To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+Cc: bridge@lists.linux-foundation.org
 
---0016e647643af033360469173ead
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-  I'm trying to use bridging and TUN/TAP on uClinux on Nios processor, on an
-Altera fpga.
 
-  I downloaded the source for tunctl and it compiled and runs just fine.
+Nicolas de Peslo=FCan schreef:
+> Ok, now we understand what you are trying to do. In particular, I=20
+> assume the DHCP server is on the subnet of location B (or behind a=20
+> router connected on this subnet), so the expected DHCP offer will come=20
+> from the wire interface (eth0) and definitely not from the wireless=20
+> interface (eth1).
+>
+Maybe my picture isn't very clear, but my WAN access is on location A.=20
+There's a router which receives an ip from the ISP. On the other side,=20
+I'm having a 192.168.1.0/24 network
+> Let's try a step-by-step bridge configuration :
+>
+> 1/ Try to setup a non-bridge configuration and ensure you successfully=20
+> get a DHCP answer using eth0.
+>
+> auto eth0
+> iface eth0 inet dhcp
+>
+> #auto eth1
+> #iface eth1 inet dhcp
+> #wpa-driver wext
+> #wpa-ssid ##SSID##
+> #wpa-ap-scan 1
+> #wpa-proto RSN
+> #wpa-pairwise CCMP
+> #wpa-group CCMP
+> #wpa-key-mgmt WPA-PSK
+> #wpa-psk ##PSK KEY##
+>
+> #auto br0
+> #iface br0 inet dhcp
+> #bridge_ports eth0 eth1
+I tried this:
 
-  It says it created tap0, tap1, tap2, etc., but they don't show up in the
-/dev directory.
+$ cat /etc/network/interfaces
+auto lo
+iface lo inet loopback
 
-   I'm assuming because there is no demon to create these entries.
+auto eth1
+iface eth1 inet dhcp
+wpa-driver wext
+wpa-ssid ##SSID##
+wpa-ap-scan 1
+wpa-proto RSN
+wpa-pairwise CCMP
+wpa-group CCMP
+wpa-key-mgmt WPA-PSK
+wpa-psk ##PSK KEY##
 
-   I looked at Ubuntu, and saw the /dev/tapx entries are major, minor
-36,16.
+This configuration works fine. I'm receiving a DHCP offer from my router=20
+(in location A)
+>
+> 2/ Try to setup a bridge with only eth0 (wire interface) and ensure=20
+> this work well, using a static IP address.
+>
+> #auto eth0
+> iface eth0 inet manual
+>
+> #auto eth1
+> iface eth1 inet manual
+>
+> auto br0
+> iface br0 inet static
+> bridge_ports eth0
+> address 192.168.1.111
+> netmask 255.255.255.0
+$ cat /etc/network/interfaces
+auto lo
+iface lo inet loopback
 
-  However, the /dev/net/tun in the uClinux is 200,10.
+auto eth1
+iface eth1 inet manual
+wpa-driver wext
+wpa-ssid ##SSID##
+wpa-ap-scan 1
+wpa-proto RSN
+wpa-pairwise CCMP
+wpa-group CCMP
+wpa-key-mgmt WPA-PSK
+wpa-psk ##PSK KEY##
 
-   My question is this: If I create /dev/tap0 in the /dev directory, which
-Major,Minor number should I give it?
+auto br0
+iface br0 inet static
+bridge_ports eth1
+address 192.168.1.111
+netmask 255.255.255.0
+gateway 192.168.1.1
 
-   I'm a little fuzzy on this.  I'm assuming if the Major/Minor numbers are
-wrong, the brctl program won't be able to use the tap0 interface.
+ $ sudo /etc/init.d/networking restart
+ * Reconfiguring network=20
+interfaces...                                        =20
 
-   I want to do this, ultimately:
+Waiting for br0 to get ready (MAXWAIT is 32 seconds).
+                                                                        =20
+[ OK ]
+$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use=20
+Iface
+192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 br0
+169.254.0.0     0.0.0.0         255.255.0.0     U     1000   0        0 br0
+0.0.0.0         192.168.1.1     0.0.0.0         UG    100    0        0 br0
 
-  [ethernet]----[kernel bridge]---[tap]---(user program)------data
-link------(user program)---[tap]---[kernel bridge]--[ethernet]
+$ sudo brctl show br0
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.0015001f20a6       no              eth1
 
-  The data link is non standard and proprietary.  The goal is to bridge the
-two ethernets.
+$ ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 00:15:00:1f:20:a6=20
+          inet6 addr: fe80::215:ff:fe1f:20a6/64 Scope:Link
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:7 errors:82 dropped:84 overruns:0 frame:0
+          TX packets:1 errors:0 dropped:19 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1056452 (1.0 MB)  TX bytes:149964 (146.4 KB)
+          Interrupt:21 Base address:0xa000 Memory:c8006000-c8006fff
 
-  Can someone give me some heads up?  Any pointers would be appreciated!!!
+$ ifconfig br0
+br0       Link encap:Ethernet  HWaddr 00:15:00:1f:20:a6=20
+          inet addr:192.168.1.111  Bcast:192.168.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::215:ff:fe1f:20a6/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:27 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:0 (0.0 B)  TX bytes:1350 (1.3 KB)
 
-thanks,
-Wade
+$ ping 192.168.1.1
+PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
+ From 192.168.1.111 icmp_seq=3D2 Destination Host Unreachable
+ From 192.168.1.111 icmp_seq=3D3 Destination Host Unreachable
+ From 192.168.1.111 icmp_seq=3D5 Destination Host Unreachable
+ From 192.168.1.111 icmp_seq=3D6 Destination Host Unreachable
 
---0016e647643af033360469173ead
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<br>=A0 I&#39;m trying to use bridging and TUN/TAP on uClinux on Nios proce=
-ssor, on an Altera fpga.<br><br>=A0 I downloaded the source for tunctl and =
-it compiled and runs just fine.=A0 <br><br>=A0 It says it created tap0, tap=
-1, tap2, etc., but they don&#39;t show up in the /dev directory.<br>
-<br>=A0=A0 I&#39;m assuming because there is no demon to create these entri=
-es.<br><br>=A0=A0 I looked at Ubuntu, and saw the /dev/tapx entries are maj=
-or, minor 36,16.=A0 <br><br>=A0 However, the /dev/net/tun in the uClinux is=
- 200,10.<br>
-<br>=A0=A0 My question is this: If I create /dev/tap0 in the /dev directory=
-, which Major,Minor number should I give it?<br><br>=A0=A0 I&#39;m a little=
- fuzzy on this.=A0 I&#39;m assuming if the Major/Minor numbers are wrong, t=
-he brctl program won&#39;t be able to use the tap0 interface.<br>
-<br>=A0=A0 I want to do this, ultimately:<br><br>=A0 [ethernet]----[kernel =
-bridge]---[tap]---(user program)------data link------(user program)---[tap]=
----[kernel bridge]--[ethernet]<br><br>=A0 The data link is non standard and=
- proprietary.=A0 The goal is to bridge the two ethernets.<br>
-<br>=A0 Can someone give me some heads up?=A0 Any pointers would be appreci=
-ated!!!<br><br>thanks,<br>Wade<br><br>=A0 <br>
-
---0016e647643af033360469173ead--
+So here it goes wrong. I didn't execute any other steps as step 2 fails=20
+:-( ...
