@@ -1,11 +1,15 @@
-MIME-Version: 1.0
-In-Reply-To: <45a1b53e0905040747p48466d3aye289314499c01a2e@mail.gmail.com>
-References: <45a1b53e0905040747p48466d3aye289314499c01a2e@mail.gmail.com>
-Date: Mon, 4 May 2009 18:40:53 -0500
-Message-ID: <2e59e6970905041640q55c60531j7355e9522dff773a@mail.gmail.com>
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Content-Type: multipart/alternative; boundary=001485f7d7fe75fdf304691eb179
-Subject: Re: [Bridge] /dev/tap on uClinux and bridging
+Date: Mon, 04 May 2009 21:37:30 -0700 (PDT)
+Message-Id: <20090504.213730.131875923.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20090504111417.GE3402@psychotron.englab.brq.redhat.com>
+References: <20090417115723.GE9556@psychotron.englab.brq.redhat.com>
+	<20090418085848.GC3370@psychotron.englab.brq.redhat.com>
+	<20090504111417.GE3402@psychotron.englab.brq.redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net: introduce a list of device addresses
+ dev_addr_list (v5)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,102 +18,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Wade Maxfield <wmaxfield@gmail.com>
-Cc: Bridge@lists.linux-foundation.org
+To: jpirko@redhat.com
+Cc: ivecera@redhat.com, fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, jgarzik@pobox.com, dada1@cosmosbay.com, bonding-devel@lists.sourceforge.net
 
---001485f7d7fe75fdf304691eb179
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Jiri Pirko <jpirko@redhat.com>
+Date: Mon, 4 May 2009 13:14:18 +0200
 
-You should probably just use libpcap to receive all packets from each
-interface, and SOCK_RAW to send.  This should be a more efficient of getting
-packets to usermode than using bridging.
+> +static void __hw_addr_del_multiple(struct list_head *to_list,
+> +				   struct list_head *from_list,
+> +				   int addr_len, unsigned char addr_type)
+> +{
+> +	__hw_addr_del_multiple_ii(to_list, from_list, addr_len, addr_type, -1);
+> +}
 
-On Mon, May 4, 2009 at 9:47 AM, Wade Maxfield <wmaxfield@gmail.com> wrote:
+Unused static function, this will create build warnings.
 
->
->   I'm trying to use bridging and TUN/TAP on uClinux on Nios processor, on
-> an Altera fpga.
->
->   I downloaded the source for tunctl and it compiled and runs just fine.
->
->   It says it created tap0, tap1, tap2, etc., but they don't show up in the
-> /dev directory.
->
->    I'm assuming because there is no demon to create these entries.
->
->    I looked at Ubuntu, and saw the /dev/tapx entries are major, minor
-> 36,16.
->
->   However, the /dev/net/tun in the uClinux is 200,10.
->
->    My question is this: If I create /dev/tap0 in the /dev directory, which
-> Major,Minor number should I give it?
->
->    I'm a little fuzzy on this.  I'm assuming if the Major/Minor numbers are
-> wrong, the brctl program won't be able to use the tap0 interface.
->
->    I want to do this, ultimately:
->
->   [ethernet]----[kernel bridge]---[tap]---(user program)------data
-> link------(user program)---[tap]---[kernel bridge]--[ethernet]
->
->   The data link is non standard and proprietary.  The goal is to bridge the
-> two ethernets.
->
->   Can someone give me some heads up?  Any pointers would be appreciated!!!
->
-> thanks,
-> Wade
->
->
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+Or, it should :-)
 
---001485f7d7fe75fdf304691eb179
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+If you plan to use such a function in subsequent patches, add
+it in those changes not here.
 
-You should probably just use libpcap to receive all packets from each inter=
-face, and SOCK_RAW to send.=A0 This should be a more efficient of getting p=
-ackets to usermode than using bridging.<br><br><div class=3D"gmail_quote">O=
-n Mon, May 4, 2009 at 9:47 AM, Wade Maxfield <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:wmaxfield@gmail.com">wmaxfield@gmail.com</a>&gt;</span> wrote:<b=
-r>
-<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
-204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><br>=A0 I&#39;m t=
-rying to use bridging and TUN/TAP on uClinux on Nios processor, on an Alter=
-a fpga.<br>
-<br>=A0 I downloaded the source for tunctl and it compiled and runs just fi=
-ne.=A0 <br><br>=A0 It says it created tap0, tap1, tap2, etc., but they don&=
-#39;t show up in the /dev directory.<br>
-<br>=A0=A0 I&#39;m assuming because there is no demon to create these entri=
-es.<br><br>=A0=A0 I looked at Ubuntu, and saw the /dev/tapx entries are maj=
-or, minor 36,16.=A0 <br><br>=A0 However, the /dev/net/tun in the uClinux is=
- 200,10.<br>
-
-<br>=A0=A0 My question is this: If I create /dev/tap0 in the /dev directory=
-, which Major,Minor number should I give it?<br><br>=A0=A0 I&#39;m a little=
- fuzzy on this.=A0 I&#39;m assuming if the Major/Minor numbers are wrong, t=
-he brctl program won&#39;t be able to use the tap0 interface.<br>
-
-<br>=A0=A0 I want to do this, ultimately:<br><br>=A0 [ethernet]----[kernel =
-bridge]---[tap]---(user program)------data link------(user program)---[tap]=
----[kernel bridge]--[ethernet]<br><br>=A0 The data link is non standard and=
- proprietary.=A0 The goal is to bridge the two ethernets.<br>
-
-<br>=A0 Can someone give me some heads up?=A0 Any pointers would be appreci=
-ated!!!<br><br>thanks,<br><font color=3D"#888888">Wade<br><br>=A0 <br>
-</font><br>_______________________________________________<br>
-Bridge mailing list<br>
-<a href=3D"mailto:Bridge@lists.linux-foundation.org">Bridge@lists.linux-fou=
-ndation.org</a><br>
-<a href=3D"https://lists.linux-foundation.org/mailman/listinfo/bridge" targ=
-et=3D"_blank">https://lists.linux-foundation.org/mailman/listinfo/bridge</a=
-><br></blockquote></div><br>
-
---001485f7d7fe75fdf304691eb179--
+Otherwise I have no fundamental objection to this patch, nice
+work!
