@@ -1,18 +1,12 @@
-Message-ID: <4A00A700.7020507@gmail.com>
-Date: Tue, 05 May 2009 22:52:16 +0200
-From: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
 MIME-Version: 1.0
-References: <20090428124009.GA26387@kallisti.us>		<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>		<49FA1E28.5020604@free.fr>
-	<49FC4764.3030707@gmail.com>		<49FDD890.1090302@free.fr>
-	<49FF41C4.4090404@gmail.com>		<49FF4AF8.1050801@free.fr>
-	<49FF58EC.2090902@gmail.com>		<49FFDABF.4030500@free.fr>
-	<4A007103.4010501@gmail.com>	<2e59e6970905051108q7448a0ai7f6e5cb16faf1e00@mail.gmail.com>
-	<4A00915F.7000602@gmail.com> <4A009943.5000505@navigue.com>
-In-Reply-To: <4A009943.5000505@navigue.com>
-Content-Type: multipart/alternative;
-	boundary="------------050104040904090407020102"
-Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
- connection fails
+In-Reply-To: <fed120860905051311x7b5d239bma1fd1820c27d1e3a@mail.gmail.com>
+References: <45a1b53e0905040747p48466d3aye289314499c01a2e@mail.gmail.com>
+	<fed120860905051311x7b5d239bma1fd1820c27d1e3a@mail.gmail.com>
+Date: Tue, 5 May 2009 16:03:20 -0500
+Message-ID: <45a1b53e0905051403o10090cbdw757237456b8d18a6@mail.gmail.com>
+From: Wade Maxfield <wmaxfield@gmail.com>
+Content-Type: multipart/alternative; boundary=0016e645b9a8d0fe770469309b60
+Subject: Re: [Bridge] /dev/tap on uClinux and bridging
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,83 +15,164 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jonathan Thibault <jonathan@navigue.com>
-Cc: bridge@lists.linux-foundation.org
+To: "Srinivas M.A." <srinivas.aji@gmail.com>
+Cc: Bridge@lists.linux-foundation.org
 
-This is a multi-part message in MIME format.
---------------050104040904090407020102
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--0016e645b9a8d0fe770469309b60
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Jonathan Thibault schreef:
-> I believe that to allow bridging on a 'client', you need to enable WDS on the interface (and likely on the AP as well).  Check to see if WDS is supported by your driver.  Basically (but I could be wrong), it is an 'ethernet over wifi' encapsulation since the wifi does not allow for mac spoofing on a client endpoint which would be required for normal bridging.
+  Thanks!  That is exactly what I needed to know!
+
+wade
+
+On Tue, May 5, 2009 at 3:11 PM, Srinivas M.A. <srinivas.aji@gmail.com>wrote:
+
+> Network interfaces don't show up in /dev in Linux anyway. When tap0,
+> tap1, etc are created, they will show up in "ifconfig -a" and you can
+> add them to bridges at that point. /dev/net/tun should be the only
+> thing you need in /dev.
 >
+> I think /dev/tapX is an older interface.
 >
->   
+> If your user program is trying to use the /dev/tapX devices, you could
+> modify it to use /dev/net/tun and connect to the right device using
+> the ioctl as described in Documentation/tuntap.txt in the Linux
+> source.
+>
+> On Mon, May 4, 2009 at 2:47 PM, Wade Maxfield <wmaxfield@gmail.com> wrote:
+> >
+> >   I'm trying to use bridging and TUN/TAP on uClinux on Nios processor, on
+> an
+> > Altera fpga.
+> >
+> >   I downloaded the source for tunctl and it compiled and runs just fine.
+> >
+> >   It says it created tap0, tap1, tap2, etc., but they don't show up in
+> the
+> > /dev directory.
+> >
+> >    I'm assuming because there is no demon to create these entries.
+> >
+> >    I looked at Ubuntu, and saw the /dev/tapx entries are major, minor
+> > 36,16.
+> >
+> >   However, the /dev/net/tun in the uClinux is 200,10.
+> >
+> >    My question is this: If I create /dev/tap0 in the /dev directory,
+> which
+> > Major,Minor number should I give it?
+> >
+> >    I'm a little fuzzy on this.  I'm assuming if the Major/Minor numbers
+> are
+> > wrong, the brctl program won't be able to use the tap0 interface.
+> >
+> >    I want to do this, ultimately:
+> >
+> >   [ethernet]----[kernel bridge]---[tap]---(user program)------data
+> > link------(user program)---[tap]---[kernel bridge]--[ethernet]
+> >
+> >   The data link is non standard and proprietary.  The goal is to bridge
+> the
+> > two ethernets.
+> >
+> >   Can someone give me some heads up?  Any pointers would be
+> appreciated!!!
+> >
+> > thanks,
+> > Wade
+> >
+> >
+> >
+> > _______________________________________________
+> > Bridge mailing list
+> > Bridge@lists.linux-foundation.org
+> > https://lists.linux-foundation.org/mailman/listinfo/bridge
+> >
+>
 
-Thnx Jonathan. I found this information:
-________________________________
-
-Doing full bridging of wireless (802.11) requires supporting WDS 
-<http://www.linuxfoundation.org/en/index.php?title=Net:WDS&action=edit&redlink=1>. 
-The current implementation doesn't do it.
-
-It is possible to do limited wireless to Ethernet functionality with 
-some wireless drivers. This requires the device to be able to support a 
-different sender address and source address. That is what WDS provides.
-
-There are ways to make it work, but it is not always straightforward and 
-you probably won't get it right without a pretty solid understanding of 
-802.11, it's modes, and the frame header format.
-
-________________________________
-
-... so, the current implementation doesn't do it? So I can conclude 
-Linux isn't ready for bridging a wired and wireless network?
-I didn't install any drivers for my wireless card, so I assume it uses 
-the default driver of Ubuntu.
-
---------------050104040904090407020102
+--0016e645b9a8d0fe770469309b60
 Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-Jonathan Thibault schreef:
-<blockquote cite="mid:4A009943.5000505@navigue.com" type="cite">
-  <pre wrap="">I believe that to allow bridging on a 'client', you need to enable WDS on the interface (and likely on the AP as well).  Check to see if WDS is supported by your driver.  Basically (but I could be wrong), it is an 'ethernet over wifi' encapsulation since the wifi does not allow for mac spoofing on a client endpoint which would be required for normal bridging.
-
-
-  </pre>
-</blockquote>
+=A0 Thanks!=A0 That is exactly what I needed to know!<br><br>wade<br><br><d=
+iv class=3D"gmail_quote">On Tue, May 5, 2009 at 3:11 PM, Srinivas M.A. <spa=
+n dir=3D"ltr">&lt;<a href=3D"mailto:srinivas.aji@gmail.com">srinivas.aji@gm=
+ail.com</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
+204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">Network interface=
+s don&#39;t show up in /dev in Linux anyway. When tap0,<br>
+tap1, etc are created, they will show up in &quot;ifconfig -a&quot; and you=
+ can<br>
+add them to bridges at that point. /dev/net/tun should be the only<br>
+thing you need in /dev.<br>
 <br>
-Thnx Jonathan. I found this information:<br>
-________________________________<br>
-<p>Doing full bridging of wireless (802.11) requires supporting <a
- href="http://www.linuxfoundation.org/en/index.php?title=Net:WDS&amp;action=edit&amp;redlink=1"
- class="new" title="Net:WDS (not yet written)"> WDS </a>. The current
-implementation doesn't do it.
-</p>
-<p>It is possible to do limited wireless to Ethernet functionality
-with some wireless drivers. This requires the device to be able to
-support a different sender address and source address. That is what WDS
-provides.
-</p>
-<p>There are ways to make it work, but it is not always
-straightforward and you probably won't get it right without a pretty
-solid understanding of 802.11, it's modes, and the frame header format.
-</p>
-________________________________<br>
+I think /dev/tapX is an older interface.<br>
 <br>
-... so, the current implementation doesn't do it? So I can conclude
-Linux isn't ready for bridging a wired and wireless network?<br>
-I didn't install any drivers for my wireless card, so I assume it uses
-the default driver of Ubuntu. <br>
-</body>
-</html>
+If your user program is trying to use the /dev/tapX devices, you could<br>
+modify it to use /dev/net/tun and connect to the right device using<br>
+the ioctl as described in Documentation/tuntap.txt in the Linux<br>
+source.<br>
+<div><div></div><div class=3D"h5"><br>
+On Mon, May 4, 2009 at 2:47 PM, Wade Maxfield &lt;<a href=3D"mailto:wmaxfie=
+ld@gmail.com">wmaxfield@gmail.com</a>&gt; wrote:<br>
+&gt;<br>
+&gt; =A0 I&#39;m trying to use bridging and TUN/TAP on uClinux on Nios proc=
+essor, on an<br>
+&gt; Altera fpga.<br>
+&gt;<br>
+&gt; =A0 I downloaded the source for tunctl and it compiled and runs just f=
+ine.<br>
+&gt;<br>
+&gt; =A0 It says it created tap0, tap1, tap2, etc., but they don&#39;t show=
+ up in the<br>
+&gt; /dev directory.<br>
+&gt;<br>
+&gt; =A0=A0 I&#39;m assuming because there is no demon to create these entr=
+ies.<br>
+&gt;<br>
+&gt; =A0=A0 I looked at Ubuntu, and saw the /dev/tapx entries are major, mi=
+nor<br>
+&gt; 36,16.<br>
+&gt;<br>
+&gt; =A0 However, the /dev/net/tun in the uClinux is 200,10.<br>
+&gt;<br>
+&gt; =A0=A0 My question is this: If I create /dev/tap0 in the /dev director=
+y, which<br>
+&gt; Major,Minor number should I give it?<br>
+&gt;<br>
+&gt; =A0=A0 I&#39;m a little fuzzy on this.=A0 I&#39;m assuming if the Majo=
+r/Minor numbers are<br>
+&gt; wrong, the brctl program won&#39;t be able to use the tap0 interface.<=
+br>
+&gt;<br>
+&gt; =A0=A0 I want to do this, ultimately:<br>
+&gt;<br>
+&gt; =A0 [ethernet]----[kernel bridge]---[tap]---(user program)------data<b=
+r>
+&gt; link------(user program)---[tap]---[kernel bridge]--[ethernet]<br>
+&gt;<br>
+&gt; =A0 The data link is non standard and proprietary.=A0 The goal is to b=
+ridge the<br>
+&gt; two ethernets.<br>
+&gt;<br>
+&gt; =A0 Can someone give me some heads up?=A0 Any pointers would be apprec=
+iated!!!<br>
+&gt;<br>
+&gt; thanks,<br>
+&gt; Wade<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+</div></div><div><div></div><div class=3D"h5">&gt; ________________________=
+_______________________<br>
+&gt; Bridge mailing list<br>
+&gt; <a href=3D"mailto:Bridge@lists.linux-foundation.org">Bridge@lists.linu=
+x-foundation.org</a><br>
+&gt; <a href=3D"https://lists.linux-foundation.org/mailman/listinfo/bridge"=
+ target=3D"_blank">https://lists.linux-foundation.org/mailman/listinfo/brid=
+ge</a><br>
+&gt;<br>
+</div></div></blockquote></div><br><br>
 
---------------050104040904090407020102--
+--0016e645b9a8d0fe770469309b60--
