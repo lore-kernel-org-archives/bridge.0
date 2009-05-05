@@ -1,15 +1,18 @@
-Date: Tue, 05 May 2009 12:27:18 -0700 (PDT)
-Message-Id: <20090505.122718.51237316.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20090505124827.GB3473@psychotron.englab.brq.redhat.com>
-References: <20090418085848.GC3370@psychotron.englab.brq.redhat.com>
-	<20090504111417.GE3402@psychotron.englab.brq.redhat.com>
-	<20090505124827.GB3473@psychotron.englab.brq.redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Message-ID: <4A009943.5000505@navigue.com>
+Date: Tue, 05 May 2009 15:53:39 -0400
+From: Jonathan Thibault <jonathan@navigue.com>
+MIME-Version: 1.0
+References: <20090428124009.GA26387@kallisti.us>		<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>		<49FA1E28.5020604@free.fr>
+	<49FC4764.3030707@gmail.com>		<49FDD890.1090302@free.fr>
+	<49FF41C4.4090404@gmail.com>		<49FF4AF8.1050801@free.fr>
+	<49FF58EC.2090902@gmail.com>		<49FFDABF.4030500@free.fr>
+	<4A007103.4010501@gmail.com>	<2e59e6970905051108q7448a0ai7f6e5cb16faf1e00@mail.gmail.com>
+	<4A00915F.7000602@gmail.com>
+In-Reply-To: <4A00915F.7000602@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net: introduce a list of device addresses
- dev_addr_list (v6)
+Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
+ connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,19 +21,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jpirko@redhat.com
-Cc: ivecera@redhat.com, fubar@us.ibm.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, jgarzik@pobox.com, dada1@cosmosbay.com, bonding-devel@lists.sourceforge.net
+To: Jochen Hebbrecht <jochenhebbrecht@gmail.com>, bridge@lists.linux-foundation.org
 
-From: Jiri Pirko <jpirko@redhat.com>
-Date: Tue, 5 May 2009 14:48:28 +0200
+I believe that to allow bridging on a 'client', you need to enable WDS on the interface (and likely on the AP as well).  Check to see if WDS is supported by your driver.  Basically (but I could be wrong), it is an 'ethernet over wifi' encapsulation since the wifi does not allow for mac spoofing on a client endpoint which would be required for normal bridging.
 
-> This patch introduces a new list in struct net_device and brings a set of
-> functions to handle the work with device address list. The list is a replacement
-> for the original dev_addr field and because in some situations there is need to
-> carry several device addresses with the net device. To be backward compatible,
-> dev_addr is made to point to the first member of the list so original drivers
-> sees no difference.
+Jochen Hebbrecht wrote:
+> richardvoigt@gmail.com schreef:
+>> Since bridging works in Windows, your card is capable of doing this 
+>> with the right configuration.  But I don't know what to suggest trying 
+>> next.
 > 
-> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+> Are there other places where I could get some help? I already asked it 
+> at the ubuntuforums ... :-(
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
 
-Applied to net-next-2.6, thanks!
