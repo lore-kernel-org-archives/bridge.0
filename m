@@ -1,13 +1,17 @@
 MIME-Version: 1.0
-In-Reply-To: <45a1b53e0905050908w3b4b1522i29b4af14b6673e88@mail.gmail.com>
-References: <45a1b53e0905040747p48466d3aye289314499c01a2e@mail.gmail.com>
-	<2e59e6970905041640q55c60531j7355e9522dff773a@mail.gmail.com>
-	<45a1b53e0905050908w3b4b1522i29b4af14b6673e88@mail.gmail.com>
-Date: Tue, 5 May 2009 13:02:21 -0500
-Message-ID: <2e59e6970905051102k9d0255dhaf522ebb6fdcd72c@mail.gmail.com>
+In-Reply-To: <4A007103.4010501@gmail.com>
+References: <20090428124009.GA26387@kallisti.us>
+	<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>
+	<49FA1E28.5020604@free.fr> <49FC4764.3030707@gmail.com>
+	<49FDD890.1090302@free.fr> <49FF41C4.4090404@gmail.com>
+	<49FF4AF8.1050801@free.fr> <49FF58EC.2090902@gmail.com>
+	<49FFDABF.4030500@free.fr> <4A007103.4010501@gmail.com>
+Date: Tue, 5 May 2009 13:08:10 -0500
+Message-ID: <2e59e6970905051108q7448a0ai7f6e5cb16faf1e00@mail.gmail.com>
 From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Content-Type: multipart/alternative; boundary=001485f629a49794e704692e144e
-Subject: Re: [Bridge] /dev/tap on uClinux and bridging
+Content-Type: multipart/alternative; boundary=001485f33bee5f584d04692e29b3
+Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
+	connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,115 +20,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Wade Maxfield <wmaxfield@gmail.com>
-Cc: Bridge@lists.linux-foundation.org
+To: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
---001485f629a49794e704692e144e
+--001485f33bee5f584d04692e29b3
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-On Tue, May 5, 2009 at 11:08 AM, Wade Maxfield <wmaxfield@gmail.com> wrote:
-
->   That is an interesting proposition.  I'll investigate.
->
->   I don't know anything about libpcap, so I have a few questions for the
-> expert <grin>.
->
->    Will it handle all Etherent frames? As a bridge, that is what I need.
-
-
-It wouldn't be much use for packet capture (e.g. Ethereal) if it didn't.
-
-
->
->    Will it allow me to gracefully drop stuff on the floor? I'm assuming the
-> Ethernet bridge code in the kernel will do that, I'm not sure of the effect
-> in libpcap.
-
-
-You always have the option of not sending stuff over your data link.
-
-
->
->
->    I'm also assuming that I could not use IPchains if I do libpcap.  That
-> might be worth a tradeoff.
-
-
-I don't know whether libpcap operates before or after iptables.  It may
-operate before, in which case iptables would filter outgoing traffic sent
-from your raw socket, but not incoming.
-
-Something like this might help (it passes iptables-selected packets to
-user-mode)
-http://eatingsecurity.blogspot.com/2007/09/transparent-bridging-mmap-pcap-and.html
-
-Just replace snort in that discussion with your communication application
-and you should be good.
+> But, when I add eth0 to bridge_ports, it doesn't work any longer
 
 
 
->
->
->    Finally, just for curiosity sake, what Major, Minor numbers should the
-> /dev/tap entries be?  I have not yet had anyone be able to answer that
-> question, and it puzzles me.
+That and this are your problem:
 
+eth1      Link encap:Ethernet  HWaddr 00:15:00:1f:20:a6
+          inet6 addr: fe80::215:ff:fe1f:20a6/64 Scope:Link
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+         RX packets:3 errors:79 dropped:79 overruns:0 frame:0
 
-Sorry I don't know that.  I'm not sure if it's necessarily the same across
-systems.
+All those dropped packets on receive... your wireless card isn't accepting
+packets with other destination MAC addresses.  And when you add eth0 into
+the bridge, Linux must be choosing eth0's MAC address as the bridge address.
 
+Since bridging works in Windows, your card is capable of doing this with the
+right configuration.  But I don't know what to suggest trying next.
 
->
->
-> thanks,
-> Wade
->
->
-
---001485f629a49794e704692e144e
+--001485f33bee5f584d04692e29b3
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-<br><br><div class=3D"gmail_quote">On Tue, May 5, 2009 at 11:08 AM, Wade Ma=
-xfield <span dir=3D"ltr">&lt;<a href=3D"mailto:wmaxfield@gmail.com">wmaxfie=
-ld@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" sty=
-le=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex;=
- padding-left: 1ex;">
-=A0 That is an interesting proposition.=A0 I&#39;ll investigate.<br><br>=A0=
- I don&#39;t know anything about libpcap, so I have a few questions for the=
- expert &lt;grin&gt;.<br><br>=A0=A0 Will it handle all Etherent frames? As =
-a bridge, that is what I need.</blockquote>
-<div><br>It wouldn&#39;t be much use for packet capture (e.g. Ethereal) if =
-it didn&#39;t.<br>=A0</div><blockquote class=3D"gmail_quote" style=3D"borde=
-r-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-le=
-ft: 1ex;">
-<br>
-=A0=A0 Will it allow me to gracefully drop stuff on the floor? I&#39;m assu=
-ming the Ethernet bridge code in the kernel will do that, I&#39;m not sure =
-of the effect in libpcap.</blockquote><div><br>You always have the option o=
-f not sending stuff over your data link.<br>
-=A0</div><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid =
-rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><br><br>=
-=A0=A0 I&#39;m also assuming that I could not use IPchains if I do libpcap.=
-=A0 That might be worth a tradeoff.</blockquote>
-<div><br>I don&#39;t know whether libpcap operates before or after iptables=
-.=A0 It may operate before, in which case iptables would filter outgoing tr=
-affic sent from your raw socket, but not incoming.<br><br>Something like th=
-is might help (it passes iptables-selected packets to user-mode)<br>
-<a href=3D"http://eatingsecurity.blogspot.com/2007/09/transparent-bridging-=
-mmap-pcap-and.html">http://eatingsecurity.blogspot.com/2007/09/transparent-=
-bridging-mmap-pcap-and.html</a><br><br>Just replace snort in that discussio=
-n with your communication application and you should be good.<br>
-<br>=A0</div><blockquote class=3D"gmail_quote" style=3D"border-left: 1px so=
-lid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><br>
-<br>=A0=A0 Finally, just for curiosity sake, what Major, Minor numbers shou=
-ld the /dev/tap entries be?=A0 I have not yet had anyone be able to answer =
-that question, and it puzzles me.</blockquote><div><br>Sorry I don&#39;t kn=
-ow that.=A0 I&#39;m not sure if it&#39;s necessarily the same across system=
-s.<br>
-=A0</div><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid =
-rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><br><br>=
-thanks,<br>Wade<div><div></div><br></div></blockquote></div>
+<br><div class=3D"gmail_quote"><blockquote class=3D"gmail_quote" style=3D"b=
+order-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; paddin=
+g-left: 1ex;">
+But, when I add eth0 to bridge_ports, it doesn&#39;t work any longer</block=
+quote><div><br><br>That and this are your problem:<br><br>eth1 =A0 =A0 =A0L=
+ink encap:Ethernet =A0HWaddr 00:15:00:1f:20:a6<br>
+<div class=3D"im"> =A0 =A0 =A0 =A0 =A0inet6 addr: fe80::215:ff:fe1f:20a6/64=
+ Scope:Link<br>
+</div> =A0 =A0 =A0 =A0 =A0UP BROADCAST MULTICAST =A0MTU:1500 =A0Metric:1<br=
+>
+ =A0 =A0 =A0 =A0 =A0RX packets:3 errors:79 dropped:79 overruns:0 frame:0<br=
+><br>All those dropped packets on receive... your wireless card isn&#39;t a=
+ccepting packets with other destination MAC addresses.=A0 And when you add =
+eth0 into the bridge, Linux must be choosing eth0&#39;s MAC address as the =
+bridge address.<br>
+<br>Since bridging works in Windows, your card is capable of doing this wit=
+h the right configuration.=A0 But I don&#39;t know what to suggest trying n=
+ext.<br></div></div>
 
---001485f629a49794e704692e144e--
+--001485f33bee5f584d04692e29b3--
