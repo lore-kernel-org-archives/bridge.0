@@ -1,5 +1,5 @@
-Message-ID: <4A01AE9D.3000504@gmail.com>
-Date: Wed, 06 May 2009 17:37:01 +0200
+Message-ID: <4A01BF38.4080704@gmail.com>
+Date: Wed, 06 May 2009 18:47:52 +0200
 From: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
 MIME-Version: 1.0
 References: <20090428124009.GA26387@kallisti.us>	<2e59e6970904281200u44e3ebbfga0f074dfaa78c1ab@mail.gmail.com>	<49F77248.1050800@gmail.com>	<2e59e6970904281600u42142392vb8e0eb45c4ede15c@mail.gmail.com>	<49F87D4E.4060705@gmail.com>
@@ -27,22 +27,17 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
 Cc: bridge@lists.linux-foundation.org
 
-
-
 Nicolas de Peslo=FCan schreef:
-> That beeing said, Jonathan might be right about the need for WDS...=20
-> Can you have a look at the AP configuration, searching for a WDS setup=20
-> ? Because if it works on Windows, without WDS (if disabled or=20
-> unavailable on the AP), then we can assume that WDS is not required,=20
-> even on Linux (the wifi interface is able to receive traffic for=20
-> another MAC).
 >
-> If the AP is WDS enabled, then... WDS might be necessary... and=20
-> nothing can be done if the driver for you wifi interface does not=20
-> support it...
-http://www.linksysinfo.org/forums/showthread.php?t=3D47118
-
-I'm having the WRT54GS router, and the explanation above tells me how to=20
-configre WDS.
-However, when I look in my admin panel, I cannot find a tab: "WDS". I=20
-guess my firmware is pretty old :-)
+> When you setup the bridge at the beginning, the br0 interface takes=20
+> the MAC address of eth1. Then you add eth0 and the bridge takes the=20
+> MAC address of eth0, because it is lower.
+>
+> Can you try to use the bridge-hw option of /etc/network/interfaces, to=20
+> force the bridge MAC address to the MAC address of the wireless=20
+> interface ? This might solve the communication problem for UBUNTU=20
+> SERVER... but unfortunately probably not for the bridging function.
+>
+Now the bridge comes up perfectly, and ubuntu server can ping the=20
+internet. But nobody on the eth0 of ubuntu server can access the network=20
+:-( ... so no bridging indeed
