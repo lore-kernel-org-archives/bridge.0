@@ -1,10 +1,16 @@
-MIME-Version: 1.0
-Date: Fri, 8 May 2009 15:31:43 -0600
-Message-ID: <de7adc5e0905081431v58989abch5e7271de302afd99@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: text/plain; charset=UTF-8
+Date: Fri, 8 May 2009 15:38:42 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20090508153842.65ce3bed@s6510>
+In-Reply-To: <20090505.122718.51237316.davem@davemloft.net>
+References: <20090418085848.GC3370@psychotron.englab.brq.redhat.com>
+	<20090504111417.GE3402@psychotron.englab.brq.redhat.com>
+	<20090505124827.GB3473@psychotron.englab.brq.redhat.com>
+	<20090505.122718.51237316.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] 2.6.27: persistent MAC assignment to bridge not working
+Subject: Re: [Bridge] [PATCH] net: introduce a list of device addresses
+ dev_addr_list (v6)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,70 +19,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: ivecera@redhat.com, fubar@us.ibm.com, jpirko@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, jgarzik@pobox.com, dada1@cosmosbay.com, bonding-devel@lists.sourceforge.net
 
-Hi All,
+On Tue, 05 May 2009 12:27:18 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
 
-I am trying to figure out how to get a persistent, non-changing MAC
-address assigned to a bridge. It looks like there is new functionality
-in 2.6.27 to allow this to happen, specifically, in:
+> From: Jiri Pirko <jpirko@redhat.com>
+> Date: Tue, 5 May 2009 14:48:28 +0200
+> 
+> > This patch introduces a new list in struct net_device and brings a set of
+> > functions to handle the work with device address list. The list is a replacement
+> > for the original dev_addr field and because in some situations there is need to
+> > carry several device addresses with the net device. To be backward compatible,
+> > dev_addr is made to point to the first member of the list so original drivers
+> > sees no difference.
+> > 
+> > Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+> 
+> Applied to net-next-2.6, thanks!
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-void br_stp_recalculate_bridge_id(struct net_bridge *br)
-[...]
-       /* user has chosen a value so keep it */
-        if (br->flags & BR_SET_MAC_ADDR)
-                return;
-
-and in..
-
-static int br_set_mac_address(struct net_device *dev, void *p)
-[...]
-        br->flags |= BR_SET_MAC_ADDR;
-
-However, I cannot get this functionality to work as it appears it
-should. If I manually set a bridge's MAC address to an arbitrary
-value, as follows:
-
-# ifconfig br0 hw ether "xx:xx:xx:xx:xx:xx"
-
-Then, subsequent calls such as the following seem to still change the
-bridge's MAC address:
-
-# brctl addif br0 veth100.0
-# brctl delif br0 veth100.0
-
-Am I doing something wrong? What is the proper way to take advantage
-of the new code in 2.6.27?
-
-The only mechanism that I have found that appears to achieve my
-desired result is application of Deitmar Maurer's 2.6.24 patch which,
-after being applied, seems to disable the dynamic nature of the
-bridge's MAC, so that br0 persistently uses the MAC of the first
-interface that was added to the bridge. Here is this patch that seems
-to be working for me:
-
---- linux-2.6.24-openvz.org/net/bridge/br_stp_if.c.org  2008-06-11
-09:15:16.000000000 +0200
-+++ linux-2.6.24-openvz.org/net/bridge/br_stp_if.c      2008-06-11
-09:44:53.000000000 +0200
-@@ -217,10 +217,7 @@
-       struct net_bridge_port *p;
-
-       list_for_each_entry(p, &br->port_list, list) {
--               if (addr == br_mac_zero ||
--                   memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
--                       addr = p->dev->dev_addr;
--
-+               addr = p->dev->dev_addr;
-       }
-
-       if (compare_ether_addr(br->bridge_id.addr, addr))
---------------------------
-
-However, when I look at the 2.6.27 source code, it seems like this
-patch should no longer be needed and an "ifconfig br0 hw ether
-"xx:xx:xx:xx:xx:xx" should be sufficient. Am I doing something wrong?
-
-Thanks for your time,
-
-Daniel Robbins
+Not sure if this is such a good idea since the purpose of this was to fix
+a bonding/bridging interaction, but it breaks STP on bridging.
