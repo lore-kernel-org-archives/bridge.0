@@ -1,15 +1,10 @@
-Date: Thu, 07 May 2009 15:03:07 -0700 (PDT)
-Message-Id: <20090507.150307.195857213.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20090506122645.456d9af4@nehalam>
-References: <20090415082118.GC21342@psychotron.englab.brq.redhat.com>
-	<20090506144624.GI28637@psychotron.englab.brq.redhat.com>
-	<20090506122645.456d9af4@nehalam>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+From: Butorina Lilya <lilybox@yandex.ru>
+MIME-Version: 1.0
+Message-Id: <33821241768475@webmail63.yandex.ru>
+Date: Fri, 08 May 2009 11:41:15 +0400
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: use device address list
- instead of dev_addr (repost)
+Content-Type: text/plain
+Subject: [Bridge] sigsegv from rstpd on ppc
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,13 +13,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: ivecera@redhat.com, fubar@us.ibm.com, jpirko@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mschmidt@redhat.com, dada1@cosmosbay.com, jgarzik@pobox.com, bonding-devel@lists.sourceforge.net
+To: bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Date: Wed, 6 May 2009 12:26:45 -0700
 
-> Won't this all break spanning tree which expects 1:1 relationship
-> between address and port.
+Hi,
 
-Indeed, this could be a fundamental issue with this change.
+I want to run RSTP on ppc_8xx target, kernel 2.6.19.
+Is there some recommendation or restriction from RSTP implementation for this condition?
+
+I have a problem:
+I ran rstpd-daemon on ppc and it dies in one minute after start with SIGSEGV exception. Debuging shows that the reason in 
+epoll_list.c file , epoll_main_loop() function, one of element(ev) of epoll_event[] array:
+
+ev[i].data.ptr->ref_ev = &ev[i];
+
+This code kills rstpd.
+
+Is this known problem? Where should I find solution?
+
+Thanks.
+Liliya.
