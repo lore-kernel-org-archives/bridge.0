@@ -1,16 +1,20 @@
-Message-ID: <4A0565BB.80609@gmail.com>
-Date: Sat, 09 May 2009 13:15:07 +0200
+Message-ID: <4A056646.5050909@gmail.com>
+Date: Sat, 09 May 2009 13:17:26 +0200
 From: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
 MIME-Version: 1.0
-References: <20090428124009.GA26387@kallisti.us>	<2e59e6970904281200u44e3ebbfga0f074dfaa78c1ab@mail.gmail.com>	<49F77248.1050800@gmail.com>	<2e59e6970904281600u42142392vb8e0eb45c4ede15c@mail.gmail.com>	<49F87D4E.4060705@gmail.com>	<20090429162651.GA9455@kallisti.us>	<49F882F9.4010100@gmail.com>	<20090429165329.GA9893@kallisti.us>	<49F8C4C3.9020504@gmail.com>	<2e59e6970904292118u71ff441ft19448f753c1b6dd9@mail.gmail.com>	<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>	<49FA1E28.5020604@free.fr>
-	<49FC4764.3030707@gmail.com>	<49FDD890.1090302@free.fr>
-	<49FF41C4.4090404@gmail.com>	<49FF4AF8.1050801@free.fr>
-	<49FF58EC.2090902@gmail.com>	<49FFDABF.4030500@free.fr>
-	<4A007103.4010501@gmail.com>	<4A00B327.6080705@free.fr>
-	<4A01AE9D.3000504@gmail.com> <4A01C0FB.8040809@navigue.com>
-In-Reply-To: <4A01C0FB.8040809@navigue.com>
-Content-Type: multipart/alternative;
-	boundary="------------030302060201060709040205"
+References: <20090428124009.GA26387@kallisti.us>	<2e59e6970904281200u44e3ebbfga0f074dfaa78c1ab@mail.gmail.com>	<49F77248.1050800@gmail.com>	<2e59e6970904281600u42142392vb8e0eb45c4ede15c@mail.gmail.com>	<49F87D4E.4060705@gmail.com>
+	<20090429162651.GA9455@kallisti.us>	<49F882F9.4010100@gmail.com>
+	<20090429165329.GA9893@kallisti.us>	<49F8C4C3.9020504@gmail.com>	<2e59e6970904292118u71ff441ft19448f753c1b6dd9@mail.gmail.com>
+	<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>
+	<49FA1E28.5020604@free.fr> <49FC4764.3030707@gmail.com>
+	<49FDD890.1090302@free.fr> <49FF41C4.4090404@gmail.com>
+	<49FF4AF8.1050801@free.fr> <49FF58EC.2090902@gmail.com>
+	<49FFDABF.4030500@free.fr> <4A007103.4010501@gmail.com>
+	<4A00B327.6080705@free.fr> <4A01BF38.4080704@gmail.com>
+	<4A01EDEA.8040106@free.fr>
+In-Reply-To: <4A01EDEA.8040106@free.fr>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
  connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -21,120 +25,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jonathan Thibault <jonathan@navigue.com>
+To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
 Cc: bridge@lists.linux-foundation.org
 
-This is a multi-part message in MIME format.
---------------030302060201060709040205
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-
-Hi Jonathan,
-
-I tried it without no security, but no luck.
+Nicolas de Peslo=FCan schreef:
+> bridge-hw and bridge_hw is exactly the same. (No difference between=20
+> underscore and dash). Both will set a variable $IF_BRIDGE_HW, to be=20
+> used by the scripts in /etc/network/if-*.d/*.
+>
+> From interfaces(5) : "Additionally, all options given in an interface=20
+> definition stanza are exported to the environment in upper case with=20
+> "IF_" prepended and with hyphens converted to underscores and=20
+> non-alphanumeric characters discarded."
+Ah, ok, thnx!
+>
+> This is unfortunately what I expected.
+>
+> Now, you can have a last try with your current bridge configuration,=20
+> by upgrading the firmware of your router, ensuring WDS is enabled in=20
+> the router, and hope that the driver of your wifi adapter support=20
+> WDS... By the way, what is the type of your wifi adapter ?
+I had a "chat" with somebody of the support site of Linksys. The WRT54GS=20
+enables WDS. So we can say this is my problem. My wifi adapter is a WMP54G
+>
+> If that fail, I think we have two options :
+>
+> - Try to setup a very special bridge configuration, with some sort of=20
+> masquerading of the MAC address. This would require at least to use=20
+> ebtables to replace the source MAC address in the header (and in the=20
+> payload for ARP) of packets sent on the wifi interface, to route=20
+> packets in the server, to stop the server from sending ICMP redirect=20
+> in the wifi interface and to setup a proxy_dhcp on the server. It=20
+> would be hard to setup, hard to debug and impossible to maintain...=20
+> Probably not a good idea... Funny to try, but not a good target.
+This really sounds like Chinese in my ears :-D
+>
+> - Setup a simple router configuration on the server, using another=20
+> private subnet on location B. Using a simple NAT/Masquerading=20
+> configuration (with iptables), it could be possible to hide the subnet=20
+> of location B from location A, but still allow access to the printer=20
+> of location B from location A and access to location A and to Internet=20
+> from location B. If you don't have a really good reason to stick to=20
+> bridge (like using a non-IP protocol), I suggest you try this.
+I was thinking on this situation too. But how will be somebody in subnet=20
+A able to reach someone of subnet B? We are gonna have to change the=20
+routing tables on the client side too?
 
 Jochen
-
-
-
-Jonathan Thibault schreef:
-> On a wrt54gs, wds is probably enabled by default when applicable to be co=
-mpatible with Linksys' WET hardware.  Many vendors do not support mixing wd=
-s with WPA however, limiting you to WEP for encryption.
->
-> I advise you disable encryption alltogether first to see if you can get b=
-ridging to work before you try with encryption.
->
-> Jochen Hebbrecht wrote:
->  =20
->> Nicolas de Peslo=FCan schreef:
->>    =20
->>> That beeing said, Jonathan might be right about the need for WDS...=20
->>> Can you have a look at the AP configuration, searching for a WDS setup =
-
->>> ? Because if it works on Windows, without WDS (if disabled or=20
->>> unavailable on the AP), then we can assume that WDS is not required,=20
->>> even on Linux (the wifi interface is able to receive traffic for=20
->>> another MAC).
->>>
->>> If the AP is WDS enabled, then... WDS might be necessary... and=20
->>> nothing can be done if the driver for you wifi interface does not=20
->>> support it...
->>>      =20
->> http://www.linksysinfo.org/forums/showthread.php?t=3D47118
->>
->> I'm having the WRT54GS router, and the explanation above tells me how to=
-=20
->> configre WDS.
->> However, when I look in my admin panel, I cannot find a tab: "WDS". I=20
->> guess my firmware is pretty old :-)
->> _______________________________________________
->> Bridge mailing list
->> Bridge@lists.linux-foundation.org
->> https://lists.linux-foundation.org/mailman/listinfo/bridge
->>    =20
->
->  =20
-
---------------030302060201060709040205
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-  <title></title>
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<font size="-1"><font face="Verdana">Hi Jonathan,<br>
-<br>
-I tried it without no security, but no luck.<br>
-<br>
-Jochen<br>
-<br>
-<br>
-</font></font><br>
-Jonathan Thibault schreef:
-<blockquote cite="mid:4A01C0FB.8040809@navigue.com" type="cite">
-  <pre wrap="">On a wrt54gs, wds is probably enabled by default when applicable to be compatible with Linksys' WET hardware.  Many vendors do not support mixing wds with WPA however, limiting you to WEP for encryption.
-
-I advise you disable encryption alltogether first to see if you can get bridging to work before you try with encryption.
-
-Jochen Hebbrecht wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">Nicolas de Peslo&uuml;an schreef:
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">That beeing said, Jonathan might be right about the need for WDS... 
-Can you have a look at the AP configuration, searching for a WDS setup 
-? Because if it works on Windows, without WDS (if disabled or 
-unavailable on the AP), then we can assume that WDS is not required, 
-even on Linux (the wifi interface is able to receive traffic for 
-another MAC).
-
-If the AP is WDS enabled, then... WDS might be necessary... and 
-nothing can be done if the driver for you wifi interface does not 
-support it...
-      </pre>
-    </blockquote>
-    <pre wrap=""><a class="moz-txt-link-freetext" href="http://www.linksysinfo.org/forums/showthread.php?t=47118">http://www.linksysinfo.org/forums/showthread.php?t=47118</a>
-
-I'm having the WRT54GS router, and the explanation above tells me how to 
-configre WDS.
-However, when I look in my admin panel, I cannot find a tab: "WDS". I 
-guess my firmware is pretty old :-)
-_______________________________________________
-Bridge mailing list
-<a class="moz-txt-link-abbreviated" href="mailto:Bridge@lists.linux-foundation.org">Bridge@lists.linux-foundation.org</a>
-<a class="moz-txt-link-freetext" href="https://lists.linux-foundation.org/mailman/listinfo/bridge">https://lists.linux-foundation.org/mailman/listinfo/bridge</a>
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-  </pre>
-</blockquote>
-</body>
-</html>
-
---------------030302060201060709040205--
