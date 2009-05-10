@@ -1,9 +1,22 @@
+Message-ID: <4A06F520.3060304@free.fr>
+Date: Sun, 10 May 2009 17:39:12 +0200
+From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-Date: Sun, 10 May 2009 14:37:56 +0100
-Message-ID: <a62fd16c0905100637n1107c9degd8212e9e649cba4e@mail.gmail.com>
-From: Steven Williamson <steven43126@gmail.com>
-Content-Type: multipart/alternative; boundary=0016364c7bc325266004698ef811
-Subject: [Bridge] Linux Bridge Forward STP?
+References: <20090428124009.GA26387@kallisti.us>	<2e59e6970904281200u44e3ebbfga0f074dfaa78c1ab@mail.gmail.com>	<49F77248.1050800@gmail.com>	<2e59e6970904281600u42142392vb8e0eb45c4ede15c@mail.gmail.com>	<49F87D4E.4060705@gmail.com>
+	<20090429162651.GA9455@kallisti.us>	<49F882F9.4010100@gmail.com>
+	<20090429165329.GA9893@kallisti.us>	<49F8C4C3.9020504@gmail.com>	<2e59e6970904292118u71ff441ft19448f753c1b6dd9@mail.gmail.com>
+	<db99f77d0904292330n4c460ccbv45e60f06bfa49c4@mail.gmail.com>
+	<49FA1E28.5020604@free.fr> <49FC4764.3030707@gmail.com>
+	<49FDD890.1090302@free.fr> <49FF41C4.4090404@gmail.com>
+	<49FF4AF8.1050801@free.fr> <49FF58EC.2090902@gmail.com>
+	<49FFDABF.4030500@free.fr> <4A007103.4010501@gmail.com>
+	<4A00B327.6080705@free.fr> <4A01BF38.4080704@gmail.com>
+	<4A01EDEA.8040106@free.fr> <4A056646.5050909@gmail.com>
+In-Reply-To: <4A056646.5050909@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Ubuntu: network bridging between wireless and wired
+ connection fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,47 +25,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Jochen Hebbrecht <jochenhebbrecht@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
---0016364c7bc325266004698ef811
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Jochen Hebbrecht wrote:
+> I had a "chat" with somebody of the support site of Linksys. The WRT54GS 
+> enables WDS. So we can say this is my problem. My wifi adapter is a WMP54G
 
-Hi,
+OK. Until the driver for this adapter support WDS, it would be 
+impossible to bridge between Ethernet and Wifi.
 
-If I have 2 switches already using RSTP with only a single link between
-them. Then add a redundant link using a Linux bridge with STP turned off.
-Will the Linux bridging code forward the RSTP BPDU's so the other switches
-realize there is a new path to the root bridge, and hopefully block one of
-the ports ?
+>> If that fail, I think we have two options :
+>>
+>> - Try to setup a very special bridge configuration, with some sort of 
+>> masquerading of the MAC address. This would require at least to use 
+>> ebtables to replace the source MAC address in the header (and in the 
+>> payload for ARP) of packets sent on the wifi interface, to route 
+>> packets in the server, to stop the server from sending ICMP redirect 
+>> in the wifi interface and to setup a proxy_dhcp on the server. It 
+>> would be hard to setup, hard to debug and impossible to maintain... 
+>> Probably not a good idea... Funny to try, but not a good target.
+> This really sounds like Chinese in my ears :-D
 
+It is ! :-D
 
-The exact secnario is an ethernet segment spanning 2 datacenter's via a
-fibre link. We'd like to add redundancy using a linux bridge (bridging to a
-VPN tap device and routing over the net) but have since discoverd the Linux
-code does not support RSTP yet.
+ From a theoretical point of view, it is possible to build such a setup, 
+but really, you should keep away from that. I didn't tested it and won't 
+have enough time to support you on this way.
 
-p.s
+>> - Setup a simple router configuration on the server, using another 
+>> private subnet on location B. Using a simple NAT/Masquerading 
+>> configuration (with iptables), it could be possible to hide the subnet 
+>> of location B from location A, but still allow access to the printer 
+>> of location B from location A and access to location A and to Internet 
+>> from location B. If you don't have a really good reason to stick to 
+>> bridge (like using a non-IP protocol), I suggest you try this.
 
-Many thanks to the developers of the Linux briding code!
+> I was thinking on this situation too. But how will be somebody in subnet 
+> A able to reach someone of subnet B? We are gonna have to change the 
+> routing tables on the client side too?
 
-Regards
-Steven Williamson.
+Yes, you are right.
 
---0016364c7bc325266004698ef811
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+If the network you are talking about is your home network (not a company 
+network), why don't you create a different subnet for both location 
+(let's say 192.168.0.0/24 and 192.168.1.0/24) ? You just need to add a 
+static route to the subnet of location B, through UBUNTU SERVER, in the 
+main router at location A. In location B, you need to setup every hosts 
+to use UBUNTU SERVER as the default route.
 
-Hi,<br><br>If I have 2 switches already using RSTP with only a single link =
-between them. Then add a redundant link using a Linux bridge with STP turne=
-d off. Will the Linux bridging code forward the RSTP BPDU&#39;s so the othe=
-r switches realize there is a new path to the root bridge, and hopefully bl=
-ock one of the ports ?<br>
-<br><br>The exact secnario is an ethernet segment spanning 2 datacenter&#39=
-;s via a fibre link. We&#39;d like to add redundancy using a linux bridge (=
-bridging to a VPN tap device and routing over the net) but have since disco=
-verd the Linux code does not support RSTP yet. <br>
-<br>p.s<br><br>Many thanks to the developers of the Linux briding code!<br>=
-<br>Regards<br>Steven Williamson.<br><br><br><br><br><br><br>
+If you don't have access to the routing table of the main router in 
+location A, you can try to run a ripd daemon in UBUNTU SERVER, to inform 
+the main router of location A that UBUNTU SERVER is a router to the 
+subnet of location B. You can find ripd in the quagga package, for 
+example. (The documentation is in the quagga-doc package).
 
---0016364c7bc325266004698ef811--
+It would be by far the simplest way to achieve your goal.
+
+	Nicolas.
