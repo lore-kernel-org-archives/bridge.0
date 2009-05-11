@@ -1,10 +1,8 @@
-MIME-Version: 1.0
-Date: Mon, 11 May 2009 10:04:29 -0400
-Message-ID: <e6e2252e0905110704o68fcf603v3a4e563d3cf2093b@mail.gmail.com>
-From: Andrew Watts <systemstalker@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Configuring a PPP Half Bridge/IP Passthru
+Sender: Cyrill Gorcunov <gorcunov@gmail.com>
+Message-Id: <20090511114639.440944109@openvz.org>
+Date: Mon, 11 May 2009 15:46:39 +0400
+From: Cyrill Gorcunov <gorcunov@openvz.org>
+Subject: [Bridge] [RFC 0/5] bridge - introduce via_phys_dev feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,23 +11,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, xemul@openvz.org
 
 Hi,
 
-Im trying to create a PPP Half-Bridge/ZIPB/IP-Passthru so that I can
-pass through my public IP address to a device connected to the
-Ethernet interface of a device that uses a 3G modem for connectivity.
-This product exists but I want to do it with my own hardware.  I have
-an NSLU2 that I have connected to a 3G cellular into the USB port, I
-then want to take the IP address from the resulting PPP and give it to
-an embedded device so that it has a publicly routable IP address that
-can be accessed directly.  Cradlepoint has such a device, I want to do
-the exact same thing just with Linux :).  The link below explains what
-I am try to do as well including the product in question.  I cant
-bridge a PPP interface to an Ethernet interface, if I had to do that
-where would I start to make modifications to the kernel?
+here is RFC for new via_phys_dev bridge feature.
+In short -- it allows to use some bridge port as
+bridge itself with already configured routing table.
 
-http://store.drwireless.com/crceippabrad.html
+More details with example you may found in patches.
 
-Anyone have any Idea how I might do that?
+Please review. Any (including _complains_) comments are
+highly appreciated!
+
+The series is on top of current -net-next-2.6
+
+	| commit ed9b58bc443a1210b5be1ded6421b17e015bf985
+	| Author Richard Genoud <richard.genoud@gmail.com>
+	| Date Sat May 9 06:59:16 2009 +0000
+
+Cyrill
