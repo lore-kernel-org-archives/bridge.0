@@ -1,14 +1,13 @@
+In-Reply-To: <OFD8A6DCB5.C299BC0C-ONC12575B2.006169DD-C12575B2.0061B705@LocalDomain>
+References: <OF6C9DD85E.5F51CD2D-ONC12575B0.002E85F9-C12575B0.002F0604@transmode.se>
+	<20090508090226.70d23727@nehalam>
+	<OFD8A6DCB5.C299BC0C-ONC12575B2.006169DD-C12575B2.0061B705@LocalDomain>
+Message-ID: <OFE9F41029.741448FE-ONC12575B4.003524B7-C12575B4.0035670C@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Tue, 12 May 2009 11:43:17 +0200
 MIME-Version: 1.0
-In-Reply-To: <aa79d98a0905112319k6bc19ebk60a6458165b8c0a1@mail.gmail.com>
-References: <20090511114639.440944109@openvz.org>
-	<de7adc5e0905112230r60254113t6b31d8114d141be@mail.gmail.com>
-	<aa79d98a0905112319k6bc19ebk60a6458165b8c0a1@mail.gmail.com>
-Date: Tue, 12 May 2009 01:02:01 -0600
-Message-ID: <de7adc5e0905120002o7f19a1eepe0397d698c08ce97@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [RFC 0/5] bridge - introduce via_phys_dev feature
+Content-type: text/plain; charset=US-ASCII
+Subject: Re: [Bridge] brigde does not relay BPDU multicast pkgs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,88 +16,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cyrill Gorcunov <gorcunov@openvz.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, xemul@openvz.org
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-Is this functionality useful for OpenVZ? Do people need the ability to
-do this? Why/when is it necessary for me to be able to add eth0 to a
-bridge remotely?
-
-I don't quite (yet) understand the usefulness of this feature. You
-would still be very limited in what you can change with the network if
-you are remote, right? That's why I don't quite understand the benefit
-of this feature. How are you planning to use it? When I set up my
-OpenVZ systems, I like to get the overall network/bridge configuration
-perfect so that I don't need to make major changes when I am remote.
-
-Again, I am not an expert so I am asking purely for my own curiosity.
-I support the idea of making networking more flexible, but I do not
-see this particular step addressed by the patch as a common need. That
-may be due to my own lack of understanding.
-
-I am a big fan of OpenVZ though, so if it helps OpenVZ in some way,
-I'd like to know about it :)
-
--Daniel
-
-On Tue, May 12, 2009 at 12:19 AM, Cyrill Gorcunov <gorcunov@openvz.org> wro=
-te:
-> On 5/12/09, Daniel Robbins <drobbins@funtoo.org> wrote:
->> Note: I am not a bridge guru but I'm interested in understanding this
->> new functionality better. What is the larger benefit of this feature?
->> Does this make it possible to configure a bridge setup on a remote
->> system without losing connectivity? I can't do many kinds of network
->> changes remotely without risking losing connectivity (ie. changing IP
->> address, messing with routing, etc. -- it would be likely that you'd
->> lose network connectivity :) ) Therefore, I don't know if this is a
->> benefit unless it is needed for a particular application. Is this
->> useful for OpenVZ in some way?
->>
->> Regards,
->>
->> Daniel
->>
-> Hi Daniel,
+Joakim Tjernlund/Transmode wrote on 10/05/2009 19:47:19:
 >
-> The idea was exactly you described, ie have an ability to configure
-> remote system as bridge. There was an example how to use it in the
-> pach (last patch in series). Say we have remote system with eth0 set
-> up and running. So we may sign in into this system remotely. If we
-> have to confugure bridge on such a system (that even eth0 has to be
-> the bridge port) we connect to this system via eth0 then add bridge
-> br0 and run it via ifconfig br0 up, turn on via_phys_dev feature and
-> evetually add eth0 as a bridge port. We will have small delay in
-> session until port get forwarding state but after we could continue
-> work remotely on the system without reconfiguring routing table. Even
-> ssh session being used during configuration will continue operate. So
-> except a delay no session interrupt. I hope, need a good testing ;)
+> Stephen Hemminger <shemminger@vyatta.com> wrote on 08/05/2009 18:02:26:
 >
->> On Mon, May 11, 2009 at 5:46 AM, Cyrill Gorcunov <gorcunov@openvz.org>
->> wrote:
->>> Hi,
->>>
->>> here is RFC for new via_phys_dev bridge feature.
->>> In short -- it allows to use some bridge port as
->>> bridge itself with already configured routing table.
->>>
->>> More details with example you may found in patches.
->>>
->>> Please review. Any (including _complains_) comments are
->>> highly appreciated!
->>>
->>> The series is on top of current -net-next-2.6
->>>
->>> =C2=A0 =C2=A0 =C2=A0 =C2=A0| commit ed9b58bc443a1210b5be1ded6421b17e015=
-bf985
->>> =C2=A0 =C2=A0 =C2=A0 =C2=A0| Author Richard Genoud <richard.genoud@gmai=
-l.com>
->>> =C2=A0 =C2=A0 =C2=A0 =C2=A0| Date Sat May 9 06:59:16 2009 +0000
->>>
->>> Cyrill
->>> _______________________________________________
->>> Bridge mailing list
->>> Bridge@lists.linux-foundation.org
->>> https://lists.linux-foundation.org/mailman/listinfo/bridge
->>>
->>
+> > On Fri, 8 May 2009 10:33:37 +0200
+> > Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
+> >
+> > >
+> > > Hi List
+> > >
+> > > We have noticed that when STP is off in the linux bridge, it won't
+> > > relay STP pkts received from other bridges.
+> > > This feels like a bug(a bad one too). I hope this isn't
+> > > intentional behaviour?
+> > >
+> > >  Jocke
+> > >
+> > > _______________________________________________
+> > > Bridge mailing list
+> > > Bridge@lists.linux-foundation.org
+> > > https://lists.linux-foundation.org/mailman/listinfo/bridge
+> >
+> > It is a debatable whether this is correct behaviour.
+> > My current opinion is that it needs to forward STP packets if
+> > STP is off. This would allow for loop detection by other bridges
+> > doing STP.
 >
+> Exactly, I had a look at the bride code and it wasn't obvious
+> too me where to add the code to make this happen. Any pointers?
+
+Looking into this I got a question:
+Should the bridge forward the whole bridge multicast group except PAUSE
+or only the STP multicast address?
+
+ Jocke
+
