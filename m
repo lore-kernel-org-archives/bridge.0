@@ -1,17 +1,7 @@
-From: Ross Vandegrift <ross@kallisti.us>
-Date: Tue, 12 May 2009 09:52:33 -0400
-Message-ID: <20090512135233.GD20371@kallisti.us>
-References: <OF6C9DD85E.5F51CD2D-ONC12575B0.002E85F9-C12575B0.002F0604@transmode.se>
-	<20090508090226.70d23727@nehalam>
-	<OFD8A6DCB5.C299BC0C-ONC12575B2.006169DD-C12575B2.0061B705@LocalDomain>
-	<OFE9F41029.741448FE-ONC12575B4.003524B7-C12575B4.0035670C@transmode.se>
-	<20090512130622.GB20371@kallisti.us>
-	<2e59e6970905120644t71674e2cl8e565912f17e6c79@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2e59e6970905120644t71674e2cl8e565912f17e6c79@mail.gmail.com>
-Subject: Re: [Bridge] brigde does not relay BPDU multicast pkgs
+From: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date: Tue, 12 May 2009 16:02:14 +0200
+Message-Id: <1242136934-8108-1-git-send-email-Joakim.Tjernlund@transmode.se>
+Subject: [Bridge] [PATCH] bridge: relay bridge multicast pkgs if !STP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,25 +10,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Joakim Tjernlund <joakim.tjernlund@transmode.se>
+To: bridge@lists.linux-foundation.org
+Cc: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
 
-On Tue, May 12, 2009 at 08:44:44AM -0500, richardvoigt@gmail.com wrote:
-> > If you're implementing that, it should only forward the STP address.
-> >
-> > 802.1X and LACP will be very suprised (and very broken) when their
-> > PDUs start being forwarded to entities on other bridges...
-> 
-> They break when there's a simple hub on the network?
+Currently the bridge drops all STP pkgs when
+STP is off. This makes the bridge relay the Bridge Group
+multicast address, 01:80:c2:00:00:00, when STP is off.
+This allows for loop detection by other bridges doing STP.
 
-Correct.  Both technologies depend on being run over point-to-point
-ethernet links - they are communications between entities that manage
-individual bridge port roles.
+Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+---
+ net/bridge/br_input.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
 
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 30b8877..8197823 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -112,6 +112,17 @@ static inline int is_link_local(const unsigned char *dest)
+ 	return ((a[0] ^ b[0]) | (a[1] ^ b[1]) | ((a[2] ^ b[2]) & m)) == 0;
+ }
+ 
++/* Does address match the Bride Group multicast address.
++ * 01:80:c2:00:00:00
++ */
++static inline int is_bridge_group(const unsigned char *dest)
++{
++	__be16 *a = (__be16 *)dest;
++	static const __be16 *b = (const __be16 *)br_group_address;
++
++	return ((a[0] ^ b[0]) | (a[1] ^ b[1]) | (a[2] ^ b[2])) == 0;
++}
++
+ /*
+  * Called via br_handle_frame_hook.
+  * Return NULL if skb is handled
+@@ -137,7 +148,8 @@ struct sk_buff *br_handle_frame(struct net_bridge_port *p, struct sk_buff *skb)
+ 		if (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
+ 			    NULL, br_handle_local_finish))
+ 			return NULL;	/* frame consumed by filter */
+-		else
++		/* Relay Bridge Group address is STP is off */
++		if (!(p->br->stp_enabled == BR_NO_STP && is_bridge_group(dest)))
+ 			return skb;	/* continue processing */
+ 	}
+ 
 -- 
-Ross Vandegrift
-ross@kallisti.us
+1.6.2.3
 
-"If the fight gets hot, the songs get hotter.  If the going gets tough,
-the songs get tougher."
-	--Woody Guthrie
