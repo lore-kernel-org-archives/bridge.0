@@ -1,14 +1,12 @@
-Date: Mon, 11 May 2009 17:01:15 +0400
-From: Cyrill Gorcunov <gorcunov@gmail.com>
-Message-ID: <20090511130115.GG4624@lenovo>
-References: <20090511114639.440944109@openvz.org>
-	<20090511125351.432336750@openvz.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20090511125351.432336750@openvz.org>
-Subject: Re: [Bridge] [RFC 5/5] net: bridge - handle via_phys_dev feature on
-	a	bridge level
+In-Reply-To: <20090511114639.440944109@openvz.org>
+References: <20090511114639.440944109@openvz.org>
+Date: Mon, 11 May 2009 23:30:33 -0600
+Message-ID: <de7adc5e0905112230r60254113t6b31d8114d141be@mail.gmail.com>
+From: Daniel Robbins <drobbins@funtoo.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [RFC 0/5] bridge - introduce via_phys_dev feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,182 +15,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>, davem@davemloft.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, xemul@openvz.org
+To: Cyrill Gorcunov <gorcunov@openvz.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, xemul@openvz.org
 
-quilt didn't get refreshed copy. here is an updated
-one. sorry for inconvenience.
+Note: I am not a bridge guru but I'm interested in understanding this
+new functionality better. What is the larger benefit of this feature?
+Does this make it possible to configure a bridge setup on a remote
+system without losing connectivity? I can't do many kinds of network
+changes remotely without risking losing connectivity (ie. changing IP
+address, messing with routing, etc. -- it would be likely that you'd
+lose network connectivity :) ) Therefore, I don't know if this is a
+benefit unless it is needed for a particular application. Is this
+useful for OpenVZ in some way?
 
-	-- Cyrill
----
-From: Cyrill Gorcunov <gorcunov@gmail.com>
-Subject: [RFC 5/5] net: bridge - handle via_phys_dev feature on a bridge level
+Regards,
 
-The idea is to use existing routing table instead of
-generating new one if the bridge is to be created.
+Daniel
 
-This allow to login on remote machine then create bridge
-there and continue working on this machine without
-session interrupted (though delay while bridge is learning
-still present).
-
-To achive this we introduce via_phys_dev feature which
-force to work some real NIC as bridge.
-
-How to use it:
- - Create a new bridge set via_phys_dev in sysfs entry for the bridge
- - Add a bridge port. This port will behave like it's a bridge
-   itself, i.e. a packet recieved from network will be handled the same
-   way if it was received by bridge device. Any write on this
-   device from OS behaves like it is being written to bridge device
-   itself too.
-
-Typical session looks like
-
-| ssh@10.10.0.160$ brctl addbr br0
-| ssh@10.10.0.160$ ifconfig br0 up
-| ssh@10.10.0.160$ echo 1 > /sys/class/net/bridge/br0/via_phys_dev
-| ssh@10.10.0.160$ brctl addif br0 eth0
-| (...waiting a bit...)
-| ssh@10.10.0.160$
-
-Which implies that eth0 is already up and running.
-
-Signed-off-by: Cyrill Gorcunov <gorcunov@openvz.org>
----
- net/bridge/br.c         |    2 ++
- net/bridge/br_device.c  |   37 +++++++++++++++++++++++++++++++++++++
- net/bridge/br_forward.c |    1 +
- net/bridge/br_input.c   |   14 +++++++++++++-
- net/bridge/br_private.h |    1 +
- 5 files changed, 54 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.git/net/bridge/br.c
-=====================================================================
---- linux-2.6.git.orig/net/bridge/br.c
-+++ linux-2.6.git/net/bridge/br.c
-@@ -64,6 +64,7 @@ static int __init br_init(void)
- 
- 	brioctl_set(br_ioctl_deviceless_stub);
- 	br_handle_frame_hook = br_handle_frame;
-+	br_hard_xmit_hook = br_hard_xmit;
- 
- 	br_fdb_get_hook = br_fdb_get;
- 	br_fdb_put_hook = br_fdb_put;
-@@ -99,6 +100,7 @@ static void __exit br_deinit(void)
- 	br_fdb_put_hook = NULL;
- 
- 	br_handle_frame_hook = NULL;
-+	br_hard_xmit_hook = NULL;
- 	br_fdb_fini();
- }
- 
-Index: linux-2.6.git/net/bridge/br_device.c
-=====================================================================
---- linux-2.6.git.orig/net/bridge/br_device.c
-+++ linux-2.6.git/net/bridge/br_device.c
-@@ -32,6 +32,8 @@ int br_dev_xmit(struct sk_buff *skb, str
- 	skb_reset_mac_header(skb);
- 	skb_pull(skb, ETH_HLEN);
- 
-+	skb->br_seen = 1;
-+
- 	if (is_multicast_ether_addr(dest))
- 		br_flood_deliver(br, skb);
- 	else if ((dst = __br_fdb_get(br, dest)) != NULL)
-@@ -42,6 +44,41 @@ int br_dev_xmit(struct sk_buff *skb, str
- 	return 0;
- }
- 
-+int br_hard_xmit(struct sk_buff *skb, struct net_bridge_port *port)
-+{
-+	struct net_bridge *br = port->br;
-+	const unsigned char *dest = skb->data;
-+	struct net_bridge_fdb_entry *dst;
-+	struct sk_buff *skb2;
-+
-+	/* forward via master device only */
-+	if (!br->via_phys_dev || br->master_dev != port->dev)
-+		return 0;
-+
-+	skb2 = skb_clone(skb, GFP_ATOMIC);
-+	if (!skb2) {
-+		br->dev->stats.tx_dropped++;
-+		return 0;
-+	}
-+
-+	br->dev->stats.tx_packets++;
-+	br->dev->stats.tx_bytes += skb2->len;
-+
-+	skb_reset_mac_header(skb2);
-+	skb_pull(skb2, ETH_HLEN);
-+
-+	skb2->br_seen = 1;
-+
-+	if (is_multicast_ether_addr(dest))
-+		br_flood_deliver(br, skb2);
-+	else if ((dst = __br_fdb_get(br, dest)) != NULL)
-+		br_deliver(dst->dst, skb2);
-+	else
-+		br_flood_deliver(br, skb2);
-+
-+	return 0;
-+}
-+
- static int br_dev_open(struct net_device *dev)
- {
- 	struct net_bridge *br = netdev_priv(dev);
-Index: linux-2.6.git/net/bridge/br_forward.c
-=====================================================================
---- linux-2.6.git.orig/net/bridge/br_forward.c
-+++ linux-2.6.git/net/bridge/br_forward.c
-@@ -148,5 +148,6 @@ void br_flood_deliver(struct net_bridge 
- /* called under bridge lock */
- void br_flood_forward(struct net_bridge *br, struct sk_buff *skb)
- {
-+	skb->br_seen = 1;
- 	br_flood(br, skb, __br_forward);
- }
-Index: linux-2.6.git/net/bridge/br_input.c
-=====================================================================
---- linux-2.6.git.orig/net/bridge/br_input.c
-+++ linux-2.6.git/net/bridge/br_input.c
-@@ -28,7 +28,15 @@ static void br_pass_frame_up(struct net_
- 	brdev->stats.rx_bytes += skb->len;
- 
- 	indev = skb->dev;
--	skb->dev = brdev;
-+
-+	if (br->via_phys_dev) {
-+		skb->br_seen = 1;
-+		if (likely(br->master_dev))
-+			skb->dev = br->master_dev;
-+		else
-+			skb->dev = brdev;
-+	} else
-+		skb->dev = brdev;
- 
- 	NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, indev, NULL,
- 		netif_receive_skb);
-@@ -151,6 +159,10 @@ struct sk_buff *br_handle_frame(struct n
- 		}
- 		/* fall through */
- 	case BR_STATE_LEARNING:
-+		/* if we saw this skb earlier just pass it up */
-+		if (skb->br_seen)
-+			return skb;
-+
- 		if (!compare_ether_addr(p->br->dev->dev_addr, dest))
- 			skb->pkt_type = PACKET_HOST;
- 
-Index: linux-2.6.git/net/bridge/br_private.h
-=====================================================================
---- linux-2.6.git.orig/net/bridge/br_private.h
-+++ linux-2.6.git/net/bridge/br_private.h
-@@ -144,6 +144,7 @@ static inline int br_is_root_bridge(cons
- /* br_device.c */
- extern void br_dev_setup(struct net_device *dev);
- extern int br_dev_xmit(struct sk_buff *skb, struct net_device *dev);
-+extern int br_hard_xmit(struct sk_buff *skb, struct net_bridge_port *port);
- 
- /* br_fdb.c */
- extern int br_fdb_init(void);
+On Mon, May 11, 2009 at 5:46 AM, Cyrill Gorcunov <gorcunov@openvz.org> wrot=
+e:
+> Hi,
+>
+> here is RFC for new via_phys_dev bridge feature.
+> In short -- it allows to use some bridge port as
+> bridge itself with already configured routing table.
+>
+> More details with example you may found in patches.
+>
+> Please review. Any (including _complains_) comments are
+> highly appreciated!
+>
+> The series is on top of current -net-next-2.6
+>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0| commit ed9b58bc443a1210b5be1ded6421b17e015bf=
+985
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0| Author Richard Genoud <richard.genoud@gmail.=
+com>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0| Date Sat May 9 06:59:16 2009 +0000
+>
+> Cyrill
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
+>
