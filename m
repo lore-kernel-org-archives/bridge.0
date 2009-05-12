@@ -1,12 +1,15 @@
-Date: Tue, 12 May 2009 08:26:52 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20090512082652.2dd6f2f8@nehalam>
-In-Reply-To: <1242136934-8108-1-git-send-email-Joakim.Tjernlund@transmode.se>
-References: <1242136934-8108-1-git-send-email-Joakim.Tjernlund@transmode.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: relay bridge multicast pkgs if !STP
+Date: Tue, 12 May 2009 20:24:32 +0400
+From: Cyrill Gorcunov <gorcunov@gmail.com>
+Message-ID: <20090512162432.GA12820@lenovo>
+References: <20090511114639.440944109@openvz.org>
+	<de7adc5e0905112230r60254113t6b31d8114d141be@mail.gmail.com>
+	<aa79d98a0905112319k6bc19ebk60a6458165b8c0a1@mail.gmail.com>
+	<de7adc5e0905120002o7f19a1eepe0397d698c08ce97@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <de7adc5e0905120002o7f19a1eepe0397d698c08ce97@mail.gmail.com>
+Subject: Re: [Bridge] [RFC 0/5] bridge - introduce via_phys_dev feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,57 +18,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
-Cc: bridge@lists.linux-foundation.org, Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+To: Daniel Robbins <drobbins@funtoo.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, xemul@openvz.org
 
-On Tue, 12 May 2009 16:02:14 +0200
-Joakim Tjernlund <Joakim.Tjernlund@transmode.se> wrote:
+[Daniel Robbins - Tue, May 12, 2009 at 01:02:01AM -0600]
+|
+| Is this functionality useful for OpenVZ? Do people need the ability to
+| do this? Why/when is it necessary for me to be able to add eth0 to a
+| bridge remotely?
+| 
 
-> Currently the bridge drops all STP pkgs when
-> STP is off. This makes the bridge relay the Bridge Group
-> multicast address, 01:80:c2:00:00:00, when STP is off.
-> This allows for loop detection by other bridges doing STP.
-> 
-> Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
-> ---
->  net/bridge/br_input.c |   14 +++++++++++++-
->  1 files changed, 13 insertions(+), 1 deletions(-)
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 30b8877..8197823 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -112,6 +112,17 @@ static inline int is_link_local(const unsigned char *dest)
->  	return ((a[0] ^ b[0]) | (a[1] ^ b[1]) | ((a[2] ^ b[2]) & m)) == 0;
->  }
->  
-> +/* Does address match the Bride Group multicast address.
-> + * 01:80:c2:00:00:00
-> + */
-> +static inline int is_bridge_group(const unsigned char *dest)
-> +{
-> +	__be16 *a = (__be16 *)dest;
-> +	static const __be16 *b = (const __be16 *)br_group_address;
-> +
-> +	return ((a[0] ^ b[0]) | (a[1] ^ b[1]) | (a[2] ^ b[2])) == 0;
-> +}
-> +
->  /*
->   * Called via br_handle_frame_hook.
->   * Return NULL if skb is handled
-> @@ -137,7 +148,8 @@ struct sk_buff *br_handle_frame(struct net_bridge_port *p, struct sk_buff *skb)
->  		if (NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
->  			    NULL, br_handle_local_finish))
->  			return NULL;	/* frame consumed by filter */
-> -		else
-> +		/* Relay Bridge Group address is STP is off */
-> +		if (!(p->br->stp_enabled == BR_NO_STP && is_bridge_group(dest)))
->  			return skb;	/* continue processing */
->  	}
->  
+As far as I know (fix me if I'm wrong) you're not able to configure
+bridge remotely from the scratch via active port (say eth0) without
+interrupting the session and recreating routing table. Of course you
+could have a script which will do all work for you. (or you could
+be having a machine with 3/4/5/10 NIC's and one of them could be
+just reserved to be used remote access only with proper routing
+table, etc...). But in case if all nics are to be used as bridge
+ports and you still need to access such a machine remotely i believe
+via_phys_dev could be our friend :)
 
-First, you should have used compare_ether_addr.
-Second, it needs to still obey state rules on port, so the return skb
-should fall through to the switch statement.
+So, Daniel, i think the right question is -- do I ever need to
+configure/setup bridge remotely? I suppose yes, it happens.
+(at least I had a machine with lack of input device except a few
+ NICs :-)
 
--- 
+|
+| I don't quite (yet) understand the usefulness of this feature. You
+| would still be very limited in what you can change with the network if
+| you are remote, right? That's why I don't quite understand the benefit
+| of this feature. How are you planning to use it? When I set up my
+| OpenVZ systems, I like to get the overall network/bridge configuration
+| perfect so that I don't need to make major changes when I am remote.
+|
+
+This feature already was in OpenVZ 2.6.24 kernel. I'm more intiresting in
+usefulness of this feature for the mainline. (in short -- we use it for bridging
+VEs with eth0 as a master device so all works without needing to
+reconfigure routing table). Moreover, since bridge already support
+namespacing the feature could be usefull for lxc as well (though
+didn't check to be fair).
+
+| 
+| Again, I am not an expert so I am asking purely for my own curiosity.
+| I support the idea of making networking more flexible, but I do not
+| see this particular step addressed by the patch as a common need. That
+| may be due to my own lack of understanding.
+| 
+
+That is why it's RFC so people could decide should it be included
+into mainline or not. Worth it so or not.
+
+|
+| I am a big fan of OpenVZ though, so if it helps OpenVZ in some way,
+| I'd like to know about it :)
+|
+
+Yes it helps to bridge VE's without reconstructing routing table
+on HW node.
+
+| 
+| -Daniel
+| 
+ 
+	-- Cyrill
