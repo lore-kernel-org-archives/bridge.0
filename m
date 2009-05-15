@@ -1,16 +1,12 @@
-From: Uli Luckas <u.luckas@road.de>
-Date: Fri, 15 May 2009 12:08:33 +0200
-References: <1242298904-31325-1-git-send-email-ian.campbell@citrix.com>
-	<20090514083523.643b640b@nehalam>
-In-Reply-To: <20090514083523.643b640b@nehalam>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Date: Fri, 15 May 2009 09:11:58 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20090515091158.55090cd0@nehalam>
+In-Reply-To: <20090515091013.44b624d7@nehalam>
+References: <20090515091013.44b624d7@nehalam>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200905151208.33915.u.luckas@road.de>
-Subject: Re: [Bridge] [PATCH] BRIDGE: Do not suppress FDB learning after
-	topology change when forward_delay is 0.
+Subject: [Bridge] [PATCH 2/2] bridge: fix initial packet flood if !STP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,72 +15,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: Ian Campbell <ian.campbell@citrix.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
-On Thursday, 14. May 2009, Stephen Hemminger wrote:
-> On Thu, 14 May 2009 12:01:44 +0100
-> Ian Campbell <ian.campbell@citrix.com> wrote:
-> 
-> > I recently noticed that my bridges were flooding traffic for a period of time
-> > after a topology change. These bridges are part of a Xen host and therefore
-> > have spanning tree disabled and forward_delay of zero. In this situation there
-> > is no reason not to begin relearning immediately after a topology change.
-> > 
-> > The existing code uses hold_time == 0 to suppress learning in br_fdb_update.
-> > hold_time() returns forward_delay if a topology change has recently occurred
-> > and ageing_time if not. Setting each of those to zero has slightly different
-> > semantics: Setting forward_delay to zero effectively means forward immediately
-> > while setting ageing_time to zero effectively means do not learn.
-> > 
-> > The solution is to not learn after a topology change only if forward_delay is
-> > non-zero but to retain the existing behaviour based on ageing_time if a
-> > topology change has not occured.
-> 
-> 
-> Unless STP is enabled, br_topology_change is bogus.  It looks like,
-> the following would avoid the problem?
-> 
-> --- a/net/bridge/br_stp.c	2009-05-14 08:33:01.795909321 -0700
-> +++ b/net/bridge/br_stp.c	2009-05-14 08:34:32.839883992 -0700
-> @@ -375,7 +375,8 @@ static void br_make_forwarding(struct ne
->  
->  	if (br->forward_delay == 0) {
->  		p->state = BR_STATE_FORWARDING;
-> -		br_topology_change_detection(br);
-> +		if (p->br->stp_enable == BR_KERNEL_STP)
-> +			br_topology_change_detection(br);
->  		del_timer(&p->forward_delay_timer);
->  	}
->  	else if (p->br->stp_enabled == BR_KERNEL_STP)
-> 
-> 
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
-> 
+If bridge is configured with no STP and forwarding delay of 0 (which
+is typical for virtualization) then when link starts it will flood all
+packets for the first 20 seconds. 
 
-Hi Stephen,
-should that fix this open issue "delay in bridge learning when forward delay is 0" [1]?
+This bug was introduced by a combination of earlier changes:
+  * forwarding database uses hold time of zero to indicate 
+    user wants to always flood packets
+  * optimzation of the case of forwarding delay of 0 avoids the initial
+    timer tick
 
-Uli
+The fix is to just skip all the topology change detection code if
+kernel STP is not being used.
 
-1) https://lists.linux-foundation.org/pipermail/bridge/2008-October/006059.html
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-
-
--- 
-
-------- ROAD ...the handyPC Company - - -  ) ) )
-
-Uli Luckas
-Head of Software Development
-
-ROAD GmbH
-Bennigsenstr. 14 | 12159 Berlin | Germany
-fon: +49 (30) 230069 - 62 | fax: +49 (30) 230069 - 69
-url: www.road.de
-
-Amtsgericht Charlottenburg: HRB 96688 B
-Managing director: Hans-Peter Constien
+--- a/net/bridge/br_stp.c	2009-05-14 13:34:49.965908836 -0700
++++ b/net/bridge/br_stp.c	2009-05-14 14:15:11.370903917 -0700
+@@ -297,6 +297,9 @@ void br_topology_change_detection(struct
+ {
+ 	int isroot = br_is_root_bridge(br);
+ 
++	if (br->stp_enabled != BR_KERNEL_STP)
++		return;
++
+ 	pr_info("%s: topology change detected, %s\n", br->dev->name,
+ 		isroot ? "propagating" : "sending tcn bpdu");
+ 
