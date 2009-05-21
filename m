@@ -1,12 +1,10 @@
-From: Vitaly Demyanec <vitas@nppfactor.kiev.ua>
-Date: Thu, 21 May 2009 15:03:26 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Message-Id: <37EB540F-DA0D-4B5A-83F9-0019AB6E3148@gmail.com>
+From: mopsosforum <mopsosforum@gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200905211503.26161.vitas@nppfactor.kiev.ua>
-Subject: [Bridge] [PATCH] rstpd: sizeof mismatch for some setups
+Mime-Version: 1.0 (Apple Message framework v935.3)
+Date: Thu, 21 May 2009 16:36:31 +0100
+Subject: [Bridge] use struct igmphdr with skb
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,41 +15,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-This patch is against rstpd v.0.21 (get it here: 
-https://lists.linux-foundation.org/pipermail/bridge/2009-February/006178.html).
-BTW, it seems there are 2 rstpd forks, one is v.0.21 and is maintained by 
-Srinivas, while the other uses rstplib, is v.0.16 and is maintained by 
-Stephen (here: 
-http://git.kernel.org/?p=linux/kernel/git/shemminger/rstp.git;a=summary)
-I am pretty confused with this divergence, which should one use to start from? 
-(personally I selected Srinivas' version as it seems to be more up-to-date).
+Hello,
 
-Description:
-For some setups (e.g. mine) sizeof(STP_MacAddress) != 6, which causes compiler 
-error (thanks to the CMP macro, it's really useful)
+I work on a debien 2.6.21, and ebtables is compiled like a module.
+I work on the developement of a new module for ebtables. My module  
+works, it's just a new target -j TEST
 
-Signed-off-by: Vitaly Demyanec <vitas at nppfactor.kiev.ua>
----
+My problem is when I'm in the ' static int ebt_target function',  I  
+need to read some igmp information, to know the type of igmp packet  
+and the group multicast.
 
---- a/rstp.c	2009-05-21 13:01:09.000000000 +0300
-+++ b/rstp.c	2009-05-21 13:06:08.000000000 +0300
-@@ -2600,9 +2600,9 @@
-   }
- 
-   if (cfg->set_bridge_address &&
--      CMP(BridgeIdentifier.bridge_address, !=, cfg->bridge_address)) {
-+      CMP(BridgeIdentifier.bridge_address, !=, cfg->bridge_address.addr)) {
- 
--    CPY(BridgeIdentifier.bridge_address, cfg->bridge_address);
-+    CPY(BridgeIdentifier.bridge_address, cfg->bridge_address.addr);
- 
-     changed = TRUE;
-     init = TRUE;
+I try something like that (in normal case I don't use the skb  
+directly, i use first the function skb_copy_bits()).
 
--- 
-With Best Regards,
-Vitaly Demyanec
-Head engineer
-Factor-SPE
-Kiev, Ukraine
-tel/fax: +380(44)249-21-63
+
+static int ebt_target (struct sk_buff		**pskb,
+		       unsigned int		hooknr,
+		       const struct net_device	*in,
+		       const struct net_device	*out,
+		       const void		*data,
+		       unsigned int		datalen)
+
+{
+struct sk_buff		*skb = *pskb;
+printk ("igmp type :%u\n", skb->h.igmph->type);
+
+}
+
+I send a igmp packet to join a group
+and I recieve this
+
+        igmp type : 70
+
+Or the different type of igmp are : 11, 12, 16, 17, 22
+Normaly the good value in my case is  22 (I worked with igmp v3).
+
+I don't undestand the response.
+
+Then I try to see the ip of the multicast group (I send for the group  
+239.255.1.4) , I recieve 0.0.24.0 .
+
+It's really strange because if I try to see the ip address of the  
+packet, it's works  (skb->h.ipiph->daddr) : 224.0.0.22
+
+
+If someone have an idea of the problem ?
+
+
+
