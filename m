@@ -1,11 +1,11 @@
 From: Abhishek Mathur <abhishek_mathur@hcl.in>
-Date: Thu, 21 May 2009 10:45:01 +0530
-Message-ID: <E41234A68BEC6E48A9937E70B87564532F62DF6732@NDA-HCLT-EVS04.HCLT.CORP.HCL.IN>
+Date: Thu, 21 May 2009 10:57:34 +0530
+Message-ID: <E41234A68BEC6E48A9937E70B87564532F62DF676B@NDA-HCLT-EVS04.HCLT.CORP.HCL.IN>
 Content-Language: en-US
 Content-Type: multipart/alternative;
-	boundary=_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_
+	boundary=_000_E41234A68BEC6E48A9937E70B87564532F62DF676BNDAHCLTEVS04H_
 MIME-Version: 1.0
-Subject: [Bridge] how to verify the blocking state in STP??
+Subject: [Bridge] MSTP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,31 +16,19 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
---_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_
+--_000_E41234A68BEC6E48A9937E70B87564532F62DF676BNDAHCLTEVS04H_
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 
 Hi,
 
-I configured a bridge br1 with eth0 and eth1 as its member ports ,=
- connected a hub to both the ports so that a loop is been created in the=
- bridge, also connected a host to another port of the hub=2E
-When I ping the bridge br1 from the host with STP off then the ping request=
- and reply is generated on both the member ports eth0 and eth1 since hub=
- broadcasts the packets to both the ports ,
-When STP is on eth0 is in forwarding state  while eth1 is in blocking=
- state, so ideally the ping request and reply should not be generated on=
- eth1 as per my understanding of blocking state since its should forward=
- only STP BPDUs and nothing else=2E=2E=2E=2Ebut its still generating the=
- ping request and reply=2E
+Can anybody help me out with some design document or some approach on how=
+ to start with MSTP??
 
-Is there something wrong in the behaviour or is it correct=2E=2E=2EI m=
- confused with that=2E=2E=2E???????/
-
-Is there any other way we can verify the blocking sate of STP??
 
 Abhishek=2E
+
 
 
 DISCLAIMER:
@@ -63,7 +51,7 @@ attachments please check them for viruses and defect=2E
 
 ---------------------------------------------------------------------------=
 --------------------------------------------
---_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_
+--_000_E41234A68BEC6E48A9937E70B87564532F62DF676BNDAHCLTEVS04H_
 Content-Type: text/html; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
@@ -72,8 +60,7 @@ Content-Transfer-Encoding: quoted-printable
 =2Eorg/TR/REC-html40">
 
 <head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=
-=3Dus-ascii">
+<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
 <meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
 <style>
 <!--
@@ -90,9 +77,13 @@ a:visited, span=2EMsoHyperlinkFollowed
 	{color:purple;
 	text-decoration:underline;}
 span=2EEmailStyle17
-	{mso-style-type:personal-compose;
+	{mso-style-type:personal;
 	font-family:Arial;
 	color:windowtext;}
+span=2EEmailStyle18
+	{mso-style-type:personal-reply;
+	font-family:Arial;
+	color:navy;}
 @page Section1
 	{size:8=2E5in 11=2E0in;
 	margin:1=2E0in 1=2E25in 1=2E0in 1=2E25in;}
@@ -107,71 +98,37 @@ div=2ESection1
 
 <div class=3DSection1>
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>Hi,<o:p></o:p></span></font></p>
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'>Hi,<o:p></o:p></span></font></p>
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>I configured a bridge br1 with eth0 and eth1 as its=
- member
-ports , connected a hub to both the ports so that a loop is been created in=
- the
-bridge, also connected a host to another port of the hub=
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'>Can anybody help me out with some=
+ design
+document or some approach on how to start with=
+ MSTP??<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'>Abhishek=
 =2E<o:p></o:p></span></font></p>
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>When I ping the bridge br1 from the host with STP off=
- then
-the ping request and reply is generated on both the member ports eth0 and=
- eth1
-since hub broadcasts the packets to both the ports=
- ,<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>When STP is on eth0 is in forwarding state &nbsp;while=
- eth1 is in
-blocking state, so ideally the ping request and reply should not be=
- generated
-on eth1 as per my understanding of blocking state since its should forward=
- only
-STP BPDUs and nothing else&#8230;=2Ebut its still generating the ping=
- request and
-reply=2E<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>Is there something wrong in the behaviour or is it=
- correct&#8230;I
-m confused with that&#8230;???????/<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>Is there any other way we can verify the blocking sate=
- of
-STP??<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
-=3D'font-size:10=2E0pt;
-font-family:Arial'>Abhishek=2E <o:p></o:p></span></font></p>
+<p class=3DMsoNormal><font size=3D2 color=3Dnavy face=3DArial><span style=
+=3D'font-size:
+10=2E0pt;font-family:Arial;color:navy'><o:p>&nbsp;</o:p></span></font></p>
 
 </div>
 
@@ -200,4 +157,4 @@ attachments please check them for viruses and defect=2E<br>
 ---------------------------------------------------------------------------=
 --------------------------------------------<br>
 </font></td></tr></table>
---_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_--
+--_000_E41234A68BEC6E48A9937E70B87564532F62DF676BNDAHCLTEVS04H_--
