@@ -1,16 +1,11 @@
-Message-ID: <4A13E0AD.9090402@epfl.ch>
-Date: Wed, 20 May 2009 12:51:25 +0200
-From: Alexandre Becholey <alexandre.becholey@epfl.ch>
+From: Abhishek Mathur <abhishek_mathur@hcl.in>
+Date: Thu, 21 May 2009 10:45:01 +0530
+Message-ID: <E41234A68BEC6E48A9937E70B87564532F62DF6732@NDA-HCLT-EVS04.HCLT.CORP.HCL.IN>
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary=_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_
 MIME-Version: 1.0
-References: <4A11714A.2000301@epfl.ch>	
-	<2e59e6970905181635h3a4da749ue75574633ff75f5e@mail.gmail.com>	
-	<4A1296ED.3030801@epfl.ch>
-	<2e59e6970905191245y41a7a367offd84b35b652c947@mail.gmail.com>
-In-Reply-To: <2e59e6970905191245y41a7a367offd84b35b652c947@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] network bridging between wireless and wired connection
- fails Cont'd
+Subject: [Bridge] how to verify the blocking state in STP??
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,86 +14,190 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Cc: "bridge@osdl.org" <bridge@osdl.org>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-richardvoigt@gmail.com wrote:
-> On Tue, May 19, 2009 at 6:24 AM, Alexandre Becholey
-> <alexandre.becholey@epfl.ch> wrote:
->   
->> Hi thanks for your reply.
->>
->> # brctl showmacs br0
->> port no    mac addr        is local?    ageing timer
->>  2    00:14:2d:21:99:2a    no           0.78             (<- PC1's mac)
->>  1    00:1b:38:e8:51:1c    no           5.75             (<- PC2's mac)
->>  1    00:21:e9:e7:ae:88    yes           0.00            (<- wlan0)
->>  2    00:22:41:30:92:18    yes           0.00            (<- eth1)
->>
->> ifconfig shows that br0 has wlan0's mac address. If a use another wireless
->> interface with a "higher" mac address, br0 has eth1's mac address
->>
->> No iptables nor ebtables running.
->>
->> Alexandre
->>     
->
-> Does your access point do any sort of filtering (like MAC-based table
-> of authorized users)?  Perhaps PC1 is not listed as authorized and so
-> the AP won't forward his traffic when it receives it from the wireless
-> side (repeated through the Linux bridge).
->
-> The linux bridge is a wireless client, not an access point, right?
->   
-
-There are no filtering on the AP. I wasn't clear enough when I explained 
-the problem.
-
-I tried with 2 different wireless devices: a broadcom mini-PCI (b43) and 
-a ralink USB (rt73usb), they both behave the same:
-Let's take the case "PC1 pings PC2". PC1 first send ARP "who-has" (I can 
-see them on PC1's eth0 and Bridge's br0, eth0 and wlan0 with wireshark 
-or tcpdump). But I think that wlan0 doesn't send them to the AP because 
-when I use another wireless interface in monitor mode (sniffing mode) 
-with wireshark (I set the channel to the AP's one), I can't see any ARP 
-packets.
-
-Now with "PC2 pings PC1". PC2 send ARP "who-has". I see them with my 
-wireless interface in monitor mode, I also see them on Bridge's wlan0, 
-eth0 and br0 and on PC1's eth0. I see PC1 responding to the ARP 
-"who-has" (with ARP "is at") on PC1's eth0, Bridge's br0, eth0 and 
-wlan0. But I don't see them with my wireless interface in monitor mode. 
-And therefore PC2 doesn't receive them.
-
-It seems like wlan0 doesn't send them, but with ifconfig I can't see any 
-drop or error packets. I see with "PC1 pings PC2" the number of packet 
-increasing on wlan0 as the ARP "who-has" arrives on it from PC1.
-
-And the Bridge can ping everything.
+--_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
 
-Now I also have another setup (which is the goal I want to achieve): 
-from http://inwww.epfl.ch/~becholey/network.jpg take out the AP, wlan0 
-now is in master mode with hostapd and PC2 is connected to the Bridge 
-wirelessly. The Bridge configuration doesn't changes except wlan0 in 
-master mode with hostapd.
+Hi,
 
-Here, it's a bit more strange...
-PC2 can ping everything (it receives the ARP "is-at" from PC1). If there 
-was another station connected to the Bridge wirelessly, PC2 would be 
-able to ping it.
+I configured a bridge br1 with eth0 and eth1 as its member ports ,=
+ connected a hub to both the ports so that a loop is been created in the=
+ bridge, also connected a host to another port of the hub=2E
+When I ping the bridge br1 from the host with STP off then the ping request=
+ and reply is generated on both the member ports eth0 and eth1 since hub=
+ broadcasts the packets to both the ports ,
+When STP is on eth0 is in forwarding state  while eth1 is in blocking=
+ state, so ideally the ping request and reply should not be generated on=
+ eth1 as per my understanding of blocking state since its should forward=
+ only STP BPDUs and nothing else=2E=2E=2E=2Ebut its still generating the=
+ ping request and reply=2E
 
-PC1 can't ping PC2 (same behavior in the setup with wlan0 as a wireless 
-client), but if during this ping, with PC2 I ping the Bridge or PC1, 
-PC1's ping reaches PC2. As soon as I stop PC2's ping, PC1's ping doesn't 
-reach PC2 any more.
+Is there something wrong in the behaviour or is it correct=2E=2E=2EI m=
+ confused with that=2E=2E=2E???????/
 
-Of course PC1 can ping the Bridge. The Bridge can ping PC1 but not PC2 
-(same strange behavior when PC1 pings PC2, it works with a ping in the 
-other direction).
+Is there any other way we can verify the blocking sate of STP??
+
+Abhishek=2E
 
 
-I hope it's more clear.
+DISCLAIMER:
+---------------------------------------------------------------------------=
+--------------------------------------------
 
-PS: I want it to works with the most simple setup, therefore on any 
-devices, there are no encryption, filtering,...
+The contents of this e-mail and any attachment(s) are confidential and=
+ intended for the named recipient(s) only=2E=20
+It shall not attach any liability on the originator or HCL or its=
+ affiliates=2E Any views or opinions presented in=20
+this email are solely those of the author and may not necessarily reflect=
+ the opinions of HCL or its affiliates=2E=20
+Any form of reproduction, dissemination, copying, disclosure, modification,=
+ distribution and / or publication of=20
+this message without the prior written consent of the author of this e-mail=
+ is strictly prohibited=2E If you have=20
+received this email in error please delete it and notify the sender=
+ immediately=2E Before opening any mail and=20
+attachments please check them for viruses and defect=2E
+
+---------------------------------------------------------------------------=
+--------------------------------------------
+--_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=
+=3D"urn:schemas-microsoft-com:office:word" xmlns=3D"http://www=2Ew3=
+=2Eorg/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=
+=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p=2EMsoNormal, li=2EMsoNormal, div=2EMsoNormal
+	{margin:0in;
+	margin-bottom:=2E0001pt;
+	font-size:12=2E0pt;
+	font-family:"Times New Roman";}
+a:link, span=2EMsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span=2EMsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span=2EEmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8=2E5in 11=2E0in;
+	margin:1=2E0in 1=2E25in 1=2E0in 1=2E25in;}
+div=2ESection1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>Hi,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>I configured a bridge br1 with eth0 and eth1 as its=
+ member
+ports , connected a hub to both the ports so that a loop is been created in=
+ the
+bridge, also connected a host to another port of the hub=
+=2E<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>When I ping the bridge br1 from the host with STP off=
+ then
+the ping request and reply is generated on both the member ports eth0 and=
+ eth1
+since hub broadcasts the packets to both the ports=
+ ,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>When STP is on eth0 is in forwarding state &nbsp;while=
+ eth1 is in
+blocking state, so ideally the ping request and reply should not be=
+ generated
+on eth1 as per my understanding of blocking state since its should forward=
+ only
+STP BPDUs and nothing else&#8230;=2Ebut its still generating the ping=
+ request and
+reply=2E<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>Is there something wrong in the behaviour or is it=
+ correct&#8230;I
+m confused with that&#8230;???????/<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>Is there any other way we can verify the blocking sate=
+ of
+STP??<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span style=
+=3D'font-size:10=2E0pt;
+font-family:Arial'>Abhishek=2E <o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+<table><tr><td bgcolor=3D#ffffff><font color=3D#000000>DISCLAIMER:<br>
+---------------------------------------------------------------------------=
+--------------------------------------------<br>
+<br>
+The contents of this e-mail and any attachment(s) are confidential and=
+ intended for the named recipient(s) only=2E <br>
+It shall not attach any liability on the originator or HCL or its=
+ affiliates=2E Any views or opinions presented in <br>
+this email are solely those of the author and may not necessarily reflect=
+ the opinions of HCL or its affiliates=2E <br>
+Any form of reproduction, dissemination, copying, disclosure, modification,=
+ distribution and / or publication of <br>
+this message without the prior written consent of the author of this e-mail=
+ is strictly prohibited=2E If you have <br>
+received this email in error please delete it and notify the sender=
+ immediately=2E Before opening any mail and <br>
+attachments please check them for viruses and defect=2E<br>
+<br>
+---------------------------------------------------------------------------=
+--------------------------------------------<br>
+</font></td></tr></table>
+--_000_E41234A68BEC6E48A9937E70B87564532F62DF6732NDAHCLTEVS04H_--
