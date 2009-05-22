@@ -1,10 +1,14 @@
-Message-Id: <37EB540F-DA0D-4B5A-83F9-0019AB6E3148@gmail.com>
-From: mopsosforum <mopsosforum@gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+From: Vitaly Demyanec <vitas@nppfactor.kiev.ua>
+Date: Fri, 22 May 2009 16:20:48 +0300
+References: <200905211503.26161.vitas@nppfactor.kiev.ua>
+In-Reply-To: <200905211503.26161.vitas@nppfactor.kiev.ua>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0 (Apple Message framework v935.3)
-Date: Thu, 21 May 2009 16:36:31 +0100
-Subject: [Bridge] use struct igmphdr with skb
+Message-Id: <200905221620.48293.vitas@nppfactor.kiev.ua>
+Subject: [Bridge] [PATCH] rstpd: sizeof mismatch + macro enhancement
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,51 +19,44 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hello,
+This patch is against rstpd v.0.21 (get it here: 
+https://lists.linux-foundation.org/pipermail/bridge/2009-February/006178.html).
 
-I work on a debien 2.6.21, and ebtables is compiled like a module.
-I work on the developement of a new module for ebtables. My module  
-works, it's just a new target -j TEST
+Description:
+1. For some setups (e.g. mine) sizeof(struct sockaddr_un) != 
+sizeof((sa)->sun_family) + sizeof((sa)->sun_path) , which leads to incomplete 
+clean-up in set_socket_address macro, which in turn leads to different socket 
+addresses in rstpd and rstpctl.
+2. We should avoid possible side-effects multiplication in the (sa) (e.g. when 
+this macro is called like this: set_socket_address(++sa_ptr, str[i])) by the 
+use of temporary variable inside the macro.
 
-My problem is when I'm in the ' static int ebt_target function',  I  
-need to read some igmp information, to know the type of igmp packet  
-and the group multicast.
+Signed-off-by: Vitaly Demyanec <vitas at nppfactor.kiev.ua>
+---
 
-I try something like that (in normal case I don't use the skb  
-directly, i use first the function skb_copy_bits()).
+diff -ur a/ctl_socket.h b/ctl_socket.h
+--- a/ctl_socket.h      2009-05-22 15:34:00.000000000 +0300
++++ b/ctl_socket.h      2009-05-22 16:17:47.000000000 +0300
+@@ -47,10 +47,11 @@
 
+ #define set_socket_address(sa, string) \
+  do {\
+-  (sa)->sun_family = AF_UNIX; \
+-  memset((sa)->sun_path, 0, sizeof((sa)->sun_path)); \
+-  strcpy((sa)->sun_path + 1, (string)); \
+- } while (0)
++  struct sockaddr_un * tmp_sa = (sa); \
++  memset(tmp_sa, 0, sizeof(*tmp_sa)); \
++  tmp_sa->sun_family = AF_UNIX; \
++  strcpy(tmp_sa->sun_path + 1, (string)); \
++} while (0)
 
-static int ebt_target (struct sk_buff		**pskb,
-		       unsigned int		hooknr,
-		       const struct net_device	*in,
-		       const struct net_device	*out,
-		       const void		*data,
-		       unsigned int		datalen)
+ #define RSTP_SERVER_SOCK_NAME ".rstp_server"
 
-{
-struct sk_buff		*skb = *pskb;
-printk ("igmp type :%u\n", skb->h.igmph->type);
-
-}
-
-I send a igmp packet to join a group
-and I recieve this
-
-        igmp type : 70
-
-Or the different type of igmp are : 11, 12, 16, 17, 22
-Normaly the good value in my case is  22 (I worked with igmp v3).
-
-I don't undestand the response.
-
-Then I try to see the ip of the multicast group (I send for the group  
-239.255.1.4) , I recieve 0.0.24.0 .
-
-It's really strange because if I try to see the ip address of the  
-packet, it's works  (skb->h.ipiph->daddr) : 224.0.0.22
-
-
-If someone have an idea of the problem ?
-
-
-
+-- 
+With Best Regards,
+Vitaly Demyanec
+Head engineer
+Factor-SPE
+Kiev, Ukraine
+tel/fax: +380(44)249-21-63
