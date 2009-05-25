@@ -1,14 +1,12 @@
 From: Vitaly Demyanec <vitas@nppfactor.kiev.ua>
-Date: Fri, 22 May 2009 16:20:48 +0300
-References: <200905211503.26161.vitas@nppfactor.kiev.ua>
-In-Reply-To: <200905211503.26161.vitas@nppfactor.kiev.ua>
+Date: Mon, 25 May 2009 18:48:02 +0300
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200905221620.48293.vitas@nppfactor.kiev.ua>
-Subject: [Bridge] [PATCH] rstpd: sizeof mismatch + macro enhancement
+Content-Disposition: inline
+Message-Id: <200905251848.03023.vitas@nppfactor.kiev.ua>
+Subject: [Bridge] [PATCH 1/2] rstpd: Fixed erroneous error message
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,40 +21,27 @@ This patch is against rstpd v.0.21 (get it here:
 https://lists.linux-foundation.org/pipermail/bridge/2009-February/006178.html).
 
 Description:
-1. For some setups (e.g. mine) sizeof(struct sockaddr_un) != 
-sizeof((sa)->sun_family) + sizeof((sa)->sun_path) , which leads to incomplete 
-clean-up in set_socket_address macro, which in turn leads to different socket 
-addresses in rstpd and rstpctl.
-2. We should avoid possible side-effects multiplication in the (sa) (e.g. when 
-this macro is called like this: set_socket_address(++sa_ptr, str[i])) by the 
-use of temporary variable inside the macro.
+Error condition was broken. Fixed.
 
 Signed-off-by: Vitaly Demyanec <vitas at nppfactor.kiev.ua>
 ---
 
-diff -ur a/ctl_socket.h b/ctl_socket.h
---- a/ctl_socket.h      2009-05-22 15:34:00.000000000 +0300
-+++ b/ctl_socket.h      2009-05-22 16:17:47.000000000 +0300
-@@ -47,10 +47,11 @@
-
- #define set_socket_address(sa, string) \
-  do {\
--  (sa)->sun_family = AF_UNIX; \
--  memset((sa)->sun_path, 0, sizeof((sa)->sun_path)); \
--  strcpy((sa)->sun_path + 1, (string)); \
-- } while (0)
-+  struct sockaddr_un * tmp_sa = (sa); \
-+  memset(tmp_sa, 0, sizeof(*tmp_sa)); \
-+  tmp_sa->sun_family = AF_UNIX; \
-+  strcpy(tmp_sa->sun_path + 1, (string)); \
-+} while (0)
-
- #define RSTP_SERVER_SOCK_NAME ".rstp_server"
+diff -ur a/ctl_socket.c b/ctl_socket.c
+--- a/ctl_socket.c	2009-05-25 18:37:51.000000000 +0300
++++ b/ctl_socket.c	2009-05-25 18:38:58.000000000 +0300
+@@ -152,10 +152,10 @@
+ 	l = sendmsg(p->fd, &msg, MSG_NOSIGNAL);
+ 	if (l < 0)
+ 		ERROR("CTL: Couldn't send response: %m");
+-	else if (l != sizeof(mhdr) + mhdr.lout) {
++	else if (l != sizeof(mhdr) + mhdr.lout + mhdr.llog) {
+ 		ERROR
+ 		    ("CTL: Couldn't send full response, sent %d bytes instead of %zd.",
+-		     l, sizeof(mhdr) + mhdr.lout);
++		     l, sizeof(mhdr) + mhdr.lout + mhdr.llog);
+ 	}
+ }
 
 -- 
 With Best Regards,
 Vitaly Demyanec
-Head engineer
-Factor-SPE
-Kiev, Ukraine
-tel/fax: +380(44)249-21-63
