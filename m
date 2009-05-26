@@ -1,13 +1,14 @@
-From: Vitaly Demyanec <vitas@nppfactor.kiev.ua>
-Date: Tue, 26 May 2009 11:05:12 +0300
-References: <200905251848.03023.vitas@nppfactor.kiev.ua>
-	<200905251906.59864.vitas@nppfactor.kiev.ua>
-In-Reply-To: <200905251906.59864.vitas@nppfactor.kiev.ua>
+Date: Tue, 26 May 2009 17:17:17 +0200
+From: Jiri Pirko <jpirko@redhat.com>
+Message-ID: <20090526151717.GB11147@psychotron.englab.brq.redhat.com>
+References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
+	<20090326155205.GA28868@psychotron.englab.brq.redhat.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_4K6GKLTo6TolfB1"
-Message-Id: <200905261105.12952.vitas@nppfactor.kiev.ua>
-Subject: Re: [Bridge] [PATCH 2/2] rstpd: Display port role with rstpctl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20090326155205.GA28868@psychotron.englab.brq.redhat.com>
+Subject: [Bridge] [PATCH net-next] bonding: allow bond in mode balance-alb
+	to work	properly in bridge -try4.1
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,165 +17,200 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: fubar@us.ibm.com, jgarzik@pobox.com, bridge@lists.linux-foundation.org, mschmidt@redhat.com, bonding-devel@lists.sourceforge.net, dada1@cosmosbay.com, davem@davemloft.net
 
---Boundary-00=_4K6GKLTo6TolfB1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+[PATCH net-next] bonding: allow bond in mode balance-alb to work properly in bridge -try4.1
 
-Oh, sorry, my mailer has deformed inlined patch, so send it again, now as 
-attachment.
+Hi all.
 
-BTW, what about that .depend file in repository? It is not used in Makefile, 
-and anyway its content is out-of-date. Maybe it should be removed from 
-repository?
+The problem is described in following bugzilla:
+https://bugzilla.redhat.com/show_bug.cgi?id=487763
 
--- 
-With Best Regards,
-Vitaly Demyanec
+Basically here's what's going on. In every mode, bonding interface uses the same
+mac address for all enslaved devices (except fail_over_mac). Only balance-alb
+will simultaneously use multiple MAC addresses across different slaves. When you
+put this kind of bond device into a bridge it will only add one of mac adresses
+into a hash list of mac addresses, say X. This mac address is marked as local.
+But this bonding interface also has mac address Y. Now then packet arrives with
+destination address Y, this address is not marked as local and the packed looks
+like it needs to be forwarded. This packet is then lost which is wrong.
 
---Boundary-00=_4K6GKLTo6TolfB1
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="add_role_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="add_role_patch"
+Notice that interfaces can be added and removed from bond while it is in bridge.
 
-diff -ur a/ctl_main.c b/ctl_main.c
---- a/ctl_main.c	2009-05-26 10:50:04.000000000 +0300
-+++ b/ctl_main.c	2009-05-26 10:50:24.000000000 +0300
-@@ -173,6 +173,38 @@
- 		_str;							\
- 	})
- 
-+#define ROLE_STR(_role)			\
-+	({					\
-+		int _r = _role;		\
-+		char *_str = "Unknown";		\
-+		switch ((Role)_r)			\
-+		{					     \
-+		case RootPort: _str = "Root"; break; \
-+		case DesignatedPort:   _str = "Designated"; break; \
-+		case AlternatePort: _str = "Alternate"; break; \
-+		case BackupPort: _str = "Backup"; break; \
-+		case DisabledPort: _str = "Disabled"; break; \
-+		default: ; \
-+		}							\
-+		_str;							\
-+	})
+***
+When the multiple addresses for bridge port approach failed to solve this issue
+due to STP I started to think other way to solve this. I returned to previous
+solution but tweaked one.
+
+This patch solves the situation in the bonding without touching bridge code.
+For every incoming frame to bonding the destination address is compared to
+current address of the slave device from which tha packet came. If these two
+match destination address is replaced by mac address of the master. This address
+is known by bridge so it is delivered properly.
+
+I experimentally tried that this works as good as searching through the slave
+list (v4 of this patch).
+
+I was forced to create a new header because I need to use
+compare_ether_addr_64bits() (defined in linux/etherdevice.h) in
+linux/netdevice.h. I've hit some cross include issues. I think that it's good
+to have skb_bond_should_drop() in a separate file anyway.
+
+Jirka
+
+
+Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+
+diff --git a/include/linux/bonding.h b/include/linux/bonding.h
+new file mode 100644
+index 0000000..3081ddb
+--- /dev/null
++++ b/include/linux/bonding.h
+@@ -0,0 +1,78 @@
++/*
++ * include/linux/bonding.h
++ *
++ * Copyright (C) 2009 Jiri Pirko <jpirko@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation.
++ *
++ * Bonding device helpers.
++ */
 +
-+#define SHORT_ROLE_STR(_role)			\
-+	({					\
-+		int _r = _role;		\
-+		char *_str = "Unkn";		\
-+		switch ((Role)_r)			\
-+		{					     \
-+		case RootPort: _str = "Root"; break; \
-+		case DesignatedPort:   _str = "Desg"; break; \
-+		case AlternatePort: _str = "Altn"; break; \
-+		case BackupPort: _str = "Back"; break; \
-+		case DisabledPort: _str = "Disa"; break; \
-+		default: ; \
-+		}							\
-+		_str;							\
-+	})
++#ifndef _LINUX_BONDING_H
++#define _LINUX_BONDING_H
 +
- 
- int detail = 0;
- 
-@@ -193,7 +225,7 @@
- 
- 	if (detail) {
- 		printf("%s (%u)\n", port_name, (s.id & 0xfff));
--		printf(" enabled\t\t%4s\n", BOOL_STR(s.enabled));
-+		printf(" enabled\t\t%4s\t\t\trole\t\t%15s\n", BOOL_STR(s.enabled), ROLE_STR(s.role_));
- 		printf(" port id\t\t%04x\t\t\tstate\t\t%15s\n",
- 		       s.id, STATE_STR(s.state));
- 		printf(" path cost\t%12d\t\t\tadmin path cost\t%12d\n", 
-@@ -213,7 +245,7 @@
- 		printf("\t\t\tadmin point to point\t%4s\n",
- 		       ADMIN_P2P_STR(s.admin_p2p));
- 	} else {
--		printf("%c%c %4s %04x %4s " BR_ID_FMT " " BR_ID_FMT " %04x\n",
-+		printf("%c%c %4s %04x %4s " BR_ID_FMT " " BR_ID_FMT " %04x %4s\n",
- 		       (s.oper_p2p) ? ' ' : '*',
- 		       (s.oper_edge_port) ? 'E' : ' ',
- 		       port_name,
-@@ -221,7 +253,8 @@
- 		       s.enabled?SHORT_STATE_STR(s.state):"down",
- 		       BR_ID_ARGS(s.designated_root),
- 		       BR_ID_ARGS(s.designated_bridge),
--		       s.designated_port);
-+		       s.designated_port,
-+		       SHORT_ROLE_STR(s.role_));
- 	}
- 	return 0;
++#ifdef __KERNEL__
++
++#include <linux/skbuff.h>
++#include <linux/netdevice.h>
++#include <linux/if.h>
++#include <linux/etherdevice.h>
++#include <linux/if_ether.h>
++
++static inline void skb_bond_set_mac_by_master(struct sk_buff *skb,
++					      struct net_device *dev,
++					      struct net_device *master)
++{
++	unsigned char *dest = eth_hdr(skb)->h_dest;
++
++	if (compare_ether_addr_64bits(dest, master->dev_addr) &&
++	    !compare_ether_addr_64bits(dest, dev->dev_addr))
++		memcpy(dest, master->dev_addr, ETH_ALEN);
++}
++
++/* On bonding slaves other than the currently active slave, suppress
++ * duplicates except for 802.3ad ETH_P_SLOW, alb non-mcast/bcast, and
++ * ARP on active-backup slaves with arp_validate enabled.
++ */
++static inline int skb_bond_should_drop(struct sk_buff *skb)
++{
++	struct net_device *dev = skb->dev;
++	struct net_device *master = dev->master;
++
++	if (master) {
++		if (master->priv_flags & IFF_MASTER_ARPMON)
++			dev->last_rx = jiffies;
++
++		if ((master->priv_flags & IFF_MASTER_ALB) && master->br_port) {
++			/* Do address unmangle. The local destination address
++			 * will be always the one master has. Provides the right
++			 * functionality in a bridge.
++			 */
++			skb_bond_set_mac_by_master(skb, dev, master);
++		}
++
++		if (dev->priv_flags & IFF_SLAVE_INACTIVE) {
++			if ((dev->priv_flags & IFF_SLAVE_NEEDARP) &&
++			    skb->protocol == __cpu_to_be16(ETH_P_ARP))
++				return 0;
++
++			if (master->priv_flags & IFF_MASTER_ALB) {
++				if (skb->pkt_type != PACKET_BROADCAST &&
++				    skb->pkt_type != PACKET_MULTICAST)
++					return 0;
++			}
++			if (master->priv_flags & IFF_MASTER_8023AD &&
++			    skb->protocol == __cpu_to_be16(ETH_P_SLOW))
++				return 0;
++
++			return 1;
++		}
++	}
++	return 0;
++}
++
++#endif /* __KERNEL__ */
++
++#endif	/* _LINUX_BONDING_H */
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index ae3c209..06e24ae 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1897,39 +1897,6 @@ static inline void netif_set_gso_max_size(struct net_device *dev,
+ 	dev->gso_max_size = size;
  }
-diff -ur a/rstp.c b/rstp.c
---- a/rstp.c	2009-05-26 10:50:04.000000000 +0300
-+++ b/rstp.c	2009-05-26 10:50:24.000000000 +0300
-@@ -271,19 +271,6 @@
-   Disabled
- } InfoType;
  
--// We accomodate the port role encoding in BPDUs as per 9.2.9
--// into this type, defining an extra value of AltBackupPort valid
--// only in a BPDU.
--typedef enum _Role {
--  UnknownPort = 0,
--  AltBackupPort = 1,
--  RootPort = 2,
--  DesignatedPort = 3,
--  AlternatePort,
--  BackupPort,
--  DisabledPort
--} Role;
+-/* On bonding slaves other than the currently active slave, suppress
+- * duplicates except for 802.3ad ETH_P_SLOW, alb non-mcast/bcast, and
+- * ARP on active-backup slaves with arp_validate enabled.
+- */
+-static inline int skb_bond_should_drop(struct sk_buff *skb)
+-{
+-	struct net_device *dev = skb->dev;
+-	struct net_device *master = dev->master;
 -
- typedef enum _BPDUType {
-   BPDUTypeConfig = 0,
-   BPDUTypeRST = 2,
-@@ -2947,6 +2934,8 @@
+-	if (master) {
+-		if (master->priv_flags & IFF_MASTER_ARPMON)
+-			dev->last_rx = jiffies;
+-
+-		if (dev->priv_flags & IFF_SLAVE_INACTIVE) {
+-			if ((dev->priv_flags & IFF_SLAVE_NEEDARP) &&
+-			    skb->protocol == __cpu_to_be16(ETH_P_ARP))
+-				return 0;
+-
+-			if (master->priv_flags & IFF_MASTER_ALB) {
+-				if (skb->pkt_type != PACKET_BROADCAST &&
+-				    skb->pkt_type != PACKET_MULTICAST)
+-					return 0;
+-			}
+-			if (master->priv_flags & IFF_MASTER_8023AD &&
+-			    skb->protocol == __cpu_to_be16(ETH_P_SLOW))
+-				return 0;
+-
+-			return 1;
+-		}
+-	}
+-	return 0;
+-}
+-
+ extern struct pernet_operations __net_initdata loopback_net_ops;
  
-   status->admin_p2p = adminPointToPointMAC;
-   status->oper_p2p = operPointToPointMAC;
-+
-+  status->role_ = role;
- }
+ static inline int dev_ethtool_get_settings(struct net_device *dev,
+diff --git a/net/8021q/vlan_core.c b/net/8021q/vlan_core.c
+index 7f7de1a..c6eae40 100644
+--- a/net/8021q/vlan_core.c
++++ b/net/8021q/vlan_core.c
+@@ -2,6 +2,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/if_vlan.h>
+ #include <linux/netpoll.h>
++#include <linux/bonding.h>
+ #include "vlan.h"
  
+ /* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 241613f..221b43f 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -127,6 +127,7 @@
+ #include <linux/jhash.h>
+ #include <linux/random.h>
+ #include <trace/napi.h>
++#include <linux/bonding.h>
  
-diff -ur a/rstp.h b/rstp.h
---- a/rstp.h	2009-05-26 10:50:04.000000000 +0300
-+++ b/rstp.h	2009-05-26 10:50:24.000000000 +0300
-@@ -149,6 +149,19 @@
+ #include "net-sysfs.h"
  
- /****** Status ******/
- 
-+/* We accomodate the port role encoding in BPDUs as per 9.2.9
-+  into this type, defining an extra value of AltBackupPort valid
-+  only in a BPDU. */
-+typedef enum _Role {
-+    UnknownPort = 0,
-+    AltBackupPort = 1,
-+    RootPort = 2,
-+    DesignatedPort = 3,
-+    AlternatePort,
-+    BackupPort,
-+    DisabledPort
-+} Role;
-+
- typedef struct STP_BridgeStatus_
- {
-   unsigned char bridge_id[8];
-@@ -197,6 +210,7 @@
-                         */
-   unsigned int admin_p2p;
-   unsigned int oper_p2p;
-+  unsigned int role_;
- } STP_PortStatus;
- 
- void STP_IN_get_port_status(STP_Port *, STP_PortStatus *);
-
---Boundary-00=_4K6GKLTo6TolfB1--
