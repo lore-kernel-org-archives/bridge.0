@@ -1,14 +1,13 @@
 From: Vitaly Demyanec <vitas@nppfactor.kiev.ua>
-Date: Mon, 25 May 2009 19:06:59 +0300
+Date: Tue, 26 May 2009 11:05:12 +0300
 References: <200905251848.03023.vitas@nppfactor.kiev.ua>
-In-Reply-To: <200905251848.03023.vitas@nppfactor.kiev.ua>
+	<200905251906.59864.vitas@nppfactor.kiev.ua>
+In-Reply-To: <200905251906.59864.vitas@nppfactor.kiev.ua>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200905251906.59864.vitas@nppfactor.kiev.ua>
-Subject: [Bridge] [PATCH 2/2] rstpd: Display port role with rstpctl
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_4K6GKLTo6TolfB1"
+Message-Id: <200905261105.12952.vitas@nppfactor.kiev.ua>
+Subject: Re: [Bridge] [PATCH 2/2] rstpd: Display port role with rstpctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,19 +18,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-This patch is against rstpd v.0.21 (get it here: 
-https://lists.linux-foundation.org/pipermail/bridge/2009-February/006178.html).
+--Boundary-00=_4K6GKLTo6TolfB1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Description:
-Adds port role (Backup, Alternate, Root etc) to the output of "rstpctl 
-showport" and "rstpctl showportdetail" output.
+Oh, sorry, my mailer has deformed inlined patch, so send it again, now as 
+attachment.
 
-Signed-off-by: Vitaly Demyanec <vitas at nppfactor.kiev.ua>
----
+BTW, what about that .depend file in repository? It is not used in Makefile, 
+and anyway its content is out-of-date. Maybe it should be removed from 
+repository?
+
+-- 
+With Best Regards,
+Vitaly Demyanec
+
+--Boundary-00=_4K6GKLTo6TolfB1
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="add_role_patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="add_role_patch"
 
 diff -ur a/ctl_main.c b/ctl_main.c
---- a/ctl_main.c	2009-05-25 18:37:52.000000000 +0300
-+++ b/ctl_main.c	2009-05-25 18:40:24.000000000 +0300
+--- a/ctl_main.c	2009-05-26 10:50:04.000000000 +0300
++++ b/ctl_main.c	2009-05-26 10:50:24.000000000 +0300
 @@ -173,6 +173,38 @@
  		_str;							\
  	})
@@ -76,8 +90,7 @@ diff -ur a/ctl_main.c b/ctl_main.c
  	if (detail) {
  		printf("%s (%u)\n", port_name, (s.id & 0xfff));
 -		printf(" enabled\t\t%4s\n", BOOL_STR(s.enabled));
-+		printf(" enabled\t\t%4s\t\t\trole\t\t%15s\n", BOOL_STR(s.enabled), 
-ROLE_STR(s.role_));
++		printf(" enabled\t\t%4s\t\t\trole\t\t%15s\n", BOOL_STR(s.enabled), ROLE_STR(s.role_));
  		printf(" port id\t\t%04x\t\t\tstate\t\t%15s\n",
  		       s.id, STATE_STR(s.state));
  		printf(" path cost\t%12d\t\t\tadmin path cost\t%12d\n", 
@@ -100,10 +113,9 @@ ROLE_STR(s.role_));
  	}
  	return 0;
  }
-Only in b: ctl_main.c.orig
 diff -ur a/rstp.c b/rstp.c
---- a/rstp.c	2009-05-25 18:37:52.000000000 +0300
-+++ b/rstp.c	2009-05-25 18:40:24.000000000 +0300
+--- a/rstp.c	2009-05-26 10:50:04.000000000 +0300
++++ b/rstp.c	2009-05-26 10:50:24.000000000 +0300
 @@ -271,19 +271,6 @@
    Disabled
  } InfoType;
@@ -133,10 +145,9 @@ diff -ur a/rstp.c b/rstp.c
  }
  
  
-Only in b: rstp.c.orig
 diff -ur a/rstp.h b/rstp.h
---- a/rstp.h	2009-05-25 18:37:52.000000000 +0300
-+++ b/rstp.h	2009-05-25 18:40:24.000000000 +0300
+--- a/rstp.h	2009-05-26 10:50:04.000000000 +0300
++++ b/rstp.h	2009-05-26 10:50:24.000000000 +0300
 @@ -149,6 +149,19 @@
  
  /****** Status ******/
@@ -166,6 +177,4 @@ diff -ur a/rstp.h b/rstp.h
  
  void STP_IN_get_port_status(STP_Port *, STP_PortStatus *);
 
--- 
-With Best Regards,
-Vitaly Demyanec
+--Boundary-00=_4K6GKLTo6TolfB1--
