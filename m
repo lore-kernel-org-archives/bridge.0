@@ -1,9 +1,9 @@
 MIME-Version: 1.0
-Date: Thu, 28 May 2009 13:58:49 +0530
-Message-ID: <1de614680905280128v1d33285fi53a8d2b6ea88d096@mail.gmail.com>
-From: Johnnie alan <johnniealan@gmail.com>
-Content-Type: multipart/alternative; boundary=0016e644cefacdfdce046af4bf42
-Subject: [Bridge] Ethernet Bridging.
+Date: Wed, 27 May 2009 23:19:04 +0530
+Message-ID: <849c76670905271049w76813768v8bce6aed46806c06@mail.gmail.com>
+From: VIJAY KUMAR <thinkstor@gmail.com>
+Content-Type: multipart/alternative; boundary=000e0cd2583097431c046ae8751b
+Subject: [Bridge] Help Needed On Ethernet Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,86 +12,103 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@osdl.org, bridge@osdl.org, josh@imagestream.com, nick@fedchik.org.ua
+To: bridge@osdl.org
 
---0016e644cefacdfdce046af4bf42
+--000e0cd2583097431c046ae8751b
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Hi all ,
+Hi All,
+           My requirement is as below,
 
-I saw your posts on the net, I need one help from you.
+* I have to create a bridge on linux machine (kernel 2.6.23) and it has 2
+interfaces(eth0 & eth1)
+* I should have the control of Port State Changes
+(LISTENING,LEARNING,BLOCKING,FORWARDING,DISABLED) and
+   Only BLOCKING & FORWARDING States I Wud Be Using. I have to ensure that
+the port state never goes to any other states other than BLOCKING &
+FORWARDING.
+* Other thing is I have to send the control packets using the llc API's &
+NF_HOOK On both the interfaces and I recieve on LLC_SAP_BSPAN (Service
+Access Point Of STP)
 
-I am creating a bridge br0 for eth0 and tap0 ( virtual ). The bridge will
-actually receives the message and routes it to ethernet devices connected.
+The Messages I Send Wud be Control Packets Which Have To Pass Through Even
+If Port State Is BLOCKING...
 
-I was able to route the ethernet frames from tap0 to the outer world via the
-bridge. But while receiving the response, all the frames with TCP is routed
-to the eth0 device. The network knows only the MAC address of eth0. So while
-receiving the ehternet frames, the destination MAC is that of eth0.
+I Have to form a ring like this
 
-I used ebtables to translate the MAC address of the incomming packet using
-the Brouting table and nat table . It works fine, but still the ethernet
-frame goes to the eth0 device. I am puzzled to see this behaviour.
- Code:
-ebtables -t broute -A BROUTING -i br0  -p ipv4 --ip-dst 10.66.67.247   -j
-ACCEPT
-ebtables -t broute -A BROUTING -i br0   -p ipv4 --ip-dst 10.66.67.247  -j
-ACCEPT ebtables -t nat -A PREROUTING -i eth0 -p ipv4 --ip-dst 10.66.67.247
--j dnat --to-dst 72:CC:9B:60:D0:0E
-Here  72:CC:9B:60:D0:0E is the MAC address of tap0.
+          NODE 1                NODE 2                NODE 3
+ -->eth1        eth0<----->eth1     eth0 <----->eth1      eth0<--
+ |--------------------------------------------------------------|
 
-My neccessity is to get only the ethernet frame to a particular IP address
-on tap0 device.
 
-Ex: I need to get ethernet frames is destined for 10.66.67.247 on the tap0
-device.
-I have the enabled the ipv4 forwarding and enabled the
+What I have done So far is
+ * I have commented the STP port state change code So that Port wont
+traverse to any other state.
+ * I have IOCTL's to Send My Message And I Use LLC API's& NF_HOOK Which STP
+Uses to achieve sending.
+ * Recv Part I Do It On STP's stp_bpdu_rcv().
 
-Can you help me out. I am stuck here almost a week.
-waiting for your response.
+Everything Works Fine But Sometimes It Crashes...
+I'm not getting where exactly its breaking Can u please help me with this
+regard.
 
-Thanks in advance
-Alan J
-
---0016e644cefacdfdce046af4bf42
+--000e0cd2583097431c046ae8751b
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-<div>Hi all ,</div>
-<div>=A0</div>
-<div>I saw your posts on the net, I need one help from you.</div>
-<div>=A0</div>
-<div>I am creating a bridge br0 for eth0 and tap0 ( virtual ). The bridge w=
-ill actually receives the message and routes it to ethernet devices connect=
-ed.<br><br>I was able to route the ethernet frames from tap0 to the outer w=
-orld via the bridge. But while receiving the response, all the frames with =
-TCP is routed to the eth0 device. The network knows only the MAC address of=
- eth0. So while receiving the ehternet frames, the destination MAC is that =
-of eth0.<br>
-<br>I used ebtables to translate the MAC address of the incomming packet us=
-ing the Brouting table and nat table . It works fine, but still the etherne=
-t frame goes to the eth0 device. I am puzzled to see this behaviour.<br>
-</div>
-<div style=3D"MARGIN: 5px 20px 20px">
-<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">Code:</div>
-<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">ebtables -t broute -A=
- BROUTING -i br0=A0 -p ipv4 --ip-dst 10.66.67.247=A0 =A0-j ACCEPT</div>ebta=
-bles -t broute -A BROUTING -i br0=A0=A0 -p ipv4 --ip-dst 10.66.67.247=A0 -j=
- ACCEPT=20
-<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">
-<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">ebtables -t=A0nat -A=
-=A0PREROUTING -i eth0 -p ipv4 --ip-dst 10.66.67.247 -j dnat --to-dst 72:CC:=
-9B:60:D0:0E</div></div></div>
-<div>Here=A0 72:CC:9B:60:D0:0E is the MAC address of tap0.<br><br>My necces=
-sity is to get only the ethernet frame to a particular IP address on tap0 d=
-evice.<br><br>Ex: I need to get ethernet frames is destined for 10.66.67.24=
-7 on the tap0 device.<br>
-</div>
-<div>I have the enabled the ipv4 forwarding and enabled the </div>
-<div><br>Can you help me out. I am stuck here almost a week.<br></div>
-<div>waiting for your response.</div>
-<div><br>Thanks in advance<br>Alan J</div>
-<div>=A0</div>
+<div dir=3D"ltr"><font face=3D"Tahoma" color=3D"#000000" size=3D"2">Hi All,=
+</font></div>
+<div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0 My requirement is as below,</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">* I have to create a brid=
+ge on linux machine (kernel 2.6.23) and it has 2 interfaces(eth0 &amp; eth1=
+)</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">* I should have the contr=
+ol of Port State Changes (LISTENING,LEARNING,BLOCKING,FORWARDING,DISABLED) =
+and</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0=A0 Only BLOCKING &amp=
+; FORWARDING States I Wud Be Using. I have to ensure that the port state ne=
+ver goes to any other states other than BLOCKING &amp; FORWARDING.</font></=
+div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">* Other thing is I have t=
+o send the control packets using the llc API&#39;s &amp; NF_HOOK On both th=
+e interfaces and I recieve on LLC_SAP_BSPAN (Service Access Point Of STP)</=
+font></div>
 
---0016e644cefacdfdce046af4bf42--
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr">The Messages I Send Wud be Control Packets Which Have To P=
+ass Through Even If Port State Is BLOCKING...</div>
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr"><font face=3D"times new roman">I Have to form a ring like =
+this</font></div>
+<div dir=3D"ltr"><font face=3D"times new roman"></font>=A0</div>
+<div dir=3D"ltr">=A0=A0=A0=A0 =A0=A0=A0=A0 NODE 1=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 =A0NODE 2=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 N=
+ODE 3</div>
+<div dir=3D"ltr">=A0--&gt;eth1=A0=A0=A0=A0=A0=A0=A0 eth0&lt;-----&gt;eth1=
+=A0=A0=A0=A0 eth0=A0&lt;-----&gt;eth1=A0=A0=A0=A0=A0 eth0&lt;--</div>
+<div dir=3D"ltr">=A0|------------------------------------------------------=
+--------|</div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">What I have done So far i=
+s</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0* I have commented the=
+ STP port state change code So that=A0Port wont traverse to any other state=
+.</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0* I have IOCTL&#39;s t=
+o Send My Message And I Use LLC API&#39;s&amp; NF_HOOK=A0Which STP Uses to =
+achieve sending.</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0* Recv Part I Do It On=
+ STP&#39;s stp_bpdu_rcv().</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">Everything Works Fine But=
+ Sometimes It Crashes... </font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">I&#39;m not getting where=
+ exactly its breaking Can u please help me with this regard.</font></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div></div>
+
+--000e0cd2583097431c046ae8751b--
