@@ -1,8 +1,11 @@
 MIME-Version: 1.0
-Date: Wed, 27 May 2009 23:19:04 +0530
-Message-ID: <849c76670905271049w76813768v8bce6aed46806c06@mail.gmail.com>
-From: VIJAY KUMAR <thinkstor@gmail.com>
-Content-Type: multipart/alternative; boundary=000e0cd2583097431c046ae8751b
+In-Reply-To: <849c76670905271842y4efc0ed8sbbd047ac27572945@mail.gmail.com>
+References: <849c76670905271049w76813768v8bce6aed46806c06@mail.gmail.com>
+	<849c76670905271842y4efc0ed8sbbd047ac27572945@mail.gmail.com>
+Date: Thu, 28 May 2009 07:17:29 +0530
+Message-ID: <849c76670905271847ta7bc2a8s4464547125f79028@mail.gmail.com>
+From: Thinkstor Inc <thinkstor@gmail.com>
+Content-Type: multipart/alternative; boundary=000e0cd32e0a83d09f046aef24ee
 Subject: [Bridge] Help Needed On Ethernet Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -14,11 +17,11 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@osdl.org
 
---000e0cd2583097431c046ae8751b
+--000e0cd32e0a83d09f046aef24ee
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Hi All,
+   Hi All,
            My requirement is as below,
 
 * I have to create a bridge on linux machine (kernel 2.6.23) and it has 2
@@ -53,10 +56,16 @@ Everything Works Fine But Sometimes It Crashes...
 I'm not getting where exactly its breaking Can u please help me with this
 regard.
 
---000e0cd2583097431c046ae8751b
+--000e0cd32e0a83d09f046aef24ee
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
+<br>
+<div class=3D"gmail_quote">
+<div>
+<div></div>
+<div class=3D"h5">
+<div class=3D"gmail_quote">
 <div dir=3D"ltr"><font face=3D"Tahoma" color=3D"#000000" size=3D"2">Hi All,=
 </font></div>
 <div>
@@ -109,6 +118,7 @@ achieve sending.</font></div>
  Sometimes It Crashes... </font></div>
 <div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">I&#39;m not getting where=
  exactly its breaking Can u please help me with this regard.</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div></div>
+<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div></div></d=
+iv><br></div></div></div><br>
 
---000e0cd2583097431c046ae8751b--
+--000e0cd32e0a83d09f046aef24ee--
