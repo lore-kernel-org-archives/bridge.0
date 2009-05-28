@@ -1,20 +1,9 @@
-References: <20090313183303.GF3436@psychotron.englab.brq.redhat.com>
-	<20090326155205.GA28868@psychotron.englab.brq.redhat.com>
-	<20090526151717.GB11147@psychotron.englab.brq.redhat.com>
-	<20090527135351.GD1652@psychotron.englab.brq.redhat.com>
-	<20090528110459.GE22391@psychotron.englab.brq.redhat.com>
-Message-Id: <9DF1DDD3-611B-40E7-9132-038BDCB86CC7@gmail.com>
-From: Andy Gospodarek <adgospod@gmail.com>
-In-Reply-To: <20090528110459.GE22391@psychotron.englab.brq.redhat.com>
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0 (iPhone Mail 5G77)
-Date: Thu, 28 May 2009 08:11:30 -0400
-Subject: Re: [Bridge] [PATCH net-next] bonding: allow bond in mode
-	balance-alb to work properly in bridge -try4.3
+MIME-Version: 1.0
+Date: Thu, 28 May 2009 13:58:49 +0530
+Message-ID: <1de614680905280128v1d33285fi53a8d2b6ea88d096@mail.gmail.com>
+From: Johnnie alan <johnniealan@gmail.com>
+Content-Type: multipart/alternative; boundary=0016e644cefacdfdce046af4bf42
+Subject: [Bridge] Ethernet Bridging.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,125 +12,86 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jiri Pirko <jpirko@redhat.com>
-Cc: "fubar@us.ibm.com" <fubar@us.ibm.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "oleg@redhat.com" <oleg@redhat.com>, "mschmidt@redhat.com" <mschmidt@redhat.com>, "bonding-devel@lists.sourceforge.net" <bonding-devel@lists.sourceforge.net>, "jgarzik@pobox.com" <jgarzik@pobox.com>, "dada1@cosmosbay.com" <dada1@cosmosbay.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: shemminger@osdl.org, bridge@osdl.org, josh@imagestream.com, nick@fedchik.org.ua
 
-On May 28, 2009, at 7:05 AM, Jiri Pirko <jpirko@redhat.com> wrote:
+--0016e644cefacdfdce046af4bf42
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> [PATCH net-next] bonding: allow bond in mode balance-alb to work  
-> properly in bridge -try4.3
->
-> (updated)
-> changes v4.2 -> v4.3
-> - memcpy the address always, not just in case it differs from master- 
-> >dev_addr
-> - compare_ether_addr_64bits() is not used so there is no direct need  
-> to make new
->  header file (I think it would be good to have bond stuff in  
-> separate file
->  anyway).
->
-> changes v4.1 -> v4.2
-> - use skb->pkt_type == PACKET_HOST compare rather then comparing skb  
-> dest addr
->  against skb->dev->dev_addr
->
-> Hi all.
->
-> The problem is described in following bugzilla:
-> https://bugzilla.redhat.com/show_bug.cgi?id=487763
->
-> Basically here's what's going on. In every mode, bonding interface  
-> uses the same
-> mac address for all enslaved devices (except fail_over_mac). Only  
-> balance-alb
-> will simultaneously use multiple MAC addresses across different  
-> slaves. When you
-> put this kind of bond device into a bridge it will only add one of  
-> mac adresses
-> into a hash list of mac addresses, say X. This mac address is marked  
-> as local.
-> But this bonding interface also has mac address Y. Now then packet  
-> arrives with
-> destination address Y, this address is not marked as local and the  
-> packed looks
-> like it needs to be forwarded. This packet is then lost which is  
-> wrong.
->
-> Notice that interfaces can be added and removed from bond while it  
-> is in bridge.
->
-> ***
-> When the multiple addresses for bridge port approach failed to solve  
-> this issue
-> due to STP I started to think other way to solve this. I returned to  
-> previous
-> solution but tweaked one.
->
-> This patch solves the situation in the bonding without touching  
-> bridge code.
-> For every incoming frame to bonding the destination address is  
-> compared to
-> current address of the slave device from which tha packet came. If  
-> these two
-> match destination address is replaced by mac address of the master.  
-> This address
-> is known by bridge so it is delivered properly. Note that the  
-> comparsion is not
-> made directly, it's used skb->pkt_type == PACKET_HOST instead. This  
-> is "set"
-> previously in eth_type_trans().
->
-> I experimentally tried that this works as good as searching through  
-> the slave
-> list (v4 of this patch).
->
-> Jirka
->
->
-> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
->
+Hi all ,
 
-This one is fine too.
+I saw your posts on the net, I need one help from you.
 
-Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+I am creating a bridge br0 for eth0 and tap0 ( virtual ). The bridge will
+actually receives the message and routes it to ethernet devices connected.
 
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index 371ece5..9b4db94 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -1920,6 +1920,16 @@ static inline void  
-> netif_set_gso_max_size(struct net_device *dev,
->    dev->gso_max_size = size;
-> }
->
-> +static inline void skb_bond_set_mac_by_master(struct sk_buff *skb,
-> +                          struct net_device *master)
-> +{
-> +    if (skb->pkt_type == PACKET_HOST) {
-> +        u16 *dest = (u16 *) eth_hdr(skb)->h_dest;
-> +
-> +        memcpy(dest, master->dev_addr, ETH_ALEN);
-> +    }
-> +}
-> +
-> /* On bonding slaves other than the currently active slave, suppress
->  * duplicates except for 802.3ad ETH_P_SLOW, alb non-mcast/bcast, and
->  * ARP on active-backup slaves with arp_validate enabled.
-> @@ -1933,6 +1943,14 @@ static inline int skb_bond_should_drop(struct  
-> sk_buff *skb)
->        if (master->priv_flags & IFF_MASTER_ARPMON)
->            dev->last_rx = jiffies;
->
-> +        if ((master->priv_flags & IFF_MASTER_ALB) && master- 
-> >br_port) {
-> +            /* Do address unmangle. The local destination address
-> +             * will be always the one master has. Provides the right
-> +             * functionality in a bridge.
-> +             */
-> +            skb_bond_set_mac_by_master(skb, master);
-> +        }
-> +
->        if (dev->priv_flags & IFF_SLAVE_INACTIVE) {
->            if ((dev->priv_flags & IFF_SLAVE_NEEDARP) &&
->                skb->protocol == __cpu_to_be16(ETH_P_ARP))
+I was able to route the ethernet frames from tap0 to the outer world via the
+bridge. But while receiving the response, all the frames with TCP is routed
+to the eth0 device. The network knows only the MAC address of eth0. So while
+receiving the ehternet frames, the destination MAC is that of eth0.
+
+I used ebtables to translate the MAC address of the incomming packet using
+the Brouting table and nat table . It works fine, but still the ethernet
+frame goes to the eth0 device. I am puzzled to see this behaviour.
+ Code:
+ebtables -t broute -A BROUTING -i br0  -p ipv4 --ip-dst 10.66.67.247   -j
+ACCEPT
+ebtables -t broute -A BROUTING -i br0   -p ipv4 --ip-dst 10.66.67.247  -j
+ACCEPT ebtables -t nat -A PREROUTING -i eth0 -p ipv4 --ip-dst 10.66.67.247
+-j dnat --to-dst 72:CC:9B:60:D0:0E
+Here  72:CC:9B:60:D0:0E is the MAC address of tap0.
+
+My neccessity is to get only the ethernet frame to a particular IP address
+on tap0 device.
+
+Ex: I need to get ethernet frames is destined for 10.66.67.247 on the tap0
+device.
+I have the enabled the ipv4 forwarding and enabled the
+
+Can you help me out. I am stuck here almost a week.
+waiting for your response.
+
+Thanks in advance
+Alan J
+
+--0016e644cefacdfdce046af4bf42
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>Hi all ,</div>
+<div>=A0</div>
+<div>I saw your posts on the net, I need one help from you.</div>
+<div>=A0</div>
+<div>I am creating a bridge br0 for eth0 and tap0 ( virtual ). The bridge w=
+ill actually receives the message and routes it to ethernet devices connect=
+ed.<br><br>I was able to route the ethernet frames from tap0 to the outer w=
+orld via the bridge. But while receiving the response, all the frames with =
+TCP is routed to the eth0 device. The network knows only the MAC address of=
+ eth0. So while receiving the ehternet frames, the destination MAC is that =
+of eth0.<br>
+<br>I used ebtables to translate the MAC address of the incomming packet us=
+ing the Brouting table and nat table . It works fine, but still the etherne=
+t frame goes to the eth0 device. I am puzzled to see this behaviour.<br>
+</div>
+<div style=3D"MARGIN: 5px 20px 20px">
+<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">Code:</div>
+<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">ebtables -t broute -A=
+ BROUTING -i br0=A0 -p ipv4 --ip-dst 10.66.67.247=A0 =A0-j ACCEPT</div>ebta=
+bles -t broute -A BROUTING -i br0=A0=A0 -p ipv4 --ip-dst 10.66.67.247=A0 -j=
+ ACCEPT=20
+<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">
+<div class=3D"smallfont" style=3D"MARGIN-BOTTOM: 2px">ebtables -t=A0nat -A=
+=A0PREROUTING -i eth0 -p ipv4 --ip-dst 10.66.67.247 -j dnat --to-dst 72:CC:=
+9B:60:D0:0E</div></div></div>
+<div>Here=A0 72:CC:9B:60:D0:0E is the MAC address of tap0.<br><br>My necces=
+sity is to get only the ethernet frame to a particular IP address on tap0 d=
+evice.<br><br>Ex: I need to get ethernet frames is destined for 10.66.67.24=
+7 on the tap0 device.<br>
+</div>
+<div>I have the enabled the ipv4 forwarding and enabled the </div>
+<div><br>Can you help me out. I am stuck here almost a week.<br></div>
+<div>waiting for your response.</div>
+<div><br>Thanks in advance<br>Alan J</div>
+<div>=A0</div>
+
+--0016e644cefacdfdce046af4bf42--
