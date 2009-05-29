@@ -1,11 +1,15 @@
-MIME-Version: 1.0
-In-Reply-To: <849c76670905271049w76813768v8bce6aed46806c06@mail.gmail.com>
-References: <849c76670905271049w76813768v8bce6aed46806c06@mail.gmail.com>
-Date: Fri, 29 May 2009 08:00:54 +0530
-Message-ID: <849c76670905281930y58cfebfdy748a75ad89bbc9f@mail.gmail.com>
-From: Thinkstor Inc <thinkstor@gmail.com>
-Content-Type: multipart/alternative; boundary=001636e1fb0aa4c60b046b03dd70
-Subject: [Bridge] Help Needed On Ethernet Bridge
+Date: Fri, 29 May 2009 01:52:32 -0700 (PDT)
+Message-Id: <20090529.015232.113333227.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <4A1E7887.4000102@gmail.com>
+References: <20090527135351.GD1652@psychotron.englab.brq.redhat.com>
+	<20090528110459.GE22391@psychotron.englab.brq.redhat.com>
+	<4A1E7887.4000102@gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH net-next] bonding: allow bond in mode
+ balance-alb to work properly in bridge -try4.3
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,114 +18,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: eric.dumazet@gmail.com
+Cc: fubar@us.ibm.com, jpirko@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, oleg@redhat.com, mschmidt@redhat.com, jgarzik@pobox.com, bonding-devel@lists.sourceforge.net
 
---001636e1fb0aa4c60b046b03dd70
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Thu, 28 May 2009 13:41:59 +0200
 
- Hi All,
-           My requirement is as below,
+> Jiri Pirko a =E9crit :
+>> [PATCH net-next] bonding: allow bond in mode balance-alb to work pro=
+perly in bridge -try4.3
+>> =
 
-* I have to create a bridge on linux machine (kernel 2.6.23) and it has 2
-interfaces(eth0 & eth1)
-* I should have the control of Port State Changes
-(LISTENING,LEARNING,BLOCKING,FORWARDING,DISABLED) and
-   Only BLOCKING & FORWARDING States I Wud Be Using. I have to ensure that
-the port state never goes to any other states other than BLOCKING &
-FORWARDING.
-* Other thing is I have to send the control packets using the llc API's &
-NF_HOOK On both the interfaces and I recieve on LLC_SAP_BSPAN (Service
-Access Point Of STP)
+>> (updated)
+>> changes v4.2 -> v4.3
+>> - memcpy the address always, not just in case it differs from master=
+->dev_addr
+>> - compare_ether_addr_64bits() is not used so there is no direct need=
+ to make new
+>>   header file (I think it would be good to have bond stuff in separa=
+te file
+>>   anyway).
+> =
 
-The Messages I Send Wud be Control Packets Which Have To Pass Through Even
-If Port State Is BLOCKING...
+> Yes, this could be done in a future cleanup patch.
+> I find this (short) version easier to review for a new feature.
+> =
 
-I Have to form a ring like this
+> Signed-off-by: Eric Dumazet <eric.dumazet@gmail.com>
 
-          NODE 1                NODE 2                NODE 3
- -->eth1        eth0<----->eth1     eth0 <----->eth1      eth0<--
- |--------------------------------------------------------------|
-
-
-What I have done So far is
- * I have commented the STP port state change code So that Port wont
-traverse to any other state.
- * I have IOCTL's to Send My Message And I Use LLC API's& NF_HOOK Which STP
-Uses to achieve sending.
- * Recv Part I Do It On STP's stp_bpdu_rcv().
-
-Everything Works Fine But Sometimes It Crashes...
-I'm not getting where exactly its breaking Can u please help me with this
-regard.
-
-I'm getting the BUG: scheduling while atomic: journald ox..
-
-Cheers
-Thinkstor
-
---001636e1fb0aa4c60b046b03dd70
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div class=3D"gmail_quote">
-<div dir=3D"ltr"><font face=3D"Tahoma" color=3D"#000000" size=3D"2">Hi All,=
-</font></div>
-<div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0 My requirement is as below,</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">* I have to create a brid=
-ge on linux machine (kernel 2.6.23) and it has 2 interfaces(eth0 &amp; eth1=
-)</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">* I should have the contr=
-ol of Port State Changes (LISTENING,LEARNING,BLOCKING,FORWARDING,DISABLED) =
-and</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0=A0 Only BLOCKING &amp=
-; FORWARDING States I Wud Be Using. I have to ensure that the port state ne=
-ver goes to any other states other than BLOCKING &amp; FORWARDING.</font></=
-div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">* Other thing is I have t=
-o send the control packets using the llc API&#39;s &amp; NF_HOOK On both th=
-e interfaces and I recieve on LLC_SAP_BSPAN (Service Access Point Of STP)</=
-font></div>
-
-<div dir=3D"ltr">=A0</div>
-<div dir=3D"ltr">The Messages I Send Wud be Control Packets Which Have To P=
-ass Through Even If Port State Is BLOCKING...</div>
-<div dir=3D"ltr">=A0</div>
-<div dir=3D"ltr"><font face=3D"times new roman">I Have to form a ring like =
-this</font></div>
-<div dir=3D"ltr"><font face=3D"times new roman"></font>=A0</div>
-<div dir=3D"ltr">=A0=A0=A0=A0 =A0=A0=A0=A0 NODE 1=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 =A0NODE 2=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 N=
-ODE 3</div>
-<div dir=3D"ltr">=A0--&gt;eth1=A0=A0=A0=A0=A0=A0=A0 eth0&lt;-----&gt;eth1=
-=A0=A0=A0=A0 eth0=A0&lt;-----&gt;eth1=A0=A0=A0=A0=A0 eth0&lt;--</div>
-<div dir=3D"ltr">=A0|------------------------------------------------------=
---------|</div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">What I have done So far i=
-s</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0* I have commented the=
- STP port state change code So that=A0Port wont traverse to any other state=
-.</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0* I have IOCTL&#39;s t=
-o Send My Message And I Use LLC API&#39;s&amp; NF_HOOK=A0Which STP Uses to =
-achieve sending.</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">=A0* Recv Part I Do It On=
- STP&#39;s stp_bpdu_rcv().</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">Everything Works Fine But=
- Sometimes It Crashes... </font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2">I&#39;m not getting where=
- exactly its breaking Can u please help me with this regard.</font></div>
-<div dir=3D"ltr"><font face=3D"tahoma" size=3D"2"></font>=A0</div>
-<div dir=3D"ltr">I&#39;m getting the BUG: scheduling while atomic: journald=
- ox..=A0</div>
-<div dir=3D"ltr">=A0</div></div></div>
-<div>Cheers</div>
-<div>Thinkstor<br></div>
-
---001636e1fb0aa4c60b046b03dd70--
+Applied, thanks everyone.
