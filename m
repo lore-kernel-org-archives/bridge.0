@@ -1,13 +1,12 @@
-Date: Mon, 8 Jun 2009 08:45:01 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20090608084501.3ad3b1e8@nehalam>
-In-Reply-To: <faa7e341ce02305bcdfd92357f4b11a3@a51040>
-References: <faa7e341ce02305bcdfd92357f4b11a3@a51040>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [Urgent Question] When we use a bridge interface,
- we can't connect the network occasionally.
+From: Ross Vandegrift <ross@kallisti.us>
+Date: Mon, 8 Jun 2009 11:50:32 -0400
+Message-ID: <20090608155032.GA8923@kallisti.us>
+References: <OF468ECA85.09186D4C-ONC12575CF.00554E83-C12575CF.0055AFA2@transmode.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF468ECA85.09186D4C-ONC12575CF.00554E83-C12575CF.0055AFA2@transmode.se>
+Subject: Re: [Bridge] Looking at impl. Private VLAN
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,28 +15,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?B?6rmA7Z2s7JiB?= <wild1018@naver.com>
-Cc: bridge@linux-foundation.org
+To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Cc: bridge@lists.linux-foundation.org
 
-On Mon, 08 Jun 2009 11:08:53 +0900
-=EA=B9=80=ED=9D=AC=EC=98=81<wild1018@naver.com> wrote:
+On Mon, Jun 08, 2009 at 05:35:55PM +0200, Joakim Tjernlund wrote:
+> 
+> I am looking into impl Private VLAN(or part thereof) as specified by
+>  http://www.rfc-editor.org/internet-drafts/draft-sanjib-private-vlan-10.txt
+> 
+> Would that be a welcome addition to the linux bride or is there
+> a better method for doing "Private VLAN"?
 
-> Hello, I'm Hee-Young.
-> =20
-> Because I get trouble in using the Bridge, I send you this e-mail.
-> (A few days ago, I saw your e-mail address at the web site "http://www.li=
-nuxfoundation.org/en/Net:Bridge#FAQ".)
-> =20
-> I want to know whether I use the bridge mode correctly.
-> =20
-> [System Specification]
-> =20
-> * My system is Redhat 9 (v2.4.28) and it's network driver is sk98lin, the=
- version is v10.61.3.3.
+It should be pretty simple to cook up a private VLAN setup using
+ebtables.  At the simplest level, you could simply write policy to
+only permit frames between specified interfaces.  In this way, each
+group of interfaces would represent a private VLAN.
 
-Both the 2.4 kernel and the sk98lin have been replaced by newer and better =
-software.
-Have you considered using 2.6 and either the skge/sky2 driver..
+But ebtables is pretty flexible - with the right ruleset, you should
+be able to cook up all kinds of crazy, fun stuff!
 
-> [Network Configuration]
->=20
+-- 
+Ross Vandegrift
+ross@kallisti.us
+
+"If the fight gets hot, the songs get hotter.  If the going gets tough,
+the songs get tougher."
+	--Woody Guthrie
