@@ -1,12 +1,9 @@
+Message-ID: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Wed, 10 Jun 2009 15:32:06 +0200
 MIME-Version: 1.0
-In-Reply-To: <a8e2ebfb0906040128p25fa2960j1c78045caadfc9b6@mail.gmail.com>
-References: <a8e2ebfb0906040128p25fa2960j1c78045caadfc9b6@mail.gmail.com>
-Date: Tue, 9 Jun 2009 21:49:25 -0700
-Message-ID: <fed120860906092149t405d80a5y7fc32c5c05f1f450@mail.gmail.com>
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Problem in mixing RSTP/STP configuration
+Content-type: text/plain; charset=US-ASCII
+Subject: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,134 +12,116 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ramasamy Chandramouli <ramasamycmouli@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-One thing that could be a problem is that p0 on the two RSTP switches
-are set to auto p2p. This means that the RSTP will assume that it is
-p2p if the link is duplex and that it is a broadcast LAN segment if
-the link is not duplex. This assumption is valid only if all switches
-on the network are STP capable and only hubs create non p2p LAN
-segments. That is not the case in your network since there is a non
-STP switch. Try administratively setting the p0 ports on the RSTP
-switches to have p2p set to no.
 
-On Thu, Jun 4, 2009 at 1:28 AM, Ramasamy
-Chandramouli<ramasamycmouli@gmail.com> wrote:
-> Hello,
->
-> I'm using rstpd application over two switches and they are connected
-> to another Nortel switch which operates STP rather than RSTP. They are
-> all connected by a 10/100 ethernet switch which does not process
-> BPDUs. Here is a simplified diagram when the system is up and running.
->
->  +-------------+    R
->  | Root-Bridge o--------+
->  +-------------+    STP |
->                         |
->             +-----------o--------------+
->             |      STP_SW_NORTEL       |
->             +-----------o--------------+
->                         |
->                       L | STP
->                         |
->                   +-----o-----+
->  +------+         |           |   10/100 ethernet
->  | Host o---------o           |   switch
->  +------+         |           |   (no BPDU processing)
->                   +--o-----o--+
->                      |     |
->              STP     |     |    STP
->           +----------+     +----------+
->        p0 |                           | p0
->     +-----o-----+               +-----o-----+
->     |           | p1         p1 |           |
->     | RSTP_SW1  o---------------o  RSTP_SW2 |
->     |           |     RSTP      |           |
->     +-----------+               +-----------+
->
-> The MACs of the bridges and the root bridge to which they are all
-> synced with are:
->
->    Root bridge:     00:11:22:xx:xx:xx
->    STP_SW_NORTEL:   00:11:58:xx:xx:xx
->    RSTP_SW1:        02:e0:xx:xx:44:01
->    RSTP_SW2:        02:e0:xx:xx:42:01
->
-> The STP_SW_NORTEL carries the root bridge identifier in its STP BPDU
-> and the RSTP algorithm on RSTP_SW1 and RSTP_SW2 migrates the p0 port
-> to perform STP transactions. After a brief TopologyChange transaction,
-> the port states were as follows:
->
->   Switch    Port    Root-Bridge         Designated-Bridge   Role/State
->  RSTP_SW1    p0     00:11:22:xx:xx:xx   02:e0:xx:xx:44:01   Root,Fwd
->              p1     00:11:22:xx:xx:xx   02:e0:xx:xx:44:01   Altn,Disc
->
->  RSTP_SW2    p0     00:11:22:xx:xx:xx   02:e0:xx:xx:42:01   Root,Fwd
->              p1     00:11:22:xx:xx:xx   02:e0:xx:xx:42:01   Desg,Fwd
->
->  p0 - auto-p2p, non-edge
->  p1 - auto-p2p, auto-edge
->
-> The cost and port/bridge priorities are not modified and are left to
-> defaults assigned by the rstpd application. Sniffing the BPDUs from
-> the host reveals that after a while only STP_SW_NORTEL switch is
-> sending out the hello packets, and the bridges RSTP_SW1 and RSTP_SW2
-> are in sync with it.
->
-> I'm facing the following problem:
->
-> If the link L is removed, the switch RSTP_SW1 and RSTP_SW2 ends up
-> forming a loop. The port RSTP_SW1::p1 comes to forwarding state before
-> blocking the port RSTP_SW1::p0. The following are the sequence of
-> ports states:
->
->                       RSTP_SW1           RSTP_SW2
-> [before L is connected]
->                  p0:  altn/disc          desg/fwd
->                  p1:  root/fwd           desg/fwd
->
-> [after L is connected]
->                  p0:  root/fwd           root/fwd
->                  p1:  altn/disc          desg/fwd
->
-> [after L is disconnected]
->                  p0:  desg/fwd           root/fwd
->                  p1:  root/disc          desg/fwd
->
->                  p0:  desg/fwd           root/fwd
->                  p1:  root/learn         desg/fwd
->
->                  p0:  desg/fwd           root/fwd
->                  p1:  root/fwd           desg/fwd
->
-> After disconnecting link L, the RSTP port moves through the
-> learning/forwarding states that puts the bridge to loop.
->
-> If the mediating ethernet switch is removed and if the switches
-> RSTP_SW1 and RSTP_SW2 are directly connected to  STP_SW_NORTEL switch,
-> the switches RSTP_SW1 and RSTP_SW2 loops up, if the root bridge link,
-> R is removed. The sequence seems to be:
->
->       1.  RSTP_SW2::p0 sends out a TC BPDU with its own bridge ID as
-> root bridge id.
->       2.  RSTP_SW1::p0 sends out a TC BPDU with the root bridge as
-> the lost root bridge's ID.
->       3.  The above when received by RSTP_SW2::p0, thinks that it has
-> received a superior bridge and tries to sync up with the root bridge
-> ID sent by its neighbour: RSTP_SW1.
->
-> After the above sequence, the port RSTP_SW1::p1 ends up in
-> learning/forwarding sequence which eventually forms a loop before
-> migrating any of the other STP ports to blocking/discarding mode.
->
-> It would be of great help if some one could provide an insight into
-> what could be going wrong.
->
-> Regards,
-> Ramasamy
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+Even though some folks on this list thinks ebtables should be used
+to deploy Private VLAN I find using ebtables a bit clumsy.
+
+So here a first simple(RFC only) Private VLAN impl. for only Promiscuous and Isolated
+mode for the linux bridge. Not tested yet.
+
+ Jocke
+
+
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index d2c27c8..c10362c 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -18,11 +18,30 @@
+ #include <linux/netfilter_bridge.h>
+ #include "br_private.h"
+
+-/* Don't forward packets to originating port or forwarding diasabled */
+-static inline int should_deliver(const struct net_bridge_port *p,
++/* Don't forward packets to originating port or forwarding disabled.
++ * Don't froward packets between private VLAN's in ISOLATED mode.
++ */
++static inline int should_deliver(const struct net_bridge_port *to,
+ 				 const struct sk_buff *skb)
+ {
+-	return (skb->dev != p->dev && p->state == BR_STATE_FORWARDING);
++	struct net_bridge_port *from = rcu_dereference(skb->dev->br_port);
++
++	if (skb->dev == to->dev || to->state != BR_STATE_FORWARDING)
++		return 0;
++	if (to->priv_vlan == PVLAN_ISOLATED &&
++	    from->priv_vlan == PVLAN_ISOLATED)
++		return 0;
++	return 1;
++}
++
++int br_set_private_vlan(struct net_bridge_port *p,
++			unsigned long v)
++{
++	if (!(v == PVLAN_ISOLATED ||
++	      v == PVLAN_PROMISC))
++		return 1;
++	p->priv_vlan = v;
++	return 0;
+ }
+
+ static inline unsigned packet_length(const struct sk_buff *skb)
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index b6c3b71..6f63b7f 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -30,6 +30,10 @@
+ /* Path to usermode spanning tree program */
+ #define BR_STP_PROG	"/sbin/bridge-stp"
+
++/* Private VLAN defs */
++#define PVLAN_PROMISC 0
++#define PVLAN_ISOLATED 1
++
+ typedef struct bridge_id bridge_id;
+ typedef struct mac_addr mac_addr;
+ typedef __u16 port_id;
+@@ -67,6 +71,7 @@ struct net_bridge_port
+ 	/* STP */
+ 	u8				priority;
+ 	u8				state;
++	u8				priv_vlan;
+ 	u16				port_no;
+ 	unsigned char			topology_change_ack;
+ 	unsigned char			config_pending;
+@@ -175,6 +180,7 @@ extern void br_forward(const struct net_bridge_port *to,
+ extern int br_forward_finish(struct sk_buff *skb);
+ extern void br_flood_deliver(struct net_bridge *br, struct sk_buff *skb);
+ extern void br_flood_forward(struct net_bridge *br, struct sk_buff *skb);
++extern int br_set_private_vlan(struct net_bridge_port *p, unsigned long v);
+
+ /* br_if.c */
+ extern void br_port_carrier_check(struct net_bridge_port *p);
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 02b2d50..aaaa085 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -143,6 +143,18 @@ static ssize_t store_flush(struct net_bridge_port *p, unsigned long v)
+ }
+ static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
+
++static ssize_t show_private_vlan(struct net_bridge_port *p, char *buf)
++{
++	return sprintf(buf, "%d\n", p->priv_vlan);
++}
++static ssize_t store_private_vlan(struct net_bridge_port *p, unsigned long v)
++{
++	return br_set_private_vlan(p, v);
++}
++static BRPORT_ATTR(private_vlan, S_IRUGO | S_IWUSR,
++		   show_private_vlan, store_private_vlan);
++
++
+ static struct brport_attribute *brport_attrs[] = {
+ 	&brport_attr_path_cost,
+ 	&brport_attr_priority,
+@@ -159,6 +171,7 @@ static struct brport_attribute *brport_attrs[] = {
+ 	&brport_attr_forward_delay_timer,
+ 	&brport_attr_hold_timer,
+ 	&brport_attr_flush,
++	&brport_attr_private_vlan,
+ 	NULL
+ };
+
+
