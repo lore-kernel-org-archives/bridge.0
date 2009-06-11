@@ -1,12 +1,17 @@
-MIME-Version: 1.0
-In-Reply-To: <OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>
 References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>
 	<20090610074542.39f713eb@nehalam>
 	<OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>
-Date: Thu, 11 Jun 2009 13:51:06 -0600
-Message-ID: <de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: multipart/alternative; boundary=0016e645b9bea5f647046c17e93e
+	<20090610162752.GB24563@kallisti.us>
+	<OF4422F49E.33BDAF5C-ONC12575D1.005C802A-C12575D1.005E38A3@LocalDomain>
+	<OF3035BFFB.A9837EFB-ONC12575D2.00451300-C12575D2.00468AB7@transmode.se>
+From: Benny Amorsen <benny+usenet@amorsen.dk>
+Date: Thu, 11 Jun 2009 23:04:48 +0200
+In-Reply-To: <OF3035BFFB.A9837EFB-ONC12575D2.00451300-C12575D2.00468AB7@transmode.se>
+	(Joakim Tjernlund's message of "Thu\,
+	11 Jun 2009 14\:50\:30 +0200")
+Message-ID: <m3fxe6trbj.fsf@ursa.amorsen.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Subject: Re: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -19,129 +24,83 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
 Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
---0016e645b9bea5f647046c17e93e
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Joakim Tjernlund <joakim.tjernlund@transmode.se> writes:
 
-On Wed, Jun 10, 2009 at 9:32 AM, Joakim Tjernlund <
-joakim.tjernlund@transmode.se> wrote:
+>    ---------------------------------------------------------------
+>    |             | isolat-| promis-| commu-| commu-| interswitch |
+>    |             | ted    | cuous  | nity1 | nity2 | link port   |
+>    ---------------------------------------------------------------
+>    | isolated    | deny   | permit | deny  | deny  | permit      |
+>    ---------------------------------------------------------------
+>    | promiscuous | permit | permit | permit| permit| permit      |
+>    ---------------------------------------------------------------
+>    | community1  | deny   | permit | permit| deny  | permit      |
+>    ---------------------------------------------------------------
+>    | community2  | deny   | permit | deny  | permit| permit      |
+>    ---------------------------------------------------------------
+>    | interswitch |        |        |       |       |             |
+>    | link port   | deny(*)| permit | permit| permit| permit      |
+>    ---------------------------------------------------------------
 
-> Stephen Hemminger <shemminger@vyatta.com> wrote on 10/06/2009 16:45:42:
-> >
-> > On Wed, 10 Jun 2009 15:32:06 +0200
-> > Joakim Tjernlund <joakim.tjernlund@transmode.se> wrote:
-> >
-> > >
-> > > Even though some folks on this list thinks ebtables should be used
-> > > to deploy Private VLAN I find using ebtables a bit clumsy.
-> > >
-> >
-> > I prefer ebtables be used to "patch" bridge to do these kind
-> > of special case things.  Remember any code that is put in mainline
-> > adds additional API's and long term support burden.
->
-> I am not sure this is so special anymore. I know that this
-> adds "support burden" but so does a lot of stuff in the kernel.
->
-> Have anybody managed to do Private VLAN with several switches by
-> just using ebtables? Seems like most people here thinks that
-> ebtables is the right tool but none has provided any examples
-> on how to do it so I am starting to think that noone is so the
-> claim to just use ebtables might be false.
->
->  Jocke
+Ok, I thought this would be really easy, but I must admit I don't get
+how an interswitch link port works. Apparently the different VLAN's are
+allowed to go to the same ports, but you can't send a packet back out
+the physical interface it came in on.
+
+I ignored the community rules, exercise for the reader...
+
+Anyway, this is buggy, but it should give you an idea:
+
+ebtables -A FORWARD -i eth0.4042 -j frominterswitchporteth0
+ebtables -A FORWARD -i eth0.4043 -j frominterswitchporteth0
+ebtables -A FORWARD -i eth0.4044 -j frominterswitchporteth0
+
+ebtables -A FORWARD -i eth1.1 -j frompromiscuous
+ebtables -A FORWARD -i eth1.2 -j fromisolated
+ebtables -A FORWARD -i eth0.4042 -j frominterswitch
+ebtables -A FORWARD -i eth0.4043 -j frominterswitch
+ebtables -A FORWARD -i eth0.4044 -j frominterswitch
+ebtables -A FORWARD -j DROP
+
+ebtables -A frominterswitchporteth0 -o eth0.4042 -j DROP
+ebtables -A frominterswitchporteth0 -o eth0.4043 -j DROP
+ebtables -A frominterswitchporteth0 -o eth0.4044 -j DROP
+ebtables -A frominterswitchporteth0 -j RETURN
+
+#ebtables -A fromisolated -j denyisolated
+ebtables -A fromisolated -j permitpromiscuous
+ebtables -A fromisolated -j permitinterswitch
+ebtables -A fromisolated -j DROP
+
+ebtables -A frompromiscuous -j permitisolated
+ebtables -A frompromiscuous -j permitpromiscuous
+ebtables -A frompromiscuous -j permitinterswitch
+ebtables -A frompromiscuous -j DROP
+
+#ebtables -A frominterswitch -j denyisolated
+ebtables -A frominterswitch -j permitpromiscuous
+ebtables -A frominterswitch -j permitinterswitch
+ebtables -A frominterswitch -j DROP
+
+ebtables -A permitisolated -o eth1.2 -j ACCEPT
+ebtables -A permitisolated -j RETURN
+
+ebtables -A permitpromiscuous -o eth1.1 -j ACCEPT
+ebtables -A permitpromiscuous -j RETURN
+
+ebtables -A permitinterswitch -o eth0.4042 -j ACCEPT
+ebtables -A permitinterswitch -o eth0.4043 -j ACCEPT
+ebtables -A permitinterswitch -o eth0.4044 -j ACCEPT
+ebtables -A permitpromiscuous -j RETURN
+
+Now, to implement an extra interface, just add it to FORWARD with -j
+from<type> and add it to permit<type>. Just two rules. If it's an
+interswitch interface, you need to make a new rule set and add the
+appropriate VLAN's in there as well, so 4 rules per VLAN for those.
+
+It would be handy if ebtables supported interface sets, like netfilter
+supports ipsets.
 
 
-Hi Jocke,
+/Benny
 
-I have not yet done this with ebtables but I plan to in the next two weeks.
-I am also interested in doing some testing for your patch, do see if it is
-better or preferable to the ebtables approach.
-
-I do think that having the bridge code do PVLANs could end up being better.
-In particular, I think this could be *very* useful for virtualization, where
-you are adding/removing interfaces from the bridge often. Why? Because it
-eliminates the need to dynamically create/remove ebtables rules and keep
-them in sync with the interfaces on the bridge.
-
-Stephen, I think one needs to consider the complexity of the patch in terms
-of maintenance -- but it's important to note that the bridge code in the
-kernel is there to serve *us* and be useful to *us*. In other words, the
-highest priority of the code is to be useful. While it is important for the
-code to be maintainable, this should never be the highest priority. This is
-a very small patch so rejecting it on the basis that it increases the
-maintenance burden does not seem like a legitimate argument. And if this
-approach is much simpler in practice then using ebtables, then I think
-something like this should be added.
-
-I do think that if the bridging code can take care of layer 2 PVLANs, and I
-only have to worry about locking down layer 3 via iptables, then this could
-be a superior solution to using ebtables.
-
-Regards,
-
-Daniel
-
---0016e645b9bea5f647046c17e93e
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div class=3D"gmail_quote">On Wed, Jun 10, 2009 at 9:32 AM, Joakim Tjernlun=
-d <span dir=3D"ltr">&lt;<a href=3D"mailto:joakim.tjernlund@transmode.se">jo=
-akim.tjernlund@transmode.se</a>&gt;</span> wrote:<br><blockquote class=3D"g=
-mail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-l=
-eft:1ex;">
-Stephen Hemminger &lt;<a href=3D"mailto:shemminger@vyatta.com">shemminger@v=
-yatta.com</a>&gt; wrote on 10/06/2009 16:45:42:<br>
-<div class=3D"im">&gt;<br>
-&gt; On Wed, 10 Jun 2009 15:32:06 +0200<br>
-&gt; Joakim Tjernlund &lt;<a href=3D"mailto:joakim.tjernlund@transmode.se">=
-joakim.tjernlund@transmode.se</a>&gt; wrote:<br>
-&gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Even though some folks on this list thinks ebtables should be use=
-d<br>
-&gt; &gt; to deploy Private VLAN I find using ebtables a bit clumsy.<br>
-&gt; &gt;<br>
-&gt;<br>
-&gt; I prefer ebtables be used to &quot;patch&quot; bridge to do these kind=
-<br>
-&gt; of special case things. =C2=A0Remember any code that is put in mainlin=
-e<br>
-&gt; adds additional API&#39;s and long term support burden.<br>
-<br>
-</div>I am not sure this is so special anymore. I know that this<br>
-adds &quot;support burden&quot; but so does a lot of stuff in the kernel.<b=
-r>
-<br>
-Have anybody managed to do Private VLAN with several switches by<br>
-just using ebtables? Seems like most people here thinks that<br>
-ebtables is the right tool but none has provided any examples<br>
-on how to do it so I am starting to think that noone is so the<br>
-claim to just use ebtables might be false.<br>
-<br>
-=C2=A0Jocke</blockquote><div><br></div><div>Hi Jocke,</div><div><br></div><=
-div>I have not yet done this with ebtables but I plan to in the next two we=
-eks. I am also interested in doing some testing for your patch, do see if i=
-t is better or preferable to the ebtables approach.</div>
-<div><br></div><div>I do think that having the bridge code do PVLANs could =
-end up being better. In particular, I think this could be *very* useful for=
- virtualization, where you are adding/removing interfaces from the bridge o=
-ften. Why? Because it eliminates the need to dynamically create/remove ebta=
-bles rules and keep them in sync with the interfaces on the bridge.</div>
-<div><br></div><div>Stephen, I think one needs to consider the complexity o=
-f the patch in terms of maintenance -- but it&#39;s important to note that =
-the bridge code in the kernel is there to serve *us* and be useful to *us*.=
- In other words, the highest priority of the code is to be useful. While it=
- is important for the code to be maintainable, this should never be the hig=
-hest priority. This is a very small patch so rejecting it on the basis that=
- it increases the maintenance burden does not seem like a legitimate argume=
-nt. And if this approach is much simpler in practice then using ebtables, t=
-hen I think something like this should be added.</div>
-<div><br></div><div>I do think that if the bridging code can take care of l=
-ayer 2 PVLANs, and I only have to worry about locking down layer 3 via ipta=
-bles, then this could be a superior solution to using ebtables.</div><div>
-<br></div><div>Regards,</div><div><br></div><div>Daniel</div><div>=C2=A0</d=
-iv></div>
-
---0016e645b9bea5f647046c17e93e--
