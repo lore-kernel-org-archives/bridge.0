@@ -1,7 +1,22 @@
-From: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
-Date: Fri, 12 Jun 2009 23:26:50 +0200
-Message-Id: <1244842010-24945-1-git-send-email-Joakim.Tjernlund@transmode.se>
-Subject: [Bridge] [PATCH] [bridge] Add split horizon
+In-Reply-To: <2e59e6970906121231x7278360u19bcc58646116469@mail.gmail.com>
+References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>	
+	<20090610074542.39f713eb@nehalam>
+	<OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>
+	<de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>	
+	<m33aa5bykm.fsf@ursa.amorsen.dk>
+	<OFEA0D61B2.8B351FDC-ONC12575D3.0034AA26-C12575D3.00354697@transmode.se>
+	<20090612125214.GA7461@kallisti.us>	
+	<OF0314F87C.B7A0780D-ONC12575D3.00476B7B-C12575D3.00484E73@transmode.se>
+	<2e59e6970906120619u589ed8dfy8bb327efa305b742@mail.gmail.com>	
+	<OF32E45445.B5790A30-ONC12575D3.004B77E2-C12575D3.004BBABD@transmode.se>
+	<2e59e6970906121231x7278360u19bcc58646116469@mail.gmail.com>
+Message-ID: <OFB9321502.79301BE7-ONC12575D3.0075D3D1-C12575D3.00765847@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Fri, 12 Jun 2009 23:32:39 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-15
+Content-transfer-encoding: quoted-printable
+Subject: Re: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -10,119 +25,121 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Benny Amorsen <benny+usenet@amorsen.dk>
 
-Currently the bridge does not impl. split horizon which will easily
-cause loops when 2 or more VLANs are added from the same physical interface.
-Impl. split horizon and add /sys/class/net/br0/bridge/split_horizon
-to turn it off.
+"richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote on 12/06/2009 2=
+1:31:08:
 
-Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
----
-Leaving for 1 week vacation next week, but feel free to
-comment and/or test.
+>
+> On Fri, Jun 12, 2009 at 8:47 AM, Joakim
+> Tjernlund<joakim.tjernlund@transmode.se> wrote:
+> > "richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote on 12/06/20=
+09 15:19:22:
+> >>
+> >> On Fri, Jun 12, 2009 at 8:09 AM, Joakim
+> >> Tjernlund<joakim.tjernlund@transmode.se> wrote:
+> >> > Ross Vandegrift <ross@kallisti.us> wrote on 12/06/2009 14:52:14:=
 
- Jocke
+> >> >>
+> >> >> On Fri, Jun 12, 2009 at 11:41:55AM +0200, Joakim Tjernlund wrot=
+e:
+> >> >> > Yes, sets would be nice. However I wonder if this case isn't =
+a bug
+> >> >> > in any case:
+> >> >> > Consider these VLANS:
+> >> >> > =A0eth0.4042
+> >> >> > =A0eth0.4043
+> >> >> > =A0eth0.4044
+> >> >> >
+> >> >> > Add them to a bridge and the bridge will pass pkgs between th=
+em, right?
+> >> >> > However no real switch I know would do that because they are =
+on
+> >> >> > the same physical interface.
+> >> >>
+> >> >> No, that's not a problem at all. =A0Any dot1q bridge would beha=
+ve
+> >> >> exactly as Linux does if it supports VLAN bridging (which at le=
+ast
+> >> >> Cisco, Nortel, and Juniper do in varying capcities).
+> >> >>
+> >> >> Moreover, any dot1q bridge that doesn't support VLAN bridging c=
+an
+> >> >> (be careful!) have the feature added by adding one untagged por=
+t into
+> >> >> each VLAN and cabling them to a dot1d bridge. =A0Linux just sav=
+es you
+> >> >> cables.
+> >> >>
+> >> >> The split-horizon rule is for flooding into a broadcast domain.=
+ =A0For
+> >> >> purposes of split-horizon flooding, each of your VLAN interface=
+s are
+> >> >> physical interfaces - a broadcast frame arrived on one of the p=
+orts
+> >> >> and needs to be flooded out all of the others.
+> >> >
+> >> > hmm, then I don't understand how Private VLAN is supposed to wor=
+k over
+> >> > the interswitch port. If I understand you correctly, a Bcast pkg=
+ arriving
+> >> > on VLAN 4042 will be forwarded back over 4043 and 4044 VLANs, th=
+en the
+> >> > receiving switch will forward back these to pkgs once again and
+> >> > it never stops?
+> >>
+> >> Only one switch would be configured to bridge between VLANs.
+> >>
+> >> VLANs are by default (in the absence of enabling bridging) isolati=
+on barriers.
+> >>
+> >> Most entry-level physical switches (basic VLAN support only) consi=
+der
+> >> all VLANs with the same ID to be members of the same bridge, there=
+ is
+> >> one such bridge for each configured VLAN. =A0Linux allows you to h=
+ave
+> >> this operation trivially, but allows far more powerful combination=
+s.
+> >>
+> >> All this "promiscuous VLAN" stuff is just an attempt to bring some=
+ of
+> >> the features of software bridging (e.g. Linux) to hardware switche=
+s in
+> >> a standard way.
+> >
+> > OK, this would suggest that the default mode of the linux bridge is=
+ wrong
+> > and can cause loops and other ill effects. A user should not have
+> > to resort to ebtables just to turn off this behaviour.
+> >
+> > =A0Jocke
+>
+> The default mode of linux bridging is just fine.  I'm suspecting you
+> have followed some complicated example setup which wasn't appropriate=
 
- net/bridge/br_forward.c  |   12 +++++++++++-
- net/bridge/br_if.c       |    2 +-
- net/bridge/br_private.h  |    1 +
- net/bridge/br_sysfs_br.c |   26 ++++++++++++++++++++++++++
- 4 files changed, 39 insertions(+), 2 deletions(-)
+> for your environment and broke things.
+>
+> If you want linux to act like a physical switch:
+>
+> add ethN.0 to br0
+> add ethN.1 to br1
+> add ethN.j to brj
+>
+> all VLANs will be isolated from each other just like a simple
+> VLAN-capable switch.
+>
+> If you don't want traffic from VLAN 4042 to go out over VLAN 4043,
+> don't add them to the same bridge instance.
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index d2c27c8..cfa1f7e 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -22,7 +22,17 @@
- static inline int should_deliver(const struct net_bridge_port *p,
- 				 const struct sk_buff *skb)
- {
--	return (skb->dev != p->dev && p->state == BR_STATE_FORWARDING);
-+	struct net_device *indev = skb->dev;
-+	struct net_device *todev = p->dev;
-+
-+	if (p->br->flags & BR_SPLIT_HORIZON) {
-+		if (indev->priv_flags & IFF_802_1Q_VLAN)
-+			indev = vlan_dev_real_dev(indev);
-+		if (todev->priv_flags & IFF_802_1Q_VLAN)
-+			todev = vlan_dev_real_dev(todev);
-+	}
-+
-+	return (indev != todev && p->state == BR_STATE_FORWARDING);
- }
- 
- static inline unsigned packet_length(const struct sk_buff *skb)
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 727c5c5..f23e338 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -203,7 +203,7 @@ static struct net_device *new_bridge_dev(struct net *net, const char *name)
- 	br->topology_change = 0;
- 	br->topology_change_detected = 0;
- 	br->ageing_time = 300 * HZ;
--
-+	br->flags = BR_SPLIT_HORIZON;
- 	br_netfilter_rtable_init(br);
- 
- 	INIT_LIST_HEAD(&br->age_list);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b6c3b71..2c99877 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -98,6 +98,7 @@ struct net_bridge
- #endif
- 	unsigned long			flags;
- #define BR_SET_MAC_ADDR		0x00000001
-+#define BR_SPLIT_HORIZON	0x00000002
- 
- 	/* STP */
- 	bridge_id			designated_root;
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 603d892..d0eebc1 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -344,6 +344,31 @@ static ssize_t store_flush(struct device *d,
- }
- static DEVICE_ATTR(flush, S_IWUSR, NULL, store_flush);
- 
-+static ssize_t show_split_horizon(struct device *d,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	struct net_bridge *br = to_bridge(d);
-+	int val = !!(br->flags & BR_SPLIT_HORIZON);
-+
-+	return sprintf(buf, "%d\n", val);
-+}
-+static int set_split_horizon(struct net_bridge *br, unsigned long val)
-+{
-+	if (val)
-+		br->flags |= BR_SPLIT_HORIZON;
-+	else
-+		br->flags &= ~BR_SPLIT_HORIZON;
-+	return 0;
-+}
-+
-+static ssize_t store_split_horizon(struct device *d,
-+				   struct device_attribute *attr,
-+				   const char *buf, size_t len)
-+{
-+	return store_bridge_parm(d, buf, len, set_split_horizon);
-+}
-+static DEVICE_ATTR(split_horizon, S_IRUGO | S_IWUSR, show_split_horizon, store_split_horizon);
-+
- static struct attribute *bridge_attrs[] = {
- 	&dev_attr_forward_delay.attr,
- 	&dev_attr_hello_time.attr,
-@@ -363,6 +388,7 @@ static struct attribute *bridge_attrs[] = {
- 	&dev_attr_gc_timer.attr,
- 	&dev_attr_group_addr.attr,
- 	&dev_attr_flush.attr,
-+	&dev_attr_split_horizon.attr,
- 	NULL
- };
- 
--- 
-1.6.2.3
+But why should I not be able to add both 4043 and 4044 to the same brid=
+ge?
+
+I just sent a patch to add split horizon support to the linux bridge. H=
+ave
+a look. More power to the linux bridge that way.
+
+   Jocke=
+
 
