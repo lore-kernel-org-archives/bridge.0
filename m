@@ -1,14 +1,14 @@
-From: Ross Vandegrift <ross@kallisti.us>
-Date: Thu, 11 Jun 2009 19:58:45 -0400
-Message-ID: <20090611235845.GB3432@kallisti.us>
+MIME-Version: 1.0
+In-Reply-To: <20090611235845.GB3432@kallisti.us>
 References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>
 	<20090610074542.39f713eb@nehalam>
 	<OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>
 	<de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>
+	<20090611235845.GB3432@kallisti.us>
+Date: Thu, 11 Jun 2009 18:15:46 -0600
+Message-ID: <de7adc5e0906111715s56f13ad0o760840dfadba797@mail.gmail.com>
+From: Daniel Robbins <drobbins@funtoo.org>
+Content-Type: multipart/alternative; boundary=0016e645b9be2254b9046c1b9cb4
 Subject: Re: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -18,59 +18,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Daniel Robbins <drobbins@funtoo.org>
+To: Ross Vandegrift <ross@kallisti.us>
 Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Joakim Tjernlund <joakim.tjernlund@transmode.se>
 
-On Thu, Jun 11, 2009 at 01:51:06PM -0600, Daniel Robbins wrote:
-> I do think that having the bridge code do PVLANs could end up being better.
-> In particular, I think this could be *very* useful for virtualization, where
-> you are adding/removing interfaces from the bridge often. Why? Because it
-> eliminates the need to dynamically create/remove ebtables rules and keep
-> them in sync with the interfaces on the bridge.
+--0016e645b9be2254b9046c1b9cb4
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-In the virtualization case, I think it's actually easier: do it via
-MAC addresses instead of interfaces.  In this case, since you're
-creating the virtual environments, you'll know the MAC address that
-gets generated for each VE.
+On Thu, Jun 11, 2009 at 5:58 PM, Ross Vandegrift <ross@kallisti.us> wrote:
 
-1) Set your policy to deny.
-2) Permit all frames destined to/from the promiscuous MACs.
-3) Permit all broadcast frames to the promiscuous MACs.
+> 2) Many VEs in many communities spread across many hosts.  For
+> example, it might get bad if you had 5 communities across 100 hosts,
+> with each community having 100 VEs.  This would mean each host needs
+> a full set of 10000 MAC rules for each community - 50000 ebtables
+> rules.  In this case, I'd again prefer a routed design (well, any case
+> actually...) and if a common "community" LAN was a software
+> requirement, I'd use multipoint GRE or L2TP.
+>
+> But for one node with a bunch of unrelated VEs, this is very little
+> work to maintain.
+>
 
-That takes care of the "isolated" use case.  If you need to support
-the "community" case:
-4) Add pairwise bidirectional rules to permit communications between
-each MAC in a community. 
+In my particular configuration, there are no communities - each VE is an
+island, and will only be able to communicate with the network gateway (which
+is non-local, ie. not on the linux bridge itself.) That should lock down
+layer 2. With OpenVZ, each VE's MAC will have a common SWSoft 00:18:51
+prefix.
 
-Why is this easier?  Since you know the MACs of the VEs, you have a
-trivial way of identifying the rules associated with a VE.  This way,
-you know what rules to spin up and remove during the turnup or
-disabling of a VE.  Moreover, since all of the rules permit specific
-traffic, the order doesn't even matter.
+After I get that working, I need to lock down layer 3 with iptables, so the
+PVLAN functionality can't be bypassed.
 
-There's two obvious cases where this won't scale:
+If you have any configuration examples for ebtables, especially simple ones,
+I would welcome them :)
 
-1) Many VEs on a single host where the VEs form a complicated routing
-heirarchy.  In this case, you'll have a rat's nest of MAC rules.  But
-I'd say in this case a private VLAN solution was a bad design choice.
+Thanks,
 
-2) Many VEs in many communities spread across many hosts.  For
-example, it might get bad if you had 5 communities across 100 hosts,
-with each community having 100 VEs.  This would mean each host needs
-a full set of 10000 MAC rules for each community - 50000 ebtables
-rules.  In this case, I'd again prefer a routed design (well, any case
-actually...) and if a common "community" LAN was a software
-requirement, I'd use multipoint GRE or L2TP.
+Daniel
 
-But for one node with a bunch of unrelated VEs, this is very little
-work to maintain.
+--0016e645b9be2254b9046c1b9cb4
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Ross
+<div class=3D"gmail_quote">On Thu, Jun 11, 2009 at 5:58 PM, Ross Vandegrift=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:ross@kallisti.us">ross@kallisti.us=
+</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin=
+:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+<div class=3D"im">2) Many VEs in many communities spread across many hosts.=
+ =C2=A0For</div>
+example, it might get bad if you had 5 communities across 100 hosts,<br>
+with each community having 100 VEs. =C2=A0This would mean each host needs<b=
+r>
+a full set of 10000 MAC rules for each community - 50000 ebtables<br>
+rules. =C2=A0In this case, I&#39;d again prefer a routed design (well, any =
+case<br>
+actually...) and if a common &quot;community&quot; LAN was a software<br>
+requirement, I&#39;d use multipoint GRE or L2TP.<br>
+<br>
+But for one node with a bunch of unrelated VEs, this is very little<br>
+work to maintain.<br><font class=3D"Apple-style-span" color=3D"#888888"></f=
+ont></blockquote><div><br></div><div>In my particular configuration, there =
+are no communities - each VE is an island, and will only be able to communi=
+cate with the network gateway (which is non-local, ie. not on the linux bri=
+dge itself.) That should lock down layer 2. With OpenVZ, each VE&#39;s MAC =
+will have a common SWSoft 00:18:51 prefix.</div>
+<div><br></div><div>After I get that working, I need to lock down layer 3 w=
+ith iptables, so the PVLAN functionality can&#39;t be bypassed.</div><div><=
+br></div><div>If you have any configuration examples for ebtables, especial=
+ly simple ones, I would welcome them :)</div>
+<div><br></div><div>Thanks,</div><div><br></div><div>Daniel</div></div>
 
--- 
-Ross Vandegrift
-ross@kallisti.us
-
-"If the fight gets hot, the songs get hotter.  If the going gets tough,
-the songs get tougher."
-	--Woody Guthrie
+--0016e645b9be2254b9046c1b9cb4--
