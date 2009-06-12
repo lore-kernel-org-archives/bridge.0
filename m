@@ -1,21 +1,23 @@
-In-Reply-To: <2e59e6970906121231x7278360u19bcc58646116469@mail.gmail.com>
-References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>	
+References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>
 	<20090610074542.39f713eb@nehalam>
 	<OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>
-	<de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>	
+	<de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>
 	<m33aa5bykm.fsf@ursa.amorsen.dk>
 	<OFEA0D61B2.8B351FDC-ONC12575D3.0034AA26-C12575D3.00354697@transmode.se>
-	<20090612125214.GA7461@kallisti.us>	
+	<20090612125214.GA7461@kallisti.us>
 	<OF0314F87C.B7A0780D-ONC12575D3.00476B7B-C12575D3.00484E73@transmode.se>
-	<2e59e6970906120619u589ed8dfy8bb327efa305b742@mail.gmail.com>	
+	<2e59e6970906120619u589ed8dfy8bb327efa305b742@mail.gmail.com>
 	<OF32E45445.B5790A30-ONC12575D3.004B77E2-C12575D3.004BBABD@transmode.se>
 	<2e59e6970906121231x7278360u19bcc58646116469@mail.gmail.com>
-Message-ID: <OFB9321502.79301BE7-ONC12575D3.0075D3D1-C12575D3.00765847@transmode.se>
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Fri, 12 Jun 2009 23:32:39 +0200
+	<OFB9321502.79301BE7-ONC12575D3.0075D3D1-C12575D3.00765847@transmode.se>
+From: Benny Amorsen <benny+usenet@amorsen.dk>
+Date: Sat, 13 Jun 2009 01:54:30 +0200
+In-Reply-To: <OFB9321502.79301BE7-ONC12575D3.0075D3D1-C12575D3.00765847@transmode.se>
+	(Joakim Tjernlund's message of "Fri\,
+	12 Jun 2009 23\:32\:39 +0200")
+Message-ID: <m3eitpovnt.fsf@ursa.amorsen.dk>
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-15
-Content-transfer-encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Subject: Re: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -25,121 +27,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Benny Amorsen <benny+usenet@amorsen.dk>
+To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-"richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote on 12/06/2009 2=
-1:31:08:
+Joakim Tjernlund <joakim.tjernlund@transmode.se> writes:
 
->
-> On Fri, Jun 12, 2009 at 8:47 AM, Joakim
-> Tjernlund<joakim.tjernlund@transmode.se> wrote:
-> > "richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote on 12/06/20=
-09 15:19:22:
-> >>
-> >> On Fri, Jun 12, 2009 at 8:09 AM, Joakim
-> >> Tjernlund<joakim.tjernlund@transmode.se> wrote:
-> >> > Ross Vandegrift <ross@kallisti.us> wrote on 12/06/2009 14:52:14:=
+> But why should I not be able to add both 4043 and 4044 to the same bridge?
 
-> >> >>
-> >> >> On Fri, Jun 12, 2009 at 11:41:55AM +0200, Joakim Tjernlund wrot=
-e:
-> >> >> > Yes, sets would be nice. However I wonder if this case isn't =
-a bug
-> >> >> > in any case:
-> >> >> > Consider these VLANS:
-> >> >> > =A0eth0.4042
-> >> >> > =A0eth0.4043
-> >> >> > =A0eth0.4044
-> >> >> >
-> >> >> > Add them to a bridge and the bridge will pass pkgs between th=
-em, right?
-> >> >> > However no real switch I know would do that because they are =
-on
-> >> >> > the same physical interface.
-> >> >>
-> >> >> No, that's not a problem at all. =A0Any dot1q bridge would beha=
-ve
-> >> >> exactly as Linux does if it supports VLAN bridging (which at le=
-ast
-> >> >> Cisco, Nortel, and Juniper do in varying capcities).
-> >> >>
-> >> >> Moreover, any dot1q bridge that doesn't support VLAN bridging c=
-an
-> >> >> (be careful!) have the feature added by adding one untagged por=
-t into
-> >> >> each VLAN and cabling them to a dot1d bridge. =A0Linux just sav=
-es you
-> >> >> cables.
-> >> >>
-> >> >> The split-horizon rule is for flooding into a broadcast domain.=
- =A0For
-> >> >> purposes of split-horizon flooding, each of your VLAN interface=
-s are
-> >> >> physical interfaces - a broadcast frame arrived on one of the p=
-orts
-> >> >> and needs to be flooded out all of the others.
-> >> >
-> >> > hmm, then I don't understand how Private VLAN is supposed to wor=
-k over
-> >> > the interswitch port. If I understand you correctly, a Bcast pkg=
- arriving
-> >> > on VLAN 4042 will be forwarded back over 4043 and 4044 VLANs, th=
-en the
-> >> > receiving switch will forward back these to pkgs once again and
-> >> > it never stops?
-> >>
-> >> Only one switch would be configured to bridge between VLANs.
-> >>
-> >> VLANs are by default (in the absence of enabling bridging) isolati=
-on barriers.
-> >>
-> >> Most entry-level physical switches (basic VLAN support only) consi=
-der
-> >> all VLANs with the same ID to be members of the same bridge, there=
- is
-> >> one such bridge for each configured VLAN. =A0Linux allows you to h=
-ave
-> >> this operation trivially, but allows far more powerful combination=
-s.
-> >>
-> >> All this "promiscuous VLAN" stuff is just an attempt to bring some=
- of
-> >> the features of software bridging (e.g. Linux) to hardware switche=
-s in
-> >> a standard way.
-> >
-> > OK, this would suggest that the default mode of the linux bridge is=
- wrong
-> > and can cause loops and other ill effects. A user should not have
-> > to resort to ebtables just to turn off this behaviour.
-> >
-> > =A0Jocke
->
-> The default mode of linux bridging is just fine.  I'm suspecting you
-> have followed some complicated example setup which wasn't appropriate=
+Of course you should. And they should behave as a proper bridge, letting
+packets flow as they were meant to. Unless you decide that local policy
+does not permit packets to flow freely, and then you use ebtables to
+apply that local policy.
 
-> for your environment and broke things.
->
-> If you want linux to act like a physical switch:
->
-> add ethN.0 to br0
-> add ethN.1 to br1
-> add ethN.j to brj
->
-> all VLANs will be isolated from each other just like a simple
-> VLAN-capable switch.
->
-> If you don't want traffic from VLAN 4042 to go out over VLAN 4043,
-> don't add them to the same bridge instance.
+> I just sent a patch to add split horizon support to the linux bridge. Have
+> a look. More power to the linux bridge that way.
 
-But why should I not be able to add both 4043 and 4044 to the same brid=
-ge?
+You have already been shown that you can achieve what you want with the
+existing kernel code, at the cost of a somewhat complicated rule setup.
+You have also been shown ways to simplify this rule setup.
 
-I just sent a patch to add split horizon support to the linux bridge. H=
-ave
-a look. More power to the linux bridge that way.
+I really hope that your patches are not accepted. Sorry if this is
+harsh, but the company I work for has in the past depended on the
+flexibility of the existing code. While that company is currently
+migrating to proprietary solutions because PC's don't get faster at the
+rate which traffic grows, it seems ridiculous that Linux should copy the
+limitations of less capable platforms.
 
-   Jocke=
 
+/Benny
 
