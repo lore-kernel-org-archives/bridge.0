@@ -1,14 +1,16 @@
-MIME-Version: 1.0
-In-Reply-To: <20090611235845.GB3432@kallisti.us>
+From: Ross Vandegrift <ross@kallisti.us>
+Date: Thu, 11 Jun 2009 23:56:26 -0400
+Message-ID: <20090612035626.GA4402@kallisti.us>
 References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>
 	<20090610074542.39f713eb@nehalam>
 	<OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>
 	<de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>
 	<20090611235845.GB3432@kallisti.us>
-Date: Thu, 11 Jun 2009 18:15:46 -0600
-Message-ID: <de7adc5e0906111715s56f13ad0o760840dfadba797@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: multipart/alternative; boundary=0016e645b9be2254b9046c1b9cb4
+	<de7adc5e0906111715s56f13ad0o760840dfadba797@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <de7adc5e0906111715s56f13ad0o760840dfadba797@mail.gmail.com>
 Subject: Re: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -18,73 +20,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ross Vandegrift <ross@kallisti.us>
+To: Daniel Robbins <drobbins@funtoo.org>
 Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Joakim Tjernlund <joakim.tjernlund@transmode.se>
 
---0016e645b9be2254b9046c1b9cb4
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Thu, Jun 11, 2009 at 06:15:46PM -0600, Daniel Robbins wrote:
+> In my particular configuration, there are no communities - each VE is an
+> island, and will only be able to communicate with the network gateway (which
+> is non-local, ie. not on the linux bridge itself.) That should lock down
+> layer 2. With OpenVZ, each VE's MAC will have a common SWSoft 00:18:51
+> prefix.
+> 
+> After I get that working, I need to lock down layer 3 with iptables, so the
+> PVLAN functionality can't be bypassed.
+> 
+> If you have any configuration examples for ebtables, especially simple ones,
+> I would welcome them :)
 
-On Thu, Jun 11, 2009 at 5:58 PM, Ross Vandegrift <ross@kallisti.us> wrote:
+Couldn't be simpler in that case.  Say you've bridged veth1.0 through
+venet10.0 and venet1.0 is the interface of the gateway.  Then, all you
+need is:
 
-> 2) Many VEs in many communities spread across many hosts.  For
-> example, it might get bad if you had 5 communities across 100 hosts,
-> with each community having 100 VEs.  This would mean each host needs
-> a full set of 10000 MAC rules for each community - 50000 ebtables
-> rules.  In this case, I'd again prefer a routed design (well, any case
-> actually...) and if a common "community" LAN was a software
-> requirement, I'd use multipoint GRE or L2TP.
->
-> But for one node with a bunch of unrelated VEs, this is very little
-> work to maintain.
->
+ebtables -A FORWARD -i veth1.0 -j ACCEPT
+ebtables -A FORWARD -o veth1.0 -j ACCEPT
 
-In my particular configuration, there are no communities - each VE is an
-island, and will only be able to communicate with the network gateway (which
-is non-local, ie. not on the linux bridge itself.) That should lock down
-layer 2. With OpenVZ, each VE's MAC will have a common SWSoft 00:18:51
-prefix.
+If you spin up VEID 11, give it a virtual ethernet NIC, and add the
+associated veth device on the hardware node to the bridge - you're
+good to go.
 
-After I get that working, I need to lock down layer 3 with iptables, so the
-PVLAN functionality can't be bypassed.
+Of course veth1.0 could just as easily be a physical interface
+connected to another device.
 
-If you have any configuration examples for ebtables, especially simple ones,
-I would welcome them :)
+-- 
+Ross Vandegrift
+ross@kallisti.us
 
-Thanks,
-
-Daniel
-
---0016e645b9be2254b9046c1b9cb4
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div class=3D"gmail_quote">On Thu, Jun 11, 2009 at 5:58 PM, Ross Vandegrift=
- <span dir=3D"ltr">&lt;<a href=3D"mailto:ross@kallisti.us">ross@kallisti.us=
-</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin=
-:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-<div class=3D"im">2) Many VEs in many communities spread across many hosts.=
- =C2=A0For</div>
-example, it might get bad if you had 5 communities across 100 hosts,<br>
-with each community having 100 VEs. =C2=A0This would mean each host needs<b=
-r>
-a full set of 10000 MAC rules for each community - 50000 ebtables<br>
-rules. =C2=A0In this case, I&#39;d again prefer a routed design (well, any =
-case<br>
-actually...) and if a common &quot;community&quot; LAN was a software<br>
-requirement, I&#39;d use multipoint GRE or L2TP.<br>
-<br>
-But for one node with a bunch of unrelated VEs, this is very little<br>
-work to maintain.<br><font class=3D"Apple-style-span" color=3D"#888888"></f=
-ont></blockquote><div><br></div><div>In my particular configuration, there =
-are no communities - each VE is an island, and will only be able to communi=
-cate with the network gateway (which is non-local, ie. not on the linux bri=
-dge itself.) That should lock down layer 2. With OpenVZ, each VE&#39;s MAC =
-will have a common SWSoft 00:18:51 prefix.</div>
-<div><br></div><div>After I get that working, I need to lock down layer 3 w=
-ith iptables, so the PVLAN functionality can&#39;t be bypassed.</div><div><=
-br></div><div>If you have any configuration examples for ebtables, especial=
-ly simple ones, I would welcome them :)</div>
-<div><br></div><div>Thanks,</div><div><br></div><div>Daniel</div></div>
-
---0016e645b9be2254b9046c1b9cb4--
+"If the fight gets hot, the songs get hotter.  If the going gets tough,
+the songs get tougher."
+	--Woody Guthrie
