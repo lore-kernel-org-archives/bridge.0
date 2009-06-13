@@ -1,13 +1,17 @@
-Message-ID: <4A33A4AF.8090101@navigue.com>
-Date: Sat, 13 Jun 2009 09:07:59 -0400
-From: Jonathan Thibault <jonathan@navigue.com>
+In-Reply-To: <m3eitpovnt.fsf@ursa.amorsen.dk>
+References: <OF5294E054.E129AF46-ONC12575D1.0046722C-C12575D1.004A59BC@transmode.se>	<20090610074542.39f713eb@nehalam>
+	<OFF985F65C.FBA8694B-ONC12575D1.00546CBF-C12575D1.0055565C@transmode.se>	<de7adc5e0906111251h563fe0b1ic28ae7004d8b3e7@mail.gmail.com>
+	<m33aa5bykm.fsf@ursa.amorsen.dk>	<OFEA0D61B2.8B351FDC-ONC12575D3.0034AA26-C12575D3.00354697@transmode.se>
+	<20090612125214.GA7461@kallisti.us>	<OF0314F87C.B7A0780D-ONC12575D3.00476B7B-C12575D3.00484E73@transmode.se>
+	<2e59e6970906120619u589ed8dfy8bb327efa305b742@mail.gmail.com>	<OF32E45445.B5790A30-ONC12575D3.004B77E2-C12575D3.004BBABD@transmode.se>
+	<2e59e6970906121231x7278360u19bcc58646116469@mail.gmail.com>	<OFB9321502.79301BE7-ONC12575D3.0075D3D1-C12575D3.00765847@transmode.se>
+	<m3eitpovnt.fsf@ursa.amorsen.dk>
+Message-ID: <OFB7E26281.4BA910B4-ONC12575D4.00514656-C12575D4.00524AF2@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Sat, 13 Jun 2009 16:58:52 +0200
 MIME-Version: 1.0
-References: <1244842010-24945-1-git-send-email-Joakim.Tjernlund@transmode.se>
-	<2e59e6970906122139h676b76f5s64d3b8074065d6c3@mail.gmail.com>
-In-Reply-To: <2e59e6970906122139h676b76f5s64d3b8074065d6c3@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] [bridge] Add split horizon
+Content-type: text/plain; charset=US-ASCII
+Subject: Re: [Bridge] RFC: Simple Private VLAN impl.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,43 +20,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Benny Amorsen <benny+usenet@amorsen.dk>
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-I also use multiple vlans as part of a bridge with no loop and it works 
-rather well except for one very strange thing.  If I have two separate 
-tagged vlans on the same switch port, the bridge will stop relaying some 
-arp replies to those two vlans.  The current network layout doesn't 
-require me to have more than one tagged vlan on any switch port except 
-the one headed into the bridge interface, so I can work around the issue 
-but to date I have not found the cause of this.  We tried different 
-NICs, different kernel versions, etc.
+Benny Amorsen <benny+usenet@amorsen.dk> wrote on 13/06/2009 01:54:30:
+>
+> Joakim Tjernlund <joakim.tjernlund@transmode.se> writes:
+>
+> > But why should I not be able to add both 4043 and 4044 to the same bridge?
+>
+> Of course you should. And they should behave as a proper bridge, letting
+> packets flow as they were meant to.
 
-As far as the bridge is concerned, arp replies do go through.  But if I 
-sniff traffic out of its switch facing interface (with a hub), the 
-replies never actually make it onto the wire.
+You have some other definition of a "proper bridge". A common bridge would not
+care about the VLANs and never return a pkg on the same interface.
 
-So while I agree that it works for most people, there are situations 
-where having multiple vlans bridged might not do what you expect.
+> Unless you decide that local policy
+> does not permit packets to flow freely, and then you use ebtables to
+> apply that local policy.
+>
+> > I just sent a patch to add split horizon support to the linux bridge. Have
+> > a look. More power to the linux bridge that way.
+>
+> You have already been shown that you can achieve what you want with the
+> existing kernel code, at the cost of a somewhat complicated rule setup.
+> You have also been shown ways to simplify this rule setup.
 
-Jonathan
+Yes, I have already worked around this, but it doesn't make it right.
+I just want the bridge to do the right thing and I think the current behavior
+isn't it.
 
-richardvoigt@gmail.com wrote:
-> On Fri, Jun 12, 2009 at 4:26 PM, Joakim
-> Tjernlund<Joakim.Tjernlund@transmode.se> wrote:
->> Currently the bridge does not impl. split horizon which will easily
->> cause loops when 2 or more VLANs are added from the same physical interface.
-> 
-> I call shenanigans.  Got multiple VLANs from the same physical
-> interface added to a bridge and no loops, almost no trouble of any
-> sort.  A second bridge on the same router has loops, uses spanning
-> tree to shut one VLAN down selectively (to automatically bypass a
-> traffic shaper appliance with a history of failure) and the only
-> trouble is that the PDUs sent by spanning tree cause klog warnings
-> when they come back to the other VLAN of the same physical interface.
-> 
-> And I don't think split horizon means what you think it does.
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
+>
+> I really hope that your patches are not accepted. Sorry if this is
+> harsh, but the company I work for has in the past depended on the
+> flexibility of the existing code. While that company is currently
+> migrating to proprietary solutions because PC's don't get faster at the
+> rate which traffic grows, it seems ridiculous that Linux should copy the
+> limitations of less capable platforms.
+
+You still have that flexibility. Turn it off and you are free to shoot yourself
+in the foot.
 
