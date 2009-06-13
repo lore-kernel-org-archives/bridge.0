@@ -1,13 +1,11 @@
-In-Reply-To: <20090613165640.GA15903@kallisti.us>
-References: <1244842010-24945-1-git-send-email-Joakim.Tjernlund@transmode.se>
-	<m3ab4dovgi.fsf@ursa.amorsen.dk>
-	<OFCE5E72FE.D082AB78-ONC12575D4.005256D7-C12575D4.0052B193@transmode.se>
-	<1244905945.3175.25.camel@ursa.amorsen.dk>
+In-Reply-To: <m3tz2koyvq.fsf@ursa.amorsen.dk>
+References: <1244842010-24945-1-git-send-email-Joakim.Tjernlund@transmode.se>	<m3ab4dovgi.fsf@ursa.amorsen.dk>
+	<OFCE5E72FE.D082AB78-ONC12575D4.005256D7-C12575D4.0052B193@transmode.se>	<1244905945.3175.25.camel@ursa.amorsen.dk>
 	<OF6DCC73C6.20F5C539-ONC12575D4.00562ACB-C12575D4.00569683@transmode.se>
-	<20090613165640.GA15903@kallisti.us>
-Message-ID: <OFA105ED6C.F40466BF-ONC12575D4.00656544-C12575D4.0065DA78@transmode.se>
+	<m3tz2koyvq.fsf@ursa.amorsen.dk>
+Message-ID: <OF0FD1F433.2EE7F805-ONC12575D4.0065DF68-C12575D4.006653AD@transmode.se>
 From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Sat, 13 Jun 2009 20:32:31 +0200
+Date: Sat, 13 Jun 2009 20:37:41 +0200
 MIME-Version: 1.0
 Content-type: text/plain; charset=US-ASCII
 Subject: Re: [Bridge] [PATCH] [bridge] Add split horizon
@@ -19,20 +17,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ross Vandegrift <ross@kallisti.us>
-Cc: bridge@lists.linux-foundation.org, Benny Amorsen <benny+usenet@amorsen.dk>
+To: Benny Amorsen <benny+usenet@amorsen.dk>
+Cc: bridge@lists.linux-foundation.org
 
-Ross Vandegrift <ross@kallisti.us> wrote on 13/06/2009 18:56:40:
+Benny Amorsen <benny+usenet@amorsen.dk> wrote on 13/06/2009 18:57:13:
 >
-> On Sat, Jun 13, 2009 at 05:45:47PM +0200, Joakim Tjernlund wrote:
+> Joakim Tjernlund <joakim.tjernlund@transmode.se> writes:
+>
+> > Benny Amorsen <benny+usenet@amorsen.dk> wrote on 13/06/2009 17:12:25:
+>
+> >> "If your topology isn't loop free, run spanning tree in the VLAN's."
+> >
+> > That would just disable one of the VLANs so the bride won't receive
+> > any more pkgs over that VLAN.
+>
+> Why don't you try it and find out?
+>
+> Make eth0.100 and eth0.101 on one machine, bridge them as br0, turn
+> spanning tree on. Do the same thing on the second machine. Connect the
+> two machines. Be enlightened.
+
+I am not at work now so you will have to enlighten me.
+
+>
 > > I would really like to read up on the claim that each VLAN is also a physical port.
 > > Any pointers?
 >
-> Note that you added the VLAN tagged subinterface to the bridge.  Using
-> brctl's functions, you'll be able to see the port numbers assigned to
-> each port.  You'll be able to display the MACs learned on each port,
-> along with each port's ID.
+> What claim?
 
-And ...? Sorry, but I don't see anything about VLAN==physical interface.
-I suppose the MACs learned will be different, but how does that matter?
+Oh, I see that it was Ross who made that claim. You don't agree? If so how
+do you explain that is OK to broadcast the same pkg back on that same physical interface?
+
+ Jocke
 
