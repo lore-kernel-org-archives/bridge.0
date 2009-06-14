@@ -1,17 +1,14 @@
-From: Ross Vandegrift <ross@kallisti.us>
-Date: Sat, 13 Jun 2009 19:04:53 -0400
-Message-ID: <20090613230453.GA17161@kallisti.us>
+MIME-Version: 1.0
+In-Reply-To: <OF4B3FF703.CC38E26C-ONC12575D4.0058F1ED-C12575D4.005AB7C4@transmode.se>
 References: <1244842010-24945-1-git-send-email-Joakim.Tjernlund@transmode.se>
 	<m3ab4dovgi.fsf@ursa.amorsen.dk>
 	<OFCE5E72FE.D082AB78-ONC12575D4.005256D7-C12575D4.0052B193@transmode.se>
-	<1244905945.3175.25.camel@ursa.amorsen.dk>
-	<OF6DCC73C6.20F5C539-ONC12575D4.00562ACB-C12575D4.00569683@transmode.se>
-	<20090613165640.GA15903@kallisti.us>
-	<OFA105ED6C.F40466BF-ONC12575D4.00656544-C12575D4.0065DA78@transmode.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFA105ED6C.F40466BF-ONC12575D4.00656544-C12575D4.0065DA78@transmode.se>
+	<2e59e6970906130857t2441d0bap34e15fd2af12fe72@mail.gmail.com>
+	<OF4B3FF703.CC38E26C-ONC12575D4.0058F1ED-C12575D4.005AB7C4@transmode.se>
+Date: Sat, 13 Jun 2009 21:18:27 -0500
+Message-ID: <2e59e6970906131918n66c7e000pe65dc7662f5df51f@mail.gmail.com>
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Content-Type: multipart/alternative; boundary=001485f42412975b8d046c458ef8
 Subject: Re: [Bridge] [PATCH] [bridge] Add split horizon
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -24,35 +21,60 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
 Cc: bridge@lists.linux-foundation.org, Benny Amorsen <benny+usenet@amorsen.dk>
 
-On Sat, Jun 13, 2009 at 08:32:31PM +0200, Joakim Tjernlund wrote:
-> Ross Vandegrift <ross@kallisti.us> wrote on 13/06/2009 18:56:40:
-> >
-> > On Sat, Jun 13, 2009 at 05:45:47PM +0200, Joakim Tjernlund wrote:
-> > > I would really like to read up on the claim that each VLAN is also a physical port.
-> > > Any pointers?
-> >
-> > Note that you added the VLAN tagged subinterface to the bridge.  Using
-> > brctl's functions, you'll be able to see the port numbers assigned to
-> > each port.  You'll be able to display the MACs learned on each port,
-> > along with each port's ID.
-> 
-> And ...? Sorry, but I don't see anything about VLAN==physical interface.
-> I suppose the MACs learned will be different, but how does that matter?
+--001485f42412975b8d046c458ef8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Let me put it another way.  What distinguishes eth0, eth1, and eth0.10
-when you bridge them together?
+>
+>
+> I would really like to know in what situation you would use
+> the current behavior to forward back VLAN pkgs over the same interface
+> it was received on?
 
-Nothing - one gets untagged frames from the interface associated with
-eth0.  One gets untagged frames from the interface associated with
-eth1.  The last gets tagged frames from the interface associated with
-eth0.  I don't see how there's any distinction between these roles.
-Each is just a source & sink for frames.  Some end up using the same
-cable, but who cares?
 
--- 
-Ross Vandegrift
-ross@kallisti.us
+With a gigabit VLAN capable switch, 20 ports in untagged mode on distinct
+VLANs, 1 trunking port attached to a gigbit card in my Linux firewall, 1
+trunking port to a second gigabit VLAN capable switch configured similarly
+in another physical location, it allows me to filter traffic between all 40
+attached networks as if my Linux box had 40 network interfaces.  It's a very
+useful combination of VLANs and bridging.
 
-"If the fight gets hot, the songs get hotter.  If the going gets tough,
-the songs get tougher."
-	--Woody Guthrie
+
+>
+> Also, I am trying to find where it states that a VLAN is considered its own
+> physical port. Any pointers?
+>
+
+A linux bridge is like a switching hub, with a separate port for every
+interface you add with brctl addif.  All local interfaces get treated the
+same -- they each get their own port on the bridge -- whether a physical or
+virtual or sub-interface.
+
+--001485f42412975b8d046c458ef8
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div class=3D"gmail_quote"><blockquote class=3D"gmail_quote" style=3D"margi=
+n:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;"><br>
+I would really like to know in what situation you would use<br>
+the current behavior to forward back VLAN pkgs over the same interface<br>
+it was received on?</blockquote><div><br></div><div>With a gigabit VLAN cap=
+able switch, 20 ports in untagged mode on distinct VLANs, 1 trunking port a=
+ttached to a gigbit card in my Linux firewall, 1 trunking port to a second =
+gigabit VLAN capable switch configured similarly in another physical locati=
+on, it allows me to filter traffic between all 40 attached networks as if m=
+y Linux box had 40 network interfaces. =A0It&#39;s a very useful combinatio=
+n of VLANs and bridging.</div>
+<div><br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex=
+;border-left:1px #ccc solid;padding-left:1ex;"><br>
+<br>
+Also, I am trying to find where it states that a VLAN is considered its own=
+<br>
+<div><div></div><div class=3D"h5">physical port. Any pointers?</div></div><=
+/blockquote><div><br></div><div>A linux bridge is like a switching hub, wit=
+h a separate port for every interface you add with brctl addif. =A0All loca=
+l interfaces get treated the same -- they each get their own port on the br=
+idge -- whether a physical or virtual or sub-interface.</div>
+</div>
+
+--001485f42412975b8d046c458ef8--
