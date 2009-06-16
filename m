@@ -1,14 +1,10 @@
-Date: Wed, 17 Jun 2009 08:00:12 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20090617080012.21abfb6c@nehalam>
-In-Reply-To: <6d6e77f50906162304g2d95e14cs66c07bd792b40c54@mail.gmail.com>
-References: <6d6e77f50906140128t65853593y61bf65c200970864@mail.gmail.com>
-	<20090614204915.0a9a4187@nehalam>
-	<6d6e77f50906162304g2d95e14cs66c07bd792b40c54@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge module insertion
+Message-ID: <4A3824E8.5010905@vodafone.it>
+Date: Wed, 17 Jun 2009 01:04:08 +0200
+From: Paolo NOTARI <paolo_notari@vodafone.it>
+MIME-Version: 1.0
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
+	micalg=sha1; boundary="------------ms030904000202070306070609"
+Subject: [Bridge] bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,20 +13,99 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: eko suwarsono <ekoswr76@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-On Wed, 17 Jun 2009 14:04:49 +0800
-eko suwarsono <ekoswr76@gmail.com> wrote:
+This is a cryptographically signed message in MIME format.
 
-> thank you Stephen
-> 
-> yes i knew that this will be the only one solutions.
-> the problem that the embedded system which is on ubuntu 7.04 doesn;t have
-> any compiler or source kernel. do you have any tips or hints for this.
-> thanks
+--------------ms030904000202070306070609
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-see gplviolations.org
+Hello,
 
+I have these two card that I'm trying to use in a bridge :
 
--- 
+nVidia Corporation MCP67 Ethernet (rev a2)
+Davicom Semiconductor, Inc. 21x4x DEC-Tulip compatible 10/100 Ethernet 
+(rev 31)
+
+Bridge works if nvidia is the LAN side and Davicom on WAN side, but no 
+way to get bridge working if nvidia is on LAN and Davicom on WAN -
+
+Driver for Davicom is dmfe; with driver Tulip interface isn't even added 
+to bridge
+
+Paolo
+
+--------------ms030904000202070306070609
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJ7TCC
+Az8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
+EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENv
+bnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAi
+BgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVy
+c29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5
+NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
+dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzAN
+BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9Vvy
+Gna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOC
+dz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhh
+d3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNV
+HREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQAD
+gYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFi
+w9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpb
+NU1341YheILcIRk13iSx0x1G/11fZU8wggNRMIICuqADAgECAhBK6rCFo62Sf0IMjELNViuQ
+MA0GCSqGSIb3DQEBBQUAMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQTAeFw0wOTAzMTMxNDQ4NTZaFw0xMDAzMTMxNDQ4NTZaMIGYMQ8wDQYDVQQEEwZO
+b3RhcmkxFjAUBgNVBCoTDVBhb2xvIEF1Z3VzdG8xHTAbBgNVBAMTFFBhb2xvIEF1Z3VzdG8g
+Tm90YXJpMScwJQYJKoZIhvcNAQkBFhhwYW9sb19ub3RhcmlAdm9kYWZvbmUuaXQxJTAjBgkq
+hkiG9w0BCQEWFnBhb2xvLm5vdGFyaUBnbWFpbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IB
+DwAwggEKAoIBAQCiMsOjta3QrRW2rApOX5mCyfOkXwgr7r1SD+BPmy3t9/hu6pKP5AB26igZ
+PrEFAQyEiMOZ4EMOlFDgkaD74K00xAznK/ewnn1fCiuez7j1MrWjm5K2QyY2hxBefHQVI1L4
+u+N9jGUNNGj24mF+osgXtuucBcFamX0ebW8DQpLDLlNV03GNsRe7bdt1ubFnlb5Mr91lcP05
+bxpVNpamFDBMLxKMUaSlVHsPWXxw0C5gG3ACLdtS+OR5lZHBSAot9BXcJ/gd0OVFctJNdH4r
+FN30x6qvsqpHlB/BTYVpN/+3uaWL8jEahvGUDs/OKop1rLQafYVTpt+6oY45eO7bx/utAgMB
+AAGjTTBLMDsGA1UdEQQ0MDKBGHBhb2xvX25vdGFyaUB2b2RhZm9uZS5pdIEWcGFvbG8ubm90
+YXJpQGdtYWlsLmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBQUAA4GBABONusv7+uyi
+EEJ0EZs7T95O/bJx7rfgmPF+svP6tNtDelDQRmVCcO6K4volWfteYgvHAxh7WMz7g8GD9BQh
+KtkNsL31FhufnwskhIN73Ww+eFFCC+/Bg9IkvNEeoFWaYjElaMW+pTGjmZEl/K0f+bugOtYx
+dqFKumHB6E8xLQK/MIIDUTCCArqgAwIBAgIQSuqwhaOtkn9CDIxCzVYrkDANBgkqhkiG9w0B
+AQUFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
+THRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcN
+MDkwMzEzMTQ0ODU2WhcNMTAwMzEzMTQ0ODU2WjCBmDEPMA0GA1UEBBMGTm90YXJpMRYwFAYD
+VQQqEw1QYW9sbyBBdWd1c3RvMR0wGwYDVQQDExRQYW9sbyBBdWd1c3RvIE5vdGFyaTEnMCUG
+CSqGSIb3DQEJARYYcGFvbG9fbm90YXJpQHZvZGFmb25lLml0MSUwIwYJKoZIhvcNAQkBFhZw
+YW9sby5ub3RhcmlAZ21haWwuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+ojLDo7Wt0K0VtqwKTl+ZgsnzpF8IK+69Ug/gT5st7ff4buqSj+QAduooGT6xBQEMhIjDmeBD
+DpRQ4JGg++CtNMQM5yv3sJ59Xworns+49TK1o5uStkMmNocQXnx0FSNS+LvjfYxlDTRo9uJh
+fqLIF7brnAXBWpl9Hm1vA0KSwy5TVdNxjbEXu23bdbmxZ5W+TK/dZXD9OW8aVTaWphQwTC8S
+jFGkpVR7D1l8cNAuYBtwAi3bUvjkeZWRwUgKLfQV3Cf4HdDlRXLSTXR+KxTd9Meqr7KqR5Qf
+wU2FaTf/t7mli/IxGobxlA7PziqKday0Gn2FU6bfuqGOOXju28f7rQIDAQABo00wSzA7BgNV
+HREENDAygRhwYW9sb19ub3RhcmlAdm9kYWZvbmUuaXSBFnBhb2xvLm5vdGFyaUBnbWFpbC5j
+b20wDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQUFAAOBgQATjbrL+/rsohBCdBGbO0/eTv2y
+ce634JjxfrLz+rTbQ3pQ0EZlQnDuiuL6JVn7XmILxwMYe1jM+4PBg/QUISrZDbC99RYbn58L
+JISDe91sPnhRQgvvwYPSJLzRHqBVmmIxJWjFvqUxo5mRJfytH/m7oDrWMXahSrphwehPMS0C
+vzGCA3EwggNtAgEBMHYwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0
+aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1
+aW5nIENBAhBK6rCFo62Sf0IMjELNViuQMAkGBSsOAwIaBQCgggHQMBgGCSqGSIb3DQEJAzEL
+BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA5MDYxNjIzMDQwOFowIwYJKoZIhvcNAQkE
+MRYEFDTZA4E/zln0eu4Uekk/h0rNpzZIMF8GCSqGSIb3DQEJDzFSMFAwCwYJYIZIAWUDBAEC
+MAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzAN
+BggqhkiG9w0DAgIBKDCBhQYJKwYBBAGCNxAEMXgwdjBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECEErqsIWjrZJ/QgyMQs1WK5AwgYcGCyqGSIb3DQEJ
+EAILMXigdjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
+eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EC
+EErqsIWjrZJ/QgyMQs1WK5AwDQYJKoZIhvcNAQEBBQAEggEAiRIR+kHF8i5+zC7ebjQy2y+8
+7NMN/5mc8wvbVDKEnaj4F4kH9dUIy6FhlXaq2fWGRFQ7Of/06DywS8nX40+RaCiHzChrceI8
+gLe75N+Ijp54qsGSxixNCl6netg3XXNyK9a13SrMQB98taUNJ1FbIt/TGq6aAwnD5usrSYqC
+blAKztTsNS6aHvWeoJwBqB+aKhv6/IXmRlWRbGhGhjXSE4+avikCRumMTcQuOSmgYVAnGcSf
+xu3cIYk3jIqeCsV1U1arjc0QxuxlIJyKlKTC79Z+6SXm4yZqKa6mZ0zaJOQ/7tOoIbzVzBYT
+2nrcZZO71IIL5v9mVmX6NlgcYgM/UgAAAAAAAA==
+--------------ms030904000202070306070609--
