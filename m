@@ -1,12 +1,12 @@
-From: "Fischer, Anna" <anna.fischer@hp.com>
-Date: Mon, 15 Jun 2009 17:33:35 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E67D2DCECBC@GVW1118EXC.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH] bridge-utils: fix sysfs path for setting bridge
- configuration parameters
+In-Reply-To: <20090614204915.0a9a4187@nehalam>
+References: <6d6e77f50906140128t65853593y61bf65c200970864@mail.gmail.com>
+	<20090614204915.0a9a4187@nehalam>
+Date: Wed, 17 Jun 2009 14:04:49 +0800
+Message-ID: <6d6e77f50906162304g2d95e14cs66c07bd792b40c54@mail.gmail.com>
+From: eko suwarsono <ekoswr76@gmail.com>
+Content-Type: multipart/alternative; boundary=001636e90b75a56d35046c851197
+Subject: Re: [Bridge] bridge module insertion
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,79 +15,103 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "evb@yahoogroups.com" <evb@yahoogroups.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "davem@davemloft.net" <davem@davemloft.net>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: bridge@lists.linux-foundation.org
 
-Under newer kernels the bridge configuration parameters=20
-are located under /sys/class/net/$bridgename/bridge/$param,
-while the current bridge-utils code is trying to access
-them under /sys/class/net/$bridgename/$param. This patch
-fixes this issue in the bridge-utils code and so allows=20
-setting of bridge configuration parameters using sysfs=20
-under newer kernel versions.
+--001636e90b75a56d35046c851197
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Anna Fischer <anna.fischer@hp.com>
+thank you Stephen
 
----
+yes i knew that this will be the only one solutions.
+the problem that the embedded system which is on ubuntu 7.04 doesn;t have
+any compiler or source kernel. do you have any tips or hints for this.
+thanks
 
- libbridge/libbridge_devif.c   |   25 +++++++++++++++++++++----
- libbridge/libbridge_private.h |    1 +
- 2 files changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/libbridge/libbridge_devif.c b/libbridge/libbridge_devif.c
-index 34e3cc8..547bb86 100644
---- a/libbridge/libbridge_devif.c
-+++ b/libbridge/libbridge_devif.c
-@@ -73,6 +73,26 @@ static void fetch_tv(const char *dev, const char *name,
- 	__jiffies_to_tv(tv, fetch_int(dev, name));
- }
-=20
-+/* Open sysfs path for writing bridge properties. */
-+static FILE *br_sysfs_open(const char *bridge, const char *name)
-+{
-+	char path[SYSFS_PATH_MAX];
-+
-+	/* Try accessing /sys/class/net/$bridge/bridge/$name. */
-+	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s"
-+		 SYSFS_BRIDGE_DIR "/%s", bridge, name);
-+	if (!access(path, F_OK))
-+		return fopen(path, "w+");
-+
-+	/* Try using old-style of accessing bridge sysfs properties. */
-+	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/%s",
-+		 bridge, name);
-+	if (!access(path, F_OK))
-+		return fopen(path, "w+");
-+
-+	return NULL;
-+}
-+
- /*
-  * Convert device name to an index in the list of ports in bridge.
-  *
-@@ -283,12 +303,9 @@ static int br_set(const char *bridge, const char *name=
-,
- 		  unsigned long value, unsigned long oldcode)
- {
- 	int ret;
--	char path[SYSFS_PATH_MAX];
- 	FILE *f;
-=20
--	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/%s", bridge, name);
--
--	f =3D fopen(path, "w");
-+	f =3D br_sysfs_open(bridge, name);
- 	if (f) {
- 		ret =3D fprintf(f, "%ld\n", value);
- 		fclose(f);
-diff --git a/libbridge/libbridge_private.h b/libbridge/libbridge_private.h
-index 99a511d..1e1a0c6 100644
---- a/libbridge/libbridge_private.h
-+++ b/libbridge/libbridge_private.h
-@@ -31,6 +31,7 @@
-=20
- #define SYSFS_CLASS_NET "/sys/class/net/"
- #define SYSFS_PATH_MAX	256
-+#define SYSFS_BRIDGE_DIR "/bridge"
-=20
- #define dprintf(fmt,arg...)
+
+On Mon, Jun 15, 2009 at 11:49 AM, Stephen Hemminger
+<shemminger@vyatta.com>wrote:
+
+>  On Sun, 14 Jun 2009 16:28:36 +0800
+> eko suwarsono <ekoswr76@gmail.com> wrote:
+>
+> > dear all
+> > I'm newbie on this. but i need the advise for this problem. sorry if this
+> > already in archive
+> >
+> > I had embedded system from vendor using ubuntu 7.  with kernel 2.6.20.4
+> the
+> > system is on CF card
+> > i need to have the bridge module on that systems, the problem there is no
+> > compiler,etc. very minimum system
+> > so what i did is install ubuntu on another PC and using exactly the same
+> > kernel, gcc version etc to get the kernel with bridge module and then
+> > copying all /boot folders and /lib/modules onto my embedded system
+> >
+> > the bridge module get error: insmod: error inserting bridge.ko : unknown
+> > symbol
+> >
+> > at dmesg
+> >
+> > bridge: Unknown symbol br_handle_frame_hook
+> >
+> >
+> >
+> > is there any way to solve this problem, without rebuilding all OS on CF
+> card
+>
+> If the kernel itself was not built with bridging configured, then
+> the hook for the bridge won't be in the receive code in the kernel.
+>
+> So basically you are out of luck, building bridge out of tree.
+> You need to get kernel source for the whole embedeed system, reconfigure
+> and rebuild.
+>
+> --
+>
+
+--001636e90b75a56d35046c851197
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>thank you Stephen</div>
+<div>=A0</div>
+<div>yes i knew that this will be the only one solutions.</div>
+<div>the problem that the embedded system which is on ubuntu 7.04 doesn;t h=
+ave any compiler or source kernel. do you have any tips or hints for this. =
+thanks</div>
+<div><br><br>=A0</div>
+<div class=3D"gmail_quote">On Mon, Jun 15, 2009 at 11:49 AM, Stephen Hemmin=
+ger <span dir=3D"ltr">&lt;<a href=3D"mailto:shemminger@vyatta.com">shemming=
+er@vyatta.com</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
+<div>
+<div></div>
+<div class=3D"h5">On Sun, 14 Jun 2009 16:28:36 +0800<br>eko suwarsono &lt;<=
+a href=3D"mailto:ekoswr76@gmail.com">ekoswr76@gmail.com</a>&gt; wrote:<br><=
+br>&gt; dear all<br>&gt; I&#39;m newbie on this. but i need the advise for =
+this problem. sorry if this<br>
+&gt; already in archive<br>&gt;<br>&gt; I had embedded system from vendor u=
+sing ubuntu 7. =A0with kernel 2.6.20.4 the<br>&gt; system is on CF card<br>=
+&gt; i need to have the bridge module on that systems, the problem there is=
+ no<br>
+&gt; compiler,etc. very minimum system<br>&gt; so what i did is install ubu=
+ntu on another PC and using exactly the same<br>&gt; kernel, gcc version et=
+c to get the kernel with bridge module and then<br>&gt; copying all /boot f=
+olders and /lib/modules onto my embedded system<br>
+&gt;<br>&gt; the bridge module get error: insmod: error inserting bridge.ko=
+ : unknown<br>&gt; symbol<br>&gt;<br>&gt; at dmesg<br>&gt;<br>&gt; bridge: =
+Unknown symbol br_handle_frame_hook<br>&gt;<br>&gt;<br>&gt;<br>&gt; is ther=
+e any way to solve this problem, without rebuilding all OS on CF card<br>
+<br></div></div>If the kernel itself was not built with bridging configured=
+, then<br>the hook for the bridge won&#39;t be in the receive code in the k=
+ernel.<br><br>So basically you are out of luck, building bridge out of tree=
+.<br>
+You need to get kernel source for the whole embedeed system, reconfigure<br=
+>and rebuild.<br><font color=3D"#888888"><br>--<br></font></blockquote></di=
+v><br>
+
+--001636e90b75a56d35046c851197--
