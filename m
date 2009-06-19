@@ -1,11 +1,11 @@
-Message-ID: <4A3A758C.8050807@gmail.com>
-Date: Thu, 18 Jun 2009 19:12:44 +0200
-From: Hamza Ferrag <hferraggreat@gmail.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Problem with DHCP Requests Forward in Bridge
-Reply-To: hferraggreat@gmail.com
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C9F0BE.A64403EA"
+Date: Fri, 19 Jun 2009 17:16:37 +0800
+Message-ID: <E9E3926FA9CDBF489EA1684042C8A026014EE1F2@zmy16exm72.ds.mot.com>
+From: "Tekale Sharad-FHJN78" <FHJN78@motorola.com>
+Subject: [Bridge] Is it possible to bride two virtual devices?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,58 +16,51 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hi All,
+This is a multi-part message in MIME format.
 
-My requirement is as below,
+------_=_NextPart_001_01C9F0BE.A64403EA
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-- I have de create a bridge on linux machine (kernel 2.6) and i have 2 
-physical interfaces (eth0 & eth2)
-- I have a scheme like this
+Hi,
+=20
+Is it possible to bride two virtual devices?
+=20
+If so, are there any draw backs due to it.
+=20
+Thanks and Regards,
+Sharad.
 
+------_=_NextPart_001_01C9F0BE.A64403EA
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Windows                                                                       
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2900.3527" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D510521409-19062009>Hi,</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D510521409-19062009></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D510521409-19062009>Is it =
+possible to=20
+bride two virtual devices?</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D510521409-19062009></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D510521409-19062009>If so, =
+are there any=20
+draw backs due to it.</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D510521409-19062009></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D510521409-19062009>Thanks =
+and=20
+Regards,</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D510521409-19062009>Sharad.</SPAN></FONT></DIV></BODY></HTML>
 
-DHCP                                                                            
-DHCP
-Client                     Linux 
-Bridge                                         Server
- -------                  
------------------                                    ----------
-|  eth0 |----------------| eth1        
-eth0|--------------------10.255.0.1/24-| eth0     |
-| (dhcp)|                | (br0=eth0+eth1) 
-|                                  |          |
- -------                  
------------------                                    ----------
-
-
-First Scenario :
-
-Fixed ip adresse of br0 in my Linux Bridge (192.168.0.1)
-
-Results :
-  * Windows Client obtain an ip adress from dhcp server (10.255.0.2) 
-(dhcp requests pass correctelly throught Linux Bridge).
-  *And i can manage my Linux Bridge from a Windows PC (using 
-http://192.168.0.1). All is good and this is my goal.
-
-Second Scenario :
-
-I switch the br0 to dhcp (not fixed IP)
-
-Results :
-  * My Linux bridge obtain an ip adress (br0=10.255.0.3)..all right
-  * But, i can't access anywher from my Windows client (i can't obtain 
-an ip)
-  * A tcpdump on my Linux Bridge, i see DHCP REQUEST arrived from 
-Windows PC on eth1 interface but not repeated on eth0 interface..:(.
-
-
-
-MY goal is that the Windows can obtain an IP from the dhcp server, and i 
-will able to administer my Linux Bridge (a simple box-router that a 
-developed myself).
-
-Thanks a lot for your help.
-
-Hamza F
+------_=_NextPart_001_01C9F0BE.A64403EA--
