@@ -1,13 +1,11 @@
-Date: Thu, 9 Jul 2009 12:55:21 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20090709125521.4bacfd47@nehalam>
-In-Reply-To: <20090704062321.034802084@openvz.org>
-References: <20090704061156.658235360@openvz.org>
-	<20090704062321.034802084@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [patch 2/2] net, netns_xt: shrink netns_xt members
+Message-ID: <20090710174257.4a56ff11000e275300315d7c.8961$86566507@empal.com>
+From: =?ks_c_5601-1987?B?IsHCvLrIxiI=?= <junsan12@empal.com>
+Date: Fri, 10 Jul 2009 17:42:57 +0900
+MIME-Version: 1.0
+Content-Type: text/html; charset="ks_c_5601-1987"
+Content-Transfer-Encoding: base64
+Subject: [Bridge] =?ks_c_5601-1987?q?About_Bridge_Performance_Problem_Ques?=
+	=?ks_c_5601-1987?b?dGlvbi4uLg==?=
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,49 +14,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cyrill Gorcunov <gorcunov@openvz.org>
-Cc: Cyrill Gorcunov <gorcunov@openvz.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: shemminger@osdl.org, bridge@osdl.org
+Cc: ijchoi@sinsiway.com, jhkim@sinsiway.com
 
-On Sat, 04 Jul 2009 10:11:58 +0400
-Cyrill Gorcunov <gorcunov@openvz.org> wrote:
+PEhUTUw+PEhFQUQ+PFNUWUxFPlAgeyBtYXJnaW46IDJweCAwcHggfTwvU1RZTEU+PC9IRUFEPjxi
+b2R5PjxkaXYgc3R5bGU9J2ZvbnQtc2l6ZToxMHB0O2ZvbnQtZmFtaWx5OrG8uLI7YmFja2dyb3Vu
+ZC1jb2xvcjojZmZmZmZmOyc+PFA+SGkuIE15IG5hbWUgaXMgU2VvbmcgSG9vbiB3b3JraW5nIGZv
+ciBjb21wYW55IHdoaWNoIG1ha2VzIERCIFNlY3VyaXR5IFNvbHV0aW9uLjwvUD4NCjxQPiZuYnNw
+OzwvUD4NCjxQPkEgcGFydCBvZiBvdXIgc29sdXRpb24gaGFzIGJlZW4gcHJvZHVjZWQgYnkgdXNp
+bmcgYnJpZGdlIG9uIExpbnV4IGJveC48L1A+DQo8UD4mbmJzcDs8L1A+DQo8UD5VbmZvcnR1bmF0
+ZWx5LCBXZSBvZmZlcmVkIHRoZSBzb2x1dGlvbiB0byBvdXIgY3VzdG9tZXIgYnV0IHdlIGhhZCBh
+IGJyaWRnZSBwZXJmb3JtYW5jZSBwcm9ibGVtLiA8L1A+DQo8UD4mbmJzcDs8L1A+DQo8UD5UaHJv
+dWdoIHRoZSBnb29nbGUgd2ViIHNpdGUsIEkgc2VhcmNoZWQgdGhlIG1hbnkgc2l0ZXMgYWJvdXQg
+dGhlIHBlcmZvcm1hbmNlIG9mIGJyaWRnZS4gPC9QPg0KPFA+Jm5ic3A7PC9QPg0KPFA+QnV0IEkg
+Y2Fubm90IGNhdGNoIHRoZSByaWdodCBzb2x1dGlvbi48L1A+DQo8UD4mbmJzcDs8L1A+DQo8UD5J
+dCBpcyB0aGUgYmxvY2sgZGlhZ3JhbSBiZWZvcmUgd2Ugb3JnYW5pemVkIGl0LjwvUD4NCjxQPiZu
+YnNwOzwvUD4NCjxQPkJlZm9yZSBjb25maWd1cmF0aW9uPEJSPldBUyAmbHQ7LS0tLS0tLS0mZ3Q7
+IFN3aXRjaCAmbHQ7LS0tLS0tLS0tJmd0OyBEQiBTZXJ2ZXI8L1A+DQo8UD5BZnRlciBjb25maWd1
+cmF0aW9uPEJSPldBUyAmbHQ7LS0tLS0tLS0mZ3Q7IFN3aXRjaCAmbHQ7LS0tLS0tLS0tJmd0OyBP
+dXIgcHJvZHVjdCB1c2luZyB0aGUgYnJpZGdlLiAtLS0tLS0tJmd0OyBEQiBTZXJ2ZXI8L1A+DQo8
+UD4mbmJzcDs8L1A+DQo8UD5PbmUgc2VydmljZSBpbiBteSBjdXN0b21lciBzaXRlIGZpbmlzaGVz
+IGFmdGVyIERCIENvbm5lY3Rpb24sIFNRTCBRdWVyeSBleGVjdXRpb24gKGl0IHRha2VzIDAuNSBz
+ZWNvbmRzKSBhbmQgREIgQ29ubmVjdGlvbiBDbG9zZSBleGN1dGUgMTUwIHRpbWVzLjwvUD4NCjxQ
+PiZuYnNwOzwvUD4NCjxQPkJlZm9yZSBjb25maWd1cmF0aW9uLCBJIHRvb2sgNzEuMjY5IHNlY29u
+ZHMgaW4gdGhlIHRlc3QgcmVzdWx0cy48L1A+DQo8UD4mbmJzcDs8L1A+DQo8UD5BbmQgQWZ0ZXIg
+Y29uZmlndXJhdGlvbiwgSSB0b29rIDk0LjYzMyBzZWNvbmRzIGluIHRoZSB0ZXN0IHJlc3VsdHMu
+PC9QPg0KPFA+Jm5ic3A7PC9QPg0KPFA+VGhlIGJyaWRnZSBwZXJmb3JtYW5jZSBpcyBhIGxpdHRs
+ZSBkb3duLiA8L1A+DQo8UD4mbmJzcDs8L1A+DQo8UD5JIHRoaW5rIG15IGN1c3RvbWVyIGZlZWxz
+IHVuY29tZm90YWJsZSBiZWNhdXNlIDE1MCBleGVjdXRpb24gdGltZSB3aGljaCB0aGUgYnJpZGdl
+IHNwZWVkIG9mIHBlcmZvcm1hbmNlIGRlZ3JhZGF0aW9uIGNvbWJpbmVkIGlzIGJpZyB0aW1lLjwv
+UD4NCjxQPiZuYnNwOzwvUD4NCjxQPkkgZG9uJ3Qga25vdyB0aGUgcmVzdWx0IGlzIHJpZ2h0IGFi
+b3ZlLiA8L1A+DQo8UD4mbmJzcDs8L1A+DQo8UD5QbGVhc2UsIGdpdmUgbWUgaW5mb3JtYXRpb24g
+YWJvdXQgaG93IHRvIHVwZ3JhZGUgYnJpZGdlIHBlcmZvcm1hbmNlLiA8L1A+DQo8UD4mbmJzcDs8
+L1A+DQo8UD5NeSBNYWlsIEFkZHJlc3MgOiA8QSBocmVmPSJtYWlsdG86anVuc2FuMTJAZW1wYWwu
+Y29tIj5qdW5zYW4xMkBlbXBhbC5jb208L0E+PC9QPjwvZGl2Pgo8L2JvZHk+PC9IVE1MPjxpbWcg
+d2lkdGg9MSBoZWlnaHQ9MSBzcmM9Imh0dHA6Ly9tYWlsMi5uYXRlLmNvbS9yc2QvZW1wYWxyY3B0
+Mi5odG1sLzMyMzUxOTYvODk2MS9icmlkZ2VAb3NkbC5vcmcvZm9vLmdpZiI+DQoNCg==
 
-> In case if kernel was compiled without ebtables support
-> there is no need to keep ebt_table pointers in netns_xt
-> structure.
-> 
-> Make it config dependent.
-> 
-> Signed-off-by: Cyrill Gorcunov <gorcunov@openvz.org>
-> ---
-> 
-> Probably GCC will authomatically shrink the structure
-> if the members are not in use. Please review.
-> 
->  include/net/netns/x_tables.h |    3 +++
->  1 file changed, 3 insertions(+)
-> 
-> Index: linux-2.6.git/include/net/netns/x_tables.h
-> =====================================================================
-> --- linux-2.6.git.orig/include/net/netns/x_tables.h
-> +++ linux-2.6.git/include/net/netns/x_tables.h
-> @@ -8,8 +8,11 @@ struct ebt_table;
->  
->  struct netns_xt {
->  	struct list_head tables[NFPROTO_NUMPROTO];
-> +#if defined(CONFIG_BRIDGE_NF_EBTABLES) || \
-> +    defined(CONFIG_BRIDGE_NF_EBTABLES_MODULE)
->  	struct ebt_table *broute_table;
->  	struct ebt_table *frame_filter;
->  	struct ebt_table *frame_nat;
-> +#endif
->  };
->  #endif
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-Acked-by: Stephen Hemminger <shemminger@vyatta.com>
-
--- 
