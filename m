@@ -1,11 +1,12 @@
-Message-ID: <4A67795F.2030906@ipfire.org>
-Date: Wed, 22 Jul 2009 22:41:03 +0200
+Message-ID: <4A677ACA.3060100@ipfire.org>
+Date: Wed, 22 Jul 2009 22:47:06 +0200
 From: Michael Tremer <michael.tremer@ipfire.org>
 MIME-Version: 1.0
 References: <4A6638A5.208@ipfire.org> <4A668C49.7080209@superduper.net>
-In-Reply-To: <4A668C49.7080209@superduper.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	<4A66C14C.4090300@ipfire.org> <4A677703.4060507@free.fr>
+In-Reply-To: <4A677703.4060507@free.fr>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] Bridging untagged and tagged VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,84 +16,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Simon Barber <simon@superduper.net>, bridge@lists.linux-foundation.org
+To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+Cc: bridge@lists.linux-foundation.org
 
-Well, I think the kernel patch is the easier way, but ebtables is more easy.
+Oops, just sent the email when your one scrabbled to my inbox.
 
-So I tried with the following command:
-ebtables -t broute -A BROUTING -p 802_1Q -i eth0 -j DROP
+https://lists.linux-foundation.org/pipermail/bridge/2009-July/006626.html
 
-Then, the VLAN 30 and the untagged (V)LAN can be bridged (Well I tried 
-it with
-arping -I br0 192.168.181.1 and got a MAC from the machine 192.168.181.1 
-on VLAN 30).
-
-But I still cannot do the following:
-
-brctl addbr br0
-brctl addif br0 eth0
-
-brctl addbr br1
-brctl addif br1 eth0.30
-
-br0 works.
-br1 doesn't work. Not even ARP.
-ebtables rule was set.
-
-Any ideas?!
-
-Thanks for the great help up to now.
+I applied that ebtables rule to the chain but no packages got to the=20
+vlan interface (eth0.30) anymore.
 
 Michael
 
 
-Simon Barber wrote:
-> To do this seamlessly you need a VLAN aware bridge - the kernel has 
-> separate support for VLAN and bridging, but not integrated. I posted a 
-> patch a while back to fix this - see here:
->
-> http://www.mail-archive.com/bridge@lists.osdl.org/msg01440.html
->
-> It was for a 2.4 kernel, but shouldn't take too much work to port to 2.6.
->
-> Simon
->
->
+Nicolas de Peslo=FCan wrote:
 > Michael Tremer wrote:
->> Hello everybody,
->> I got a weird problem but don't know if it is expected to work.
 >>
->> brctl addbr br0
->> vconfig add eth0 30
->> brctl addif br0 eth0.30
+>> In this mail on
+>> http://www.mail-archive.com/bridge@lists.osdl.org/msg01440.html
+>> there is the following sentence: "- Add native support for an untagged
+>> vlan.  Currently an untagged vlan can be implimented using ebtables or
+> > similar."
 >>
->> Until here, everythink works well... I can access the VLAN with id 30.
->> But when I run the following:
->>
->> brctl addif br0 eth0
->>
->> Then, I can't access the VLAN any more but the untagged LAN.
->> But instead of adding eth0:
->>
->> vconfig add eth0 40
->> brctl addif br0 eth0.40
->>
->> It works.
->>
->> It would be nice if you can me give a short advice...
->> Is it not possible to bridge an untagged LAN with a tagged VLAN or
->> is this a bug?
->>
->> Sincerely,
->>
->> Michael
->>
->> Kernel 2.6.29, brctl 1.4
->>
->> _______________________________________________
->> Bridge mailing list
->> Bridge@lists.linux-foundation.org
->> https://lists.linux-foundation.org/mailman/listinfo/bridge
->>   
+>> Do you know how to do this?
 >
+> For as far as I remember, the right way to do it with ebtables is :
+>
+> brctl addbr br0
+> vconfig add eth0 30
+> brctl addif br0 eth0.30
+> brctl addif br0 eth0
+>
+> ebtables --table broute -A BROUTING --protocol 802_1Q --vlan-id 30=20
+> --jump DROP
+>
+> Normally, a DROP target in BROUTING let the frame being ROUTED. The=20
+> exact behavior  is "give it to upper layer", which is IP in most case.=20
+> But, for a 802.1q tagged frame, the upper layer is "remove the 802.1q=20
+> header and give it again to lower layer, on the right interface".
+>
+> So this ebtables entry deny the bridge the opportunity to eat frames=20
+> having a 802.1q vlan id =3D 30, giving the opportunity to the vlan stack =
+
+> to remove the vlan header and give it to eth0.30...
+>
+> Not tested, because I don't have a bridge available right now, but=20
+> this should work.
+>
+> Of course, if you add several eth0.X interfaces to the bridge, you=20
+> should add the corresponding ebtables entry. For very special=20
+> configuration, --in-interface eth0 might be necessary too.
+>
+> Just thinking about it, the --vlan-id 30 might be useless. Juste=20
+> having --protocol 802_1Q might be enough for simple configuration.=20
+> Just try and told us.
+>
+> HTH.
+>
+>     Nicolas.
 
