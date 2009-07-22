@@ -1,9 +1,13 @@
-Message-ID: <574163.2033.qm@web8805.mail.in.yahoo.com>
-Date: Wed, 22 Jul 2009 20:09:16 +0530 (IST)
-From: rahul bhardwaj <rahul_bhardwaj36in@yahoo.co.in>
+Message-ID: <4A677703.4060507@free.fr>
+Date: Wed, 22 Jul 2009 22:30:59 +0200
+From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-2130460189-1248273556=:2033"
-Subject: [Bridge] Help Needed for ebtables.
+References: <4A6638A5.208@ipfire.org> <4A668C49.7080209@superduper.net>
+	<4A66C14C.4090300@ipfire.org>
+In-Reply-To: <4A66C14C.4090300@ipfire.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Bridging untagged and tagged VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,44 +16,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Michael Tremer <michael.tremer@ipfire.org>
+Cc: bridge@lists.linux-foundation.org
 
+Michael Tremer wrote:
+> 
+> In this mail on
+> http://www.mail-archive.com/bridge@lists.osdl.org/msg01440.html
+> there is the following sentence: "- Add native support for an untagged
+> vlan.  Currently an untagged vlan can be implimented using ebtables or
+ > similar."
+> 
+> Do you know how to do this?
 
---0-2130460189-1248273556=:2033
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+For as far as I remember, the right way to do it with ebtables is :
 
-Hi All,
-We are =0Aplanning to add a feature to not allow the hosts connected to the=
- same gateway =0Ato communicate with each other =E2=80=93 Would ebtables be=
- a good option to implement =0A(on the gateway) it. Could we do it by addin=
-g a rule in the ebtables for =0Adropping a frame based on it=E2=80=99s dest=
-ination MAC address if it is there in the =0Alist of forbidden MACs. We cou=
-ld add to this list the MAC address of each =0Astation that joins the netwo=
-rk. Let me know what you think
-Please let me know if you want any other details about my setup. Please pro=
-vide me help on this topic.
-Thanks and regards,
-Rahul Bhardwaj=0A=0A=0A      See the Web&#39;s breaking stories, chosen by =
-people like you. Check out Yahoo! Buzz. http://in.buzz.yahoo.com/
---0-2130460189-1248273556=:2033
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+brctl addbr br0
+vconfig add eth0 30
+brctl addif br0 eth0.30
+brctl addif br0 eth0
 
-<table cellspacing=3D"0" cellpadding=3D"0" border=3D"0" ><tr><td valign=3D"=
-top" style=3D"font: inherit;"><font size=3D"2" face=3D"Arial"><span style=
-=3D"FONT-FAMILY: Arial; FONT-SIZE: 10pt"><div>Hi All,</div><div><br></div>W=
-e are =0Aplanning to add a feature to not allow the hosts connected to the =
-same gateway =0Ato communicate with each other =E2=80=93 Would ebtables be =
-a good option to implement =0A(on the gateway) it. Could we do it by adding=
- a rule in the ebtables for =0Adropping a frame based on it=E2=80=99s desti=
-nation MAC address if it is there in the =0Alist of forbidden MACs. We coul=
-d add to this list the MAC address of each =0Astation that joins the networ=
-k. Let me know what you think</span></font><div><br></div><div>Please let m=
-e know if you want any other details about my setup. Please provide me help=
- on this topic.</div><div><br></div><div>Thanks and regards,</div><div><br>=
-</div><div>Rahul Bhardwaj</div></td></tr></table><br>=0A      <!--3--><hr s=
-ize=3D1></hr> See the Web&#39;s breaking stories, chosen by people like you=
-. Check out <a href=3D"http://in.rd.yahoo.com/tagline_buzz_1/*http://in.buz=
-z.yahoo.com/" target=3D"_blank"> Yahoo! Buzz</a>.
---0-2130460189-1248273556=:2033--
+ebtables --table broute -A BROUTING --protocol 802_1Q --vlan-id 30 
+--jump DROP
+
+Normally, a DROP target in BROUTING let the frame being ROUTED. The 
+exact behavior  is "give it to upper layer", which is IP in most case. 
+But, for a 802.1q tagged frame, the upper layer is "remove the 802.1q 
+header and give it again to lower layer, on the right interface".
+
+So this ebtables entry deny the bridge the opportunity to eat frames 
+having a 802.1q vlan id = 30, giving the opportunity to the vlan stack 
+to remove the vlan header and give it to eth0.30...
+
+Not tested, because I don't have a bridge available right now, but this 
+should work.
+
+Of course, if you add several eth0.X interfaces to the bridge, you 
+should add the corresponding ebtables entry. For very special 
+configuration, --in-interface eth0 might be necessary too.
+
+Just thinking about it, the --vlan-id 30 might be useless. Juste having 
+--protocol 802_1Q might be enough for simple configuration. Just try and 
+told us.
+
+HTH.
+
+	Nicolas.
