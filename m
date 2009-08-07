@@ -1,17 +1,14 @@
-From: "Fischer, Anna" <anna.fischer@hp.com>
-Date: Mon, 10 Aug 2009 15:59:04 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99867@GVW1118EXC.americas.hpqcorp.net>
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<200908071329.44437.arnd@arndb.de>
-	<005101ca1797$70dcf5b0$5296e110$@edu>
-	<200908101723.10832.arnd@arndb.de>
-In-Reply-To: <200908101723.10832.arnd@arndb.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Date: Fri, 7 Aug 2009 13:17:31 -0700 (PDT)
+From: david@lang.hm
+In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6A6CD7FE@GVW1118EXC.americas.hpqcorp.net>
+Message-ID: <alpine.DEB.1.10.0908071313260.28013@asgard.lang.hm>
+References: <0199E0D51A61344794750DC57738F58E6D6A6CD7F6@GVW1118EXC.americas.hpqcorp.net>
+	<004f01ca1792$b24a7a90$16df6fb0$@edu>
+	<20090807123554.7c2bc27c@nehalam>
+	<0199E0D51A61344794750DC57738F58E6D6A6CD7FE@GVW1118EXC.americas.hpqcorp.net>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [evb] Re: [PATCH][RFC] net/bridge: add basic VEPA
-	support
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,56 +17,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "Fischer,
-	Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, 'Or Gerlitz' <ogerlitz@voltaire.com>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: "Fischer, Anna" <anna.fischer@hp.com>
+Cc: "ogerlitz@voltaire.com" <ogerlitz@voltaire.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, 'Arnd Bergmann' <arnd@arndb.de>, "mst@redhat.com" <mst@redhat.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Stephen Hemminger <shemminger@vyatta.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
->=20
-> On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
-> >
-> > I don't think your scheme works too well because broadcast packet
-> coming
-> > from other interfaces on br0 would get replicated and sent across the
-> wire
-> > to ethB multiple times.
->=20
-> Right, that won't work. So the bridge patch for the hairpin turn
-> is still the best solution.=20
+On Fri, 7 Aug 2009, Fischer, Anna wrote:
 
-Yes, I think that we should separate the discussions between hairpin=20
-mode on the adjacent bridge and the VEPA filtering service residing
-within the end-station. The hairpin feature really has to be
-implemented in the bridging code.
+> Subject: RE: [Bridge] [PATCH] macvlan: add tap device backend
+> 
+>> Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
+>>
+>> On Fri, 7 Aug 2009 12:10:07 -0700
+>> "Paul Congdon \(UC Davis\)" <ptcongdon@ucdavis.edu> wrote:
+>>
+>>> Responding to Daniel's questions...
+>>>
+>>>> I have some general questions about the intended use and benefits
+>> of
+>>>> VEPA, from an IT perspective:
+>>>>
+>>>> In which virtual machine setups and technologies do you forsee this
+>>>> interface being used?
+>>>
+>>> The benefit of VEPA is the coordination and unification with the
+>> external network switch.  So, in environments where you are
+>> needing/wanting your feature rich, wire speed, external network device
+>> (firewall/switch/IPS/content-filter) to provide consistent policy
+>> enforcement, and you want your VMs traffic to be subject to that
+>> enforcement, you will want their traffic directed externally.  Perhaps
+>> you have some VMs that are on a DMZ or clustering an application or
+>> implementing a multi-tier application where you would normally place a
+>> firewall in-between the tiers.
+>>
+>> I do have to raise the point that Linux is perfectly capable of keeping
+>> up without
+>> the need of an external switch.  Whether you want policy external or
+>> internal is
+>> a architecture decision that should not be driven by mis-information
+>> about performance.
+>
+> VEPA is not only about enabling faster packet processing (like firewall/switch/IPS/content-filter etc) by doing this on the external switch.
+>
+> Due to rather low performance of software-based I/O virtualization approaches a lot of effort has recently been going into hardware-based implementations of virtual network interfaces like SRIOV NICs provide. Without VEPA, such a NIC would have to implement sophisticated virtual switching capabilities. VEPA however is very simple and therefore perfectly suited for a hardware-based implementation. So in the future, it will give you direct I/O like performance and all the capabilities your adjacent switch provides.
+>
 
+the performance overhead isn't from switching the packets, it's from 
+running the firewall/IDS/etc software on the same system.
 
-> Btw, how will that interact with
-> the bride-netfilter (ebtables) setup? Can you apply any filters
-> that work on current bridges also between two VEPA ports while
-> doing the hairpin turn?
+with VEPA the communications from one VM to another VM running on the same 
+host will be forced to go out the interface to the datacenter switching 
+fabric. The overall performance of the network link will be slightly 
+slower, but it allows for other devices to be inserted into the path.
 
-The hairpin mode is implemented on the adjacent bridge. The only=20
-difference for a hairpin mode port vs. a normal bridge port is that
-it can pass frames back out to the same port it came from. All the
-netfilter hooks are still in place.
+this is something that I would want available if I were to start using VMs 
+for things. I don't want to have to duplicate my IDS/firewalling functions 
+within each host system as well as having them as part of the switching 
+fabric.
 
-On the VEPA filtering service side, the only change we have implemented
-in the bridging code is that in VEPA mode all frames are passed to the
-uplink on TX. However, frames are still passed through the netfilter=20
-hooks before they go out on the wire. On the inbound path, there are
-no changes to the way frames are processed (except the filtering for
-the original source port), so netfilter hooks work in the same way
-as for a normal bridge.
-
-If a frame is reflected back because of a hairpin turn, then of course
-the incoming port is the VEPA uplink port and not the port that
-originally sent the frame. So if you are trying to enforce some
-packet filtering on that inbound path, then you would have to do that
-based on MAC addresses and not on bridge ports. But I would assume that
-you would enforce the filtering already before you send out the frame
-to the adjacent bridge. Apart from that, if you enable your bridge to
-behave in VEPA mode, then you would typically do packet filtering etc
-on the adjacent bridge and not use the netfilter hook. You can still use
-both though, if you like.
-
-Anna
+David Lang
