@@ -1,14 +1,12 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Fri, 7 Aug 2009 13:29:44 +0200
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<20090806210002.75beb7c6@nehalam>
-In-Reply-To: <20090806210002.75beb7c6@nehalam>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+In-Reply-To: <1249595428-21594-1-git-send-email-arnd@arndb.de>
+References: <1249595428-21594-1-git-send-email-arnd@arndb.de>
+Date: Fri, 7 Aug 2009 11:35:48 -0600
+Message-ID: <de7adc5e0908071035m4898dc5chaf9515d4a70465d@mail.gmail.com>
+From: Daniel Robbins <drobbins@funtoo.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <200908071329.44437.arnd@arndb.de>
-Subject: Re: [Bridge] [PATCH][RFC] net/bridge: add basic VEPA support
+Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,44 +15,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: Or Gerlitz <ogerlitz@voltaire.com>, "Fischer, Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, "Fischer,
+	Anna" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Or Gerlitz <ogerlitz@voltaire.com>, Edge Virtual Bridging <evb@yahoogroups.com>, "David S. Miller\"" <davem@davemloft.net>
 
-On Friday 07 August 2009, Stephen Hemminger wrote:
-> So instead of adding more stuff to existing bridge code, why not
-> have a new driver for just VEPA. You could
-> do it with a simple version of macvlan type driver.
+On Thu, Aug 6, 2009 at 3:50 PM, Arnd Bergmann<arnd@arndb.de> wrote:
+> This is a first prototype of a new interface into the network
+> stack, to eventually replace tun/tap and the bridge driver
+> in certain virtual machine setups.
 
-The current macvlan driver already does the downstream side of
-VEPA and only needs a connection to KVM et al, either using
-Or's qemu packet socket interface, or using the macvtap driver
-I posted.
+I have some general questions about the intended use and benefits of
+VEPA, from an IT perspective:
 
-Now Anna's patch also addresses the upstream side of VEPA, by
-making it possible for the bridge code to send frames back
-in the bridge code that they were received from, if that port
-is marked as a hairpin mode port.
+In which virtual machine setups and technologies do you forsee this
+interface being used?
+Is this new interface to be used within a virtual machine or
+container, on the master node, or both?
+What interface(s) would need to be configured for a single virtual
+machine to use VEPA to access the network?
+What are the current flexibility, security or performance limitations
+of tun/tap and bridge that make this new interface necessary or
+beneficial?
+Is this new interface useful at all for VPN solutions or is it
+*specifically* targeted for connecting virtual machines to the
+network?
+Is this essentially a bridge with layer-2 isolation for the virtual
+machine interfaces built-in? If isolation is provided, what mechanism
+is used to accomplish this, and how secure is it?
+Does VEPA look like a regular ethernet interface (eth0) on the virtual
+machine side?
+Are there any associated user-space tools required for configuring a VEPA?
 
-Is your suggestion to do that part also with a macvlan type driver?
-I've thought about this before, and I guess that would mean
-basically the same as the macvlan driver, except hashing the
-source MAC address instead of the destination MAC address for
-inbound frames. That way you should be able to do something
-like:
+Do you have any HOWTO-style documentation that would demonstrate how
+this interface would be used in production? Or a FAQ?
 
-            Host A                             Host B
+This seems like a very interesting effort but I don't quite have a
+good grasp of VEPA's benefits and limitations -- I imagine that others
+are in the same boat too.
 
-      /- nalvcam0 -\                   /- macvlan0 - 192.168.1.1
-br0 -|              |- ethA === ethB -|
-      \- nalvcam1 -/                   \- macvlan1 - 192.168.1.2
-  
-Now assuming that macvlan0 and macvlan1 are in different
-network namespaces or belong to different KVM guests, these
-guests would be able to communicate with each other through
-the bridge on host A, which can set the policy (using ebtables)
-for this communication and get interface statistics on its
-nalvcam interfaces. Also, instead of having the br0, Host A could
-assign an IP addresses to the two nalvcam interfaces that host
-B has, and use IP forwarding between the guests of host B.
+Best Regards,
 
-	Arnd <><
+Daniel
