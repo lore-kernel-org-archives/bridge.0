@@ -1,12 +1,12 @@
-From: "Fischer, Anna" <anna.fischer@hp.com>
-Date: Fri, 7 Aug 2009 21:00:54 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E6D6A6CD803@GVW1118EXC.americas.hpqcorp.net>
+From: "Paul Congdon \(UC Davis\)" <ptcongdon@ucdavis.edu>
 References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
 In-Reply-To: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Date: Fri, 7 Aug 2009 14:06:58 -0700
+Message-ID: <000001ca17a3$03f841f0$0be8c5d0$@edu>
 MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0001_01CA1768.579969F0"
+Content-Language: en-us
 Subject: Re: [Bridge] [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA
 	support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -17,120 +17,306 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yaron Haviv <yaronh@voltaire.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>
-Cc: "arnd@arndb.de" <arnd@arndb.de>, "davem@davemloft.net" <davem@davemloft.net>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: shemminger@linux-foundation.org, anna.fischer@hp.com
+Cc: arnd@arndb.de, davem@davemloft.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, adobriyan@gmail.com, virtualization@lists.linux-foundation.org
 
-SGkgWWFyb24sDQoNClllcywgSSBhbHNvIGJlbGlldmUgdGhhdCBWRVBBICsgU1JJT1YgY2FuIHBv
-dGVudGlhbGx5LCBpbiBzb21lIGRlcGxveW1lbnRzLCBhY2hpZXZlIGJldHRlciBwZXJmb3JtYW5j
-ZSB0aGFuIGEgYnJpZGdlL3RhcCBjb25maWd1cmF0aW9uLCBlc3BlY2lhbGx5IHdoZW4geW91IHJ1
-biBtdWx0aXBsZSBWTXMgYW5kIGlmIHlvdSB3YW50IHRvIGVuYWJsZSBtb3JlIHNvcGhpc3RpY2F0
-ZWQgbmV0d29yayBwcm9jZXNzaW5nIGluIHRoZSBkYXRhIHBhdGguDQoNCklmIHlvdSBkbyBoYXZl
-IGEgU1JJT1YgTklDIHRoYXQgc3VwcG9ydHMgVkVQQSwgdGhlbiBJIHdvdWxkIHRoaW5rIHRoYXQg
-eW91IGRvIG5vdCBoYXZlIFFFTVUgb3IgbWFjdnRhcCBpbiB0aGUgc2V0dXAgYW55IG1vcmUgdGhv
-dWdoLiBTaW1wbHkgYmVjYXVzZSBpbiB0aGF0IGNhc2UgdGhlIFZNIGNhbiBkaXJlY3RseSBhY2Nl
-c3MgdGhlIFZGIG9uIHRoZSBwaHlzaWNhbCBkZXZpY2UuIFRoYXQgd291bGQgYmUgaWRlYWwuDQoN
-CkkgZG8gdGhpbmsgdGhhdCB0aGUgbWFjdnRhcCBkcml2ZXIgaXMgYSBnb29kIGFkZGl0aW9uIGFz
-IGEgc2ltcGxlIGFuZCBmYXN0IHZpcnR1YWwgbmV0d29yayBJL08gaW50ZXJmYWNlLCBpbiBjYXNl
-IHlvdSBkbyBub3QgbmVlZCBmdWxsIGJyaWRnZSBmdW5jdGlvbmFsaXR5LiBJdCBkb2VzIHNlZW0g
-dG8gYXNzdW1lIHRob3VnaCB0aGF0IHRoZSB2aXJ0dWFsaXphdGlvbiBzb2Z0d2FyZSB1c2VzIFFF
-TVUvdGFwIGludGVyZmFjZXMuIEhvdyB3b3VsZCB0aGlzIHdvcmsgd2l0aCBhIFhlbiBwYXJhLXZp
-cnR1YWxpemVkIG5ldHdvcmsgaW50ZXJmYWNlPyBJIGd1ZXNzIHRoZXJlIHdvdWxkIG5lZWQgdG8g
-YmUgeWV0IGFub3RoZXIgZHJpdmVyPw0KDQpBbm5hDQoNCi0tDQoNCkZyb206IFlhcm9uIEhhdml2
-IFttYWlsdG86eWFyb25oQHZvbHRhaXJlLmNvbV0gDQpTZW50OiAwNyBBdWd1c3QgMjAwOSAyMToz
-Ng0KVG86IGV2YkB5YWhvb2dyb3Vwcy5jb207IHNoZW1taW5nZXJAbGludXgtZm91bmRhdGlvbi5v
-cmc7IEZpc2NoZXIsIEFubmENCkNjOiBicmlkZ2VAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmc7
-IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnOyBkYXZlbUBkYXZlbWxvZnQubmV0OyBrYWJlckB0cmFzaC5uZXQ7IGFkb2JyaXlh
-bkBnbWFpbC5jb207IGFybmRAYXJuZGIuZGUNClN1YmplY3Q6IFJlOiBbZXZiXSBSRTogW1BBVENI
-XVtSRkNdIG5ldC9icmlkZ2U6IGFkZCBiYXNpYyBWRVBBIHN1cHBvcnQNCg0KUGF1bCwNCg0KSSBh
-bHNvIHRoaW5rIHRoYXQgYnJpZGdlIG1heSBub3QgYmUgdGhlIHJpZ2h0IHBsYWNlIGZvciBWRVBB
-LCBidXQgcmF0aGVyIGEgc2ltcGxlciBzdy9odyBtdXggDQpBbHRob3VnaCB0aGUgVkVQQSBzdXBw
-b3J0IG1heSByZXNpZGUgaW4gbXVsdGlwbGUgcGxhY2VzIChJLmUuIGFsc28gaW4gdGhlIGJyaWRn
-ZSkNCg0KQXMgQXJuZCBwb2ludGVkIG91dCBPciBhbHJlYWR5IGFkZGVkIGFuIGV4dGVuc2lvbiB0
-byBxZW11IHRoYXQgYWxsb3cgZGlyZWN0IGd1ZXN0IHZpcnR1YWwgTklDIG1hcHBpbmcgdG8gYW4g
-aW50ZXJmYWNlIGRldmljZSAodnMgdXNpbmcgdGFwKSwgdGhpcyB3YXMgZG9uZSBzcGVjaWZpY2Fs
-bHkgdG8gYWRkcmVzcyBWRVBBLCBhbmQgcmVzdWx0IGluIG11Y2ggZmFzdGVyIHBlcmZvcm1hbmNl
-IGFuZCBsb3dlciBjcHUgb3ZlcmhlYWQgKE9yIGFuZCBzb21lIG90aGVycyBhcmUgcGxhbm5pbmcg
-YWRkaXRpb25hbCBtZWFuaW5nZnVsIHBlcmZvcm1hbmNlIG9wdGltaXphdGlvbnMpIA0KDQpUaGUg
-aW50ZXJmYWNlIG11bHRpcGxleGluZyBjYW4gYmUgYWNoaWV2ZWQgdXNpbmcgbWFjdmxhbiBkcml2
-ZXIgb3IgdXNpbmcgYW4gU1ItSU9WIGNhcGFibGUgTklDICh0aGUgcHJlZmVycmVkIG9wdGlvbiks
-IG1hY3ZsYW4gbWF5IG5lZWQgdG8gYmUgZXh0ZW5kZWQgdG8gc3VwcG9ydCBWRVBBIG11bHRpY2Fz
-dCBoYW5kbGluZywgdGhpcyBsb29rcyBsaWtlIGEgcmF0aGVyIHNpbXBsZSB0YXNrIA0KDQpJdCBt
-YXkgYmUgY291bnRlciBpbnR1aXRpdmUgZm9yIHNvbWUsIGJ1dCB3ZSBleHBlY3QgdGhlIChjb21w
-bGV0ZWQpIHFlbXUgVkVQQSBtb2RlICsgU1ItSU9WICsgY2VydGFpbiBzd2l0Y2hlcyB3aXRoIGhh
-aXJwaW4gKHZlcGEpIG1vZGUgdG8gcGVyZm9ybSBmYXN0ZXIgdGhhbiB1c2luZyBicmlkZ2UrdGFw
-IGV2ZW4gZm9yIGNvbm5lY3RpbmcgMiBWTXMgb24gdGhlIHNhbWUgaG9zdA0KDQoNCllhcm9uIA0K
-DQpTZW50IGZyb20gQmxhY2tCZXJyeQ0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXw0KRnJvbTogZXZiQHlhaG9vZ3JvdXBzLmNvbSANClRvOiAnU3RlcGhlbiBIZW1taW5n
-ZXInIDsgJ0Zpc2NoZXIsIEFubmEnIA0KQ2M6IGJyaWRnZUBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZyA7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcgOyBuZXRkZXZAdmdlci5rZXJuZWwu
-b3JnIDsgdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcgOyBldmJAeWFo
-b29ncm91cHMuY29tIDsgZGF2ZW1AZGF2ZW1sb2Z0Lm5ldCA7IGthYmVyQHRyYXNoLm5ldCA7IGFk
-b2JyaXlhbkBnbWFpbC5jb20gOyAnQXJuZCBCZXJnbWFubicgDQpTZW50OiBGcmkgQXVnIDA3IDIx
-OjU4OjAwIDIwMDkNClN1YmplY3Q6IFtldmJdIFJFOiBbUEFUQ0hdW1JGQ10gbmV0L2JyaWRnZTog
-YWRkIGJhc2ljIFZFUEEgc3VwcG9ydCANCsKgIA0KPiANCj4gQWZ0ZXIgcmVhZGluZyBtb3JlIGFi
-b3V0IHRoaXMsIEkgYW0gbm90IGNvbnZpbmNlZCB0aGlzIHNob3VsZCBiZSBwYXJ0IA0KPiBvZiB0
-aGUgYnJpZGdlIGNvZGUuIFRoZSBicmlkZ2UgY29kZSByZWFsbHkgY29uc2lzdHMgb2YgdHdvIHBh
-cnRzOg0KPiBmb3J3YXJkaW5nIHRhYmxlIGFuZCBvcHRpb25hbCBzcGFubmluZyB0cmVlLiBXZWxs
-IHRoZSBWRVBBIGNvZGUgc2hvcnQgDQo+IGNpcmN1aXRzIGJvdGggb2YgdGhlc2U7IGl0IGNhbid0
-IGltYWdpbmUgaXQgd29ya2luZyB3aXRoIFNUUCB0dXJuZWQgDQo+IG9uLiBUaGUgb25seSBwYXJ0
-IG9mIGJyaWRnZSBjb2RlIHRoYXQgcmVhbGx5IGdldHMgdXNlZCBieSB0aGlzIGFyZSB0aGUgDQo+
-IHJlY2VpdmUgcGFja2V0IGhvb2tzIGFuZCB0aGUgY3J1ZnR5IG9sZCBBUEkuDQo+IA0KPiBTbyBp
-bnN0ZWFkIG9mIGFkZGluZyBtb3JlIHN0dWZmIHRvIGV4aXN0aW5nIGJyaWRnZSBjb2RlLCB3aHkg
-bm90IGhhdmUgDQo+IGEgbmV3IGRyaXZlciBmb3IganVzdCBWRVBBLiBZb3UgY291bGQgZG8gaXQg
-d2l0aCBhIHNpbXBsZSB2ZXJzaW9uIG9mIA0KPiBtYWN2bGFuIHR5cGUgZHJpdmVyLg0KDQpTdGVw
-aGVuLA0KDQpUaGFua3MgZm9yIHlvdXIgY29tbWVudHMgYW5kIHF1ZXN0aW9ucy4gV2UgZG8gYmVs
-aWV2ZSB0aGUgYnJpZGdlIGNvZGUgaXMNCnRoZSByaWdodCBwbGFjZSBmb3IgdGhpcywgc28gSSdk
-IGxpa2UgdG8gZW1iZWxsaXNoIG9uIHRoYXQgYSBiaXQgbW9yZSB0bw0KaGVscCBwZXJzdWFkZSB5
-b3UuIFNvcnJ5IGZvciB0aGUgbG9uZyB3aW5kZWQgcmVzcG9uc2UsIGJ1dCBoZXJlIGFyZSBzb21l
-DQp0aG91Z2h0czoNCg0KLSBGaXJzdCBhbmQgZm9yZW1vc3QsIFZFUEEgaXMgZ29pbmcgdG8gYmUg
-YSBzdGFuZGFyZCBhZGRpdGlvbiB0byB0aGUgSUVFRQ0KODAyLjFRIHNwZWNpZmljYXRpb24uIFRo
-ZSB3b3JraW5nIGdyb3VwIGFncmVlZCBhdCB0aGUgbGFzdCBtZWV0aW5nIHRvDQpwdXJzdWUgYSBw
-cm9qZWN0IHRvIGF1Z21lbnQgdGhlIGJyaWRnZSBzdGFuZGFyZCB3aXRoIGhhaXJwaW4gbW9kZSAo
-YWthDQpyZWZsZWN0aXZlIHJlbGF5KSBhbmQgYSByZW1vdGUgZmlsdGVyaW5nIHNlcnZpY2UgKFZF
-UEEpLiBTZWUgZm9yIGRldGFpbHM6DQpodHRwOi8vd3d3LmllZWU4MDIub3JnLzEvZmlsZXMvcHVi
-bGljL2RvY3MyMDA5L25ldy1ldmItY29uZ2Rvbi1ldmJQYXI1Qy0wNzA5DQotdjAxLnBkZg0KDQot
-IFRoZSBWRVBBIGZ1bmN0aW9uYWxpdHkgd2FzIHJlYWxseSBhIHByZXR0eSBzbWFsbCBjaGFuZ2Ug
-dG8gdGhlIGNvZGUgd2l0aA0KbG93IHJpc2sgYW5kIHdvdWxkbid0IHNlZW0gdG8gd2FycmFudCBh
-biBlbnRpcmUgbmV3IGRyaXZlciBvciBtb2R1bGUuDQoNCi0gVGhlcmUgYXJlIGdvb2QgdXNlIGNh
-c2VzIHdoZXJlIFZNcyB3aWxsIHdhbnQgdG8gaGF2ZSBzb21lIG9mIHRoZWlyDQppbnRlcmZhY2Vz
-IGF0dGFjaGVkIHRvIGJyaWRnZXMgYW5kIG90aGVycyB0byBicmlkZ2VzIG9wZXJhdGluZyBpbiBW
-RVBBIG1vZGUuDQpJbiBvdGhlciB3b3Jkcywgd2Ugc2VlIHNpbXVsdGFuZW91cyBvcGVyYXRpb24g
-b2YgdGhlIGJyaWRnZSBjb2RlIGFuZCBWRVBBDQpvY2N1cnJpbmcsIHNvIGhhdmluZyBhcyBtdWNo
-IG9mIHRoZSB1bmRlcmx5aW5nIGNvZGUgYXMgY29tbW9uIGFzIHBvc3NpYmxlDQp3b3VsZCBzZWVt
-IHRvIGJlIGJlbmVmaWNpYWwuIA0KDQotIEJ5IGF1Z21lbnRpbmcgdGhlIGJyaWRnZSBjb2RlIHdp
-dGggVkVQQSB0aGVyZSBpcyBhIGdyZWF0IGFtb3VudCBvZiByZS11c2UNCmFjaGlldmVkLiBJdCB3
-b3JrcyB3aGVyZXZlciB0aGUgYnJpZGdlIGNvZGUgd29ya3MgYW5kIGRvZXNuJ3QgbmVlZCBhbnl0
-aGluZw0Kc3BlY2lhbCB0byBzdXBwb3J0IEtWTSwgWEVOLCBhbmQgYWxsIHRoZSBob29rcywgZXRj
-Li4uDQoNCi0gVGhlIGhhcmR3YXJlIHZlbmRvcnMgYnVpbGRpbmcgU1ItSU9WIE5JQ3Mgd2l0aCBl
-bWJlZGRlZCBzd2l0Y2hlcyB3aWxsIGJlDQphZGRpbmcgVkVQQSBtb2RlLCBzbyBieSBrZWVwaW5n
-IHRoZSBicmlkZ2UgbW9kdWxlIGluIHN5bmMgd291bGQgYmUNCmNvbnNpc3RlbnQgd2l0aCB0aGlz
-IHRyZW5kIGFuZCBkaXJlY3Rpb24uIEl0IHdpbGwgYmUgcG9zc2libGUgdG8gZXh0ZW5kIHRoZQ0K
-aGFyZHdhcmUgaW1wbGVtZW50YXRpb25zIGJ5IGNhc2NhZGluZyBhIHNvZnR3YXJlIGJyaWRnZSBh
-bmQvb3IgVkVQQSwgc28NCmJlaW5nIGluIHN5bmMgd2l0aCB0aGUgYXJjaGl0ZWN0dXJlIHdvdWxk
-IG1ha2UgdGhpcyBtb3JlIGNvbnNpc3RlbnQuDQoNCi0gVGhlIGZvcndhcmRpbmcgdGFibGUgaXMg
-c3RpbGwgbmVlZGVkIGFuZCB1c2VkIG9uIGluYm91bmQgdHJhZmZpYyB0bw0KZGVsaXZlciBmcmFt
-ZXMgdG8gdGhlIGNvcnJlY3QgdmlydHVhbCBpbnRlcmZhY2VzIGFuZCB0byBmaWx0ZXIgYW55IHJl
-ZmxlY3RlZA0KZnJhbWVzLiBBIG5ldyBkcml2ZXIgd291bGQgaGF2ZSB0byBiYXNpY2FsbHkgaW1w
-bGVtZW50IGFuIGVxdWl2YWxlbnQNCmZvcndhcmRpbmcgdGFibGUgYW55d2F5LiBBcyBJIHVuZGVy
-c3RhbmQgdGhlIGN1cnJlbnQgbWFjdmxhbiB0eXBlIGRyaXZlciwNCml0IHdvdWxkbid0IGZpbHRl
-ciBtdWx0aWNhc3QgZnJhbWVzIHByb3Blcmx5IHdpdGhvdXQgc3VjaCBhIHRhYmxlLg0KDQotIEl0
-IHNlZW1zIHRoZSBoYWlycGluIG1vZGUgd291bGQgYmUgbmVlZGVkIGluIHRoZSBicmlkZ2UgbW9k
-dWxlIHdoZXRoZXINClZFUEEgd2FzIGFkZGVkIHRvIHRoZSBicmlkZ2UgbW9kdWxlIG9yIGEgbmV3
-IGRyaXZlci4gSGF2aW5nIHRoZSBhc3NvY2lhdGVkDQpjaGFuZ2VzIHRvZ2V0aGVyIGluIHRoZSBz
-YW1lIGNvZGUgY291bGQgYWlkIGluIHVuZGVyc3RhbmRpbmcgYW5kIGRlcGxveW1lbnQuDQoNCkFz
-IEkgdW5kZXJzdGFuZCB0aGUgbWFjdmxhbiBjb2RlLCBpdCBjdXJyZW50bHkgZG9lc24ndCBhbGxv
-dyB0d28gVk1zIG9uIHRoZQ0Kc2FtZSBtYWNoaW5lIHRvIGNvbW11bmljYXRlIHdpdGggb25lIGFu
-b3RoZXIuIEkgY291bGQgaW1hZ2luZSBhIGhhaXJwaW4NCm1vZGUgb24gdGhlIGFkamFjZW50IGJy
-aWRnZSBtYWtpbmcgdGhpcyBwb3NzaWJsZSwgYnV0IHRoZSBtYWN2bGFuIGNvZGUgd291bGQNCm5l
-ZWQgdG8gYmUgdXBkYXRlZCB0byBmaWx0ZXIgcmVmbGVjdGVkIGZyYW1lcyBzbyBhIHNvdXJjZSBk
-aWQgbm90IHJlY2VpdmUNCmhpcyBvd24gcGFja2V0LiBJIGNvdWxkIGltYWdpbmUgdGhpcyBiZWlu
-ZyBkb25lIGFzIHdlbGwsIGJ1dCB0byBhbHNvDQpzdXBwb3J0IHNlbGVjdGl2ZSBtdWx0aWNhc3Qg
-dXNhZ2UsIHNvbWV0aGluZyBzaW1pbGFyIHRvIHRoZSBicmlkZ2UNCmZvcndhcmRpbmcgdGFibGUg
-d291bGQgYmUgbmVlZGVkLiBJIHRoaW5rIHB1dHRpbmcgVkVQQSBpbnRvIGEgbmV3IGRyaXZlcg0K
-d291bGQgY2F1c2UgeW91IHRvIGltcGxlbWVudCBtYW55IHRoaW5ncyB0aGUgYnJpZGdlIGNvZGUg
-YWxyZWFkeSBzdXBwb3J0cy4NCkdpdmVuIHRoYXQgd2UgZXhwZWN0IHRoZSBicmlkZ2Ugc3RhbmRh
-cmQgdG8gdWx0aW1hdGVseSBpbmNsdWRlIFZFUEEsIGFuZCB0aGUNCm5ldyBmdW5jdGlvbnMgYXJl
-IGJhc2ljIGZvcndhcmRpbmcgb3BlcmF0aW9ucywgaXQgc2VlbXMgdG8gbWFrZSBtb3N0IHNlbnNl
-DQp0byBrZWVwIHRoaXMgY29uc2lzdGVudCB3aXRoIHRoZSBicmlkZ2UgbW9kdWxlLg0KDQpQYXVs
-DQo=
+This is a multipart message in MIME format.
+
+------=_NextPart_000_0001_01CA1768.579969F0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Yaron,
+
+
+The interface multiplexing can be achieved using macvlan driver or using =
+an SR-IOV capable NIC (the preferred option), macvlan may need to be =
+extended to support VEPA multicast handling, this looks like a rather =
+simple task=20
+
+Agreed that the hardware solution is preferred so the macvlan =
+implementation doesn=E2=80=99t really matter.  If we are talking SR-IOV, =
+then it is direct mapped, regardless of whether there is a VEB or VEPA =
+in the hardware below, so you are bypassing the bridge software code =
+also. =20
+
+I disagree that adding the multicast handling is simple =E2=80=93 while =
+not conceptually hard, it will basically require you to put an address =
+table into the macvlan implementation =E2=80=93 if you have that, then =
+why not have just used the one already in the bridge code.  If you hook =
+a VEPA up to a non-hairpin mode external bridge, you get the macvlan =
+capability as well.
+
+It also seems to me like the special macvlan interfaces for KVM =
+don=E2=80=99t apply to XEN or a non-virtualized environment?  Or more =
+has to be written to make that work?  If it is in the bridge code, you =
+get all of this re-use.
+
+=20
+
+=20
+
+
+------=_NextPart_000_0001_01CA1768.579969F0
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Dutf-8">
+<meta name=3DGenerator content=3D"Microsoft Word 12 (filtered medium)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Verdana;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p
+	{mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+code
+	{mso-style-priority:99;
+	font-family:"Courier New";}
+pre
+	{mso-style-priority:99;
+	mso-style-link:"HTML Preformatted Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+tt
+	{mso-style-priority:99;
+	font-family:"Courier New";}
+span.left
+	{mso-style-name:left;}
+span.bld
+	{mso-style-name:bld;}
+p.ad, li.ad, div.ad
+	{mso-style-name:ad;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.ad1, li.ad1, div.ad1
+	{mso-style-name:ad1;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.ad2, li.ad2, div.ad2
+	{mso-style-name:ad2;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.ad3, li.ad3, div.ad3
+	{mso-style-name:ad3;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	margin-bottom:7.5pt;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.HTMLPreformattedChar
+	{mso-style-name:"HTML Preformatted Char";
+	mso-style-priority:99;
+	mso-style-link:"HTML Preformatted";
+	font-family:"Consolas","serif";}
+p.replbq, li.replbq, div.replbq
+	{mso-style-name:replbq;
+	margin:3.0pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.yshortcuts
+	{mso-style-name:yshortcuts;}
+p.ad4, li.ad4, div.ad4
+	{mso-style-name:ad4;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.ad5, li.ad5, div.ad5
+	{mso-style-name:ad5;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	margin-bottom:7.5pt;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.ad6, li.ad6, div.ad6
+	{mso-style-name:ad6;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.yshortcuts1
+	{mso-style-name:yshortcuts1;
+	font-family:"Verdana","sans-serif";
+	font-weight:bold;}
+span.yshortcuts2
+	{mso-style-name:yshortcuts2;
+	font-family:"Verdana","sans-serif";
+	font-weight:normal;}
+span.EmailStyle35
+	{mso-style-type:personal-reply;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:236869277;
+	mso-list-template-ids:518443864;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:=EF=82=B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=3Dwhite lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<div style=3D'border:none;border-left:solid blue 1.5pt;padding:0in 0in =
+0in 4.0pt'>
+
+<div>
+
+<p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:#1F497D'>Yaron,<o:p></o:p></span></p>
+
+<p style=3D'margin-bottom:12.0pt'><span =
+style=3D'font-size:10.0pt;font-family:"Arial","sans-serif";
+color:navy'><br>
+The interface multiplexing can be achieved using macvlan driver or using =
+an
+SR-IOV capable NIC (the preferred option), macvlan may need to be =
+extended to
+support VEPA multicast handling, this looks like a rather simple task =
+</span><span
+style=3D'font-size:10.0pt;font-family:"Arial","sans-serif";color:#1F497D'=
+><o:p></o:p></span></p>
+
+<p><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'>Agreed
+that the hardware solution is preferred so the macvlan implementation =
+doesn=E2=80=99t
+really matter. &nbsp;If we are talking SR-IOV, then it is direct mapped,
+regardless of whether there is a VEB or VEPA in the hardware below, so =
+you are
+bypassing the bridge software code also.&nbsp; <o:p></o:p></span></p>
+
+<p><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'>I
+disagree that adding the multicast handling is simple =E2=80=93 while =
+not conceptually
+hard, it will basically require you to put an address table into the =
+macvlan
+implementation =E2=80=93 if you have that, then why not have just used =
+the one already
+in the bridge code.&nbsp; If you hook a VEPA up to a non-hairpin mode =
+external
+bridge, you get the macvlan capability as well.<o:p></o:p></span></p>
+
+<p><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'>It
+also seems to me like the special macvlan interfaces for KVM =
+don=E2=80=99t apply to XEN
+or a non-virtualized environment?=C2=A0 Or more has to be written to =
+make that
+work?=C2=A0 If it is in the bridge code, you get all of this =
+re-use.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal><span =
+style=3D'color:white'><o:p>&nbsp;</o:p></span></p>
+
+<p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:#1F497D'><o:p>&nbsp;</o:p></span></p>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0001_01CA1768.579969F0--
+
