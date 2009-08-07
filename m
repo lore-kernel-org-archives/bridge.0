@@ -1,12 +1,12 @@
-Date: Thu, 6 Aug 2009 15:16:06 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20090806151606.6c9f0ffb@nehalam>
-In-Reply-To: <COL102-DS8EEFACEAA0D1A8E3D5CA2CF0A0@phx.gbl>
-References: <COL102-DS8EEFACEAA0D1A8E3D5CA2CF0A0@phx.gbl>
+Date: Thu, 06 Aug 2009 20:20:33 -0700 (PDT)
+Message-Id: <20090806.202033.232151260.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1249595428-21594-1-git-send-email-arnd@arndb.de>
+References: <1249595428-21594-1-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge on colinux: need to configure bridging in kernel
+Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,46 +15,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Song Ping (pubic emailbox)" <itestitest@hotmail.com>
-Cc: bridge@linux-foundation.org
+To: arnd@arndb.de
+Cc: herbert@gondor.apana.org.au, mst@redhat.com, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, ogerlitz@voltaire.com, evb@yahoogroups.com
 
-On Thu, 6 Aug 2009 13:10:21 +0800
-"Song Ping \(pubic emailbox\)" <itestitest@hotmail.com> wrote:
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu,  6 Aug 2009 21:50:28 +0000
 
-> Hi:
-> 
-> I'm trying to setup dynamips to simulate some cisco routers in ubuntu and I
-> need to bridge the router interface out of the linux NIC (so two virtual
-> routers hold by 2 linux can talk), and it looks I need this fancy bridge
-> tool, but.
-> 
-> When I install the bridge-utils and start to configure a bridge, it reports
-> the following error:
-> 
-> # brctl addbr br0
-> 
-> add bridge failed: Package not installed
-> 
->  
-> 
-> read through the document and realize I probably need to "configure Ethernet
-> bridging into my kernel", here is my kernel version:
-> 
-> root@ubuntu-1:/home/ping1# uname -r
-> 
-> 2.6.22.18-co-0.7.4
-> 
->  
-> 
-> So , yes I'm using colinux (running on top of winxp), but I don't think that
-> should be the root cause, problem is now how do I "configure Ethernet
-> bridging into my kernel"? 
-> 
-> Sorry this may sound a stupid question for experts but I'm not an export of
-> linux so that sound real hard and dangrious for me , any step-by-step
-> suggestion on that?
-> 
+> This is a first prototype of a new interface into the network
+> stack, to eventually replace tun/tap and the bridge driver
+> in certain virtual machine setups.
 
-If bridging is not in the kernel, you will have to reconfigure and
-recompile the kernel. If you don't have source and/or tools to do
-that, there is no other clean solution.
+I don't know enough to say how good a solution this is for
+the problem, but I certainly like this driver for it's
+utter simplicity and minimalness.
