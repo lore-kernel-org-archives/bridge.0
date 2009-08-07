@@ -1,12 +1,15 @@
+From: "Paul Congdon \(UC Davis\)" <ptcongdon@ucdavis.edu>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<20090806210002.75beb7c6@nehalam>
+In-Reply-To: <20090806210002.75beb7c6@nehalam>
+Date: Fri, 7 Aug 2009 11:58:00 -0700
+Message-ID: <004e01ca1790$fec36c30$fc4a4490$@edu>
 MIME-Version: 1.0
-In-Reply-To: <1249595428-21594-1-git-send-email-arnd@arndb.de>
-References: <1249595428-21594-1-git-send-email-arnd@arndb.de>
-Date: Fri, 7 Aug 2009 11:35:48 -0600
-Message-ID: <de7adc5e0908071035m4898dc5chaf9515d4a70465d@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
+Content-Language: en-us
+Subject: Re: [Bridge] [PATCH][RFC] net/bridge: add basic VEPA support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,44 +18,75 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, "Fischer,
-	Anna" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Or Gerlitz <ogerlitz@voltaire.com>, Edge Virtual Bridging <evb@yahoogroups.com>, "David S. Miller\"" <davem@davemloft.net>
+To: 'Stephen Hemminger' <shemminger@linux-foundation.org>, "'Fischer, Anna'" <anna.fischer@hp.com>
+Cc: 'Arnd Bergmann' <arnd@arndb.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, adobriyan@gmail.com, evb@yahoogroups.com, davem@davemloft.net
 
-On Thu, Aug 6, 2009 at 3:50 PM, Arnd Bergmann<arnd@arndb.de> wrote:
-> This is a first prototype of a new interface into the network
-> stack, to eventually replace tun/tap and the bridge driver
-> in certain virtual machine setups.
+> 
+> After reading more about this, I am not convinced this should be part 
+> of the bridge code. The bridge code really consists of two parts:
+> forwarding table and optional spanning tree. Well the VEPA code short 
+> circuits both of these; it can't imagine it working with STP turned 
+> on. The only part of bridge code that really gets used by this are the 
+> receive packet hooks and the crufty old API.
+> 
+> So instead of adding more stuff to existing bridge code, why not have 
+> a new driver for just VEPA. You could do it with a simple version of 
+> macvlan type driver.
 
-I have some general questions about the intended use and benefits of
-VEPA, from an IT perspective:
+Stephen,
 
-In which virtual machine setups and technologies do you forsee this
-interface being used?
-Is this new interface to be used within a virtual machine or
-container, on the master node, or both?
-What interface(s) would need to be configured for a single virtual
-machine to use VEPA to access the network?
-What are the current flexibility, security or performance limitations
-of tun/tap and bridge that make this new interface necessary or
-beneficial?
-Is this new interface useful at all for VPN solutions or is it
-*specifically* targeted for connecting virtual machines to the
-network?
-Is this essentially a bridge with layer-2 isolation for the virtual
-machine interfaces built-in? If isolation is provided, what mechanism
-is used to accomplish this, and how secure is it?
-Does VEPA look like a regular ethernet interface (eth0) on the virtual
-machine side?
-Are there any associated user-space tools required for configuring a VEPA?
+Thanks for your comments and questions.  We do believe the bridge code is
+the right place for this, so I'd like to embellish on that a bit more to
+help persuade you.  Sorry for the long winded response, but here are some
+thoughts:
 
-Do you have any HOWTO-style documentation that would demonstrate how
-this interface would be used in production? Or a FAQ?
+- First and foremost, VEPA is going to be a standard addition to the IEEE
+802.1Q specification.  The working group agreed at the last meeting to
+pursue a project to augment the bridge standard with hairpin mode (aka
+reflective relay) and a remote filtering service (VEPA).  See for details:
+http://www.ieee802.org/1/files/public/docs2009/new-evb-congdon-evbPar5C-0709
+-v01.pdf
 
-This seems like a very interesting effort but I don't quite have a
-good grasp of VEPA's benefits and limitations -- I imagine that others
-are in the same boat too.
+- The VEPA functionality was really a pretty small change to the code with
+low risk and wouldn't seem to warrant an entire new driver or module.
 
-Best Regards,
+- There are good use cases where VMs will want to have some of their
+interfaces attached to bridges and others to bridges operating in VEPA mode.
+In other words, we see simultaneous operation of the bridge code and VEPA
+occurring, so having as much of the underlying code as common as possible
+would seem to be beneficial. 
 
-Daniel
+- By augmenting the bridge code with VEPA there is a great amount of re-use
+achieved.  It works wherever the bridge code works and doesn't need anything
+special to support KVM, XEN, and all the hooks, etc...
+
+- The hardware vendors building SR-IOV NICs with embedded switches will be
+adding VEPA mode, so by keeping the bridge module in sync would be
+consistent with this trend and direction.  It will be possible to extend the
+hardware implementations by cascading a software bridge and/or VEPA, so
+being in sync with the architecture would make this more consistent.
+ 
+- The forwarding table is still needed and used on inbound traffic to
+deliver frames to the correct virtual interfaces and to filter any reflected
+frames.  A new driver would have to basically implement an equivalent
+forwarding table anyway.  As I understand the current macvlan type driver,
+it wouldn't filter multicast frames properly without such a table.
+
+- It seems the hairpin mode would be needed in the bridge module whether
+VEPA was added to the bridge module or a new driver.  Having the associated
+changes together in the same code could aid in understanding and deployment.
+
+As I understand the macvlan code, it currently doesn't allow two VMs on the
+same machine to communicate with one another.  I could imagine a hairpin
+mode on the adjacent bridge making this possible, but the macvlan code would
+need to be updated to filter reflected frames so a source did not receive
+his own packet.  I could imagine this being done as well, but to also
+support selective multicast usage, something similar to the bridge
+forwarding table would be needed.  I think putting VEPA into a new driver
+would cause you to implement many things the bridge code already supports.
+Given that we expect the bridge standard to ultimately include VEPA, and the
+new functions are basic forwarding operations, it seems to make most sense
+to keep this consistent with the bridge module.
+
+Paul
+
