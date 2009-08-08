@@ -1,14 +1,14 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Sat, 8 Aug 2009 00:05:32 +0200
-References: <0199E0D51A61344794750DC57738F58E6D6A6CD7F6@GVW1118EXC.americas.hpqcorp.net>
-	<004f01ca1792$b24a7a90$16df6fb0$@edu>
-In-Reply-To: <004f01ca1792$b24a7a90$16df6fb0$@edu>
+References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>
+	<0199E0D51A61344794750DC57738F58E6D6A6CD803__29862.6656564467$1249679159$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+From: Benny Amorsen <benny+usenet@amorsen.dk>
+Date: Sat, 08 Aug 2009 10:50:10 +0200
+In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6A6CD803__29862.6656564467$1249679159$gmane$org@GVW1118EXC.americas.hpqcorp.net>
+	(Anna Fischer's message of "Fri\, 7 Aug 2009 21\:00\:54 +0000")
+Message-ID: <m3d476hepp.fsf@ursa.amorsen.dk>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200908080005.32443.arnd@arndb.de>
-Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [Bridge] [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA
+	support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,103 +17,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>
-Cc: herbert@gondor.apana.org.au, mst@redhat.com, "'Fischer,
-	Anna'" <anna.fischer@hp.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, ogerlitz@voltaire.com, netdev@vger.kernel.org, evb@yahoogroups.com, davem@davemloft.net
+To: "Fischer, Anna" <anna.fischer@hp.com>
+Cc: "arnd@arndb.de" <arnd@arndb.de>, Yaron Haviv <yaronh@voltaire.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
-> Responding to Daniel's questions...
+"Fischer, Anna" <anna.fischer@hp.com> writes:
 
-Thanks for the detailed responses. I'll add some more about the
-specifics of the macvlan implementation that differs from the
-bridge based VEPA implementation.
+> If you do have a SRIOV NIC that supports VEPA, then I would think that
+> you do not have QEMU or macvtap in the setup any more though. Simply
+> because in that case the VM can directly access the VF on the physical
+> device. That would be ideal.
 
-> > Is this new interface to be used within a virtual machine or 
-> > container, on the master node, or both?
-> 
-> It is really an interface to a new type of virtual switch.  When
-> you create virtual network, I would imagine it being a new mode
-> of operation (bridge, NAT, VEPA, etc).
+I'm just trying to understand how this all works, so I'm probably asking
+a stupid question:
 
-I think the question was whether the patch needs to applied in the
-host or the guest. Both the implementation that you and Anna did
-and the one that I posted only apply to the *host* (master node),
-the virtual machine does not need to know about it.
+Would a SRIOV NIC with VEPA support show up as multiple devices? I.e.
+would I get e.g. eth0-eth7 for a NIC with support for 8 virtual
+interfaces? Would they have different MAC addresses?
 
-> > What interface(s) would need to be configured for a single virtual 
-> > machine to use VEPA to access the network?
-> 
-> It would be the same as if that machine were configure to use a
-> bridge to access the network, but the bridge mode would be different.
 
-Right, with the bridge based VEPA, you would set up a kvm guest
-or a container with the regular tools, then use the sysfs interface
-to put the bridge device into VEPA mode.
+/Benny
 
-With the macvlan based mode, you use 'ip link' to add a new tap
-device to an external network interface and not use a bridge at
-all. Then you configure KVM to use that tap device instead of the
-regular bridge/tap setup.
-
-> > What are the current flexibility, security or performance limitations 
-> > of tun/tap and bridge that make this new interface necessary or 
-> > beneficial?
-> 
-> If you have VMs that will be communicating with one another on
-> the same physical machine, and you want their traffic to be
-> exposed to an in-line network device such as a application
-> firewall/IPS/content-filter (without this feature) you will have
-> to have this device co-located within the same physical server.
-> This will use up CPU cycles that you presumable purchased to run
-> applications, it will require a lot of consistent configuration
-> on all physical machines, it could invoke potentially a lot of
-> software licensing, additional cost, etc..  Everything would
-> need to be replicated on each physical machine.  With the VEPA
-> capability, you can leverage all this functionality in an
-> external network device and have it managed and configured in
-> one place.  The external implementation is likely a higher
-> performance, silicon based implementation.  It should make it
-> easier to migrate machines from one physical server to another
-> and maintain the same network policy enforcement.
-
-It's worth noting that depending on your network connectivity,
-performance is likely to go down significantly with VEPA over the
-existing bridge/tap setup, because all frames have to be sent
-twice through an external wire that has a limited capacity, so you may
-lose inter-guest bandwidth and get more latency in many cases, while
-you free up CPU cycles. With the bridge based VEPA, you might not
-even gain many cycles because much of the overhead is still there.
-On the cost side, external switches can also get quite expensive
-compared to x86 servers. 
-
-IMHO the real win of VEPA is on the management side, where you can
-use a single set of tool for managing the network, rather than
-having your network admins deal with both the external switches
-and the setup of linux netfilter rules etc.
-
-The macvlan based VEPA has the same features as the bridge based
-VEPA, but much simpler code, which allows a number of shortcuts
-to save CPU cycles.
-
-> The isolation in the outbound direction is created by the way frames
-> are forwarded.  They are simply dropped on the wire, so no VMs can
-> talk directly to one another without their traffic first going
-> external.  In the inbound direction, the isolation is created using
-> the forwarding table.  
-
-Right. Note that in the macvlan case, the filtering on inbound data is an inherent
-part of the macvlan setup, it does use the dynamic forwarding table of the
-bridge driver.
-
-> > Are there any associated user-space tools required for configuring a 
-> > VEPA?
-> >
-> 
-> The standard brctl utility has been augmented to enable/disable the capability.
-
-That is for the bridge based VEPA, while my patch uses the 'ip link'
-command that ships with most distros. It does not need any modifications
-right now, but might need them if we add other features like support for
-multiple MAC addresses in a single guest.
-
-	Arnd <><
