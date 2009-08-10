@@ -1,11 +1,14 @@
-Message-ID: <4A7FC27F.1090904@trash.net>
-Date: Mon, 10 Aug 2009 08:47:27 +0200
-From: Patrick McHardy <kaber@trash.net>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Date: Mon, 10 Aug 2009 12:40:27 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99700@GVW1118EXC.americas.hpqcorp.net>
+References: <0199E0D51A61344794750DC57738F58E6D6A6CD7F6@GVW1118EXC.americas.hpqcorp.net>
+	<004f01ca1792$b24a7a90$16df6fb0$@edu>
+	<200908080005.32443.arnd@arndb.de>
+In-Reply-To: <200908080005.32443.arnd@arndb.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <1249595428-21594-1-git-send-email-arnd@arndb.de>
-In-Reply-To: <1249595428-21594-1-git-send-email-arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -16,38 +19,96 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, "Fischer,
-	Anna" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Or Gerlitz <ogerlitz@voltaire.com>, Edge Virtual Bridging <evb@yahoogroups.com>, davem@davemloft.net
+Cc: "ogerlitz@voltaire.com" <ogerlitz@voltaire.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "mst@redhat.com" <mst@redhat.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Arnd Bergmann wrote:
-> diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-> new file mode 100644
-> index 0000000..d99bfc0
-> --- /dev/null
-> +++ b/drivers/net/macvtap.c
-> +static int macvtap_open(struct inode *inode, struct file *file)
-> +{
-> +	struct net *net = current->nsproxy->net_ns;
-> +	int ifindex = iminor(inode);
-> +	struct net_device *dev = dev_get_by_index(net, ifindex);
-> +	int err;
-> +
-> +	err = -ENODEV;
-> +	if (!dev)
-> +		goto out1;
-> +
-> +	file->private_data = netdev_priv(dev);
-> +	err = 0;
-> +out1:
-> +	return err;
-> +}
-
-macvlan will remove all macvlan/vtap devices when the underlying
-device in unregistered, at which time you need to release the
-device references you're holding. I'd suggest to change the
-macvlan_device_event() handler to use
-
-vlan->dev->rtnl_link_ops->dellink(vlan->dev)
-
-instead of macvlan_dellink() so the macvtap_dellink callback
-is invoked.
+PiBTdWJqZWN0OiBSZTogW0JyaWRnZV0gW1BBVENIXSBtYWN2bGFuOiBhZGQgdGFwIGRldmljZSBi
+YWNrZW5kDQo+IA0KPiBPbiBGcmlkYXkgMDcgQXVndXN0IDIwMDksIFBhdWwgQ29uZ2RvbiAoVUMg
+RGF2aXMpIHdyb3RlOg0KPiA+IFJlc3BvbmRpbmcgdG8gRGFuaWVsJ3MgcXVlc3Rpb25zLi4uDQo+
+IA0KPiBUaGFua3MgZm9yIHRoZSBkZXRhaWxlZCByZXNwb25zZXMuIEknbGwgYWRkIHNvbWUgbW9y
+ZSBhYm91dCB0aGUNCj4gc3BlY2lmaWNzIG9mIHRoZSBtYWN2bGFuIGltcGxlbWVudGF0aW9uIHRo
+YXQgZGlmZmVycyBmcm9tIHRoZQ0KPiBicmlkZ2UgYmFzZWQgVkVQQSBpbXBsZW1lbnRhdGlvbi4N
+Cj4gDQo+ID4gPiBJcyB0aGlzIG5ldyBpbnRlcmZhY2UgdG8gYmUgdXNlZCB3aXRoaW4gYSB2aXJ0
+dWFsIG1hY2hpbmUgb3INCj4gPiA+IGNvbnRhaW5lciwgb24gdGhlIG1hc3RlciBub2RlLCBvciBi
+b3RoPw0KPiA+DQo+ID4gSXQgaXMgcmVhbGx5IGFuIGludGVyZmFjZSB0byBhIG5ldyB0eXBlIG9m
+IHZpcnR1YWwgc3dpdGNoLiAgV2hlbg0KPiA+IHlvdSBjcmVhdGUgdmlydHVhbCBuZXR3b3JrLCBJ
+IHdvdWxkIGltYWdpbmUgaXQgYmVpbmcgYSBuZXcgbW9kZQ0KPiA+IG9mIG9wZXJhdGlvbiAoYnJp
+ZGdlLCBOQVQsIFZFUEEsIGV0YykuDQo+IA0KPiBJIHRoaW5rIHRoZSBxdWVzdGlvbiB3YXMgd2hl
+dGhlciB0aGUgcGF0Y2ggbmVlZHMgdG8gYXBwbGllZCBpbiB0aGUNCj4gaG9zdCBvciB0aGUgZ3Vl
+c3QuIEJvdGggdGhlIGltcGxlbWVudGF0aW9uIHRoYXQgeW91IGFuZCBBbm5hIGRpZA0KPiBhbmQg
+dGhlIG9uZSB0aGF0IEkgcG9zdGVkIG9ubHkgYXBwbHkgdG8gdGhlICpob3N0KiAobWFzdGVyIG5v
+ZGUpLA0KPiB0aGUgdmlydHVhbCBtYWNoaW5lIGRvZXMgbm90IG5lZWQgdG8ga25vdyBhYm91dCBp
+dC4NCj4gDQo+ID4gPiBXaGF0IGludGVyZmFjZShzKSB3b3VsZCBuZWVkIHRvIGJlIGNvbmZpZ3Vy
+ZWQgZm9yIGEgc2luZ2xlIHZpcnR1YWwNCj4gPiA+IG1hY2hpbmUgdG8gdXNlIFZFUEEgdG8gYWNj
+ZXNzIHRoZSBuZXR3b3JrPw0KPiA+DQo+ID4gSXQgd291bGQgYmUgdGhlIHNhbWUgYXMgaWYgdGhh
+dCBtYWNoaW5lIHdlcmUgY29uZmlndXJlIHRvIHVzZSBhDQo+ID4gYnJpZGdlIHRvIGFjY2VzcyB0
+aGUgbmV0d29yaywgYnV0IHRoZSBicmlkZ2UgbW9kZSB3b3VsZCBiZSBkaWZmZXJlbnQuDQo+IA0K
+PiBSaWdodCwgd2l0aCB0aGUgYnJpZGdlIGJhc2VkIFZFUEEsIHlvdSB3b3VsZCBzZXQgdXAgYSBr
+dm0gZ3Vlc3QNCj4gb3IgYSBjb250YWluZXIgd2l0aCB0aGUgcmVndWxhciB0b29scywgdGhlbiB1
+c2UgdGhlIHN5c2ZzIGludGVyZmFjZQ0KPiB0byBwdXQgdGhlIGJyaWRnZSBkZXZpY2UgaW50byBW
+RVBBIG1vZGUuDQo+IA0KPiBXaXRoIHRoZSBtYWN2bGFuIGJhc2VkIG1vZGUsIHlvdSB1c2UgJ2lw
+IGxpbmsnIHRvIGFkZCBhIG5ldyB0YXANCj4gZGV2aWNlIHRvIGFuIGV4dGVybmFsIG5ldHdvcmsg
+aW50ZXJmYWNlIGFuZCBub3QgdXNlIGEgYnJpZGdlIGF0DQo+IGFsbC4gVGhlbiB5b3UgY29uZmln
+dXJlIEtWTSB0byB1c2UgdGhhdCB0YXAgZGV2aWNlIGluc3RlYWQgb2YgdGhlDQo+IHJlZ3VsYXIg
+YnJpZGdlL3RhcCBzZXR1cC4NCj4gDQo+ID4gPiBXaGF0IGFyZSB0aGUgY3VycmVudCBmbGV4aWJp
+bGl0eSwgc2VjdXJpdHkgb3IgcGVyZm9ybWFuY2UNCj4gbGltaXRhdGlvbnMNCj4gPiA+IG9mIHR1
+bi90YXAgYW5kIGJyaWRnZSB0aGF0IG1ha2UgdGhpcyBuZXcgaW50ZXJmYWNlIG5lY2Vzc2FyeSBv
+cg0KPiA+ID4gYmVuZWZpY2lhbD8NCj4gPg0KPiA+IElmIHlvdSBoYXZlIFZNcyB0aGF0IHdpbGwg
+YmUgY29tbXVuaWNhdGluZyB3aXRoIG9uZSBhbm90aGVyIG9uDQo+ID4gdGhlIHNhbWUgcGh5c2lj
+YWwgbWFjaGluZSwgYW5kIHlvdSB3YW50IHRoZWlyIHRyYWZmaWMgdG8gYmUNCj4gPiBleHBvc2Vk
+IHRvIGFuIGluLWxpbmUgbmV0d29yayBkZXZpY2Ugc3VjaCBhcyBhIGFwcGxpY2F0aW9uDQo+ID4g
+ZmlyZXdhbGwvSVBTL2NvbnRlbnQtZmlsdGVyICh3aXRob3V0IHRoaXMgZmVhdHVyZSkgeW91IHdp
+bGwgaGF2ZQ0KPiA+IHRvIGhhdmUgdGhpcyBkZXZpY2UgY28tbG9jYXRlZCB3aXRoaW4gdGhlIHNh
+bWUgcGh5c2ljYWwgc2VydmVyLg0KPiA+IFRoaXMgd2lsbCB1c2UgdXAgQ1BVIGN5Y2xlcyB0aGF0
+IHlvdSBwcmVzdW1hYmxlIHB1cmNoYXNlZCB0byBydW4NCj4gPiBhcHBsaWNhdGlvbnMsIGl0IHdp
+bGwgcmVxdWlyZSBhIGxvdCBvZiBjb25zaXN0ZW50IGNvbmZpZ3VyYXRpb24NCj4gPiBvbiBhbGwg
+cGh5c2ljYWwgbWFjaGluZXMsIGl0IGNvdWxkIGludm9rZSBwb3RlbnRpYWxseSBhIGxvdCBvZg0K
+PiA+IHNvZnR3YXJlIGxpY2Vuc2luZywgYWRkaXRpb25hbCBjb3N0LCBldGMuLiAgRXZlcnl0aGlu
+ZyB3b3VsZA0KPiA+IG5lZWQgdG8gYmUgcmVwbGljYXRlZCBvbiBlYWNoIHBoeXNpY2FsIG1hY2hp
+bmUuICBXaXRoIHRoZSBWRVBBDQo+ID4gY2FwYWJpbGl0eSwgeW91IGNhbiBsZXZlcmFnZSBhbGwg
+dGhpcyBmdW5jdGlvbmFsaXR5IGluIGFuDQo+ID4gZXh0ZXJuYWwgbmV0d29yayBkZXZpY2UgYW5k
+IGhhdmUgaXQgbWFuYWdlZCBhbmQgY29uZmlndXJlZCBpbg0KPiA+IG9uZSBwbGFjZS4gIFRoZSBl
+eHRlcm5hbCBpbXBsZW1lbnRhdGlvbiBpcyBsaWtlbHkgYSBoaWdoZXINCj4gPiBwZXJmb3JtYW5j
+ZSwgc2lsaWNvbiBiYXNlZCBpbXBsZW1lbnRhdGlvbi4gIEl0IHNob3VsZCBtYWtlIGl0DQo+ID4g
+ZWFzaWVyIHRvIG1pZ3JhdGUgbWFjaGluZXMgZnJvbSBvbmUgcGh5c2ljYWwgc2VydmVyIHRvIGFu
+b3RoZXINCj4gPiBhbmQgbWFpbnRhaW4gdGhlIHNhbWUgbmV0d29yayBwb2xpY3kgZW5mb3JjZW1l
+bnQuDQo+IA0KPiBJdCdzIHdvcnRoIG5vdGluZyB0aGF0IGRlcGVuZGluZyBvbiB5b3VyIG5ldHdv
+cmsgY29ubmVjdGl2aXR5LA0KPiBwZXJmb3JtYW5jZSBpcyBsaWtlbHkgdG8gZ28gZG93biBzaWdu
+aWZpY2FudGx5IHdpdGggVkVQQSBvdmVyIHRoZQ0KPiBleGlzdGluZyBicmlkZ2UvdGFwIHNldHVw
+LCBiZWNhdXNlIGFsbCBmcmFtZXMgaGF2ZSB0byBiZSBzZW50DQo+IHR3aWNlIHRocm91Z2ggYW4g
+ZXh0ZXJuYWwgd2lyZSB0aGF0IGhhcyBhIGxpbWl0ZWQgY2FwYWNpdHksIHNvIHlvdSBtYXkNCj4g
+bG9zZSBpbnRlci1ndWVzdCBiYW5kd2lkdGggYW5kIGdldCBtb3JlIGxhdGVuY3kgaW4gbWFueSBj
+YXNlcywgd2hpbGUNCj4geW91IGZyZWUgdXAgQ1BVIGN5Y2xlcy4gV2l0aCB0aGUgYnJpZGdlIGJh
+c2VkIFZFUEEsIHlvdSBtaWdodCBub3QNCj4gZXZlbiBnYWluIG1hbnkgY3ljbGVzIGJlY2F1c2Ug
+bXVjaCBvZiB0aGUgb3ZlcmhlYWQgaXMgc3RpbGwgdGhlcmUuDQo+IE9uIHRoZSBjb3N0IHNpZGUs
+IGV4dGVybmFsIHN3aXRjaGVzIGNhbiBhbHNvIGdldCBxdWl0ZSBleHBlbnNpdmUNCj4gY29tcGFy
+ZWQgdG8geDg2IHNlcnZlcnMuDQo+IA0KPiBJTUhPIHRoZSByZWFsIHdpbiBvZiBWRVBBIGlzIG9u
+IHRoZSBtYW5hZ2VtZW50IHNpZGUsIHdoZXJlIHlvdSBjYW4NCj4gdXNlIGEgc2luZ2xlIHNldCBv
+ZiB0b29sIGZvciBtYW5hZ2luZyB0aGUgbmV0d29yaywgcmF0aGVyIHRoYW4NCj4gaGF2aW5nIHlv
+dXIgbmV0d29yayBhZG1pbnMgZGVhbCB3aXRoIGJvdGggdGhlIGV4dGVybmFsIHN3aXRjaGVzDQo+
+IGFuZCB0aGUgc2V0dXAgb2YgbGludXggbmV0ZmlsdGVyIHJ1bGVzIGV0Yy4NCj4gDQo+IFRoZSBt
+YWN2bGFuIGJhc2VkIFZFUEEgaGFzIHRoZSBzYW1lIGZlYXR1cmVzIGFzIHRoZSBicmlkZ2UgYmFz
+ZWQNCj4gVkVQQSwgYnV0IG11Y2ggc2ltcGxlciBjb2RlLCB3aGljaCBhbGxvd3MgYSBudW1iZXIg
+b2Ygc2hvcnRjdXRzDQo+IHRvIHNhdmUgQ1BVIGN5Y2xlcy4NCg0KSSBhbSBub3QgeWV0IGNvbnZp
+bmNlZCB0aGF0IHRoZSBtYWN2bGFuIGJhc2VkIFZFUEEgd291bGQgYmUgc2lnbmlmaWNhbnRseQ0K
+YmV0dGVyIGZyb20gYSBwZXJmb3JtYW5jZSBwb2ludC1vZi12aWV3LiBSZWFsbHksIG9uY2UgeW91
+IGhhdmUgDQppbXBsZW1lbnRlZCBhbGwgdGhlIG1pc3NpbmcgYml0cyBhbmQgcGllY2VzIHRvIG1h
+a2UgdGhlIG1hY3ZsYW4NCmRyaXZlciBhIFZFUEEtY29tcGF0aWJsZSBkZXZpY2UsIHRoZSBjb2Rl
+IHBhdGggZm9yIHBhY2tldCBwcm9jZXNzaW5nDQp3aWxsIGJlIHZlcnkgc2ltaWxhci4gQWxzbywg
+SSB0aGluayB5b3UgaGF2ZSB0byBrZWVwIGluIG1pbmQgdGhhdCwNCnVsdGltYXRlbHksIGlmIGEg
+dXNlciBpcyBzZXJpb3VzbHkgY29uY2VybmVkIGFib3V0IGhpZ2ggcGVyZm9ybWFuY2UsIA0KdGhl
+biB0aGV5IHdvdWxkIGdvIGZvciBhIGhhcmR3YXJlLWJhc2VkIHNvbHV0aW9uLCBlLmcuIGEgU1JJ
+T1YgTklDDQp3aXRoIFZFUEEgY2FwYWJpbGl0aWVzLiBPbmNlIHlvdSBoYXZlIG1hZGUgdGhlIGRl
+Y2lzaW9uIGZvciBhIHNvZnR3YXJlLQ0KYmFzZWQgYXBwcm9hY2gsIHRpbnkgcGVyZm9ybWFuY2Ug
+ZGlmZmVyZW5jZXMgc2hvdWxkIG5vdCBoYXZlIHN1Y2ggYQ0KYmlnIGltcGFjdCwgYW5kIHNvIEkg
+ZG9uJ3QgdGhpbmsgdGhhdCB0aGlzIHNob3VsZCBpbmZsdWVuY2UgdG9vIG11Y2gNCnRoZSBkZXNp
+Z24gZGVjaXNpb24gb24gd2hlcmUgVkVQQSBjYXBhYmlsaXRpZXMgc2hvdWxkIGJlIHBsYWNlZCBp
+bg0KdGhlIGtlcm5lbC4NCg0KSWYgeW91IGNvbXBhcmUgbWFjdnRhcCB3aXRoIHRyYWRpdGlvbmFs
+IFFFTVUgbmV0d29ya2luZyBpbnRlcmZhY2VzIHRoYXQNCmFyZSB0eXBpY2FsbHkgdXNlZCBpbiBj
+dXJyZW50IGJyaWRnZWQgc2V0dXBzLCB0aGVuIHllcywgcGVyZm9ybWFuY2Ugd2lsbCBiZQ0KZGlm
+ZmVyZW50LiBIb3dldmVyLCBJIHRoaW5rIHRoYXQgdGhpcyBpcyBub3QgbmVjZXNzYXJpbHkgYSBm
+YWlyIA0KY29tcGFyaXNvbiwgYW5kIHRoZSBwZXJmb3JtYW5jZSBkaWZmZXJlbmNlIGRvZXMgbm90
+IGNvbWUgZnJvbSB0aGUgDQpicmlkZ2UgYmVpbmcgc2xvdywgYnV0IHNpbXBseSBiZWNhdXNlIHlv
+dSBoYXZlIGltcGxlbWVudGVkIGEgYmV0dGVyDQpzb2x1dGlvbiB0byBjb25uZWN0IGEgdmlydHVh
+bCBpbnRlcmZhY2UgdG8gYSBiYWNrZW5kIGRldmljZSB0aGF0DQpjYW4gYmUgYXNzaWduZWQgdG8g
+YSBWTS4gVGhlcmUgaXMgbm8gcmVhc29uIHdoeSB5b3UgY291bGQgbm90IGRvIHRoaXMNCmZvciBh
+IGJyaWRnZSBwb3J0IGFzIHdlbGwuDQoNCkFubmENCg==
