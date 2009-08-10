@@ -1,14 +1,14 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 10 Aug 2009 17:07:32 +0200
+Date: Mon, 10 Aug 2009 17:06:58 +0200
 References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
 	<200908081149.27409.arnd@arndb.de>
 	<0199E0D51A61344794750DC57738F58E6D6AE99743@GVW1118EXC.americas.hpqcorp.net>
 In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE99743@GVW1118EXC.americas.hpqcorp.net>
 MIME-Version: 1.0
-Message-Id: <200908101707.32751.arnd@arndb.de>
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200908101706.58261.arnd@arndb.de>
 Subject: Re: [Bridge] [PATCH][RFC] net/bridge: add basic VEPA support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
