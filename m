@@ -1,15 +1,16 @@
-Date: Mon, 10 Aug 2009 22:32:27 +0300
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20090810193227.GA16820@redhat.com>
-References: <0199E0D51A61344794750DC57738F58E6D6A6CD7F6@GVW1118EXC.americas.hpqcorp.net>
-	<200908080005.32443.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE99700@GVW1118EXC.americas.hpqcorp.net>
-	<200908102104.54527.arnd@arndb.de>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Date: Tue, 11 Aug 2009 14:30:23 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6AE99C53@GVW1118EXC.americas.hpqcorp.net>
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<200908081149.27409.arnd@arndb.de>
+	<0199E0D51A61344794750DC57738F58E6D6AE99743@GVW1118EXC.americas.hpqcorp.net>
+	<200908101707.32751.arnd@arndb.de>
+In-Reply-To: <200908101707.32751.arnd@arndb.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200908102104.54527.arnd@arndb.de>
-Subject: Re: [Bridge] [PATCH] macvlan: add tap device backend
+Subject: Re: [Bridge] [PATCH][RFC] net/bridge: add basic VEPA support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,40 +20,69 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: "ogerlitz@voltaire.com" <ogerlitz@voltaire.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "Fischer, Anna" <anna.fischer@hp.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>, Eric Biederman <ebiederm@xmission.com>
 
-On Mon, Aug 10, 2009 at 09:04:54PM +0200, Arnd Bergmann wrote:
+> Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+>=20
 > On Monday 10 August 2009, Fischer, Anna wrote:
-> > If you compare macvtap with traditional QEMU networking interfaces that
-> > are typically used in current bridged setups, then yes, performance will be
-> > different. However, I think that this is not necessarily a fair 
-> > comparison, and the performance difference does not come from the 
-> > bridge being slow, but simply because you have implemented a better
-> > solution to connect a virtual interface to a backend device that
-> > can be assigned to a VM. There is no reason why you could not do this
-> > for a bridge port as well.
-> 
-> It's not necessarily the bridge itself being slow (though some people
-> claim it is) but more the bridge preventing optimizations or making
-> them hard.
-> 
-> You already mentioned hardware filtering by unicast and multicast
-> mac addresses, which macvlan already does (for unicast) but which would be
-> relatively complex with a bridge due to the way it does MAC address
-> learning.
-> 
-> If we want to do zero copy receives, the hardware will on top of
-> this have to choose the receive buffer based on the mac address,
-> with the buffer provided by the guest. I think this is not easy
-> with macvlan but doable, while I have no idea where you would start
-> using the bridge code.
-> 
-> 	Arnd <><
+> > > Subject: Re: [PATCH][RFC] net/bridge: add basic VEPA support
+> > >
+> > > On Friday 07 August 2009, Paul Congdon (UC Davis) wrote:
+> > > > As I understand the macvlan code, it currently doesn't allow two
+> VMs
+> > > on the
+> > > > same machine to communicate with one another.
+> > >
+> > > There are patches to do that. I think if we add that, there should
+> be
+> > > a way to choose the behavior between either bridging between the
+> > > guests or VEPA.
+> >
+> > If you implement this direct bridging capability between local VMs
+> for
+> > macvlan, then would this not break existing applications that
+> currently
+> > use it? It would be quite a significant change to how macvlan works
+> > today. I guess, ideally, you would want to have macvlan work in
+> > separate modes, e.g. traditional macvlan, bridging, and VEPA.
+>=20
+> Right, that's what I meant with my sentence above. I'm not sure
+> if we need to differentiate traditional macvlan and VEPA though.
+> AFAICT, the only difference should be the handling of broadcast
+> and multicast frames returning from the hairpin turn. Since this
+> does not happen with a traditional macvlan, we can always send them
+> to all macvlan ports except the source port.
 
-Similar thing for zero copy sends. You need to know when
-the buffers have been consumed to notify userspace,
-and this is very hard with a generic bridge in the middle.
+Yes, if you add a check for the original source port on broadcast/
+multicast delivery, then macvlan would be able to function in
+basic VEPA mode.=20
 
+Maybe it might still be worth preserving the old behaviour, and=20
+just add an explicit VEPA mode.
 
--- 
-MST
+=20
+> > > > I could imagine a hairpin mode on the adjacent bridge making this
+> > > > possible, but the macvlan code would need to be updated to filter
+> > > > reflected frames so a source did not receive his own packet.
+> > >
+> > > Right, I missed this point so far. I'll follow up with a patch
+> > > to do that.
+> >
+> > Can you maybe point me to the missing patches for macvlan that you
+> > have mentioned in other emails, and the one you mention above?
+> > E.g. enabling multicast distribution and allowing local bridging etc.
+> > I could not find any of those in the archives. Thanks.
+>=20
+> The patch from Eric Biederman to allow macvlan to bridge between
+> its slave ports is at
+>=20
+> http://kerneltrap.org/mailarchive/linux-netdev/2009/3/9/5125774
+
+Looking through the discussions here, it does not seem as if a decision
+was made to integrate those patches, because they would make the macvlan
+interface behave too much like a bridge. Also, it seems as if there was=20
+still a problem with doing multicast/broadcast delivery when enabling
+local VM-to-VM communication. Is that solved by now?
+
+Thanks,
+Anna
