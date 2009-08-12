@@ -1,11 +1,15 @@
-Date: Tue, 11 Aug 2009 16:38:19 +0200
-From: Andreas Mohr <andi@lisas.de>
-Message-ID: <20090811143819.GA1348@rhlx01.hs-esslingen.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 12 Aug 2009 15:19:36 +0200
+References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
+	<0199E0D51A61344794750DC57738F58E6D6AE99C53@GVW1118EXC.americas.hpqcorp.net>
+	<001001ca1a93$b6e50ee0$24af2ca0$@edu>
+In-Reply-To: <001001ca1a93$b6e50ee0$24af2ca0$@edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [RFC patch] bridge GARP: prevent 20 wakeups/s when sitting
-	idle
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200908121519.36808.arnd@arndb.de>
+Subject: Re: [Bridge] [PATCH][RFC] net/bridge: add basic VEPA support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,124 +18,90 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, andi@lisas.de, power@bughost.org
+To: "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>
+Cc: "'Fischer, Anna'" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, adobriyan@gmail.com, evb@yahoogroups.com, davem@davemloft.net, 'Eric Biederman' <ebiederm@xmission.com>
 
-Hello all,
+On Tuesday 11 August 2009, Paul Congdon (UC Davis) wrote:
+> > >
+> > > The patch from Eric Biederman to allow macvlan to bridge between
+> > > its slave ports is at
+> > >
+> > > http://kerneltrap.org/mailarchive/linux-netdev/2009/3/9/5125774
+> > 
+> > Looking through the discussions here, it does not seem as if a decision
+> > was made to integrate those patches, because they would make the
+> > macvlan interface behave too much like a bridge. 
 
-this is an RFC patch to avoid having the GARP timer remain in full speed
-_forever_ (a full 20 superfluous wakeups per second as seen in powertop
-on my server) as soon as one GARP applicant managed to show up.
+Right, that question is still open, and dont't see it as very important
+right now, as long as we can still use it for VEPA.
 
-The old behaviour was to simply initially arm the timer as soon as an applicant
-showed up, then _unconditionally_ rearm the timer with a random
-garp_join_time-based delay in the timer handler _itself_.
+> > Also, it seems as if there was still a problem with doing
+> > multicast/broadcast delivery when enabling local VM-to-VM
+> > communication. Is that solved by now?
 
-New behaviour is to arm the timer when a request comes in _and_ zero
-previous requests exist (managed atomically, via locked operation
-of list splicing). Then for further incoming requests,
-as long as the random garp_join_time-based delay isn't expired
-the producer queue fills up, and once the timer fires
-this list is moved over into the dequeueing list, to be sent off
-(with minimal locking in that case).
+Not yet, but I guess it comes as a natural extension when I fix
+multicast/broadcast delivery from the reflective relay for VEPA.
 
-Unfortunately the patch hasn't really been tested since the affected box
-(at a remote location) for some reason didn't activate GARP last time
-despite manually enabling the bridge.
+The logic that I would use there is:
 
-I'm sufficiently confident that it's working as expected, though, since it's
-a pretty developed iteration with pretty robust behaviour code-wise,
-with lots of communicative assistance by the GARP author, Patrick McHardy.
+broadcast from a dowstream port:
+     if (bridge_mode(source_port)) {
+          forward_to_upstream(frame);
+          for_each_downstream(port) {
+                /* deliver to all bridge ports except self, do
+                   not deliver to any VEPA port. */
+                if (bridge_mode(port) && port != source_port) {
+                       forward_to_downstream(frame, port);
+                }
+          }
+     } else {
+          forward_to_upstream(frame);
+     }
 
-So, any comments about this? Any users of GARP bridging out there who
-can confirm that it helps properly?
 
-Thanks,
+broadcast from the upstream port
+     if (bridge_mode(frame.source)) {
+          /* comes from a port in bridge mode, so has already been
+             delivered to all other bridge ports */
+          for_each_downstream(port) {
+                if (!bridge_mode(port)) {
+                         forward_to_downstream(frame, port);
+                }
+          }
+     } else if (vepa_mode(frame.source)) {
+          /* comes from VEPA port, so need to deliver to all
+             bridge and all vepa ports except self */
+          for_each_downstream(port) {
+                if (port != frame.source)
+                       forward_to_downstream(frame, port);
+     } else {
+          /* external source, so flood to everyone */
+          for_each_downstream(port) {
+                forward_to_downstream(frame, port);
+     }
 
-Andreas Mohr
+For multicast, we can do the same, or optionally add a per-port filter
+as you mentioned, if it becomes a bottleneck. 
 
---- linux-2.6.30.4/net/802/garp.c.org	2009-06-27 20:04:46.000000000 +0200
-+++ linux-2.6.30.4/net/802/garp.c	2009-08-06 00:53:50.000000000 +0200
-@@ -135,6 +135,10 @@ static const struct garp_state_trans {
- 	},
- };
- 
-+static void garp_join_timer_arm(struct garp_applicant *app);
-+
-+
-+
- static int garp_attr_cmp(const struct garp_attr *attr,
- 			 const void *data, u8 len, u8 type)
- {
-@@ -238,6 +242,7 @@ static int garp_pdu_append_end_mark(stru
- 
- static void garp_pdu_queue(struct garp_applicant *app)
- {
-+	bool need_arm_timer;
- 	if (!app->pdu)
- 		return;
- 
-@@ -250,15 +255,37 @@ static void garp_pdu_queue(struct garp_a
- 	llc_mac_hdr_init(app->pdu, app->dev->dev_addr,
- 			 app->app->proto.group_address);
- 
--	skb_queue_tail(&app->queue, app->pdu);
-+	printk(KERN_INFO "garp_pdu_queue app %p\n", app);
-+	/*
-+	 * [this function always to be called under app lock under
-+	 * normal operation]
-+	 * Make sure to arm the timer upon encountering our first packet;
-+	 * further packets queued by us will then be allowed to accumulate
-+	 * until timer ultimately fires.
-+	 */
-+	need_arm_timer = skb_queue_empty(&app->queue);
-+	__skb_queue_tail(&app->queue, app->pdu);
- 	app->pdu = NULL;
-+	if (need_arm_timer)
-+		garp_join_timer_arm(app);
- }
- 
- static void garp_queue_xmit(struct garp_applicant *app)
- {
- 	struct sk_buff *skb;
-+	struct sk_buff_head	dequeue; /* accumul. requests to be handled */
-+
-+	printk(KERN_INFO "garp_queue_xmit app %p\n", app);
-+
-+	/* Atomically move over all incoming pdus into our processing queue.
-+	   This is needed to provide some reliable criteria whether our timer
-+	   should be rearmed or not. */
-+	spin_lock_bh(&app->lock);
-+	__skb_queue_head_init(&dequeue);
-+	skb_queue_splice_init(&app->queue, &dequeue);
-+	spin_unlock_bh(&app->lock);
- 
--	while ((skb = skb_dequeue(&app->queue)))
-+	while ((skb = skb_dequeue(&dequeue)))
- 		dev_queue_xmit(skb);
- }
- 
-@@ -398,6 +425,7 @@ static void garp_join_timer_arm(struct g
- 	unsigned long delay;
- 
- 	delay = (u64)msecs_to_jiffies(garp_join_time) * net_random() >> 32;
-+	printk(KERN_INFO "garp_join_timer_arm app %p jiffies %lu delay %lu\n", app, jiffies, delay);
- 	mod_timer(&app->join_timer, jiffies + delay);
- }
- 
-@@ -411,7 +439,6 @@ static void garp_join_timer(unsigned lon
- 	spin_unlock(&app->lock);
- 
- 	garp_queue_xmit(app);
--	garp_join_timer_arm(app);
- }
- 
- static int garp_pdu_parse_end_mark(struct sk_buff *skb)
-@@ -586,7 +613,6 @@ int garp_init_applicant(struct net_devic
- 	skb_queue_head_init(&app->queue);
- 	rcu_assign_pointer(dev->garp_port->applicants[appl->type], app);
- 	setup_timer(&app->join_timer, garp_join_timer, (unsigned long)app);
--	garp_join_timer_arm(app);
- 	return 0;
- 
- err3:
+Do you think this addresses the problem, or did I miss something important?
+
+> Also, is there a solution, or plans for a solution, to address macvtap
+> interfaces that are set to 'promiscuous' mode?  It would seem fairly easy to
+> support this for interfaces that are simply trying to listen to the port
+> (e.g. Wireshark). 
+
+If you want to use tcpdump or wireshark on all ports simulateously in a pure
+VEPA, you can still attach it to the 'lowerdev', e.g. eth0 or eth0.2 (for macvlan
+nested in vlan).
+If we allow bridge ports, we might want to extend the local delivery
+to also go through all the hooks of the external port, so that you can
+attach packet sockets there.
+
+> If the port was being used by something like a firewall
+> then the VEPA filtering doesn't work too well.
+
+Not sure what you mean. Are you talking about a firewall separating the guests
+from the outside, between the VEPA and the reflective relay, or a firewall between
+the guests in case of local delivery?
+
+	Arnd <><
