@@ -1,15 +1,11 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 12 Aug 2009 18:27:28 +0200
-References: <0199E0D51A61344794750DC57738F58E67D2DCECBB@GVW1118EXC.americas.hpqcorp.net>
-	<200908121519.36808.arnd@arndb.de>
-	<0199E0D51A61344794750DC57738F58E6D6AE9A0C1@GVW1118EXC.americas.hpqcorp.net>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6AE9A0C1@GVW1118EXC.americas.hpqcorp.net>
+From: "Fischer, Anna" <anna.fischer@hp.com>
+Date: Thu, 13 Aug 2009 16:55:16 +0000
+Message-ID: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200908121827.28905.arnd@arndb.de>
-Subject: Re: [Bridge] [PATCH][RFC] net/bridge: add basic VEPA support
+Subject: [Bridge] [PATCH] net/bridge: Add 'hairpin' port forwarding mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,72 +14,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>, 'Eric Biederman' <ebiederm@xmission.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: "Dickson, Mike (ISS
+	Software)" <mike.dickson@hp.com>, Arnd Bergmann <arnd@arndb.de>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Paul Congdon (UC
+	Davis)" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-On Wednesday 12 August 2009, Fischer, Anna wrote:
-> Yes, for the basic VEPA this is not important. For MultiChannel VEPA, it 
-> would be nice if a macvlan device could operate as VEPA and as a typical
-> VEB (VEB = traditional bridge but no learning).
+This patch adds a 'hairpin' (also called 'reflective relay') mode
+port configuration to the Linux Ethernet bridge kernel module.
+A bridge supporting hairpin forwarding mode can send frames back
+out through the port the frame was received on.
 
-Right, this would be a logical extension in that scenario. I would imagine
-that in many scenarios running a VEB also means that you want to use
-the advanced ebtables/iptables filtering of the bridge subsystem, but
-if all guests trust each other, using macvlan to bridge between them
-sounds useful as well, if only for simplicity.
+Hairpin mode is required to support basic VEPA (Virtual
+Ethernet Port Aggregator) capabilities.
 
-> Basically, what we would need to be able to support is running a VEB and
-> a VEPA simultaneously on the same uplink port (e.g. the physical device). 
-> A new component (called the S-Component) would then multiplex frames
-> to the VEB or the VEPA based on a tagging scheme.
+You can find additional information on VEPA here:
+http://tech.groups.yahoo.com/group/evb/
+http://www.ieee802.org/1/files/public/docs2009/new-hudson-vepa_seminar-2009=
+0514d.pdf
+http://www.internet2.edu/presentations/jt2009jul/20090719-congdon.pdf
 
-You can of course do that by adding one port of the S-component to
-a port of a bridge, and using another port of the S-component to
-create macvlan devices, or you could have multiple ports of the
-S-component each with a macvlan multiplexor.
+An additional patch 'bridge-utils: Add 'hairpin' port forwarding mode'
+is provided to allow configuring hairpin mode from userspace tools.
 
-Just to make sure I get the chain right, would it look like this?
-(adapted from Paul's PDF)
+Signed-off-by: Paul Congdon <paul.congdon@hp.com>
+Signed-off-by: Anna Fischer <anna.fischer@hp.com>
 
-eth0 (external) ---scomponent0 --- vlan2 --- macvlan0 
-                 |              |         \- macvlan1
-                 |               \-vlan3 --- macvlan2
-                 |-scomponent1 --- vlan2 --- br0 --- tap0
-                 |                             \ --- tap1
-                 |-scomponent2 --- vlan3 --- macvlan3
-                 \-scomponent3 ---  ---  --- macvlan4
+---
 
-In this scenario, tap0 and tap1 could communicate over the bridge without
-tagging, while any data going out through the S-Component gets tagged
-with both a 802.1q Q-Tag and an S-Tag. 
+ net/bridge/br_forward.c  |    3 ++-
+ net/bridge/br_if.c       |    1 +
+ net/bridge/br_private.h  |    3 +++
+ net/bridge/br_sysfs_if.c |   17 +++++++++++++++++
+ 4 files changed, 23 insertions(+), 1 deletions(-)
 
-macvlan4 would be a guest that does its own tagging, and the external
-switch would need to check the VLAN IDs, but it could communicate with
-any other guest by tagging the frames as 2 or 3.
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index d2c27c8..bc1704a 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -22,7 +22,8 @@
+ static inline int should_deliver(const struct net_bridge_port *p,
+ 				 const struct sk_buff *skb)
+ {
+-	return (skb->dev !=3D p->dev && p->state =3D=3D BR_STATE_FORWARDING);
++	return (((p->flags & BR_HAIRPIN_MODE) || skb->dev !=3D p->dev) &&
++		p->state =3D=3D BR_STATE_FORWARDING);
+ }
+=20
+ static inline unsigned packet_length(const struct sk_buff *skb)
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index eb404dc..e486f1f 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -256,6 +256,7 @@ static struct net_bridge_port *new_nbp(struct net_bridg=
+e *br,
+ 	p->path_cost =3D port_cost(dev);
+ 	p->priority =3D 0x8000 >> BR_PORT_BITS;
+ 	p->port_no =3D index;
++	p->flags =3D 0;
+ 	br_init_port(p);
+ 	p->state =3D BR_STATE_DISABLED;
+ 	br_stp_port_timer_init(p);
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index d5b5537..8319247 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -81,6 +81,9 @@ struct net_bridge_port
+ 	struct timer_list		message_age_timer;
+ 	struct kobject			kobj;
+ 	struct rcu_head			rcu;
++
++	unsigned long 			flags;
++#define BR_HAIRPIN_MODE		0x00000001
+ };
+=20
+ struct net_bridge
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 4a3cdf8..820643a 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -143,6 +143,22 @@ static ssize_t store_flush(struct net_bridge_port *p, =
+unsigned long v)
+ }
+ static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
+=20
++static ssize_t show_hairpin_mode(struct net_bridge_port *p, char *buf)
++{
++	int hairpin_mode =3D (p->flags & BR_HAIRPIN_MODE) ? 1 : 0;
++	return sprintf(buf, "%d\n", hairpin_mode);
++}
++static ssize_t store_hairpin_mode(struct net_bridge_port *p, unsigned long=
+ v)
++{
++	if (v)
++		p->flags |=3D BR_HAIRPIN_MODE;
++	else
++		p->flags &=3D ~BR_HAIRPIN_MODE;
++	return 0;
++}
++static BRPORT_ATTR(hairpin_mode, S_IRUGO | S_IWUSR,
++		   show_hairpin_mode, store_hairpin_mode);
++
+ static struct brport_attribute *brport_attrs[] =3D {
+ 	&brport_attr_path_cost,
+ 	&brport_attr_priority,
+@@ -159,6 +175,7 @@ static struct brport_attribute *brport_attrs[] =3D {
+ 	&brport_attr_forward_delay_timer,
+ 	&brport_attr_hold_timer,
+ 	&brport_attr_flush,
++	&brport_attr_hairpin_mode,
+ 	NULL
+ };
 
-macvlan2 and macvlan3 could communicate with each other and with external
-guests in vlan3.
-
-Guests on scomponent1 and scomponent3 could in theory have
-subdivisions of the network with macvlan running in the guest
-to run containers.
-
-> I think the question here was whether there is a way for a macvlan interface
-> to be set to promiscuous mode. At the moment, I believe a macvlan interface
-> only receives packets based on its destination address (this is for unicast
-> packets now). What if a macvlan interface wanted to get all packets that
-> are being received (either on the physical device, or on a particular
-> VLAN if using macvlan nested in vlan). Would this work easily? Imagine
-> you have a virtual machine attached to that macvlan / macvtap device and
-> this VM wants to do packet inspection or network traffic monitoring on 
-> all packets flowing through the virtualized server.
-
-Ok, I see. As I said, the host could easily get access to all frames
-on macvlan downstream ports by opening a raw socket on the upstream
-port (with some extra work if we want to support this in bridge mode).
-
-If you want the inspection to be done in a guest rather than the host,
-the easiest way to achieve that would be to connect that raw socket
-to the guest using Or's raw frontend for qemu.
-
-	Arnd <><
