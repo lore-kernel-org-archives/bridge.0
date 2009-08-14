@@ -1,12 +1,13 @@
-Date: Thu, 13 Aug 2009 16:27:16 -0700 (PDT)
-Message-Id: <20090813.162716.207478915.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
+Date: Fri, 14 Aug 2009 14:41:33 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20090814144133.34ac9d94@nehalam>
+In-Reply-To: <20090813.162716.207478915.davem@davemloft.net>
 References: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
+	<20090813.162716.207478915.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net/bridge: Add 'hairpin' port forwarding mode
+Subject: [Bridge] [RFC] bridge: prevent hairpin and STP problems?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,29 +16,108 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: anna.fischer@hp.com
-Cc: mike.dickson@hp.com, arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ptcongdon@ucdavis.edu, bridge@osdl.org, adobriyan@gmail.com, evb@yahoogroups.com
+To: David Miller <davem@davemloft.net>
+Cc: mike.dickson@hp.com, arnd@arndb.de, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, adobriyan@gmail.com, ptcongdon@ucdavis.edu, bridge@osdl.org, evb@yahoogroups.com
 
-From: "Fischer, Anna" <anna.fischer@hp.com>
-Date: Thu, 13 Aug 2009 16:55:16 +0000
+Do we need to add this to block Spanning Tree from being enabled
+with hairpin mode? I am not sure what the exact usage of hairpin
+mode and if it is possible to create loops and get STP confusion.
 
-> This patch adds a 'hairpin' (also called 'reflective relay') mode
-> port configuration to the Linux Ethernet bridge kernel module.
-> A bridge supporting hairpin forwarding mode can send frames back
-> out through the port the frame was received on.
-> 
-> Hairpin mode is required to support basic VEPA (Virtual
-> Ethernet Port Aggregator) capabilities.
-> 
-> You can find additional information on VEPA here:
-> http://tech.groups.yahoo.com/group/evb/
-> http://www.ieee802.org/1/files/public/docs2009/new-hudson-vepa_seminar-20090514d.pdf
-> http://www.internet2.edu/presentations/jt2009jul/20090719-congdon.pdf
-> 
-> An additional patch 'bridge-utils: Add 'hairpin' port forwarding mode'
-> is provided to allow configuring hairpin mode from userspace tools.
-> 
-> Signed-off-by: Paul Congdon <paul.congdon@hp.com>
-> Signed-off-by: Anna Fischer <anna.fischer@hp.com>
+For comment only, do not apply as is.
 
-Applied to net-next-2.6
+
+--- a/net/bridge/br_ioctl.c	2009-08-14 14:28:19.917690805 -0700
++++ b/net/bridge/br_ioctl.c	2009-08-14 14:29:54.078271361 -0700
+@@ -259,8 +259,7 @@ static int old_dev_ioctl(struct net_devi
+ 		if (!capable(CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		br_stp_set_enabled(br, args[1]);
+-		return 0;
++		return br_stp_set_enabled(br, args[1]);
+ 
+ 	case BRCTL_SET_BRIDGE_PRIORITY:
+ 		if (!capable(CAP_NET_ADMIN))
+--- a/net/bridge/br_stp_if.c	2009-08-14 14:24:30.022315573 -0700
++++ b/net/bridge/br_stp_if.c	2009-08-14 14:35:25.819566113 -0700
+@@ -160,17 +160,26 @@ static void br_stp_stop(struct net_bridg
+ 	br->stp_enabled = BR_NO_STP;
+ }
+ 
+-void br_stp_set_enabled(struct net_bridge *br, unsigned long val)
++int br_stp_set_enabled(struct net_bridge *br, unsigned long val)
+ {
+ 	ASSERT_RTNL();
+ 
+ 	if (val) {
++		struct net_bridge_port *p;
++		list_for_each_entry_rcu(p, &br->port_list, list) {
++			if (p->flags & BR_HAIRPIN_MODE)
++				return -EINVAL;
++		}
++
++
+ 		if (br->stp_enabled == BR_NO_STP)
+ 			br_stp_start(br);
+ 	} else {
+ 		if (br->stp_enabled != BR_NO_STP)
+ 			br_stp_stop(br);
+ 	}
++
++	return 0;
+ }
+ 
+ /* called under bridge lock */
+--- a/net/bridge/br_sysfs_br.c	2009-08-14 14:24:36.874256194 -0700
++++ b/net/bridge/br_sysfs_br.c	2009-08-14 14:33:26.025441102 -0700
+@@ -164,6 +164,7 @@ static ssize_t store_stp_state(struct de
+ 	struct net_bridge *br = to_bridge(d);
+ 	char *endp;
+ 	unsigned long val;
++	int ret;
+ 
+ 	if (!capable(CAP_NET_ADMIN))
+ 		return -EPERM;
+@@ -174,10 +175,11 @@ static ssize_t store_stp_state(struct de
+ 
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+-	br_stp_set_enabled(br, val);
++
++	ret = br_stp_set_enabled(br, val);
+ 	rtnl_unlock();
+ 
+-	return len;
++	return (ret == 0) ? len : ret;
+ }
+ static DEVICE_ATTR(stp_state, S_IRUGO | S_IWUSR, show_stp_state,
+ 		   store_stp_state);
+--- a/net/bridge/br_sysfs_if.c	2009-08-14 14:24:36.888356879 -0700
++++ b/net/bridge/br_sysfs_if.c	2009-08-14 14:34:55.339272738 -0700
+@@ -150,10 +150,13 @@ static ssize_t show_hairpin_mode(struct 
+ }
+ static ssize_t store_hairpin_mode(struct net_bridge_port *p, unsigned long v)
+ {
+-	if (v)
++	if (!v)
++		p->flags &= ~BR_HAIRPIN_MODE;
++	else if (p->br->stp_enabled == BR_NO_STP)
+ 		p->flags |= BR_HAIRPIN_MODE;
+ 	else
+-		p->flags &= ~BR_HAIRPIN_MODE;
++		return -EINVAL;
++
+ 	return 0;
+ }
+ static BRPORT_ATTR(hairpin_mode, S_IRUGO | S_IWUSR,
+--- a/net/bridge/br_private.h	2009-08-14 14:34:05.263278817 -0700
++++ b/net/bridge/br_private.h	2009-08-14 14:34:15.717297908 -0700
+@@ -218,7 +218,7 @@ extern void br_become_designated_port(st
+ /* br_stp_if.c */
+ extern void br_stp_enable_bridge(struct net_bridge *br);
+ extern void br_stp_disable_bridge(struct net_bridge *br);
+-extern void br_stp_set_enabled(struct net_bridge *br, unsigned long val);
++extern int br_stp_set_enabled(struct net_bridge *br, unsigned long val);
+ extern void br_stp_enable_port(struct net_bridge_port *p);
+ extern void br_stp_disable_port(struct net_bridge_port *p);
+ extern void br_stp_recalculate_bridge_id(struct net_bridge *br);
