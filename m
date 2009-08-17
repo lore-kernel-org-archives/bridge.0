@@ -1,14 +1,14 @@
-From: "Fischer, Anna" <anna.fischer@hp.com>
-Date: Mon, 17 Aug 2009 21:16:04 +0000
-Message-ID: <0199E0D51A61344794750DC57738F58E6D6B0C79D7@GVW1118EXC.americas.hpqcorp.net>
+Date: Mon, 17 Aug 2009 15:37:25 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20090817153725.47c04fca@nehalam>
+In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6B0C79D7@GVW1118EXC.americas.hpqcorp.net>
 References: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
 	<20090813.162716.207478915.davem@davemloft.net>
 	<20090814144133.34ac9d94@nehalam>
-In-Reply-To: <20090814144133.34ac9d94@nehalam>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+	<0199E0D51A61344794750DC57738F58E6D6B0C79D7@GVW1118EXC.americas.hpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [RFC] bridge: prevent hairpin and STP problems?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -18,30 +18,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>, David Miller <davem@davemloft.net>
-Cc: "Dickson, Mike (ISS Software)" <mike.dickson@hp.com>, Arnd Bergmann <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "ptcongdon@ucdavis.edu" <ptcongdon@ucdavis.edu>, "bridge@osdl.org" <bridge@osdl.org>, "evb@yahoogroups.com" <evb@yahoogroups.com>
+To: "Fischer, Anna" <anna.fischer@hp.com>
+Cc: "bridge@osdl.org" <bridge@linux-foundation.org>, "Dickson,
+	Mike (ISS Software)" <mike.dickson@hp.com>, "arnd@arndb.de" <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, David Miller <davem@davemloft.net>, "ptcongdon@ucdavis.edu" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>
 
-> Subject: [RFC] bridge: prevent hairpin and STP problems?
->=20
-> Do we need to add this to block Spanning Tree from being enabled
-> with hairpin mode? I am not sure what the exact usage of hairpin
-> mode and if it is possible to create loops and get STP confusion.
->=20
-> For comment only, do not apply as is.
+On Mon, 17 Aug 2009 21:16:04 +0000
+"Fischer, Anna" <anna.fischer@hp.com> wrote:
 
-Your patch disables STP on the whole bridge if one or more ports
-are set to hairpin mode.
+> > Subject: [RFC] bridge: prevent hairpin and STP problems?
+> > 
+> > Do we need to add this to block Spanning Tree from being enabled
+> > with hairpin mode? I am not sure what the exact usage of hairpin
+> > mode and if it is possible to create loops and get STP confusion.
+> > 
+> > For comment only, do not apply as is.
+> 
+> Your patch disables STP on the whole bridge if one or more ports
+> are set to hairpin mode.
+> 
+> However, I don't really see that this is necessary. 
+> 
+> A hairpin mode port should not reflect BPDUs, because otherwise the
+> connected port would think it has detected a loop. The hairpin mode
+> port should still be able to generate BPDUs though, and in any case
+> the bridge should still be able to run STP.
+> 
+> The hairpin patch we submitted reflects packets on the forwarding /
+> data path whereas BPDUs are processed with a separate hook, so we
+> should not be reflecting BPDUs back out of a hairpin mode port.
 
-However, I don't really see that this is necessary.=20
-
-A hairpin mode port should not reflect BPDUs, because otherwise the
-connected port would think it has detected a loop. The hairpin mode
-port should still be able to generate BPDUs though, and in any case
-the bridge should still be able to run STP.
-
-The hairpin patch we submitted reflects packets on the forwarding /
-data path whereas BPDUs are processed with a separate hook, so we
-should not be reflecting BPDUs back out of a hairpin mode port.
-
-Anna
-
+So if user is using hairpin properly, the STP would work. In fact
+it would be a good thing since it would detect looping configurations.
