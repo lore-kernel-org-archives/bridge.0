@@ -1,10 +1,12 @@
+From: Benny Amorsen <benny+usenet@amorsen.dk>
+References: <OFC22455CD.B877C9CD-ONC1257617.00347B02-C1257617.0037885E@transmode.se>
+Date: Wed, 19 Aug 2009 14:42:13 +0200
+In-Reply-To: <OFC22455CD.B877C9CD-ONC1257617.00347B02-C1257617.0037885E@transmode.se>
+	(Joakim Tjernlund's message of "Wed, 19 Aug 2009 12:06:33 +0200")
+Message-ID: <m3prasm0uy.fsf@ursa.amorsen.dk>
 MIME-Version: 1.0
-Date: Wed, 19 Aug 2009 17:44:17 +0530
-Message-ID: <cfeab66d0908190514s3f283e5dh7487dca701203f1e@mail.gmail.com>
-From: ratheesh k <ratheesh.ksz@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] packet mangling and qos on bridge .
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [Bridge] MAC learning and VLAN
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,36 +15,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Cc: bridge@lists.linux-foundation.org
 
- I have two interfaces , eth0 and ap0 bridged together to form br0 .
-And another interfaces eth1 on wan side .
+Joakim Tjernlund <joakim.tjernlund@transmode.se> writes:
+
+> Is this expected? I had hoped that the MAC learning in the bridge was global
+> so any MACs learned over eth0.1 could be used by eth0.2 too.
+
+eth0.1 and eth0.2 are entirely separate interfaces. The behaviour is
+exactly the same whether you use two VLAN's or two physical interfaces.
+
+Imagine replacing eth0.1 with eth1 and eth0.2 with eth2. If a certain
+MAC address is learned on eth1, it would be wrong to send packets
+destined for that MAC address through eth2. That's pretty much the point
+of bridging.
 
 
-                   br0 <------------------------> eth1
-               ( eth0 , ap0)
-                 {  lan  }                         {wan}
+/Benny
 
-packets from lan side are nated  to eth1 .  i have qos rules on both
-br0 and eth1 .  when i googled i found that "mangling packets on br0
-and using fw filters wont work on linux bridge ".. Is this true ?? Can
-you tell me why ??
-
-But the funny thing is i colored packets  in prerouting chain  only
-specifying protocol ( not specifying interface )
-
- iptables  -t mangle -A PREROTUING -p icmp -j MARK --set-mark 2   and
-i have filter rule to put  packets tat are fw marked as 2 to put into
-some flow . This works fine , when i send an icmp packet from lan to
-wan side !!!!!!! ??????????
-
-But if  try any of below rules  intsead of above ,  it wont work
-
-iptables  -t mangle -A PREROTUING -p icmp -i br0 -j MARK --set-mark 2
-iptables  -t mangle -A PREROTUING -p icmp  -s 192.168.1.0/24  -d !
-192.168.1.0/24 -j MARK --set-mark 2
-iptables  -t mangle -A FORWARD  -p icmp  -i br0 -o eth1 -j MARK --set-mark 2
-
-i dont know y ????????
-
- I should go for ebtables to mark packets ???????? then it will work ???
