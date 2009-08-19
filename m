@@ -1,9 +1,10 @@
-Message-ID: <OFC22455CD.B877C9CD-ONC1257617.00347B02-C1257617.0037885E@transmode.se>
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Wed, 19 Aug 2009 12:06:33 +0200
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Subject: [Bridge] MAC learning and VLAN
+Date: Wed, 19 Aug 2009 17:44:17 +0530
+Message-ID: <cfeab66d0908190514s3f283e5dh7487dca701203f1e@mail.gmail.com>
+From: ratheesh k <ratheesh.ksz@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] packet mangling and qos on bridge .
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,20 +15,34 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
+ I have two interfaces , eth0 and ap0 bridged together to form br0 .
+And another interfaces eth1 on wan side .
 
-I got 2 VLANs:
- eth0.1, eth0.2
-in a bridge br0
 
-eth0.1 receives packages and learns the remote MAC addresses however
-eth0.2 never receives any pkgs from the same hosts as eth0.1
+                   br0 <------------------------> eth1
+               ( eth0 , ap0)
+                 {  lan  }                         {wan}
 
-Looking into the bride one can see that the bridge has not learned
-any MAC addresses over eth0.2 so I cannot send any pkgs
-back to the host over eth0.2(except broadcast).
+packets from lan side are nated  to eth1 .  i have qos rules on both
+br0 and eth1 .  when i googled i found that "mangling packets on br0
+and using fw filters wont work on linux bridge ".. Is this true ?? Can
+you tell me why ??
 
-Is this expected? I had hoped that the MAC learning in the bridge was global
-so any MACs learned over eth0.1 could be used by eth0.2 too.
+But the funny thing is i colored packets  in prerouting chain  only
+specifying protocol ( not specifying interface )
 
-  Jocke
+ iptables  -t mangle -A PREROTUING -p icmp -j MARK --set-mark 2   and
+i have filter rule to put  packets tat are fw marked as 2 to put into
+some flow . This works fine , when i send an icmp packet from lan to
+wan side !!!!!!! ??????????
 
+But if  try any of below rules  intsead of above ,  it wont work
+
+iptables  -t mangle -A PREROTUING -p icmp -i br0 -j MARK --set-mark 2
+iptables  -t mangle -A PREROTUING -p icmp  -s 192.168.1.0/24  -d !
+192.168.1.0/24 -j MARK --set-mark 2
+iptables  -t mangle -A FORWARD  -p icmp  -i br0 -o eth1 -j MARK --set-mark 2
+
+i dont know y ????????
+
+ I should go for ebtables to mark packets ???????? then it will work ???
