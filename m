@@ -1,15 +1,9 @@
-Date: Mon, 17 Aug 2009 15:37:25 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20090817153725.47c04fca@nehalam>
-In-Reply-To: <0199E0D51A61344794750DC57738F58E6D6B0C79D7@GVW1118EXC.americas.hpqcorp.net>
-References: <0199E0D51A61344794750DC57738F58E6D6B0C70D9@GVW1118EXC.americas.hpqcorp.net>
-	<20090813.162716.207478915.davem@davemloft.net>
-	<20090814144133.34ac9d94@nehalam>
-	<0199E0D51A61344794750DC57738F58E6D6B0C79D7@GVW1118EXC.americas.hpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC] bridge: prevent hairpin and STP problems?
+Message-ID: <OFC22455CD.B877C9CD-ONC1257617.00347B02-C1257617.0037885E@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Wed, 19 Aug 2009 12:06:33 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Subject: [Bridge] MAC learning and VLAN
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,34 +12,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Fischer, Anna" <anna.fischer@hp.com>
-Cc: "bridge@osdl.org" <bridge@linux-foundation.org>, "Dickson,
-	Mike (ISS Software)" <mike.dickson@hp.com>, "arnd@arndb.de" <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, David Miller <davem@davemloft.net>, "ptcongdon@ucdavis.edu" <ptcongdon@ucdavis.edu>, "adobriyan@gmail.com" <adobriyan@gmail.com>, "evb@yahoogroups.com" <evb@yahoogroups.com>
+To: bridge@lists.linux-foundation.org
 
-On Mon, 17 Aug 2009 21:16:04 +0000
-"Fischer, Anna" <anna.fischer@hp.com> wrote:
 
-> > Subject: [RFC] bridge: prevent hairpin and STP problems?
-> > 
-> > Do we need to add this to block Spanning Tree from being enabled
-> > with hairpin mode? I am not sure what the exact usage of hairpin
-> > mode and if it is possible to create loops and get STP confusion.
-> > 
-> > For comment only, do not apply as is.
-> 
-> Your patch disables STP on the whole bridge if one or more ports
-> are set to hairpin mode.
-> 
-> However, I don't really see that this is necessary. 
-> 
-> A hairpin mode port should not reflect BPDUs, because otherwise the
-> connected port would think it has detected a loop. The hairpin mode
-> port should still be able to generate BPDUs though, and in any case
-> the bridge should still be able to run STP.
-> 
-> The hairpin patch we submitted reflects packets on the forwarding /
-> data path whereas BPDUs are processed with a separate hook, so we
-> should not be reflecting BPDUs back out of a hairpin mode port.
+I got 2 VLANs:
+ eth0.1, eth0.2
+in a bridge br0
 
-So if user is using hairpin properly, the STP would work. In fact
-it would be a good thing since it would detect looping configurations.
+eth0.1 receives packages and learns the remote MAC addresses however
+eth0.2 never receives any pkgs from the same hosts as eth0.1
+
+Looking into the bride one can see that the bridge has not learned
+any MAC addresses over eth0.2 so I cannot send any pkgs
+back to the host over eth0.2(except broadcast).
+
+Is this expected? I had hoped that the MAC learning in the bridge was global
+so any MACs learned over eth0.1 could be used by eth0.2 too.
+
+  Jocke
+
