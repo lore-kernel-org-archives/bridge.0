@@ -1,17 +1,12 @@
-In-Reply-To: <4A93EE8C.6040008@trash.net>
-References: <OFC5BA9A4A.DCCE8D0D-ONC125761A.004A7620-C125761A.004BEA17@transmode.se>
-	<4A9001E3.6060506@superduper.net>
-	<OF2C06F138.1BC279AE-ONC125761A.0054117B-C125761A.0055C6F1@LocalDomain>
-	<OF9BD07CB5.A2197AEA-ONC125761A.005AE004-C125761A.005B662E@transmode.se>
-	<4A9026EA.9020404@superduper.net>
-	<OF7400A5E8.F4AC001F-ONC125761C.00674A25-C125761C.00679758@transmode.se>
-	<4A93EE8C.6040008@trash.net>
-Message-ID: <OF89F33C42.59FE9B41-ONC125761E.002582F4-C125761E.0026292A@transmode.se>
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Wed, 26 Aug 2009 08:56:49 +0200
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Subject: Re: [Bridge] VLANs and bridge
+In-Reply-To: <20090825084730.0f8d50df@nehalam>
+References: <f05d3b1c0908250051p29b1c440mfd0e90bf31679249@mail.gmail.com>
+	<20090825084730.0f8d50df@nehalam>
+Date: Thu, 27 Aug 2009 10:48:17 +0200
+Message-ID: <f05d3b1c0908270148q5955604co1d0ee9a00f76caeb@mail.gmail.com>
+From: LucaMt <lucamt74@gmail.com>
+Content-Type: multipart/alternative; boundary=0015174c1770009c7504721ba101
+Subject: Re: [Bridge] bridge through code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,32 +15,97 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: bridge@lists.linux-foundation.org
 
-Patrick McHardy <kaber@trash.net> wrote on 25/08/2009 16:00:44:
+--0015174c1770009c7504721ba101
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Hi,
+looking in the internet I have found several functions to manage bridge.
+These functions are: br_add_bridge, br_del_bridge etc. These functions are
+in user space or kernel space ? Developing an application (bridgeConf.so)
+during loading phase of the application the undefined reference error
+related to the previus functions is generated.
+While in the kernel space is not defined the libbridge.h.
+Are the br_*_bridge function the correct way to manage bridge through code
+in user space ?
+For our needs something in kernel space is useful too.
+
+Thanks
+
+Best Regards
+
+Luca
+
+2009/8/25 Stephen Hemminger <shemminger@linux-foundation.org>
+
+> On Tue, 25 Aug 2009 09:51:50 +0200
+> LucaMt <lucamt74@gmail.com> wrote:
 >
-> Joakim Tjernlund wrote:
-> > Simon Barber <simon@superduper.net> wrote on 22/08/2009 19:12:10:
-> >> Looking through B.1.3 it looks like the patch would need some
-> >> enhancement. It provides a good basis - handling tagging/untagging and
-> >> filtering, but would need a way to specify the untagged vlan separately
-> >> for in and out.
+> > Hi,
+> > I want to ask if exist a way allowing bridge control through c/c++ code.
+> > Where I can found API to develop an user interface to manage the bridge.
 > >
-> > I see. Perhaps the VLAN maintainer(CC:ed) can comment too. Especially about extending
-> > the VLAN code to allowed several VLANs in one interface?
+> > Thanks
+> >
+> > Best regards
+> >
+> > Luca
 >
-> Just accepting additional VIDs on one VLAN device should be
-> a relatively trivial change, all you need to do is call
-> vlan_group_set_device() with the additional VIDs.
+> Look at existing bridge utilities (brctl) and RSTP source code.
 >
-> I'd suggest to add something similar to the QoS-mapping lists
-> in vlan_netlink.c for the additional VIDs.
+>       git://
+> git.kernel.org/pub/scm/linux/kernel/git/shemminger/bridge-utils.git
+>       git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/rstp.git
+> --
+>
 
-Yes, this seems to be the easy part. There are a few bride issues though:
-How would the bridge be able to filter pks based on VID?
-How to control which VID to use at pkg TX?
-Can you have the same VID on multiple VLAN interfaces?
+--0015174c1770009c7504721ba101
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-     Jocke
+Hi,<br>looking in the internet I have found several functions to manage bri=
+dge.<br>These functions are: br_add_bridge, br_del_bridge etc. These functi=
+ons are in user space or kernel space ? Developing an application (bridgeCo=
+nf.so) during loading phase of the application the undefined reference erro=
+r related to the previus functions is generated.<br>
+While in the kernel space is not defined the libbridge.h.<br>Are the br_*_b=
+ridge function the correct way to manage bridge through code in user space =
+?<br>For our needs something in kernel space is useful too.<br><br>Thanks<b=
+r>
+<br>Best Regards<br><br>Luca<br><br><div class=3D"gmail_quote">2009/8/25 St=
+ephen Hemminger <span dir=3D"ltr">&lt;<a href=3D"mailto:shemminger@linux-fo=
+undation.org">shemminger@linux-foundation.org</a>&gt;</span><br><blockquote=
+ class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, 204, 204); =
+margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<div><div></div><div class=3D"h5">On Tue, 25 Aug 2009 09:51:50 +0200<br>
+LucaMt &lt;<a href=3D"mailto:lucamt74@gmail.com">lucamt74@gmail.com</a>&gt;=
+ wrote:<br>
+<br>
+&gt; Hi,<br>
+&gt; I want to ask if exist a way allowing bridge control through c/c++ cod=
+e.<br>
+&gt; Where I can found API to develop an user interface to manage the bridg=
+e.<br>
+&gt;<br>
+&gt; Thanks<br>
+&gt;<br>
+&gt; Best regards<br>
+&gt;<br>
+&gt; Luca<br>
+<br>
+</div></div>Look at existing bridge utilities (brctl) and RSTP source code.=
+<br>
+<br>
+ =A0 =A0 =A0 git://<a href=3D"http://git.kernel.org/pub/scm/linux/kernel/gi=
+t/shemminger/bridge-utils.git" target=3D"_blank">git.kernel.org/pub/scm/lin=
+ux/kernel/git/shemminger/bridge-utils.git</a><br>
+ =A0 =A0 =A0 git://<a href=3D"http://git.kernel.org/pub/scm/linux/kernel/gi=
+t/shemminger/rstp.git" target=3D"_blank">git.kernel.org/pub/scm/linux/kerne=
+l/git/shemminger/rstp.git</a><br>
+<font color=3D"#888888">--<br>
+</font></blockquote></div><br>
 
+--0015174c1770009c7504721ba101--
