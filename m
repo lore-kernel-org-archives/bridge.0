@@ -1,15 +1,9 @@
-Message-ID: <4A967DAB.2010209@voltaire.com>
-Date: Thu, 27 Aug 2009 15:35:55 +0300
-From: Or Gerlitz <ogerlitz@voltaire.com>
 MIME-Version: 1.0
-References: <D2E118A1E7268F449C469EA2F301D92902BC39B2@exil.voltaire.com>	<000001ca17a3$03f841f0$0be8c5d0$@edu>
-	<20090807143652.1659ac57@nehalam>	<4A7EB0AC.2030104@Voltaire.com>
-	<20090810082037.17b352c2@nehalam>
-In-Reply-To: <20090810082037.17b352c2@nehalam>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [evb] RE: [PATCH][RFC] net/bridge: add basic VEPA
-	support
+Date: Fri, 28 Aug 2009 22:01:42 -0300
+Message-ID: <b10f571a0908281801u182096a0m373642afaf0b95cd@mail.gmail.com>
+From: Diego Woitasen <diegows@xtech.com.ar>
+Content-Type: text/plain; charset=ISO-8859-1
+Subject: [Bridge] Bridging VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,17 +12,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: "evb@yahoogroups.com" <evb@yahoogroups.com>, arnd@arndb.de, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, adobriyan@gmail.com, "Paul Congdon (UC Davis)" <ptcongdon@ucdavis.edu>, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Bridge@lists.linux-foundation.org
 
-Stephen Hemminger wrote:
-> Or Gerlitz <ogerlitz@voltaire.com> wrote:
->> Looking in macvlan_set_multicast_list() it acts in a similar manner to macvlan_set_mac_address() in the sense that it calls dev_mc_sync(). I assume what's left is to add macvlan_hash_xxx multicast logic to map/unmap multicast groups to what macvlan devices want to receive them and this way the flooding can be removed, correct?
-> The device can just flood all multicast packets, since the filtering is done on the receive path anyway.
-for each multicast packet, macvlan_broadcast is invoked and calls 
-skb_clone/ netif_rx for each device, now a smart scheme that takes into 
-account (hash) the multicast list of the different macvlan  devices 
-would save the skb_clone call, isn't it?
+Hi,
+I'm working on a network where I have 13 VLANs (using 802.1q). I need
+to build a transition escenario bridging the VLANs with a Linux
+Bridge. My Linux box has the trunk incoming from eth1, so to bridge
+them I use:
 
-Or.
+brctl addbr superbridge
+vconfig set_name_type VLAN_PLUS_VID_NO_PAD
+for ((i = 200; i <= 212; i++)); do
+ vconfig add eth1 $i
+ ip link set vlan$i
+ brctl addif superbridge vlan$i
+done
+ip link superbrige up
 
+I think that should work but I want to hear another opinions, advices
+or just tell me if that wouldn't work.
+
+Regards,
+ Diego
+
+-- 
+Diego Woitasen
+XTECH
