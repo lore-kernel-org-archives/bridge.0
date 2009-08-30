@@ -1,9 +1,9 @@
 MIME-Version: 1.0
-Date: Fri, 28 Aug 2009 22:01:42 -0300
-Message-ID: <b10f571a0908281801u182096a0m373642afaf0b95cd@mail.gmail.com>
-From: Diego Woitasen <diegows@xtech.com.ar>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] Bridging VLANs
+Date: Sun, 30 Aug 2009 10:15:31 +0200
+Message-ID: <f05d3b1c0908300115kbd9696fw1d8d51ffd3d053e@mail.gmail.com>
+From: LucaMt <lucamt74@gmail.com>
+Content-Type: multipart/alternative; boundary=000e0cd1e496567aa104725785d2
+Subject: [Bridge] Bridge manage code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,29 +12,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
+
+--000e0cd1e496567aa104725785d2
+Content-Type: text/plain; charset=ISO-8859-1
 
 Hi,
-I'm working on a network where I have 13 VLANs (using 802.1q). I need
-to build a transition escenario bridging the VLANs with a Linux
-Bridge. My Linux box has the trunk incoming from eth1, so to bridge
-them I use:
+looking in the internet I have found several functions to manage bridge.
+These functions are: br_add_bridge, br_del_bridge etc. These functions are
+in user space or kernel space ? Developing an application (bridgeConf.so)
+during loading phase of the application the undefined reference error
+related to the previus functions is generated.
+While in the kernel space is not defined the libbridge.h.
+Are the br_*_bridge function the correct way to manage bridge through code
+in user space ?
+For our needs something in kernel space is useful too.
 
-brctl addbr superbridge
-vconfig set_name_type VLAN_PLUS_VID_NO_PAD
-for ((i = 200; i <= 212; i++)); do
- vconfig add eth1 $i
- ip link set vlan$i
- brctl addif superbridge vlan$i
-done
-ip link superbrige up
+Thanks
 
-I think that should work but I want to hear another opinions, advices
-or just tell me if that wouldn't work.
+Best Regards
 
-Regards,
- Diego
+Luca
 
--- 
-Diego Woitasen
-XTECH
+--000e0cd1e496567aa104725785d2
+Content-Type: text/html; charset=ISO-8859-1
+
+Hi,<br>looking in the internet I have found several functions to manage bridge.<br>These
+functions are: br_add_bridge, br_del_bridge etc. These functions are in
+user space or kernel space ? Developing an application (bridgeConf.so)
+during loading phase of the application the undefined reference error
+related to the previus functions is generated.<br>
+While in the kernel space is not defined the libbridge.h.<br>Are the br_*_bridge function the correct way to manage bridge through code in user space ?<br>For our needs something in kernel space is useful too.<br><br>Thanks<br>
+
+
+<br>Best Regards<br><br>Luca<br>
+
+--000e0cd1e496567aa104725785d2--
