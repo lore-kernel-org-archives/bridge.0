@@ -1,12 +1,14 @@
 MIME-Version: 1.0
-In-Reply-To: <4AA1703A.9070800@free.fr>
-References: <f0a957c30909032014y2076c54ek9fc34c2842124321@mail.gmail.com>
-	<4AA1703A.9070800@free.fr>
-Date: Fri, 4 Sep 2009 23:01:31 +0200
-Message-ID: <f0a957c30909041401w5c031c6en90aac78f1b58a268@mail.gmail.com>
-From: Gustavo Martin <gu.martinm@gmail.com>
-Content-Type: multipart/alternative; boundary=00032555a9a2f751740472c6cd65
-Subject: Re: [Bridge] Bridge and VLANs. Strange behaviour.
+In-Reply-To: <cfeab66d0908250438r4fe768b6k1cef02d1c0015d6c@mail.gmail.com>
+References: <cfeab66d0908190514s3f283e5dh7487dca701203f1e@mail.gmail.com>
+	<cfeab66d0908200828l52c46f25la0598732e0c684d4@mail.gmail.com>
+	<cfeab66d0908250438r4fe768b6k1cef02d1c0015d6c@mail.gmail.com>
+Date: Tue, 8 Sep 2009 21:16:11 +0530
+Message-ID: <cfeab66d0909080846i1248cb8cqe32b13fba9b083c2@mail.gmail.com>
+From: ratheesh k <ratheesh.ksz@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] packet mangling and qos on bridge .
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,212 +17,134 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
---00032555a9a2f751740472c6cd65
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+i m a big idiot .....i made a big mistake .
 
-Thank you very much Nicolas,
-
-     Your answer was very clear.
-
-Thank you again for your help.
-
-Gustavo Martin Morcuende
+i will explain in detail . i have a router like below . i will connect
+my computers to lan side of router ( br0) and eth1 is connected to
+internet .
 
 
-2009/9/4 Nicolas de Peslo=FCan <nicolas.2p.debian@free.fr>
+ ->   br0 <------------------------> eth1
+     ( eth0 , ap0)
+       {  lan  }                         {wan}
 
-> Gustavo Martin wrote:
+
+
+there r two types of traffic .
+ A. traffic from my computers that will go to br0 , then will route
+and go to internet thru eth1
+ B. traffic coming from eth1 will be routed to br0 , then to my computer .
+
+
+There are two types of qdisc in place . ingress and outgress .
+
+pkts of type A will be processed  only at egress qdisc of eth1
+pkts of type B will be processed only at egress qdisc of  br0 .
+
+
+My mistakes was : i applied coloring at br0 and used fw filter on same
+br0 ..This wont work .
+
+
+dev_queue_xmit function will put pkts after routed into repective
+device (eth0 or br0 ) qdisc  .
+
+
+Suppose there are lan-to-lan traffic and wan-to-lan traffic , we
+cannot prioritize any of this traffic using egress qdisc . Because
+lan-to-lan traffic wont call dev_queue_xmit .  You can use ingress
+queue to do policing . I am not very much sure about this .
+
+netif_recieve_skb() function is called for all pkts coming in . Try
+ingress qdisc .
+
+
+Thanks,
+Rat
+
+
+
+
+
+On Tue, Aug 25, 2009 at 5:08 PM, ratheesh k<ratheesh.ksz@gmail.com> wrote:
+> i can see problem in =A0 2.6.22.18 ,but not in 2.6.26.8 ..... Is there
+> any patch available ??//
 >
->> Hello list,
+>
+>
+>
+>
+>
+> On Thu, Aug 20, 2009 at 8:58 PM, ratheesh k<ratheesh.ksz@gmail.com> wrote=
+:
+>> in linux kernel =A0, in =A0net/sched/cls_fw.c =A0file =A0, fw_classify i=
+s
+>> called every time =A0tc filter =A0is hit .
+>> skb->mark is =A0zero when u use rules like
 >>
->>      I am trying to understand how the linux-based bridges work but I am
->> watching very strange things.
+>> =A0> iptables =A0-t mangle -A PREROTUING -p icmp -i br0 -j MARK --set-ma=
+rk 2
+>>> iptables =A0-t mangle -A PREROTUING -p icmp =A0-s 192.168.1.0/24 =A0-d =
+!
+>>> 192.168.1.0/24 -j MARK --set-mark 2
+>>> iptables =A0-t mangle -A FORWARD =A0-p icmp =A0-i br0 -o eth1 -j MARK -=
+-set-mark 2
 >>
->>      For example, if I have this configuration for the bridge BR0 with 2
->> physical interfaces eth0 and eth1:
+>> But if u use
+>>>iptables =A0-t mangle -A PREROTUING -p icmp -j MARK --set-mark 2
 >>
->> trying1.jpg
+>> the skb->mark is 2 =A0, correct value .
 >>
->>     If PC1 sends an ARP REQUEST, PC2 receives this ARP REQUEST but they
->> are in different VLANs!
->>     Why the VLAN 20 can receive ARP REQUEST messages from the VLAN 10 an=
-d
->> why the VLAN 10 can receive ARP REPLY messages from VLAN 20 if they are
->> different VLANs? This is crazy for me.
->>     I think linux-based bridges don't work very well with VLANs (probabl=
-y
->> I am wrong because I am just a beginner)
->>     Can someone help me to understand that? Your help would be very
->> appreciated. :-)
+>> This problem happens only with bridge . when i tried with one of the
+>> interface it works perfectly .
 >>
->
-> The behavior you describe is normal and exactly the one you asked for.
->
-> You have put eth0.10 and eth1.20 in the same bridge, so you asked to brid=
-ge
-> between eth0.10 and eth1.20.
->
-> When a 802.1Q tagged packet is received on eth0, the kernel removes the
-> 802.1Q header, having VLAN ID=3D10, then deliver the packet to eth0.10. T=
-hen,
-> the kernel deliver the packet to the bridge, because eth0.10 is a member =
-of
-> the bridge.
->
-> At this time, the bridge code has no knowledge of the original VLAN ID
-> because this VLAN ID was removed before the bridge code has an opportunit=
-y
-> to look at it.
->
-> The bridge code send the un tagged packet to the right output port if it
-> can find a suitable destination mac address entry in its mac_to_port tabl=
-e.
-> Else, it simply send the untagged packet to all ports except the one wher=
-e
-> the packet was received on.
->
-> So the untagged packet is sent to eth1.20. Then, the kernel add a 802.1Q
-> header to the packet, with VLAN ID=3D20, then deliver the packet to eth1,=
- to
-> be sent on the wire.
->
-> And you end up with the behavior you describe.
->
-> If you want to bridge all ports in VLAN 10 together, all ports in VLAN 20
-> together, and route between VLAN 10 and VLAN 20, you need to setup two
-> different bridges :
->
-> br10 : eth0.10 + eth1.10 + ... + ethN.10 and possibly some non-802.1Q
-> ports.
-> br20 : eth0.20 + eth1.20 + ... + ethN.20 and possibly some non-802.1Q
-> ports.
->
-> Then setup an IP address in the right subnet on br10 (192.168.1.1) and br=
-20
-> (172.16.1.1).
->
-> Then ensure that routing is enabled :
->
-> echo 1 > /proc/sys/net/ipv4/ip_forward
->
-> Feel free to ask, if all this is not clear enough.
->
->        Nicolas.
->
->
->> Thanks in advance and sorry for my English.
+>> Thanks,
+>> Ratheesh
 >>
->> --
->> Gustavo Mart=EDn Morcuende
+>>
+>>
+>>
+>> On Wed, Aug 19, 2009 at 5:44 PM, ratheesh k<ratheesh.ksz@gmail.com> wrot=
+e:
+>>> =A0I have two interfaces , eth0 and ap0 bridged together to form br0 .
+>>> And another interfaces eth1 on wan side .
+>>>
+>>>
+>>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 br0 <------------------------> eth1
+>>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 ( eth0 , ap0)
+>>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 { =A0lan =A0} =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 {wan}
+>>>
+>>> packets from lan side are nated =A0to eth1 . =A0i have qos rules on bot=
+h
+>>> br0 and eth1 . =A0when i googled i found that "mangling packets on br0
+>>> and using fw filters wont work on linux bridge ".. Is this true ?? Can
+>>> you tell me why ??
+>>>
+>>> But the funny thing is i colored packets =A0in prerouting chain =A0only
+>>> specifying protocol ( not specifying interface )
+>>>
+>>> =A0iptables =A0-t mangle -A PREROTUING -p icmp -j MARK --set-mark 2 =A0=
+ and
+>>> i have filter rule to put =A0packets tat are fw marked as 2 to put into
+>>> some flow . This works fine , when i send an icmp packet from lan to
+>>> wan side !!!!!!! ??????????
+>>>
+>>> But if =A0try any of below rules =A0intsead of above , =A0it wont work
+>>>
+>>> iptables =A0-t mangle -A PREROTUING -p icmp -i br0 -j MARK --set-mark 2
+>>> iptables =A0-t mangle -A PREROTUING -p icmp =A0-s 192.168.1.0/24 =A0-d =
+!
+>>> 192.168.1.0/24 -j MARK --set-mark 2
+>>> iptables =A0-t mangle -A FORWARD =A0-p icmp =A0-i br0 -o eth1 -j MARK -=
+-set-mark 2
+>>>
+>>> i dont know y ????????
+>>>
+>>> =A0I should go for ebtables to mark packets ???????? then it will work =
+???
+>>>
 >>
 >
->
-
-
---=20
-Gustavo Mart=EDn Morcuende
-
---00032555a9a2f751740472c6cd65
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Thank you very much Nicolas,<br>
-<br>
-=A0=A0=A0=A0 Your answer was very clear.<br>
-<br>
-Thank you again for your help.<br>
-<br>
-Gustavo Martin Morcuende<br><br><br><div class=3D"gmail_quote">2009/9/4 Nic=
-olas de Peslo=FCan <span dir=3D"ltr">&lt;<a href=3D"mailto:nicolas.2p.debia=
-n@free.fr">nicolas.2p.debian@free.fr</a>&gt;</span><br><blockquote class=3D=
-"gmail_quote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0=
-pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-Gustavo Martin wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
-204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div class=3D"im"=
->
-Hello list,<br>
-<br>
- =A0 =A0 =A0I am trying to understand how the linux-based bridges work but =
-I am watching very strange things.<br>
-<br>
- =A0 =A0 =A0For example, if I have this configuration for the bridge BR0 wi=
-th 2 physical interfaces eth0 and eth1:<br>
-<br></div><div class=3D"im">
-trying1.jpg<br>
-<br>
- =A0 =A0 If PC1 sends an ARP REQUEST, PC2 receives this ARP REQUEST but the=
-y are in different VLANs!<br>
- =A0 =A0 Why the VLAN 20 can receive ARP REQUEST messages from the VLAN 10 =
-and why the VLAN 10 can receive ARP REPLY messages from VLAN 20 if they are=
- different VLANs? This is crazy for me.<br>
- =A0 =A0 I think linux-based bridges don&#39;t work very well with VLANs (p=
-robably I am wrong because I am just a beginner)<br>
- =A0 =A0 Can someone help me to understand that? Your help would be very ap=
-preciated. :-)<br>
-</div></blockquote>
-<br>
-The behavior you describe is normal and exactly the one you asked for.<br>
-<br>
-You have put eth0.10 and eth1.20 in the same bridge, so you asked to bridge=
- between eth0.10 and eth1.20.<br>
-<br>
-When a 802.1Q tagged packet is received on eth0, the kernel removes the 802=
-.1Q header, having VLAN ID=3D10, then deliver the packet to eth0.10. Then, =
-the kernel deliver the packet to the bridge, because eth0.10 is a member of=
- the bridge.<br>
-
-<br>
-At this time, the bridge code has no knowledge of the original VLAN ID beca=
-use this VLAN ID was removed before the bridge code has an opportunity to l=
-ook at it.<br>
-<br>
-The bridge code send the un tagged packet to the right output port if it ca=
-n find a suitable destination mac address entry in its mac_to_port table. E=
-lse, it simply send the untagged packet to all ports except the one where t=
-he packet was received on.<br>
-
-<br>
-So the untagged packet is sent to eth1.20. Then, the kernel add a 802.1Q he=
-ader to the packet, with VLAN ID=3D20, then deliver the packet to eth1, to =
-be sent on the wire.<br>
-<br>
-And you end up with the behavior you describe.<br>
-<br>
-If you want to bridge all ports in VLAN 10 together, all ports in VLAN 20 t=
-ogether, and route between VLAN 10 and VLAN 20, you need to setup two diffe=
-rent bridges :<br>
-<br>
-br10 : eth0.10 + eth1.10 + ... + ethN.10 and possibly some non-802.1Q ports=
-.<br>
-br20 : eth0.20 + eth1.20 + ... + ethN.20 and possibly some non-802.1Q ports=
-.<br>
-<br>
-Then setup an IP address in the right subnet on br10 (192.168.1.1) and br20=
- (172.16.1.1).<br>
-<br>
-Then ensure that routing is enabled :<br>
-<br>
-echo 1 &gt; /proc/sys/net/ipv4/ip_forward<br>
-<br>
-Feel free to ask, if all this is not clear enough.<br><font color=3D"#88888=
-8">
-<br>
- =A0 =A0 =A0 =A0Nicolas.</font><div><div></div><div class=3D"h5"><br>
-<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
-204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-<br>
-Thanks in advance and sorry for my English.<br>
-<br>
--- <br>
-Gustavo Mart=EDn Morcuende<br>
-</blockquote>
-<br>
-</div></div></blockquote></div><br><br clear=3D"all"><br>-- <br>Gustavo Mar=
-t=EDn Morcuende<br>
-
---00032555a9a2f751740472c6cd65--
