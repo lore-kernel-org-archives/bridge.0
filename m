@@ -1,11 +1,9 @@
 MIME-Version: 1.0
-Message-ID: <48270.1254915796@oleco.net>
-Content-Type: text/plain; charset="utf-8"
-Date: Wed, 7 Oct 2009 13:43:16 +0200
-From: Carsten <fbndd@oleco.net>
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Problem Forwarding Bridge to Tap Device
-Reply-To: fbndd@oleco.net
+Date: Wed, 7 Oct 2009 13:22:44 -0700
+Message-ID: <88ed5400910071322l360fe50cn2986895549f60f82@mail.gmail.com>
+From: NITIN SS <hi.nitin2000@gmail.com>
+Content-Type: multipart/alternative; boundary=0016e64ec0a20d410b04755e1ca9
+Subject: [Bridge] Distributed RSTP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,33 +14,73 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hello,
-I have a problem with bridge and tap network where I can't find a solution=
-=20
+--0016e64ec0a20d410b04755e1ca9
+Content-Type: text/plain; charset=ISO-8859-1
 
-first my scenario
-=20
-[ETHx][PC1] <-> [Switch] <-> [PC2][ETHx][VLANx][BR0][TAP0][VBox]
+Hi,
 
-Switchport of PC1 is untagged in VLANx,  Switchport of PC2 is tagged in the=
- same VLAN. I can see the packets running as I want over all components.=20
+I am new to this RSTP/Bridge group and currently planning on distributed
+RSTP.
 
-Now my Problem
+First of all, Distributed RSTP mean as, we will have 8 linux RSTPs and they
+all will have the same Bridge ID.
+As all bridges will have the same Bridge ID so I need to sync many variables
+functions across all units.
+Additionally there should be only one root port for all the eight bridges.
+In this way there should be one master which would be maintaing bridge
+variables and controlling bridge operations.
+There is only point to point link between all bridges through master.
+Additioanlly most of the RSTP state machines are port based so it looks
+feasible.
 
-I send a Ping from VBox to PC1 all works fine, while the ping is running I =
-restart PC1, as suggested ping now fail.
-After PC1 is up again packet transport should work correctly, but it doesn'=
-t  (exactly some times is ok, some times problem comes after 5th reboot or =
-so but is coming if I have enough reboots of PC1)   .
-So find the problem I dump the traffic of VLANx, BR0 and TAP0.=20
-What I see:
-@VLANx: arp request and reply=20
-@ BR0: arp request and reply
-@ TAP0: arp request
-So I think the bridge stop forwarding packets to the TAP device and I don't=
- understand why.  Have anyone an idea?=20
+As your guys are RSTP experts, so i think it would be the right place to get
+suggestions/comments.
 
-Thx for help
-----=20
-versendet mit www.oleco.de Mail - Anmeldung und Nutzung kostenlos!
-Oleco www.netlcr.org - jetzt auch mit Spamschutz.
+-What would be the limitations/complex Issues?
+-Is it feasible?
+ At top level it looks like there would be lot of efforts with respect to
+final outcome.
+-Is there any implementation of distributed RSTP?
+
+Appreciate your comments.
+
+Regards,
+Nitin
+
+--0016e64ec0a20d410b04755e1ca9
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>Hi,</div>
+<div>=A0</div>
+<div>I am new to this RSTP/Bridge group and currently planning on distribut=
+ed RSTP.</div>
+<div>=A0</div>
+<div>First of all, Distributed RSTP mean as, we will have=A08 linux RSTPs a=
+nd they all will=A0have the same Bridge ID.</div>
+<div>As all bridges will have the same Bridge ID so I need to sync many var=
+iables functions across all units.</div>
+<div>Additionally there should be only one root port for all the=A0eight br=
+idges.</div>
+<div>In this way there should be one master which would be maintaing bridge=
+ variables and controlling bridge operations.</div>
+<div>There is only point to point link between all bridges through master.<=
+/div>
+<div>Additioanlly most of the RSTP state machines are port based so it look=
+s feasible.</div>
+<div>=A0</div>
+<div>As your guys are RSTP experts, so i think it would be the right place =
+to get suggestions/comments.</div>
+<div>=A0</div>
+<div>-What would be the limitations/complex Issues?</div>
+<div>-Is it feasible? </div>
+<div>=A0At top level it looks like=A0there would be lot of efforts with res=
+pect to final outcome.</div>
+<div>-Is there any implementation of distributed RSTP? </div>
+<div>=A0</div>
+<div>Appreciate your comments.</div>
+<div>=A0</div>
+<div>Regards,</div>
+<div>Nitin</div>
+
+--0016e64ec0a20d410b04755e1ca9--
