@@ -1,9 +1,10 @@
-MIME-Version: 1.0
-Date: Wed, 7 Oct 2009 13:22:44 -0700
-Message-ID: <88ed5400910071322l360fe50cn2986895549f60f82@mail.gmail.com>
-From: NITIN SS <hi.nitin2000@gmail.com>
-Content-Type: multipart/alternative; boundary=0016e64ec0a20d410b04755e1ca9
-Subject: [Bridge] Distributed RSTP
+MIME-version: 1.0
+Content-transfer-encoding: 7BIT
+Content-type: text/plain; charset=US-ASCII
+Date: Fri, 09 Oct 2009 04:10:16 +0200
+From: Mircea Gherzan <mircea.gherzan@rwth-aachen.de>
+Message-id: <20091009041016.0f3fe1f0@beast3>
+Subject: [Bridge] bridge in promiscuous mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,73 +15,45 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
---0016e64ec0a20d410b04755e1ca9
-Content-Type: text/plain; charset=ISO-8859-1
-
 Hi,
 
-I am new to this RSTP/Bridge group and currently planning on distributed
-RSTP.
+I'm pretty new to bridging and I'm stumbling upon some strange
+behaviour. Please imagine the following simple topology:
 
-First of all, Distributed RSTP mean as, we will have 8 linux RSTPs and they
-all will have the same Bridge ID.
-As all bridges will have the same Bridge ID so I need to sync many variables
-functions across all units.
-Additionally there should be only one root port for all the eight bridges.
-In this way there should be one master which would be maintaing bridge
-variables and controlling bridge operations.
-There is only point to point link between all bridges through master.
-Additioanlly most of the RSTP state machines are port based so it looks
-feasible.
+    device				laptop
+---------------
+|br0 |  wlan0 |  (-------802.11 g------) wlan1
+---------------
 
-As your guys are RSTP experts, so i think it would be the right place to get
-suggestions/comments.
 
--What would be the limitations/complex Issues?
--Is it feasible?
- At top level it looks like there would be lot of efforts with respect to
-final outcome.
--Is there any implementation of distributed RSTP?
+* layer2 between the two wlan's is working.
+* all 3 interfaces are on the same subnet. 
+* On the device, the only route to that subnet is via br0.
+* br0 has a different MAC from the one of wlan0
+* STP is disabled
+* the device is running 2.6.31 vanilla
 
-Appreciate your comments.
+If PROMISC is NOT enabled on br0, I can't ping it from wlan1. I could
+observe the following with tcpdump -p:
+* br0 correctly receives ARP request and sends out replies 
+* ICMP echo packet reach wlan0, but
+* no ICMP packets reach br0 (the only frames that reach br0 are ARP)
 
-Regards,
-Nitin
+On the other hand, if PROMISC is enabled on br0, pinging it from wlan1
+just works. 
 
---0016e64ec0a20d410b04755e1ca9
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+I've checked the bridging page from the LF wiki, and I've disabled the
+bridge-nf-* entries, but the behaviour did no change.
 
-<div>Hi,</div>
-<div>=A0</div>
-<div>I am new to this RSTP/Bridge group and currently planning on distribut=
-ed RSTP.</div>
-<div>=A0</div>
-<div>First of all, Distributed RSTP mean as, we will have=A08 linux RSTPs a=
-nd they all will=A0have the same Bridge ID.</div>
-<div>As all bridges will have the same Bridge ID so I need to sync many var=
-iables functions across all units.</div>
-<div>Additionally there should be only one root port for all the=A0eight br=
-idges.</div>
-<div>In this way there should be one master which would be maintaing bridge=
- variables and controlling bridge operations.</div>
-<div>There is only point to point link between all bridges through master.<=
-/div>
-<div>Additioanlly most of the RSTP state machines are port based so it look=
-s feasible.</div>
-<div>=A0</div>
-<div>As your guys are RSTP experts, so i think it would be the right place =
-to get suggestions/comments.</div>
-<div>=A0</div>
-<div>-What would be the limitations/complex Issues?</div>
-<div>-Is it feasible? </div>
-<div>=A0At top level it looks like=A0there would be lot of efforts with res=
-pect to final outcome.</div>
-<div>-Is there any implementation of distributed RSTP? </div>
-<div>=A0</div>
-<div>Appreciate your comments.</div>
-<div>=A0</div>
-<div>Regards,</div>
-<div>Nitin</div>
+My goals are the following:
+* no IP address on wlan0
+* different MACs on br0 and wlan0
+* br0 reachable from wlan1
 
---0016e64ec0a20d410b04755e1ca9--
+Please, can anyone help me on this one?
+
+Thanks,
+Mircea
+
+-- 
+Dipl.-Ing. Mircea Gherzan
