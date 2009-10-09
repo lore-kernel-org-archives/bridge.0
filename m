@@ -1,10 +1,12 @@
-MIME-version: 1.0
-Content-transfer-encoding: 7BIT
-Content-type: text/plain; charset=US-ASCII
-Date: Fri, 09 Oct 2009 04:10:16 +0200
-From: Mircea Gherzan <mircea.gherzan@rwth-aachen.de>
-Message-id: <20091009041016.0f3fe1f0@beast3>
-Subject: [Bridge] bridge in promiscuous mode
+Date: Thu, 8 Oct 2009 23:01:41 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20091008230141.32c57e6e@nehalam>
+In-Reply-To: <88ed5400910071322l360fe50cn2986895549f60f82@mail.gmail.com>
+References: <88ed5400910071322l360fe50cn2986895549f60f82@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Distributed RSTP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,47 +15,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: NITIN SS <hi.nitin2000@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-Hi,
+On Wed, 7 Oct 2009 13:22:44 -0700
+NITIN SS <hi.nitin2000@gmail.com> wrote:
 
-I'm pretty new to bridging and I'm stumbling upon some strange
-behaviour. Please imagine the following simple topology:
+> Hi,
+> 
+> I am new to this RSTP/Bridge group and currently planning on distributed
+> RSTP.
+> 
+> First of all, Distributed RSTP mean as, we will have 8 linux RSTPs and they
+> all will have the same Bridge ID.
 
-    device				laptop
----------------
-|br0 |  wlan0 |  (-------802.11 g------) wlan1
----------------
+So you plan to take a perfectly good spec 802.1d and break it.
+Why?
 
+> As all bridges will have the same Bridge ID so I need to sync many variables
+> functions across all units.
 
-* layer2 between the two wlan's is working.
-* all 3 interfaces are on the same subnet. 
-* On the device, the only route to that subnet is via br0.
-* br0 has a different MAC from the one of wlan0
-* STP is disabled
-* the device is running 2.6.31 vanilla
+You are off in never-never fantasy land. Stop and ask why are you
+doing this? It is like the old joke: "Doctor it hurts when I hit
+my head with my fist..."
 
-If PROMISC is NOT enabled on br0, I can't ping it from wlan1. I could
-observe the following with tcpdump -p:
-* br0 correctly receives ARP request and sends out replies 
-* ICMP echo packet reach wlan0, but
-* no ICMP packets reach br0 (the only frames that reach br0 are ARP)
+> Additionally there should be only one root port for all the eight bridges.
+> In this way there should be one master which would be maintaing bridge
+> variables and controlling bridge operations.
+> There is only point to point link between all bridges through master.
+> Additioanlly most of the RSTP state machines are port based so it looks
+> feasible.
+> 
+> As your guys are RSTP experts, so i think it would be the right place to get
+> suggestions/comments.
+> 
+> -What would be the limitations/complex Issues?
+> -Is it feasible?
+>  At top level it looks like there would be lot of efforts with respect to
+> final outcome.
+> -Is there any implementation of distributed RSTP?
+> 
+> Appreciate your comments.
+> 
+> Regards,
+> Nitin
 
-On the other hand, if PROMISC is enabled on br0, pinging it from wlan1
-just works. 
-
-I've checked the bridging page from the LF wiki, and I've disabled the
-bridge-nf-* entries, but the behaviour did no change.
-
-My goals are the following:
-* no IP address on wlan0
-* different MACs on br0 and wlan0
-* br0 reachable from wlan1
-
-Please, can anyone help me on this one?
-
-Thanks,
-Mircea
 
 -- 
-Dipl.-Ing. Mircea Gherzan
