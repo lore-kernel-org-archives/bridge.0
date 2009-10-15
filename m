@@ -1,12 +1,10 @@
-Date: Thu, 8 Oct 2009 23:01:41 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20091008230141.32c57e6e@nehalam>
-In-Reply-To: <88ed5400910071322l360fe50cn2986895549f60f82@mail.gmail.com>
-References: <88ed5400910071322l360fe50cn2986895549f60f82@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Distributed RSTP
+Message-ID: <4AD737A7.3090103@futureware.at>
+Date: Thu, 15 Oct 2009 16:54:31 +0200
+From: =?ISO-8859-15?Q?Philipp_G=FChring?= <pg@futureware.at>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Linux Dynamic Bridging Support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,50 +13,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: NITIN SS <hi.nitin2000@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-On Wed, 7 Oct 2009 13:22:44 -0700
-NITIN SS <hi.nitin2000@gmail.com> wrote:
+Hi,
 
-> Hi,
-> 
-> I am new to this RSTP/Bridge group and currently planning on distributed
-> RSTP.
-> 
-> First of all, Distributed RSTP mean as, we will have 8 linux RSTPs and they
-> all will have the same Bridge ID.
+The scenario I have is that I have a computer with one network interface
+eth0, that is receiving it's configuration through DHCP, and uses
+complex firewalling rules for eth0.
 
-So you plan to take a perfectly good spec 802.1d and break it.
-Why?
+Now I want to add a virtual machine on that computer
 
-> As all bridges will have the same Bridge ID so I need to sync many variables
-> functions across all units.
+According to the usual recipies, I have to do the following:
 
-You are off in never-never fantasy land. Stop and ask why are you
-doing this? It is like the old joke: "Doctor it hurts when I hit
-my head with my fist..."
+ifconfig eth0 0.0.0.0
+brctl addbr br0
+brctl addif br0 eth0
+dhclient br0
 
-> Additionally there should be only one root port for all the eight bridges.
-> In this way there should be one master which would be maintaing bridge
-> variables and controlling bridge operations.
-> There is only point to point link between all bridges through master.
-> Additioanlly most of the RSTP state machines are port based so it looks
-> feasible.
-> 
-> As your guys are RSTP experts, so i think it would be the right place to get
-> suggestions/comments.
-> 
-> -What would be the limitations/complex Issues?
-> -Is it feasible?
->  At top level it looks like there would be lot of efforts with respect to
-> final outcome.
-> -Is there any implementation of distributed RSTP?
-> 
-> Appreciate your comments.
-> 
-> Regards,
-> Nitin
+Afterwards I can add interfaces to the bridge:
+brctl addif br0 tun0
 
+This has several disadvantages:
+* It causes a network outage for up to a few seconds (mostly due to the
+unnecessary DHCP)
+* It does not migrate the firewall rules to br0
+* It breaks all firewall-rules that were written for eth0
+* If I use eth0 in the office today, wlan0 at home, and ppp0 when I am
+outside, then I would need lots of different scripts for all the
+different bridging combinations.
 
--- 
+Now the idea is to add migration support to Linux Bridging.
+
+It could look like this:
+
+brctl addbr br0
+brctl takeif br0 eth0
+
+take-interface would migrate the IP address, and routing entries from
+the eth0 interface to the bridge, in a more-or-less atomic fashion, and
+add eth0 as interface to the brige. It would also adapt iptables-rules
+that were written for eth0 to be pointing to br0 now.
+
+To release the bridge again, it could be done like this:
+brctl releaseif br0 eth0
+brctl delbr br0
+
+Since all that is a bit complex, I still have an alternative proposal:
+What if we bridge-enable all normal interfaces?
+It could look like this:
+
+brctl enablebr eth0
+
+This would enable bridging mode for the eth0 interface. It automatically
+is able to use the DHCP ip address it was given, the firewalling, ...
+I can then easily add additional interfaces to the bridge-enabled
+interface like this:
+
+brctl addif eth0 tun0
+
+And I don't need to worry about DHCP, firewalls, ... anymore.
+
+So my question now is:
+Which way should we go? Migrating interface configuration into bridges,
+or bridge-enabling interfaces?
+
+Best regards,
+Philipp G=FChring
+
