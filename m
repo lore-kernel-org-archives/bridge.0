@@ -1,12 +1,11 @@
-Message-ID: <4AD779A5.80004@free.fr>
-Date: Thu, 15 Oct 2009 21:36:05 +0200
-From: =?ISO-8859-15?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+From: Joachim Schiele <js@lastlog.de>
+Date: Sun, 25 Oct 2009 02:38:17 +0200
 MIME-Version: 1.0
-References: <4AD737A7.3090103@futureware.at>
-In-Reply-To: <4AD737A7.3090103@futureware.at>
-Content-Type: text/plain; charset="iso-8859-15"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] Linux Dynamic Bridging Support
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200910250238.17255.js@lastlog.de>
+Subject: [Bridge] using a bridge (setting priority eth0 > ath0)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,85 +14,240 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?ISO-8859-15?Q?Philipp_G=FChring?= <pg@futureware.at>
-Cc: bridge@osdl.org
+To: bridge@lists.linux-foundation.org
 
-Philipp G=FChring a =E9crit :
-> Hi,
->=20
-> The scenario I have is that I have a computer with one network interface
-> eth0, that is receiving it's configuration through DHCP, and uses
-> complex firewalling rules for eth0.
->=20
-> Now I want to add a virtual machine on that computer
->=20
-> According to the usual recipies, I have to do the following:
->=20
-> ifconfig eth0 0.0.0.0
-> brctl addbr br0
-> brctl addif br0 eth0
-> dhclient br0
->=20
-> Afterwards I can add interfaces to the bridge:
-> brctl addif br0 tun0
->=20
-> This has several disadvantages:
-> * It causes a network outage for up to a few seconds (mostly due to the
-> unnecessary DHCP)
-> * It does not migrate the firewall rules to br0
-> * It breaks all firewall-rules that were written for eth0
-> * If I use eth0 in the office today, wlan0 at home, and ppp0 when I am
-> outside, then I would need lots of different scripts for all the
-> different bridging combinations.
->=20
-> Now the idea is to add migration support to Linux Bridging.
->=20
-> It could look like this:
->=20
-> brctl addbr br0
-> brctl takeif br0 eth0
->=20
-> take-interface would migrate the IP address, and routing entries from
-> the eth0 interface to the bridge, in a more-or-less atomic fashion, and
-> add eth0 as interface to the brige. It would also adapt iptables-rules
-> that were written for eth0 to be pointing to br0 now.
->=20
-> To release the bridge again, it could be done like this:
-> brctl releaseif br0 eth0
-> brctl delbr br0
->=20
-> Since all that is a bit complex, I still have an alternative proposal:
-> What if we bridge-enable all normal interfaces?
-> It could look like this:
->=20
-> brctl enablebr eth0
->=20
-> This would enable bridging mode for the eth0 interface. It automatically
-> is able to use the DHCP ip address it was given, the firewalling, ...
-> I can then easily add additional interfaces to the bridge-enabled
-> interface like this:
->=20
-> brctl addif eth0 tun0
->=20
-> And I don't need to worry about DHCP, firewalls, ... anymore.
->=20
-> So my question now is:
-> Which way should we go? Migrating interface configuration into bridges,
-> or bridge-enabling interfaces?
+hello,
 
-So you expect some changes in the kernel to reduce the complexity of the sc=
-ripts that manage your=20
-different network setup... I'm not sure that adding complexity into the ker=
-nel to reduce a script=20
-complexity is about to happen at some time... :-)
+what i want to do:
+having two computers both equipped with:
+lspci
+01:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit 
+Ethernet (rev 10)
+01:0a.0 Ethernet controller: Atheros Communications Inc. AR5212/AR5213 
+Multiprotocol MAC/baseband processor (rev 01)
 
-If building a generic script for your network setup is really too complex, =
-you can try and=20
-dynamically rename your interfaces... For example, you arrange for ppp0, et=
-h0 or br0 to be named=20
-myinterface0, based on your current needs, then setup myinterface0, with th=
-e setup you expect.
+i create two bridges (one on each host)
+pc2b ~ # brctl show br0
+bridge name     bridge id               STP enabled     interfaces
+br0             0000.0040f4a0b037       yes             ath0
+                                                        eth0
 
-HTH.
+and then i set all interfaces up using:
+ip l set ath0 up
+ip l set eth0 up
+ip l set br0 up
 
-	Nicolas.
+i put one ath0 interface into master mode and the other ath0 is a normal 
+station (client). the connections eth0-eth0 works great, also the ath0-ath0 
+link works great (tested with and without bridge).
+
+in general everything works, if i either one of the 4 interfaces down 
+(eth0/eth0/ath0/ath0) stp's work creates a working path in no time.
+
+the issue is - the reason i write to this list however:
+when all interfaces are up the data always is going over ath0-ath0 instead of 
+eth0-eth0. (the wireless lan should be my backup link).
+
+i issues setbridgeprio br0 1 and setbridgeprio br0 10. as well as setpathcost 
+with various consistent experiments. say one experiment i set all ath0 
+pathcosts to a value 100 all eth0 to 999. 
+i don't see any difference when doing the opposite.
+
+any idea? 
+
+dmesg added but i don't see anything special there. there was an error once 
+but i think that might have something todo with the routing loop i caused 
+(which i resolved with adding setfd with a higher value).
+
+thanks,
+joachim schiele
+
+
+
+
+
+============ pc2 ==============
+dmesg
+br0: port 2(ath0) entering forwarding state
+br0: topology change detected, propagating
+br0: port 1(eth0) entering forwarding state
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+br0: no IPv6 routers present
+br0: received tcn bpdu on port 1(eth0)
+br0: topology change detected, propagating
+br0: port 2(ath0) entering disabled state
+br0: port 2(ath0) entering listening state
+br0: port 2(ath0) entering learning state
+br0: topology change detected, propagating
+br0: port 2(ath0) entering forwarding state
+ath0: no IPv6 routers present
+br0: received tcn bpdu on port 1(eth0)
+br0: topology change detected, propagating
+br0: port 2(ath0) entering disabled state
+br0: port 2(ath0) entering listening state
+br0: port 2(ath0) entering learning state
+br0: topology change detected, propagating
+br0: port 2(ath0) entering forwarding state
+ath0: no IPv6 routers present
+br0: received tcn bpdu on port 1(eth0)
+br0: topology change detected, propagating
+
+ip l
+14: ath0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue 
+state UNKNOWN
+    link/ether 00:40:f4:a0:b0:37 brd ff:ff:ff:ff:ff:ff
+3: eth0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast 
+state UP qlen 1000
+    link/ether 00:40:f4:eb:16:45 brd ff:ff:ff:ff:ff:ff
+
+pc2b ~ # brctl show
+bridge name     bridge id               STP enabled     interfaces
+br0             0000.0040f4a0b037       yes             ath0
+                                                        eth0
+pc2b ~ # brctl showstp br0
+br0
+ bridge id              0000.0040f4a0b037
+ designated root        0000.0040f4a0b037
+ root port                 0                    path cost                  0
+ max age                   9.99                 bridge max age             
+9.99
+ hello time                1.99                 bridge hello time          
+1.99
+ forward delay             2.99                 bridge forward delay       
+2.99
+ ageing time               3.99
+ hello timer               1.49                 tcn timer                  
+0.00
+ topology change timer     0.00                 gc timer                   
+1.49
+ flags
+
+
+ath0 (2)
+ port id                0402                    state                
+forwarding
+ designated root        0000.0040f4a0b037       path cost                999
+ designated bridge      0000.0040f4a0b037       message age timer          
+0.00
+ designated port        0402                    forward delay timer        
+0.00
+ designated cost           0                    hold timer                 
+0.48
+ flags
+
+eth0 (1)
+ port id                2801                    state                
+forwarding
+ designated root        0000.0040f4a0b037       path cost                111
+ designated bridge      0000.0040f4a0b037       message age timer          
+0.00
+ designated port        2801                    forward delay timer        
+0.00
+ designated cost           0                    hold timer                 
+0.48
+ flags
+
+arp -e
+10.0.0.1                 ether   00:40:f4:a0:b0:00   C                     br0
+
+
+
+
+
+
+
+
+
+============ pc6 ==============
+ip l
+17: ath0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue 
+state UP
+    link/ether 00:40:f4:a0:b0:00 brd ff:ff:ff:ff:ff:ff
+3: eth0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast 
+state UP qlen 1000
+    link/ether 00:40:f4:ec:59:06 brd ff:ff:ff:ff:ff:ff
+
+dmesg
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+__ratelimit: 9560 callbacks suppressed
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+eth0: received packet with  own address as source address
+br0: port 2(ath0) entering disabled state
+__ratelimit: 7851 callbacks suppressed
+eth0: received packet with  own address as source address
+br0: port 2(ath0) entering listening state
+br0: port 2(ath0) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(ath0) entering forwarding state
+br0: port 2(ath0) entering disabled state
+eth0: received packet with  own address as source address
+br0: port 2(ath0) entering listening state
+br0: port 2(ath0) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(ath0) entering forwarding state
+br0: port 2(ath0) entering disabled state
+eth0: received packet with  own address as source address
+br0: port 2(ath0) entering listening state
+br0: port 2(ath0) entering learning state
+br0: topology change detected, sending tcn bpdu
+br0: port 2(ath0) entering forwarding state
+
+arp -e
+PC2                      ether   00:40:f4:a0:b0:37   C                     br0
+
+pc2b ~ # brctl  show
+bridge name     bridge id               STP enabled     interfaces
+br0             0000.0040f4a0b037       yes             ath0
+                                                        eth0
+pc2b ~ # brctl showstp br0
+br0
+ bridge id              0000.0040f4a0b037
+ designated root        0000.0040f4a0b037
+ root port                 0                    path cost                  0
+ max age                   9.99                 bridge max age             
+9.99
+ hello time                1.99                 bridge hello time          
+1.99
+ forward delay             2.99                 bridge forward delay       
+2.99
+ ageing time               3.99
+ hello timer               1.20                 tcn timer                  
+0.00
+ topology change timer     0.00                 gc timer                   
+0.20
+ flags
+
+
+ath0 (2)
+ port id                0402                    state                
+forwarding
+ designated root        0000.0040f4a0b037       path cost                999
+ designated bridge      0000.0040f4a0b037       message age timer          
+0.00
+ designated port        0402                    forward delay timer        
+0.00
+ designated cost           0                    hold timer                 
+0.20
+ flags
+
+eth0 (1)
+ port id                2801                    state                
+forwarding
+ designated root        0000.0040f4a0b037       path cost                111
+ designated bridge      0000.0040f4a0b037       message age timer          
+0.00
+ designated port        2801                    forward delay timer        
+0.00
+ designated cost           0                    hold timer                 
+0.20
+ flags
