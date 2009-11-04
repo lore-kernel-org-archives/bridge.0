@@ -1,12 +1,10 @@
-Message-ID: <4AE77A57.9030406@free.fr>
-Date: Tue, 27 Oct 2009 23:55:19 +0100
-From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+Message-ID: <4AF184B7.2070307@aixigo.de>
+Date: Wed, 04 Nov 2009 14:42:15 +0100
+From: Harald Dunkel <harald.dunkel@aixigo.de>
 MIME-Version: 1.0
-References: <200910250238.17255.js@lastlog.de>
-In-Reply-To: <200910250238.17255.js@lastlog.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] using a bridge (setting priority eth0 > ath0)
+Subject: [Bridge] bridge on bonding interface: DHCP replies don't get through
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,255 +13,101 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Joachim Schiele <js@lastlog.de>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@linux-foundation.org, bridge@lists.linux-foundation.org
 
-Joachim Schiele wrote:
-> hello,
-> 
-> what i want to do:
-> having two computers both equipped with:
-> lspci
-> 01:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit 
-> Ethernet (rev 10)
-> 01:0a.0 Ethernet controller: Atheros Communications Inc. AR5212/AR5213 
-> Multiprotocol MAC/baseband processor (rev 01)
+Hi folks,
 
-For this kind of setup, if might be easier to setup a bonding interface, instead of a bridge interface.
+I would like to run a bridge for kvm on a bonding interface
+(4 * 1Gbit, Intel e1000e). Problem: The DHCPDISCOVER packets
+sent by the guest show up on my dhcp server as expected, but
+the DHCPOFFER sent as a reply doesn't reach the guest behind
+the bridge.
 
-With a bonding setup, you can define a primary adapter that will be used when available.
+Using tcpdump on host and guest I can see the DHCPOFFER on
+the bond0 and br0 interface, but it never shows up on vnet0
+or on the guest's eth0.
 
-	Nicolas.
+If I drop the bonding interface and use the host's eth2 for
+the bridge instead, then there is no such problem.
 
-> 
-> i create two bridges (one on each host)
-> pc2b ~ # brctl show br0
-> bridge name     bridge id               STP enabled     interfaces
-> br0             0000.0040f4a0b037       yes             ath0
->                                                         eth0
-> 
-> and then i set all interfaces up using:
-> ip l set ath0 up
-> ip l set eth0 up
-> ip l set br0 up
-> 
-> i put one ath0 interface into master mode and the other ath0 is a normal 
-> station (client). the connections eth0-eth0 works great, also the ath0-ath0 
-> link works great (tested with and without bridge).
-> 
-> in general everything works, if i either one of the 4 interfaces down 
-> (eth0/eth0/ath0/ath0) stp's work creates a working path in no time.
-> 
-> the issue is - the reason i write to this list however:
-> when all interfaces are up the data always is going over ath0-ath0 instead of 
-> eth0-eth0. (the wireless lan should be my backup link).
-> 
-> i issues setbridgeprio br0 1 and setbridgeprio br0 10. as well as setpathcost 
-> with various consistent experiments. say one experiment i set all ath0 
-> pathcosts to a value 100 all eth0 to 999. 
-> i don't see any difference when doing the opposite.
-> 
-> any idea? 
-> 
-> dmesg added but i don't see anything special there. there was an error once 
-> but i think that might have something todo with the routing loop i caused 
-> (which i resolved with adding setfd with a higher value).
-> 
-> thanks,
-> joachim schiele
-> 
-> 
-> 
-> 
-> 
-> ============ pc2 ==============
-> dmesg
-> br0: port 2(ath0) entering forwarding state
-> br0: topology change detected, propagating
-> br0: port 1(eth0) entering forwarding state
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> br0: no IPv6 routers present
-> br0: received tcn bpdu on port 1(eth0)
-> br0: topology change detected, propagating
-> br0: port 2(ath0) entering disabled state
-> br0: port 2(ath0) entering listening state
-> br0: port 2(ath0) entering learning state
-> br0: topology change detected, propagating
-> br0: port 2(ath0) entering forwarding state
-> ath0: no IPv6 routers present
-> br0: received tcn bpdu on port 1(eth0)
-> br0: topology change detected, propagating
-> br0: port 2(ath0) entering disabled state
-> br0: port 2(ath0) entering listening state
-> br0: port 2(ath0) entering learning state
-> br0: topology change detected, propagating
-> br0: port 2(ath0) entering forwarding state
-> ath0: no IPv6 routers present
-> br0: received tcn bpdu on port 1(eth0)
-> br0: topology change detected, propagating
-> 
-> ip l
-> 14: ath0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue 
-> state UNKNOWN
->     link/ether 00:40:f4:a0:b0:37 brd ff:ff:ff:ff:ff:ff
-> 3: eth0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast 
-> state UP qlen 1000
->     link/ether 00:40:f4:eb:16:45 brd ff:ff:ff:ff:ff:ff
-> 
-> pc2b ~ # brctl show
-> bridge name     bridge id               STP enabled     interfaces
-> br0             0000.0040f4a0b037       yes             ath0
->                                                         eth0
-> pc2b ~ # brctl showstp br0
-> br0
->  bridge id              0000.0040f4a0b037
->  designated root        0000.0040f4a0b037
->  root port                 0                    path cost                  0
->  max age                   9.99                 bridge max age             
-> 9.99
->  hello time                1.99                 bridge hello time          
-> 1.99
->  forward delay             2.99                 bridge forward delay       
-> 2.99
->  ageing time               3.99
->  hello timer               1.49                 tcn timer                  
-> 0.00
->  topology change timer     0.00                 gc timer                   
-> 1.49
->  flags
-> 
-> 
-> ath0 (2)
->  port id                0402                    state                
-> forwarding
->  designated root        0000.0040f4a0b037       path cost                999
->  designated bridge      0000.0040f4a0b037       message age timer          
-> 0.00
->  designated port        0402                    forward delay timer        
-> 0.00
->  designated cost           0                    hold timer                 
-> 0.48
->  flags
-> 
-> eth0 (1)
->  port id                2801                    state                
-> forwarding
->  designated root        0000.0040f4a0b037       path cost                111
->  designated bridge      0000.0040f4a0b037       message age timer          
-> 0.00
->  designated port        2801                    forward delay timer        
-> 0.00
->  designated cost           0                    hold timer                 
-> 0.48
->  flags
-> 
-> arp -e
-> 10.0.0.1                 ether   00:40:f4:a0:b0:00   C                     br0
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> ============ pc6 ==============
-> ip l
-> 17: ath0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue 
-> state UP
->     link/ether 00:40:f4:a0:b0:00 brd ff:ff:ff:ff:ff:ff
-> 3: eth0: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast 
-> state UP qlen 1000
->     link/ether 00:40:f4:ec:59:06 brd ff:ff:ff:ff:ff:ff
-> 
-> dmesg
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> __ratelimit: 9560 callbacks suppressed
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> eth0: received packet with  own address as source address
-> br0: port 2(ath0) entering disabled state
-> __ratelimit: 7851 callbacks suppressed
-> eth0: received packet with  own address as source address
-> br0: port 2(ath0) entering listening state
-> br0: port 2(ath0) entering learning state
-> br0: topology change detected, sending tcn bpdu
-> br0: port 2(ath0) entering forwarding state
-> br0: port 2(ath0) entering disabled state
-> eth0: received packet with  own address as source address
-> br0: port 2(ath0) entering listening state
-> br0: port 2(ath0) entering learning state
-> br0: topology change detected, sending tcn bpdu
-> br0: port 2(ath0) entering forwarding state
-> br0: port 2(ath0) entering disabled state
-> eth0: received packet with  own address as source address
-> br0: port 2(ath0) entering listening state
-> br0: port 2(ath0) entering learning state
-> br0: topology change detected, sending tcn bpdu
-> br0: port 2(ath0) entering forwarding state
-> 
-> arp -e
-> PC2                      ether   00:40:f4:a0:b0:37   C                     br0
-> 
-> pc2b ~ # brctl  show
-> bridge name     bridge id               STP enabled     interfaces
-> br0             0000.0040f4a0b037       yes             ath0
->                                                         eth0
-> pc2b ~ # brctl showstp br0
-> br0
->  bridge id              0000.0040f4a0b037
->  designated root        0000.0040f4a0b037
->  root port                 0                    path cost                  0
->  max age                   9.99                 bridge max age             
-> 9.99
->  hello time                1.99                 bridge hello time          
-> 1.99
->  forward delay             2.99                 bridge forward delay       
-> 2.99
->  ageing time               3.99
->  hello timer               1.20                 tcn timer                  
-> 0.00
->  topology change timer     0.00                 gc timer                   
-> 0.20
->  flags
-> 
-> 
-> ath0 (2)
->  port id                0402                    state                
-> forwarding
->  designated root        0000.0040f4a0b037       path cost                999
->  designated bridge      0000.0040f4a0b037       message age timer          
-> 0.00
->  designated port        0402                    forward delay timer        
-> 0.00
->  designated cost           0                    hold timer                 
-> 0.20
->  flags
-> 
-> eth0 (1)
->  port id                2801                    state                
-> forwarding
->  designated root        0000.0040f4a0b037       path cost                111
->  designated bridge      0000.0040f4a0b037       message age timer          
-> 0.00
->  designated port        2801                    forward delay timer        
-> 0.00
->  designated cost           0                    hold timer                 
-> 0.20
->  flags
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
-> 
+Kernel on host and guest is 2.6.31.5. Below you can find more
+information about my setup. I had sent this information to the
+linux kvm mailing list before, but consensus was that this is
+a bridging problem. See
+
+	http://www.spinics.net/lists/kvm/msg25153.html
+
+Would it be possible to track this problem down? Any helpful
+comment would be highly appreciated.
+
+
+Many thanx
+
+Harri
+====================================================================
+# brctl show
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.001517ab0a59       no              bond0
+                                                        vnet0
+# ip addr list
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth2: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
+    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
+3: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN qlen 1000
+    link/ether 00:30:48:c6:e0:98 brd ff:ff:ff:ff:ff:ff
+4: eth3: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
+    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
+5: _rename: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN qlen 1000
+    link/ether 00:30:48:c6:e0:99 brd ff:ff:ff:ff:ff:ff
+6: eth4: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
+    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
+7: eth5: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
+    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
+8: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
+    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::215:17ff:feab:a59/64 scope link
+       valid_lft forever preferred_lft forever
+51: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN
+    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
+    inet 172.19.96.25/23 brd 172.19.97.255 scope global br0
+    inet6 fe80::215:17ff:feab:a59/64 scope link
+       valid_lft forever preferred_lft forever
+52: vnet0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN qlen 500
+    link/ether c6:d7:7b:fb:02:35 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::c4d7:7bff:fefb:235/64 scope link
+       valid_lft forever preferred_lft forever
+# cat /proc/net/bonding/bond*
+Ethernet Channel Bonding Driver: v3.5.0 (November 4, 2008)
+
+Bonding Mode: load balancing (round-robin)
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+
+Slave Interface: eth2
+MII Status: up
+Link Failure Count: 0
+Permanent HW addr: 00:15:17:ab:0a:59
+
+Slave Interface: eth3
+MII Status: up
+Link Failure Count: 0
+Permanent HW addr: 00:15:17:ab:0a:58
+
+Slave Interface: eth4
+MII Status: up
+Link Failure Count: 0
+Permanent HW addr: 00:15:17:ab:0a:5b
+
+Slave Interface: eth5
+MII Status: up
+Link Failure Count: 0
+Permanent HW addr: 00:15:17:ab:0a:5a
+
+
 
