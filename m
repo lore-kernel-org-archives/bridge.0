@@ -1,10 +1,9 @@
-Message-ID: <4AF184B7.2070307@aixigo.de>
-Date: Wed, 04 Nov 2009 14:42:15 +0100
-From: Harald Dunkel <harald.dunkel@aixigo.de>
+Date: Wed, 4 Nov 2009 10:00:21 -0500 (EST)
+From: Jon Lewis <jlewis@lewis.org>
+Message-ID: <Pine.LNX.4.61.0911040949290.22812@soloth.lewis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge on bonding interface: DHCP replies don't get through
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] ebtables counters bug
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,101 +12,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org, bridge@lists.linux-foundation.org
+To: Bridge@lists.linux-foundation.org
 
-Hi folks,
+I posted this yesterday to the netfilter list, but I'm not sure that was 
+the right list for this issue.  I seem to have [re]discovered a bug very 
+similar to if not the same as
+http://osdir.com/ml/linux.network.bridge.ebtables.devel/2003-06/msg00002.html
 
-I would like to run a bridge for kvm on a bonding interface
-(4 * 1Gbit, Intel e1000e). Problem: The DHCPDISCOVER packets
-sent by the guest show up on my dhcp server as expected, but
-the DHCPOFFER sent as a reply doesn't reach the guest behind
-the bridge.
+According to the mailing list archive, that bug was fixed in 2003...but 
+either it wasn't, or it's been reintroduced.
 
-Using tcpdump on host and guest I can see the DHCPOFFER on
-the bond0 and br0 interface, but it never shows up on vnet0
-or on the guest's eth0.
+I'm using ebtables-v2.0.9-1.tar.gz with CentOS 5.3
+2.6.18-164.el5xen #1 SMP Thu Sep 3 04:03:03 EDT 2009 x86_64 x86_64 x86_64 
+GNU/Linux
 
-If I drop the bonding interface and use the host's eth2 for
-the bridge instead, then there is no such problem.
+Using ebtables, I've setup a number of user-defined chains.  In the INPUT and 
+FORWARD chains, I have rules to jump to these user-defined chains.
 
-Kernel on host and guest is 2.6.31.5. Below you can find more
-information about my setup. I had sent this information to the
-linux kvm mailing list before, but consensus was that this is
-a bridging problem. See
+I've noticed that any change (adding or deleting a rule) to any chain (at 
+least the INPUT, FORWARD, or any other user-defined one) causes the counters 
+for the last user-defined chain to be reset to 0's.  Creating a new 
+user-defined chain does not seem to affect counters.  Deleting that new 
+user-defined chain does reset the counters in the last 
+remaining user-defined chain.
 
-	http://www.spinics.net/lists/kvm/msg25153.html
+I just verified the same behavior on a RHEL 5.4 system running
+2.6.18-164.2.1.el5 #1 SMP Mon Sep 21 04:37:42 EDT 2009 x86_64 x86_64 x86_64 
+GNU/Linux
+with
 
-Would it be possible to track this problem down? Any helpful
-comment would be highly appreciated.
+Name        : ebtables                     Relocations: (not relocatable)
+Version     : 2.0.8.2                           Vendor: Dag Apt Repository, 
+http://dag.wieers.com/apt/
+Release     : 1.el5.rf                      Build Date: Fri 14 Mar 2008 
+12:17:48 AM EDT
+Install Date: Sat 31 Oct 2009 03:09:00 PM EDT      Build Host: 
+lisse.leuven.wieers.com
+Group       : System Environment/Base       Source RPM: 
+ebtables-2.0.8.2-1.el5.rf.src.rpm
+Size        : 558998                           License: GPL
+Signature   : DSA/SHA1, Sat 15 Mar 2008 12:52:06 AM EDT, Key ID 
+a20e52146b8d79e6
+Packager    : Dag Wieers <dag@wieers.com>
+URL         : http://ebtables.sourceforge.net/
 
+Code from the patch/fix posted
+http://osdir.com/ml/linux.network.bridge.ebtables.devel/2003-06/msg00004.html
 
-Many thanx
+does not appear to be in the current (2.0.9) ebtables.
 
-Harri
-====================================================================
-# brctl show
-bridge name     bridge id               STP enabled     interfaces
-br0             8000.001517ab0a59       no              bond0
-                                                        vnet0
-# ip addr list
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: eth2: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
-    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
-3: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN qlen 1000
-    link/ether 00:30:48:c6:e0:98 brd ff:ff:ff:ff:ff:ff
-4: eth3: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
-    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
-5: _rename: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN qlen 1000
-    link/ether 00:30:48:c6:e0:99 brd ff:ff:ff:ff:ff:ff
-6: eth4: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
-    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
-7: eth5: <BROADCAST,MULTICAST,PROMISC,SLAVE,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master bond0 state UP qlen 1000
-    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
-8: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP
-    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::215:17ff:feab:a59/64 scope link
-       valid_lft forever preferred_lft forever
-51: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN
-    link/ether 00:15:17:ab:0a:59 brd ff:ff:ff:ff:ff:ff
-    inet 172.19.96.25/23 brd 172.19.97.255 scope global br0
-    inet6 fe80::215:17ff:feab:a59/64 scope link
-       valid_lft forever preferred_lft forever
-52: vnet0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN qlen 500
-    link/ether c6:d7:7b:fb:02:35 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::c4d7:7bff:fefb:235/64 scope link
-       valid_lft forever preferred_lft forever
-# cat /proc/net/bonding/bond*
-Ethernet Channel Bonding Driver: v3.5.0 (November 4, 2008)
-
-Bonding Mode: load balancing (round-robin)
-MII Status: up
-MII Polling Interval (ms): 100
-Up Delay (ms): 0
-Down Delay (ms): 0
-
-Slave Interface: eth2
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:15:17:ab:0a:59
-
-Slave Interface: eth3
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:15:17:ab:0a:58
-
-Slave Interface: eth4
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:15:17:ab:0a:5b
-
-Slave Interface: eth5
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:15:17:ab:0a:5a
-
-
-
+----------------------------------------------------------------------
+  Jon Lewis                   |  I route
+  Senior Network Engineer     |  therefore you are
+  Atlantic Net                |
+_________ http://www.lewis.org/~jlewis/pgp for PGP public key_________
