@@ -1,14 +1,13 @@
-Message-ID: <4AFC2FCC.5090103@gmail.com>
-Date: Thu, 12 Nov 2009 10:54:52 -0500
-From: Gregory Haskins <gregory.haskins@gmail.com>
-MIME-Version: 1.0
-References: <20091110222632.24100.14884.stgit@mimic.site>
-	<4AFC2D65.9040903@gmail.com> <4AFC2F71.1060408@trash.net>
-In-Reply-To: <4AFC2F71.1060408@trash.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="------------enig446F7890475F406410D336E8"
-Subject: Re: [Bridge] [PATCH 0/4] vbus: venet macvlan support
+Date: Thu, 12 Nov 2009 14:39:13 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+Message-Id: <20091112143913.3d89e4f4.akpm@linux-foundation.org>
+In-Reply-To: <bug-14586-10286@http.bugzilla.kernel.org/>
+References: <bug-14586-10286@http.bugzilla.kernel.org/>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [Bugme-new] [Bug 14586] New: bridge on bonding
+ interface: DHCP replies don't get through
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,51 +16,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick McHardy <kaber@trash.net>
-Cc: arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, alacrityvm-devel@lists.sourceforge.net, Patrick Mullaney <pmullaney@novell.com>, evb@yahoogroups.com
-
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig446F7890475F406410D336E8
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-Patrick McHardy wrote:
-> Gregory Haskins wrote:
->> Patrick Mullaney wrote:
->>> (Applies to alacrityvm.git/master:34534534)
->>>
->>> This patchset implements a vbus venet device with a
->>> macvlan backend.
->> Thanks Pat, applied.
->=20
-> As I mentioned in my response to these patches, the macvlan part
-> need more work.
-
-Yeah, I talked to Pat offline.  He is going to patch it incrementally as
-its not a trivial problem to cleanup.  For the time being, they are
-sitting in the alacrityvm tree, but they are not going upstream until
-the macvlan stuff is resolved.  All but the last patch are not really my
-business to push up, anyway.
-
-In the meantime, Pat or others can enhance the work that he's done to
-date, so I will carry them out-of-tree.
-
-Kind Regards,
--Greg
+To: Stephen Hemminger <shemminger@linux-foundation.org>, bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org, harald.dunkel@t-online.de
 
 
---------------enig446F7890475F406410D336E8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+(switched to email.  Please respond via emailed reply-to-all, not via the
+bugzilla web interface).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG/MacGPG2 v2.0.11 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+On Wed, 11 Nov 2009 14:28:00 GMT
+bugzilla-daemon@bugzilla.kernel.org wrote:
 
-iEYEARECAAYFAkr8L8wACgkQP5K2CMvXmqHqZgCeL+DYwW8KLcxD1Ruo9SFTY4wo
-sV4An2ADiWlbBiQtDTfj7R6FvI5XpgPs
-=NKah
------END PGP SIGNATURE-----
+> http://bugzilla.kernel.org/show_bug.cgi?id=14586
+> 
+>            Summary: bridge on bonding interface: DHCP replies don't get
+>                     through
+>            Product: Networking
+>            Version: 2.5
+>     Kernel Version: 2.6.31.5
+>           Platform: All
+>         OS/Version: Linux
+>               Tree: Mainline
+>             Status: NEW
+>           Severity: normal
+>           Priority: P1
+>          Component: Other
+>         AssignedTo: acme@ghostprotocols.net
+>         ReportedBy: harald.dunkel@t-online.de
+>         Regression: No
+> 
+> 
+> I would like to run a bridge for kvm on a bonding interface (4 * 1Gbit, Intel
+> e1000e). Problem: The DHCPDISCOVER packets sent by the guest show up on my dhcp
+> server as expected, but the DHCPOFFER sent as a reply doesn't reach the guest
+> behind the bridge.
+> 
+> Using tcpdump on host and guest I can see the DHCPOFFER on the bond0 and br0
+> interface, but it never shows up on vnet0 or on the guest's eth0.
+> 
+> If I drop the bonding interface and use the host's eth2 for the bridge instead,
+> then there is no such problem.
+> 
+> Kernel on host and guest is 2.6.31.5. Attached you can find more information
+> about my setup. 
+> 
+> I had sent this information to the linux kvm mailing list before, but consensus
+> was that this is a bridging problem. See
+> 
+>     http://www.spinics.net/lists/kvm/msg25153.html
+> 
+> There was no reply on the linux bridge mailing list, see 
+> 
+>    
+> https://lists.linux-foundation.org/pipermail/bridge/2009-November/006749.html
 
---------------enig446F7890475F406410D336E8--
