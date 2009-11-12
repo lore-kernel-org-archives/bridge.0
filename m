@@ -1,13 +1,13 @@
-Message-ID: <4AFBE15E.7030300@aixigo.de>
-Date: Thu, 12 Nov 2009 11:20:14 +0100
-From: Harald Dunkel <harald.dunkel@aixigo.de>
+Message-ID: <4AFC2F71.1060408@trash.net>
+Date: Thu, 12 Nov 2009 16:53:21 +0100
+From: Patrick McHardy <kaber@trash.net>
 MIME-Version: 1.0
-References: <4AF184B7.2070307@aixigo.de>
-In-Reply-To: <4AF184B7.2070307@aixigo.de>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <20091110222632.24100.14884.stgit@mimic.site>
+	<4AFC2D65.9040903@gmail.com>
+In-Reply-To: <4AFC2D65.9040903@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge on bonding interface: DHCP replies don't get
-	through
+Subject: Re: [Bridge] [PATCH 0/4] vbus: venet macvlan support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,27 +16,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org, bridge@lists.linux-foundation.org
+To: Gregory Haskins <gregory.haskins@gmail.com>
+Cc: arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, alacrityvm-devel@lists.sourceforge.net, Patrick Mullaney <pmullaney@novell.com>, evb@yahoogroups.com
 
-Harald Dunkel wrote:
-> Hi folks,
+Gregory Haskins wrote:
+> Patrick Mullaney wrote:
+>> (Applies to alacrityvm.git/master:34534534)
+>>
+>> This patchset implements a vbus venet device with a
+>> macvlan backend.
 > 
-> I would like to run a bridge for kvm on a bonding interface
-> (4 * 1Gbit, Intel e1000e). Problem: The DHCPDISCOVER packets
-> sent by the guest show up on my dhcp server as expected, but
-> the DHCPOFFER sent as a reply doesn't reach the guest behind
-> the bridge.
-> 
+> Thanks Pat, applied.
 
-Please mail if I can help to track this down.
-
-In the meantime I have created a bug report on the kernel
-tracker for this problem:
-
-	http://bugzilla.kernel.org/show_bug.cgi?id=14586
-
-
-Many thanx
-
-Harri
-
+As I mentioned in my response to these patches, the macvlan part
+need more work.
