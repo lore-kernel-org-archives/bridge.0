@@ -1,12 +1,10 @@
-Date: Fri, 13 Nov 2009 13:27:28 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20091113132728.0f1db7c5@s6510>
-In-Reply-To: <20091113195201.11184.25766.stgit@mimic.site>
-References: <4AFAD86A.9070506@trash.net>
-	<20091113195201.11184.25766.stgit@mimic.site>
+Message-Id: <4AFD83CF020000C700079883@soto.provo.novell.com>
+Date: Fri, 13 Nov 2009 16:05:35 -0700
+From: "Patrick Mullaney" <pmullaney@novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 Subject: Re: [Bridge] [PATCH 0/3] macvlan: support for guest vm direct rx/tx
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -16,20 +14,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick Mullaney <pmullaney@novell.com>
+To: shemminger@vyatta.com
 Cc: arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, alacrityvm-devel@lists.sourceforge.net
 
-On Fri, 13 Nov 2009 14:55:06 -0500
-Patrick Mullaney <pmullaney@novell.com> wrote:
+On Fri, 2009-11-13 at 13:27 -0800, Stephen Hemminger wrote:
+> On Fri, 13 Nov 2009 14:55:06 -0500
+> Patrick Mullaney <pmullaney@novell.com> wrote:
+>=20
+> > These patches allow other modules to override the receive
+> > path of a macvlan. This is being done to support guest
+> > VMs operating directly over a macvlan. Routines to allow
+> > creation and deletion of macvlans from in-kernel modules
+> > were also exposed/added.
+>=20
+> Which guest VM, how will it use it? The kernel is not in the business
+> of providing infrastructure for out of tree patches.
 
-> These patches allow other modules to override the receive
-> path of a macvlan. This is being done to support guest
-> VMs operating directly over a macvlan. Routines to allow
-> creation and deletion of macvlans from in-kernel modules
-> were also exposed/added.
+Actually, any guest vm or container. macvtap was the first to suggest
+a patch like this to provide this functionality. This infrastructure
+is generic enough to allow others to use it. My interest is in
+supporting kvm guests via vbus drivers which are being integrated
+in the alacrityvm tree.
 
-Which guest VM, how will it use it? The kernel is not in the business
-of providing infrastructure for out of tree patches.
+>=20
+> Also, macvlan should really being calling netif_receive_skb()
+> not going through another queue/softirq cycle.
+I understand but you are talking about the current behavior of
+macvlans - my goal wasn't to change the current behavior
+of macvlans, as I didn't want to disturb what the original author
+intended, just provide the ability to override the rx path and
+provide for management of macvlans from other kernel modules(not
+just via rtnl).
 
-Also, macvlan should really being calling netif_receive_skb()
-not going through another queue/softirq cycle.
+
