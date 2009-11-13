@@ -1,15 +1,13 @@
-Date: Thu, 12 Nov 2009 22:23:27 -0500
-From: Andy Gospodarek <andy@greyhouse.net>
-Message-ID: <20091113032326.GE1639@gospo.rdu.redhat.com>
-References: <bug-14586-10286@http.bugzilla.kernel.org/>
-	<20091112143913.3d89e4f4.akpm@linux-foundation.org>
-	<20091112145529.303c2659@nehalam>
+From: Patrick Mullaney <pmullaney@novell.com>
+Date: Fri, 13 Nov 2009 14:55:21 -0500
+Message-ID: <20091113195521.11184.13203.stgit@mimic.site>
+In-Reply-To: <20091113195201.11184.25766.stgit@mimic.site>
+References: <20091113195201.11184.25766.stgit@mimic.site>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20091112145529.303c2659@nehalam>
-Subject: Re: [Bridge] [Bugme-new] [Bug 14586] New: bridge on bonding
-	interface: DHCP	replies don't get through
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH 2/3] macvlan: derived from Arnd Bergmann's patch
+	for macvtap
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,58 +16,195 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bugzilla-daemon@bugzilla.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, harald.dunkel@t-online.de, bugme-daemon@bugzilla.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+To: kaber@trash.net, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, arnd@arndb.de, alacrityvm-devel@lists.sourceforge.net
 
-On Thu, Nov 12, 2009 at 02:55:29PM -0800, Stephen Hemminger wrote:
-> > 
-> > I would like to run a bridge for kvm on a bonding interface (4 * 1Gbit, Intel
-> > e1000e). Problem: The DHCPDISCOVER packets sent by the guest show up on my dhcp
-> > server as expected, but the DHCPOFFER sent as a reply doesn't reach the guest
-> > behind the bridge.
-> > 
-> > Using tcpdump on host and guest I can see the DHCPOFFER on the bond0 and br0
-> > interface, but it never shows up on vnet0 or on the guest's eth0.
-> > 
-> > If I drop the bonding interface and use the host's eth2 for the bridge instead,
-> > then there is no such problem.
-> > 
-> > Kernel on host and guest is 2.6.31.5. Attached you can find more information
-> > about my setup. 
-> > 
-> 
-> What is the configuration?
-> # brctl showstp virbr0
-> # brctl showmacs virbr0
-> 
+This patch includes only the basic framework for overriding the
+receive path and the macvlan header was moved to allow modules
+outside of driver/net to use it.
 
-I'm quite sure this output will show us why this isn't working and it
-won't be the first time I've seen this.
+Signed-off-by: Patrick Mullaney <pmullaney@novell.com>
+---
 
-What happens with mode 0 is that the DHCPDISCOVER goes out and since the
-MAC is unlearned by the switch connected to the host, the frame will
-come back on all other members of the bond other than the one that sent
-it.
+ drivers/net/macvlan.c   |   41 ++++++++++++++++-------------------------
+ include/linux/macvlan.h |   37 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 53 insertions(+), 25 deletions(-)
+ create mode 100644 include/linux/macvlan.h
+
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 41dc71f..3425e12 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -30,22 +30,7 @@
+ #include <linux/if_macvlan.h>
+ #include <net/rtnetlink.h>
  
-Since the bond interface is receiving the frame, the bridge will relearn
-the source address of the guest on the bonding interface and any
-subsequent frames received on the bond interface that have the
-destination MAC of the guest will be dropped by the bridge.  This is as
-expected since a bridge should drop frames when the destination MAC of
-the incoming frame matches an entry in the forwarding database that
-indicates those frames are destined for the receiving port.
-
-I would suggest switching to mode 5 (balance-tlb) if your switch cannot
-handle bonding or mode 2 or 4 (balance-xor or 802.3ad, respectively) if
-it can.  Both of those modes avoid this problem since mode 5 will drop
-additional broadcast frames and modes 2 and 4 will not send broadcast
-frames back to any of the bond member's interfaces.
-
-There is a Red Hat kbase article that talks about this problem as well:
-
-http://kbase.redhat.com/faq/docs/DOC-16051
-
-When it was originally written mode 6 was thought to be a workaround
-as well, but it has been recently proved to still be a problem and the
-article needs to be updated.
+-#define MACVLAN_HASH_SIZE	(1 << BITS_PER_BYTE)
+-
+-struct macvlan_port {
+-	struct net_device	*dev;
+-	struct hlist_head	vlan_hash[MACVLAN_HASH_SIZE];
+-	struct list_head	vlans;
+-};
+-
+-struct macvlan_dev {
+-	struct net_device	*dev;
+-	struct list_head	list;
+-	struct hlist_node	hlist;
+-	struct macvlan_port	*port;
+-	struct net_device	*lowerdev;
+-};
+-
++#include <linux/macvlan.h>
+ 
+ static struct macvlan_dev *macvlan_hash_lookup(const struct macvlan_port *port,
+ 					       const unsigned char *addr)
+@@ -135,7 +120,7 @@ static void macvlan_broadcast(struct sk_buff *skb,
+ 			else
+ 				nskb->pkt_type = PACKET_MULTICAST;
+ 
+-			netif_rx(nskb);
++			vlan->receive(nskb);
+ 		}
+ 	}
+ }
+@@ -180,12 +165,12 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
+ 	skb->dev = dev;
+ 	skb->pkt_type = PACKET_HOST;
+ 
+-	netif_rx(skb);
++	vlan->receive(skb);
+ 	return NULL;
+ }
+ 
+-static netdev_tx_t macvlan_start_xmit(struct sk_buff *skb,
+-				      struct net_device *dev)
++netdev_tx_t macvlan_start_xmit(struct sk_buff *skb,
++			       struct net_device *dev)
+ {
+ 	int i = skb_get_queue_mapping(skb);
+ 	struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
+@@ -204,6 +189,7 @@ static netdev_tx_t macvlan_start_xmit(struct sk_buff *skb,
+ 
+ 	return NETDEV_TX_OK;
+ }
++EXPORT_SYMBOL_GPL(macvlan_start_xmit);
+ 
+ static int macvlan_hard_header(struct sk_buff *skb, struct net_device *dev,
+ 			       unsigned short type, const void *daddr,
+@@ -414,7 +400,7 @@ static const struct net_device_ops macvlan_netdev_ops = {
+ 	.ndo_validate_addr	= eth_validate_addr,
+ };
+ 
+-static void macvlan_setup(struct net_device *dev)
++void macvlan_setup(struct net_device *dev)
+ {
+ 	ether_setup(dev);
+ 
+@@ -425,6 +411,7 @@ static void macvlan_setup(struct net_device *dev)
+ 	dev->ethtool_ops	= &macvlan_ethtool_ops;
+ 	dev->tx_queue_len	= 0;
+ }
++EXPORT_SYMBOL_GPL(macvlan_setup);
+ 
+ static int macvlan_port_create(struct net_device *dev)
+ {
+@@ -455,7 +442,7 @@ static void macvlan_port_destroy(struct net_device *dev)
+ 	kfree(port);
+ }
+ 
+-static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[])
++int macvlan_validate(struct nlattr *tb[], struct nlattr *data[])
+ {
+ 	if (tb[IFLA_ADDRESS]) {
+ 		if (nla_len(tb[IFLA_ADDRESS]) != ETH_ALEN)
+@@ -465,6 +452,7 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[])
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(macvlan_validate);
+ 
+ static int macvlan_get_tx_queues(struct net *net,
+ 				 struct nlattr *tb[],
+@@ -485,8 +473,8 @@ static int macvlan_get_tx_queues(struct net *net,
+ 	return 0;
+ }
+ 
+-static int macvlan_newlink(struct net_device *dev,
+-			   struct nlattr *tb[], struct nlattr *data[])
++int macvlan_newlink(struct net_device *dev,
++		    struct nlattr *tb[], struct nlattr *data[])
+ {
+ 	struct macvlan_dev *vlan = netdev_priv(dev);
+ 	struct macvlan_port *port;
+@@ -526,6 +514,7 @@ static int macvlan_newlink(struct net_device *dev,
+ 	vlan->lowerdev = lowerdev;
+ 	vlan->dev      = dev;
+ 	vlan->port     = port;
++	vlan->receive  = netif_rx;
+ 
+ 	err = register_netdevice(dev);
+ 	if (err < 0)
+@@ -535,8 +524,9 @@ static int macvlan_newlink(struct net_device *dev,
+ 	netif_stacked_transfer_operstate(dev, lowerdev);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(macvlan_newlink);
+ 
+-static void macvlan_dellink(struct net_device *dev)
++void macvlan_dellink(struct net_device *dev)
+ {
+ 	struct macvlan_dev *vlan = netdev_priv(dev);
+ 	struct macvlan_port *port = vlan->port;
+@@ -547,6 +537,7 @@ static void macvlan_dellink(struct net_device *dev)
+ 	if (list_empty(&port->vlans))
+ 		macvlan_port_destroy(port->dev);
+ }
++EXPORT_SYMBOL_GPL(macvlan_dellink);
+ 
+ static struct rtnl_link_ops macvlan_link_ops __read_mostly = {
+ 	.kind		= "macvlan",
+diff --git a/include/linux/macvlan.h b/include/linux/macvlan.h
+new file mode 100644
+index 0000000..3f3c6c3
+--- /dev/null
++++ b/include/linux/macvlan.h
+@@ -0,0 +1,37 @@
++#ifndef _MACVLAN_H
++#define _MACVLAN_H
++
++#include <linux/netdevice.h>
++#include <linux/netlink.h>
++#include <linux/list.h>
++
++#define MACVLAN_HASH_SIZE	(1 << BITS_PER_BYTE)
++
++struct macvlan_port {
++	struct net_device	*dev;
++	struct hlist_head	vlan_hash[MACVLAN_HASH_SIZE];
++	struct list_head	vlans;
++};
++
++struct macvlan_dev {
++	struct net_device	*dev;
++	struct list_head	list;
++	struct hlist_node	hlist;
++	struct macvlan_port	*port;
++	struct net_device	*lowerdev;
++
++	int (*receive)(struct sk_buff *skb);
++};
++
++extern int macvlan_start_xmit(struct sk_buff *skb, struct net_device *dev);
++
++extern void macvlan_setup(struct net_device *dev);
++
++extern int macvlan_validate(struct nlattr *tb[], struct nlattr *data[]);
++
++extern int macvlan_newlink(struct net_device *dev,
++		struct nlattr *tb[], struct nlattr *data[]);
++
++extern void macvlan_dellink(struct net_device *dev);
++
++#endif /* _MACVLAN_H */
 
