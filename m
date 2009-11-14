@@ -1,11 +1,12 @@
-Message-Id: <4AFD83CF020000C700079883@soto.provo.novell.com>
-Date: Fri, 13 Nov 2009 16:05:35 -0700
-From: "Patrick Mullaney" <pmullaney@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Date: Sat, 14 Nov 2009 16:49:16 +0100
+From: Santiago Garcia Mantinan <bridge@manty.net>
+Message-ID: <20091114154916.GA4303@dis.manty.net>
+References: <20091110155716.GA20467@spaans64.fox.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Subject: Re: [Bridge] [PATCH 0/3] macvlan: support for guest vm direct rx/tx
+In-Reply-To: <20091110155716.GA20467@spaans64.fox.local>
+Subject: Re: [Bridge] [PATCH] Add upstream debian patches
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,36 +15,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, alacrityvm-devel@lists.sourceforge.net
+To: Jasper Spaans <spaans@fox-it.com>
+Cc: bridge@lists.linux-foundation.org
 
-On Fri, 2009-11-13 at 13:27 -0800, Stephen Hemminger wrote:
-> On Fri, 13 Nov 2009 14:55:06 -0500
-> Patrick Mullaney <pmullaney@novell.com> wrote:
->=20
-> > These patches allow other modules to override the receive
-> > path of a macvlan. This is being done to support guest
-> > VMs operating directly over a macvlan. Routines to allow
-> > creation and deletion of macvlans from in-kernel modules
-> > were also exposed/added.
->=20
-> Which guest VM, how will it use it? The kernel is not in the business
-> of providing infrastructure for out of tree patches.
+Hi!
 
-Actually, any guest vm or container. macvtap was the first to suggest
-a patch like this to provide this functionality. This infrastructure
-is generic enough to allow others to use it. My interest is in
-supporting kvm guests via vbus drivers which are being integrated
-in the alacrityvm tree.
+> Debian has had these patches by Santiago Garcia Mantinan for ages [0][1],
+> and they have not been applied yet.  We're trying to run a 32-bit brctl on a
 
->=20
-> Also, macvlan should really being calling netif_receive_skb()
-> not going through another queue/softirq cycle.
-I understand but you are talking about the current behavior of
-macvlans - my goal wasn't to change the current behavior
-of macvlans, as I didn't want to disturb what the original author
-intended, just provide the ability to override the rx path and
-provide for management of macvlans from other kernel modules(not
-just via rtnl).
+I'd like to make clear that the patches were not made by me, they are what
+people has been submitting to Debian through our bts for a long time, I'm
+just the maintainer for bridge-utils on Debian and thus collected them and
+submitted them a long time ago to this list, see
+https://lists.linux-foundation.org/pipermail/bridge/2008-August/006011.html
+for more info on all this.
 
-
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
