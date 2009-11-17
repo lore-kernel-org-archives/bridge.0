@@ -1,10 +1,9 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 17 Nov 2009 22:39:08 +0000
-Message-Id: <1258497551-25959-2-git-send-email-arnd@arndb.de>
+Date: Tue, 17 Nov 2009 22:39:10 +0000
+Message-Id: <1258497551-25959-4-git-send-email-arnd@arndb.de>
 In-Reply-To: <1258497551-25959-1-git-send-email-arnd@arndb.de>
 References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
-Subject: [Bridge] [PATCH 1/3] macvlan: Reflect macvlan packets meant for
-	other macvlan devices
+Subject: [Bridge] [PATCH 3/3] macvlan: export macvlan mode through netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,175 +15,164 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>
 
-From: Eric Biederman <ebiederm@xmission.com>
+In order to support all three modes of macvlan at
+runtime, extend the existing netlink protocol
+to allow choosing the mode per macvlan slave
+interface.
 
-Switch ports do not send packets back out the same port they came
-in on.	This causes problems when using a macvlan device inside
-of a network namespace as it becomes impossible to talk to
-other macvlan devices.
+This depends on a matching patch to iproute2
+in order to become accessible in user land.
 
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/net/macvlan.c |   91 ++++++++++++++++++++++++++++++++++++-------------
- 1 files changed, 67 insertions(+), 24 deletions(-)
+ drivers/net/macvlan.c   |   67 +++++++++++++++++++++++++++++++++++++++++-----
+ include/linux/if_link.h |   15 ++++++++++
+ 2 files changed, 74 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index 3aabfd9..406b8b5 100644
+index fa8b568..731017e 100644
 --- a/drivers/net/macvlan.c
 +++ b/drivers/net/macvlan.c
-@@ -29,6 +29,7 @@
- #include <linux/if_link.h>
- #include <linux/if_macvlan.h>
- #include <net/rtnetlink.h>
-+#include <net/xfrm.h>
+@@ -33,12 +33,6 @@
  
  #define MACVLAN_HASH_SIZE	(1 << BITS_PER_BYTE)
  
-@@ -102,7 +103,8 @@ static int macvlan_addr_busy(const struct macvlan_port *port,
- }
- 
- static void macvlan_broadcast(struct sk_buff *skb,
--			      const struct macvlan_port *port)
-+			      const struct macvlan_port *port,
-+			      struct net_device *src)
- {
- 	const struct ethhdr *eth = eth_hdr(skb);
- 	const struct macvlan_dev *vlan;
-@@ -118,6 +120,9 @@ static void macvlan_broadcast(struct sk_buff *skb,
- 		hlist_for_each_entry_rcu(vlan, n, &port->vlan_hash[i], hlist) {
- 			dev = vlan->dev;
- 
-+			if (dev == src)
-+				continue;
-+
- 			nskb = skb_clone(skb, GFP_ATOMIC);
- 			if (nskb == NULL) {
- 				dev->stats.rx_errors++;
-@@ -140,20 +145,45 @@ static void macvlan_broadcast(struct sk_buff *skb,
- 	}
- }
- 
-+static int macvlan_unicast(struct sk_buff *skb, const struct macvlan_dev *dest)
-+{
-+	struct net_device *dev = dest->dev;
-+
-+	if (unlikely(!dev->flags & IFF_UP)) {
-+		kfree_skb(skb);
-+		return NET_XMIT_DROP;
-+	}
-+
-+	skb = skb_share_check(skb, GFP_ATOMIC);
-+	if (!skb) {
-+		dev->stats.rx_errors++;
-+		dev->stats.rx_dropped++;
-+		return NET_XMIT_DROP;
-+	}
-+
-+	dev->stats.rx_bytes += skb->len + ETH_HLEN;
-+	dev->stats.rx_packets++;
-+
-+	skb->dev = dev;
-+	skb->pkt_type = PACKET_HOST;
-+	netif_rx(skb);
-+	return NET_XMIT_SUCCESS;
-+}
-+
-+
- /* called under rcu_read_lock() from netif_receive_skb */
- static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
- {
- 	const struct ethhdr *eth = eth_hdr(skb);
- 	const struct macvlan_port *port;
- 	const struct macvlan_dev *vlan;
--	struct net_device *dev;
- 
- 	port = rcu_dereference(skb->dev->macvlan_port);
- 	if (port == NULL)
- 		return skb;
- 
- 	if (is_multicast_ether_addr(eth->h_dest)) {
--		macvlan_broadcast(skb, port);
-+		macvlan_broadcast(skb, port, NULL);
- 		return skb;
- 	}
- 
-@@ -161,27 +191,43 @@ static struct sk_buff *macvlan_handle_frame(struct sk_buff *skb)
- 	if (vlan == NULL)
- 		return skb;
- 
--	dev = vlan->dev;
--	if (unlikely(!(dev->flags & IFF_UP))) {
--		kfree_skb(skb);
--		return NULL;
--	}
-+	macvlan_unicast(skb, vlan);
-+	return NULL;
-+}
- 
--	skb = skb_share_check(skb, GFP_ATOMIC);
--	if (skb == NULL) {
--		dev->stats.rx_errors++;
--		dev->stats.rx_dropped++;
--		return NULL;
--	}
-+static int macvlan_xmit_world(struct sk_buff *skb, struct net_device *dev)
-+{
-+	const struct macvlan_dev *vlan = netdev_priv(dev);
-+	__skb_push(skb, skb->data - skb_mac_header(skb));
-+	skb->dev = vlan->lowerdev;
-+	return dev_queue_xmit(skb);
-+}
- 
--	dev->stats.rx_bytes += skb->len + ETH_HLEN;
--	dev->stats.rx_packets++;
-+static int macvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
-+{
-+	const struct macvlan_dev *vlan = netdev_priv(dev);
-+	const struct macvlan_port *port = vlan->port;
-+	const struct macvlan_dev *dest;
-+	const struct ethhdr *eth;
- 
--	skb->dev = dev;
--	skb->pkt_type = PACKET_HOST;
-+	skb->protocol = eth_type_trans(skb, dev);
-+	eth = eth_hdr(skb);
- 
--	netif_rx(skb);
--	return NULL;
-+	skb_dst_drop(skb);
-+	skb->mark = 0;
-+	secpath_reset(skb);
-+	nf_reset(skb);
-+
-+	if (is_multicast_ether_addr(eth->h_dest)) {
-+		macvlan_broadcast(skb, port, dev);
-+		return macvlan_xmit_world(skb, dev);
-+	}
-+
-+	dest = macvlan_hash_lookup(port, eth->h_dest);
-+	if (dest)
-+		return macvlan_unicast(skb, dest);
-+
-+	return macvlan_xmit_world(skb, dev);
- }
- 
- static netdev_tx_t macvlan_start_xmit(struct sk_buff *skb,
-@@ -189,13 +235,10 @@ static netdev_tx_t macvlan_start_xmit(struct sk_buff *skb,
- {
- 	int i = skb_get_queue_mapping(skb);
- 	struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
--	const struct macvlan_dev *vlan = netdev_priv(dev);
- 	unsigned int len = skb->len;
- 	int ret;
- 
--	skb->dev = vlan->lowerdev;
--	ret = dev_queue_xmit(skb);
+-enum macvlan_type {
+-	MACVLAN_PRIVATE		= 1,
+-	MACVLAN_VEPA		= 2,
+-	MACVLAN_BRIDGE		= 4,
+-};
 -
-+	ret = macvlan_queue_xmit(skb, dev);
- 	if (likely(ret == NET_XMIT_SUCCESS)) {
- 		txq->tx_packets++;
- 		txq->tx_bytes += len;
+ struct macvlan_port {
+ 	struct net_device	*dev;
+ 	struct hlist_head	vlan_hash[MACVLAN_HASH_SIZE];
+@@ -51,7 +45,7 @@ struct macvlan_dev {
+ 	struct hlist_node	hlist;
+ 	struct macvlan_port	*port;
+ 	struct net_device	*lowerdev;
+-	enum macvlan_mode	mode;
++	enum ifla_macvlan_mode	mode;
+ };
+ 
+ 
+@@ -112,7 +106,7 @@ static int macvlan_addr_busy(const struct macvlan_port *port,
+ static void macvlan_broadcast(struct sk_buff *skb,
+ 			      const struct macvlan_port *port,
+ 			      struct net_device *src,
+-			      enum macvlan_mode mode)
++			      enum ifla_macvlan_mode mode)
+ {
+ 	const struct ethhdr *eth = eth_hdr(skb);
+ 	const struct macvlan_dev *vlan;
+@@ -553,6 +547,18 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[])
+ 		if (!is_valid_ether_addr(nla_data(tb[IFLA_ADDRESS])))
+ 			return -EADDRNOTAVAIL;
+ 	}
++
++	if (data && data[IFLA_MACVLAN_MODE]) {
++		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
++		switch (mode) {
++		case MACVLAN_MODE_PRIVATE:
++		case MACVLAN_MODE_VEPA:
++		case MACVLAN_MODE_BRIDGE:
++			break;
++		default:
++			return -EINVAL;
++		}
++	}
+ 	return 0;
+ }
+ 
+@@ -617,6 +623,13 @@ static int macvlan_newlink(struct net_device *dev,
+ 	vlan->dev      = dev;
+ 	vlan->port     = port;
+ 
++	vlan->mode     = MACVLAN_MODE_VEPA;
++	if (data && data[IFLA_MACVLAN_MODE]) {
++		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
++
++		vlan->mode     = mode;
++	}
++
+ 	err = register_netdevice(dev);
+ 	if (err < 0)
+ 		return err;
+@@ -638,6 +651,39 @@ static void macvlan_dellink(struct net_device *dev)
+ 		macvlan_port_destroy(port->dev);
+ }
+ 
++static int macvlan_changelink(struct net_device *dev,
++		struct nlattr *tb[], struct nlattr *data[])
++{
++	struct macvlan_dev *vlan = netdev_priv(dev);
++	if (data && data[IFLA_MACVLAN_MODE]) {
++		u32 mode = nla_get_u32(data[IFLA_MACVLAN_MODE]);
++		vlan->mode     = mode;
++	}
++
++	return 0;
++}
++
++static size_t macvlan_get_size(const struct net_device *dev)
++{
++	return nla_total_size(4);
++}
++
++static int macvlan_fill_info(struct sk_buff *skb,
++				const struct net_device *dev)
++{
++	struct macvlan_dev *vlan = netdev_priv(dev);
++
++	NLA_PUT_U32(skb, IFLA_MACVLAN_MODE, vlan->mode);	
++	return 0;
++
++nla_put_failure:
++	return -EMSGSIZE;
++}
++
++static const struct nla_policy macvlan_policy[IFLA_MACVLAN_MAX + 1] = {
++	[IFLA_MACVLAN_MODE] = { .type = NLA_U32 },
++};
++
+ static struct rtnl_link_ops macvlan_link_ops __read_mostly = {
+ 	.kind		= "macvlan",
+ 	.priv_size	= sizeof(struct macvlan_dev),
+@@ -646,6 +692,11 @@ static struct rtnl_link_ops macvlan_link_ops __read_mostly = {
+ 	.validate	= macvlan_validate,
+ 	.newlink	= macvlan_newlink,
+ 	.dellink	= macvlan_dellink,
++	.maxtype	= IFLA_MACVLAN_MAX,
++	.policy		= macvlan_policy,
++	.changelink	= macvlan_changelink,
++	.get_size	= macvlan_get_size,
++	.fill_info	= macvlan_fill_info,
+ };
+ 
+ static int macvlan_device_event(struct notifier_block *unused,
+diff --git a/include/linux/if_link.h b/include/linux/if_link.h
+index 176c518..ef70ebc 100644
+--- a/include/linux/if_link.h
++++ b/include/linux/if_link.h
+@@ -190,4 +190,19 @@ struct ifla_vlan_qos_mapping
+ 	__u32 to;
+ };
+ 
++/* MACVLAN section */
++enum {
++	IFLA_MACVLAN_UNSPEC,
++	IFLA_MACVLAN_MODE,
++	__IFLA_MACVLAN_MAX,
++};
++
++#define IFLA_MACVLAN_MAX (__IFLA_MACVLAN_MAX - 1)
++
++enum ifla_macvlan_mode {
++	MACVLAN_MODE_PRIVATE = 1, /* don't talk to other macvlans */
++	MACVLAN_MODE_VEPA    = 2, /* talk to other ports through ext bridge */
++	MACVLAN_MODE_BRIDGE  = 4, /* talk to bridge ports directly */
++};
++
+ #endif /* _LINUX_IF_LINK_H */
 -- 
 1.6.3.3
 
