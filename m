@@ -1,9 +1,13 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 17 Nov 2009 22:39:11 +0000
-Message-Id: <1258497551-25959-5-git-send-email-arnd@arndb.de>
-In-Reply-To: <1258497551-25959-1-git-send-email-arnd@arndb.de>
+Date: Tue, 17 Nov 2009 23:56:41 +0100
 References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
-Subject: [Bridge] [PATCH] iplink: add macvlan options for bridge mode
+In-Reply-To: <1258497551-25959-1-git-send-email-arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200911172356.41459.arnd@arndb.de>
+Subject: Re: [Bridge] [PATCH 0/3] macvlan: add vepa and bridge mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,184 +16,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>
+To: linux-kernel@vger.kernel.org, Jens Osterkamp <jens@linux.vnet.ibm.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, virtualization@lists.linux-foundation.org
 
-Macvlan can now optionally support forwarding between its
-ports, if they are in "bridge" mode. This adds support
-for this option to "ip link add", "ip link set" and "ip
--d link show".
+Sorry, I used the wrong address for the virtualization mailing list
+at first. Please correct this to <virtualization@lists.linux-foundation.org>
+when replying to the other mails.
 
-The default mode in the kernel is now "vepa" mode, meaning
-"virtual ethernet port aggregator". This mode is used
-together with the "hairpin" mode of an ethernet bridge
-that the parent of the macvlan device is connected to.
-All frames still get sent out to the external interface,
-but the adjacent bridge is able to send them back on
-the same wire in hairpin mode, so the macvlan ports
-are able to see each other, which the bridge can be
-configured to monitor and control traffic between
-all macvlan instances. Multicast traffic coming in
-from the external interface is checked for the source
-MAC address and only delivered to ports that have not
-yet seen it.
+For people only subscribed to virtualization, you can find the actual
+patches at
+http://patchwork.kernel.org/patch/60810/
+http://patchwork.kernel.org/patch/60811/
+http://patchwork.kernel.org/patch/60813/
+http://patchwork.kernel.org/patch/60814/
 
-In bridge mode, macvlan will send all multicast traffic
-to other interfaces that are also in bridge mode but
-not to those in vepa mode, which get them on the way
-back from the hairpin.
+	Arnd <><
 
-The third supported mode is "private", which prevents
-communication between macvlans even if the adjacent
-bridge is in hairpin mode. This behavior is closer to
-the original implementation of macvlan but stricly
-maintains isolation.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- include/linux/if_link.h |   15 ++++++++
- ip/Makefile             |    3 +-
- ip/iplink_macvlan.c     |   93 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 110 insertions(+), 1 deletions(-)
- create mode 100644 ip/iplink_macvlan.c
-
-diff --git a/include/linux/if_link.h b/include/linux/if_link.h
-index b0b9e8a..425c489 100644
---- a/include/linux/if_link.h
-+++ b/include/linux/if_link.h
-@@ -188,4 +188,19 @@ struct ifla_vlan_qos_mapping
- 	__u32 to;
- };
- 
-+/* MACVLAN section */
-+enum {
-+	IFLA_MACVLAN_UNSPEC,
-+	IFLA_MACVLAN_MODE,
-+	__IFLA_MACVLAN_MAX,
-+};
-+
-+enum ifla_macvlan_mode {
-+	MACVLAN_MODE_PRIVATE = 1, /* don't talk to other macvlans */
-+	MACVLAN_MODE_VEPA    = 2, /* talk to other ports through ext bridge */
-+	MACVLAN_MODE_BRIDGE  = 4, /* talk to bridge ports directly */
-+};
-+
-+#define IFLA_MACVLAN_MAX (__IFLA_MACVLAN_MAX - 1)
-+
- #endif /* _LINUX_IF_LINK_H */
-diff --git a/ip/Makefile b/ip/Makefile
-index 51914e8..46a9836 100644
---- a/ip/Makefile
-+++ b/ip/Makefile
-@@ -2,7 +2,8 @@ IPOBJ=ip.o ipaddress.o ipaddrlabel.o iproute.o iprule.o \
-     rtm_map.o iptunnel.o ip6tunnel.o tunnel.o ipneigh.o ipntable.o iplink.o \
-     ipmaddr.o ipmonitor.o ipmroute.o ipprefix.o \
-     ipxfrm.o xfrm_state.o xfrm_policy.o xfrm_monitor.o \
--    iplink_vlan.o link_veth.o link_gre.o iplink_can.o
-+    iplink_vlan.o link_veth.o link_gre.o iplink_can.o \
-+    iplink_macvlan.o
- 
- RTMONOBJ=rtmon.o
- 
-diff --git a/ip/iplink_macvlan.c b/ip/iplink_macvlan.c
-new file mode 100644
-index 0000000..307f559
---- /dev/null
-+++ b/ip/iplink_macvlan.c
-@@ -0,0 +1,93 @@
-+/*
-+ * iplink_vlan.c	VLAN device support
-+ *
-+ *              This program is free software; you can redistribute it and/or
-+ *              modify it under the terms of the GNU General Public License
-+ *              as published by the Free Software Foundation; either version
-+ *              2 of the License, or (at your option) any later version.
-+ *
-+ * Authors:     Patrick McHardy <kaber@trash.net>
-+ *		Arnd Bergmann <arnd@arndb.de>
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/socket.h>
-+#include <linux/if_link.h>
-+
-+#include "rt_names.h"
-+#include "utils.h"
-+#include "ip_common.h"
-+
-+static void explain(void)
-+{
-+	fprintf(stderr,
-+		"Usage: ... macvlan mode { private | vepa | bridge }\n"
-+	);
-+}
-+
-+static int mode_arg(void)
-+{
-+        fprintf(stderr, "Error: argument of \"mode\" must be \"private\", "
-+		"\"vepa\" or \"bridge\"\n");
-+        return -1;
-+}
-+
-+static int macvlan_parse_opt(struct link_util *lu, int argc, char **argv,
-+			  struct nlmsghdr *n)
-+{
-+	while (argc > 0) {
-+		if (matches(*argv, "mode") == 0) {
-+			__u32 mode = 0;
-+			NEXT_ARG();
-+
-+			if (strcmp(*argv, "private") == 0)
-+				mode = MACVLAN_MODE_PRIVATE;
-+			else if (strcmp(*argv, "vepa") == 0)
-+				mode = MACVLAN_MODE_VEPA;
-+			else if (strcmp(*argv, "bridge") == 0)
-+				mode = MACVLAN_MODE_BRIDGE;
-+			else 
-+				return mode_arg();
-+
-+			addattr32(n, 1024, IFLA_MACVLAN_MODE, mode);
-+		} else if (matches(*argv, "help") == 0) {
-+			explain();
-+			return -1;
-+		} else {
-+			fprintf(stderr, "macvlan: what is \"%s\"?\n", *argv);
-+			explain();
-+			return -1;
-+		}
-+		argc--, argv++;
-+	}
-+
-+	return 0;
-+}
-+
-+static void macvlan_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
-+{
-+	__u32 mode;
-+
-+	if (!tb)
-+		return;
-+
-+	if (!tb[IFLA_MACVLAN_MODE] ||
-+	    RTA_PAYLOAD(tb[IFLA_MACVLAN_MODE]) < sizeof(__u32))
-+		return;
-+
-+	mode = *(__u32 *)RTA_DATA(tb[IFLA_VLAN_ID]);
-+	fprintf(f, " mode %s ",
-+		  mode == MACVLAN_MODE_PRIVATE ? "private"
-+		: mode == MACVLAN_MODE_VEPA    ? "vepa"
-+		: mode == MACVLAN_MODE_BRIDGE  ? "bridge"
-+		:				 "unknown");
-+}
-+
-+struct link_util macvlan_link_util = {
-+	.id		= "macvlan",
-+	.maxattr	= IFLA_MACVLAN_MAX,
-+	.parse_opt	= macvlan_parse_opt,
-+	.print_opt	= macvlan_print_opt,
-+};
--- 
-1.6.3.3
+On Tuesday 17 November 2009, Arnd Bergmann wrote:
+> This is based on an earlier patch from Eric Biederman adding
+> forwarding between macvlans. I extended his approach to
+> allow the administrator to choose the mode for each macvlan,
+> and to implement a functional VEPA between macvlan.
+> 
+> Still missing from this is support for communication between
+> the lower device that the macvlans are based on. This would
+> be extremely useful but as others have found out before me
+> requires significant changes not only to macvlan but also
+> to the common transmit path.
+> 
+> I've seen one panic during testing this that I still need
+> to track down, but it generally does what is advertised.
+> I've tested VEPA operation with the hairpin support
+> added to the bridge driver by Anna Fischer.
+> 
+> My current plan is to submit this for inclusion in 2.6.33
+> when people are happy with it and I tracked down any
+> remaining bugs, and possibly to do the communication with
+> the lower device one release later.
+> 
+> 	Arnd <><
+> 
+> ---
+> 
+> Arnd Bergmann (3):
+>   macvlan: implement VEPA and private mode
+>   macvlan: export macvlan mode through netlink
+>   iplink: add macvlan options for bridge mode
+> 
+> Eric Biederman (1):
+>   macvlan: Reflect macvlan packets meant for other macvlan devices
+> 
+>  linux/drivers/net/macvlan.c   |  170 +++++++++++++++++++++++++++++++++-----
+>  linux/include/linux/if_link.h |   15 +++
+>  2 files changed, 161 insertions(+), 24 deletions(-)
+> 
+>  iproute2/include/linux/if_link.h |   15 +++
+>  iproute2/ip/Makefile             |    3 +-
+>  iproute2/ip/iplink_macvlan.c     |   93 ++++++++++++++++++
+>  3 files changed, 110 insertions(+), 1 deletions(-)
+>  create mode 100644 ip/iplink_macvlan.c
+> 
 
