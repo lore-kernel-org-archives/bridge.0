@@ -1,13 +1,14 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 17 Nov 2009 23:56:41 +0100
-References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
-In-Reply-To: <1258497551-25959-1-git-send-email-arnd@arndb.de>
+Message-ID: <4B03949D.4000908@gmail.com>
+Date: Wed, 18 Nov 2009 07:30:53 +0100
+From: Eric Dumazet <eric.dumazet@gmail.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200911172356.41459.arnd@arndb.de>
-Subject: Re: [Bridge] [PATCH 0/3] macvlan: add vepa and bridge mode
+References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
+	<1258497551-25959-2-git-send-email-arnd@arndb.de>
+In-Reply-To: <1258497551-25959-2-git-send-email-arnd@arndb.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH 1/3] macvlan: Reflect macvlan packets meant for
+ other macvlan devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,64 +17,88 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, Jens Osterkamp <jens@linux.vnet.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, virtualization@lists.linux-foundation.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>
 
-Sorry, I used the wrong address for the virtualization mailing list
-at first. Please correct this to <virtualization@lists.linux-foundation.org>
-when replying to the other mails.
+Arnd Bergmann a =E9crit :
+> From: Eric Biederman <ebiederm@xmission.com>
+>=20
+> Switch ports do not send packets back out the same port they came
+> in on.	This causes problems when using a macvlan device inside
+> of a network namespace as it becomes impossible to talk to
+> other macvlan devices.
 
-For people only subscribed to virtualization, you can find the actual
-patches at
-http://patchwork.kernel.org/patch/60810/
-http://patchwork.kernel.org/patch/60811/
-http://patchwork.kernel.org/patch/60813/
-http://patchwork.kernel.org/patch/60814/
+This patch is very welcome. I review it and found one oddity.
 
-	Arnd <><
-
-On Tuesday 17 November 2009, Arnd Bergmann wrote:
-> This is based on an earlier patch from Eric Biederman adding
-> forwarding between macvlans. I extended his approach to
-> allow the administrator to choose the mode for each macvlan,
-> and to implement a functional VEPA between macvlan.
-> 
-> Still missing from this is support for communication between
-> the lower device that the macvlans are based on. This would
-> be extremely useful but as others have found out before me
-> requires significant changes not only to macvlan but also
-> to the common transmit path.
-> 
-> I've seen one panic during testing this that I still need
-> to track down, but it generally does what is advertised.
-> I've tested VEPA operation with the hairpin support
-> added to the bridge driver by Anna Fischer.
-> 
-> My current plan is to submit this for inclusion in 2.6.33
-> when people are happy with it and I tracked down any
-> remaining bugs, and possibly to do the communication with
-> the lower device one release later.
-> 
-> 	Arnd <><
-> 
+>=20
+> Signed-off-by: Eric Biederman <ebiederm@xmission.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
-> 
-> Arnd Bergmann (3):
->   macvlan: implement VEPA and private mode
->   macvlan: export macvlan mode through netlink
->   iplink: add macvlan options for bridge mode
-> 
-> Eric Biederman (1):
->   macvlan: Reflect macvlan packets meant for other macvlan devices
-> 
->  linux/drivers/net/macvlan.c   |  170 +++++++++++++++++++++++++++++++++-----
->  linux/include/linux/if_link.h |   15 +++
->  2 files changed, 161 insertions(+), 24 deletions(-)
-> 
->  iproute2/include/linux/if_link.h |   15 +++
->  iproute2/ip/Makefile             |    3 +-
->  iproute2/ip/iplink_macvlan.c     |   93 ++++++++++++++++++
->  3 files changed, 110 insertions(+), 1 deletions(-)
->  create mode 100644 ip/iplink_macvlan.c
-> 
+> +static int macvlan_queue_xmit(struct sk_buff *skb, struct net_device *de=
+v)
+> +{
+> +	const struct macvlan_dev *vlan =3D netdev_priv(dev);
+> +	const struct macvlan_port *port =3D vlan->port;
+> +	const struct macvlan_dev *dest;
+> +	const struct ethhdr *eth;
+> =20
+> -	skb->dev =3D dev;
+> -	skb->pkt_type =3D PACKET_HOST;
+> +	skb->protocol =3D eth_type_trans(skb, dev);
+> +	eth =3D eth_hdr(skb);
+> =20
+> -	netif_rx(skb);
+> -	return NULL;
+> +	skb_dst_drop(skb);
 
+Why do you drop dst here ?
+
+It seems strange, since this driver specifically masks out IFF_XMIT_DST_REL=
+EASE
+in its macvlan_setup() :
+
+dev->priv_flags &=3D ~IFF_XMIT_DST_RELEASE;
+
+If we really want to drop dst, it could be done by caller, if IFF_XMIT_DST_=
+RELEASE
+was not masked in macvlan_setup().
+
+
+> +	skb->mark =3D 0;
+> +	secpath_reset(skb);
+> +	nf_reset(skb);
+> +
+> +	if (is_multicast_ether_addr(eth->h_dest)) {
+> +		macvlan_broadcast(skb, port, dev);
+> +		return macvlan_xmit_world(skb, dev);
+> +	}
+> +
+> +	dest =3D macvlan_hash_lookup(port, eth->h_dest);
+> +	if (dest)
+> +		return macvlan_unicast(skb, dest);
+> +
+> +	return macvlan_xmit_world(skb, dev);
+>  }
+
+
+# find net drivers/net|xargs grep -n IFF_XMIT_DST_RELEASE
+net/8021q/vlan_dev.c:837:       dev->priv_flags         &=3D ~IFF_XMIT_DST_=
+RELEASE;
+net/atm/clip.c:561:     dev->priv_flags &=3D ~IFF_XMIT_DST_RELEASE;
+net/core/dev.c:1778:            if (dev->priv_flags & IFF_XMIT_DST_RELEASE)
+net/core/dev.c:5287:    dev->priv_flags =3D IFF_XMIT_DST_RELEASE;
+net/ipv4/ip_gre.c:1236: dev->priv_flags         &=3D ~IFF_XMIT_DST_RELEASE;
+net/ipv4/ipip.c:717:    dev->priv_flags         &=3D ~IFF_XMIT_DST_RELEASE;
+net/ipv6/sit.c:1104:    dev->priv_flags        &=3D ~IFF_XMIT_DST_RELEASE;
+drivers/net/appletalk/ipddp.c:76:       dev->priv_flags &=3D ~IFF_XMIT_DST_=
+RELEASE;
+drivers/net/bonding/bond_main.c:4534:   bond_dev->priv_flags &=3D ~IFF_XMIT=
+_DST_RELEASE;
+drivers/net/eql.c:197:  dev->priv_flags        &=3D ~IFF_XMIT_DST_RELEASE;
+drivers/net/ifb.c:162:  dev->priv_flags &=3D ~IFF_XMIT_DST_RELEASE;
+drivers/net/loopback.c:174:     dev->priv_flags        &=3D ~IFF_XMIT_DST_R=
+ELEASE;
+drivers/net/macvlan.c:421:      dev->priv_flags        &=3D ~IFF_XMIT_DST_R=
+ELEASE;
+drivers/net/ppp_generic.c:1057: dev->priv_flags &=3D ~IFF_XMIT_DST_RELEASE;
+drivers/net/wan/hdlc_fr.c:1057: dev->priv_flags &=3D ~IFF_XMIT_DST_RELEASE;
