@@ -1,12 +1,14 @@
-Date: Wed, 18 Nov 2009 19:31:16 +1030
-From: Mark Smith <lk-netdev@lk-netdev.nosense.org>
-Message-ID: <20091118193116.76881dd9@opy.nosense.org>
-In-Reply-To: <1258497551-25959-1-git-send-email-arnd@arndb.de>
+MIME-Version: 1.0
+In-Reply-To: <1258497551-25959-2-git-send-email-arnd@arndb.de>
 References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 0/3] macvlan: add vepa and bridge mode
+	<1258497551-25959-2-git-send-email-arnd@arndb.de>
+Date: Wed, 18 Nov 2009 11:00:57 +0100
+Message-ID: <25e057c00911180200w6d732e29q3aba5f1b9d005cbd@mail.gmail.com>
+From: roel kluin <roel.kluin@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH 1/3] macvlan: Reflect macvlan packets meant for
+	other macvlan devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,63 +18,52 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@linux-foundation.com, Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Herbert, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, David Miller <davem@davemloft.net>, Anna
+Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>
 
-On Tue, 17 Nov 2009 22:39:07 +0000
-Arnd Bergmann <arnd@arndb.de> wrote:
+On Tue, Nov 17, 2009 at 11:39 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> From: Eric Biederman <ebiederm@xmission.com>
+>
+> Switch ports do not send packets back out the same port they came
+> in on. =A0This causes problems when using a macvlan device inside
+> of a network namespace as it becomes impossible to talk to
+> other macvlan devices.
+>
+> Signed-off-by: Eric Biederman <ebiederm@xmission.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-> This is based on an earlier patch from Eric Biederman adding
-> forwarding between macvlans. I extended his approach to
-> allow the administrator to choose the mode for each macvlan,
-> and to implement a functional VEPA between macvlan.
-> 
-> Still missing from this is support for communication between
-> the lower device that the macvlans are based on. This would
-> be extremely useful but as others have found out before me
-> requires significant changes not only to macvlan but also
-> to the common transmit path.
+I found a problem:
 
-If this means that the "children" macvlans can't communicate with their
-"parent" interface as though they were all attached to the same virtual
-ethernet segment, I think that is a reasonable limitation. On other
-networking equipment I've used, the moment "sub-interfaces"
-are created, their parent interface can't be used for any
-communications, only for setting link related parameters e.g. for
-ethernet interfaces, speed and duplex etc.
+> @@ -140,20 +145,45 @@ static void macvlan_broadcast(struct sk_buff *skb,
+> =A0 =A0 =A0 =A0}
+> =A0}
+>
+> +static int macvlan_unicast(struct sk_buff *skb, const struct macvlan_dev=
+ *dest)
+> +{
+> + =A0 =A0 =A0 struct net_device *dev =3D dest->dev;
+> +
+> + =A0 =A0 =A0 if (unlikely(!dev->flags & IFF_UP)) {
 
-> 
-> I've seen one panic during testing this that I still need
-> to track down, but it generally does what is advertised.
-> I've tested VEPA operation with the hairpin support
-> added to the bridge driver by Anna Fischer.
-> 
-> My current plan is to submit this for inclusion in 2.6.33
-> when people are happy with it and I tracked down any
-> remaining bugs, and possibly to do the communication with
-> the lower device one release later.
-> 
-> 	Arnd <><
-> 
-> ---
-> 
-> Arnd Bergmann (3):
->   macvlan: implement VEPA and private mode
->   macvlan: export macvlan mode through netlink
->   iplink: add macvlan options for bridge mode
-> 
-> Eric Biederman (1):
->   macvlan: Reflect macvlan packets meant for other macvlan devices
-> 
->  linux/drivers/net/macvlan.c   |  170 +++++++++++++++++++++++++++++++++-----
->  linux/include/linux/if_link.h |   15 +++
->  2 files changed, 161 insertions(+), 24 deletions(-)
-> 
->  iproute2/include/linux/if_link.h |   15 +++
->  iproute2/ip/Makefile             |    3 +-
->  iproute2/ip/iplink_macvlan.c     |   93 ++++++++++++++++++
->  3 files changed, 110 insertions(+), 1 deletions(-)
->  create mode 100644 ip/iplink_macvlan.c
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+parentheses are missing:
+
+if (unlikely(!(dev->flags & IFF_UP))) {
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree_skb(skb);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return NET_XMIT_DROP;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 skb =3D skb_share_check(skb, GFP_ATOMIC);
+> + =A0 =A0 =A0 if (!skb) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->stats.rx_errors++;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->stats.rx_dropped++;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return NET_XMIT_DROP;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dev->stats.rx_bytes +=3D skb->len + ETH_HLEN;
+> + =A0 =A0 =A0 dev->stats.rx_packets++;
+> +
+> + =A0 =A0 =A0 skb->dev =3D dev;
+> + =A0 =A0 =A0 skb->pkt_type =3D PACKET_HOST;
+> + =A0 =A0 =A0 netif_rx(skb);
+> + =A0 =A0 =A0 return NET_XMIT_SUCCESS;
+> +}
