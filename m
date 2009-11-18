@@ -1,12 +1,13 @@
-MIME-Version: 1.0
-In-Reply-To: <1258497551-25959-2-git-send-email-arnd@arndb.de>
 References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
 	<1258497551-25959-2-git-send-email-arnd@arndb.de>
-Date: Wed, 18 Nov 2009 11:00:57 +0100
-Message-ID: <25e057c00911180200w6d732e29q3aba5f1b9d005cbd@mail.gmail.com>
-From: roel kluin <roel.kluin@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+	<4B03949D.4000908@gmail.com> <200911181047.07974.arnd@arndb.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 18 Nov 2009 06:37:50 -0800
+In-Reply-To: <200911181047.07974.arnd@arndb.de> (Arnd Bergmann's message of
+	"Wed\, 18 Nov 2009 10\:47\:07 +0100")
+Message-ID: <m1pr7fdhkx.fsf@fess.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Subject: Re: [Bridge] [PATCH 1/3] macvlan: Reflect macvlan packets meant for
 	other macvlan devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,52 +19,45 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>
+Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Eric Dumazet <eric.dumazet@gmail.com>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, David Miller <davem@davemloft.net>
 
-On Tue, Nov 17, 2009 at 11:39 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> From: Eric Biederman <ebiederm@xmission.com>
+Arnd Bergmann <arnd@arndb.de> writes:
+
+> On Wednesday 18 November 2009, Eric Dumazet wrote:
+>> > -     skb->dev = dev;
+>> > -     skb->pkt_type = PACKET_HOST;
+>> > +     skb->protocol = eth_type_trans(skb, dev);
+>> > +     eth = eth_hdr(skb);
+>> >  
+>> > -     netif_rx(skb);
+>> > -     return NULL;
+>> > +     skb_dst_drop(skb);
+>> 
+>> Why do you drop dst here ?
+>> 
+>> It seems strange, since this driver specifically masks out IFF_XMIT_DST_RELEASE
+>> in its macvlan_setup() :
+>> 
+>> dev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
+>> 
+>> If we really want to drop dst, it could be done by caller, if IFF_XMIT_DST_RELEASE
+>> was not masked in macvlan_setup().
+>> 
 >
-> Switch ports do not send packets back out the same port they came
-> in on. =A0This causes problems when using a macvlan device inside
-> of a network namespace as it becomes impossible to talk to
-> other macvlan devices.
+> That must be my fault, it is the only change I did to Eric B's patch when
+> forward-porting to 2.6.32. The original patch did
 >
-> Signed-off-by: Eric Biederman <ebiederm@xmission.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-I found a problem:
-
-> @@ -140,20 +145,45 @@ static void macvlan_broadcast(struct sk_buff *skb,
-> =A0 =A0 =A0 =A0}
-> =A0}
+> 	skb->protocol = eth_type_trans(skb, dev);
+> 	eth = eth_hdr(skb);
+> 	dst_release(skb->dst);
+> 	skb->dst = NULL;
+> 	skb->mark = 0;
 >
-> +static int macvlan_unicast(struct sk_buff *skb, const struct macvlan_dev=
- *dest)
-> +{
-> + =A0 =A0 =A0 struct net_device *dev =3D dest->dev;
-> +
-> + =A0 =A0 =A0 if (unlikely(!dev->flags & IFF_UP)) {
+> and I tried to convert that in the same way that other drivers did, but I
+> have to admit that I did not understand the mechanics of IFF_XMIT_DST_RELEASE.
 
-parentheses are missing:
+Please copy and ideally share code with the veth driver for recycling a skb.
+There are bunch of little things you have to do to get it right.  As I recally
+I was missing a few details in my original patch.
 
-if (unlikely(!(dev->flags & IFF_UP))) {
-
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree_skb(skb);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return NET_XMIT_DROP;
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 skb =3D skb_share_check(skb, GFP_ATOMIC);
-> + =A0 =A0 =A0 if (!skb) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->stats.rx_errors++;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->stats.rx_dropped++;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return NET_XMIT_DROP;
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 dev->stats.rx_bytes +=3D skb->len + ETH_HLEN;
-> + =A0 =A0 =A0 dev->stats.rx_packets++;
-> +
-> + =A0 =A0 =A0 skb->dev =3D dev;
-> + =A0 =A0 =A0 skb->pkt_type =3D PACKET_HOST;
-> + =A0 =A0 =A0 netif_rx(skb);
-> + =A0 =A0 =A0 return NET_XMIT_SUCCESS;
-> +}
+Eric
