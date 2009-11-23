@@ -1,15 +1,9 @@
-References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
-	<200911181047.07974.arnd@arndb.de> <m1pr7fdhkx.fsf@fess.ebiederm.org>
-	<200911182332.56309.arnd@arndb.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 18 Nov 2009 15:55:38 -0800
-In-Reply-To: <200911182332.56309.arnd@arndb.de> (Arnd Bergmann's message of
-	"Wed\, 18 Nov 2009 23\:32\:56 +0000")
-Message-ID: <m1bpiz8k1x.fsf@fess.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Subject: Re: [Bridge] [PATCH 1/3] macvlan: Reflect macvlan packets meant for
-	other macvlan devices
+From: Radim Roska <radim.roska@gmail.com>
+Date: Mon, 23 Nov 2009 23:12:27 +0100
+Message-ID: <aa3710a80911231412p3e82dd05q7094c625efbb95f7@mail.gmail.com>
+Content-Type: multipart/alternative; boundary=0015175cae181e90b9047911207a
+Subject: [Bridge] weird question ? kvm virtual network and bunch of bridges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,39 +12,96 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Eric Dumazet <eric.dumazet@gmail.com>, Anna Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>, Edge Virtual Bridging <evb@yahoogroups.com>, David Miller <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-Arnd Bergmann <arnd@arndb.de> writes:
+--0015175cae181e90b9047911207a
+Content-Type: text/plain; charset=UTF-8
 
-> On Wednesday 18 November 2009 14:37:50 Eric W. Biederman wrote:
->> Arnd Bergmann <arnd@arndb.de> writes:
->> > On Wednesday 18 November 2009, Eric Dumazet wrote:
->> >> 
->> >> Why do you drop dst here ?
->> >> 
->> >> It seems strange, since this driver specifically masks out IFF_XMIT_DST_RELEASE
->> >> in its macvlan_setup() :
->> >> 
->> >> dev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
->
-> It seems that we should never drop dst then. We either forward the frame to
-> netif_rx or to dev_queue_xmit, and from how I read it now, we want to keep
-> the dst in both cases.
+Hello,
 
-When we loop back on our selves we certainly need to have dst clear because
-we don't know how to cache routes through multiple network namespaces.  It
-might be handy if we had those but that is a problem for another day.
+I have this very uncommon situation :). My diploma thesis will probably be
+playing with linux kernel in various networks. Currently I have little free
+time and limited computer resources -> only one laptop :). But I would like
+to do some profiling of kernel particularly of bridging part. For that i
+need network.
 
->> Please copy and ideally share code with the veth driver for recycling a skb.
->> There are bunch of little things you have to do to get it right.  As I recally
->> I was missing a few details in my original patch.
->
-> Are you thinking of something like the patch below? I haven't had the chance
-> to test this, but one thing it does is to handle the internal forwarding
-> differently from the receive path.
+So i have 2 virtual machines VPC1 and VPC2 (running debian)
 
-Yes.  That is a bit more sharing than I had anticipated, but it looks like
-it works.
+HOST - VPC1 - VPC2
 
-Eric
+VPC1 should act as bridge.
+HOST: tap0 interface
+VPC1:
+eth0 ~ tap1 on host
+eth1 ~ tap2 on host
+VPC2:
+eth0 ~ tap3 on host
+
+how to connect it? :) Well tap0 - tap1 is in br0 on host and tap2 + tap3 is
+on br1.
+
+VPC1 than has eth0 and eth1 in bridge also :).
+
+I know..it looks strange..but i thought its simplest :).
+
+But:
+
+1) although VPC2 is connected through br1 that has connection only with
+tap2=eth1 on VPC1..I can ping anything even when VPC1 has all interfaces
+down
+
+2) i dont see any loop in my "network" but anyway once i turn on br0
+without stp on VPC1, i got quite a serious perf problem - little storm i
+guess:).
+starting stp solves storm but disables eth0
+[ 3839.200640] br0: starting userspace STP failed, starting kernel STP
+[ 3839.201388] br0: topology change detected, sending tcn bpdu
+[ 3839.202117] br0: port 2(eth0) entering blocking state
+
+i does not matter if i have stp on HOST's br0/br1
+
+If someone would have time to help me with that I'll be very happy :). Its
+possible Im trying approach that is doomed to fail because i dont
+know/understsand something.
+
+Cheers,
+Radim
+
+--0015175cae181e90b9047911207a
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hello,<br clear=3D"all"><br>I have this very uncommon situation :). My dipl=
+oma thesis will probably be playing with linux kernel in various networks. =
+Currently I have little free time and limited computer resources -&gt; only=
+ one laptop :). But I would like to do some profiling of kernel particularl=
+y of bridging part. For that i need network.<br>
+
+<br>So i have 2 virtual machines VPC1 and VPC2 (running debian)<br><br>HOST=
+ - VPC1 - VPC2<br><br>VPC1 should act as bridge.<br>HOST: tap0 interface<br=
+>VPC1: <br>eth0 ~ tap1 on host<br>eth1 ~ tap2 on host<br>VPC2:<br>eth0 ~ ta=
+p3 on host<br>
+
+<br>how to connect it? :) Well tap0 - tap1 is in br0 on host and tap2 + tap=
+3 is on br1.<br><br>VPC1 than has eth0 and eth1 in bridge also :). <br><br>=
+I know..it looks strange..but i thought its simplest :).<br><br>But:<br>
+
+<br>1) although VPC2 is connected through br1 that has connection only with=
+ tap2=3Deth1 on VPC1..I can ping anything even when VPC1 has all interfaces=
+ down<br><br>2) i dont see any loop in my &quot;network&quot; but anyway on=
+ce i turn on br0=C2=A0 without stp on VPC1, i got quite a serious perf prob=
+lem - little storm i guess:). <br>
+
+starting stp solves storm but disables eth0<br>[ 3839.200640] br0: starting=
+ userspace STP failed, starting kernel STP<br>[ 3839.201388] br0: topology =
+change detected, sending tcn bpdu<br>[ 3839.202117] br0: port 2(eth0) enter=
+ing blocking state<br>
+
+<br>i does not matter if i have stp on HOST&#39;s br0/br1 <br><br>If someon=
+e would have time to help me with that I&#39;ll be very happy :). Its possi=
+ble Im trying approach that is doomed to fail because i dont know/understsa=
+nd something.<br>
+
+<br>Cheers,<br>Radim<br>
+
+--0015175cae181e90b9047911207a--
