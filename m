@@ -1,13 +1,12 @@
-Date: Thu, 26 Nov 2009 15:53:14 -0800 (PST)
-Message-Id: <20091126.155314.201869723.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4B0EAC29.60601@trash.net>
-References: <1259251631-11617-1-git-send-email-arnd@arndb.de>
-	<4B0EAC29.60601@trash.net>
+Date: Thu, 26 Nov 2009 18:11:54 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20091126181154.3a8b0d92@nehalam>
+In-Reply-To: <01d901ca6e81$e707e010$ab00a8c0@SERVER>
+References: <01d901ca6e81$e707e010$ab00a8c0@SERVER>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCHv3 0/4] macvlan: add vepa and bridge mode
+Subject: Re: [Bridge] Problem to install Bridge Utils
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +15,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: kaber@trash.net
-Cc: herbert@gondor.apana.org.au, eric.dumazet@gmail.com, anna.fischer@hp.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, lk-netdev@lk-netdev.nosense.org, gerhard.stenzel@de.ibm.com, arnd@arndb.de, ebiederm@xmission.com, jens@linux.vnet.ibm.com, pmullaney@novell.com, shemminger@vyatta.com
+To: Kenny Lee <kenny.lee@esmtt.com>
+Cc: bridge@linux-foundation.org
 
-From: Patrick McHardy <kaber@trash.net>
-Date: Thu, 26 Nov 2009 17:26:17 +0100
+On Thu, 26 Nov 2009 18:19:13 +0800
+"Kenny Lee" <kenny.lee@esmtt.com> wrote:
 
-> Arnd Bergmann wrote:
->> Version 2 description:
->> The patch to iproute2 has not changed, so I'm not including
->> it this time. Patch 4/4 (the netlink interface) is basically
->> unchanged as well but included for completeness.
->> 
->> The other changes have moved forward a bit, to the point where
->> I find them a lot cleaner and am more confident in the code
->> being ready for inclusion. The implementation hardly resembles
->> Erics original patch now, so I've dropped his signed-off-by.
->> 
->> Please take a look and ack if you are happy so we can get it
->> into 2.6.33.
+> Hi,
 > 
-> Looks good to me, nice work.
-> 
-> Acked-by: Patrick McHardy <kaber@trash.net>
-> 
-> for the entire series.
+> how to install bridge utils into linux system?
+> My system is opensuse 10.2
 
-All applied to net-next-2.6, thanks everyone!
+Bridge utilities are already in every major distro's repository, so install like
+regular software.
