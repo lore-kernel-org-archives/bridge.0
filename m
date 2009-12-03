@@ -1,5 +1,5 @@
-Message-Id: <4B17BFE5020000C70007C8C6@soto.provo.novell.com>
-Date: Thu, 03 Dec 2009 13:40:53 -0700
+Message-Id: <4B17C107020000C70007C8CE@soto.provo.novell.com>
+Date: Thu, 03 Dec 2009 13:45:43 -0700
 From: "Patrick Mullaney" <pmullaney@novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -18,29 +18,42 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: arnd@arndb.de
 Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, alacrityvm-devel@lists.sourceforge.net
 
-On Fri, 2009-11-27 at 23:14 +0100, Arnd Bergmann wrote:
+
+I hope I didn't confuse things by posting:
+
+netdevice: provide common routine for macvlan and vlan operstate
+management
+
+again. I offered to send that out patched against net-next-2.6 last
+week and I just got back to following up. I'm fine with you rolling
+them into your series too.
+
+Thanks.
+
+On Fri, 2009-11-27 at 23:19 +0100, Arnd Bergmann wrote:
 > On Friday 13 November 2009, Patrick Mullaney wrote:
-> >=20
-> > The macvlan driver didn't allow for creation/deletion of devices
-> > by other in-kernel modules. This patch provides common routines
-> > for both in-kernel and netlink based management. This patch
-> > also enables macvlan device support for gro for lower level
-> > devices that support gro.
+> > @@ -318,7 +318,7 @@ static struct lock_class_key macvlan_netdev_addr_lo=
+ck_key;
+> >  #define MACVLAN_FEATURES \
+> >         (NETIF_F_SG | NETIF_F_ALL_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAG=
+LIST | \
+> >          NETIF_F_GSO | NETIF_F_TSO | NETIF_F_UFO | NETIF_F_GSO_ROBUST =
+| \
+> > -        NETIF_F_TSO_ECN | NETIF_F_TSO6)
+> > +        NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO)
+> > =20
+> >  #define MACVLAN_STATE_MASK \
+> >         ((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
 >=20
-> I wonder if doing this way round is a good idea, why don't
-> you just use netlink to set up the endpoint device like
-> the current macvlan and macvtap do? I think doing it consistently
-> for all backends would be a significant advantage.
-
-sorry for the late response - I'm thinking about re-implementing
-this along the lines that you are talking about. Especially in light
-of your new configuration options. The reason(probably short sighted)
-for the previous approach was that the creation step was already being
-handled in our venet driver(but it doesn't have to be).
-
-Thanks for the suggestion.
-Patrick
-
+> This hunk looks like it should be a separate patch, because we will
+> want to have this independently of the rest. I have taken it into
+> a series I'm preparing for a new posting of macvtap based on the
+> current net-next tree with my bridge mode changes. I also have
+> your patch 1 (the fixed version) and 2 in there. It's currently
+> work in progress, but if you are interested, take a look at [1].
 >=20
 > 	Arnd <><
+>=20
+> [1] http://git.kernel.org/?p=3Dlinux/kernel/git/arnd/playground.git;a=3Ds=
+hortlog;h=3Drefs/heads/macvlan
 
