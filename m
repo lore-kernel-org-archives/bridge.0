@@ -1,12 +1,13 @@
-Message-ID: <4B1AA541.2030500@free.fr>
-Date: Sat, 05 Dec 2009 19:24:01 +0100
-From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+Message-ID: <4B1AA695.2090009@free.fr>
+Date: Sat, 05 Dec 2009 19:29:41 +0100
+From: =?UTF-8?B?Tmljb2xhcyBkZSBQZXNsb8O8YW4=?=
+ <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-References: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
-In-Reply-To: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com>
+In-Reply-To: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bridge - vlan - bond
+Subject: Re: [Bridge] how bridge interacts with tap ifaces?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,91 +16,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sander Klein <roedie@roedie.nl>
-Cc: Bridge <bridge@lists.linux-foundation.org>
+To: Radim Roska <radim.roska@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-Sander Klein wrote :
-> Hi list,
+Radim Roska wrote:
+> Hi,
 > 
-> I have a problem with using bonding, with vlans and bridging. I'm trying
-> to create the following situation:
+> few weeks ago I asked question that was probably not interesting for you.
 
-Can you please also describe what you try to achieve, and not only your setup ?
+I don't know for the other readers of this mailing list, but even after reading both posts twice, I 
+still don't understand what you are trying to do.
 
-What are the expected effects ?
+This might be the reason why you didn't received any answer for your first post.
 
-Your bonding setup (active-backup) will lead to one port enabled and one disabled.
-
-Why don't you simply use eth0.101 and eth1.101 as two ports of br101, and enable stp ?
-
-Enabling stp would achieve the same result : one port in forwarding state and one in the blocked state.
+Please, do not only focus on you setup, but also describe the expected effects.
 
 	Nicolas.
 
-> Network overview:
 > 
->                +------+
-> +--------+     |blade |
-> |        |-----|switch| eth0 +------+
-> |        |     |      |------|      |
-> |        |     +------+      |      |
-> | switch |                   | host |
-> |        |     +------+      |      |
-> |        |     |blade |------|      |
-> |        |-----|switch| eth1 +------+
-> +--------+     |      |
->                +------+
+> Now ill put it differently.
 > 
-> Situation on the host:
+> 2 computers - VPC and HOST
+> VPC has 2 eth0 and eth1 interfaces (on host tap1 and tap2)
+> HOST has 1 tap (tap0)
 > 
-> +----+
-> |eth0|------+
-> +----+      |
->          +-----+   +---------+   +-----+
->          |bond0|---|bond0.101|---|br101|
->          +-----+   +---------+   +-----+
-> +----+      |
-> |eth1|------+
-> +----+
+> HOST has br0 where tap0 and tap1 are bound
+> VPC has br0 where eth0 and eth1 are bound
 > 
+> tap1 has ip
+> br0 on VPC has ip
 > 
-> Now, as soon as the bridge comes up I get the error 'bond0.101: received
-> packet with  own address as source address'. This happens every time I
-> start a new sessioen to a host. Sniffing with tcpdump and wireshark on
-> br101 show all arp packets 2 times. I cannot figure out why this is
-> happening. When I create this situation without the bridge I do not get
-> duplicate traffic, so it's not coming from the network.
+> ping from VPC -> tap1:
 > 
-> My config is:
+> __ratelimit: 32575 callbacks suppressed
+> eth0: received packed with own address as source address
+> eth0: received packed with own address as source address
+> eth0: received packed with own address as source address
+> ...
 > 
-> auto bond0
-> iface bond0 inet manual
->         slaves eth0 eth1
->         bond_primary eth0
->         bond_mode active-backup
->         bond_miimon 100
+> infinity loop stopped by command to turn on stp on VPC. This blocks eth0 
+> -> port connected to bridge on HOST.
 > 
-> auto bond0.101
-> iface bond0.101 inet manual
+> No more problem with loop and VPC can actually ping HOST. Probably using 
+> eth1 which is not connected anywhere.
 > 
-> auto br0
-> iface br0 inet static
->         bridge_ports bond0.101
->         bridge_stp off
->         address 192.168.1.25
->         netmask 255.255.255.0
->         gateway 192.168.1.1
+> So I assume that once packet is somewhere on a tap interface in the 
+> HOST. Thus its not possible to do little complicated network because all 
+> taps create a loop no matter how user connects them in bridges...is that 
+> right?
 > 
-> I've tried this with the stock Debian Lenny kernel (2.6.26) and 2.6.32. Am
-> I doing something wrong here?
+> I've lost big amount of time trying to make this working...so please 
+> make sure i dont lost even more :))
 > 
-> Greets,
+> Thanks
+> Radim
 > 
-> Sander Klein
-> 
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
-> 
-
