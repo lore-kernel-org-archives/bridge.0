@@ -1,13 +1,13 @@
 MIME-Version: 1.0
-Date: Sat, 05 Dec 2009 20:47:19 +0100
-From: Sander Klein <roedie@roedie.nl>
-In-Reply-To: <4B1AA541.2030500@free.fr>
-References: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
-	<4B1AA541.2030500@free.fr>
-Message-ID: <b1701dff411230cfdd4137a1275ec32a@localhost>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] Bridge - vlan - bond
+In-Reply-To: <aa3710a80912060352p4848bc64xea6961d271877924@mail.gmail.com>
+References: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com> 
+	<4B1AA695.2090009@free.fr>
+	<aa3710a80912060352p4848bc64xea6961d271877924@mail.gmail.com>
+From: Radim Roska <radim.roska@gmail.com>
+Date: Sun, 6 Dec 2009 12:54:32 +0100
+Message-ID: <aa3710a80912060354o393dd7e1i281ab218ff8aabb1@mail.gmail.com>
+Content-Type: multipart/alternative; boundary=001517478340452600047a0e0247
+Subject: Re: [Bridge] how bridge interacts with tap ifaces?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,52 +16,102 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Nicolas_de_Peslo=C3=BCan?= <nicolas.2p.debian@free.fr>
-Cc: Bridge <bridge@lists.linux-foundation.org>
+To: =?UTF-8?Q?Nicolas_de_Peslo=C3=BCan?= <nicolas.2p.debian@free.fr>, bridge@lists.linux-foundation.org
 
-Hi,
+--001517478340452600047a0e0247
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> Can you please also describe what you try to achieve, and not only your
-> setup ?
-> 
-> What are the expected effects ?
+Hi :),
 
-Sorry, I will. What I am trying to achieve is high availability. The host
-I'm building this on will be a kvm host with virtual machines which runs
-the images from a nfsmount. I need to have multiple vlans on this host
-which are then bridged to the virtual machines. What I want is that if the
-switch connected to eth0 fails, all traffic will go through eth1. The final
-setup will be the following:
+sorry Nicolas, sending it again because last time i forgot to include bridg=
+e
+mailing list.
 
-+------+   +------+
-| core |---|blade |   +-----+
-|switch|   |switch|---|eth0 |
-+------+   +------+   |     |
-   |                  |Host |
-+------+   +------+   |     |
-| core |---|blade |---|eth1 |
-|switch|   |switch|   +-----+
-+------+   +------+
 
-> Your bonding setup (active-backup) will lead to one port enabled and one
-> disabled.
+> On Sat, Dec 5, 2009 at 7:29 PM, Nicolas de Peslo=C3=BCan <
+> nicolas.2p.debian@free.fr> wrote:
+>
+>>
+>> I don't know for the other readers of this mailing list, but even after
+>> reading both posts twice, I still don't understand what you are trying t=
+o
+>> do.
+>>
+>
+>> This might be the reason why you didn't received any answer for your fir=
+st
+>> post.
+>
+>
+ok..that could be the reason :)
 
-That's okay with me. I don't need the speed, only the redundancy. I could
-use alb or tlb but since I'm testing right now active-backup it easier.
 
-> Why don't you simply use eth0.101 and eth1.101 as two ports of br101,
-and
-> enable stp ?
+>
+>> Please, do not only focus on you setup, but also describe the expected
+>> effects.
+>>
+>
+>
+I want virtual PC to have working bridge from its eth0 and eth1 interfaces.
+Thats all :). Eth0 would be connected to host and eth1 e.g. to another
+virtual PC.
 
-Since the switches that connect to eth0 and eth1 have a crappy stp
-implementation (its a supermicro blade chassis) it's pain to get it
-working. Moreover, converging with stp is a bit slow. Bonding will do this
-in 100ms or faster while stp might take 30 seconds or so.
+I tried to explain problem in detail but maybe i just concealed this simple
+desire:)
 
-The setup works perfectly as long as I don't use bridging. But I need the
-bridging to get the network to the virtual machines.
 
-Greets,
 
-Sander Klein
 
+--=20
+Radim Ro=C5=A1ka
+
+--001517478340452600047a0e0247
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi :),<br><br>sorry Nicolas, sending it again because last time i forgot to=
+ include bridge mailing list.<br><div class=3D"gmail_quote"><div>=C2=A0</di=
+v><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204=
+, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+
+<div class=3D"gmail_quote"><div class=3D"im">On Sat, Dec 5, 2009 at 7:29 PM=
+, Nicolas de Peslo=C3=BCan <span dir=3D"ltr">&lt;<a href=3D"mailto:nicolas.=
+2p.debian@free.fr" target=3D"_blank">nicolas.2p.debian@free.fr</a>&gt;</spa=
+n> wrote:<br>
+
+<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
+204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<div><br></div>
+I don&#39;t know for the other readers of this mailing list, but even after=
+ reading both posts twice, I still don&#39;t understand what you are trying=
+ to do.<br></blockquote><blockquote class=3D"gmail_quote" style=3D"border-l=
+eft: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left:=
+ 1ex;">
+
+
+
+<br>
+This might be the reason why you didn&#39;t received any answer for your fi=
+rst post.</blockquote></div></div></blockquote><div><br><div><div class=3D"=
+im"><div><div><div>ok..that could be the reason :)=C2=A0 </div></div><br></=
+div>
+
+</div></div></div><blockquote class=3D"gmail_quote" style=3D"border-left: 1=
+px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"=
+><div class=3D"gmail_quote"><br><div class=3D"im"><blockquote class=3D"gmai=
+l_quote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0p=
+t 0pt 0.8ex; padding-left: 1ex;">
+
+
+
+<br>
+Please, do not only focus on you setup, but also describe the expected effe=
+cts.<br></blockquote></div><div><br></div></div></blockquote><div>=C2=A0</d=
+iv><div>I want virtual PC to have working bridge from its eth0 and eth1
+interfaces. Thats all :). Eth0 would be connected to host and eth1 e.g.
+to another virtual PC.<br><br>I  tried to explain problem in detail but may=
+be i just concealed this simple desire:)=C2=A0
+<br><br><br></div></div><br clear=3D"all"><br>-- <br>Radim Ro=C5=A1ka<br>
+
+--001517478340452600047a0e0247--
