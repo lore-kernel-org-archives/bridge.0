@@ -1,13 +1,12 @@
 MIME-Version: 1.0
-In-Reply-To: <aa3710a80912060352p4848bc64xea6961d271877924@mail.gmail.com>
-References: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com> 
-	<4B1AA695.2090009@free.fr>
-	<aa3710a80912060352p4848bc64xea6961d271877924@mail.gmail.com>
-From: Radim Roska <radim.roska@gmail.com>
-Date: Sun, 6 Dec 2009 12:54:32 +0100
-Message-ID: <aa3710a80912060354o393dd7e1i281ab218ff8aabb1@mail.gmail.com>
-Content-Type: multipart/alternative; boundary=001517478340452600047a0e0247
-Subject: Re: [Bridge] how bridge interacts with tap ifaces?
+In-Reply-To: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
+References: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
+Date: Sun, 6 Dec 2009 11:17:56 -0600
+Message-ID: <2e59e6970912060917j4790f521i6e50b17f92e9daff@mail.gmail.com>
+From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Bridge - vlan - bond
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,102 +15,118 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Nicolas_de_Peslo=C3=BCan?= <nicolas.2p.debian@free.fr>, bridge@lists.linux-foundation.org
+To: Sander Klein <roedie@roedie.nl>
+Cc: Bridge <bridge@lists.linux-foundation.org>
 
---001517478340452600047a0e0247
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-Hi :),
-
-sorry Nicolas, sending it again because last time i forgot to include bridg=
-e
-mailing list.
-
-
-> On Sat, Dec 5, 2009 at 7:29 PM, Nicolas de Peslo=C3=BCan <
-> nicolas.2p.debian@free.fr> wrote:
+On Sat, Dec 5, 2009 at 10:30 AM, Sander Klein <roedie@roedie.nl> wrote:
+> Hi list,
 >
->>
->> I don't know for the other readers of this mailing list, but even after
->> reading both posts twice, I still don't understand what you are trying t=
-o
->> do.
->>
+> I have a problem with using bonding, with vlans and bridging. I'm trying
+> to create the following situation:
 >
->> This might be the reason why you didn't received any answer for your fir=
-st
->> post.
+> Network overview:
+>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 +------+
+> +--------+ =C2=A0 =C2=A0 |blade |
+> | =C2=A0 =C2=A0 =C2=A0 =C2=A0|-----|switch| eth0 +------+
+> | =C2=A0 =C2=A0 =C2=A0 =C2=A0| =C2=A0 =C2=A0 | =C2=A0 =C2=A0 =C2=A0|-----=
+-| =C2=A0 =C2=A0 =C2=A0|
+> | =C2=A0 =C2=A0 =C2=A0 =C2=A0| =C2=A0 =C2=A0 +------+ =C2=A0 =C2=A0 =C2=
+=A0| =C2=A0 =C2=A0 =C2=A0|
+> | switch | =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ | host |
+> | =C2=A0 =C2=A0 =C2=A0 =C2=A0| =C2=A0 =C2=A0 +------+ =C2=A0 =C2=A0 =C2=
+=A0| =C2=A0 =C2=A0 =C2=A0|
+> | =C2=A0 =C2=A0 =C2=A0 =C2=A0| =C2=A0 =C2=A0 |blade |------| =C2=A0 =C2=
+=A0 =C2=A0|
+> | =C2=A0 =C2=A0 =C2=A0 =C2=A0|-----|switch| eth1 +------+
+> +--------+ =C2=A0 =C2=A0 | =C2=A0 =C2=A0 =C2=A0|
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 +------+
+>
+> Situation on the host:
+>
+> +----+
+> |eth0|------+
+> +----+ =C2=A0 =C2=A0 =C2=A0|
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 +-----+ =C2=A0 +---------+ =C2=A0 +-----+
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 |bond0|---|bond0.101|---|br101|
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 +-----+ =C2=A0 +---------+ =C2=A0 +-----+
+> +----+ =C2=A0 =C2=A0 =C2=A0|
+> |eth1|------+
+> +----+
 >
 >
-ok..that could be the reason :)
+> Now, as soon as the bridge comes up I get the error 'bond0.101: received
+> packet with =C2=A0own address as source address'. This happens every time=
+ I
+> start a new sessioen to a host. Sniffing with tcpdump and wireshark on
+> br101 show all arp packets 2 times. I cannot figure out why this is
+> happening. When I create this situation without the bridge I do not get
+> duplicate traffic, so it's not coming from the network.
+
+I have something very similar.  That message is a warning, not an
+error, and over a year of experience suggests that it can be safely
+ignored.
+
+(my actual setup is a firewall without enough ports to directly
+connect all attached networks -- the switch tags traffic with the
+particular port it arrives on and passes it to a trunk port, the linux
+box is connected to two such trunk ports in the active-backup bonding
+mode, and bridges all the VLANs together forcing the traffic through
+iptables/ebtables.  I don't think the warning occurs in this part of
+the configuration.  There's also a traffic shaper appliance with a
+history of unreliability between the firewall and the main internet
+gateway, stp is used to prefer to send traffic through the traffic
+shaper, but activate a direct link whenever the shaper fails.  On this
+second bridge I encounter the same warning you do, but not for arp
+traffic, only stp pdus which are periodically sent to check whether
+the shaper appliance is ok.  I guess the issue is that the shaper
+appliance passes pdus through unchanged, if it were doing stp
+processing then the pdus incoming to the linux box would not have the
+linux box's other vlan port as sender and not trigger the warning.)
+
+Are any of your VLANs transparently bridged together elsewhere in the netwo=
+rk?
+
+When you see the arp packet twice in wireshark, is it in the same VLAN
+both times?
+
+I believe you can also use some of the logging actions in iptables to
+list which physical port (of the bonding members) a particular packet
+arrived on.
 
 
 >
->> Please, do not only focus on you setup, but also describe the expected
->> effects.
->>
+> My config is:
 >
+> auto bond0
+> iface bond0 inet manual
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0slaves eth0 eth1
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0bond_primary eth0
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0bond_mode active-backup
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0bond_miimon 100
 >
-I want virtual PC to have working bridge from its eth0 and eth1 interfaces.
-Thats all :). Eth0 would be connected to host and eth1 e.g. to another
-virtual PC.
-
-I tried to explain problem in detail but maybe i just concealed this simple
-desire:)
-
-
-
-
---=20
-Radim Ro=C5=A1ka
-
---001517478340452600047a0e0247
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-Hi :),<br><br>sorry Nicolas, sending it again because last time i forgot to=
- include bridge mailing list.<br><div class=3D"gmail_quote"><div>=C2=A0</di=
-v><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204=
-, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-
-<div class=3D"gmail_quote"><div class=3D"im">On Sat, Dec 5, 2009 at 7:29 PM=
-, Nicolas de Peslo=C3=BCan <span dir=3D"ltr">&lt;<a href=3D"mailto:nicolas.=
-2p.debian@free.fr" target=3D"_blank">nicolas.2p.debian@free.fr</a>&gt;</spa=
-n> wrote:<br>
-
-<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
-204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-<div><br></div>
-I don&#39;t know for the other readers of this mailing list, but even after=
- reading both posts twice, I still don&#39;t understand what you are trying=
- to do.<br></blockquote><blockquote class=3D"gmail_quote" style=3D"border-l=
-eft: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left:=
- 1ex;">
-
-
-
-<br>
-This might be the reason why you didn&#39;t received any answer for your fi=
-rst post.</blockquote></div></div></blockquote><div><br><div><div class=3D"=
-im"><div><div><div>ok..that could be the reason :)=C2=A0 </div></div><br></=
-div>
-
-</div></div></div><blockquote class=3D"gmail_quote" style=3D"border-left: 1=
-px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"=
-><div class=3D"gmail_quote"><br><div class=3D"im"><blockquote class=3D"gmai=
-l_quote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0p=
-t 0pt 0.8ex; padding-left: 1ex;">
-
-
-
-<br>
-Please, do not only focus on you setup, but also describe the expected effe=
-cts.<br></blockquote></div><div><br></div></div></blockquote><div>=C2=A0</d=
-iv><div>I want virtual PC to have working bridge from its eth0 and eth1
-interfaces. Thats all :). Eth0 would be connected to host and eth1 e.g.
-to another virtual PC.<br><br>I  tried to explain problem in detail but may=
-be i just concealed this simple desire:)=C2=A0
-<br><br><br></div></div><br clear=3D"all"><br>-- <br>Radim Ro=C5=A1ka<br>
-
---001517478340452600047a0e0247--
+> auto bond0.101
+> iface bond0.101 inet manual
+>
+> auto br0
+> iface br0 inet static
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0bridge_ports bond0.101
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0bridge_stp off
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0address 192.168.1.25
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0netmask 255.255.255.0
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0gateway 192.168.1.1
+>
+> I've tried this with the stock Debian Lenny kernel (2.6.26) and 2.6.32. A=
+m
+> I doing something wrong here?
+>
+> Greets,
+>
+> Sander Klein
+>
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
+>
