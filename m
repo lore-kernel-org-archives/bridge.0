@@ -1,13 +1,15 @@
-Message-ID: <4B201D82.3060205@free.fr>
-Date: Wed, 09 Dec 2009 22:58:26 +0100
+Message-ID: <4B2022CF.4080909@free.fr>
+Date: Wed, 09 Dec 2009 23:21:03 +0100
 From: =?UTF-8?B?Tmljb2xhcyBkZSBQZXNsb8O8YW4=?=
  <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-References: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com>
-In-Reply-To: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] how bridge interacts with tap ifaces?
+References: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
+	<4B1AA541.2030500@free.fr>
+	<b1701dff411230cfdd4137a1275ec32a@localhost>
+In-Reply-To: <b1701dff411230cfdd4137a1275ec32a@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Bridge - vlan - bond
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,154 +18,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Radim Roska <radim.roska@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: Sander Klein <roedie@roedie.nl>
+Cc: Bridge <bridge@lists.linux-foundation.org>
 
-Radim Roska wrote:
+Sander Klein wrote:
 > Hi,
-
-Hi Radim,
-
-> few weeks ago I asked question that was probably not interesting for you.
 > 
-> Now ill put it differently.
+>> Can you please also describe what you try to achieve, and not only your
+>> setup ?
+>>
+>> What are the expected effects ?
 > 
-> 2 computers - VPC and HOST
-> VPC has 2 eth0 and eth1 interfaces (on host tap1 and tap2)
-> HOST has 1 tap (tap0)
+> Sorry, I will. What I am trying to achieve is high availability. The host
+> I'm building this on will be a kvm host with virtual machines which runs
+> the images from a nfsmount. I need to have multiple vlans on this host
+> which are then bridged to the virtual machines. What I want is that if the
+> switch connected to eth0 fails, all traffic will go through eth1. The final
+> setup will be the following:
 > 
-> HOST has br0 where tap0 and tap1 are bound
-> VPC has br0 where eth0 and eth1 are bound
+> +------+   +------+
+> | core |---|blade |   +-----+
+> |switch|   |switch|---|eth0 |
+> +------+   +------+   |     |
+>    |                  |Host |
+> +------+   +------+   |     |
+> | core |---|blade |---|eth1 |
+> |switch|   |switch|   +-----+
+> +------+   +------+
 > 
-> tap1 has ip
-> br0 on VPC has ip
-
-Here is what I understand from your last post:
-
-+----------------HOST-----------------------------+
-|                                                 |
-|                         ???? --tap0--+          |
-|                                      |          |
-|                                      |          |
-|                                      +--br0     |
-| +-----VPC-------------------+        |          |
-| |                           |        |          |
-| |                  +--eth0--|--tap1--+ ip here  |
-| |    ip here  br0--+        |                   |
-| |                  +--eth1--|--tap2             |
-| |                           |                   |
-| +---------------------------+                   |
-|                                                 |
-+-------------------------------------------------+
-
-Can you confirm ? Please extend and possibly fix this ascii art to include you whole setup.
-
-If this is correct, then, the first possible problem comes from the fact that you should not put an 
-ip on a member of a bridge but on the bridge itself. (br0 on HOST, not tap1 on HOST).
-
-Also, can you describe what you plan to do with tap2 on HOST and what process is managing the 
-user-space side of tap0 on HOST ? Is it another VM ?
-
-> ping from VPC -> tap1:
+>> Your bonding setup (active-backup) will lead to one port enabled and one
+>> disabled.
 > 
-> __ratelimit: 32575 callbacks suppressed
-> eth0: received packed with own address as source address
-> eth0: received packed with own address as source address
-> eth0: received packed with own address as source address
-> ...
+> That's okay with me. I don't need the speed, only the redundancy. I could
+> use alb or tlb but since I'm testing right now active-backup it easier.
 > 
-> infinity loop stopped by command to turn on stp on VPC. This blocks eth0 
-> -> port connected to bridge on HOST.
+>> Why don't you simply use eth0.101 and eth1.101 as two ports of br101,
+> and
+>> enable stp ?
 > 
-> No more problem with loop and VPC can actually ping HOST. Probably using 
-> eth1 which is not connected anywhere.
-> 
-> So I assume that once packet is somewhere on a tap interface in the 
-> HOST. Thus its not possible to do little complicated network because all 
-> taps create a loop no matter how user connects them in bridges...is that 
-> right?
+> Since the switches that connect to eth0 and eth1 have a crappy stp
+> implementation (its a supermicro blade chassis) it's pain to get it
+> working. Moreover, converging with stp is a bit slow. Bonding will do this
+> in 100ms or faster while stp might take 30 seconds or so.
 
-It is possible to do complicated network using VM and tap devices. Several tap devices are not 
-leaking between them. But, if your configuration end up with two bridges face to face (one in the VM 
-and one in the HOST) with two links between them, then you must enable stp on both bridge, in order 
-to allow the bridges to detect and "fix" the loop.
+If stp is a problem, you can try the rstp user-space implementation.
+> 
+> The setup works perfectly as long as I don't use bridging. But I need the
+> bridging to get the network to the virtual machines.
 
-'hope this help.
+You should consider using a VM software that does not require bridge to get the network to the VM 
+:-) (VirtualBox for example).
+
+Anyway, if we assume br101 is "duplicating" this packet in some way, let's try and figure out why.
+
+Can you please provide the output of the following commands:
+
+ip addr
+brctl show
+brctl showmacs br101
+cat /proc/net/bonding/bond0
 
 	Nicolas.
-
-> I've lost big amount of time trying to make this working...so please 
-> make sure i dont lost even more :))
-> 
-> Thanks
-> Radim
-> 
-> 
-> 
-> On Mon, Nov 23, 2009 at 11:12 PM, Radim Roska <radim.roska@gmail.com 
-> <mailto:radim.roska@gmail.com>> wrote:
-> 
->     Hello,
-> 
->     I have this very uncommon situation :). My diploma thesis will
->     probably be playing with linux kernel in various networks. Currently
->     I have little free time and limited computer resources -> only one
->     laptop :). But I would like to do some profiling of kernel
->     particularly of bridging part. For that i need network.
-> 
->     So i have 2 virtual machines VPC1 and VPC2 (running debian)
-> 
->     HOST - VPC1 - VPC2
-> 
->     VPC1 should act as bridge.
->     HOST: tap0 interface
->     VPC1:
->     eth0 ~ tap1 on host
->     eth1 ~ tap2 on host
->     VPC2:
->     eth0 ~ tap3 on host
-> 
->     how to connect it? :) Well tap0 - tap1 is in br0 on host and tap2 +
->     tap3 is on br1.
-> 
->     VPC1 than has eth0 and eth1 in bridge also :).
-> 
->     I know..it looks strange..but i thought its simplest :).
-> 
->     But:
-> 
->     1) although VPC2 is connected through br1 that has connection only
->     with tap2=eth1 on VPC1..I can ping anything even when VPC1 has all
->     interfaces down
-> 
->     2) i dont see any loop in my "network" but anyway once i turn on
->     br0  without stp on VPC1, i got quite a serious perf problem -
->     little storm i guess:).
->     starting stp solves storm but disables eth0
->     [ 3839.200640] br0: starting userspace STP failed, starting kernel STP
->     [ 3839.201388] br0: topology change detected, sending tcn bpdu
->     [ 3839.202117] br0: port 2(eth0) entering blocking state
-> 
->     i does not matter if i have stp on HOST's br0/br1
-> 
->     If someone would have time to help me with that I'll be very happy
->     :). Its possible Im trying approach that is doomed to fail because i
->     dont know/understsand something.
-> 
->     Cheers,
->     Radim
-> 
-> 
-> 
-> 
-> -- 
-> Radim Roška
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
-
