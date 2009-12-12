@@ -1,12 +1,14 @@
+Message-ID: <4B23CB4E.7060808@free.fr>
+Date: Sat, 12 Dec 2009 17:56:46 +0100
+From: =?UTF-8?B?Tmljb2xhcyBkZSBQZXNsb8O8YW4=?=
+ <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-In-Reply-To: <4B201D82.3060205@free.fr>
-References: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com> 
+References: <aa3710a80912050411k43417309r9989f7df0eed1010@mail.gmail.com>
 	<4B201D82.3060205@free.fr>
-From: Radim Roska <radim.roska@gmail.com>
-Date: Sat, 12 Dec 2009 16:23:01 +0100
-Message-ID: <aa3710a80912120723s86eaf30s41c2e730ebb216c7@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+	<aa3710a80912120723s86eaf30s41c2e730ebb216c7@mail.gmail.com>
+In-Reply-To: <aa3710a80912120723s86eaf30s41c2e730ebb216c7@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] how bridge interacts with tap ifaces?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -16,140 +18,299 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Nicolas_de_Peslo=C3=BCan?= <nicolas.2p.debian@free.fr>
+To: Radim Roska <radim.roska@gmail.com>
 Cc: bridge@lists.linux-foundation.org
 
-SGVsbG8gTmljb2xhcywKZmlyc3QgdGhhbmtzIGZvciB5b3VyIGFuc3dlciA6KS4gSSdtIGltcHJl
-c3NlZCB3aXRoIHlvdXIgYXNjaWkgYXJ0OikuClNvcnJ5IGZvciBteSBsYXRlIGFuc3dlciAsIGlt
-IGN1cnJlbnRseSBpbGwuCgpJJ3ZlIGNvbXBsZXRlZCB5b3VyIGFzY2lpIGFydCB0byBmaW5hbCBz
-Y2hlbWUgSSBpbnRlbmRlZCB0byBidWlsZCBmcm9tCnRoZSBmaXJzdCB0aW1lCgorLS0tLS0tLS0t
-LS0tLS0tLUhPU1QtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKfMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8CnzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIDEwLjAuMC4xIC0tdGFwMC0tK8KgwqDCoMKgwqDCoMKgwqDCoCB8CnzCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgIHwKfMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
-oMKgwqDCoMKgwqDCoMKgwqAgfAp8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKy0tYnIwwqDCoMKgwqAgfAp8
-ICstLS0tLVZQQzEtLS0tLS0tLS0tLS0tLS0tLS0rwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDC
-oMKgwqDCoCB8CnwgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqAgfAp8IHzCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICstLWV0aDAtLXwtLXRhcDEtLSvCoMKgwqDCoMKg
-wqDCoMKgwqAgfAp8IHzCoMKgwqAgaXAgaGVyZcKgIGJyMC0tK8KgwqDCoMKgwqDCoMKgIHzCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAp8IHzCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgICstLWV0aDEtLXwtLXRhcDItLSvCoMKgwqDCoMKgwqDCoMKgwqAgfAp8
-IHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
-oMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgIHwKfCArLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tK8KgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqAgfAp8wqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgKy0tYnIxwqDCoMKgwqAgfAp8ICstLS0tLVZQQzItLS0tLS0tLS0tLS0tLS0tLS0r
-wqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoCB8CnwgfMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgIHzCoMKg
-wqDCoMKgwqDCoMKgwqAgfAp8IHzCoMKgwqDCoMKgwqDCoMKgIDEwLjAuMC4yICstLWV0aDAtLXwt
-LXRhcDMtLSvCoMKgwqDCoMKgwqDCoMKgwqAgfAp8IHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgfAp8ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwKKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0rCgoKSSBhbSByZWFsbHkgbm90IHN1cmUgbm93LCBidXQgSSB3b3Vs
-ZCBzYXkgdGhlcmUgaXMgbm8gbG9vcCBpbiB0aGVyZQo6Ly4gQnV0IGUuZy4gVlBDMiBjYW4gcGlu
-ZyB0YXAwIGFsdGhvdWdoIFZQQzEgYnJpZGdlIGlzIG5vdApjb25maWd1cmVkLiBJcyB0aGUgcHJv
-YmxlbSB0YWh0IHRhcDAgaXMgdXNlZCBkaXJlY3RseT8gU2hvdWxkIEkgc3RhcnQKYW5vdGhlciBW
-UEMgdGhlcmUgPwoKVGhhbmsgeW91IHZlcnkgbXVjaAoKUmFkaW0KCk9uIFdlZCwgRGVjIDksIDIw
-MDkgYXQgMTA6NTggUE0sIE5pY29sYXMgZGUgUGVzbG/DvGFuCjxuaWNvbGFzLjJwLmRlYmlhbkBm
-cmVlLmZyPiB3cm90ZToKPgo+IFJhZGltIFJvc2thIHdyb3RlOgo+Pgo+PiBIaSwKPgo+IEhpIFJh
-ZGltLAo+Cj4+IGZldyB3ZWVrcyBhZ28gSSBhc2tlZCBxdWVzdGlvbiB0aGF0IHdhcyBwcm9iYWJs
-eSBub3QgaW50ZXJlc3RpbmcgZm9yIHlvdS4KPj4KPj4gTm93IGlsbCBwdXQgaXQgZGlmZmVyZW50
-bHkuCj4+Cj4+IDIgY29tcHV0ZXJzIC0gVlBDIGFuZCBIT1NUCj4+IFZQQyBoYXMgMiBldGgwIGFu
-ZCBldGgxIGludGVyZmFjZXMgKG9uIGhvc3QgdGFwMSBhbmQgdGFwMikKPj4gSE9TVCBoYXMgMSB0
-YXAgKHRhcDApCj4+Cj4+IEhPU1QgaGFzIGJyMCB3aGVyZSB0YXAwIGFuZCB0YXAxIGFyZSBib3Vu
-ZAo+PiBWUEMgaGFzIGJyMCB3aGVyZSBldGgwIGFuZCBldGgxIGFyZSBib3VuZAo+Pgo+PiB0YXAx
-IGhhcyBpcAo+PiBicjAgb24gVlBDIGhhcyBpcAo+Cj4gSGVyZSBpcyB3aGF0IEkgdW5kZXJzdGFu
-ZCBmcm9tIHlvdXIgbGFzdCBwb3N0Ogo+Cj4gKy0tLS0tLS0tLS0tLS0tLS1IT1NULS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4gfCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB8Cj4gfCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCA/Pz8/IC0tdGFwMC0tKyDCoCDCoCDCoCDCoCDCoHwK
-PiB8IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgfCDCoCDCoCDCoCDCoCDCoHwKPiB8IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgfCDCoCDCoCDCoCDCoCDCoHwKPiB8IMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgKy0tYnIwIMKgIMKg
-IHwKPiB8ICstLS0tLVZQQy0tLS0tLS0tLS0tLS0tLS0tLS0rIMKgIMKgIMKgIMKgfCDCoCDCoCDC
-oCDCoCDCoHwKPiB8IHwgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfCDC
-oCDCoCDCoCDCoHwgwqAgwqAgwqAgwqAgwqB8Cj4gfCB8IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgKy0tZXRoMC0tfC0tdGFwMS0tKyBpcCBoZXJlIMKgfAo+IHwgfCDCoCDCoGlwIGhlcmUgwqBi
-cjAtLSsgwqAgwqAgwqAgwqB8IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHwKPiB8IHwgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqArLS1ldGgxLS18LS10YXAyIMKgIMKgIMKgIMKgIMKgIMKg
-IHwKPiB8IHwgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCB8Cj4gfCArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKyDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB8Cj4gfCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB8Cj4gKy0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4KPiBDYW4geW91
-IGNvbmZpcm0gPyBQbGVhc2UgZXh0ZW5kIGFuZCBwb3NzaWJseSBmaXggdGhpcyBhc2NpaSBhcnQg
-dG8gaW5jbHVkZSB5b3Ugd2hvbGUgc2V0dXAuCj4KPiBJZiB0aGlzIGlzIGNvcnJlY3QsIHRoZW4s
-IHRoZSBmaXJzdCBwb3NzaWJsZSBwcm9ibGVtIGNvbWVzIGZyb20gdGhlIGZhY3QgdGhhdCB5b3Ug
-c2hvdWxkIG5vdCBwdXQgYW4gaXAgb24gYSBtZW1iZXIgb2YgYSBicmlkZ2UgYnV0IG9uIHRoZSBi
-cmlkZ2UgaXRzZWxmLiAoYnIwIG9uIEhPU1QsIG5vdCB0YXAxIG9uIEhPU1QpLgo+Cj4gQWxzbywg
-Y2FuIHlvdSBkZXNjcmliZSB3aGF0IHlvdSBwbGFuIHRvIGRvIHdpdGggdGFwMiBvbiBIT1NUIGFu
-ZCB3aGF0IHByb2Nlc3MgaXMgbWFuYWdpbmcgdGhlIHVzZXItc3BhY2Ugc2lkZSBvZiB0YXAwIG9u
-IEhPU1QgPyBJcyBpdCBhbm90aGVyIFZNID8KPgo+PiBwaW5nIGZyb20gVlBDIC0+IHRhcDE6Cj4+
-Cj4+IF9fcmF0ZWxpbWl0OiAzMjU3NSBjYWxsYmFja3Mgc3VwcHJlc3NlZAo+PiBldGgwOiByZWNl
-aXZlZCBwYWNrZWQgd2l0aCBvd24gYWRkcmVzcyBhcyBzb3VyY2UgYWRkcmVzcwo+PiBldGgwOiBy
-ZWNlaXZlZCBwYWNrZWQgd2l0aCBvd24gYWRkcmVzcyBhcyBzb3VyY2UgYWRkcmVzcwo+PiBldGgw
-OiByZWNlaXZlZCBwYWNrZWQgd2l0aCBvd24gYWRkcmVzcyBhcyBzb3VyY2UgYWRkcmVzcwo+PiAu
-Li4KPj4KPj4gaW5maW5pdHkgbG9vcCBzdG9wcGVkIGJ5IGNvbW1hbmQgdG8gdHVybiBvbiBzdHAg
-b24gVlBDLiBUaGlzIGJsb2NrcyBldGgwIC0+IHBvcnQgY29ubmVjdGVkIHRvIGJyaWRnZSBvbiBI
-T1NULgo+Pgo+PiBObyBtb3JlIHByb2JsZW0gd2l0aCBsb29wIGFuZCBWUEMgY2FuIGFjdHVhbGx5
-IHBpbmcgSE9TVC4gUHJvYmFibHkgdXNpbmcgZXRoMSB3aGljaCBpcyBub3QgY29ubmVjdGVkIGFu
-eXdoZXJlLgo+Pgo+PiBTbyBJIGFzc3VtZSB0aGF0IG9uY2UgcGFja2V0IGlzIHNvbWV3aGVyZSBv
-biBhIHRhcCBpbnRlcmZhY2UgaW4gdGhlIEhPU1QuIFRodXMgaXRzIG5vdCBwb3NzaWJsZSB0byBk
-byBsaXR0bGUgY29tcGxpY2F0ZWQgbmV0d29yayBiZWNhdXNlIGFsbCB0YXBzIGNyZWF0ZSBhIGxv
-b3Agbm8gbWF0dGVyIGhvdyB1c2VyIGNvbm5lY3RzIHRoZW0gaW4gYnJpZGdlcy4uLmlzIHRoYXQg
-cmlnaHQ/Cj4KPiBJdCBpcyBwb3NzaWJsZSB0byBkbyBjb21wbGljYXRlZCBuZXR3b3JrIHVzaW5n
-IFZNIGFuZCB0YXAgZGV2aWNlcy4gU2V2ZXJhbCB0YXAgZGV2aWNlcyBhcmUgbm90IGxlYWtpbmcg
-YmV0d2VlbiB0aGVtLiBCdXQsIGlmIHlvdXIgY29uZmlndXJhdGlvbiBlbmQgdXAgd2l0aCB0d28g
-YnJpZGdlcyBmYWNlIHRvIGZhY2UgKG9uZSBpbiB0aGUgVk0gYW5kIG9uZSBpbiB0aGUgSE9TVCkg
-d2l0aCB0d28gbGlua3MgYmV0d2VlbiB0aGVtLCB0aGVuIHlvdSBtdXN0IGVuYWJsZSBzdHAgb24g
-Ym90aCBicmlkZ2UsIGluIG9yZGVyIHRvIGFsbG93IHRoZSBicmlkZ2VzIHRvIGRldGVjdCBhbmQg
-ImZpeCIgdGhlIGxvb3AuCj4KPiAnaG9wZSB0aGlzIGhlbHAuCj4KPiDCoCDCoCDCoCDCoE5pY29s
-YXMuCj4KPj4gSSd2ZSBsb3N0IGJpZyBhbW91bnQgb2YgdGltZSB0cnlpbmcgdG8gbWFrZSB0aGlz
-IHdvcmtpbmcuLi5zbyBwbGVhc2UgbWFrZSBzdXJlIGkgZG9udCBsb3N0IGV2ZW4gbW9yZSA6KSkK
-Pj4KPj4gVGhhbmtzCj4+IFJhZGltCj4+Cj4+Cj4+Cj4+IE9uIE1vbiwgTm92IDIzLCAyMDA5IGF0
-IDExOjEyIFBNLCBSYWRpbSBSb3NrYSA8cmFkaW0ucm9za2FAZ21haWwuY29tIDxtYWlsdG86cmFk
-aW0ucm9za2FAZ21haWwuY29tPj4gd3JvdGU6Cj4+Cj4+IMKgIMKgSGVsbG8sCj4+Cj4+IMKgIMKg
-SSBoYXZlIHRoaXMgdmVyeSB1bmNvbW1vbiBzaXR1YXRpb24gOikuIE15IGRpcGxvbWEgdGhlc2lz
-IHdpbGwKPj4gwqAgwqBwcm9iYWJseSBiZSBwbGF5aW5nIHdpdGggbGludXgga2VybmVsIGluIHZh
-cmlvdXMgbmV0d29ya3MuIEN1cnJlbnRseQo+PiDCoCDCoEkgaGF2ZSBsaXR0bGUgZnJlZSB0aW1l
-IGFuZCBsaW1pdGVkIGNvbXB1dGVyIHJlc291cmNlcyAtPiBvbmx5IG9uZQo+PiDCoCDCoGxhcHRv
-cCA6KS4gQnV0IEkgd291bGQgbGlrZSB0byBkbyBzb21lIHByb2ZpbGluZyBvZiBrZXJuZWwKPj4g
-wqAgwqBwYXJ0aWN1bGFybHkgb2YgYnJpZGdpbmcgcGFydC4gRm9yIHRoYXQgaSBuZWVkIG5ldHdv
-cmsuCj4+Cj4+IMKgIMKgU28gaSBoYXZlIDIgdmlydHVhbCBtYWNoaW5lcyBWUEMxIGFuZCBWUEMy
-IChydW5uaW5nIGRlYmlhbikKPj4KPj4gwqAgwqBIT1NUIC0gVlBDMSAtIFZQQzIKPj4KPj4gwqAg
-wqBWUEMxIHNob3VsZCBhY3QgYXMgYnJpZGdlLgo+PiDCoCDCoEhPU1Q6IHRhcDAgaW50ZXJmYWNl
-Cj4+IMKgIMKgVlBDMToKPj4gwqAgwqBldGgwIH4gdGFwMSBvbiBob3N0Cj4+IMKgIMKgZXRoMSB+
-IHRhcDIgb24gaG9zdAo+PiDCoCDCoFZQQzI6Cj4+IMKgIMKgZXRoMCB+IHRhcDMgb24gaG9zdAo+
-Pgo+PiDCoCDCoGhvdyB0byBjb25uZWN0IGl0PyA6KSBXZWxsIHRhcDAgLSB0YXAxIGlzIGluIGJy
-MCBvbiBob3N0IGFuZCB0YXAyICsKPj4gwqAgwqB0YXAzIGlzIG9uIGJyMS4KPj4KPj4gwqAgwqBW
-UEMxIHRoYW4gaGFzIGV0aDAgYW5kIGV0aDEgaW4gYnJpZGdlIGFsc28gOikuCj4+Cj4+IMKgIMKg
-SSBrbm93Li5pdCBsb29rcyBzdHJhbmdlLi5idXQgaSB0aG91Z2h0IGl0cyBzaW1wbGVzdCA6KS4K
-Pj4KPj4gwqAgwqBCdXQ6Cj4+Cj4+IMKgIMKgMSkgYWx0aG91Z2ggVlBDMiBpcyBjb25uZWN0ZWQg
-dGhyb3VnaCBicjEgdGhhdCBoYXMgY29ubmVjdGlvbiBvbmx5Cj4+IMKgIMKgd2l0aCB0YXAyPWV0
-aDEgb24gVlBDMS4uSSBjYW4gcGluZyBhbnl0aGluZyBldmVuIHdoZW4gVlBDMSBoYXMgYWxsCj4+
-IMKgIMKgaW50ZXJmYWNlcyBkb3duCj4+Cj4+IMKgIMKgMikgaSBkb250IHNlZSBhbnkgbG9vcCBp
-biBteSAibmV0d29yayIgYnV0IGFueXdheSBvbmNlIGkgdHVybiBvbgo+PiDCoCDCoGJyMCDCoHdp
-dGhvdXQgc3RwIG9uIFZQQzEsIGkgZ290IHF1aXRlIGEgc2VyaW91cyBwZXJmIHByb2JsZW0gLQo+
-PiDCoCDCoGxpdHRsZSBzdG9ybSBpIGd1ZXNzOikuCj4+IMKgIMKgc3RhcnRpbmcgc3RwIHNvbHZl
-cyBzdG9ybSBidXQgZGlzYWJsZXMgZXRoMAo+PiDCoCDCoFsgMzgzOS4yMDA2NDBdIGJyMDogc3Rh
-cnRpbmcgdXNlcnNwYWNlIFNUUCBmYWlsZWQsIHN0YXJ0aW5nIGtlcm5lbCBTVFAKPj4gwqAgwqBb
-IDM4MzkuMjAxMzg4XSBicjA6IHRvcG9sb2d5IGNoYW5nZSBkZXRlY3RlZCwgc2VuZGluZyB0Y24g
-YnBkdQo+PiDCoCDCoFsgMzgzOS4yMDIxMTddIGJyMDogcG9ydCAyKGV0aDApIGVudGVyaW5nIGJs
-b2NraW5nIHN0YXRlCj4+Cj4+IMKgIMKgaSBkb2VzIG5vdCBtYXR0ZXIgaWYgaSBoYXZlIHN0cCBv
-biBIT1NUJ3MgYnIwL2JyMQo+Pgo+PiDCoCDCoElmIHNvbWVvbmUgd291bGQgaGF2ZSB0aW1lIHRv
-IGhlbHAgbWUgd2l0aCB0aGF0IEknbGwgYmUgdmVyeSBoYXBweQo+PiDCoCDCoDopLiBJdHMgcG9z
-c2libGUgSW0gdHJ5aW5nIGFwcHJvYWNoIHRoYXQgaXMgZG9vbWVkIHRvIGZhaWwgYmVjYXVzZSBp
-Cj4+IMKgIMKgZG9udCBrbm93L3VuZGVyc3RzYW5kIHNvbWV0aGluZy4KPj4KPj4gwqAgwqBDaGVl
-cnMsCj4+IMKgIMKgUmFkaW0KPj4KPj4KPj4KPj4KPj4gLS0KPj4gUmFkaW0gUm/FoWthCj4+Cj4+
-Cj4+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLQo+Pgo+PiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwo+PiBCcmlkZ2UgbWFpbGluZyBsaXN0Cj4+IEJyaWRnZUBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwo+PiBodHRwczovL2xpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vYnJpZGdlCj4KCgoKLS0KUmFkaW0gUm/FoWthCg==
+Radim Roska wrote:
+
+Hi Radim,
+
+> first thanks for your answer :). I'm impressed with your ascii art:).
+
+Art is designed to be impressive ! :-D
+
+> Sorry for my late answer , im currently ill.
+
+> I've completed your ascii art to final scheme I intended to build from
+> the first time
+> 
+> +----------------HOST-----------------------------+
+> |                                                 |
+> |                     10.0.0.1 --tap0--+          |
+> |                                      |          |
+> |                                      |          |
+> |                                      +--br0     |
+> | +-----VPC1------------------+        |          |
+> | |                           |        |          |
+> | |                  +--eth0--|--tap1--+          |
+> | |    ip here  br0--+        |                   |
+> | |                  +--eth1--|--tap2--+          |
+> | |                           |        |          |
+> | +---------------------------+        |          |
+> |                                      +--br1     |
+> | +-----VPC2------------------+        |          |
+> | |                           |        |          |
+> | |         10.0.0.2 +--eth0--|--tap3--+          |
+> | |                           |                   |
+> | +---------------------------+                   |
+> +-------------------------------------------------+
+
+If your thesis focus on profiling the bridge code, I would suggest you reduce the number of 
+intermediate elements down to the lowest possible level.
+
+ From my point of view, HOST/br0 is not required. You can configure the ip address of HOST/tap0 on 
+HOST/tap1 instead and remove HOST/br0 and HOST/tap0.
+
++----------------HOST-----------------------------+
+| +-----VPC1------------------+                   |
+| |                           |                   |
+| |                  +--eth0--|--tap1-- 10.0.0.1  |
+| |    ip here  br0--+        |                   |
+| |                  +--eth1--|--tap2--+          |
+| |                           |        |          |
+| +---------------------------+        |          |
+|                                      +--br1     |
+| +-----VPC2------------------+        |          |
+| |                           |        |          |
+| |         10.0.0.2 +--eth0--|--tap3--+          |
+| |                           |                   |
+| +---------------------------+                   |
++-------------------------------------------------+
+
+Also, the tap devices are not leaking, but there are other potential leaking problems:
+
+Until HOST/br1 know the right port to use to forward packets for a given mac address, it will 
+forward the packet to all ports of the bridge. So, packets received from HOST/tap3, targeted at 
+10.0.0.1, will be forwarded to HOST/tap2 AND to HOST/br1. If HOST has IP forwarding enabled (see 
+/proc/sys/net/ipv4/ip_forward), then it might accept packets for 10.0.0.1 on HOST/br1, even if this 
+IP address is setup on a different interface of HOST. You should use tcpdump or wireshark on br1 to 
+watch what is received on this interface.
+
+I'don't know if your VM software allow for such things, but the perfect configuration would be a 
+"direct" link between VPC1 and VPC2, through a non-HOST network system.
+
+For example, VirtualBox VM software provide such "direct" link, called "internal network".
+
++----------------HOST-----------------------------+
+| +-----VPC1------------------+                   |
+| |                           |                   |
+| |                  +--eth0--|--tap1-- 10.0.0.1  |
+| |    ip here  br0--+        |                   |
+| |                  +--eth1--|--+                |
+| |                           |  |                |
+| +---------------------------+  |                |
+|                                |                |
+| +-----VPC2------------------+  |                |
+| |                           |  |                |
+| |         10.0.0.2 +--eth0--|--+                |
+| |                           |                   |
+| +---------------------------+                   |
++-------------------------------------------------+
+
+And if such a "direct" link feature is available, then the perfect configuration for your test would 
+be the following, which would give a totally isolated test environment.
+
++----------------HOST-----------------------------+
+| +-----VPC3------------------+                   |
+| |                           |                   |
+| |         10.0.0.1 +--eth0--|--+                |
+| |                           |  |                |
+| +---------------------------+  |                |
+|                                |                |
+| +-----VPC1------------------+  |                |
+| |                           |  |                |
+| |                  +--eth0--|--+                |
+| |             br0--+        |                   |
+| |                  +--eth1--|--+                |
+| |                           |  |                |
+| +---------------------------+  |                |
+|                                |                |
+| +-----VPC2------------------+  |                |
+| |                           |  |                |
+| |         10.0.0.2 +--eth0--|--+                |
+| |                           |                   |
+| +---------------------------+                   |
++-------------------------------------------------+
+
+With this configuration, you would be able to test the bridge code in a close to transparent way and 
+even enhance the numbers of "clients" for the bridge (up to 8, in the case of VirtualBox).
+
+And if stp or rstp is something you would like to play with, you can build two bridges with a loop.
+
++----------------HOST-------------------------------------------------------+
+| +-----VPC3------------------+                                             |
+| |                           |                                             |
+| |         10.0.0.1 +--eth0--|-------+                                     |
+| |                           |       |                                     |
+| +---------------------------+       |                                     |
+|                                     |                                     |
+| +-----VPC1------------------+       |  +-----------VPC4-----------------+ |
+| |                           |       |  |                                | |
+| |                           |       +--|--eth2--+                       | |
+| |                  +--eth0--|----------|--eth1--+                       | |
+| |             br0--+        |          |        +--br0                  | |
+| |                  +--eth1--|----------|--eth0--+                       | |
+| |                  +--eth2--|--+       |                                | |
+| |                           |  |       |                                | |
+| +---------------------------+  |       +--------------------------------+ |
+|                                |                                          |
+| +-----VPC2------------------+  |                                          |
+| |                           |  |                                          |
+| |         10.0.0.2 +--eth0--|--+                                          |
+| |                           |                                             |
+| +---------------------------+                                             |
++---------------------------------------------------------------------------+
+
+'hope this helps.
+
+	Nicolas.
+
+> I am really not sure now, but I would say there is no loop in there
+> :/. But e.g. VPC2 can ping tap0 although VPC1 bridge is not
+> configured. Is the problem taht tap0 is used directly? Should I start
+> another VPC there ?
+> 
+> Thank you very much
+> 
+> Radim
+> 
+> On Wed, Dec 9, 2009 at 10:58 PM, Nicolas de Pesloüan
+> <nicolas.2p.debian@free.fr> wrote:
+>> Radim Roska wrote:
+>>> Hi,
+>> Hi Radim,
+>>
+>>> few weeks ago I asked question that was probably not interesting for you.
+>>>
+>>> Now ill put it differently.
+>>>
+>>> 2 computers - VPC and HOST
+>>> VPC has 2 eth0 and eth1 interfaces (on host tap1 and tap2)
+>>> HOST has 1 tap (tap0)
+>>>
+>>> HOST has br0 where tap0 and tap1 are bound
+>>> VPC has br0 where eth0 and eth1 are bound
+>>>
+>>> tap1 has ip
+>>> br0 on VPC has ip
+>> Here is what I understand from your last post:
+>>
+>> +----------------HOST-----------------------------+
+>> |                                                 |
+>> |                         ???? --tap0--+          |
+>> |                                      |          |
+>> |                                      |          |
+>> |                                      +--br0     |
+>> | +-----VPC-------------------+        |          |
+>> | |                           |        |          |
+>> | |                  +--eth0--|--tap1--+ ip here  |
+>> | |    ip here  br0--+        |                   |
+>> | |                  +--eth1--|--tap2             |
+>> | |                           |                   |
+>> | +---------------------------+                   |
+>> |                                                 |
+>> +-------------------------------------------------+
+>>
+>> Can you confirm ? Please extend and possibly fix this ascii art to include you whole setup.
+>>
+>> If this is correct, then, the first possible problem comes from the fact that you should not put an ip on a member of a bridge but on the bridge itself. (br0 on HOST, not tap1 on HOST).
+>>
+>> Also, can you describe what you plan to do with tap2 on HOST and what process is managing the user-space side of tap0 on HOST ? Is it another VM ?
+>>
+>>> ping from VPC -> tap1:
+>>>
+>>> __ratelimit: 32575 callbacks suppressed
+>>> eth0: received packed with own address as source address
+>>> eth0: received packed with own address as source address
+>>> eth0: received packed with own address as source address
+>>> ...
+>>>
+>>> infinity loop stopped by command to turn on stp on VPC. This blocks eth0 -> port connected to bridge on HOST.
+>>>
+>>> No more problem with loop and VPC can actually ping HOST. Probably using eth1 which is not connected anywhere.
+>>>
+>>> So I assume that once packet is somewhere on a tap interface in the HOST. Thus its not possible to do little complicated network because all taps create a loop no matter how user connects them in bridges...is that right?
+>> It is possible to do complicated network using VM and tap devices. Several tap devices are not leaking between them. But, if your configuration end up with two bridges face to face (one in the VM and one in the HOST) with two links between them, then you must enable stp on both bridge, in order to allow the bridges to detect and "fix" the loop.
+>>
+>> 'hope this help.
+>>
+>>        Nicolas.
+>>
+>>> I've lost big amount of time trying to make this working...so please make sure i dont lost even more :))
+>>>
+>>> Thanks
+>>> Radim
+>>>
+>>>
+>>>
+>>> On Mon, Nov 23, 2009 at 11:12 PM, Radim Roska <radim.roska@gmail.com <mailto:radim.roska@gmail.com>> wrote:
+>>>
+>>>    Hello,
+>>>
+>>>    I have this very uncommon situation :). My diploma thesis will
+>>>    probably be playing with linux kernel in various networks. Currently
+>>>    I have little free time and limited computer resources -> only one
+>>>    laptop :). But I would like to do some profiling of kernel
+>>>    particularly of bridging part. For that i need network.
+>>>
+>>>    So i have 2 virtual machines VPC1 and VPC2 (running debian)
+>>>
+>>>    HOST - VPC1 - VPC2
+>>>
+>>>    VPC1 should act as bridge.
+>>>    HOST: tap0 interface
+>>>    VPC1:
+>>>    eth0 ~ tap1 on host
+>>>    eth1 ~ tap2 on host
+>>>    VPC2:
+>>>    eth0 ~ tap3 on host
+>>>
+>>>    how to connect it? :) Well tap0 - tap1 is in br0 on host and tap2 +
+>>>    tap3 is on br1.
+>>>
+>>>    VPC1 than has eth0 and eth1 in bridge also :).
+>>>
+>>>    I know..it looks strange..but i thought its simplest :).
+>>>
+>>>    But:
+>>>
+>>>    1) although VPC2 is connected through br1 that has connection only
+>>>    with tap2=eth1 on VPC1..I can ping anything even when VPC1 has all
+>>>    interfaces down
+>>>
+>>>    2) i dont see any loop in my "network" but anyway once i turn on
+>>>    br0  without stp on VPC1, i got quite a serious perf problem -
+>>>    little storm i guess:).
+>>>    starting stp solves storm but disables eth0
+>>>    [ 3839.200640] br0: starting userspace STP failed, starting kernel STP
+>>>    [ 3839.201388] br0: topology change detected, sending tcn bpdu
+>>>    [ 3839.202117] br0: port 2(eth0) entering blocking state
+>>>
+>>>    i does not matter if i have stp on HOST's br0/br1
+>>>
+>>>    If someone would have time to help me with that I'll be very happy
+>>>    :). Its possible Im trying approach that is doomed to fail because i
+>>>    dont know/understsand something.
+>>>
+>>>    Cheers,
+>>>    Radim
+>>>
+>>>
+>>>
+>>>
+>>> --
+>>> Radim Roška
+>>>
+>>>
+>>> ------------------------------------------------------------------------
+>>>
+>>> _______________________________________________
+>>> Bridge mailing list
+>>> Bridge@lists.linux-foundation.org
+>>> https://lists.linux-foundation.org/mailman/listinfo/bridge
+> 
+> 
+> 
+> --
+> Radim Roška
+
