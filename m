@@ -1,15 +1,13 @@
-Message-ID: <4B2022CF.4080909@free.fr>
-Date: Wed, 09 Dec 2009 23:21:03 +0100
-From: =?UTF-8?B?Tmljb2xhcyBkZSBQZXNsb8O8YW4=?=
- <nicolas.2p.debian@free.fr>
+Date: Sat, 12 Dec 2009 16:41:12 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-ID: <20091212084112.GA8948@gondor.apana.org.au>
+References: <1259862720-28432-1-git-send-email-arnd@arndb.de>
+	<1259862720-28432-3-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
-References: <7a0b4b1b5dc484f5e0c2f619d4bfb804@localhost>
-	<4B1AA541.2030500@free.fr>
-	<b1701dff411230cfdd4137a1275ec32a@localhost>
-In-Reply-To: <b1701dff411230cfdd4137a1275ec32a@localhost>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bridge - vlan - bond
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1259862720-28432-3-git-send-email-arnd@arndb.de>
+Subject: Re: [Bridge] [RFC] macvlan: add tap device backend
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,64 +16,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sander Klein <roedie@roedie.nl>
-Cc: Bridge <bridge@lists.linux-foundation.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Edge Virtual Bridging <evb@yahoogroups.com>, "Michael S. Tsirkin" <mst@redhat.com>, "Fischer,
+	Anna" <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Or Gerlitz <ogerlitz@voltaire.com>, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org
 
-Sander Klein wrote:
-> Hi,
-> 
->> Can you please also describe what you try to achieve, and not only your
->> setup ?
->>
->> What are the expected effects ?
-> 
-> Sorry, I will. What I am trying to achieve is high availability. The host
-> I'm building this on will be a kvm host with virtual machines which runs
-> the images from a nfsmount. I need to have multiple vlans on this host
-> which are then bridged to the virtual machines. What I want is that if the
-> switch connected to eth0 fails, all traffic will go through eth1. The final
-> setup will be the following:
-> 
-> +------+   +------+
-> | core |---|blade |   +-----+
-> |switch|   |switch|---|eth0 |
-> +------+   +------+   |     |
->    |                  |Host |
-> +------+   +------+   |     |
-> | core |---|blade |---|eth1 |
-> |switch|   |switch|   +-----+
-> +------+   +------+
-> 
->> Your bonding setup (active-backup) will lead to one port enabled and one
->> disabled.
-> 
-> That's okay with me. I don't need the speed, only the redundancy. I could
-> use alb or tlb but since I'm testing right now active-backup it easier.
-> 
->> Why don't you simply use eth0.101 and eth1.101 as two ports of br101,
-> and
->> enable stp ?
-> 
-> Since the switches that connect to eth0 and eth1 have a crappy stp
-> implementation (its a supermicro blade chassis) it's pain to get it
-> working. Moreover, converging with stp is a bit slow. Bonding will do this
-> in 100ms or faster while stp might take 30 seconds or so.
+On Thu, Dec 03, 2009 at 06:52:00PM +0100, Arnd Bergmann wrote:
+> This is a second prototype of a new interface into the network
+> stack, to eventually replace tun/tap and the bridge driver
+> in certain virtual machine setups. The code has changed
+> significantly, but the goals still remain.
 
-If stp is a problem, you can try the rstp user-space implementation.
-> 
-> The setup works perfectly as long as I don't use bridging. But I need the
-> bridging to get the network to the virtual machines.
+The idea looks pretty sound to me.
+ 
+> I'm posting this mainly to solicit feedback. Not sure how
+> chances for integration into 2.6.33 are, given that the merge
+> window is opening already.
 
-You should consider using a VM software that does not require bridge to get the network to the VM 
-:-) (VirtualBox for example).
+It's way too late for 2.6.33.  But the earlier this becomes ready
+then the earlier it can go into linux-next.
 
-Anyway, if we assume br101 is "duplicating" this packet in some way, let's try and figure out why.
-
-Can you please provide the output of the following commands:
-
-ip addr
-brctl show
-brctl showmacs br101
-cat /proc/net/bonding/bond0
-
-	Nicolas.
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
