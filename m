@@ -1,11 +1,14 @@
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 18 Dec 2009 14:45:07 +0100
+References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
+	<1258497551-25959-5-git-send-email-arnd@arndb.de>
+In-Reply-To: <1258497551-25959-5-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
-In-Reply-To: <2e59e6970912151006v2d8c1b34ua34aff0a6a66c16c@mail.gmail.com>
-Message-ID: <00504502c76d525f97047ac8bb01@google.com>
-Date: Tue, 15 Dec 2009 18:41:01 +0000
-From: jhautbois@gmail.com
-Content-Type: multipart/alternative; boundary=00504502c76d525f7e047ac8bbfe
-Subject: [Bridge] =?iso-8859-1?q?Re=A0=3ARe=3A_Re_=3ARe=3A__Bridging_parti?=
-	=?iso-8859-1?q?ally_=28rx_eth0_-=3E_tx_eth1=29?=
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200912181445.07756.arnd@arndb.de>
+Subject: Re: [Bridge] [PATCH] iplink: add macvlan options for bridge mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,50 +17,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>, jhautbois@gmail.com
-Cc: bridge@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, Anna Fischer <anna.fischer@hp.com>
+Cc: virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, "Eric W. Biederman" <ebiederm@xmission.com>, Jens Osterkamp <jens@linux.vnet.ibm.com>, Patrick Mullaney <pmullaney@novell.com>, Stephen Hemminger <shemminger@vyatta.com>
 
---00504502c76d525f7e047ac8bbfe
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed; delsp=yes
-Content-Transfer-Encoding: base64
+Ping!
 
-TGUgLCAicmljaGFyZHZvaWd0QGdtYWlsLmNvbSIgPHJpY2hhcmR2b2lndEBnbWFpbC5jb20+IGEg
-6WNyaXQgOg0KPiBPbiBUdWUsIERlYyAxNSwgMjAwOSBhdCAxMDozNiBBTSwgamhhdXRib2lzQGdt
-YWlsLmNvbT4gd3JvdGU6DQoNCj4gPj4gZWJ0YWJsZXMgY2FuIHNlbGVjdCB3aGljaCB0cmFmZmlj
-IGdldHMgYnJpZGdlZC4NCg0KPiA+Pg0KDQo+ID4gVGhua3MgeW91IGZvciBhbnN3ZXJpbmcuDQoN
-Cj4gPiBBRkFJSywgZWJ0YWJsZXMgd29ya3MgbGlrZSBpcHRhYmxlcywgYnV0IHdpdGhpbiB0aGUg
-TDIgbGF5ZXIgPw0KDQo+ID4gVGhpcyBtZWFucyBJIGNvdWxkIGV2ZW50dWFsbHkgc2VuZCBvbmx5
-IElQIChhbmQgVkxBTikgdHJhZmZpYyB0byB0aGUgIA0KPiBob3N0LA0KDQo+ID4gYW5kIGZvcndh
-cmQgZXZlcnl0aGluZyBlbHNlID8NCg0KDQoNCj4gWWVzLCBvciB5b3UgY2FuIG1hdGNoIGJhc2Vk
-IG9uIGlucHV0IGludGVyZmFjZSwgd2hpY2ggc29sdmVzIHlvdXINCg0KPiBvcmlnaW5hbCBwcm9i
-bGVtIGlmIHlvdSByZXBocmFzZSB0aGUgcXVlc3Rpb24gImhvdyBjYW4gSSBicmlkZ2UgYWxsDQoN
-Cj4gcGFja2V0cyBjb21pbmcgaW4gZnJvbSBldGgwIGFuZCBub25lIGNvbWluZyBpbiBmcm9tIGV0
-aDE/Ig0KDQoNCj4gbG9vayBhdCB0aGUgLWkgYW5kIC0tcGh5c2Rldi1pbiBvcHRpb25zDQoNCg0K
-SSB3b3VsZCBsaWtlIHRvIGRvIHNvbWV0aGluZyBsaWtlIHRoYXQgOg0KDQotLT58IGV0aDAgfC0t
-LS0tLS1JUC0tPnwgSG9zdCB8LS0tPlNvbWUgdHJlYXRtZW50IGJhc2VkIG9uIHNvY2tldHMNCnwg
-fC0tLS0tLUV2ZXJ5dGhpbmcgZWxzZS0tLS0tLT58IGV0aDF8LS0+DQoNCi0tPnwgZXRoMSB8IC0t
-LT4gfCBldGgwIHwNCg0KSSB0aGluayBJIGNhbiBkbyB0aGF0IG9ubHkgd2l0aCAtaSBhbmQgLXBo
-eXNkZXYtaW4uDQpJIHdpbGwgdGhpbmsgYWJvdXQgaXQuDQoNCkpNDQo=
---00504502c76d525f7e047ac8bbfe
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Stephen, I submitted this twice but never heard back from you.
+The changes to macvlan have been merged in 2.6.33-rc1, so it
+would be good to have this included as well.
 
-Le , &quot;richardvoigt@gmail.com&quot; &lt;richardvoigt@gmail.com&gt; a =
-=E9crit=A0:<br />&gt; On Tue, Dec 15, 2009 at 10:36 AM, =A0jhautbois@gmail.=
-com&gt; wrote:<br />&gt; <br />&gt; &gt;&gt; ebtables can select which traf=
-fic gets bridged.<br />&gt; <br />&gt; &gt;&gt;<br />&gt; <br />&gt; &gt; T=
-hnks you for answering.<br />&gt; <br />&gt; &gt; AFAIK, ebtables works lik=
-e iptables, but within the L2 layer ?<br />&gt; <br />&gt; &gt; This means =
-I could eventually send only IP (and VLAN) traffic to the host,<br />&gt; <=
-br />&gt; &gt; and forward everything else ?<br />&gt; <br />&gt; <br />&gt=
-; <br />&gt; Yes, or you can match based on input interface, which solves y=
-our<br />&gt; <br />&gt; original problem if you rephrase the question &quo=
-t;how can I bridge all<br />&gt; <br />&gt; packets coming in from eth0 and=
- none coming in from eth1?&quot;<br />&gt; <br />&gt; <br />&gt; look at th=
-e -i and --physdev-in options<br />&gt; <br /><br />I would like to do some=
-thing like that :<br /><br />--&gt;| eth0 |-------IP--&gt;| Host |---&gt;So=
-me treatment based on sockets<br />    |        |------Everything else-----=
--&gt;| eth1|--&gt;<br /><br />--&gt;| eth1 | ---&gt; | eth0 |<br /><br />I =
-think I can do that only with -i and -physdev-in.<br />I will think about i=
-t.<br /><br />JM
---00504502c76d525f7e047ac8bbfe--
+	Arnd
+
+On Tuesday 17 November 2009, Arnd Bergmann wrote:
+> Macvlan can now optionally support forwarding between its
+> ports, if they are in "bridge" mode. This adds support
+> for this option to "ip link add", "ip link set" and "ip
+> -d link show".
+> 
+> The default mode in the kernel is now "vepa" mode, meaning
+> "virtual ethernet port aggregator". This mode is used
+> together with the "hairpin" mode of an ethernet bridge
+> that the parent of the macvlan device is connected to.
+> All frames still get sent out to the external interface,
+> but the adjacent bridge is able to send them back on
+> the same wire in hairpin mode, so the macvlan ports
+> are able to see each other, which the bridge can be
+> configured to monitor and control traffic between
+> all macvlan instances. Multicast traffic coming in
+> from the external interface is checked for the source
+> MAC address and only delivered to ports that have not
+> yet seen it.
+> 
+> In bridge mode, macvlan will send all multicast traffic
+> to other interfaces that are also in bridge mode but
+> not to those in vepa mode, which get them on the way
+> back from the hairpin.
+> 
+> The third supported mode is "private", which prevents
+> communication between macvlans even if the adjacent
+> bridge is in hairpin mode. This behavior is closer to
+> the original implementation of macvlan but stricly
+> maintains isolation.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
