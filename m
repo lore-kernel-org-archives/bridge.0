@@ -1,14 +1,12 @@
-Date: Sat, 26 Dec 2009 11:24:11 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20091226112411.0ab90bd4@nehalam>
-In-Reply-To: <200911271157.25748.linux-kernel-owner@vger.kernel.org>
-References: <1258497551-25959-1-git-send-email-arnd@arndb.de>
-	<200911271157.25748.linux-kernel-owner@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH,
- resend] iproute2/iplink: add macvlan options for bridge mode
+MIME-Version: 1.0
+In-Reply-To: <4B323EE8.6000206@pandora.be>
+References: <00163600ce448e8674047b65d7bf@google.com>
+	<4B323EE8.6000206@pandora.be>
+Date: Mon, 4 Jan 2010 12:35:36 +0100
+Message-ID: <8cad0aa1001040335n78bd9f2tce071d9eece11b8e@mail.gmail.com>
+From: Jean-Michel Hautbois <jhautbois@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [Bridge] Re :Re: ebtables, PF_PACKET and other stuff
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,44 +15,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jens Osterkamp <jens@linux.vnet.ibm.com>, virtualization@linux-foundation.com, Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Fischer <anna.fischer@hp.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Gerhard Stenzel <gerhard.stenzel@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Patrick, Mullaney <pmullaney@novell.com>, Edge Virtual Bridging <evb@yahoogroups.com>, Anna
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: bridge@lists.linux-foundation.org
 
-On Fri, 27 Nov 2009 10:57:25 +0000
-Arnd Bergmann <arnd@arndb.de> wrote:
+Hi there, and my best wishes for this new year !
 
-> Macvlan can now optionally support forwarding between its
-> ports, if they are in "bridge" mode. This adds support
-> for this option to "ip link add", "ip link set" and "ip
-> -d link show".
-> 
-> The default mode in the kernel is now "vepa" mode, meaning
-> "virtual ethernet port aggregator". This mode is used
-> together with the "hairpin" mode of an ethernet bridge
-> that the parent of the macvlan device is connected to.
-> All frames still get sent out to the external interface,
-> but the adjacent bridge is able to send them back on
-> the same wire in hairpin mode, so the macvlan ports
-> are able to see each other, which the bridge can be
-> configured to monitor and control traffic between
-> all macvlan instances. Multicast traffic coming in
-> from the external interface is checked for the source
-> MAC address and only delivered to ports that have not
-> yet seen it.
-> 
-> In bridge mode, macvlan will send all multicast traffic
-> to other interfaces that are also in bridge mode but
-> not to those in vepa mode, which get them on the way
-> back from the hairpin.
-> 
-> The third supported mode is "private", which prevents
-> communication between macvlans even if the adjacent
-> bridge is in hairpin mode. This behavior is closer to
-> the original implementation of macvlan but stricly
-> maintains isolation.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>> Mmh, ok, but from the userspace point of view, how can I get them ? A
+>> SOCK_RAW ?
+>>
+> See http://ebtables.sourceforge.net/examples/basic.html#ex_ulog
+>
+> cheers,
+> Bart
 
-Okay, applied for next version
+Thanks for your reply, but it is not exactly what I am looking for...
+I have two rules, that enable the bridging between two of my
+interfaces. When I receive IP or VLAN, these packets are droped by the
+broute table.
+I tried to add the rule :
+ebtables -A FORWARD --ulog-nlgroup 5 -j DROP
 
--- 
+But it seems  to send me all packets, when I am listening with a
+netlink socket...
+I have for example an interface connected the internet, that receives
+packets, and these packets are received by my netlink socket...
+I think I have to tell the Forward rule that I only want the packets
+from my eth2 interface (which is the one where I receive my VLAN
+packets) ?
+
+Thanks again.
+Best Regards,
+JM
