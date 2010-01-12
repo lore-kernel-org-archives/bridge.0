@@ -1,13 +1,11 @@
-From: Ross Vandegrift <ross@kallisti.us>
-Date: Tue, 12 Jan 2010 10:23:17 -0500
-Message-ID: <20100112152317.GB23219@kallisti.us>
-References: <8cad0aa1001120713h55bcde41p56bcd1771030e7ec@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
-Content-Disposition: inline
-In-Reply-To: <8cad0aa1001120713h55bcde41p56bcd1771030e7ec@mail.gmail.com>
-Subject: Re: [Bridge] Bridging LACP (802.3ad) frames not working
+In-Reply-To: <20100112152317.GB23219@kallisti.us>
+Message-ID: <001485e72564c1387e047cf94f54@google.com>
+Date: Tue, 12 Jan 2010 15:28:53 +0000
+From: jhautbois@gmail.com
+Content-Type: multipart/alternative; boundary=001485e72564c13866047cf94f51
+Subject: [Bridge] =?iso-8859-1?q?Re=A0=3ARe=3A__Bridging_LACP_=28802=2E3ad?=
+	=?iso-8859-1?q?=29_frames_not_working?=
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,66 +14,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jean-Michel Hautbois <jhautbois@gmail.com>
+To: Ross Vandegrift <ross@kallisti.us>, Jean-Michel Hautbois <jhautbois@gmail.com>
 Cc: bridge@lists.linux-foundation.org
 
+--001485e72564c13866047cf94f51
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+SGkgUm9zcywNCg0KTGUgMTIgamFudi4gMjAxMCAxNjoyMywgUm9zcyBWYW5kZWdyaWZ0IDxyb3Nz
+QGthbGxpc3RpLnVzPiBhIOljcml0IDoNCj4gWW91IGNhbid0IGJyaWRnZSBMQUNQIC0gaXQgZG9l
+c24ndCBldmVuIG1ha2Ugc2Vuc2UuIExBQ1AgYnVuZGxlcyBtdXN0DQoNCj4gYmUgYmV0d2VlbiBh
+ZGphY2VudCBkZXZpY2VzLiBNb3Jlb3ZlciwgTEFDUERVcyBhcmUgZGVzdGluZWQgZm9yIGENCg0K
+PiBicmlkZ2UtbWFuYWdlbWVudCBhZGRyZXNzIHRoYXQgaXMgcHJvaGliaXRlZCBmcm9tIGJlaW5n
+IGJyaWRnZWQgYnkNCg0KPiA4MDIuMUQuDQoNCg0KT0ssIEkgYWdyZWUsIGl0IGRvZXNuJ3QgbWFr
+ZSBzZW5zZSwgYnV0IEkgd2FudCB0byBiZSB0cmFuc3BhcmVudCB1c2luZyAgDQpicmlkZ2luZy4g
+SSBjYW4ndCBleHBsYWluIG15IGlkZWEgOikuDQoNCj4gV2hhdCBhcmUgeW91IHRyeWluZyB0byBh
+Y2NvbXBsaXNoPyBJZiB5b3Ugd2FudCB0byB0cmFuc3BhcmVudGx5DQoNCj4gYnJpZGdlIHdpdGgg
+TEFDUCBjaGFubmVscywgeW91IHNob3VsZCB0ZXJtaW5hdGUgdGhlIExBQ1AgYnVuZGxlcyBvbg0K
+DQo+IHRoZSBMaW51eCBib3ggYW5kIGJyaWRnZSB0aGUgYnVuZGxlczoNCg0KDQoNCj4gZXRoMCBc
+IC8gZXRoMg0KDQo+IGJvbmQwIC0tLS0tIGJyMCAtLS0tIGJvbmQxDQoNCj4gZXRoMSAvIFwgZXRo
+Mw0KDQoNCllvdSBtZWFuIEkgbmVlZCB0byBoYXZlIGZvdXIgcGh5c2ljYWwgaW50ZXJmYWNlcyA/
+DQpJIGNhbid0IHVuZGVyc3RhbmQgaG93IHRvbyBhY2NvbXBsaXNoIHRoaXMuDQpDdXJyZW50bHks
+IEkgYW0gZG9pbmcgOg0KYnJjdGwgYWRkaWYgZXRoMQ0KYnJjdGwgYWRkaWYgZXRoMg0KDQo+IEFu
+ZCB0aGVuIGNhYmxlIGV0aDAvZXRoMSB0byBvbmUgZGV2aWNlIGFuZCBldGgyL2V0aDMgdG8gdGhl
+IG90aGVyLg0KSG93ID8NCg0KDQpUaGFua3MgIQ0KSk0NCg==
+--001485e72564c13866047cf94f51
+Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 12, 2010 at 04:13:01PM +0100, Jean-Michel Hautbois wrote:
-> Hi there !
->=20
-> I have connected two ethernet 1000Mbps interfaces to my routers, and I
-> have built a bridge between them :
-> eth1 <---> br0 <---> eth2
->=20
-> When I am transmitting UDP, ADP, ARP or any other type of frames, I
-> don't have any problem.
-> But when, the router sends LACP packets, it is not transmitted
-> (neither from eth1 to eth2 than from eth2 to eth1).
->=20
-> I can't figure out why, so if you have an idea, thanks in advance for
-> your help !
-
-You can't bridge LACP - it doesn't even make sense.  LACP bundles must
-be between adjacent devices.  Moreover,  LACPDUs are destined for a
-bridge-management address that is prohibited from being bridged by
-802.1D.
-
-What are you trying to accomplish?  If you want to transparently
-bridge with LACP channels, you should terminate the LACP bundles on
-the Linux box and bridge the bundles:
-
-eth0 \                          / eth2
-      bond0 ----- br0 ---- bond1
-eth1 /                          \ eth3
-
-And then cable eth0/eth1 to one device and eth2/eth3 to the other.
-
-Ross
-
---=20
-Ross Vandegrift
-ross@kallisti.us
-
-"If the fight gets hot, the songs get hotter.  If the going gets tough,
-the songs get tougher."
-	--Woody Guthrie
-
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAktMk+UACgkQMlMoONfO+HBNSwCfbyGlKf9+X9c0ZPqAlV07jmcn
-oWsAniuKgYz2XDbJSVBmClK7BXcKAnDv
-=R2AD
------END PGP SIGNATURE-----
-
---6sX45UoQRIJXqkqR--
+Hi Ross,<br /><br />Le 12 janv. 2010 16:23, Ross Vandegrift &lt;ross@kallis=
+ti.us&gt; a =E9crit=A0:<br />&gt; You can&#39;t bridge LACP - it doesn&#39;=
+t even make sense. =A0LACP bundles must<br />&gt; <br />&gt; be between adj=
+acent devices. =A0Moreover, =A0LACPDUs are destined for a<br />&gt; <br />&=
+gt; bridge-management address that is prohibited from being bridged by<br /=
+>&gt; <br />&gt; 802.1D.<br />&gt; <br /><br />OK, I agree, it doesn&#39;t =
+make sense, but I want to be transparent using bridging. I can&#39;t explai=
+n my idea :). <br /> <br />&gt; What are you trying to accomplish? =A0If yo=
+u want to transparently<br />&gt; <br />&gt; bridge with LACP channels, you=
+ should terminate the LACP bundles on<br />&gt; <br />&gt; the Linux box an=
+d bridge the bundles:<br />&gt; <br />&gt; <br />&gt; <br />&gt; eth0 \ =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/ eth2<br />&gt; <br />&gt;=
+  =A0 =A0 =A0bond0 ----- br0 ---- bond1<br />&gt; <br />&gt; eth1 / =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0\ eth3<br />&gt; <br /><br />Yo=
+u mean I need to have four physical interfaces ?<br />I can&#39;t understan=
+d how too accomplish this.<br />Currently, I am doing :<br />brctl addif et=
+h1<br />brctl addif eth2<br /> <br />&gt; And then cable eth0/eth1 to one d=
+evice and eth2/eth3 to the other.<br />How ?<br /> <br /><br />Thanks !<br =
+/>JM
+--001485e72564c13866047cf94f51--
