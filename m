@@ -1,11 +1,16 @@
-MIME-Version: 1.0
-Date: Tue, 12 Jan 2010 16:58:49 -0600
-Message-ID: <2e59e6971001121458s497910bdx90c1c05aab076a08@mail.gmail.com>
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] Re :Re: Re :Re: Bridging LACP (802.3ad) frames not
-	working
+Date: Tue, 12 Jan 2010 16:40:53 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20100112164053.2447c8f2@nehalam>
+In-Reply-To: <20100112220448.GF23219@kallisti.us>
+References: <20100112213223.GD23219@kallisti.us>
+	<001485f790a4c2633c047cfe80e0@google.com>
+	<20100112220448.GF23219@kallisti.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge]
+ =?utf-8?b?UmXCoDpSZTogUmXCoDpSZTogQnJpZGdpbmcgTEFDUCAo?=
+ =?utf-8?q?802=2E3ad=29_frames_not=09working?=
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,52 +22,49 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Ross Vandegrift <ross@kallisti.us>
 Cc: bridge@lists.linux-foundation.org
 
-On Tue, Jan 12, 2010 at 4:04 PM, Ross Vandegrift <ross@kallisti.us> wrote:
+On Tue, 12 Jan 2010 17:04:48 -0500
+Ross Vandegrift <ross@kallisti.us> wrote:
+
 > On Tue, Jan 12, 2010 at 09:40:30PM +0000, jhautbois@gmail.com wrote:
->> This is exactly the problem.
->> But, sounds like it is not possible... ?
->
+> > This is exactly the problem.
+> > But, sounds like it is not possible... ?
+> 
 > You could run a custom version of the bridge driver to enable bridging
-> of frames sent to the bridge-management MAC addresses. =C2=A0Some folks
+> of frames sent to the bridge-management MAC addresses.  Some folks
 > have talked about doing similar things to enable bridging of STP.
->
+> 
 > Doing that with STP makes a bit more sense to me (since there are
-> valid networks that could be constructed that way). =C2=A0But you'll be
+> valid networks that could be constructed that way).  But you'll be
 > breaking a pretty fundamental assumption of LACP....
 
-LACP is between peers, not to the nearest connected device (generally
-an ethernet cable).  As long as the intermediate link acts just like a
-wire and passes everything, LACP shouldn't care.  And there are some
-reasonable cases to want a Linux box to look like a piece of cable
-(e.g. wiretap, timed lockdown, satellite network simulator which
-inserts delay and errors, etc.) to the surrounding network.  Of
-course, whether seeing just one link out of an aggregation bundle is
-useful is debatable, but Linux ought to be able to support it.  I've
-been bitten before by adding a new switch into an STP setup and having
-it eat STP packets even though STP processing was disabled.  So count
-me as another vote for (at least the possibility of) layer 1-esque
-transparent bridging.
+Recent kernels will forward link local frames as long as STP is disabled.
+Older kernels will not.
 
->
-> --
-> Ross Vandegrift
-> ross@kallisti.us
->
-> "If the fight gets hot, the songs get hotter. =C2=A0If the going gets tou=
-gh,
-> the songs get tougher."
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0--Woody Guthrie
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.9 (GNU/Linux)
->
-> iEYEARECAAYFAktM8gAACgkQMlMoONfO+HC6UwCgkLsC/ZE4ovcxX1e+A/NV3ELz
-> Rp4AoIFyCMtgrMYkxK2k81b9M3n6/v0U
-> =3DA5kn
-> -----END PGP SIGNATURE-----
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+The assumption is that if STP is enabled, then it will be managing
+control plane.
+
+Author: Stephen Hemminger <shemminger@vyatta.com>  2009-05-14 23:10:13
+Committer: David S. Miller <davem@davemloft.net>  2009-05-17 21:12:54
+Parent: 43aa1920117801fe9ae3d1fad886b62511e09bee (bridge: handle process all link-local frames)
+Branches: master, remotes/origin/master
+Follows: v2.6.30-rc6
+Precedes: v2.6.30-rc7
+
+    bridge: relay bridge multicast pkgs if !STP
+    
+    Currently the bridge catches all STP packets; even if STP is turned
+    off.  This prevents other systems (which do have STP turned on)
+    from being able to detect loops in the network.
+    
+    With this patch, if STP is off, then any packet sent to the STP
+    multicast group address is forwarded to all ports.
+    
+    Based on earlier patch by Joakim Tjernlund with changes
+    to go through forwarding (not local chain), and optimization
+    that only last octet needs to be checked.
+    
+    Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+
+-- 
