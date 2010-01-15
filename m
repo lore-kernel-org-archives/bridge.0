@@ -1,14 +1,9 @@
 MIME-Version: 1.0
-In-Reply-To: <8cad0aa1001130921v7d3b1f90ua3c0491737181a09@mail.gmail.com>
-References: <8cad0aa1001130853i38d35b5ft7cd23b749ae891ce@mail.gmail.com>
-	<20100113085500.554ba62c@nehalam>
-	<8cad0aa1001130921v7d3b1f90ua3c0491737181a09@mail.gmail.com>
-Date: Wed, 13 Jan 2010 18:42:22 +0100
-Message-ID: <8cad0aa1001130942r325da153pfdfc7193f3ad1c72@mail.gmail.com>
+Date: Fri, 15 Jan 2010 09:16:41 +0100
+Message-ID: <8cad0aa1001150016n46d622b4wd806440a84d91a54@mail.gmail.com>
 From: Jean-Michel Hautbois <jhautbois@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Subject: Re: [Bridge] Re :Re: Re :Re: Re :Re: Bridging LACP (802.3ad) frames
-	not working
+Subject: [Bridge] [ebtables]Explanation of the packet flow...
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,18 +12,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-It is working.
+Hi everybody !
 
-I have to do this :
-ebtables -A INPUT -p 0x8809 -j ACCEPT
-ebtables -A FORWARD -p 0x8809 -j ACCEPT
+I am trying to understand the "PacketFlow.png" image from the website.
+I have several misunderstanding, especially on the "Bridging Decision" circles.
 
-When I send a packet on my first interface, it is going on my second
-interface if and only if I have both INPUT and FORWARD.
+I would like to understand which way a packet takes when the rule on
+-A INPUT -j ACCEPT is on, for example. When looking at the packet
+flow, I would say it is going to the "routing decision" circle, but, I
+am not sure...
 
-Thanks for your help !!
+I would also like to understand what is necessary in order to have a
+packet transparently directed from one interface to the other. I would
+say that only the "-A FORWARD -j ACCEPT" rule is necessary, but
+Wireshark doesn't agree with me...
 
+Thanks in advance for your help.
+Best Regards,
 JM
