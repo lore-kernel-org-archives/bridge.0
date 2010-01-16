@@ -1,9 +1,12 @@
+Message-ID: <4B51A8A0.2080202@pandora.be>
+Date: Sat, 16 Jan 2010 12:53:04 +0100
+From: Bart De Schuymer <bdschuym@pandora.be>
 MIME-Version: 1.0
-From: Leo Liang <lxsure@gmail.com>
-Date: Sat, 16 Jan 2010 17:29:52 +0900
-Message-ID: <a573cc521001160029m1ec3f80s51f829993efa3049@mail.gmail.com>
-Content-Type: multipart/alternative; boundary=00504502eacfd5bdad047d43ed8c
-Subject: [Bridge] dhcp thru bridge
+References: <8cad0aa1001150016n46d622b4wd806440a84d91a54@mail.gmail.com>
+In-Reply-To: <8cad0aa1001150016n46d622b4wd806440a84d91a54@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [ebtables]Explanation of the packet flow...
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,47 +15,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Jean-Michel Hautbois <jhautbois@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
---00504502eacfd5bdad047d43ed8c
-Content-Type: text/plain; charset=ISO-8859-1
+Jean-Michel Hautbois schreef:
+> Hi everybody !
+>
+> I am trying to understand the "PacketFlow.png" image from the website.
+> I have several misunderstanding, especially on the "Bridging Decision" circles.
+>
+> I would like to understand which way a packet takes when the rule on
+> -A INPUT -j ACCEPT is on, for example. When looking at the packet
+> flow, I would say it is going to the "routing decision" circle, but, I
+> am not sure...
+>
+>   
+It is handed to the IP layer, which includes a routing decision.
 
-Hi list,
+> I would also like to understand what is necessary in order to have a
+> packet transparently directed from one interface to the other. I would
+> say that only the "-A FORWARD -j ACCEPT" rule is necessary, but
+> Wireshark doesn't agree with me...
+>
+>   
+Ebtables is used to filter bridged traffic. You can't use ebtables to
+direct a packet to another interface.
 
-        i'm trying to setup a bridge on my Linux box, the situation is like
-below,
+Bart
 
-        windows pc< -----------> eth0 [linux box] eth1
-<--------------------->DHCP server
+-- 
+Bart De Schuymer
+www.artinalgorithms.be
 
-        i create a bridge on linux with eth0 and eth1 and i can get ip
-address from DHCP server for bridge
-        but i can't get ip address on my windows pc which connect to eth0 of
-Linux from DHCP server,
-
-        sorry for my poor network knowledge, i've been google around but
-cannot find the solution,
-        can any one give me some advice?
-
-Thanks
-Leo.
-
---00504502eacfd5bdad047d43ed8c
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Hi list,<br><br>=A0=A0=A0=A0=A0=A0=A0 i&#39;m trying to setup a bridge on m=
-y Linux box, the situation is like below,<br>=A0=A0 <br>=A0=A0=A0=A0=A0=A0=
-=A0 windows pc&lt; -----------&gt; eth0 [linux box] eth1 &lt;--------------=
--------&gt;DHCP server<br>=A0=A0=A0=A0=A0=A0 <br>
-
-=A0=A0=A0=A0=A0=A0=A0 i create a bridge on linux with eth0 and eth1 and i c=
-an get ip address from DHCP server for bridge<br>=A0=A0=A0=A0=A0=A0=A0 but =
-i can&#39;t get ip address on my windows pc which connect to eth0 of Linux =
-from DHCP server,<br>=A0=A0=A0=A0=A0=A0=A0 <br>
-
-=A0=A0=A0=A0=A0=A0=A0 sorry for my poor network knowledge, i&#39;ve been go=
-ogle around but cannot find the solution,<br>=A0 =A0 =A0 =A0 can any one gi=
-ve me some advice?<br><br>Thanks<br>Leo.<br>
-
---00504502eacfd5bdad047d43ed8c--
