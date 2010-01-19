@@ -1,9 +1,16 @@
+Message-ID: <20100119214451.72637a94rn0biysz@mx.kpi.ua>
+Date: Tue, 19 Jan 2010 21:44:51 +0200
+From: yavetskiy@kpi.ua
 MIME-Version: 1.0
-Date: Tue, 19 Jan 2010 23:03:51 +0530
-Message-ID: <f4b8e8c51001190933y2530a7a0p6a98a3a203fd2a14@mail.gmail.com>
-From: Rose joseph <rosefornetwork@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] Help needed on RSTP
+Content-Type: text/plain;
+	charset=UTF-8;
+	DelSp="Yes";
+	format="flowed"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Sender: www-data <www-data@mail0.kpi.ua>
+Subject: Re: [Bridge] Re :Re: Re :Re: Re :Re: Bridging LACP (802.3ad)	frames
+	not working
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,20 +21,24 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hi All
+Hello.
 
-I am not sure if this is not the correct list to post this question.If
-not, kindly request you to point to some reliable mailing list
+I have the same problem with bridging 802.3ad frames.
 
-Just gone through the stp/Rstp protocol and have some doubts regarding this
+But rules:
+ebtables -A INPUT -p 0x8809 -j ACCEPT
+ebtables -A FORWARD -p 0x8809 -j ACCEPT
+are not enough to solve this problem, it still doesn't work for me.
+I have vanila kernel 2.6.32 with no patches, Debian squeeze, eth1 and  
+eth2 interfaces in bridge with stp disabled.
+Maybe I've missed something? Do you have any ideas?
+Thank you.
 
-(a) If a port is blocked, it will not send out any packets. What does this mean?
-     even Bpdus are not transmitted on a blocked port?
 
-(b) practically what is the time taken to convergence RSTP on a point
-to point link?
+--
+WBR
+Yavetkiy Yuriy
 
-Thanks for your help
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.
 
-Regards
-Rose
