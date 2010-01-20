@@ -3,10 +3,10 @@ In-Reply-To: <4B5775C0.3000800@pythian.com>
 References: <4B5761DF.7010608@pythian.com>
 	<c5b98f841001201230m39bc42e1nf2f7294004786d65@mail.gmail.com>
 	<4B5775C0.3000800@pythian.com>
-Date: Wed, 20 Jan 2010 14:32:33 -0700
-Message-ID: <c5b98f841001201332s3d2fc90cy8c8fcc4896ee5d14@mail.gmail.com>
+Date: Wed, 20 Jan 2010 14:45:15 -0700
+Message-ID: <c5b98f841001201345g16a52731y6676bb3475686661@mail.gmail.com>
 From: Robert LeBlanc <robert@leblancnet.us>
-Content-Type: multipart/alternative; boundary=0016e64ce5840c0474047d9f53e8
+Content-Type: multipart/alternative; boundary=0016e64b974a7ecdd1047d9f800b
 Subject: Re: [Bridge] Incoming packets not always traversing the bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -19,70 +19,12 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Brad Hudson <hudson@pythian.com>
 Cc: bridge@lists.linux-foundation.org
 
---0016e64ce5840c0474047d9f53e8
+--0016e64b974a7ecdd1047d9f800b
 Content-Type: text/plain; charset=ISO-8859-1
 
-It's on the front page, you need a google wave account to see the blog.
-
-Here is the contents:
-
-Interesting problem with Virtual Switches
-
-So, after working with VMware yesterday, it is amazing how understanding a
-black box, can get you moving with a problem.
-
-The Problem:
-
-I was trying to create a VM that would be a transparent firewall among other
-things for our server VMs. The problem I was seeing was that VMs behind the
-firewall would lose connectivity randomly. After a lot of testing, I found
-that it was not random, but happened when the VM sent out broadcast traffic.
-The Linux bridge would see the traffic originate from both sides of the
-bridge with the opposite port being the most recent. With the Linux bridge
-thinking that the VM was on the wrong port as the actual VM, the traffic
-would not get to the VM until the VM sent out more traffic to tell the
-bridge what port it was on. This caused the interruption.
-
-VMware explains:
-
-After troubleshooting with creating a new virtual switch and putting one
-physical adapter on it, the problem disappeared. We added a
-second physical NIC to the switch and viola, the problem reappeared! The
-technician went on to explain that they 'cheat' in their virtual switch
-code. Usually when connecting one switch to another you will trunk the
-ports, but the virtual switch doesn't do this. It offers more flexibility
-and more throughput for a lot less complexity. VMware just promises not to
-create a bridge between physical NICs (each VM is kind of assigned it's
-own physical NIC so it's not a real bridge). I went and did what VMware
-promises not to do causing my problem.
-
-Problem explained:
-
-Since I was creating a bridge without trunking ports (not a real possibility
-in this situation), when the Linux bridge received a broadcast packet from
-the VM behind, it did the correct job of sending it out only the one port,
-this port is then assigned to a physical NIC, the physical switch that the
-NIC was connected to would then send out the broadcast packet to every other
-port on that physical switch. The second physical NIC on the ESX server
-would also receive the broadcast packet and send it to the bridge VM, hence
-the bridge VM saw the traffic on both ports. A classic case of reflection.
-
-The solution:
-
-I'm still working on this, but there are a couple of solutions that I can
-think of.
-
-1. Make the transparent bridge a router. I'm not huge fan of this idea as I
-will have to have more connection with the network engineers and
-we deviate from the standard network config.
-
-2. Use some cleaver ebtables rules to squash duplicate broadcast frames.
-Although I haven't really used ebtables, it's structure is much like
-iptables, so it can't be too hard. I might also be able to rely on some Open
-Source virtual appliances that already do something similar to help me out.
-
-Virtualization is great, but there are times when things just don't work the
-same as the physical realm. It's good to know when these times are.
+Another quick fix is to remove all physical NICs except for one from the
+Virtual switch(s) that are being bridged. You lose redundancy, but that will
+get them up fast until a fix is found.
 
 Robert LeBlanc
 Life Sciences & Undergraduate Education Computer Support
@@ -246,65 +188,16 @@ On Wed, Jan 20, 2010 at 2:29 PM, Brad Hudson <hudson@pythian.com> wrote:
 > IM: pythianhudson
 >
 
---0016e64ce5840c0474047d9f53e8
+--0016e64b974a7ecdd1047d9f800b
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-It&#39;s on the front page, you need a google wave account to see the blog.=
-<div><br></div><div>Here is the contents:</div><div><br></div><div><span cl=
-ass=3D"Apple-style-span" style=3D"font-family: Arial; font-size: 13px; "><p=
->
-Interesting problem with Virtual Switches</p><p></p><p>So, after working wi=
-th VMware yesterday, it is amazing how understanding a black box, can get y=
-ou moving with a problem.</p><p></p><p><span style=3D"text-decoration: unde=
-rline; ">The Problem:</span></p>
-<p>I was trying to create a VM that would be a transparent firewall among o=
-ther things for our server VMs. The problem I was seeing was that VMs behin=
-d the firewall would lose connectivity randomly. After a lot of testing, I =
-found that it was not random, but happened when the VM sent=A0out=A0broadca=
-st traffic. The Linux bridge would see the traffic=A0originate=A0from both =
-sides of the bridge with the opposite port being the most recent. With the =
-Linux bridge thinking that the VM was on the wrong port as the=A0actual=A0V=
-M, the traffic would not get to the VM until the VM sent out more traffic t=
-o tell the bridge what port it was on. This caused the interruption.</p>
-<p></p><p><span style=3D"text-decoration: underline; ">VMware explains:</sp=
-an></p><p>After troubleshooting with creating a new virtual switch and putt=
-ing one physical adapter on it, the problem disappeared. We added a second=
-=A0physical=A0NIC to the switch and viola, the problem reappeared! The tech=
-nician went on to explain that they &#39;cheat&#39; in their virtual switch=
- code. Usually when connecting one switch to another you will trunk the por=
-ts, but the virtual switch doesn&#39;t do this. It offers more flexibility =
-and more throughput for a lot less complexity. VMware just promises not to =
-create a bridge between physical NICs (each VM is kind of assigned it&#39;s=
- own=A0physical=A0NIC so it&#39;s not a real bridge). I went and did what V=
-Mware promises not to do causing my problem.</p>
-<p></p><p><span style=3D"text-decoration: underline; ">Problem explained:</=
-span></p><p>Since I was creating a bridge without trunking ports (not a rea=
-l possibility in this=A0situation), when the Linux bridge received a broadc=
-ast packet from the VM behind, it did the correct job of sending it out onl=
-y the one port, this port is then=A0assigned=A0to a physical NIC, the physi=
-cal switch that the NIC was connected to would then send out the broadcast =
-packet to every other port on that physical switch. The second physical NIC=
-=A0on=A0the ESX server would also receive the broadcast packet and send it =
-to the bridge VM, hence the bridge VM saw the traffic on both ports. A clas=
-sic case of reflection.</p>
-<p></p><p><span style=3D"text-decoration: underline; ">The solution:</span>=
-</p><p>I&#39;m still working on this, but there are a couple of solutions t=
-hat I can think of.</p><p style=3D"margin-left: 17px; ">1. Make the=A0trans=
-parent=A0bridge a router. I&#39;m not huge fan of this idea as I will have =
-to have more connection with the network engineers and we=A0deviate=A0from =
-the standard network config.</p>
-<p style=3D"margin-left: 17px; ">2. Use some cleaver ebtables rules to squa=
-sh duplicate broadcast frames. Although I haven&#39;t really used ebtables,=
- it&#39;s structure is much like iptables, so it can&#39;t be too hard. I m=
-ight also be able to rely on some Open Source virtual appliances that alrea=
-dy do something similar to help me out.</p>
-<p style=3D"margin-left: 17px; "></p><p>Virtualization is great, but there =
-are times when things just don&#39;t work the same as the physical realm. I=
-t&#39;s good to know when these times are.<span class=3D"__wave_paste"></sp=
-an><span>=A0</span></p>
-</span><br>Robert LeBlanc<br>Life Sciences &amp; Undergraduate Education Co=
-mputer Support<br>Brigham Young University<br>
+Another quick fix is to remove all physical NICs except for one from the Vi=
+rtual switch(s) that are being bridged. You lose redundancy, but that will =
+get them up fast until a fix is found.<br clear=3D"all"><br>Robert LeBlanc<=
+br>
+Life Sciences &amp; Undergraduate Education Computer Support<br>Brigham You=
+ng University<br>
 <br><br><div class=3D"gmail_quote">On Wed, Jan 20, 2010 at 2:29 PM, Brad Hu=
 dson <span dir=3D"ltr">&lt;<a href=3D"mailto:hudson@pythian.com">hudson@pyt=
 hian.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=
@@ -492,6 +385,6 @@ SA Team Lead<br>
 The Pythian Group - love your data<br>
 Desk: 613-565-8696 x202<br>
 IM: pythianhudson<br>
-</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br>
 
---0016e64ce5840c0474047d9f53e8--
+--0016e64b974a7ecdd1047d9f800b--
