@@ -1,14 +1,15 @@
-MIME-Version: 1.0
-In-Reply-To: <c5b98f841001201345g16a52731y6676bb3475686661@mail.gmail.com>
+Message-ID: <158191213-1264088664-cardhu_decombobulator_blackberry.rim.net-1129058266-@bda367.bisx.prod.on.blackberry>
 References: <4B5761DF.7010608@pythian.com>
 	<c5b98f841001201230m39bc42e1nf2f7294004786d65@mail.gmail.com>
-	<4B5775C0.3000800@pythian.com>
-	<c5b98f841001201345g16a52731y6676bb3475686661@mail.gmail.com>
-Date: Wed, 20 Jan 2010 17:09:33 -0700
-Message-ID: <c5b98f841001201609j64de92b3n891c58775cafd018@mail.gmail.com>
-From: Robert LeBlanc <robert@leblancnet.us>
-Content-Type: multipart/alternative; boundary=0016e687869483a396047da18462
+	<4B5775C0.3000800@pythian.com><c5b98f841001201332s3d2fc90cy8c8fcc4896ee5d14@mail.gmail.com>
+In-Reply-To: <c5b98f841001201332s3d2fc90cy8c8fcc4896ee5d14@mail.gmail.com>
+From: "Brad Hudson" <hudson@pythian.com>
+Date: Thu, 21 Jan 2010 15:47:22 +0000
+Content-Type: multipart/alternative;
+	boundary="part13984-boundary-1815449560-1663870548"
+MIME-Version: 1.0
 Subject: Re: [Bridge] Incoming packets not always traversing the bridge
+Reply-To: hudson@pythian.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,421 +18,390 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Brad Hudson <hudson@pythian.com>
+To: Robert LeBlanc <robert@leblancnet.us>
 Cc: bridge@lists.linux-foundation.org
 
---0016e687869483a396047da18462
-Content-Type: text/plain; charset=ISO-8859-1
 
-I think I could use the limit match and limit it to 1/sec, that should drop
-the duplicate packet if it matches the source mac and destination
-(broadcast).
+--part13984-boundary-1815449560-1663870548
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="Windows-1252"
 
-so, I think something like:
+U28gYXJlIHlvdSBzYXlpbmcgdGhhdCBpdCdzIHRoZSBzdGFuZGJ5IG5pYyBvbiB0aGUgRVNYIGxh
+eWVyIHZpcnR1YWwgc3dpdGNoIHRoYXQgaXMgY2F1c2luZyB0aGlzIGlzc3VlPyAgDQoNCkkgYW0g
+YWN0dWFsbHkgYXQgYSB2bXdhcmUgY29uZmVyZW5jZSB0b2RheSBhbmQgd2FudCB0byBoaXQgdGhl
+bSB1cCBmb3IgbW9yZSBpbmZvLg0KDQpCcmFkDQoNCg0KVGh1bWJzIC4uLiB0b28gLi4uIGJpZyAu
+Li4gZm9yIC4uLiBCbGFja0JlcnJ5DQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
+OiBSb2JlcnQgTGVCbGFuYyA8cm9iZXJ0QGxlYmxhbmNuZXQudXM+DQpEYXRlOiBXZWQsIDIwIEph
+biAyMDEwIDE0OjMyOjMzIA0KVG86IEJyYWQgSHVkc29uPGh1ZHNvbkBweXRoaWFuLmNvbT4NCkNj
+OiA8YnJpZGdlQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnPg0KU3ViamVjdDogUmU6IFtCcmlk
+Z2VdIEluY29taW5nIHBhY2tldHMgbm90IGFsd2F5cyB0cmF2ZXJzaW5nIHRoZSBicmlkZ2UNCg0K
+SXQncyBvbiB0aGUgZnJvbnQgcGFnZSwgeW91IG5lZWQgYSBnb29nbGUgd2F2ZSBhY2NvdW50IHRv
+IHNlZSB0aGUgYmxvZy4NCg0KSGVyZSBpcyB0aGUgY29udGVudHM6DQoNCkludGVyZXN0aW5nIHBy
+b2JsZW0gd2l0aCBWaXJ0dWFsIFN3aXRjaGVzDQoNClNvLCBhZnRlciB3b3JraW5nIHdpdGggVk13
+YXJlIHllc3RlcmRheSwgaXQgaXMgYW1hemluZyBob3cgdW5kZXJzdGFuZGluZyBhDQpibGFjayBi
+b3gsIGNhbiBnZXQgeW91IG1vdmluZyB3aXRoIGEgcHJvYmxlbS4NCg0KVGhlIFByb2JsZW06DQoN
+Ckkgd2FzIHRyeWluZyB0byBjcmVhdGUgYSBWTSB0aGF0IHdvdWxkIGJlIGEgdHJhbnNwYXJlbnQg
+ZmlyZXdhbGwgYW1vbmcgb3RoZXINCnRoaW5ncyBmb3Igb3VyIHNlcnZlciBWTXMuIFRoZSBwcm9i
+bGVtIEkgd2FzIHNlZWluZyB3YXMgdGhhdCBWTXMgYmVoaW5kIHRoZQ0KZmlyZXdhbGwgd291bGQg
+bG9zZSBjb25uZWN0aXZpdHkgcmFuZG9tbHkuIEFmdGVyIGEgbG90IG9mIHRlc3RpbmcsIEkgZm91
+bmQNCnRoYXQgaXQgd2FzIG5vdCByYW5kb20sIGJ1dCBoYXBwZW5lZCB3aGVuIHRoZSBWTSBzZW50
+IG91dCBicm9hZGNhc3QgdHJhZmZpYy4NClRoZSBMaW51eCBicmlkZ2Ugd291bGQgc2VlIHRoZSB0
+cmFmZmljIG9yaWdpbmF0ZSBmcm9tIGJvdGggc2lkZXMgb2YgdGhlDQpicmlkZ2Ugd2l0aCB0aGUg
+b3Bwb3NpdGUgcG9ydCBiZWluZyB0aGUgbW9zdCByZWNlbnQuIFdpdGggdGhlIExpbnV4IGJyaWRn
+ZQ0KdGhpbmtpbmcgdGhhdCB0aGUgVk0gd2FzIG9uIHRoZSB3cm9uZyBwb3J0IGFzIHRoZSBhY3R1
+YWwgVk0sIHRoZSB0cmFmZmljDQp3b3VsZCBub3QgZ2V0IHRvIHRoZSBWTSB1bnRpbCB0aGUgVk0g
+c2VudCBvdXQgbW9yZSB0cmFmZmljIHRvIHRlbGwgdGhlDQpicmlkZ2Ugd2hhdCBwb3J0IGl0IHdh
+cyBvbi4gVGhpcyBjYXVzZWQgdGhlIGludGVycnVwdGlvbi4NCg0KVk13YXJlIGV4cGxhaW5zOg0K
+DQpBZnRlciB0cm91Ymxlc2hvb3Rpbmcgd2l0aCBjcmVhdGluZyBhIG5ldyB2aXJ0dWFsIHN3aXRj
+aCBhbmQgcHV0dGluZyBvbmUNCnBoeXNpY2FsIGFkYXB0ZXIgb24gaXQsIHRoZSBwcm9ibGVtIGRp
+c2FwcGVhcmVkLiBXZSBhZGRlZCBhDQpzZWNvbmQgcGh5c2ljYWwgTklDIHRvIHRoZSBzd2l0Y2gg
+YW5kIHZpb2xhLCB0aGUgcHJvYmxlbSByZWFwcGVhcmVkISBUaGUNCnRlY2huaWNpYW4gd2VudCBv
+biB0byBleHBsYWluIHRoYXQgdGhleSAnY2hlYXQnIGluIHRoZWlyIHZpcnR1YWwgc3dpdGNoDQpj
+b2RlLiBVc3VhbGx5IHdoZW4gY29ubmVjdGluZyBvbmUgc3dpdGNoIHRvIGFub3RoZXIgeW91IHdp
+bGwgdHJ1bmsgdGhlDQpwb3J0cywgYnV0IHRoZSB2aXJ0dWFsIHN3aXRjaCBkb2Vzbid0IGRvIHRo
+aXMuIEl0IG9mZmVycyBtb3JlIGZsZXhpYmlsaXR5DQphbmQgbW9yZSB0aHJvdWdocHV0IGZvciBh
+IGxvdCBsZXNzIGNvbXBsZXhpdHkuIFZNd2FyZSBqdXN0IHByb21pc2VzIG5vdCB0bw0KY3JlYXRl
+IGEgYnJpZGdlIGJldHdlZW4gcGh5c2ljYWwgTklDcyAoZWFjaCBWTSBpcyBraW5kIG9mIGFzc2ln
+bmVkIGl0J3MNCm93biBwaHlzaWNhbCBOSUMgc28gaXQncyBub3QgYSByZWFsIGJyaWRnZSkuIEkg
+d2VudCBhbmQgZGlkIHdoYXQgVk13YXJlDQpwcm9taXNlcyBub3QgdG8gZG8gY2F1c2luZyBteSBw
+cm9ibGVtLg0KDQpQcm9ibGVtIGV4cGxhaW5lZDoNCg0KU2luY2UgSSB3YXMgY3JlYXRpbmcgYSBi
+cmlkZ2Ugd2l0aG91dCB0cnVua2luZyBwb3J0cyAobm90IGEgcmVhbCBwb3NzaWJpbGl0eQ0KaW4g
+dGhpcyBzaXR1YXRpb24pLCB3aGVuIHRoZSBMaW51eCBicmlkZ2UgcmVjZWl2ZWQgYSBicm9hZGNh
+c3QgcGFja2V0IGZyb20NCnRoZSBWTSBiZWhpbmQsIGl0IGRpZCB0aGUgY29ycmVjdCBqb2Igb2Yg
+c2VuZGluZyBpdCBvdXQgb25seSB0aGUgb25lIHBvcnQsDQp0aGlzIHBvcnQgaXMgdGhlbiBhc3Np
+Z25lZCB0byBhIHBoeXNpY2FsIE5JQywgdGhlIHBoeXNpY2FsIHN3aXRjaCB0aGF0IHRoZQ0KTklD
+IHdhcyBjb25uZWN0ZWQgdG8gd291bGQgdGhlbiBzZW5kIG91dCB0aGUgYnJvYWRjYXN0IHBhY2tl
+dCB0byBldmVyeSBvdGhlcg0KcG9ydCBvbiB0aGF0IHBoeXNpY2FsIHN3aXRjaC4gVGhlIHNlY29u
+ZCBwaHlzaWNhbCBOSUMgb24gdGhlIEVTWCBzZXJ2ZXINCndvdWxkIGFsc28gcmVjZWl2ZSB0aGUg
+YnJvYWRjYXN0IHBhY2tldCBhbmQgc2VuZCBpdCB0byB0aGUgYnJpZGdlIFZNLCBoZW5jZQ0KdGhl
+IGJyaWRnZSBWTSBzYXcgdGhlIHRyYWZmaWMgb24gYm90aCBwb3J0cy4gQSBjbGFzc2ljIGNhc2Ug
+b2YgcmVmbGVjdGlvbi4NCg0KVGhlIHNvbHV0aW9uOg0KDQpJJ20gc3RpbGwgd29ya2luZyBvbiB0
+aGlzLCBidXQgdGhlcmUgYXJlIGEgY291cGxlIG9mIHNvbHV0aW9ucyB0aGF0IEkgY2FuDQp0aGlu
+ayBvZi4NCg0KMS4gTWFrZSB0aGUgdHJhbnNwYXJlbnQgYnJpZGdlIGEgcm91dGVyLiBJJ20gbm90
+IGh1Z2UgZmFuIG9mIHRoaXMgaWRlYSBhcyBJDQp3aWxsIGhhdmUgdG8gaGF2ZSBtb3JlIGNvbm5l
+Y3Rpb24gd2l0aCB0aGUgbmV0d29yayBlbmdpbmVlcnMgYW5kDQp3ZSBkZXZpYXRlIGZyb20gdGhl
+IHN0YW5kYXJkIG5ldHdvcmsgY29uZmlnLg0KDQoyLiBVc2Ugc29tZSBjbGVhdmVyIGVidGFibGVz
+IHJ1bGVzIHRvIHNxdWFzaCBkdXBsaWNhdGUgYnJvYWRjYXN0IGZyYW1lcy4NCkFsdGhvdWdoIEkg
+aGF2ZW4ndCByZWFsbHkgdXNlZCBlYnRhYmxlcywgaXQncyBzdHJ1Y3R1cmUgaXMgbXVjaCBsaWtl
+DQppcHRhYmxlcywgc28gaXQgY2FuJ3QgYmUgdG9vIGhhcmQuIEkgbWlnaHQgYWxzbyBiZSBhYmxl
+IHRvIHJlbHkgb24gc29tZSBPcGVuDQpTb3VyY2UgdmlydHVhbCBhcHBsaWFuY2VzIHRoYXQgYWxy
+ZWFkeSBkbyBzb21ldGhpbmcgc2ltaWxhciB0byBoZWxwIG1lIG91dC4NCg0KVmlydHVhbGl6YXRp
+b24gaXMgZ3JlYXQsIGJ1dCB0aGVyZSBhcmUgdGltZXMgd2hlbiB0aGluZ3MganVzdCBkb24ndCB3
+b3JrIHRoZQ0Kc2FtZSBhcyB0aGUgcGh5c2ljYWwgcmVhbG0uIEl0J3MgZ29vZCB0byBrbm93IHdo
+ZW4gdGhlc2UgdGltZXMgYXJlLg0KDQpSb2JlcnQgTGVCbGFuYw0KTGlmZSBTY2llbmNlcyAmIFVu
+ZGVyZ3JhZHVhdGUgRWR1Y2F0aW9uIENvbXB1dGVyIFN1cHBvcnQNCkJyaWdoYW0gWW91bmcgVW5p
+dmVyc2l0eQ0KDQoNCk9uIFdlZCwgSmFuIDIwLCAyMDEwIGF0IDI6MjkgUE0sIEJyYWQgSHVkc29u
+IDxodWRzb25AcHl0aGlhbi5jb20+IHdyb3RlOg0KDQo+IFJvYmVydDsNCj4NCj4gSSBsb29rZWQg
+b3ZlciB5b3VyIHNpdGUgYW5kIGNvdWxkIG5vdCBmaW5kIHRoZSBkb2N1bWVudCB5b3UgcmVmZXJl
+bmNlIGluDQo+IHlvdXIgbGlua3MuICBDYW4geW91IHByb3ZpZGUgdGhlIHVybCB0byBnZXQgdG8g
+aXQ/DQo+DQo+IEknbGwgYmUgaGFwcHkgdG8gcGFzcyBhbG9uZyBhbnl0aGluZyBJIGZpbmQgYW5k
+IHdvdWxkIGFwcHJlY2lhdGUgaXQgaWYNCj4geW91IHdvdWxkIGRvIHRoZSBzYW1lLiAgQXMgdGhl
+IGNsaWVudCBoYXZpbmcgdGhlIGlzc3VlIGlzIHVzaW5nIGl0IGZvcg0KPiBwcm9kdWN0aW9uIHdl
+IG1heSBuZWVkIHRvIG1vdmUgdG8gYSBub24tYnJpZGdlZCB2YXJpZXR5IG9mIHRyYW5zcGFyZW50
+DQo+IGZpcmV3YWxsIHdpdGggcHJveHlfYXJwIHRvIGdldCB0aGVtIGJhY2sgdXAgcXVpY2tseS4g
+IElkZWFsbHkgSSB3b3VsZA0KPiBsaWtlIHRvIGF2b2lkIHRoYXQsIGJ1dCBpdCdzIHByb2QgYW5k
+IG5lZWRzIHRvIHdvcmsuDQo+DQo+IFJlZ2FyZHM7DQo+DQo+IEJyYWQNCj4NCj4gUm9iZXJ0IExl
+QmxhbmMgd3JvdGU6DQo+ID4gT24gV2VkLCBKYW4gMjAsIDIwMTAgYXQgMTowNCBQTSwgQnJhZCBI
+dWRzb24gPGh1ZHNvbkBweXRoaWFuLmNvbQ0KPiA+IDxtYWlsdG86aHVkc29uQHB5dGhpYW4uY29t
+Pj4gd3JvdGU6DQo+ID4NCj4gPiAgICAgSGkgYWxsOw0KPiA+DQo+ID4gICAgIEkgaGF2ZSBhbiBv
+ZGQgcHJvYmxlbSB0aGF0IEkgaGF2ZSBiZWVuIGRlYWxpbmcgd2l0aCBmb3IgYSB3ZWVrLiAgSQ0K
+PiB3YXMNCj4gPiAgICAgaG9waW5nIHNvbWVvbmUgY291bGQgaGVscCwgb3IgcG9pbnQgbWUgaW4g
+dGhlIHJpZ2h0IGRpcmVjdGlvbiBmb3INCj4gY2x1ZXMuDQo+ID4NCj4gPiAgICAgSSBoYXZlIGEg
+c3RhbmRhcmQgYnJpZGdlIHNldHVwLiAgYnIwIGlzIGNvbXBvc2VkIG9mIGV0aDAgYW5kIGV0aDEu
+DQo+ID4NCj4gPiAgICAgIyBicmN0bCBzaG93IGJybw0KPiA+ICAgICBicmlkZ2UgbmFtZSAgICAg
+YnJpZGdlIGlkICAgICAgICAgICAgICAgU1RQIGVuYWJsZWQgICAgIGludGVyZmFjZXMNCj4gPiAg
+ICAgYnIwICAgICAgICAgICAgIDgwMDAuMDAwYzI5MjI4MGI5ICAgICAgIG5vICAgICAgICAgICAg
+ICBldGgwDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBldGgxDQo+ID4NCj4gPiAgICAgRXRoMCBhbmQgZXRoMSBib3RoIGhhdmUg
+MC4wLjAuMCAobm8pIGFkZHJlc3MgYXNzaWduZWQgYW5kIGFyZSB1cC4NCj4gIGJyMA0KPiA+ICAg
+ICBpcyBhc3NpZ25lZCB0aGUgcHJvcGVyIElQIGFuZCB0aGUgcm91dGluZyB0YWJsZSBpcyBjb3Jy
+ZWN0LiAgU1RQIGlzDQo+IG9mZi4NCj4gPg0KPiA+ICAgICBJIGhhdmUgYmVlbiBsb3NpbmcgY29u
+bmVjdGl2aXR5IHRvIGhvc3RzIGluc2lkZSB0aGUgbG9jYWwgc2VnbWVudCBvZg0KPiB0aGUNCj4g
+PiAgICAgYnJpZGdlLiAgU29tZSBpbnZlc3RpZ2F0aW9uIGhhcyByZXZlYWxlZCB0aGF0IHRoZSBw
+cm9ibGVtIGlzIHJlbGF0ZWQNCj4gdG8NCj4gPiAgICAgYXJwIG5vdCB3b3JraW5nIGNvcnJlY3Rs
+eS4gIEFycCBwYWNrZXRzIGdvaW5nIHRoaXMgd2F5DQo+ID4NCj4gPiAgICAgZXRoMS0+YnIwLT5l
+dGgwLT5uZXR3b3JrL2ludGVybmV0DQo+ID4NCj4gPiAgICAgaGF2ZSBubyBwcm9ibGVtcyBhdCBh
+bGwuICBUaGUgcmVwbGllcyBjb21pbmcgYmFjayB0aGUgb3RoZXIgd2F5IGFsbA0KPiBnZXQNCj4g
+PiAgICAgdG8gYnIwLCBidXQgb25seSAzMyUgKGFwcHJveCwgaXQgdmFyaWVzKSBtYWtlIGl0IHRv
+IHRoZSBldGgxIHNpZGUgb2YNCj4gdGhlDQo+ID4gICAgIGJyaWRnZS4gIEkgaGF2ZSB2ZXJpZmll
+ZCB0aGlzIHRyYWZmaWMgcGF0dGVybiBieSB0Y3BkdW1wIG9mIGFycA0KPiBwYWNrZXRzDQo+ID4g
+ICAgIHRocm91Z2ggZWFjaCBvZiB0aGVzZSBkZXZpY2VzIHdoaWxlIGRvaW5nIGFuIG5tYXAgLXNQ
+IG9mIHRoZSAvMjQNCj4gbmV0d29yaw0KPiA+ICAgICB0byBnZW5lcmF0ZSBib3RoIGFycCBhbmQg
+aWNtcC4gIFdlIGFyZSBub3QgYWJsZSB0byBhcnAgYW55IGhvc3QNCj4gb3V0c2lkZQ0KPiA+ICAg
+ICBvdXIgbG9jYWwgc2VnbWVudCwgaW5jbHVkaW5nIHRoZSBkZWZhdWx0IGdhdGV3YXkgKHdoaWNo
+IGlzIG93bmVkIGJ5DQo+IHRoZQ0KPiA+ICAgICBjby1sbykuICBubWFwcGluZyBmcm9tIHRoZSBi
+cmlkZ2luZyBzZXJ2ZXIgaXRzZWxmIGZyb20gaW50ZXJmYWNlIGJyMA0KPiA+ICAgICBnZXRzIHRo
+ZSBjb3JyZWN0IG51bWJlciBvZiBhcnAgcmVwbGllcy4NCj4gPg0KPiA+ICAgICBlYnRhYmxlcyBh
+bmQgYXJwX3RhYmxlcyBhcmUgbm90IHJ1bm5pbmcsIGFuZCBhZGRpbmcgdGhlbSBpbiBoYXMgaGFk
+DQo+IG5vDQo+ID4gICAgIGNoYW5nZSBpbiByZXN1bHQuICBUaGVyZSB3YXMgYSBzZXJ2ZXIgd2l0
+aCAyIE5JQ3MsIGVhY2ggd2l0aCBhbiBJUCBvbg0KPiA+ICAgICB0aGUgc2FtZSBzdWJuZXQsIHRo
+YXQgd2FzIGNhdXNpbmcgc29tZSBNQUMgZmxhcHBpbmcgYnV0IHRoYXQgaGFzIGJlZW4NCj4gPiAg
+ICAgZml4ZWQgYW5kIG5vIGNoYW5nZSB0byB0aGUgZGVzY3JpYmVkIGJlaGF2aW91ci4gIEFsbCBp
+dGVtcyBpbg0KPiA+ICAgICAvcHJvYy9zeXMvbmV0L2JyaWRnZSBhcmUgc2V0IHRvICcxJywgYnV0
+IHNldHRpbmcgdGhlbSB0byAnMCcgaGFzIG5vDQo+ID4gICAgIGVmZmVjdC4gIFRoZSBzZXJ2ZXIg
+aG9zdGluZyB0aGUgYnJpZGdlIGhhcyBiZWVuIHJlYm9vdGVkIHNldmVyYWwNCj4gdGltZXMNCj4g
+PiAgICAgd2l0aCBubyBlZmZlY3QuICBwcm94eV9hcnAgZG9lcyBub3QgaGVscCBhdCBhbGwuICBJ
+IGFsc28gdHJpZWQNCj4gPiAgICAgcGFycHJvdXRlZCB3aXRoIG5vIHN1Y2Nlc3MuDQo+ID4NCj4g
+PiAgICAgQSBjb3VwbGUgb3RoZXIgbm90ZXMuDQo+ID4NCj4gPiAgICAgLSBUaGlzIGJlaGF2aW91
+ciBzdWRkZW5seSBhcHBlYXJlZCBhYm91dCBhIHdlZWsgYWdvLiAgSSB0aGluayB0aGlzIGlzDQo+
+ID4gICAgIHByb2JhYmx5IHJlbGF0ZWQgdG8gYW4gaW5jcmVhc2UgaW4gbmV0d29yayB0cmFmZmlj
+IGJ1dCBpdCdzIGhhcmQgdG8NCj4gc2F5LA0KPiA+ICAgICB0aGUgY2xpZW50IGRvZXMgbm90IGJ1
+eSBpbnRvIHRoYXQgc3RhdGVtZW50LiAgSWYgaXQgd2FzIGEgbWF0dGVyIG9mIDANCj4gPiAgICAg
+d29yayBvciBhbGwgd29yayB0aGVuIHRoZXJlJ3MgcGxhY2VzIHRvIGxvb2sgZm9yIHRoYXQsIGJ1
+dCBpbiB0aGlzDQo+IGNhc2UNCj4gPiAgICAgdGhlIHByb2JsZW0gaXMgaW50ZXJtaXR0ZW50IGFu
+ZCB0aGUgbG9zdCBhcnAgcmVwbGllcyBhcmUgbm90IHRoZSBzYW1lDQo+ID4gICAgIGV2ZXJ5IHRp
+bWUuDQo+ID4gICAgIC0gSW4gYW5vdGhlciB0ZXN0IHdlIGZvdW5kIHRoYXQgaWYgd2UgcGluZyB0
+aGUgaW5zaWRlIHNlcnZlciBmcm9tIHRoZQ0KPiA+ICAgICBmaXJld2FsbCBhbmQgYWxzbyBmcm9t
+IGFuIGV4dGVybmFsIG1hY2hpbmUgdGhlIGNvbm5lY3Rpdml0eSB0byB0aGUNCj4gPiAgICAgaW5z
+aWRlIHNlcnZlciBkaWVzLiAgT25jZSB0aGUgcGluZ3MgYXJlIHN0b3BwZWQsIHRoZSBjb25uZWN0
+aXZpdHkNCj4gPiAgICAgZXZlbnR1YWxseSByZXR1cm5zLiAgSWYgSSBwaW5nIG91dCBmcm9tIHRo
+ZSBpbnNpZGUgc2VydmVyIHdoaWxlIGRvaW5nDQo+ID4gICAgIHRoYXQgdGVzdCwgdGhlIHNlc3Np
+b24ga2VlcHMgZ29pbmcgdGhyb3VnaCB3aXRob3V0IGhhbmdpbmcuDQo+ID4gICAgIC0gVGhlIGZp
+cmV3YWxsIGlzIGEgVm0gcnVubmluZyB1bmRlciBFU1guICBUaGUgdm14bmV0IGRyaXZlciBoYXMg
+YmVlbg0KPiA+ICAgICByZWluc3RhbGxlZCBhbmQgdGhlIHBjbmV0MzIgZHJpdmVyIGlzIG5vdCBs
+b2FkZWQuICBCb3RoIE5JQ3MgYXJlDQo+IHZpcnR1YWwNCj4gPiAgICAgc28gdGhlcmUgaXMgbm8g
+Y2hhbmNlIG9mIGZhaWxlZCBoYXJkd2FyZSwgdGhvdWdoIEkgc3VwcG9zZSB0aGUNCj4gcHJvYmxl
+bQ0KPiA+ICAgICBjb3VsZCBiZSBvbiB0aGUgRVNYIGxheWVyLiAgSSBoYXZlIG1hZGUgc29tZSBh
+dHRlbXB0IHRvIGRpYWdub3NlIHRoZQ0KPiBXU1gNCj4gPiAgICAgbGF5ZXIgYnV0IG5vdGhpbmcg
+anVtcHMgb3V0IGF0IG1lLg0KPiA+DQo+ID4gICAgIEkgaGF2ZSBiZWVuIHdhdGNoaW5nIHRjcGR1
+bXBzIGFuZCBkbyBub3Qgc2VlIGFueSBzaWduIG9mIGZyYWdzLA0KPiBkdXBlcywNCj4gPiAgICAg
+b3IgYW55dGhpbmcgdGhhdCB3b3VsZCBjYXVzZSBsb3N0IHBhY2tldHMuICBJIGhhdmUgY29tYmVk
+IHRoZQ0KPiA+ICAgICBuZXdzZ3JvdXBzLCBnb29nbGUgYW5kIGV2ZW4gaXJjIGxvb2tpbmcgZm9y
+IGNsdWVzIG9yIHNpbWlsYXINCj4gc2l0dWF0aW9ucywNCj4gPiAgICAgYnV0IG5vdGhpbmcgSSBo
+YXZlIGZvdW5kIGZpdHMgdGhlIHByb2ZpbGUuDQo+ID4NCj4gPiAgICAgVGhlIHdvcmthcm91bmQg
+d2UgY3VycmVudGx5IGhhdmUgaW4gcGxhY2UgaXMgdG8gbWFrZSBhIHN0YXRpYyBhcnANCj4gZW50
+cnkNCj4gPiAgICAgZm9yIHRoZSBnYXRld2F5IG9uIGFsbCBzZXJ2ZXJzIG9uIHRoZSBpbnNpZGUu
+ICBUaGlzIGlzIG5vdCBpZGVhbA0KPiBiZWNhdXNlDQo+ID4gICAgIHRoZSBjby1sbyBjb250cm9s
+cyB0aGUgcm91dGVyIGFuZCBpdCBjb3VsZCBmYWlsIG92ZXIgdG8gYW5vdGhlcg0KPiBkZXZpY2UN
+Cj4gPiAgICAgd2hpY2ggd291bGQga2lsbCBvdXIgcm91dGUgYWdhaW4uDQo+ID4NCj4gPiAgICAg
+Q2FuIGFueW9uZSBzdWdnZXN0IGFueXBsYWNlIEkgY2FuIGxvb2sgZm9yIGNsdWVzLCBzZXR0aW5n
+cyBJIHNob3VsZA0KPiA+ICAgICBjaGVjayBvciBvdGhlcj8gIEkgYW0gb3V0IG9mIGlkZWFzIGF0
+IHRoaXMgcG9pbnQuDQo+ID4NCj4gPiAgICAgWW91ciBoZWxwIGlzIHZlcnkgbXVjaCBhcHByZWNp
+YXRlZC4NCj4gPg0KPiA+ICAgICBSZWdhcmRzOw0KPiA+DQo+ID4gICAgIEJyYWQNCj4gPg0KPiA+
+DQo+ID4NCj4gPiAgICAgLS0NCj4gPiAgICAgQnJhZCBIdWRzb24NCj4gPiAgICAgU0EgVGVhbSBM
+ZWFkDQo+ID4gICAgIFRoZSBQeXRoaWFuIEdyb3VwIC0gbG92ZSB5b3VyIGRhdGENCj4gPiAgICAg
+RGVzazogNjEzLTU2NS04Njk2IHgyMDINCj4gPiAgICAgSU06IHB5dGhpYW5odWRzb24NCj4gPg0K
+PiA+DQo+ID4gSSBhc3N1bWUgeW91IGhhdmUgbXVsdGlwbGUgcGh5c2ljYWwgTklDcyBjb25uZWN0
+ZWQgdG8geW91ciB2aXJ0dWFsDQo+ID4gc3dpdGNoLiBJZiBzbyBJJ3ZlIHBvc3RlZCBteSBmaW5k
+aW5nIG9uIG15IHdlYiBwYWdlDQo+ID4gaHR0cDovL3JvYmVydC5sZWJsYW5jbmV0LnVzIGFuZCBJ
+J3ZlIHBvc3RlZCBhIG1lc3NhZ2UgdG8gdGhpcyBmb3JtIHR3bw0KPiA+IGRheXMgYWdvIGVudGl0
+bGVkICJOZWVkIGhlbHAgd3JpdGluZyBlYnRhYmxlcyBydWxlcyIuIEknbSBub3Qgc3VyZSBteQ0K
+PiA+IG1lc3NhZ2VzIGFyZSBnZXR0aW5nIHRocm91Z2ggYXMgSSd2ZSBzZW50IGEgZmV3IG1lc3Nh
+Z2VzIHdpdGggbm8gb25lDQo+ID4gcmVzcG9uZGluZy4gSWYgd2UgY2FuIHdvcmsgdG9nZXRoZXIg
+dG8gc29sdmUgdGhlIHByb2JsZW0sIHdlIGNhbiBib3RoDQo+ID4gYmVuZWZpdC4NCj4gPg0KPiA+
+IFRoYW5rcywNCj4gPg0KPiA+IFJvYmVydCBMZUJsYW5jDQo+ID4gTGlmZSBTY2llbmNlcyAmIFVu
+ZGVyZ3JhZHVhdGUgRWR1Y2F0aW9uIENvbXB1dGVyIFN1cHBvcnQNCj4gPiBCcmlnaGFtIFlvdW5n
+IFVuaXZlcnNpdHkNCj4gPg0KPg0KPg0KPg0KPiAtLQ0KPiBCcmFkIEh1ZHNvbg0KPiBTQSBUZWFt
+IExlYWQNCj4gVGhlIFB5dGhpYW4gR3JvdXAgLSBsb3ZlIHlvdXIgZGF0YQ0KPiBEZXNrOiA2MTMt
+NTY1LTg2OTYgeDIwMg0KPiBJTTogcHl0aGlhbmh1ZHNvbg0KPg0KDQo=
 
-ebtables -A FORWARD --destination Braodcast limit --limit 1/sec -j ACCEPT
+--part13984-boundary-1815449560-1663870548
+Content-Transfer-Encoding: base64
+Content-Type: text/html; charset="Windows-1252"
 
-should work? Any criticism?
+PCFET0NUWVBFIGh0bWwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4gPGh0bWw+PGhlYWQ+IDxtZXRhIGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD11dGYt
+OCIgaHR0cC1lcXVpdj0iQ29udGVudC1UeXBlIj4gPC9oZWFkPlNvIGFyZSB5b3Ugc2F5aW5nIHRo
+YXQgaXQncyB0aGUgc3RhbmRieSBuaWMgb24gdGhlIEVTWCBsYXllciB2aXJ0dWFsIHN3aXRjaCB0
+aGF0IGlzIGNhdXNpbmcgdGhpcyBpc3N1ZT8gIDxici8+PGJyLz5JIGFtIGFjdHVhbGx5IGF0IGEg
+dm13YXJlIGNvbmZlcmVuY2UgdG9kYXkgYW5kIHdhbnQgdG8gaGl0IHRoZW0gdXAgZm9yIG1vcmUg
+aW5mby48YnIvPjxici8+QnJhZDxici8+PGJyLz48cD5UaHVtYnMgLi4uIHRvbyAuLi4gYmlnIC4u
+LiBmb3IgLi4uIEJsYWNrQmVycnk8L3A+PGhyLz48ZGl2PjxiPkZyb206IDwvYj4gUm9iZXJ0IExl
+QmxhbmMgJmx0O3JvYmVydEBsZWJsYW5jbmV0LnVzJmd0Ow0KPC9kaXY+PGRpdj48Yj5EYXRlOiA8
+L2I+V2VkLCAyMCBKYW4gMjAxMCAxNDozMjozMyAtMDcwMDwvZGl2PjxkaXY+PGI+VG86IDwvYj5C
+cmFkIEh1ZHNvbiZsdDtodWRzb25AcHl0aGlhbi5jb20mZ3Q7PC9kaXY+PGRpdj48Yj5DYzogPC9i
+PiZsdDticmlkZ2VAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcmZ3Q7PC9kaXY+PGRpdj48Yj5T
+dWJqZWN0OiA8L2I+UmU6IFtCcmlkZ2VdIEluY29taW5nIHBhY2tldHMgbm90IGFsd2F5cyB0cmF2
+ZXJzaW5nIHRoZSBicmlkZ2U8L2Rpdj48ZGl2Pjxici8+PC9kaXY+SXQmIzM5O3Mgb24gdGhlIGZy
+b250IHBhZ2UsIHlvdSBuZWVkIGEgZ29vZ2xlIHdhdmUgYWNjb3VudCB0byBzZWUgdGhlIGJsb2cu
+PGRpdj48YnI+PC9kaXY+PGRpdj5IZXJlIGlzIHRoZSBjb250ZW50czo8L2Rpdj48ZGl2Pjxicj48
+L2Rpdj48ZGl2PjxzcGFuIGNsYXNzPSJBcHBsZS1zdHlsZS1zcGFuIiBzdHlsZT0iZm9udC1mYW1p
+bHk6IEFyaWFsOyBmb250LXNpemU6IDEzcHg7ICI+PHA+DQpJbnRlcmVzdGluZyBwcm9ibGVtIHdp
+dGggVmlydHVhbCBTd2l0Y2hlczwvcD48cD48L3A+PHA+U28sIGFmdGVyIHdvcmtpbmcgd2l0aCBW
+TXdhcmUgeWVzdGVyZGF5LCBpdCBpcyBhbWF6aW5nIGhvdyB1bmRlcnN0YW5kaW5nIGEgYmxhY2sg
+Ym94LCBjYW4gZ2V0IHlvdSBtb3Zpbmcgd2l0aCBhIHByb2JsZW0uPC9wPjxwPjwvcD48cD48c3Bh
+biBzdHlsZT0idGV4dC1kZWNvcmF0aW9uOiB1bmRlcmxpbmU7ICI+VGhlIFByb2JsZW06PC9zcGFu
+PjwvcD4NCjxwPkkgd2FzIHRyeWluZyB0byBjcmVhdGUgYSBWTSB0aGF0IHdvdWxkIGJlIGEgdHJh
+bnNwYXJlbnQgZmlyZXdhbGwgYW1vbmcgb3RoZXIgdGhpbmdzIGZvciBvdXIgc2VydmVyIFZNcy4g
+VGhlIHByb2JsZW0gSSB3YXMgc2VlaW5nIHdhcyB0aGF0IFZNcyBiZWhpbmQgdGhlIGZpcmV3YWxs
+IHdvdWxkIGxvc2UgY29ubmVjdGl2aXR5IHJhbmRvbWx5LiBBZnRlciBhIGxvdCBvZiB0ZXN0aW5n
+LCBJIGZvdW5kIHRoYXQgaXQgd2FzIG5vdCByYW5kb20sIGJ1dCBoYXBwZW5lZCB3aGVuIHRoZSBW
+TSBzZW50oG91dKBicm9hZGNhc3QgdHJhZmZpYy4gVGhlIExpbnV4IGJyaWRnZSB3b3VsZCBzZWUg
+dGhlIHRyYWZmaWOgb3JpZ2luYXRloGZyb20gYm90aCBzaWRlcyBvZiB0aGUgYnJpZGdlIHdpdGgg
+dGhlIG9wcG9zaXRlIHBvcnQgYmVpbmcgdGhlIG1vc3QgcmVjZW50LiBXaXRoIHRoZSBMaW51eCBi
+cmlkZ2UgdGhpbmtpbmcgdGhhdCB0aGUgVk0gd2FzIG9uIHRoZSB3cm9uZyBwb3J0IGFzIHRoZaBh
+Y3R1YWygVk0sIHRoZSB0cmFmZmljIHdvdWxkIG5vdCBnZXQgdG8gdGhlIFZNIHVudGlsIHRoZSBW
+TSBzZW50IG91dCBtb3JlIHRyYWZmaWMgdG8gdGVsbCB0aGUgYnJpZGdlIHdoYXQgcG9ydCBpdCB3
+YXMgb24uIFRoaXMgY2F1c2VkIHRoZSBpbnRlcnJ1cHRpb24uPC9wPg0KPHA+PC9wPjxwPjxzcGFu
+IHN0eWxlPSJ0ZXh0LWRlY29yYXRpb246IHVuZGVybGluZTsgIj5WTXdhcmUgZXhwbGFpbnM6PC9z
+cGFuPjwvcD48cD5BZnRlciB0cm91Ymxlc2hvb3Rpbmcgd2l0aCBjcmVhdGluZyBhIG5ldyB2aXJ0
+dWFsIHN3aXRjaCBhbmQgcHV0dGluZyBvbmUgcGh5c2ljYWwgYWRhcHRlciBvbiBpdCwgdGhlIHBy
+b2JsZW0gZGlzYXBwZWFyZWQuIFdlIGFkZGVkIGEgc2Vjb25koHBoeXNpY2FsoE5JQyB0byB0aGUg
+c3dpdGNoIGFuZCB2aW9sYSwgdGhlIHByb2JsZW0gcmVhcHBlYXJlZCEgVGhlIHRlY2huaWNpYW4g
+d2VudCBvbiB0byBleHBsYWluIHRoYXQgdGhleSAmIzM5O2NoZWF0JiMzOTsgaW4gdGhlaXIgdmly
+dHVhbCBzd2l0Y2ggY29kZS4gVXN1YWxseSB3aGVuIGNvbm5lY3Rpbmcgb25lIHN3aXRjaCB0byBh
+bm90aGVyIHlvdSB3aWxsIHRydW5rIHRoZSBwb3J0cywgYnV0IHRoZSB2aXJ0dWFsIHN3aXRjaCBk
+b2VzbiYjMzk7dCBkbyB0aGlzLiBJdCBvZmZlcnMgbW9yZSBmbGV4aWJpbGl0eSBhbmQgbW9yZSB0
+aHJvdWdocHV0IGZvciBhIGxvdCBsZXNzIGNvbXBsZXhpdHkuIFZNd2FyZSBqdXN0IHByb21pc2Vz
+IG5vdCB0byBjcmVhdGUgYSBicmlkZ2UgYmV0d2VlbiBwaHlzaWNhbCBOSUNzIChlYWNoIFZNIGlz
+IGtpbmQgb2YgYXNzaWduZWQgaXQmIzM5O3Mgb3duoHBoeXNpY2FsoE5JQyBzbyBpdCYjMzk7cyBu
+b3QgYSByZWFsIGJyaWRnZSkuIEkgd2VudCBhbmQgZGlkIHdoYXQgVk13YXJlIHByb21pc2VzIG5v
+dCB0byBkbyBjYXVzaW5nIG15IHByb2JsZW0uPC9wPg0KPHA+PC9wPjxwPjxzcGFuIHN0eWxlPSJ0
+ZXh0LWRlY29yYXRpb246IHVuZGVybGluZTsgIj5Qcm9ibGVtIGV4cGxhaW5lZDo8L3NwYW4+PC9w
+PjxwPlNpbmNlIEkgd2FzIGNyZWF0aW5nIGEgYnJpZGdlIHdpdGhvdXQgdHJ1bmtpbmcgcG9ydHMg
+KG5vdCBhIHJlYWwgcG9zc2liaWxpdHkgaW4gdGhpc6BzaXR1YXRpb24pLCB3aGVuIHRoZSBMaW51
+eCBicmlkZ2UgcmVjZWl2ZWQgYSBicm9hZGNhc3QgcGFja2V0IGZyb20gdGhlIFZNIGJlaGluZCwg
+aXQgZGlkIHRoZSBjb3JyZWN0IGpvYiBvZiBzZW5kaW5nIGl0IG91dCBvbmx5IHRoZSBvbmUgcG9y
+dCwgdGhpcyBwb3J0IGlzIHRoZW6gYXNzaWduZWSgdG8gYSBwaHlzaWNhbCBOSUMsIHRoZSBwaHlz
+aWNhbCBzd2l0Y2ggdGhhdCB0aGUgTklDIHdhcyBjb25uZWN0ZWQgdG8gd291bGQgdGhlbiBzZW5k
+IG91dCB0aGUgYnJvYWRjYXN0IHBhY2tldCB0byBldmVyeSBvdGhlciBwb3J0IG9uIHRoYXQgcGh5
+c2ljYWwgc3dpdGNoLiBUaGUgc2Vjb25kIHBoeXNpY2FsIE5JQ6BvbqB0aGUgRVNYIHNlcnZlciB3
+b3VsZCBhbHNvIHJlY2VpdmUgdGhlIGJyb2FkY2FzdCBwYWNrZXQgYW5kIHNlbmQgaXQgdG8gdGhl
+IGJyaWRnZSBWTSwgaGVuY2UgdGhlIGJyaWRnZSBWTSBzYXcgdGhlIHRyYWZmaWMgb24gYm90aCBw
+b3J0cy4gQSBjbGFzc2ljIGNhc2Ugb2YgcmVmbGVjdGlvbi48L3A+DQo8cD48L3A+PHA+PHNwYW4g
+c3R5bGU9InRleHQtZGVjb3JhdGlvbjogdW5kZXJsaW5lOyAiPlRoZSBzb2x1dGlvbjo8L3NwYW4+
+PC9wPjxwPkkmIzM5O20gc3RpbGwgd29ya2luZyBvbiB0aGlzLCBidXQgdGhlcmUgYXJlIGEgY291
+cGxlIG9mIHNvbHV0aW9ucyB0aGF0IEkgY2FuIHRoaW5rIG9mLjwvcD48cCBzdHlsZT0ibWFyZ2lu
+LWxlZnQ6IDE3cHg7ICI+MS4gTWFrZSB0aGWgdHJhbnNwYXJlbnSgYnJpZGdlIGEgcm91dGVyLiBJ
+JiMzOTttIG5vdCBodWdlIGZhbiBvZiB0aGlzIGlkZWEgYXMgSSB3aWxsIGhhdmUgdG8gaGF2ZSBt
+b3JlIGNvbm5lY3Rpb24gd2l0aCB0aGUgbmV0d29yayBlbmdpbmVlcnMgYW5kIHdloGRldmlhdGWg
+ZnJvbSB0aGUgc3RhbmRhcmQgbmV0d29yayBjb25maWcuPC9wPg0KPHAgc3R5bGU9Im1hcmdpbi1s
+ZWZ0OiAxN3B4OyAiPjIuIFVzZSBzb21lIGNsZWF2ZXIgZWJ0YWJsZXMgcnVsZXMgdG8gc3F1YXNo
+IGR1cGxpY2F0ZSBicm9hZGNhc3QgZnJhbWVzLiBBbHRob3VnaCBJIGhhdmVuJiMzOTt0IHJlYWxs
+eSB1c2VkIGVidGFibGVzLCBpdCYjMzk7cyBzdHJ1Y3R1cmUgaXMgbXVjaCBsaWtlIGlwdGFibGVz
+LCBzbyBpdCBjYW4mIzM5O3QgYmUgdG9vIGhhcmQuIEkgbWlnaHQgYWxzbyBiZSBhYmxlIHRvIHJl
+bHkgb24gc29tZSBPcGVuIFNvdXJjZSB2aXJ0dWFsIGFwcGxpYW5jZXMgdGhhdCBhbHJlYWR5IGRv
+IHNvbWV0aGluZyBzaW1pbGFyIHRvIGhlbHAgbWUgb3V0LjwvcD4NCjxwIHN0eWxlPSJtYXJnaW4t
+bGVmdDogMTdweDsgIj48L3A+PHA+VmlydHVhbGl6YXRpb24gaXMgZ3JlYXQsIGJ1dCB0aGVyZSBh
+cmUgdGltZXMgd2hlbiB0aGluZ3MganVzdCBkb24mIzM5O3Qgd29yayB0aGUgc2FtZSBhcyB0aGUg
+cGh5c2ljYWwgcmVhbG0uIEl0JiMzOTtzIGdvb2QgdG8ga25vdyB3aGVuIHRoZXNlIHRpbWVzIGFy
+ZS48c3BhbiBjbGFzcz0iX193YXZlX3Bhc3RlIj48L3NwYW4+PHNwYW4+oDwvc3Bhbj48L3A+DQo8
+L3NwYW4+PGJyPlJvYmVydCBMZUJsYW5jPGJyPkxpZmUgU2NpZW5jZXMgJmFtcDsgVW5kZXJncmFk
+dWF0ZSBFZHVjYXRpb24gQ29tcHV0ZXIgU3VwcG9ydDxicj5CcmlnaGFtIFlvdW5nIFVuaXZlcnNp
+dHk8YnI+DQo8YnI+PGJyPjxkaXYgY2xhc3M9ImdtYWlsX3F1b3RlIj5PbiBXZWQsIEphbiAyMCwg
+MjAxMCBhdCAyOjI5IFBNLCBCcmFkIEh1ZHNvbiA8c3BhbiBkaXI9Imx0ciI+Jmx0OzxhIGhyZWY9
+Im1haWx0bzpodWRzb25AcHl0aGlhbi5jb20iPmh1ZHNvbkBweXRoaWFuLmNvbTwvYT4mZ3Q7PC9z
+cGFuPiB3cm90ZTo8YnI+PGJsb2NrcXVvdGUgY2xhc3M9ImdtYWlsX3F1b3RlIiBzdHlsZT0ibWFy
+Z2luOjAgMCAwIC44ZXg7Ym9yZGVyLWxlZnQ6MXB4ICNjY2Mgc29saWQ7cGFkZGluZy1sZWZ0OjFl
+eDsiPg0KUm9iZXJ0Ozxicj4NCjxicj4NCkkgbG9va2VkIG92ZXIgeW91ciBzaXRlIGFuZCBjb3Vs
+ZCBub3QgZmluZCB0aGUgZG9jdW1lbnQgeW91IHJlZmVyZW5jZSBpbjxicj4NCnlvdXIgbGlua3Mu
+IKBDYW4geW91IHByb3ZpZGUgdGhlIHVybCB0byBnZXQgdG8gaXQ/PGJyPg0KPGJyPg0KSSYjMzk7
+bGwgYmUgaGFwcHkgdG8gcGFzcyBhbG9uZyBhbnl0aGluZyBJIGZpbmQgYW5kIHdvdWxkIGFwcHJl
+Y2lhdGUgaXQgaWY8YnI+DQp5b3Ugd291bGQgZG8gdGhlIHNhbWUuIKBBcyB0aGUgY2xpZW50IGhh
+dmluZyB0aGUgaXNzdWUgaXMgdXNpbmcgaXQgZm9yPGJyPg0KcHJvZHVjdGlvbiB3ZSBtYXkgbmVl
+ZCB0byBtb3ZlIHRvIGEgbm9uLWJyaWRnZWQgdmFyaWV0eSBvZiB0cmFuc3BhcmVudDxicj4NCmZp
+cmV3YWxsIHdpdGggcHJveHlfYXJwIHRvIGdldCB0aGVtIGJhY2sgdXAgcXVpY2tseS4goElkZWFs
+bHkgSSB3b3VsZDxicj4NCmxpa2UgdG8gYXZvaWQgdGhhdCwgYnV0IGl0JiMzOTtzIHByb2QgYW5k
+IG5lZWRzIHRvIHdvcmsuPGJyPg0KPGJyPg0KUmVnYXJkczs8YnI+DQo8Zm9udCBjb2xvcj0iIzg4
+ODg4OCI+PGJyPg0KQnJhZDxicj4NCjwvZm9udD48ZGl2IGNsYXNzPSJpbSI+PGJyPg0KUm9iZXJ0
+IExlQmxhbmMgd3JvdGU6PGJyPg0KJmd0OyBPbiBXZWQsIEphbiAyMCwgMjAxMCBhdCAxOjA0IFBN
+LCBCcmFkIEh1ZHNvbiAmbHQ7PGEgaHJlZj0ibWFpbHRvOmh1ZHNvbkBweXRoaWFuLmNvbSI+aHVk
+c29uQHB5dGhpYW4uY29tPC9hPjxicj4NCjwvZGl2PjxkaXY+PGRpdj48L2Rpdj48ZGl2IGNsYXNz
+PSJoNSI+Jmd0OyAmbHQ7bWFpbHRvOjxhIGhyZWY9Im1haWx0bzpodWRzb25AcHl0aGlhbi5jb20i
+Pmh1ZHNvbkBweXRoaWFuLmNvbTwvYT4mZ3Q7Jmd0OyB3cm90ZTo8YnI+DQomZ3Q7PGJyPg0KJmd0
+OyCgIKAgSGkgYWxsOzxicj4NCiZndDs8YnI+DQomZ3Q7IKAgoCBJIGhhdmUgYW4gb2RkIHByb2Js
+ZW0gdGhhdCBJIGhhdmUgYmVlbiBkZWFsaW5nIHdpdGggZm9yIGEgd2Vlay4goEkgd2FzPGJyPg0K
+Jmd0OyCgIKAgaG9waW5nIHNvbWVvbmUgY291bGQgaGVscCwgb3IgcG9pbnQgbWUgaW4gdGhlIHJp
+Z2h0IGRpcmVjdGlvbiBmb3IgY2x1ZXMuPGJyPg0KJmd0Ozxicj4NCiZndDsgoCCgIEkgaGF2ZSBh
+IHN0YW5kYXJkIGJyaWRnZSBzZXR1cC4goGJyMCBpcyBjb21wb3NlZCBvZiBldGgwIGFuZCBldGgx
+Ljxicj4NCiZndDs8YnI+DQomZ3Q7IKAgoCAjIGJyY3RsIHNob3cgYnJvPGJyPg0KJmd0OyCgIKAg
+YnJpZGdlIG5hbWUgoCCgIGJyaWRnZSBpZCCgIKAgoCCgIKAgoCCgIFNUUCBlbmFibGVkIKAgoCBp
+bnRlcmZhY2VzPGJyPg0KJmd0OyCgIKAgYnIwIKAgoCCgIKAgoCCgIDgwMDAuMDAwYzI5MjI4MGI5
+IKAgoCCgIG5vIKAgoCCgIKAgoCCgIKBldGgwPGJyPg0KJmd0OyCgIKAgoCCgIKAgoCCgIKAgoCCg
+IKAgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgoGV0aDE8YnI+DQomZ3Q7PGJy
+Pg0KJmd0OyCgIKAgRXRoMCBhbmQgZXRoMSBib3RoIGhhdmUgMC4wLjAuMCAobm8pIGFkZHJlc3Mg
+YXNzaWduZWQgYW5kIGFyZSB1cC4goGJyMDxicj4NCiZndDsgoCCgIGlzIGFzc2lnbmVkIHRoZSBw
+cm9wZXIgSVAgYW5kIHRoZSByb3V0aW5nIHRhYmxlIGlzIGNvcnJlY3QuIKBTVFAgaXMgb2ZmLjxi
+cj4NCiZndDs8YnI+DQomZ3Q7IKAgoCBJIGhhdmUgYmVlbiBsb3NpbmcgY29ubmVjdGl2aXR5IHRv
+IGhvc3RzIGluc2lkZSB0aGUgbG9jYWwgc2VnbWVudCBvZiB0aGU8YnI+DQomZ3Q7IKAgoCBicmlk
+Z2UuIKBTb21lIGludmVzdGlnYXRpb24gaGFzIHJldmVhbGVkIHRoYXQgdGhlIHByb2JsZW0gaXMg
+cmVsYXRlZCB0bzxicj4NCiZndDsgoCCgIGFycCBub3Qgd29ya2luZyBjb3JyZWN0bHkuIKBBcnAg
+cGFja2V0cyBnb2luZyB0aGlzIHdheTxicj4NCiZndDs8YnI+DQomZ3Q7IKAgoCBldGgxLSZndDti
+cjAtJmd0O2V0aDAtJmd0O25ldHdvcmsvaW50ZXJuZXQ8YnI+DQomZ3Q7PGJyPg0KJmd0OyCgIKAg
+aGF2ZSBubyBwcm9ibGVtcyBhdCBhbGwuIKBUaGUgcmVwbGllcyBjb21pbmcgYmFjayB0aGUgb3Ro
+ZXIgd2F5IGFsbCBnZXQ8YnI+DQomZ3Q7IKAgoCB0byBicjAsIGJ1dCBvbmx5IDMzJSAoYXBwcm94
+LCBpdCB2YXJpZXMpIG1ha2UgaXQgdG8gdGhlIGV0aDEgc2lkZSBvZiB0aGU8YnI+DQomZ3Q7IKAg
+oCBicmlkZ2UuIKBJIGhhdmUgdmVyaWZpZWQgdGhpcyB0cmFmZmljIHBhdHRlcm4gYnkgdGNwZHVt
+cCBvZiBhcnAgcGFja2V0czxicj4NCiZndDsgoCCgIHRocm91Z2ggZWFjaCBvZiB0aGVzZSBkZXZp
+Y2VzIHdoaWxlIGRvaW5nIGFuIG5tYXAgLXNQIG9mIHRoZSAvMjQgbmV0d29yazxicj4NCiZndDsg
+oCCgIHRvIGdlbmVyYXRlIGJvdGggYXJwIGFuZCBpY21wLiCgV2UgYXJlIG5vdCBhYmxlIHRvIGFy
+cCBhbnkgaG9zdCBvdXRzaWRlPGJyPg0KJmd0OyCgIKAgb3VyIGxvY2FsIHNlZ21lbnQsIGluY2x1
+ZGluZyB0aGUgZGVmYXVsdCBnYXRld2F5ICh3aGljaCBpcyBvd25lZCBieSB0aGU8YnI+DQomZ3Q7
+IKAgoCBjby1sbykuIKBubWFwcGluZyBmcm9tIHRoZSBicmlkZ2luZyBzZXJ2ZXIgaXRzZWxmIGZy
+b20gaW50ZXJmYWNlIGJyMDxicj4NCiZndDsgoCCgIGdldHMgdGhlIGNvcnJlY3QgbnVtYmVyIG9m
+IGFycCByZXBsaWVzLjxicj4NCiZndDs8YnI+DQomZ3Q7IKAgoCBlYnRhYmxlcyBhbmQgYXJwX3Rh
+YmxlcyBhcmUgbm90IHJ1bm5pbmcsIGFuZCBhZGRpbmcgdGhlbSBpbiBoYXMgaGFkIG5vPGJyPg0K
+Jmd0OyCgIKAgY2hhbmdlIGluIHJlc3VsdC4goFRoZXJlIHdhcyBhIHNlcnZlciB3aXRoIDIgTklD
+cywgZWFjaCB3aXRoIGFuIElQIG9uPGJyPg0KJmd0OyCgIKAgdGhlIHNhbWUgc3VibmV0LCB0aGF0
+IHdhcyBjYXVzaW5nIHNvbWUgTUFDIGZsYXBwaW5nIGJ1dCB0aGF0IGhhcyBiZWVuPGJyPg0KJmd0
+OyCgIKAgZml4ZWQgYW5kIG5vIGNoYW5nZSB0byB0aGUgZGVzY3JpYmVkIGJlaGF2aW91ci4goEFs
+bCBpdGVtcyBpbjxicj4NCiZndDsgoCCgIC9wcm9jL3N5cy9uZXQvYnJpZGdlIGFyZSBzZXQgdG8g
+JiMzOTsxJiMzOTssIGJ1dCBzZXR0aW5nIHRoZW0gdG8gJiMzOTswJiMzOTsgaGFzIG5vPGJyPg0K
+Jmd0OyCgIKAgZWZmZWN0LiCgVGhlIHNlcnZlciBob3N0aW5nIHRoZSBicmlkZ2UgaGFzIGJlZW4g
+cmVib290ZWQgc2V2ZXJhbCB0aW1lczxicj4NCiZndDsgoCCgIHdpdGggbm8gZWZmZWN0LiCgcHJv
+eHlfYXJwIGRvZXMgbm90IGhlbHAgYXQgYWxsLiCgSSBhbHNvIHRyaWVkPGJyPg0KJmd0OyCgIKAg
+cGFycHJvdXRlZCB3aXRoIG5vIHN1Y2Nlc3MuPGJyPg0KJmd0Ozxicj4NCiZndDsgoCCgIEEgY291
+cGxlIG90aGVyIG5vdGVzLjxicj4NCiZndDs8YnI+DQomZ3Q7IKAgoCAtIFRoaXMgYmVoYXZpb3Vy
+IHN1ZGRlbmx5IGFwcGVhcmVkIGFib3V0IGEgd2VlayBhZ28uIKBJIHRoaW5rIHRoaXMgaXM8YnI+
+DQomZ3Q7IKAgoCBwcm9iYWJseSByZWxhdGVkIHRvIGFuIGluY3JlYXNlIGluIG5ldHdvcmsgdHJh
+ZmZpYyBidXQgaXQmIzM5O3MgaGFyZCB0byBzYXksPGJyPg0KJmd0OyCgIKAgdGhlIGNsaWVudCBk
+b2VzIG5vdCBidXkgaW50byB0aGF0IHN0YXRlbWVudC4goElmIGl0IHdhcyBhIG1hdHRlciBvZiAw
+PGJyPg0KJmd0OyCgIKAgd29yayBvciBhbGwgd29yayB0aGVuIHRoZXJlJiMzOTtzIHBsYWNlcyB0
+byBsb29rIGZvciB0aGF0LCBidXQgaW4gdGhpcyBjYXNlPGJyPg0KJmd0OyCgIKAgdGhlIHByb2Js
+ZW0gaXMgaW50ZXJtaXR0ZW50IGFuZCB0aGUgbG9zdCBhcnAgcmVwbGllcyBhcmUgbm90IHRoZSBz
+YW1lPGJyPg0KJmd0OyCgIKAgZXZlcnkgdGltZS48YnI+DQomZ3Q7IKAgoCAtIEluIGFub3RoZXIg
+dGVzdCB3ZSBmb3VuZCB0aGF0IGlmIHdlIHBpbmcgdGhlIGluc2lkZSBzZXJ2ZXIgZnJvbSB0aGU8
+YnI+DQomZ3Q7IKAgoCBmaXJld2FsbCBhbmQgYWxzbyBmcm9tIGFuIGV4dGVybmFsIG1hY2hpbmUg
+dGhlIGNvbm5lY3Rpdml0eSB0byB0aGU8YnI+DQomZ3Q7IKAgoCBpbnNpZGUgc2VydmVyIGRpZXMu
+IKBPbmNlIHRoZSBwaW5ncyBhcmUgc3RvcHBlZCwgdGhlIGNvbm5lY3Rpdml0eTxicj4NCiZndDsg
+oCCgIGV2ZW50dWFsbHkgcmV0dXJucy4goElmIEkgcGluZyBvdXQgZnJvbSB0aGUgaW5zaWRlIHNl
+cnZlciB3aGlsZSBkb2luZzxicj4NCiZndDsgoCCgIHRoYXQgdGVzdCwgdGhlIHNlc3Npb24ga2Vl
+cHMgZ29pbmcgdGhyb3VnaCB3aXRob3V0IGhhbmdpbmcuPGJyPg0KJmd0OyCgIKAgLSBUaGUgZmly
+ZXdhbGwgaXMgYSBWbSBydW5uaW5nIHVuZGVyIEVTWC4goFRoZSB2bXhuZXQgZHJpdmVyIGhhcyBi
+ZWVuPGJyPg0KJmd0OyCgIKAgcmVpbnN0YWxsZWQgYW5kIHRoZSBwY25ldDMyIGRyaXZlciBpcyBu
+b3QgbG9hZGVkLiCgQm90aCBOSUNzIGFyZSB2aXJ0dWFsPGJyPg0KJmd0OyCgIKAgc28gdGhlcmUg
+aXMgbm8gY2hhbmNlIG9mIGZhaWxlZCBoYXJkd2FyZSwgdGhvdWdoIEkgc3VwcG9zZSB0aGUgcHJv
+YmxlbTxicj4NCiZndDsgoCCgIGNvdWxkIGJlIG9uIHRoZSBFU1ggbGF5ZXIuIKBJIGhhdmUgbWFk
+ZSBzb21lIGF0dGVtcHQgdG8gZGlhZ25vc2UgdGhlIFdTWDxicj4NCiZndDsgoCCgIGxheWVyIGJ1
+dCBub3RoaW5nIGp1bXBzIG91dCBhdCBtZS48YnI+DQomZ3Q7PGJyPg0KJmd0OyCgIKAgSSBoYXZl
+IGJlZW4gd2F0Y2hpbmcgdGNwZHVtcHMgYW5kIGRvIG5vdCBzZWUgYW55IHNpZ24gb2YgZnJhZ3Ms
+IGR1cGVzLDxicj4NCiZndDsgoCCgIG9yIGFueXRoaW5nIHRoYXQgd291bGQgY2F1c2UgbG9zdCBw
+YWNrZXRzLiCgSSBoYXZlIGNvbWJlZCB0aGU8YnI+DQomZ3Q7IKAgoCBuZXdzZ3JvdXBzLCBnb29n
+bGUgYW5kIGV2ZW4gaXJjIGxvb2tpbmcgZm9yIGNsdWVzIG9yIHNpbWlsYXIgc2l0dWF0aW9ucyw8
+YnI+DQomZ3Q7IKAgoCBidXQgbm90aGluZyBJIGhhdmUgZm91bmQgZml0cyB0aGUgcHJvZmlsZS48
+YnI+DQomZ3Q7PGJyPg0KJmd0OyCgIKAgVGhlIHdvcmthcm91bmQgd2UgY3VycmVudGx5IGhhdmUg
+aW4gcGxhY2UgaXMgdG8gbWFrZSBhIHN0YXRpYyBhcnAgZW50cnk8YnI+DQomZ3Q7IKAgoCBmb3Ig
+dGhlIGdhdGV3YXkgb24gYWxsIHNlcnZlcnMgb24gdGhlIGluc2lkZS4goFRoaXMgaXMgbm90IGlk
+ZWFsIGJlY2F1c2U8YnI+DQomZ3Q7IKAgoCB0aGUgY28tbG8gY29udHJvbHMgdGhlIHJvdXRlciBh
+bmQgaXQgY291bGQgZmFpbCBvdmVyIHRvIGFub3RoZXIgZGV2aWNlPGJyPg0KJmd0OyCgIKAgd2hp
+Y2ggd291bGQga2lsbCBvdXIgcm91dGUgYWdhaW4uPGJyPg0KJmd0Ozxicj4NCiZndDsgoCCgIENh
+biBhbnlvbmUgc3VnZ2VzdCBhbnlwbGFjZSBJIGNhbiBsb29rIGZvciBjbHVlcywgc2V0dGluZ3Mg
+SSBzaG91bGQ8YnI+DQomZ3Q7IKAgoCBjaGVjayBvciBvdGhlcj8goEkgYW0gb3V0IG9mIGlkZWFz
+IGF0IHRoaXMgcG9pbnQuPGJyPg0KJmd0Ozxicj4NCiZndDsgoCCgIFlvdXIgaGVscCBpcyB2ZXJ5
+IG11Y2ggYXBwcmVjaWF0ZWQuPGJyPg0KJmd0Ozxicj4NCiZndDsgoCCgIFJlZ2FyZHM7PGJyPg0K
+Jmd0Ozxicj4NCiZndDsgoCCgIEJyYWQ8YnI+DQomZ3Q7PGJyPg0KJmd0Ozxicj4NCiZndDs8YnI+
+DQomZ3Q7IKAgoCAtLTxicj4NCiZndDsgoCCgIEJyYWQgSHVkc29uPGJyPg0KJmd0OyCgIKAgU0Eg
+VGVhbSBMZWFkPGJyPg0KJmd0OyCgIKAgVGhlIFB5dGhpYW4gR3JvdXAgLSBsb3ZlIHlvdXIgZGF0
+YTxicj4NCiZndDsgoCCgIERlc2s6IDYxMy01NjUtODY5NiB4MjAyPGJyPg0KJmd0OyCgIKAgSU06
+IHB5dGhpYW5odWRzb248YnI+DQomZ3Q7PGJyPg0KJmd0Ozxicj4NCiZndDsgSSBhc3N1bWUgeW91
+IGhhdmUgbXVsdGlwbGUgcGh5c2ljYWwgTklDcyBjb25uZWN0ZWQgdG8geW91ciB2aXJ0dWFsPGJy
+Pg0KJmd0OyBzd2l0Y2guIElmIHNvIEkmIzM5O3ZlIHBvc3RlZCBteSBmaW5kaW5nIG9uIG15IHdl
+YiBwYWdlPGJyPg0KJmd0OyA8YSBocmVmPSJodHRwOi8vcm9iZXJ0LmxlYmxhbmNuZXQudXMiIHRh
+cmdldD0iX2JsYW5rIj5odHRwOi8vcm9iZXJ0LmxlYmxhbmNuZXQudXM8L2E+IGFuZCBJJiMzOTt2
+ZSBwb3N0ZWQgYSBtZXNzYWdlIHRvIHRoaXMgZm9ybSB0d288YnI+DQomZ3Q7IGRheXMgYWdvIGVu
+dGl0bGVkICZxdW90O05lZWQgaGVscCB3cml0aW5nIGVidGFibGVzIHJ1bGVzJnF1b3Q7LiBJJiMz
+OTttIG5vdCBzdXJlIG15PGJyPg0KJmd0OyBtZXNzYWdlcyBhcmUgZ2V0dGluZyB0aHJvdWdoIGFz
+IEkmIzM5O3ZlIHNlbnQgYSBmZXcgbWVzc2FnZXMgd2l0aCBubyBvbmU8YnI+DQomZ3Q7IHJlc3Bv
+bmRpbmcuIElmIHdlIGNhbiB3b3JrIHRvZ2V0aGVyIHRvIHNvbHZlIHRoZSBwcm9ibGVtLCB3ZSBj
+YW4gYm90aDxicj4NCiZndDsgYmVuZWZpdC48YnI+DQomZ3Q7PGJyPg0KJmd0OyBUaGFua3MsPGJy
+Pg0KJmd0Ozxicj4NCiZndDsgUm9iZXJ0IExlQmxhbmM8YnI+DQomZ3Q7IExpZmUgU2NpZW5jZXMg
+JmFtcDsgVW5kZXJncmFkdWF0ZSBFZHVjYXRpb24gQ29tcHV0ZXIgU3VwcG9ydDxicj4NCiZndDsg
+QnJpZ2hhbSBZb3VuZyBVbml2ZXJzaXR5PGJyPg0KJmd0Ozxicj4NCjxicj4NCjxicj4NCjxicj4N
+CjwvZGl2PjwvZGl2Pi0tPGJyPg0KPGRpdj48ZGl2PjwvZGl2PjxkaXYgY2xhc3M9Img1Ij5CcmFk
+IEh1ZHNvbjxicj4NClNBIFRlYW0gTGVhZDxicj4NClRoZSBQeXRoaWFuIEdyb3VwIC0gbG92ZSB5
+b3VyIGRhdGE8YnI+DQpEZXNrOiA2MTMtNTY1LTg2OTYgeDIwMjxicj4NCklNOiBweXRoaWFuaHVk
+c29uPGJyPg0KPC9kaXY+PC9kaXY+PC9ibG9ja3F1b3RlPjwvZGl2Pjxicj48L2Rpdj4NCg0KPC9o
+dG1sPg==
 
-Thanks,
+--part13984-boundary-1815449560-1663870548--
 
-Robert LeBlanc
-Life Sciences & Undergraduate Education Computer Support
-Brigham Young University
-
-
-On Wed, Jan 20, 2010 at 2:45 PM, Robert LeBlanc <robert@leblancnet.us>wrote:
-
-> Another quick fix is to remove all physical NICs except for one from the
-> Virtual switch(s) that are being bridged. You lose redundancy, but that will
-> get them up fast until a fix is found.
->
->
-> Robert LeBlanc
-> Life Sciences & Undergraduate Education Computer Support
-> Brigham Young University
->
->
-> On Wed, Jan 20, 2010 at 2:29 PM, Brad Hudson <hudson@pythian.com> wrote:
->
->> Robert;
->>
->> I looked over your site and could not find the document you reference in
->> your links.  Can you provide the url to get to it?
->>
->> I'll be happy to pass along anything I find and would appreciate it if
->> you would do the same.  As the client having the issue is using it for
->> production we may need to move to a non-bridged variety of transparent
->> firewall with proxy_arp to get them back up quickly.  Ideally I would
->> like to avoid that, but it's prod and needs to work.
->>
->> Regards;
->>
->> Brad
->>
->> Robert LeBlanc wrote:
->> > On Wed, Jan 20, 2010 at 1:04 PM, Brad Hudson <hudson@pythian.com
->> > <mailto:hudson@pythian.com>> wrote:
->> >
->> >     Hi all;
->> >
->> >     I have an odd problem that I have been dealing with for a week.  I
->> was
->> >     hoping someone could help, or point me in the right direction for
->> clues.
->> >
->> >     I have a standard bridge setup.  br0 is composed of eth0 and eth1.
->> >
->> >     # brctl show bro
->> >     bridge name     bridge id               STP enabled     interfaces
->> >     br0             8000.000c292280b9       no              eth0
->> >                                                            eth1
->> >
->> >     Eth0 and eth1 both have 0.0.0.0 (no) address assigned and are up.
->>  br0
->> >     is assigned the proper IP and the routing table is correct.  STP is
->> off.
->> >
->> >     I have been losing connectivity to hosts inside the local segment of
->> the
->> >     bridge.  Some investigation has revealed that the problem is related
->> to
->> >     arp not working correctly.  Arp packets going this way
->> >
->> >     eth1->br0->eth0->network/internet
->> >
->> >     have no problems at all.  The replies coming back the other way all
->> get
->> >     to br0, but only 33% (approx, it varies) make it to the eth1 side of
->> the
->> >     bridge.  I have verified this traffic pattern by tcpdump of arp
->> packets
->> >     through each of these devices while doing an nmap -sP of the /24
->> network
->> >     to generate both arp and icmp.  We are not able to arp any host
->> outside
->> >     our local segment, including the default gateway (which is owned by
->> the
->> >     co-lo).  nmapping from the bridging server itself from interface br0
->> >     gets the correct number of arp replies.
->> >
->> >     ebtables and arp_tables are not running, and adding them in has had
->> no
->> >     change in result.  There was a server with 2 NICs, each with an IP
->> on
->> >     the same subnet, that was causing some MAC flapping but that has
->> been
->> >     fixed and no change to the described behaviour.  All items in
->> >     /proc/sys/net/bridge are set to '1', but setting them to '0' has no
->> >     effect.  The server hosting the bridge has been rebooted several
->> times
->> >     with no effect.  proxy_arp does not help at all.  I also tried
->> >     parprouted with no success.
->> >
->> >     A couple other notes.
->> >
->> >     - This behaviour suddenly appeared about a week ago.  I think this
->> is
->> >     probably related to an increase in network traffic but it's hard to
->> say,
->> >     the client does not buy into that statement.  If it was a matter of
->> 0
->> >     work or all work then there's places to look for that, but in this
->> case
->> >     the problem is intermittent and the lost arp replies are not the
->> same
->> >     every time.
->> >     - In another test we found that if we ping the inside server from
->> the
->> >     firewall and also from an external machine the connectivity to the
->> >     inside server dies.  Once the pings are stopped, the connectivity
->> >     eventually returns.  If I ping out from the inside server while
->> doing
->> >     that test, the session keeps going through without hanging.
->> >     - The firewall is a Vm running under ESX.  The vmxnet driver has
->> been
->> >     reinstalled and the pcnet32 driver is not loaded.  Both NICs are
->> virtual
->> >     so there is no chance of failed hardware, though I suppose the
->> problem
->> >     could be on the ESX layer.  I have made some attempt to diagnose the
->> WSX
->> >     layer but nothing jumps out at me.
->> >
->> >     I have been watching tcpdumps and do not see any sign of frags,
->> dupes,
->> >     or anything that would cause lost packets.  I have combed the
->> >     newsgroups, google and even irc looking for clues or similar
->> situations,
->> >     but nothing I have found fits the profile.
->> >
->> >     The workaround we currently have in place is to make a static arp
->> entry
->> >     for the gateway on all servers on the inside.  This is not ideal
->> because
->> >     the co-lo controls the router and it could fail over to another
->> device
->> >     which would kill our route again.
->> >
->> >     Can anyone suggest anyplace I can look for clues, settings I should
->> >     check or other?  I am out of ideas at this point.
->> >
->> >     Your help is very much appreciated.
->> >
->> >     Regards;
->> >
->> >     Brad
->> >
->> >
->> >
->> >     --
->> >     Brad Hudson
->> >     SA Team Lead
->> >     The Pythian Group - love your data
->> >     Desk: 613-565-8696 x202
->> >     IM: pythianhudson
->> >
->> >
->> > I assume you have multiple physical NICs connected to your virtual
->> > switch. If so I've posted my finding on my web page
->> > http://robert.leblancnet.us and I've posted a message to this form two
->> > days ago entitled "Need help writing ebtables rules". I'm not sure my
->> > messages are getting through as I've sent a few messages with no one
->> > responding. If we can work together to solve the problem, we can both
->> > benefit.
->> >
->> > Thanks,
->> >
->> > Robert LeBlanc
->> > Life Sciences & Undergraduate Education Computer Support
->> > Brigham Young University
->> >
->>
->>
->>
->> --
->> Brad Hudson
->> SA Team Lead
->> The Pythian Group - love your data
->> Desk: 613-565-8696 x202
->> IM: pythianhudson
->>
->
->
-
---0016e687869483a396047da18462
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-I think I could use the limit match and limit it to 1/sec, that should drop=
- the duplicate packet if it matches the source mac and destination (broadca=
-st).<br><br>so, I think something like:<br><br>ebtables -A FORWARD --destin=
-ation Braodcast limit --limit 1/sec -j ACCEPT<br>
-<br>should work? Any criticism?<br><br>Thanks,<br clear=3D"all"><br>Robert =
-LeBlanc<br>Life Sciences &amp; Undergraduate Education Computer Support<br>=
-Brigham Young University<br>
-<br><br><div class=3D"gmail_quote">On Wed, Jan 20, 2010 at 2:45 PM, Robert =
-LeBlanc <span dir=3D"ltr">&lt;<a href=3D"mailto:robert@leblancnet.us">rober=
-t@leblancnet.us</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" =
-style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8=
-ex; padding-left: 1ex;">
-Another quick fix is to remove all physical NICs except for one from the Vi=
-rtual switch(s) that are being bridged. You lose redundancy, but that will =
-get them up fast until a fix is found.<div class=3D"im"><br clear=3D"all"><=
-br>
-Robert LeBlanc<br>
-Life Sciences &amp; Undergraduate Education Computer Support<br>Brigham You=
-ng University<br>
-<br><br></div><div><div></div><div class=3D"h5"><div class=3D"gmail_quote">=
-On Wed, Jan 20, 2010 at 2:29 PM, Brad Hudson <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:hudson@pythian.com" target=3D"_blank">hudson@pythian.com</a>&gt;=
-</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
-204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-Robert;<br>
-<br>
-I looked over your site and could not find the document you reference in<br=
->
-your links. =A0Can you provide the url to get to it?<br>
-<br>
-I&#39;ll be happy to pass along anything I find and would appreciate it if<=
-br>
-you would do the same. =A0As the client having the issue is using it for<br=
->
-production we may need to move to a non-bridged variety of transparent<br>
-firewall with proxy_arp to get them back up quickly. =A0Ideally I would<br>
-like to avoid that, but it&#39;s prod and needs to work.<br>
-<br>
-Regards;<br>
-<font color=3D"#888888"><br>
-Brad<br>
-</font><div><br>
-Robert LeBlanc wrote:<br>
-&gt; On Wed, Jan 20, 2010 at 1:04 PM, Brad Hudson &lt;<a href=3D"mailto:hud=
-son@pythian.com" target=3D"_blank">hudson@pythian.com</a><br>
-</div><div><div></div><div>&gt; &lt;mailto:<a href=3D"mailto:hudson@pythian=
-.com" target=3D"_blank">hudson@pythian.com</a>&gt;&gt; wrote:<br>
-&gt;<br>
-&gt; =A0 =A0 Hi all;<br>
-&gt;<br>
-&gt; =A0 =A0 I have an odd problem that I have been dealing with for a week=
-. =A0I was<br>
-&gt; =A0 =A0 hoping someone could help, or point me in the right direction =
-for clues.<br>
-&gt;<br>
-&gt; =A0 =A0 I have a standard bridge setup. =A0br0 is composed of eth0 and=
- eth1.<br>
-&gt;<br>
-&gt; =A0 =A0 # brctl show bro<br>
-&gt; =A0 =A0 bridge name =A0 =A0 bridge id =A0 =A0 =A0 =A0 =A0 =A0 =A0 STP =
-enabled =A0 =A0 interfaces<br>
-&gt; =A0 =A0 br0 =A0 =A0 =A0 =A0 =A0 =A0 8000.000c292280b9 =A0 =A0 =A0 no =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0eth0<br>
-&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0eth1<br>
-&gt;<br>
-&gt; =A0 =A0 Eth0 and eth1 both have 0.0.0.0 (no) address assigned and are =
-up. =A0br0<br>
-&gt; =A0 =A0 is assigned the proper IP and the routing table is correct. =
-=A0STP is off.<br>
-&gt;<br>
-&gt; =A0 =A0 I have been losing connectivity to hosts inside the local segm=
-ent of the<br>
-&gt; =A0 =A0 bridge. =A0Some investigation has revealed that the problem is=
- related to<br>
-&gt; =A0 =A0 arp not working correctly. =A0Arp packets going this way<br>
-&gt;<br>
-&gt; =A0 =A0 eth1-&gt;br0-&gt;eth0-&gt;network/internet<br>
-&gt;<br>
-&gt; =A0 =A0 have no problems at all. =A0The replies coming back the other =
-way all get<br>
-&gt; =A0 =A0 to br0, but only 33% (approx, it varies) make it to the eth1 s=
-ide of the<br>
-&gt; =A0 =A0 bridge. =A0I have verified this traffic pattern by tcpdump of =
-arp packets<br>
-&gt; =A0 =A0 through each of these devices while doing an nmap -sP of the /=
-24 network<br>
-&gt; =A0 =A0 to generate both arp and icmp. =A0We are not able to arp any h=
-ost outside<br>
-&gt; =A0 =A0 our local segment, including the default gateway (which is own=
-ed by the<br>
-&gt; =A0 =A0 co-lo). =A0nmapping from the bridging server itself from inter=
-face br0<br>
-&gt; =A0 =A0 gets the correct number of arp replies.<br>
-&gt;<br>
-&gt; =A0 =A0 ebtables and arp_tables are not running, and adding them in ha=
-s had no<br>
-&gt; =A0 =A0 change in result. =A0There was a server with 2 NICs, each with=
- an IP on<br>
-&gt; =A0 =A0 the same subnet, that was causing some MAC flapping but that h=
-as been<br>
-&gt; =A0 =A0 fixed and no change to the described behaviour. =A0All items i=
-n<br>
-&gt; =A0 =A0 /proc/sys/net/bridge are set to &#39;1&#39;, but setting them =
-to &#39;0&#39; has no<br>
-&gt; =A0 =A0 effect. =A0The server hosting the bridge has been rebooted sev=
-eral times<br>
-&gt; =A0 =A0 with no effect. =A0proxy_arp does not help at all. =A0I also t=
-ried<br>
-&gt; =A0 =A0 parprouted with no success.<br>
-&gt;<br>
-&gt; =A0 =A0 A couple other notes.<br>
-&gt;<br>
-&gt; =A0 =A0 - This behaviour suddenly appeared about a week ago. =A0I thin=
-k this is<br>
-&gt; =A0 =A0 probably related to an increase in network traffic but it&#39;=
-s hard to say,<br>
-&gt; =A0 =A0 the client does not buy into that statement. =A0If it was a ma=
-tter of 0<br>
-&gt; =A0 =A0 work or all work then there&#39;s places to look for that, but=
- in this case<br>
-&gt; =A0 =A0 the problem is intermittent and the lost arp replies are not t=
-he same<br>
-&gt; =A0 =A0 every time.<br>
-&gt; =A0 =A0 - In another test we found that if we ping the inside server f=
-rom the<br>
-&gt; =A0 =A0 firewall and also from an external machine the connectivity to=
- the<br>
-&gt; =A0 =A0 inside server dies. =A0Once the pings are stopped, the connect=
-ivity<br>
-&gt; =A0 =A0 eventually returns. =A0If I ping out from the inside server wh=
-ile doing<br>
-&gt; =A0 =A0 that test, the session keeps going through without hanging.<br=
->
-&gt; =A0 =A0 - The firewall is a Vm running under ESX. =A0The vmxnet driver=
- has been<br>
-&gt; =A0 =A0 reinstalled and the pcnet32 driver is not loaded. =A0Both NICs=
- are virtual<br>
-&gt; =A0 =A0 so there is no chance of failed hardware, though I suppose the=
- problem<br>
-&gt; =A0 =A0 could be on the ESX layer. =A0I have made some attempt to diag=
-nose the WSX<br>
-&gt; =A0 =A0 layer but nothing jumps out at me.<br>
-&gt;<br>
-&gt; =A0 =A0 I have been watching tcpdumps and do not see any sign of frags=
-, dupes,<br>
-&gt; =A0 =A0 or anything that would cause lost packets. =A0I have combed th=
-e<br>
-&gt; =A0 =A0 newsgroups, google and even irc looking for clues or similar s=
-ituations,<br>
-&gt; =A0 =A0 but nothing I have found fits the profile.<br>
-&gt;<br>
-&gt; =A0 =A0 The workaround we currently have in place is to make a static =
-arp entry<br>
-&gt; =A0 =A0 for the gateway on all servers on the inside. =A0This is not i=
-deal because<br>
-&gt; =A0 =A0 the co-lo controls the router and it could fail over to anothe=
-r device<br>
-&gt; =A0 =A0 which would kill our route again.<br>
-&gt;<br>
-&gt; =A0 =A0 Can anyone suggest anyplace I can look for clues, settings I s=
-hould<br>
-&gt; =A0 =A0 check or other? =A0I am out of ideas at this point.<br>
-&gt;<br>
-&gt; =A0 =A0 Your help is very much appreciated.<br>
-&gt;<br>
-&gt; =A0 =A0 Regards;<br>
-&gt;<br>
-&gt; =A0 =A0 Brad<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt; =A0 =A0 --<br>
-&gt; =A0 =A0 Brad Hudson<br>
-&gt; =A0 =A0 SA Team Lead<br>
-&gt; =A0 =A0 The Pythian Group - love your data<br>
-&gt; =A0 =A0 Desk: 613-565-8696 x202<br>
-&gt; =A0 =A0 IM: pythianhudson<br>
-&gt;<br>
-&gt;<br>
-&gt; I assume you have multiple physical NICs connected to your virtual<br>
-&gt; switch. If so I&#39;ve posted my finding on my web page<br>
-&gt; <a href=3D"http://robert.leblancnet.us" target=3D"_blank">http://rober=
-t.leblancnet.us</a> and I&#39;ve posted a message to this form two<br>
-&gt; days ago entitled &quot;Need help writing ebtables rules&quot;. I&#39;=
-m not sure my<br>
-&gt; messages are getting through as I&#39;ve sent a few messages with no o=
-ne<br>
-&gt; responding. If we can work together to solve the problem, we can both<=
-br>
-&gt; benefit.<br>
-&gt;<br>
-&gt; Thanks,<br>
-&gt;<br>
-&gt; Robert LeBlanc<br>
-&gt; Life Sciences &amp; Undergraduate Education Computer Support<br>
-&gt; Brigham Young University<br>
-&gt;<br>
-<br>
-<br>
-<br>
-</div></div>--<br>
-<div><div></div><div>Brad Hudson<br>
-SA Team Lead<br>
-The Pythian Group - love your data<br>
-Desk: 613-565-8696 x202<br>
-IM: pythianhudson<br>
-</div></div></blockquote></div><br>
-</div></div></blockquote></div><br>
-
---0016e687869483a396047da18462--
