@@ -1,9 +1,10 @@
-MIME-Version: 1.0
-Date: Sun, 24 Jan 2010 17:18:36 +0200
-Message-ID: <549992e51001240718l19528937j7e2cb166a3b2bd2c@mail.gmail.com>
-From: Metuki Sabhe <sabhe.metuki@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] bridge: mac addresses question (for bluetooth pan-nap)
+From: Sebastian Niehaus <niehaus@nospam.arcornews.de>
+Date: Sat, 23 Jan 2010 11:38:45 +0100
+Message-ID: <87r5phumve.fsf@crystalline.worst-case.no-ip.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Sender: news <news@ger.gmane.org>
+Subject: [Bridge] Linux Ethernet bridge and UPNP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,20 +13,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-Hi,
+Hi, 
 
-I have a single bridge with up to 7 virtual TAP ports,
-which are being added and removed dynamically.
+I have a linux box (Debian Lenny) with a bridged ethernet
+interface. The box is running mediatomb[1], an UPNP media server.
 
-Can I use the same MAC address for all ports and for the bridge ?
-(I don't use STP as the topology is very very simple).
 
-This is needed to allow macaddress header compression of BNEP...
-(i plan to use the radio BDADDR as the MAC address for all TAP ports
-and for the bridge)
+If I run gupnp-universal-cp (a tool to discover UPNP-Devices in the
+network) on this computer I only see the mediatomb server on the same
+maschine but no other UPNP-Devices.
 
-thank you,
-sabhe
+
+If I run gupnp-universal-cp on another computer in the network
+(without ethernet bridge) I see other UPNP-Devices in the network but
+not the media server.
+
+
+All boxes are in the same subnet and networking gererally works
+fine. The media server's web interface can be reached from any
+computer in the network but UPNP discovery does not work.
+
+
+Are there know issues with ethernet bridging and
+UPNP/(multicast?)-traffic? Is there hint how I might resolve my
+problem that mediatomb is not "UPNP-visible" in the network?
+
+
+
+Thanks in advance,
+
+Sebastian 
+
+
+
+[1] http://mediatomb.cc/
+
+[2] http://www.gupnp.org/
+
