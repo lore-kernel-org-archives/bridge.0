@@ -1,9 +1,9 @@
 MIME-Version: 1.0
-Date: Sat, 23 Jan 2010 16:38:48 +0200
-Message-ID: <549992e51001230638t1e8389c9l2ba5864932a3872b@mail.gmail.com>
+Date: Sat, 23 Jan 2010 16:41:40 +0200
+Message-ID: <549992e51001230641n2e40d2co31573386e258a5cb@mail.gmail.com>
 From: Metuki Sabhe <sabhe.metuki@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] bridge problem
+Subject: [Bridge] linux bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,27 +13,31 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
 
-Hello,
+CC'ing netdev too:
 
-When I add interfaces to the bridge *after* I have "tcpdump -n -i br0"
-running on the bridge,
-my tcpdump don't see any communication. If I kill tcpdump and
-re-execute it *after* I added
-the interface to the bridge, it works just fine.
 
-The same behavior happens with my DHCP server (which listens only on
-my bridge interface);
-I need to re-execute (reset) it after I add the interface to the bridge.
+ Hello,
 
-Is that normal ?
+ When I add interfaces to the bridge *after* I have "tcpdump -n -i br0"
+ running on the bridge,
+ my tcpdump don't see any communication. If I kill tcpdump and
+ re-execute it *after* I added
+ the interface to the bridge, it works just fine.
 
-Why does it happen ?
+ The same behavior happens with my DHCP server (which listens only on
+ my bridge interface);
+ I need to re-execute (reset) it after I add the interface to the bridge.
 
-What should I do ?
+ Is that normal ?
 
-It's a little awkward to reset my DHCP server every time I add a new
-interface to the bridge..
+ Why does it happen ?
 
-Thanks,
-Sabhe
+ What should I do ?
+
+ It's a little awkward to reset my DHCP server every time I add a new
+ interface to the bridge..
+
+ Thanks,
+ Sabhe
