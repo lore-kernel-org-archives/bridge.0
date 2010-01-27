@@ -1,10 +1,11 @@
-From: Sebastian Niehaus <niehaus@nospam.arcornews.de>
-Date: Sat, 23 Jan 2010 11:38:45 +0100
-Message-ID: <87r5phumve.fsf@crystalline.worst-case.no-ip.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: news <news@ger.gmane.org>
-Subject: [Bridge] Linux Ethernet bridge and UPNP
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 27 Jan 2010 11:04:20 +0100
+MIME-Version: 1.0
+Message-Id: <201001271104.20607.arnd@arndb.de>
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH 0/3 v3] macvtap driver
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,42 +14,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: David Miller <davem@davemloft.net>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Or Gerlitz <ogerlitz@voltaire.com>
 
-Hi, 
+This is the third version of the macvtap device driver, following another major restructuring and a lot of bug fixes:
 
-I have a linux box (Debian Lenny) with a bridged ethernet
-interface. The box is running mediatomb[1], an UPNP media server.
+* Change macvtap to be based around a struct sock
+* macvtap: fix initialization
+* return 0 to netlink
+* don't use rcu for q->file and q->vlan pointers
+* macvtap: checkpatch.pl fixes
+* macvtap: fix tun IFF flags
+* Use a struct socket to make tx flow control work
+* disable BH processing during transmit
+* only add an ethernet header for receive not forward
+* allocate the SKB using GFP_NOWAIT since we're
+  in rcu_read_lock
+* use atomic allocation for socket
+* fix blocking on send
+* do not destroy netdev twice in error path
 
+There are still known problems, but unless there
+are fundamental concerns, I'd like this to go
+into net-next as an experimental driver,
+fixing up the remaining problems by 2.6.34-rc1.
 
-If I run gupnp-universal-cp (a tool to discover UPNP-Devices in the
-network) on this computer I only see the mediatomb server on the same
-maschine but no other UPNP-Devices.
-
-
-If I run gupnp-universal-cp on another computer in the network
-(without ethernet bridge) I see other UPNP-Devices in the network but
-not the media server.
-
-
-All boxes are in the same subnet and networking gererally works
-fine. The media server's web interface can be reached from any
-computer in the network but UPNP discovery does not work.
-
-
-Are there know issues with ethernet bridging and
-UPNP/(multicast?)-traffic? Is there hint how I might resolve my
-problem that mediatomb is not "UPNP-visible" in the network?
-
-
-
-Thanks in advance,
-
-Sebastian 
-
-
-
-[1] http://mediatomb.cc/
-
-[2] http://www.gupnp.org/
-
+	Arnd
