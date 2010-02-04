@@ -1,10 +1,13 @@
-MIME-Version: 1.0
-Sender: c.craig.ross@gmail.com
-From: "C. Craig Ross" <ccr@linuxfoundation.org>
-Date: Mon, 1 Feb 2010 12:55:11 -0500
-Message-ID: <fb0caef71002010955g4acc4f83g84ccc20d7983aa79@mail.gmail.com>
-Content-Type: multipart/alternative; boundary=0016e6d78553f56dd2047e8db063
-Subject: [Bridge] Workgroup Meetings at Collaboration Summit
+Date: Wed, 03 Feb 2010 20:21:04 -0800 (PST)
+Message-Id: <20100203.202104.151098461.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <201001302322.15237.arnd@arndb.de>
+References: <201001271104.20607.arnd@arndb.de>
+	<201001302322.15237.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 0/3 v4] macvtap driver
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,66 +16,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "C. Craig Ross" <ccr@linuxfoundation.org>
+To: arnd@arndb.de
+Cc: herbert@gondor.apana.org.au, mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ogerlitz@voltaire.com
 
---0016e6d78553f56dd2047e8db063
-Content-Type: text/plain; charset=ISO-8859-1
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Sat, 30 Jan 2010 23:22:15 +0100
 
-Hello,
+> This is the fourth version of the macvtap driver,
+> based on the comments I got for the last version
+> I got a few days ago. Very few changes:
+> 
+> * release netdev in chardev open function so
+>   we can destroy it properly.
+> * Implement TUNSETSNDBUF
+> * fix sleeping call in rcu_read_lock
+> * Fix comment in namespace isolation patch
+> * Fix small context difference to make it apply
+>   to net-next
+> 
+> I can't really test here while travelling, so please
+> give it a go if you're interested in this driver.
 
-We are reaching out to all of our workgroups to remind you about the
-upcoming Linux Foundation Collaboration Summit being held at the Hotel
-Kabuki in San Francisco on April 14 - 16, 2010.  This is a great opportunity
-for workgroups to meet face-to-face and interact with other Linux community
-members and we strongly encourage your workgroup to participate.  If your
-workgroup would like to reserve meeting space at the venue for meetings
-please let us know as soon as possible.  Please include the length of your
-meeting (1/2 day, 1 day, 1.5 days, or 2 days), the number of people you are
-expecting and any technical requirements that you may have.  To request your
-invitation or to learn more about the 4th Annual Collaboration Summit please
-visit http://events.linuxfoundation.org/events/collaboration-summit
-
-We look forward to your participation and hope to see you in April.  If you
-have any questions please don't hesitate to contact us.  Thank you.
-
-Regards,
-
-C.
-
--- 
-C. Craig Ross
-Community Relations Manager
-The Linux Foundation
-http://www.linuxfoundation.org/
-
---0016e6d78553f56dd2047e8db063
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Hello,<div><br></div><div>We are reaching out to all of our workgroups to r=
-emind you about the upcoming=A0Linux Foundation Collaboration Summit being =
-held at the Hotel Kabuki in San Francisco on April 14 - 16, 2010. =A0This i=
-s a great opportunity for workgroups to meet face-to-face and interact with=
- other Linux community members and we strongly encourage your workgroup to =
-participate. =A0If your workgroup would like to reserve meeting space at th=
-e venue for meetings please let us know as soon as possible. =A0Please incl=
-ude the length of your meeting (1/2 day, 1 day, 1.5 days, or 2 days), the n=
-umber of people you are expecting and any technical requirements that you m=
-ay have. =A0To request your invitation or to learn more about the 4th Annua=
-l Collaboration Summit please visit=A0<a href=3D"http://events.linuxfoundat=
-ion.org/events/collaboration-summit" target=3D"_blank">http://events.linuxf=
-oundation.org/events/collaboration-summit</a></div>
-
-
-<div><br></div><div>We look forward to your participation and hope to see y=
-ou in April. =A0If you have any questions please don&#39;t hesitate to cont=
-act us. =A0Thank you.</div><div><br></div><div>Regards,</div><div><br></div=
->
-
-
-<div>C.</div><div><br>-- <br>C. Craig Ross<br>Community Relations Manager<b=
-r>The Linux Foundation<br><a href=3D"http://www.linuxfoundation.org/" targe=
-t=3D"_blank">http://www.linuxfoundation.org/</a><br><br>
-</div>
-
---0016e6d78553f56dd2047e8db063--
+All applied to net-next-2.6, thanks!
