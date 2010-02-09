@@ -1,13 +1,13 @@
-Date: Mon, 8 Feb 2010 15:47:35 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20100208154735.1d60f43c@nehalam>
-In-Reply-To: <20100208142044.6be97024.akpm@linux-foundation.org>
-References: <20100206165351.GA9411@localhost>
-	<20100208142044.6be97024.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4B719997.5060700@interware.hu>
+Date: Tue, 09 Feb 2010 18:21:27 +0100
+From: Tamas Csillag <tcsillag@interware.hu>
+MIME-Version: 1.0
+References: <mailman.866.1251832314.18889.bridge@lists.linux-foundation.org>
+In-Reply-To: <mailman.866.1251832314.18889.bridge@lists.linux-foundation.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] PROBLEM: oops w/ bridge in 2.6.32.7
+Subject: Re: [Bridge] bnx2 doesn't transmit BPDU or Blade switches don't
+	forward, them?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,17 +16,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Linux Kernel-Liste <linux-kernel@vger.kernel.org>, lkml@Think-Future.de
+To: bridge@lists.linux-foundation.org
 
-On Mon, 8 Feb 2010 14:20:44 -0800
-Andrew Morton <akpm@linux-foundation.org> wrote:
+Hi!
 
-> > virtualbox-ose              3.1.2-dfsg-1+b1
-> > virtualbox-ose-source       3.1.2-dfsg-1
-> > 
+I'm faced with the same problem, and i'm not sure if it's a driver or 
+bridge problem.
+I'm using 2 switches, connected on port16.
+
+  switch1-----switch2-----router
+       \       /
+        \     /
+        server1
+
+Switch1 bridge priority: 4096
+Switch2 bridge priority: 5120
+Default bridge priority on servers: 65535
+
+If the switches are connected, STP forms just nice, switch1 becomes 
+root. If i disconnect the switch-switch cable, switch1 remains root, the 
+servers see switch1 as root, but switch2 declares itself as root. Guess 
+it's not receiving BPDU packets from the servers. If more than one 
+server is connected to both switches, loop forms, network goes down.
+
+If i lower the bridgeprio on server1 to 2048, everybody accepts it as 
+the new root bridge, even switch2.
+
+I tested the switches, they play STP nicely in a mixed-vendor environment.
+
+Is it possible that the bridge/bnx2 don't propagate BPDUs from switch1 
+to switch2, while still receiving and transmitting BPDUs?
 
 
-Sorry, since virtualbox is not part of standard mainline kernel,
-I suspect the problem is there.
-Please reproduce with standard 2.6.32.X distribution.
+Regards,
+Tamas
+
+
+-- 
+Tamas CSILLAG
+IT consultant
+
+A+ Server+ MCSA CCNA
+JNCIA JNCIS 3DP APS
+DCCA BAIS QFCA
+
+tcsillag@interware.hu
++36 30 288 5488
+
+
+-----Diego Woitasen wrote:
+
+Date: Sun, 30 Aug 2009 20:10:32 -0300
+From: Diego Woitasen <diegows@xtech.com.ar>
+Subject: [Bridge] bnx2 doesn't transmit BPDU or Blade switches don't
+	forward	them?
+To: Bridge@lists.linux-foundation.org
+Message-ID:
+	<b10f571a0908301610v246a7ce2v8d43a98fda2242cd@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+
+Hi,
+  I have two Blades in one enclosure. They receive the same VLAN trunk
+to bridge the VLANs and I want to have two bridges enabled in each
+server. I've configured the bridge and enabled STP but I don' t see
+the BPDU multicast incoming from the interface (I see the outging
+packets).
+
+xen198:~# tcpdump -i peth0 -enn ether dst 0180c2000000
+tcpdump: WARNING: peth0: no IPv4 address assigned
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on peth0, link-type EN10MB (Ethernet), capture size 96 bytes
+20:07:27.150902 00:23:7d:37:1a:82 > 01:80:c2:00:00:00, 802.3, length
+52: LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl
+0x03: STP 802.1d, Config, Flags [none], bridge-id
+0001.00:23:7d:37:1a:82.8001, length 35
+20:07:29.150876 00:23:7d:37:1a:82 > 01:80:c2:00:00:00, 802.3, length
+52: LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl
+0x03: STP 802.1d, Config, Flags [none], bridge-id
+0001.00:23:7d:37:1a:82.8001, length 35
+20:07:31.150879 00:23:7d:37:1a:82 > 01:80:c2:00:00:00, 802.3, length
+52: LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl
+0x03: STP 802.1d, Config, Flags [none], bridge-id
+0001.00:23:7d:37:1a:82.8001, length 35
+
+xen199:~# tcpdump -i peth0 -enn ether dst 0180c2000000
+tcpdump: WARNING: peth0: no IPv4 address assigned
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on peth0, link-type EN10MB (Ethernet), capture size 96 bytes
+20:07:35.115593 00:23:7d:37:08:78 > 01:80:c2:00:00:00, 802.3, length
+52: LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl
+0x03: STP 802.1d, Config, Flags [none], bridge-id
+0002.00:23:7d:37:08:78.8001, length 35
+20:07:37.115618 00:23:7d:37:08:78 > 01:80:c2:00:00:00, 802.3, length
+52: LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl
+0x03: STP 802.1d, Config, Flags [none], bridge-id
+0002.00:23:7d:37:08:78.8001, length 35
+20:07:39.115613 00:23:7d:37:08:78 > 01:80:c2:00:00:00, 802.3, length
+52: LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl
+0x03: STP 802.1d, Config, Flags [none], bridge-id
+0002.00:23:7d:37:08:78.8001, length 35
+
+Blade MACs are:
+00:23:7d:37:08:78
+00:23:7d:37:1a:82
+
+Is there some issue with bnx2 or Blade switches and Linux bridge?
+
+Regards,
+  Diego
+-- 
+Diego Woitasen
+XTECH
