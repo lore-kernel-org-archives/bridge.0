@@ -1,12 +1,12 @@
-Date: Tue, 16 Feb 2010 08:31:05 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20100216083105.4051667d@nehalam>
-In-Reply-To: <3A71C16B9E0D7240ABBDF087E5353BCB0CB2D35BFC@ESESSCMS0354.eemea.ericsson.se>
-References: <3A71C16B9E0D7240ABBDF087E5353BCB0CB2D35BFC@ESESSCMS0354.eemea.ericsson.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] NTP packets not passing the bridge
+Date: Thu, 18 Feb 2010 14:34:46 +0100
+From: lkml@Think-Future.de
+Message-ID: <20100218133446.GF2165@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100208154735.1d60f43c@nehalam>
+Subject: Re: [Bridge] PROBLEM: oops w/ bridge in 2.6.32.7
+Reply-To: lkml@Think-Future.de
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,24 +15,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Martin Andersson Z <martin.z.andersson@ericsson.com>
-Cc: "'bridge@lists.linux-foundation.org'" <bridge@lists.linux-foundation.org>
+To: Stephen Hemminger <shemminger@vyatta.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Linux Kernel-Liste <linux-kernel@vger.kernel.org>
 
-On Tue, 16 Feb 2010 11:58:26 +0100
-Martin Andersson Z <martin.z.andersson@ericsson.com> wrote:
+  Hi,
 
-> Hello.
-> 
-> I have a simple testsetup, where <node> --- | bridge | --- <node> is connected.
-> 
-> Every packets seems to traverse the bridge, except for the NTP packets.
-> 
-> When capturing on the in-port, what differes for this NTP packets is that there src-mac address is 00:00:00:00:00:00.
-> Where any other packets has valid src address.
-> 
-> Is there a check/validation in the bridge so that it will not pass eth-packets that has a src with all 0.
-> 
-Yes.  all-zeros is not a valid ethernet device address.
-Find and fix the hardware that is sending it.
+  Reported to virtualbox bugtracker.
 
--- 
+  The crash so far only happens when starting virtualbox. W/o bridging is working.
+  Plain and within a box.
+
+  Thank you.
+
+  Nils
+
+PS: We once had quite unstable kernels using bridge and ebtables modules.
+  When loaded those kernel crashed quite fast. This was _some_ versions ago.
+  maybe mid-summer 2009? Anyhow, nothing to dig in now except you have a hunch. 
+  ;) Just felt to let you know while talking about bridging...
+
