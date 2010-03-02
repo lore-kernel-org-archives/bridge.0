@@ -1,6 +1,6 @@
-Date: Mon, 1 Mar 2010 20:40:57 -0800
+Date: Mon, 1 Mar 2010 20:42:08 -0800
 From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20100301204057.11a7c353@s6510>
+Message-ID: <20100301204208.36f81443@s6510>
 In-Reply-To: <20100302033944.GL26848@brick.ozlabs.ibm.com>
 References: <20100301145915.2ecaac89@nehalam>
 	<20100302033944.GL26848@brick.ozlabs.ibm.com>
@@ -36,4 +36,6 @@ Paul Mackerras <paulus@samba.org> wrote:
 > 
 > Paul.
 
-Yes, I am working on that
+Old starting point
+
+https://lists.linux-foundation.org/pipermail/bridge/2005-May/004523.html
