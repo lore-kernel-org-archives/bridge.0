@@ -1,12 +1,13 @@
-Date: Tue, 2 Mar 2010 14:39:44 +1100
-From: Paul Mackerras <paulus@samba.org>
-Message-ID: <20100302033944.GL26848@brick.ozlabs.ibm.com>
-References: <20100301145915.2ecaac89@nehalam>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100301145915.2ecaac89@nehalam>
-Subject: Re: [Bridge] [RFC] ppp: Bridge Control Protocol
+Date: Tue, 2 Mar 2010 09:22:09 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20100302092209.048f5682@nehalam>
+In-Reply-To: <1267509690.2843.5.camel@edumazet-laptop>
+References: <20100301161658.5a61143b@nehalam>
+	<1267509690.2843.5.camel@edumazet-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH]  bridge: per-cpu packet statistics
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,19 +16,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: David@mail.vyatta.com, linux-ppp@vger.kernel.org, bridge@linux-foundation.org, netdev@vger.kernel.org, dane@aiinet.com, "Miller <davem"@davemloft.net
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 
-On Mon, Mar 01, 2010 at 02:59:15PM -0800, Stephen Hemminger wrote:
+On Tue, 02 Mar 2010 07:01:30 +0100
+Eric Dumazet <eric.dumazet@gmail.com> wrote:
 
-> This is a port of an old patch to provide BCP support.
-> BCP allows bridging PPP tunnels, it useful to do bridging between
-> virtualized environments. Original patch was done by
-> Dan Eble but was for 2.4.21.
-> 
-> Note: still needs testing. Does anyone have hardware to make
-> sure this interoperates with other implementations?
+> Le lundi 01 mars 2010 =C3=A0 16:16 -0800, Stephen Hemminger a =C3=A9crit :
+> > The shared packet statistics are a potential source of slow down
+> > on bridged traffic. Convert to per-cpu array, but only keep those
+> > statistics which change per-packet.
+> >=20
+> > Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+> >=20
+> > ---
+> >=20
+> >  net/bridge/br_device.c  |   43 ++++++++++++++++++++++++++++++++++++++-=
+----
+> >  net/bridge/br_if.c      |    6 ++++++
+> >  net/bridge/br_input.c   |    5 +++--
+> >  net/bridge/br_private.h |    8 ++++++++
+> >  4 files changed, 55 insertions(+), 7 deletions(-)
+> >=20
+> > --- a/net/bridge/br_device.c	2010-03-01 08:22:23.476657998 -0800
+> > +++ b/net/bridge/br_device.c	2010-03-01 15:31:36.737227465 -0800
+> > @@ -26,11 +26,12 @@ netdev_tx_t br_dev_xmit(struct sk_buff *
+> >  	const unsigned char *dest =3D skb->data;
+> >  	struct net_bridge_fdb_entry *dst;
+> >  	struct net_bridge_mdb_entry *mdst;
+> > +	struct br_cpu_netstats *brstats =3D this_cpu_ptr(br->stats);
+> > =20
+> > -	BR_INPUT_SKB_CB(skb)->brdev =3D dev;
+> > +	brstats->tx_packets++;
+> > +	brstats->tx_bytes +=3D skb->len;
+>=20
+>=20
+> On TX path, this is not really necessary, since we already dirtied
+> txq->lock before calling br_dev_xmit(), we can use txq->tx_packets and
+> txq->tx_bytes for free ?
 
-Is there a corresponding pppd patch to handle the control protocol?
-
-Paul.
+Bridge is already using lockless transmit LLTX, so tx_lock is not touched.
