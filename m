@@ -1,13 +1,14 @@
-Date: Sun, 07 Mar 2010 15:27:57 -0800 (PST)
-Message-Id: <20100307.152757.142897943.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20100306122031.GA15864@gondor.apana.org.au>
-References: <20100306111408.GJ4958@bicker>
-	<20100306122031.GA15864@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [patch] bridge: cleanup: remove unneed check
+Date: Thu, 4 Mar 2010 04:18:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+Message-ID: <20100304031847.GA22683@elte.hu>
+References: <20100302180915.1388d3f3.sfr@canb.auug.org.au>
+	<4B8D4607.8070603@xenotime.net>
+	<20100303.012359.66790294.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100303.012359.66790294.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH -next] bridge: depends on INET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,20 +17,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: herbert@gondor.apana.org.au
-Cc: netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, bridge@lists.linux-foundation.org, error27@gmail.com
+To: David Miller <davem@davemloft.net>
+Cc: sfr@canb.auug.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rdunlap@xenotime.net, linux-next@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sat, 6 Mar 2010 20:20:32 +0800
 
-> On Sat, Mar 06, 2010 at 02:14:09PM +0300, Dan Carpenter wrote:
->> We dereference "port" on the lines immediately before and immediately 
->> after the test so port should hopefully never be null here.
->> 
->> Signed-off-by: Dan Carpenter <error27@gmail.com>
+* David Miller <davem@davemloft.net> wrote:
+
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> Date: Tue, 02 Mar 2010 09:08:23 -0800
 > 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> > From: Randy Dunlap <randy.dunlap@oracle.com>
+> > 
+> > br_multicast calls ip_send_check(), so it should depend on INET.
+> > 
+> > built-in:
+> > br_multicast.c:(.text+0x88cf4): undefined reference to `ip_send_check'
+> > 
+> > or modular:
+> > ERROR: "ip_send_check" [net/bridge/bridge.ko] undefined!
+> > 
+> > Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 > 
-> Yes this looks correct to me.
+> Applied, but I almost lost this patch.
+> 
+> You need to CC: netdev on all networking patches so that it
+> gets properly tracked in patchwork and therefore does not get
+> lost.
 
-Applied.
+I suspect Randy went by the MAINTAINERS entry - you might want to add netdev 
+as a second 'L:' line:
+
+ ETHERNET BRIDGE
+ M:      Stephen Hemminger <shemminger@linux-foundation.org>
+ L:      bridge@lists.linux-foundation.org
+ W:      http://www.linux-foundation.org/en/Net:Bridge
+ S:      Maintained
+ F:      include/linux/netfilter_bridge/
+ F:      net/bridge/
+
+To make it really clear that netdev must be Cc:-ed for those patches.
+
+Thanks,
+
+	Ingo
