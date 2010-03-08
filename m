@@ -1,10 +1,13 @@
-Date: Sat, 6 Mar 2010 14:14:09 +0300
-From: Dan Carpenter <error27@gmail.com>
-Message-ID: <20100306111408.GJ4958@bicker>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [patch] bridge: cleanup: remove unneed check
+In-Reply-To: <1883282645.390611268083800046.JavaMail.root@zmail04.collab.prod.int.phx2.redhat.com>
+References: <1826249814.390491268083744068.JavaMail.root@zmail04.collab.prod.int.phx2.redhat.com>
+	<1883282645.390611268083800046.JavaMail.root@zmail04.collab.prod.int.phx2.redhat.com>
+Date: Mon, 8 Mar 2010 16:32:11 -0500
+Message-ID: <8f2d78ba1003081332v539dbebeo7b6ef46f2c48c620@mail.gmail.com>
+From: Chandrashekarappa <nandinic1@gmail.com>
+Content-Type: multipart/alternative; boundary=00c09f9721444e1e7d048150ccae
+Subject: [Bridge] Fwd: What is the lowest valid MAC address that can be
+	assigned to a NIC/bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,26 +16,82 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-We dereference "port" on the lines immediately before and immediately 
-after the test so port should hopefully never be null here.
+--00c09f9721444e1e7d048150ccae
+Content-Type: text/plain; charset=ISO-8859-1
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+My setup:
+I have a machine running RHEL 5.4(kernel - 2.6.18-164.el5)with two NICs.I've
+created a bonded interface bond0 with the 2 NICs(eth0 and eth1),added bond0
+to the bridge br0.
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 2559fb5..8b25887 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -627,8 +627,8 @@ static void br_multicast_port_query_expired(unsigned long data)
- 	struct net_bridge *br = port->br;
- 
- 	spin_lock(&br->multicast_lock);
--	if (port && (port->state == BR_STATE_DISABLED ||
--		     port->state == BR_STATE_BLOCKING))
-+	if (port->state == BR_STATE_DISABLED ||
-+	    port->state == BR_STATE_BLOCKING)
- 		goto out;
- 
- 	if (port->multicast_startup_queries_sent <
+When I create the bonded interface bond0,bond0 gets the MAC address of the
+first slave device(eth0 in my case)
+After I create br0 and add bond0 to br0,br0 gets the MAC address of bond0.
+
+Issue:
+-I then add a third ethernet interface eth2 to br0
+-br0 now acquires the MAC address of eth2
+-I'd like it if the MAC address of br0 *didn't change*.
+
+My analysis:
+-A bridge acquires the lowest MAC address of all the ports connected to
+it.So,I do believe the bridge acquiring a new MAC address every time an
+ethernet interface is added or removed from a bridge is expected.
+-I also found this patch in the 2.6.27 upstream kernel :
+92c0574f11598c8036f81e27d2e8bdd6eed7d76d
+bridge: make bridge address settings sticky
+
+Normally, the bridge just chooses the smallest mac address as the
+bridge id and mac address of bridge device. But if the administrator
+has explictly set the interface address then don't change it.
+
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+Possible workaround:
+I think I should be able to work around this issue by assigning the lowest
+valid MAC address to one of my ethernet interfaces before adding it to
+br0.I'd like to know what is the lowest valid MAC address that can be
+assigned to a NIC.
+http://standards.ieee.org/regauth/groupmac/tutorial.html
+
+I'd appreciate any pointers.
+
+--00c09f9721444e1e7d048150ccae
+Content-Type: text/html; charset=ISO-8859-1
+
+<div class="gmail_quote"><br>My setup:<br>
+I have a machine running RHEL 5.4(kernel - 2.6.18-164.el5)with two NICs.I&#39;ve created a bonded interface bond0 with the 2 NICs(eth0 and eth1),added bond0 to the bridge br0.<br>
+<br>
+When I create the bonded interface bond0,bond0 gets the MAC address of the first slave device(eth0 in my case)<br>
+After I create br0 and add bond0 to br0,br0 gets the MAC address of bond0.<br>
+<br>
+Issue:<br>
+-I then add a third ethernet interface eth2 to br0<br>
+-br0 now acquires the MAC address of eth2<br>
+-I&#39;d like it if the MAC address of br0 *didn&#39;t change*.<br>
+<br>
+My analysis:<br>
+-A bridge acquires the lowest MAC address of all the ports connected to it.So,I do believe the bridge acquiring a new MAC address every time an ethernet interface is added or removed from a bridge is expected.<br>
+-I also found this patch in the 2.6.27 upstream kernel :<br>
+92c0574f11598c8036f81e27d2e8bdd6eed7d76d<br>
+bridge: make bridge address settings sticky<br>
+<br>
+Normally, the bridge just chooses the smallest mac address as the<br>
+bridge id and mac address of bridge device. But if the administrator<br>
+has explictly set the interface address then don&#39;t change it.<br>
+<br>
+Signed-off-by: Stephen Hemminger &lt;<a href="mailto:shemminger@vyatta.com">shemminger@vyatta.com</a>&gt;<br>
+Signed-off-by: David S. Miller &lt;<a href="mailto:davem@davemloft.net">davem@davemloft.net</a>&gt;<br>
+<br>
+Possible workaround:<br>
+I think I should be able to work around this issue by assigning the lowest valid MAC address to one of my ethernet interfaces before adding it to br0.I&#39;d like to know what is the lowest valid MAC address that can be assigned to a NIC.<br>
+
+<a href="http://standards.ieee.org/regauth/groupmac/tutorial.html" target="_blank">http://standards.ieee.org/regauth/groupmac/tutorial.html</a><br>
+<br>
+I&#39;d appreciate any pointers.<br>
+</div><br>
+
+--00c09f9721444e1e7d048150ccae--
