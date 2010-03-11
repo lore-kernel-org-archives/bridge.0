@@ -1,11 +1,13 @@
-Date: Wed, 10 Mar 2010 22:34:11 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20100310223411.337b702d@nehalam>
-In-Reply-To: <20100311045123.GB3123@aquila.north.oberlin.edu>
+Date: Thu, 11 Mar 2010 08:12:03 -0500
+From: Nathaniel Gephart <10thaperag@gmail.com>
+Message-ID: <20100311131203.GA2210@aquila.north.oberlin.edu>
 References: <20100311045123.GB3123@aquila.north.oberlin.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20100310223411.337b702d@nehalam>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+In-Reply-To: <20100310223411.337b702d@nehalam>
 Subject: Re: [Bridge] Disabling MAC address tracking
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -15,25 +17,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nathaniel Gephart <10thaperag@gmail.com>
+To: Stephen Hemminger <shemminger@linux-foundation.org>
 Cc: bridge@lists.linux-foundation.org
 
-On Wed, 10 Mar 2010 23:51:23 -0500
-Nathaniel Gephart <10thaperag@gmail.com> wrote:
 
-> Hello,
-> 
-> I'm using bridge-utils as part of a Xen installation. I've got a bunch of
-> isolated bridges connecting up a number of virtual machines. I would like these
-> bridges to act more like hubs. That is, instead of keeping track of which MAC
-> addresses are on which ports, I want them to forward frames to all ports always.
-> Is there a way to do this?
-> 
-> Thanks,
-> 
-> Nate Gephart
-> 
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Just set hold time to zero.
+On Wed, Mar 10, 2010 at 10:34:11PM -0800, Stephen Hemminger wrote:
+> Just set hold time to zero.
 
--- 
+Thanks.
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkuY7CMACgkQryOkOFR/NSqn/gCfWlit9wX05pBWQxztSg9Pc0Dw
+NUIAoIEet27L+utUcjAYvqcygFnH4qcQ
+=AAEu
+-----END PGP SIGNATURE-----
+
+--4Ckj6UjgE2iN1+kY--
