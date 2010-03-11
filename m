@@ -1,16 +1,11 @@
-Date: Mon, 8 Mar 2010 23:22:57 -0800
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20100308232257.2e5aa253@nehalam>
-In-Reply-To: <2e59e6971003081403saf30ca4od0e25757f099d889@mail.gmail.com>
-References: <1826249814.390491268083744068.JavaMail.root@zmail04.collab.prod.int.phx2.redhat.com>
-	<1883282645.390611268083800046.JavaMail.root@zmail04.collab.prod.int.phx2.redhat.com>
-	<8f2d78ba1003081332v539dbebeo7b6ef46f2c48c620@mail.gmail.com>
-	<2e59e6971003081403saf30ca4od0e25757f099d889@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Fwd: What is the lowest valid MAC address that can be
- assigned to a NIC/bridge?
+Date: Wed, 10 Mar 2010 23:51:23 -0500
+From: Nathaniel Gephart <10thaperag@gmail.com>
+Message-ID: <20100311045123.GB3123@aquila.north.oberlin.edu>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
+Content-Disposition: inline
+Subject: [Bridge] Disabling MAC address tracking
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,18 +14,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Cc: bridge@lists.linux-foundation.org
-
-On Mon, 8 Mar 2010 16:03:15 -0600
-"richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote:
-
-> The "lowest valid MAC address" is assuredly not unique to the host,
-> which I would think rather defeats the purpose of using it as an
-> address.
-
-Agreed. I would choose one of the existing interfaces and set
-that value explicitly.
+To: bridge@lists.linux-foundation.org
 
 
--- 
+--Pd0ReVV5GZGQvF3a
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hello,
+
+I'm using bridge-utils as part of a Xen installation. I've got a bunch of
+isolated bridges connecting up a number of virtual machines. I would like these
+bridges to act more like hubs. That is, instead of keeping track of which MAC
+addresses are on which ports, I want them to forward frames to all ports always.
+Is there a way to do this?
+
+Thanks,
+
+Nate Gephart
+
+
+--Pd0ReVV5GZGQvF3a
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkuYdssACgkQryOkOFR/NSrsfQCffvdRMwecys3mZCHjnMuakWs8
+BqEAoJOecOkEVDo4Q1BT3cK2eSHk5JGS
+=PdJm
+-----END PGP SIGNATURE-----
+
+--Pd0ReVV5GZGQvF3a--
