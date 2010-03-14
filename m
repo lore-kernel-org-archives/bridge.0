@@ -1,14 +1,14 @@
-Date: Thu, 11 Mar 2010 08:12:03 -0500
-From: Nathaniel Gephart <10thaperag@gmail.com>
-Message-ID: <20100311131203.GA2210@aquila.north.oberlin.edu>
-References: <20100311045123.GB3123@aquila.north.oberlin.edu>
-	<20100310223411.337b702d@nehalam>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
-In-Reply-To: <20100310223411.337b702d@nehalam>
-Subject: Re: [Bridge] Disabling MAC address tracking
+Date: Sat, 13 Mar 2010 16:19:23 -0800 (PST)
+Message-Id: <20100313.161923.106760717.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1268514611-7930-1-git-send-email-henne@nachtwindheim.de>
+References: <[PATCH]:_CONFIG_BRIDGE_IGMP_SNOOPING_must_depend_on_CONFIG_INET>
+	<1268514611-7930-1-git-send-email-henne@nachtwindheim.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] [PATCH]: CONFIG_BRIDGE_IGMP_SNOOPING must
+ depend on CONFIG_INET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +17,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+To: henne@nachtwindheim.de
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
 
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Date: Sat, 13 Mar 2010 22:10:11 +0100
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Linking the kernel fails with the the following error message,
+> if CONFIG_BRIDGE_IGMP_SNOOPING is set and CONFIG_INET is not set.
+> 
+> net/built-in.o: In function `br_multicast_alloc_query':
+> br_multicast.c:(.text+0x52045): undefined reference to `ip_send_check'
+> 
+> This patch is tested.
+> 
+> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-On Wed, Mar 10, 2010 at 10:34:11PM -0800, Stephen Hemminger wrote:
-> Just set hold time to zero.
-
-Thanks.
-
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkuY7CMACgkQryOkOFR/NSqn/gCfWlit9wX05pBWQxztSg9Pc0Dw
-NUIAoIEet27L+utUcjAYvqcygFnH4qcQ
-=AAEu
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+This has been fixed for some time in the net-2.6 tree
+and now Linus just pulled that tree in so his tree
+has the fix too.
