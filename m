@@ -1,10 +1,10 @@
-Date: Tue, 16 Mar 2010 10:48:12 +0800
+Date: Tue, 16 Mar 2010 10:51:04 +0800
 From: Herbert Xu <herbert@gondor.apana.org.au>
-Message-ID: <20100316024812.GA17535@gondor.apana.org.au>
+Message-ID: <20100316025104.GA17583@gondor.apana.org.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20100302092209.048f5682@nehalam>
+In-Reply-To: <20100302092301.7ca9b368@nehalam>
 Subject: Re: [Bridge] [PATCH]  bridge: per-cpu packet statistics
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -19,13 +19,9 @@ Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.n
 
 Stephen Hemminger <shemminger@vyatta.com> wrote:
 >
-> Bridge is already using lockless transmit LLTX, so tx_lock is not touched.
+> No need, bridge has no queue!
 
-LLTX doesn't actually buy you anything since you're still going
-through a single qdisc.  To get the full benefits of the per-cpu
-counters you need to implement multiqueue support in the bridge.
-
-Cheers,
+OK, ignore my previous comment :)
 -- 
 Visit Openswan at http://www.openswan.org/
 Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
