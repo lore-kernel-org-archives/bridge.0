@@ -1,12 +1,11 @@
-MIME-Version: 1.0
-In-Reply-To: <DBDEC20E6E29304D8AE5EAA493609B3556AE2C7F28@EMBX02-HQ.jnpr.net>
-References: <DBDEC20E6E29304D8AE5EAA493609B3556AE2C7F28@EMBX02-HQ.jnpr.net>
-Date: Mon, 22 Mar 2010 14:23:29 -0500
-Message-ID: <2e59e6971003221223v3b8ff6b9l1e3b1092ec26c15e@mail.gmail.com>
-From: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bridge and ip addresses on enslaved interfaces
+From: Jay Vosburgh <fubar@us.ibm.com>
+In-reply-to: <1269297485.3552.26.camel@calx>
+References: <20100322082059.4967.63492.sendpatchset@localhost.localdomain>
+	<20100322082123.4967.77433.sendpatchset@localhost.localdomain>
+	<1269297485.3552.26.camel@calx>
+Date: Mon, 22 Mar 2010 16:36:55 -0700
+Message-ID: <12061.1269301015@death.nxdomain.ibm.com>
+Subject: Re: [Bridge] [RFC Patch 3/3] bonding: make bonding support netpoll
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,77 +14,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Shawn Delaney <sdelaney@juniper.net>
-Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Amerigo Wang <amwang@redhat.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
 
-On Mon, Mar 22, 2010 at 1:58 PM, Shawn Delaney <sdelaney@juniper.net> wrote=
-:
-> In the documentation I=E2=80=99ve seen so far a bridge is created with no=
- IP address
-> for its enslaved interfaces and optionally with an IP address on the brid=
-ge
-> interface. For example, I create a bridge like so:
->
->
->
-> brctl addbr br0
->
-> brctl addif br0 eth0
->
-> brctl addif br0 eth1
+Matt Mackall <mpm@selenic.com> wrote:
 
+>On Mon, 2010-03-22 at 04:17 -0400, Amerigo Wang wrote:
+>> Based on Andy's work, but I modify a lot.
+>> 
+>> Similar to the patch for bridge, this patch does:
+>> 
+>> 1) implement the 4 methods to support netpoll for bonding;
+>> 
+>> 2) modify netpoll during forwarding packets in bonding;
+>> 
+>> 3) disable netpoll support of bridge when a netpoll-unabled device
+>>    is added to bonding;
+>> 
+>> 4) enable netpoll support when all underlying devices support netpoll.
+>
+>Again, not sure if this is the right policy. Seems to me that on a
+>bonding device we should simply pick an interface to send netpoll
+>messages on, without reference to balancing, etc. Thus, if any of the
+>bonded devices supports polling, it should work.
 
+	For some of the modes, the above is pretty straighforward.
+Others, 802.3ad and balance-alb, are a bit more complicated.
 
-AFAIK, after this packets no longer arrive on the eth0 and eth1
-logical interfaces.  Incoming packets have a receive interface of br0
-(and which bridge port is stored for physdev-in matching).
+	The risk is that the network peers and switches may see the same
+MAC address on multiple ports, or different MAC addresses for the same
+IP address.
 
->
->
->
-> ifconfig eth0 0.0.0.0
->
-> ifconfig eth1 0.0.0.0
->
-> ifconfig br0 10.0.0.10 netmask 255.255.0.0
->
->
->
->
->
-> This works fine. However if I do the following:
->
->
->
-> ifconfig eth0 10.0.0.10 netmask 255.255.0.0
->
-> ifconfig eth1 10.1.0.10 netmask 255.255.0.0
->
-> ifconfig br0 0.0.0.0
->
->
->
-> the bridge gets created but I can=E2=80=99t ping the IP addresses of the =
-enslaved
-> interfaces. With the above configuration I am assuming that the enslaved
-> interfaces still behave independently of the bridge, can be assigned IP
-> addresses and participate in routes. My question is whether this is
-> supported and if I should expect it to work. If so, can someone point me =
-to
-> an example?
->
->
->
-> Thanks.
->
->
->
->
->
->
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+	To implement the above suggestion, I think a "current netpoll
+slave" would have to be tracked, and kept up to date (as slaves become
+active or inactive, etc).  Reusing the existing "current active slave"
+won't work for the case that the active slave is not netpoll-capable,
+but a different slave is; also, not all modes use the current active
+slave.
+
+	In 802.3ad, the "current netpoll slave" selector will have to
+poke into the aggregator status to choose the netpoll slave.  It's not a
+simple matter of picking one and then sticking with it forever; if the
+aggregator containing the netpoll slave is deactivated, then peers may
+not receive the traffic, etc.
+
+	In the active-backup mode, only the active slave can send or
+receive, so if it's not netpoll capable, but a backup slave is, you're
+still out of luck (unless netpoll awareness is added to the "best slave"
+selection logic, and even then it'd have to be a secondary criteria).
+Or, the inactive slave can be transmitted on, but if the same MAC comes
+out of the active and a backup slave, it can confuse switches.
+
+	In one mode (balance-alb), slaves keep their own MAC addresses,
+and are matched with peers.  Bypassing the balance algorithm could again
+confuse peers or switches, who could see two MAC addresses for the same
+IP address, if netpoll traffic goes out a different slave than the
+balance algorithm picks for the same destination.
+
+	I think, then, the question becomes: is this extra complexity
+worth it to cover the cases of netpoll over bonding wherein one or more
+slaves don't support netpoll?  
+
+	How many network drivers don't support netpoll nowadays?
+
+	-J
+
+---
+	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com
