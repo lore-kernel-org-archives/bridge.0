@@ -1,11 +1,12 @@
-Message-ID: <4BA81E1C.7070400@redhat.com>
-Date: Tue, 23 Mar 2010 09:49:16 +0800
+Message-ID: <4BA82110.6040201@redhat.com>
+Date: Tue, 23 Mar 2010 10:01:52 +0800
 From: Cong Wang <amwang@redhat.com>
 MIME-Version: 1.0
 References: <20100322082059.4967.63492.sendpatchset@localhost.localdomain>
 	<20100322082123.4967.77433.sendpatchset@localhost.localdomain>
-	<20100323005639.GH2108@gospo.rdu.redhat.com>
-In-Reply-To: <20100323005639.GH2108@gospo.rdu.redhat.com>
+	<1269297485.3552.26.camel@calx>
+	<12061.1269301015@death.nxdomain.ibm.com>
+In-Reply-To: <12061.1269301015@death.nxdomain.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [RFC Patch 3/3] bonding: make bonding support netpoll
@@ -17,39 +18,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andy Gospodarek <andy@greyhouse.net>
-Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
+To: Jay Vosburgh <fubar@us.ibm.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
 
-Andy Gospodarek wrote:
-> On Mon, Mar 22, 2010 at 04:17:40AM -0400, Amerigo Wang wrote:
->> Based on Andy's work, but I modify a lot.
->>
->> Similar to the patch for bridge, this patch does:
->>
->> 1) implement the 4 methods to support netpoll for bonding;
->>
->> 2) modify netpoll during forwarding packets in bonding;
->>
->> 3) disable netpoll support of bridge when a netpoll-unabled device
->>    is added to bonding;
->>
->> 4) enable netpoll support when all underlying devices support netpoll.
->>
->> Cc: Andy Gospodarek <gospo@redhat.com>
->> Cc: Neil Horman <nhorman@tuxdriver.com>
->> Cc: Jay Vosburgh <fubar@us.ibm.com>
->> Cc: David Miller <davem@davemloft.net>
->> Signed-off-by: WANG Cong <amwang@redhat.com>
->>
+Jay Vosburgh wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
 > 
-> How much testing was done on this?
+>> On Mon, 2010-03-22 at 04:17 -0400, Amerigo Wang wrote:
+>>> Based on Andy's work, but I modify a lot.
+>>>
+>>> Similar to the patch for bridge, this patch does:
+>>>
+>>> 1) implement the 4 methods to support netpoll for bonding;
+>>>
+>>> 2) modify netpoll during forwarding packets in bonding;
+>>>
+>>> 3) disable netpoll support of bridge when a netpoll-unabled device
+>>>    is added to bonding;
+>>>
+>>> 4) enable netpoll support when all underlying devices support netpoll.
+>> Again, not sure if this is the right policy. Seems to me that on a
+>> bonding device we should simply pick an interface to send netpoll
+>> messages on, without reference to balancing, etc. Thus, if any of the
+>> bonded devices supports polling, it should work.
 > 
-> One of the potential problems with this code is how gracefully the
-> system can handle tear-down of interfaces or removal of the bonding
-> module when netconsole is active.  Was that tested heavily?
+> 	For some of the modes, the above is pretty straighforward.
+> Others, 802.3ad and balance-alb, are a bit more complicated.
+> 
+> 	The risk is that the network peers and switches may see the same
+> MAC address on multiple ports, or different MAC addresses for the same
+> IP address.
+> 
+> 	To implement the above suggestion, I think a "current netpoll
+> slave" would have to be tracked, and kept up to date (as slaves become
+> active or inactive, etc).  Reusing the existing "current active slave"
+> won't work for the case that the active slave is not netpoll-capable,
+> but a different slave is; also, not all modes use the current active
+> slave.
+> 
+> 	In 802.3ad, the "current netpoll slave" selector will have to
+> poke into the aggregator status to choose the netpoll slave.  It's not a
+> simple matter of picking one and then sticking with it forever; if the
+> aggregator containing the netpoll slave is deactivated, then peers may
+> not receive the traffic, etc.
+> 
+> 	In the active-backup mode, only the active slave can send or
+> receive, so if it's not netpoll capable, but a backup slave is, you're
+> still out of luck (unless netpoll awareness is added to the "best slave"
+> selection logic, and even then it'd have to be a secondary criteria).
+> Or, the inactive slave can be transmitted on, but if the same MAC comes
+> out of the active and a backup slave, it can confuse switches.
+> 
+> 	In one mode (balance-alb), slaves keep their own MAC addresses,
+> and are matched with peers.  Bypassing the balance algorithm could again
+> confuse peers or switches, who could see two MAC addresses for the same
+> IP address, if netpoll traffic goes out a different slave than the
+> balance algorithm picks for the same destination.
+> 
+> 	I think, then, the question becomes: is this extra complexity
+> worth it to cover the cases of netpoll over bonding wherein one or more
+> slaves don't support netpoll?  
 > 
 
-For this case you mention, I did test it, but what I did is mainly basic
-functionality testing, including bonding over bridge and bridge over bonding.
+I see, thanks for your explanation, I overlooked the bonding case.
 
-Thanks!
+The current implementation will totally disable netpoll when at least one
+slave doesn't support netpoll, so it looks like a safe choice. ;)
+
+
+> 	How many network drivers don't support netpoll nowadays?
+> 
+
+Only about 20% of network drivers support netpoll, a quick grep of 'ndo_poll_controller'
+can show that.
+
+Thanks a lot!
