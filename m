@@ -1,10 +1,12 @@
-From: Jay Vosburgh <fubar@us.ibm.com>
-In-reply-to: <1269297485.3552.26.camel@calx>
+Date: Mon, 22 Mar 2010 20:56:39 -0400
+From: Andy Gospodarek <andy@greyhouse.net>
+Message-ID: <20100323005639.GH2108@gospo.rdu.redhat.com>
 References: <20100322082059.4967.63492.sendpatchset@localhost.localdomain>
 	<20100322082123.4967.77433.sendpatchset@localhost.localdomain>
-	<1269297485.3552.26.camel@calx>
-Date: Mon, 22 Mar 2010 16:36:55 -0700
-Message-ID: <12061.1269301015@death.nxdomain.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100322082123.4967.77433.sendpatchset@localhost.localdomain>
 Subject: Re: [Bridge] [RFC Patch 3/3] bonding: make bonding support netpoll
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -14,70 +16,213 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Amerigo Wang <amwang@redhat.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
+To: Amerigo Wang <amwang@redhat.com>
+Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
 
-Matt Mackall <mpm@selenic.com> wrote:
+On Mon, Mar 22, 2010 at 04:17:40AM -0400, Amerigo Wang wrote:
+> 
+> Based on Andy's work, but I modify a lot.
+> 
+> Similar to the patch for bridge, this patch does:
+> 
+> 1) implement the 4 methods to support netpoll for bonding;
+> 
+> 2) modify netpoll during forwarding packets in bonding;
+> 
+> 3) disable netpoll support of bridge when a netpoll-unabled device
+>    is added to bonding;
+> 
+> 4) enable netpoll support when all underlying devices support netpoll.
+> 
+> Cc: Andy Gospodarek <gospo@redhat.com>
+> Cc: Neil Horman <nhorman@tuxdriver.com>
+> Cc: Jay Vosburgh <fubar@us.ibm.com>
+> Cc: David Miller <davem@davemloft.net>
+> Signed-off-by: WANG Cong <amwang@redhat.com>
+> 
 
->On Mon, 2010-03-22 at 04:17 -0400, Amerigo Wang wrote:
->> Based on Andy's work, but I modify a lot.
->> 
->> Similar to the patch for bridge, this patch does:
->> 
->> 1) implement the 4 methods to support netpoll for bonding;
->> 
->> 2) modify netpoll during forwarding packets in bonding;
->> 
->> 3) disable netpoll support of bridge when a netpoll-unabled device
->>    is added to bonding;
->> 
->> 4) enable netpoll support when all underlying devices support netpoll.
->
->Again, not sure if this is the right policy. Seems to me that on a
->bonding device we should simply pick an interface to send netpoll
->messages on, without reference to balancing, etc. Thus, if any of the
->bonded devices supports polling, it should work.
+How much testing was done on this?
 
-	For some of the modes, the above is pretty straighforward.
-Others, 802.3ad and balance-alb, are a bit more complicated.
+One of the potential problems with this code is how gracefully the
+system can handle tear-down of interfaces or removal of the bonding
+module when netconsole is active.  Was that tested heavily?
 
-	The risk is that the network peers and switches may see the same
-MAC address on multiple ports, or different MAC addresses for the same
-IP address.
-
-	To implement the above suggestion, I think a "current netpoll
-slave" would have to be tracked, and kept up to date (as slaves become
-active or inactive, etc).  Reusing the existing "current active slave"
-won't work for the case that the active slave is not netpoll-capable,
-but a different slave is; also, not all modes use the current active
-slave.
-
-	In 802.3ad, the "current netpoll slave" selector will have to
-poke into the aggregator status to choose the netpoll slave.  It's not a
-simple matter of picking one and then sticking with it forever; if the
-aggregator containing the netpoll slave is deactivated, then peers may
-not receive the traffic, etc.
-
-	In the active-backup mode, only the active slave can send or
-receive, so if it's not netpoll capable, but a backup slave is, you're
-still out of luck (unless netpoll awareness is added to the "best slave"
-selection logic, and even then it'd have to be a secondary criteria).
-Or, the inactive slave can be transmitted on, but if the same MAC comes
-out of the active and a backup slave, it can confuse switches.
-
-	In one mode (balance-alb), slaves keep their own MAC addresses,
-and are matched with peers.  Bypassing the balance algorithm could again
-confuse peers or switches, who could see two MAC addresses for the same
-IP address, if netpoll traffic goes out a different slave than the
-balance algorithm picks for the same destination.
-
-	I think, then, the question becomes: is this extra complexity
-worth it to cover the cases of netpoll over bonding wherein one or more
-slaves don't support netpoll?  
-
-	How many network drivers don't support netpoll nowadays?
-
-	-J
-
----
-	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com
+> 
+> ---
+> Index: linux-2.6/drivers/net/bonding/bond_main.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/net/bonding/bond_main.c
+> +++ linux-2.6/drivers/net/bonding/bond_main.c
+> @@ -59,6 +59,7 @@
+>  #include <linux/uaccess.h>
+>  #include <linux/errno.h>
+>  #include <linux/netdevice.h>
+> +#include <linux/netpoll.h>
+>  #include <linux/inetdevice.h>
+>  #include <linux/igmp.h>
+>  #include <linux/etherdevice.h>
+> @@ -430,7 +431,17 @@ int bond_dev_queue_xmit(struct bonding *
+>  	}
+>  
+>  	skb->priority = 1;
+> -	dev_queue_xmit(skb);
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +	if (bond->dev->priv_flags & IFF_IN_NETPOLL) {
+> +		bond->dev->npinfo->netpoll->dev = skb->dev;
+> +		if (!slave_dev->npinfo)
+> +			slave_dev->npinfo = bond->dev->npinfo;
+> +		slave_dev->priv_flags |= IFF_IN_NETPOLL;
+> +		netpoll_send_skb(bond->dev->npinfo->netpoll, skb);
+> +		slave_dev->priv_flags &= ~IFF_IN_NETPOLL;
+> +	} else
+> +#endif
+> +		dev_queue_xmit(skb);
+>  
+>  	return 0;
+>  }
+> @@ -1324,6 +1335,87 @@ static void bond_detach_slave(struct bon
+>  	bond->slave_cnt--;
+>  }
+>  
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +static bool slaves_support_netpoll(struct net_device *bond_dev)
+> +{
+> +	struct bonding *bond = netdev_priv(bond_dev);
+> +	struct slave *slave;
+> +	int i = 0;
+> +	bool ret = true;
+> +
+> +	read_lock_bh(&bond->lock);
+> +	bond_for_each_slave(bond, slave, i) {
+> +		if ((slave->dev->priv_flags & IFF_DISABLE_NETPOLL)
+> +				|| !slave->dev->netdev_ops->ndo_poll_controller)
+> +			ret = false;
+> +	}
+> +	read_unlock_bh(&bond->lock);
+> +	return i != 0 && ret;
+> +}
+> +
+> +static void bond_poll_controller(struct net_device *bond_dev)
+> +{
+> +	struct bonding *bond = netdev_priv(bond_dev);
+> +	struct slave *slave;
+> +	int i;
+> +
+> +	read_lock(&bond->lock);
+> +	bond_for_each_slave(bond, slave, i) {
+> +		if (slave->dev->netdev_ops->ndo_poll_controller)
+> +			netpoll_poll_dev(slave->dev);
+> +	}
+> +	read_unlock(&bond->lock);
+> +}
+> +
+> +static void bond_netpoll_setup(struct net_device *bond_dev,
+> +			      struct netpoll_info *npinfo)
+> +{
+> +	struct bonding *bond = netdev_priv(bond_dev);
+> +	struct slave *slave;
+> +	int i;
+> +
+> +	write_lock_bh(&bond->lock);
+> +	bond_for_each_slave(bond, slave, i) {
+> +		if (slave->dev)
+> +			slave->dev->npinfo = npinfo;
+> +	}
+> +	write_unlock_bh(&bond->lock);
+> +}
+> +
+> +static void bond_netpoll_cleanup(struct net_device *bond_dev)
+> +{
+> +	struct bonding *bond = netdev_priv(bond_dev);
+> +	struct slave *slave;
+> +	const struct net_device_ops *ops;
+> +	int i;
+> +
+> +	write_lock_bh(&bond->lock);
+> +	bond_dev->npinfo = NULL;
+> +	bond_for_each_slave(bond, slave, i) {
+> +		if (slave->dev) {
+> +			ops = slave->dev->netdev_ops;
+> +			if (ops->ndo_netpoll_cleanup)
+> +				ops->ndo_netpoll_cleanup(slave->dev);
+> +			else
+> +				slave->dev->npinfo = NULL;
+> +		}
+> +	}
+> +	write_unlock_bh(&bond->lock);
+> +}
+> +
+> +static int bond_netpoll_xmit(struct netpoll *np, struct sk_buff *skb,
+> +			     struct net_device *dev)
+> +{
+> +	int ret;
+> +
+> +	dev->priv_flags |= IFF_IN_NETPOLL;
+> +	ret = dev->netdev_ops->ndo_start_xmit(skb, dev);
+> +	np->dev = dev;
+> +	dev->priv_flags &= ~IFF_IN_NETPOLL;
+> +	return ret;
+> +}
+> +#endif
+> +
+>  /*---------------------------------- IOCTL ----------------------------------*/
+>  
+>  static int bond_sethwaddr(struct net_device *bond_dev,
+> @@ -1741,6 +1833,18 @@ int bond_enslave(struct net_device *bond
+>  		new_slave->state == BOND_STATE_ACTIVE ? "n active" : " backup",
+>  		new_slave->link != BOND_LINK_DOWN ? "n up" : " down");
+>  
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +	if (slaves_support_netpoll(bond_dev)) {
+> +		bond_dev->priv_flags &= ~IFF_DISABLE_NETPOLL;
+> +		if (bond_dev->npinfo)
+> +			slave_dev->npinfo = bond_dev->npinfo;
+> +	} else if (!(bond_dev->priv_flags & IFF_DISABLE_NETPOLL)) {
+> +		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
+> +		pr_info("New slave device %s does not support netpoll\n",
+> +			slave_dev->name);
+> +		pr_info("Disabling netpoll support for %s\n", bond_dev->name);
+> +	}
+> +#endif
+>  	/* enslave is successful */
+>  	return 0;
+>  
+> @@ -1924,6 +2028,15 @@ int bond_release(struct net_device *bond
+>  
+>  	netdev_set_master(slave_dev, NULL);
+>  
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +	if (slaves_support_netpoll(bond_dev))
+> +		bond_dev->priv_flags &= ~IFF_DISABLE_NETPOLL;
+> +	if (slave_dev->netdev_ops->ndo_netpoll_cleanup)
+> +		slave_dev->netdev_ops->ndo_netpoll_cleanup(slave_dev);
+> +	else
+> +		slave_dev->npinfo = NULL;
+> +#endif
+> +
+>  	/* close slave before restoring its mac address */
+>  	dev_close(slave_dev);
+>  
+> @@ -2032,6 +2145,9 @@ static int bond_release_all(struct net_d
+>  
+>  		netdev_set_master(slave_dev, NULL);
+>  
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +		slave_dev->npinfo = NULL;
+> +#endif
+>  		/* close slave before restoring its mac address */
+>  		dev_close(slave_dev);
+>  
+> @@ -4424,6 +4540,12 @@ static const struct net_device_ops bond_
+>  	.ndo_vlan_rx_register	= bond_vlan_rx_register,
+>  	.ndo_vlan_rx_add_vid 	= bond_vlan_rx_add_vid,
+>  	.ndo_vlan_rx_kill_vid	= bond_vlan_rx_kill_vid,
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +	.ndo_netpoll_setup	= bond_netpoll_setup,
+> +	.ndo_netpoll_xmit	= bond_netpoll_xmit,
+> +	.ndo_netpoll_cleanup	= bond_netpoll_cleanup,
+> +	.ndo_poll_controller	= bond_poll_controller,
+> +#endif
+>  };
+>  
+>  static void bond_setup(struct net_device *bond_dev)
