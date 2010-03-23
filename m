@@ -1,14 +1,14 @@
-Date: Mon, 22 Mar 2010 20:49:39 -0700 (PDT)
-Message-Id: <20100322.204939.146100390.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4BA823D7.4010106@redhat.com>
+From: Matt Mackall <mpm@selenic.com>
+In-Reply-To: <4BA82186.3010204@redhat.com>
 References: <20100322082059.4967.63492.sendpatchset@localhost.localdomain>
-	<1269297081.3552.19.camel@calx> <4BA823D7.4010106@redhat.com>
+	<20100322082112.4967.5504.sendpatchset@localhost.localdomain>
+	<1269297307.3552.23.camel@calx>  <4BA82186.3010204@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 22 Mar 2010 23:27:50 -0500
+Message-ID: <1269318470.3552.54.camel@calx>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC Patch 1/3] netpoll: add generic support for
- bridge and bonding devices
+Subject: Re: [Bridge] [RFC Patch 2/3] bridge: make bridge support netpoll
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,36 +17,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: amwang@redhat.com
-Cc: fubar@us.ibm.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, mpm@selenic.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmoyer@redhat.com, gospo@redhat.com, bonding-devel@lists.sourceforge.net
+To: Cong Wang <amwang@redhat.com>
+Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
 
-From: Cong Wang <amwang@redhat.com>
-Date: Tue, 23 Mar 2010 10:13:43 +0800
-
+On Tue, 2010-03-23 at 10:03 +0800, Cong Wang wrote:
 > Matt Mackall wrote:
->> Seems like a lot of interface for something to be used by only a
->> couple
->> core drivers. Hopefully Dave has an opinion here.
->> 
+> > On Mon, 2010-03-22 at 04:17 -0400, Amerigo Wang wrote:
+> >> Based on the previous patch, make bridge support netpoll by:
+> >>
+> >> 1) implement the 4 methods to support netpoll for bridge;
+> >>
+> >> 2) modify netpoll during forwarding packets in bridge;
+> >>
+> >> 3) disable netpoll support of bridge when a netpoll-unabled device
+> >>    is added to bridge;
+> > 
+> > Not sure if this is the right thing to do. Shouldn't we simply enable
+> > polling on all devices that support it and warn about the others (aka
+> > best effort)?
+> > 
 > 
-> Yeah, I worry about this too, maybe we can group those methods
-> for netpoll together into another struct, and just put a pointer
-> here?
+> I don't think it's a good idea, because we check if a device
+> supports netpoll by checking if it has ndo_poll_controller method.
 
-This looks like it's tackled at the wrong layer, to be honest.
+Uh, what? If we have 5 devices on a bridge and 4 support netpoll, then
+shouldn't we just send netconsole messages to those 4 devices? Isn't
+this much better than simply refusing to work?
 
-Teaching all of these layers about eachother's states is
-going to end up being a nightmare in the end.
+-- 
+http://selenic.com : development and support for Mercurial and Linux
 
-All of this "where is the npinfo" business can be handled
-generically in net/core/dev.c I think, with none of these
-callbacks.
 
-For example, something like "if dev lacks ->npinfo, check
-it's master".
-
-Another thing, I wouldn't iterate over all devices, like I
-see in the bonding poll controller method.  Just whichever
-one supports netpoll you see first, use it and exit
-immediately.  Don't send it to every single port, I can't
-see how that might be desirable or useful.
