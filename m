@@ -1,14 +1,12 @@
-Message-ID: <4BA84E6C.5030503@redhat.com>
-Date: Tue, 23 Mar 2010 13:15:24 +0800
-From: Cong Wang <amwang@redhat.com>
+Message-ID: <4BA873B7.5020506@pandora.be>
+Date: Tue, 23 Mar 2010 08:54:31 +0100
+From: Bart De Schuymer <bdschuym@pandora.be>
 MIME-Version: 1.0
-References: <4BA823D7.4010106@redhat.com>	<20100322.204939.146100390.davem@davemloft.net>	<4BA847EB.9040808@redhat.com>
-	<20100322.215822.123414773.davem@davemloft.net>
-In-Reply-To: <20100322.215822.123414773.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <DBDEC20E6E29304D8AE5EAA493609B3556AE2C7F28@EMBX02-HQ.jnpr.net>
+In-Reply-To: <DBDEC20E6E29304D8AE5EAA493609B3556AE2C7F28@EMBX02-HQ.jnpr.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC Patch 1/3] netpoll: add generic support for
- bridge and bonding devices
+Subject: Re: [Bridge] bridge and ip addresses on enslaved interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +15,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: fubar@us.ibm.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, mpm@selenic.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmoyer@redhat.com, gospo@redhat.com, bonding-devel@lists.sourceforge.net
+To: Shawn Delaney <sdelaney@juniper.net>
+Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-David Miller wrote:
-> From: Cong Wang <amwang@redhat.com>
-> Date: Tue, 23 Mar 2010 12:47:39 +0800
-> 
->> Yeah, for bonding case, probably. But for bridge case, I think
->> we still need to check all, right?
-> 
-> Why?  Who cares?
-> 
-> If it goes out one port and reaches it's destination
-> the objective has been achieved.
-> 
-> Sending it out N more times achieves nothing.
+Shawn Delaney schreef:
+> In the documentation I've seen so far a bridge is created with no IP address for its enslaved interfaces and optionally with an IP address on the bridge interface. For example, I create a bridge like so:
+>
+> brctl addbr br0
+> brctl addif br0 eth0
+> brctl addif br0 eth1
+>
+> ifconfig eth0 0.0.0.0
+> ifconfig eth1 0.0.0.0
+> ifconfig br0 10.0.0.10 netmask 255.255.0.0
+>
+>
+> This works fine. However if I do the following:
+>
+> ifconfig eth0 10.0.0.10 netmask 255.255.0.0
+> ifconfig eth1 10.1.0.10 netmask 255.255.0.0
+> ifconfig br0 0.0.0.0
+>
+>   
+Sounds like you want to make a brouter. You can use the ebtables broute
+table for that. See:
+http://ebtables.sourceforge.net/examples/basic.html#ex_brouter
 
-We have to check which port has the right destination.
+cheers,
+Bart
 
-Ideally we should check the right destination address to
-choose the port, but currently we don't have a generic
-way to check this, thus I chose to send it to all ports.
-You are right, this needs to be improved.
 
-Thanks!
+-- 
+Bart De Schuymer
+www.artinalgorithms.be
 
