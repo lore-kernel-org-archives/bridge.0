@@ -1,14 +1,10 @@
-Message-ID: <4BA97925.2070500@redhat.com>
-Date: Wed, 24 Mar 2010 10:29:57 +0800
-From: Cong Wang <amwang@redhat.com>
+Message-ID: <OFB9EFBBE7.11608167-ONC12576F1.005B0C79-C12576F1.005BBE51@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Thu, 25 Mar 2010 17:42:04 +0100
 MIME-Version: 1.0
-References: <20100322082059.4967.63492.sendpatchset@localhost.localdomain>	<1269297081.3552.19.camel@calx>
-	<x49zl1zxmou.fsf@segfault.boston.devel.redhat.com>
-In-Reply-To: <x49zl1zxmou.fsf@segfault.boston.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC Patch 1/3] netpoll: add generic support for
- bridge and bonding devices
+Content-type: text/plain; charset=US-ASCII
+Subject: [Bridge] IP address on physcial interface instead of bridge
+	interface?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,24 +13,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
+To: bridge@lists.linux-foundation.org
 
-Jeff Moyer wrote:
-> Matt Mackall <mpm@selenic.com> writes:
-> 
->> On Mon, 2010-03-22 at 04:17 -0400, Amerigo Wang wrote:
->>> This whole patchset is for adding netpoll support to bridge and bonding
->>> devices. I already tested it for bridge, bonding, bridge over bonding,
->>> and bonding over bridge. It looks fine now.
->> Ages ago, Jeff Moyer took a run at this, added him to the cc: on the off
->> chance he still cares.
-> 
-> I'll take a look at it in a bit.  For now, here is the link to my
-> original post on this for Amerigo's reading pleasure:
-> 
->   http://lkml.indiana.edu/hypermail/linux/kernel/0507.0/0206.html
-> 
 
-Thanks, Jeff! I will take a look at it.
+Currently it isn't possible to to have an IP address on one of interfaces
+attached to a bridge, one must always put the IP address on the bridge interface itself.
+
+I wonder if there is a technical reason for that? I would love to be able
+to be able to chose any ONE interface attached to the bridge.
+Example:
+Assume br0 bridge with two interfaces attached, eth0 and eth1.
+Then I would like to assign the IP address to eth0 instead of
+br0. Ideally one should be able to just attach eth0 with an existing IP address
+to br0.
+
+    Jocke
 
