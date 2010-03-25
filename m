@@ -1,13 +1,14 @@
-In-Reply-To: <2e59e6971003251003g34f45ccsf7feecbcb2d68cbf@mail.gmail.com>
-References: <OFB9EFBBE7.11608167-ONC12576F1.005B0C79-C12576F1.005BBE51@transmode.se>
-	<2e59e6971003251003g34f45ccsf7feecbcb2d68cbf@mail.gmail.com>
-Message-ID: <OF55692ECA.4BA1B52C-ONC12576F1.006BA68C-C12576F1.007010C8@transmode.se>
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Thu, 25 Mar 2010 21:24:03 +0100
+Message-ID: <4BABCF8A.3040701@free.fr>
+Date: Thu, 25 Mar 2010 22:03:06 +0100
+From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Subject: Re: [Bridge] IP address on physcial interface instead of bridge
-	interface?
+References: <OFB9EFBBE7.11608167-ONC12576F1.005B0C79-C12576F1.005BBE51@transmode.se>	<2e59e6971003251003g34f45ccsf7feecbcb2d68cbf@mail.gmail.com>
+	<OF55692ECA.4BA1B52C-ONC12576F1.006BA68C-C12576F1.007010C8@transmode.se>
+In-Reply-To: <OF55692ECA.4BA1B52C-ONC12576F1.006BA68C-C12576F1.007010C8@transmode.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] IP address on physcial interface instead of
+	bridge	interface?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,35 +17,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
 Cc: bridge@lists.linux-foundation.org
 
-"richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote on 2010/03/25 18:03:34:
->
-> On Thu, Mar 25, 2010 at 11:42 AM, Joakim Tjernlund
-> <joakim.tjernlund@transmode.se> wrote:
-> >
-> > Currently it isn't possible to to have an IP address on one of interfaces
-> > attached to a bridge, one must always put the IP address on the bridge
-> interface itself.
-> >
-> > I wonder if there is a technical reason for that? I would love to be able
-> > to be able to chose any ONE interface attached to the bridge.
-> > Example:
-> > Assume br0 bridge with two interfaces attached, eth0 and eth1.
-> > Then I would like to assign the IP address to eth0 instead of
-> > br0. Ideally one should be able to just attach eth0 with an existing IP address
-> > to br0.
->
-> Migrating existing configuration to the bridge at the time a port is
-> added (and back to one member when the bridge is dissolved) has been
-> discussed quite a bit recently, and is completely different from
-> trying to independently configure L3 state of bridge ports at
-> arbitrary times.
+Joakim Tjernlund wrote:
+[...]
+> 
+> Sorry but I could not find that discussion but it doesn't sound as
+> what I was after. Basically I want the eth0 I/F keeping its IP address
+> and take over the roll of the br0 I/F when it has an IP address.
 
-Sorry but I could not find that discussion but it doesn't sound as
-what I was after. Basically I want the eth0 I/F keeping its IP address
-and take over the roll of the br0 I/F when it has an IP address.
+Can you please try to explain the reason why you would like the bridge members to have an IP, 
+instead of the br0 interface ?
 
- Jocke
+What is the expected result ? Until now, you described a solution (having an IP address on the 
+bridge members), but not the real problem you are trying to solve.
 
+Basically, a bridge is a level 2 link between the bridge members. An IP address is not required for 
+the bridge to provide L2 connectivity between the members. But, if the host hosting the bridge need 
+to be able to send/receive packets to/from bridge members, then it use the br0 interface. Using br0 
+to send packets let the bridge decide on which members to forward each packets. Using br0 to receive 
+packets allow you not to listen on every members at the same time. For this reason, it is normal to 
+give an IP address to th br0 interface and to leave the bridge members without any IP address.
+
+HTH
+
+	Nicolas.
