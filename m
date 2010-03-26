@@ -2,9 +2,9 @@ In-Reply-To: <4BABCF8A.3040701@free.fr>
 References: <OFB9EFBBE7.11608167-ONC12576F1.005B0C79-C12576F1.005BBE51@transmode.se>	<2e59e6971003251003g34f45ccsf7feecbcb2d68cbf@mail.gmail.com>
 	<OF55692ECA.4BA1B52C-ONC12576F1.006BA68C-C12576F1.007010C8@transmode.se>
 	<4BABCF8A.3040701@free.fr>
-Message-ID: <OF073A246F.60E9C255-ONC12576F2.0028EAD8-C12576F2.002A871C@transmode.se>
+Message-ID: <OFDD80C4DC.137F4F61-ONC12576F2.002B1EE4-C12576F2.002B7EA6@transmode.se>
 From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Fri, 26 Mar 2010 08:44:31 +0100
+Date: Fri, 26 Mar 2010 08:55:04 +0100
 MIME-Version: 1.0
 Content-type: text/plain; charset=ISO-8859-15
 Content-transfer-encoding: quoted-printable
@@ -36,16 +36,6 @@ ess
 e members
 > to have an IP,
 > instead of the br0 interface ?
-
-Sure, our app sometimes just uses eth0 as an normal eth I/F and in some=
-
-configs eth0 needs to be bridged with other I/Fs. Moving the IP address=
- from eth0 to
-the br0 I/F is painful once the system has booted. There are services a=
-lready running
-on eth0 then once a user decides he needs bridged system all services n=
-eeds to be restarted.
-
 >
 > What is the expected result ? Until now, you described a solution (ha=
 ving an
@@ -71,12 +61,23 @@ r this
 s without
 > any IP address.
 
-All true, but adding an interface that is already in use to a bridge an=
-d then moving your IP address
-to the br0 I/F without loosing connectivity is hard, probably impossibl=
-e, with the current
-bridge impl.
+Figure a small picture will help so here it is:
 
-       Jocke=
+Before adding eth0 to br0:
+eth0    br0
+ |
+ |
+HW controller
+
+after adding eth0 to br0:
+eth0
+  \
+   \
+     br0
+   /
+  /
+HW controller
+
+  Jocke=
 
 
