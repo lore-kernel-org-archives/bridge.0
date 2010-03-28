@@ -1,20 +1,12 @@
-In-Reply-To: <2e59e6971003261442g77365b55sa624fe184e5003ac@mail.gmail.com>
-References: <OFB9EFBBE7.11608167-ONC12576F1.005B0C79-C12576F1.005BBE51@transmode.se>	
-	<2e59e6971003251003g34f45ccsf7feecbcb2d68cbf@mail.gmail.com>
-	<OF55692ECA.4BA1B52C-ONC12576F1.006BA68C-C12576F1.007010C8@transmode.se>
-	<4BABCF8A.3040701@free.fr>	
-	<OFDD80C4DC.137F4F61-ONC12576F2.002B1EE4-C12576F2.002B7EA6@transmode.se>
-	<4BAD1B85.6020807@free.fr>	
-	<OFC6D98D54.CA7D4A8D-ONC12576F2.007212B2-C12576F2.00725708@transmode.se>
-	<2e59e6971003261442g77365b55sa624fe184e5003ac@mail.gmail.com>
-Message-ID: <OFCA30CFD8.BFEED34E-ONC12576F3.003AD4F7-C12576F3.003B8B77@transmode.se>
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Sat, 27 Mar 2010 11:50:23 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-15
-Content-transfer-encoding: quoted-printable
-Subject: Re: [Bridge] IP address on physcial interface instead of bridge
-	interface?
+Date: Sat, 27 Mar 2010 20:00:36 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20100327200036.7e4cc31d@nehalam>
+In-Reply-To: <7515418c.2b6d6e39.4ba7656f.e09eb@o2.pl>
+References: <7515418c.2b6d6e39.4ba7656f.e09eb@o2.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Bridge and port forwarding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,72 +15,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+To: Olek <ned_wed@o2.pl>
 Cc: bridge@lists.linux-foundation.org
 
-"richardvoigt@gmail.com" <richardvoigt@gmail.com> wrote on 2010/03/26 2=
-2:42:52:
->
-> On Fri, Mar 26, 2010 at 3:48 PM, Joakim Tjernlund
-> <joakim.tjernlund@transmode.se> wrote:
-> >
-> >
-> > Nicolas de Peslo=FCan <nicolas.2p.debian@free.fr> wrote on 2010/03/=
-26 21:39:33:
-> >
-> >> From: Nicolas de Peslo=FCan <nicolas.2p.debian@free.fr>
-> >> To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-> >> Cc: bridge@lists.linux-foundation.org
-> >> Date: 2010/03/26 21:39
-> >> Subject: Re: [Bridge] IP address on physcial interface instead of =
-bridge interface?
-> >>
-> >> Joakim Tjernlund wrote:
-> >>
-> >> > Figure a small picture will help so here it is:
-> >> >
-> >> > Before adding eth0 to br0:
-> >> > eth0 =A0 =A0br0
-> >> > =A0|
-> >> > =A0|
-> >> > HW controller
-> >> >
-> >> > after adding eth0 to br0:
-> >> > eth0
-> >> > =A0 \
-> >> > =A0 =A0\
-> >> > =A0 =A0 =A0br0
-> >> > =A0 =A0/
-> >> > =A0 /
-> >> > HW controller
-> >>
-> >> I don't understand your ascii art. What is HW controller ? eth0 is=
- an hardware
-> >> controller !?
-> >>
-> >> =A0 =A0Nicolas.
-> >
-> > eth0 is the I/F IP stack will see/use. HW controller is the etherne=
-t HW controller,
-> > the PCI HW if you like.
->
-> No!
->
-> br0 does NOT sit between eth0 and the NIC.  eth0 still represents the=
+On Mon, 22 Mar 2010 13:41:19 +0100
+Olek <ned_wed@o2.pl> wrote:
 
-> NIC.  br0 sits on top, and represents the combined traffic stream fro=
-m
-> eth0 and all other bridge ports.  By adding eth0 to the bridge, you
-> told it to forward all incoming frames to br0 which is the next highe=
-r
-> layer in the virtual interface hierarchy.
+> Hi,
+> I'm stuck with the configuration of my server.
+> Currently my network is set up like this:
+> 
+> 
+> Internet 
+>   |
+>   |
+> Router
+> (WAN 192.168.0.99, LAN 192.168.1.99, 
+> port forwarding 1-65535)
+>   |
+>   |
+> Ubuntu Server 64-bit
+> (WAN(eth0) 192.168.1.110, LAN-bridge(eth1,eth2) 192.168.0.110)
+> 
+> 
+> Description of the problem:
+> When I connect my desktop to the router LAN and try to access FTP, SSH or others the server answers correct (brigde enabled).
+> When I try to access the server from the Internet, i get no answer.
+> When the bridge is disabled I can easily access SSH or FTP from the Internet.
+> 
+> My bridge config:
+> ifconfig eth1 promisc up
+> ifconfig eth2 promisc up
 
-Of course the above isn't how the bridge works today. I was trying
-to described a new feature which would let me use eth0 as my normal
-IP interface even after it was added to the bridge.
-The above would emulate connecting the eth0 I/F to an external HW bridg=
-e.
+Unnecessary step. Bridge has done this automatically for at least
+5 years, probably more. But old instructions never die.
 
-   Jocke=
+> brctl addbr mybridge
+> brctl addif mybridge eth1
+> brctl addif mybridge eth2
+> 
+> The firewall is disabled, to get sure it's not blocking network traffic.
+> Maybe someone knows what's causing this problem?
 
-
+You need to assign IP address to br0, not the ethernets in the bridge?
