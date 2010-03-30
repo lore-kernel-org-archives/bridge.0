@@ -1,22 +1,9 @@
-In-Reply-To: <4BB0736F.9020300@pandora.be>
-References: <OFB9EFBBE7.11608167-ONC12576F1.005B0C79-C12576F1.005BBE51@transmode.se>	<4BAD1B85.6020807@free.fr>
-	<OFC6D98D54.CA7D4A8D-ONC12576F2.007212B2-C12576F2.00725708@transmode.se>	<2e59e6971003261442g77365b55sa624fe184e5003ac@mail.gmail.com>
-	<OFCA30CFD8.BFEED34E-ONC12576F3.003AD4F7-C12576F3.003B8B77@transmode.se>
-	<20100327201752.51b6f7ad@nehalam> <4BAF5034.5060100@pandora.be>
-	<OFDC6DBFAF.3C46B16B-ONC12576F4.00654457-C12576F4.00655D53@LocalDomain>
-	<OF59D1A758.6E7DFF8C-ONC12576F4.0068613D-C12576F4.0068C11D@LocalDomain>
-	<OF66063C34.9F68251B-ONC12576F5.0025FFA1-C12576F
-	<4BB05AE7.10905@pandora.be> <OF35408968.E095E27C-ONC12576F5.
-	<4BB06A0E.9000705@pandora.be>
-	<OF0323A301.381F1C71-ONC12576F5.0030C5A5-C
-	<4BB0736F.9020300@pandora.be>
-Message-ID: <OFB86F69A4.C32AEC6E-ONC12576F5.00354B07-C12576F5.0035EC49@transmode.se>
+Message-ID: <OFC050A0FC.1BF55EDB-ONC12576F6.002669E3-C12576F6.00281EEA@transmode.se>
 From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Date: Mon, 29 Mar 2010 11:48:58 +0200
+Date: Tue, 30 Mar 2010 09:18:13 +0200
 MIME-Version: 1.0
 Content-type: text/plain; charset=US-ASCII
-Subject: Re: [Bridge] IP address on physcial interface instead of bridge
-	interface?
+Subject: [Bridge] [RFC patch] allow IP address on enslaved interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,104 +12,84 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: bridge@lists.linux-foundation.org
+To: Bridge@lists.linux-foundation.org
+Cc: Bart De Schuymer <bdschuym@pandora.be>
 
-Bart De Schuymer <bdschuym@pandora.be> wrote on 2010/03/29 11:31:27:
->
-> Joakim Tjernlund wrote:
-> > Bart De Schuymer <bdschuym@pandora.be> wrote on 2010/03/29 10:51:26:
-> >> Joakim Tjernlund wrote:
-> >>> Bart De Schuymer <bdschuym@pandora.be> wrote on 2010/03/29 09:46:47:
-> >>>> Joakim Tjernlund wrote:
-> >>>>> Joakim Tjernlund/Transmode wrote on 2010/03/28 21:04:11:
-> >>>>>> Joakim Tjernlund/Transmode wrote on 2010/03/28 20:27:10:
-> >>>>>>> Bart De Schuymer <bdschuym@pandora.be> wrote on 2010/03/28 14:48:52:
-> >>>>>>>> Stephen Hemminger schreef:
-> >>>>>>>>> If you read the network receive code path in the kernel, you
-> >>>>>>>>> will see that there is a special hook used. Basically,
-> >>>>>>>>>
-> >>>>>>>>>   if received_interface_is_part_of_bridge(incoming_interface)
-> >>>>>>>>>   then process_bridged_packet(packet)
-> >>>>>>>>>
-> >>>>>>>>> Then bridge looks at packet and decides whether it is local or forwarded.
-> >>>>>>>>> The problem is with your application if it wants to use eth0 directly.
-> >>>>>>>>>
-> >>>>>>>>>
-> >>>>>>>> The ebtables brouting chain was designed to enable you to do this.
-> >>>>>>> Can you give me an example?
-> >>>>>> Found this on the net:
-> >>>>>> ebtables -t broute -A BROUTING -p 0800  -i eth1 --ip-dst 192.168.1.16 -j DROP
-> >>>>>> ebtables -t broute -A BROUTING -p 0806  -i eth1 -d 00:06:9C:00:B2:FB -j DROP
-> >>>>>> ebtables -t broute -A BROUTING -p 0806  -i eth1 --arp-ip-dst 192.168.1.16 -j DROP
-> >>>>>>
-> >>>>>> 192.168.1.16 and 00:06:9C:00:B2:FB are the IP and MAC addresses of eth1.
-> >>>>>>
-> >>>>>> Then add eth1 to the bridge and it appears to be working as I want.
-> >>>>>> Are there any "gotcha's" with this method?
-> >>>>> What about other protocols such as pppoe and OSPF, will these work over eth1 too?
-> >>>>> Are outgoing pkgs from the host bridged or just sent out over eth1?
-> >>>>>
-> >>>>>     Jocke
-> >>>> The ebtables rules in the brouting chain see all traffic arriving on the
-> >>>> bridge port (currently unless the port is in learning state). So as long
-> >>>> as your setup is correct it should work with pppoe and OSPF too.
-> >>> Ah good. So the outgoing traffic will go out over the bridge port too and
-> >>> thereby be bridged?
-> >> If you want the ingoing traffic to go through eth1 I assume you want the
-> >> accompanying outgoing traffic to go through eth1 too. Your routing table
-> >> should be routing 192.168.1.0/24 to eth1. If this is not how you want it
-> >> to work, please explain.
-> >
-> > I want eth1 to act as if was br0. Instead of having to set an IP address
-> > on br0 and eth1 to 0.0.0.0 I want to keep the IP address on eth1 and br0
-> > should be 0.0.0.0.
->
-> OK, that's how it will work. But note that this means the outbound IP
-> and ARP traffic isn't bridged.
 
-But I don want the outbound traffic(and ARP) to be bridged.
+This quick hack lets me use an IP address on an enslaved interface:
+ #eth1 has IP 192.168.1.16
+ brctl addbr br0
+ brctl setfd br0 0
+ ifconfig br0 up
+ brctl addif br0 eth1
 
->
-> >>> Still I wonder about OSPF. This protocol sends pks to multicast IP address
-> >>> 224.0.0.5/6 so how are these picked up by the broute rule?
-> >>>
-> >>> How is pppoe picked up by the broute rule? The ethertype is different from ipv4
-> >>> so I don't understand how it manages to do that.
-> >>>
-> >> You'll need additional ebtables rules.
-> >
-> > Ah, but say I add
-> >  ebtables -t broute -A BROUTING -p 0800  -i eth1 --ip-dst 224.0.0.5 -j DROP
-> > then only the host receives these pkgs and the other members
-> > in the bridge wont get the multicast pkg?
->
-> Yes. I guess an ebtables module like the iptables TEE target could help
-> here, but it's not implemented.
->
-> But there's probably an easier solution to your problem: just never use
-> eth1 directly.
+After this I can use eth1 as if it was the br0 interface.
+This obviously needs cleanup(skb->cb[42] = 99 needs to be fixed)
+I probably broke something else too :(
+Is this useful for someone else too?
 
-Not that easy to do as we have legacy and also let linux via
-it cmdline set the IP address so there won't be a br0 I/F until later.
+          Jocke
 
-> The case where you don't have a bridge is then replaced by using a
-> bridge (br0) with only one port member: eth1. The second case is then
-> simply achieved by adding another port to the bridge. All your
-> applications always use br0 as interface. This will have some inpact on
-> speed, though, because the incoming traffic is queued twice.
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 1a99c4e..60d04eb 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -32,6 +32,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	skb_reset_mac_header(skb);
+ 	skb_pull(skb, ETH_HLEN);
 
-Tried the below script and can at least ping/telnet
-to the node after that:
++	skb->cb[42] = 99;
+ 	if (dest[0] & 1)
+ 		br_flood_deliver(br, skb);
+ 	else if ((dst = __br_fdb_get(br, dest)) != NULL)
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 5ee1a36..83806fd 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -28,8 +28,8 @@ static void br_pass_frame_up(struct net_bridge *br, struct sk_buff *skb)
+ 	brdev->stats.rx_bytes += skb->len;
 
-#eth1 has IP 192.168.1.16
-brctl addbr br0
-brctl setfd br0 0
-ifconfig br0 192.168.1.16
-brctl addif br0 eth1
-ifmetric eth1 5
+ 	indev = skb->dev;
+-	skb->dev = brdev;
+-
++	//skb->dev = brdev;
++	skb->cb[42] = 98;
+ 	NF_HOOK(PF_BRIDGE, NF_BR_LOCAL_IN, skb, indev, NULL,
+ 		netif_receive_skb);
+ }
+@@ -124,6 +124,8 @@ struct sk_buff *br_handle_frame(struct net_bridge_port *p, struct sk_buff *skb)
 
-Not sure what the implications are yet though.
+ 	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
+ 		goto drop;
++	if (skb->cb[42] == 98)
++		return skb;
 
-   Jocke
+ 	skb = skb_share_check(skb, GFP_ATOMIC);
+ 	if (!skb)
+diff --git a/net/core/dev.c b/net/core/dev.c
+index ec87421..0ee9637 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -101,6 +101,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/stat.h>
+ #include <linux/if_bridge.h>
++#include "../bridge/br_private.h"
+ #include <linux/if_macvlan.h>
+ #include <net/dst.h>
+ #include <net/pkt_sched.h>
+@@ -1808,7 +1809,13 @@ int dev_hard_start_xmit(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	const struct net_device_ops *ops = dev->netdev_ops;
+ 	int rc = NETDEV_TX_OK;
++	struct net_bridge_port *port;
+
++	if (skb->cb[42] != 99 && (port = rcu_dereference(dev->br_port))) {
++		dev = port->br->dev;
++		skb->dev = port->br->dev;
++		ops = port->br->dev->netdev_ops;
++	}
+ 	if (likely(!skb->next)) {
+ 		if (!list_empty(&ptype_all))
+ 			dev_queue_xmit_nit(skb, dev);
 
