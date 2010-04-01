@@ -1,9 +1,11 @@
-Date: Mon, 5 Apr 2010 05:12:40 -0400
-From: Amerigo Wang <amwang@redhat.com>
-Message-Id: <20100405091628.4890.30541.sendpatchset@localhost.localdomain>
-In-Reply-To: <20100405091605.4890.31181.sendpatchset@localhost.localdomain>
-References: <20100405091605.4890.31181.sendpatchset@localhost.localdomain>
-Subject: [Bridge] [v2 Patch 3/3] bonding: make bonding support netpoll
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01CAD1D2.10AB633D"
+Date: Thu, 1 Apr 2010 12:32:28 -0700
+Message-ID: <36EC83B9AEC2AC469B8151158760745D056A90A7@ocex01.SolarFlarecom.com>
+From: "Kalyan Chakravadhanula" <Kalyanc@solarflare.com>
+Subject: [Bridge] installation instructions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,178 +14,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Jay Vosburgh <fubar@us.ibm.com>, Amerigo Wang <amwang@redhat.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Jeff Moyer <jmoyer@redhat.com>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
+To: bridge@osdl.org
 
+This is a multi-part message in MIME format.
 
-Based on Andy's work, but I modified a lot.
+------_=_NextPart_001_01CAD1D2.10AB633D
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Similar to the patch for bridge, this patch does:
+Hi,
+=20
+I downloaded the bridge-utils-1.4. Could you please point me as to how
+to install this utility?
+=20
+Thanks,
+Kalyan
 
-1) implement the 2 methods to support netpoll for bonding;
+------_=_NextPart_001_01CAD1D2.10AB633D
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-2) modify netpoll during forwarding packets via bonding;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.6000.16640" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><SPAN class=3D562591818-01042010><FONT face=3DArial=20
+size=3D2>Hi,</FONT></SPAN></DIV>
+<DIV><SPAN class=3D562591818-01042010><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D562591818-01042010><FONT face=3DArial size=3D2>I =
+downloaded the=20
+bridge-utils-1.4. Could you please point me as to how to install this=20
+utility?</FONT></SPAN></DIV>
+<DIV><SPAN class=3D562591818-01042010><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D562591818-01042010><FONT face=3DArial=20
+size=3D2>Thanks,</FONT></SPAN></DIV>
+<DIV><SPAN class=3D562591818-01042010><FONT face=3DArial=20
+size=3D2>Kalyan</FONT></SPAN></DIV></BODY></HTML>
 
-3) disable netpoll support of bonding when a netpoll-unabled device
-   is added to bonding;
-
-4) enable netpoll support when all underlying devices support netpoll.
-
-Cc: Andy Gospodarek <gospo@redhat.com>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: Matt Mackall <mpm@selenic.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Jay Vosburgh <fubar@us.ibm.com>
-Cc: David Miller <davem@davemloft.net>
-Signed-off-by: WANG Cong <amwang@redhat.com>
-
----
-
-Index: linux-2.6/drivers/net/bonding/bond_main.c
-===================================================================
---- linux-2.6.orig/drivers/net/bonding/bond_main.c
-+++ linux-2.6/drivers/net/bonding/bond_main.c
-@@ -59,6 +59,7 @@
- #include <linux/uaccess.h>
- #include <linux/errno.h>
- #include <linux/netdevice.h>
-+#include <linux/netpoll.h>
- #include <linux/inetdevice.h>
- #include <linux/igmp.h>
- #include <linux/etherdevice.h>
-@@ -430,7 +431,18 @@ int bond_dev_queue_xmit(struct bonding *
- 	}
- 
- 	skb->priority = 1;
--	dev_queue_xmit(skb);
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	if (bond->dev->priv_flags & IFF_IN_NETPOLL) {
-+		struct netpoll *np = bond->dev->npinfo->netpoll;
-+		slave_dev->npinfo = bond->dev->npinfo;
-+		np->real_dev = np->dev = skb->dev;
-+		slave_dev->priv_flags |= IFF_IN_NETPOLL;
-+		netpoll_send_skb(np, skb);
-+		slave_dev->priv_flags &= ~IFF_IN_NETPOLL;
-+		np->dev = bond->dev;
-+	} else
-+#endif
-+		dev_queue_xmit(skb);
- 
- 	return 0;
- }
-@@ -1329,6 +1341,60 @@ static void bond_detach_slave(struct bon
- 	bond->slave_cnt--;
- }
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+static bool slaves_support_netpoll(struct net_device *bond_dev)
-+{
-+	struct bonding *bond = netdev_priv(bond_dev);
-+	struct slave *slave;
-+	int i = 0;
-+	bool ret = true;
-+
-+	read_lock(&bond->lock);
-+	bond_for_each_slave(bond, slave, i) {
-+		if ((slave->dev->priv_flags & IFF_DISABLE_NETPOLL)
-+				|| !slave->dev->netdev_ops->ndo_poll_controller)
-+			ret = false;
-+	}
-+	read_unlock(&bond->lock);
-+	return i != 0 && ret;
-+}
-+
-+static void bond_poll_controller(struct net_device *bond_dev)
-+{
-+	struct net_device *dev = bond_dev->npinfo->netpoll->real_dev;
-+	if (dev != bond_dev)
-+		netpoll_poll_dev(dev);
-+}
-+
-+static void bond_netpoll_cleanup(struct net_device *bond_dev)
-+{
-+	struct bonding *bond = netdev_priv(bond_dev);
-+	struct slave *slave;
-+	const struct net_device_ops *ops;
-+	int i;
-+
-+	read_lock(&bond->lock);
-+	bond_dev->npinfo = NULL;
-+	bond_for_each_slave(bond, slave, i) {
-+		if (slave->dev) {
-+			ops = slave->dev->netdev_ops;
-+			if (ops->ndo_netpoll_cleanup)
-+				ops->ndo_netpoll_cleanup(slave->dev);
-+			else
-+				slave->dev->npinfo = NULL;
-+		}
-+	}
-+	read_unlock(&bond->lock);
-+}
-+
-+#else
-+
-+static void bond_netpoll_cleanup(struct net_device *bond_dev)
-+{
-+}
-+
-+#endif
-+
- /*---------------------------------- IOCTL ----------------------------------*/
- 
- static int bond_sethwaddr(struct net_device *bond_dev,
-@@ -1746,6 +1812,18 @@ int bond_enslave(struct net_device *bond
- 		new_slave->state == BOND_STATE_ACTIVE ? "n active" : " backup",
- 		new_slave->link != BOND_LINK_DOWN ? "n up" : " down");
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	if (slaves_support_netpoll(bond_dev)) {
-+		bond_dev->priv_flags &= ~IFF_DISABLE_NETPOLL;
-+		if (bond_dev->npinfo)
-+			slave_dev->npinfo = bond_dev->npinfo;
-+	} else if (!(bond_dev->priv_flags & IFF_DISABLE_NETPOLL)) {
-+		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
-+		pr_info("New slave device %s does not support netpoll\n",
-+			slave_dev->name);
-+		pr_info("Disabling netpoll support for %s\n", bond_dev->name);
-+	}
-+#endif
- 	/* enslave is successful */
- 	return 0;
- 
-@@ -1929,6 +2007,15 @@ int bond_release(struct net_device *bond
- 
- 	netdev_set_master(slave_dev, NULL);
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	if (slaves_support_netpoll(bond_dev))
-+		bond_dev->priv_flags &= ~IFF_DISABLE_NETPOLL;
-+	if (slave_dev->netdev_ops->ndo_netpoll_cleanup)
-+		slave_dev->netdev_ops->ndo_netpoll_cleanup(slave_dev);
-+	else
-+		slave_dev->npinfo = NULL;
-+#endif
-+
- 	/* close slave before restoring its mac address */
- 	dev_close(slave_dev);
- 
-@@ -4448,6 +4535,10 @@ static const struct net_device_ops bond_
- 	.ndo_vlan_rx_register	= bond_vlan_rx_register,
- 	.ndo_vlan_rx_add_vid 	= bond_vlan_rx_add_vid,
- 	.ndo_vlan_rx_kill_vid	= bond_vlan_rx_kill_vid,
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	.ndo_netpoll_cleanup	= bond_netpoll_cleanup,
-+	.ndo_poll_controller	= bond_poll_controller,
-+#endif
- };
- 
- static void bond_setup(struct net_device *bond_dev)
-@@ -4533,6 +4624,8 @@ static void bond_uninit(struct net_devic
- {
- 	struct bonding *bond = netdev_priv(bond_dev);
- 
-+	bond_netpoll_cleanup(bond_dev);
-+
- 	/* Release the bonded slaves */
- 	bond_release_all(bond_dev);
- 
+------_=_NextPart_001_01CAD1D2.10AB633D--
