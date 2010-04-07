@@ -1,18 +1,16 @@
-MIME-Version: 1.0
-In-Reply-To: <000101cad601$5d42a300$17c7e900$@com>
-References: <q2x1803dfd21004061402h67b2a920m4b9b1ac2dc66bb2f@mail.gmail.com>
-	<l2sc5b98f841004061617s1bb85838k7c1cc7a887646b53@mail.gmail.com>
-	<000001cad5e4$fcc81030$f6583090$@com>
-	<g2wc5b98f841004061808gc8817c6fj62d89fe4f6810396@mail.gmail.com>
-	<p2m1803dfd21004061941zfc89ca1fve66f35ec099e8ea6@mail.gmail.com>
-	<n2hc5b98f841004062001ie80b2130ma08829633315c3c@mail.gmail.com>
-	<000101cad601$5d42a300$17c7e900$@com>
-Date: Tue, 6 Apr 2010 21:29:12 -0600
-Message-ID: <s2xc5b98f841004062029oda188282r6f65c3559d1b5d8a@mail.gmail.com>
-From: Robert LeBlanc <robert@leblancnet.us>
+References: <20100405091605.4890.31181.sendpatchset@localhost.localdomain> 
+	<20100405091628.4890.30541.sendpatchset@localhost.localdomain> 
+	<20100405194356.GA10488@gospo.rdu.redhat.com>
+	<4BBA9FDB.4040909@redhat.com> <4BBABAB8.4010401@redhat.com>
+	<20100406144824.GB10488@gospo.rdu.redhat.com> 
+	<4BBBEEAA.1050100@redhat.com>
+From: Andy Gospodarek <andy@greyhouse.net>
+In-Reply-To: <4BBBEEAA.1050100@redhat.com>
+Mime-Version: 1.0 (iPhone Mail 7E18)
+Date: Wed, 7 Apr 2010 00:02:39 -0400
+Message-ID: <70501020920527933@unknownmsgid>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] Bridging vSwitches in VMwares ESXi
+Subject: Re: [Bridge] [v2 Patch 3/3] bonding: make bonding support netpoll
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,32 +19,91 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ryan King <ryank@globaldial.com>
-Cc: bridge@lists.linux-foundation.org
+To: Cong Wang <amwang@redhat.com>
+Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Matt Mackall <mpm@selenic.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>, Jeff Moyer <jmoyer@redhat.com>, Andy Gospodarek <gospo@redhat.com>, "bonding-devel@lists.sourceforge.net" <bonding-devel@lists.sourceforge.net>
 
-On Tue, Apr 6, 2010 at 9:21 PM, Ryan King <ryank@globaldial.com> wrote:
-> Just to clarify our setup:
+On Apr 6, 2010, at 10:32 PM, Cong Wang <amwang@redhat.com> wrote:
+
+> Andy Gospodarek wrote:
+>> On Tue, Apr 06, 2010 at 12:38:16PM +0800, Cong Wang wrote:
+>>> Cong Wang wrote:
+>>>> Before I try to reproduce it, could you please try to replace
+>>>> the  'read_lock()'
+>>>> in slaves_support_netpoll() with 'read_lock_bh()'? (read_unlock()
+>>>> too)  Try if this helps.
+>>>>
+>>> Confirmed. Please use the attached patch instead, for your testing.
+>>>
+>>> Thanks!
+>>>
+>> Moving those locks to bh-locks will not resolve this.  I tried that
+>> yesterday and tried your new patch today without success.  That
+>> warning
+>> is a WARN_ON_ONCE so you need to reboot to see that it is still a
+>> problem.  Simply unloading and loading the new module is not an
+>> accurate
+>> test.
+>> Also, my system still hangs when removing the bonding module.  I do
+>> not
+>> think you intended to fix this with the patch, but wanted it to be
+>> clear
+>> to everyone on the list.
 >
-> The physical server has 4 physical nics. =A0vswitch1 uses 2 pnics in
-> active/active. =A0vswitch2 uses 2 pnics in active/active.
 >
-> The VM (running openvpn) has a bridge with one vnic on vswitch1 and one v=
-nic
-> on vswitch2. =A0Since moving the 2nd interface to vswitch2, I have not
-> experienced this issue any more (ie: previously, both vnics were on vswit=
-ch1
-> - this was where we saw this issue).
+> Actually I did reboot and then tested the module. I didn't get any
+> warning.
+> I just tried again today, and no warnings at all.
+>
+> For removing bonding module, you may need another fix of mine,
+> which is to fix a potential deadlock of workqueue. Try:
+>
+> http://lkml.org/lkml/2010/4/1/58
+>
+>> You should also configure your kernel with a some of the lock
+>> debugging
+>> enabled.  I've been using the following:
+>> CONFIG_DETECT_HUNG_TASK=y
+>> CONFIG_DEBUG_SPINLOCK=y
+>> CONFIG_DEBUG_MUTEXES=y
+>> CONFIG_DEBUG_LOCK_ALLOC=y
+>> CONFIG_PROVE_LOCKING=y
+>> CONFIG_LOCKDEP=y
+>> CONFIG_LOCK_STAT=y
+>> CONFIG_DEBUG_LOCKDEP=y
+>
+>
+> Sure, I always keep these.
+>
+>> Here is the output when I remove a slave from the bond.  My
+>> xmit_roundrobin patch from earlier (replacing read_lock with
+>> read_trylock) was applied.  It might be helpful for you when
+>> debugging
+>> these issues.
+>
+>
+> I don't apply your patch, just tested my patch.
+>
+>> Dead loop on virtual device bond0, fix it urgently!
+>
+> Please provide your bonding configuration and steps to reproduce it.
+>
 
-We were using VLANs and bridging across VLANs, this may have
-compounded our problem. We we put openvpn on it to connect two
-datacenters, we got similar broadcasts storms over the VPN connection
-as well.
+My first response in this thread provides the commands and
+configuration needed to reproduce this.
 
-I was going to do something similar to connect family networks using
-openvpn at home until we ran into the problem. I think disbanded the
-project, maybe I'll have to look into it again if VLANs were the
-problem.
+> What I did is:
+>
+> 1. Load bonding module with "mode=0 miimon=100"
+> 2. Enslave eth0 and active bond0
+> 3. Load netconsole and send messages via bond0
+> 4. Remove eth0 from bond0
+> 5. Remove bonding module
+> 6. Remove netconsole module
 
-Robert LeBlanc
-Life Sciences & Undergraduate Education Computer Support
-Brigham Young University
+Thanks for sending your configuration.
+
+What values are in /proc/sys/kernel/printk?
+
+> And no deadlocks, no warnings.
+>
+> Thanks.
