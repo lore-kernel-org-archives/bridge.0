@@ -1,9 +1,9 @@
-Date: Wed, 14 Apr 2010 17:28:59 +0800 (CST)
+Date: Wed, 14 Apr 2010 17:31:08 +0800 (CST)
 From: =?gbk?B?1cXM7NSw?= <mariazty@163.com>
-Message-ID: <1a24892.16fba.127fba66ac2.Coremail.mariazty@163.com>
+Message-ID: <17e68c8.17046.127fba86139.Coremail.mariazty@163.com>
 MIME-Version: 1.0
 Content-Type: multipart/alternative; 
-	boundary="----=_Part_245085_18682180.1271237339841"
+	boundary="----=_Part_245452_19833494.1271237468473"
 Subject: [Bridge] problems using bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -13,9 +13,9 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@osdl.org
 
-------=_Part_245085_18682180.1271237339841
+------=_Part_245452_19833494.1271237468473
 Content-Type: text/plain; charset=gbk
 Content-Transfer-Encoding: 7bit
 
@@ -33,7 +33,10 @@ Hi,
       I use the command ifconfig and find that the br0's mac is the same as eth1's . When both the two wifi interfaces are up ,there's no problem when PING the gateway . But when I ifconfig eth1 down , PING the gateway again ,it shows destination host unreachable . But when I ifconfig eth0 down , it doesn't affect PING the gateway . I think this may because br0 is bound to eth1 , the traffic pass through eth1 . 
       Now here comes the problem . I want br0 bound to eth0 ,what should I do ?
      I'm looking forward to your answer and I'm eager to know it. Thank you very much .
-------=_Part_245085_18682180.1271237339841
+
+
+
+------=_Part_245452_19833494.1271237468473
 Content-Type: text/html; charset=gbk
 Content-Transfer-Encoding: 7bit
 
@@ -53,6 +56,6 @@ Content-Transfer-Encoding: 7bit
 <DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The AP gives br0 the address 172.31.24.68 and the gateway is 172.31.24.1 (this detailed address maybe not important though)</DIV>
 <DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I use the command ifconfig and find that the br0's mac is the same as eth1's . When both the two wifi interfaces are up ,there's no problem when PING the gateway . But when I ifconfig eth1 down , PING the gateway again ,it shows destination host unreachable . But when I ifconfig eth0 down , it doesn't affect PING the gateway . I think this may because&nbsp;br0 is bound to eth1 , the traffic pass through eth1 . </DIV>
 <DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Now&nbsp;here comes&nbsp;the problem . I want br0 bound to eth0 ,what should I do ?</DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp; I'm looking forward to your answer and I'm eager to know it. Thank you very much .</DIV></DIV></DIV></DIV><br><br><span title="neteasefooter"/></span>
-------=_Part_245085_18682180.1271237339841--
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp; I'm looking forward to your answer and I'm eager to know it. Thank you very much .</DIV></DIV></DIV></DIV><BR><BR><SPAN title="neteasefooter"></SPAN><br><br><span title="neteasefooter"/></span>
+------=_Part_245452_19833494.1271237468473--
 
