@@ -1,12 +1,10 @@
-Date: Thu, 15 Apr 2010 10:43:17 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20100415104317.78ebbf26@nehalam>
-In-Reply-To: <17e68c8.17046.127fba86139.Coremail.mariazty@163.com>
-References: <17e68c8.17046.127fba86139.Coremail.mariazty@163.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] problems using bridge
+Message-ID: <4BCC12FD.9060802@kpi.ua>
+Date: Mon, 19 Apr 2010 11:23:25 +0300
+From: Yavetskiy Yuriy <yavetskiy@kpi.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] 10 gigabit linux bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,52 +13,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?B?5byg5aSp5Zut?= <mariazty@163.com>
-Cc: bridge@linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Wed, 14 Apr 2010 17:31:08 +0800 (CST)
-=E5=BC=A0=E5=A4=A9=E5=9B=AD <mariazty@163.com> wrote:
+Hello.
 
-> Hi,
->         I use the bridge these days but I come up with some problems when=
- I use it.
->         I add two wifi interfaces to the bridge I call it "br0" . What I =
-do is as follows :
->  #brctl addbr br0
-> #brctl addif br0 eth0
-> #brctl addif br0 eth1
-> #ifconfig eth0 0.0.0.0
-> #ifconfig eth1 0.0.0.0
-> #ifconfig br0 up
-> #dhclient br0
->        The AP gives br0 the address 172.31.24.68 and the gateway is 172.3=
-1.24.1 (this detailed address maybe not important though)
+I'm using 10 Gigabit Ethernet cards Intel 82598EB.When I use them for 
+routing, everything is OK.But when I tried to add them to bridge several 
+problems occured.I had already configured bridge from 2 gigabit Ethernet 
+cards intel 82576. I added a single 10-Gigabit interface in there and 
+got following result:
+- packets are going from gigabyt to gigabyt port without any problems
+- packets are coming ang going from 10 gigabyt to gigabyt port(ARP 
+request is seen by tspdamp on destination), but the arp response does 
+not reach the source host (ARP response is not seen by tspdamp on the 
+original host).
+At the same time at the bridge it can be seen by tspdamp that the 
+arp-answer came from the Gigabit port, and thus can be seen that the 
+package left at 10 gigabit ethernet port.
+- ARP-requests are going from gigabyt port, they are seen by tcpdamp 
+(tspdamp at gigabit port sees an incoming packet, tspdamp 10-Gigabit 
+sees outgoing packet). But these packets are not visible at destination.
+Everything is OK with the hosts at the ends of bridge , because if you 
+replace the Linux bridge on FreeBSD bridge, the packets arrive.
+If you are using only 10-Gigabit ports the same problem occurs, incoming 
+packet is seen by tcpdamp on bridge on the incoming 10G interface and 
+outgoing packet seen on an outgoing 10G port , but packets are is not 
+visible at destination.
+I checked MTU everywhere, everywhere the same. Tried to increase it's 
+value on bridge interfaces- and got nothing.
+All iptables and ebtables rules are permissive, default policy anywhere 
+is ACCEPT.
+I'm using Debian with vanilla kernel 2.6.32.2.
+In what may be the problem?
 
-You need to set forwarding delay to 0 or wait 30 seconds before starting dh=
-client
-When bridge is brought up it waits 30 seconds before forwarding frames (par=
-t of
-the STP standard).  If you aren't using STP then best answer is turn forwar=
-ding
-delay off.
-
->       I use the command ifconfig and find that the br0's mac is the same =
-as eth1's . When both the two wifi interfaces are up ,there's no problem wh=
-en PING the gateway .
-Bridge inherits the MAC address of the underlying interfaces.
-With multiple interfaces, the MAC address of br0 will be min(interface MAC)=
-; unless
-it is explicitly set.
-
-> But when I ifconfig eth1 down , PING the gateway again ,it shows destinat=
-ion host unreachable . But when I ifconfig eth0 down , it doesn't affect PI=
-NG the gateway . I think this may because br0 is bound to eth1 , the traffi=
-c pass through eth1 .=20
->       Now here comes the problem . I want br0 bound to eth0 ,what should =
-I do ?
->      I'm looking forward to your answer and I'm eager to know it. Thank y=
-ou very much .
-
-If you are trying to bridge wifi interfaces in station mode, it won't work.
-Interfaces need to be either hardwared Ethernet or wifi AP mode.
+-- 
+WBR
+Yavetskiy Yuriy
+ULTI-RIPE
 
