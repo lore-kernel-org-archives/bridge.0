@@ -1,12 +1,12 @@
+Message-ID: <4BD05EA2.1040709@kpi.ua>
+Date: Thu, 22 Apr 2010 17:35:14 +0300
+From: Yavetskiy Yuriy <yavetskiy@kpi.ua>
 MIME-Version: 1.0
-In-Reply-To: <20100419090023.6c6d34a1@nehalam>
-References: <i2xe5da85b41004190235t447ea22exa046c63fc3373971@mail.gmail.com>
-	<20100419090023.6c6d34a1@nehalam>
-Date: Wed, 21 Apr 2010 13:40:02 +0530
-Message-ID: <k2ue5da85b41004210110gcc43804ag41987d5efde7dcae@mail.gmail.com>
-From: voxner <voxner.dev@gmail.com>
-Content-Type: multipart/alternative; boundary=0016e68cc510a1697f0484bab867
-Subject: Re: [Bridge] RSTP-Linux Bridge (2.6 Kernel) query
+References: <4BCC12FD.9060802@kpi.ua>
+In-Reply-To: <4BCC12FD.9060802@kpi.ua>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] 10 gigabit linux bridge problem
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,66 +15,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
---0016e68cc510a1697f0484bab867
-Content-Type: text/plain; charset=ISO-8859-1
+Ignore my problem, it works fine on centos.
 
-On Mon, Apr 19, 2010 at 9:30 PM, Stephen Hemminger <
-shemminger@linux-foundation.org> wrote:
 
-> On Mon, 19 Apr 2010 15:05:35 +0530
-> voxner <voxner.dev@gmail.com> wrote:
+> Hello.
 >
-> Did you look at RSTP user space daemon? or is this a new one.
->       git clone git.kernel.org:
-> /pub/scm/linux/kernel/git/shemminger/rstp.git
+> I'm using 10 Gigabit Ethernet cards Intel 82598EB.When I use them for 
+> routing, everything is OK.But when I tried to add them to bridge several 
+> problems occured.I had already configured bridge from 2 gigabit Ethernet 
+> cards intel 82576. I added a single 10-Gigabit interface in there and 
+> got following result:
+> - packets are going from gigabyt to gigabyt port without any problems
+> - packets are coming ang going from 10 gigabyt to gigabyt port(ARP 
+> request is seen by tspdamp on destination), but the arp response does 
+> not reach the source host (ARP response is not seen by tspdamp on the 
+> original host).
+> At the same time at the bridge it can be seen by tspdamp that the 
+> arp-answer came from the Gigabit port, and thus can be seen that the 
+> package left at 10 gigabit ethernet port.
+> - ARP-requests are going from gigabyt port, they are seen by tcpdamp 
+> (tspdamp at gigabit port sees an incoming packet, tspdamp 10-Gigabit 
+> sees outgoing packet). But these packets are not visible at destination.
+> Everything is OK with the hosts at the ends of bridge , because if you 
+> replace the Linux bridge on FreeBSD bridge, the packets arrive.
+> If you are using only 10-Gigabit ports the same problem occurs, incoming 
+> packet is seen by tcpdamp on bridge on the incoming 10G interface and 
+> outgoing packet seen on an outgoing 10G port , but packets are is not 
+> visible at destination.
+> I checked MTU everywhere, everywhere the same. Tried to increase it's 
+> value on bridge interfaces- and got nothing.
+> All iptables and ebtables rules are permissive, default policy anywhere 
+> is ACCEPT.
+> I'm using Debian with vanilla kernel 2.6.32.2.
+> In what may be the problem?
 >
-> I already have five alternatives for RSTP, and none of them is fully
-> integrated!  3 user space daemons (1 on rstplib, 1 from EMC, and
-> another). 2 kernel implementations based on old 2.4 code.
->
-> Somewhere down the road, there needs to be one and only one solution
-> and it has to just work out of the box.  If I had infinite time, or
-> a major Vyatta customer demanded it, I would just integrate one of
-> the 2.4 implementations and be done.
->
+>   
 
-It's a new RSTP implementation in user space. I saw a 2.4 RSTP
-implementation that is integrated into kernel but was not part of the
-mainline kernel. Which one of the two 2.4 implementations you mentioned is
-more easier to port to 2.6?
 
---0016e68cc510a1697f0484bab867
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+-- 
+WBR
+Yavetskiy Yuriy
+ULTI-RIPE
 
-<br><br><div class=3D"gmail_quote">On Mon, Apr 19, 2010 at 9:30 PM, Stephen=
- Hemminger <span dir=3D"ltr">&lt;<a href=3D"mailto:shemminger@linux-foundat=
-ion.org">shemminger@linux-foundation.org</a>&gt;</span> wrote:<br><blockquo=
-te class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc so=
-lid;padding-left:1ex;">
-<div class=3D"im">On Mon, 19 Apr 2010 15:05:35 +0530<br>
-voxner &lt;<a href=3D"mailto:voxner.dev@gmail.com">voxner.dev@gmail.com</a>=
-&gt; wrote:<br>
-<br>
-</div>Did you look at RSTP user space daemon? or is this a new one.<br>
- =A0 =A0 =A0 git clone git.kernel.org:/pub/scm/linux/kernel/git/shemminger/=
-rstp.git<br>
-<br>
-I already have five alternatives for RSTP, and none of them is fully<br>
-integrated! =A03 user space daemons (1 on rstplib, 1 from EMC, and<br>
-another). 2 kernel implementations based on old 2.4 code.<br>
-<br>
-Somewhere down the road, there needs to be one and only one solution<br>
-and it has to just work out of the box. =A0If I had infinite time, or<br>
-a major Vyatta customer demanded it, I would just integrate one of<br>
-the 2.4 implementations and be done.<br>
-</blockquote></div><div><br></div><div>It&#39;s a new RSTP implementation i=
-n user space. I saw a 2.4 RSTP implementation that is integrated into kerne=
-l but was not part of the mainline kernel. Which one of the two 2.4 impleme=
-ntations you mentioned is more easier to port to 2.6?=A0<br>
-</div>
-
---0016e68cc510a1697f0484bab867--
