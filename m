@@ -1,12 +1,8 @@
-Date: Thu, 22 Apr 2010 13:09:19 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20100422130919.70206765@nehalam>
-In-Reply-To: <m2nbc9320b91004211748o5548f351z646076fab6744cca@mail.gmail.com>
-References: <m2nbc9320b91004211748o5548f351z646076fab6744cca@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bridge blocking network traffic
+Date: Tue, 27 Apr 2010 03:55:41 -0400
+From: Amerigo Wang <amwang@redhat.com>
+Message-Id: <20100427075937.4908.18468.sendpatchset@localhost.localdomain>
+Subject: [Bridge] [v4 Patch 1/3] netpoll: add generic support for bridge and
+	bonding devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,92 +11,259 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: benno joy <bennojoy@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Jay Vosburgh <fubar@us.ibm.com>, Amerigo Wang <amwang@redhat.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Jeff Moyer <jmoyer@redhat.com>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
 
-On Thu, 22 Apr 2010 10:48:09 +1000
-benno joy <bennojoy@gmail.com> wrote:
+V4:
+Use "unlikely" to mark netpoll call path, suggested by Stephen.
+Handle NETDEV_GOING_DOWN case.
 
-> Dear Team,
-> 
-> I have a strange problem...... This is my problem i have a linux box running
-> Xen kernel (2.2). and i have the a bonding interface called bond0.497(eth0
-> and eth1 and also des Vlan tagging).
-> the bond0.497 is part of the bridge "xenbrv497", the issue is as soon as i
-> make the bond a part of the bridge my network traffic stops to work.
-> I did some prelimanary tests and found the following:
-> 1) if i assighn an ip to the bond and do a ping to the gateway it works
-> (provided it is not part of bridge xenbrv497)
-> 2) if i add the bondig interface to the brodge xenbrv497 (brclt addif
-> xenbrv497 bond0.497) the ping tests fails.
-> 3) i did a tcpdump and found that arp requests are going out of the
-> interface and we are getting response also. but soemhow
-> the arp entries are not gettign registered. i did some googling and found it
-> may be because of filtering so i disabled it by
-> echo 0 > in /proc/sys/net/bridge/bridge-nf-*.
-> But even this did not help still the arp entries are not getting registered
-> due to which my network traffic is gettign dropped.
-> This problem can be resolved by a reboot. but i would like to troubleshoot
-> it.
-> Could you please let me know how i can get more debugging message from the
-> bridge calls so i can figure out what exactly is happening.
-> 
-> # uname -a
-> Linux vmclkxstgh04.espdev.aurdev.national.com.au 2.6.18-128.2.1.4.13.el5xen
-> #1 SMP Mon Dec 7 14:34:40 EST 2009 i686 i686 i386 GNU/Linux
-> 
-> [root@vmclkxstgh04 ~]# brctl show
-> bridge name     bridge id               STP enabled     interfaces
-> vlan441         8000.0017a4770470       no              bond0.441
-> xenbrv205               8000.0017a477046c       no              bond1.205
-> xenbrv208               8000.0017a477046c       no              bond1.208
-> xenbrv220               8000.000000000000       no
-> xenbrv221               8000.000000000000       no
-> xenbrv226               8000.0017a477046c       no              vif40.1
->                                                         vif39.1
->                                                         vif37.1
->                                                         vif26.1
->                                                         vif25.1
->                                                         vif24.1
->                                                         vif13.1
->                                                         bond1.226
-> xenbrv227               8000.0017a4770470       no              vif40.0
->                                                         vif39.0
->                                                         vif37.0
->                                                         vif26.0
->                                                         vif25.0
->                                                         vif24.0
->                                                         vif13.0
->                                                         bond0.227
-> xenbrv420               8000.0017a4770470       no              bond0.420
-> xenbrv422               8000.0017a4770470       no              vif35.0
->                                                         vif7.0
->                                                         vif6.0
->                                                         vif4.0
->                                                         vif3.0
->                                                         vif2.0
->                                                         tap2.0
->                                                         bond0.422
-> xenbrv425               8000.0017a4770470       no              bond0.425
-> xenbrv450               8000.0017a4770470       no              bond0.450
-> xenbrv492               8000.0017a4770470       no              bond0.492
-> xenbrv493               8000.0017a4770470       no              bond0.493
-> xenbrv494               8000.0017a4770470       no              bond0.494
-> xenbrv495               8000.0017a4770470       no              bond0.495
-> xenbrv496               8000.0017a4770470       no              bond0.496
-> xenbrv497               8000.0017a4770470       no              bond0.497
-> xenbrv701               8000.0017a477046c       no              vif44.1
->                                                         bond1.701
-> 
-> bond0.497 Link encap:Ethernet  HWaddr 00:17:A4:77:04:70
->           inet addr:10.12.166.231  Bcast:10.12.166.255  Mask:255.255.255.224
->           UP BROADCAST RUNNING MASTER MULTICAST  MTU:1500  Metric:1
->           RX packets:3807595 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:3304 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:0
->           RX bytes:188847200 (180.0 MiB)  TX bytes:138768 (135.5 KiB)
+V3:
+Update to latest Linus' tree.
+Fix deadlocks when releasing slaves of bonding devices.
+Thanks to Andy.
 
-You are supposed to assign IP address to bridge not the member of the bridge.
+V2:
+Fix some bugs of previous version.
+Remove ->netpoll_setup and ->netpoll_xmit, they are not necessary.
+Don't poll all underlying devices, poll ->real_dev in struct netpoll.
+Thanks to David for suggesting above.
+
+------------>
+
+This whole patchset is for adding netpoll support to bridge and bonding
+devices. I already tested it for bridge, bonding, bridge over bonding,
+and bonding over bridge. It looks fine now.
 
 
--- 
+To make bridge and bonding support netpoll, we need to adjust
+some netpoll generic code. This patch does the following things:
+
+1) introduce two new priv_flags for struct net_device:
+   IFF_IN_NETPOLL which identifies we are processing a netpoll;
+   IFF_DISABLE_NETPOLL is used to disable netpoll support for a device
+   at run-time;
+
+2) introduce one new method for netdev_ops:
+   ->ndo_netpoll_cleanup() is used to clean up netpoll when a device is
+     removed.
+
+3) introduce netpoll_poll_dev() which takes a struct net_device * parameter;
+   export netpoll_send_skb() and netpoll_poll_dev() which will be used later;
+
+4) hide a pointer to struct netpoll in struct netpoll_info, ditto.
+
+5) introduce ->real_dev for struct netpoll.
+
+6) introduce a new status NETDEV_BONDING_DESLAE, which is used to disable
+   netconsole before releasing a slave, to avoid deadlocks.
+
+Cc: David Miller <davem@davemloft.net>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: WANG Cong <amwang@redhat.com>
+
+---
+
+Index: linux-2.6/include/linux/if.h
+===================================================================
+--- linux-2.6.orig/include/linux/if.h
++++ linux-2.6/include/linux/if.h
+@@ -71,6 +71,8 @@
+ 					 * release skb->dst
+ 					 */
+ #define IFF_DONT_BRIDGE 0x800		/* disallow bridging this ether dev */
++#define IFF_IN_NETPOLL	0x1000		/* whether we are processing netpoll */
++#define IFF_DISABLE_NETPOLL	0x2000	/* disable netpoll at run-time */
+ 
+ #define IF_GET_IFACE	0x0001		/* for querying only */
+ #define IF_GET_PROTO	0x0002
+Index: linux-2.6/include/linux/netdevice.h
+===================================================================
+--- linux-2.6.orig/include/linux/netdevice.h
++++ linux-2.6/include/linux/netdevice.h
+@@ -667,6 +667,7 @@ struct net_device_ops {
+ 						        unsigned short vid);
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ 	void                    (*ndo_poll_controller)(struct net_device *dev);
++	void			(*ndo_netpoll_cleanup)(struct net_device *dev);
+ #endif
+ 	int			(*ndo_set_vf_mac)(struct net_device *dev,
+ 						  int queue, u8 *mac);
+Index: linux-2.6/include/linux/netpoll.h
+===================================================================
+--- linux-2.6.orig/include/linux/netpoll.h
++++ linux-2.6/include/linux/netpoll.h
+@@ -14,6 +14,7 @@
+ 
+ struct netpoll {
+ 	struct net_device *dev;
++	struct net_device *real_dev;
+ 	char dev_name[IFNAMSIZ];
+ 	const char *name;
+ 	void (*rx_hook)(struct netpoll *, int, char *, int);
+@@ -36,8 +37,11 @@ struct netpoll_info {
+ 	struct sk_buff_head txq;
+ 
+ 	struct delayed_work tx_work;
++
++	struct netpoll *netpoll;
+ };
+ 
++void netpoll_poll_dev(struct net_device *dev);
+ void netpoll_poll(struct netpoll *np);
+ void netpoll_send_udp(struct netpoll *np, const char *msg, int len);
+ void netpoll_print_options(struct netpoll *np);
+@@ -47,6 +51,7 @@ int netpoll_trap(void);
+ void netpoll_set_trap(int trap);
+ void netpoll_cleanup(struct netpoll *np);
+ int __netpoll_rx(struct sk_buff *skb);
++void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb);
+ 
+ 
+ #ifdef CONFIG_NETPOLL
+Index: linux-2.6/net/core/netpoll.c
+===================================================================
+--- linux-2.6.orig/net/core/netpoll.c
++++ linux-2.6/net/core/netpoll.c
+@@ -179,9 +179,8 @@ static void service_arp_queue(struct net
+ 	}
+ }
+ 
+-void netpoll_poll(struct netpoll *np)
++void netpoll_poll_dev(struct net_device *dev)
+ {
+-	struct net_device *dev = np->dev;
+ 	const struct net_device_ops *ops;
+ 
+ 	if (!dev || !netif_running(dev))
+@@ -201,6 +200,11 @@ void netpoll_poll(struct netpoll *np)
+ 	zap_completion_queue();
+ }
+ 
++void netpoll_poll(struct netpoll *np)
++{
++	netpoll_poll_dev(np->dev);
++}
++
+ static void refill_skbs(void)
+ {
+ 	struct sk_buff *skb;
+@@ -282,7 +286,7 @@ static int netpoll_owner_active(struct n
+ 	return 0;
+ }
+ 
+-static void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb)
++void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb)
+ {
+ 	int status = NETDEV_TX_BUSY;
+ 	unsigned long tries;
+@@ -308,7 +312,9 @@ static void netpoll_send_skb(struct netp
+ 		     tries > 0; --tries) {
+ 			if (__netif_tx_trylock(txq)) {
+ 				if (!netif_tx_queue_stopped(txq)) {
++					dev->priv_flags |= IFF_IN_NETPOLL;
+ 					status = ops->ndo_start_xmit(skb, dev);
++					dev->priv_flags &= ~IFF_IN_NETPOLL;
+ 					if (status == NETDEV_TX_OK)
+ 						txq_trans_update(txq);
+ 				}
+@@ -756,7 +762,10 @@ int netpoll_setup(struct netpoll *np)
+ 		atomic_inc(&npinfo->refcnt);
+ 	}
+ 
+-	if (!ndev->netdev_ops->ndo_poll_controller) {
++	npinfo->netpoll = np;
++
++	if (ndev->priv_flags & IFF_DISABLE_NETPOLL
++			|| !ndev->netdev_ops->ndo_poll_controller) {
+ 		printk(KERN_ERR "%s: %s doesn't support polling, aborting.\n",
+ 		       np->name, np->dev_name);
+ 		err = -ENOTSUPP;
+@@ -878,6 +887,7 @@ void netpoll_cleanup(struct netpoll *np)
+ 			}
+ 
+ 			if (atomic_dec_and_test(&npinfo->refcnt)) {
++				const struct net_device_ops *ops;
+ 				skb_queue_purge(&npinfo->arp_tx);
+ 				skb_queue_purge(&npinfo->txq);
+ 				cancel_rearming_delayed_work(&npinfo->tx_work);
+@@ -885,7 +895,11 @@ void netpoll_cleanup(struct netpoll *np)
+ 				/* clean after last, unfinished work */
+ 				__skb_queue_purge(&npinfo->txq);
+ 				kfree(npinfo);
+-				np->dev->npinfo = NULL;
++				ops = np->dev->netdev_ops;
++				if (ops->ndo_netpoll_cleanup)
++					ops->ndo_netpoll_cleanup(np->dev);
++				else
++					np->dev->npinfo = NULL;
+ 			}
+ 		}
+ 
+@@ -908,6 +922,7 @@ void netpoll_set_trap(int trap)
+ 		atomic_dec(&trapped);
+ }
+ 
++EXPORT_SYMBOL(netpoll_send_skb);
+ EXPORT_SYMBOL(netpoll_set_trap);
+ EXPORT_SYMBOL(netpoll_trap);
+ EXPORT_SYMBOL(netpoll_print_options);
+@@ -915,4 +930,5 @@ EXPORT_SYMBOL(netpoll_parse_options);
+ EXPORT_SYMBOL(netpoll_setup);
+ EXPORT_SYMBOL(netpoll_cleanup);
+ EXPORT_SYMBOL(netpoll_send_udp);
++EXPORT_SYMBOL(netpoll_poll_dev);
+ EXPORT_SYMBOL(netpoll_poll);
+Index: linux-2.6/drivers/net/netconsole.c
+===================================================================
+--- linux-2.6.orig/drivers/net/netconsole.c
++++ linux-2.6/drivers/net/netconsole.c
+@@ -665,7 +665,8 @@ static int netconsole_netdev_event(struc
+ 	struct netconsole_target *nt;
+ 	struct net_device *dev = ptr;
+ 
+-	if (!(event == NETDEV_CHANGENAME || event == NETDEV_UNREGISTER))
++	if (!(event == NETDEV_CHANGENAME || event == NETDEV_UNREGISTER ||
++	      event == NETDEV_BONDING_DESLAVE || event == NETDEV_GOING_DOWN))
+ 		goto done;
+ 
+ 	spin_lock_irqsave(&target_list_lock, flags);
+@@ -677,19 +678,21 @@ static int netconsole_netdev_event(struc
+ 				strlcpy(nt->np.dev_name, dev->name, IFNAMSIZ);
+ 				break;
+ 			case NETDEV_UNREGISTER:
+-				if (!nt->enabled)
+-					break;
+ 				netpoll_cleanup(&nt->np);
++				/* Fall through */
++			case NETDEV_GOING_DOWN:
++			case NETDEV_BONDING_DESLAVE:
+ 				nt->enabled = 0;
+-				printk(KERN_INFO "netconsole: network logging stopped"
+-					", interface %s unregistered\n",
+-					dev->name);
+ 				break;
+ 			}
+ 		}
+ 		netconsole_target_put(nt);
+ 	}
+ 	spin_unlock_irqrestore(&target_list_lock, flags);
++	if (event == NETDEV_UNREGISTER || event == NETDEV_BONDING_DESLAVE)
++		printk(KERN_INFO "netconsole: network logging stopped, "
++			"interface %s %s\n",  dev->name,
++			event == NETDEV_UNREGISTER ? "unregistered" : "released slaves");
+ 
+ done:
+ 	return NOTIFY_DONE;
+Index: linux-2.6/include/linux/notifier.h
+===================================================================
+--- linux-2.6.orig/include/linux/notifier.h
++++ linux-2.6/include/linux/notifier.h
+@@ -203,6 +203,7 @@ static inline int notifier_to_errno(int 
+ #define NETDEV_BONDING_NEWTYPE  0x000F
+ #define NETDEV_POST_INIT	0x0010
+ #define NETDEV_UNREGISTER_BATCH 0x0011
++#define NETDEV_BONDING_DESLAVE  0x0012
+ 
+ #define SYS_DOWN	0x0001	/* Notify of system down */
+ #define SYS_RESTART	SYS_DOWN
