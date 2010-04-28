@@ -1,13 +1,14 @@
-Message-ID: <4BD798B9.3010007@redhat.com>
-Date: Wed, 28 Apr 2010 10:08:57 +0800
+Message-ID: <4BD806E7.7010806@redhat.com>
+Date: Wed, 28 Apr 2010 17:59:03 +0800
 From: Cong Wang <amwang@redhat.com>
 MIME-Version: 1.0
-References: <20100427075937.4908.18468.sendpatchset@localhost.localdomain>	<20100427080004.4908.27339.sendpatchset@localhost.localdomain>
-	<20100427.152424.236240666.davem@davemloft.net>
-In-Reply-To: <20100427.152424.236240666.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20100427075937.4908.18468.sendpatchset@localhost.localdomain>
+	<j2mce2c83091004272102ye46e65fbod138e63dc58bccd5@mail.gmail.com>
+In-Reply-To: <j2mce2c83091004272102ye46e65fbod138e63dc58bccd5@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [v4 Patch 3/3] bonding: make bonding support netpoll
+Subject: Re: [Bridge] [v4 Patch 1/3] netpoll: add generic support for bridge
+ and bonding devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,19 +17,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: fubar@us.ibm.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, mpm@selenic.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmoyer@redhat.com, gospo@redhat.com, bonding-devel@lists.sourceforge.net
+To: Dongdong Deng <libfetion@gmail.com>
+Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Jeff Moyer <jmoyer@redhat.com>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
 
-David Miller wrote:
-> From: Amerigo Wang <amwang@redhat.com>
-> Date: Tue, 27 Apr 2010 03:56:09 -0400
+Dongdong Deng wrote:
 > 
->> +		if ((slave->dev->priv_flags & IFF_DISABLE_NETPOLL)
->> +				|| !slave->dev->netdev_ops->ndo_poll_controller)
 > 
-> "|| on first line please, plus fix second line's indentation as per
-> comments given in patch #1 and #2
+> +             if (ops->ndo_netpoll_cleanup)
+> +                                       ops->ndo_netpoll_cleanup(np->dev);
+> +             np->dev->npinfo = NULL;
+> 
+> I think it is good to set np->dev->npinfo to NULL  even though we have
+> the netpoll_cleanup opt.
+> 
 
-Thanks, David!
-I will fix all of this style problem.
+This is redundant, since ->ndo_netpoll_cleanup will set it.
 
+Thanks.
