@@ -1,13 +1,13 @@
-Date: Sat, 15 May 2010 23:12:09 -0700 (PDT)
-Message-Id: <20100515.231209.184855025.davem@davemloft.net>
+Date: Sat, 15 May 2010 23:12:23 -0700 (PDT)
+Message-Id: <20100515.231223.124044249.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20100510193320.859557093@vyatta.com>
+In-Reply-To: <20100510193320.936126854@vyatta.com>
 References: <20100510193107.722574297@vyatta.com>
-	<20100510193320.859557093@vyatta.com>
+	<20100510193320.936126854@vyatta.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 2/4] bridge: change console message interface
+Subject: Re: [Bridge] [PATCH 3/4] bridge: netfilter use net_ratelimit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,13 +20,11 @@ To: shemminger@vyatta.com
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
 From: Stephen Hemminger <shemminger@vyatta.com>
-Date: Mon, 10 May 2010 12:31:09 -0700
+Date: Mon, 10 May 2010 12:31:10 -0700
 
-> Use one set of macro's for all bridge messages.
-> 
-> Note: can't use netdev_XXX macro's because bridge is purely
-> virtual and has no device parent.
+> The function __br_dnat_complain is basically reimplementing existing
+> net_ratelimit.
 > 
 > Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-Applied.
+This code is no longer there after the recent netfilter merges.
