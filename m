@@ -1,14 +1,12 @@
-Date: Sat, 15 May 2010 23:12:29 -0700 (PDT)
-Message-Id: <20100515.231229.186295968.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20100510193321.020451781@vyatta.com>
-References: <20100510193107.722574297@vyatta.com>
-	<20100510193321.020451781@vyatta.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 4/4] bridge: update sysfs link names if port
- device names have changed
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 17 May 2010 13:17:07 -0700
+Message-ID: <F24C979D1AFD4E4292B911441CBA242407FCC1@2putt.int.lantronix.com>
+From: "Umar Qureshey" <umar.qureshey@lantronix.com>
+Subject: [Bridge] Hardware requirements for bridging wired+wireless together
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,30 +15,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, simon@fire.lp0.eu
+To: bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@vyatta.com>
-Date: Mon, 10 May 2010 12:31:11 -0700
+Hi,
 
-> From: Simon Arlott <simon@fire.lp0.eu>
-> 
-> Links for each port are created in sysfs using the device
-> name, but this could be changed after being added to the
-> bridge.
-> 
-> As well as being unable to remove interfaces after this
-> occurs (because userspace tools don't recognise the new
-> name, and the kernel won't recognise the old name), adding
-> another interface with the old name to the bridge will
-> cause an error trying to create the sysfs link.
-> 
-> This fixes the problem by listening for NETDEV_CHANGENAME
-> notifications and renaming the link.
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=12743
-> 
-> Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
-> Acked-by: Stephen Hemminger <shemminger@vyatta.com>
+I have been trolling the 'net as well as the archives of this list for
+quite a while now.
 
-Applied.
+I am still unclear on the requirements for getting an Ethernet and
+Wireless interface to bridge together.
+
+Currently, I am working with an esoteric radio that only supports Ad-Hoc
+and Managed modes.  There seemingly is not support for WDS (Wireless
+Distribution System) on this radio.
+
+I have been trying to bridge my eth0 and wlan0 but it doesn't seem to
+work.  Currently, my commands to get the bridge up are:
+
+ifconfig eth0 0.0.0.0
+ifconfig wlan0 0.0.0.0
+brctl addbr br0
+brctl addif br0 eth0
+brctl setfd br0 1           #BusyBox version of brctl doesn't take 0 as
+a time parameter so I change it to 1 (sec)
+ifconfig br0 up
+wpa_supplicant -Dwext -iwlan0 -bbr0 -c/root/wpa_supplicant.conf
+
+Then I try to run udhcpc (DHCP client) on the bridge hoping to get DHCP
+from the AP/router:
+
+# udhcpc -ibr0 -b
+udhcpc (v1.15.2) started
+Sending discover...
+Sending discover...
+Sending discover...
+No lease, forking to background
+
+What I'd like to inquire is that is WDS support in the firmware/hardware
+of the radio required to bridge eth0 and wlan0?
+Any other tips to get the above interfaces to successfully bridge
+together would be great.
+
+Thanks,
+Umar
+=20
+**********************************************************************
+This e-mail is the property of Lantronix. It is intended only for the =
+person or entity to which it is addressed and may contain information =
+that is privileged, confidential, or otherwise protected from =
+disclosure. Distribution or copying of this e-mail, or the information =
+contained herein, to anyone other than the intended recipient is =
+prohibited.
