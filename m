@@ -1,16 +1,14 @@
-Message-ID: <4BF46C74.9000000@superduper.net>
-Date: Wed, 19 May 2010 15:55:48 -0700
+Message-ID: <4BF46E21.9050000@superduper.net>
+Date: Wed, 19 May 2010 16:02:57 -0700
 From: Simon Barber <simon@superduper.net>
 MIME-Version: 1.0
-References: <20100518165112.18669700@nehalam>	<F24C979D1AFD4E4292B911441CBA242407FCC8@2putt.int.lantronix.com>
-	<20100519192011.GJ2412@tuxdriver.com>
-	<4BF4512C.4040903@superduper.net>
-	<F24C979D1AFD4E4292B911441CBA242407FCCA@2putt.int.lantronix.com>
-In-Reply-To: <F24C979D1AFD4E4292B911441CBA242407FCCA@2putt.int.lantronix.com>
+References: <20100518165112.18669700@nehalam>	<F24C979D1AFD4E4292B911441CBA242407FCC8@2putt.int.lantronix.com>	<20100519192011.GJ2412@tuxdriver.com>
+	<F24C979D1AFD4E4292B911441CBA242407FCC9@2putt.int.lantronix.com>
+In-Reply-To: <F24C979D1AFD4E4292B911441CBA242407FCC9@2putt.int.lantronix.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Hardware requirements for bridging wired+wireless
-	together
+Subject: Re: [Bridge] Hardware requirements for bridging
+	wired+wireless	together
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,37 +20,87 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Umar Qureshey <umar.qureshey@lantronix.com>
 Cc: bridge@lists.linux-foundation.org
 
-The problem is not the WiFi chipset - it's the IEEE802.11 standard. The 
-standard does not allow for 'promiscuous mode' (not to be confused with 
-monitor mode), nor does it require clients and access points to support 
-4 address format frames which the bridge needs to work.
+Unfortunately the concept of a native 802.11 interface got removed from 
+the kernel a few months ago. This is a great shame, since it means that 
+it's now impossible to write qdiscs that work correctly for WiFi when 
+using 802.11's own priority mechanisms as well. The wlan0 interface is a 
+virtual interface that works with 802.3 format frames.
 
 Simon
 
-On 05/19/2010 02:08 PM, Umar Qureshey wrote:
+
+On 05/19/2010 02:01 PM, Umar Qureshey wrote:
 >>> -----Original Message-----
->>> From: Simon Barber [mailto:simon@superduper.net]
->>> Sent: Wednesday, May 19, 2010 1:59 PM
->>> To: John W. Linville
->>> Cc: Umar Qureshey; bridge@lists.linux-foundation.org
+>>> From: John W. Linville [mailto:linville@tuxdriver.com]
+>>> Sent: Wednesday, May 19, 2010 12:20 PM
+>>> To: Umar Qureshey
+>>> Cc: Stephen Hemminger; bridge@lists.linux-foundation.org
 >>> Subject: Re: [Bridge] Hardware requirements for bridging
 > wired+wireless together
 >>>
->>> I did write an ebtables module to work around this 802.11 3 address
->>> problem - it performed L2 NAT on DHCP, ARP and IP packets, so
-> allowing
->>> an 802.11 client be added to a bridge. It was released under GPL
-> about 5
->>> years ago (from my previous company Instant802/Devicescape), but I
-> can't
->>> find the source anymore!!!
+>>> On Wed, May 19, 2010 at 10:15:35AM -0700, Umar Qureshey wrote:
 >>>
->>> Simon
+>>>> What about bridging in Ad-Hoc mode?  Would that technically work?
+>>>
+>>> No.
+>>>
+>>>> I guess what I am trying to figure out is why bridging would work
+> in WDS mode?  What is it about that mode that allows bridging to work?
+>>>
+>>> It has to do with the MAC-layer addressing on wireless LANs.
+> Wireless
+>>> frames can use 2, 3, or 4 MAC addresses to identify the transmitter,
+>>> receiver, sender, and destination.  For most frames and most modes,
+>>> 3 MAC addresses are used.  The FromDS and ToDS bits in the header
+>>> are used to allow one of the MAC address fields to specify either
+>>> the transmitter and sender or the destination and receiver.  This is
+>>> sufficient for non-bridged cases since the wireless station is either
+>>> an endpoint of the communication or possibly a router (and therefore
+>>> a Layer-2 endpoint).
+>>>
+>>> WDS (or 4 address) mode removes this limitation by using 4 MAC
+>>> addresses to identify all 4 roles independently.  So, the wireless
+>>> station is able to forward frames received off the air to the
+>>> appropriate destination with the correct sender information intact.
+>>>
+>>> mac80211-based devices can have interfaces created with support for
+>>> 4 address mode using the iw command.  For this to work, your AP has
+>>> to be willing to accept and forward those frames appropriately --
+>>> some do, others don't.  This is only supported for "managed" mode
+>>> interfaces AFAIK.
+>>>
+>>>> If one were to try to modify the kernel code to allow MAC-level
+> NAT, which area of the kernel code would one look at?
+>>>
+>>> netfilter -- I thought there was already some ebtables code to
+>>> do this...?
+>>>
+>>> John
+>>> --
+>>> John W. Linville		Someday the world will need a hero, and
+> you
+>>> linville@tuxdriver.com			might be all we have.
+> Be ready.
 >
-> That would be very useful.  Probably even more useful now than 5 years
-> ago!  Apparently, Windows does MAC-level NAT allowing for the bridging
-> of Ethernet and WiFi interfaces irrespective of the underlying Wifi
-> chipset.
+> Ok thanks for the explanation about WDS.
+>
+> Stepping back into a Linux box with two interfaces, one Ethernet (eth0)
+> and one wireless 802.11 (wlan0), and one bridge (br0) that bridges these
+> two interfaces together:
+>
+>
+>                             br0
+>                              |
+>                   eth0-------+-------wlan0
+>
+> Can one say that, in this case, the bridge is not working because br0 is
+> passing to wlan0 Ethernet 802.3 frames which (naturally) the wlan0
+> interface has no idea how to decode?
+>
 >
 > **********************************************************************
 > This e-mail is the property of Lantronix. It is intended only for the person or entity to which it is addressed and may contain information that is privileged, confidential, or otherwise protected from disclosure. Distribution or copying of this e-mail, or the information contained herein, to anyone other than the intended recipient is prohibited.
+> _______________________________________________
+> Bridge mailing list
+> Bridge@lists.linux-foundation.org
+> https://lists.linux-foundation.org/mailman/listinfo/bridge
