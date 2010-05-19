@@ -1,14 +1,14 @@
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 May 2010 10:15:35 -0700
-Message-ID: <F24C979D1AFD4E4292B911441CBA242407FCC8@2putt.int.lantronix.com>
+Date: Wed, 19 May 2010 15:20:11 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+Message-ID: <20100519192011.GJ2412@tuxdriver.com>
 References: <20100518165112.18669700@nehalam>
-From: "Umar Qureshey" <umar.qureshey@lantronix.com>
+	<F24C979D1AFD4E4292B911441CBA242407FCC8@2putt.int.lantronix.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F24C979D1AFD4E4292B911441CBA242407FCC8@2putt.int.lantronix.com>
 Subject: Re: [Bridge] Hardware requirements for bridging wired+wireless
-	together
+ together
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,86 +17,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
+To: Umar Qureshey <umar.qureshey@lantronix.com>
 Cc: bridge@lists.linux-foundation.org
 
------Original Message-----
-From: Stephen Hemminger [mailto:shemminger@linux-foundation.org]=20
-Sent: Tuesday, May 18, 2010 4:51 PM
-To: Umar Qureshey
-Cc: Nicolas de Peslo=FCan; bridge@lists.linux-foundation.org
-Subject: Re: [Bridge] Hardware requirements for bridging wired+wireless =
-together
+On Wed, May 19, 2010 at 10:15:35AM -0700, Umar Qureshey wrote:
 
-On Tue, 18 May 2010 16:38:54 -0700
-"Umar Qureshey" <umar.qureshey@lantronix.com> wrote:
+> What about bridging in Ad-Hoc mode?  Would that technically work?
 
-> -----Original Message-----
-> From: Nicolas de Peslo=FCan [mailto:nicolas.2p.debian@free.fr]=20
-> Sent: Tuesday, May 18, 2010 12:32 PM
-> To: Umar Qureshey
-> Cc: bridge@lists.linux-foundation.org
-> Subject: Re: [Bridge] Hardware requirements for bridging =
-wired+wireless together
->=20
-> Umar Qureshey wrote:
-> > Hi,
-> >
-> > I have been trolling the 'net as well as the archives of this list =
-for
-> > quite a while now.
-> >
-> > I am still unclear on the requirements for getting an Ethernet and
-> > Wireless interface to bridge together.
-> >
-> > Currently, I am working with an esoteric radio that only supports =
-Ad-Hoc
-> > and Managed modes.  There seemingly is not support for WDS (Wireless
-> > Distribution System) on this radio.
-> >
-> > I have been trying to bridge my eth0 and wlan0 but it doesn't seem =
-to
-> > work.  Currently, my commands to get the bridge up are:
-> >
-> > ifconfig eth0 0.0.0.0
-> > ifconfig wlan0 0.0.0.0
-> > brctl addbr br0
-> > brctl addif br0 eth0
-> > brctl setfd br0 1           #BusyBox version of brctl doesn't take 0 =
-as
-> > a time parameter so I change it to 1 (sec)
-> > ifconfig br0 up
-> > wpa_supplicant -Dwext -iwlan0 -bbr0 -c/root/wpa_supplicant.conf
->=20
-> I think you forgot to add wlan0 to the bridge:
->=20
-> brctl addif br0 wlan0
->=20
+No.
+ 
+> I guess what I am trying to figure out is why bridging would work in WDS mode?  What is it about that mode that allows bridging to work?
 
-> > >I believe bridging in station mode won't work (usually).
-> > >Recent kernels even reject the attempt.
+It has to do with the MAC-layer addressing on wireless LANs.  Wireless
+frames can use 2, 3, or 4 MAC addresses to identify the transmitter,
+receiver, sender, and destination.  For most frames and most modes,
+3 MAC addresses are used.  The FromDS and ToDS bits in the header
+are used to allow one of the MAC address fields to specify either
+the transmitter and sender or the destination and receiver.  This is
+sufficient for non-bridged cases since the wireless station is either
+an endpoint of the communication or possibly a router (and therefore
+a Layer-2 endpoint).
 
-> > >There are exceptions with some devices and if the stack supports =
-WDS
-> > > (which Linux wireless doesn't yet).
+WDS (or 4 address) mode removes this limitation by using 4 MAC
+addresses to identify all 4 roles independently.  So, the wireless
+station is able to forward frames received off the air to the
+appropriate destination with the correct sender information intact.
 
-> > >There are some cases like VMware that appear to do MAC level NAT
-> > > (ie replace Ethernet address), but the regular kernel doesn't =
-support that.
+mac80211-based devices can have interfaces created with support for
+4 address mode using the iw command.  For this to work, your AP has
+to be willing to accept and forward those frames appropriately --
+some do, others don't.  This is only supported for "managed" mode
+interfaces AFAIK.
 
-What about bridging in Ad-Hoc mode?  Would that technically work?
+> If one were to try to modify the kernel code to allow MAC-level NAT, which area of the kernel code would one look at?
 
-I guess what I am trying to figure out is why bridging would work in WDS =
-mode?  What is it about that mode that allows bridging to work?
+netfilter -- I thought there was already some ebtables code to
+do this...?
 
-If one were to try to modify the kernel code to allow MAC-level NAT, =
-which area of the kernel code would one look at?
-
-=20
-**********************************************************************
-This e-mail is the property of Lantronix. It is intended only for the =
-person or entity to which it is addressed and may contain information =
-that is privileged, confidential, or otherwise protected from =
-disclosure. Distribution or copying of this e-mail, or the information =
-contained herein, to anyone other than the intended recipient is =
-prohibited.
+John
+-- 
+John W. Linville		Someday the world will need a hero, and you
+linville@tuxdriver.com			might be all we have.  Be ready.
