@@ -1,14 +1,12 @@
-From: Aijaz Baig <aijazbaig1@gmail.com>
-In-Reply-To: <1274773935.13015.36.camel@aijazbaig1-desktop>
-References: <1274773935.13015.36.camel@aijazbaig1-desktop>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 25 May 2010 14:58:15 +0530
-Message-ID: <1274779695.13015.41.camel@aijazbaig1-desktop>
-Mime-Version: 1.0
+Message-ID: <4BFB9E2E.9020103@redhat.com>
+Date: Tue, 25 May 2010 12:53:50 +0300
+From: Avi Kivity <avi@redhat.com>
+MIME-Version: 1.0
+References: <BC00F5384FCFC9499AF06F92E8B78A9E04DCCCE242@shsmsx502.ccr.corp.intel.com>
+In-Reply-To: <BC00F5384FCFC9499AF06F92E8B78A9E04DCCCE242@shsmsx502.ccr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] vlan issue with bridge router,
- local virtual iface needs to be in same subnet
-Reply-To: aijazbaig1@gmail.com
+Subject: Re: [Bridge] host panic on kernel 2.6.34
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,103 +15,132 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: "Hao, Xudong" <xudong.hao@intel.com>
+Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>
 
-Hello there,
-there are a few errors in my post which I would like to point out:
-In the figure at http://yfrog.com/83vlanp , PortC(LAN) shd be replaced
-by PortA(LAN) and PortD(WAN) by PortB(WAN) for both the real and the
-virtual interfaces. My linux machine is connected to LAN whereas the WAN
-goes on to meet the router.
+Copying netdev, bridge mailing lists.
 
-Thus, the ebtables rule changes to
-ebtables -t broute -I BROUTING -p 0x8100 -i PortA -j redirect
---redirect-target DROP
- 
-On Tue, 2010-05-25 at 13:22 +0530, Aijaz Baig wrote:
-> Hello people,
-> 
-> I have a Linux machine acting as a bridge although it has been updated
-> to the 2.6.27 kernel and thus contains iptables, ebtables and also the
-> br-nf code for iptables based filtering at the Link layer (please
-> correct me if I have misunderstood anything). I have been trying to ping
-> the bridge itself from a virtual interface on my local machine (also
-> linux). So before we proceed heres my scenario. Please refer to the
-> figure describing the scenario at http://yfrog.com/83vlanp
-> 
-> br0 - 192.168.5.104/20
-> PortA - 0.0.0.0 (bridged port)
-> PortB - 0.0.0.0 (bridged port)
-> PortA.3 - 0.0.0.0 (bridged port)
-> PortB.3 - 0.0.0.0 (bridged port)
-> 
-> eth0 - 192.168.4.237/20 (local)
-> eth0.3 - 14.11.11.11/24 (local)
-> 
-> I have read the entire documentation with the title 'interaction of the
-> ebtables and iptables on a linux bridge'. Alongwith that I have also
-> read quite a few documents on using the iptables and the ebtables
-> utilities.
-> 
-> Most of my questions concern the diagram at
-> (http://ebtables.sourceforge.net/br_fw_ia/PacketFlow.png) which explains
-> the movement of the packet flow. 
-> 
-> for this experiment, I have flushed all the rules in the iptables and
-> ebtables for all the chains. Plus the default policy for all the chains
-> in iptables and ebtables is set to ACCEPT. The only rule that I have on
-> my machine is 
-> 
-> ebtables -t broute -I BROUTING -p 0x8100 -i PortC -j redirect
-> --redirect-target DROP
-> 
-> My major analysis has been the ubiquitous tcpdump alongwith some
-> utilities
-> 
-> Now my questions:
-> 
-> When I try 'arping' my brouter from eth0.3, the arp request which is
-> untagged arrives on PortA. Now since the above rule has got nothing to
-> do with untagged packets, it is not 'brouted' and according to the
-> diagram, it then moves forward to the ebtables PREROUTING chain in the
-> nat table. No rule there. Followed by prerouting chain in the nat and
-> mangle tables of 'iptables' (due to br-nf at link-layer i suppose?).
-> Finally reaches 'bridging decision'.
-> 
-> 1. what exactly happens @bridging decision? The target MAC address
-> is a broadcast address. Now how does the bridging logic decide if it is
-> to be bridged or to be routed for an ARP request? Does it do it by
-> looking at the 'target protocol address' field for the arp packet? If
-> this is indeed true then since in case of 'arping' the brouter, this
-> field shd be = IP addr of the brouter. Thus the bridging logic instead
-> passes it to the routing code from where it is sent to the ARP code if I
-> interpret it correctly. Am I right on this one? Since I do get a reply
-> from the bridge for the arp request even when sent from a tagged
-> interface, I assume this is what might be happening. seeking
-> clarifications though.
-> 
-> 2. Now I try to ping my brouter from eth0.3 as in 'ping -I eth0.3
-> 192.168.5.104' .On running tcpdump on the brouter, I can see the
-> following:
-> 
-> 13:17:53.822056 PortA.3, IN:  In 00:25:11:8f:c6:21 ethertype IPv4
-> (0x0800), length 100: 14.11.11.11 > 192.168.5.104: ICMP echo request
->                    
-> 13:17:53.822415 br0, IN:  In 00:25:11:8f:c6:21 ethertype IPv4 (0x0800),
-> length 100: 14.11.11.11 > 192.168.5.104: ICMP echo request
-> 
-> 13:17:53.822740 br0, OUT: Out 00:0d:48:36:59:88 ethertype IPv4 (0x0800),
-> length 100: 192.168.5.104 > 14.11.11.11: ICMP echo request
-> 
-> 13:17:53.822895 PortB, OUT: Out 00:0d:48:36:59:88 ethertype IPv4
-> (0x0800), length 100: 192.168.5.104 > 14.11.11.11: ICMP echo reply
-> 
-> After pinging from eth0.3 with this IP, I see that an ARP entry for
-> 14.11.11.11 has been registered at br0. 
-> 
-> I would be greatly obliged if you could shed some light on this. 
-> 
-> Regards,
-> Aijaz Baig.
+On 05/24/2010 11:23 AM, Hao, Xudong wrote:
+> Hi all
+> I build latest kvm 37dec075a7854f0f550540bf3b9bbeef37c11e2a, based on kernel 2.6.34, after kvm and kvm_intel module loaded, then /etc/init.d/kvm start, a few minutes later, the system will panic.
+>
+> kernel: 2.6.34
+> kvm: 37dec075a7854f0f550540bf3b9bbeef37c11e2a
+> qemu-kvm: 69dd59a66aaf56d1e8e4c96d0a0923c9cf8f79a0
+>
+> BUG: unable to handle kernel NULL pointer dereference at 00000018
+> IP: [<f914c05b>] br_mdb_ip_get+0x2e/0x1aa [bridge]
+> *pdpt = 0000000035fbb001 *pde = 0000000000000000
+> Oops: 0000 [#1] SMP
+> last sysfs file: /sys/devices/system/cpu/cpu7/cache/index2/shared_cpu_map
+> Modules linked in: bridge stp autofs4 hidp rfcomm l2cap crc16 bluetooth rfkill ]
+>
+> Pid: 0, comm: swapper Not tainted 2.6.34 #1 X7DWA/X7DWA
+> EIP: 0060:[<f914c05b>] EFLAGS: 00010246 CPU: 0
+> EIP is at br_mdb_ip_get+0x2e/0x1aa [bridge]
+> EAX: c5801d40 EBX: c5801d40 ECX: faffffef EDX: 00000000
+> ESI: f67e03c0 EDI: f5249200 EBP: c5801c94 ESP: c5801c80
+>   DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+> Process swapper (pid: 0, ti=c5801000 task=c07f2fe0 task.ti=c07de000)
+> Stack:
+>   c5801d40 00000000 c5801d40 f67e03c0 f5249200 c5801cb0 f914c6fd fff90006
+> <0>  f67e0940 f6326740 f627e064 f67e03c0 c5801d78 f914dd0c f76af140 f6326740
+> <0>  f5249200 f67e03c0 00000014 f6326758 c5801d54 c08eb440 c5801cf4 c5801d00
+> Call Trace:
+>   [<f914c6fd>] ? br_multicast_leave_group+0x52/0x128 [bridge]
+>   [<f914dd0c>] ? br_multicast_rcv+0x6dc/0xe90 [bridge]
+>   [<c0650420>] ? fib_lookup+0x2c/0x3a
+>   [<c064cd15>] ? fib_validate_source+0x29d/0x2b4
+>   [<c0621175>] ? nf_hook_slow+0x3b/0x92
+>   [<f9147b39>] ? br_handle_frame_finish+0x53/0x17e [bridge]
+>   [<f914b880>] ? br_nf_pre_routing_finish+0x264/0x27c [bridge]
+>   [<c0621175>] ? nf_hook_slow+0x3b/0x92
+>   [<f914b61c>] ? br_nf_pre_routing_finish+0x0/0x27c [bridge]
+>   [<f914bf6f>] ? br_nf_pre_routing+0x553/0x570 [bridge]
+>   [<c0621107>] ? nf_iterate+0x2f/0x62
+>   [<f9147ae6>] ? br_handle_frame_finish+0x0/0x17e [bridge]
+>   [<c0621175>] ? nf_hook_slow+0x3b/0x92
+>   [<f9147ae6>] ? br_handle_frame_finish+0x0/0x17e [bridge]
+>   [<f9147dda>] ? br_handle_frame+0x176/0x198 [bridge]
+>   [<f9147ae6>] ? br_handle_frame_finish+0x0/0x17e [bridge]
+>   [<c060643b>] ? __netif_receive_skb+0x29a/0x37e
+>   [<c0607023>] ? dev_gro_receive+0xfd/0x1d2
+>   [<c0606e03>] ? netif_receive_skb+0x61/0x67
+>   [<c0607199>] ? __napi_gro_receive+0xa1/0xba
+>   [<c0606e7e>] ? napi_skb_finish+0x1e/0x33
+>   [<c0607201>] ? napi_gro_receive+0x20/0x24
+>   [<f8867cfc>] ? igb_poll+0x706/0xa39 [igb]
+>   [<c06093b2>] ? net_rx_action+0x97/0x13b
+>   [<c0430641>] ? __do_softirq+0x80/0xf4
+>   [<c04305c1>] ? __do_softirq+0x0/0xf4
+>   <IRQ>
+>   [<c04305bf>] ? irq_exit+0x29/0x2b
+>   [<c040373e>] ? do_IRQ+0x85/0x9b
+>   [<c0402ca9>] ? common_interrupt+0x29/0x30
+>   [<c0407c4f>] ? mwait_idle+0x4c/0x52
+>   [<c0401a08>] ? cpu_idle+0x3a/0x4e
+>   [<c066cf16>] ? rest_init+0x62/0x64
+>   [<c08248dd>] ? start_kernel+0x2c2/0x2c7
+>   [<c08240b3>] ? i386_start_kernel+0xb3/0xb8
+> Code: 57 56 53 83 ec 08 89 45 f0 89 55 ec 8b 42 10 66 83 f8 08 74 0e 31 db 66 3
+> EIP: [<f914c05b>] br_mdb_ip_get+0x2e/0x1aa [bridge] SS:ESP 0068:c5801c80
+> CR2: 0000000000000018
+> ---[ end trace 907f878ab4cd8031 ]---
+> Kernel panic - not syncing: Fatal exception in interrupt
+> Pid: 0, comm: swapper Tainted: G      D     2.6.34 #1
+> Call Trace:
+>   [<c042c31b>] panic+0x3e/0xaa
+>   [<c0681caa>] oops_end+0x8c/0x9b
+>   [<c041e710>] no_context+0x153/0x15d
+>   [<c041e8a2>] __bad_area_nosemaphore+0xe5/0xed
+>   [<c041e90e>] bad_area_nosemaphore+0xd/0x13
+>   [<c06838b0>] do_page_fault+0x375/0x37d
+>   [<c0650420>] ? fib_lookup+0x2c/0x3a
+>   [<c0624431>] ? ip_route_input_common+0x695/0xf2f
+>   [<c068353b>] ? do_page_fault+0x0/0x37d
+>   [<c06813d6>] error_code+0x66/0x6c
+>   [<c068353b>] ? do_page_fault+0x0/0x37d
+>   [<f914c05b>] ? br_mdb_ip_get+0x2e/0x1aa [bridge]
+>   [<f914c6fd>] br_multicast_leave_group+0x52/0x128 [bridge]
+>   [<f914dd0c>] br_multicast_rcv+0x6dc/0xe90 [bridge]
+>   [<c0650420>] ? fib_lookup+0x2c/0x3a
+>   [<c064cd15>] ? fib_validate_source+0x29d/0x2b4
+>   [<c0621175>] ? nf_hook_slow+0x3b/0x92
+>   [<f9147b39>] br_handle_frame_finish+0x53/0x17e [bridge]
+>   [<f914b880>] br_nf_pre_routing_finish+0x264/0x27c [bridge]
+>   [<c0621175>] ? nf_hook_slow+0x3b/0x92
+>   [<f914b61c>] ? br_nf_pre_routing_finish+0x0/0x27c [bridge]
+>   [<f914bf6f>] br_nf_pre_routing+0x553/0x570 [bridge]
+>   [<c0621107>] nf_iterate+0x2f/0x62
+>   [<f9147ae6>] ? br_handle_frame_finish+0x0/0x17e [bridge]
+>   [<c0621175>] nf_hook_slow+0x3b/0x92
+>   [<f9147ae6>] ? br_handle_frame_finish+0x0/0x17e [bridge]
+>   [<f9147dda>] br_handle_frame+0x176/0x198 [bridge]
+>   [<f9147ae6>] ? br_handle_frame_finish+0x0/0x17e [bridge]
+>   [<c060643b>] __netif_receive_skb+0x29a/0x37e
+>   [<c0607023>] ? dev_gro_receive+0xfd/0x1d2
+>   [<c0606e03>] netif_receive_skb+0x61/0x67
+>   [<c0607199>] ? __napi_gro_receive+0xa1/0xba
+>   [<c0606e7e>] napi_skb_finish+0x1e/0x33
+>   [<c0607201>] napi_gro_receive+0x20/0x24
+>   [<f8867cfc>] igb_poll+0x706/0xa39 [igb]
+>   [<c06093b2>] net_rx_action+0x97/0x13b
+>   [<c0430641>] __do_softirq+0x80/0xf4
+>   [<c04305c1>] ? __do_softirq+0x0/0xf4
+>   <IRQ>   [<c04305bf>] ? irq_exit+0x29/0x2b
+>   [<c040373e>] ? do_IRQ+0x85/0x9b
+>   [<c0402ca9>] ? common_interrupt+0x29/0x30
+>   [<c0407c4f>] ? mwait_idle+0x4c/0x52
+>   [<c0401a08>] ? cpu_idle+0x3a/0x4e
+>   [<c066cf16>] ? rest_init+0x62/0x64
+>   [<c08248dd>] ? start_kernel+0x2c2/0x2c7
+>   [<c08240b3>] ? i386_start_kernel+0xb3/0xb8
+>
+> Best Regards,
+> Xudong Hao
+>    
 
+
+-- 
+error compiling committee.c: too many arguments to function
 
