@@ -1,15 +1,10 @@
-Date: Mon, 31 May 2010 16:08:20 -0300
-From: Flavio Leitner <fbl@sysclose.org>
-Message-ID: <20100531190820.GA24569@sysclose.org>
-References: <20100505081514.5157.83783.sendpatchset@localhost.localdomain>
-	<20100527180545.GA2345@sysclose.org> <4BFF2EA5.9090008@redhat.com>
-	<20100528194041.GC2345@sysclose.org> <4C034FA4.5000401@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4C034FA4.5000401@redhat.com>
-Subject: Re: [Bridge] [v5 Patch 1/3] netpoll: add generic support for bridge
- and bonding devices
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 31 May 2010 23:23:13 +0200
+Message-ID: <1275340993.2478.27.camel@edumazet-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH net-next-2.6] br_netfilter: use skb_set_noref()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,53 +13,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cong Wang <amwang@redhat.com>
-Cc: Jay Vosburgh <fubar@us.ibm.com>, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Jeff Moyer <jmoyer@redhat.com>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
+To: Stephen Hemminger <shemminger@vyatta.com>, Patrick McHardy <kaber@trash.net>, David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-On Mon, May 31, 2010 at 01:56:52PM +0800, Cong Wang wrote:
-> Hi, Flavio,
-> 
-> Please use the attached patch instead, try to see if it solves
-> all your problems.
+Avoid dirtying bridge_parent_rtable refcount, using new dst noref
+infrastructure.
 
-I tried and it hangs. No backtraces this time.
-The bond_change_active_slave() prints before NETDEV_BONDING_FAILOVER
-notification, so I think it won't work. 
+Signed-off-by: Eric Dumazet <eric.dumazet@gmail.com>
+---
+net/bridge/br_netfilter.c |    6 ++----
+1 file changed, 2 insertions(+), 4 deletions(-)
 
-Please, correct if I'm wrong, but when a failover happens with your 
-patch applied, the netconsole would be disabled forever even with
-another healthy slave, right?
-
-fbl
-
-
-> 
-> Thanks a lot!
-> 
-
-> diff --git a/drivers/net/netconsole.c b/drivers/net/netconsole.c
-> index ca142c4..2d1d594 100644
-> --- a/drivers/net/netconsole.c
-> +++ b/drivers/net/netconsole.c
-> @@ -666,7 +666,8 @@ static int netconsole_netdev_event(struct notifier_block *this,
->  	struct net_device *dev = ptr;
->  
->  	if (!(event == NETDEV_CHANGENAME || event == NETDEV_UNREGISTER ||
-> -	      event == NETDEV_BONDING_DESLAVE || event == NETDEV_GOING_DOWN))
-> +	      event == NETDEV_BONDING_DESLAVE || event == NETDEV_GOING_DOWN ||
-> +	      event == NETDEV_BONDING_FAILOVER))
->  		goto done;
->  
->  	spin_lock_irqsave(&target_list_lock, flags);
-> @@ -682,6 +683,7 @@ static int netconsole_netdev_event(struct notifier_block *this,
->  				/* Fall through */
->  			case NETDEV_GOING_DOWN:
->  			case NETDEV_BONDING_DESLAVE:
-> +			case NETDEV_BONDING_FAILOVER:
->  				nt->enabled = 0;
->  				break;
->  			}
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 4442099..cbea5af 100644
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -244,8 +244,7 @@ static int br_nf_pre_routing_finish_ipv6(struct sk_buff *skb)
+ 		kfree_skb(skb);
+ 		return 0;
+ 	}
+-	dst_hold(&rt->u.dst);
+-	skb_dst_set(skb, &rt->u.dst);
++	skb_dst_set_noref(skb, &rt->u.dst);
+ 
+ 	skb->dev = nf_bridge->physindev;
+ 	nf_bridge_update_protocol(skb);
+@@ -396,8 +395,7 @@ bridged_dnat:
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
+-		dst_hold(&rt->u.dst);
+-		skb_dst_set(skb, &rt->u.dst);
++		skb_dst_set_noref(skb, &rt->u.dst);
+ 	}
+ 
+ 	skb->dev = nf_bridge->physindev;
 
 
--- 
-Flavio
+
