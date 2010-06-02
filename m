@@ -1,17 +1,12 @@
-Message-ID: <4C062CBD.7090906@redhat.com>
-Date: Wed, 02 Jun 2010 18:04:45 +0800
-From: Cong Wang <amwang@redhat.com>
+From: "Singh, Animesh" <Animesh.Singh@lsi.com>
+Date: Wed, 2 Jun 2010 17:38:32 +0530
+Message-ID: <B56B1B98C23D084F9E69AFCF8A51D84B0292E01617@inbmail02.lsi.com>
+In-Reply-To: <20100601091510.38a77a06@nehalam>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20100505081514.5157.83783.sendpatchset@localhost.localdomain>
-	<20100527180545.GA2345@sysclose.org> <4BFF2EA5.9090008@redhat.com>
-	<20100528194041.GC2345@sysclose.org> <4C034FA4.5000401@redhat.com>
-	<20100531190820.GA24569@sysclose.org> <4C04D98D.4020509@redhat.com>
-	<24059.1275417767@death.nxdomain.ibm.com>
-In-Reply-To: <24059.1275417767@death.nxdomain.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [v5 Patch 1/3] netpoll: add generic support for bridge
- and bonding devices
+Subject: Re: [Bridge] Multicasting and Bridged networking issue
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,93 +15,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jay Vosburgh <fubar@us.ibm.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, Matt Mackall <mpm@selenic.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, Flavio Leitner <fbl@sysclose.org>, Jeff Moyer <jmoyer@redhat.com>, Andy Gospodarek <gospo@redhat.com>, bonding-devel@lists.sourceforge.net
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: "bridge@osdl.org" <bridge@linux-foundation.org>
 
-On 06/02/10 02:42, Jay Vosburgh wrote:
-> Cong Wang<amwang@redhat.com>  wrote:
->
->> On 06/01/10 03:08, Flavio Leitner wrote:
->>> On Mon, May 31, 2010 at 01:56:52PM +0800, Cong Wang wrote:
->>>> Hi, Flavio,
->>>>
->>>> Please use the attached patch instead, try to see if it solves
->>>> all your problems.
->>>
->>> I tried and it hangs. No backtraces this time.
->>> The bond_change_active_slave() prints before NETDEV_BONDING_FAILOVER
->>> notification, so I think it won't work.
->>
->> Ah, I thought the same.
->>
->>>
->>> Please, correct if I'm wrong, but when a failover happens with your
->>> patch applied, the netconsole would be disabled forever even with
->>> another healthy slave, right?
->>>
->>
->> Yes, this is an easy solution, because bonding has several modes,
->> it is complex to make netpoll work in different modes.
->
-> 	If I understand correctly, the root cause of the problem with
-> netconsole and bonding is that bonding is, ultimately, performing
-> printks with a write lock held, and when netconsole recursively calls
-> into bonding to send the printk over the netconsole, there is a deadlock
-> (when the bonding xmit function attempts to acquire the same lock for
-> read).
+Not really ... we are based atop Xen-3.4.1 with linux-2.6.18 series in Dom0
 
+-----Original Message-----
+From: Stephen Hemminger [mailto:shemminger@linux-foundation.org]=20
+Sent: Tuesday, June 01, 2010 9:45 PM
+To: Singh, Animesh
+Cc: bridge@osdl.org
+Subject: Re: [Bridge] Multicasting and Bridged networking issue
 
-Yes.
+On Tue, 1 Jun 2010 15:08:19 +0530
+"Singh, Animesh" <Animesh.Singh@lsi.com> wrote:
 
->
-> 	You're trying to avoid the deadlock by shutting off netconsole
-> (permanently, it looks like) for one problem case: a failover, which
-> does some printks with a write lock held.
->
-> 	This doesn't look to me like a complete solution, there are
-> other cases in bonding that will do printk with write locks held.  I
-> suspect those will also hang netconsole as things exist today, and won't
-> be affected by your patch below.
+> Hi,
+>     Have been experimenting with bridged networking in order to connect V=
+Ms located on separate physical machines. Unicast communication works fine =
+but multicast traffic in not being forwarded beyond the bridge. Looking at =
+the code am reaching the conclusion that bridge treats multicast traffic in=
+ same way as broadcast, so why the multicast traffic is not flowing beyond =
+the bridge. Also does kernel tunable like mc_forwarding have any significan=
+ce in this matter? On the later version of linux 2.6.18 and after am findin=
+g this tunable as read-only (and set to 0). The kernel being used has CONFI=
+G_IP_MROUTE enabled but its not running mrouted.
+>=20
 
-
-I can expect that, bonding modes are complex.
-
->
-> 	For example:
->
-> 	The sysfs functions to set the primary (bonding_store_primary)
-> or active (bonding_store_active_slave) options: a pr_info is called to
-> provide a log message of the results.  These could be tested by setting
-> the primary or active options via sysfs, e.g.,
->
-> echo eth0>  /sys/class/net/bond0/bonding/primary
-> echo eth0>  /sys/class/net/bond0/bonding/active
->
-> 	If the kernel is defined with DEBUG, there are a few pr_debug
-> calls within write_locks (bond_del_vlan, for example).
->
-> 	If the slave's underlying device driver's ndo_vlan_rx_register
-> or ndo_vlan_rx_kill_vid functions call printk (and it looks like some do
-> for error cases, e.g., igbvf, ehea, enic), those would also presumably
-> deadlock (because bonding holds its write_lock when calling the ndo_
-> vlan functions).
->
-> 	It also appears that (with the patch below) some nominally
-> normal usage patterns will immediately disable netconsole.  The one that
-> comes to mind is if the primary= option is set (to "eth1" for this
-> example), but that slave not enslaved first (the slaves are added, say,
-> eth0 then eth1).  In that situation, when the primary slave (eth1 here)
-> is added, the first thing that will happen is a failover, and that will
-> disable netconsole.
->
-
-Thanks for your detailed explanation!
-
-This is why I said bonding is complex. I guess we would have to adjust
-netpoll code for different bonding cases, one solution seems not fix all.
-I am not sure how much work to do, since I am not familiar with bonding
-code. Maybe Andy can help?
-
-For the previous patch, it at least can make Flavio happy. :)
-
-Thanks!
+Are you using VMware? VMware doesn't really allow for bridging.
