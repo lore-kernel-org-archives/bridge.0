@@ -1,15 +1,14 @@
-Date: Mon, 7 Jun 2010 21:37:07 -0300
-From: Flavio Leitner <fbl@sysclose.org>
-Message-ID: <20100608003707.GA30604@sysclose.org>
-References: <24059.1275417767@death.nxdomain.ibm.com>
-	<1275938692-26997-1-git-send-email-fleitner@redhat.com>
-	<20100607.165024.135517125.davem@davemloft.net>
+Message-ID: <4C0E00F6.8020409@redhat.com>
+Date: Tue, 08 Jun 2010 16:36:06 +0800
+From: Cong Wang <amwang@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100607.165024.135517125.davem@davemloft.net>
-Subject: Re: [Bridge] [PATCH] netconsole: queue console messages to send
-	later
+References: <4C062CBD.7090906@redhat.com>	<20100604191841.GM7497@gospo.rdu.redhat.com>	<4C0CC29D.9070507@redhat.com>
+	<20100607.030108.235696592.davem@davemloft.net>
+In-Reply-To: <20100607.030108.235696592.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [v5 Patch 1/3] netpoll: add generic support for bridge
+ and bonding devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,70 +18,35 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: David Miller <davem@davemloft.net>
-Cc: bridge@lists.linux-foundation.org, amwang@redhat.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, mpm@selenic.com, fubar@us.ibm.com, linux-kernel@vger.kernel.org, jmoyer@redhat.com, gospo@redhat.com, bonding-devel@lists.sourceforge.net
+Cc: bridge@lists.linux-foundation.org, nhorman@tuxdriver.com, netdev@vger.kernel.org, gospo@redhat.com, fubar@us.ibm.com, linux-kernel@vger.kernel.org, fbl@sysclose.org, jmoyer@redhat.com, mpm@selenic.com, bonding-devel@lists.sourceforge.net
 
-On Mon, Jun 07, 2010 at 04:50:24PM -0700, David Miller wrote:
-> From: Flavio Leitner <fleitner@redhat.com>
-> Date: Mon,  7 Jun 2010 16:24:52 -0300
-> 
-> > There are some networking drivers that hold a lock in the
-> > transmit path. Therefore, if a console message is printed
-> > after that, netconsole will push it through the transmit path,
-> > resulting in a deadlock.
-> > 
-> > This patch fixes the re-injection problem by queuing the console
-> > messages in a preallocated circular buffer and then scheduling a
-> > workqueue to send them later with another context.
-> > 
-> > Signed-off-by: Flavio Leitner <fleitner@redhat.com>
-> 
-> You absolutely and positively MUST NOT do this.  Otherwise netconsole
-> becomes completely useless.  Your idea has been proposed several times
-> as far back as 6 years ago, it was unacceptable then and it's
-> unacceptable now.
-> 
-> The whole point of netconsole is that we may be deep in an interrupt
-> or other atomic context, the machine is about to hard hang, and it's
-> absolutely essential that we get out any and all kernel logging
-> messages that we can, immediately.
+On 06/07/10 18:01, David Miller wrote:
+> From: Cong Wang<amwang@redhat.com>
+> Date: Mon, 07 Jun 2010 17:57:49 +0800
+>
+>> Hmm, I still feel like this way is ugly, although it may work.
+>> I guess David doesn't like it either.
+>
+> Of course I don't like it. :-)
+>
+> I suspect the locking scheme will need to be changed.
+>
+> Besides, if we're going to hack this up and do write lock attempts in
+> the read locking paths, there is no point in using a rwlock any more.
+> And I'm personally in disfavor of all rwlock usage anyways (it dirties
+> the cacheline for readers just as equally for writers, and if the
+> critically protected code path is short enough, that shared cache
+> line atomic operation will be the predominant cost).
+>
+> So I'd say, 1) make this a spinlock and 2) try to use RCU for the
+> read path.
+>
+> That would fix everything.
 
-Got it. I've never assumed that netconsole would work reliable on 
-such situations, so I thought as we have better ways now it would
-be helpful. See another idea below.
+Yeah, agreed. Even not talking about netconsole, bonding code
+does have locking problems, netconsole just makes this problem
+clear.
 
-> There may not be another timer or workqueue able to execute after the
-> printk() we're trying to emit.  We may never get to that point.
+I will try your suggestions above.
 
-What if in the netpoll, before we push the skb to the driver, we check
-for a bit saying that it's already pushing another skb. In this case,
-queue the new skb inside of netpoll and soon as the first call returns
-and try to clear the bit, it will send the next skb?
-
-printk("message 1")
-...
-netconsole called
-netpoll sets the flag bit
-pushes to the bonding driver which does another printk("message 2")
-netconsole called again
-netpoll checks for the flag, queue the message, returns.
-so, bonding can finish up to send the first message
-netpoll is about to return, checks for new queued messages, and pushes them.
-bonding finishes up to send the second message
-....
-
-No deadlocks, skbs are ordered and still under the same opportunity
-to send something. Does it sound acceptable?
-It's off the top of my head, so probably this idea has some problems.
-
-
-> Fix the locking in the drivers or layers that cause the issue instead
-> of breaking netconsole.
-
-Someday, somewhere, I know because I did this before, someone will
-use a debugging printk() and will see the entire box hanging with
-absolutely no message in any console because of this problem. 
-I'm not saying that fixing driver isn't the right way to go but
-it seems not enough to me.
-
--- 
-Flavio
+Thanks!
