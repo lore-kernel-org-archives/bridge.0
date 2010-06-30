@@ -1,13 +1,14 @@
-Message-ID: <4C2B531E.4010308@ll.mit.edu>
-Date: Wed, 30 Jun 2010 10:22:22 -0400
-From: Jeff Mitchell <jmitchell@ll.mit.edu>
 MIME-Version: 1.0
+In-Reply-To: <AANLkTinpKmxk1HmjFOimuJgRXqIM71shpEMg_NVBDLsk@mail.gmail.com>
 References: <AANLkTil_htjsbpP4oz318heSGIU-1_Atrcgx9uLoOjpR@mail.gmail.com>
-In-Reply-To: <AANLkTil_htjsbpP4oz318heSGIU-1_Atrcgx9uLoOjpR@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+	<AANLkTinpKmxk1HmjFOimuJgRXqIM71shpEMg_NVBDLsk@mail.gmail.com>
+Date: Wed, 30 Jun 2010 22:26:56 +0200
+Message-ID: <AANLkTinQvzFPWMUvJzORInTnA7uYVqltIjBHMrIcNeiz@mail.gmail.com>
+From: Stef Bon <stefbon@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] What are actually ethernet devices (and what does a
- bridge	do?).
+	bridge do?).
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,25 +17,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: "richardvoigt@gmail.com" <richardvoigt@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-On 06/30/2010 05:37 AM, Stef Bon wrote:
-> Now what strikes me first is that in a lot of cases a bridge is
-> getting an ip address, which is (I think) not right.
-> An bridge connects connects devices, and these devices should get the
-> ip address, not the bridge self!
+2010/6/30 richardvoigt@gmail.com <richardvoigt@gmail.com>:
+> The host processor which does the bridging, can also act as a node
+> sending and receiving traffic to the bridged network. =C2=A0What you see =
+as
+> the "IP address of the bridge" is actually the configuration of the
+> interface representing this connection to the host processor.
+>
+> Packets generated on the bridge host use this IP address as the source
+> address, packets sent to this IP address are processed locally on the
+> bridge host and not forwarded.
 
-It depends what you're trying to do.
+Ok, but then you're talking about a router for example, but I see a
+lot of setups for machines hosting
+other virtual machines, where the bridge gets also an ip address,
+which does not make sense to me.
 
-Giving the bridge an IP address can allow you to do some things that 
-might otherwise be difficult, by allowing you to do interesting things 
-to the underlying interfaces and the bridge itself.
+The function of a bridge is to share the physical device with more
+ethernet devices (virtual because they are not connected to a real
+device), and that's it.
 
-For instance, you could do this to receive packets destined for that IP 
-address on any interface in the bridge.
+Being a bridge between devices and an interface self at the same time
+is confusing.
 
-Another use would be to ensure (by setting the ageing to zero) that any 
-packet sent from your IP address goes out all of the interfaces. This is 
-useful for mirroring/sniffing setups.
+About creating virtual devices, does anyone know how to create them?
+I've found veth, looks very promising,
+but they seem to come in pairs.
 
---Jeff
+Thanks,
+
+Stef Bon
