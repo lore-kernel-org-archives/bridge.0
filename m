@@ -1,15 +1,14 @@
-Date: Thu, 29 Jul 2010 17:39:00 +0200
-From: Rodolfo Giometti <giometti@enneenne.com>
-Sender: giometti@enneenne.com
-Message-ID: <20100729153900.GF9056@enneenne.com>
-References: <20100702135641.GQ2149@gundam.enneenne.com>
-	<20100702092148.5d5a4e57@nehalam>
-	<20100727092655.GA30692@gundam.enneenne.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100727092655.GA30692@gundam.enneenne.com>
-Subject: Re: [Bridge] rstpd & 2.4
+Date: Fri, 30 Jul 2010 23:37:17 -0700 (PDT)
+Message-Id: <20100730.233717.260088691.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20100729111231.GA30021@gondor.apana.org.au>
+References: <20100728095825.GC13413@jupiter.n2.diac24.net>
+	<20100728120336.GD13413@jupiter.n2.diac24.net>
+	<20100729111231.GA30021@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [BUG] bridge leaks 3 references on lo per up&down
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,43 +17,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+To: herbert@gondor.hengli.com.au
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, equinox@diac24.net
 
-On Tue, Jul 27, 2010 at 11:26:55AM +0200, Rodolfo Giometti wrote:
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Thu, 29 Jul 2010 19:12:31 +0800
 
-> Regarding the bridge controls I can add to the current sysfs interface
-> the old ioctl interface as the old bridge-utils did.
+> bridge: Fix skb leak when multicast parsing fails on TX
+> 
+> On the bridge TX path we're leaking an skb when br_multicast_rcv
+> returns an error.
+> 
+> Reported-by: David Lamparter <equinox@diac24.net>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Hello, I ported almost everything but I'm stuck on function
-STP_OUT_flush_lt (file bridge_track.c).
-
-In file rstplib/topoch.c I read:
-
-/*
- * In many kinds of hardware the function
- * STP_OUT_flush_lt is a) is very hard and b) cannot
- * delete learning emtries per port. The alternate
- * method may be used: we don't care operEdge flag here,
- * but clean learning table once for TopologyChange
- * for all ports, except the received port. I am ready to discuss :(
- * See below word STRONGLY_SPEC_802_1W
- */
-
-So I suppose this function is currently disabled. Is that true?
-
-If not, can you please give me advice in order to backport the above
-function to the old ioctl() interface? It is not so clear to me what
-exactly that function does... :(
-
-Thanks in advance,
-
-Rodolfo
-
--- 
-
-GNU/Linux Solutions                  e-mail: giometti@enneenne.com
-Linux Device Driver                          giometti@linux.it
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
-Freelance ICT Italia - Consulente ICT Italia - www.consulenti-ict.it
+Applied to net-2.6, thanks!
