@@ -1,17 +1,11 @@
-Date: Thu, 12 Aug 2010 15:40:29 +0200
-From: Jiri Pirko <jpirko@redhat.com>
-Message-ID: <20100812134029.GF3115@psychotron.brq.redhat.com>
-References: <20100811144017.GA2625@psychotron.brq.redhat.com>
-	<20100811120741.27e13248@s6510>
-	<20100812111523.GC3115@psychotron.brq.redhat.com>
-	<20100812083541.33d8759a@s6510>
-	<20100812124847.GD3115@psychotron.brq.redhat.com>
-	<20100812090251.0f47c5e3@s6510>
+Message-ID: <4C6D7E1E.4020207@cim.mcgill.ca>
+Date: Thu, 19 Aug 2010 14:55:26 -0400
+From: Patrick McLean <patrick@cim.mcgill.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100812090251.0f47c5e3@s6510>
-Subject: Re: [Bridge] [patch net-next-2.6] bridge: allow hub-like behaviour
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [Bug #16572][REGRESSION,
+	bisected] random panics in bridging on 2.6.34+
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,37 +14,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, Jan Binder <jan@cim.mcgill.ca>, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
 
-Thu, Aug 12, 2010 at 03:02:51PM CEST, shemminger@vyatta.com wrote:
->On Thu, 12 Aug 2010 14:48:48 +0200
->Jiri Pirko <jpirko@redhat.com> wrote:
->
->> Thu, Aug 12, 2010 at 02:35:41PM CEST, shemminger@vyatta.com wrote:
->> >On Thu, 12 Aug 2010 13:15:24 +0200
->> >Jiri Pirko <jpirko@redhat.com> wrote:
->> >
->> >> Wed, Aug 11, 2010 at 06:07:41PM CEST, shemminger@vyatta.com wrote:
->> >> >NO. unnecessary
->> >> >
->> >> >Already possible, without patch. Just set the hold time
->> >> >on the bridge to 0!
->> >> 
->> >> Sorry, but could you please point me a sysfs node where should I do this
->> >> setting? Unable to find this.
->> >> 
->> >> Thanks.
->> >> 
->> >
->> >/sys/class/net/ethX/brport/hold_timer
->
->Too early...
->
->hold_time is computed from ageing time, so that is the value
->you need to set:
->
->$ ls -l /sys/class/net/br0/bridge/ageing_time 
->-rw-r--r-- 1 root root 4096 2010-08-12 08:34 /sys/class/net/br0/bridge/ageing_time
+Hi,
 
-Yep, figured that out. Works as expected. Thanks Stephen.
+I am getting random panics with KVM/bridging on 2.6.34+ (including
+latest git as of this morning).
+
+There is a screenshot of the panic message in bugzilla at
+https://bugzilla.kernel.org/show_bug.cgi?id=16572
+
+It seems to happen when I have KVM virtual machines running with
+bridging mode, most often when any of the virtual machines talk to the
+network, or sometimes when they are brought up or down.
+
+I bisected it down to this commit:
+
+commit 68b7c895be336b19f4c38d7cb500132fabba0afd
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Sat Feb 27 19:41:40 2010 +0000
+
+    bridge: Allow tail-call on br_pass_frame_up
+
+    This patch allows tail-call on the call to br_pass_frame_up
+    in br_handle_frame_finish.  This is now possible because of the
+    previous patch to call br_pass_frame_up last.
+
+    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
