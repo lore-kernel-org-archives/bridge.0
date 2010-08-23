@@ -1,11 +1,10 @@
-Message-ID: <4C6D7E1E.4020207@cim.mcgill.ca>
-Date: Thu, 19 Aug 2010 14:55:26 -0400
-From: Patrick McLean <patrick@cim.mcgill.ca>
+Date: Mon, 23 Aug 2010 12:35:32 +0900
+From: Simon Horman <horms@verge.net.au>
+Message-ID: <20100823033532.GA28463@verge.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [Bug #16572][REGRESSION,
-	bisected] random panics in bridging on 2.6.34+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [rfc] bridge: is PACKET_LOOPBACK unlikely()?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,33 +13,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, Jan Binder <jan@cim.mcgill.ca>, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
+To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: Jesse Gross <jesse@nicira.com>, Jiri Pirko <jpirko@redhat.com>
 
-Hi,
+While looking at using netdev_rx_handler_register for openvswitch Jesse
+Gross suggested that an unlikely() might be worthwhile in that code.
+I'm interested to see if its appropriate for the bridge code.
 
-I am getting random panics with KVM/bridging on 2.6.34+ (including
-latest git as of this morning).
+Cc: Jesse Gross <jesse@nicira.com>
+Signed-off-by: Simon Horman <horms@verge.net.au>
 
-There is a screenshot of the panic message in bugzilla at
-https://bugzilla.kernel.org/show_bug.cgi?id=16572
-
-It seems to happen when I have KVM virtual machines running with
-bridging mode, most often when any of the virtual machines talk to the
-network, or sometimes when they are brought up or down.
-
-I bisected it down to this commit:
-
-commit 68b7c895be336b19f4c38d7cb500132fabba0afd
-Author: Herbert Xu <herbert@gondor.apana.org.au>
-Date:   Sat Feb 27 19:41:40 2010 +0000
-
-    bridge: Allow tail-call on br_pass_frame_up
-
-    This patch allows tail-call on the call to br_pass_frame_up
-    in br_handle_frame_finish.  This is now possible because of the
-    previous patch to call br_pass_frame_up last.
-
-    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-
+Index: net-next-2.6/net/bridge/br_input.c
+===================================================================
+--- net-next-2.6.orig/net/bridge/br_input.c	2010-08-23 12:17:58.000000000 +0900
++++ net-next-2.6/net/bridge/br_input.c	2010-08-23 12:19:46.000000000 +0900
+@@ -141,7 +141,7 @@ struct sk_buff *br_handle_frame(struct s
+ 	const unsigned char *dest = eth_hdr(skb)->h_dest;
+ 	int (*rhook)(struct sk_buff *skb);
+ 
+-	if (skb->pkt_type == PACKET_LOOPBACK)
++	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
+ 		return skb;
+ 
+ 	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
