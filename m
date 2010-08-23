@@ -1,13 +1,7 @@
-MIME-Version: 1.0
-In-Reply-To: <20100822.213632.191389158.davem@davemloft.net>
-References: <1282280596-18992-1-git-send-email-xiaosuo@gmail.com>
-	<20100822.213632.191389158.davem@davemloft.net>
 From: Changli Gao <xiaosuo@gmail.com>
-Date: Mon, 23 Aug 2010 12:40:28 +0800
-Message-ID: <AANLkTimCZKGvp9Mnr5Afwo1gRVcLPtYn9Z5=c9NYjm6y@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] bridge: netfilter: fix a memory leak
+Date: Mon, 23 Aug 2010 13:03:26 +0800
+Message-Id: <1282539806-25496-1-git-send-email-xiaosuo@gmail.com>
+Subject: [Bridge] [PATCH v2] bridge: netfilter: fix a memory leak
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +10,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Changli Gao <xiaosuo@gmail.com>
 
-On Mon, Aug 23, 2010 at 12:36 PM, David Miller <davem@davemloft.net> wrote:
-> From: Changli Gao <xiaosuo@gmail.com>
-> Date: Fri, 20 Aug 2010 13:03:16 +0800
->
->> nf_bridge_alloc() always reset the skb->nf_bridge, so we should always
->> put the old one. skb->nf_bridge->use is initialized in nf_bridge_alloc()=
-,
->> so we don't need to initialize it again.
->>
->> Signed-off-by: Changli Gao <xiaosuo@gmail.com>
->
-> We just memcpy()'d 'nf_bridge' to 'tmp', that why the ->use count is
-> going to be something other than '1'. =A0It now has the ->use count that
-> 'nf_bridge' did.
->
-> And that is why we must explicitly do atomic_set() on 'tmp'.
->
+nf_bridge_alloc() always reset the skb->nf_bridge, so we should always
+put the old one.
 
-Oops, thanks. I'll post a update.
-
-
---=20
-Regards,
-Changli Gao(xiaosuo@gmail.com)
+Signed-off-by: Changli Gao <xiaosuo@gmail.com>
+---
+v2: Should init tmp->use again because memcpy() overwrite it.
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 2c911c0..5ed00bd 100644
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -162,8 +162,8 @@ static inline struct nf_bridge_info *nf_bridge_unshare(struct sk_buff *skb)
+ 		if (tmp) {
+ 			memcpy(tmp, nf_bridge, sizeof(struct nf_bridge_info));
+ 			atomic_set(&tmp->use, 1);
+-			nf_bridge_put(nf_bridge);
+ 		}
++		nf_bridge_put(nf_bridge);
+ 		nf_bridge = tmp;
+ 	}
+ 	return nf_bridge;
