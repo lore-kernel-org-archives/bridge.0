@@ -1,13 +1,11 @@
-Date: Mon, 23 Aug 2010 20:15:20 -0700 (PDT)
-Message-Id: <20100823.201520.90820084.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4C72CD1C.7020901@pandora.be>
-References: <1282539806-25496-1-git-send-email-xiaosuo@gmail.com>
-	<4C72CD1C.7020901@pandora.be>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2] bridge: netfilter: fix a memory leak
+Message-ID: <4C752DD9.7040302@tiolive.com>
+Date: Wed, 25 Aug 2010 16:51:05 +0200
+From: =?ISO-8859-1?Q?Fran=E7ois_Schmidts?= <francois@tiolive.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Number of addresses limitation
+Reply-To: francois@tiolive.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,22 +14,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bdschuym@pandora.be
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, xiaosuo@gmail.com
+To: bridge@lists.linux-foundation.org
 
-From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Mon, 23 Aug 2010 21:33:48 +0200
+  Hi,
 
-> Looks correct to me.
-> 
-> Signed-off-by: Bart De Schuymer <bdschuym@pandora.be>
+I'm using bridge-utils to add a bunch of tap interfaces to my computer=20
+so I can run different qemu vm at the same time without using nat to=20
+give them network access. It works fine.
 
-Bart, please do not top post.
+But at the same time I would like to add a lot of IPv6s addresses to the=20
+bridge interface (br0). I find myself limitated to more or less 56=20
+addresses. If I add one more, one of the addresses already existing just=20
+disappear from the br0 interface.
 
-> Changli Gao schreef:
->> nf_bridge_alloc() always reset the skb->nf_bridge, so we should always
->> put the old one.
->>
->> Signed-off-by: Changli Gao <xiaosuo@gmail.com>
+Is there something I could do to remove or extent this limitation ?
 
-Applied, thanks everyone.
+Best regards,
+Fran=E7ois Schmidts.
