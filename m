@@ -1,14 +1,10 @@
-Message-ID: <4C76EA69.7050301@tiolive.com>
-Date: Fri, 27 Aug 2010 00:27:53 +0200
-From: =?ISO-8859-1?Q?Fran=E7ois_Schmidts?= <francois@tiolive.com>
 MIME-Version: 1.0
-References: <4C752DD9.7040302@tiolive.com>	<4C75724F.2000400@free.fr>	<20100825133959.6b409cd8@nehalam>	<4C758FD5.4020801@tiolive.com>	<4C76C2A4.9070706@free.fr>	<4C76D5D7.2040503@free.fr>
-	<20100826144043.3fda9403@nehalam>
-In-Reply-To: <20100826144043.3fda9403@nehalam>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] Number of addresses limitation
-Reply-To: francois@tiolive.com
+Date: Mon, 30 Aug 2010 16:29:43 +0530
+Message-ID: <AANLkTi=h888Pn9qtK7SuF-xbEY3KDynMjKXm38wEEbiw@mail.gmail.com>
+From: debasis das <fordebasis@gmail.com>
+Content-Type: multipart/alternative; boundary=00151750eb3eaae231048f085cc6
+Subject: [Bridge] help needed regarding crash while adding interface to a
+ bridge using brctl utility
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,73 +13,80 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-  On 26/08/2010 23:40, Stephen Hemminger wrote:
-> On Thu, 26 Aug 2010 23:00:07 +0200
-> Nicolas de Peslo=FCan<nicolas.2p.debian@free.fr>  wrote:
->
->> Le 26/08/2010 21:38, Nicolas de Peslo=FCan a =E9crit :
->>> Le 25/08/2010 23:49, Fran=E7ois Schmidts a =E9crit :
->>>>      On 25/08/2010 22:39, Stephen Hemminger wrote:
->>>>> On Wed, 25 Aug 2010 21:43:11 +0200
->>>>> Nicolas de Peslo=FCan<nicolas.2p.debian@free.fr>     wrote:
->>>>>
->>>>>> Le 25/08/2010 16:51, Fran=E7ois Schmidts a =E9crit :
->>>>>>>        Hi,
->>>>>>>
->>>>>>> I'm using bridge-utils to add a bunch of tap interfaces to my compu=
-ter
->>>>>>> so I can run different qemu vm at the same time without using nat to
->>>>>>> give them network access. It works fine.
->>>>>>>
->>>>>>> But at the same time I would like to add a lot of IPv6s addresses t=
-o the
->>>>>>> bridge interface (br0). I find myself limitated to more or less 56
->>>>>>> addresses. If I add one more, one of the addresses already existing=
- just
->>>>>>> disappear from the br0 interface.
->>>>>>>
->>>>>>> Is there something I could do to remove or extent this limitation ?
->>>>>> Did you try the same IPv6 configuration on a normal ethernet NIC ? D=
-o you think this is a bridge
->>>>>> only related problem ?
->>>>>>
->>>>> Also what tools are you using? Don't use ifconfig (iputils) for IPv6;
->>>>> only ip command (iproute2) works correctly with multiple addresses.
->>>> I use something like "ip addr add<prefix>::number/64 dev br0" in a loop
->>>> to add quickly multiple addresses to the bridge.
->>>> As far as I have tested it on classic interfaces like eth0, it works
->>>> fine and I can see my 200 addresses (if I added 200 of them) in the
->>>> output of ifconfig.
->>> I just tested on a 2.6.32 kernel, and get the following results :
->>>
->>> Whatever interface I use (bridge or normal Ethernet interface), I'm abl=
-e to add 200 IPv6 address.
->>>
->>> "ifconfig" display all the IPv6 address on the interface.
->>> "ip addr show" only display about 53 of them.
->>>
->>> Can you try and ping the 200 IPv6 address from another host, to know wh=
-ether this is a real IP
->>> problem or only a display bug. It might be an iproute2 bug on the addr =
-show part.
->> Another test showed that one can ping the 200 addresses. So this really =
-look like an iproute2 or
->> netlink problem, and unrelated to bridge.
->>
-> I just put 2000 addresses onto dummy device and the all show up
-> with ip addr.  Do you have old tools, the issue is likely the size
-> of the buffer in netlink interface between ip command and kernel.
-> Current version has 16K buffer, but it could easily be increased.
-Thanks for all your answers.
+--00151750eb3eaae231048f085cc6
+Content-Type: text/plain; charset=ISO-8859-1
 
-I tested all of this all over again and I couldn't recreate the bug,=20
-neither on my local machine or on the distant dev server I use for test=20
-and where the limitation showed up the first time. I added 2000=20
-addresses on both which were reachable to ping without difficulties.
+Hi,
+    I am getting a crash while adding an interface to a bridge using the
+"brctl" utility.
+    The crash dump is as below:
 
-The problem may have come from a display bug from the tool I used then=20
-to list IP addresses.
+#vconfig add eth0 5
+#brctl addbr br0
+#brctl addif br0 eth0.5
+Oops: sig: 11 [#1]
 
-Sorry to have bothered you with an "nonexistent" bug and thanks again.
+a00: 908240ed d47c9bd0 ffffffa1 d47c9bf0 000000c0 d4a5db40 00000003 0000000c
+a08: 00000000 d47c9db0 d4b36000 000089a2 3fff0d58 d47c9e40 0000000e 3fff0f64
+pc: d082d300, ps: 00060f10, depc: 00000018, excvaddr: 00000000
+lbeg: d082fc4c, lend: d082fc57 lcount: 00000000, sar: 00000014
+
+Stack: 00060600 03938702 d063c73c d0638c78 90824a19 d47c9c40 fffffff4
+d4649000
+       00000001 00000000 00000000 00000000 00000000 00000000 00000000
+00000000
+       00000000 00000000 00000000 d078a510 00000000 fffffffe 00060d00
+d4a5da80
+Call Trace:
+ [<d082460e>] br_add_if+0xfa/0x23c
+ [<d0824a19>] add_del_if+0x31/0x5c
+ [<d0824f52>] br_dev_ioctl+0x50e/0x514
+ [<d0780eac>] dev_ifsioc+0x31c/0x330
+ [<d0781902>] dev_ioctl+0x616/0x6b4
+ [<d0774676>] sock_ioctl+0x1b6/0x1c0
+ [<d065aa64>] vfs_ioctl+0x14/0x3c
+ [<d065b284>] do_vfs_ioctl+0x4a4/0x4c4
+ [<d065b2c4>] sys_ioctl+0x20/0x34
+ [<d0612470>] system_call+0x40/0x50
+ [<d0611b65>] _user_exception+0x10f/0x130
+
+Please do let me know whether this is a known issue and whether there is any
+official patch available for the same.
+Thanking in advance.
+
+Regards.
+Debasis
+
+--00151750eb3eaae231048f085cc6
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi,<br>=A0=A0=A0 I am getting a crash while adding an interface to a bridge=
+ using the &quot;brctl&quot; utility.<br>=A0=A0=A0 The crash dump is as bel=
+ow:<br><br>#vconfig add eth0 5<br>#brctl addbr br0 <br>#brctl addif br0 eth=
+0.5<br>Oops: sig: 11 [#1]<br>
+<br>a00: 908240ed d47c9bd0 ffffffa1 d47c9bf0 000000c0 d4a5db40 00000003 000=
+0000c<br>a08: 00000000 d47c9db0 d4b36000 000089a2 3fff0d58 d47c9e40 0000000=
+e 3fff0f64<br>pc: d082d300, ps: 00060f10, depc: 00000018, excvaddr: 0000000=
+0<br>
+lbeg: d082fc4c, lend: d082fc57 lcount: 00000000, sar: 00000014<br><br>Stack=
+: 00060600 03938702 d063c73c d0638c78 90824a19 d47c9c40 fffffff4 d4649000<b=
+r>=A0=A0=A0=A0=A0=A0 00000001 00000000 00000000 00000000 00000000 00000000 =
+00000000 00000000<br>
+=A0=A0=A0=A0=A0=A0 00000000 00000000 00000000 d078a510 00000000 fffffffe 00=
+060d00 d4a5da80<br>Call Trace:<br>=A0[&lt;d082460e&gt;] br_add_if+0xfa/0x23=
+c<br>=A0[&lt;d0824a19&gt;] add_del_if+0x31/0x5c<br>=A0[&lt;d0824f52&gt;] br=
+_dev_ioctl+0x50e/0x514<br>
+=A0[&lt;d0780eac&gt;] dev_ifsioc+0x31c/0x330<br>=A0[&lt;d0781902&gt;] dev_i=
+octl+0x616/0x6b4<br>=A0[&lt;d0774676&gt;] sock_ioctl+0x1b6/0x1c0<br>=A0[&lt=
+;d065aa64&gt;] vfs_ioctl+0x14/0x3c<br>=A0[&lt;d065b284&gt;] do_vfs_ioctl+0x=
+4a4/0x4c4<br>
+=A0[&lt;d065b2c4&gt;] sys_ioctl+0x20/0x34<br>=A0[&lt;d0612470&gt;] system_c=
+all+0x40/0x50<br>=A0[&lt;d0611b65&gt;] _user_exception+0x10f/0x130<br><br>P=
+lease do let me know whether this is a known issue and whether there is any=
+ official patch available for the same.<br>
+Thanking in advance.<br><br>Regards.<br>Debasis<br><br>
+
+--00151750eb3eaae231048f085cc6--
