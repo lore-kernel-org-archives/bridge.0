@@ -1,9 +1,10 @@
+Message-ID: <4C876530.5080107@muc.ccc.de>
+Date: Wed, 08 Sep 2010 12:28:00 +0200
+From: x@muc.ccc.de
 MIME-Version: 1.0
-From: matan monitz <mmonitz@gmail.com>
-Date: Tue, 7 Sep 2010 18:45:51 +0300
-Message-ID: <AANLkTin4xM45K0t-sFsbC9B78EpfpyiJYFcHmMohURwx@mail.gmail.com>
-Content-Type: multipart/alternative; boundary=000e0cd17216ec9af3048fad4bd5
-Subject: [Bridge]  [patch net-next-2.6] bridge: allow hub-like behaviour
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge interface mac address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,68 +15,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
---000e0cd17216ec9af3048fad4bd5
-Content-Type: text/plain; charset=UTF-8
+hi!
 
-hello
-very useful option i must say
-i was looking for something like this for quiet a while and now i have a few
-comments/question
+i'm using dynamips (router/switch emulator) and would like to have an interface on the host as a link to the 'emulated lab'. with dynamips, one of the host's interfaces can be used to connect to a port of the 'emulated lab'. dynamips obviously injects its packets into this interface, and sniffs for packets directed towards the 'emulated lab'.
 
-1.after initially not being able to find this solution i started looking at
-the code thinking that a small modification might do the trick
-under br_input.c (kernel 2.6.18) around line 58 there is a section that
-starts with
-"if (br->dev->flags & IFF_PROMISC)
-{
- ..
-br_pass_frame_up(br,skb2));
-..
-}
-"
-to my understanding this should have then the job, all i needed to do was
-set the bridge to promsicous mode
-that didn't work,
-did i get it wrong? what is the meaning of this piece of code
+now i just have a single physical interface on the host. and i don't want the lab-traffic to pass thru the physical interface (and productive segment connected to it).
+so i thought hey, let's be clever, just create a bridge. we don't need any bridge-members (yet), we just want to use it for the dynamips link for now.
 
- 2. why is this working? what is the logic behind it (ageing=0)
-3. why isn't this documented?
+after a brctl addbr, i get a bridge-interface - with a mac of 00:00:00:00:00:00.
+tried it anyway: it doesn't work (i see arp-requests from the host, i see arp-replies to the host - which the host obviously simply ignores, most probably because of the all-zero-mac).
+turns out it's also not possible to change the mac - not even to a locally administered mac.
 
-finding this thread took a long time and along the way i read other people's
-forum posts\mailing list questions,
-too bad it's not in the man
+is there a special way to set the bridge's mac? actually i find it quite irritating that it's not simply possible to change it just like with any other interface!?
 
---000e0cd17216ec9af3048fad4bd5
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+also i think it might not be wise to treat 00:00:00:00:00:00 special, filter it, or similar (after all it's a valid global unicast mac - assigned to xerox...).
 
-<div dir=3D"ltr"><div>hello</div>
-<div>very useful option i must say</div>
-<div>i was looking for something like this for quiet a while and now i have=
- a few comments/question</div>
-<div>=C2=A0</div>
-<div>1.after initially not being able to find this solution i started looki=
-ng at the code thinking that a small modification might do the trick</div>
-<div>under br_input.c (kernel 2.6.18) around line 58=C2=A0there is a sectio=
-n that starts with </div>
-<div>&quot;if (br-&gt;dev-&gt;flags &amp; IFF_PROMISC)</div>
-<div>{</div>
-<div>=C2=A0.. </div>
-<div>br_pass_frame_up(br,skb2));</div>
-<div>..</div>
-<div>}</div>
-<div>&quot;</div>
-<div>to my understanding this should have then the job, all i needed to do =
-was set the bridge to promsicous mode</div>
-<div>that didn&#39;t work, </div>
-<div>did i get it wrong? what is the meaning of this piece of code </div>
-<div>=C2=A0</div>
-<div>
-<div>2. why is this working? what is the logic behind it (ageing=3D0)</div>
-<div>3. why isn&#39;t this documented?</div></div>
-<div>=C2=A0</div>
-<div>finding this thread took a long time and along the way i read other pe=
-ople&#39;s forum posts\mailing list questions, </div>
-<div>too bad it&#39;s not in the man</div></div>
+regards,
 
---000e0cd17216ec9af3048fad4bd5--
+	Chris
