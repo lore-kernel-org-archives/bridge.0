@@ -1,10 +1,12 @@
-Message-ID: <4C876530.5080107@muc.ccc.de>
-Date: Wed, 08 Sep 2010 12:28:00 +0200
-From: x@muc.ccc.de
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Wed, 8 Sep 2010 09:23:22 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20100908092322.573f67e2@nehalam>
+In-Reply-To: <4C876530.5080107@muc.ccc.de>
+References: <4C876530.5080107@muc.ccc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge interface mac address
+Subject: Re: [Bridge] bridge interface mac address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,23 +15,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: x@muc.ccc.de
+Cc: bridge@lists.linux-foundation.org
 
-hi!
+On Wed, 08 Sep 2010 12:28:00 +0200
+x@muc.ccc.de wrote:
 
-i'm using dynamips (router/switch emulator) and would like to have an interface on the host as a link to the 'emulated lab'. with dynamips, one of the host's interfaces can be used to connect to a port of the 'emulated lab'. dynamips obviously injects its packets into this interface, and sniffs for packets directed towards the 'emulated lab'.
+> hi!
+> 
+> i'm using dynamips (router/switch emulator) and would like to have an interface on the host as a link to the 'emulated lab'. with dynamips, one of the host's interfaces can be used to connect to a port of the 'emulated lab'. dynamips obviously injects its packets into this interface, and sniffs for packets directed towards the 'emulated lab'.
+> 
+> now i just have a single physical interface on the host. and i don't want the lab-traffic to pass thru the physical interface (and productive segment connected to it).
+> so i thought hey, let's be clever, just create a bridge. we don't need any bridge-members (yet), we just want to use it for the dynamips link for now.
+> 
+> after a brctl addbr, i get a bridge-interface - with a mac of 00:00:00:00:00:00.
+> tried it anyway: it doesn't work (i see arp-requests from the host, i see arp-replies to the host - which the host obviously simply ignores, most probably because of the all-zero-mac).
+> turns out it's also not possible to change the mac - not even to a locally administered mac.
 
-now i just have a single physical interface on the host. and i don't want the lab-traffic to pass thru the physical interface (and productive segment connected to it).
-so i thought hey, let's be clever, just create a bridge. we don't need any bridge-members (yet), we just want to use it for the dynamips link for now.
+A bridge with no attached ports is not really a bridge, just a ghost.
 
-after a brctl addbr, i get a bridge-interface - with a mac of 00:00:00:00:00:00.
-tried it anyway: it doesn't work (i see arp-requests from the host, i see arp-replies to the host - which the host obviously simply ignores, most probably because of the all-zero-mac).
-turns out it's also not possible to change the mac - not even to a locally administered mac.
+> is there a special way to set the bridge's mac? actually i find it quite irritating that it's not simply possible to change it just like with any other interface!?
 
-is there a special way to set the bridge's mac? actually i find it quite irritating that it's not simply possible to change it just like with any other interface!?
+The bridge inherits the mac of the first attached interface.
+On recent kernels, it can also be set with the usual network tools (ip link, ifconfig, ...). If you are running some kernel older than 2.6.27 please
+use something more recent.
 
-also i think it might not be wise to treat 00:00:00:00:00:00 special, filter it, or similar (after all it's a valid global unicast mac - assigned to xerox...).
 
-regards,
+> also i think it might not be wise to treat 00:00:00:00:00:00 special, filter it, or similar (after all it's a valid global unicast mac - assigned to xerox...).
 
-	Chris
+All zero's is not a legal address in current 802. standards. It shows up
+when devices are broken. It is supposed to be dropped.
