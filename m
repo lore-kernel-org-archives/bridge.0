@@ -1,11 +1,11 @@
-From: Aijaz Baig <aijazbaig1@gmail.com>
-Date: Tue, 12 Oct 2010 13:01:08 +0000 (UTC)
-Message-ID: <loom.20101012T145743-585@post.gmane.org>
-References: <loom.20101011T131053-288@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <4CB46549.2070901@ti-wmc.nl>
+Date: Tue, 12 Oct 2010 15:40:25 +0200
+From: Michel Lammertink <mlammertink@ti-wmc.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] About local delivery of bridged packets
+Subject: [Bridge] Why should static MAC address match one of the port MAC
+	addresses.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,30 +14,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.linux-foundation.org
 
-Aijaz Baig <aijazbaig1 <at> gmail.com> writes:
+Hi all,
 
-> 
-> Hello,
-> 
-> I am trying to understand how does the bridging code determine if the packet 
-is 
-> to be delivered locally or is it to be forwarded. Before being delivered 
-> locally, I mean the packet is to be delivered either to br0 or to a non 
-enslaved 
-> interface. If I am wrong here, please do correct me..................
+I've read many messages on this mailing list with the question about
+setting a static MAC address on the bridge interface, but two questions
+remain:
 
-Hello,
+ 1. Why should the MAC address of the bridge match the address of one of
+its interfaces? Setting the MAC address to a different value does not
+generate an error, but the bridge is not working properly (Local data
+does not arrive).
 
-Heres answering my own question partially. Since the bridge which is after all a 
-virtual interface takes one of the L2 addresses of its interfaces (is it the 
-first real interface which is enslaved?), any packet which is destined with this 
-L2 dest address in its eth header, will be considered locally destined.
+ 2. Why does the bridge by default choose the "lowest" MAC address,
+instead of the MAC address of the first port added, as is proposed by
+the standard [1]?
 
-This simple fact solves my issue.
+[1] IEEE802.1D, Par. 7.12.5.
+    Quote: "The Bridge Address may be the individual MAC Address of a
+Bridge Port, in which case, use of the address of the lowest numbered
+Bridge Port (Port 1) is recommended."
 
-Regards,
-Aijaz
+Thanks in advance,
 
-
+Michel.
