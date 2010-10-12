@@ -1,11 +1,9 @@
-Message-ID: <4CB46549.2070901@ti-wmc.nl>
-Date: Tue, 12 Oct 2010 15:40:25 +0200
-From: Michel Lammertink <mlammertink@ti-wmc.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Why should static MAC address match one of the port MAC
-	addresses.
+Date: Tue, 12 Oct 2010 16:31:36 +0200
+Message-ID: <AANLkTin=6Uf_fwGWJ9Q6CQct1cARtHWHJ0geNRz0JDed@mail.gmail.com>
+From: Jean-Michel Hautbois <jhautbois@gmail.com>
+Content-Type: multipart/alternative; boundary=0016e65b5820914dfc04926c55b4
+Subject: [Bridge] Real time issues when using a bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,26 +14,63 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Hi all,
+--0016e65b5820914dfc04926c55b4
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-I've read many messages on this mailing list with the question about
-setting a static MAC address on the bridge interface, but two questions
-remain:
+Hi there !
 
- 1. Why should the MAC address of the bridge match the address of one of
-its interfaces? Setting the MAC address to a different value does not
-generate an error, but the bridge is not working properly (Local data
-does not arrive).
+I am facing a jitter issue that I will try to explain :
+I have the following configuration :
 
- 2. Why does the bridge by default choose the "lowest" MAC address,
-instead of the MAC address of the first port added, as is proposed by
-the standard [1]?
+(A) eth0 <--> br0 <--> eth1 (B)
 
-[1] IEEE802.1D, Par. 7.12.5.
-    Quote: "The Bridge Address may be the individual MAC Address of a
-Bridge Port, in which case, use of the address of the lowest numbered
-Bridge Port (Port 1) is recommended."
+I have a small and custom kernel (I removed netfilter, for instance) and I
+am measuring the time between A and B (using hardware taps, etc.).
+My bandwidth is quite small (each packet is about 200 bytes and there is a
+delay of 10ms between each packet).
+I am measuring both the latency and the jitter (max_latency - min_latency)
+and this one is quite large.
 
-Thanks in advance,
+I added ftrace option, and after some (long) investigations, I am currently
+limiting my study to the bridge part.
 
-Michel.
+When I trace only br_handle_frame and br_forward_finish and do my test on
+6500 frames I have :
+- average latency of 39=C2=B5s
+- minimum latency of 34 =C2=B5s
+- maximum latency of 81=C2=B5s
+
+Thus, my jitter is 47=C2=B5s.
+This may seem low, but this is about two to three times what I expect and I
+cannot see why a bridge which is only forwarding a frame would have jitter =
+?
+If you have any idea, everything is interesting for me.
+I thought maybe to skb_clone ?
+
+Best Regards,
+JM
+
+--0016e65b5820914dfc04926c55b4
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi there !<br><br>I am facing a jitter issue that I will try to explain :<b=
+r>I have the following configuration :<br><br>(A) eth0 &lt;--&gt; br0 &lt;-=
+-&gt; eth1 (B)<br><br>I have a small and custom kernel (I removed netfilter=
+, for instance) and I am measuring the time between A and B (using hardware=
+ taps, etc.).<br>
+My bandwidth is quite small (each packet is about 200 bytes and there is a =
+delay of 10ms between each packet).<br>I am measuring both the latency and =
+the jitter (max_latency - min_latency) and this one is quite large.<br>
+<br>I added ftrace option, and after some (long) investigations, I am curre=
+ntly limiting my study to the bridge part.<br><br>When I trace only br_hand=
+le_frame and br_forward_finish and do my test on 6500 frames I have :<br>
+- average latency of 39=C2=B5s<br>- minimum latency of 34 =C2=B5s<br>- maxi=
+mum latency of 81=C2=B5s<br><br>Thus, my jitter is 47=C2=B5s.<br>This may s=
+eem low, but this is about two to three times what I expect and I cannot se=
+e why a bridge which is only forwarding a frame would have jitter ?<br>
+If you have any idea, everything is interesting for me.<br>I thought maybe =
+to skb_clone ?<br><br>Best Regards,<br>JM<br><br>
+
+--0016e65b5820914dfc04926c55b4--
