@@ -1,13 +1,11 @@
+From: Mark Liggett <mliggett@btisystems.com>
+Date: Wed, 13 Oct 2010 11:27:18 -0400
+Message-ID: <C8DB8E66.6920%mliggett@btisystems.com>
+Content-Language: en
+Content-Type: multipart/alternative;
+	boundary="_000_C8DB8E666920mliggettbtisystemscom_"
 MIME-Version: 1.0
-In-Reply-To: <AANLkTiknsL37-LsLRD3Ndv8Qkur8sxW038g3DeXX7Xa1@mail.gmail.com>
-References: <AANLkTin=6Uf_fwGWJ9Q6CQct1cARtHWHJ0geNRz0JDed@mail.gmail.com>
-	<20101012101051.43dfd499@nehalam>
-	<AANLkTiknsL37-LsLRD3Ndv8Qkur8sxW038g3DeXX7Xa1@mail.gmail.com>
-Date: Wed, 13 Oct 2010 08:44:12 +0200
-Message-ID: <AANLkTinekwamO6frk0YM85ptVa79pNhO7Lk+n84b2_Db@mail.gmail.com>
-From: Jean-Michel Hautbois <jhautbois@gmail.com>
-Content-Type: multipart/alternative; boundary=001485f723d0e01293049279ebfa
-Subject: Re: [Bridge] Real time issues when using a bridge
+Subject: [Bridge] F13 bridge issues
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,87 +14,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: bridge@lists.linux-foundation.org
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
---001485f723d0e01293049279ebfa
-Content-Type: text/plain; charset=UTF-8
+--_000_C8DB8E666920mliggettbtisystemscom_
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-2010/10/13 Jean-Michel Hautbois <jhautbois@gmail.com>
+Hi everyone,
 
-> 2010/10/12 Stephen Hemminger <shemminger@linux-foundation.org>
->
->> > Thus, my jitter is 47=C2=B5s.
->> > This may seem low, but this is about two to three times what I expect
->> and I
->> > cannot see why a bridge which is only forwarding a frame would have
->> jitter ?
->> > If you have any idea, everything is interesting for me.
->> > I thought maybe to skb_clone ?
->>
->> You probably have NAPI and/or interrupt coalescing setting
->> enabled on one or both of the devices.
->>
->> --
->>
->
-> Hi Stephen,
->
-> I have NAPI on my ethernet device, at least.
-> I will check for interrupt coalescing.
-> AFAIK, there is a skb_clone followed by a kfree in netif_receive_skb (the
-> frame coming from eth0 to br0).
-> There is a jitter in this call of "freeing memory". I am looking at the
-> path, in order to see why there is a clone.
->
-> BR,
-> JM
->
+I'm using Ethernet bridging on an up-to-date F13 system.  I've created a br=
+idge adapter br0 and added eth2 and eth3 to it.  Everything works as expect=
+ed for a short time before the 2 Ethernet cards used in the bridge start re=
+porting millions of errors.  I confirmed this is the case on 2 separate sys=
+tems (although both systems use Intel NICs).  To try to resolve this I've:
 
-I have to tell I am working on a mpc52xx and am currently only interested i=
-n
-the eth->br path for the moment.
-JM
+- Compiled and installed the latest Intel igb driver 2.3.4
+- Installed the latest Fedora kernel 2.6.34.7-56
+- Uninstalled the standard bridge-utils 1.2-9, before compiling and install=
+ing version 1.4
 
---001485f723d0e01293049279ebfa
-Content-Type: text/html; charset=UTF-8
+I've pastebin'd the system config here:  http://pastebin.ca/1960777
+
+You can see the errors listed on eth2 and eth3.  I've tried both setting th=
+e bridge up using /etc/sysconfig/network-scripts as well as manually (using=
+ brctl and ifconfig).
+
+My bridge/Ethernet interface configs are listed here: http://pastebin.ca/19=
+60790
+
+Any suggestions would be greatly appreciated.
+
+Thanks,
+
+Mark
+
+--_000_C8DB8E666920mliggettbtisystemscom_
+Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-<div class=3D"gmail_quote">2010/10/13 Jean-Michel Hautbois <span dir=3D"ltr=
-">&lt;<a href=3D"mailto:jhautbois@gmail.com">jhautbois@gmail.com</a>&gt;</s=
-pan><br><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid r=
-gb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-<div class=3D"gmail_quote">2010/10/12 Stephen Hemminger <span dir=3D"ltr">&=
-lt;<a href=3D"mailto:shemminger@linux-foundation.org" target=3D"_blank">she=
-mminger@linux-foundation.org</a>&gt;</span><br><blockquote class=3D"gmail_q=
-uote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0=
-pt 0.8ex; padding-left: 1ex;">
-<div class=3D"im">
-<div><div></div><div>&gt; Thus, my jitter is 47=C2=B5s.<br>
-&gt; This may seem low, but this is about two to three times what I expect =
-and I<br>
-&gt; cannot see why a bridge which is only forwarding a frame would have ji=
-tter ?<br>
-&gt; If you have any idea, everything is interesting for me.<br>
-&gt; I thought maybe to skb_clone ?<br>
+<HTML>
+<HEAD>
+<TITLE>F13 bridge issues</TITLE>
+</HEAD>
+<BODY>
+<FONT FACE=3D"Tahoma, Verdana, Helvetica, Arial"><SPAN STYLE=3D'font-size:1=
+1pt'>Hi everyone,<BR>
+<BR>
+I&#8217;m using Ethernet bridging on an up-to-date F13 system. &nbsp;I&#821=
+7;ve created a bridge adapter br0 and added eth2 and eth3 to it. &nbsp;Ever=
+ything works as expected for a short time before the 2 Ethernet cards used =
+in the bridge start reporting millions of errors. &nbsp;I confirmed this is=
+ the case on 2 separate systems (although both systems use Intel NICs). &nb=
+sp;To try to resolve this I&#8217;ve:<BR>
+<BR>
+- Compiled and installed the latest Intel igb driver 2.3.4<BR>
+- Installed the latest Fedora kernel 2.6.34.7-56<BR>
+- Uninstalled the standard bridge-utils 1.2-9, before compiling and install=
+ing version 1.4<BR>
+<BR>
+I&#8217;ve pastebin&#8217;d the system config here: &nbsp;<FONT COLOR=3D"#0=
+000FF"><U><a href=3D"http://pastebin.ca/1960777">http://pastebin.ca/1960777=
+</a><BR>
+</U></FONT><BR>
+You can see the errors listed on eth2 and eth3. &nbsp;I&#8217;ve tried both=
+ setting the bridge up using /etc/sysconfig/network-scripts as well as manu=
+ally (using brctl and ifconfig).<BR>
+<BR>
+My bridge/Ethernet interface configs are listed here: <FONT COLOR=3D"#0000F=
+F"><U><a href=3D"http://pastebin.ca/1960790">http://pastebin.ca/1960790</a>=
+<BR>
+</U></FONT><BR>
+Any suggestions would be greatly appreciated.<BR>
+<BR>
+Thanks,<BR>
+<BR>
+Mark</SPAN></FONT>
+</BODY>
+</HTML>
 
-<br>
-</div></div></div><div class=3D"im">You probably have NAPI and/or interrupt=
- coalescing setting<br>
-enabled on one or both of the devices.<br>
-<font color=3D"#888888"><br>
---<br>
-</font></div></blockquote></div><br>Hi Stephen,<br><br>I have NAPI on my et=
-hernet device, at least.<br>I will check for interrupt coalescing.<br>AFAIK=
-, there is a skb_clone followed by a kfree in netif_receive_skb (the frame =
-coming from eth0 to br0).<br>
 
-There is a jitter in this call of &quot;freeing memory&quot;. I am looking =
-at the path, in order to see why there is a clone.<br><br>BR,<br><font colo=
-r=3D"#888888">JM<br>
-</font></blockquote></div><br>I have to tell I am working on a mpc52xx and =
-am currently only interested in the eth-&gt;br path for the moment.<br>JM<b=
-r>
-
---001485f723d0e01293049279ebfa--
+--_000_C8DB8E666920mliggettbtisystemscom_--
