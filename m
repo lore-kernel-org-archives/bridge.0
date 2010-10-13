@@ -1,6 +1,6 @@
-Date: Wed, 13 Oct 2010 08:45:01 -0700
+Date: Wed, 13 Oct 2010 08:46:39 -0700
 From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20101013084501.23250eef@nehalam>
+Message-ID: <20101013084639.5712c28c@nehalam>
 In-Reply-To: <C8DB8E66.6920%mliggett@btisystems.com>
 References: <C8DB8E66.6920%mliggett@btisystems.com>
 Mime-Version: 1.0
@@ -41,8 +41,7 @@ Mark Liggett <mliggett@btisystems.com> wrote:
 > 
 > Mark
 
-Something is wrong with those interfaces.
-Get the ethtool statistics and other data and report it to the e1000 list.
-
+You might also be creating a packet loop?
+Turn on spanning tree and find out.
 
 -- 
