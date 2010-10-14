@@ -1,10 +1,10 @@
 From: Mark Liggett <mliggett@btisystems.com>
-Date: Wed, 13 Oct 2010 12:14:22 -0400
-Message-ID: <C8DB996E.692B%mliggett@btisystems.com>
+Date: Thu, 14 Oct 2010 12:00:39 -0400
+Message-ID: <C8DCE7B7.69A7%mliggett@btisystems.com>
 In-Reply-To: <20101013084639.5712c28c@nehalam>
 Content-Language: en
 Content-Type: multipart/alternative;
-	boundary="_000_C8DB996E692Bmliggettbtisystemscom_"
+	boundary="_000_C8DCE7B769A7mliggettbtisystemscom_"
 MIME-Version: 1.0
 Subject: Re: [Bridge] F13 bridge issues
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,31 +18,21 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Stephen Hemminger <shemminger@linux-foundation.org>
 Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
---_000_C8DB996E692Bmliggettbtisystemscom_
+--_000_C8DCE7B769A7mliggettbtisystemscom_
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-Thanks Stephen,
+Hi Stephen,
 
-My set up is as follows:
+As you suspected, I believe the igb driver is at fault - I configured a bri=
+dge on the same machine using onboard tg3 cards.
 
-client -> eth2-eth3 -> cisco switch
+The bridge worked fine and the fault did not occur until I SCP'd a file to =
+the server on the igb card.  After which the bridge continued to work fine.
 
-The client is directly connected to eth2 on the bridge, eth3 is directly co=
-nnected to a cisco switch.  The port on the cisco has spanning-tree disable=
-d (with 'spanning-tree bpduguard enable') won't won't allow any bpdu's to o=
-r from the port.  The cisco or the client don't report any errors or show a=
-bnormal stats - the communications just stop.  The ports stay link up but n=
-o traffic can flow until the server is rebooted.
-
-After I enabled STP on the bridge I got the same issue (I had to remove the=
- spanning-tree bpduguard from the switch port as it goes to err-disabled ot=
-herwise).
-
-Kind regards,
+Thanks for your help.
 
 Mark
-
 
 
 On 13/10/2010 16:46, "Stephen Hemminger" <shemminger@linux-foundation.org> =
@@ -86,7 +76,7 @@ Turn on spanning tree and find out.
 --
 
 
---_000_C8DB996E692Bmliggettbtisystemscom_
+--_000_C8DCE7B769A7mliggettbtisystemscom_
 Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -96,28 +86,18 @@ Content-Transfer-Encoding: quoted-printable
 </HEAD>
 <BODY>
 <FONT FACE=3D"Tahoma, Verdana, Helvetica, Arial"><SPAN STYLE=3D'font-size:1=
-1pt'>Thanks Stephen,<BR>
+1pt'>Hi Stephen,<BR>
 <BR>
-My set up is as follows:<BR>
+As you suspected, I believe the igb driver is at fault &#8211; I configured=
+ a bridge on the same machine using onboard tg3 cards. &nbsp;<BR>
 <BR>
-client -&gt; eth2-eth3 -&gt; cisco switch<BR>
+The bridge worked fine and the fault did not occur until I SCP&#8217;d a fi=
+le to the server on the igb card. &nbsp;After which the bridge continued to=
+ work fine.<BR>
 <BR>
-The client is directly connected to eth2 on the bridge, eth3 is directly co=
-nnected to a cisco switch. &nbsp;The port on the cisco has spanning-tree di=
-sabled (with &#8216;spanning-tree bpduguard enable&#8217;) won&#8217;t won&=
-#8217;t allow any bpdu&#8217;s to or from the port. &nbsp;The cisco or the =
-client don&#8217;t report any errors or show abnormal stats &#8211; the com=
-munications just stop. &nbsp;The ports stay link up but no traffic can flow=
- until the server is rebooted.<BR>
-<BR>
-After I enabled STP on the bridge I got the same issue (I had to remove the=
- spanning-tree bpduguard from the switch port as it goes to err-disabled ot=
-herwise).<BR>
-<BR>
-Kind regards,<BR>
+Thanks for your help.<BR>
 <BR>
 Mark<BR>
-<BR>
 <BR>
 <BR>
 On 13/10/2010 16:46, &quot;Stephen Hemminger&quot; &lt;<a href=3D"shemminge=
@@ -168,4 +148,4 @@ Turn on spanning tree and find out.<BR>
 </HTML>
 
 
---_000_C8DB996E692Bmliggettbtisystemscom_--
+--_000_C8DCE7B769A7mliggettbtisystemscom_--
