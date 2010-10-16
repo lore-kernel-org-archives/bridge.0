@@ -1,10 +1,11 @@
-Message-ID: <4CBB3B24.2000106@gmail.com>
-Date: Sun, 17 Oct 2010 14:06:28 -0400
-From: Benjamin Poirier <benjamin.poirier@gmail.com>
+Message-ID: <4CB9EBC3.4070905@freenet.de>
+Date: Sat, 16 Oct 2010 20:15:31 +0200
+From: Patrick Ringl <patrick_@freenet.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] EAPOL bridging
+Subject: [Bridge] 2.6.36-rc7: net/bridge causes temporary network I/O
+	lockups [2]
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,42 +14,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: herbert@gondor.hengli.com.au, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I have some trouble bridging EAPOL frames. I'd like to do this to allow 
-wired 802.1x authentication from within a kvm virtual machine. I have 
-the following setup:
+okay I narrowed down the issue. I watched all function calls of the 
+'bridge' module with the help of a small systemtap probe of mine. I 
+first traced a timespan where the issue did not occur, then one where it 
+did and composed an intersection of these two:
 
-kvm -- tap0 -- br0 -- eth1 -- 802.1x authenticator (switch) -- more network
+br_fdb_cleanup
+br_flood
+br_flood_forward
+br_ip4_multicast_add_group
+br_ip4_multicast_alloc_query
+br_ip4_multicast_leave_group
+br_ip6_multicast_alloc_query
+br_mdb_get
+br_multicast_alloc_query
+br_multicast_flood
+br_multicast_forward
+br_multicast_ipv4_rcv
+br_multicast_port_query_expired
+br_multicast_query_expired
+br_multicast_rcv
+__br_multicast_send_query
+br_multicast_send_query
 
-and it doesn't work. I've added a few logging rules to ebtables. I only 
-see an EAPOL frame going through the INPUT chain of tap0. It seems to be 
-dropped by the bridge. The EAPOL frame is an ethernet link local 
-multicast frame with destination address 01-80-C2-00-00-03, "IEEE Std 
-802.1X PAE address".
+igmp_hdr
+ip_hdrlen
+ipv6_addr_copy
+ipv6_addr_set
+ipv6_eth_mc_map
+ipv6_hdr
 
-I've looked at http://standards.ieee.org/regauth/groupmac/tutorial.html, 
-which says that frames with a destination in the range 01-80-C2-00-00-00 
-to 01-80-C2-00-00-0F should not be forwarded by standard conformant 
-bridges. I've also looked at net/bridge/br_input.c and br_handle_frame() 
-seems quite intent on "bending" the standard when STP is disabled, but 
-only for 01-80-C2-00-00-00. However there are more applications that use 
-similar addresses, EAPOL included: 
-http://standards.ieee.org/regauth/groupmac/Standard_Group_MAC_Address_assignments.pdf
+maybe_deliver
+netdev_alloc_skb
+netdev_alloc_skb_ip_align
 
-Given the current state of affairs, would it be acceptable to make the 
-code more permissive by forwarding all the range of reserved group 
-addresses when STP is disabled? If not, what would be the way to go 
-about enabling 802.1x authentication from within a virtual machine?
+skb_checksum_complete
+__skb_pull
+__skb_push
+skb_reserve
+skb_reset_transport_header
+skb_set_network_header
+skb_set_transport_header
 
-BTW, it seems this issue has been raised before, 
-https://lists.linux-foundation.org/pipermail/bridge/2007-November/005629.html
-with the conclusion that
-> Despite what the standards say, many users are using bridging code for invisible
-> firewalls etc, and in those cases they want STP and EAPOL frames to be forwarded.
+These are the function calls that are exclusively called during the 
+'nonfunctional'-timespan.
 
-Thanks,
--Ben
+This again gave me the idea to use tcpdump and watch out for igmp and 
+v6. Well, and that is also where the issue is coming from.
+
+Once a multicast membership query (igmp) arrives, A multicast listener 
+query (icmpv6) is sent.
+  From my understanding of the bridge code br_flood will propgate the 
+packet to all nodes (simple multicast) and this is also where things 
+stop working. Systemtap itself and thus in my case function calls of the 
+bridge module are not delayed, but something needs to be wrong in the 
+multicast handling of the bridge interface, since as pointed out in my 
+previous email with 2.6.32 everything is working fine.
+
+Can anyone reconfirm this issue, or give a helping hand in how to 
+proceed further?
+
+PS: Herbert, I've seen your changes for 2.6.34 which I think are 
+responsible for this behavior (even 2.6.33 here works fine. Anything 
+containing your multicast-related fixed breaks here).
+Could you specifically take a look into it and/or tell me how I can help 
+you?
+
+PPS: Again please CC back to me, since I am not subscribed
+
+regards,
+Patrick
+
