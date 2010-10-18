@@ -1,10 +1,12 @@
-Message-ID: <4CB9EBC3.4070905@freenet.de>
-Date: Sat, 16 Oct 2010 20:15:31 +0200
-From: Patrick Ringl <patrick_@freenet.de>
+Date: Tue, 19 Oct 2010 00:16:56 +0800
+From: Herbert Xu <herbert@gondor.hengli.com.au>
+Message-ID: <20101018161656.GA2403@gondor.apana.org.au>
+References: <4CB9EBC3.4070905@freenet.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] 2.6.36-rc7: net/bridge causes temporary network I/O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4CB9EBC3.4070905@freenet.de>
+Subject: Re: [Bridge] 2.6.36-rc7: net/bridge causes temporary network I/O
 	lockups [2]
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -14,79 +16,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: herbert@gondor.hengli.com.au, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Patrick Ringl <patrick_@freenet.de>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Oct 16, 2010 at 08:15:31PM +0200, Patrick Ringl wrote:
+> Hi,
+>
+> okay I narrowed down the issue. I watched all function calls of the  
+> 'bridge' module with the help of a small systemtap probe of mine. I  
+> first traced a timespan where the issue did not occur, then one where it  
+> did and composed an intersection of these two:
 
-okay I narrowed down the issue. I watched all function calls of the 
-'bridge' module with the help of a small systemtap probe of mine. I 
-first traced a timespan where the issue did not occur, then one where it 
-did and composed an intersection of these two:
+I can't reproduce this problem here so I'll need your help to
+track it down.
 
-br_fdb_cleanup
-br_flood
-br_flood_forward
-br_ip4_multicast_add_group
-br_ip4_multicast_alloc_query
-br_ip4_multicast_leave_group
-br_ip6_multicast_alloc_query
-br_mdb_get
-br_multicast_alloc_query
-br_multicast_flood
-br_multicast_forward
-br_multicast_ipv4_rcv
-br_multicast_port_query_expired
-br_multicast_query_expired
-br_multicast_rcv
-__br_multicast_send_query
-br_multicast_send_query
+Can you see if you can relate the lock-ups to specific events
+such as a particular packet being sent through the bridge?
 
-igmp_hdr
-ip_hdrlen
-ipv6_addr_copy
-ipv6_addr_set
-ipv6_eth_mc_map
-ipv6_hdr
+If we can recreate the problem on demand that that helps us to
+find the root cause.
 
-maybe_deliver
-netdev_alloc_skb
-netdev_alloc_skb_ip_align
+You mentioned that you took packet dumps on the system.  If you
+can show us the packets through the bridge and its ports when
+the problem occurs that would be great.
 
-skb_checksum_complete
-__skb_pull
-__skb_push
-skb_reserve
-skb_reset_transport_header
-skb_set_network_header
-skb_set_transport_header
-
-These are the function calls that are exclusively called during the 
-'nonfunctional'-timespan.
-
-This again gave me the idea to use tcpdump and watch out for igmp and 
-v6. Well, and that is also where the issue is coming from.
-
-Once a multicast membership query (igmp) arrives, A multicast listener 
-query (icmpv6) is sent.
-  From my understanding of the bridge code br_flood will propgate the 
-packet to all nodes (simple multicast) and this is also where things 
-stop working. Systemtap itself and thus in my case function calls of the 
-bridge module are not delayed, but something needs to be wrong in the 
-multicast handling of the bridge interface, since as pointed out in my 
-previous email with 2.6.32 everything is working fine.
-
-Can anyone reconfirm this issue, or give a helping hand in how to 
-proceed further?
-
-PS: Herbert, I've seen your changes for 2.6.34 which I think are 
-responsible for this behavior (even 2.6.33 here works fine. Anything 
-containing your multicast-related fixed breaks here).
-Could you specifically take a look into it and/or tell me how I can help 
-you?
-
-PPS: Again please CC back to me, since I am not subscribed
-
-regards,
-Patrick
-
+Thanks,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
