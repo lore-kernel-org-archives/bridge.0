@@ -1,15 +1,9 @@
-Date: Wed, 20 Oct 2010 14:16:31 +0800
-From: Herbert Xu <herbert@gondor.hengli.com.au>
-Message-ID: <20101020061631.GA21679@gondor.apana.org.au>
-References: <4CB9EBC3.4070905@freenet.de>
-	<20101018161656.GA2403@gondor.apana.org.au>
-	<4CBCB014.9080108@freenet.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4CBCB014.9080108@freenet.de>
-Subject: Re: [Bridge] 2.6.36-rc7: net/bridge causes temporary network I/O
-	lockups [2]
+From: Benjamin Poirier <benjamin.poirier@polymtl.ca>
+Date: Mon, 18 Oct 2010 22:09:35 -0400
+Message-Id: <1287454175-22903-1-git-send-email-benjamin.poirier@polymtl.ca>
+In-Reply-To: <20101018093837.26bb149a@nehalam>
+References: <20101018093837.26bb149a@nehalam>
+Subject: [Bridge] [PATCH] bridge: Forward reserved group addresses if !STP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,41 +12,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Patrick Ringl <patrick_@freenet.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, "David S. Miller" <davem@davemloft.net>
 
-On Mon, Oct 18, 2010 at 10:37:40PM +0200, Patrick Ringl wrote:
->
-> Anything else I could possibly provide? :-)
+Make all frames sent to reserved group MAC addresses (01:80:c2:00:00:00 to
+01:80:c2:00:00:0f) be forwarded if STP is disabled. This enables
+forwarding EAPOL frames, among other things.
 
-Yes, testing :)
+Signed-off-by: Benjamin Poirier <benjamin.poirier@polymtl.ca>
+---
+ net/bridge/br_input.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-First of all I'd like to rule out (or in) the IPv6 query code,
-which is clearly generating a bogus packet (wrong payload_len).
-
-So can you apply this patch and see if it makes the problem
-go away? Please take packet dumps so we know that the IPv6 query
-is no longer being sent.
-
-Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index eb5b256..66f39d7 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -832,11 +832,6 @@ static void br_multicast_send_query(struct net_bridge *br,
- 	br_group.proto = htons(ETH_P_IP);
- 	__br_multicast_send_query(br, port, &br_group);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 826cd52..436488c 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -159,7 +159,7 @@ struct sk_buff *br_handle_frame(struct sk_buff *skb)
+ 			goto drop;
  
--#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
--	br_group.proto = htons(ETH_P_IPV6);
--	__br_multicast_send_query(br, port, &br_group);
--#endif
--
- 	time = jiffies;
- 	time += sent < br->multicast_startup_query_count ?
- 		br->multicast_startup_query_interval :
+ 		/* If STP is turned off, then forward */
+-		if (p->br->stp_enabled == BR_NO_STP && dest[5] == 0)
++		if (p->br->stp_enabled == BR_NO_STP)
+ 			goto forward;
+ 
+ 		if (NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
+-- 
+1.7.1
+
