@@ -1,9 +1,9 @@
-From: Benjamin Poirier <benjamin.poirier@polymtl.ca>
-Date: Mon, 18 Oct 2010 22:09:35 -0400
-Message-Id: <1287454175-22903-1-git-send-email-benjamin.poirier@polymtl.ca>
-In-Reply-To: <20101018093837.26bb149a@nehalam>
-References: <20101018093837.26bb149a@nehalam>
-Subject: [Bridge] [PATCH] bridge: Forward reserved group addresses if !STP
+MIME-Version: 1.0
+Date: Tue, 19 Oct 2010 10:46:38 -0700
+Message-ID: <AANLkTinBfvrkb6Oe832h8QFO8B7i4bzdYo9YzsimCrY+@mail.gmail.com>
+From: Erik Schweigert <ejschweigert@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Subject: [Bridge] VLAN traffic through an Ethernet Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,31 +12,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, "David S. Miller" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-Make all frames sent to reserved group MAC addresses (01:80:c2:00:00:00 to
-01:80:c2:00:00:0f) be forwarded if STP is disabled. This enables
-forwarding EAPOL frames, among other things.
+Hello all,
 
-Signed-off-by: Benjamin Poirier <benjamin.poirier@polymtl.ca>
----
- net/bridge/br_input.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I have configured a transparent ethernet bridge containing two network
+interfaces: eth0, eth1 in br0.  IP forwarding is enabled i.e. cat
+/proc/sys/net/ipv4/ip_forward = 1.
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 826cd52..436488c 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -159,7 +159,7 @@ struct sk_buff *br_handle_frame(struct sk_buff *skb)
- 			goto drop;
- 
- 		/* If STP is turned off, then forward */
--		if (p->br->stp_enabled == BR_NO_STP && dest[5] == 0)
-+		if (p->br->stp_enabled == BR_NO_STP)
- 			goto forward;
- 
- 		if (NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
--- 
-1.7.1
+All traffic destined through my Linux machine has the 802.1Q tag
+(VLAN).  However, only ARP with the VLAN tags passes through the
+machine correctly (100% of the time) and broadcast and multicast
+appears to work.  It 'seems' IP layer and above is being dropped if it
+is unicast, or intermittently works ( +/- 1 of 10 ICMP passes
+through).
 
+All non-VLAN'd traffic passes through my machine flawlessly.
+
+arptables, ebtables, and IPtables are all flushed, so there is no
+possibility of any traffic being blocked.
+
+Is there a caveat with ethernet bridging that does not permit VLAN'd traffic?
+
+Any help or suggestions is greatly appreciated!
+
+Thanks,
+
+Erik
