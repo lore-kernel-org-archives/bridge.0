@@ -1,16 +1,12 @@
-From: Joe Perches <joe@perches.com>
-In-Reply-To: <AANLkTimGUB-+TTsje1kc3q9PyoB2jJdgCK2Z7n9u7N1J@mail.gmail.com>
-References: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
-	<1287543701.10409.599.camel@Joe-Laptop>
-	<AANLkTi=pz4zYnnUSvb9FjVvCAURruHhJTz7pBKDi8Pdw@mail.gmail.com>
-	<1287545337.10409.602.camel@Joe-Laptop>
-	<AANLkTimGUB-+TTsje1kc3q9PyoB2jJdgCK2Z7n9u7N1J@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 19 Oct 2010 21:59:39 -0700
-Message-ID: <1287550779.10409.620.camel@Joe-Laptop>
+Date: Wed, 20 Oct 2010 08:38:07 -0700
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20101020083807.449c9ae5@nehalam>
+In-Reply-To: <AANLkTinBfvrkb6Oe832h8QFO8B7i4bzdYo9YzsimCrY+@mail.gmail.com>
+References: <AANLkTinBfvrkb6Oe832h8QFO8B7i4bzdYo9YzsimCrY+@mail.gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net: make ctl_path local and const
+Subject: Re: [Bridge] VLAN traffic through an Ethernet Bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,25 +15,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Changli Gao <xiaosuo@gmail.com>
-Cc: Andy Grover <andy.grover@oracle.com>, James Morris <jmorris@namei.org>, linux-sctp@vger.kernel.org, rds-devel@oss.oracle.com, "Pekka Savola (ipv6)" <pekkas@netcore.fi>, linux-x25@vger.kernel.org, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, Andrew, coreteam@netfilter.org, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Joerg Reuter <jreuter@yaina.de>, Sridhar Samudrala <sri@us.ibm.com>, Samuel Ortiz <samuel@sortiz.org>, Vlad Yasevich <vladislav.yasevich@hp.com>, netfilter@vger.kernel.org, Remi Denis-Courmont <remi.denis-courmont@nokia.com>, linux-hams@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Hendry <andrew.hendry@gmail.com>
+To: Erik Schweigert <ejschweigert@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-On Wed, 2010-10-20 at 12:52 +0800, Changli Gao wrote:
-> On Wed, Oct 20, 2010 at 11:28 AM, Joe Perches <joe@perches.com> wrote:
-> > At least some objects are smaller with static.
-> > $ size net/appletalk/sysctl_net_atalk.o.*
-> >   text    data     bss     dec     hex filename
-> >    324     236      48     608     260 net/appletalk/sysctl_net_atalk.o.withstatic
-> >    344     236      48     628     274 net/appletalk/sysctl_net_atalk.o.withoutstatic
-> I got the opposite result for the size of the whole kernel image with
-> allyesconfig.
-> original: 33531456
-> patched: 33531424
-> It seems random.
+On Tue, 19 Oct 2010 10:46:38 -0700
+Erik Schweigert <ejschweigert@gmail.com> wrote:
 
-Not using static requires the compiler to emit
-initialization code for any use of the routine
-that otherwise would only be done once.
+> Hello all,
+> 
+> I have configured a transparent ethernet bridge containing two network
+> interfaces: eth0, eth1 in br0.  IP forwarding is enabled i.e. cat
+> /proc/sys/net/ipv4/ip_forward = 1.
+
+This is irrelevant for bridging. 
 
 
+> All traffic destined through my Linux machine has the 802.1Q tag
+> (VLAN).  However, only ARP with the VLAN tags passes through the
+> machine correctly (100% of the time) and broadcast and multicast
+> appears to work.  It 'seems' IP layer and above is being dropped if it
+> is unicast, or intermittently works ( +/- 1 of 10 ICMP passes
+> through).
+> 
+> All non-VLAN'd traffic passes through my machine flawlessly.
+> 
+> arptables, ebtables, and IPtables are all flushed, so there is no
+> possibility of any traffic being blocked.
+> 
+> Is there a caveat with ethernet bridging that does not permit VLAN'd traffic?
+> 
+> Any help or suggestions is greatly appreciated!
+> 
+> Thanks,
+> 
+> Erik
 
+Missing bits:
+1. Kernel version?
+2. Did you configure vlans on eth0 and eth1? 
+3. Is it an MTU issue? do small packets get through but
+   not largere ones.
+4. What is overall configuration of bridging and ethernets?
+   Did you assign IP address to bridge or the ethernet devices.
