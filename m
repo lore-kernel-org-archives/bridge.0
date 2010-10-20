@@ -1,9 +1,12 @@
-MIME-Version: 1.0
-Date: Tue, 19 Oct 2010 10:46:38 -0700
-Message-ID: <AANLkTinBfvrkb6Oe832h8QFO8B7i4bzdYo9YzsimCrY+@mail.gmail.com>
-From: Erik Schweigert <ejschweigert@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] VLAN traffic through an Ethernet Bridge
+From: Joe Perches <joe@perches.com>
+In-Reply-To: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
+References: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 19 Oct 2010 20:01:41 -0700
+Message-ID: <1287543701.10409.599.camel@Joe-Laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net: make ctl_path local and const
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,30 +15,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Changli Gao <xiaosuo@gmail.com>
+Cc: Andy Grover <andy.grover@oracle.com>, James Morris <jmorris@namei.org>, linux-sctp@vger.kernel.org, rds-devel@oss.oracle.com, "Pekka Savola (ipv6)" <pekkas@netcore.fi>, linux-x25@vger.kernel.org, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, Andrew, coreteam@netfilter.org, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Joerg Reuter <jreuter@yaina.de>, Sridhar Samudrala <sri@us.ibm.com>, Samuel Ortiz <samuel@sortiz.org>, Vlad Yasevich <vladislav.yasevich@hp.com>, netfilter@vger.kernel.org, Remi Denis-Courmont <remi.denis-courmont@nokia.com>, linux-hams@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Hendry <andrew.hendry@gmail.com>
 
-Hello all,
+On Wed, 2010-10-20 at 10:54 +0800, Changli Gao wrote:
+> Signed-off-by: Changli Gao <xiaosuo@gmail.com>
+[]
+> diff --git a/net/appletalk/sysctl_net_atalk.c b/net/appletalk/sysctl_net_atalk.c
+> index 04e9c0d..b92f269 100644
+> --- a/net/appletalk/sysctl_net_atalk.c
+> +++ b/net/appletalk/sysctl_net_atalk.c
+> @@ -42,16 +42,16 @@ static struct ctl_table atalk_table[] = {
+>  	{ },
+>  };
+>  
+> -static struct ctl_path atalk_path[] = {
+> -	{ .procname = "net", },
+> -	{ .procname = "appletalk", },
+> -	{ }
+> -};
+> -
+>  static struct ctl_table_header *atalk_table_header;
+>  
+>  void atalk_register_sysctl(void)
+>  {
+> +	const struct ctl_path atalk_path[] = {
 
-I have configured a transparent ethernet bridge containing two network
-interfaces: eth0, eth1 in br0.  IP forwarding is enabled i.e. cat
-/proc/sys/net/ipv4/ip_forward = 1.
+Shouldn't all of these be static const struct ?
 
-All traffic destined through my Linux machine has the 802.1Q tag
-(VLAN).  However, only ARP with the VLAN tags passes through the
-machine correctly (100% of the time) and broadcast and multicast
-appears to work.  It 'seems' IP layer and above is being dropped if it
-is unicast, or intermittently works ( +/- 1 of 10 ICMP passes
-through).
-
-All non-VLAN'd traffic passes through my machine flawlessly.
-
-arptables, ebtables, and IPtables are all flushed, so there is no
-possibility of any traffic being blocked.
-
-Is there a caveat with ethernet bridging that does not permit VLAN'd traffic?
-
-Any help or suggestions is greatly appreciated!
-
-Thanks,
-
-Erik
