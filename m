@@ -1,9 +1,11 @@
 From: Joe Perches <joe@perches.com>
-In-Reply-To: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
+In-Reply-To: <AANLkTi=pz4zYnnUSvb9FjVvCAURruHhJTz7pBKDi8Pdw@mail.gmail.com>
 References: <1287543276-4511-1-git-send-email-xiaosuo@gmail.com>
+	<1287543701.10409.599.camel@Joe-Laptop>
+	<AANLkTi=pz4zYnnUSvb9FjVvCAURruHhJTz7pBKDi8Pdw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 19 Oct 2010 20:01:41 -0700
-Message-ID: <1287543701.10409.599.camel@Joe-Laptop>
+Date: Tue, 19 Oct 2010 20:28:57 -0700
+Message-ID: <1287545337.10409.602.camel@Joe-Laptop>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] net: make ctl_path local and const
@@ -18,28 +20,38 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: Changli Gao <xiaosuo@gmail.com>
 Cc: Andy Grover <andy.grover@oracle.com>, James Morris <jmorris@namei.org>, linux-sctp@vger.kernel.org, rds-devel@oss.oracle.com, "Pekka Savola (ipv6)" <pekkas@netcore.fi>, linux-x25@vger.kernel.org, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, Andrew, coreteam@netfilter.org, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Joerg Reuter <jreuter@yaina.de>, Sridhar Samudrala <sri@us.ibm.com>, Samuel Ortiz <samuel@sortiz.org>, Vlad Yasevich <vladislav.yasevich@hp.com>, netfilter@vger.kernel.org, Remi Denis-Courmont <remi.denis-courmont@nokia.com>, linux-hams@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Hendry <andrew.hendry@gmail.com>
 
-On Wed, 2010-10-20 at 10:54 +0800, Changli Gao wrote:
-> Signed-off-by: Changli Gao <xiaosuo@gmail.com>
-[]
-> diff --git a/net/appletalk/sysctl_net_atalk.c b/net/appletalk/sysctl_net_atalk.c
-> index 04e9c0d..b92f269 100644
-> --- a/net/appletalk/sysctl_net_atalk.c
-> +++ b/net/appletalk/sysctl_net_atalk.c
-> @@ -42,16 +42,16 @@ static struct ctl_table atalk_table[] = {
->  	{ },
->  };
->  
-> -static struct ctl_path atalk_path[] = {
-> -	{ .procname = "net", },
-> -	{ .procname = "appletalk", },
-> -	{ }
-> -};
-> -
->  static struct ctl_table_header *atalk_table_header;
->  
->  void atalk_register_sysctl(void)
->  {
-> +	const struct ctl_path atalk_path[] = {
+On Wed, 2010-10-20 at 11:10 +0800, Changli Gao wrote:
+> On Wed, Oct 20, 2010 at 11:01 AM, Joe Perches <joe@perches.com> wrote:
+> > On Wed, 2010-10-20 at 10:54 +0800, Changli Gao wrote:
+> >> Signed-off-by: Changli Gao <xiaosuo@gmail.com>
+> > []
+> >> diff --git a/net/appletalk/sysctl_net_atalk.c b/net/appletalk/sysctl_net_atalk.c
+> >> index 04e9c0d..b92f269 100644
+> >> --- a/net/appletalk/sysctl_net_atalk.c
+> >> +++ b/net/appletalk/sysctl_net_atalk.c
+> >> @@ -42,16 +42,16 @@ static struct ctl_table atalk_table[] = {
+> >>       { },
+> >>  };
+> >> -static struct ctl_path atalk_path[] = {
+> >> -     { .procname = "net", },
+> >> -     { .procname = "appletalk", },
+> >> -     { }
+> >> -};
+> >> -
+> >>  static struct ctl_table_header *atalk_table_header;
+> >>
+> >>  void atalk_register_sysctl(void)
+> >>  {
+> >> +     const struct ctl_path atalk_path[] = {
+> > Shouldn't all of these be static const struct ?
+> They needn't. And some variables are specified __net_initdata currently.
 
-Shouldn't all of these be static const struct ?
+At least some objects are smaller with static.
+
+$ size net/appletalk/sysctl_net_atalk.o.*
+   text	   data	    bss	    dec	    hex	filename
+    324	    236	     48	    608	    260	net/appletalk/sysctl_net_atalk.o.withstatic
+    344	    236	     48	    628	    274	net/appletalk/sysctl_net_atalk.o.withoutstatic
+
+
 
