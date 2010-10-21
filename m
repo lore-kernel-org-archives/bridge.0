@@ -1,12 +1,15 @@
-Date: Wed, 20 Oct 2010 08:38:07 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20101020083807.449c9ae5@nehalam>
-In-Reply-To: <AANLkTinBfvrkb6Oe832h8QFO8B7i4bzdYo9YzsimCrY+@mail.gmail.com>
-References: <AANLkTinBfvrkb6Oe832h8QFO8B7i4bzdYo9YzsimCrY+@mail.gmail.com>
+Date: Thu, 21 Oct 2010 04:29:37 -0700 (PDT)
+Message-Id: <20101021.042937.58434576.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20101018202858.7342f2cb@nehalam>
+References: <20101018093837.26bb149a@nehalam>
+	<1287454175-22903-1-git-send-email-benjamin.poirier@polymtl.ca>
+	<20101018202858.7342f2cb@nehalam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] VLAN traffic through an Ethernet Bridge
+Subject: Re: [Bridge] [PATCH] bridge: Forward reserved group addresses if
+	!STP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,45 +18,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Erik Schweigert <ejschweigert@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@linux-foundation.org
+Cc: eric.dumazet@gmail.com, jpirko@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, herbert@gondor.hengli.com.au, benjamin.poirier@polymtl.ca
 
-On Tue, 19 Oct 2010 10:46:38 -0700
-Erik Schweigert <ejschweigert@gmail.com> wrote:
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Date: Mon, 18 Oct 2010 20:28:58 -0700
 
-> Hello all,
+> On Mon, 18 Oct 2010 22:09:35 -0400
+> Benjamin Poirier <benjamin.poirier@polymtl.ca> wrote:
 > 
-> I have configured a transparent ethernet bridge containing two network
-> interfaces: eth0, eth1 in br0.  IP forwarding is enabled i.e. cat
-> /proc/sys/net/ipv4/ip_forward = 1.
+>> Make all frames sent to reserved group MAC addresses (01:80:c2:00:00:00 to
+>> 01:80:c2:00:00:0f) be forwarded if STP is disabled. This enables
+>> forwarding EAPOL frames, among other things.
+>> 
+>> Signed-off-by: Benjamin Poirier <benjamin.poirier@polymtl.ca>
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-This is irrelevant for bridging. 
-
-
-> All traffic destined through my Linux machine has the 802.1Q tag
-> (VLAN).  However, only ARP with the VLAN tags passes through the
-> machine correctly (100% of the time) and broadcast and multicast
-> appears to work.  It 'seems' IP layer and above is being dropped if it
-> is unicast, or intermittently works ( +/- 1 of 10 ICMP passes
-> through).
-> 
-> All non-VLAN'd traffic passes through my machine flawlessly.
-> 
-> arptables, ebtables, and IPtables are all flushed, so there is no
-> possibility of any traffic being blocked.
-> 
-> Is there a caveat with ethernet bridging that does not permit VLAN'd traffic?
-> 
-> Any help or suggestions is greatly appreciated!
-> 
-> Thanks,
-> 
-> Erik
-
-Missing bits:
-1. Kernel version?
-2. Did you configure vlans on eth0 and eth1? 
-3. Is it an MTU issue? do small packets get through but
-   not largere ones.
-4. What is overall configuration of bridging and ethernets?
-   Did you assign IP address to bridge or the ethernet devices.
+Applied, thanks.
