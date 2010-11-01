@@ -1,9 +1,13 @@
+Message-ID: <4CCEB536.80008@mclink.it>
+Date: Mon, 01 Nov 2010 13:40:22 +0100
+From: Mauro Condarelli <mc5686@mclink.it>
 MIME-Version: 1.0
-Date: Sun, 31 Oct 2010 00:31:11 +0800
-Message-ID: <AANLkTinqo2AXeHMv-p261BJoTGT2Df=zm6uEu+7QYmaH@mail.gmail.com>
-From: Kian Yang Liew <liewkianyang@gmail.com>
-Content-Type: multipart/alternative; boundary=0016364d26cf6247b90493d81a4d
-Subject: [Bridge] DHCP problem on bridge
+References: <4CC69E41.6050205@mclink.it>	<AANLkTi=xHJyMbMqssrSaPabOp9mddGVv15SboU33h10G@mail.gmail.com>
+	<4CCC45E9.7070801@mclink.it> <4CCC9940.8000700@free.fr>
+In-Reply-To: <4CCC9940.8000700@free.fr>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Transparent wired/wirless bridge: is it possible?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,174 +16,86 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
-Cc: Liew Kian Yang <kianyang@agroup.com.my>
+To: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
+Cc: bridge@lists.linux-foundation.org
 
---0016364d26cf6247b90493d81a4d
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-Dear All,
-
-
-
-I have a network with 500 vlan and I bind all these 500 vlan into 1 bridge
-interface. Then I have run a dhcp server on this bridge interface to provid=
-e
-dhcp to all the computer in the vlan. It look find all the time, but
-sometime, some of the computer on vlan will not able to get the ip from dhc=
-p
-server but after I remove the vlan and add back to the bridge it will work
-again. The most serious case is sometime there will be a dhcp problem on
-vlan 1 as well, and I need to reboot the server only can make the service
-back to normal.
-
-
-
-The setting is as below
-
-
-
-
-
-Vconfig add eth1 2
-
-Vconfig add eth1 3
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.vconfig add eth1 500
-
-
-
-Then ifconfig eth1.2 up =85. Ifconfig eth1.500 up
-
-Then brctl addbr br1, brctl addif br1 eth1.2 =85=85. Brctl addif br1 eth1.5=
-00
-
-
-
-Does anyone have face this problem before? Your reply is highly appreciate.
-
-
-
-
-
-Thank you.
-
-
-
-
-
-
-
-Regards,
-
-Kian Yang, Liew
-
---0016364d26cf6247b90493d81a4d
-Content-Type: text/html; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Dear All,</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">I have a network with 500 vlan =
-and I bind
-all these 500 vlan into 1 bridge interface. Then I have run a dhcp server o=
-n
-this bridge interface to provide dhcp to all the computer in the vlan. It l=
-ook
-find all the time, but sometime, some of the computer on vlan will not able=
- to
-get the ip from dhcp server but after I remove the vlan and add back to the
-bridge it will work again. The most serious case is sometime there will be =
-a
-dhcp problem on vlan 1 as well, and I need to reboot the server only can ma=
-ke
-the service back to normal.</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">The setting is as below</span><=
-/p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Vconfig add eth1 2</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Vconfig add eth1 3</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">.</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">.</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">.</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">.</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">.</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">.vconfig add eth1 500</span></p=
+  Il 31/10/2010 00:16, Nicolas de Peslo=FCan ha scritto:
+> Le 30/10/2010 18:20, Mauro Condarelli a =E9crit :
+>>
+>> I tried something like:
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>> auto lo
+>> iface lo inet loopback
+>>
+>> auto wlan2
+>> iface wlan2 inet manual
+>> up /usr/sbin/service hostapd start
+>> up /sbin/ifconfig wlan2 up
+>> down /sbin/ifconfig wlan2 down
+>> down /usr/sbin/service hostapd stop
+>>
+>> auto eth2
+>> iface eth2 inet manual
+>> up /sbin/ifconfig eth2 up
+>> down /sbin/ifconfig eth2 down
+>>
+>> auto br0
+>> iface br0 inet dhcp
+>> bridge_ports eth2 wlan2
+>> bridge_maxwait 0
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>> ... but it does not seem to work as hoped.
 >
+> Consider reading=20
+> http://www.linuxfoundation.org/collaborate/workgroups/networking/bridge, =
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
+> in particular the following sections :
+>
+> - 7.11 What can be bridged?
+> - 7.16 It doesn't work with my Wireless card!
+> - 7.17 I still don't understand!!
+>
+>     Nicolas.
+Thanks for the pointer.
+I assume the short answer (gleamed from the above link) is: "this can't=20
+be done (easily)".
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Then ifconfig eth1.2 up =85. If=
-config
-eth1.500 up</span></p>
+I have it working now without bridges using hostapd, dnsmasq and a=20
+static route in the upstream router (ipfire).
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Then brctl addbr br1, brctl add=
-if br1
-eth1.2 =85=85. Brctl addif br1 eth1.500</span></p>
+This has the (small) drawback I have a second subnet and a largely=20
+useless dnsmaq installed.
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
+My setup is with a separate firewall (ipfire) connected to the Internet;=20
+on the GREEN LAN I have another server with an "Atheros Communications=20
+Inc. AR928X Wireless Network Adapter (PCI-Express) (rev 01)" managed via=20
+ath9k and hostapd.
+On "server" (ubuntu-workstation 10.10; I had some problems convincing=20
+NetworkManager not to meddle with the interfaces) I have:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+auto wlan2
+iface wlan2 inet static
+     address 192.168.2.1
+     netmask 255.255.255.0
+     broadcast 192.168.2.255
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Does anyone have face this prob=
-lem before?
-Your reply is highly appreciate.</span></p>
+auto eth2
+iface eth2 inet dhcp # gets address from ipfire in the range=20
+192.168.1.100-129
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+IPV4 routing is enabled.
+hostapd and dnsmasq are set and configured.
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
+On "ipfire" I have the additional static route
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+route add -net 192.168.2.0/24 gw server
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Thank you.</span></p>
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
+Any comment?
+Can I simplify?
+Is this The Right Way to go?
 
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Regards,</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Kian Yang, Liew</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
-<p class=3D"MsoNormal"><span lang=3D"EN-US">=A0</span></p>
-
---0016364d26cf6247b90493d81a4d--
+Thanks
+Mauro
