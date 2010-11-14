@@ -1,15 +1,12 @@
-Date: Mon, 08 Nov 2010 09:33:12 +0800
-From: Liew Kian Yang <kianyang@agroup.com.my>
-In-reply-to: <20101106212640.6d88c5d3@nehalam>
-Message-id: <035c01cb7ee4$e8b54c30$ba1fe490$@com.my>
-MIME-version: 1.0
-Content-type: text/plain; charset=gb2312
-Content-language: zh-cn
-Content-transfer-encoding: quoted-printable
-References: <AANLkTinqo2AXeHMv-p261BJoTGT2Df=zm6uEu+7QYmaH@mail.gmail.com>
-	<20101106212640.6d88c5d3@nehalam>
-Subject: Re: [Bridge] DHCP problem on bridge
-Reply-To: kianyang@agroup.com.my
+MIME-Version: 1.0
+In-Reply-To: <AANLkTi=uyEveZf7+XLo0+mV48CFjsuzrTmkTi5Xbn_Dr@mail.gmail.com>
+References: <AANLkTi=uyEveZf7+XLo0+mV48CFjsuzrTmkTi5Xbn_Dr@mail.gmail.com>
+Date: Sun, 14 Nov 2010 19:45:31 +0200
+Message-ID: <AANLkTim5+RLN6_R-KhWwvwC2ey3nKuSvR0XFqxJrzyAE@mail.gmail.com>
+From: Kfir Lavi <lavi.kfir@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Testing bridge setup with packet generator and qemu
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,87 +15,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'Stephen Hemminger' <shemminger@linux-foundation.org>, 'Kian Yang Liew' <liewkianyang@gmail.com>
-Cc: bridge@linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-Dear Stephen,=20
+Hi,
+I would like to test a simple bridge setup.
+br0 have eth0 and eth1
+I want to create a fake traffic and see it crossing the bridge.
+My main goal is to write a local script that will run tests locally on
+the ebtables rules as I change them.
+Lets say i'm generating arp packet with nemesis:
+nemesis arp -v -d eth0 -S $SRC -D $DST -h $SRC_MAC -m $DST_MAC # request
+nemesis arp -v -r -d eth0 -S $DST -D $SRC -h $DST_MAC -m $SRC_MAC # reply
 
+This shows on eth0 tcpdump but not on eth1 tcpdump
+Why the bridge doesn't forward to eth1 the arp packets?
 
-Thank you for your information. I will try and let you know the result =
-:)
-
+I have a gentoo rootfs.
+qemu nics are define like this:
+=C2=A0-net nic,model=3Drtl8139,vlan=3D0 -net user,vlan=3D0 \
+=C2=A0-net nic,model=3Drtl8139,vlan=3D1
 
 Regards,
-Kian Yang, Liew
-
------Original Message-----
-From: Stephen Hemminger [mailto:shemminger@linux-foundation.org]=20
-Sent: 2010=C4=EA11=D4=C27=C8=D5 12:27
-To: Kian Yang Liew
-Cc: bridge@linux-foundation.org; Liew Kian Yang
-Subject: Re: [Bridge] DHCP problem on bridge
-
-On Sun, 31 Oct 2010 00:31:11 +0800
-Kian Yang Liew <liewkianyang@gmail.com> wrote:
-
-> Dear All,
->=20
->=20
->=20
-> I have a network with 500 vlan and I bind all these 500 vlan into 1 =
-bridge
-> interface. Then I have run a dhcp server on this bridge interface to
-provide
-> dhcp to all the computer in the vlan. It look find all the time, but
-> sometime, some of the computer on vlan will not able to get the ip =
-from
-dhcp
-> server but after I remove the vlan and add back to the bridge it will =
-work
-> again. The most serious case is sometime there will be a dhcp problem =
-on
-> vlan 1 as well, and I need to reboot the server only can make the =
-service
-> back to normal.
->=20
->=20
->=20
-> The setting is as below
->=20
->=20
->=20
->=20
->=20
-> Vconfig add eth1 2
->=20
-> Vconfig add eth1 3
->=20
-> .
->=20
-> .
->=20
-> .
->=20
-> .
->=20
-> .
->=20
-> .vconfig add eth1 500
->=20
->=20
->=20
-> Then ifconfig eth1.2 up =A1=AD. Ifconfig eth1.500 up
->=20
-> Then brctl addbr br1, brctl addif br1 eth1.2 =A1=AD=A1=AD. Brctl addif =
-br1
-eth1.500
->=20
->=20
->=20
-> Does anyone have face this problem before? Your reply is highly
-appreciate.
->=20
-
-brctl stp br0 off
-brctl setfd br0 0
-
+Kfir
