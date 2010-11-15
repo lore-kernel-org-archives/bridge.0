@@ -1,12 +1,10 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-In-Reply-To: <201011152123.HHB21896.HFOOVSMFOtLJQF@I-love.SAKURA.ne.jp>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 References: <20101114211201.678755903@vyatta.com>
-	<201011152123.HHB21896.HFOOVSMFOtLJQF@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset="utf-8"
-Date: Mon, 15 Nov 2010 14:33:07 +0100
-Message-ID: <1289827987.2607.50.camel@edumazet-laptop>
+In-Reply-To: <20101114211201.678755903@vyatta.com>
+Message-Id: <201011152123.HHB21896.HFOOVSMFOtLJQF@I-love.SAKURA.ne.jp>
+Date: Mon, 15 Nov 2010 21:23:37 +0900
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Subject: Re: [Bridge] [PATCH 0/5] bridge: RCU annotation and cleanup
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -16,65 +14,105 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: shemminger@vyatta.com, davem@davemloft.net, eric.dumazet@gmail.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-Le lundi 15 novembre 2010 à 21:23 +0900, Tetsuo Handa a écrit :
-> Stephen Hemminger wrote:
-> > This is a split up of what Eric did with a couple of small changes and additions.
-> Something seems to be wrong with this patchset.
-> 
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> > @@ -173,8 +177,8 @@ forward:
-> >  	switch (p->state) {
-> >  	case BR_STATE_FORWARDING:
-> >  		rhook = rcu_dereference(br_should_route_hook);
-> > -		if (rhook != NULL) {
-> > -			if (rhook(skb))
-> > +		if (rhook) {
-> > +			if ((*rhook)(skb))
-> 
-> Is *rhook != NULL guaranteed when rhook != NULL?
+Stephen Hemminger wrote:
+> This is a split up of what Eric did with a couple of small changes and additions.
+Something seems to be wrong with this patchset.
 
-Its the C standard convention, we call function pointed by rhook, not
-*rhook.
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+> @@ -173,8 +177,8 @@ forward:
+>  	switch (p->state) {
+>  	case BR_STATE_FORWARDING:
+>  		rhook = rcu_dereference(br_should_route_hook);
+> -		if (rhook != NULL) {
+> -			if (rhook(skb))
+> +		if (rhook) {
+> +			if ((*rhook)(skb))
 
-$ cat func.c
-typedef int (*hook_t)(int a1, int a2);
+Is *rhook != NULL guaranteed when rhook != NULL?
 
-hook_t *hook;
+>  				return skb;
+>  			dest = eth_hdr(skb)->h_dest;
+>  		}
 
-int foo(int a1, int a2)
-{
-hook_t *handler = hook;
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+> @@ -242,7 +242,7 @@ static void br_multicast_flood(struct ne
+>  		if ((unsigned long)lport >= (unsigned long)port)
+>  			p = rcu_dereference(p->next);
+>  		if ((unsigned long)rport >= (unsigned long)port)
+> -			rp = rcu_dereference(rp->next);
+> +			rp = rcu_dereference(hlist_next_rcu(rp->next));
 
-	if (handler)
-		return handler(a1, a2);
-	return 0;
-}
-$ gcc -O2 -c func.c
-func.c: In function ‘foo’:
-func.c:10:17: error: called object ‘handler’ is not a function
+I think this one is hlist_next_rcu(rp).
 
+>  	}
+>  
+>  	if (!prev)
 
-Now, if we use (*handler), it works :
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+> @@ -475,11 +475,8 @@ int br_del_if(struct net_bridge *br, str
+>  {
+>  	struct net_bridge_port *p;
+>  
+> -	if (!br_port_exists(dev))
+> -		return -EINVAL;
+> -
+>  	p = br_port_get(dev);
 
-$ cat func.c
-typedef int (*hook_t)(int a1, int a2);
+Don't you need to use br_port_get_rtnl()?  (I don't know.)
 
-hook_t *hook;
+> -	if (p->br != br)
+> +	if (!p || p->br != br)
+>  		return -EINVAL;
+>  
+>  	del_nbp(p);
 
-int foo(int a1, int a2)
-{
-hook_t *handler = hook;
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+> @@ -169,9 +171,9 @@ static int br_rtm_setlink(struct sk_buff
+>  	if (!dev)
+>  		return -ENODEV;
+>  
+> -	if (!br_port_exists(dev))
+> -		return -EINVAL;
+>  	p = br_port_get(dev);
 
-	if (handler)
-		return (*handler)(a1, a2);
-	return 0;
-}
-$ gcc -O2 -c func.c
-$
+Don't you need to use br_port_get_rtnl()?  (I don't know.)
 
+> +	if (!p)
+> +		return -EINVAL;
+>  
+>  	/* if kernel STP is running, don't allow changes */
+>  	if (p->br->stp_enabled == BR_KERNEL_STP)
 
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+> @@ -151,11 +151,21 @@ struct net_bridge_port
+>  #endif
+>  };
+>  
+> -#define br_port_get_rcu(dev) \
+> -	((struct net_bridge_port *) rcu_dereference(dev->rx_handler_data))
+> -#define br_port_get(dev) ((struct net_bridge_port *) dev->rx_handler_data)
+>  #define br_port_exists(dev) (dev->priv_flags & IFF_BRIDGE_PORT)
+>  
+> +static inline struct net_bridge_port *br_port_get_rcu(const struct net_device *dev)
+> +{
+> +	return br_port_exists(dev) ?
+> +		rcu_dereference(dev->rx_handler_data) : NULL;
+> +}
+> +
+> +static inline struct net_bridge_port *br_port_get(struct net_device *dev)
+> +{
+> +	return br_port_exists(dev) ? dev->rx_handler_data : NULL;
+> +}
+> +
+> +#define br_port_get(dev) ((struct net_bridge_port *) dev->rx_handler_data)
 
+Why are you defining br_port_get() twice, once as macro and once as inlined
+function?
