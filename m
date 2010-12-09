@@ -1,13 +1,13 @@
-Message-ID: <4CF8BB08.7040601@free.fr>
-Date: Fri, 03 Dec 2010 10:40:24 +0100
-From: =?windows-1252?Q?Nicolas_de_Peslo=FCan?=
- <nicolas.2p.debian@free.fr>
+In-Reply-To: 
+References: 
 MIME-Version: 1.0
-References: <DBDEC20E6E29304D8AE5EAA493609B35576467B066@EMBX02-HQ.jnpr.net>
-In-Reply-To: <DBDEC20E6E29304D8AE5EAA493609B35576467B066@EMBX02-HQ.jnpr.net>
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
+From: Pravin Pardeshi <pravin.pardeshi@tcs.com>
+Message-ID: <OFD643E4FF.BA761D6E-ON652577F4.004E3BAB-652577F4.004E3BBA@tcs.com>
+Date: Thu, 9 Dec 2010 19:44:31 +0530
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bridge problem with with ICMP fragment reassembly
+Content-Type: text/html; charset="iso-8859-1"
+Subject: [Bridge] ksoftirqd process
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,54 +16,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Shawn Delaney <sdelaney@juniper.net>
-Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: bridge@lists.linux-foundation.org
 
-Le 02/12/2010 23:19, Shawn Delaney a =E9crit :
-> Hi,
-> I have a bridge (br0) with two enslaved interfaces (int0 and ext0). From
-> the ext0 side, with a windows device, I ping with packet size 1932:
-> ping =96n 1 =96l 1932 10.64.160.94
-> ping request and reply is bridged.
-> Now if I do the same with packet size 1933:
-> ping =96n 1 =96l 1933 10.64.160.94
-> the request never seems to make it to the bridge interface
-> If I sniff the ping from the windows device on the ext0 side, I see two
-> frames sent, request + fragment, as expected.
-> In the working case, if I sniff ext0 on the bridge device I see the same
-> two frames received.
-> In the working case, if I sniff br0 on the bridge I see one frame (I
-> assume the bridge reassembles the request + fragment).
-> In the non working case, if I sniff ext0 on the bridge device I see the
-> same two frames received.
-> In the non working case, if I sniff br0 I see nothing.
-> It seems there is a bug with bridging and reassembly of packets or
-> fragments of a certain size, and am wondering If there is a patch.
-
-Bridges are not expected to change frames in any way. This is not specific =
-to the bridging function=20
-of Linux.
-
-No reassembly occurs at the bridge level. If one host send two frames, the =
-bridge will forward two=20
-frames.
-
-By the way, it means that the MTU for all interfaces of the bridge should b=
-e identical.
-
-	Nicolas.
-
-> The MTU of all interfaces is 1500.
-> I am using connection tracking.
-> The problem is seen on kernels 2.6.11 and 2.6.24
-> Any help would be much appreciated.
-> Regards,
-> Shawn
->
->
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
-
+<FONT face=3D"Default Sans Serif,Verdana,Arial,Helvetica,sans-serif" size=
+=3D2><DIV>Hi,</DIV><DIV>I want to have bridge for two NICs (eth0 and eth1) =
+with&nbsp;Knoppix 6.2 Live CD on virtualbox. I tried the following commands=
+;</DIV><DIV>&nbsp;</DIV><DIV># brctl addbr br0</DIV><DIV># brctl sethello 3=
+0</DIV><DIV># brctl stp br0 off</DIV><DIV>&nbsp;</DIV><DIV># ifconfig eth0 =
+0.0.0.0</DIV><DIV># ifconfig eth1 0.0.0.0<BR></DIV><DIV># ifconfig eth0 dow=
+n</DIV><DIV># ifconfig eth1 down</DIV><DIV>&nbsp;</DIV><DIV># brctl addif b=
+r0 eth0</DIV><DIV># brctl addif br0 eth1</DIV><DIV>&nbsp;</DIV><DIV>After t=
+he addition of&nbsp;eth0 and eth1 to the bridge, the ksoftirq gets kicked o=
+ff and starts consuming CPU. The connection to network is lost. The CPU uti=
+lization never stabilizes even after waiting for 10-15 minutes. Knoppix 6.2=
+ has kernel 2.6.32.6 and bridge-utils is the latest version from debian rep=
+ositories. </DIV><DIV>&nbsp;</DIV><DIV>Firstly,&nbsp;am I missing something=
+?</DIV><DIV>Secondly, is it possible to have a setup I am attempting with t=
+he live cd?&nbsp;</DIV><DIV>&nbsp;</DIV><DIV>Thanks,</DIV><DIV>Pravin</DIV>=
+</FONT><pre style=3D"white-space:normal">=3D=3D=3D=3D=3D-----=3D=3D=3D=3D=
+=3D-----=3D=3D=3D=3D=3D<br>Notice: The information contained in this e-mail=
+<br>message and/or attachments to it may contain <br>confidential or privil=
+eged information. If you are <br>not the intended recipient, any disseminat=
+ion, use, <br>review, distribution, printing or copying of the <br>informat=
+ion contained in this e-mail message <br>and/or attachments to it are stric=
+tly prohibited. If <br>you have received this communication in error, <br>p=
+lease notify us by reply e-mail or telephone and <br>immediately and perman=
+ently delete the message <br>and any attachments. Thank you<br><br><br></pr=
+e>
