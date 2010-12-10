@@ -1,14 +1,11 @@
-Date: Thu, 9 Dec 2010 19:53:20 +0100
 From: Tobias Klauser <tklauser@distanz.ch>
-Message-ID: <20101209185320.GH10190@distanz.ch>
-References: <1291903356-30618-1-git-send-email-tklauser@distanz.ch>
-	<20101209082924.6d797871@nehalam>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Fri, 10 Dec 2010 14:18:04 +0100
+Message-Id: <1291987084-27302-1-git-send-email-tklauser@distanz.ch>
 In-Reply-To: <20101209082924.6d797871@nehalam>
-Subject: Re: [Bridge] [PATCH] bridge: Fix return value of
-	br_multicast_add_group()
+References: <20101209082924.6d797871@nehalam>,
+	<1291903356-30618-1-git-send-email-tklauser@distanz.ch>
+Subject: [Bridge] [PATCH v2] bridge: Fix return values of
+	br_multicast_add_group/br_multicast_new_group
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,46 +14,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
 
-On 2010-12-09 at 17:29:24 +0100, Stephen Hemminger <shemminger@linux-foundation.org> wrote:
-> On Thu,  9 Dec 2010 15:02:36 +0100
-> Tobias Klauser <tklauser@distanz.ch> wrote:
-> 
-> > If br_multicast_new_group returns NULL, we would return 0 (no error) to
-> > the caller, which is not what we want. Instead we should return -ENOMEM
-> > in this case.
-> > 
-> > Also replace IS_ERR(x) || !x by IS_ERR_OR_NULL(x)
-> > 
-> > Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-> > ---
-> >  net/bridge/br_multicast.c |    5 ++++-
-> >  1 files changed, 4 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> > index 326e599..d4e1e81 100644
-> > --- a/net/bridge/br_multicast.c
-> > +++ b/net/bridge/br_multicast.c
-> > @@ -713,8 +713,11 @@ static int br_multicast_add_group(struct net_bridge *br,
-> >  
-> >  	mp = br_multicast_new_group(br, port, group);
-> >  	err = PTR_ERR(mp);
-> > -	if (unlikely(IS_ERR(mp) || !mp))
-> > +	if (IS_ERR_OR_NULL(mp)) {
-> > +		if (!mp)
-> > +			err = -ENOMEM;
-> >  		goto err;
-> > +	}
-> >  
-> >  	if (!port) {
-> >  		hlist_add_head(&mp->mglist, &br->mglist);
-> 
-> I would rather fix br_multicast_new_group so it never returns
-> NULL. Instead return PTR_ERR(-ENOMEM) on out of memory.
+If br_multicast_new_group returns NULL, we would return 0 (no error) to
+the caller of br_multicast_add_group, which is not what we want. Instead
+br_multicast_new_group should return ERR_PTR(-ENOMEM) in this case.
+Also propagate the error number returned by br_mdb_rehash properly.
 
-Ok, I'll change that and send an updated patch.
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+ net/bridge/br_multicast.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-Thanks a lot
-Tobias
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 326e599..85a0398 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -654,11 +654,13 @@ static struct net_bridge_mdb_entry *br_multicast_new_group(
+ 	struct net_bridge_mdb_htable *mdb;
+ 	struct net_bridge_mdb_entry *mp;
+ 	int hash;
++	int err;
+ 
+ 	mdb = rcu_dereference_protected(br->mdb, 1);
+ 	if (!mdb) {
+-		if (br_mdb_rehash(&br->mdb, BR_HASH_SIZE, 0))
+-			return NULL;
++		err = br_mdb_rehash(&br->mdb, BR_HASH_SIZE, 0);
++		if (err)
++			return ERR_PTR(err);
+ 		goto rehash;
+ 	}
+ 
+@@ -680,7 +682,7 @@ rehash:
+ 
+ 	mp = kzalloc(sizeof(*mp), GFP_ATOMIC);
+ 	if (unlikely(!mp))
+-		goto out;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	mp->br = br;
+ 	mp->addr = *group;
+@@ -713,7 +715,7 @@ static int br_multicast_add_group(struct net_bridge *br,
+ 
+ 	mp = br_multicast_new_group(br, port, group);
+ 	err = PTR_ERR(mp);
+-	if (unlikely(IS_ERR(mp) || !mp))
++	if (IS_ERR(mp))
+ 		goto err;
+ 
+ 	if (!port) {
+-- 
+1.7.0.4
+
