@@ -1,14 +1,11 @@
-Date: Mon, 20 Dec 2010 15:15:45 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20101220151545.180b757b@nehalam>
-In-Reply-To: <4D0FB6AC.2020901@wanadoo.nl>
-References: <4D0E868E.4010309@wanadoo.nl> <20101220103754.7d18de50@s6510>
-	<4D0FB6AC.2020901@wanadoo.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <4D0E845B.60203@online.nl>
+Date: Sun, 19 Dec 2010 23:16:59 +0100
+From: Rolf Fokkens <rolf.fokkens@online.nl>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="------------090706090003080702050803"
 Subject: Re: [Bridge] Why should static MAC address match one of the port
- MAC addresses - bug?
+	MAC addresses.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,134 +14,170 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Rolf Fokkens <rolf.fokkens@wanadoo.nl>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Mon, 20 Dec 2010 21:03:56 +0100
-Rolf Fokkens <rolf.fokkens@wanadoo.nl> wrote:
+This is a multi-part message in MIME format.
+--------------090706090003080702050803
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hi,
-> 
-> I think that the bridge interface no longer sees unicast messages 
-> addressed to it, after changing the MAC address. I'll explain:
-> 
-> I chose a different MAC address, 02:77:00:00:01:02. This MAC address is 
-> absolutely not present on another interface. The MAC address of the 
-> Windows XP client is 02:00:00:00:00:01. The bridge interface br2 now 
-> only has one interface tap0 which links to the Windows XP client.
-> 
-> [root@home01 ~]# brctl show
-> bridge name    bridge id        STP enabled    interfaces
-> br0        8000.002215b81084    no        eth0.3
-> br1        8000.002215b81084    no        eth0.4
-> br2        8000.027700000102    no        tap0
-> br3        8000.002215b81084    no        eth0.1253
-> 
-> The IP address of the Windows XP guest is 192.168.252.1, the IP address 
-> of the bridge interface is 192.168.252.254, which is the default gateway 
-> address of the Windows XP guest.
-> 
-> Now let's look at the ARP entries. First the Windows XP guest:
-> 
-> C:\>arp -a
-> 
-> Interface 192.168.252.1 --- 0x2
->    Internet Address   Physical Address      Type
->    192.168.252.254   02-77-00-00-01-02   dynamic
-> 
-> Next on the Linux host:
-> 
-> [root@home01 ~]# arp -n
-> Address                  HWtype  HWaddress           Flags 
-> Mask            Iface
-> 192.168.254.7            ether   00:18:f3:fd:09:7a   
-> C                     br1
-> 192.168.254.18           ether   00:16:e8:29:bc:e3   
-> C                     br1
-> 192.168.1.1              ether   00:0e:50:64:7f:74   
-> C                     br0
-> 192.168.254.16           ether   90:84:0d:6f:26:1c   
-> C                     br1
-> 192.168.1.128            ether   00:21:85:98:45:84   
-> C                     br0
-> 192.168.252.1                    
-> (incomplete)                              br2
-> 192.168.254.9            ether   18:a9:05:39:14:95   
-> C                     br1
-> [root@home01 ~]#
-> 
-> So now we see that the Windows XP guest is aware of the new MAC address 
-> of the bridge. However the Linux host is not aware of the guest's MAC 
-> address! Time to see what's happening when we use tcpdump:
-> 
-> [root@home01 ~]# tcpdump -n -e -i tap0 arp
-> tcpdump: WARNING: tap0: no IPv4 address assigned
-> tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-> listening on tap0, link-type EN10MB (Ethernet), capture size 65535 bytes
-> 
-> 20:42:23.606319 02:00:00:00:00:01 > Broadcast, ethertype ARP (0x0806), 
-> length 42: Request who-has 192.168.252.254 tell 192.168.252.1, length 28
-> 20:42:23.606359 02:77:00:00:01:02 > 02:00:00:00:00:01, ethertype ARP 
-> (0x0806), length 42: Reply 192.168.252.254 is-at 02:77:00:00:01:02, 
-> length 28
-> 
-> 20:47:42.503536 02:77:00:00:01:02 > Broadcast, ethertype ARP (0x0806), 
-> length 42: Request who-has 192.168.252.1 tell 192.168.252.254, length 28
-> 20:47:42.504039 02:00:00:00:00:01 > 02:77:00:00:01:02, ethertype ARP 
-> (0x0806), length 42: Reply 192.168.252.1 is-at 02:00:00:00:00:01, length 28
-> 20:47:43.505541 02:77:00:00:01:02 > Broadcast, ethertype ARP (0x0806), 
-> length 42: Request who-has 192.168.252.1 tell 192.168.252.254, length 28
-> 20:47:43.506316 02:00:00:00:00:01 > 02:77:00:00:01:02, ethertype ARP 
-> (0x0806), length 42: Reply 192.168.252.1 is-at 02:00:00:00:00:01, length 28
-> 20:47:44.507539 02:77:00:00:01:02 > Broadcast, ethertype ARP (0x0806), 
-> length 42: Request who-has 192.168.252.1 tell 192.168.252.254, length 28
-> 20:47:44.508319 02:00:00:00:00:01 > 02:77:00:00:01:02, ethertype ARP 
-> (0x0806), length 42: Reply 192.168.252.1 is-at 02:00:00:00:00:01, length 28
-> 
-> First we see an ARP request from the Windows XP guest to find the host's 
-> 192.168.252.254. There is a fast ARP response, so this is consistent 
-> with the ARP table on the Windows XP guest.
-> 
-> Next we see an ARP request from the Linux host to find the guest's 
-> 192.168.252.1. This is followed by a fast ARP response. Despite the 
-> response both the request and the response are repeated 3 times. This is 
-> consistent with the fact that the ARP table on the Linux host is missing 
-> the guest's MAC address.
-> 
-> So, apparently both interfaces (br2 and tap0) see the ethernet 
-> broadcast, but only the guest's interface (tap0) sees the unicast. This 
-> is confirmed by brctl's output:
-> 
-> [root@home01 ~]# brctl showmacs br2
-> port no mac addr           is local? ageing timer
->    1     02:00:00:00:00:01  no        5.38
->    1     82:7a:bf:ee:e8:5e  yes       0.00
-> [root@home01 ~]#
-> 
-> We see two interresting MAC addresses. the first one is the MAC address 
-> of the Windows XP guest, which indeed is not local. The second one is 
-> the MAC address of the tap0 interface on the host side, which apparently 
-> is local. But where's the mac address of br0 itself? It's missing.
-> 
-> This seems unintentional to me.
-> 
-> Rolf
-> 
-> On 12/20/2010 07:37 PM, Stephen Hemminger wrote:
-> > The address you change the address, it is like you changed the MAC address
-> > of a card on the network. Windows ARP cache is no longer valid and has
-> > to time out.
-> >
-> >
-> 
+Hi all,
 
-Yes, that is a problem.
-If address does not match any of the interfaces assigned to bridge,
-then it won't be in the forwarding table.
+I'm having the problem Michiel describes as well. I have a bridge br2 
+containing 1 (but potentially more) tap interface for kvm. Windows 7 VM 
+doesn't like the bridge mac address to change, so I try to make it fixed.
 
-But, fixing it would introduce more issues because the forwarding
-table entry would match any port in bridge..  Therefore for sanity,
-don't assign mac address to something not in the bridge.
+ifconfig br2 hw ether 02:00:00:00:01:02
+
+Interface br2 becomes instantly unreachable from the VM (via the tap 
+interface).
+
+So, Michiel's claim still seems to be true: the bridge mac address 
+should apparently be one of the bridge interfaces.
+
+I don't see the logic, this seems like a bug to me.
+
+Cheers,
+
+Rolf
+
+------------------------------------------------------------------------
+
+    * /To/: Michel Lammertink <mlammertink@xxxxxxxxx
+      <mailto:mlammertink@DOMAIN.HIDDEN>>
+    * /Subject/: Re: Why should static MAC address match one of the port
+      MAC addresses.
+    * /From/: Stephen Hemminger <shemminger@xxxxxxxxxxxxxxxxxxxx
+      <mailto:shemminger@DOMAIN.HIDDEN>>
+    * /Date/: Tue, 12 Oct 2010 09:44:08 -0700
+    * /Cc/: bridge@xxxxxxxxxxxxxxxxxxxxxxxxxx <mailto:bridge@DOMAIN.HIDDEN>
+    * /In-reply-to/: <4CB46549.2070901@xxxxxxxxx
+      <mailto:4CB46549.2070901@DOMAIN.HIDDEN>>
+    * /Organization/: Linux Foundation
+    * /References/: <4CB46549.2070901@xxxxxxxxx
+      <mailto:4CB46549.2070901@DOMAIN.HIDDEN>>
+
+------------------------------------------------------------------------
+
+On Tue, 12 Oct 2010 15:40:25 +0200 Michel Lammertink<mlammertink@xxxxxxxxx>  wrote:
+
+>/  Hi all,/
+>/  /
+>/  I've read many messages on this mailing list with the question about/
+>/  setting a static MAC address on the bridge interface, but two questions/
+>/  remain:/
+>/  /
+>/   1. Why should the MAC address of the bridge match the address of one of/
+>/  its interfaces? Setting the MAC address to a different value does not/
+>/  generate an error, but the bridge is not working properly (Local data/
+>/  does not arrive)./
+
+No longer a requirement. It was just a good way to ensure a good
+address that was unique, and not being used by other systems.
+
+>/   2. Why does the bridge by default choose the "lowest" MAC address,/
+>/  instead of the MAC address of the first port added, as is proposed by/
+>/  the standard [1]?/
+
+It was a convenience in original design to choose a consistent value.
+Since ports can be added in any order, using the lowest seemed like
+a good idea for the original author. This has been maintained for
+backwards compatibility.
+
+>/  [1] IEEE802.1D, Par. 7.12.5./
+>/      Quote: "The Bridge Address may be the individual MAC Address of a/
+>/  Bridge Port, in which case, use of the address of the lowest numbered/
+>/  Bridge Port (Port 1) is recommended."/
+>/  /
+>/  Thanks in advance,/
+>/  /
+>/  Michel./
 
 
--- 
+--------------090706090003080702050803
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body text="#000000" bgcolor="#ffffff">
+    Hi all,<br>
+    <br>
+    I'm having the problem Michiel describes as well. I have a bridge
+    br2 containing 1 (but potentially more) tap interface for kvm.
+    Windows 7 VM doesn't like the bridge mac address to change, so I try
+    to make it fixed.<br>
+    <br>
+    <tt>ifconfig br2 hw ether 02:00:00:00:01:02</tt><br>
+    <br>
+    Interface br2 becomes instantly unreachable from the VM (via the tap
+    interface).<br>
+    <br>
+    So, Michiel's claim still seems to be true: the bridge mac address
+    should apparently be one of the bridge interfaces.<br>
+    <br>
+    I don't see the logic, this seems like a bug to me.<br>
+    <br>
+    Cheers,<br>
+    <br>
+    Rolf<br>
+    <br>
+    <hr>
+    <ul>
+      <li><em>To</em>: Michel Lammertink &lt;<a
+          href="mailto:mlammertink@DOMAIN.HIDDEN">mlammertink@xxxxxxxxx</a>&gt;</li>
+      <li><em>Subject</em>: Re: Why should static MAC address match one
+        of the port MAC addresses.</li>
+      <li><em>From</em>: Stephen Hemminger &lt;<a
+          href="mailto:shemminger@DOMAIN.HIDDEN">shemminger@xxxxxxxxxxxxxxxxxxxx</a>&gt;</li>
+      <li><em>Date</em>: Tue, 12 Oct 2010 09:44:08 -0700</li>
+      <li><em>Cc</em>: <a href="mailto:bridge@DOMAIN.HIDDEN">bridge@xxxxxxxxxxxxxxxxxxxxxxxxxx</a></li>
+      <li><em>In-reply-to</em>: &lt;<a
+          href="mailto:4CB46549.2070901@DOMAIN.HIDDEN">4CB46549.2070901@xxxxxxxxx</a>&gt;</li>
+      <li><em>Organization</em>: Linux Foundation</li>
+      <li><em>References</em>: &lt;<a
+          href="mailto:4CB46549.2070901@DOMAIN.HIDDEN">4CB46549.2070901@xxxxxxxxx</a>&gt;</li>
+    </ul>
+    <hr>
+    <pre>On Tue, 12 Oct 2010 15:40:25 +0200 Michel Lammertink &lt;mlammertink@xxxxxxxxx&gt; wrote:
+
+&gt;<i> Hi all,</i>
+&gt;<i> </i>
+&gt;<i> I've read many messages on this mailing list with the question about</i>
+&gt;<i> setting a static MAC address on the bridge interface, but two questions</i>
+&gt;<i> remain:</i>
+&gt;<i> </i>
+&gt;<i>  1. Why should the MAC address of the bridge match the address of one of</i>
+&gt;<i> its interfaces? Setting the MAC address to a different value does not</i>
+&gt;<i> generate an error, but the bridge is not working properly (Local data</i>
+&gt;<i> does not arrive).</i>
+
+No longer a requirement. It was just a good way to ensure a good
+address that was unique, and not being used by other systems.
+
+&gt;<i>  2. Why does the bridge by default choose the "lowest" MAC address,</i>
+&gt;<i> instead of the MAC address of the first port added, as is proposed by</i>
+&gt;<i> the standard [1]?</i>
+
+It was a convenience in original design to choose a consistent value.
+Since ports can be added in any order, using the lowest seemed like
+a good idea for the original author. This has been maintained for
+backwards compatibility.
+
+&gt;<i> [1] IEEE802.1D, Par. 7.12.5.</i>
+&gt;<i>     Quote: "The Bridge Address may be the individual MAC Address of a</i>
+&gt;<i> Bridge Port, in which case, use of the address of the lowest numbered</i>
+&gt;<i> Bridge Port (Port 1) is recommended."</i>
+&gt;<i> </i>
+&gt;<i> Thanks in advance,</i>
+&gt;<i> </i>
+&gt;<i> Michel.</i>
+</pre>
+  </body>
+</html>
+
+--------------090706090003080702050803--
