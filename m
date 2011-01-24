@@ -1,9 +1,12 @@
+Message-ID: <4D3DCECD.5020708@ll.mit.edu>
+Date: Mon, 24 Jan 2011 14:11:09 -0500
+From: Jeff Mitchell <jmitchell@ll.mit.edu>
 MIME-Version: 1.0
-Date: Mon, 24 Jan 2011 16:39:36 +0530
-Message-ID: <AANLkTino80E7X6acYGP66odXETYkKpTh-0qqVfm3R6jF@mail.gmail.com>
-From: Sinbad <sinbad.sinbad@gmail.com>
-Content-Type: multipart/alternative; boundary=90e6ba6e8ccca4e640049a95a2ec
-Subject: [Bridge] svi interface
+References: <AANLkTino80E7X6acYGP66odXETYkKpTh-0qqVfm3R6jF@mail.gmail.com>
+In-Reply-To: <AANLkTino80E7X6acYGP66odXETYkKpTh-0qqVfm3R6jF@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] svi interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,25 +15,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.linux-foundation.org
 
---90e6ba6e8ccca4e640049a95a2ec
-Content-Type: text/plain; charset=ISO-8859-1
+On 01/24/2011 06:09 AM, Sinbad wrote:
+> hi,
+>
+> i have couple of questions on svi's.
+> what is svi. why should one configure it.
+> what is the purpose of assigning ip address
+> on svi's. on what ports does the egress data
+> be sent.
 
-hi,
+http://lmgtfy.com/?q=svi
 
-i have couple of questions on svi's.
-what is svi. why should one configure it.
-what is the purpose of assigning ip address
-on svi's. on what ports does the egress data
-be sent.
-
-thanks
-
---90e6ba6e8ccca4e640049a95a2ec
-Content-Type: text/html; charset=ISO-8859-1
-
-hi,<br><br>i have couple of questions on svi&#39;s.<br>what is svi. why should one configure it.<br>what is the purpose of assigning ip address<br>on svi&#39;s. on what ports does the egress data <br>be sent.<br><br>thanks<br>
-<br>
-
---90e6ba6e8ccca4e640049a95a2ec--
