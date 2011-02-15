@@ -1,12 +1,13 @@
-Message-ID: <4D594F47.8070500@trash.net>
-Date: Mon, 14 Feb 2011 16:50:31 +0100
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
-References: <1297680875-11663-1-git-send-email-segoon@openwall.com>
-In-Reply-To: <1297680875-11663-1-git-send-email-segoon@openwall.com>
-Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 15 Feb 2011 08:03:34 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20110215080334.1fbc5357@nehalam>
+In-Reply-To: <OF0ED85024.3389DB4D-ON8525782D.0054FDD2-8525782D.00597D7B@us.ibm.com>
+References: <OF0ED85024.3389DB4D-ON8525782D.0054FDD2-8525782D.00597D7B@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: netfilter: fix information leak
+Subject: Re: [Bridge] Problem configuring bridge as a hub between host
+ server and running VM guest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,16 +16,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vasiliy Kulikov <segoon@openwall.com>
-Cc: security@kernel.org, bridge@lists.linux-foundation.org, coreteam@netfilter.org, netdev@vger.kernel.org, ebtables-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, ebtables-devel@lists.sourceforge.net, Bart De Schuymer <bart.de.schuymer@pandora.be>, netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Ravi Varun Nair <rvnair@us.ibm.com>
+Cc: bridge@lists.linux-foundation.org
 
-Am 14.02.2011 11:54, schrieb Vasiliy Kulikov:
-> Struct tmp is copied from userspace.  It is not checked whether the "name"
-> field is NULL terminated.  This may lead to buffer overflow and passing
-> contents of kernel stack as a module name to try_then_request_module() and,
-> consequently, to modprobe commandline.  It would be seen by all userspace
-> processes.
-> 
-> Signed-off-by: Vasiliy Kulikov <segoon@openwall.com>
+On Fri, 4 Feb 2011 11:17:29 -0500
+Ravi Varun Nair <rvnair@us.ibm.com> wrote:
 
-Applied, thanks Vasiliy.
+> What I am trying to do is have a copy of all the traffic coming in on the 
+> physical interface be given to the VM. T
+
+A better way is to use tc mirred action to mirror packets to a dummy or other
+interface.
+
+-- 
