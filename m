@@ -1,14 +1,11 @@
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Wed, 16 Feb 2011 00:19:18 +0100
-Message-Id: <1297811961-19249-3-git-send-email-linus.luessing@web.de>
-In-Reply-To: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
-References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
+Date: Wed, 16 Feb 2011 00:19:16 +0100
+Message-Id: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linus.luessing@web.de
-Subject: [Bridge] [PATCH 2/5] bridge: Fix IPv6 multicast snooping by
-	correcting offset in MLDv2 report
+Subject: [Bridge] Multicast snooping fixes and suggestions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,32 +15,25 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
 
-We actually want a pointer to the grec_nsrcr and not the following
-field. Otherwise we can get very high values for *nsrcs as the first two
-bytes of the IPv6 multicast address are being used instead, leading to
-a failing pskb_may_pull() which results in MLDv2 reports not being
-parsed.
+Hello everyone,
 
-Signed-off-by: Linus Lüssing <linus.luessing@web.de>
----
- net/bridge/br_multicast.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+While testing the (very awesome!) bridge igmp/mld snooping support I came across
+two issues which are breaking IPv6 multicast snooping and IPv6
+non-link-local multicast on bridges with multicast snooping support enabled
+in general. The first two patches shall fix these issues.
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 135d929..45dcf10 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1014,7 +1014,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
- 
- 		nsrcs = skb_header_pointer(skb,
- 					   len + offsetof(struct mld2_grec,
--							  grec_mca),
-+							  grec_nsrcs),
- 					   sizeof(_nsrcs), &_nsrcs);
- 		if (!nsrcs)
- 			return -EINVAL;
--- 
-1.7.2.3
+The third one addresses a potential bug on little endian machines which I noticed
+during this little code reviewing. This patch is untested though, feedback welcome.
 
+The fourth and fifth patch are a suggestion to also permit using the bridge multicast
+snooping feature for link local multimedia multicast traffic. Therefore
+using the transient multicast flag instead of the non-link-local scope criteria
+seems to be a suitable solution at least for IPv6, in my opinion. Let me know what
+you think about it.
+
+Thanks for reviewing these patches.
+
+Cheers,
+Linus
