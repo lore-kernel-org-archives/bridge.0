@@ -1,13 +1,12 @@
-Date: Tue, 15 Feb 2011 10:25:38 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20110215102538.5f24d62a@nehalam>
-In-Reply-To: <20110209181752.GA2042@darkmag.usersys.redhat.com>
-References: <20110209181752.GA2042@darkmag.usersys.redhat.com>
+Date: Tue, 15 Feb 2011 15:41:28 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20110215154128.2a28632c@nehalam>
+In-Reply-To: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
+References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] mac addresses of local interfaces do not obey
-	setageing 0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Multicast snooping fixes and suggestions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,55 +15,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Veaceslav Falico <vfalico@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Linus =?ISO-8859-1?B?TPxzc2luZw==?= <linus.luessing@web.de>, Herbert Xu <herbert@gondor.hengli.com.au>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 
-On Wed, 9 Feb 2011 19:17:52 +0100
-Veaceslav Falico <vfalico@redhat.com> wrote:
+On Wed, 16 Feb 2011 00:19:16 +0100
+Linus L=FCssing <linus.luessing@web.de> wrote:
 
-> Hello,
-> 
-> I have a host and a VM inside this host bridged. I've set ageing_time and
-> forward_delay to 0 and trying to capture all the traffic that goes through that
-> bridge from my VM, but it fails to capture the traffic that has dst ether
-> address the same as the hosts address (i.e. I can't capture the traffic to the
-> host).
-> 
-> From the code, I see that br->ageing_time doesn't really work with local mac
-> addresses - has_expired() function never says that a local interface mac address
-> is expired, because it verifies if fdb->is_static is set and returns right away.
-> 
-> Is this the desired behaviour? If so, is there a way to capture packets with
-> destination to a local interface from another interface?
-> 
-> I've also done a small patch and it seems to fix the situation, but I am not
-> sure if it's the right way to do it.
-> 
-> 
-> Regards,
-> Veaceslav
-> 
-> ---
->  net/bridge/br_fdb.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 88485cc..3d380c2 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -61,8 +61,8 @@ static inline unsigned long hold_time(const struct net_bridge *br)
->  static inline int has_expired(const struct net_bridge *br,
->  				  const struct net_bridge_fdb_entry *fdb)
->  {
-> -	return !fdb->is_static &&
-> -		time_before_eq(fdb->ageing_timer + hold_time(br), jiffies);
-> +	return (br->ageing_time == 0) || (!fdb->is_static &&
-> +		time_before_eq(fdb->ageing_timer + hold_time(br), jiffies));
->  }
->  
+> Hello everyone,
+>=20
+> While testing the (very awesome!) bridge igmp/mld snooping support I came=
+ across
+> two issues which are breaking IPv6 multicast snooping and IPv6
+> non-link-local multicast on bridges with multicast snooping support enabl=
+ed
+> in general. The first two patches shall fix these issues.
+>=20
+> The third one addresses a potential bug on little endian machines which I=
+ noticed
+> during this little code reviewing. This patch is untested though, feedbac=
+k welcome.
+>=20
+> The fourth and fifth patch are a suggestion to also permit using the brid=
+ge multicast
+> snooping feature for link local multimedia multicast traffic. Therefore
+> using the transient multicast flag instead of the non-link-local scope cr=
+iteria
+> seems to be a suitable solution at least for IPv6, in my opinion. Let me =
+know what
+> you think about it.
+>=20
+> Thanks for reviewing these patches.
+>=20
+> Cheers,
+> Linus
 
-No.
-Local addresses should never age.
-
-The proper way to capture packet is to us AF_PACKET or tc actions.
--- 
+These look correct. Did you test them with real traffic?
