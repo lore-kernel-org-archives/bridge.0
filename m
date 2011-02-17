@@ -1,15 +1,13 @@
-Date: Thu, 17 Feb 2011 10:56:07 +0100
-From: David Lamparter <equinox@diac24.net>
-Message-ID: <20110217095607.GA1739639@jupiter.n2.diac24.net>
-References: <20110209181752.GA2042@darkmag.usersys.redhat.com>
-	<20110215102538.5f24d62a@nehalam>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Thu, 17 Feb 2011 19:17:50 +0100
+Message-Id: <1297966672-3457-1-git-send-email-linus.luessing@web.de>
+In-Reply-To: <20110215154128.2a28632c@nehalam>
+References: <20110215154128.2a28632c@nehalam>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-In-Reply-To: <20110215102538.5f24d62a@nehalam>
-Subject: Re: [Bridge] mac addresses of local interfaces do not obey
-	setageing 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: linus.luessing@web.de
+Subject: Re: [Bridge] Multicast snooping fixes and suggestions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,73 +16,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Veaceslav Falico <vfalico@redhat.com>
-Cc: netdev@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org
+Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
+
+> These look correct. Did you test them with real traffic?
+
+Yes, I did. With these patches the hashlist and linked lists per port
+are being filled correctly for IPv6 - initially. Verified that with
+both some printk()s for the per port mglists as well as with vlc. With
+patch 5/5 this also worked fine with transient link local addresses,
+verified that with 'vlc -vvv "udp://@[ff12::123%eth1]"' on a device
+connected to the other one with the bridge and could stream
+a video as expected with no multicast traffic on any other bridge port.
+
+However, the MLD queries are/were still broken, the queries initiated
+by the bridge device do not get a response from the multicast listeners.
+The following additional, attached patches fix this issue.
 
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Last but not least, there are still a couple of bugs I could observe:
+- I have attached a laptop with two interfaces with a multicast listener
+  each to another PC playing with the bridge device. With the fixes
+  below, the laptop sends a multicast listener report to the other PC
+  on each interface, however these reports' IPv6 header's source addresses
+  seem to be a random one from any of the laptop's two interfaces'
+  link local addresses (which has to be a bug in the IPv6 code, as
+  this one is generating the reports and not the bridge code) as long
+  as it matches the selected multicast address (which was ff12::123 in
+  this case).
+- If there is no multicast listener present, then the multicast packets
+  get flooded on all bridge ports.
 
-On Tue, Feb 15, 2011 at 10:25:38AM -0800, Stephen Hemminger wrote:
-> On Wed, 9 Feb 2011 19:17:52 +0100
-> Veaceslav Falico <vfalico@redhat.com> wrote:
->=20
-> > Hello,
-> >=20
-> > I have a host and a VM inside this host bridged. I've set ageing_time a=
-nd
-> > forward_delay to 0 and trying to capture all the traffic that goes thro=
-ugh that
-> > bridge from my VM, but it fails to capture the traffic that has dst eth=
-er
-> > address the same as the hosts address (i.e. I can't capture the traffic=
- to the
-> > host).
-> >=20
-> > From the code, I see that br->ageing_time doesn't really work with loca=
-l mac
-> > addresses - has_expired() function never says that a local interface ma=
-c address
-> > is expired, because it verifies if fdb->is_static is set and returns ri=
-ght away.
-> >=20
-> > Is this the desired behaviour? If so, is there a way to capture packets=
- with
-> > destination to a local interface from another interface?
-> >=20
-> > I've also done a small patch and it seems to fix the situation, but I a=
-m not
-> > sure if it's the right way to do it.
->=20
-> No.
-> Local addresses should never age.
->=20
-> The proper way to capture packet is to us AF_PACKET or tc actions.
+And two issues with a little lower priority, I suppose:
+- Packets do not get delivered to the bridge interface itself when
+  a multicast listener has been started on this bridge interface
+  (might be related to http://www.spinics.net/lists/linux-net/msg17556.html,
+  so possibly a bug in the IPv6 code again).
+~ Quitting of a multicast listener with a MLDv2 message is interpreted as
+  a join, resulting in relatively long timeouts - but this MLDv1
+  interpretation of MLDv2 messages seems to be intended so far due to its
+  simplicity according to the comment in the code.
 
-If you really want to use a bridge for this kind of traffic capturing,
-you can attach one side of a veth pair as third interface to the bridge,
-clear off all the mac addresses (and have no higher-layer addresses on
-the bridge either) and use the other side of the veth pair for your
-host. Since the "far" side of the veth is not on the bridge, the bridge
-will not treat its address any special.
+Cheers, Linus
 
-(This is somewhat of a funny hack though. Use AF_PACKET really...)
-
-
--David
-
-
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iEYEARECAAYFAk1c8LcACgkQpfBGV6DCGYbD8gCfdPou+1n+noRNtwDGaevH7ita
-M1sAnAnrbzQo6/mxc/4G64BCq0RCxcJX
-=e4D+
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
