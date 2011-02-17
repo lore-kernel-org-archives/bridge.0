@@ -1,13 +1,14 @@
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Thu, 17 Feb 2011 19:17:50 +0100
-Message-Id: <1297966672-3457-1-git-send-email-linus.luessing@web.de>
+Date: Thu, 17 Feb 2011 19:17:52 +0100
+Message-Id: <1297966672-3457-3-git-send-email-linus.luessing@web.de>
 In-Reply-To: <20110215154128.2a28632c@nehalam>
 References: <20110215154128.2a28632c@nehalam>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linus.luessing@web.de
-Subject: Re: [Bridge] Multicast snooping fixes and suggestions
+Subject: [Bridge] [PATCH 2/2] bridge: Use IPv6 link-local address for
+	multicast listener queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,45 +18,41 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org
-Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
+Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>
 
-> These look correct. Did you test them with real traffic?
+Currently the bridge multicast snooping feature periodically issues
+IPv6 general multicast listener queries to sense the absence of a
+listener.
 
-Yes, I did. With these patches the hashlist and linked lists per port
-are being filled correctly for IPv6 - initially. Verified that with
-both some printk()s for the per port mglists as well as with vlc. With
-patch 5/5 this also worked fine with transient link local addresses,
-verified that with 'vlc -vvv "udp://@[ff12::123%eth1]"' on a device
-connected to the other one with the bridge and could stream
-a video as expected with no multicast traffic on any other bridge port.
+For this, it uses :: as its source address - however RFC 2710 requires:
+"To be valid, the Query message MUST come from a link-local IPv6 Source
+Address". Current Linux kernel versions seem to follow this requirement
+and ignore our bogus MLD queries.
 
-However, the MLD queries are/were still broken, the queries initiated
-by the bridge device do not get a response from the multicast listeners.
-The following additional, attached patches fix this issue.
+With this commit a link local address from the bridge interface is being
+used to issue the MLD query, resulting in other Linux devices which are
+multicast listeners in the network to respond with a MLD response (which
+was not the case before).
 
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_multicast.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Last but not least, there are still a couple of bugs I could observe:
-- I have attached a laptop with two interfaces with a multicast listener
-  each to another PC playing with the bridge device. With the fixes
-  below, the laptop sends a multicast listener report to the other PC
-  on each interface, however these reports' IPv6 header's source addresses
-  seem to be a random one from any of the laptop's two interfaces'
-  link local addresses (which has to be a bug in the IPv6 code, as
-  this one is generating the reports and not the bridge code) as long
-  as it matches the selected multicast address (which was ff12::123 in
-  this case).
-- If there is no multicast listener present, then the multicast packets
-  get flooded on all bridge ports.
-
-And two issues with a little lower priority, I suppose:
-- Packets do not get delivered to the bridge interface itself when
-  a multicast listener has been started on this bridge interface
-  (might be related to http://www.spinics.net/lists/linux-net/msg17556.html,
-  so possibly a bug in the IPv6 code again).
-~ Quitting of a multicast listener with a MLDv2 message is interpreted as
-  a join, resulting in relatively long timeouts - but this MLDv1
-  interpretation of MLDv2 messages seems to be intended so far due to its
-  simplicity according to the comment in the code.
-
-Cheers, Linus
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index f904a2e..2d88861 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -446,7 +446,8 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge *br,
+ 	ip6h->payload_len = htons(8 + sizeof(*mldq));
+ 	ip6h->nexthdr = IPPROTO_HOPOPTS;
+ 	ip6h->hop_limit = 1;
+-	ipv6_addr_set(&ip6h->saddr, 0, 0, 0, 0);
++	ipv6_dev_get_saddr(dev_net(br->dev), br->dev, &ip6h->daddr, 0,
++			   &ip6h->saddr);
+ 	ipv6_addr_set(&ip6h->daddr, htonl(0xff020000), 0, 0, htonl(1));
+ 	ipv6_eth_mc_map(&ip6h->daddr, eth->h_dest);
+ 
+-- 
+1.7.2.3
 
