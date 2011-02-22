@@ -1,12 +1,14 @@
-Date: Tue, 22 Feb 2011 10:08:06 -0800 (PST)
-Message-Id: <20110222.100806.71122067.davem@davemloft.net>
+Date: Tue, 22 Feb 2011 10:08:23 -0800 (PST)
+Message-Id: <20110222.100823.189696335.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
-References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
+In-Reply-To: <1297966672-3457-3-git-send-email-linus.luessing@web.de>
+References: <20110215154128.2a28632c@nehalam>
+	<1297966672-3457-3-git-send-email-linus.luessing@web.de>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] Multicast snooping fixes and suggestions
+Subject: Re: [Bridge] [PATCH 2/2] bridge: Use IPv6 link-local address for
+ multicast listener queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,36 +18,34 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: linus.luessing@web.de
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, herbert@gondor.hengli.com.au
+Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, herbert@gondor.hengli.com.au
 
 From: Linus L=FCssing <linus.luessing@web.de>
-Date: Wed, 16 Feb 2011 00:19:16 +0100
+Date: Thu, 17 Feb 2011 19:17:52 +0100
 
-> While testing the (very awesome!) bridge igmp/mld snooping support I =
-came across
-> two issues which are breaking IPv6 multicast snooping and IPv6
-> non-link-local multicast on bridges with multicast snooping support e=
-nabled
-> in general. The first two patches shall fix these issues.
+> Currently the bridge multicast snooping feature periodically issues
+> IPv6 general multicast listener queries to sense the absence of a
+> listener.
 > =
 
-> The third one addresses a potential bug on little endian machines whi=
-ch I noticed
-> during this little code reviewing. This patch is untested though, fee=
-dback welcome.
+> For this, it uses :: as its source address - however RFC 2710 require=
+s:
+> "To be valid, the Query message MUST come from a link-local IPv6 Sour=
+ce
+> Address". Current Linux kernel versions seem to follow this requireme=
+nt
+> and ignore our bogus MLD queries.
 > =
 
-> The fourth and fifth patch are a suggestion to also permit using the =
-bridge multicast
-> snooping feature for link local multimedia multicast traffic. Therefo=
+> With this commit a link local address from the bridge interface is be=
+ing
+> used to issue the MLD query, resulting in other Linux devices which a=
 re
-> using the transient multicast flag instead of the non-link-local scop=
-e criteria
-> seems to be a suitable solution at least for IPv6, in my opinion. Let=
- me know what
-> you think about it.
+> multicast listeners in the network to respond with a MLD response (wh=
+ich
+> was not the case before).
 > =
 
-> Thanks for reviewing these patches.
+> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
 
-Nice work, all applied to net-2.6, thanks!
+Applied.
