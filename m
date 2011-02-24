@@ -1,14 +1,13 @@
-Date: Tue, 22 Feb 2011 10:08:17 -0800 (PST)
-Message-Id: <20110222.100817.104065329.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1297966672-3457-2-git-send-email-linus.luessing@web.de>
-References: <20110215154128.2a28632c@nehalam>
-	<1297966672-3457-2-git-send-email-linus.luessing@web.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 1/2] bridge: Fix MLD queries' ethernet source
-	address
+Date: Thu, 24 Feb 2011 12:04:12 +0800
+From: Herbert Xu <herbert@gondor.hengli.com.au>
+Message-ID: <20110224040412.GA25488@gondor.apana.org.au>
+References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
+	<4D65CD81.4070203@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4D65CD81.4070203@zytor.com>
+Subject: Re: [Bridge] Multicast snooping fixes and suggestions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,25 +16,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, herbert@gondor.hengli.com.au
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Thu, 17 Feb 2011 19:17:51 +0100
+On Wed, Feb 23, 2011 at 07:16:17PM -0800, H. Peter Anvin wrote:
+>
+> Are these packets likely to address that situation (or am I just plain
+> doing something stupid)?
 
-> Map the IPv6 header's destination multicast address to an ethernet
-> source address instead of the MLD queries multicast address.
-> =
+No these patches deal with IPv6 multicast support in the bridge and
+are not related to your problem.
 
-> For instance for a general MLD query (multicast address in the MLD qu=
-ery
-> set to ::), this would wrongly be mapped to 33:33:00:00:00:00, althou=
-gh
-> an MLD queries destination MAC should always be 33:33:00:00:00:01 whi=
-ch
-> matches the IPv6 header's multicast destination ff02::1.
-> =
+If you're using the bridge for virtualisation and you know that
+you don't have a loop in your setup, then one option would be to
+disable STP on your bridge.
 
-> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
-
-Applied.
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
