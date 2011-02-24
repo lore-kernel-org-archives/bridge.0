@@ -1,12 +1,14 @@
-Date: Thu, 24 Feb 2011 12:04:12 +0800
+Date: Thu, 24 Feb 2011 13:42:32 +0800
 From: Herbert Xu <herbert@gondor.hengli.com.au>
-Message-ID: <20110224040412.GA25488@gondor.apana.org.au>
+Message-ID: <20110224054232.GA26064@gondor.apana.org.au>
 References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
 	<4D65CD81.4070203@zytor.com>
+	<20110224040412.GA25488@gondor.apana.org.au>
+	<4D65E2B4.1010501@zytor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4D65CD81.4070203@zytor.com>
+In-Reply-To: <4D65E2B4.1010501@zytor.com>
 Subject: Re: [Bridge] Multicast snooping fixes and suggestions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -19,17 +21,12 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-On Wed, Feb 23, 2011 at 07:16:17PM -0800, H. Peter Anvin wrote:
+On Wed, Feb 23, 2011 at 08:46:44PM -0800, H. Peter Anvin wrote:
 >
-> Are these packets likely to address that situation (or am I just plain
-> doing something stupid)?
+> I have disabled STP on the bridge; it doesn't change the behavior.
 
-No these patches deal with IPv6 multicast support in the bridge and
-are not related to your problem.
-
-If you're using the bridge for virtualisation and you know that
-you don't have a loop in your setup, then one option would be to
-disable STP on your bridge.
+Once you have disabled STP, you can set the forward delay to 0
+which should do the trick.
 
 Cheers,
 -- 
