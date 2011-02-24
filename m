@@ -1,14 +1,16 @@
-Date: Thu, 24 Feb 2011 13:42:32 +0800
-From: Herbert Xu <herbert@gondor.hengli.com.au>
-Message-ID: <20110224054232.GA26064@gondor.apana.org.au>
+Date: Wed, 23 Feb 2011 22:37:37 -0800
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Message-ID: <20110223223737.594932a8@nehalam>
+In-Reply-To: <89132767-587d-4186-8eac-9692bed59a44@email.android.com>
 References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
 	<4D65CD81.4070203@zytor.com>
 	<20110224040412.GA25488@gondor.apana.org.au>
 	<4D65E2B4.1010501@zytor.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4D65E2B4.1010501@zytor.com>
+	<20110224054232.GA26064@gondor.apana.org.au>
+	<89132767-587d-4186-8eac-9692bed59a44@email.android.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Multicast snooping fixes and suggestions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -19,17 +21,23 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, Linus =?ISO-8859-1?B?TPxz?= =?ISO-8859-1?B?c2luZw==?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-On Wed, Feb 23, 2011 at 08:46:44PM -0800, H. Peter Anvin wrote:
->
-> I have disabled STP on the bridge; it doesn't change the behavior.
+On Wed, 23 Feb 2011 21:57:32 -0800
+"H. Peter Anvin" <hpa@zytor.com> wrote:
 
-Once you have disabled STP, you can set the forward delay to 0
-which should do the trick.
+> Ok, so stupid question... how do hardware switches deal with this? It would seem to me that if everyone behind say a Cisco switch had these kind of issues they would have limited appeal...
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Real bridges run current newwer Spanning Tree Protocol that converges faster.
+The current Linux STP code is on older standard (around 2001). The current STP
+standard use RSTP which converges much faster.
+  http://en.wikipedia.org/wiki/Spanning_Tree_Protocol
+
+There is a userspace RSTP daemon that almost nobody uses.
+
+There are a number of other STP enhancements that are needed like
+STP protection and MSTP, as welll as the Cisco non-standard STP VLAN stuff.
+
+Fixing STP and testing it is a fairly project, too big for a spare time
+effort and currently not something high enough on the project chart for me to
+be able to dedicate much company time on. Contributions welcome.
