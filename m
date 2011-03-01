@@ -1,16 +1,10 @@
-References: <1297811961-19249-1-git-send-email-linus.luessing@web.de>
-	<4D65CD81.4070203@zytor.com>
-	<20110224040412.GA25488@gondor.apana.org.au>
-	<4D65E2B4.1010501@zytor.com>
-	<20110224054232.GA26064@gondor.apana.org.au>
-In-Reply-To: <20110224054232.GA26064@gondor.apana.org.au>
+Message-ID: <4D6C878A.503@redpinesignals.com>
+Date: Tue, 01 Mar 2011 11:13:38 +0530
+From: PrameelaRani <prameelarani.g@redpinesignals.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----2AY3YV7PJ80115PU715DK692EWXJ9V"
-From: "H. Peter Anvin" <hpa@zytor.com>
-Date: Wed, 23 Feb 2011 21:57:32 -0800
-Message-ID: <89132767-587d-4186-8eac-9692bed59a44@email.android.com>
-Subject: Re: [Bridge] Multicast snooping fixes and suggestions
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge not puping more data in TCP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,42 +13,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Herbert Xu <herbert@gondor.hengli.com.au>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, =?ISO-8859-1?Q?Linus_L=FCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
+To: bridge@osdl.org
 
-------2AY3YV7PJ80115PU715DK692EWXJ9V
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Hi,
+I have configured a bridge between ethernet and WLAN interfaces. This is 
+the only bridge in my system. When we are transmitting udp traffic from 
+ethernet machine to wlan machine, bridge is pumping enough packets but 
+when we are doing TCP it is not pumping more data and hence we are 
+getting less throughputs.
+Here is the bridge script we are using presently.
 
-Ok, so stupid question... how do hardware switches deal with this? It would seem to me that if everyone behind say a Cisco switch had these kind of issues they would have limited appeal...
--- 
-Sent from my mobile phone. Please pardon any lack of formatting.
+brctl addbr bri0
+ifconfig bri0 192.168.200.127 netmask 255.255.255.0
+ifconfig bri0 up
+brctl setfd bri0 1
+brctl stp bri0 off
+brctl addif bri0 eth0 ; /sbin/ifconfig eth0 up 0.0.0.0 ;
+brctl addif bri0 vap0 ;#/sbin/ifconfig vap0 up 0.0.0.0 ;
 
-Herbert Xu <herbert@gondor.hengli.com.au> wrote:
+Do I need to set any other options like setbridgeprio etc??. But I think 
+this is useful if we have more than one bridge.
 
-On Wed, Feb 23, 2011 at 08:46:44PM -0800, H. Peter Anvin wrote: > > I have disabled STP on the bridge; it doesn't change the behavior. Once you have disabled STP, you can set the forward delay to 0 which should do the trick. Cheers, -- Email: Herbert Xu <herbert@gondor.apana.org.au> Home Page: http://gondor.apana.org.au/~herbert/ PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt 
-
-
-------2AY3YV7PJ80115PU715DK692EWXJ9V
-Content-Type: text/html;
- charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-<html><head></head><body>Ok, so stupid question... how do hardware switches deal with this?  It would seem to me that if everyone behind say a Cisco switch had these kind of issues they would have limited appeal...<br>
--- <br>
-Sent from my mobile phone.  Please pardon any lack of formatting.<br><br><div class="gmail_quote">Herbert Xu &lt;herbert@gondor.hengli.com.au&gt; wrote:<blockquote class="gmail_quote" style="margin: 0pt 0pt 0pt 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
-<div style="white-space: pre-wrap; word-wrap:break-word; ">On Wed, Feb 23, 2011 at 08:46:44PM -0800, H. Peter Anvin wrote:
-&gt;
-&gt; I have disabled STP on the bridge; it doesn't change the behavior.
-
-Once you have disabled STP, you can set the forward delay to 0 which should do the trick.
-
-Cheers,
--- 
-Email: Herbert Xu &lt;herbert@gondor.apana.org.au&gt;
-Home Page: <a href="http://gondor.apana.org.au/~herbert">http://gondor.apana.org.au/~herbert</a>/
-PGP Key: <a href="http://gondor.apana.org.au/~herbert/pubkey.txt">http://gondor.apana.org.au/~herbert/pubkey.txt</a>
-</div></blockquote></div></body></html>
-------2AY3YV7PJ80115PU715DK692EWXJ9V--
+Thanks,
+Prameela
 
