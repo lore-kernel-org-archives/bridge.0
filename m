@@ -1,10 +1,11 @@
-Message-ID: <4D6C878A.503@redpinesignals.com>
-Date: Tue, 01 Mar 2011 11:13:38 +0530
-From: PrameelaRani <prameelarani.g@redpinesignals.com>
+Message-ID: <4D6FB888.7020004@univ-nantes.fr>
+Date: Thu, 03 Mar 2011 16:49:28 +0100
+From: Jean-Philippe Menil <jean-philippe.menil@univ-nantes.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge not puping more data in TCP
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] 2.6.36-rc7: net/bridge causes temporary network I/O lockups
+Reply-To: jean-philippe.menil@univ-nantes.fr
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,27 +14,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: bridge@lists.linux-foundation.org
 
 Hi,
-I have configured a bridge between ethernet and WLAN interfaces. This is 
-the only bridge in my system. When we are transmitting udp traffic from 
-ethernet machine to wlan machine, bridge is pumping enough packets but 
-when we are doing TCP it is not pumping more data and hence we are 
-getting less throughputs.
-Here is the bridge script we are using presently.
 
-brctl addbr bri0
-ifconfig bri0 192.168.200.127 netmask 255.255.255.0
-ifconfig bri0 up
-brctl setfd bri0 1
-brctl stp bri0 off
-brctl addif bri0 eth0 ; /sbin/ifconfig eth0 up 0.0.0.0 ;
-brctl addif bri0 vap0 ;#/sbin/ifconfig vap0 up 0.0.0.0 ;
+i've just seen this thread:
+https://lists.linux-foundation.org/pipermail/bridge/2010-October/007362.html
 
-Do I need to set any other options like setbridgeprio etc??. But I think 
-this is useful if we have more than one bridge.
+We are affected too by this problem.
+Disable multicast_startup_query_count doesn't to do the trick.
+Recompiling the kernel without CONFIG_BRIDGE_IGMP_SNOOPING is ok.
 
-Thanks,
-Prameela
+Our switch are dell powerconnect in m1000 chassis enclosure with  "ip=20
+igmp snooping".
+Remove the igmp snooping on the switch seems to fix the packet loss.
+But we don't want to disable igmp snooping on our switch (and we prefer=20
+to not disabe BRIDGE_IGMP_SNOOPING on our kernel ...).
+
+I can provide more info if necessary.
+
+Regards.
+
+--=20
+Jean-Philippe Menil - P=F4le r=E9seau Service IRTS
+DSI Universit=E9 de Nantes
+jean-philippe.menil@univ-nantes.fr
+Tel : 02.53.48.49.27 - Fax : 02.53.48.49.09
 
