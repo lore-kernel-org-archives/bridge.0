@@ -1,11 +1,12 @@
-Date: Sat, 5 Mar 2011 23:31:34 -0600
+Date: Sun, 6 Mar 2011 02:03:28 -0600
 From: Adam Majer <adamm@zombino.com>
-Message-ID: <20110306053134.GB3146@mira.lan.galacticasoftware.com>
+Message-ID: <20110306080328.GA3850@mira.lan.galacticasoftware.com>
 References: <20110306051833.GA3098@mira.lan.galacticasoftware.com>
+	<1154832100.13939.1299393783798.JavaMail.root@tahiti.vyatta.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110306051833.GA3098@mira.lan.galacticasoftware.com>
+In-Reply-To: <1154832100.13939.1299393783798.JavaMail.root@tahiti.vyatta.com>
 Subject: Re: [Bridge] [PATCH 1/2] Issue NETDEV_CHANGE notification when
  bridge changes state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -16,48 +17,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>
+To: Stephen Hemminger <stephen.hemminger@vyatta.com>
+Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, "David S. Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 
-Hello,
+On Sat, Mar 05, 2011 at 10:43:03PM -0800, Stephen Hemminger wrote:
+> Why not set forwarding delay to zero? I don't think you are using STP?
+> 
+> P.s: removing linux-kernel mailing list, since there is no point
+> in copying the whole world on this thread.
 
-As background for these 2 patches, the current bridge code does not
-play very nicely with IPv6 autoconfiguration. What happens is,
+I just sent patches where MAINTAINERS file told me to send it. ;)
 
-[   35.117030] device eth0 entered promiscuous mode
-[   35.120898] br0: port 1(eth0) entering learning state
-[   35.120901] br0: port 1(eth0) entering learning state
+No, I'm not relying on STP. I think setting learning->forwarding delay
+to 0 could cause problems with STP like loops until the loop is
+detected.
 
-Here bridge is setup and both interface eth0 and br0 are indicated as
-up via NETDEV_UP notification. The IPv6 autoconfiguration code
-configures linklocal address and start to issue RS packets. These
-timeout because bridge is in learning state, not forwarding state.
-
-[   45.168007] br0: no IPv6 routers present
-[   45.312020] eth0: no IPv6 routers present
-
-RS timeouts and IPv6 is abandoned at this point.
-
-[   50.144011] br0: port 1(eth0) entering forwarding state
-
-Now bridge entered forwarding state. Userland sets up IPv4 via DHCP or
-otherwise.
-
-[   50.144487] ADDRCONF(NETDEV_CHANGE): br0: link becomes ready
-
-With the patches, NETDEV_CHANGE is issued by the bridge once it
-changes state. The autoconfiguration code then checks that no RA
-packets are received and only linklocal interface is setup. It then
-retries soliciting router information.
-
-
-This is my first attempt at a kernel patch so please be gentle :) Part
-of the autoconf patch splits out the addrconf_rs_start() code from the
-addrconf_dad_completed() function.
-
-Cheers,
-Adam
-
+There may be a better spot where to insert the notification that the
+bridge is forwarding data, though I'm not exactly certain where. The
+patch will cause bridge to issue NETDEV_CHANGE notification for all
+topology changes. This may or may not be useful but shouldn't be
+harmful (I can't imagine these occur very often?) The IPv6 autoconf
+patch will only act on this if it doesn't have IPv6 address configured
+manually or via autoconf.
 
 -- 
 Adam Majer
