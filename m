@@ -1,11 +1,12 @@
-Message-ID: <4D6FB888.7020004@univ-nantes.fr>
-Date: Thu, 03 Mar 2011 16:49:28 +0100
-From: Jean-Philippe Menil <jean-philippe.menil@univ-nantes.fr>
+Date: Sat, 5 Mar 2011 22:43:03 -0800 (PST)
+From: Stephen Hemminger <stephen.hemminger@vyatta.com>
+Message-ID: <1154832100.13939.1299393783798.JavaMail.root@tahiti.vyatta.com>
+In-Reply-To: <20110306051833.GA3098@mira.lan.galacticasoftware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] 2.6.36-rc7: net/bridge causes temporary network I/O lockups
-Reply-To: jean-philippe.menil@univ-nantes.fr
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 1/2] Issue NETDEV_CHANGE notification when
+ bridge changes state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,30 +15,10 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Adam Majer <adamm@zombino.com>
+Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>
 
-Hi,
+Why not set forwarding delay to zero? I don't think you are using STP?
 
-i've just seen this thread:
-https://lists.linux-foundation.org/pipermail/bridge/2010-October/007362.html
-
-We are affected too by this problem.
-Disable multicast_startup_query_count doesn't to do the trick.
-Recompiling the kernel without CONFIG_BRIDGE_IGMP_SNOOPING is ok.
-
-Our switch are dell powerconnect in m1000 chassis enclosure with  "ip=20
-igmp snooping".
-Remove the igmp snooping on the switch seems to fix the packet loss.
-But we don't want to disable igmp snooping on our switch (and we prefer=20
-to not disabe BRIDGE_IGMP_SNOOPING on our kernel ...).
-
-I can provide more info if necessary.
-
-Regards.
-
---=20
-Jean-Philippe Menil - P=F4le r=E9seau Service IRTS
-DSI Universit=E9 de Nantes
-jean-philippe.menil@univ-nantes.fr
-Tel : 02.53.48.49.27 - Fax : 02.53.48.49.09
-
+P.s: removing linux-kernel mailing list, since there is no point
+in copying the whole world on this thread.
