@@ -1,12 +1,9 @@
-Date: Sun, 6 Mar 2011 09:45:41 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20110306094541.53390b55@nehalam>
-In-Reply-To: <20110306080328.GA3850@mira.lan.galacticasoftware.com>
-References: <20110306051833.GA3098@mira.lan.galacticasoftware.com>
-	<1154832100.13939.1299393783798.JavaMail.root@tahiti.vyatta.com>
-	<20110306080328.GA3850@mira.lan.galacticasoftware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Sun, 6 Mar 2011 22:41:14 -0800 (PST)
+From: Stephen Hemminger <stephen.hemminger@vyatta.com>
+Message-ID: <1649722795.14144.1299480074110.JavaMail.root@tahiti.vyatta.com>
+In-Reply-To: <20110307002543.GA4242@mira.lan.galacticasoftware.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 1/2] Issue NETDEV_CHANGE notification when
  bridge changes state
@@ -19,34 +16,23 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Adam Majer <adamm@zombino.com>
-Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Stephen Hemminger <stephen.hemminger@vyatta.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>
+Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, "David S. Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 
-On Sun, 6 Mar 2011 02:03:28 -0600
-Adam Majer <adamm@zombino.com> wrote:
 
-> On Sat, Mar 05, 2011 at 10:43:03PM -0800, Stephen Hemminger wrote:
-> > Why not set forwarding delay to zero? I don't think you are using STP?
-> > 
-> > P.s: removing linux-kernel mailing list, since there is no point
-> > in copying the whole world on this thread.
+> On Sun, Mar 06, 2011 at 09:45:41AM -0800, Stephen Hemminger wrote:
+> > Since this a generic problem, it needs a better solution.
+> > Sending NETDEV_CHANGE impacts lots of other pieces, and even
+> > user space has similar problems.
 > 
-> I just sent patches where MAINTAINERS file told me to send it. ;)
+> It does seem a little broad notification type. I've checked over
+> all the currently defined NETDEV notifiers, and it seems that
+> NETDEV_NOTIFY_PEERS may be a better option to use when bridge
+> has a potential topology change.
 > 
-> No, I'm not relying on STP. I think setting learning->forwarding delay
-> to 0 could cause problems with STP like loops until the loop is
-> detected.
-> 
-> There may be a better spot where to insert the notification that the
-> bridge is forwarding data, though I'm not exactly certain where. The
-> patch will cause bridge to issue NETDEV_CHANGE notification for all
-> topology changes. This may or may not be useful but shouldn't be
-> harmful (I can't imagine these occur very often?) The IPv6 autoconf
-> patch will only act on this if it doesn't have IPv6 address configured
-> manually or via autoconf.
-> 
+> Currently it is only used in ipv4/devinet.c: where it is used to issue
+> a gratuitous ARP.
 
-Since this a generic problem, it needs a better solution.
-Sending NETDEV_CHANGE impacts lots of other pieces, and even
-user space has similar problems.
-
--- 
+I was thinking of fixing bridge to not actually bring the link
+up until in forwarding mode. Other applications (DHCP, etc)
+see the link up and really don't like being in half duplex
+during that period. 
