@@ -1,15 +1,10 @@
-Date: Wed, 9 Mar 2011 10:44:49 -0600
-From: Adam Majer <adamm@zombino.com>
-Message-ID: <20110309164448.GA2364@mira.lan.galacticasoftware.com>
-References: <20110306051833.GA3098@mira.lan.galacticasoftware.com>
-	<20110309150949.GE16951@cr0.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20110309150949.GE16951@cr0.redhat.com>
-Subject: Re: [Bridge] [PATCH 1/2] Issue NETDEV_CHANGE notification when
- bridge changes state
+Date: Thu, 10 Mar 2011 07:57:04 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20110310075704.47f91bd5@nehalam>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] bridge: skip forwarding delay if not using STP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,51 +13,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?iso-8859-1?Q?Am=E9rico?= Wang <xiyou.wangcong@gmail.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wed, Mar 09, 2011 at 11:09:49PM +0800, Am=E9rico Wang wrote:
-> On Sat, Mar 05, 2011 at 11:18:33PM -0600, Adam Majer wrote:
-> >
-> >IPv6 address autoconfiguration relies on an UP interface to processes
-> >traffic normally. A bridge that is UP enters LEARNING state and this
-> >state "eats" any Router Advertising packets sent to the
-> >bridge. Issuing a NETDEV_CHANGE notification on the bridge interface
-> >when it changes state allows autoconfiguration code to retry
-> >querying router information.
-> >
-> ...
->=20
-> >+static void br_port_change_notifier_handler(struct work_struct *work)
-> >+{
-> >+	struct net_bridge *br =3D container_of(work,
-> >+					     struct net_bridge,
-> >+					     change_notification_worker);
-> >+
-> >+	rtnl_lock();
-> >+	netdev_state_change(br->dev);
-> >+	rtnl_unlock();
-> >+}
-> >+
->=20
-> Do you really want user-space to get this notification too?
-> Why do you put it into a workqueue? Maybe it has to be called in
-> process-context?
+f Spanning Tree Protocol is not enabled, there is no good reason for
+the bridge code to wait for the forwarding delay period before enabling
+the link. The purpose of the forwarding delay is to allow STP to
+learn about other bridges before nominating itself.
 
-Stephen Hemminger's patch (posted as a reply in this thread but only
-on the netdev mailing list) is much better as it only brings the link
-up on the bridge interface when the bridge enters forwarding mode.
+The only possible impact is that when starting up a new port
+the bridge may flood a packet now, where previously it might have
+seen traffic from the other host and preseeded the forwarding table.
 
-Effectively it does similar thing via NETDEV_CHANGE but requires no
-other hacks in other code. It should make userland much happier too.
+Includes change for local variable br already available in that func.
 
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-As for my patch, I've put that in the workqueue because the
-notification cannot be called in interrupt context. Is there a better
-way of calling code that can sleep from interrupt context?
-
-- Adam
-
---=20
-Adam Majer
-adamm@zombino.com
+--- a/net/bridge/br_stp.c	2011-03-07 14:56:45.660973568 -0800
++++ b/net/bridge/br_stp.c	2011-03-07 14:57:47.373590362 -0800
+@@ -375,12 +375,12 @@ static void br_make_forwarding(struct ne
+ 	if (p->state != BR_STATE_BLOCKING)
+ 		return;
+ 
+-	if (br->forward_delay == 0) {
++	if (br->stp_enabled == BR_NO_STP || br->forward_delay == 0) {
+ 		p->state = BR_STATE_FORWARDING;
+ 		br_topology_change_detection(br);
+ 		del_timer(&p->forward_delay_timer);
+ 	}
+-	else if (p->br->stp_enabled == BR_KERNEL_STP)
++	else if (br->stp_enabled == BR_KERNEL_STP)
+ 		p->state = BR_STATE_LISTENING;
+ 	else
+ 		p->state = BR_STATE_LEARNING;
