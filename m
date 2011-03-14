@@ -1,11 +1,13 @@
-Message-ID: <COL115-W1DA613FB6B4C24C03D356A8CD0@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_4ff7f954-4849-4fd2-ab9c-f520ea46052f_"
-From: Jason Mercede <jason.s.m@hotmail.com>
-Date: Sun, 13 Mar 2011 13:31:26 -0400
-MIME-Version: 1.0
-Subject: [Bridge] Network Bridging Issue - My Wireless Works But Not The
-	Wired
+Date: Mon, 14 Mar 2011 14:29:08 -0700 (PDT)
+Message-Id: <20110314.142908.179940791.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20110307103406.27330529@nehalam>
+References: <1649722795.14144.1299480074110.JavaMail.root@tahiti.vyatta.com>
+	<4D748CC3.8060603@gmail.com> <20110307103406.27330529@nehalam>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: control carrier based on ports online
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,71 +16,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: shemminger@vyatta.com
+Cc: fubar@us.ibm.com, pekkas@netcore.fi, nicolas.2p.debian@gmail.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, kuznet@ms2.inr.ac.ru, adamm@zombino.com
 
---_4ff7f954-4849-4fd2-ab9c-f520ea46052f_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+From: Stephen Hemminger <shemminger@vyatta.com>
+Date: Mon, 7 Mar 2011 10:34:06 -0800
 
+> This makes the bridge device behave like a physical device.
+> In earlier releases the bridge always asserted carrier. This
+> changes the behavior so that bridge device carrier is on only
+> if one or more ports are in the forwarding state. This
+> should help IPv6 autoconfiguration, DHCP, and routing daemons.
+> 
+> I did brief testing with Network and Virt manager and they
+> seem fine, but since this changes behavior of bridge, it should
+> wait until net-next (2.6.39).
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-Hello=2C
-  I was reading an article about how to bridge networks and there was a top=
-ic that said if I'm having trouble=2C email this address.  I would like to =
-report a problem with my bridged networks.  I set up the bridge for my Athe=
-ros WiFi network card and my Marvell Wired (LAN) card.  After I bridged eve=
-rything (with a tool called "bridge-utils")=2C I plugged a network cable fr=
-om my XBOX 360 to my computer=2C and the wireless card could reach my route=
-r=2C but my wired LAN adapter remained disconnected (AKA=2C the XBOX 360 co=
-uldn't connect to my computer through the network bridge over to the wirele=
-ss card).  I checked to make sure everything was plugged in (which it was=
-=2C because I saw a flashing green light)=2C and I even tried unplugging an=
-d plugging the network cable in.  It still had issues.  Do you know a fix t=
-o this?  Please tell me.
-
-I am using a Toshiba Satellite M305D-S4831 with Ubuntu 10.04.2 LTS Netbook =
-Remix installed on it=2C with all the current updates=2C and Ubuntu is the =
-only running OS on it=2C there's no other separate partitions.=20
-
-Thanks=2C
-- Jason
- 		 	   		  =
-
---_4ff7f954-4849-4fd2-ab9c-f520ea46052f_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px=3B
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt=3B
-font-family:Tahoma
-}
---></style>
-</head>
-<body class=3D'hmmessage'>
-Hello=2C<br>&nbsp=3B I was reading an article about how to bridge networks =
-and there was a topic that said if I'm having trouble=2C email this address=
-.&nbsp=3B I would like to report a problem with my bridged networks.&nbsp=
-=3B I set up the bridge for my Atheros WiFi network card and my Marvell Wir=
-ed (LAN) card.&nbsp=3B After I bridged everything (with a tool called "brid=
-ge-utils")=2C I plugged a network cable from my XBOX 360 to my computer=2C =
-and the wireless card could reach my router=2C but my wired LAN adapter rem=
-ained disconnected (AKA=2C the XBOX 360 couldn't connect to my computer thr=
-ough the network bridge over to the wireless card).&nbsp=3B I checked to ma=
-ke sure everything was plugged in (which it was=2C because I saw a flashing=
- green light)=2C and I even tried unplugging and plugging the network cable=
- in.&nbsp=3B It still had issues.&nbsp=3B Do you know a fix to this?&nbsp=
-=3B Please tell me.<br><br>I am using a Toshiba Satellite M305D-S4831 with =
-Ubuntu 10.04.2 LTS Netbook Remix installed on it=2C with all the current up=
-dates=2C and Ubuntu is the only running OS on it=2C there's no other separa=
-te partitions. <br><br>Thanks=2C<br>- Jason<br> 		 	   		  </body>
-</html>=
-
---_4ff7f954-4849-4fd2-ab9c-f520ea46052f_--
+Applied to net-next-2.6, thanks Stephen.
