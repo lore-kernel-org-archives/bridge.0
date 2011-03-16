@@ -1,6 +1,6 @@
-Date: Wed, 16 Mar 2011 08:24:41 -0700
+Date: Wed, 16 Mar 2011 09:41:56 -0700
 From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20110316082441.45db3018@nehalam>
+Message-ID: <20110316094156.204e4903@nehalam>
 In-Reply-To: <4D80BC5B0200007800036D85@vpn.id2.novell.com>
 References: <4D80BC5B0200007800036D85@vpn.id2.novell.com>
 Mime-Version: 1.0
@@ -27,7 +27,7 @@ On Wed, 16 Mar 2011 12:34:19 +0000
 > link-local address for multicast listener queries") causes the build to
 > break.
 
-Rather than continue with the config games, lets just make the necessary
-ipv6 pieces accessible.
+I have no problem building with 2.6.38 and BRIDGE=y and IPV6=m.
+Blacklisting ipv6 module is just self inflicted pain, don't do it.
 
--- 
+
