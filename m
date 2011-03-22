@@ -1,15 +1,15 @@
-Message-ID: <4D821073.20602@hp.com>
-Date: Thu, 17 Mar 2011 09:45:23 -0400
-From: Brian Haley <brian.haley@hp.com>
-MIME-Version: 1.0
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Tue, 22 Mar 2011 22:40:32 +0100
+Message-Id: <1300830032-6727-2-git-send-email-linus.luessing@web.de>
+In-Reply-To: <1300830032-6727-1-git-send-email-linus.luessing@web.de>
 References: <4D80BC5B0200007800036D85@vpn.id2.novell.com>
-	<4D80F494.6050906@hp.com>
-	<4D81CCF80200007800036FFD@vpn.id2.novell.com>
-In-Reply-To: <4D81CCF80200007800036FFD@vpn.id2.novell.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] build breakage due to br_multicast.c referencing	
-	ipv6_dev_get_saddr()
+	<1300830032-6727-1-git-send-email-linus.luessing@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linus.luessing@web.de
+Subject: [Bridge] [PATCH] bridge: Fix possibly wrong MLD queries' ethernet
+	source address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,38 +19,37 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Jan Beulich <JBeulich@novell.com>
-Cc: linus.luessing@web.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+Cc: =?utf-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 03/17/2011 03:57 AM, Jan Beulich wrote:
->>>> On 16.03.11 at 18:34, Brian Haley <brian.haley@hp.com> wrote:
->> On 03/16/2011 08:34 AM, Jan Beulich wrote:
->>> With BRIDGE=y and IPV6=m commit
->>> fe29ec41aaa51902aebd63658dfb04fe6fea8be5 ("bridge: Use IPv6
->>> link-local address for multicast listener queries") causes the build to
->>> break.
->>>
->>> Similary, even if both are =m, but ipv6.ko got blacklisted (as is
->>> happening in various SuSE distros when disabling IPv6), there's
->>> a runtime problem since bridge.ko then won't load anymore due
->>> to the missing symbol.
->>
->> Load the ipv6 module with disable=1, which is why I added it :)
-> 
-> Indeed, I realized there is such an option only after I sent
-> that mail. Nevertheless, I think it is overkill to load a huge
-> module like this just to satisfy never actually used symbol
-> references.
+The ipv6_dev_get_saddr() is currently called with an uninitialized
+destination address. Although in tests it usually seemed to nevertheless
+always fetch the right source address, there seems to be a possible race
+condition.
 
-I could also argue that the bridge code could change into IPv4-only
-and IPv6-only pieces to avoid this too (without actually looking
-at the code of course).  But in this case you actually built the kernel
-with IPV6=m right?
+Therefore this commit changes this, first setting the destination
+address and only after that fetching the source address.
 
-> In fact, just like it seems bogus to load ipv6.ko in a pure IPv4
-> environment, I think the opposite is also true: IPv4 support
-> should be in a module, and it should be possible to not load
-> it in a pure IPv6 environment.
+Reported-by: Jan Beulich <JBeulich@novell.com>
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_multicast.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-That's a much bigger nut to crack...
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 030a002..f61eb2e 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -445,9 +445,9 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge *br,
+ 	ip6h->payload_len = htons(8 + sizeof(*mldq));
+ 	ip6h->nexthdr = IPPROTO_HOPOPTS;
+ 	ip6h->hop_limit = 1;
++	ipv6_addr_set(&ip6h->daddr, htonl(0xff020000), 0, 0, htonl(1));
+ 	ipv6_dev_get_saddr(dev_net(br->dev), br->dev, &ip6h->daddr, 0,
+ 			   &ip6h->saddr);
+-	ipv6_addr_set(&ip6h->daddr, htonl(0xff020000), 0, 0, htonl(1));
+ 	ipv6_eth_mc_map(&ip6h->daddr, eth->h_dest);
+ 
+ 	hopopt = (u8 *)(ip6h + 1);
+-- 
+1.5.6.5
 
--Brian
