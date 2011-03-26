@@ -1,8 +1,9 @@
+Date: Sat, 26 Mar 2011 15:30:58 -0500
+From: Scott Koranda <skoranda@gravity.phys.uwm.edu>
+Message-ID: <20110326203058.GI32460@gravity.phys.uwm.edu>
 MIME-Version: 1.0
-Date: Mon, 28 Mar 2011 09:29:25 -0500
-Message-ID: <AANLkTimeU78f=befoHxz6-fMsm04WPHCMJzNzAXN0hvv@mail.gmail.com>
-From: Scott Koranda <skoranda@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Subject: [Bridge] promiscuous mode necessary for supporting KVM?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
@@ -28,7 +29,6 @@ specific need is for the virtual machines to have static IP
 addresses and be visible to the LAN.
 
 This deployment included configuring a bridge like this:
-
 
 $ cat /etc/network/interfaces
 auto lo
@@ -70,11 +70,11 @@ I want to determine if that is true.
 
 I see the following flags set for the interfaces:
 
-$ cat /sys/class/net/br0/flags
+$ cat /sys/class/net/br0/flags 
 0x1003
-$ cat /sys/class/net/eth0/flags
+$ cat /sys/class/net/eth0/flags 
 0x1103
-$ cat /sys/class/net/vnet0/flags
+$ cat /sys/class/net/vnet0/flags 
 0x1103
 
 My understanding is that if the 0x100 bit is set then the
