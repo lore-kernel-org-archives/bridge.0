@@ -1,13 +1,15 @@
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Sun, 27 Mar 2011 08:27:22 +0200
-Message-Id: <1301207244-10428-1-git-send-email-linus.luessing@web.de>
-In-Reply-To: <20110327034404.GC31916@Sellars>
+Date: Sun, 27 Mar 2011 08:27:23 +0200
+Message-Id: <1301207244-10428-2-git-send-email-linus.luessing@web.de>
+In-Reply-To: <1301207244-10428-1-git-send-email-linus.luessing@web.de>
 References: <20110327034404.GC31916@Sellars>
+	<1301207244-10428-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linus.luessing@web.de
-Subject: [Bridge] bridge: mcast snooping, fixes for IPv6 MLDv1/2 parsing
+Subject: [Bridge] [PATCH] bridge: mcast snooping,
+	fix IPv6 MLD checksum calculation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +19,39 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
-Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, Herbert Xu <herbert@gondor.hengli.com.au>, David Miller <davem@davemloft.net>, netdev@vger.kernel.org
+Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, =?utf-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, David Miller <davem@davemloft.net>
 
-Hi everyone,
+In contrast to IGMP, the MLDv1/2 message checksum needs to include an
+IPv6 "pseudo-header" in the calculations (see RFC2710, section 3.3;
+RFC3810, section 5.1.2).
 
-The following two patches are fixing two issues, related to the parsing of
-IPv6 MLD messages.
+The multicast snooping feature of the bridge code however did not take
+this "pseudo-header" into consideration for the checksum validation when
+parsing a snooped IPv6 MLDv1/2 message of another host, leading to
+possibly ignored, though valid MLDv1/2 messages. This commit shall fix
+this issue.
 
-The first one fixes an observed issue which lead to ignored MLD messages.
-In the tests this patch fixes the issue in my scenario. However I'm not
-so familiar with the checksumming functions in the kernel, so would be
-great if someone could double-check whether the new checksum calculations
-make sense like this.
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_multicast.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-The second patch fixes a potential issue. Bogus values of the 'len' variable
-had been observed during tests and this patch successfully fixed this
-here. However this patch is untested for the potential issues named
-in the patch's description that could have occured without it.
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index f61eb2e..47fae4f 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1525,7 +1525,10 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
+ 			break;
+ 		/*FALLTHROUGH*/
+ 	case CHECKSUM_NONE:
+-		skb2->csum = 0;
++		skb2->csum = ~csum_unfold(csum_ipv6_magic(&ip6h->saddr,
++							  &ip6h->daddr,
++							  skb2->len,
++							  nexthdr, 0));
+ 		if (skb_checksum_complete(skb2))
+ 			goto out;
+ 	}
+-- 
+1.5.6.5
 
-Both patches together have been applied and tested and no more
-issues with the parsing and adding of new IPv6 multicast listeners to
-the bridge snooping database could be observed (for now ;) ).
-
-Cheers, Linus
