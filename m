@@ -1,15 +1,16 @@
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Sun, 27 Mar 2011 08:27:24 +0200
-Message-Id: <1301207244-10428-3-git-send-email-linus.luessing@web.de>
-In-Reply-To: <1301207244-10428-1-git-send-email-linus.luessing@web.de>
+Date: Sun, 27 Mar 2011 14:37:49 +0800
+From: Herbert Xu <herbert@gondor.hengli.com.au>
+Message-ID: <20110327063749.GA24299@gondor.apana.org.au>
 References: <20110327034404.GC31916@Sellars>
 	<1301207244-10428-1-git-send-email-linus.luessing@web.de>
+	<1301207244-10428-2-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linus.luessing@web.de
-Subject: [Bridge] [PATCH] bridge: mcast snooping,
-	fix length check of snooped MLDv1/2
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1301207244-10428-2-git-send-email-linus.luessing@web.de>
+Subject: Re: [Bridge] [PATCH] bridge: mcast snooping,
+	fix IPv6 MLD checksum	calculation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,37 +19,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, =?utf-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, David Miller <davem@davemloft.net>
+To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@web.de>
+Cc: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 
-"len = ntohs(ip6h->payload_len)" does not include the length of the ipv6
-header itself, which the rest of this function assumes, though.
+On Sun, Mar 27, 2011 at 08:27:23AM +0200, Linus L=FCssing wrote:
+> In contrast to IGMP, the MLDv1/2 message checksum needs to include an
+> IPv6 "pseudo-header" in the calculations (see RFC2710, section 3.3;
+> RFC3810, section 5.1.2).
+>=20
+> The multicast snooping feature of the bridge code however did not take
+> this "pseudo-header" into consideration for the checksum validation when
+> parsing a snooped IPv6 MLDv1/2 message of another host, leading to
+> possibly ignored, though valid MLDv1/2 messages. This commit shall fix
+> this issue.
+>=20
+> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
+> ---
+>  net/bridge/br_multicast.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletions(-)
+>=20
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index f61eb2e..47fae4f 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -1525,7 +1525,10 @@ static int br_multicast_ipv6_rcv(struct net_bridge=
+ *br,
+>  			break;
+>  		/*FALLTHROUGH*/
+>  	case CHECKSUM_NONE:
+> -		skb2->csum =3D 0;
+> +		skb2->csum =3D ~csum_unfold(csum_ipv6_magic(&ip6h->saddr,
+> +							  &ip6h->daddr,
+> +							  skb2->len,
+> +							  nexthdr, 0));
 
-This leads to a length check less restrictive as it should be in the
-following line for one thing. For another, it very likely leads to an
-integer underrun when substracting the offset and therefore to a very
-high new value of 'len' due to its unsignedness. This will ultimately
-lead to the pskb_trim_rcsum() practically never being called, even in
-the cases where it should.
+You also need to include the pseudo-header for the CHECKSUM_COMPLETE
+case, before we've fallen through (which only happens if the
+hardware checksum doesn't match).
 
-Signed-off-by: Linus Lüssing <linus.luessing@web.de>
----
- net/bridge/br_multicast.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 47fae4f..3793264 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1475,7 +1475,7 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
- 	    ip6h->payload_len == 0)
- 		return 0;
- 
--	len = ntohs(ip6h->payload_len);
-+	len = ntohs(ip6h->payload_len) + sizeof(*ip6h);
- 	if (skb->len < len)
- 		return -EINVAL;
- 
--- 
-1.5.6.5
-
+Thanks,
+--=20
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
