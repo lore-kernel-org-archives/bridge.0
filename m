@@ -1,12 +1,13 @@
-Message-ID: <4D8F5393.8080709@free.fr>
-Date: Sun, 27 Mar 2011 17:11:15 +0200
-From: =?ISO-8859-1?Q?Nicolas_de_Peslo=FCan?= <nicolas.2p.debian@free.fr>
-MIME-Version: 1.0
-References: <4D8F3A6A.2080103@mclink.it>
-In-Reply-To: <4D8F3A6A.2080103@mclink.it>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bridging problem
+Date: Sun, 27 Mar 2011 18:34:13 -0700 (PDT)
+Message-Id: <20110327.183413.229737801.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20110324162401.2f322e3e@nehalam>
+References: <20110324162401.2f322e3e@nehalam>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: notify applications if address of
+ bridge device changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,61 +16,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Mauro Condarelli <mc5686@mclink.it>
-Cc: bridge@lists.linux-foundation.org
+To: shemminger@vyatta.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-Le 27/03/2011 15:23, Mauro Condarelli a =E9crit :
-> Hi,
-> I have a small home-office network built like this:
->
->
-> Internet
->   |
-> Firewall(192.169.1.254) GREEN ---+-----------+----------+-----
-> (192.168.56.254)                 |           |          |
-> DMZ                        (192.168.1.5)    PC1        PC2
->   |                            Server
-> WebServer                  (192.168.2.254)
->                                 WLAN
->                                   |
->                                   +-----------+----------+-----
->                                   |           |          |
->                                  PCa         PCb        PCc
->
-> Firewall is DHCP and DNS server for everyone else.
-> Firewall is default gateway for everybody.
-> This arrangement works but requires a static route on firewall and, for
-> machines on WLAN to talk with wired ones (and vice versa) requires going
-> to firewall and back.
->
-> Is there some way to bridge together the two LANs (GREEN and WLAN) so
-> they can act as a single subnet (192.168.1.0/24)?
->
-> I tried some configurations, but they simply didn't work and I know too
-> little about bridging to troubleshot them.
+From: Stephen Hemminger <shemminger@vyatta.com>
+Date: Thu, 24 Mar 2011 16:24:01 -0700
 
-Hi Mauro,
+> The mac address of the bridge device may be changed when a new interface
+> is added to the bridge. If this happens, then the bridge needs to call
+> the network notifiers to tickle any other systems that care. Since bridge
+> can be a module, this also means exporting the notifier function.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
 
-The ability to bridge between LAN and WLAN depends on the particular WLAN N=
-IC you use.
-
-See=20
-http://www.linuxfoundation.org/collaborate/workgroups/networking/bridge#It_=
-doesn.27t_work_with_my_Wireless_card.21=20
-for the details.
-
-I suggest you first build a working bridge configuration with normal (wired=
-) NICs. Then, add a WLAN=20
-interface to the bridge and see what happens.
-
-Also, if you want us to help, consider adding your bridge configuration and=
- wifi configuration to=20
-your message, after removing any "secrets" from the wifi configuration, if =
-appropriate.
-
-	Nicolas.
-
-
-
-
-
+Applied, thanks Stephen.
