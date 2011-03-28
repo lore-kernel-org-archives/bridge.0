@@ -1,11 +1,9 @@
-Date: Mon, 28 Mar 2011 13:28:53 -0500
-From: Igor Serebryany <igor47@moomers.org>
-Message-ID: <20110328182853.GM23639@moomers.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="W/+CTqSGWdiRg+8j"
-Content-Disposition: inline
-Subject: [Bridge] 802.1q broken when used with bridging in 2.6.38
+Date: Mon, 28 Mar 2011 17:12:55 -0500
+Message-ID: <AANLkTikwpK+iQhH_8VgDouyhM4nkS6cHjYSkgx3wfgHm@mail.gmail.com>
+From: Scott Koranda <skoranda@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [Bridge] promiscuous mode necessary for supporting KVM?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,106 +14,111 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
+> On Mon, 28 Mar 2011 09:29:25 -0500
+> Scott Koranda <skoranda@gmail.com> wrote:
+>
+> > My platform is Debian Squeeze amd64:
+> >
+> > $ /etc/network# cat /etc/issue
+> > Debian GNU/Linux 6.0 \n \l
+> >
+> > $ /etc/network# uname -r
+> > 2.6.32-5-amd64
+> >
+> > I followed what I believe to be the "canonical" instructions
+> > for deploying KVM to support virtual machines on this host. My
+> > specific need is for the virtual machines to have static IP
+> > addresses and be visible to the LAN.
+> >
+> > This deployment included configuring a bridge like this:
+> >
+> >
+> > $ cat /etc/network/interfaces
+> > auto lo
+> > iface lo inet loopback
+> >
+> > auto eth0
+> > iface eth0 inet manual
+> >
+> > auto br0
+> > iface br0 inet static
+> > address xxx.yy.zz.195
+> > netmask 255.255.255.0
+> > network xxx.yy.zz.0
+> > broadcast xxx.yy.zz.255
+> > gateway xxx.yy.zz.1
+> > bridge_ports eth0
+> > bridge_stp off
+> > bridge_fd 0
+> > bridge_maxwait 0
+> >
+> > The bridge reports the following:
+> >
+> > $ /etc/network# brctl show
+> > bridge name     bridge id               STP enabled interfaces
+> > br0             8000.0019b946d44b       no              eth0
+> >                                                         vnet0
+> >                                                         vnet1
+> >                                                         vnet2
+> >                                                         vnet3
+> >
+> > The four VMs are using the vnetx interfaces and work exactly
+> > as I need them to work.
+> >
+> > A colleague, however, has written to me "The concern I have is
+> > that apparently you must run the physical NIC in promiscuous
+> > mode, to get bridging working with the Linux KVM module."
+> >
+> > I want to determine if that is true.
+> >
+> > I see the following flags set for the interfaces:
+> >
+> > $ cat /sys/class/net/br0/flags
+> > 0x1003
+> > $ cat /sys/class/net/eth0/flags
+> > 0x1103
+> > $ cat /sys/class/net/vnet0/flags
+> > 0x1103
+> >
+> > My understanding is that if the 0x100 bit is set then the
+> > interface is in promiscuous mode.
+> >
+> > So br0 reports it is NOT in promiscuous mode but eth0 does.
+> >
+> > How can I tell if the "physical NIC" is in promiscuous mode?
+> >
+> > If it is in promiscuous mode, with this configuration is that
+> > any more of a security risk?
+> >
+> > Why are the vnetx interfaces and eth0 in (or at least
+> > reporting) promiscuous mode? Is that so that they can "see"
+> > each other's traffic without having to leave the host and
+> > return?
+>
+> A bridge has to receive packets for multiple destination MAC
+> addresses and therefore has to put device into promiscious mode.
+> That is just the way bridges work.
 
---W/+CTqSGWdiRg+8j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks. I am naive about these things and this is quite helpful.
 
-it appears that 802.1q tagging is broken in 2.6.38 when combined with bridg=
-ing. here is how to reproduce the problem:
-    =20
-i set up an interface for the machine running 2.6.38 on my cisco router, and
-assign a subnet to that interface. i am using ping from the router to do the
-testing. i am getting all the data here with 'tcpdump -e -n' from the machi=
-ne.
-    =20
-i ping the machine from the router, and i see properly-tagged ARP requests
-coming in on eth0:
-    =20
-12:12:05.052465 00:11:20:dd:81:00 > ff:ff:ff:ff:ff:ff, ethertype 802.1Q
-(0x8100), length 64: vlan 234, p 0, ethertype ARP, Request who-has 10.0.0.2=
-06
-tell 10.0.0.205, length 46
-    =20
-i then create a vlan interface on the machine:
-    =20
-vconfig add eth0 234 ifconfig eth0.234 up
-    =20
-i tcpdump the newly-created interface, and i see the arp packets appearing =
-on
-it, now properly untagged
-    =20
-12:14:33.549939 00:11:20:dd:81:00 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x080=
-6),
-length 60: Request who-has 10.0.0.206 tell 10.0.0.205, length 46
-    =20
-if i assign an ip to this interface, i can see pings being exchanged on
-eth0.234:
-    =20
-12:17:12.681079 00:11:20:dd:81:00 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x080=
-6), length 60: Request who-has 10.0.0.206 tell 10.0.0.205, length 46
-12:17:12.681090 00:30:48:fd:98:d8 > 00:11:20:dd:81:00, ethertype ARP (0x080=
-6), length 42: Reply 10.0.0.206 is-at 00:30:48:fd:98:d8, length 28
-12:17:14.682076 00:11:20:dd:81:00 > 00:30:48:fd:98:d8, ethertype IPv4 (0x08=
-00), length 114: 10.0.0.205 > 10.0.0.206: ICMP echo request, id 24, seq 1, =
-length 80
-12:17:14.682088 00:30:48:fd:98:d8 > 00:11:20:dd:81:00, ethertype IPv4 (0x08=
-00), length 114: 10.0.0.206 > 10.0.0.205: ICMP echo reply, id 24, seq 1, le=
-ngth 80
-    =20
-now, i want to assign eth0 to a bridge:
-    =20
-brctl addbr xenbr0
-ifconfig xenbr0 up
-brctl addif xenbr0 eth0
-    =20
-i now attempt to ping the machine again. watching tcpdump on eth0.234, i do=
-n't see any of my packets anymore!
-    =20
-instead, if i watch xenbr0 with tcpdump, i can see the tagged packets being=
- dumped straight into xenbr0, without the vlan tags stripped out!
-    =20
-12:20:53.041487 00:11:20:dd:81:00 > 00:30:48:fd:98:d8, ethertype 802.1Q (0x=
-8100), length 118: vlan 234, p 0, ethertype IPv4, 10.0.0.205 > 10.0.0.206: =
-ICMP echo request, id 26, seq 2, length 80
-    =20
-obviously there are no icmp replies because there is no listening interface=
- on xenbr0.
-    =20
-i tried doing something really silly:
-    =20
-vconfig add xenbr0 234
-ifconfig xenbr0.234 10.0.0.206 netmask 255.255.255.252
-    =20
-when watching this unusual interface with tcpdump, i would see properly-unt=
-agged packets making their way there. but arp requests couldn't make their =
-way back out again:
-    =20
-12:44:29.952443 00:11:20:dd:81:00 > 00:30:48:fd:98:d8, ethertype IPv4 (0x08=
-00), length 114: 10.0.0.205 > 10.0.0.206: ICMP echo request, id 30, seq 4, =
-length 80
-12:44:29.954549 00:30:48:fd:98:d8 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x080=
-6), length 42: Request who-has 10.0.0.205 tell 184.154.127.206, length 28
-    =20
-so, that doesn't work...
-    =20
-this is a pretty severe bug for me. my virtual machine setup depends on bei=
-ng able to assign VMs to vlans and forward packets to them, and this totall=
-y breaks my networking model, taking some of my vms offline. of course, any=
- vm using the native vlan on the port is unaffected.=20
+If the following questions are out of scope for this mail list please
+ignore them, but
+otherwise I would be grateful for any input anyone has:
 
---W/+CTqSGWdiRg+8j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+- Am I correct that even though it is the bridge br0 that has the IP
+addresses associated with it,
+  the "physical NIC" is still represented by eth0 and so the flag status at
+  /sys/class/net/eth0/flags is telling me with value 0x1103 that the
+NIC is in promiscuous mode?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+- Is it true that for most commodity NICs unless the card is in
+promiscuous mode it will simply
+  not pass on packets that are not destined for its hardware MAC
+address? No driver configuration
+  other than setting the card into promiscuous mode will change that?
 
-iEYEARECAAYFAk2Q02UACgkQVyVcp2k8D/n+VQCg6SCLkhJIAnvWhOZBIWiurvbL
-G3gAoMfVcMt0ZY5g8pGGkKldI4MPFaKu
-=6TrN
------END PGP SIGNATURE-----
-
---W/+CTqSGWdiRg+8j--
+- If the above is true, then it seems clear that any VM solution, be
+it KVM, VirtualBox, or VMWare,
+  where the VMs have IP addresses on the LAN and can be reached
+directly from the LAN,
+  must put the NIC into promiscuous mode to work. Is that true?
