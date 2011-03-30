@@ -1,15 +1,12 @@
-Date: Wed, 30 Mar 2011 02:30:01 -0700 (PDT)
-Message-Id: <20110330.023001.13743450.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1301207244-10428-3-git-send-email-linus.luessing@web.de>
-References: <20110327034404.GC31916@Sellars>
-	<1301207244-10428-1-git-send-email-linus.luessing@web.de>
-	<1301207244-10428-3-git-send-email-linus.luessing@web.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] bridge: mcast snooping,
- fix length check of snooped MLDv1/2
+From: Benny Amorsen <benny+usenet@amorsen.dk>
+References: <loom.20110328T194703-472@post.gmane.org>
+Date: Wed, 30 Mar 2011 16:46:46 +0200
+In-Reply-To: <loom.20110328T194703-472@post.gmane.org> (igor serebryany's
+	message of "Mon, 28 Mar 2011 17:54:29 +0000 (UTC)")
+Message-ID: <m3y63whdih.fsf@ursa.amorsen.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [Bridge] 802.1q tagging broken when used with bridging in 2.6.38
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,29 +15,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: yoshfuji@linux-ipv6.org, herbert@gondor.hengli.com.au, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+To: igor serebryany <igor47@moomers.org>
+Cc: bridge@osdl.org
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Sun, 27 Mar 2011 08:27:24 +0200
+igor serebryany <igor47@moomers.org> writes:
 
-> "len =3D ntohs(ip6h->payload_len)" does not include the length of the=
- ipv6
-> header itself, which the rest of this function assumes, though.
-> =
+> now, i want to assign eth0 to a bridge
+>
+> brctl addbr xenbr0
+> ifconfig xenbr0 up
+> brctl addif xenbr0 eth0
 
-> This leads to a length check less restrictive as it should be in the
-> following line for one thing. For another, it very likely leads to an=
+I may be misunderstanding your topology, but I would have expected that
+you would want to brctl addif xenbr0 eth0.234? It is unusual to bridge
+an interface and expect tagged packets to traverse the bridge (typically
+done in q-in-q setups).
 
-> integer underrun when substracting the offset and therefore to a very=
 
-> high new value of 'len' due to its unsignedness. This will ultimately=
-
-> lead to the pskb_trim_rcsum() practically never being called, even in=
-
-> the cases where it should.
-> =
-
-> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
-
-Applied.
+/Benny
