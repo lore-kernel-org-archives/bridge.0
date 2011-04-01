@@ -1,4 +1,4 @@
-Message-ID: <40dc0ff9b1c8b86ef143ed45629cb3fb@greenpower.ug>
+Message-ID: <650206a25edd9fae7e432d9828355a22@greenpower.ug>
 Date: Fri, 01 Apr 2011 00:00:14 -0500
 From: "Print Depot- Uganda" <sales@printdepot.ug>
 MIME-Version: 1.0
@@ -16,7 +16,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@lists.osdl.org
 
 --b1_443acbe30809da26781f6f0d8b4774cf
 Content-Type: multipart/alternative;
@@ -28,25 +28,25 @@ Content-Transfer-Encoding: 8bit
 
 Your email client cannot read this email.
 To view it online, please go here:
-http://greenpower.ug/emarketing/display.php?M=22898&C=b7db2e1f5496f39e9328881cd6cb2697&S=19&L=1&N=3
+http://greenpower.ug/emarketing/display.php?M=22929&C=5831dc031296f77103079514b44c8349&S=19&L=1&N=3
 
 
 To stop receiving these
-emails:http://greenpower.ug/emarketing/unsubscribe.php?M=22898&C=b7db2e1f5496f39e9328881cd6cb2697&L=1&N=19
+emails:http://greenpower.ug/emarketing/unsubscribe.php?M=22929&C=5831dc031296f77103079514b44c8349&L=1&N=19
 
 --b3_443acbe30809da26781f6f0d8b4774cf
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 
 <html><head></head><body><font size="3"><strong><a
-href="http://greenpower.ug/emarketing/link.php?M=22898&N=19&L=7&F=H">http://printdepot.ug/posters-a-flyers.html</a><br
+href="http://greenpower.ug/emarketing/link.php?M=22929&N=19&L=7&F=H">http://printdepot.ug/posters-a-flyers.html</a><br
 /></strong></font><br /><img title="savings on printing you will not find
 anywhere else.png" alt="savings on printing you will not find anywhere
 else.png" height="1023" width="726"
 src="cid:3ec6df8e3c1d552bd4aeeb0f2a2a6e29" /><br /><a
-href="http://greenpower.ug/emarketing/link.php?M=22898&N=19&L=9&F=H"><font
+href="http://greenpower.ug/emarketing/link.php?M=22929&N=19&L=9&F=H"><font
 size="3"><strong><br /></strong></font></a><a
-href="http://greenpower.ug/emarketing/link.php?M=22898&N=19&L=7&F=H"><font
+href="http://greenpower.ug/emarketing/link.php?M=22929&N=19&L=7&F=H"><font
 size="4">http://printdepot.ug/posters-a-flyers.html</font></a><br />
 <p><font face="arial, helvetica, sans-serif" size="3"><em>Call us on
 <strong><font color="#FF0000">+256-704-714488</font></strong>,
@@ -94,7 +94,7 @@ www.printdepot.ug,</font></pre><br/>
 					<tr>
 						<td>
 							<a
-href="http://greenpower.ug/emarketing/link.php?M=22898&N=19&L=2&F=H">
+href="http://greenpower.ug/emarketing/link.php?M=22929&N=19&L=2&F=H">
 								<img border="0" src="cid:6b2f0a69ce95007ac814d55a714bfe39"
 alt="Powered by Interspire" />
 							</a>
@@ -105,7 +105,7 @@ alt="Powered by Interspire" />
 		</tr>
 	</table>
 <img
-src="http://greenpower.ug/emarketing/open.php?M=22898&L=1&N=19&F=H&image=.jpg"
+src="http://greenpower.ug/emarketing/open.php?M=22929&L=1&N=19&F=H&image=.jpg"
 height="1" width="10"></body></html>
 
 --b3_443acbe30809da26781f6f0d8b4774cf--
