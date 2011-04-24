@@ -1,11 +1,11 @@
-From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Message-ID: <4DB43C0F.9080502@gmail.com>
+Date: Sun, 24 Apr 2011 17:04:47 +0200
+From: =?UTF-8?B?SXJlbmV1c3ogU3pjemXFm25pYWs=?=
+ <irek.szczesniak@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20110422163116.5BAE713A64@rere.qmqm.pl>
-Date: Fri, 22 Apr 2011 18:31:16 +0200 (CEST)
-Subject: [Bridge] [PATCH] bridge: convert br_features_recompute() to
-	ndo_fix_features
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] brctl problem: broadcast doesn't get through
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,225 +14,95 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-Note: netdev_update_features() needs only rtnl_lock as br->port_list
-is only changed while holding it.
+Hi,
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
----
- net/bridge/br_device.c  |   61 ++++++----------------------------------------
- net/bridge/br_if.c      |   17 +++++++------
- net/bridge/br_notify.c  |    5 +---
- net/bridge/br_private.h |    3 +-
- 4 files changed, 19 insertions(+), 67 deletions(-)
+I'm creating a bridge, and then add to it two tap interfaces. No 
+physical interface is added to the bridge. These are the commands:
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 45cfd54..a6b2f86 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -90,8 +90,7 @@ static int br_dev_open(struct net_device *dev)
- 	struct net_bridge *br = netdev_priv(dev);
- 
- 	netif_carrier_off(dev);
--
--	br_features_recompute(br);
-+	netdev_update_features(dev);
- 	netif_start_queue(dev);
- 	br_stp_enable_bridge(br);
- 	br_multicast_open(br);
-@@ -188,48 +187,11 @@ static void br_getinfo(struct net_device *dev, struct ethtool_drvinfo *info)
- 	strcpy(info->bus_info, "N/A");
- }
- 
--static int br_set_sg(struct net_device *dev, u32 data)
-+static u32 br_fix_features(struct net_device *dev, u32 features)
- {
- 	struct net_bridge *br = netdev_priv(dev);
- 
--	if (data)
--		br->feature_mask |= NETIF_F_SG;
--	else
--		br->feature_mask &= ~NETIF_F_SG;
--
--	br_features_recompute(br);
--	return 0;
--}
--
--static int br_set_tso(struct net_device *dev, u32 data)
--{
--	struct net_bridge *br = netdev_priv(dev);
--
--	if (data)
--		br->feature_mask |= NETIF_F_TSO;
--	else
--		br->feature_mask &= ~NETIF_F_TSO;
--
--	br_features_recompute(br);
--	return 0;
--}
--
--static int br_set_tx_csum(struct net_device *dev, u32 data)
--{
--	struct net_bridge *br = netdev_priv(dev);
--
--	if (data)
--		br->feature_mask |= NETIF_F_NO_CSUM;
--	else
--		br->feature_mask &= ~NETIF_F_ALL_CSUM;
--
--	br_features_recompute(br);
--	return 0;
--}
--
--static int br_set_flags(struct net_device *netdev, u32 data)
--{
--	return ethtool_op_set_flags(netdev, data, ETH_FLAG_TXVLAN);
-+	return br_features_recompute(br, features);
- }
- 
- #ifdef CONFIG_NET_POLL_CONTROLLER
-@@ -330,16 +292,6 @@ static int br_del_slave(struct net_device *dev, struct net_device *slave_dev)
- static const struct ethtool_ops br_ethtool_ops = {
- 	.get_drvinfo    = br_getinfo,
- 	.get_link	= ethtool_op_get_link,
--	.get_tx_csum	= ethtool_op_get_tx_csum,
--	.set_tx_csum 	= br_set_tx_csum,
--	.get_sg		= ethtool_op_get_sg,
--	.set_sg		= br_set_sg,
--	.get_tso	= ethtool_op_get_tso,
--	.set_tso	= br_set_tso,
--	.get_ufo	= ethtool_op_get_ufo,
--	.set_ufo	= ethtool_op_set_ufo,
--	.get_flags	= ethtool_op_get_flags,
--	.set_flags	= br_set_flags,
- };
- 
- static const struct net_device_ops br_netdev_ops = {
-@@ -359,6 +311,7 @@ static const struct net_device_ops br_netdev_ops = {
- #endif
- 	.ndo_add_slave		 = br_add_slave,
- 	.ndo_del_slave		 = br_del_slave,
-+	.ndo_fix_features        = br_fix_features,
- };
- 
- static void br_dev_free(struct net_device *dev)
-@@ -389,7 +342,10 @@ void br_dev_setup(struct net_device *dev)
- 
- 	dev->features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
- 			NETIF_F_GSO_MASK | NETIF_F_NO_CSUM | NETIF_F_LLTX |
--			NETIF_F_NETNS_LOCAL | NETIF_F_GSO | NETIF_F_HW_VLAN_TX;
-+			NETIF_F_NETNS_LOCAL | NETIF_F_HW_VLAN_TX;
-+	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
-+			   NETIF_F_GSO_MASK | NETIF_F_NO_CSUM |
-+			   NETIF_F_HW_VLAN_TX;
- 
- 	br->dev = dev;
- 	spin_lock_init(&br->lock);
-@@ -401,7 +357,6 @@ void br_dev_setup(struct net_device *dev)
- 
- 	memcpy(br->group_addr, br_group_address, ETH_ALEN);
- 
--	br->feature_mask = dev->features;
- 	br->stp_enabled = BR_NO_STP;
- 	br->designated_root = br->bridge_id;
- 	br->bridge_max_age = br->max_age = 20 * HZ;
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 7f5379c..1156460 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -291,15 +291,15 @@ int br_min_mtu(const struct net_bridge *br)
- /*
-  * Recomputes features using slave's features
-  */
--void br_features_recompute(struct net_bridge *br)
-+u32 br_features_recompute(struct net_bridge *br, u32 features)
- {
- 	struct net_bridge_port *p;
--	u32 features, mask;
-+	u32 mask;
- 
--	features = mask = br->feature_mask;
- 	if (list_empty(&br->port_list))
--		goto done;
-+		return features;
- 
-+	mask = features;
- 	features &= ~NETIF_F_ONE_FOR_ALL;
- 
- 	list_for_each_entry(p, &br->port_list, list) {
-@@ -307,8 +307,7 @@ void br_features_recompute(struct net_bridge *br)
- 						     p->dev->features, mask);
- 	}
- 
--done:
--	br->dev->features = netdev_fix_features(br->dev, features);
-+	return features;
- }
- 
- /* called with RTNL */
-@@ -373,9 +372,10 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
- 
- 	list_add_rcu(&p->list, &br->port_list);
- 
-+	netdev_update_features(br->dev);
-+
- 	spin_lock_bh(&br->lock);
- 	changed_addr = br_stp_recalculate_bridge_id(br);
--	br_features_recompute(br);
- 
- 	if ((dev->flags & IFF_UP) && netif_carrier_ok(dev) &&
- 	    (br->dev->flags & IFF_UP))
-@@ -423,9 +423,10 @@ int br_del_if(struct net_bridge *br, struct net_device *dev)
- 
- 	spin_lock_bh(&br->lock);
- 	br_stp_recalculate_bridge_id(br);
--	br_features_recompute(br);
- 	spin_unlock_bh(&br->lock);
- 
-+	netdev_update_features(br->dev);
-+
- 	return 0;
- }
- 
-diff --git a/net/bridge/br_notify.c b/net/bridge/br_notify.c
-index 606b323..6545ee9 100644
---- a/net/bridge/br_notify.c
-+++ b/net/bridge/br_notify.c
-@@ -66,10 +66,7 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
- 		break;
- 
- 	case NETDEV_FEAT_CHANGE:
--		spin_lock_bh(&br->lock);
--		if (netif_running(br->dev))
--			br_features_recompute(br);
--		spin_unlock_bh(&br->lock);
-+		netdev_update_features(br->dev);
- 		break;
- 
- 	case NETDEV_DOWN:
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index e2a4034..54578f2 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -183,7 +183,6 @@ struct net_bridge
- 	struct br_cpu_netstats __percpu *stats;
- 	spinlock_t			hash_lock;
- 	struct hlist_head		hash[BR_HASH_SIZE];
--	u32				feature_mask;
- #ifdef CONFIG_BRIDGE_NETFILTER
- 	struct rtable 			fake_rtable;
- 	bool				nf_call_iptables;
-@@ -379,7 +378,7 @@ extern int br_add_if(struct net_bridge *br,
- extern int br_del_if(struct net_bridge *br,
- 	      struct net_device *dev);
- extern int br_min_mtu(const struct net_bridge *br);
--extern void br_features_recompute(struct net_bridge *br);
-+extern u32 br_features_recompute(struct net_bridge *br, u32 features);
- 
- /* br_input.c */
- extern int br_handle_frame_finish(struct sk_buff *skb);
+brctl addbr test
+ip tuntap add mode tap tap0
+ip tuntap add mode tap tap1
+ifconfig test up
+ifconfig tap0 up
+ifconfig tap1 up
+brctl addif test tap0
+brctl addif test tap1
+
+The problem is that the bridge doesn't seem to work correctly. I sent 
+through tap0 some broadcast frames (WOL frames), and they didn't reach 
+tap1. I was sending packets with:
+
+etherwake -b -i tap0 00:00:00:00:00:00
+
+The tshark command for tap0 showed the frames being sent with tap0, 
+but another tshark for tap1 didn't show them.
+
+Then I added to tap0 the IP address 192.168.10.1/24, and did:
+
+arping 192.168.1.2
+
+I saw ARP request broadcast frames on tap0, but they didn't reach tap1.
+
+This is the output of ifconfig for test, tap0, and tap1 interfaces:
+
+root@computer:~# ifconfig test
+test Link encap:Ethernet HWaddr 02:07:b1:eb:2c:2a
+inet6 addr: fe80::944b:d9ff:fe10:b240/64 Scope:Link
+UP BROADCAST RUNNING PROMISC MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:19 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:0
+RX bytes:0 (0.0 B) TX bytes:3377 (3.2 KiB)
+
+root@computer:~# ifconfig tap0
+tap0 Link encap:Ethernet HWaddr 02:07:b1:eb:2c:2a
+inet addr:192.168.10.0 Bcast:192.168.10.255 Mask:255.255.255.0
+inet6 addr: fe80::7:b1ff:feeb:2c2a/64 Scope:Link
+UP BROADCAST RUNNING PROMISC MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:278 overruns:0 carrier:0
+collisions:0 txqueuelen:500
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+
+root@computer:~# ifconfig tap1
+tap1 Link encap:Ethernet HWaddr b2:ee:2c:f9:d5:0d
+inet6 addr: fe80::b0ee:2cff:fef9:d50d/64 Scope:Link
+UP BROADCAST RUNNING PROMISC MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:19 overruns:0 carrier:0
+collisions:0 txqueuelen:500
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+
+The output of the brctl:
+
+root@computer:~# brctl show
+bridge name bridge id STP enabled interfaces
+pan0 8000.000000000000 no
+test 8000.0207b1eb2c2a no tap0
+tap1
+root@computer:~# brctl showmacs test
+port no mac addr is local? ageing timer
+1 02:07:b1:eb:2c:2a yes 0.00
+2 b2:ee:2c:f9:d5:0d yes 0.00
+
+The output of route:
+
+root@computer:/home/iszczesniak# route -n
+Kernel IP routing table
+Destination Gateway Genmask Flags Metric Ref Use Iface
+192.168.2.0 0.0.0.0 255.255.255.0 U 2 0 0 eth1
+192.168.10.0 0.0.0.0 255.255.255.0 U 0 0 0 tap0
+169.254.0.0 0.0.0.0 255.255.0.0 U 1000 0 0 eth1
+0.0.0.0 192.168.2.1 0.0.0.0 UG 0 0 0 eth1
+
+What am I doing wrong?
+
+
+Thanks,
+Irek
+
 -- 
-1.7.2.5
-
+Ireneusz (Irek) Szczesniak
+http://www.irkos.org
