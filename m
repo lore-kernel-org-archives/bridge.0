@@ -1,13 +1,13 @@
-Message-ID: <4DB5BD6C.7000003@gmail.com>
-Date: Mon, 25 Apr 2011 20:29:00 +0200
-From: =?UTF-8?B?SXJlbmV1c3ogU3pjemXFm25pYWs=?=
- <irek.szczesniak@gmail.com>
+Message-ID: <4DB5BE51.6050108@gmail.com>
+Date: Mon, 25 Apr 2011 20:32:49 +0200
+From: =?ISO-8859-2?Q?Ireneusz_Szcze=B6niak?= <irek.szczesniak@gmail.com>
 MIME-Version: 1.0
-References: <4DB43C0F.9080502@gmail.com>
-In-Reply-To: <4DB43C0F.9080502@gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] brctl problem: broadcast doesn't get through
+References: <4DB540CA.8030903@gmail.com>
+	<BANLkTimgVfBmKyE8YcO4_TuQvCf_Y-vfNQ@mail.gmail.com>
+In-Reply-To: <BANLkTimgVfBmKyE8YcO4_TuQvCf_Y-vfNQ@mail.gmail.com>
+Content-Type: text/plain; charset="iso-8859-2"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] mind-boggling questions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,140 +18,86 @@ List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-Now I think I understand better what is happening in my case.  I guess 
-that my configuration can be depicted as follows:
+Thanks, Sasikanth, for your response.  Yes, I didn't realize that we=20
+need a MAC address for STP.  Not only we need a MAC for a bridge, but=20
+there can be MAC addresses for ports too, and why I just don't know.=20
+I need to do some reading on STP, because I know very little about it.
 
-application
-that connects
-to tap1
-  |   ^
-  |   |
-  | tap1
-  | intf
-  |   |
-  v   |
-bridge "test"
-  |   ^
-  v   |
-tap0 |
-intf |
-  |   |
-  v   |
-application
-that connects
-to tap0
-
-The reasoning for the arrows above is as follows:
-
-1. When I send a broadcast frame to tap0 with "etherwake -b -i tap0 
-00:00:00:00:00:00", this frame doesn't reach the bridge, but it 
-reaches the application connected to the tap0 interface.
-
-2. It seems that the tap0 interface is transparent, i.e. the messages 
-that originate at the bridge and that should be sent to the 
-application that connects to tap0 are not consumed by the tap0 
-interface.  Listening with tcpdump or tshark on tap0 shows these messages.
-
-3. When I send in the application connected to tap0 a frame with the 
-destination address of the tap0 interface, this frame is seen at the 
-bridge.
-
-If my reasoning is wrong, please let me know.
-
-
-Thanks.
-Irek
-
-On 24.04.2011 17:04, Ireneusz Szcześniak wrote:
-> Hi,
+On 25.04.2011 13:02, Sasikanth V wrote:
+> 2011/4/25 Ireneusz Szcze=B6niak <irek.szczesniak@gmail.com
+> <mailto:irek.szczesniak@gmail.com>>
 >
-> I'm creating a bridge, and then add to it two tap interfaces. No
-> physical interface is added to the bridge. These are the commands:
+>     Hi,
 >
-> brctl addbr test
-> ip tuntap add mode tap tap0
-> ip tuntap add mode tap tap1
-> ifconfig test up
-> ifconfig tap0 up
-> ifconfig tap1 up
-> brctl addif test tap0
-> brctl addif test tap1
+>     I have a few questions on the Linux bridge, and I would appreciate it
+>     if someone could answer them.
 >
-> The problem is that the bridge doesn't seem to work correctly. I sent
-> through tap0 some broadcast frames (WOL frames), and they didn't reach
-> tap1. I was sending packets with:
+>     1. Why does a bridge have a MAC address?  A bridge doesn't need a MAC
+>     address. I understand that a Linux box might offer more than a regular
+>     switch, and for that you need a MAC address. But the services should
 >
-> etherwake -b -i tap0 00:00:00:00:00:00
+>      Yes, Linux bridge needs mac address. Because linux works based on
+> the 802.1D bridge
+>      which has MAC relay entity,  Spanning tree protocol entity. The
+> bridge required mac-address to communicate
+>      with other bridges. For example to form a loop-free network
+> spanning-tree protocol in the bridges will communicate with
+>      the bridges using BPDU, the bpdus carry the bridge address to
+> identify from which bridge we have received the BPDU.
+>      If your bridge just acts as forwarding  agent, then mac address is
+> not requried.
 >
-> The tshark command for tap0 showed the frames being sent with tap0, but
-> another tshark for tap1 didn't show them.
->
-> Then I added to tap0 the IP address 192.168.10.1/24, and did:
->
-> arping 192.168.1.2
->
-> I saw ARP request broadcast frames on tap0, but they didn't reach tap1.
->
-> This is the output of ifconfig for test, tap0, and tap1 interfaces:
->
-> root@computer:~# ifconfig test
-> test Link encap:Ethernet HWaddr 02:07:b1:eb:2c:2a
-> inet6 addr: fe80::944b:d9ff:fe10:b240/64 Scope:Link
-> UP BROADCAST RUNNING PROMISC MULTICAST MTU:1500 Metric:1
-> RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-> TX packets:19 errors:0 dropped:0 overruns:0 carrier:0
-> collisions:0 txqueuelen:0
-> RX bytes:0 (0.0 B) TX bytes:3377 (3.2 KiB)
->
-> root@computer:~# ifconfig tap0
-> tap0 Link encap:Ethernet HWaddr 02:07:b1:eb:2c:2a
-> inet addr:192.168.10.0 Bcast:192.168.10.255 Mask:255.255.255.0
-> inet6 addr: fe80::7:b1ff:feeb:2c2a/64 Scope:Link
-> UP BROADCAST RUNNING PROMISC MULTICAST MTU:1500 Metric:1
-> RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-> TX packets:0 errors:0 dropped:278 overruns:0 carrier:0
-> collisions:0 txqueuelen:500
-> RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
->
-> root@computer:~# ifconfig tap1
-> tap1 Link encap:Ethernet HWaddr b2:ee:2c:f9:d5:0d
-> inet6 addr: fe80::b0ee:2cff:fef9:d50d/64 Scope:Link
-> UP BROADCAST RUNNING PROMISC MULTICAST MTU:1500 Metric:1
-> RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-> TX packets:0 errors:0 dropped:19 overruns:0 carrier:0
-> collisions:0 txqueuelen:500
-> RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
->
-> The output of the brctl:
->
-> root@computer:~# brctl show
-> bridge name bridge id STP enabled interfaces
-> pan0 8000.000000000000 no
-> test 8000.0207b1eb2c2a no tap0
-> tap1
-> root@computer:~# brctl showmacs test
-> port no mac addr is local? ageing timer
-> 1 02:07:b1:eb:2c:2a yes 0.00
-> 2 b2:ee:2c:f9:d5:0d yes 0.00
->
-> The output of route:
->
-> root@computer:/home/iszczesniak# route -n
-> Kernel IP routing table
-> Destination Gateway Genmask Flags Metric Ref Use Iface
-> 192.168.2.0 0.0.0.0 255.255.255.0 U 2 0 0 eth1
-> 192.168.10.0 0.0.0.0 255.255.255.0 U 0 0 0 tap0
-> 169.254.0.0 0.0.0.0 255.255.0.0 U 1000 0 0 eth1
-> 0.0.0.0 192.168.2.1 0.0.0.0 UG 0 0 0 eth1
->
-> What am I doing wrong?
+>     be provided by a new tap interface added to the bridge. I believe that
+>     the bridge should not even be shown by ifconfig.
 >
 >
-> Thanks,
-> Irek
+>      I am not familiar with tap interface, So ignoring it.
+>      I agree with you that bridge should not be shown in ifconfig.
+> Bridge must come up  when anyone of the bridge ports are up.
+>      But in current implementation we have to issue ifconfig <bridge>
+> up  to make the bridge up. As far as i see it is not required.
+>      Hope someone can give more clarification and its purpose
+>
+>
+>     2. Why does a bridge take the lowest MAC address of the interfaces
+>     connected to it?
+>
+>
+>         From 802.1D
+>
+>         7.12.5 Unique identification of a bridge
+>         A unique 48-bit Universally Administered MAC Address, termed the
+> Bridge Address, shall be assigned to
+>         each Bridge. The Bridge Address may be the individual MAC
+> Address of a Bridge Port, in which case, use
+>         of the address of the lowest numbered Bridge Port (Port 1) is
+> recommended.
+>
+>
+>     3. When I send broadcast frames to a bridge interface (etherwake -b -i
+>     br0 00:00:00:00:00:00), the frames are received by the interfaces of
+>     the bridge.  But when I send the frames to one of the interfaces, they
+>     are not broadcasted to other interfaces.  I though that the bridge
+>     interface (br0) behaves the same as an interface added to the bridge,
+>     but I was mistaken.  What are the differences?
+>
+>      no idea
+>
+>
+>     Thanks,
+>     Irek
+>
+>     --
+>     Ireneusz (Irek) Szczesniak
+>     http://www.irkos.org
+>     _______________________________________________
+>     Bridge mailing list
+>     Bridge@lists.linux-foundation.org
+>     <mailto:Bridge@lists.linux-foundation.org>
+>     https://lists.linux-foundation.org/mailman/listinfo/bridge
 >
 
 
--- 
+--=20
 Ireneusz (Irek) Szczesniak
 http://www.irkos.org
