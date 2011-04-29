@@ -1,12 +1,17 @@
-Date: Fri, 29 Apr 2011 09:48:54 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20110429094854.360b9746@nehalam>
-In-Reply-To: <4DBAE90C.8030808@dogpad.net>
-References: <4DBAE90C.8030808@dogpad.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <4DBA9C23.2000408@suse.cz>
+Date: Fri, 29 Apr 2011 13:08:19 +0200
+From: Michal Marek <mmarek@suse.cz>
+MIME-Version: 1.0
+References: <4DBA87B6020000780003ED74@vpn.id2.novell.com>
+	<20110429.011051.183061494.davem@davemloft.net>
+	<4DBA937F020000780003ED96@vpn.id2.novell.com>
+	<20110429.014445.39196872.davem@davemloft.net>
+	<4DBA9C71020000780003EDBE@vpn.id2.novell.com>
+In-Reply-To: <4DBA9C71020000780003EDBE@vpn.id2.novell.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] no wireless interfaces?
+Subject: Re: [Bridge] [PATCH] bridge: Module use count must be updated as	
+ bridges are created/destroyed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,25 +20,80 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "jharvell+lists.bridge@dogpad.net" <jharvell+lists.bridge@dogpad.net>
-Cc: "Bridge@lists.linux-foundation.org" <Bridge@lists.linux-foundation.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: jeffm@suse.com, Jon Masters <jcm@jonmasters.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 
-On Fri, 29 Apr 2011 11:36:28 -0500
-"jharvell+lists.bridge@dogpad.net" <jharvell+lists.bridge@dogpad.net> wrote:
+On 29.4.2011 11:09, Jan Beulich wrote:
+>>>> On 29.04.11 at 10:44, David Miller<davem@davemloft.net>  wrote:
+>> From: "Jan Beulich"<JBeulich@novell.com>
+>> Date: Fri, 29 Apr 2011 09:31:27 +0100
+>>
+>>>>>> On 29.04.11 at 10:10, David Miller<davem@davemloft.net>  wrote:
+>>>> From: "Jan Beulich"<JBeulich@novell.com>
+>>>> Date: Fri, 29 Apr 2011 08:41:10 +0100
+>>>>
+>>>>> You talk of rmmod on the very module, but the issue is about
+>>>>> modprobe -r on a dependent module. I cannot believe you consider
+>>>>> it correct that *implicit* unloading of bridge.ko should happen when
+>>>>> bridges are configured.
+>>>>
+>>>> Which module in particular depends upon bridge and causes the
+>>>> problem?
+>>>
+>>> The problem was observed (a long time ago) with ebtable_broute,
+>>> and I cannot see how this would have changed meanwhile.
+>>
+>> Well your change makes it so that someone who actually _wants_ to
+>> unload the bridge module, regardless of configuration, cannot do so.
+>>
+>> I think that's a worse problem than this ebtables thing.
+>>
+>> Nothing on the system should be hitting modules with unload requests
+>> unless the user explicitly asked for that specific module to be
+>> unloaded.  At least not by default.
+>>
+>> So the me the problem is perhaps that "modprobe -r" does this auto
+>> dependency unloading thing by default.
+>>
+>> When we first fixed network device drivers so that they now properly
+>> always run with no module refcount at all, people complained because
+>> there were some distributions that ran some daemon that periodically
+>> looked for "unreferenced" modules and "helped" the user by
+>> automatically unloaded them.
+>>
+>> We killed that foolish daemon, and we can fix "modprobe -r" too.
+>
+> Michal - aren't you the modutils maintainer?
 
-> I tried to bridge a wireless interface to a wired Ethernet interface,
-> and it failed with "Operation not supported."
-> 
-> Looking at the kernel code, it seems like this is intentional.  I
-> noticed the following in br_add_if:
-> 
->         /* No bridging devices that dislike that (e.g. wireless) */
->         if (dev->priv_flags & IFF_DONT_BRIDGE)
->                 return -EOPNOTSUPP;
-> 
-> I'm curious to know why this is not supported.
+That would be Jon (CC added).
 
-See discussion on netdev. Basically without some form of MAC spoofing
-(NAT at level 2); it is not possible to bridge in station mode.
+> What are your thoughts
+> here? (The original report we got is
+> https://bugzilla.novell.com/show_bug.cgi?id=267651.)
 
--- 
+I think that defaulting to not removing dependencies would be a good 
+idea. But do not expect that it will help with those artificial tests, 
+they will just proceed a few steps further until they hit the module 
+with broken unloading ;-).
+
+Michal
+
+>
+>> Does "rmmod" have this behavior too?  If not, and it does the right
+>> thing by only unloaded what the user asked for, then people should
+>> use that.
+>
+> No, it doesn't. Other than modprobe, rmmod deals only with the
+> module specified.
+>
+>> I really don't in any way want to block people from being able to
+>> cleanly unload the bridge module, regardless of configuration, if
+>> that's what they want so your patch as written is not going to be
+>> considered for inclusion.
+>
+> I understood that meanwhile, yet fail to see an alternative solution
+> (imo this auto-unloading is quite desirable in other cases).
+>
+> Jan
+>
+
