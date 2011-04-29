@@ -1,14 +1,15 @@
-Message-ID: <4DBA9C23.2000408@suse.cz>
-Date: Fri, 29 Apr 2011 13:08:19 +0200
-From: Michal Marek <mmarek@suse.cz>
-MIME-Version: 1.0
+From: Jon Masters <jonathan@jonmasters.org>
+In-Reply-To: <4DBA9C23.2000408@suse.cz>
 References: <4DBA87B6020000780003ED74@vpn.id2.novell.com>
 	<20110429.011051.183061494.davem@davemloft.net>
 	<4DBA937F020000780003ED96@vpn.id2.novell.com>
 	<20110429.014445.39196872.davem@davemloft.net>
 	<4DBA9C71020000780003EDBE@vpn.id2.novell.com>
-In-Reply-To: <4DBA9C71020000780003EDBE@vpn.id2.novell.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	<4DBA9C23.2000408@suse.cz>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 29 Apr 2011 12:05:16 -0400
+Message-ID: <1304093116.11627.386.camel@constitution.bos.jonmasters.org>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: Module use count must be updated as	
  bridges are created/destroyed
@@ -20,80 +21,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: jeffm@suse.com, Jon Masters <jcm@jonmasters.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Michal Marek <mmarek@suse.cz>
+Cc: bridge@lists.linux-foundation.org, Jon Masters <jcm@jonmasters.org>, netdev@vger.kernel.org, jeffm@suse.com, Jan Beulich <JBeulich@novell.com>, David Miller <davem@davemloft.net>
 
-On 29.4.2011 11:09, Jan Beulich wrote:
->>>> On 29.04.11 at 10:44, David Miller<davem@davemloft.net>  wrote:
->> From: "Jan Beulich"<JBeulich@novell.com>
->> Date: Fri, 29 Apr 2011 09:31:27 +0100
->>
->>>>>> On 29.04.11 at 10:10, David Miller<davem@davemloft.net>  wrote:
->>>> From: "Jan Beulich"<JBeulich@novell.com>
->>>> Date: Fri, 29 Apr 2011 08:41:10 +0100
->>>>
->>>>> You talk of rmmod on the very module, but the issue is about
->>>>> modprobe -r on a dependent module. I cannot believe you consider
->>>>> it correct that *implicit* unloading of bridge.ko should happen when
->>>>> bridges are configured.
->>>>
->>>> Which module in particular depends upon bridge and causes the
->>>> problem?
->>>
->>> The problem was observed (a long time ago) with ebtable_broute,
->>> and I cannot see how this would have changed meanwhile.
->>
->> Well your change makes it so that someone who actually _wants_ to
->> unload the bridge module, regardless of configuration, cannot do so.
->>
->> I think that's a worse problem than this ebtables thing.
->>
->> Nothing on the system should be hitting modules with unload requests
->> unless the user explicitly asked for that specific module to be
->> unloaded.  At least not by default.
->>
->> So the me the problem is perhaps that "modprobe -r" does this auto
->> dependency unloading thing by default.
->>
->> When we first fixed network device drivers so that they now properly
->> always run with no module refcount at all, people complained because
->> there were some distributions that ran some daemon that periodically
->> looked for "unreferenced" modules and "helped" the user by
->> automatically unloaded them.
->>
->> We killed that foolish daemon, and we can fix "modprobe -r" too.
->
-> Michal - aren't you the modutils maintainer?
+On Fri, 2011-04-29 at 13:08 +0200, Michal Marek wrote:
+> On 29.4.2011 11:09, Jan Beulich wrote:
+> >>>> On 29.04.11 at 10:44, David Miller<davem@davemloft.net>  wrote:
 
-That would be Jon (CC added).
+> >> Nothing on the system should be hitting modules with unload requests
+> >> unless the user explicitly asked for that specific module to be
+> >> unloaded.  At least not by default.
+> >>
+> >> So the me the problem is perhaps that "modprobe -r" does this auto
+> >> dependency unloading thing by default.
+> >>
+> >> When we first fixed network device drivers so that they now properly
+> >> always run with no module refcount at all, people complained because
+> >> there were some distributions that ran some daemon that periodically
+> >> looked for "unreferenced" modules and "helped" the user by
+> >> automatically unloaded them.
+> >>
+> >> We killed that foolish daemon, and we can fix "modprobe -r" too.
+> >
+> > Michal - aren't you the modutils maintainer?
+> 
+> That would be Jon (CC added).
 
-> What are your thoughts
-> here? (The original report we got is
-> https://bugzilla.novell.com/show_bug.cgi?id=267651.)
+Thanks. So the specific feature you mention was added precisely because
+some folks wanted to clean up ununsed modules by removing all of their
+dependencies. Since I've not been on this thread until now, can you let
+me know what precisely you need, and why? We can make the unloading of
+unused modules configurable, but it sounds like you're saying even that
+isn't good enough. What actually happens, what's the bug experience?
 
-I think that defaulting to not removing dependencies would be a good 
-idea. But do not expect that it will help with those artificial tests, 
-they will just proceed a few steps further until they hit the module 
-with broken unloading ;-).
+I realize there isn't a general fondness of module removing, and I for
+one don't really mind having a few extra modules loaded in my kernel.
 
-Michal
+Jon.
 
->
->> Does "rmmod" have this behavior too?  If not, and it does the right
->> thing by only unloaded what the user asked for, then people should
->> use that.
->
-> No, it doesn't. Other than modprobe, rmmod deals only with the
-> module specified.
->
->> I really don't in any way want to block people from being able to
->> cleanly unload the bridge module, regardless of configuration, if
->> that's what they want so your patch as written is not going to be
->> considered for inclusion.
->
-> I understood that meanwhile, yet fail to see an alternative solution
-> (imo this auto-unloading is quite desirable in other cases).
->
-> Jan
->
 
