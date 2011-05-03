@@ -1,13 +1,10 @@
+Date: Tue, 3 May 2011 18:23:43 +0200
+From: Santiago Garcia Mantinan <manty@debian.org>
+Message-ID: <20110503162343.GB28712@vip.manty.net>
 MIME-Version: 1.0
-Sender: aenertia@aenertia.net
-In-Reply-To: <4DBAE840.2060705@tektronix.com>
-References: <4DBAE840.2060705@tektronix.com>
-From: Joel Wiramu Pauling <joel@aenertia.net>
-Date: Sat, 30 Apr 2011 15:26:24 +1200
-Message-ID: <BANLkTinhVdrMEgU8L9qvYsw1iB1zN52KgA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] no wireless interfaces?
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Bugs fixed on Debian's bridge-utils
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,32 +13,76 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Joe Harvell <joe.harvell@tektronix.com>
-Cc: Bridge@lists.linux-foundation.org
+To: Stephen Hemminger <shemminger@vyatta.com>, Lennert Buytenhek <buytenh@gnu.org>
+Cc: bridge@osdl.org
 
-Because 802.11a/b/g/n does odd things with mac headers which make
-bridging them sometimes not work as expected.
+Hi!
 
-On 30 April 2011 04:33, Joe Harvell <joe.harvell@tektronix.com> wrote:
-> I tried to bridge a wireless interface to a wired Ethernet interface,
-> and it failed with "Operation not supported."
->
-> Looking at the kernel code, it seems like this is intentional. =C2=A0I
-> noticed the following in br_add_if:
->
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* No bridging devices that dislike that (e.g.=
- wireless) */
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (dev->priv_flags & IFF_DONT_BRIDGE)
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EOPNOTSUPP=
-;
->
-> I'm curious to know why this is not supported.
->
-> ---
-> Joe
->
-> _______________________________________________
-> Bridge mailing list
-> Bridge@lists.linux-foundation.org
-> https://lists.linux-foundation.org/mailman/listinfo/bridge
->
+As the Debian's maintainer of bridge-utils on my last upload to Debian I
+cared to comment the source stating the bugs we had fixed on bridge-utils on
+Debian that are still opened on your upstream version, you can get the patch
+directly from our debian sources and forget about the debian dir, but I have
+cut that out for you and what remains is this:
+
+--- bridge-utils-1.5.orig/doc/brctl.8
++++ bridge-utils-1.5/doc/brctl.8
+@@ -89,7 +89,7 @@
+ .B brctl showmacs <brname>
+ shows a list of learned MAC addresses for this bridge.
+ 
+-.B brctl setageingtime <brname> <time>
++.B brctl setageing <brname> <time>
+ sets the ethernet (MAC) address ageing time, in seconds. After <time>
+ seconds of not having seen a frame coming from a certain address, the
+ bridge will time out (delete) that address from the Forwarding
+--- bridge-utils-1.5.orig/brctl/brctl.c
++++ bridge-utils-1.5/brctl/brctl.c
+@@ -69,7 +69,8 @@
+ 	argc -= optind;
+ 	argv += optind;
+ 	if ((cmd = command_lookup(*argv)) == NULL) {
+-		fprintf(stderr, "never heard of command [%s]\n", argv[1]);
++/* Debian bug #406907 */
++		fprintf(stderr, "never heard of command [%s]\n", argv[0]);
+ 		goto help;
+ 	}
+ 	
+--- bridge-utils-1.5.orig/libbridge/libbridge_devif.c
++++ bridge-utils-1.5/libbridge/libbridge_devif.c
+@@ -288,12 +288,16 @@
+ 	char path[SYSFS_PATH_MAX];
+ 	FILE *f;
+ 
+-	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/%s", bridge, name);
++/* Debian bug #496491 */
++	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/bridge/%s", bridge, name);
+ 
+ 	f = fopen(path, "w");
+ 	if (f) {
+ 		ret = fprintf(f, "%ld\n", value);
+ 		fclose(f);
++/* Debian bug #574363 */
++		if (errno)
++			ret=-1;
+ 	} else {
+ 		/* fallback to old ioctl */
+ 		struct ifreq ifr;
+@@ -355,6 +359,9 @@
+ 	if (f) {
+ 		ret = fprintf(f, "%ld\n", value);
+ 		fclose(f);
++/* Debian bug #574363 */
++		if (errno)
++			ret=-1;
+ 	} else {
+ 		int index = get_portno(bridge, ifname);
+ 
+
+If you need comments on the bugs or the solutions or want us to test
+different solutions for these bugs just let me know.
+
+Thanks for your help.
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net
