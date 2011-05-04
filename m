@@ -1,12 +1,9 @@
-Date: Tue, 3 May 2011 09:28:12 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20110503092812.032524d8@nehalam>
-In-Reply-To: <20110503162343.GB28712@vip.manty.net>
-References: <20110503162343.GB28712@vip.manty.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bugs fixed on Debian's bridge-utils
+MIME-Version: 1.0
+Date: Wed, 4 May 2011 15:21:41 +0200
+Message-ID: <BANLkTi=xF2j-hU+4mELWWpXet06WV5NAxA@mail.gmail.com>
+From: IMS <ims77.dev@gmail.com>
+Content-Type: multipart/alternative; boundary=485b393ab2072f6f5104a27323d1
+Subject: [Bridge] Bridge and authentication
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,82 +12,180 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Santiago Garcia Mantinan <manty@debian.org>
-Cc: Lennert Buytenhek <buytenh@gnu.org>, bridge@osdl.org
+To: bridge@osdl.org
 
-On Tue, 3 May 2011 18:23:43 +0200
-Santiago Garcia Mantinan <manty@debian.org> wrote:
+--485b393ab2072f6f5104a27323d1
+Content-Type: text/plain; charset=ISO-8859-1
 
-> Hi!
-> 
-> As the Debian's maintainer of bridge-utils on my last upload to Debian I
-> cared to comment the source stating the bugs we had fixed on bridge-utils on
-> Debian that are still opened on your upstream version, you can get the patch
-> directly from our debian sources and forget about the debian dir, but I have
-> cut that out for you and what remains is this:
-> 
-> --- bridge-utils-1.5.orig/doc/brctl.8
-> +++ bridge-utils-1.5/doc/brctl.8
-> @@ -89,7 +89,7 @@
->  .B brctl showmacs <brname>
->  shows a list of learned MAC addresses for this bridge.
->  
-> -.B brctl setageingtime <brname> <time>
-> +.B brctl setageing <brname> <time>
->  sets the ethernet (MAC) address ageing time, in seconds. After <time>
->  seconds of not having seen a frame coming from a certain address, the
->  bridge will time out (delete) that address from the Forwarding
-> --- bridge-utils-1.5.orig/brctl/brctl.c
-> +++ bridge-utils-1.5/brctl/brctl.c
-> @@ -69,7 +69,8 @@
->  	argc -= optind;
->  	argv += optind;
->  	if ((cmd = command_lookup(*argv)) == NULL) {
-> -		fprintf(stderr, "never heard of command [%s]\n", argv[1]);
-> +/* Debian bug #406907 */
-> +		fprintf(stderr, "never heard of command [%s]\n", argv[0]);
->  		goto help;
->  	}
->  	
-> --- bridge-utils-1.5.orig/libbridge/libbridge_devif.c
-> +++ bridge-utils-1.5/libbridge/libbridge_devif.c
-> @@ -288,12 +288,16 @@
->  	char path[SYSFS_PATH_MAX];
->  	FILE *f;
->  
-> -	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/%s", bridge, name);
-> +/* Debian bug #496491 */
-> +	snprintf(path, SYSFS_PATH_MAX, SYSFS_CLASS_NET "%s/bridge/%s", bridge, name);
->  
->  	f = fopen(path, "w");
->  	if (f) {
->  		ret = fprintf(f, "%ld\n", value);
->  		fclose(f);
-> +/* Debian bug #574363 */
-> +		if (errno)
-> +			ret=-1;
->  	} else {
->  		/* fallback to old ioctl */
->  		struct ifreq ifr;
-> @@ -355,6 +359,9 @@
->  	if (f) {
->  		ret = fprintf(f, "%ld\n", value);
->  		fclose(f);
-> +/* Debian bug #574363 */
-> +		if (errno)
-> +			ret=-1;
->  	} else {
->  		int index = get_portno(bridge, ifname);
->  
-> 
-> If you need comments on the bugs or the solutions or want us to test
-> different solutions for these bugs just let me know.
-> 
-> Thanks for your help.
-> 
-> Regards...
+Hello,
+I'm trying to configure an Ubuntu server with 2 wired interfaces set as a
+bridge and I want a radius authentication on each interfaces.
 
-Ok. will fix (without comments)
+I'm able to set my configuration files to have a bridge between the 2
+interfaces without authentication.
+I'm able to set my configuration files to have an authentication on each
+interfaces but without the bridge.
+I don't know how to configure my files to have both authentication and
+bridge !
+Can someone help me ?
+
+I give you my /etc/network/interface not working :
+*# loopback interface**
+auto lo**
+iface lo inet loopback**
+# network interface**
+auto eth0**
+iface eth0 inet manual**
+**
+auto eth1**
+iface eth1 inet manual**
+**
+auto br0**
+iface br0 inet dhcp**
+bridge_ports eth0 eth1**
+**
+wpa-iface eth0  #*How to add eth1 ? If I add a new line it's not working
+*wpa-bridge br0**
+wpa-driver wired**
+wpa-conf /etc/wpa_supplicant/wired.conf*
 
 
--- 
+The wired.conf file for information :
+*ctrl_interface=/var/run/wpa_supplicant**
+ctrl_interface_group=0**
+ap_scan=0**
+#On configure la re-authentification rapide pour protocoles EAP**
+#fast_reauth=1**
+**
+network={**
+        ssid="lan"**
+        key_mgmt=IEEE8021X**
+        eapol_flags=0**
+        eap=MD5**
+        identity="labo"**
+        password="test"**
+}*
+
+With this configuration, it's working if my interface eth0 is connected, but
+it's not working if it's eth1 which is connected.
+Could you tell me what I need to add in my configuration file ?
+
+Thanks for your help.
+
+Sebastien.
+
+--485b393ab2072f6f5104a27323d1
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello,<br>
+
+I&#39;m trying to configure an Ubuntu server with 2 wired interfaces set as=
+ a
+ bridge and I want a radius authentication on each interfaces. <br>
+
+<br>
+
+I&#39;m able to set my configuration files to have a bridge between the 2 i=
+nterfaces without authentication.<br>
+
+I&#39;m able to set my configuration files to have an authentication on eac=
+h interfaces but without the bridge.<br>
+
+I don&#39;t know how to configure my files to have both authentication and =
+bridge !<br>
+
+Can someone help me ?<br>
+
+<br>
+
+I give you my /etc/network/interface not working :<br>
+
+<b><i># loopback interface</i></b><b><i><br>
+
+auto lo</i></b><b><i><br>
+
+iface lo inet loopback</i></b><b><i><br>
+
+# network interface</i></b><b><i><br>
+
+auto eth0</i></b><b><i><br>
+
+iface eth0 inet manual</i></b><b><i><br>
+
+</i></b><b><i><br>
+
+auto eth1</i></b><b><i><br>
+
+iface eth1 inet manual</i></b><b><i><br>
+
+</i></b><b><i><br>
+
+auto br0</i></b><b><i><br>
+
+iface br0 inet dhcp</i></b><b><i><br>
+
+bridge_ports eth0 eth1</i></b><b><i><br>
+
+</i></b><b><i><br>
+
+wpa-iface eth0=A0 #</i></b>How to add eth1 ? If I add a new line it&#39;s n=
+ot working<br>
+
+<b><i>wpa-bridge br0</i></b><b><i><br>
+
+wpa-driver wired</i></b><b><i><br>
+
+wpa-conf /etc/wpa_supplicant/wired.conf</i></b><br>
+
+<br>
+
+<br>
+
+The wired.conf file for information :<br>
+
+<b><i>ctrl_interface=3D/var/run/wpa_supplicant</i></b><b><i><br>
+
+ctrl_interface_group=3D0</i></b><b><i><br>
+
+ap_scan=3D0</i></b><b><i><br>
+
+#On configure la re-authentification rapide pour protocoles EAP</i></b><b><=
+i><br>
+
+#fast_reauth=3D1</i></b><b><i><br>
+
+</i></b><b><i><br>
+
+network=3D{</i></b><b><i><br>
+
+=A0=A0=A0=A0=A0=A0=A0 ssid=3D&quot;lan&quot;</i></b><b><i><br>
+
+=A0=A0=A0=A0=A0=A0=A0 key_mgmt=3DIEEE8021X</i></b><b><i><br>
+
+=A0=A0=A0=A0=A0=A0=A0 eapol_flags=3D0</i></b><b><i><br>
+
+=A0=A0=A0=A0=A0=A0=A0 eap=3DMD5</i></b><b><i><br>
+
+=A0=A0=A0=A0=A0=A0=A0 identity=3D&quot;labo&quot;</i></b><b><i><br>
+
+=A0=A0=A0=A0=A0=A0=A0 password=3D&quot;test&quot;</i></b><b><i><br>
+
+}</i></b><br>
+
+<br>
+
+With this configuration, it&#39;s working if my interface eth0 is connected=
+, but it&#39;s not working if it&#39;s eth1 which is connected.<br>
+
+Could you tell me what I need to add in my configuration file ?<br>
+
+<br>
+
+Thanks for your help.<br>
+
+<br>
+
+Sebastien.
+
+--485b393ab2072f6f5104a27323d1--
