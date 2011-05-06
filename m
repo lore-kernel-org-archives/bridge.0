@@ -1,9 +1,10 @@
+From: "Trellert" <trellert@freecmd.lu>
+Date: Fri, 6 May 2011 11:04:06 +0200
+Message-ID: <559308773B1C4D498F35DACC1F113B6F@Luc>
 MIME-Version: 1.0
-Date: Thu, 5 May 2011 08:49:28 +0200
-Message-ID: <BANLkTimkRLdA6DpzLu49UnKeN19o51Kmyw@mail.gmail.com>
-From: IMS <ims77.dev@gmail.com>
-Content-Type: multipart/alternative; boundary=00151743f88453752904a281c612
-Subject: Re: [Bridge] Bridge and authentication
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_006F_01CC0BDD.516010F0"
+Subject: [Bridge] using a bridge to change mac address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,232 +13,367 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@linux-foundation.org
-Cc: bridge@linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
---00151743f88453752904a281c612
-Content-Type: text/plain; charset=ISO-8859-1
+This is a multi-part message in MIME format.
 
-First, thanks for your response.
-My code is inspired from the ubuntu documentation but there was only one
-interface in the example (
-https://help.ubuntu.com/community/Network802.1xAuthentication)
-Do you means it's not possible to do it with two interfaces ? I should be
-connected and authenticated on the 2 interfaces to be able to use the bridge
-?
-Or should I authenticate the bridge ? if so how to do that !?
+------=_NextPart_000_006F_01CC0BDD.516010F0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-If someone has a valid example with 2 Ethernet interfaces I'm interested by
-!
+Hello
 
-Sebastien.
+ 
 
---------------------------------------------------------------------------------------------------------------
+I have the following situation:
 
-> Hello,
-> I'm trying to configure an Ubuntu server with 2 wired interfaces set as a
-> bridge and I want a radius authentication on each interfaces.
->
-> I'm able to set my configuration files to have a bridge between the 2
-> interfaces without authentication.
-> I'm able to set my configuration files to have an authentication on each
-> interfaces but without the bridge.
-> I don't know how to configure my files to have both authentication and
-> bridge !
-> Can someone help me ?
->
-> I give you my /etc/network/interface not working :
-> *# loopback interface**
-> auto lo**
-> iface lo inet loopback**
-> # network interface**
-> auto eth0**
-> iface eth0 inet manual**
-> **
-> auto eth1**
-> iface eth1 inet manual**
-> **
-> auto br0**
-> iface br0 inet dhcp**
-> bridge_ports eth0 eth1**
-> **
-> wpa-iface eth0  #*How to add eth1 ? If I add a new line it's not working
-> *wpa-bridge br0**
-> wpa-driver wired**
-> wpa-conf /etc/wpa_supplicant/wired.conf*
->
->
-> The wired.conf file for information :
-> *ctrl_interface=/var/run/wpa_supplicant**
-> ctrl_interface_group=0**
-> ap_scan=0**
-> #On configure la re-authentification rapide pour protocoles EAP**
-> #fast_reauth=1**
-> **
-> network={**
->         ssid="lan"**
->         key_mgmt=IEEE8021X**
->         eapol_flags=0**
->         eap=MD5**
->         identity="labo"**
->         password="test"**
-> }*
->
-> With this configuration, it's working if my interface eth0 is connected,
-but
-> it's not working if it's eth1 which is connected.
-> Could you tell me what I need to add in my configuration file ?
->
-> Thanks for your help.
->
-> Sebastien.
+ 
 
-Once you put interfaces into a bridge, all applications and services
-should use the bridge interface not the underlying ethernet devices
-because packets received on the underlying device will be absorbed
-by the bridge and not processed for the ethernet device.
+My ISP gives me an IP address with DHCP, but only to the mac address
+00:11:22:33:44:55 (which is their preconfigurated device)
 
---00151743f88453752904a281c612
-Content-Type: text/html; charset=ISO-8859-1
+ 
+
+As I want to use another device and not their preconfigurated device, i
+decided to put a linux computer (lets call it "bridgePC") acting as a bridge
+between those 2.
+
+ 
+
+bridgePC configuration:
+
+ 
+
+Eth0 - connected to ISP
+
+Eth1 - connected to my device
+
+ 
+
+brctl addbr br0
+
+brctl addif br0 eth0
+
+brctl addif br0 eth1
+
+ifconfig eth0 0.0.0.0 up
+
+ifconfig eth1 0.0.0.0 up
+
+ifconfig br0 up
+
+ 
+
+For testing purposes connected another linux pc ("testPC") to the bridgePC
+(eth1).
+
+ 
+
+I start the dhcp client and it keeps searching.. i dont get an IP from my
+ISP which is expected since I have the wrong mac address.
+
+ 
+
+Now, on testPC i changed the mac address to the required 00:11:22:33:44:55
+from my ISP.
+
+ 
+
+An bam, I receive an IP via DHCP from my ISP.
+
+ 
+
+So, my bridgePC is working and is acting 100% transparent.
+
+ 
+
+Now of course, the device I want to use is not a Linux PC and therefore I
+cant just simply change my mac address of my device.
+
+ 
+
+So I have to use bridgePC to change the outgoing packets as if they were
+coming from 00:11:22:33:44:55
+
+I tried with the following:
+
+ 
+
+ebtables -t nat -A POSTROUTING -o eth0 -j snat --to-source bc:05:43:cb:ce:c1
+
+ 
+
+But still not receiving an IP.
+
+Does anyone have an idea?
+
+ 
+
+Thanks,
+
+ 
+
+Steve M.
+
+
+------=_NextPart_000_006F_01CC0BDD.516010F0
+Content-Type: text/html;
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<font size=3D"2"><span style=3D"font-size:10pt;">First, thanks for your res=
-ponse.<br>My code is inspired from the ubuntu documentation but there was o=
-nly one interface in the example (<a href=3D"https://help.ubuntu.com/commun=
-ity/Network802.1xAuthentication">https://help.ubuntu.com/community/Network8=
-02.1xAuthentication</a>)<br>
-Do you means it&#39;s not possible to do it with two interfaces ? I should =
-be connected and authenticated on the 2 interfaces to be able to use the br=
-idge ?<br>Or should I authenticate the bridge ? if so how to do that !?<br>
-<br>If someone has a valid example with 2 Ethernet interfaces I&#39;m inter=
-ested by !<br><br>Sebastien.<br><br>---------------------------------------=
------------------------------------------------------------------------<br>
-<br>&gt; Hello,<br>
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-&gt; I&#39;m trying to configure an Ubuntu server with 2 wired interfaces s=
-et as a<br>
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
 
-&gt; bridge and I want a radius authentication on each interfaces.<br>
+<body lang=3DEN-GB link=3Dblue vlink=3Dpurple>
 
-&gt; <br>
+<div class=3DSection1>
 
-&gt; I&#39;m able to set my configuration files to have a bridge between th=
-e 2<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hello<o:p></o:p></span></font></p>
 
-&gt; interfaces without authentication.<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; I&#39;m able to set my configuration files to have an authentication o=
-n each<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I have the following =
+situation:<o:p></o:p></span></font></p>
 
-&gt; interfaces but without the bridge.<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; I don&#39;t know how to configure my files to have both authentication=
- and<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>My ISP gives me an IP address with DHCP, but only to =
+the mac
+address 00:11:22:33:44:55 (which is their preconfigurated =
+device)<o:p></o:p></span></font></p>
 
-&gt; bridge !<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; Can someone help me ?<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>As I want to use another device and not their =
+preconfigurated
+device, i decided to put a linux computer (lets call it =
+&quot;bridgePC&quot;) acting
+as a bridge between those 2.<o:p></o:p></span></font></p>
 
-&gt; <br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; I give you my /etc/network/interface not working :<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>bridgePC configuration:<o:p></o:p></span></font></p>
 
-&gt; *# loopback interface**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; auto lo**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Eth0 &#8211; connected to =
+ISP<o:p></o:p></span></font></p>
 
-&gt; iface lo inet loopback**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Eth1 &#8211; connected to my =
+device<o:p></o:p></span></font></p>
 
-&gt; # network interface**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; auto eth0**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>brctl addbr br0<o:p></o:p></span></font></p>
 
-&gt; iface eth0 inet manual**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>brctl addif br0 eth0<o:p></o:p></span></font></p>
 
-&gt; **<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>brctl addif br0 eth1<o:p></o:p></span></font></p>
 
-&gt; auto eth1**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>ifconfig eth0 0.0.0.0 up<o:p></o:p></span></font></p>
 
-&gt; iface eth1 inet manual**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>ifconfig eth1 0.0.0.0 up<o:p></o:p></span></font></p>
 
-&gt; **<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>ifconfig br0 up<o:p></o:p></span></font></p>
 
-&gt; auto br0**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; iface br0 inet dhcp**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>For testing purposes connected another linux pc
+(&quot;testPC&quot;) to the bridgePC =
+(eth1).<o:p></o:p></span></font></p>
 
-&gt; bridge_ports eth0 eth1**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; **<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I start the dhcp client and it keeps searching.. i =
+dont get
+an IP from my ISP which is expected since I have the wrong mac =
+address.<o:p></o:p></span></font></p>
 
-&gt; wpa-iface eth0=A0 #*How to add eth1 ? If I add a new line it&#39;s not=
- working<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; *wpa-bridge br0**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Now, on testPC i changed the mac address to the =
+required
+00:11:22:33:44:55 from my ISP.<o:p></o:p></span></font></p>
 
-&gt; wpa-driver wired**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; wpa-conf /etc/wpa_supplicant/wired.conf*<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>An bam, I receive an IP via DHCP from my =
+ISP.<o:p></o:p></span></font></p>
 
-&gt; <br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; <br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>So, my bridgePC is working and is acting 100% =
+transparent.<o:p></o:p></span></font></p>
 
-&gt; The wired.conf file for information :<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; *ctrl_interface=3D/var/run/wpa_supplicant**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Now of course, the device I want to use is not a =
+Linux PC
+and therefore I cant just simply change my mac address of my =
+device.<o:p></o:p></span></font></p>
 
-&gt; ctrl_interface_group=3D0**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; ap_scan=3D0**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>So I have to use bridgePC to change the outgoing =
+packets as
+if they were coming from 00:11:22:33:44:55<o:p></o:p></span></font></p>
 
-&gt; #On configure la re-authentification rapide pour protocoles EAP**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I tried with the =
+following:<o:p></o:p></span></font></p>
 
-&gt; #fast_reauth=3D1**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt; **<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>ebtables -t nat -A POSTROUTING -o eth0 -j snat =
+--to-source
+bc:05:43:cb:ce:c1<o:p></o:p></span></font></p>
 
-&gt; network=3D{**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt;=A0=A0=A0=A0=A0=A0=A0=A0 ssid=3D&quot;lan&quot;**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>But still not receiving an =
+IP.<o:p></o:p></span></font></p>
 
-&gt;=A0=A0=A0=A0=A0=A0=A0=A0 key_mgmt=3DIEEE8021X**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Does anyone have an =
+idea?<o:p></o:p></span></font></p>
 
-&gt;=A0=A0=A0=A0=A0=A0=A0=A0 eapol_flags=3D0**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt;=A0=A0=A0=A0=A0=A0=A0=A0 eap=3DMD5**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Thanks,<o:p></o:p></span></font></p>
 
-&gt;=A0=A0=A0=A0=A0=A0=A0=A0 identity=3D&quot;labo&quot;**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
-&gt;=A0=A0=A0=A0=A0=A0=A0=A0 password=3D&quot;test&quot;**<br>
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Steve M.<o:p></o:p></span></font></p>
 
-&gt; }*<br>
+</div>
 
-&gt; <br>
+</body>
 
-&gt; With this configuration, it&#39;s working if my interface eth0 is conn=
-ected, but<br>
+</html>
 
-&gt; it&#39;s not working if it&#39;s eth1 which is connected.<br>
+------=_NextPart_000_006F_01CC0BDD.516010F0--
 
-&gt; Could you tell me what I need to add in my configuration file ?<br>
-
-&gt; <br>
-
-&gt; Thanks for your help.<br>
-
-&gt; <br>
-
-&gt; Sebastien.<br>
-
-<br>
-
-Once you put interfaces into a bridge, all applications and services<br>
-
-should use the bridge interface not the underlying ethernet devices<br>
-
-because packets received on the underlying device will be absorbed<br>
-
-by the bridge and not processed for the ethernet device.</span></font>
-
---00151743f88453752904a281c612--
