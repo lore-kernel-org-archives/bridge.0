@@ -1,10 +1,11 @@
-From: "Trellert" <trellert@freecmd.lu>
-Date: Fri, 6 May 2011 11:04:06 +0200
-Message-ID: <559308773B1C4D498F35DACC1F113B6F@Luc>
+From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_006F_01CC0BDD.516010F0"
-Subject: [Bridge] using a bridge to change mac address
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20110507114803.0D80A13A6B@rere.qmqm.pl>
+Date: Sat,  7 May 2011 13:48:02 +0200 (CEST)
+Subject: [Bridge] [RFC PATCH] net: fold dev_disable_lro() into
+	netdev_fix_features()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,367 +14,224 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Eric Dumazet <eric.dumazet@gmail.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Ben Hutchings <bhutchings@solarflare.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>, Tom Herbert <therbert@google.com>
 
-This is a multi-part message in MIME format.
+This moves checks that device is forwarding from bridge, IPv4 and IPv6
+code into netdev_fix_features(). As a side effect, after device is no longer
+forwarding it gets LRO back. This also means that user is not allowed to
+enable LRO after device is put to forwarding mode.
 
-------=_NextPart_000_006F_01CC0BDD.516010F0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+This patch depends on removal of discrete offload setting ethtool ops.
 
-Hello
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+---
+ include/linux/netdevice.h |    1 -
+ net/bridge/br_if.c        |    6 +++---
+ net/core/dev.c            |   41 +++++++++++++++++++++--------------------
+ net/ipv4/devinet.c        |   20 +++++++++-----------
+ net/ipv6/addrconf.c       |    7 +++----
+ 5 files changed, 36 insertions(+), 39 deletions(-)
 
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 7be3ca2..3a8c21d 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1627,7 +1627,6 @@ extern struct net_device	*__dev_get_by_name(struct net *net, const char *name);
+ extern int		dev_alloc_name(struct net_device *dev, const char *name);
+ extern int		dev_open(struct net_device *dev);
+ extern int		dev_close(struct net_device *dev);
+-extern void		dev_disable_lro(struct net_device *dev);
+ extern int		dev_queue_xmit(struct sk_buff *skb);
+ extern int		register_netdevice(struct net_device *dev);
+ extern void		unregister_netdevice_queue(struct net_device *dev,
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 5dbdfdf..62aab1e 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -158,6 +158,8 @@ static void del_nbp(struct net_bridge_port *p)
+ 	br_netpoll_disable(p);
  
-
-I have the following situation:
-
+ 	call_rcu(&p->rcu, destroy_nbp_rcu);
++
++	netdev_update_features(dev);
+ }
  
-
-My ISP gives me an IP address with DHCP, but only to the mac address
-00:11:22:33:44:55 (which is their preconfigurated device)
-
+ /* called with RTNL */
+@@ -368,11 +370,9 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
  
-
-As I want to use another device and not their preconfigurated device, i
-decided to put a linux computer (lets call it "bridgePC") acting as a bridge
-between those 2.
-
+ 	dev->priv_flags |= IFF_BRIDGE_PORT;
  
-
-bridgePC configuration:
-
+-	dev_disable_lro(dev);
+-
+ 	list_add_rcu(&p->list, &br->port_list);
  
-
-Eth0 - connected to ISP
-
-Eth1 - connected to my device
-
+-	netdev_update_features(br->dev);
++	netdev_update_features(dev);
  
-
-brctl addbr br0
-
-brctl addif br0 eth0
-
-brctl addif br0 eth1
-
-ifconfig eth0 0.0.0.0 up
-
-ifconfig eth1 0.0.0.0 up
-
-ifconfig br0 up
-
+ 	spin_lock_bh(&br->lock);
+ 	changed_addr = br_stp_recalculate_bridge_id(br);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 7193499..3d646c9 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -132,6 +132,7 @@
+ #include <trace/events/skb.h>
+ #include <linux/pci.h>
+ #include <linux/inetdevice.h>
++#include <net/addrconf.h>
+ #include <linux/cpu_rmap.h>
  
-
-For testing purposes connected another linux pc ("testPC") to the bridgePC
-(eth1).
-
+ #include "net-sysfs.h"
+@@ -1294,26 +1295,6 @@ int dev_close(struct net_device *dev)
+ EXPORT_SYMBOL(dev_close);
  
-
-I start the dhcp client and it keeps searching.. i dont get an IP from my
-ISP which is expected since I have the wrong mac address.
-
  
-
-Now, on testPC i changed the mac address to the required 00:11:22:33:44:55
-from my ISP.
-
+-/**
+- *	dev_disable_lro - disable Large Receive Offload on a device
+- *	@dev: device
+- *
+- *	Disable Large Receive Offload (LRO) on a net device.  Must be
+- *	called under RTNL.  This is needed if received packets may be
+- *	forwarded to another interface.
+- */
+-void dev_disable_lro(struct net_device *dev)
+-{
+-	dev->wanted_features &= ~NETIF_F_LRO;
+-	netdev_update_features(dev);
+-
+-	if (unlikely(dev->features & NETIF_F_LRO))
+-		netdev_WARN(dev, "failed to disable LRO!\n");
+-
+-}
+-EXPORT_SYMBOL(dev_disable_lro);
+-
+-
+ static int dev_boot_phase = 1;
  
-
-An bam, I receive an IP via DHCP from my ISP.
-
+ /**
+@@ -5239,6 +5220,26 @@ u32 netdev_fix_features(struct net_device *dev, u32 features)
+ 		}
+ 	}
  
-
-So, my bridgePC is working and is acting 100% transparent.
-
++	if (features & NETIF_F_LRO) {
++		struct in_device *in4_dev;
++		struct inet6_dev *in6_dev;
++
++		/* disable LRO for bridge ports */
++		if (dev->priv_flags & IFF_BRIDGE_PORT) {
++			netdev_info(dev, "Disabling LRO for bridge port.\n");
++			features &= NETIF_F_LRO;
++		} else /* ... or when forwarding IPv4 */
++		if (((in4_dev = __in_dev_get_rtnl(dev))) &&
++		    IN_DEV_CONF_GET(in4_dev, FORWARDING)) {
++			netdev_info(dev, "Disabling LRO for IPv4 router port.\n");
++			features &= NETIF_F_LRO;
++		} else /* ... or when forwarding IPv6 */
++		if (((in6_dev = __in6_dev_get(dev))) && in6_dev->cnf.forwarding) {
++			netdev_info(dev, "Disabling LRO for IPv6 router port.\n");
++			features &= NETIF_F_LRO;
++		}
++	}
++
+ 	return features;
+ }
+ EXPORT_SYMBOL(netdev_fix_features);
+diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+index cd9ca08..e9c0557 100644
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -245,8 +245,6 @@ static struct in_device *inetdev_init(struct net_device *dev)
+ 	in_dev->arp_parms = neigh_parms_alloc(dev, &arp_tbl);
+ 	if (!in_dev->arp_parms)
+ 		goto out_kfree;
+-	if (IPV4_DEVCONF(in_dev->cnf, FORWARDING))
+-		dev_disable_lro(dev);
+ 	/* Reference in_dev->dev */
+ 	dev_hold(dev);
+ 	/* Account for reference dev->ip_ptr (below) */
+@@ -259,6 +257,8 @@ static struct in_device *inetdev_init(struct net_device *dev)
  
-
-Now of course, the device I want to use is not a Linux PC and therefore I
-cant just simply change my mac address of my device.
-
+ 	/* we can receive as soon as ip_ptr is set -- do this last */
+ 	rcu_assign_pointer(dev->ip_ptr, in_dev);
++
++	netdev_update_features(dev);
+ out:
+ 	return in_dev;
+ out_kfree:
+@@ -1475,14 +1475,12 @@ static void inet_forward_change(struct net *net)
+ 	IPV4_DEVCONF_DFLT(net, FORWARDING) = on;
  
-
-So I have to use bridgePC to change the outgoing packets as if they were
-coming from 00:11:22:33:44:55
-
-I tried with the following:
-
+ 	for_each_netdev(net, dev) {
+-		struct in_device *in_dev;
+-		if (on)
+-			dev_disable_lro(dev);
+-		rcu_read_lock();
+-		in_dev = __in_dev_get_rcu(dev);
+-		if (in_dev)
++		struct in_device *in_dev = __in_dev_get_rtnl(dev);
++
++		if (in_dev) {
+ 			IN_DEV_CONF_SET(in_dev, FORWARDING, on);
+-		rcu_read_unlock();
++			netdev_update_features(in_dev->dev);
++		}
+ 	}
+ }
  
-
-ebtables -t nat -A POSTROUTING -o eth0 -j snat --to-source bc:05:43:cb:ce:c1
-
+@@ -1527,11 +1525,11 @@ static int devinet_sysctl_forward(ctl_table *ctl, int write,
+ 			}
+ 			if (valp == &IPV4_DEVCONF_ALL(net, FORWARDING)) {
+ 				inet_forward_change(net);
+-			} else if (*valp) {
++			} else {
+ 				struct ipv4_devconf *cnf = ctl->extra1;
+ 				struct in_device *idev =
+ 					container_of(cnf, struct in_device, cnf);
+-				dev_disable_lro(idev->dev);
++				netdev_update_features(idev->dev);
+ 			}
+ 			rtnl_unlock();
+ 			rt_cache_flush(net, 0);
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index f2f9b2e..d1344ac 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -370,8 +370,6 @@ static struct inet6_dev * ipv6_add_dev(struct net_device *dev)
+ 		kfree(ndev);
+ 		return NULL;
+ 	}
+-	if (ndev->cnf.forwarding)
+-		dev_disable_lro(dev);
+ 	/* We refer to the device */
+ 	dev_hold(dev);
  
-
-But still not receiving an IP.
-
-Does anyone have an idea?
-
+@@ -435,6 +433,7 @@ static struct inet6_dev * ipv6_add_dev(struct net_device *dev)
+ 	addrconf_sysctl_register(ndev);
+ 	/* protected by rtnl_lock */
+ 	rcu_assign_pointer(dev->ip6_ptr, ndev);
++	netdev_update_features(dev);
  
-
-Thanks,
-
+ 	/* Join all-node multicast group */
+ 	ipv6_dev_mc_inc(dev, &in6addr_linklocal_allnodes);
+@@ -469,8 +468,6 @@ static void dev_forward_change(struct inet6_dev *idev)
+ 	if (!idev)
+ 		return;
+ 	dev = idev->dev;
+-	if (idev->cnf.forwarding)
+-		dev_disable_lro(dev);
+ 	if (dev && (dev->flags & IFF_MULTICAST)) {
+ 		if (idev->cnf.forwarding)
+ 			ipv6_dev_mc_inc(dev, &in6addr_linklocal_allrouters);
+@@ -486,6 +483,8 @@ static void dev_forward_change(struct inet6_dev *idev)
+ 		else
+ 			addrconf_leave_anycast(ifa);
+ 	}
++
++	netdev_update_features(dev);
+ }
  
-
-Steve M.
-
-
-------=_NextPart_000_006F_01CC0BDD.516010F0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-<!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <o:shapelayout v:ext=3D"edit">
-  <o:idmap v:ext=3D"edit" data=3D"1" />
- </o:shapelayout></xml><![endif]-->
-</head>
-
-<body lang=3DEN-GB link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Hello<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>I have the following =
-situation:<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>My ISP gives me an IP address with DHCP, but only to =
-the mac
-address 00:11:22:33:44:55 (which is their preconfigurated =
-device)<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>As I want to use another device and not their =
-preconfigurated
-device, i decided to put a linux computer (lets call it =
-&quot;bridgePC&quot;) acting
-as a bridge between those 2.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>bridgePC configuration:<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Eth0 &#8211; connected to =
-ISP<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Eth1 &#8211; connected to my =
-device<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>brctl addbr br0<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>brctl addif br0 eth0<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>brctl addif br0 eth1<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>ifconfig eth0 0.0.0.0 up<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>ifconfig eth1 0.0.0.0 up<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>ifconfig br0 up<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>For testing purposes connected another linux pc
-(&quot;testPC&quot;) to the bridgePC =
-(eth1).<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>I start the dhcp client and it keeps searching.. i =
-dont get
-an IP from my ISP which is expected since I have the wrong mac =
-address.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Now, on testPC i changed the mac address to the =
-required
-00:11:22:33:44:55 from my ISP.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>An bam, I receive an IP via DHCP from my =
-ISP.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>So, my bridgePC is working and is acting 100% =
-transparent.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Now of course, the device I want to use is not a =
-Linux PC
-and therefore I cant just simply change my mac address of my =
-device.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>So I have to use bridgePC to change the outgoing =
-packets as
-if they were coming from 00:11:22:33:44:55<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>I tried with the =
-following:<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>ebtables -t nat -A POSTROUTING -o eth0 -j snat =
---to-source
-bc:05:43:cb:ce:c1<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>But still not receiving an =
-IP.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Does anyone have an =
-idea?<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Thanks,<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Steve M.<o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_006F_01CC0BDD.516010F0--
+ 
+-- 
+1.7.2.5
 
