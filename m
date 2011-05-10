@@ -1,13 +1,14 @@
-Date: Mon, 09 May 2011 12:08:11 -0700 (PDT)
-Message-Id: <20110509.120811.246541047.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20110507114803.0D80A13A6B@rere.qmqm.pl>
-References: <20110507114803.0D80A13A6B@rere.qmqm.pl>
+Date: Mon, 9 May 2011 20:15:28 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20110509201528.52d87ec4@nehalam>
+In-Reply-To: <1304995124.4065.157.camel@localhost>
+References: <20110506201234.6297.70279.reportbug@ip6-localhost>
+	<1304995124.4065.157.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset="euc-kr"
-Content-Transfer-Encoding: base64
-Subject: Re: [Bridge] [RFC PATCH] net: fold dev_disable_lro() into
- netdev_fix_features()
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Bug#625914: linux-image-2.6.38-2-amd64: bridging is
+ not interacting well with multicast in 2.6.38-4
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,18 +17,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: mirq-linux@rere.qmqm.pl
-Cc: pekkas@netcore.fi, eric.dumazet@gmail.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, bhutchings@solarflare.com, kuznet@ms2.inr.ac.ru, therbert@google.com
+To: Ben Hutchings <ben@decadent.org.uk>
+Cc: 625914@bugs.debian.org, Noah Meyerhans <noahm@debian.org>, bridge@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>
 
-RnJvbTogTWljaGGpqSBNaXJvc6mpYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBsPgpEYXRlOiBT
-YXQsICA3IE1heSAyMDExIDEzOjQ4OjAyICswMjAwIChDRVNUKQoKPiBUaGlzIG1vdmVzIGNoZWNr
-cyB0aGF0IGRldmljZSBpcyBmb3J3YXJkaW5nIGZyb20gYnJpZGdlLCBJUHY0IGFuZCBJUHY2Cj4g
-Y29kZSBpbnRvIG5ldGRldl9maXhfZmVhdHVyZXMoKS4gQXMgYSBzaWRlIGVmZmVjdCwgYWZ0ZXIg
-ZGV2aWNlIGlzIG5vIGxvbmdlcgo+IGZvcndhcmRpbmcgaXQgZ2V0cyBMUk8gYmFjay4gVGhpcyBh
-bHNvIG1lYW5zIHRoYXQgdXNlciBpcyBub3QgYWxsb3dlZCB0bwo+IGVuYWJsZSBMUk8gYWZ0ZXIg
-ZGV2aWNlIGlzIHB1dCB0byBmb3J3YXJkaW5nIG1vZGUuCj4gCj4gVGhpcyBwYXRjaCBkZXBlbmRz
-IG9uIHJlbW92YWwgb2YgZGlzY3JldGUgb2ZmbG9hZCBzZXR0aW5nIGV0aHRvb2wgb3BzLgo+IAo+
-IFNpZ25lZC1vZmYtYnk6IE1pY2hhqakgTWlyb3OpqWF3IDxtaXJxLWxpbnV4QHJlcmUucW1xbS5w
-bD4KCldlIG5lZWQgdG8ga2VlcCB0aGUgY2hlY2sgaW4gdGhlIHByb3RvY29scyBiZWNhdXNlIHdl
-IGRvbid0IHdhbnQgdG8KYmUgdGVzdGluZyBwcm90b2NvbCBzcGVjaWZpYyBkZXZpY2Ugc3RhdGUg
-aW4gZ2VuZXJpYyBjb2RlIGxpa2UKbmV0L2NvcmUvZGV2LmMK
+On Tue, 10 May 2011 03:38:44 +0100
+Ben Hutchings <ben@decadent.org.uk> wrote:
+
+> On Fri, 2011-05-06 at 13:12 -0700, Noah Meyerhans wrote:
+> > Package: linux-2.6
+> > Version: 2.6.38-3
+> > Severity: normal
+> > 
+> > Hi. I've got a system that hosts several kvm virtual hosts.  The VMs
+> > access the network via tap devices bridged with a physical interface.
+> > After upgrading to linux-image-2.6.38-2-amd64_2.6.38-4, I noticed that
+> > the virtualhosts were not autoconfiguring their IPv6 interfaces.
+> > Debugging revealed that no multicast was passing over the bridge.
+> > 
+> > The bridge configuration is:
+> > bridge name     bridge id               STP enabled     interfaces
+> > br0             8000.0002e3080eb5       no              eth1
+> >                                                         tap0
+> >                                                         tap1
+> >                                                         tap2
+> > 
+> > If I attach tcpdump to br0, I can see multicast (e.g. IPv6 Neighbor
+> > Solicitation) packets.  However, if I attach tcpdump to eth1, I do not
+> > see multicast packets sourced from one of the VMs.
+> > 
+> > Downgrading to 2.6.38-3 solves the problem.
+> 
+> This is pretty weird.  Debian version 2.6.38-3 has a few bridging
+> changes from stable 2.6.38.3 and 2.6.38.4, but they don't look like they
+> would cause this.
+> 
+> Ben.
+
+There are two possible explainations:
+  1. In 2.6.37 and kernels the bridge uses IGMP snooping, there were several
+     fixes to that in the stable kernel; especially related to IPv6.
+
+  2. There was also a recent change to block link local multicast
+     address. But that should impact what you are doing.
