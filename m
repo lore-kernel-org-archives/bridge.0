@@ -1,17 +1,19 @@
-Date: Tue, 10 May 2011 15:11:00 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20110510151100.52a9f8fa@nehalam>
-In-Reply-To: <20110510180540.GI6397@morgul.net>
+Date: Tue, 10 May 2011 16:35:40 -0700
+From: Noah Meyerhans <noahm@debian.org>
+Message-ID: <20110510233540.GJ6397@morgul.net>
 References: <20110506201234.6297.70279.reportbug@ip6-localhost>
 	<1304995124.4065.157.camel@localhost>
 	<20110510043833.GG6397@morgul.net>
 	<1305031369.4065.259.camel@localhost>
 	<20110510180540.GI6397@morgul.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bug#625914: linux-image-2.6.38-2-amd64: bridging is
- not	interacting well with multicast in 2.6.38-4
+	<20110510151100.52a9f8fa@nehalam>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eG/Mb3lYspOUTzsV"
+Content-Disposition: inline
+In-Reply-To: <20110510151100.52a9f8fa@nehalam>
+Subject: Re: [Bridge] Bug#625914: linux-image-2.6.38-2-amd64: bridging
+	is	not interacting well with multicast in 2.6.38-4
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,79 +22,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Noah Meyerhans <noahm@debian.org>
+To: Stephen Hemminger <shemminger@linux-foundation.org>
 Cc: 625914@bugs.debian.org, bridge@lists.linux-foundation.org, Ben Hutchings <ben@decadent.org.uk>, netdev <netdev@vger.kernel.org>
 
-On Tue, 10 May 2011 11:05:40 -0700
-Noah Meyerhans <noahm@debian.org> wrote:
 
-> On Tue, May 10, 2011 at 01:42:49PM +0100, Ben Hutchings wrote:
-> > > > This is pretty weird.  Debian version 2.6.38-3 has a few bridging
-> > > > changes from stable 2.6.38.3 and 2.6.38.4, but they don't look like they
-> > > > would cause this.
-> > > 
-> > > I have apparently filed the bug against the wrong version of Debian's
-> > > kernel.  2.6.38-3 is not affected, and works as expected.  The change
-> > > was introduced in -4.  That may have been clear from the report itself,
-> > > but the report was filed against -3.  I've fixed that in the BTS.
-> > 
-> > I gathered that, and then made the same mistake in writing the above!
-> > The version with the regression, 2.6.38-4, includes the changes from
-> > stable 2.6.38.3 and 2.6.38.4
-> 
-> With a little help from git bisect, I've tracked this regression down to
-> the following commit to the stable-2.6.38.y tree:
-> 
-> commit 5f1c356a3fadc0c19922d660da723b79bcc9aad7
-> Author: Herbert Xu <herbert@gondor.apana.org.au>
-> Date:   Fri Mar 18 05:27:28 2011 +0000
-> 
->     bridge: Reset IPCB when entering IP stack on NF_FORWARD
->     
->     [ Upstream commit 6b1e960fdbd75dcd9bcc3ba5ff8898ff1ad30b6e ]
->     
->     Whenever we enter the IP stack proper from bridge netfilter we
->     need to ensure that the skb is in a form the IP stack expects
->     it to be in.
->     
->     The entry point on NF_FORWARD did not meet the requirements of
->     the IP stack, therefore leading to potential crashes/panics.
->     
->     This patch fixes the problem.
->     
->     Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
->     Acked-by: Stephen Hemminger <shemminger@vyatta.com>
->     Signed-off-by: David S. Miller <davem@davemloft.net>
->     Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> The diff is
-> diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-> index 4b5b66d..49d50ea 100644
-> --- a/net/bridge/br_netfilter.c
-> +++ b/net/bridge/br_netfilter.c
-> @@ -741,6 +741,9 @@ static unsigned int br_nf_forward_ip(unsigned int
-> hook, struct sk_buff *skb,
->                 nf_bridge->mask |= BRNF_PKT_TYPE;
->         }
->  
-> +       if (br_parse_ip_options(skb))
-> +               return NF_DROP;
-> +
->         /* The physdev module checks on this */
->         nf_bridge->mask |= BRNF_BRIDGED;
->         nf_bridge->physoutdev = skb->dev;
-> 
-> If I revert this change, network connectivity functions as expected for
-> the VMs on this host.
-> 
-> I don't know enough about this change or the problem it was supposed to
-> solve to be able to guess about what's going wrong.
-> 
-> noah
-> 
+--eG/Mb3lYspOUTzsV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-There were two more follow on commits in stable related to this.
-I recommend merging 2.6.38.6 which includes these.
+On Tue, May 10, 2011 at 03:11:00PM -0700, Stephen Hemminger wrote:
+> There were two more follow on commits in stable related to this.
+> I recommend merging 2.6.38.6 which includes these.
+
+The problem still exists in the current 2.6.38.6.  Backing out 5f1c356a
+still solves the problem there.
+
+I have not yet tried anything outside the stable-2.6.38.y tree, but it
+seems like these same changes are present there, and it's unlikely that
+other releases will work any better.
+
+noah
 
 
--- 
+--eG/Mb3lYspOUTzsV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iD8DBQFNycvMYrVLjBFATsMRAtE+AJ4oljwI4R9IjPry0LPRQtwKFzKAAQCfSKHG
+yltJbT+2nnGncOdzlG0carA=
+=9r7t
+-----END PGP SIGNATURE-----
+
+--eG/Mb3lYspOUTzsV--
