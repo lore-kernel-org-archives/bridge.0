@@ -1,16 +1,17 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-In-Reply-To: <20110510043833.GG6397@morgul.net>
+Date: Tue, 10 May 2011 11:05:40 -0700
+From: Noah Meyerhans <noahm@debian.org>
+Message-ID: <20110510180540.GI6397@morgul.net>
 References: <20110506201234.6297.70279.reportbug@ip6-localhost>
 	<1304995124.4065.157.camel@localhost>
 	<20110510043833.GG6397@morgul.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature";
-	boundary="=-teHZnm23nUG9XaYYZRDG"
-Date: Tue, 10 May 2011 13:42:49 +0100
-Message-ID: <1305031369.4065.259.camel@localhost>
-Mime-Version: 1.0
+	<1305031369.4065.259.camel@localhost>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UKsZWh/ZtaJX4ozz"
+Content-Disposition: inline
+In-Reply-To: <1305031369.4065.259.camel@localhost>
 Subject: Re: [Bridge] Bug#625914: linux-image-2.6.38-2-amd64: bridging is
- not interacting well with multicast in 2.6.38-4
+	not	interacting well with multicast in 2.6.38-4
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,63 +20,92 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Noah Meyerhans <noahm@debian.org>
+To: Ben Hutchings <ben@decadent.org.uk>
 Cc: 625914@bugs.debian.org, bridge@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>
 
 
---=-teHZnm23nUG9XaYYZRDG
-Content-Type: text/plain; charset="UTF-8"
+--UKsZWh/ZtaJX4ozz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2011-05-09 at 21:38 -0700, Noah Meyerhans wrote:
-> On Tue, May 10, 2011 at 03:38:44AM +0100, Ben Hutchings wrote:
-> > This is pretty weird.  Debian version 2.6.38-3 has a few bridging
-> > changes from stable 2.6.38.3 and 2.6.38.4, but they don't look like the=
-y
-> > would cause this.
+On Tue, May 10, 2011 at 01:42:49PM +0100, Ben Hutchings wrote:
+> > > This is pretty weird.  Debian version 2.6.38-3 has a few bridging
+> > > changes from stable 2.6.38.3 and 2.6.38.4, but they don't look like t=
+hey
+> > > would cause this.
+> >=20
+> > I have apparently filed the bug against the wrong version of Debian's
+> > kernel.  2.6.38-3 is not affected, and works as expected.  The change
+> > was introduced in -4.  That may have been clear from the report itself,
+> > but the report was filed against -3.  I've fixed that in the BTS.
 >=20
-> I have apparently filed the bug against the wrong version of Debian's
-> kernel.  2.6.38-3 is not affected, and works as expected.  The change
-> was introduced in -4.  That may have been clear from the report itself,
-> but the report was filed against -3.  I've fixed that in the BTS.
+> I gathered that, and then made the same mistake in writing the above!
+> The version with the regression, 2.6.38-4, includes the changes from
+> stable 2.6.38.3 and 2.6.38.4
 
-I gathered that, and then made the same mistake in writing the above!
-The version with the regression, 2.6.38-4, includes the changes from
-stable 2.6.38.3 and 2.6.38.4
+With a little help from git bisect, I've tracked this regression down to
+the following commit to the stable-2.6.38.y tree:
 
-Ben.
+commit 5f1c356a3fadc0c19922d660da723b79bcc9aad7
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Fri Mar 18 05:27:28 2011 +0000
 
-> I've also confirmed that -5 is affected, to no great surprise.
->=20
-> I'll investigate further.
->=20
-> noah
->=20
+    bridge: Reset IPCB when entering IP stack on NF_FORWARD
+   =20
+    [ Upstream commit 6b1e960fdbd75dcd9bcc3ba5ff8898ff1ad30b6e ]
+   =20
+    Whenever we enter the IP stack proper from bridge netfilter we
+    need to ensure that the skb is in a form the IP stack expects
+    it to be in.
+   =20
+    The entry point on NF_FORWARD did not meet the requirements of
+    the IP stack, therefore leading to potential crashes/panics.
+   =20
+    This patch fixes the problem.
+   =20
+    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+    Acked-by: Stephen Hemminger <shemminger@vyatta.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
---=20
-Ben Hutchings
-Once a job is fouled up, anything done to improve it makes it worse.
+The diff is
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 4b5b66d..49d50ea 100644
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -741,6 +741,9 @@ static unsigned int br_nf_forward_ip(unsigned int
+hook, struct sk_buff *skb,
+                nf_bridge->mask |=3D BRNF_PKT_TYPE;
+        }
+=20
++       if (br_parse_ip_options(skb))
++               return NF_DROP;
++
+        /* The physdev module checks on this */
+        nf_bridge->mask |=3D BRNF_BRIDGED;
+        nf_bridge->physoutdev =3D skb->dev;
 
---=-teHZnm23nUG9XaYYZRDG
+If I revert this change, network connectivity functions as expected for
+the VMs on this host.
+
+I don't know enough about this change or the problem it was supposed to
+solve to be able to guess about what's going wrong.
+
+noah
+
+
+--UKsZWh/ZtaJX4ozz
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-iQIVAwUATckywue/yOyVhhEJAQpq7Q//WUpnvtU9/Ju3QTjshrxT9MbD5gGQ175O
-q7J04/W0fD1CmABi1Hi7wciHIvJ4C/dQgnIM7eM0eQoFhuAaV42JWZJCwgZalW1k
-jU20WpxETkOjJCqPu9Dhj0HUjxL1+O5e6U6zWAbAAqOvOqdax9ZFGngrPlUOvcgh
-ZLE8ZQtQV9+9a3Vp3jhOT8oYK+SAIHgq65RJeot9cXMV3qcoG8UIrE2hWouS15YB
-Tjtq4sVs1MSbtPi1N4d61c9EAFUOn6L0/tczbw7b2AMYwhOd0LJ1EoKnZtvZNUvW
-pcKbSf9BJ+osXEIiAgh4DV8G+USKdfdno80UkKPN9w6IcLyEaL/124WCszml4V7O
-CqKSf3rV2hvAPEA7rY/6JqnEsR/B/H8JMG70Gf4GFJa1u3wIEGziqmF7hXchv+6H
-coEDIje+QEXPDRbxUQgyKSPcYFMU3ufd1UZwsrSHMhXxDdZghnLzvmma+GvjSRsr
-EYITpZRK1hNVUBFuh8E7zgbaN2Navu6O3UGrlk9VzA/VVU7u04EGI9sLOZGEb+MN
-UWaPbuzcfqfUgvr8/F3AXWGd0q0AlK3cSn1CwUwFkDPM5PSpcRb4I8vU2O6+YEOO
-EvtfFPz+Qd4FSUaLvkBqP52qPk4bnSUhwx9OXL27MhFI/CbifYCoFBc1SBwi/e8V
-IrKEKA1v4hE=
-=rkQO
+iD8DBQFNyX5zYrVLjBFATsMRAmb/AJwNHxuXZFtWlm6PdQ2VrvwU1YyGVgCfdA+/
+1IX2tmqcBDRQGGhkwY6KyzE=
+=ThAF
 -----END PGP SIGNATURE-----
 
---=-teHZnm23nUG9XaYYZRDG--
+--UKsZWh/ZtaJX4ozz--
