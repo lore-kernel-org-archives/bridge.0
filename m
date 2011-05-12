@@ -1,19 +1,15 @@
-Date: Tue, 10 May 2011 16:35:40 -0700
-From: Noah Meyerhans <noahm@debian.org>
-Message-ID: <20110510233540.GJ6397@morgul.net>
-References: <20110506201234.6297.70279.reportbug@ip6-localhost>
-	<1304995124.4065.157.camel@localhost>
-	<20110510043833.GG6397@morgul.net>
-	<1305031369.4065.259.camel@localhost>
-	<20110510180540.GI6397@morgul.net>
-	<20110510151100.52a9f8fa@nehalam>
+Date: Thu, 12 May 2011 18:06:21 +0200
+From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+Message-ID: <20110512160621.GA6588@rere.qmqm.pl>
+References: <20110507114803.0D80A13A6B@rere.qmqm.pl>
+	<20110509.120811.246541047.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eG/Mb3lYspOUTzsV"
+Content-Type: text/plain; charset="iso-8859-2"
 Content-Disposition: inline
-In-Reply-To: <20110510151100.52a9f8fa@nehalam>
-Subject: Re: [Bridge] Bug#625914: linux-image-2.6.38-2-amd64: bridging
-	is	not interacting well with multicast in 2.6.38-4
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20110509.120811.246541047.davem@davemloft.net>
+Subject: Re: [Bridge] [RFC PATCH] net: fold dev_disable_lro() into
+ netdev_fix_features()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,39 +18,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: 625914@bugs.debian.org, bridge@lists.linux-foundation.org, Ben Hutchings <ben@decadent.org.uk>, netdev <netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: pekkas@netcore.fi, eric.dumazet@gmail.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, bhutchings@solarflare.com, kuznet@ms2.inr.ac.ru, therbert@google.com
 
+On Mon, May 09, 2011 at 12:08:11PM -0700, David Miller wrote:
+> From: Micha=B3 Miros=B3aw <mirq-linux@rere.qmqm.pl>
+> Date: Sat,  7 May 2011 13:48:02 +0200 (CEST)
+> > This moves checks that device is forwarding from bridge, IPv4 and IPv6
+> > code into netdev_fix_features(). As a side effect, after device is no l=
+onger
+> > forwarding it gets LRO back. This also means that user is not allowed to
+> > enable LRO after device is put to forwarding mode.
+> We need to keep the check in the protocols because we don't want to
+> be testing protocol specific device state in generic code like
+> net/core/dev.c
 
---eG/Mb3lYspOUTzsV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I modified it to use priv_flags that mirror the protocol-internal state.
+Patch follows.
 
-On Tue, May 10, 2011 at 03:11:00PM -0700, Stephen Hemminger wrote:
-> There were two more follow on commits in stable related to this.
-> I recommend merging 2.6.38.6 which includes these.
-
-The problem still exists in the current 2.6.38.6.  Backing out 5f1c356a
-still solves the problem there.
-
-I have not yet tried anything outside the stable-2.6.38.y tree, but it
-seems like these same changes are present there, and it's unlikely that
-other releases will work any better.
-
-noah
-
-
---eG/Mb3lYspOUTzsV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iD8DBQFNycvMYrVLjBFATsMRAtE+AJ4oljwI4R9IjPry0LPRQtwKFzKAAQCfSKHG
-yltJbT+2nnGncOdzlG0carA=
-=9r7t
------END PGP SIGNATURE-----
-
---eG/Mb3lYspOUTzsV--
+Best Regards,
+Micha=B3 Miros=B3aw
