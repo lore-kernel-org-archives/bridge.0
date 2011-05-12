@@ -1,15 +1,15 @@
-Date: Thu, 12 May 2011 09:57:49 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20110512095749.016610a1@nehalam>
-In-Reply-To: <1305217747.5214.17.camel@bwh-desktop>
-References: <20110507114803.0D80A13A6B@rere.qmqm.pl>
-	<20110512160640.2A0B713A6B@rere.qmqm.pl>
-	<1305217747.5214.17.camel@bwh-desktop>
+Date: Thu, 12 May 2011 15:59:16 -0700 (PDT)
+Message-Id: <20110512.155916.115945119.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20110510233540.GJ6397@morgul.net>
+References: <20110510180540.GI6397@morgul.net>
+	<20110510151100.52a9f8fa@nehalam>
+	<20110510233540.GJ6397@morgul.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH v2] net: fold dev_disable_lro() into
- netdev_fix_features()
+Subject: Re: [Bridge] Bug#625914: linux-image-2.6.38-2-amd64: bridging is
+ not interacting well with multicast in 2.6.38-4
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,28 +18,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: "Pekka Savola (ipv6)" <pekkas@netcore.fi>, Eric Dumazet <eric.dumazet@gmail.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>, Tom Herbert <therbert@google.com>
+To: noahm@debian.org
+Cc: ben@decadent.org.uk, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, 625914@bugs.debian.org
 
-On Thu, 12 May 2011 17:29:07 +0100
-Ben Hutchings <bhutchings@solarflare.com> wrote:
+From: Noah Meyerhans <noahm@debian.org>
+Date: Tue, 10 May 2011 16:35:40 -0700
 
-> >  	dev->priv_flags |= IFF_BRIDGE_PORT;
-> >  
-> > -	dev_disable_lro(dev);
-> > -
-> >  	list_add_rcu(&p->list, &br->port_list);
-> >  
-> > -	netdev_update_features(br->dev);
-> > +	netdev_change_features(dev);
-> >  
-> >  	spin_lock_bh(&br->lock);
-> >  	changed_addr = br_stp_recalculate_bridge_id(br);  
+> On Tue, May 10, 2011 at 03:11:00PM -0700, Stephen Hemminger wrote:
+>> There were two more follow on commits in stable related to this.
+>> I recommend merging 2.6.38.6 which includes these.
 > 
-> Why netdev_change_features() here?  I thought that was primarily for use
-> when vlan_features may have been changed.
+> The problem still exists in the current 2.6.38.6.  Backing out 5f1c356a
+> still solves the problem there.
+> 
+> I have not yet tried anything outside the stable-2.6.38.y tree, but it
+> seems like these same changes are present there, and it's unlikely that
+> other releases will work any better.
 
-Setting IFF_BRIDGE_PORT in priv_flags causes change_features
-to disable LRO.
+So the issue is that if we back out that change, we get crashes.
 
--- 
+Aparently there is a code path where whatever is existing in the
+SKB ip options block matters, and needs to be maintained.
+
+Someone needs to audit all of this and figure out how to fix the
+problem properly.
