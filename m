@@ -1,20 +1,11 @@
-Date: Fri, 13 May 2011 14:00:15 -0700
-From: Noah Meyerhans <frodo@morgul.net>
-Message-ID: <20110513210015.GV6397@morgul.net>
-References: <20110506201234.6297.70279.reportbug@ip6-localhost>
-	<1304995124.4065.157.camel@localhost>
-	<20110510043833.GG6397@morgul.net>
-	<1305031369.4065.259.camel@localhost>
-	<20110510180540.GI6397@morgul.net>
-	<20110510151100.52a9f8fa@nehalam>
-	<20110510233540.GJ6397@morgul.net>
-	<20110513125314.66861b31@nehalam>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2RPSo2VWgDbGU+zh"
-Content-Disposition: inline
-In-Reply-To: <20110513125314.66861b31@nehalam>
-Subject: Re: [Bridge] [PATCH] bridge: fix forwarding of IPv6
+Date: Wed, 18 May 2011 08:17:18 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20110518081718.0b1fc390@nehalam>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH net-next] bridge: add notification over netlink
+ when STP changes state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,59 +14,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Herbert Xu <herbert@gondor.hengli.com.au>, bridge@lists.linux-foundation.org, Ben Hutchings <ben@decadent.org.uk>, David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@linux-foundation.org
 
+The first netlink code in the bridge module was to notify
+user space implementations of Spanning Tree Protocol about
+new ports. It did not handle the case of kernel mode STP 
+changing states which could be useful for monitoring.
 
---2RPSo2VWgDbGU+zh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch causes RTM_NEWLINK message to occur on kernel
+transitions. It does not send message if request was from user
+space STP, since that would cause reflection and break existing
+API.
 
-On Fri, May 13, 2011 at 12:53:14PM -0700, Stephen Hemminger wrote:
-> The commit 6b1e960fdbd75dcd9bcc3ba5ff8898ff1ad30b6e
->     bridge: Reset IPCB when entering IP stack on NF_FORWARD
-> broke forwarding of IPV6 packets in bridge because it would
-> call bp_parse_ip_options with an IPV6 packet.
->=20
-> Reported-by: Noah Meyerhans <noahm@debian.org>
-> Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
->=20
-> ---
-> Patch against net-next-2.6 but must be applied to net-2.6
-> and stable as well
->=20
-> --- a/net/bridge/br_netfilter.c	2011-05-13 12:37:30.289646958 -0700
-> +++ b/net/bridge/br_netfilter.c	2011-05-13 12:38:07.820333938 -0700
-> @@ -737,7 +737,7 @@ static unsigned int br_nf_forward_ip(uns
->  		nf_bridge->mask |=3D BRNF_PKT_TYPE;
->  	}
-> =20
-> -	if (br_parse_ip_options(skb))
-> +	if (pf =3D=3D PF_INET && br_parse_ip_options(skb))
->  		return NF_DROP;
-> =20
->  	/* The physdev module checks on this */
->=20
+Signed-off-by: Stephen Hemminger <shemminger@vyatta.com>
+---
+ net/bridge/br_stp.c       |    4 +++-
+ net/bridge/br_stp_if.c    |    3 +++
+ net/bridge/br_stp_timer.c |    1 +
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
-I can confirm that this patch fixes the behavior I've been seeing in the
-stable-2.6.38.y tree.  Thank you, Stephen!
-
-noah
-
-
-
---2RPSo2VWgDbGU+zh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iD8DBQFNzZveYrVLjBFATsMRAqZSAJ9eI6PteR7PUswZzyBjTPPlZwqpVACfZoSE
-YaFcCqSyLZx6AUTTCzGhIU0=
-=2WQK
------END PGP SIGNATURE-----
-
---2RPSo2VWgDbGU+zh--
+--- a/net/bridge/br_stp.c	2011-04-15 14:09:10.700851052 -0700
++++ b/net/bridge/br_stp.c	2011-05-17 10:06:09.006014826 -0700
+@@ -363,6 +363,8 @@ static void br_make_blocking(struct net_
+ 
+ 		p->state = BR_STATE_BLOCKING;
+ 		br_log_state(p);
++		br_ifinfo_notify(RTM_NEWLINK, p);
++
+ 		del_timer(&p->forward_delay_timer);
+ 	}
+ }
+@@ -386,8 +388,8 @@ static void br_make_forwarding(struct ne
+ 		p->state = BR_STATE_LEARNING;
+ 
+ 	br_multicast_enable_port(p);
+-
+ 	br_log_state(p);
++	br_ifinfo_notify(RTM_NEWLINK, p);
+ 
+ 	if (br->forward_delay != 0)
+ 		mod_timer(&p->forward_delay_timer, jiffies + br->forward_delay);
+--- a/net/bridge/br_stp_if.c	2011-04-15 14:09:10.700851052 -0700
++++ b/net/bridge/br_stp_if.c	2011-05-17 10:06:09.006014826 -0700
+@@ -88,6 +88,7 @@ void br_stp_enable_port(struct net_bridg
+ 	br_init_port(p);
+ 	br_port_state_selection(p->br);
+ 	br_log_state(p);
++	br_ifinfo_notify(RTM_NEWLINK, p);
+ }
+ 
+ /* called under bridge lock */
+@@ -104,6 +105,8 @@ void br_stp_disable_port(struct net_brid
+ 	p->topology_change_ack = 0;
+ 	p->config_pending = 0;
+ 
++	br_ifinfo_notify(RTM_NEWLINK, p);
++
+ 	del_timer(&p->message_age_timer);
+ 	del_timer(&p->forward_delay_timer);
+ 	del_timer(&p->hold_timer);
+--- a/net/bridge/br_stp_timer.c	2011-04-04 09:21:25.963009153 -0700
++++ b/net/bridge/br_stp_timer.c	2011-05-17 10:06:09.018014957 -0700
+@@ -97,6 +97,7 @@ static void br_forward_delay_timer_expir
+ 		netif_carrier_on(br->dev);
+ 	}
+ 	br_log_state(p);
++	br_ifinfo_notify(RTM_NEWLINK, p);
+ 	spin_unlock(&br->lock);
+ }
+ 
