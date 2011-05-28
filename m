@@ -1,11 +1,14 @@
-Message-ID: <21909438.382941306864132965.JavaMail.defaultUser@defaultHost>
-Date: Tue, 31 May 2011 19:48:52 +0200 (CEST)
-From: "maxd@inwind.it" <maxd@inwind.it>
+Message-ID: <4DE0B91E.1080407@debian.org>
+Date: Sat, 28 May 2011 10:58:06 +0200
+From: Bernd Zeimetz <bzed@debian.org>
 MIME-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
+References: <bug-35992-10286@https.bugzilla.kernel.org/>
+	<20110527152158.0453899d.akpm@linux-foundation.org>
+In-Reply-To: <20110527152158.0453899d.akpm@linux-foundation.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] IGMP snooping not filtering multicast messages
-Reply-To: "maxd@inwind.it" <maxd@inwind.it>
+Subject: Re: [Bridge] [Bugme-new] [Bug 35992] New: Regression: oops when
+ using a bridge interface with tg3
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,31 +17,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: netdev@vger.kernel.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org, bridge@lists.linux-foundation.org
 
-Hi. I have a partial mesh network composed by Linux nodes. Each linux node may 
-have up to 4 ethernet interfaces, which are exploited to create point-to-point 
-connections with other linux nodes. I have bridged the ethernet interfaces in 
-each node, so that the whole network, which is physically composed by a set of 
-network segments, appears as a single layer-2 domain. I have enabled spanning 
-tree to avoid loops. In this scenario, I would like to exploit the IGMP 
-snooping functionality, but it seems that it is not working properly. I am 
-using iperf to set a multicast source (iperf client) and a few multicast sinks 
-in the network (iperf servers). I am using tcpdump, instead, to check where 
-multicast messages are received. What I notice is that there is apparently no 
-filtering of the multicast messages, that are always flooded in the network. I 
-tried to repeat the test varying the multicast address (paying attention not to 
-get reserved addresses), with and without multicast clients set, with the 
-multicast_router option set to 1 (default) and to 0. To double check that IGMP 
-is working, I have also tried to disable it; the only difference I see is that 
-tcpdump does not show IGMP query messages when the IGMP snooping is disabled. 
-So, I am wondering if the IGMP snooping implementation currently available can 
-deal with my scenario. In particular, I would stress the following points that 
-I think might be relevant:
--I have no multicast router in my network (it looks like a single stand-alone 
-lan)
--Each node acts as a bridge, so I have multiple bridges in my network, 
-connected each other.
-Any idea would be greatly appreciated!
+On 05/28/2011 12:21 AM, Andrew Morton wrote:
+> 2.6.38->2.6.39 regression, appears to be bridge-related.  There's a
+> partial screencap of the oops linked below.
 
-Massimiliano
+The oops happens as soon as I add the lxc veth interface to the bridge, before
+everything works as expected.
+
+
+A new, full screenshot is attached
+https://bugzilla.kernel.org/attachment.cgi?id=59732
+
+
+(For yet unknows reasons I can't access the serial port redirection via ssh and
+I won't be able to attach a real serial port cable before Monday, so I'm afraid
+you have to work with the screenshot for now.)
+
+
+> Bernd, it would be helpful if you could set the screen to more rows
+> (50?) and then retake that photo.  Documentation/svga.txt might help
+> out.  Thanks.
+
+(the kernel says that vga=... is deprecated, guess that documentation is outdated?)
+
+Thanks and cheers,
+
+Bernd
+
+-- 
+ Bernd Zeimetz                            Debian GNU/Linux Developer
+ http://bzed.de                                http://www.debian.org
+ GPG Fingerprint: ECA1 E3F2 8E11 2432 D485  DD95 EB36 171A 6FF9 435F
