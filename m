@@ -1,14 +1,14 @@
-Message-ID: <4DE0B91E.1080407@debian.org>
-Date: Sat, 28 May 2011 10:58:06 +0200
+Message-ID: <4DE0DDFE.9080308@debian.org>
+Date: Sat, 28 May 2011 13:35:26 +0200
 From: Bernd Zeimetz <bzed@debian.org>
 MIME-Version: 1.0
-References: <bug-35992-10286@https.bugzilla.kernel.org/>
-	<20110527152158.0453899d.akpm@linux-foundation.org>
-In-Reply-To: <20110527152158.0453899d.akpm@linux-foundation.org>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <bug-35992-17701@https.bugzilla.kernel.org/>
+	<201105281013.p4SADfPS024949@demeter1.kernel.org>
+In-Reply-To: <201105281013.p4SADfPS024949@demeter1.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [Bugme-new] [Bug 35992] New: Regression: oops when
- using a bridge interface with tg3
+Subject: Re: [Bridge] [Bug 35992] Regression: oops when using a bridge
+ interface with tg3
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,33 +17,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: netdev@vger.kernel.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org, bridge@lists.linux-foundation.org
+To: Eric Dumazet <eric.dumazet@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, netdev@vger.kernel.org
+Cc: bzed@debian.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org, bridge@lists.linux-foundation.org
 
-On 05/28/2011 12:21 AM, Andrew Morton wrote:
-> 2.6.38->2.6.39 regression, appears to be bridge-related.  There's a
-> partial screencap of the oops linked below.
+Hi,
 
-The oops happens as soon as I add the lxc veth interface to the bridge, before
-everything works as expected.
+> OK, this sounds like an already fixed bug.
+> 
+> (commit : 33eb9873a283a bridge: initialize fake_rtable metrics)
+> 
+> Could you try latest linux-2.6 tree ?
 
-
-A new, full screenshot is attached
-https://bugzilla.kernel.org/attachment.cgi?id=59732
-
-
-(For yet unknows reasons I can't access the serial port redirection via ssh and
-I won't be able to attach a real serial port cable before Monday, so I'm afraid
-you have to work with the screenshot for now.)
+I've picked the commit into 2.6.39 and it fixed the issue, thanks for the pointer.
 
 
-> Bernd, it would be helpful if you could set the screen to more rows
-> (50?) and then retake that photo.  Documentation/svga.txt might help
-> out.  Thanks.
+Could we please get that included in 2.6.39.1?
 
-(the kernel says that vga=... is deprecated, guess that documentation is outdated?)
-
-Thanks and cheers,
+Thanks,
 
 Bernd
 
