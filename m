@@ -1,4 +1,4 @@
-Message-ID: <529662d230f5bc531a863df31675ce8d@greenpower.ug>
+Message-ID: <46ad120ccbee11cf6628f6e132393b97@greenpower.ug>
 Date: Wed, 01 Jun 2011 04:00:08 -0500
 From: "Print Depot- Uganda" <sales@printdepot.ug>
 MIME-Version: 1.0
@@ -16,7 +16,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@lists.osdl.org
 
 --b1_5365e61562dd90647d0f490aa8aba7f9
 Content-Type: multipart/alternative;
@@ -28,11 +28,11 @@ Content-Transfer-Encoding: 8bit
 
 Your email client cannot read this email.
 To view it online, please go here:
-http://greenpower.ug/emarketing/display.php?M=22898&C=b7db2e1f5496f39e9328881cd6cb2697&S=25&L=1&N=12
+http://greenpower.ug/emarketing/display.php?M=22929&C=5831dc031296f77103079514b44c8349&S=25&L=1&N=12
 
 
 To stop receiving these
-emails:http://greenpower.ug/emarketing/unsubscribe.php?M=22898&C=b7db2e1f5496f39e9328881cd6cb2697&L=1&N=25
+emails:http://greenpower.ug/emarketing/unsubscribe.php?M=22929&C=5831dc031296f77103079514b44c8349&L=1&N=25
 
 --b3_5365e61562dd90647d0f490aa8aba7f9
 Content-Type: text/html; charset="UTF-8"
@@ -44,7 +44,7 @@ size="3"><b>http://printdepot.ug/plastics-ids.html</b></font><br /><br
 alt="plastic id at only ugsh 7500....call 0704-71 44 88.png"
 src="cid:b87af9604856d8ae5135ece0c5610d88" width="566" height="800" /><br
 /><a
-href="http://greenpower.ug/emarketing/link.php?M=22898&N=25&L=9&F=H"><font
+href="http://greenpower.ug/emarketing/link.php?M=22929&N=25&L=9&F=H"><font
 size="3"><b><br /></b></font></a><font color="#0000ff"><b><font
 size="3">http://printdepot.ug/plastics-ids.html</font></b></font><br />
 <p><font face="arial, helvetica, sans-serif" size="3"><i>Call us on
@@ -92,7 +92,7 @@ www.printdepot.ug,</font></pre><br/>
 					<tr>
 						<td>
 							<a
-href="http://greenpower.ug/emarketing/link.php?M=22898&N=25&L=2&F=H">
+href="http://greenpower.ug/emarketing/link.php?M=22929&N=25&L=2&F=H">
 								<img border="0" src="cid:6b2f0a69ce95007ac814d55a714bfe39"
 alt="Powered by Interspire" />
 							</a>
@@ -103,7 +103,7 @@ alt="Powered by Interspire" />
 		</tr>
 	</table>
 <img
-src="http://greenpower.ug/emarketing/open.php?M=22898&L=1&N=25&F=H&image=.jpg"
+src="http://greenpower.ug/emarketing/open.php?M=22929&L=1&N=25&F=H&image=.jpg"
 height="1" width="10"></body></html>
 
 --b3_5365e61562dd90647d0f490aa8aba7f9--
