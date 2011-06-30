@@ -1,13 +1,13 @@
-Date: Thu, 30 Jun 2011 10:08:19 -0700
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Message-ID: <20110630100819.0e4b536f@nehalam.ftrdhcpuser.net>
-In-Reply-To: <201106301033.23997.alexander.stein@systec-electronic.com>
-References: <201106301033.23997.alexander.stein@systec-electronic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] possible bridge regression in "bridge: implement
- [add/del]_slave ops"?
+From: Arnaud Fontaine <arnau@milkypond.org>
+References: <878vsjqxjz.fsf@duckcorp.org>
+	<20110630092258.7c1119a3@nehalam.ftrdhcpuser.net>
+Date: Thu, 30 Jun 2011 21:58:31 +0200
+In-Reply-To: <20110630092258.7c1119a3@nehalam.ftrdhcpuser.net>    (Stephen
+	Hemminger's message of "Thu, 30 Jun 2011 09:22:58 -0700")
+Message-ID: <87k4c38520.fsf@duckcorp.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [Bridge] Bridge interface always down since Linux >= 2.6.39
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,21 +16,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-On Thu, 30 Jun 2011 10:33:23 +0200
-Alexander Stein <alexander.stein@systec-electronic.com> wrote:
+Hi,
 
-> * echo $(pgrep rstpd) > /var/run/rstpd.pid
-> * brctl addbr br1
-> * echo 1 > /sys/class/net/br1/bridge/stp_state
+> There are  two flags, IFF_UP  - admin up/down and  IFF_RUNNING carrier
+> up/down The IFF_UP is controlled manually, and IFF_RUNNING is what you
+> are talking about.
 
-This bogus. You are running both kernel and spanning
-tree daemon at the same time!
+Interesting, thank you very much for the explanation.
 
-Doing the echo of 1 to stp_state forces kernel spanning
-tree. You want 2 which is what is supposed to be use for user
-mode spanning tree.
+> In older  kernel versions, the  bridge device always  asserted carrier
+> even if all  ports did not have carrier. Now it  reflects the state of
+> the  underlying device.  In  your case  the  problem is  that the  tap
+> interfaces aren't reporting carrier.
 
-Note: dropping LKML off the thread to save time/space/noise.
+This  is what  I understood  by testing  with a  real  network interface
+attached to the  bridge, however I was not sure  whether it was intended
+or a regression.  In this  particular case, a tap interface is reporting
+carrier when  an userspace program is  attached to it AFAIK,  so I guess
+there  is  nothing else  I  can do  besides  of  attaching an  userspace
+program, right?
+
+Thanks for the quick response.
+
+Cheers,
+-- 
+Arnaud Fontaine
