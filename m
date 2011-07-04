@@ -1,14 +1,15 @@
-Date: Fri, 1 Jul 2011 12:08:33 +0200
-From: David Lamparter <equinox@diac24.net>
-Message-ID: <20110701100833.GA3988422@jupiter.n2.diac24.net>
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+Date: Mon, 4 Jul 2011 08:46:44 +0200
 References: <201106301033.23997.alexander.stein@systec-electronic.com>
 	<20110630100819.0e4b536f@nehalam.ftrdhcpuser.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20110630100819.0e4b536f@nehalam.ftrdhcpuser.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <201107040846.45016.alexander.stein@systec-electronic.com>
 Subject: Re: [Bridge] possible bridge regression in "bridge: implement
- [add/del]_slave ops"?
+	[add/del]_slave ops"?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,12 +19,12 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-On Thu, Jun 30, 2011 at 10:08:19AM -0700, Stephen Hemminger wrote:
+On Thursday 30 June 2011 19:08:19 Stephen Hemminger wrote:
 > On Thu, 30 Jun 2011 10:33:23 +0200
-> Alexander Stein <alexander.stein@systec-electronic.com> wrote:
 > 
+> Alexander Stein <alexander.stein@systec-electronic.com> wrote:
 > > * echo $(pgrep rstpd) > /var/run/rstpd.pid
 > > * brctl addbr br1
 > > * echo 1 > /sys/class/net/br1/bridge/stp_state
@@ -35,14 +36,14 @@ On Thu, Jun 30, 2011 at 10:08:19AM -0700, Stephen Hemminger wrote:
 > tree. You want 2 which is what is supposed to be use for user
 > mode spanning tree.
 
-I just tested this on my box, you can't echo 2 into that sysfs file (it
-reads back as 1).
+Well, at first sight you're right. But looking at the code at 
+br_stp_set_enabled() in br_stp_if.c it doesn't matter which value you echo 
+into stp_state, it just have to be non-zero
+The detection of usermode oder kernelmode STP is done using the usermode 
+helper (see br_stp_start). I tried echoing 1, 2 or even 5 into stp_state, with 
+a working /sbin/bridge-stp I get 2 from stp_state each time.
 
-That you can change this variable at all when an userspace stp
-implementation is running is a bug anyway, IMHO. rstpd should do all the
-required settings and the kernel should prevent them from being changed
-while rstpd has the bridge under its control.
+Maybe it is valuable to change this odd behavior.
 
-
--David
-
+Regards,
+Alexander
