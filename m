@@ -1,17 +1,9 @@
 MIME-Version: 1.0
-In-Reply-To: <20110818081019.4b9bb79e@nehalam.ftrdhcpuser.net>
-References: <CAF5U64C+WgQhfJL3zfVnvzE7p=G61humQCObHGUxAvY2-MGAFQ@mail.gmail.com>
-	<CAF5U64CJTWDn8E9+XVLFsdaSbiu-4Rd9XmxZq7ReziRNZviO6Q@mail.gmail.com>
-	<20110812154545.79d8313f@nehalam.ftrdhcpuser.net>
-	<CAF5U64B_fb2tFMLHmK+zw3n6gmq+bYDyFnXhLE0ayssK5m+THA@mail.gmail.com>
-	<20110815150501.3a6cc432@nehalam.ftrdhcpuser.net>
-	<CAEJpZP0fOydMMbgquAud7dfwcO28BXAMzAwnMjSZO6TvEjxgpQ@mail.gmail.com>
-	<20110818081019.4b9bb79e@nehalam.ftrdhcpuser.net>
-Date: Thu, 18 Aug 2011 16:52:45 +0100
-Message-ID: <CAEJpZP2FGhPmTi0+eS+QRhj4y+aqfQHnEUrjmOOLHUay1SuAKg@mail.gmail.com>
-From: Nick Carter <ncarter100@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: Re: [Bridge] [RFC] bridge: allow passing link-local multicast
+Date: Fri, 19 Aug 2011 20:20:10 +0530
+Message-ID: <CAL1-okbTkQdW7S3k01GU29Xy+WKZnCNxXunAXWVX6w-xd=6hwg@mail.gmail.com>
+From: Vikas Dabas <vikas.dabas@trackpeers.com>
+Content-Type: multipart/alternative; boundary=000e0cd14efa97b35804aadcd8ae
+Subject: [Bridge] Q-in-Q (stacked VLANs) forwarding in bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,31 +12,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, bridge@linux-foundation.org, Ed Swierk <eswierk@bigswitch.com>, David Lamparter <equinox@diac24.net>
+To: bridge@lists.linux-foundation.org
 
-On 18 August 2011 16:10, Stephen Hemminger <shemminger@vyatta.com> wrote:
-> On Thu, 18 Aug 2011 16:06:19 +0100
-> Nick Carter <ncarter100@gmail.com> wrote:
->
->> Why can't we use the 802.1D specified STP group address to identify ?
->> The existing code uses that address.
->> I know you said on another thread that there are people using other addresses.
->> Who are these people ?
->> Are they following any standard ?
->> What address / address range are they using ?
->
-> The group address can be reprogrammed, and it is settable on other
-> routing equipment. People do it to create spanning tree domains.
->
-But before the new
-+               if (!is_stp_bpdu(skb) && br_forward_link_local)
-check, we have already checked
-	if (unlikely(is_link_local(dest))) {
-So the frame must have a link local destination.  If the reprogrammed
-group address is outside of the link local range then the new code in
-this patch will never be hit.  If the reprogrammed group address is in
-the link local range then i'd suggest my previous group_fwd_mask patch
-is cleaner and more flexible.
+--000e0cd14efa97b35804aadcd8ae
+Content-Type: text/plain; charset=ISO-8859-1
 
-Nick
+Hi,
+
+I have the following setup
+
+ifconfig eth0 0.0.0.0 up
+ifconfig eth1 0.0.0.0 up
+
+vconfig add eth0 2
+ifconfig eth0.2 0.0.0.0 up
+vconfig add eth0.2 4
+ifconfig eth0.2.4 0.0.0.0 up
+
+brctl addbr br-lan
+brctl addif br-lan eth1
+brctl addif br-lan eth0.2.4
+
+Now when I try sending untagged packets from eth1, i get no packets out of
+the eth0 interface,  ideally i should get double tagged packets coming out.
+
+However when i add
+brctl addif br-lan eth0.2
+I can see single tagged packets with VID 2
+
+Further, I removed eth0.2.4 from the bridge and assigned an IP 10.10.10.10
+and tried Ping to 10.10.10.11
+I was able to get double tagged packets with outer tag being VID 4 and inner
+tag Being VID 2
+
+Can some body explain why the interface eth0.2.4 can not send out stacked
+VLAn packets in case it is part of a bridge?
+
+
+REgards
+Vikas
+
+--000e0cd14efa97b35804aadcd8ae
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi,<br><br>I have the following setup<br><br>ifconfig eth0 0.0.0.0 up<br>if=
+config eth1 0.0.0.0 up<br><br>vconfig add eth0 2<br>ifconfig eth0.2 0.0.0.0=
+ up<br>vconfig add eth0.2 4<br>ifconfig eth0.2.4 0.0.0.0 up<br><br>brctl ad=
+dbr br-lan<br>
+brctl addif br-lan eth1<br clear=3D"all">brctl addif br-lan eth0.2.4<br><br=
+>Now when I try sending untagged packets from eth1, i get no packets out of=
+ the eth0 interface,=A0 ideally i should get double tagged packets coming o=
+ut.<br>
+<br>However when i add <br>brctl addif br-lan eth0.2<br>I can see single ta=
+gged packets with VID 2<br><br>Further, I removed eth0.2.4 from the bridge =
+and assigned an IP 10.10.10.10 and tried Ping to 10.10.10.11<br>I was able =
+to get double tagged packets with outer tag being VID 4 and inner tag Being=
+ VID 2<br>
+<br>Can some body explain why the interface eth0.2.4 can not send out stack=
+ed VLAn packets in case it is part of a bridge?<br><br><br>REgards<br>Vikas=
+<br><br><br><br>
+<br><br><br><br><br><br><br>
+
+--000e0cd14efa97b35804aadcd8ae--
