@@ -1,10 +1,12 @@
-Message-ID: <4E5353E0.4010507@sfc.wide.ad.jp>
-Date: Tue, 23 Aug 2011 16:16:48 +0900
-From: Ang Way Chuang <wcang@sfc.wide.ad.jp>
-MIME-Version: 1.0
+From: "=?ISO-8859-1?B?YWxpYXM=?=" <billyway@foxmail.com>
+Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="------------070602050900090700060504"
-Subject: [Bridge] IPv6 multicast snooping behaviour on 2.6.39-rc2 and later
+	boundary="----=_NextPart_4E59D4C1_08701558_1B8B91A2"
+Content-Transfer-Encoding: 8Bit
+Date: Sun, 28 Aug 2011 13:40:17 +0800
+Message-ID: <tencent_306CAEA80FCC5DEB02D2C197@qq.com>
+Subject: [Bridge] is there possible to create a 802.1q vlan on top of a
+	macvtap
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,69 +15,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?ISO-8859-1?Q?Linus_L=FCssing?= <linus.luessing@web.de>, yoshfuji@linux-ipv6.org, Stephen Hemminger <shemminger@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org
+To: =?ISO-8859-1?B?YnJpZGdl?= <bridge@lists.linux-foundation.org>
 
 This is a multi-part message in MIME format.
---------------070602050900090700060504
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi all,
+------=_NextPart_4E59D4C1_08701558_1B8B91A2
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: base64
 
-    I have a testbed setup on my VM environment that needs to use MLDv2 report message. My PIM router which is connected to a port on the bridge relies upon MLDv2 message to work. However, the setup failed to work after 2.6.39-rc2 or later. MLDv2 won't be forwarded to any slave ports bound to the bridge interface. Specifically, I track the cause down to this commit id:
-  ff9a57a62afbbe2d0f3a09af321f1fd7645f38a5
-    However, as soon as I disable multicast snooping on sysfs, MLDv2 message can be forwarded again.
+SGkgYWxsLA0KSSBhbSB0cnlpbmcgdG8gc2V0IHVwIGEgdmxhbiBiZXR3ZWVuIFZNIG9uIHR3
+byBob3N0cywgYm90aCBSSEVMLTYuDQoNCg0KSSBjcmVhdGUgbWFjdnRhcCBvbiBib3RoIGhv
+c3QgYnkgOg0KaXAgbGluayBhZGQgbGluayBldGgwIG5hbWUgbWFjdnQtdjAgdHlwZSBtYWN2
+dGFwIG1vZGUgdmVwYQ0KaXAgbGluayBzZXQgbWFjdnQtdjAgdXANCg0KDQphbmQgdGhlbiBi
+b290IGd1ZXN0IFJIRUwtNiBWTSB3aXRoIHRoZSBhYm92ZSBjcmVhdGVkIG1hY3Z0YXAgbmlj
+LCBndWVzdCBuZXR3b3JrIGZ1bmN0aW9uaW5nIHdlbGwuY2FuIHBpbmcgZWFjaCBvdGhlci4N
+Cg0KDQpCdXQgd2hlbiBJIHRyeWluZyB0byBzZXR1cCB2bGFuIGJldHdlZW4gdHdvIGd1ZXN0
+cyx0aGluZ3MgZ28gYmFkLi4uDQppbnNpZGUgZ3Vlc3RzOg0KbW9kcHJvYmUgODAyMXENClZN
+MToNCmlmY29uZmlnIGV0aDAuMSAxOTIuMTY4LjEuMSBuZXRtYXNrIDI1NS4yNTUuMjU1LjAN
+CnZjb25maWcgZXRoMC4xIDENClZNMjoNCmlmY29uZmlnIGV0aDAuMSAxOTIuMTY4LjEuMiBu
+ZXRtYXNrIDI1NS4yNTUuMjU1LjANCnZjb25maWcgZXRoMC4xIDENCg0KDQphZnRlciB0aGUg
+YWJvdmUgY21kLA0KSSBwaW5nIFZNMiBmcm9tIFZNMSxieSANCnBpbmcgMTkyLjE2OC4xLjIg
+LUkgZXRoMC4xIA0Kbm90aGluZyByZXNwb25zZSxJIGFtIGN1cmlvdXMgaXMgdGhlcmUgcG9z
+c2libGUgZm9yIG1hY3Z0YXAgdG8gZGVhbCB3aXRoIDgwMjFxIHZsYW4gPw0KDQoNClRoYW5r
+cyBmb3IgYW55IHJlcGx5DQoNCg0KQmVzdCBSZWdhcmRzLA0KQmlsbHk=
 
-    I am not knowledgeable on the subject of multicast snooping, but is this right behaviour for multicast snooping? IPv4 doesn't seem to suffer the same fate though, IGMP can be forwarded even if multicast_snooping is enabled. Thank you in advance.
+------=_NextPart_4E59D4C1_08701558_1B8B91A2
+Content-Type: text/html;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: base64
 
+PGRpdj5IaSBhbGwsPC9kaXY+PGRpdj5JIGFtIHRyeWluZyB0byBzZXQgdXAgYSB2bGFuIGJl
+dHdlZW4gVk0gb24gdHdvIGhvc3RzLCBib3RoIFJIRUwtNi48L2Rpdj48ZGl2Pjxicj48L2Rp
+dj48ZGl2PkkgY3JlYXRlIG1hY3Z0YXAgb24gYm90aCBob3N0IGJ5IDo8L2Rpdj48ZGl2Pmlw
+IGxpbmsgYWRkIGxpbmsgZXRoMCBuYW1lIG1hY3Z0LXYwIHR5cGUgbWFjdnRhcCBtb2RlIHZl
+cGE8L2Rpdj48ZGl2PmlwIGxpbmsgc2V0IG1hY3Z0LXYwIHVwPC9kaXY+PGRpdj48YnI+PC9k
+aXY+PGRpdj5hbmQgdGhlbiBib290IGd1ZXN0IFJIRUwtNiBWTSB3aXRoIHRoZSBhYm92ZSBj
+cmVhdGVkIG1hY3Z0YXAgbmljLCBndWVzdCBuZXR3b3JrIGZ1bmN0aW9uaW5nIHdlbGwuY2Fu
+IHBpbmcgZWFjaCBvdGhlci48L2Rpdj48ZGl2Pjxicj48L2Rpdj48ZGl2PkJ1dCB3aGVuIEkg
+dHJ5aW5nIHRvIHNldHVwIHZsYW4gYmV0d2VlbiB0d28gZ3Vlc3RzLHRoaW5ncyBnbyBiYWQu
+Li48L2Rpdj48ZGl2Pmluc2lkZSBndWVzdHM6PC9kaXY+PGRpdj5tb2Rwcm9iZSA4MDIxcTwv
+ZGl2PjxkaXY+Vk0xOjwvZGl2PjxkaXY+aWZjb25maWcgZXRoMC4xIDE5Mi4xNjguMS4xIG5l
+dG1hc2sgMjU1LjI1NS4yNTUuMDwvZGl2PjxkaXY+dmNvbmZpZyBldGgwLjEgMTwvZGl2Pjxk
+aXY+Vk0yOjwvZGl2PjxkaXY+aWZjb25maWcgZXRoMC4xIDE5Mi4xNjguMS4yIG5ldG1hc2sg
+MjU1LjI1NS4yNTUuMDwvZGl2PjxkaXY+dmNvbmZpZyBldGgwLjEgMTwvZGl2PjxkaXY+PGJy
+PjwvZGl2PjxkaXY+YWZ0ZXIgdGhlIGFib3ZlIGNtZCw8L2Rpdj48ZGl2PkkgcGluZyBWTTIg
+ZnJvbSBWTTEsYnkmbmJzcDs8L2Rpdj48ZGl2PnBpbmcgMTkyLjE2OC4xLjIgLUkgZXRoMC4x
+Jm5ic3A7PC9kaXY+PGRpdj5ub3RoaW5nIHJlc3BvbnNlLEkgYW0gY3VyaW91cyBpcyB0aGVy
+ZSBwb3NzaWJsZSBmb3IgbWFjdnRhcCB0byBkZWFsIHdpdGggODAyMXEgdmxhbiA/PC9kaXY+
+PGRpdj48YnI+PC9kaXY+PGRpdj5UaGFua3MgZm9yIGFueSByZXBseTwvZGl2PjxkaXY+PGJy
+PjwvZGl2PjxkaXY+QmVzdCBSZWdhcmRzLDwvZGl2PjxkaXY+QmlsbHk8L2Rpdj4K
 
-Regards,
-Ang Way Chuang
+------=_NextPart_4E59D4C1_08701558_1B8B91A2--
 
-
-
---------------070602050900090700060504
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-    <link href="chrome://translator/skin/floatingPanel.css"
-      type="text/css" rel="stylesheet">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <tt>Hi all,<br>
-      <br>
-      &nbsp;&nbsp; I have a testbed setup on my VM environment that needs to use
-      MLDv2 report message. My PIM router which is connected to a port
-      on the bridge relies upon MLDv2 message to work. However, the
-      setup failed to work after 2.6.39-rc2 or later. MLDv2 won't be
-      forwarded to any slave ports bound to the bridge interface.
-      Specifically, I track the cause down to this commit id:<br>
-    </tt><tt>&nbsp;ff9a57a62afbbe2d0f3a09af321f1fd7645f38a5<br>
-      &nbsp;&nbsp; However, as soon as I disable multicast snooping on sysfs,
-      MLDv2 message can be forwarded again. </tt><tt><br>
-      <br>
-      &nbsp;&nbsp; I am not knowledgeable on the subject of multicast snooping,
-      but </tt><tt>is this right behaviour for multicast snooping? IPv4
-      doesn't seem to suffer the same fate though, IGMP can be forwarded
-      even if multicast_snooping is enabled. Thank you in advance.<br>
-      <br>
-      <br>
-      Regards,<br>
-      Ang Way Chuang<br>
-      <br>
-      <br>
-    </tt>
-    <div style="bottom: auto; left: 1015px; right: auto; top: 109px;
-      display: none;" class="translator-theme-default"
-      id="translator-floating-panel">
-      <div title="Click to translate"
-        id="translator-floating-panel-button"></div>
-    </div>
-  </body>
-</html>
-
---------------070602050900090700060504--
