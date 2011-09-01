@@ -1,14 +1,7 @@
-Message-ID: <4E5E092E.80507@trash.net>
-Date: Wed, 31 Aug 2011 12:13:02 +0200
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
-References: <cover.1314650069.git.joe@perches.com>	<13c1c12486cae409dfa5254b1435e660f2b17e05.1314650069.git.joe@perches.com>	<4E5CDBAA.6040001@trash.net>
-	<20110830.135502.179848097213434762.davem@davemloft.net>
-In-Reply-To: <20110830.135502.179848097213434762.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 06/24] netfilter: Remove unnecessary OOM
-	logging messages
+From: Jiri Pirko <jpirko@redhat.com>
+Date: Thu,  1 Sep 2011 15:29:38 +0200
+Message-Id: <1314883778-2706-1-git-send-email-jpirko@redhat.com>
+Subject: [Bridge] [patch net-next-2.6] br: remove redundant check and init
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,27 +10,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: wensong@linux-vs.org, netfilter@vger.kernel.org, coreteam@netfilter.org, horms@verge.net.au, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, linux-kernel@vger.kernel.org, lvs-devel@vger.kernel.org, ja@ssi.bg, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, joe@perches.com, kuznet@ms2.inr.ac.ru
+To: netdev@vger.kernel.org
+Cc: shemminger@vyatta.com, bridge@lists.linux-foundation.org, davem@davemloft.net, eric.dumazet@gmail.com
 
-On 30.08.2011 19:55, David Miller wrote:
-> From: Patrick McHardy <kaber@trash.net>
-> Date: Tue, 30 Aug 2011 14:46:34 +0200
-> 
->> On 29.08.2011 23:17, Joe Perches wrote:
->>> Removing unnecessary messages saves code and text.
->>>
->>> Site specific OOM messages are duplications of a generic MM
->>> out of memory message and aren't really useful, so just
->>> delete them.
->>
->> Looks good to me. Do you want me to apply this patch or are you
->> intending to have the entire series go through Dave?
-> 
-> I'm happy with subsystem folks taking things in if they want, the
-> B.A.T.M.A.N. guys did this earlier today for example.
+Since these checks and initialization are done in
+dev_ethtool_get_settings called later on, remove this redundancy.
 
-OK, thanks.
+Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+---
+ net/bridge/br_if.c |   24 +++++++++++-------------
+ 1 files changed, 11 insertions(+), 13 deletions(-)
 
-Applied after fixing up some minor rejects in nf_nat_snmp_basic.c,
-thanks Joe.
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 2cdf007..b365bba 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -33,20 +33,18 @@
+  */
+ static int port_cost(struct net_device *dev)
+ {
+-	if (dev->ethtool_ops && dev->ethtool_ops->get_settings) {
+-		struct ethtool_cmd ecmd = { .cmd = ETHTOOL_GSET, };
+-
+-		if (!dev_ethtool_get_settings(dev, &ecmd)) {
+-			switch (ethtool_cmd_speed(&ecmd)) {
+-			case SPEED_10000:
+-				return 2;
+-			case SPEED_1000:
+-				return 4;
+-			case SPEED_100:
+-				return 19;
+-			case SPEED_10:
+-				return 100;
+-			}
++	struct ethtool_cmd ecmd;
++
++	if (!dev_ethtool_get_settings(dev, &ecmd)) {
++		switch (ethtool_cmd_speed(&ecmd)) {
++		case SPEED_10000:
++			return 2;
++		case SPEED_1000:
++			return 4;
++		case SPEED_100:
++			return 19;
++		case SPEED_10:
++			return 100;
+ 		}
+ 	}
+ 
+-- 
+1.7.6
+
