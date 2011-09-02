@@ -1,8 +1,13 @@
+Date: Fri, 2 Sep 2011 14:26:30 +0200
 From: Jiri Pirko <jpirko@redhat.com>
-Date: Thu,  1 Sep 2011 21:28:24 +0200
-Message-Id: <1314905304-16485-1-git-send-email-jpirko@redhat.com>
-Subject: [Bridge] [patch net-next-2.6] net: consolidate and fix
-	ethtool_ops->get_settings calling
+Message-ID: <20110902122630.GC1991@minipsycho>
+References: <1314905304-16485-1-git-send-email-jpirko@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1314905304-16485-1-git-send-email-jpirko@redhat.com>
+Subject: [Bridge] [patch net-next-2.6 v2] net: consolidate and fix
+ ethtool_ops->get_settings calling
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,10 +31,13 @@ This patch does several things:
   so bnx2fc_if_create() and fcoe_if_create() are called locked as they
   are from other places.
 - prb_calc_retire_blk_tmo() in af_packet.c was not calling get_settings
-  with rtnl_lock. So use dev_ethtool_get_settings here.
+  with rntl_lock. So use dev_ethtool_get_settings here.
 - use __ethtool_get_settings() in bonding code
 
 Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+
+v1->v2:
+	add missing export_symbol 
 ---
  arch/mips/txx9/generic/setup_tx4939.c |    2 +-
  drivers/net/bonding/bond_main.c       |   13 ++++------
@@ -40,10 +48,10 @@ Signed-off-by: Jiri Pirko <jpirko@redhat.com>
  net/8021q/vlan_dev.c                  |    3 +-
  net/bridge/br_if.c                    |    2 +-
  net/core/dev.c                        |   17 +++++---------
- net/core/ethtool.c                    |   17 +++++++++----
+ net/core/ethtool.c                    |   18 ++++++++++----
  net/core/net-sysfs.c                  |    4 +-
  net/packet/af_packet.c                |   41 +++++++++++++++-----------------
- 12 files changed, 59 insertions(+), 54 deletions(-)
+ 12 files changed, 60 insertions(+), 54 deletions(-)
 
 diff --git a/arch/mips/txx9/generic/setup_tx4939.c b/arch/mips/txx9/generic/setup_tx4939.c
 index e9f95dc..ba3cec3 100644
@@ -239,10 +247,10 @@ index 11b0fc7..abdc0e3 100644
  EXPORT_SYMBOL(dev_ethtool_get_settings);
  
 diff --git a/net/core/ethtool.c b/net/core/ethtool.c
-index 6cdba5f..94326d4 100644
+index 6cdba5f..307297c 100644
 --- a/net/core/ethtool.c
 +++ b/net/core/ethtool.c
-@@ -569,15 +569,22 @@ int __ethtool_set_flags(struct net_device *dev, u32 data)
+@@ -569,15 +569,23 @@ int __ethtool_set_flags(struct net_device *dev, u32 data)
  	return 0;
  }
  
@@ -255,6 +263,7 @@ index 6cdba5f..94326d4 100644
 +	cmd->cmd = ETHTOOL_GSET;
 +	return dev->ethtool_ops->get_settings(dev, cmd);
 +}
++EXPORT_SYMBOL(__ethtool_get_settings);
 +
  static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
  {
