@@ -1,10 +1,14 @@
-Message-ID: <4E66B9EC.8050603@brooks.nu>
-Date: Tue, 06 Sep 2011 18:25:16 -0600
-From: Lane Brooks <lane@brooks.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] MTU confusion
+Date: Wed, 7 Sep 2011 07:45:09 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20110907074509.52ce6484@s6510.ftrdhcpuser.net>
+In-Reply-To: <CAFhJ8JBPk1PM-sWrJrgTnOgZ02MXnYviWhVcs=Ht_bHpmdUC+Q@mail.gmail.com>
+References: <20110905145807.GA9179@chii>
+	<20110905094321.7e0f734c@nehalam.ftrdhcpuser.net>
+	<CAFhJ8JBPk1PM-sWrJrgTnOgZ02MXnYviWhVcs=Ht_bHpmdUC+Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] skip . and .. in accurately in isbridge()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,56 +17,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@osdl.org
+To: Xiaochen Wang <wangxiaochen0@gmail.com>
+Cc: Lennert Buytenhek <buytenh@gnu.org>, bridge@linux-foundation.org
 
-I am confused regarding MTU issues and bridging.
+On Wed, 7 Sep 2011 15:33:13 +0800
+Xiaochen Wang <wangxiaochen0@gmail.com> wrote:
 
-I have setup an bridge with an MTU of 1492 for the bridge and all the 
-devices in the bridge.
+> On Tue, Sep 6, 2011 at 12:43 AM, Stephen Hemminger
+> <shemminger@vyatta.com> wrote:
+> > On Mon, 5 Sep 2011 22:58:07 +0800
+> > Xiaochen Wang <wangxiaochen0@gmail.com> wrote:
+> >
+> >> Hi all,
+> >>
+> >> =A0In commit f88f8 "Skip . and .. in foreach_bridge test", the code sk=
+ips
+> >> =A0all directories starting with dot.
+> >>
+> >> =A0But if we create a bridge staring with dot, e.g. `.br0`, then `brct=
+l show`
+> >> =A0cannot show this one.
+> >> =A0`.br0` should not be hidden, because we cannot find it except the c=
+ommand
+> >> =A0`brctl show .br0`.
+> >>
+> >> Signed-off-by: Xiaochen Wang <wangxiaochen0@gmail.com>
+> >> ---
+> >> =A0libbridge/libbridge_init.c | =A0 =A07 +++++--
+> >> =A01 files changed, 5 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/libbridge/libbridge_init.c b/libbridge/libbridge_init.c
+> >> index 1c1acbd..177a391 100644
+> >> --- a/libbridge/libbridge_init.c
+> >> +++ b/libbridge/libbridge_init.c
+> >> @@ -49,9 +49,12 @@ static int isbridge(const struct dirent *entry)
+> >> =A0 =A0 =A0 char path[SYSFS_PATH_MAX];
+> >> =A0 =A0 =A0 struct stat st;
+> >>
+> >> - =A0 =A0 if (entry->d_name[0] =3D=3D '.')
+> >> + =A0 =A0 if (entry->d_name[0] =3D=3D '.'
+> >> + =A0 =A0 =A0 =A0 && (entry->d_name[1] =3D=3D '\0'
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 || (entry->d_name[1] =3D=3D '.'
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 && entry->d_name[2] =3D=3D '\0')))
+> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> >> -
+> >> +
+> >> =A0 =A0 =A0 snprintf(path, SYSFS_PATH_MAX,
+> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0SYSFS_CLASS_NET "%s/bridge", entry->d_n=
+ame);
+> >> =A0 =A0 =A0 return stat(path, &st) =3D=3D 0 && S_ISDIR(st.st_mode);
+> >
+> > This was an accident originally, but allowing hidden bridges might be u=
+seful.
+> > And is common for other commands to not show names starting with .
+> >
+> I see.
 
-I setup the device interface on one leg of the bridge to have an MTU of 
-1492 as well. I mount an nfs share on another leg of the bridge. This 
-device has an MTU of 1500 and I get problems with the nfs mount until I 
-set the MTU to 1492. Do I have to set all devices on the bridge to have 
-an MTU of 1492 for the bridge to work? The reason I am confused is that 
-the if the two devices are connected directly with one having an MTU of 
-1492 and the other 1500, things work. However, putting the bridge 
-between them requires setting both devices to have an MTU of 1492.
-
-Here is the bridge setup:
-
-
-root@bug20:~# brctl show br0
-bridge name     bridge id               STP enabled     interfaces
-br0             8000.0050c269c63f       no              eth0
-                                                         usb0
-root@bug20:~# ifconfig -a
-br0       Link encap:Ethernet  HWaddr 00:50:C2:69:C6:3F
-           inet addr:192.168.75.133  Bcast:192.168.75.255  
-Mask:255.255.255.0
-           inet6 addr: fe80::250:c2ff:fe69:c63f/64 Scope:Link
-           UP BROADCAST RUNNING MULTICAST  MTU:1492  Metric:1
-           RX packets:128521 errors:0 dropped:0 overruns:0 frame:0
-           TX packets:45471 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:0
-           RX bytes:163191890 (155.6 MiB)  TX bytes:39435311 (37.6 MiB)
-
-eth0      Link encap:Ethernet  HWaddr 00:50:C2:69:C6:3F
-           UP BROADCAST RUNNING MULTICAST  MTU:1492  Metric:1
-           RX packets:44140 errors:0 dropped:0 overruns:0 frame:0
-           TX packets:60299 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:1000
-           RX bytes:16728060 (15.9 MiB)  TX bytes:79965979 (76.2 MiB)
-
-usb0      Link encap:Ethernet  HWaddr D2:D0:1C:9A:35:8F
-           inet6 addr: fe80::d0d0:1cff:fe9a:358f/64 Scope:Link
-           UP BROADCAST RUNNING MULTICAST  MTU:1492  Metric:1
-           RX packets:13914 errors:0 dropped:0 overruns:0 frame:0
-           TX packets:7373 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:1000
-           RX bytes:20359268 (19.4 MiB)  TX bytes:778806 (760.5 KiB)
-
-
-
-Thanks,
-Lane
+I will apply your patch, just wanted to make sure no one was using
+the old (buggy) behavior
