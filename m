@@ -1,13 +1,10 @@
 MIME-Version: 1.0
-In-Reply-To: <20110905094321.7e0f734c@nehalam.ftrdhcpuser.net>
-References: <20110905145807.GA9179@chii>
-	<20110905094321.7e0f734c@nehalam.ftrdhcpuser.net>
-Date: Wed, 7 Sep 2011 15:33:13 +0800
-Message-ID: <CAFhJ8JBPk1PM-sWrJrgTnOgZ02MXnYviWhVcs=Ht_bHpmdUC+Q@mail.gmail.com>
-From: Xiaochen Wang <wangxiaochen0@gmail.com>
+Date: Thu, 8 Sep 2011 15:54:46 +0545
+Message-ID: <CAJ8tRG_N0wQTUtMLNxpyTYG-hM+y=kwG-6Bs=WgSakiO6WBaYQ@mail.gmail.com>
+From: Tek Bahadur Limbu <teklimbu@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] skip . and .. in accurately in isbridge()
+Subject: [Bridge] Bonding 2 interfaces and channeling the output to a bridge
+	interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,55 +13,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Lennert Buytenhek <buytenh@gnu.org>, bridge@linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-On Tue, Sep 6, 2011 at 12:43 AM, Stephen Hemminger
-<shemminger@vyatta.com> wrote:
-> On Mon, 5 Sep 2011 22:58:07 +0800
-> Xiaochen Wang <wangxiaochen0@gmail.com> wrote:
->
->> Hi all,
->>
->> =A0In commit f88f8 "Skip . and .. in foreach_bridge test", the code skip=
-s
->> =A0all directories starting with dot.
->>
->> =A0But if we create a bridge staring with dot, e.g. `.br0`, then `brctl =
-show`
->> =A0cannot show this one.
->> =A0`.br0` should not be hidden, because we cannot find it except the com=
-mand
->> =A0`brctl show .br0`.
->>
->> Signed-off-by: Xiaochen Wang <wangxiaochen0@gmail.com>
->> ---
->> =A0libbridge/libbridge_init.c | =A0 =A07 +++++--
->> =A01 files changed, 5 insertions(+), 2 deletions(-)
->>
->> diff --git a/libbridge/libbridge_init.c b/libbridge/libbridge_init.c
->> index 1c1acbd..177a391 100644
->> --- a/libbridge/libbridge_init.c
->> +++ b/libbridge/libbridge_init.c
->> @@ -49,9 +49,12 @@ static int isbridge(const struct dirent *entry)
->> =A0 =A0 =A0 char path[SYSFS_PATH_MAX];
->> =A0 =A0 =A0 struct stat st;
->>
->> - =A0 =A0 if (entry->d_name[0] =3D=3D '.')
->> + =A0 =A0 if (entry->d_name[0] =3D=3D '.'
->> + =A0 =A0 =A0 =A0 && (entry->d_name[1] =3D=3D '\0'
->> + =A0 =A0 =A0 =A0 =A0 =A0 || (entry->d_name[1] =3D=3D '.'
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 && entry->d_name[2] =3D=3D '\0')))
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
->> -
->> +
->> =A0 =A0 =A0 snprintf(path, SYSFS_PATH_MAX,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0SYSFS_CLASS_NET "%s/bridge", entry->d_nam=
-e);
->> =A0 =A0 =A0 return stat(path, &st) =3D=3D 0 && S_ISDIR(st.st_mode);
->
-> This was an accident originally, but allowing hidden bridges might be use=
-ful.
-> And is common for other commands to not show names starting with .
->
-I see.
+Hi all,
+
+I have a Debian Linux machine having 3 network interfaces (eth1, eth2, eth3).
+What I want to do is to make eth1 and eth2 as bonded interface (bond0)
+with Active Fail-over.
+
+Next I want to add eth3 and bond0 (eth1 and eth2) interfaces as a bridge.
+
+The reason for the above config is because I have 2 physical links in
+layer 2 (Trunkports). Only 1 of the physical links can be used at the
+same time.
+These links are connected to my Access Points but only 1 link can be
+used at a given time.
+
+Link1 ------> eth1 (bond0)
+                                     eth3 (br0)  -------------> Wifi
+Access Point
+Link2 ------> eth2 (bond0)
+
+
+eth1 and eth2 -->bond0
+br0 will bridge eth3 and bond0
+
+Can Active Fail-over with the 2 physical links be achieved using the
+setup above?
+
+Any suggestions will be great.
+
+Thanks,
+Tek
