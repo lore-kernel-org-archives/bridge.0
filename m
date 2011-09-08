@@ -1,10 +1,9 @@
 MIME-Version: 1.0
-Date: Thu, 8 Sep 2011 15:54:46 +0545
-Message-ID: <CAJ8tRG_N0wQTUtMLNxpyTYG-hM+y=kwG-6Bs=WgSakiO6WBaYQ@mail.gmail.com>
-From: Tek Bahadur Limbu <teklimbu@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] Bonding 2 interfaces and channeling the output to a bridge
-	interface
+Date: Thu, 8 Sep 2011 15:17:12 +0530
+Message-ID: <CAAmt5VCobpm=FJuZqwpNSNoPfWOTa8+FvWk7ysN4K=G-xU8eww@mail.gmail.com>
+From: mangesh choudhary <choudharym020@gmail.com>
+Content-Type: multipart/alternative; boundary=0015173ff316ea768404ac6af1aa
+Subject: [Bridge] Regarding query...
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +12,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: bridge@linux-foundation.org
 
-Hi all,
+--0015173ff316ea768404ac6af1aa
+Content-Type: text/plain; charset=ISO-8859-1
 
-I have a Debian Linux machine having 3 network interfaces (eth1, eth2, eth3).
-What I want to do is to make eth1 and eth2 as bonded interface (bond0)
-with Active Fail-over.
+Sir..
+        The package bridge-utils-1.5 you have given in your site will it
+support to Power PC or not..? please answer this query..
+   i would like tonintall this package in MPC8323 RDB Board(freescale..).
 
-Next I want to add eth3 and bond0 (eth1 and eth2) interfaces as a bridge.
+                        Thank u...
 
-The reason for the above config is because I have 2 physical links in
-layer 2 (Trunkports). Only 1 of the physical links can be used at the
-same time.
-These links are connected to my Access Points but only 1 link can be
-used at a given time.
+Regard..
+Mangesh Choudhary
+R&D,
+AEM India. Pvt. Ltd. Noida.
 
-Link1 ------> eth1 (bond0)
-                                     eth3 (br0)  -------------> Wifi
-Access Point
-Link2 ------> eth2 (bond0)
+--0015173ff316ea768404ac6af1aa
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+Sir..<div>=A0 =A0 =A0 =A0 The package bridge-utils-1.5 you have given in yo=
+ur site will it support to Power PC or not..? please answer this query..</d=
+iv><div>=A0 =A0i would like tonintall this package in MPC8323 RDB Board(fre=
+escale..).</div>
 
-eth1 and eth2 -->bond0
-br0 will bridge eth3 and bond0
+<div><br></div><div>=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 Thank u=
+...</div><div><br></div><div>Regard..</div><div>Mangesh Choudhary</div><div=
+>R&amp;D,</div><div>AEM India. Pvt. Ltd. Noida.=A0</div>
 
-Can Active Fail-over with the 2 physical links be achieved using the
-setup above?
-
-Any suggestions will be great.
-
-Thanks,
-Tek
+--0015173ff316ea768404ac6af1aa--
