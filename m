@@ -1,45 +1,30 @@
+Return-Path: <mailman-owner@linuxfoundation.org>
+Message-ID: <4EA8AA05.3080309@linuxfoundation.org>
+Date: Wed, 26 Oct 2011 17:47:01 -0700
+From: Mailman Admin <mailman-owner@linuxfoundation.org>
 MIME-Version: 1.0
-Date: Thu, 8 Sep 2011 15:17:12 +0530
-Message-ID: <CAAmt5VCobpm=FJuZqwpNSNoPfWOTa8+FvWk7ysN4K=G-xU8eww@mail.gmail.com>
-From: mangesh choudhary <choudharym020@gmail.com>
-Content-Type: multipart/alternative; boundary=0015173ff316ea768404ac6af1aa
-Subject: [Bridge] Regarding query...
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Linux Foundation mailing list services restored
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/bridge>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/bridge/>
 List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/bridge>, 
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@linux-foundation.org
+To: 
 
---0015173ff316ea768404ac6af1aa
-Content-Type: text/plain; charset=ISO-8859-1
+Hello,
 
-Sir..
-        The package bridge-utils-1.5 you have given in your site will it
-support to Power PC or not..? please answer this query..
-   i would like tonintall this package in MPC8323 RDB Board(freescale..).
+Mailing list services have been restored and we are in the testing
+phase, so please let us know if you see any issues.
 
-                        Thank u...
+Most importantly, we want to thank you for your patience and
+understanding as we worked around the clock to restore services.   For
+web sites associated with particular projects that have not yet been
+restored, we are reaching out this week and next to the project leads to
+begin restoring the web services.   Thanks for your continued patience.
 
-Regard..
-Mangesh Choudhary
-R&D,
-AEM India. Pvt. Ltd. Noida.
-
---0015173ff316ea768404ac6af1aa
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Sir..<div>=A0 =A0 =A0 =A0 The package bridge-utils-1.5 you have given in yo=
-ur site will it support to Power PC or not..? please answer this query..</d=
-iv><div>=A0 =A0i would like tonintall this package in MPC8323 RDB Board(fre=
-escale..).</div>
-
-<div><br></div><div>=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 Thank u=
-...</div><div><br></div><div>Regard..</div><div>Mangesh Choudhary</div><div=
->R&amp;D,</div><div>AEM India. Pvt. Ltd. Noida.=A0</div>
-
---0015173ff316ea768404ac6af1aa--
+The Linux Foundation
