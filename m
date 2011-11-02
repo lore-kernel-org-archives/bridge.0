@@ -1,12 +1,12 @@
-Return-Path: <drobbins@funtoo.org>
-MIME-Version: 1.0
-In-Reply-To: <20111102123106.107f4cb8@nehalam.linuxnetplumber.net>
+Return-Path: <davem@davemloft.net>
+Date: Wed, 02 Nov 2011 16:09:05 -0400 (EDT)
+Message-Id: <20111102.160905.1169586186411464818.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <4EB19549.4010601@parallels.com>
 References: <4EB19549.4010601@parallels.com>
-	<20111102123106.107f4cb8@nehalam.linuxnetplumber.net>
-Date: Wed, 2 Nov 2011 13:45:29 -0600
-Message-ID: <CAPDOV48k=0c1anx7DC57u0x84tUVsFDQNO6=MiT+9eEE=Egi2A@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: Reset IPCB on forward non-local
  packets in br_handle_frame_finish()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -17,17 +17,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Vasily Averin <vvs@parallels.com>, "David S. Miller" <davem@davemloft.net>, devel@openvz.org
+To: vvs@parallels.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, devel@openvz.org, herbert@gondor.hengli.com.au
 
-On Wed, Nov 2, 2011 at 1:31 PM, Stephen Hemminger <shemminger@vyatta.com> wrote:
->
-> What kernel version are you using? There were several previous fixes
-> in br_netfilter to deal with this type of issue over the last year.
+From: Vasily Averin <vvs@parallels.com>
+Date: Wed, 02 Nov 2011 23:08:57 +0400
 
-It's a kernel from this obscure company called Red Hat, and they
-include it in this product called Red Hat Enterprise Linux 6.
+> if dst is not local br_handle_frame_finish() does not clone original skb and
+> forgets to reset IPCB before return to IP stack. it can lead to stack corruption
+> in icmp_send()
+> 
+> Signed-off-by: Vasily Averin <vvs@sw.ru>
 
-Specifically, 042stab37.1 :)
+Nothing is worse than posting a patch that doesn't even compile.
 
--Daniel
+And I really mean _nothing_.
