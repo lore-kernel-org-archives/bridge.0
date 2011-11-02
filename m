@@ -1,12 +1,12 @@
-Return-Path: <shemminger@vyatta.com>
-Date: Wed, 2 Nov 2011 12:31:06 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20111102123106.107f4cb8@nehalam.linuxnetplumber.net>
-In-Reply-To: <4EB19549.4010601@parallels.com>
+Return-Path: <drobbins@funtoo.org>
+MIME-Version: 1.0
+In-Reply-To: <20111102123106.107f4cb8@nehalam.linuxnetplumber.net>
 References: <4EB19549.4010601@parallels.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20111102123106.107f4cb8@nehalam.linuxnetplumber.net>
+Date: Wed, 2 Nov 2011 13:45:29 -0600
+Message-ID: <CAPDOV48k=0c1anx7DC57u0x84tUVsFDQNO6=MiT+9eEE=Egi2A@mail.gmail.com>
+From: Daniel Robbins <drobbins@funtoo.org>
+Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [PATCH] bridge: Reset IPCB on forward non-local
  packets in br_handle_frame_finish()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -17,41 +17,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vasily Averin <vvs@parallels.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, devel@openvz.org, Herbert Xu <herbert@gondor.hengli.com.au>
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Vasily Averin <vvs@parallels.com>, "David S. Miller" <davem@davemloft.net>, devel@openvz.org
 
-On Wed, 02 Nov 2011 23:08:57 +0400
-Vasily Averin <vvs@parallels.com> wrote:
+On Wed, Nov 2, 2011 at 1:31 PM, Stephen Hemminger <shemminger@vyatta.com> wrote:
+>
+> What kernel version are you using? There were several previous fixes
+> in br_netfilter to deal with this type of issue over the last year.
 
-> if dst is not local br_handle_frame_finish() does not clone original skb and
-> forgets to reset IPCB before return to IP stack. it can lead to stack corruption
-> in icmp_send()
-> 
-> Signed-off-by: Vasily Averin <vvs@sw.ru>
-> ---
->  net/bridge/br_input.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index f06ee39..6be8d00 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -93,10 +93,11 @@ int br_handle_frame_finish(struct sk_buff *skb)
->  			skb2 = skb;
-> 
->  		br->dev->stats.multicast++;
-> -	} else if ((dst = __br_fdb_get(br, dest)) && dst->is_local) {
-> +	} else if ((dst = __br_fdb_get(br, dest)) != NULL) {
->  		skb2 = skb;
->  		/* Do not forward the packet since it's local. */
-> -		skb = NULL;
-> +		if (dst->is_local) {
-> +			skb = NULL;
->  	}
-> 
->  	if (skb) {
+It's a kernel from this obscure company called Red Hat, and they
+include it in this product called Red Hat Enterprise Linux 6.
 
-What kernel version are you using? There were several previous fixes
-in br_netfilter to deal with this type of issue over the last year.
+Specifically, 042stab37.1 :)
 
-
+-Daniel
