@@ -1,10 +1,14 @@
-Return-Path: <drobbins@funtoo.org>
-MIME-Version: 1.0
-Date: Wed, 2 Nov 2011 11:07:31 -0600
-Message-ID: <CAPDOV4-tbh0TOQMtX+s5xtiwbycn-=nL_2R8w58FHYbUTEBwxw@mail.gmail.com>
-From: Daniel Robbins <drobbins@funtoo.org>
-Content-Type: text/plain; charset=UTF-8
-Subject: [Bridge] RHEL 6 stack corruption bug in bridge code identified
+Return-Path: <shemminger@vyatta.com>
+Date: Wed, 2 Nov 2011 12:31:06 -0700
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20111102123106.107f4cb8@nehalam.linuxnetplumber.net>
+In-Reply-To: <4EB19549.4010601@parallels.com>
+References: <4EB19549.4010601@parallels.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: Reset IPCB on forward non-local
+ packets in br_handle_frame_finish()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,17 +17,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Vasily Averin <vvs@parallels.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, devel@openvz.org, Herbert Xu <herbert@gondor.hengli.com.au>
 
-Hi Stephen,
+On Wed, 02 Nov 2011 23:08:57 +0400
+Vasily Averin <vvs@parallels.com> wrote:
 
-The OpenVZ developers have identified a linux bridging stack
-corruption bug in the RHEL 6 kernel:
+> if dst is not local br_handle_frame_finish() does not clone original skb and
+> forgets to reset IPCB before return to IP stack. it can lead to stack corruption
+> in icmp_send()
+> 
+> Signed-off-by: Vasily Averin <vvs@sw.ru>
+> ---
+>  net/bridge/br_input.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index f06ee39..6be8d00 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -93,10 +93,11 @@ int br_handle_frame_finish(struct sk_buff *skb)
+>  			skb2 = skb;
+> 
+>  		br->dev->stats.multicast++;
+> -	} else if ((dst = __br_fdb_get(br, dest)) && dst->is_local) {
+> +	} else if ((dst = __br_fdb_get(br, dest)) != NULL) {
+>  		skb2 = skb;
+>  		/* Do not forward the packet since it's local. */
+> -		skb = NULL;
+> +		if (dst->is_local) {
+> +			skb = NULL;
+>  	}
+> 
+>  	if (skb) {
 
-http://bugzilla.openvz.org/show_bug.cgi?id=2016#c15
+What kernel version are you using? There were several previous fixes
+in br_netfilter to deal with this type of issue over the last year.
 
-Can you confirm that this appears to be a stack corruption bug? Has it
-already been fixed? If so, which kernel has it fixed? If not, can you
-get a fix into an upcoming vanilla kernel? Thanks :)
 
--Daniel
