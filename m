@@ -1,17 +1,14 @@
-Return-Path: <joe@perches.com>
-Message-ID: <1321280870.2004.2.camel@Joe-Laptop>
-From: Joe Perches <joe@perches.com>
-Date: Mon, 14 Nov 2011 06:27:50 -0800
-In-Reply-To: <20111114.020749.1176229013272872343.davem@davemloft.net>
-References: <1320941934-3534-1-git-send-email-holger.brunck@keymile.com>
-	<20111114.003702.1097206603722725705.davem@davemloft.net>
-	<1321254211.4072.29.camel@pc005091.de.keymile.net>
-	<20111114.020749.1176229013272872343.davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Return-Path: <shemminger@vyatta.com>
+Date: Tue, 15 Nov 2011 09:45:16 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20111115094516.3eb54a1a@nehalam.linuxnetplumber.net>
+In-Reply-To: <4EC23EE7.2010606@intel.com>
+References: <CAM1AHpSuruDx3CxzK=Med0iyxxwu7wxgRZib7yhBMiCVKXqzeA@mail.gmail.com>
+	<4EC23EE7.2010606@intel.com>
 Mime-Version: 1.0
-Subject: Re: [Bridge] [PATCH] net,
-	bridge: print log message after state changed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] sky2 hw csum failure
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,18 +17,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, shemminger@linux-foundation.org, bridge@lists.linux-foundation.org, holger.brunck@keymile.com, Wolfgang.Fritz@keymile.com
+To: "Yan, Zheng" <zheng.z.yan@intel.com>
+Cc: Martin Volf <martin.volf.42@gmail.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "wcang@sfc.wide.ad.jp" <wcang@sfc.wide.ad.jp>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "shemminger@linux-foundation.org" <shemminger@linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 
-On Mon, 2011-11-14 at 02:07 -0500, David Miller wrote:
-> I would never expect an "entering" message to print out after the event
-> happens, and in fact I'd _always_ want to see it beforehand so that if
-> the state change caused a crash or similar it'd be that much easier
-> to pinpoint the proper location.
+On Tue, 15 Nov 2011 18:28:55 +0800
+"Yan, Zheng" <zheng.z.yan@intel.com> wrote:
+
+> I re-tested the checksum code, both CHECKSUM_NONE and CHECKSUM_COMPLETE
+> cases are OK. Maybe the bug is related to sky2.
 > 
-> I'm still not applying this.  If the other log messages behave
-> differently, they are broken, so go fix those instead.
+> Regards
+> Yan, Zheng
 
-Perhaps use "entered" after the transition or "entering" before.
+There are three types of receive checksumming:
+  1. Hardware does not do checksumming (CHECKSUM_NONE)
+  2. Hardware validates checksum (CHECKSUM_UNNECESSARY)
+  3. Hardware computes sum of bytes in skb (CHECKSUM_COMPLETE)
+
+Most hardware does #2, but sky2 uses #3.
+For the second case, the hardware does not look at headers but only
+reports the one's complement value in ip_summed. It is up to the
+protocol layers to adjust accordingly.  This means if data is removed
+or added the checksum needs to be adjusted.
+
 
 
