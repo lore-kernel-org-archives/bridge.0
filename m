@@ -1,15 +1,8 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 16 Nov 2011 17:47:30 -0500 (EST)
-Message-Id: <20111116.174730.1997198538787965669.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <CAM1AHpQsYz=y8m_RSzfPkGXGFZ8rQQE0Q+pmfbRb6K0v-jQ91w@mail.gmail.com>
-References: <4EC23EE7.2010606@intel.com>
-	<20111115100914.0c9540be@nehalam.linuxnetplumber.net>
-	<CAM1AHpQsYz=y8m_RSzfPkGXGFZ8rQQE0Q+pmfbRb6K0v-jQ91w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFT] bridge: checksum not updated after pull
+Return-Path: <kenner@gnat.com>
+Date: Wed, 16 Nov 2011 22:27:15 EST
+Message-Id: <20111117032716.99E5533C7D@vlsi1.gnat.com>
+From: kenner@gnat.com (Richard Kenner)
+Subject: [Bridge] Problems with stateful firewall and bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,20 +11,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: martin.volf.42@gmail.com
-Cc: zheng.z.yan@intel.com, netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, wcang@sfc.wide.ad.jp
+To: bridge@lists.linux-foundation.org
 
-From: Martin Volf <martin.volf.42@gmail.com>
-Date: Tue, 15 Nov 2011 20:51:44 +0100
+I'm running into problems with a stateful firewall on a bridge device.
+The Linux kernel is 2.6.37.
 
-> On 15 November 2011 19:09, Stephen Hemminger <shemminger@vyatta.com> wrote:
->> I think this is what is necessary, please test.
-> ...
-> 
-> Hello,
-> 
-> with the patch on top of 3.1.1 I no longer get the "hw csum failure"
-> message. I don't know how to test IPv6 multicast, but IPv6 ND and
-> SLAAC is correctly passing through the bridge.
+The problem appears to be that no connection tracking entries are
+being made.  conntrack -L shows no entries.
 
-Applied, thanks Stephen.
+But sysctl appears to be set correctly:
+
+net.bridge.bridge-nf-call-arptables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-filter-vlan-tagged = 0
+net.bridge.bridge-nf-filter-pppoe-tagged = 0
+
+Does anybody have any suggestions as to what I should look at next?
