@@ -1,20 +1,15 @@
-Return-Path: <martin.volf.42@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc:content-type;
-	bh=gHofQo0bPqmQSWIKJZg3EhpvJkpceaJs8rrfohqLQkc=;
-	b=T0fl1hCAhwNAeY2Eg7uOSJegozjM2zk59U+r/AxjBePHvVLgygwTDYePL6b0zye0YX
-	DqdQu2Sm7uwpIY7NbHAmvlbYFNq028QiFGfIFP7Nekt1/OmmfeQRVg66cbB7tz5+qcJJ
-	qjva2HQo3khIJ0lO6As3jTi6f97GkXoewPSO8=
+Return-Path: <Holger.Brunck@keymile.com>
+Message-ID: <4EC6234A.1030002@keymile.com>
+From: Holger Brunck <holger.brunck@keymile.com>
 MIME-Version: 1.0
-In-Reply-To: <20111115100914.0c9540be@nehalam.linuxnetplumber.net>
-References: <CAM1AHpSuruDx3CxzK=Med0iyxxwu7wxgRZib7yhBMiCVKXqzeA@mail.gmail.com>
-	<4EC23EE7.2010606@intel.com>
-	<20111115100914.0c9540be@nehalam.linuxnetplumber.net>
-Message-ID: <CAM1AHpQsYz=y8m_RSzfPkGXGFZ8rQQE0Q+pmfbRb6K0v-jQ91w@mail.gmail.com>
-From: Martin Volf <martin.volf.42@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: Re: [Bridge] [RFT] bridge: checksum not updated after pull
+References: <1320941934-3534-1-git-send-email-holger.brunck@keymile.com><20111114.003702.1097206603722725705.davem@davemloft.net><1321254211.4072.29.camel@pc005091.de.keymile.net><20111114.020749.1176229013272872343.davem@davemloft.net>
+	<20111117192353.GD2051622@jupiter.n2.diac24.net>
+In-Reply-To: <20111117192353.GD2051622@jupiter.n2.diac24.net>
+Content-Type: text/plain;
+	charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net,
+	bridge: print log message after state changed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,20 +18,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Tue, 15 Nov 2011 19:50:25 -0000
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: "Yan, Zheng" <zheng.z.yan@intel.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "wcang@sfc.wide.ad.jp" <wcang@sfc.wide.ad.jp>, "davem@davemloft.net" <davem@davemloft.net>
+Date: Fri, 18 Nov 2011 09:30:31 -0000
+To: David Lamparter <equinox@diac24.net>
+Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 
-On 15 November 2011 19:09, Stephen Hemminger <shemminger@vyatta.com> wrote:
-> I think this is what is necessary, please test.
-...
+On 11/17/2011 08:23 PM, David Lamparter wrote:
+> On Mon, Nov 14, 2011 at 02:07:49AM -0500, David Miller wrote:
+>>>> The message is therefore appropriately timed as far as I'm concerned.
+>>>>
+>>>
+>>> It's not.
+>>>
+>>> Please test: create a bridge with STP disabled, add an interface to the
+>>> bridge and set that interface down. You get the message "... entering
+>>> forwarding state". That's wrong because it's "about to enter" disabled
+>>> state some lines later.
+>>>
+>>> All other (4) calls to br_log_state are located after the state change,
+>>> see for example br_stp_enable_port() just some lines above the patch.
+>>
+>> I would never expect an "entering" message to print out after the event
+>> happens, and in fact I'd _always_ want to see it beforehand so that if
+>> the state change caused a crash or similar it'd be that much easier
+>> to pinpoint the proper location.
+> 
+> There seems to be a misunderstanding here. The patch effectively does:
+> -       br_log_state(p);
+>         p->state = BR_STATE_DISABLED;
+> +       br_log_state(p);
+> 
+> and the issue it is trying to fix is not the timing but rather the code
+> printing the wrong (old, now-left) state.
+> 
 
-Hello,
+Yes exactly this is the problem. We got confusing state messages in the current
+implementation.
 
-with the patch on top of 3.1.1 I no longer get the "hw csum failure"
-message. I don't know how to test IPv6 multicast, but IPv6 ND and
-SLAAC is correctly passing through the bridge.
+> I do agree that the log message should be printed before anything
+> happens, so, Holger, can you brew a patch that does that?
+> 
 
-Thanks!
+This can't be changed easily. Because in some situations we don't know which
+state we will enter at the entry point of the function.
 
-Martin Volf
+For example  br_make_forwarding does something like
+if ..
+  p->state = STATE_A
+else if ...
+  p->state = STATE_B
+....
+
+So my approach would be to change the log message from "port entering state" to
+"port entered state" and print it out after the state changed.
+
+Regards
+Holger
+
+
