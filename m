@@ -1,11 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 29 Nov 2011 18:54:33 -0500 (EST)
-Message-Id: <20111129.185433.1527626185550800872.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <201111251216.37466.vitas@nppfactor.kiev.ua>
+Return-Path: <shemminger@vyatta.com>
+Date: Tue, 29 Nov 2011 16:06:56 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20111129160656.7a96375e@nehalam.linuxnetplumber.net>
+In-Reply-To: <20111129.185433.1527626185550800872.davem@davemloft.net>
 References: <201111251216.37466.vitas@nppfactor.kiev.ua>
+	<20111129.185433.1527626185550800872.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: master device stuck in no-carrier
  state forever when in user-stp mode
@@ -17,25 +18,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vitas@nppfactor.kiev.ua
-Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Vitalii Demianets <vitas@nppfactor.kiev.ua>
-Date: Fri, 25 Nov 2011 12:16:37 +0200
+On Tue, 29 Nov 2011 18:54:33 -0500 (EST)
+David Miller <davem@davemloft.net> wrote:
 
-> When in user-stp mode, bridge master do not follow state of its slaves, so 
-> after the following sequence of events it can stuck forever in no-carrier 
-> state:
-> 1) turn stp off
-> 2) put all slaves down - master device will follow their state and also go in 
-> no-carrier state
-> 3) turn stp on with bridge-stp script returning 0 (go to the user-stp mode)
-> Now bridge master won't follow slaves' state and will never reach running 
-> state.
+> From: Vitalii Demianets <vitas@nppfactor.kiev.ua>
+> Date: Fri, 25 Nov 2011 12:16:37 +0200
 > 
-> This patch solves the problem by making user-stp and kernel-stp behavior 
-> similar regarding master following slaves' states.
+> > When in user-stp mode, bridge master do not follow state of its slaves, so 
+> > after the following sequence of events it can stuck forever in no-carrier 
+> > state:
+> > 1) turn stp off
+> > 2) put all slaves down - master device will follow their state and also go in 
+> > no-carrier state
+> > 3) turn stp on with bridge-stp script returning 0 (go to the user-stp mode)
+> > Now bridge master won't follow slaves' state and will never reach running 
+> > state.
+> > 
+> > This patch solves the problem by making user-stp and kernel-stp behavior 
+> > similar regarding master following slaves' states.
+> > 
+> > Signed-off-by: Vitalii Demianets <vitas@nppfactor.kiev.ua>
 > 
-> Signed-off-by: Vitalii Demianets <vitas@nppfactor.kiev.ua>
+> Stephen, please review this patch, thanks.
 
-Stephen, please review this patch, thanks.
+Agree that it is a problem, but want to fix the code up. The logic
+can be done slightly cleaner.
