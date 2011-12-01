@@ -1,11 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 30 Nov 2011 23:02:18 -0500 (EST)
-Message-Id: <20111130.230218.710206942884045715.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
+Return-Path: <shemminger@vyatta.com>
+Date: Thu, 1 Dec 2011 09:21:06 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20111201092106.00473fed@nehalam.linuxnetplumber.net>
 In-Reply-To: <4ED5E9D6.3070404@jp.fujitsu.com>
 References: <4ED5E9D6.3070404@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: Cannot communicate with brX when its
  MAC address is changed
@@ -17,11 +17,11 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: sanagi.koki@jp.fujitsu.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shemminger@linux-foundation.org
+To: Koki Sanagi <sanagi.koki@jp.fujitsu.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shemminger@linux-foundation.org, davem@davemloft.net
 
-From: Koki Sanagi <sanagi.koki@jp.fujitsu.com>
-Date: Wed, 30 Nov 2011 17:31:18 +0900
+On Wed, 30 Nov 2011 17:31:18 +0900
+Koki Sanagi <sanagi.koki@jp.fujitsu.com> wrote:
 
 > When the MAC address of a bridge interface is changed, it cannot communicate
 > with others. Because Whether or not a packet should be transferred to bridge
@@ -32,13 +32,6 @@ Date: Wed, 30 Nov 2011 17:31:18 +0900
 > a bridge interface to the conventional condition.
 > 
 > Signed-off-by: Koki Sanagi <sanagi.koki@jp.fujitsu.com>
-
-This looks like a patch I've seen before, and in any event it makes
-more sense to update the FDB when the MAC changes instead of adding a
-special bypass rule.
-
-Stephen?
-
 > ---
 >  net/bridge/br_input.c |    3 ++-
 >  1 files changed, 2 insertions(+), 1 deletions(-)
@@ -57,3 +50,14 @@ Stephen?
 >  		skb2 = skb;
 >  		/* Do not forward the packet since it's local. */
 >  		skb = NULL;
+> 
+
+There is a problem with paren's in this version of the patch, don't apply it!
+
+Looked into using fdb to handle this, but then there would be fdb entries
+where the destination port entry was either NULL (or a dummy), and that
+would require a bunch of auditing of all usages and could introduce new
+bugs.
+
+I am testing a patch that does same thing by moving compare_ether up
+to where broadcast is tested.
