@@ -1,15 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 01 Dec 2011 13:02:50 -0500 (EST)
-Message-Id: <20111201.130250.796100558647164266.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20111201092106.00473fed@nehalam.linuxnetplumber.net>
-References: <4ED5E9D6.3070404@jp.fujitsu.com>
-	<20111201092106.00473fed@nehalam.linuxnetplumber.net>
+Return-Path: <shemminger@vyatta.com>
+Date: Thu, 1 Dec 2011 10:44:09 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20111201104409.2d04ca06@nehalam.linuxnetplumber.net>
+In-Reply-To: <201111251216.37466.vitas@nppfactor.kiev.ua>
+References: <201111251216.37466.vitas@nppfactor.kiev.ua>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: Cannot communicate with brX when its
- MAC address is changed
+Subject: Re: [Bridge] [PATCH] bridge: master device stuck in no-carrier
+ state forever when in user-stp mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,28 +17,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: sanagi.koki@jp.fujitsu.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shemminger@linux-foundation.org
+To: Vitalii Demianets <vitas@nppfactor.kiev.ua>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@vyatta.com>
-Date: Thu, 1 Dec 2011 09:21:06 -0800
+On Fri, 25 Nov 2011 12:16:37 +0200
+Vitalii Demianets <vitas@nppfactor.kiev.ua> wrote:
 
-> Looked into using fdb to handle this, but then there would be fdb entries
-> where the destination port entry was either NULL (or a dummy), and that
-> would require a bunch of auditing of all usages and could introduce new
-> bugs.
+> When in user-stp mode, bridge master do not follow state of its slaves, so 
+> after the following sequence of events it can stuck forever in no-carrier 
+> state:
+> 1) turn stp off
+> 2) put all slaves down - master device will follow their state and also go in 
+> no-carrier state
+> 3) turn stp on with bridge-stp script returning 0 (go to the user-stp mode)
+> Now bridge master won't follow slaves' state and will never reach running 
+> state.
 > 
-> I am testing a patch that does same thing by moving compare_ether up
-> to where broadcast is tested.
+> This patch solves the problem by making user-stp and kernel-stp behavior 
+> similar regarding master following slaves' states.
+> 
+> Signed-off-by: Vitalii Demianets <vitas@nppfactor.kiev.ua>
 
-Stephen please fix this bug correctly.
+This method works fine. David please apply to -net.
 
-The bug is that the FDB gets updated with the initial MAC address, but
-doesn't get updated when the MAC address changes.
-
-There is no other valid fix than to update the FDB when the MAC changes,
-and making whatever is necessary for that to work.
-
-I'm not applying a patch that adds a MAC address comparison here, because
-you might was well not add the FDB entry in the first place if you're
-going to add a hack like that.
+Acked-by: Stephen Hemminger <shemminger@vyatta.com>
