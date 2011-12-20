@@ -1,15 +1,16 @@
 Return-Path: <vitas@nppfactor.kiev.ua>
 From: Vitalii Demianets <vitas@nppfactor.kiev.ua>
-Date: Wed, 14 Dec 2011 11:32:51 +0200
+Date: Tue, 20 Dec 2011 12:59:11 +0200
 References: <201112131136.25919.vitas@nppfactor.kiev.ua>
 	<20111213161613.0c59ab36@nehalam.linuxnetplumber.net>
-In-Reply-To: <20111213161613.0c59ab36@nehalam.linuxnetplumber.net>
+	<201112141132.51867.vitas@nppfactor.kiev.ua>
+In-Reply-To: <201112141132.51867.vitas@nppfactor.kiev.ua>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <201112141132.51867.vitas@nppfactor.kiev.ua>
+Message-Id: <201112201259.12086.vitas@nppfactor.kiev.ua>
 Subject: Re: [Bridge] [PATCH] bridge: push blocking slaves to forwarding
 	when turning stp off
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -23,57 +24,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Stephen Hemminger <shemminger@vyatta.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wednesday 14 December 2011 02:16:13 Stephen Hemminger wrote:
-> On Tue, 13 Dec 2011 11:36:25 +0200
->
-> Vitalii Demianets <vitas@nppfactor.kiev.ua> wrote:
-> > If there is a slave in blocking state when stp is turned off, that slave
-> > will remain in blocking state for indefinitely long time until interface
-> > state changed. We should push all blocking slaves into forwarding state
-> > after turning stp off.
-> >
-> > Signed-off-by: Vitalii Demianets <vitas@nppfactor.kiev.ua>
->
-> Maybe. But if the port was in the blocking state then STP must have
-> decided there was a loop in the network if that port was used.
-> Therefore blindly putting the port into forwarding state could cause
-> disastrous network flood.
->
->
-> The user can force the port back out of blocking state (via sysfs).
->
-
-1) That blocking state in the absence of STP is not stable. It will eventually 
-flip to forwarding sooner or later on the first call of 
-br_port_state_selection(). For example, when user changes MAC address on 
-another slave. Or even worse - when any other slave of the bridge changes its 
-carrier state. Don't think user wants such unpredictable state changes.
-
-2) There is also another drawback of not pushing ports into forwarding state 
-after turning off USER_STP mode. Possible scenario is:
-  a) bridge in USER_STP mode, all ports are in non-forwarding state (blocking, 
-learning)
-  b) user turns off STP. Without the patch ports are not advanced to the 
-forwarding state and are left in the states they are (the timers do not work 
-because of USER_STP mode)
-  c) The bridge stays in no-carrier state until something happens (carrier 
-state transition on one of the slaves, MAC address change etc)
-
-You can say again that in the above two cases user can manually set the state 
-of the slaves to forwarding.  But to account all possible cases one should 
-always unconditionally do it for all the slaves each time when stp is being 
-turned off. So why not to automate the task?
-
-3) The initial intention of the code in br_stp_stop() was to get ports out of 
-blocking state when stp is being turned off. It fails to achieve the goal, 
-and patch just fixes it.
-
-4) If user turns stp off he clearly indicates that she wants all ports to work 
-in stateless mode and that he will deal with possible network loops on 
-himself. Should we in that case guess network topology basing on loose 
-assumptions and leave ports in unstable blocking state (and they will flip 
-eventually to the forwarding state in unpredictable times as mentioned 
-above)?
+Hello, Stephen!
+I can not understand your silence.
+There are issues fixed by the patch in question. For example, if the interface 
+is left in blocking state after stp was turned off, that state is not 
+stable - it can flip to forwarding state in unpredictable times, e.g. when 
+_any other_ slave of the bridge goes up or down. Do you think user wants 
+exactly that unpredictable state change?
+Also, the code in question in function br_stp_stop(), namely 
+br_port_state_selection(br) call, does exactly nothing except wasting cpu 
+cycles. Isn't it worth fixing?
 
 -- 
 Vitalii Demianets
