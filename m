@@ -1,18 +1,12 @@
-Return-Path: <vitas@nppfactor.kiev.ua>
-From: Vitalii Demianets <vitas@nppfactor.kiev.ua>
-Date: Tue, 20 Dec 2011 20:27:01 +0200
-References: <201112131136.25919.vitas@nppfactor.kiev.ua>
-	<201112201259.12086.vitas@nppfactor.kiev.ua>
-	<20111220101117.2a3eb12f@nehalam.linuxnetplumber.net>
-In-Reply-To: <20111220101117.2a3eb12f@nehalam.linuxnetplumber.net>
+Return-Path: <cTXr3nd3DSn5@dyweni.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <201112202027.02081.vitas@nppfactor.kiev.ua>
-Subject: Re: [Bridge] [PATCH] bridge: push blocking slaves to forwarding
-	when turning stp off
+Content-Type: multipart/alternative;
+	boundary="=_33a12b712ea9d1dab0727307743f622f"
+Date: Wed, 21 Dec 2011 10:01:52 -0600
+From: Dyweni - Bridge <cTXr3nd3DSn5@dyweni.com>
+Message-ID: <755194a48992c82fe519179f9423c989@pl1.haspere.com>
+Subject: [Bridge] Invalid Argument when adding a bond to a bridge
+Reply-To: cTXr3nd3DSn5@dyweni.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,17 +15,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Bridge <bridge@lists.linux-foundation.org>, Bonding Devel <bonding-devel@lists.sourceforge.net>
 
-On Tuesday 20 December 2011 20:11:17 Stephen Hemminger wrote:
-> I had to go do real work last week.
-> Let me test and look at it more detail.
-> There is no urgency, the problem has existed for many years.
+--=_33a12b712ea9d1dab0727307743f622f
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 
-Please excuse me. It was only my impatience and "deferred" status on the 
-David's patchwork site that worried me.
-I agree that problem is not urgent.
+  
+
+Hi All, 
+
+I'm getting an 'Invalid argument' error when trying to
+add a bonded interface to a new bridge. Has anyone seen this before?
+
+
+I'm running Linux 3.2-rc6 
+
+Bonded interface was created like this:
+
+
+echo "+public-bond" > /sys/class/net/bonding_masters
+echo "+eth0" >
+/sys/class/net/public-bond/bonding/slaves 
+
+The bridged interface was
+created like this: 
+
+brctl addbr pubbridge
+brctl addif pubbridge
+public-bond 
+
+--  
 
 -- 
-Vitalii Demianets
+Thanks,
+Dyweni
+  
+--=_33a12b712ea9d1dab0727307743f622f
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p>Hi All,</p>
+<p>I'm getting an 'Invalid argument' error when trying to add a bonded inte=
+rface to a new bridge. &nbsp;Has anyone seen this before?</p>
+<p>&nbsp;</p>
+<p>I'm running Linux 3.2-rc6</p>
+<p>&nbsp;</p>
+<p>Bonded interface was created like this:</p>
+<p>echo "+public-bond" &gt; /sys/class/net/bonding_masters<br />echo "+eth0=
+" &gt; /sys/class/net/public-bond/bonding/slaves</p>
+<p>The bridged interface was created like this:</p>
+<p>brctl addbr pubbridge<br />brctl addif pubbridge public-bond</p>
+<p>&nbsp;</p>
+<p><span style=3D"white-space: pre-wrap;">-- </span></p>
+<div>
+<pre>--=20
+Thanks,
+Dyweni</pre>
+</div>
+</body></html>
+
+--=_33a12b712ea9d1dab0727307743f622f--
+
