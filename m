@@ -1,12 +1,18 @@
 Return-Path: <richard@nod.at>
+Message-ID: <4F033E11.5060707@nod.at>
+Date: Tue, 03 Jan 2012 18:42:41 +0100
 From: Richard Weinberger <richard@nod.at>
-Date: Tue,  3 Jan 2012 14:26:04 +0100
-Message-Id: <1325597164-13459-2-git-send-email-richard@nod.at>
-In-Reply-To: <1325597164-13459-1-git-send-email-richard@nod.at>
+MIME-Version: 1.0
 References: <4F025A07.2000304@nod.at>
 	<1325597164-13459-1-git-send-email-richard@nod.at>
-Subject: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in conjunction
-	with bridge-nf-call-ip(6)tables=0
+	<1325597164-13459-2-git-send-email-richard@nod.at>
+	<20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
+In-Reply-To: <20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="------------enigBDF9393B90E3ECC436D4C566"
+Subject: Re: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in
+ conjunction with bridge-nf-call-ip(6)tables=0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,93 +21,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: Richard Weinberger <richard@nod.at>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-If net.bridge.bridge-nf-call-iptables or net.bridge.bridge-nf-call-ip6tables
-are set to zero xt_physdev has no effect because skb->nf_bridge has not been set up.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBDF9393B90E3ECC436D4C566
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Richard Weinberger <richard@nod.at>
----
- net/bridge/br_netfilter.c |   31 +++++++++++++++++++++++--------
- 1 files changed, 23 insertions(+), 8 deletions(-)
+Am 03.01.2012 17:15, schrieb Stephen Hemminger:
+> On Tue,  3 Jan 2012 14:26:04 +0100
+> Richard Weinberger <richard@nod.at> wrote:
+>=20
+>> If net.bridge.bridge-nf-call-iptables or net.bridge.bridge-nf-call-ip6=
+tables
+>> are set to zero xt_physdev has no effect because skb->nf_bridge has no=
+t been set up.
+>>
+>> Signed-off-by: Richard Weinberger <richard@nod.at>
+>=20
+> I am not sure if this is a valid configuration. The setting of sysctl i=
+s saying
+> "don't do iptables on bridge (since I won't be using it)" and then you =
+are later
+> doing iptables and expecting the settings as if the iptables setup was =
+being
+> done.
 
-diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-index fa8b8f7..f38a8e4 100644
---- a/net/bridge/br_netfilter.c
-+++ b/net/bridge/br_netfilter.c
-@@ -576,10 +576,12 @@ static unsigned int br_nf_pre_routing_ipv6(unsigned int hook,
- 					   struct sk_buff *skb,
- 					   const struct net_device *in,
- 					   const struct net_device *out,
--					   int (*okfn)(struct sk_buff *))
-+					   int (*okfn)(struct sk_buff *),
-+					   struct net_bridge *br)
- {
- 	const struct ipv6hdr *hdr;
- 	u32 pkt_len;
-+	struct nf_bridge_info *nf_bridge;
- 
- 	if (skb->len < sizeof(struct ipv6hdr))
- 		return NF_DROP;
-@@ -606,6 +608,15 @@ static unsigned int br_nf_pre_routing_ipv6(unsigned int hook,
- 	nf_bridge_put(skb->nf_bridge);
- 	if (!nf_bridge_alloc(skb))
- 		return NF_DROP;
-+
-+	if (!brnf_call_ip6tables && !br->nf_call_ip6tables) {
-+		nf_bridge = skb->nf_bridge;
-+		nf_bridge->mask |= BRNF_NF_BRIDGE_PREROUTING;
-+		nf_bridge->physindev = skb->dev;
-+
-+		return NF_ACCEPT;
-+	}
-+
- 	if (!setup_pre_routing(skb))
- 		return NF_DROP;
- 
-@@ -629,6 +640,7 @@ static unsigned int br_nf_pre_routing(unsigned int hook, struct sk_buff *skb,
- {
- 	struct net_bridge_port *p;
- 	struct net_bridge *br;
-+	struct nf_bridge_info *nf_bridge;
- 	__u32 len = nf_bridge_encap_header_len(skb);
- 
- 	if (unlikely(!pskb_may_pull(skb, len)))
-@@ -641,16 +653,10 @@ static unsigned int br_nf_pre_routing(unsigned int hook, struct sk_buff *skb,
- 
- 	if (skb->protocol == htons(ETH_P_IPV6) || IS_VLAN_IPV6(skb) ||
- 	    IS_PPPOE_IPV6(skb)) {
--		if (!brnf_call_ip6tables && !br->nf_call_ip6tables)
--			return NF_ACCEPT;
--
- 		nf_bridge_pull_encap_header_rcsum(skb);
--		return br_nf_pre_routing_ipv6(hook, skb, in, out, okfn);
-+		return br_nf_pre_routing_ipv6(hook, skb, in, out, okfn, br);
- 	}
- 
--	if (!brnf_call_iptables && !br->nf_call_iptables)
--		return NF_ACCEPT;
--
- 	if (skb->protocol != htons(ETH_P_IP) && !IS_VLAN_IP(skb) &&
- 	    !IS_PPPOE_IP(skb))
- 		return NF_ACCEPT;
-@@ -663,6 +669,15 @@ static unsigned int br_nf_pre_routing(unsigned int hook, struct sk_buff *skb,
- 	nf_bridge_put(skb->nf_bridge);
- 	if (!nf_bridge_alloc(skb))
- 		return NF_DROP;
-+
-+	if (!brnf_call_iptables && !br->nf_call_iptables) {
-+		nf_bridge = skb->nf_bridge;
-+		nf_bridge->mask |= BRNF_NF_BRIDGE_PREROUTING;
-+		nf_bridge->physindev = skb->dev;
-+
-+		return NF_ACCEPT;
-+	}
-+
- 	if (!setup_pre_routing(skb))
- 		return NF_DROP;
- 	store_orig_dstaddr(skb);
--- 
-1.7.7.3
+I don't think so.
 
+Also rules like this one are broken:
+iptables -A INPUT -i bridge0 -m physdev --physdev-in eth0 -j ...
+
+No firewalling is done on the bridge, xt_physdev is only using some meta
+information.
+
+At least a big fat warning would be nice that xt_physdev does not work
+if bridge-nf-call-iptables=3D0.
+It took me some time to figure out why my firewall rule set gone nuts on
+RHEL6...
+
+> Instead, you should just enable the net.bridge.bridge-nf-call-iptables =
+sysctl.
+> If a distro chooses to disable it then you may have to do it explicitly=
+=2E
+
+Fedora and RHEL have net.bridge.bridge-nf-call-iptables=3D0 per default
+due to KVM network performance issues.
+I'm sure I'm not the only user of xt_physdev on RHEL and friends.
+
+Thanks,
+//richard
+
+
+--------------enigBDF9393B90E3ECC436D4C566
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iQEcBAEBAgAGBQJPAz4WAAoJEN9758yqZn9eXDgH/RmvXgoPKEQMuYnqs5w8wS11
+ZSqJ3y36HGRvNuanMHj9Gqt1mGDhIS0SYSD0qIpX1ulDKeEg+WepphTDkxAqn//3
+3WpSEVFPkDRccSy9Qm9/FZpkqNmjEsB0271iOcdb3XB16fkiO3DE3fA81mIQ9zSL
+pyISulmVm43sGKsFFFrAi1VwezKEeUbDT7nwSUzcjhffpahYX7fPVv8uHYGh1mB2
+79nfGNIxgQFXpbMUzr8Y1V3V2aNtzEa/GAwDHkPlHj29dVwzCVZjFZ6uRzqeXlzk
+0o9cfMx0RNWwJ90KhmraDLbD4hDy5de6E0/z4Ms3H+jrtkXmstX54tHvwLa98bo=
+=7mt9
+-----END PGP SIGNATURE-----
+
+--------------enigBDF9393B90E3ECC436D4C566--
