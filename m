@@ -1,16 +1,17 @@
 Return-Path: <richard@nod.at>
-Message-ID: <4F033E11.5060707@nod.at>
-Date: Tue, 03 Jan 2012 18:42:41 +0100
+Message-ID: <4F03650D.8050200@nod.at>
+Date: Tue, 03 Jan 2012 21:29:01 +0100
 From: Richard Weinberger <richard@nod.at>
 MIME-Version: 1.0
 References: <4F025A07.2000304@nod.at>
 	<1325597164-13459-1-git-send-email-richard@nod.at>
 	<1325597164-13459-2-git-send-email-richard@nod.at>
 	<20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
-In-Reply-To: <20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
+	<4F033E11.5060707@nod.at> <4F0361D7.3000602@pandora.be>
+In-Reply-To: <4F0361D7.3000602@pandora.be>
 Content-Type: multipart/signed; micalg=pgp-sha1;
 	protocol="application/pgp-signature";
-	boundary="------------enigBDF9393B90E3ECC436D4C566"
+	boundary="------------enig6E73FD4239D9CA1170A15979"
 Subject: Re: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in
  conjunction with bridge-nf-call-ip(6)tables=0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -21,60 +22,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, davem@davemloft.net
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBDF9393B90E3ECC436D4C566
+--------------enig6E73FD4239D9CA1170A15979
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Am 03.01.2012 17:15, schrieb Stephen Hemminger:
-> On Tue,  3 Jan 2012 14:26:04 +0100
-> Richard Weinberger <richard@nod.at> wrote:
->=20
->> If net.bridge.bridge-nf-call-iptables or net.bridge.bridge-nf-call-ip6=
-tables
->> are set to zero xt_physdev has no effect because skb->nf_bridge has no=
-t been set up.
->>
->> Signed-off-by: Richard Weinberger <richard@nod.at>
->=20
-> I am not sure if this is a valid configuration. The setting of sysctl i=
-s saying
-> "don't do iptables on bridge (since I won't be using it)" and then you =
-are later
-> doing iptables and expecting the settings as if the iptables setup was =
-being
-> done.
+Am 03.01.2012 21:15, schrieb Bart De Schuymer:
+> The documentation is probably not explicit enough, but I would keep the=
 
-I don't think so.
+> behavior as it is now. Setting bridge-nf-call-iptables to 0 makes
+> iptables behave as if bridge-netfilter was not enabled at compilation.
+> Anyway, your patch is almost certainly flawed since the fact that
+> skb->nf_bridge can be NULL is used as part of the logic in
+> br_netfilter.c: it indicates that bridge-nf-call-iptables was 0 when th=
+e
+> packet was first processed by bridge-netfilter and should therefore not=
 
-Also rules like this one are broken:
-iptables -A INPUT -i bridge0 -m physdev --physdev-in eth0 -j ...
+> be given to iptables in any other netfilter hook.
 
-No firewalling is done on the bridge, xt_physdev is only using some meta
-information.
+Thanks for the explanation!
 
-At least a big fat warning would be nice that xt_physdev does not work
-if bridge-nf-call-iptables=3D0.
-It took me some time to figure out why my firewall rule set gone nuts on
-RHEL6...
-
-> Instead, you should just enable the net.bridge.bridge-nf-call-iptables =
-sysctl.
-> If a distro chooses to disable it then you may have to do it explicitly=
-=2E
-
-Fedora and RHEL have net.bridge.bridge-nf-call-iptables=3D0 per default
-due to KVM network performance issues.
-I'm sure I'm not the only user of xt_physdev on RHEL and friends.
+Wouldn't it make sense to check for bridge-nf-call-iptables in xt_physdev=
+?
+So that the user gets warned that his iptables rule will never match...
 
 Thanks,
 //richard
 
 
---------------enigBDF9393B90E3ECC436D4C566
+
+--------------enig6E73FD4239D9CA1170A15979
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -82,13 +62,13 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.18 (GNU/Linux)
 
-iQEcBAEBAgAGBQJPAz4WAAoJEN9758yqZn9eXDgH/RmvXgoPKEQMuYnqs5w8wS11
-ZSqJ3y36HGRvNuanMHj9Gqt1mGDhIS0SYSD0qIpX1ulDKeEg+WepphTDkxAqn//3
-3WpSEVFPkDRccSy9Qm9/FZpkqNmjEsB0271iOcdb3XB16fkiO3DE3fA81mIQ9zSL
-pyISulmVm43sGKsFFFrAi1VwezKEeUbDT7nwSUzcjhffpahYX7fPVv8uHYGh1mB2
-79nfGNIxgQFXpbMUzr8Y1V3V2aNtzEa/GAwDHkPlHj29dVwzCVZjFZ6uRzqeXlzk
-0o9cfMx0RNWwJ90KhmraDLbD4hDy5de6E0/z4Ms3H+jrtkXmstX54tHvwLa98bo=
-=7mt9
+iQEcBAEBAgAGBQJPA2UNAAoJEN9758yqZn9esRYIAIk5GxS5s1dkDZwOKdvuUUCZ
+3AQddHjP1yAMsluheZCXjgZNJ6cItl0T+y+0iwKZow0oNHkjp8czgCfyF6W97xSm
+4fAKYDwAMfwiJsqunvOowVBo1+xFTVLBsOo9fAf/6zsRbKJrth2oNG3ijRa5iZuf
+mwbs1j3AdCWGUksF7vKVDemkO3eXFX8tdDbqfFKGfjdjPXRMo0AGzMkkNKZFfhJ8
+v1llsdO1y5+Z+G8fK3BOyHdUzaCUHqYtLJ4GEznF3IqyFXcSir51dhwkfnidAnUP
+rtKYds5Rd7WsbAnSseb0eJWMLHz4/XwqEdOJBpAG+TzLIZA48B8kST6DZdFoQCc=
+=LJRl
 -----END PGP SIGNATURE-----
 
---------------enigBDF9393B90E3ECC436D4C566--
+--------------enig6E73FD4239D9CA1170A15979--
