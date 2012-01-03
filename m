@@ -1,13 +1,16 @@
-Return-Path: <xmCM8KtKk25K@dyweni.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+Return-Path: <shemminger@vyatta.com>
+Date: Tue, 3 Jan 2012 08:15:21 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
+In-Reply-To: <1325597164-13459-2-git-send-email-richard@nod.at>
+References: <4F025A07.2000304@nod.at>
+	<1325597164-13459-1-git-send-email-richard@nod.at>
+	<1325597164-13459-2-git-send-email-richard@nod.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Thu, 22 Dec 2011 08:25:54 -0600
-From: Dyweni - NetDev <xmCM8KtKk25K@dyweni.com>
-Message-ID: <b8003b95089e177b00bc7db44700757a@pl1.haspere.com>
-Subject: [Bridge] Invalid Argument when adding a bond to a bridge
-Reply-To: xmCM8KtKk25K@dyweni.com
+Subject: Re: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in
+ conjunction with bridge-nf-call-ip(6)tables=0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,25 +19,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: NetDev <netdev@vger.kernel.org>, Bridge <bridge@lists.linux-foundation.org>, Bonding Devel <bonding-devel@lists.sourceforge.net>
+To: Richard Weinberger <richard@nod.at>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org
 
- Hi All,
+On Tue,  3 Jan 2012 14:26:04 +0100
+Richard Weinberger <richard@nod.at> wrote:
 
- I need some help figuring this one out... Whenever I try to add a bond 
- to a
- bridge, I get back an invalid argument error. I've confirmed this on
- 3.2-rc6, 3.1.5, 3.0.13, and 2.6.39.4 (haven't checked earlier kernels).
+> If net.bridge.bridge-nf-call-iptables or net.bridge.bridge-nf-call-ip6tables
+> are set to zero xt_physdev has no effect because skb->nf_bridge has not been set up.
+> 
+> Signed-off-by: Richard Weinberger <richard@nod.at>
 
- Here's my setup: 32bit KVM virtual machine with no network cards (... 
- -net
- none ... ).
+I am not sure if this is a valid configuration. The setting of sysctl is saying
+"don't do iptables on bridge (since I won't be using it)" and then you are later
+doing iptables and expecting the settings as if the iptables setup was being
+done.
 
- I created the bond with: echo "+x" > /sys/class/net/bonding_masters
+Instead, you should just enable the net.bridge.bridge-nf-call-iptables sysctl.
+If a distro chooses to disable it then you may have to do it explicitly.
 
- I created the bridge with: brctl addbr b
-
- I try to add the bond to the bridge with: brctl addif b x
-
--- 
- Thanks,
- Dyweni
