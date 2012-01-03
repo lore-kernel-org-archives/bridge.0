@@ -1,20 +1,11 @@
-Return-Path: <bdschuym@pandora.be>
-Message-ID: <4F05FF15.5010809@pandora.be>
-Date: Thu, 05 Jan 2012 20:50:45 +0100
-From: Bart De Schuymer <bdschuym@pandora.be>
-MIME-Version: 1.0
+Return-Path: <richard@nod.at>
+From: Richard Weinberger <richard@nod.at>
+Date: Tue,  3 Jan 2012 14:26:03 +0100
+Message-Id: <1325597164-13459-1-git-send-email-richard@nod.at>
+In-Reply-To: <4F025A07.2000304@nod.at>
 References: <4F025A07.2000304@nod.at>
-	<1325597164-13459-1-git-send-email-richard@nod.at>
-	<1325597164-13459-2-git-send-email-richard@nod.at>
-	<20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
-	<4F033E11.5060707@nod.at> <4F0361D7.3000602@pandora.be>
-	<4F03650D.8050200@nod.at> <4F049290.3090803@pandora.be>
-	<4F04DD19.601@nod.at>
-In-Reply-To: <4F04DD19.601@nod.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in
- conjunction with bridge-nf-call-ip(6)tables=0
+Subject: Re: [Bridge] xt_physdev has no effect if
+	net.bridge.bridge-nf-call-iptables=0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,28 +14,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Richard Weinberger <richard@nod.at>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, davem@davemloft.net
+To: shemminger@vyatta.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-Op 5/01/2012 0:13, Richard Weinberger schreef:
->
-> Let's export brnf_call_iptables and brnf_call_ip6tables, such that
-> physdev_mt_check() can notify the user that his iptables rule will have
-> no effect.
->
 
-I don't want to introduce a runtime dependency between the iptables 
-physdev module and the bridge module.
-This should keep working:
-#modprobe bridge
-#modprobe xt_physdev
-#rmmod bridge
-It will stop working if you use exported symbols of the bridge module in 
-the physdev module.
+Hi!
 
-Bart
+Here is a fix for the problem I've reported yesterday.
+http://marc.info/?l=netfilter-devel&m=132555432331663&w=2
 
--- 
-Bart De Schuymer
-www.artinalgorithms.be
+Please review the patch carefully, I'm not a br_netfilter ninja. 8-)
+
+Thanks,
+//richard
 
