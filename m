@@ -1,6 +1,6 @@
 Return-Path: <richard@nod.at>
-Message-ID: <4F03650D.8050200@nod.at>
-Date: Tue, 03 Jan 2012 21:29:01 +0100
+Message-ID: <4F04DD19.601@nod.at>
+Date: Thu, 05 Jan 2012 00:13:29 +0100
 From: Richard Weinberger <richard@nod.at>
 MIME-Version: 1.0
 References: <4F025A07.2000304@nod.at>
@@ -8,10 +8,11 @@ References: <4F025A07.2000304@nod.at>
 	<1325597164-13459-2-git-send-email-richard@nod.at>
 	<20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
 	<4F033E11.5060707@nod.at> <4F0361D7.3000602@pandora.be>
-In-Reply-To: <4F0361D7.3000602@pandora.be>
+	<4F03650D.8050200@nod.at> <4F049290.3090803@pandora.be>
+In-Reply-To: <4F049290.3090803@pandora.be>
 Content-Type: multipart/signed; micalg=pgp-sha1;
 	protocol="application/pgp-signature";
-	boundary="------------enig6E73FD4239D9CA1170A15979"
+	boundary="------------enigB4BE8FEDA6EBD4B15340840A"
 Subject: Re: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in
  conjunction with bridge-nf-call-ip(6)tables=0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -26,35 +27,52 @@ To: Bart De Schuymer <bdschuym@pandora.be>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, davem@davemloft.net
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6E73FD4239D9CA1170A15979
+--------------enigB4BE8FEDA6EBD4B15340840A
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Am 03.01.2012 21:15, schrieb Bart De Schuymer:
-> The documentation is probably not explicit enough, but I would keep the=
-
-> behavior as it is now. Setting bridge-nf-call-iptables to 0 makes
-> iptables behave as if bridge-netfilter was not enabled at compilation.
-> Anyway, your patch is almost certainly flawed since the fact that
-> skb->nf_bridge can be NULL is used as part of the logic in
-> br_netfilter.c: it indicates that bridge-nf-call-iptables was 0 when th=
+Am 04.01.2012 18:55, schrieb Bart De Schuymer:
+> Op 3/01/2012 21:29, Richard Weinberger schreef:
+>> Am 03.01.2012 21:15, schrieb Bart De Schuymer:
+>>> The documentation is probably not explicit enough, but I would keep t=
+he
+>>> behavior as it is now. Setting bridge-nf-call-iptables to 0 makes
+>>> iptables behave as if bridge-netfilter was not enabled at compilation=
+=2E
+>>> Anyway, your patch is almost certainly flawed since the fact that
+>>> skb->nf_bridge can be NULL is used as part of the logic in
+>>> br_netfilter.c: it indicates that bridge-nf-call-iptables was 0 when =
+the
+>>> packet was first processed by bridge-netfilter and should therefore n=
+ot
+>>> be given to iptables in any other netfilter hook.
+>> Thanks for the explanation!
+>>
+>> Wouldn't it make sense to check for bridge-nf-call-iptables in
+>> xt_physdev?
+>> So that the user gets warned that his iptables rule will never match..=
+=2E
+>=20
+> We don't want to introduce module dependencies between the bridge modul=
 e
-> packet was first processed by bridge-netfilter and should therefore not=
+> and the iptables physdev match.
 
-> be given to iptables in any other netfilter hook.
+CONFIG_NETFILTER_XT_MATCH_PHYSDEV depends anyway on
+CONFIG_BRIDGE_NETFILTER...
 
-Thanks for the explanation!
+> We could add a message to the syslog whenever these proc settings are
+> changed (in br_netfilter.c::brnf_sysctl_call_tables()).
+>=20
 
-Wouldn't it make sense to check for bridge-nf-call-iptables in xt_physdev=
-?
-So that the user gets warned that his iptables rule will never match...
+Let's export brnf_call_iptables and brnf_call_ip6tables, such that
+physdev_mt_check() can notify the user that his iptables rule will have
+no effect.
 
 Thanks,
 //richard
 
 
-
---------------enig6E73FD4239D9CA1170A15979
+--------------enigB4BE8FEDA6EBD4B15340840A
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -62,13 +80,13 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.18 (GNU/Linux)
 
-iQEcBAEBAgAGBQJPA2UNAAoJEN9758yqZn9esRYIAIk5GxS5s1dkDZwOKdvuUUCZ
-3AQddHjP1yAMsluheZCXjgZNJ6cItl0T+y+0iwKZow0oNHkjp8czgCfyF6W97xSm
-4fAKYDwAMfwiJsqunvOowVBo1+xFTVLBsOo9fAf/6zsRbKJrth2oNG3ijRa5iZuf
-mwbs1j3AdCWGUksF7vKVDemkO3eXFX8tdDbqfFKGfjdjPXRMo0AGzMkkNKZFfhJ8
-v1llsdO1y5+Z+G8fK3BOyHdUzaCUHqYtLJ4GEznF3IqyFXcSir51dhwkfnidAnUP
-rtKYds5Rd7WsbAnSseb0eJWMLHz4/XwqEdOJBpAG+TzLIZA48B8kST6DZdFoQCc=
-=LJRl
+iQEcBAEBAgAGBQJPBN0eAAoJEN9758yqZn9eNVoIAKsFri6hfQdyZKl9FsCcHC4r
+kJGjdm2AWAocQb8/yYajPylhrJbS5WK103SjfUXFfRuPdTAr8VBiazo8zrqqy7Oy
++s7iLv1k/tQpS8GcSom67fZOIpRnjshRNMaFIw0IBk1A7CBbJU1HzQaqplSCMAJS
+NeiCVaJbWfOFafiKC8VZDv8gIro0WbroNPJwC+DhzhnDi8Zq2534K4nB1R53JR0W
+wMOJa+QWi5OslHas9a3ZCo7trLxcp+lYpAa9/Q/4u+A82GSMV9t2IRtvcDSAb72o
+cBhI9WTzi2rGUVmL6RBqsXiFFgbSVtCr8GW0n5c4s0OmyyOzAkC9gZqjQjnCVlM=
+=kali
 -----END PGP SIGNATURE-----
 
---------------enig6E73FD4239D9CA1170A15979--
+--------------enigB4BE8FEDA6EBD4B15340840A--
