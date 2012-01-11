@@ -1,11 +1,12 @@
-Return-Path: <shemminger@vyatta.com>
-Date: Tue, 10 Jan 2012 17:52:51 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20120110175251.4b6ad831@nehalam.linuxnetplumber.net>
-In-Reply-To: <1326246505-5038-1-git-send-email-festevam@gmail.com>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 10 Jan 2012 22:32:05 -0800 (PST)
+Message-Id: <20120110.223205.265079469678742211.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20120110175251.4b6ad831@nehalam.linuxnetplumber.net>
 References: <1326246505-5038-1-git-send-email-festevam@gmail.com>
+	<20120110175251.4b6ad831@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] net: bridge: netfilter: Fix dependency for
  BRIDGE_NF_EBTABLES
@@ -17,35 +18,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Fabio Estevam <fabio.estevam@freescale.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: shemminger@vyatta.com
+Cc: fabio.estevam@freescale.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, festevam@gmail.com, netfilter-devel@vger.kernel.org
 
-On Tue, 10 Jan 2012 23:48:25 -0200
-Fabio Estevam <festevam@gmail.com> wrote:
+From: Stephen Hemminger <shemminger@vyatta.com>
+Date: Tue, 10 Jan 2012 17:52:51 -0800
 
-> Fix the following build warning:
+> On Tue, 10 Jan 2012 23:48:25 -0200
+> Fabio Estevam <festevam@gmail.com> wrote:
 > 
-> warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has unmet direct dependencies (NET && INET && NETFILTER)
+>> Fix the following build warning:
+>> 
+>> warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has unmet direct dependencies (NET && INET && NETFILTER)
+>> 
+>> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+>> ---
+>>  net/bridge/netfilter/Kconfig |    2 +-
+>>  1 files changed, 1 insertions(+), 1 deletions(-)
+>> 
+>> diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
+>> index a9aff9c..9ca621a 100644
+>> --- a/net/bridge/netfilter/Kconfig
+>> +++ b/net/bridge/netfilter/Kconfig
+>> @@ -4,7 +4,7 @@
+>>  
+>>  menuconfig BRIDGE_NF_EBTABLES
+>>  	tristate "Ethernet Bridge tables (ebtables) support"
+>> -	depends on BRIDGE && NETFILTER
+>> +	depends on BRIDGE && NETFILTER && INET
+>>  	select NETFILTER_XTABLES
+>>  	help
+>>  	  ebtables is a general, extensible frame/packet identification
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
->  net/bridge/netfilter/Kconfig |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
-> index a9aff9c..9ca621a 100644
-> --- a/net/bridge/netfilter/Kconfig
-> +++ b/net/bridge/netfilter/Kconfig
-> @@ -4,7 +4,7 @@
->  
->  menuconfig BRIDGE_NF_EBTABLES
->  	tristate "Ethernet Bridge tables (ebtables) support"
-> -	depends on BRIDGE && NETFILTER
-> +	depends on BRIDGE && NETFILTER && INET
->  	select NETFILTER_XTABLES
->  	help
->  	  ebtables is a general, extensible frame/packet identification
+> Almost everybody has INET defined... but still it should be possible to run ebtables
+> without INET layer. Looks like a but in XTABLES to me.
 
-Almost everybody has INET defined... but still it should be possible to run ebtables
-without INET layer. Looks like a but in XTABLES to me.
-
+And this needs to be CC:'d to the netfilter folks meanwhile, added...
