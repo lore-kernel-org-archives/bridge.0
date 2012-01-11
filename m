@@ -1,21 +1,14 @@
-Return-Path: <richard@nod.at>
-Message-ID: <4F06000F.10303@nod.at>
-Date: Thu, 05 Jan 2012 20:54:55 +0100
-From: Richard Weinberger <richard@nod.at>
-MIME-Version: 1.0
-References: <4F025A07.2000304@nod.at>
-	<1325597164-13459-1-git-send-email-richard@nod.at>
-	<1325597164-13459-2-git-send-email-richard@nod.at>
-	<20120103081521.2fec3a29@nehalam.linuxnetplumber.net>
-	<4F033E11.5060707@nod.at> <4F0361D7.3000602@pandora.be>
-	<4F03650D.8050200@nod.at> <4F049290.3090803@pandora.be>
-	<4F04DD19.601@nod.at> <4F05FF15.5010809@pandora.be>
-In-Reply-To: <4F05FF15.5010809@pandora.be>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="------------enigBCBBD152521AE419BAC6D58E"
-Subject: Re: [Bridge] [PATCH] netfilter: Fix br_nf_pre_routing() in
- conjunction with bridge-nf-call-ip(6)tables=0
+Return-Path: <shemminger@vyatta.com>
+Date: Tue, 10 Jan 2012 17:52:51 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20120110175251.4b6ad831@nehalam.linuxnetplumber.net>
+In-Reply-To: <1326246505-5038-1-git-send-email-festevam@gmail.com>
+References: <1326246505-5038-1-git-send-email-festevam@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net: bridge: netfilter: Fix dependency for
+ BRIDGE_NF_EBTABLES
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,59 +17,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, davem@davemloft.net
+To: Fabio Estevam <festevam@gmail.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBCBBD152521AE419BAC6D58E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Tue, 10 Jan 2012 23:48:25 -0200
+Fabio Estevam <festevam@gmail.com> wrote:
 
-Am 05.01.2012 20:50, schrieb Bart De Schuymer:
-> Op 5/01/2012 0:13, Richard Weinberger schreef:
->>
->> Let's export brnf_call_iptables and brnf_call_ip6tables, such that
->> physdev_mt_check() can notify the user that his iptables rule will hav=
-e
->> no effect.
->>
->=20
-> I don't want to introduce a runtime dependency between the iptables
-> physdev module and the bridge module.
-> This should keep working:
-> #modprobe bridge
-> #modprobe xt_physdev
-> #rmmod bridge
-> It will stop working if you use exported symbols of the bridge module i=
-n
-> the physdev module.
->=20
+> Fix the following build warning:
+> 
+> warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has unmet direct dependencies (NET && INET && NETFILTER)
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  net/bridge/netfilter/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
+> index a9aff9c..9ca621a 100644
+> --- a/net/bridge/netfilter/Kconfig
+> +++ b/net/bridge/netfilter/Kconfig
+> @@ -4,7 +4,7 @@
+>  
+>  menuconfig BRIDGE_NF_EBTABLES
+>  	tristate "Ethernet Bridge tables (ebtables) support"
+> -	depends on BRIDGE && NETFILTER
+> +	depends on BRIDGE && NETFILTER && INET
+>  	select NETFILTER_XTABLES
+>  	help
+>  	  ebtables is a general, extensible frame/packet identification
 
-IMHO this behavior would be useful. 8-)
+Almost everybody has INET defined... but still it should be possible to run ebtables
+without INET layer. Looks like a but in XTABLES to me.
 
-Removing bridge while xt_physdev is loaded will make some netfilter
-rules void.
-Which is not fun on a production firewall.
-
-Thanks,
-//richard
-
-
---------------enigBCBBD152521AE419BAC6D58E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iQEcBAEBAgAGBQJPBgAQAAoJEN9758yqZn9eknAIAL1xVa5ClYRqdGMmXeJ1cdk5
-u1aqx89IJLtGCnuQ7RZChpXjoRUCKejokGbMoQzN6NN2iZayzAqYPA8YJXptE1lw
-5d3/QklB9zVr7KxwXVdBHg7FagbLJMfPT66JX2Y6CkyP/w0Qw1UdRiGtJW3fLMbG
-Vcn3NWh4fWpPe4Wb4BsA9CLjXHL7o6QBUE1Y4oka1hbzP5Xu4roMg++TwhZ/w3Zp
-JQ8dz4mPAO9InpXNv1ulaX3ImkP/XXO/nEhF3lKSkZvnND8ZoxazIrJDqloaWQ5W
-rAhW5v3XMy8YdG9gtCwfCnFv29Ocjp7j0OLnh2RsQVITDn4fpI1G0D3HETsIc/I=
-=fFns
------END PGP SIGNATURE-----
-
---------------enigBCBBD152521AE419BAC6D58E--
