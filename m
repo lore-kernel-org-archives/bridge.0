@@ -1,15 +1,10 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 10 Jan 2012 22:32:05 -0800 (PST)
-Message-Id: <20120110.223205.265079469678742211.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20120110175251.4b6ad831@nehalam.linuxnetplumber.net>
-References: <1326246505-5038-1-git-send-email-festevam@gmail.com>
-	<20120110175251.4b6ad831@nehalam.linuxnetplumber.net>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net: bridge: netfilter: Fix dependency for
- BRIDGE_NF_EBTABLES
+Return-Path: <advax@triumf.ca>
+Date: Fri, 20 Jan 2012 19:20:08 -0800 (PST)
+From: Andrew Daviel <advax@triumf.ca>
+Message-ID: <Pine.LNX.4.64.1201201916170.5507@andrew.triumf.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] Packet loss in bridging firewall
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,39 +13,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: fabio.estevam@freescale.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, festevam@gmail.com, netfilter-devel@vger.kernel.org
+To: bridge@lists.linux-foundation.org
 
-From: Stephen Hemminger <shemminger@vyatta.com>
-Date: Tue, 10 Jan 2012 17:52:51 -0800
 
-> On Tue, 10 Jan 2012 23:48:25 -0200
-> Fabio Estevam <festevam@gmail.com> wrote:
-> 
->> Fix the following build warning:
->> 
->> warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has unmet direct dependencies (NET && INET && NETFILTER)
->> 
->> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
->> ---
->>  net/bridge/netfilter/Kconfig |    2 +-
->>  1 files changed, 1 insertions(+), 1 deletions(-)
->> 
->> diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
->> index a9aff9c..9ca621a 100644
->> --- a/net/bridge/netfilter/Kconfig
->> +++ b/net/bridge/netfilter/Kconfig
->> @@ -4,7 +4,7 @@
->>  
->>  menuconfig BRIDGE_NF_EBTABLES
->>  	tristate "Ethernet Bridge tables (ebtables) support"
->> -	depends on BRIDGE && NETFILTER
->> +	depends on BRIDGE && NETFILTER && INET
->>  	select NETFILTER_XTABLES
->>  	help
->>  	  ebtables is a general, extensible frame/packet identification
-> 
-> Almost everybody has INET defined... but still it should be possible to run ebtables
-> without INET layer. Looks like a but in XTABLES to me.
+We have a machine running Scientific Linux 6.1 (RHEL recompile)
+with 2.6.32-131.21.1.el6.x86_64 kernel and bridge-utils-1.2-9.el6.x86_64
 
-And this needs to be CC:'d to the netfilter folks meanwhile, added...
+It's a 12-core Xeon.
+It has a Mellanox Technologies MT26448 10g NIC and
+an Emulex Corporation OneConnect 10Gb NIC and bridges between them.
+
+We see occasional packet loss through the bridge in production, which 
+appears to get worse when the link is busy, though it is nowhere near the 
+10g capacity.
+
+If I do a flood ping through the bridge, there is no significant loss
+for about 10-30 seconds, then bursts of packets are lost every second
+
+I have adjusted kernel tuning in accordance with e.g.
+http://fasterdata.es.net/fasterdata/host-tuning/linux/
+and the Mellanox and Emulex user guides. It seems to make no difference to the 
+behaviour.
+
+Any suggestions ?
+Has anyone seen anything similar ?
+
+-- 
+Andrew Daviel, TRIUMF, Canada
+Tel. +1 (604) 222-7376  (Pacific Time)
+Network Security Manager
