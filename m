@@ -1,15 +1,11 @@
-Return-Path: <festevam@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
-	h=from:to:cc:subject:date:message-id:x-mailer;
-	bh=rLiwiMToZ2w19m6niIytlB7PI+bgH0DDKMD8/wthpHM=;
-	b=Y4TNS9H81cNykiZQRVIijWMY24sUMKlQKtCifdT89llDwqU5vaFO594Tfw8ZgcxV2t
-	iOONFlffUHzAokRmpvhXFFAsZL2OJgu71H46qZfykbOe6rhdaxV+5R5YhgC/xqrVIRzK
-	pbm/HOUDPBR2wBvUhHYMTMo1J1xCIWCGJHyPA=
-From: Fabio Estevam <festevam@gmail.com>
-Date: Tue, 10 Jan 2012 23:48:25 -0200
-Message-Id: <1326246505-5038-1-git-send-email-festevam@gmail.com>
-Subject: [Bridge] [PATCH] net: bridge: netfilter: Fix dependency for
-	BRIDGE_NF_EBTABLES
+Return-Path: <haunma@keteu.org>
+Date: Mon, 30 Jan 2012 14:01:55 -0800
+From: Mark Haun <haunma@keteu.org>
+Message-ID: <20120130220155.GE3528@keteu.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Stuck on bridge config for UDP broadcasts (UPNP)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,31 +14,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Fabio Estevam <fabio.estevam@freescale.com>, shemminger@vyatta.com, bridge@lists.linux-foundation.org, Fabio Estevam <festevam@gmail.com>, davem@davemloft.net
+To: bridge@lists.linux-foundation.org
 
-Fix the following build warning:
+Hi bridge-people,
 
-warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has unmet direct dependencies (NET && INET && NETFILTER)
+I'm posting here after having tried everything else I can think of to get
+UPNP discovery (SSDP) working over my bridged home network.  My network
+topology has been working fine until now; it looks like this:
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- net/bridge/netfilter/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
++---------+           +----------+
+| Desktop |-----------|  Bridge  |--------> laptop, smartphone, etc.
++---------+      eth0 |   br0    | wlan0
+                      +----|-----+
+                      |   ARM    |
+                      |  server  |
+                      +----+-----+
+                           | eth1
+                           |
+                           v
+                      the internet
 
-diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
-index a9aff9c..9ca621a 100644
---- a/net/bridge/netfilter/Kconfig
-+++ b/net/bridge/netfilter/Kconfig
-@@ -4,7 +4,7 @@
- 
- menuconfig BRIDGE_NF_EBTABLES
- 	tristate "Ethernet Bridge tables (ebtables) support"
--	depends on BRIDGE && NETFILTER
-+	depends on BRIDGE && NETFILTER && INET
- 	select NETFILTER_XTABLES
- 	help
- 	  ebtables is a general, extensible frame/packet identification
--- 
-1.7.1
+I am trying to achieve free passage of SSDP broadcasts (UDP packets with
+dest ip 239.255.255.250 port 1900) both (a) across the bridge, and (b) from
+the ARM server itself out both sides of the bridge.  I've played around with
+the bridge igmp snooping params, and also established that my iptables rules
+are not the problem.
 
+I finally hit upon "sendip" as a diagnostic tool to forge SSDP packets on
+demand, running tcpdump sessions on the desktop and the ARM server.  I am
+seeing an asymmetry that baffles me: SSDP broadcasts from the desktop show
+up in both tcpdumps, i.e. they make it through the bridge pseudo-interface
+br0.  But SSDP broadcasts *from* the ARM server don't make it out in the
+other direction--they don't reach the desktop.
+
+BTW, with the kernel icmp multicast responses enabled, I *am* able to ping
+224.0.0.1 from both the desktop and ARM server, and get responses from both
+sides.  So, ICMP multicast is making it through in both directions, but not
+UDP multicast.
+
+I don't currently have linux clients on the wireless side of the bridge, so
+I haven't network-snooped there yet.  If there is symmetry, I suspect I will
+find that UDP broadcasts are traversing the bridge from eth0->wlan0 and
+wlan0->eth0 (and can be heard on br0 by the server), but UDP broadcasts
+originating on br0 are not being sent out to eth0 and wlan0.
+
+Is there a bridging expert who could shed some light on this?  What am I
+missing?
+
+Thanks in advance,
+
+Mark
