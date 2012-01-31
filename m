@@ -1,11 +1,11 @@
-Return-Path: <haunma@keteu.org>
-Date: Mon, 30 Jan 2012 14:01:55 -0800
-From: Mark Haun <haunma@keteu.org>
-Message-ID: <20120130220155.GE3528@keteu.org>
+Return-Path: <cole@coledd.com>
+Date: Tue, 31 Jan 2012 11:40:19 -0500
+From: Christopher Cole <cole@coledd.com>
+Message-ID: <20120131164019.GA12262@coledd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Subject: [Bridge] Stuck on bridge config for UDP broadcasts (UPNP)
+Subject: [Bridge] setfd
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,53 +14,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Bridge@lists.linux-foundation.org
 
-Hi bridge-people,
+I have a bridge working between a wired Ethernet and a Wifi interface.  
+However, it takes 80 seconds before it actually starts passing data.  I 
+tried to reduce this learning delay by minimizing the forwarding delay:
 
-I'm posting here after having tried everything else I can think of to get
-UPNP discovery (SSDP) working over my bridged home network.  My network
-topology has been working fine until now; it looks like this:
+ brctl setfd br0 0
 
-+---------+           +----------+
-| Desktop |-----------|  Bridge  |--------> laptop, smartphone, etc.
-+---------+      eth0 |   br0    | wlan0
-                      +----|-----+
-                      |   ARM    |
-                      |  server  |
-                      +----+-----+
-                           | eth1
-                           |
-                           v
-                      the internet
+But the above has zero effect on the 80 second delay before participation.  
+I have tried with both STP on and off, and there is no difference.  What am 
+I doing wrong?
 
-I am trying to achieve free passage of SSDP broadcasts (UDP packets with
-dest ip 239.255.255.250 port 1900) both (a) across the bridge, and (b) from
-the ARM server itself out both sides of the bridge.  I've played around with
-the bridge igmp snooping params, and also established that my iptables rules
-are not the problem.
+Also, how can I get the current setting of forwarding delay and other 
+bridge parameters that the brctl utility allows me to set?  Why doesn't the 
+brctl utility have a 'get' corollary for each 'set' command?  For example, 
+I would like to see a 'getfd' command added to the brctl utility.  
 
-I finally hit upon "sendip" as a diagnostic tool to forge SSDP packets on
-demand, running tcpdump sessions on the desktop and the ARM server.  I am
-seeing an asymmetry that baffles me: SSDP broadcasts from the desktop show
-up in both tcpdumps, i.e. they make it through the bridge pseudo-interface
-br0.  But SSDP broadcasts *from* the ARM server don't make it out in the
-other direction--they don't reach the desktop.
+Thanks,
+-Chris
 
-BTW, with the kernel icmp multicast responses enabled, I *am* able to ping
-224.0.0.1 from both the desktop and ARM server, and get responses from both
-sides.  So, ICMP multicast is making it through in both directions, but not
-UDP multicast.
-
-I don't currently have linux clients on the wireless side of the bridge, so
-I haven't network-snooped there yet.  If there is symmetry, I suspect I will
-find that UDP broadcasts are traversing the bridge from eth0->wlan0 and
-wlan0->eth0 (and can be heard on br0 by the server), but UDP broadcasts
-originating on br0 are not being sent out to eth0 and wlan0.
-
-Is there a bridging expert who could shed some light on this?  What am I
-missing?
-
-Thanks in advance,
-
-Mark
+-- 
+| Christopher Cole, Cole Design and Development, LLC          cole@coledd.com |
+| Embedded Software Development and Electronic Design       http://coledd.com |
+| Stow, Ohio, USA                                              1-800-518-2154 |
