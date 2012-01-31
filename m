@@ -1,11 +1,10 @@
-Return-Path: <cole@coledd.com>
-Date: Tue, 31 Jan 2012 11:40:19 -0500
-From: Christopher Cole <cole@coledd.com>
-Message-ID: <20120131164019.GA12262@coledd.com>
+Return-Path: <advax@triumf.ca>
+Date: Tue, 31 Jan 2012 13:28:52 -0800 (PST)
+From: Andrew Daviel <advax@triumf.ca>
+Message-ID: <Pine.LNX.4.64.1201311317240.31605@andrew.triumf.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] setfd
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: [Bridge] Kernel tuning for bridge machines
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,27 +13,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-I have a bridge working between a wired Ethernet and a Wifi interface.  
-However, it takes 80 seconds before it actually starts passing data.  I 
-tried to reduce this learning delay by minimizing the forwarding delay:
 
- brctl setfd br0 0
+We are running a Linux box with 10g interfaces as a bridging firewall.
 
-But the above has zero effect on the 80 second delay before participation.  
-I have tried with both STP on and off, and there is no difference.  What am 
-I doing wrong?
+We have mostly long-distance TCP data transfers, but also some real-time 
+traffic (video, voice)
 
-Also, how can I get the current setting of forwarding delay and other 
-bridge parameters that the brctl utility allows me to set?  Why doesn't the 
-brctl utility have a 'get' corollary for each 'set' command?  For example, 
-I would like to see a 'getfd' command added to the brctl utility.  
+I've read conflicting suggestions on how to tune kernel parameters - up 
+for data, or down for VoIP, but those are mainly aimed at endpoints.
 
-Thanks,
--Chris
+Are there any recommendations for tuning for a bridge ?
+
+refs.
+http://fasterdata.es.net/fasterdata/host-tuning/linux/
+http://www.bufferbloat.net
+http://wiki.freeswitch.org/wiki/Performance_testing_and_configurations
+
 
 -- 
-| Christopher Cole, Cole Design and Development, LLC          cole@coledd.com |
-| Embedded Software Development and Electronic Design       http://coledd.com |
-| Stow, Ohio, USA                                              1-800-518-2154 |
+Andrew Daviel, TRIUMF, Canada
+Tel. +1 (604) 222-7376  (Pacific Time)
