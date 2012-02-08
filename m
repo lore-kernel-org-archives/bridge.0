@@ -1,10 +1,15 @@
-Return-Path: <advax@triumf.ca>
-Date: Tue, 31 Jan 2012 13:28:52 -0800 (PST)
-From: Andrew Daviel <advax@triumf.ca>
-Message-ID: <Pine.LNX.4.64.1201311317240.31605@andrew.triumf.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Subject: [Bridge] Kernel tuning for bridge machines
+Return-Path: <shemminger@vyatta.com>
+Date: Wed, 8 Feb 2012 14:52:40 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20120208145240.6fa6fb0e@nehalam.linuxnetplumber.net>
+In-Reply-To: <1328735457-29986-48-git-send-email-danny.kukawka@bisect.de>
+References: <1328735457-29986-1-git-send-email-danny.kukawka@bisect.de>
+	<1328735457-29986-48-git-send-email-danny.kukawka@bisect.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 47/50] bridge: use dev_hw_addr_random() instead
+ of random_ether_addr()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,25 +18,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Danny Kukawka <danny.kukawka@bisect.de>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Danny Kukawka <dkukawka@suse.de>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+
+On Wed,  8 Feb 2012 22:10:54 +0100
+Danny Kukawka <danny.kukawka@bisect.de> wrote:
+
+> Use dev_hw_addr_random() instead of calling random_ether_addr()
+> to set addr_assign_type correctly to NET_ADDR_RANDOM.
+> 
+> Reset the state to NET_ADDR_PERM as soon as the MAC get
+> changed via .ndo_set_mac_address.
+> 
+> Signed-off-by: Danny Kukawka <danny.kukawka@bisect.de>
+> ---
+>  net/bridge/br_device.c |    6 +++++-
+>  1 files changed, 5 insertions(+), 1 deletions(-)
+> 
+> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+> index 71773b0..a25ed22 100644
+> --- a/net/bridge/br_device.c
+> +++ b/net/bridge/br_device.c
+> @@ -172,6 +172,10 @@ static int br_set_mac_address(struct net_device *dev, void *p)
+>  	spin_lock_bh(&br->lock);
+>  	if (compare_ether_addr(dev->dev_addr, addr->sa_data)) {
+>  		memcpy(dev->dev_addr, addr->sa_data, ETH_ALEN);
+> +		if (dev->addr_assign_type & NET_ADDR_RANDOM) {
+> +			/* set back to NET_ADDR_PERM */
+> +			dev->addr_assign_type ^= NET_ADDR_RANDOM;
+> +		}
+>  		br_fdb_change_mac_address(br, addr->sa_data);
+>  		br_stp_change_bridge_id(br, addr->sa_data);
+>  	}
+> @@ -334,7 +338,7 @@ void br_dev_setup(struct net_device *dev)
+>  {
+>  	struct net_bridge *br = netdev_priv(dev);
+>  
+> -	random_ether_addr(dev->dev_addr);
+> +	dev_hw_addr_random(dev, dev->dev_addr);
+>  	ether_setup(dev);
+>  
+>  	dev->netdev_ops = &br_netdev_ops;
 
 
-We are running a Linux box with 10g interfaces as a bridging firewall.
-
-We have mostly long-distance TCP data transfers, but also some real-time 
-traffic (video, voice)
-
-I've read conflicting suggestions on how to tune kernel parameters - up 
-for data, or down for VoIP, but those are mainly aimed at endpoints.
-
-Are there any recommendations for tuning for a bridge ?
-
-refs.
-http://fasterdata.es.net/fasterdata/host-tuning/linux/
-http://www.bufferbloat.net
-http://wiki.freeswitch.org/wiki/Performance_testing_and_configurations
+You should do more than just mechanical change here.
+Go ahead and eliminate the private (BR_SET_MAC_ADDR) flag as well,
+since it would be redundant.
 
 
--- 
-Andrew Daviel, TRIUMF, Canada
-Tel. +1 (604) 222-7376  (Pacific Time)
+
