@@ -1,15 +1,9 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 15 Feb 2012 15:34:55 -0500 (EST)
-Message-Id: <20120215.153455.1834741004962671833.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1329324340-13461-3-git-send-email-danny.kukawka@bisect.de>
-References: <1329324340-13461-1-git-send-email-danny.kukawka@bisect.de>
-	<1329324340-13461-3-git-send-email-danny.kukawka@bisect.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2 2/2] net: use eth_hw_addr_random() and reset
- addr_assign_type
+Return-Path: <danny.kukawka@bisect.de>
+From: Danny Kukawka <danny.kukawka@bisect.de>
+Date: Tue, 21 Feb 2012 13:07:48 +0100
+Message-Id: <1329826072-14689-1-git-send-email-danny.kukawka@bisect.de>
+Subject: [Bridge] [PATCH 0/4] Part 1: unify return value of
+	.ndo_set_mac_address if address is invalid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,20 +12,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: danny.kukawka@bisect.de
-Cc: dev@openvswitch.org, bridge@lists.linux-foundation.org, jpirko@redhat.com, netdev@vger.kernel.org, jesse@nicira.com, dkukawka@suse.de, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, eilong@broadcom.com, steve.glendinning@smsc.com, shemminger@vyatta.com
+To: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Solarflare linux maintainers <linux-net-drivers@solarflare.com>, bridge@lists.linux-foundation.org, Casey Leedom <leedom@chelsio.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dimitris Michailidis <dm@chelsio.com>, Danny Kukawka <dkukawka@suse.de>, Michael Chan <mchan@broadcom.com>, Chris Metcalf <cmetcalf@tilera.com>, Matt Carlson <mcarlson@broadcom.com>, Olof Johansson <olof@lixom.net>, linux-usb@vger.kernel.org, Lennert Buytenhek <buytenh@wantstofly.org>, Jon Mason <jdmason@kudzu.us>, linux-driver@qlogic.com, Mark Einon <mark.einon@gmail.com>, Stephen Hemminger <shemminger@vyatta.com>, Kristoffer Glembo <kristoffer@gaisler.com>, Divy Le Ray <divy@chelsio.com>
 
-From: Danny Kukawka <danny.kukawka@bisect.de>
-Date: Wed, 15 Feb 2012 17:45:40 +0100
+Here a series of patches to unifiy the return value of 
+.ndo_set_mac_address if the given address isn't valid. 
+Return -EADDRNOTAVAIL as eth_mac_addr() and other 
+.ndo_set_mac_address functions already do if is_valid_ether_addr() 
+fails.
 
-> Use eth_hw_addr_random() instead of calling random_ether_addr()
-> to set addr_assign_type correctly to NET_ADDR_RANDOM.
-> 
-> Reset the state to NET_ADDR_PERM as soon as the MAC get
-> changed via .ndo_set_mac_address.
-> 
-> v2: adapt to renamed eth_hw_addr_random()
-> 
-> Signed-off-by: Danny Kukawka <danny.kukawka@bisect.de>
+Other patches will follow if this set gets accepted.
 
-Applied.
+The patches are against the net-next git tree.
+
+Danny Kukawka (4):
+  ethernet: unify return value of .ndo_set_mac_address if address is
+    invalid
+  mcs7830: unify return value of .ndo_set_mac_address if address is
+    invalid
+  Staging: et131x: unify return value of .ndo_set_mac_address if
+    address is invalid
+  br_device: unify return value of .ndo_set_mac_address if address is
+    invalid
+
+ drivers/net/ethernet/aeroflex/greth.c              |    2 +-
+ drivers/net/ethernet/broadcom/bnx2.c               |    2 +-
+ drivers/net/ethernet/broadcom/tg3.c                |    2 +-
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c    |    2 +-
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c    |    2 +-
+ .../net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c    |    2 +-
+ drivers/net/ethernet/dlink/sundance.c              |    2 +-
+ drivers/net/ethernet/marvell/mv643xx_eth.c         |    2 +-
+ drivers/net/ethernet/marvell/pxa168_eth.c          |    2 +-
+ drivers/net/ethernet/neterion/s2io.c               |    2 +-
+ drivers/net/ethernet/pasemi/pasemi_mac.c           |    2 +-
+ .../net/ethernet/qlogic/netxen/netxen_nic_main.c   |    2 +-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c   |    2 +-
+ drivers/net/ethernet/sfc/efx.c                     |    2 +-
+ drivers/net/ethernet/sun/niu.c                     |    2 +-
+ drivers/net/ethernet/ti/davinci_emac.c             |    2 +-
+ drivers/net/ethernet/tile/tilepro.c                |    2 +-
+ drivers/net/ethernet/tundra/tsi108_eth.c           |    2 +-
+ drivers/net/usb/mcs7830.c                          |    2 +-
+ drivers/staging/et131x/et131x.c                    |    2 +-
+ net/bridge/br_device.c                             |    2 +-
+ 21 files changed, 21 insertions(+), 21 deletions(-)
+
+-- 
+1.7.8.3
+
