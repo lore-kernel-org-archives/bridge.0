@@ -1,10 +1,12 @@
-Return-Path: <08beesmmkazmi@seecs.edu.pk>
+Return-Path: <joakim.tjernlund@transmode.se>
+In-Reply-To: <OFCC73E54C.1D86C779-ONC12579B1.0047DF7C-C12579B1.004CB226@LocalDomain>
+References: <OFCC73E54C.1D86C779-ONC12579B1.0047DF7C-C12579B1.004CB226@LocalDomain>
+Message-ID: <OF58FCEE11.0E45055D-ONC12579B1.006A93A8-C12579B1.006AEA60@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Mon, 27 Feb 2012 20:27:48 +0100
 MIME-Version: 1.0
-Date: Mon, 27 Feb 2012 19:12:42 +0500
-Message-ID: <CAAZheXnhvhT7SUyq2CNXDM3TUGe-ZpT1BNb87u2oC5yuNgkc8A@mail.gmail.com>
-From: Syed Muhammad Mohsin Kazmi <08beesmmkazmi@seecs.edu.pk>
-Content-Type: multipart/alternative; boundary=f46d043bdfe420f7ea04b9f2b495
-Subject: [Bridge] Problem regarding TRILL encapsulated packets
+Content-type: text/plain; charset=US-ASCII
+Subject: Re: [Bridge] STP message age broken?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,52 +15,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+Cc: bridge@lists.linux-foundation.org
 
---f46d043bdfe420f7ea04b9f2b495
-Content-Type: text/plain; charset=ISO-8859-1
+Joakim Tjernlund/Transmode wrote on 2012/02/27 14:57:43:
+>
+> There are problems with STP and its message age calculation even after commit:
+>  bridge: send proper message_age in config BPDU
+>
+> Using HZ=1000 one can see that received msg and transmitted msg age are 0
+> going back to HZ=100 it gets better, but still looks strange.
+>
+> Using HW switches(RSTP) and linux bridge in series:
+>   HW Switch(A, master) - HW Switch(B) - Linux BR(C) - Linux BR(D) - Linux BR(E)
+> In C we can with tcpdump see that incoming msg age is 1, but
+> in D we see incoming msg age 0, should be > 1 (or so I think)
+> Then in E we see incoming msg age 2.
+>
+> Should not msg age increase with at least 1 for every hop?
 
-hi all,
-       I have written a code which encapsulates the bridge forwarding
-traffic with TRILL header for OTHERHOST and OUTGOING and send it by calling
-a function (forward) in linux bridging module.
-On the other side, these packets are received by (br_handle_frames), where
-i call a function (decapsulate_trill_header) within a check ethernet_type
-== 0x88c8 (as this is ether_type for trill protocol). But trill
-encapsulated packets have not processed there. When i ran the Wireshark and
-captured the outgoing traffic from sending side and incoming traffic from
-receiving side. These encapsulated packets are shown as LLC packets on both
-sending and receiving sides. I don't know why these packets are shown as
-LLC.  I am trapped here. I have no idea , what should i do now.
-I need some help, suggestion or tactics to resolve this problem.
+hmm, Linux bridge seem to add a RELATIVE msg age instead of adding to the received
+msg age, that is, if rx msg age is 10 and processing takes 1 then the bridge code sends 1 instead of
+11. This seems broken to me.
 
+ Jocke
 
-regards,
-Mohsin Kazmi
-
---f46d043bdfe420f7ea04b9f2b495
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-hi all,<br>=A0=A0=A0=A0=A0=A0 I have written a code which encapsulates the =
-bridge forwarding traffic=20
-with TRILL header for OTHERHOST and OUTGOING and send it by calling a=20
-function (forward) in linux bridging module. <br>On the other side, these p=
-ackets are received by=20
-(br_handle_frames), where i call a function (decapsulate_trill_header)=20
-within a check ethernet_type =3D=3D 0x88c8 (as this is ether_type for trill=
-=20
-protocol). But trill encapsulated packets have not processed there. When
- i ran the Wireshark and captured the outgoing traffic from sending side
- and incoming traffic from receiving side. These encapsulated packets=20
-are shown as LLC packets on both sending and receiving sides. I don&#39;t=
-=20
-know why these packets are shown as LLC.=A0 I am trapped here. I have no=20
-idea , what should i do now. <br>
-I need some help, suggestion or tactics to resolve this problem.=A0 <br><br=
-><br>regards,<br>Mohsin Kazmi
-
-
-
-
---f46d043bdfe420f7ea04b9f2b495--
