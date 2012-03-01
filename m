@@ -1,13 +1,14 @@
 Return-Path: <pneira@us.es>
-Date: Thu, 1 Mar 2012 11:23:41 +0100
+Date: Thu, 1 Mar 2012 11:18:09 +0100
 From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20120301102341.GC6488@1984>
-References: <1330593466-19317-1-git-send-email-santoshprasadnayak@gmail.com>
+Message-ID: <20120301101809.GA6488@1984>
+References: <1330593390-19233-1-git-send-email-santoshprasadnayak@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1330593466-19317-1-git-send-email-santoshprasadnayak@gmail.com>
-Subject: Re: [Bridge] [PATCH 3/3] netfilter: Remove redundant code.
+In-Reply-To: <1330593390-19233-1-git-send-email-santoshprasadnayak@gmail.com>
+Subject: Re: [Bridge] [PATCH 1/3] netfilter: Fix copy_to_user too small size
+ parametre.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,30 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: santosh nayak <santoshprasadnayak@gmail.com>
 Cc: netfilter@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, shemminger@vyatta.com
 
-On Thu, Mar 01, 2012 at 02:47:46PM +0530, santosh nayak wrote:
+On Thu, Mar 01, 2012 at 02:46:30PM +0530, santosh nayak wrote:
 > From: Santosh Nayak <santoshprasadnayak@gmail.com>
 > 
-> Remove the redundant code.
-> 
+> While copying to userspace, the size of source is 29byte where as
+> size parametre is 32 byte.  Its leaking extra-information from
+> kernel space to user space.
+> Replace EBT_FUNCTION_MAXNAMELEN by XT_EXTENSION_MAXNAMELEN.
+
+There's no information leak.
+
+Let me clarify this. Have a look at /linux/netfilter/x_tables.h, then
+you find:
+
+#define XT_FUNCTION_MAXNAMELEN 30
+#define XT_EXTENSION_MAXNAMELEN 29
+#define XT_TABLE_MAXNAMELEN 32
+
+For iptables, everything has been 30 bytes, but we stole one
+byte to store the revision field for matches/targets.
+
+For ebtables, there's no revision field and the length of the
+table name is different.
+
+But linux/netfilter/in ebtables.h, you'll find:
+
+#define EBT_TABLE_MAXNAMELEN 32
+#define EBT_CHAIN_MAXNAMELEN EBT_TABLE_MAXNAMELEN
+#define EBT_FUNCTION_MAXNAMELEN EBT_TABLE_MAXNAMELEN
+
+Note that someone decided to use 32 bytes for the ebtables
+tables/match/target name instead of 30 bytes in iptables.
+
+Yes, it sucks a bit we have to live with these interfaces until
+we have some netlink interface for all these things.
+
 > Signed-off-by: Santosh Nayak <santoshprasadnayak@gmail.com>
 > ---
->  net/bridge/netfilter/ebtables.c |   18 ++++++------------
->  1 files changed, 6 insertions(+), 12 deletions(-)
+>  net/bridge/netfilter/ebtables.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
 > 
 > diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-> index 9c0f177..1efc234 100644
+> index 5864cc4..f3fcbd9 100644
 > --- a/net/bridge/netfilter/ebtables.c
 > +++ b/net/bridge/netfilter/ebtables.c
-> @@ -226,10 +226,8 @@ unsigned int ebt_do_table (unsigned int hook, struct sk_buff *skb,
->  
->  		if (EBT_MATCH_ITERATE(point, ebt_do_match, skb, &acpar) != 0)
->  			goto letscontinue;
-> -		if (acpar.hotdrop) {
-> -			read_unlock_bh(&table->lock);
-> -			return NF_DROP;
-> -		}
-> +		if (acpar.hotdrop)
-> +			goto out;
-
-This is really broken! there's no "out" label in ebt_do_table as in
-the previous patch!
+> @@ -1335,7 +1335,7 @@ static inline int ebt_make_matchname(const struct ebt_entry_match *m,
+>      const char *base, char __user *ubase)
+>  {
+>  	char __user *hlp = ubase + ((char *)m - base);
+> -	if (copy_to_user(hlp, m->u.match->name, EBT_FUNCTION_MAXNAMELEN))
+> +	if (copy_to_user(hlp, m->u.match->name, XT_EXTENSION_MAXNAMELEN))
+>  		return -EFAULT;
+>  	return 0;
+>  }
+> @@ -1344,7 +1344,7 @@ static inline int ebt_make_watchername(const struct ebt_entry_watcher *w,
+>      const char *base, char __user *ubase)
+>  {
+>  	char __user *hlp = ubase + ((char *)w - base);
+> -	if (copy_to_user(hlp , w->u.watcher->name, EBT_FUNCTION_MAXNAMELEN))
+> +	if (copy_to_user(hlp , w->u.watcher->name, XT_EXTENSION_MAXNAMELEN))
+>  		return -EFAULT;
+>  	return 0;
+>  }
+> @@ -1368,7 +1368,7 @@ ebt_make_names(struct ebt_entry *e, const char *base, char __user *ubase)
+>  	ret = EBT_WATCHER_ITERATE(e, ebt_make_watchername, base, ubase);
+>  	if (ret != 0)
+>  		return ret;
+> -	if (copy_to_user(hlp, t->u.target->name, EBT_FUNCTION_MAXNAMELEN))
+> +	if (copy_to_user(hlp, t->u.target->name, XT_EXTENSION_MAXNAMELEN))
+>  		return -EFAULT;
+>  	return 0;
+>  }
+> -- 
+> 1.7.4.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
