@@ -1,17 +1,15 @@
-Return-Path: <vitas@nppfactor.kiev.ua>
-From: Vitalii Demianets <vitas@nppfactor.kiev.ua>
-Date: Thu, 1 Mar 2012 13:06:48 +0200
-References: <1330454231-23852-1-git-send-email-Joakim.Tjernlund@transmode.se>
-	<201203011136.48018.vitas@nppfactor.kiev.ua>
-	<OFF937C97D.760DD666-ONC12579B4.003AB9A4-C12579B4.003B6A41@transmode.se>
-In-Reply-To: <OFF937C97D.760DD666-ONC12579B4.003AB9A4-C12579B4.003B6A41@transmode.se>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <201203011306.48997.vitas@nppfactor.kiev.ua>
-Subject: Re: [Bridge] [PATCH 1/2] bridge: Adjust min age inc for HZ > 256
+Return-Path: <santoshprasadnayak@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
+	h=from:to:cc:subject:date:message-id:x-mailer;
+	bh=fmHhVfjLzSqSANPixWTgIxQXuhUT+3LTYFAQOKVVUCY=;
+	b=i4ySxGb3YnR4+brYcrzrHtuLHnksfjHIni0Gcl+NT1TCyKVa2efrcyD8/6zWuuaOpR
+	5CtekGaMHmYjrkNRblaUCRrHjZOqBdZm7bU5hrjYUflCOW5MCXMPsKt+HVmnyEgbFQ3S
+	UUcQiYOxJbtDU0dar6D/GSlPlUI/QP+JXmLmQ=
+From: santosh nayak <santoshprasadnayak@gmail.com>
+Date: Thu,  1 Mar 2012 14:46:30 +0530
+Message-Id: <1330593390-19233-1-git-send-email-santoshprasadnayak@gmail.com>
+Subject: [Bridge] [PATCH 1/3] netfilter: Fix copy_to_user too small size
+	parametre.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,25 +18,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Cc: bridge@lists.linux-foundation.org
+To: bart.de.schuymer@pandora.be
+Cc: Santosh Nayak <santoshprasadnayak@gmail.com>, coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org, shemminger@vyatta.com, pablo@netfilter.org
 
-On Thursday 01 March 2012 12:48:58 Joakim Tjernlund wrote:
-> > Just a nitpick: I think the following is a little bit more accurate (take
-> > into account cases when HZ is multiple of 256, which is rare but
-> > possible):
-> >
-> > -#define MESSAGE_AGE_INCR   ((HZ < 256) ? 1 : (HZ/256))
-> > +#define MESSAGE_AGE_INCR   ((HZ / 256) + ((HZ % 256) ? 1 : 0))
->
-> hmm, HZ 256 isn't selectable today AFAIK,
+From: Santosh Nayak <santoshprasadnayak@gmail.com>
 
-Yes, today. Things change :)
+While copying to userspace, the size of source is 29byte where as
+size parametre is 32 byte.  Its leaking extra-information from
+kernel space to user space.
+Replace EBT_FUNCTION_MAXNAMELEN by XT_EXTENSION_MAXNAMELEN.
 
-> but even if it was adding an 
-> extra tick would not cause any malfunction of STP.
+Signed-off-by: Santosh Nayak <santoshprasadnayak@gmail.com>
+---
+ net/bridge/netfilter/ebtables.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Yes, no harm. I just love things to be accurate :)
-
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 5864cc4..f3fcbd9 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1335,7 +1335,7 @@ static inline int ebt_make_matchname(const struct ebt_entry_match *m,
+     const char *base, char __user *ubase)
+ {
+ 	char __user *hlp = ubase + ((char *)m - base);
+-	if (copy_to_user(hlp, m->u.match->name, EBT_FUNCTION_MAXNAMELEN))
++	if (copy_to_user(hlp, m->u.match->name, XT_EXTENSION_MAXNAMELEN))
+ 		return -EFAULT;
+ 	return 0;
+ }
+@@ -1344,7 +1344,7 @@ static inline int ebt_make_watchername(const struct ebt_entry_watcher *w,
+     const char *base, char __user *ubase)
+ {
+ 	char __user *hlp = ubase + ((char *)w - base);
+-	if (copy_to_user(hlp , w->u.watcher->name, EBT_FUNCTION_MAXNAMELEN))
++	if (copy_to_user(hlp , w->u.watcher->name, XT_EXTENSION_MAXNAMELEN))
+ 		return -EFAULT;
+ 	return 0;
+ }
+@@ -1368,7 +1368,7 @@ ebt_make_names(struct ebt_entry *e, const char *base, char __user *ubase)
+ 	ret = EBT_WATCHER_ITERATE(e, ebt_make_watchername, base, ubase);
+ 	if (ret != 0)
+ 		return ret;
+-	if (copy_to_user(hlp, t->u.target->name, EBT_FUNCTION_MAXNAMELEN))
++	if (copy_to_user(hlp, t->u.target->name, XT_EXTENSION_MAXNAMELEN))
+ 		return -EFAULT;
+ 	return 0;
+ }
 -- 
-Vitalii Demianets
+1.7.4.4
+
