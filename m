@@ -1,15 +1,14 @@
 Return-Path: <santoshprasadnayak@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
 	h=from:to:cc:subject:date:message-id:x-mailer;
-	bh=fmHhVfjLzSqSANPixWTgIxQXuhUT+3LTYFAQOKVVUCY=;
-	b=i4ySxGb3YnR4+brYcrzrHtuLHnksfjHIni0Gcl+NT1TCyKVa2efrcyD8/6zWuuaOpR
-	5CtekGaMHmYjrkNRblaUCRrHjZOqBdZm7bU5hrjYUflCOW5MCXMPsKt+HVmnyEgbFQ3S
-	UUcQiYOxJbtDU0dar6D/GSlPlUI/QP+JXmLmQ=
+	bh=o2I1bU88CfKQ2XLXoH5sbrxZN9tD3nHk3LZ+1JsJFVw=;
+	b=mU6tZuE7soA7pUakweT20GAuHiZS9xKqsvPAxUUSZcodXFyFWUNGxEO+H6Lo/GBF6d
+	KyE/SklUNwl5vV6XESykAqLx603oNc+m6V7DgPBlGMcaWTFPsXt7o9jLsP4VX7nLhMCJ
+	dFAUzl+kACZY+q1gVdhVIkNEuV0Is4PWYp3QI=
 From: santosh nayak <santoshprasadnayak@gmail.com>
-Date: Thu,  1 Mar 2012 14:46:30 +0530
-Message-Id: <1330593390-19233-1-git-send-email-santoshprasadnayak@gmail.com>
-Subject: [Bridge] [PATCH 1/3] netfilter: Fix copy_to_user too small size
-	parametre.
+Date: Thu,  1 Mar 2012 14:47:14 +0530
+Message-Id: <1330593434-19275-1-git-send-email-santoshprasadnayak@gmail.com>
+Subject: [Bridge] [PATCH 2/3] netfilter: potential null derefence.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,46 +22,40 @@ Cc: Santosh Nayak <santoshprasadnayak@gmail.com>, coreteam@netfilter.org, netdev
 
 From: Santosh Nayak <santoshprasadnayak@gmail.com>
 
-While copying to userspace, the size of source is 29byte where as
-size parametre is 32 byte.  Its leaking extra-information from
-kernel space to user space.
-Replace EBT_FUNCTION_MAXNAMELEN by XT_EXTENSION_MAXNAMELEN.
+I am getting following error.
+" net/bridge/netfilter/ebtables.c:269 ebt_do_table()
+  error: potential null derefence 'cs'"
+
+    i = cs[sp].n;  // If cs == Null then this will cause problem.
 
 Signed-off-by: Santosh Nayak <santoshprasadnayak@gmail.com>
 ---
- net/bridge/netfilter/ebtables.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ net/bridge/netfilter/ebtables.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
 diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 5864cc4..f3fcbd9 100644
+index f3fcbd9..9c0f177 100644
 --- a/net/bridge/netfilter/ebtables.c
 +++ b/net/bridge/netfilter/ebtables.c
-@@ -1335,7 +1335,7 @@ static inline int ebt_make_matchname(const struct ebt_entry_match *m,
-     const char *base, char __user *ubase)
- {
- 	char __user *hlp = ubase + ((char *)m - base);
--	if (copy_to_user(hlp, m->u.match->name, EBT_FUNCTION_MAXNAMELEN))
-+	if (copy_to_user(hlp, m->u.match->name, XT_EXTENSION_MAXNAMELEN))
- 		return -EFAULT;
- 	return 0;
- }
-@@ -1344,7 +1344,7 @@ static inline int ebt_make_watchername(const struct ebt_entry_watcher *w,
-     const char *base, char __user *ubase)
- {
- 	char __user *hlp = ubase + ((char *)w - base);
--	if (copy_to_user(hlp , w->u.watcher->name, EBT_FUNCTION_MAXNAMELEN))
-+	if (copy_to_user(hlp , w->u.watcher->name, XT_EXTENSION_MAXNAMELEN))
- 		return -EFAULT;
- 	return 0;
- }
-@@ -1368,7 +1368,7 @@ ebt_make_names(struct ebt_entry *e, const char *base, char __user *ubase)
- 	ret = EBT_WATCHER_ITERATE(e, ebt_make_watchername, base, ubase);
- 	if (ret != 0)
- 		return ret;
--	if (copy_to_user(hlp, t->u.target->name, EBT_FUNCTION_MAXNAMELEN))
-+	if (copy_to_user(hlp, t->u.target->name, XT_EXTENSION_MAXNAMELEN))
- 		return -EFAULT;
- 	return 0;
+@@ -209,8 +209,10 @@ unsigned int ebt_do_table (unsigned int hook, struct sk_buff *skb,
+ 	   smp_processor_id());
+ 	if (private->chainstack)
+ 		cs = private->chainstack[smp_processor_id()];
+-	else
++	else {
+ 		cs = NULL;
++		goto out;
++	}
+ 	chaininfo = private->hook_entry[hook];
+ 	nentries = private->hook_entry[hook]->nentries;
+ 	point = (struct ebt_entry *)(private->hook_entry[hook]->data);
+@@ -313,6 +315,7 @@ letscontinue:
+ 		read_unlock_bh(&table->lock);
+ 		return NF_ACCEPT;
+ 	}
++out:
+ 	read_unlock_bh(&table->lock);
+ 	return NF_DROP;
  }
 -- 
 1.7.4.4
