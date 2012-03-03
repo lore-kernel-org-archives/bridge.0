@@ -1,13 +1,13 @@
-Return-Path: <bdschuym@pandora.be>
-Message-ID: <4F513C2B.6030604@pandora.be>
-Date: Fri, 02 Mar 2012 22:31:23 +0100
-From: Bart De Schuymer <bdschuym@pandora.be>
-MIME-Version: 1.0
+Return-Path: <pneira@us.es>
+Date: Sat, 3 Mar 2012 10:11:53 +0100
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20120303091153.GA17253@1984>
 References: <1330593434-19275-1-git-send-email-santoshprasadnayak@gmail.com>
-	<20120301123004.GA7250@1984>
-In-Reply-To: <20120301123004.GA7250@1984>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	<20120301123004.GA7250@1984> <4F513C2B.6030604@pandora.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4F513C2B.6030604@pandora.be>
 Subject: Re: [Bridge] [PATCH 2/3] netfilter: potential null derefence.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -17,31 +17,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
+To: Bart De Schuymer <bdschuym@pandora.be>
 Cc: santosh nayak <santoshprasadnayak@gmail.com>, coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, netfilter@vger.kernel.org, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, shemminger@vyatta.com, davem@davemloft.net
 
-Op 1/03/2012 13:30, Pablo Neira Ayuso schreef:
-> On Thu, Mar 01, 2012 at 02:47:14PM +0530, santosh nayak wrote:
->> From: Santosh Nayak<santoshprasadnayak@gmail.com>
->>
->> I am getting following error.
->> " net/bridge/netfilter/ebtables.c:269 ebt_do_table()
->>    error: potential null derefence 'cs'"
->>
->>      i = cs[sp].n;  // If cs == Null then this will cause problem.
->
-> Very sorry, I didn't see the out label.
->
-> I'll apply this to my nf [1] once David takes my previous request for
-> pulling.
->
+On Fri, Mar 02, 2012 at 10:31:23PM +0100, Bart De Schuymer wrote:
+> Op 1/03/2012 13:30, Pablo Neira Ayuso schreef:
+> >On Thu, Mar 01, 2012 at 02:47:14PM +0530, santosh nayak wrote:
+> >>From: Santosh Nayak<santoshprasadnayak@gmail.com>
+> >>
+> >>I am getting following error.
+> >>" net/bridge/netfilter/ebtables.c:269 ebt_do_table()
+> >>   error: potential null derefence 'cs'"
+> >>
+> >>     i = cs[sp].n;  // If cs == Null then this will cause problem.
+> >
+> >Very sorry, I didn't see the out label.
+> >
+> >I'll apply this to my nf [1] once David takes my previous request for
+> >pulling.
+> >
+> 
+> Hi,
+> 
+> Has this patch been tested? Really, that code in the core firewall
+> function is there for a reason, wouldn't you think?
+> The chainstack is only allocated when user-defined chains are used
+> (see translate_table).
+> Never blindly trust a tool.
 
-Hi,
+I see, then that cs NULL dereference never happens.
 
-Has this patch been tested? Really, that code in the core firewall 
-function is there for a reason, wouldn't you think?
-The chainstack is only allocated when user-defined chains are used (see 
-translate_table).
-Never blindly trust a tool.
-
-Bart
+Thanks Bart, I'll drop this patch.
