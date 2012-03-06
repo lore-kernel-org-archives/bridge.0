@@ -1,9 +1,10 @@
 Return-Path: <davem@davemloft.net>
-Date: Tue, 06 Mar 2012 14:33:23 -0500 (EST)
-Message-Id: <20120306.143323.1591818099708591757.davem@davemloft.net>
+Date: Tue, 06 Mar 2012 14:33:55 -0500 (EST)
+Message-Id: <20120306.143355.1005128775927562130.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20120306142219.31783.30201.stgit@localhost.localdomain>
+In-Reply-To: <4F56208E.2090801@gmail.com>
 References: <20120306142219.31783.30201.stgit@localhost.localdomain>
+	<4F56208E.2090801@gmail.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -20,17 +21,21 @@ To: paulius.zaleckas@gmail.com
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
 From: Paulius Zaleckas <paulius.zaleckas@gmail.com>
-Date: Tue, 06 Mar 2012 16:22:19 +0200
+Date: Tue, 06 Mar 2012 16:34:54 +0200
 
-> Now we have:
-> eth0: link down
-> br0: port 1(eth0) entering forwarding state
+> On 03/06/2012 04:22 PM, Paulius Zaleckas wrote:
+>> Now we have:
+>> eth0: link down
+>> br0: port 1(eth0) entering forwarding state
+>>
+>> State should be logged *after* it was changed, not before.
 > 
-> State should be logged *after* it was changed, not before.
+> The funny thing is that it was introduced:
+> 2010-05-16 	stephen hemminger
+> bridge: change console message interface
+> 28a16c97963d3bc36a2c192859f6d8025ef2967a
 > 
-> Reported-by: Zilvinas Valinskas <zilvinas@wilibox.com>
-> Signed-off-by: Paulius Zaleckas <paulius.zaleckas@gmail.com>
+> and no one noticed since then :D
 
-This is intentional, this was a discussion about this.
-
-"Entering" means "about to" therefore we say it before it happens.
+No, someone noticed, you're not the first person to propose this
+patch and it was rejected just like your's will be.
