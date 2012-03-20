@@ -1,24 +1,12 @@
-Return-Path: <paulius.zaleckas@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=from:subject:to:date:message-id:in-reply-to:references:user-agent
-	:mime-version:content-type:content-transfer-encoding;
-	bh=rqCphjmzgPGjEdnqmMLeiaqB9z735yhTJzwWVeV4l8M=;
-	b=VaIB3RAGRrbU+FATGFmqd3bDjrJmPXi+shh3/fdbI5Ph2p3i2L9j0M9EHUM8L2bXda
-	PwwQgCLLeOoUGhuamRs1JVQU7SDg86qugvySthuXdAK9kS437Hopku7nUIT7VEZK876B
-	REudGSDJK7+56Oah8AgiwXEE1E3UabH1+eybL2WyhIv8w9A2VnF8RwsBqcgCZgSI1JHN
-	Wbd1pTg9s/slYi/LhE7b1UIfZoRsGTAIzDF8K81DEcnU+/OL+yWPRoKou9YdF7bn81VT
-	/aQaqObdgXRnKnAP1iXyDF1dg3slbEwiM5hMvifdvvaHjAO270VLYw2p2EMNrqVtFnlt
-	7ejg==
-From: Paulius Zaleckas <paulius.zaleckas@gmail.com>
-Date: Wed, 07 Mar 2012 10:25:22 +0200
-Message-ID: <20120307082522.6293.26893.stgit@localhost.localdomain>
-In-Reply-To: <20120307082514.6293.59158.stgit@localhost.localdomain>
-References: <20120307082514.6293.59158.stgit@localhost.localdomain>
+Return-Path: <joakim.tjernlund@transmode.se>
+In-Reply-To: <1330506923-10878-1-git-send-email-Joakim.Tjernlund@transmode.se>
+References: <1330506923-10878-1-git-send-email-Joakim.Tjernlund@transmode.se>
+Message-ID: <OF1D3D642B.1A98C4BF-ONC12579C7.00659B16-C12579C7.0065AA2C@transmode.se>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date: Tue, 20 Mar 2012 19:30:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH 2/2] bridge: fix state reporting when port is
-	disabled
+Content-type: text/plain; charset=US-ASCII
+Subject: Re: [Bridge] [PATCH] bridge: make brctl showstp display port id
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,41 +15,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org
 
-Now we have:
-eth0: link *down*
-br0: port 1(eth0) entered *forwarding* state
 
-br_log_state(p) should be called *after* p->state is set
-to BR_STATE_DISABLED.
+Ping?
 
-Reported-by: Zilvinas Valinskas <zilvinas@wilibox.com>
-Signed-off-by: Paulius Zaleckas <paulius.zaleckas@gmail.com>
-Acked-by: Stephen Hemminger <shemminger@vyatta.com>
----
-
- net/bridge/br_stp_if.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 19308e3..f494496 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -98,14 +98,13 @@ void br_stp_disable_port(struct net_bridge_port *p)
- 	struct net_bridge *br = p->br;
- 	int wasroot;
- 
--	br_log_state(p);
--
- 	wasroot = br_is_root_bridge(br);
- 	br_become_designated_port(p);
- 	p->state = BR_STATE_DISABLED;
- 	p->topology_change_ack = 0;
- 	p->config_pending = 0;
- 
-+	br_log_state(p);
- 	br_ifinfo_notify(RTM_NEWLINK, p);
- 
- 	del_timer(&p->message_age_timer);
+Joakim Tjernlund <Joakim.Tjernlund@transmode.se> wrote on 2012/02/29 10:15:23:
+>
+> My brctl showstp br0 always shows a 0 port id:
+> eth2 (1)
+>  port id      0         state             disabled
+>  designated root   8000.00069c00b2fb   path cost       100
+>
+> because port id is printed as a hex number in sys fs. Change the
+> two hex occurrences(port no and port id) to decimal, just like all
+> the other numbers in this area.
+>
+> Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+> ---
+>  net/bridge/br_sysfs_if.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+> index fd5799c..9c4c2eb 100644
+> --- a/net/bridge/br_sysfs_if.c
+> +++ b/net/bridge/br_sysfs_if.c
+> @@ -86,13 +86,13 @@ static BRPORT_ATTR(designated_cost, S_IRUGO, show_designated_cost, NULL);
+>
+>  static ssize_t show_port_id(struct net_bridge_port *p, char *buf)
+>  {
+> -   return sprintf(buf, "0x%x\n", p->port_id);
+> +   return sprintf(buf, "%d\n", p->port_id);
+>  }
+>  static BRPORT_ATTR(port_id, S_IRUGO, show_port_id, NULL);
+>
+>  static ssize_t show_port_no(struct net_bridge_port *p, char *buf)
+>  {
+> -   return sprintf(buf, "0x%x\n", p->port_no);
+> +   return sprintf(buf, "%d\n", p->port_no);
+>  }
+>
+>  static BRPORT_ATTR(port_no, S_IRUGO, show_port_no, NULL);
+> --
+> 1.7.3.4
+>
 
