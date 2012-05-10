@@ -1,14 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 09 May 2012 21:53:30 -0400 (EDT)
-Message-Id: <20120509.215330.1797609915710094377.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1336614484.1905.19.camel@joe2Laptop>
+Return-Path: <johannes@sipsolutions.net>
+Message-ID: <1336632528.4334.1.camel@jlt3.sipsolutions.net>
+From: Johannes Berg <johannes@sipsolutions.net>
+Date: Thu, 10 May 2012 08:48:48 +0200
+In-Reply-To: <20120509.212110.437114897180819434.davem@davemloft.net>
+	(sfid-20120510_032248_153593_581BC374)
 References: <cover.1336538937.git.joe@perches.com>
 	<20120509.212110.437114897180819434.davem@davemloft.net>
-	<1336614484.1905.19.camel@joe2Laptop>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	(sfid-20120510_032248_153593_581BC374)
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
 Subject: Re: [Bridge] [PATCH 00/13] net: Add and use ether_addr_equal
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -18,20 +19,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: joe@perches.com
-Cc: coreteam@netfilter.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org, joe@perches.com
 
-From: Joe Perches <joe@perches.com>
-Date: Wed, 09 May 2012 18:48:04 -0700
+On Wed, 2012-05-09 at 21:21 -0400, David Miller wrote:
 
-> Maybe just a single patch?
+> That case you didn't convert in mac80211 is probably the
+> bug Johannes was talking about which started this whole
+> discussion.
 
-Yes, I think high density on this one, it's extremely
-mechanical.
+The bug case that started it all is in net/wireless/scan.c and Emmanuel
+has since changed it back to memcmp(). Not sure if that's the one you
+were referring to or not :-)
 
-> Also the compare_ether_addr_64bits function is
-> still used a couple dozen times.  Maybe another
-> patch for those?  ether_addr_equal_64bits?
-
-Use your best judgment.
+johannes
 
