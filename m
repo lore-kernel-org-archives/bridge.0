@@ -1,27 +1,17 @@
-Return-Path: <egrumbach@gmail.com>
+Return-Path: <devendra.aaru@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc:content-type:content-transfer-encoding;
-	bh=nLiZS513jvXyrZnObRP78S+k1DGyoc01DNxMG2C12uY=;
-	b=HcrLcM8Ge4ZMz5+Bnpe0t9dWojxqZ0t5/eJ5XoDnHQDgJKOfkRnVL+9uX7KQo5S6Oc
-	3tIh9hOQHOKLGenlsPimTnjmE0LzzO7M/TA/p3/8pa1/iiYB9uEmi5R0sdKBsUMBhR8u
-	Wf90u17MS1EgS4f9FF/9dWHlbO5bOcL6t/Nk3ZBgCHChMDmZXctP4IuZWkiswTAQHmKj
-	lPHBL83LS+hQRcPgUj4FOLR4VSZSOJb5ckQ6gw/nyRylyTia5rN6ZqQEsJTivkXgss6/
-	4uIcARrI6N4dZh+/b3YsD36raZjX5Jb8uuYAA3HCAaS9sb0NMX23cZqeDd4yOsQDbzq/
-	oYbw==
-MIME-Version: 1.0
-In-Reply-To: <1336633015.4334.2.camel@jlt3.sipsolutions.net>
-References: <cover.1336538937.git.joe@perches.com>
-	<20120509.212110.437114897180819434.davem@davemloft.net>
-	<1336632528.4334.1.camel@jlt3.sipsolutions.net>
-	<1336632860.22495.6.camel@joe2Laptop>
-	<1336633015.4334.2.camel@jlt3.sipsolutions.net>
-Date: Thu, 10 May 2012 10:08:13 +0300
-Message-ID: <CANUX_P3hhiwAdvHqL=SvAwK2oW09RfC5LnanBSvupBROeWhVuw@mail.gmail.com>
-From: Emmanuel Grumbach <egrumbach@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 00/13] net: Add and use ether_addr_equal
+	h=from:to:cc:subject:date:message-id:x-mailer;
+	bh=8ZSPUSPPReMXZdNtU1pZVlk+3MifAhqMrMIIzVyj7Qc=;
+	b=vZiIhEG3sCTjcr/1EiUrhTX88c61BxMH4dlymL+VGO6Uky4QZEuP4SGVkRXazEoza8
+	35z7jNN8U3EzgA/bQHqZ8KO6rBWbbyijQH4fEuxWggwa/QEpr9CWe4liFFutyZwJyFM/
+	kJnsBUIW396IfICyFtANrTVPXLGxYu0kHkH6jEeSe2gnqZBeGB1MpbIFNdpgzVu36o0N
+	PRnzJNVP2uq+yUTHJK7EpoVO5m/PJ6sP+CMk0FP4rC5lv8Qojoo0HbpE90FoPodC+TRb
+	yaO/h3r048OF/NxO5VfHBCzrhtNkLi48tTUSU7l+WZs8A1X5pNkg84S6WRSwCqY37xzt
+	OQ9Q==
+From: Devendra Naga <devendra.aaru@gmail.com>
+Date: Tue, 15 May 2012 01:00:17 +0530
+Message-Id: <1337023817-26132-1-git-send-email-devendra.aaru@gmail.com>
+Subject: [Bridge] [PATCH] net/bridge/netfilter: Fix the randconfig warning
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,31 +20,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>
+To: Pablo Neira Ayuso <pablo@netfilter.org>, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Devendra Naga <devendra.aaru@gmail.com>
 
->> >
->> > > That case you didn't convert in mac80211 is probably the
->> > > bug Johannes was talking about which started this whole
->> > > discussion.
->> >
->> > The bug case that started it all is in net/wireless/scan.c and Emmanue=
-l
->> > has since changed it back to memcmp(). Not sure if that's the one you
->> > were referring to or not :-)
->>
->> That's the one that I left alone.
->>
->> Post patch:
->> $ git grep -n -w compare_ether_addr net
->> net/batman-adv/main.h:198: * note: can't use compare_ether_addr() as it =
-requires aligned memory
->> net/wireless/scan.c:381: =A0 =A0 =A0 =A0return compare_ether_addr(a->bss=
-id, b->bssid);
->
-> Ok, great, then that means the fix from Emmanuel won't conflict when it
-> gets in.
->
+when ran with make randconfig got
 
-Thanks Joe - as Johannes said this won't conflict with my patch. And
-yes the code is now more clear.
+warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has unmet direct dependencies (NET && INET && NETFILTER)
+
+added NET && INET && NETFILTER dependency to the BRIDGE_NF_EBTABLES
+
+Signed-off-by: Devendra Naga <devendra.aaru@gmail.com>
+---
+ net/bridge/netfilter/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
+index a9aff9c..34f6d9d 100644
+--- a/net/bridge/netfilter/Kconfig
++++ b/net/bridge/netfilter/Kconfig
+@@ -4,7 +4,7 @@
+ 
+ menuconfig BRIDGE_NF_EBTABLES
+ 	tristate "Ethernet Bridge tables (ebtables) support"
+-	depends on BRIDGE && NETFILTER
++	depends on NET && INET && BRIDGE && NETFILTER
+ 	select NETFILTER_XTABLES
+ 	help
+ 	  ebtables is a general, extensible frame/packet identification
+-- 
+1.7.9.5
+
