@@ -1,11 +1,11 @@
-Return-Path: <shemminger@vyatta.com>
-Date: Thu, 17 May 2012 09:09:23 -0700
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20120517090923.0d0930e9@nehalam.linuxnetplumber.net>
+Return-Path: <davem@davemloft.net>
+Date: Thu, 17 May 2012 15:50:22 -0400 (EDT)
+Message-Id: <20120517.155022.919927868768770215.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <1337270425-21873-1-git-send-email-eldad@fogrefinery.com>
 References: <1337270425-21873-1-git-send-email-eldad@fogrefinery.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] ipv6: correct the ipv6 option name - Pad0 to
 	Pad1
@@ -17,11 +17,11 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eldad Zack <eldad@fogrefinery.com>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Jamal Hadi Salim <hadi@cyberus.ca>, James Morris <jmorris@namei.org>, "David S. Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
+To: eldad@fogrefinery.com
+Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, hadi@cyberus.ca, jmorris@namei.org, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, shemminger@vyatta.com
 
-On Thu, 17 May 2012 18:00:25 +0200
-Eldad Zack <eldad@fogrefinery.com> wrote:
+From: Eldad Zack <eldad@fogrefinery.com>
+Date: Thu, 17 May 2012 18:00:25 +0200
 
 > The padding destination or hop-by-hop option is called Pad1 and not Pad0.
 > 
@@ -30,4 +30,4 @@ Eldad Zack <eldad@fogrefinery.com> wrote:
 > 
 > Signed-off-by: Eldad Zack <eldad@fogrefinery.com>
 
-If standards bodies want to call a 0 a 1, then I guess we have to follow :-)
+Applied to net-next.
