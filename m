@@ -1,8 +1,24 @@
-Return-Path: <eldad@fogrefinery.com>
-From: Eldad Zack <eldad@fogrefinery.com>
-Date: Thu, 17 May 2012 18:00:25 +0200
-Message-Id: <1337270425-21873-1-git-send-email-eldad@fogrefinery.com>
-Subject: [Bridge] [PATCH] ipv6: correct the ipv6 option name - Pad0 to Pad1
+Return-Path: <eldadzack@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=date:from:x-x-sender:to:cc:subject:in-reply-to:message-id
+	:references:user-agent:mime-version:content-type;
+	bh=Oklg1ngEe+EpcXqohAbgoNe3lqCUOqsowApvD0OHdsI=;
+	b=UHiHV3kuJa4Lm7nzlluGYKM2XGu2Jjlw4Tp70jGZRONNfdeovUpRcYHfiEdPddcMMK
+	MeuM4rl2JiaiOeW1WP5rmrG6ca7dR6fo7l/A0oCxmYyRQpjwiviIX085XWtGkPCWTKSQ
+	Gno3Xp7IKP9Eixg+LZrXBsnwGtUwJFTb+PL0lopdu4bjnT7VjEogXtp8YqIY0sZdqdiC
+	pD9A/YHQaOarWFPQxYt0iV/Kin0ZO07bCxjAIq/s3CpRKjj6B6mjjqspJEldTcVlqRoe
+	3p3Wo0UoQbfJSxDXSbyq2tcQW9VwukBFeeLcEdlK954sgJQ3ar9VpGu5vvJLzJU281s8
+	0UfQ==
+Date: Thu, 17 May 2012 18:21:34 +0200 (CEST)
+From: Eldad Zack <eldadzack@gmail.com>
+In-Reply-To: <20120517090923.0d0930e9@nehalam.linuxnetplumber.net>
+Message-ID: <alpine.DEB.2.02.1205171816310.22002@debianer>
+References: <1337270425-21873-1-git-send-email-eldad@fogrefinery.com>
+	<20120517090923.0d0930e9@nehalam.linuxnetplumber.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [Bridge] [PATCH] ipv6: correct the ipv6 option name - Pad0 to
+	Pad1
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,127 +27,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, James Morris <jmorris@namei.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Patrick McHardy <kaber@trash.net>, Jamal Hadi Salim <hadi@cyberus.ca>
-Cc: netdev@vger.kernel.org, Eldad Zack <eldad@fogrefinery.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Jamal Hadi Salim <hadi@cyberus.ca>, James Morris <jmorris@namei.org>, "David S. Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
 
-The padding destination or hop-by-hop option is called Pad1 and not Pad0.
 
-See RFC2460 (4.2) or the IANA ipv6-parameters registry:
-http://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xml
+On Thu, 17 May 2012, Stephen Hemminger wrote:
+> On Thu, 17 May 2012 18:00:25 +0200
+> Eldad Zack <eldad@fogrefinery.com> wrote:
+> 
+> > The padding destination or hop-by-hop option is called Pad1 and not Pad0.
+> > 
+> > See RFC2460 (4.2) or the IANA ipv6-parameters registry:
+> > http://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xml
+> > 
+> > Signed-off-by: Eldad Zack <eldad@fogrefinery.com>
+> 
+> If standards bodies want to call a 0 a 1, then I guess we have to follow :-)
 
-Signed-off-by: Eldad Zack <eldad@fogrefinery.com>
-
-diff --git a/include/linux/in6.h b/include/linux/in6.h
-index 5c83d9e..cba469b 100644
---- a/include/linux/in6.h
-+++ b/include/linux/in6.h
-@@ -142,7 +142,7 @@ struct in6_flowlabel_req {
- /*
-  *	IPv6 TLV options.
-  */
--#define IPV6_TLV_PAD0		0
-+#define IPV6_TLV_PAD1		0
- #define IPV6_TLV_PADN		1
- #define IPV6_TLV_ROUTERALERT	5
- #define IPV6_TLV_JUMBO		194
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 5ca4c50..b665812 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -460,8 +460,8 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge *br,
- 	hopopt[3] = 2;				/* Length of RA Option */
- 	hopopt[4] = 0;				/* Type = 0x0000 (MLD) */
- 	hopopt[5] = 0;
--	hopopt[6] = IPV6_TLV_PAD0;		/* Pad0 */
--	hopopt[7] = IPV6_TLV_PAD0;		/* Pad0 */
-+	hopopt[6] = IPV6_TLV_PAD1;		/* Pad1 */
-+	hopopt[7] = IPV6_TLV_PAD1;		/* Pad1 */
- 
- 	skb_put(skb, sizeof(*ip6h) + 8);
- 
-diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-index dce55d4..e41456b 100644
---- a/net/bridge/br_netfilter.c
-+++ b/net/bridge/br_netfilter.c
-@@ -558,7 +558,7 @@ static int check_hbh_len(struct sk_buff *skb)
- 		int optlen = nh[off + 1] + 2;
- 
- 		switch (nh[off]) {
--		case IPV6_TLV_PAD0:
-+		case IPV6_TLV_PAD1:
- 			optlen = 1;
- 			break;
- 
-diff --git a/net/ipv6/ah6.c b/net/ipv6/ah6.c
-index 9aa3d01..5d32e7a 100644
---- a/net/ipv6/ah6.c
-+++ b/net/ipv6/ah6.c
-@@ -127,7 +127,7 @@ static int zero_out_mutable_opts(struct ipv6_opt_hdr *opthdr)
- 
- 		switch (opt[off]) {
- 
--		case IPV6_TLV_PAD0:
-+		case IPV6_TLV_PAD1:
- 			optlen = 1;
- 			break;
- 		default:
-@@ -171,7 +171,7 @@ static void ipv6_rearrange_destopt(struct ipv6hdr *iph, struct ipv6_opt_hdr *des
- 
- 		switch (opt[off]) {
- 
--		case IPV6_TLV_PAD0:
-+		case IPV6_TLV_PAD1:
- 			optlen = 1;
- 			break;
- 		default:
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index a93bd23..a3cded6 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -75,7 +75,7 @@ int ipv6_find_tlv(struct sk_buff *skb, int offset, int type)
- 			return offset;
- 
- 		switch (opttype) {
--		case IPV6_TLV_PAD0:
-+		case IPV6_TLV_PAD1:
- 			optlen = 1;
- 			break;
- 		default:
-@@ -156,7 +156,7 @@ static int ip6_parse_tlv(struct tlvtype_proc *procs, struct sk_buff *skb)
- 		int i;
- 
- 		switch (nh[off]) {
--		case IPV6_TLV_PAD0:
-+		case IPV6_TLV_PAD1:
- 			optlen = 1;
- 			break;
- 
-diff --git a/net/ipv6/mip6.c b/net/ipv6/mip6.c
-index 2e02f7c..5b087c3 100644
---- a/net/ipv6/mip6.c
-+++ b/net/ipv6/mip6.c
-@@ -46,7 +46,7 @@ static inline void *mip6_padn(__u8 *data, __u8 padlen)
- 	if (!data)
- 		return NULL;
- 	if (padlen == 1) {
--		data[0] = IPV6_TLV_PAD0;
-+		data[0] = IPV6_TLV_PAD1;
- 	} else if (padlen > 1) {
- 		data[0] = IPV6_TLV_PADN;
- 		data[1] = padlen - 2;
-diff --git a/net/sched/act_csum.c b/net/sched/act_csum.c
-index 882124c..2c8ad7c 100644
---- a/net/sched/act_csum.c
-+++ b/net/sched/act_csum.c
-@@ -397,7 +397,7 @@ static int tcf_csum_ipv6_hopopts(struct ipv6_opt_hdr *ip6xh,
- 
- 	while (len > 1) {
- 		switch (xh[off]) {
--		case IPV6_TLV_PAD0:
-+		case IPV6_TLV_PAD1:
- 			optlen = 1;
- 			break;
- 		case IPV6_TLV_JUMBO:
--- 
-1.7.10
-
+Yeah, Pad0 is a much better name for it. That's probably why it never
+occured to any one for so long :-)
