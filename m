@@ -1,16 +1,11 @@
-Return-Path: <amwang@redhat.com>
-Message-ID: <1343613578.1642.6.camel@cr0>
-From: Cong Wang <amwang@redhat.com>
-Date: Mon, 30 Jul 2012 09:59:38 +0800
-In-Reply-To: <20120727085021.1d4ef810@nehalam.linuxnetplumber.net>
-References: <1343403484-29347-1-git-send-email-amwang@redhat.com>
-	<1343403484-29347-5-git-send-email-amwang@redhat.com>
-	<20120727085021.1d4ef810@nehalam.linuxnetplumber.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Return-Path: <lkml20120218@newton.leun.net>
+From: Michael Leun <lkml20120218@newton.leun.net>
+Message-ID: <20120723091504.2d035d28@xenia.leun.net>
 Mime-Version: 1.0
-Subject: Re: [Bridge] [PATCH 4/7] bridge: call NETDEV_RELEASE notifier in
-	br_del_if()
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [3.5 regression / bridge] constantly toggeling between
+ disabled and forwarding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,48 +14,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Date: Mon, 23 Jul 2012 07:42:30 -0000
+To: bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: shemminger@vyatta.com, linux-kernel@vger.kernel.org
 
-On Fri, 2012-07-27 at 08:50 -0700, Stephen Hemminger wrote:
-> On Fri, 27 Jul 2012 23:38:01 +0800
-> Cong Wang <amwang@redhat.com> wrote:
-> 
-> > When a bridge interface deletes its underlying ports, it should
-> > notify netconsole too, like what bonding interface does.
-> > 
-> > Cc: "David S. Miller" <davem@davemloft.net>
-> > Signed-off-by: Cong Wang <amwang@redhat.com>
-> > ---
-> >  net/bridge/br_if.c |    1 +
-> >  1 files changed, 1 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> > index e1144e1..d243914 100644
-> > --- a/net/bridge/br_if.c
-> > +++ b/net/bridge/br_if.c
-> > @@ -427,6 +427,7 @@ int br_del_if(struct net_bridge *br, struct net_device *dev)
-> >  	if (!p || p->br != br)
-> >  		return -EINVAL;
-> >  
-> > +	call_netdevice_notifiers(NETDEV_RELEASE, br->dev);
-> >  	del_nbp(p);
-> >  
-> >  	spin_lock_bh(&br->lock);
-> 
-> Since you can have multiple ports attached to the bridge, this
-> doesn't seem correct. Don't you want the netconsole to keep going
-> on the other ports of the bridge?
-> 
-> What exactly is the problem with having netconsole persist?
+Hi,
 
-Hmm, I saw an incorrect log message when deleting the last port from the
-bridge when netconsole is setup on it. After rethinking it today, you
-are right we should not simply disable netconsole when one port is
-detached, as we have no way to know if that port is used to reach the
-netconsole server.
+when I use my usb ethernet adapter
 
-So, please ignore this patch.
+# > lsusb
+[...]
+Bus 002 Device 009: ID 9710:7830 MosChip Semiconductor MCS7830 10/100 Mbps Ethernet adapter
+[...]
 
-Thanks.
+as port of an bridge
+
+> # brctl addbr br0
+> # brctl addif br0 eth0
+> # brctl addif br0 ue5
+> # ifconfig ue5 up
+> # ifconfig br0 up
+
+(Also does happen when eth0 is not part of the bridge, but the logs I
+had available were from that situation...)
+
+I constantly get messages showing the interface toggeling between
+disabled and forwarding state:
+
+Jul 23 07:40:50 elektra kernel: [ 1539.497337] br0: port 2(ue5) entered disabled state
+Jul 23 07:40:50 elektra kernel: [ 1539.554992] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:50 elektra kernel: [ 1539.555005] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:51 elektra kernel: [ 1540.496242] br0: port 2(ue5) entered disabled state
+Jul 23 07:40:51 elektra kernel: [ 1540.552534] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:51 elektra kernel: [ 1540.552548] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:52 elektra kernel: [ 1541.550413] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:53 elektra kernel: [ 1542.529672] br0: port 2(ue5) entered disabled state
+Jul 23 07:40:53 elektra kernel: [ 1542.587162] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:53 elektra kernel: [ 1542.587175] br0: port 2(ue5) entered forwarding state
+Jul 23 07:40:54 elektra kernel: [ 1543.585309] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:00 elektra kernel: [ 1549.360600] br0: port 2(ue5) entered disabled state
+Jul 23 07:41:00 elektra kernel: [ 1549.442998] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:00 elektra kernel: [ 1549.443011] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:01 elektra kernel: [ 1550.357686] br0: port 2(ue5) entered disabled state
+Jul 23 07:41:01 elektra kernel: [ 1550.408208] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:01 elektra kernel: [ 1550.408222] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:02 elektra kernel: [ 1551.407656] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:03 elektra kernel: [ 1552.401578] br0: port 2(ue5) entered disabled state
+Jul 23 07:41:03 elektra kernel: [ 1552.474773] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:03 elektra kernel: [ 1552.474786] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:04 elektra kernel: [ 1553.472487] br0: port 2(ue5) entered forwarding state
+Jul 23 07:41:05 elektra kernel: [ 1554.356138] br0: port 2(ue5) entered disabled state
+[...]
+
+This does (in the same situation, nothing else than the kernel changed)
+not happen with 3.4.5.
+
+Does anybody have an idea what the issue might be or do I need to bisect?
+
+-- 
+MfG,
+
+Michael Leun
 
