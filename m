@@ -1,13 +1,15 @@
-Return-Path: <nhorman@tuxdriver.com>
-From: Neil Horman <nhorman@tuxdriver.com>
-Message-ID: <20120727184031.GB20938@hmsreliant.think-freely.org>
-References: <1343403484-29347-1-git-send-email-amwang@redhat.com>
-	<1343403484-29347-3-git-send-email-amwang@redhat.com>
+Return-Path: <bhutchings@solarflare.com>
+Message-ID: <1344877451.2733.26.camel@bwh-desktop.uk.solarflarecom.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Date: Mon, 13 Aug 2012 18:04:11 +0100
+In-Reply-To: <1344871635-1052-2-git-send-email-jiri@resnulli.us>
+References: <1344871635-1052-1-git-send-email-jiri@resnulli.us>
+	<1344871635-1052-2-git-send-email-jiri@resnulli.us>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1343403484-29347-3-git-send-email-amwang@redhat.com>
-Subject: Re: [Bridge] [PATCH 2/7] netpoll: make __netpoll_cleanup non-block
+Subject: Re: [Bridge] [patch net-next 01/16] net: introduce upper device
+	lists
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,71 +18,101 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 27 Jul 2012 18:40:58 -0000
-To: Cong Wang <amwang@redhat.com>
-Cc: bridge@lists.linux-foundation.org, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, Jay Vosburgh <fubar@us.ibm.com>, linux-kernel@vger.kernel.org, Patrick McHardy <kaber@trash.net>, Eric Dumazet <edumazet@google.com>, Joe Perches <joe@perches.com>, Cong Wang <xiyou.wangcong@gmail.com>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, linux-driver@qlogic.com, blaschka@linux.vnet.ibm.com, sony.chacko@qlogic.com, gregory.v.rose@intel.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kaber@trash.net, joe@perches.com, linux390@de.ibm.com, davem@davemloft.net
 
-On Fri, Jul 27, 2012 at 11:37:59PM +0800, Cong Wang wrote:
-> Like the previous patch, slave_disable_netpoll() and __netpoll_cleanup()
-> may be called with read_lock() held too, so we should make them
-> non-block, by moving the cleanup and kfree() to call_rcu_bh() callbacks.
+On Mon, 2012-08-13 at 17:27 +0200, Jiri Pirko wrote:
+> This lists are supposed to serve for storing pointers to all upper devices.
+> Eventually it will replace dev->master pointer which is used for
+> bonding, bridge, team but it cannot be used for vlan, macvlan where
+> there might be multiple "masters" present.
 > 
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Signed-off-by: Cong Wang <amwang@redhat.com>
-> ---
->  drivers/net/bonding/bond_main.c |    4 +--
->  include/linux/netpoll.h         |    3 ++
->  net/8021q/vlan_dev.c            |    6 +----
->  net/bridge/br_device.c          |    6 +----
->  net/core/netpoll.c              |   42 +++++++++++++++++++++++++++++---------
->  5 files changed, 38 insertions(+), 23 deletions(-)
-><snip>
+> New upper device list resolves this limitation. Also, the information
+> stored in lists is used for preventing looping setups like
+> "bond->somethingelse->samebond"
+> 
+> Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+[...]
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -4425,6 +4425,229 @@ static int __init dev_proc_init(void)
+>  #endif	/* CONFIG_PROC_FS */
+>  
+> 
+> +struct netdev_upper {
+> +	struct net_device *dev;
+> +	bool unique;
 
->  	struct netpoll_info *npinfo;
-> @@ -903,20 +921,24 @@ void __netpoll_cleanup(struct netpoll *np)
->  			ops->ndo_netpoll_cleanup(np->dev);
->  
->  		RCU_INIT_POINTER(np->dev->npinfo, NULL);
-> +		call_rcu_bh(&npinfo->rcu, rcu_cleanup_netpoll_info);
-> +	}
-> +}
-> +EXPORT_SYMBOL_GPL(__netpoll_cleanup);
->  
-> -		/* avoid racing with NAPI reading npinfo */
-> -		synchronize_rcu_bh();
-> +static void rcu_cleanup_netpoll(struct rcu_head *rcu_head)
+This needs a better name.  It doesn't really have anything to do with
+uniqueness and doesn't ensure exclusivity.  I think that it would be
+fine to keep the 'master' term.
+
+> +	struct list_head list;
+> +	struct rcu_head rcu;
+> +};
+[...]
+> +static int __netdev_upper_dev_link(struct net_device *dev,
+> +				   struct net_device *upper_dev, bool unique)
 > +{
-> +	struct netpoll *np = container_of(rcu_head, struct netpoll, rcu);
->  
-> -		skb_queue_purge(&npinfo->arp_tx);
-> -		skb_queue_purge(&npinfo->txq);
-> -		cancel_delayed_work_sync(&npinfo->tx_work);
-> +	__netpoll_cleanup(np);
-> +	kfree(np);
-> +}
->  
-> -		/* clean after last, unfinished work */
-> -		__skb_queue_purge(&npinfo->txq);
-> -		kfree(npinfo);
-> -	}
-> +void __netpoll_free_rcu(struct netpoll *np)
-> +{
-> +	call_rcu_bh(&np->rcu, rcu_cleanup_netpoll);
-Here, and above I see you using an rcu_head to defer cleanup, until after all
-pointer uses are dropped, but I don't see any modification of code points that
-dereference any struct netpoll pointers to include
-rcu_read_lock()/rcu_read_unlock().  Without those using rcu to defer cleanup is
-pointless, as the rcu code won't know when its safe to run.  You're no better
-off that you would be just calling __netpoll_cleanup directly.
-Neil
+> +	struct netdev_upper *upper;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	if (dev == upper_dev)
+> +		return -EBUSY;
+> +	/*
+> +	 * To prevent loops, check if dev is not upper device to upper_dev.
+> +	 */
+> +	if (__netdev_has_upper_dev(upper_dev, dev, true))
+> +		return -EBUSY;
+> +
+> +	if (__netdev_find_upper(dev, upper_dev))
+> +		return -EEXIST;
+> +
+> +	if (unique && netdev_unique_upper_dev_get(dev))
+> +		return -EBUSY;
+> +
+> +	upper = kmalloc(sizeof(*upper), GFP_KERNEL);
+> +	if (!upper)
+> +		return -ENOMEM;
+> +
+> +	upper->dev = upper_dev;
+> +	upper->unique = unique;
+> +
+> +	/*
+> +	 * Ensure that unique upper link is always the first item in the list.
+> +	 */
+> +	if (unique)
+> +		list_add_rcu(&upper->list, &dev->upper_dev_list);
+> +	else
+> +		list_add_tail_rcu(&upper->list, &dev->upper_dev_list);
+> +	dev_hold(upper_dev);
 
->  }
-> -EXPORT_SYMBOL_GPL(__netpoll_cleanup);
-> +EXPORT_SYMBOL_GPL(__netpoll_free_rcu);
->  
->  void netpoll_cleanup(struct netpoll *np)
->  {
-> -- 
-> 1.7.7.6
-> 
-> 
+This behaviour (calling dev_hold()) matches netdev_set_master().  But
+it's oddly asymmetric: generally the administrator can remove either the
+upper device or the lower device (rtnl_link_ops or unbinding a physical
+device) and the upper device driver must then unlink itself from the
+lower device (using a notifier to catch lower device removal).
+
+If the upper device driver fails to unlink when the upper device is
+unregistered, then this extra reference causes netdev_wait_allrefs() to
+hang... is that the intent?  Or should there be a more explicit counter
+and check on unregistration, e.g. WARN_ON(dev->num_lower_devs != 0)?
+
+If it fails to unlink when the lower device is removed, this warning in
+rollback_registered_many() may be triggered:
+
+		/* Notifier chain MUST detach us from master device. */
+		WARN_ON(dev->master);
+
+I think that needs to become WARN_ON(netdev_has_upper_dev(dev)).
+
+> +	return 0;
+> +}
+[...] 
+
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
+
