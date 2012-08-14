@@ -1,9 +1,9 @@
 Return-Path: <jiri@resnulli.us>
 From: Jiri Pirko <jiri@resnulli.us>
-Message-Id: <1344956748-2099-8-git-send-email-jiri@resnulli.us>
+Message-Id: <1344956748-2099-9-git-send-email-jiri@resnulli.us>
 In-Reply-To: <1344956748-2099-1-git-send-email-jiri@resnulli.us>
 References: <1344956748-2099-1-git-send-email-jiri@resnulli.us>
-Subject: [Bridge] [patch net-next v2 07/15] netpoll: remove usage of
+Subject: [Bridge] [patch net-next v2 08/15] cxgb3: remove usage of
 	dev->master
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -13,46 +13,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Tue, 14 Aug 2012 15:06:18 -0000
+Date: Tue, 14 Aug 2012 15:06:21 -0000
 To: netdev@vger.kernel.org
 Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, sony.chacko@qlogic.com, blaschka@linux.vnet.ibm.com, gregory.v.rose@intel.com, bhutchings@solarflare.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, linux-driver@qlogic.com, linux-kernel@vger.kernel.org, kaber@trash.net, joe@perches.com, linux390@de.ibm.com, davem@davemloft.net
 
 Signed-off-by: Jiri Pirko <jiri@resnulli.us>
 ---
- net/core/netpoll.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index b4c90e4..1f457a6 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -207,12 +207,16 @@ static void netpoll_poll_dev(struct net_device *dev)
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c
+index 2dbbcbb..720425d 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c
+@@ -182,14 +182,17 @@ static struct net_device *get_iff_from_mac(struct adapter *adapter,
+ 		struct net_device *dev = adapter->port[i];
  
- 	if (dev->flags & IFF_SLAVE) {
- 		if (dev->npinfo) {
--			struct net_device *bond_dev = dev->master;
-+			struct net_device *bond_dev;
- 			struct sk_buff *skb;
-+
+ 		if (!memcmp(dev->dev_addr, mac, ETH_ALEN)) {
 +			rcu_read_lock();
-+			bond_dev = netdev_master_upper_dev_get_rcu(dev);
- 			while ((skb = skb_dequeue(&dev->npinfo->arp_tx))) {
- 				skb->dev = bond_dev;
- 				skb_queue_tail(&bond_dev->npinfo->arp_tx, skb);
+ 			if (vlan && vlan != VLAN_VID_MASK) {
+-				rcu_read_lock();
+ 				dev = __vlan_find_dev_deep(dev, vlan);
+-				rcu_read_unlock();
+ 			} else if (netif_is_bond_slave(dev)) {
+-				while (dev->master)
+-					dev = dev->master;
++				struct net_device *upper_dev;
++
++				while ((upper_dev =
++					netdev_master_upper_dev_get_rcu(dev)))
++					dev = upper_dev;
  			}
 +			rcu_read_unlock();
+ 			return dev;
  		}
  	}
- 
-@@ -795,7 +799,7 @@ int netpoll_setup(struct netpoll *np)
- 		return -ENODEV;
- 	}
- 
--	if (ndev->master) {
-+	if (netdev_master_upper_dev_get(ndev)) {
- 		np_err(np, "%s is a slave device, aborting\n", np->dev_name);
- 		err = -EBUSY;
- 		goto put;
 -- 
 1.7.10.4
 
