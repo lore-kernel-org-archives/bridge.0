@@ -1,16 +1,13 @@
-Return-Path: <jiri@resnulli.us>
-From: Jiri Pirko <jiri@resnulli.us>
-Message-ID: <20120816054859.GA1769@minipsycho.orion>
-References: <1344956748-2099-2-git-send-email-jiri@resnulli.us>
-	<1344983624.2690.77.camel@bwh-desktop.uk.solarflarecom.com>
-	<20120815074612.GB1726@minipsycho.orion>
-	<20120815.151549.1835466517645273818.davem@davemloft.net>
+Return-Path: <saurabh.agarwal@envisagemedia.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20120815.151549.1835466517645273818.davem@davemloft.net>
-Subject: Re: [Bridge] [patch net-next v2 01/15] net: introduce upper device
-	lists
+Sender: saurabh.agarwal@envisagemedia.in
+In-Reply-To: <CAALjeQU+sjiZ5qUntoJv2WoxJ__58HefRQzAUXKcenOc14winw@mail.gmail.com>
+References: <CAALjeQU+sjiZ5qUntoJv2WoxJ__58HefRQzAUXKcenOc14winw@mail.gmail.com>
+From: Saurabh Agarwal <saurabh@becabo.com>
+Date: Thu, 6 Sep 2012 15:38:32 +0530
+Message-ID: <CAALjeQWhCOJBZ=vF85-isrnFjZqiSGOeGjVHB+2+=gQujFGOaQ@mail.gmail.com>
+Content-Type: multipart/alternative; boundary=e0cb4e6ff0f5af65e404c905ad88
+Subject: [Bridge] Bridge dropping fragmented ipsec frames.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,19 +16,85 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 16 Aug 2012 05:49:07 -0000
-To: David Miller <davem@davemloft.net>
-Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, linux-driver@qlogic.com, blaschka@linux.vnet.ibm.com, sony.chacko@qlogic.com, gregory.v.rose@intel.com, bhutchings@solarflare.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, joe@perches.com, linux390@de.ibm.com, kaber@trash.net
+To: bridge@lists.linux-foundation.org
 
-Thu, Aug 16, 2012 at 12:15:49AM CEST, davem@davemloft.net wrote:
->From: Jiri Pirko <jiri@resnulli.us>
->Date: Wed, 15 Aug 2012 09:46:12 +0200
->
->> You are probably right. I'm not sure how to handle this correctly
->> though. Adding some hard limit number might not be correct.
->
->I would just use a hard limit of something like 8 for now, and if we
->need to expand this limit we can consider how to do so with real known
->usage in mind rather than pure speculation.
+--e0cb4e6ff0f5af65e404c905ad88
+Content-Type: text/plain; charset=ISO-8859-1
 
-Okay. I will repost the set soon.
+Hi Team,
+
+Scenerio:
+I am using a squid proxy in inception(ebtables/Iptables rules are used) mode
+for my small network.
+
+Problem:
+Whenever some tries to connect to cisco VPN over bridge the authentication
+process goes through smoothly, but after that the status bar reads "Negotiation
+security polices......." and after like 30 sec. the VPN disconnects.
+
+When I bypass the bridging box the connection goes through smoothly without any
+issues. I have checked that no IPTABLES OR EBTABLES rules are applied.
+
+I tried changing the MTUs but no go. I am not sure what is this issue
+regarding.
+
+further to MTU changes I took a TCPdump of both my bridge interface. I noticed
+that the ipsec ip fragmented packets are coming on the WAN port are getting
+dropped. Similar to this
+posthttp://lkml.indiana.edu/hypermail/linux/kernel/0604.0/0229.html
+
+I also checked that the patch which is given here is also applied in my current
+kernel version(2.6.38.12). I also updated the IGB drivers.
+
+If any of you guys can suggest me something I would be highly obliged. I am up
+for some coding changes that are required.
+
+If any of you guys need any kind of logs or something to debug further kindly
+let me know.
+
+Looking forward to your reply.
+
+Warm Regards
+Saurabh
+
+--e0cb4e6ff0f5af65e404c905ad88
+Content-Type: text/html; charset=ISO-8859-1
+
+<div class="gmail_quote"><br><pre style="width:50em;white-space:pre-wrap">Hi Team,
+
+Scenerio:
+I am using a squid proxy in inception(ebtables/Iptables rules are used) mode
+for my small network.
+
+Problem:
+Whenever some tries to connect to cisco VPN over bridge the authentication
+process goes through smoothly, but after that the status bar reads &quot;Negotiation
+security polices.......&quot; and after like 30 sec. the VPN disconnects. 
+
+When I bypass the bridging box the connection goes through smoothly without any
+issues. I have checked that no IPTABLES OR EBTABLES rules are applied. 
+
+I tried changing the MTUs but no go. I am not sure what is this issue
+regarding.
+
+further to MTU changes I took a TCPdump of both my bridge interface. I noticed
+that the ipsec ip fragmented packets are coming on the WAN port are getting
+dropped. Similar to this post
+<a href="http://lkml.indiana.edu/hypermail/linux/kernel/0604.0/0229.html" style="color:rgb(102,51,102)" target="_blank">http://lkml.indiana.edu/hypermail/linux/kernel/0604.0/0229.html</a>
+
+I also checked that the patch which is given here is also applied in my current
+kernel version(2.6.38.12). I also updated the IGB drivers.  
+
+If any of you guys can suggest me something I would be highly obliged. I am up
+for some coding changes that are required. 
+
+If any of you guys need any kind of logs or something to debug further kindly
+let me know.
+
+Looking forward to your reply. 
+
+Warm Regards
+Saurabh</pre>
+</div><br>
+
+--e0cb4e6ff0f5af65e404c905ad88--
