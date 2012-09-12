@@ -1,19 +1,15 @@
-Return-Path: <sasak.1983@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:date:message-id:subject:from:to:content-type;
-	bh=jal7m9A3itT+8ak1a2kolN1Aq19omAI7aOl0q7Ec92c=;
-	b=WmBVShzt8kKGngS7WckygvTIiYNrGD8lNvDWlzpIMrM2sm3XBkwxLvEMOjsK4xcDpK
-	KX2oYjRVoPupr9AnPlO/oB0yPI76fXokp1QCjqc21XcnSDNTGPLy8jLX1DPW3LkH9bq9
-	MLrHr6MH2T4fIoQcFStikDmuFUuSMRzxqRNc7/L+drMq23aknKpzEkVVkZn6dCCenQhv
-	VGFKcJPuvpUJNEbejqpZRbgNqIK77iI8oF8cyC6pW9loH33eoqxgdYGknzFIeqYsULVc
-	G8fVLg/UGo6NbjQYw+dICyBjHBD+Ek7jVQXjPzzTewrEAL+kih/9NmsurwBMBUyJKVW9
-	tJSg==
-MIME-Version: 1.0
-Date: Wed, 12 Sep 2012 15:07:47 +0530
-Message-ID: <CANnGf_NDTZysXY8q5ccWH3NEHH_uQ4+cWK6FAap2r5c6yahu2A@mail.gmail.com>
-From: Sasa Sasa <sasak.1983@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge]  Netlink message for bridge
+Return-Path: <joe@perches.com>
+Message-ID: <1347451493.8707.4.camel@joe2Laptop>
+From: Joe Perches <joe@perches.com>
+Date: Wed, 12 Sep 2012 05:04:53 -0700
+In-Reply-To: <1347437245.13103.697.camel@edumazet-glaptop>
+References: <20120912045120.9E1A76F446@smtp.hushmail.com>
+	<1347435973.2456.23.camel@joe2Laptop>
+	<1347437245.13103.697.camel@edumazet-glaptop>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Subject: [Bridge] [PATCH V2] netfilter/iptables: Fix log-level processing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,22 +18,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: auto75914331@hushmail.com, netfilter@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Bart De Schuymer <bart.de.schuymer@pandora.be>, netfilter-devel@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, Patrick McHardy <kaber@trash.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-Hi,
+auto75914331@hushmail.com reports that iptables does not correctly
+output the KERN_<level>.
 
-I have few questions regarding netlink messages sent by bridge to userspace.
+$IPTABLES -A RULE_0_in  -j LOG  --log-level notice --log-prefix "DENY  in: "
 
-1) Is there any provision for sending linkinfo type for bridge in the
-RTM_NEWLINK message, when we add bridge. I mean, is there any
-information associated with RTM_NEWLINK message that comes in
-userspace to know that this interface is of BRIDGE type. Like for vlan
-LINKINFO attribute contains the information..
+result with linux 3.6-rc5
+Sep 12 06:37:29 xxxxx kernel: <5>DENY  in: IN=eth0 OUT= MAC=.......
 
-2) Can we get net_bridge structures along with bridge_port etc ..
-information via some netlink messages ? I know that port state change
-info etc comes in RTM_NEWLINK but apart from that is there any
-provision to get net_bridge structures?
+result with linux 3.5.3 and older:
+Sep  9 10:43:01 xxxxx kernel: DENY  in: IN=eth0 OUT= MAC......
 
-Regards
-Sandeep
+commit 04d2c8c83d0
+("printk: convert the format for KERN_<LEVEL> to a 2 byte pattern")
+updated the syslog header style but did not update netfilter uses.
+
+Do so.
+
+Signed-off-by: Joe Perches <joe@perches.com>
+cc: auto75914331@hushmail.com
+---
+v2: Use KERN_SOH and string concatenation instead of "%c" KERN_SOH_ASCII
+as suggested by Eric Dumazet.
+
+ net/bridge/netfilter/ebt_log.c |    2 +-
+ net/netfilter/xt_LOG.c         |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/net/bridge/netfilter/ebt_log.c b/net/bridge/netfilter/ebt_log.c
+index f88ee53..92de5e5 100644
+--- a/net/bridge/netfilter/ebt_log.c
++++ b/net/bridge/netfilter/ebt_log.c
+@@ -80,7 +80,7 @@ ebt_log_packet(u_int8_t pf, unsigned int hooknum,
+ 	unsigned int bitmask;
+ 
+ 	spin_lock_bh(&ebt_log_lock);
+-	printk("<%c>%s IN=%s OUT=%s MAC source = %pM MAC dest = %pM proto = 0x%04x",
++	printk(KERN_SOH "%c%s IN=%s OUT=%s MAC source = %pM MAC dest = %pM proto = 0x%04x",
+ 	       '0' + loginfo->u.log.level, prefix,
+ 	       in ? in->name : "", out ? out->name : "",
+ 	       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest,
+diff --git a/net/netfilter/xt_LOG.c b/net/netfilter/xt_LOG.c
+index ff5f75f..d1609dd 100644
+--- a/net/netfilter/xt_LOG.c
++++ b/net/netfilter/xt_LOG.c
+@@ -436,8 +436,8 @@ log_packet_common(struct sbuff *m,
+ 		  const struct nf_loginfo *loginfo,
+ 		  const char *prefix)
+ {
+-	sb_add(m, "<%d>%sIN=%s OUT=%s ", loginfo->u.log.level,
+-	       prefix,
++	sb_add(m, KERN_SOH "%c%sIN=%s OUT=%s ",
++	       '0' + loginfo->u.log.level, prefix,
+ 	       in ? in->name : "",
+ 	       out ? out->name : "");
+ #ifdef CONFIG_BRIDGE_NETFILTER
+
+
+
