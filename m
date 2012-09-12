@@ -1,13 +1,13 @@
-Return-Path: <saurabh.agarwal@envisagemedia.in>
-MIME-Version: 1.0
-Sender: saurabh.agarwal@envisagemedia.in
-In-Reply-To: <CAALjeQU+sjiZ5qUntoJv2WoxJ__58HefRQzAUXKcenOc14winw@mail.gmail.com>
-References: <CAALjeQU+sjiZ5qUntoJv2WoxJ__58HefRQzAUXKcenOc14winw@mail.gmail.com>
-From: Saurabh Agarwal <saurabh@becabo.com>
-Date: Thu, 6 Sep 2012 15:38:32 +0530
-Message-ID: <CAALjeQWhCOJBZ=vF85-isrnFjZqiSGOeGjVHB+2+=gQujFGOaQ@mail.gmail.com>
-Content-Type: multipart/alternative; boundary=e0cb4e6ff0f5af65e404c905ad88
-Subject: [Bridge] Bridge dropping fragmented ipsec frames.
+Return-Path: <joe@perches.com>
+Message-ID: <1347435973.2456.23.camel@joe2Laptop>
+From: Joe Perches <joe@perches.com>
+Date: Wed, 12 Sep 2012 00:46:13 -0700
+In-Reply-To: <20120912045120.9E1A76F446@smtp.hushmail.com>
+References: <20120912045120.9E1A76F446@smtp.hushmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Subject: [Bridge] [PATCH] netfilter/iptables: Fix log-level processing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,85 +16,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: auto75914331@hushmail.com, Bart De Schuymer <bart.de.schuymer@pandora.be>, Pablo Neira Ayuso <pablo@netfilter.org>, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <shemminger@vyatta.com>
+Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org
 
---e0cb4e6ff0f5af65e404c905ad88
-Content-Type: text/plain; charset=ISO-8859-1
+auto75914331@hushmail.com reports that iptables does not correctly
+output the KERN_<level>.
 
-Hi Team,
+$IPTABLES -A RULE_0_in  -j LOG  --log-level notice --log-prefix "DENY  in: "
 
-Scenerio:
-I am using a squid proxy in inception(ebtables/Iptables rules are used) mode
-for my small network.
+result with linux 3.6-rc5
+Sep 12 06:37:29 xxxxx kernel: <5>DENY  in: IN=eth0 OUT= MAC=.......
 
-Problem:
-Whenever some tries to connect to cisco VPN over bridge the authentication
-process goes through smoothly, but after that the status bar reads "Negotiation
-security polices......." and after like 30 sec. the VPN disconnects.
+result with linux 3.5.3 and older:
+Sep  9 10:43:01 xxxxx kernel: DENY  in: IN=eth0 OUT= MAC......
 
-When I bypass the bridging box the connection goes through smoothly without any
-issues. I have checked that no IPTABLES OR EBTABLES rules are applied.
+commit 04d2c8c83d0
+("printk: convert the format for KERN_<LEVEL> to a 2 byte pattern")
+updated the syslog header style but did not update netfilter uses.
 
-I tried changing the MTUs but no go. I am not sure what is this issue
-regarding.
+Do so.
 
-further to MTU changes I took a TCPdump of both my bridge interface. I noticed
-that the ipsec ip fragmented packets are coming on the WAN port are getting
-dropped. Similar to this
-posthttp://lkml.indiana.edu/hypermail/linux/kernel/0604.0/0229.html
+Signed-off-by: Joe Perches <joe@perches.com>
+cc: auto75914331@hushmail.com
+---
+ net/bridge/netfilter/ebt_log.c |    4 ++--
+ net/netfilter/xt_LOG.c         |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-I also checked that the patch which is given here is also applied in my current
-kernel version(2.6.38.12). I also updated the IGB drivers.
+diff --git a/net/bridge/netfilter/ebt_log.c b/net/bridge/netfilter/ebt_log.c
+index f88ee53..cb46d2f 100644
+--- a/net/bridge/netfilter/ebt_log.c
++++ b/net/bridge/netfilter/ebt_log.c
+@@ -80,8 +80,8 @@ ebt_log_packet(u_int8_t pf, unsigned int hooknum,
+ 	unsigned int bitmask;
+ 
+ 	spin_lock_bh(&ebt_log_lock);
+-	printk("<%c>%s IN=%s OUT=%s MAC source = %pM MAC dest = %pM proto = 0x%04x",
+-	       '0' + loginfo->u.log.level, prefix,
++	printk("%c%c%s IN=%s OUT=%s MAC source = %pM MAC dest = %pM proto = 0x%04x",
++	       KERN_SOH_ASCII, '0' + loginfo->u.log.level, prefix,
+ 	       in ? in->name : "", out ? out->name : "",
+ 	       eth_hdr(skb)->h_source, eth_hdr(skb)->h_dest,
+ 	       ntohs(eth_hdr(skb)->h_proto));
+diff --git a/net/netfilter/xt_LOG.c b/net/netfilter/xt_LOG.c
+index ff5f75f..bdc5352 100644
+--- a/net/netfilter/xt_LOG.c
++++ b/net/netfilter/xt_LOG.c
+@@ -436,8 +436,8 @@ log_packet_common(struct sbuff *m,
+ 		  const struct nf_loginfo *loginfo,
+ 		  const char *prefix)
+ {
+-	sb_add(m, "<%d>%sIN=%s OUT=%s ", loginfo->u.log.level,
+-	       prefix,
++	sb_add(m, "%c%c%sIN=%s OUT=%s ",
++	       KERN_SOH_ASCII, '0' + loginfo->u.log.level, prefix,
+ 	       in ? in->name : "",
+ 	       out ? out->name : "");
+ #ifdef CONFIG_BRIDGE_NETFILTER
 
-If any of you guys can suggest me something I would be highly obliged. I am up
-for some coding changes that are required.
 
-If any of you guys need any kind of logs or something to debug further kindly
-let me know.
-
-Looking forward to your reply.
-
-Warm Regards
-Saurabh
-
---e0cb4e6ff0f5af65e404c905ad88
-Content-Type: text/html; charset=ISO-8859-1
-
-<div class="gmail_quote"><br><pre style="width:50em;white-space:pre-wrap">Hi Team,
-
-Scenerio:
-I am using a squid proxy in inception(ebtables/Iptables rules are used) mode
-for my small network.
-
-Problem:
-Whenever some tries to connect to cisco VPN over bridge the authentication
-process goes through smoothly, but after that the status bar reads &quot;Negotiation
-security polices.......&quot; and after like 30 sec. the VPN disconnects. 
-
-When I bypass the bridging box the connection goes through smoothly without any
-issues. I have checked that no IPTABLES OR EBTABLES rules are applied. 
-
-I tried changing the MTUs but no go. I am not sure what is this issue
-regarding.
-
-further to MTU changes I took a TCPdump of both my bridge interface. I noticed
-that the ipsec ip fragmented packets are coming on the WAN port are getting
-dropped. Similar to this post
-<a href="http://lkml.indiana.edu/hypermail/linux/kernel/0604.0/0229.html" style="color:rgb(102,51,102)" target="_blank">http://lkml.indiana.edu/hypermail/linux/kernel/0604.0/0229.html</a>
-
-I also checked that the patch which is given here is also applied in my current
-kernel version(2.6.38.12). I also updated the IGB drivers.  
-
-If any of you guys can suggest me something I would be highly obliged. I am up
-for some coding changes that are required. 
-
-If any of you guys need any kind of logs or something to debug further kindly
-let me know.
-
-Looking forward to your reply. 
-
-Warm Regards
-Saurabh</pre>
-</div><br>
-
---e0cb4e6ff0f5af65e404c905ad88--
