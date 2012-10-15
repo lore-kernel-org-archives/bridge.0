@@ -1,17 +1,18 @@
 Return-Path: <giometti@enneenne.com>
-Date: Mon, 15 Oct 2012 17:45:28 +0200
+Date: Mon, 15 Oct 2012 18:39:40 +0200
 From: Rodolfo Giometti <giometti@enneenne.com>
 Sender: giometti@enneenne.com
-Message-ID: <20121015154528.GD30620@enneenne.com>
+Message-ID: <20121015163940.GG28101@enneenne.com>
 References: <20121009142337.GO28136@enneenne.com>
 	<201210091842.36717.vitas@nppfactor.kiev.ua>
 	<20121009155800.GR28136@enneenne.com>
 	<20121012093659.GB14293@enneenne.com>
 	<20121015152449.GF28101@enneenne.com>
+	<20121015154528.GD30620@enneenne.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20121015152449.GF28101@enneenne.com>
+In-Reply-To: <20121015154528.GD30620@enneenne.com>
 Subject: Re: [Bridge] MSTPd in RSTP mode is sometimes slow...
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -24,162 +25,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Vitalii Demianets <vitas@nppfactor.kiev.ua>
 Cc: bridge@lists.linux-foundation.org
 
-On Mon, Oct 15, 2012 at 05:24:49PM +0200, Rodolfo Giometti wrote:
-> On Fri, Oct 12, 2012 at 11:37:00AM +0200, Rodolfo Giometti wrote:
+On Mon, Oct 15, 2012 at 05:45:28PM +0200, Rodolfo Giometti wrote:
 > 
-> Looking better my tests here:
-> 
-> > 1038910509.489145: PISM_to_CURRENT: br0:mrvl4:0 
-> > 1038910510.479677: MSTP_OUT_tx_bpdu: br0:mrvl4 sending RST BPDU
-> 
-> I noticed that we need ~1s from PISM_to_CURRENT to send out the BPDU!
-> 
-> How is it possible? =:-o
+> The mstpd daemon needs ~0.7s to rerun the function! =:-/
 
-Let's take a look at this new test.
+I discovered why... I modified these funtions:
 
-I modified the br_state_machines_run function as follow:
-
-static void br_state_machines_run(bridge_t *br)
+static inline void run_timeouts(void)
 {
-    port_t *prt;
-    per_tree_port_t *ptp;
-    tree_t *tree;
-
 LOG("------> 0");
-
-    if(!br->bridgeEnabled)
-        return;
-
-    /* 13.28  Port Receive state machine */
-LOG("------> 1");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-        PRSM_run(prt);
-    /* 13.29  Port Protocol Migration state machine */
-LOG("------> 2");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-        PPMSM_run(prt);
-    /* 13.30  Bridge Detection state machine */
-LOG("------> 3");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-        BDSM_run(prt);
-    /* 13.31  Port Transmit state machine */
-LOG("------> 4");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-        PTSM_run(prt);
-
-    /* 13.32  Port Information state machine */
-LOG("------> 5");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-    {
-        FOREACH_PTP_IN_PORT(ptp, prt)
-            PISM_run(ptp);
-    }
-
-    /* 13.33  Port Role Selection state machine */
-LOG("------> 6");
-    FOREACH_TREE_IN_BRIDGE(tree, br)
-        PRSSM_run(tree);
-
-    /* 13.34  Port Role Transitions state machine */
-LOG("------> 7");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-    {
-        FOREACH_PTP_IN_PORT(ptp, prt)
-            PRTSM_run(ptp);
-    }
-    /* 13.35  Port State Transition state machine */
-LOG("------> 8");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-    {
-        FOREACH_PTP_IN_PORT(ptp, prt)
-            PSTSM_run(ptp);
-    }
-    /* 13.36  Topology Change state machine */
-LOG("------> 9");
-    FOREACH_PORT_IN_BRIDGE(prt, br)
-    {
-        FOREACH_PTP_IN_PORT(ptp, prt)
-            TCSM_run(ptp);
-    }
-
+    bridge_one_second();
+    ++(nexttimeout.tv_sec);
 LOG("------> 10");
 }
 
-And rerun my test with the following outout:
+int epoll_main_loop(void)
+{
+    gettimeofday(&nexttimeout, NULL);
+    ++(nexttimeout.tv_sec);
+#define EV_SIZE 8
+    struct epoll_event ev[EV_SIZE];
 
-1038910178.371891: bridge_bpdu_rcv: ifindex 6, len 60
-1038910178.374841: MSTP_IN_rx_bpdu: br0:mrvl4 received RST BPDU
-1038910178.376916: br_state_machines_run: ------> 0
-1038910178.382722: br_state_machines_run: ------> 1
-1038910178.387469: br_state_machines_run: ------> 2
-1038910178.392215: br_state_machines_run: ------> 3
-1038910178.396962: br_state_machines_run: ------> 4
-1038910178.401717: br_state_machines_run: ------> 5
-1038910178.406460: PISM_to_RECEIVE: br0:mrvl4:0 
-1038910178.411217: PISM_to_SUPERIOR_DESIGNATED: br0:mrvl4:0 
-1038910178.415696: PISM_to_CURRENT: br0:mrvl4:0 
-1038910178.421251: br_state_machines_run: ------> 6
-1038910178.425740: br_state_machines_run: ------> 7
-1038910178.430479: br_state_machines_run: ------> 8
-1038910178.435221: br_state_machines_run: ------> 9
-1038910178.439971: br_state_machines_run: ------> 10
-1038910178.660628: br_state_machines_run: ------> 0
-1038910178.663528: br_state_machines_run: ------> 1
-1038910178.665404: br_state_machines_run: ------> 2
-1038910178.670153: br_state_machines_run: ------> 3
-1038910178.674901: br_state_machines_run: ------> 4
-1038910178.679651: br_state_machines_run: ------> 5
-1038910178.684405: PISM_to_UPDATE: br0:mrvl4:0 
-1038910178.689151: PISM_to_CURRENT: br0:mrvl4:0 
-1038910178.693541: br_state_machines_run: ------> 6
-1038910178.698018: br_state_machines_run: ------> 7
-1038910178.702782: br_state_machines_run: ------> 8
-1038910178.707516: br_state_machines_run: ------> 9
-1038910178.712266: br_state_machines_run: ------> 10
-1038910179.406118: bridge_bpdu_rcv: ifindex 7, len 60
-1038910179.409005: MSTP_IN_rx_bpdu: br0:mrvl5 received RST BPDU
-1038910179.411081: br_state_machines_run: ------> 0
-1038910179.416878: br_state_machines_run: ------> 1
-1038910179.421636: br_state_machines_run: ------> 2
-1038910179.426377: br_state_machines_run: ------> 3
-1038910179.431126: br_state_machines_run: ------> 4
-1038910179.435881: MSTP_OUT_tx_bpdu: br0:mrvl4 sending RST BPDU
-1038910179.448880: br_state_machines_run: ------> 5
-1038910179.452019: PISM_to_RECEIVE: br0:mrvl5:0 
-1038910179.453895: PISM_to_SUPERIOR_DESIGNATED: br0:mrvl5:0 
-1038910179.458373: PISM_to_CURRENT: br0:mrvl5:0 
-1038910179.463925: br_state_machines_run: ------> 6
-1038910179.468415: br_state_machines_run: ------> 7
-1038910179.473154: br_state_machines_run: ------> 8
-1038910179.477896: br_state_machines_run: ------> 9
-1038910179.482652: br_state_machines_run: ------> 10
-1038910179.487435: bridge_bpdu_rcv: ifindex 6, len 60
-1038910179.492237: MSTP_IN_rx_bpdu: br0:mrvl4 received RST BPDU
-1038910179.497183: br_state_machines_run: ------> 0
-1038910179.502991: br_state_machines_run: ------> 1
-1038910179.507737: br_state_machines_run: ------> 2
-1038910179.512483: br_state_machines_run: ------> 3
-1038910179.517231: br_state_machines_run: ------> 4
-1038910179.521986: br_state_machines_run: ------> 5
-1038910179.526729: PISM_to_UPDATE: br0:mrvl4:0 
-1038910179.531484: PISM_to_CURRENT: br0:mrvl4:0 
-1038910179.535868: PISM_to_RECEIVE: br0:mrvl4:0 
-1038910179.540788: PISM_to_NOT_DESIGNATED: br0:mrvl4:0 
-1038910179.544830: PISM_to_CURRENT: br0:mrvl4:0 
-1038910179.549936: br_state_machines_run: ------> 6
-1038910179.554416: br_state_machines_run: ------> 7
-1038910179.559174: br_state_machines_run: ------> 8
-1038910179.563919: MSTP_OUT_set_state: br0:mrvl4:0 entering learning state
+    while(1)
+    {
+        int r, i;
+        int timeout;
 
-Look here:
+        struct timeval tv;
+LOG("------> 0");
+        gettimeofday(&tv, NULL);
+        timeout = time_diff(&nexttimeout, &tv);
+        if(timeout < 0)
+        {
+            run_timeouts();
+            timeout = 0;
+        }
 
-1038910178.712266: br_state_machines_run: ------> 10
-1038910179.406118: bridge_bpdu_rcv: ifindex 7, len 60
-1038910179.409005: MSTP_IN_rx_bpdu: br0:mrvl5 received RST BPDU
-1038910179.411081: br_state_machines_run: ------> 0
+LOG("------> 1");
+        r = epoll_wait(epoll_fd, ev, EV_SIZE, timeout);
+        if(r < 0 && errno != EINTR)
+        {
+            fprintf(stderr, "epoll_wait: %m\n");
+            return -1;
+        }
+LOG("------> 2");
+        for(i = 0; i < r; ++i)
+        {
+            struct epoll_event_handler *p = ev[i].data.ptr;
+            if(p != NULL)
+                p->ref_ev = &ev[i];
+        }
+LOG("------> 3");
+        for (i = 0; i < r; ++i)
+        {
+            struct epoll_event_handler *p = ev[i].data.ptr;
+            if(p && p->handler)
+                p->handler(ev[i].events, p);
+        }
+LOG("------> 4");
+        for (i = 0; i < r; ++i)
+        {
+            struct epoll_event_handler *p = ev[i].data.ptr;
+            if(p != NULL)
+                p->ref_ev = NULL;
+        }
+LOG("------> 10");
+    }
 
-The mstpd daemon needs ~0.7s to rerun the function! =:-/
+    return 0;
+}
+
+and I get:
+
+1038909843.937476: bridge_bpdu_rcv: ifindex 6, len 60
+1038909843.941673: MSTP_IN_rx_bpdu: br0:mrvl4 received RST BPDU
+1038909843.946618: br_state_machines_run: ------> 0
+1038909843.952425: br_state_machines_run: ------> 1
+1038909843.957172: br_state_machines_run: ------> 2
+1038909843.961917: br_state_machines_run: ------> 3
+1038909843.966664: br_state_machines_run: ------> 4
+1038909843.971420: br_state_machines_run: ------> 5
+1038909843.976163: PISM_to_RECEIVE: br0:mrvl4:0 
+1038909843.980921: PISM_to_SUPERIOR_DESIGNATED: br0:mrvl4:0 
+1038909843.985399: PISM_to_CURRENT: br0:mrvl4:0 
+1038909843.990954: br_state_machines_run: ------> 6
+1038909843.995443: br_state_machines_run: ------> 7
+1038909844.000183: br_state_machines_run: ------> 8
+1038909844.004924: br_state_machines_run: ------> 9
+1038909844.009673: br_state_machines_run: ------> 10
+1038909844.014428: epoll_main_loop: ------> 4
+1038909844.019259: epoll_main_loop: ------> 10
+1038909844.023471: epoll_main_loop: ------> 0
+1038909844.027772: epoll_main_loop: ------> 1
+1038909844.050699: epoll_main_loop: ------> 2
+1038909844.053582: epoll_main_loop: ------> 3
+1038909844.054920: epoll_main_loop: ------> 4
+1038909844.059130: epoll_main_loop: ------> 10
+1038909844.063343: epoll_main_loop: ------> 0
+1038909844.067644: run_timeouts: ------> 0
+1038909844.071868: br_state_machines_run: ------> 0
+1038909844.075796: br_state_machines_run: ------> 1
+1038909844.080549: br_state_machines_run: ------> 2
+1038909844.085295: br_state_machines_run: ------> 3
+1038909844.090675: br_state_machines_run: ------> 4
+1038909844.094796: br_state_machines_run: ------> 5
+1038909844.099543: PISM_to_UPDATE: br0:mrvl4:0 
+1038909844.104295: PISM_to_CURRENT: br0:mrvl4:0 
+1038909844.108681: br_state_machines_run: ------> 6
+1038909844.113167: br_state_machines_run: ------> 7
+1038909844.117920: br_state_machines_run: ------> 8
+1038909844.122659: br_state_machines_run: ------> 9
+1038909844.127408: br_state_machines_run: ------> 10
+1038909844.132162: run_timeouts: ------> 10
+1038909844.136993: epoll_main_loop: ------> 1
+1038909844.141032: epoll_main_loop: ------> 2
+1038909844.145236: epoll_main_loop: ------> 3
+1038909844.149447: epoll_main_loop: ------> 4
+1038909844.153668: epoll_main_loop: ------> 10
+1038909844.157870: epoll_main_loop: ------> 0
+1038909844.162174: epoll_main_loop: ------> 1
+1038909845.040037: epoll_main_loop: ------> 2
+1038909845.042945: epoll_main_loop: ------> 3
+1038909845.044283: epoll_main_loop: ------> 4
+1038909845.048494: epoll_main_loop: ------> 10
+1038909845.052714: epoll_main_loop: ------> 0
+1038909845.057008: run_timeouts: ------> 0
+1038909845.061226: br_state_machines_run: ------> 0
+1038909845.065160: br_state_machines_run: ------> 1
+1038909845.069910: br_state_machines_run: ------> 2
+1038909845.074665: br_state_machines_run: ------> 3
+1038909845.079407: br_state_machines_run: ------> 4
+1038909845.084165: MSTP_OUT_tx_bpdu: br0:mrvl4 sending RST BPDU
+
+As you can see the daemon changes its internal state only when
+run_timeouts() is executed!
+
+I suppose this is not right...
 
 Ciao,
 
