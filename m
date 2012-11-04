@@ -1,15 +1,15 @@
-Return-Path: <proski@gnu.org>
-Date: Fri, 19 Oct 2012 11:55:17 -0400
-From: Pavel Roskin <proski@gnu.org>
-Message-ID: <20121019115517.7b8514a8@mj>
-In-Reply-To: <1350630254.2293.183.camel@edumazet-glaptop>
-References: <cover.1350618006.git.joe@perches.com>
-	<1350630254.2293.183.camel@edumazet-glaptop>
+Return-Path: <davem@davemloft.net>
+Date: Sun, 04 Nov 2012 01:00:43 -0500 (EST)
+Message-Id: <20121104.010043.1842614952525101679.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1351980150-24145-10-git-send-email-lee.jones@linaro.org>
+References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
+	<1351980150-24145-10-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [ath9k-devel] [PATCH net-next 00/21] treewide: Use
- consistent api style for address testing
+Subject: Re: [Bridge] [PATCH 9/9] Avoid 'statement with no effect' compiler
+	warnings
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,32 +18,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: linux-mips@linux-mips.org, b.a.t.m.a.n@lists.open-mesh.org, linux-doc@vger.kernel.org, brcm80211-dev-list@broadcom.com, users@rt2x00.serialmonkey.com, linux-sctp@vger.kernel.org, devel@open-fcoe.org, dev@openvswitch.org, linux-s390@vger.kernel.org, wimax@linuxwimax.org, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, b43-dev@lists.infradead.org, cbe-oss-dev@lists.ozlabs.org, devel@driverdev.osuosl.org, user-mode-linux-devel@lists.sourceforge.net, devicetree-discuss@lists.ozlabs.org, davinci-linux-open-source@linux.davincidsp.com, netfilter@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-nfs@vger.kernel.org, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, e1000-devel@lists.sourceforge.net, ath9k-devel@lists.ath9k.org, netfilter-devel@vger.kernel.org, Joe Perches <joe@perches.com>, uclinux-dist-devel@blackfin.uclinux.org, linuxppc-dev@lists.ozlabs.org
+To: lee.jones@linaro.org
+Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On Fri, 19 Oct 2012 09:04:14 +0200
-Eric Dumazet <eric.dumazet@gmail.com> wrote:
+From: Lee Jones <lee.jones@linaro.org>
+Date: Sat,  3 Nov 2012 23:02:30 +0100
 
-> Yes they are some names discrepancies, thats a big deal.
+> Instead of issuing (0) statements when !CONFIG_SYSFS which will cause
+> 'warning: ', we'll use inline statements instead. This will effectively
+> do the same thing, but suppress any unnecessary warnings.
 > 
-> And we have alloc_skb() / kfree_skb() / skb_clone() 
-> 
-> Why not skb_alloc() / skb_free() / skb_clone() ?
-> 
-> Some people actually know current code by name of functions, they dont
-> want to change their mind and having to grep include files and git log
-> to learn the new names of an old function, especially when traveling
-> and using a laptop.
+> Cc: Stephen Hemminger <shemminger@vyatta.com>
+> Cc: bridge@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-I agree.
+Applied, but please use more informative subject lines.
 
-Also, it makes sense to introduce a more consistent name for a function
-when it's improved in some way and the callers need to be adjusted or
-re-checked.
+You should prefix your subject line after [PATCH ...] with
+the name of the subsystem you are touching, a ": " then
+the headline description.
 
-That way, the old name can be phased out as the code is made compatible
-with the new function.
-
--- 
-Regards,
-Pavel Roskin
+So here you would have used "bridge: " and that's what I added when I
+commited this patch.
