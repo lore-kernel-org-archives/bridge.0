@@ -1,10 +1,16 @@
 Return-Path: <lee.jones@linaro.org>
+Date: Sun, 4 Nov 2012 08:55:55 +0100
 From: Lee Jones <lee.jones@linaro.org>
-Date: Sat,  3 Nov 2012 23:02:30 +0100
-Message-Id: <1351980150-24145-10-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
+Message-ID: <20121104075555.GB24262@gmail.com>
 References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
-Subject: [Bridge] [PATCH 9/9] Avoid 'statement with no effect' compiler
+	<1351980150-24145-10-git-send-email-lee.jones@linaro.org>
+	<20121104.010043.1842614952525101679.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20121104.010043.1842614952525101679.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH 9/9] Avoid 'statement with no effect' compiler
 	warnings
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -14,40 +20,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Lee Jones <lee.jones@linaro.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Instead of issuing (0) statements when !CONFIG_SYSFS which will cause
-'warning: ', we'll use inline statements instead. This will effectively
-do the same thing, but suppress any unnecessary warnings.
+On Sun, 04 Nov 2012, David Miller wrote:
 
-Cc: Stephen Hemminger <shemminger@vyatta.com>
-Cc: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- net/bridge/br_private.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+> From: Lee Jones <lee.jones@linaro.org>
+> Date: Sat,  3 Nov 2012 23:02:30 +0100
+> 
+> > Instead of issuing (0) statements when !CONFIG_SYSFS which will cause
+> > 'warning: ', we'll use inline statements instead. This will effectively
+> > do the same thing, but suppress any unnecessary warnings.
+> > 
+> > Cc: Stephen Hemminger <shemminger@vyatta.com>
+> > Cc: bridge@lists.linux-foundation.org
+> > Cc: netdev@vger.kernel.org
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> 
+> Applied, but please use more informative subject lines.
+> 
+> You should prefix your subject line after [PATCH ...] with
+> the name of the subsystem you are touching, a ": " then
+> the headline description.
+> 
+> So here you would have used "bridge: " and that's what I added when I
+> commited this patch.
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 9b278c4..af5f584 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -566,10 +566,10 @@ extern void br_sysfs_delbr(struct net_device *dev);
- 
- #else
- 
--#define br_sysfs_addif(p)	(0)
--#define br_sysfs_renameif(p)	(0)
--#define br_sysfs_addbr(dev)	(0)
--#define br_sysfs_delbr(dev)	do { } while(0)
-+static inline int br_sysfs_addif(struct net_bridge_port *p) { return 0; }
-+static inline int br_sysfs_renameif(struct net_bridge_port *p) { return 0; }
-+static inline int br_sysfs_addbr(struct net_device *dev) { return 0; }
-+static inline void br_sysfs_delbr(struct net_device *dev) { return; }
- #endif /* CONFIG_SYSFS */
- 
- #endif
+Yes, of course I should have done, and usually do.
+
+This was an oversight, sorry about that.
+
 -- 
-1.7.9.5
-
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
