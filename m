@@ -1,17 +1,9 @@
-Return-Path: <lee.jones@linaro.org>
-Date: Sun, 4 Nov 2012 08:55:55 +0100
-From: Lee Jones <lee.jones@linaro.org>
-Message-ID: <20121104075555.GB24262@gmail.com>
-References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
-	<1351980150-24145-10-git-send-email-lee.jones@linaro.org>
-	<20121104.010043.1842614952525101679.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20121104.010043.1842614952525101679.davem@davemloft.net>
-Subject: Re: [Bridge] [PATCH 9/9] Avoid 'statement with no effect' compiler
-	warnings
+Return-Path: <amwang@redhat.com>
+From: Cong Wang <amwang@redhat.com>
+Date: Tue, 27 Nov 2012 17:49:43 +0800
+Message-Id: <1354009785-20014-1-git-send-email-amwang@redhat.com>
+Subject: [Bridge] [RFC PATCH 1/2] bridge: export port_no and port_id via
+	IFA_INFO_DATA
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,38 +12,71 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: Cong Wang <amwang@redhat.com>, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
 
-On Sun, 04 Nov 2012, David Miller wrote:
+Based on net-next.
 
-> From: Lee Jones <lee.jones@linaro.org>
-> Date: Sat,  3 Nov 2012 23:02:30 +0100
-> 
-> > Instead of issuing (0) statements when !CONFIG_SYSFS which will cause
-> > 'warning: ', we'll use inline statements instead. This will effectively
-> > do the same thing, but suppress any unnecessary warnings.
-> > 
-> > Cc: Stephen Hemminger <shemminger@vyatta.com>
-> > Cc: bridge@lists.linux-foundation.org
-> > Cc: netdev@vger.kernel.org
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> 
-> Applied, but please use more informative subject lines.
-> 
-> You should prefix your subject line after [PATCH ...] with
-> the name of the subsystem you are touching, a ": " then
-> the headline description.
-> 
-> So here you would have used "bridge: " and that's what I added when I
-> commited this patch.
+This patch exports port->port_no port->port_id in the end of IFA_INFO_DATA.
 
-Yes, of course I should have done, and usually do.
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Stephen Hemminger <shemminger@vyatta.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Graf <tgraf@suug.ch>
+Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Cong Wang <amwang@redhat.com>
 
-This was an oversight, sorry about that.
+---
+ include/uapi/linux/if_link.h |    2 ++
+ net/bridge/br_netlink.c      |    8 +++++++-
+ 2 files changed, 9 insertions(+), 1 deletions(-)
 
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index bb58aeb..9cd91a9 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -218,6 +218,8 @@ enum {
+ 	IFLA_BRPORT_MODE,	/* mode (hairpin)          */
+ 	IFLA_BRPORT_GUARD,	/* bpdu guard              */
+ 	IFLA_BRPORT_PROTECT,	/* root port protection    */
++	IFLA_BRPORT_NO,		/* port no                 */
++	IFLA_BRPORT_ID,		/* port id                 */
+ 	__IFLA_BRPORT_MAX
+ };
+ #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 65429b9..7b7414e 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -28,6 +28,8 @@ static inline size_t br_port_info_size(void)
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_MODE */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_GUARD */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_PROTECT */
++		+ nla_total_size(2)	/* IFLA_BRPORT_NO */
++		+ nla_total_size(2)	/* IFLA_BRPORT_ID */
+ 		+ 0;
+ }
+ 
+@@ -53,7 +55,9 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+ 	    nla_put_u32(skb, IFLA_BRPORT_COST, p->path_cost) ||
+ 	    nla_put_u8(skb, IFLA_BRPORT_MODE, mode) ||
+ 	    nla_put_u8(skb, IFLA_BRPORT_GUARD, !!(p->flags & BR_BPDU_GUARD)) ||
+-	    nla_put_u8(skb, IFLA_BRPORT_PROTECT, !!(p->flags & BR_ROOT_BLOCK)))
++	    nla_put_u8(skb, IFLA_BRPORT_PROTECT, !!(p->flags & BR_ROOT_BLOCK)) ||
++	    nla_put_u16(skb, IFLA_BRPORT_NO, p->port_no) ||
++	    nla_put_u16(skb, IFLA_BRPORT_ID, p->port_id))
+ 		return -EMSGSIZE;
+ 
+ 	return 0;
+@@ -168,6 +172,8 @@ static const struct nla_policy ifla_brport_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_MODE]	= { .type = NLA_U8 },
+ 	[IFLA_BRPORT_GUARD]	= { .type = NLA_U8 },
+ 	[IFLA_BRPORT_PROTECT]	= { .type = NLA_U8 },
++	[IFLA_BRPORT_NO]	= { .type = NLA_U16 },
++	[IFLA_BRPORT_ID]	= { .type = NLA_U16 },
+ };
+ 
+ /* Change the state of the port and notify spanning tree */
 -- 
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.7.7.6
+
