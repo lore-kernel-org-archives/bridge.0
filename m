@@ -1,16 +1,14 @@
-Return-Path: <amwang@redhat.com>
-Message-ID: <1354287652.19865.10.camel@cr0>
-From: Cong Wang <amwang@redhat.com>
-Date: Fri, 30 Nov 2012 23:00:52 +0800
-In-Reply-To: <20121130112618.GF30697@casper.infradead.org>
+Return-Path: <shemminger@vyatta.com>
+Date: Fri, 30 Nov 2012 07:52:54 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20121130075254.14aac5ce@nehalam.linuxnetplumber.net>
+In-Reply-To: <1354269514-1863-1-git-send-email-amwang@redhat.com>
 References: <1354269514-1863-1-git-send-email-amwang@redhat.com>
-	<1354269514-1863-2-git-send-email-amwang@redhat.com>
-	<20121130112618.GF30697@casper.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Mime-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next v1 2/2] bridge: export multicast
- database via netlink
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v1 1/2] bridge: export port_no and
+ port_id via IFA_INFO_DATA
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,55 +17,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Thomas Graf <tgraf@suug.ch>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+To: Cong Wang <amwang@redhat.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, "David S. Miller" <davem@davemloft.net>
 
-On Fri, 2012-11-30 at 11:26 +0000, Thomas Graf wrote:
-> On 11/30/12 at 05:58pm, Cong Wang wrote:
-> > +
-> > +	nest = nla_nest_start(skb, MDBA_ROUTER);
-> > +	if (nest == NULL)
-> > +		return -EMSGSIZE;
-> > +
-> > +	hlist_for_each_entry_rcu(p, n, &br->router_list, rlist) {
-> > +		if (p && nla_put_u16(skb, MDBA_BRPORT_NO, p->port_no))
-> > +			goto fail;
-> > +	}
+On Fri, 30 Nov 2012 17:58:32 +0800
+Cong Wang <amwang@redhat.com> wrote:
+
+> port_no will be used to get ifindex of a port in user-space,
+> export it togather with port_id.
 > 
-> port_no 0 is reserved, right?
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: Stephen Hemminger <shemminger@vyatta.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Thomas Graf <tgraf@suug.ch>
+> Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+> Signed-off-by: Cong Wang <amwang@redhat.com>
+> Acked-by: Thomas Graf <tgraf@suug.ch>
+> Signed-off-by: Cong Wang <amwang@redhat.com>
+> ---
+>  include/uapi/linux/if_link.h |    2 ++
+>  net/bridge/br_netlink.c      |    8 +++++++-
+>  2 files changed, 9 insertions(+), 1 deletions(-)
 > 
-> We can reduce message size here and make it easier to extend by
-> using p->port_no as the attribute id by doing something like this:
-> 
-> hlist_for_each_entry_rcu(p, n, &br->router_list, rlist)
-> 	if (nla_put_flag(skb, p->port_no))
-> 		goto fail;
-> 
-> This will result in an empty attribute body for now and if you ever
-> need to include more data you can simply start putting attributes
-> insde that empty body and old users will continue to function.
+> diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> index bb58aeb..9cd91a9 100644
+> --- a/include/uapi/linux/if_link.h
+> +++ b/include/uapi/linux/if_link.h
+> @@ -218,6 +218,8 @@ enum {
+>  	IFLA_BRPORT_MODE,	/* mode (hairpin)          */
+>  	IFLA_BRPORT_GUARD,	/* bpdu guard              */
+>  	IFLA_BRPORT_PROTECT,	/* root port protection    */
+> +	IFLA_BRPORT_NO,		/* port no                 */
+> +	IFLA_BRPORT_ID,		/* port id                 */
+>  	__IFLA_BRPORT_MAX
+>  };
+>  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 65429b9..7b7414e 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -28,6 +28,8 @@ static inline size_t br_port_info_size(void)
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_MODE */
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_GUARD */
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_PROTECT */
+> +		+ nla_total_size(2)	/* IFLA_BRPORT_NO */
+> +		+ nla_total_size(2)	/* IFLA_BRPORT_ID */
+>  		+ 0;
+>  }
+>  
+> @@ -53,7 +55,9 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+>  	    nla_put_u32(skb, IFLA_BRPORT_COST, p->path_cost) ||
+>  	    nla_put_u8(skb, IFLA_BRPORT_MODE, mode) ||
+>  	    nla_put_u8(skb, IFLA_BRPORT_GUARD, !!(p->flags & BR_BPDU_GUARD)) ||
+> -	    nla_put_u8(skb, IFLA_BRPORT_PROTECT, !!(p->flags & BR_ROOT_BLOCK)))
+> +	    nla_put_u8(skb, IFLA_BRPORT_PROTECT, !!(p->flags & BR_ROOT_BLOCK)) ||
+> +	    nla_put_u16(skb, IFLA_BRPORT_NO, p->port_no) ||
+> +	    nla_put_u16(skb, IFLA_BRPORT_ID, p->port_id))
+>  		return -EMSGSIZE;
+>  
+>  	return 0;
+> @@ -168,6 +172,8 @@ static const struct nla_policy ifla_brport_policy[IFLA_BRPORT_MAX + 1] = {
+>  	[IFLA_BRPORT_MODE]	= { .type = NLA_U8 },
+>  	[IFLA_BRPORT_GUARD]	= { .type = NLA_U8 },
+>  	[IFLA_BRPORT_PROTECT]	= { .type = NLA_U8 },
+> +	[IFLA_BRPORT_NO]	= { .type = NLA_U16 },
+> +	[IFLA_BRPORT_ID]	= { .type = NLA_U16 },
+>  };
+>  
+>  /* Change the state of the port and notify spanning tree */
 
-
-I don't understand this. nla_put_flag() is used to put a flag (only one
-bit set) into a netlink message, so why should we use it to put
-p->port_no here? And why port_no 0 matters here?
-
-[...]
-
-> > +
-> > +	cb->seq = mdb->seq;
-> 
-> I'm not sure how this is supposed to worl. cb->seq may not change
-> throughout the complete dump process or the dump will be interrupted
-> and the user is required to restart.
-> 
-> Each bridge will have its own mdb resulting in a differing seq.
-> 
-
-So I should use net->dev_base_seq + mdb->seq ?
-
-
-All of the rest suggestions are taken by me.
-
-Thanks for your detailed review!
-
+I don't think these are necessary. The device is already available and the relationship
+can be determined from other messages. This is what RSTP daemon does.
