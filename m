@@ -1,11 +1,10 @@
 Return-Path: <amwang@redhat.com>
 From: Cong Wang <amwang@redhat.com>
-Date: Fri, 30 Nov 2012 17:58:33 +0800
-Message-Id: <1354269514-1863-2-git-send-email-amwang@redhat.com>
+Date: Fri, 30 Nov 2012 17:58:34 +0800
+Message-Id: <1354269514-1863-3-git-send-email-amwang@redhat.com>
 In-Reply-To: <1354269514-1863-1-git-send-email-amwang@redhat.com>
 References: <1354269514-1863-1-git-send-email-amwang@redhat.com>
-Subject: [Bridge] [PATCH net-next v1 2/2] bridge: export multicast database
-	via netlink
+Subject: [Bridge] [PATCH iproute2 v1] Add mdb command to bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,9 +16,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Cong Wang <amwang@redhat.com>, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
 
-This patch exports bridge multicast database via netlink
-message type RTM_GETMDB. Similar to fdb, but currently bridge-specific.
-We may need to support modify multicast database too (RTM_{ADD,DEL}MDB).
+Sample output:
+
+	# ./bridge/bridge mdb
+	bridge dev br0
+	multicast database:
+	port no 1, multicast addr 224.8.8.9
+	port no 2, multicast addr 224.8.8.8
+	router ports: 2
+
+TODO: display device name too
 
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Stephen Hemminger <shemminger@vyatta.com>
@@ -27,29 +33,45 @@ Cc: "David S. Miller" <davem@davemloft.net>
 Cc: Thomas Graf <tgraf@suug.ch>
 Cc: Jesper Dangaard Brouer <brouer@redhat.com>
 Signed-off-by: Cong Wang <amwang@redhat.com>
-    
 ---
- include/uapi/linux/if_bridge.h |   26 ++++++
- include/uapi/linux/rtnetlink.h |    3 +
- net/bridge/Makefile            |    2 +-
- net/bridge/br_mdb.c            |  166 ++++++++++++++++++++++++++++++++++++++++
- net/bridge/br_multicast.c      |    2 +
- net/bridge/br_private.h        |    2 +
- 6 files changed, 200 insertions(+), 1 deletions(-)
+ bridge/Makefile           |    2 +-
+ bridge/br_common.h        |   35 ++++++++++
+ bridge/bridge.c           |    1 +
+ bridge/mdb.c              |  157 +++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rtnetlink.h |    3 +
+ 5 files changed, 197 insertions(+), 1 deletions(-)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index b388579..c30c236 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -116,4 +116,30 @@ enum {
- 	__IFLA_BRIDGE_MAX,
- };
- #define IFLA_BRIDGE_MAX (__IFLA_BRIDGE_MAX - 1)
+diff --git a/bridge/Makefile b/bridge/Makefile
+index 9a6743e..67aceb4 100644
+--- a/bridge/Makefile
++++ b/bridge/Makefile
+@@ -1,4 +1,4 @@
+-BROBJ = bridge.o fdb.o monitor.o link.o
++BROBJ = bridge.o fdb.o monitor.o link.o mdb.o
+ 
+ include ../Config
+ 
+diff --git a/bridge/br_common.h b/bridge/br_common.h
+index 718ecb9..83b2b9f 100644
+--- a/bridge/br_common.h
++++ b/bridge/br_common.h
+@@ -5,6 +5,7 @@ extern int print_fdb(const struct sockaddr_nl *who,
+ 		     struct nlmsghdr *n, void *arg);
+ 
+ extern int do_fdb(int argc, char **argv);
++extern int do_mdb(int argc, char **argv);
+ extern int do_monitor(int argc, char **argv);
+ 
+ extern int preferred_family;
+@@ -12,3 +13,37 @@ extern int show_stats;
+ extern int show_detail;
+ extern int timestamp;
+ extern struct rtnl_handle rth;
 +
 +/* Bridge multicast database attributes
 + * [MDBA_MDB] = {
-+ *     [MDBA_MCADDR]
-+ *     [MDBA_BRPORT_NO]
++ *    [MDBA_MCADDR]
++ *    [MDBA_BRPORT_NO]
 + * }
 + * [MDBA_ROUTER] = {
 + *    [MDBA_BRPORT_NO]
@@ -71,14 +93,196 @@ index b388579..c30c236 100644
 +};
 +#define MDBA_MDB_MAX (__MDBA_MDB_MAX - 1)
 +
- #endif /* _UAPI_LINUX_IF_BRIDGE_H */
-diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
-index 3dee071..0df623f 100644
---- a/include/uapi/linux/rtnetlink.h
-+++ b/include/uapi/linux/rtnetlink.h
-@@ -125,6 +125,9 @@ enum {
- 	RTM_GETNETCONF = 82,
- #define RTM_GETNETCONF RTM_GETNETCONF
++struct br_port_msg {
++        int ifindex;
++};
++
++#ifndef MDBA_RTA
++#define MDBA_RTA(r) \
++	((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct br_port_msg))))
++#endif
+diff --git a/bridge/bridge.c b/bridge/bridge.c
+index e2c33b0..1fcd365 100644
+--- a/bridge/bridge.c
++++ b/bridge/bridge.c
+@@ -43,6 +43,7 @@ static const struct cmd {
+ 	int (*func)(int argc, char **argv);
+ } cmds[] = {
+ 	{ "fdb", 	do_fdb },
++	{ "mdb", 	do_mdb },
+ 	{ "monitor",	do_monitor },
+ 	{ "help",	do_help },
+ 	{ 0 }
+diff --git a/bridge/mdb.c b/bridge/mdb.c
+new file mode 100644
+index 0000000..f2f4ff2
+--- /dev/null
++++ b/bridge/mdb.c
+@@ -0,0 +1,157 @@
++/*
++ * Get mdb table with netlink
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <time.h>
++#include <fcntl.h>
++#include <sys/socket.h>
++#include <sys/time.h>
++#include <net/if.h>
++#include <netinet/in.h>
++#include <linux/if_bridge.h>
++#include <linux/if_ether.h>
++#include <linux/neighbour.h>
++#include <string.h>
++#include <arpa/inet.h>
++
++#include "libnetlink.h"
++#include "br_common.h"
++#include "rt_names.h"
++#include "utils.h"
++
++int filter_index;
++
++static void usage(void)
++{
++	fprintf(stderr, "       bridge mdb {show} [ dev DEV ]\n");
++	exit(-1);
++}
++
++static void br_print_router_ports(FILE *f, struct rtattr *attr)
++{
++	uint16_t *port_no;
++	struct rtattr *i;
++	int rem;
++
++	fprintf(f, "router ports: ");
++
++	rem = RTA_PAYLOAD(attr);
++	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
++		port_no = RTA_DATA(i);
++		fprintf(f, "%u ", *port_no);
++	}
++	fprintf(f, "\n");
++}
++
++static void br_print_mdb_entry(FILE *f, struct rtattr *attr)
++{
++	uint32_t addr;
++	uint16_t port_no;
++	struct rtattr *i;
++	int rem;
++	SPRINT_BUF(abuf);
++
++	fprintf(f, "multicast database:\n");
++
++	rem = RTA_PAYLOAD(attr);
++	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
++		port_no = rta_getattr_u16(i);
++		i = RTA_NEXT(i, rem);
++		addr = rta_getattr_u32(i);
++		fprintf(f, "port no %u, multicast addr %s\n", port_no, inet_ntop(AF_INET, &addr, abuf, sizeof(abuf)));
++	}
++}
++
++int print_mdb(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
++{
++	FILE *fp = arg;
++	struct br_port_msg *r = NLMSG_DATA(n);
++	int len = n->nlmsg_len;
++	struct rtattr * tb[MDBA_MAX+1];
++
++	if (n->nlmsg_type != RTM_GETMDB) {
++		fprintf(stderr, "Not RTM_MDB: %08x %08x %08x\n",
++			n->nlmsg_len, n->nlmsg_type, n->nlmsg_flags);
++
++		return 0;
++	}
++
++	len -= NLMSG_LENGTH(sizeof(*r));
++	if (len < 0) {
++		fprintf(stderr, "BUG: wrong nlmsg len %d\n", len);
++		return -1;
++	}
++
++	if (filter_index && filter_index != r->ifindex)
++		return 0;
++
++	if (!filter_index && r->ifindex)
++		fprintf(fp, "bridge dev %s\n", ll_index_to_name(r->ifindex));
++
++	parse_rtattr(tb, MDBA_MAX, MDBA_RTA(r), n->nlmsg_len - NLMSG_LENGTH(sizeof(*r)));
++
++	if (tb[MDBA_MDB])
++		br_print_mdb_entry(fp, tb[MDBA_MDB]);
++
++	if (tb[MDBA_ROUTER])
++		br_print_router_ports(fp, tb[MDBA_ROUTER]);
++
++	return 0;
++}
++
++static int mdb_show(int argc, char **argv)
++{
++	char *filter_dev = NULL;
++
++	while (argc > 0) {
++		if (strcmp(*argv, "dev") == 0) {
++			NEXT_ARG();
++			if (filter_dev)
++				duparg("dev", *argv);
++			filter_dev = *argv;
++		}
++		argc--; argv++;
++	}
++
++	if (filter_dev) {
++		filter_index = if_nametoindex(filter_dev);
++		if (filter_index == 0) {
++			fprintf(stderr, "Cannot find device \"%s\"\n",
++				filter_dev);
++			return -1;
++		}
++	}
++
++	if (rtnl_wilddump_request(&rth, PF_BRIDGE, RTM_GETMDB) < 0) {
++		perror("Cannot send dump request");
++		exit(1);
++	}
++
++	if (rtnl_dump_filter(&rth, print_mdb, stdout) < 0) {
++		fprintf(stderr, "Dump terminated\n");
++		exit(1);
++	}
++
++	return 0;
++}
++
++int do_mdb(int argc, char **argv)
++{
++	ll_init_map(&rth);
++
++	if (argc > 0) {
++		if (matches(*argv, "show") == 0 ||
++		    matches(*argv, "lst") == 0 ||
++		    matches(*argv, "list") == 0)
++			return mdb_show(argc-1, argv+1);
++		if (matches(*argv, "help") == 0)
++			usage();
++	} else
++		return mdb_show(0, NULL);
++
++	fprintf(stderr, "Command \"%s\" is unknown, try \"bridge mdb help\".\n", *argv);
++	exit(-1);
++}
+diff --git a/include/linux/rtnetlink.h b/include/linux/rtnetlink.h
+index 0e3e0c1..f400b5e 100644
+--- a/include/linux/rtnetlink.h
++++ b/include/linux/rtnetlink.h
+@@ -120,6 +120,9 @@ enum {
+ 	RTM_SETDCB,
+ #define RTM_SETDCB RTM_SETDCB
  
 +	RTM_GETMDB = 86,
 +#define RTM_GETMDB RTM_GETMDB
@@ -86,227 +290,3 @@ index 3dee071..0df623f 100644
  	__RTM_MAX,
  #define RTM_MAX		(((__RTM_MAX + 3) & ~3) - 1)
  };
-diff --git a/net/bridge/Makefile b/net/bridge/Makefile
-index d0359ea..e859098 100644
---- a/net/bridge/Makefile
-+++ b/net/bridge/Makefile
-@@ -12,6 +12,6 @@ bridge-$(CONFIG_SYSFS) += br_sysfs_if.o br_sysfs_br.o
- 
- bridge-$(CONFIG_BRIDGE_NETFILTER) += br_netfilter.o
- 
--bridge-$(CONFIG_BRIDGE_IGMP_SNOOPING) += br_multicast.o
-+bridge-$(CONFIG_BRIDGE_IGMP_SNOOPING) += br_multicast.o br_mdb.o
- 
- obj-$(CONFIG_BRIDGE_NF_EBTABLES) += netfilter/
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-new file mode 100644
-index 0000000..3751f7d
---- /dev/null
-+++ b/net/bridge/br_mdb.c
-@@ -0,0 +1,166 @@
-+#include <linux/err.h>
-+#include <linux/if_ether.h>
-+#include <linux/igmp.h>
-+#include <linux/kernel.h>
-+#include <linux/netdevice.h>
-+#include <linux/rculist.h>
-+#include <linux/skbuff.h>
-+#include <linux/slab.h>
-+#include <net/ip.h>
-+#if IS_ENABLED(CONFIG_IPV6)
-+#include <net/ipv6.h>
-+#include <net/mld.h>
-+#include <net/addrconf.h>
-+#include <net/ip6_checksum.h>
-+#endif
-+
-+#include "br_private.h"
-+
-+struct br_port_msg {
-+	int ifindex;
-+};
-+
-+static int br_rports_fill_info(struct sk_buff *skb, struct netlink_callback *cb,
-+			       u32 seq, struct net_device *dev)
-+{
-+	struct net_bridge *br = netdev_priv(dev);
-+	struct net_bridge_port *p;
-+	struct hlist_node *n;
-+	struct nlattr *nest;
-+
-+	if (!br->multicast_router || hlist_empty(&br->router_list)) {
-+		printk(KERN_INFO "no router on bridge\n");
-+		return 0;
-+	}
-+
-+	nest = nla_nest_start(skb, MDBA_ROUTER);
-+	if (nest == NULL)
-+		return -EMSGSIZE;
-+
-+	hlist_for_each_entry_rcu(p, n, &br->router_list, rlist) {
-+		if (p && nla_put_u16(skb, MDBA_BRPORT_NO, p->port_no))
-+			goto fail;
-+	}
-+
-+	nla_nest_end(skb, nest);
-+	return 0;
-+fail:
-+	nla_nest_cancel(skb, nest);
-+	return -EMSGSIZE;
-+}
-+
-+static int br_mdb_fill_info(struct sk_buff *skb, struct netlink_callback *cb,
-+			    u32 seq, struct net_device *dev)
-+{
-+	struct net_bridge *br = netdev_priv(dev);
-+	struct net_bridge_mdb_htable *mdb;
-+	struct nlattr *nest;
-+	unsigned int i;
-+	int s_idx;
-+
-+	if (br->multicast_disabled) {
-+		printk(KERN_INFO "multicast is disabled on bridge\n");
-+		return 0;
-+	}
-+
-+	mdb = rcu_dereference(br->mdb);
-+	if (!mdb) {
-+		printk(KERN_INFO "no mdb on bridge\n");
-+		return 0;
-+	}
-+
-+	cb->seq = mdb->seq;
-+	s_idx = cb->args[1];
-+	if (s_idx >= mdb->max)
-+		return 0;
-+
-+	nest = nla_nest_start(skb, MDBA_MDB);
-+	if (nest == NULL)
-+		return -EMSGSIZE;
-+
-+	for (i = s_idx; i < mdb->max; i++) {
-+		struct hlist_node *h;
-+		struct net_bridge_mdb_entry *mp;
-+		struct net_bridge_port_group *p, **pp;
-+		struct net_bridge_port *port;
-+
-+		hlist_for_each_entry_rcu(mp, h, &mdb->mhash[i], hlist[mdb->ver]) {
-+			for (pp = &mp->ports;
-+			     (p = rcu_dereference(*pp)) != NULL;
-+			      pp = &p->next) {
-+				port = p->port;
-+				if (port) {
-+					printk(KERN_INFO "port %u, mcaddr: %pI4\n", port->port_no, &mp->addr.u.ip4);
-+					if (nla_put_u16(skb, MDBA_BRPORT_NO, port->port_no) ||
-+					    nla_put_be32(skb, MDBA_MCADDR, p->addr.u.ip4))
-+						goto fail;
-+				}
-+			}
-+		}
-+	}
-+
-+	cb->args[1] = i;
-+	nla_nest_end(skb, nest);
-+	return 0;
-+fail:
-+	cb->args[1] = i;
-+	nla_nest_cancel(skb, nest);
-+	return -EMSGSIZE;
-+}
-+
-+static int br_mdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	struct net_device *dev;
-+	struct net *net = sock_net(skb->sk);
-+	struct nlmsghdr *nlh;
-+	u32 seq = cb->nlh->nlmsg_seq;
-+	int idx = 0, s_idx;
-+
-+	s_idx = cb->args[0];
-+
-+	rcu_read_lock();
-+
-+	for_each_netdev_rcu(net, dev) {
-+		if (dev->priv_flags & IFF_EBRIDGE) {
-+			struct br_port_msg *bpm;
-+
-+			if (idx < s_idx)
-+				goto cont;
-+
-+			nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid,
-+					seq, RTM_GETMDB,
-+					sizeof(*bpm), NLM_F_MULTI);
-+			if (nlh == NULL)
-+				break;
-+
-+			bpm = nlmsg_data(nlh);
-+			bpm->ifindex = dev->ifindex;
-+			if (br_mdb_fill_info(skb, cb, seq, dev) < 0) {
-+				printk(KERN_INFO "br_mdb_fill_info failed\n");
-+				goto fail;
-+			}
-+			if (br_rports_fill_info(skb, cb, seq, dev) < 0) {
-+				printk(KERN_INFO "br_rports_fill_info failed\n");
-+				goto fail;
-+			}
-+
-+			nlmsg_end(skb, nlh);
-+cont:
-+			idx++;
-+		}
-+	}
-+
-+	rcu_read_unlock();
-+	cb->args[0] = idx;
-+	return skb->len;
-+
-+fail:
-+	rcu_read_unlock();
-+	nlmsg_cancel(skb, nlh);
-+	return skb->len;
-+}
-+
-+void br_mdb_init(void)
-+{
-+	rtnl_register(PF_BRIDGE, RTM_GETMDB, NULL, br_mdb_dump, NULL);
-+}
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 2417434..d53e4f4 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -322,6 +322,7 @@ static int br_mdb_rehash(struct net_bridge_mdb_htable __rcu **mdbp, int max,
- 
- 	mdb->size = old ? old->size : 0;
- 	mdb->ver = old ? old->ver ^ 1 : 0;
-+	mdb->seq = old ? (old->seq + 1): 0;
- 
- 	if (!old || elasticity)
- 		get_random_bytes(&mdb->secret, sizeof(mdb->secret));
-@@ -1584,6 +1585,7 @@ void br_multicast_init(struct net_bridge *br)
- 		    br_multicast_querier_expired, (unsigned long)br);
- 	setup_timer(&br->multicast_query_timer, br_multicast_query_expired,
- 		    (unsigned long)br);
-+	br_mdb_init();
- }
- 
- void br_multicast_open(struct net_bridge *br)
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index eb9cd42..6484069 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -105,6 +105,7 @@ struct net_bridge_mdb_htable
- 	u32				max;
- 	u32				secret;
- 	u32				ver;
-+	u32				seq;
- };
- 
- struct net_bridge_port
-@@ -432,6 +433,7 @@ extern int br_multicast_set_port_router(struct net_bridge_port *p,
- extern int br_multicast_toggle(struct net_bridge *br, unsigned long val);
- extern int br_multicast_set_querier(struct net_bridge *br, unsigned long val);
- extern int br_multicast_set_hash_max(struct net_bridge *br, unsigned long val);
-+extern void br_mdb_init(void);
- 
- static inline bool br_multicast_is_router(struct net_bridge *br)
- {
