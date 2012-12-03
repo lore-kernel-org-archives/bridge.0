@@ -1,10 +1,8 @@
 Return-Path: <amwang@redhat.com>
 From: Cong Wang <amwang@redhat.com>
-Date: Mon,  3 Dec 2012 21:03:44 +0800
-Message-Id: <1354539824-7898-2-git-send-email-amwang@redhat.com>
-In-Reply-To: <1354539824-7898-1-git-send-email-amwang@redhat.com>
-References: <1354539824-7898-1-git-send-email-amwang@redhat.com>
-Subject: [Bridge] [PATCH iproute2 v2] Add mdb command to bridge
+Date: Mon,  3 Dec 2012 22:36:03 +0800
+Message-Id: <1354545363-11953-1-git-send-email-amwang@redhat.com>
+Subject: [Bridge] [PATCH net-next] bridge: implement multicast fast leave
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,252 +12,126 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Cong Wang <amwang@redhat.com>, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Herbert Xu <herbert@gondor.hengli.com.au>, Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Cong Wang <amwang@redhat.com>
 
-V2: sync with the kernel patch
-    handle IPv6 addr
-    a few cleanup
-
-Sample output:
-
-	# ./bridge/bridge mdb
-	bridge dev br0
-	multicast database:
-	port eth0, group 224.8.8.9
-	port eth1, group 224.8.8.8
-	router ports: 2
+Fast leave allows bridge to immediately stops the multicast
+traffic on the port receives IGMP Leave when IGMP snooping is enabled,
+no timeouts are observed.
 
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Stephen Hemminger <shemminger@vyatta.com>
 Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Thomas Graf <tgraf@suug.ch>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>
 Signed-off-by: Cong Wang <amwang@redhat.com>
----
- bridge/Makefile    |    2 +-
- bridge/br_common.h |    1 +
- bridge/bridge.c    |    1 +
- bridge/mdb.c       |  181 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 184 insertions(+), 1 deletions(-)
 
-diff --git a/bridge/Makefile b/bridge/Makefile
-index 9a6743e..67aceb4 100644
---- a/bridge/Makefile
-+++ b/bridge/Makefile
-@@ -1,4 +1,4 @@
--BROBJ = bridge.o fdb.o monitor.o link.o
-+BROBJ = bridge.o fdb.o monitor.o link.o mdb.o
+---
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index d53e4f4..05e0572 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1226,6 +1226,40 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 	if (!mp)
+ 		goto out;
  
- include ../Config
++	if (br->multicast_fast_leave) {
++		struct net_bridge_port_group __rcu **pp;
++
++		if (!port) {
++			mp->mglist = false;
++
++			if (mp->ports)
++				goto out;
++
++			hlist_del_rcu(&mp->hlist[mdb->ver]);
++			mdb->size--;
++			del_timer(&mp->timer);
++			call_rcu_bh(&mp->rcu, br_multicast_free_group);
++			goto out;
++		}
++
++		for (pp = &mp->ports;
++		     (p = mlock_dereference(*pp, br)) != NULL;
++		     pp = &p->next) {
++			if (p->port != port)
++				continue;
++
++			rcu_assign_pointer(*pp, p->next);
++			hlist_del_init(&p->mglist);
++			del_timer(&p->timer);
++			call_rcu_bh(&p->rcu, br_multicast_free_pg);
++
++			if (!mp->ports && !mp->mglist &&
++			    netif_running(br->dev))
++				mod_timer(&mp->timer, jiffies);
++		}
++		goto out;
++	}
++
+ 	now = jiffies;
+ 	time = now + br->multicast_last_member_count *
+ 		     br->multicast_last_member_interval;
+@@ -1567,6 +1601,7 @@ void br_multicast_init(struct net_bridge *br)
+ 	br->hash_max = 512;
  
-diff --git a/bridge/br_common.h b/bridge/br_common.h
-index 718ecb9..67fd75c 100644
---- a/bridge/br_common.h
-+++ b/bridge/br_common.h
-@@ -5,6 +5,7 @@ extern int print_fdb(const struct sockaddr_nl *who,
- 		     struct nlmsghdr *n, void *arg);
+ 	br->multicast_router = 1;
++	br->multicast_fast_leave = 0;
+ 	br->multicast_querier = 0;
+ 	br->multicast_last_member_count = 2;
+ 	br->multicast_startup_query_count = 2;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 6484069..2f5f5b8 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -230,6 +230,7 @@ struct net_bridge
  
- extern int do_fdb(int argc, char **argv);
-+extern int do_mdb(int argc, char **argv);
- extern int do_monitor(int argc, char **argv);
+ 	u8				multicast_disabled:1;
+ 	u8				multicast_querier:1;
++	u8				multicast_fast_leave:1;
  
- extern int preferred_family;
-diff --git a/bridge/bridge.c b/bridge/bridge.c
-index e2c33b0..1fcd365 100644
---- a/bridge/bridge.c
-+++ b/bridge/bridge.c
-@@ -43,6 +43,7 @@ static const struct cmd {
- 	int (*func)(int argc, char **argv);
- } cmds[] = {
- 	{ "fdb", 	do_fdb },
-+	{ "mdb", 	do_mdb },
- 	{ "monitor",	do_monitor },
- 	{ "help",	do_help },
- 	{ 0 }
-diff --git a/bridge/mdb.c b/bridge/mdb.c
-new file mode 100644
-index 0000000..3e62331
---- /dev/null
-+++ b/bridge/mdb.c
-@@ -0,0 +1,181 @@
-+/*
-+ * Get mdb table with netlink
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <time.h>
-+#include <fcntl.h>
-+#include <sys/socket.h>
-+#include <sys/time.h>
-+#include <net/if.h>
-+#include <netinet/in.h>
-+#include <linux/if_bridge.h>
-+#include <linux/if_ether.h>
-+#include <linux/neighbour.h>
-+#include <linux/if_bridge.h>
-+#include <string.h>
-+#include <arpa/inet.h>
-+
-+#include "libnetlink.h"
-+#include "br_common.h"
-+#include "rt_names.h"
-+#include "utils.h"
-+
-+#ifndef MDBA_RTA
-+#define MDBA_RTA(r) \
-+	((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct br_port_msg))))
-+#endif
-+
-+int filter_index;
-+
-+static void usage(void)
+ 	u32				hash_elasticity;
+ 	u32				hash_max;
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 5913a3a..f88389f 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -375,6 +375,32 @@ static ssize_t store_multicast_snooping(struct device *d,
+ static DEVICE_ATTR(multicast_snooping, S_IRUGO | S_IWUSR,
+ 		   show_multicast_snooping, store_multicast_snooping);
+ 
++static ssize_t show_multicast_fast_leave(struct device *d,
++				       struct device_attribute *attr,
++				       char *buf)
 +{
-+	fprintf(stderr, "       bridge mdb {show} [ dev DEV ]\n");
-+	exit(-1);
++	struct net_bridge *br = to_bridge(d);
++	return sprintf(buf, "%d\n", br->multicast_fast_leave);
 +}
 +
-+static void br_print_router_ports(FILE *f, struct rtattr *attr)
++static int set_fast_leave(struct net_bridge *br, unsigned long val)
 +{
-+	uint32_t *port_ifindex;
-+	struct rtattr *i;
-+	int rem;
++	if (br->multicast_disabled)
++		return -EINVAL;
 +
-+	rem = RTA_PAYLOAD(attr);
-+	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
-+		port_ifindex = RTA_DATA(i);
-+		fprintf(f, "%s ", ll_index_to_name(*port_ifindex));
-+	}
-+	fprintf(f, "\n");
-+}
-+
-+static void print_mdb_entry(FILE *f, struct br_mdb_entry *e)
-+{
-+	SPRINT_BUF(abuf);
-+
-+	if (e->addr.proto == htons(ETH_P_IP))
-+		fprintf(f, "port %s, group %s\n", ll_index_to_name(e->ifindex),
-+			inet_ntop(AF_INET, &e->addr.u.ip4, abuf, sizeof(abuf)));
-+	else
-+		fprintf(f, "port %s, group %s\n", ll_index_to_name(e->ifindex),
-+			inet_ntop(AF_INET6, &e->addr.u.ip6, abuf, sizeof(abuf)));
-+}
-+
-+static void br_print_mdb_entry(FILE *f, struct rtattr *attr)
-+{
-+	struct rtattr *i;
-+	int rem;
-+	struct br_mdb_entry *e;
-+
-+	rem = RTA_PAYLOAD(attr);
-+	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
-+		e = RTA_DATA(i);
-+		print_mdb_entry(f, e);
-+	}
-+}
-+
-+int print_mdb(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
-+{
-+	FILE *fp = arg;
-+	struct br_port_msg *r = NLMSG_DATA(n);
-+	int len = n->nlmsg_len;
-+	struct rtattr * tb[MDBA_MAX+1];
-+
-+	if (n->nlmsg_type != RTM_GETMDB) {
-+		fprintf(stderr, "Not RTM_GETMDB: %08x %08x %08x\n",
-+			n->nlmsg_len, n->nlmsg_type, n->nlmsg_flags);
-+
-+		return 0;
-+	}
-+
-+	len -= NLMSG_LENGTH(sizeof(*r));
-+	if (len < 0) {
-+		fprintf(stderr, "BUG: wrong nlmsg len %d\n", len);
-+		return -1;
-+	}
-+
-+	if (filter_index && filter_index != r->ifindex)
-+		return 0;
-+
-+	if (!filter_index && r->ifindex)
-+		fprintf(fp, "bridge dev %s\n", ll_index_to_name(r->ifindex));
-+
-+	parse_rtattr(tb, MDBA_MAX, MDBA_RTA(r), n->nlmsg_len - NLMSG_LENGTH(sizeof(*r)));
-+
-+	if (tb[MDBA_MDB]) {
-+		struct rtattr *i;
-+		int rem = RTA_PAYLOAD(tb[MDBA_MDB]);
-+
-+		fprintf(fp, "multicast database:\n");
-+
-+		for (i = RTA_DATA(tb[MDBA_MDB]); RTA_OK(i, rem); i = RTA_NEXT(i, rem))
-+			br_print_mdb_entry(fp, i);
-+	}
-+
-+	if (tb[MDBA_ROUTER]) {
-+		struct rtattr *i;
-+		int rem = RTA_PAYLOAD(tb[MDBA_ROUTER]);
-+
-+		fprintf(fp, "router ports: ");
-+
-+		for (i = RTA_DATA(tb[MDBA_ROUTER]); RTA_OK(i, rem); i = RTA_NEXT(i, rem))
-+			br_print_router_ports(fp, i);
-+	}
-+
++	br->multicast_fast_leave = !!val;
 +	return 0;
 +}
 +
-+static int mdb_show(int argc, char **argv)
++static ssize_t store_multicast_fast_leave(struct device *d,
++					struct device_attribute *attr,
++					const char *buf, size_t len)
 +{
-+	char *filter_dev = NULL;
-+
-+	while (argc > 0) {
-+		if (strcmp(*argv, "dev") == 0) {
-+			NEXT_ARG();
-+			if (filter_dev)
-+				duparg("dev", *argv);
-+			filter_dev = *argv;
-+		}
-+		argc--; argv++;
-+	}
-+
-+	if (filter_dev) {
-+		filter_index = if_nametoindex(filter_dev);
-+		if (filter_index == 0) {
-+			fprintf(stderr, "Cannot find device \"%s\"\n",
-+				filter_dev);
-+			return -1;
-+		}
-+	}
-+
-+	if (rtnl_wilddump_request(&rth, PF_BRIDGE, RTM_GETMDB) < 0) {
-+		perror("Cannot send dump request");
-+		exit(1);
-+	}
-+
-+	if (rtnl_dump_filter(&rth, print_mdb, stdout) < 0) {
-+		fprintf(stderr, "Dump terminated\n");
-+		exit(1);
-+	}
-+
-+	return 0;
++	return store_bridge_parm(d, buf, len, set_fast_leave);
 +}
++static DEVICE_ATTR(multicast_fast_leave, S_IRUGO | S_IWUSR,
++		   show_multicast_fast_leave, store_multicast_fast_leave);
 +
-+int do_mdb(int argc, char **argv)
-+{
-+	ll_init_map(&rth);
-+
-+	if (argc > 0) {
-+		if (matches(*argv, "show") == 0 ||
-+		    matches(*argv, "lst") == 0 ||
-+		    matches(*argv, "list") == 0)
-+			return mdb_show(argc-1, argv+1);
-+		if (matches(*argv, "help") == 0)
-+			usage();
-+	} else
-+		return mdb_show(0, NULL);
-+
-+	fprintf(stderr, "Command \"%s\" is unknown, try \"bridge mdb help\".\n", *argv);
-+	exit(-1);
-+}
+ static ssize_t show_multicast_querier(struct device *d,
+ 				      struct device_attribute *attr,
+ 				      char *buf)
+@@ -715,6 +741,7 @@ static struct attribute *bridge_attrs[] = {
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	&dev_attr_multicast_router.attr,
+ 	&dev_attr_multicast_snooping.attr,
++	&dev_attr_multicast_fast_leave.attr,
+ 	&dev_attr_multicast_querier.attr,
+ 	&dev_attr_hash_elasticity.attr,
+ 	&dev_attr_hash_max.attr,
