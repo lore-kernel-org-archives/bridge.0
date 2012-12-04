@@ -1,11 +1,11 @@
-Return-Path: <shemminger@vyatta.com>
-Date: Tue, 4 Dec 2012 08:53:20 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20121204085320.3e08986a@nehalam.linuxnetplumber.net>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 04 Dec 2012 13:25:05 -0500 (EST)
+Message-Id: <20121204.132505.1229048595483168009.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <1354539824-7898-1-git-send-email-amwang@redhat.com>
 References: <1354539824-7898-1-git-send-email-amwang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next v2] bridge: export multicast database
  via netlink
@@ -17,40 +17,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cong Wang <amwang@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, "David S. Miller" <davem@davemloft.net>
+To: amwang@redhat.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.hengli.com.au, brouer@redhat.com, tgraf@suug.ch, shemminger@vyatta.com
 
-On Mon,  3 Dec 2012 21:03:43 +0800
-Cong Wang <amwang@redhat.com> wrote:
+From: Cong Wang <amwang@redhat.com>
+Date: Mon,  3 Dec 2012 21:03:43 +0800
 
-> V2: drop patch 1/2, export ifindex directly
->     Redesign netlink attributes
->     Improve netlink seq check
->     Handle IPv6 addr as well
-> 
 > TODO: remove debugging printk's
-> 
-> This patch exports bridge multicast database via netlink
-> message type RTM_GETMDB. Similar to fdb, but currently bridge-specific.
-> We may need to support modify multicast database too (RTM_{ADD,DEL}MDB).
-> 
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: Stephen Hemminger <shemminger@vyatta.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Thomas Graf <tgraf@suug.ch>
-> Cc: Jesper Dangaard Brouer <brouer@redhat.com>
-> Signed-off-by: Cong Wang <amwang@redhat.com>
->     
 
-Minor nit reported by checkpatch was the messages should be using the api
-which provides the most info in the log to identify.
+Can you please take care of this so we can consider this patch
+seriously for inclusion?
 
-WARNING: Prefer netdev_info(netdev, ... then dev_info(dev, ... then pr_info(...  to printk(KERN_INFO ...
-#190: FILE: net/bridge/br_mdb.c:28:
-+		printk(KERN_INFO "no router on bridge\n")
-
-There is a set of macro's already for use in bridging code:
-                br_info(br, "no router on bridge\n");
-
-
-
+Thanks.
