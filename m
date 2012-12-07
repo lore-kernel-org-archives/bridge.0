@@ -1,15 +1,14 @@
 Return-Path: <BATV+52873753120e990d0a27+3393+infradead.org+tgraf@casper.srs.infradead.org>
-Date: Fri, 7 Dec 2012 08:48:33 +0000
+Date: Fri, 7 Dec 2012 09:31:07 +0000
 From: Thomas Graf <tgraf@suug.ch>
-Message-ID: <20121207084833.GH16122@casper.infradead.org>
-References: <1354850623-31652-1-git-send-email-amwang@redhat.com>
+Message-ID: <20121207093107.GA2996@casper.infradead.org>
+References: <20121207061854.GB18220@elgon.mountain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1354850623-31652-1-git-send-email-amwang@redhat.com>
+In-Reply-To: <20121207061854.GB18220@elgon.mountain>
 Sender: Thomas Graf <tgr@infradead.org>
-Subject: Re: [Bridge] [PATCH net-next v4] bridge: export multicast database
-	via netlink
+Subject: Re: [Bridge] [patch] bridge: make buffer larger in br_setlink()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,74 +17,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cong Wang <amwang@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: netdev@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-On 12/07/12 at 11:23am, Cong Wang wrote:
-> +static int br_mdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
-> +{
-> +	struct net_device *dev;
-> +	struct net *net = sock_net(skb->sk);
-> +	struct nlmsghdr *nlh;
+On 12/07/12 at 09:18am, Dan Carpenter wrote:
+> __IFLA_BRPORT_MAX is one larger than IFLA_BRPORT_MAX.  We pass
+> IFLA_BRPORT_MAX to nla_parse_nested() so we need IFLA_BRPORT_MAX + 1
+> elements.  Also Smatch complains that we read past the end of the array
+> when in br_set_port_flag() when it's called with IFLA_BRPORT_FAST_LEAVE.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> ---
+> Only needed in linux-next.
+> 
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 850b7d1..cfc5cfe 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -239,7 +239,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
+>  	struct ifinfomsg *ifm;
+>  	struct nlattr *protinfo;
+>  	struct net_bridge_port *p;
+> -	struct nlattr *tb[IFLA_BRPORT_MAX];
+> +	struct nlattr *tb[__IFLA_BRPORT_MAX];
+>  	int err;
+>  
+>  	ifm = nlmsg_data(nlh);
 
-Set nlh = NULL
-
-> +	int idx = 0, s_idx;
-> +
-> +	s_idx = cb->args[0];
-> +
-> +	rcu_read_lock();
-> +
-> +	for_each_netdev_rcu(net, dev) {
-> +		if (dev->priv_flags & IFF_EBRIDGE) {
-> +			struct br_port_msg *bpm;
-> +
-> +			if (idx < s_idx)
-> +				goto skip;
-> +
-> +			nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid,
-> +					cb->nlh->nlmsg_seq, RTM_GETMDB,
-> +					sizeof(*bpm), NLM_F_MULTI);
-> +			if (nlh == NULL)
-> +				break;
-> +
-> +			bpm = nlmsg_data(nlh);
-> +			bpm->ifindex = dev->ifindex;
-> +			if (br_mdb_fill_info(skb, cb, dev) < 0)
-> +				goto out;
-> +			if (br_rports_fill_info(skb, cb, dev) < 0)
-> +				goto out;
-
-You need to reset cb->args[1] to 0 here so that when you process the
-next mdb it will not skip any entries.
-
-> +
-> +			nlmsg_end(skb, nlh);
-> +		skip:
-> +			idx++;
-> +		}
-> +	}
-> +
-> +out:
-
-You need to call nlmsg_end(skb, nlh) here if nlh != NULL
-because you need to finalize the message in case you come
-from the "goto out" above. Otherwise your partial message
-is corrupt.
-
-> +	cb->seq = cb->args[2];
-
-This can't possibly work if you have multiple bridges unless
-all of them have an identical mdb->seq.
-
-Maybe leave the consistent dumping problem out for now and just
-set cb->seq = net->dev_base_seq so that you at least cover all
-bridges.
-
-We don't need to guarantee that no rehash has happened throughout
-the dump, we only need to ensure that no rehash happnened if a
-bridge required more than one netlink message. You could store
-mdb->seq in cb->args[3] and compare it with the current mdb->seq
-after br_rports_fill_info() finished, if they differ you could
-just cb->seq++. I suggst you leave this out for now and work on this
-in a follow-up patch to not complicate this any further.
+I know it's nitpicking but could you use IFLA_BRPORT_MAX+1 for
+consistency?
