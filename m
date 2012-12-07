@@ -1,14 +1,15 @@
-Return-Path: <dan.carpenter@oracle.com>
-Date: Fri, 7 Dec 2012 21:53:59 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Message-ID: <20121207185359.GP22569@mwanda>
-References: <20121207111045.GA9676@elgon.mountain>
- <50C2143C.2010200@bfs.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <50C2143C.2010200@bfs.de>
-Subject: Re: [Bridge] [patch v2] bridge: make buffer larger in br_setlink()
+Return-Path: <davem@davemloft.net>
+Date: Fri, 07 Dec 2012 14:33:18 -0500 (EST)
+Message-Id: <20121207.143318.2265851271191305391.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20121207103629.GB2996@casper.infradead.org>
+References: <1354874688-24564-1-git-send-email-amwang@redhat.com>
+	<20121207103629.GB2996@casper.infradead.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v5] bridge: export multicast database
+ via netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,33 +18,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: walter harms <wharms@bfs.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, Thomas Graf <tgraf@suug.ch>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+To: tgraf@suug.ch
+Cc: amwang@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.hengli.com.au, brouer@redhat.com, shemminger@vyatta.com
 
-On Fri, Dec 07, 2012 at 05:07:24PM +0100, walter harms wrote:
-> 
-> 
-> Am 07.12.2012 12:10, schrieb Dan Carpenter:
-> > We pass IFLA_BRPORT_MAX to nla_parse_nested() so we need
-> > IFLA_BRPORT_MAX + 1 elements.  Also Smatch complains that we read past
-> > the end of the array when in br_set_port_flag() when it's called with
-> > IFLA_BRPORT_FAST_LEAVE.
-> > 
-> 
-> 
-> 
-> I have no clue why nla_parse_nested() need IFLA_BRPORT_MAX elements.
-> but the majory of loop look like
-> for(i=0;i<max;++)
-> most programmers will think this way.
-> So it seems the place to fix is nla_parse_nested().
-> doing not so is asking for trouble (in the long run).
-> At least this function needs a big warning label that (max-1)
-> is actually needed.
-> 
+From: Thomas Graf <tgraf@suug.ch>
+Date: Fri, 7 Dec 2012 10:36:29 +0000
 
-Yeah, nla_parse_nested() is actually documented already.
+> On 12/07/12 at 06:04pm, Cong Wang wrote:
+>> From: Cong Wang <amwang@redhat.com>
+>> 
+>> V5: fix two bugs pointed out by Thomas
+>>     remove seq check for now, mark it as TODO
+>> 
+>> V4: remove some useless #include
+>>     some coding style fix
+>> 
+>> V3: drop debugging printk's
+>>     update selinux perm table as well
+>> 
+>> V2: drop patch 1/2, export ifindex directly
+>>     Redesign netlink attributes
+>>     Improve netlink seq check
+>>     Handle IPv6 addr as well
+>> 
+>> This patch exports bridge multicast database via netlink
+>> message type RTM_GETMDB. Similar to fdb, but currently bridge-specific.
+>> We may need to support modify multicast database too (RTM_{ADD,DEL}MDB).
+>> 
+>> (Thanks to Thomas for patient reviews)
+>> 
+>> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+>> Cc: Stephen Hemminger <shemminger@vyatta.com>
+>> Cc: "David S. Miller" <davem@davemloft.net>
+>> Cc: Thomas Graf <tgraf@suug.ch>
+>> Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+>> Signed-off-by: Cong Wang <amwang@redhat.com>
+> 
+> Acked-by: Thomas Graf <tgraf@suug.ch>
 
-regards,
-dan carpenter
-
+Applied, thanks.
