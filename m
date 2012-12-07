@@ -1,8 +1,15 @@
-Return-Path: <amwang@redhat.com>
-From: Cong Wang <amwang@redhat.com>
-Date: Mon, 10 Dec 2012 11:47:22 +0800
-Message-Id: <1355111242-31871-1-git-send-email-amwang@redhat.com>
-Subject: [Bridge] [PATCH v5] iproute2: add mdb sub-command to bridge
+Return-Path: <BATV+52873753120e990d0a27+3393+infradead.org+tgraf@casper.srs.infradead.org>
+Date: Fri, 7 Dec 2012 08:48:33 +0000
+From: Thomas Graf <tgraf@suug.ch>
+Message-ID: <20121207084833.GH16122@casper.infradead.org>
+References: <1354850623-31652-1-git-send-email-amwang@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1354850623-31652-1-git-send-email-amwang@redhat.com>
+Sender: Thomas Graf <tgr@infradead.org>
+Subject: Re: [Bridge] [PATCH net-next v4] bridge: export multicast database
+	via netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,262 +18,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Cong Wang <amwang@redhat.com>, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+To: Cong Wang <amwang@redhat.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
 
-From: Cong Wang <amwang@redhat.com>
+On 12/07/12 at 11:23am, Cong Wang wrote:
+> +static int br_mdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
+> +{
+> +	struct net_device *dev;
+> +	struct net *net = sock_net(skb->sk);
+> +	struct nlmsghdr *nlh;
 
-V5: make the output pretty
+Set nlh = NULL
 
-V4: fix filter_dev
-    remove some useless #include
+> +	int idx = 0, s_idx;
+> +
+> +	s_idx = cb->args[0];
+> +
+> +	rcu_read_lock();
+> +
+> +	for_each_netdev_rcu(net, dev) {
+> +		if (dev->priv_flags & IFF_EBRIDGE) {
+> +			struct br_port_msg *bpm;
+> +
+> +			if (idx < s_idx)
+> +				goto skip;
+> +
+> +			nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid,
+> +					cb->nlh->nlmsg_seq, RTM_GETMDB,
+> +					sizeof(*bpm), NLM_F_MULTI);
+> +			if (nlh == NULL)
+> +				break;
+> +
+> +			bpm = nlmsg_data(nlh);
+> +			bpm->ifindex = dev->ifindex;
+> +			if (br_mdb_fill_info(skb, cb, dev) < 0)
+> +				goto out;
+> +			if (br_rports_fill_info(skb, cb, dev) < 0)
+> +				goto out;
 
-V3: improve the output, display router info only for -d
-    fix router parsing code
+You need to reset cb->args[1] to 0 here so that when you process the
+next mdb it will not skip any entries.
 
-V2: sync with the kernel patch
-    handle IPv6 addr
-    a few cleanup
+> +
+> +			nlmsg_end(skb, nlh);
+> +		skip:
+> +			idx++;
+> +		}
+> +	}
+> +
+> +out:
 
-Sample output:
+You need to call nlmsg_end(skb, nlh) here if nlh != NULL
+because you need to finalize the message in case you come
+from the "goto out" above. Otherwise your partial message
+is corrupt.
 
-	# ./bridge/bridge mdb show dev br0
-	bridge br0 port eth1 group 224.8.8.9
-	bridge br0 port eth0 group 224.8.8.8
+> +	cb->seq = cb->args[2];
 
-	# ./bridge/bridge -d mdb show dev br0
-	bridge br0 port eth1 group 224.8.8.9
-	bridge br0 port eth0 group 224.8.8.8
-	router ports on br0: eth0 
+This can't possibly work if you have multiple bridges unless
+all of them have an identical mdb->seq.
 
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Stephen Hemminger <shemminger@vyatta.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Thomas Graf <tgraf@suug.ch>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Cong Wang <amwang@redhat.com>
----
- bridge/Makefile    |    2 +-
- bridge/br_common.h |    3 +-
- bridge/bridge.c    |    1 +
- bridge/mdb.c       |  172 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 176 insertions(+), 2 deletions(-)
+Maybe leave the consistent dumping problem out for now and just
+set cb->seq = net->dev_base_seq so that you at least cover all
+bridges.
 
-diff --git a/bridge/Makefile b/bridge/Makefile
-index 9a6743e..67aceb4 100644
---- a/bridge/Makefile
-+++ b/bridge/Makefile
-@@ -1,4 +1,4 @@
--BROBJ = bridge.o fdb.o monitor.o link.o
-+BROBJ = bridge.o fdb.o monitor.o link.o mdb.o
- 
- include ../Config
- 
-diff --git a/bridge/br_common.h b/bridge/br_common.h
-index ce11a0b..71f7caf 100644
---- a/bridge/br_common.h
-+++ b/bridge/br_common.h
-@@ -5,11 +5,12 @@ extern int print_fdb(const struct sockaddr_nl *who,
- 		     struct nlmsghdr *n, void *arg);
- 
- extern int do_fdb(int argc, char **argv);
-+extern int do_mdb(int argc, char **argv);
- extern int do_monitor(int argc, char **argv);
- 
- extern int preferred_family;
- extern int show_stats;
--extern int show_detail;
-+extern int show_details;
- extern int timestamp;
- extern struct rtnl_handle rth;
- 
-diff --git a/bridge/bridge.c b/bridge/bridge.c
-index e2c33b0..1fcd365 100644
---- a/bridge/bridge.c
-+++ b/bridge/bridge.c
-@@ -43,6 +43,7 @@ static const struct cmd {
- 	int (*func)(int argc, char **argv);
- } cmds[] = {
- 	{ "fdb", 	do_fdb },
-+	{ "mdb", 	do_mdb },
- 	{ "monitor",	do_monitor },
- 	{ "help",	do_help },
- 	{ 0 }
-diff --git a/bridge/mdb.c b/bridge/mdb.c
-new file mode 100644
-index 0000000..390d7f6
---- /dev/null
-+++ b/bridge/mdb.c
-@@ -0,0 +1,172 @@
-+/*
-+ * Get mdb table with netlink
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <sys/socket.h>
-+#include <net/if.h>
-+#include <netinet/in.h>
-+#include <linux/if_bridge.h>
-+#include <linux/if_ether.h>
-+#include <string.h>
-+#include <arpa/inet.h>
-+
-+#include "libnetlink.h"
-+#include "br_common.h"
-+#include "rt_names.h"
-+#include "utils.h"
-+
-+#ifndef MDBA_RTA
-+#define MDBA_RTA(r) \
-+	((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct br_port_msg))))
-+#endif
-+
-+int filter_index;
-+
-+static void usage(void)
-+{
-+	fprintf(stderr, "       bridge mdb {show} [ dev DEV ]\n");
-+	exit(-1);
-+}
-+
-+static void br_print_router_ports(FILE *f, struct rtattr *attr)
-+{
-+	uint32_t *port_ifindex;
-+	struct rtattr *i;
-+	int rem;
-+
-+	rem = RTA_PAYLOAD(attr);
-+	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
-+		port_ifindex = RTA_DATA(i);
-+		fprintf(f, "%s ", ll_index_to_name(*port_ifindex));
-+	}
-+
-+	fprintf(f, "\n");
-+}
-+
-+static void print_mdb_entry(FILE *f, int ifindex, struct br_mdb_entry *e)
-+{
-+	SPRINT_BUF(abuf);
-+
-+	if (e->addr.proto == htons(ETH_P_IP))
-+		fprintf(f, "bridge %s port %s group %s\n", ll_index_to_name(ifindex),
-+			ll_index_to_name(e->ifindex),
-+			inet_ntop(AF_INET, &e->addr.u.ip4, abuf, sizeof(abuf)));
-+	else
-+		fprintf(f, "bridge %s port %s group %s\n", ll_index_to_name(ifindex),
-+			ll_index_to_name(e->ifindex),
-+			inet_ntop(AF_INET6, &e->addr.u.ip6, abuf, sizeof(abuf)));
-+}
-+
-+static void br_print_mdb_entry(FILE *f, int ifindex, struct rtattr *attr)
-+{
-+	struct rtattr *i;
-+	int rem;
-+	struct br_mdb_entry *e;
-+
-+	rem = RTA_PAYLOAD(attr);
-+	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
-+		e = RTA_DATA(i);
-+		print_mdb_entry(f, ifindex, e);
-+	}
-+}
-+
-+int print_mdb(const struct sockaddr_nl *who, struct nlmsghdr *n, void *arg)
-+{
-+	FILE *fp = arg;
-+	struct br_port_msg *r = NLMSG_DATA(n);
-+	int len = n->nlmsg_len;
-+	struct rtattr * tb[MDBA_MAX+1];
-+
-+	if (n->nlmsg_type != RTM_GETMDB) {
-+		fprintf(stderr, "Not RTM_GETMDB: %08x %08x %08x\n",
-+			n->nlmsg_len, n->nlmsg_type, n->nlmsg_flags);
-+
-+		return 0;
-+	}
-+
-+	len -= NLMSG_LENGTH(sizeof(*r));
-+	if (len < 0) {
-+		fprintf(stderr, "BUG: wrong nlmsg len %d\n", len);
-+		return -1;
-+	}
-+
-+	if (filter_index && filter_index != r->ifindex)
-+		return 0;
-+
-+	parse_rtattr(tb, MDBA_MAX, MDBA_RTA(r), n->nlmsg_len - NLMSG_LENGTH(sizeof(*r)));
-+
-+	if (tb[MDBA_MDB]) {
-+		struct rtattr *i;
-+		int rem = RTA_PAYLOAD(tb[MDBA_MDB]);
-+
-+		for (i = RTA_DATA(tb[MDBA_MDB]); RTA_OK(i, rem); i = RTA_NEXT(i, rem))
-+			br_print_mdb_entry(fp, r->ifindex, i);
-+	}
-+
-+	if (tb[MDBA_ROUTER]) {
-+		if (show_details) {
-+			fprintf(fp, "router ports on %s: ", ll_index_to_name(r->ifindex));
-+			br_print_router_ports(fp, tb[MDBA_ROUTER]);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int mdb_show(int argc, char **argv)
-+{
-+	char *filter_dev = NULL;
-+
-+	while (argc > 0) {
-+		if (strcmp(*argv, "dev") == 0) {
-+			NEXT_ARG();
-+			if (filter_dev)
-+				duparg("dev", *argv);
-+			filter_dev = *argv;
-+		}
-+		argc--; argv++;
-+	}
-+
-+	if (filter_dev) {
-+		filter_index = if_nametoindex(filter_dev);
-+		if (filter_index == 0) {
-+			fprintf(stderr, "Cannot find device \"%s\"\n",
-+				filter_dev);
-+			return -1;
-+		}
-+	}
-+
-+	if (rtnl_wilddump_request(&rth, PF_BRIDGE, RTM_GETMDB) < 0) {
-+		perror("Cannot send dump request");
-+		exit(1);
-+	}
-+
-+	if (rtnl_dump_filter(&rth, print_mdb, stdout) < 0) {
-+		fprintf(stderr, "Dump terminated\n");
-+		exit(1);
-+	}
-+
-+	return 0;
-+}
-+
-+int do_mdb(int argc, char **argv)
-+{
-+	ll_init_map(&rth);
-+
-+	if (argc > 0) {
-+		if (matches(*argv, "show") == 0 ||
-+		    matches(*argv, "lst") == 0 ||
-+		    matches(*argv, "list") == 0)
-+			return mdb_show(argc-1, argv+1);
-+		if (matches(*argv, "help") == 0)
-+			usage();
-+	} else
-+		return mdb_show(0, NULL);
-+
-+	fprintf(stderr, "Command \"%s\" is unknown, try \"bridge mdb help\".\n", *argv);
-+	exit(-1);
-+}
+We don't need to guarantee that no rehash has happened throughout
+the dump, we only need to ensure that no rehash happnened if a
+bridge required more than one netlink message. You could store
+mdb->seq in cb->args[3] and compare it with the current mdb->seq
+after br_rports_fill_info() finished, if they differ you could
+just cb->seq++. I suggst you leave this out for now and work on this
+in a follow-up patch to not complicate this any further.
