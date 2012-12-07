@@ -1,10 +1,11 @@
 Return-Path: <wharms@bfs.de>
-Message-ID: <50C2143C.2010200@bfs.de>
-Date: Fri, 07 Dec 2012 17:07:24 +0100
+Message-ID: <50C2405E.1070904@bfs.de>
+Date: Fri, 07 Dec 2012 20:15:42 +0100
 From: walter harms <wharms@bfs.de>
 MIME-Version: 1.0
-References: <20121207111045.GA9676@elgon.mountain>
-In-Reply-To: <20121207111045.GA9676@elgon.mountain>
+References: <20121207111045.GA9676@elgon.mountain> <50C2143C.2010200@bfs.de>
+	<20121207185359.GP22569@mwanda>
+In-Reply-To: <20121207185359.GP22569@mwanda>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [patch v2] bridge: make buffer larger in br_setlink()
@@ -22,52 +23,35 @@ Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@v
 
 
 
-Am 07.12.2012 12:10, schrieb Dan Carpenter:
-> We pass IFLA_BRPORT_MAX to nla_parse_nested() so we need
-> IFLA_BRPORT_MAX + 1 elements.  Also Smatch complains that we read past
-> the end of the array when in br_set_port_flag() when it's called with
-> IFLA_BRPORT_FAST_LEAVE.
+Am 07.12.2012 19:53, schrieb Dan Carpenter:
+> On Fri, Dec 07, 2012 at 05:07:24PM +0100, walter harms wrote:
+>>
+>>
+>> Am 07.12.2012 12:10, schrieb Dan Carpenter:
+>>> We pass IFLA_BRPORT_MAX to nla_parse_nested() so we need
+>>> IFLA_BRPORT_MAX + 1 elements.  Also Smatch complains that we read past
+>>> the end of the array when in br_set_port_flag() when it's called with
+>>> IFLA_BRPORT_FAST_LEAVE.
+>>>
+>>
+>>
+>>
+>> I have no clue why nla_parse_nested() need IFLA_BRPORT_MAX elements.
+>> but the majory of loop look like
+>> for(i=0;i<max;++)
+>> most programmers will think this way.
+>> So it seems the place to fix is nla_parse_nested().
+>> doing not so is asking for trouble (in the long run).
+>> At least this function needs a big warning label that (max-1)
+>> is actually needed.
+>>
+> 
+> Yeah, nla_parse_nested() is actually documented already.
 > 
 
 
+documenting unexspected behavier is not as much helpfull as changing it.
 
-I have no clue why nla_parse_nested() need IFLA_BRPORT_MAX elements.
-but the majory of loop look like
-for(i=0;i<max;++)
-most programmers will think this way.
-So it seems the place to fix is nla_parse_nested().
-doing not so is asking for trouble (in the long run).
-At least this function needs a big warning label that (max-1)
-is actually needed.
-
-
-just my two cents,
+just my 2 cents,
  wh
 
-
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
-> v2: Style tweak.
-> 
-> Only needed in linux-next.
-> 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 850b7d1..cfc5cfe 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -239,7 +239,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
->  	struct ifinfomsg *ifm;
->  	struct nlattr *protinfo;
->  	struct net_bridge_port *p;
-> -	struct nlattr *tb[IFLA_BRPORT_MAX];
-> +	struct nlattr *tb[IFLA_BRPORT_MAX + 1];
->  	int err;
->  
->  	ifm = nlmsg_data(nlh);
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
