@@ -1,14 +1,13 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 07 Dec 2012 14:40:54 -0500 (EST)
-Message-Id: <20121207.144054.818881635723246698.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20121207111045.GA9676@elgon.mountain>
-References: <20121207093107.GA2996@casper.infradead.org>
-	<20121207111045.GA9676@elgon.mountain>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <amwang@redhat.com>
+Message-ID: <1355109220.11752.3.camel@cr0>
+From: Cong Wang <amwang@redhat.com>
+Date: Mon, 10 Dec 2012 11:13:40 +0800
+In-Reply-To: <1a884874-7123-401f-a53c-cc8e301b1ffe@tahiti.vyatta.com>
+References: <1a884874-7123-401f-a53c-cc8e301b1ffe@tahiti.vyatta.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [patch v2] bridge: make buffer larger in br_setlink()
+Mime-Version: 1.0
+Subject: Re: [Bridge] [PATCH v4] iproute2: add mdb sub-command to bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,17 +16,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: dan.carpenter@oracle.com
-Cc: tgraf@suug.ch, netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org
+To: Stephen Hemminger <stephen.hemminger@vyatta.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, "David S. Miller" <davem@davemloft.net>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Fri, 7 Dec 2012 14:10:46 +0300
-
-> We pass IFLA_BRPORT_MAX to nla_parse_nested() so we need
-> IFLA_BRPORT_MAX + 1 elements.  Also Smatch complains that we read past
-> the end of the array when in br_set_port_flag() when it's called with
-> IFLA_BRPORT_FAST_LEAVE.
+On Fri, 2012-12-07 at 09:07 -0800, Stephen Hemminger wrote:
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > 
+> > 	# ./bridge/bridge mdb
+> > 	bridge br0:
+> > 	port eth0, group 224.8.8.9
+> > 	port eth1, group 224.8.8.8
+> 
+> I like the ability to see what is going on. It would
+> be good if there was also a monitor like hook to see new entries
+> created and destroyed (later version).
 
-Applied.
+I am working on a patch to implement RTM_NEWMDB and RTM_DELMDB, so we
+will have this.
+
+> 
+> The output format should be one line per entry for easier
+> parsing by utilities. Something similar to 'ip neigh show'
+> 
+
+Right, I will update this in v5.
+
+Thanks!
+
