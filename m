@@ -1,15 +1,14 @@
-Return-Path: <wharms@bfs.de>
-Message-ID: <50C2405E.1070904@bfs.de>
-Date: Fri, 07 Dec 2012 20:15:42 +0100
-From: walter harms <wharms@bfs.de>
-MIME-Version: 1.0
-References: <20121207111045.GA9676@elgon.mountain> <50C2143C.2010200@bfs.de>
-	<20121207185359.GP22569@mwanda>
-In-Reply-To: <20121207185359.GP22569@mwanda>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: <shemminger@vyatta.com>
+Date: Tue, 11 Dec 2012 16:48:56 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20121211164856.37ce94fe@nehalam.linuxnetplumber.net>
+In-Reply-To: <1354874688-24564-1-git-send-email-amwang@redhat.com>
+References: <1354874688-24564-1-git-send-email-amwang@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [patch v2] bridge: make buffer larger in br_setlink()
-Reply-To: wharms@bfs.de
+Subject: Re: [Bridge] [PATCH net-next v5] bridge: export multicast database
+ via netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,40 +17,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, Thomas Graf <tgraf@suug.ch>, Stephen Hemminger <shemminger@vyatta.com>, "David S. Miller" <davem@davemloft.net>
+To: Cong Wang <amwang@redhat.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, Jesper Dangaard Brouer <brouer@redhat.com>, Thomas Graf <tgraf@suug.ch>, "David S. Miller" <davem@davemloft.net>
 
+On Fri,  7 Dec 2012 18:04:48 +0800
+Cong Wang <amwang@redhat.com> wrote:
 
-
-Am 07.12.2012 19:53, schrieb Dan Carpenter:
-> On Fri, Dec 07, 2012 at 05:07:24PM +0100, walter harms wrote:
->>
->>
->> Am 07.12.2012 12:10, schrieb Dan Carpenter:
->>> We pass IFLA_BRPORT_MAX to nla_parse_nested() so we need
->>> IFLA_BRPORT_MAX + 1 elements.  Also Smatch complains that we read past
->>> the end of the array when in br_set_port_flag() when it's called with
->>> IFLA_BRPORT_FAST_LEAVE.
->>>
->>
->>
->>
->> I have no clue why nla_parse_nested() need IFLA_BRPORT_MAX elements.
->> but the majory of loop look like
->> for(i=0;i<max;++)
->> most programmers will think this way.
->> So it seems the place to fix is nla_parse_nested().
->> doing not so is asking for trouble (in the long run).
->> At least this function needs a big warning label that (max-1)
->> is actually needed.
->>
+> From: Cong Wang <amwang@redhat.com>
 > 
-> Yeah, nla_parse_nested() is actually documented already.
+> V5: fix two bugs pointed out by Thomas
+>     remove seq check for now, mark it as TODO
 > 
+> V4: remove some useless #include
+>     some coding style fix
+> 
+> V3: drop debugging printk's
+>     update selinux perm table as well
+> 
+> V2: drop patch 1/2, export ifindex directly
+>     Redesign netlink attributes
+>     Improve netlink seq check
+>     Handle IPv6 addr as well
+> 
+> This patch exports bridge multicast database via netlink
+> message type RTM_GETMDB. Similar to fdb, but currently bridge-specific.
+> We may need to support modify multicast database too (RTM_{ADD,DEL}MDB).
+> 
+> (Thanks to Thomas for patient reviews)
+> 
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: Stephen Hemminger <shemminger@vyatta.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Thomas Graf <tgraf@suug.ch>
+> Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+> Signed-off-by: Cong Wang <amwang@redhat.com>
+>     
 
-
-documenting unexspected behavier is not as much helpfull as changing it.
-
-just my 2 cents,
- wh
+Applied, but required some manual fixing. It required adding if_bridge.h
+to include/linux in iproute2 exported headers. Also patch still had some fuzz
+against current version.
 
