@@ -1,8 +1,12 @@
-Return-Path: <amwang@redhat.com>
-From: Cong Wang <amwang@redhat.com>
-Date: Fri, 14 Dec 2012 13:59:32 +0800
-Message-Id: <1355464772-17712-1-git-send-email-amwang@redhat.com>
-Subject: [Bridge] [PATCH] iproute2: update usage info of bridge monitor
+Return-Path: <wcang@sfc.wide.ad.jp>
+Message-ID: <50CA6DA5.1020101@sfc.wide.ad.jp>
+Date: Fri, 14 Dec 2012 08:07:01 +0800
+From: Ang Way Chuang <wcang@sfc.wide.ad.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] bridge: Bug fix for incorrect interpretation of
+ MLDv2 maximum response code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,22 +16,23 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, Cong Wang <amwang@redhat.com>
+Cc: Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org
 
-Cc: Stephen Hemminger <shemminger@vyatta.com>
-Signed-off-by: Cong Wang <amwang@redhat.com>
+This patch fixes the incorrect interpretation of endianness of MLDv2 maximum response
+code within bridge's multicast snooping code.
 
+Signed-off-by: Ang Way Chuang <wcang@sfc.wide.ad.jp>
 ---
-diff --git a/bridge/monitor.c b/bridge/monitor.c
-index 44e14d8..29bb931 100644
---- a/bridge/monitor.c
-+++ b/bridge/monitor.c
-@@ -31,7 +31,7 @@ int prefix_banner;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 977c3ee..29c6283 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1172,7 +1172,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 		mld2q = (struct mld2_query *)icmp6_hdr(skb);
+ 		if (!mld2q->mld2q_nsrcs)
+ 			group = &mld2q->mld2q_mca;
+-		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(mld2q->mld2q_mrc) : 1;
++		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(ntohs(mld2q->mld2q_mrc)) : 1;
+ 	}
  
- static void usage(void)
- {
--	fprintf(stderr, "Usage: bridge monitor\n");
-+	fprintf(stderr, "Usage: bridge monitor [file | link | fdb | mdb | all]\n");
- 	exit(-1);
- }
- 
+ 	if (!group)
