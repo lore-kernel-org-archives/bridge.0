@@ -1,15 +1,14 @@
 Return-Path: <shemminger@vyatta.com>
-Date: Wed, 12 Dec 2012 10:41:38 -0800
+Date: Thu, 13 Dec 2012 16:12:01 -0800
 From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20121212104138.2a927498@nehalam.linuxnetplumber.net>
-In-Reply-To: <1355300590-2390-4-git-send-email-amwang@redhat.com>
-References: <1355300590-2390-1-git-send-email-amwang@redhat.com>
-	<1355300590-2390-4-git-send-email-amwang@redhat.com>
+Message-ID: <20121213161201.6d2da433@nehalam.linuxnetplumber.net>
+In-Reply-To: <50CA6DA5.1020101@sfc.wide.ad.jp>
+References: <50CA6DA5.1020101@sfc.wide.ad.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 2/2] iproute2: add support to monitor mdb
-	entries too
+Subject: Re: [Bridge] [PATCH] bridge: Bug fix for incorrect interpretation
+ of MLDv2 maximum response code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,19 +17,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cong Wang <amwang@redhat.com>
-Cc: Thomas Graf <tgraf@suug.ch>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Ang Way Chuang <wcang@sfc.wide.ad.jp>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wed, 12 Dec 2012 16:23:10 +0800
-Cong Wang <amwang@redhat.com> wrote:
+On Fri, 14 Dec 2012 08:07:01 +0800
+Ang Way Chuang <wcang@sfc.wide.ad.jp> wrote:
 
-> From: Cong Wang <amwang@redhat.com>
+> This patch fixes the incorrect interpretation of endianness of MLDv2 maximum response
+> code within bridge's multicast snooping code.
 > 
-> This patch implements `bridge monitor mdb`.
-> 
-> Cc: Stephen Hemminger <shemminger@vyatta.com>
-> Cc: Thomas Graf <tgraf@suug.ch>
-> Signed-off-by: Cong Wang <amwang@redhat.com>
-> 
+> Signed-off-by: Ang Way Chuang <wcang@sfc.wide.ad.jp>
+> ---
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 977c3ee..29c6283 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -1172,7 +1172,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+>  		mld2q = (struct mld2_query *)icmp6_hdr(skb);
+>  		if (!mld2q->mld2q_nsrcs)
+>  			group = &mld2q->mld2q_mca;
+> -		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(mld2q->mld2q_mrc) : 1;
+> +		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(ntohs(mld2q->mld2q_mrc)) : 1;
+>  	}
+>  
+>  	if (!group)
 
-Accepted for 3.8 since Dave accepted the kernel parts. Thanks
+Already fixed as part of my patch to fix sparse warnings.
