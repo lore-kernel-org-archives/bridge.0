@@ -1,17 +1,13 @@
-Return-Path: <wcang@sfc.wide.ad.jp>
-Message-ID: <50CA7449.8000305@sfc.wide.ad.jp>
-Date: Fri, 14 Dec 2012 08:35:21 +0800
-From: Ang Way Chuang <wcang@sfc.wide.ad.jp>
-MIME-Version: 1.0
-References: <50CA6DA5.1020101@sfc.wide.ad.jp>
-	<20121213161201.6d2da433@nehalam.linuxnetplumber.net>
-	<50CA7078.8070204@sfc.wide.ad.jp>
-	<20121213162346.71c3779f@nehalam.linuxnetplumber.net>
-In-Reply-To: <20121213162346.71c3779f@nehalam.linuxnetplumber.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: <shemminger@vyatta.com>
+Date: Fri, 14 Dec 2012 09:11:24 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20121214091124.4123e3e4@nehalam.linuxnetplumber.net>
+In-Reply-To: <1355464772-17712-1-git-send-email-amwang@redhat.com>
+References: <1355464772-17712-1-git-send-email-amwang@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: Bug fix for incorrect interpretation
- of MLDv2 maximum response code
+Subject: Re: [Bridge] [PATCH] iproute2: update usage info of bridge monitor
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,43 +16,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <shemminger@vyatta.com>
+To: Cong Wang <amwang@redhat.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On 14/12/2012 08:23, Stephen Hemminger wrote:
-> On Fri, 14 Dec 2012 08:19:04 +0800
-> Ang Way Chuang <wcang@sfc.wide.ad.jp> wrote:
->
->> On 14/12/2012 08:12, Stephen Hemminger wrote:
->>> On Fri, 14 Dec 2012 08:07:01 +0800
->>> Ang Way Chuang <wcang@sfc.wide.ad.jp> wrote:
->>>
->>>> This patch fixes the incorrect interpretation of endianness of MLDv2 maximum response
->>>> code within bridge's multicast snooping code.
->>>>
->>>> Signed-off-by: Ang Way Chuang <wcang@sfc.wide.ad.jp>
->>>> ---
->>>> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
->>>> index 977c3ee..29c6283 100644
->>>> --- a/net/bridge/br_multicast.c
->>>> +++ b/net/bridge/br_multicast.c
->>>> @@ -1172,7 +1172,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
->>>>  		mld2q = (struct mld2_query *)icmp6_hdr(skb);
->>>>  		if (!mld2q->mld2q_nsrcs)
->>>>  			group = &mld2q->mld2q_mca;
->>>> -		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(mld2q->mld2q_mrc) : 1;
->>>> +		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(ntohs(mld2q->mld2q_mrc)) : 1;
->>>>  	}
->>>>  
->>>>  	if (!group)
->>> Already fixed as part of my patch to fix sparse warnings.
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe netdev" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>
->> aye, aye.
-> Yours looks cleaner (I added a temp variable). You might want to submit
-> patch to switch to your oneline version.
->
-Well, the patch did get into the netdev mailing list. I think your direct reply arrived in my mailbox first before I received my own patch through netdev. By the way, I don't see your patch on net-next git. Otherwise, I wouldn't have gone through the trouble of debugging and testing it on my computer. Is there any other repo that I should watch out to avoid this kind of silly situation in the future?
+On Fri, 14 Dec 2012 13:59:32 +0800
+Cong Wang <amwang@redhat.com> wrote:
+
+> Cc: Stephen Hemminger <shemminger@vyatta.com>
+> Signed-off-by: Cong Wang <amwang@redhat.com>
+> 
+> ---
+> diff --git a/bridge/monitor.c b/bridge/monitor.c
+> index 44e14d8..29bb931 100644
+> --- a/bridge/monitor.c
+> +++ b/bridge/monitor.c
+> @@ -31,7 +31,7 @@ int prefix_banner;
+>  
+>  static void usage(void)
+>  {
+> -	fprintf(stderr, "Usage: bridge monitor\n");
+> +	fprintf(stderr, "Usage: bridge monitor [file | link | fdb | mdb | all]\n");
+>  	exit(-1);
+>  }
+>  
+
+Applied.
