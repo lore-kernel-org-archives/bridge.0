@@ -1,10 +1,10 @@
 Return-Path: <cmerck@crestron.com>
 From: Christopher Merck <cmerck@crestron.com>
-Date: Fri, 28 Dec 2012 13:47:11 +0000
-Message-ID: <6544B6BF21225E489CEBF43309506FB3C76D1C@6V-MBX1.CRESTRON.CRESTRON.com>
+Date: Fri, 21 Dec 2012 16:31:53 +0000
+Message-ID: <6544B6BF21225E489CEBF43309506FB3C6FABB@6V-MBX1.CRESTRON.CRESTRON.com>
 Content-Language: en-US
 Content-Type: multipart/mixed;
-	boundary="_004_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_"
+	boundary="_002_6544B6BF21225E489CEBF43309506FB3C6FABB6VMBX1CRESTRONCRE_"
 MIME-Version: 1.0
 Subject: Re: [Bridge] Update to RSTP lib
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -17,51 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
---_004_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_
-Content-Type: multipart/alternative;
-	boundary="_000_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_"
-
---_000_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_
+--_002_6544B6BF21225E489CEBF43309506FB3C6FABB6VMBX1CRESTRONCRE_
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 > > On Mon, Jan 12, 2009 at 1:22 PM, Manish Talreja <mtalreja at crestron.c=
 om> wrote:
-
 > > > We have been using the RSTP implementation posted at this location:
-
 > > >
-
-> > > https://lists.linux-foundation.org/pipermail/bridge/2008-May/00585
-
-> > > 9.html
-
+> > > https://lists.linux-foundation.org/pipermail/bridge/2008-May/005859.h=
+tml
 > > >
-
 > > >
-
 > > >
-
 > > > We have modified rstp.c and rstp.h to work with compilers other than =
 gcc.
-
-> > > Attached are two patch files that show our changes. Currently, we
-
-> > > have tested this code with the Diab compiler (v 4.4a) and with IAR
-
-> > > compiler (v 5.11).
-
+> > > Attached are two patch files that show our changes. Currently, we hav=
+e
+> > > tested this code with the Diab compiler (v 4.4a) and with IAR compile=
+r (v
+> > > 5.11).
 > > >
-
-
 
 We have further modified rstp.c and rstp.h to work with more compilers. The=
  attached unified diff shows the changes. This has currently been tested wi=
 th VC++ 2008.
-
-Regards,
- Chris Merck
-
 
 
 This e-mail message and all attachments transmitted with it may contain leg=
@@ -70,104 +50,7 @@ ally privileged and confidential information intended solely for the use of=
 ied that any reading, dissemination, distribution, copying, or other use of=
  this message or its attachments is strictly prohibited.
 
---_000_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<style>
-<!--
-@font-face
-	{font-family:SimSun}
-@font-face
-	{font-family:"Cambria Math"}
-@font-face
-	{font-family:Calibri}
-@font-face
-	{font-family:"\@SimSun"}
-@font-face
-	{font-family:Consolas}
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif"}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline}
-p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:10.5pt;
-	font-family:Consolas}
-span.EmailStyle17
-	{font-family:"Calibri","sans-serif";
-	color:windowtext}
-span.PlainTextChar
-	{font-family:Consolas}
-.MsoChpDefault
-	{}
-@page Section1
-	{margin:1.0in 1.0in 1.0in 1.0in}
-div.Section1
-	{}
--->
-</style>
-</head>
-<body lang=3D"EN-US" link=3D"blue" vlink=3D"purple">
-<div class=3D"Section1">
-<p class=3D"MsoPlainText">&gt; &gt; On Mon, Jan 12, 2009 at 1:22 PM, Manish=
- Talreja &lt;mtalreja at crestron.com&gt; wrote:</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; We have been using the RSTP implem=
-entation posted at this location:</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt;</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; <a href=3D"https://lists.linux-fou=
-ndation.org/pipermail/bridge/2008-May/00585">
-https://lists.linux-foundation.org/pipermail/bridge/2008-May/00585</a></p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; 9.html</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt;</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt;</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt;</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; We have modified rstp.c and rstp.h=
- to work with compilers other than gcc.</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; Attached are two patch files that =
-show our changes. Currently, we
-</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; have tested this code with the Dia=
-b compiler (v 4.4a) and with IAR
-</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt; compiler (v 5.11).</p>
-<p class=3D"MsoPlainText">&gt; &gt; &gt;</p>
-<p class=3D"MsoPlainText">&nbsp;</p>
-<p class=3D"MsoPlainText">We have further modified rstp.c and rstp.h to wor=
-k with more compilers. The attached unified diff shows the changes. This ha=
-s currently been tested with VC&#43;&#43; 2008.</p>
-<p class=3D"MsoNormal">&nbsp;</p>
-<p class=3D"MsoNormal">Regards,</p>
-<p class=3D"MsoNormal">&nbsp;Chris Merck</p>
-</div>
-<br>
-<br>
-<font color=3D"black"><font size=3D"2">
-<p style=3D"font-family:arial,sans-serif">This e-mail message and all attac=
-hments transmitted with it may contain legally privileged and confidential =
-information intended solely for the use of the addressee. If you are not th=
-e intended recipient, you are hereby
- notified that any reading, dissemination, distribution, copying, or other =
-use of this message or its attachments is strictly prohibited.</p>
-</font></font>
-</body>
-</html>
-
---_000_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_--
-
---_004_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_
+--_002_6544B6BF21225E489CEBF43309506FB3C6FABB6VMBX1CRESTRONCRE_
 Content-Type: application/octet-stream; name="rstp.patch"
 Content-Description: rstp.patch
 Content-Disposition: attachment; filename="rstp.patch"; size=16333;
@@ -463,4 +346,4 @@ cnQgbm90IGluIGl0cyBicmlkZ2UncyBsaXN0XG4iKTsNCisgICAgU1RQX0FCT1JUKCJwb3J0IG5v
 dCBpbiBpdHMgYnJpZGdlJ3MgbGlzdFxuIik7DQogDQogICAvKiBSZW1vdmUgZnJvbSBsaXN0ICov
 DQogICAqcHJldiA9IFBPUlQtPnBvcnRfbmV4dDsNCg==
 
---_004_6544B6BF21225E489CEBF43309506FB3C76D1C6VMBX1CRESTRONCRE_--
+--_002_6544B6BF21225E489CEBF43309506FB3C6FABB6VMBX1CRESTRONCRE_--
