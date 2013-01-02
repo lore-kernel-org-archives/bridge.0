@@ -1,19 +1,9 @@
-Return-Path: <atul14.kumar@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:date:message-id:subject:from:to:content-type;
-	bh=MigDpr0nh4BpucJEOJb/m2Z2NDOafMwFEnJjMaXCyqc=;
-	b=Abe+8ltHBlMpUHqc1MZltKjiJNrDtXDpw7isH/u43OZn793SDqpRf7jZK+3HPe2M81
-	0qykbiE5O4/YzOLafPJd81WxqZcN0+bjAgTVuG2FgxgFs5Mf2AYOV5NIdqMowmiFkEap
-	lS5tdFkw4f5UYwVhv4fPBae43m/a1ZRWQxZKwBOWTqknZ/FXUz6Qr/US+z1xsAVuc0IR
-	rO2D9oW/CenPBJ04zMSNi486blkoOz8XAiqtMtXyGR/G7Ff+FMlT7K8rzArMxouMQ8wa
-	63FDYF1z/42HjdU++hy5/F6YoxLRBKVMvLhHbsDuVBbUow82JMoo+pymYLR9LljAxiEw
-	Hkrg==
-MIME-Version: 1.0
-Date: Mon, 24 Dec 2012 20:48:17 +0530
-Message-ID: <CAMCE1acYsVSmsCP+hc+xSwuAbgR7p-BPRSk7Ex2C9e4j=Y4NpA@mail.gmail.com>
-From: Atul Gupta <atul14.kumar@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: [Bridge] Does linux support per vlan stp
+Return-Path: <jiri@resnulli.us>
+From: Jiri Pirko <jiri@resnulli.us>
+Date: Wed,  2 Jan 2013 13:28:21 +0100
+Message-Id: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
+Subject: [Bridge] [patch net-next V5 00/15] net: introduce upper device
+	lists and remove dev->master
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,61 +12,81 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, sony.chacko@qlogic.com, blaschka@linux.vnet.ibm.com, gregory.v.rose@intel.com, bhutchings@solarflare.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, linux-driver@qlogic.com, linux-kernel@vger.kernel.org, kaber@trash.net, joe@perches.com, linux390@de.ibm.com, davem@davemloft.net
 
-Hi,
+This is a V5 of a repost of my previous patchset:
+"[patch net-next v2 00/15] net: introduce upper device lists and remove dev->master" from Aug 14
 
-I want to connect two pc`s on a redundant way with each other. On
-those pc`s a 64 bit ubuntu 11.10 is running with kernel version
-3.0.0-16-generic.
+The discussion around
+"[net-next] bonding: don't allow the master to become its slave"
+forced me to think about upper<->lower device connections.
 
+This patchset adds a possibility to record upper device linkage.
+All upper<->lower devices are converted to use this mechanism right after.
+That leads to dev->master removal because this info becomes redundant since
+"master links" have the same value.
 
-Setup1:
-----------
+After all changes, there is no longer possible to do things as:
+"bond->someotherdevice->samebond"
 
-PC1:
-          PC2:
+Also I think that drivers like cxgb3, qlcnic, qeth would benefit by this
+in future by being able to get more appropriate info about l3 addresses.
 
+v4->v5:
+- fixed missed typo in drivers/infiniband/hw/nes/nes_cm.c
 
-br0
-            br1
-|
-               |
--- eth0.1000  ---------------------------------------------------eth0.1000
-|
-               |
-__eth1.1001 ----------------------------------------------------eth1.1001
+v3->v4:
+- comments in __netdev_upper_dev_link() squashed into one line
+- kfree_rcu used instead of call_rcu in netdev_upper_dev_unlink()
 
+v2->v3:
+- removed recursion in __netdev_has_upper_dev()
+- refreshed bits to be applicable on current net-next
 
+v1->v2:
+- s/unique/master/ better naming + stays closer to the past
+- fixed vlan err goto
+- original patch 15 (WARN_ON change) is squashed into the first patch
 
+Jiri Pirko (15):
+  net: introduce upper device lists
+  macvlan: add link to upper device
+  vlan: add link to upper device
+  rtnetlink: remove usage of dev->master
+  team: remove usage of netdev_set_master()
+  bridge: remove usage of netdev_set_master()
+  netpoll: remove usage of dev->master
+  cxgb3: remove usage of dev->master
+  qlcnic: guard __vlan_find_dev_deep() by rcu_read_lock
+  qeth: ensure that __vlan_find_dev_deep() is called with rcu_read_lock
+  vlan: remove usage of dev->master in __vlan_find_dev_deep()
+  nes: remove usage of dev->master
+  bonding: remove usage of dev->master
+  net: remove no longer used netdev_set_bond_master() and
+    netdev_set_master()
+  net: kill dev->master
 
-When I enable spanning tree on both bridges (brctl stp br0 on). They
-both stay sending BPDU packages and no port is disabled. So I get a
-loop. For some reason spanning tree is not working.
+ drivers/infiniband/hw/nes/nes.c                    |   8 +-
+ drivers/infiniband/hw/nes/nes_cm.c                 |   2 +-
+ drivers/net/bonding/bond_3ad.c                     |  30 +--
+ drivers/net/bonding/bond_alb.c                     |   6 +-
+ drivers/net/bonding/bond_main.c                    |  94 ++++----
+ drivers/net/bonding/bonding.h                      |  14 +-
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c |  11 +-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c   |   2 +
+ drivers/net/macvlan.c                              |   9 +-
+ drivers/net/team/team.c                            |  13 +-
+ drivers/s390/net/qeth_l3_main.c                    |  21 +-
+ include/linux/netdevice.h                          |  22 +-
+ net/8021q/vlan.c                                   |  10 +-
+ net/8021q/vlan_core.c                              |  18 +-
+ net/bridge/br_if.c                                 |   6 +-
+ net/core/dev.c                                     | 244 +++++++++++++++++----
+ net/core/netpoll.c                                 |   9 +-
+ net/core/rtnetlink.c                               |  70 +++---
+ 18 files changed, 407 insertions(+), 182 deletions(-)
 
-Setup2:
----------
-When I repeat the following test without the VLANs the spanning tree
-protocol is working:
+-- 
+1.8.0
 
-br0                                                                          br1
-|                                                                              |
--- eth0  -----------------------------------------------------eth0
-|                                                                              |
-__eth1 ------ -----------------------------------------------eth1
-
-
-
-
-
-
-
-The problems is that in the final solution I only have vlans, so I need Setup1.
-
-
-Is spanning tree in Linux possible with VLANS?
-If so, how do I have to set-up this?
-
-Thanks,
-
-Atul
