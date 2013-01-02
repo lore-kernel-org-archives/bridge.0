@@ -1,10 +1,10 @@
 Return-Path: <jiri@resnulli.us>
 From: Jiri Pirko <jiri@resnulli.us>
-Date: Wed,  2 Jan 2013 13:28:26 +0100
-Message-Id: <1357129716-2450-6-git-send-email-jiri@resnulli.us>
+Date: Wed,  2 Jan 2013 13:28:27 +0100
+Message-Id: <1357129716-2450-7-git-send-email-jiri@resnulli.us>
 In-Reply-To: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
 References: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
-Subject: [Bridge] [patch net-next V5 05/15] team: remove usage of
+Subject: [Bridge] [patch net-next V5 06/15] bridge: remove usage of
 	netdev_set_master()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -19,49 +19,40 @@ Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend
 
 Signed-off-by: Jiri Pirko <jiri@resnulli.us>
 ---
- drivers/net/team/team.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ net/bridge/br_if.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index 918a901..3df5cc1 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1055,10 +1055,11 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
- 		}
- 	}
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 1edd71d..2148d47 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -148,7 +148,7 @@ static void del_nbp(struct net_bridge_port *p)
+ 	netdev_rx_handler_unregister(dev);
+ 	synchronize_net();
  
--	err = netdev_set_master(port_dev, dev);
-+	err = netdev_master_upper_dev_link(port_dev, dev);
- 	if (err) {
--		netdev_err(dev, "Device %s failed to set master\n", portname);
--		goto err_set_master;
-+		netdev_err(dev, "Device %s failed to set upper link\n",
-+			   portname);
-+		goto err_set_upper_link;
- 	}
+-	netdev_set_master(dev, NULL);
++	netdev_upper_dev_unlink(dev, br->dev);
  
- 	err = netdev_rx_handler_register(port_dev, team_handle_frame,
-@@ -1091,9 +1092,9 @@ err_option_port_add:
- 	netdev_rx_handler_unregister(port_dev);
+ 	br_multicast_del_port(p);
  
- err_handler_register:
--	netdev_set_master(port_dev, NULL);
-+	netdev_upper_dev_unlink(port_dev, dev);
+@@ -364,7 +364,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
+ 	if (br_netpoll_info(br) && ((err = br_netpoll_enable(p, GFP_KERNEL))))
+ 		goto err3;
  
--err_set_master:
-+err_set_upper_link:
- 	team_port_disable_netpoll(port);
+-	err = netdev_set_master(dev, br->dev);
++	err = netdev_master_upper_dev_link(dev, br->dev);
+ 	if (err)
+ 		goto err4;
  
- err_enable_netpoll:
-@@ -1137,7 +1138,7 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
- 	team_port_disable(team, port);
- 	list_del_rcu(&port->list);
- 	netdev_rx_handler_unregister(port_dev);
--	netdev_set_master(port_dev, NULL);
-+	netdev_upper_dev_unlink(port_dev, dev);
- 	team_port_disable_netpoll(port);
- 	vlan_vids_del_by_dev(port_dev, dev);
- 	dev_close(port_dev);
+@@ -403,7 +403,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
+ 	return 0;
+ 
+ err5:
+-	netdev_set_master(dev, NULL);
++	netdev_upper_dev_unlink(dev, br->dev);
+ err4:
+ 	br_netpoll_disable(p);
+ err3:
 -- 
 1.8.0
 
