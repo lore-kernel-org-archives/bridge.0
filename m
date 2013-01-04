@@ -1,17 +1,8 @@
-Return-Path: <simon@superduper.net>
-Message-ID: <510AE633.2060102@superduper.net>
-Date: Thu, 31 Jan 2013 13:46:27 -0800
-From: Simon Barber <simon@superduper.net>
-MIME-Version: 1.0
-References: <1359601979-14942-1-git-send-email-vyasevic@redhat.com>
-	<1359601979-14942-2-git-send-email-vyasevic@redhat.com>
-	<CAHXqBFL88O=cSse5AdhoKMMMrvgvn7oYAhMxt0rw9ffv49Z7hw@mail.gmail.com>
-	<510AD51D.6080506@superduper.net> <510AD571.6060309@redhat.com>
-In-Reply-To: <510AD571.6060309@redhat.com>
-Content-Type: text/plain; charset="iso-8859-2"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH v7 net-next 01/12] bridge: Add vlan filtering
- infrastructure
+Return-Path: <jiri@resnulli.us>
+From: Jiri Pirko <jiri@resnulli.us>
+Message-Id: <1357289343-817-1-git-send-email-jiri@resnulli.us>
+Subject: [Bridge] [patch net-next V6 00/15] net: introduce upper device
+	lists and remove dev->master
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,90 +11,90 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, shemminger@vyatta.com, davem@davemloft.net
+Date: Fri, 04 Jan 2013 08:49:13 -0000
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, sony.chacko@qlogic.com, blaschka@linux.vnet.ibm.com, gregory.v.rose@intel.com, bhutchings@solarflare.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, linux-driver@qlogic.com, linux-kernel@vger.kernel.org, kaber@trash.net, joe@perches.com, linux390@de.ibm.com, davem@davemloft.net
 
-Great - I look forward to seeing this functionality in the kernel - this=20
-will be very useful. Are you releasing brctl patches too?
+This is a V6 of a repost of my previous patchset:
+"[patch net-next v2 00/15] net: introduce upper device lists and remove dev->master" from Aug 14
 
-Simon
+The discussion around
+"[net-next] bonding: don't allow the master to become its slave"
+forced me to think about upper<->lower device connections.
 
-On 01/31/2013 12:34 PM, Vlad Yasevich wrote:
-> On 01/31/2013 03:33 PM, Simon Barber wrote:
->> I wrote a similar patch a few years ago:
->>
->> https://lists.linux-foundation.org/pipermail/bridge/2006-September/00504=
-6.html
->>
->>
->>
->> This patch also added the possibility to define a native vlan for each
->> port and for the bridge port itself - is there any interest in this
->> feature as well as the filtering?
->>
->
-> See patch 5 and 6 and the series :)
->
-> -vlad
->
->> Simon
->>
->>
->> On 01/31/2013 11:57 AM, Micha=B3 Miros=B3aw wrote:
->>> 2013/1/31 Vlad Yasevich <vyasevic@redhat.com>:
->>>> Adds an optional infrustructure component to bridge that would allow
->>>> native vlan filtering in the bridge.  Each bridge port (as well
->>>> as the bridge device) now get a VLAN bitmap.  Each bit in the bitmap
->>>> is associated with a vlan id.  This way if the bit corresponding to
->>>> the vid is set in the bitmap that the packet with vid is allowed to
->>>> enter and exit the port.
->>>>
->>>> Write access the bitmap is protected by RTNL and read access
->>>> protected by RCU.
->>> [...]
->>>> +static int __vlan_del(struct net_port_vlans *v, u16 vid)
->>>> +{
->>>> +       unsigned long first_bit;
->>>> +       unsigned long last_bit;
->>>> +
->>>> +       if (!test_bit(vid, v->vlan_bitmap))
->>>> +               return -EINVAL;
->>>> +
->>>> +       /* Check to see if any other vlans are in this table.  If this
->>>> +        * is the last vlan, delete the whole structure.  If this is
->>>> not the
->>>> +        * last vlan, just clear the bit.
->>>> +        */
->>>> +       first_bit =3D find_first_bit(v->vlan_bitmap, BR_VLAN_BITMAP_LE=
-N);
->>>> +       last_bit =3D find_last_bit(v->vlan_bitmap, BR_VLAN_BITMAP_LEN);
->>>> +
->>>> +       if (v->port_idx && vid) {
->>>> +               struct net_device *dev =3D vlans_to_port(v)->dev;
->>>> +
->>>> +               if (dev->features & NETIF_F_HW_VLAN_FILTER)
->>>> +                       dev->netdev_ops->ndo_vlan_rx_kill_vid(dev,
->>>> vid);
->>>> +       }
->>>> +
->>>> +       clear_bit(vid, v->vlan_bitmap);
->>>> +       if (first_bit =3D=3D last_bit) {
->>>
->>> if (bitmap_empty(v->vlan_bitmap, BR_VLAN_BITMAP_LEN))
->>>
->>>> +               if (v->port_idx) {
->>>> +                       struct net_bridge_port *p =3D vlans_to_port(v);
->>>> +                       rcu_assign_pointer(p->vlan_info, NULL);
->>>> +               } else {
->>>> +                       struct net_bridge *br =3D vlans_to_bridge(v);
->>>> +                       rcu_assign_pointer(br->vlan_info, NULL);
->>>> +               }
->>>
->>> You seem to use vlans_to_port/vlans_to_bridge only to get at
->>> vlan_info. Maybe that could be abstracted to a single interface, or
->>> even change v->parent to be a 'net_port_vlans **'?
->>>
->>> Best Regards,
->>> Micha=B3 Miros=B3aw
->>>
->
+This patchset adds a possibility to record upper device linkage.
+All upper<->lower devices are converted to use this mechanism right after.
+That leads to dev->master removal because this info becomes redundant since
+"master links" have the same value.
+
+After all changes, there is no longer possible to do things as:
+"bond->someotherdevice->samebond"
+
+Also I think that drivers like cxgb3, qlcnic, qeth would benefit by this
+in future by being able to get more appropriate info about l3 addresses.
+
+v5->v6:
+- netdev_has_upper_dev() - added statement to comment that this is looking at
+  the immediate upper devices only.
+- renamed "RTNL semaphore" -> "RTNL lock" in all comments
+- renamed __netdev_has_upper_dev() to __netdev_search_upper_dev() to emhasize
+  the difference to netdev_has_upper_dev()
+
+v4->v5:
+- fixed missed typo in drivers/infiniband/hw/nes/nes_cm.c
+
+v3->v4:
+- comments in __netdev_upper_dev_link() squashed into one line
+- kfree_rcu used instead of call_rcu in netdev_upper_dev_unlink()
+
+v2->v3:
+- removed recursion in __netdev_has_upper_dev()
+- refreshed bits to be applicable on current net-next
+
+v1->v2:
+- s/unique/master/ better naming + stays closer to the past
+- fixed vlan err goto
+- original patch 15 (WARN_ON change) is squashed into the first patch
+
+
+Jiri Pirko (15):
+  net: introduce upper device lists
+  macvlan: add link to upper device
+  vlan: add link to upper device
+  rtnetlink: remove usage of dev->master
+  team: remove usage of netdev_set_master()
+  bridge: remove usage of netdev_set_master()
+  netpoll: remove usage of dev->master
+  cxgb3: remove usage of dev->master
+  qlcnic: guard __vlan_find_dev_deep() by rcu_read_lock
+  qeth: ensure that __vlan_find_dev_deep() is called with rcu_read_lock
+  vlan: remove usage of dev->master in __vlan_find_dev_deep()
+  nes: remove usage of dev->master
+  bonding: remove usage of dev->master
+  net: remove no longer used netdev_set_bond_master() and
+    netdev_set_master()
+  net: kill dev->master
+
+ drivers/infiniband/hw/nes/nes.c                    |   8 +-
+ drivers/infiniband/hw/nes/nes_cm.c                 |   2 +-
+ drivers/net/bonding/bond_3ad.c                     |  30 +--
+ drivers/net/bonding/bond_alb.c                     |   6 +-
+ drivers/net/bonding/bond_main.c                    |  94 ++++----
+ drivers/net/bonding/bonding.h                      |  14 +-
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c |  11 +-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c   |   2 +
+ drivers/net/macvlan.c                              |   9 +-
+ drivers/net/team/team.c                            |  13 +-
+ drivers/s390/net/qeth_l3_main.c                    |  21 +-
+ include/linux/netdevice.h                          |  22 +-
+ net/8021q/vlan.c                                   |  10 +-
+ net/8021q/vlan_core.c                              |  18 +-
+ net/bridge/br_if.c                                 |   6 +-
+ net/core/dev.c                                     | 246 +++++++++++++++++----
+ net/core/netpoll.c                                 |   9 +-
+ net/core/rtnetlink.c                               |  70 +++---
+ 18 files changed, 409 insertions(+), 182 deletions(-)
+
+-- 
+1.8.0
+
