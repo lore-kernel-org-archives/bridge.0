@@ -1,14 +1,14 @@
-Return-Path: <shemminger@vyatta.com>
-Date: Fri, 4 Jan 2013 11:27:16 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20130104112716.596f9085@nehalam.linuxnetplumber.net>
-In-Reply-To: <50E72977.7030605@infradead.org>
-References: <20130104152814.3a3cf74bdec76cea09d3e134@canb.auug.org.au>
-	<50E72977.7030605@infradead.org>
+Return-Path: <davem@davemloft.net>
+Date: Fri, 04 Jan 2013 13:33:31 -0800 (PST)
+Message-Id: <20130104.133331.1729083969241157711.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1357289343-817-1-git-send-email-jiri@resnulli.us>
+References: <1357289343-817-1-git-send-email-jiri@resnulli.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] linux-next: Tree for Jan 4 (net/bridge)
+Subject: Re: [Bridge] [patch net-next V6 00/15] net: introduce upper device
+ lists and remove dev->master
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,31 +17,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: bridge@lists.linux-foundation.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: jiri@resnulli.us
+Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, linux-driver@qlogic.com, blaschka@linux.vnet.ibm.com, sony.chacko@qlogic.com, gregory.v.rose@intel.com, bhutchings@solarflare.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, joe@perches.com, linux390@de.ibm.com, kaber@trash.net
 
-On Fri, 04 Jan 2013 11:11:51 -0800
-Randy Dunlap <rdunlap@infradead.org> wrote:
+From: Jiri Pirko <jiri@resnulli.us>
+Date: Fri,  4 Jan 2013 09:48:48 +0100
 
-> On 01/03/13 20:28, Stephen Rothwell wrote:
-> > Hi all,
-> > 
-> > Changes since 20130103:
-> > 
-> 
-> on i386 and x86_64:
-> 
->   CC      net/bridge/br_netlink.o
-> net/bridge/br_netlink.c: In function 'br_netlink_init':
-> net/bridge/br_netlink.c:307:2: error: implicit declaration of function 'br_mdb_init' [-Werror=implicit-function-declaration]
-> net/bridge/br_netlink.c:314:2: error: implicit declaration of function 'br_mdb_uninit' [-Werror=implicit-function-declaration]
-> cc1: some warnings being treated as errors
-> make[3]: *** [net/bridge/br_netlink.o] Error 1
-> 
-> 
-> Full randconfig file is attached.
-> 
-> 
+> This patchset adds a possibility to record upper device linkage.
+> All upper<->lower devices are converted to use this mechanism right after.
+> That leads to dev->master removal because this info becomes redundant since
+> "master links" have the same value.
 
-Problem not observed with current net-next and your configuration.
-Probably already fixed.
+Series applied, thanks Jiri.
