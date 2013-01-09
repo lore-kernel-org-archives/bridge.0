@@ -1,10 +1,10 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Message-Id: <1357751882-8619-8-git-send-email-vyasevic@redhat.com>
+Message-Id: <1357751882-8619-9-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
 References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH net-next v5 07/14] bridge: Add vlan id to multicast
-	groups
+Subject: [Bridge] [PATCH net-next v5 08/14] bridge: Add netlink interface to
+	configure vlans on bridge ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,263 +13,392 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Wed, 09 Jan 2013 17:18:17 -0000
+Date: Wed, 09 Jan 2013 17:18:18 -0000
 To: netdev@vger.kernel.org
 Cc: stephen@redhat.com, bridge@lists.linux-foundation.org, mst@redhat.com, davem@davemloft.net, shmulik.ladkani@gmail.com
 
-Add vlan_id to multicasts groups so that we know which vlan
-each group belongs to and can correctly forward to appropriate vlan.
+Add a netlink interface to add and remove vlan configuration on bridge port.
+The interface uses the RTM_SETLINK message and encodes the vlan
+configuration inside the IFLA_AF_SPEC.  It is possble to include multiple
+vlans to either add or remove in a single message.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
- net/bridge/br_multicast.c |   64 +++++++++++++++++++++++++++++++--------------
- net/bridge/br_private.h   |    1 +
- 2 files changed, 45 insertions(+), 20 deletions(-)
+ include/linux/netdevice.h      |    2 +
+ include/uapi/linux/if_bridge.h |    9 +++
+ net/bridge/br_device.c         |    1 +
+ net/bridge/br_if.c             |    1 +
+ net/bridge/br_netlink.c        |  134 ++++++++++++++++++++++++++++++++++-----
+ net/bridge/br_private.h        |    1 +
+ net/core/rtnetlink.c           |   72 +++++++++++++++++++++
+ 7 files changed, 202 insertions(+), 18 deletions(-)
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 5391ca4..9c0ac97 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -39,6 +39,8 @@ static inline int br_ip_equal(const struct br_ip *a, const struct br_ip *b)
- {
- 	if (a->proto != b->proto)
- 		return 0;
-+	if (a->vid != b->vid)
-+		return 0;
- 	switch (a->proto) {
- 	case htons(ETH_P_IP):
- 		return a->u.ip4 == b->u.ip4;
-@@ -50,16 +52,19 @@ static inline int br_ip_equal(const struct br_ip *a, const struct br_ip *b)
- 	return 0;
- }
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 0209ac3..3a68563 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1017,6 +1017,8 @@ struct net_device_ops {
+ 	int			(*ndo_bridge_getlink)(struct sk_buff *skb,
+ 						      u32 pid, u32 seq,
+ 						      struct net_device *dev);
++	int			(*ndo_bridge_dellink)(struct net_device *dev,
++						      struct nlmsghdr *nlh);
+ 	int			(*ndo_change_carrier)(struct net_device *dev,
+ 						      bool new_carrier);
+ };
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 4115db1..2645d51 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -108,15 +108,24 @@ struct __fdb_entry {
+  * [IFLA_AF_SPEC] = {
+  *     [IFLA_BRIDGE_FLAGS]
+  *     [IFLA_BRIDGE_MODE]
++ *     [IFLA_BRIDGE_VLAN_INFO]
+  * }
+  */
+ enum {
+ 	IFLA_BRIDGE_FLAGS,
+ 	IFLA_BRIDGE_MODE,
++	IFLA_BRIDGE_VLAN_INFO,
+ 	__IFLA_BRIDGE_MAX,
+ };
+ #define IFLA_BRIDGE_MAX (__IFLA_BRIDGE_MAX - 1)
  
--static inline int __br_ip4_hash(struct net_bridge_mdb_htable *mdb, __be32 ip)
-+static inline int __br_ip4_hash(struct net_bridge_mdb_htable *mdb, __be32 ip,
-+				__u16 vid)
- {
--	return jhash_1word(mdb->secret, (__force u32)ip) & (mdb->max - 1);
-+	return jhash_2words((__force u32)ip, vid, mdb->secret) & (mdb->max - 1);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
- static inline int __br_ip6_hash(struct net_bridge_mdb_htable *mdb,
--				const struct in6_addr *ip)
-+				const struct in6_addr *ip,
-+				__u16 vid)
- {
--	return jhash2((__force u32 *)ip->s6_addr32, 4, mdb->secret) & (mdb->max - 1);
-+	return jhash_2words(ipv6_addr_hash(ip), vid,
-+			    mdb->secret) & (mdb->max - 1);
- }
- #endif
- 
-@@ -68,10 +73,10 @@ static inline int br_ip_hash(struct net_bridge_mdb_htable *mdb,
- {
- 	switch (ip->proto) {
- 	case htons(ETH_P_IP):
--		return __br_ip4_hash(mdb, ip->u.ip4);
-+		return __br_ip4_hash(mdb, ip->u.ip4, ip->vid);
- #if IS_ENABLED(CONFIG_IPV6)
- 	case htons(ETH_P_IPV6):
--		return __br_ip6_hash(mdb, &ip->u.ip6);
-+		return __br_ip6_hash(mdb, &ip->u.ip6, ip->vid);
- #endif
- 	}
- 	return 0;
-@@ -101,24 +106,27 @@ struct net_bridge_mdb_entry *br_mdb_ip_get(struct net_bridge_mdb_htable *mdb,
- }
- 
- static struct net_bridge_mdb_entry *br_mdb_ip4_get(
--	struct net_bridge_mdb_htable *mdb, __be32 dst)
-+	struct net_bridge_mdb_htable *mdb, __be32 dst, __u16 vid)
- {
- 	struct br_ip br_dst;
- 
- 	br_dst.u.ip4 = dst;
- 	br_dst.proto = htons(ETH_P_IP);
-+	br_dst.vid = vid;
- 
- 	return br_mdb_ip_get(mdb, &br_dst);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
- static struct net_bridge_mdb_entry *br_mdb_ip6_get(
--	struct net_bridge_mdb_htable *mdb, const struct in6_addr *dst)
-+	struct net_bridge_mdb_htable *mdb, const struct in6_addr *dst,
-+	__u16 vid)
- {
- 	struct br_ip br_dst;
- 
- 	br_dst.u.ip6 = *dst;
- 	br_dst.proto = htons(ETH_P_IPV6);
-+	br_dst.vid = vid;
- 
- 	return br_mdb_ip_get(mdb, &br_dst);
- }
-@@ -694,7 +702,8 @@ err:
- 
- static int br_ip4_multicast_add_group(struct net_bridge *br,
- 				      struct net_bridge_port *port,
--				      __be32 group)
-+				      __be32 group,
-+				      __u16 vid)
- {
- 	struct br_ip br_group;
- 
-@@ -703,6 +712,7 @@ static int br_ip4_multicast_add_group(struct net_bridge *br,
- 
- 	br_group.u.ip4 = group;
- 	br_group.proto = htons(ETH_P_IP);
-+	br_group.vid = vid;
- 
- 	return br_multicast_add_group(br, port, &br_group);
- }
-@@ -710,7 +720,8 @@ static int br_ip4_multicast_add_group(struct net_bridge *br,
- #if IS_ENABLED(CONFIG_IPV6)
- static int br_ip6_multicast_add_group(struct net_bridge *br,
- 				      struct net_bridge_port *port,
--				      const struct in6_addr *group)
-+				      const struct in6_addr *group,
-+				      __u16 vid)
- {
- 	struct br_ip br_group;
- 
-@@ -719,6 +730,7 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
- 
- 	br_group.u.ip6 = *group;
- 	br_group.proto = htons(ETH_P_IPV6);
-+	br_group.vid = vid;
- 
- 	return br_multicast_add_group(br, port, &br_group);
- }
-@@ -930,7 +942,8 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
- 			continue;
- 		}
- 
--		err = br_ip4_multicast_add_group(br, port, group);
-+		err = br_ip4_multicast_add_group(br, port, group,
-+						 br_get_vlan(skb));
- 		if (err)
- 			break;
- 	}
-@@ -990,7 +1003,8 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
- 			continue;
- 		}
- 
--		err = br_ip6_multicast_add_group(br, port, &grec->grec_mca);
-+		err = br_ip6_multicast_add_group(br, port, &grec->grec_mca,
-+						 br_get_vlan(skb));
- 		if (!err)
- 			break;
- 	}
-@@ -1108,7 +1122,8 @@ static int br_ip4_multicast_query(struct net_bridge *br,
- 	if (!group)
- 		goto out;
- 
--	mp = br_mdb_ip4_get(mlock_dereference(br->mdb, br), group);
-+	mp = br_mdb_ip4_get(mlock_dereference(br->mdb, br), group,
-+			    br_get_vlan(skb));
- 	if (!mp)
- 		goto out;
- 
-@@ -1180,7 +1195,8 @@ static int br_ip6_multicast_query(struct net_bridge *br,
- 	if (!group)
- 		goto out;
- 
--	mp = br_mdb_ip6_get(mlock_dereference(br->mdb, br), group);
-+	mp = br_mdb_ip6_get(mlock_dereference(br->mdb, br), group,
-+			    br_get_vlan(skb));
- 	if (!mp)
- 		goto out;
- 
-@@ -1286,7 +1302,8 @@ out:
- 
- static void br_ip4_multicast_leave_group(struct net_bridge *br,
- 					 struct net_bridge_port *port,
--					 __be32 group)
-+					 __be32 group,
-+					 __u16 vid)
- {
- 	struct br_ip br_group;
- 
-@@ -1295,6 +1312,7 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
- 
- 	br_group.u.ip4 = group;
- 	br_group.proto = htons(ETH_P_IP);
-+	br_group.vid = vid;
- 
- 	br_multicast_leave_group(br, port, &br_group);
- }
-@@ -1302,7 +1320,8 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
- #if IS_ENABLED(CONFIG_IPV6)
- static void br_ip6_multicast_leave_group(struct net_bridge *br,
- 					 struct net_bridge_port *port,
--					 const struct in6_addr *group)
-+					 const struct in6_addr *group,
-+					 __u16 vid)
- {
- 	struct br_ip br_group;
- 
-@@ -1311,6 +1330,7 @@ static void br_ip6_multicast_leave_group(struct net_bridge *br,
- 
- 	br_group.u.ip6 = *group;
- 	br_group.proto = htons(ETH_P_IPV6);
-+	br_group.vid = vid;
- 
- 	br_multicast_leave_group(br, port, &br_group);
- }
-@@ -1393,7 +1413,8 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
- 	case IGMP_HOST_MEMBERSHIP_REPORT:
- 	case IGMPV2_HOST_MEMBERSHIP_REPORT:
- 		BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
--		err = br_ip4_multicast_add_group(br, port, ih->group);
-+		err = br_ip4_multicast_add_group(br, port, ih->group,
-+						 br_get_vlan(skb2));
- 		break;
- 	case IGMPV3_HOST_MEMBERSHIP_REPORT:
- 		err = br_ip4_multicast_igmp3_report(br, port, skb2);
-@@ -1402,7 +1423,8 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
- 		err = br_ip4_multicast_query(br, port, skb2);
- 		break;
- 	case IGMP_HOST_LEAVE_MESSAGE:
--		br_ip4_multicast_leave_group(br, port, ih->group);
-+		br_ip4_multicast_leave_group(br, port, ih->group,
-+					     br_get_vlan(skb2));
- 		break;
- 	}
- 
-@@ -1522,7 +1544,8 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
- 		}
- 		mld = (struct mld_msg *)skb_transport_header(skb2);
- 		BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
--		err = br_ip6_multicast_add_group(br, port, &mld->mld_mca);
-+		err = br_ip6_multicast_add_group(br, port, &mld->mld_mca,
-+						 br_get_vlan(skb2));
- 		break;
- 	    }
- 	case ICMPV6_MLD2_REPORT:
-@@ -1539,7 +1562,8 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
- 			goto out;
- 		}
- 		mld = (struct mld_msg *)skb_transport_header(skb2);
--		br_ip6_multicast_leave_group(br, port, &mld->mld_mca);
-+		br_ip6_multicast_leave_group(br, port, &mld->mld_mca,
-+					     br_get_vlan(skb2));
- 	    }
- 	}
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index c5aacfc..45e4169 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -63,6 +63,7 @@ struct br_ip
- #endif
- 	} u;
- 	__be16		proto;
-+	__u16		vid;
++#define BRIDGE_VLAN_INFO_MASTER	(1<<0)	/* Operate on Bridge device as well */
++
++struct bridge_vlan_info {
++	u16 flags;
++	u16 vid;
++};
++
+ /* Bridge multicast database attributes
+  * [MDBA_MDB] = {
+  *     [MDBA_MDB_ENTRY] = {
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 5dd6b40..e0814ce 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -318,6 +318,7 @@ static const struct net_device_ops br_netdev_ops = {
+ 	.ndo_fdb_dump		 = br_fdb_dump,
+ 	.ndo_bridge_getlink	 = br_getlink,
+ 	.ndo_bridge_setlink	 = br_setlink,
++	.ndo_bridge_dellink	 = br_dellink,
  };
  
- #define BR_INVALID_VID	(1<<15)
+ static void br_dev_free(struct net_device *dev)
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 3304b57..d8733e3 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -23,6 +23,7 @@
+ #include <linux/if_ether.h>
+ #include <linux/slab.h>
+ #include <net/sock.h>
++#include <linux/if_vlan.h>
+ 
+ #include "br_private.h"
+ 
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index caa3f69..75f368c 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -16,6 +16,7 @@
+ #include <net/rtnetlink.h>
+ #include <net/net_namespace.h>
+ #include <net/sock.h>
++#include <uapi/linux/if_bridge.h>
+ 
+ #include "br_private.h"
+ #include "br_private_stp.h"
+@@ -119,10 +120,14 @@ nla_put_failure:
+  */
+ void br_ifinfo_notify(int event, struct net_bridge_port *port)
+ {
+-	struct net *net = dev_net(port->dev);
++	struct net *net;
+ 	struct sk_buff *skb;
+ 	int err = -ENOBUFS;
+ 
++	if (!port)
++		return;
++
++	net = dev_net(port->dev);
+ 	br_debug(port->br, "port %u(%s) event %d\n",
+ 		 (unsigned int)port->port_no, port->dev->name, event);
+ 
+@@ -144,6 +149,7 @@ errout:
+ 		rtnl_set_sk_err(net, RTNLGRP_LINK, err);
+ }
+ 
++
+ /*
+  * Dump information about all ports, in response to GETLINK
+  */
+@@ -162,6 +168,59 @@ out:
+ 	return err;
+ }
+ 
++const struct nla_policy ifla_br_policy[IFLA_MAX+1] = {
++	[IFLA_BRIDGE_FLAGS]	= { .type = NLA_U16 },
++	[IFLA_BRIDGE_MODE]	= { .type = NLA_U16 },
++	[IFLA_BRIDGE_VLAN_INFO]	= { .type = NLA_BINARY,
++				    .len = sizeof(struct bridge_vlan_info), },
++};
++
++static int br_afspec(struct net_bridge *br,
++		     struct net_bridge_port *p,
++		     struct nlattr *af_spec,
++		     int cmd)
++{
++	struct nlattr *tb[IFLA_BRIDGE_MAX+1];
++	int err = 0;
++
++	err = nla_parse_nested(tb, IFLA_BRIDGE_MAX, af_spec, ifla_br_policy);
++	if (err)
++		return err;
++
++	if (tb[IFLA_BRIDGE_VLAN_INFO]) {
++		struct net_port_vlans *v;
++		struct bridge_vlan_info *vinfo;
++
++		vinfo = nla_data(tb[IFLA_BRIDGE_VLAN_INFO]);
++
++		if (vinfo->vid >= VLAN_N_VID)
++			return -EINVAL;
++
++		v = (p) ? &p->vlan_info : &br->vlan_info;
++
++		switch (cmd) {
++		case RTM_SETLINK:
++			err = nbp_vlan_add(v, vinfo->vid);
++			if (err)
++				break;
++			if (p && (vinfo->flags & BRIDGE_VLAN_INFO_MASTER)) {
++				err = nbp_vlan_add(&p->br->vlan_info,
++						   vinfo->vid);
++			}
++			break;
++
++		case RTM_DELLINK:
++			nbp_vlan_delete(v, vinfo->vid);
++			if (p && (vinfo->flags & BRIDGE_VLAN_INFO_MASTER))
++				nbp_vlan_delete(&p->br->vlan_info, vinfo->vid);
++
++			break;
++		}
++	}
++
++	return err;
++}
++
+ static const struct nla_policy ifla_brport_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_STATE]	= { .type = NLA_U8 },
+ 	[IFLA_BRPORT_COST]	= { .type = NLA_U32 },
+@@ -241,6 +300,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
+ {
+ 	struct ifinfomsg *ifm;
+ 	struct nlattr *protinfo;
++	struct nlattr *afspec;
+ 	struct net_bridge_port *p;
+ 	struct nlattr *tb[IFLA_BRPORT_MAX + 1];
+ 	int err;
+@@ -248,38 +308,76 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
+ 	ifm = nlmsg_data(nlh);
+ 
+ 	protinfo = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_PROTINFO);
+-	if (!protinfo)
++	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
++	if (!protinfo && !afspec)
+ 		return 0;
+ 
+ 	p = br_port_get_rtnl(dev);
+-	if (!p)
++	/* We want to accept dev as bridge itself if the AF_SPEC
++	 * is set to see if someone is setting vlan info on the brigde
++	 */
++	if (!p && ((dev->priv_flags & IFF_EBRIDGE) && !afspec))
+ 		return -EINVAL;
+ 
+-	if (protinfo->nla_type & NLA_F_NESTED) {
+-		err = nla_parse_nested(tb, IFLA_BRPORT_MAX,
+-				       protinfo, ifla_brport_policy);
++	if (p && protinfo) {
++		if (protinfo->nla_type & NLA_F_NESTED) {
++			err = nla_parse_nested(tb, IFLA_BRPORT_MAX,
++					       protinfo, ifla_brport_policy);
++			if (err)
++				return err;
++
++			spin_lock_bh(&p->br->lock);
++			err = br_setport(p, tb);
++			spin_unlock_bh(&p->br->lock);
++		} else {
++			/* Binary compatability with old RSTP */
++			if (nla_len(protinfo) < sizeof(u8))
++				return -EINVAL;
++
++			spin_lock_bh(&p->br->lock);
++			err = br_set_port_state(p, nla_get_u8(protinfo));
++			spin_unlock_bh(&p->br->lock);
++		}
+ 		if (err)
+-			return err;
+-
+-		spin_lock_bh(&p->br->lock);
+-		err = br_setport(p, tb);
+-		spin_unlock_bh(&p->br->lock);
+-	} else {
+-		/* Binary compatability with old RSTP */
+-		if (nla_len(protinfo) < sizeof(u8))
+-			return -EINVAL;
++			goto out;
++	}
+ 
+-		spin_lock_bh(&p->br->lock);
+-		err = br_set_port_state(p, nla_get_u8(protinfo));
+-		spin_unlock_bh(&p->br->lock);
++	if (afspec) {
++		err = br_afspec((struct net_bridge *)netdev_priv(dev), p,
++				afspec, RTM_SETLINK);
+ 	}
+ 
+ 	if (err == 0)
+ 		br_ifinfo_notify(RTM_NEWLINK, p);
+ 
++out:
+ 	return err;
+ }
+ 
++/* Delete port information */
++int br_dellink(struct net_device *dev, struct nlmsghdr *nlh)
++{
++	struct ifinfomsg *ifm;
++	struct nlattr *afspec;
++	struct net_bridge_port *p;
++	int err;
++
++	ifm = nlmsg_data(nlh);
++
++	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
++	if (!afspec)
++		return 0;
++
++	p = br_port_get_rtnl(dev);
++	/* We want to accept dev as bridge itself as well */
++	if (!p && !(dev->priv_flags & IFF_EBRIDGE))
++		return -EINVAL;
++
++	err = br_afspec((struct net_bridge *)netdev_priv(dev), p,
++			afspec, RTM_DELLINK);
++
++	return err;
++}
+ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
+ {
+ 	if (tb[IFLA_ADDRESS]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 45e4169..275f2a7 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -668,6 +668,7 @@ extern int br_netlink_init(void);
+ extern void br_netlink_fini(void);
+ extern void br_ifinfo_notify(int event, struct net_bridge_port *port);
+ extern int br_setlink(struct net_device *dev, struct nlmsghdr *nlmsg);
++extern int br_dellink(struct net_device *dev, struct nlmsghdr *nlmsg);
+ extern int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 		      struct net_device *dev);
+ 
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 9a419b0..1aba89f 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -2470,6 +2470,77 @@ out:
+ 	return err;
+ }
+ 
++static int rtnl_bridge_dellink(struct sk_buff *skb, struct nlmsghdr *nlh,
++			       void *arg)
++{
++	struct net *net = sock_net(skb->sk);
++	struct ifinfomsg *ifm;
++	struct net_device *dev;
++	struct nlattr *br_spec, *attr = NULL;
++	int rem, err = -EOPNOTSUPP;
++	u16 oflags, flags = 0;
++	bool have_flags = false;
++
++	if (nlmsg_len(nlh) < sizeof(*ifm))
++		return -EINVAL;
++
++	ifm = nlmsg_data(nlh);
++	if (ifm->ifi_family != AF_BRIDGE)
++		return -EPFNOSUPPORT;
++
++	dev = __dev_get_by_index(net, ifm->ifi_index);
++	if (!dev) {
++		pr_info("PF_BRIDGE: RTM_SETLINK with unknown ifindex\n");
++		return -ENODEV;
++	}
++
++	br_spec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
++	if (br_spec) {
++		nla_for_each_nested(attr, br_spec, rem) {
++			if (nla_type(attr) == IFLA_BRIDGE_FLAGS) {
++				have_flags = true;
++				flags = nla_get_u16(attr);
++				break;
++			}
++		}
++	}
++
++	oflags = flags;
++
++	if (!flags || (flags & BRIDGE_FLAGS_MASTER)) {
++		struct net_device *br_dev = netdev_master_upper_dev_get(dev);
++
++		if (!br_dev || !br_dev->netdev_ops->ndo_bridge_dellink) {
++			err = -EOPNOTSUPP;
++			goto out;
++		}
++
++		err = br_dev->netdev_ops->ndo_bridge_dellink(dev, nlh);
++		if (err)
++			goto out;
++
++		flags &= ~BRIDGE_FLAGS_MASTER;
++	}
++
++	if ((flags & BRIDGE_FLAGS_SELF)) {
++		if (!dev->netdev_ops->ndo_bridge_dellink)
++			err = -EOPNOTSUPP;
++		else
++			err = dev->netdev_ops->ndo_bridge_dellink(dev, nlh);
++
++		if (!err)
++			flags &= ~BRIDGE_FLAGS_SELF;
++	}
++
++	if (have_flags)
++		memcpy(nla_data(attr), &flags, sizeof(flags));
++	/* Generate event to notify upper layer of bridge change */
++	if (!err)
++		err = rtnl_bridge_notify(dev, oflags);
++out:
++	return err;
++}
++
+ /* Protected by RTNL sempahore.  */
+ static struct rtattr **rta_buf;
+ static int rtattr_max;
+@@ -2653,6 +2724,7 @@ void __init rtnetlink_init(void)
+ 	rtnl_register(PF_BRIDGE, RTM_GETNEIGH, NULL, rtnl_fdb_dump, NULL);
+ 
+ 	rtnl_register(PF_BRIDGE, RTM_GETLINK, NULL, rtnl_bridge_getlink, NULL);
++	rtnl_register(PF_BRIDGE, RTM_DELLINK, rtnl_bridge_dellink, NULL, NULL);
+ 	rtnl_register(PF_BRIDGE, RTM_SETLINK, rtnl_bridge_setlink, NULL, NULL);
+ }
+ 
 -- 
 1.7.7.6
 
