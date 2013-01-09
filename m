@@ -1,10 +1,9 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Message-Id: <1357751882-8619-11-git-send-email-vyasevic@redhat.com>
+Message-Id: <1357751882-8619-12-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
 References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH net-next v5 10/14] bridge: Add the ability to
-	configure pvid
+Subject: [Bridge] [PATCH 10/14] bridge: Add the ability to pvid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,7 +12,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Wed, 09 Jan 2013 17:18:20 -0000
+Date: Wed, 09 Jan 2013 17:18:21 -0000
 To: netdev@vger.kernel.org
 Cc: stephen@redhat.com, bridge@lists.linux-foundation.org, mst@redhat.com, davem@davemloft.net, shmulik.ladkani@gmail.com
 
@@ -24,13 +23,13 @@ this vlan and any forwarding decisions are made with this vlan in mind.
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
  include/uapi/linux/if_bridge.h |    1 +
- net/bridge/br_if.c             |   72 ++++++++++++++++++++++++++++++++++++++-
- net/bridge/br_netlink.c        |    4 +-
- net/bridge/br_private.h        |    3 +-
- 4 files changed, 75 insertions(+), 5 deletions(-)
+ net/bridge/br_if.c             |   77 +++++++++++++++++++++++++++++++++++++--
+ net/bridge/br_netlink.c        |    9 +++--
+ net/bridge/br_private.h        |    5 ++-
+ 4 files changed, 82 insertions(+), 10 deletions(-)
 
 diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 2645d51..875c9e2 100644
+index 1bc9216..e5ea4cb 100644
 --- a/include/uapi/linux/if_bridge.h
 +++ b/include/uapi/linux/if_bridge.h
 @@ -120,6 +120,7 @@ enum {
@@ -42,7 +41,7 @@ index 2645d51..875c9e2 100644
  struct bridge_vlan_info {
  	u16 flags;
 diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 4878c20..ca8ae30 100644
+index 7377113..0698581 100644
 --- a/net/bridge/br_if.c
 +++ b/net/bridge/br_if.c
 @@ -182,6 +182,56 @@ static void br_vlan_flush(struct net_bridge *br)
@@ -114,7 +113,7 @@ index 4878c20..ca8ae30 100644
  	struct net_bridge_vlan *vlan;
  	struct net_bridge *br = vlans_to_bridge(v);
  	struct net_bridge_port *p = vlans_to_port(v);
-@@ -247,12 +297,22 @@ int nbp_vlan_add(struct net_port_vlans *v, u16 vid)
+@@ -247,26 +297,45 @@ int nbp_vlan_add(struct net_port_vlans *v, u16 vid)
  	set_bit(v->port_idx, vlan->port_bitmap);
  
  	list_add_tail_rcu(&pve->list, &v->vlan_list);
@@ -132,12 +131,13 @@ index 4878c20..ca8ae30 100644
  	br_vlan_del(vlan);
  	return err;
 +del_vlan:
-+	nbp_vlan_delete(v, vid);
++	nbp_vlan_delete(v, vid, flags);
 +	return err;
  }
  
  /* Must be protected by RTNL */
-@@ -260,13 +320,21 @@ int nbp_vlan_delete(struct net_port_vlans *v, u16 vid)
+-int nbp_vlan_delete(struct net_port_vlans *v, u16 vid)
++int nbp_vlan_delete(struct net_port_vlans *v, u16 vid, u16 flags)
  {
  	struct net_port_vlan *pve;
  	struct net_bridge_vlan *vlan;
@@ -154,16 +154,26 @@ index 4878c20..ca8ae30 100644
  	if (!pve)
  		return -ENOENT;
  
-+	nbp_vlan_delete_pvid(v, pve->vlan);
++	if (flags & BRIDGE_VLAN_INFO_PVID)
++		nbp_vlan_delete_pvid(v, pve->vlan);
 +
  	if (v->port_idx) {
  		/* A valid port index means this is a port.
  		 * Remove VLAN from the port device filter if it is supported.
+@@ -301,7 +370,7 @@ static void nbp_vlan_flush(struct net_port_vlans *vlans)
+ 	ASSERT_RTNL();
+ 
+ 	list_for_each_entry_safe(pve, tmp, &vlans->vlan_list, list)
+-		nbp_vlan_delete(vlans, pve->vid);
++		nbp_vlan_delete(vlans, pve->vid, BRIDGE_VLAN_INFO_PVID);
+ }
+ 
+ static void release_nbp(struct kobject *kobj)
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 75f368c..1dbfcf3 100644
+index f365ac4..08692d1 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -200,12 +200,12 @@ static int br_afspec(struct net_bridge *br,
+@@ -200,19 +200,20 @@ static int br_afspec(struct net_bridge *br,
  
  		switch (cmd) {
  		case RTM_SETLINK:
@@ -178,8 +188,18 @@ index 75f368c..1dbfcf3 100644
  			}
  			break;
  
+ 		case RTM_DELLINK:
+-			nbp_vlan_delete(v, vinfo->vid);
++			nbp_vlan_delete(v, vinfo->vid, vinfo->flags);
+ 			if (p && (vinfo->flags & BRIDGE_VLAN_INFO_MASTER))
+-				nbp_vlan_delete(&p->br->vlan_info, vinfo->vid);
++				nbp_vlan_delete(&p->br->vlan_info, vinfo->vid,
++						vinfo->flags);
+ 
+ 			break;
+ 		}
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 9a5cdb2..bf00a5e 100644
+index 4c507a4..d39701a 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
 @@ -89,6 +89,7 @@ struct net_port_vlan {
@@ -190,15 +210,17 @@ index 9a5cdb2..bf00a5e 100644
  };
  
  struct net_bridge_fdb_entry
-@@ -475,7 +476,7 @@ extern int br_min_mtu(const struct net_bridge *br);
+@@ -472,8 +473,8 @@ extern int br_min_mtu(const struct net_bridge *br);
  extern netdev_features_t br_features_recompute(struct net_bridge *br,
  	netdev_features_t features);
  extern struct net_bridge_vlan *br_vlan_find(struct net_bridge *br, u16 vid);
 -extern int nbp_vlan_add(struct net_port_vlans *v, u16 vid);
+-extern int nbp_vlan_delete(struct net_port_vlans *v, u16 vid);
 +extern int nbp_vlan_add(struct net_port_vlans *v, u16 vid, u16 flags);
- extern int nbp_vlan_delete(struct net_port_vlans *v, u16 vid);
++extern int nbp_vlan_delete(struct net_port_vlans *v, u16 vid, u16 flags);
  extern struct net_port_vlan *nbp_vlan_find(const struct net_port_vlans *v,
  					   u16 vid);
+ 
 -- 
 1.7.7.6
 
