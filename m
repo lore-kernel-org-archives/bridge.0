@@ -1,23 +1,10 @@
-Return-Path: <roszenrami@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc:content-type;
-	bh=btYHVS8MZnYI2ujs0FAWDXVKFShNHuGd/O6Hkefk9+A=;
-	b=C3M1TNbTFObMo0aiFD0pMooF0nuZn3m7jYUgktN/c6/cA/S2zZR/ZhKkvyHsDFXCBy
-	PhBZPlAYTOior2B2YRDmqzi2iBuPBiKNj74YVx8cBnKTXfILt4hru2muqiG3ORm39YWH
-	dKtAXwHn9+2nI8Lpt4CuUSLJR+1OK3IcfgQDOGBoMZZ3U+1yOFsTrFQdc2SAtXqS9V/q
-	yZ0bvYu1FC5ClX7GlRaVQII6x/+hV2BLk3lJDC7SHBLsgkrm1P3KN0L3lSXFuxvd0A6D
-	spHWeIAU5rCCBSz2sxllAix5mjPI3nfI95zpnhZdMn7pNe3XzGychB2I6ZGK863e/+H4
-	GObw==
-MIME-Version: 1.0
-In-Reply-To: <20130104112716.596f9085@nehalam.linuxnetplumber.net>
-References: <20130104152814.3a3cf74bdec76cea09d3e134@canb.auug.org.au>
-	<50E72977.7030605@infradead.org>
-	<20130104112716.596f9085@nehalam.linuxnetplumber.net>
-Message-ID: <CAKoUArn=6UMjcKC6rnUmpkXFxQvSWnc=1N44iZFPKn80aMBNvA@mail.gmail.com>
-From: Rami Rosen <roszenrami@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: Re: [Bridge] linux-next: Tree for Jan 4 (net/bridge)
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Message-Id: <1357751882-8619-2-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
+References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH net-next v5 01/14] vlan: wrap hw-acceleration calls
+	in separate functions.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,55 +13,161 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 04 Jan 2013 19:54:58 -0000
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Randy Dunlap <rdunlap@infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-next@vger.kernel.org
+Date: Wed, 09 Jan 2013 17:18:08 -0000
+To: netdev@vger.kernel.org
+Cc: stephen@redhat.com, bridge@lists.linux-foundation.org, mst@redhat.com, davem@davemloft.net, shmulik.ladkani@gmail.com
 
-Hi,
+Wrap VLAN hardware acceleration calls into separate functions.  This way
+other code can re-use it.
 
-The cause of the problem in net tree (but **not** net-next tree) is:
-commit 3ec8e9f085bcaef0de1077f555c2c5102c223390
-"bridge: Correctly unregister MDB rtnetlink handlers"
-and it is fixed by a patch from me, for the net tree, from yesterday.
+Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+---
+ include/linux/if_vlan.h |   57 +++++++++++++++++++++++++++++++++++++++++++++++
+ net/8021q/vlan.c        |    4 +--
+ net/8021q/vlan_core.c   |   24 ++++++-------------
+ 3 files changed, 66 insertions(+), 19 deletions(-)
 
-see:
-http://www.spinics.net/lists/netdev/msg221168.html
+diff --git a/include/linux/if_vlan.h b/include/linux/if_vlan.h
+index d06cc5c..e1deb91 100644
+--- a/include/linux/if_vlan.h
++++ b/include/linux/if_vlan.h
+@@ -158,6 +158,63 @@ static inline bool vlan_uses_dev(const struct net_device *dev)
+ #endif
+ 
+ /**
++ * vlan_hw_buggy - Check to see if VLAN hw acceleration is supported.
++ * @dev: netdevice of the lowerdev/hw nic
++ *
++ * Checks to see if HW and driver report VLAN acceleration correctly.
++ */
++static inline bool vlan_hw_buggy(const struct net_device *dev)
++{
++	const struct net_device_ops *ops = dev->netdev_ops;
++
++	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
++	    (!ops->ndo_vlan_rx_add_vid || !ops->ndo_vlan_rx_kill_vid))
++		return true;
++
++	return false;
++}
++
++/**
++ * vlan_vid_add_hw - Add the VLAN vid to the HW filter
++ * @dev: netdevice of the lowerdev/hw nic
++ * @vid: vlan id.
++ *
++ * Inserts the vid into the HW vlan filter table if hw supports it.
++ */
++static inline int vlan_vid_add_hw(struct net_device *dev,
++				  unsigned short vid)
++{
++	const struct net_device_ops *ops = dev->netdev_ops;
++	int err = 0;
++
++	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
++	    ops->ndo_vlan_rx_add_vid)
++		err = ops->ndo_vlan_rx_add_vid(dev, vid);
++
++	return err;
++}
++
++/**
++ * vlan_vid_del_hw - Delete the VLAN vid from the HW filter
++ * @dev: netdevice of the lowerdev/hw nic
++ * @vid: vlan id.
++ *
++ * Delete the vid from the HW vlan filter table if hw supports it.
++ */
++static inline int vlan_vid_del_hw(struct net_device *dev,
++				  unsigned short vid)
++{
++	const struct net_device_ops *ops = dev->netdev_ops;
++	int err = 0;
++
++	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
++	    ops->ndo_vlan_rx_kill_vid)
++		err = ops->ndo_vlan_rx_add_vid(dev, vid);
++
++	return err;
++}
++
++/**
+  * vlan_insert_tag - regular VLAN tag inserting
+  * @skb: skbuff to tag
+  * @vlan_tci: VLAN TCI to insert
+diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
+index babfde9..540d759 100644
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -117,15 +117,13 @@ void unregister_vlan_dev(struct net_device *dev, struct list_head *head)
+ int vlan_check_real_dev(struct net_device *real_dev, u16 vlan_id)
+ {
+ 	const char *name = real_dev->name;
+-	const struct net_device_ops *ops = real_dev->netdev_ops;
+ 
+ 	if (real_dev->features & NETIF_F_VLAN_CHALLENGED) {
+ 		pr_info("VLANs not supported on %s\n", name);
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if ((real_dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	    (!ops->ndo_vlan_rx_add_vid || !ops->ndo_vlan_rx_kill_vid)) {
++	if (vlan_hw_buggy(real_dev)) {
+ 		pr_info("Device %s has buggy VLAN hw accel\n", name);
+ 		return -EOPNOTSUPP;
+ 	}
+diff --git a/net/8021q/vlan_core.c b/net/8021q/vlan_core.c
+index 380440b..04a1f03 100644
+--- a/net/8021q/vlan_core.c
++++ b/net/8021q/vlan_core.c
+@@ -216,7 +216,6 @@ static int __vlan_vid_add(struct vlan_info *vlan_info, unsigned short vid,
+ 			  struct vlan_vid_info **pvid_info)
+ {
+ 	struct net_device *dev = vlan_info->real_dev;
+-	const struct net_device_ops *ops = dev->netdev_ops;
+ 	struct vlan_vid_info *vid_info;
+ 	int err;
+ 
+@@ -224,13 +223,10 @@ static int __vlan_vid_add(struct vlan_info *vlan_info, unsigned short vid,
+ 	if (!vid_info)
+ 		return -ENOMEM;
+ 
+-	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	    ops->ndo_vlan_rx_add_vid) {
+-		err =  ops->ndo_vlan_rx_add_vid(dev, vid);
+-		if (err) {
+-			kfree(vid_info);
+-			return err;
+-		}
++	err = vlan_vid_add_hw(dev, vid);
++	if (err) {
++		kfree(vid_info);
++		return err;
+ 	}
+ 	list_add(&vid_info->list, &vlan_info->vid_list);
+ 	vlan_info->nr_vids++;
+@@ -278,17 +274,13 @@ static void __vlan_vid_del(struct vlan_info *vlan_info,
+ 			   struct vlan_vid_info *vid_info)
+ {
+ 	struct net_device *dev = vlan_info->real_dev;
+-	const struct net_device_ops *ops = dev->netdev_ops;
+ 	unsigned short vid = vid_info->vid;
+ 	int err;
+ 
+-	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	     ops->ndo_vlan_rx_kill_vid) {
+-		err = ops->ndo_vlan_rx_kill_vid(dev, vid);
+-		if (err) {
+-			pr_warn("failed to kill vid %d for device %s\n",
+-				vid, dev->name);
+-		}
++	err = vlan_vid_del_hw(dev, vid);
++	if (err) {
++		pr_warn("failed to kill vid %d for device %s\n",
++			vid, dev->name);
+ 	}
+ 	list_del(&vid_info->list);
+ 	kfree(vid_info);
+-- 
+1.7.7.6
 
-probably this patch, which was applied to net,  was not pulled yet.
-
-I believe that since the commit above was not to net-next, this
-problem is not observed in your tree.
-
-Rami Rosen
-http://ramirose.wix.com/ramirosen
-
-On Fri, Jan 4, 2013 at 9:27 PM, Stephen Hemminger <shemminger@vyatta.com> wrote:
-> On Fri, 04 Jan 2013 11:11:51 -0800
-> Randy Dunlap <rdunlap@infradead.org> wrote:
->
->> On 01/03/13 20:28, Stephen Rothwell wrote:
->> > Hi all,
->> >
->> > Changes since 20130103:
->> >
->>
->> on i386 and x86_64:
->>
->>   CC      net/bridge/br_netlink.o
->> net/bridge/br_netlink.c: In function 'br_netlink_init':
->> net/bridge/br_netlink.c:307:2: error: implicit declaration of function 'br_mdb_init' [-Werror=implicit-function-declaration]
->> net/bridge/br_netlink.c:314:2: error: implicit declaration of function 'br_mdb_uninit' [-Werror=implicit-function-declaration]
->> cc1: some warnings being treated as errors
->> make[3]: *** [net/bridge/br_netlink.o] Error 1
->>
->>
->> Full randconfig file is attached.
->>
->>
->
-> Problem not observed with current net-next and your configuration.
-> Probably already fixed.
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
