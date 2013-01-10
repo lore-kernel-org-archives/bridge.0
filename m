@@ -1,14 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 04 Jan 2013 13:33:31 -0800 (PST)
-Message-Id: <20130104.133331.1729083969241157711.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1357289343-817-1-git-send-email-jiri@resnulli.us>
-References: <1357289343-817-1-git-send-email-jiri@resnulli.us>
+Return-Path: <shemminger@vyatta.com>
+Date: Thu, 10 Jan 2013 10:25:25 -0800
+From: Stephen Hemminger <shemminger@vyatta.com>
+Message-ID: <20130110102525.2ff40c12@nehalam.linuxnetplumber.net>
+In-Reply-To: <1357751882-8619-2-git-send-email-vyasevic@redhat.com>
+References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
+	<1357751882-8619-2-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [patch net-next V6 00/15] net: introduce upper device
- lists and remove dev->master
+Subject: Re: [Bridge] [PATCH net-next v5 01/14] vlan: wrap hw-acceleration
+ calls in separate functions.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,15 +18,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jiri@resnulli.us
-Cc: bridge@lists.linux-foundation.org, ursula.braun@de.ibm.com, john.r.fastabend@intel.com, edumazet@google.com, shemminger@vyatta.com, sean.hefty@intel.com, therbert@google.com, roland@kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, fubar@us.ibm.com, fbl@redhat.com, hal.rosenstock@gmail.com, faisal.latif@intel.com, linux-driver@qlogic.com, blaschka@linux.vnet.ibm.com, sony.chacko@qlogic.com, gregory.v.rose@intel.com, bhutchings@solarflare.com, xiyou.wangcong@gmail.com, jitendra.kalsaria@qlogic.com, divy@chelsio.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, joe@perches.com, linux390@de.ibm.com, kaber@trash.net
+To: Vlad Yasevich <vyasevic@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, stephen@redhat.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net
 
-From: Jiri Pirko <jiri@resnulli.us>
-Date: Fri,  4 Jan 2013 09:48:48 +0100
+On Wed,  9 Jan 2013 12:17:48 -0500
+Vlad Yasevich <vyasevic@redhat.com> wrote:
 
-> This patchset adds a possibility to record upper device linkage.
-> All upper<->lower devices are converted to use this mechanism right after.
-> That leads to dev->master removal because this info becomes redundant since
-> "master links" have the same value.
+>  
+>  /**
+> + * vlan_hw_buggy - Check to see if VLAN hw acceleration is supported.
+> + * @dev: netdevice of the lowerdev/hw nic
+> + *
+> + * Checks to see if HW and driver report VLAN acceleration correctly.
+> + */
+> +static inline bool vlan_hw_buggy(const struct net_device *dev)
+> +{
+> +	const struct net_device_ops *ops = dev->netdev_ops;
+> +
+> +	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+> +	    (!ops->ndo_vlan_rx_add_vid || !ops->ndo_vlan_rx_kill_vid))
+> +		return true;
+> +
+> +	return false;
+> +}
+> +
+> +/**
+> + * vlan_vid_add_hw - Add the VLAN vid to the HW filter
+> + * @dev: netdevice of the lowerdev/hw nic
+> + * @vid: vlan id.
+> + *
+> + * Inserts the vid into the HW vlan filter table if hw supports it.
+> + */
+> +static inline int vlan_vid_add_hw(struct net_device *dev,
+> +				  unsigned short vid)
+> +{
+> +	const struct net_device_ops *ops = dev->netdev_ops;
+> +	int err = 0;
+> +
+> +	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+> +	    ops->ndo_vlan_rx_add_vid)
+> +		err = ops->ndo_vlan_rx_add_vid(dev, vid);
+> +
+> +	return err;
+> +}
+> +
+> +/**
+> + * vlan_vid_del_hw - Delete the VLAN vid from the HW filter
+> + * @dev: netdevice of the lowerdev/hw nic
+> + * @vid: vlan id.
+> + *
+> + * Delete the vid from the HW vlan filter table if hw supports it.
+> + */
+> +static inline int vlan_vid_del_hw(struct net_device *dev,
+> +				  unsigned short vid)
+> +{
+> +	const struct net_device_ops *ops = dev->netdev_ops;
+> +	int err = 0;
+> +
+> +	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+> +	    ops->ndo_vlan_rx_kill_vid)
+> +		err = ops->ndo_vlan_rx_add_vid(dev, vid);
+> +
+> +	return err;
+> +}
+> +
 
-Series applied, thanks Jiri.
+I would rather not have all these inline's. This isn't performance critical.
+Also, the check for buggy devices should be done inside the vlan code,
+not repeated in the functions using the add/remove API. When device is
+registered the flag and add/kill should be checked, and if the device driver
+is buggy it should fail the register_netdevice.
+
