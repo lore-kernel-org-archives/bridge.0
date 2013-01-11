@@ -1,19 +1,19 @@
 Return-Path: <vyasevic@redhat.com>
-Message-ID: <50F030CF.20800@redhat.com>
+Message-ID: <50F04EDC.9040309@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
 References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
-	<1357751882-8619-3-git-send-email-vyasevic@redhat.com>
-	<20130110103614.23383079@nehalam.linuxnetplumber.net>
-	<50EF0FF7.3080407@redhat.com> <50EF1537.7030209@redhat.com>
-	<20130110141005.427ccaf9@nehalam.linuxnetplumber.net>
-	<50EF6759.2000908@redhat.com>
-	<20130111155354.4ff8aeac.shmulik.ladkani@gmail.com>
-In-Reply-To: <20130111155354.4ff8aeac.shmulik.ladkani@gmail.com>
+	<1357751882-8619-2-git-send-email-vyasevic@redhat.com>
+	<20130110102525.2ff40c12@nehalam.linuxnetplumber.net>
+	<50EF0B76.2040503@redhat.com>
+	<20130110140749.153023fa@nehalam.linuxnetplumber.net>
+	<50EF660B.2090500@redhat.com>
+	<20130111092004.2d55ae65@nehalam.linuxnetplumber.net>
+In-Reply-To: <20130111092004.2d55ae65@nehalam.linuxnetplumber.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v5 02/14] bridge: Add vlan filtering
-	infrastructure
+Subject: Re: [Bridge] [PATCH net-next v5 01/14] vlan: wrap hw-acceleration
+ calls in separate functions.
 Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -23,60 +23,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 11 Jan 2013 15:33:41 -0000
-To: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Cc: netdev@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
+Date: Fri, 11 Jan 2013 17:41:53 -0000
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, stephen@redhat.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net
 
-On 01/11/2013 08:53 AM, Shmulik Ladkani wrote:
-> Hi,
+On 01/11/2013 12:20 PM, Stephen Hemminger wrote:
+> What I think is the least intrusive and allows for maximum flexibility
+> is having the VLAN bridge filtering depend on VLAN support (CONFIG_VLAN_8021Q).
+> There already is drivers that depend on that value to enable filtering.
 >
-> On Thu, 10 Jan 2013 20:14:01 -0500 Vlad Yasevich <vyasevic@redhat.com> wrote:
->> On 01/10/2013 05:10 PM, Stephen Hemminger wrote:
->>> Also the concept of different filters for egress vs ingress is feature
->>> madness. It doesn't make sense to have half-duplex connectivity.
->>
->> I am of the same opinion, but it actually simplified the code quite a
->> bit, but at the cost of additional memory footprint.  If you find this
->> very objectionable, I can easily remove it.
->
-> Haven't looked on the V5 series yet, but just to clarify:
->
-> There's *no* different membership _filter_ for egress vs ingress.
-> The vlan's membership map is consulted on both ingress and egress.
 
-Right.
+The only thing that I see depending on CONFIG_VLAN_8021Q is 
+CONFIG_VLAN_8021Q_GVRP which is part of the 8021Q support.
+There are currently no other drivers depending on 8021Q functionality
+and vlan filtering in drivers doesn't depend on 8021Q support in
+the kernel.
 
->
-> However, upon egress, a vlan egress _policy_ should be applied, which
-> determines whether the frame should egress tagged/untagged on the egress
-> port.
+I admit that I've thought of having a dependency on 8021Q as it would 
+have allowed me to re-use a bit more code, but decided that bridge 
+should be able to stand on its own in this regard.  8021Q is not 
+necessary to turn on VLAN accelerated filtering on the nics as anyone 
+can do it through the ndo_vlan_rx_add_vid() call.
 
-Right.  This is how it is implemented in this series and this is what 
-Stephen finds "mad".  You can configure the policy that on egress the 
-packet is untagged, but on ingress it has to be tagged.  This kind of 
-half-duplex configuration is very prone to errors.
+The reason for this patch was to make the nic vlan filter code reusable
+and address Jiri Pirko's comment in the V2 series.
+(http://marc.info/?l=linux-netdev&m=135590565719164&w=2).  This way,
+bridge wouldn't need to make direct ndo_ calls and all call sights will
+be consistent.
 
+> And make the support of VLAN filtering in the bridge conditional like
+> IGMP snooping is optional
+
+I could certainly make the VLAN filtering conditional, but I am not sure 
+what it would buy us other then a lot of ifdefs.
+
+Thanks
 -vlad
 
 >
-> The expected logic in detailed in [1] (please read "steps 1..5").
-> and the data structures needed are:
->    - per port: PVID
->    - per VLAN: port membership map
->    - per VLAN: port egress policy map
+> --- a/net/bridge/Kconfig
+> +++ b/net/bridge/Kconfig
+> @@ -46,3 +46,17 @@ config BRIDGE_IGMP_SNOOPING
+>            Say N to exclude this support and reduce the binary size.
 >
-> Altough on 1st look it might look mad ;-)
-> But, this is genuinely simple, highly configurable and allows great
-> flexibility (IMO with no additional code complexity; Vlad can probably
-> comment).
->
-> The motivation is to be aligned with behavior and configurability of
-> vlan switches.
->
-> Regards,
-> Shmulik
->
-> [1]
-> http://marc.info/?l=linux-netdev&m=135603447030826&w=2
+>            If unsure, say Y.
+> +
+> +config BRIDGE_VLAN_FILTERING
+> +       bool "VLAN filtering"
+> +       depends on BRIDGE
+> +       depends on VLAN_8021Q
+> +       default n
+> +       ---help---
+> +         If you say Y here, then the Ethernet bridge will be able to
+> +        selectively filter traffic based on VLAN tag.
+> +
+> +        Say N to exclude this support and reduce the binary size.
+> +
+> +        If unsure, say Y.
 >
 
