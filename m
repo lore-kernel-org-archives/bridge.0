@@ -1,22 +1,12 @@
-Return-Path: <vyasevic@redhat.com>
-Message-ID: <50F05FB3.4000909@redhat.com>
-From: Vlad Yasevich <vyasevic@redhat.com>
+Return-Path: <sandeepacs@tataelxsi.co.in>
+Message-ID: <50F3D5FD.6090608@tataelxsi.co.in>
+From: Sandeepa C S <sandeepacs@tataelxsi.co.in>
 MIME-Version: 1.0
-References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
-	<1357751882-8619-2-git-send-email-vyasevic@redhat.com>
-	<20130110102525.2ff40c12@nehalam.linuxnetplumber.net>
-	<50EF0B76.2040503@redhat.com>
-	<20130110140749.153023fa@nehalam.linuxnetplumber.net>
-	<50EF660B.2090500@redhat.com>
-	<20130111092004.2d55ae65@nehalam.linuxnetplumber.net>
-	<50F04EDC.9040309@redhat.com>
-	<20130111102318.579abe94@nehalam.linuxnetplumber.net>
-In-Reply-To: <20130111102318.579abe94@nehalam.linuxnetplumber.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v5 01/14] vlan: wrap hw-acceleration
- calls in separate functions.
-Reply-To: vyasevic@redhat.com
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Information needed on the kernel version which supports
+	----
+Reply-To: sandeepacs@tataelxsi.co.in
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,87 +15,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 11 Jan 2013 18:53:45 -0000
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, stephen@redhat.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net
+Date: Mon, 14 Jan 2013 10:10:10 -0000
+To: vyasevic@redhat.com, shemminger@vyatta.com, mst@redhat.com, netdev@vger.kernel.org, stephen@redhat.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net, mst@redhat.com, netdev@vger.kernel.org, stephen@redhat.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net, "Satyanarayana Reddy M
+	(D&D)" <satyanarayanam@tataelxsi.co.in>
 
-On 01/11/2013 01:23 PM, Stephen Hemminger wrote:
-> On Fri, 11 Jan 2013 12:41:48 -0500
-> Vlad Yasevich <vyasevic@redhat.com> wrote:
->
->> On 01/11/2013 12:20 PM, Stephen Hemminger wrote:
->>> What I think is the least intrusive and allows for maximum flexibility
->>> is having the VLAN bridge filtering depend on VLAN support (CONFIG_VLAN_8021Q).
->>> There already is drivers that depend on that value to enable filtering.
->>>
->>
->> The only thing that I see depending on CONFIG_VLAN_8021Q is
->> CONFIG_VLAN_8021Q_GVRP which is part of the 8021Q support.
->> There are currently no other drivers depending on 8021Q functionality
->> and vlan filtering in drivers doesn't depend on 8021Q support in
->> the kernel.
->>
->> I admit that I've thought of having a dependency on 8021Q as it would
->> have allowed me to re-use a bit more code, but decided that bridge
->> should be able to stand on its own in this regard.  8021Q is not
->> necessary to turn on VLAN accelerated filtering on the nics as anyone
->> can do it through the ndo_vlan_rx_add_vid() call.
->>
->> The reason for this patch was to make the nic vlan filter code reusable
->> and address Jiri Pirko's comment in the V2 series.
->> (http://marc.info/?l=linux-netdev&m=135590565719164&w=2).  This way,
->> bridge wouldn't need to make direct ndo_ calls and all call sights will
->> be consistent.
->>
->>> And make the support of VLAN filtering in the bridge conditional like
->>> IGMP snooping is optional
->>
->> I could certainly make the VLAN filtering conditional, but I am not sure
->> what it would buy us other then a lot of ifdefs.
->>
->> Thanks
->> -vlad
->>
->>>
->>> --- a/net/bridge/Kconfig
->>> +++ b/net/bridge/Kconfig
->>> @@ -46,3 +46,17 @@ config BRIDGE_IGMP_SNOOPING
->>>             Say N to exclude this support and reduce the binary size.
->>>
->>>             If unsure, say Y.
->>> +
->>> +config BRIDGE_VLAN_FILTERING
->>> +       bool "VLAN filtering"
->>> +       depends on BRIDGE
->>> +       depends on VLAN_8021Q
->>> +       default n
->>> +       ---help---
->>> +         If you say Y here, then the Ethernet bridge will be able to
->>> +        selectively filter traffic based on VLAN tag.
->>> +
->>> +        Say N to exclude this support and reduce the binary size.
->>> +
->>> +        If unsure, say Y.
->>>
->>
->
-> Doing the following shows several drivers that still depend on VLAN_8021Q being
-> enabled to do VLAN tagging.
-> $ git grep -l CONFIG_VLAN_8021Q
-> ethernet/3com/3c59x.c
-> ethernet/adaptec/starfire.c
-> ethernet/amd/amd8111e.c
-> ethernet/broadcom/cnic.c
-> ethernet/broadcom/tg3.c
-> ethernet/dlink/sundance.c
-> ethernet/natsemi/ns83820.c
-> ethernet/sis/sis900.c
-> ethernet/sis/sis900.h
-> ethernet/stmicro/stmmac/common.h
+Dear All,
+
+We are trying to add vlan support for the IGMP snooping feature in the
+kernel version 2.6.39
+But from the below thread discussion we understood that vlan support is
+already in the bridge.
+http://www.spinics.net/lists/netdev/msg221800.html
+
+Could you please let us know the below informations,
+1) On what kernel version the VLAN support for multicast groups is being
+done
+2)On what flavors it is supported, is it available with Debian
+3)How can we get/download the supported patch files for reference.
+
+--
+ Thanks & Regards,
+ Sandeepa cs.
+
+Notice: The information contained in this e-mail message and/or attachments=
+ to it may contain confidential or privileged information. If you are not t=
+he intended recipient, any dissemination, use, review, distribution, printi=
+ng or copying of the information contained in this e-mail message and/or at=
+tachments to it are strictly prohibited. If you have received this communic=
+ation in error, please notify us by reply e-mail or telephone and immediate=
+ly and permanently delete the message and any attachments. Thank you
 
 
-OK.  You've convinced me.  I can make my code depend on 8021Q and move 
-these functions into vlan module.
-I'll update the series with these changes.
-
--vlad
