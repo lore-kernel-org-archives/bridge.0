@@ -1,7 +1,10 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Message-Id: <1358360289-23249-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH net-next V6 00/14] Add basic VLAN support to bridges
+Message-Id: <1358360289-23249-2-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1358360289-23249-1-git-send-email-vyasevic@redhat.com>
+References: <1358360289-23249-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH net-next V6 01/14] vlan: wrap hw-acceleration calls
+	in separate functions.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,146 +17,192 @@ Date: Wed, 16 Jan 2013 18:18:14 -0000
 To: netdev@vger.kernel.org
 Cc: shemminger@vyatta.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net, mst@redhat.com
 
-This series of patches provides an ability to add VLANs to the bridge
-ports.  This is similar to what can be found in most switches.  The bridge
-port may have any number of VLANs added to it including vlan 0 priority tagged
-traffic.  When vlans are added to the port, only traffic tagged with particular
-vlan will forwarded over this port.  Additionally, vlan ids are added to FDB
-entries and become part of the lookup.  This way we correctly identify the FDB
-entry.
+Wrap VLAN hardware acceleration calls into separate functions.  This way
+other code can re-use it.
 
-A single vlan per port may also be designated as a PVID.  Any untagged
-traffic recieved by the port will be assigned to this vlan and all further
-processing will be done with this vlan in mind.
+Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+---
+ include/linux/if_vlan.h |   21 ++++++++++++
+ net/8021q/vlan.c        |    4 +--
+ net/8021q/vlan_core.c   |   81 +++++++++++++++++++++++++++++++++++++---------
+ 3 files changed, 87 insertions(+), 19 deletions(-)
 
-Any number for vlans per port may also be designated as untagged.  This
-defines their egress policy such that any frame exiting the port with a
-VID matching the untagged vlan will exit untagged (the bridge will strip the
-vlan header).
-
-Bridge device is trated as just another port for the purposes of vlan
-configuration so, users have to configure which vlans are allowed to
-enter and exit the bridge master device.
-
-The default behavior of the bridge is unchanged if no vlans have been
-configured.  Default behavior of each port is also unchanged if no
-vlans are configured on that port (i.e there are no ingress/egress checks
-or vlan header manipulation).
-
-Vlan filtering can now be optionally compiled in or left out.
-
-Changes since v5:
- - Pulled VLAN filtering into its own file and made it a configuration options.
- - Made new vlan filtering option dependent on VLAN_8021Q.
- - Got rid of HW filter inlines and moved then vlan_core.c.
-   (All of the above suggested by Stephen Hemminger)
-
-Changes since v4:
- - Pull per-port vlan data into its own structures and give it to the bridge
-   device thus making bridge device behave like a regular port for vlan
-   configuration.
- - Add a per-vlan 'untagged' bitmap that determins egress policy.  If a port
-   is part of this bitmap, traffic egresses untagged.
- - PVID is now used for ingress policy only.  Incomming frames without VLAN tag
-   are assigned to the PVID vlan.  Egress is determined via bitmap memberships.
- - Allow for incremental config of a vlan.  Now, PVID and untagged memberships
-   may be set on existing vlans.  They however can NOT be cleared separately.
- - VLAN deletion is now done via RTM_DELLINK command for PF_BRIDGE family.
-   This cleans up the netlink interface.
-
-Changes since v3:
- - Re-integrated compiler problems that got left out last time.  Appologies.
- - checkpatches.pl errors fixed
-
-Changes since v2:
- - Added inline functiosn to manimulate vlan hw filters and re-use in 8021q
-   and bridge code.
- - Use rtnl_dereference (Michael Tsirkin)
- - Remove synchronize_net() call (Eric Dumazet)
- - Fix NULL ptr deref bug I introduced in br_ifinfo_notify.
-
-Changes since v1:
- - Fixed some forwarding bugs.
- - Add vlan to local fdb entries.  New local entries are created per vlan
-   to facilite correct forwarding to bridge interface.
- - Allow configuration of vlans directly on the bridge master device
-   in addition to ports.
-
-Changes since rfc v2:
- - Per-port vlan bitmap is gone and is replaced with a vlan list.
- - Added bridge vlan list, which is referenced by each port.  Entries in
-   the birdge vlan list have port bitmap that shows which port are parts
-   of which vlan.
- - Netlink API changes.
- - Dropped sysfs support for now.  If people think this is really usefull,
-   can add it back.
- - Support for native/untagged vlans.
-
-Changes since rfc v1:
- - Comments addressed regarding formatting and RCU usage
- - iocts have been removed and changed over the netlink interface.
- - Added support of user added ndb entries.
- - changed sysfs interface to export a bitmap.  Also added a write interface.
-   I am not sure how much I like it, but it made my testing easier/faster.  I
-   might change the write interface to take text instead of binary.
-
-Vlad Yasevich (14):
-  vlan: wrap hw-acceleration calls in separate functions.
-  bridge: Add vlan filtering infrastructure
-  bridge: Validate that vlan is permitted on ingress
-  bridge: Verify that a vlan is allowed to egress on give port
-  bridge: Cache vlan in the cb for faster egress lookup.
-  bridge: Add netlink interface to configure vlans on bridge ports
-  bridge: Add the ability to configure pvid
-  bridge: Implement vlan ingress/egress policy
-  bridge: API to configure egress policy
-  bridge: Add vlan to unicast fdb entries
-  bridge: Add vlan id to multicast groups
-  bridge: Add vlan support to static neighbors
-  bridge: Add vlan support for local fdb entries
-  bridge: Dump vlan information from a bridge port
-
-Vlad Yasevich (14):
-  vlan: wrap hw-acceleration calls in separate functions.
-  bridge: Add vlan filtering infrastructure
-  bridge: Validate that vlan is permitted on ingress
-  bridge: Verify that a vlan is allowed to egress on give port
-  bridge: Cache vlan in the cb for faster egress lookup.
-  bridge: Add netlink interface to configure vlans on bridge ports
-  bridge: Add the ability to configure pvid
-  bridge: Implement vlan ingress/egress policy
-  bridge: API to configure egress policy
-  bridge: Add vlan to unicast fdb entries
-  bridge: Add vlan id to multicast groups
-  bridge: Add vlan support to static neighbors
-  bridge: Add vlan support for local fdb entries
-  bridge: Dump vlan information from a bridge port
-
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    5 +-
- drivers/net/macvlan.c                         |    2 +-
- drivers/net/vxlan.c                           |    3 +-
- include/linux/if_vlan.h                       |   21 +
- include/linux/netdevice.h                     |    6 +-
- include/uapi/linux/if_bridge.h                |   13 +-
- include/uapi/linux/neighbour.h                |    1 +
- include/uapi/linux/rtnetlink.h                |    1 +
- net/8021q/vlan.c                              |    4 +-
- net/8021q/vlan_core.c                         |   82 ++++-
- net/bridge/Kconfig                            |   14 +
- net/bridge/Makefile                           |    2 +
- net/bridge/br_device.c                        |   13 +-
- net/bridge/br_fdb.c                           |  254 +++++++++++---
- net/bridge/br_forward.c                       |    9 +
- net/bridge/br_if.c                            |    7 +-
- net/bridge/br_input.c                         |   29 ++-
- net/bridge/br_multicast.c                     |   69 +++-
- net/bridge/br_netlink.c                       |  245 +++++++++++--
- net/bridge/br_private.h                       |  163 ++++++++-
- net/bridge/br_vlan.c                          |  484 +++++++++++++++++++++++++
- net/core/rtnetlink.c                          |  111 +++++-
- 22 files changed, 1390 insertions(+), 148 deletions(-)
- create mode 100644 net/bridge/br_vlan.c
-
+diff --git a/include/linux/if_vlan.h b/include/linux/if_vlan.h
+index d06cc5c..b658eda 100644
+--- a/include/linux/if_vlan.h
++++ b/include/linux/if_vlan.h
+@@ -93,6 +93,10 @@ extern u16 vlan_dev_vlan_id(const struct net_device *dev);
+ extern bool vlan_do_receive(struct sk_buff **skb);
+ extern struct sk_buff *vlan_untag(struct sk_buff *skb);
+ 
++extern bool vlan_hw_buggy(const struct net_device *dev);
++extern int vlan_vid_add_hw(struct net_device *dev, unsigned short vid);
++extern int vlan_vid_del_hw(struct net_device *dev, unsigned short vid);
++
+ extern int vlan_vid_add(struct net_device *dev, unsigned short vid);
+ extern void vlan_vid_del(struct net_device *dev, unsigned short vid);
+ 
+@@ -155,6 +159,23 @@ static inline bool vlan_uses_dev(const struct net_device *dev)
+ {
+ 	return false;
+ }
++
++static inline bool vlan_hw_buggy(const struct net_device *dev)
++{
++	return false;
++}
++
++static inline int vlan_vid_add_hw(struct net_device *dev,
++				  unsigned short vid)
++{
++	return 0;
++}
++
++static inline int vlan_vid_del_hw(struct net_device *dev,
++				  unsigned short vid)
++{
++	return 0;
++}
+ #endif
+ 
+ /**
+diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
+index babfde9..540d759 100644
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -117,15 +117,13 @@ void unregister_vlan_dev(struct net_device *dev, struct list_head *head)
+ int vlan_check_real_dev(struct net_device *real_dev, u16 vlan_id)
+ {
+ 	const char *name = real_dev->name;
+-	const struct net_device_ops *ops = real_dev->netdev_ops;
+ 
+ 	if (real_dev->features & NETIF_F_VLAN_CHALLENGED) {
+ 		pr_info("VLANs not supported on %s\n", name);
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	if ((real_dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	    (!ops->ndo_vlan_rx_add_vid || !ops->ndo_vlan_rx_kill_vid)) {
++	if (vlan_hw_buggy(real_dev)) {
+ 		pr_info("Device %s has buggy VLAN hw accel\n", name);
+ 		return -EOPNOTSUPP;
+ 	}
+diff --git a/net/8021q/vlan_core.c b/net/8021q/vlan_core.c
+index 380440b..d044dd3 100644
+--- a/net/8021q/vlan_core.c
++++ b/net/8021q/vlan_core.c
+@@ -145,6 +145,63 @@ err_free:
+ 	return NULL;
+ }
+ 
++/**
++ * vlan_hw_buggy - Check to see if VLAN hw acceleration is supported.
++ * @dev: netdevice of the lowerdev/hw nic
++ *
++ * Checks to see if HW and driver report VLAN acceleration correctly.
++ */
++bool vlan_hw_buggy(const struct net_device *dev)
++{
++	const struct net_device_ops *ops = dev->netdev_ops;
++
++	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
++	    (!ops->ndo_vlan_rx_add_vid || !ops->ndo_vlan_rx_kill_vid))
++		return true;
++
++	return false;
++}
++EXPORT_SYMBOL(vlan_hw_buggy);
++
++/**
++ * vlan_vid_add_hw - Add the VLAN vid to the HW filter
++ * @dev: netdevice of the lowerdev/hw nic
++ * @vid: vlan id.
++ *
++ * Inserts the vid into the HW vlan filter table if hw supports it.
++ */
++int vlan_vid_add_hw(struct net_device *dev, unsigned short vid)
++{
++	const struct net_device_ops *ops = dev->netdev_ops;
++	int err = 0;
++
++	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
++	    ops->ndo_vlan_rx_add_vid)
++		err = ops->ndo_vlan_rx_add_vid(dev, vid);
++
++	return err;
++}
++EXPORT_SYMBOL(vlan_vid_add_hw);
++
++/**
++ * vlan_vid_del_hw - Delete the VLAN vid from the HW filter
++ * @dev: netdevice of the lowerdev/hw nic
++ * @vid: vlan id.
++ *
++ * Delete the vid from the HW vlan filter table if hw supports it.
++ */
++int vlan_vid_del_hw(struct net_device *dev, unsigned short vid)
++{
++	const struct net_device_ops *ops = dev->netdev_ops;
++	int err = 0;
++
++	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
++	    ops->ndo_vlan_rx_kill_vid)
++		err = ops->ndo_vlan_rx_add_vid(dev, vid);
++
++	return err;
++}
++EXPORT_SYMBOL(vlan_vid_del_hw);
+ 
+ /*
+  * vlan info and vid list
+@@ -216,7 +273,6 @@ static int __vlan_vid_add(struct vlan_info *vlan_info, unsigned short vid,
+ 			  struct vlan_vid_info **pvid_info)
+ {
+ 	struct net_device *dev = vlan_info->real_dev;
+-	const struct net_device_ops *ops = dev->netdev_ops;
+ 	struct vlan_vid_info *vid_info;
+ 	int err;
+ 
+@@ -224,13 +280,10 @@ static int __vlan_vid_add(struct vlan_info *vlan_info, unsigned short vid,
+ 	if (!vid_info)
+ 		return -ENOMEM;
+ 
+-	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	    ops->ndo_vlan_rx_add_vid) {
+-		err =  ops->ndo_vlan_rx_add_vid(dev, vid);
+-		if (err) {
+-			kfree(vid_info);
+-			return err;
+-		}
++	err = vlan_vid_add_hw(dev, vid);
++	if (err) {
++		kfree(vid_info);
++		return err;
+ 	}
+ 	list_add(&vid_info->list, &vlan_info->vid_list);
+ 	vlan_info->nr_vids++;
+@@ -278,17 +331,13 @@ static void __vlan_vid_del(struct vlan_info *vlan_info,
+ 			   struct vlan_vid_info *vid_info)
+ {
+ 	struct net_device *dev = vlan_info->real_dev;
+-	const struct net_device_ops *ops = dev->netdev_ops;
+ 	unsigned short vid = vid_info->vid;
+ 	int err;
+ 
+-	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	     ops->ndo_vlan_rx_kill_vid) {
+-		err = ops->ndo_vlan_rx_kill_vid(dev, vid);
+-		if (err) {
+-			pr_warn("failed to kill vid %d for device %s\n",
+-				vid, dev->name);
+-		}
++	err = vlan_vid_del_hw(dev, vid);
++	if (err) {
++		pr_warn("failed to kill vid %d for device %s\n",
++			vid, dev->name);
+ 	}
+ 	list_del(&vid_info->list);
+ 	kfree(vid_info);
 -- 
 1.7.7.6
 
