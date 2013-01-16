@@ -1,20 +1,13 @@
-Return-Path: <shemminger@vyatta.com>
-Date: Fri, 11 Jan 2013 10:23:18 -0800
-From: Stephen Hemminger <shemminger@vyatta.com>
-Message-ID: <20130111102318.579abe94@nehalam.linuxnetplumber.net>
-In-Reply-To: <50F04EDC.9040309@redhat.com>
-References: <1357751882-8619-1-git-send-email-vyasevic@redhat.com>
-	<1357751882-8619-2-git-send-email-vyasevic@redhat.com>
-	<20130110102525.2ff40c12@nehalam.linuxnetplumber.net>
-	<50EF0B76.2040503@redhat.com>
-	<20130110140749.153023fa@nehalam.linuxnetplumber.net>
-	<50EF660B.2090500@redhat.com>
-	<20130111092004.2d55ae65@nehalam.linuxnetplumber.net>
-	<50F04EDC.9040309@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v5 01/14] vlan: wrap hw-acceleration
+Return-Path: <mirq@rere.qmqm.pl>
+Date: Wed, 16 Jan 2013 23:03:17 +0100
+From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+Message-ID: <0897958c5d3142f4e0f0ddbb9709e1d017688e72.1358373119.1.git.mirq-linux@rere.qmqm.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1358360289-23249-2-git-send-email-vyasevic@redhat.com>
+Subject: Re: [Bridge] [PATCH net-next V6 01/14] vlan: wrap hw-acceleration
  calls in separate functions.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -24,80 +17,101 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, stephen@redhat.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, davem@davemloft.net
+To: Vlad Yasevich <vyasevic@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, shemminger@vyatta.com, davem@davemloft.net
 
-On Fri, 11 Jan 2013 12:41:48 -0500
-Vlad Yasevich <vyasevic@redhat.com> wrote:
+(resend with proper To:)
 
-> On 01/11/2013 12:20 PM, Stephen Hemminger wrote:
-> > What I think is the least intrusive and allows for maximum flexibility
-> > is having the VLAN bridge filtering depend on VLAN support (CONFIG_VLAN_8021Q).
-> > There already is drivers that depend on that value to enable filtering.
-> >
-> 
-> The only thing that I see depending on CONFIG_VLAN_8021Q is 
-> CONFIG_VLAN_8021Q_GVRP which is part of the 8021Q support.
-> There are currently no other drivers depending on 8021Q functionality
-> and vlan filtering in drivers doesn't depend on 8021Q support in
-> the kernel.
-> 
-> I admit that I've thought of having a dependency on 8021Q as it would 
-> have allowed me to re-use a bit more code, but decided that bridge 
-> should be able to stand on its own in this regard.  8021Q is not 
-> necessary to turn on VLAN accelerated filtering on the nics as anyone 
-> can do it through the ndo_vlan_rx_add_vid() call.
-> 
-> The reason for this patch was to make the nic vlan filter code reusable
-> and address Jiri Pirko's comment in the V2 series.
-> (http://marc.info/?l=linux-netdev&m=135590565719164&w=2).  This way,
-> bridge wouldn't need to make direct ndo_ calls and all call sights will
-> be consistent.
-> 
-> > And make the support of VLAN filtering in the bridge conditional like
-> > IGMP snooping is optional
-> 
-> I could certainly make the VLAN filtering conditional, but I am not sure 
-> what it would buy us other then a lot of ifdefs.
-> 
-> Thanks
-> -vlad
-> 
-> >
-> > --- a/net/bridge/Kconfig
-> > +++ b/net/bridge/Kconfig
-> > @@ -46,3 +46,17 @@ config BRIDGE_IGMP_SNOOPING
-> >            Say N to exclude this support and reduce the binary size.
-> >
-> >            If unsure, say Y.
-> > +
-> > +config BRIDGE_VLAN_FILTERING
-> > +       bool "VLAN filtering"
-> > +       depends on BRIDGE
-> > +       depends on VLAN_8021Q
-> > +       default n
-> > +       ---help---
-> > +         If you say Y here, then the Ethernet bridge will be able to
-> > +        selectively filter traffic based on VLAN tag.
-> > +
-> > +        Say N to exclude this support and reduce the binary size.
-> > +
-> > +        If unsure, say Y.
-> >
-> 
+> Wrap VLAN hardware acceleration calls into separate functions.  This way
+> other code can re-use it.
 
-Doing the following shows several drivers that still depend on VLAN_8021Q being
-enabled to do VLAN tagging.
-$ git grep -l CONFIG_VLAN_8021Q
-ethernet/3com/3c59x.c
-ethernet/adaptec/starfire.c
-ethernet/amd/amd8111e.c
-ethernet/broadcom/cnic.c
-ethernet/broadcom/tg3.c
-ethernet/dlink/sundance.c
-ethernet/natsemi/ns83820.c
-ethernet/sis/sis900.c
-ethernet/sis/sis900.h
-ethernet/stmicro/stmmac/common.h
+Maybe instead of jumping aroung bugs that are easily fixed just don't
+let them in? See untested patch below. Affected drivers can be either
+fixed or have NETIF_F_HW_VLAN_FILTER removed from advertised features.
 
- 
+--cut-here--
+
+net: disallow drivers with buggy VLAN accel to register_netdevice()
+
+Signed-off-by: Micha=B3 Miros=B3aw <mirq-linux@rere.qmqm.pl>
+---
+ net/8021q/vlan.c      |    7 -------
+ net/8021q/vlan_core.c |    6 ++----
+ net/core/dev.c        |    9 +++++++++
+ 3 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
+index babfde9..addc578 100644
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -117,19 +117,12 @@ void unregister_vlan_dev(struct net_device *dev, stru=
+ct list_head *head)
+ int vlan_check_real_dev(struct net_device *real_dev, u16 vlan_id)
+ {
+ 	const char *name =3D real_dev->name;
+-	const struct net_device_ops *ops =3D real_dev->netdev_ops;
+=20
+ 	if (real_dev->features & NETIF_F_VLAN_CHALLENGED) {
+ 		pr_info("VLANs not supported on %s\n", name);
+ 		return -EOPNOTSUPP;
+ 	}
+=20
+-	if ((real_dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	    (!ops->ndo_vlan_rx_add_vid || !ops->ndo_vlan_rx_kill_vid)) {
+-		pr_info("Device %s has buggy VLAN hw accel\n", name);
+-		return -EOPNOTSUPP;
+-	}
+-
+ 	if (vlan_find_dev(real_dev, vlan_id) !=3D NULL)
+ 		return -EEXIST;
+=20
+diff --git a/net/8021q/vlan_core.c b/net/8021q/vlan_core.c
+index 380440b..71b64fd 100644
+--- a/net/8021q/vlan_core.c
++++ b/net/8021q/vlan_core.c
+@@ -224,8 +224,7 @@ static int __vlan_vid_add(struct vlan_info *vlan_info, =
+unsigned short vid,
+ 	if (!vid_info)
+ 		return -ENOMEM;
+=20
+-	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	    ops->ndo_vlan_rx_add_vid) {
++	if (dev->features & NETIF_F_HW_VLAN_FILTER) {
+ 		err =3D  ops->ndo_vlan_rx_add_vid(dev, vid);
+ 		if (err) {
+ 			kfree(vid_info);
+@@ -282,8 +281,7 @@ static void __vlan_vid_del(struct vlan_info *vlan_info,
+ 	unsigned short vid =3D vid_info->vid;
+ 	int err;
+=20
+-	if ((dev->features & NETIF_F_HW_VLAN_FILTER) &&
+-	     ops->ndo_vlan_rx_kill_vid) {
++	if (dev->features & NETIF_F_HW_VLAN_FILTER) {
+ 		err =3D ops->ndo_vlan_rx_kill_vid(dev, vid);
+ 		if (err) {
+ 			pr_warn("failed to kill vid %d for device %s\n",
+diff --git a/net/core/dev.c b/net/core/dev.c
+index b6d2b32..f87cdc2 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6211,6 +6211,15 @@ int register_netdevice(struct net_device *dev)
+ 		}
+ 	}
+=20
++	if (((dev->hw_features & NETIF_F_HW_VLAN_FILTER) ||
++             (dev->features & NETIF_F_HW_VLAN_FILTER)) &&
++	    (!dev->netdev_ops->ndo_vlan_rx_add_vid ||
++	     !dev->netdev_ops->ndo_vlan_rx_kill_vid)) {
++		netdev_WARN(dev, "Buggy VLAN acceleration in driver!\n");
++		ret =3D -EINVAL;
++		goto err_uninit;
++	}
++
+ 	ret =3D -EBUSY;
+ 	if (!dev->ifindex)
+ 		dev->ifindex =3D dev_new_index(net);
+--=20
+1.7.10.4
+
+
+----- End forwarded message -----
