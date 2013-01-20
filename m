@@ -1,14 +1,22 @@
-Return-Path: <stephen@networkplumber.org>
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130120113825.759b4a58@nehalam.linuxnetplumber.net>
-In-Reply-To: <50FC307A.5090003@redhat.com>
+Return-Path: <shmulik.ladkani@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=x-received:date:from:to:cc:subject:message-id:in-reply-to
+	:references:mime-version:content-type:content-transfer-encoding;
+	bh=oEslxAiqEbXQRgyibJC9X/pl+IrGmevVM+omSIo3iQs=;
+	b=jgYH14YxDNt6IhhMYVJgqHtNVStIGF/Nb5bTjpnzD0Hda+dP1FSLPCv88DnyuLmjOR
+	1SL/QY3D+4cD5WGwnJzljG9un7JmEEnkaEzVoPo0BK007yFNF+Fym/EM5a/SkltYcmgp
+	BIcAXYHDpUUhwh/LSCmC9K8jToqXGqpEgrzsP3ionA5vO5QfKZPx+gPdfAd4I/ZVxv42
+	LMNIPAbLXOCxt757mQ3vw68hkjL+HOzR3syzcGeM7KbI5ZJ8WHhXjn7QqOI6opVkfNSi
+	9F8NKQcuYuQLyS2XLhwqpX7nCkr0M3ZXz6dYSAq9eBtslZkqb1e1adRDsZowMgClLDZM
+	sU7g==
+From: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Message-ID: <20130120233851.3f589fa4.shmulik.ladkani@gmail.com>
+In-Reply-To: <1358360289-23249-3-git-send-email-vyasevic@redhat.com>
 References: <1358360289-23249-1-git-send-email-vyasevic@redhat.com>
 	<1358360289-23249-3-git-send-email-vyasevic@redhat.com>
-	<CAHXqBFKg6Vp5=dprDYKON2LmshhX+nSPF7KRHiQmOS68PrQq-A@mail.gmail.com>
-	<50FC307A.5090003@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next V6 02/14] bridge: Add vlan filtering
  infrastructure
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -19,59 +27,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sun, 20 Jan 2013 19:39:57 -0000
-To: vyasevic@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, shemminger@vyatta.com, davem@davemloft.net
+Date: Sun, 20 Jan 2013 21:39:03 -0000
+To: Vlad Yasevich <vyasevic@redhat.com>
+Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 
-On Sun, 20 Jan 2013 12:59:22 -0500
-Vlad Yasevich <vyasevic@redhat.com> wrote:
+Hi Vlad,
 
-> On 01/17/2013 08:57 PM, Micha=B3 Miros=B3aw wrote:
-> > 2013/1/16 Vlad Yasevich <vyasevic@redhat.com>:
-> > [...]
-> >> --- /dev/null
-> >> +++ b/net/bridge/br_vlan.c
-> > [...]
-> >> +struct net_port_vlan *nbp_vlan_find(const struct net_port_vlans *v, u=
-16 vid)
-> >> +{
-> >> +       struct net_port_vlan *pve;
-> >> +
-> >> +       /* Must be done either in rcu critical section or with RTNL he=
-ld */
-> >> +       WARN_ON_ONCE(!rcu_read_lock_held() && !rtnl_is_locked());
-> >> +
-> >> +       list_for_each_entry_rcu(pve, &v->vlan_list, list) {
-> >> +               if (pve->vid =3D=3D vid)
-> >> +                       return pve;
-> >> +       }
-> >> +
-> >> +       return NULL;
-> >> +}
-> >
-> > This looks expensive - it's O(n) with n =3D number of configured VLANs =
-on a port.
-> > And this is called for every packet. The bridge already has a hash of V=
-LAN
-> > structures found by br_vlan_find(). You could add a second bitmap there
-> > (eg. ingres_ports[]) and check port's bit instead of walking the list.
-> > You would use a bit more memory (64 bytes minus the removed list-head)
-> > per configured VLAN but save some cycles in hot path.
-> >
->=20
-> Technically wouldn't even need another bitmap as an existing membership=20
-> bitmap would cover this case.  I did some profiling and the list is=20
-> faster for 3 vlans per port.  Hash is faster for more then 3 vlans.
->=20
-> I can easily switch to hash if that is what others think.
->=20
-> -vlad
+On Wed, 16 Jan 2013 13:17:57 -0500 Vlad Yasevich <vyasevic@redhat.com> wrote:
+> @@ -156,6 +183,7 @@ struct net_bridge_port
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>  	struct netpoll			*np;
+>  #endif
+> +	struct net_port_vlans		vlan_info;
 
-Let's assume the people that really want this feature are using a lot
-of vlan's. i.e n =3D 1000 or so. A bitmap is O(1). Any hash list would
-incur a just a big memory penalty for the list head. In other words
-a full bitmap is 4096 bits =3D 512 bytes.  If you use hash list,
-then the equivalent memory size would be only 64 list heads, therefore
-a bitmap is a better choice than a hlist.
+(here and at 'struct net_bridge' as well)
 
+Not sure what the policy is; Isn't it preferred to enclose the new
+fields under CONFIG_BRIDGE_VLAN_FILTERING?
 
+> +static inline struct net_bridge *vlans_to_bridge(struct net_port_vlans *vlans)
+> +{
+> +	struct net_bridge *br;
+> +
+> +	if (!vlans->port_idx)
+> +		br = container_of((vlans), struct net_bridge, vlan_info);
+> +	else
+> +		br = vlans_to_port(vlans)->br;
+> +
+> +	return br;
+> +}
+
+Guess it would simplify things if the bridge "master port" had an 'nbp'
+representation of its own ;-)
+
+> +extern struct net_bridge_vlan *br_vlan_find(struct net_bridge *br, u16 vid);
+
+Seems 'br_vlan_find' can be declared static within br_vlan.c.
+
+> +extern void br_vlan_flush(struct net_bridge *br);
+
+According to your preference, consider s/br_vlan_flush/br_vlans_flush/
+since it better suggest acting on all bridge's vlans.
+
+> +extern void nbp_vlan_flush(struct net_port_vlans *vlans);
+
+According to your preference, consider s/nbp_vlan_flush/nbp_vlans_flush/
+since it better suggest acting on all port's vlans.
+
+> +void br_vlan_flush(struct net_bridge *br)
+> +{
+> +	struct net_bridge_vlan *vlan;
+> +	struct hlist_node *node;
+> +	struct hlist_node *tmp;
+> +	int i;
+> +
+> +	nbp_vlan_flush(&br->vlan_info);
+> +
+> +	/* Make sure that there are no vlans left in the bridge after
+> +	* all the ports have been removed.
+> +	*/
+
+Improper indent.
+
+> +	for (i = 0; i < BR_VID_HASH_SIZE; i++) {
+> +		hlist_for_each_entry_safe(vlan, node, tmp,
+> +					  &br->vlan_hlist[i], hlist) {
+> +			br_vlan_del(vlan);
+
+Can there be any vlans left at that point? Shouldn't del_nbp() on all
+ports take care of that?
+Also, if there _were_ any vlans left (whose bitmap isn't cleared),
+'br_vlan_del' won't do a thing.
+Am I missing something?
+
+Regards,
+Shmulik
