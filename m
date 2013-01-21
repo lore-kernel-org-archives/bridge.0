@@ -1,16 +1,28 @@
-Return-Path: <vyasevic@redhat.com>
-Message-ID: <50FCA0DA.7000008@redhat.com>
-From: Vlad Yasevich <vyasevic@redhat.com>
-MIME-Version: 1.0
+Return-Path: <shmulik.ladkani@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=x-received:date:from:to:cc:subject:message-id:in-reply-to
+	:references:mime-version:content-type:content-transfer-encoding;
+	bh=EZjFEvgchjmLnlCxmeIFeiVhcQgOTEtgus9MkgM68l4=;
+	b=eu/cVYX2IlTc6QlEKZAPJcEq18RZkK3cBoKuqSocFdwjLrmflb0yxqxiZNiZLKtIt5
+	qkROmoN7Ru+KudDpHkEwb1eK4lbfDVgwpQD/mwIB5SXp/xjLOk0Z5AvGyZb6yL6RtFPQ
+	Xrdalt+GBnaI8T4d5z4WSVbL0g8fjMrpLtuPGU4j23VnWLFzsBbwr6F8ZaP73g0Ir3Ae
+	v4nrTcc9/DVVQArxJ/8Jau0q3gkLTX5xFGFZHsESFoswc0MVfUhUZCVCkRn9ARUhXzw/
+	wA32t8x9JcGmeELUdjQYnivgEhKDNpB10AKDnxJY03JslzIaInG0N1ybYzXgnXpQrCjd
+	lyvg==
+From: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Message-ID: <20130121134534.78032a54.shmulik.ladkani@gmail.com>
+In-Reply-To: <50FC9F03.5000102@redhat.com>
 References: <1358360289-23249-1-git-send-email-vyasevic@redhat.com>
-	<1358360289-23249-4-git-send-email-vyasevic@redhat.com>
-	<20130121002710.5189a959.shmulik.ladkani@gmail.com>
-In-Reply-To: <20130121002710.5189a959.shmulik.ladkani@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	<1358360289-23249-3-git-send-email-vyasevic@redhat.com>
+	<CAHXqBFKg6Vp5=dprDYKON2LmshhX+nSPF7KRHiQmOS68PrQq-A@mail.gmail.com>
+	<50FC307A.5090003@redhat.com>
+	<20130120113825.759b4a58@nehalam.linuxnetplumber.net>
+	<50FC9F03.5000102@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next V6 03/14] bridge: Validate that vlan
- is permitted on ingress
-Reply-To: vyasevic@redhat.com
+Subject: Re: [Bridge] [PATCH net-next V6 02/14] bridge: Add vlan filtering
+ infrastructure
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,60 +31,72 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 21 Jan 2013 01:58:56 -0000
-To: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
+Date: Mon, 21 Jan 2013 11:45:46 -0000
+To: vyasevic@redhat.com, bridge@lists.linux-foundation.org
+Cc: mst@redhat.com, netdev@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, shemminger@vyatta.com, davem@davemloft.net
 
-On 01/20/2013 05:27 PM, Shmulik Ladkani wrote:
-> Hi Vlad,
->
-> On Wed, 16 Jan 2013 13:17:58 -0500 Vlad Yasevich <vyasevic@redhat.com> wrote:
->> @@ -45,6 +45,9 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
->>   	brstats->tx_bytes += skb->len;
->>   	u64_stats_update_end(&brstats->syncp);
->>
->> +	if (!br_allowed_ingress(&br->vlan_info, skb))
->> +		goto out;
->> +
->
-> Shouldn't you consume the 'skb' in case "not allowed"? the 'out' label
-> doesn't take care of that.
->
->> +bool br_allowed_ingress(struct net_port_vlans *v, struct sk_buff *skb)
->> +{
->> +	struct net_port_vlan *pve;
->> +	u16 vid;
->> +
->> +	/* If there are no vlan in the permitted list, all packets are
->> +	 * permitted.
->> +	 */
->> +	if (list_empty(&v->vlan_list))
->> +		return true;
->
-> Rethinking this, after discussed at [1].
-> The above means the port having no vlans is actually a member of every
-> possible vlan.
-> IMO it might not be what users expect, and may complicate things.
->
-> Maybe we should adapt a simpler approach:
-> If the bridge is a vlan enabled bridge, and the port is not a member of
-> the given vid, drop.
-> If the bridge is "vlan disabled", then all packets are permitted.
->
+Hi Vlad,
 
-this is hybrid configuration where some ports have vlan filtering 
-enabled while others do not.
+On Sun, 20 Jan 2013 20:50:59 -0500 Vlad Yasevich <vyasevic@redhat.com> wrote:
+> On 01/20/2013 02:38 PM, Stephen Hemminger wrote:
+> > Let's assume the people that really want this feature are using a lot
+> > of vlan's. i.e n = 1000 or so. A bitmap is O(1). Any hash list would
+> > incur a just a big memory penalty for the list head. In other words
+> > a full bitmap is 4096 bits = 512 bytes.  If you use hash list,
+> > then the equivalent memory size would be only 64 list heads, therefore
+> > a bitmap is a better choice than a hlist.
+> >
+> 
+> This was the approach taken in the RFC v1 of this series.  What I found 
+> was that while it worked very well as far as speed goes, it was a bit 
+> cumbersome to extend it to support pvids and it would completely fall
+> on its face for egress policy that Shmulik is suggesting.  So any kinds 
+> of extensions to it were tough to do.
 
-Currently the default is to act as a non-vlan bridge when there is no 
-configuration.  I'll consider adding a configuration nob to switch the 
-behavior so that strict filtering can be enforced.
+I don't see why this is the case.
 
--vlad
+How about (sketch only, names questionable...):
 
-> Regards,
-> Shmulik
->
-> [1]
-> http://marc.info/?l=linux-netdev&m=135602065425514&w=2
->
+struct net_bridge {
++	unsigned long vlan_port_membership_bitmap[VLAN_N_VID][PORT_BITMAP_LEN];
++	unsigned long vlan_port_egress_policy_bitmap[VLAN_N_VID][PORT_BITMAP_LEN];
+}
 
+(can be alloc'ed instead of the arrays being part of the struct)
+
+struct net_bridge_port {
++	u16 pvid;
+};
+
+Allows O(1) to the query "is port P member of vlan V".
+Allows O(1) to the query "should vlan V egress tagged/untagged on port P".
+
+I guess this might simplify the data structures involved, avoiding the
+refcounts, etc...
+
+The penaties are:
+ - memory
+ - aesthetics (?)
+ - inefficient if query is "give me the entire list of VLANs port P is
+   member of". But do we have such a query in bridge's code?
+
+You say it went cumbersome. Am I missing something?
+
+BTW, altenatively, you may:
+
+struct net_bridge_port {
++	unsigned long vlan_membership_bitmap[BITS_TO_LONGS(VLAN_N_VID)];
++	unsigned long vlan_egress_policy_bitmap[BITS_TO_LONGS(VLAN_N_VID)];
++	u16 pvid;
+};
+
+Which also allows O(1) to "is port 'nbp' member of vlan V".
+
+Difference:
+- For the membership structure:
+  former (within net_bridge) uses 4096 * BR_MAX_PORTS bits,
+  latter (within net_bridge_port) uses NumOfNBPs * 4096 bits 
+- better aesthetics (?)
+
+Regards,
+Shmulik
