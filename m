@@ -1,17 +1,13 @@
-Return-Path: <Ian.Campbell@citrix.com>
-Message-ID: <1359455385.12252.85.camel@zakaz.uk.xensource.com>
-From: Ian Campbell <Ian.Campbell@citrix.com>
-Date: Tue, 29 Jan 2013 10:29:45 +0000
-In-Reply-To: <201301291054.46405.yuval.shaia@oracle.com>
-References: <5757e54b-902b-4338-8ac9-43857cd1906c@default>
-	<50FD8243.6000501@oracle.com>
-	<1358846612.3279.282.camel@zakaz.uk.xensource.com>
-	<201301291054.46405.yuval.shaia@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+Return-Path: <davem@davemloft.net>
+Date: Tue, 29 Jan 2013 16:11:40 -0500 (EST)
+Message-Id: <20130129.161140.2166884661210517263.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1359489180-10012-1-git-send-email-vyasevic@redhat.com>
+References: <1359489180-10012-1-git-send-email-vyasevic@redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] Add support for netconsole driver used on
- bridge device with VIF attached
+Subject: Re: [Bridge] [PATCH 00/13] Add basic VLAN support to bridges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,56 +16,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yuval Shaia <yuval.shaia@oracle.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Stephen Hemminger <shemminger@vyatta.com>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, bridge@lists.linux-foundation.org
+To: vyasevic@redhat.com
+Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com
 
-On Tue, 2013-01-29 at 08:54 +0000, Yuval Shaia wrote:
-> > Please can you explain the exact code path which results in this new
-> > hook being called.
-> > 
-> init_netconsole() in netconsole.c -> alloc_param_target() -> netpoll_setup() 
-> in netpoll.c -> __netpoll_setup() which check if ndo_poll_controller() 
-> operation is supported.
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Tue, 29 Jan 2013 14:52:47 -0500
 
-Are you sure this is being called for the VIF interface? In your
-configuration I'd expect it to be called on the bridge not the vif, or
-at least for calling on the VIF to not impact whether netpool was
-enabled for the bridge or not.
-
-I think the underlying issue which you are seeing is that
-br_netpoll_setup() requires that all members of the bridge support
-netpoll before allowing netpoll to be enabled on the bridge itself. 
-
-This seems like an odd restriction in the bridge driver since in
-principal only the port over which the netpoll traffic will be going
-will need netpoll, but perhaps the bridge can't tell which port that is
-or is going to be? I think it is worth discussing this with the bridge
-maintainers (who I have CC'd, threads starts at
-http://marc.info/?l=linux-netdev&m=135878868112700&w=2)
-
-Hopefully the bridge isn't flooding/broadcasting netpoll to all ports,
-at least in the case where DST IP and MAC have been specified. That
-would be rather inefficient, especially when most ports go to virtual
-machines.
-
-So before I ack this patch I'd like to hear back from the bridge
-maintainers about whether the current behaviour in the bridge is
-intended and whether it could be fixed in some better way than adding
-netpoll to netback.
-
-AFAICT the only reason to actually support netpoll in netback would be
-if you wanted host logs to go to a listener running in a domain on the
-same host, which sounds like a mad idea to me! If someone actually has a
-real need for that use case and can test that it works I'd be happy to
-reconsider this patch on that basis (assuming the necessary #ifdefs are
-added as mentioned before).
-
-> > BTW looking at the patch as it is any use of this hook should be wrapped
-> > in CONFIG_NET_POLL_CONTROLLER.
-> > 
-> > Ian.
-> > 
+> This is another revision of the VLAN filtering patchset.  It offers
+> functionality that is similar to what can be found in switches as
+> far as VLAN configuration and filtering of frames according to VLAN
+> tags.
 > 
-> 
+> Each port on the bridge, as well as the bridge itself, can be configured
+> with a set of VLANs that they are willing to accept.  One of the vlans
+> may be chosen as PVID and any untagged traffic will be associated with it.
 
+I've done a quick review of this respin and it looks fine as far
+as I can tell.
 
+I'd like to apply it soon rather than let it rot in patchwork, so
+Stephen if you could give this a once over soon I'd appreciate it.
+
+Thanks.
