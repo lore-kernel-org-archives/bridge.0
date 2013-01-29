@@ -1,22 +1,8 @@
 Return-Path: <vyasevic@redhat.com>
-Message-ID: <50FEBDD5.5030205@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-MIME-Version: 1.0
-References: <1358360289-23249-1-git-send-email-vyasevic@redhat.com>
-	<1358360289-23249-3-git-send-email-vyasevic@redhat.com>
-	<CAHXqBFKg6Vp5=dprDYKON2LmshhX+nSPF7KRHiQmOS68PrQq-A@mail.gmail.com>
-	<50FC307A.5090003@redhat.com>
-	<20130120113825.759b4a58@nehalam.linuxnetplumber.net>
-	<50FC9F03.5000102@redhat.com>
-	<20130121134534.78032a54.shmulik.ladkani@gmail.com>
-	<50FEA2CF.4060406@redhat.com>
-	<20130122175524.033c6f7f.shmulik.ladkani@gmail.com>
-In-Reply-To: <20130122175524.033c6f7f.shmulik.ladkani@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next V6 02/14] bridge: Add vlan filtering
-	infrastructure
-Reply-To: vyasevic@redhat.com
+Date: Tue, 29 Jan 2013 14:52:47 -0500
+Message-Id: <1359489180-10012-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH 00/13] Add basic VLAN support to bridges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,51 +11,133 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Tue, 22 Jan 2013 16:27:06 -0000
-To: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Stephen Hemminger <stephen@networkplumber.org>, shemminger@vyatta.com, davem@davemloft.net
+To: shemminger@vyatta.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, shmulik.ladkani@gmail.com
 
-On 01/22/2013 10:55 AM, Shmulik Ladkani wrote:
-> Thanks Vlad,
->
-> On Tue, 22 Jan 2013 09:31:43 -0500 Vlad Yasevich <vyasevic@redhat.com> wrote:
->>> I guess this might simplify the data structures involved, avoiding the
->>> refcounts, etc...
->>>
->>> The penaties are:
->>>    - memory
->>>    - aesthetics (?)
->>>    - inefficient if query is "give me the entire list of VLANs port P is
->>>      member of". But do we have such a query in bridge's code?
->>
->> Yes.  When a mac address is added to a port without an explicit vlan tag
->> we try to add it for every vlan available on the port.
->
-> I see.
-> Can't this be bypassed by adding a _single_ FDB entry whose VID value
-> denotes "member of ANY vlan" (value outside the valid 0-4095 range)?
->
->> Also, in the API, the user may request vlans configured on a port.
->
-> Personally I'd pay the penalty implementing this specific user request
-> in an inefficeint way, to acheive overall simplicity in core bridge
-> code.
-> But that's just my humble opinion, maybe others might spot drawbacks
-> taking this approach.
->
-> BTW, went through the ML, couldn't find the reason why dropped the
-> per-port vlan bitmap and replaced with a vlan list (after your RFC v2
-> patches). Care to explain what was your motivation?
+This is another revision of the VLAN filtering patchset.  It offers
+functionality that is similar to what can be found in switches as
+far as VLAN configuration and filtering of frames according to VLAN
+tags.
 
-I wanted to reduce the memory footprint and make it a bit more 
-extensible so if priority was ever added, it would be very simple to do.
-I also had to play some ugly memory barrier games to make it less racy.
-I thought that the list/hash code was cleaner.
+Each port on the bridge, as well as the bridge itself, can be configured
+with a set of VLANs that they are willing to accept.  One of the vlans
+may be chosen as PVID and any untagged traffic will be associated with it.
 
--vlad
+Changes since v6:
+* VLANs are now stored in a VLAN bitmap per port.  This allows for O(1)
+lookup at ingress and egress.  We simply check to see if the bit associated
+with the vlan id is set in the map.  The drawback to this approach is that
+it wastes some space when there is only a small number of VLANs.
+* In addition to the build time configuration option, VLAN filtering also has
+a configuration paramter in sysfs.  By default the filtering is turned off
+and all traffic is permitted.  When the filtring is turned on, we do strict
+matching to the filter configured.  Thus, if there is no configuration, all
+packets are rejected.  This was done to make the behavior more streight
+forward.  Without this (and if egress policy patch is rejected), the
+decision for how to forward untagged traffic that was not filtered at ingress
+is almost impossible to make.  It would not be right to deliver to every
+port that has PVID set as, each port may have a different PVID.
+* Separate egress policy bitmap patch has been isolated and is provided last
+in the series.  This has been a more contentious piece of functionality and I
+wanted to isolate it so that it could easily be dropped and not block the whole
+series.
 
->
-> Regards,
-> Shmulik
->
+Changes since v5:
+ - Pulled VLAN filtering into its own file and made it a configuration options.
+ - Made new vlan filtering option dependent on VLAN_8021Q.
+ - Got rid of HW filter inlines and moved then vlan_core.c.
+   (All of the above suggested by Stephen Hemminger)
+
+Changes since v4:
+ - Pull per-port vlan data into its own structures and give it to the bridge
+   device thus making bridge device behave like a regular port for vlan
+   configuration.
+ - Add a per-vlan 'untagged' bitmap that determins egress policy.  If a port
+   is part of this bitmap, traffic egresses untagged.
+ - PVID is now used for ingress policy only.  Incomming frames without VLAN tag
+   are assigned to the PVID vlan.  Egress is determined via bitmap memberships.
+ - Allow for incremental config of a vlan.  Now, PVID and untagged memberships
+   may be set on existing vlans.  They however can NOT be cleared separately.
+ - VLAN deletion is now done via RTM_DELLINK command for PF_BRIDGE family.
+   This cleans up the netlink interface.
+
+Changes since v3:
+ - Re-integrated compiler problems that got left out last time.  Appologies.
+ - checkpatches.pl errors fixed
+
+Changes since v2:
+ - Added inline functiosn to manimulate vlan hw filters and re-use in 8021q
+   and bridge code.
+ - Use rtnl_dereference (Michael Tsirkin)
+ - Remove synchronize_net() call (Eric Dumazet)
+ - Fix NULL ptr deref bug I introduced in br_ifinfo_notify.
+
+Changes since v1:
+ - Fixed some forwarding bugs.
+ - Add vlan to local fdb entries.  New local entries are created per vlan
+   to facilite correct forwarding to bridge interface.
+ - Allow configuration of vlans directly on the bridge master device
+   in addition to ports.
+
+Changes since rfc v2:
+ - Per-port vlan bitmap is gone and is replaced with a vlan list.
+ - Added bridge vlan list, which is referenced by each port.  Entries in
+   the birdge vlan list have port bitmap that shows which port are parts
+   of which vlan.
+ - Netlink API changes.
+ - Dropped sysfs support for now.  If people think this is really usefull,
+   can add it back.
+ - Support for native/untagged vlans.
+
+Changes since rfc v1:
+ - Comments addressed regarding formatting and RCU usage
+ - iocts have been removed and changed over the netlink interface.
+ - Added support of user added ndb entries.
+ - changed sysfs interface to export a bitmap.  Also added a write interface.
+   I am not sure how much I like it, but it made my testing easier/faster.  I
+   might change the write interface to take text instead of binary.
+
+Vlad Yasevich (13):
+  vlan: wrap hw-acceleration calls in separate functions.
+  bridge: Add vlan filtering infrastructure
+  bridge: Validate that vlan is permitted on ingress
+  bridge: Verify that a vlan is allowed to egress on give port
+  bridge: Add netlink interface to configure vlans on bridge ports
+  bridge: Add the ability to configure pvid
+  bridge: Implement vlan ingress/egress policy
+  bridge: Add vlan to unicast fdb entries
+  bridge: Add vlan id to multicast groups
+  bridge: Add vlan support to static neighbors
+  bridge: Add vlan support for local fdb entries
+  bridge: Dump vlan information from a bridge port
+  bridge: Separate egress policy bitmap
+
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    5 +-
+ drivers/net/macvlan.c                         |    2 +-
+ drivers/net/vxlan.c                           |    3 +-
+ include/linux/if_vlan.h                       |   21 ++
+ include/linux/netdevice.h                     |    6 +-
+ include/uapi/linux/if_bridge.h                |   13 +-
+ include/uapi/linux/neighbour.h                |    1 +
+ include/uapi/linux/rtnetlink.h                |    1 +
+ net/8021q/vlan.c                              |    4 +-
+ net/8021q/vlan_core.c                         |   82 ++++-
+ net/bridge/Kconfig                            |   14 +
+ net/bridge/Makefile                           |    2 +
+ net/bridge/br_device.c                        |    7 +-
+ net/bridge/br_fdb.c                           |  259 ++++++++++++---
+ net/bridge/br_forward.c                       |    9 +
+ net/bridge/br_if.c                            |    4 +-
+ net/bridge/br_input.c                         |   28 ++-
+ net/bridge/br_multicast.c                     |   69 +++--
+ net/bridge/br_netlink.c                       |  239 ++++++++++++--
+ net/bridge/br_private.h                       |  153 ++++++++-
+ net/bridge/br_sysfs_br.c                      |   21 ++
+ net/bridge/br_vlan.c                          |  448 +++++++++++++++++++++++++
+ net/core/rtnetlink.c                          |  111 ++++++-
+ 23 files changed, 1354 insertions(+), 148 deletions(-)
+ create mode 100644 net/bridge/br_vlan.c
+
+-- 
+1.7.7.6
 
