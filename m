@@ -1,11 +1,17 @@
 Return-Path: <vyasevic@redhat.com>
+Message-ID: <510AD065.9010403@redhat.com>
+Date: Thu, 31 Jan 2013 15:13:25 -0500
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Wed, 30 Jan 2013 22:12:59 -0500
-Message-Id: <1359601979-14942-13-git-send-email-vyasevic@redhat.com>
-In-Reply-To: <1359601979-14942-1-git-send-email-vyasevic@redhat.com>
+MIME-Version: 1.0
 References: <1359601979-14942-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH v7 net-next 12/12] bridge: Separate egress policy
-	bitmap
+	<1359601979-14942-2-git-send-email-vyasevic@redhat.com>
+	<CAHXqBFL88O=cSse5AdhoKMMMrvgvn7oYAhMxt0rw9ffv49Z7hw@mail.gmail.com>
+In-Reply-To: <CAHXqBFL88O=cSse5AdhoKMMMrvgvn7oYAhMxt0rw9ffv49Z7hw@mail.gmail.com>
+Content-Type: text/plain; charset="iso-8859-2"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH v7 net-next 01/12] bridge: Add vlan filtering
+	infrastructure
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,121 +20,71 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shemminger@vyatta.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, shmulik.ladkani@gmail.com
+To: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirqus@gmail.com>
+Cc: netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, davem@davemloft.net, shmulik.ladkani@gmail.com
 
-Add an ability to configure a separate "untagged" egress
-policy to the VLAN information of the bridge.  This superseeds PVID
-policy and makes PVID ingress-only.  The policy is configured with a
-new flag and is represented as a port bitmap per vlan.  Egress frames
-with a VLAN id in "untagged" policy bitmap would egress
-the port without VLAN header.
+On 01/31/2013 02:57 PM, Micha=B3 Miros=B3aw wrote:
+> 2013/1/31 Vlad Yasevich <vyasevic@redhat.com>:
+>> Adds an optional infrustructure component to bridge that would allow
+>> native vlan filtering in the bridge.  Each bridge port (as well
+>> as the bridge device) now get a VLAN bitmap.  Each bit in the bitmap
+>> is associated with a vlan id.  This way if the bit corresponding to
+>> the vid is set in the bitmap that the packet with vid is allowed to
+>> enter and exit the port.
+>>
+>> Write access the bitmap is protected by RTNL and read access
+>> protected by RCU.
+> [...]
+>> +static int __vlan_del(struct net_port_vlans *v, u16 vid)
+>> +{
+>> +       unsigned long first_bit;
+>> +       unsigned long last_bit;
+>> +
+>> +       if (!test_bit(vid, v->vlan_bitmap))
+>> +               return -EINVAL;
+>> +
+>> +       /* Check to see if any other vlans are in this table.  If this
+>> +        * is the last vlan, delete the whole structure.  If this is not=
+ the
+>> +        * last vlan, just clear the bit.
+>> +        */
+>> +       first_bit =3D find_first_bit(v->vlan_bitmap, BR_VLAN_BITMAP_LEN);
+>> +       last_bit =3D find_last_bit(v->vlan_bitmap, BR_VLAN_BITMAP_LEN);
+>> +
+>> +       if (v->port_idx && vid) {
+>> +               struct net_device *dev =3D vlans_to_port(v)->dev;
+>> +
+>> +               if (dev->features & NETIF_F_HW_VLAN_FILTER)
+>> +                       dev->netdev_ops->ndo_vlan_rx_kill_vid(dev, vid);
+>> +       }
+>> +
+>> +       clear_bit(vid, v->vlan_bitmap);
+>> +       if (first_bit =3D=3D last_bit) {
+>
+> if (bitmap_empty(v->vlan_bitmap, BR_VLAN_BITMAP_LEN))
 
-Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
----
- include/uapi/linux/if_bridge.h |    1 +
- net/bridge/br_netlink.c        |    2 ++
- net/bridge/br_private.h        |    1 +
- net/bridge/br_vlan.c           |   20 ++++++++++++++------
- 4 files changed, 18 insertions(+), 6 deletions(-)
+Yeah.  I didn't have the clear_bit about before, but with it=20
+bitmap_empty() is much better.
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 875c9e2..8e1fc51 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -121,6 +121,7 @@ enum {
- 
- #define BRIDGE_VLAN_INFO_MASTER	(1<<0)	/* Operate on Bridge device as well */
- #define BRIDGE_VLAN_INFO_PVID	(1<<1)	/* VLAN is PVID, ingress untagged */
-+#define BRIDGE_VLAN_INFO_UNTAGGED	(1<<2)	/* VLAN egresses untagged */
- 
- struct bridge_vlan_info {
- 	u16 flags;
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index ddbb2c7..b71d1c5 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -141,6 +141,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 			vinfo.flags = 0;
- 			if (vid == pv->pvid)
- 				vinfo.flags |= BRIDGE_VLAN_INFO_PVID;
-+			if (test_bit(vid, pv->untagged_bitmap))
-+				vinfo.flags |= BRIDGE_VLAN_INFO_UNTAGGED;
- 
- 			if (nla_put(skb, IFLA_BRIDGE_VLAN_INFO,
- 				    sizeof(vinfo), &vinfo))
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 40688ad..c088ded 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -73,6 +73,7 @@ struct net_port_vlans {
- 	void				*parent;
- 	struct rcu_head			rcu;
- 	unsigned long			vlan_bitmap[BR_VLAN_BITMAP_LEN];
-+	unsigned long			untagged_bitmap[BR_VLAN_BITMAP_LEN];
- 	u16				num_vlans;
- };
- 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index a0bdfda..724700f 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -45,13 +45,21 @@ static void __vlan_delete_pvid(struct net_port_vlans *v, u16 vid)
- 	v->pvid = BR_INVALID_VID;
- }
- 
-+static void __vlan_add_flags(struct net_port_vlans *v, u16 vid, u16 flags)
-+{
-+	if (flags & BRIDGE_VLAN_INFO_PVID)
-+		__vlan_add_pvid(v, vid);
-+
-+	if (flags & BRIDGE_VLAN_INFO_UNTAGGED)
-+		set_bit(vid, v->untagged_bitmap);
-+}
-+
- static int __vlan_add(struct net_port_vlans *v, u16 vid, u16 flags)
- {
- 	int err;
- 
- 	if (test_bit(vid, v->vlan_bitmap)) {
--		if (flags & BRIDGE_VLAN_INFO_PVID)
--			__vlan_add_pvid(v, vid);
-+		__vlan_add_flags(v, vid, flags);
- 		return 0;
- 	}
- 
-@@ -72,8 +80,7 @@ static int __vlan_add(struct net_port_vlans *v, u16 vid, u16 flags)
- 
- 	set_bit(vid, v->vlan_bitmap);
- 	v->num_vlans++;
--	if (flags & BRIDGE_VLAN_INFO_PVID)
--		__vlan_add_pvid(v, vid);
-+	__vlan_add_flags(v, vid, flags);
- 
- 	return 0;
- }
-@@ -87,6 +94,7 @@ static int __vlan_del(struct net_port_vlans *v, u16 vid)
- 		return -EINVAL;
- 
- 	__vlan_delete_pvid(v, vid);
-+	clear_bit(vid, v->untagged_bitmap);
- 
- 	/* Check to see if any other vlans are in this table.  If this
- 	 * is the last vlan, delete the whole structure.  If this is not the
-@@ -161,11 +169,11 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
- 		goto out;
- 
- 	/* At this point, we know that the frame was filtered and contains
--	 * a valid vlan id.  If the vlan id matches the pvid of current port
-+	 * a valid vlan id.  If the vlan id is set in the untagged bitmap,
- 	 * send untagged; otherwise, send taged.
- 	 */
- 	br_vlan_get_tag(skb, &vid);
--	if (vid == br_get_pvid(pv))
-+	if (test_bit(vid, pv->untagged_bitmap))
- 		skb = br_vlan_untag(skb);
- 	else {
- 		/* Egress policy says "send tagged".  If output device
--- 
-1.7.7.6
+>
+>> +               if (v->port_idx) {
+>> +                       struct net_bridge_port *p =3D vlans_to_port(v);
+>> +                       rcu_assign_pointer(p->vlan_info, NULL);
+>> +               } else {
+>> +                       struct net_bridge *br =3D vlans_to_bridge(v);
+>> +                       rcu_assign_pointer(br->vlan_info, NULL);
+>> +               }
+>
+> You seem to use vlans_to_port/vlans_to_bridge only to get at
+> vlan_info. Maybe that could be abstracted to a single interface, or
+> even change v->parent to be a 'net_port_vlans **'?
+
+Hmm..  net_port_vlan** has appeal.  I'll see if I can make it work.
+
+Thanks
+-vlad
+>
+> Best Regards,
+> Micha=B3 Miros=B3aw
+>
 
