@@ -1,12 +1,18 @@
-Return-Path: <linus.luessing@web.de>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Mon,  4 Feb 2013 00:19:58 +0100
-Message-Id: <1359933598-14438-1-git-send-email-linus.luessing@web.de>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <510B2D6D.4050908@redhat.com>
+Date: Thu, 31 Jan 2013 21:50:21 -0500
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC PATCH] bridge: Add export of multicast database
-	adjacent to net_dev
+References: <1359601979-14942-1-git-send-email-vyasevic@redhat.com>
+	<1359601979-14942-2-git-send-email-vyasevic@redhat.com>
+	<CAHXqBFL88O=cSse5AdhoKMMMrvgvn7oYAhMxt0rw9ffv49Z7hw@mail.gmail.com>
+	<510AD065.9010403@redhat.com>
+In-Reply-To: <510AD065.9010403@redhat.com>
+Content-Type: text/plain; charset="iso-8859-2"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH v7 net-next 01/12] bridge: Add vlan filtering
+	infrastructure
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,152 +21,86 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, netdev@vger.kernel.org, Stephen Hemminger <shemminger@vyatta.com>, Simon Wunderlich <simon.wunderlich@s2003.tu-chemnitz.de>
+To: vyasevic@redhat.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, shmulik.ladkani@gmail.com, shemminger@vyatta.com, davem@davemloft.net
 
-With this new, exported function br_multicast_list_adjacent(net_dev) a
-list of IPv4/6 addresses is returned. This list contains all multicast
-addresses sensed by the bridge multicast snooping feature on all bridge
-ports of the bridge interface of net_dev, excluding addresses from the
-specified net_device itself.
+On 01/31/2013 03:13 PM, Vlad Yasevich wrote:
+> On 01/31/2013 02:57 PM, Micha=B3 Miros=B3aw wrote:
+>> 2013/1/31 Vlad Yasevich <vyasevic@redhat.com>:
+>>> Adds an optional infrustructure component to bridge that would allow
+>>> native vlan filtering in the bridge.  Each bridge port (as well
+>>> as the bridge device) now get a VLAN bitmap.  Each bit in the bitmap
+>>> is associated with a vlan id.  This way if the bit corresponding to
+>>> the vid is set in the bitmap that the packet with vid is allowed to
+>>> enter and exit the port.
+>>>
+>>> Write access the bitmap is protected by RTNL and read access
+>>> protected by RCU.
+>> [...]
+>>> +static int __vlan_del(struct net_port_vlans *v, u16 vid)
+>>> +{
+>>> +       unsigned long first_bit;
+>>> +       unsigned long last_bit;
+>>> +
+>>> +       if (!test_bit(vid, v->vlan_bitmap))
+>>> +               return -EINVAL;
+>>> +
+>>> +       /* Check to see if any other vlans are in this table.  If this
+>>> +        * is the last vlan, delete the whole structure.  If this is
+>>> not the
+>>> +        * last vlan, just clear the bit.
+>>> +        */
+>>> +       first_bit =3D find_first_bit(v->vlan_bitmap, BR_VLAN_BITMAP_LEN=
+);
+>>> +       last_bit =3D find_last_bit(v->vlan_bitmap, BR_VLAN_BITMAP_LEN);
+>>> +
+>>> +       if (v->port_idx && vid) {
+>>> +               struct net_device *dev =3D vlans_to_port(v)->dev;
+>>> +
+>>> +               if (dev->features & NETIF_F_HW_VLAN_FILTER)
+>>> +                       dev->netdev_ops->ndo_vlan_rx_kill_vid(dev, vid);
+>>> +       }
+>>> +
+>>> +       clear_bit(vid, v->vlan_bitmap);
+>>> +       if (first_bit =3D=3D last_bit) {
+>>
+>> if (bitmap_empty(v->vlan_bitmap, BR_VLAN_BITMAP_LEN))
+>
+> Yeah.  I didn't have the clear_bit about before, but with it
+> bitmap_empty() is much better.
+>
+>>
+>>> +               if (v->port_idx) {
+>>> +                       struct net_bridge_port *p =3D vlans_to_port(v);
+>>> +                       rcu_assign_pointer(p->vlan_info, NULL);
+>>> +               } else {
+>>> +                       struct net_bridge *br =3D vlans_to_bridge(v);
+>>> +                       rcu_assign_pointer(br->vlan_info, NULL);
+>>> +               }
+>>
+>> You seem to use vlans_to_port/vlans_to_bridge only to get at
+>> vlan_info. Maybe that could be abstracted to a single interface, or
+>> even change v->parent to be a 'net_port_vlans **'?
+>
+> Hmm..  net_port_vlan** has appeal.  I'll see if I can make it work.
 
-A multicast optimization currently implemented for batman-adv requires
-this data.
+So, I went about rewriting this only to realize that there is a bug in
+patch 10 and I need the conversion functions to fix it.
+I can't really abstract it to a single interface without adding the=20
+whole nbp/port layer on top of the bridge device and that's overkill.=20
+Changing to net_port_vlans** doesn't buy me anything other then obfuscation.
 
-Signed-off-by: Linus Lüssing <linus.luessing@web.de>
----
- include/linux/if_bridge.h |   17 +++++++++++++
- net/bridge/br_multicast.c |   59 +++++++++++++++++++++++++++++++++++++++++++++
- net/bridge/br_private.h   |   11 ---------
- 3 files changed, 76 insertions(+), 11 deletions(-)
+So I think I am going to keep the much simpler parent pointer and=20
+conversion functions since I will need them later.
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 1085ffe..86d71a8 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -16,9 +16,26 @@
- #include <linux/netdevice.h>
- #include <uapi/linux/if_bridge.h>
- 
-+struct br_ip {
-+	union {
-+		__be32	ip4;
-+#if IS_ENABLED(CONFIG_IPV6)
-+		struct in6_addr ip6;
-+#endif
-+	} u;
-+	__be16		proto;
-+};
-+
-+struct br_ip_list {
-+	struct list_head list;
-+	struct br_ip addr;
-+};
-+
- extern void brioctl_set(int (*ioctl_hook)(struct net *, unsigned int, void __user *));
- 
- typedef int br_should_route_hook_t(struct sk_buff *skb);
- extern br_should_route_hook_t __rcu *br_should_route_hook;
-+extern int br_multicast_list_adjacent(struct net_device *net_dev,
-+				      struct list_head *br_ip_list);
- 
- #endif
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 6d6f265..773a8c2 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -11,6 +11,7 @@
-  */
- 
- #include <linux/err.h>
-+#include <linux/export.h>
- #include <linux/if_ether.h>
- #include <linux/igmp.h>
- #include <linux/jhash.h>
-@@ -1846,3 +1847,61 @@ unlock:
- 
- 	return err;
- }
-+
-+/**
-+ * br_multicast_list_adjacent - Returns snooped multicast addresses
-+ * @dev:	The bridge port adjacent to which to retrieve addresses
-+ * @br_ip_list:	The list to store found, snooped multicast IP addresses in
-+ *
-+ * Creates a list of IP addresses (struct br_ip_list) sensed by the multicast
-+ * snooping feature on all bridge ports of dev's bridge device, excluding
-+ * the addresses from dev itself.
-+ *
-+ * Returns the number of items added to br_ip_list.
-+ *
-+ * Notes:
-+ * - br_ip_list needs to be initialized by caller
-+ * - br_ip_list might contain duplicates in the end
-+ *   (needs to be taken care of by caller)
-+ * - br_ip_list needs to be freed by caller
-+ */
-+int br_multicast_list_adjacent(struct net_device *dev,
-+			       struct list_head *br_ip_list)
-+{
-+	struct net_bridge *br;
-+	struct net_bridge_port *port;
-+	struct net_bridge_port_group *group;
-+	struct br_ip_list *entry;
-+	struct hlist_node *p;
-+	int count = 0;
-+
-+	rcu_read_lock();
-+	if (!br_ip_list || !br_port_exists(dev))
-+		goto unlock;
-+
-+	port = br_port_get_rcu(dev);
-+	if (!port || !port->br)
-+		goto unlock;
-+
-+	br = port->br;
-+
-+	list_for_each_entry_rcu(port, &br->port_list, list) {
-+		if (!port->dev || port->dev == dev)
-+			continue;
-+
-+		hlist_for_each_entry_rcu(group, p, &port->mglist, mglist) {
-+			entry = kmalloc(sizeof(struct br_ip_list), GFP_ATOMIC);
-+			if (!entry)
-+				goto unlock;
-+
-+			entry->addr = group->addr;
-+			list_add(&entry->list, br_ip_list);
-+			count++;
-+		}
-+	}
-+
-+unlock:
-+	rcu_read_unlock();
-+	return count;
-+}
-+EXPORT_SYMBOL(br_multicast_list_adjacent);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 711094a..edf3fd8 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -52,17 +52,6 @@ struct mac_addr
- 	unsigned char	addr[6];
- };
- 
--struct br_ip
--{
--	union {
--		__be32	ip4;
--#if IS_ENABLED(CONFIG_IPV6)
--		struct in6_addr ip6;
--#endif
--	} u;
--	__be16		proto;
--};
--
- struct net_bridge_fdb_entry
- {
- 	struct hlist_node		hlist;
--- 
-1.7.10.4
+Thanks
+-vlad
+>
+> Thanks
+> -vlad
+>>
+>> Best Regards,
+>> Micha=B3 Miros=B3aw
+>>
+>
 
