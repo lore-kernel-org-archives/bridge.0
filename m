@@ -1,11 +1,11 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Fri,  1 Feb 2013 15:02:01 -0500
-Message-Id: <1359748930-31475-4-git-send-email-vyasevic@redhat.com>
+Date: Fri,  1 Feb 2013 15:02:04 -0500
+Message-Id: <1359748930-31475-7-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1359748930-31475-1-git-send-email-vyasevic@redhat.com>
 References: <1359748930-31475-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH v9 net-next 03/12] bridge: Verify that a vlan is
-	allowed to egress on give port
+Subject: [Bridge] [PATCH v9 net-next 06/12] bridge: Implement vlan
+	ingress/egress policy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,109 +17,313 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: shemminger@vyatta.com
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-When bridge forwards a frame, make sure that a frame is allowed
-to egress on that port.
+This patch implements the ingress/egress policy.  At ingress,
+any untagged traffic is assigned to the PVID.  Any tagged
+traffic is filtered according to membership bitmap.
+
+At egress, if the vlan matches the pvid, the frame is sent
+untagged.  Otherwise the frame is sent tagged.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
- net/bridge/br_forward.c |    1 +
- net/bridge/br_input.c   |   10 ++++++++++
- net/bridge/br_private.h |   10 ++++++++++
- net/bridge/br_vlan.c    |   20 ++++++++++++++++++++
- 4 files changed, 41 insertions(+), 0 deletions(-)
+ net/8021q/vlan_core.c   |    1 +
+ net/bridge/br_device.c  |    3 +-
+ net/bridge/br_forward.c |    8 ++++
+ net/bridge/br_input.c   |    7 +++-
+ net/bridge/br_private.h |   31 +++++++++++-----
+ net/bridge/br_vlan.c    |   93 +++++++++++++++++++++++++++++++++++++++++++----
+ 6 files changed, 125 insertions(+), 18 deletions(-)
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 02015a5..35b0671 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -31,6 +31,7 @@ static inline int should_deliver(const struct net_bridge_port *p,
- 				 const struct sk_buff *skb)
- {
- 	return (((p->flags & BR_HAIRPIN_MODE) || skb->dev != p->dev) &&
-+		br_allowed_egress(p->br, nbp_get_vlan_info(p), skb) &&
- 		p->state == BR_STATE_FORWARDING);
+diff --git a/net/8021q/vlan_core.c b/net/8021q/vlan_core.c
+index 71b64fd..f3b6f51 100644
+--- a/net/8021q/vlan_core.c
++++ b/net/8021q/vlan_core.c
+@@ -144,6 +144,7 @@ err_free:
+ 	kfree_skb(skb);
+ 	return NULL;
  }
++EXPORT_SYMBOL(vlan_untag);
  
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 4ef3f6b..787d7da 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -35,6 +35,16 @@ static int br_pass_frame_up(struct sk_buff *skb)
- 	brstats->rx_bytes += skb->len;
+ 
+ /*
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index d325c2d..bce7a52 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -30,6 +30,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	struct net_bridge_fdb_entry *dst;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	struct br_cpu_netstats *brstats = this_cpu_ptr(br->stats);
++	u16 vid = 0;
+ 
+ 	rcu_read_lock();
+ #ifdef CONFIG_BRIDGE_NETFILTER
+@@ -45,7 +46,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	brstats->tx_bytes += skb->len;
  	u64_stats_update_end(&brstats->syncp);
  
-+	/* Bridge is just like any other port.  Make sure the
-+	 * packet is allowed except in promisc modue when someone
-+	 * may be running packet capture.
-+	 */
-+	if (!(brdev->flags & IFF_PROMISC) &&
-+	    !br_allowed_egress(br, br_get_vlan_info(br), skb)) {
-+		kfree_skb(skb);
+-	if (!br_allowed_ingress(br, br_get_vlan_info(br), skb))
++	if (!br_allowed_ingress(br, br_get_vlan_info(br), skb, &vid))
+ 		goto out;
+ 
+ 	BR_INPUT_SKB_CB(skb)->brdev = dev;
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 35b0671..092b20e 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -64,6 +64,10 @@ int br_forward_finish(struct sk_buff *skb)
+ 
+ static void __br_deliver(const struct net_bridge_port *to, struct sk_buff *skb)
+ {
++	skb = br_handle_vlan(to->br, nbp_get_vlan_info(to), skb);
++	if (!skb)
++		return;
++
+ 	skb->dev = to->dev;
+ 
+ 	if (unlikely(netpoll_tx_running(to->br->dev))) {
+@@ -89,6 +93,10 @@ static void __br_forward(const struct net_bridge_port *to, struct sk_buff *skb)
+ 		return;
+ 	}
+ 
++	skb = br_handle_vlan(to->br, nbp_get_vlan_info(to), skb);
++	if (!skb)
++		return;
++
+ 	indev = skb->dev;
+ 	skb->dev = to->dev;
+ 	skb_forward_csum(skb);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 787d7da..a63f227 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -45,6 +45,10 @@ static int br_pass_frame_up(struct sk_buff *skb)
+ 		return NET_RX_DROP;
+ 	}
+ 
++	skb = br_handle_vlan(br, br_get_vlan_info(br), skb);
++	if (!skb)
 +		return NET_RX_DROP;
-+	}
 +
  	indev = skb->dev;
  	skb->dev = brdev;
  
+@@ -61,11 +65,12 @@ int br_handle_frame_finish(struct sk_buff *skb)
+ 	struct net_bridge_fdb_entry *dst;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	struct sk_buff *skb2;
++	u16 vid = 0;
+ 
+ 	if (!p || p->state == BR_STATE_DISABLED)
+ 		goto drop;
+ 
+-	if (!br_allowed_ingress(p->br, nbp_get_vlan_info(p), skb))
++	if (!br_allowed_ingress(p->br, nbp_get_vlan_info(p), skb, &vid))
+ 		goto drop;
+ 
+ 	/* insert into forwarding database after filtering to avoid spoofing */
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 6db6822..5e7bc90 100644
+index 7ad26f5..907b5df 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -553,6 +553,9 @@ static inline void br_mdb_uninit(void)
+@@ -553,10 +553,13 @@ static inline void br_mdb_uninit(void)
+ /* br_vlan.c */
  #ifdef CONFIG_BRIDGE_VLAN_FILTERING
  extern bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
- 			       struct sk_buff *skb);
-+extern bool br_allowed_egress(struct net_bridge *br,
-+			      const struct net_port_vlans *v,
-+			      const struct sk_buff *skb);
- extern int br_vlan_add(struct net_bridge *br, u16 vid);
+-			       struct sk_buff *skb);
++			       struct sk_buff *skb, u16 *vid);
+ extern bool br_allowed_egress(struct net_bridge *br,
+ 			      const struct net_port_vlans *v,
+ 			      const struct sk_buff *skb);
++extern struct sk_buff *br_handle_vlan(struct net_bridge *br,
++				      const struct net_port_vlans *v,
++				      struct sk_buff *skb);
+ extern int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags);
  extern int br_vlan_delete(struct net_bridge *br, u16 vid);
  extern void br_vlan_flush(struct net_bridge *br);
-@@ -592,6 +595,13 @@ static inline bool br_allowed_ingress(struct net_bridge *br,
+@@ -577,21 +580,24 @@ static inline struct net_port_vlans *nbp_get_vlan_info(
+ 	return rcu_dereference(p->vlan_info);
+ }
+ 
+-static inline u16 br_vlan_get_tag(const struct sk_buff *skb)
++
++static inline int br_vlan_get_tag(const struct sk_buff *skb, u16 *tag)
+ {
+-	u16 tag;
++	int rc = 0;
+ 
+ 	if (vlan_tx_tag_present(skb))
+-		tag = vlan_tx_tag_get(skb);
+-	else if (vlan_get_tag(skb, &tag))
+-		tag = 0;
++		*tag = vlan_tx_tag_get(skb);
++	else
++		rc = vlan_get_tag(skb, tag);
+ 
+-	return tag & VLAN_VID_MASK;
++	*tag = *tag & VLAN_VID_MASK;
++	return rc;
+ }
+ #else
+ static inline bool br_allowed_ingress(struct net_bridge *br,
+ 				      struct net_port_vlans *v,
+-				      struct sk_buff *skb)
++				      struct sk_buff *skb,
++				      u16 *vid)
+ {
+ 	return true;
+ }
+@@ -603,6 +609,13 @@ static inline bool br_allowed_egress(struct net_bridge *br,
  	return true;
  }
  
-+static inline bool br_allowed_egress(struct net_bridge *br,
-+				     const struct net_port_vlans *v,
-+				     const struct sk_buff *skb)
++static inline struct sk_buff *br_handle_vlan(struct net_bridge *br,
++					     const struct net_port_vlans *v,
++					     struct sk_buff *skb)
 +{
-+	return true;
++	return skb;
 +}
 +
- static inline int br_vlan_add(struct net_bridge *br, u16 vid)
+ static inline int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
  {
  	return -EOPNOTSUPP;
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index c3ae3f9..a291bca 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -113,6 +113,26 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
- 	return false;
+@@ -642,7 +655,7 @@ static inline struct net_port_vlans *nbp_get_vlan_info(
+ 	return NULL;
  }
  
-+/* Called under RCU. */
-+bool br_allowed_egress(struct net_bridge *br,
-+		       const struct net_port_vlans *v,
-+		       const struct sk_buff *skb)
+-static inline u16 br_vlan_get_tag(const struct sk_buff *skb)
++static inline u16 br_vlan_get_tag(const struct sk_buff *skb, u16 *tag)
+ {
+ 	return 0;
+ }
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index b5b6265..d4c4630 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -116,12 +116,74 @@ static void __vlan_flush(struct net_port_vlans *v)
+ 	kfree_rcu(v, rcu);
+ }
+ 
++static inline u16 br_get_pvid(const struct net_port_vlans *v)
 +{
-+	u16 vid;
-+
-+	if (!br->vlan_enabled)
-+		return true;
-+
-+	if (!v)
-+		return false;
-+
-+	vid = br_vlan_get_tag(skb);
-+	if (test_bit(vid, v->vlan_bitmap))
-+		return true;
-+
-+	return false;
++	smp_rmb();
++	return v->pvid;
 +}
 +
- /* Must be protected by RTNL */
- int br_vlan_add(struct net_bridge *br, u16 vid)
++/* Strip the tag from the packet.  Will return skb with tci set 0.  */
++static struct sk_buff *br_vlan_untag(struct sk_buff *skb)
++{
++	if (skb->protocol != htons(ETH_P_8021Q)) {
++		skb->vlan_tci = 0;
++		return skb;
++	}
++
++	skb->vlan_tci = 0;
++	skb = vlan_untag(skb);
++	if (skb)
++		skb->vlan_tci = 0;
++
++	return skb;
++}
++
++struct sk_buff *br_handle_vlan(struct net_bridge *br,
++			       const struct net_port_vlans *pv,
++			       struct sk_buff *skb)
++{
++	u16 vid = 0;
++
++	if (!br->vlan_enabled)
++		goto out;
++
++	/* At this point, we know that the frame was filtered and contains
++	 * a valid vlan id.  If the vlan id matches the pvid of current port
++	 * send untagged; otherwise, send taged.
++	 */
++	br_vlan_get_tag(skb, &vid);
++	if (vid == br_get_pvid(pv))
++		skb = br_vlan_untag(skb);
++	else {
++		/* Egress policy says "send tagged".  If output device
++		 * is the  bridge, we need to add the VLAN header
++		 * ourselves since we'll be going through the RX path.
++		 * Sending to ports puts the frame on the TX path and
++		 * we let dev_hard_start_xmit() add the header.
++		 */
++		if (skb->protocol != htons(ETH_P_8021Q) &&
++		    pv->port_idx == 0) {
++			/* vlan_put_tag expects skb->data to point to
++			 * mac header.
++			 */
++			skb_push(skb, ETH_HLEN);
++			skb = __vlan_put_tag(skb, skb->vlan_tci);
++			if (!skb)
++				goto out;
++			/* put skb->data back to where it was */
++			skb_pull(skb, ETH_HLEN);
++			skb->vlan_tci = 0;
++		}
++	}
++
++out:
++	return skb;
++}
++
+ /* Called under RCU */
+ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+-			struct sk_buff *skb)
++			struct sk_buff *skb, u16 *vid)
  {
+-	u16 vid;
+-
+ 	/* If VLAN filtering is disabled on the bridge, all packets are
+ 	 * permitted.
+ 	 */
+@@ -134,8 +196,25 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+ 	if (!v)
+ 		return false;
+ 
+-	vid = br_vlan_get_tag(skb);
+-	if (test_bit(vid, v->vlan_bitmap))
++	if (br_vlan_get_tag(skb, vid)) {
++		u16 pvid = br_get_pvid(v);
++
++		/* Frame did not have a tag.  See if pvid is set
++		 * on this port.  That tells us which vlan untagged
++		 * traffic belongs to.
++		 */
++		if (pvid == BR_INVALID_VID)
++			return false;
++
++		/* PVID is set on this port.  Any untagged ingress
++		 * frame is considered to belong to this vlan.
++		 */
++		__vlan_hwaccel_put_tag(skb, pvid);
++		return true;
++	}
++
++	/* Frame had a valid vlan tag.  See if vlan is allowed */
++	if (test_bit(*vid, v->vlan_bitmap))
+ 		return true;
+ 
+ 	return false;
+@@ -146,7 +225,7 @@ bool br_allowed_egress(struct net_bridge *br,
+ 		       const struct net_port_vlans *v,
+ 		       const struct sk_buff *skb)
+ {
+-	u16 vid;
++	u16 vid = 0;
+ 
+ 	if (!br->vlan_enabled)
+ 		return true;
+@@ -154,7 +233,7 @@ bool br_allowed_egress(struct net_bridge *br,
+ 	if (!v)
+ 		return false;
+ 
+-	vid = br_vlan_get_tag(skb);
++	br_vlan_get_tag(skb, &vid);
+ 	if (test_bit(vid, v->vlan_bitmap))
+ 		return true;
+ 
 -- 
 1.7.7.6
 
