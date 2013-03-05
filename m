@@ -1,17 +1,13 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Wed, 13 Mar 2013 09:09:21 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130313090921.05dbf6e2@nehalam.linuxnetplumber.net>
-In-Reply-To: <51409F24.3070305@redhat.com>
-References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
-	<473541363155743@web2d.yandex.ru> <51406D2D.30703@redhat.com>
-	<20130313083932.6483876f@nehalam.linuxnetplumber.net>
-	<51409F24.3070305@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/4] Allow bridge to function in
- non-promisc mode
+Return-Path: <russell@personaltelco.net>
+References: <8638w91lft.fsf@coulee.tdb.com>
+From: Russell Senior <russell@personaltelco.net>
+Date: Tue, 05 Mar 2013 15:33:10 -0800
+In-Reply-To: <8638w91lft.fsf@coulee.tdb.com> (Russell Senior's message of
+	"Tue\, 05 Mar 2013 15\:22\:30 -0800")
+Message-ID: <86ip55zakp.fsf@coulee.tdb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [Bridge] [PATCH] bridge-utils: Fix compile against linux-3.8.x
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,39 +16,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "Oleg A. Arkhangelsky" <sysoleg@yandex.ru>
+To: bridge@lists.linux-foundation.org
 
-On Wed, 13 Mar 2013 11:45:40 -0400
-Vlad Yasevich <vyasevic@redhat.com> wrote:
 
-> On 03/13/2013 11:39 AM, Stephen Hemminger wrote:
-> > On Wed, 13 Mar 2013 08:12:29 -0400
-> > Vlad Yasevich <vyasevic@redhat.com> wrote:
-> >
-> >> On 03/13/2013 02:22 AM, "Oleg A. Arkhangelsky" wrote:
-> >>>
-> >>>
-> >>> 13.03.2013, 05:45, "Vlad Yasevich" <vyasevic@redhat.com>:
-> >>>
-> >>>> The series adds an ability for the bridge to function in non-promiscuous mode.
-> >>>
-> >>> What is the practical applications for such setup? In other words,
-> >>> in which cases I would want to put bridge into non-promiscuous
-> >>> mode and specify some uplink ports?
-> >>>
-> >>
-> >> On of the applications would be when bridge is an edge device servicing
-> >> a VM deployment.  Each of the VMs knows the mac address that the guest
-> >> has and may program that mac onto the uplinks.
-> >
-> > Why wouldn't that environment just use macvlan?
-> > Is it because changing libvirt is harder than changing the kernel?
-> >
-> 
-> No, because macvlan has a drawback that it doesn't easily let guests 
-> talk to the host.  Bridge is still most commonly used for just that reason.
-> 
-> -vlad
+Linux 3.8 has a header, include/uapi/linux/if_bridge.h that uses a
+struct in6_addr but doesn't define it.  The trivial seeming fix of
+including the header that does define it causes more problems.  The
+problem was discussed on mailing lists in January 2013.  The final
+suggestion I found was here:
 
-Maybe fixing that with a flag to macvlan would be easier?
+      http://www.redhat.com/archives/libvir-list/2013-January/msg01253.html
+
+This is intended to implement that suggestion.
+
+Signed-off-by: Russell Senior <russell@personaltelco.net>
+---
+ libbridge/libbridge.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libbridge/libbridge.h b/libbridge/libbridge.h
+index 39964f2..dd14bae 100644
+--- a/libbridge/libbridge.h
++++ b/libbridge/libbridge.h
+@@ -20,6 +20,7 @@
+ #define _LIBBRIDGE_H
+ 
+ #include <sys/socket.h>
++#include <netinet/in.h>
+ #include <linux/if.h>
+ #include <linux/if_bridge.h>
+ 
+-- 
+1.7.10.4
+
+
+-- 
+Russell Senior, President
+russell@personaltelco.net
