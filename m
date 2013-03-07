@@ -1,18 +1,9 @@
 Return-Path: <vyasevic@redhat.com>
-Message-ID: <5138D08C.8010307@redhat.com>
-Date: Thu, 07 Mar 2013 12:38:20 -0500
 From: Vlad Yasevich <vyasevic@redhat.com>
-MIME-Version: 1.0
-References: <1362623485-18209-1-git-send-email-vyasevic@redhat.com>
-	<CAOaVG17iZu3r9no5FtNU-6ZwW2UdR3QBE6O3EKm6-JXAmEyuyA@mail.gmail.com>
-	<5138B3C9.4060404@redhat.com>
-	<20130307091340.6c5af4bb@nehalam.linuxnetplumber.net>
-In-Reply-To: <20130307091340.6c5af4bb@nehalam.linuxnetplumber.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH net-next 0/3] Allow bridge to function in
- non-promisc mode
-Reply-To: vyasevic@redhat.com
+Date: Thu,  7 Mar 2013 16:28:45 -0500
+Message-Id: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [RFC PATCH v2 net-next 0/3] Allow bridge to function in
+	non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,64 +12,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org
 
-On 03/07/2013 12:13 PM, Stephen Hemminger wrote:
-> On Thu, 07 Mar 2013 10:35:37 -0500
-> Vlad Yasevich <vyasevic@redhat.com> wrote:
->
->> On 03/07/2013 02:19 AM, Stephen Hemminger wrote:
->>> I understand the desire to add more functionality, but in this case it
->>> would introduce lots more problems. STP would break and it doesn't seem to
->>> gain anything that can't be done by other means.
->>>
->>> Turning bridge into macvlan seems unnecessary. Combining apples and bananas
->>> doesn't always make a tasty smoothy, sometimes it is just a mess.
->>>
->>> Maybe adding a little more to macvlan to do what you want would be simpler.
->>>
->>
->>
->> It's not really a macvlan over the bridge.  I would agree that
->> particular setup would be a bit odd.  This work enables VMs to manage
->> their mac addresses and to reduce the load on the host by keeping the
->> bridge in promisc mode.
->>
->> Sadly, most kvm network configs still use bridging and have not
->> transitioned to OVS.  macvlan has some limitations as well and I working
->> to address those, but there is a desire for non-promisc bridge.  In
->> this case VMs can manage their mac addresses and can write that data to
->> the bridge.
->>
->> STP is not broken as STP uses multicast mac and we set IFF_ALLMULTI thus
->> continuing to receive and process STP BPDUs.
->>
->> The one thing that would appear to suffer from this is VLAN reception,
->> but the bridge does allow vlan config now and that would have to be
->> configured if VMs wish to use vlans.
->>
->> I am not changing default operation of the bridge.  Default is still
->> promisc.  In fact, one can switch back and forth without any network
->> outages.  This simply adds another mode the the bridge operation.
->>
->
-> 1. I am not a fan of the added complexity.
-> 2, Don't use sysfs for new API's use netlink instead.
+The series adds an ability to configure the bridge into a non-primiscuous
+mode.   Instead, it provides the ability to identitfy some set of bridge
+ports as uplinks and allows for MAC addresses to be programmed onto
+those ports.  In case the port hardware does not support mac filter,
+that port will be placed in promiscuous mode.
 
-Oh, I had a question for you about this.  I am changing the uplink code 
-slightly to pattern more after some of the security features you added 
-(like root_block and bpdu_guard).  I makes things simpler.  I would 
-really like to provide the sysfs interface, because I checked iproute 
-code and I don't see any netlink implementation of those things.
+Default bridge operation continues to remain as "promiscuous".  The new
+functionality has to be enabled via sysfs (similar to other bridge extensions).
 
-Would that be more agreeable to you?
+The uplink mode is implemented as a flag on a bridge port.  The api to
+change that flag follows the existing api to enable/disable other existing
+flags.
 
-Thanks
--vlad
+All comments are welcome.
 
-I
-> 3. It depends on the uplink port providing UNICAST filtering which some
->     physical devices don't do.
->
+Changes since v1:
+* Fixed submit log
+* Simplifyied uplink logic.  Uplink is now a flag per port.  This removes the
+  need for a separate list.
+* Clean-up hw list once the port has been removed.
+
+Vlad Yasevich (3):
+  bridge: Add sysfs interface to control promisc mode
+  bridge: Allow an ability to designate an uplink port
+  bridge: Implement IFF_UNICAST_FLT
+
+ include/uapi/linux/if_link.h |    1 +
+ net/bridge/br_device.c       |   52 +++++++++++++++++++++++++++++++++++++++++-
+ net/bridge/br_fdb.c          |    6 +++++
+ net/bridge/br_if.c           |   22 +++++++++++++----
+ net/bridge/br_netlink.c      |    2 +
+ net/bridge/br_private.h      |    3 ++
+ net/bridge/br_sysfs_br.c     |   17 +++++++++++++
+ net/bridge/br_sysfs_if.c     |    2 +
+ 8 files changed, 99 insertions(+), 6 deletions(-)
+
+-- 
+1.7.7.6
 
