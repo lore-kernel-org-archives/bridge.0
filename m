@@ -1,11 +1,11 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Thu,  7 Mar 2013 16:28:47 -0500
-Message-Id: <1362691728-13289-3-git-send-email-vyasevic@redhat.com>
+Date: Thu,  7 Mar 2013 16:28:48 -0500
+Message-Id: <1362691728-13289-4-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
 References: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [RFC PATCH v2 net-next 2/3] bridge: Allow an ability to
-	designate an uplink port
+Subject: [Bridge] [RFC PATCH v2 net-next 3/3] bridge: Implement
+	IFF_UNICAST_FLT
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,82 +17,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org
 
-Allow a ports to be designated as uplink.  Multiple ports
-may be designated as uplinks and they will be kept in a
-list.
+Implement IFF_UNICAST_FLT on the bridge.  Unicast addresses added
+to the bridge device are synched to the uplink devices.  This
+allows for uplink devices to change while preserving mac assignment.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
- include/uapi/linux/if_link.h |    1 +
- net/bridge/br_netlink.c      |    2 ++
- net/bridge/br_private.h      |    1 +
- net/bridge/br_sysfs_if.c     |    2 ++
- 4 files changed, 6 insertions(+), 0 deletions(-)
+ net/bridge/br_device.c |   11 ++++++++++-
+ net/bridge/br_fdb.c    |    6 ++++++
+ net/bridge/br_if.c     |    2 ++
+ 3 files changed, 18 insertions(+), 1 deletions(-)
 
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index c4edfe1..b9444e9 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -220,6 +220,7 @@ enum {
- 	IFLA_BRPORT_GUARD,	/* bpdu guard              */
- 	IFLA_BRPORT_PROTECT,	/* root port protection    */
- 	IFLA_BRPORT_FAST_LEAVE,	/* multicast fast leave    */
-+	IFLA_BRPORT_UPLINK,	/* uplink port */
- 	__IFLA_BRPORT_MAX
- };
- #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 27aa3ee..e08a50e 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -283,6 +283,7 @@ static const struct nla_policy ifla_brport_policy[IFLA_BRPORT_MAX + 1] = {
- 	[IFLA_BRPORT_MODE]	= { .type = NLA_U8 },
- 	[IFLA_BRPORT_GUARD]	= { .type = NLA_U8 },
- 	[IFLA_BRPORT_PROTECT]	= { .type = NLA_U8 },
-+	[IFLA_BRPORT_UPLINK]	= { .type = NLA_U8 },
- };
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 37f611f..91fff56 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -106,6 +106,15 @@ static int br_dev_open(struct net_device *dev)
  
- /* Change the state of the port and notify spanning tree */
-@@ -329,6 +330,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- 	br_set_port_flag(p, tb, IFLA_BRPORT_MODE, BR_HAIRPIN_MODE);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_GUARD, BR_BPDU_GUARD);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_FAST_LEAVE, BR_MULTICAST_FAST_LEAVE);
-+	br_set_port_flag(p, tb, IFLA_BRPORT_UPLINK, BR_UPLINK);
+ static void br_dev_set_multicast_list(struct net_device *dev)
+ {
++	struct net_bridge *br = netdev_priv(dev);
++	struct net_bridge_port *port;
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(port, &br->port_list, list) {
++		if (port->flags & BR_UPLINK)
++			dev_uc_sync(uplink->dev, dev);
++	}
++	rcu_read_unlock();
+ }
  
- 	if (tb[IFLA_BRPORT_COST]) {
- 		err = br_stp_set_path_cost(p, nla_get_u32(tb[IFLA_BRPORT_COST]));
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 4a0fa29..44ae584 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -156,6 +156,7 @@ struct net_bridge_port
- #define BR_BPDU_GUARD           0x00000002
- #define BR_ROOT_BLOCK		0x00000004
- #define BR_MULTICAST_FAST_LEAVE	0x00000008
-+#define BR_UPLINK		0x00000010
+ static int br_dev_stop(struct net_device *dev)
+@@ -384,7 +393,7 @@ void br_dev_setup(struct net_device *dev)
+ 	SET_ETHTOOL_OPS(dev, &br_ethtool_ops);
+ 	SET_NETDEV_DEVTYPE(dev, &br_type);
+ 	dev->tx_queue_len = 0;
+-	dev->priv_flags = IFF_EBRIDGE;
++	dev->priv_flags = IFF_EBRIDGE | IFF_UNICAST_FLT;
  
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	u32				multicast_startup_queries_sent;
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index a1ef1b6..1f28cd4 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -158,6 +158,7 @@ static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
- BRPORT_ATTR_FLAG(hairpin_mode, BR_HAIRPIN_MODE);
- BRPORT_ATTR_FLAG(bpdu_guard, BR_BPDU_GUARD);
- BRPORT_ATTR_FLAG(root_block, BR_ROOT_BLOCK);
-+BRPORT_ATTR_FLAG(uplink, BR_UPLINK);
+ 	dev->features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
+ 			NETIF_F_GSO_MASK | NETIF_F_HW_CSUM | NETIF_F_LLTX |
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index b0812c9..ef7b51e 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -677,6 +677,9 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 	struct net_port_vlans *pv;
+ 	unsigned short vid = VLAN_N_VID;
  
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
-@@ -195,6 +196,7 @@ static const struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_hairpin_mode,
- 	&brport_attr_bpdu_guard,
- 	&brport_attr_root_block,
-+	&brport_attr_uplink,
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	&brport_attr_multicast_router,
- 	&brport_attr_multicast_fast_leave,
++	if ((ndm->ndm_flags & NTF_SELF) && (dev->priv_flags & IFF_EBRIDGE))
++		return ndo_dflt_fdb_add(ndm, tb, dev, addr, nlh_flags);
++
+ 	if (!(ndm->ndm_state & (NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE))) {
+ 		pr_info("bridge: RTM_NEWNEIGH with invalid state %#x\n", ndm->ndm_state);
+ 		return -EINVAL;
+@@ -774,6 +777,9 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
+ 	struct net_port_vlans *pv;
+ 	unsigned short vid = VLAN_N_VID;
+ 
++	if ((ndm->ndm_flags & NTF_SELF) && (dev->priv_flags & IFF_EBRIDGE))
++		return ndo_dflt_fdb_del(ndm, tb, dev, addr);
++
+ 	if (tb[NDA_VLAN]) {
+ 		if (nla_len(tb[NDA_VLAN]) != sizeof(unsigned short)) {
+ 			pr_info("bridge: RTM_NEWNEIGH with invalid vlan\n");
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 02b4440..5196a79 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -145,6 +145,8 @@ static void del_nbp(struct net_bridge_port *p)
+ 
+ 	nbp_vlan_flush(p);
+ 	br_fdb_delete_by_port(br, p, 1);
++	if (p->flags & BR_UPLINK)
++		dev_uc_unsync(dev, br->dev);
+ 
+ 	list_del_rcu(&p->list);
+ 
 -- 
 1.7.7.6
 
