@@ -1,18 +1,14 @@
-Return-Path: <herbert@gondor.apana.org.au>
-Date: Fri, 8 Mar 2013 12:08:53 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Message-ID: <20130308040853.GA27704@gondor.apana.org.au>
-References: <1362708423-23932-1-git-send-email-amwang@redhat.com>
-	<20130308023151.GA27155@gondor.apana.org.au>
-	<1362710646.9773.25.camel@cr0>
-	<20130308024726.GA27319@gondor.apana.org.au>
-	<1362715613.9773.29.camel@cr0>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1362715613.9773.29.camel@cr0>
-Subject: Re: [Bridge] [Patch net] bridge: do not expire mdb entry when
- bridge still uses it
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 7 Mar 2013 21:43:04 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20130307214304.25e7784e@nehalam.linuxnetplumber.net>
+In-Reply-To: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
+References: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC PATCH v2 net-next 0/3] Allow bridge to function
+ in non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,38 +17,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cong Wang <amwang@redhat.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Adam Baker <linux@baker-net.org.uk>
+To: Vlad Yasevich <vyasevic@redhat.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Fri, Mar 08, 2013 at 12:06:53PM +0800, Cong Wang wrote:
-> On Fri, 2013-03-08 at 10:47 +0800, Herbert Xu wrote:
-> > On Fri, Mar 08, 2013 at 10:44:06AM +0800, Cong Wang wrote:
-> > >
-> > > This is a good question. It is due to inside br_handle_frame_finish() we
-> > > use 'skb2' to decide if we deliver packets to bridge itself, and in this
-> > > case 'skb2' is non-NULL only when:
-> > > 
-> > >                 if (mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) {
-> > >                         if ((mdst && mdst->mglist) ||
-> > >                             br_multicast_is_router(br))
-> > >                                 skb2 = skb; //        <======== HERE
-> > >                         br_multicast_forward(mdst, skb, skb2);
-> > > 
-> > > For other ports, br_multicast_forward() will always forward 'skb' to
-> > > them.
-> > 
-> > Yes but the point is that other ports should also expire after the
-> > timeout and thus be removed from mdst.  So why is this only happening
-> > for the bridge aka mdst->mglist?
+On Thu,  7 Mar 2013 16:28:45 -0500
+Vlad Yasevich <vyasevic@redhat.com> wrote:
+
+> The series adds an ability to configure the bridge into a non-primiscuous
+> mode.   Instead, it provides the ability to identitfy some set of bridge
+> ports as uplinks and allows for MAC addresses to be programmed onto
+> those ports.  In case the port hardware does not support mac filter,
+> that port will be placed in promiscuous mode.
 > 
-> The mdst may be removed, however the BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)
-> is still set, because in br_multicast_ipv4_rcv():
+> Default bridge operation continues to remain as "promiscuous".  The new
+> functionality has to be enabled via sysfs (similar to other bridge extensions).
+> 
+> The uplink mode is implemented as a flag on a bridge port.  The api to
+> change that flag follows the existing api to enable/disable other existing
+> flags.
+> 
+> All comments are welcome.
+> 
 
-But those packets are only meant for routers, which is why we
-have the br_multicast_is_router test above.
+Can we make this a one step process and less visible to the user.
+If user defines an uplink device, and the uplink device is capable of filtering
+(and what ever other pre-conditions people can think of), then the bridge will
+transparently switch to uplink/non-promisc mode.  This can also be used to trigger
+edge only mode in RSTP in the future.
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Less knobs.
+
+
+
