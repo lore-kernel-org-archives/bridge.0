@@ -1,20 +1,16 @@
-Return-Path: <herbert@gondor.apana.org.au>
-Date: Fri, 8 Mar 2013 19:24:38 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Message-ID: <20130308112438.GA29924@gondor.apana.org.au>
-References: <1362708423-23932-1-git-send-email-amwang@redhat.com>
-	<20130308023151.GA27155@gondor.apana.org.au>
-	<1362710646.9773.25.camel@cr0>
-	<20130308024726.GA27319@gondor.apana.org.au>
-	<1362715613.9773.29.camel@cr0>
-	<20130308040853.GA27704@gondor.apana.org.au>
-	<1362727581.3237.4.camel@cr0>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <513A0109.4040607@redhat.com>
+Date: Fri, 08 Mar 2013 10:17:29 -0500
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1362727581.3237.4.camel@cr0>
-Subject: Re: [Bridge] [Patch net] bridge: do not expire mdb entry when
- bridge still uses it
+References: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
+	<20130307214304.25e7784e@nehalam.linuxnetplumber.net>
+In-Reply-To: <20130307214304.25e7784e@nehalam.linuxnetplumber.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC PATCH v2 net-next 0/3] Allow bridge to function
+ in non-promisc mode
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,24 +19,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Cong Wang <amwang@redhat.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Adam Baker <linux@baker-net.org.uk>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Fri, Mar 08, 2013 at 03:26:21PM +0800, Cong Wang wrote:
+On 03/08/2013 12:43 AM, Stephen Hemminger wrote:
+> On Thu,  7 Mar 2013 16:28:45 -0500
+> Vlad Yasevich <vyasevic@redhat.com> wrote:
 >
-> Hmm, what the user experiences is the multicast traffic between the
-> bridge and some port is broken. Isn't this expected to work by default?
+>> The series adds an ability to configure the bridge into a non-primiscuous
+>> mode.   Instead, it provides the ability to identitfy some set of bridge
+>> ports as uplinks and allows for MAC addresses to be programmed onto
+>> those ports.  In case the port hardware does not support mac filter,
+>> that port will be placed in promiscuous mode.
+>>
+>> Default bridge operation continues to remain as "promiscuous".  The new
+>> functionality has to be enabled via sysfs (similar to other bridge extensions).
+>>
+>> The uplink mode is implemented as a flag on a bridge port.  The api to
+>> change that flag follows the existing api to enable/disable other existing
+>> flags.
+>>
+>> All comments are welcome.
+>>
+>
+> Can we make this a one step process and less visible to the user.
+> If user defines an uplink device, and the uplink device is capable of filtering
+> (and what ever other pre-conditions people can think of), then the bridge will
+> transparently switch to uplink/non-promisc mode.  This can also be used to trigger
+> edge only mode in RSTP in the future.
+>
+> Less knobs.
+>
 
-Oh I'm not arguing that this isn't a bug.  I'm trying to ensure
-that we come up with the right fix.
+Ok.  Let me see what I can do.
 
-> Or we can just change the default value of br->multicast_router to 2?
+Thanks
+-vlad
 
-No because that will cause all sorts of stuff to be thrown at
-the host.
-
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
