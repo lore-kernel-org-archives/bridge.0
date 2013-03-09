@@ -1,26 +1,14 @@
-Return-Path: <john.fastabend@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=x-received:message-id:date:from:user-agent:mime-version:to:cc
-	:subject:references:in-reply-to:content-type
-	:content-transfer-encoding;
-	bh=K26H23R8kvDCqcKgQxFlTthgi3BZMoggnA1Z56E+bZQ=;
-	b=iRv64w/667ag7p9NszUfpc0L5wedxM/cDv+oFmHsQJGsRanrFbuWuSYgW9PaeJvAza
-	0SQJ3q1KHOVVgmnyMD4TJ075aiCYEUaI2AplOg+aUC4TWyaI/8eD1arLiWXyz7EwbQ5z
-	vxkg4z9C/LBazur179ZqHYOpAWZYbHkPUsKKM0oNJYnm8rPOqLe3y1s9YpCf0BW1bgPp
-	qB9Lq8cx8md6nt60N8XzHBxQ7ULttxSWPokYWWw6kb9o3daA2rVyAu9UJl8fUkPt/8TG
-	KbELt9ix2X+30oyFDDnx2fdOCzdESPDfin47VBPb/bqG8GUrM+Xrv8OuvWWSzwz9E8e6
-	n5mA==
-Message-ID: <51380542.4020601@gmail.com>
-Date: Wed, 06 Mar 2013 19:10:58 -0800
-From: John Fastabend <john.fastabend@gmail.com>
+Return-Path: <linux@baker-net.org.uk>
+Message-ID: <513BBBAA.2050800@baker-net.org.uk>
+Date: Sat, 09 Mar 2013 22:46:02 +0000
+From: Adam Baker <linux@baker-net.org.uk>
 MIME-Version: 1.0
-References: <1362623485-18209-1-git-send-email-vyasevic@redhat.com>
-	<1362623485-18209-4-git-send-email-vyasevic@redhat.com>
-In-Reply-To: <1362623485-18209-4-git-send-email-vyasevic@redhat.com>
+References: <1362708423-23932-1-git-send-email-amwang@redhat.com>
+In-Reply-To: <1362708423-23932-1-git-send-email-amwang@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH net-next 3/3] bridge: Implement
-	IFF_UNICAST_FLT
+Subject: Re: [Bridge] [Patch net] bridge: do not expire mdb entry when
+ bridge still uses it
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,60 +17,68 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Cong Wang <amwang@redhat.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.hengli.com.au>
 
-On 03/06/2013 06:31 PM, Vlad Yasevich wrote:
-> Implement IFF_UNICAST_FLT on the bridge.  Unicast addresses added
-> to the bridge device are synched to the uplink devices.  This
-> allows for uplink devices to change while preserving mac assignment.
+On 08/03/13 02:07, Cong Wang wrote:
+> From: Cong Wang <amwang@redhat.com>
 >
-> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
-> ---
-
-[...]
-
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index b0812c9..ef7b51e 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -677,6 +677,9 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
->   	struct net_port_vlans *pv;
->   	unsigned short vid = VLAN_N_VID;
+> This is a long-standing bug and reported several times:
+> https://bugzilla.redhat.com/show_bug.cgi?id=880035
+> http://marc.info/?l=linux-netdev&m=136164389416341&w=2
 >
-> +	if ((ndm->ndm_flags & NTF_SELF) && (dev->priv_flags & IFF_EBRIDGE))
-> +		return ndo_dflt_fdb_add(ndm, tb, dev, addr, nlh_flags);
-> +
->   	if (!(ndm->ndm_state & (NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE))) {
->   		pr_info("bridge: RTM_NEWNEIGH with invalid state %#x\n", ndm->ndm_state);
->   		return -EINVAL;
-> @@ -774,6 +777,9 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
->   	struct net_port_vlans *pv;
->   	unsigned short vid = VLAN_N_VID;
+> This bug can be observed in virt environment, when a KVM guest
+> communicates with the host via multicast. After some time (should
+> be 260 sec, I didn't measure), the multicast traffic suddenly
+> terminates.
 >
-> +	if ((ndm->ndm_flags & NTF_SELF) && (dev->priv_flags & IFF_EBRIDGE))
-> +		return ndo_dflt_fdb_del(ndm, tb, dev, addr);
-> +
->   	if (tb[NDA_VLAN]) {
->   		if (nla_len(tb[NDA_VLAN]) != sizeof(unsigned short)) {
->   			pr_info("bridge: RTM_NEWNEIGH with invalid vlan\n");
+> This is due to the mdb entry for bridge itself expires automatically,
+> it should not expire as long as the bridge still generates multicast
+> traffic. It should expire when the bridge leaves the multicast group,
+> OR when there is no multicast traffic on this bridge.
 >
+> I fix this by adding another bool which is set when there is
+> multicast traffic goes to the bridge, cleared in the expire timer and
+> when IGMP leave is received. I ran omping for 15 minutes, everything
+> looks good now.
+Despite Herbert's comment that he didn't think this patch was correct I 
+decided to test it anyway and can confirm that it doesn't fix the issue 
+for my configuration.
 
-How is this different then calling the fdb op from rtnetlink.c when the
-NTF_SELF bit is set after your previous patch
+When Herbert Xu originally sent the patch series that caused the change 
+in behaviour that triggered this issue 
+(http://www.spinics.net/lists/netdev/msg194893.html) he noted that for 
+IPv6 the bridge sends it's own IP address so it can potentially be 
+elected as the active querier which he claimed is incorrect. I note 
+however that a randomly selected Cisco page on configuring layer 2 IGMP 
+snooping 
+(http://www.cisco.com/en/US/docs/routers/asr9000/software/multicast/configuration/guide/mcasr9kigsn.html#wp1039776) 
+suggests that when configuring a querier on a bridge it should be 
+assigned a valid IP address. If it is believed that the use of 0.0.0.0 
+as the IP address is what is causing strange behaviour on other devices 
+then is there a good reason that a bridge rather than a router shouldn't 
+be the active querier? If not then using the bridge IP address and 
+having the querier enabled by default may be a reasonable solution 
+(provided that our querier obeys the election rules and shuts up if it 
+sees a query from a lower IP address that isn't 0.0.0.0). Just because a 
+device is the elected querier for IGMP doesn't appear to mean it is 
+required to perform any other routing functions.
 
-	net: generic fdb support for drivers without ndo_fdb_<op>
+Any thought on whether that would work - I don't have a device that 
+misbehaves on seeing the bridge initiated queries so am unable to test 
+if that solves that issue.
 
-the generic routine gets called if a specific op is not supplied via
-ndo ops anyways right?
+An alternative option would be to have a third state for our querier 
+where it is only active if it has not seen a query for the Other Querier 
+Present Interval but that still leaves the possibility of other devices 
+behaving strangely because they have seen the queries we generate when 
+they are first switched on.
 
-Also I suspect if the driver supplies a specific ndo_fdb_<op> we should
-use it over the generic one.
+Regards
 
-What am I missing?
+Adam Baker
 
-Thanks,
-John
-
--- 
-John Fastabend         Intel Corporation
+P.S. Sorry Stephen if you feel this is a now a question rather than a 
+patch so, as per your previous mail, shouldn't go to individual 
+developers but as it is also a NAK to a patch I wasn't comfortable 
+trimming the CC list.
