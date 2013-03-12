@@ -1,21 +1,14 @@
-Return-Path: <amwang@redhat.com>
-Message-ID: <1362966251.17872.2.camel@cr0>
-From: Cong Wang <amwang@redhat.com>
-Date: Mon, 11 Mar 2013 09:44:11 +0800
-In-Reply-To: <20130308112438.GA29924@gondor.apana.org.au>
-References: <1362708423-23932-1-git-send-email-amwang@redhat.com>
-	<20130308023151.GA27155@gondor.apana.org.au>
-	<1362710646.9773.25.camel@cr0>
-	<20130308024726.GA27319@gondor.apana.org.au>
-	<1362715613.9773.29.camel@cr0>
-	<20130308040853.GA27704@gondor.apana.org.au>
-	<1362727581.3237.4.camel@cr0>
-	<20130308112438.GA29924@gondor.apana.org.au>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Return-Path: <davem@davemloft.net>
+Date: Tue, 12 Mar 2013 08:15:41 -0400 (EDT)
+Message-Id: <20130312.081541.766514637621179783.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <CAPgLHd_EW_y3VjSc9F4+fgmHpPVLZsysBo+sdDambZN96WBBcw@mail.gmail.com>
+References: <CAPgLHd_EW_y3VjSc9F4+fgmHpPVLZsysBo+sdDambZN96WBBcw@mail.gmail.com>
 Mime-Version: 1.0
-Subject: Re: [Bridge] [Patch net] bridge: do not expire mdb entry when
- bridge still uses it
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH -next] bridge: using for_each_set_bit_from to
+ simplify the code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,28 +17,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Herbert Xu <herbert@gondor.hengli.com.au>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Adam Baker <linux@baker-net.org.uk>
+To: weiyj.lk@gmail.com
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, yongjun_wei@trendmicro.com.cn, bridge@lists.linux-foundation.org
 
-On Fri, 2013-03-08 at 19:24 +0800, Herbert Xu wrote:
-> On Fri, Mar 08, 2013 at 03:26:21PM +0800, Cong Wang wrote:
-> >
-> > Hmm, what the user experiences is the multicast traffic between the
-> > bridge and some port is broken. Isn't this expected to work by default?
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Date: Mon, 11 Mar 2013 23:43:48 +0800
+
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> Oh I'm not arguing that this isn't a bug.  I'm trying to ensure
-> that we come up with the right fix.
-
-Do you have any idea of a better fix?
-
+> Using for_each_set_bit_from() to simplify the code.
 > 
-> > Or we can just change the default value of br->multicast_router to 2?
-> 
-> No because that will cause all sorts of stuff to be thrown at
-> the host.
-> 
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-OK.
-
-Thanks!
-
+Applied.
