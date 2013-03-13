@@ -1,18 +1,20 @@
-Return-Path: <silviupopescu1990@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=x-received:from:to:cc:subject:date:message-id:x-mailer;
-	bh=Y7WbPuQ35jqn38WN1ZvX/3LuHf6HlnAASJ4b8bLP+vo=;
-	b=jCsiUyY7Ibjb4jLUt6/JS3DMceymkO1zuX19sIgCSmtZFSrs9BP6e5Er6yGCTsSCHe
-	CRDacw+xOvshM6DnOipHWpPAF3KPBdAv1CJx+7bJ/IB44rff+NS33CnnpD0lIb3Fj3H+
-	KcjPDxHv+P4rKYYfvTvN/lTmo+JX5XgakSrqaS2E/cHQ6DHXUSWgzfOhxXhOLBI9n80S
-	vLlypg3zR2pmWhsMazjpoUvZpuSzeXsbMVZCjIlDgHbl4rQ2Ao7OvIQUVxJ/mhorYJIV
-	G6In3bAjD8684MKWXExHOhUor8ALQF0h53j1JuNLuozYrETdZ/c6FFtsd9frCo/6UTqw
-	MStQ==
-From: Silviu-Mihai Popescu <silviupopescu1990@gmail.com>
-Date: Tue, 12 Mar 2013 20:11:33 +0200
-Message-Id: <1363111893-25146-1-git-send-email-silviupopescu1990@gmail.com>
-Subject: [Bridge] [PATCH] bridge: netfilter: use PTR_RET instead of IS_ERR +
-	PTR_ERR
+Return-Path: <sysoleg@yandex.ru>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1363155744; bh=ORsVrqr9v23NqK3U23INZzvLCTscthqq0Gwgn5psW90=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=C2LiOm9gqw8eIN0gUPIbz1m61LKzIsXQO143h/2v+SSxuMWVTChB+IFVB67pj7kKS
+	9CYk4bVl3s6s5uLURmTRjdvBiEpHpmGck6Z110hs67IeoLA0WEfCmGgOGtCgDHlfXW
+	RDqk6cXltiwdr3Dc5Ni25QS8tUdRSkwtdBIpcmcs=
+From: "\"Oleg A. Arkhangelsky\"" <sysoleg@yandex.ru>
+In-Reply-To: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
+References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
+MIME-Version: 1.0
+Message-Id: <473541363155743@web2d.yandex.ru>
+Date: Wed, 13 Mar 2013 10:22:23 +0400
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next 0/4] Allow bridge to function in
+	non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,32 +23,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netfilter-devel@vger.kernel.org
-Cc: coreteam@netfilter.org, Silviu-Mihai Popescu <silviupopescu1990@gmail.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, stephen@networkplumber.org, netfilter@vger.kernel.org, bart.de.schuymer@pandora.be, kaber@trash.net, pablo@netfilter.org
+To: Vlad Yasevich <vyasevic@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-This uses PTR_RET instead of IS_ERR and PTR_ERR in order to increase
-readability.
 
-Signed-off-by: Silviu-Mihai Popescu <silviupopescu1990@gmail.com>
----
- net/bridge/netfilter/ebtable_broute.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/bridge/netfilter/ebtable_broute.c b/net/bridge/netfilter/ebtable_broute.c
-index 40d8258..70f656c 100644
---- a/net/bridge/netfilter/ebtable_broute.c
-+++ b/net/bridge/netfilter/ebtable_broute.c
-@@ -64,9 +64,7 @@ static int ebt_broute(struct sk_buff *skb)
- static int __net_init broute_net_init(struct net *net)
- {
- 	net->xt.broute_table = ebt_register_table(net, &broute_table);
--	if (IS_ERR(net->xt.broute_table))
--		return PTR_ERR(net->xt.broute_table);
--	return 0;
-+	return PTR_RET(net->xt.broute_table);
- }
- 
- static void __net_exit broute_net_exit(struct net *net)
+13.03.2013, 05:45, "Vlad Yasevich" <vyasevic@redhat.com>:
+
+> The series adds an ability for the bridge to function in non-promiscuous mode.
+
+What is the practical applications for such setup? In other words,
+in which cases I would want to put bridge into non-promiscuous
+mode and specify some uplink ports?
+
 -- 
-1.7.9.5
+wbr, Oleg.
 
+"Anarchy is about taking complete responsibility for yourself."
+ Alan Moore.
