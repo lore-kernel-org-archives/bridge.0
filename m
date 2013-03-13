@@ -1,14 +1,9 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 12 Mar 2013 08:15:51 -0400 (EDT)
-Message-Id: <20130312.081551.319925705055312654.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <CAPgLHd_viA9nTBMRhhE-XJzYHu8a7f5Xjve9hYpU-RaY=uE9+g@mail.gmail.com>
-References: <CAPgLHd_viA9nTBMRhhE-XJzYHu8a7f5Xjve9hYpU-RaY=uE9+g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH -next] bridge: using for_each_set_bit to
- simplify the code
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Tue, 12 Mar 2013 21:45:22 -0400
+Message-Id: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH net-next 0/4] Allow bridge to function in
+	non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,16 +12,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: weiyj.lk@gmail.com
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, yongjun_wei@trendmicro.com.cn, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org
 
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Date: Mon, 11 Mar 2013 23:45:23 +0800
+The series adds an ability for the bridge to function in non-promiscuous mode.
+We do it in 3 steps.
+First we add an interface to palce the switch into non-promisc mode.  In
+this mode, all port of the switch turn promisc off and turn on IFF_ALLMULTI
+to continue handling multicast traffic.
+Second we add an ability to designate a bridge port as uplink.
+Third we add IFF_UNICAST_FLT support to the bridge and sync all unicast
+HW addresses to the uplink ports.
 
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> Using for_each_set_bit() to simplify the code.
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Default bridge operation continues to remain "promiscuous".  The new
+functionality has to be enabled via sysfs (similar to other bridge extensions).
 
-Applied.
+The uplink mode is implemented as a flag on a bridge port.  The api to
+change that flag follows the existing api to enable/disable other existing
+flags.
+
+Changes since rfc v2:
+* Sync/unsync address on uplink upon the uplink flag change.  This allows
+for uplink replacements without loss of addresses.
+
+Changes since rfc v1:
+* Fixed submit log
+* Simplifyied uplink logic.  Uplink is now a flag per port.  This removes the
+  need for a separate list.
+* Clean-up hw list once the port has been removed.
+
+Vlad Yasevich (4):
+  bridge: Add sysfs interface to control promisc mode
+  bridge: Allow an ability to designate an uplink port
+  bridge: Implement IFF_UNICAST_FLT
+  bridge: sync device list when a new uplink is designated
+
+ include/uapi/linux/if_link.h |    1 +
+ net/bridge/br_device.c       |   52 +++++++++++++++++++++++++++++++++++++++++-
+ net/bridge/br_fdb.c          |    6 +++++
+ net/bridge/br_if.c           |   24 +++++++++++++++----
+ net/bridge/br_netlink.c      |   13 ++++++++++
+ net/bridge/br_private.h      |    3 ++
+ net/bridge/br_sysfs_br.c     |   17 +++++++++++++
+ net/bridge/br_sysfs_if.c     |   27 +++++++++++++++++++++
+ 8 files changed, 137 insertions(+), 6 deletions(-)
+
+-- 
+1.7.7.6
+
