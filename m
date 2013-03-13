@@ -1,20 +1,19 @@
-Return-Path: <sysoleg@yandex.ru>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1363155744; bh=ORsVrqr9v23NqK3U23INZzvLCTscthqq0Gwgn5psW90=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=C2LiOm9gqw8eIN0gUPIbz1m61LKzIsXQO143h/2v+SSxuMWVTChB+IFVB67pj7kKS
-	9CYk4bVl3s6s5uLURmTRjdvBiEpHpmGck6Z110hs67IeoLA0WEfCmGgOGtCgDHlfXW
-	RDqk6cXltiwdr3Dc5Ni25QS8tUdRSkwtdBIpcmcs=
-From: "\"Oleg A. Arkhangelsky\"" <sysoleg@yandex.ru>
-In-Reply-To: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
-References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <5140B1B3.2070205@redhat.com>
+Date: Wed, 13 Mar 2013 13:04:51 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-Message-Id: <473541363155743@web2d.yandex.ru>
-Date: Wed, 13 Mar 2013 10:22:23 +0400
+References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
+	<473541363155743@web2d.yandex.ru> <51406D2D.30703@redhat.com>
+	<20130313083932.6483876f@nehalam.linuxnetplumber.net>
+	<51409F24.3070305@redhat.com>
+	<20130313090921.05dbf6e2@nehalam.linuxnetplumber.net>
+In-Reply-To: <20130313090921.05dbf6e2@nehalam.linuxnetplumber.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH net-next 0/4] Allow bridge to function in
-	non-promisc mode
+ non-promisc mode
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,21 +22,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevic@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "Oleg A. Arkhangelsky" <sysoleg@yandex.ru>
 
+On 03/13/2013 12:09 PM, Stephen Hemminger wrote:
+> On Wed, 13 Mar 2013 11:45:40 -0400
+> Vlad Yasevich <vyasevic@redhat.com> wrote:
+>
+>> On 03/13/2013 11:39 AM, Stephen Hemminger wrote:
+>>> On Wed, 13 Mar 2013 08:12:29 -0400
+>>> Vlad Yasevich <vyasevic@redhat.com> wrote:
+>>>
+>>>> On 03/13/2013 02:22 AM, "Oleg A. Arkhangelsky" wrote:
+>>>>>
+>>>>>
+>>>>> 13.03.2013, 05:45, "Vlad Yasevich" <vyasevic@redhat.com>:
+>>>>>
+>>>>>> The series adds an ability for the bridge to function in non-promiscuous mode.
+>>>>>
+>>>>> What is the practical applications for such setup? In other words,
+>>>>> in which cases I would want to put bridge into non-promiscuous
+>>>>> mode and specify some uplink ports?
+>>>>>
+>>>>
+>>>> On of the applications would be when bridge is an edge device servicing
+>>>> a VM deployment.  Each of the VMs knows the mac address that the guest
+>>>> has and may program that mac onto the uplinks.
+>>>
+>>> Why wouldn't that environment just use macvlan?
+>>> Is it because changing libvirt is harder than changing the kernel?
+>>>
+>>
+>> No, because macvlan has a drawback that it doesn't easily let guests
+>> talk to the host.  Bridge is still most commonly used for just that reason.
+>>
+>> -vlad
+>
+> Maybe fixing that with a flag to macvlan would be easier?
+>
 
+Not really.  macvlan to physical device could be made simple enough.
+However, physical to macvlan is non-trivial at all.
 
-13.03.2013, 05:45, "Vlad Yasevich" <vyasevic@redhat.com>:
+We get around this right now by crating a macvlan on the host and
+have macvlan to macvlan communication essentially turning it into
+bridge.  But that doesn't work in all scenarios either.
 
-> The series adds an ability for the bridge to function in non-promiscuous mode.
-
-What is the practical applications for such setup? In other words,
-in which cases I would want to put bridge into non-promiscuous
-mode and specify some uplink ports?
-
--- 
-wbr, Oleg.
-
-"Anarchy is about taking complete responsibility for yourself."
- Alan Moore.
+-vlad
