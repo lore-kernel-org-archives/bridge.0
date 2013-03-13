@@ -1,17 +1,12 @@
 Return-Path: <mst@redhat.com>
-Date: Wed, 13 Mar 2013 22:08:07 +0200
+Date: Wed, 13 Mar 2013 22:31:00 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20130313200807.GA9821@redhat.com>
+Message-ID: <20130313203100.GB9821@redhat.com>
 References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
-	<473541363155743@web2d.yandex.ru> <51406D2D.30703@redhat.com>
-	<20130313083932.6483876f@nehalam.linuxnetplumber.net>
-	<51409F24.3070305@redhat.com>
-	<20130313090921.05dbf6e2@nehalam.linuxnetplumber.net>
-	<5140B1B3.2070205@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5140B1B3.2070205@redhat.com>
+In-Reply-To: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
 Subject: Re: [Bridge] [PATCH net-next 0/4] Allow bridge to function in
  non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -23,65 +18,81 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "Oleg A. Arkhangelsky" <sysoleg@yandex.ru>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wed, Mar 13, 2013 at 01:04:51PM -0400, Vlad Yasevich wrote:
-> On 03/13/2013 12:09 PM, Stephen Hemminger wrote:
-> >On Wed, 13 Mar 2013 11:45:40 -0400
-> >Vlad Yasevich <vyasevic@redhat.com> wrote:
-> >
-> >>On 03/13/2013 11:39 AM, Stephen Hemminger wrote:
-> >>>On Wed, 13 Mar 2013 08:12:29 -0400
-> >>>Vlad Yasevich <vyasevic@redhat.com> wrote:
-> >>>
-> >>>>On 03/13/2013 02:22 AM, "Oleg A. Arkhangelsky" wrote:
-> >>>>>
-> >>>>>
-> >>>>>13.03.2013, 05:45, "Vlad Yasevich" <vyasevic@redhat.com>:
-> >>>>>
-> >>>>>>The series adds an ability for the bridge to function in non-promiscuous mode.
-> >>>>>
-> >>>>>What is the practical applications for such setup? In other words,
-> >>>>>in which cases I would want to put bridge into non-promiscuous
-> >>>>>mode and specify some uplink ports?
-> >>>>>
-> >>>>
-> >>>>On of the applications would be when bridge is an edge device servicing
-> >>>>a VM deployment.  Each of the VMs knows the mac address that the guest
-> >>>>has and may program that mac onto the uplinks.
-> >>>
-> >>>Why wouldn't that environment just use macvlan?
-> >>>Is it because changing libvirt is harder than changing the kernel?
-> >>>
-> >>
-> >>No, because macvlan has a drawback that it doesn't easily let guests
-> >>talk to the host.  Bridge is still most commonly used for just that reason.
-> >>
-> >>-vlad
-> >
-> >Maybe fixing that with a flag to macvlan would be easier?
-> >
+On Tue, Mar 12, 2013 at 09:45:22PM -0400, Vlad Yasevich wrote:
+> The series adds an ability for the bridge to function in non-promiscuous mode.
+> We do it in 3 steps.
+> First we add an interface to palce the switch into non-promisc mode.  In
+> this mode, all port of the switch turn promisc off and turn on IFF_ALLMULTI
+> to continue handling multicast traffic.
+
+Hmm why not go the extra mile and do same thing for multicast?
+
+> Second we add an ability to designate a bridge port as uplink.
+> Third we add IFF_UNICAST_FLT support to the bridge and sync all unicast
+> HW addresses to the uplink ports.
+> Default bridge operation continues to remain "promiscuous".  The new
+> functionality has to be enabled via sysfs (similar to other bridge extensions).
 > 
-> Not really.  macvlan to physical device could be made simple enough.
-> However, physical to macvlan is non-trivial at all.
+> The uplink mode is implemented as a flag on a bridge port.  The api to
+> change that flag follows the existing api to enable/disable other existing
+> flags.
+
+Actually, it seems a bit tricky to use correctly.  Specifying MACs is
+straight-forward enough, but as you add and remove interfaces, you would
+need to play with uplink and promisc bits.  I also think that for setups
+you describe, where we really want to forward traffic to VMs and that's
+all, promisc mode is an implementation detail. If true it's a mistake to
+expose it in an interface.  Here's an idea how we could make it work
+automatically:
+
+- Like your patch does, allow two kinds of ports: port that only wants
+  specific addresses and "wildcard" port that can get all addresses
+  All ports default to wildcard as a compatible way
+- For port A, if there is some wildcard port besides A, A must be
+  promiscous since maybe it needs to get packets that will be later
+  forwardd to A
+- For port A, if there are no wildcard ports, or if A is the only
+  wildcard, A does not need to be promiscous.
+  Instead we can program it with addresses of all other ports.
+
+Exactly same logic applies, separately, for unicast, where promisc
+means all uni, and multicast, where promisc means all multi.
+
+Now there's no special unplink port, no need to enable/disable special
+mode, nothing: just program addresses for ports and go.
+
+
+> Changes since rfc v2:
+> * Sync/unsync address on uplink upon the uplink flag change.  This allows
+> for uplink replacements without loss of addresses.
 > 
-> We get around this right now by crating a macvlan on the host and
-> have macvlan to macvlan communication essentially turning it into
-> bridge.  But that doesn't work in all scenarios either.
+> Changes since rfc v1:
+> * Fixed submit log
+> * Simplifyied uplink logic.  Uplink is now a flag per port.  This removes the
+>   need for a separate list.
+> * Clean-up hw list once the port has been removed.
 > 
-> -vlad
-
-Yea macvlan bridged mode is a strange beast.  It almost wants to be a
-bridge, but does not dare, for example it punts on all the issues we
-have fixed in the bridge like multicast snooping, and just floods
-packets.
-
-Another issue is that different VMs have different needs. You might want
-to run VMs that simply use a single MAC, so no need for promisc mode,
-then want to start another VM that does bridging so we need to enable
-promisc mode dynamically. I guess we could switch from macvtap to
-tap and back, but it's pretty nasty.
-
+> Vlad Yasevich (4):
+>   bridge: Add sysfs interface to control promisc mode
+>   bridge: Allow an ability to designate an uplink port
+>   bridge: Implement IFF_UNICAST_FLT
+>   bridge: sync device list when a new uplink is designated
+> 
+>  include/uapi/linux/if_link.h |    1 +
+>  net/bridge/br_device.c       |   52 +++++++++++++++++++++++++++++++++++++++++-
+>  net/bridge/br_fdb.c          |    6 +++++
+>  net/bridge/br_if.c           |   24 +++++++++++++++----
+>  net/bridge/br_netlink.c      |   13 ++++++++++
+>  net/bridge/br_private.h      |    3 ++
+>  net/bridge/br_sysfs_br.c     |   17 +++++++++++++
+>  net/bridge/br_sysfs_if.c     |   27 +++++++++++++++++++++
+>  8 files changed, 137 insertions(+), 6 deletions(-)
+> 
+> -- 
+> 1.7.7.6
+> 
 > --
 > To unsubscribe from this list: send the line "unsubscribe netdev" in
 > the body of a message to majordomo@vger.kernel.org
