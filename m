@@ -1,14 +1,16 @@
-Return-Path: <pneira@us.es>
-Date: Fri, 15 Mar 2013 12:48:25 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20130315114825.GB8344@localhost>
-References: <1363111893-25146-1-git-send-email-silviupopescu1990@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1363111893-25146-1-git-send-email-silviupopescu1990@gmail.com>
-Subject: Re: [Bridge] [PATCH] bridge: netfilter: use PTR_RET instead of
- IS_ERR + PTR_ERR
+Return-Path: <dcbw@redhat.com>
+Message-ID: <1363272823.1643.4.camel@dcbw.foobar.com>
+From: Dan Williams <dcbw@redhat.com>
+Date: Thu, 14 Mar 2013 09:53:43 -0500
+In-Reply-To: <20130313203333.GC9821@redhat.com>
+References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
+	<1363139126-13396-3-git-send-email-vyasevic@redhat.com>
+	<20130313203333.GC9821@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 2/4] bridge: Allow an ability to
+ designate an uplink port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,11 +19,128 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Silviu-Mihai Popescu <silviupopescu1990@gmail.com>
-Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, stephen@networkplumber.org, netfilter@vger.kernel.org, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, kaber@trash.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Tue, Mar 12, 2013 at 08:11:33PM +0200, Silviu-Mihai Popescu wrote:
-> This uses PTR_RET instead of IS_ERR and PTR_ERR in order to increase
-> readability.
+On Wed, 2013-03-13 at 22:33 +0200, Michael S. Tsirkin wrote:
+> On Tue, Mar 12, 2013 at 09:45:24PM -0400, Vlad Yasevich wrote:
+> > Allow a ports to be designated as uplink.  Multiple ports
+> > may be designated as uplinks and they will be kept in a
+> > list.
+> > 
+> > Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+> 
+> It looks like if you make two links uplink, bridging
+> between them won't work at all?
 
-Also applied, thanks.
+Only caught the end of this thread...  is there any way to use the
+UPLINK flag as part of the bridge master carrier calculation?  Obviously
+that's technically possible, I'm asking if that's going to break all
+sorts of userspace tools and such.
+
+Traditionally for "wired-type" devices like bridge, bond, vlan, wired,
+etc, the carrier/LOWER_UP is the way that higher levels know that IP
+configuration is possible on the device.
+
+In the case of a bridge, it's not worth trying DHCP or IPv6 RA on the
+bridge master until we know that there's an uplink port, otherwise it's
+just going to fail.  But right now, we have no way of knowing which port
+is an uplink port, which this series would clearly solve.
+
+However, bridge master devices calculate their carrier based on the
+state of all their ports, but right now all ports are equal.  If we used
+UPLINK as part of that calculation, then higher level tools would be
+notified that the master is LOWER_UP only when it actually was.
+
+If we're worried about backwards compatibility, then perhaps the new
+behavior could be enabled only if one or more ports was an UPLINK?  Then
+userspace tools that cared would monitor bridge ports, and if they cared
+about UPLINK could ignore bridge carrier until at least one UPLINK port
+was added.
+
+Dan
+
+> > ---
+> >  include/uapi/linux/if_link.h |    1 +
+> >  net/bridge/br_netlink.c      |    2 ++
+> >  net/bridge/br_private.h      |    1 +
+> >  net/bridge/br_sysfs_if.c     |    2 ++
+> >  4 files changed, 6 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> > index c4edfe1..b9444e9 100644
+> > --- a/include/uapi/linux/if_link.h
+> > +++ b/include/uapi/linux/if_link.h
+> > @@ -220,6 +220,7 @@ enum {
+> >  	IFLA_BRPORT_GUARD,	/* bpdu guard              */
+> >  	IFLA_BRPORT_PROTECT,	/* root port protection    */
+> >  	IFLA_BRPORT_FAST_LEAVE,	/* multicast fast leave    */
+> > +	IFLA_BRPORT_UPLINK,	/* uplink port */
+> >  	__IFLA_BRPORT_MAX
+> >  };
+> >  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+> > diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> > index 27aa3ee..e08a50e 100644
+> > --- a/net/bridge/br_netlink.c
+> > +++ b/net/bridge/br_netlink.c
+> > @@ -283,6 +283,7 @@ static const struct nla_policy ifla_brport_policy[IFLA_BRPORT_MAX + 1] = {
+> >  	[IFLA_BRPORT_MODE]	= { .type = NLA_U8 },
+> >  	[IFLA_BRPORT_GUARD]	= { .type = NLA_U8 },
+> >  	[IFLA_BRPORT_PROTECT]	= { .type = NLA_U8 },
+> > +	[IFLA_BRPORT_UPLINK]	= { .type = NLA_U8 },
+> >  };
+> >  
+> >  /* Change the state of the port and notify spanning tree */
+> > @@ -329,6 +330,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
+> >  	br_set_port_flag(p, tb, IFLA_BRPORT_MODE, BR_HAIRPIN_MODE);
+> >  	br_set_port_flag(p, tb, IFLA_BRPORT_GUARD, BR_BPDU_GUARD);
+> >  	br_set_port_flag(p, tb, IFLA_BRPORT_FAST_LEAVE, BR_MULTICAST_FAST_LEAVE);
+> > +	br_set_port_flag(p, tb, IFLA_BRPORT_UPLINK, BR_UPLINK);
+> >  
+> >  	if (tb[IFLA_BRPORT_COST]) {
+> >  		err = br_stp_set_path_cost(p, nla_get_u32(tb[IFLA_BRPORT_COST]));
+> > diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> > index 4a0fa29..44ae584 100644
+> > --- a/net/bridge/br_private.h
+> > +++ b/net/bridge/br_private.h
+> > @@ -156,6 +156,7 @@ struct net_bridge_port
+> >  #define BR_BPDU_GUARD           0x00000002
+> >  #define BR_ROOT_BLOCK		0x00000004
+> >  #define BR_MULTICAST_FAST_LEAVE	0x00000008
+> > +#define BR_UPLINK		0x00000010
+> >  
+> >  #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+> >  	u32				multicast_startup_queries_sent;
+> > diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+> > index a1ef1b6..1f28cd4 100644
+> > --- a/net/bridge/br_sysfs_if.c
+> > +++ b/net/bridge/br_sysfs_if.c
+> > @@ -158,6 +158,7 @@ static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
+> >  BRPORT_ATTR_FLAG(hairpin_mode, BR_HAIRPIN_MODE);
+> >  BRPORT_ATTR_FLAG(bpdu_guard, BR_BPDU_GUARD);
+> >  BRPORT_ATTR_FLAG(root_block, BR_ROOT_BLOCK);
+> > +BRPORT_ATTR_FLAG(uplink, BR_UPLINK);
+> >  
+> >  #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+> >  static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
+> > @@ -195,6 +196,7 @@ static const struct brport_attribute *brport_attrs[] = {
+> >  	&brport_attr_hairpin_mode,
+> >  	&brport_attr_bpdu_guard,
+> >  	&brport_attr_root_block,
+> > +	&brport_attr_uplink,
+> >  #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+> >  	&brport_attr_multicast_router,
+> >  	&brport_attr_multicast_fast_leave,
+> > -- 
+> > 1.7.7.6
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe netdev" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
