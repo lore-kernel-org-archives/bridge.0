@@ -1,15 +1,15 @@
 Return-Path: <mst@redhat.com>
-Date: Thu, 14 Mar 2013 19:46:41 +0200
+Date: Thu, 14 Mar 2013 21:18:07 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20130314174641.GC29411@redhat.com>
-References: <1363139126-13396-1-git-send-email-vyasevic@redhat.com>
-	<20130313203100.GB9821@redhat.com> <5141E86A.8090607@redhat.com>
+Message-ID: <20130314191807.GA30381@redhat.com>
+References: <1362691728-13289-1-git-send-email-vyasevic@redhat.com>
+	<20130307214304.25e7784e@nehalam.linuxnetplumber.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5141E86A.8090607@redhat.com>
-Subject: Re: [Bridge] [PATCH net-next 0/4] Allow bridge to function in
- non-promisc mode
+In-Reply-To: <20130307214304.25e7784e@nehalam.linuxnetplumber.net>
+Subject: Re: [Bridge] [RFC PATCH v2 net-next 0/3] Allow bridge to function
+ in non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,122 +18,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Thu, Mar 14, 2013 at 11:10:34AM -0400, Vlad Yasevich wrote:
-> On 03/13/2013 04:31 PM, Michael S. Tsirkin wrote:
-> >On Tue, Mar 12, 2013 at 09:45:22PM -0400, Vlad Yasevich wrote:
-> >>The series adds an ability for the bridge to function in non-promiscuous mode.
-> >>We do it in 3 steps.
-> >>First we add an interface to palce the switch into non-promisc mode.  In
-> >>this mode, all port of the switch turn promisc off and turn on IFF_ALLMULTI
-> >>to continue handling multicast traffic.
-> >
-> >Hmm why not go the extra mile and do same thing for multicast?
+On Thu, Mar 07, 2013 at 09:43:04PM -0800, Stephen Hemminger wrote:
+> On Thu,  7 Mar 2013 16:28:45 -0500
+> Vlad Yasevich <vyasevic@redhat.com> wrote:
 > 
-> That would be simple enough to add, as I think all this would
-> require is an additional dev_mc_sync() call.
+> > The series adds an ability to configure the bridge into a non-primiscuous
+> > mode.   Instead, it provides the ability to identitfy some set of bridge
+> > ports as uplinks and allows for MAC addresses to be programmed onto
+> > those ports.  In case the port hardware does not support mac filter,
+> > that port will be placed in promiscuous mode.
+> > 
+> > Default bridge operation continues to remain as "promiscuous".  The new
+> > functionality has to be enabled via sysfs (similar to other bridge extensions).
+> > 
+> > The uplink mode is implemented as a flag on a bridge port.  The api to
+> > change that flag follows the existing api to enable/disable other existing
+> > flags.
+> > 
+> > All comments are welcome.
+> > 
 > 
-> I wanted to get basic functionality and unicast working.
+> Can we make this a one step process and less visible to the user.
+> If user defines an uplink device, and the uplink device is capable of filtering
+> (and what ever other pre-conditions people can think of), then the bridge will
+> transparently switch to uplink/non-promisc mode.  This can also be used to trigger
+> edge only mode in RSTP in the future.
 > 
-> >
-> >>Second we add an ability to designate a bridge port as uplink.
-> >>Third we add IFF_UNICAST_FLT support to the bridge and sync all unicast
-> >>HW addresses to the uplink ports.
-> >>Default bridge operation continues to remain "promiscuous".  The new
-> >>functionality has to be enabled via sysfs (similar to other bridge extensions).
-> >>
-> >>The uplink mode is implemented as a flag on a bridge port.  The api to
-> >>change that flag follows the existing api to enable/disable other existing
-> >>flags.
-> >
-> >Actually, it seems a bit tricky to use correctly.  Specifying MACs is
-> >straight-forward enough, but as you add and remove interfaces, you would
-> >need to play with uplink and promisc bits.
+> Less knobs.
 > 
-> Not the promisc bits since this patch series proposes a bridge wide
-> setting.  Yes, uplink bits would need to be played with though.  I'd
-> really love to specify those bits when the link is added, but the
-> netlink operation for bridge is a bit odd.
-> 
-> May be I should re-fix that.
-> 
-> > I also think that for setups
-> >you describe, where we really want to forward traffic to VMs and that's
-> >all, promisc mode is an implementation detail. If true it's a mistake to
-> >expose it in an interface.  Here's an idea how we could make it work
-> >automatically:
-> 
-> This is something Stephen suggested earlier and controlling promisc mode
-> based on whether uplinks are set or not.
-> 
-> >
-> >- Like your patch does, allow two kinds of ports: port that only wants
-> >   specific addresses and "wildcard" port that can get all addresses
-> >   All ports default to wildcard as a compatible way
-> >- For port A, if there is some wildcard port besides A, A must be
-> >   promiscous since maybe it needs to get packets that will be later
-> >   forwardd to A
-> >- For port A, if there are no wildcard ports, or if A is the only
-> >   wildcard, A does not need to be promiscous.
-> >   Instead we can program it with addresses of all other ports.
-> 
-> So, according to the above, you can only ever have 1 port that is
-> 'address specific'.  If you have more then one, they have to be
-> promiscuous to allow bridging between them.
 
-No, the reverse. Only 1 wildcard port without promisc.
+Rephrasing what I suggested using 'uplink' term:
+- add ability to specify wanted addresses on a port
+- wheneever we don't specify addresses we call an uplink
+  (either automatically so by default all
+  ports are uplink, or add a separate flag - any preference?)
+- if there are 0 uplinks, no ports are promisc
+- if there is 1 uplink, it is not promisc but all others are promisc
+- if there are >1 uplinks, everyone is promisc
 
-> The alternative might be to manipulate mac filter based on the
-> addresses learned.  This will most likely rather quickly put the
-> port in promiscuous mode anyway if the event that a bridge is not
-> really an edge device.
+
 > 
-> -vlad
-
-It won't work, learning requires that you flood
-addresses that are not learned yet. If you disable promisc
-hardware filters them.
-
-> >
-> >Exactly same logic applies, separately, for unicast, where promisc
-> >means all uni, and multicast, where promisc means all multi.
-> >
-> >Now there's no special unplink port, no need to enable/disable special
-> >mode, nothing: just program addresses for ports and go.
-> >
-> >
-> >>Changes since rfc v2:
-> >>* Sync/unsync address on uplink upon the uplink flag change.  This allows
-> >>for uplink replacements without loss of addresses.
-> >>
-> >>Changes since rfc v1:
-> >>* Fixed submit log
-> >>* Simplifyied uplink logic.  Uplink is now a flag per port.  This removes the
-> >>   need for a separate list.
-> >>* Clean-up hw list once the port has been removed.
-> >>
-> >>Vlad Yasevich (4):
-> >>   bridge: Add sysfs interface to control promisc mode
-> >>   bridge: Allow an ability to designate an uplink port
-> >>   bridge: Implement IFF_UNICAST_FLT
-> >>   bridge: sync device list when a new uplink is designated
-> >>
-> >>  include/uapi/linux/if_link.h |    1 +
-> >>  net/bridge/br_device.c       |   52 +++++++++++++++++++++++++++++++++++++++++-
-> >>  net/bridge/br_fdb.c          |    6 +++++
-> >>  net/bridge/br_if.c           |   24 +++++++++++++++----
-> >>  net/bridge/br_netlink.c      |   13 ++++++++++
-> >>  net/bridge/br_private.h      |    3 ++
-> >>  net/bridge/br_sysfs_br.c     |   17 +++++++++++++
-> >>  net/bridge/br_sysfs_if.c     |   27 +++++++++++++++++++++
-> >>  8 files changed, 137 insertions(+), 6 deletions(-)
-> >>
-> >>--
-> >>1.7.7.6
-> >>
-> >>--
-> >>To unsubscribe from this list: send the line "unsubscribe netdev" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
