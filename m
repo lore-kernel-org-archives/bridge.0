@@ -1,18 +1,18 @@
 Return-Path: <honkiko@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=x-received:from:to:cc:subject:date:message-id:x-mailer;
-	bh=XVzQ8186HuPlaHmx+d5pxLSf4CLxgmQVr6TqMKOE3Bw=;
-	b=otl9YvooBoEsYIJpqqjTGOSh/GE+QvhVEXi7zSH5ZUc37reOCwxuadRlZXIj0Hg2Jm
-	cXD9dj1Yp4W95tDSwWDMRhYdfUPzGJDBHOvSrRQvnfJ1WMBhoiPBdEvMypJufLhXsbQ/
-	NQOMXONS6fK/LMiTH0U0SiRI/ymFh3ieqIS7q+02idgqUG5S1crfQpDlSvQheNIDUPFg
-	YCAjPPG07+PXwa0inBaLWtC804uCYfijVYm6lr3C9+pF/zmY4UHbAQeNMOThXyMVLsV/
-	KdOQYyVDPFIGFD145KZKmq6EA8EJYR0LIuue0RJMvSysRLymciMR+MYQZpLJ+jDvn8B5
-	iLEQ==
+	bh=5Gy1wLJMVFTeytBSomiGKNCUtOzxhH9bO7+oqldfh6U=;
+	b=Pz7TOSgsJK11TTUPw5zacihldcaLBoCFkNNET8CUERKfYynTozQ76rtLVBrkrrF9vQ
+	GGB9Q3H1cNAlM5pzayRnNmy7D8+k4mHNhfHIcnyWVpK1psF/dbL9SMrYfrC+SwptyYsG
+	bYWlnlKLEaVtrA7bHveA8Ph8juXS1GX/ZpSBLSKkKUCjsWUsWlGZv/WJ/gGVHjUvSVs0
+	YWLndWrFWz6jhrwLgdYdZqdfEZD5dC4tjXLLubX4KCsbajK5U3me14CkJvlQ2dvbA0Wi
+	VHpMvAPFhz6/WIirvAZLXilbcEZ7E1qpqUbUtqVzAQhu/Bpc+dYxwkrJkl/znaqGlzWq
+	buhw==
 From: Hong Zhiguo <honkiko@gmail.com>
-Date: Sat, 23 Mar 2013 13:14:13 +0800
-Message-Id: <1364015653-7322-1-git-send-email-honkiko@gmail.com>
-Subject: [Bridge] [PATCH net-next] bridge: avoid br_ifinfo_notify when
-	nothing changed
+Date: Sat, 23 Mar 2013 20:27:50 +0800
+Message-Id: <1364041670-3408-1-git-send-email-honkiko@gmail.com>
+Subject: [Bridge] [PATCH] bridge: fix crash when set mac address of br
+	interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,38 +24,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: bridge@lists.linux-foundation.org, zhiguo.hong@emc.com, Hong Zhiguo <honkiko@gmail.com>, stephen@networkplumber.org, herbert@gondor.hengli.com.au, davem@davemloft.net
 
-When neither IFF_BRIDGE_PORT or IFF_BRIDGE_PORT is set,
-and afspec == NULL but  protinfo != NULL, we run into
-"if (err == 0) br_ifinfo_notify(RTM_NEWLINK, p);" with
-random value in ret.
+When I tried to set mac address of a bridge interface to a mac
+address which already learned on this bridge, I got system hang.
+
+The cause is straight forward: function br_fdb_change_mac_address
+calls fdb_insert with NULL source nbp. Then an fdb lookup is
+performed. If an fdb entry is found and it's local, it's OK. But
+if it's not local, source is dereferenced for printk without NULL
+check.
 
 Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
 ---
- net/bridge/br_netlink.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/br_fdb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 84c3b7d..b96e02e 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -357,7 +357,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
- 	struct nlattr *afspec;
- 	struct net_bridge_port *p;
- 	struct nlattr *tb[IFLA_BRPORT_MAX + 1];
--	int err;
-+	int err = 0;
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 10b47d4..c581f12 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -421,7 +421,7 @@ static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+ 			return 0;
+ 		br_warn(br, "adding interface %s with same address "
+ 		       "as a received packet\n",
+-		       source->dev->name);
++		       source ? source->dev->name : br->dev->name);
+ 		fdb_delete(br, fdb);
+ 	}
  
- 	ifm = nlmsg_data(nlh);
- 
-@@ -370,7 +370,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
- 	/* We want to accept dev as bridge itself if the AF_SPEC
- 	 * is set to see if someone is setting vlan info on the brigde
- 	 */
--	if (!p && ((dev->priv_flags & IFF_EBRIDGE) && !afspec))
-+	if (!p && !afspec)
- 		return -EINVAL;
- 
- 	if (p && protinfo) {
 -- 
 1.7.10.4
 
