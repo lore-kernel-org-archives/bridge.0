@@ -1,15 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Sun, 24 Mar 2013 17:18:07 -0400 (EDT)
-Message-Id: <20130324.171807.1183155678794281928.davem@davemloft.net>
+Date: Sun, 24 Mar 2013 17:28:04 -0400 (EDT)
+Message-Id: <20130324.172804.152818486141712380.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1364131607-11698-1-git-send-email-honkiko@gmail.com>
-References: <1364015653-7322-1-git-send-email-honkiko@gmail.com>
-	<1364131607-11698-1-git-send-email-honkiko@gmail.com>
+In-Reply-To: <1364041670-3408-1-git-send-email-honkiko@gmail.com>
+References: <1364041670-3408-1-git-send-email-honkiko@gmail.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: avoid br_ifinfo_notify when
- nothing changed
+Subject: Re: [Bridge] [PATCH] bridge: fix crash when set mac address of br
+	interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,17 +18,19 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: honkiko@gmail.com
-Cc: sergei.shtylyov@cogentembedded.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, zhiguo.hong@emc.com, stephen@networkplumber.org, herbert@gondor.hengli.com.au
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, zhiguo.hong@emc.com, herbert@gondor.hengli.com.au
 
 From: Hong Zhiguo <honkiko@gmail.com>
-Date: Sun, 24 Mar 2013 21:26:47 +0800
+Date: Sat, 23 Mar 2013 20:27:50 +0800
 
-> When neither IFF_BRIDGE nor IFF_BRIDGE_PORT is set,
-> and afspec == NULL but  protinfo != NULL, we run into
-> "if (err == 0) br_ifinfo_notify(RTM_NEWLINK, p);" with
-> random value in ret.
+> When I tried to set mac address of a bridge interface to a mac
+> address which already learned on this bridge, I got system hang.
 > 
-> Thanks to Sergei for pointing out the error in commit comments.
+> The cause is straight forward: function br_fdb_change_mac_address
+> calls fdb_insert with NULL source nbp. Then an fdb lookup is
+> performed. If an fdb entry is found and it's local, it's OK. But
+> if it's not local, source is dereferenced for printk without NULL
+> check.
 > 
 > Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
 
