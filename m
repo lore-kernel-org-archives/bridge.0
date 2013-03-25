@@ -1,13 +1,13 @@
 Return-Path: <sergei.shtylyov@cogentembedded.com>
-Message-ID: <51506DFE.4040405@cogentembedded.com>
-Date: Mon, 25 Mar 2013 19:32:14 +0400
+Message-ID: <51507BEC.9000300@cogentembedded.com>
+Date: Mon, 25 Mar 2013 20:31:40 +0400
 From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 MIME-Version: 1.0
-References: <1364015653-7322-1-git-send-email-honkiko@gmail.com>
-	<1364131607-11698-1-git-send-email-honkiko@gmail.com>
-	<514F0F07.9050702@cogentembedded.com>
+References: <514F0F07.9050702@cogentembedded.com>
 	<20130324.171537.1255124338630598287.davem@davemloft.net>
-In-Reply-To: <20130324.171537.1255124338630598287.davem@davemloft.net>
+	<51506DFE.4040405@cogentembedded.com>
+	<20130325.120808.1143527366649356424.davem@davemloft.net>
+In-Reply-To: <20130325.120808.1143527366649356424.davem@davemloft.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: avoid br_ifinfo_notify when
@@ -25,29 +25,24 @@ Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, zhiguo.hong@emc.c
 
 Hello.
 
-On 25-03-2013 1:15, David Miller wrote:
+On 25-03-2013 20:08, David Miller wrote:
 
->>> When neither IFF_BRIDGE nor IFF_BRIDGE_PORT is set,
->>> and afspec == NULL but  protinfo != NULL, we run into
->>> "if (err == 0) br_ifinfo_notify(RTM_NEWLINK, p);" with
->>> random value in ret.
+>>     Sorry, I don't usuallly ACK patches in an area I'm not closely
+>>     familiar with. Though I can add:
 
->>> Thanks to Sergei for pointing out the error in commit comments.
+> If you feel confident enough to ask for corrections, you better be
+> ready to ACK the result when your requests have been met.
 
->>> Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
+   Come on, I only asked to correct an evident cut and paste typo in the 
+description. That's too little a correction to ACK the whole patch. To ACK it, 
+I should know well the code it's patching and be confident that the whole 
+patch is correct. I have neither knowledge.
 
->>      For the future, if you post the revised version of the patch, you
->> should indicate in the subject it like this: [PATCH v2].
+> You can't hold other people accountable yet take none of the
+> same responsibility yourself.
 
-> I'm disappointed that you have enough energy to point out such a lower
-> priority omission, but you lack the time for something more important,
-> which is giving this patch your explicit ACK if it fixes all of the
-> issues you pointed out to him.
-
-    Sorry, I don't usuallly ACK patches in an area I'm not closely familiar 
-with. Though I can add:
-
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+    I don't hold anyone accountable, I just provide my comments which might as 
+well be ignored by the submitter/maintainer.
 
 WBR, Sergei
 
