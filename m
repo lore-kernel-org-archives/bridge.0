@@ -1,11 +1,12 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Thu, 28 Mar 2013 10:03:44 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130328100344.70c78134@nehalam.linuxnetplumber.net>
-In-Reply-To: <1364487682-5839-1-git-send-email-honkiko@gmail.com>
+Return-Path: <davem@davemloft.net>
+Date: Thu, 28 Mar 2013 14:41:51 -0400 (EDT)
+Message-Id: <20130328.144151.1510777989353483660.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20130328100344.70c78134@nehalam.linuxnetplumber.net>
 References: <1364487682-5839-1-git-send-email-honkiko@gmail.com>
+	<20130328100344.70c78134@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: remove unused variable ifm
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -16,56 +17,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hong Zhiguo <honkiko@gmail.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: stephen@networkplumber.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, honkiko@gmail.com
 
-On Fri, 29 Mar 2013 00:21:22 +0800
-Hong Zhiguo <honkiko@gmail.com> wrote:
+From: Stephen Hemminger <stephen@networkplumber.org>
+Date: Thu, 28 Mar 2013 10:03:44 -0700
 
-> Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
-> ---
->  net/bridge/br_netlink.c |   12 +++---------
->  1 file changed, 3 insertions(+), 9 deletions(-)
+> On Fri, 29 Mar 2013 00:21:22 +0800
+> Hong Zhiguo <honkiko@gmail.com> wrote:
 > 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index b96e02e..8e3abf5 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -352,17 +352,14 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
->  /* Change state and parameters on port. */
->  int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
->  {
-> -	struct ifinfomsg *ifm;
->  	struct nlattr *protinfo;
->  	struct nlattr *afspec;
->  	struct net_bridge_port *p;
->  	struct nlattr *tb[IFLA_BRPORT_MAX + 1];
->  	int err = 0;
->  
-> -	ifm = nlmsg_data(nlh);
-> -
-> -	protinfo = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_PROTINFO);
-> -	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
-> +	protinfo = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_PROTINFO);
-> +	afspec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
->  	if (!protinfo && !afspec)
->  		return 0;
->  
-> @@ -411,14 +408,11 @@ out:
->  /* Delete port information */
->  int br_dellink(struct net_device *dev, struct nlmsghdr *nlh)
->  {
-> -	struct ifinfomsg *ifm;
->  	struct nlattr *afspec;
->  	struct net_bridge_port *p;
->  	int err;
->  
-> -	ifm = nlmsg_data(nlh);
-> -
-> -	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
-> +	afspec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
->  	if (!afspec)
->  		return 0;
->  
+>> Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
+ ...
+> Acked-by: Stephen Hemminger <stephen@networkplumber.org>
 
-Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+Applied.
