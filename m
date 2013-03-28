@@ -1,17 +1,19 @@
-Return-Path: <honkiko@gmail.com>
+Return-Path: <socketpair@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=x-received:from:to:cc:subject:date:message-id:x-mailer;
-	bh=+8y6lKOID5sBbmb4oSaXEGCsTczq0xuZ8lzZwy94bwY=;
-	b=nU0zuZ95tGGIeGFSXd/8QzvAlySu3+szVjvtgKIyndpvwnKhyk2Egb1Qdgcj2NSQ9F
-	JmEJb2q/jSHfXs/ybCVfKQ/3bjDasfZCeyUI8W+MK9xNOiBlSIc9Tf7BVQj3RXXkNoKI
-	qGEevYS4OSzboKO2BbwdXN1V+PfkJfZ1CWuz7az5Vj45viv5Dm/9ZcQZuIiDVL88XZBW
-	BjU4BzloHmQ1uz+V/cRW3ojRl46jtDKMvTX+HIhNvwP9guYzg0NC0uS/N91/ZPZeLLuj
-	WaqpTjOHKRBEV2piqu6UVDZiPZB0viZqiBzkiKdJ8HO4AmUoCwWK6LM1WOQurczjChUn
-	2DAw==
-From: Hong Zhiguo <honkiko@gmail.com>
-Date: Fri, 29 Mar 2013 00:21:22 +0800
-Message-Id: <1364487682-5839-1-git-send-email-honkiko@gmail.com>
-Subject: [Bridge] [PATCH net-next] bridge: remove unused variable ifm
+	h=mime-version:x-received:date:message-id:subject:from:to
+	:content-type; bh=OHTVFOapLkEER9XF9O6nMQ4BUuIeemMup9VTepQSwWs=;
+	b=eNDVJVE1RTlREpW7WdWcdvhr+w/6fzjD1wWVv624+SMQe9YkV51mZWpoZVa7uSx2An
+	UA+KjHU9SkYejGQvF1gSh20joTKBQ2+WCzxXK8p9xHlPflvuWr7rUDf5dGgl9WuDDToN
+	jX7PqQ85b+BrDH2WRFKP+lI2V71ypJi5JubFtceOHPtXWUnr3aOTBV4L0mNERJKB+vB/
+	DsLDkapeaPi0WCQOlxjOBEzNDuYJrT805tInN5vtVt8iWdZ4xiOqoNetYeMg1get+tOm
+	v0uiWmbS3a4LfbmZztVB9bHinru1Hfh7m0GeDnU2+sfWkSAgUIjlNtCestW/ZrZcYPLf
+	ZV2Q==
+MIME-Version: 1.0
+Date: Fri, 29 Mar 2013 00:17:16 +0600
+Message-ID: <CAEmTpZH80KrDoQb0KRJNYPsEDCrRg6qLVxLXrcgskLmXDyFMzg@mail.gmail.com>
+From: =?UTF-8?B?0JzQsNGA0Log0JrQvtGA0LXQvdCx0LXRgNCz?= <socketpair@gmail.com>
+Content-Type: multipart/alternative; boundary=00248c7118151d5d2c04d9002ac9
+Subject: [Bridge] network namespace + bridge visibility
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,54 +22,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: stephen@networkplumber.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Stephen Hemminger <stephen@networkplumber.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
----
- net/bridge/br_netlink.c |   12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+--00248c7118151d5d2c04d9002ac9
+Content-Type: text/plain; charset=UTF-8
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index b96e02e..8e3abf5 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -352,17 +352,14 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- /* Change state and parameters on port. */
- int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
- {
--	struct ifinfomsg *ifm;
- 	struct nlattr *protinfo;
- 	struct nlattr *afspec;
- 	struct net_bridge_port *p;
- 	struct nlattr *tb[IFLA_BRPORT_MAX + 1];
- 	int err = 0;
- 
--	ifm = nlmsg_data(nlh);
--
--	protinfo = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_PROTINFO);
--	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
-+	protinfo = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_PROTINFO);
-+	afspec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
- 	if (!protinfo && !afspec)
- 		return 0;
- 
-@@ -411,14 +408,11 @@ out:
- /* Delete port information */
- int br_dellink(struct net_device *dev, struct nlmsghdr *nlh)
- {
--	struct ifinfomsg *ifm;
- 	struct nlattr *afspec;
- 	struct net_bridge_port *p;
- 	int err;
- 
--	ifm = nlmsg_data(nlh);
--
--	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
-+	afspec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
- 	if (!afspec)
- 		return 0;
- 
+==========================
+mmarkk@imac:~# brctl addbr qwe
+mmarkk@imac:~# unshare -n /bin/bash
+root@imac:~# ip link
+14: lo: <LOOPBACK> mtu 16436 qdisc noop state DOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+root@imac:~# brctl show
+bridge name bridge id STP enabled interfaces
+qwe 8000.000000000000 no
+root@imac:~# brctl delbr qwe
+bridge qwe doesn't exist; can't delete it
+=============================
+
+So, network device is not available, but present in list of bridges. This
+is the bug, as I think.
+
+Reproducible in linux kernels 3.8.2 and 3.2.0
+
 -- 
-1.7.10.4
+Segmentation fault
 
+--00248c7118151d5d2c04d9002ac9
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div style=3D"font-family:arial,sans-serif;font-size:13px"=
+>=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D</div><div style=3D"font-family:arial,sans-serif;font-size:13px">mmar=
+kk@imac:~# brctl addbr qwe<br></div><div style=3D"font-family:arial,sans-se=
+rif;font-size:13px">
+mmarkk@imac:~# unshare -n /bin/bash</div><div style=3D"font-family:arial,sa=
+ns-serif;font-size:13px"><div>root@imac:~# ip link<br></div><div>14: lo: &l=
+t;LOOPBACK&gt; mtu 16436 qdisc noop state DOWN=C2=A0</div><div>=C2=A0 =C2=
+=A0 link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</div>
+<div style=3D"font-family:arial;font-size:small"></div></div><div style=3D"=
+font-family:arial,sans-serif;font-size:13px">root@imac:~# brctl show</div><=
+div style=3D"font-family:arial,sans-serif;font-size:13px">bridge name<span =
+style=3D"white-space:pre-wrap">	</span>bridge id<span style=3D"white-space:=
+pre-wrap">		</span>STP enabled<span style=3D"white-space:pre-wrap">	</span>=
+interfaces</div>
+<div style=3D"font-family:arial,sans-serif;font-size:13px">qwe<span style=
+=3D"white-space:pre-wrap">		</span>8000.000000000000<span style=3D"white-sp=
+ace:pre-wrap">	</span>no<span style=3D"white-space:pre-wrap">		</span></div=
+><div style=3D"font-family:arial,sans-serif;font-size:13px">
+<span style=3D"font-size:small">root@imac:~# brctl delbr qwe</span><br></di=
+v><div><div><font face=3D"arial, sans-serif">bridge qwe doesn&#39;t exist; =
+can&#39;t delete it</font></div><div style=3D"font-family:arial,sans-serif;=
+font-size:13px">
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D</div></div><div><br></div><div>So, network device is not avail=
+able, but present in list of bridges. This is the bug, as I think.<br></div=
+><div style><br></div><div style>Reproducible in linux kernels 3.8.2 and 3.=
+2.0</div>
+<div><br></div>-- <br>Segmentation fault
+</div>
+
+--00248c7118151d5d2c04d9002ac9--
