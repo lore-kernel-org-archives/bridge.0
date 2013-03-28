@@ -1,14 +1,13 @@
-Return-Path: <horms@verge.net.au>
-Date: Thu, 28 Mar 2013 14:31:29 +0900
-From: Simon Horman <horms@verge.net.au>
-Message-ID: <20130328053128.GA23630@verge.net.au>
-References: <1364445505-9745-1-git-send-email-horms@verge.net.au>
-	<20130328.012108.961738246524996742.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130328.012108.961738246524996742.davem@davemloft.net>
-Subject: Re: [Bridge] [PATCH v2] net: add ETH_P_802_3_MIN
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 28 Mar 2013 10:03:44 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20130328100344.70c78134@nehalam.linuxnetplumber.net>
+In-Reply-To: <1364487682-5839-1-git-send-email-honkiko@gmail.com>
+References: <1364487682-5839-1-git-send-email-honkiko@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: remove unused variable ifm
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,31 +16,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: dev@openvswitch.org, isdn@linux-pingi.de, bridge@lists.linux-foundation.org, johan.hedberg@gmail.com, gustavo@padovan.org, marcel@holtmann.org, jesse@nicira.com, linux-wireless@vger.kernel.org, stephen@networkplumber.org, linux-bluetooth@vger.kernel.org, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, johannes@sipsolutions.net, linux1394-devel@lists.sourceforge.net, kaber@trash.net, linux-media@vger.kernel.org
+To: Hong Zhiguo <honkiko@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Thu, Mar 28, 2013 at 01:21:08AM -0400, David Miller wrote:
-> From: Simon Horman <horms@verge.net.au>
-> Date: Thu, 28 Mar 2013 13:38:25 +0900
-> 
-> > Add a new constant ETH_P_802_3_MIN, the minimum ethernet type for
-> > an 802.3 frame. Frames with a lower value in the ethernet type field
-> > are Ethernet II.
-> > 
-> > Also update all the users of this value that David Miller and
-> > I could find to use the new constant.
-> > 
-> > Also correct a bug in util.c. The comparison with ETH_P_802_3_MIN
-> > should be >= not >.
-> > 
-> > As suggested by Jesse Gross.
-> > 
-> > Compile tested only.
-> > 
-> > Acked-by: Mauro Carvalho Chehab <mchehab@redhat.com>
-> > Acked-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-> > Signed-off-by: Simon Horman <horms@verge.net.au>
-> 
-> Looks great, applied, thanks Simon.
+On Fri, 29 Mar 2013 00:21:22 +0800
+Hong Zhiguo <honkiko@gmail.com> wrote:
 
-Thanks!
+> Signed-off-by: Hong Zhiguo <honkiko@gmail.com>
+> ---
+>  net/bridge/br_netlink.c |   12 +++---------
+>  1 file changed, 3 insertions(+), 9 deletions(-)
+> 
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index b96e02e..8e3abf5 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -352,17 +352,14 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
+>  /* Change state and parameters on port. */
+>  int br_setlink(struct net_device *dev, struct nlmsghdr *nlh)
+>  {
+> -	struct ifinfomsg *ifm;
+>  	struct nlattr *protinfo;
+>  	struct nlattr *afspec;
+>  	struct net_bridge_port *p;
+>  	struct nlattr *tb[IFLA_BRPORT_MAX + 1];
+>  	int err = 0;
+>  
+> -	ifm = nlmsg_data(nlh);
+> -
+> -	protinfo = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_PROTINFO);
+> -	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
+> +	protinfo = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_PROTINFO);
+> +	afspec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
+>  	if (!protinfo && !afspec)
+>  		return 0;
+>  
+> @@ -411,14 +408,11 @@ out:
+>  /* Delete port information */
+>  int br_dellink(struct net_device *dev, struct nlmsghdr *nlh)
+>  {
+> -	struct ifinfomsg *ifm;
+>  	struct nlattr *afspec;
+>  	struct net_bridge_port *p;
+>  	int err;
+>  
+> -	ifm = nlmsg_data(nlh);
+> -
+> -	afspec = nlmsg_find_attr(nlh, sizeof(*ifm), IFLA_AF_SPEC);
+> +	afspec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
+>  	if (!afspec)
+>  		return 0;
+>  
+
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
