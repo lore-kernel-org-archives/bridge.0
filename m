@@ -1,19 +1,13 @@
-Return-Path: <socketpair@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:x-received:date:message-id:subject:from:to
-	:content-type; bh=OHTVFOapLkEER9XF9O6nMQ4BUuIeemMup9VTepQSwWs=;
-	b=eNDVJVE1RTlREpW7WdWcdvhr+w/6fzjD1wWVv624+SMQe9YkV51mZWpoZVa7uSx2An
-	UA+KjHU9SkYejGQvF1gSh20joTKBQ2+WCzxXK8p9xHlPflvuWr7rUDf5dGgl9WuDDToN
-	jX7PqQ85b+BrDH2WRFKP+lI2V71ypJi5JubFtceOHPtXWUnr3aOTBV4L0mNERJKB+vB/
-	DsLDkapeaPi0WCQOlxjOBEzNDuYJrT805tInN5vtVt8iWdZ4xiOqoNetYeMg1get+tOm
-	v0uiWmbS3a4LfbmZztVB9bHinru1Hfh7m0GeDnU2+sfWkSAgUIjlNtCestW/ZrZcYPLf
-	ZV2Q==
+Return-Path: <stephen@networkplumber.org>
 MIME-Version: 1.0
-Date: Fri, 29 Mar 2013 00:17:16 +0600
-Message-ID: <CAEmTpZH80KrDoQb0KRJNYPsEDCrRg6qLVxLXrcgskLmXDyFMzg@mail.gmail.com>
-From: =?UTF-8?B?0JzQsNGA0Log0JrQvtGA0LXQvdCx0LXRgNCz?= <socketpair@gmail.com>
-Content-Type: multipart/alternative; boundary=00248c7118151d5d2c04d9002ac9
-Subject: [Bridge] network namespace + bridge visibility
+In-Reply-To: <1365442863-32394-2-git-send-email-antonio@open-mesh.com>
+References: <1365442863-32394-1-git-send-email-antonio@open-mesh.com>
+	<1365442863-32394-2-git-send-email-antonio@open-mesh.com>
+Date: Mon, 8 Apr 2013 11:58:48 -0700
+Message-ID: <CAOaVG17nHuoRsf2Kss6LnpgC-Aojcso_zLYyBa18Vn9CGGY+GA@mail.gmail.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [Bridge] [PATCH 1/3] if.h: add IFF_BRIDGE_RESTRICTED flag
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,65 +16,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Antonio Quartulli <antonio@open-mesh.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
---00248c7118151d5d2c04d9002ac9
-Content-Type: text/plain; charset=UTF-8
+The standard way to do this is to use netfilter. Considering the
+additional device flags and skb flag changes, I am not sure that your
+method is better.
 
-==========================
-mmarkk@imac:~# brctl addbr qwe
-mmarkk@imac:~# unshare -n /bin/bash
-root@imac:~# ip link
-14: lo: <LOOPBACK> mtu 16436 qdisc noop state DOWN
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-root@imac:~# brctl show
-bridge name bridge id STP enabled interfaces
-qwe 8000.000000000000 no
-root@imac:~# brctl delbr qwe
-bridge qwe doesn't exist; can't delete it
-=============================
-
-So, network device is not available, but present in list of bridges. This
-is the bug, as I think.
-
-Reproducible in linux kernels 3.8.2 and 3.2.0
-
--- 
-Segmentation fault
-
---00248c7118151d5d2c04d9002ac9
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div style=3D"font-family:arial,sans-serif;font-size:13px"=
->=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D</div><div style=3D"font-family:arial,sans-serif;font-size:13px">mmar=
-kk@imac:~# brctl addbr qwe<br></div><div style=3D"font-family:arial,sans-se=
-rif;font-size:13px">
-mmarkk@imac:~# unshare -n /bin/bash</div><div style=3D"font-family:arial,sa=
-ns-serif;font-size:13px"><div>root@imac:~# ip link<br></div><div>14: lo: &l=
-t;LOOPBACK&gt; mtu 16436 qdisc noop state DOWN=C2=A0</div><div>=C2=A0 =C2=
-=A0 link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</div>
-<div style=3D"font-family:arial;font-size:small"></div></div><div style=3D"=
-font-family:arial,sans-serif;font-size:13px">root@imac:~# brctl show</div><=
-div style=3D"font-family:arial,sans-serif;font-size:13px">bridge name<span =
-style=3D"white-space:pre-wrap">	</span>bridge id<span style=3D"white-space:=
-pre-wrap">		</span>STP enabled<span style=3D"white-space:pre-wrap">	</span>=
-interfaces</div>
-<div style=3D"font-family:arial,sans-serif;font-size:13px">qwe<span style=
-=3D"white-space:pre-wrap">		</span>8000.000000000000<span style=3D"white-sp=
-ace:pre-wrap">	</span>no<span style=3D"white-space:pre-wrap">		</span></div=
-><div style=3D"font-family:arial,sans-serif;font-size:13px">
-<span style=3D"font-size:small">root@imac:~# brctl delbr qwe</span><br></di=
-v><div><div><font face=3D"arial, sans-serif">bridge qwe doesn&#39;t exist; =
-can&#39;t delete it</font></div><div style=3D"font-family:arial,sans-serif;=
-font-size:13px">
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D</div></div><div><br></div><div>So, network device is not avail=
-able, but present in list of bridges. This is the bug, as I think.<br></div=
-><div style><br></div><div style>Reproducible in linux kernels 3.8.2 and 3.=
-2.0</div>
-<div><br></div>-- <br>Segmentation fault
-</div>
-
---00248c7118151d5d2c04d9002ac9--
+On Mon, Apr 8, 2013 at 10:41 AM, Antonio Quartulli
+<antonio@open-mesh.com> wrote:
+> This new flag tells whether a network device has to be
+> considered as restricted in the new bridge forwarding logic.
+>
+> Signed-off-by: Antonio Quartulli <antonio@open-mesh.com>
+> ---
+>  include/uapi/linux/if.h | 1 +
+>  net/core/dev.c          | 2 +-
+>  2 files changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/include/uapi/linux/if.h b/include/uapi/linux/if.h
+> index 1ec407b..5c3a9bd 100644
+> --- a/include/uapi/linux/if.h
+> +++ b/include/uapi/linux/if.h
+> @@ -83,6 +83,7 @@
+>  #define IFF_SUPP_NOFCS 0x80000         /* device supports sending custom FCS */
+>  #define IFF_LIVE_ADDR_CHANGE 0x100000  /* device supports hardware address
+>                                          * change when it's running */
+> +#define IFF_BRIDGE_RESTRICTED 0x200000 /* device is bridge-restricted */
+>
+>
+>  #define IF_GET_IFACE   0x0001          /* for querying only */
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 3655ff9..49eafc8 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -4627,7 +4627,7 @@ int __dev_change_flags(struct net_device *dev, unsigned int flags)
+>
+>         dev->flags = (flags & (IFF_DEBUG | IFF_NOTRAILERS | IFF_NOARP |
+>                                IFF_DYNAMIC | IFF_MULTICAST | IFF_PORTSEL |
+> -                              IFF_AUTOMEDIA)) |
+> +                              IFF_AUTOMEDIA | IFF_BRIDGE_RESTRICTED)) |
+>                      (dev->flags & (IFF_UP | IFF_VOLATILE | IFF_PROMISC |
+>                                     IFF_ALLMULTI));
+>
+> --
+> 1.8.1.5
+>
