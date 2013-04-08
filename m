@@ -1,10 +1,12 @@
 Return-Path: <antonio@open-mesh.com>
 From: Antonio Quartulli <antonio@open-mesh.com>
-Date: Mon, 8 Apr 2013 19:41:00 +0200
-Message-ID: <1365442863-32394-1-git-send-email-antonio@open-mesh.com>
+Date: Mon, 8 Apr 2013 19:41:02 +0200
+Message-ID: <1365442863-32394-3-git-send-email-antonio@open-mesh.com>
+In-Reply-To: <1365442863-32394-1-git-send-email-antonio@open-mesh.com>
+References: <1365442863-32394-1-git-send-email-antonio@open-mesh.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH 0/3] bridge: implement restricted forwarding policy
+Subject: [Bridge] [PATCH 2/3] sk_buff: add bridge_restricted flag
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,63 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Antonio Quartulli <antonio@open-mesh.com>
 
-Hello,
+This new flag tells whether the skb has been originated by
+an interface marked with the IFF_BRIDGE_RESTRICTED flag.
 
-with this patchset I would like to introduce a new feature to be added to the
-bridge module that is later going to be one of the building block of a
-distributed technique implemented using batman-adv.
+This information can be used to prevent a packet from being
+forwarded to another restricted interface.
 
-The scenario where we want to play is a Layer2 mesh network handled by
-the batman-adv module. For who may not know how it works, batman-adv creates a
-sort of "extended broadcast domain" shared among nodes that are not directly
-connected to each other.
-This mechanism provides every node the view of the batman-adv network
-as it was a very big Ethernet switch.
+Signed-off-by: Antonio Quartulli <antonio@open-mesh.com>
+---
+ include/linux/skbuff.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-
-The goal we want to achieve by adding this feature consists in selecting a
-subset of the interfaces available on all the hosts participating to the mesh
-network and to prevent packets from being forwarded from one of them to another.
-
-Looking again at the "very big switch" abstraction this would allow a mesh
-network administrator to define a sort of "not forwarding policy network wide"
-between some of the big switch's port.
-
-This patchset is introducing the small piece needed by every hosts in the
-network to handle the policy locally. In particular, I'm adding a new flag for
-the net_device->flags member (IFF_BRIDGE_RESTRICTED) and a new attribute to the
-sk_buff structure (bridge_restricted), then the bridge code is modified to
-obey the following rule:
-
-* do not forward any skb with the bridge_restricted attribute set to interfaces
-  marked with the IFF_BRIDGE_RESTRICTED flag.
-
-
-Later, a change to batman-adv will follow which will make it spit out skbs with
-the bridge_restricted member set depending on its distributed logic.
-
-
-I am not entirely sure if I chose the very best place for those flags. If not,
-please advise :)
-
-Thanks a lot.
-
-
-Cheers,
-
-
-Antonio Quartulli (3):
-  if.h: add IFF_BRIDGE_RESTRICTED flag
-  sk_buff: add bridge_restricted flag
-  bridge: implement restricted port forwarding policy
-
- include/linux/skbuff.h  |  3 ++-
- include/uapi/linux/if.h |  1 +
- net/bridge/br_forward.c | 18 +++++++++++++++++-
- net/bridge/br_input.c   |  6 ++++++
- net/core/dev.c          |  2 +-
- 5 files changed, 27 insertions(+), 3 deletions(-)
-
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index e27d1c7..2054073 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -492,7 +492,8 @@ struct sk_buff {
+ 	 * headers if needed
+ 	 */
+ 	__u8			encapsulation:1;
+-	/* 7/9 bit hole (depending on ndisc_nodetype presence) */
++	__u8			bridge_restricted:1;
++	/* 9/11 bit hole (depending on ndisc_nodetype presence) */
+ 	kmemcheck_bitfield_end(flags2);
+ 
+ #ifdef CONFIG_NET_DMA
 -- 
 1.8.1.5
 
