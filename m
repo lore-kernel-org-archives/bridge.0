@@ -1,13 +1,13 @@
 Return-Path: <antonio@open-mesh.com>
-Date: Tue, 9 Apr 2013 08:33:43 +0200
+Date: Tue, 9 Apr 2013 09:56:06 +0200
 From: Antonio Quartulli <antonio@open-mesh.com>
-Message-ID: <20130409063342.GA3771@open-mesh.com>
+Message-ID: <20130409075606.GB3771@open-mesh.com>
 References: <1365442863-32394-1-git-send-email-antonio@open-mesh.com>
 	<1365442863-32394-2-git-send-email-antonio@open-mesh.com>
 	<CAOaVG17nHuoRsf2Kss6LnpgC-Aojcso_zLYyBa18Vn9CGGY+GA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
 Content-Disposition: inline
 In-Reply-To: <CAOaVG17nHuoRsf2Kss6LnpgC-Aojcso_zLYyBa18Vn9CGGY+GA@mail.gmail.com>
 Subject: Re: [Bridge] [PATCH 1/3] if.h: add IFF_BRIDGE_RESTRICTED flag
@@ -22,34 +22,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 
---a8Wt8u1KmwUX3Y2C
+--v9Ux+11Zm5mwPlX6
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-
-Hi Stephen,
-
-thank you for your reply.
 
 On Mon, Apr 08, 2013 at 11:58:48 -0700, Stephen Hemminger wrote:
 > The standard way to do this is to use netfilter. Considering the
 > additional device flags and skb flag changes, I am not sure that your
 > method is better.
+
+To make it a bit more clear:
+
+1) the skb flag will be used on the "receiving end-point" by batman-adv to =
+mark
+received packets and so instruct the bridge to do not forward them to restr=
+icted
+interfaces.
+
+2) the IFF_ flag is used by batman-adv on the "sending side" to determine
+whether a packet has been originated by a restricted interface and so instr=
+uct
+the remote endpoint to mark the skb when received.
+
+3) to make the bridge code general enough, I decided to let it mark packets
+coming from restricted interfaces as well so that it can also apply the pol=
+icy
+at 1) locally, without any further setting. The logic described in 1) is
+therefore applied by the bridge even for local packets (not passing through
+batman-adv)
+
+
+
+Point 3) is the only one where netfilter might help. But using two mechanis=
+m to
+achieve one goal looked not sane to me and therefore I decided to to do it =
+this
+way. And actually the code allowing point 3 is only:
+
++       skb->bridge_restricted =3D !!(skb->dev->flags & IFF_BRIDGE_RESTRICT=
+ED);
+
+
+I hope this summary did not create further confusion :)
+
+Thanks,
+
 >=20
-
-The point is that netfilter would not help me in "distributing" this policy
-remotely over a generic layer2 network.
-
-Using these flags, instead, I can make other modules (e.g. batman-adv) noti=
-ce
-that the skb has been marked and then react using their own logic.
-
-If netfilter (at the bridge level) could "mark" the skbs somehow then I cou=
-ld use
-it for this purpose. But I don't think this is really possible.
-
-Cheers,
-
 > On Mon, Apr 8, 2013 at 10:41 AM, Antonio Quartulli
 > <antonio@open-mesh.com> wrote:
 > > This new flag tells whether a network device has to be
@@ -103,25 +122,25 @@ Antonio Quartulli
 =2E.each of us alone is worth nothing..
 Ernesto "Che" Guevara
 
---a8Wt8u1KmwUX3Y2C
+--v9Ux+11Zm5mwPlX6
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.19 (GNU/Linux)
 
-iQIcBAEBCAAGBQJRY7ZGAAoJEADl0hg6qKeOvhQQALngU7c2gRUTq0iCezHMYRMn
-uSsp+MwR5r4oGb7bD7s29wpBbkW0y8/BBzELOsHQOi8ArXRUR3ui10DMG+iiWVSj
-M19z7k3CzE6q/h3d1ghYTPL/9tx4RxKhWy4NSTdXgo1TFGdZV47f6KCmHEzoq6fu
-Wk1zuIzVWAhm58Rih94b1C5rKOkK8ICiOPbUcqHR5xMluAaj3RSu/oLUPJzAQWw8
-S2ykua9jFsDucqGoYFEst8jnau7fw10UvoljvptCoQr/ZYur9/UW4mxWUMnlO08h
-qq7DNJbChNxTW8lLQ919hsNmAo35gPbbP89YvAxgbOU4M2cNFjcEHlJQM/xEP7hT
-Qi/8cy3pCjndaVWVABvAn9uAqTK4YiriOy/vYF9yY8cLREcnbD+yMpeIEv6FMUuo
-nTvaECESRFsBYMQePM/Z1k6yomor4K9zN8LGNH4ORDoElFkuSSQXzfyue4pgKEVt
-0kn7uQaPgzQIK6Ms5SXX76Su8o/bF7AcCuGo0rYc4tBLQlL0x0Vd2YvJInYuagbk
-Ka+RaQIEfAGkTuumNAUlI6zvUUSuYp4JhrkzQqX3cXFwzjn2nWrhLhCZ7huXkJNR
-tDGb9W4UcNEaDBeJVVWCXPE9X02NYDba42415WZdTF5EwxeeRxCc9HWNgDHihWWL
-ZWEJsSln3ygzv6waIcI9
-=nQQ+
+iQIcBAEBCAAGBQJRY8mWAAoJEADl0hg6qKeOBfsP/Aw0cEjNkAXWCBxDp0aGpl70
+Js9/+KBtmcJHWVqFUZXp46qiGmj2inNPud95Krery3fgGsXEBJYiY6wdmZqOkBM1
+ajcoAPUcUOnmQpIuhLsVxdxywMlblBp0J34oj+RRSoVwR62WC4ZGgsebg0luqB0H
+qKobTss2mwzm7exzCRDXBWrZ3Tc4HxiJLkpC1VJ5Dogq/uEeSK/ke0E0dvALX/X9
+bKvIUB7jPpCNqhk6yoY5Npbhu2uYyN3MQAIY+3BfobgfM6/9KQRR+hB2eLVGtw3B
+7JrZ5YHLiu/MoqJz8Hqj+CumkaB5MVeyM1mA2DRY9zoi3dL4vbFqDWD40GhWyeS3
+61Q4a4LMciuvyE2ZKpyTlDAli8eYHTUNGcHxOlSUkDI8hIEAwqUYi8/MA8LRp1gf
+Af7Ng2Lme6H2Xi7hzM9CsXXcchlMpaynNdcg0iGH8Yz3luUzXMBkfpLHftELP1Bv
+P5j1Qn/S1sFdtnZFPdMkbhIwBpaLYZ2GU4SqM7P8nLt1shG3TQF126iX6BPzyOc/
+M+pRj4OPs5GLOk0OJ7x7ROmf7XH/tl0FkMVkEglMFli4RM+7Oz33WqcxNWdQ+UZc
+D72KSj281vg4dxbdodcNW7HPry6YYMnCy+XlvjsEYDQG0s4IDlGGXKZ4ezEvhgnU
+pw9E3Qix0kbUsgaZXPAH
+=8nXs
 -----END PGP SIGNATURE-----
 
---a8Wt8u1KmwUX3Y2C--
+--v9Ux+11Zm5mwPlX6--
