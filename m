@@ -1,11 +1,13 @@
-Return-Path: <roll10@greynode.net>
-From: Benjamin Scarlet <roll10@greynode.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <37377BC5-1B6C-4E86-9ACA-51C9B9599E70@greynode.net>
-Date: Mon, 15 Apr 2013 08:15:23 -0400
-Mime-Version: 1.0 (Mac OS X Mail 6.3 \(1503\))
-Subject: [Bridge] bridging and VLANs
+Return-Path: <davem@davemloft.net>
+Date: Mon, 15 Apr 2013 14:05:04 -0400 (EDT)
+Message-Id: <20130415.140504.612756635505590698.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20130413170607.2a9294f6@nehalam.linuxnetplumber.net>
+References: <20130413170607.2a9294f6@nehalam.linuxnetplumber.net>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] bridge: make user modified path cost sticky
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,20 +16,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: stephen@networkplumber.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-I'm trying to understand the current and future state of bridging VLANs. =
-I see there's been patch activity on this list, so I'm hoping someone =
-here will be kind enough to explain.
+From: Stephen Hemminger <stephen@networkplumber.org>
+Date: Sat, 13 Apr 2013 17:06:07 -0700
 
-I currently bridge VLANs, using commands like=20
+> Keep a STP port path cost value if it was set by a user.
+> Don't replace it with the link-speed based path cost
+> whenever the link goes down and comes back up.
+> 
+> Reported-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 
-$ brctl addbr neta
-$ brctl addif neta eth0.100
-...
-
-This works for me, mostly. Should it? Is this interface going to change?
-
-Thanks,
-Ben Scarlet
-
+Applied, thanks.
