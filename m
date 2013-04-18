@@ -1,10 +1,14 @@
 Return-Path: <sven@open-mesh.com>
 From: Sven Eckelmann <sven@open-mesh.com>
-Date: Thu, 18 Apr 2013 11:17:38 +0200
-Message-ID: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
+Date: Thu, 18 Apr 2013 13:04:28 +0200
+Message-ID: <1628913.yHk1cpqU9i@bentobox>
+In-Reply-To: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
+References: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH] bridge: Add missing include for in6_addr
+Content-Type: multipart/signed; boundary="nextPart1701743.WLD7NemtCg";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7Bit
+Subject: Re: [Bridge] [PATCH] bridge: Add missing include for in6_addr
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,32 +17,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, Sven Eckelmann <sven@open-mesh.com>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+Cc: "stephen@networkplumber.org" <stephen@networkplumber.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 
-ee07c6e7a6f8a25c18f0a6b18152fbd7499245f6 ("bridge: export multicast database
-via netlink") added "struct br_mdb_entry" which includes an element using the
-type "struct in6_addr". The file linux/if_bridge.h is part of the uapi and not
-defining this type in this file or its includes causes build failures in
-userspace applications.
+--nextPart1701743.WLD7NemtCg
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 
-Signed-off-by: Sven Eckelmann <sven@open-mesh.com>
----
- include/uapi/linux/if_bridge.h | 1 +
- 1 file changed, 1 insertion(+)
+On Thursday 18 April 2013 02:17:38 Sven Eckelmann wrote:
+> ee07c6e7a6f8a25c18f0a6b18152fbd7499245f6 ("bridge: export multicast database
+> via netlink") added "struct br_mdb_entry" which includes an element using
+> the type "struct in6_addr". The file linux/if_bridge.h is part of the uapi
+> and not defining this type in this file or its includes causes build
+> failures in userspace applications.
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 2d70d79..8e3f287 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -14,6 +14,7 @@
- #define _UAPI_LINUX_IF_BRIDGE_H
- 
- #include <linux/types.h>
-+#include <linux/in6.h>
- 
- #define SYSFS_BRIDGE_ATTR	"bridge"
- #define SYSFS_BRIDGE_FDB	"brforward"
--- 
-1.8.2.1
+It seems this one was already dropped [1]. So, I think it will not be 
+different this time.
 
+Just ignore it.
+
+Kind regards,
+	Sven
+
+[1] http://lkml.indiana.edu/hypermail/linux/kernel/1301.1/03024.html
+
+--nextPart1701743.WLD7NemtCg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAABCgAGBQJRb9M8AAoJEF2HCgfBJntGwe4P+wTouLWe60EmLX/eUBFZFW1p
+hTP3yg4OKEK/AAudREouhFnmvts/rulzUmaK9oq+t4PyWVlBvvMgu4SfGbYtFZv0
+7O9dQslFR70V6619JEBsOXGRJaxTxnNKgg9eGTtJk0UGmat42ZEj7un/j9FCCD5K
+a6t5dmgE29FZGY+eyC3C5QcY3MToW/e2qWFH+IZZO/21ugOUDwfe1xMHkTL+0aPx
+degFo1u7VT/kMzBiBU93UpktPW3MkVZRS/6RBB5CfSse0phi00uVYdC3RICun365
+XtoSTdOKXvWffHFGBYOkI6GN0som9Zr/EsBlKqY9rxb7uHCF9rQpjuIX0MTft+1y
+RRSljtlAllZU0M847kEv2fVM5H9H6tjURMuzSH32UMAbMVUSBWVjiT3sW7C2oSW5
+5uqrQQj9OJi8m3dSxT1OjWqq1FwLmH3d6dcajU9YmgZyOZQKSJ+KQBqtT6BeIjxD
+Ho0XRv2GS+xGWIRySMTIf++/CucdkhfynbnQdkHUYYDAwkcfoSJOKmITBvqSGNtQ
+YydCtiwbZjEzCT3Q2AvmvqGMIRSQ+8YLLMw/L+3+N+s0d6wuJ+WR2IXxm4TRy2EE
+sEGYwwzP4/f58DhEqViTS6QS5T5bJleue4b7CiGuQx10spuZGtTQMlmn+OjiTZzV
+27Vznnt87w5ya4tQd92w
+=CyGM
+-----END PGP SIGNATURE-----
+
+--nextPart1701743.WLD7NemtCg--
