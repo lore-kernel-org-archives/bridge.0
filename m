@@ -1,13 +1,13 @@
-Return-Path: <michael-dev@fami-braun.de>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="=_8c1278b61f2227e21bbb3a7ae3ef6627"
-Date: Mon, 15 Apr 2013 12:29:10 +0200
-From: michael-dev <michael-dev@fami-braun.de>
-Message-ID: <7a31d9fe5bc9b65d4ffe6e03cbd2823f@fami-braun.de>
-Subject: [Bridge] [PATCH] Notify userspace about bridge learning MAC on new
-	port
-Reply-To: projekt-wlan@fem.tu-ilmenau.de
+Return-Path: <davem@davemloft.net>
+Date: Thu, 18 Apr 2013 13:51:32 -0400 (EDT)
+Message-Id: <20130418.135132.1342139552386927867.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
+References: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: Add missing include for in6_addr
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,56 +16,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stephen@networkplumber.org
-Cc: projekt-wlan@fem.tu-ilmenau.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: sven@open-mesh.com
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
---=_8c1278b61f2227e21bbb3a7ae3ef6627
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+From: Sven Eckelmann <sven@open-mesh.com>
+Date: Thu, 18 Apr 2013 11:17:38 +0200
 
-Hi,
+> ee07c6e7a6f8a25c18f0a6b18152fbd7499245f6 ("bridge: export multicast database
+> via netlink") added "struct br_mdb_entry" which includes an element using the
+> type "struct in6_addr". The file linux/if_bridge.h is part of the uapi and not
+> defining this type in this file or its includes causes build failures in
+> userspace applications.
+> 
+> Signed-off-by: Sven Eckelmann <sven@open-mesh.com>
 
-currently, the userspace is informed about the port the MAC is learned 
-on a bridge and about the bridge removing the MAC from its forwarding 
-table, but not when the MAC is learned on a different port. This is 
-inconsistent and makes it difficult for applications to keep track of 
-all MACs learned by a bridge on a subset of its ports.
-
-Please find attached a patch that fixes this by sending an RTM_NEWNEIGH 
-message when the forwarding destination port changes.
-
-Regards,
-  M. Braun
---=_8c1278b61f2227e21bbb3a7ae3ef6627
-Content-Transfer-Encoding: base64
-Content-Type: text/plain;
- name=999-make-bridge-notify-switched-port.diff
-Content-Disposition: attachment;
- filename=999-make-bridge-notify-switched-port.diff;
- size=1213
-
-Tm90aWZ5IHVzZXJzcGFjZSBhYm91dCBicmlkZ2UgbGVhcm5pbmcgTUFDIG9uIG5ldyBwb3J0CgpD
-dXJyZW50bHksIHRoZSB1c2Vyc3BhY2UgaXMgaW5mb3JtZWQgYWJvdXQgdGhlIHBvcnQgdGhlIE1B
-QyBpcyBsZWFybmVkIG9uIGEKYnJpZGdlIGFuZCBhYm91dCB0aGUgYnJpZGdlIHJlbW92aW5nIHRo
-ZSBNQUMgZnJvbSBpdHMgZm9yd2FyZGluZyB0YWJsZSwgYnV0IG5vdAp3aGVuIHRoZSBNQUMgaXMg
-bGVhcm5lZCBvbiBhIGRpZmZlcmVudCBwb3J0LgpUaGlzIGlzIGluY29uc2lzdGVudCBhbmQgbWFr
-ZXMgaXQgZGlmZmljdWx0IGZvciBhcHBsaWNhdGlvbnMgdG8ga2VlcCB0cmFjawpvZiBhbGwgTUFD
-cyBsZWFybmVkIGJ5IGEgYnJpZGdlIG9uIGEgc3Vic2V0IG9mIGl0cyBwb3J0cy4KClNpZ25lZC1v
-ZmYtYnk6IE1pY2hhZWwgQnJhdW4gPG1pY2hhZWwtZGV2QGZhbWktYnJhdW4uZGU+CgotLS0gYS9u
-ZXQvYnJpZGdlL2JyX2ZkYi5jCTIwMTMtMDQtMTUgMTE6MjE6NTEuNjM4OTYzNjY4ICswMjAwCisr
-KyBiL25ldC9icmlkZ2UvYnJfZmRiLmMJMjAxMy0wNC0xNSAxMToyMzo1NS45NDExNjYzMTkgKzAy
-MDAKQEAgLTQwOCw2ICs0MDgsNyBAQCBzdGF0aWMgaW50IGZkYl9pbnNlcnQoc3RydWN0IG5ldF9i
-cmlkZ2UKIHsKIAlzdHJ1Y3QgaGxpc3RfaGVhZCAqaGVhZCA9ICZici0+aGFzaFticl9tYWNfaGFz
-aChhZGRyLCB2aWQpXTsKIAlzdHJ1Y3QgbmV0X2JyaWRnZV9mZGJfZW50cnkgKmZkYjsKKwlzdHJ1
-Y3QgbmV0X2JyaWRnZV9wb3J0ICpvcmlnc3JjOwogCiAJaWYgKCFpc192YWxpZF9ldGhlcl9hZGRy
-KGFkZHIpKQogCQlyZXR1cm4gLUVJTlZBTDsKQEAgLTQ3MSw4ICs0NzIsMTIgQEAgdm9pZCBicl9m
-ZGJfdXBkYXRlKHN0cnVjdCBuZXRfYnJpZGdlICpicgogCQkJCQlzb3VyY2UtPmRldi0+bmFtZSk7
-CiAJCX0gZWxzZSB7CiAJCQkvKiBmYXN0cGF0aDogdXBkYXRlIG9mIGV4aXN0aW5nIGVudHJ5ICov
-CisJCQlvcmlnc3JjID0gZmRiLT5kc3Q7CiAJCQlmZGItPmRzdCA9IHNvdXJjZTsKIAkJCWZkYi0+
-dXBkYXRlZCA9IGppZmZpZXM7CisJCQkvKiBub3RpZnkgYXBwbGljYXRpb25zIG9mIG1vZGlmaWVk
-IHNsYXZlIGRldmljZSAqLworCQkJaWYgKG9yaWdzcmMgIT0gc291cmNlKQorCQkJCWZkYl9ub3Rp
-ZnkoYnIsIGZkYiwgUlRNX05FV05FSUdIKTsKIAkJfQogCX0gZWxzZSB7CiAJCXNwaW5fbG9jaygm
-YnItPmhhc2hfbG9jayk7Cg==
---=_8c1278b61f2227e21bbb3a7ae3ef6627--
-
+This will conflict with the in6_addr defined by the libc headers, we're
+screwed either way here, so we might as well require userspace to include
+the libc header that defines this type.
