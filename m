@@ -1,7 +1,7 @@
 Return-Path: <stephen@networkplumber.org>
-Date: Fri, 19 Apr 2013 13:54:41 -0700
+Date: Fri, 19 Apr 2013 13:55:33 -0700
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130419135441.2dc84327@nehalam.linuxnetplumber.net>
+Message-ID: <20130419135533.34e5e7f5@nehalam.linuxnetplumber.net>
 In-Reply-To: <1366404770-28523-3-git-send-email-vyasevic@redhat.com>
 References: <1366404770-28523-1-git-send-email-vyasevic@redhat.com>
 	<1366404770-28523-3-git-send-email-vyasevic@redhat.com>
@@ -24,11 +24,23 @@ Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, mst@redhat.com
 On Fri, 19 Apr 2013 16:52:46 -0400
 Vlad Yasevich <vyasevic@redhat.com> wrote:
 
->  
-> +static ssize_t show_flag(struct net_bridge_port *p, char *buf,
-> +			  unsigned long mask)
+> +
+> +static int store_flag(struct net_bridge_port *p, unsigned long v,
+> +		     unsigned long mask)
 > +{
-> +	return sprintf(buf, "%d\n", !!(p->flags & mask));
+> +	unsigned long flags = p->flags;
+> +
+> +	if (v)
+> +		flags |= mask;
+> +	else
+> +		flags &= ~mask;
+> +
+> +	if (flags != p->flags) {
+> +		p->flags = flags;
+> +		br_ifinfo_notify(RTM_NEWLINK, p);
+> +	}
+> +	return 0;
 > +}
 
-Flags are bit, show in hex please.
+I don't want to allow arbitrary flag stores (and shows).
+It exposes kernel bits to user space and creates an unintended ABI.
