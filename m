@@ -1,14 +1,11 @@
-Return-Path: <sven@open-mesh.com>
-From: Sven Eckelmann <sven@open-mesh.com>
-Date: Thu, 18 Apr 2013 13:04:28 +0200
-Message-ID: <1628913.yHk1cpqU9i@bentobox>
-In-Reply-To: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
-References: <1366276658-11938-1-git-send-email-sven@open-mesh.com>
+Return-Path: <Pieter.DeBaets@ugent.be>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1701743.WLD7NemtCg";
-	micalg=pgp-sha512; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7Bit
-Subject: Re: [Bridge] [PATCH] bridge: Add missing include for in6_addr
+From: Pieter De Baets <Pieter.DeBaets@UGent.be>
+Date: Fri, 19 Apr 2013 19:55:32 +0200
+Message-ID: <CAEj-7xc24rTO-vHw7xFtkmDwZJkScpBMt1J+V+y7hcuqQi-AsA@mail.gmail.com>
+Content-Type: multipart/alternative; boundary=047d7b450a22232e8204daba6e1c
+Subject: [Bridge] Configuration-messages from root switch hello-timer not
+	forwarded
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,50 +14,125 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
-Cc: "stephen@networkplumber.org" <stephen@networkplumber.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: bridge@lists.linux-foundation.org
 
---nextPart1701743.WLD7NemtCg
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+--047d7b450a22232e8204daba6e1c
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thursday 18 April 2013 02:17:38 Sven Eckelmann wrote:
-> ee07c6e7a6f8a25c18f0a6b18152fbd7499245f6 ("bridge: export multicast database
-> via netlink") added "struct br_mdb_entry" which includes an element using
-> the type "struct in6_addr". The file linux/if_bridge.h is part of the uapi
-> and not defining this type in this file or its includes causes build
-> failures in userspace applications.
+Hi everyone,
 
-It seems this one was already dropped [1]. So, I think it will not be 
-different this time.
+I'm trying to set up a simple ring-netwerk using a managed switch as root
+(an HP ProCurve 2512) and some mini-ITX boards with 2 network-interfaces.
 
-Just ignore it.
+Initial setup is working fine but when I add a node B to a deeper level (so
+[switch] =E2=86=92 [node A] =E2=86=92 *[node B]* =E2=86=92 [node C] =E2=86=
+=92 [switch]) I get the following
+error-messages on node about 20 seconds after initialization complets (when
+the message age timer expires)
 
-Kind regards,
-	Sven
+br0: port 1(eth0) neighbor 8000.00:0d:b9:1c:66:20 lost
+> br0: topology change detected, propagating
 
-[1] http://lkml.indiana.edu/hypermail/linux/kernel/1301.1/03024.html
 
---nextPart1701743.WLD7NemtCg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
+which causes a reconfiguration of the network, and if there's any loops
+causes blocking and relearning of the tree, with lots of traffic being
+generated.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+net_ratelimit: 35664 callbacks suppressed
+> br0: received packet on eth1 with own address as source address
 
-iQIcBAABCgAGBQJRb9M8AAoJEF2HCgfBJntGwe4P+wTouLWe60EmLX/eUBFZFW1p
-hTP3yg4OKEK/AAudREouhFnmvts/rulzUmaK9oq+t4PyWVlBvvMgu4SfGbYtFZv0
-7O9dQslFR70V6619JEBsOXGRJaxTxnNKgg9eGTtJk0UGmat42ZEj7un/j9FCCD5K
-a6t5dmgE29FZGY+eyC3C5QcY3MToW/e2qWFH+IZZO/21ugOUDwfe1xMHkTL+0aPx
-degFo1u7VT/kMzBiBU93UpktPW3MkVZRS/6RBB5CfSse0phi00uVYdC3RICun365
-XtoSTdOKXvWffHFGBYOkI6GN0som9Zr/EsBlKqY9rxb7uHCF9rQpjuIX0MTft+1y
-RRSljtlAllZU0M847kEv2fVM5H9H6tjURMuzSH32UMAbMVUSBWVjiT3sW7C2oSW5
-5uqrQQj9OJi8m3dSxT1OjWqq1FwLmH3d6dcajU9YmgZyOZQKSJ+KQBqtT6BeIjxD
-Ho0XRv2GS+xGWIRySMTIf++/CucdkhfynbnQdkHUYYDAwkcfoSJOKmITBvqSGNtQ
-YydCtiwbZjEzCT3Q2AvmvqGMIRSQ+8YLLMw/L+3+N+s0d6wuJ+WR2IXxm4TRy2EE
-sEGYwwzP4/f58DhEqViTS6QS5T5bJleue4b7CiGuQx10spuZGtTQMlmn+OjiTZzV
-27Vznnt87w5ya4tQd92w
-=CyGM
------END PGP SIGNATURE-----
 
---nextPart1701743.WLD7NemtCg--
+When I look at one of the upstream-nodes (A or C) they do receive hello
+messages within the message window (on their designated port) but do not
+seem to forward them to their other interfaces.
+
+The bridges are created with the following commands:
+
+brctl addbr br0
+
+brctl stp on
+
+brctl addif br0 eth0
+
+brctl addif br0 eth1
+
+ifconfig br0 up
+
+
+eth0 and eth1 have no further configuration and are declared manual
+interfaces in /etc/network/interfaces. I'm running Voyage Linux
+(kernel-version is 2.6.35).
+
+Your help is very much appreciated, as I would like to use this setup as a
+redundancy tool for an event next tuesday.
+
+Thanks,
+Pieter De Baets
+
+--047d7b450a22232e8204daba6e1c
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi everyone,<div><br></div><div>I&#39;m trying to set up a=
+ simple ring-netwerk using a managed switch as root (an HP ProCurve=C2=A025=
+12) and some mini-ITX boards with 2 network-interfaces.</div><div><br></div=
+><div style>
+
+Initial setup is working fine but when I add a node B to a deeper level (so=
+ [switch] =E2=86=92 [node A] =E2=86=92 <b>[node B]</b> =E2=86=92 [node C] =
+=E2=86=92 [switch]) I get the following error-messages on node about 20 sec=
+onds after initialization complets (when the message age timer expires)</di=
+v>
+
+<div style><br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px =
+0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,204);bord=
+er-left-style:solid;padding-left:1ex">br0: port 1(eth0) neighbor 8000.00:0d=
+:b9:1c:66:20 lost<br>
+
+br0: topology change detected, propagating=C2=A0</blockquote><div><br></div=
+><div style>which causes a reconfiguration of the network, and if there&#39=
+;s any loops causes blocking and relearning of the tree, with lots of traff=
+ic being generated.</div>
+
+<div style><br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px =
+0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,204);bord=
+er-left-style:solid;padding-left:1ex">net_ratelimit: 35664 callbacks suppre=
+ssed<br>
+
+br0: received packet on eth1 with own address as source address</blockquote=
+><div><br></div><div style>When I look at one of the upstream-nodes (A or C=
+) they do receive hello messages within the message window (on their design=
+ated port) but do not seem to forward them to their other interfaces.</div>
+
+<div><br></div><div style>The bridges are created with the following comman=
+ds:</div><div style><br></div><blockquote class=3D"gmail_quote" style=3D"ma=
+rgin:0px 0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,=
+204);border-left-style:solid;padding-left:1ex">
+
+brctl addbr br0</blockquote><blockquote class=3D"gmail_quote" style=3D"marg=
+in:0px 0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,20=
+4);border-left-style:solid;padding-left:1ex">brctl stp on=C2=A0</blockquote=
+><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border=
+-left-width:1px;border-left-color:rgb(204,204,204);border-left-style:solid;=
+padding-left:1ex">
+
+brctl addif br0 eth0=C2=A0</blockquote><blockquote class=3D"gmail_quote" st=
+yle=3D"margin:0px 0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb=
+(204,204,204);border-left-style:solid;padding-left:1ex">brctl addif br0 eth=
+1=C2=A0</blockquote>
+
+<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
+left-width:1px;border-left-color:rgb(204,204,204);border-left-style:solid;p=
+adding-left:1ex">ifconfig br0 up</blockquote><div><br></div><div style>eth0=
+ and eth1 have no further configuration and are declared manual interfaces =
+in /etc/network/interfaces. I&#39;m running Voyage Linux (kernel-version is=
+ 2.6.35).</div>
+
+<div><br clear=3D"all"><div>Your help is very much appreciated, as I would =
+like to use this setup as a redundancy tool for an event next tuesday.</div=
+><div><br></div><div style>Thanks,</div>
+<div>Pieter De Baets</div>
+</div></div>
+
+--047d7b450a22232e8204daba6e1c--
