@@ -1,14 +1,15 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Thu, 25 Apr 2013 10:35:57 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130425103557.1e42ad04@nehalam.linuxnetplumber.net>
-In-Reply-To: <20130425164527.GA2908@redhat.com>
+Return-Path: <mst@redhat.com>
+Date: Fri, 26 Apr 2013 00:13:58 +0300
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Message-ID: <20130425211358.GE2908@redhat.com>
 References: <1366404770-28523-1-git-send-email-vyasevic@redhat.com>
 	<20130425085656.4500d5c4@nehalam.linuxnetplumber.net>
 	<20130425164527.GA2908@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20130425103557.1e42ad04@nehalam.linuxnetplumber.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130425103557.1e42ad04@nehalam.linuxnetplumber.net>
 Subject: Re: [Bridge] [PATCH v2 net-next 0/6] Allow bridge to function in
  non-promisc mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -19,69 +20,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Thu, 25 Apr 2013 19:45:27 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Thu, Apr 25, 2013 at 08:56:56AM -0700, Stephen Hemminger wrote:
-> > On Fri, 19 Apr 2013 16:52:44 -0400
-> > Vlad Yasevich <vyasevic@redhat.com> wrote:
-> > 
-> > > This series is an almost complete rework of the prior attempt
-> > > to make the bridge function in non-promisc mode.  In this series
-> > > the "promiscuity" of an interface is dynamically determined and
-> > > the interface may transition from/to promiscuous mode based on
-> > > bridge configuration.
+On Thu, Apr 25, 2013 at 10:35:57AM -0700, Stephen Hemminger wrote:
+> On Thu, 25 Apr 2013 19:45:27 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > On Thu, Apr 25, 2013 at 08:56:56AM -0700, Stephen Hemminger wrote:
+> > > On Fri, 19 Apr 2013 16:52:44 -0400
+> > > Vlad Yasevich <vyasevic@redhat.com> wrote:
 > > > 
-> > > The series keeps an idea of an "uplink" port.  That is still user
-> > > designated.
-> > > The series also adds a concept of "dynamic" bridge port.  This is
-> > > the default state of the port and means that the user has not
-> > > specified any static FDBs for that port.
-> > > Once a user has added a static FDB entry to port and also specified
-> > > an "uplink" flag for that FDB, the mac address from that FDB is
-> > > added to the bridge hw address list and synched down to uplinks.
-> > > "Uplinks" are always considered dynamic ports even if a static entry
-> > > has been added for them.
-> > > Promiscuity is determined by the number of dynamic ports.  If there
-> > > are no dynamic ports (i.e all ports have static FDBs set), then we
-> > > know all the neighbors and can switch promisc off on all of the ports.
-> > > If we have only 1 dynamic port and its an uplink, we can synch all
-> > > static hw addresses to this port and mark it non-promisc.
-> > > If we have more then 1 dynamic port, then all ports have to be
-> > > promiscuouse.
-> > > This is the algorith that Michael Tsirkin proposed earlier.
+> > > > This series is an almost complete rework of the prior attempt
+> > > > to make the bridge function in non-promisc mode.  In this series
+> > > > the "promiscuity" of an interface is dynamically determined and
+> > > > the interface may transition from/to promiscuous mode based on
+> > > > bridge configuration.
+> > > > 
+> > > > The series keeps an idea of an "uplink" port.  That is still user
+> > > > designated.
+> > > > The series also adds a concept of "dynamic" bridge port.  This is
+> > > > the default state of the port and means that the user has not
+> > > > specified any static FDBs for that port.
+> > > > Once a user has added a static FDB entry to port and also specified
+> > > > an "uplink" flag for that FDB, the mac address from that FDB is
+> > > > added to the bridge hw address list and synched down to uplinks.
+> > > > "Uplinks" are always considered dynamic ports even if a static entry
+> > > > has been added for them.
+> > > > Promiscuity is determined by the number of dynamic ports.  If there
+> > > > are no dynamic ports (i.e all ports have static FDBs set), then we
+> > > > know all the neighbors and can switch promisc off on all of the ports.
+> > > > If we have only 1 dynamic port and its an uplink, we can synch all
+> > > > static hw addresses to this port and mark it non-promisc.
+> > > > If we have more then 1 dynamic port, then all ports have to be
+> > > > promiscuouse.
+> > > > This is the algorith that Michael Tsirkin proposed earlier.
+> > > 
+> > > Instead of a uplink port, maybe this idea would work better in combination
+> > > with another patch I have been working on.
+> > > 
+> > > In many bridged environments, ports have only one possible MAC address
+> > > on the other side. My patch provides a flag to mark those ports as bound
+> > > with only one peer MAC address.  This allows those ports to be skipped on
+> > > flooding, and for security only packets with that source address would
+> > > be allowed.
+> > > 
+> > > After that change, your promicious code could just use that flag:
+> > > i.e: 
+> > >    uplink ports = total ports - bound ports
+> > >    if (uplink ports == 1)
+> > >        enter non-promicious mode
 > > 
-> > Instead of a uplink port, maybe this idea would work better in combination
-> > with another patch I have been working on.
+> > Almost except sometimes (with some guests)
+> > X mac addresses are needed, not just one.
 > > 
-> > In many bridged environments, ports have only one possible MAC address
-> > on the other side. My patch provides a flag to mark those ports as bound
-> > with only one peer MAC address.  This allows those ports to be skipped on
-> > flooding, and for security only packets with that source address would
-> > be allowed.
+> > How about a generalization:
+> > 	- a flag to disable learning per port (only use static entries)
+> > 	- a flag to disable flood per port
+> > Both sees to exist on openbsd, they are useful by themselves.
 > > 
-> > After that change, your promicious code could just use that flag:
-> > i.e: 
-> >    uplink ports = total ports - bound ports
-> >    if (uplink ports == 1)
-> >        enter non-promicious mode
+> > Now Vlad's patch can work if both learning and flood are
+> > disabled for all ports except maybe one.
+> > 
+> > 
 > 
-> Almost except sometimes (with some guests)
-> X mac addresses are needed, not just one.
-> 
-> How about a generalization:
-> 	- a flag to disable learning per port (only use static entries)
-> 	- a flag to disable flood per port
-> Both sees to exist on openbsd, they are useful by themselves.
-> 
-> Now Vlad's patch can work if both learning and flood are
-> disabled for all ports except maybe one.
-> 
-> 
+> Ok, then maybe allow multiple bound MAC address's per guest.
 
-Ok, then maybe allow multiple bound MAC address's per guest.
-And more flags seems like a good and easy solution to per-port
-control. If you have tested code, please submit it.
+That's exactly what static fdb entries do, right?
+
+> And more flags seems like a good and easy solution to per-port
+> control. If you have tested code, please submit it.
+
+Need to put out some other fires, will do afterwards
+if Vlad doesn't beat me to it.
+
+-- 
+MST
