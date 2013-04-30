@@ -1,19 +1,8 @@
-Return-Path: <Ian.Campbell@citrix.com>
-Message-ID: <1367331842.3142.546.camel@zakaz.uk.xensource.com>
-From: Ian Campbell <Ian.Campbell@citrix.com>
-Date: Tue, 30 Apr 2013 15:24:02 +0100
-In-Reply-To: <1367232145.26060.1.camel@yuval-pc>
-References: <5757e54b-902b-4338-8ac9-43857cd1906c@default>
-	<50FD8243.6000501@oracle.com>
-	<1358846612.3279.282.camel@zakaz.uk.xensource.com>
-	<201301291054.46405.yuval.shaia@oracle.com>
-	<1359455385.12252.85.camel@zakaz.uk.xensource.com>
-	<1367232145.26060.1.camel@yuval-pc>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] Add support for netconsole driver used on
- bridge device with VIF attached
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Tue, 30 Apr 2013 14:18:45 -0400
+Message-Id: <1367345928-31135-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCHv4 net-next 0/2] Add two new flags to bridge.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,38 +11,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yuval Shaia <yuval.shaia@oracle.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Stephen Hemminger <shemminger@vyatta.com>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org, mst@redhat.com
 
-On Mon, 2013-04-29 at 11:42 +0100, Yuval Shaia wrote:
-> Can you suggest how to continue from here? as i don't see any comment on
-> that issue up to now.
+The following series adds 2 new flags to bridge.  One flag allows
+the user to control whether mac learning is performed on the interface
+or not.  By default mac learning is on.
+The other flag allows the user to control whether unicast traffic
+is flooded (send without an fdb) to a given unicast port.  Default is
+on.
 
-Please can you resend the patch with an extended changelog based on the
-discussions in this thread and CC the bridge folks as well.
+Changes since v4:
+ - Implemented Stephen's suggestions.
 
-Ian.
+Changes since v2:
+ - removed unused "unlock" tag.
 
-> Yuval
-> > 
-> > AFAICT the only reason to actually support netpoll in netback would be
-> > if you wanted host logs to go to a listener running in a domain on the
-> > same host, which sounds like a mad idea to me! If someone actually has a
-> > real need for that use case and can test that it works I'd be happy to
-> > reconsider this patch on that basis (assuming the necessary #ifdefs are
-> > added as mentioned before).
-> > 
-> > > > BTW looking at the patch as it is any use of this hook should be wrapped
-> > > > in CONFIG_NET_POLL_CONTROLLER.
-> > > > 
-> > > > Ian.
-> > > > 
-> > > 
-> > > 
-> > 
-> > 
-> 
-> 
-> 
+Changes since v1:
+ - Integrated suggestion from MST to not impact RTM_NEWNEIGH and to
+   skip lookups when learning is disabled.
 
+Vlad Yasevich (2):
+  bridge: Add flag to control mac learning.
+  bridge: Add a flag to control unicast packet flood.
+
+ include/uapi/linux/if_link.h |    2 ++
+ net/bridge/br_device.c       |    8 ++++----
+ net/bridge/br_fdb.c          |   17 ++++++++++++++---
+ net/bridge/br_forward.c      |   14 +++++++++-----
+ net/bridge/br_if.c           |    2 +-
+ net/bridge/br_input.c        |    9 ++++++---
+ net/bridge/br_netlink.c      |   10 +++++++++-
+ net/bridge/br_private.h      |    7 +++++--
+ net/bridge/br_sysfs_if.c     |    4 ++++
+ 9 files changed, 54 insertions(+), 19 deletions(-)
+
+-- 
+1.7.7.6
 
