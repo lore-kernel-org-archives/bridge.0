@@ -1,14 +1,9 @@
-Return-Path: <gang.chen@asianux.com>
-Message-ID: <5199768E.4060706@asianux.com>
-Date: Mon, 20 May 2013 09:04:14 +0800
-From: Chen Gang <gang.chen@asianux.com>
-MIME-Version: 1.0
-References: <5195E53A.4060406@asianux.com> <51992B6F.70309@pandora.be>
-In-Reply-To: <51992B6F.70309@pandora.be>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: netfilter: using strlcpy() instead of
-	strncpy()
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Wed, 22 May 2013 11:46:30 -0400
+Message-Id: <1369237590-29871-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH] bridge: Set vlan_features to allow offloads on
+	vlans.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,25 +12,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: netfilter@vger.kernel.org, coreteam@netfilter.org, netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, stephen@networkplumber.org, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, kaber@trash.net, pablo@netfilter.org
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org
 
-On 05/20/2013 03:43 AM, Bart De Schuymer wrote:
-> Op 17/05/2013 10:07, Chen Gang schreef:
->>
->> 'name' has already set all zero when it is defined, so not need let
->> strncpy() to pad it again.
->>
->> 'name' is a string, better always let is NUL terminated, so use
->> strlcpy() instead of strncpy().
->>
->>
->> Signed-off-by: Chen Gang <gang.chen@asianux.com>
-> Acked-by: Bart De Schuymer <bdschuym@pandora.be>
+When vlan device is configured on top of the brige, it does
+not support any offload capabilities because the bridge
+device does not initiliaze vlan_fatures.  Set vlan_fatures to
+be equivalent to hw_fatures.
 
-Thanks.
+Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+---
+ net/bridge/br_device.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 9673128..126f2c2 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -352,6 +352,7 @@ void br_dev_setup(struct net_device *dev)
+ 	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
+ 			   NETIF_F_GSO_MASK | NETIF_F_HW_CSUM |
+ 			   NETIF_F_HW_VLAN_CTAG_TX;
++	dev->vlan_features = dev->hw_features;
+ 
+ 	br->dev = dev;
+ 	spin_lock_init(&br->lock);
 -- 
-Chen Gang
+1.7.7.6
 
-Asianux Corporation
