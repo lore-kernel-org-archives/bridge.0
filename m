@@ -1,9 +1,14 @@
-Return-Path: <vyasevic@redhat.com>
-From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Wed, 22 May 2013 13:49:34 -0400
-Message-Id: <1369244974-10160-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCHv2 net-next] bridge: Set vlan_features to allow
-	offloads on vlans.
+Return-Path: <pneira@us.es>
+Date: Thu, 23 May 2013 12:56:00 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20130523105600.GA22553@localhost>
+References: <5195E53A.4060406@asianux.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5195E53A.4060406@asianux.com>
+Subject: Re: [Bridge] [PATCH] bridge: netfilter: using strlcpy() instead of
+	strncpy()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,50 +17,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org
+To: Chen Gang <gang.chen@asianux.com>
+Cc: coreteam@netfilter.org, netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, stephen@networkplumber.org, netfilter@vger.kernel.org, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, kaber@trash.net
 
-When vlan device is configured on top of the brige, it does
-not support any offload capabilities because the bridge
-device does not initiliaze vlan_fatures.  Set vlan_fatures to
-be equivalent to hw_fatures.
+On Fri, May 17, 2013 at 04:07:22PM +0800, Chen Gang wrote:
+> 
+> 'name' has already set all zero when it is defined, so not need let
+> strncpy() to pad it again.
+> 
+> 'name' is a string, better always let is NUL terminated, so use
+> strlcpy() instead of strncpy().
 
-Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
----
- net/bridge/br_device.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 9673128..75f3239 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -22,6 +22,9 @@
- #include <asm/uaccess.h>
- #include "br_private.h"
- 
-+#define COMMON_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA | \
-+			 NETIF_F_GSO_MASK | NETIF_F_HW_CSUM)
-+
- /* net device transmit always called with BH disabled */
- netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- {
-@@ -346,12 +349,10 @@ void br_dev_setup(struct net_device *dev)
- 	dev->tx_queue_len = 0;
- 	dev->priv_flags = IFF_EBRIDGE;
- 
--	dev->features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
--			NETIF_F_GSO_MASK | NETIF_F_HW_CSUM | NETIF_F_LLTX |
--			NETIF_F_NETNS_LOCAL | NETIF_F_HW_VLAN_CTAG_TX;
--	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA |
--			   NETIF_F_GSO_MASK | NETIF_F_HW_CSUM |
--			   NETIF_F_HW_VLAN_CTAG_TX;
-+	dev->features = COMMON_FEATURES | NETIF_F_LLTX | NETIF_F_NETNS_LOCAL |
-+			NETIF_F_HW_VLAN_CTAG_TX;
-+	dev->hw_features = COMMON_FEATURES | NETIF_F_HW_VLAN_CTAG_TX;
-+	dev->vlan_features = COMMON_FEATURES;
- 
- 	br->dev = dev;
- 	spin_lock_init(&br->lock);
--- 
-1.7.7.6
-
+Applied, thanks.
