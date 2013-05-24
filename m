@@ -1,14 +1,14 @@
-Return-Path: <pneira@us.es>
-Date: Thu, 23 May 2013 12:56:00 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20130523105600.GA22553@localhost>
-References: <5195E53A.4060406@asianux.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5195E53A.4060406@asianux.com>
-Subject: Re: [Bridge] [PATCH] bridge: netfilter: using strlcpy() instead of
-	strncpy()
+Return-Path: <davem@davemloft.net>
+Date: Thu, 23 May 2013 18:51:43 -0700 (PDT)
+Message-Id: <20130523.185143.2153136693537557435.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1369244974-10160-1-git-send-email-vyasevic@redhat.com>
+References: <1369244974-10160-1-git-send-email-vyasevic@redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCHv2 net-next] bridge: Set vlan_features to allow
+ offloads on vlans.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,15 +17,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Chen Gang <gang.chen@asianux.com>
-Cc: coreteam@netfilter.org, netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, stephen@networkplumber.org, netfilter@vger.kernel.org, bart.de.schuymer@pandora.be, netfilter-devel@vger.kernel.org, kaber@trash.net
+To: vyasevic@redhat.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Fri, May 17, 2013 at 04:07:22PM +0800, Chen Gang wrote:
-> 
-> 'name' has already set all zero when it is defined, so not need let
-> strncpy() to pad it again.
-> 
-> 'name' is a string, better always let is NUL terminated, so use
-> strlcpy() instead of strncpy().
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Wed, 22 May 2013 13:49:34 -0400
 
-Applied, thanks.
+> When vlan device is configured on top of the brige, it does
+> not support any offload capabilities because the bridge
+> device does not initiliaze vlan_fatures.  Set vlan_fatures to
+> be equivalent to hw_fatures.
+> 
+> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+
+Applied to net-next, thanks Vlad.
