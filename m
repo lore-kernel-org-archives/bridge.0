@@ -1,14 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 23 May 2013 18:51:43 -0700 (PDT)
-Message-Id: <20130523.185143.2153136693537557435.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1369244974-10160-1-git-send-email-vyasevic@redhat.com>
-References: <1369244974-10160-1-git-send-email-vyasevic@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <jelledejong@powercraft.nl>
+Message-ID: <51A53977.1090106@powercraft.nl>
+Date: Wed, 29 May 2013 01:10:47 +0200
+From: Jelle de Jong <jelledejong@powercraft.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCHv2 net-next] bridge: Set vlan_features to allow
- offloads on vlans.
+Subject: [Bridge] bond-mode 4 bridge-utils 3.x kernel not fully working
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,17 +14,82 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Wed, 22 May 2013 13:49:34 -0400
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> When vlan device is configured on top of the brige, it does
-> not support any offload capabilities because the bridge
-> device does not initiliaze vlan_fatures.  Set vlan_fatures to
-> be equivalent to hw_fatures.
-> 
-> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+Hello everybody,
 
-Applied to net-next, thanks Vlad.
+I also sent this email to bonding-devel@lists.sourceforge.net
+
+I spent ours debugging and finding out what points to the problem.
+
+I run kvm quests with bridged networking on a bonding lacp set-up,
+with the 2.6 kernel this has been working fine for years. But with the
+3.x kernel this doesn?t work any more.
+
+Traffic comes out the KVM quests but doesn?t come in. If I disable
+bonding everything just works again.
+
+# working with 2.6 not working with 3.x
+cat /etc/network/interfaces
+auto lo
+  iface lo inet loopback
+
+auto bond0
+  iface bond0 inet manual
+  slaves eth0 eth1
+  bond-mode 4
+  bond-miimon 100
+  pre-up /sbin/ifconfig bond0 mtu 9000
+
+auto br0
+  iface br0 inet dhcp
+  bridge_fd 0
+  bridge_stp on
+  bridge_ports bond0
+
+# working with 3.x but no bonding!!
+cat /etc/network/interfaces
+auto lo
+  iface lo inet loopback
+
+auto eth0
+  iface eth0 inet manual
+  mtu 900
+
+auto br0
+  iface br0 inet dhcp
+  bridge_fd 0
+  bridge_stp on
+  bridge_ports eth0
+
+# uname -a
+Linux viktoriya 3.2.0-4-amd64 #1 SMP Debian 3.2.41-2+deb7u2 x86_64
+GNU/Linux
+
+bridge-utils version  1.5-6
+
+I already checked iptabls, ebtables there are no running rules and the
+bellow on zero or one doesn't make a difference either also disabling
+bridge_stp off or bridge_maxwait 0 doesn't seem to help.
+
+/bin/echo "0" > /proc/sys/net/bridge/bridge-nf-call-arptables
+/bin/echo "0" > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+/bin/echo "0" > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+Any ideas?
+
+Kind regards,
+
+Jelle de Jong
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iJwEAQECAAYFAlGlOXMACgkQ1WclBW9j5HkK/wP+Mtu5FB9gU1tAlDnHBDH9x98p
+1hGhXTOY81wuDdN3WzjlOLvlIevRuFiVm2b+HrhFqI5Bvh9SHb06FPoaHW92WdNj
+Xh32N/a2ghR161tATlltAxbSUuLT9+SuNA2GQ8zdEG7u+uKMBOeecPgBccqRa1NV
+lHDEGUKqlhA40c0lRY0=
+=kJ2M
+-----END PGP SIGNATURE-----
