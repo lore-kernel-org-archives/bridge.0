@@ -1,14 +1,8 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Mon, 3 Jun 2013 19:57:19 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130603195719.34d21480@nehalam.linuxnetplumber.net>
-In-Reply-To: <20130529162044.25906.79115.stgit@nitbit.x32>
-References: <20130529162044.25906.79115.stgit@nitbit.x32>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] iproute2: bridge: fix 'bridge link'
- setlink/getlink parsing
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Wed,  5 Jun 2013 10:07:59 -0400
+Message-Id: <1370441281-11281-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCHv4 net-next 0/2] Add two new flags to bridge.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,39 +11,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: John Fastabend <john.fastabend@gmail.com>
-Cc: vyasevic@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, shemminger@vyatta.com, bridge@lists.linux-foundation.org
 
-On Wed, 29 May 2013 09:20:53 -0700
-John Fastabend <john.fastabend@gmail.com> wrote:
+The following series adds 2 new flags to bridge.  One flag allows
+the user to control whether mac learning is performed on the interface
+or not.  By default mac learning is on.
+The other flag allows the user to control whether unicast traffic
+is flooded (send without an fdb) to a given unicast port.  Default is
+on.
 
-> Use IFLA_AF_SPEC nested attributes to lookup bridge mode and when
-> doing strcmp() check for equality.
-> 
-> These appear to be typos from the original commit,
-> 
-> commit 64108901b737b95247b53dec8c1b8217ca8505b7
-> Author: Vlad Yasevich <vyasevic@redhat.com>
-> Date:   Fri Mar 15 10:01:28 2013 -0700
-> 
->     bridge: Add support for setting bridge port attributes
-> 
-> Also set flags to BRIDGE_FLAGS_SELF instead of using OR operation.
-> This allows setting the bridge mode when not being used with a
-> master device.
-> 
-> To allow setting both master and self devices simultaneously we
-> will need to add a {self|master} field similar to fdb commands.
-> For now the command sets are mutually exclusive as noted in the
-> original commit.
-> 
-> With this patch 'bridge link set' works now,
-> 
-> # ./bridge/bridge link set dev veth1 cost 3
-> # ./bridge/bridge link show
-> 10: veth1 state UP : <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge0 state forwarding priority 3 cost 3
-> 
-> CC: Vlad Yasevich <vyasevic@redhat.com>
-> Signed-off-by: John Fastabend <john.r.fastabend@intel.com>
+Changes since v4:
+ - Implemented Stephen's suggestions.
 
-Looks good, applied
+Changes since v2:
+ - removed unused "unlock" tag.
+
+Changes since v1:
+ - Integrated suggestion from MST to not impact RTM_NEWNEIGH and to
+   skip lookups when learning is disabled.
+
+Vlad Yasevich (2):
+  bridge: Add flag to control mac learning.
+  bridge: Add a flag to control unicast packet flood.
+
+Vlad Yasevich (2):
+  bridge: Add flag to control mac learning.
+  bridge: Add a flag to control unicast packet flood.
+
+ include/uapi/linux/if_link.h |    2 ++
+ net/bridge/br_device.c       |    8 ++++----
+ net/bridge/br_forward.c      |   14 +++++++++-----
+ net/bridge/br_if.c           |    2 +-
+ net/bridge/br_input.c        |   15 ++++++++++-----
+ net/bridge/br_netlink.c      |   10 +++++++++-
+ net/bridge/br_private.h      |    7 +++++--
+ net/bridge/br_sysfs_if.c     |    4 ++++
+ 8 files changed, 44 insertions(+), 18 deletions(-)
+
+-- 
+1.7.7.6
+
