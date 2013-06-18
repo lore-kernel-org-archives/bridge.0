@@ -1,13 +1,14 @@
-Return-Path: <jelledejong@powercraft.nl>
-Message-ID: <51BEEC3B.4080205@powercraft.nl>
-Date: Mon, 17 Jun 2013 13:00:11 +0200
-From: Jelle de Jong <jelledejong@powercraft.nl>
-MIME-Version: 1.0
-References: <51A53977.1090106@powercraft.nl>
-In-Reply-To: <51A53977.1090106@powercraft.nl>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bond-mode 4 bridge-utils 3.x kernel not fully working
+Return-Path: <davem@davemloft.net>
+Date: Mon, 17 Jun 2013 17:11:41 -0700 (PDT)
+Message-Id: <20130617.171141.1129703356005827268.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1371417634-29803-1-git-send-email-linus.luessing@web.de>
+References: <1371417634-29803-1-git-send-email-linus.luessing@web.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] bridge: fix switched interval for MLD Query
+	types
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,65 +17,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: linus.luessing@web.de
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Sun, 16 Jun 2013 23:20:34 +0200
 
-On 29/05/13 01:10, Jelle de Jong wrote:
-> I also sent this email to bonding-devel@lists.sourceforge.net
-> 
-> I spent ours debugging and finding out what points to the problem.
-> 
-> I run kvm quests with bridged networking on a bonding lacp set-up, 
-> with the 2.6 kernel this has been working fine for years. But with
-> the 3.x kernel this doesn?t work any more.
-> 
-> Traffic comes out the KVM quests but doesn?t come in. If I disable 
-> bonding everything just works again.
-> 
-> # working with 2.6 not working with 3.x cat
-> /etc/network/interfaces auto lo iface lo inet loopback
-> 
-> auto bond0 iface bond0 inet manual slaves eth0 eth1 bond-mode 4 
-> bond-miimon 100 pre-up /sbin/ifconfig bond0 mtu 9000
-> 
-> auto br0 iface br0 inet dhcp bridge_fd 0 bridge_stp on bridge_ports
-> bond0
-> 
-> # working with 3.x but no bonding!! cat /etc/network/interfaces 
-> auto lo iface lo inet loopback
-> 
-> auto eth0 iface eth0 inet manual mtu 900
-> 
-> auto br0 iface br0 inet dhcp bridge_fd 0 bridge_stp on bridge_ports
-> eth0
-> 
-> # uname -a Linux viktoriya 3.2.0-4-amd64 #1 SMP Debian
-> 3.2.41-2+deb7u2 x86_64 GNU/Linux
-> 
-> bridge-utils version  1.5-6
-> 
-> I already checked iptabls, ebtables there are no running rules and
-> the bellow on zero or one doesn't make a difference either also
-> disabling bridge_stp off or bridge_maxwait 0 doesn't seem to help.
-> 
-> /bin/echo "0" > /proc/sys/net/bridge/bridge-nf-call-arptables 
-> /bin/echo "0" > /proc/sys/net/bridge/bridge-nf-call-ip6tables 
-> /bin/echo "0" > /proc/sys/net/bridge/bridge-nf-call-iptables
+> General Queries (the one with the Multicast Address field
+> set to zero / '::') are supposed to have a Maximum Response Delay
+> of [Query Response Interval], while for Multicast-Address-Specific
+> Queries it is [Last Listener Query Interval] - not the other way
+> round. (see RFC2710, section 7.3+7.8)
+> =
 
-Anybody? I?m still unable to use bonding lacp & bridge & vlans with
-kvm guest in a 3.x kernel (2.6 is working fine)
+> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
 
-Kind regards,
-
-Jelle de Jong
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iJwEAQECAAYFAlG+7DcACgkQ1WclBW9j5HmXUwP9EXmWz7h2K+3LkWk0NbfAdxd6
-nTb2nTWGX/659DqRIIIJbxz3haxxdDIUqjS6QBkAyaG8zJLwNSa2Ks4KdL5mrRJw
-hSJOqRNhv7u92tNv1uZeN+bZ8huFvvPgMaMd4Mx/vCta1isSOtSzbS9devjg4SFP
-0ZX6DhG32uELhpk1AtA=
-=NrXT
------END PGP SIGNATURE-----
+Applied, thanks.
