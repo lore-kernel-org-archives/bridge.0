@@ -2,20 +2,22 @@ Return-Path: <gxm.linux.kernel@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=message-id:date:from:user-agent:mime-version:to:cc:subject
 	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=NXBX+j/jQL1LykKPDdoNS6F/z8m93z1HUnrpG/x0je8=;
-	b=LEG5JJzoZRSSYoh3WaWsiRSNTsLK9jFfrm2zNzSWw6PwibFFzgPQT4cVZ+n8iCkuV3
-	GaJwhumPP9jOc1/TLd37w3rMUU2UAwIiHyiexikVnzgzfBmvSORDd4jy4ILhbBnpsxAm
-	uNUfKum+gpB2tF4jOxwfLLeAUrye3WLkrtaWOcqWbeNKYB0oyIE7OfrlntLdfH44kAeX
-	+oRaUXWDZbfuuPb7+zXOEs1RZUPxNaybxnYWD1jhTTTxV4Xu0sralLruE+PSbTCEes1/
-	CoBUWpGj0LyP4rdOjfiM4QSZPHzu+c5PDgfZ2cD0VSfK6R/NpD8PF6cwCbPAdbNiyzEs
-	rbqg==
-Message-ID: <51C2A8AA.5010902@gmail.com>
-Date: Thu, 20 Jun 2013 15:00:58 +0800
+	bh=CsX3Z005Zm1tpugsSFwB+FK2Zx+NvZKtLJSjNy1jAiw=;
+	b=gudmRDLXBZi8EI0WLOTQkLGmYBpAIf0PSROU07yeQDucun5QL+qtLcdZ1YGMYXljG3
+	uLo9gKeOHuiWvTofzEbNwPxTZnJp4mEdPX3sbtNlkpXrU04fZL/IIF84DMP6t7Hiq5nw
+	V73toWA2ni1RelyjE2ivMcNmdSL1VmUgDpbcbgFpkkWCgsAAA361cUxisIP4yhjcDxbc
+	6XwEBmbi6Ue7WCzqmiBaktNblPzi8PciLKeMLcQHJj4/Qlqrrfd06acKZgSgagCtFvLg
+	XETAx+wnIB2cEJOXwZKETlDLwnjvh5HR89PpWtjwiCiUrMC6FL4X2zYlFXAJYL1KL6wa
+	z+aQ==
+Message-ID: <51C2B3A9.5070904@gmail.com>
+Date: Thu, 20 Jun 2013 15:47:53 +0800
 From: xiaoming gao <gxm.linux.kernel@gmail.com>
 MIME-Version: 1.0
 References: <51C2710D.2060405@gmail.com> <51C2721B.9050603@gmail.com>
 	<1371704129.3252.356.camel@edumazet-glaptop>
-In-Reply-To: <1371704129.3252.356.camel@edumazet-glaptop>
+	<51C2A8AA.5010902@gmail.com>
+	<1371713342.3252.371.camel@edumazet-glaptop>
+In-Reply-To: <1371713342.3252.371.camel@edumazet-glaptop>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] net bridge: add null pointer check, fix panic
@@ -30,42 +32,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Eric Dumazet <eric.dumazet@gmail.com>
 Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-Eric Dumazet said, at 2013-6-20 12:55:
-> On Thu, 2013-06-20 at 11:08 +0800, xiaoming gao wrote:
->> From: newtongao <newtongao@tencent.com>
->> Date: Wed, 19 Jun 2013 14:58:33 +0800
->> Subject: [PATCH] net bridge: add null pointer check,fix panic
+Eric Dumazet said, at 2013-6-20 15:29:
+> On Thu, 2013-06-20 at 15:00 +0800, xiaoming gao wrote:
+> 
+>> HI Eric
+>> the problem is as follow:
+>> br_del_if()-->del_nbp():
 >>
->> in kernel 3.0, br_port_get_rcu() may return NULL when network interface be deleting from bridge,
->> but in function br_handle_frame and br_handle_local_finish, the pointer didn't be checked before using,
->> so all br_port_get_rcu callers must do null check,or there occurs the null pointer panic.
+>> list_del_rcu(&p->list);
+>> dev->priv_flags &= ~IFF_BRIDGE_PORT;
 >>
->> kernel 3.4 also has this bug,i have verified.
->> mainline kernel still did not  check br_port_get_rcu()'s NULL pointer, but i have not tested it yet.
+>> ------>at this point, the nic be deleting still have rx_handler , so , may in br_handle_frame()
+>> ------>br_port_exists() will return false,so br_get_port_rcu() will return NULL
+>> ------>so in br_handle_frame , there will be a null panic.
+>>
+>> netdev_rx_handler_unregister(dev);
+>> synchronize_net();
 > 
-> Please check current version before sending a patch.
+> This code is no longer like that in current tree.
+> Check commit 4a0b5ec12f0ffc3024616e6dc62cf8a04c54edcd
+> ("bridge: remove a redundant synchronize_net()")
 > 
-> This was most probably fixed in commit 00cfec37484761a44
-> ("net: add a synchronize_net() in netdev_rx_handler_unregister()")
+>>
+>>
+>> i have checked commit 00cfec37484761a44, i think it didn't fix this bug..
 > 
-> Thanks
+> I claim adding NULL tests is not needed in the fast path, it was clearly
+> stated in the changelog.
+> 
+> I would change the dismantle path to make sure br_get_port_rcu() does
+> not return NULL in the fast path, and remove the test on FF_BRIDGE_PORT
+> 
+> Try something like that :
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index 1b8b8b8..2edfb80 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -60,7 +60,7 @@ static int br_pass_frame_up(struct sk_buff *skb)
+>  int br_handle_frame_finish(struct sk_buff *skb)
+>  {
+>  	const unsigned char *dest = eth_hdr(skb)->h_dest;
+> -	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
+> +	struct net_bridge_port *p = __br_port_get_rcu(skb->dev);
+>  	struct net_bridge *br;
+>  	struct net_bridge_fdb_entry *dst;
+>  	struct net_bridge_mdb_entry *mdst;
+> @@ -68,7 +68,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
+>  	bool unicast = true;
+>  	u16 vid = 0;
+>  
+> -	if (!p || p->state == BR_STATE_DISABLED)
+> +	if (p->state == BR_STATE_DISABLED)
+>  		goto drop;
+>  
+>  	if (!br_allowed_ingress(p->br, nbp_get_vlan_info(p), skb, &vid))
+> @@ -142,7 +142,7 @@ drop:
+>  /* note: already called with rcu_read_lock */
+>  static int br_handle_local_finish(struct sk_buff *skb)
+>  {
+> -	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
+> +	struct net_bridge_port *p = __br_port_get_rcu(skb->dev);
+>  	u16 vid = 0;
+>  
+>  	br_vlan_get_tag(skb, &vid);
+> @@ -172,7 +172,7 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+>  	if (!skb)
+>  		return RX_HANDLER_CONSUMED;
+>  
+> -	p = br_port_get_rcu(skb->dev);
+> +	p = __br_port_get_rcu(skb->dev);
+>  
+>  	if (unlikely(is_link_local_ether_addr(dest))) {
+>  		/*
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index 3be89b3..9fdd467 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -184,6 +184,11 @@ struct net_bridge_port
+>  
+>  #define br_port_exists(dev) (dev->priv_flags & IFF_BRIDGE_PORT)
+>  
+> +static inline struct net_bridge_port *__br_port_get_rcu(const struct net_device *dev)
+> +{
+> +	return rcu_dereference(dev->rx_handler_data);
+> +}
+> +
+>  static inline struct net_bridge_port *br_port_get_rcu(const struct net_device *dev)
+>  {
+>  	struct net_bridge_port *port =
 > 
 > 
-HI Eric
-the problem is as follow:
-br_del_if()-->del_nbp():
 
-list_del_rcu(&p->list);
-dev->priv_flags &= ~IFF_BRIDGE_PORT;
-
------->at this point, the nic be deleting still have rx_handler , so , may in br_handle_frame()
------->br_port_exists() will return false,so br_get_port_rcu() will return NULL
------->so in br_handle_frame , there will be a null panic.
-
-netdev_rx_handler_unregister(dev);
-synchronize_net();
-
-
-i have checked commit 00cfec37484761a44, i think it didn't fix this bug..
-
-thanks.
+if you remove the test on FF_BRIDGE_PORT, and br_port_get_rcu never returns NULL, the problem is fixed.
+but the codes in mainline is still bugged, am i right??
+by the way, kernel-stable 3.0 and 3.4 tree also have this bug, and is very easily to reproduce.
