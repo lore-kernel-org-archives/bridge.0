@@ -1,26 +1,12 @@
-Return-Path: <gxm.linux.kernel@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=CsX3Z005Zm1tpugsSFwB+FK2Zx+NvZKtLJSjNy1jAiw=;
-	b=gudmRDLXBZi8EI0WLOTQkLGmYBpAIf0PSROU07yeQDucun5QL+qtLcdZ1YGMYXljG3
-	uLo9gKeOHuiWvTofzEbNwPxTZnJp4mEdPX3sbtNlkpXrU04fZL/IIF84DMP6t7Hiq5nw
-	V73toWA2ni1RelyjE2ivMcNmdSL1VmUgDpbcbgFpkkWCgsAAA361cUxisIP4yhjcDxbc
-	6XwEBmbi6Ue7WCzqmiBaktNblPzi8PciLKeMLcQHJj4/Qlqrrfd06acKZgSgagCtFvLg
-	XETAx+wnIB2cEJOXwZKETlDLwnjvh5HR89PpWtjwiCiUrMC6FL4X2zYlFXAJYL1KL6wa
-	z+aQ==
-Message-ID: <51C2B3A9.5070904@gmail.com>
-Date: Thu, 20 Jun 2013 15:47:53 +0800
-From: xiaoming gao <gxm.linux.kernel@gmail.com>
+Return-Path: <yuval.shaia@oracle.com>
+Date: Thu, 20 Jun 2013 11:25:51 +0300
+From: Yuval Shaia <yuval.shaia@oracle.com>
+Message-ID: <20130620082550.GA19444@yuval-pc.uk.oracle.com>
 MIME-Version: 1.0
-References: <51C2710D.2060405@gmail.com> <51C2721B.9050603@gmail.com>
-	<1371704129.3252.356.camel@edumazet-glaptop>
-	<51C2A8AA.5010902@gmail.com>
-	<1371713342.3252.371.camel@edumazet-glaptop>
-In-Reply-To: <1371713342.3252.371.camel@edumazet-glaptop>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net bridge: add null pointer check, fix panic
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Add support for netconsole driver used on bridge device
+ with VIF attached
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,101 +15,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: xen-devel@lists.xensource.com, netdev@vger.kernel.org, ian.campbell@citrix.com, bridge@lists.linux-foundation.org
+Cc: yuval.shaia@oracle.com
 
-Eric Dumazet said, at 2013-6-20 15:29:
-> On Thu, 2013-06-20 at 15:00 +0800, xiaoming gao wrote:
-> 
->> HI Eric
->> the problem is as follow:
->> br_del_if()-->del_nbp():
->>
->> list_del_rcu(&p->list);
->> dev->priv_flags &= ~IFF_BRIDGE_PORT;
->>
->> ------>at this point, the nic be deleting still have rx_handler , so , may in br_handle_frame()
->> ------>br_port_exists() will return false,so br_get_port_rcu() will return NULL
->> ------>so in br_handle_frame , there will be a null panic.
->>
->> netdev_rx_handler_unregister(dev);
->> synchronize_net();
-> 
-> This code is no longer like that in current tree.
-> Check commit 4a0b5ec12f0ffc3024616e6dc62cf8a04c54edcd
-> ("bridge: remove a redundant synchronize_net()")
-> 
->>
->>
->> i have checked commit 00cfec37484761a44, i think it didn't fix this bug..
-> 
-> I claim adding NULL tests is not needed in the fast path, it was clearly
-> stated in the changelog.
-> 
-> I would change the dismantle path to make sure br_get_port_rcu() does
-> not return NULL in the fast path, and remove the test on FF_BRIDGE_PORT
-> 
-> Try something like that :
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 1b8b8b8..2edfb80 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -60,7 +60,7 @@ static int br_pass_frame_up(struct sk_buff *skb)
->  int br_handle_frame_finish(struct sk_buff *skb)
->  {
->  	const unsigned char *dest = eth_hdr(skb)->h_dest;
-> -	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
-> +	struct net_bridge_port *p = __br_port_get_rcu(skb->dev);
->  	struct net_bridge *br;
->  	struct net_bridge_fdb_entry *dst;
->  	struct net_bridge_mdb_entry *mdst;
-> @@ -68,7 +68,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
->  	bool unicast = true;
->  	u16 vid = 0;
->  
-> -	if (!p || p->state == BR_STATE_DISABLED)
-> +	if (p->state == BR_STATE_DISABLED)
->  		goto drop;
->  
->  	if (!br_allowed_ingress(p->br, nbp_get_vlan_info(p), skb, &vid))
-> @@ -142,7 +142,7 @@ drop:
->  /* note: already called with rcu_read_lock */
->  static int br_handle_local_finish(struct sk_buff *skb)
->  {
-> -	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
-> +	struct net_bridge_port *p = __br_port_get_rcu(skb->dev);
->  	u16 vid = 0;
->  
->  	br_vlan_get_tag(skb, &vid);
-> @@ -172,7 +172,7 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  	if (!skb)
->  		return RX_HANDLER_CONSUMED;
->  
-> -	p = br_port_get_rcu(skb->dev);
-> +	p = __br_port_get_rcu(skb->dev);
->  
->  	if (unlikely(is_link_local_ether_addr(dest))) {
->  		/*
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 3be89b3..9fdd467 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -184,6 +184,11 @@ struct net_bridge_port
->  
->  #define br_port_exists(dev) (dev->priv_flags & IFF_BRIDGE_PORT)
->  
-> +static inline struct net_bridge_port *__br_port_get_rcu(const struct net_device *dev)
-> +{
-> +	return rcu_dereference(dev->rx_handler_data);
-> +}
-> +
->  static inline struct net_bridge_port *br_port_get_rcu(const struct net_device *dev)
->  {
->  	struct net_bridge_port *port =
-> 
-> 
+When starting a VM which has virtual interface attached to the same
+bridge which is used for netconsole the system freeze for 60 then the
+following message pops out to system console:
+"Error: Device 0 (vif) could not be connected. Hotplug scripts not
+working."
 
-if you remove the test on FF_BRIDGE_PORT, and br_port_get_rcu never returns NULL, the problem is fixed.
-but the codes in mainline is still bugged, am i right??
-by the way, kernel-stable 3.0 and 3.4 tree also have this bug, and is very easily to reproduce.
+When trying to do the opposite, i.e. first create VM and then run
+netconsole i got the following error:
+"#524 - vif2.0 doesn't support polling, aborting."
+
+Following is my setup:
+
+----------                              ----------
+| VM A1  |------vif1.0----->|           | Host B |
+|--------|                  |--xenbr0   |        |
+| Host A |--bond0 (eth0)--->|           |        |
+----------          |                   ----------
+                    |                        |
+                    V                        V
+--------------------------------------------------
+|                      LAN                       |
+--------------------------------------------------
+
+I'm using netconsole to capture logs from Host-A and send them to
+Host-B. Host-A and Host-B are separate hosts (running XEN) which are
+connected to the same LAN.
+netconsole parameters:
+netconsole=1111@hostA-ip/xenbr0,2002@hostB-ip/hostB-mac
+
+As i see it, netconsole driver requires ndo_poll_controller from the
+device's controlling driver (function __netpoll_setup in
+net/core/netpoll.c), a thing that is not supported currently in
+xen_netback driver which is the driver that runs on dom0 and serve VM's
+virtual interface.
+call flow: init_netconsole() in netconsole.c -> alloc_param_target() ->
+netpoll_setup() in netpoll.c -> __netpoll_setup() which check if
+ndo_poll_controller().
+
+Looks like the underlying issue is that br_netpoll_setup() requires that
+all members of the bridge support netpoll before allowing netpoll to be
+enabled on the bridge itself.
+
+This seems like an odd restriction in the bridge driver since in
+principal only the port over which the netpoll traffic will be going
+will need netpoll, but perhaps the bridge can't tell which port that is
+or is going to be.
+It is obvious why the bridge device might need an ndo_poll_controller
+hook but it is unclear why the netback device would need one.
+
+Hopefully the bridge isn't flooding/broadcasting netpoll to all ports,
+at least in the case where DST IP and MAC have been specified. That
+would be rather inefficient, especially when most ports go to virtual
+machines.
+
+Yuval
