@@ -1,27 +1,13 @@
-Return-Path: <eric.dumazet@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:x-mailer:content-transfer-encoding:mime-version;
-	bh=byKKvl6+7EUQePfDqckW+RiyxtUsoaYyguRkZzf2F4E=;
-	b=F5fdyM1rnaiC8AgPcnrOBb7gf6mTl8a+9zBhGB1g3PeJjkH9bJt7s0EPtdZ6tkYnFQ
-	pnp4iS3TuYKMCnGsdBLCmkxDfNCkii0JJMJExmsyxrVmYR5YIDa/lw2yEZ9K7LPGdeQQ
-	0IT0UFEazZiW3SLx73O8uKyQT6aXU6lsv07os6JJa2kVr97leQC63Vddw/yghiQWnpHF
-	bgEJcI4IbzlEp03h1APfJ5Mx7PuUxWkk3XcuoXscc00Yu6rJxOZpsK7WuS8j7PAL6RdS
-	9MV2oHf4kFdhEggbC8Pvyf0LMAD+/dgO9wnk9Ayb8eRFW/o/+7puoYhbCmeExWZyYt2R
-	FWFA==
-Message-ID: <1371716040.3252.389.camel@edumazet-glaptop>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Thu, 20 Jun 2013 01:14:00 -0700
-In-Reply-To: <51C2B3A9.5070904@gmail.com>
-References: <51C2710D.2060405@gmail.com> <51C2721B.9050603@gmail.com>
-	<1371704129.3252.356.camel@edumazet-glaptop>
-	<51C2A8AA.5010902@gmail.com>
-	<1371713342.3252.371.camel@edumazet-glaptop>
-	<51C2B3A9.5070904@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-Subject: Re: [Bridge] [PATCH] net bridge: add null pointer check, fix panic
+Return-Path: <pneira@us.es>
+Date: Thu, 20 Jun 2013 12:23:52 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20130620102352.GA19813@localhost>
+References: <20130618074603.GF12329@elgon.mountain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130618074603.GF12329@elgon.mountain>
+Subject: Re: [Bridge] [patch] netfilter: prevent harmless integer overflow
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,19 +16,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: xiaoming gao <gxm.linux.kernel@gmail.com>
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter@vger.kernel.org, Bart De Schuymer <bart.de.schuymer@pandora.be>, netfilter-devel@vger.kernel.org, Patrick McHardy <kaber@trash.net>
 
-On Thu, 2013-06-20 at 15:47 +0800, xiaoming gao wrote:
-
+On Tue, Jun 18, 2013 at 10:46:03AM +0300, Dan Carpenter wrote:
+> This overflow is harmless because a few lines later we check:
 > 
-> if you remove the test on FF_BRIDGE_PORT, and br_port_get_rcu never returns NULL, the problem is fixed.
-> but the codes in mainline is still bugged, am i right??
-> by the way, kernel-stable 3.0 and 3.4 tree also have this bug, and is very easily to reproduce.
+> 	if (num_counters != t->private->nentries) {
+> 
+> But it still upsets the static checkers.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+> diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+> index 3d110c4..141350e 100644
+> --- a/net/bridge/netfilter/ebtables.c
+> +++ b/net/bridge/netfilter/ebtables.c
+> @@ -1278,6 +1278,8 @@ static int do_update_counters(struct net *net, const char *name,
+>  
+>  	if (num_counters == 0)
+>  		return -EINVAL;
+> +	if (num_counters > INT_MAX / sizeof(*tmp))
+> +		return -ENOMEM;
 
-Commit 00cfec37484761a4 has to be backported anyway, if not already
-backported.
-
-I would rather fix things properly, instead of adding defensive code.
-
-
+This is artificially limiting to INT_MAX / sizeof(struct counters).
+Before this patch, the limit is UINT_MAX / sizeof(struct counters). I
+think it's very unlikely to hit such a limit though, but as you
+mentioned we cover the overflow already. Adding it to calm down a
+static checker sound a bit too much for me.
