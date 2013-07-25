@@ -1,11 +1,13 @@
 Return-Path: <linus.luessing@web.de>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Thu, 25 Jul 2013 14:57:26 +0200
-Message-Id: <1374757046-12463-1-git-send-email-linus.luessing@web.de>
+Date: Thu, 25 Jul 2013 15:56:20 +0200
+Message-Id: <1374760580-12920-1-git-send-email-linus.luessing@web.de>
+In-Reply-To: <1374757046-12463-1-git-send-email-linus.luessing@web.de>
+References: <1374757046-12463-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] bridge: disable snooping if there is no querier
+Subject: [Bridge] [PATCHv2] bridge: disable snooping if there is no querier
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,11 +37,15 @@ before disabling the flooding behaviour again.
 
 Signed-off-by: Linus Lüssing <linus.luessing@web.de>
 ---
+v2: added missing, empty br_multicast_querier_exists() to avoid
+    build failures if CONFIG_BRIDGE_IGMP_SNOOPING is not set
+
+
  net/bridge/br_device.c    |    3 ++-
  net/bridge/br_input.c     |    3 ++-
  net/bridge/br_multicast.c |   41 ++++++++++++++++++++++++++++++++---------
- net/bridge/br_private.h   |   11 +++++++++++
- 4 files changed, 47 insertions(+), 11 deletions(-)
+ net/bridge/br_private.h   |   15 +++++++++++++++
+ 4 files changed, 51 insertions(+), 11 deletions(-)
 
 diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
 index 2ef6678..69363bd 100644
@@ -180,7 +186,7 @@ index 69af490..5b5b9c0 100644
  unlock:
  	spin_unlock_bh(&br->multicast_lock);
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 3be89b3..bbf5173 100644
+index 3be89b3..5c04658 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
 @@ -275,6 +275,7 @@ struct net_bridge
@@ -208,6 +214,17 @@ index 3be89b3..bbf5173 100644
  #else
  static inline int br_multicast_rcv(struct net_bridge *br,
  				   struct net_bridge_port *port,
+@@ -557,6 +568,10 @@ static inline bool br_multicast_is_router(struct net_bridge *br)
+ {
+ 	return 0;
+ }
++static inline bool br_multicast_querier_exists(struct net_bridge *br)
++{
++	return false;
++}
+ static inline void br_mdb_init(void)
+ {
+ }
 -- 
 1.7.10.4
 
