@@ -1,15 +1,15 @@
 Return-Path: <linus.luessing@web.de>
-Date: Thu, 25 Jul 2013 21:31:26 +0200
+Date: Sat, 27 Jul 2013 17:54:30 +0200
 From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
-Message-ID: <20130725193126.GC11914@Linus-Debian>
+Message-ID: <20130727155429.GE11914@Linus-Debian>
 References: <1374757046-12463-1-git-send-email-linus.luessing@web.de>
 	<1374760580-12920-1-git-send-email-linus.luessing@web.de>
-	<20130725090140.658f33f7@nehalam.linuxnetplumber.net>
+	<51F2F5D4.50409@baker-net.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20130725090140.658f33f7@nehalam.linuxnetplumber.net>
+In-Reply-To: <51F2F5D4.50409@baker-net.org.uk>
 Subject: Re: [Bridge] [PATCHv2] bridge: disable snooping if there is no
 	querier
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -20,96 +20,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Cong Wang <amwang@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Adam Baker <linux@baker-net.org.uk>, Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>
+To: Adam Baker <linux@baker-net.org.uk>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, Cong Wang <amwang@redhat.com>
 
-On Thu, Jul 25, 2013 at 09:01:40AM -0700, Stephen Hemminger wrote:
-> On Thu, 25 Jul 2013 15:56:20 +0200
-> Linus Lüssing <linus.luessing@web.de> wrote:
+On Fri, Jul 26, 2013 at 11:19:00PM +0100, Adam Baker wrote:
+> On 25/07/13 14:56, Linus Lüssing wrote:
+> >If there is no querier on a link then we won't get periodic reports and
+> >therefore won't be able to learn about multicast listeners behind ports,
+> >potentially leading to lost multicast packets, especially for multicast
+> >listeners that joined before the creation of the bridge.
+> >
+> >These lost multicast packets can appear since c5c23260594
+> >("bridge: Add multicast_querier toggle and disable queries by default")
+> >in particular.
+> >
+> >With this patch we are flooding multicast packets if our querier is
+> >disabled and if we didn't detect any other querier.
+> >
+> >A grace period of the Maximum Response Delay of the querier is added to
+> >give multicast responses enough time to arrive and to be learned from
+> >before disabling the flooding behaviour again.
+> >
+> >Signed-off-by: Linus Lüssing<linus.luessing@web.de>
 > 
-> >  
-> > +static void br_multicast_update_querier_timer(struct net_bridge *br,
-> > +					      unsigned long max_delay)
-> > +{
-> > +	if (!timer_pending(&br->multicast_querier_timer))
-> > +		atomic64_set(&br->multicast_querier_delay_time,
-> > +			     jiffies + max_delay);
-> > +
-> > +	mod_timer(&br->multicast_querier_timer,
-> > +		  jiffies + br->multicast_querier_interval);
-> > +}
-> > +
+> If the lack of queries if there is no other querier is unacceptable
+> to the majority of users (and I believe it is) then surely the
+> sensible option is to have the multicast querier toggle enabled by
+> default.
 > 
-> Isn't this test racing with timer expiration.
+> The toggle was added in the first place because the queries were
+> reported to be generating issues with certain other equipment. This
+> may have been because the queries by default have an invalid IP
+> address (although I have been unable to identify what equipment they
+> caused problems with so can't verify this).
 > 
-> static void br_multicast_update_querier_timer(struct net_bridge *br,
-> 					      unsigned long max_delay)
-> {
-> 	if (!timer_pending(&br->multicast_querier_timer))
-> 		atomic64_set(&br->multicast_querier_delay_time,
-> 			     jiffies + max_delay);
-> What if timer completes here?
-
-If the timer completes here, then for one thing this means that
-the query message is very late (we were supposed to have heard
-at least two query messages by now, query messages should by
-default arrive every 125 seconds, we are at 255 seconds now).
-
-Which in most cases would have the reason of the original querier
-having left.
-
-Not resetting the newly introduced
-br->multicast_querier_delay_time means that we won't switch back
-to flooding for a grace period (which we would have done if the
-timer had completed three lines earlier).
-
-So the question is, does refraining from switching back to
-flooding for the grace period result in any packet loss in this
-scenario?
-
-Yes and no. Our current records from the previous multicast
-listener reports are still valid until
-br->multicast_membership_interval, so for another 5 seconds.
-So in the worst case we can have lost multicast packets for
-up to five seconds for some listeners.
-
-However, normal multicast routers would have the same issue for
-this five seconds period. So to me it looks like this is
-actually a bug in RFC2710, section 7.4 - Multicast Listener
-Interval: We and multicast routers wouldn't have that problem if
-it were 'plus (one _and a half_ Query Response Interval)' instead.
-
-So maybe we could just increase br->multicast_membership_interval
-from 260 to 265 with another patch?
-
-
-Despite from that I don't see which other issues could arise from
-the race you pointed out here.
-
+> If the only reason to turn the querier off is because it interferes
+> with other equipment then the solution to it being off by default
+> isn't to generate queries in some instances even if it is off but
+> rather to turn it on by default and only turn it off if it causes
+> problems. If multicast_query_use_ifaddr was also enabled by default
+> the the likelihood of the querier causing problems elsewhere should
+> be reduced.
 > 
-> 	mod_timer(&br->multicast_querier_timer,
-> 		  jiffies + br->multicast_querier_interval);
-> }
+> Regards
 > 
-> 
-> And another race if timer goes off?
-> 
-> static void br_multicast_update_querier_timer(struct net_bridge *br,
-> 					      unsigned long max_delay)
-> {
-> 	if (!timer_pending(&br->multicast_querier_timer))
-> 		atomic64_set(&br->multicast_querier_delay_time,
-> 			     jiffies + max_delay);
-> Timer fires here...?
-> 
-> 	mod_timer(&br->multicast_querier_timer,
-> 		  jiffies + br->multicast_querier_interval);
-> }
+> Adam
 
-Hm? Sorry, I don't quite see how this race differs from the one
-you pointed out before.
+One more, general disadvantage I could see is, that in a network
+with multiple bridges basically a random one would become the querier
+and the according network segment would get hit by all the
+according multicast traffic. If the available bandwidth of links
+on your network varies, then you however usually want to have the
+querier in a "good" position of your network. Which might be a
+little harder to control if the querier is on by default.
 
-
-Thanks for looking at this patch so far!
+Also this specific, current querier implementation has two more
+disadvantages: 
+* It's doing MLDv1/IGMPv2 queries, so it downgrades our whole
+  network to MLDv1/IGMPv2, no MLDv2/IGMPv3 and source specific
+  multicast could be used.
+* The querier selection is not RFC compliant (we should refrain
+  from sending queries if our address is higher, not if we hear
+  any query)
 
 Cheers, Linus
