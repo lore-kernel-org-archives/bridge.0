@@ -1,14 +1,16 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 07 Aug 2013 10:36:47 -0700 (PDT)
-Message-Id: <20130807.103647.1670328190517907961.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <520046FE.3010305@gmail.com>
-References: <520046FE.3010305@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <52093E29.5010604@redhat.com>
+Date: Mon, 12 Aug 2013 15:57:29 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
+MIME-Version: 1.0
+References: <52090C26.4090001@fiberby.net>
+	<1376325009-8399-1-git-send-email-ast@fiberby.net>
+In-Reply-To: <1376325009-8399-1-git-send-email-ast@fiberby.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: correct the comment for file
-	br_sysfs_br.c
+Subject: Re: [Bridge] [PATCH] rtnetlink: rtnl_bridge_getlink: Call
+ nlmsg_find_attr() with ifinfomsg header
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,16 +19,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: shhuiw@gmail.com
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Asbjoern Sloth Toennesen <ast@fiberby.net>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 
-From: Wang Sheng-Hui <shhuiw@gmail.com>
-Date: Tue, 06 Aug 2013 08:44:46 +0800
+On 08/12/2013 12:30 PM, Asbjoern Sloth Toennesen wrote:
+> Fix the iproute2 command `bridge vlan show`, after switching from
+> rtgenmsg to ifinfomsg.
+>
+> Signed-off-by: Asbjoern Sloth Toennesen <ast@fiberby.net>
 
-> 
-> br_sysfs_if.c is for sysfs attributes of bridge ports, while br_sysfs_br.c
-> is for sysfs attributes of bridge itself. Correct the comment here.
-> 
-> Signed-off-by: Wang Sheng-Hui <shhuiw@gmail.com>
 
-Applied.
+Thanks..  I've still been using an older iproute version and didn't see 
+this.
+
+
+Reviewed-by: Vlad Yasevich <vyasevich@gmail.com>
+> ---
+>   net/core/rtnetlink.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+> index 3de7408..a043171 100644
+> --- a/net/core/rtnetlink.c
+> +++ b/net/core/rtnetlink.c
+> @@ -2384,7 +2384,7 @@ static int rtnl_bridge_getlink(struct sk_buff *skb, struct netlink_callback *cb)
+>   	struct nlattr *extfilt;
+>   	u32 filter_mask = 0;
+>
+> -	extfilt = nlmsg_find_attr(cb->nlh, sizeof(struct rtgenmsg),
+> +	extfilt = nlmsg_find_attr(cb->nlh, sizeof(struct ifinfomsg),
+>   				  IFLA_EXT_MASK);
+>   	if (extfilt)
+>   		filter_mask = nla_get_u32(extfilt);
+>
+
