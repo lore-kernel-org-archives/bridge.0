@@ -1,18 +1,11 @@
-Return-Path: <skraw@ithnet.com>
-Date: Mon, 26 Aug 2013 12:21:13 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-Message-Id: <20130826122113.805482d8.skraw@ithnet.com>
-In-Reply-To: <CAL3LdT62oN3hdrDy2DL_Mk9+vUAsRzxaSjY5O87HbHgsjG+V6Q@mail.gmail.com>
-References: <20130822224453.ca93782f.skraw@ithnet.com>
-	<20130822234941.4affc863@catus>
-	<20130822151941.301cd36a@nehalam.linuxnetplumber.net>
-	<20130823062234.c34a6da6.skraw@ithnet.com>
-	<CAL3LdT62oN3hdrDy2DL_Mk9+vUAsRzxaSjY5O87HbHgsjG+V6Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Can linux kernel bridge forward 802.1q tagged vlan
- packets?
+Return-Path: <gregkh@linuxfoundation.org>
+Date: Thu, 22 Aug 2013 11:30:48 -0700
+From: Greg KH <gregkh@linuxfoundation.org>
+Message-ID: <20130822183048.GA6517@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [RFC PATCH] bridge sysfs binary file simplification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,67 +14,99 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Cc: bridge@lists.linux-foundation.org, Marek Kierdelewicz <marek@piasta.pl>, mitch.a.williams@intel.com, Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, Carolyn Wyborny <carolyn.wyborny@intel.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Thu, 22 Aug 2013 21:58:58 -0700
-Jeff Kirsher <jeffrey.t.kirsher@intel.com> wrote:
+From: Greg KH <gregkh@linuxfoundation.org>
 
-> Adding Carolyn Wyborny (igb maintainer) and Mitch Williams (igbvf maintainer)...
-> 
-> On Thu, Aug 22, 2013 at 9:22 PM, Stephan von Krawczynski
-> <skraw@ithnet.com> wrote:
-> > On Thu, 22 Aug 2013 15:19:41 -0700
-> > Stephen Hemminger <stephen@networkplumber.org> wrote:
-> >
-> >> On Thu, 22 Aug 2013 23:49:41 +0200
-> >> Marek Kierdelewicz <marek@piasta.pl> wrote:
-> >>
-> >> > Hi,
-> >> >
-> >> > >My general idea is to bridge tagged vlan packets from a physical
-> >> > >interface (intel) to a virtual interface (virtio in qemu) and not
-> >> > >losing the tags, so the qemu guest can use vconfig and friends to get
-> >> > >some vlan interfaces. Is this possible and are there any additional
-> >> > >steps necessary besides the usual bridge configuration?
-> >> >
-> >> > I'm using this setup with KVM virtualization (Qemu's successor). It
-> >> > didn't work with default nic type for guest (realtek I think) as 802.1q
-> >> > tags were not preserved properly in one of the directions. I don't
-> >> > remember specifics. Anyway using e1000 driver instead of default fixed
-> >> > it. Works like a charm.
-> >>
-> >> KVM e1000 Vnic doesn't do VLAN offloading at least in my experience.
-> >> Virtio works fine.
-> >
-> > Ok guys, here is one of the major questions in this issue:
-> >
-> > How did you manage to convince the _host_ interface driver (in my setup "igb"
-> > from intel) to get the vlan tagged packets from the LAN port. igb has a vlan
-> > filter function built in and reads _no_ tagged packets at all if the driver
-> > does not tell it to. And in case of "up-ing" the interface for attachment to a
-> > bridge it does not configure this vlan filter.
-> > How is this expected to work?
-> >
-> > --
-> > Regards,
-> > Stephan
+Attribute groups now can handle binary sysfs files, so move the bridge
+binary sysfs file to be part of the larger bridge group, saving code.
 
-Thanks Jeff,
-
-so, since we are all here now :-) who can explain how one can tell either the
-bridge or the attached network device to include certain VLAN IDs in its
-HW filters so that these can be forwarded through the bridge?
-From the current infos it looks like a cheap network card with no HW filters
-would just work (if I understood Stephen). But since most servers have either
-intel cards or intel onboard chips (and they are brilliant in performance btw)
-me and probably lots of others seem to need some solution that isn't currently
-available. I would love to see something that really allows the card to still
-use the filters and not switch it in complete promiscous mode so that every
-packets floats in.
-Any ideas?
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 -- 
-Regards,
-Stephan
 
+Stephen, this moves the binary sysfs file to be within the bridge
+subdirectory, a change from where it is today, right?  Was the file
+created intentionally outside of the subdir, or was it meant to be
+within it?
+
+If tools can't handle this file moving, then never mind with this patch,
+it is part of my larger "audit the sysfs binary files" work that I'm
+currently doing.
+
+Also note, the sysfs file size is currently set to be 0, is that
+intentional?
+
+ net/bridge/br_sysfs_br.c |   32 ++++++++++++--------------------
+ 1 file changed, 12 insertions(+), 20 deletions(-)
+
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 394bb96b..0d5862ea 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -782,11 +782,6 @@ static struct attribute *bridge_attrs[] = {
+ 	NULL
+ };
+ 
+-static struct attribute_group bridge_group = {
+-	.name = SYSFS_BRIDGE_ATTR,
+-	.attrs = bridge_attrs,
+-};
+-
+ /*
+  * Export the forwarding information table as a binary file
+  * The records are struct __fdb_entry.
+@@ -815,10 +810,17 @@ static ssize_t brforward_read(struct file *filp, struct kobject *kobj,
+ 	return n;
+ }
+ 
+-static struct bin_attribute bridge_forward = {
+-	.attr = { .name = SYSFS_BRIDGE_FDB,
+-		  .mode = S_IRUGO, },
+-	.read = brforward_read,
++static BIN_ATTR_RO(brforward, 0);
++
++static struct bin_attribute *bridge_bin_attrs[] = {
++	&bin_attr_brforward,
++	NULL,
++};
++
++static struct attribute_group bridge_group = {
++	.name = SYSFS_BRIDGE_ATTR,
++	.attrs = bridge_attrs,
++	.bin_attrs = bridge_bin_attrs,
+ };
+ 
+ /*
+@@ -845,22 +847,13 @@ int br_sysfs_addbr(struct net_device *dev)
+ 		goto out1;
+ 	}
+ 
+-	err = sysfs_create_bin_file(brobj, &bridge_forward);
+-	if (err) {
+-		pr_info("%s: can't create attribute file %s/%s\n",
+-			__func__, dev->name, bridge_forward.attr.name);
+-		goto out2;
+-	}
+-
+ 	br->ifobj = kobject_create_and_add(SYSFS_BRIDGE_PORT_SUBDIR, brobj);
+ 	if (!br->ifobj) {
+ 		pr_info("%s: can't add kobject (directory) %s/%s\n",
+ 			__func__, dev->name, SYSFS_BRIDGE_PORT_SUBDIR);
+-		goto out3;
++		goto out2;
+ 	}
+ 	return 0;
+- out3:
+-	sysfs_remove_bin_file(&dev->dev.kobj, &bridge_forward);
+  out2:
+ 	sysfs_remove_group(&dev->dev.kobj, &bridge_group);
+  out1:
+@@ -874,6 +867,5 @@ void br_sysfs_delbr(struct net_device *dev)
+ 	struct net_bridge *br = netdev_priv(dev);
+ 
+ 	kobject_put(br->ifobj);
+-	sysfs_remove_bin_file(kobj, &bridge_forward);
+ 	sysfs_remove_group(kobj, &bridge_group);
+ }
