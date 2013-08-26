@@ -1,27 +1,12 @@
-Return-Path: <jpereiran@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc:content-type:content-transfer-encoding;
-	bh=P2sWp99X8wfyoaSVqnGkZTLpdSZF6Fg8Sk65gMBiGu4=;
-	b=TxlNiPrGu2YHbREk7vTSs/KkqXVlBk2meU1w7bzeNup0eIIFHxMZEj+BKkp54Qw1A1
-	kRzMzCqOwW9mOjTvtSUN3J/kFe8UgUmeI8NvfrzeaqRf0zT/eD8t94vH5VvTzT08a+9e
-	el8x1ihhf6cXNf/kuW9fOug6vxo4Jha5+Zk96DbbczW1u75gysHs6BzJGH8plKp1j8q2
-	Sf+JZXn9GpiRRZe97AkwrYHmzksJ8MXYN1UMPkSeA1zlPe6iVXFFxr3N+JETQlhp8a67
-	3LCqyAK4XNo9WV3jlwCM2fJUcxqkFtTu3EANH/PTW/CnQPaX5pUdDlWDdF6eGKCadLBN
-	rVTQ==
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Mon, 26 Aug 2013 12:01:06 +0200
+Message-Id: <1377511266-14530-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-In-Reply-To: <CAKiAkGTdiV5NwEaEjWMmY1cgjbyA1+gox2q7-ckVGZ1x199QXQ@mail.gmail.com>
-References: <CABvP5W17XQ16mRsVhTFEUf9AbyGd+WQSV0hBozDy3rANUSKofw@mail.gmail.com>
-	<CAKiAkGTtgBXU9fQbvzoXPC+DO+DtM0xG73psUCDE43CgvK62oQ@mail.gmail.com>
-	<CABvP5W1jER8Db_XbHxUioz+h4RgZAOVWi3n4QH7R+qRp41tzNw@mail.gmail.com>
-	<CAKiAkGTdiV5NwEaEjWMmY1cgjbyA1+gox2q7-ckVGZ1x199QXQ@mail.gmail.com>
-From: Jorge Pereira <jpereiran@gmail.com>
-Date: Sun, 25 Aug 2013 21:34:00 -0300
-Message-ID: <CABvP5W2WiQtkgHZrtytjAhqb7eRffiTFnURY66xhdgORzonYDQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] challenge of year: connect to LAN using wireless-ap
- over bridge + unmanaged l2tpv3 tunnel + bridge? it's possible?
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] bridge: separate querier and query timer into
+	IGMP/IPv4 and MLD/IPv6 ones
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,384 +15,784 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Joel_Wir=C4=81mu_Pauling?= <joel@aenertia.net>
-Cc: Openl2tp-users@lists.sourceforge.net, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, lartc <lartc@vger.kernel.org>
+To: bridge@lists.linux-foundation.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Adam Baker <linux@baker-net.org.uk>, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>, Cong Wang <amwang@redhat.com>
 
-On Sun, Aug 25, 2013 at 9:06 PM, Joel Wir=C4=81mu Pauling <joel@aenertia.ne=
-t> wrote:
-> What are your MTU settings?
+Currently we would still potentially suffer multicast packet loss if there
+is just either an IGMP or an MLD querier: For the former case, we would
+possibly drop IPv6 multicast packets, for the latter IPv4 ones. This is
+because we are currently assuming that if either an IGMP or MLD querier
+is present that the other one is present, too.
 
-i've using 1488 (default of L2TPv3) in all interfaces.
+This patch makes the behaviour and fix added in
+"bridge: disable snooping if there is no querier" (b00589af3b04)
+to also work if there is either just an IGMP or an MLD querier on the
+link: It refines the deactivation of the snooping to be protocol
+specific by using separate timers for the snooped IGMP and MLD queries
+as well as separate timers for our internal IGMP and MLD queriers.
 
-> All interfaces inside a bridge must have the the MTU of the smallest ; in
-> some versions of bridge-utils you can add mismatched interface mtu's and
-> everything breaks.
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_device.c    |    2 +-
+ net/bridge/br_input.c     |    2 +-
+ net/bridge/br_mdb.c       |   14 +-
+ net/bridge/br_multicast.c |  338 +++++++++++++++++++++++++++++++++++----------
+ net/bridge/br_private.h   |   47 +++++--
+ 5 files changed, 313 insertions(+), 90 deletions(-)
 
-i didn't find any option like that in brctl
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 69363bd..89659d4 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -71,7 +71,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 		mdst = br_mdb_get(br, skb, vid);
+ 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+-		    br_multicast_querier_exists(br))
++		    br_multicast_querier_exists(br, eth_hdr(skb)))
+ 			br_multicast_deliver(mdst, skb);
+ 		else
+ 			br_flood_deliver(br, skb, false);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 8c561c0..a2fd37e 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -102,7 +102,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
+ 	} else if (is_multicast_ether_addr(dest)) {
+ 		mdst = br_mdb_get(br, skb, vid);
+ 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+-		    br_multicast_querier_exists(br)) {
++		    br_multicast_querier_exists(br, eth_hdr(skb))) {
+ 			if ((mdst && mdst->mglist) ||
+ 			    br_multicast_is_router(br))
+ 				skb2 = skb;
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 0daae3e..6053b96 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -414,16 +414,20 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 	if (!netif_running(br->dev) || br->multicast_disabled)
+ 		return -EINVAL;
+ 
+-	if (timer_pending(&br->multicast_querier_timer))
+-		return -EBUSY;
+-
+ 	ip.proto = entry->addr.proto;
+-	if (ip.proto == htons(ETH_P_IP))
++	if (ip.proto == htons(ETH_P_IP)) {
++		if (timer_pending(&br->ip4_multicast_querier_timer))
++			return -EBUSY;
++
+ 		ip.u.ip4 = entry->addr.u.ip4;
+ #if IS_ENABLED(CONFIG_IPV6)
+-	else
++	} else {
++		if (timer_pending(&br->ip6_multicast_querier_timer))
++			return -EBUSY;
++
+ 		ip.u.ip6 = entry->addr.u.ip6;
+ #endif
++	}
+ 
+ 	spin_lock_bh(&br->multicast_lock);
+ 	mdb = mlock_dereference(br->mdb, br);
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 08e576a..e1c01f4 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -33,7 +33,10 @@
+ 
+ #include "br_private.h"
+ 
+-static void br_multicast_start_querier(struct net_bridge *br);
++static void br_ip4_multicast_start_querier(struct net_bridge *br);
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_start_querier(struct net_bridge *br);
++#endif
+ unsigned int br_mdb_rehash_seq;
+ 
+ static inline int br_ip_equal(const struct br_ip *a, const struct br_ip *b)
+@@ -755,7 +758,22 @@ static void br_multicast_local_router_expired(unsigned long data)
+ {
+ }
+ 
+-static void br_multicast_querier_expired(unsigned long data)
++static void br_ip4_multicast_querier_expired(unsigned long data)
++{
++	struct net_bridge *br = (void *)data;
++
++	spin_lock(&br->multicast_lock);
++	if (!netif_running(br->dev) || br->multicast_disabled)
++		goto out;
++
++	br_ip4_multicast_start_querier(br);
++
++out:
++	spin_unlock(&br->multicast_lock);
++}
++
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_querier_expired(unsigned long data)
+ {
+ 	struct net_bridge *br = (void *)data;
+ 
+@@ -763,11 +781,12 @@ static void br_multicast_querier_expired(unsigned long data)
+ 	if (!netif_running(br->dev) || br->multicast_disabled)
+ 		goto out;
+ 
+-	br_multicast_start_querier(br);
++	br_ip6_multicast_start_querier(br);
+ 
+ out:
+ 	spin_unlock(&br->multicast_lock);
+ }
++#endif
+ 
+ static void __br_multicast_send_query(struct net_bridge *br,
+ 				      struct net_bridge_port *port,
+@@ -788,15 +807,15 @@ static void __br_multicast_send_query(struct net_bridge *br,
+ 		netif_rx(skb);
+ }
+ 
+-static void br_multicast_send_query(struct net_bridge *br,
+-				    struct net_bridge_port *port, u32 sent)
++static void br_ip4_multicast_send_query(struct net_bridge *br,
++					struct net_bridge_port *port, u32 sent)
+ {
+ 	unsigned long time;
+ 	struct br_ip br_group;
+ 
+ 	if (!netif_running(br->dev) || br->multicast_disabled ||
+ 	    !br->multicast_querier ||
+-	    timer_pending(&br->multicast_querier_timer))
++	    timer_pending(&br->ip4_multicast_querier_timer))
+ 		return;
+ 
+ 	memset(&br_group.u, 0, sizeof(br_group.u));
+@@ -804,20 +823,41 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 	br_group.proto = htons(ETH_P_IP);
+ 	__br_multicast_send_query(br, port, &br_group);
+ 
++	time = jiffies;
++	time += sent < br->multicast_startup_query_count ?
++		br->multicast_startup_query_interval :
++		br->multicast_query_interval;
++	mod_timer(port ? &port->ip4_multicast_query_timer :
++			 &br->ip4_multicast_query_timer, time);
++}
++
+ #if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_send_query(struct net_bridge *br,
++					struct net_bridge_port *port, u32 sent)
++{
++	unsigned long time;
++	struct br_ip br_group;
++
++	if (!netif_running(br->dev) || br->multicast_disabled ||
++	    !br->multicast_querier ||
++	    timer_pending(&br->ip6_multicast_querier_timer))
++		return;
++
++	memset(&br_group.u, 0, sizeof(br_group.u));
++
+ 	br_group.proto = htons(ETH_P_IPV6);
+ 	__br_multicast_send_query(br, port, &br_group);
+-#endif
+ 
+ 	time = jiffies;
+ 	time += sent < br->multicast_startup_query_count ?
+ 		br->multicast_startup_query_interval :
+ 		br->multicast_query_interval;
+-	mod_timer(port ? &port->multicast_query_timer :
+-			 &br->multicast_query_timer, time);
++	mod_timer(port ? &port->ip6_multicast_query_timer :
++			 &br->ip6_multicast_query_timer, time);
+ }
++#endif
+ 
+-static void br_multicast_port_query_expired(unsigned long data)
++static void br_ip4_multicast_port_query_expired(unsigned long data)
+ {
+ 	struct net_bridge_port *port = (void *)data;
+ 	struct net_bridge *br = port->br;
+@@ -827,25 +867,52 @@ static void br_multicast_port_query_expired(unsigned long data)
+ 	    port->state == BR_STATE_BLOCKING)
+ 		goto out;
+ 
+-	if (port->multicast_startup_queries_sent <
++	if (port->ip4_multicast_startup_queries_sent <
+ 	    br->multicast_startup_query_count)
+-		port->multicast_startup_queries_sent++;
++		port->ip4_multicast_startup_queries_sent++;
+ 
+-	br_multicast_send_query(port->br, port,
+-				port->multicast_startup_queries_sent);
++	br_ip4_multicast_send_query(port->br, port,
++				    port->ip4_multicast_startup_queries_sent);
+ 
+ out:
+ 	spin_unlock(&br->multicast_lock);
+ }
+ 
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_port_query_expired(unsigned long data)
++{
++	struct net_bridge_port *port = (void *)data;
++	struct net_bridge *br = port->br;
++
++	spin_lock(&br->multicast_lock);
++	if (port->state == BR_STATE_DISABLED ||
++	    port->state == BR_STATE_BLOCKING)
++		goto out;
++
++	if (port->ip6_multicast_startup_queries_sent <
++	    br->multicast_startup_query_count)
++		port->ip6_multicast_startup_queries_sent++;
++
++	br_ip6_multicast_send_query(port->br, port,
++				    port->ip6_multicast_startup_queries_sent);
++
++out:
++	spin_unlock(&br->multicast_lock);
++}
++#endif
++
+ void br_multicast_add_port(struct net_bridge_port *port)
+ {
+ 	port->multicast_router = 1;
+ 
+ 	setup_timer(&port->multicast_router_timer, br_multicast_router_expired,
+ 		    (unsigned long)port);
+-	setup_timer(&port->multicast_query_timer,
+-		    br_multicast_port_query_expired, (unsigned long)port);
++	setup_timer(&port->ip4_multicast_query_timer,
++		    br_ip4_multicast_port_query_expired, (unsigned long)port);
++#if IS_ENABLED(CONFIG_IPV6)
++	setup_timer(&port->ip6_multicast_query_timer,
++		    br_ip6_multicast_port_query_expired, (unsigned long)port);
++#endif
+ }
+ 
+ void br_multicast_del_port(struct net_bridge_port *port)
+@@ -853,14 +920,25 @@ void br_multicast_del_port(struct net_bridge_port *port)
+ 	del_timer_sync(&port->multicast_router_timer);
+ }
+ 
+-static void __br_multicast_enable_port(struct net_bridge_port *port)
++static void __br_ip4_multicast_enable_port(struct net_bridge_port *port)
++{
++	port->ip4_multicast_startup_queries_sent = 0;
++
++	if (try_to_del_timer_sync(&port->ip4_multicast_query_timer) >= 0 ||
++	    del_timer(&port->ip4_multicast_query_timer))
++		mod_timer(&port->ip4_multicast_query_timer, jiffies);
++}
++
++#if IS_ENABLED(CONFIG_IPV6)
++static void __br_ip6_multicast_enable_port(struct net_bridge_port *port)
+ {
+-	port->multicast_startup_queries_sent = 0;
++	port->ip6_multicast_startup_queries_sent = 0;
+ 
+-	if (try_to_del_timer_sync(&port->multicast_query_timer) >= 0 ||
+-	    del_timer(&port->multicast_query_timer))
+-		mod_timer(&port->multicast_query_timer, jiffies);
++	if (try_to_del_timer_sync(&port->ip6_multicast_query_timer) >= 0 ||
++	    del_timer(&port->ip6_multicast_query_timer))
++		mod_timer(&port->ip6_multicast_query_timer, jiffies);
+ }
++#endif
+ 
+ void br_multicast_enable_port(struct net_bridge_port *port)
+ {
+@@ -870,7 +948,10 @@ void br_multicast_enable_port(struct net_bridge_port *port)
+ 	if (br->multicast_disabled || !netif_running(br->dev))
+ 		goto out;
+ 
+-	__br_multicast_enable_port(port);
++	__br_ip4_multicast_enable_port(port);
++#if IS_ENABLED(CONFIG_IPV6)
++	__br_ip6_multicast_enable_port(port);
++#endif
+ 
+ out:
+ 	spin_unlock(&br->multicast_lock);
+@@ -889,7 +970,8 @@ void br_multicast_disable_port(struct net_bridge_port *port)
+ 	if (!hlist_unhashed(&port->rlist))
+ 		hlist_del_init_rcu(&port->rlist);
+ 	del_timer(&port->multicast_router_timer);
+-	del_timer(&port->multicast_query_timer);
++	del_timer(&port->ip4_multicast_query_timer);
++	del_timer(&port->ip6_multicast_query_timer);
+ 	spin_unlock(&br->multicast_lock);
+ }
+ 
+@@ -1014,16 +1096,28 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
+ }
+ #endif
+ 
+-static void br_multicast_update_querier_timer(struct net_bridge *br,
+-					      unsigned long max_delay)
++static void br_ip4_multicast_update_querier_timer(struct net_bridge *br,
++						  unsigned long max_delay)
+ {
+-	if (!timer_pending(&br->multicast_querier_timer))
+-		br->multicast_querier_delay_time = jiffies + max_delay;
++	if (!timer_pending(&br->ip4_multicast_querier_timer))
++		br->ip4_multicast_querier_delay_time = jiffies + max_delay;
+ 
+-	mod_timer(&br->multicast_querier_timer,
++	mod_timer(&br->ip4_multicast_querier_timer,
+ 		  jiffies + br->multicast_querier_interval);
+ }
+ 
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_update_querier_timer(struct net_bridge *br,
++						  unsigned long max_delay)
++{
++	if (!timer_pending(&br->ip6_multicast_querier_timer))
++		br->ip6_multicast_querier_delay_time = jiffies + max_delay;
++
++	mod_timer(&br->ip6_multicast_querier_timer,
++		  jiffies + br->multicast_querier_interval);
++}
++#endif
++
+ /*
+  * Add port to router_list
+  *  list is maintained ordered by pointer value
+@@ -1072,18 +1166,33 @@ timer:
+ 		  now + br->multicast_querier_interval);
+ }
+ 
+-static void br_multicast_query_received(struct net_bridge *br,
+-					struct net_bridge_port *port,
+-					int saddr,
+-					unsigned long max_delay)
++static void br_ip4_multicast_query_received(struct net_bridge *br,
++					    struct net_bridge_port *port,
++					    int saddr,
++					    unsigned long max_delay)
++{
++	if (saddr)
++		br_ip4_multicast_update_querier_timer(br, max_delay);
++	else if (timer_pending(&br->ip4_multicast_querier_timer))
++		return;
++
++	br_multicast_mark_router(br, port);
++}
++
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_query_received(struct net_bridge *br,
++					    struct net_bridge_port *port,
++					    int saddr,
++					    unsigned long max_delay)
+ {
+ 	if (saddr)
+-		br_multicast_update_querier_timer(br, max_delay);
+-	else if (timer_pending(&br->multicast_querier_timer))
++		br_ip6_multicast_update_querier_timer(br, max_delay);
++	else if (timer_pending(&br->ip6_multicast_querier_timer))
+ 		return;
+ 
+ 	br_multicast_mark_router(br, port);
+ }
++#endif
+ 
+ static int br_ip4_multicast_query(struct net_bridge *br,
+ 				  struct net_bridge_port *port,
+@@ -1129,7 +1238,7 @@ static int br_ip4_multicast_query(struct net_bridge *br,
+ 			    IGMPV3_MRC(ih3->code) * (HZ / IGMP_TIMER_SCALE) : 1;
+ 	}
+ 
+-	br_multicast_query_received(br, port, !!iph->saddr, max_delay);
++	br_ip4_multicast_query_received(br, port, !!iph->saddr, max_delay);
+ 
+ 	if (!group)
+ 		goto out;
+@@ -1206,8 +1315,8 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 		max_delay = mld2q->mld2q_mrc ? MLDV2_MRC(ntohs(mld2q->mld2q_mrc)) : 1;
+ 	}
+ 
+-	br_multicast_query_received(br, port, !ipv6_addr_any(&ip6h->saddr),
+-				    max_delay);
++	br_ip6_multicast_query_received(br, port, !ipv6_addr_any(&ip6h->saddr),
++					max_delay);
+ 
+ 	if (!group)
+ 		goto out;
+@@ -1252,25 +1361,23 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 	unsigned long now;
+ 	unsigned long time;
+ 
+-	spin_lock(&br->multicast_lock);
+-	if (!netif_running(br->dev) ||
+-	    (port && port->state == BR_STATE_DISABLED) ||
+-	    timer_pending(&br->multicast_querier_timer))
+-		goto out;
+-
+ 	mdb = mlock_dereference(br->mdb, br);
+ 	mp = br_mdb_ip_get(mdb, group);
+ 	if (!mp)
+-		goto out;
++		return;
+ 
+-	if (br->multicast_querier &&
+-	    !timer_pending(&br->multicast_querier_timer)) {
++	if (br->multicast_querier) {
+ 		__br_multicast_send_query(br, port, &mp->addr);
+ 
+ 		time = jiffies + br->multicast_last_member_count *
+ 				 br->multicast_last_member_interval;
+-		mod_timer(port ? &port->multicast_query_timer :
+-				 &br->multicast_query_timer, time);
++
++		if (group->proto == htons(ETH_P_IP))
++			mod_timer(port ? &port->ip4_multicast_query_timer :
++				  &br->ip4_multicast_query_timer, time);
++		else
++			mod_timer(port ? &port->ip6_multicast_query_timer :
++				  &br->ip6_multicast_query_timer, time);
+ 
+ 		for (p = mlock_dereference(mp->ports, br);
+ 		     p != NULL;
+@@ -1308,7 +1415,7 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 			    netif_running(br->dev))
+ 				mod_timer(&mp->timer, jiffies);
+ 		}
+-		goto out;
++		return;
+ 	}
+ 
+ 	now = jiffies;
+@@ -1323,9 +1430,6 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 			mod_timer(&mp->timer, time);
+ 		}
+ 	}
+-
+-out:
+-	spin_unlock(&br->multicast_lock);
+ }
+ 
+ static void br_ip4_multicast_leave_group(struct net_bridge *br,
+@@ -1342,7 +1446,15 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
+ 	br_group.proto = htons(ETH_P_IP);
+ 	br_group.vid = vid;
+ 
++	spin_lock(&br->multicast_lock);
++	if (!netif_running(br->dev) ||
++	    (port && port->state == BR_STATE_DISABLED) ||
++	    timer_pending(&br->ip4_multicast_querier_timer))
++		goto out;
++
+ 	br_multicast_leave_group(br, port, &br_group);
++out:
++	spin_unlock(&br->multicast_lock);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -1360,7 +1472,15 @@ static void br_ip6_multicast_leave_group(struct net_bridge *br,
+ 	br_group.proto = htons(ETH_P_IPV6);
+ 	br_group.vid = vid;
+ 
++	spin_lock(&br->multicast_lock);
++	if (!netif_running(br->dev) ||
++	    (port && port->state == BR_STATE_DISABLED) ||
++	    timer_pending(&br->ip6_multicast_querier_timer))
++		goto out;
++
+ 	br_multicast_leave_group(br, port, &br_group);
++out:
++	spin_unlock(&br->multicast_lock);
+ }
+ #endif
+ 
+@@ -1622,20 +1742,38 @@ int br_multicast_rcv(struct net_bridge *br, struct net_bridge_port *port,
+ 	return 0;
+ }
+ 
+-static void br_multicast_query_expired(unsigned long data)
++static void br_ip4_multicast_query_expired(unsigned long data)
+ {
+ 	struct net_bridge *br = (void *)data;
+ 
+ 	spin_lock(&br->multicast_lock);
+-	if (br->multicast_startup_queries_sent <
++	if (br->ip4_multicast_startup_queries_sent <
+ 	    br->multicast_startup_query_count)
+-		br->multicast_startup_queries_sent++;
++		br->ip4_multicast_startup_queries_sent++;
+ 
+-	br_multicast_send_query(br, NULL, br->multicast_startup_queries_sent);
++	br_ip4_multicast_send_query(br, NULL,
++				    br->ip4_multicast_startup_queries_sent);
+ 
+ 	spin_unlock(&br->multicast_lock);
+ }
+ 
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_query_expired(unsigned long data)
++{
++	struct net_bridge *br = (void *)data;
++
++	spin_lock(&br->multicast_lock);
++	if (br->ip6_multicast_startup_queries_sent <
++	    br->multicast_startup_query_count)
++		br->ip6_multicast_startup_queries_sent++;
++
++	br_ip6_multicast_send_query(br, NULL,
++				    br->ip6_multicast_startup_queries_sent);
++
++	spin_unlock(&br->multicast_lock);
++}
++#endif
++
+ void br_multicast_init(struct net_bridge *br)
+ {
+ 	br->hash_elasticity = 4;
+@@ -1654,25 +1792,52 @@ void br_multicast_init(struct net_bridge *br)
+ 	br->multicast_querier_interval = 255 * HZ;
+ 	br->multicast_membership_interval = 260 * HZ;
+ 
+-	br->multicast_querier_delay_time = 0;
++	br->ip4_multicast_querier_delay_time = 0;
++	br->ip6_multicast_querier_delay_time = 0;
+ 
+ 	spin_lock_init(&br->multicast_lock);
+ 	setup_timer(&br->multicast_router_timer,
+ 		    br_multicast_local_router_expired, 0);
+-	setup_timer(&br->multicast_querier_timer,
+-		    br_multicast_querier_expired, (unsigned long)br);
+-	setup_timer(&br->multicast_query_timer, br_multicast_query_expired,
+-		    (unsigned long)br);
++	setup_timer(&br->ip4_multicast_querier_timer,
++		    br_ip4_multicast_querier_expired, (unsigned long)br);
++	setup_timer(&br->ip4_multicast_query_timer,
++		    br_ip4_multicast_query_expired, (unsigned long)br);
++#if IS_ENABLED(CONFIG_IPV6)
++	setup_timer(&br->ip6_multicast_querier_timer,
++		    br_ip6_multicast_querier_expired, (unsigned long)br);
++	setup_timer(&br->ip6_multicast_query_timer,
++		    br_ip6_multicast_query_expired, (unsigned long)br);
++#endif
+ }
+ 
+-void br_multicast_open(struct net_bridge *br)
++static void br_ip4_multicast_open(struct net_bridge *br)
+ {
+-	br->multicast_startup_queries_sent = 0;
++	br->ip4_multicast_startup_queries_sent = 0;
+ 
+ 	if (br->multicast_disabled)
+ 		return;
+ 
+-	mod_timer(&br->multicast_query_timer, jiffies);
++	mod_timer(&br->ip4_multicast_query_timer, jiffies);
++}
++
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_open(struct net_bridge *br)
++{
++	br->ip6_multicast_startup_queries_sent = 0;
++
++	if (br->multicast_disabled)
++		return;
++
++	mod_timer(&br->ip6_multicast_query_timer, jiffies);
++}
++#endif
++
++void br_multicast_open(struct net_bridge *br)
++{
++	br_ip4_multicast_open(br);
++#if IS_ENABLED(CONFIG_IPV6)
++	br_ip6_multicast_open(br);
++#endif
+ }
+ 
+ void br_multicast_stop(struct net_bridge *br)
+@@ -1684,8 +1849,10 @@ void br_multicast_stop(struct net_bridge *br)
+ 	int i;
+ 
+ 	del_timer_sync(&br->multicast_router_timer);
+-	del_timer_sync(&br->multicast_querier_timer);
+-	del_timer_sync(&br->multicast_query_timer);
++	del_timer_sync(&br->ip4_multicast_querier_timer);
++	del_timer_sync(&br->ip6_multicast_querier_timer);
++	del_timer_sync(&br->ip4_multicast_query_timer);
++	del_timer_sync(&br->ip6_multicast_query_timer);
+ 
+ 	spin_lock_bh(&br->multicast_lock);
+ 	mdb = mlock_dereference(br->mdb, br);
+@@ -1788,21 +1955,38 @@ unlock:
+ 	return err;
+ }
+ 
+-static void br_multicast_start_querier(struct net_bridge *br)
++static void br_ip4_multicast_start_querier(struct net_bridge *br)
+ {
+ 	struct net_bridge_port *port;
+ 
+-	br_multicast_open(br);
++	br_ip4_multicast_open(br);
+ 
+ 	list_for_each_entry(port, &br->port_list, list) {
+ 		if (port->state == BR_STATE_DISABLED ||
+ 		    port->state == BR_STATE_BLOCKING)
+ 			continue;
+ 
+-		__br_multicast_enable_port(port);
++		__br_ip4_multicast_enable_port(port);
+ 	}
+ }
+ 
++#if IS_ENABLED(CONFIG_IPV6)
++static void br_ip6_multicast_start_querier(struct net_bridge *br)
++{
++	struct net_bridge_port *port;
++
++	br_ip6_multicast_open(br);
++
++	list_for_each_entry(port, &br->port_list, list) {
++		if (port->state == BR_STATE_DISABLED ||
++		    port->state == BR_STATE_BLOCKING)
++			continue;
++
++		__br_ip6_multicast_enable_port(port);
++	}
++}
++#endif
++
+ int br_multicast_toggle(struct net_bridge *br, unsigned long val)
+ {
+ 	int err = 0;
+@@ -1834,7 +2018,10 @@ rollback:
+ 			goto rollback;
+ 	}
+ 
+-	br_multicast_start_querier(br);
++	br_ip4_multicast_start_querier(br);
++#if IS_ENABLED(CONFIG_IPV6)
++	br_ip6_multicast_start_querier(br);
++#endif
+ 
+ unlock:
+ 	spin_unlock_bh(&br->multicast_lock);
+@@ -1857,10 +2044,15 @@ int br_multicast_set_querier(struct net_bridge *br, unsigned long val)
+ 		goto unlock;
+ 
+ 	max_delay = br->multicast_query_response_interval;
+-	if (!timer_pending(&br->multicast_querier_timer))
+-		br->multicast_querier_delay_time = jiffies + max_delay;
++	if (!timer_pending(&br->ip4_multicast_querier_timer))
++		br->ip4_multicast_querier_delay_time = jiffies + max_delay;
++	if (!timer_pending(&br->ip6_multicast_querier_timer))
++		br->ip6_multicast_querier_delay_time = jiffies + max_delay;
+ 
+-	br_multicast_start_querier(br);
++	br_ip4_multicast_start_querier(br);
++#if IS_ENABLED(CONFIG_IPV6)
++	br_ip6_multicast_start_querier(br);
++#endif
+ 
+ unlock:
+ 	spin_unlock_bh(&br->multicast_lock);
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 2f7da41..10b4231 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -162,10 +162,12 @@ struct net_bridge_port
+ #define BR_FLOOD		0x00000040
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+-	u32				multicast_startup_queries_sent;
++	u32				ip4_multicast_startup_queries_sent;
++	u32				ip6_multicast_startup_queries_sent;
+ 	unsigned char			multicast_router;
+ 	struct timer_list		multicast_router_timer;
+-	struct timer_list		multicast_query_timer;
++	struct timer_list		ip4_multicast_query_timer;
++	struct timer_list		ip6_multicast_query_timer;
+ 	struct hlist_head		mglist;
+ 	struct hlist_node		rlist;
+ #endif
+@@ -258,7 +260,8 @@ struct net_bridge
+ 	u32				hash_max;
+ 
+ 	u32				multicast_last_member_count;
+-	u32				multicast_startup_queries_sent;
++	u32				ip4_multicast_startup_queries_sent;
++	u32				ip6_multicast_startup_queries_sent;
+ 	u32				multicast_startup_query_count;
+ 
+ 	unsigned long			multicast_last_member_interval;
+@@ -267,15 +270,18 @@ struct net_bridge
+ 	unsigned long			multicast_query_interval;
+ 	unsigned long			multicast_query_response_interval;
+ 	unsigned long			multicast_startup_query_interval;
+-	unsigned long			multicast_querier_delay_time;
++	unsigned long			ip4_multicast_querier_delay_time;
++	unsigned long			ip6_multicast_querier_delay_time;
+ 
+ 	spinlock_t			multicast_lock;
+ 	struct net_bridge_mdb_htable __rcu *mdb;
+ 	struct hlist_head		router_list;
+ 
+ 	struct timer_list		multicast_router_timer;
+-	struct timer_list		multicast_querier_timer;
+-	struct timer_list		multicast_query_timer;
++	struct timer_list		ip4_multicast_querier_timer;
++	struct timer_list		ip6_multicast_querier_timer;
++	struct timer_list		ip4_multicast_query_timer;
++	struct timer_list		ip6_multicast_query_timer;
+ #endif
+ 
+ 	struct timer_list		hello_timer;
+@@ -503,11 +509,31 @@ static inline bool br_multicast_is_router(struct net_bridge *br)
+ 		timer_pending(&br->multicast_router_timer));
+ }
+ 
+-static inline bool br_multicast_querier_exists(struct net_bridge *br)
++static inline bool br_ip4_multicast_querier_exists(struct net_bridge *br)
+ {
+-	return time_is_before_jiffies(br->multicast_querier_delay_time) &&
++	return time_is_before_jiffies(br->ip4_multicast_querier_delay_time) &&
+ 	       (br->multicast_querier ||
+-		timer_pending(&br->multicast_querier_timer));
++		timer_pending(&br->ip4_multicast_querier_timer));
++}
++
++static inline bool br_ip6_multicast_querier_exists(struct net_bridge *br)
++{
++	return time_is_before_jiffies(br->ip6_multicast_querier_delay_time) &&
++	       (br->multicast_querier ||
++		timer_pending(&br->ip6_multicast_querier_timer));
++}
++
++static inline bool br_multicast_querier_exists(struct net_bridge *br,
++					       struct ethhdr *eth)
++{
++	switch (eth->h_proto) {
++	case (htons(ETH_P_IP)):
++		return br_ip4_multicast_querier_exists(br);
++	case (htons(ETH_P_IPV6)):
++		return br_ip6_multicast_querier_exists(br);
++	default:
++		return false;
++	}
+ }
+ #else
+ static inline int br_multicast_rcv(struct net_bridge *br,
+@@ -565,7 +591,8 @@ static inline bool br_multicast_is_router(struct net_bridge *br)
+ {
+ 	return 0;
+ }
+-static inline bool br_multicast_querier_exists(struct net_bridge *br)
++static inline bool br_multicast_querier_exists(struct net_bridge *br,
++					       struct ethhdr *eth)
+ {
+ 	return false;
+ }
+-- 
+1.7.10.4
 
-root@bahia:~# brctl
-Usage: brctl [commands]
-commands:
-        addbr           <bridge>                add bridge
-        delbr           <bridge>                delete bridge
-        addif           <bridge> <device>       add interface to bridge
-        delif           <bridge> <device>       delete interface from bridg=
-e
-        hairpin         <bridge> <port> {on|off}        turn hairpin on/off
-        setageing       <bridge> <time>         set ageing time
-        setbridgeprio   <bridge> <prio>         set bridge priority
-        setfd           <bridge> <time>         set bridge forward delay
-        sethello        <bridge> <time>         set hello time
-        setmaxage       <bridge> <time>         set max message age
-        setpathcost     <bridge> <port> <cost>  set path cost
-        setportprio     <bridge> <port> <prio>  set port priority
-        show            [ <bridge> ]            show a list of bridges
-        showmacs        <bridge>                show a list of mac addrs
-        showstp         <bridge>                show bridge stp info
-        stp             <bridge> {on|off}       turn stp on/off
-root@bahia:~#
-
-> Also are all your tap devices over proper ethernet segments? As soon as y=
-ou
-> have a Wireless segment then it will break (due to the WLAN layer2 frames
-> overwriting mac's / remembering only the point to point mac's).
-
-everything is ethernet, this first phase using only ethernet->wan
-(l2tpv3) -> wan -> ethernet....
-the problem is that my "Server A" does not forward arp/request to "Server B=
-"...
-
->
-> On 26 August 2013 11:54, Jorge Pereira <jpereiran@gmail.com> wrote:
->>
->> Hi Joel,
->>
->> thanks for your answer!! but i CAN'T understand why my bridge (SERVER
->> A) don't forward the arp-request
->> from LAN to my other side of L2TPv3 (SERVER B).... so, all i need it's
->> that my 'bridge' forward (broadcast, anycast, unicast, arp, ...)
->> everything to other side of L2TPv3 bridge... let me try to explain
->> below...
->>
->> e.g:
->>
->> +------------------------------------------------+
->> | Bahia: lan network 10.251.0.0/16 |
->> +------------------------------------------------+
->>  |
->>  |      +-----------------------------+
->>  +--> | Bridge   A               |
->>         | LAN: bridge/promisc|
->>         | WAN: 200.199.10.1 |
->>  +---- +-----------------------------+
->>  |
->>  |
->>  \     +--------------------------------------------------------+
->>   +---| L2TPv3 / promisc / l2tpeth0 over WAN |
->>  /     +--------------------------------------------------------+
->>  |
->>  |      +-----------------------------+
->>  +--> | Bridge   B               |
->>         | LAN: bridge/promisc|
->>         | WAN: 200.199.10.2 |
->> +-----+-----------------------------+
->> |
->> +-------------------------------------------------+
->> | Recife: lan network 10.251.0.0/16 |
->> +-------------------------------------------------+
->>
->> e.g - 1: from side 'B', i can send icmp request to anyone in
->> 10.251.0.0/16. but can't receive response because
->> my bridge A ignore/discard all packets arp/unicast/...  and does not
->> forward to Bridge B. only broadcast!
->>
->> e.g - 2: (sysct/proxy_arp) don't solves my problem... if somebody have
->> any suggestion, please! tell me! :)
->>
->>
->> On Fri, Aug 23, 2013 at 2:22 AM, Joel Wir=C4=81mu Pauling <joel@aenertia=
-.net>
->> wrote:
->> > You can't bridge 802.11 segments with normal ethernet segments. Wifi
->> > AP's
->> > that do this use magic; or hidden pesudo bridges to do the same.
->> >
->> > You will need to use something like relayd to form a psuedo bridge
->> > between
->> > your wired and wireless segments or use routing.
->> >
->> >
->> > -Joel
->> >
->> >
->> > On 23 August 2013 14:21, Jorge Pereira <jpereiran@gmail.com> wrote:
->> >>
->> >> hi everyone,
->> >>
->> >>     so,first it seemed a trivial question to me, but since I could no=
-t
->> >> find anybody being neither able to answer
->> >> this question nor giving a short config example. after a few sleeples=
-s
->> >> nights and exhausting all the reading
->> >> and research. here I am sharing my problem with all of you, in the ho=
-pe
->> >> of
->> >> some possible solution/sugestion.
->> >> or is it that this is impossible??
->> >>
->> >> below my scheme/layout.
->> >>
->> >> +---------------------------------------------------------+
->> >> | MAIN SERVER - 10.60.61.1 (DHCP SERVER) |
->> >> +---------------------------------------------------------+
->> >>                      |
->> >> +---------------------------+
->> >> |    NETWORK vlan601 |
->> >> |  net 10.251.0.0/16      |
->> >> |  gw:10.251.0.1            |
->> >> +---------------------------+
->> >>                     |
->> >> +------------------------------------------------------------------+
->> >>  | SERVER B (BRIDGE / unmanaged L2TPv3) - BAHIA |
->> >> +------------------------------------------------------------------+
->> >>
->> >> root@bahia:~#  ip -d addr show eth0 # WAN
->> >> 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast
->> >> state
->> >> UP qlen 1000
->> >>     link/ether 00:50:56:a7:13:49 brd ff:ff:ff:ff:ff:ff
->> >>     inet 200.243.1.5/24 brd 200.243.1.255 scope global eth0
->> >>     inet6 fe80::250:56ff:fea7:1349/64 scope link
->> >>        valid_lft forever preferred_lft forever
->> >> root@bahia:~#  ip -d addr show eth1 # LAN (VLAN/TRUNK)
->> >> 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast
->> >> state
->> >> UP qlen 1000
->> >>     link/ether 00:50:56:a7:13:4a brd ff:ff:ff:ff:ff:ff
->> >>     inet6 fe80::250:56ff:fea7:134a/64 scope link
->> >>        valid_lft forever preferred_lft forever
->> >> root@bahia:~#  ip link add link eth1 name eth1.601 mtu 1500 type vlan
->> >> id
->> >> 601
->> >> root@bahia:~#  ip link set dev eth1.601 up promisc on
->> >> root@bahia:~#  ip -d addr show eth1.601
->> >> 9: eth1.601@eth1: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500
->> >> qdisc
->> >> noqueue state UP
->> >>     link/ether 00:50:56:a7:13:4a brd ff:ff:ff:ff:ff:ff
->> >>     inet6 fe80::250:56ff:fea7:134a/64 scope link
->> >>        valid_lft forever preferred_lft forever
->> >> root@bahia:~#  ip route show
->> >> default via 200.243.1.254 dev eth0
->> >> 200.243.1.0/24 dev eth0  proto kernel  scope link  src 200.243.1.5
->> >> root@bahia:~#
->> >>
->> >> and.... we've the interface l2tpeth0 (L2TPv3) established with other
->> >> node
->> >> into the internet by eth0 (WAN), plugged
->> >> with vlan601 (eth1.601) by bridge called "br-red"
->> >>
->> >> root@bahia:~# brctl show
->> >> bridge name bridge id STP enabled interfaces
->> >> root@bahia:~# brctl addbr br-red
->> >> root@bahia:~# brctl addif br-red eth1.601
->> >> root@bahia:~# ip l2tp add tunnel tunnel_id 45 peer_tunnel_id 42
->> >> udp_sport
->> >> 5001 udp_dport 5000 encap udp local 200.243.1.5 remote 200.199.10.12
->> >> root@bahia:~# ip l2tp add session tunnel_id 45 session_id 5196755
->> >> peer_session_id 128
->> >> root@bahia:~# ip link set l2tpeth0 up promisc on master br-red
->> >> root@bahia:~# ip link set br-red up
->> >> root@bahia:~# brctl show br-red
->> >> bridge name bridge id STP enabled interfaces
->> >> br-red 8000.005056a7134a no eth1.601
->> >> l2tpeth0
->> >> root@bahia:~# brctl showstp br-red
->> >> br-red
->> >>  bridge id 8000.005056a7134a
->> >>  designated root 8000.005056a7134a
->> >>  root port         0 path cost   0
->> >>  max age         20.00 bridge max age  20.00
->> >>  hello time 2.00 bridge hello time   2.00
->> >>  forward delay 15.00 bridge forward delay  15.00
->> >>  ageing time 300.01
->> >>  hello timer 1.06 tcn timer   0.00
->> >>  topology change timer   0.00 gc timer   5.08
->> >>  flags
->> >>
->> >> eth1.601 (1)
->> >>  port id 8001 state     forwarding
->> >>  designated root 8000.005056a7134a path cost   4
->> >>  designated bridge 8000.005056a7134a message age timer   0.00
->> >>  designated port 8001 forward delay timer   0.00
->> >>  designated cost   0 hold timer   0.06
->> >>  flags
->> >>
->> >> l2tpeth0 (2)
->> >>  port id 8002 state     forwarding
->> >>  designated root 8000.005056a7134a path cost 100
->> >>  designated bridge 8000.005056a7134a message age timer   0.00
->> >>  designated port 8002 forward delay timer   0.00
->> >>  designated cost   0 hold timer   0.05
->> >>  flags
->> >>
->> >> root@bahia:~#
->> >>
->> >> it's ok, my bridge "by-red" listen all traffic over my LAN (vlan 601)
->> >> and
->> >> my L2TPv3 over internet. (wan)
->> >>
->> >> root@bahia:~#  tcpdump -nve -i br-red "host 10.251.0.1"
->> >> tcpdump: WARNING: br-red: no IPv4 address assigned
->> >> tcpdump: listening on br-red, link-type EN10MB (Ethernet), capture si=
-ze
->> >> 65535 bytes
->> >> 20:58:17.860060 d4:ae:52:84:37:ae > ff:ff:ff:ff:ff:ff, ethertype ARP
->> >> (0x0806), length 60: Ethernet (len 6), IPv4 (len 4), Request who-has
->> >> 10.251.90.157 tell 10.251.0.1, length 46
->> >> 20:58:17.980065 d4:ae:52:84:37:ae > ff:ff:ff:ff:ff:ff, ethertype ARP
->> >> (0x0806), length 60: Ethernet (len 6), IPv4 (len 4), Request who-has
->> >> 10.251.153.31 tell 10.251.0.1, length 46
->> >> ^C
->> >> 7 packets captured
->> >> 7 packets received by filter
->> >> 0 packets dropped by kernel
->> >> root@bahia:~#
->> >>
->> >>
->> >>
->> >> +--------------------------------------------------------------------=
----------------------+
->> >>  | SERVER B (BRIDGE/L2TPv3 + WIRELESS ACCESS POINT) - RECIFE |
->> >>
->> >>
->> >> +--------------------------------------------------------------------=
----------------------+
->> >>
->> >> root@recife:~# ip addr show eth1 # (WAN)
->> >> 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel
->> >> state
->> >> UP qlen 1000
->> >>     link/ether a0:f3:c1:a3:c4:11 brd ff:ff:ff:ff:ff:ff
->> >>     inet 200.199.10.12/21 brd 200.199.10.255 scope global eth1
->> >>        valid_lft forever preferred_lft forever
->> >>     inet6 fe80::a2f3:c1ff:fea3:c411/64 scope link
->> >>        valid_lft forever preferred_lft forever
->> >> root@recife:~# ip route show
->> >> default via 200.199.10.254 dev eth1  proto static
->> >> 200.199.10.0/21 dev eth1  proto kernel  scope link  src 200.199.10.12
->> >> 192.168.1.0/24 dev br-lan  proto kernel  scope link  src 192.168.1.1
->> >> root@recife:~# ip l2tp add tunnel tunnel_id 42 peer_tunnel_id 45
->> >> udp_sport
->> >> 5000 udp_dport 5001 encap udp local 200.199.10.12 remote 200.243.1.5
->> >> root@recife:~# ip l2tp add session tunnel_id 42 session_id 128
->> >> peer_session_id 5196755
->> >> root@recife:~# ip link set dev l2tpeth0 up promisc on master br-red
->> >> root@recife:~# brctl show
->> >> bridge name     bridge id               STP enabled     interfaces
->> >> br-lan          7fff.a0f3c1a3c40f       no              eth0
->> >> root@recife:~# brctl addbr br-red
->> >> root@recife:~# brctl addif br-red l2tpeth0
->> >> root@recife:~# brctl addif br-red wlan0
->> >> root@recife:~# ifconfig br-red up
->> >> root@recife:~# ip link set br-red up
->> >> root@recife:~# brctl show
->> >> bridge name     bridge id                     STP enabled
->> >> interfaces
->> >> br-lan                7fff.a0f3c1a3c40f       no
->> >> eth0
->> >> br-red                8000.1ae0f4a30221  no
->> >> l2tpeth0
->> >>
->> >> wlan0
->> >> root@recife:~#
->> >>
->> >> ....::: RESUME :::...
->> >>
->> >> 1) sorry for the long email....
->> >> 2) when i'm "recife hostspot"... I can join in wireless "Recife
->> >> Wireless"
->> >> from my device, but i can't receive ip from dhcp (10.60.61.1).
->> >> 3) from "server A[bahia] (bridge with vlan601 network) and "server B
->> >> [recife]", i can "see/listen" the broadcast request from my
->> >> device mac "5c:95:ae:22:d6:6e" like below.
->> >>
->> >> root@bahia:~# tcpdump -nve -i br-red "ether host ether
->> >> 5c:95:ae:22:d6:6e"
->> >> 00:08:52.653667 5c:95:ae:22:d6:6e > ff:ff:ff:ff:ff:ff, ethertype IPv4
->> >> (0x0800), length 342: (tos 0x0, ttl 255, id 37839, offset 0, flags
->> >> [none],
->> >> proto UDP (17), length 328)
->> >>     0.0.0.0.68 > 255.255.255.255.67: BOOTP/DHCP, Request from
->> >> 5c:95:ae:22:d6:6e, length 300, xid 0xe6f1d0a5, Flags [none]
->> >>           Client-Ethernet-Address 5c:95:ae:22:d6:6e
->> >>           Vendor-rfc1048 Extensions
->> >>             Magic Cookie 0x63825363
->> >>             DHCP-Message Option 53, length 1: Discover
->> >>             Parameter-Request Option 55, length 6:
->> >>               Subnet-Mask, Default-Gateway, Domain-Name-Server,
->> >> Domain-Name
->> >>               Option 119, Option 252
->> >>             MSZ Option 57, length 2: 1500
->> >>             Client-ID Option 61, length 7: ether 5c:95:ae:22:d6:6e
->> >>             Lease-Time Option 51, length 4: 7776000
->> >>             Hostname Option 12, length 14: "Straces-iPhone"
->> >> ^C
->> >> 1 packets captured
->> >> 1 packets received by filter
->> >> root@bahia:~#
->> >>
->> >> same thing result at "bridge a" (root@recife:~#) side...
->> >>
->> >> 4) the strangest thing of all and that, from bridge-b (recife). i can
->> >> get
->> >> ip from dhcp/broadcast request over L2TPv3...
->> >> but without option "broadcast" i can't receive ip from dhcp
->> >> (10.61.60.1)
->> >>
->> >> root@recife:~# udhcpc -B -i br-red
->> >> udhcpc (v1.19.4) started
->> >> Sending discover...
->> >> Sending select for 10.251.157.22...
->> >> Lease of 10.251.157.22 obtained, lease time 300
->> >> udhcpc: ifconfig br-red 10.251.157.22 netmask 255.255.0.0 broadcast +
->> >> udhcpc: setting default routers: 10.251.0.1
->> >> root@recife:~# ip route add 200.243.1.5 via 200.199.10.254 dev eth1
->> >> root@recife:~# ip route show
->> >> default via 10.251.0.1 dev br-red
->> >> 10.251.0.0/16 dev br-red  proto kernel  scope link  src 10.251.157.22
->> >> 200.199.10.0/21 dev eth1  proto kernel  scope link  src 200.199.10.12
->> >> 200.243.1.5 via 200.199.10.254 dev eth1
->> >> 192.168.1.0/24 dev br-lan  proto kernel  scope link  src 192.168.1.1
->> >> root@recife:~# ping -c2 10.251.0.1
->> >> PING 10.251.0.1 (10.251.0.1): 56 data bytes
->> >>
->> >> --- 10.251.0.1 ping statistics ---
->> >> 2 packets transmitted, 0 packets received, 100% packet loss
->> >> root@recife:~#
->> >>
->> >> 5) output of tcpdump listen the bridge "br-red" request from
->> >> bridge-a-natal http://pastebin.com/t8wn3zRK
->> >> 6) output of tcpdump listen the bridge "br-red" request from
->> >> bridge-b-recife http://pastebin.com/njTQfd5k
->> >> 7) after several researches i found the kernel options to set like
->> >> "arp_filter", "bridge-nf-*",... but i don't have
->> >> idea which option should enable / disable. tried some combinations bu=
-t
->> >> without success....
->> >> 8) the DHCP-OFFER doesn't forward by "bridge-a"...  problems with
->> >> unicast?
->> >> multicast? arp_proxy? ....
->> >> 9) we need join in the network by wireless and access the server
->> >> 10.251.0.1 over bridge/l2tpv3 (unmanaged)
->> >> 10) in our case, can use only L2TPv3. (may not be OpenVPN, ...)
->> >> 11) all is Linux, without any iptables rules.
->> >> 12) who will win a beer?! =3D]
->> >>
->> >> Best regards,
->> >> Jorge Pereira
->> >
->> >
->
->
