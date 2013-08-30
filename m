@@ -1,15 +1,15 @@
-Return-Path: <bernd.lentes@helmholtz-muenchen.de>
-From: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
-Date: Fri, 30 Aug 2013 19:19:53 +0200
-Message-ID: <15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C29@XCH11.scidom.de>
-References: <15785B7E063D464C86DD482FCAE4EBA5018D1AD3DA16@XCH11.scidom.de>
-In-Reply-To: <15785B7E063D464C86DD482FCAE4EBA5018D1AD3DA16@XCH11.scidom.de>
-Content-Language: de-DE
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-Subject: Re: [Bridge] br0: received packet on eth0 with own address as
- source	address
+Return-Path: <davem@davemloft.net>
+Date: Fri, 30 Aug 2013 15:29:02 -0400 (EDT)
+Message-Id: <20130830.152902.1277686222231900490.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1377876497-6185-1-git-send-email-linus.luessing@web.de>
+References: <20130828.200831.289304393401193657.davem@davemloft.net>
+	<1377876497-6185-1-git-send-email-linus.luessing@web.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCHv2] bridge: separate querier and query timer
+ into IGMP/IPv4 and MLD/IPv6 ones
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,69 +18,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Bridge ML (bridge@lists.linux-foundation.org)" <bridge@lists.linux-foundation.org>
+To: linus.luessing@web.de
+Cc: amwang@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux@baker-net.org.uk, stephen@networkplumber.org, herbert@gondor.apana.org.au
 
-DQpCZXJuZCB3cm90ZToNCj4NCj4gSGksDQo+DQo+IGkgaGF2ZSBhIGxvdCBvZiB0aGUgZm9sbG93
-aW5nIG1lc3NhZ2VzIGluIG15IC92YXIvbG9nL21lc3NhZ2VzOg0KPg0KPiBBdWcgIDcgMTA6Mzc6
-MzIgcGM2MDE4MSBrZXJuZWw6IFsyMDQzMDU2Ljk4MjU4NV0gYnIwOg0KPiByZWNlaXZlZCBwYWNr
-ZXQgb24gZXRoMCB3aXRoIG93biBhZGRyZXNzIGFzIHNvdXJjZSBhZGRyZXNzDQo+IFsuLi5dDQo+
-DQo+IE1lc3NhZ2VzIGFwcGVhciBmb3IgYWJvdXQgOTAgbWludXRlcyBhbmQgc3VkZGVubHkgc3Rv
-cHBlZC4NCj4NCj4gSSBoYXZlIHRoZSBmb2xsb3dpbmcgbmV0d29yayBjb25maWd1cmF0aW9uOg0K
-Pg0KPiBwYzYwMTgxOn4gIyBpZmNvbmZpZw0KPiBicjAgICAgICAgTGluayBlbmNhcDpFdGhlcm5l
-dCAgSFdhZGRyIDU0OjA0OkE2Ojk0OkY0OjkzDQo+ICAgICAgICAgICBpbmV0IGFkZHI6MTAuMzUu
-MjMuMzYgIEJjYXN0OjEwLjM1LjIzLjAgIE1hc2s6MjU1LjI1NS4yNTUuMA0KPiAgICAgICAgICAg
-aW5ldDYgYWRkcjogZmU4MDo6NTYwNDphNmZmOmZlOTQ6ZjQ5My82NCBTY29wZTpMaW5rDQo+ICAg
-ICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxUSUNBU1QgIE1UVToxNTAwICBNZXRyaWM6
-MQ0KPiAgICAgICAgICAgUlggcGFja2V0czo4MDg3MzAxIGVycm9yczowIGRyb3BwZWQ6MTk2NDYy
-DQo+IG92ZXJydW5zOjAgZnJhbWU6MA0KPiAgICAgICAgICAgVFggcGFja2V0czoxMzI5NzQ0IGVy
-cm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KPiAgICAgICAgICAgY29sbGlz
-aW9uczowIHR4cXVldWVsZW46MA0KPiAgICAgICAgICAgUlggYnl0ZXM6NDgwMzEyODM1ICg0NTgu
-MCBNYikgIFRYIGJ5dGVzOjEyNTA1NzM2MTENCj4gKDExOTIuNiBNYikNCj4NCj4gZXRoMCAgICAg
-IExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciA1NDowNDpBNjo5NDpGNDo5Mw0KPiAgICAgICAg
-ICAgaW5ldDYgYWRkcjogZmU4MDo6NTYwNDphNmZmOmZlOTQ6ZjQ5My82NCBTY29wZTpMaW5rDQo+
-ICAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBQUk9NSVNDIE1VTFRJQ0FTVCAgTVRVOjE1
-MDAgIE1ldHJpYzoxDQo+ICAgICAgICAgICBSWCBwYWNrZXRzOjQyNDgyNjA2MCBlcnJvcnM6MCBk
-cm9wcGVkOjEzMTQ4NA0KPiBvdmVycnVuczowIGZyYW1lOjANCj4gICAgICAgICAgIFRYIHBhY2tl
-dHM6MTQwOTI2MDYgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQo+ICAg
-ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjoxMDAwDQo+ICAgICAgICAgICBSWCBieXRl
-czo3OTM1NjU2MDYzMSAoNzU2ODAuMyBNYikgIFRYDQo+IGJ5dGVzOjUzMzgwNzA1NjUgKDUwOTAu
-NyBNYikNCj4gICAgICAgICAgIEludGVycnVwdDo1OCBCYXNlIGFkZHJlc3M6MHg2MDAwDQo+DQo+
-IGxvICAgICAgICBMaW5rIGVuY2FwOkxvY2FsIExvb3BiYWNrDQo+ICAgICAgICAgICBpbmV0IGFk
-ZHI6MTI3LjAuMC4xICBNYXNrOjI1NS4wLjAuMA0KPiAgICAgICAgICAgaW5ldDYgYWRkcjogOjox
-LzEyOCBTY29wZTpIb3N0DQo+ICAgICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0
-MzYgIE1ldHJpYzoxDQo+ICAgICAgICAgICBSWCBwYWNrZXRzOjM3NzMwNDUgZXJyb3JzOjAgZHJv
-cHBlZDowIG92ZXJydW5zOjAgZnJhbWU6MA0KPiAgICAgICAgICAgVFggcGFja2V0czozNzczMDQ1
-IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KPiAgICAgICAgICAgY29s
-bGlzaW9uczowIHR4cXVldWVsZW46MA0KPiAgICAgICAgICAgUlggYnl0ZXM6MzAzMDUwNzQxNCAo
-Mjg5MC4xIE1iKSAgVFgNCj4gYnl0ZXM6MzAzMDUwNzQxNCAoMjg5MC4xIE1iKQ0KPg0KPiB2bmV0
-MCAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIEZFOjU0OjAwOjM3OjkyOkEwDQo+ICAg
-ICAgICAgICBpbmV0NiBhZGRyOiBmZTgwOjpmYzU0OmZmOmZlMzc6OTJhMC82NCBTY29wZTpMaW5r
-DQo+ICAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxUSUNBU1QgIE1UVToxNTAwICBN
-ZXRyaWM6MQ0KPiAgICAgICAgICAgUlggcGFja2V0czo4MTg5MSBlcnJvcnM6MCBkcm9wcGVkOjAg
-b3ZlcnJ1bnM6MCBmcmFtZTowDQo+ICAgICAgICAgICBUWCBwYWNrZXRzOjczOTQ4NDYgZXJyb3Jz
-OjAgZHJvcHBlZDowIG92ZXJydW5zOjYgY2FycmllcjowDQo+ICAgICAgICAgICBjb2xsaXNpb25z
-OjAgdHhxdWV1ZWxlbjo1MDANCj4gICAgICAgICAgIFJYIGJ5dGVzOjc0Nzc0MDcgKDcuMSBNYikg
-IFRYIGJ5dGVzOjUzNjk3ODY5NSAoNTEyLjEgTWIpDQo+DQo+IHBjNjAxODE6fiAjIGJyY3RsIHNo
-b3cNCj4gYnJpZGdlIG5hbWUgICAgIGJyaWRnZSBpZCAgICAgICAgICAgICAgIFNUUCBlbmFibGVk
-ICAgICBpbnRlcmZhY2VzDQo+IGJyMCAgICAgICAgICAgICA4MDAwLjU0MDRhNjk0ZjQ5MyAgICAg
-ICBubyAgICAgICAgICAgICAgZXRoMA0KPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHZuZXQwDQo+DQo+IFRoZSBicmlkZ2UgaXMgdXNlZCB0
-byBjb25uZWN0IGEgS1ZNIFZNIG5ldHdvcmsgYWRhcHRlciB0byB0aGUNCj4gb25lIG9mIHRoZSBo
-b3N0Lg0KPiBIb3N0IGlzIGEgU0xFUyAxMSBTUDIgNjRiaXQuIEd1ZXN0IGFsc28uDQo+DQo+IFdo
-YXQgaXMgdGhlIHJlYXNvbiBmb3IgdGhpcyBtZXNzYWdlID8gSSBjYW4ndCByZW1lbWJlciBpZiBp
-DQo+IGhhZCBhIGxvc3Mgb2YgY29ubmVjdGl2aXR5IGZvciB0aGF0IGhvc3Qvdm0sIGJlY2F1c2Ug
-aQ0KPiByZWFsaXNlZCB0aGUgbWVzc2FnZSBzb21lIGRheXMgYWZ0ZXIgdGhlIGVycm9yIGFwcGVh
-cmVkLg0KDQpTdG9wLiBJIGNoZWNrZWQgc29tZSBlbWFpbHMgYW5kIHNhdyB0aGF0IHRoZSBob3N0
-IHdhcyBub3QgYWNjZXNzaWJsZSBkdXJpbmcgdGhpcyB0aW1lLg0KDQo+DQo+IEFueSBpZGVhcyA/
-DQo+DQo+IEkgaGF2ZSBub3cgdGNwZHVtcCBydW5uaW5nIHRvIHNlZSB0aGUgZXhhY3QgcGFja2V0
-cyBpZiB0aGUNCj4gZXJyb3IgcmVhcHBlYXJzLg0KPg0KPg0KPiBCZXJuZA0KPg0KPg0KPg0KPg0K
-Pg0KDQpJJ20gZ29vZ2xlaW5nIGZvciB0aHJlZSBkYXlzIGFuZCBmb3VuZCB0b25zIG9mIHRoZXNl
-IG1lc3NhZ2VzLCBidXQgbm8gY2xlYXIgcmVhc29uL2V4cGxhaW5hdGlvbi4gQW55IGhlbHAgd291
-bGQgYmUgcmVhbGx5IGFwcHJlY2lhdGVkLg0KDQoNCkJlZXJuZA0KDQpIZWxtaG9sdHogWmVudHJ1
-bSBNw7xuY2hlbg0KRGV1dHNjaGVzIEZvcnNjaHVuZ3N6ZW50cnVtIGbDvHIgR2VzdW5kaGVpdCB1
-bmQgVW13ZWx0IChHbWJIKQ0KSW5nb2xzdMOkZHRlciBMYW5kc3RyLiAxDQo4NTc2NCBOZXVoZXJi
-ZXJnDQp3d3cuaGVsbWhvbHR6LW11ZW5jaGVuLmRlDQpBdWZzaWNodHNyYXRzdm9yc2l0emVuZGU6
-IE1pbkRpcsK0aW4gQsOkcmJlbCBCcnVtbWUtQm90aGUNCkdlc2Now6RmdHNmw7xocmVyOiBQcm9m
-LiBEci4gR8O8bnRoZXIgV2VzcyBEci4gTmlrb2xhdXMgQmx1bSBEci4gQWxmb25zIEVuaHNlbg0K
-UmVnaXN0ZXJnZXJpY2h0OiBBbXRzZ2VyaWNodCBNw7xuY2hlbiBIUkIgNjQ2Ng0KVVN0LUlkTnI6
-IERFIDEyOTUyMTY3MQ0K
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Fri, 30 Aug 2013 17:28:17 +0200
+
+> Currently we would still potentially suffer multicast packet loss if =
+there
+> is just either an IGMP or an MLD querier: For the former case, we wou=
+ld
+> possibly drop IPv6 multicast packets, for the latter IPv4 ones. This =
+is
+> because we are currently assuming that if either an IGMP or MLD queri=
+er
+> is present that the other one is present, too.
+> =
+
+> This patch makes the behaviour and fix added in
+> "bridge: disable snooping if there is no querier" (b00589af3b04)
+> to also work if there is either just an IGMP or an MLD querier on the=
+
+> link: It refines the deactivation of the snooping to be protocol
+> specific by using separate timers for the snooped IGMP and MLD querie=
+s
+> as well as separate timers for our internal IGMP and MLD queriers.
+> =
+
+> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
+
+Looks great, applied, thanks.
