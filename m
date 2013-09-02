@@ -1,20 +1,19 @@
-Return-Path: <sujataverma3@yahoo.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s1024;
-	t=1378101476; bh=nnmlPGAvlllpqkkfy4hR5+BFx9WI0PhEpdYGAMdz8uQ=;
-	h=X-YMail-OSG:Received:X-Rocket-MIMEInfo:X-Mailer:References:Message-ID:Date:From:Reply-To:Subject:To:In-Reply-To:MIME-Version:Content-Type;
-	b=ovKAkzDSEPOpkj3Zgy2ZMnnMj4z9Py9KmobqMjoZ6Pb2sNQncY11FAsB8vjVYaJ3OWfBa3ClUfINODVxbb8lsTpZ+KW4dhdNNUp91ozpwCIWzKONf0Z7dEtVoTirBjLnOgUZwvTOpLhXHGnYUMEuSKnOn3d8ppGP4N/GybD/zwY=
-References: <15785B7E063D464C86DD482FCAE4EBA5018D1AD3DA16@XCH11.scidom.de>	<15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C29@XCH11.scidom.de>	<1377921042.19249.YahooMailNeo@web160202.mail.bf1.yahoo.com>
+Return-Path: <bernd.lentes@helmholtz-muenchen.de>
+From: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
+Date: Mon, 2 Sep 2013 13:16:04 +0200
+Message-ID: <15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C32@XCH11.scidom.de>
+References: <15785B7E063D464C86DD482FCAE4EBA5018D1AD3DA16@XCH11.scidom.de>
+	<15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C29@XCH11.scidom.de>
+	<1377921042.19249.YahooMailNeo@web160202.mail.bf1.yahoo.com>
 	<15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C2B@XCH11.scidom.de>
-Message-ID: <1378101476.60377.YahooMailNeo@web160205.mail.bf1.yahoo.com>
-Date: Sun, 1 Sep 2013 22:57:56 -0700 (PDT)
-From: Sujata Verma <sujataverma3@yahoo.com>
-In-Reply-To: <15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C2B@XCH11.scidom.de>
+	<1378101476.60377.YahooMailNeo@web160205.mail.bf1.yahoo.com>
+In-Reply-To: <1378101476.60377.YahooMailNeo@web160205.mail.bf1.yahoo.com>
+Content-Language: de-DE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="-1263770829-1198791415-1378101476=:60377"
 Subject: Re: [Bridge] br0: received packet on eth0 with own address as
-	source	address
-Reply-To: Sujata Verma <sujataverma3@yahoo.com>
+ source	address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,73 +22,160 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>, "Bridge ML (bridge@lists.linux-foundation.org)" <bridge@lists.linux-foundation.org>
+To: "Bridge ML (bridge@lists.linux-foundation.org)" <bridge@lists.linux-foundation.org>
 
----1263770829-1198791415-1378101476=:60377
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Bernd,=0A=0ACan you give more information about how these two hosts are con=
-nected with the network? Are they stand alone PC ? Not much idea about KVM =
-guests, but hope they both have different mac addresses configured.=0A=0ASo=
-me info i could find =0A=0Ahttp://pic.dhe.ibm.com/infocenter/lnxinfo/v3r0m0=
-/index.jsp?topic=3D%2Fliaat%2Fliaatkvmsecbridge.htm=0A=0AIf there is a loop=
- you will observe loss in the connectivity because there are too many packe=
-ts, and it can even bring your network down. This loop can be because of ac=
-tually someone connecting the cable unknowingly to create loop or could be =
-because of mac address misconfiguration.=0A=0ARegards,=0ASujata=0A=0A=0A=0A=
-=0A________________________________=0A From: "Lentes, Bernd" <bernd.lentes@=
-helmholtz-muenchen.de>=0ATo: "Bridge ML (bridge@lists.linux-foundation.org)=
-" <bridge@lists.linux-foundation.org> =0ASent: Saturday, August 31, 2013 4:=
-37 PM=0ASubject: Re: [Bridge] br0: received packet on eth0 with own address=
- as source=09address=0A =0A=0ASujata wrote:=0A=0A> Bernd,=0A=0A> We see thi=
-s messages ,when there is a loop in the network. Basically, it means that t=
-he bridge is receiving same packets which it is sending.=0A=0A> Regards,=0A=
-> Sujata=0A=0AHi Sujata,=0A=0Ahow can this happen ? I had intermittent loss=
-es of connectivity. The error appears on two hosts, each have running some =
-KVM guests.=0A=0A=0ABernd=0A[]=0A=0A=0AHelmholtz Zentrum M=FCnchen=0ADeutsc=
-hes Forschungszentrum f=FCr Gesundheit und Umwelt (GmbH)=0AIngolst=E4dter L=
-andstr. 1=0A85764 Neuherberg=0Awww.helmholtz-muenchen.de=0AAufsichtsratsvor=
-sitzende: MinDir=B4in B=E4rbel Brumme-Bothe=0AGesch=E4ftsf=FChrer: Prof. Dr=
-. G=FCnther Wess Dr. Nikolaus Blum Dr. Alfons Enhsen=0ARegistergericht: Amt=
-sgericht M=FCnchen HRB 6466=0AUSt-IdNr: DE 129521671
----1263770829-1198791415-1378101476=:60377
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<html><body><div style=3D"color:#000; background-color:#fff; font-family:Co=
-urier New, courier, monaco, monospace, sans-serif;font-size:12pt"> Bernd,<b=
-r><br>Can you give more information about how these two hosts are connected=
- with the network? Are they stand alone PC ? Not much idea about KVM guests=
-, but hope they both have different mac addresses configured.<br><br>Some i=
-nfo i could find <br><br>http://pic.dhe.ibm.com/infocenter/lnxinfo/v3r0m0/i=
-ndex.jsp?topic=3D%2Fliaat%2Fliaatkvmsecbridge.htm<br><br>If there is a loop=
- you will observe loss in the connectivity because there are too many packe=
-ts, and it can even bring your network down. This loop can be because of ac=
-tually someone connecting the cable unknowingly to create loop or could be =
-because of mac address misconfiguration.<br><br>Regards,<br>Sujata<br><div>=
-<span><br></span></div><div><br></div>  <div style=3D"font-family: Courier =
-New, courier, monaco, monospace, sans-serif; font-size: 12pt;"> <div
- style=3D"font-family: times new roman, new york, times, serif; font-size: =
-12pt;"> <div dir=3D"ltr"> <hr size=3D"1">  <font face=3D"Arial" size=3D"2">=
- <b><span style=3D"font-weight:bold;">From:</span></b> "Lentes, Bernd" &lt;=
-bernd.lentes@helmholtz-muenchen.de&gt;<br> <b><span style=3D"font-weight: b=
-old;">To:</span></b> "Bridge ML (bridge@lists.linux-foundation.org)" &lt;br=
-idge@lists.linux-foundation.org&gt; <br> <b><span style=3D"font-weight: bol=
-d;">Sent:</span></b> Saturday, August 31, 2013 4:37 PM<br> <b><span style=
-=3D"font-weight: bold;">Subject:</span></b> Re: [Bridge] br0: received pack=
-et on eth0 with own address as source=09address<br> </font> </div> <div cla=
-ss=3D"y_msg_container"><br>Sujata wrote:<br><br>&gt; Bernd,<br><br>&gt; We =
-see this messages ,when there is a loop in the network. Basically, it means=
- that the bridge is receiving same packets which it is sending.<br><br>&gt;=
- Regards,<br>&gt; Sujata<br><br>Hi Sujata,<br><br>how can this happen ? I h=
-ad intermittent
- losses of connectivity. The error appears on two hosts, each have running =
-some KVM guests.<br><br><br>Bernd<br>[]<br><br><br>Helmholtz Zentrum M=FCnc=
-hen<br>Deutsches Forschungszentrum f=FCr Gesundheit und Umwelt (GmbH)<br>In=
-golst=E4dter Landstr. 1<br>85764 Neuherberg<br>www.helmholtz-muenchen.de<br=
->Aufsichtsratsvorsitzende: MinDir=B4in B=E4rbel Brumme-Bothe<br>Gesch=E4fts=
-f=FChrer: Prof. Dr. G=FCnther Wess Dr. Nikolaus Blum Dr. Alfons Enhsen<br>R=
-egistergericht: Amtsgericht M=FCnchen HRB 6466<br>USt-IdNr: DE 129521671<br=
-><br><br></div> </div> </div>  </div></body></html>
----1263770829-1198791415-1378101476=:60377--
+DQpTdWphdGEgd3JvdGU6DQoNCj4gQmVybmQsDQoNCj4gQ2FuIHlvdSBnaXZlIG1vcmUgaW5mb3Jt
+YXRpb24gYWJvdXQgaG93IHRoZXNlIHR3byBob3N0cyBhcmUgY29ubmVjdGVkIHdpdGggdGhlIG5l
+dHdvcms/IEFyZSB0aGV5IHN0YW5kIGFsb25lIFBDID8gTm90IG11Y2ggaWRlYSBhYm91dCBLVk0g
+Z3Vlc3RzLA0KPiBidXQgaG9wZSB0aGV5IGJvdGggaGF2ZSBkaWZmZXJlbnQgbWFjIGFkZHJlc3Nl
+cyBjb25maWd1cmVkLg0KDQo+IFNvbWUgaW5mbyBpIGNvdWxkIGZpbmQNCg0KPiBodHRwOi8vcGlj
+LmRoZS5pYm0uY29tL2luZm9jZW50ZXIvbG54aW5mby92M3IwbTAvaW5kZXguanNwP3RvcGljPSUy
+RmxpYWF0JTJGbGlhYXRrdm1zZWNicmlkZ2UuaHRtDQpJIHdpbGwgY2hlY2sgdGhpcyBvdXQuDQoN
+Cj4gSWYgdGhlcmUgaXMgYSBsb29wIHlvdSB3aWxsIG9ic2VydmUgbG9zcyBpbiB0aGUgY29ubmVj
+dGl2aXR5IGJlY2F1c2UgdGhlcmUgYXJlIHRvbyBtYW55IHBhY2tldHMsIGFuZCBpdCBjYW4gZXZl
+biBicmluZyB5b3VyIG5ldHdvcmsgZG93bi4gVGhpcyBsb29wIGNhbiA+IGJlIGJlY2F1c2Ugb2Yg
+YWN0dWFsbHkgc29tZW9uZSBjb25uZWN0aW5nIHRoZSBjYWJsZSB1bmtub3dpbmdseSB0byBjcmVh
+dGUgbG9vcCBvciBjb3VsZCBiZSBiZWNhdXNlIG9mIG1hYyBhZGRyZXNzIG1pc2NvbmZpZ3VyYXRp
+b24uDQoNCg0KSGksDQoNCnRoaXMgaXMgaG9zdCAxOg0KDQpwYzYwMTgxOn4gIyBpZmNvbmZpZw0K
+YnIwICAgICAgIExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciA1NDowNDpBNjo5NDpGNDo5Mw0K
+ICAgICAgICAgIGluZXQgYWRkcjoxMC4zNS4yMy4zNiAgQmNhc3Q6MTAuMzUuMjMuMCAgTWFzazoy
+NTUuMjU1LjI1NS4wDQogICAgICAgICAgaW5ldDYgYWRkcjogZmU4MDo6NTYwNDphNmZmOmZlOTQ6
+ZjQ5My82NCBTY29wZTpMaW5rDQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgTVVMVElD
+QVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjk2NTc3Mzc3IGVy
+cm9yczowIGRyb3BwZWQ6OTg0MzI0IG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAgICAgIFRYIHBh
+Y2tldHM6Mjg1MDMxNiBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJyaWVyOjANCiAg
+ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjowDQogICAgICAgICAgUlggYnl0ZXM6NDc1
+OTM0MDM3OSAoNDUzOC44IE1iKSAgVFggYnl0ZXM6MjU3MjQ1NTI5NCAoMjQ1My4yIE1iKQ0KDQpl
+dGgwICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDU0OjA0OkE2Ojk0OkY0OjkzDQog
+ICAgICAgICAgaW5ldDYgYWRkcjogZmU4MDo6NTYwNDphNmZmOmZlOTQ6ZjQ5My82NCBTY29wZTpM
+aW5rDQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgUFJPTUlTQyBNVUxUSUNBU1QgIE1U
+VToxNTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6Njc5OTEwNjc0IGVycm9yczow
+IGRyb3BwZWQ6MTQzMjM0IG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAgICAgIFRYIHBhY2tldHM6
+MjExODkzMjggZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQogICAgICAg
+ICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MTAwMA0KICAgICAgICAgIFJYIGJ5dGVzOjk1NzA4
+NjIzNjI2ICg5MTI3NC44IE1iKSAgVFggYnl0ZXM6NjkyNTM3MzIxMiAoNjYwNC41IE1iKQ0KICAg
+ICAgICAgIEludGVycnVwdDo1OCBCYXNlIGFkZHJlc3M6MHg2MDAwDQoNCmxvICAgICAgICBMaW5r
+IGVuY2FwOkxvY2FsIExvb3BiYWNrDQogICAgICAgICAgaW5ldCBhZGRyOjEyNy4wLjAuMSAgTWFz
+azoyNTUuMC4wLjANCiAgICAgICAgICBpbmV0NiBhZGRyOiA6OjEvMTI4IFNjb3BlOkhvc3QNCiAg
+ICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0MzYgIE1ldHJpYzoxDQogICAgICAg
+ICAgUlggcGFja2V0czo2MzAyMjIzIGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGZyYW1l
+OjANCiAgICAgICAgICBUWCBwYWNrZXRzOjYzMDIyMjMgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJy
+dW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MA0KICAg
+ICAgICAgIFJYIGJ5dGVzOjQzNTg3NjM5NzUgKDQxNTYuOCBNYikgIFRYIGJ5dGVzOjQzNTg3NjM5
+NzUgKDQxNTYuOCBNYikNCg0Kdm5ldDAgICAgIExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciBG
+RTo1NDowMDozNzo5MjpBMA0KICAgICAgICAgIGluZXQ2IGFkZHI6IGZlODA6OmZjNTQ6ZmY6ZmUz
+Nzo5MmEwLzY0IFNjb3BlOkxpbmsNCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxU
+SUNBU1QgIE1UVToxNTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6MjU2NDgwIGVy
+cm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBwYWNrZXRz
+Ojk0OTk2NzM2IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczo3NjAzOSBjYXJyaWVyOjANCiAg
+ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjo1MDANCiAgICAgICAgICBSWCBieXRlczoy
+MzM1Nzg5MSAoMjIuMiBNYikgIFRYIGJ5dGVzOjU5NjM5NDk5MTEgKDU2ODcuNiBNYikNCg0KYW5k
+IHRoaXMgaXMgdGhlIGd1ZXN0IGZyb20gaG9zdCAxOg0KDQp2bTU5MDkzLTQ6fiAjIGlmY29uZmln
+DQpldGgwICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDUyOjU0OjAwOjM3OjkyOkEw
+DQogICAgICAgICAgaW5ldCBhZGRyOjEwLjM1LjIzLjM3ICBCY2FzdDoxMC4zNS4yMy4wICBNYXNr
+OjI1NS4yNTUuMjU1LjANCiAgICAgICAgICBpbmV0NiBhZGRyOiBmZTgwOjo1MDU0OmZmOmZlMzc6
+OTJhMC82NCBTY29wZTpMaW5rDQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgTVVMVElD
+QVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjk1MDA5OTQ4IGVy
+cm9yczowIGRyb3BwZWQ6MTAzNTAxNSBvdmVycnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBw
+YWNrZXRzOjI1NjUwMyBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJyaWVyOjANCiAg
+ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjoxMDAwDQogICAgICAgICAgUlggYnl0ZXM6
+NTk2NTAxODU5NiAoNTY4OC42IE1iKSAgVFggYnl0ZXM6MjMzNTk0NjkgKDIyLjIgTWIpDQoNCmxv
+ICAgICAgICBMaW5rIGVuY2FwOkxvY2FsIExvb3BiYWNrDQogICAgICAgICAgaW5ldCBhZGRyOjEy
+Ny4wLjAuMSAgTWFzazoyNTUuMC4wLjANCiAgICAgICAgICBpbmV0NiBhZGRyOiA6OjEvMTI4IFNj
+b3BlOkhvc3QNCiAgICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0MzYgIE1ldHJp
+YzoxDQogICAgICAgICAgUlggcGFja2V0czoyMTczMzE4IGVycm9yczowIGRyb3BwZWQ6MCBvdmVy
+cnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBwYWNrZXRzOjIxNzMzMTggZXJyb3JzOjAgZHJv
+cHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVl
+dWVsZW46MA0KICAgICAgICAgIFJYIGJ5dGVzOjI2Mjc4MTY1MyAoMjUwLjYgTWIpICBUWCBieXRl
+czoyNjI3ODE2NTMgKDI1MC42IE1iKQ0KDQpUaGUgYnJpZGdlIG9uIHRoZSBob3N0IGNvbm5lY3Rz
+IHRoZSBuZXR3b3JrIGFkcGF0ZXIgZnJvbSB0aGUgdm0gYW5kIGV0aCBmcm9tIHRoZSBob3N0IHRv
+IHRoZSBuZXR3b3JrLg0KVXNpbmcgdGhpcyBjb25maWd1cmF0aW9uIHlvdSBjYW4gZGlyZWN0bHkg
+YWNjZXNzIHRoZSBndWVzdCBmcm9tIHRoZSBuZXR3b3JrLg0KDQoNCmhvc3QgMjoNCg0Kc3VuaGI1
+ODgyMDp+ICMgaWZjb25maWcNCmJvbmQwICAgICBMaW5rIGVuY2FwOkV0aGVybmV0ICBIV2FkZHIg
+Njg6QjU6OTk6QzI6NEE6MzYNCiAgICAgICAgICBpbmV0NiBhZGRyOiBmZTgwOjo2YWI1Ojk5ZmY6
+ZmVjMjo0YTM2LzY0IFNjb3BlOkxpbmsNCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBN
+QVNURVIgTVVMVElDQVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRz
+OjkwNTI2Nzg2MSBlcnJvcnM6MCBkcm9wcGVkOjI5NTU2MDg4NyBvdmVycnVuczowIGZyYW1lOjY4
+DQogICAgICAgICAgVFggcGFja2V0czoxNzA3MTU5MzQgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJy
+dW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MA0KICAg
+ICAgICAgIFJYIGJ5dGVzOjk2MDc0MDQ3MTk1ICg5MTYyMy4zIE1iKSAgVFggYnl0ZXM6MTEyODIx
+MDQzOTggKDEwNzU5LjQgTWIpDQoNCmJyMCAgICAgICBMaW5rIGVuY2FwOkV0aGVybmV0ICBIV2Fk
+ZHIgNjg6QjU6OTk6QzI6NEE6MzYNCiAgICAgICAgICBpbmV0IGFkZHI6MTQ2LjEwNy4yMzUuMTMy
+ICBCY2FzdDoxNDYuMTA3LjIzNS4yNTUgIE1hc2s6MjU1LjI1NS4yNTUuMA0KICAgICAgICAgIGlu
+ZXQ2IGFkZHI6IGZlYzA6OmM6NmFiNTo5OWZmOmZlYzI6NGEzNi82NCBTY29wZTpTaXRlDQogICAg
+ICAgICAgaW5ldDYgYWRkcjogMjAwMjo5MjZiOmViNmQ6Yzo2YWI1Ojk5ZmY6ZmVjMjo0YTM2LzY0
+IFNjb3BlOkdsb2JhbA0KICAgICAgICAgIGluZXQ2IGFkZHI6IGZlODA6OjZhYjU6OTlmZjpmZWMy
+OjRhMzYvNjQgU2NvcGU6TGluaw0KICAgICAgICAgIFVQIEJST0FEQ0FTVCBSVU5OSU5HIE1VTFRJ
+Q0FTVCAgTVRVOjE1MDAgIE1ldHJpYzoxDQogICAgICAgICAgUlggcGFja2V0czozNzU2MDk0MjYg
+ZXJyb3JzOjAgZHJvcHBlZDo5ODAyNDU2IG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAgICAgIFRY
+IHBhY2tldHM6MTMzOTQwNyBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJyaWVyOjAN
+CiAgICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjowDQogICAgICAgICAgUlggYnl0ZXM6
+Mjk1OTM4MTIxMzQgKDI4MjIyLjggTWIpICBUWCBieXRlczo0MDQ4NzY4ODggKDM4Ni4xIE1iKQ0K
+DQpldGgwICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDY4OkI1Ojk5OkMyOjRBOjM2
+DQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgU0xBVkUgTVVMVElDQVNUICBNVFU6MTUw
+MCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjYwOTQwMzUwNCBlcnJvcnM6MCBkcm9w
+cGVkOjEzNDE4NDAgb3ZlcnJ1bnM6MCBmcmFtZTo2NA0KICAgICAgICAgIFRYIHBhY2tldHM6MTcw
+Njc5NDk1IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KICAgICAgICAg
+IGNvbGxpc2lvbnM6MCB0eHF1ZXVlbGVuOjEwMDANCiAgICAgICAgICBSWCBieXRlczo2NjM2NTU1
+MjI3MCAoNjMyOTEuMSBNYikgIFRYIGJ5dGVzOjExMjc5NDYzOTMxICgxMDc1Ni45IE1iKQ0KICAg
+ICAgICAgIEludGVycnVwdDoxNg0KDQpldGgxICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdh
+ZGRyIDY4OkI1Ojk5OkMyOjRBOjM2DQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgU0xB
+VkUgTVVMVElDQVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjI5
+NTg2NDM1NyBlcnJvcnM6MCBkcm9wcGVkOjI5NDA4MTQxNCBvdmVycnVuczowIGZyYW1lOjQNCiAg
+ICAgICAgICBUWCBwYWNrZXRzOjM2NDM5IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNh
+cnJpZXI6MA0KICAgICAgICAgIGNvbGxpc2lvbnM6MCB0eHF1ZXVlbGVuOjEwMDANCiAgICAgICAg
+ICBSWCBieXRlczoyOTcwODQ5NDkyNSAoMjgzMzIuMiBNYikgIFRYIGJ5dGVzOjI2NDA0NjcgKDIu
+NSBNYikNCiAgICAgICAgICBJbnRlcnJ1cHQ6MTcNCg0KbG8gICAgICAgIExpbmsgZW5jYXA6TG9j
+YWwgTG9vcGJhY2sNCiAgICAgICAgICBpbmV0IGFkZHI6MTI3LjAuMC4xICBNYXNrOjI1NS4wLjAu
+MA0KICAgICAgICAgIGluZXQ2IGFkZHI6IDo6MS8xMjggU2NvcGU6SG9zdA0KICAgICAgICAgIFVQ
+IExPT1BCQUNLIFJVTk5JTkcgIE1UVToxNjQzNiAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNr
+ZXRzOjQ5MDk0NzQgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAg
+ICAgIFRYIHBhY2tldHM6NDkwOTQ3NCBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJy
+aWVyOjANCiAgICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjowDQogICAgICAgICAgUlgg
+Ynl0ZXM6MTAxMTk0NjQzNCAoOTY1LjAgTWIpICBUWCBieXRlczoxMDExOTQ2NDM0ICg5NjUuMCBN
+YikNCg0Kdm5ldDAgICAgIExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciBGRTo1NDowMDozNzo5
+MjpBQQ0KICAgICAgICAgIGluZXQ2IGFkZHI6IGZlODA6OmZjNTQ6ZmY6ZmUzNzo5MmFhLzY0IFNj
+b3BlOkxpbmsNCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxUSUNBU1QgIE1UVTox
+NTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6NDI0NDEwNCBlcnJvcnM6MCBkcm9w
+cGVkOjAgb3ZlcnJ1bnM6MCBmcmFtZTowDQogICAgICAgICAgVFggcGFja2V0czo4OTY0NTY3MSBl
+cnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6NTE3IGNhcnJpZXI6MA0KICAgICAgICAgIGNvbGxp
+c2lvbnM6MCB0eHF1ZXVlbGVuOjUwMA0KICAgICAgICAgIFJYIGJ5dGVzOjI4NTI3NDY1NiAoMjcy
+LjAgTWIpICBUWCBieXRlczoxNzc3MTA1OTMxOSAoMTY5NDcuOCBNYikNCg0KDQphbmQgdGhlIGd1
+ZXN0IGZyb20gaG9zdCAyOg0KDQp2bTU4ODIwLTE6fiAjIGlmY29uZmlnDQpldGgyICAgICAgTGlu
+ayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDUyOjU0OjAwOjM3OjkyOkFBDQogICAgICAgICAgaW5l
+dCBhZGRyOjEwLjM1LjIzLjQ1ICBCY2FzdDoxMC4zNS4yMy4wICBNYXNrOjI1NS4yNTUuMjU1LjAN
+CiAgICAgICAgICBVUCBCUk9BRENBU1QgTk9UUkFJTEVSUyBSVU5OSU5HIE1VTFRJQ0FTVCAgTVRV
+OjE1MDAgIE1ldHJpYzoxDQogICAgICAgICAgUlggcGFja2V0czoyNzcxNDQwOCBlcnJvcnM6MCBk
+cm9wcGVkOjAgb3ZlcnJ1bnM6MCBmcmFtZTowDQogICAgICAgICAgVFggcGFja2V0czo0MjQ0MDYz
+IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KICAgICAgICAgIGNvbGxp
+c2lvbnM6MCB0eHF1ZXVlbGVuOjEwMDANCiAgICAgICAgICBSWCBieXRlczoxNDA4NzA4MjY2OCAo
+MTM0MzQuNCBNYikgIFRYIGJ5dGVzOjI4NTI4MzkwNCAoMjcyLjAgTWIpDQoNCmxvICAgICAgICBM
+aW5rIGVuY2FwOkxvY2FsIExvb3BiYWNrDQogICAgICAgICAgaW5ldCBhZGRyOjEyNy4wLjAuMSAg
+TWFzazoyNTUuMC4wLjANCiAgICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0MzYg
+IE1ldHJpYzoxDQogICAgICAgICAgUlggcGFja2V0czoyNDIzNjI3IGVycm9yczowIGRyb3BwZWQ6
+MCBvdmVycnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBwYWNrZXRzOjI0MjM2MjcgZXJyb3Jz
+OjAgZHJvcHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczow
+IHR4cXVldWVsZW46MA0KICAgICAgICAgIFJYIGJ5dGVzOjY1NzMwMTc5NSAoNjI2LjggTWIpICBU
+WCBieXRlczo2NTczMDE3OTUgKDYyNi44IE1iKQ0KDQp2bW5ldDEgICAgTGluayBlbmNhcDpFdGhl
+cm5ldCAgSFdhZGRyIDAwOjUwOjU2OkMwOjAwOjAxDQogICAgICAgICAgaW5ldCBhZGRyOjE3Mi4x
+Ni4xNTEuMSAgQmNhc3Q6MTcyLjE2LjE1MS4yNTUgIE1hc2s6MjU1LjI1NS4yNTUuMA0KICAgICAg
+ICAgIFVQIEJST0FEQ0FTVCBSVU5OSU5HIE1VTFRJQ0FTVCAgTVRVOjE1MDAgIE1ldHJpYzoxDQog
+ICAgICAgICAgUlggcGFja2V0czowIGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGZyYW1l
+OjANCiAgICAgICAgICBUWCBwYWNrZXRzOjAgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAg
+Y2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MTAwMA0KICAgICAg
+ICAgIFJYIGJ5dGVzOjAgKDAuMCBiKSAgVFggYnl0ZXM6MCAoMC4wIGIpDQoNCnZtbmV0OCAgICBM
+aW5rIGVuY2FwOkV0aGVybmV0ICBIV2FkZHIgMDA6NTA6NTY6QzA6MDA6MDgNCiAgICAgICAgICBp
+bmV0IGFkZHI6MTkyLjE2OC4xNTYuMSAgQmNhc3Q6MTkyLjE2OC4xNTYuMjU1ICBNYXNrOjI1NS4y
+NTUuMjU1LjANCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxUSUNBU1QgIE1UVTox
+NTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6MCBlcnJvcnM6MCBkcm9wcGVkOjAg
+b3ZlcnJ1bnM6MCBmcmFtZTowDQogICAgICAgICAgVFggcGFja2V0czowIGVycm9yczowIGRyb3Bw
+ZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KICAgICAgICAgIGNvbGxpc2lvbnM6MCB0eHF1ZXVl
+bGVuOjEwMDANCiAgICAgICAgICBSWCBieXRlczowICgwLjAgYikgIFRYIGJ5dGVzOjAgKDAuMCBi
+KQ0KDQpBbGwgZ3Vlc3RzIGFuZCBob3N0cyBjYW4gZWFzaWx5IGFjY2VzcyB0aGUgbmV0d29yay4N
+Cg0KDQpCZXJuZA0KDQoNCg0KDQoNCg0KDQpIZWxtaG9sdHogWmVudHJ1bSBNw7xuY2hlbg0KRGV1
+dHNjaGVzIEZvcnNjaHVuZ3N6ZW50cnVtIGbDvHIgR2VzdW5kaGVpdCB1bmQgVW13ZWx0IChHbWJI
+KQ0KSW5nb2xzdMOkZHRlciBMYW5kc3RyLiAxDQo4NTc2NCBOZXVoZXJiZXJnDQp3d3cuaGVsbWhv
+bHR6LW11ZW5jaGVuLmRlDQpBdWZzaWNodHNyYXRzdm9yc2l0emVuZGU6IE1pbkRpcsK0aW4gQsOk
+cmJlbCBCcnVtbWUtQm90aGUNCkdlc2Now6RmdHNmw7xocmVyOiBQcm9mLiBEci4gR8O8bnRoZXIg
+V2VzcyBEci4gTmlrb2xhdXMgQmx1bSBEci4gQWxmb25zIEVuaHNlbg0KUmVnaXN0ZXJnZXJpY2h0
+OiBBbXRzZ2VyaWNodCBNw7xuY2hlbiBIUkIgNjQ2Ng0KVVN0LUlkTnI6IERFIDEyOTUyMTY3MQ0K
