@@ -1,19 +1,12 @@
-Return-Path: <bernd.lentes@helmholtz-muenchen.de>
-From: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
-Date: Mon, 2 Sep 2013 13:16:04 +0200
-Message-ID: <15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C32@XCH11.scidom.de>
-References: <15785B7E063D464C86DD482FCAE4EBA5018D1AD3DA16@XCH11.scidom.de>
-	<15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C29@XCH11.scidom.de>
-	<1377921042.19249.YahooMailNeo@web160202.mail.bf1.yahoo.com>
-	<15785B7E063D464C86DD482FCAE4EBA5018D1B8B7C2B@XCH11.scidom.de>
-	<1378101476.60377.YahooMailNeo@web160205.mail.bf1.yahoo.com>
-In-Reply-To: <1378101476.60377.YahooMailNeo@web160205.mail.bf1.yahoo.com>
-Content-Language: de-DE
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <dingtianhong@huawei.com>
+Message-ID: <52258C79.2010508@huawei.com>
+Date: Tue, 3 Sep 2013 15:15:05 +0800
+From: Ding Tianhong <dingtianhong@huawei.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] br0: received packet on eth0 with own address as
- source	address
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH net] bridge: netfiler: update
+ find_inlist_lock_noload() more accurate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,160 +15,198 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Bridge ML (bridge@lists.linux-foundation.org)" <bridge@lists.linux-foundation.org>
+To: Bart De Schuymer <bart.de.schuymer@pandora.be>, Pablo Neira Ayuso <pablo@netfilter.org>, Patrick McHardy <kaber@trash.net>, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, Netdev <netdev@vger.kernel.org>, Baoquan He <baoquan.he@gmail.com>
 
-DQpTdWphdGEgd3JvdGU6DQoNCj4gQmVybmQsDQoNCj4gQ2FuIHlvdSBnaXZlIG1vcmUgaW5mb3Jt
-YXRpb24gYWJvdXQgaG93IHRoZXNlIHR3byBob3N0cyBhcmUgY29ubmVjdGVkIHdpdGggdGhlIG5l
-dHdvcms/IEFyZSB0aGV5IHN0YW5kIGFsb25lIFBDID8gTm90IG11Y2ggaWRlYSBhYm91dCBLVk0g
-Z3Vlc3RzLA0KPiBidXQgaG9wZSB0aGV5IGJvdGggaGF2ZSBkaWZmZXJlbnQgbWFjIGFkZHJlc3Nl
-cyBjb25maWd1cmVkLg0KDQo+IFNvbWUgaW5mbyBpIGNvdWxkIGZpbmQNCg0KPiBodHRwOi8vcGlj
-LmRoZS5pYm0uY29tL2luZm9jZW50ZXIvbG54aW5mby92M3IwbTAvaW5kZXguanNwP3RvcGljPSUy
-RmxpYWF0JTJGbGlhYXRrdm1zZWNicmlkZ2UuaHRtDQpJIHdpbGwgY2hlY2sgdGhpcyBvdXQuDQoN
-Cj4gSWYgdGhlcmUgaXMgYSBsb29wIHlvdSB3aWxsIG9ic2VydmUgbG9zcyBpbiB0aGUgY29ubmVj
-dGl2aXR5IGJlY2F1c2UgdGhlcmUgYXJlIHRvbyBtYW55IHBhY2tldHMsIGFuZCBpdCBjYW4gZXZl
-biBicmluZyB5b3VyIG5ldHdvcmsgZG93bi4gVGhpcyBsb29wIGNhbiA+IGJlIGJlY2F1c2Ugb2Yg
-YWN0dWFsbHkgc29tZW9uZSBjb25uZWN0aW5nIHRoZSBjYWJsZSB1bmtub3dpbmdseSB0byBjcmVh
-dGUgbG9vcCBvciBjb3VsZCBiZSBiZWNhdXNlIG9mIG1hYyBhZGRyZXNzIG1pc2NvbmZpZ3VyYXRp
-b24uDQoNCg0KSGksDQoNCnRoaXMgaXMgaG9zdCAxOg0KDQpwYzYwMTgxOn4gIyBpZmNvbmZpZw0K
-YnIwICAgICAgIExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciA1NDowNDpBNjo5NDpGNDo5Mw0K
-ICAgICAgICAgIGluZXQgYWRkcjoxMC4zNS4yMy4zNiAgQmNhc3Q6MTAuMzUuMjMuMCAgTWFzazoy
-NTUuMjU1LjI1NS4wDQogICAgICAgICAgaW5ldDYgYWRkcjogZmU4MDo6NTYwNDphNmZmOmZlOTQ6
-ZjQ5My82NCBTY29wZTpMaW5rDQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgTVVMVElD
-QVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjk2NTc3Mzc3IGVy
-cm9yczowIGRyb3BwZWQ6OTg0MzI0IG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAgICAgIFRYIHBh
-Y2tldHM6Mjg1MDMxNiBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJyaWVyOjANCiAg
-ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjowDQogICAgICAgICAgUlggYnl0ZXM6NDc1
-OTM0MDM3OSAoNDUzOC44IE1iKSAgVFggYnl0ZXM6MjU3MjQ1NTI5NCAoMjQ1My4yIE1iKQ0KDQpl
-dGgwICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDU0OjA0OkE2Ojk0OkY0OjkzDQog
-ICAgICAgICAgaW5ldDYgYWRkcjogZmU4MDo6NTYwNDphNmZmOmZlOTQ6ZjQ5My82NCBTY29wZTpM
-aW5rDQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgUFJPTUlTQyBNVUxUSUNBU1QgIE1U
-VToxNTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6Njc5OTEwNjc0IGVycm9yczow
-IGRyb3BwZWQ6MTQzMjM0IG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAgICAgIFRYIHBhY2tldHM6
-MjExODkzMjggZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQogICAgICAg
-ICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MTAwMA0KICAgICAgICAgIFJYIGJ5dGVzOjk1NzA4
-NjIzNjI2ICg5MTI3NC44IE1iKSAgVFggYnl0ZXM6NjkyNTM3MzIxMiAoNjYwNC41IE1iKQ0KICAg
-ICAgICAgIEludGVycnVwdDo1OCBCYXNlIGFkZHJlc3M6MHg2MDAwDQoNCmxvICAgICAgICBMaW5r
-IGVuY2FwOkxvY2FsIExvb3BiYWNrDQogICAgICAgICAgaW5ldCBhZGRyOjEyNy4wLjAuMSAgTWFz
-azoyNTUuMC4wLjANCiAgICAgICAgICBpbmV0NiBhZGRyOiA6OjEvMTI4IFNjb3BlOkhvc3QNCiAg
-ICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0MzYgIE1ldHJpYzoxDQogICAgICAg
-ICAgUlggcGFja2V0czo2MzAyMjIzIGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGZyYW1l
-OjANCiAgICAgICAgICBUWCBwYWNrZXRzOjYzMDIyMjMgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJy
-dW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MA0KICAg
-ICAgICAgIFJYIGJ5dGVzOjQzNTg3NjM5NzUgKDQxNTYuOCBNYikgIFRYIGJ5dGVzOjQzNTg3NjM5
-NzUgKDQxNTYuOCBNYikNCg0Kdm5ldDAgICAgIExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciBG
-RTo1NDowMDozNzo5MjpBMA0KICAgICAgICAgIGluZXQ2IGFkZHI6IGZlODA6OmZjNTQ6ZmY6ZmUz
-Nzo5MmEwLzY0IFNjb3BlOkxpbmsNCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxU
-SUNBU1QgIE1UVToxNTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6MjU2NDgwIGVy
-cm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBwYWNrZXRz
-Ojk0OTk2NzM2IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczo3NjAzOSBjYXJyaWVyOjANCiAg
-ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjo1MDANCiAgICAgICAgICBSWCBieXRlczoy
-MzM1Nzg5MSAoMjIuMiBNYikgIFRYIGJ5dGVzOjU5NjM5NDk5MTEgKDU2ODcuNiBNYikNCg0KYW5k
-IHRoaXMgaXMgdGhlIGd1ZXN0IGZyb20gaG9zdCAxOg0KDQp2bTU5MDkzLTQ6fiAjIGlmY29uZmln
-DQpldGgwICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDUyOjU0OjAwOjM3OjkyOkEw
-DQogICAgICAgICAgaW5ldCBhZGRyOjEwLjM1LjIzLjM3ICBCY2FzdDoxMC4zNS4yMy4wICBNYXNr
-OjI1NS4yNTUuMjU1LjANCiAgICAgICAgICBpbmV0NiBhZGRyOiBmZTgwOjo1MDU0OmZmOmZlMzc6
-OTJhMC82NCBTY29wZTpMaW5rDQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgTVVMVElD
-QVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjk1MDA5OTQ4IGVy
-cm9yczowIGRyb3BwZWQ6MTAzNTAxNSBvdmVycnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBw
-YWNrZXRzOjI1NjUwMyBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJyaWVyOjANCiAg
-ICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjoxMDAwDQogICAgICAgICAgUlggYnl0ZXM6
-NTk2NTAxODU5NiAoNTY4OC42IE1iKSAgVFggYnl0ZXM6MjMzNTk0NjkgKDIyLjIgTWIpDQoNCmxv
-ICAgICAgICBMaW5rIGVuY2FwOkxvY2FsIExvb3BiYWNrDQogICAgICAgICAgaW5ldCBhZGRyOjEy
-Ny4wLjAuMSAgTWFzazoyNTUuMC4wLjANCiAgICAgICAgICBpbmV0NiBhZGRyOiA6OjEvMTI4IFNj
-b3BlOkhvc3QNCiAgICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0MzYgIE1ldHJp
-YzoxDQogICAgICAgICAgUlggcGFja2V0czoyMTczMzE4IGVycm9yczowIGRyb3BwZWQ6MCBvdmVy
-cnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBwYWNrZXRzOjIxNzMzMTggZXJyb3JzOjAgZHJv
-cHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVl
-dWVsZW46MA0KICAgICAgICAgIFJYIGJ5dGVzOjI2Mjc4MTY1MyAoMjUwLjYgTWIpICBUWCBieXRl
-czoyNjI3ODE2NTMgKDI1MC42IE1iKQ0KDQpUaGUgYnJpZGdlIG9uIHRoZSBob3N0IGNvbm5lY3Rz
-IHRoZSBuZXR3b3JrIGFkcGF0ZXIgZnJvbSB0aGUgdm0gYW5kIGV0aCBmcm9tIHRoZSBob3N0IHRv
-IHRoZSBuZXR3b3JrLg0KVXNpbmcgdGhpcyBjb25maWd1cmF0aW9uIHlvdSBjYW4gZGlyZWN0bHkg
-YWNjZXNzIHRoZSBndWVzdCBmcm9tIHRoZSBuZXR3b3JrLg0KDQoNCmhvc3QgMjoNCg0Kc3VuaGI1
-ODgyMDp+ICMgaWZjb25maWcNCmJvbmQwICAgICBMaW5rIGVuY2FwOkV0aGVybmV0ICBIV2FkZHIg
-Njg6QjU6OTk6QzI6NEE6MzYNCiAgICAgICAgICBpbmV0NiBhZGRyOiBmZTgwOjo2YWI1Ojk5ZmY6
-ZmVjMjo0YTM2LzY0IFNjb3BlOkxpbmsNCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBN
-QVNURVIgTVVMVElDQVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRz
-OjkwNTI2Nzg2MSBlcnJvcnM6MCBkcm9wcGVkOjI5NTU2MDg4NyBvdmVycnVuczowIGZyYW1lOjY4
-DQogICAgICAgICAgVFggcGFja2V0czoxNzA3MTU5MzQgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJy
-dW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MA0KICAg
-ICAgICAgIFJYIGJ5dGVzOjk2MDc0MDQ3MTk1ICg5MTYyMy4zIE1iKSAgVFggYnl0ZXM6MTEyODIx
-MDQzOTggKDEwNzU5LjQgTWIpDQoNCmJyMCAgICAgICBMaW5rIGVuY2FwOkV0aGVybmV0ICBIV2Fk
-ZHIgNjg6QjU6OTk6QzI6NEE6MzYNCiAgICAgICAgICBpbmV0IGFkZHI6MTQ2LjEwNy4yMzUuMTMy
-ICBCY2FzdDoxNDYuMTA3LjIzNS4yNTUgIE1hc2s6MjU1LjI1NS4yNTUuMA0KICAgICAgICAgIGlu
-ZXQ2IGFkZHI6IGZlYzA6OmM6NmFiNTo5OWZmOmZlYzI6NGEzNi82NCBTY29wZTpTaXRlDQogICAg
-ICAgICAgaW5ldDYgYWRkcjogMjAwMjo5MjZiOmViNmQ6Yzo2YWI1Ojk5ZmY6ZmVjMjo0YTM2LzY0
-IFNjb3BlOkdsb2JhbA0KICAgICAgICAgIGluZXQ2IGFkZHI6IGZlODA6OjZhYjU6OTlmZjpmZWMy
-OjRhMzYvNjQgU2NvcGU6TGluaw0KICAgICAgICAgIFVQIEJST0FEQ0FTVCBSVU5OSU5HIE1VTFRJ
-Q0FTVCAgTVRVOjE1MDAgIE1ldHJpYzoxDQogICAgICAgICAgUlggcGFja2V0czozNzU2MDk0MjYg
-ZXJyb3JzOjAgZHJvcHBlZDo5ODAyNDU2IG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAgICAgIFRY
-IHBhY2tldHM6MTMzOTQwNyBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJyaWVyOjAN
-CiAgICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjowDQogICAgICAgICAgUlggYnl0ZXM6
-Mjk1OTM4MTIxMzQgKDI4MjIyLjggTWIpICBUWCBieXRlczo0MDQ4NzY4ODggKDM4Ni4xIE1iKQ0K
-DQpldGgwICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDY4OkI1Ojk5OkMyOjRBOjM2
-DQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgU0xBVkUgTVVMVElDQVNUICBNVFU6MTUw
-MCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjYwOTQwMzUwNCBlcnJvcnM6MCBkcm9w
-cGVkOjEzNDE4NDAgb3ZlcnJ1bnM6MCBmcmFtZTo2NA0KICAgICAgICAgIFRYIHBhY2tldHM6MTcw
-Njc5NDk1IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KICAgICAgICAg
-IGNvbGxpc2lvbnM6MCB0eHF1ZXVlbGVuOjEwMDANCiAgICAgICAgICBSWCBieXRlczo2NjM2NTU1
-MjI3MCAoNjMyOTEuMSBNYikgIFRYIGJ5dGVzOjExMjc5NDYzOTMxICgxMDc1Ni45IE1iKQ0KICAg
-ICAgICAgIEludGVycnVwdDoxNg0KDQpldGgxICAgICAgTGluayBlbmNhcDpFdGhlcm5ldCAgSFdh
-ZGRyIDY4OkI1Ojk5OkMyOjRBOjM2DQogICAgICAgICAgVVAgQlJPQURDQVNUIFJVTk5JTkcgU0xB
-VkUgTVVMVElDQVNUICBNVFU6MTUwMCAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNrZXRzOjI5
-NTg2NDM1NyBlcnJvcnM6MCBkcm9wcGVkOjI5NDA4MTQxNCBvdmVycnVuczowIGZyYW1lOjQNCiAg
-ICAgICAgICBUWCBwYWNrZXRzOjM2NDM5IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNh
-cnJpZXI6MA0KICAgICAgICAgIGNvbGxpc2lvbnM6MCB0eHF1ZXVlbGVuOjEwMDANCiAgICAgICAg
-ICBSWCBieXRlczoyOTcwODQ5NDkyNSAoMjgzMzIuMiBNYikgIFRYIGJ5dGVzOjI2NDA0NjcgKDIu
-NSBNYikNCiAgICAgICAgICBJbnRlcnJ1cHQ6MTcNCg0KbG8gICAgICAgIExpbmsgZW5jYXA6TG9j
-YWwgTG9vcGJhY2sNCiAgICAgICAgICBpbmV0IGFkZHI6MTI3LjAuMC4xICBNYXNrOjI1NS4wLjAu
-MA0KICAgICAgICAgIGluZXQ2IGFkZHI6IDo6MS8xMjggU2NvcGU6SG9zdA0KICAgICAgICAgIFVQ
-IExPT1BCQUNLIFJVTk5JTkcgIE1UVToxNjQzNiAgTWV0cmljOjENCiAgICAgICAgICBSWCBwYWNr
-ZXRzOjQ5MDk0NzQgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAgZnJhbWU6MA0KICAgICAg
-ICAgIFRYIHBhY2tldHM6NDkwOTQ3NCBlcnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6MCBjYXJy
-aWVyOjANCiAgICAgICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjowDQogICAgICAgICAgUlgg
-Ynl0ZXM6MTAxMTk0NjQzNCAoOTY1LjAgTWIpICBUWCBieXRlczoxMDExOTQ2NDM0ICg5NjUuMCBN
-YikNCg0Kdm5ldDAgICAgIExpbmsgZW5jYXA6RXRoZXJuZXQgIEhXYWRkciBGRTo1NDowMDozNzo5
-MjpBQQ0KICAgICAgICAgIGluZXQ2IGFkZHI6IGZlODA6OmZjNTQ6ZmY6ZmUzNzo5MmFhLzY0IFNj
-b3BlOkxpbmsNCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxUSUNBU1QgIE1UVTox
-NTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6NDI0NDEwNCBlcnJvcnM6MCBkcm9w
-cGVkOjAgb3ZlcnJ1bnM6MCBmcmFtZTowDQogICAgICAgICAgVFggcGFja2V0czo4OTY0NTY3MSBl
-cnJvcnM6MCBkcm9wcGVkOjAgb3ZlcnJ1bnM6NTE3IGNhcnJpZXI6MA0KICAgICAgICAgIGNvbGxp
-c2lvbnM6MCB0eHF1ZXVlbGVuOjUwMA0KICAgICAgICAgIFJYIGJ5dGVzOjI4NTI3NDY1NiAoMjcy
-LjAgTWIpICBUWCBieXRlczoxNzc3MTA1OTMxOSAoMTY5NDcuOCBNYikNCg0KDQphbmQgdGhlIGd1
-ZXN0IGZyb20gaG9zdCAyOg0KDQp2bTU4ODIwLTE6fiAjIGlmY29uZmlnDQpldGgyICAgICAgTGlu
-ayBlbmNhcDpFdGhlcm5ldCAgSFdhZGRyIDUyOjU0OjAwOjM3OjkyOkFBDQogICAgICAgICAgaW5l
-dCBhZGRyOjEwLjM1LjIzLjQ1ICBCY2FzdDoxMC4zNS4yMy4wICBNYXNrOjI1NS4yNTUuMjU1LjAN
-CiAgICAgICAgICBVUCBCUk9BRENBU1QgTk9UUkFJTEVSUyBSVU5OSU5HIE1VTFRJQ0FTVCAgTVRV
-OjE1MDAgIE1ldHJpYzoxDQogICAgICAgICAgUlggcGFja2V0czoyNzcxNDQwOCBlcnJvcnM6MCBk
-cm9wcGVkOjAgb3ZlcnJ1bnM6MCBmcmFtZTowDQogICAgICAgICAgVFggcGFja2V0czo0MjQ0MDYz
-IGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KICAgICAgICAgIGNvbGxp
-c2lvbnM6MCB0eHF1ZXVlbGVuOjEwMDANCiAgICAgICAgICBSWCBieXRlczoxNDA4NzA4MjY2OCAo
-MTM0MzQuNCBNYikgIFRYIGJ5dGVzOjI4NTI4MzkwNCAoMjcyLjAgTWIpDQoNCmxvICAgICAgICBM
-aW5rIGVuY2FwOkxvY2FsIExvb3BiYWNrDQogICAgICAgICAgaW5ldCBhZGRyOjEyNy4wLjAuMSAg
-TWFzazoyNTUuMC4wLjANCiAgICAgICAgICBVUCBMT09QQkFDSyBSVU5OSU5HICBNVFU6MTY0MzYg
-IE1ldHJpYzoxDQogICAgICAgICAgUlggcGFja2V0czoyNDIzNjI3IGVycm9yczowIGRyb3BwZWQ6
-MCBvdmVycnVuczowIGZyYW1lOjANCiAgICAgICAgICBUWCBwYWNrZXRzOjI0MjM2MjcgZXJyb3Jz
-OjAgZHJvcHBlZDowIG92ZXJydW5zOjAgY2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczow
-IHR4cXVldWVsZW46MA0KICAgICAgICAgIFJYIGJ5dGVzOjY1NzMwMTc5NSAoNjI2LjggTWIpICBU
-WCBieXRlczo2NTczMDE3OTUgKDYyNi44IE1iKQ0KDQp2bW5ldDEgICAgTGluayBlbmNhcDpFdGhl
-cm5ldCAgSFdhZGRyIDAwOjUwOjU2OkMwOjAwOjAxDQogICAgICAgICAgaW5ldCBhZGRyOjE3Mi4x
-Ni4xNTEuMSAgQmNhc3Q6MTcyLjE2LjE1MS4yNTUgIE1hc2s6MjU1LjI1NS4yNTUuMA0KICAgICAg
-ICAgIFVQIEJST0FEQ0FTVCBSVU5OSU5HIE1VTFRJQ0FTVCAgTVRVOjE1MDAgIE1ldHJpYzoxDQog
-ICAgICAgICAgUlggcGFja2V0czowIGVycm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGZyYW1l
-OjANCiAgICAgICAgICBUWCBwYWNrZXRzOjAgZXJyb3JzOjAgZHJvcHBlZDowIG92ZXJydW5zOjAg
-Y2FycmllcjowDQogICAgICAgICAgY29sbGlzaW9uczowIHR4cXVldWVsZW46MTAwMA0KICAgICAg
-ICAgIFJYIGJ5dGVzOjAgKDAuMCBiKSAgVFggYnl0ZXM6MCAoMC4wIGIpDQoNCnZtbmV0OCAgICBM
-aW5rIGVuY2FwOkV0aGVybmV0ICBIV2FkZHIgMDA6NTA6NTY6QzA6MDA6MDgNCiAgICAgICAgICBp
-bmV0IGFkZHI6MTkyLjE2OC4xNTYuMSAgQmNhc3Q6MTkyLjE2OC4xNTYuMjU1ICBNYXNrOjI1NS4y
-NTUuMjU1LjANCiAgICAgICAgICBVUCBCUk9BRENBU1QgUlVOTklORyBNVUxUSUNBU1QgIE1UVTox
-NTAwICBNZXRyaWM6MQ0KICAgICAgICAgIFJYIHBhY2tldHM6MCBlcnJvcnM6MCBkcm9wcGVkOjAg
-b3ZlcnJ1bnM6MCBmcmFtZTowDQogICAgICAgICAgVFggcGFja2V0czowIGVycm9yczowIGRyb3Bw
-ZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0KICAgICAgICAgIGNvbGxpc2lvbnM6MCB0eHF1ZXVl
-bGVuOjEwMDANCiAgICAgICAgICBSWCBieXRlczowICgwLjAgYikgIFRYIGJ5dGVzOjAgKDAuMCBi
-KQ0KDQpBbGwgZ3Vlc3RzIGFuZCBob3N0cyBjYW4gZWFzaWx5IGFjY2VzcyB0aGUgbmV0d29yay4N
-Cg0KDQpCZXJuZA0KDQoNCg0KDQoNCg0KDQpIZWxtaG9sdHogWmVudHJ1bSBNw7xuY2hlbg0KRGV1
-dHNjaGVzIEZvcnNjaHVuZ3N6ZW50cnVtIGbDvHIgR2VzdW5kaGVpdCB1bmQgVW13ZWx0IChHbWJI
-KQ0KSW5nb2xzdMOkZHRlciBMYW5kc3RyLiAxDQo4NTc2NCBOZXVoZXJiZXJnDQp3d3cuaGVsbWhv
-bHR6LW11ZW5jaGVuLmRlDQpBdWZzaWNodHNyYXRzdm9yc2l0emVuZGU6IE1pbkRpcsK0aW4gQsOk
-cmJlbCBCcnVtbWUtQm90aGUNCkdlc2Now6RmdHNmw7xocmVyOiBQcm9mLiBEci4gR8O8bnRoZXIg
-V2VzcyBEci4gTmlrb2xhdXMgQmx1bSBEci4gQWxmb25zIEVuaHNlbg0KUmVnaXN0ZXJnZXJpY2h0
-OiBBbXRzZ2VyaWNodCBNw7xuY2hlbiBIUkIgNjQ2Ng0KVVN0LUlkTnI6IERFIDEyOTUyMTY3MQ0K
+Baoquan He <baoquan.he@gmail.com> has report a problem which occurred by the following command:
+
+make SUBDIRS=net/bridge/netfilter/
+cp /net/bridge/netfilter/ebtables.ko
+/lib/modules/3.11.0-rc7+/kernel/net/bridge/netfilter/ebtables.ko
+depmod
+modprobe ebtables.ko
+reboot
+
+----------------------------------------------------------------------
+
+[   48.895000] BUG: soft lockup - CPU#1 stuck for 22s! [ebtables:444]
+[   48.901191] Modules linked in: bnep(F) bluetooth(F) ebtables(F)
+ip6table_filter(F) ip6_tables(F) rfkill(F) snd_hda_intel(F+)
+snd_hda_codec(F) snd_hwdep(F) snd_seq(F) sn)
+[   48.950034] CPU: 1 PID: 444 Comm: ebtables Tainted: GF     D
+3.11.0-rc7+ #1
+[   48.957433] Hardware name: Hewlett-Packard HP Z420 Workstation/1589,
+BIOS J61 v01.02 03/09/2012
+[   48.966131] task: ffff88040c2dc650 ti: ffff8804187d2000 task.ti:
+ffff8804187d2000
+[   48.973610] RIP: 0010:[<ffffffff812e57a7>]  [<ffffffff812e57a7>]
+strcmp+0x27/0x40
+[   48.981119] RSP: 0018:ffff8804187d3db8  EFLAGS: 00000246
+[   48.986430] RAX: 0000000000000000 RBX: 00007fffda942730 RCX:
+ffff8804187d3fd8
+[   48.993566] RDX: 0000000000000000 RSI: ffff8804187d3e01 RDI:
+ffffffff81cb8a39
+[   49.000707] RBP: ffff8804187d3db8 R08: 00000000fffffff2 R09:
+0000000000000000
+[   49.007841] R10: 0000000000000163 R11: 0000000000000000 R12:
+ffffffff8128300c
+[   49.014972] R13: ffff8804187d3d98 R14: ffff8804187d3ef4 R15:
+0000000000000004
+[   49.022112] FS:  00007faab6589740(0000) GS:ffff88042fc80000(0000)
+knlGS:0000000000000000
+[   49.030194] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   49.035942] CR2: 0000003f0d810414 CR3: 000000040d2cc000 CR4:
+00000000000407e0
+[   49.043077] Stack:
+[   49.045096]  ffff8804187d3de8 ffffffffa0249674 0000000000000080
+ffffffff81cb8180
+[   49.052559]  00007fffda942730 ffff8804187d3ef4 ffff8804187d3ea0
+ffffffffa02497a9
+[   49.060020]  0000000000000000 00007265746c6966 0000003f0d7b92c0
+00007fffda942850
+[   49.067487] Call Trace:
+[   49.069949]  [<ffffffffa0249674>]
+find_inlist_lock.constprop.16+0x54/0x100 [ebtables]
+[   49.077779]  [<ffffffffa02497a9>] do_ebt_get_ctl+0x89/0x1d0 [ebtables]
+[   49.084306]  [<ffffffff81551ca8>] nf_getsockopt+0x68/0x90
+[   49.089717]  [<ffffffff81560d40>] ip_getsockopt+0x80/0xa0
+[   49.095113]  [<ffffffff815835c5>] raw_getsockopt+0x25/0x50
+[   49.100588]  [<ffffffff8150ddd4>] sock_common_getsockopt+0x14/0x20
+[   49.106766]  [<ffffffff8150d208>] SyS_getsockopt+0x68/0xd0
+[   49.112257]  [<ffffffff8162c682>] system_call_fastpath+0x16/0x1b
+[   49.118260] Code: 00 00 00 00 55 48 89 e5 eb 0e 66 2e 0f 1f 84 00 00
+00 00 00 84 c0 74 1c 48 83 c7 01 0f b6 47 ff 48 83 c6 01 3a 46 ff 74 eb
+19 c0 <83> c8 01 5d c3 0f 1
+[   76.925880] BUG: soft lockup - CPU#1 stuck for 22s! [ebtables:444]
+[   76.932069] Modules linked in: bnep(F) bluetooth(F) ebtables(F)
+ip6table_filter(F) ip6_tables(F) rfkill(F) snd_hda_intel(F+)
+snd_hda_codec(F) snd_hwdep(F) snd_seq(F) sn)
+[   76.980847] CPU: 1 PID: 444 Comm: ebtables Tainted: GF     D
+3.11.0-rc7+ #1
+[   76.988245] Hardware name: Hewlett-Packard HP Z420 Workstation/1589,
+BIOS J61 v01.02 03/09/2012
+[   76.996940] task: ffff88040c2dc650 ti: ffff8804187d2000 task.ti:
+ffff8804187d2000
+[   77.004426] RIP: 0010:[<ffffffff812e5784>]  [<ffffffff812e5784>]
+strcmp+0x4/0x40
+[   77.011849] RSP: 0018:ffff8804187d3db8  EFLAGS: 00000212
+[   77.017163] RAX: 0000000000000001 RBX: 00007fffda942730 RCX:
+ffff8804187d3fd8
+[   77.024304] RDX: 0000000000000000 RSI: ffff8804187d3e00 RDI:
+ffffffff81cb8a38
+[   77.031434] RBP: ffff8804187d3db8 R08: 00000000fffffff2 R09:
+0000000000000000
+[   77.038566] R10: 0000000000000163 R11: 0000000000000000 R12:
+ffffffff8128300c
+[   77.045699] R13: ffff8804187d3d98 R14: ffff8804187d3ef4 R15:
+0000000000000004
+[   77.052842] FS:  00007faab6589740(0000) GS:ffff88042fc80000(0000)
+knlGS:0000000000000000
+[   77.060934] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   77.066668] CR2: 0000003f0d810414 CR3: 000000040d2cc000 CR4:
+00000000000407e0
+[   77.073799] Stack:
+[   77.075818]  ffff8804187d3de8 ffffffffa0249674 0000000000000080
+ffffffff81cb8180
+[   77.083287]  00007fffda942730 ffff8804187d3ef4 ffff8804187d3ea0
+ffffffffa02497a9
+[   77.090749]  0000000000000000 00007265746c6966 0000003f0d7b92c0
+00007fffda942850
+[   77.098215] Call Trace:
+[   77.100668]  [<ffffffffa0249674>]
+find_inlist_lock.constprop.16+0x54/0x100 [ebtables]
+[   77.108500]  [<ffffffffa02497a9>] do_ebt_get_ctl+0x89/0x1d0 [ebtables]
+[   77.115035]  [<ffffffff81551ca8>] nf_getsockopt+0x68/0x90
+[   77.120438]  [<ffffffff81560d40>] ip_getsockopt+0x80/0xa0
+[   77.125845]  [<ffffffff815835c5>] raw_getsockopt+0x25/0x50
+[   77.131328]  [<ffffffff8150ddd4>] sock_common_getsockopt+0x14/0x20
+[   77.137515]  [<ffffffff8150d208>] SyS_getsockopt+0x68/0xd0
+[   77.143011]  [<ffffffff8162c682>] system_call_fastpath+0x16/0x1b
+[   77.149019] Code: 0f 1f 80 00 00 00 00 48 83 c6 01 0f b6 4e ff 48 83
+c2 01 84 c9 88 4a ff 75 ed 5d c3 66 66 2e 0f 1f 84 00 00 00 00 00 55 48
+89 e5 <eb> 0e 66 2e 0f 1f 8
+
+---------------------------------------------------------------------------
+
+The find_inlist_lock did not distinguish the error whether lock failed or
+module non-existent, the imperfection processing procedure may course the
+problem.
+
+Return the correct value if mutex_lock_interruptible() failed, avoid
+confusion with that the modules is not exist, and deal with the return
+value in right way.
+
+After the patch, the problem didn't happened again, so I confident the bug
+was fixed.
+
+Reported-by: Baoquan He <baoquan.he@gmail.com>
+Signed-off-by: Ding Tianhong <dingtianhong@huawei.com>
+Cc: Baoquan He <baoquan.he@gmail.com>
+---
+ net/bridge/netfilter/ebtables.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index ac78024..e7fe9f8 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -322,17 +322,14 @@ static inline void *
+ find_inlist_lock_noload(struct list_head *head, const char *name, int *error,
+    struct mutex *mutex)
+ {
+-	struct {
+-		struct list_head list;
+-		char name[EBT_FUNCTION_MAXNAMELEN];
+-	} *e;
++	struct ebt_table *e;
+ 
+ 	*error = mutex_lock_interruptible(mutex);
+ 	if (*error != 0)
+-		return NULL;
++		return ERR_PTR(-EINTR);
+ 
+ 	list_for_each_entry(e, head, list) {
+-		if (strcmp(e->name, name) == 0)
++		 if (strcmp(e->name, name) == 0 && try_module_get(e->me))
+ 			return e;
+ 	}
+ 	*error = -ENOENT;
+@@ -1005,7 +1002,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 		goto free_counterstmp;
+ 
+ 	t = find_table_lock(net, repl->name, &ret, &ebt_mutex);
+-	if (!t) {
++	if (IS_ERR_OR_NULL(t)) {
+ 		ret = -ENOENT;
+ 		goto free_iterate;
+ 	}
+@@ -1284,7 +1281,7 @@ static int do_update_counters(struct net *net, const char *name,
+ 		return -ENOMEM;
+ 
+ 	t = find_table_lock(net, name, &ret, &ebt_mutex);
+-	if (!t)
++	if (IS_ERR_OR_NULL(t))
+ 		goto free_tmp;
+ 
+ 	if (num_counters != t->private->nentries) {
+@@ -1504,7 +1501,7 @@ static int do_ebt_get_ctl(struct sock *sk, int cmd, void __user *user, int *len)
+ 		return -EFAULT;
+ 
+ 	t = find_table_lock(net, tmp.name, &ret, &ebt_mutex);
+-	if (!t)
++	if (IS_ERR_OR_NULL(t))
+ 		return ret;
+ 
+ 	switch(cmd) {
+@@ -2319,7 +2316,7 @@ static int compat_do_ebt_get_ctl(struct sock *sk, int cmd,
+ 		return -EFAULT;
+ 
+ 	t = find_table_lock(net, tmp.name, &ret, &ebt_mutex);
+-	if (!t)
++	if (IS_ERR_OR_NULL(t))
+ 		return ret;
+ 
+ 	xt_compat_lock(NFPROTO_BRIDGE);
+-- 
+1.8.2.1
+
+
