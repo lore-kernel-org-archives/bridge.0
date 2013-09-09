@@ -1,13 +1,17 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 05 Sep 2013 12:36:26 -0400 (EDT)
-Message-Id: <20130905.123626.1950323953517801491.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1378253619-23918-1-git-send-email-linus.luessing@web.de>
-References: <1378253619-23918-1-git-send-email-linus.luessing@web.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] bride: IPv6 multicast snooping enhancements
+Return-Path: <cphealy@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:to:cc:subject:date:message-id;
+	bh=E+ZbUXDPlKx856IfAW4rnb3ZSuiaQiim9SnY5UwXRbk=;
+	b=tuHdMNJPDg6uYL2Xu1syLEnnNYme+1XLTisRfG23C6MHmrUkSGz4vyv3rkgKFHOAJ0
+	06OXvjyY6ndtBDvcAbxwnYFUHEMw8TFox9+2CDVk1b009XMzPkilgSFYA49kbcihY0fJ
+	7OAJCoLmJEpgXuFDE8JMM+OpcoHz3VYyqJeavOMLUyi+JuMIs17wYDjJ+uC0x+69uyKa
+	HSwqh/VPz3IvDXH5k1Oc6V3fbMocMpeL32/BR+IJdQ6b5nsd7fwg3YL+2KYHPWGx9H24
+	EAX/fWyL0bHXn59/DnL/kgIB+hQX2IRb7/cla0uQ3Og2jhkRsG7LdBKjRVZVp4LwMxMF
+	LvJg==
+From: Chris Healy <cphealy@gmail.com>
+Date: Mon,  9 Sep 2013 09:56:08 -0700
+Message-Id: <1378745768-4495-1-git-send-email-cphealy@gmail.com>
+Subject: [Bridge] [PATCH 1/1] bridge: fix message_age_timer calculation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,41 +20,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: amwang@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux@baker-net.org.uk, stephen@networkplumber.org, herbert@gondor.apana.org.au
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, buytenh@wantstofly.org
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Wed,  4 Sep 2013 02:13:37 +0200
+This changes the message_age_timer calculation to use the BPDU's max age as opposed to the local bridge's max age.  This is in accordance with section 8.6.2.3.2 Step 2 of the 802.1D-1998 sprecification.
 
-> Here are two, small feature changes I would like to submit to increas=
-e
-> the usefulness of the multicast snooping of the bridge code.
-> =
+With the current implementation, when running with very large bridge diameters, convergance will not always occur even if a root bridge is configured to have a longer max age.
 
-> The first patch is an unaltered one I had submitted before, but since=
- it
-> got no feedback I'm resubmitting it here for net-next. With the recen=
-tly
-> added patch to disable snooping if there is no querier (b00589af + 24=
-8ba8ec05
-> + 8d50af4fb), it should be a safe choice now (without these, patch 1/=
-2 would
-> have introduced another potential for lost IPv6 multicast packets).
-> =
+Tested successfully on bridge diameters of ~200.
 
-> Both conceptually and also with some testing and fuzzing, I couldn't =
-spot
-> any more causes for potential packet loss. And since the multicast sn=
-ooping
-> code has now been tried by various people, I think it should be a saf=
-e
-> choice to apply the multicast snooping not only for IPv6 multicast pa=
-ckets
-> with a scope greater than link-local, but also for packets of exactly=
- this
-> scope. The IPv6 standard mandates MLD reports for link-local multicas=
-t, too,
-> so we can safely snoop them as well (in contrast to IPv4 link-local).=
+Signed-off-by: Chris Healy <cphealy@gmail.com>
+---
+ net/bridge/br_stp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index 1c0a50f..f1887ba 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -209,7 +209,7 @@ static void br_record_config_information(struct net_bridge_port *p,
+ 	p->designated_age = jiffies - bpdu->message_age;
+ 
+ 	mod_timer(&p->message_age_timer, jiffies
+-		  + (p->br->max_age - bpdu->message_age));
++		  + (bpdu->max_age - bpdu->message_age));
+ }
+ 
+ /* called under bridge lock */
+-- 
+1.8.1.2
 
-Both patches applied, thanks!
