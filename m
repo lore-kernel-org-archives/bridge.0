@@ -1,12 +1,16 @@
-Return-Path: <paulmck@linux.vnet.ibm.com>
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Date: Tue, 24 Sep 2013 18:35:14 -0700
-Message-Id: <1380072916-31557-11-git-send-email-paulmck@linux.vnet.ibm.com>
-In-Reply-To: <1380072916-31557-1-git-send-email-paulmck@linux.vnet.ibm.com>
+Return-Path: <bhutchings@solarflare.com>
+Message-ID: <1380131303.2222.9.camel@bwh-desktop.uk.level5networks.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Date: Wed, 25 Sep 2013 18:48:23 +0100
+In-Reply-To: <1380072916-31557-4-git-send-email-paulmck@linux.vnet.ibm.com>
 References: <20130925013451.GA31260@linux.vnet.ibm.com>
 	<1380072916-31557-1-git-send-email-paulmck@linux.vnet.ibm.com>
-Subject: [Bridge] [PATCH tip/core/rcu 11/13] bridge/br_mdb: Apply
-	rcu_access_pointer() to avoid sparse false positive
+	<1380072916-31557-4-git-send-email-paulmck@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH tip/core/rcu 04/13] wireless: Apply
+ rcu_access_pointer() to avoid sparse false positive
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,44 +19,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, josh@joshtriplett.org, rostedt@goodmis.org, "David S. Miller" <davem@davemloft.net>, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, mingo@kernel.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, "David S. Miller" <davem@davemloft.net>, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, mingo@kernel.org
 
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+On Tue, 2013-09-24 at 18:35 -0700, Paul E. McKenney wrote:
+> From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+> 
+> The sparse checking for rcu_assign_pointer() was recently upgraded
+> to reject non-__kernel address spaces.  This also rejects __rcu,
+> which is almost always the right thing to do.  However, the uses in
+> cfg80211_combine_bsses() and cfg80211_bss_update() are legitimate:
+> They is assigning a pointer to an element from an RCU-protected list,
+[...]
 
-The sparse checking for rcu_assign_pointer() was recently upgraded
-to reject non-__kernel address spaces.  This also rejects __rcu,
-which is almost always the right thing to do.  However, the use in
-__br_mdb_del() is legitimate: They is assigning a pointer to an element
-from an RCU-protected list, and all elements of this list are already
-visible to caller.
+'They is'?  This error is also in the commit messsages for the bridge
+and mac80211 patches, and maybe others that weren't sent to netdev.
 
-This commit therefore silences these false positives by laundering the
-pointers using rcu_access_pointer() as suggested by Josh Triplett.
+Ben.
 
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
----
- net/bridge/br_mdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 85a09bb..3184c88 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -447,7 +447,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
- 		if (p->port->state == BR_STATE_DISABLED)
- 			goto unlock;
- 
--		rcu_assign_pointer(*pp, p->next);
-+		rcu_assign_pointer(*pp, rcu_access_pointer(p->next));
- 		hlist_del_init(&p->mglist);
- 		del_timer(&p->timer);
- 		call_rcu_bh(&p->rcu, br_multicast_free_pg);
 -- 
-1.8.1.5
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
 
