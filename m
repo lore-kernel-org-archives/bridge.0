@@ -1,7 +1,7 @@
 Return-Path: <stephen@networkplumber.org>
-Date: Thu, 26 Sep 2013 14:08:31 -0700
+Date: Thu, 26 Sep 2013 14:10:21 -0700
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20130926140831.36063454@nehalam.linuxnetplumber.net>
+Message-ID: <20130926141021.3cde0f0f@nehalam.linuxnetplumber.net>
 In-Reply-To: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
 References: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
 Mime-Version: 1.0
@@ -95,5 +95,5 @@ Antonio Quartulli <antonio@meshcoding.com> wrote:
 >  	}
 >  
 
-You need to bracket this with CONFIG_BRIDGE_NETFILTER
-since nf_bridge is only in skbuff if that option is enabled.
+I think the header will also be garbage if bridge on bridge with netfilter is used.
+See nf_bridge_save_header.
