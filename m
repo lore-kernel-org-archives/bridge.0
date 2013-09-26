@@ -1,18 +1,14 @@
-Return-Path: <paulmck@linux.vnet.ibm.com>
-Date: Wed, 25 Sep 2013 11:26:08 -0700
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Message-ID: <20130925182608.GY9093@linux.vnet.ibm.com>
-References: <20130925013451.GA31260@linux.vnet.ibm.com>
-	<1380072916-31557-1-git-send-email-paulmck@linux.vnet.ibm.com>
-	<1380072916-31557-4-git-send-email-paulmck@linux.vnet.ibm.com>
-	<1380131303.2222.9.camel@bwh-desktop.uk.level5networks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1380131303.2222.9.camel@bwh-desktop.uk.level5networks.com>
-Subject: Re: [Bridge] [PATCH tip/core/rcu 04/13] wireless: Apply
- rcu_access_pointer() to avoid sparse false positive
-Reply-To: paulmck@linux.vnet.ibm.com
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 26 Sep 2013 14:08:31 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20130926140831.36063454@nehalam.linuxnetplumber.net>
+In-Reply-To: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
+References: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC net] bridge: clean the nf_bridge status when
+ forwarding the skb
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,26 +17,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, "David S. Miller" <davem@davemloft.net>, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, mingo@kernel.org
+To: Antonio Quartulli <antonio@meshcoding.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Antonio Quartulli <antonio@open-mesh.com>
 
-On Wed, Sep 25, 2013 at 06:48:23PM +0100, Ben Hutchings wrote:
-> On Tue, 2013-09-24 at 18:35 -0700, Paul E. McKenney wrote:
-> > From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-> > 
-> > The sparse checking for rcu_assign_pointer() was recently upgraded
-> > to reject non-__kernel address spaces.  This also rejects __rcu,
-> > which is almost always the right thing to do.  However, the uses in
-> > cfg80211_combine_bsses() and cfg80211_bss_update() are legitimate:
-> > They is assigning a pointer to an element from an RCU-protected list,
-> [...]
+On Thu, 26 Sep 2013 22:19:50 +0200
+Antonio Quartulli <antonio@meshcoding.com> wrote:
+
+> From: Antonio Quartulli <antonio@open-mesh.com>
 > 
-> 'They is'?  This error is also in the commit messsages for the bridge
-> and mac80211 patches, and maybe others that weren't sent to netdev.
+> Even if enslaving a bridge interface into another bridge is
+> forbidden, it is still possible to create a chain of
+> virtual interfaces including two distinct bridges.
+> 
+> In this case, the skb entering the second bridge could have
+> the nf_bridge field already set due to a previous operation
+> and consequently lead to a wrong processing of the packet
+> itself.
+> 
+> To prevent this behaviour release and set to NULL the
+> nf_bridge field of the skb when exiting the bridge interface.
+> 
+> Signed-off-by: Antonio Quartulli <antonio@open-mesh.com>
+> ---
+> 
+> I am not sure if this is a wanted behaviour or a real BUG. I found this
+> "misbehaviour" while testing batman-adv with the following configuration:
+> 
+> - br0 (bridge interface) having bat0 and eth0 as slaves
+> - bat0 (which is a virtual interface provided by the batman-adv module and that
+>   works similarly to a bridge - to some extends) having br1 as slave
+> - br1 (second bridge interface) having eth1 as slave
+> 
+> Then follow these events:
+> - a broadcast packet arrives on eth0
+> - the skb enters br0 and skb->nf_bridge gets initialised and used
+> - the skb enters bat0 and the packet *gets encapsulated in the batman-adv packet
+>   which adds a batman-adv header and another Ethernet header*
+> - the skb enters br1 and gets ruined because nf_bridge_maybe_copy_header() (in
+>   br_dev_queue_push_xmit()) will try to restore an header that does not make
+>   sense anymore.
+> 
+> With this patch the nf_bridge gets de-initialised before exiting br0 and
+> therefore it is processed properly inside br1: nf_bridge_maybe_copy_header()
+> does not take place at all because nf_bridge is never initialised (the packet is
+> non-IP since it is a batman-adv packet)
+> 
+> To the developers of the bridge module I would like to ask:
+> 1) is skb->nf_bridge allowed to be non NULL when entering br_dev_xmit() ? If so,
+>    when is this supposed to happen?
+> 
+> 2) do you think this patch is logically correct but the nf_bridge release should
+>    be done in batman-adv since it is the one re-encapsulating the packet?
+> 
+> 
+> I hope I have made the problem clear.
+> 
+> Best regards,
+> 
+> 
+>  net/bridge/br_forward.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index 4b81b14..65864bc 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -49,6 +49,11 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
+>  	} else {
+>  		skb_push(skb, ETH_HLEN);
+>  		br_drop_fake_rtable(skb);
+> +
+> +		/* clean the NF bridge data */
+> +		nf_bridge_put(skb->nf_bridge);
+> +		skb->nf_bridge = NULL;
+> +
+>  		dev_queue_xmit(skb);
+>  	}
+>  
 
-Good catch, fixed in four patches.  Yeah, English can be a bit
-unfriendly at times to text reuse.  The s/It/They/ should have been
-s/It is/They are/.  ;-)
-
-							Thanx, Paul
-
+You need to bracket this with CONFIG_BRIDGE_NETFILTER
+since nf_bridge is only in skbuff if that option is enabled.
