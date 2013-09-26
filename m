@@ -1,18 +1,9 @@
-Return-Path: <antonio@open-mesh.com>
-Date: Fri, 27 Sep 2013 00:01:43 +0200
-From: Antonio Quartulli <antonio@open-mesh.com>
-Message-ID: <20130926220143.GC1228@open-mesh.com>
-References: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
-	<20130926141021.3cde0f0f@nehalam.linuxnetplumber.net>
-	<20130926211648.GB1228@open-mesh.com>
-	<20130926143248.2799b4ea@nehalam.linuxnetplumber.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
-Content-Disposition: inline
-In-Reply-To: <20130926143248.2799b4ea@nehalam.linuxnetplumber.net>
-Subject: Re: [Bridge] [RFC net] bridge: clean the nf_bridge status when
- forwarding the skb
+Return-Path: <antonio@meshcoding.com>
+From: Antonio Quartulli <antonio@meshcoding.com>
+Date: Thu, 26 Sep 2013 22:19:50 +0200
+Message-Id: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
+Subject: [Bridge] [RFC net] bridge: clean the nf_bridge status when
+	forwarding the skb
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,95 +13,79 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Antonio Quartulli <antonio@open-mesh.com>
+
+From: Antonio Quartulli <antonio@open-mesh.com>
+
+Even if enslaving a bridge interface into another bridge is
+forbidden, it is still possible to create a chain of
+virtual interfaces including two distinct bridges.
+
+In this case, the skb entering the second bridge could have
+the nf_bridge field already set due to a previous operation
+and consequently lead to a wrong processing of the packet
+itself.
+
+To prevent this behaviour release and set to NULL the
+nf_bridge field of the skb when exiting the bridge interface.
+
+Signed-off-by: Antonio Quartulli <antonio@open-mesh.com>
+---
+
+I am not sure if this is a wanted behaviour or a real BUG. I found this
+"misbehaviour" while testing batman-adv with the following configuration:
+
+- br0 (bridge interface) having bat0 and eth0 as slaves
+- bat0 (which is a virtual interface provided by the batman-adv module and that
+  works similarly to a bridge - to some extends) having br1 as slave
+- br1 (second bridge interface) having eth1 as slave
+
+Then follow these events:
+- a broadcast packet arrives on eth0
+- the skb enters br0 and skb->nf_bridge gets initialised and used
+- the skb enters bat0 and the packet *gets encapsulated in the batman-adv packet
+  which adds a batman-adv header and another Ethernet header*
+- the skb enters br1 and gets ruined because nf_bridge_maybe_copy_header() (in
+  br_dev_queue_push_xmit()) will try to restore an header that does not make
+  sense anymore.
+
+With this patch the nf_bridge gets de-initialised before exiting br0 and
+therefore it is processed properly inside br1: nf_bridge_maybe_copy_header()
+does not take place at all because nf_bridge is never initialised (the packet is
+non-IP since it is a batman-adv packet)
+
+To the developers of the bridge module I would like to ask:
+1) is skb->nf_bridge allowed to be non NULL when entering br_dev_xmit() ? If so,
+   when is this supposed to happen?
+
+2) do you think this patch is logically correct but the nf_bridge release should
+   be done in batman-adv since it is the one re-encapsulating the packet?
 
 
---+nBD6E3TurpgldQp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I hope I have made the problem clear.
 
-On Thu, Sep 26, 2013 at 02:32:48PM -0700, Stephen Hemminger wrote:
-> > > > diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> > > > index 4b81b14..65864bc 100644
-> > > > --- a/net/bridge/br_forward.c
-> > > > +++ b/net/bridge/br_forward.c
-> > > > @@ -49,6 +49,11 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
-> > > >  	} else {
-> > > >  		skb_push(skb, ETH_HLEN);
-> > > >  		br_drop_fake_rtable(skb);
-> > > > +
-> > > > +		/* clean the NF bridge data */
-> > > > +		nf_bridge_put(skb->nf_bridge);
-> > > > +		skb->nf_bridge =3D NULL;
-> > > > +
-> > > >  		dev_queue_xmit(skb);
-> > > >  	}
-> > > > =20
-> >=20
-> > Regarding CONFIG_BRIDGE_NETFILTER you are right, thanks.
-> >=20
-> > >=20
-> > > I think the header will also be garbage if bridge on bridge with netf=
-ilter is used.
-> > > See nf_bridge_save_header.
-> >=20
-> > What header are you referring to? nf_bridge_save_header() saves the hea=
-der in
-> > skb->nf_bridge->data, which is freed during nf_bridge_put() (assuming
-> > ->use reached 0).
-> >=20
-> >=20
->=20
-> If bridge is stacked the original ether header will get overwritten by th=
-e second
-> call to save_header.
+Best regards,
 
-Sorry, but I am not getting what you mean (I am new to the code and it is l=
-ate here..):
-save_header() will store the Ethernet header in nf_bridge->data for
-later recover (if needed).
 
-By freeing nf_bridge I also destroy this header copy.
+ net/bridge/br_forward.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-When the skb enters the second bridge, save_header() will save again the he=
-ader
-in nf_bridge->data. But I don't see how this can create a problem.
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 4b81b14..65864bc 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -49,6 +49,11 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ 	} else {
+ 		skb_push(skb, ETH_HLEN);
+ 		br_drop_fake_rtable(skb);
++
++		/* clean the NF bridge data */
++		nf_bridge_put(skb->nf_bridge);
++		skb->nf_bridge = NULL;
++
+ 		dev_queue_xmit(skb);
+ 	}
+ 
+-- 
+1.8.1.5
 
-The problem I had before this patch comes from the fact that
-nf_bridge_copy_header() is invoked in the second bridge with the nf_bridge =
-state
-of the first. This was overwriting my the packet Ethernet header with what =
-the
-first invocation of save_header() stored in nf_bridge->data.
-
-But by unsetting nf_bridge I think I am preventing this from happening agai=
-n.
-no?
-
---=20
-Antonio Quartulli
-
---+nBD6E3TurpgldQp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSRK7HAAoJEADl0hg6qKeOdyEP/Ajutc26gsOEBdqDtqtGDH5p
-FWdlE585xINkXgfMHMQ9Cmh/H9p1QSmLVrk2HvSb6eBsHNZQYg3IkHRNv2qm3508
-XAMQ/3TcUpiHqrxnOPPw+hguXsPypNSbfce3nYwP70iNZbA8gnO7K7F1pxwQyOu3
-31hXZamQNgR5dgEivF7NJ8/DWqKOUfyFI589SFfJhnJwgiizyDF3oRoKUzljQoO4
-ORfsTaO0hSbR+NOdy8VkEoG/rqBeoFFQDb+k/ULyYLKM3LMRjDwCuCfD9447a/7V
-WmB7mOUeuXNdAr1ZeC1cDbuvjUux4yEQtYKHtp5uvWgCJJCfko3eLKpE3WzFv069
-AnW9xi1N3X6x4XS2JSPlst19oDZlNyhZeT2Z9DM94tOj4h7UwfDkdzEZqhu1NX2R
-7DQmrXbyu3EbgBtDpgR4ydQMk2X/+Gw70xneIRVRBPUHm7+sbIDymtaza2bsw/h/
-Ut/Ms56IcRLhuRDcSIBFHdHhVdR8OwpCtA+NqXbr1YHhqOc0JZXigEEhasExcm9E
-dlVx/FdPvY4BWUHlHqbBKdBpsA0UgkA0JprordFidna6nsUUnhMe0VXWgAuqM9tt
-UlLHNMOCUIOGZo8lenKNFCUKi/yP3+5bCxwHvwTU+kI7FinpKZKaUKVfrzEC6EpS
-06uIqHXxRLGo862VKgWt
-=IRa1
------END PGP SIGNATURE-----
-
---+nBD6E3TurpgldQp--
