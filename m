@@ -1,14 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 22 Oct 2013 14:41:33 -0400 (EDT)
-Message-Id: <20131022.144133.745472492011974869.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1382223537-10844-1-git-send-email-linus.luessing@web.de>
-References: <1382223537-10844-1-git-send-email-linus.luessing@web.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] Revert "bridge: only expire the mdb entry when
- query is received"
+Return-Path: <arend@broadcom.com>
+Message-ID: <524BCAC4.6060209@broadcom.com>
+From: "Arend van Spriel" <arend@broadcom.com>
+MIME-Version: 1.0
+References: <1380679480.2081.24.camel@joe-AO722>
+In-Reply-To: <1380679480.2081.24.camel@joe-AO722>
+Content-Type: text/plain;
+ charset=iso-8859-1;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] net:drivers/net: Miscellaneous
+ conversions to ETH_ALEN
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,50 +18,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, amwang@redhat.com
+Date: Wed, 02 Oct 2013 07:27:17 -0000
+To: Joe Perches <joe@perches.com>, netdev <netdev@vger.kernel.org>
+Cc: bridge@lists.linux-foundation.org, e1000-devel@lists.sourceforge.net, brcm80211-dev-list@broadcom.com, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, ath10k@lists.infradead.org, wil6210@qca.qualcomm.com, netfilter-devel <netfilter-devel@vger.kernel.org>, b43-dev@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Sun, 20 Oct 2013 00:58:57 +0200
+On 10/02/2013 04:04 AM, Joe Perches wrote:
+> Convert the memset/memcpy uses of 6 to ETH_ALEN
+> where appropriate.
+>
+> Also convert some struct definitions and u8 array
+> declarations of [6] to ETH_ALEN.
+>
+For brcmsmac
 
-> While this commit was a good attempt to fix issues occuring when no
-> multicast querier is present, this commit still has two more issues:
-> =
-
-> 1) There are cases where mdb entries do not expire even if there is a=
-
-> querier present. The bridge will unnecessarily continue flooding
-> multicast packets on the according ports.
-> =
-
-> 2) Never removing an mdb entry could be exploited for a Denial of
-> Service by an attacker on the local link, slowly, but steadily eating=
- up
-> all memory.
-> =
-
-> Actually, this commit became obsolete with
-> "bridge: disable snooping if there is no querier" (b00589af3b)
-> which included fixes for a few more cases.
-> =
-
-> Therefore reverting the following commits (the commit stated in the
-> commit message plus three of its follow up fixes):
-> =
-
+Acked-by: Arend van Spriel <arend@broadcom.com>
+> Signed-off-by: Joe Perches <joe@perches.com>
 > ---
-> Revert "bridge: update mdb expiration timer upon reports."
-> This reverts commit f144febd93d5ee534fdf23505ab091b2b9088edc.
-> Revert "bridge: do not call setup_timer() multiple times"
-> This reverts commit 1faabf2aab1fdaa1ace4e8c829d1b9cf7bfec2f1.
-> Revert "bridge: fix some kernel warning in multicast timer"
-> This reverts commit c7e8e8a8f7a70b343ca1e0f90a31e35ab2d16de1.
-> Revert "bridge: only expire the mdb entry when query is received"
-> This reverts commit 9f00b2e7cf241fa389733d41b615efdaa2cb0f5b.
-> ---
-> =
+>   drivers/net/wireless/brcm80211/brcmsmac/main.c     |  6 +-
 
-> CC: Cong Wang <amwang@redhat.com>
-> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
 
-Applied, thanks a lot.
