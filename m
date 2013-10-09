@@ -1,12 +1,16 @@
 Return-Path: <paulmck@linux.vnet.ibm.com>
+Date: Wed, 9 Oct 2013 15:46:24 -0700
 From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Date: Wed,  9 Oct 2013 14:29:37 -0700
-Message-Id: <1381354186-16285-4-git-send-email-paulmck@linux.vnet.ibm.com>
-In-Reply-To: <1381354186-16285-1-git-send-email-paulmck@linux.vnet.ibm.com>
+Message-ID: <20131009224624.GG5790@linux.vnet.ibm.com>
 References: <20131009212920.GA15413@linux.vnet.ibm.com>
-	<1381354186-16285-1-git-send-email-paulmck@linux.vnet.ibm.com>
-Subject: [Bridge] [PATCH v2 tip/core/rcu 04/13] wireless: Apply
-	rcu_access_pointer() to avoid sparse false positive
+	<20131009221805.GA11709@jtriplet-mobl1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131009221805.GA11709@jtriplet-mobl1>
+Subject: Re: [Bridge] [PATCH v2 tip/core/rcu 0/13] Sparse-related updates
+	for 3.13
+Reply-To: paulmck@linux.vnet.ibm.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,90 +19,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, josh@joshtriplett.org, rostedt@goodmis.org, "David S. Miller" <davem@davemloft.net>, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, mingo@kernel.org
+To: Josh Triplett <josh@joshtriplett.org>
+Cc: peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, johannes@sipsolutions.net, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, kaber@trash.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, akpm@linux-foundation.org, fengguang.wu@intel.com, davem@davemloft.net
 
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+On Wed, Oct 09, 2013 at 03:18:05PM -0700, Josh Triplett wrote:
+> On Wed, Oct 09, 2013 at 02:29:20PM -0700, Paul E. McKenney wrote:
+> > Hello!
+> > 
+> > This series features updates to allow sparse to do a better job of
+> > statically analyzing RCU usage:
+> > 
+> > 1.	Apply ACCESS_ONCE() to rcu_assign_pointer()'s target to prevent
+> > 	comiler mischief.  Also require that the source pointer be from
+> > 	the kernel address space.  Sometimes it can be from the RCU address
+> > 	space, which necessitates the remaining patches in this series.
+> > 	Which, it must be admitted, apply to a very small fraction of
+> > 	the rcu_assign_pointer() invocations in the kernel.  This commit
+> > 	courtesy of Josh Triplett.
+> > 
+> > 2-13.	Apply rcu_access_pointer() to avoid a number of false positives.
+> 
+> I would suggest moving patch 1 to the end of the series, to avoid
+> introducing and subsequently fixing warnings.
 
-The sparse checking for rcu_assign_pointer() was recently upgraded
-to reject non-__kernel address spaces.  This also rejects __rcu,
-which is almost always the right thing to do.  However, the uses in
-cfg80211_combine_bsses() and cfg80211_bss_update() are legitimate:
-They are assigning a pointer to an element from an RCU-protected list,
-and all elements of this list are already visible to caller.
+That would help with bisectability, will do!
 
-This commit therefore silences these false positives by laundering the
-pointers using rcu_access_pointer() as suggested by Josh Triplett.
-
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
----
- net/wireless/scan.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index eeb71480f1af..edde117c1863 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -671,7 +671,7 @@ static bool cfg80211_combine_bsses(struct cfg80211_registered_device *dev,
- 		bss->pub.hidden_beacon_bss = &new->pub;
- 		new->refcount += bss->refcount;
- 		rcu_assign_pointer(bss->pub.beacon_ies,
--				   new->pub.beacon_ies);
-+				   rcu_access_pointer(new->pub.beacon_ies));
- 	}
- 
- 	return true;
-@@ -706,10 +706,10 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 			old = rcu_access_pointer(found->pub.proberesp_ies);
- 
- 			rcu_assign_pointer(found->pub.proberesp_ies,
--					   tmp->pub.proberesp_ies);
-+					   rcu_access_pointer(tmp->pub.proberesp_ies));
- 			/* Override possible earlier Beacon frame IEs */
- 			rcu_assign_pointer(found->pub.ies,
--					   tmp->pub.proberesp_ies);
-+					   rcu_access_pointer(tmp->pub.proberesp_ies));
- 			if (old)
- 				kfree_rcu((struct cfg80211_bss_ies *)old,
- 					  rcu_head);
-@@ -740,12 +740,12 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 			old = rcu_access_pointer(found->pub.beacon_ies);
- 
- 			rcu_assign_pointer(found->pub.beacon_ies,
--					   tmp->pub.beacon_ies);
-+					   rcu_access_pointer(tmp->pub.beacon_ies));
- 
- 			/* Override IEs if they were from a beacon before */
- 			if (old == rcu_access_pointer(found->pub.ies))
- 				rcu_assign_pointer(found->pub.ies,
--						   tmp->pub.beacon_ies);
-+						   rcu_access_pointer(tmp->pub.beacon_ies));
- 
- 			/* Assign beacon IEs to all sub entries */
- 			list_for_each_entry(bss, &found->hidden_list,
-@@ -756,7 +756,7 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 				WARN_ON(ies != old);
- 
- 				rcu_assign_pointer(bss->pub.beacon_ies,
--						   tmp->pub.beacon_ies);
-+						   rcu_access_pointer(tmp->pub.beacon_ies));
- 			}
- 
- 			if (old)
-@@ -804,7 +804,7 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 					 &hidden->hidden_list);
- 				hidden->refcount++;
- 				rcu_assign_pointer(new->pub.beacon_ies,
--						   hidden->pub.beacon_ies);
-+						   rcu_access_pointer(hidden->pub.beacon_ies));
- 			}
- 		} else {
- 			/*
--- 
-1.8.1.5
+							Thanx, Paul
 
