@@ -1,7 +1,7 @@
 Return-Path: <josh@joshtriplett.org>
-Date: Wed, 9 Oct 2013 15:23:58 -0700
+Date: Wed, 9 Oct 2013 15:30:37 -0700
 From: Josh Triplett <josh@joshtriplett.org>
-Message-ID: <20131009222357.GB11709@jtriplet-mobl1>
+Message-ID: <20131009223036.GE11709@jtriplet-mobl1>
 References: <20131009212920.GA15413@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -36,15 +36,13 @@ On Wed, Oct 09, 2013 at 02:29:20PM -0700, Paul E. McKenney wrote:
 > 
 > 2-13.	Apply rcu_access_pointer() to avoid a number of false positives.
 
-The use of rcu_access_pointer directly in the argument of
-rcu_assign_pointer does add a new constraint to rcu_assign_pointer,
-namely that it *must not* evaluate its argument more than once.
-Currently, it expands its argument three times, but one expansion is
-only visible to sparse (__CHECKER__), and one lives inside a typeof
-(where it'll never be evaluated), so this is safe.  However, I'd add a
-comment to that effect above rcu_assign_pointer, explicitly saying that
-it must evaluate its argument exactly once; that way, if anyone ever
-changes it, they'll know they have to introduce an appropriate local
-temporary variable inside the macro.
+I posted one minor nit in response to one of these patches, but in any
+case, for 2-13:
+
+Reviewed-by: Josh Triplett <josh@joshtriplett.org>
+
+I'm obviously OK with patch 1 as well, but it should move to the end of
+the series, and you need a new patch 1 that adds a comment constraining
+rcu_assign_pointer to evaluate its argument exactly once.
 
 - Josh Triplett
