@@ -1,14 +1,13 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 02 Oct 2013 17:05:21 -0400 (EDT)
-Message-Id: <20131002.170521.463969346066312216.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1380679480.2081.24.camel@joe-AO722>
-References: <1380679480.2081.24.camel@joe-AO722>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] net:drivers/net: Miscellaneous
- conversions to ETH_ALEN
+Return-Path: <paulmck@linux.vnet.ibm.com>
+Date: Wed, 9 Oct 2013 14:29:20 -0700
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Message-ID: <20131009212920.GA15413@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [PATCH v2 tip/core/rcu 0/13] Sparse-related updates for
+	3.13
+Reply-To: paulmck@linux.vnet.ibm.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,18 +16,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: joe@perches.com
-Cc: brcm80211-dev-list@broadcom.com, bridge@lists.linux-foundation.org, e1000-devel@lists.sourceforge.net, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, ath10k@lists.infradead.org, wil6210@qca.qualcomm.com, netfilter-devel@vger.kernel.org, b43-dev@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
+To: linux-kernel@vger.kernel.org
+Cc: peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, josh@joshtriplett.org, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, johannes@sipsolutions.net, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, kaber@trash.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, akpm@linux-foundation.org, fengguang.wu@intel.com, davem@davemloft.net
 
-From: Joe Perches <joe@perches.com>
-Date: Tue, 01 Oct 2013 19:04:40 -0700
+Hello!
 
-> Convert the memset/memcpy uses of 6 to ETH_ALEN
-> where appropriate.
-> 
-> Also convert some struct definitions and u8 array
-> declarations of [6] to ETH_ALEN.
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
+This series features updates to allow sparse to do a better job of
+statically analyzing RCU usage:
 
-Looks fine, applied, thanks Joe.
+1.	Apply ACCESS_ONCE() to rcu_assign_pointer()'s target to prevent
+	comiler mischief.  Also require that the source pointer be from
+	the kernel address space.  Sometimes it can be from the RCU address
+	space, which necessitates the remaining patches in this series.
+	Which, it must be admitted, apply to a very small fraction of
+	the rcu_assign_pointer() invocations in the kernel.  This commit
+	courtesy of Josh Triplett.
+
+2-13.	Apply rcu_access_pointer() to avoid a number of false positives.
+
+Changes from v1:
+
+o	Fix grammar nit in commit logs.
+
+							Thanx, Paul
+
+
+ b/drivers/net/bonding/bond_alb.c  |    3 ++-
+ b/drivers/net/bonding/bond_main.c |    8 +++++---
+ b/include/linux/rcupdate.h        |   12 +++++++++++-
+ b/kernel/notifier.c               |    2 +-
+ b/net/bridge/br_mdb.c             |    2 +-
+ b/net/bridge/br_multicast.c       |    4 ++--
+ b/net/decnet/dn_route.c           |    5 +++--
+ b/net/ipv4/ip_sockglue.c          |    2 +-
+ b/net/ipv6/ip6_gre.c              |    2 +-
+ b/net/ipv6/ip6_tunnel.c           |    2 +-
+ b/net/ipv6/sit.c                  |    2 +-
+ b/net/mac80211/sta_info.c         |    4 ++--
+ b/net/wireless/scan.c             |   14 +++++++-------
+ 13 files changed, 38 insertions(+), 24 deletions(-)
+
