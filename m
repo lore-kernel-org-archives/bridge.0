@@ -1,11 +1,11 @@
 Return-Path: <paulmck@linux.vnet.ibm.com>
 From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Date: Fri, 11 Oct 2013 16:17:21 -0700
-Message-Id: <1381533451-29018-4-git-send-email-paulmck@linux.vnet.ibm.com>
+Date: Fri, 11 Oct 2013 16:17:29 -0700
+Message-Id: <1381533451-29018-12-git-send-email-paulmck@linux.vnet.ibm.com>
 In-Reply-To: <1381533451-29018-1-git-send-email-paulmck@linux.vnet.ibm.com>
 References: <20131011231659.GA28062@linux.vnet.ibm.com>
 	<1381533451-29018-1-git-send-email-paulmck@linux.vnet.ibm.com>
-Subject: [Bridge] [PATCH v3 tip/core/rcu 04/14] wireless: Apply
+Subject: [Bridge] [PATCH v3 tip/core/rcu 12/14] bonding/bond_main: Apply
 	ACCESS_ONCE() to avoid sparse false positive
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -23,13 +23,14 @@ From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 The sparse checking for rcu_assign_pointer() was recently upgraded
 to reject non-__kernel address spaces.  This also rejects __rcu,
 which is almost always the right thing to do.  However, the uses in
-cfg80211_combine_bsses() and cfg80211_bss_update() are legitimate:
-They are assigning a pointer to an element from an RCU-protected list,
-and all elements of this list are already visible to caller.
+bond_change_active_slave(), bond_enslave(), and __bond_release_one()
+are legitimate: They are assigning a pointer to an element from an
+RCU-protected list (or a NULL pointer), and all elements of this list
+are already visible to caller.
 
-This commit therefore silences these false positives by laundering
+This commit therefore silences these false positives either by laundering
 the pointers using ACCESS_ONCE() as suggested by Eric Dumazet and Josh
-Triplett.
+Triplett, or by using RCU_INIT_POINTER() for NULL pointer assignments.
 
 Reported-by: kbuild test robot <fengguang.wu@intel.com>
 Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
@@ -38,84 +39,42 @@ Cc: "David S. Miller" <davem@davemloft.net>
 Cc: bridge@lists.linux-foundation.org
 Cc: netdev@vger.kernel.org
 ---
- net/wireless/scan.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/net/bonding/bond_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index eeb71480f1af..ac3a47abf195 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -670,8 +670,8 @@ static bool cfg80211_combine_bsses(struct cfg80211_registered_device *dev,
- 		list_add(&bss->hidden_list, &new->hidden_list);
- 		bss->pub.hidden_beacon_bss = &new->pub;
- 		new->refcount += bss->refcount;
--		rcu_assign_pointer(bss->pub.beacon_ies,
--				   new->pub.beacon_ies);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 72df399c4ab3..e4270ae1c0a8 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -890,7 +890,8 @@ void bond_change_active_slave(struct bonding *bond, struct slave *new_active)
+ 		if (new_active)
+ 			bond_set_slave_active_flags(new_active);
+ 	} else {
+-		rcu_assign_pointer(bond->curr_active_slave, new_active);
 +		/* Both --rcu and visible, so ACCESS_ONCE() is OK. */
-+		ACCESS_ONCE(bss->pub.beacon_ies) = new->pub.beacon_ies;
++		ACCESS_ONCE(bond->curr_active_slave) = new_active;
  	}
  
- 	return true;
-@@ -705,11 +705,12 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 
- 			old = rcu_access_pointer(found->pub.proberesp_ies);
- 
--			rcu_assign_pointer(found->pub.proberesp_ies,
--					   tmp->pub.proberesp_ies);
+ 	if (bond->params.mode == BOND_MODE_ACTIVEBACKUP) {
+@@ -1601,7 +1602,8 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
+ 		 * so we can change it without calling change_active_interface()
+ 		 */
+ 		if (!bond->curr_active_slave && new_slave->link == BOND_LINK_UP)
+-			rcu_assign_pointer(bond->curr_active_slave, new_slave);
 +			/* Both --rcu and visible, so ACCESS_ONCE() is OK. */
-+			ACCESS_ONCE(found->pub.proberesp_ies) =
-+					   tmp->pub.proberesp_ies;
- 			/* Override possible earlier Beacon frame IEs */
--			rcu_assign_pointer(found->pub.ies,
--					   tmp->pub.proberesp_ies);
-+			/* Both --rcu and visible, so ACCESS_ONCE() is OK. */
-+			ACCESS_ONCE(found->pub.ies) = tmp->pub.proberesp_ies;
- 			if (old)
- 				kfree_rcu((struct cfg80211_bss_ies *)old,
- 					  rcu_head);
-@@ -739,13 +740,14 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
++			ACCESS_ONCE(bond->curr_active_slave) = new_slave;
  
- 			old = rcu_access_pointer(found->pub.beacon_ies);
+ 		break;
+ 	} /* switch(bond_mode) */
+@@ -1801,7 +1803,7 @@ static int __bond_release_one(struct net_device *bond_dev,
+ 	}
  
--			rcu_assign_pointer(found->pub.beacon_ies,
--					   tmp->pub.beacon_ies);
-+			/* Both --rcu and visible, so ACCESS_ONCE() is OK. */
-+			ACCESS_ONCE(found->pub.beacon_ies) = tmp->pub.beacon_ies;
- 
- 			/* Override IEs if they were from a beacon before */
- 			if (old == rcu_access_pointer(found->pub.ies))
--				rcu_assign_pointer(found->pub.ies,
--						   tmp->pub.beacon_ies);
-+				/* Both --rcu & visible, ACCESS_ONCE() is OK. */
-+				ACCESS_ONCE(found->pub.ies) =
-+						   tmp->pub.beacon_ies;
- 
- 			/* Assign beacon IEs to all sub entries */
- 			list_for_each_entry(bss, &found->hidden_list,
-@@ -755,8 +757,9 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 				ies = rcu_access_pointer(bss->pub.beacon_ies);
- 				WARN_ON(ies != old);
- 
--				rcu_assign_pointer(bss->pub.beacon_ies,
--						   tmp->pub.beacon_ies);
-+				/* Both --rcu & visible, ACCESS_ONCE() is OK. */
-+				ACCESS_ONCE(bss->pub.beacon_ies) =
-+						   tmp->pub.beacon_ies;
- 			}
- 
- 			if (old)
-@@ -803,8 +806,9 @@ cfg80211_bss_update(struct cfg80211_registered_device *dev,
- 				list_add(&new->hidden_list,
- 					 &hidden->hidden_list);
- 				hidden->refcount++;
--				rcu_assign_pointer(new->pub.beacon_ies,
--						   hidden->pub.beacon_ies);
-+				/* Both --rcu & visible, ACCESS_ONCE() is OK. */
-+				ACCESS_ONCE(new->pub.beacon_ies) =
-+						   hidden->pub.beacon_ies;
- 			}
- 		} else {
- 			/*
+ 	if (all) {
+-		rcu_assign_pointer(bond->curr_active_slave, NULL);
++		RCU_INIT_POINTER(bond->curr_active_slave, NULL);
+ 	} else if (oldcurrent == slave) {
+ 		/*
+ 		 * Note that we hold RTNL over this sequence, so there
 -- 
 1.8.1.5
 
