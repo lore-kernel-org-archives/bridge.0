@@ -1,12 +1,16 @@
 Return-Path: <paulmck@linux.vnet.ibm.com>
+Date: Sat, 12 Oct 2013 10:13:45 -0700
 From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Date: Fri, 11 Oct 2013 16:17:20 -0700
-Message-Id: <1381533451-29018-3-git-send-email-paulmck@linux.vnet.ibm.com>
-In-Reply-To: <1381533451-29018-1-git-send-email-paulmck@linux.vnet.ibm.com>
+Message-ID: <20131012171345.GB5790@linux.vnet.ibm.com>
 References: <20131011231659.GA28062@linux.vnet.ibm.com>
-	<1381533451-29018-1-git-send-email-paulmck@linux.vnet.ibm.com>
-Subject: [Bridge] [PATCH v3 tip/core/rcu 03/14] bridge: Apply ACCESS_ONCE()
-	to avoid sparse false positive
+	<20131012065326.GG15339@leaf>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131012065326.GG15339@leaf>
+Subject: Re: [Bridge] [PATCH v3 tip/core/rcu 0/14] Sparse-related updates
+	for 3.13
+Reply-To: paulmck@linux.vnet.ibm.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,54 +19,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, josh@joshtriplett.org, rostedt@goodmis.org, "David S. Miller" <davem@davemloft.net>, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, mingo@kernel.org
+To: Josh Triplett <josh@joshtriplett.org>
+Cc: peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, johannes@sipsolutions.net, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, kaber@trash.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, akpm@linux-foundation.org, fengguang.wu@intel.com, davem@davemloft.net
 
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+On Fri, Oct 11, 2013 at 11:53:27PM -0700, Josh Triplett wrote:
+> On Fri, Oct 11, 2013 at 04:16:59PM -0700, Paul E. McKenney wrote:
+> > Changes from v2:
+> > 
+> > o	Switch from rcu_assign_pointer() to ACCESS_ONCE() given that
+> > 	the pointers are all --rcu and already visible to readers,
+> > 	as suggested by Eric Dumazet and Josh Triplett.
+> 
+> Hang on a moment.  Do *none* of these cases need write memory barriers?
 
-The sparse checking for rcu_assign_pointer() was recently upgraded
-to reject non-__kernel address spaces.  This also rejects __rcu,
-which is almost always the right thing to do.  However, the uses in
-br_multicast_del_pg() and br_multicast_new_port_group() are legitimate:
-They are assigning a pointer to an element from an RCU-protected list,
-and all elements of this list are already visible to caller.
+Sigh.  Some afternoons it doesn't pay to touch the keyboard.
 
-This commit therefore silences these false positives by laundering
-the pointers using ACCESS_ONCE() as suggested by Eric Dumazet and Josh
-Triplett.
+Thank you for catching this.  I will fix, but at this point, I am thinking
+in terms of 3.14 rather than 3.13 for this series.
 
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
----
- net/bridge/br_multicast.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index d1c578630678..bcc4bbc16498 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -267,7 +267,7 @@ static void br_multicast_del_pg(struct net_bridge *br,
- 		if (p != pg)
- 			continue;
- 
--		rcu_assign_pointer(*pp, p->next);
-+		ACCESS_ONCE(*pp) = p->next; /* OK: Both --rcu and visible. */
- 		hlist_del_init(&p->mglist);
- 		del_timer(&p->timer);
- 		call_rcu_bh(&p->rcu, br_multicast_free_pg);
-@@ -646,7 +646,7 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 	p->addr = *group;
- 	p->port = port;
- 	p->state = state;
--	rcu_assign_pointer(p->next, next);
-+	ACCESS_ONCE(p->next) = next; /* OK: Both --rcu and visible. */
- 	hlist_add_head(&p->mglist, &port->mglist);
- 	setup_timer(&p->timer, br_multicast_port_group_expired,
- 		    (unsigned long)p);
--- 
-1.8.1.5
+							Thanx, Paul
 
