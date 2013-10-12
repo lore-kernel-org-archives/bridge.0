@@ -1,16 +1,16 @@
-Return-Path: <paulmck@linux.vnet.ibm.com>
-Date: Sat, 12 Oct 2013 10:13:45 -0700
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Message-ID: <20131012171345.GB5790@linux.vnet.ibm.com>
+Return-Path: <hannes@stressinduktion.org>
+Date: Sat, 12 Oct 2013 19:39:30 +0200
+From: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Message-ID: <20131012173930.GD20321@order.stressinduktion.org>
 References: <20131011231659.GA28062@linux.vnet.ibm.com>
 	<20131012065326.GG15339@leaf>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	<20131012171345.GB5790@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20131012065326.GG15339@leaf>
+In-Reply-To: <20131012171345.GB5790@linux.vnet.ibm.com>
 Subject: Re: [Bridge] [PATCH v3 tip/core/rcu 0/14] Sparse-related updates
 	for 3.13
-Reply-To: paulmck@linux.vnet.ibm.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,23 +19,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Josh Triplett <josh@joshtriplett.org>
-Cc: peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, johannes@sipsolutions.net, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, kaber@trash.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, akpm@linux-foundation.org, fengguang.wu@intel.com, davem@davemloft.net
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, Josh Triplett <josh@joshtriplett.org>, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, akpm@linux-foundation.org, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, davem@davemloft.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, johannes@sipsolutions.net, fengguang.wu@intel.com, kaber@trash.net
 
-On Fri, Oct 11, 2013 at 11:53:27PM -0700, Josh Triplett wrote:
-> On Fri, Oct 11, 2013 at 04:16:59PM -0700, Paul E. McKenney wrote:
-> > Changes from v2:
+On Sat, Oct 12, 2013 at 10:13:45AM -0700, Paul E. McKenney wrote:
+> On Fri, Oct 11, 2013 at 11:53:27PM -0700, Josh Triplett wrote:
+> > On Fri, Oct 11, 2013 at 04:16:59PM -0700, Paul E. McKenney wrote:
+> > > Changes from v2:
+> > > 
+> > > o	Switch from rcu_assign_pointer() to ACCESS_ONCE() given that
+> > > 	the pointers are all --rcu and already visible to readers,
+> > > 	as suggested by Eric Dumazet and Josh Triplett.
 > > 
-> > o	Switch from rcu_assign_pointer() to ACCESS_ONCE() given that
-> > 	the pointers are all --rcu and already visible to readers,
-> > 	as suggested by Eric Dumazet and Josh Triplett.
+> > Hang on a moment.  Do *none* of these cases need write memory barriers?
 > 
-> Hang on a moment.  Do *none* of these cases need write memory barriers?
+> Sigh.  Some afternoons it doesn't pay to touch the keyboard.
+> 
+> Thank you for catching this.  I will fix, but at this point, I am thinking
+> in terms of 3.14 rather than 3.13 for this series.
 
-Sigh.  Some afternoons it doesn't pay to touch the keyboard.
+Some of them looked safe. You could also replace --rcu with __rcu in the
+comments while at it.
 
-Thank you for catching this.  I will fix, but at this point, I am thinking
-in terms of 3.14 rather than 3.13 for this series.
+Thanks,
 
-							Thanx, Paul
+  Hannes
 
