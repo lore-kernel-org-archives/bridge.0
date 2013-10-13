@@ -1,17 +1,18 @@
-Return-Path: <hannes@stressinduktion.org>
-Date: Sat, 12 Oct 2013 19:43:54 +0200
-From: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Message-ID: <20131012174354.GE20321@order.stressinduktion.org>
+Return-Path: <paulmck@linux.vnet.ibm.com>
+Date: Sun, 13 Oct 2013 04:15:34 -0700
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Message-ID: <20131013111534.GF5790@linux.vnet.ibm.com>
 References: <20131011231659.GA28062@linux.vnet.ibm.com>
 	<20131012065326.GG15339@leaf>
 	<20131012171345.GB5790@linux.vnet.ibm.com>
 	<20131012173930.GD20321@order.stressinduktion.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20131012173930.GD20321@order.stressinduktion.org>
 Subject: Re: [Bridge] [PATCH v3 tip/core/rcu 0/14] Sparse-related updates
-	for 3.13
+ for 3.13
+Reply-To: paulmck@linux.vnet.ibm.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,7 +21,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Josh Triplett <josh@joshtriplett.org>, peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, johannes@sipsolutions.net, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, kaber@trash.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, akpm@linux-foundation.org, fengguang.wu@intel.com, davem@davemloft.net
+To: Josh Triplett <josh@joshtriplett.org>, peterz@infradead.org, fweisbec@gmail.com, dhowells@redhat.com, edumazet@google.com, gaofeng@cn.fujitsu.com, mingo@kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, dipankar@in.ibm.com, darren@dvhart.com, rostedt@goodmis.org, niv@us.ibm.com, mathieu.desnoyers@efficios.com, kuznet@ms2.inr.ac.ru, tglx@linutronix.de, johannes@sipsolutions.net, laijs@cn.fujitsu.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, kaber@trash.net, stephen@networkplumber.org, sbw@mit.edu, tgraf@suug.ch, akpm@linux-foundation.org, fengguang.wu@intel.com, davem@davemloft.net
 
 On Sat, Oct 12, 2013 at 07:39:30PM +0200, Hannes Frederic Sowa wrote:
 > On Sat, Oct 12, 2013 at 10:13:45AM -0700, Paul E. McKenney wrote:
@@ -42,13 +43,7 @@ On Sat, Oct 12, 2013 at 07:39:30PM +0200, Hannes Frederic Sowa wrote:
 > Some of them looked safe. You could also replace --rcu with __rcu in the
 > comments while at it.
 
-Most of them deal with management, maybe a rtnl_assign_pointer with lockdep
-check for rtnl lock could help to not clean up the wrong bits.
+Sigh!  Will do, thank you!
 
-I don't know if rtnl_assign_pointer is that a could name as it does not really
-explain why the barrier is not needed there. :/
-
-Greetings,
-
-  Hannes
+							Thanx, Paul
 
