@@ -1,17 +1,19 @@
 Return-Path: <antonio@meshcoding.com>
-Date: Tue, 15 Oct 2013 00:20:10 +0200
+Date: Tue, 15 Oct 2013 00:35:40 +0200
 From: Antonio Quartulli <antonio@meshcoding.com>
-Message-ID: <20131014222010.GB3873@neomailbox.net>
+Message-ID: <20131014223540.GC3873@neomailbox.net>
 References: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
 	<20130926141021.3cde0f0f@nehalam.linuxnetplumber.net>
 	<20130926211648.GB1228@open-mesh.com>
 	<20130926143248.2799b4ea@nehalam.linuxnetplumber.net>
 	<20130926220143.GC1228@open-mesh.com>
+	<20131014222010.GB3873@neomailbox.net>
+	<20131014152756.7b83dcc0@nehalam.linuxnetplumber.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
+	protocol="application/pgp-signature"; boundary="ZmUaFz6apKcXQszQ"
 Content-Disposition: inline
-In-Reply-To: <20130926220143.GC1228@open-mesh.com>
+In-Reply-To: <20131014152756.7b83dcc0@nehalam.linuxnetplumber.net>
 Subject: Re: [Bridge] [RFC net] bridge: clean the nf_bridge status when
  forwarding the skb
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -26,103 +28,50 @@ To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 
 
---hHWLQfXTYDoKhP50
+--ZmUaFz6apKcXQszQ
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 27, 2013 at 12:01:43AM +0200, Antonio Quartulli wrote:
-> On Thu, Sep 26, 2013 at 02:32:48PM -0700, Stephen Hemminger wrote:
-> > > > > diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> > > > > index 4b81b14..65864bc 100644
-> > > > > --- a/net/bridge/br_forward.c
-> > > > > +++ b/net/bridge/br_forward.c
-> > > > > @@ -49,6 +49,11 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
-> > > > >  	} else {
-> > > > >  		skb_push(skb, ETH_HLEN);
-> > > > >  		br_drop_fake_rtable(skb);
-> > > > > +
-> > > > > +		/* clean the NF bridge data */
-> > > > > +		nf_bridge_put(skb->nf_bridge);
-> > > > > +		skb->nf_bridge =3D NULL;
-> > > > > +
-> > > > >  		dev_queue_xmit(skb);
-> > > > >  	}
-> > > > > =20
-> > >=20
-> > > Regarding CONFIG_BRIDGE_NETFILTER you are right, thanks.
-> > >=20
-> > > >=20
-> > > > I think the header will also be garbage if bridge on bridge with ne=
-tfilter is used.
-> > > > See nf_bridge_save_header.
-> > >=20
-> > > What header are you referring to? nf_bridge_save_header() saves the h=
-eader in
-> > > skb->nf_bridge->data, which is freed during nf_bridge_put() (assuming
-> > > ->use reached 0).
-> > >=20
-> > >=20
-> >=20
-> > If bridge is stacked the original ether header will get overwritten by =
-the second
-> > call to save_header.
+On Mon, Oct 14, 2013 at 03:27:56PM -0700, Stephen Hemminger wrote:
+> The patch content is fine, but it needs necessary ifdef's.
+> I would also prefer to have the clean done as a function that can be stub=
+bed out
+> like the other bridge netfilter stuff.=20
 >=20
-> Sorry, but I am not getting what you mean (I am new to the code and it is=
- late here..):
-> save_header() will store the Ethernet header in nf_bridge->data for
-> later recover (if needed).
->=20
-> By freeing nf_bridge I also destroy this header copy.
->=20
-> When the skb enters the second bridge, save_header() will save again the =
-header
-> in nf_bridge->data. But I don't see how this can create a problem.
->=20
-> The problem I had before this patch comes from the fact that
-> nf_bridge_copy_header() is invoked in the second bridge with the nf_bridg=
-e state
-> of the first. This was overwriting my the packet Ethernet header with wha=
-t the
-> first invocation of save_header() stored in nf_bridge->data.
->=20
-> But by unsetting nf_bridge I think I am preventing this from happening ag=
-ain.
-> no?
 
-Hello Stephen,
 
-do you have other comments about this patch? I know it is rather difficult =
-that
-a generic user hits this issue, but I'd like to see it fixed because other
-people using batman-adv may incur in this problem.
+Ok, I will apply those changes and I will send it as PATCH.
 
-Cheers,
+Thank you very much for your feedback!
+
+
+Regards,
 
 
 --=20
 Antonio Quartulli
 
---hHWLQfXTYDoKhP50
+--ZmUaFz6apKcXQszQ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQIcBAEBCAAGBQJSXG4aAAoJEADl0hg6qKeO+0MQAJBHFy9l2HITVnSoPAzb41Cz
-2IpBZxF3CcN9bVVKskTdRJoEb5jBcSP+R42USipRFQ8ptpJyot2FzElmZh1d5e2D
-c0O81GAqqM9Zyzl/rMgrk7E8KmkkW7xYfqSbMytRvlZq6Ur9yKeqVD1py/iPdwoD
-fIH97eBSCpuKaEtNTwa1N1ufT6tRaC16f5ZHVJOBUhe18VzcorfJiYd4UCGYqb2f
-H8iJNQ6aWTRhaPTU+YCIMCVK1F18R85JyZktwaPAN2RDhJ0yqDkAe8Tq1Sc0QbAG
-w3WbCeGVZbCAxh3JNbtT9joLaXlCA8U+OfKyB29ms22ngzDGxirfFySCxD46ljCd
-Q8ZqmkIWsycWtvpU0KE/SbkHHBPd22y7tbm+qhyE9XaLdkaVWubfckSMcR2cGPi1
-vC6RtVLYTOtIJlFBKm0yE5RlGxukdHWPXu0c728LLaiOIKZnfb3MlTifoYGJ6ToP
-7x2AXPEBpIaZXUyayasZMkyqoVr7oUbqVTcoSNEN5HPuLQN4e9F094e577eK1Ah/
-h1gkSohmdhGiva1rAWJn1T6/ETsitK/qEHxOC+QpL0STWUgyYdUsWUQCju3g2a/o
-hSTVP4jAxYZKUx/GmSDjlbR9e0SFDblq3x0KFpdKomtny2pZnbsHM4FwGCNkGqWr
-QDOVLY+WHAdLGCP8nn5y
-=acUF
+iQIcBAEBCAAGBQJSXHG8AAoJEADl0hg6qKeOP8UQAKpfoGnbyHUKdO9jtEv7JsuH
+rGii393rxEfaJWDuar7snCWomngqNjZercorc34GCr0rWG8CeO3fbQCfWdjsXmjv
+ObYzmOTmyhQH/DmgUkN7cECovJ0EhTxJRJLT6FVLL3FUKuqyjb3PYoSRR1ACGOBY
+IoCvi9xUjEFZQOPESoPBym3wNv9KXSWj7gdSNWLkd+p0OtLCypePz1ic9DIfCasK
+Lqu13VD23pMv3IILpgyQ1NCoqDgj1qPiyizT9HKaZVr+EHD+SWDxtXnaOnOJ5RHv
+wj4Z+dVhef5uCFoC3haehzLz5s5UuIl1Dyyfp8fAd0OU91BVQnm4LFg89+gCBfZK
+8MhkzMyirWUINQeCu43SajsVczIz2yDZifaWXXIWKI2Ge6PnRLCcQnJH1pKn+Olv
+ocwfqtPgXTirgSAFz1MBKaK0MEkGmoCwaeh2Q1605Xt6BAgbRk2TsaZPyclK4iD8
+bJ9vsfSqMt0t9m3bBuIB141H6x4f/STSZcw8xg1K3pO0Bt83fO6YP3AD+hVlftbo
+0+Cw/dQ7210DyG+3vMcA5Tjt+Z0pxsvmqE4NrJhUYiA0U2dPPpqyGo5wrXc/FcDj
+FrF2NTEaVYTmj2h413nuipGJrZJTJus/R5+6P3+appkamYcDE5z3bDW9EhRk3LV5
+mRsYKn9UOqPZrJoll+87
+=5VPt
 -----END PGP SIGNATURE-----
 
---hHWLQfXTYDoKhP50--
+--ZmUaFz6apKcXQszQ--
