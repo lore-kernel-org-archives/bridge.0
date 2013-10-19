@@ -1,19 +1,12 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Mon, 14 Oct 2013 15:27:56 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20131014152756.7b83dcc0@nehalam.linuxnetplumber.net>
-In-Reply-To: <20131014222010.GB3873@neomailbox.net>
-References: <1380226790-513-1-git-send-email-antonio@meshcoding.com>
-	<20130926141021.3cde0f0f@nehalam.linuxnetplumber.net>
-	<20130926211648.GB1228@open-mesh.com>
-	<20130926143248.2799b4ea@nehalam.linuxnetplumber.net>
-	<20130926220143.GC1228@open-mesh.com>
-	<20131014222010.GB3873@neomailbox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC net] bridge: clean the nf_bridge status when
- forwarding the skb
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Sun, 20 Oct 2013 00:58:57 +0200
+Message-Id: <1382223537-10844-1-git-send-email-linus.luessing@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] Revert "bridge: only expire the mdb entry when
+	query is received"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,74 +15,210 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Antonio Quartulli <antonio@meshcoding.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Cong Wang <amwang@redhat.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-On Tue, 15 Oct 2013 00:20:10 +0200
-Antonio Quartulli <antonio@meshcoding.com> wrote:
+While this commit was a good attempt to fix issues occuring when no
+multicast querier is present, this commit still has two more issues:
 
-> On Fri, Sep 27, 2013 at 12:01:43AM +0200, Antonio Quartulli wrote:
-> > On Thu, Sep 26, 2013 at 02:32:48PM -0700, Stephen Hemminger wrote:
-> > > > > > diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> > > > > > index 4b81b14..65864bc 100644
-> > > > > > --- a/net/bridge/br_forward.c
-> > > > > > +++ b/net/bridge/br_forward.c
-> > > > > > @@ -49,6 +49,11 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
-> > > > > >  	} else {
-> > > > > >  		skb_push(skb, ETH_HLEN);
-> > > > > >  		br_drop_fake_rtable(skb);
-> > > > > > +
-> > > > > > +		/* clean the NF bridge data */
-> > > > > > +		nf_bridge_put(skb->nf_bridge);
-> > > > > > +		skb->nf_bridge = NULL;
-> > > > > > +
-> > > > > >  		dev_queue_xmit(skb);
-> > > > > >  	}
-> > > > > >  
-> > > > 
-> > > > Regarding CONFIG_BRIDGE_NETFILTER you are right, thanks.
-> > > > 
-> > > > > 
-> > > > > I think the header will also be garbage if bridge on bridge with netfilter is used.
-> > > > > See nf_bridge_save_header.
-> > > > 
-> > > > What header are you referring to? nf_bridge_save_header() saves the header in
-> > > > skb->nf_bridge->data, which is freed during nf_bridge_put() (assuming
-> > > > ->use reached 0).
-> > > > 
-> > > > 
-> > > 
-> > > If bridge is stacked the original ether header will get overwritten by the second
-> > > call to save_header.
-> > 
-> > Sorry, but I am not getting what you mean (I am new to the code and it is late here..):
-> > save_header() will store the Ethernet header in nf_bridge->data for
-> > later recover (if needed).
-> > 
-> > By freeing nf_bridge I also destroy this header copy.
-> > 
-> > When the skb enters the second bridge, save_header() will save again the header
-> > in nf_bridge->data. But I don't see how this can create a problem.
-> > 
-> > The problem I had before this patch comes from the fact that
-> > nf_bridge_copy_header() is invoked in the second bridge with the nf_bridge state
-> > of the first. This was overwriting my the packet Ethernet header with what the
-> > first invocation of save_header() stored in nf_bridge->data.
-> > 
-> > But by unsetting nf_bridge I think I am preventing this from happening again.
-> > no?
-> 
-> Hello Stephen,
-> 
-> do you have other comments about this patch? I know it is rather difficult that
-> a generic user hits this issue, but I'd like to see it fixed because other
-> people using batman-adv may incur in this problem.
-> 
-> Cheers,
-> 
-> 
+1) There are cases where mdb entries do not expire even if there is a
+querier present. The bridge will unnecessarily continue flooding
+multicast packets on the according ports.
 
-The patch content is fine, but it needs necessary ifdef's.
-I would also prefer to have the clean done as a function that can be stubbed out
-like the other bridge netfilter stuff. 
+2) Never removing an mdb entry could be exploited for a Denial of
+Service by an attacker on the local link, slowly, but steadily eating up
+all memory.
+
+Actually, this commit became obsolete with
+"bridge: disable snooping if there is no querier" (b00589af3b)
+which included fixes for a few more cases.
+
+Therefore reverting the following commits (the commit stated in the
+commit message plus three of its follow up fixes):
+
+---
+Revert "bridge: update mdb expiration timer upon reports."
+This reverts commit f144febd93d5ee534fdf23505ab091b2b9088edc.
+Revert "bridge: do not call setup_timer() multiple times"
+This reverts commit 1faabf2aab1fdaa1ace4e8c829d1b9cf7bfec2f1.
+Revert "bridge: fix some kernel warning in multicast timer"
+This reverts commit c7e8e8a8f7a70b343ca1e0f90a31e35ab2d16de1.
+Revert "bridge: only expire the mdb entry when query is received"
+This reverts commit 9f00b2e7cf241fa389733d41b615efdaa2cb0f5b.
+---
+
+CC: Cong Wang <amwang@redhat.com>
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_mdb.c       |    2 +-
+ net/bridge/br_multicast.c |   47 ++++++++++++++++++++++++++-------------------
+ net/bridge/br_private.h   |    1 -
+ 3 files changed, 28 insertions(+), 22 deletions(-)
+
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 85a09bb..b7b1914 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -453,7 +453,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 		call_rcu_bh(&p->rcu, br_multicast_free_pg);
+ 		err = 0;
+ 
+-		if (!mp->ports && !mp->mglist && mp->timer_armed &&
++		if (!mp->ports && !mp->mglist &&
+ 		    netif_running(br->dev))
+ 			mod_timer(&mp->timer, jiffies);
+ 		break;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 1085f21..8b0b610 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -272,7 +272,7 @@ static void br_multicast_del_pg(struct net_bridge *br,
+ 		del_timer(&p->timer);
+ 		call_rcu_bh(&p->rcu, br_multicast_free_pg);
+ 
+-		if (!mp->ports && !mp->mglist && mp->timer_armed &&
++		if (!mp->ports && !mp->mglist &&
+ 		    netif_running(br->dev))
+ 			mod_timer(&mp->timer, jiffies);
+ 
+@@ -611,9 +611,6 @@ rehash:
+ 		break;
+ 
+ 	default:
+-		/* If we have an existing entry, update it's expire timer */
+-		mod_timer(&mp->timer,
+-			  jiffies + br->multicast_membership_interval);
+ 		goto out;
+ 	}
+ 
+@@ -623,7 +620,6 @@ rehash:
+ 
+ 	mp->br = br;
+ 	mp->addr = *group;
+-
+ 	setup_timer(&mp->timer, br_multicast_group_expired,
+ 		    (unsigned long)mp);
+ 
+@@ -663,6 +659,7 @@ static int br_multicast_add_group(struct net_bridge *br,
+ 	struct net_bridge_mdb_entry *mp;
+ 	struct net_bridge_port_group *p;
+ 	struct net_bridge_port_group __rcu **pp;
++	unsigned long now = jiffies;
+ 	int err;
+ 
+ 	spin_lock(&br->multicast_lock);
+@@ -677,18 +674,15 @@ static int br_multicast_add_group(struct net_bridge *br,
+ 
+ 	if (!port) {
+ 		mp->mglist = true;
++		mod_timer(&mp->timer, now + br->multicast_membership_interval);
+ 		goto out;
+ 	}
+ 
+ 	for (pp = &mp->ports;
+ 	     (p = mlock_dereference(*pp, br)) != NULL;
+ 	     pp = &p->next) {
+-		if (p->port == port) {
+-			/* We already have a portgroup, update the timer.  */
+-			mod_timer(&p->timer,
+-				  jiffies + br->multicast_membership_interval);
+-			goto out;
+-		}
++		if (p->port == port)
++			goto found;
+ 		if ((unsigned long)p->port < (unsigned long)port)
+ 			break;
+ 	}
+@@ -699,6 +693,8 @@ static int br_multicast_add_group(struct net_bridge *br,
+ 	rcu_assign_pointer(*pp, p);
+ 	br_mdb_notify(br->dev, port, group, RTM_NEWMDB);
+ 
++found:
++	mod_timer(&p->timer, now + br->multicast_membership_interval);
+ out:
+ 	err = 0;
+ 
+@@ -1198,9 +1194,6 @@ static int br_ip4_multicast_query(struct net_bridge *br,
+ 	if (!mp)
+ 		goto out;
+ 
+-	mod_timer(&mp->timer, now + br->multicast_membership_interval);
+-	mp->timer_armed = true;
+-
+ 	max_delay *= br->multicast_last_member_count;
+ 
+ 	if (mp->mglist &&
+@@ -1277,9 +1270,6 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 	if (!mp)
+ 		goto out;
+ 
+-	mod_timer(&mp->timer, now + br->multicast_membership_interval);
+-	mp->timer_armed = true;
+-
+ 	max_delay *= br->multicast_last_member_count;
+ 	if (mp->mglist &&
+ 	    (timer_pending(&mp->timer) ?
+@@ -1365,7 +1355,7 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 			call_rcu_bh(&p->rcu, br_multicast_free_pg);
+ 			br_mdb_notify(br->dev, port, group, RTM_DELMDB);
+ 
+-			if (!mp->ports && !mp->mglist && mp->timer_armed &&
++			if (!mp->ports && !mp->mglist &&
+ 			    netif_running(br->dev))
+ 				mod_timer(&mp->timer, jiffies);
+ 		}
+@@ -1377,12 +1367,30 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 		     br->multicast_last_member_interval;
+ 
+ 	if (!port) {
+-		if (mp->mglist && mp->timer_armed &&
++		if (mp->mglist &&
+ 		    (timer_pending(&mp->timer) ?
+ 		     time_after(mp->timer.expires, time) :
+ 		     try_to_del_timer_sync(&mp->timer) >= 0)) {
+ 			mod_timer(&mp->timer, time);
+ 		}
++
++		goto out;
++	}
++
++	for (p = mlock_dereference(mp->ports, br);
++	     p != NULL;
++	     p = mlock_dereference(p->next, br)) {
++		if (p->port != port)
++			continue;
++
++		if (!hlist_unhashed(&p->mglist) &&
++		    (timer_pending(&p->timer) ?
++		     time_after(p->timer.expires, time) :
++		     try_to_del_timer_sync(&p->timer) >= 0)) {
++			mod_timer(&p->timer, time);
++		}
++
++		break;
+ 	}
+ out:
+ 	spin_unlock(&br->multicast_lock);
+@@ -1805,7 +1813,6 @@ void br_multicast_stop(struct net_bridge *br)
+ 		hlist_for_each_entry_safe(mp, n, &mdb->mhash[i],
+ 					  hlist[ver]) {
+ 			del_timer(&mp->timer);
+-			mp->timer_armed = false;
+ 			call_rcu_bh(&mp->rcu, br_multicast_free_group);
+ 		}
+ 	}
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 7ca2ae4..e14c33b 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -126,7 +126,6 @@ struct net_bridge_mdb_entry
+ 	struct timer_list		timer;
+ 	struct br_ip			addr;
+ 	bool				mglist;
+-	bool				timer_armed;
+ };
+ 
+ struct net_bridge_mdb_htable
+-- 
+1.7.10.4
 
