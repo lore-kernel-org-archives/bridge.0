@@ -1,24 +1,16 @@
-Return-Path: <xiyou.wangcong@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc:content-type:content-transfer-encoding;
-	bh=DawGGvOS90ImmVJBNAF03Hky5k6szz5FnwTf7QZMQVA=;
-	b=ullotQbTDNMJnwECLhqGPXnXadfkvmE6gRKZTBsQrLPOZ7vz1kYPyR8JKjgxNK3TXM
-	QmER11uFeEF753sT4okD3tJcYCUBa3cdr8W1uEOlfbPWC4GDo6fevldAM4h4w6UrzkPB
-	dVp2/69YBDU0ndADZSHznLM7VZUsH24eCmsWyV/LcOrpU7AX4CvvtlLB+PI4b0ws11Wq
-	hxzV1b8WbKFSEmHYqA1y5LyRUjDvMVcOljIQCLIuzXZ9fMxkJ0TebmRr113iHxN37saS
-	p5D3LbUCMet2w9UESlmxOBWf2cKKX/ttR1n6tc5b6cwh8H26/D+GbqzuNzqbLDHKsAjs
-	GoXg==
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <52667A07.4030303@redhat.com>
+Date: Tue, 22 Oct 2013 09:13:43 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1382223537-10844-1-git-send-email-linus.luessing@web.de>
 References: <1382223537-10844-1-git-send-email-linus.luessing@web.de>
-Date: Mon, 21 Oct 2013 20:02:23 -0700
-Message-ID: <CAM_iQpUq3EUu8GWsqbm_j9NonMGuWy0Qfimq1But9WrPsK8rbA@mail.gmail.com>
-From: Cong Wang <xiyou.wangcong@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+	<20131021.184509.1933008514161772000.davem@davemloft.net>
+In-Reply-To: <20131021.184509.1933008514161772000.davem@davemloft.net>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
 Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCH] Revert "bridge: only expire the mdb entry when
-	query is received"
+ query is received"
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,26 +19,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@web.de>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, LKML <linux-kernel@vger.kernel.org>
+To: David Miller <davem@davemloft.net>, linus.luessing@web.de
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, amwang@redhat.com
 
-On Sat, Oct 19, 2013 at 3:58 PM, Linus L=C3=BCssing <linus.luessing@web.de>=
- wrote:
-> While this commit was a good attempt to fix issues occuring when no
-> multicast querier is present, this commit still has two more issues:
+On 10/21/2013 06:45 PM, David Miller wrote:
+> From: Linus L=FCssing <linus.luessing@web.de>
+> Date: Sun, 20 Oct 2013 00:58:57 +0200
 >
-> 1) There are cases where mdb entries do not expire even if there is a
-> querier present. The bridge will unnecessarily continue flooding
-> multicast packets on the according ports.
+>> While this commit was a good attempt to fix issues occuring when no
+>> multicast querier is present, this commit still has two more issues:
+>>
+>> 1) There are cases where mdb entries do not expire even if there is a
+>> querier present. The bridge will unnecessarily continue flooding
+>> multicast packets on the according ports.
+>>
+>> 2) Never removing an mdb entry could be exploited for a Denial of
+>> Service by an attacker on the local link, slowly, but steadily eating up
+>> all memory.
+>>
+>> Actually, this commit became obsolete with
+>> "bridge: disable snooping if there is no querier" (b00589af3b)
+>> which included fixes for a few more cases.
+>>
+>> Therefore reverting the following commits (the commit stated in the
+>> commit message plus three of its follow up fixes):
+>>
+>> ---
+>> Revert "bridge: update mdb expiration timer upon reports."
+>> This reverts commit f144febd93d5ee534fdf23505ab091b2b9088edc.
+>> Revert "bridge: do not call setup_timer() multiple times"
+>> This reverts commit 1faabf2aab1fdaa1ace4e8c829d1b9cf7bfec2f1.
+>> Revert "bridge: fix some kernel warning in multicast timer"
+>> This reverts commit c7e8e8a8f7a70b343ca1e0f90a31e35ab2d16de1.
+>> Revert "bridge: only expire the mdb entry when query is received"
+>> This reverts commit 9f00b2e7cf241fa389733d41b615efdaa2cb0f5b.
+>> ---
 >
-> 2) Never removing an mdb entry could be exploited for a Denial of
-> Service by an attacker on the local link, slowly, but steadily eating up
-> all memory.
+> Cong, and other bridge folks, please review this revert.
+>
+t  http://vger.kernel.org/majordomo-info.html
 >
 
-I raised the first issue too when I sent the patch, but Herbert said
-it is not a problem. So, I will leave this to Herbert to decide.
+Makes sense and make the implementation better follow the spec.
+Looks like the issues seen before are resolved by the revert.
 
-For me, your patch makes sense.
-
-Thanks.
+-vlad
