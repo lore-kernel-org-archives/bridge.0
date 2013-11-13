@@ -1,24 +1,12 @@
-Return-Path: <vyasevich@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc:content-type;
-	bh=9BcKXE0GmAVv9gxjkP6zngz8JR+UAw5KGgIWh/tsPN0=;
-	b=BjY3PTCqC60kvMGOYmXUwdoF/KTO8y7MTDmPVDYB1wkevf6VGUSTvPYcDZkCQLspvy
-	2HlZWUi50x65C3BT6k7Kw76em+5MBE1Cv6MbAS0WXmNsbnlQLbUpMfKzLGLJWa54PH40
-	Vzi7/9852f7eWXV3v6dVKMzZREc56E/HvxmaqEoXoXkdGfC1gzYIlEn7VaahwQ0EUI4o
-	cAI4ur+ocY2C97dYvyGdQFMo0EEPSNeS1YiDk7fKirPqeLJPz5KiGtVbxln2bafUtetO
-	QXVGq0YbTFsZN7jwViOlwXlSnXI1i0GJeqFmzPZODNS7qkzbvq0w4dmvaFjs4/ZII5/J
-	i0ZA==
+Return-Path: <glenn.feunteun@orange.com>
+From: <glenn.feunteun@orange.com>
+Date: Wed, 13 Nov 2013 16:08:36 +0000
+Message-ID: <9063_1384358917_5283A405_9063_7670_1_F30F0A0ED6964F42A271F6E9495DDBD0B2E620@PEXCVZYM14.corporate.adroot.infra.ftgroup>
+Content-Language: fr-FR
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-In-Reply-To: <20131021.184509.1933008514161772000.davem@davemloft.net>
-References: <1382223537-10844-1-git-send-email-linus.luessing@web.de>
-	<20131021.184509.1933008514161772000.davem@davemloft.net>
-Date: Tue, 22 Oct 2013 09:10:14 -0400
-Message-ID: <CAGCdqXG0V+2vHVg6NPXocN6ZLVGOT8e16fEt-TXx5=Rh0tFmiw@mail.gmail.com>
-From: Vladislav Yasevich <vyasevich@gmail.com>
-Content-Type: multipart/alternative; boundary=001a11c347700bd2a504e9541f13
-Subject: Re: [Bridge] [PATCH] Revert "bridge: only expire the mdb entry when
-	query is received"
+Subject: [Bridge]  [PATCH] Mirroring function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,116 +15,184 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: amwang@redhat.com, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, linus.luessing@web.de
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
---001a11c347700bd2a504e9541f13
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hello
 
-On Mon, Oct 21, 2013 at 6:45 PM, David Miller <davem@davemloft.net> wrote:
+I am working on a school project whose goal is to implement a traffic mirro=
+ring function inside bridge kernel module.
 
-> From: Linus L=FCssing <linus.luessing@web.de>
-> Date: Sun, 20 Oct 2013 00:58:57 +0200
->
-> > While this commit was a good attempt to fix issues occuring when no
-> > multicast querier is present, this commit still has two more issues:
-> >
-> > 1) There are cases where mdb entries do not expire even if there is a
-> > querier present. The bridge will unnecessarily continue flooding
-> > multicast packets on the according ports.
-> >
-> > 2) Never removing an mdb entry could be exploited for a Denial of
-> > Service by an attacker on the local link, slowly, but steadily eating u=
-p
-> > all memory.
-> >
-> > Actually, this commit became obsolete with
-> > "bridge: disable snooping if there is no querier" (b00589af3b)
-> > which included fixes for a few more cases.
-> >
-> > Therefore reverting the following commits (the commit stated in the
-> > commit message plus three of its follow up fixes):
-> >
-> > ---
-> > Revert "bridge: update mdb expiration timer upon reports."
-> > This reverts commit f144febd93d5ee534fdf23505ab091b2b9088edc.
-> > Revert "bridge: do not call setup_timer() multiple times"
-> > This reverts commit 1faabf2aab1fdaa1ace4e8c829d1b9cf7bfec2f1.
-> > Revert "bridge: fix some kernel warning in multicast timer"
-> > This reverts commit c7e8e8a8f7a70b343ca1e0f90a31e35ab2d16de1.
-> > Revert "bridge: only expire the mdb entry when query is received"
-> > This reverts commit 9f00b2e7cf241fa389733d41b615efdaa2cb0f5b.
-> > ---
->
-> Cong, and other bridge folks, please review this revert.
->
+I implemented the function that lets:
+- select the mirrored interface(s)
+- select ingress, egress or both traffic to be mirrored
+- select the output interface(s)
 
-Makes sense and make the implementation better follow the spec.
-Looks like the issues seen before are resolved by the revert.
+Examples:
 
-Reviewed-by: Vlad Yasevich <vyasevich@gmail.com>
+a)
 
---001a11c347700bd2a504e9541f13
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+brctl mirror br0 eth0 ingress
+brclt mirror br0 eth1 destination
 
-<div dir=3D"ltr"><div class=3D"gmail_extra">On Mon, Oct 21, 2013 at 6:45 PM=
-, David Miller <span dir=3D"ltr">&lt;<a href=3D"mailto:davem@davemloft.net"=
- target=3D"_blank">davem@davemloft.net</a>&gt;</span> wrote:<br><div class=
-=3D"gmail_quote">
-<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
-left-width:1px;border-left-color:rgb(204,204,204);border-left-style:solid;p=
-adding-left:1ex">From: Linus L=FCssing &lt;<a href=3D"mailto:linus.luessing=
-@web.de">linus.luessing@web.de</a>&gt;<br>
+All incoming traffic on eth0 will be mirrored on eth1.
 
-Date: Sun, 20 Oct 2013 00:58:57 +0200<br>
-<br>
-&gt; While this commit was a good attempt to fix issues occuring when no<br=
->
-&gt; multicast querier is present, this commit still has two more issues:<b=
-r>
-&gt;<br>
-&gt; 1) There are cases where mdb entries do not expire even if there is a<=
-br>
-&gt; querier present. The bridge will unnecessarily continue flooding<br>
-&gt; multicast packets on the according ports.<br>
-&gt;<br>
-&gt; 2) Never removing an mdb entry could be exploited for a Denial of<br>
-&gt; Service by an attacker on the local link, slowly, but steadily eating =
-up<br>
-&gt; all memory.<br>
-&gt;<br>
-&gt; Actually, this commit became obsolete with<br>
-&gt; &quot;bridge: disable snooping if there is no querier&quot; (b00589af3=
-b)<br>
-&gt; which included fixes for a few more cases.<br>
-&gt;<br>
-&gt; Therefore reverting the following commits (the commit stated in the<br=
->
-&gt; commit message plus three of its follow up fixes):<br>
-&gt;<br>
-&gt; ---<br>
-&gt; Revert &quot;bridge: update mdb expiration timer upon reports.&quot;<b=
-r>
-&gt; This reverts commit f144febd93d5ee534fdf23505ab091b2b9088edc.<br>
-&gt; Revert &quot;bridge: do not call setup_timer() multiple times&quot;<br=
->
-&gt; This reverts commit 1faabf2aab1fdaa1ace4e8c829d1b9cf7bfec2f1.<br>
-&gt; Revert &quot;bridge: fix some kernel warning in multicast timer&quot;<=
-br>
-&gt; This reverts commit c7e8e8a8f7a70b343ca1e0f90a31e35ab2d16de1.<br>
-&gt; Revert &quot;bridge: only expire the mdb entry when query is received&=
-quot;<br>
-&gt; This reverts commit 9f00b2e7cf241fa389733d41b615efdaa2cb0f5b.<br>
-&gt; ---<br>
-<br>
-Cong, and other bridge folks, please review this revert.<br></blockquote><d=
-iv><br></div><div>Makes sense and make the implementation better follow the=
- spec.</div><div>Looks like the issues seen before are resolved by the reve=
-rt.</div>
-<div><br></div>Reviewed-by: Vlad Yasevich &lt;<a href=3D"mailto:vyasevich@g=
-mail.com">vyasevich@gmail.com</a>&gt;<div class=3D"gmail_extra"><br></div><=
-div>=A0</div></div></div></div>
+b)
 
---001a11c347700bd2a504e9541f13--
+brctl mirror br0 eth0 egress
+brclt mirror br0 eth1 destination
+
+All outgoing traffic from eth0 will be mirrored on eth1.
+
+c)
+
+brctl mirror br0 eth0 both
+brclt mirror br0 eth1 destination
+
+All incoming and outgoing traffic coming on or from eth0 will be mirrored o=
+n eth1.
+
+
+Following is the patch against kernel v3.12.
+
+I also implemented the userspace counterpart, I'll send the patch in anothe=
+r mail.
+
+
+Thank you for giving some feedback on the code and about its possible commi=
+t into kernel main tree.
+
+
+diff -urBb old/br_forward.c new/br_forward.c
+--- old/br_forward.c	2013-11-12 14:55:59.054134721 +0100
++++ new/br_forward.c	2013-11-12 14:35:28.262134745 +0100
+@@ -62,6 +62,30 @@
+=20
+ }
+=20
++void br_mirror_xmit(const struct net_bridge_port *p, struct sk_buff *skb, =
+u8 mask)
++{=20
++    struct net_bridge_port *pos;
++    struct sk_buff *clone;
++    /* See if port has mirroring activated on incoming packet
++       ,outgoing packet or both depending on mask */
++	if(p->mirror_state & mask)
++	{
++		/* Look at each bridge port if one is a mirroring destination */
++
++		list_for_each_entry(pos,&p->br->port_list,list)
++		{
++			if(pos->mirror_state & BR_MIRROR_DST)
++			{
++			    /* Set clone device so it is sent on destination port */
++			        clone =3D skb_copy(skb, GFP_ATOMIC);
++				clone->dev =3D pos->dev;
++				skb_push(clone, ETH_HLEN);
++				dev_queue_xmit(clone);
++			}
++		}
++	}
++}
++
+ static void __br_deliver(const struct net_bridge_port *to, struct sk_buff =
+*skb)
+ {
+ 	skb =3D br_handle_vlan(to->br, nbp_get_vlan_info(to), skb);
+@@ -70,6 +94,8 @@
+=20
+ 	skb->dev =3D to->dev;
+=20
++	br_mirror_xmit(to,skb,BR_MIRROR_TX);
++
+ 	if (unlikely(netpoll_tx_running(to->br->dev))) {
+ 		if (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))
+ 			kfree_skb(skb);
+diff -urBb old/br_input.c new/br_input.c
+--- old/br_input.c	2013-11-12 14:55:59.054134721 +0100
++++ new/br_input.c	2013-11-12 14:35:28.262134745 +0100
+@@ -216,6 +216,8 @@
+ 		}
+ 	}
+=20
++	br_mirror_xmit(p,skb,BR_MIRROR_RX);
++
+ forward:
+ 	switch (p->state) {
+ 	case BR_STATE_FORWARDING:
+diff -urBb old/br_private.h new/br_private.h
+--- old/br_private.h	2013-11-12 14:55:59.054134721 +0100
++++ new/br_private.h	2013-11-13 15:57:33.668402893 +0100
+@@ -159,6 +159,12 @@
+ 	u32				designated_cost;
+ 	unsigned long			designated_age;
+=20
++	/* Mirroring */
++#define BR_MIRROR_RX 0x01
++#define BR_MIRROR_TX 0x02
++#define BR_MIRROR_DST 0x04
++	u8				mirror_state;
++
+ 	struct timer_list		forward_delay_timer;
+ 	struct timer_list		hold_timer;
+ 	struct timer_list		message_age_timer;
+@@ -424,6 +430,7 @@
+ 			     bool unicast);
+ extern void br_flood_forward(struct net_bridge *br, struct sk_buff *skb,
+ 			     struct sk_buff *skb2, bool unicast);
++extern void br_mirror_xmit(const struct net_bridge_port *p, struct sk_buff=
+ *skb, u8 mask);
+=20
+ /* br_if.c */
+ extern void br_port_carrier_check(struct net_bridge_port *p);
+diff -urBb old/br_sysfs_if.c new/br_sysfs_if.c
+--- old/br_sysfs_if.c	2013-11-12 14:55:59.054134721 +0100
++++ new/br_sysfs_if.c	2013-11-12 14:35:28.262134745 +0100
+@@ -161,6 +161,18 @@
+ BRPORT_ATTR_FLAG(learning, BR_LEARNING);
+ BRPORT_ATTR_FLAG(unicast_flood, BR_FLOOD);
+=20
++static ssize_t show_mirror_state(struct net_bridge_port *p, char *buf)
++{
++	return sprintf(buf, "%d\n", p->mirror_state);
++}
++static int store_mirror_state(struct net_bridge_port *p, unsigned long v)
++{
++	p->mirror_state =3D v;
++	return 0;
++}
++static BRPORT_ATTR(mirror_state, S_IRUGO | S_IWUSR,
++		   show_mirror_state, store_mirror_state);
++
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
+ {
+@@ -199,6 +211,7 @@
+ 	&brport_attr_root_block,
+ 	&brport_attr_learning,
+ 	&brport_attr_unicast_flood,
++	&brport_attr_mirror_state,
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	&brport_attr_multicast_router,
+ 	&brport_attr_multicast_fast_leave,
+
+___________________________________________________________________________=
+______________________________________________
+
+Ce message et ses pieces jointes peuvent contenir des informations confiden=
+tielles ou privilegiees et ne doivent donc
+pas etre diffuses, exploites ou copies sans autorisation. Si vous avez recu=
+ ce message par erreur, veuillez le signaler
+a l'expediteur et le detruire ainsi que les pieces jointes. Les messages el=
+ectroniques etant susceptibles d'alteration,
+Orange decline toute responsabilite si ce message a ete altere, deforme ou =
+falsifie. Merci.
+
+This message and its attachments may contain confidential or privileged inf=
+ormation that may be protected by law;
+they should not be distributed, used or copied without authorisation.
+If you have received this email in error, please notify the sender and dele=
+te this message and its attachments.
+As emails may be altered, Orange is not liable for messages that have been =
+modified, changed or falsified.
+Thank you.
+
