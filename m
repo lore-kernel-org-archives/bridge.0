@@ -1,12 +1,12 @@
 Return-Path: <glenn.feunteun@orange.com>
 From: <glenn.feunteun@orange.com>
-Date: Wed, 13 Nov 2013 16:08:36 +0000
-Message-ID: <9063_1384358917_5283A405_9063_7670_1_F30F0A0ED6964F42A271F6E9495DDBD0B2E620@PEXCVZYM14.corporate.adroot.infra.ftgroup>
+Date: Wed, 13 Nov 2013 16:26:12 +0000
+Message-ID: <14922_1384359973_5283A825_14922_2941_1_F30F0A0ED6964F42A271F6E9495DDBD0B2E641@PEXCVZYM14.corporate.adroot.infra.ftgroup>
 Content-Language: fr-FR
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge]  [PATCH] Mirroring function
+Subject: Re: [Bridge] [PATCH] Mirroring function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,163 +17,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-Hello
+Userspace patch for the mirroring function made against bridge-utils 1.5 :
 
-I am working on a school project whose goal is to implement a traffic mirro=
-ring function inside bridge kernel module.
+---------------------------------------------------------------------------=
+---------------
 
-I implemented the function that lets:
-- select the mirrored interface(s)
-- select ingress, egress or both traffic to be mirrored
-- select the output interface(s)
-
-Examples:
-
-a)
-
-brctl mirror br0 eth0 ingress
-brclt mirror br0 eth1 destination
-
-All incoming traffic on eth0 will be mirrored on eth1.
-
-b)
-
-brctl mirror br0 eth0 egress
-brclt mirror br0 eth1 destination
-
-All outgoing traffic from eth0 will be mirrored on eth1.
-
-c)
-
-brctl mirror br0 eth0 both
-brclt mirror br0 eth1 destination
-
-All incoming and outgoing traffic coming on or from eth0 will be mirrored o=
-n eth1.
-
-
-Following is the patch against kernel v3.12.
-
-I also implemented the userspace counterpart, I'll send the patch in anothe=
-r mail.
-
-
-Thank you for giving some feedback on the code and about its possible commi=
-t into kernel main tree.
-
-
-diff -urBb old/br_forward.c new/br_forward.c
---- old/br_forward.c	2013-11-12 14:55:59.054134721 +0100
-+++ new/br_forward.c	2013-11-12 14:35:28.262134745 +0100
-@@ -62,6 +62,30 @@
-=20
+diff -urBb old/brctl/brctl_cmd.c new1/brctl/brctl_cmd.c
+--- old/brctl/brctl_cmd.c	2013-11-13 10:37:48.635728832 +0100
++++ new1/brctl/brctl_cmd.c	2013-11-13 10:59:58.915775559 +0100
+@@ -438,6 +438,56 @@
+ 	return err !=3D 0;
  }
 =20
-+void br_mirror_xmit(const struct net_bridge_port *p, struct sk_buff *skb, =
-u8 mask)
-+{=20
-+    struct net_bridge_port *pos;
-+    struct sk_buff *clone;
-+    /* See if port has mirroring activated on incoming packet
-+       ,outgoing packet or both depending on mask */
-+	if(p->mirror_state & mask)
-+	{
-+		/* Look at each bridge port if one is a mirroring destination */
-+
-+		list_for_each_entry(pos,&p->br->port_list,list)
-+		{
-+			if(pos->mirror_state & BR_MIRROR_DST)
-+			{
-+			    /* Set clone device so it is sent on destination port */
-+			        clone =3D skb_copy(skb, GFP_ATOMIC);
-+				clone->dev =3D pos->dev;
-+				skb_push(clone, ETH_HLEN);
-+				dev_queue_xmit(clone);
-+			}
-+		}
-+	}
++static int br_cmd_mirror(int argc, char *const* argv)
++{
++ 	int mirror_state =3D 0, err;
++ 	const char *brname =3D *++argv;
++ 	const char *ifname =3D *++argv;
++ 	const char *ifmode =3D *++argv;
++=20
++ 	if (!strcmp(ifmode, "dst") || !strcmp(ifmode, "destination")
++ 	    || !strcmp(ifmode, "4"))
++ 		mirror_state |=3D BR_MIRROR_DST ;
++=20
++ 	else if (!strcmp(ifmode, "both") || !strcmp(ifmode, "all")
++ 	    || !strcmp(ifmode, "3"))
++ 		mirror_state |=3D (BR_MIRROR_RX | BR_MIRROR_TX);
++=20
++ 	else if (!strcmp(ifmode, "tx") || !strcmp(ifmode, "egress")
++ 	    || !strcmp(ifmode, "2"))
++ 		mirror_state |=3D BR_MIRROR_TX;
++=20
++ 	else if (!strcmp(ifmode, "rx") || !strcmp(ifmode, "ingress")
++ 	    || !strcmp(ifmode, "1"))
++ 		mirror_state |=3D BR_MIRROR_RX;
++=20
++ 	else if (!strcmp(ifmode, "off") || !strcmp(ifmode, "no")
++ 		 || !strcmp(ifmode, "0"))
++ 		mirror_state &=3D BR_MIRROR_OFF;
++=20
++ 	else {
++ 		fprintf(stderr, "expect rx/tx/both/off/dst for argument\n");
++ 		return 1;
++ 	}
++ 	if (if_nametoindex(ifname) =3D=3D 0) {
++ 		fprintf(stderr, "interface %s does not exist!\n",
++ 			ifname);
++ 		return 1;
++ 	} else if (if_nametoindex(brname) =3D=3D 0) {
++ 		fprintf(stderr, "bridge %s does not exist!\n",
++ 			brname);
++ 		return 1;
++ 	}
++=20
++ 	err =3D br_set_mirror_state(brname, ifname, mirror_state);
++=20
++ 	if (err) {
++ 		fprintf(stderr, "can't set %s to %s state on bridge %s: %s\n",
++ 			ifname,ifmode,brname, strerror(err));
++ 	}
++	return err !=3D 0;
 +}
 +
- static void __br_deliver(const struct net_bridge_port *to, struct sk_buff =
-*skb)
+ static const struct command commands[] =3D {
+ 	{ 1, "addbr", br_cmd_addbr, "<bridge>\t\tadd bridge" },
+ 	{ 1, "delbr", br_cmd_delbr, "<bridge>\t\tdelete bridge" },
+@@ -469,6 +519,8 @@
+ 	  "<bridge>\t\tshow bridge stp info"},
+ 	{ 2, "stp", br_cmd_stp,
+ 	  "<bridge> {on|off}\tturn stp on/off" },
++	{ 3, "mirror", br_cmd_mirror,
++	  "<bridge> <interface> {rx|tx|both|off|dst}\tset interface mirroring sta=
+te" },
+ };
+=20
+ const struct command *command_lookup(const char *cmd)
+diff -urBb old/libbridge/libbridge_devif.c new1/libbridge/libbridge_devif.c
+--- old/libbridge/libbridge_devif.c	2013-11-13 10:37:39.767722700 +0100
++++ new1/libbridge/libbridge_devif.c	2013-11-13 11:05:23.431777935 +0100
+@@ -272,6 +272,7 @@
+ 	fetch_tv(path, "forward_delay_timer", &info->forward_delay_timer_value);
+ 	fetch_tv(path, "hold_timer", &info->hold_timer_value);
+ 	info->hairpin_mode =3D fetch_int(path, "hairpin_mode");
++	info->mirror_state =3D fetch_int(path, "mirror_state");
+=20
+ 	closedir(d);
+=20
+@@ -388,6 +389,11 @@
+ 	return port_set(bridge, port, "hairpin_mode", hairpin_mode, 0);
+ }
+=20
++int br_set_mirror_state(const char *bridge, const char *port, int mirror_s=
+tate)
++{
++	return port_set(bridge, port, "mirror_state", mirror_state, 0);
++}
++
+ static inline void __copy_fdb(struct fdb_entry *ent,=20
+ 			      const struct __fdb_entry *f)
  {
- 	skb =3D br_handle_vlan(to->br, nbp_get_vlan_info(to), skb);
-@@ -70,6 +94,8 @@
+diff -urBb old/libbridge/libbridge.h new1/libbridge/libbridge.h
+--- old/libbridge/libbridge.h	2013-11-13 10:51:53.359776785 +0100
++++ new1/libbridge/libbridge.h	2013-11-13 11:09:32.159787057 +0100
+@@ -82,8 +82,14 @@
+ 	struct timeval forward_delay_timer_value;
+ 	struct timeval hold_timer_value;
+ 	unsigned char hairpin_mode;
++	unsigned char mirror_state;
+ };
 =20
- 	skb->dev =3D to->dev;
-=20
-+	br_mirror_xmit(to,skb,BR_MIRROR_TX);
-+
- 	if (unlikely(netpoll_tx_running(to->br->dev))) {
- 		if (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))
- 			kfree_skb(skb);
-diff -urBb old/br_input.c new/br_input.c
---- old/br_input.c	2013-11-12 14:55:59.054134721 +0100
-+++ new/br_input.c	2013-11-12 14:35:28.262134745 +0100
-@@ -216,6 +216,8 @@
- 		}
- 	}
-=20
-+	br_mirror_xmit(p,skb,BR_MIRROR_RX);
-+
- forward:
- 	switch (p->state) {
- 	case BR_STATE_FORWARDING:
-diff -urBb old/br_private.h new/br_private.h
---- old/br_private.h	2013-11-12 14:55:59.054134721 +0100
-+++ new/br_private.h	2013-11-13 15:57:33.668402893 +0100
-@@ -159,6 +159,12 @@
- 	u32				designated_cost;
- 	unsigned long			designated_age;
-=20
-+	/* Mirroring */
++#define BR_MIRROR_OFF 0x00
 +#define BR_MIRROR_RX 0x01
 +#define BR_MIRROR_TX 0x02
 +#define BR_MIRROR_DST 0x04
-+	u8				mirror_state;
 +
- 	struct timer_list		forward_delay_timer;
- 	struct timer_list		hold_timer;
- 	struct timer_list		message_age_timer;
-@@ -424,6 +430,7 @@
- 			     bool unicast);
- extern void br_flood_forward(struct net_bridge *br, struct sk_buff *skb,
- 			     struct sk_buff *skb2, bool unicast);
-+extern void br_mirror_xmit(const struct net_bridge_port *p, struct sk_buff=
- *skb, u8 mask);
-=20
- /* br_if.c */
- extern void br_port_carrier_check(struct net_bridge_port *p);
-diff -urBb old/br_sysfs_if.c new/br_sysfs_if.c
---- old/br_sysfs_if.c	2013-11-12 14:55:59.054134721 +0100
-+++ new/br_sysfs_if.c	2013-11-12 14:35:28.262134745 +0100
-@@ -161,6 +161,18 @@
- BRPORT_ATTR_FLAG(learning, BR_LEARNING);
- BRPORT_ATTR_FLAG(unicast_flood, BR_FLOOD);
-=20
-+static ssize_t show_mirror_state(struct net_bridge_port *p, char *buf)
-+{
-+	return sprintf(buf, "%d\n", p->mirror_state);
-+}
-+static int store_mirror_state(struct net_bridge_port *p, unsigned long v)
-+{
-+	p->mirror_state =3D v;
-+	return 0;
-+}
-+static BRPORT_ATTR(mirror_state, S_IRUGO | S_IWUSR,
-+		   show_mirror_state, store_mirror_state);
-+
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
- {
-@@ -199,6 +211,7 @@
- 	&brport_attr_root_block,
- 	&brport_attr_learning,
- 	&brport_attr_unicast_flood,
-+	&brport_attr_mirror_state,
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	&brport_attr_multicast_router,
- 	&brport_attr_multicast_fast_leave,
+ extern int br_init(void);
+ extern int br_refresh(void);
+ extern void br_shutdown(void);
+@@ -117,4 +123,6 @@
+ 		       unsigned long skip, int num);
+ extern int br_set_hairpin_mode(const char *bridge, const char *dev,
+ 			       int hairpin_mode);
++extern int br_set_mirror_state(const char *brname, const char *dev,
++                               int mirror_state);
+ #endif
 
 ___________________________________________________________________________=
 ______________________________________________
