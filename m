@@ -1,14 +1,14 @@
-Return-Path: <dingtianhong@huawei.com>
-Message-ID: <5289D10B.9080501@huawei.com>
-Date: Mon, 18 Nov 2013 16:34:19 +0800
-From: Ding Tianhong <dingtianhong@huawei.com>
-MIME-Version: 1.0
-References: <5289CEFE.607@huawei.com>
-In-Reply-To: <5289CEFE.607@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <davem@davemloft.net>
+Date: Mon, 18 Nov 2013 16:15:38 -0500 (EST)
+Message-Id: <20131118.161538.903718006401070788.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <5289CF44.50400@huawei.com>
+References: <5289CF44.50400@huawei.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] bridge: flush br's address entry in fdb when remove
- the bridge dev
+Subject: Re: [Bridge] [PATCH net] bridge: flush br's address entry in fdb
+ when remove the bridge dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,9 +17,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>
+To: dingtianhong@huawei.com
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On 2013/11/18 16:25, Ding Tianhong wrote:
+From: Ding Tianhong <dingtianhong@huawei.com>
+Date: Mon, 18 Nov 2013 16:26:44 +0800
+
 > When the following commands are executed:
 > 
 > brctl addbr br0
@@ -27,8 +30,16 @@ On 2013/11/18 16:25, Ding Tianhong wrote:
 > rmmod bridge
 > 
 > The calltrace will occur:
+ ...
+> The reason is that if the bridge dev's address is changed, the
+> br_fdb_change_mac_address() will add new address in fdb, but when
+> the bridge was removed, the address entry in the fdb did not free,
+> the bridge_fdb_cache still has objects when destroy the cache, Fix
+> this by flushing the bridge address entry when removing the bridge.
+> 
+> Signed-off-by: Ding Tianhong <dingtianhong@huawei.com>
 
-wrong title, miss it, please.
+This patch does not apply at all to the current 'net' tree, please
+respin.
 
-
-
+Thank you.
