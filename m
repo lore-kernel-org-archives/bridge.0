@@ -1,19 +1,12 @@
-Return-Path: <paulmck@linux.vnet.ibm.com>
-Date: Sat, 16 Nov 2013 07:21:19 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Message-ID: <20131116152119.GB4138@linux.vnet.ibm.com>
-References: <20131116003946.GA316@linux.vnet.ibm.com>
-	<1384562417-817-1-git-send-email-paulmck@linux.vnet.ibm.com>
-	<1384562417-817-11-git-send-email-paulmck@linux.vnet.ibm.com>
-	<5286F550.10900@gmail.com>
+Return-Path: <dingtianhong@huawei.com>
+Message-ID: <5289CEFE.607@huawei.com>
+Date: Mon, 18 Nov 2013 16:25:34 +0800
+From: Ding Tianhong <dingtianhong@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5286F550.10900@gmail.com>
-Subject: Re: [Bridge] [PATCH tip/core/rcu 11/14] bonding/bond_main: Apply
- ACCESS_ONCE() to avoid sparse false positive
-Reply-To: paulmck@linux.vnet.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge: flush br's address entry in fdb when remove the
+	bridge dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,66 +15,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ding Tianhong <dthxman@gmail.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, "David S. Miller" <davem@davemloft.net>, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, mingo@kernel.org
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>
 
-On Sat, Nov 16, 2013 at 12:32:16PM +0800, Ding Tianhong wrote:
-> 于 2013/11/16 8:40, Paul E. McKenney 写道:
-> > From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-> >
-> > The sparse checking for rcu_assign_pointer() was recently upgraded
-> > to reject non-__kernel address spaces.  This also rejects __rcu,
-> > which is almost always the right thing to do.  However, the uses in
-> > bond_change_active_slave() and __bond_release_one() are legitimate:
-> > They are assigning a pointer to an element from an RCU-protected list
-> > (or a NULL pointer), and all elements of this list are already visible
-> > to caller.
-> >
-> > This commit therefore silences these false positives either by laundering
-> > the pointers using ACCESS_ONCE() as suggested by Eric Dumazet and Josh
-> > Triplett, or by using RCU_INIT_POINTER() for NULL pointer assignments.
-> 
-> I think it is fit for net-next.
+When the following commands are executed:
 
-Thank you!
+brctl addbr br0
+ifconfig br0 hw ether <addr>
+rmmod bridge
 
-If this is queued there, I would be happy to drop it from my tree.
-There are no dependencies on anything in my tree.
+The calltrace will occur:
 
-							Thanx, Paul
+[  563.312114] device eth1 left promiscuous mode
+[  563.312188] br0: port 1(eth1) entered disabled state
+[  563.468190] kmem_cache_destroy bridge_fdb_cache: Slab cache still has objects
+[  563.468197] CPU: 6 PID: 6982 Comm: rmmod Tainted: G           O 3.12.0-0.7-default+ #9
+[  563.468199] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2007
+[  563.468200]  0000000000000880 ffff88010f111e98 ffffffff814d1c92 ffff88010f111eb8
+[  563.468204]  ffffffff81148efd ffff88010f111eb8 0000000000000000 ffff88010f111ec8
+[  563.468206]  ffffffffa062a270 ffff88010f111ed8 ffffffffa063ac76 ffff88010f111f78
+[  563.468209] Call Trace:
+[  563.468218]  [<ffffffff814d1c92>] dump_stack+0x6a/0x78
+[  563.468234]  [<ffffffff81148efd>] kmem_cache_destroy+0xfd/0x100
+[  563.468242]  [<ffffffffa062a270>] br_fdb_fini+0x10/0x20 [bridge]
+[  563.468247]  [<ffffffffa063ac76>] br_deinit+0x4e/0x50 [bridge]
+[  563.468254]  [<ffffffff810c7dc9>] SyS_delete_module+0x199/0x2b0
+[  563.468259]  [<ffffffff814e0922>] system_call_fastpath+0x16/0x1b
+[  570.377958] Bridge firewalling registered
 
-> > Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> > Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-> > Cc: Stephen Hemminger <stephen@networkplumber.org>
-> > Cc: "David S. Miller" <davem@davemloft.net>
-> > Cc: bridge@lists.linux-foundation.org
-> > Cc: netdev@vger.kernel.org
-> > ---
-> >  drivers/net/bonding/bond_main.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-> > index 72df399c4ab3..bbd7fd3e46fe 100644
-> > --- a/drivers/net/bonding/bond_main.c
-> > +++ b/drivers/net/bonding/bond_main.c
-> > @@ -890,7 +890,8 @@ void bond_change_active_slave(struct bonding *bond, struct slave *new_active)
-> >  		if (new_active)
-> >  			bond_set_slave_active_flags(new_active);
-> >  	} else {
-> > -		rcu_assign_pointer(bond->curr_active_slave, new_active);
-> > +		/* Both --rcu and visible, so ACCESS_ONCE() is OK. */
-> > +		ACCESS_ONCE(bond->curr_active_slave) = new_active;
-> >  	}
-> >  
-> >  	if (bond->params.mode == BOND_MODE_ACTIVEBACKUP) {
-> > @@ -1801,7 +1802,7 @@ static int __bond_release_one(struct net_device *bond_dev,
-> >  	}
-> >  
-> >  	if (all) {
-> > -		rcu_assign_pointer(bond->curr_active_slave, NULL);
-> > +		RCU_INIT_POINTER(bond->curr_active_slave, NULL);
-> >  	} else if (oldcurrent == slave) {
-> >  		/*
-> >  		 * Note that we hold RTNL over this sequence, so there
-> 
+------------------------- cut here ---------------------------
+
+The reason is that if the bridge dev's address is changed, the
+br_fdb_change_mac_address() will add new address in fdb, but when
+the bridge was removed, the address entry in the fdb did not free,
+the bridge_fdb_cache still has objects when destroy the cache, Fix
+this by flushing the bridge address entry when removing the bridge.
+
+Signed-off-by: Ding Tianhong <dingtianhong@huawei.com>
+---
+ net/bridge/br_if.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index c41d5fb..baedc32 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -172,6 +172,10 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
+ 		del_nbp(p);
+ 	}
+ 
++	spin_lock_bh(&br->hash_lock);
++	fdb_delete_by_addr(br, br->dev->dev_addr, 0);
++	spin_unlock_bh(&br->hash_lock);
++
+ 	del_timer_sync(&br->gc_timer);
+ 
+ 	br_sysfs_delbr(br->dev);
+-- 
+1.7.12
+
 
