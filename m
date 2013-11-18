@@ -1,12 +1,12 @@
 Return-Path: <dingtianhong@huawei.com>
-Message-ID: <5289CEFE.607@huawei.com>
-Date: Mon, 18 Nov 2013 16:25:34 +0800
+Message-ID: <5289CF44.50400@huawei.com>
+Date: Mon, 18 Nov 2013 16:26:44 +0800
 From: Ding Tianhong <dingtianhong@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] bridge: flush br's address entry in fdb when remove the
-	bridge dev
+Subject: [Bridge] [PATCH net] bridge: flush br's address entry in fdb when
+ remove the bridge dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
