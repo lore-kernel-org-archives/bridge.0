@@ -1,25 +1,24 @@
-Return-Path: <dthxman@gmail.com>
+Return-Path: <toshiaki.makita1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=5nDhXmLWp0H3WOmGkV8mMCxNnySlWEss5tzQyZFVW2Q=;
-	b=jXz9Q7s2lGtSUCQlMulZZ/fngKztwvooWnHdBp7x+W7kob4bOeWnrCnjhLpTrUI8h6
-	f5d1yq8tUUMKk5p5z0xuQcZyV7JJbIjBnZCfB4n3kY5hPSB53FCrcAKk0f5oQU8u6mKQ
-	kyDHuSh8nWa2CWRUVB4CfHWDQV3IxcTxCa3EpmXlFuCUA3ZgC8HAQe3eSFuxpsSmlWWi
-	g2p3oon44aRbFLy3H6vGm4w191CbkrGQBnuUwHp4jVFXKDUSKa6578TPi6fGYhKK7EXg
-	r5bvC/x8LjhbNZzh3lWuhgKtLjKQ3BL9ylphXkTzOVzYJuH6oySQIcmvwjjfkzVVi6D0
-	U03Q==
-Message-ID: <5286F550.10900@gmail.com>
-From: Ding Tianhong <dthxman@gmail.com>
-MIME-Version: 1.0
-References: <20131116003946.GA316@linux.vnet.ibm.com>
-	<1384562417-817-1-git-send-email-paulmck@linux.vnet.ibm.com>
-	<1384562417-817-11-git-send-email-paulmck@linux.vnet.ibm.com>
-In-Reply-To: <1384562417-817-11-git-send-email-paulmck@linux.vnet.ibm.com>
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Subject: Re: [Bridge] [PATCH tip/core/rcu 11/14] bonding/bond_main: Apply
- ACCESS_ONCE() to avoid sparse false positive
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:mime-version:content-transfer-encoding;
+	bh=EGoucAVIb90jWG3XItvHVKjFlLlIm3Mjtb+K8gCGZXk=;
+	b=ydIy49OH7TiOMDWk2+kt9koVZnD+px99FrtfxxDWrQaLV62hX9v5LG8K5myetT6zvO
+	DB6R/hrpBNTKEtXaOYrc7f0nNrk1vtGB94XOYWRQqiMQEWQvjJBWhCUUA3OkgGHMZDKs
+	3J8mqcRXXrdbyDHLpzraGT+rSTUzFjxBYz+MPoOD3QcM+EY/3RnPkYYGHmQJTvX5glhh
+	BfN8QE3lOP78oQAD8pQolwF6vddOK6BJAxCI/mhBDoJ7dTSzqnAAfQgywur/+/kaLsGs
+	6qnMCj6xmLVcDGo4/3uscwqSx+wnRO5fBub71jTtPkN0NUZ8i/hl0Drl2nG+uBviaUb1
+	VayA==
+Message-ID: <1384876004.1759.7.camel@localhost.localdomain>
+From: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Date: Wed, 20 Nov 2013 00:46:44 +0900
+In-Reply-To: <528AD37E.1050105@huawei.com>
+References: <528AD37E.1050105@huawei.com>
+Content-Type: text/plain; charset="us-ascii"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net RESEND] bridge: flush br's address entry in
+ fdb when remove the bridge dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,45 +27,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sat, 16 Nov 2013 04:43:16 -0000
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, tglx@linutronix.de, laijs@cn.fujitsu.com, edumazet@google.com, "David S. Miller" <davem@davemloft.net>, peterz@infradead.org, fweisbec@gmail.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, sbw@mit.edu, niv@us.ibm.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, darren@dvhart.com, akpm@linux-foundation.org, mingo@kernel.org
+To: Ding Tianhong <dingtianhong@huawei.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-09ogMjAxMy8xMS8xNiA4OjQwLCBQYXVsIEUuIE1jS2VubmV5INC0tcA6Cj4gRnJvbTogIlBhdWwg
-RS4gTWNLZW5uZXkiIDxwYXVsbWNrQGxpbnV4LnZuZXQuaWJtLmNvbT4KPgo+IFRoZSBzcGFyc2Ug
-Y2hlY2tpbmcgZm9yIHJjdV9hc3NpZ25fcG9pbnRlcigpIHdhcyByZWNlbnRseSB1cGdyYWRlZAo+
-IHRvIHJlamVjdCBub24tX19rZXJuZWwgYWRkcmVzcyBzcGFjZXMuICBUaGlzIGFsc28gcmVqZWN0
-cyBfX3JjdSwKPiB3aGljaCBpcyBhbG1vc3QgYWx3YXlzIHRoZSByaWdodCB0aGluZyB0byBkby4g
-IEhvd2V2ZXIsIHRoZSB1c2VzIGluCj4gYm9uZF9jaGFuZ2VfYWN0aXZlX3NsYXZlKCkgYW5kIF9f
-Ym9uZF9yZWxlYXNlX29uZSgpIGFyZSBsZWdpdGltYXRlOgo+IFRoZXkgYXJlIGFzc2lnbmluZyBh
-IHBvaW50ZXIgdG8gYW4gZWxlbWVudCBmcm9tIGFuIFJDVS1wcm90ZWN0ZWQgbGlzdAo+IChvciBh
-IE5VTEwgcG9pbnRlciksIGFuZCBhbGwgZWxlbWVudHMgb2YgdGhpcyBsaXN0IGFyZSBhbHJlYWR5
-IHZpc2libGUKPiB0byBjYWxsZXIuCj4KPiBUaGlzIGNvbW1pdCB0aGVyZWZvcmUgc2lsZW5jZXMg
-dGhlc2UgZmFsc2UgcG9zaXRpdmVzIGVpdGhlciBieSBsYXVuZGVyaW5nCj4gdGhlIHBvaW50ZXJz
-IHVzaW5nIEFDQ0VTU19PTkNFKCkgYXMgc3VnZ2VzdGVkIGJ5IEVyaWMgRHVtYXpldCBhbmQgSm9z
-aAo+IFRyaXBsZXR0LCBvciBieSB1c2luZyBSQ1VfSU5JVF9QT0lOVEVSKCkgZm9yIE5VTEwgcG9p
-bnRlciBhc3NpZ25tZW50cy4KSSB0aGluayBpdCBpcyBmaXQgZm9yIG5ldC1uZXh0LgoKCj4gUmVw
-b3J0ZWQtYnk6IGtidWlsZCB0ZXN0IHJvYm90IDxmZW5nZ3Vhbmcud3VAaW50ZWwuY29tPgo+IFNp
-Z25lZC1vZmYtYnk6IFBhdWwgRS4gTWNLZW5uZXkgPHBhdWxtY2tAbGludXgudm5ldC5pYm0uY29t
-Pgo+IENjOiBTdGVwaGVuIEhlbW1pbmdlciA8c3RlcGhlbkBuZXR3b3JrcGx1bWJlci5vcmc+Cj4g
-Q2M6ICJEYXZpZCBTLiBNaWxsZXIiIDxkYXZlbUBkYXZlbWxvZnQubmV0Pgo+IENjOiBicmlkZ2VA
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiBDYzogbmV0ZGV2QHZnZXIua2VybmVsLm9yZwo+
-IC0tLQo+ICBkcml2ZXJzL25ldC9ib25kaW5nL2JvbmRfbWFpbi5jIHwgNSArKystLQo+ICAxIGZp
-bGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvbmV0L2JvbmRpbmcvYm9uZF9tYWluLmMgYi9kcml2ZXJzL25ldC9ib25kaW5n
-L2JvbmRfbWFpbi5jCj4gaW5kZXggNzJkZjM5OWM0YWIzLi5iYmQ3ZmQzZTQ2ZmUgMTAwNjQ0Cj4g
-LS0tIGEvZHJpdmVycy9uZXQvYm9uZGluZy9ib25kX21haW4uYwo+ICsrKyBiL2RyaXZlcnMvbmV0
-L2JvbmRpbmcvYm9uZF9tYWluLmMKPiBAQCAtODkwLDcgKzg5MCw4IEBAIHZvaWQgYm9uZF9jaGFu
-Z2VfYWN0aXZlX3NsYXZlKHN0cnVjdCBib25kaW5nICpib25kLCBzdHJ1Y3Qgc2xhdmUgKm5ld19h
-Y3RpdmUpCj4gIAkJaWYgKG5ld19hY3RpdmUpCj4gIAkJCWJvbmRfc2V0X3NsYXZlX2FjdGl2ZV9m
-bGFncyhuZXdfYWN0aXZlKTsKPiAgCX0gZWxzZSB7Cj4gLQkJcmN1X2Fzc2lnbl9wb2ludGVyKGJv
-bmQtPmN1cnJfYWN0aXZlX3NsYXZlLCBuZXdfYWN0aXZlKTsKPiArCQkvKiBCb3RoIC0tcmN1IGFu
-ZCB2aXNpYmxlLCBzbyBBQ0NFU1NfT05DRSgpIGlzIE9LLiAqLwo+ICsJCUFDQ0VTU19PTkNFKGJv
-bmQtPmN1cnJfYWN0aXZlX3NsYXZlKSA9IG5ld19hY3RpdmU7Cj4gIAl9Cj4gIAo+ICAJaWYgKGJv
-bmQtPnBhcmFtcy5tb2RlID09IEJPTkRfTU9ERV9BQ1RJVkVCQUNLVVApIHsKPiBAQCAtMTgwMSw3
-ICsxODAyLDcgQEAgc3RhdGljIGludCBfX2JvbmRfcmVsZWFzZV9vbmUoc3RydWN0IG5ldF9kZXZp
-Y2UgKmJvbmRfZGV2LAo+ICAJfQo+ICAKPiAgCWlmIChhbGwpIHsKPiAtCQlyY3VfYXNzaWduX3Bv
-aW50ZXIoYm9uZC0+Y3Vycl9hY3RpdmVfc2xhdmUsIE5VTEwpOwo+ICsJCVJDVV9JTklUX1BPSU5U
-RVIoYm9uZC0+Y3Vycl9hY3RpdmVfc2xhdmUsIE5VTEwpOwo+ICAJfSBlbHNlIGlmIChvbGRjdXJy
-ZW50ID09IHNsYXZlKSB7Cj4gIAkJLyoKPiAgCQkgKiBOb3RlIHRoYXQgd2UgaG9sZCBSVE5MIG92
-ZXIgdGhpcyBzZXF1ZW5jZSwgc28gdGhlcmUKCg==
+On Tue, 2013-11-19 at 10:57 +0800, Ding Tianhong wrote:
+> When the following commands are executed:
+> 
+> brctl addbr br0
+> ifconfig br0 hw ether <addr>
+> rmmod bridge
+> 
+> The calltrace will occur:
+> 
+> [  563.312114] device eth1 left promiscuous mode
+> [  563.312188] br0: port 1(eth1) entered disabled state
+> [  563.468190] kmem_cache_destroy bridge_fdb_cache: Slab cache still has objects
+> [  563.468197] CPU: 6 PID: 6982 Comm: rmmod Tainted: G           O 3.12.0-0.7-default+ #9
+> [  563.468199] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2007
+> [  563.468200]  0000000000000880 ffff88010f111e98 ffffffff814d1c92 ffff88010f111eb8
+> [  563.468204]  ffffffff81148efd ffff88010f111eb8 0000000000000000 ffff88010f111ec8
+> [  563.468206]  ffffffffa062a270 ffff88010f111ed8 ffffffffa063ac76 ffff88010f111f78
+> [  563.468209] Call Trace:
+> [  563.468218]  [<ffffffff814d1c92>] dump_stack+0x6a/0x78
+> [  563.468234]  [<ffffffff81148efd>] kmem_cache_destroy+0xfd/0x100
+> [  563.468242]  [<ffffffffa062a270>] br_fdb_fini+0x10/0x20 [bridge]
+> [  563.468247]  [<ffffffffa063ac76>] br_deinit+0x4e/0x50 [bridge]
+> [  563.468254]  [<ffffffff810c7dc9>] SyS_delete_module+0x199/0x2b0
+> [  563.468259]  [<ffffffff814e0922>] system_call_fastpath+0x16/0x1b
+> [  570.377958] Bridge firewalling registered
+> 
+> ------------------------------------------------
+> 
+> The reason is that when the bridge dev's address is changed, the
+> br_fdb_change_mac_address() will add new address in fdb, but when
+> the bridge was removed, the address entry in the fdb did not free,
+> the bridge_fdb_cache still has objects when destroy the cache, Fix
+> this by flushing the bridge address entry when removing the bridge.
+> 
+> Signed-off-by: Ding Tianhong <dingtianhong@huawei.com>
+> ---
+>  net/bridge/br_if.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 6e6194f..98084d8 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -172,6 +172,10 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
+>  		del_nbp(p);
+>  	}
+>  
+> +	spin_lock_bh(&br->hash_lock);
+> +	fdb_delete_by_addr(br, br->dev->dev_addr, 0);
+> +	spin_unlock_bh(&br->hash_lock);
+
+You are not deleting entries with vid other than 0.
+If we have added some vid, there might be fdb entries with that vid
+whose dst is NULL, which also should be cleaned up.
+
+How about deleting all fdb entries whose dst is NULL?
+br_fdb_delete_by_port() looks able to be called with p == NULL as well.
+
+Thanks,
+Toshiaki Makita
+
+> +
+>  	br_vlan_flush(br);
+>  	del_timer_sync(&br->gc_timer);
+>  
+
+
