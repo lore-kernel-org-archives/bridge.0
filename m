@@ -1,21 +1,21 @@
-Return-Path: <toshiaki.makita1@gmail.com>
+Return-Path: <vyasevich@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:mime-version:content-transfer-encoding;
-	bh=EGoucAVIb90jWG3XItvHVKjFlLlIm3Mjtb+K8gCGZXk=;
-	b=ydIy49OH7TiOMDWk2+kt9koVZnD+px99FrtfxxDWrQaLV62hX9v5LG8K5myetT6zvO
-	DB6R/hrpBNTKEtXaOYrc7f0nNrk1vtGB94XOYWRQqiMQEWQvjJBWhCUUA3OkgGHMZDKs
-	3J8mqcRXXrdbyDHLpzraGT+rSTUzFjxBYz+MPoOD3QcM+EY/3RnPkYYGHmQJTvX5glhh
-	BfN8QE3lOP78oQAD8pQolwF6vddOK6BJAxCI/mhBDoJ7dTSzqnAAfQgywur/+/kaLsGs
-	6qnMCj6xmLVcDGo4/3uscwqSx+wnRO5fBub71jTtPkN0NUZ8i/hl0Drl2nG+uBviaUb1
-	VayA==
-Message-ID: <1384876004.1759.7.camel@localhost.localdomain>
-From: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Date: Wed, 20 Nov 2013 00:46:44 +0900
-In-Reply-To: <528AD37E.1050105@huawei.com>
+	h=message-id:date:from:user-agent:mime-version:to:subject:references
+	:in-reply-to:content-type:content-transfer-encoding;
+	bh=irYXzKXwA7HHySnU/3ho56qU+U50cP12SrSn8qsffuU=;
+	b=M77tukCHU511lAwIarKniVH3mqBPMegD/BUydlLR94pf4sJZo1EvMQs087fwSnmyh3
+	t5HDW56rgW4IkrOI+SPy+jyxVxauMHRZWA6j9iKeHtJshC4sezj45ZZpe4OcehFSP1Jd
+	DxD/lggL1YE1sAiBkM8jKGIwzw+4W8OWMLB6aU78tl9M7V4yeE51vowVtL3lEmSMl/Bb
+	tmvVPWRxU25e1V32kGwwZpmawV1cl6+e1cbnEg5ZGPbi65hiy7Uz3yb/drFJS5jLeJiQ
+	tVDVhaGcyAOHEWiDJG7Oe0xNziOHDRSivzg2mtSfbQ91EdHa1fv/JUlsUvivCKeZDNRm
+	OFvA==
+Message-ID: <528B8926.1010201@gmail.com>
+Date: Tue, 19 Nov 2013 10:52:06 -0500
+From: Vlad Yasevich <vyasevich@gmail.com>
+MIME-Version: 1.0
 References: <528AD37E.1050105@huawei.com>
-Content-Type: text/plain; charset="us-ascii"
-Mime-Version: 1.0
+In-Reply-To: <528AD37E.1050105@huawei.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net RESEND] bridge: flush br's address entry in
  fdb when remove the bridge dev
@@ -27,10 +27,9 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ding Tianhong <dingtianhong@huawei.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Ding Tianhong <dingtianhong@huawei.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>
 
-On Tue, 2013-11-19 at 10:57 +0800, Ding Tianhong wrote:
+On 11/18/2013 09:57 PM, Ding Tianhong wrote:
 > When the following commands are executed:
 > 
 > brctl addbr br0
@@ -80,20 +79,17 @@ On Tue, 2013-11-19 at 10:57 +0800, Ding Tianhong wrote:
 > +	spin_lock_bh(&br->hash_lock);
 > +	fdb_delete_by_addr(br, br->dev->dev_addr, 0);
 > +	spin_unlock_bh(&br->hash_lock);
-
-You are not deleting entries with vid other than 0.
-If we have added some vid, there might be fdb entries with that vid
-whose dst is NULL, which also should be cleaned up.
-
-How about deleting all fdb entries whose dst is NULL?
-br_fdb_delete_by_port() looks able to be called with p == NULL as well.
-
-Thanks,
-Toshiaki Makita
-
 > +
 >  	br_vlan_flush(br);
 >  	del_timer_sync(&br->gc_timer);
 >  
+> 
 
+I think you need to use fdb_delete_by_port(br, NULL, 1);  here.
 
+The reason is that if the bridge had vlan filtering configured, when the
+bridge mac address was changed, an fdb would have been created for
+for ever vlan configured on the bridge.  You delete only vlan0, so you
+would still have a leak.
+
+-vlad
