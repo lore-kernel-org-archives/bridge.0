@@ -1,24 +1,11 @@
-Return-Path: <vyasevich@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:date:from:user-agent:mime-version:to:subject:references
-	:in-reply-to:content-type:content-transfer-encoding;
-	bh=irYXzKXwA7HHySnU/3ho56qU+U50cP12SrSn8qsffuU=;
-	b=M77tukCHU511lAwIarKniVH3mqBPMegD/BUydlLR94pf4sJZo1EvMQs087fwSnmyh3
-	t5HDW56rgW4IkrOI+SPy+jyxVxauMHRZWA6j9iKeHtJshC4sezj45ZZpe4OcehFSP1Jd
-	DxD/lggL1YE1sAiBkM8jKGIwzw+4W8OWMLB6aU78tl9M7V4yeE51vowVtL3lEmSMl/Bb
-	tmvVPWRxU25e1V32kGwwZpmawV1cl6+e1cbnEg5ZGPbi65hiy7Uz3yb/drFJS5jLeJiQ
-	tVDVhaGcyAOHEWiDJG7Oe0xNziOHDRSivzg2mtSfbQ91EdHa1fv/JUlsUvivCKeZDNRm
-	OFvA==
-Message-ID: <528B8926.1010201@gmail.com>
-Date: Tue, 19 Nov 2013 10:52:06 -0500
-From: Vlad Yasevich <vyasevich@gmail.com>
+Return-Path: <thomas@glanzmann.de>
+Date: Sat, 30 Nov 2013 09:54:40 +0100
+From: Thomas Glanzmann <thomas@glanzmann.de>
+Message-ID: <20131130085440.GA11638@glanzmann.de>
 MIME-Version: 1.0
-References: <528AD37E.1050105@huawei.com>
-In-Reply-To: <528AD37E.1050105@huawei.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net RESEND] bridge: flush br's address entry in
- fdb when remove the bridge dev
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Packet reflection breaks Linux bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,69 +14,108 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ding Tianhong <dingtianhong@huawei.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>
+To: bridge@lists.linux-foundation.org
+Cc: Stephen Hemminger <stephen@networkplumber.org>, gernoth@cs.fau.de
 
-On 11/18/2013 09:57 PM, Ding Tianhong wrote:
-> When the following commands are executed:
-> 
-> brctl addbr br0
-> ifconfig br0 hw ether <addr>
-> rmmod bridge
-> 
-> The calltrace will occur:
-> 
-> [  563.312114] device eth1 left promiscuous mode
-> [  563.312188] br0: port 1(eth1) entered disabled state
-> [  563.468190] kmem_cache_destroy bridge_fdb_cache: Slab cache still has objects
-> [  563.468197] CPU: 6 PID: 6982 Comm: rmmod Tainted: G           O 3.12.0-0.7-default+ #9
-> [  563.468199] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2007
-> [  563.468200]  0000000000000880 ffff88010f111e98 ffffffff814d1c92 ffff88010f111eb8
-> [  563.468204]  ffffffff81148efd ffff88010f111eb8 0000000000000000 ffff88010f111ec8
-> [  563.468206]  ffffffffa062a270 ffff88010f111ed8 ffffffffa063ac76 ffff88010f111f78
-> [  563.468209] Call Trace:
-> [  563.468218]  [<ffffffff814d1c92>] dump_stack+0x6a/0x78
-> [  563.468234]  [<ffffffff81148efd>] kmem_cache_destroy+0xfd/0x100
-> [  563.468242]  [<ffffffffa062a270>] br_fdb_fini+0x10/0x20 [bridge]
-> [  563.468247]  [<ffffffffa063ac76>] br_deinit+0x4e/0x50 [bridge]
-> [  563.468254]  [<ffffffff810c7dc9>] SyS_delete_module+0x199/0x2b0
-> [  563.468259]  [<ffffffff814e0922>] system_call_fastpath+0x16/0x1b
-> [  570.377958] Bridge firewalling registered
-> 
-> ------------------------------------------------
-> 
-> The reason is that when the bridge dev's address is changed, the
-> br_fdb_change_mac_address() will add new address in fdb, but when
-> the bridge was removed, the address entry in the fdb did not free,
-> the bridge_fdb_cache still has objects when destroy the cache, Fix
-> this by flushing the bridge address entry when removing the bridge.
-> 
-> Signed-off-by: Ding Tianhong <dingtianhong@huawei.com>
-> ---
->  net/bridge/br_if.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 6e6194f..98084d8 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -172,6 +172,10 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
->  		del_nbp(p);
->  	}
->  
-> +	spin_lock_bh(&br->hash_lock);
-> +	fdb_delete_by_addr(br, br->dev->dev_addr, 0);
-> +	spin_unlock_bh(&br->hash_lock);
-> +
->  	br_vlan_flush(br);
->  	del_timer_sync(&br->gc_timer);
->  
-> 
+Hello,
+I want to use OpenVPN to extend a layer 2 segment over a routed
+connection. I was not able to ping a system on the same subnet, so I
+tried to reproduce it with a different network and was _not_ able to: It
+worked out of the box. It turned out that I had some Exchange sytem that
+sends every packet it gets (including broadcast packets) out again.
+After 3 hours of debugging with Michael Gernoth (on CC), it turned out
+that the bridge was thinking that the MAC address of the device was on
+eth1 instead of 'vpn' and the bridge in Linux was not forwarding any
+packet. We we're able to fight the symptoms by issuing the following
+command:
 
-I think you need to use fdb_delete_by_port(br, NULL, 1);  here.
+ebtables -t nat -A POSTROUTING -d ff:ff:ff:ff:ff:ff -o eth1 -j snat --to-source 00:50:56:98:0a:22
 
-The reason is that if the bridge had vlan filtering configured, when the
-bridge mac address was changed, an fdb would have been created for
-for ever vlan configured on the bridge.  You delete only vlan0, so you
-would still have a leak.
+With this command we can access all systems using Layer 2, but not the
+two Exchange systems which replicate every packet they're seeing.
 
--vlad
+This is what the Linux box sends:
+
+(miniwheezy64) [~] tcpdump -e -n -i vpn ether host 00:50:56:98:12:ed
+tcpdump: WARNING: vpn: no IPv4 address assigned
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on vpn, link-type EN10MB (Ethernet), capture size 65535 bytes
+09:35:35.402501 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 35, length 64
+09:35:36.410454 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 36, length 64
+09:35:37.418526 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 37, length 64
+^C
+3 packets captured
+3 packets received by filter
+0 packets dropped by kernel
+
+This is how it looks, after the Microsoft Exchange settings saw the
+package: As you can see, the packets are duplicated at least once,
+sometimes twice. This also happens with arp who-has and is-at packets
+which confused the Linux bridge because it thinks that the mac is now at
+another port:
+
+(miniwheezy64) [~] tcpdump -e -n -i br0 ether host 00:50:56:98:12:ed
+tcpdump: WARNING: br0: no IPv4 address assigned
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br0, link-type EN10MB (Ethernet), capture size 65535 bytes
+09:35:42.458571 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 42, length 64
+09:35:42.458693 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 42, length 64
+09:35:42.459019 00:15:5d:67:ab:5f > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 42, length 64
+09:35:42.459220 00:15:5d:67:ac:93 > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 42, length 64
+09:35:42.459340 00:15:5d:b1:45:71 > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 42, length 64
+09:35:43.466531 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 43, length 64
+09:35:43.466758 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 43, length 64
+09:35:43.467162 00:15:5d:67:ab:5f > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 43, length 64
+09:35:43.467169 00:15:5d:67:ac:93 > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 43, length 64
+09:35:43.467366 00:15:5d:b1:45:71 > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 43, length 64
+09:35:44.474551 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 44, length 64
+09:35:44.474774 00:50:56:98:12:ed > 03:bf:0a:40:67:2a, ethertype IPv4 (0x0800), length 98: 10.64.103.250 > 10.64.103.42: ICMP echo request, id 2973, seq 44, length 64
+09:35:44.475108 00:15:5d:67:ab:5f > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 44, length 64
+09:35:44.475150 00:15:5d:b1:45:71 > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 44, length 64
+09:35:44.475160 00:15:5d:67:ac:93 > 00:50:56:98:12:ed, ethertype IPv4 (0x0800), length 98: 10.64.103.42 > 10.64.103.250: ICMP echo reply, id 2973, seq 44, length 64
+^C
+15 packets captured
+19 packets received by filter
+0 packets dropped by kernel
+(miniwheezy64) [~] brctl show
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.005056980a22       no              eth1
+                                                        vpn
+
+(miniwheezy64) [~] brctl showmacs br0 | grep -i 00:50:56:98:12:ed
+  1     00:50:56:98:12:ed       no                 0.08
+
+As you can see the mac address of the system is learned on port 1 but
+should be learned on port 2.
+
+This is the setup:
+
+Exchange and other systems - VLAN 103 - eth1 - br0 - vpn - OpenVPN - vpn - br0 - eth1 - virtual switch - client (00:50:56:98:12:ed)
+
+It seems that the Linux bridge behaves different than a physical switch.
+Because with a physical switch it still forwards the packet. But the
+Linux bridge gets offbeat by the reflected arp who-has and is-at packets
+and thinks that the mac has moved to a different port even that it
+hasn't. So I wonder why does the linux bridge gets confused by that, but
+the physical switch not?
+
+I found one other reference which confirms this problem.
+
+http://serverfault.com/questions/518254/linux-container-bridge-filters-arp-reply
+
+Also I wonder what else than source natting broadcast request we could
+do to fight the symptoms? For example I would like to drop all packets
+with the source mac address from 00:50:56:98:12:ed which are comming in
+via eth1. I tried this using ebtables, arptables and iptables but did
+not get the syntax right. Has someone, something I could try?
+
+I'm running Debian wheezy with Linux minisqueeze 3.2.0-4-686-pae #1 SMP
+Debian 3.2.51-1 i686 GNU/Linux.
+
+If I set the MAC adress of a system static on the system behind the
+layer 2 bridge, the system gets connectivity. If I remove OpenVPN from
+the equation and use a layer 2 gre tunnel or just another physical
+network card, I have the same behaviour.
+
+Cheers,
+        Thomas
