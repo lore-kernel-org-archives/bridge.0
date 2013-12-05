@@ -1,9 +1,14 @@
-Return-Path: <jiri@resnulli.us>
-From: Jiri Pirko <jiri@resnulli.us>
-Date: Thu,  5 Dec 2013 16:27:37 +0100
-Message-Id: <1386257257-25258-1-git-send-email-jiri@resnulli.us>
-Subject: [Bridge] [patch net/stable v2] br: fix use of ->rx_handler_data in
-	code executed on non-rx_handler path
+Return-Path: <thomas@glanzmann.de>
+Date: Thu, 5 Dec 2013 18:27:51 +0100
+From: Thomas Glanzmann <thomas@glanzmann.de>
+Message-ID: <20131205172751.GA9778@glanzmann.de>
+References: <20131130085440.GA11638@glanzmann.de>
+	<20131205090947.364e30d7@nehalam.linuxnetplumber.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131205090947.364e30d7@nehalam.linuxnetplumber.net>
+Subject: Re: [Bridge] Packet reflection breaks Linux bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,79 +17,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: jtluka@redhat.com, mst@redhat.com, bridge@lists.linux-foundation.org, stephen@networkplumber.org, edumazet@google.com, laine@redhat.com, zhiguohong@tencent.com, davem@davemloft.net
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: gernoth@cs.fau.de, bridge@lists.linux-foundation.org
 
-br_stp_rcv() is reached by non-rx_handler path. That means there is no
-guarantee that dev is bridge port and therefore simple NULL check of
-->rx_handler_data is not enough. There is need to check if dev is really
-bridge port and since only rcu read lock is held here, do it by checking
-->rx_handler pointer.
+Hello Stephan,
 
-Note that synchronize_net() in netdev_rx_handler_unregister() ensures
-this approach as valid.
+> Bridging doesn't like loops, and you have created a loop.
 
-Introduced originally by:
-commit f350a0a87374418635689471606454abc7beaa3a
-  "bridge: use rx_handler_data pointer to store net_bridge_port pointer"
+I agree. It was actually a Microsoft Load Balancing cluster that created
+the loop. Michael told me that the physical switch works because it:
 
-Fixed but not in the best way by:
-commit b5ed54e94d324f17c97852296d61a143f01b227a
-  "bridge: fix RCU races with bridge port"
+        a) broadcasts
+        b) sends it to both ports.
 
-Reintroduced by:
-commit 716ec052d2280d511e10e90ad54a86f5b5d4dcc2
-  "bridge: fix NULL pointer deref of br_port_get_rcu"
+> If you are goin to mess around using ebtables, just write another rule
+> to drop the reflections.
 
-Please apply to stable trees as well. Thanks.
+Michael said that ebtables only after the bridge has seen the packets
+and so is not applicable. Is that true? So should I use arptables. I
+tried to block the looped packages by:
 
-RH bugzilla reference: https://bugzilla.redhat.com/show_bug.cgi?id=1025770
+        - iptables
+        - arptables
+        - eptables
 
-Reported-by: Laine Stump <laine@redhat.com>
-Debugged-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jiri Pirko <jiri@resnulli.us>
----
-v1->v2: moved br_port_get_check_rcu definition below br_handle_frame definition
+But somehow I never made it. Do you have an example for me or can tell
+me which of the 3 tools should work, so that I can try again. The NATing
+fought the symptoms of my problem.
 
- net/bridge/br_private.h  | 10 ++++++++++
- net/bridge/br_stp_bpdu.c |  2 +-
- 2 files changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 229d820..045d56e 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -426,6 +426,16 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
- int br_handle_frame_finish(struct sk_buff *skb);
- rx_handler_result_t br_handle_frame(struct sk_buff **pskb);
- 
-+static inline bool br_rx_handler_check_rcu(const struct net_device *dev)
-+{
-+	return rcu_dereference(dev->rx_handler) == br_handle_frame;
-+}
-+
-+static inline struct net_bridge_port *br_port_get_check_rcu(const struct net_device *dev)
-+{
-+	return br_rx_handler_check_rcu(dev) ? br_port_get_rcu(dev) : NULL;
-+}
-+
- /* br_ioctl.c */
- int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
- int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd,
-diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
-index 8660ea3..bdb459d 100644
---- a/net/bridge/br_stp_bpdu.c
-+++ b/net/bridge/br_stp_bpdu.c
-@@ -153,7 +153,7 @@ void br_stp_rcv(const struct stp_proto *proto, struct sk_buff *skb,
- 	if (buf[0] != 0 || buf[1] != 0 || buf[2] != 0)
- 		goto err;
- 
--	p = br_port_get_rcu(dev);
-+	p = br_port_get_check_rcu(dev);
- 	if (!p)
- 		goto err;
- 
--- 
-1.8.3.1
-
+Cheers,
+        Thomas
