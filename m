@@ -1,12 +1,22 @@
-Return-Path: <mst@redhat.com>
-Date: Thu, 5 Dec 2013 16:58:42 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20131205145842.GD23147@redhat.com>
-References: <1386255025-23823-1-git-send-email-jiri@resnulli.us>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version;
+	bh=gg6ewOqIJ1YfhB6V7BSsok3BPac4LHL4jEA6a+H5a2o=;
+	b=PcZWF8hIcSB/5zQQv/lplQy8XSiOLPf0GDKfTP/p53sJu4BlAZlNoGH/3CRy+87ysp
+	aMEAAWhJf3x7IR9bnk+uMohyne67YXovEOKJp7QuRm9PDfAaFMBIHxDiCOBzwuWJMeND
+	giSnhq6RvTElR49uG55bzjTGVps8DngpdF3kZ1Bgq4WYtLrMOsT+Wue+ts0lsFN39l3A
+	COlN2uTLpmi7hK3f6z96zhYtTO+wc5pzeSTWe3D9qTWlXjcT2g2GW2IWjwUvGk7pVm8K
+	oAAZa5loZ66u5IG7GOnQHxGTKhktk0nC/LknezjyESUB8KdXj0N1LqsiUjdSJt12AP8U
+	Iohw==
+Message-ID: <1386256693.30495.194.camel@edumazet-glaptop2.roam.corp.google.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Thu, 05 Dec 2013 07:18:13 -0800
 In-Reply-To: <1386255025-23823-1-git-send-email-jiri@resnulli.us>
+References: <1386255025-23823-1-git-send-email-jiri@resnulli.us>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
 Subject: Re: [Bridge] [patch net/stable] br: fix use of ->rx_handler_data in
  code executed on non-rx_handler path
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,9 +28,9 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Jiri Pirko <jiri@resnulli.us>
-Cc: jtluka@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, stephen@networkplumber.org, edumazet@google.com, laine@redhat.com, zhiguohong@tencent.com, davem@davemloft.net
+Cc: jtluka@redhat.com, mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, stephen@networkplumber.org, edumazet@google.com, laine@redhat.com, zhiguohong@tencent.com, davem@davemloft.net
 
-On Thu, Dec 05, 2013 at 03:50:25PM +0100, Jiri Pirko wrote:
+On Thu, 2013-12-05 at 15:50 +0100, Jiri Pirko wrote:
 > br_stp_rcv() is reached by non-rx_handler path. That means there is no
 > guarantee that dev is bridge port and therefore simple NULL check of
 > ->rx_handler_data is not enough. There is need to check if dev is really
@@ -46,10 +56,6 @@ On Thu, Dec 05, 2013 at 03:50:25PM +0100, Jiri Pirko wrote:
 > 
 > Reported-by: Laine Stump <laine@redhat.com>
 > Signed-off-by: Jiri Pirko <jiri@resnulli.us>
-
-I would also add:
-https://bugzilla.redhat.com/show_bug.cgi?id=1025770
-
 > ---
 >  net/bridge/br_private.h  | 12 ++++++++++++
 >  net/bridge/br_stp_bpdu.c |  2 +-
@@ -64,11 +70,10 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1025770
 >  }
 >  
 > +static inline bool br_rx_handler_check_rcu(const struct net_device *dev);
-
-Can't we reorder functions?
-Forward-declaring it like this is ugly.
-
 > +
+
+Why doing this ugly forward declaration ?
+
 > +static inline struct net_bridge_port *br_port_get_check_rcu(const struct net_device *dev)
 > +{
 > +	return br_rx_handler_check_rcu(dev) ? br_port_get_rcu(dev) : NULL;
@@ -81,10 +86,18 @@ Forward-declaring it like this is ugly.
 >  int br_handle_frame_finish(struct sk_buff *skb);
 >  rx_handler_result_t br_handle_frame(struct sk_buff **pskb);
 >  
+
+
+
 > +static inline bool br_rx_handler_check_rcu(const struct net_device *dev)
 > +{
 > +	return rcu_dereference(dev->rx_handler) == br_handle_frame;
 > +}
+
+
+Move br_port_get_check_rcu() here ?
+
+
 > +
 >  /* br_ioctl.c */
 >  int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
@@ -102,5 +115,5 @@ Forward-declaring it like this is ugly.
 >  	if (!p)
 >  		goto err;
 >  
-> -- 
-> 1.8.3.1
+
+
