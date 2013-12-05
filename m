@@ -1,22 +1,12 @@
-Return-Path: <eric.dumazet@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version;
-	bh=fAK5ZnkiNP56cStVtrb82hm5UIysuZtJkQDBdJFSk0g=;
-	b=VMIcoMbMqGV7eFoneCYVg5lEjvbtP4+YrzDOCTTm/6Bf5+A/iJE2TyXxMlIJ7MkM8v
-	mtx0xTyT5cBWMdtlXAbT25EJgK4D9H8SDzakH3hGs4icUQBb3MOT3qiVOCKRb8ENPmIW
-	vH/0R17UD6tXX/lE13VRWJAumX6RK+jwMs2+Uql6BFph5HOZBraTHeUGKGDfIyeE89gJ
-	VgEiHoGMOfWObCJYHusiy01m5gmHh3f7uis2FG9OYQ7BitcJ9PU7rxZ8hm/wAhuFcR6p
-	dM9efrFdEBfu1Eppu2SBEbY7TV5ocHnCC+yWJNV2j5m2sro0spguYbUaruZptpccf8MG
-	YRdw==
-Message-ID: <1386257826.30495.196.camel@edumazet-glaptop2.roam.corp.google.com>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Thu, 05 Dec 2013 07:37:06 -0800
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 5 Dec 2013 08:55:14 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20131205085514.4c079747@nehalam.linuxnetplumber.net>
 In-Reply-To: <1386257257-25258-1-git-send-email-jiri@resnulli.us>
 References: <1386257257-25258-1-git-send-email-jiri@resnulli.us>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [patch net/stable v2] br: fix use of ->rx_handler_data
  in code executed on non-rx_handler path
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -28,20 +18,57 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Jiri Pirko <jiri@resnulli.us>
-Cc: jtluka@redhat.com, mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, stephen@networkplumber.org, edumazet@google.com, laine@redhat.com, zhiguohong@tencent.com, davem@davemloft.net
+Cc: jtluka@redhat.com, mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, edumazet@google.com, laine@redhat.com, zhiguohong@tencent.com, davem@davemloft.net
 
-On Thu, 2013-12-05 at 16:27 +0100, Jiri Pirko wrote:
+On Thu,  5 Dec 2013 16:27:37 +0100
+Jiri Pirko <jiri@resnulli.us> wrote:
 
-> RH bugzilla reference: https://bugzilla.redhat.com/show_bug.cgi?id=1025770
-> 
-> Reported-by: Laine Stump <laine@redhat.com>
-> Debugged-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jiri Pirko <jiri@resnulli.us>
-> ---
-
-Acked-by: Eric Dumazet <edumazet@google.com>
-
-Thanks
+> br_stp_rcv() is reached by non-rx_handler path. That means there is no
+> guarantee that dev is bridge port and therefore simple NULL check of
+> ->rx_handler_data is not enough. There is need to check if dev is really
+> bridge port and since only rcu read lock is held here, do it by checking
+> ->rx_handler pointer.
+>=20
+> Note that synchronize_net() in netdev_rx_handler_unregister() ensures
+> this approach as valid.
+>=20
 
 
+I think this patch is simpler/better, it restores the old logic.
+
+Ps. submitting patches to bugzilla is a good way to have them ignored.
+
+=46rom Stephen Hemminger <stephen@networkplumber.org>
+
+Check that incoming STP packet is received on a port assigned to bridge
+before processing. It is possible to receive packet on non-bridge port
+because they are multicast.
+
+See:
+ https://bugzilla.kernel.org/show_bug.cgi?id=3D64911
+
+
+Regression introduced by:
+commit 716ec052d2280d511e10e90ad54a86f5b5d4dcc2
+Author: Hong Zhiguo <zhiguohong@tencent.com>
+Date:   Sat Sep 14 22:42:28 2013 +0800
+
+    bridge: fix NULL pointer deref of br_port_get_rcu
+
+
+Reported-by: Alexander Y. Fomichev
+Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+
+
+--- a/net/bridge/br_stp_bpdu.c	2013-06-11 09:50:21.522919061 -0700
++++ b/net/bridge/br_stp_bpdu.c	2013-12-05 08:46:56.090463702 -0800
+@@ -153,6 +153,9 @@ void br_stp_rcv(const struct stp_proto *
+ 	if (buf[0] !=3D 0 || buf[1] !=3D 0 || buf[2] !=3D 0)
+ 		goto err;
+=20
++	if (!br_port_exists(dev))
++		goto err;
++
+ 	p =3D br_port_get_rcu(dev);
+ 	if (!p)
+ 		goto err;
