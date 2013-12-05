@@ -1,12 +1,9 @@
-Return-Path: <joseph.salisbury@canonical.com>
-Message-ID: <529E2D14.9000303@canonical.com>
-Date: Tue, 03 Dec 2013 14:12:20 -0500
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [Regression][3.12] bridge: fix NULL pointer deref of
-	br_port_get_rcu
+Return-Path: <jiri@resnulli.us>
+From: Jiri Pirko <jiri@resnulli.us>
+Date: Thu,  5 Dec 2013 15:50:25 +0100
+Message-Id: <1386255025-23823-1-git-send-email-jiri@resnulli.us>
+Subject: [Bridge] [patch net/stable] br: fix use of ->rx_handler_data in
+	code executed on non-rx_handler path
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,32 +12,82 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: zhiguohong@tencent.com
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, "edumazet@google.com" <edumazet@google.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: jtluka@redhat.com, mst@redhat.com, bridge@lists.linux-foundation.org, stephen@networkplumber.org, edumazet@google.com, laine@redhat.com, zhiguohong@tencent.com, davem@davemloft.net
 
-Hi Hong,
+br_stp_rcv() is reached by non-rx_handler path. That means there is no
+guarantee that dev is bridge port and therefore simple NULL check of
+->rx_handler_data is not enough. There is need to check if dev is really
+bridge port and since only rcu read lock is held here, do it by checking
+->rx_handler pointer.
 
-A kernel bug was opened against Ubuntu [0].  After a kernel bisect, it
-was found that reverting the following commit resolved
-this bug:
+Note that synchronize_net() in netdev_rx_handler_unregister() ensures
+this approach as valid.
 
+Introduced originally by:
+commit f350a0a87374418635689471606454abc7beaa3a
+  "bridge: use rx_handler_data pointer to store net_bridge_port pointer"
+
+Fixed but not in the best way by:
+commit b5ed54e94d324f17c97852296d61a143f01b227a
+  "bridge: fix RCU races with bridge port"
+
+Reintroduced by:
 commit 716ec052d2280d511e10e90ad54a86f5b5d4dcc2
-Author: Hong Zhiguo <zhiguohong@tencent.com>
-Date:   Sat Sep 14 22:42:28 2013 +0800
+  "bridge: fix NULL pointer deref of br_port_get_rcu"
 
-    bridge: fix NULL pointer deref of br_port_get_rcu
+Please apply to stable trees as well. Thanks.
 
+Reported-by: Laine Stump <laine@redhat.com>
+Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+---
+ net/bridge/br_private.h  | 12 ++++++++++++
+ net/bridge/br_stp_bpdu.c |  2 +-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-The regression was introduced as of v3.12-rc2 and has made it into some
-of the stable trees(3.10 and 3.11).
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 229d820..67a2d4b 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -204,6 +204,13 @@ static inline struct net_bridge_port *br_port_get_rcu(const struct net_device *d
+ 	return rcu_dereference(dev->rx_handler_data);
+ }
+ 
++static inline bool br_rx_handler_check_rcu(const struct net_device *dev);
++
++static inline struct net_bridge_port *br_port_get_check_rcu(const struct net_device *dev)
++{
++	return br_rx_handler_check_rcu(dev) ? br_port_get_rcu(dev) : NULL;
++}
++
+ static inline struct net_bridge_port *br_port_get_rtnl(const struct net_device *dev)
+ {
+ 	return br_port_exists(dev) ?
+@@ -426,6 +433,11 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+ int br_handle_frame_finish(struct sk_buff *skb);
+ rx_handler_result_t br_handle_frame(struct sk_buff **pskb);
+ 
++static inline bool br_rx_handler_check_rcu(const struct net_device *dev)
++{
++	return rcu_dereference(dev->rx_handler) == br_handle_frame;
++}
++
+ /* br_ioctl.c */
+ int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+ int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd,
+diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
+index 8660ea3..bdb459d 100644
+--- a/net/bridge/br_stp_bpdu.c
++++ b/net/bridge/br_stp_bpdu.c
+@@ -153,7 +153,7 @@ void br_stp_rcv(const struct stp_proto *proto, struct sk_buff *skb,
+ 	if (buf[0] != 0 || buf[1] != 0 || buf[2] != 0)
+ 		goto err;
+ 
+-	p = br_port_get_rcu(dev);
++	p = br_port_get_check_rcu(dev);
+ 	if (!p)
+ 		goto err;
+ 
+-- 
+1.8.3.1
 
-I was thinking of requesting a revert for this commit, but I wanted to
-get your feedback first, since you are the patch author.
-
-
-Thanks,
-
-Joe
-
-
-[0] http://pad.lv/1249880
