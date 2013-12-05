@@ -1,13 +1,11 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Thu, 5 Dec 2013 09:31:15 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20131205093115.3c553438@nehalam.linuxnetplumber.net>
-In-Reply-To: <20131205172751.GA9778@glanzmann.de>
+Return-Path: <bdschuym@pandora.be>
+Message-ID: <52A0EBEA.4020808@pandora.be>
+Date: Thu, 05 Dec 2013 22:11:06 +0100
+From: Bart De Schuymer <bdschuym@pandora.be>
+MIME-Version: 1.0
 References: <20131130085440.GA11638@glanzmann.de>
-	<20131205090947.364e30d7@nehalam.linuxnetplumber.net>
-	<20131205172751.GA9778@glanzmann.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20131130085440.GA11638@glanzmann.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Packet reflection breaks Linux bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,41 +16,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Thomas Glanzmann <thomas@glanzmann.de>
-Cc: gernoth@cs.fau.de, bridge@lists.linux-foundation.org
+To: Thomas Glanzmann <thomas@glanzmann.de>, bridge@lists.linux-foundation.org
+Cc: Stephen Hemminger <stephen@networkplumber.org>, gernoth@cs.fau.de
 
-On Thu, 5 Dec 2013 18:27:51 +0100
-Thomas Glanzmann <thomas@glanzmann.de> wrote:
+Thomas Glanzmann schreef op 30/11/2013 9:54:
+> I found one other reference which confirms this problem.
+>
+> http://serverfault.com/questions/518254/linux-container-bridge-filters-arp-reply
 
-> Hello Stephan,
-> 
-> > Bridging doesn't like loops, and you have created a loop.
-> 
-> I agree. It was actually a Microsoft Load Balancing cluster that created
-> the loop. Michael told me that the physical switch works because it:
-> 
->         a) broadcasts
->         b) sends it to both ports.
-> 
-> > If you are goin to mess around using ebtables, just write another rule
-> > to drop the reflections.
-> 
-> Michael said that ebtables only after the bridge has seen the packets
-> and so is not applicable. Is that true? So should I use arptables. I
-> tried to block the looped packages by:
-> 
->         - iptables
->         - arptables
->         - eptables
-> 
-> But somehow I never made it. Do you have an example for me or can tell
-> me which of the 3 tools should work, so that I can try again. The NATing
-> fought the symptoms of my problem.
-> 
-> Cheers,
->         Thomas
+The author answered his own question stating it was an issue in his 
+network :-)
 
-No example.
+> Also I wonder what else than source natting broadcast request we could
+> do to fight the symptoms? For example I would like to drop all packets
+> with the source mac address from 00:50:56:98:12:ed which are comming in
+> via eth1. I tried this using ebtables, arptables and iptables but did
+> not get the syntax right. Has someone, something I could try?
+>
 
-You can also define static fdb entries with lastest kernel/iproute
-and that would problably pin the entry.
+ebtables -t nat -A PREROUTING -s 00:50:56:98:12:ed -i eth1 -j DROP
+
+Use PREROUTING so that the Linux bridge fdb isn't updated. A better 
+solution is probably to fix your network.
+
+
+cheers,
+Bart
+
