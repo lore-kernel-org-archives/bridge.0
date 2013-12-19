@@ -1,13 +1,13 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 18 Dec 2013 17:53:42 -0500 (EST)
-Message-Id: <20131218.175342.1192478785404597946.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <52AF00FE.4090607@huawei.com>
-References: <52AF00FE.4090607@huawei.com>
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 19 Dec 2013 10:41:12 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20131219104112.3fcdbf8a@nehalam.linuxnetplumber.net>
+In-Reply-To: <1387430894-11220-1-git-send-email-tanxiaojun@huawei.com>
+References: <1387430894-11220-1-git-send-email-tanxiaojun@huawei.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: spelling fixes
+Subject: Re: [Bridge] [PATCH 0/5] bridge: cleanup and fix checkpatch errors
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,14 +16,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: tanxiaojun@huawei.com
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Tan Xiaojun <tanxiaojun@huawei.com>
+Cc: bridge@lists.linux-foundation.org, bart.de.schuymer@pandora.be, davem@davemloft.net, netdev@vger.kernel.org
 
-From: Tan Xiaojun <tanxiaojun@huawei.com>
-Date: Mon, 16 Dec 2013 21:32:46 +0800
+On Thu, 19 Dec 2013 13:28:09 +0800
+Tan Xiaojun <tanxiaojun@huawei.com> wrote:
 
-> Fix spelling errors in bridge driver.
+> Clean up and fix some checkpatch errors in bridge driver.
 > 
-> Signed-off-by: Tan Xiaojun <tanxiaojun@huawei.com>
+> Tan Xiaojun (5):
+>   bridge: remove unnecessary condition judgment
+>   bridge: remove unnecessary parentheses
+>   bridge: add space before '(/{', after ',', etc.
+>   bridge: change "foo* bar" to "foo *bar"
+>   bridge: change the position of '{' to the pre line
+> 
+>  net/bridge/br_fdb.c                   |  3 +--
+>  net/bridge/br_forward.c               |  4 ++--
+>  net/bridge/br_ioctl.c                 |  2 +-
+>  net/bridge/br_netfilter.c             |  2 +-
+>  net/bridge/br_netlink.c               |  3 +--
+>  net/bridge/br_private.h               |  2 +-
+>  net/bridge/br_stp_timer.c             |  2 +-
+>  net/bridge/br_sysfs_if.c              | 20 ++++++++++----------
+>  net/bridge/netfilter/ebt_log.c        |  2 +-
+>  net/bridge/netfilter/ebt_snat.c       |  2 +-
+>  net/bridge/netfilter/ebtable_broute.c |  6 ++----
+>  net/bridge/netfilter/ebtable_filter.c |  9 +++------
+>  net/bridge/netfilter/ebtable_nat.c    |  9 +++------
+>  net/bridge/netfilter/ebtables.c       | 17 ++++++++---------
+>  14 files changed, 36 insertions(+), 47 deletions(-)
+> 
 
-Applied, thanks.
+Thanks, these should go to net-next.
+
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
