@@ -1,15 +1,14 @@
-Return-Path: <dingtianhong@huawei.com>
-Message-ID: <52B7F669.8080207@huawei.com>
-Date: Mon, 23 Dec 2013 16:38:01 +0800
-From: Ding Tianhong <dingtianhong@huawei.com>
-MIME-Version: 1.0
-References: <52B7C5D5.2040202@huawei.com>
-	<1387787627.1797.10.camel@localhost.localdomain>
-In-Reply-To: <1387787627.1797.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <stephen@networkplumber.org>
+Date: Sun, 29 Dec 2013 16:53:30 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20131229165330.14b1337f@nehalam.linuxnetplumber.net>
+In-Reply-To: <20131228223732.GA30591@cumulusnetworks.com>
+References: <20131228223732.GA30591@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 12/21] bridge: slight optimization of addr
-	compare
+Subject: Re: [Bridge] [PATCH 1/1] bridge/br_multicast: use spin_lock_bh() in
+ br_multicast_set_hash_max()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,54 +17,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Curt Brune <curt@cumulusnetworks.com>
+Cc: bridge@lists.linux-foundation.org, Shrijeet Mukherjee <shm@cumulusnetworks.com>
 
-On 2013/12/23 16:33, Toshiaki Makita wrote:
-> On Mon, 2013-12-23 at 13:10 +0800, Ding Tianhong wrote:
->> Use the recently added and possibly more efficient
->> ether_addr_equal_unaligned to instead of memcmp.
->>
->> Cc: Stephen Hemminger <stephen@networkplumber.org>
->> Cc: David Miller <davem@davemloft.net>
->> Cc: bridge@lists.linux-foundation.org
->> Cc: netdev@vger.kernel.org
->> Signed-off-by: Wang Weidong <wangweidong1@huawei.com>
->> Signed-off-by: Ding Tianhong <dingtianhong@huawei.com>
->> ---
->>  net/bridge/br_stp_if.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
->> index 656a6f3..04217d1 100644
->> --- a/net/bridge/br_stp_if.c
->> +++ b/net/bridge/br_stp_if.c
->> @@ -229,7 +229,7 @@ bool br_stp_recalculate_bridge_id(struct net_bridge *br)
->>  
->>  	list_for_each_entry(p, &br->port_list, list) {
->>  		if (addr == br_mac_zero ||
->> -		    memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
->> +		    !ether_addr_equal_unaligned(p->dev->dev_addr, addr) < 0)
->>  			addr = p->dev->dev_addr;
->>  
->>  	}
-> 
-> We cannot do this change.
-> !ether_addr_equal() isn't identical to memcmp().
-> memcmp() can return negative value but ether_addr_equal() cannot.
-> br_stp_recalculate_bridge_id() is searching the smallest address among
-> its ports. This change breaks it.
-> 
-> Thanks,
-> Toshiaki Makita
+On Sat, 28 Dec 2013 14:37:32 -0800
+Curt Brune <curt@cumulusnetworks.com> wrote:
 
-Yes, I miss it, the negative value is useful here, thanks for point out.
-
-Regards
-Ding
-
+> br_multicast_set_hash_max() is called from process context in
+> net/bridge/br_sysfs_br.c by the sysfs store_hash_max() function.
 > 
-> 
-> 
+> br_multicast_set_hash_max() calls spin_lock(&br->multicast_lock),
+> which can deadlock the CPU if a softirq that also tries to take the
+> same lock interrupts br_multicast_set_hash_max() while the lock is
+> held .  This can happen quite easily when any of the bridge multicast
+> timers expire, which try to take the same lock.
 
+Running lockdep should catch these kind of things without having
+to do stress tests.
 
