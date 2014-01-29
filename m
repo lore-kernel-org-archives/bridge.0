@@ -1,12 +1,12 @@
-Return-Path: <sfeldma@cumulusnetworks.com>
-From: Scott Feldman <sfeldma@cumulusnetworks.com>
-Date: Mon, 06 Jan 2014 11:00:25 -0800
-Message-ID: <20140106185718.10912.92289.stgit@monster-03.cumulusnetworks.com>
+Return-Path: <f.cachereul@alphalink.fr>
+Message-ID: <52E8E1B4.5030706@alphalink.fr>
+Date: Wed, 29 Jan 2014 12:10:44 +0100
+From: =?ISO-8859-1?Q?Fran=E7ois_Cachereul?= <f.cachereul@alphalink.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next 0/2] bridge: spin_lock fix plus sysfs
-	cleanup
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] bridge vlan: why packet have to be rejected if no vlan is
+	configured
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,28 +15,14 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stephen@networkplumber.org
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, shm@cumulusnetworks.com
+To: bridge@lists.linux-foundation.org
 
-The following series implements:
+Hi,
 
-- br_multicast_set_hash_max() is called from process context (via sysfs)
-  and needs spin_lock_bh to disable bhs.
+I'm wondering why packets have to be rejected if vlan filtering is enabled =
+and that no vlan is configured on a port.
+I can't find any clue in the 802.1Q specification.
 
-- cleanup bridge sysfs definitions by using DEVICE_ATTR_xx macros
+Regards,
 
----
-
-Curt Brune (1):
-      bridge: use spin_lock_bh() in br_multicast_set_hash_max
-
-Scott Feldman (1):
-      bridge: use DEVICE_ATTR_xx macros
-
-
- net/bridge/br_multicast.c |    4 -
- net/bridge/br_sysfs_br.c  |  249 ++++++++++++++++++++-------------------------
- 2 files changed, 110 insertions(+), 143 deletions(-)
-
--- 
-Signature
+Fran=E7ois
