@@ -1,17 +1,21 @@
-Return-Path: <kernelluck@163.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=l9AUn
-	MFpS6F2t1B3ddPMv1E+6ANm3ymnCJWF+fvUcD0=; b=mljamytQnhBvuKPquyhGC
-	3qIbvmLNM8e4d9S6FziOuIC+H1b4vF9vbBbZ3TJhY0PF1+DaMUc89zZIFAp9nfQ0
-	7X4Uf0gdJFFOedqp0uxulIrzXwnamd13H4xkUKB5ZIhbHb7yT7JxYVGvXWb1WVKx
-	icvcsEJKfXk7V5olvDiZOQ=
-Date: Sat, 8 Feb 2014 16:20:02 +0800 (CST)
-From: lkcd <kernelluck@163.com>
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_295105_800699208.1391847602477"
-MIME-Version: 1.0
-Message-ID: <64e72da2.137e2.1441094f92e.Coremail.kernelluck@163.com>
-Subject: [Bridge] is there a design principle of linux bridge
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=cjTXJ/HEx9jM1p9IIbz4SAbL2kHCLYEpCmtqUrPJXI0=;
+	b=jiHVhV+nxnuBamR1vgp+WwQudeD1u83GHOl145evomiDFZr6OEaDKEmz5FzeEbj2lp
+	F7faaNxPImlTsRGBrwSJ0/BCVXq72KezcqtNgZ2dfZJOkT1rN95Oh3MFScqDNfGTeBEZ
+	2aqMDvE+s91s8ngFMLDDGyP4NqgU8+n5w3E6rIkMVwUUSsjOkaEfjoP6ZsG5mJm9bnU9
+	wOiofuXLvTShv7JpFsjwMNYh1NSVjK8VkhL9SN10tJ7rTzBfmKwUqrum1OL5zhNB1kvu
+	BWSVDlUbN/ffUFNtfBw8I4hU5EUfgbQS4bUbMWN55ZWkxo6t8+vB22+9RGTr2GWPZj0T
+	dW2g==
+Sender: "Luis R. Rodriguez" <mcgrof@gmail.com>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Fri, 14 Feb 2014 18:59:37 -0800
+Message-Id: <1392433180-16052-2-git-send-email-mcgrof@do-not-panic.com>
+In-Reply-To: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
+References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
+Subject: [Bridge] [RFC v2 1/4] bridge: enable interfaces to opt out from
+	becoming the root bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,27 +24,87 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Luis R. Rodriguez" <mcgrof@suse.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
 
-------=_Part_295105_800699208.1391847602477
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
 
-aGksYWxsCm15IHF1ZXN0aW9uIGlzIHJlbGF0ZWQgdG8gdmlydHVhbGl6YXRpb24sIGkgd2FudCB0
-byBrbm93IGhvdyBicmlkZ2UgcHJvY2VzcyBwYWNrZXQgaW5ncmVzcyBhbmQgIGVncmVzcyBhIGJy
-aWRnZT8KYmV0dGVyIHRlbGwgbWUgd2hlcmUgaXMgdGhlIGNvZGUgYW5kIHdoaWNoIGZpbGVzLiBh
-bmQgIHRlbGwgbWUgdGhlIGFjY2hpdGV0dXJlCiAKdGhhbmtzIHZlcnkgbXVjaC4=
-------=_Part_295105_800699208.1391847602477
-Content-Type: text/html; charset=GBK
-Content-Transfer-Encoding: base64
+It doesn't make sense for some interfaces to become a root bridge
+at any point in time. One example is virtual backend interfaces
+which rely on other entities on the bridge for actual physical
+connectivity. They only provide virtual access.
 
-PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
-Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+aGksYWxsPC9kaXY+PGRpdj5teSBxdWVzdGlvbiBpcyBy
-ZWxhdGVkIHRvIHZpcnR1YWxpemF0aW9uLCBpIHdhbnQgdG8ga25vdyBob3cgYnJpZGdlIHByb2Nl
-c3MgcGFja2V0IGluZ3Jlc3MgYW5kJm5ic3A7IGVncmVzcyBhIGJyaWRnZT88L2Rpdj48ZGl2PmJl
-dHRlciB0ZWxsIG1lIHdoZXJlIGlzIHRoZSBjb2RlIGFuZCB3aGljaCBmaWxlcy4gYW5kJm5ic3A7
-IHRlbGwgbWUgdGhlIGFjY2hpdGV0dXJlPC9kaXY+PGRpdj4mbmJzcDs8L2Rpdj48ZGl2PnRoYW5r
-cyB2ZXJ5IG11Y2guPC9kaXY+PC9kaXY+PGJyPjxicj48c3BhbiB0aXRsZT0ibmV0ZWFzZWZvb3Rl
-ciI+PHNwYW4gaWQ9Im5ldGVhc2VfbWFpbF9mb290ZXIiPjwvc3Bhbj48L3NwYW4+
-------=_Part_295105_800699208.1391847602477--
+Device drivers that know they should never become part of the
+root bridge have been using a trick of setting their MAC address
+to a high broadcast MAC address such as FE:FF:FF:FF:FF:FF. Instead
+of using these hacks lets the interfaces annotate its intent and
+generalizes a solution for multiple drivers, while letting the
+drivers use a random MAC address or one prefixed with a proper OUI.
+This sort of hack is used by both qemu and xen for their backend
+interfaces.
+
+Cc: Stephen Hemminger <stephen@networkplumber.org>
+Cc: bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
+---
+ include/uapi/linux/if.h | 1 +
+ net/bridge/br_if.c      | 2 ++
+ net/bridge/br_private.h | 1 +
+ net/bridge/br_stp_if.c  | 2 ++
+ 4 files changed, 6 insertions(+)
+
+diff --git a/include/uapi/linux/if.h b/include/uapi/linux/if.h
+index d758163..8d10382 100644
+--- a/include/uapi/linux/if.h
++++ b/include/uapi/linux/if.h
+@@ -84,6 +84,7 @@
+ #define IFF_LIVE_ADDR_CHANGE 0x100000	/* device supports hardware address
+ 					 * change when it's running */
+ #define IFF_MACVLAN 0x200000		/* Macvlan device */
++#define IFF_BRIDGE_NON_ROOT 0x400000    /* Don't consider for root bridge */
+ 
+ 
+ #define IF_GET_IFACE	0x0001		/* for querying only */
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 4bf02ad..a745415 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -228,6 +228,8 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 	br_init_port(p);
+ 	p->state = BR_STATE_DISABLED;
+ 	br_stp_port_timer_init(p);
++	if (dev->priv_flags & IFF_BRIDGE_NON_ROOT)
++		p->flags |= BR_DONT_ROOT;
+ 	br_multicast_add_port(p);
+ 
+ 	return p;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 045d56e..a89e8ad 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -173,6 +173,7 @@ struct net_bridge_port
+ #define BR_ADMIN_COST		0x00000010
+ #define BR_LEARNING		0x00000020
+ #define BR_FLOOD		0x00000040
++#define BR_DONT_ROOT		0x00000080
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	struct bridge_mcast_query	ip4_query;
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 656a6f3..12fd848 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -228,6 +228,8 @@ bool br_stp_recalculate_bridge_id(struct net_bridge *br)
+ 		return false;
+ 
+ 	list_for_each_entry(p, &br->port_list, list) {
++		if (p->flags & BR_DONT_ROOT)
++			continue;
+ 		if (addr == br_mac_zero ||
+ 		    memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
+ 			addr = p->dev->dev_addr;
+-- 
+1.8.5.2
 
