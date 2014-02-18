@@ -1,13 +1,24 @@
-Return-Path: <ben@decadent.org.uk>
-Message-ID: <1392577012.15615.116.camel@deadeye.wl.decadent.org.uk>
-From: Ben Hutchings <ben@decadent.org.uk>
-Date: Sun, 16 Feb 2014 18:56:52 +0000
-In-Reply-To: <1392433180-16052-2-git-send-email-mcgrof@do-not-panic.com>
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc:content-type;
+	bh=GPnzzdol1rrvJRWEwDYxfK5UBNwQXVlpiSdqb3RxKoM=;
+	b=tGMkyT7Rpy+AlXWX1/eInegzE9SvIP2X7vdy09b2M4G8XfOphxaco9K2bmLIDx+JKH
+	4gFbgTS33UBuatqnKZ0zFDxs02GOoC4LYAdzppqgy72iy95ruV1wikF+EAretCt9FMyX
+	ExKbln1x0GAgzXfzh5NUtGvtwvBsmzOTpHvqqvaLopfZAF6CHDvNzRcrTaly9icMqyvB
+	qPSyeg7Bh+E3rgSNtbWmWlB6Ww/d18m4DlcaR4mZoZLoiqIZiA0epMLnM64p5CLrKeQI
+	AJc03MPNiAIS27JTm3Wxcc2wKWO4FzznSZRkrc7xVeFz0XWNSig8cRCE8tvpY/KPOL/Z
+	MLrA==
+MIME-Version: 1.0
+Sender: mcgrof@gmail.com
+In-Reply-To: <20140216105754.63738163@nehalam.linuxnetplumber.net>
 References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
 	<1392433180-16052-2-git-send-email-mcgrof@do-not-panic.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-rsGrmwfKCYJri+Sjh8qI"
-Mime-Version: 1.0
+	<20140216105754.63738163@nehalam.linuxnetplumber.net>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Tue, 18 Feb 2014 13:02:29 -0800
+Message-ID: <CAB=NE6WwbOXNLO_Mn42i7y62pEsmDOWd35B621eiJk4iaE3Hfg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [RFC v2 1/4] bridge: enable interfaces to opt out from
  becoming the root bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,95 +29,76 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, "Luis R. Rodriguez" <mcgrof@suse.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, xen-devel@lists.xenproject.org
 
+On Sun, Feb 16, 2014 at 10:57 AM, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> On Fri, 14 Feb 2014 18:59:37 -0800
+> "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+>
+>> From: "Luis R. Rodriguez" <mcgrof@suse.com>
+>>
+>> It doesn't make sense for some interfaces to become a root bridge
+>> at any point in time. One example is virtual backend interfaces
+>> which rely on other entities on the bridge for actual physical
+>> connectivity. They only provide virtual access.
+>>
+>> Device drivers that know they should never become part of the
+>> root bridge have been using a trick of setting their MAC address
+>> to a high broadcast MAC address such as FE:FF:FF:FF:FF:FF. Instead
+>> of using these hacks lets the interfaces annotate its intent and
+>> generalizes a solution for multiple drivers, while letting the
+>> drivers use a random MAC address or one prefixed with a proper OUI.
+>> This sort of hack is used by both qemu and xen for their backend
+>> interfaces.
+>>
+>> Cc: Stephen Hemminger <stephen@networkplumber.org>
+>> Cc: bridge@lists.linux-foundation.org
+>> Cc: netdev@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
+>
+> This is already supported in a more standard way via the root
+> block flag.
 
---=-rsGrmwfKCYJri+Sjh8qI
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Great! For documentation purposes the root_block flag is a sysfs
+attribute, added via 3.8 through commit 1007dd1a. The respective
+interface flag is IFLA_BRPORT_PROTECT and can be set via the iproute2
+bridge utility or through sysfs:
 
-On Fri, 2014-02-14 at 18:59 -0800, Luis R. Rodriguez wrote:
-> From: "Luis R. Rodriguez" <mcgrof@suse.com>
->=20
-> It doesn't make sense for some interfaces to become a root bridge
+mcgrof@garbanzo ~/linux (git::master)$ find /sys/ -name root_block
+/sys/devices/pci0000:00/0000:00:04.0/0000:02:00.0/net/eth0/brport/root_block
+/sys/devices/vif-3-0/net/vif3.0/brport/root_block
+/sys/devices/virtual/net/vif3.0-emu/brport/root_block
 
-I think you mean 'root port'.
+mcgrof@garbanzo ~/devel/iproute2 (git::master)$ cat
+/sys/devices/vif-3-0/net/vif3.0/brport/root_block
+0
+mcgrof@garbanzo ~/devel/iproute2 (git::master)$ sudo bridge link set
+dev vif3.0 root_block on
+mcgrof@garbanzo ~/devel/iproute2 (git::master)$ cat
+/sys/devices/vif-3-0/net/vif3.0/brport/root_block
+1
 
-> at any point in time. One example is virtual backend interfaces
-> which rely on other entities on the bridge for actual physical
-> connectivity. They only provide virtual access.
->=20
-> Device drivers that know they should never become part of the
-> root bridge have been using a trick of setting their MAC address
-> to a high broadcast MAC address such as FE:FF:FF:FF:FF:FF. Instead
-> of using these hacks lets the interfaces annotate its intent and
-> generalizes a solution for multiple drivers, while letting the
-> drivers use a random MAC address or one prefixed with a proper OUI.
-> This sort of hack is used by both qemu and xen for their backend
-> interfaces.
->=20
-> Cc: Stephen Hemminger <stephen@networkplumber.org>
-> Cc: bridge@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
-> ---
->  include/uapi/linux/if.h | 1 +
->  net/bridge/br_if.c      | 2 ++
->  net/bridge/br_private.h | 1 +
->  net/bridge/br_stp_if.c  | 2 ++
->  4 files changed, 6 insertions(+)
->=20
-> diff --git a/include/uapi/linux/if.h b/include/uapi/linux/if.h
-> index d758163..8d10382 100644
-> --- a/include/uapi/linux/if.h
-> +++ b/include/uapi/linux/if.h
-> @@ -84,6 +84,7 @@
->  #define IFF_LIVE_ADDR_CHANGE 0x100000	/* device supports hardware addres=
-s
->  					 * change when it's running */
->  #define IFF_MACVLAN 0x200000		/* Macvlan device */
-> +#define IFF_BRIDGE_NON_ROOT 0x400000    /* Don't consider for root bridg=
-e */
-[...]
+So if we'd want to avoid using the MAC address hack alternative to
+skip a root port userspace would need to be updated to simply set this
+attribute after adding the device to the bridge. Based on Zoltan's
+feedback there seems to be use cases to not enable this always for all
+xen-netback interfaces though as such we can just punt this to
+userspace for the topologies that require this.
 
-Does it really make sense to add a flag that says exactly which special
-behaviour you want, or would it be better to define the flag as a
-passive property, which other drivers/protocols then use as a condition
-for special behaviour?
+The original motivation for this series was to avoid the IPv6
+duplicate address incurred by the MAC address hack for avoiding the
+root bridge. Given that Zoltan also noted a use case whereby IPv4 and
+IPv6 addresses can be assigned to the backend interfaces we should be
+able to avoid the duplicate address situation for IPv6 by using a
+proper random MAC address *once* userspace has been updated also to
+use IFLA_BRPORT_PROTECT. New userspace can't and won't need to set
+this flag for older kernels (older than 3.8) as root_block is not
+implemented on those kernels and the MAC address hack would still be
+used there. This strategy however does put a requirement on new
+kernels to use new userspace as otherwise the MAC address workaround
+would not be in place and root_block would not take effect.
 
-The fact that you also define the IFF_BRIDGE_SKIP_IP flag, and set it on
-exactly the same devices, makes me think that they should actually be a
-single flag.  I don't know how that flag should be named or described,
-though.
-
-Ben.
-
---=20
-Ben Hutchings
-Any sufficiently advanced bug is indistinguishable from a feature.
-
---=-rsGrmwfKCYJri+Sjh8qI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIVAwUAUwEJ9Oe/yOyVhhEJAQr7ZQ//XJTbfwlF6wA9jJv96XiPN/YXk8vMVUqC
-qgbGy8U4FXpg6gRIyASm6HiyviT7VZiLfskA9QGPKadgVb2x4LAPKPlQJGRWN2Pb
-I6WpRq0QzqUBLTPstUUVbayfH1TuLCQ1aUBfJx60oE5mi4qPfCw8Jn+ngyXlj4dc
-1FoS8Td2VKM9GOope4AYVcQ5HVPbyDgD88AZZQDtTaYEpK+ffW/7UcotEL0k3ddc
-mS+voQikMFajOl2pyrZ0ztZXIVTGvJtDiHxN1wACEEu4s4pCMHvTiSDofb9vawCE
-AuH8/RvRDLwaK3uUOQ+5U9g16L5hn4fOrKCSRBg+asYJ0u42YCHQfhnFFlBcVj6s
-D9rSjg7bJQMGeCbhB7KOAJAzd430N598jqZmK8/eFHK6GDh2HVwwuLV14vmkhnVb
-GAdqim31ZtJTvNSBbVZQx/4KHBewutCFHc+281D0HzGNfFfpprMlEEfO5q/f2Nre
-jWyaccNLUK6bGlfmNeANCE2oGKit4jFUe7jgKb9xaWc/aLLEO4l4Jyq96evKpea0
-KrLJgoNkscPpDzM8uPoqBEBUYHQ4kwXcQqQdCR4W2tjhCdcT0ZYQzwsi+A7Np0XY
-EmTRwRC2wHVoLm1QT9+HwUxqMem2wtTKy/8I3I9EbY0FC6BDGqVrnyAGUldTGkgW
-yFWN/QaYj80=
-=hTJd
------END PGP SIGNATURE-----
-
---=-rsGrmwfKCYJri+Sjh8qI--
+  Luis
