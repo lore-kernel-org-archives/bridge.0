@@ -1,8 +1,17 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Wed, 19 Feb 2014 09:08:55 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20140219090855.610c0e04@nehalam.linuxnetplumber.net>
-In-Reply-To: <CAB=NE6X6Vuo3iib0W-c5cxv0QBpnZtCC0sFyuULugQoEZAbRtg@mail.gmail.com>
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc:content-type;
+	bh=zAqQzD6gXSCKJdr2FGt54DT3nsVKm1OVC+MQrMEOT5I=;
+	b=MnMC5lWr/L9Tq6vLjT69q9t4QXtb6RaZ5uiFJgH8ntWcKQzh+aakNehxOGmOZJOUrg
+	CMhaO/QUiuvpw/03rolU0DO/WKfaK5dxkqZ/Fs542QsCk4cw1FqKPMPeg71nilEi1tlF
+	W8/eqkJWqY2kHNIAjkLYqquH9NKm4nifO4qX6Rliczze/GA+jKGRq94MxhgtqGlzH+Us
+	WvpxwZ1XO7VQmJP1NBSrOSwdonqzhLQB3OTa2K6npQGcgfaTc1tWopVZgGzkazOQfh+n
+	Fgvtie3s01yv0NywQqYB6T0JNUysxXm5GbK/c6PNjLDuk+s1cXM6MK4S0OMxov/kS19P
+	7YDA==
+MIME-Version: 1.0
+Sender: mcgrof@gmail.com
+In-Reply-To: <20140219090855.610c0e04@nehalam.linuxnetplumber.net>
 References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
 	<1392433180-16052-2-git-send-email-mcgrof@do-not-panic.com>
 	<20140216105754.63738163@nehalam.linuxnetplumber.net>
@@ -10,9 +19,11 @@ References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
 	<1392803559.23084.99.camel@kazak.uk.xensource.com>
 	<5304C13F.3030802@citrix.com>
 	<CAB=NE6X6Vuo3iib0W-c5cxv0QBpnZtCC0sFyuULugQoEZAbRtg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20140219090855.610c0e04@nehalam.linuxnetplumber.net>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Wed, 19 Feb 2014 09:59:33 -0800
+Message-ID: <CAB=NE6UAqoiFAJdckE1d7cgMZnU6_=8X+N=tSc6qH2bgH08M7Q@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [Xen-devel] [RFC v2 1/4] bridge: enable interfaces to
  opt out from becoming the root bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -23,28 +34,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Zoltan Kiss <zoltan.kiss@citrix.com>, xen-devel@lists.xenproject.org
 
-On Wed, 19 Feb 2014 09:02:06 -0800
-"Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+On Wed, Feb 19, 2014 at 9:08 AM, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> On Wed, 19 Feb 2014 09:02:06 -0800
+> "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+>
+>> Folks, what if I repurpose my patch to use the IFF_BRIDGE_NON_ROOT (or
+>> relabel to IFF_ROOT_BLOCK_DEF) flag for a default driver preference
+>> upon initialization so that root block will be used once the device
+>> gets added to a bridge. The purpose would be to avoid drivers from
+>> using the high MAC address hack, streamline to use a random MAC
+>> address thereby avoiding the possible duplicate address situation for
+>> IPv6. In the STP use case for these interfaces we'd just require
+>> userspace to unset the root block. I'd consider the STP use case the
+>> most odd of all. The caveat to this approach is 3.8 would be needed
+>> (or its the root block patches cherry picked) for base kernels older
+>> than 3.8.
+>>
+>> Stephen?
+>>
+>>   Luis
+>
+> Don't add IFF_ flags that adds yet another API hook into bridge.
 
-> Folks, what if I repurpose my patch to use the IFF_BRIDGE_NON_ROOT (or
-> relabel to IFF_ROOT_BLOCK_DEF) flag for a default driver preference
-> upon initialization so that root block will be used once the device
-> gets added to a bridge. The purpose would be to avoid drivers from
-> using the high MAC address hack, streamline to use a random MAC
-> address thereby avoiding the possible duplicate address situation for
-> IPv6. In the STP use case for these interfaces we'd just require
-> userspace to unset the root block. I'd consider the STP use case the
-> most odd of all. The caveat to this approach is 3.8 would be needed
-> (or its the root block patches cherry picked) for base kernels older
-> than 3.8.
-> 
-> Stephen?
-> 
->   Luis
+The goal was not to add a userspace API, but rather consider a driver
+initialization preference.
 
-Don't add IFF_ flags that adds yet another API hook into bridge.
-Please only use the netlink/sysfs flags fields that already exist
-for new features.
+> Please only use the netlink/sysfs flags fields that already exist
+> for new features.
+
+Sure, but what if we know a driver in most cases wants the root block
+and we'd want to make it the default, thereby only requiring userspace
+for toggling it off.
+
+  Luis
