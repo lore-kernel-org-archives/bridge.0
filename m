@@ -2,16 +2,16 @@ Return-Path: <mcgrof@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=mime-version:sender:in-reply-to:references:from:date:message-id
 	:subject:to:cc:content-type;
-	bh=3XKDZPGV3Rarv0GuZPg7XjrMD1veXJK+C3vGlkm78tM=;
-	b=udIzk63AoOK+GwGfqaEioIV3r8jF0U7MIhTvUB2l+lCfpZeS4RecrF/GarD/M49re3
-	WvwBBz2sOIo5h8PVFxkPKxqD1ubHg1h8f4RafLJzHDe0ga5Amjc7/4NLFZO3G//DjyCw
-	r1ZdB+qmy5hb7U0F7hrVEArMgYiMa0bBPuHxPp1O7Mpmw794vK6C2pUbpiGlZ66vgTUy
-	TiZhFwot2AzqocBzdCAcqtnmuEOvsFbt4H8xeXD8sVQlgCC15Rzmf1MREEHVH6upI+jy
-	ejRuQxMEVWt+baQQHYQekNUi7BHG20YUHOnaB67PAgG7QOqPcw8y1ZBZaq7VFgRDR7f+
-	msQQ==
+	bh=AqrqcwuU5zAJR3L/y9/u3er5xNXLq6S1MtBVenu0YVQ=;
+	b=0M3N52begcVKwwPaf5/l2im7OT5huZJHvGlCIs2D6p7yzj88bHB/SHSpH8jkqdaFm2
+	NeOxAHbWmt2RCILy7bKzv4uEZ4sL0/MK8AN870cfWMuMuApFgLifmtEXYIJXR1TjOh+g
+	dg+VNnU++vLpGv5mkXpcnoKnx7BFRVHTqE6DElD0AZ5dc2n+VvUcvOp9RgYEaREa61JL
+	H3VHj6rEhlnlq+3lJvbHw1U85J9QswaCVuDSp0L00zUbN+YRiX3VYmTh8EhwsRXzG5+v
+	zTquTQ8RESPys692zJky6vnhCwfIgBI7JfvwF3sTbfFxinAAMQZ9i8rDgxIGeWOLW2i7
+	+V0A==
 MIME-Version: 1.0
 Sender: mcgrof@gmail.com
-In-Reply-To: <530600C5.3070107@citrix.com>
+In-Reply-To: <20140220091958.62a8b444@nehalam.linuxnetplumber.net>
 References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
 	<1392433180-16052-2-git-send-email-mcgrof@do-not-panic.com>
 	<20140216105754.63738163@nehalam.linuxnetplumber.net>
@@ -19,10 +19,12 @@ References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
 	<1392803559.23084.99.camel@kazak.uk.xensource.com>
 	<5304C13F.3030802@citrix.com>
 	<CAB=NE6X6Vuo3iib0W-c5cxv0QBpnZtCC0sFyuULugQoEZAbRtg@mail.gmail.com>
-	<530600C5.3070107@citrix.com>
+	<20140219090855.610c0e04@nehalam.linuxnetplumber.net>
+	<CAB=NE6UAqoiFAJdckE1d7cgMZnU6_=8X+N=tSc6qH2bgH08M7Q@mail.gmail.com>
+	<20140220091958.62a8b444@nehalam.linuxnetplumber.net>
 From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Date: Thu, 20 Feb 2014 12:01:25 -0800
-Message-ID: <CAB=NE6WKhBJyyUO5o8B53J+F4PqF2PHvvbV3=yS3qs0ZDRKH7Q@mail.gmail.com>
+Date: Thu, 20 Feb 2014 12:24:06 -0800
+Message-ID: <CAB=NE6WnMFkH7JPNt+ROiWEvhvZ03vdGr21STf75DV9fRaK=PA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [Xen-devel] [RFC v2 1/4] bridge: enable interfaces to
  opt out from becoming the root bridge
@@ -34,22 +36,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Zoltan Kiss <zoltan.kiss@citrix.com>
-Cc: Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Zoltan Kiss <zoltan.kiss@citrix.com>, xen-devel@lists.xenproject.org
 
-On Thu, Feb 20, 2014 at 5:19 AM, Zoltan Kiss <zoltan.kiss@citrix.com> wrote:
-> How about this: netback sets the root_block flag and a random MAC by
-> default. So the default behaviour won't change, DAD will be happy, and
-> userspace don't have to do anything unless it's using netback for STP root
-> bridge (I don't think there are too many toolstacks doing that), in which
-> case it has to remove the root_block flag instead of setting a random MAC.
+On Thu, Feb 20, 2014 at 9:19 AM, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> On Wed, 19 Feb 2014 09:59:33 -0800 "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+>> On Wed, Feb 19, 2014 at 9:08 AM, Stephen Hemminger <stephen@networkplumber.org> wrote:
+>> >
+>> > Please only use the netlink/sysfs flags fields that already exist
+>> > for new features.
+>>
+>> Sure, but what if we know a driver in most cases wants the root block
+>> and we'd want to make it the default, thereby only requiring userspace
+>> for toggling it off.
+>
+> Something in userspace has to put the device into the bridge.
+> Fix the port setup in that tool via the netlink or sysfs flags in
+> the bridge. It should not have to be handled in the bridge looking
+> at magic flags in the device.
 
-:D that's exactly what I ended up proposing too. I mentioned how
-xen-netback could do this as well, we'd keep or rename the flag I
-added, and then the bridge could would look at it and enable the root
-block if the flag is set. Stephen however does not like having the
-bridge code look at magic flags for this behavior and would prefer for
-us to get the tools to ask for the root block. Let's follow more up on
-that thread.
+Agreed that's the best strategy and I'll work on sending patches to
+brctl to enable the root_block preference. This approach however also
+requires a userspace upgrade. I'm trying to see if we can get an
+old-nasty-cryptic-hack practice removed from the kernel and we'd try
+to prevent future drivers from using it -- without requiring userspace
+upgrade. In this case the bad practice is to using a high static MAC
+address for mimicking a root block default preference. In order to
+remove that *without* requiring a userspace upgrade the dev->priv_flag
+approach is the only thing I can think of. If this would go in we'd
+replace the high static MAC address with a random MAC address to
+prevent IPv6 SLAAC / DAD conflicts. I'd document this flag and
+indicate with preference for userspace to be the one tuning these
+knobs.
+
+Without this we'd have to keep the high static MAC address on upstream
+drivers and let userspace do the random'ization if it confirms the
+userspace knob to turn the root block flag is available. Is the
+priv_flag approach worth the compromise to remove the root block hack
+practice?
 
   Luis
