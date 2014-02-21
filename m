@@ -1,13 +1,18 @@
 Return-Path: <zoltan.kiss@citrix.com>
-Message-ID: <5306156B.4070105@citrix.com>
-Date: Thu, 20 Feb 2014 14:47:07 +0000
+Message-ID: <53074E69.4060206@citrix.com>
+Date: Fri, 21 Feb 2014 13:02:33 +0000
 From: Zoltan Kiss <zoltan.kiss@citrix.com>
 MIME-Version: 1.0
 References: <1392433180-16052-1-git-send-email-mcgrof@do-not-panic.com>
 	<1392433180-16052-2-git-send-email-mcgrof@do-not-panic.com>
-	<53024C58.4010900@citrix.com>
-	<CAB=NE6XYjOd2vRpQCZOG-S5ZW4xjam+FOPAYzribNQpb50Q5pg@mail.gmail.com>
-In-Reply-To: <CAB=NE6XYjOd2vRpQCZOG-S5ZW4xjam+FOPAYzribNQpb50Q5pg@mail.gmail.com>
+	<20140216105754.63738163@nehalam.linuxnetplumber.net>
+	<CAB=NE6WwbOXNLO_Mn42i7y62pEsmDOWd35B621eiJk4iaE3Hfg@mail.gmail.com>
+	<1392803559.23084.99.camel@kazak.uk.xensource.com>
+	<5304C13F.3030802@citrix.com>
+	<CAB=NE6X6Vuo3iib0W-c5cxv0QBpnZtCC0sFyuULugQoEZAbRtg@mail.gmail.com>
+	<530600C5.3070107@citrix.com>
+	<CAB=NE6WKhBJyyUO5o8B53J+F4PqF2PHvvbV3=yS3qs0ZDRKH7Q@mail.gmail.com>
+In-Reply-To: <CAB=NE6WKhBJyyUO5o8B53J+F4PqF2PHvvbV3=yS3qs0ZDRKH7Q@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [Xen-devel] [RFC v2 1/4] bridge: enable interfaces to
@@ -21,51 +26,44 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Cc: kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
+Cc: Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
 
-On 19/02/14 16:45, Luis R. Rodriguez wrote:
-> On Mon, Feb 17, 2014 at 9:52 AM, Zoltan Kiss <zoltan.kiss@citrix.com> wrote:
->> On 15/02/14 02:59, Luis R. Rodriguez wrote:
->>>
->>> From: "Luis R. Rodriguez" <mcgrof@suse.com>
->>>
->>> It doesn't make sense for some interfaces to become a root bridge
->>> at any point in time. One example is virtual backend interfaces
->>> which rely on other entities on the bridge for actual physical
->>> connectivity. They only provide virtual access.
->>
->> It is possible that a guest bridge together to VIF, either from the same
->> Dom0 bridge or from different ones. In that case using STP on VIFs sound
->> sensible to me.
+On 20/02/14 20:01, Luis R. Rodriguez wrote:
+> On Thu, Feb 20, 2014 at 5:19 AM, Zoltan Kiss <zoltan.kiss@citrix.com> wrote:
+>> How about this: netback sets the root_block flag and a random MAC by
+>> default. So the default behaviour won't change, DAD will be happy, and
+>> userspace don't have to do anything unless it's using netback for STP root
+>> bridge (I don't think there are too many toolstacks doing that), in which
+>> case it has to remove the root_block flag instead of setting a random MAC.
 >
-> You seem to describe a case whereby it can make sense for xen-netback
-> interfaces to end up becoming the root port of a bridge. Can you
-> elaborate a little more on that as it was unclear the use case.
-Well, I might be wrong on that, but the scenario I was thinking: a guest 
-(let's say domain 1) can have multiple interfaces on different Dom0 (or 
-driver domain) bridges, let's say vif1.0 is plugged into xenbr0 and 
-vif1.1 is in xenbr1. If the guest wants to make a bridge of this two, 
-then using STP makes sense. I wanted to bring up CloudStack's virtual 
-router as an example, but then I realized it's probably doesn't do such 
-thing. However I don't think we should hardcode that a netback interface 
-can't be RP ever.
-
->
-> Additionally if such cases exist then under the current upstream
-> implementation one would simply need to change the MAC address in
-> order to enable a vif to become the root port.  Stephen noted there is
-> a way to avoid nominating an interface for a root port through the
-> root block flag. We should use that instead of the MAC address hacks.
-> Let's keep in mind that part of the motivation for this series is to
-> avoid a duplicate IPv6 address left in place by use cases whereby the
-> MAC address of the backend vif was left static. The use case your are
-> explaining likely describes the more prevalent use case where address
-> conflicts can occur, perhaps when administrators for got to change the
-> backend MAC address. If we embrace a random MAC address we'd avoid
-> that issue, and but we'd need to update userspace to use the root
-> block on topologies where desired.
-If I understand you correctly, this is the same I suggested in my 
-another email sent 1.5 hour ago.
+> :D that's exactly what I ended up proposing too. I mentioned how
+> xen-netback could do this as well, we'd keep or rename the flag I
+> added, and then the bridge could would look at it and enable the root
+> block if the flag is set. Stephen however does not like having the
+> bridge code look at magic flags for this behavior and would prefer for
+> us to get the tools to ask for the root block. Let's follow more up on
+> that thread
+We don't need that new flag, just forget about it. Set that root_block 
+flag from netback device init, around the time you generate the random 
+MAC, or at the earliest possible time. Nothing else has to be done from 
+kernel side. If someone wants netback to be a root port, then remove 
+root_block from their tools, instead of changing the the MAC address, as 
+it happens now.
+Another problem with the random addresses, pointed out by Ian earlier, 
+that when adding/removing interfaces, the bridge does recalculate it's 
+MAC address, and choose the lowest one. In the general usecase I think 
+that's normal, but in case of Xen networking, we would like to keep the 
+bridge using the physical interface's MAC, because the local port of the 
+bridge is used for Dom0 network traffic, therefore changing the bridge 
+MAC when a netback device has lower MAC breaks that traffic. I think the 
+best is to address this from userspace: if it set the MAC of the bridge 
+explicitly, dev_set_mac_address() does dev->addr_assign_type = 
+NET_ADDR_SET;, so br_stp_recalculate_bridge_id() will exit before 
+changing anything.
+And when I say userspace, I mean Xen specific tools which does 
+networking configuration, e.g. xapi in XenServer case. Not brctl, it 
+doesn't have to know whether this is a xenbrX device or a bridge used 
+for another purposes.
 
 Zoli
 
