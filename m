@@ -1,11 +1,11 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Wed, 26 Feb 2014 10:18:22 -0500
-Message-Id: <1393427905-6811-5-git-send-email-vyasevic@redhat.com>
+Date: Wed, 26 Feb 2014 10:18:23 -0500
+Message-Id: <1393427905-6811-6-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
 References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH 4/7] bridge: Automatically manage port promiscuous
-	mode.
+Subject: [Bridge] [PATCH 5/7] bridge: Correctly manage promiscuity when user
+	requested it.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,118 +17,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
 
-When there is only 1 flooding port, this port is programmed
-with all the address the bridge accumulated.  This allows
-us to place this port into non-promiscuous mode.
-At other times, all ports are set as promiscuous.  To help
-track whether the bridge set the mode or not, a new
-flag is introduced.
+When the user places the bridge device in promiscuous mode,
+all ports are placed in promisc mode regardless of the number
+of flooding ports configured.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
- net/bridge/br_if.c      | 48 ++++++++++++++++++++++++++++++++++++++++++++++--
+ net/bridge/br_device.c  |  7 +++++++
+ net/bridge/br_if.c      | 18 +++++++++++++-----
  net/bridge/br_private.h |  1 +
- 2 files changed, 47 insertions(+), 2 deletions(-)
+ 3 files changed, 21 insertions(+), 5 deletions(-)
 
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 1521db6..0af9d6c 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -121,6 +121,12 @@ static void br_dev_set_multicast_list(struct net_device *dev)
+ {
+ }
+ 
++static void br_dev_change_rx_flags(struct net_device *dev, int change)
++{
++	if (change & IFF_PROMISC)
++		br_manage_promisc(netdev_priv(dev));
++}
++
+ static int br_dev_stop(struct net_device *dev)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+@@ -319,6 +325,7 @@ static const struct net_device_ops br_netdev_ops = {
+ 	.ndo_get_stats64	 = br_get_stats64,
+ 	.ndo_set_mac_address	 = br_set_mac_address,
+ 	.ndo_set_rx_mode	 = br_dev_set_multicast_list,
++	.ndo_change_rx_flags	 = br_dev_change_rx_flags,
+ 	.ndo_change_mtu		 = br_change_mtu,
+ 	.ndo_do_ioctl		 = br_dev_ioctl,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
 diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index e782c2e..51df642 100644
+index 51df642..7e92bd0 100644
 --- a/net/bridge/br_if.c
 +++ b/net/bridge/br_if.c
-@@ -136,7 +136,7 @@ static void del_nbp(struct net_bridge_port *p)
- 
- 	sysfs_remove_link(br->ifobj, p->dev->name);
- 
--	dev_set_promiscuity(dev, -1);
-+	dev_set_allmulti(dev, -1);
- 
- 	spin_lock_bh(&br->lock);
- 	br_stp_disable_port(p);
-@@ -359,7 +359,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
- 
- 	call_netdevice_notifiers(NETDEV_JOIN, dev);
- 
--	err = dev_set_promiscuity(dev, 1);
-+	err = dev_set_allmulti(dev, 1);
- 	if (err)
- 		goto put_back;
- 
-@@ -465,6 +465,48 @@ int br_del_if(struct net_bridge *br, struct net_device *dev)
- 	return 0;
- }
- 
-+static int br_port_set_promisc(struct net_bridge_port *p)
-+{
-+	int err = 0;
-+
-+	if (p->flags & BR_PROMISC)
-+		return err;
-+
-+	err = dev_set_promiscuity(p->dev, 1);
-+	if (err)
-+		return err;
-+
-+	p->flags |= BR_PROMISC;
-+	return err;
-+}
-+
-+static void br_port_clear_promisc(struct net_bridge_port *p)
-+{
-+	if (!(p->flags & BR_PROMISC))
-+		return;
-+
-+	dev_set_promiscuity(p->dev, -1);
-+	p->flags &= ~BR_PROMISC;
-+}
-+
-+/* When a port is added or removed or when the flooding status of
-+ * the port changes, this function is called to automatically mange
-+ * promiscuity setting of all the bridge ports.  We are always called
-+ * under RTNL so can skip using rcu primitives.
-+ */
-+static void br_manage_promisc(struct net_bridge *br)
-+{
-+	struct net_bridge_port *p;
-+
-+	list_for_each_entry(p, &br->port_list, list) {
-+		if (!br_port_exists(p->dev) ||
-+		    (br->n_flood_ports == 1 && br->c_flood_port == p))
-+			br_port_clear_promisc(p);
-+		else
-+			br_port_set_promisc(p);
-+	}
-+}
-+
- static void br_add_flood_port(struct net_bridge_port *p, struct net_bridge *br)
+@@ -494,16 +494,24 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
+  * promiscuity setting of all the bridge ports.  We are always called
+  * under RTNL so can skip using rcu primitives.
+  */
+-static void br_manage_promisc(struct net_bridge *br)
++void br_manage_promisc(struct net_bridge *br)
  {
- 	/* Increment the number of  flooding ports, and if we
-@@ -475,6 +517,7 @@ static void br_add_flood_port(struct net_bridge_port *p, struct net_bridge *br)
- 		br->c_flood_port = p;
+ 	struct net_bridge_port *p;
  
- 	br_fdb_addrs_sync(br);
-+	br_manage_promisc(br);
- }
- 
- static void br_del_flood_port(struct net_bridge_port *p, struct net_bridge *br)
-@@ -502,6 +545,7 @@ static void br_del_flood_port(struct net_bridge_port *p, struct net_bridge *br)
- 			}
- 		}
+ 	list_for_each_entry(p, &br->port_list, list) {
+-		if (!br_port_exists(p->dev) ||
+-		    (br->n_flood_ports == 1 && br->c_flood_port == p))
+-			br_port_clear_promisc(p);
+-		else
++		if (br->dev->flags & IFF_PROMISC) {
++			/* PROMISC flag has been turned on for the bridge
++			 * itself.  Turn on promisc on all ports.
++			 */
+ 			br_port_set_promisc(p);
++
++		} else {
++			if (!br_port_exists(p->dev) ||
++			    (br->n_flood_ports == 1 && br->c_flood_port == p))
++				br_port_clear_promisc(p);
++			else if (br_port_exists(p->dev))
++				br_port_set_promisc(p);
++		}
  	}
-+	br_manage_promisc(br);
  }
  
- void br_port_flags_change(struct net_bridge_port *p, unsigned long mask)
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 40a6927..6670cb3 100644
+index 6670cb3..4042f86 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -174,6 +174,7 @@ struct net_bridge_port
- #define BR_ADMIN_COST		0x00000010
- #define BR_LEARNING		0x00000020
- #define BR_FLOOD		0x00000040
-+#define BR_PROMISC		0x00000080
+@@ -423,6 +423,7 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+ 					netdev_features_t features);
+ void br_port_flags_change(struct net_bridge_port *port,
+ 			  unsigned long mask);
++void br_manage_promisc(struct net_bridge *br);
  
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	struct bridge_mcast_query	ip4_query;
+ /* br_input.c */
+ int br_handle_frame_finish(struct sk_buff *skb);
 -- 
 1.8.5.3
 
