@@ -1,15 +1,15 @@
 Return-Path: <mst@redhat.com>
-Date: Wed, 26 Feb 2014 18:01:34 +0200
+Date: Wed, 26 Feb 2014 18:00:46 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20140226160134.GJ15330@redhat.com>
+Message-ID: <20140226160046.GI15330@redhat.com>
 References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
-	<1393427905-6811-8-git-send-email-vyasevic@redhat.com>
+	<1393427905-6811-7-git-send-email-vyasevic@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1393427905-6811-8-git-send-email-vyasevic@redhat.com>
-Subject: Re: [Bridge] [PATCH 7/7] bridge: Support promisc management when
- all ports are non-flooding
+In-Reply-To: <1393427905-6811-7-git-send-email-vyasevic@redhat.com>
+Subject: Re: [Bridge] [PATCH 6/7] bridge: Manage promisc mode when vlans are
+ configured on top of a bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,186 +21,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Vlad Yasevich <vyasevic@redhat.com>
 Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com
 
-On Wed, Feb 26, 2014 at 10:18:25AM -0500, Vlad Yasevich wrote:
-> Configuration where all ports are set to non-flooding is a slight
-> special case.  In this config, the user would have to manage all fdbs
-> for all ports.  In this special case, since we'll know all addresses,
-> we can turn off promisc on all ports and program all ports with the
-> same set of addresses.
+On Wed, Feb 26, 2014 at 10:18:24AM -0500, Vlad Yasevich wrote:
+> If the user configures vlan interfaces on top of the bridge and the bridge
+> doesn't have vlan filtering enabled, we have to place all the ports in
+> promsic mode so that we can correctly receive tagged frames.
+> When vlan filtering is enabled, the vlan configuration will be provided
+> via filtering interface.
+> When the vlan filtering is toggled, we also have mange promiscuity.
+
+have to manage?
+
 > 
 > Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+
+
+I wonder if it matters that we scan all ports
+on vlan add/del now.
+
+If yes, we could optimize some cases by using
+a counter of promisc ports.
+
+
 > ---
->  include/linux/netdevice.h |  3 +++
->  net/bridge/br_fdb.c       | 22 +++++++++++++++++-----
->  net/bridge/br_if.c        | 40 ++++++++++++++++++++++++++++++++++------
->  net/bridge/br_private.h   |  2 +-
->  net/core/dev_addr_lists.c |  7 ++++---
->  5 files changed, 59 insertions(+), 15 deletions(-)
+>  net/bridge/br_device.c  | 14 ++++++++++++++
+>  net/bridge/br_if.c      | 17 +++++++++++++----
+>  net/bridge/br_private.h |  9 +++++++++
+>  net/bridge/br_vlan.c    |  1 +
+>  4 files changed, 37 insertions(+), 4 deletions(-)
 > 
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index e29cce1..79e97ee 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -2889,6 +2889,9 @@ int __hw_addr_del(struct netdev_hw_addr_list *list,
->  		  unsigned char addr_type);
->  int __hw_addr_sync(struct netdev_hw_addr_list *to_list,
->  		   struct netdev_hw_addr_list *from_list, int addr_len);
-> +int __hw_addr_sync_multiple(struct netdev_hw_addr_list *to_list,
-> +			    struct netdev_hw_addr_list *from_list,
-> +			    int addr_len);
->  void __hw_addr_unsync(struct netdev_hw_addr_list *to_list,
->  		      struct netdev_hw_addr_list *from_list, int addr_len);
->  void __hw_addr_init(struct netdev_hw_addr_list *list);
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index ef95e81..26ea4fe 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -911,19 +911,31 @@ void br_fdb_addrs_sync(struct net_bridge *br)
->  	if (br->n_flood_ports == 1) {
->  		p = br->c_flood_port;
->  		netif_addr_lock(p->dev);
-> -		err = __hw_addr_sync(&p->dev->uc, &br->conf_addrs,
-> -				     p->dev->addr_len);
-> +		err = __hw_addr_sync_multiple(&p->dev->uc, &br->conf_addrs,
-> +					      p->dev->addr_len);
->  		if (!err)
->  			__dev_set_rx_mode(p->dev);
->  		netif_addr_unlock(p->dev);
-> +	} else if (br->n_flood_ports == 0) {
-> +		list_for_each_entry(p, &br->port_list, list) {
-> +			/* skip over ports being deleted. */
-> +			if (!br_port_exists(p->dev))
-> +				continue;
+> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+> index 0af9d6c..967abb3 100644
+> --- a/net/bridge/br_device.c
+> +++ b/net/bridge/br_device.c
+> @@ -297,6 +297,18 @@ void br_netpoll_disable(struct net_bridge_port *p)
 >  
-> +			netif_addr_lock_nested(p->dev);
-> +			err = __hw_addr_sync_multiple(&p->dev->uc,
-> +						      &br->conf_addrs,
-> +						      p->dev->addr_len);
-> +			if (!err)
-> +				__dev_set_rx_mode(p->dev);
-> +			netif_addr_unlock(p->dev);
-> +		}
->  	}
+>  #endif
+>  
+> +static int br_dev_rx_add_vid(struct net_device *br_dev, __be16 proto, u16 vid)
+> +{
+> +	br_manage_promisc(netdev_priv(br_dev));
+> +	return 0;
+> +}
 > +
->  }
+> +static int br_dev_rx_kill_vid(struct net_device *br_dev, __be16 proto, u16 vid)
+> +{
+> +	br_manage_promisc(netdev_priv(br_dev));
+> +	return 0;
+> +}
+> +
+>  static int br_add_slave(struct net_device *dev, struct net_device *slave_dev)
 >  
-> -void br_fdb_addrs_unsync(struct net_bridge *br)
-> +void br_fdb_addrs_unsync(struct net_bridge *br, struct net_bridge_port *p)
 >  {
-> -	struct net_bridge_port *p = br->c_flood_port;
-> -
->  	if (!p)
->  		return;
->  
+> @@ -328,6 +340,8 @@ static const struct net_device_ops br_netdev_ops = {
+>  	.ndo_change_rx_flags	 = br_dev_change_rx_flags,
+>  	.ndo_change_mtu		 = br_change_mtu,
+>  	.ndo_do_ioctl		 = br_dev_ioctl,
+> +	.ndo_vlan_rx_add_vid	 = br_dev_rx_add_vid,
+> +	.ndo_vlan_rx_kill_vid	 = br_dev_rx_kill_vid,
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>  	.ndo_netpoll_setup	 = br_netpoll_setup,
+>  	.ndo_netpoll_cleanup	 = br_netpoll_cleanup,
 > diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 55e4e28..4ba62ef 100644
+> index 7e92bd0..55e4e28 100644
 > --- a/net/bridge/br_if.c
 > +++ b/net/bridge/br_if.c
-> @@ -148,6 +148,8 @@ static void del_nbp(struct net_bridge_port *p)
->  
->  	if (p->flags & BR_FLOOD)
->  		br_del_flood_port(p, br);
-> +	else
-> +		br_fdb_addrs_unsync(br, p);
->  
->  	nbp_vlan_flush(p);
->  	br_fdb_delete_by_port(br, p, 1);
-> @@ -530,8 +532,26 @@ static void br_add_flood_port(struct net_bridge_port *p, struct net_bridge *br)
->  	 * only have 1 flooding port cache if for future use.
->  	 */
->  	br->n_flood_ports++;
-> -	if (br->n_flood_ports == 1)
-> +	if (br->n_flood_ports == 1) {
-> +		struct net_bridge_port *port;
+> @@ -497,12 +497,21 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
+>  void br_manage_promisc(struct net_bridge *br)
+>  {
+>  	struct net_bridge_port *p;
+> +	int set_all = false;
 > +
-> +		/* We are transitioning from 0 flood ports to 1.  Remove
-> +		 * the addresses from all the non-flood ports and turn on
-> +		 * promisc on those ports.
-> +		 */
-> +		list_for_each_entry(port, &br->port_list, list) {
-> +			/* skip the current port we are changing */
-> +			if (port == p)
-> +				continue;
+> +	if (br->dev->flags & IFF_PROMISC)
+> +		set_all = true;
 > +
-> +			if (!(port->flags & BR_FLOOD)) {
-> +				br_port_set_promisc(port);
-> +				br_fdb_addrs_unsync(br, port);
-> +			}
-> +		}
-> +
->  		br->c_flood_port = p;
-> +	}
+> +	/* If vlan filtering is disabled and there are any VLANs
+> +	 * configured on top of the bridge, set promisc on all
+> +	 * ports.
+> +	 */
+> +	if (!br_vlan_enabled(br) && vlan_uses_dev(br->dev))
+> +		set_all = true;
 >  
->  	br_fdb_addrs_sync(br);
->  	br_manage_promisc(br);
-> @@ -547,12 +567,20 @@ static void br_del_flood_port(struct net_bridge_port *p, struct net_bridge *br)
->  	 * set it if it is not set.
->  	 */
->  	br->n_flood_ports--;
-> -	if (p == br->c_flood_port) {
-> -		br_fdb_addrs_unsync(br);
-> -		br->c_flood_port = NULL;
-> -	}
-> +	if (br->n_flood_ports == 0) {
-> +		/* We just dropped to 0 flood ports.  If we
-> +		 * are deleting this port, unsync addresses
-> +		 * from it.
-> +		 */
-> +		if (!br_port_exists(p->dev))
-> +			br_fdb_addrs_unsync(br, p);
+>  	list_for_each_entry(p, &br->port_list, list) {
+> -		if (br->dev->flags & IFF_PROMISC) {
+> -			/* PROMISC flag has been turned on for the bridge
+> -			 * itself.  Turn on promisc on all ports.
+> -			 */
+> +		if (set_all) {
+> +			/* Set all the ports to promisc mode.  */
+>  			br_port_set_promisc(p);
 >  
-> -	if (br->n_flood_ports == 1) {
-> +		br->c_flood_port = NULL;
-> +		br_fdb_addrs_sync(br);
-> +	} else if (br->n_flood_ports == 1) {
-> +		/* We just dropped to 1 flood port. Find this one flood
-> +		 * port and sync to it.
-> +		 */
->  		list_for_each_entry(port, &p->br->port_list, list) {
->  			if (br_port_exists(port->dev) &&
->  			    (port->flags & BR_FLOOD)) {
+>  		} else {
 > diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 87dcc09..13840de 100644
+> index 4042f86..87dcc09 100644
 > --- a/net/bridge/br_private.h
 > +++ b/net/bridge/br_private.h
-> @@ -400,7 +400,7 @@ int br_fdb_add(struct ndmsg *nlh, struct nlattr *tb[], struct net_device *dev,
->  int br_fdb_dump(struct sk_buff *skb, struct netlink_callback *cb,
->  		struct net_device *dev, int idx);
->  void br_fdb_addrs_sync(struct net_bridge *br);
-> -void br_fdb_addrs_unsync(struct net_bridge *br);
-> +void br_fdb_addrs_unsync(struct net_bridge *br, struct net_bridge_port *p);
->  
->  /* br_forward.c */
->  void br_deliver(const struct net_bridge_port *to, struct sk_buff *skb);
-> diff --git a/net/core/dev_addr_lists.c b/net/core/dev_addr_lists.c
-> index 3de44a3..24da78f 100644
-> --- a/net/core/dev_addr_lists.c
-> +++ b/net/core/dev_addr_lists.c
-> @@ -171,9 +171,9 @@ static void __hw_addr_unsync_one(struct netdev_hw_addr_list *to_list,
->  	__hw_addr_del_entry(from_list, ha, false, false);
+> @@ -641,6 +641,10 @@ static inline u16 br_get_pvid(const struct net_port_vlans *v)
+>  	return v->pvid ?: VLAN_N_VID;
 >  }
 >  
-> -static int __hw_addr_sync_multiple(struct netdev_hw_addr_list *to_list,
-> -				   struct netdev_hw_addr_list *from_list,
-> -				   int addr_len)
-> +int __hw_addr_sync_multiple(struct netdev_hw_addr_list *to_list,
-> +			    struct netdev_hw_addr_list *from_list,
-> +			    int addr_len)
+> +static inline int br_vlan_enabled(struct net_bridge *br)
+> +{
+> +	return br->vlan_enabled;
+> +}
+>  #else
+>  static inline bool br_allowed_ingress(struct net_bridge *br,
+>  				      struct net_port_vlans *v,
+> @@ -721,6 +725,11 @@ static inline u16 br_get_pvid(const struct net_port_vlans *v)
 >  {
->  	int err = 0;
->  	struct netdev_hw_addr *ha, *tmp;
-> @@ -189,6 +189,7 @@ static int __hw_addr_sync_multiple(struct netdev_hw_addr_list *to_list,
->  	}
->  	return err;
+>  	return VLAN_N_VID;	/* Returns invalid vid */
 >  }
-> +EXPORT_SYMBOL(__hw_addr_sync_multiple);
+> +
+> +static inline int br_vlan_enabled(struct net_bridge *br);
+> +{
+> +	return 0;
+> +}
+>  #endif
 >  
->  /* This function only works where there is a strict 1-1 relationship
->   * between source and destionation of they synch. If you ever need to
+>  /* br_netfilter.c */
+> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+> index 8249ca7..eddc2f6 100644
+> --- a/net/bridge/br_vlan.c
+> +++ b/net/bridge/br_vlan.c
+> @@ -321,6 +321,7 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val)
+>  		goto unlock;
+>  
+>  	br->vlan_enabled = val;
+> +	br_manage_promisc(br);
+>  
+>  unlock:
+>  	rtnl_unlock();
 > -- 
 > 1.8.5.3
-
-
-Same comment about core changes here
-Pls CC more people so this gets proper review.
-
