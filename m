@@ -1,17 +1,14 @@
-Return-Path: <mst@redhat.com>
-Date: Thu, 27 Feb 2014 09:53:36 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20140227075336.GF16484@redhat.com>
-References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
-	<1393427905-6811-4-git-send-email-vyasevic@redhat.com>
-	<20140226085707.55bdab94@nehalam.linuxnetplumber.net>
-	<530E25CC.6010705@redhat.com>
+Return-Path: <amidu@eguitel.com>
+Message-ID: <530EFD38.5030501@eguitel.com>
+Date: Thu, 27 Feb 2014 08:54:16 +0000
+From: Amidu Sila <amidu@eguitel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <530E25CC.6010705@redhat.com>
-Subject: Re: [Bridge] [PATCH 3/7] bridge: Add addresses from static fdbs to
- bridge address list
+References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>	<530E7FE1.5060705@mojatatu.com>
+	<530EB313.7090400@redhat.com>
+In-Reply-To: <530EB313.7090400@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH RFC 0/7] Non-promisc bidge ports support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,62 +17,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jhs@mojatatu.com, Stephen Hemminger <stephen@networkplumber.org>, shemminger@vyatta.com
+To: vyasevic@redhat.com, Jamal Hadi Salim <jhs@mojatatu.com>, netdev@vger.kernel.org
+Cc: john.r.fastabend@intel.com, shemminger@vyatta.com, bridge@lists.linux-foundation.org, mst@redhat.com
 
-On Wed, Feb 26, 2014 at 12:35:08PM -0500, Vlad Yasevich wrote:
-> On 02/26/2014 11:57 AM, Stephen Hemminger wrote:
-> > On Wed, 26 Feb 2014 10:18:21 -0500
-> > Vlad Yasevich <vyasevic@redhat.com> wrote:
-> > 
-> >> When a static fdb entry is created, add the mac address to the bridge
-> >> address list.  This list is used to program the proper port's
-> >> address list.
-> >>
-> >> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
-> > 
-> > I don't like this level of bookkeeping it starts to mix
-> > layers between the bridge network interface as entity for talking to the
-> > local host, and forwarding table entries.
-> 
-> Actually this is one of the reasons this isn't done through the
-> br->dev->uc.  Forwarding table entries are still per-port.
-> 
-> > 
-> > Many times static entries are used as alternative to flooding in
-> > environments which don't trust STP.
-> 
-> Ok, and how would this be problematic?  If one wants to turn off
-> promisc in this environment, then receive filters needs to be properly
-> programmed.
-> 
-> > 
-> > Plus, it looks like another major source of bugs.
-> > 
-> 
-> Any new code is a potential source of issues.  Are you saying
-> No to any new code in bridge?
-> 
+Please, unsubscribe me.
+Regards
+Amidu Sila
+
+On 2/27/14, 03:37 AM, Vlad Yasevich wrote:
+> On 02/26/2014 06:59 PM, Jamal Hadi Salim wrote:
+>> On 02/26/14 10:18, Vlad Yasevich wrote:
+>>> This patch series is a complete re-design and re-implementation of
+>>> prior attempts to support non-promiscuous bridge ports.
+>>>
+>>> The basic design is as follows.  The bridge keeps track of
+>>> all the ports that flood packets to unknown destinations.  If
+>>> the flooding is disabled on the port, to get traffic to flow
+>>> through, user/management would need to add an fdb describing
+>>> such traffic.  When such fdb is added, we save the address
+>>> to bridge private hardware address list.
+>> Entering the addresses in the uc list on other bridgeports seems
+>> reasonable for the scenario described.
+>> But would it _also_ need to be added to the fdb of the bridge?
+>> i.e how does the bridge (if the packet was to be handed to it)
+>> know where to forward?
+> The fdb described here is actually added to the bridge.  In the case
+> when we are turning promiscuous mode off on a port, we program the
+> address from the fdb down to the port uc list as well.  This allows
+> the bridge to continue receiving traffic destined for this address even
+> though the port is not in promiscuous mode.
+>
+>> BTW: on the comment that flooding off implies learning off: I would like
+>> to be able to turn off flooding on a specific bridge port but
+>> still want to learn from it. I dont think those two are mutually
+>> exclusive.
+> No they are not, but it does lead to some very interesting traffic
+> hang-ups that I've experienced first hand.  Everything works great
+> in the beginning.  However, if you go idle for a long enough period
+> that the fdb times out, re-establishing the connection take a rather
+> long time due to unicast ARPs being dropped by the bridge.  You end
+> up waiting until arp fails and switches to broadcast to restore the
+> connection.  So, this mode isn't really recommended.  Nothing currently
+> forbids it however.
+>
 > -vlad
+>> cheers,
+>> jamal
 
-I'm guessing Stephen merely worries about
-multiple data structures that need to stay in
-sync, and asks that you revisit
-using private hw address list in the bridge.
-
-What's the issue with walking fdb exactly?
-You say
- 1)  I tried using the fdb table itself as main repository, but
-      this caused difficulties in synchronizing this table with
-      the interface filters later on.
-
-I'm guessing you refer to writing addresses out to ports
-directly when walking the hash being impossible
-since this datastructure uses rcu and spinlocks?
-Fair enough but the entries you care about
-seem to only be modified under RTNL so just
-copy them out to a temporary list.
-This might be less efficient, but will be simpler I think.
-
--- 
-MST
