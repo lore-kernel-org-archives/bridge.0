@@ -1,18 +1,17 @@
-Return-Path: <mst@redhat.com>
-Date: Thu, 27 Feb 2014 15:38:39 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20140227133839.GA21503@redhat.com>
-References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
-	<1393427905-6811-4-git-send-email-vyasevic@redhat.com>
-	<20140226085707.55bdab94@nehalam.linuxnetplumber.net>
-	<530E25CC.6010705@redhat.com> <20140227075336.GF16484@redhat.com>
-	<530F38B5.5090803@redhat.com>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <5310E4DE.1080003@redhat.com>
+Date: Fri, 28 Feb 2014 14:34:54 -0500
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <530F38B5.5090803@redhat.com>
-Subject: Re: [Bridge] [PATCH 3/7] bridge: Add addresses from static fdbs to
- bridge address list
+References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
+	<1393427905-6811-7-git-send-email-vyasevic@redhat.com>
+	<530F2A4C.6020303@lab.ntt.co.jp> <530F3AD4.6080704@redhat.com>
+In-Reply-To: <530F3AD4.6080704@redhat.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 6/7] bridge: Manage promisc mode when vlans are
+ configured on top of a bridge
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,103 +20,162 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jhs@mojatatu.com, Stephen Hemminger <stephen@networkplumber.org>, shemminger@vyatta.com
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, netdev@vger.kernel.org
+Cc: john.r.fastabend@intel.com, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, mst@redhat.com
 
-On Thu, Feb 27, 2014 at 08:08:05AM -0500, Vlad Yasevich wrote:
-> On 02/27/2014 02:53 AM, Michael S. Tsirkin wrote:
-> > On Wed, Feb 26, 2014 at 12:35:08PM -0500, Vlad Yasevich wrote:
-> >> On 02/26/2014 11:57 AM, Stephen Hemminger wrote:
-> >>> On Wed, 26 Feb 2014 10:18:21 -0500
-> >>> Vlad Yasevich <vyasevic@redhat.com> wrote:
-> >>>
-> >>>> When a static fdb entry is created, add the mac address to the bridge
-> >>>> address list.  This list is used to program the proper port's
-> >>>> address list.
-> >>>>
-> >>>> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
-> >>>
-> >>> I don't like this level of bookkeeping it starts to mix
-> >>> layers between the bridge network interface as entity for talking to the
-> >>> local host, and forwarding table entries.
-> >>
-> >> Actually this is one of the reasons this isn't done through the
-> >> br->dev->uc.  Forwarding table entries are still per-port.
-> >>
-> >>>
-> >>> Many times static entries are used as alternative to flooding in
-> >>> environments which don't trust STP.
-> >>
-> >> Ok, and how would this be problematic?  If one wants to turn off
-> >> promisc in this environment, then receive filters needs to be properly
-> >> programmed.
-> >>
-> >>>
-> >>> Plus, it looks like another major source of bugs.
-> >>>
-> >>
-> >> Any new code is a potential source of issues.  Are you saying
-> >> No to any new code in bridge?
-> >>
-> >> -vlad
-> > 
-> > I'm guessing Stephen merely worries about
-> > multiple data structures that need to stay in
-> > sync, and asks that you revisit
-> > using private hw address list in the bridge.
-> > 
-> > What's the issue with walking fdb exactly?
-> > You say
-> >  1)  I tried using the fdb table itself as main repository, but
-> >       this caused difficulties in synchronizing this table with
-> >       the interface filters later on.
-> > 
-> > I'm guessing you refer to writing addresses out to ports
-> > directly when walking the hash being impossible
-> > since this datastructure uses rcu and spinlocks?
-> > Fair enough but the entries you care about
-> > seem to only be modified under RTNL so just
-> > copy them out to a temporary list.
-> > This might be less efficient, but will be simpler I think.
-> > 
+On 02/27/2014 08:17 AM, Vlad Yasevich wrote:
+> On 02/27/2014 07:06 AM, Toshiaki Makita wrote:
+>> (2014/02/27 0:18), Vlad Yasevich wrote:
+>>> If the user configures vlan interfaces on top of the bridge and the bridge
+>>> doesn't have vlan filtering enabled, we have to place all the ports in
+>>> promsic mode so that we can correctly receive tagged frames.
+>>> When vlan filtering is enabled, the vlan configuration will be provided
+>>> via filtering interface.
+>>> When the vlan filtering is toggled, we also have mange promiscuity.
+>>
+>> If we disable vlan_filtering and no vlan interface is configured on the
+>> bridge, we cannot forward any tagged traffic?
 > 
-> There are 2 ways to populate the the ports uc list.
->   1) We can use dev_uc_add() directly.  The issue here is
->      how to know if a given entry has been written to port.
->      I've played with this is and we end completely replicating
->      the netdev_hw_addr functionality in fdb to support the Patch7
->      (0 flooding ports).
-
-I think I begin to understand.
-But I still think dev_uc_add is the way to go here.
-
-Simply build the list twice, before and after the change.
-
-On a change, first dev_uc_add all
-addresses in the new list, then
-dev_uc_del all addresses in the old list.
-
-
-
->   2) We can use dev_uc_sync() which is what this series does.
->      This api needs to keep track of sync counts so that things get
->      properly deleted.  For that a temporary list will not work
->      since you'd be re-creating it every time.
+> We can't receive tagged traffic, so we turn promisc on.
 > 
-> Now, I think I've come up with a way to remove the private address list
-> and use bridge->dev->uc, but that requires that we implement fdb-based
-> filtering for local addresses.
+>> If we want to forward frames from one port to another port (not from/to
+>> bridge device), we have to add vlan interface or set promisc mode, right?
+>>
 > 
-> The idea is to implement learning on the bridge device xmit path.  This
-> will support things like vlans on top of the bridge that change their
-> mac, or even stack bridge configs that exist in the wild.
-> My guess, however, is that Stephen would have an even bigger issue with
-> this. ;)
+> Hm..  Good point.  This isn't enough to address the scenario that Patch7
+> tries to solve.  I'll need to think about that.  This is partially why
+> I split functionality in Patch7 out.  It made things more difficult.
 > 
+
+I now understood what you were referring to above a bit better.
+This patch solves just part of the problem.  The other part is what
+happens when someone behind the bridge is using vlan tagging without
+the bridge being aware of it and expects the bridge to forward such traffic.
+So, if we ever want to disable promiscuous mode on the bridge ports, we
+either need to depend on lan filtering being configured in the bridge
+or have the ability to disable vlan filtering in the driver.
+
+Neither is really a good thing.  I'll need to think about this.
+
+-vlad
+
 > -vlad
+> 
+>> Sorry if I misunderstood it. I'm not sure..
+>>
+>> Thanks,
+>> Toshiaki Makita
+>>
+>>>
+>>> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+>>> ---
+>>>  net/bridge/br_device.c  | 14 ++++++++++++++
+>>>  net/bridge/br_if.c      | 17 +++++++++++++----
+>>>  net/bridge/br_private.h |  9 +++++++++
+>>>  net/bridge/br_vlan.c    |  1 +
+>>>  4 files changed, 37 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+>>> index 0af9d6c..967abb3 100644
+>>> --- a/net/bridge/br_device.c
+>>> +++ b/net/bridge/br_device.c
+>>> @@ -297,6 +297,18 @@ void br_netpoll_disable(struct net_bridge_port *p)
+>>>  
+>>>  #endif
+>>>  
+>>> +static int br_dev_rx_add_vid(struct net_device *br_dev, __be16 proto, u16 vid)
+>>> +{
+>>> +	br_manage_promisc(netdev_priv(br_dev));
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int br_dev_rx_kill_vid(struct net_device *br_dev, __be16 proto, u16 vid)
+>>> +{
+>>> +	br_manage_promisc(netdev_priv(br_dev));
+>>> +	return 0;
+>>> +}
+>>> +
+>>>  static int br_add_slave(struct net_device *dev, struct net_device *slave_dev)
+>>>  
+>>>  {
+>>> @@ -328,6 +340,8 @@ static const struct net_device_ops br_netdev_ops = {
+>>>  	.ndo_change_rx_flags	 = br_dev_change_rx_flags,
+>>>  	.ndo_change_mtu		 = br_change_mtu,
+>>>  	.ndo_do_ioctl		 = br_dev_ioctl,
+>>> +	.ndo_vlan_rx_add_vid	 = br_dev_rx_add_vid,
+>>> +	.ndo_vlan_rx_kill_vid	 = br_dev_rx_kill_vid,
+>>>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>>>  	.ndo_netpoll_setup	 = br_netpoll_setup,
+>>>  	.ndo_netpoll_cleanup	 = br_netpoll_cleanup,
+>>> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+>>> index 7e92bd0..55e4e28 100644
+>>> --- a/net/bridge/br_if.c
+>>> +++ b/net/bridge/br_if.c
+>>> @@ -497,12 +497,21 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
+>>>  void br_manage_promisc(struct net_bridge *br)
+>>>  {
+>>>  	struct net_bridge_port *p;
+>>> +	int set_all = false;
+>>> +
+>>> +	if (br->dev->flags & IFF_PROMISC)
+>>> +		set_all = true;
+>>> +
+>>> +	/* If vlan filtering is disabled and there are any VLANs
+>>> +	 * configured on top of the bridge, set promisc on all
+>>> +	 * ports.
+>>> +	 */
+>>> +	if (!br_vlan_enabled(br) && vlan_uses_dev(br->dev))
+>>> +		set_all = true;
+>>>  
+>>>  	list_for_each_entry(p, &br->port_list, list) {
+>>> -		if (br->dev->flags & IFF_PROMISC) {
+>>> -			/* PROMISC flag has been turned on for the bridge
+>>> -			 * itself.  Turn on promisc on all ports.
+>>> -			 */
+>>> +		if (set_all) {
+>>> +			/* Set all the ports to promisc mode.  */
+>>>  			br_port_set_promisc(p);
+>>>  
+>>>  		} else {
+>>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+>>> index 4042f86..87dcc09 100644
+>>> --- a/net/bridge/br_private.h
+>>> +++ b/net/bridge/br_private.h
+>>> @@ -641,6 +641,10 @@ static inline u16 br_get_pvid(const struct net_port_vlans *v)
+>>>  	return v->pvid ?: VLAN_N_VID;
+>>>  }
+>>>  
+>>> +static inline int br_vlan_enabled(struct net_bridge *br)
+>>> +{
+>>> +	return br->vlan_enabled;
+>>> +}
+>>>  #else
+>>>  static inline bool br_allowed_ingress(struct net_bridge *br,
+>>>  				      struct net_port_vlans *v,
+>>> @@ -721,6 +725,11 @@ static inline u16 br_get_pvid(const struct net_port_vlans *v)
+>>>  {
+>>>  	return VLAN_N_VID;	/* Returns invalid vid */
+>>>  }
+>>> +
+>>> +static inline int br_vlan_enabled(struct net_bridge *br);
+>>> +{
+>>> +	return 0;
+>>> +}
+>>>  #endif
+>>>  
+>>>  /* br_netfilter.c */
+>>> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+>>> index 8249ca7..eddc2f6 100644
+>>> --- a/net/bridge/br_vlan.c
+>>> +++ b/net/bridge/br_vlan.c
+>>> @@ -321,6 +321,7 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val)
+>>>  		goto unlock;
+>>>  
+>>>  	br->vlan_enabled = val;
+>>> +	br_manage_promisc(br);
+>>>  
+>>>  unlock:
+>>>  	rtnl_unlock();
+>>>
+> 
 
-It sounds like a nifty feature without respect to whether it's the
-right thing to do for the non promisc feature.
-
--- 
-MST
