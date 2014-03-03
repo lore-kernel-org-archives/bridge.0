@@ -1,23 +1,16 @@
-Return-Path: <linus.luessing@web.de>
-Date: Wed, 5 Mar 2014 15:27:07 +0100
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
-Message-ID: <20140305142706.GL5090@Linus-Debian>
+Return-Path: <jstancek@redhat.com>
+Date: Mon, 3 Mar 2014 17:45:49 -0500 (EST)
+From: Jan Stancek <jstancek@redhat.com>
+Message-ID: <1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20140303212759.GW5090@Linus-Debian>
 References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
+	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
 	<20140303212759.GW5090@Linus-Debian>
-	<1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
-	<20140304000041.GY5090@Linus-Debian>
-	<624414844.12834668.1393920156458.JavaMail.zimbra@redhat.com>
-	<20140304105253.GC5090@Linus-Debian>
-	<1663332249.12962360.1393931189285.JavaMail.zimbra@redhat.com>
-	<20140304213757.GJ5090@Linus-Debian>
-	<521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] bridge is not forwaring ICMP6 neighbor solicitation to
-	KVM guest
+ KVM guest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,98 +19,152 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jan Stancek <jstancek@redhat.com>
+To: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
 Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
 
 
 
-On Wed, Mar 05, 2014 at 07:10:07AM -0500, Jan Stancek wrote:
-> 
-> 
-> ----- Original Message -----
-> > From: "Linus Lüssing" <linus.luessing@web.de>
-> > To: "Jan Stancek" <jstancek@redhat.com>
-> > Cc: netdev@vger.kernel.org, "Florian Westphal" <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
-> > Sent: Tuesday, 4 March, 2014 10:37:57 PM
-> > Subject: Re: bridge is not forwaring ICMP6 neighbor solicitation to KVM guest
-> > > I'm not sure if it's Linux (I'm trying to locate that system by MAC), but I
-> > > see
-> > > packets like these on my network every ~125 seconds:
-> > > 
-> > > No.     Time        Source                Destination           Protocol
-> > > Length Info
-> > >   22675 1334.751135 ::                    ff02::1               ICMPv6   86
-> > >   Multicast Listener Query
-> > 
-> > It's probably the bridge on this ancient kernel, you might want to
-> > backport the following patch:
-> 
-> Hi,
-> 
-> The example above was from box, which turned out not be running Linux.
+----- Original Message -----
+> From: "Linus L=C3=BCssing" <linus.luessing@web.de>
+> To: "Jan Stancek" <jstancek@redhat.com>
+> Cc: netdev@vger.kernel.org, "Florian Westphal" <fwestpha@redhat.com>, bri=
+dge@lists.linux-foundation.org
+> Sent: Monday, 3 March, 2014 10:27:59 PM
+> Subject: Re: bridge is not forwaring ICMP6 neighbor solicitation to KVM g=
+uest
+>=20
+> Hi Jan,
+>=20
+> On Mon, Mar 03, 2014 at 02:47:15PM -0500, Jan Stancek wrote:
+> > I'm seeing an issue where bridge (sometimes) stops forwarding ICMP6
+> > neighbor solicitation packets to KVM guest and as result KVM guest does=
+n't
+> > respond with neighbor advertisement.
+>=20
+> Hm, okay, that's not supposed to happen.
+>=20
+> > The reason I think this packet is related is because when I send same e=
+xact
+> > packet I'm often hitting same issue - bridge stops forwarding ICMP6 nei=
+gh.
+> > solicitation packets to KVM guest.
+>=20
+> Yes, the MLD query is kicking the multicast snooping into gear. If
+> there's never a query, then snooping is basically disabled
+> (compare: "bridge: disable snooping if there is no querier").
+>=20
+> >=20
+> > My current way to reproduce this is:
+> > 0. host B IP / MAC is: 2620:52:0:1040:221:5aff:fe47:931c /
+> > 00:21:5a:47:93:1c
+> >    guest IP / MAC is: 2620:52:0:1040:5056:ff:fe00:29 / 52:56:00:00:00:2=
+9
+> > 1. host B is sending neigh solicit packets every 5 seconds with KVM gue=
+st
+> > IP
+> >    using ns6 from ipv6toolkit:
+> >    http://www.si6networks.com/tools/ipv6toolkit/
+> >    with parameters:
+> >    --src-address=3D2620:52:0:1040:221:5aff:fe47:931c
+> >    --dst-address=3Dff02::1:ff00:0029
+> >    -t 2620:52:0:1040:5056:ff:fe00:29 --link-src-address=3D00:21:5a:47:9=
+3:1c
+> >    --source-lla-opt=3D00:21:5a:47:93:1c --link-dst-address=3D33:33:ff:0=
+0:00:29
+> >    tcpdump running on guest can see both solicit and advertisement pack=
+ets
+> > 2. wait ~5 minutes
+> > 3. host B sends Multicast Listener Query packet described above
+> > 4. tcpdump running on guest is no longer seeing any neigh solicit packe=
+ts
+>=20
+> Just to clarify, host B is behind eno1 and vnet0 is directly
+> connected to the interface of the guest, no additional bridge or
+> anything else on top of that, right?
 
-Okay, yeah, there's somehow the misconception flying around, that
-a snooping switch could use "::" as a source address. Even the
-informational RFC4541 writes about "proxy IGMP queries"
-disregarding the source address requirements for MLDv1/2, feeding
-this misconception. I just skimmed RFC4605 ("IGMP/MLD Proxying")
-briefly, but couldn't find any note for "0.0.0.0" or "::" there.
-But I think we could see with your practical example, that "::"
-MLD query source addresses should be considered broken.
+Yes, host B should be behind eno1 (All hosts are remote to me).
+There should be only single bridge on host A. Host A has 3 more
+interfaces but those are all down.
 
-> 
-> > 
-> > If these patches on host B xor the sanity check I just submitted applied
-> > on your host A / VM host fix your issue, then they might be worth
-> > considering for the stable queue.
-> 
-> Is it necessary to apply same patch also on any (older) kernel running in VM?
+# cat /etc/sysconfig/network-scripts/ifcfg-eno1
+DEVICE=3Deno1
+ONBOOT=3Dyes
+BRIDGE=3Dbr1
+HWADDR=3D00:23:ae:ed:1a:00
 
-The source address patches are only required on boxes where the
-internal MLD querier code of the bridge is used. Afaik tell the
-source address patch is present on all kernels since v2.6.38 and
-all kernels listed on the kernel.org frontpage, except 2.6.34.15
-and 2.6.32.61.
+# cat /etc/sysconfig/network-scripts/ifcfg-br1
+DEVICE=3Dbr1
+BOOTPROTO=3Ddhcp
+ONBOOT=3Dyes
+TYPE=3DBridge
+DELAY=3D0
 
-For the sanity check patch, it should probably be added to any
-kernel having a bridge (though in your particular scenario and
-what we are currently debugging at, having it on host A should
-be sufficient).
+There is also bridge on host B. I assume that doesn't matter
+but I could set up host B without bridge if needed.
 
-> I hand-crafted one new packet from malformed one used in previous tests.
-> I modified source address from :: to host B link-scope address and changed
-> dst address from ff02::1 to ff02::1:ffaa:aaaa
+>=20
+> Would it be possible for you to upload the tcpdumps from host B
+> (or if you can't tcpdump on host B, then capturing on eno1)
+> and the guest somewhere and saying at which time/packet in the dumps
+> it stops working (probably ~10 seconds after the query). Filtering
+> for ICMPv6 should be sufficient.
 
-Okay, again according to your capture the guest is receiving the
-MLD query on its interface but does not react with an MLD report.
+Here are tcpdumps from hostA, hostB and guest (on hostA):
+http://jan.stancek.eu/tmp/neigh_solicit_and_bridge_traces1/
 
-Two things I'd like to know:
+I didn't apply any filter, because that multicast query wasn't showing up
+for some reason when I tried to filter by icmp6.
 
-Is using the link-scope address as a source and "ff02::1" as the
-destination address for the MLD query work for you?
+What I did:
+1. started tcpdump on all systems
+2. send 3 neigh. solicit from hostB manually with couple seconds in between
+3. send multicast listener query from hostB manually
+4. send 5 neigh. solicit from hostB manually with couple seconds in between
 
-Is using the link-scope address as a source and "ff02::1:ff00:29"
-as the destination address for the MLD query "work" for you (do
-we see an MLD report from the guest and keep on seeing neighbor
-solicitations from host B then?).
+hostA.cap
+tcpdump -i eno1 -w hostA.cap
+  frame 124, 125 -> OK
+  frame 217, 218 -> OK
+  frame 291, 292 -> OK
+  frame 373 -> Multicast Listener Query
+  frame 484 -> no reply?
+  frame 572 -> no reply?
+  frame 665 -> no reply?
 
-For the latter, I don't see anything in particular filtering these
-for a general MLD query wrong destination address in the IPv6
-code from igmp6_event_query() on. But I suspect that the query
-doesn't even get that far on the kernel of the guest, as it is not
-listening on ff02::1:ffaa:aaaa. Therefore the test with
-"ff02::1:ff00:29", an address the guest is listening on, would be
-interesting.
+hostB.cap
+tcpdump -i br0 -w hostB.cap
+  frame 106, 108 -> OK
+  frame 214, 216 -> OK
+  frame 300, 302 -> OK
+  frame 396 -> Multicast Listener Query
+  frame 523 -> no reply?
+  frame 623 -> no reply?
+  frame 730 -> no reply?
 
-If that works, then I'm going to make a patch ignore General MLD
-Queries without ff02::1 as their destination address, too.
+guest.cap
+tcpdump -i eth0 -w guest.cap
+  frame 89, 90 -> OK
+  frame 181, 182 -> OK
+  frame 254, 255 -> OK
+  frame 334 -> Multicast Listener Query
+  no more neigh. solicit packets
 
+>=20
+> What I'm curious about is, whether the guest receives
+> the MLD query and responds with an MLD report. I suspect that
+> either the bridge doesn't get an MLD report and therefore is
+> shutting down the according port or there's a bug in parsing the
+> MLD report in the bridge code.
 
-Hm, looking at more checks in igmp6_event_query(), I'm currently
-wondering whether we should only enable the snooping behaviour in
-the bridge when receiving a General MLD Query, so one with "::" in
-the multicast field of the MLD message, instead of activating it
-upon a Multicast-Address-Specific Query, too. That'd seem more
-sane to me, I'm going to make a patch for that tomorrow.
+I'm no expert in this area, but shouldn't neigh. solicit packets
+be forwarded to all ports regardless of any/no MLD reports?
 
-Cheers, Linus
+Regards,
+Jan
+
+>=20
+>=20
+> Thanks for the detailed report so far!
+>=20
+> Cheers, Linus
+>=20
