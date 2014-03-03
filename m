@@ -1,15 +1,26 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Mon, 3 Mar 2014 15:43:30 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20140303154330.238a20bc@nehalam.linuxnetplumber.net>
-In-Reply-To: <1393886825-24323-5-git-send-email-mcgrof@do-not-panic.com>
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc:content-type;
+	bh=7QNdUCNmRbk3E4rruDG/BBuzwuA8/gZLPvAl8tk05eU=;
+	b=yR1o8zXHsqDR9L3R7+GD70oTPc7rgS4y39bQCMz5DevlOsvZg49P9ycHfUWl9Jpj5C
+	an9YtmwM763ExCkty04Cq4JtKaOubPXTIsTlgYUTT93H3D//MTK0cl5SP53CPwJqVBng
+	nB8du9R2/RBGVlYyXfb712j6YETpmI/Gb8UD2LxxIPUMvc0hkHq8Utl+FO5PC7qN83OH
+	rd1/MkN16biPVGQOXfCv0mODx8PDV0NDFqUlS2JYjNWdD+GJHleZn0nQ0f9qzgzyEbQQ
+	CaCshModqIEJfzi9o3RW3TGqZD6FfTuu3pQNhnGe6yxDPkhFtvCWOWlM5Q2ravnEpAZE
+	xhqg==
+MIME-Version: 1.0
+Sender: mcgrof@gmail.com
+In-Reply-To: <20140303154330.238a20bc@nehalam.linuxnetplumber.net>
 References: <1393886825-24323-1-git-send-email-mcgrof@do-not-panic.com>
 	<1393886825-24323-5-git-send-email-mcgrof@do-not-panic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20140303154330.238a20bc@nehalam.linuxnetplumber.net>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Mon, 3 Mar 2014 15:58:50 -0800
+Message-ID: <CAB=NE6VpjebGrqFe7Q4L-uM0rrKitY3fB2kq5qGko+C1Fivm0w@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [RFC v3 4/6] bridge: enable root block during device
- registration
+	registration
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,75 +29,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, xen-devel@lists.xenproject.org
 
-On Mon,  3 Mar 2014 14:47:03 -0800
-"Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+On Mon, Mar 3, 2014 at 3:43 PM, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> Doing this in priv flags bloats what is a limited resource (# of bits).
 
-> From: "Luis R. Rodriguez" <mcgrof@suse.com>
-> 
-> root block support was added via 1007dd1a on v3.8 but toggling
-> this flag is only allowed after a device has been registered and
-> added to a bridge as its a bridge *port* primitive, not a *net_device*
-> feature. There are work arounds possible to account for the lack
-> of netlink tools to toggle root_block, such as using the root_block
-> syfs attribute [0] or using udev / the driver to set the MAC address
-> to something high such as FE:FF:FF:FF:FF:FF, but neither of these
-> ensure root block is respected _from_the_start_ through device
-> initialization.
-> 
-> In order to support the root_block feature from the start since device
-> initialization and in order to avoid having to require userspace
-> work arounds to existing deployments this exposes a private
-> net_device flag which enables drivers that know they want to
-> start with the root_block feature enabled form the start. The
-> only caveat with this is topologies that require STP or non-root
-> will either have to use sysfs [0] or netlink tools like the
-> iproute2 bridge util to toggle the flag off after initialization.
-> This is an accepted compromise.
-> 
-> This flag is required given that ndo_add_slave() currently does not
-> allow specifying any other parameters other than the net_device. We
-> could extend this but in order to do that properly we'd need to
-> evaluate all other types of master device implementations.
-> 
-> [0] echo 1 > /sys/devices/vif-2-0/net/vif2.0/brport/root_block
-> 
-> Cc: Stephen Hemminger <stephen@networkplumber.org>
-> Cc: bridge@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: xen-devel@lists.xenproject.org
-> Cc: kvm@vger.kernel.org
-> Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
-> ---
->  include/linux/netdevice.h | 7 +++++++
->  net/bridge/br_if.c        | 2 ++
->  2 files changed, 9 insertions(+)
-> 
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index 1a86948..b17643a 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -1181,6 +1181,11 @@ struct net_device_ops {
->   * @IFF_LIVE_ADDR_CHANGE: device supports hardware address
->   *	change when it's running
->   * @IFF_MACVLAN: Macvlan device
-> + * @IFF_BRIDGE_ROOT_BLOCK: don't consider this net_device for root port
-> + *	when this interface is added to a bridge. This makes use of the
-> + *	root_block mechanism but since its a bridge port primitive this
-> + *	flag can be used to instantiate the preference to have root block
-> + *	enabled from the start since initialization.
->   */
+Agreed. I tried to avoid it but saw no other option for addressing
+this during initialization properly without requirng a userspace
+upgrade.
 
-Doing this in priv flags bloats what is a limited resource (# of bits).
-Plus there are issues (what if this is changed after adding to bridge)?
+> Plus there are issues (what if this is changed after adding to bridge)?
 
-Maybe better to enhance existing netlink infrastructure to allow passing
-flags on adding port to bridge.
+Its only considered when the net_device gets added to the bridge. If
+you add it and then toggle root_block off that will be respected. If
+you remove the net_device from the bridge and then add it back on the
+priv flag will be respected but if desirable we could toggle it off if
+userspace was used to disable root_block once on.
 
-Also, unless device is up, nothing will happen right away when added to bridge.
-Root port status can be changed since device is disabled.
+> Maybe better to enhance existing netlink infrastructure to allow passing
+> flags on adding port to bridge.
 
+Agreed, I looked into this and the limitation of using the existing
+slave add request is that ndo_add_slave() only passes the net_device,
+we'd have to either extend that (with collateral study on other slaves
+as noted on my cover letter) or we'd have to make this a UAPI netlink
+feature for the net_device. Some old userspace  may not use netlink
+too, and they may be stuck with brctl, I tried to create a compromise
+only to not affect old userspace if that kernel gets upgraded.
 
+> Also, unless device is up, nothing will happen right away when added to bridge.
+
+I get different results, the bridge immediately does compute whether
+or not to nominate a device for the bridge interface and root port.
+The commands provided as an example on 3/6 can be used to replicate
+this.
+
+> Root port status can be changed since device is disabled.
+
+Agreed however the reason for the flag is to address removing high MAC
+address hack-preference set on drivers that were merged prior to the
+root_block feature. Without a proper way to address this upon
+initialization we're stuck with requiring userspace upgrade if these
+driver's hack is removed.
+
+  Luis
