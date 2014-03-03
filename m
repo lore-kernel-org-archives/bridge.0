@@ -1,27 +1,16 @@
-Return-Path: <toshiaki.makita1@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:mime-version:content-transfer-encoding;
-	bh=RZWoMTqtKYFhulaT/Fb131po63eg19Qrs9JOkaN9sEM=;
-	b=G+cBTVSc+BiGOLOhaUBUM2guiFFT7c9qjozJxtknoIChZ1z/jnBy/KL1M+X+Mn6THK
-	zAcMZJijHRRBIWB5jmqRu6MJmdRbQBAY6RoW+ABQOyZqYYABuRklr+LtobSDNIeRWixc
-	Vfl/8ISJKgi2VpUTibECFJ7onwCUD4TpHU5l5dg+fIL3/jEWEDfCPJai+eBUUfi3xTSH
-	jlczlhYeOWSWUiPZs4mRl07igcUZTIFR2RIWP/8zLhp893TsGFH8E+YgSYxcF1hMzo8W
-	YwkUZ+vZuX9Nbq77kqFS4nnA+FtpjckLOGk1SclWf3yiU4Wnihm375+1GxVWSVAudjDH
-	Qetw==
-Message-ID: <1393685845.1753.10.camel@localhost.localdomain>
-From: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Date: Sat, 01 Mar 2014 23:57:25 +0900
-In-Reply-To: <5310E4DE.1080003@redhat.com>
-References: <1393427905-6811-1-git-send-email-vyasevic@redhat.com>
-	<1393427905-6811-7-git-send-email-vyasevic@redhat.com>
-	<530F2A4C.6020303@lab.ntt.co.jp> <530F3AD4.6080704@redhat.com>
-	<5310E4DE.1080003@redhat.com>
-Content-Type: text/plain; charset="us-ascii"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 6/7] bridge: Manage promisc mode when vlans are
- configured on top of a bridge
+Return-Path: <linus.luessing@web.de>
+Date: Mon, 3 Mar 2014 22:27:59 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
+Message-ID: <20140303212759.GW5090@Linus-Debian>
+References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
+	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kaF1vgn83Aa7CiXN"
+Content-Disposition: inline
+In-Reply-To: <2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
+Subject: Re: [Bridge] bridge is not forwaring ICMP6 neighbor solicitation to
+	KVM guest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,50 +19,95 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
+To: Jan Stancek <jstancek@redhat.com>
+Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
 
-On Fri, 2014-02-28 at 14:34 -0500, Vlad Yasevich wrote:
-> On 02/27/2014 08:17 AM, Vlad Yasevich wrote:
-> > On 02/27/2014 07:06 AM, Toshiaki Makita wrote:
-> >> (2014/02/27 0:18), Vlad Yasevich wrote:
-> >>> If the user configures vlan interfaces on top of the bridge and the bridge
-> >>> doesn't have vlan filtering enabled, we have to place all the ports in
-> >>> promsic mode so that we can correctly receive tagged frames.
-> >>> When vlan filtering is enabled, the vlan configuration will be provided
-> >>> via filtering interface.
-> >>> When the vlan filtering is toggled, we also have mange promiscuity.
-> >>
-> >> If we disable vlan_filtering and no vlan interface is configured on the
-> >> bridge, we cannot forward any tagged traffic?
-> > 
-> > We can't receive tagged traffic, so we turn promisc on.
-> > 
-> >> If we want to forward frames from one port to another port (not from/to
-> >> bridge device), we have to add vlan interface or set promisc mode, right?
-> >>
-> > 
-> > Hm..  Good point.  This isn't enough to address the scenario that Patch7
-> > tries to solve.  I'll need to think about that.  This is partially why
-> > I split functionality in Patch7 out.  It made things more difficult.
-> > 
-> 
-> I now understood what you were referring to above a bit better.
-> This patch solves just part of the problem.  The other part is what
-> happens when someone behind the bridge is using vlan tagging without
-> the bridge being aware of it and expects the bridge to forward such traffic.
-> So, if we ever want to disable promiscuous mode on the bridge ports, we
-> either need to depend on lan filtering being configured in the bridge
-> or have the ability to disable vlan filtering in the driver.
-> 
-> Neither is really a good thing.  I'll need to think about this.
 
-Yes, that is what I was worried about.
-As a bridge has no way to know which vid will be used in incoming
-frame's vlan tag, we maybe have to call vlan_vid_add() for all vids when
-we disable promiscuous on a port?  If we had an API to simply disable
-vlan filtering of a NIC, it could be better...
+--kaF1vgn83Aa7CiXN
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Toshiaki Makita
+Hi Jan,
 
+On Mon, Mar 03, 2014 at 02:47:15PM -0500, Jan Stancek wrote:
+> I'm seeing an issue where bridge (sometimes) stops forwarding ICMP6
+> neighbor solicitation packets to KVM guest and as result KVM guest doesn't
+> respond with neighbor advertisement.
+
+Hm, okay, that's not supposed to happen.
+
+> The reason I think this packet is related is because when I send same exa=
+ct
+> packet I'm often hitting same issue - bridge stops forwarding ICMP6 neigh.
+> solicitation packets to KVM guest.
+
+Yes, the MLD query is kicking the multicast snooping into gear. If
+there's never a query, then snooping is basically disabled
+(compare: "bridge: disable snooping if there is no querier").
+
+>=20
+> My current way to reproduce this is:
+> 0. host B IP / MAC is: 2620:52:0:1040:221:5aff:fe47:931c / 00:21:5a:47:93=
+:1c
+>    guest IP / MAC is: 2620:52:0:1040:5056:ff:fe00:29 / 52:56:00:00:00:29
+> 1. host B is sending neigh solicit packets every 5 seconds with KVM guest=
+ IP
+>    using ns6 from ipv6toolkit: http://www.si6networks.com/tools/ipv6toolk=
+it/
+>    with parameters:
+>    --src-address=3D2620:52:0:1040:221:5aff:fe47:931c --dst-address=3Dff02=
+::1:ff00:0029
+>    -t 2620:52:0:1040:5056:ff:fe00:29 --link-src-address=3D00:21:5a:47:93:=
+1c
+>    --source-lla-opt=3D00:21:5a:47:93:1c --link-dst-address=3D33:33:ff:00:=
+00:29
+>    tcpdump running on guest can see both solicit and advertisement packets
+> 2. wait ~5 minutes
+> 3. host B sends Multicast Listener Query packet described above
+> 4. tcpdump running on guest is no longer seeing any neigh solicit packets
+
+Just to clarify, host B is behind eno1 and vnet0 is directly
+connected to the interface of the guest, no additional bridge or
+anything else on top of that, right?
+
+Would it be possible for you to upload the tcpdumps from host B
+(or if you can't tcpdump on host B, then capturing on eno1)
+and the guest somewhere and saying at which time/packet in the dumps
+it stops working (probably ~10 seconds after the query). Filtering
+for ICMPv6 should be sufficient.=20
+
+What I'm curious about is, whether the guest receives
+the MLD query and responds with an MLD report. I suspect that
+either the bridge doesn't get an MLD report and therefore is
+shutting down the according port or there's a bug in parsing the
+MLD report in the bridge code.
+
+
+Thanks for the detailed report so far!
+
+Cheers, Linus
+
+--kaF1vgn83Aa7CiXN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTFPPdAAoJELxyPiAAt6Uvk5QQAJ4a0v3U9RgzOFfOqN1xH6NS
+VsjoXyu+Sy68erBCvz0f/8mGW5jwSgOzbvR6HH36GYbWs5QaDsxBWz+nkWPKKzkf
+kkHZCzGIWUhhKIjliPz0PPj8JCOpjSLv4GDPogYe3NITYPy05We06iYdPHhNpjW2
+PkBCQCvWw2Qqc7Aqjhk3mJn3gNO6AthftHHypE5fv55/iTuBUt/VswS16ZHDHBBz
+k68axskRX6lhuOsZ7kNgFrLnIU+aTYIKCitcbY//3zJ/wkanYgT+gLWLimFDRVPm
+eSgN9OusPaIisDBWBGcHNJUQrLfeRAMPXqKNvLJdjilXYhVsdKNk8z/k/TRQiMUK
+NKVO1KhP7xSpWTf4KxgWevz5aUSWz+/LzbKUhw+GcMEuQdXneOOei2lEf+t1osqU
+21To72ynxQqs9OitYcNEXZmVzlBl+okrOv80S1hdDVc0nmSwVDHxkBmkAs/KV9h7
+P1YdlDpjRUDIWNQ9hPjO380c/dXnqlvdVb/lK3ViQxQ6P8SKL8XTSA2mOYBCnUtw
+g5TL+DU6RySzw85djZ+RydbzHYREBwVOlm16CsX/OqXtgH4oVfENGFtrOoWazvnd
+IZQwU649uY42oY6w3ybDeLNj+xWCq/9jnDDHydnQGLeI60y/CclTY2ogL+Hy6g8+
++6D54DV2yNp/3RWAFfxg
+=N/Jw
+-----END PGP SIGNATURE-----
+
+--kaF1vgn83Aa7CiXN--
