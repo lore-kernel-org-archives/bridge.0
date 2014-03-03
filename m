@@ -1,20 +1,17 @@
-Return-Path: <mcgrof@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=14G8Kw0DoiaJ8+bNDJ7Fc3wgIDklnS9Xn87/HXvngc0=;
-	b=ib43P4PFwMZeL1L0CnRgOsQY9PIUcXFGD7W6eVwVdz2r/crHNn6u0fZDidkKJwLbGX
-	2VBcF8uxua/lQdZ42/bixZ9zm79g+DmpJhBchlwnhNyPKtshUZ+CZo6PwovV9E/CkssE
-	ymx4lWYt6r0eW4MC5zShhd7iaZJQ8tdhxnilfAh1PMfuKODw6dKhqO2yIR0FXRPf6EeO
-	w+DQDdF3ANMPxqAf0TPnFqHMopU+0Xwp9sa4Fzu1q/4BG1kSgEjAxXxlKuVYuT2OWS23
-	ywL6FHsE/sQ4bR6ifXkgIFXqWCz0HwEY64ET7lpxu9RuPGHNAfVnldrToSHxaQ0PpIKs
-	znHA==
-Sender: "Luis R. Rodriguez" <mcgrof@gmail.com>
-From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Date: Mon,  3 Mar 2014 14:47:05 -0800
-Message-Id: <1393886825-24323-7-git-send-email-mcgrof@do-not-panic.com>
-In-Reply-To: <1393886825-24323-1-git-send-email-mcgrof@do-not-panic.com>
-References: <1393886825-24323-1-git-send-email-mcgrof@do-not-panic.com>
-Subject: [Bridge] [RFC v3 6/6] tun: add initialization root block support
+Return-Path: <linus.luessing@web.de>
+Date: Tue, 4 Mar 2014 00:03:23 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
+Message-ID: <20140303230323.GX5090@Linus-Debian>
+References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
+	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
+	<20140303212759.GW5090@Linus-Debian> <5314F6D8.2050701@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zHDeOHGDnzKksZSU"
+Content-Disposition: inline
+In-Reply-To: <5314F6D8.2050701@gmail.com>
+Subject: Re: [Bridge] bridge is not forwaring ICMP6 neighbor solicitation to
+	KVM guest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,76 +20,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: kvm@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
+To: Vlad Yasevich <vyasevich@gmail.com>
+Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org, Jan Stancek <jstancek@redhat.com>
 
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
 
-The networking bridge module allows us to specify a
-root block preference on net_devices but this feature
-is a bridge port primitive. The bridge module assumes
-that once a device is added as a slave to the brige
-that it can be considered for the the root port.
-Furthermore ndo_add_slave() only lets us pass on the
-net_device, but drivers that want to root block
-since the beginning need specify their root block
-preference prior to register_netdevice(). This means
-the tun driver must expose a knob to userspace to
-enable toggling this feature prior to adding the
-device to a bridge to prevent any undesired link
-bouncing issues on the bridge.
+--zHDeOHGDnzKksZSU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This should be useful for TAP interfaces which are used
-for virtualization.
+On Mon, Mar 03, 2014 at 04:40:40PM -0500, Vlad Yasevich wrote:
+> I did notice a minor issue in the bridge code.  The following
+> code:
+>        /* Prevent flooding this packet if there is no listener present */
+>         if (!ipv6_addr_is_ll_all_nodes(&ip6h->daddr))
+>                 BR_INPUT_SKB_CB(skb)->mrouters_only =3D 1;
+>=20
+>         if (ip6h->nexthdr !=3D IPPROTO_HOPOPTS ||
+>             ip6h->payload_len =3D=3D 0)
+>                 return 0;
+>=20
+> will mark most multicast traffic is mrouters_only.  The two
+> statement should be probably be reversed.  However, that's shouldn't
+> cause the reported problem.
 
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: xen-devel@lists.xenproject.org
-Cc: kvm@vger.kernel.org
-Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
----
- drivers/net/tun.c           | 6 +++++-
- include/uapi/linux/if_tun.h | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+Reversing the order of these two if-clauses would reintroduce the issue
+this commit tried to address, I think:
+"bridge: prevent flooding IPv6 packets that do not have a listener"
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 8fe9cb7..e763fad 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1693,6 +1693,9 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
- 		if (err < 0)
- 			goto err_free_flow;
- 
-+		if (ifr->ifr_flags & IFF_ROOT_BLOCK)
-+			dev->priv_flags |= IFF_BRIDGE_ROOT_BLOCK;
-+
- 		err = register_netdevice(tun->dev);
- 		if (err < 0)
- 			goto err_detach;
-@@ -1898,7 +1901,8 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
- 		 * This is needed because we never checked for invalid flags on
- 		 * TUNSETIFF. */
- 		return put_user(IFF_TUN | IFF_TAP | IFF_NO_PI | IFF_ONE_QUEUE |
--				IFF_VNET_HDR | IFF_MULTI_QUEUE,
-+				IFF_VNET_HDR | IFF_MULTI_QUEUE |
-+				IFF_ROOT_BLOCK,
- 				(unsigned int __user*)argp);
- 	} else if (cmd == TUNSETQUEUE)
- 		return tun_set_queue(file, &ifr);
-diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
-index e9502dd..f814a85 100644
---- a/include/uapi/linux/if_tun.h
-+++ b/include/uapi/linux/if_tun.h
-@@ -73,6 +73,7 @@
- /* read-only flag */
- #define IFF_PERSIST	0x0800
- #define IFF_NOFILTER	0x1000
-+#define IFF_ROOT_BLOCK	0x2000
- 
- /* Socket options */
- #define TUN_TX_TIMESTAMP 1
--- 
-1.9.0
+Besides, I don't quite see what minor issue you are refering to,
+would you mind being a little more verbose?
 
+Cheers, Linus
+
+PS: mrouters_only has a kind of confusing naming... for
+MLD/IGMP packets it means sending to multicast routers only, there
+the name fits. But for non-MLD/IGMP packets it means something
+else since "bridge: Only flood unregistered groups to routers"
+(and I went along with it with "bridge: prevent flooding IPv6 packets
+that do not have a listener"), there it means dropping the skb if
+there is no router or matching listener.
+
+--zHDeOHGDnzKksZSU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTFQo5AAoJELxyPiAAt6UvOCwP/07aEV79emg+L87Gs2TbajYM
+kAl9/sysLIfH7hIujdKSbHJTirVEs8l9AysWDCaHl7tDBnQVRnNAhRV3ejDG4kK3
+taccDj/66AtJAOl8VEoa6f1OZU2b78YiRPZKeHOaxjkZ/3+jU3UpWL7qqV84Vg4U
+2UOc7Xsbc+8+GG8NqKK/5oPnC7WG7U6QlSpxJlcmz681wZ6iDfLDR4Ep1WOi0rpJ
+ffgolcFxlANVLOijMR2p3kdmRyup/xBzrdy0G2gFOCwtxW2vV0OXjajK/uPPHv2+
+5JtKtS1VlPrKDJ5rIz+BRECMymKS7BtwCDqR+3nfz1/zK/w+GFeMkQuSMQ+oj+Xm
+SSbWI7H+wbVQRxGKs6nkpU3QjI4iuZGRYOJ7yYCuBcSdL1/ScVkr2DIYgIIxV35W
+upRhenIVZ4H8JELRWbyVeLwcaY5JJrflIAMpCzJJpcGKG9ojknkyP4uX24Sy8T3R
+7thPcPqJKy0OheEcbvKQQq1vSKxjlNNRbgYMKF91NxzUqeHLQUhnvW9a89Brdnid
+5aYbzNSTB4IGASsNCpq1WwoO7QZKi0SgC4BB4pF3UKEzwywD+IwQ+n2Domhz14Su
+7e8BUhqlPVMxo1N6aw2yL/O5lTcQ4b4vB7zvO5l4/Rj3KYpBHrJwFFObNifjTC/P
+XHRijXCy/CjRScukeTWT
+=Ot+D
+-----END PGP SIGNATURE-----
+
+--zHDeOHGDnzKksZSU--
