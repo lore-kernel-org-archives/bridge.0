@@ -1,16 +1,20 @@
-Return-Path: <linus.luessing@web.de>
-Date: Mon, 3 Mar 2014 22:27:59 +0100
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
-Message-ID: <20140303212759.GW5090@Linus-Debian>
-References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
-	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kaF1vgn83Aa7CiXN"
-Content-Disposition: inline
-In-Reply-To: <2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
-Subject: Re: [Bridge] bridge is not forwaring ICMP6 neighbor solicitation to
-	KVM guest
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=VZKXKzSxivtwcFiuGJGt5848K3ojueItUITXs3njbZ8=;
+	b=F2V5YO98IYEhW/Rgitog0FqBeHAF0bpDp/SAAJe2WtrmCC0gg3Ik1S+FlqaQ/vklwR
+	jpVOOYH5W4LNIFMOYe2C7VF1m8MgEE9otYiawfspP+YB1OG8YhPBCRle2Tn+gAi/6B/H
+	6qjkJE4dBiBXrtsoZnN3rFjsoxfPRH3vIgJifOfRfolJHD1Lhl8uQQVD4wq1g27H9YJf
+	yyq3tNgJ1BxFfHnY+1TIUYPtnDcHKOL7rV/XIkfyVAQZjhRhx8wtPrBPBSi27/wq9GGA
+	ea+4LvHdyTzQTvsjLB2Q4jk61QunF29ny366xXeEtTG5TEiVYDcKa+6SUGqqbtACXWBj
+	/mRg==
+Sender: "Luis R. Rodriguez" <mcgrof@gmail.com>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Mon,  3 Mar 2014 14:47:00 -0800
+Message-Id: <1393886825-24323-2-git-send-email-mcgrof@do-not-panic.com>
+In-Reply-To: <1393886825-24323-1-git-send-email-mcgrof@do-not-panic.com>
+References: <1393886825-24323-1-git-send-email-mcgrof@do-not-panic.com>
+Subject: [Bridge] [RFC v3 1/6] bridge: preserve random init MAC address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,95 +23,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jan Stancek <jstancek@redhat.com>
-Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
 
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
 
---kaF1vgn83Aa7CiXN
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+As it is now if you add create a bridge it gets started
+with a random MAC address and if you then add a net_device
+as a slave but later kick it out you end up with a zero
+MAC address. Instead preserve the original random MAC
+address and use it.
 
-Hi Jan,
+If you manually set the bridge address that will always
+be respected. This change only takes effect if at the time
+of computing the new root port we determine we have found
+no candidates.
 
-On Mon, Mar 03, 2014 at 02:47:15PM -0500, Jan Stancek wrote:
-> I'm seeing an issue where bridge (sometimes) stops forwarding ICMP6
-> neighbor solicitation packets to KVM guest and as result KVM guest doesn't
-> respond with neighbor advertisement.
+Cc: Stephen Hemminger <stephen@networkplumber.org>
+Cc: bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: xen-devel@lists.xenproject.org
+Cc: kvm@vger.kernel.org
+Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
+---
+ net/bridge/br_device.c  | 1 +
+ net/bridge/br_private.h | 1 +
+ net/bridge/br_stp_if.c  | 3 +++
+ 3 files changed, 5 insertions(+)
 
-Hm, okay, that's not supposed to happen.
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index b063050..5f13eac 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -368,6 +368,7 @@ void br_dev_setup(struct net_device *dev)
+ 	br->bridge_id.prio[1] = 0x00;
+ 
+ 	ether_addr_copy(br->group_addr, eth_reserved_addr_base);
++	ether_addr_copy(br->random_init_addr, dev->dev_addr);
+ 
+ 	br->stp_enabled = BR_NO_STP;
+ 	br->group_fwd_mask = BR_GROUPFWD_DEFAULT;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index e1ca1dc..32a06da 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -240,6 +240,7 @@ struct net_bridge
+ 	unsigned long			bridge_hello_time;
+ 	unsigned long			bridge_forward_delay;
+ 
++	u8				random_init_addr[ETH_ALEN];
+ 	u8				group_addr[ETH_ALEN];
+ 	u16				root_port;
+ 
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 189ba1e..4c9ad45 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -239,6 +239,9 @@ bool br_stp_recalculate_bridge_id(struct net_bridge *br)
+ 	if (ether_addr_equal(br->bridge_id.addr, addr))
+ 		return false;	/* no change */
+ 
++	if (ether_addr_equal(addr, br_mac_zero))
++		addr = br->random_init_addr;
++
+ 	br_stp_change_bridge_id(br, addr);
+ 	return true;
+ }
+-- 
+1.9.0
 
-> The reason I think this packet is related is because when I send same exa=
-ct
-> packet I'm often hitting same issue - bridge stops forwarding ICMP6 neigh.
-> solicitation packets to KVM guest.
-
-Yes, the MLD query is kicking the multicast snooping into gear. If
-there's never a query, then snooping is basically disabled
-(compare: "bridge: disable snooping if there is no querier").
-
->=20
-> My current way to reproduce this is:
-> 0. host B IP / MAC is: 2620:52:0:1040:221:5aff:fe47:931c / 00:21:5a:47:93=
-:1c
->    guest IP / MAC is: 2620:52:0:1040:5056:ff:fe00:29 / 52:56:00:00:00:29
-> 1. host B is sending neigh solicit packets every 5 seconds with KVM guest=
- IP
->    using ns6 from ipv6toolkit: http://www.si6networks.com/tools/ipv6toolk=
-it/
->    with parameters:
->    --src-address=3D2620:52:0:1040:221:5aff:fe47:931c --dst-address=3Dff02=
-::1:ff00:0029
->    -t 2620:52:0:1040:5056:ff:fe00:29 --link-src-address=3D00:21:5a:47:93:=
-1c
->    --source-lla-opt=3D00:21:5a:47:93:1c --link-dst-address=3D33:33:ff:00:=
-00:29
->    tcpdump running on guest can see both solicit and advertisement packets
-> 2. wait ~5 minutes
-> 3. host B sends Multicast Listener Query packet described above
-> 4. tcpdump running on guest is no longer seeing any neigh solicit packets
-
-Just to clarify, host B is behind eno1 and vnet0 is directly
-connected to the interface of the guest, no additional bridge or
-anything else on top of that, right?
-
-Would it be possible for you to upload the tcpdumps from host B
-(or if you can't tcpdump on host B, then capturing on eno1)
-and the guest somewhere and saying at which time/packet in the dumps
-it stops working (probably ~10 seconds after the query). Filtering
-for ICMPv6 should be sufficient.=20
-
-What I'm curious about is, whether the guest receives
-the MLD query and responds with an MLD report. I suspect that
-either the bridge doesn't get an MLD report and therefore is
-shutting down the according port or there's a bug in parsing the
-MLD report in the bridge code.
-
-
-Thanks for the detailed report so far!
-
-Cheers, Linus
-
---kaF1vgn83Aa7CiXN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTFPPdAAoJELxyPiAAt6Uvk5QQAJ4a0v3U9RgzOFfOqN1xH6NS
-VsjoXyu+Sy68erBCvz0f/8mGW5jwSgOzbvR6HH36GYbWs5QaDsxBWz+nkWPKKzkf
-kkHZCzGIWUhhKIjliPz0PPj8JCOpjSLv4GDPogYe3NITYPy05We06iYdPHhNpjW2
-PkBCQCvWw2Qqc7Aqjhk3mJn3gNO6AthftHHypE5fv55/iTuBUt/VswS16ZHDHBBz
-k68axskRX6lhuOsZ7kNgFrLnIU+aTYIKCitcbY//3zJ/wkanYgT+gLWLimFDRVPm
-eSgN9OusPaIisDBWBGcHNJUQrLfeRAMPXqKNvLJdjilXYhVsdKNk8z/k/TRQiMUK
-NKVO1KhP7xSpWTf4KxgWevz5aUSWz+/LzbKUhw+GcMEuQdXneOOei2lEf+t1osqU
-21To72ynxQqs9OitYcNEXZmVzlBl+okrOv80S1hdDVc0nmSwVDHxkBmkAs/KV9h7
-P1YdlDpjRUDIWNQ9hPjO380c/dXnqlvdVb/lK3ViQxQ6P8SKL8XTSA2mOYBCnUtw
-g5TL+DU6RySzw85djZ+RydbzHYREBwVOlm16CsX/OqXtgH4oVfENGFtrOoWazvnd
-IZQwU649uY42oY6w3ybDeLNj+xWCq/9jnDDHydnQGLeI60y/CclTY2ogL+Hy6g8+
-+6D54DV2yNp/3RWAFfxg
-=N/Jw
------END PGP SIGNATURE-----
-
---kaF1vgn83Aa7CiXN--
