@@ -1,18 +1,17 @@
-Return-Path: <linus.luessing@web.de>
-Date: Tue, 4 Mar 2014 01:00:41 +0100
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
-Message-ID: <20140304000041.GY5090@Linus-Debian>
-References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
-	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
-	<20140303212759.GW5090@Linus-Debian>
-	<1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Ll0BBk1HBk/f94B0"
-Content-Disposition: inline
-In-Reply-To: <1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
-Subject: Re: [Bridge] bridge is not forwaring ICMP6 neighbor solicitation to
-	KVM guest
+Return-Path: <stephen@networkplumber.org>
+Date: Mon, 3 Mar 2014 16:31:59 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20140303163159.365d763b@nehalam.linuxnetplumber.net>
+In-Reply-To: <CAB=NE6VpjebGrqFe7Q4L-uM0rrKitY3fB2kq5qGko+C1Fivm0w@mail.gmail.com>
+References: <1393886825-24323-1-git-send-email-mcgrof@do-not-panic.com>
+	<1393886825-24323-5-git-send-email-mcgrof@do-not-panic.com>
+	<20140303154330.238a20bc@nehalam.linuxnetplumber.net>
+	<CAB=NE6VpjebGrqFe7Q4L-uM0rrKitY3fB2kq5qGko+C1Fivm0w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC v3 4/6] bridge: enable root block during device
+ registration
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,88 +20,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jan Stancek <jstancek@redhat.com>
-Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
+To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, xen-devel@lists.xenproject.org
 
+On Mon, 3 Mar 2014 15:58:50 -0800
+"Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
 
---Ll0BBk1HBk/f94B0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Mon, Mar 3, 2014 at 3:43 PM, Stephen Hemminger
+> <stephen@networkplumber.org> wrote:
+> > Doing this in priv flags bloats what is a limited resource (# of bits).  
+> 
+> Agreed. I tried to avoid it but saw no other option for addressing
+> this during initialization properly without requirng a userspace
+> upgrade.
 
-Hi Jan,
-
-On Mon, Mar 03, 2014 at 05:45:49PM -0500, Jan Stancek wrote:
-> There is also bridge on host B. I assume that doesn't matter
-> but I could set up host B without bridge if needed.
-
-It can matter, but in this case it doesn't :).
-
-> > What I'm curious about is, whether the guest receives
-> > the MLD query and responds with an MLD report. I suspect that
-> > either the bridge doesn't get an MLD report and therefore is
-> > shutting down the according port or there's a bug in parsing the
-> > MLD report in the bridge code.
->=20
-> I'm no expert in this area, but shouldn't neigh. solicit packets
-> be forwarded to all ports regardless of any/no MLD reports?
-
-That's the beauty of IPv6 Neighbor Discovery using these neat
-solicited-node multicast addresses :). With IPv4 and ARP
-requests there's no other way than flooding. But for IPv6 we know
-in advance behind which bridge port someone interested in the
-neighbor solicitation message might be (assuming MLD is working,
-properly), allowing us to save bandwidth.
-
-In this case, MLD is not working properly, the main issue is the
-following:
-
-Host B sends broken MLD queries, the source address should be an
-IPv6 link-local one, not "100:0:600:0:78fb:100::". MLDv2 mandates
-this (see RFC3810, section 5.1.14.: "Source Addresses for
-Queries").
-
-Though I couldn't find that requirement for MLDv1, Linux ignores
-MLDv1 queries with a non-link-local source address, too (see
-net/ipv6/mcast.c, igmp6_event_query() ). So Linux never sends an
-MLD report in reply to these broken queries.
-
-
-The second "minor" but in this case fatal issue is, that the
-bridge code doesn't have this link-local-src check, therefore
-kicking the snooping into gear even though it shouldn't because we
-don't have a _working_ querier.
-
-I'm going to make a patch for the bridge code adding this sanity
-check.
-
-
-For the broken query, ok, it's your manually crafted query. But
-did you see a query with such a bogus source address "in the
-wild", too? (I'm curious how urgent this sanity check is)
-
-Cheers, Linus
-
---Ll0BBk1HBk/f94B0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTFReoAAoJELxyPiAAt6Uvr0AQAJ1dGExt5XCiDg/8YpoLZgag
-EAwtyQ/keUVURNCfAle+i8izoLdLKal1Kc6xCJYYYS5I/Rpteg/9PD3WJVVURwcQ
-c7+8Zes7civq/fXFyuka49K1hyQSy1G0u/kf+gbNrjlYhgU1VrR3tA/oacYLxIoI
-0Hfhi5+ncnZyvtvowmmKjsf+SbdOxR12mBYXEFp76rDRilAmyQZLV2H1nCDI59yD
-n6AQ1XdcUqL5LIjcXVm+sLBJw+1Q0R9dqDAT1FZ1vxhYd/0Krmw1zP4JuEPmkn4B
-b0Wtmp02AL5VEs3J/VRy4nZq+keODC5NNQBXTHC47miYfsErMxFz1zIuQ66HSSBM
-qnKgTdsx/pJPRC7v2hNQXRaLc/2/cyTX9KysXsgubtGMfZUzVWqH4r0sazFfjX74
-k/NsTc8epo3Z2BBtXrWozwTF6PL/EKLe/A1N7br0+5Wt9XMchTDyl0wRG3JQcPZ5
-2mPujWXW7mwDbam52V7qj+b/MeP2yUhPkG6Tuo42EVeKEm/F6HWmDgigKuxFJn1J
-cPP5dpad8e0FewD6c1nBVpJTzu4BnWnZ+MlbpvQ2g7WeD7gEtlYK+QUL7tAg7Z6M
-/qx8BxD3zljs71GnSxMZes8kF0dKkWjjRXMbvMTQSGbGEjXbjtadUjnJG61YhAaE
-rUY5L0G4sJhcstW/lWpv
-=odPM
------END PGP SIGNATURE-----
-
---Ll0BBk1HBk/f94B0--
+Replacing one Xen hack for another doesn't seem like great progress.
+I would rather see an API change as needed because there are other
+things like setting STP parameters which might also want to be part
+of initial device add.
