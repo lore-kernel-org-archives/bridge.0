@@ -1,20 +1,21 @@
 Return-Path: <linus.luessing@web.de>
-Date: Tue, 4 Mar 2014 22:37:57 +0100
+Date: Wed, 5 Mar 2014 15:27:07 +0100
 From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
-Message-ID: <20140304213757.GJ5090@Linus-Debian>
+Message-ID: <20140305142706.GL5090@Linus-Debian>
 References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
-	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
 	<20140303212759.GW5090@Linus-Debian>
 	<1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
 	<20140304000041.GY5090@Linus-Debian>
 	<624414844.12834668.1393920156458.JavaMail.zimbra@redhat.com>
 	<20140304105253.GC5090@Linus-Debian>
 	<1663332249.12962360.1393931189285.JavaMail.zimbra@redhat.com>
+	<20140304213757.GJ5090@Linus-Debian>
+	<521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zu8lIfFVzXMVnfzp"
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <1663332249.12962360.1393931189285.JavaMail.zimbra@redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
 Subject: Re: [Bridge] bridge is not forwaring ICMP6 neighbor solicitation to
 	KVM guest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -29,115 +30,94 @@ To: Jan Stancek <jstancek@redhat.com>
 Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
 
 
---zu8lIfFVzXMVnfzp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 04, 2014 at 06:06:29AM -0500, Jan Stancek wrote:
->=20
->=20
+On Wed, Mar 05, 2014 at 07:10:07AM -0500, Jan Stancek wrote:
+> 
+> 
 > ----- Original Message -----
-> > From: "Linus L=C3=BCssing" <linus.luessing@web.de>
+> > From: "Linus Lüssing" <linus.luessing@web.de>
 > > To: "Jan Stancek" <jstancek@redhat.com>
-> > Cc: netdev@vger.kernel.org, "Florian Westphal" <fwestpha@redhat.com>, b=
-ridge@lists.linux-foundation.org
-> > Sent: Tuesday, 4 March, 2014 11:52:54 AM
-> > Subject: Re: bridge is not forwaring ICMP6 neighbor solicitation to KVM=
- guest
-> >=20
-> > Hi Jan,
-> >=20
-> > On Tue, Mar 04, 2014 at 03:02:36AM -0500, Jan Stancek wrote:
-> > > > For the broken query, ok, it's your manually crafted query. But
-> > > > did you see a query with such a bogus source address "in the
-> > > > wild", too? (I'm curious how urgent this sanity check is)
-> > >=20
-> > > It's real packet I managed to capture during one such occurrence.
-> > > I'm sending it with small C program over raw socket, but it's byte
-> > > by byte exact copy of what I captured with tcpdump previously.
-> > >=20
-> > > I'm not sure how that packet came to existence. Based on IPv6 address
-> > > it came from host B, but all host B was doing at the time
-> > > was running RHEL6 with couple qemu-kvm instances. KVM guests were
-> > > set up to use bridge, so I'm assuming if any of them crafted
-> > > this packet, source IPv6 address would be different.
-> > >=20
-> >=20
-> > Ah, okay. Can you check whether it maybe came from the querier
-> > code in the Linux bridge on host B? Is
-> > "cat /sys/class/net/br0/bridge/multicast_querier" 1?
->=20
-> # cat /sys/class/net/br0/bridge/multicast_querier
-> cat: /sys/class/net/br0/bridge/multicast_querier: No such file or directo=
-ry
+> > Cc: netdev@vger.kernel.org, "Florian Westphal" <fwestpha@redhat.com>, bridge@lists.linux-foundation.org
+> > Sent: Tuesday, 4 March, 2014 10:37:57 PM
+> > Subject: Re: bridge is not forwaring ICMP6 neighbor solicitation to KVM guest
+> > > I'm not sure if it's Linux (I'm trying to locate that system by MAC), but I
+> > > see
+> > > packets like these on my network every ~125 seconds:
+> > > 
+> > > No.     Time        Source                Destination           Protocol
+> > > Length Info
+> > >   22675 1334.751135 ::                    ff02::1               ICMPv6   86
+> > >   Multicast Listener Query
+> > 
+> > It's probably the bridge on this ancient kernel, you might want to
+> > backport the following patch:
+> 
+> Hi,
+> 
+> The example above was from box, which turned out not be running Linux.
 
-Ok, that's not present on such old kernels, there it is actually
-enabled by default.
+Okay, yeah, there's somehow the misconception flying around, that
+a snooping switch could use "::" as a source address. Even the
+informational RFC4541 writes about "proxy IGMP queries"
+disregarding the source address requirements for MLDv1/2, feeding
+this misconception. I just skimmed RFC4605 ("IGMP/MLD Proxying")
+briefly, but couldn't find any note for "0.0.0.0" or "::" there.
+But I think we could see with your practical example, that "::"
+MLD query source addresses should be considered broken.
 
->=20
-> > Can you isolate host B and disable any multicast router daemon on it? T=
-hen
-> > check again, if you still see these queries.
->=20
-> Besides those cases where I sent it by myself, I haven't seen host B send
-> that query for couple days now.
->=20
-> > What kernel version is running on host B?
->=20
-> 2.6.32-279.42.1.el6.x86_64
-> It's a RHEL6.3.z kernel.
->=20
-> > Where does Linux use :: for queries?
->=20
-> I'm not sure if it's Linux (I'm trying to locate that system by MAC), but=
- I see
-> packets like these on my network every ~125 seconds:
->=20
-> No.     Time        Source                Destination           Protocol =
-Length Info
->   22675 1334.751135 ::                    ff02::1               ICMPv6   =
-86     Multicast Listener Query
+> 
+> > 
+> > If these patches on host B xor the sanity check I just submitted applied
+> > on your host A / VM host fix your issue, then they might be worth
+> > considering for the stable queue.
+> 
+> Is it necessary to apply same patch also on any (older) kernel running in VM?
 
-It's probably the bridge on this ancient kernel, you might want to
-backport the following patch:
+The source address patches are only required on boxes where the
+internal MLD querier code of the bridge is used. Afaik tell the
+source address patch is present on all kernels since v2.6.38 and
+all kernels listed on the kernel.org frontpage, except 2.6.34.15
+and 2.6.32.61.
 
-"bridge: Use IPv6 link-local address for multicast listener queries"
-(fe29ec41aaa51902aebd63658dfb04fe6fea8be5)
+For the sanity check patch, it should probably be added to any
+kernel having a bridge (though in your particular scenario and
+what we are currently debugging at, having it on host A should
+be sufficient).
 
-And it's follow-up fixes:
+> I hand-crafted one new packet from malformed one used in previous tests.
+> I modified source address from :: to host B link-scope address and changed
+> dst address from ff02::1 to ff02::1:ffaa:aaaa
 
-"bridge: Fix possibly wrong MLD queries' ethernet source address"
-(a7bff75b087e7a355838a32efe61707cfa73c194)
-"bridge: check return value of ipv6_dev_get_saddr()"
-(d1d81d4c3dd886d5fa25a2c4fa1e39cb89613712)
+Okay, again according to your capture the guest is receiving the
+MLD query on its interface but does not react with an MLD report.
 
-If these patches on host B xor the sanity check I just submitted applied
-on your host A / VM host fix your issue, then they might be worth
-considering for the stable queue.
+Two things I'd like to know:
+
+Is using the link-scope address as a source and "ff02::1" as the
+destination address for the MLD query work for you?
+
+Is using the link-scope address as a source and "ff02::1:ff00:29"
+as the destination address for the MLD query "work" for you (do
+we see an MLD report from the guest and keep on seeing neighbor
+solicitations from host B then?).
+
+For the latter, I don't see anything in particular filtering these
+for a general MLD query wrong destination address in the IPv6
+code from igmp6_event_query() on. But I suspect that the query
+doesn't even get that far on the kernel of the guest, as it is not
+listening on ff02::1:ffaa:aaaa. Therefore the test with
+"ff02::1:ff00:29", an address the guest is listening on, would be
+interesting.
+
+If that works, then I'm going to make a patch ignore General MLD
+Queries without ff02::1 as their destination address, too.
+
+
+Hm, looking at more checks in igmp6_event_query(), I'm currently
+wondering whether we should only enable the snooping behaviour in
+the bridge when receiving a General MLD Query, so one with "::" in
+the multicast field of the MLD message, instead of activating it
+upon a Multicast-Address-Specific Query, too. That'd seem more
+sane to me, I'm going to make a patch for that tomorrow.
 
 Cheers, Linus
-
---zu8lIfFVzXMVnfzp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTFke0AAoJELxyPiAAt6UvBHQQAKB12mQXGqpyVYNcfIEcXgAg
-dCjZ+LlQt/lOG2Asei+Z+DSwecY0b0c+qlOezDeJ7klWUNFe3TjP2YzsvlgPq7TU
-X1X7/+ztHdrh4sOaxuI5RNR/3Fq4Pb9vX88rRbTH7+nZh1+ZaSZw6rM3SKthQ6rQ
-zFSRNQz5XUuqE4Ntfq7sqHXRnPJZrVSAycxrrNfdbLRexxiUVD3oevLNxs7UYwxB
-48Du9JOFoVHpWpCM7qrw/nSQb8y067ciaVd4azpKyrUHiizUj8ARhILbWbFBfpW6
-fYRrSum3c61ZV6nOkR9rWUieEbqysnIMkIWoPI/+tLxZRYMWnqz9Cxymj78MBJL2
-1LwQf0jUiRl9P67ja52scHX+4XML8PFMtrztHhPDB2PlUyn7su7VpS33ytIPzmbN
-pGHShVEa4xMML4tK06r9e3gPc9ECnrnVhiCnzoofT+mLDmhgQZFjAuhkTgSXC1s7
-cwVjZbjyDHAK6YgYO7I90Jgh303guMgHDEq2qV6v0o3C+Wk8F4LU49ZbfGdi8mT/
-xu9y4vGtwPsCgDSc0QJ2X5YOVVVphzsjH3JOcIdvhHC+EG6DzlbAcv7GihJqhgiU
-DSNcSn9Rt/2mW5fINFEztcSJQDgfg1PiW4Qj70t+8orwMGBxrUYPZNOfRWAI218g
-uKN1rSQogEQL82mUd2N8
-=zND/
------END PGP SIGNATURE-----
-
---zu8lIfFVzXMVnfzp--
