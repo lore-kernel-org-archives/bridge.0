@@ -1,15 +1,16 @@
 Return-Path: <jstancek@redhat.com>
-Date: Tue, 4 Mar 2014 06:06:29 -0500 (EST)
+Date: Wed, 5 Mar 2014 07:10:07 -0500 (EST)
 From: Jan Stancek <jstancek@redhat.com>
-Message-ID: <1663332249.12962360.1393931189285.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20140304105253.GC5090@Linus-Debian>
+Message-ID: <521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20140304213757.GJ5090@Linus-Debian>
 References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
-	<2107636851.12713862.1393876035292.JavaMail.zimbra@redhat.com>
 	<20140303212759.GW5090@Linus-Debian>
 	<1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
 	<20140304000041.GY5090@Linus-Debian>
 	<624414844.12834668.1393920156458.JavaMail.zimbra@redhat.com>
 	<20140304105253.GC5090@Linus-Debian>
+	<1663332249.12962360.1393931189285.JavaMail.zimbra@redhat.com>
+	<20140304213757.GJ5090@Linus-Debian>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -33,65 +34,80 @@ Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists
 > To: "Jan Stancek" <jstancek@redhat.com>
 > Cc: netdev@vger.kernel.org, "Florian Westphal" <fwestpha@redhat.com>, bri=
 dge@lists.linux-foundation.org
-> Sent: Tuesday, 4 March, 2014 11:52:54 AM
+> Sent: Tuesday, 4 March, 2014 10:37:57 PM
 > Subject: Re: bridge is not forwaring ICMP6 neighbor solicitation to KVM g=
 uest
->=20
-> Hi Jan,
->=20
-> On Tue, Mar 04, 2014 at 03:02:36AM -0500, Jan Stancek wrote:
-> > > For the broken query, ok, it's your manually crafted query. But
-> > > did you see a query with such a bogus source address "in the
-> > > wild", too? (I'm curious how urgent this sanity check is)
+> > I'm not sure if it's Linux (I'm trying to locate that system by MAC), b=
+ut I
+> > see
+> > packets like these on my network every ~125 seconds:
 > >=20
-> > It's real packet I managed to capture during one such occurrence.
-> > I'm sending it with small C program over raw socket, but it's byte
-> > by byte exact copy of what I captured with tcpdump previously.
-> >=20
-> > I'm not sure how that packet came to existence. Based on IPv6 address
-> > it came from host B, but all host B was doing at the time
-> > was running RHEL6 with couple qemu-kvm instances. KVM guests were
-> > set up to use bridge, so I'm assuming if any of them crafted
-> > this packet, source IPv6 address would be different.
-> >=20
+> > No.     Time        Source                Destination           Protoco=
+l
+> > Length Info
+> >   22675 1334.751135 ::                    ff02::1               ICMPv6 =
+  86
+> >   Multicast Listener Query
 >=20
-> Ah, okay. Can you check whether it maybe came from the querier
-> code in the Linux bridge on host B? Is
-> "cat /sys/class/net/br0/bridge/multicast_querier" 1?
+> It's probably the bridge on this ancient kernel, you might want to
+> backport the following patch:
 
-# cat /sys/class/net/br0/bridge/multicast_querier
-cat: /sys/class/net/br0/bridge/multicast_querier: No such file or directory
+Hi,
 
-> Can you isolate host B and disable any multicast router daemon on it? The=
-n
-> check again, if you still see these queries.
+The example above was from box, which turned out not be running Linux.
 
-Besides those cases where I sent it by myself, I haven't seen host B send
-that query for couple days now.
+>=20
+> If these patches on host B xor the sanity check I just submitted applied
+> on your host A / VM host fix your issue, then they might be worth
+> considering for the stable queue.
 
-> What kernel version is running on host B?
+Is it necessary to apply same patch also on any (older) kernel running in V=
+M?
 
-2.6.32-279.42.1.el6.x86_64
-It's a RHEL6.3.z kernel.
+I applied your sanity check patch [1] on host A only and I wasn't able to r=
+eproduce
+this issue any longer when I sent this malformed packet from host B:
+  Ethernet II, Src: Hewlett-_47:93:1c (00:21:5a:47:93:1c), Dst: IPv6mcast_0=
+0:00:00:01 (33:33:00:00:00:01)
+  Internet Protocol Version 6, Src: 100:0:600:0:78fb:100:: (100:0:600:0:78f=
+b:100::), Dst: ff02::1 (ff02::1)
+  Internet Control Message Protocol v6
 
-> Where does Linux use :: for queries?
 
-I'm not sure if it's Linux (I'm trying to locate that system by MAC), but I=
- see
-packets like these on my network every ~125 seconds:
+I hand-crafted one new packet from malformed one used in previous tests.
+I modified source address from :: to host B link-scope address and changed
+dst address from ff02::1 to ff02::1:ffaa:aaaa
 
-No.     Time        Source                Destination           Protocol Le=
-ngth Info
-  22675 1334.751135 ::                    ff02::1               ICMPv6   86=
-     Multicast Listener Query
-
+Ethernet II, Src: Hewlett-_47:93:1c (00:21:5a:47:93:1c), Dst: IPv6mcast_00:=
+00:00:01 (33:33:00:00:00:01)
+Internet Protocol Version 6, Src: fe80::221:5aff:fe47:931c (fe80::221:5aff:=
+fe47:931c), Dst: ff02::1:ffaa:aaaa (ff02::1:ffaa:aaaa)
 Internet Control Message Protocol v6
     Type: Multicast Listener Query (130)
     Code: 0
-    Checksum: 0x7ac1 [correct]
+    Checksum: 0xe365 [correct]
     Maximum Response Delay [ms]: 1000
     Reserved: 0000
     Multicast Address: :: (::)
 
+When I sent it from host B, guest on host A hit same issue - it stopped see=
+ing
+neighbor solicitation packets. host A was running 3.14.0-rc5 kernel with
+patch [1] applied.
+
+Then I updated kernel on guest to 3.14.0-rc5 + patch [1], but result was th=
+e same.
+Here is trace from guest: http://jan.stancek.eu/tmp/neigh_solicit_and_bridg=
+e_traces2/
+host B was sending neigh solicit every 5 seconds:
+  frame 134, 135 -> OK
+  frame 216, 217 -> OK
+  frame 329, 330 -> OK
+  frame 432, 433 -> OK
+  frame 459 -> new hand-crafted packet
+  after 35 second mark, guest doesn't see any longer neigh solicit packets
+
 Regards,
 Jan
+
+[1] bridge: multicast: add sanity check for query source addresses
