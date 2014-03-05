@@ -1,16 +1,16 @@
 Return-Path: <jstancek@redhat.com>
-Date: Wed, 5 Mar 2014 07:10:07 -0500 (EST)
+Date: Wed, 5 Mar 2014 09:57:52 -0500 (EST)
 From: Jan Stancek <jstancek@redhat.com>
-Message-ID: <521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20140304213757.GJ5090@Linus-Debian>
+Message-ID: <1662523546.13613467.1394031472806.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20140305142706.GL5090@Linus-Debian>
 References: <1566805413.12693479.1393872931017.JavaMail.zimbra@redhat.com>
-	<20140303212759.GW5090@Linus-Debian>
-	<1808019554.12748658.1393886749190.JavaMail.zimbra@redhat.com>
 	<20140304000041.GY5090@Linus-Debian>
 	<624414844.12834668.1393920156458.JavaMail.zimbra@redhat.com>
 	<20140304105253.GC5090@Linus-Debian>
 	<1663332249.12962360.1393931189285.JavaMail.zimbra@redhat.com>
 	<20140304213757.GJ5090@Linus-Debian>
+	<521731164.13535687.1394021407825.JavaMail.zimbra@redhat.com>
+	<20140305142706.GL5090@Linus-Debian>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -29,85 +29,83 @@ Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists
 
 
 
+
+
 ----- Original Message -----
 > From: "Linus L=C3=BCssing" <linus.luessing@web.de>
 > To: "Jan Stancek" <jstancek@redhat.com>
 > Cc: netdev@vger.kernel.org, "Florian Westphal" <fwestpha@redhat.com>, bri=
 dge@lists.linux-foundation.org
-> Sent: Tuesday, 4 March, 2014 10:37:57 PM
+> Sent: Wednesday, 5 March, 2014 3:27:07 PM
 > Subject: Re: bridge is not forwaring ICMP6 neighbor solicitation to KVM g=
 uest
-> > I'm not sure if it's Linux (I'm trying to locate that system by MAC), b=
-ut I
-> > see
-> > packets like these on my network every ~125 seconds:
-> >=20
-> > No.     Time        Source                Destination           Protoco=
-l
-> > Length Info
-> >   22675 1334.751135 ::                    ff02::1               ICMPv6 =
-  86
-> >   Multicast Listener Query
->=20
-> It's probably the bridge on this ancient kernel, you might want to
-> backport the following patch:
 
-Hi,
-
-The example above was from box, which turned out not be running Linux.
+<snip>
 
 >=20
-> If these patches on host B xor the sanity check I just submitted applied
-> on your host A / VM host fix your issue, then they might be worth
-> considering for the stable queue.
+> > I hand-crafted one new packet from malformed one used in previous tests=
+.
+> > I modified source address from :: to host B link-scope address and chan=
+ged
+> > dst address from ff02::1 to ff02::1:ffaa:aaaa
+>=20
+> Okay, again according to your capture the guest is receiving the
+> MLD query on its interface but does not react with an MLD report.
+>=20
+> Two things I'd like to know:
+>=20
+> Is using the link-scope address as a source and "ff02::1" as the
+> destination address for the MLD query work for you?
 
-Is it necessary to apply same patch also on any (older) kernel running in V=
-M?
+Yes, I could not trigger it with such query:
+http://jan.stancek.eu/tmp/neigh_solicit_and_bridge_traces2/guest_mld_query_=
+ff02_1.cap
+  frame 795 -> query
+  frame 1040 -> MLD report from guest
+  ~20 seconds later
+  frame 1507, 1508 -> neigh solicit/advert
+  frame 1580, 1581 -> neigh solicit/advert
 
-I applied your sanity check patch [1] on host A only and I wasn't able to r=
-eproduce
-this issue any longer when I sent this malformed packet from host B:
-  Ethernet II, Src: Hewlett-_47:93:1c (00:21:5a:47:93:1c), Dst: IPv6mcast_0=
-0:00:00:01 (33:33:00:00:00:01)
-  Internet Protocol Version 6, Src: 100:0:600:0:78fb:100:: (100:0:600:0:78f=
-b:100::), Dst: ff02::1 (ff02::1)
-  Internet Control Message Protocol v6
+>=20
+> Is using the link-scope address as a source and "ff02::1:ff00:29"
+> as the destination address for the MLD query "work" for you (do
+> we see an MLD report from the guest and keep on seeing neighbor
+> solicitations from host B then?).
 
+Yes, this also worked (though I received 2 reports):
+http://jan.stancek.eu/tmp/neigh_solicit_and_bridge_traces2/guest_mld_query_=
+ff02_1_ff0029.cap
+  frame 446 -> query
+  frame 448 -> MLD report from guest
+  frame 465 -> MLD report from guest
+  frame 689, 690 -> neigh solicit/advert
+  frame 760, 761 -> neigh solicit/advert
+  ...
 
-I hand-crafted one new packet from malformed one used in previous tests.
-I modified source address from :: to host B link-scope address and changed
-dst address from ff02::1 to ff02::1:ffaa:aaaa
-
-Ethernet II, Src: Hewlett-_47:93:1c (00:21:5a:47:93:1c), Dst: IPv6mcast_00:=
-00:00:01 (33:33:00:00:00:01)
-Internet Protocol Version 6, Src: fe80::221:5aff:fe47:931c (fe80::221:5aff:=
-fe47:931c), Dst: ff02::1:ffaa:aaaa (ff02::1:ffaa:aaaa)
-Internet Control Message Protocol v6
-    Type: Multicast Listener Query (130)
-    Code: 0
-    Checksum: 0xe365 [correct]
-    Maximum Response Delay [ms]: 1000
-    Reserved: 0000
-    Multicast Address: :: (::)
-
-When I sent it from host B, guest on host A hit same issue - it stopped see=
-ing
-neighbor solicitation packets. host A was running 3.14.0-rc5 kernel with
-patch [1] applied.
-
-Then I updated kernel on guest to 3.14.0-rc5 + patch [1], but result was th=
-e same.
-Here is trace from guest: http://jan.stancek.eu/tmp/neigh_solicit_and_bridg=
-e_traces2/
-host B was sending neigh solicit every 5 seconds:
-  frame 134, 135 -> OK
-  frame 216, 217 -> OK
-  frame 329, 330 -> OK
-  frame 432, 433 -> OK
-  frame 459 -> new hand-crafted packet
-  after 35 second mark, guest doesn't see any longer neigh solicit packets
+Both host and guest were running 3.14.0-rc5 with your sanity check patch.
 
 Regards,
 Jan
 
-[1] bridge: multicast: add sanity check for query source addresses
+>=20
+> For the latter, I don't see anything in particular filtering these
+> for a general MLD query wrong destination address in the IPv6
+> code from igmp6_event_query() on. But I suspect that the query
+> doesn't even get that far on the kernel of the guest, as it is not
+> listening on ff02::1:ffaa:aaaa. Therefore the test with
+> "ff02::1:ff00:29", an address the guest is listening on, would be
+> interesting.
+>=20
+> If that works, then I'm going to make a patch ignore General MLD
+> Queries without ff02::1 as their destination address, too.
+>=20
+>=20
+> Hm, looking at more checks in igmp6_event_query(), I'm currently
+> wondering whether we should only enable the snooping behaviour in
+> the bridge when receiving a General MLD Query, so one with "::" in
+> the multicast field of the MLD message, instead of activating it
+> upon a Multicast-Address-Specific Query, too. That'd seem more
+> sane to me, I'm going to make a patch for that tomorrow.
+>=20
+> Cheers, Linus
+>=20
