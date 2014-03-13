@@ -1,21 +1,17 @@
-Return-Path: <mcgrof@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=CmvzG7sQRcMEhyGShHQ+/jWsnFIk9Dm8UQ0YiTKJiD0=;
-	b=dHol0CqJMAvWVWYhXSdcgcZyKHQN2XnLDt7oyHOCeLwvODk3Ol8YlQ/EuRQFVgPLLS
-	c5yuB90X3gGNJLrZPgIKBQaMgBzhCtXeqyrPVTvk7W3/hNSBOVW7LU+JB7d37J3jF8qF
-	O1o6gWr/5dsGxsv9U2JuvbGw21PJOH7fTacALuYlVd0qAzuRbg9PcGx3mvVKKBLYsXd4
-	SLIXzep3BewKQ8xZDpc+D4h2B4xbdjHFZ0GtzOH7cuXVvbj7tUDSBBpApkJXMIzdLO78
-	TZxXtLG91sxxBM8+M/R8LJ9ca36mp3JFcCFT7G8LTUnVMICSkTePzNhvpOaphyAA92Cb
-	QtOA==
-Sender: "Luis R. Rodriguez" <mcgrof@gmail.com>
-From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Date: Wed, 12 Mar 2014 20:15:27 -0700
-Message-Id: <1394680527-28970-4-git-send-email-mcgrof@do-not-panic.com>
-In-Reply-To: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-Subject: [Bridge] [PATCH 3/3] bridge: fix bridge root block on designated
-	port
+Return-Path: <kernelluck@163.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=iXNPS
+	sIzxoaASIR4xWMAGPM9WD97MBDJ3SWp2UMR87w=; b=FJ7YSMMKuuRPT72Zyd4L3
+	S7P7onbzypcjnxij860g6rRMKFfmCtOgQ9DW43/dOmt5tarorxPjLaJL1HtqVC4E
+	nyRXd6cfsRcRAd6SovVsYuZgQg70CIkrGtofnmg3PDqq4+QvdpIdZb8LtDMyH/+R
+	B7xzT/sLjFEUPcOVKeahKE=
+Date: Thu, 13 Mar 2014 16:37:09 +0800 (CST)
+From: lkcd <kernelluck@163.com>
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_98012_514467146.1394699829048"
+MIME-Version: 1.0
+Message-ID: <3a8475e8.68f8.144ba967f38.Coremail.kernelluck@163.com>
+Subject: [Bridge] question about bridge code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,254 +20,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: kvm@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
+To: bridge <bridge@lists.linux-foundation.org>
 
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
+------=_Part_98012_514467146.1394699829048
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 
-Root port blocking was designed so that a bridge port can opt
-out of becoming the designated root port for a bridge. If a port
-however first becomes the designated root port and we then toggle
-the root port block on it we currently don't kick that port out of
-the designated root port. This fixes that. This is particularly
-important for net_devices that would wish to never become a root
-port from the start, currently toggling that off will enable root
-port flag but it won't really kick the bridge and do what you'd
-expect, the MAC address is kept on the bridge of the toggled port
-for root_block if it was the designated port.
+YnJfbmZfZm9yd2FyZF9pcCgpIHsKICAgIHBhcmVudCA9IGJyaWRnZV9wYXJlbnQob3V0KTsKICAg
+IE5GX0hPT0socGYsIE5GX0lORVRfRk9SV0FSRCwgc2tiLCBicm5mX2dldF9sb2dpY2FsX2Rldihz
+a2IsIGluKSwgcGFyZW50LCBicl9uZl9mb3J3YXJkX2ZpbmlzaCk7Cn0KIApoZXJlLCBpIHN1cHBv
+c2UgcGYgPSBORlBST1RPX0lQVjQsICAgIGkgdGhpbmsgIHRoZSByZXR1cm4gb2YgYnJuZl9nZXRf
+bG9naWNhbF9kZXYoc2tiLCBpbikgZXF1YWxzIHBhcmVudCA/CiAKdGhlbiB3aGVuIGNhbGxzIGlw
+dGFibGVfZmlsdGVyX2hvb2sgdG8gbWF0Y2ggaXB0YWJsZXMgcnVsZXMgLCBob3cgdG8gZGlzdGlu
+Y3QgaW4gYW5kIG91dCBkZXZpY2VzPwogCnRoYW5rcw==
+------=_Part_98012_514467146.1394699829048
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
 
-In order to catch if a port with root port block preference is set
-we need to move our check for root block prior to the root selection
-so check for root blocked ports upon eveyr br_configuration_update().
-We also simply just prevent the root-blocked ports from consideration
-as root port candidates on br_should_become_root_port() and
-br_stp_recalculate_bridge_id().
-
-The issue that this patch is trying to address and fix can be tested
-easily before and after this patch is applied using 2 TAP net_devices
-and then toggling at will with the root_block knob.
-
-ip tuntap add dev tap0 mode tap
-ip tuntap add dev tap1 mode tap
-ip link add dev br0 type bridge
-ip link show br0
-echo -------------------------------------------
-ip link set dev tap0 master br0
-ip link
-echo -------------------------------------------
-ip link set dev tap1 master br0
-ip link
-echo -------------------------------------------
-
-Upon review at the above results you can toggle root_block
-on each port to see if you see the results you expect.
-
-bridge link set dev tap0 root_block on
-ip link
-bridge link set dev tap1 root_block on
-ip link
-
-Toggling off root_block on any port should will bring back the
-port to be a candidate for designated root port:
-
-bridge link set dev tap1 root_block off
-ip link
-bridge link set dev tap0 root_block off
-ip link
-
-To nuke:
-
-ip tuntap del tap0 mode tap
-ip tuntap del tap0 mode tap
-
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: xen-devel@lists.xenproject.org
-Cc: kvm@vger.kernel.org
-Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
----
- net/bridge/br_netlink.c | 18 ++++++++++++
- net/bridge/br_private.h |  1 +
- net/bridge/br_stp.c     | 73 +++++++++++++++++++++++++++++++++++++++++++++----
- net/bridge/br_stp_if.c  |  3 +-
- 4 files changed, 88 insertions(+), 7 deletions(-)
-
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 6f1b26d..fbec354 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -324,6 +324,21 @@ static void br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
- 	}
- }
- 
-+static void br_kick_bridge_port(struct net_bridge_port *p)
-+{
-+	struct net_bridge *br = p->br;
-+	bool wasroot;
-+
-+	wasroot = br_is_root_bridge(br);
-+	br_become_designated_port(p);
-+
-+	br_configuration_update(br);
-+	br_port_state_selection(br);
-+
-+	if (br_is_root_bridge(br) && !wasroot)
-+		br_become_root_bridge(br);
-+}
-+
- /* Process bridge protocol info on port */
- static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- {
-@@ -353,6 +368,9 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- 		if (err)
- 			return err;
- 	}
-+
-+	br_kick_bridge_port(p);
-+
- 	return 0;
- }
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 32a06da..45d7917 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -150,6 +150,7 @@ struct net_bridge_port
- 	u8				priority;
- 	u8				state;
- 	u16				port_no;
-+	bool				root_block_enabled;
- 	unsigned char			topology_change_ack;
- 	unsigned char			config_pending;
- 	port_id				port_id;
-diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
-index 3c86f05..f5741f3 100644
---- a/net/bridge/br_stp.c
-+++ b/net/bridge/br_stp.c
-@@ -59,6 +59,7 @@ static int br_should_become_root_port(const struct net_bridge_port *p,
- 
- 	br = p->br;
- 	if (p->state == BR_STATE_DISABLED ||
-+	   (p->flags & BR_ROOT_BLOCK) ||
- 	    br_is_designated_port(p))
- 		return 0;
- 
-@@ -104,7 +105,7 @@ static void br_root_port_block(const struct net_bridge *br,
- 			       struct net_bridge_port *p)
- {
- 
--	br_notice(br, "port %u(%s) tried to become root port (blocked)",
-+	br_notice(br, "port %u (%s) is now root blocked",
- 		  (unsigned int) p->port_no, p->dev->name);
- 
- 	p->state = BR_STATE_LISTENING;
-@@ -124,11 +125,7 @@ static void br_root_selection(struct net_bridge *br)
- 	list_for_each_entry(p, &br->port_list, list) {
- 		if (!br_should_become_root_port(p, root_port))
- 			continue;
--
--		if (p->flags & BR_ROOT_BLOCK)
--			br_root_port_block(br, p);
--		else
--			root_port = p->port_no;
-+		root_port = p->port_no;
- 	}
- 
- 	br->root_port = root_port;
-@@ -358,10 +355,74 @@ static void br_reply(struct net_bridge_port *p)
- 	br_transmit_config(p);
- }
- 
-+static bool br_root_port_block_check(struct net_bridge_port *p)
-+{
-+	bool designated = false;
-+
-+	if (p->root_block_enabled &&
-+	    !(p->flags & BR_ROOT_BLOCK)) {
-+		br_notice(p->br, "port %u (%s) is root block toggled off",
-+			  (unsigned int) p->port_no, p->dev->name);
-+		return false;
-+	}
-+
-+	if (p->flags & BR_ROOT_BLOCK &&
-+	    (p->root_block_enabled))
-+		return false;
-+
-+	if (!(p->flags & BR_ROOT_BLOCK))
-+		return false;
-+
-+	if (br_is_designated_port(p)) {
-+		designated = true;
-+		p->flags = BR_ROOT_BLOCK |
-+			   BR_LEARNING |
-+			   BR_FLOOD;
-+		p->priority = 0x8000 >> BR_PORT_BITS;
-+		br_init_port(p);
-+	}
-+
-+	br_root_port_block(p->br, p);
-+	p->root_block_enabled = true;
-+
-+	return designated;
-+}
-+
-+/* Updates block ports as required and returns true if one was designated */
-+static bool br_update_block_ports(struct net_bridge *br)
-+{
-+	struct net_bridge_port *p;
-+	bool designated = false;
-+
-+	list_for_each_entry(p, &br->port_list, list) {
-+		designated = br_root_port_block_check(p);
-+		if (designated)
-+			return designated;
-+	}
-+
-+	return false;
-+}
-+
-+static void br_update_designated_port(struct net_bridge *br)
-+{
-+	struct net_bridge_port *p;
-+
-+	list_for_each_entry(p, &br->port_list, list)
-+		br_become_designated_port(p);
-+}
-+
- /* called under bridge lock */
- void br_configuration_update(struct net_bridge *br)
- {
-+	bool designated_was_blocked = false;
-+
-+	designated_was_blocked = br_update_block_ports(br);
-+
- 	br_root_selection(br);
-+
-+	if (designated_was_blocked)
-+		br_update_designated_port(br);
-+
- 	br_designated_port_selection(br);
- }
- 
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 4c9ad45..62b84af 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -230,10 +230,11 @@ bool br_stp_recalculate_bridge_id(struct net_bridge *br)
- 		return false;
- 
- 	list_for_each_entry(p, &br->port_list, list) {
-+		if (p->flags & BR_ROOT_BLOCK)
-+			continue;
- 		if (addr == br_mac_zero ||
- 		    memcmp(p->dev->dev_addr, addr, ETH_ALEN) < 0)
- 			addr = p->dev->dev_addr;
--
- 	}
- 
- 	if (ether_addr_equal(br->bridge_id.addr, addr))
--- 
-1.8.5.3
+PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
+Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+YnJfbmZfZm9yd2FyZF9pcCgpIHs8L2Rpdj48ZGl2PiZu
+YnNwOyZuYnNwOyZuYnNwOyBwYXJlbnQgPSBicmlkZ2VfcGFyZW50KG91dCk7PC9kaXY+PGRpdj4m
+bmJzcDsmbmJzcDsmbmJzcDsgTkZfSE9PSyhwZiwgTkZfSU5FVF9GT1JXQVJELCBza2IsIGJybmZf
+Z2V0X2xvZ2ljYWxfZGV2KHNrYiwgaW4pLCBwYXJlbnQsIGJyX25mX2ZvcndhcmRfZmluaXNoKTs8
+L2Rpdj48ZGl2Pn08L2Rpdj48ZGl2PiZuYnNwOzwvZGl2PjxkaXY+aGVyZSwgaSBzdXBwb3NlIHBm
+ID0gTkZQUk9UT19JUFY0LCZuYnNwOyZuYnNwOyZuYnNwOyBpIHRoaW5rJm5ic3A7IHRoZSByZXR1
+cm4gb2YgYnJuZl9nZXRfbG9naWNhbF9kZXYoc2tiLCBpbikgZXF1YWxzIHBhcmVudCA/PC9kaXY+
+PGRpdj4mbmJzcDs8L2Rpdj48ZGl2PnRoZW4gd2hlbiBjYWxscyBpcHRhYmxlX2ZpbHRlcl9ob29r
+IHRvIG1hdGNoIGlwdGFibGVzIHJ1bGVzICwgaG93IHRvIGRpc3RpbmN0IGluIGFuZCBvdXQgZGV2
+aWNlcz88L2Rpdj48ZGl2PiZuYnNwOzwvZGl2PjxkaXY+dGhhbmtzPC9kaXY+PC9kaXY+PGJyPjxi
+cj48c3BhbiB0aXRsZT0ibmV0ZWFzZWZvb3RlciI+PHNwYW4gaWQ9Im5ldGVhc2VfbWFpbF9mb290
+ZXIiPjwvc3Bhbj48L3NwYW4+
+------=_Part_98012_514467146.1394699829048--
 
