@@ -1,14 +1,15 @@
-Return-Path: <cwang@twopensource.com>
-MIME-Version: 1.0
-In-Reply-To: <1394680527-28970-3-git-send-email-mcgrof@do-not-panic.com>
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 13 Mar 2014 15:16:23 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20140313151623.03e0484d@nehalam.linuxnetplumber.net>
+In-Reply-To: <1394680527-28970-4-git-send-email-mcgrof@do-not-panic.com>
 References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-	<1394680527-28970-3-git-send-email-mcgrof@do-not-panic.com>
-Date: Thu, 13 Mar 2014 11:26:25 -0700
-Message-ID: <CAHA+R7Pf6rM5h1uGiqrru5LkN9C7Nm7V42cucHSOV1s7_+F7Gw@mail.gmail.com>
-From: Cong Wang <cwang@twopensource.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: Re: [Bridge] [PATCH 2/3] bridge: trigger a bridge calculation upon
-	port changes
+	<1394680527-28970-4-git-send-email-mcgrof@do-not-panic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 3/3] bridge: fix bridge root block on
+	designated port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,23 +19,24 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Cc: kvm@vger.kernel.org, netdev <netdev@vger.kernel.org>, mcgrof@suse.com, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 
-On Wed, Mar 12, 2014 at 8:15 PM, Luis R. Rodriguez
-<mcgrof@do-not-panic.com> wrote:
->                         spin_lock_bh(&p->br->lock);
->                         err = br_setport(p, tb);
-> +                       changed = br_stp_recalculate_bridge_id(p->br);
+On Wed, 12 Mar 2014 20:15:27 -0700
+"Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
 
-Looks like you only want to check if the mac addr gets changed here,
-but br_stp_recalculate_bridge_id() does more than just checking it,
-are you sure the side-effects are all what you want here?
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -150,6 +150,7 @@ struct net_bridge_port
+>  	u8				priority;
+>  	u8				state;
+>  	u16				port_no;
+> +	bool				root_block_enabled;
+>  	unsigned char			topology_change_ack;
 
->                         spin_unlock_bh(&p->br->lock);
-> +                       if (changed)
-> +                               call_netdevice_notifiers(NETDEV_CHANGEADDR,
-> +                                                        p->br->dev);
-> +                       netdev_update_features(p->br->dev);
+It seems a bit confusing to have both a ROOT_BLOCK flag in the
+data structure and and additional root_block_enabled flag.
+If nothing else it is a waste of space.
 
-I think this is supposed to be in netdev event handler of br->dev
-instead of here.
+Looks like you are changing the meaning slightly. is possible
+to have BR_ROOT_BLOCK set but !root_block_enabled? and what about
+the inverse?
