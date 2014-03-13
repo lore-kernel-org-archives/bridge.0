@@ -1,16 +1,18 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <1394714017.4078.51.camel@ubuntu-vm-makita>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Thu, 13 Mar 2014 21:33:37 +0900
-In-Reply-To: <532098D2.6050504@redhat.com>
-References: <1394439067-10477-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1394439067-10477-3-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <5321B85B.1020203@redhat.com>
+Date: Thu, 13 Mar 2014 09:53:31 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
+MIME-Version: 1.0
+References: <1394439067-10477-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>	
+	<1394439067-10477-3-git-send-email-makita.toshiaki@lab.ntt.co.jp>	
 	<532098D2.6050504@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+	<1394714017.4078.51.camel@ubuntu-vm-makita>
+In-Reply-To: <1394714017.4078.51.camel@ubuntu-vm-makita>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH RFC 2/3] bridge: Prepare for 802.1ad vlan
- filtering support
+	filtering support
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,92 +21,100 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wed, 2014-03-12 at 13:26 -0400, Vlad Yasevich wrote:
-> On 03/10/2014 04:11 AM, Toshiaki Makita wrote:
-> > This enables a bridge to have vlan protocol informantion and allows vlan
-> > filtering code to take vlan protocols into account.
-...
-> > @@ -173,16 +174,27 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
-> >  		 * ingress frame is considered to belong to this vlan.
-> >  		 */
-> >  		*vid = pvid;
-> > -		if (likely(err))
-> > +		if (likely(err)) {
-> >  			/* Untagged Frame. */
-> > -			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), pvid);
-> > -		else
-> > +			if (vlan_tx_tag_present(skb)) {
-> > +				/* skb->vlan_proto was different from br->vlan_proto */
-> > +				skb_push(skb, ETH_HLEN);
-> > +				skb = __vlan_put_tag(skb, skb->vlan_proto,
-> > +						     vlan_tx_tag_get(skb));
-> > +				if (unlikely(!skb))
-> > +					return false;
-> > +				skb_pull(skb, ETH_HLEN);
-> > +				skb_reset_mac_len(skb);
-> > +			}
-> > +			__vlan_hwaccel_put_tag(skb, proto, pvid);
+On 03/13/2014 08:33 AM, Toshiaki Makita wrote:
+> On Wed, 2014-03-12 at 13:26 -0400, Vlad Yasevich wrote:
+>> On 03/10/2014 04:11 AM, Toshiaki Makita wrote:
+>>> This enables a bridge to have vlan protocol informantion and allows vlan
+>>> filtering code to take vlan protocols into account.
+> ...
+>>> @@ -173,16 +174,27 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+>>>  		 * ingress frame is considered to belong to this vlan.
+>>>  		 */
+>>>  		*vid = pvid;
+>>> -		if (likely(err))
+>>> +		if (likely(err)) {
+>>>  			/* Untagged Frame. */
+>>> -			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), pvid);
+>>> -		else
+>>> +			if (vlan_tx_tag_present(skb)) {
+>>> +				/* skb->vlan_proto was different from br->vlan_proto */
+>>> +				skb_push(skb, ETH_HLEN);
+>>> +				skb = __vlan_put_tag(skb, skb->vlan_proto,
+>>> +						     vlan_tx_tag_get(skb));
+>>> +				if (unlikely(!skb))
+>>> +					return false;
+>>> +				skb_pull(skb, ETH_HLEN);
+>>> +				skb_reset_mac_len(skb);
+>>> +			}
+>>> +			__vlan_hwaccel_put_tag(skb, proto, pvid);
+>>
+>> So this seems to be handling the case where we had a protocol mis-match.
+>> My question is why are we hiding this case behind our inability to
+>> fetch the vid from the packet.
+>>
+>> I think it might be clearer to make the protocol check explicit
+>> (at least if we were to continue using the approach of defining
+>>  the protocol per bridge).
 > 
-> So this seems to be handling the case where we had a protocol mis-match.
-> My question is why are we hiding this case behind our inability to
-> fetch the vid from the packet.
+> I didn't intend to handle protocol mismatch, but handle the case where
+> the vlan_tci we are about to use happens to be already used.
+> In this function, it can occur only if the frame is originally tagged
+> with another protocol.
 > 
-> I think it might be clearer to make the protocol check explicit
-> (at least if we were to continue using the approach of defining
->  the protocol per bridge).
+> However, indeed, we seem to need the check of skb->vlan_proto only at
+> ingress.
+> So it maybe makes sense to check the vid and the protocol separately.
+> 
+> I'm thinking of changing that code like this.
+> 
+> 	bool untagged;
+> ...
+> 	err = br_vlan_get_tag(skb, vid);
+> 	if (!err) {
+> 		if (skb->vlan_proto != proto) {
+> 			...
+> 			skb = __vlan_put_tag(...);
+> 			...
+> 			*vid = 0;
+> 			untagged = true;
+> 		} else {
+> 			untagged = false;
+> 		}
+> 	} else {
+> 		untagged = true;
+> 	}
+> 
+> 	if (!*vid) {
+> 		...
+> 		if (likely(untagged)) {
+> 			/* Untagged Frame. */
+> 			...
+> 		} else {
+> 			/* Priority-tagged Frame.
+> 			...
+> 		}
+> 	}
+> 
+>>
+>> This code also has a side-effect that it would be permit 802.1ad packets
+>> on an 802.1Q bridge and possibly forward such packets encapsulated yet
+>> again.
+> 
+> Well, this is an interesting situation.
+> But I have no reason to restrict it.
+> Users can configure such an environment if they want.
 
-I didn't intend to handle protocol mismatch, but handle the case where
-the vlan_tci we are about to use happens to be already used.
-In this function, it can occur only if the frame is originally tagged
-with another protocol.
+This is almost like tunnel mode that is available on some switches.
+Does it make sense to explicitly permit/restrict it?
 
-However, indeed, we seem to need the check of skb->vlan_proto only at
-ingress.
-So it maybe makes sense to check the vid and the protocol separately.
-
-I'm thinking of changing that code like this.
-
-	bool untagged;
-...
-	err = br_vlan_get_tag(skb, vid);
-	if (!err) {
-		if (skb->vlan_proto != proto) {
-			...
-			skb = __vlan_put_tag(...);
-			...
-			*vid = 0;
-			untagged = true;
-		} else {
-			untagged = false;
-		}
-	} else {
-		untagged = true;
-	}
-
-	if (!*vid) {
-		...
-		if (likely(untagged)) {
-			/* Untagged Frame. */
-			...
-		} else {
-			/* Priority-tagged Frame.
-			...
-		}
-	}
+-vlad
 
 > 
-> This code also has a side-effect that it would be permit 802.1ad packets
-> on an 802.1Q bridge and possibly forward such packets encapsulated yet
-> again.
-
-Well, this is an interesting situation.
-But I have no reason to restrict it.
-Users can configure such an environment if they want.
-
-Thanks,
-Toshiaki Makita
-
+> Thanks,
+> Toshiaki Makita
+> 
+> 
 
