@@ -1,14 +1,20 @@
-Return-Path: <ben@decadent.org.uk>
-Message-ID: <1394649270.23624.37.camel@deadeye.wl.decadent.org.uk>
-From: Ben Hutchings <ben@decadent.org.uk>
-Date: Wed, 12 Mar 2014 18:34:30 +0000
-In-Reply-To: <1394486725-4992-1-git-send-email-linus.luessing@web.de>
-References: <1394486725-4992-1-git-send-email-linus.luessing@web.de>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-ND43Wsa0Z+34WmYQEoqE"
-Mime-Version: 1.0
-Subject: Re: [Bridge] [PATCHv2 1/2] bridge: multicast: add sanity check for
- general query destination
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=LfnyXO8vwF3G/lHNhMPAvRhkTh5VfiLGFcIQ8Iic3EM=;
+	b=0d/MoyCzUPeHzfDoiMOInyGdVqu+6MFYvkbalU6vzfUo0SwDTazw8//oYM570VxJDH
+	WBfvBaUVcc3czZ6e54JkWjB66Jx95JxWkAuD+WAxEBSj+p5fBFz5ylulclOvN3aLUeng
+	vRZ2Xs/ZTZAnNLV2ZjKOW3HXIRcKVkJKdht8EZZ+l2cegDPpHGLI9FLMp5g+r0wcLRHU
+	qgeVAhU48i81aDASw/oyxm3cfTyRK3g3XUc9Q6t+aSfUQ3C8yLDfNhdWvFER7uJJ6h6x
+	NvL4040KGyzmdJ9ZROUZH4cGZWDCQNEP4Yf1VhLzux+6mqXc/53+j49dp1qBULu3q2Vc
+	89Ow==
+Sender: "Luis R. Rodriguez" <mcgrof@gmail.com>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Wed, 12 Mar 2014 20:15:25 -0700
+Message-Id: <1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
+In-Reply-To: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
+References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
+Subject: [Bridge] [PATCH 1/3] bridge: preserve random init MAC address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,49 +23,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@web.de>
-Cc: netdev@vger.kernel.org, Florian Westphal <fwestpha@redhat.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>, Jan Stancek <jstancek@redhat.com>
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, xen-devel@lists.xenproject.org
 
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
 
---=-ND43Wsa0Z+34WmYQEoqE
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+As it is now if you add create a bridge it gets started
+with a random MAC address and if you then add a net_device
+as a slave but later kick it out you end up with a zero
+MAC address. Instead preserve the original random MAC
+address and use it.
 
-On Mon, 2014-03-10 at 22:25 +0100, Linus L=C3=BCssing wrote:
-> General IGMP and MLD queries are supposed to have the multicast
-> link-local all-nodes address as their destination according to RFC2236
-> section 9, RFC3376 section 4.1.12/9.1, RFC2710 section 8 and RFC3810
-> section 5.1.15.
-[...]
+If you manually set the bridge address that will always
+be respected. This change only takes effect if at the time
+of computing the new root port we determine we have found
+no candidates.
 
-That reminds me, shouldn't we also check this in igmp_rcv()?
+Cc: Stephen Hemminger <stephen@networkplumber.org>
+Cc: bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: xen-devel@lists.xenproject.org
+Cc: kvm@vger.kernel.org
+Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
+---
+ net/bridge/br_device.c  | 1 +
+ net/bridge/br_private.h | 1 +
+ net/bridge/br_stp_if.c  | 3 +++
+ 3 files changed, 5 insertions(+)
 
-Ben.
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index b063050..5f13eac 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -368,6 +368,7 @@ void br_dev_setup(struct net_device *dev)
+ 	br->bridge_id.prio[1] = 0x00;
+ 
+ 	ether_addr_copy(br->group_addr, eth_reserved_addr_base);
++	ether_addr_copy(br->random_init_addr, dev->dev_addr);
+ 
+ 	br->stp_enabled = BR_NO_STP;
+ 	br->group_fwd_mask = BR_GROUPFWD_DEFAULT;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index e1ca1dc..32a06da 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -240,6 +240,7 @@ struct net_bridge
+ 	unsigned long			bridge_hello_time;
+ 	unsigned long			bridge_forward_delay;
+ 
++	u8				random_init_addr[ETH_ALEN];
+ 	u8				group_addr[ETH_ALEN];
+ 	u16				root_port;
+ 
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 189ba1e..4c9ad45 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -239,6 +239,9 @@ bool br_stp_recalculate_bridge_id(struct net_bridge *br)
+ 	if (ether_addr_equal(br->bridge_id.addr, addr))
+ 		return false;	/* no change */
+ 
++	if (ether_addr_equal(addr, br_mac_zero))
++		addr = br->random_init_addr;
++
+ 	br_stp_change_bridge_id(br, addr);
+ 	return true;
+ }
+-- 
+1.8.5.3
 
---=20
-Ben Hutchings
-Any sufficiently advanced bug is indistinguishable from a feature.
-
---=-ND43Wsa0Z+34WmYQEoqE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIVAwUAUyCotue/yOyVhhEJAQrdig/8CVIRl1VyXYVa7PtHzg18ylSpt1ABBSJt
-dTNXvfr8suM1r6HIPW8+OtpRz4kCFhxKbGtdpwN19BNxnAK5IreNtB3fqSVpbSA5
-CO6bp2GW+jmUCwSVPDqVwOys3yl3wWO7FRfFXxiBB5rK6SeXsRf2pApdYP0ZxTBJ
-hATVKTsVNhlpsJeaqfwi5ClyWpSOvgSg8nZXzDI8nkPbrg+h0ZSwvZKePl9xNCBb
-l5m7qgoWf8C1be5C2XMA3+KsypYdPtPvPEdEYcfPOxCgk6tIkeqnJgn7qazg5p1Q
-ats/ISFfZc0cpju2s/PdxF5J0KWUZ1vX1WChh1bukkjp+zvka03mz5mhQvtxIFx6
-Ha7vz1wtegY4P1gjlrgmY/yPLME+nDnHKKq49+zsOzblTU641+0KjaUb8wSEmC+m
-45seNczCHyZie3Qua/GIKr0KObu+mPB5Ji6+OitkHtoaGIPfG7UC+ee69YM2mzH3
-KuOqi5PQd7lFLvilh0L3SqnWg3Z0HW2H44mHtbqTm89mbjhREsOOKT+O/HbQZ6ji
-GFYyMPypWlELq4PqfNNtbFDpw62jE77NVQ1dZ5UFEIjERqdLJGyUwWfhGfOIOkTx
-oZ8IimWG6NqRviPaj/kKcDjtIHASjaI4GF1wMfJwO0LedUK0ilqdd2YQo3aXir88
-oWUx+dE6Ogs=
-=9o4B
------END PGP SIGNATURE-----
-
---=-ND43Wsa0Z+34WmYQEoqE--
