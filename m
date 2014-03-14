@@ -1,21 +1,28 @@
-Return-Path: <ajaykanala321@gmail.com>
+Return-Path: <toshiaki.makita1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:content-type; bh=WqhISCB9DuFzqQVW7zT3dU0T4bUaLnQv4twkLhm64UE=;
-	b=j51NBxglko76KXv6YOgitnNcXnK2oanJlJFT7hlGcyIPnAINyfOFxs9QaCleYLXYf6
-	36J9CAY8Khxb18XTuxQYtj6IOwwEl9+/dwAZCcws3SFqqEKGXevqm8zorj2XGxTZGz8K
-	xZdVxVupUErDUkIKr+5iAk0c6dy4e7Yi/ickuTaiobPujFDhaHvsHfncqAl3MXNExQEh
-	PuslGHlDqKpWzh5S6tX66/BrluyXrhjOgPKsUgZJ7pCVdndhVg0gVxc+jQLV1ISQ5ZJu
-	QCVZf2JrftFhGSXEi73Y7oC/xAgMg5PsJHiZIIIn0VDjcQRu0L3GtMk4mWF9AJV4TYaA
-	SO1g==
-MIME-Version: 1.0
-In-Reply-To: <CAFxy--YE-jVQ2CH9gUgUsyTpAvJHYfHEApAMUR0JNynMM2DLKw@mail.gmail.com>
-References: <CAFxy--YE-jVQ2CH9gUgUsyTpAvJHYfHEApAMUR0JNynMM2DLKw@mail.gmail.com>
-Date: Fri, 14 Mar 2014 17:23:58 +0530
-Message-ID: <CAFxy--a+9_dxFfLe5P-rjLUNjKX6StrWy9n43Z+2LagRptAhmw@mail.gmail.com>
-From: ajay kanala <ajaykanala321@gmail.com>
-Content-Type: multipart/alternative; boundary=089e011769d19b09c004f48fb90e
-Subject: Re: [Bridge] linux 3.10.12 bridge gso with ethtool
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:mime-version:content-transfer-encoding;
+	bh=D/Yu1+AsSPFO5vZ43jzq7jInXk559Jd+KMGkKu77z1w=;
+	b=yOCEEtmwLPST7nL1GH65wfnin7PsTQfcpwuuAoqYdqkF6UMmmCKA6Ub6MTloFlQMrN
+	ZtuYkh3NbvzIH+a684W0dgWLEsmZnjOky0vhXpiItMyK6ymZZ/1f/Ku8LB5vh4t8l7Jj
+	Sy+h/ix6FPoOy68jdmUroAtamzX5Z1JM5KSRnCZSLYzfo+Z7UagCy9FRTQCozLWfAm/a
+	qJs+TNolVxPqvMjXS483mQZgHKJdKl1eSuZ/46Doiz0G3dF8ikqpIqDMqir/iTaiL33a
+	4JtRKw5vEuZNxeXAeWcpqJm/fvxCbDM/qx/TAsyTfxNS+O0At6n0LDCaiyzmcg2Xiaun
+	l/ag==
+Message-ID: <1394813936.1758.23.camel@localhost.localdomain>
+From: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Date: Sat, 15 Mar 2014 01:18:56 +0900
+In-Reply-To: <5321B85B.1020203@redhat.com>
+References: <1394439067-10477-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1394439067-10477-3-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<532098D2.6050504@redhat.com>
+	<1394714017.4078.51.camel@ubuntu-vm-makita>
+	<5321B85B.1020203@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH RFC 2/3] bridge: Prepare for 802.1ad vlan
+ filtering support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,70 +31,111 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: vyasevic@redhat.com
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
---089e011769d19b09c004f48fb90e
-Content-Type: text/plain; charset=ISO-8859-1
+On Thu, 2014-03-13 at 09:53 -0400, Vlad Yasevich wrote:
+> On 03/13/2014 08:33 AM, Toshiaki Makita wrote:
+> > On Wed, 2014-03-12 at 13:26 -0400, Vlad Yasevich wrote:
+> >> On 03/10/2014 04:11 AM, Toshiaki Makita wrote:
+> >>> This enables a bridge to have vlan protocol informantion and allows vlan
+> >>> filtering code to take vlan protocols into account.
+> > ...
+> >>> @@ -173,16 +174,27 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+> >>>  		 * ingress frame is considered to belong to this vlan.
+> >>>  		 */
+> >>>  		*vid = pvid;
+> >>> -		if (likely(err))
+> >>> +		if (likely(err)) {
+> >>>  			/* Untagged Frame. */
+> >>> -			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), pvid);
+> >>> -		else
+> >>> +			if (vlan_tx_tag_present(skb)) {
+> >>> +				/* skb->vlan_proto was different from br->vlan_proto */
+> >>> +				skb_push(skb, ETH_HLEN);
+> >>> +				skb = __vlan_put_tag(skb, skb->vlan_proto,
+> >>> +						     vlan_tx_tag_get(skb));
+> >>> +				if (unlikely(!skb))
+> >>> +					return false;
+> >>> +				skb_pull(skb, ETH_HLEN);
+> >>> +				skb_reset_mac_len(skb);
+> >>> +			}
+> >>> +			__vlan_hwaccel_put_tag(skb, proto, pvid);
+> >>
+> >> So this seems to be handling the case where we had a protocol mis-match.
+> >> My question is why are we hiding this case behind our inability to
+> >> fetch the vid from the packet.
+> >>
+> >> I think it might be clearer to make the protocol check explicit
+> >> (at least if we were to continue using the approach of defining
+> >>  the protocol per bridge).
+> > 
+> > I didn't intend to handle protocol mismatch, but handle the case where
+> > the vlan_tci we are about to use happens to be already used.
+> > In this function, it can occur only if the frame is originally tagged
+> > with another protocol.
+> > 
+> > However, indeed, we seem to need the check of skb->vlan_proto only at
+> > ingress.
+> > So it maybe makes sense to check the vid and the protocol separately.
+> > 
+> > I'm thinking of changing that code like this.
+> > 
+> > 	bool untagged;
+> > ...
+> > 	err = br_vlan_get_tag(skb, vid);
+> > 	if (!err) {
+> > 		if (skb->vlan_proto != proto) {
+> > 			...
+> > 			skb = __vlan_put_tag(...);
+> > 			...
+> > 			*vid = 0;
+> > 			untagged = true;
+> > 		} else {
+> > 			untagged = false;
+> > 		}
+> > 	} else {
+> > 		untagged = true;
+> > 	}
+> > 
+> > 	if (!*vid) {
+> > 		...
+> > 		if (likely(untagged)) {
+> > 			/* Untagged Frame. */
+> > 			...
+> > 		} else {
+> > 			/* Priority-tagged Frame.
+> > 			...
+> > 		}
+> > 	}
+> > 
+> >>
+> >> This code also has a side-effect that it would be permit 802.1ad packets
+> >> on an 802.1Q bridge and possibly forward such packets encapsulated yet
+> >> again.
+> > 
+> > Well, this is an interesting situation.
+> > But I have no reason to restrict it.
+> > Users can configure such an environment if they want.
+> 
+> This is almost like tunnel mode that is available on some switches.
+> Does it make sense to explicitly permit/restrict it?
 
-Hi,
-Any pointers would be appreciated !!
+I haven't found a description to prohibit a 802.1Q bridge from
+encapsulating S-tagged frames. So I'm permitting it.
+A C-VLAN component shouldn't recognize S-tag according to 802.1Q-2011
+5.5. Therefore, a C-VLAN component behaves regardless of existence of
+S-tag.
 
-regards
-ajay
+I think some switches support stacked 802.1Q tags (not using 802.1ad).
+This can't be realized by current implementation. It maybe needs an
+option to insert a new tag even if the received frame is already tagged.
+
+BTW, I happen to have noticed that an S-VLAN bridge uses different
+destination MAC address for STP (802.1Q-2011 8.13.5 and 13.2).
+I have to consider it and something similar to it (LACPDU, etc).
+
+Thanks,
+Toshiaki Makita
 
 
-On Wed, Mar 12, 2014 at 10:25 PM, ajay kanala <ajaykanala321@gmail.com>wrote:
-
-> Hi,
-> I am not sure if this is the right forum, please guide me to the right one
-> if not.
->
-> I am using a mips linux based router where i used linux kernel 2.6.32 for
-> some time. In such scenario, i could turn off gso of a linux bridge using
-> ethtool without any problems ( i had eth0 under br0 ).
->
-> Recently i switched to kernel 3.10.12 and setting on gso flag using
-> ethtool on the bridge interface br0 does not work and always throws up
-> error "Could not change any device features".
->
-> I am clueless what to do here as my device drivers are same across kernel
-> upgrades. I only changed ethtool version to 3.10. Any pointers would be
-> appreciated.
->
-> Thanks for your time ..
->
-> regards
-> ajay
->
->
-
---089e011769d19b09c004f48fb90e
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div><div>Hi,<br></div>Any pointers would be apprecia=
-ted !!<br><br></div>regards<br></div>ajay<br></div><div class=3D"gmail_extr=
-a"><br><br><div class=3D"gmail_quote">On Wed, Mar 12, 2014 at 10:25 PM, aja=
-y kanala <span dir=3D"ltr">&lt;<a href=3D"mailto:ajaykanala321@gmail.com" t=
-arget=3D"_blank">ajaykanala321@gmail.com</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div dir=3D"ltr"><div><div><div><div>Hi,<br>=
-I am not sure if this is the right forum, please guide me to the right one =
-if not.<br>
-<br></div>I am using a mips linux based router where i used linux kernel 2.=
-6.32 for some time. In such scenario, i could turn off gso of a linux bridg=
-e using ethtool without any problems ( i had eth0 under br0 ).<br>
-<br></div>Recently i switched to kernel 3.10.12 and setting on gso flag usi=
-ng ethtool on the bridge interface br0 does not work and always throws up e=
-rror &quot;Could not change any device features&quot;.<br><br></div><div>
-
-I am clueless what to do here as my device drivers are same across kernel u=
-pgrades. I only changed ethtool version to 3.10. Any pointers would be appr=
-eciated.<br><br></div>Thanks for your time ..<br><br></div><div>regards<spa=
-n class=3D"HOEnZb"><font color=3D"#888888"><br>
-
-</font></span></div><span class=3D"HOEnZb"><font color=3D"#888888"><div>aja=
-y<br></div><br></font></span></div>
-</blockquote></div><br></div>
-
---089e011769d19b09c004f48fb90e--
