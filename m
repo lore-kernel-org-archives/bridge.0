@@ -1,28 +1,14 @@
-Return-Path: <toshiaki.makita1@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:mime-version:content-transfer-encoding;
-	bh=D/Yu1+AsSPFO5vZ43jzq7jInXk559Jd+KMGkKu77z1w=;
-	b=yOCEEtmwLPST7nL1GH65wfnin7PsTQfcpwuuAoqYdqkF6UMmmCKA6Ub6MTloFlQMrN
-	ZtuYkh3NbvzIH+a684W0dgWLEsmZnjOky0vhXpiItMyK6ymZZ/1f/Ku8LB5vh4t8l7Jj
-	Sy+h/ix6FPoOy68jdmUroAtamzX5Z1JM5KSRnCZSLYzfo+Z7UagCy9FRTQCozLWfAm/a
-	qJs+TNolVxPqvMjXS483mQZgHKJdKl1eSuZ/46Doiz0G3dF8ikqpIqDMqir/iTaiL33a
-	4JtRKw5vEuZNxeXAeWcpqJm/fvxCbDM/qx/TAsyTfxNS+O0At6n0LDCaiyzmcg2Xiaun
-	l/ag==
-Message-ID: <1394813936.1758.23.camel@localhost.localdomain>
-From: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Date: Sat, 15 Mar 2014 01:18:56 +0900
-In-Reply-To: <5321B85B.1020203@redhat.com>
-References: <1394439067-10477-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1394439067-10477-3-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<532098D2.6050504@redhat.com>
-	<1394714017.4078.51.camel@ubuntu-vm-makita>
-	<5321B85B.1020203@redhat.com>
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <davem@davemloft.net>
+Date: Mon, 17 Mar 2014 21:50:05 -0400 (EDT)
+Message-Id: <20140317.215005.1881170250001094391.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1394630096-14239-1-git-send-email-michael-dev@fami-braun.de>
+References: <1394630096-14239-1-git-send-email-michael-dev@fami-braun.de>
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH RFC 2/3] bridge: Prepare for 802.1ad vlan
- filtering support
+Subject: Re: [Bridge] [PATCH] Notify userspace about bridge learning MAC on
+	new port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,111 +17,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: michael-dev@fami-braun.de
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Thu, 2014-03-13 at 09:53 -0400, Vlad Yasevich wrote:
-> On 03/13/2014 08:33 AM, Toshiaki Makita wrote:
-> > On Wed, 2014-03-12 at 13:26 -0400, Vlad Yasevich wrote:
-> >> On 03/10/2014 04:11 AM, Toshiaki Makita wrote:
-> >>> This enables a bridge to have vlan protocol informantion and allows vlan
-> >>> filtering code to take vlan protocols into account.
-> > ...
-> >>> @@ -173,16 +174,27 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
-> >>>  		 * ingress frame is considered to belong to this vlan.
-> >>>  		 */
-> >>>  		*vid = pvid;
-> >>> -		if (likely(err))
-> >>> +		if (likely(err)) {
-> >>>  			/* Untagged Frame. */
-> >>> -			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), pvid);
-> >>> -		else
-> >>> +			if (vlan_tx_tag_present(skb)) {
-> >>> +				/* skb->vlan_proto was different from br->vlan_proto */
-> >>> +				skb_push(skb, ETH_HLEN);
-> >>> +				skb = __vlan_put_tag(skb, skb->vlan_proto,
-> >>> +						     vlan_tx_tag_get(skb));
-> >>> +				if (unlikely(!skb))
-> >>> +					return false;
-> >>> +				skb_pull(skb, ETH_HLEN);
-> >>> +				skb_reset_mac_len(skb);
-> >>> +			}
-> >>> +			__vlan_hwaccel_put_tag(skb, proto, pvid);
-> >>
-> >> So this seems to be handling the case where we had a protocol mis-match.
-> >> My question is why are we hiding this case behind our inability to
-> >> fetch the vid from the packet.
-> >>
-> >> I think it might be clearer to make the protocol check explicit
-> >> (at least if we were to continue using the approach of defining
-> >>  the protocol per bridge).
-> > 
-> > I didn't intend to handle protocol mismatch, but handle the case where
-> > the vlan_tci we are about to use happens to be already used.
-> > In this function, it can occur only if the frame is originally tagged
-> > with another protocol.
-> > 
-> > However, indeed, we seem to need the check of skb->vlan_proto only at
-> > ingress.
-> > So it maybe makes sense to check the vid and the protocol separately.
-> > 
-> > I'm thinking of changing that code like this.
-> > 
-> > 	bool untagged;
-> > ...
-> > 	err = br_vlan_get_tag(skb, vid);
-> > 	if (!err) {
-> > 		if (skb->vlan_proto != proto) {
-> > 			...
-> > 			skb = __vlan_put_tag(...);
-> > 			...
-> > 			*vid = 0;
-> > 			untagged = true;
-> > 		} else {
-> > 			untagged = false;
-> > 		}
-> > 	} else {
-> > 		untagged = true;
-> > 	}
-> > 
-> > 	if (!*vid) {
-> > 		...
-> > 		if (likely(untagged)) {
-> > 			/* Untagged Frame. */
-> > 			...
-> > 		} else {
-> > 			/* Priority-tagged Frame.
-> > 			...
-> > 		}
-> > 	}
-> > 
-> >>
-> >> This code also has a side-effect that it would be permit 802.1ad packets
-> >> on an 802.1Q bridge and possibly forward such packets encapsulated yet
-> >> again.
-> > 
-> > Well, this is an interesting situation.
-> > But I have no reason to restrict it.
-> > Users can configure such an environment if they want.
+From: Michael Braun <michael-dev@fami-braun.de>
+Date: Wed, 12 Mar 2014 14:14:56 +0100
+
+> Currently, the userspace is informed about the port the MAC is learned on a
+> bridge and about the bridge removing the MAC from its forwarding table, but not
+> when the MAC is learned on a different port.
+> This is inconsistent and makes it difficult for applications to keep track
+> of all MACs learned by a bridge on a subset of its ports.
 > 
-> This is almost like tunnel mode that is available on some switches.
-> Does it make sense to explicitly permit/restrict it?
+> Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
+> Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
 
-I haven't found a description to prohibit a 802.1Q bridge from
-encapsulating S-tagged frames. So I'm permitting it.
-A C-VLAN component shouldn't recognize S-tag according to 802.1Q-2011
-5.5. Therefore, a C-VLAN component behaves regardless of existence of
-S-tag.
+Please use a proper subsystem prefix in your Subject lines, for
+example:
 
-I think some switches support stacked 802.1Q tags (not using 802.1ad).
-This can't be realized by current implementation. It maybe needs an
-option to insert a new tag even if the received frame is already tagged.
+"Subject: [PATCH] bridge: Notify userspace about learning MAC on new port"
 
-BTW, I happen to have noticed that an S-VLAN bridge uses different
-destination MAC address for STP (802.1Q-2011 8.13.5 and 13.2).
-I have to consider it and something similar to it (LACPDU, etc).
+Would have been more appropriate here.
 
-Thanks,
-Toshiaki Makita
-
-
+Stephen, can you review the substance of this patch please?
