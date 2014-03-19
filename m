@@ -1,13 +1,24 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Tue, 18 Mar 2014 20:10:56 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20140318201056.7b876394@nehalam.linuxnetplumber.net>
-In-Reply-To: <1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc:content-type;
+	bh=IbuoPPWNtfVTq4zvkvbnanQ0Mio9OgpsKzZ04lM+IW4=;
+	b=WlS6qK6z6X98VqkEoQfOyUtZCw/WCCvrraqETG5GPTFnWfQq5e0dMes90cI5BU9oGz
+	fGHR0fmEG2iaDtuECdZ2mLqXBWtaSd8ms8w6Da13/uOuB0VaHbCn281Q0M6IkkjLpZwz
+	CyMpFuMFV7zXmbmWRQrnU39dH0hb295Cj1L2wN3vr/hzTqibtXNqmQNmzqVW4lvxr3s+
+	UbSndrmnGxNcTEBiKdctI0oh6vSUPVy6m9U9Yd0FNjZNWNrsP4K4JZpzw4ksAjRvtjjr
+	7E4fc0B+s30AjEqG3PI8Ml4dSkIkdd0k1SAUJPNa5N6ctNfLZSc5J5deaTye4zJfBLBG
+	476g==
+MIME-Version: 1.0
+Sender: mcgrof@gmail.com
+In-Reply-To: <20140318201056.7b876394@nehalam.linuxnetplumber.net>
 References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
 	<1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20140318201056.7b876394@nehalam.linuxnetplumber.net>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Tue, 18 Mar 2014 20:37:35 -0700
+Message-ID: <CAB=NE6UgOL_d3MYyhqiLAZw-TLsf4wDu3NTW3+Zv1rJ6Exkdhg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [PATCH 1/3] bridge: preserve random init MAC address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -17,37 +28,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, mcgrof@suse.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, xen-devel@lists.xenproject.org
 
-On Wed, 12 Mar 2014 20:15:25 -0700
-"Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+On Tue, Mar 18, 2014 at 8:10 PM, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> On Wed, 12 Mar 2014 20:15:25 -0700
+> "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
+>
+>> As it is now if you add create a bridge it gets started
+>> with a random MAC address and if you then add a net_device
+>> as a slave but later kick it out you end up with a zero
+>> MAC address. Instead preserve the original random MAC
+>> address and use it.
+>
+> What is supposed to happen is that the recalculate chooses
+> the lowest MAC address of the slaves. If there are no slaves
+> it might as well just calculate a new random value. There is
+> not great merit in preserving the original defunct address.
 
-> As it is now if you add create a bridge it gets started
-> with a random MAC address and if you then add a net_device
-> as a slave but later kick it out you end up with a zero
-> MAC address. Instead preserve the original random MAC
-> address and use it.
+OK I'll go and add some changes for this then.
 
-What is supposed to happen is that the recalculate chooses
-the lowest MAC address of the slaves. If there are no slaves
-it might as well just calculate a new random value. There is
-not great merit in preserving the original defunct address.
-
-Or something like this that just keeps the old value.
-The bridge is in a meaningless state when there are no ports,
-and when the first port is added back it will be used as the
-new bridge id.
-
---- a/net/bridge/br_stp_if.c	2014-02-12 08:21:56.733857356 -0800
-+++ b/net/bridge/br_stp_if.c	2014-03-18 20:09:09.334388826 -0700
-@@ -235,6 +235,9 @@ bool br_stp_recalculate_bridge_id(struct
- 			addr = p->dev->dev_addr;
- 
- 	}
-+
-+	if (addr == br_mac_zero)
-+		return false;  /* keep original address */
- 
- 	if (ether_addr_equal(br->bridge_id.addr, addr))
- 		return false;	/* no change */
+  Luis
