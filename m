@@ -1,25 +1,20 @@
-Return-Path: <mcgrof@gmail.com>
+Return-Path: <ratheesh.ksz@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc:content-type;
-	bh=IbuoPPWNtfVTq4zvkvbnanQ0Mio9OgpsKzZ04lM+IW4=;
-	b=WlS6qK6z6X98VqkEoQfOyUtZCw/WCCvrraqETG5GPTFnWfQq5e0dMes90cI5BU9oGz
-	fGHR0fmEG2iaDtuECdZ2mLqXBWtaSd8ms8w6Da13/uOuB0VaHbCn281Q0M6IkkjLpZwz
-	CyMpFuMFV7zXmbmWRQrnU39dH0hb295Cj1L2wN3vr/hzTqibtXNqmQNmzqVW4lvxr3s+
-	UbSndrmnGxNcTEBiKdctI0oh6vSUPVy6m9U9Yd0FNjZNWNrsP4K4JZpzw4ksAjRvtjjr
-	7E4fc0B+s30AjEqG3PI8Ml4dSkIkdd0k1SAUJPNa5N6ctNfLZSc5J5deaTye4zJfBLBG
-	476g==
+	h=mime-version:date:message-id:subject:from:to:content-type;
+	bh=AnfIQeo3lAYiA4tpxhvCxfnv/486qzofL3DzLseZYjs=;
+	b=wBb88VZ27vC4tg9JBrA7x1S03E5koxs9T0la0kMR12qRBRN5X7kjUvkD1i8VVGsjkK
+	44wGAvP8j8Obl/AkproN0EiD8lUOan0CnRM0HxIgAQUQO2O9lDQKzOsTTS89ZWffjw4k
+	2LStL1jpPNMnmKOT+wbZj8+1l2FpmEdLJ9sAOCIPE451VD/R7lRxhaugemOZEaXFc41w
+	yotXdJnVBT10GT7bGqpeetrNskvIfgmpW049B5AMY/w767uD4mqy1/Li06N5sBcQqEg4
+	RaimBVE8qRXBQPv0gaA7mDFckcSx41xuPhNsPL8ybqC/5jm/wiii4q3t4ARLgFKiG+uJ
+	S2Ew==
 MIME-Version: 1.0
-Sender: mcgrof@gmail.com
-In-Reply-To: <20140318201056.7b876394@nehalam.linuxnetplumber.net>
-References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-	<1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
-	<20140318201056.7b876394@nehalam.linuxnetplumber.net>
-From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Date: Tue, 18 Mar 2014 20:37:35 -0700
-Message-ID: <CAB=NE6UgOL_d3MYyhqiLAZw-TLsf4wDu3NTW3+Zv1rJ6Exkdhg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH 1/3] bridge: preserve random init MAC address
+Date: Wed, 19 Mar 2014 12:18:03 +0530
+Message-ID: <CAGZFCEEbccO36dib87TXjVyVudmYhP_Ukgc-MgYOij=adZ=_Tw@mail.gmail.com>
+From: ratheesh kannoth <ratheesh.ksz@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Subject: [Bridge] How packet finally reach internal_dev_xmit() routine from
+	outside ?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,25 +23,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, xen-devel@lists.xenproject.org
+To: bridge@lists.linux-foundation.org, discuss@openvswitch.org
 
-On Tue, Mar 18, 2014 at 8:10 PM, Stephen Hemminger
-<stephen@networkplumber.org> wrote:
-> On Wed, 12 Mar 2014 20:15:25 -0700
-> "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
->
->> As it is now if you add create a bridge it gets started
->> with a random MAC address and if you then add a net_device
->> as a slave but later kick it out you end up with a zero
->> MAC address. Instead preserve the original random MAC
->> address and use it.
->
-> What is supposed to happen is that the recalculate chooses
-> the lowest MAC address of the slaves. If there are no slaves
-> it might as well just calculate a new random value. There is
-> not great merit in preserving the original defunct address.
+Hi list,
 
-OK I'll go and add some changes for this then.
 
-  Luis
+openvswitch internal devices are not real nic. So some routine should
+receive the packet  for this interface. Who is receiving packet for
+this internal device.
+Any clue is really appreciated .
+
+
+-Ratheesh
