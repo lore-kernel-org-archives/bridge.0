@@ -1,16 +1,15 @@
 Return-Path: <lurodriguez@suse.de>
 From: "Luis R. Rodriguez" <mcgrof@suse.com>
-Message-ID: <20140315020826.GB28801@wotan.suse.de>
+Message-ID: <20140320020540.GF28801@wotan.suse.de>
 References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-	<1394680527-28970-4-git-send-email-mcgrof@do-not-panic.com>
-	<20140313151623.03e0484d@nehalam.linuxnetplumber.net>
+	<1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
+	<20140318201056.7b876394@nehalam.linuxnetplumber.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
+	protocol="application/pgp-signature"; boundary="Rgf3q3z9SdmXC6oT"
 Content-Disposition: inline
-In-Reply-To: <20140313151623.03e0484d@nehalam.linuxnetplumber.net>
-Subject: Re: [Bridge] [PATCH 3/3] bridge: fix bridge root block on
-	designated port
+In-Reply-To: <20140318201056.7b876394@nehalam.linuxnetplumber.net>
+Subject: Re: [Bridge] [PATCH 1/3] bridge: preserve random init MAC address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,79 +18,95 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sat, 15 Mar 2014 02:08:28 -0000
+Date: Thu, 20 Mar 2014 02:05:44 -0000
 To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
 
 
---rS8CxjVDS/+yyDmU
+--Rgf3q3z9SdmXC6oT
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 13, 2014 at 03:16:23PM -0700, Stephen Hemminger wrote:
-> On Wed, 12 Mar 2014 20:15:27 -0700
+On Tue, Mar 18, 2014 at 08:10:56PM -0700, Stephen Hemminger wrote:
+> On Wed, 12 Mar 2014 20:15:25 -0700
 > "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
 >=20
-> > --- a/net/bridge/br_private.h
-> > +++ b/net/bridge/br_private.h
-> > @@ -150,6 +150,7 @@ struct net_bridge_port
-> >  	u8				priority;
-> >  	u8				state;
-> >  	u16				port_no;
-> > +	bool				root_block_enabled;
-> >  	unsigned char			topology_change_ack;
+> > As it is now if you add create a bridge it gets started
+> > with a random MAC address and if you then add a net_device
+> > as a slave but later kick it out you end up with a zero
+> > MAC address. Instead preserve the original random MAC
+> > address and use it.
 >=20
-> It seems a bit confusing to have both a ROOT_BLOCK flag in the
-> data structure and and additional root_block_enabled flag.
-> If nothing else it is a waste of space.
+> What is supposed to happen is that the recalculate chooses
+> the lowest MAC address of the slaves. If there are no slaves
+> it might as well just calculate a new random value. There is
+> not great merit in preserving the original defunct address.
+>=20
+> Or something like this
+> --- a/net/bridge/br_stp_if.c	2014-02-12 08:21:56.733857356 -0800
+> +++ b/net/bridge/br_stp_if.c	2014-03-18 20:09:09.334388826 -0700
+> @@ -235,6 +235,9 @@ bool br_stp_recalculate_bridge_id(struct
+>  			addr =3D p->dev->dev_addr;
+> =20
+>  	}
+> +
+> +	if (addr =3D=3D br_mac_zero)
+> +		return false;  /* keep original address */
+> =20
+>  	if (ether_addr_equal(br->bridge_id.addr, addr))
+>  		return false;	/* no change */
+>=20
+> that just keeps the old value.
 
-Indeed, however there is a use for it. Consider the case where we loop
-over each port and check to see if its root blocked and need to tickle it
-or the bridge. In the case that root port block was enabled before and
-someone is lifting it the flag would be removed and therefore not on
-but it was root blocked though and we need a way to keep track of that.
+The old value could be a port which got root blocked, I think
+it can be confusing to see that happen. Either way feel free to
+make the call, I'll provide more details below on perhaps one reason
+to keep the original MAC address.
 
-The flag then is a toggle for userspace, while the bool tells us about
-the current state.
+> The bridge is in a meaningless state when there are no ports,
 
-> Looks like you are changing the meaning slightly.=20
+Some virtualization topologies may want a backend with no link (or
+perhaps one which is dynamic, with the option to have none) to the
+internet but just a bridge so guests sharing the bridge can talk to=20
+each other. In this case bridging can be used only to link the
+batch of guests.
 
-Let me know in what way. I can't see it.
+In this case the bridge simply acts as a switch, but also can be used as the
+interface for DHCP, for example. In such a case the guests will be doing
+ARP to get to the DHCP server. There's a flurry of ways one can try to get
+all this meshed together including enablign an ARP proxy but I'm looking
+at ways to optimize this further -- but I'd like to address the current
+usage cases first.
 
-> is possible to have BR_ROOT_BLOCK set but !root_block_enabled?=20
+> and when the first port is added back it will be used as the
+> new bridge id.
 
-Yeah in the case a new request to set it to root block then
-BR_ROOT_BLOCK would be set but root_block_enabled would not be set.
-
-> and what about the inverse?
-
-BR_ROOT_BLOCK would not be set when userspace wants to disable root
-port block and root_block_enabled would be enabled in this case if
-it used to be enabled. So yes, both are possible.
+Sure. Let me know how you think we should proceed with this patch based
+on the above.
 
   Luis
 
---rS8CxjVDS/+yyDmU
+--Rgf3q3z9SdmXC6oT
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.9 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTI7YaAAoJEPep4JnvMe6ztNIP/RZehJge9AcubruD2vcmbM/w
-d+LJiCu0kKCqvpyeFSN6uXlcdvCr0wCJkTspqBKLtNCmBXgrHX9E3OOUOKMHz3EL
-6oXnf40NfMz4+yWrQ6dnnbUKsjzrtQ14sMz3T1iheVK9MvpHSDjoFi3XraC8NJoD
-SUN+/TvgZ/7wGfDVhvOyrLrpDhnuSQm0YXGXahV/1aK1jZnbc1Fg/AT+ZLTZ7WWT
-96y4G97VZagnBCqe4AQUptziGllAPeaBko7xKZL7gOiw1Kmp7cjfP62j/A2J3l1t
-iwLTmHazeviqmhK3a1V1LK5KV4BPItkTv99zwXr7dmgRNuTf30UGfs+1fSjYwRy+
-aXxfC+MCLLqvOUlWxLbRCnWkwi06jZPquvG8cjXsl4h8+WqurEY8u/+hvHHb2LhW
-STqJCv9q/xQ3jVp6lQUvySujUZNazw+qGkgeuaff8j+DcyI3epsQ3ZS1XpBlFJXY
-dCs2T3rBS45hsRrqtWKpDwcR2lpaXmw2eIU4ArQqo+OZZZq6qfe25s0wjz8dSZza
-n2RhCrzwLutfRfbn3KDSf7jwVAj8MrhYfphneD7kDrMzVeKS0J95rSgSmn/yaPFu
-A87BE4D2Rg5xAR/7TgghNkjXDFWm3b1+96B3L3SH6cYjnv+F1eOYbRwoKzPNtJ2i
-FDGu3k5NtcQfxk6sfklJ
-=BNbf
+iQIcBAEBAgAGBQJTKkz0AAoJEPep4JnvMe6zIjQQAIaPp0PA7yP7u0xd9zfXEk6D
+Wu8DWiwDpRFzUiXwzG0YP8D5uyorvKTfsgb+7HUYbswbkOxa5HdwCrggT63+SPb8
++d4UqH8nQTCx0yRXU52UFb6kAwyaNGrd5TiGZgwVSE2XzO2S7+Epjcjm+nwnfX63
+v7j410NCswB7rMYHiyGDWTIFWMoEy31f/xDPs+hSTVIXbCrg84D2kP0wIlULKsa9
+Q1U4GyPRK5o6AATOsZHzcwnzNNgaTNtOYh1tOcOm7+Xl7cY/HCKjKar0M730CuDU
+ltni1SN0DeIjPqzrXnLZPRdKfa73/CAIacrADVkr8SqtZPHmQSN1L2NHSGZrRRl3
+32otSLedC4nilbKdF199fIj0HrJwp/ik4vZjfYPjjZTxr9bBlZBfbgOOFbO8Xc3h
+4koN4wkTf9/MainQL/2NVC1QCmh00tJ/CabkuN/sFAYFPJd7ykECHMbXQol/w66v
+lvaEEk27oig1JXMcu1x9a7sn1n3YmCsnnV/E04sfBULKVhflsK2Keuy2z5TeXLjR
+93b1+QrJIdaUJt9CQkgxO7Kzjs4azMRpLl/7/uB8X6SuAOJyhmKbrxPhR6PAbdD8
+uqBUbAFwKiKEEgPKEjZ5KnyBrUXGiASVRqOjYYGOiscFHQfqWawf9lzZXjsJps/4
+u7Z/zpcajDEKowIpYtr3
+=v79u
 -----END PGP SIGNATURE-----
 
---rS8CxjVDS/+yyDmU--
+--Rgf3q3z9SdmXC6oT--
