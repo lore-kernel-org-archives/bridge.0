@@ -1,15 +1,18 @@
-Return-Path: <lurodriguez@suse.de>
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-Message-ID: <20140320020540.GF28801@wotan.suse.de>
-References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-	<1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
-	<20140318201056.7b876394@nehalam.linuxnetplumber.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Rgf3q3z9SdmXC6oT"
-Content-Disposition: inline
-In-Reply-To: <20140318201056.7b876394@nehalam.linuxnetplumber.net>
-Subject: Re: [Bridge] [PATCH 1/3] bridge: preserve random init MAC address
+Return-Path: <monamagarwal123@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:to:subject:date:message-id;
+	bh=TBAN1W9rlNjhbb+ZVmjKIpGArXpE5IaIhbp4u7HYRbs=;
+	b=XYfWNGzibOZCdh4gLelF8JaWQorgd6jC69Z58pwTttpb8H7U0H24MLSuY3SHJ+npo9
+	D5xawNaB8nwlnEamBKeQBr9Fj/3FpiJ+A9xehJ7R4LZPhb+VOFjfy+Ofu7myWViLQm8x
+	AuEKMW5meiJlpWYYBT7FZF/QxP+/dWGZ0lY8/gb+GBnCPkcaPw+V33tzQBs/aV633S8d
+	oShivTjz2ItQI7+DnW+E3MaPZBwdb4Ymld0NMGTYmcoprzhcLPJM0Ie9+mm1mFtSgXUE
+	ky6wjx/OAhzvZyyFc0ukLgIAHmwskUFVgpVQNlh3cTFoULHdYw+KIqzNduK3Ke5Lh2IL
+	+NqQ==
+From: Monam Agarwal <monamagarwal123@gmail.com>
+Date: Mon, 24 Mar 2014 00:41:13 +0530
+Message-Id: <1395601873-12447-1-git-send-email-monamagarwal123@gmail.com>
+Subject: [Bridge] [PATCH] net/bridge: Use RCU_INIT_POINTER(x,
+	NULL) in br_vlan.c
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,95 +21,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 20 Mar 2014 02:05:44 -0000
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
+To: stephen@networkplumber.org, davem@davemloft.net, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
+This patch replaces rcu_assign_pointer(x, NULL) with RCU_INIT_POINTER(x, NULL)
 
---Rgf3q3z9SdmXC6oT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The rcu_assign_pointer() ensures that the initialization of a structure       
+is carried out before storing a pointer to that structure. 
+And in the case of the NULL pointer, there is no structure to initialize. 
+So, rcu_assign_pointer(p, NULL) can be safely converted to RCU_INIT_POINTER(p, NULL)
 
-On Tue, Mar 18, 2014 at 08:10:56PM -0700, Stephen Hemminger wrote:
-> On Wed, 12 Mar 2014 20:15:25 -0700
-> "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
->=20
-> > As it is now if you add create a bridge it gets started
-> > with a random MAC address and if you then add a net_device
-> > as a slave but later kick it out you end up with a zero
-> > MAC address. Instead preserve the original random MAC
-> > address and use it.
->=20
-> What is supposed to happen is that the recalculate chooses
-> the lowest MAC address of the slaves. If there are no slaves
-> it might as well just calculate a new random value. There is
-> not great merit in preserving the original defunct address.
->=20
-> Or something like this
-> --- a/net/bridge/br_stp_if.c	2014-02-12 08:21:56.733857356 -0800
-> +++ b/net/bridge/br_stp_if.c	2014-03-18 20:09:09.334388826 -0700
-> @@ -235,6 +235,9 @@ bool br_stp_recalculate_bridge_id(struct
->  			addr =3D p->dev->dev_addr;
-> =20
->  	}
-> +
-> +	if (addr =3D=3D br_mac_zero)
-> +		return false;  /* keep original address */
-> =20
->  	if (ether_addr_equal(br->bridge_id.addr, addr))
->  		return false;	/* no change */
->=20
-> that just keeps the old value.
+Signed-off-by: Monam Agarwal <monamagarwal123@gmail.com>
+---
+ net/bridge/br_vlan.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-The old value could be a port which got root blocked, I think
-it can be confusing to see that happen. Either way feel free to
-make the call, I'll provide more details below on perhaps one reason
-to keep the original MAC address.
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 8249ca7..5d5b101 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -99,9 +99,9 @@ static int __vlan_del(struct net_port_vlans *v, u16 vid)
+ 	v->num_vlans--;
+ 	if (bitmap_empty(v->vlan_bitmap, VLAN_N_VID)) {
+ 		if (v->port_idx)
+-			rcu_assign_pointer(v->parent.port->vlan_info, NULL);
++			RCU_INIT_POINTER(v->parent.port->vlan_info, NULL);
+ 		else
+-			rcu_assign_pointer(v->parent.br->vlan_info, NULL);
++			RCU_INIT_POINTER(v->parent.br->vlan_info, NULL);
+ 		kfree_rcu(v, rcu);
+ 	}
+ 	return 0;
+@@ -113,9 +113,9 @@ static void __vlan_flush(struct net_port_vlans *v)
+ 	v->pvid = 0;
+ 	bitmap_zero(v->vlan_bitmap, VLAN_N_VID);
+ 	if (v->port_idx)
+-		rcu_assign_pointer(v->parent.port->vlan_info, NULL);
++		RCU_INIT_POINTER(v->parent.port->vlan_info, NULL);
+ 	else
+-		rcu_assign_pointer(v->parent.br->vlan_info, NULL);
++		RCU_INIT_POINTER(v->parent.br->vlan_info, NULL);
+ 	kfree_rcu(v, rcu);
+ }
+ 
+-- 
+1.7.9.5
 
-> The bridge is in a meaningless state when there are no ports,
-
-Some virtualization topologies may want a backend with no link (or
-perhaps one which is dynamic, with the option to have none) to the
-internet but just a bridge so guests sharing the bridge can talk to=20
-each other. In this case bridging can be used only to link the
-batch of guests.
-
-In this case the bridge simply acts as a switch, but also can be used as the
-interface for DHCP, for example. In such a case the guests will be doing
-ARP to get to the DHCP server. There's a flurry of ways one can try to get
-all this meshed together including enablign an ARP proxy but I'm looking
-at ways to optimize this further -- but I'd like to address the current
-usage cases first.
-
-> and when the first port is added back it will be used as the
-> new bridge id.
-
-Sure. Let me know how you think we should proceed with this patch based
-on the above.
-
-  Luis
-
---Rgf3q3z9SdmXC6oT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTKkz0AAoJEPep4JnvMe6zIjQQAIaPp0PA7yP7u0xd9zfXEk6D
-Wu8DWiwDpRFzUiXwzG0YP8D5uyorvKTfsgb+7HUYbswbkOxa5HdwCrggT63+SPb8
-+d4UqH8nQTCx0yRXU52UFb6kAwyaNGrd5TiGZgwVSE2XzO2S7+Epjcjm+nwnfX63
-v7j410NCswB7rMYHiyGDWTIFWMoEy31f/xDPs+hSTVIXbCrg84D2kP0wIlULKsa9
-Q1U4GyPRK5o6AATOsZHzcwnzNNgaTNtOYh1tOcOm7+Xl7cY/HCKjKar0M730CuDU
-ltni1SN0DeIjPqzrXnLZPRdKfa73/CAIacrADVkr8SqtZPHmQSN1L2NHSGZrRRl3
-32otSLedC4nilbKdF199fIj0HrJwp/ik4vZjfYPjjZTxr9bBlZBfbgOOFbO8Xc3h
-4koN4wkTf9/MainQL/2NVC1QCmh00tJ/CabkuN/sFAYFPJd7ykECHMbXQol/w66v
-lvaEEk27oig1JXMcu1x9a7sn1n3YmCsnnV/E04sfBULKVhflsK2Keuy2z5TeXLjR
-93b1+QrJIdaUJt9CQkgxO7Kzjs4azMRpLl/7/uB8X6SuAOJyhmKbrxPhR6PAbdD8
-uqBUbAFwKiKEEgPKEjZ5KnyBrUXGiASVRqOjYYGOiscFHQfqWawf9lzZXjsJps/4
-u7Z/zpcajDEKowIpYtr3
-=v79u
------END PGP SIGNATURE-----
-
---Rgf3q3z9SdmXC6oT--
