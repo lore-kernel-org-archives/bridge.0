@@ -1,11 +1,10 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Wed, 26 Mar 2014 12:14:50 -0400
-Message-Id: <1395850490-27628-3-git-send-email-vyasevic@redhat.com>
-In-Reply-To: <1395850490-27628-1-git-send-email-vyasevic@redhat.com>
-References: <1395850490-27628-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [PATCH v2 net 2/2] bridge: use is_skb_forwardable in
-	forward path
+Date: Wed, 26 Mar 2014 12:00:27 -0400
+Message-Id: <1395849627-15711-4-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1395849627-15711-1-git-send-email-vyasevic@redhat.com>
+References: <1395849627-15711-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH 2/2] bridge: use is_skb_forwardable in forward path
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,11 +20,11 @@ Use existing function instead of trying to use our own.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
- net/bridge/br_forward.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ net/bridge/br_forward.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
 diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index d3409e6..056b67b 100644
+index d3409e6..e33d0b6 100644
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
 @@ -35,16 +35,11 @@ static inline int should_deliver(const struct net_bridge_port *p,
@@ -46,15 +45,6 @@ index d3409e6..056b67b 100644
  		kfree_skb(skb);
  	} else {
  		skb_push(skb, ETH_HLEN);
-@@ -71,7 +66,7 @@ static void __br_deliver(const struct net_bridge_port *to, struct sk_buff *skb)
- 	skb->dev = to->dev;
- 
- 	if (unlikely(netpoll_tx_running(to->br->dev))) {
--		if (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))
-+		if (!is_skb_forwardable(skb->dev, skb))
- 			kfree_skb(skb);
- 		else {
- 			skb_push(skb, ETH_HLEN);
 -- 
 1.8.5.3
 
