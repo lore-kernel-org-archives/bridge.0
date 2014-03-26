@@ -1,14 +1,8 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 25 Mar 2014 21:19:23 -0400 (EDT)
-Message-Id: <20140325.211923.1366926482436380447.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1395601873-12447-1-git-send-email-monamagarwal123@gmail.com>
-References: <1395601873-12447-1-git-send-email-monamagarwal123@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net/bridge: Use RCU_INIT_POINTER(x,
-	NULL) in br_vlan.c
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Wed, 26 Mar 2014 12:00:24 -0400
+Message-Id: <1395849627-15711-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH 0/2] bridge: Fix forwarding of 8021AD frames
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,19 +11,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: monamagarwal123@gmail.com
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, shemminger@vyatta.com, bridge@lists.linux-foundation.org
 
-From: Monam Agarwal <monamagarwal123@gmail.com>
-Date: Mon, 24 Mar 2014 00:41:13 +0530
+Bridge has its own way to deterine if the packet is forwardable and it doesn't
+support 8021ad tags correctly.  Instead just allow bridge to use an
+existing is_skb_forwardable() function.
 
-> This patch replaces rcu_assign_pointer(x, NULL) with RCU_INIT_POINTER(x, NULL)
-> 
-> The rcu_assign_pointer() ensures that the initialization of a structure       
-> is carried out before storing a pointer to that structure. 
-> And in the case of the NULL pointer, there is no structure to initialize. 
-> So, rcu_assign_pointer(p, NULL) can be safely converted to RCU_INIT_POINTER(p, NULL)
-> 
-> Signed-off-by: Monam Agarwal <monamagarwal123@gmail.com>
 
-Applied.
+Vlad Yasevich (2):
+  net: Allow modules to use is_skb_forwardable
+  bridge: use is_skb_forwardable in forward path
+
+ include/linux/netdevice.h | 1 +
+ net/bridge/br_forward.c   | 7 +------
+ net/core/dev.c            | 3 ++-
+ 3 files changed, 4 insertions(+), 7 deletions(-)
+
+-- 
+1.8.5.3
+
