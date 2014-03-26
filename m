@@ -1,22 +1,14 @@
-Return-Path: <ratheesh.ksz@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:content-type; bh=8hgHkzUEP2TWKO2oMmkfOQYXwbEuGMNd6O77QJw7noU=;
-	b=I2bmB77kIWp8tmqIRhHN/UT+KenNiSfVulcaJjXD4LCoVBj3puYSPLSK4CqSXmrxCz
-	HqejvPRplyvuz0enX9GKV6mlSPNMJFI8Z5HbxYBXfC9NOMqPSsbJxV0xvURnp785OFhx
-	BE3AB8Wer5T5A7LK4xU73CA0G9s5eT8tz9Fh7ymNrVuqX+CSmraaSEYPUCRhxW13cfvE
-	N+x5n6GQLQSsZHhmyT4ge0Oo8MugfoRkhCaaevu8Sc9S9vZHatctwvxxmF5UDfhDXYKM
-	6HzqfM59GGmFIpySUS9HCOjeajHwMBl9jDhWm5OcAVSDhOzI+CxiXHnLxSkAFqDtqCPA
-	JeBA==
-MIME-Version: 1.0
-In-Reply-To: <CAGZFCEEbccO36dib87TXjVyVudmYhP_Ukgc-MgYOij=adZ=_Tw@mail.gmail.com>
-References: <CAGZFCEEbccO36dib87TXjVyVudmYhP_Ukgc-MgYOij=adZ=_Tw@mail.gmail.com>
-Date: Wed, 19 Mar 2014 22:46:11 +0530
-Message-ID: <CAGZFCEFSp_Ge4cQwmeeUJNpKEi05fyHYrNu4fqhWKcDPT+tEAg@mail.gmail.com>
-From: ratheesh kannoth <ratheesh.ksz@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Subject: Re: [Bridge] How packet finally reach internal_dev_xmit() routine
-	from outside ?
+Return-Path: <davem@davemloft.net>
+Date: Tue, 25 Mar 2014 21:19:23 -0400 (EDT)
+Message-Id: <20140325.211923.1366926482436380447.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1395601873-12447-1-git-send-email-monamagarwal123@gmail.com>
+References: <1395601873-12447-1-git-send-email-monamagarwal123@gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net/bridge: Use RCU_INIT_POINTER(x,
+	NULL) in br_vlan.c
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,21 +17,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, discuss@openvswitch.org
+To: monamagarwal123@gmail.com
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-I analysed the code. Please correct me if my understanding is wrong
+From: Monam Agarwal <monamagarwal123@gmail.com>
+Date: Mon, 24 Mar 2014 00:41:13 +0530
 
-http://kerala-freaks0.blogspot.in/2014/03/openvswitchfunctionflow.html
+> This patch replaces rcu_assign_pointer(x, NULL) with RCU_INIT_POINTER(x, NULL)
+> 
+> The rcu_assign_pointer() ensures that the initialization of a structure       
+> is carried out before storing a pointer to that structure. 
+> And in the case of the NULL pointer, there is no structure to initialize. 
+> So, rcu_assign_pointer(p, NULL) can be safely converted to RCU_INIT_POINTER(p, NULL)
+> 
+> Signed-off-by: Monam Agarwal <monamagarwal123@gmail.com>
 
-On Wed, Mar 19, 2014 at 12:18 PM, ratheesh kannoth
-<ratheesh.ksz@gmail.com> wrote:
-> Hi list,
->
->
-> openvswitch internal devices are not real nic. So some routine should
-> receive the packet  for this interface. Who is receiving packet for
-> this internal device.
-> Any clue is really appreciated .
->
->
-> -Ratheesh
+Applied.
