@@ -1,14 +1,14 @@
 Return-Path: <vyasevic@redhat.com>
-Message-ID: <5334992C.20903@redhat.com>
-Date: Thu, 27 Mar 2014 17:33:32 -0400
+Message-ID: <5334999C.1040608@redhat.com>
+Date: Thu, 27 Mar 2014 17:35:24 -0400
 From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
 References: <1395924416-12325-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-In-Reply-To: <1395924416-12325-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1395924416-12325-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1395924416-12325-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net 1/2] bridge: Fix inabillity to retrieve
- vlan tags when tx offload is disabled
+Subject: Re: [Bridge] [PATCH net 2/2] bridge: Fix handling stacked vlan tags
 Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -22,11 +22,13 @@ To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S . Miller" <davem@d
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
 On 03/27/2014 08:46 AM, Toshiaki Makita wrote:
-> Bridge vlan code (br_vlan_get_tag()) assumes that all frames have vlan_tci
-> if they are tagged, but if vlan tx offload is manually disabled on bridge
-> device and frames are sent from vlan device on the bridge device, the tags
-> are embedded in skb->data and they break this assumption.
-> Extract embedded vlan tags and move them to vlan_tci at ingress.
+> If a bridge with vlan_filtering enabled receives frames with stacked
+> vlan tags, i.e., they have two vlan tags, br_vlan_untag() strips not
+> only the outer tag but also the inner tag.
+> 
+> br_vlan_untag() is called only from br_handle_vlan(), and in this case,
+> it is enough to set skb->vlan_tci to 0 here, because vlan_tci has already
+> been set before calling br_handle_vlan().
 > 
 > Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 
@@ -35,54 +37,44 @@ Acked-by: Vlad Yasevich <vyasevic@redhat.com>
 -vlad
 
 > ---
->  net/bridge/br_device.c |  6 +++---
->  net/bridge/br_vlan.c   | 12 ++++++++++++
->  2 files changed, 15 insertions(+), 3 deletions(-)
+>  net/bridge/br_vlan.c | 18 +-----------------
+>  1 file changed, 1 insertion(+), 17 deletions(-)
 > 
-> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-> index 63f0455..8fe8b71 100644
-> --- a/net/bridge/br_device.c
-> +++ b/net/bridge/br_device.c
-> @@ -49,14 +49,14 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
->  	brstats->tx_bytes += skb->len;
->  	u64_stats_update_end(&brstats->syncp);
->  
-> -	if (!br_allowed_ingress(br, br_get_vlan_info(br), skb, &vid))
-> -		goto out;
-> -
->  	BR_INPUT_SKB_CB(skb)->brdev = dev;
->  
->  	skb_reset_mac_header(skb);
->  	skb_pull(skb, ETH_HLEN);
->  
-> +	if (!br_allowed_ingress(br, br_get_vlan_info(br), skb, &vid))
-> +		goto out;
-> +
->  	if (is_broadcast_ether_addr(dest))
->  		br_flood_deliver(br, skb, false);
->  	else if (is_multicast_ether_addr(dest)) {
 > diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 8249ca7..44f31af 100644
+> index 44f31af..c77eed5 100644
 > --- a/net/bridge/br_vlan.c
 > +++ b/net/bridge/br_vlan.c
-> @@ -174,6 +174,18 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
->  	if (!v)
->  		return false;
+> @@ -119,22 +119,6 @@ static void __vlan_flush(struct net_port_vlans *v)
+>  	kfree_rcu(v, rcu);
+>  }
 >  
-> +	/* If vlan tx offload is disabled on bridge device and frame was
-> +	 * sent from vlan device on the bridge device, it does not have
-> +	 * HW accelerated vlan tag.
-> +	 */
-> +	if (unlikely(!vlan_tx_tag_present(skb) &&
-> +		     (skb->protocol == htons(ETH_P_8021Q) ||
-> +		      skb->protocol == htons(ETH_P_8021AD)))) {
-> +		skb = vlan_untag(skb);
-> +		if (unlikely(!skb))
-> +			return false;
-> +	}
-> +
->  	err = br_vlan_get_tag(skb, vid);
->  	if (!*vid) {
->  		u16 pvid = br_get_pvid(v);
+> -/* Strip the tag from the packet.  Will return skb with tci set 0.  */
+> -static struct sk_buff *br_vlan_untag(struct sk_buff *skb)
+> -{
+> -	if (skb->protocol != htons(ETH_P_8021Q)) {
+> -		skb->vlan_tci = 0;
+> -		return skb;
+> -	}
+> -
+> -	skb->vlan_tci = 0;
+> -	skb = vlan_untag(skb);
+> -	if (skb)
+> -		skb->vlan_tci = 0;
+> -
+> -	return skb;
+> -}
+> -
+>  struct sk_buff *br_handle_vlan(struct net_bridge *br,
+>  			       const struct net_port_vlans *pv,
+>  			       struct sk_buff *skb)
+> @@ -150,7 +134,7 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
+>  	 */
+>  	br_vlan_get_tag(skb, &vid);
+>  	if (test_bit(vid, pv->untagged_bitmap))
+> -		skb = br_vlan_untag(skb);
+> +		skb->vlan_tci = 0;
+>  
+>  out:
+>  	return skb;
 > 
 
