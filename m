@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Fri, 28 Mar 2014 16:33:42 -0400 (EDT)
-Message-Id: <20140328.163342.1681357800958748572.davem@davemloft.net>
+Date: Fri, 28 Mar 2014 17:14:17 -0400 (EDT)
+Message-Id: <20140328.171417.1243496360817986608.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1395924416-12325-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1395924416-12325-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1395924416-12325-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1395971478-10689-1-git-send-email-vyasevic@redhat.com>
+References: <1395971478-10689-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net 2/2] bridge: Fix handling stacked vlan tags
+Subject: Re: [Bridge] [PATCH v2] bridge: Fix crash with vlan filtering and
+	tcpdump
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,20 +17,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: stephen@networkplumber.org, vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+To: vyasevic@redhat.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Thu, 27 Mar 2014 21:46:56 +0900
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Thu, 27 Mar 2014 21:51:18 -0400
 
-> If a bridge with vlan_filtering enabled receives frames with stacked
-> vlan tags, i.e., they have two vlan tags, br_vlan_untag() strips not
-> only the outer tag but also the inner tag.
+> When the vlan filtering is enabled on the bridge, but
+> the filter is not configured on the bridge device itself,
+> running tcpdump on the bridge device will result in a
+> an Oops with NULL pointer dereference.  The reason
+> is that br_pass_frame_up() will bypass the vlan
+> check because promisc flag is set.  It will then try
+> to get the table pointer and process the packet based
+> on the table.  Since the table pointer is NULL, we oops.
+> Catch this special condition in br_handle_vlan().
 > 
-> br_vlan_untag() is called only from br_handle_vlan(), and in this case,
-> it is enough to set skb->vlan_tci to 0 here, because vlan_tci has already
-> been set before calling br_handle_vlan().
+> Reported-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> CC: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+> ---
 > 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> * Changed to use kfree_skb() instead of kfree_skb_list() to
+>   match the reset of bridge code.
+> * Fix-up {} style.
 
-Applied.
+Applied, thanks.
