@@ -1,15 +1,9 @@
 Return-Path: <vyasevic@redhat.com>
-Message-ID: <5334999C.1040608@redhat.com>
-Date: Thu, 27 Mar 2014 17:35:24 -0400
 From: Vlad Yasevich <vyasevic@redhat.com>
-MIME-Version: 1.0
-References: <1395924416-12325-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1395924416-12325-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-In-Reply-To: <1395924416-12325-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net 2/2] bridge: Fix handling stacked vlan tags
-Reply-To: vyasevic@redhat.com
+Date: Thu, 27 Mar 2014 21:49:10 -0400
+Message-Id: <1395971350-10559-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH v4 net] bridge: use is_skb_forwardable in forward
+	path
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,63 +12,125 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, shemminger@vyatta.com, bridge@lists.linux-foundation.org
 
-On 03/27/2014 08:46 AM, Toshiaki Makita wrote:
-> If a bridge with vlan_filtering enabled receives frames with stacked
-> vlan tags, i.e., they have two vlan tags, br_vlan_untag() strips not
-> only the outer tag but also the inner tag.
-> 
-> br_vlan_untag() is called only from br_handle_vlan(), and in this case,
-> it is enough to set skb->vlan_tci to 0 here, because vlan_tci has already
-> been set before calling br_handle_vlan().
-> 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Use existing function instead of trying to use our own.  This allows
+us to better handle Q-in-Q packets.
 
-Acked-by: Vlad Yasevich <vyasevic@redhat.com>
+Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+---
+v2: Fix missing hunk in patch 2/2 to make it build.
 
--vlad
+v3: Fix indent for is_skb_forwardable
 
-> ---
->  net/bridge/br_vlan.c | 18 +-----------------
->  1 file changed, 1 insertion(+), 17 deletions(-)
-> 
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 44f31af..c77eed5 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -119,22 +119,6 @@ static void __vlan_flush(struct net_port_vlans *v)
->  	kfree_rcu(v, rcu);
->  }
->  
-> -/* Strip the tag from the packet.  Will return skb with tci set 0.  */
-> -static struct sk_buff *br_vlan_untag(struct sk_buff *skb)
-> -{
-> -	if (skb->protocol != htons(ETH_P_8021Q)) {
-> -		skb->vlan_tci = 0;
-> -		return skb;
-> -	}
-> -
-> -	skb->vlan_tci = 0;
-> -	skb = vlan_untag(skb);
-> -	if (skb)
-> -		skb->vlan_tci = 0;
-> -
-> -	return skb;
-> -}
-> -
->  struct sk_buff *br_handle_vlan(struct net_bridge *br,
->  			       const struct net_port_vlans *pv,
->  			       struct sk_buff *skb)
-> @@ -150,7 +134,7 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
->  	 */
->  	br_vlan_get_tag(skb, &vid);
->  	if (test_bit(vid, pv->untagged_bitmap))
-> -		skb = br_vlan_untag(skb);
-> +		skb->vlan_tci = 0;
->  
->  out:
->  	return skb;
-> 
+v4: Made is_skb_forwardable inline in netdevice.h and squashed
+    the 2 patches into one since having 2 doesn't make much sense
+    any more.
+
+ include/linux/netdevice.h | 24 ++++++++++++++++++++++++
+ net/bridge/br_forward.c   |  9 ++-------
+ net/core/dev.c            | 21 ---------------------
+ 3 files changed, 26 insertions(+), 28 deletions(-)
+
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index e8eeebd..5d07fee 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3146,6 +3146,30 @@ static inline void skb_gso_error_unwind(struct sk_buff *skb, __be16 protocol,
+ 	skb->mac_len = mac_len;
+ }
+ 
++
++#include <linux/if_vlan.h>
++
++static inline bool is_skb_forwardable(struct net_device *dev,
++				      struct sk_buff *skb)
++{
++	unsigned int len;
++
++	if (!(dev->flags & IFF_UP))
++		return false;
++
++	len = dev->mtu + dev->hard_header_len + VLAN_HLEN;
++	if (skb->len <= len)
++		return true;
++
++	/* if TSO is enabled, we don't care about the length as the packet
++	 * could be forwarded without being segmented before
++	 */
++	if (skb_is_gso(skb))
++		return true;
++
++	return false;
++}
++
+ static inline bool netif_is_macvlan(struct net_device *dev)
+ {
+ 	return dev->priv_flags & IFF_MACVLAN;
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index d3409e6..056b67b 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -35,16 +35,11 @@ static inline int should_deliver(const struct net_bridge_port *p,
+ 		p->state == BR_STATE_FORWARDING;
+ }
+ 
+-static inline unsigned int packet_length(const struct sk_buff *skb)
+-{
+-	return skb->len - (skb->protocol == htons(ETH_P_8021Q) ? VLAN_HLEN : 0);
+-}
+-
+ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ {
+ 	/* ip_fragment doesn't copy the MAC header */
+ 	if (nf_bridge_maybe_copy_header(skb) ||
+-	    (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))) {
++	    !is_skb_forwardable(skb->dev, skb)) {
+ 		kfree_skb(skb);
+ 	} else {
+ 		skb_push(skb, ETH_HLEN);
+@@ -71,7 +66,7 @@ static void __br_deliver(const struct net_bridge_port *to, struct sk_buff *skb)
+ 	skb->dev = to->dev;
+ 
+ 	if (unlikely(netpoll_tx_running(to->br->dev))) {
+-		if (packet_length(skb) > skb->dev->mtu && !skb_is_gso(skb))
++		if (!is_skb_forwardable(skb->dev, skb))
+ 			kfree_skb(skb);
+ 		else {
+ 			skb_push(skb, ETH_HLEN);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index b1b0c8d..3e4a965 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -1645,27 +1645,6 @@ static inline void net_timestamp_set(struct sk_buff *skb)
+ 			__net_timestamp(SKB);		\
+ 	}						\
+ 
+-static inline bool is_skb_forwardable(struct net_device *dev,
+-				      struct sk_buff *skb)
+-{
+-	unsigned int len;
+-
+-	if (!(dev->flags & IFF_UP))
+-		return false;
+-
+-	len = dev->mtu + dev->hard_header_len + VLAN_HLEN;
+-	if (skb->len <= len)
+-		return true;
+-
+-	/* if TSO is enabled, we don't care about the length as the packet
+-	 * could be forwarded without being segmented before
+-	 */
+-	if (skb_is_gso(skb))
+-		return true;
+-
+-	return false;
+-}
+-
+ /**
+  * dev_forward_skb - loopback an skb to another netif
+  *
+-- 
+1.8.5.3
 
