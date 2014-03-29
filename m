@@ -1,14 +1,24 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 28 Mar 2014 17:14:17 -0400 (EDT)
-Message-Id: <20140328.171417.1243496360817986608.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1395971478-10689-1-git-send-email-vyasevic@redhat.com>
-References: <1395971478-10689-1-git-send-email-vyasevic@redhat.com>
+Return-Path: <toshiaki.makita1@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:mime-version:content-transfer-encoding;
+	bh=6VzkEhJBRPyDZHOlVoFIXGfCJpDyGc7YMRrbGxI2Xnw=;
+	b=NNOyMiCoF/ReoVV2vzMI0I9qcjvK1KQJiBQB0+bliqVLkwxjCaDckUmx28pfOcXjWD
+	mwa/k+Gx5e/sbByL2Un923Gg+7h4Kn4LwJe7IiBYeltuXW1aiadTtAa7LfFrwux/GQ/4
+	LaoLTuEIEUK0ODyn8Hkf0Z2Ui+fT/WzxR5/Mvacd8g3BN2O2G9cnIa0lcIEBgNvgbLgd
+	dJ7Pe6yThvUkz0QUw3mkNaGa9GPqHgCQGTJANcKj/bnTjaSwc/DomQhYfhAqob53ba8A
+	3kGb6j8nGjV2He1V4NdEyQzGtC7wy3wfYkthvTddgKYb1iyckieq5i8ehfZiT5+tvLkk
+	boDg==
+Message-ID: <1396078847.1756.1.camel@localhost.localdomain>
+From: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Date: Sat, 29 Mar 2014 16:40:47 +0900
+In-Reply-To: <20140328093457.5d25b9a3@samsung-9>
+References: <1395987680-8151-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20140328093457.5d25b9a3@samsung-9>
+Content-Type: text/plain; charset="us-ascii"
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2] bridge: Fix crash with vlan filtering and
-	tcpdump
+Subject: Re: [Bridge] [PATCH net] bridge: Fix memory leak in br_dev_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +27,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>
 
-From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Thu, 27 Mar 2014 21:51:18 -0400
-
-> When the vlan filtering is enabled on the bridge, but
-> the filter is not configured on the bridge device itself,
-> running tcpdump on the bridge device will result in a
-> an Oops with NULL pointer dereference.  The reason
-> is that br_pass_frame_up() will bypass the vlan
-> check because promisc flag is set.  It will then try
-> to get the table pointer and process the packet based
-> on the table.  Since the table pointer is NULL, we oops.
-> Catch this special condition in br_handle_vlan().
+On Fri, 2014-03-28 at 09:34 -0700, Stephen Hemminger wrote:
+> On Fri, 28 Mar 2014 15:21:19 +0900
+> Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
 > 
-> Reported-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> CC: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
-> ---
-> 
-> * Changed to use kfree_skb() instead of kfree_skb_list() to
->   match the reset of bridge code.
-> * Fix-up {} style.
+> > When a frame is rejected by br_allowed_ingress(), the skb is not freed.
+> > 
+...
+> Increment dev->tx_dropped?
 
-Applied, thanks.
+OK, I'll rework it.
+
+Thanks,
+Toshiaki Makita
+
