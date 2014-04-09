@@ -1,12 +1,9 @@
-Return-Path: <stephen@networkplumber.org>
-MIME-Version: 1.0
-In-Reply-To: <67759941.af95.14510c03e65.Coremail.kernelluck@163.com>
-References: <67759941.af95.14510c03e65.Coremail.kernelluck@163.com>
-Date: Wed, 2 Apr 2014 23:51:05 -0700
-Message-ID: <CAOaVG16-CnPO=ijH5VSQxKf6KZwhjyE+st8D0GV5rupU7s8Kuw@mail.gmail.com>
-From: Stephen Hemminger <stephen@networkplumber.org>
-Content-Type: multipart/alternative; boundary=001a1136015444796d04f61dd33f
-Subject: Re: [Bridge] what is the driver of vm's virtual ethernet?
+Return-Path: <makita@lab.ntt.co.jp>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Wed,  9 Apr 2014 17:00:30 +0900
+Message-Id: <1397030430-9625-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH net] bridge: Fix double free and memory leak around
+	br_allowed_ingress
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,71 +12,72 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "longguang.yue" <kernelluck@163.com>
-Cc: bridge <bridge@lists.linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
---001a1136015444796d04f61dd33f
-Content-Type: text/plain; charset=ISO-8859-1
+br_allowed_ingress() has two problems.
 
-What happens is that real (or virtual) network devices call the common
-network receive function - netif_receive_skb
-This function has a hook rx_handler which is called if the device is part
-of a bridge.
-The bridge code the processes the packets and either floods them,
-redirects, or drops the packets
-based on the learned forwarding table.
+1. If br_allowed_ingress() is called by br_handle_frame_finish() and
+vlan_untag() in br_allowed_ingress() fails, skb will be freed by both
+vlan_untag() and br_handle_frame_finish().
 
+2. If br_allowed_ingress() is called by br_dev_xmit() and
+br_allowed_ingress() fails, the skb will not be freed.
 
-On Sat, Mar 29, 2014 at 7:10 PM, longguang.yue <kernelluck@163.com> wrote:
+Fix these two problems by freeing the skb in br_allowed_ingress()
+if it fails.
 
-> hi,all
-> each port of bridge, has its packets process function called
-> br_handle_frame.
-> i want to know before this function called   who and how it get the
-> packets?
-> if it is a real physical ethernet, it  must be its driver, but for virtual
-> ethernet , what is the driver?
->
->
-> thanks
->
->
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
->
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ net/bridge/br_input.c | 2 +-
+ net/bridge/br_vlan.c  | 7 ++++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
---001a1136015444796d04f61dd33f
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index d0cca3c..7985dea 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -73,7 +73,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
+ 		goto drop;
+ 
+ 	if (!br_allowed_ingress(p->br, nbp_get_vlan_info(p), skb, &vid))
+-		goto drop;
++		goto out;
+ 
+ 	/* insert into forwarding database after filtering to avoid spoofing */
+ 	br = p->br;
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 9151071..4a37161 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -170,7 +170,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+ 	 * rejected.
+ 	 */
+ 	if (!v)
+-		return false;
++		goto drop;
+ 
+ 	/* If vlan tx offload is disabled on bridge device and frame was
+ 	 * sent from vlan device on the bridge device, it does not have
+@@ -193,7 +193,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+ 		 * vlan untagged or priority-tagged traffic belongs to.
+ 		 */
+ 		if (pvid == VLAN_N_VID)
+-			return false;
++			goto drop;
+ 
+ 		/* PVID is set on this port.  Any untagged or priority-tagged
+ 		 * ingress frame is considered to belong to this vlan.
+@@ -216,7 +216,8 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+ 	/* Frame had a valid vlan tag.  See if vlan is allowed */
+ 	if (test_bit(*vid, v->vlan_bitmap))
+ 		return true;
+-
++drop:
++	kfree_skb(skb);
+ 	return false;
+ }
+ 
+-- 
+1.8.1.2
 
-<div dir=3D"ltr">What happens is that real (or virtual) network devices cal=
-l the common network receive function - netif_receive_skb<div>This function=
- has a hook rx_handler which is called if the device is part of a bridge.</=
-div>
-<div>The bridge code the processes the packets and either floods them, redi=
-rects, or drops the packets</div><div>based on the learned forwarding table=
-.</div></div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">
-On Sat, Mar 29, 2014 at 7:10 PM, longguang.yue <span dir=3D"ltr">&lt;<a hre=
-f=3D"mailto:kernelluck@163.com" target=3D"_blank">kernelluck@163.com</a>&gt=
-;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 =
-.8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div style=3D"line-height:1.7;font-size:14px;font-family:arial"><div>hi,all=
-</div><div>each port of bridge, has its packets process function called br_=
-handle_frame.</div><div>i want to know before this function called=A0=A0 wh=
-o and how it get the packets?</div>
-<div>if it is a real physical ethernet, it=A0 must be its driver, but for v=
-irtual ethernet , what is the driver?</div><div>=A0</div><div>=A0</div><div=
->thanks</div></div><br><br><span title=3D"neteasefooter"><span></span></spa=
-n><br>
-_______________________________________________<br>
-Virtualization mailing list<br>
-<a href=3D"mailto:Virtualization@lists.linux-foundation.org">Virtualization=
-@lists.linux-foundation.org</a><br>
-<a href=3D"https://lists.linuxfoundation.org/mailman/listinfo/virtualizatio=
-n" target=3D"_blank">https://lists.linuxfoundation.org/mailman/listinfo/vir=
-tualization</a><br></blockquote></div><br></div>
-
---001a1136015444796d04f61dd33f--
