@@ -1,9 +1,11 @@
-Return-Path: <makita@lab.ntt.co.jp>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Wed,  9 Apr 2014 17:00:30 +0900
-Message-Id: <1397030430-9625-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Subject: [Bridge] [PATCH net] bridge: Fix double free and memory leak around
-	br_allowed_ingress
+Return-Path: <giuseppe@eppesuigoccas.homedns.org>
+Message-ID: <5346246A.5090704@eppesuigoccas.homedns.org>
+Date: Thu, 10 Apr 2014 06:56:10 +0200
+From: Giuseppe Sacco <giuseppe@eppesuigoccas.homedns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge only forward packets on one interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,72 +14,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-br_allowed_ingress() has two problems.
+Hello,
+I do have a problem with a new bridge I created for making a virtual
+machine connect to the Internet. The physical machine only have one
+interface, named eth0, so I create a bridge using this interface. Then I
+created a virtual machine with KVM and select using the bridge for
+ethernet networking. The machine has been installed and the network
+connection between the machines works great.
 
-1. If br_allowed_ingress() is called by br_handle_frame_finish() and
-vlan_untag() in br_allowed_ingress() fails, skb will be freed by both
-vlan_untag() and br_handle_frame_finish().
+But, when the virtual machine tries to connect to its default gateway,
+nothing works. I used tcpdump in order to see what packet are
+transmitted on the bridge *br0*: when I ping the gateway I see an ARP
+packet "who-has" from the VM and its reply ARP "is-at". If I use tcpdump
+on the phisical interface *eth0* I still see both packets, but when I
+check it on the virtual interface *vnet0* I only see the first packet.
 
-2. If br_allowed_ingress() is called by br_dev_xmit() and
-br_allowed_ingress() fails, the skb will not be freed.
+I think the problem could be about arp tables, but how may I better
+investigate this problem?
 
-Fix these two problems by freeing the skb in br_allowed_ingress()
-if it fails.
-
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- net/bridge/br_input.c | 2 +-
- net/bridge/br_vlan.c  | 7 ++++---
- 2 files changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index d0cca3c..7985dea 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -73,7 +73,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
- 		goto drop;
- 
- 	if (!br_allowed_ingress(p->br, nbp_get_vlan_info(p), skb, &vid))
--		goto drop;
-+		goto out;
- 
- 	/* insert into forwarding database after filtering to avoid spoofing */
- 	br = p->br;
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 9151071..4a37161 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -170,7 +170,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
- 	 * rejected.
- 	 */
- 	if (!v)
--		return false;
-+		goto drop;
- 
- 	/* If vlan tx offload is disabled on bridge device and frame was
- 	 * sent from vlan device on the bridge device, it does not have
-@@ -193,7 +193,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
- 		 * vlan untagged or priority-tagged traffic belongs to.
- 		 */
- 		if (pvid == VLAN_N_VID)
--			return false;
-+			goto drop;
- 
- 		/* PVID is set on this port.  Any untagged or priority-tagged
- 		 * ingress frame is considered to belong to this vlan.
-@@ -216,7 +216,8 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
- 	/* Frame had a valid vlan tag.  See if vlan is allowed */
- 	if (test_bit(*vid, v->vlan_bitmap))
- 		return true;
--
-+drop:
-+	kfree_skb(skb);
- 	return false;
- }
- 
--- 
-1.8.1.2
-
+Thanks,
+Giuseppe
