@@ -1,20 +1,23 @@
-Return-Path: <kernelluck@163.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=0W2/0
-	710oe9aJ8lXgLmrTD0P3Ti8X6C7ij6QylEOgAo=; b=XZXA3NvWP9Qwa5qXQoY57
-	Sf7Zlm3UEcTx3AQZ/AIYR+9LntVbhfbEDtDcekwZmNgdYBukPz9WCtTkys4A35kz
-	O0IgbtBxeIJl8hH8s3NesTsNYOnjKLCSLsV3D8osQGW1N6Nz/81U5niywWy2pdvs
-	bEmTMbtK/JYXkBciRxUcMk=
-Date: Tue, 15 Apr 2014 10:02:51 +0800 (CST)
-From: "longguang.yue" <kernelluck@163.com>
-In-Reply-To: <534C3065.6070602@pandora.be>
-References: <7ef894a3.249b5.1454a3baaae.Coremail.kernelluck@163.com>
-	<534C3065.6070602@pandora.be>
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_62968_362936812.1397527371995"
+Return-Path: <cphealy@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+	:cc:content-type;
+	bh=wA8FYsvazQz2oOOvznbomqxxGCnmruGrvIn0Jati3mM=;
+	b=TuHKmJc/LK54ApOVYn5setA4aA7R9gOtyDgQjVXJY/NC7udAGeHQ1PQARuqHR06XaO
+	8mWVjT/G4Ak7PeDOTXx/UPCVemDTEJz79QXespPEpI+dNr3b8eIQCbe4ekXbpxJf29FE
+	Oyz4iuhmM0kZJkyJ0gQg3qR8aATDyi/wu9LmP+UejfAs5QoIGmkLzPLe86LvSQ5+i28h
+	ClP5SHA8JsU/lWTRneWwCWHzKulU6XaX4w6AoralqunP04lIXCPa+2kDNjqwf3Tc1JUC
+	FmIKwugRMs6wt6yRP0xlC/zFceiJinnitNwd18ABvHTnoohE8tNQB8+WKrNjEbHCK+RO
+	mgFw==
 MIME-Version: 1.0
-Message-ID: <3e3c332d.43b3.145631f60db.Coremail.kernelluck@163.com>
-Subject: Re: [Bridge] questions about ebtable  ip extension
+In-Reply-To: <73d09703.4736.1456324c4ba.Coremail.kernelluck@163.com>
+References: <73d09703.4736.1456324c4ba.Coremail.kernelluck@163.com>
+Date: Mon, 14 Apr 2014 19:18:27 -0700
+Message-ID: <CAFXsbZrWsxfPJ4vAfdXyA0_0mQEs_S_U0TsTMC=thBGGKAkVnA@mail.gmail.com>
+From: Chris Healy <cphealy@gmail.com>
+Content-Type: multipart/alternative; boundary=089e0115ec145df71b04f70b6a68
+Subject: Re: [Bridge] how bridge do the state transfer from learing to
+	forwarding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,121 +26,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>, bridge <bridge@lists.linux-foundation.org>
+To: "longguang.yue" <kernelluck@163.com>
+Cc: bridge <bridge@lists.linux-foundation.org>
 
-------=_Part_62968_362936812.1397527371995
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
+--089e0115ec145df71b04f70b6a68
+Content-Type: text/plain; charset=UTF-8
 
-Y291bGQgeW91IHRlbGwgbWUgbW9yZT8Kb2YgY291cnNlICwgaXB0YWJsZXMgdXNlIHBoeXNkZXYg
-b3B0aW9uLCBidXQgZnJvbSBlYnRhYmxlcyBjYWxsIGlwdGFibGUncyBydWxlIHdoaWNoIHVzZXMg
-cGh5c2RldiAsIHRoZSBydWxlIHJlY29nbml6ZSBwaHlzZGV2LWluIHRoZSBzYW1lIGFzIHBoeXNk
-ZXYtb3V0IGFzIGJyaWRnZSBkZXZpY2UuCmlmIGFtIGkgcmlnaHQ/CiAKdGhhbmtzCgoKCgogCgpB
-dCAyMDE0LTA0LTE1IDAzOjAwOjUzLCJCYXJ0IERlIFNjaHV5bWVyIiA8YmRzY2h1eW1AcGFuZG9y
-YS5iZT4gd3JvdGU6Cj5sb25nZ3VhbmcueXVlIHNjaHJlZWYgb3AgMTAvMDQvMjAxNCA4OjAzOgo+
-PiBicl9uZl9mb3J3YXJkX2lwKCkgewo+PiBwYXJlbnQgPSBicmlkZ2VfcGFyZW50KG91dCk7Cj4+
-IE5GX0hPT0socGYsIE5GX0lORVRfRk9SV0FSRCwgc2tiLCBicm5mX2dldF9sb2dpY2FsX2Rldihz
-a2IsIGluKSwgcGFyZW50LAo+PiBicl9uZl9mb3J3YXJkX2ZpbmlzaCk7Cj4+IH0KPj4gaGVyZSwg
-bGV0IHVzIHN1cHBvc2UgcGYgPSBORlBST1RPX0lQVjQsIGkgdGhpbmsgdGhlIHJldHVybiB2YWx1
-ZSBvZgo+PiBicm5mX2dldF9sb2dpY2FsX2Rldihza2IsIGluKSBlcXVhbHMgcGFyZW50ID8KPj4g
-aXRzIGNvbW1lbnQgJ1RoaXMgaXMgdGhlICdwdXJlbHkgYnJpZGdlZCcgY2FzZS4gIEZvciBJUCwg
-d2UgcGFzcyB0aGUKPj4gcGFja2V0IHRvCj4+ICAgKiBuZXRmaWx0ZXIgd2l0aCBpbmRldiBhbmQg
-b3V0ZGV2IHNldCB0byB0aGUgYnJpZGdlIGRldmljZScKPj4gc28gd2hlbiBjYWxscyBob29rcyBh
-dCBpcHY0IGxldmVsCj4+IGxpa2UgaXB0YWJsZV9maWx0ZXJfaG9vayxpcHRhYmxlX21hbmdsZV9o
-b29rLCB3ZSBjYW4gbm90IGRpc3RpbmN0IGluIGFuZAo+PiBvdXQgZGV2aWNlcz8KPj4gaW4gb3Ro
-ZXIgd29yZCwgIHdlIGNhbiBub3QgdXNlIGluL291dCBkZXYgd2l0aCBlYnRhYmxlcydzIGlwIGV4
-dGVuc2lvbi4KPj4gdGhhbmtzCj4+Cj4KPllvdSBuZWVkIHRvIHVzZSB0aGUgaXB0YWJsZXMgcGh5
-c2RldiBtb2R1bGUgdG8gZmlsdGVyIG9uIHRoZSBwaHlzaWNhbCBwb3J0cy4KPgo+Y2hlZXJzLAo+
-QmFydAo+Cg==
-------=_Part_62968_362936812.1397527371995
-Content-Type: text/html; charset=GBK
-Content-Transfer-Encoding: base64
+1) The initial state of a port if it is running STP is disabled.  Once
+there is link, it will transition to blocking.  After that point, depending
+on the state of the rest of the network, it will either stay blocking or
+attempt to transition to forwarding.
 
-PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
-Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+Y291bGQgeW91IHRlbGwgbWUgbW9yZT88L2Rpdj48ZGl2
-Pm9mIGNvdXJzZSAsIGlwdGFibGVzIHVzZSBwaHlzZGV2Jm5ic3A7b3B0aW9uLCBidXQgZnJvbSBl
-YnRhYmxlcyBjYWxsIGlwdGFibGUncyBydWxlIHdoaWNoIHVzZXMgcGh5c2RldiZuYnNwOywgdGhl
-IHJ1bGUmbmJzcDtyZWNvZ25pemUgPGZvbnQgc2l6ZT0iMiI+PGZvbnQgY29sb3I9IiM1NDU0NTQi
-PjxzdHJvbmc+cGh5c2Rldjwvc3Ryb25nPjxzcGFuIHN0eWxlPSJmb250OiBzbWFsbC8xOC4ycHgg
-YXJpYWwsIHNhbnMtc2VyaWY7IHRleHQtYWxpZ246IGxlZnQ7IGNvbG9yOiByZ2IoODQsIDg0LCA4
-NCk7IHRleHQtdHJhbnNmb3JtOiBub25lOyB0ZXh0LWluZGVudDogMHB4OyBsZXR0ZXItc3BhY2lu
-Zzogbm9ybWFsOyB3b3JkLXNwYWNpbmc6IDBweDsgZmxvYXQ6IG5vbmU7IGRpc3BsYXk6IGlubGlu
-ZSAhaW1wb3J0YW50OyB3aGl0ZS1zcGFjZTogbm9ybWFsOyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2Io
-MjU1LCAyNTUsIDI1NSk7IC13ZWJraXQtdGV4dC1zdHJva2Utd2lkdGg6IDBweDsiPi1pbiB0aGUg
-c2FtZSBhcyA8c3Ryb25nPnBoeXNkZXY8L3N0cm9uZz48c3BhbiBzdHlsZT0iZm9udDogc21hbGwv
-MTguMnB4IGFyaWFsLCBzYW5zLXNlcmlmOyB0ZXh0LWFsaWduOiBsZWZ0OyBjb2xvcjogcmdiKDg0
-LCA4NCwgODQpOyB0ZXh0LXRyYW5zZm9ybTogbm9uZTsgdGV4dC1pbmRlbnQ6IDBweDsgbGV0dGVy
-LXNwYWNpbmc6IG5vcm1hbDsgd29yZC1zcGFjaW5nOiAwcHg7IGZsb2F0OiBub25lOyBkaXNwbGF5
-OiBpbmxpbmUgIWltcG9ydGFudDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgYmFja2dyb3VuZC1jb2xv
-cjogcmdiKDI1NSwgMjU1LCAyNTUpOyAtd2Via2l0LXRleHQtc3Ryb2tlLXdpZHRoOiAwcHg7Ij4t
-b3V0IGFzIGJyaWRnZSBkZXZpY2UuPC9zcGFuPjwvc3Bhbj48L2ZvbnQ+PC9mb250PjwvZGl2Pjxk
-aXY+PGZvbnQgc2l6ZT0iMiI+PGZvbnQgY29sb3I9IiM1NDU0NTQiPjxzcGFuIHN0eWxlPSJmb250
-OiBzbWFsbC8xOC4ycHggYXJpYWwsIHNhbnMtc2VyaWY7IHRleHQtYWxpZ246IGxlZnQ7IGNvbG9y
-OiByZ2IoODQsIDg0LCA4NCk7IHRleHQtdHJhbnNmb3JtOiBub25lOyB0ZXh0LWluZGVudDogMHB4
-OyBsZXR0ZXItc3BhY2luZzogbm9ybWFsOyB3b3JkLXNwYWNpbmc6IDBweDsgZmxvYXQ6IG5vbmU7
-IGRpc3BsYXk6IGlubGluZSAhaW1wb3J0YW50OyB3aGl0ZS1zcGFjZTogbm9ybWFsOyBiYWNrZ3Jv
-dW5kLWNvbG9yOiByZ2IoMjU1LCAyNTUsIDI1NSk7IC13ZWJraXQtdGV4dC1zdHJva2Utd2lkdGg6
-IDBweDsiPjxzcGFuIHN0eWxlPSJmb250OiBzbWFsbC8xOC4ycHggYXJpYWwsIHNhbnMtc2VyaWY7
-IHRleHQtYWxpZ246IGxlZnQ7IGNvbG9yOiByZ2IoODQsIDg0LCA4NCk7IHRleHQtdHJhbnNmb3Jt
-OiBub25lOyB0ZXh0LWluZGVudDogMHB4OyBsZXR0ZXItc3BhY2luZzogbm9ybWFsOyB3b3JkLXNw
-YWNpbmc6IDBweDsgZmxvYXQ6IG5vbmU7IGRpc3BsYXk6IGlubGluZSAhaW1wb3J0YW50OyB3aGl0
-ZS1zcGFjZTogbm9ybWFsOyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMjU1LCAyNTUsIDI1NSk7IC13
-ZWJraXQtdGV4dC1zdHJva2Utd2lkdGg6IDBweDsiPmlmIGFtIGkgcmlnaHQ/PC9zcGFuPjwvc3Bh
-bj48L2ZvbnQ+PC9mb250PjwvZGl2PjxkaXY+PGZvbnQgc2l6ZT0iMiI+PGZvbnQgY29sb3I9IiM1
-NDU0NTQiPjxzcGFuIHN0eWxlPSJmb250OiBzbWFsbC8xOC4ycHggYXJpYWwsIHNhbnMtc2VyaWY7
-IHRleHQtYWxpZ246IGxlZnQ7IGNvbG9yOiByZ2IoODQsIDg0LCA4NCk7IHRleHQtdHJhbnNmb3Jt
-OiBub25lOyB0ZXh0LWluZGVudDogMHB4OyBsZXR0ZXItc3BhY2luZzogbm9ybWFsOyB3b3JkLXNw
-YWNpbmc6IDBweDsgZmxvYXQ6IG5vbmU7IGRpc3BsYXk6IGlubGluZSAhaW1wb3J0YW50OyB3aGl0
-ZS1zcGFjZTogbm9ybWFsOyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMjU1LCAyNTUsIDI1NSk7IC13
-ZWJraXQtdGV4dC1zdHJva2Utd2lkdGg6IDBweDsiPjxzcGFuIHN0eWxlPSJmb250OiBzbWFsbC8x
-OC4ycHggYXJpYWwsIHNhbnMtc2VyaWY7IHRleHQtYWxpZ246IGxlZnQ7IGNvbG9yOiByZ2IoODQs
-IDg0LCA4NCk7IHRleHQtdHJhbnNmb3JtOiBub25lOyB0ZXh0LWluZGVudDogMHB4OyBsZXR0ZXIt
-c3BhY2luZzogbm9ybWFsOyB3b3JkLXNwYWNpbmc6IDBweDsgZmxvYXQ6IG5vbmU7IGRpc3BsYXk6
-IGlubGluZSAhaW1wb3J0YW50OyB3aGl0ZS1zcGFjZTogbm9ybWFsOyBiYWNrZ3JvdW5kLWNvbG9y
-OiByZ2IoMjU1LCAyNTUsIDI1NSk7IC13ZWJraXQtdGV4dC1zdHJva2Utd2lkdGg6IDBweDsiPjwv
-c3Bhbj48L3NwYW4+PC9mb250PjwvZm9udD4mbmJzcDs8L2Rpdj48ZGl2Pjxmb250IHNpemU9IjIi
-Pjxmb250IGNvbG9yPSIjNTQ1NDU0Ij48c3BhbiBzdHlsZT0iZm9udDogc21hbGwvMTguMnB4IGFy
-aWFsLCBzYW5zLXNlcmlmOyB0ZXh0LWFsaWduOiBsZWZ0OyBjb2xvcjogcmdiKDg0LCA4NCwgODQp
-OyB0ZXh0LXRyYW5zZm9ybTogbm9uZTsgdGV4dC1pbmRlbnQ6IDBweDsgbGV0dGVyLXNwYWNpbmc6
-IG5vcm1hbDsgd29yZC1zcGFjaW5nOiAwcHg7IGZsb2F0OiBub25lOyBkaXNwbGF5OiBpbmxpbmUg
-IWltcG9ydGFudDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgYmFja2dyb3VuZC1jb2xvcjogcmdiKDI1
-NSwgMjU1LCAyNTUpOyAtd2Via2l0LXRleHQtc3Ryb2tlLXdpZHRoOiAwcHg7Ij48c3BhbiBzdHls
-ZT0iZm9udDogc21hbGwvMTguMnB4IGFyaWFsLCBzYW5zLXNlcmlmOyB0ZXh0LWFsaWduOiBsZWZ0
-OyBjb2xvcjogcmdiKDg0LCA4NCwgODQpOyB0ZXh0LXRyYW5zZm9ybTogbm9uZTsgdGV4dC1pbmRl
-bnQ6IDBweDsgbGV0dGVyLXNwYWNpbmc6IG5vcm1hbDsgd29yZC1zcGFjaW5nOiAwcHg7IGZsb2F0
-OiBub25lOyBkaXNwbGF5OiBpbmxpbmUgIWltcG9ydGFudDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsg
-YmFja2dyb3VuZC1jb2xvcjogcmdiKDI1NSwgMjU1LCAyNTUpOyAtd2Via2l0LXRleHQtc3Ryb2tl
-LXdpZHRoOiAwcHg7Ij50aGFua3M8L3NwYW4+PC9zcGFuPjwvZm9udD48L2ZvbnQ+PC9kaXY+PGRp
-dj48YnI+PGJyPjxicj48YnI+Jm5ic3A7PC9kaXY+PGRpdj48L2Rpdj48ZGl2IGlkPSJkaXZOZXRl
-YXNlTWFpbENhcmQiPjwvZGl2PjxkaXY+PC9kaXY+PHByZT48YnI+QXQmbmJzcDsyMDE0LTA0LTE1
-Jm5ic3A7MDM6MDA6NTMsIkJhcnQmbmJzcDtEZSZuYnNwO1NjaHV5bWVyIiZuYnNwOyZsdDtiZHNj
-aHV5bUBwYW5kb3JhLmJlJmd0OyZuYnNwO3dyb3RlOgomZ3Q7bG9uZ2d1YW5nLnl1ZSZuYnNwO3Nj
-aHJlZWYmbmJzcDtvcCZuYnNwOzEwLzA0LzIwMTQmbmJzcDs4OjAzOgomZ3Q7Jmd0OyZuYnNwO2Jy
-X25mX2ZvcndhcmRfaXAoKSZuYnNwO3sKJmd0OyZndDsmbmJzcDtwYXJlbnQmbmJzcDs9Jm5ic3A7
-YnJpZGdlX3BhcmVudChvdXQpOwomZ3Q7Jmd0OyZuYnNwO05GX0hPT0socGYsJm5ic3A7TkZfSU5F
-VF9GT1JXQVJELCZuYnNwO3NrYiwmbmJzcDticm5mX2dldF9sb2dpY2FsX2Rldihza2IsJm5ic3A7
-aW4pLCZuYnNwO3BhcmVudCwKJmd0OyZndDsmbmJzcDticl9uZl9mb3J3YXJkX2ZpbmlzaCk7CiZn
-dDsmZ3Q7Jm5ic3A7fQomZ3Q7Jmd0OyZuYnNwO2hlcmUsJm5ic3A7bGV0Jm5ic3A7dXMmbmJzcDtz
-dXBwb3NlJm5ic3A7cGYmbmJzcDs9Jm5ic3A7TkZQUk9UT19JUFY0LCZuYnNwO2kmbmJzcDt0aGlu
-ayZuYnNwO3RoZSZuYnNwO3JldHVybiZuYnNwO3ZhbHVlJm5ic3A7b2YKJmd0OyZndDsmbmJzcDti
-cm5mX2dldF9sb2dpY2FsX2Rldihza2IsJm5ic3A7aW4pJm5ic3A7ZXF1YWxzJm5ic3A7cGFyZW50
-Jm5ic3A7PwomZ3Q7Jmd0OyZuYnNwO2l0cyZuYnNwO2NvbW1lbnQmbmJzcDsnVGhpcyZuYnNwO2lz
-Jm5ic3A7dGhlJm5ic3A7J3B1cmVseSZuYnNwO2JyaWRnZWQnJm5ic3A7Y2FzZS4mbmJzcDsmbmJz
-cDtGb3ImbmJzcDtJUCwmbmJzcDt3ZSZuYnNwO3Bhc3MmbmJzcDt0aGUKJmd0OyZndDsmbmJzcDtw
-YWNrZXQmbmJzcDt0bwomZ3Q7Jmd0OyZuYnNwOyZuYnNwOyZuYnNwOyombmJzcDtuZXRmaWx0ZXIm
-bmJzcDt3aXRoJm5ic3A7aW5kZXYmbmJzcDthbmQmbmJzcDtvdXRkZXYmbmJzcDtzZXQmbmJzcDt0
-byZuYnNwO3RoZSZuYnNwO2JyaWRnZSZuYnNwO2RldmljZScKJmd0OyZndDsmbmJzcDtzbyZuYnNw
-O3doZW4mbmJzcDtjYWxscyZuYnNwO2hvb2tzJm5ic3A7YXQmbmJzcDtpcHY0Jm5ic3A7bGV2ZWwK
-Jmd0OyZndDsmbmJzcDtsaWtlJm5ic3A7aXB0YWJsZV9maWx0ZXJfaG9vayxpcHRhYmxlX21hbmds
-ZV9ob29rLCZuYnNwO3dlJm5ic3A7Y2FuJm5ic3A7bm90Jm5ic3A7ZGlzdGluY3QmbmJzcDtpbiZu
-YnNwO2FuZAomZ3Q7Jmd0OyZuYnNwO291dCZuYnNwO2RldmljZXM/CiZndDsmZ3Q7Jm5ic3A7aW4m
-bmJzcDtvdGhlciZuYnNwO3dvcmQsJm5ic3A7Jm5ic3A7d2UmbmJzcDtjYW4mbmJzcDtub3QmbmJz
-cDt1c2UmbmJzcDtpbi9vdXQmbmJzcDtkZXYmbmJzcDt3aXRoJm5ic3A7ZWJ0YWJsZXMncyZuYnNw
-O2lwJm5ic3A7ZXh0ZW5zaW9uLgomZ3Q7Jmd0OyZuYnNwO3RoYW5rcwomZ3Q7Jmd0OwomZ3Q7CiZn
-dDtZb3UmbmJzcDtuZWVkJm5ic3A7dG8mbmJzcDt1c2UmbmJzcDt0aGUmbmJzcDtpcHRhYmxlcyZu
-YnNwO3BoeXNkZXYmbmJzcDttb2R1bGUmbmJzcDt0byZuYnNwO2ZpbHRlciZuYnNwO29uJm5ic3A7
-dGhlJm5ic3A7cGh5c2ljYWwmbmJzcDtwb3J0cy4KJmd0OwomZ3Q7Y2hlZXJzLAomZ3Q7QmFydAom
-Z3Q7CjwvcHJlPjwvZGl2Pjxicj48YnI+PHNwYW4gdGl0bGU9Im5ldGVhc2Vmb290ZXIiPjxzcGFu
-IGlkPSJuZXRlYXNlX21haWxfZm9vdGVyIj48L3NwYW4+PC9zcGFuPg==
-------=_Part_62968_362936812.1397527371995--
+2) If a port state is in learning, that means that the bridge has
+determined that it is OK for the port to go to forwarding, but it has not
+been in the learning state for a long enough period of time. (learning is a
+transitionary time period in the STP when a port will learn mac addresses
+but will not forward traffic.)  Provided there is no topology change that
+would result in the logic taking the port back to disabled, the local port
+state should go from learning to forwarding after 1x the forward delay.
+(This assumes the link does not go down, in which case the port state will
+go to disabled.)
 
+Hope that helps,
+
+Chris
+
+
+On Mon, Apr 14, 2014 at 7:08 PM, longguang.yue <kernelluck@163.com> wrote:
+
+> hi,all
+> 1.
+> if the initial state of port is learning?
+>
+> 2.
+> in what case, state trandfers from learing to forwarding, what is the
+> condition?
+>
+>
+> thanks
+>
+>
+>
+
+--089e0115ec145df71b04f70b6a68
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div><div>1) The initial state of a port if it is run=
+ning STP is disabled.=C2=A0 Once there is link, it will transition to block=
+ing.=C2=A0 After that point, depending on the state of the rest of the netw=
+ork, it will either stay blocking or attempt to transition to forwarding.<b=
+r>
+</div><div><br>2) If a port state is in learning, that means that the bridg=
+e has determined that it is OK for the port to go to forwarding, but it has=
+ not been in the learning state for a long enough period of time. (learning=
+ is a transitionary time period in the STP when a port will learn mac addre=
+sses but will not forward traffic.)=C2=A0 Provided there is no topology cha=
+nge that would result in the logic taking the port back to disabled, the lo=
+cal port state should go from learning to forwarding after 1x the forward d=
+elay.=C2=A0 (This assumes the link does not go down, in which case the port=
+ state will go to disabled.)=C2=A0 <br>
+<br></div><div>Hope that helps,<br><br>Chris<br></div></div></div></div><di=
+v class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On Mon, Apr 14, =
+2014 at 7:08 PM, longguang.yue <span dir=3D"ltr">&lt;<a href=3D"mailto:kern=
+elluck@163.com" target=3D"_blank">kernelluck@163.com</a>&gt;</span> wrote:<=
+br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div style=3D"line-height:1.7;font-size:14px=
+;font-family:arial"><div>hi,all</div><div>1.</div><div>if the initial state=
+ of port is learning?</div>
+<div>=C2=A0</div><div>2.</div><div>in what case, state trandfers from leari=
+ng to forwarding, what is the condition?</div><div>=C2=A0</div><div>=C2=A0<=
+/div><div>thanks</div></div><br><br><span title=3D"neteasefooter"><span></s=
+pan></span></blockquote>
+</div><br></div>
+
+--089e0115ec145df71b04f70b6a68--
