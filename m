@@ -1,12 +1,9 @@
-Return-Path: <hare@suse.de>
-Message-ID: <53479F8B.9020002@suse.de>
-From: Hannes Reinecke <hare@suse.de>
+Return-Path: <teg@jklm.no>
 MIME-Version: 1.0
-References: <5590ca8b.f19f.1454fb2f747.Coremail.kernelluck@163.com>
-In-Reply-To: <5590ca8b.f19f.1454fb2f747.Coremail.kernelluck@163.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] sometimes ping fails when enable stp
+From: Tom Gundersen <teg@jklm.no>
+Message-ID: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: [Bridge] [BUG?] bridge_id not getting set for bridges created with
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,22 +12,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 11 Apr 2014 07:53:50 -0000
-To: "longguang.yue" <kernelluck@163.com>, virtualization <virtualization@lists.linux-foundation.org>, bridge <bridge@lists.linux-foundation.org>
+Date: Mon, 21 Apr 2014 19:33:35 -0000
+To: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+Cc: "C. R. Oldham" <cr@saltstack.com>
 
-On 04/11/2014 09:31 AM, longguang.yue wrote:
-> hi,all
-> sometimes ping fails when enable stp , why?
-> =20
-Probably stp initialisation isn't yet finished, and the switch will
-block any traffic until that happens.
-During that time any traffic will return with -EHOSTUNREACH.
+Hi,
+
+If IFLA_ADDRESS is set when creating a bridge over netlink, e.g.
+
+# ip link add test-bridge address b6:83:a2:b3:2f:0e type bride
+
+the bridge id is not set:
+
+# brctl show
+bridge name    bridge id        STP enabled    interfaces
+bridge1        8000.000000000000    no
+
+
+It looks like this is caused by br_stp_set_bridge_id never beeing
+called. There appear to be many ways to solve this, but not sure what
+is the preferred route...
 
 Cheers,
 
-Hannes
---=20
-Dr. Hannes Reinecke		      zSeries & Storage
-hare@suse.de			      +49 911 74053 688
-SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
-GF: J. Hawn, J. Guild, F. Imend=F6rffer, HRB 16746 (AG N=FCrnberg)
+Tom
