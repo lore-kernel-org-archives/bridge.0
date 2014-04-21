@@ -1,14 +1,12 @@
-Return-Path: <vvs@parallels.com>
-Message-ID: <53535C35.7070108@parallels.com>
-Date: Sun, 20 Apr 2014 09:33:41 +0400
-From: Vasily Averin <vvs@parallels.com>
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Mon, 21 Apr 2014 20:59:35 +0200
+Message-Id: <1398106775-14857-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-References: <534FB7D2.3020705@parallels.com>
-In-Reply-To: <534FB7D2.3020705@parallels.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
-	br_nf_dev_queue_xmit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] bridge: simplify a br_multicast_query_received()
+	function call
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,58 +15,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vasily Averin <vvs@parallels.com>, Patrick McHardy <kaber@trash.net>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-Please do not apply my patch, probably it breaks processing of VLAN packets.
+The call from the IPv6 part can be simplified as the beginning of the
+calling function ensures that we end up here when having a proper IPv6
+source address only.
 
-Dear Patrick,
-could you please explain why fragmentation of packets requires enabled
-connection tracking?
+Introduced by 6565b9eeef194afbb3beec80d6dd2447f4091f8c
+("bridge: multicast: add sanity check for query source addresses")
 
-During old patch discussion you told "everything related to fragmenting
-is only needed with NF_CONNTRACK". However before adding (skb->nfct) check
-bridge worked well with fragments, and I cannot understand what exactly in 
-ip_fragment should not work with disabled connection trackng.
+Reported-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_multicast.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-From my point of view its better to drop packets in ip_fragment(), 
-where failcounters accounts these events instead silent dropping
-in br_dev_queu_push_xmit().
-
-So could you please explain, why we need to have skb->nfct check
-in br_nf_dev_queue_xmit()?
-
-Thank you,
-	Vasily Averin
-
-On 04/17/2014 03:15 PM, Vasily Averin wrote:
-> skb->nfct check in br_nf_dev_queue_xmit() does not work if conntracks
-> are not loaded on the node. This check does not allow to fragment skb
-> combined from incoming fragments, as results this skb will be dropped
-> silently in br_dev_queue_push_xmit()
-> 
-> This check was added in commit c197facc8ea08062f8f949aade6a33649ee06771
-> netfilter: bridge: allow fragmentation of VLAN packets traversing a bridge
-> 
-> I believe this check is superfluous and should be removed.
-> 
-> Signed-off-by: Vasily Averin <vvs@openvz.org>
-> ---
->  net/bridge/br_netfilter.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-> index 80e1b0f..6a8407c 100644
-> --- a/net/bridge/br_netfilter.c
-> +++ b/net/bridge/br_netfilter.c
-> @@ -864,7 +864,7 @@ static int br_nf_dev_queue_xmit(struct sk_buff *skb)
->  {
->  	int ret;
->  
-> -	if (skb->nfct != NULL && skb->protocol == htons(ETH_P_IP) &&
-> +	if (skb->protocol == htons(ETH_P_IP) &&
->  	    skb->len + nf_bridge_mtu_reduction(skb) > skb->dev->mtu &&
->  	    !skb_is_gso(skb)) {
->  		if (br_parse_ip_options(skb))
-> 
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 7b757b5..d2c3aae 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1282,8 +1282,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 		goto out;
+ 	}
+ 
+-	br_multicast_query_received(br, port, &br->ip6_querier,
+-				    !ipv6_addr_any(&ip6h->saddr),
++	br_multicast_query_received(br, port, &br->ip6_querier, 1,
+ 				    is_general_query, max_delay);
+ 
+ 	if (!group)
+-- 
+1.7.10.4
 
