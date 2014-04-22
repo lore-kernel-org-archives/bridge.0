@@ -1,12 +1,18 @@
-Return-Path: <mbizon@freebox.fr>
-Message-ID: <1398189018.19788.2.camel@sakura.staff.proxad.net>
-From: Maxime Bizon <mbizon@freebox.fr>
-Content-Type: text/plain; charset="ANSI_X3.4-1968"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-Subject: [Bridge] [PATCH][RFC] bridge: mark packets sent to any local mac
- address as PACKET_HOST
-Reply-To: mbizon@freebox.fr
+Return-Path: <lurodriguez@suse.de>
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
+Message-ID: <20140422194313.GQ27882@wotan.suse.de>
+References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
+	<1394680527-28970-3-git-send-email-mcgrof@do-not-panic.com>
+	<CAHA+R7Pf6rM5h1uGiqrru5LkN9C7Nm7V42cucHSOV1s7_+F7Gw@mail.gmail.com>
+	<20140315013940.GA28801@wotan.suse.de>
+	<CAHA+R7MRVyjAN7w_qPxSxkrjo939bNEc3Ej+O3yH-oWj4gGJxw@mail.gmail.com>
+	<20140318212243.GD28471@garbanzo.do-not-panic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140318212243.GD28471@garbanzo.do-not-panic.com>
+Subject: Re: [Bridge] [PATCH 2/3] bridge: trigger a bridge calculation upon
+	port	changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,35 +21,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Tue, 22 Apr 2014 17:59:06 -0000
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+Date: Tue, 22 Apr 2014 19:43:17 -0000
+To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Cc: kvm@vger.kernel.org, Cong Wang <cwang@twopensource.com>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, xen-devel@lists.xenproject.org
 
+On Tue, Mar 18, 2014 at 02:22:43PM -0700, Luis R. Rodriguez wrote:
+> On Tue, Mar 18, 2014 at 01:46:49PM -0700, Cong Wang wrote:
+> > On Fri, Mar 14, 2014 at 6:39 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> > > On Thu, Mar 13, 2014 at 11:26:25AM -0700, Cong Wang wrote:
+> > >> On Wed, Mar 12, 2014 at 8:15 PM, Luis R. Rodriguez
+> > >> <mcgrof@do-not-panic.com> wrote:
+> > >> >                         spin_unlock_bh(&p->br->lock);
+> > >> > +                       if (changed)
+> > >> > +                               call_netdevice_notifiers(NETDEV_CHANGEADDR,
+> > >> > +                                                        p->br->dev);
+> > >> > +                       netdev_update_features(p->br->dev);
+> > >>
+> > >> I think this is supposed to be in netdev event handler of br->dev
+> > >> instead of here.
+> > >
+> > > Do you mean netdev_update_features() ? I mimic'd what was being done on
+> > > br_del_if() given that root blocking is doing something similar. If
+> > > we need to change something for the above then I suppose it means we need
+> > > to change br_del_if() too. Let me know if you see any reason for something
+> > > else.
+> > >
+> > 
+> > Yeah, for me it looks like it's better to call netdev_update_features()
+> > in the event handler of br->dev, rather than where calling
+> > call_netdevice_notifiers(..., br->dev);.
+> 
+> I still don't see why, in fact trying to verify this I am wondering now
+> if instead we should actually fix br_features_recompute() to take into
+> consideration BR_ROOT_BLOCK as below. Notice how netdev_update_features()
+> is called above even if the MAC address did not change, just as is done
+> on br_del_if(). There is an NETDEV_FEAT_CHANGE event so would it be more
+> appropriate we just call
+> 
+> call_netdevice_notifiers(NETDEV_FEAT_CHANGE, p->br->dev)
+> 
+> for both the above then and also br_del_if()? How about the below
+> change?
+> 
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 54d207d..dcd9378 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -315,6 +315,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+>  	features &= ~NETIF_F_ONE_FOR_ALL;
+>  
+>  	list_for_each_entry(p, &br->port_list, list) {
+> +		if (p->flags & BR_ROOT_BLOCK)
+> +			continue;
+>  		features = netdev_increment_features(features,
+>  						     p->dev->features, mask);
+>  	}
 
-The bridge code only set PACKET_HOST on packets sent to the bridge mac
-address, packets sent to other local mac addresses are sent to upper
-layer, but ignored because they are marked as PACKET_OTHERHOST.
----
- net/bridge/br_input.c |    1 +
- 1 file changed, 1 insertion(+)
+Cong, can you provide feedback on this? I tried to grow confidence on the
+hunk above but its not clear but the other points still hold and I'd love
+your feedback on those.
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 7985dea..b942561 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -120,6 +120,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
- 			dst->is_local) {
- 		skb2 = skb;
- 		/* Do not forward the packet since it's local. */
-+		skb2->pkt_type = PACKET_HOST;
- 		skb = NULL;
- 	}
- 
--- 
-1.7.9.5
-
-
--- 
-Maxime
-
-
+  Luis
