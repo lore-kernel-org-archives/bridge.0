@@ -1,26 +1,14 @@
-Return-Path: <mcgrof@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc:content-type;
-	bh=FNZldFzK5q3scVD5BZngNvjZD5nG+/70VKWiTd8aUj0=;
-	b=iOdzNeOUuRFCbIHP+f5/D4cjzN6GrSH+UDxajYiHlIu5OK3JrLnLD1/YWriZDeAEUP
-	h26cdDf+UeaYcwswTKALEMVQASdh15eUfkqCxi3qhpNwsYFAlmz/bM+KImPvOMG2JT3I
-	r2sqryaPdFbGXKkmzEUlTS8QIsg43AIYFhYyj09l++MbC31B2JtZ2r7X9ivs4jNP27hO
-	2ee/WVj8Z0oI0TZNtV7GBtEIBxqMzv7qkFaTqTVASFQElQeRhsIN0jzUkoq7EGioR31W
-	78R0FC2QujeGye+WilbBe8BxwQKsEIZY6mM+vGWq/THFKMrlz65rUeiu2hZqrNUXgHkp
-	LAqw==
-MIME-Version: 1.0
-Sender: mcgrof@gmail.com
-In-Reply-To: <20140320020540.GF28801@wotan.suse.de>
-References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-	<1394680527-28970-2-git-send-email-mcgrof@do-not-panic.com>
-	<20140318201056.7b876394@nehalam.linuxnetplumber.net>
-	<20140320020540.GF28801@wotan.suse.de>
-From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Date: Tue, 22 Apr 2014 12:41:50 -0700
-Message-ID: <CAB=NE6WKyQbh9Eih05szW6708fVTNPgTe62SU5tC2dQkqwJApg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH 1/3] bridge: preserve random init MAC address
+Return-Path: <davem@davemloft.net>
+Date: Wed, 23 Apr 2014 14:47:48 -0400 (EDT)
+Message-Id: <20140423.144748.1259564888396787227.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1398106775-14857-1-git-send-email-linus.luessing@web.de>
+References: <1398106775-14857-1-git-send-email-linus.luessing@web.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] bridge: simplify a
+ br_multicast_query_received() function call
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,76 +17,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: kvm@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, xen-devel@lists.xenproject.org
+To: linus.luessing@web.de
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2014 at 7:05 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> On Tue, Mar 18, 2014 at 08:10:56PM -0700, Stephen Hemminger wrote:
->> On Wed, 12 Mar 2014 20:15:25 -0700
->> "Luis R. Rodriguez" <mcgrof@do-not-panic.com> wrote:
->>
->> > As it is now if you add create a bridge it gets started
->> > with a random MAC address and if you then add a net_device
->> > as a slave but later kick it out you end up with a zero
->> > MAC address. Instead preserve the original random MAC
->> > address and use it.
->>
->> What is supposed to happen is that the recalculate chooses
->> the lowest MAC address of the slaves. If there are no slaves
->> it might as well just calculate a new random value. There is
->> not great merit in preserving the original defunct address.
->>
->> Or something like this
->> --- a/net/bridge/br_stp_if.c  2014-02-12 08:21:56.733857356 -0800
->> +++ b/net/bridge/br_stp_if.c  2014-03-18 20:09:09.334388826 -0700
->> @@ -235,6 +235,9 @@ bool br_stp_recalculate_bridge_id(struct
->>                       addr = p->dev->dev_addr;
->>
->>       }
->> +
->> +     if (addr == br_mac_zero)
->> +             return false;  /* keep original address */
->>
->>       if (ether_addr_equal(br->bridge_id.addr, addr))
->>               return false;   /* no change */
->>
->> that just keeps the old value.
->
-> The old value could be a port which got root blocked, I think
-> it can be confusing to see that happen. Either way feel free to
-> make the call, I'll provide more details below on perhaps one reason
-> to keep the original MAC address.
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Mon, 21 Apr 2014 20:59:35 +0200
 
-Stephen, I'd like to respin this series to address all pending
-feedback, I'd still like your feedback / call / judgement on this
-part. I'm fine either way, just wanted to ensure I highlight the
-reasoning of why I kept the original random MAC address. Please keep
-in mind that at this point I'm convinced bridging is the *wrong*
-solution to networking with guests but it is being used in a lot of
-current topologies, this would just help with smoothing out corner
-cases.
+> The call from the IPv6 part can be simplified as the beginning of the=
 
->> The bridge is in a meaningless state when there are no ports,
->
-> Some virtualization topologies may want a backend with no link (or
-> perhaps one which is dynamic, with the option to have none) to the
-> internet but just a bridge so guests sharing the bridge can talk to
-> each other. In this case bridging can be used only to link the
-> batch of guests.
->
-> In this case the bridge simply acts as a switch, but also can be used as the
-> interface for DHCP, for example. In such a case the guests will be doing
-> ARP to get to the DHCP server. There's a flurry of ways one can try to get
-> all this meshed together including enablign an ARP proxy but I'm looking
-> at ways to optimize this further -- but I'd like to address the current
-> usage cases first.
->
->> and when the first port is added back it will be used as the
->> new bridge id.
->
-> Sure. Let me know how you think we should proceed with this patch based
-> on the above.
+> calling function ensures that we end up here when having a proper IPv=
+6
+> source address only.
+> =
 
-Thanks in advance.
+> Introduced by 6565b9eeef194afbb3beec80d6dd2447f4091f8c
+> ("bridge: multicast: add sanity check for query source addresses")
+> =
 
-  Luis
+> Reported-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
+> Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
+> ---
+>  net/bridge/br_multicast.c |    3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> =
+
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 7b757b5..d2c3aae 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -1282,8 +1282,7 @@ static int br_ip6_multicast_query(struct net_br=
+idge *br,
+>  		goto out;
+>  	}
+>  =
+
+> -	br_multicast_query_received(br, port, &br->ip6_querier,
+> -				    !ipv6_addr_any(&ip6h->saddr),
+> +	br_multicast_query_received(br, port, &br->ip6_querier, 1,
+>  				    is_general_query, max_delay);
+>  =
+
+>  	if (!group)
+
+This doesn't make any sense to me, is_general_query can be false at thi=
+s
+point.
+
+Furthermore, even if your change would be correct, the argument is a
+boolean not an integer.
