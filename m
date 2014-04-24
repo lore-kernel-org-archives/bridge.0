@@ -1,18 +1,15 @@
-Return-Path: <lurodriguez@suse.de>
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-Message-ID: <20140422194313.GQ27882@wotan.suse.de>
-References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
-	<1394680527-28970-3-git-send-email-mcgrof@do-not-panic.com>
-	<CAHA+R7Pf6rM5h1uGiqrru5LkN9C7Nm7V42cucHSOV1s7_+F7Gw@mail.gmail.com>
-	<20140315013940.GA28801@wotan.suse.de>
-	<CAHA+R7MRVyjAN7w_qPxSxkrjo939bNEc3Ej+O3yH-oWj4gGJxw@mail.gmail.com>
-	<20140318212243.GD28471@garbanzo.do-not-panic.com>
+Return-Path: <teg@jklm.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140318212243.GD28471@garbanzo.do-not-panic.com>
-Subject: Re: [Bridge] [PATCH 2/3] bridge: trigger a bridge calculation upon
-	port	changes
+In-Reply-To: <1398341787.4171.16.camel@ubuntu-vm-makita>
+References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>
+	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
+	<1398341177.4171.11.camel@ubuntu-vm-makita>
+	<1398341787.4171.16.camel@ubuntu-vm-makita>
+From: Tom Gundersen <teg@jklm.no>
+Message-ID: <CAG-2HqUhT+vbZfugfTYGzWt_qu45sKMaWXQ0uNg8SPzYNmG_5A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: Re: [Bridge] [PATCH net] bridge: Handle IFLA_ADDRESS correctly when
+ creating bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,64 +18,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Tue, 22 Apr 2014 19:43:17 -0000
-To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
-Cc: kvm@vger.kernel.org, Cong Wang <cwang@twopensource.com>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, xen-devel@lists.xenproject.org
+Date: Thu, 24 Apr 2014 16:04:35 -0000
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, "C. R. Oldham" <cr@saltstack.com>
 
-On Tue, Mar 18, 2014 at 02:22:43PM -0700, Luis R. Rodriguez wrote:
-> On Tue, Mar 18, 2014 at 01:46:49PM -0700, Cong Wang wrote:
-> > On Fri, Mar 14, 2014 at 6:39 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> > > On Thu, Mar 13, 2014 at 11:26:25AM -0700, Cong Wang wrote:
-> > >> On Wed, Mar 12, 2014 at 8:15 PM, Luis R. Rodriguez
-> > >> <mcgrof@do-not-panic.com> wrote:
-> > >> >                         spin_unlock_bh(&p->br->lock);
-> > >> > +                       if (changed)
-> > >> > +                               call_netdevice_notifiers(NETDEV_CHANGEADDR,
-> > >> > +                                                        p->br->dev);
-> > >> > +                       netdev_update_features(p->br->dev);
-> > >>
-> > >> I think this is supposed to be in netdev event handler of br->dev
-> > >> instead of here.
-> > >
-> > > Do you mean netdev_update_features() ? I mimic'd what was being done on
-> > > br_del_if() given that root blocking is doing something similar. If
-> > > we need to change something for the above then I suppose it means we need
-> > > to change br_del_if() too. Let me know if you see any reason for something
-> > > else.
-> > >
-> > 
-> > Yeah, for me it looks like it's better to call netdev_update_features()
-> > in the event handler of br->dev, rather than where calling
-> > call_netdevice_notifiers(..., br->dev);.
-> 
-> I still don't see why, in fact trying to verify this I am wondering now
-> if instead we should actually fix br_features_recompute() to take into
-> consideration BR_ROOT_BLOCK as below. Notice how netdev_update_features()
-> is called above even if the MAC address did not change, just as is done
-> on br_del_if(). There is an NETDEV_FEAT_CHANGE event so would it be more
-> appropriate we just call
-> 
-> call_netdevice_notifiers(NETDEV_FEAT_CHANGE, p->br->dev)
-> 
-> for both the above then and also br_del_if()? How about the below
-> change?
-> 
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 54d207d..dcd9378 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -315,6 +315,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
->  	features &= ~NETIF_F_ONE_FOR_ALL;
->  
->  	list_for_each_entry(p, &br->port_list, list) {
-> +		if (p->flags & BR_ROOT_BLOCK)
-> +			continue;
->  		features = netdev_increment_features(features,
->  						     p->dev->features, mask);
->  	}
+On Thu, Apr 24, 2014 at 2:16 PM, Toshiaki Makita
+<makita.toshiaki@lab.ntt.co.jp> wrote:
+> When bridge device is created with IFLA_ADDRESS, we are not calling
+> br_stp_change_bridge_id(), which leads to incorrect local fdb
+> management and bridge id calculation, and prevents us from receiving
+> frames on the bridge device.
+>
+> Reported-by: Tom Gundersen <teg@jklm.no>
 
-Cong, can you provide feedback on this? I tried to grow confidence on the
-hunk above but its not clear but the other points still hold and I'd love
-your feedback on those.
+Thanks. That looks correct to me (not able to test at the moment
+though). Would this be appropriate for stable if it goes in?
 
-  Luis
+Cheers,
+
+Tom
+
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> ---
+>  net/bridge/br_netlink.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index e74b6d53..a8b664e 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -445,6 +445,25 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
+>         return 0;
+>  }
+>
+> +static int br_dev_newlink(struct net *src_net, struct net_device *dev,
+> +                         struct nlattr *tb[], struct nlattr *data[])
+> +{
+> +       int err;
+> +       struct net_bridge *br = netdev_priv(dev);
+> +
+> +       if (tb[IFLA_ADDRESS]) {
+> +               spin_lock_bh(&br->lock);
+> +               br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
+> +               spin_unlock_bh(&br->lock);
+> +       }
+> +
+> +       err = register_netdevice(dev);
+> +       if (err)
+> +               return err;
+> +
+> +       return 0;
+> +}
+> +
+>  static size_t br_get_link_af_size(const struct net_device *dev)
+>  {
+>         struct net_port_vlans *pv;
+> @@ -473,6 +492,7 @@ struct rtnl_link_ops br_link_ops __read_mostly = {
+>         .priv_size      = sizeof(struct net_bridge),
+>         .setup          = br_dev_setup,
+>         .validate       = br_validate,
+> +       .newlink        = br_dev_newlink,
+>         .dellink        = br_dev_delete,
+>  };
+>
+> --
+> 1.8.1.2
+>
+>
