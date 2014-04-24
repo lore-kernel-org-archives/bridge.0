@@ -1,19 +1,17 @@
-Return-Path: <amidu@eguitel.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=eguitel.com;
-	s=default; 
-	h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:Subject:To:MIME-Version:From:Date:Message-ID;
-	bh=JcgSTIvogzit2ESFBxGnz6tNpqBsjXk/kY01VNJyLcM=; 
-	b=AGiqna8yzaWcij2/69JLddu+9fKOIgemgOOArxZ3nPRgTFiRkBX5sYctTnMGtcMqlYlPoZWgRme7dyFzH5op8zIN/ecdAnzZVzwKYTmRVCbG5ZJU1DBHZqQKX0bTHuhDjw6oP4xYcwoYQJKFrf0cgweT6GOvdCfwOZJzcmdMUiA=;
-Message-ID: <535903E8.2040007@eguitel.com>
-Date: Thu, 24 Apr 2014 12:30:32 +0000
-From: Amidu Sila <amidu@eguitel.com>
-MIME-Version: 1.0
-References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
+Return-Path: <stephen@networkplumber.org>
+Date: Thu, 24 Apr 2014 11:38:27 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20140424113827.6d27ec5b@nehalam.linuxnetplumber.net>
+In-Reply-To: <1398341787.4171.16.camel@ubuntu-vm-makita>
+References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>
+	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
 	<1398341177.4171.11.camel@ubuntu-vm-makita>
-In-Reply-To: <1398341177.4171.11.camel@ubuntu-vm-makita>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	<1398341787.4171.16.camel@ubuntu-vm-makita>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Unsubscribe me in this Forum
+Subject: Re: [Bridge] [PATCH net] bridge: Handle IFLA_ADDRESS correctly when
+ creating bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,9 +20,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: Tom Gundersen <teg@jklm.no>, netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, "C. R. Oldham" <cr@saltstack.com>
 
-Gentlemen,
-Please unsubscribe me in the forum.
-Regards
-Amidu
+On Thu, 24 Apr 2014 21:16:27 +0900
+Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
+
+> +static int br_dev_newlink(struct net *src_net, struct net_device *dev,
+> +			  struct nlattr *tb[], struct nlattr *data[])
+> +{
+> +	int err;
+> +	struct net_bridge *br = netdev_priv(dev);
+> +
+> +	if (tb[IFLA_ADDRESS]) {
+> +		spin_lock_bh(&br->lock);
+> +		br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
+> +		spin_unlock_bh(&br->lock);
+> +	}
+> +
+> +	err = register_netdevice(dev);
+> +	if (err)
+> +		return err;
+> +
+> +	return 0;
+> +}
+
+Looks good.
+
+Why not just do simpler tail call??
+    return register_netdevice(dev);
