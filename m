@@ -1,16 +1,19 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <1398341787.4171.16.camel@ubuntu-vm-makita>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Thu, 24 Apr 2014 21:16:27 +0900
-In-Reply-To: <1398341177.4171.11.camel@ubuntu-vm-makita>
-References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>
-	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
+Return-Path: <amidu@eguitel.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=eguitel.com;
+	s=default; 
+	h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:Subject:To:MIME-Version:From:Date:Message-ID;
+	bh=JcgSTIvogzit2ESFBxGnz6tNpqBsjXk/kY01VNJyLcM=; 
+	b=AGiqna8yzaWcij2/69JLddu+9fKOIgemgOOArxZ3nPRgTFiRkBX5sYctTnMGtcMqlYlPoZWgRme7dyFzH5op8zIN/ecdAnzZVzwKYTmRVCbG5ZJU1DBHZqQKX0bTHuhDjw6oP4xYcwoYQJKFrf0cgweT6GOvdCfwOZJzcmdMUiA=;
+Message-ID: <535903E8.2040007@eguitel.com>
+Date: Thu, 24 Apr 2014 12:30:32 +0000
+From: Amidu Sila <amidu@eguitel.com>
+MIME-Version: 1.0
+References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
 	<1398341177.4171.11.camel@ubuntu-vm-makita>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+In-Reply-To: <1398341177.4171.11.camel@ubuntu-vm-makita>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net] bridge: Handle IFLA_ADDRESS correctly when
- creating bridge device
+Subject: [Bridge] Unsubscribe me in this Forum
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,59 +22,9 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Tom Gundersen <teg@jklm.no>, netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>, "C. R. Oldham" <cr@saltstack.com>
+To: netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>
 
-When bridge device is created with IFLA_ADDRESS, we are not calling
-br_stp_change_bridge_id(), which leads to incorrect local fdb
-management and bridge id calculation, and prevents us from receiving
-frames on the bridge device.
-
-Reported-by: Tom Gundersen <teg@jklm.no>
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- net/bridge/br_netlink.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index e74b6d53..a8b664e 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -445,6 +445,25 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
- 	return 0;
- }
- 
-+static int br_dev_newlink(struct net *src_net, struct net_device *dev,
-+			  struct nlattr *tb[], struct nlattr *data[])
-+{
-+	int err;
-+	struct net_bridge *br = netdev_priv(dev);
-+
-+	if (tb[IFLA_ADDRESS]) {
-+		spin_lock_bh(&br->lock);
-+		br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
-+		spin_unlock_bh(&br->lock);
-+	}
-+
-+	err = register_netdevice(dev);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
- static size_t br_get_link_af_size(const struct net_device *dev)
- {
- 	struct net_port_vlans *pv;
-@@ -473,6 +492,7 @@ struct rtnl_link_ops br_link_ops __read_mostly = {
- 	.priv_size	= sizeof(struct net_bridge),
- 	.setup		= br_dev_setup,
- 	.validate	= br_validate,
-+	.newlink	= br_dev_newlink,
- 	.dellink	= br_dev_delete,
- };
- 
--- 
-1.8.1.2
-
-
+Gentlemen,
+Please unsubscribe me in the forum.
+Regards
+Amidu
