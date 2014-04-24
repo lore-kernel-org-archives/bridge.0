@@ -1,15 +1,13 @@
-Return-Path: <teg@jklm.no>
+Return-Path: <fw@strlen.de>
+From: Florian Westphal <fw@strlen.de>
+Message-ID: <20140424163243.GN31953@breakpoint.cc>
+References: <534FB7D2.3020705@parallels.com> <53535C35.7070108@parallels.com>
 MIME-Version: 1.0
-In-Reply-To: <1398341787.4171.16.camel@ubuntu-vm-makita>
-References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>
-	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
-	<1398341177.4171.11.camel@ubuntu-vm-makita>
-	<1398341787.4171.16.camel@ubuntu-vm-makita>
-From: Tom Gundersen <teg@jklm.no>
-Message-ID: <CAG-2HqUhT+vbZfugfTYGzWt_qu45sKMaWXQ0uNg8SPzYNmG_5A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH net] bridge: Handle IFLA_ADDRESS correctly when
- creating bridge device
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <53535C35.7070108@parallels.com>
+Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
+	br_nf_dev_queue_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,70 +16,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 24 Apr 2014 16:04:35 -0000
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, "C. R. Oldham" <cr@saltstack.com>
+Date: Thu, 24 Apr 2014 17:05:36 -0000
+To: Vasily Averin <vvs@parallels.com>
+Cc: bridge@lists.linux-foundation.org, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-On Thu, Apr 24, 2014 at 2:16 PM, Toshiaki Makita
-<makita.toshiaki@lab.ntt.co.jp> wrote:
-> When bridge device is created with IFLA_ADDRESS, we are not calling
-> br_stp_change_bridge_id(), which leads to incorrect local fdb
-> management and bridge id calculation, and prevents us from receiving
-> frames on the bridge device.
->
-> Reported-by: Tom Gundersen <teg@jklm.no>
+Vasily Averin <vvs@parallels.com> wrote:
+> Please do not apply my patch, probably it breaks processing of VLAN packets.
 
-Thanks. That looks correct to me (not able to test at the moment
-though). Would this be appropriate for stable if it goes in?
+Why would it break VLAN?
+In fact, the same dicussion came up couple of days back and I think the
+nfct test is wrong.  There is no guarantee that skb->nfct == NULL means
+that packet was not defragmented via nf_defrag (e.g. rror in l4 protocol
+tracker, nf_defrag_ipv4 loaded but no nf_conntrack_ipv4)
 
-Cheers,
-
-Tom
-
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> ---
->  net/bridge/br_netlink.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index e74b6d53..a8b664e 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -445,6 +445,25 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
->         return 0;
->  }
->
-> +static int br_dev_newlink(struct net *src_net, struct net_device *dev,
-> +                         struct nlattr *tb[], struct nlattr *data[])
-> +{
-> +       int err;
-> +       struct net_bridge *br = netdev_priv(dev);
-> +
-> +       if (tb[IFLA_ADDRESS]) {
-> +               spin_lock_bh(&br->lock);
-> +               br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
-> +               spin_unlock_bh(&br->lock);
-> +       }
-> +
-> +       err = register_netdevice(dev);
-> +       if (err)
-> +               return err;
-> +
-> +       return 0;
-> +}
-> +
->  static size_t br_get_link_af_size(const struct net_device *dev)
->  {
->         struct net_port_vlans *pv;
-> @@ -473,6 +492,7 @@ struct rtnl_link_ops br_link_ops __read_mostly = {
->         .priv_size      = sizeof(struct net_bridge),
->         .setup          = br_dev_setup,
->         .validate       = br_validate,
-> +       .newlink        = br_dev_newlink,
->         .dellink        = br_dev_delete,
->  };
->
-> --
-> 1.8.1.2
->
->
+For ipv6 its even worse since we toss all ipv6 defragmented packets...
