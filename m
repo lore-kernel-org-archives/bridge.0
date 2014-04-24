@@ -1,15 +1,16 @@
 Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <1398341177.4171.11.camel@ubuntu-vm-makita>
+Message-ID: <1398341787.4171.16.camel@ubuntu-vm-makita>
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Thu, 24 Apr 2014 21:06:17 +0900
-In-Reply-To: <CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
+Date: Thu, 24 Apr 2014 21:16:27 +0900
+In-Reply-To: <1398341177.4171.11.camel@ubuntu-vm-makita>
 References: <CAG-2HqVnWXu2dW=Su6DDxDzgg3cLSvTMu5Sf=Eq+YUv4P1d4NQ@mail.gmail.com>
 	<CAG-2HqU2f+4i3ttLSeitwr15=cVyin9VT+UrQvKC9pMV04fW7Q@mail.gmail.com>
+	<1398341177.4171.11.camel@ubuntu-vm-makita>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [BUG?] bridge_id not getting set for bridges created
-	with
+Subject: [Bridge] [PATCH net] bridge: Handle IFLA_ADDRESS correctly when
+ creating bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,58 +19,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tom Gundersen <teg@jklm.no>
-Cc: netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>, "C. R. Oldham" <cr@saltstack.com>
+To: "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: Tom Gundersen <teg@jklm.no>, netdev <netdev@vger.kernel.org>, bridge <bridge@lists.linux-foundation.org>, "C. R. Oldham" <cr@saltstack.com>
 
-On Mon, 2014-04-21 at 22:56 +0200, Tom Gundersen wrote:
-> On Mon, Apr 21, 2014 at 9:33 PM, Tom Gundersen <teg@jklm.no> wrote:
-> > Hi,
-> >
-> > If IFLA_ADDRESS is set when creating a bridge over netlink, e.g.
-> >
-> > # ip link add test-bridge address b6:83:a2:b3:2f:0e type bride
-> >
-> > the bridge id is not set:
-> >
-> > # brctl show
-> > bridge name    bridge id        STP enabled    interfaces
-> > bridge1        8000.000000000000    no
-> 
-> My example was incomplete. To see the bug one should of course first
-> add an interface to the bridge:
-> 
-> # brctl addif bridge1 eth0
-> 
-> 
-> and observe that the bridge id remains unset:
-> 
-> # brctl show
-> bridge name    bridge id        STP enabled    interfaces
-> bridge1        8000.000000000000    no            eth0
-> 
-> 
-> 
-> If bridge1 had been created without specifying the mac address the
-> result is as expected:
-> 
-> # brctl show
-> bridge name    bridge id        STP enabled    interfaces
-> bridge1        8000.28d244547cdb    no            eth0
-> 
+When bridge device is created with IFLA_ADDRESS, we are not calling
+br_stp_change_bridge_id(), which leads to incorrect local fdb
+management and bridge id calculation, and prevents us from receiving
+frames on the bridge device.
 
-Hi.
+Reported-by: Tom Gundersen <teg@jklm.no>
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ net/bridge/br_netlink.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-This seems to be a bug.
-What's worse is that local fdb entry won't be created and we will not be
-able to receive frames on the bridge device...
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index e74b6d53..a8b664e 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -445,6 +445,25 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
+ 	return 0;
+ }
+ 
++static int br_dev_newlink(struct net *src_net, struct net_device *dev,
++			  struct nlattr *tb[], struct nlattr *data[])
++{
++	int err;
++	struct net_bridge *br = netdev_priv(dev);
++
++	if (tb[IFLA_ADDRESS]) {
++		spin_lock_bh(&br->lock);
++		br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
++		spin_unlock_bh(&br->lock);
++	}
++
++	err = register_netdevice(dev);
++	if (err)
++		return err;
++
++	return 0;
++}
++
+ static size_t br_get_link_af_size(const struct net_device *dev)
+ {
+ 	struct net_port_vlans *pv;
+@@ -473,6 +492,7 @@ struct rtnl_link_ops br_link_ops __read_mostly = {
+ 	.priv_size	= sizeof(struct net_bridge),
+ 	.setup		= br_dev_setup,
+ 	.validate	= br_validate,
++	.newlink	= br_dev_newlink,
+ 	.dellink	= br_dev_delete,
+ };
+ 
+-- 
+1.8.1.2
 
-rtnl_create_link() doesn't call ndo_set_mac_address but populates
-dev->dev_addr by itself. I'm not sure if it is safe to call
-ndo_set_mac_address in this function (maybe affects other drivers).  I
-think this can be handled in bridge codes (br_link_ops->newlink).
-
-I'm submitting a patch to fix this.
-
-Thanks,
-Toshiaki Makita
 
