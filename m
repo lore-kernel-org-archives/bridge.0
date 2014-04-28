@@ -1,11 +1,16 @@
 Return-Path: <vvs@parallels.com>
-Message-ID: <535E5841.2030802@parallels.com>
-Date: Mon, 28 Apr 2014 17:31:45 +0400
+Message-ID: <535E64D2.7080700@parallels.com>
+Date: Mon, 28 Apr 2014 18:25:22 +0400
 From: Vasily Averin <vvs@parallels.com>
 MIME-Version: 1.0
+References: <534FB7D2.3020705@parallels.com> <53535C35.7070108@parallels.com>
+	<20140424163243.GN31953@breakpoint.cc>
+	<535E4B74.4050107@parallels.com>
+	<20140428131646.GP31953@breakpoint.cc>
+In-Reply-To: <20140428131646.GP31953@breakpoint.cc>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH v2] bridge: Superfluous skb->nfct check in
+Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
 	br_nf_dev_queue_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -15,57 +20,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Patrick McHardy <kaber@trash.net>, "David S. Miller" <davem@davemloft.net>
+To: Florian Westphal <fw@strlen.de>
+Cc: bridge@lists.linux-foundation.org, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-Currently bridge silently drops defragmented ipv4 packets if nf_conntrack module
-is not loaded on the node. However ipv4 fragmentation and defragmentation
-does not require enabled connection tracking.
+>> Therefore I believe that my patch is still correct, however now I think we also need 
+>> to remove #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) in br_nf_dev_queue_xmit().
+> 
+> I don't think so, DEFRAG_IPV4 is dependency glue, so it shouldn't be
+> possible to build kernel with CONNTRACK_IPV4=n and DEFRAG_IPV4=(m|y).
 
-Removing superfluous skb->nfct check allows to re-fragment previously
-defragmented packets and give them chance to reach destination side.
+Could you please explain, why this #ifdef is required?
 
-v2: removed #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) added because
-of using of nfct check
+I'm going to remove this #ifdef because it was added together with nfct check.
 
-Signed-off-by: Vasily Averin <vvs@openvz.org>
----
- net/bridge/br_netfilter.c |    9 +--------
- 1 files changed, 1 insertions(+), 8 deletions(-)
+Also I believe you are wrong with dependencies:
+NF_CONNTRACK_IPV4 forces NF_DEFRAG_IPV4, not vice versa
 
-diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-index 80e1b0f..d50c154 100644
---- a/net/bridge/br_netfilter.c
-+++ b/net/bridge/br_netfilter.c
-@@ -859,12 +859,11 @@ static unsigned int br_nf_forward_arp(const struct nf_hook_ops *ops,
- 	return NF_STOLEN;
- }
- 
--#if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4)
- static int br_nf_dev_queue_xmit(struct sk_buff *skb)
- {
- 	int ret;
- 
--	if (skb->nfct != NULL && skb->protocol == htons(ETH_P_IP) &&
-+	if (skb->protocol == htons(ETH_P_IP) &&
- 	    skb->len + nf_bridge_mtu_reduction(skb) > skb->dev->mtu &&
- 	    !skb_is_gso(skb)) {
- 		if (br_parse_ip_options(skb))
-@@ -876,12 +875,6 @@ static int br_nf_dev_queue_xmit(struct sk_buff *skb)
- 
- 	return ret;
- }
--#else
--static int br_nf_dev_queue_xmit(struct sk_buff *skb)
--{
--        return br_dev_queue_push_xmit(skb);
--}
--#endif
- 
- /* PF_BRIDGE/POST_ROUTING ********************************************/
- static unsigned int br_nf_post_routing(const struct nf_hook_ops *ops,
--- 
-1.7.5.4
+net/ipv4/netfilter/Kconfig
+config NF_DEFRAG_IPV4
+        tristate
+        default n
 
+config NF_CONNTRACK_IPV4
+        tristate "IPv4 connection tracking support (required for NAT)"
+        depends on NF_CONNTRACK
+        default m if NETFILTER_ADVANCED=n
+        select NF_DEFRAG_IPV4
 
 
