@@ -1,14 +1,11 @@
 Return-Path: <vvs@parallels.com>
-Message-ID: <535E4B74.4050107@parallels.com>
-Date: Mon, 28 Apr 2014 16:37:08 +0400
+Message-ID: <535E5841.2030802@parallels.com>
+Date: Mon, 28 Apr 2014 17:31:45 +0400
 From: Vasily Averin <vvs@parallels.com>
 MIME-Version: 1.0
-References: <534FB7D2.3020705@parallels.com> <53535C35.7070108@parallels.com>
-	<20140424163243.GN31953@breakpoint.cc>
-In-Reply-To: <20140424163243.GN31953@breakpoint.cc>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
+Subject: [Bridge] [PATCH v2] bridge: Superfluous skb->nfct check in
 	br_nf_dev_queue_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -18,43 +15,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>
-Cc: bridge@lists.linux-foundation.org, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Florian Westphal <fw@strlen.de>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Patrick McHardy <kaber@trash.net>, "David S. Miller" <davem@davemloft.net>
 
-On 04/24/2014 08:32 PM, Florian Westphal wrote:
-> Vasily Averin <vvs@parallels.com> wrote:
->> Please do not apply my patch, probably it breaks processing of VLAN packets.
-> 
-> Why would it break VLAN?
-Sorry, seems it was false alert.
+Currently bridge silently drops defragmented ipv4 packets if nf_conntrack module
+is not loaded on the node. However ipv4 fragmentation and defragmentation
+does not require enabled connection tracking.
 
-We got report about problem on RHEL6-based OpenVZ kernel:
-large UDP and ICMP packets was dropped on bridge without incrementing of any failcounters.
-Connection tracking was disabled on this node , nf_conntrack module was unloaded
-Ftrace pointed that it was happen because nfct check.
+Removing superfluous skb->nfct check allows to re-fragment previously
+defragmented packets and give them chance to reach destination side.
 
-I've unloaded nf_conntrack module and problem was reproduced again
-After removing nfct check problem went away.
+v2: removed #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) added because
+of using of nfct check
 
-The check was added by patch that fixed processing of VLAN packets.
-I did not tested this scenario and therefore asked to delay processing of my patch,
-to investigate this case more carefully.
+Signed-off-by: Vasily Averin <vvs@openvz.org>
+---
+ net/bridge/br_netfilter.c |    9 +--------
+ 1 files changed, 1 insertions(+), 8 deletions(-)
 
-IS_VLAN_IP() check on RHEL6 kernels seems is not depend on nfct check,
-in current mainline we do not have this code at all, 
-therefore removing of nfct check should not affect this case too.
-
-Therefore I believe that my patch is still correct, however now I think we also need 
-to remove #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) in br_nf_dev_queue_xmit().
-
-> In fact, the same dicussion came up couple of days back and I think the
-> nfct test is wrong.  There is no guarantee that skb->nfct == NULL means
-> that packet was not defragmented via nf_defrag (e.g. rror in l4 protocol
-> tracker, nf_defrag_ipv4 loaded but no nf_conntrack_ipv4)
-
-Thank you for explanation,
-In my case ftrace also shows that packets was defragmented in ipv4_conntrack_defrag().
-However this module does not depend on NF_CONNTRACK_IPV4.
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 80e1b0f..d50c154 100644
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -859,12 +859,11 @@ static unsigned int br_nf_forward_arp(const struct nf_hook_ops *ops,
+ 	return NF_STOLEN;
+ }
+ 
+-#if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4)
+ static int br_nf_dev_queue_xmit(struct sk_buff *skb)
+ {
+ 	int ret;
+ 
+-	if (skb->nfct != NULL && skb->protocol == htons(ETH_P_IP) &&
++	if (skb->protocol == htons(ETH_P_IP) &&
+ 	    skb->len + nf_bridge_mtu_reduction(skb) > skb->dev->mtu &&
+ 	    !skb_is_gso(skb)) {
+ 		if (br_parse_ip_options(skb))
+@@ -876,12 +875,6 @@ static int br_nf_dev_queue_xmit(struct sk_buff *skb)
+ 
+ 	return ret;
+ }
+-#else
+-static int br_nf_dev_queue_xmit(struct sk_buff *skb)
+-{
+-        return br_dev_queue_push_xmit(skb);
+-}
+-#endif
+ 
+ /* PF_BRIDGE/POST_ROUTING ********************************************/
+ static unsigned int br_nf_post_routing(const struct nf_hook_ops *ops,
+-- 
+1.7.5.4
 
 
 
