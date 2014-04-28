@@ -1,16 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 27 Apr 2014 19:54:12 -0400 (EDT)
-Message-Id: <20140427.195412.646574309300796885.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1398412878.3920.7.camel@ubuntu-vm-makita>
-References: <20140424113827.6d27ec5b@nehalam.linuxnetplumber.net>
-	<1398412451.3920.3.camel@ubuntu-vm-makita>
-	<1398412878.3920.7.camel@ubuntu-vm-makita>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <vvs@parallels.com>
+Message-ID: <535E4B74.4050107@parallels.com>
+Date: Mon, 28 Apr 2014 16:37:08 +0400
+From: Vasily Averin <vvs@parallels.com>
+MIME-Version: 1.0
+References: <534FB7D2.3020705@parallels.com> <53535C35.7070108@parallels.com>
+	<20140424163243.GN31953@breakpoint.cc>
+In-Reply-To: <20140424163243.GN31953@breakpoint.cc>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net v2] bridge: Handle IFLA_ADDRESS correctly
- when creating bridge device
+Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
+	br_nf_dev_queue_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,18 +18,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, teg@jklm.no, bridge@lists.linux-foundation.org, cr@saltstack.com
+To: Florian Westphal <fw@strlen.de>
+Cc: bridge@lists.linux-foundation.org, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Fri, 25 Apr 2014 17:01:18 +0900
-
-> When bridge device is created with IFLA_ADDRESS, we are not calling
-> br_stp_change_bridge_id(), which leads to incorrect local fdb
-> management and bridge id calculation, and prevents us from receiving
-> frames on the bridge device.
+On 04/24/2014 08:32 PM, Florian Westphal wrote:
+> Vasily Averin <vvs@parallels.com> wrote:
+>> Please do not apply my patch, probably it breaks processing of VLAN packets.
 > 
-> Reported-by: Tom Gundersen <teg@jklm.no>
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Why would it break VLAN?
+Sorry, seems it was false alert.
 
-Applied and queued up for -stable.
+We got report about problem on RHEL6-based OpenVZ kernel:
+large UDP and ICMP packets was dropped on bridge without incrementing of any failcounters.
+Connection tracking was disabled on this node , nf_conntrack module was unloaded
+Ftrace pointed that it was happen because nfct check.
+
+I've unloaded nf_conntrack module and problem was reproduced again
+After removing nfct check problem went away.
+
+The check was added by patch that fixed processing of VLAN packets.
+I did not tested this scenario and therefore asked to delay processing of my patch,
+to investigate this case more carefully.
+
+IS_VLAN_IP() check on RHEL6 kernels seems is not depend on nfct check,
+in current mainline we do not have this code at all, 
+therefore removing of nfct check should not affect this case too.
+
+Therefore I believe that my patch is still correct, however now I think we also need 
+to remove #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) in br_nf_dev_queue_xmit().
+
+> In fact, the same dicussion came up couple of days back and I think the
+> nfct test is wrong.  There is no guarantee that skb->nfct == NULL means
+> that packet was not defragmented via nf_defrag (e.g. rror in l4 protocol
+> tracker, nf_defrag_ipv4 loaded but no nf_conntrack_ipv4)
+
+Thank you for explanation,
+In my case ftrace also shows that packets was defragmented in ipv4_conntrack_defrag().
+However this module does not depend on NF_CONNTRACK_IPV4.
+
+
+
