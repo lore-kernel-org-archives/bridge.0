@@ -1,11 +1,11 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Tue, 29 Apr 2014 17:20:26 -0400
-Message-Id: <1398806428-640-6-git-send-email-vyasevic@redhat.com>
+Date: Tue, 29 Apr 2014 17:20:27 -0400
+Message-Id: <1398806428-640-7-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1398806428-640-1-git-send-email-vyasevic@redhat.com>
 References: <1398806428-640-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [RFC PATCH v2 net-next 5/7] bridge: Add addresses from
-	static fdbs to non-promisc ports
+Subject: [Bridge] [RFC PATCH v2 net-next 6/7] bridge: Correctly manage
+	promiscuity when user requested it.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,123 +17,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
 
-When a static fdb entry is created, add the mac address
-from this fdb entry to any ports that are currently running
-in non-promiscuous mode.  These ports need this data so that
-they can receive traffic destined to these addresses.
+When the user places the bridge device in promiscuous mode,
+all ports are placed in promisc mode regardless of the number
+of flooding ports configured.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
----
- net/bridge/br_fdb.c | 76 ++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 70 insertions(+), 6 deletions(-)
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 9759b61..e0a4632 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -85,8 +85,58 @@ static void fdb_rcu_free(struct rcu_head *head)
- 	kmem_cache_free(br_fdb_cache, ent);
- }
- 
-+/* When a static FDB entry is added, the mac address from the entry is
-+ * added to the bridge private HW address list and all required ports
-+ * are then updated with the new information.
-+ * Called under RTNL.
-+ */
-+static void fdb_add_hw(struct net_bridge *br, const unsigned char *addr)
-+{
-+	int err;
-+	struct net_bridge_port *p, *tmp = NULL;
-+
-+	ASSERT_RTNL();
-+
-+	list_for_each_entry(p, &br->port_list, list) {
-+		if (!br_is_promisc_port(p)) {
-+			err = dev_uc_add(p->dev, addr);
-+			if (err)
-+				goto undo;
-+		}
-+	}
-+
-+	return;
-+undo:
-+	list_for_each_entry(tmp, &br->port_list, list) {
-+		if (tmp == p)
-+			break;
-+		if (!br_is_promisc_port(tmp))
-+			dev_uc_del(tmp->dev, addr);
-+	}
-+}
-+
-+/* When a static FDB entry is deleted, the HW address from that entry is
-+ * also removed from the bridge private HW address list and updates all
-+ * the ports with needed information.
-+ * Called under RTNL.
-+ */
-+static void fdb_del_hw(struct net_bridge *br, const unsigned char *addr)
-+{
-+	struct net_bridge_port *p;
-+
-+	ASSERT_RTNL();
-+
-+	list_for_each_entry(p, &br->port_list, list) {
-+		if (!br_is_promisc_port(p))
-+			dev_uc_del(p->dev, addr);
-+	}
-+}
-+
- static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f)
+Conflicts:
+	net/bridge/br_if.c
+	net/bridge/br_private.h
+---
+ net/bridge/br_device.c  |  7 +++++++
+ net/bridge/br_if.c      | 17 ++++++++++++-----
+ net/bridge/br_private.h |  1 +
+ 3 files changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 3e2da2c..64f8112 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -112,6 +112,12 @@ static void br_dev_set_multicast_list(struct net_device *dev)
  {
-+	if (f->is_static)
-+		fdb_del_hw(br, f->addr.addr);
-+
- 	hlist_del_rcu(&f->hlist);
- 	fdb_notify(br, f, RTM_DELNEIGH);
- 	call_rcu(&f->rcu, fdb_rcu_free);
-@@ -466,6 +516,7 @@ static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
- 		return -ENOMEM;
- 
- 	fdb->is_local = fdb->is_static = 1;
-+	fdb_add_hw(br, addr);
- 	fdb_notify(br, fdb, RTM_NEWNEIGH);
- 	return 0;
  }
-@@ -678,16 +729,29 @@ static int fdb_add_entry(struct net_bridge_port *source, const __u8 *addr,
- 	}
  
- 	if (fdb_to_nud(fdb) != state) {
--		if (state & NUD_PERMANENT)
--			fdb->is_local = fdb->is_static = 1;
--		else if (state & NUD_NOARP) {
-+		if (state & NUD_PERMANENT) {
-+			fdb->is_local = 1;
-+			if (!fdb->is_static) {
-+				fdb->is_static = 1;
-+				fdb_add_hw(br, addr);
-+			}
-+		} else if (state & NUD_NOARP) {
-+			fdb->is_local = 0;
-+			if (!fdb->is_static) {
-+				fdb->is_static = 1;
-+				fdb_add_hw(br, addr);
-+			}
-+		} else {
- 			fdb->is_local = 0;
--			fdb->is_static = 1;
--		} else
--			fdb->is_local = fdb->is_static = 0;
-+			if (fdb->is_static) {
-+				fdb->is_static = 0;
-+				fdb_del_hw(br, addr);
-+			}
-+		}
- 
- 		modified = true;
- 	}
++static void br_dev_change_rx_flags(struct net_device *dev, int change)
++{
++	if (change & IFF_PROMISC)
++		br_manage_promisc(netdev_priv(dev));
++}
 +
- 	fdb->added_by_user = 1;
+ static int br_dev_stop(struct net_device *dev)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+@@ -309,6 +315,7 @@ static const struct net_device_ops br_netdev_ops = {
+ 	.ndo_get_stats64	 = br_get_stats64,
+ 	.ndo_set_mac_address	 = br_set_mac_address,
+ 	.ndo_set_rx_mode	 = br_dev_set_multicast_list,
++	.ndo_change_rx_flags	 = br_dev_change_rx_flags,
+ 	.ndo_change_mtu		 = br_change_mtu,
+ 	.ndo_do_ioctl		 = br_dev_ioctl,
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 5a26ca2..d227ad6 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -123,7 +123,7 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
+  * promiscuity setting of all the bridge ports.  We are always called
+  * under RTNL so can skip using rcu primitives.
+  */
+-static void br_manage_promisc(struct net_bridge *br)
++void br_manage_promisc(struct net_bridge *br)
+ {
+ 	struct net_bridge_port *p;
  
- 	fdb->used = jiffies;
+@@ -135,11 +135,18 @@ static void br_manage_promisc(struct net_bridge *br)
+ 	 * to this one automatic port and still make non-promisc.
+ 	 */
+ 	list_for_each_entry(p, &br->port_list, list) {
+-		if (br->auto_cnt == 0 ||
+-		    (br->auto_cnt == 1 && br_is_auto_port(p)))
+-			br_port_clear_promisc(p);
+-		else
++		if (br->dev->flags & IFF_PROMISC) {
++			/* PROMISC flag has been turned on for the bridge
++			 * itself.  Turn on promisc on all ports.
++			 */
+ 			br_port_set_promisc(p);
++		} else {
++			if (br->auto_cnt == 0 ||
++			(br->auto_cnt == 1 && br_is_auto_port(p)))
++				br_port_clear_promisc(p);
++			else
++				br_port_set_promisc(p);
++		}
+ 	}
+ }
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 1c794fef..f2d93d7 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -425,6 +425,7 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+ 					netdev_features_t features);
+ void br_port_flags_change(struct net_bridge_port *port,
+ 			  unsigned long old_flags);
++void br_manage_promisc(struct net_bridge *br);
+ 
+ /* br_input.c */
+ int br_handle_frame_finish(struct sk_buff *skb);
 -- 
 1.9.0
 
