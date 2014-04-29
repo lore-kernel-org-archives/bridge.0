@@ -1,18 +1,8 @@
-Return-Path: <pneira@us.es>
-Date: Mon, 28 Apr 2014 16:32:55 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20140428143255.GA28793@localhost>
-References: <534FB7D2.3020705@parallels.com> <53535C35.7070108@parallels.com>
-	<20140424163243.GN31953@breakpoint.cc>
-	<535E4B74.4050107@parallels.com>
-	<20140428131646.GP31953@breakpoint.cc>
-	<535E64D2.7080700@parallels.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <535E64D2.7080700@parallels.com>
-Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
-	br_nf_dev_queue_xmit
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Tue, 29 Apr 2014 17:20:21 -0400
+Message-Id: <1398806428-640-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [RFC PATCH v2 net-next 0/7] Non-promisc bidge ports support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,40 +11,75 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vasily Averin <vvs@parallels.com>
-Cc: bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, Patrick McHardy <kaber@trash.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
 
-On Mon, Apr 28, 2014 at 06:25:22PM +0400, Vasily Averin wrote:
-> >> Therefore I believe that my patch is still correct, however now I think we also need 
-> >> to remove #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) in br_nf_dev_queue_xmit().
-> > 
-> > I don't think so, DEFRAG_IPV4 is dependency glue, so it shouldn't be
-> > possible to build kernel with CONNTRACK_IPV4=n and DEFRAG_IPV4=(m|y).
-> 
-> Could you please explain, why this #ifdef is required?
-> 
-> I'm going to remove this #ifdef because it was added together with nfct check.
-> 
-> Also I believe you are wrong with dependencies:
-> NF_CONNTRACK_IPV4 forces NF_DEFRAG_IPV4, not vice versa
+This patch series is a re-implementation of prior attempts to support
+non-promiscuous bridge ports.
 
-That's fine. Basically nf_conntrack *always* requires defragmentation.
-But defragmentation is also required by tproxy, which doesn't force
-you to have nf_conntrack.
+The basic concept is the same as before.  The bridge keeps
+track of the ports that support learning and flooding packets
+to unknown destinations.  We call these ports auto-discovery
+ports since they automatically discover who is behind them through
+learning and flooding.  
 
-> net/ipv4/netfilter/Kconfig
-> config NF_DEFRAG_IPV4
->         tristate
->         default n
-> 
-> config NF_CONNTRACK_IPV4
->         tristate "IPv4 connection tracking support (required for NAT)"
->         depends on NF_CONNTRACK
->         default m if NETFILTER_ADVANCED=n
->         select NF_DEFRAG_IPV4
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe netfilter-devel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If flooding and learning are disabled via flags, then the port
+requires static configuration to tell it which mac addresses
+are behind it.  This is accomplished through adding of fdbs.
+These fdbs should be static as dynamic fdbs can expire and systems
+will become unreachable due to lack of flooding.
+
+If the user marks all ports are needing static configuration then
+we can safely make them non-promiscuous, we will know all the
+information about them.
+
+If the user leaves only 1 port as automatic, then we can mark
+that port as not-promiscuous as well.  One could think of
+this a edge relay similar to what's support by embedded switches
+in SRIOV devices.  Since we have all the information about the
+other ports, we can just program the mac addresses into the
+single automatic port to receive all necessary traffic.
+
+In other cases, we keep all ports promiscuous as before.
+
+There are some other cases when promiscuous mode has to be turned
+back on.  One is when the bridge itself if placed in promiscuous
+mode (use sets promisc flag).  The other is if vlan filtering is
+turned off.  Since this is the default configuration, the default
+bridge operation is not changed.
+
+Changes since v1:
+ - Removed private list.  We now traverse the fdb hashtable itself
+   to write necessary addresses to the ports (Stephen's concern)
+ - Add learning flag to the mask for flags that decides if the port
+   is 'auto' or not (suggest by MST and Jamal).
+ - Simplified tracking of such ports at the cost of a loop over all
+   ports (suggested by MST)
+
+I've played with quite a large number of ports and the current approach
+seems to work fairly well.
+
+Thanks
+-vlad
+
+Vlad Yasevich (7):
+  bridge: Turn flag change macro into a function.
+  bridge: Keep track of ports capable of automatic discovery.
+  bridge: Add functionality to sync static fdb entries to hw
+  bridge: Automatically manage port promiscuous mode.
+  bridge: Add addresses from static fdbs to non-promisc ports
+  bridge: Correctly manage promiscuity when user requested it.
+  bridge: Automatically manage promisc mode when vlan filtering is on.
+
+ net/bridge/br_device.c   |   7 +++
+ net/bridge/br_fdb.c      | 132 ++++++++++++++++++++++++++++++++++++++++++++---
+ net/bridge/br_if.c       | 119 ++++++++++++++++++++++++++++++++++++++++--
+ net/bridge/br_netlink.c  |   3 ++
+ net/bridge/br_private.h  |  20 +++++++
+ net/bridge/br_sysfs_if.c |  31 +++++++----
+ net/bridge/br_vlan.c     |   1 +
+ 7 files changed, 293 insertions(+), 20 deletions(-)
+
+-- 
+1.9.0
+
