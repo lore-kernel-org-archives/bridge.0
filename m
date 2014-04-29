@@ -1,11 +1,11 @@
 Return-Path: <vyasevic@redhat.com>
 From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Tue, 29 Apr 2014 17:20:24 -0400
-Message-Id: <1398806428-640-4-git-send-email-vyasevic@redhat.com>
+Date: Tue, 29 Apr 2014 17:20:26 -0400
+Message-Id: <1398806428-640-6-git-send-email-vyasevic@redhat.com>
 In-Reply-To: <1398806428-640-1-git-send-email-vyasevic@redhat.com>
 References: <1398806428-640-1-git-send-email-vyasevic@redhat.com>
-Subject: [Bridge] [RFC PATCH v2 net-next 3/7] bridge: Add functionality to
-	sync static fdb entries to hw
+Subject: [Bridge] [RFC PATCH v2 net-next 5/7] bridge: Add addresses from
+	static fdbs to non-promisc ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,93 +17,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
 
-Add code that allows static fdb entires to be synced to the
-hw list for a specified port.  This will be used later to
-program ports that can function in non-promiscous mode.
+When a static fdb entry is created, add the mac address
+from this fdb entry to any ports that are currently running
+in non-promiscuous mode.  These ports need this data so that
+they can receive traffic destined to these addresses.
 
 Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 ---
- net/bridge/br_fdb.c     | 56 +++++++++++++++++++++++++++++++++++++++++++++++++
- net/bridge/br_private.h |  2 ++
- 2 files changed, 58 insertions(+)
+ net/bridge/br_fdb.c | 76 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 70 insertions(+), 6 deletions(-)
 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 9203d5a..9759b61 100644
+index 9759b61..e0a4632 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -874,3 +874,59 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
- out:
- 	return err;
+@@ -85,8 +85,58 @@ static void fdb_rcu_free(struct rcu_head *head)
+ 	kmem_cache_free(br_fdb_cache, ent);
  }
-+
-+int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p)
-+{
-+	struct net_bridge_fdb_entry *fdb, *tmp = NULL;
-+	int i;
-+	int err = 0;
-+
-+	ASSERT_RTNL();
-+
-+	for (i = 0; i < BR_HASH_SIZE; i++) {
-+		hlist_for_each_entry(fdb, &br->hash[i], hlist) {
-+			/* We only care for static entries */
-+			if (!fdb->is_static)
-+				continue;
-+
-+			err = dev_uc_add(p->dev, fdb->addr.addr);
-+			if (err)
-+				goto rollback;
-+		}
-+	}
-+	return 0;
-+
-+rollback:
-+	for (i = 0; i < BR_HASH_SIZE; i++) {
-+		hlist_for_each_entry(tmp, &br->hash[i], hlist) {
-+			/* If we reached the fdb that failed, we can stop */
-+			if (tmp == fdb)
-+				break;
-+
-+			/* We only care for static entries */
-+			if (!tmp->is_static)
-+				continue;
-+
-+			dev_uc_del(p->dev, tmp->addr.addr);
-+		}
-+	}
-+	return err;
-+}
-+
-+void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p)
-+{
-+	struct net_bridge_fdb_entry *fdb;
-+	int i;
-+
-+	ASSERT_RTNL();
-+
-+	for (i = 0; i < BR_HASH_SIZE; i++) {
-+		hlist_for_each_entry_rcu(fdb, &br->hash[i], hlist) {
-+			/* We only care for static entries */
-+			if (!fdb->is_static)
-+				continue;
-+
-+			dev_uc_del(p->dev, fdb->addr.addr);
-+		}
-+	}
-+}
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index db714a1..2023671 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -399,6 +399,8 @@ int br_fdb_add(struct ndmsg *nlh, struct nlattr *tb[], struct net_device *dev,
- 	       const unsigned char *addr, u16 nlh_flags);
- int br_fdb_dump(struct sk_buff *skb, struct netlink_callback *cb,
- 		struct net_device *dev, int idx);
-+int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p);
-+void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p);
  
- /* br_forward.c */
- void br_deliver(const struct net_bridge_port *to, struct sk_buff *skb);
++/* When a static FDB entry is added, the mac address from the entry is
++ * added to the bridge private HW address list and all required ports
++ * are then updated with the new information.
++ * Called under RTNL.
++ */
++static void fdb_add_hw(struct net_bridge *br, const unsigned char *addr)
++{
++	int err;
++	struct net_bridge_port *p, *tmp = NULL;
++
++	ASSERT_RTNL();
++
++	list_for_each_entry(p, &br->port_list, list) {
++		if (!br_is_promisc_port(p)) {
++			err = dev_uc_add(p->dev, addr);
++			if (err)
++				goto undo;
++		}
++	}
++
++	return;
++undo:
++	list_for_each_entry(tmp, &br->port_list, list) {
++		if (tmp == p)
++			break;
++		if (!br_is_promisc_port(tmp))
++			dev_uc_del(tmp->dev, addr);
++	}
++}
++
++/* When a static FDB entry is deleted, the HW address from that entry is
++ * also removed from the bridge private HW address list and updates all
++ * the ports with needed information.
++ * Called under RTNL.
++ */
++static void fdb_del_hw(struct net_bridge *br, const unsigned char *addr)
++{
++	struct net_bridge_port *p;
++
++	ASSERT_RTNL();
++
++	list_for_each_entry(p, &br->port_list, list) {
++		if (!br_is_promisc_port(p))
++			dev_uc_del(p->dev, addr);
++	}
++}
++
+ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f)
+ {
++	if (f->is_static)
++		fdb_del_hw(br, f->addr.addr);
++
+ 	hlist_del_rcu(&f->hlist);
+ 	fdb_notify(br, f, RTM_DELNEIGH);
+ 	call_rcu(&f->rcu, fdb_rcu_free);
+@@ -466,6 +516,7 @@ static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+ 		return -ENOMEM;
+ 
+ 	fdb->is_local = fdb->is_static = 1;
++	fdb_add_hw(br, addr);
+ 	fdb_notify(br, fdb, RTM_NEWNEIGH);
+ 	return 0;
+ }
+@@ -678,16 +729,29 @@ static int fdb_add_entry(struct net_bridge_port *source, const __u8 *addr,
+ 	}
+ 
+ 	if (fdb_to_nud(fdb) != state) {
+-		if (state & NUD_PERMANENT)
+-			fdb->is_local = fdb->is_static = 1;
+-		else if (state & NUD_NOARP) {
++		if (state & NUD_PERMANENT) {
++			fdb->is_local = 1;
++			if (!fdb->is_static) {
++				fdb->is_static = 1;
++				fdb_add_hw(br, addr);
++			}
++		} else if (state & NUD_NOARP) {
++			fdb->is_local = 0;
++			if (!fdb->is_static) {
++				fdb->is_static = 1;
++				fdb_add_hw(br, addr);
++			}
++		} else {
+ 			fdb->is_local = 0;
+-			fdb->is_static = 1;
+-		} else
+-			fdb->is_local = fdb->is_static = 0;
++			if (fdb->is_static) {
++				fdb->is_static = 0;
++				fdb_del_hw(br, addr);
++			}
++		}
+ 
+ 		modified = true;
+ 	}
++
+ 	fdb->added_by_user = 1;
+ 
+ 	fdb->used = jiffies;
 -- 
 1.9.0
 
