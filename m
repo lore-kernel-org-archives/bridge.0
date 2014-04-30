@@ -1,15 +1,30 @@
-Return-Path: <mst@redhat.com>
-Date: Wed, 30 Apr 2014 20:37:37 +0300
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20140430173737.GA24794@redhat.com>
-References: <1398806428-640-1-git-send-email-vyasevic@redhat.com>
-	<20140430102241.2fa8ac7b@nehalam.linuxnetplumber.net>
+Return-Path: <mcgrof@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc:content-type;
+	bh=V1hjB5s5St4BMLnPDeDTfvAzTabCo208ShAIfIyNyCs=;
+	b=DxmQDbkEfPGFitz/5cCe1WWVdDKw1RMwm5TLyCFHrVa18qzXyxB1wCo2RQTnfVfdwt
+	i75/NGnOguhVM+n+R72TkH/Sl96Gqi7SBtsg8aSbafJZGlDKP1+1VLisZm03Qu/m00Ai
+	oPGKHyXD0+w8RG8MMUral0bCYzByxsBvs+qLiBmOUFxmPOaX73LGFl2MzlQOGoWBPzP/
+	CXB3ocUcS4nNRYOFkNYSTNxZDFT2qfIgVyelAM5jU1Q+pRePcIjD7GjzuGjlIn7gvcod
+	qgeAJ+GgkVSP4D2owdU1hEDHKud8cEnao3qPYXLn7zkQHBFqDE57tOGISahuFiKpC/wV
+	NF7g==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140430102241.2fa8ac7b@nehalam.linuxnetplumber.net>
-Subject: Re: [Bridge] [RFC PATCH v2 net-next 0/7] Non-promisc bidge ports
-	support
+Sender: mcgrof@gmail.com
+In-Reply-To: <20140422194313.GQ27882@wotan.suse.de>
+References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
+	<1394680527-28970-3-git-send-email-mcgrof@do-not-panic.com>
+	<CAHA+R7Pf6rM5h1uGiqrru5LkN9C7Nm7V42cucHSOV1s7_+F7Gw@mail.gmail.com>
+	<20140315013940.GA28801@wotan.suse.de>
+	<CAHA+R7MRVyjAN7w_qPxSxkrjo939bNEc3Ej+O3yH-oWj4gGJxw@mail.gmail.com>
+	<20140318212243.GD28471@garbanzo.do-not-panic.com>
+	<20140422194313.GQ27882@wotan.suse.de>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Date: Wed, 30 Apr 2014 11:38:44 -0700
+Message-ID: <CAB=NE6U3o62mbDbL7Uaoe1r44xAXqW+iYM6y9jxP+UvM4kvYHw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: Re: [Bridge] [PATCH 2/3] bridge: trigger a bridge calculation upon
+	port changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,56 +33,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
+To: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Cc: kvm@vger.kernel.org, Cong Wang <cwang@twopensource.com>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, xen-devel@lists.xenproject.org
 
-On Wed, Apr 30, 2014 at 10:22:41AM -0700, Stephen Hemminger wrote:
-> On Tue, 29 Apr 2014 17:20:21 -0400
-> Vlad Yasevich <vyasevic@redhat.com> wrote:
-> 
-> > This patch series is a re-implementation of prior attempts to support
-> > non-promiscuous bridge ports.
-> > 
-> > The basic concept is the same as before.  The bridge keeps
-> > track of the ports that support learning and flooding packets
-> > to unknown destinations.  We call these ports auto-discovery
-> > ports since they automatically discover who is behind them through
-> > learning and flooding.  
-> > 
-> > If flooding and learning are disabled via flags, then the port
-> > requires static configuration to tell it which mac addresses
-> > are behind it.  This is accomplished through adding of fdbs.
-> > These fdbs should be static as dynamic fdbs can expire and systems
-> > will become unreachable due to lack of flooding.
-> > 
-> > If the user marks all ports are needing static configuration then
-> > we can safely make them non-promiscuous, we will know all the
-> > information about them.
-> > 
-> > If the user leaves only 1 port as automatic, then we can mark
-> > that port as not-promiscuous as well.  One could think of
-> > this a edge relay similar to what's support by embedded switches
-> > in SRIOV devices.  Since we have all the information about the
-> > other ports, we can just program the mac addresses into the
-> > single automatic port to receive all necessary traffic.
-> > 
-> > In other cases, we keep all ports promiscuous as before.
-> > 
-> > There are some other cases when promiscuous mode has to be turned
-> > back on.  One is when the bridge itself if placed in promiscuous
-> > mode (use sets promisc flag).  The other is if vlan filtering is
-> > turned off.  Since this is the default configuration, the default
-> > bridge operation is not changed.
-> 
-> I like this because it does the right thing and is transparent to
-> the user. You might also not want to do it if the underlying device
-> does not support multiple MAC addresses 
-> ie !(dev->priv_flags & IFF_UNICAST_FLT)
+On Tue, Apr 22, 2014 at 12:43 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> On Tue, Mar 18, 2014 at 02:22:43PM -0700, Luis R. Rodriguez wrote:
+>> On Tue, Mar 18, 2014 at 01:46:49PM -0700, Cong Wang wrote:
+>> > On Fri, Mar 14, 2014 at 6:39 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+>> > > On Thu, Mar 13, 2014 at 11:26:25AM -0700, Cong Wang wrote:
+>> > >> On Wed, Mar 12, 2014 at 8:15 PM, Luis R. Rodriguez
+>> > >> <mcgrof@do-not-panic.com> wrote:
+>> > >> >                         spin_unlock_bh(&p->br->lock);
+>> > >> > +                       if (changed)
+>> > >> > +                               call_netdevice_notifiers(NETDEV_CHANGEADDR,
+>> > >> > +                                                        p->br->dev);
+>> > >> > +                       netdev_update_features(p->br->dev);
+>> > >>
+>> > >> I think this is supposed to be in netdev event handler of br->dev
+>> > >> instead of here.
+>> > >
+>> > > Do you mean netdev_update_features() ? I mimic'd what was being done on
+>> > > br_del_if() given that root blocking is doing something similar. If
+>> > > we need to change something for the above then I suppose it means we need
+>> > > to change br_del_if() too. Let me know if you see any reason for something
+>> > > else.
+>> > >
+>> >
+>> > Yeah, for me it looks like it's better to call netdev_update_features()
+>> > in the event handler of br->dev, rather than where calling
+>> > call_netdevice_notifiers(..., br->dev);.
+>>
+>> I still don't see why, in fact trying to verify this I am wondering now
+>> if instead we should actually fix br_features_recompute() to take into
+>> consideration BR_ROOT_BLOCK as below. Notice how netdev_update_features()
+>> is called above even if the MAC address did not change, just as is done
+>> on br_del_if(). There is an NETDEV_FEAT_CHANGE event so would it be more
+>> appropriate we just call
+>>
+>> call_netdevice_notifiers(NETDEV_FEAT_CHANGE, p->br->dev)
+>>
+>> for both the above then and also br_del_if()? How about the below
+>> change?
+>>
+>> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+>> index 54d207d..dcd9378 100644
+>> --- a/net/bridge/br_if.c
+>> +++ b/net/bridge/br_if.c
+>> @@ -315,6 +315,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+>>       features &= ~NETIF_F_ONE_FOR_ALL;
+>>
+>>       list_for_each_entry(p, &br->port_list, list) {
+>> +             if (p->flags & BR_ROOT_BLOCK)
+>> +                     continue;
+>>               features = netdev_increment_features(features,
+>>                                                    p->dev->features, mask);
+>>       }
+>
+> Cong, can you provide feedback on this? I tried to grow confidence on the
+> hunk above but its not clear but the other points still hold and I'd love
+> your feedback on those.
 
-The point being, attempt to add an address to a device without IFF_UNICAST_FLT
-will put it right back in promisc mode?
+Re-poke.
 
-Good point.
-
-> 
-> You could even go into looking at L2 offload on lower device.
+  Luis
