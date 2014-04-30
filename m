@@ -1,19 +1,18 @@
-Return-Path: <ratheesh.ksz@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:date:message-id:subject:from:to:content-type;
-	bh=Og5SvkUF3buiOk5JFY3NeYMdS4fD7BNxA3m7Ff9/VFk=;
-	b=Dydty2cXm5HzXChl7bl3leEHrBLGyx68pJqySspI2x5CqagIXXCssOiMsd6B4jpaNO
-	KzwKqL5KoBaxUZ7oPiQUiHLw5h5tdBdDMU79BfP7mU8cMVNnW+Ssz5wxGC55Uwfn/9xn
-	GZ6KeGE4O/496BIsfzGeskhG/Fj5iG6Jo/aX++MxJKDFsmEMWD6iSAQAF/6/wKDcoYk0
-	QuUleuaqmiEA4zDQym/KWBoGvF88jU+EmDXP/z0ntl6K1lShr9nJIQX5ci2haROtkKf/
-	yoj8vUnmYKAa/kZYkIycbHoimEcFeucOJklFB9csA8o05m4vUl3KrRUMnYb0u9OruY5Y
-	kH+Q==
+Return-Path: <vvs@parallels.com>
+Message-ID: <5360BD00.6050906@parallels.com>
+Date: Wed, 30 Apr 2014 13:06:08 +0400
+From: Vasily Averin <vvs@parallels.com>
 MIME-Version: 1.0
-Date: Wed, 30 Apr 2014 12:21:42 +0530
-Message-ID: <CAGZFCEHmfEKetRDKT8vh3sW_68QEt_CLxMPTQwgRg9nC6CRezg@mail.gmail.com>
-From: ratheesh kannoth <ratheesh.ksz@gmail.com>
+References: <534FB7D2.3020705@parallels.com> <53535C35.7070108@parallels.com>
+	<20140424163243.GN31953@breakpoint.cc>
+	<535E4B74.4050107@parallels.com>
+	<20140428131646.GP31953@breakpoint.cc>
+	<535E64D2.7080700@parallels.com>
+In-Reply-To: <535E64D2.7080700@parallels.com>
 Content-Type: text/plain; charset=UTF-8
-Subject: [Bridge] performance same ?
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 1/1] superfluous skb->nfct check in
+	br_nf_dev_queue_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,25 +21,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netperf-talk@netperf.org, bridge@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Florian Westphal <fw@strlen.de>
+Cc: bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>, netfilter-devel@vger.kernel.org, Patrick McHardy <kaber@trash.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-i have two  ubunutu vm started using virt-manager  say vm1 and vm2.
-Both has one interface has one network interface ( vnet0 and vnet1
-respectively ) and they are bridged using  virbr0 ( using brctl
-command ).
+On 04/28/2014 06:25 PM, Vasily Averin wrote:
+>>> Therefore I believe that my patch is still correct, however now I think we also need 
+>>> to remove #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4) in br_nf_dev_queue_xmit().
+>>
+>> I don't think so, DEFRAG_IPV4 is dependency glue, so it shouldn't be
+>> possible to build kernel with CONNTRACK_IPV4=n and DEFRAG_IPV4=(m|y).
+> 
+> Also I believe you are wrong with dependencies:
+> NF_CONNTRACK_IPV4 forces NF_DEFRAG_IPV4, not vice versa
 
-i excuted   command
-netperf  -H  "vm2 ip address"           from  vm1 ubuntu machine.  i
-got result =  164.
-
-I wrote a usespace program - which creates  two tap devices  ( tap1
-and tap2) and will read from tap1 and write to tap2 ( and vice versa )
- using epoll system call.  i removed vibr0 brdige.  i bridged ( using
-brctl )  tap1 and vnet0  together  and tap2 and vnet1 together. i
-repeated above  netperf test. I am getting same 164.  In the first
-test, i avoided 2 userspace copies and  2 read system call and 2 write
-system call.  why performance is same in both case ? any hint is
-really appreciated ?
-
-Thanks,
-Ratheesh
+If you do not want to remove this #ifdef at all
+how do you like an idea to replace NF_CONNTRACK_IPV4 to NF_DEFRAG_IPV4?
