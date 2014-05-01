@@ -1,6 +1,18 @@
-Return-Path: <lurodriguez@suse.de>
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-Message-ID: <20140430225920.GJ11838@wotan.suse.de>
+Return-Path: <vyasevich@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:date:from:user-agent:mime-version:to:cc:subject
+	:references:in-reply-to:content-type:content-transfer-encoding;
+	bh=5/5slsfXXWt//OPcMERwQ8cNHH9hNrEvTPvoQ2aSvZQ=;
+	b=AgMVXlzyfqMZgZx/cRdUF85GfMYtzG55L1rMzFi3yz7CM98muKtZInXf9IuNI6QIre
+	9uzoqB450HjJjCfyo1Ea+f7GEQSZNrOZaOwq3nyH7A7RXmYuYWRwU152Gn3Qv80fZArp
+	Ov4o112ehLRqSoNL3rbeI5D44BFakaFgO5YMvMikouzPO3br/QYF+MR6ySRqs1Il8fgF
+	o5xJ1GjCmPIRhK25hnWuzv7v/uQVkacPxwIbRttDmqMTBWRZsrTicNP+VMr2cV26nRPM
+	1l0aecV72K0lKJzegrzd5lPv16JKx1pNBW8aReVRG/8gegrfXDEgseN29n8H+u7O7sA4
+	6jcQ==
+Message-ID: <53619153.8020404@gmail.com>
+Date: Wed, 30 Apr 2014 20:12:03 -0400
+From: Vlad Yasevich <vyasevich@gmail.com>
+MIME-Version: 1.0
 References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
 	<1394680527-28970-3-git-send-email-mcgrof@do-not-panic.com>
 	<CAHA+R7Pf6rM5h1uGiqrru5LkN9C7Nm7V42cucHSOV1s7_+F7Gw@mail.gmail.com>
@@ -8,12 +20,12 @@ References: <1394680527-28970-1-git-send-email-mcgrof@do-not-panic.com>
 	<CAHA+R7MRVyjAN7w_qPxSxkrjo939bNEc3Ej+O3yH-oWj4gGJxw@mail.gmail.com>
 	<20140318212243.GD28471@garbanzo.do-not-panic.com>
 	<20140422194313.GQ27882@wotan.suse.de> <53615752.5040106@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <53615752.5040106@gmail.com>
+	<20140430225920.GJ11838@wotan.suse.de>
+In-Reply-To: <20140430225920.GJ11838@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 2/3] bridge: trigger a bridge calculation upon
-	port	changes
+	port changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,71 +34,85 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Wed, 30 Apr 2014 22:59:28 -0000
-To: Vlad Yasevich <vyasevich@gmail.com>
+To: "Luis R. Rodriguez" <mcgrof@suse.com>
 Cc: kvm@vger.kernel.org, Cong Wang <cwang@twopensource.com>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, xen-devel@lists.xenproject.org
 
-On Wed, Apr 30, 2014 at 04:04:34PM -0400, Vlad Yasevich wrote:
-> On 04/22/2014 03:43 PM, Luis R. Rodriguez wrote:
-> > diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> > index 54d207d..dcd9378 100644
-> > --- a/net/bridge/br_if.c
-> > +++ b/net/bridge/br_if.c
-> > @@ -315,6 +315,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
-> >  	features &= ~NETIF_F_ONE_FOR_ALL;
-> >  
-> >  	list_for_each_entry(p, &br->port_list, list) {
-> > +		if (p->flags & BR_ROOT_BLOCK)
-> > +			continue;
-> >  		features = netdev_increment_features(features,
-> >  						     p->dev->features, mask);
-> >  	}
-> >
-> Hi Luis
-> 
-> The hunk above isn't right.  Just because you set ROOT_BLOCK on the port
-> doesn't mean that you should ignore it's device features.  If the device
-> you just added happens to disable or enable some device offload feature,
-> you should take that into account.
-
-OK thanks, how about this part:
-
-On 04/22/2014 03:43 PM, Luis R. Rodriguez wrote:
-> On Tue, Mar 18, 2014 at 02:22:43PM -0700, Luis R. Rodriguez wrote:
-> On Tue, Mar 18, 2014 at 01:46:49PM -0700, Cong Wang wrote:
->> On Fri, Mar 14, 2014 at 6:39 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
->>> On Thu, Mar 13, 2014 at 11:26:25AM -0700, Cong Wang wrote:
->>>> On Wed, Mar 12, 2014 at 8:15 PM, Luis R. Rodriguez
->>>> <mcgrof@do-not-panic.com> wrote:
->>>>>                         spin_unlock_bh(&p->br->lock);
->>>>> +                       if (changed)
->>>>> +                               call_netdevice_notifiers(NETDEV_CHANGEADDR,
->>>>> +                                                        p->br->dev);
->>>>> +                       netdev_update_features(p->br->dev);
->>>>
->>>> I think this is supposed to be in netdev event handler of br->dev
->>>> instead of here.
+On 04/30/2014 06:59 PM, Luis R. Rodriguez wrote:
+> On Wed, Apr 30, 2014 at 04:04:34PM -0400, Vlad Yasevich wrote:
+>> On 04/22/2014 03:43 PM, Luis R. Rodriguez wrote:
+>>> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+>>> index 54d207d..dcd9378 100644
+>>> --- a/net/bridge/br_if.c
+>>> +++ b/net/bridge/br_if.c
+>>> @@ -315,6 +315,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+>>>  	features &= ~NETIF_F_ONE_FOR_ALL;
+>>>  
+>>>  	list_for_each_entry(p, &br->port_list, list) {
+>>> +		if (p->flags & BR_ROOT_BLOCK)
+>>> +			continue;
+>>>  		features = netdev_increment_features(features,
+>>>  						     p->dev->features, mask);
+>>>  	}
 >>>
->>> Do you mean netdev_update_features() ? I mimic'd what was being done on
->>> br_del_if() given that root blocking is doing something similar. If
->>> we need to change something for the above then I suppose it means we need
->>> to change br_del_if() too. Let me know if you see any reason for something
->>> else.
->>>
+>> Hi Luis
 >>
->> Yeah, for me it looks like it's better to call netdev_update_features()
->> in the event handler of br->dev, rather than where calling
->> call_netdevice_notifiers(..., br->dev);.
->
-> I still don't see why, in fact trying to verify this I am wondering now
-> if instead we should actually fix br_features_recompute() to take into
-> consideration BR_ROOT_BLOCK as below. Notice how netdev_update_features()
-> is called above even if the MAC address did not change, just as is done
-> on br_del_if(). There is an NETDEV_FEAT_CHANGE event so would it be more
-> appropriate we just call
->
-> call_netdevice_notifiers(NETDEV_FEAT_CHANGE, p->br->dev)
->
-> for both the above then and also br_del_if()?
+>> The hunk above isn't right.  Just because you set ROOT_BLOCK on the port
+>> doesn't mean that you should ignore it's device features.  If the device
+>> you just added happens to disable or enable some device offload feature,
+>> you should take that into account.
+> 
+> OK thanks, how about this part:
+> 
+> On 04/22/2014 03:43 PM, Luis R. Rodriguez wrote:
+>> On Tue, Mar 18, 2014 at 02:22:43PM -0700, Luis R. Rodriguez wrote:
+>> On Tue, Mar 18, 2014 at 01:46:49PM -0700, Cong Wang wrote:
+>>> On Fri, Mar 14, 2014 at 6:39 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+>>>> On Thu, Mar 13, 2014 at 11:26:25AM -0700, Cong Wang wrote:
+>>>>> On Wed, Mar 12, 2014 at 8:15 PM, Luis R. Rodriguez
+>>>>> <mcgrof@do-not-panic.com> wrote:
+>>>>>>                         spin_unlock_bh(&p->br->lock);
+>>>>>> +                       if (changed)
+>>>>>> +                               call_netdevice_notifiers(NETDEV_CHANGEADDR,
+>>>>>> +                                                        p->br->dev);
+>>>>>> +                       netdev_update_features(p->br->dev);
+>>>>>
 
-  Luis
+This is actually just a part of it.  You also need to handle the sysfs
+changing the flag.
+
+Look at the first 2 patches in this series:
+http://www.spinics.net/lists/netdev/msg280863.html
+
+You might need that functionality.
+
+-vlad
+
+
+>>>>> I think this is supposed to be in netdev event handler of br->dev
+>>>>> instead of here.
+>>>>
+>>>> Do you mean netdev_update_features() ? I mimic'd what was being done on
+>>>> br_del_if() given that root blocking is doing something similar. If
+>>>> we need to change something for the above then I suppose it means we need
+>>>> to change br_del_if() too. Let me know if you see any reason for something
+>>>> else.
+>>>>
+>>>
+>>> Yeah, for me it looks like it's better to call netdev_update_features()
+>>> in the event handler of br->dev, rather than where calling
+>>> call_netdevice_notifiers(..., br->dev);.
+>>
+>> I still don't see why, in fact trying to verify this I am wondering now
+>> if instead we should actually fix br_features_recompute() to take into
+>> consideration BR_ROOT_BLOCK as below. Notice how netdev_update_features()
+>> is called above even if the MAC address did not change, just as is done
+>> on br_del_if(). There is an NETDEV_FEAT_CHANGE event so would it be more
+>> appropriate we just call
+>>
+>> call_netdevice_notifiers(NETDEV_FEAT_CHANGE, p->br->dev)
+>>
+>> for both the above then and also br_del_if()?
+> 
+>   Luis
+> 
+
