@@ -1,13 +1,19 @@
-Return-Path: <sergei.shtylyov@cogentembedded.com>
-Message-ID: <53678887.1070006@cogentembedded.com>
-Date: Mon, 05 May 2014 16:48:07 +0400
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Return-Path: <ratheesh.ksz@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:date:message-id:subject:from:to:content-type;
+	bh=bcp/a1spU/6H5nlxG8avhfco/0+grm3vBN7xiIwvOuw=;
+	b=lhud8UrmIZ807oPve71cxjXv+XmSh2y+MbNZPwGk6peAJBnnK+V8EjhDYVdJo6F7Fl
+	YQ59JQE7kdOns0bDsfBNsXy2F6b3DBo5aZ6QF3u0JdVvByMJrZEekSR1e8pj38RHYWEy
+	Xvi52gBzRAKx+6GE4Rur0rdyaPD4jN7IcX3rzgZpOKJoA5G5MUIO7bNjCFqlAf/e+OW3
+	w8veQjr7q/BC7dPp1dpHrs49MGY5LPXXlKiU3sbIbzU26LEQ7IDa0/N8NzSRSqihblv9
+	8Ysmxzs4JRYMN5GlEQf/YKyGsfEIHz1T52xGVnBzUxqNkD5wFshFXC5I1IX/GG93CcFJ
+	MUsw==
 MIME-Version: 1.0
-References: <1399238974-6210-1-git-send-email-jmaxwell@redhat.com>
-In-Reply-To: <1399238974-6210-1-git-send-email-jmaxwell@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Add port flap detection
+Date: Tue, 6 May 2014 15:57:24 +0530
+Message-ID: <CAGZFCEE0GbOwin1WbU9Sj_ctg_U=a1s0J+49XkfCQD=Yj78p4w@mail.gmail.com>
+From: ratheesh kannoth <ratheesh.ksz@gmail.com>
+Content-Type: multipart/mixed; boundary=20cf301af8eda2573504f8b8b1a1
+Subject: [Bridge] Linux Bridge is slow ?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,49 +22,115 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jon Maxwell <jmaxwell37@gmail.com>, netdev@vger.kernel.org
-Cc: vyasevic@redhat.com, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org, pirko@redhat.com, davem@davemloft.net
+To: bridge@lists.linux-foundation.org, kvm@vger.kernel.org, discuss@openvswitch.org
 
-Hello.
+--20cf301af8eda2573504f8b8b1a1
+Content-Type: text/plain; charset=UTF-8
 
-On 05/05/2014 01:29 AM, Jon Maxwell wrote:
+I have two virtual machine  VM1  and VM2 , which are running on
+ubuntu.  Both VM are running  ubunutu. I bridged vnet0 and vnet1  in a
+linux bridge on host machine.
+ brctl addbr virbr0
+ brctl addif  virbr0 vnet0
+ brctl addif  virbr0  vnet1
 
-> There has been a number incidents recently where customers running KVM have reported that VM hosts on different Hypervisors are unreachable. Based on pcap traces we found that the bridge was broadcasting the ARP request out onto the network. However some NICs have an inbuilt switch which on occasions were broadcasting the VMs ARP request back through the physical NIC on the Hypervisor. This resulted in the bridge flapping ports and incorrectly learning that the VMs mac address was external. As a result the ARP reply was directed back onto the external network and VM never updated it's ARP cache. This patch will detect port flapping and log a message so that this condition can be detected earlier.
+I did a wget of  1.9G file from VM1 to VM2. it took 1 minute 43 sec at
+18.6mbps to transfer the file.
 
-    Please wrap your changelog at 80 columns or less.
+I used the attached program ( which is using epoll ) to read and write
+packets.  This program will register two network interfaces ( tap77
+and tap88 ) with linux stack and will read packets from corresponding
+file descriptor in userspace and write it in other.  I bridged
+tap77 and vnet0  together  and  tap88 and vnet1 together using a
+openvswitch bridge. Her i added an overhead  read, write system call
+and  copy_to_user, copy_from_user  copies  in  both directions. [ from
+vm1 to vm2  & vm2 to vm1 ] compared to linux bridge implementation
+mentioned first.
 
-> Signed-off-by: Jon Maxwell <jmaxwell@redhat.com>
+when i ran wget test. It took less time.  1.9G file from VM1 to VM2.
+it took 1 minute 39 sec at 19.3 mbps to transfer the file.
 
-    You probably want the same RedHat email in the patch autorhship record, so 
-you need to insert the below line before the changelog:
+Does that mean that linux bridge is introducing a lot of delay ? i
+thought it should be really fast ...any clue or hint is really
+appreciated ?
 
-From: Jon Maxwell <jmaxwell@redhat.com>
 
-> ---
->   net/bridge/br_fdb.c | 7 +++++++
->   1 file changed, 7 insertions(+)
->
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 9203d5a..c08607b 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -507,6 +507,13 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
->   					source->dev->name);
->   		} else {
->   			/* fastpath: update of existing entry */
-> +			if (source->port_no != fdb->dst->port_no &&
-> +				net_ratelimit())
-> +				br_warn(br, "Port flapping detected source entry dev = %s mac = %pM, port_no = %d\n existing entry dev = %s mac = %pM, port_no = %d\n",
-> +					source->dev->name,
-> +					addr, source->port_no,
-> +					fdb->dst->dev->name, addr,
+Thanks,
+Ratheesh
 
-    Why print the same MAC address twice?
+--20cf301af8eda2573504f8b8b1a1
+Content-Type: text/x-csrc; charset=US-ASCII; name="test.c"
+Content-Disposition: attachment; filename="test.c"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_huv1xq1p0
 
-> +					fdb->dst->port_no);
->   			fdb->dst = source;
->   			fdb->updated = jiffies;
->   			if (unlikely(added_by_user))
-
-WBR, Sergei
-
+I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQojaW5jbHVkZSA8c3lz
+L3N0YXQuaD4NCiNpbmNsdWRlIDxmY250bC5oPg0KI2luY2x1ZGUgPHN5cy9pb2N0bC5oPg0KI2lu
+Y2x1ZGUgPG5ldC9pZi5oPg0KI2luY2x1ZGUgPGxpbnV4L2lmX3R1bi5oPg0KI2luY2x1ZGUgPHVu
+aXN0ZC5oPg0KI2luY2x1ZGUgPHN0cmluZy5oPg0KI2luY2x1ZGUgPHN0ZGxpYi5oPg0KI2luY2x1
+ZGUgPHN5cy9lcG9sbC5oPg0Kc3RhdGljIGludA0KbWFrZV9zb2NrZXRfbm9uX2Jsb2NraW5nIChp
+bnQgc2ZkKQ0Kew0KICBpbnQgZmxhZ3MsIHM7DQoNCiAgZmxhZ3MgPSBmY250bCAoc2ZkLCBGX0dF
+VEZMLCAwKTsNCiAgaWYgKGZsYWdzID09IC0xKQ0KICAgIHsNCiAgICAgIHBlcnJvciAoImZjbnRs
+Iik7DQogICAgICByZXR1cm4gLTE7DQogICAgfQ0KDQogIGZsYWdzIHw9IE9fTk9OQkxPQ0s7DQog
+IHMgPSBmY250bCAoc2ZkLCBGX1NFVEZMLCBmbGFncyk7DQogIGlmIChzID09IC0xKQ0KICAgIHsN
+CiAgICAgIHBlcnJvciAoImZjbnRsIik7DQogICAgICByZXR1cm4gLTE7DQogICAgfQ0KDQogIHJl
+dHVybiAwOw0KfQ0KDQppbnQgdHVuX2FsbG9jKGNoYXIgKmRldikNCiAgew0KICAgICAgc3RydWN0
+IGlmcmVxIGlmcjsNCiAgICAgIGludCBmZCwgZXJyOw0KDQogICAgICBpZiggKGZkID0gb3Blbigi
+L2Rldi9uZXQvdHVuIiwgT19SRFdSKSkgPCAwICkgew0KCSBwZXJyb3IoImNhbm5vdCBvcGVuIC9k
+ZXYvbmV0L3R1biIpOw0KICAgICAgICAgcmV0dXJuIDA7DQogICAgICB9ICANCg0KICAgICAgbWVt
+c2V0KCZpZnIsIDAsIHNpemVvZihpZnIpKTsNCg0KICAgICAgLyogRmxhZ3M6IElGRl9UVU4gICAt
+IFRVTiBkZXZpY2UgKG5vIEV0aGVybmV0IGhlYWRlcnMpIA0KICAgICAgICogICAgICAgIElGRl9U
+QVAgICAtIFRBUCBkZXZpY2UgIA0KICAgICAgICoNCiAgICAgICAqICAgICAgICBJRkZfTk9fUEkg
+LSBEbyBub3QgcHJvdmlkZSBwYWNrZXQgaW5mb3JtYXRpb24gIA0KICAgICAgICovDQogICAgICBp
+ZnIuaWZyX2ZsYWdzID0gSUZGX1RBUCA7DQogICAgICBpZiggKmRldiApDQogICAgICAgICBzdHJu
+Y3B5KGlmci5pZnJfbmFtZSwgZGV2LCBJRk5BTVNJWik7DQoNCiAgICAgIHByaW50ZigiaGVsbG8i
+KTsNCg0KICAgICAgLy9pZiggZXJyID09IGlvY3RsKGZkLCBUVU5TRVRJRkYsICh2b2lkICopICZp
+ZnIpICl7DQogICAgICAgZXJyPSBpb2N0bChmZCwgVFVOU0VUSUZGLCAodm9pZCAqKSAmaWZyKTsg
+DQoJaWYoZXJyIDwgMCApIHsNCiAgICAgICAgIGNsb3NlKGZkKTsNCiAgICAgICAgIHJldHVybiBl
+cnI7DQogICAgICB9DQogICAgICBzdHJjcHkoZGV2LCBpZnIuaWZyX25hbWUpOw0KICAgICAgcmV0
+dXJuIGZkOw0KICB9DQoNCmludCAgbWFpbigpDQp7DQoNCg0KIGNoYXIgdHVuX25hbWUxW0lGTkFN
+U0laXTsNCiBjaGFyIHR1bl9uYW1lMltJRk5BTVNJWl07DQogaW50IHR1bl9mZDEsIHR1bl9mZDI7
+DQogdW5zaWduZWQgY2hhciAgYnVmZmVyWzIwNDhdOw0KIGludCBucmVhZCwgbiA7DQoNCiNkZWZp
+bmUgTUFYX0VWRU5UUyAxMA0KIHN0cnVjdCBlcG9sbF9ldmVudCBldl90YXA3NywgZXZfdGFwODgs
+IGV2ZW50c1tNQVhfRVZFTlRTXTsNCiBpbnQgIG5mZHMsIGVwb2xsZmQ7DQoNCiBlcG9sbGZkID0g
+ZXBvbGxfY3JlYXRlKDEwKTsNCiBpZiAoZXBvbGxmZCA9PSAtMSkgew0KCSBwZXJyb3IoImVwb2xs
+X2NyZWF0ZSIpOw0KCSBleGl0KEVYSVRfRkFJTFVSRSk7DQogfSANCg0KDQogDQogIC8qIENvbm5l
+Y3QgdG8gdGhlIGRldmljZSAqLw0KICBzdHJjcHkodHVuX25hbWUxLCAidGFwNzciKTsNCiAgdHVu
+X2ZkMSA9IHR1bl9hbGxvYyh0dW5fbmFtZTEpOyAgLyogdHVuIGludGVyZmFjZSAqLw0KICAvL21h
+a2Vfc29ja2V0X25vbl9ibG9ja2luZyh0dW5fZmQxKTsgCQ0KICANCiAgc3RyY3B5KHR1bl9uYW1l
+MiwgInRhcDg4Iik7DQogIHR1bl9mZDIgPSB0dW5fYWxsb2ModHVuX25hbWUyKTsgIC8qIHR1biBp
+bnRlcmZhY2UgKi8NCiAgLy9tYWtlX3NvY2tldF9ub25fYmxvY2tpbmcodHVuX2ZkMik7IAkNCg0K
+ICBpZih0dW5fZmQxIDwgMCB8fCB0dW5fZmQyIDwgMCApew0KICAgIHBlcnJvcigiXG5BbGxvY2F0
+aW5nIGludGVyZmFjZSIpOw0KICAgIHByaW50ZigiXG4gUkFUICIpOwkNCiAgICBleGl0KDEpOw0K
+ICB9DQoNCiAgZXZfdGFwNzcuZXZlbnRzID0gRVBPTExJTjsNCiAgZXZfdGFwNzcuZGF0YS5mZCA9
+IHR1bl9mZDE7DQogIGlmIChlcG9sbF9jdGwoZXBvbGxmZCwgRVBPTExfQ1RMX0FERCwgdHVuX2Zk
+MSAsICZldl90YXA3NykgPT0gLTEpIHsNCgkgIHBlcnJvcigiZXBvbGxfY3RsOiBsaXN0ZW5fc29j
+ayIpOw0KCSAgZXhpdChFWElUX0ZBSUxVUkUpOw0KICB9CQ0KDQogIGV2X3RhcDg4LmV2ZW50cyA9
+IEVQT0xMSU47DQogIGV2X3RhcDg4LmRhdGEuZmQgPSB0dW5fZmQyOw0KICBpZiAoZXBvbGxfY3Rs
+KGVwb2xsZmQsIEVQT0xMX0NUTF9BREQsIHR1bl9mZDIsICZldl90YXA4OCkgPT0gLTEpIHsNCgkg
+IHBlcnJvcigiZXBvbGxfY3RsOiBsaXN0ZW5fc29jayIpOw0KCSAgZXhpdChFWElUX0ZBSUxVUkUp
+Ow0KICB9CQ0KDQoNCg0KICAvKiBOb3cgcmVhZCBkYXRhIGNvbWluZyBmcm9tIHRoZSBrZXJuZWwg
+Ki8NCiAgd2hpbGUoMSkgew0KCSAgLyogTm90ZSB0aGF0ICJidWZmZXIiIHNob3VsZCBiZSBhdCBs
+ZWFzdCB0aGUgTVRVIHNpemUgb2YgdGhlIGludGVyZmFjZSwgZWcgMTUwMCBieXRlcyAqLw0KDQoN
+CgkgIG5mZHMgPSBlcG9sbF93YWl0KGVwb2xsZmQsIGV2ZW50cywgTUFYX0VWRU5UUywgLTEpOw0K
+CSAgaWYgKG5mZHMgPT0gLTEpIHsNCgkJICBwZXJyb3IoImVwb2xsX3B3YWl0Iik7DQoJCSAgZXhp
+dChFWElUX0ZBSUxVUkUpOw0KCSAgfQ0KDQoJICBmb3IgKG4gPSAwOyBuIDwgbmZkczsgKytuKSB7
+DQoJCSAgaWYgKGV2ZW50c1tuXS5kYXRhLmZkID09IHR1bl9mZDEpICB7DQoJCQkgIG5yZWFkID0g
+cmVhZCh0dW5fZmQxLGJ1ZmZlcixzaXplb2YoYnVmZmVyKSk7DQoJCQkgIGlmKG5yZWFkIDwgMCkg
+ew0KCQkJCSAgcGVycm9yKCJSZWFkaW5nIGZyb20gaW50ZXJmYWNlIik7DQoJCQkJICAvL2Nsb3Nl
+KHR1bl9mZDEpOw0KCQkJCSAgLy9jbG9zZSh0dW5fZmQyKTsNCgkJCQkgIC8vZXhpdCgxKTsNCgkJ
+CQkgIGNvbnRpbnVlOwkNCgkJCSAgfQ0KICAgIAkJCSAgcHJpbnRmKCJSZWFkICVkIGJ5dGVzIGZy
+b20gZGV2aWNlICVzXG4iLCBucmVhZCwgdHVuX25hbWUxKTsNCgkJCSAgbnJlYWQgPSB3cml0ZSh0
+dW5fZmQyLGJ1ZmZlciwgbnJlYWQpOw0KCQkJICAvL2RvX3VzZV9mZChldmVudHNbbl0uZGF0YS5m
+ZCk7CQ0KCQkgIH0gCQ0KDQoJCSAgICBpZiAoZXZlbnRzW25dLmRhdGEuZmQgPT0gdHVuX2ZkMiAp
+IHsNCgkJCSAgbnJlYWQgPSByZWFkKHR1bl9mZDIsYnVmZmVyLHNpemVvZihidWZmZXIpKTsNCgkJ
+CSAgaWYobnJlYWQgPCAwKSB7DQoJCQkJICBwZXJyb3IoIlJlYWRpbmcgZnJvbSBpbnRlcmZhY2Ui
+KTsNCgkJCQkgIC8vY2xvc2UodHVuX2ZkMSk7DQoJCQkJICAvL2Nsb3NlKHR1bl9mZDIpOw0KICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnRpbnVlOyANCgkJCQkgIC8vZXhpdCgx
+KTsNCgkJCSAgfQ0KICAgIAkJCSAgcHJpbnRmKCJSZWFkICVkIGJ5dGVzIGZyb20gZGV2aWNlICVz
+XG4iLCBucmVhZCwgdHVuX25hbWUyKTsNCgkJCSAgbnJlYWQgPSB3cml0ZSh0dW5fZmQxLGJ1ZmZl
+ciwgbnJlYWQpOw0KCQkgICAgICAgIC8vIAkgIGRvX3VzZV9mZChldmVudHNbbl0uZGF0YS5mZCk7
+CQ0KDQogICAgICAgICAgICAgICAgICB9DQogICAgICAgICB9DQoNCg0KICAgIC8qIERvIHdoYXRl
+dmVyIHdpdGggdGhlIGRhdGEgKi8NCiAgfQ0KDQoJcHJpbnRmKCJoZWxsbyAvLy9pIG0gZG9uZSBc
+biIpOw0KDQoNCn0NCg==
+--20cf301af8eda2573504f8b8b1a1--
