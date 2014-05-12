@@ -1,14 +1,14 @@
-Return-Path: <w-lkml@lebenslange-mailadresse.de>
-From: Wilfried Klaebe <w-lkml@lebenslange-mailadresse.de>
-Message-ID: <20140511124633.GD7875@kaos.lebenslange-mailadresse.de>
+Return-Path: <balbi@ti.com>
+From: Felipe Balbi <balbi@ti.com>
+Message-ID: <20140512144928.GA31882@saruman.home>
 References: <20140511001231.GC7875@kaos.lebenslange-mailadresse.de>
-	<CANKiNjV7qrx-556DJk0qcOopnBs4NnKy51POEeZ7LpbdjX35OQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <CANKiNjV7qrx-556DJk0qcOopnBs4NnKy51POEeZ7LpbdjX35OQ@mail.gmail.com>
+In-Reply-To: <20140511001231.GC7875@kaos.lebenslange-mailadresse.de>
 Subject: Re: [Bridge] [PATCH] [resend] net: get rid of SET_ETHTOOL_OPS
+Reply-To: balbi@ti.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,21 +17,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sun, 11 May 2014 12:49:53 -0000
-To: Anish Khurana <anish.khurana130181@gmail.com>
-Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, dev@openvswitch.org, xen-devel@lists.xenproject.org, linux-rdma@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-acenic@sunsite.dk, trivial@kernel.org, e1000-devel@lists.sourceforge.net, bridge@lists.linux-foundation.org, devel@linuxdriverproject.org, nios2-dev@lists.rocketboards.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+Date: Mon, 12 May 2014 14:49:48 -0000
+To: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, linux-rdma@vger.kernel.org, linux-acenic@sunsite.dk, nios2-dev@lists.rocketboards.org, linuxppc-dev@lists.ozlabs.org, e1000-devel@lists.sourceforge.net, devel@linuxdriverproject.org, linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-wireless@vger.kernel.org, xen-devel@lists.xenproject.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, dev@openvswitch.org, trivial@kernel.org, linux-kernel@vger.kernel.org
 
-Am Sun, May 11, 2014 at 01:13:47PM +0530 schrieb Anish Khurana:
-> SET_ETHTOOL_OPS is equivalent to :
-> #define SET_ETHTOOL_OPS(netdev,ops) \
->     ( (netdev)->ethtool_ops =3D (ops) )
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, May 11, 2014 at 12:12:32AM +0000, Wilfried Klaebe wrote:
+> net: get rid of SET_ETHTOOL_OPS
 >=20
-> how it makes difference  removing this code and replacing with the
-> code mentioned ?
+> Dave Miller mentioned he'd like to see SET_ETHTOOL_OPS gone.
+> This does that.
+>=20
+> Mostly done via coccinelle script:
+> @@
+> struct ethtool_ops *ops;
+> struct net_device *dev;
+> @@
+> -       SET_ETHTOOL_OPS(dev, ops);
+> +       dev->ethtool_ops =3D ops;
+>=20
+> Compile tested only, but I'd seriously wonder if this broke anything.
+>=20
+> Suggested-by: Dave Miller <davem@davemloft.net>
+> Signed-off-by: Wilfried Klaebe <w-lkml@lebenslange-mailadresse.de>
 
-It doesn't change anything in the resulting binaries. The whole point
-is to remove the macro, which is something Dave wants to happen.
+for drivers/usb/gadget/:
 
-Kind regards,
-Wilfried
+Acked-by: Felipe Balbi <balbi@ti.com>
 
+--=20
+balbi
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTcN94AAoJEIaOsuA1yqRE2R0P/RhVi/Qfz54HMVfE28wnFO0q
+QnlKuoHAVxYrJGy2DMEWK0M3Pur63qxiFZjkcZeoltPuas2EyP/SYGeb7RssNOSt
+jLvDOYvpOF6UVmmz+FMPXXDHjOwjlZI/GKLpAnpnBsUUjH1KAHiYQztgZaIr+tAC
+u09I9dYOPzEiZS0JVsS2H3OMzmjD0qEAIyJD/8JCSyTTod8TV/8M4oIupKyvamR4
+lI8L+9pNJlzc1q9lk8JdLg0uX5nFwkN3LElRESG865TMNTkMhsK+t1Xwj22LBJYL
+aB5o2Fdt1z0PPvpcRu8Yq6NvGFRXjufFXt+ERizVIo4ZYyGoE+8SvG134PDSkL3E
+GN6C+SmC/eoN4KZqh9sDEINNYSsnW7/qzwKOfjUt6vnBJQtMeOvFs6N11JBe5XGm
+OdS5NVjt8E9ojjN82eg8xYHM69GW8fUgsTDstLA67mOiKTLhTbZtSTT3Vxc91fJf
+FRN+zqJ1haKeNThtM0WP15V7YEcaNuO0ImGoX4OUgWOCCwvbrlTQesC+ndbj4fA+
+Eoa9CWBXt+7yR7iPHRbvn1aOexmXT+kBMN0z3CzHSuBDHdFAvNKZQapR9IsSEZbD
+nTGr4DCWBVQBTkzt9eKslLeRwS53guWFS9veXqbL9XZMAP6oCbeiVPzb9FnW+vb4
+w8H5mRK9If342xMOpRq0
+=//u0
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
