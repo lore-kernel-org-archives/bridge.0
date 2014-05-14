@@ -1,7 +1,7 @@
 Return-Path: <stephen@networkplumber.org>
-Date: Wed, 14 May 2014 08:40:25 -0700
+Date: Wed, 14 May 2014 08:42:51 -0700
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20140514084025.1531d496@nehalam.linuxnetplumber.net>
+Message-ID: <20140514084251.317ed026@nehalam.linuxnetplumber.net>
 In-Reply-To: <1400080168-16625-3-git-send-email-vyasevic@redhat.com>
 References: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
 	<1400080168-16625-3-git-send-email-vyasevic@redhat.com>
@@ -24,18 +24,18 @@ Cc: mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, j
 On Wed, 14 May 2014 11:09:22 -0400
 Vlad Yasevich <vyasevic@redhat.com> wrote:
 
-> +void br_port_flags_change(struct net_bridge_port *p, unsigned long old_flags)
-> +{
-> +	struct net_bridge *br = p->br;
-> +	unsigned long mask = old_flags ^ p->flags;
-> +
-> +	if (!(mask & BR_AUTO_MASK))
-> +		return;
-> +
-> +	nbp_update_port_count(br);
-> +}
+> @@ -58,6 +61,7 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
+>  
+>  	if (flags != p->flags) {
+>  		p->flags = flags;
+> +		br_port_flags_change(p, old_flags ^ flags);
 
-Minor nit, why have negative logic here.
-Instead use:
-	if (mask & BR_AUTO_MASK)
-		nbp_update_port_count(br);
+You are also xoring twice.
+
+Why not:
+
+store_flag()
+	if (flags != p->flags) {
+		br_port_flags_change(p, flags);
+		p->flags = flags;
+		br_ifinfo_notify(RTM_NEWLINK, p);
