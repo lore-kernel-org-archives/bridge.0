@@ -1,13 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 14 May 2014 15:29:53 -0400 (EDT)
-Message-Id: <20140514.152953.1992805646844184373.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
+Return-Path: <sergei.shtylyov@cogentembedded.com>
+Message-ID: <5373D4E2.1070904@cogentembedded.com>
+Date: Thu, 15 May 2014 00:41:06 +0400
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+MIME-Version: 1.0
 References: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	<1400080168-16625-9-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1400080168-16625-9-git-send-email-vyasevic@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/8] Non-promisc bidge ports support
+Subject: Re: [Bridge] [PATCH net-next 8/8] bridge: Automatically manage
+ promisc mode when vlan filtering is on.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,26 +18,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
+To: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org
+Cc: john.r.fastabend@intel.com, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, mst@redhat.com
 
-From: Vlad Yasevich <vyasevic@redhat.com>
-Date: Wed, 14 May 2014 11:09:20 -0400
+Hello.
 
-> This series adds functionality to the bridge device to enable
-> operations without setting all ports to promiscuous mode.
+On 05/14/2014 07:09 PM, Vlad Yasevich wrote:
 
-I'm prepared to apply this, please address the minor stylistic
-feedback you've received and resubmit.
+> If the user doesn't enable vlan filtering, we have to place all
+> bridge ports in promsic mode so that we retain the capability of
+> of receiving tagged frames.
+> When vlan filtering is enabled, the each port will be provided with
+> necessary vlan configuration and would be able to receive tagged
+> traffic without promiscuous mode set, thus allowing us to automatically
+> turn promiscuity on or off depending on the configuration.
 
-Also, what does:
+> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+> ---
+>   net/bridge/br_if.c      | 12 ++++++++----
+>   net/bridge/br_private.h |  9 +++++++++
+>   net/bridge/br_vlan.c    |  1 +
+>   3 files changed, 18 insertions(+), 4 deletions(-)
 
-====================
-Conflicts:
-	net/bridge/br_if.c
-	net/bridge/br_private.h
-====================
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 7759144..a9bf8cc 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -131,12 +131,16 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
+>   void br_manage_promisc(struct net_bridge *br)
+>   {
+>   	struct net_bridge_port *p;
+> +	int set_all = false;
 
-exactly mean in patch #7?
+    s/int/bool/?
 
-Thanks.
+[...]
+
+WBR, Sergei
+
