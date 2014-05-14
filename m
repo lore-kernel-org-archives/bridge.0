@@ -1,14 +1,11 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <5372BA1E.8000402@lab.ntt.co.jp>
-Date: Wed, 14 May 2014 09:34:38 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-MIME-Version: 1.0
-References: <1399967708-7283-1-git-send-email-jmaxwell@redhat.com>
-In-Reply-To: <1399967708-7283-1-git-send-email-jmaxwell@redhat.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: notify user space of fdb port
-	change
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Wed, 14 May 2014 11:09:21 -0400
+Message-Id: <1400080168-16625-2-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
+References: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH net-next 1/8] bridge: Turn flag change macro into a
+	function.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,58 +14,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jon Maxwell <jmaxwell37@gmail.com>, stephen@networkplumber.org
-Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, mst@redhat.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, john.r.fastabend@intel.com, shemminger@vyatta.com
 
-(2014/05/13 16:55), Jon Maxwell wrote:
-> From: Jon Maxwell <jmaxwell37@gmail.com>
-> 
-> There has been a number incidents recently where customers running KVM have 
-> reported that VM hosts on different Hypervisors are unreachable. Based on 
-> pcap traces we found that the bridge was broadcasting the ARP request out 
-> onto the network. However some NICs have an inbuilt switch which on occasions 
-> were broadcasting the VMs ARP request back through the physical NIC on the 
-> Hypervisor. This resulted in the bridge changing ports and incorrectly learning
-> that the VMs mac address was external. As a result the ARP reply was directed 
-> back onto the external network and VM never updated it's ARP cache. This patch 
-> will notify the bridge command to identify such port toggling.
-> 
-> Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
-> ---
->  net/bridge/br_fdb.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 9203d5a..37742e2 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -507,6 +507,8 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
->  					source->dev->name);
->  		} else {
->  			/* fastpath: update of existing entry */
-> +			if (source->port_no != fdb->dst->port_no)
+Turn the flag change macro into a function to allow
+easier updates and to reduce space.
 
-It seems that we don't need to fetch port_no and it is enough to compare
-source and fdb->dst.
+Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+---
+ net/bridge/br_sysfs_if.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-> +				fdb_notify(br, fdb, RTM_NEWNEIGH);
->  			fdb->dst = source;
->  			fdb->updated = jiffies;
->  			if (unlikely(added_by_user))
-> 
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index dd595bd..112a25e 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -41,20 +41,27 @@ static ssize_t show_##_name(struct net_bridge_port *p, char *buf) \
+ }								\
+ static int store_##_name(struct net_bridge_port *p, unsigned long v) \
+ {								\
+-	unsigned long flags = p->flags;				\
+-	if (v)							\
+-		flags |= _mask;					\
+-	else							\
+-		flags &= ~_mask;				\
+-	if (flags != p->flags) {				\
+-		p->flags = flags;				\
+-		br_ifinfo_notify(RTM_NEWLINK, p);		\
+-	}							\
+-	return 0;						\
++	return store_flag(p, v, _mask);				\
+ }								\
+ static BRPORT_ATTR(_name, S_IRUGO | S_IWUSR,			\
+ 		   show_##_name, store_##_name)
+ 
++static int store_flag(struct net_bridge_port *p, unsigned long v,
++		     unsigned long mask)
++{
++	unsigned long flags = p->flags;
++
++	if (v)
++		flags |= mask;
++	else
++		flags &= ~mask;
++
++	if (flags != p->flags) {
++		p->flags = flags;
++		br_ifinfo_notify(RTM_NEWLINK, p);
++	}
++	return 0;
++}
+ 
+ static ssize_t show_path_cost(struct net_bridge_port *p, char *buf)
+ {
+-- 
+1.9.0
 
-This notifies fdb entry before updating existing entry. Is this on purpose?
-I think we should notify the updated fdb entry.
-Similar code fdb_add_entry() does after updating it.
-
-Also, isn't it better to move update of dst into "if" block?
-
-	if (source != fdb->dst) {
-		fdb->dst = source;
-		modified = true;
-	}
-	...
-	if (modified) ...
-
-Thanks,
-Toshiaki Makita
