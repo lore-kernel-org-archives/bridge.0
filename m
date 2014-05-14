@@ -1,15 +1,15 @@
 Return-Path: <sergei.shtylyov@cogentembedded.com>
-Message-ID: <5373D4E2.1070904@cogentembedded.com>
-Date: Thu, 15 May 2014 00:41:06 +0400
+Message-ID: <5373D5C3.60807@cogentembedded.com>
+Date: Thu, 15 May 2014 00:44:51 +0400
 From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 MIME-Version: 1.0
 References: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
-	<1400080168-16625-9-git-send-email-vyasevic@redhat.com>
-In-Reply-To: <1400080168-16625-9-git-send-email-vyasevic@redhat.com>
+	<1400080168-16625-6-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1400080168-16625-6-git-send-email-vyasevic@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 8/8] bridge: Automatically manage
- promisc mode when vlan filtering is on.
+Subject: Re: [Bridge] [PATCH net-next 5/8] bridge: Add addresses from static
+ fdbs to non-promisc ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,36 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org
 Cc: john.r.fastabend@intel.com, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, mst@redhat.com
 
-Hello.
-
 On 05/14/2014 07:09 PM, Vlad Yasevich wrote:
 
-> If the user doesn't enable vlan filtering, we have to place all
-> bridge ports in promsic mode so that we retain the capability of
-> of receiving tagged frames.
-> When vlan filtering is enabled, the each port will be provided with
-> necessary vlan configuration and would be able to receive tagged
-> traffic without promiscuous mode set, thus allowing us to automatically
-> turn promiscuity on or off depending on the configuration.
+> When a static fdb entry is created, add the mac address
+> from this fdb entry to any ports that are currently running
+> in non-promiscuous mode.  These ports need this data so that
+> they can receive traffic destined to these addresses.
+> By default ports start in promiscuous mode, so this feature
+> is disabled.
 
 > Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 > ---
->   net/bridge/br_if.c      | 12 ++++++++----
->   net/bridge/br_private.h |  9 +++++++++
->   net/bridge/br_vlan.c    |  1 +
->   3 files changed, 18 insertions(+), 4 deletions(-)
+>   net/bridge/br_fdb.c | 76 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+>   1 file changed, 70 insertions(+), 6 deletions(-)
 
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 7759144..a9bf8cc 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -131,12 +131,16 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
->   void br_manage_promisc(struct net_bridge *br)
->   {
->   	struct net_bridge_port *p;
-> +	int set_all = false;
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index 9759b61..958b68a 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -85,8 +85,58 @@ static void fdb_rcu_free(struct rcu_head *head)
+>   	kmem_cache_free(br_fdb_cache, ent);
+>   }
+>
+> +/* When a static FDB entry is added, the mac address from the entry is
+> + * added to the bridge private HW address list and all required ports
+> + * are then updated with the new information.
+> + * Called under RTNL.
+> + */
+> +static void fdb_add_hw(struct net_bridge *br, const unsigned char *addr)
+> +{
+> +	int err;
+> +	struct net_bridge_port *p, *tmp = NULL;
 
-    s/int/bool/?
+    Initializer doesn't seem to be needed.
 
 [...]
 
