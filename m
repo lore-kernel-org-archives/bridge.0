@@ -1,15 +1,15 @@
 Return-Path: <mst@redhat.com>
-Date: Thu, 15 May 2014 20:18:22 +0300
+Date: Thu, 15 May 2014 20:35:04 +0300
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20140515171822.GA1699@redhat.com>
+Message-ID: <20140515173504.GB1699@redhat.com>
 References: <1400173016-8952-1-git-send-email-vyasevic@redhat.com>
-	<1400173016-8952-2-git-send-email-vyasevic@redhat.com>
+	<1400173016-8952-6-git-send-email-vyasevic@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1400173016-8952-2-git-send-email-vyasevic@redhat.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 1/8] bridge: Turn flag change macro
- into a function.
+In-Reply-To: <1400173016-8952-6-git-send-email-vyasevic@redhat.com>
+Subject: Re: [Bridge] [PATCH v2 net-next 5/8] bridge: Add addresses from
+ static fdbs to non-promisc ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,9 +21,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Vlad Yasevich <vyasevic@redhat.com>
 Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com
 
-On Thu, May 15, 2014 at 12:56:49PM -0400, Vlad Yasevich wrote:
-> Turn the flag change macro into a function to allow
-> easier updates and to reduce space.
+On Thu, May 15, 2014 at 12:56:53PM -0400, Vlad Yasevich wrote:
+> When a static fdb entry is created, add the mac address
+> from this fdb entry to any ports that are currently running
+> in non-promiscuous mode.  These ports need this data so that
+> they can receive traffic destined to these addresses.
+> By default ports start in promiscuous mode, so this feature
+> is disabled.
 > 
 > Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
 
@@ -32,58 +36,118 @@ Acked-by: Michael S. Tsirkin <mst@redhat.com>
 whitespace nit below
 
 > ---
->  net/bridge/br_sysfs_if.c | 27 +++++++++++++++++----------
->  1 file changed, 17 insertions(+), 10 deletions(-)
+>  net/bridge/br_fdb.c | 76 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 70 insertions(+), 6 deletions(-)
 > 
-> diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-> index dd595bd..112a25e 100644
-> --- a/net/bridge/br_sysfs_if.c
-> +++ b/net/bridge/br_sysfs_if.c
-> @@ -41,20 +41,27 @@ static ssize_t show_##_name(struct net_bridge_port *p, char *buf) \
->  }								\
->  static int store_##_name(struct net_bridge_port *p, unsigned long v) \
->  {								\
-> -	unsigned long flags = p->flags;				\
-> -	if (v)							\
-> -		flags |= _mask;					\
-> -	else							\
-> -		flags &= ~_mask;				\
-> -	if (flags != p->flags) {				\
-> -		p->flags = flags;				\
-> -		br_ifinfo_notify(RTM_NEWLINK, p);		\
-> -	}							\
-> -	return 0;						\
-> +	return store_flag(p, v, _mask);				\
->  }								\
->  static BRPORT_ATTR(_name, S_IRUGO | S_IWUSR,			\
->  		   show_##_name, store_##_name)
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index fe124e5..834ca8c 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -85,8 +85,58 @@ static void fdb_rcu_free(struct rcu_head *head)
+>  	kmem_cache_free(br_fdb_cache, ent);
+>  }
 >  
-> +static int store_flag(struct net_bridge_port *p, unsigned long v,
-> +		     unsigned long mask)
-
-This second line should align "unsigned" with "struct" on the line above
-it. As it is it's aligned with (  which violates the docinf style
-requirement
-	Descendants are always substantially shorter than the parent and
-	are placed substantially to the right.
-it's not substantially to the right if it's not to the right of (.
-
+> +/* When a static FDB entry is added, the mac address from the entry is
+> + * added to the bridge private HW address list and all required ports
+> + * are then updated with the new information.
+> + * Called under RTNL.
+> + */
+> +static void fdb_add_hw(struct net_bridge *br, const unsigned char *addr)
 > +{
-> +	unsigned long flags = p->flags;
+> +	int err;
+> +	struct net_bridge_port *p, *tmp;
 > +
-> +	if (v)
-> +		flags |= mask;
-> +	else
-> +		flags &= ~mask;
+> +	ASSERT_RTNL();
 > +
-> +	if (flags != p->flags) {
-> +		p->flags = flags;
-> +		br_ifinfo_notify(RTM_NEWLINK, p);
+> +	list_for_each_entry(p, &br->port_list, list) {
+> +		if (!br_promisc_port(p)) {
+> +			err = dev_uc_add(p->dev, addr);
+> +			if (err)
+> +				goto undo;
+> +		}
 > +	}
-> +	return 0;
+> +
+> +	return;
+> +undo:
+> +	list_for_each_entry(tmp, &br->port_list, list) {
+> +		if (tmp == p)
+> +			break;
+> +		if (!br_promisc_port(tmp))
+> +			dev_uc_del(tmp->dev, addr);
+> +	}
 > +}
->  
->  static ssize_t show_path_cost(struct net_bridge_port *p, char *buf)
+> +
+> +/* When a static FDB entry is deleted, the HW address from that entry is
+> + * also removed from the bridge private HW address list and updates all
+> + * the ports with needed information.
+> + * Called under RTNL.
+> + */
+> +static void fdb_del_hw(struct net_bridge *br, const unsigned char *addr)
+> +{
+> +	struct net_bridge_port *p;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	list_for_each_entry(p, &br->port_list, list) {
+> +		if (!br_promisc_port(p))
+> +			dev_uc_del(p->dev, addr);
+> +	}
+> +}
+> +
+>  static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f)
 >  {
+> +	if (f->is_static)
+> +		fdb_del_hw(br, f->addr.addr);
+> +
+>  	hlist_del_rcu(&f->hlist);
+>  	fdb_notify(br, f, RTM_DELNEIGH);
+>  	call_rcu(&f->rcu, fdb_rcu_free);
+> @@ -466,6 +516,7 @@ static int fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+>  		return -ENOMEM;
+>  
+>  	fdb->is_local = fdb->is_static = 1;
+> +	fdb_add_hw(br, addr);
+>  	fdb_notify(br, fdb, RTM_NEWNEIGH);
+>  	return 0;
+>  }
+> @@ -678,16 +729,29 @@ static int fdb_add_entry(struct net_bridge_port *source, const __u8 *addr,
+>  	}
+>  
+>  	if (fdb_to_nud(fdb) != state) {
+> -		if (state & NUD_PERMANENT)
+> -			fdb->is_local = fdb->is_static = 1;
+> -		else if (state & NUD_NOARP) {
+> +		if (state & NUD_PERMANENT) {
+> +			fdb->is_local = 1;
+> +			if (!fdb->is_static) {
+> +				fdb->is_static = 1;
+> +				fdb_add_hw(br, addr);
+> +			}
+> +		} else if (state & NUD_NOARP) {
+> +			fdb->is_local = 0;
+> +			if (!fdb->is_static) {
+> +				fdb->is_static = 1;
+> +				fdb_add_hw(br, addr);
+> +			}
+> +		} else {
+>  			fdb->is_local = 0;
+> -			fdb->is_static = 1;
+> -		} else
+> -			fdb->is_local = fdb->is_static = 0;
+> +			if (fdb->is_static) {
+> +				fdb->is_static = 0;
+> +				fdb_del_hw(br, addr);
+> +			}
+> +		}
+>  
+>  		modified = true;
+>  	}
+> +
+
+Is this eally necessary?
+
+>  	fdb->added_by_user = 1;
+>  
+>  	fdb->used = jiffies;
 > -- 
 > 1.9.0
