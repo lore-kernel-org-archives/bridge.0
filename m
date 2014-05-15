@@ -1,15 +1,13 @@
-Return-Path: <sergei.shtylyov@cogentembedded.com>
-Message-ID: <5373D66F.4080801@cogentembedded.com>
-Date: Thu, 15 May 2014 00:47:43 +0400
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <5374B934.1060902@lab.ntt.co.jp>
+Date: Thu, 15 May 2014 21:55:16 +0900
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 MIME-Version: 1.0
 References: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
-	<1400080168-16625-4-git-send-email-vyasevic@redhat.com>
-In-Reply-To: <1400080168-16625-4-git-send-email-vyasevic@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <1400080168-16625-1-git-send-email-vyasevic@redhat.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 3/8] bridge: Add functionality to sync
- static fdb entries to hw
+Subject: Re: [Bridge] [PATCH net-next 0/8] Non-promisc bidge ports support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,39 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org
 Cc: john.r.fastabend@intel.com, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, mst@redhat.com
 
-On 05/14/2014 07:09 PM, Vlad Yasevich wrote:
+(2014/05/15 0:09), Vlad Yasevich wrote:
+> This series adds functionality to the bridge device to enable
+> operations without setting all ports to promiscuous mode.
+> 
+> The basic concept is this.  The bridge keeps track of the ports
+> that support learning and flooding packets to unknown destinations.
+> We call these ports auto-discovery ports since they automatically
+> discover who is behind them through learning and flooding.  
+> 
+> If flooding and learning are disabled via flags, then the port
+> requires static configuration to tell it which mac addresses
+> are behind it.  This is accomplished through adding of fdbs.
+> These fdbs should be static as dynamic fdbs can expire and systems
+> will become unreachable due to lack of flooding.
 
-> Add code that allows static fdb entires to be synced to the
-> hw list for a specified port.  This will be used later to
-> program ports that can function in non-promiscuous mode.
+Hi Vlad,
 
-> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
-> ---
->   net/bridge/br_fdb.c     | 56 +++++++++++++++++++++++++++++++++++++++++++++++++
->   net/bridge/br_private.h |  2 ++
->   2 files changed, 58 insertions(+)
+This is not a comment for this patch set, but I have a question.
 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 9203d5a..9759b61 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -874,3 +874,59 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
->   out:
->   	return err;
->   }
-> +
-> +int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p)
-> +{
-> +	struct net_bridge_fdb_entry *fdb, *tmp = NULL;
+I'm trying to use bridge command to turn off flood/learning but couldn't
+find the corresponding command.
+I'm expecting something like "bridge link set br0 flood/learning".
 
-    Again, initializer doesn't seem to be needed.
+Are there any other userspace commands that can set flood/learning flag?
 
-> +	int i;
-> +	int err = 0;
-
-    This one as well.
-
-[...]
-
-WBR, Sergei
-
+Thanks,
+Toshiaki Makita
