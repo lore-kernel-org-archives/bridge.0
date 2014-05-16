@@ -1,15 +1,8 @@
-Return-Path: <mst@redhat.com>
-Date: Thu, 15 May 2014 21:57:38 +0300
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <20140515185738.GH1699@redhat.com>
-References: <1400173016-8952-1-git-send-email-vyasevic@redhat.com>
-	<1400173016-8952-9-git-send-email-vyasevic@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1400173016-8952-9-git-send-email-vyasevic@redhat.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 8/8] bridge: Automatically manage
- promisc mode when vlan filtering is on.
+Return-Path: <vyasevic@redhat.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Date: Fri, 16 May 2014 09:59:14 -0400
+Message-Id: <1400248760-20672-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH v3 net-next 0/6] Non-promisc bidge ports support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,106 +11,90 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: john.r.fastabend@intel.com, netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com
+To: netdev@vger.kernel.org
+Cc: john.r.fastabend@intel.com, Vlad Yasevich <vyasevic@redhat.com>, shemminger@vyatta.com, bridge@lists.linux-foundation.org, mst@redhat.com
 
-On Thu, May 15, 2014 at 12:56:56PM -0400, Vlad Yasevich wrote:
-> If the user doesn't enable vlan filtering, we have to place all
-> bridge ports in promsic mode
+This series adds functionality to the bridge device to enable
+operations without setting all ports to promiscuous mode.
 
-s/promsic/promisc/
+The basic concept is this.  The bridge keeps track of the ports
+that support learning and flooding packets to unknown destinations.
+We call these ports auto-discovery ports since they automatically
+discover who is behind them through learning and flooding.  
 
-> so that we retain the capability of
-> of receiving tagged frames.
+If flooding and learning are disabled via flags, then the port
+requires static configuration to tell it which mac addresses
+are behind it.  This is accomplished through adding of fdbs.
+These fdbs should be static as dynamic fdbs can expire and systems
+will become unreachable due to lack of flooding.
 
-s/of of/of/
+If the user marks all ports as needing static configuration then
+we can safely make them non-promiscuous since we will know all the
+information about them.
 
-> When vlan filtering is enabled, the each port
+If the user leaves only 1 port as automatic, then we can mark
+that port as not-promiscuous as well.  One could think of
+this a edge relay similar to what's support by embedded switches
+in SRIOV devices.  Since we have all the information about the
+other ports, we can just program the mac addresses into the
+single automatic port to receive all necessary traffic.
+More information about this is patch 6.
 
-s/the each port/each port/
+In other cases, we keep all ports promiscuous as before.
 
-> will be provided with
-> necessary vlan configuration and would be able to receive tagged
-> traffic without promiscuous mode set, thus allowing us to automatically
-> turn promiscuity on or off depending on the configuration.
-> 
-> Signed-off-by: Vlad Yasevich <vyasevic@redhat.com>
+There are some other cases when promiscuous mode has to be turned
+back on.  One is when the bridge itself if placed in promiscuous
+mode (user sets promisc flag).  The other is if vlan filtering is
+turned off.  Since this is the default configuration, the default
+bridge operation is not changed.
 
+Changes since v2:
+ - White space and spelling fixes from Michael Tsirkin
+ - Squash patches 6, 7 and 8 to prevent bisect breakage.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Changes since v1:
+ - Address issues rasied by Stephen Heminger
+ - Address initializer comments raised by Sergey Shtylyov
+ - Rebased recent net-next.
 
-again I would smash this up, though it is less clear-cut here.
+Changes since rfc v2:
+ - Better description of in the commit logs
+ - Leave port in promiscuous mode if IFF_UNICAST_FLT is disabled on the
+   device.
+ - Fix issue with flag masking
+ - Rework patch ordering a bit.
 
+Changes since rfc v1:
+ - Removed private list.  We now traverse the fdb hashtable itself
+   to write necessary addresses to the ports (Stephen's concern)
+ - Add learning flag to the mask for flags that decides if the port
+   is 'auto' or not (suggest by MST and Jamal).
+ - Simplified tracking of such ports at the cost of a loop over all
+   ports (suggested by MST)
 
-> ---
->  net/bridge/br_if.c      | 12 ++++++++----
->  net/bridge/br_private.h |  9 +++++++++
->  net/bridge/br_vlan.c    |  1 +
->  3 files changed, 18 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 1a3638e..33a83ea 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -131,12 +131,16 @@ static void br_port_clear_promisc(struct net_bridge_port *p)
->  void br_manage_promisc(struct net_bridge *br)
->  {
->  	struct net_bridge_port *p;
-> +	bool set_all = false;
-> +
-> +	/* If vlan filtering is disabled or bridge interface is placed
-> +	 * into promiscuous mode, place all ports in promiscuous mode.
-> +	 */
-> +	if ((br->dev->flags & IFF_PROMISC) || !br_vlan_enabled(br))
-> +		set_all = true;
->  
->  	list_for_each_entry(p, &br->port_list, list) {
-> -		if (br->dev->flags & IFF_PROMISC) {
-> -			/* PROMISC flag has been turned on for the bridge
-> -			 * itself.  Turn on promisc on all ports.
-> -			 */
-> +		if (set_all) {
->  			br_port_set_promisc(p);
->  		} else {
->  			/* If the number of auto-ports is <= 1, then all other
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 06976af..2b2286d 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -642,6 +642,10 @@ static inline u16 br_get_pvid(const struct net_port_vlans *v)
->  	return v->pvid ?: VLAN_N_VID;
->  }
->  
-> +static inline int br_vlan_enabled(struct net_bridge *br)
-> +{
-> +	return br->vlan_enabled;
-> +}
->  #else
->  static inline bool br_allowed_ingress(struct net_bridge *br,
->  				      struct net_port_vlans *v,
-> @@ -722,6 +726,11 @@ static inline u16 br_get_pvid(const struct net_port_vlans *v)
->  {
->  	return VLAN_N_VID;	/* Returns invalid vid */
->  }
-> +
-> +static inline int br_vlan_enabled(struct net_bridge *br);
-> +{
-> +	return 0;
-> +}
->  #endif
->  
->  /* br_netfilter.c */
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 4a37161..24c5cc5 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -332,6 +332,7 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val)
->  		goto unlock;
->  
->  	br->vlan_enabled = val;
-> +	br_manage_promisc(br);
->  
->  unlock:
->  	rtnl_unlock();
-> -- 
-> 1.9.0
+I've played with quite a large number of ports and the current approach
+seems to work fairly well.
+
+Thanks
+-vlad
+
+Vlad Yasevich (6):
+  bridge: Turn flag change macro into a function.
+  bridge: Keep track of ports capable of automatic discovery.
+  bridge: Add functionality to sync static fdb entries to hw
+  bridge: Introduce BR_PROMISC flag
+  bridge: Add addresses from static fdbs to non-promisc ports
+  bridge: Automatically manage port promiscuous mode.
+
+ net/bridge/br_device.c   |   7 +++
+ net/bridge/br_fdb.c      | 131 ++++++++++++++++++++++++++++++++++++++++++++---
+ net/bridge/br_if.c       | 123 ++++++++++++++++++++++++++++++++++++++++++--
+ net/bridge/br_netlink.c  |   3 ++
+ net/bridge/br_private.h  |  19 +++++++
+ net/bridge/br_sysfs_if.c |  30 +++++++----
+ net/bridge/br_vlan.c     |   1 +
+ 7 files changed, 294 insertions(+), 20 deletions(-)
+
+-- 
+1.9.0
+
