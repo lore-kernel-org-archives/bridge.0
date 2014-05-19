@@ -1,13 +1,14 @@
-Return-Path: <fw@strlen.de>
-Date: Mon, 19 May 2014 16:01:19 +0200
-From: Florian Westphal <fw@strlen.de>
-Message-ID: <20140519140119.GA24523@breakpoint.cc>
+Return-Path: <davidn@davidnewall.com>
+Message-ID: <537A12EA.4060604@davidnewall.com>
+Date: Mon, 19 May 2014 23:49:22 +0930
+From: David Newall <davidn@davidnewall.com>
+MIME-Version: 1.0
 References: <537621AC.1060409@davidnewall.com>
 	<5379FFFD.1050705@davidnewall.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5379FFFD.1050705@davidnewall.com>
+	<20140519140119.GA24523@breakpoint.cc>
+In-Reply-To: <20140519140119.GA24523@breakpoint.cc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
  (bridge : Sanitize skb before it enters the IP stack)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -18,55 +19,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Newall <davidn@davidnewall.com>
+To: Florian Westphal <fw@strlen.de>
 Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-David Newall <davidn@davidnewall.com> wrote:
-> Having received no feedback of substance from netdev, I now address
-> my previous email to a wider audience for discussion and in
-> preparation for submitting a patch based closely on that below.
-> 
-> This email is not addressed to Bandan Das <bandan.das@stratus.com>,
-> who is the author of the commit I propose reverting, as his email
-> address is no longer current.  I believe I have otherwise addressed
-> all appropriate recipients and will circulate a formal patch to the
-> same recipients if no adverse comments are received.  (That would
-> surprise me.)
-> 
-> -------- Original Message --------
-> Subject: 	Revert 462fb2af9788a82a534f8184abfde31574e1cfa0 (bridge :
-> Sanitize skb before it enters the IP stack)
-> Date: 	Sat, 17 May 2014 00:03:16 +0930
-> From: 	David Newall <davidn@davidnewall.com>
-> To: 	Lukas Tribus <luky-37@hotmail.com>, Eric Dumazet
-> <eric.dumazet@gmail.com>, Netdev <netdev@vger.kernel.org>
-> CC: 	fw@strlen.de <fw@strlen.de>
-> 
-> 
-> 
-> We should revert commit 462fb2af9788a82a534f8184abfde31574e1cfa0 (bridge
-> : Sanitize skb before it enters the IP stack) because it corrupts IP
-> packets with RR or TS options set, only partially updating the IP header
-> and leaving an incorrect checksum.
-> 
-> The argument for introducing the change is at lkml.org/lkml/2010/8/30/391:
-> 
-> The bridge layer can overwrite the IPCB using the
-> BR_INPUT_SKB_CB macro. In br_nf_dev_queue_xmit,
-> if we recieve a packet greater in size than the bridge
-> device MTU, we call ip_fragment which in turn will lead to
-> icmp_send calling ip_options_echo if the DF flag is set.
-> ip_options_echo will then incorrectly try to parse the IPCB as
-> IP options resulting in a buffer overflow.
-> This change refills the CB area back with IP
-> options before ip_fragment calls icmp_send. If we fail parsing,
-> we zero out the IPCB area to guarantee that the stack does
-> not get corrupted.
+Thanks for the reply.  I've been hanging out for it!
+
+On 19/05/14 23:31, Florian Westphal wrote:
+> Well, did you test what happens if we try to refrag a packet
+> containing ip options after the revert?
 >
-> A bridge should not fragment packets; an *ethernet* bridge should not
-> need to.  Fragmenting packets is the job of higher level protocol.
+> can happen e.g. when using netfilter conntrack on top of a bridge.
 
-Well, did you test what happens if we try to refrag a packet
-containing ip options after the revert?
+No.  I expect it would panic, as was reported prior to the commit.
 
-can happen e.g. when using netfilter conntrack on top of a bridge.
+I tried to persevere with the commit: I recalculated checksum, which 
+left routes and times improperly updated in options.  Then I tried 
+calling ip_forward_options, which looks like it would correctly update 
+RR and TS (not to mention checksum)m but that bombed because skb_rtable 
+returned NULL.  I think calling skb_set_dst would answer that, but I 
+don't know how to get a valid dst.  (I asked for help but no answer.)
+
+I see three ways to progress:
+
+1. Possibly call ip_forward_option, but that requires somebody who 
+understands this code to help;
+2. Just recalculate the checksum, leaving crap in the options; or
+3. Revert the commit.
+
+Option 1 doesn't look like it's going to happen; option 2 is stupid; 
+leaving option 3, and I begin to think that's the right way to go if 
+bridge is supposed to be a bridge and not a router.  The idea that 
+bridge is doing too much seems to have quite a lot of currency, so think 
+of reversion as chopping off a canker.  Or we keep fixing bugs, adding 
+to bridge, until it replicates all of IP.
+
+How does a packet get fragmented in this case?  Does it only happen when 
+bridging to a device with smaller MTU?  That scenario sounds quite 
+un-bridge-like.  It also sounds like something that can be handled by 
+real routing.
