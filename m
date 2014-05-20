@@ -1,15 +1,25 @@
-Return-Path: <bdschuym@pandora.be>
-Message-ID: <537A6E5C.6090602@pandora.be>
-Date: Mon, 19 May 2014 22:49:32 +0200
-From: Bart De Schuymer <bdschuym@pandora.be>
+Return-Path: <vyasevich@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:date:from:user-agent:mime-version:to:cc:subject
+	:references:in-reply-to:content-type:content-transfer-encoding;
+	bh=cYnqOBE9Tl6hw5VRZ5+lfyGcQR1rrImG1TsDPGitIYw=;
+	b=h/siBAfSkQnaVAbuscKTiHejtzmX9VLdF4Ba9pss+CCOFzSdvE6xqM30OlKB0JvyXu
+	Bg6leVCga6+LCxgJcnUXtV7emf9smz5UUC5zFBhk6KoxStu9mALtUnO+WDZUlPjiAXIg
+	q+9YuIcJgXhk5Ao4IRmk9CLkdUQ7Iv+fsSTS1Vtdcj3fsg8jfzuXZjlVD07uw7sg3lV/
+	dtnPYqN+ZtVyNVYej52Ew/zTQTeS+XWLhO/b1OKoS+wLW0KWELHNe6moXGxQW7zXNYMr
+	Ia9xuwrbqJHbnmkz4H6TEhYvmfM90qCu9v9i4nQJl540VtEcyCc8ftA0b+K5xsURrer0
+	rL2A==
+Message-ID: <537B7D5F.2080802@gmail.com>
+Date: Tue, 20 May 2014 12:05:51 -0400
+From: Vlad Yasevich <vyasevich@gmail.com>
 MIME-Version: 1.0
 References: <537621AC.1060409@davidnewall.com>
 	<5379FFFD.1050705@davidnewall.com>
 	<20140519140119.GA24523@breakpoint.cc>
 	<537A12EA.4060604@davidnewall.com>
-	<20140519170915.GB24523@breakpoint.cc>
-In-Reply-To: <20140519170915.GB24523@breakpoint.cc>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	<14456.1400561749@turing-police.cc.vt.edu>
+In-Reply-To: <14456.1400561749@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
  (bridge : Sanitize skb before it enters the IP stack)
@@ -21,56 +31,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>, David Newall <davidn@davidnewall.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+To: Valdis.Kletnieks@vt.edu, David Newall <davidn@davidnewall.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Florian Westphal schreef op 19/05/2014 19:09:
-> David Newall <davidn@davidnewall.com> wrote:
->
-> [ remove lkml and cc nf-devel ]
->
->> I tried to persevere with the commit: I recalculated checksum, which
->> left routes and times improperly updated in options.  Then I tried
->> calling ip_forward_options, which looks like it would correctly
->> update RR and TS (not to mention checksum)m but that bombed because
->> skb_rtable returned NULL.
->
-> Yes.  bridge<->netfilter wiring is pure duct tape.
-> The glue code will set up a fake rtable for the skb after the
-> prerouting hook. [ see br_nf_pre_routing_finish() ].
->
->> I see three ways to progress:
->>
->> 1. Possibly call ip_forward_option, but that requires somebody who
->> understands this code to help;
->> 2. Just recalculate the checksum, leaving crap in the options; or
->> 3. Revert the commit.
->
-> I think none of these are an option.
->
-> I fail to understand why a bridge should honor/modifiy IP options.
->
-> For the 'local delivery' case the ip stack will take care of
-> option parsing, for forwarding it should be sufficient to do
-> sanity tests (for netfilters sake).
->
->>From a quick glance, it should be sufficient to edit
-> br_parse_ip_options() and remove everything after
->
-> memset(IPCB(skb), 0, sizeof(struct inet_skb_parm));
->
-> A 2nd step would be to move a copy of ip_options_compile()
-> into br_netfilter.c and trim it down to only validate the
-> ipv4 header without modifying it.
+On 05/20/2014 12:55 AM, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 19 May 2014 23:49:22 +0930, David Newall said:
+> 
+>> How does a packet get fragmented in this case?  Does it only happen when
+>> bridging to a device with smaller MTU?  That scenario sounds quite
+>> un-bridge-like.  It also sounds like something that can be handled by
+>> real routing.
+> 
+> Which doesn't change the fact that you *will* get clowns who take a box that
+> has a 10G card on a jumbogram-enabled subnet that's running with an MTU of
+> 9000, and a 1G at MTU 1500 on the other, and try to bridge rather than route.
+> (Did you know that you can actually mount an NFS filesystem across that? And
+> that ls and cat and friends will work *just fine*? Until you hit a file that's
+> more than 1.5 in size, that is. And when you do a traceroute to the wedged
+> client, it tells you it's on the 10G network, so you have no idea why you're
+> seeing an MTU issue.  Don't ask how I know this - let's just say that
+> supporting HPC users is never boring. :)
+> 
+> So yes, we *do* need to do something sensible there - either frag the packet
+> on the way out, or something.  It *would* be nice if we could drop the
+> packet and send an ICMP Frag Needed back - except it's unclear what IP
+> you use as the source address for the ICMP....
+> 
 
-Perhaps it's possible to call ip_options_compile with a skb == NULL, 
-like ip_options.c::ip_options_get_finish does. That way we don't need to 
-duplicate code.
-An alternative would be to make sure that the data pointed to by IPCB 
-and BR_INPUT_SKB_CB don't overlap. If this were the case, we could 
-indeed just revert the commit that was referred to.
+If there is no netfilter, then the bridge will just drop the packet
+(see br_dev_queue_push_xmit).  It should probably also do that with
+netfilter.
 
+On the question of ICMP, I've also debated about sending ICMP Frag
+Needed, but that's really beyond the scope of the bridge device.
 
-cheers,
-Bart
+Recording a stat might be sufficient to help troubleshoot these types
+of issues.
 
+-vlad
