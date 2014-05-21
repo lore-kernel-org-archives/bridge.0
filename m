@@ -1,15 +1,14 @@
 Return-Path: <davidn@davidnewall.com>
-Message-ID: <537C5A6C.3030809@davidnewall.com>
-Date: Wed, 21 May 2014 17:19:00 +0930
+Message-ID: <537C5F71.6000204@davidnewall.com>
+Date: Wed, 21 May 2014 17:40:25 +0930
 From: David Newall <davidn@davidnewall.com>
 MIME-Version: 1.0
 References: <537621AC.1060409@davidnewall.com>
 	<5379FFFD.1050705@davidnewall.com>
 	<20140519140119.GA24523@breakpoint.cc>
 	<537A12EA.4060604@davidnewall.com>
-	<20140519170915.GB24523@breakpoint.cc>
-	<537A6E5C.6090602@pandora.be>
-In-Reply-To: <537A6E5C.6090602@pandora.be>
+	<14456.1400561749@turing-police.cc.vt.edu>
+In-Reply-To: <14456.1400561749@turing-police.cc.vt.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
@@ -22,43 +21,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bart De Schuymer <bdschuym@pandora.be>, Florian Westphal <fw@strlen.de>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+To: Valdis.Kletnieks@vt.edu
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Hi Bart,
+On 20/05/14 14:25, Valdis.Kletnieks@vt.edu wrote:
+> So yes, we*do*  need to do something sensible there - either frag the packet
+> on the way out, or something.
 
-Thanks for thinking about this.
+I think the problem is that a bridge cannot be used across incompatible 
+media.  That's the job of a router.
 
-On 20/05/14 06:19, Bart De Schuymer wrote:
-> Perhaps it's possible to call ip_options_compile with a skb == NULL, 
-> like ip_options.c::ip_options_get_finish does. That way we don't need 
-> to duplicate code.
+A bridge should act like a bridge, not a router.  Fragmenting the packet 
+is wrong; that's IP's job.  Dropping the packet is also arguably wrong; 
+that's the real device-driver's job.  What seems right to me is to act 
+like a bridge and forward packets by looking inside of them *no more 
+than is necessary*.  Looking beyond MAC address is perhaps too much.
 
-I think not.  My reading of the discussion behind the commit is that skb 
-cb area could contain something that was confused for IP options.  To 
-solve that, and to allow for proper response when the packet's DF flag 
-was set, the cb area was cleared and ip_options_compile() was called.  
-Calling that function does only part of the job, leaving slots for 
-addresses (and possibly timestamps) to be filled in by a later function; 
-possibly ip_forward_options().  I did try calling that; it failed; 
-skb_rtable() returned NULL.
+We can finish the job of processing IP options, or at least in this 
+scenario, but that seems wrong-headed and invites more work as more 
+problems are discovered; or we could remove the half-hearted attempt it 
+currently does and leave the bridge as a simple bridge.
 
-I have also read enough comments deriding the "incestuous" relationship 
-between bridge and IP to convince me that the relationship should be 
-severed.  A bridge is such a simple concept which, when it starts 
-looking into the payload, ceases to be a bridge.
-
-I have experience in this code measured in hours; not a lot.  I welcome 
-correction if I misunderstand things.
-
-> An alternative would be to make sure that the data pointed to by IPCB 
-> and BR_INPUT_SKB_CB don't overlap. If this were the case, we could 
-> indeed just revert the commit that was referred to.
-
-They are identical spaces, but you imply a good point: the cb area is 
-possibly being used, simultaneously, for two, incompatible purposes.  
-Yet another argument for divorcing bridge of ip logic.
-
-Regards,
-
-David
+This problem wouldn't occur if all devices in a bridge were required to 
+be compatible media; particularly identical MTU.
