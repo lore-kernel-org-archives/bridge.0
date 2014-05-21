@@ -1,19 +1,19 @@
-Return-Path: <Valdis.Kletnieks@vt.edu>
-In-Reply-To: Your message of "Mon, 19 May 2014 23:49:22 +0930."
-	<537A12EA.4060604@davidnewall.com>
-From: Valdis.Kletnieks@vt.edu
+Return-Path: <davidn@davidnewall.com>
+Message-ID: <537C5A6C.3030809@davidnewall.com>
+Date: Wed, 21 May 2014 17:19:00 +0930
+From: David Newall <davidn@davidnewall.com>
+MIME-Version: 1.0
 References: <537621AC.1060409@davidnewall.com>
 	<5379FFFD.1050705@davidnewall.com>
 	<20140519140119.GA24523@breakpoint.cc>
 	<537A12EA.4060604@davidnewall.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1400561749_1944P";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	<20140519170915.GB24523@breakpoint.cc>
+	<537A6E5C.6090602@pandora.be>
+In-Reply-To: <537A6E5C.6090602@pandora.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 20 May 2014 00:55:49 -0400
-Message-ID: <14456.1400561749@turing-police.cc.vt.edu>
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
-	(bridge : Sanitize skb before it enters the IP stack)
+ (bridge : Sanitize skb before it enters the IP stack)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,55 +22,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Newall <davidn@davidnewall.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Bart De Schuymer <bdschuym@pandora.be>, Florian Westphal <fw@strlen.de>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
---==_Exmh_1400561749_1944P
-Content-Type: text/plain; charset=us-ascii
+Hi Bart,
 
-On Mon, 19 May 2014 23:49:22 +0930, David Newall said:
+Thanks for thinking about this.
 
-> How does a packet get fragmented in this case?  Does it only happen when
-> bridging to a device with smaller MTU?  That scenario sounds quite
-> un-bridge-like.  It also sounds like something that can be handled by
-> real routing.
+On 20/05/14 06:19, Bart De Schuymer wrote:
+> Perhaps it's possible to call ip_options_compile with a skb == NULL, 
+> like ip_options.c::ip_options_get_finish does. That way we don't need 
+> to duplicate code.
 
-Which doesn't change the fact that you *will* get clowns who take a box that
-has a 10G card on a jumbogram-enabled subnet that's running with an MTU of
-9000, and a 1G at MTU 1500 on the other, and try to bridge rather than route.
-(Did you know that you can actually mount an NFS filesystem across that? And
-that ls and cat and friends will work *just fine*? Until you hit a file that's
-more than 1.5 in size, that is. And when you do a traceroute to the wedged
-client, it tells you it's on the 10G network, so you have no idea why you're
-seeing an MTU issue.  Don't ask how I know this - let's just say that
-supporting HPC users is never boring. :)
+I think not.  My reading of the discussion behind the commit is that skb 
+cb area could contain something that was confused for IP options.  To 
+solve that, and to allow for proper response when the packet's DF flag 
+was set, the cb area was cleared and ip_options_compile() was called.  
+Calling that function does only part of the job, leaving slots for 
+addresses (and possibly timestamps) to be filled in by a later function; 
+possibly ip_forward_options().  I did try calling that; it failed; 
+skb_rtable() returned NULL.
 
-So yes, we *do* need to do something sensible there - either frag the packet
-on the way out, or something.  It *would* be nice if we could drop the
-packet and send an ICMP Frag Needed back - except it's unclear what IP
-you use as the source address for the ICMP....
+I have also read enough comments deriding the "incestuous" relationship 
+between bridge and IP to convince me that the relationship should be 
+severed.  A bridge is such a simple concept which, when it starts 
+looking into the payload, ceases to be a bridge.
 
+I have experience in this code measured in hours; not a lot.  I welcome 
+correction if I misunderstand things.
 
---==_Exmh_1400561749_1944P
-Content-Type: application/pgp-signature
+> An alternative would be to make sure that the data pointed to by IPCB 
+> and BR_INPUT_SKB_CB don't overlap. If this were the case, we could 
+> indeed just revert the commit that was referred to.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-Comment: Exmh version 2.5 07/13/2001
+They are identical spaces, but you imply a good point: the cb area is 
+possibly being used, simultaneously, for two, incompatible purposes.  
+Yet another argument for divorcing bridge of ip logic.
 
-iQIVAwUBU3rgVQdmEQWDXROgAQKQfw/9GcqjwTRblsTMBAzRms+9859yNW++iOKG
-N4cYN4Y1eip5ygc7ijvkiUOtTBq4UwwG+9rNkj0UwD1ZWCWiA9glN/n5bGvPY8qX
-brWW9QJAitZwN3yVJDc7+S6KyP62j+0q0f0xlFlfDNvEwNJ17d2v9ZG8PpzTJpfk
-bqxIIuTJzLY5UUjXM5RXGkDiw62eqb4e7aGL+nKOH52C/r8byEjY0yl2AmiqCAQD
-aFM8kLAITz/f2UB/KaTtu3i9b1Kv0Um/sRTHxULqN1jYHW1MqnenuAYw+ushoBTZ
-jRjpN2KdUDW7xGYz5Lx8bVnMxU8kJs5kmMVjnjbRsYmDA5v1jcoac+mGDLiQ8O6K
-6VuJIrZ8e5pnJWFa2kcg1Syi2ca+Mi+pFRJGboMZQYw9KTQzx5lfQtgFdsyme40N
-0A+MUc6eVeSCXITjmwhCmYanxLeEpOw4xlwYANoBWRXlUGCj4knB6zW5s6JwLrsu
-9eGhag+t3mCYbM1cRN/Jru2Y7IB7bApnnKZsUdWkg0RoJJLX2WHF/26/u2Edi9He
-FawVStF76ZWtWNtZElrdFy1FPvg+jBjVPuzZs+tjyH5LW11Qlmt757ISSn/vnbCX
-sL4LNv8SXioBZenMMH4+sYh9Wh/LvyIn7egggzdvAzzYDU7Tm+niWnFJm2HLGETi
-svyoYnJozT4=
-=KX4i
------END PGP SIGNATURE-----
+Regards,
 
---==_Exmh_1400561749_1944P--
+David
