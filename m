@@ -1,12 +1,17 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 21 May 2014 16:18:41 -0400 (EDT)
-Message-Id: <20140521.161841.1806439174351824310.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <537CF5A2.3080401@pandora.be>
-References: <537A6E5C.6090602@pandora.be> <537C5A6C.3030809@davidnewall.com>
-	<537CF5A2.3080401@pandora.be>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <bdschuym@pandora.be>
+Message-ID: <537E4884.7060205@pandora.be>
+Date: Thu, 22 May 2014 20:57:08 +0200
+From: Bart De Schuymer <bdschuym@pandora.be>
+MIME-Version: 1.0
+References: <537621AC.1060409@davidnewall.com>
+	<5379FFFD.1050705@davidnewall.com>
+	<20140519140119.GA24523@breakpoint.cc>
+	<537A12EA.4060604@davidnewall.com>
+	<20140519170915.GB24523@breakpoint.cc>
+	<537A6E5C.6090602@pandora.be> <537C5A6C.3030809@davidnewall.com>
+	<537CF5A2.3080401@pandora.be> <537D73ED.4010400@davidnewall.com>
+In-Reply-To: <537D73ED.4010400@davidnewall.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
  (bridge : Sanitize skb before it enters the IP stack)
@@ -18,58 +23,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bdschuym@pandora.be
-Cc: netdev@vger.kernel.org, davidn@davidnewall.com, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, netfilter-devel@vger.kernel.org
+To: David Newall <davidn@davidnewall.com>, Florian Westphal <fw@strlen.de>, "David S. Miller" <davem@davemloft.net>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
-From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Wed, 21 May 2014 20:51:14 +0200
+David Newall schreef op 22/05/2014 5:50:
+> On 22/05/14 04:21, Bart De Schuymer wrote:
+>> As for your other remark: as I've said before, if you don't like
+>> bridge-netfilter then don't compile it into your kernel.
+>
+> That's not very helpful.  I could say, with just as much merit, that it
+> should be marked deprecated (so that it's not compiled into distribution
+> kernels) and you can compile it into yours.
+>
+> What I dislike is that bridge-netfilter is faulty.
 
-> David Newall schreef op 21/05/2014 9:49:
->>> An alternative would be to make sure that the data pointed to by IPCB
->>> and BR_INPUT_SKB_CB don't overlap. If this were the case, we could
->>> indeed just revert the commit that was referred to.
->>
->> They are identical spaces, but you imply a good point: the cb area is
->> possibly being used, simultaneously, for two, incompatible
->> purposes. Yet
->> another argument for divorcing bridge of ip logic.
-> 
-> There's no reason why they should overlap in the cb: it's 48 bytes
-> big, so big enough to hold both struct br_input_skb_cb and struct
-> inet_skb_parm. The original problem was introduced when
-> BR_INPUT_SKB_CB was introduced (around Feb 27, 2010), so fixing
-> BR_INPUT_SKB_CB seems most appropriate to me.
+I can see this may be frustrating to many. Now and then I actually got 
+some positive feedback :-) Anyway, since I didn't have much sleep last 
+night I'll be brief.
+I'm fine with deprecating ebtables/bridge-nf. The code is over a decade 
+old and development hasn't really picked up speed after I diverted my 
+spare time to other things.
+ From now on I'm no longer wasting my spare time on involvement in 
+bridge-nf/ebtables. Anyone that wants to step up to take over the git 
+repository (also contains arptables userspace app) can please contact me 
+by private mail.
 
-So you are suggesting the patch below will fix everything?
+Best regards,
+Bart
 
-> As for your other remark: as I've said before, if you don't like
-> bridge-netfilter then don't compile it into your kernel.
-
-That's never a good argument, please stop making it.
-
-%99.999999999 of users get their kernels from distributions and
-they are all going to enable basically every feature available.
-
-We never should have added bridging netfilter to the tree in the
-first place, I wish I had better judgment back then.
-
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 06811d7..2300def 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -18,6 +18,7 @@
- #include <linux/netpoll.h>
- #include <linux/u64_stats_sync.h>
- #include <net/route.h>
-+#include <net/ip.h>
- #include <linux/if_vlan.h>
- 
- #define BR_HASH_BITS 8
-@@ -297,6 +298,7 @@ struct net_bridge
- };
- 
- struct br_input_skb_cb {
-+	struct inet_skb_parm ip;
- 	struct net_device *brdev;
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	int igmp;
