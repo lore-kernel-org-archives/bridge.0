@@ -1,14 +1,16 @@
 Return-Path: <davidn@davidnewall.com>
-Message-ID: <537C5F71.6000204@davidnewall.com>
-Date: Wed, 21 May 2014 17:40:25 +0930
+Message-ID: <537D73ED.4010400@davidnewall.com>
+Date: Thu, 22 May 2014 13:20:05 +0930
 From: David Newall <davidn@davidnewall.com>
 MIME-Version: 1.0
 References: <537621AC.1060409@davidnewall.com>
 	<5379FFFD.1050705@davidnewall.com>
 	<20140519140119.GA24523@breakpoint.cc>
 	<537A12EA.4060604@davidnewall.com>
-	<14456.1400561749@turing-police.cc.vt.edu>
-In-Reply-To: <14456.1400561749@turing-police.cc.vt.edu>
+	<20140519170915.GB24523@breakpoint.cc>
+	<537A6E5C.6090602@pandora.be> <537C5A6C.3030809@davidnewall.com>
+	<537CF5A2.3080401@pandora.be>
+In-Reply-To: <537CF5A2.3080401@pandora.be>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
@@ -21,26 +23,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Valdis.Kletnieks@vt.edu
-Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Bart De Schuymer <bdschuym@pandora.be>, Florian Westphal <fw@strlen.de>, "David S. Miller" <davem@davemloft.net>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
-On 20/05/14 14:25, Valdis.Kletnieks@vt.edu wrote:
-> So yes, we*do*  need to do something sensible there - either frag the packet
-> on the way out, or something.
+On 22/05/14 04:21, Bart De Schuymer wrote:
+> There's no reason why they should overlap in the cb: it's 48 bytes 
+> big, so big enough to hold both struct br_input_skb_cb and struct 
+> inet_skb_parm.
 
-I think the problem is that a bridge cannot be used across incompatible 
-media.  That's the job of a router.
+No reason, aside from the math, I think.  Those 48 bytes appear to be 
+used for 16 bytes of ip_options plus up to 40 bytes of options data, so 
+we're using pretend-space; of which we'd need more to squeeze 
+br_input_skb_cb in at the same time.
 
-A bridge should act like a bridge, not a router.  Fragmenting the packet 
-is wrong; that's IP's job.  Dropping the packet is also arguably wrong; 
-that's the real device-driver's job.  What seems right to me is to act 
-like a bridge and forward packets by looking inside of them *no more 
-than is necessary*.  Looking beyond MAC address is perhaps too much.
+I hate opening a second can of worms, but, if I read this right, IPCB is 
+quite, quite broken.
 
-We can finish the job of processing IP options, or at least in this 
-scenario, but that seems wrong-headed and invites more work as more 
-problems are discovered; or we could remove the half-hearted attempt it 
-currently does and leave the bridge as a simple bridge.
 
-This problem wouldn't occur if all devices in a bridge were required to 
-be compatible media; particularly identical MTU.
+> As for your other remark: as I've said before, if you don't like 
+> bridge-netfilter then don't compile it into your kernel.
+
+That's not very helpful.  I could say, with just as much merit, that it 
+should be marked deprecated (so that it's not compiled into distribution 
+kernels) and you can compile it into yours.
+
+What I dislike is that bridge-netfilter is faulty.
