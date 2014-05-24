@@ -1,16 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Sat, 24 May 2014 14:00:05 -0400 (EDT)
-Message-Id: <20140524.140005.212813997352863070.davem@davemloft.net>
+Date: Sat, 24 May 2014 14:24:25 -0400 (EDT)
+Message-Id: <20140524.142425.173040092814555368.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <537E4889.5000306@pandora.be>
-References: <537CF5A2.3080401@pandora.be>
-	<20140521.161841.1806439174351824310.davem@davemloft.net>
-	<537E4889.5000306@pandora.be>
+In-Reply-To: <CA+r1Zhjh9Eyyf6uZWfW0beWgOonw77Ewu5w2nRG37698APXREg@mail.gmail.com>
+References: <CA+r1Zhjh9Eyyf6uZWfW0beWgOonw77Ewu5w2nRG37698APXREg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
- (bridge : Sanitize skb before it enters the IP stack)
+Subject: Re: [Bridge] randconfig build error with next-20140523,
+ in net/bridge/br_netfilter.c
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,15 +17,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bdschuym@pandora.be
-Cc: netdev@vger.kernel.org, davidn@davidnewall.com, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, netfilter-devel@vger.kernel.org
+To: jim.epost@gmail.com
+Cc: sfr@canb.auug.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org, linux-next@vger.kernel.org, pablo@netfilter.org
 
-From: Bart De Schuymer <bdschuym@pandora.be>
-Date: Thu, 22 May 2014 20:57:13 +0200
+From: Jim Davis <jim.epost@gmail.com>
+Date: Fri, 23 May 2014 13:06:48 -0700
 
-> Please apply following patch:
+> Building with the attached random configuration file,
+> 
+> warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has
+> unmet direct dependencies (NET && INET && NETFILTER)
+> warning: (NF_TABLES_BRIDGE && BRIDGE_NF_EBTABLES) selects
+> BRIDGE_NETFILTER which has unmet direct dependencies (NET && BRIDGE &&
+> NETFILTER && INET && NETFILTER_ADVANCED)
+> 
+> net/built-in.o: In function `br_parse_ip_options':
+> br_netfilter.c:(.text+0x4a5ba): undefined reference to `ip_options_compile'
+> br_netfilter.c:(.text+0x4a5ed): undefined reference to `ip_options_rcv_srr'
+> net/built-in.o: In function `br_nf_pre_routing_finish':
+> br_netfilter.c:(.text+0x4a8a4): undefined reference to `ip_route_input_noref'
+> br_netfilter.c:(.text+0x4a987): undefined reference to `ip_route_output_flow'
+> make: *** [vmlinux] Error 1
 
-This patch was corrupted and wouldn't apply cleanly.
+This problem was introduced by:
 
-But I applied it by hand for you, because clearly (as has been the
-case for some time) you don't care.
+commit f5efc696cc711021cc73e7543cc3038e58459707
+Author: Tomasz Bursztyka <tomasz.bursztyka@linux.intel.com>
+Date:   Mon Apr 14 15:41:28 2014 +0300
+
+    netfilter: nf_tables: Add meta expression key for bridge interface name
+
+You can't use "select BRIDGE_NETFILTER" for NF_TABLES_BRIDGE, because
+it is BRIDGE_NETFILTER which provides the proper dependencies, and
+in particular the crucial "INET" dependency.
+
+When you use a hammer like "select" it bypasses the dependencies which
+are usually enforced by BRIDGE_NETFILTER and causes the problems we
+are seeing here.
+
+Pablo please fix this, thank you.
