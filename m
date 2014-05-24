@@ -1,17 +1,15 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <537F0951.5010904@lab.ntt.co.jp>
-Date: Fri, 23 May 2014 17:39:45 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-MIME-Version: 1.0
-References: <1399967708-7283-1-git-send-email-jmaxwell@redhat.com>
-	<5372BA1E.8000402@lab.ntt.co.jp>
-	<2052318198.6465872.1400101664337.JavaMail.zimbra@redhat.com>
-	<1679971005.11740655.1400821172875.JavaMail.zimbra@redhat.com>
-In-Reply-To: <1679971005.11740655.1400821172875.JavaMail.zimbra@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: notify user space of fdb port
-	change
+Return-Path: <davem@davemloft.net>
+Date: Fri, 23 May 2014 23:36:37 -0400 (EDT)
+Message-Id: <20140523.233637.1826798421419100755.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1400662742-31999-3-git-send-email-linus.luessing@web.de>
+References: <1400662742-31999-1-git-send-email-linus.luessing@web.de>
+	<1400662742-31999-3-git-send-email-linus.luessing@web.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH net-next 2/4] bridge: adhere to querier
+ election mechanism specified by RFCs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,58 +18,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jon Maxwell <jmaxwell@redhat.com>
-Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org, Jon Maxwell <jmaxwell37@gmail.com>, davem@davemloft.net
+To: linus.luessing@web.de
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
 
-(2014/05/23 13:59), Jon Maxwell wrote:
-...
-> Makita-san,
-> 
-> I recoded this using your idea and ran it through a reproducer.
-> It work fine. After some more consideration I agree that 
-> setting fdb->dst = source is only required when source != fdb->dst.
-> 
-> Thanks for your suggestions. This is the revised patch. It should 
-> retain the original behaviour except for the notify after the fdb update.  
-> 
-> Please let me know if you have any further input?
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Wed, 21 May 2014 10:59:00 +0200
 
-I have no more comments except for style problems (bracket position,
-indentation, type mismatch).
-thank you for rewriting :)
+> +	if (saddr <=3D br->ip4_querier.addr.u.ip4)
+> +		goto update;
 
-Thanks,
-Toshiaki Makita
+It is clear to me that you should be making these comparisons in cpu
+endianness.
 
-> 
-> $ diff -Naur br_fdb.c br_fdb.c.patch
-> --- br_fdb.c        2014-05-17 12:43:23.346319609 +1000
-> +++ br_fdb.c.patch        2014-05-17 16:54:46.280235728 +1000
-> @@ -487,6 +487,7 @@
->  {
->          struct hlist_head *head = &br->hash[br_mac_hash(addr, vid)];
->          struct net_bridge_fdb_entry *fdb;
-> +        bool fdb_modified = 0;
->  
->          /* some users want to always flood. */
->          if (hold_time(br) == 0)
-> @@ -507,10 +508,16 @@
->                                          source->dev->name);
->                  } else {
->                          /* fastpath: update of existing entry */
-> -                        fdb->dst = source;
-> +                        if (unlikely(source != fdb->dst))
-> +                                {
-> +                                fdb->dst = source;
-> +                                fdb_modified = 1;
-> +                                }
->                          fdb->updated = jiffies;
->                          if (unlikely(added_by_user))
->                                  fdb->added_by_user = 1;
-> +                        if (unlikely(fdb_modified))
-> +                                fdb_notify(br, fdb, RTM_NEWNEIGH);
->                  }
->          } else {
->                  spin_lock(&br->hash_lock);
-> 
-> 
+Otherwise the code will handle the same situations differently
+on big-endian vs. little-endian machines.
+
