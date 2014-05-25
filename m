@@ -1,11 +1,11 @@
 Return-Path: <davidn@davidnewall.com>
-Message-ID: <53803488.6000400@davidnewall.com>
-Date: Sat, 24 May 2014 15:26:24 +0930
+Message-ID: <53815623.8020506@davidnewall.com>
+Date: Sun, 25 May 2014 12:02:03 +0930
 From: David Newall <davidn@davidnewall.com>
 MIME-Version: 1.0
-References: <537A6E5C.6090602@pandora.be>	<537C5A6C.3030809@davidnewall.com>	<537CF5A2.3080401@pandora.be>
-	<20140521.161841.1806439174351824310.davem@davemloft.net>
-In-Reply-To: <20140521.161841.1806439174351824310.davem@davemloft.net>
+References: <537CF5A2.3080401@pandora.be>	<20140521.161841.1806439174351824310.davem@davemloft.net>	<53803488.6000400@davidnewall.com>
+	<20140524.134356.992924324126016022.davem@davemloft.net>
+In-Reply-To: <20140524.134356.992924324126016022.davem@davemloft.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
@@ -18,31 +18,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>, bdschuym@pandora.be
-Cc: netdev@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, Bandan Das <bsd@redhat.com>, netfilter-devel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: bdschuym@pandora.be, netdev@vger.kernel.org, vyasevich@gmail.com, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, bsd@redhat.com, netfilter-devel@vger.kernel.org
 
-On 22/05/14 05:48, David Miller wrote:
-> From: Bart De Schuymer<bdschuym@pandora.be>
-> Date: Wed, 21 May 2014 20:51:14 +0200
-> > There's no reason why they should overlap in the cb: it's 48 bytes
-> > big, so big enough to hold both struct br_input_skb_cb and struct
-> > inet_skb_parm. The original problem was introduced when
-> > BR_INPUT_SKB_CB was introduced (around Feb 27, 2010), so fixing
-> > BR_INPUT_SKB_CB seems most appropriate to me.
->
-> So you are suggesting the patch below will fix everything?
+On 25/05/14 03:13, David Miller wrote:
+> This patch was substantially corrupted by your email client.
 
+We should be sending these things as mime attachments.  Having to put 
+patches inline is brittle, absurd and a waste of everyone's time.  Is 
+there actually anybody here who doesn't have a mime-compatible MUA?
 
-First, of course I was wrong about ip overflowing the cb area.  Even I 
-thought that was unlikely.  I've reread the code, much more carefully, 
-and spotted where I went wrong.
-
-I've added the change that David Miller provided, to those which I am 
-proposing, and minimally tested them by pinging through a bridge with RR 
-set.  No surprise: it works.
-
-The patch now reverts the commit and mitigates the original problem by 
-ensuring bridge's use of cb does not overlap ip's.
+Trying again...
 
 --- linux-source-3.13.0/net/bridge/br_netfilter.c.orig	2014-05-17 00:12:23.418906498 +0930
 +++ linux-source-3.13.0/net/bridge/br_netfilter.c	2014-05-17 01:04:43.540972961 +0930
