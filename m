@@ -1,14 +1,16 @@
 Return-Path: <davem@davemloft.net>
-Date: Sat, 24 May 2014 14:24:25 -0400 (EDT)
-Message-Id: <20140524.142425.173040092814555368.davem@davemloft.net>
+Date: Sat, 24 May 2014 23:02:02 -0400 (EDT)
+Message-Id: <20140524.230202.372276424258120234.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <CA+r1Zhjh9Eyyf6uZWfW0beWgOonw77Ewu5w2nRG37698APXREg@mail.gmail.com>
-References: <CA+r1Zhjh9Eyyf6uZWfW0beWgOonw77Ewu5w2nRG37698APXREg@mail.gmail.com>
+In-Reply-To: <53815623.8020506@davidnewall.com>
+References: <53803488.6000400@davidnewall.com>
+	<20140524.134356.992924324126016022.davem@davemloft.net>
+	<53815623.8020506@davidnewall.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] randconfig build error with next-20140523,
- in net/bridge/br_netfilter.c
+Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
+ (bridge : Sanitize skb before it enters the IP stack)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,42 +19,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jim.epost@gmail.com
-Cc: sfr@canb.auug.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org, linux-next@vger.kernel.org, pablo@netfilter.org
+To: davidn@davidnewall.com
+Cc: bdschuym@pandora.be, netdev@vger.kernel.org, vyasevich@gmail.com, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, bsd@redhat.com, netfilter-devel@vger.kernel.org
 
-From: Jim Davis <jim.epost@gmail.com>
-Date: Fri, 23 May 2014 13:06:48 -0700
+From: David Newall <davidn@davidnewall.com>
+Date: Sun, 25 May 2014 12:02:03 +0930
 
-> Building with the attached random configuration file,
+> On 25/05/14 03:13, David Miller wrote:
+>> This patch was substantially corrupted by your email client.
 > 
-> warning: (BRIDGE_NF_EBTABLES) selects NETFILTER_XTABLES which has
-> unmet direct dependencies (NET && INET && NETFILTER)
-> warning: (NF_TABLES_BRIDGE && BRIDGE_NF_EBTABLES) selects
-> BRIDGE_NETFILTER which has unmet direct dependencies (NET && BRIDGE &&
-> NETFILTER && INET && NETFILTER_ADVANCED)
-> 
-> net/built-in.o: In function `br_parse_ip_options':
-> br_netfilter.c:(.text+0x4a5ba): undefined reference to `ip_options_compile'
-> br_netfilter.c:(.text+0x4a5ed): undefined reference to `ip_options_rcv_srr'
-> net/built-in.o: In function `br_nf_pre_routing_finish':
-> br_netfilter.c:(.text+0x4a8a4): undefined reference to `ip_route_input_noref'
-> br_netfilter.c:(.text+0x4a987): undefined reference to `ip_route_output_flow'
-> make: *** [vmlinux] Error 1
+> We should be sending these things as mime attachments.  Having to put
+> patches inline is brittle, absurd and a waste of everyone's time.  Is
+> there actually anybody here who doesn't have a mime-compatible MUA?
 
-This problem was introduced by:
+It makes replying and commenting inline easy.
 
-commit f5efc696cc711021cc73e7543cc3038e58459707
-Author: Tomasz Bursztyka <tomasz.bursztyka@linux.intel.com>
-Date:   Mon Apr 14 15:41:28 2014 +0300
+It's not our problem that so many email clients make sending
+plain unmolested ASCII text difficult.  But at least we've gone
+out of our way to document how to do so in the kernel tree.
 
-    netfilter: nf_tables: Add meta expression key for bridge interface name
-
-You can't use "select BRIDGE_NETFILTER" for NF_TABLES_BRIDGE, because
-it is BRIDGE_NETFILTER which provides the proper dependencies, and
-in particular the crucial "INET" dependency.
-
-When you use a hammer like "select" it bypasses the dependencies which
-are usually enforced by BRIDGE_NETFILTER and causes the problems we
-are seeing here.
-
-Pablo please fix this, thank you.
