@@ -1,16 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Sat, 24 May 2014 23:02:02 -0400 (EDT)
-Message-Id: <20140524.230202.372276424258120234.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <53815623.8020506@davidnewall.com>
-References: <53803488.6000400@davidnewall.com>
-	<20140524.134356.992924324126016022.davem@davemloft.net>
-	<53815623.8020506@davidnewall.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
- (bridge : Sanitize skb before it enters the IP stack)
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Sun, 25 May 2014 07:03:21 +0200
+Message-Id: <1400994205-31165-1-git-send-email-linus.luessing@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCHv2 net-next 0/4] bridge: multicast snooping patches
+	/ exports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,22 +15,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davidn@davidnewall.com
-Cc: bdschuym@pandora.be, netdev@vger.kernel.org, vyasevich@gmail.com, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, bsd@redhat.com, netfilter-devel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-From: David Newall <davidn@davidnewall.com>
-Date: Sun, 25 May 2014 12:02:03 +0930
+Changes in v2:
 
-> On 25/05/14 03:13, David Miller wrote:
->> This patch was substantially corrupted by your email client.
-> 
-> We should be sending these things as mime attachments.  Having to put
-> patches inline is brittle, absurd and a waste of everyone's time.  Is
-> there actually anybody here who doesn't have a mime-compatible MUA?
+* fix a nasty typo in PATCH 1/4, br_multicast_update_query_timer():
+  "br->multicast_query_interval" vs. "br->multicast_querier_interval"
+  => this accidentally reduced the other querier present timer 
+     from 255 to 125 seconds
+* fix a typo in PATCH 2/4, br_ip{4,6}_multicast_query():
+  ntohs(ETH_P_{IP,IPV6}) vs. htons(ETH_P_{IP,IPV6})
+* add missing ntohl()s before address comparison in PATCH 2/4,
+  br_ip4_multicast_select_querier() (thanks David!)
 
-It makes replying and commenting inline easy.
+Cheers, Linus
 
-It's not our problem that so many email clients make sending
-plain unmolested ASCII text difficult.  But at least we've gone
-out of our way to document how to do so in the kernel tree.
 
