@@ -1,12 +1,17 @@
-Return-Path: <pneira@us.es>
-Date: Tue, 27 May 2014 10:33:59 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20140527083359.GA4342@localhost>
+Return-Path: <gy2kre@centrum.cz>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=centrum.cz; s=mail;
+	t=1401222744; bh=dXj9TQkQU+zIKIJr0esrd8xdV5MQ9vWY4luuae2Hb7Q=;
+	h=To:Subject:Date:From:From;
+	b=gcjUN9u3n9DKlZp4wFBVxjnBe5WjmFTZKoeUp8AjQS+YJLZ0iM+04L5tf1zqNArMG
+	5RVSqHpYzsyfnfYMXZPwLh2HSW5+2Ftb2XzvSorWnWFXj/NC2C8+APJ6KRp8zbtiwA
+	dix2ISn/QP8ZKUfVSt6pcCQ8JGFnrzKJYibDhB28=
+Date: Tue, 27 May 2014 22:32:23 +0200
+From: =?utf-8?q?Milos_Gajdos?= <gy2kre@centrum.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [HEADS UP] Migrating ebtables and arptables to
-	netfilter.org
+Message-Id: <20140527223223.EB230DF3@centrum.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] =?utf-8?q?Create_bridge_using_rtnetlink?=
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,33 +20,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netfilter-devel@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, netfilter@vger.kernel.org, Bart De Schuymer <bdschuym@pandora.be>
+To: bridge@lists.linux-foundation.org
 
-Hi!
+Guys,
+I've been thinking about this past few days and thought I'd ask here.
+Is it possible to create bridge device using rtnetlink interface ?
+I've tried to go through iproute package source but got a bit overwhelmed and confused.
+Could someone give me a hint how to go about it ?
+I had a look at bridge utils source but that one literally uses direct syscalls.
+What I'm after is rtnetlink thingy which would correspond to:
 
-We're migrating arptables and ebtables to git.netfilter.org. The new
-location for the repositories are:
+ip link add name mybridge type bridge
 
-1) arptables:
-
-        git://git.netfilter.org/arptables
-        http://git.netfilter.org/arptables/
-
-2) ebtables:
-
-        git://git.netfilter.org/ebtables
-        http://git.netfilter.org/ebtables/
-
-Originally, these two applications were located in the same repository
-which has been kept at:
-
-        http://git.netfilter.org/ebtables.old-history/
-
-just for the record.
-
-I have git-filter-branch the original repository to separate the
-ebtables and the arptables in two independent repositories.
-
-Let me know if you experience any problem in this migration,
-Thanks.
+Any advice/hints would be very appreciated!
+thanks
