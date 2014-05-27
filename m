@@ -1,19 +1,17 @@
-Return-Path: <David.Laight@ACULAB.COM>
-From: David Laight <David.Laight@ACULAB.COM>
-Date: Tue, 27 May 2014 08:55:12 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6D1724E207@AcuExch.aculab.com>
-References: <537CF5A2.3080401@pandora.be>
-	<20140521.161841.1806439174351824310.davem@davemloft.net>
-	<53803488.6000400@davidnewall.com>
-	<20140524.134356.992924324126016022.davem@davemloft.net>
-	<53815623.8020506@davidnewall.com>
-In-Reply-To: <53815623.8020506@davidnewall.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
- (bridge : Sanitize skb before it enters the IP stack)
+Return-Path: <jmaxwell37@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:to:cc:subject:date:message-id;
+	bh=Y0ZcmZtzDJYXIxa5wuP+zJgiw+MARnPcC3V3OMM2pVw=;
+	b=TpaAA3xbA2NxgOQ/vnRBhQNTOaJfmlhTJ44RLEu/Z6/MrfqUEzmbvqKKsZYgqfPTOa
+	vmgdtnvPt5CW8wARHXV8DsgkEoMBIaUilGl2VtDbvHMBgjfflnQLM9KxHaplFeYzuDTx
+	I3Zd6MP7uOqC09/QP+7BR7GbyxYJzMzUibF5LaW+q7373VhKoJj8LEUh/Wa3x2pfXcz5
+	XMOQfnKjJthCHHleRwWI0VvnKy0ErWVOZ0ju81KvJJy0/zshsOKOX+Oe8JX/b8fZ6CPs
+	5NSxci6EJnMjcsqHF2RrPTUaElfs310st/qllPYSI3CSikz3pHXpi0q/LiYMgHAk+vxN
+	vUPg==
+From: Jon Maxwell <jmaxwell37@gmail.com>
+Date: Wed, 28 May 2014 08:45:49 +1000
+Message-Id: <1401230749-19507-1-git-send-email-jmaxwell37@gmail.com>
+Subject: [Bridge] [PATCH net] bridge: notify user space after fdb update
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,30 +20,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'David Newall' <davidn@davidnewall.com>, David Miller <davem@davemloft.net>
-Cc: "bdschuym@pandora.be" <bdschuym@pandora.be>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "vyasevich@gmail.com" <vyasevich@gmail.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "fw@strlen.de" <fw@strlen.de>, "stephen@networkplumber.org" <stephen@networkplumber.org>, "bsd@redhat.com" <bsd@redhat.com>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>
+To: stephen@networkplumber.org
+Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmaxwell37@gmail.com, davem@davemloft.net
 
-From: David Newall
-> On 25/05/14 03:13, David Miller wrote:
-> > This patch was substantially corrupted by your email client.
->=20
-> We should be sending these things as mime attachments.  Having to put
-> patches inline is brittle, absurd and a waste of everyone's time.  Is
-> there actually anybody here who doesn't have a mime-compatible MUA?
+There has been a number incidents recently where customers running KVM have
+reported that VM hosts on different Hypervisors are unreachable. Based on
+pcap traces we found that the bridge was broadcasting the ARP request out
+onto the network. However some NICs have an inbuilt switch which on occasions
+were broadcasting the VMs ARP request back through the physical NIC on the
+Hypervisor. This resulted in the bridge changing ports and incorrectly learning
+that the VMs mac address was external. As a result the ARP reply was directed
+back onto the external network and VM never updated it's ARP cache. This patch
+will notify the bridge command, after a fdb has been updated to identify such
+port toggling.
 
-Yes - anyone using the email client from the world's largest desktop
-computer software company.
+Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
+---
+ net/bridge/br_fdb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-It doesn't have any method for displaying text attachments.
-It has a scheme for executing attachments, for which it will use
-an interpreter based on the filename extension.
-(Yes - this is why it is very good at propagating viruses.)
-
-FWIW it can send valid patches quite easily - just copy/paste from wordpad.
-(Possibly after hacking the registry to allow lines longer than 72 characte=
-rs.
-
-	David
-
-
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 9203d5a..f3ee2da 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -487,6 +487,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ {
+ 	struct hlist_head *head = &br->hash[br_mac_hash(addr, vid)];
+ 	struct net_bridge_fdb_entry *fdb;
++	bool fdb_modified = 0;
+ 
+ 	/* some users want to always flood. */
+ 	if (hold_time(br) == 0)
+@@ -507,10 +508,15 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 					source->dev->name);
+ 		} else {
+ 			/* fastpath: update of existing entry */
+-			fdb->dst = source;
++			if (unlikely(source != fdb->dst)) {
++					fdb->dst = source;
++					fdb_modified = 1;
++				}
+ 			fdb->updated = jiffies;
+ 			if (unlikely(added_by_user))
+ 				fdb->added_by_user = 1;
++			if (unlikely(fdb_modified))
++				fdb_notify(br, fdb, RTM_NEWNEIGH);
+ 		}
+ 	} else {
+ 		spin_lock(&br->hash_lock);
+-- 
+1.8.3.1
 
