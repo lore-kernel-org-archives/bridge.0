@@ -1,9 +1,12 @@
-Return-Path: <makita@lab.ntt.co.jp>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Mon, 26 May 2014 15:15:53 +0900
-Message-Id: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Subject: [Bridge] [PATCH net] bridge: Prevent insertion of FDB entry with
-	disallowed vlan
+Return-Path: <pneira@us.es>
+Date: Tue, 27 May 2014 10:33:59 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20140527083359.GA4342@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [HEADS UP] Migrating ebtables and arptables to
+	netfilter.org
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,105 +15,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netfilter-devel@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, netfilter@vger.kernel.org, Bart De Schuymer <bdschuym@pandora.be>
 
-br_handle_local_finish() is allowing us to insert an FDB entry with
-disallowed vlan. For example, when port 1 and 2 are communicating in
-vlan 10, and even if vlan 10 is disallowed on port 3, port 3 can
-interfere with their communication by spoofed src mac address with
-vlan id 10.
+Hi!
 
-Note: Even if it is judged that a frame should not be learned, it should
-not be dropped because it is destined for not forwarding layer but higher
-layer. See IEEE 802.1Q-2011 8.13.10.
+We're migrating arptables and ebtables to git.netfilter.org. The new
+location for the repositories are:
 
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- net/bridge/br_input.c   |  4 ++--
- net/bridge/br_private.h |  7 +++++++
- net/bridge/br_vlan.c    | 28 ++++++++++++++++++++++++++++
- 3 files changed, 37 insertions(+), 2 deletions(-)
+1) arptables:
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 7985dea..04d6348 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -147,8 +147,8 @@ static int br_handle_local_finish(struct sk_buff *skb)
- 	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
- 	u16 vid = 0;
- 
--	br_vlan_get_tag(skb, &vid);
--	if (p->flags & BR_LEARNING)
-+	/* check if vlan is allowed, to avoid spoofing */
-+	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
- 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
- 	return 0;	 /* process further */
- }
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 06811d7..59d3a85 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -581,6 +581,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
- 			struct sk_buff *skb, u16 *vid);
- bool br_allowed_egress(struct net_bridge *br, const struct net_port_vlans *v,
- 		       const struct sk_buff *skb);
-+bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid);
- struct sk_buff *br_handle_vlan(struct net_bridge *br,
- 			       const struct net_port_vlans *v,
- 			       struct sk_buff *skb);
-@@ -648,6 +649,12 @@ static inline bool br_allowed_egress(struct net_bridge *br,
- 	return true;
- }
- 
-+static inline bool br_should_learn(struct net_bridge_port *p,
-+				   struct sk_buff *skb, u16 *vid)
-+{
-+	return true;
-+}
-+
- static inline struct sk_buff *br_handle_vlan(struct net_bridge *br,
- 					     const struct net_port_vlans *v,
- 					     struct sk_buff *skb)
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 4a37161..5fee2fe 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -241,6 +241,34 @@ bool br_allowed_egress(struct net_bridge *br,
- 	return false;
- }
- 
-+/* Called under RCU */
-+bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
-+{
-+	struct net_bridge *br = p->br;
-+	struct net_port_vlans *v;
-+
-+	if (!br->vlan_enabled)
-+		return true;
-+
-+	v = rcu_dereference(p->vlan_info);
-+	if (!v)
-+		return false;
-+
-+	br_vlan_get_tag(skb, vid);
-+	if (!*vid) {
-+		*vid = br_get_pvid(v);
-+		if (*vid == VLAN_N_VID)
-+			return false;
-+
-+		return true;
-+	}
-+
-+	if (test_bit(*vid, v->vlan_bitmap))
-+		return true;
-+
-+	return false;
-+}
-+
- /* Must be protected by RTNL.
-  * Must be called with vid in range from 1 to 4094 inclusive.
-  */
--- 
-1.8.1.2
+        git://git.netfilter.org/arptables
+        http://git.netfilter.org/arptables/
 
+2) ebtables:
+
+        git://git.netfilter.org/ebtables
+        http://git.netfilter.org/ebtables/
+
+Originally, these two applications were located in the same repository
+which has been kept at:
+
+        http://git.netfilter.org/ebtables.old-history/
+
+just for the record.
+
+I have git-filter-branch the original repository to separate the
+ebtables and the arptables in two independent repositories.
+
+Let me know if you experience any problem in this migration,
+Thanks.
