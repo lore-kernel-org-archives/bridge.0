@@ -1,15 +1,13 @@
-Return-Path: <vyasevic@redhat.com>
-Message-ID: <5385EC5D.40106@redhat.com>
-Date: Wed, 28 May 2014 10:02:05 -0400
-From: Vlad Yasevich <vyasevic@redhat.com>
+Return-Path: <sergei.shtylyov@cogentembedded.com>
+Message-ID: <5385F089.9080608@cogentembedded.com>
+Date: Wed, 28 May 2014 18:19:53 +0400
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 MIME-Version: 1.0
-References: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-In-Reply-To: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <1401230749-19507-1-git-send-email-jmaxwell37@gmail.com>
+In-Reply-To: <1401230749-19507-1-git-send-email-jmaxwell37@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Prevent insertion of FDB entry
- with disallowed vlan
-Reply-To: vyasevic@redhat.com
+Subject: Re: [Bridge] [PATCH net] bridge: notify user space after fdb update
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,110 +16,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Jon Maxwell <jmaxwell37@gmail.com>, stephen@networkplumber.org
+Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net
 
-On 05/26/2014 02:15 AM, Toshiaki Makita wrote:
-> br_handle_local_finish() is allowing us to insert an FDB entry with
-> disallowed vlan. For example, when port 1 and 2 are communicating in
-> vlan 10, and even if vlan 10 is disallowed on port 3, port 3 can
-> interfere with their communication by spoofed src mac address with
-> vlan id 10.
-> 
-> Note: Even if it is judged that a frame should not be learned, it should
-> not be dropped because it is destined for not forwarding layer but higher
-> layer. See IEEE 802.1Q-2011 8.13.10.
-> 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Hello.
+
+On 05/28/2014 02:45 AM, Jon Maxwell wrote:
+
+> There has been a number incidents recently where customers running KVM have
+> reported that VM hosts on different Hypervisors are unreachable. Based on
+> pcap traces we found that the bridge was broadcasting the ARP request out
+> onto the network. However some NICs have an inbuilt switch which on occasions
+> were broadcasting the VMs ARP request back through the physical NIC on the
+> Hypervisor. This resulted in the bridge changing ports and incorrectly learning
+> that the VMs mac address was external. As a result the ARP reply was directed
+> back onto the external network and VM never updated it's ARP cache. This patch
+> will notify the bridge command, after a fdb has been updated to identify such
+> port toggling.
+
+> Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
 > ---
->  net/bridge/br_input.c   |  4 ++--
->  net/bridge/br_private.h |  7 +++++++
->  net/bridge/br_vlan.c    | 28 ++++++++++++++++++++++++++++
->  3 files changed, 37 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 7985dea..04d6348 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -147,8 +147,8 @@ static int br_handle_local_finish(struct sk_buff *skb)
->  	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
->  	u16 vid = 0;
->  
-> -	br_vlan_get_tag(skb, &vid);
-> -	if (p->flags & BR_LEARNING)
-> +	/* check if vlan is allowed, to avoid spoofing */
-> +	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
->  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
->  	return 0;	 /* process further */
->  }
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 06811d7..59d3a85 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -581,6 +581,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
->  			struct sk_buff *skb, u16 *vid);
->  bool br_allowed_egress(struct net_bridge *br, const struct net_port_vlans *v,
->  		       const struct sk_buff *skb);
-> +bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid);
->  struct sk_buff *br_handle_vlan(struct net_bridge *br,
->  			       const struct net_port_vlans *v,
->  			       struct sk_buff *skb);
-> @@ -648,6 +649,12 @@ static inline bool br_allowed_egress(struct net_bridge *br,
->  	return true;
->  }
->  
-> +static inline bool br_should_learn(struct net_bridge_port *p,
-> +				   struct sk_buff *skb, u16 *vid)
-> +{
-> +	return true;
-> +}
-> +
->  static inline struct sk_buff *br_handle_vlan(struct net_bridge *br,
->  					     const struct net_port_vlans *v,
->  					     struct sk_buff *skb)
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 4a37161..5fee2fe 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -241,6 +241,34 @@ bool br_allowed_egress(struct net_bridge *br,
->  	return false;
->  }
->  
-> +/* Called under RCU */
-> +bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
-> +{
-> +	struct net_bridge *br = p->br;
-> +	struct net_port_vlans *v;
-> +
-> +	if (!br->vlan_enabled)
-> +		return true;
-> +
-> +	v = rcu_dereference(p->vlan_info);
-> +	if (!v)
-> +		return false;
-> +
-> +	br_vlan_get_tag(skb, vid);
-> +	if (!*vid) {
-> +		*vid = br_get_pvid(v);
-> +		if (*vid == VLAN_N_VID)
-> +			return false;
-> +
-> +		return true;
-> +	}
-> +
-> +	if (test_bit(*vid, v->vlan_bitmap))
-> +		return true;
-> +
-> +	return false;
-> +}
-> +
->  /* Must be protected by RTNL.
->   * Must be called with vid in range from 1 to 4094 inclusive.
->   */
-> 
+>   net/bridge/br_fdb.c | 8 +++++++-
+>   1 file changed, 7 insertions(+), 1 deletion(-)
 
-This is very similar to br_allow_ingress(), so may be you can
-re-factor so that we only have 1 such function...
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index 9203d5a..f3ee2da 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -487,6 +487,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>   {
+>   	struct hlist_head *head = &br->hash[br_mac_hash(addr, vid)];
+>   	struct net_bridge_fdb_entry *fdb;
+> +	bool fdb_modified = 0;
 
--vlad
+    s/0/false/.
+
+>
+>   	/* some users want to always flood. */
+>   	if (hold_time(br) == 0)
+> @@ -507,10 +508,15 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>   					source->dev->name);
+>   		} else {
+>   			/* fastpath: update of existing entry */
+> -			fdb->dst = source;
+> +			if (unlikely(source != fdb->dst)) {
+> +					fdb->dst = source;
+> +					fdb_modified = 1;
+
+   s/1/true/.
+
+> +				}
+>   			fdb->updated = jiffies;
+>   			if (unlikely(added_by_user))
+>   				fdb->added_by_user = 1;
+> +			if (unlikely(fdb_modified))
+> +				fdb_notify(br, fdb, RTM_NEWNEIGH);
+>   		}
+>   	} else {
+>   		spin_lock(&br->hash_lock);
+
+WBR, Sergei
+
 
