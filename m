@@ -1,17 +1,15 @@
-Return-Path: <gy2kre@centrum.cz>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=centrum.cz; s=mail;
-	t=1401222744; bh=dXj9TQkQU+zIKIJr0esrd8xdV5MQ9vWY4luuae2Hb7Q=;
-	h=To:Subject:Date:From:From;
-	b=gcjUN9u3n9DKlZp4wFBVxjnBe5WjmFTZKoeUp8AjQS+YJLZ0iM+04L5tf1zqNArMG
-	5RVSqHpYzsyfnfYMXZPwLh2HSW5+2Ftb2XzvSorWnWFXj/NC2C8+APJ6KRp8zbtiwA
-	dix2ISn/QP8ZKUfVSt6pcCQ8JGFnrzKJYibDhB28=
-Date: Tue, 27 May 2014 22:32:23 +0200
-From: =?utf-8?q?Milos_Gajdos?= <gy2kre@centrum.cz>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <5385EC5D.40106@redhat.com>
+Date: Wed, 28 May 2014 10:02:05 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-Message-Id: <20140527223223.EB230DF3@centrum.cz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] =?utf-8?q?Create_bridge_using_rtnetlink?=
+References: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] bridge: Prevent insertion of FDB entry
+ with disallowed vlan
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,17 +18,110 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-Guys,
-I've been thinking about this past few days and thought I'd ask here.
-Is it possible to create bridge device using rtnetlink interface ?
-I've tried to go through iproute package source but got a bit overwhelmed and confused.
-Could someone give me a hint how to go about it ?
-I had a look at bridge utils source but that one literally uses direct syscalls.
-What I'm after is rtnetlink thingy which would correspond to:
+On 05/26/2014 02:15 AM, Toshiaki Makita wrote:
+> br_handle_local_finish() is allowing us to insert an FDB entry with
+> disallowed vlan. For example, when port 1 and 2 are communicating in
+> vlan 10, and even if vlan 10 is disallowed on port 3, port 3 can
+> interfere with their communication by spoofed src mac address with
+> vlan id 10.
+> 
+> Note: Even if it is judged that a frame should not be learned, it should
+> not be dropped because it is destined for not forwarding layer but higher
+> layer. See IEEE 802.1Q-2011 8.13.10.
+> 
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> ---
+>  net/bridge/br_input.c   |  4 ++--
+>  net/bridge/br_private.h |  7 +++++++
+>  net/bridge/br_vlan.c    | 28 ++++++++++++++++++++++++++++
+>  3 files changed, 37 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index 7985dea..04d6348 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -147,8 +147,8 @@ static int br_handle_local_finish(struct sk_buff *skb)
+>  	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
+>  	u16 vid = 0;
+>  
+> -	br_vlan_get_tag(skb, &vid);
+> -	if (p->flags & BR_LEARNING)
+> +	/* check if vlan is allowed, to avoid spoofing */
+> +	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
+>  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
+>  	return 0;	 /* process further */
+>  }
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index 06811d7..59d3a85 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -581,6 +581,7 @@ bool br_allowed_ingress(struct net_bridge *br, struct net_port_vlans *v,
+>  			struct sk_buff *skb, u16 *vid);
+>  bool br_allowed_egress(struct net_bridge *br, const struct net_port_vlans *v,
+>  		       const struct sk_buff *skb);
+> +bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid);
+>  struct sk_buff *br_handle_vlan(struct net_bridge *br,
+>  			       const struct net_port_vlans *v,
+>  			       struct sk_buff *skb);
+> @@ -648,6 +649,12 @@ static inline bool br_allowed_egress(struct net_bridge *br,
+>  	return true;
+>  }
+>  
+> +static inline bool br_should_learn(struct net_bridge_port *p,
+> +				   struct sk_buff *skb, u16 *vid)
+> +{
+> +	return true;
+> +}
+> +
+>  static inline struct sk_buff *br_handle_vlan(struct net_bridge *br,
+>  					     const struct net_port_vlans *v,
+>  					     struct sk_buff *skb)
+> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+> index 4a37161..5fee2fe 100644
+> --- a/net/bridge/br_vlan.c
+> +++ b/net/bridge/br_vlan.c
+> @@ -241,6 +241,34 @@ bool br_allowed_egress(struct net_bridge *br,
+>  	return false;
+>  }
+>  
+> +/* Called under RCU */
+> +bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
+> +{
+> +	struct net_bridge *br = p->br;
+> +	struct net_port_vlans *v;
+> +
+> +	if (!br->vlan_enabled)
+> +		return true;
+> +
+> +	v = rcu_dereference(p->vlan_info);
+> +	if (!v)
+> +		return false;
+> +
+> +	br_vlan_get_tag(skb, vid);
+> +	if (!*vid) {
+> +		*vid = br_get_pvid(v);
+> +		if (*vid == VLAN_N_VID)
+> +			return false;
+> +
+> +		return true;
+> +	}
+> +
+> +	if (test_bit(*vid, v->vlan_bitmap))
+> +		return true;
+> +
+> +	return false;
+> +}
+> +
+>  /* Must be protected by RTNL.
+>   * Must be called with vid in range from 1 to 4094 inclusive.
+>   */
+> 
 
-ip link add name mybridge type bridge
+This is very similar to br_allow_ingress(), so may be you can
+re-factor so that we only have 1 such function...
 
-Any advice/hints would be very appreciated!
-thanks
+-vlad
+
