@@ -1,13 +1,25 @@
-Return-Path: <sergei.shtylyov@cogentembedded.com>
-Message-ID: <5385F089.9080608@cogentembedded.com>
-Date: Wed, 28 May 2014 18:19:53 +0400
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-MIME-Version: 1.0
-References: <1401230749-19507-1-git-send-email-jmaxwell37@gmail.com>
-In-Reply-To: <1401230749-19507-1-git-send-email-jmaxwell37@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Return-Path: <toshiaki.makita1@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:mime-version:content-transfer-encoding;
+	bh=FVFpZ9pEWGwXOFuy4VZpY4Lq7NSZEtzkVGmJs1xQAxY=;
+	b=I+guHkAQlkg/qQNApLbkxZUt83FnCM+vhwV/yzydq99VXYqBis1cccBBdS/OwYo7/8
+	B4/JQtHkjQp902f9vV0gxh2HFCgSMBEC6M1S07yHnzSUb88Dq9cYkcdbGTkulG2rex3k
+	gbxmYvMCrXEplT7VYZqQl+EwRH8NA6mECMWQNzLC0HraxCesUZX+QGY2KKMafERl+7ll
+	6Mf8AVqn6vCDQTDgmkQqNx36XqZNWIn0MVTy5PlQ7Qz/GkEabdDRs5mWSPliX9jK1Cdu
+	hIbPtUoZbFcc5b9IPPmWc7OXzURHu0hoxs8LWUPWijlgvihw4p2aqejl4n+99lz3chb3
+	OX/A==
+Message-ID: <1401287570.1873.4.camel@localhost.localdomain>
+From: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Date: Wed, 28 May 2014 23:32:50 +0900
+In-Reply-To: <5385EC5D.40106@redhat.com>
+References: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<5385EC5D.40106@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: notify user space after fdb update
+Subject: Re: [Bridge] [PATCH net] bridge: Prevent insertion of FDB entry
+ with disallowed vlan
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,65 +28,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jon Maxwell <jmaxwell37@gmail.com>, stephen@networkplumber.org
-Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+To: vyasevic@redhat.com
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>
 
-Hello.
+On Wed, 2014-05-28 at 10:02 -0400, Vlad Yasevich wrote:
+...
+> 
+> This is very similar to br_allow_ingress(), so may be you can
+> re-factor so that we only have 1 such function...
 
-On 05/28/2014 02:45 AM, Jon Maxwell wrote:
+Yes.. indeed, this looks redundant.
+What bothered me is br_allowed_ingress() modifies or drops frames but
+I'm not expecting it here.
+Maybe we can hand a hint to br_allowed_ingress so that it doesn't modify
+the skb?
 
-> There has been a number incidents recently where customers running KVM have
-> reported that VM hosts on different Hypervisors are unreachable. Based on
-> pcap traces we found that the bridge was broadcasting the ARP request out
-> onto the network. However some NICs have an inbuilt switch which on occasions
-> were broadcasting the VMs ARP request back through the physical NIC on the
-> Hypervisor. This resulted in the bridge changing ports and incorrectly learning
-> that the VMs mac address was external. As a result the ARP reply was directed
-> back onto the external network and VM never updated it's ARP cache. This patch
-> will notify the bridge command, after a fdb has been updated to identify such
-> port toggling.
-
-> Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
-> ---
->   net/bridge/br_fdb.c | 8 +++++++-
->   1 file changed, 7 insertions(+), 1 deletion(-)
-
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 9203d5a..f3ee2da 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -487,6 +487,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
->   {
->   	struct hlist_head *head = &br->hash[br_mac_hash(addr, vid)];
->   	struct net_bridge_fdb_entry *fdb;
-> +	bool fdb_modified = 0;
-
-    s/0/false/.
-
->
->   	/* some users want to always flood. */
->   	if (hold_time(br) == 0)
-> @@ -507,10 +508,15 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
->   					source->dev->name);
->   		} else {
->   			/* fastpath: update of existing entry */
-> -			fdb->dst = source;
-> +			if (unlikely(source != fdb->dst)) {
-> +					fdb->dst = source;
-> +					fdb_modified = 1;
-
-   s/1/true/.
-
-> +				}
->   			fdb->updated = jiffies;
->   			if (unlikely(added_by_user))
->   				fdb->added_by_user = 1;
-> +			if (unlikely(fdb_modified))
-> +				fdb_notify(br, fdb, RTM_NEWNEIGH);
->   		}
->   	} else {
->   		spin_lock(&br->hash_lock);
-
-WBR, Sergei
-
+Thanks,
+Toshiaki Makita
 
