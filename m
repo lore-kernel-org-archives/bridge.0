@@ -1,13 +1,23 @@
-Return-Path: <jiri@resnulli.us>
-Date: Thu, 29 May 2014 09:55:39 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-Message-ID: <20140529075539.GD2942@minipsycho.orion>
-References: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
+Return-Path: <zenczykowski@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+	:cc:content-type;
+	bh=RYLXyj1OoyxEcwFRyIan0wkEa7wIHZWiG/LuNonXiNE=;
+	b=JRYYmBloS/Fa+4SO6+D6KAHUH9lDY3TOu/0jXKg2PVuDjEwW76ewWf3q34lE49rLAN
+	+iURHNUSx64hIPWaGcBwmFnclV6zaTp1wR/1XIB+NRcGP0nsRfLnUZUqfT8cRZu13PWG
+	yER2SrbDgBT0mBE8pkkrjw5w4cl1V3wYPlYL6FE2wZH2K6oHXi6E6dh594hUWI6lQh0C
+	goZYCAfwVqd3XXSvjM5ijVXIXPT1LM5LQD31aa42UrPR2X73eeFWoLHHI2nT5zRnp0Km
+	WcjekHeq8cbmsklM0CENOqGcpqqKoLymPuX3uUmLQBxXl9fqVLGZJ/JMZxW7FReyoz9E
+	ilhA==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
-Subject: Re: [Bridge] [PATCH net] bridge: notify user space after fdb update
+In-Reply-To: <20140527083359.GA4342@localhost>
+References: <20140527083359.GA4342@localhost>
+Date: Thu, 29 May 2014 01:37:43 -0700
+Message-ID: <CAHo-OoxDb6rREH1kZNKSGWzVL6pwwuzgEgYbHWA-NAUX9fRJqg@mail.gmail.com>
+From: =?UTF-8?Q?Maciej_=C5=BBenczykowski?= <zenczykowski@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: Re: [Bridge] [HEADS UP] Migrating ebtables and arptables to
+	netfilter.org
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,22 +26,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jon Maxwell <jmaxwell37@gmail.com>
-Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org, davem@davemloft.net
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: bridge@lists.linux-foundation.org, "netfilter@vger.kernel.org" <netfilter@vger.kernel.org>, Netfilter Development Mailinglist <netfilter-devel@vger.kernel.org>, Bart De Schuymer <bdschuym@pandora.be>
 
-Thu, May 29, 2014 at 09:27:16AM CEST, jmaxwell37@gmail.com wrote:
->There has been a number incidents recently where customers running KVM have
->reported that VM hosts on different Hypervisors are unreachable. Based on
->pcap traces we found that the bridge was broadcasting the ARP request out
->onto the network. However some NICs have an inbuilt switch which on occasions
->were broadcasting the VMs ARP request back through the physical NIC on the
->Hypervisor. This resulted in the bridge changing ports and incorrectly learning
->that the VMs mac address was external. As a result the ARP reply was directed
->back onto the external network and VM never updated it's ARP cache. This patch
->will notify the bridge command, after a fdb has been updated to identify such
->port toggling.
+Missing tags if there were any previously.
+
+On Tue, May 27, 2014 at 1:33 AM, Pablo Neira Ayuso <pablo@netfilter.org> wrote:
+> Hi!
 >
->Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
-
-Reviewed-by: Jiri Pirko <jiri@resnulli.us>
-
+> We're migrating arptables and ebtables to git.netfilter.org. The new
+> location for the repositories are:
+>
+> 1) arptables:
+>
+>         git://git.netfilter.org/arptables
+>         http://git.netfilter.org/arptables/
+>
+> 2) ebtables:
+>
+>         git://git.netfilter.org/ebtables
+>         http://git.netfilter.org/ebtables/
+>
+> Originally, these two applications were located in the same repository
+> which has been kept at:
+>
+>         http://git.netfilter.org/ebtables.old-history/
+>
+> just for the record.
+>
+> I have git-filter-branch the original repository to separate the
+> ebtables and the arptables in two independent repositories.
+>
+> Let me know if you experience any problem in this migration,
+> Thanks.
+> --
+> To unsubscribe from this list: send the line "unsubscribe netfilter-devel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
