@@ -1,13 +1,15 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <5386FAA6.8030103@lab.ntt.co.jp>
-Date: Thu, 29 May 2014 18:15:18 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <5387368F.2080509@redhat.com>
+Date: Thu, 29 May 2014 09:30:55 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
-References: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
-In-Reply-To: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+References: <53869842.4060202@huawei.com>
+In-Reply-To: <53869842.4060202@huawei.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: notify user space after fdb update
+Subject: Re: [Bridge] [PATCH net-next] bridge: fix the unbalanced
+ promiscuous count when add_if failed
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,21 +18,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jon Maxwell <jmaxwell37@gmail.com>, stephen@networkplumber.org
-Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+To: Wang Weidong <wangweidong1@huawei.com>, David Miller <davem@davemloft.net>, stephen@networkplumber.org
+Cc: vyasevic@redhat.com, netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-(2014/05/29 16:27), Jon Maxwell wrote:
-> There has been a number incidents recently where customers running KVM have
-> reported that VM hosts on different Hypervisors are unreachable. Based on
-> pcap traces we found that the bridge was broadcasting the ARP request out
-> onto the network. However some NICs have an inbuilt switch which on occasions
-> were broadcasting the VMs ARP request back through the physical NIC on the
-> Hypervisor. This resulted in the bridge changing ports and incorrectly learning
-> that the VMs mac address was external. As a result the ARP reply was directed
-> back onto the external network and VM never updated it's ARP cache. This patch
-> will notify the bridge command, after a fdb has been updated to identify such
-> port toggling.
+On 05/28/2014 10:15 PM, Wang Weidong wrote:
+> As commit 2796d0c648c94("bridge: Automatically manage port
+> promiscuous mode."), make the add_if use dev_set_allmulti
+> instead of dev_set_promiscuous, so when add_if failed, we
+> should do dev_set_allmulti(dev, -1).
 > 
-> Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
+> Signed-off-by: Wang Weidong <wangweidong1@huawei.com>
 
-Acked-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Acked-by: Vlad Yasevich <vyasevic@redhat.com>
+
+Thanks
+-vlad
+
+> ---
+>  net/bridge/br_if.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 104a811..a08d2b8 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -528,7 +528,7 @@ err2:
+>  	kobject_put(&p->kobj);
+>  	p = NULL; /* kobject_put frees */
+>  err1:
+> -	dev_set_promiscuity(dev, -1);
+> +	dev_set_allmulti(dev, -1);
+>  put_back:
+>  	dev_put(dev);
+>  	kfree(p);
+> 
+
