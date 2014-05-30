@@ -1,14 +1,13 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 29 May 2014 15:36:22 -0700 (PDT)
-Message-Id: <20140529.153622.764478286337271648.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1400994205-31165-1-git-send-email-linus.luessing@web.de>
-References: <1400994205-31165-1-git-send-email-linus.luessing@web.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCHv2 net-next 0/4] bridge: multicast snooping
- patches / exports
+Return-Path: <stephen@networkplumber.org>
+Date: Fri, 30 May 2014 07:32:24 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20140530073224.2d0baa37@nehalam.linuxnetplumber.net>
+In-Reply-To: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
+References: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] bridge: notify user space after fdb update
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,12 +16,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
+To: Jon Maxwell <jmaxwell37@gmail.com>
+Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Sun, 25 May 2014 07:03:21 +0200
+On Thu, 29 May 2014 17:27:16 +1000
+Jon Maxwell <jmaxwell37@gmail.com> wrote:
 
-> Changes in v2:
+> There has been a number incidents recently where customers running KVM have
+> reported that VM hosts on different Hypervisors are unreachable. Based on
+> pcap traces we found that the bridge was broadcasting the ARP request out
+> onto the network. However some NICs have an inbuilt switch which on occasions
+> were broadcasting the VMs ARP request back through the physical NIC on the
+> Hypervisor. This resulted in the bridge changing ports and incorrectly learning
+> that the VMs mac address was external. As a result the ARP reply was directed
+> back onto the external network and VM never updated it's ARP cache. This patch
+> will notify the bridge command, after a fdb has been updated to identify such
+> port toggling.
+> 
+> Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
 
-I really need a bridging expert to review this series, thank you.
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
