@@ -1,13 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 30 May 2014 23:37:30 -0700 (PDT)
-Message-Id: <20140530.233730.278118344680023489.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <538972FC.2090801@davidnewall.com>
-References: <53884CC6.2000000@davidnewall.com>
-	<20140530.174608.587404162482133282.davem@davemloft.net>
-	<538972FC.2090801@davidnewall.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <davidn@davidnewall.com>
+Message-ID: <53884CC6.2000000@davidnewall.com>
+Date: Fri, 30 May 2014 18:47:58 +0930
+From: David Newall <davidn@davidnewall.com>
+MIME-Version: 1.0
+References: <53803488.6000400@davidnewall.com>	<20140524.134356.992924324126016022.davem@davemloft.net>	<53815623.8020506@davidnewall.com>
+	<20140529.153424.1310751217059624351.davem@davemloft.net>
+In-Reply-To: <20140529.153424.1310751217059624351.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] Revert 462fb2af9788a82a534f8184abfde31574e1cfa0
  (bridge : Sanitize skb before it enters the IP stack)
@@ -19,32 +18,185 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davidn@davidnewall.com
+To: David Miller <davem@davemloft.net>
 Cc: bdschuym@pandora.be, netdev@vger.kernel.org, vyasevich@gmail.com, bridge@lists.linux-foundation.org, fw@strlen.de, stephen@networkplumber.org, bsd@redhat.com, netfilter-devel@vger.kernel.org
 
-From: David Newall <davidn@davidnewall.com>
-Date: Sat, 31 May 2014 15:43:16 +0930
+On 30/05/14 08:04, David Miller wrote:
+> You really need to check the return value as this can perform allocations,
+> GFP_ATOMIC ones in fact.
+>
+> Also, why are we not bumping the statistics any more?  I didn't see a
+> discussion of that in this thread.
 
-> On 31/05/14 10:16, David Miller wrote:
->> I don't see why you don't simply keep br_parse_ip_options() around
->> and adjust it as you need, you're just mostly duplicating it's
->> contents into br_nf_pre_routing().
-> 
-> More accurately, I'm *restoring* br_parse_ip_options()'s contents to
-> br_nf_pre_routing().  The reasons why are twofold: I'm undoing a
-> change which turns out to have been a mistake; and leaving it largely
-> as-is, just removing the call to ip_options_compile(), would be
-> confusing in that the name (br_pase_ip_options()) gives an expectation
-> of function that would be untrue.
-> 
-> I can see an argument in favour of leaving br_parse_options() around,
-> being that it is called from three places, and thus restoring the code
-> removes checks which are currently being performed.  They weren't
-> being performed before and it's not clear that they are needed, but if
-> you say that it would be better, I'll leave it around and just remove
-> the call to ip_options_compile(). Just say the word.
+I was only restoring the code as it was before the commit.  Maybe this, 
+(instead of the previous patch of br_netfilter.c,) to keep the (added) 
+check on pskb_may_pull's return value and incremented statistics?
 
-You can rename the function to something more suitable.
+--- br_netfilter.c	2014-05-30 18:01:40.221868365 +0930
++++ br_netfilter.c.orig	2014-05-30 18:17:39.697425383 +0930
+@@ -253,73 +253,6 @@ static inline void nf_bridge_update_prot
+  		skb->protocol = htons(ETH_P_PPP_SES);
+  }
+  
+-/* When handing a packet over to the IP layer
+- * check whether we have a skb that is in the
+- * expected format
+- */
+-
+-static int br_parse_ip_options(struct sk_buff *skb)
+-{
+-	struct ip_options *opt;
+-	const struct iphdr *iph;
+-	struct net_device *dev = skb->dev;
+-	u32 len;
+-
+-	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
+-		goto inhdr_error;
+-
+-	iph = ip_hdr(skb);
+-	opt = &(IPCB(skb)->opt);
+-
+-	/* Basic sanity checks */
+-	if (iph->ihl < 5 || iph->version != 4)
+-		goto inhdr_error;
+-
+-	if (!pskb_may_pull(skb, iph->ihl*4))
+-		goto inhdr_error;
+-
+-	iph = ip_hdr(skb);
+-	if (unlikely(ip_fast_csum((u8 *)iph, iph->ihl)))
+-		goto inhdr_error;
+-
+-	len = ntohs(iph->tot_len);
+-	if (skb->len < len) {
+-		IP_INC_STATS_BH(dev_net(dev), IPSTATS_MIB_INTRUNCATEDPKTS);
+-		goto drop;
+-	} else if (len < (iph->ihl*4))
+-		goto inhdr_error;
+-
+-	if (pskb_trim_rcsum(skb, len)) {
+-		IP_INC_STATS_BH(dev_net(dev), IPSTATS_MIB_INDISCARDS);
+-		goto drop;
+-	}
+-
+-	memset(IPCB(skb), 0, sizeof(struct inet_skb_parm));
+-	if (iph->ihl == 5)
+-		return 0;
+-
+-	opt->optlen = iph->ihl*4 - sizeof(struct iphdr);
+-	if (ip_options_compile(dev_net(dev), opt, skb))
+-		goto inhdr_error;
+-
+-	/* Check correct handling of SRR option */
+-	if (unlikely(opt->srr)) {
+-		struct in_device *in_dev = __in_dev_get_rcu(dev);
+-		if (in_dev && !IN_DEV_SOURCE_ROUTE(in_dev))
+-			goto drop;
+-
+-		if (ip_options_rcv_srr(skb))
+-			goto drop;
+-	}
+-
+-	return 0;
+-
+-inhdr_error:
+-	IP_INC_STATS_BH(dev_net(dev), IPSTATS_MIB_INHDRERRORS);
+-drop:
+-	return -1;
+-}
+-
+  /* Fill in the header for fragmented IP packets handled by
+   * the IPv4 connection tracking code.
+   */
+@@ -679,6 +612,8 @@ static unsigned int br_nf_pre_routing(co
+  {
+  	struct net_bridge_port *p;
+  	struct net_bridge *br;
++	const struct iphdr *iph;
++	struct net_device *dev = skb->dev;
+  	__u32 len = nf_bridge_encap_header_len(skb);
+  
+  	if (unlikely(!pskb_may_pull(skb, len)))
+@@ -704,9 +639,35 @@ static unsigned int br_nf_pre_routing(co
+  		return NF_ACCEPT;
+  
+  	nf_bridge_pull_encap_header_rcsum(skb);
++
++	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
++		goto inhdr_error;
++
++	iph = ip_hdr(skb);
++	if (iph->ihl < 5 || iph->version != 4)
++		goto inhdr_error;
++
++	if (!pskb_may_pull(skb, 4 * iph->ihl))
++		goto inhdr_error;
++
++	iph = ip_hdr(skb);
++	if (ip_fast_csum((__u8 *) iph, iph->ihl) != 0)
++		goto inhdr_error;
++
++	len = ntohs(iph->tot_len);
++	if (skb->len < len) {
++		IP_INC_STATS_BH(dev_net(dev), IPSTATS_MIB_INTRUNCATEDPKTS);
++		return NF_DROP;
++	} else if (len < (iph->ihl*4))
++		goto inhdr_error;
+  
+-	if (br_parse_ip_options(skb))
++	if (pskb_trim_rcsum(skb, len)) {
++		IP_INC_STATS_BH(dev_net(dev), IPSTATS_MIB_INDISCARDS);
+  		return NF_DROP;
++	}
++
++	/* BUG: Should really parse the IP options here. */
++	memset(IPCB(skb), 0, sizeof(struct inet_skb_parm));
+  
+  	nf_bridge_put(skb->nf_bridge);
+  	if (!nf_bridge_alloc(skb))
+@@ -720,6 +681,10 @@ static unsigned int br_nf_pre_routing(co
+  		br_nf_pre_routing_finish);
+  
+  	return NF_STOLEN;
++
++inhdr_error:
++	IP_INC_STATS_BH(dev_net(dev), IPSTATS_MIB_INHDRERRORS);
++	return NF_DROP;
+  }
+  
+  
+@@ -806,9 +771,6 @@ static unsigned int br_nf_forward_ip(con
+  		nf_bridge->mask |= BRNF_PKT_TYPE;
+  	}
+  
+-	if (pf == NFPROTO_IPV4 && br_parse_ip_options(skb))
+-		return NF_DROP;
+-
+  	/* The physdev module checks on this */
+  	nf_bridge->mask |= BRNF_BRIDGED;
+  	nf_bridge->physoutdev = skb->dev;
+@@ -862,19 +824,14 @@ static unsigned int br_nf_forward_arp(co
+  #if IS_ENABLED(CONFIG_NF_CONNTRACK_IPV4)
+  static int br_nf_dev_queue_xmit(struct sk_buff *skb)
+  {
+-	int ret;
+-
+  	if (skb->nfct != NULL && skb->protocol == htons(ETH_P_IP) &&
+  	    skb->len + nf_bridge_mtu_reduction(skb) > skb->dev->mtu &&
+  	    !skb_is_gso(skb)) {
+-		if (br_parse_ip_options(skb))
+-			/* Drop invalid packet */
+-			return NF_DROP;
+-		ret = ip_fragment(skb, br_dev_queue_push_xmit);
++		/* BUG: Should really parse the IP options here. */
++		memset(IPCB(skb), 0, sizeof(struct inet_skb_parm));
++		return ip_fragment(skb, br_dev_queue_push_xmit);
+  	} else
+-		ret = br_dev_queue_push_xmit(skb);
+-
+-	return ret;
++		return br_dev_queue_push_xmit(skb);
+  }
+  #else
+  static int br_nf_dev_queue_xmit(struct sk_buff *skb)
 
-Because then it's just a handful of line changes rather than a huge
-bunch of hunks which are harder to audit.
