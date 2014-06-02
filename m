@@ -1,16 +1,12 @@
-Return-Path: <vyasevic@redhat.com>
-Message-ID: <538C8892.8030800@redhat.com>
-Date: Mon, 02 Jun 2014 10:22:10 -0400
-From: Vlad Yasevich <vyasevic@redhat.com>
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Mon,  2 Jun 2014 20:07:43 +0200
+Message-Id: <1401732466-3027-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-References: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20140530.154857.23436038195529720.davem@davemloft.net>
-In-Reply-To: <20140530.154857.23436038195529720.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Prevent insertion of FDB entry
- with disallowed vlan
-Reply-To: vyasevic@redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCHv3 net-next 1/4] bridge: rename struct
+	bridge_mcast_query/querier
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,41 +15,573 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>, makita.toshiaki@lab.ntt.co.jp
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org, Herbert Xu <herbert@gondor.apana.org.au>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-On 05/30/2014 06:48 PM, David Miller wrote:
-> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> Date: Mon, 26 May 2014 15:15:53 +0900
-> 
->> br_handle_local_finish() is allowing us to insert an FDB entry with
->> disallowed vlan. For example, when port 1 and 2 are communicating in
->> vlan 10, and even if vlan 10 is disallowed on port 3, port 3 can
->> interfere with their communication by spoofed src mac address with
->> vlan id 10.
->>
->> Note: Even if it is judged that a frame should not be learned, it should
->> not be dropped because it is destined for not forwarding layer but higher
->> layer. See IEEE 802.1Q-2011 8.13.10.
->>
->> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> 
-> In reference to Vlad's suggestion to try to reuse the logic of the
-> existing br_allowed_ingress() function, I don't think that's so
-> easy.
-> 
-> As stated already, it drops packets whilst we don't want that here.
-> 
-> Another difference is that it does vlan_untag(), which we also do
-> not want here.
-> 
-> Let's just stay with this version of the fix, Vlad if you're OK with
-> that can you please give your ACK?  Thanks.
-> 
+The current naming of these two structs is very random, in that
+reversing their naming would not make any semantical difference.
 
+This patch tries to make the naming less confusing by giving them a more
+specific, distinguishable naming.
 
-Acked-by: Vlad Yasevich <vyasevic@redhat.com>
+This is also useful for the upcoming patches reintroducing the
+"struct bridge_mcast_querier" but for storing information about the
+selected querier (no matter if our own or a foreign querier).
 
-I need to spend a little time and figure out how to make it more re-usable.
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_mdb.c       |    4 +-
+ net/bridge/br_multicast.c |  169 +++++++++++++++++++++++----------------------
+ net/bridge/br_private.h   |   22 +++---
+ 3 files changed, 100 insertions(+), 95 deletions(-)
 
--vlad
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index b7b1914..5df0526 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -418,13 +418,13 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 
+ 	ip.proto = entry->addr.proto;
+ 	if (ip.proto == htons(ETH_P_IP)) {
+-		if (timer_pending(&br->ip4_querier.timer))
++		if (timer_pending(&br->ip4_other_query.timer))
+ 			return -EBUSY;
+ 
+ 		ip.u.ip4 = entry->addr.u.ip4;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else {
+-		if (timer_pending(&br->ip6_querier.timer))
++		if (timer_pending(&br->ip6_other_query.timer))
+ 			return -EBUSY;
+ 
+ 		ip.u.ip6 = entry->addr.u.ip6;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 7b757b5..5ccac62 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -35,7 +35,7 @@
+ #include "br_private.h"
+ 
+ static void br_multicast_start_querier(struct net_bridge *br,
+-				       struct bridge_mcast_query *query);
++				       struct bridge_mcast_own_query *query);
+ unsigned int br_mdb_rehash_seq;
+ 
+ static inline int br_ip_equal(const struct br_ip *a, const struct br_ip *b)
+@@ -761,7 +761,7 @@ static void br_multicast_local_router_expired(unsigned long data)
+ }
+ 
+ static void br_multicast_querier_expired(struct net_bridge *br,
+-					 struct bridge_mcast_query *query)
++					 struct bridge_mcast_own_query *query)
+ {
+ 	spin_lock(&br->multicast_lock);
+ 	if (!netif_running(br->dev) || br->multicast_disabled)
+@@ -777,7 +777,7 @@ static void br_ip4_multicast_querier_expired(unsigned long data)
+ {
+ 	struct net_bridge *br = (void *)data;
+ 
+-	br_multicast_querier_expired(br, &br->ip4_query);
++	br_multicast_querier_expired(br, &br->ip4_own_query);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -785,7 +785,7 @@ static void br_ip6_multicast_querier_expired(unsigned long data)
+ {
+ 	struct net_bridge *br = (void *)data;
+ 
+-	br_multicast_querier_expired(br, &br->ip6_query);
++	br_multicast_querier_expired(br, &br->ip6_own_query);
+ }
+ #endif
+ 
+@@ -810,11 +810,11 @@ static void __br_multicast_send_query(struct net_bridge *br,
+ 
+ static void br_multicast_send_query(struct net_bridge *br,
+ 				    struct net_bridge_port *port,
+-				    struct bridge_mcast_query *query)
++				    struct bridge_mcast_own_query *own_query)
+ {
+ 	unsigned long time;
+ 	struct br_ip br_group;
+-	struct bridge_mcast_querier *querier = NULL;
++	struct bridge_mcast_other_query *other_query = NULL;
+ 
+ 	if (!netif_running(br->dev) || br->multicast_disabled ||
+ 	    !br->multicast_querier)
+@@ -822,31 +822,32 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 
+ 	memset(&br_group.u, 0, sizeof(br_group.u));
+ 
+-	if (port ? (query == &port->ip4_query) :
+-		   (query == &br->ip4_query)) {
+-		querier = &br->ip4_querier;
++	if (port ? (own_query == &port->ip4_own_query) :
++		   (own_query == &br->ip4_own_query)) {
++		other_query = &br->ip4_other_query;
+ 		br_group.proto = htons(ETH_P_IP);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else {
+-		querier = &br->ip6_querier;
++		other_query = &br->ip6_other_query;
+ 		br_group.proto = htons(ETH_P_IPV6);
+ #endif
+ 	}
+ 
+-	if (!querier || timer_pending(&querier->timer))
++	if (!other_query || timer_pending(&other_query->timer))
+ 		return;
+ 
+ 	__br_multicast_send_query(br, port, &br_group);
+ 
+ 	time = jiffies;
+-	time += query->startup_sent < br->multicast_startup_query_count ?
++	time += own_query->startup_sent < br->multicast_startup_query_count ?
+ 		br->multicast_startup_query_interval :
+ 		br->multicast_query_interval;
+-	mod_timer(&query->timer, time);
++	mod_timer(&own_query->timer, time);
+ }
+ 
+-static void br_multicast_port_query_expired(struct net_bridge_port *port,
+-					    struct bridge_mcast_query *query)
++static void
++br_multicast_port_query_expired(struct net_bridge_port *port,
++				struct bridge_mcast_own_query *query)
+ {
+ 	struct net_bridge *br = port->br;
+ 
+@@ -868,7 +869,7 @@ static void br_ip4_multicast_port_query_expired(unsigned long data)
+ {
+ 	struct net_bridge_port *port = (void *)data;
+ 
+-	br_multicast_port_query_expired(port, &port->ip4_query);
++	br_multicast_port_query_expired(port, &port->ip4_own_query);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -876,7 +877,7 @@ static void br_ip6_multicast_port_query_expired(unsigned long data)
+ {
+ 	struct net_bridge_port *port = (void *)data;
+ 
+-	br_multicast_port_query_expired(port, &port->ip6_query);
++	br_multicast_port_query_expired(port, &port->ip6_own_query);
+ }
+ #endif
+ 
+@@ -886,11 +887,11 @@ void br_multicast_add_port(struct net_bridge_port *port)
+ 
+ 	setup_timer(&port->multicast_router_timer, br_multicast_router_expired,
+ 		    (unsigned long)port);
+-	setup_timer(&port->ip4_query.timer, br_ip4_multicast_port_query_expired,
+-		    (unsigned long)port);
++	setup_timer(&port->ip4_own_query.timer,
++		    br_ip4_multicast_port_query_expired, (unsigned long)port);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	setup_timer(&port->ip6_query.timer, br_ip6_multicast_port_query_expired,
+-		    (unsigned long)port);
++	setup_timer(&port->ip6_own_query.timer,
++		    br_ip6_multicast_port_query_expired, (unsigned long)port);
+ #endif
+ }
+ 
+@@ -899,7 +900,7 @@ void br_multicast_del_port(struct net_bridge_port *port)
+ 	del_timer_sync(&port->multicast_router_timer);
+ }
+ 
+-static void br_multicast_enable(struct bridge_mcast_query *query)
++static void br_multicast_enable(struct bridge_mcast_own_query *query)
+ {
+ 	query->startup_sent = 0;
+ 
+@@ -916,9 +917,9 @@ void br_multicast_enable_port(struct net_bridge_port *port)
+ 	if (br->multicast_disabled || !netif_running(br->dev))
+ 		goto out;
+ 
+-	br_multicast_enable(&port->ip4_query);
++	br_multicast_enable(&port->ip4_own_query);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	br_multicast_enable(&port->ip6_query);
++	br_multicast_enable(&port->ip6_own_query);
+ #endif
+ 
+ out:
+@@ -938,9 +939,9 @@ void br_multicast_disable_port(struct net_bridge_port *port)
+ 	if (!hlist_unhashed(&port->rlist))
+ 		hlist_del_init_rcu(&port->rlist);
+ 	del_timer(&port->multicast_router_timer);
+-	del_timer(&port->ip4_query.timer);
++	del_timer(&port->ip4_own_query.timer);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	del_timer(&port->ip6_query.timer);
++	del_timer(&port->ip6_own_query.timer);
+ #endif
+ 	spin_unlock(&br->multicast_lock);
+ }
+@@ -1065,14 +1066,14 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
+ #endif
+ 
+ static void
+-br_multicast_update_querier_timer(struct net_bridge *br,
+-				  struct bridge_mcast_querier *querier,
+-				  unsigned long max_delay)
++br_multicast_update_query_timer(struct net_bridge *br,
++				struct bridge_mcast_other_query *query,
++				unsigned long max_delay)
+ {
+-	if (!timer_pending(&querier->timer))
+-		querier->delay_time = jiffies + max_delay;
++	if (!timer_pending(&query->timer))
++		query->delay_time = jiffies + max_delay;
+ 
+-	mod_timer(&querier->timer, jiffies + br->multicast_querier_interval);
++	mod_timer(&query->timer, jiffies + br->multicast_querier_interval);
+ }
+ 
+ /*
+@@ -1125,14 +1126,14 @@ timer:
+ 
+ static void br_multicast_query_received(struct net_bridge *br,
+ 					struct net_bridge_port *port,
+-					struct bridge_mcast_querier *querier,
++					struct bridge_mcast_other_query *query,
+ 					int saddr,
+ 					bool is_general_query,
+ 					unsigned long max_delay)
+ {
+ 	if (saddr && is_general_query)
+-		br_multicast_update_querier_timer(br, querier, max_delay);
+-	else if (timer_pending(&querier->timer))
++		br_multicast_update_query_timer(br, query, max_delay);
++	else if (timer_pending(&query->timer))
+ 		return;
+ 
+ 	br_multicast_mark_router(br, port);
+@@ -1190,8 +1191,8 @@ static int br_ip4_multicast_query(struct net_bridge *br,
+ 		goto out;
+ 	}
+ 
+-	br_multicast_query_received(br, port, &br->ip4_querier, !!iph->saddr,
+-				    !group, max_delay);
++	br_multicast_query_received(br, port, &br->ip4_other_query,
++				    !!iph->saddr, !group, max_delay);
+ 
+ 	if (!group)
+ 		goto out;
+@@ -1282,7 +1283,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 		goto out;
+ 	}
+ 
+-	br_multicast_query_received(br, port, &br->ip6_querier,
++	br_multicast_query_received(br, port, &br->ip6_other_query,
+ 				    !ipv6_addr_any(&ip6h->saddr),
+ 				    is_general_query, max_delay);
+ 
+@@ -1315,11 +1316,12 @@ out:
+ }
+ #endif
+ 
+-static void br_multicast_leave_group(struct net_bridge *br,
+-				     struct net_bridge_port *port,
+-				     struct br_ip *group,
+-				     struct bridge_mcast_querier *querier,
+-				     struct bridge_mcast_query *query)
++static void
++br_multicast_leave_group(struct net_bridge *br,
++			 struct net_bridge_port *port,
++			 struct br_ip *group,
++			 struct bridge_mcast_other_query *other_query,
++			 struct bridge_mcast_own_query *own_query)
+ {
+ 	struct net_bridge_mdb_htable *mdb;
+ 	struct net_bridge_mdb_entry *mp;
+@@ -1330,7 +1332,7 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 	spin_lock(&br->multicast_lock);
+ 	if (!netif_running(br->dev) ||
+ 	    (port && port->state == BR_STATE_DISABLED) ||
+-	    timer_pending(&querier->timer))
++	    timer_pending(&other_query->timer))
+ 		goto out;
+ 
+ 	mdb = mlock_dereference(br->mdb, br);
+@@ -1344,7 +1346,7 @@ static void br_multicast_leave_group(struct net_bridge *br,
+ 		time = jiffies + br->multicast_last_member_count *
+ 				 br->multicast_last_member_interval;
+ 
+-		mod_timer(&query->timer, time);
++		mod_timer(&own_query->timer, time);
+ 
+ 		for (p = mlock_dereference(mp->ports, br);
+ 		     p != NULL;
+@@ -1425,17 +1427,19 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
+ 					 __u16 vid)
+ {
+ 	struct br_ip br_group;
+-	struct bridge_mcast_query *query = port ? &port->ip4_query :
+-						  &br->ip4_query;
++	struct bridge_mcast_own_query *own_query;
+ 
+ 	if (ipv4_is_local_multicast(group))
+ 		return;
+ 
++	own_query = port ? &port->ip4_own_query : &br->ip4_own_query;
++
+ 	br_group.u.ip4 = group;
+ 	br_group.proto = htons(ETH_P_IP);
+ 	br_group.vid = vid;
+ 
+-	br_multicast_leave_group(br, port, &br_group, &br->ip4_querier, query);
++	br_multicast_leave_group(br, port, &br_group, &br->ip4_other_query,
++				 own_query);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -1445,18 +1449,19 @@ static void br_ip6_multicast_leave_group(struct net_bridge *br,
+ 					 __u16 vid)
+ {
+ 	struct br_ip br_group;
+-	struct bridge_mcast_query *query = port ? &port->ip6_query :
+-						  &br->ip6_query;
+-
++	struct bridge_mcast_own_query *own_query;
+ 
+ 	if (ipv6_addr_is_ll_all_nodes(group))
+ 		return;
+ 
++	own_query = port ? &port->ip6_own_query : &br->ip6_own_query;
++
+ 	br_group.u.ip6 = *group;
+ 	br_group.proto = htons(ETH_P_IPV6);
+ 	br_group.vid = vid;
+ 
+-	br_multicast_leave_group(br, port, &br_group, &br->ip6_querier, query);
++	br_multicast_leave_group(br, port, &br_group, &br->ip6_other_query,
++				 own_query);
+ }
+ #endif
+ 
+@@ -1723,7 +1728,7 @@ int br_multicast_rcv(struct net_bridge *br, struct net_bridge_port *port,
+ }
+ 
+ static void br_multicast_query_expired(struct net_bridge *br,
+-				       struct bridge_mcast_query *query)
++				       struct bridge_mcast_own_query *query)
+ {
+ 	spin_lock(&br->multicast_lock);
+ 	if (query->startup_sent < br->multicast_startup_query_count)
+@@ -1737,7 +1742,7 @@ static void br_ip4_multicast_query_expired(unsigned long data)
+ {
+ 	struct net_bridge *br = (void *)data;
+ 
+-	br_multicast_query_expired(br, &br->ip4_query);
++	br_multicast_query_expired(br, &br->ip4_own_query);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -1745,7 +1750,7 @@ static void br_ip6_multicast_query_expired(unsigned long data)
+ {
+ 	struct net_bridge *br = (void *)data;
+ 
+-	br_multicast_query_expired(br, &br->ip6_query);
++	br_multicast_query_expired(br, &br->ip6_own_query);
+ }
+ #endif
+ 
+@@ -1767,28 +1772,28 @@ void br_multicast_init(struct net_bridge *br)
+ 	br->multicast_querier_interval = 255 * HZ;
+ 	br->multicast_membership_interval = 260 * HZ;
+ 
+-	br->ip4_querier.delay_time = 0;
++	br->ip4_other_query.delay_time = 0;
+ #if IS_ENABLED(CONFIG_IPV6)
+-	br->ip6_querier.delay_time = 0;
++	br->ip6_other_query.delay_time = 0;
+ #endif
+ 
+ 	spin_lock_init(&br->multicast_lock);
+ 	setup_timer(&br->multicast_router_timer,
+ 		    br_multicast_local_router_expired, 0);
+-	setup_timer(&br->ip4_querier.timer, br_ip4_multicast_querier_expired,
+-		    (unsigned long)br);
+-	setup_timer(&br->ip4_query.timer, br_ip4_multicast_query_expired,
++	setup_timer(&br->ip4_other_query.timer,
++		    br_ip4_multicast_querier_expired, (unsigned long)br);
++	setup_timer(&br->ip4_own_query.timer, br_ip4_multicast_query_expired,
+ 		    (unsigned long)br);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	setup_timer(&br->ip6_querier.timer, br_ip6_multicast_querier_expired,
+-		    (unsigned long)br);
+-	setup_timer(&br->ip6_query.timer, br_ip6_multicast_query_expired,
++	setup_timer(&br->ip6_other_query.timer,
++		    br_ip6_multicast_querier_expired, (unsigned long)br);
++	setup_timer(&br->ip6_own_query.timer, br_ip6_multicast_query_expired,
+ 		    (unsigned long)br);
+ #endif
+ }
+ 
+ static void __br_multicast_open(struct net_bridge *br,
+-				struct bridge_mcast_query *query)
++				struct bridge_mcast_own_query *query)
+ {
+ 	query->startup_sent = 0;
+ 
+@@ -1800,9 +1805,9 @@ static void __br_multicast_open(struct net_bridge *br,
+ 
+ void br_multicast_open(struct net_bridge *br)
+ {
+-	__br_multicast_open(br, &br->ip4_query);
++	__br_multicast_open(br, &br->ip4_own_query);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	__br_multicast_open(br, &br->ip6_query);
++	__br_multicast_open(br, &br->ip6_own_query);
+ #endif
+ }
+ 
+@@ -1815,11 +1820,11 @@ void br_multicast_stop(struct net_bridge *br)
+ 	int i;
+ 
+ 	del_timer_sync(&br->multicast_router_timer);
+-	del_timer_sync(&br->ip4_querier.timer);
+-	del_timer_sync(&br->ip4_query.timer);
++	del_timer_sync(&br->ip4_other_query.timer);
++	del_timer_sync(&br->ip4_own_query.timer);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	del_timer_sync(&br->ip6_querier.timer);
+-	del_timer_sync(&br->ip6_query.timer);
++	del_timer_sync(&br->ip6_other_query.timer);
++	del_timer_sync(&br->ip6_own_query.timer);
+ #endif
+ 
+ 	spin_lock_bh(&br->multicast_lock);
+@@ -1923,7 +1928,7 @@ unlock:
+ }
+ 
+ static void br_multicast_start_querier(struct net_bridge *br,
+-				       struct bridge_mcast_query *query)
++				       struct bridge_mcast_own_query *query)
+ {
+ 	struct net_bridge_port *port;
+ 
+@@ -1934,11 +1939,11 @@ static void br_multicast_start_querier(struct net_bridge *br,
+ 		    port->state == BR_STATE_BLOCKING)
+ 			continue;
+ 
+-		if (query == &br->ip4_query)
+-			br_multicast_enable(&port->ip4_query);
++		if (query == &br->ip4_own_query)
++			br_multicast_enable(&port->ip4_own_query);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 		else
+-			br_multicast_enable(&port->ip6_query);
++			br_multicast_enable(&port->ip6_own_query);
+ #endif
+ 	}
+ }
+@@ -1974,9 +1979,9 @@ rollback:
+ 			goto rollback;
+ 	}
+ 
+-	br_multicast_start_querier(br, &br->ip4_query);
++	br_multicast_start_querier(br, &br->ip4_own_query);
+ #if IS_ENABLED(CONFIG_IPV6)
+-	br_multicast_start_querier(br, &br->ip6_query);
++	br_multicast_start_querier(br, &br->ip6_own_query);
+ #endif
+ 
+ unlock:
+@@ -2001,16 +2006,16 @@ int br_multicast_set_querier(struct net_bridge *br, unsigned long val)
+ 
+ 	max_delay = br->multicast_query_response_interval;
+ 
+-	if (!timer_pending(&br->ip4_querier.timer))
+-		br->ip4_querier.delay_time = jiffies + max_delay;
++	if (!timer_pending(&br->ip4_other_query.timer))
++		br->ip4_other_query.delay_time = jiffies + max_delay;
+ 
+-	br_multicast_start_querier(br, &br->ip4_query);
++	br_multicast_start_querier(br, &br->ip4_own_query);
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+-	if (!timer_pending(&br->ip6_querier.timer))
+-		br->ip6_querier.delay_time = jiffies + max_delay;
++	if (!timer_pending(&br->ip6_other_query.timer))
++		br->ip6_other_query.delay_time = jiffies + max_delay;
+ 
+-	br_multicast_start_querier(br, &br->ip6_query);
++	br_multicast_start_querier(br, &br->ip6_own_query);
+ #endif
+ 
+ unlock:
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 53d6e32..caed7b1 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -68,13 +68,13 @@ struct br_ip
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ /* our own querier */
+-struct bridge_mcast_query {
++struct bridge_mcast_own_query {
+ 	struct timer_list	timer;
+ 	u32			startup_sent;
+ };
+ 
+ /* other querier */
+-struct bridge_mcast_querier {
++struct bridge_mcast_other_query {
+ 	struct timer_list		timer;
+ 	unsigned long			delay_time;
+ };
+@@ -178,9 +178,9 @@ struct net_bridge_port
+ #define BR_PROMISC		0x00000080
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+-	struct bridge_mcast_query	ip4_query;
++	struct bridge_mcast_own_query	ip4_own_query;
+ #if IS_ENABLED(CONFIG_IPV6)
+-	struct bridge_mcast_query	ip6_query;
++	struct bridge_mcast_own_query	ip6_own_query;
+ #endif /* IS_ENABLED(CONFIG_IPV6) */
+ 	unsigned char			multicast_router;
+ 	struct timer_list		multicast_router_timer;
+@@ -282,11 +282,11 @@ struct net_bridge
+ 	struct hlist_head		router_list;
+ 
+ 	struct timer_list		multicast_router_timer;
+-	struct bridge_mcast_querier	ip4_querier;
+-	struct bridge_mcast_query	ip4_query;
++	struct bridge_mcast_other_query	ip4_other_query;
++	struct bridge_mcast_own_query	ip4_own_query;
+ #if IS_ENABLED(CONFIG_IPV6)
+-	struct bridge_mcast_querier	ip6_querier;
+-	struct bridge_mcast_query	ip6_query;
++	struct bridge_mcast_other_query	ip6_other_query;
++	struct bridge_mcast_own_query	ip6_own_query;
+ #endif /* IS_ENABLED(CONFIG_IPV6) */
+ #endif
+ 
+@@ -493,7 +493,7 @@ static inline bool br_multicast_is_router(struct net_bridge *br)
+ 
+ static inline bool
+ __br_multicast_querier_exists(struct net_bridge *br,
+-			      struct bridge_mcast_querier *querier)
++			      struct bridge_mcast_other_query *querier)
+ {
+ 	return time_is_before_jiffies(querier->delay_time) &&
+ 	       (br->multicast_querier || timer_pending(&querier->timer));
+@@ -504,10 +504,10 @@ static inline bool br_multicast_querier_exists(struct net_bridge *br,
+ {
+ 	switch (eth->h_proto) {
+ 	case (htons(ETH_P_IP)):
+-		return __br_multicast_querier_exists(br, &br->ip4_querier);
++		return __br_multicast_querier_exists(br, &br->ip4_other_query);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	case (htons(ETH_P_IPV6)):
+-		return __br_multicast_querier_exists(br, &br->ip6_querier);
++		return __br_multicast_querier_exists(br, &br->ip6_other_query);
+ #endif
+ 	default:
+ 		return false;
+-- 
+1.7.10.4
+
