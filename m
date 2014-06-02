@@ -1,13 +1,16 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 01 Jun 2014 22:15:15 -0700 (PDT)
-Message-Id: <20140601.221515.360490928652338768.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
-References: <1401348436-5187-1-git-send-email-jmaxwell37@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <538C8892.8030800@redhat.com>
+Date: Mon, 02 Jun 2014 10:22:10 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
+MIME-Version: 1.0
+References: <1401084953-10135-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20140530.154857.23436038195529720.davem@davemloft.net>
+In-Reply-To: <20140530.154857.23436038195529720.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: notify user space after fdb update
+Subject: Re: [Bridge] [PATCH net] bridge: Prevent insertion of FDB entry
+ with disallowed vlan
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,23 +19,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jmaxwell37@gmail.com
-Cc: vyasevic@redhat.com, jpirko@redhat.com, netdev@vger.kernel.org, jmaxwell@redhat.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
+To: David Miller <davem@davemloft.net>, makita.toshiaki@lab.ntt.co.jp
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Jon Maxwell <jmaxwell37@gmail.com>
-Date: Thu, 29 May 2014 17:27:16 +1000
-
-> There has been a number incidents recently where customers running KVM have
-> reported that VM hosts on different Hypervisors are unreachable. Based on
-> pcap traces we found that the bridge was broadcasting the ARP request out
-> onto the network. However some NICs have an inbuilt switch which on occasions
-> were broadcasting the VMs ARP request back through the physical NIC on the
-> Hypervisor. This resulted in the bridge changing ports and incorrectly learning
-> that the VMs mac address was external. As a result the ARP reply was directed
-> back onto the external network and VM never updated it's ARP cache. This patch
-> will notify the bridge command, after a fdb has been updated to identify such
-> port toggling.
+On 05/30/2014 06:48 PM, David Miller wrote:
+> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Date: Mon, 26 May 2014 15:15:53 +0900
 > 
-> Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
+>> br_handle_local_finish() is allowing us to insert an FDB entry with
+>> disallowed vlan. For example, when port 1 and 2 are communicating in
+>> vlan 10, and even if vlan 10 is disallowed on port 3, port 3 can
+>> interfere with their communication by spoofed src mac address with
+>> vlan id 10.
+>>
+>> Note: Even if it is judged that a frame should not be learned, it should
+>> not be dropped because it is destined for not forwarding layer but higher
+>> layer. See IEEE 802.1Q-2011 8.13.10.
+>>
+>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> 
+> In reference to Vlad's suggestion to try to reuse the logic of the
+> existing br_allowed_ingress() function, I don't think that's so
+> easy.
+> 
+> As stated already, it drops packets whilst we don't want that here.
+> 
+> Another difference is that it does vlan_untag(), which we also do
+> not want here.
+> 
+> Let's just stay with this version of the fix, Vlad if you're OK with
+> that can you please give your ACK?  Thanks.
+> 
 
-Applied, thanks.
+
+Acked-by: Vlad Yasevich <vyasevic@redhat.com>
+
+I need to spend a little time and figure out how to make it more re-usable.
+
+-vlad
