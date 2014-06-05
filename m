@@ -1,11 +1,13 @@
 Return-Path: <David.Laight@ACULAB.COM>
 From: David Laight <David.Laight@ACULAB.COM>
-Date: Thu, 5 Jun 2014 12:55:59 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6D17257D43@AcuExch.aculab.com>
+Date: Thu, 5 Jun 2014 13:47:30 +0000
+Message-ID: <063D6719AE5E284EB5DD2968C1650D6D17257DCF@AcuExch.aculab.com>
 References: <1401965851-6449-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 	<063D6719AE5E284EB5DD2968C1650D6D17257C08@AcuExch.aculab.com>
 	<539052C0.2090409@lab.ntt.co.jp>
-In-Reply-To: <539052C0.2090409@lab.ntt.co.jp>
+	<063D6719AE5E284EB5DD2968C1650D6D17257D43@AcuExch.aculab.com>
+	<53906B30.7080907@lab.ntt.co.jp>
+In-Reply-To: <53906B30.7080907@lab.ntt.co.jp>
 Content-Language: en-US
 Content-Type: text/plain; charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
@@ -23,61 +25,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: 'Toshiaki Makita' <makita.toshiaki@lab.ntt.co.jp>, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
 Cc: Vlad Yasevich <vyasevic@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-From: Toshiaki Makita
-> (2014/06/05 20:03), David Laight wrote:
-> > From: Toshiaki Makita
-> >> br_manage_promisc() incorrectly expects br_auto_port() to return only =
-0
-> >> or 1, while it actually returns flags, i.e., a subset of BR_AUTO_MASK.
-> >>
-> >> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> >> ---
-> >>  net/bridge/br_if.c | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> >> index a08d2b8..6a07a40 100644
-> >> --- a/net/bridge/br_if.c
-> >> +++ b/net/bridge/br_if.c
-> >> @@ -153,7 +153,7 @@ void br_manage_promisc(struct net_bridge *br)
-> >>  			 * This lets us disable promiscuous mode and write
-> >>  			 * this config to hw.
-> >>  			 */
-> >> -			if (br->auto_cnt <=3D br_auto_port(p))
-> >> +			if (br->auto_cnt <=3D !!br_auto_port(p))
-> >>  				br_port_clear_promisc(p);
-> >>  			else
-> >>  				br_port_set_promisc(p);
-> >
-> > Why not the less confusing:
-> > 			if (br->auto_cnt || br_auto_port(p))
-> > and reverse the then/else lines?
+From: Toshiaki Makita=20
+> > A quick truth table:
+> > 	auto_cnt	auto_port	set/clear
+> > 		0		0	clear
+> > 		0		1	clear
+> > 		1		0	set
+> > 		1		1	clear
+> > 		2+		0/1	clear
 >=20
-> I'm respecting the original style, but I'm not particular about this styl=
-e.
-> I'll make less confusing one, thanks :)
->=20
-> (Your suggested condition is not exactly the same as current one, even
-> if reversing if/else. v2 will be different than it. Anyway, thanks.)
+> The last line should be set.
 
-A quick truth table:
-	auto_cnt	auto_port	set/clear
-		0		0	clear
-		0		1	clear
-		1		0	set
-		1		1	clear
-		2+		0/1	clear
+I've clearly not drunk enough coffee today...
 
-So you want:
-	if (br->auto_cnt && !br_auto_port(p))
-		br_port_set_promisc(p);
-	else
-		br_port_clear_promisc(p);
-
-Does seem like a strange condition.
+I suspect the 0-1 line is impossible.
+Since the check is probably for 'any other ports in 'auto' mode'.
+So:
+	if (auto_cnt - auto_port > 0)
+(which is much the same as the original) is a good descriptive test.
 
 	David
 
-=09
 
 
