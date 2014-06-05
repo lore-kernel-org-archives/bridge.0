@@ -1,27 +1,17 @@
-Return-Path: <vyasevich@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=8mWJd51NFZ1nO2KZ0R74lDLohhXgOLCxqh6WAdcq3B4=;
-	b=MxQHmpKRsLd7ycQET5goygCSkUohlxfgfU0hP2o7ohnzrHasJb5OHHoOVLd8Ms8bN8
-	bfpvrr+uJx4vT3PCOGNHJAa+J2cT68a3KmJSgu9kWF0pqjIxxwWBPAGi443sjo+RuQrD
-	SHy9C6uE/S6AtnoPzNkID2zuyurRAQraGLrR6MjvNdoIe+b0yGMB8DpPZsGJ5K1bxKvZ
-	+vgYZDsP1UKVn1PC0ClVHRKul4lHAiazRJCkCXttPE9LaKpaJ6Cl7Rp84Rpe17d6UPRd
-	09JAB/LO5GcjJuJlBq1z91QJE5ftCx4hslp1c9XZ99BeMKbcV9p38K9in4M/5gtFM1M0
-	rtLQ==
-Message-ID: <5390875F.9040804@gmail.com>
-Date: Thu, 05 Jun 2014 11:06:07 -0400
-From: Vlad Yasevich <vyasevich@gmail.com>
+Return-Path: <linus.luessing@web.de>
+Date: Thu, 5 Jun 2014 23:20:16 +0200
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
+Message-ID: <20140605212016.GE2544@Linus-Debian>
+References: <1401732466-3027-1-git-send-email-linus.luessing@web.de>
+	<20140602184215.GA2460@Linus-Debian>
+	<20140605.004311.19890338095820543.davem@davemloft.net>
 MIME-Version: 1.0
-References: <1401965851-6449-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<063D6719AE5E284EB5DD2968C1650D6D17257C08@AcuExch.aculab.com>
-	<539052C0.2090409@lab.ntt.co.jp>
-	<063D6719AE5E284EB5DD2968C1650D6D17257D43@AcuExch.aculab.com>
-In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6D17257D43@AcuExch.aculab.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: Fix incorrect judgment of
-	promisc
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20140605.004311.19890338095820543.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCHv3 net-next 0/4] bridge: multicast snooping
+ patches / exports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,96 +20,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Laight <David.Laight@ACULAB.COM>, 'Toshiaki Makita' <makita.toshiaki@lab.ntt.co.jp>, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: David Miller <davem@davemloft.net>
+Cc: b.a.t.m.a.n@lists.open-mesh.org, herbert@gondor.apana.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
 
-On 06/05/2014 08:55 AM, David Laight wrote:
-> From: Toshiaki Makita
->> (2014/06/05 20:03), David Laight wrote:
->>> From: Toshiaki Makita
->>>> br_manage_promisc() incorrectly expects br_auto_port() to return only 0
->>>> or 1, while it actually returns flags, i.e., a subset of BR_AUTO_MASK.
->>>>
->>>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->>>> ---
->>>>  net/bridge/br_if.c | 2 +-
->>>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>>
->>>> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
->>>> index a08d2b8..6a07a40 100644
->>>> --- a/net/bridge/br_if.c
->>>> +++ b/net/bridge/br_if.c
->>>> @@ -153,7 +153,7 @@ void br_manage_promisc(struct net_bridge *br)
->>>>  			 * This lets us disable promiscuous mode and write
->>>>  			 * this config to hw.
->>>>  			 */
->>>> -			if (br->auto_cnt <= br_auto_port(p))
->>>> +			if (br->auto_cnt <= !!br_auto_port(p))
->>>>  				br_port_clear_promisc(p);
->>>>  			else
->>>>  				br_port_set_promisc(p);
->>>
->>> Why not the less confusing:
->>> 			if (br->auto_cnt || br_auto_port(p))
->>> and reverse the then/else lines?
->>
->> I'm respecting the original style, but I'm not particular about this style.
->> I'll make less confusing one, thanks :)
->>
->> (Your suggested condition is not exactly the same as current one, even
->> if reversing if/else. v2 will be different than it. Anyway, thanks.)
+
+On Thu, Jun 05, 2014 at 12:43:11AM -0700, David Miller wrote:
+> From: Linus Lüssing <linus.luessing@web.de>
+> Date: Mon, 2 Jun 2014 20:42:15 +0200
 > 
-> A quick truth table:
-> 	auto_cnt	auto_port	set/clear
-> 		0		0	clear
-> 		0		1	clear
-               Can't happen
-
-> 		1		0	set
-              Can't happen
-> 		1		1	clear
-> 		2+		0/1	clear
+> > Changes in v3:
+> > 
+> > * use EXPORT_SYMBOL_GPL() instead of EXPORT_SYMBOL()
 > 
-> So you want:
-> 	if (br->auto_cnt && !br_auto_port(p))
-> 		br_port_set_promisc(p);
-> 	else
-> 		br_port_clear_promisc(p);
-
-Some versions of the series that added this had
-an explicit check for count.  Essentially, the
-expanded condition is this:
-
-  if (count == 0)
-     clear
-  else if (count == 1 && auto_port(p))
-     clear
-  else
-     set
-
-The suggestion was that we could use a boolean (0|1)
-to check reduce the above to
-  if (count <= auto_port(p))
-     clear
-  else
-     set
-
-Personally, I prefer the extended version since it
-is much clearer and is easy to understand.
-
--vlad
-
+> This is not a sufficient header posting.
 > 
-> Does seem like a strange condition.
-> 
-> 	David
-> 
-> 	
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> You must also describe at a high level what this patch series is
+> doing, and why you are doing it.
 
+Oh, I'm sorry, I thought it'd only be necessary for the v1
+patchset. Going to change that from now on. Anyways, here it is
+(copied 'n' pasted):
+
+-----
+
+The first patch is simply a cosmetic patch. So far I (and maybe others
+too?) have been regularly confusing these two structs, therefore I'd
+suggest renaming them and therefore making the follow-up patches easier
+to understand and nicer to fit in.
+
+The second patch fixes a minor issue, but probably not worth for stable.
+
+
+On the other hand the first two patches are also preparations for the
+third and fourth patch:
+
+These two patches are exporting functionality needed to marry the bridge
+multicast snooping with the batman-adv multicast optimizations recently
+added for the 3.15 kernel, allowing to use these optimzations in common
+setups having a bridge on top of e.g. bat0, too. So far these bridged
+setups would fall back to simple flooding through the batman-adv mesh
+network for any multicast packet entering bat0.
+
+More information about the batman-adv multicast optimizations currently
+implemented can be found here:
+
+http://www.open-mesh.org/projects/batman-adv/wiki/Basic-multicast-optimizations
+
+The integration on the batman-adv side could afterwards look like this,
+for instance:
+
+http://git.open-mesh.org/batman-adv.git/commitdiff/576b59dd3e34737c702e548b21fa72059262f796?hp=f95ce7131746c65fbcdffcf2089cab59e2c2f7ac
+
+-----
