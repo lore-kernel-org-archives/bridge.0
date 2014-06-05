@@ -1,15 +1,14 @@
-Return-Path: <linus.luessing@web.de>
-Date: Thu, 5 Jun 2014 23:20:16 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@web.de>
-Message-ID: <20140605212016.GE2544@Linus-Debian>
-References: <1401732466-3027-1-git-send-email-linus.luessing@web.de>
-	<20140602184215.GA2460@Linus-Debian>
+Return-Path: <davem@davemloft.net>
+Date: Thu, 05 Jun 2014 14:50:59 -0700 (PDT)
+Message-Id: <20140605.145059.8146842085083371.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20140605212016.GE2544@Linus-Debian>
+References: <20140602184215.GA2460@Linus-Debian>
 	<20140605.004311.19890338095820543.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20140605.004311.19890338095820543.davem@davemloft.net>
+	<20140605212016.GE2544@Linus-Debian>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCHv3 net-next 0/4] bridge: multicast snooping
  patches / exports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -20,55 +19,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
+To: linus.luessing@web.de
 Cc: b.a.t.m.a.n@lists.open-mesh.org, herbert@gondor.apana.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
 
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Thu, 5 Jun 2014 23:20:16 +0200
 
-On Thu, Jun 05, 2014 at 12:43:11AM -0700, David Miller wrote:
-> From: Linus Lüssing <linus.luessing@web.de>
-> Date: Mon, 2 Jun 2014 20:42:15 +0200
-> 
-> > Changes in v3:
-> > 
-> > * use EXPORT_SYMBOL_GPL() instead of EXPORT_SYMBOL()
-> 
-> This is not a sufficient header posting.
-> 
-> You must also describe at a high level what this patch series is
-> doing, and why you are doing it.
+> Oh, I'm sorry, I thought it'd only be necessary for the v1
+> patchset. Going to change that from now on. Anyways, here it is
+> (copied 'n' pasted):
 
-Oh, I'm sorry, I thought it'd only be necessary for the v1
-patchset. Going to change that from now on. Anyways, here it is
-(copied 'n' pasted):
-
------
-
-The first patch is simply a cosmetic patch. So far I (and maybe others
-too?) have been regularly confusing these two structs, therefore I'd
-suggest renaming them and therefore making the follow-up patches easier
-to understand and nicer to fit in.
-
-The second patch fixes a minor issue, but probably not worth for stable.
-
-
-On the other hand the first two patches are also preparations for the
-third and fourth patch:
-
-These two patches are exporting functionality needed to marry the bridge
-multicast snooping with the batman-adv multicast optimizations recently
-added for the 3.15 kernel, allowing to use these optimzations in common
-setups having a bridge on top of e.g. bat0, too. So far these bridged
-setups would fall back to simple flooding through the batman-adv mesh
-network for any multicast packet entering bat0.
-
-More information about the batman-adv multicast optimizations currently
-implemented can be found here:
-
-http://www.open-mesh.org/projects/batman-adv/wiki/Basic-multicast-optimizations
-
-The integration on the batman-adv side could afterwards look like this,
-for instance:
-
-http://git.open-mesh.org/batman-adv.git/commitdiff/576b59dd3e34737c702e548b21fa72059262f796?hp=f95ce7131746c65fbcdffcf2089cab59e2c2f7ac
-
------
+When I ask for changes, you need to make a new fresh submission
+of your patch(s).
