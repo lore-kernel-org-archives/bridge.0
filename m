@@ -1,15 +1,8 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 05 Jun 2014 00:43:11 -0700 (PDT)
-Message-Id: <20140605.004311.19890338095820543.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20140602184215.GA2460@Linus-Debian>
-References: <1401732466-3027-1-git-send-email-linus.luessing@web.de>
-	<20140602184215.GA2460@Linus-Debian>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCHv3 net-next 0/4] bridge: multicast snooping
- patches / exports
+Return-Path: <makita@lab.ntt.co.jp>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Thu,  5 Jun 2014 19:57:31 +0900
+Message-Id: <1401965851-6449-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH net-next] bridge: Fix incorrect judgment of promisc
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,18 +11,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: b.a.t.m.a.n@lists.open-mesh.org, herbert@gondor.apana.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Mon, 2 Jun 2014 20:42:15 +0200
+br_manage_promisc() incorrectly expects br_auto_port() to return only 0
+or 1, while it actually returns flags, i.e., a subset of BR_AUTO_MASK.
 
-> Changes in v3:
-> =
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ net/bridge/br_if.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> * use EXPORT_SYMBOL_GPL() instead of EXPORT_SYMBOL()
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index a08d2b8..6a07a40 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -153,7 +153,7 @@ void br_manage_promisc(struct net_bridge *br)
+ 			 * This lets us disable promiscuous mode and write
+ 			 * this config to hw.
+ 			 */
+-			if (br->auto_cnt <= br_auto_port(p))
++			if (br->auto_cnt <= !!br_auto_port(p))
+ 				br_port_clear_promisc(p);
+ 			else
+ 				br_port_set_promisc(p);
+-- 
+1.8.1.2
 
-This is not a sufficient header posting.
-
-You must also describe at a high level what this patch series is
-doing, and why you are doing it.
