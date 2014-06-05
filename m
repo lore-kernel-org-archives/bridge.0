@@ -1,16 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Thu, 05 Jun 2014 14:50:59 -0700 (PDT)
-Message-Id: <20140605.145059.8146842085083371.davem@davemloft.net>
+Date: Thu, 05 Jun 2014 15:21:51 -0700 (PDT)
+Message-Id: <20140605.152151.1874961526019573838.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20140605212016.GE2544@Linus-Debian>
-References: <20140602184215.GA2460@Linus-Debian>
-	<20140605.004311.19890338095820543.davem@davemloft.net>
-	<20140605212016.GE2544@Linus-Debian>
+In-Reply-To: <1401969212-19193-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+References: <1401969212-19193-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCHv3 net-next 0/4] bridge: multicast snooping
- patches / exports
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH v2 net-next] bridge: Fix incorrect judgment of
+	promisc
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,15 +17,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: b.a.t.m.a.n@lists.open-mesh.org, herbert@gondor.apana.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
+To: makita.toshiaki@lab.ntt.co.jp
+Cc: stephen@networkplumber.org, vyasevic@redhat.com, David.Laight@ACULAB.COM, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Thu, 5 Jun 2014 23:20:16 +0200
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Thu,  5 Jun 2014 20:53:32 +0900
 
-> Oh, I'm sorry, I thought it'd only be necessary for the v1
-> patchset. Going to change that from now on. Anyways, here it is
-> (copied 'n' pasted):
+> br_manage_promisc() incorrectly expects br_auto_port() to return only 0
+> or 1, while it actually returns flags, i.e., a subset of BR_AUTO_MASK.
+> 
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 
-When I ask for changes, you need to make a new fresh submission
-of your patch(s).
+I'm applying this as-is for now, even though I saw the other
+suggestions in this thread (which BTW didn't get picked up by
+patchwork, maybe some of you dropped the Message-Id in your replies by
+accident).
