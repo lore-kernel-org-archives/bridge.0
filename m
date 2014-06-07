@@ -1,16 +1,12 @@
-Return-Path: <akpm@linux-foundation.org>
-Date: Fri, 6 Jun 2014 23:45:01 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-Message-Id: <20140606234501.b950d5d0.akpm@linux-foundation.org>
-In-Reply-To: <20140606172250.GN4581@linux.vnet.ibm.com>
-References: <1402047743-3391-1-git-send-email-kenhelias@firemail.de>
-	<063D6719AE5E284EB5DD2968C1650D6D17258AEA@AcuExch.aculab.com>
-	<20140606172250.GN4581@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] list: Fix order of arguments for
-	hlist_add_after(_rcu)
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Sat,  7 Jun 2014 18:26:25 +0200
+Message-Id: <1402158389-13239-1-git-send-email-linus.luessing@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCHv4 net-next 0/4] bridge: multicast snooping patches
+	/ exports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,29 +15,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: paulmck@linux.vnet.ibm.com
-Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "b.a.t.m.a.n@lists.open-mesh.org" <b.a.t.m.a.n@lists.open-mesh.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 'Ken Helias' <kenhelias@firemail.de>, lkml <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, David Laight <David.Laight@aculab.com>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+To: netdev@vger.kernel.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org, Herbert Xu <herbert@gondor.apana.org.au>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-On Fri, 6 Jun 2014 10:22:51 -0700 "Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
+The first patch is simply a cosmetic patch. So far I (and maybe others
+too?) have been regularly confusing these two structs, therefore I'd
+suggest renaming them and therefore making the follow-up patches easier
+to understand and nicer to fit in.
 
-> On Fri, Jun 06, 2014 at 03:56:52PM +0000, David Laight wrote:
-> > From: Behalf Of Ken Helias
-> > > All other add functions for lists have the new item as first argument and the
-> > > position where it is added as second argument. This was changed for no good
-> > > reason in this function and makes using it unnecessary confusing.
-> > > 
-> > > Also the naming of the arguments in hlist_add_after was confusing. It was
-> > > changed to use the same names as hlist_add_after_rcu.
-> > ...
-> > > -static inline void hlist_add_after_rcu(struct hlist_node *prev,
-> > > -				       struct hlist_node *n)
-> > > +static inline void hlist_add_after_rcu(struct hlist_node *n,
-> > > +				       struct hlist_node *prev)
-> > 
-> > It is rather a shame that the change doesn't generate a compilation
-> > error for old source files.
-> 
-> I am also a bit concerned by this.
-> 
+The second patch fixes a minor issue, but probably not worth for stable.
 
-yup.  hlist_add_behind()?
+
+On the other hand the first two patches are also preparations for the
+third and fourth patch:
+
+These two patches are exporting functionality needed to marry the bridge
+multicast snooping with the batman-adv multicast optimizations recently
+added for the 3.15 kernel, allowing to use these optimzations in common
+setups having a bridge on top of e.g. bat0, too. So far these bridged
+setups would fall back to simple flooding through the batman-adv mesh
+network for any multicast packet entering bat0.
+
+More information about the batman-adv multicast optimizations currently
+implemented can be found here:
+
+http://www.open-mesh.org/projects/batman-adv/wiki/Basic-multicast-optimizations
+
+The integration on the batman-adv side could afterwards look like this,
+for instance:
+
+http://git.open-mesh.org/batman-adv.git/commitdiff/576b59dd3e34737c702e548b21fa72059262f796?hp=f95ce7131746c65fbcdffcf2089cab59e2c2f7ac
+
+
+Changes in v4:
+ - merged header postings from all previous patchset versions
+
+Changes in v3:
+ - use EXPORT_SYMBOL_GPL() instead of EXPORT_SYMBOL()
+
+Changes in v2:
+ - fix a nasty typo in PATCH 1/4, br_multicast_update_query_timer():
+   "br->multicast_query_interval" vs. "br->multicast_querier_interval"
+   => this accidentally reduced the other querier present timer 
+      from 255 to 125 seconds
+ - fix a typo in PATCH 2/4, br_ip{4,6}_multicast_query():
+   ntohs(ETH_P_{IP,IPV6}) vs. htons(ETH_P_{IP,IPV6})
+ - add missing ntohl()s before address comparison in PATCH 2/4,
+   br_ip4_multicast_select_querier() (thanks David!)
+
+Cheers, Linus
+
