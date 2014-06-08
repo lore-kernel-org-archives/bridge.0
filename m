@@ -1,8 +1,15 @@
-Return-Path: <makita@lab.ntt.co.jp>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Mon,  9 Jun 2014 20:34:43 +0900
-Message-Id: <1402313687-28067-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Subject: [Bridge] [PATCH net-next 0/4] bridge: 802.1ad vlan protocol support
+Return-Path: <jeffrey.t.kirsher@intel.com>
+Message-ID: <1402217625.3039.1.camel@jtkirshe-mobl>
+From: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Date: Sun, 08 Jun 2014 01:53:45 -0700
+In-Reply-To: <1402159211-12629-2-git-send-email-kenhelias@web.de>
+References: <1402159211-12629-1-git-send-email-kenhelias@web.de>
+	<1402159211-12629-2-git-send-email-kenhelias@web.de>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-o0coTsBl9GGr9ZZ4GW3Z"
+Mime-Version: 1.0
+Subject: Re: [Bridge] [linux-nics] [PATCHv3 2/3] list: Fix order of
+ arguments for hlist_add_after(_rcu)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,97 +18,93 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Ken Helias <kenhelias@web.de>
+Cc: devel@driverdev.osuosl.org, b.a.t.m.a.n@lists.open-mesh.org, NICS <linux.nics@intel.com>, Linux@isotope.jf.intel.com, e1000-devel@lists.sourceforge.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-fsdevel@vger.kernel.org, Ken Helias <kenhelias@firemail.de>, Andrew Morton <akpm@linux-foundation.org>, "Paul E.
+	McKenney" <paulmck@linux.vnet.ibm.com>
 
-Currently bridge vlan filtering doesn't work fine with 802.1ad protocol.
-Only if a bridge is configured without pvid, the bridge receives only
-802.1ad tagged frames and no STP is used, it will work.
-Otherwise:
-- If pvid is configured, it can put only 802.1Q tags but cannot put 802.1ad
-  tags.
-- If 802.1Q and 802.1ad tagged frames arrive in mixture, it applies filtering
-  regardless of their protocols.
-- While an 802.1ad bridge should use another mac address for STP BPDU and
-  should forward customer's BPDU frames, it can't.
-Thus, we can't properly handle frames once 802.1ad is used.
 
-Handling 802.1ad is useful if we want to allow stacked vlans to be used,
-e.g., guest VMs wants to use vlan tags and the host also wants to segregate
-guest's traffic from other guests' by vlan tags.
+--=-o0coTsBl9GGr9ZZ4GW3Z
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Here is the image describing how to configure a bridge to filter VMs traffic.
+On Sat, 2014-06-07 at 18:40 +0200, Ken Helias wrote:
+> From: Ken Helias <kenhelias@firemail.de>
+>=20
+> All other add functions for lists have the new item as first argument
+> and the
+> position where it is added as second argument. This was changed for no
+> good
+> reason in this function and makes using it unnecessary confusing.
+>=20
+> The name was changed to let old code generate a compile errors instead
+> of
+> using the wrong parameter order.
+>=20
+> Signed-off-by: Ken Helias <kenhelias@firemail.de>
+> Cc: Linux NICS <linux.nics@intel.com>
+> Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: e1000-devel@lists.sourceforge.net
+> Cc: netdev@vger.kernel.org
+> Cc: devel@driverdev.osuosl.org
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: b.a.t.m.a.n@lists.open-mesh.org
+> Cc: bridge@lists.linux-foundation.org
 
-         +-------+p/u   +-----+  +---------+
- +----+  |       |------|vnet0|--|User A VM|
- |eth0|--|802.1ad|      +-----+  +---------+
- +----+  |bridge |p/u   +-----+  +---------+
-         |       |------|vnet1|--|User B VM|
-         +-------+      +-----+  +---------+
-p/u: pvid/untagged
+For the Intel driver changes...
+Acked-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 
-This patch set enables us to set vlan protocols per bridge.
-This tries to implement a bridge like S-VLAN component in IEEE 802.1Q-2011
-spec.
+> ---
+> Patch based on "Add linux-next specific files for 20140606"
+>=20
+> v3:
+> renamed from hlist_add_after* to hlist_add_behind
+>=20
+> v2:
+> Splitted into two patches
+> reduced number of Cc
+>=20
+>  Documentation/RCU/whatisRCU.txt                  | 2 +-
+>  drivers/gpu/drm/drm_hashtab.c                    | 2 +-
+>  drivers/net/ethernet/intel/i40e/i40e_ethtool.c   | 2 +-
+>  drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c | 2 +-
+>  drivers/staging/lustre/lustre/libcfs/hash.c      | 4 ++--
+>  fs/namespace.c                                   | 2 +-
+>  fs/notify/inode_mark.c                           | 2 +-
+>  fs/notify/vfsmount_mark.c                        | 2 +-
+>  include/linux/list.h                             | 4 ++--
+>  include/linux/rculist.h                          | 8 ++++----
+>  net/batman-adv/fragmentation.c                   | 2 +-
+>  net/bridge/br_multicast.c                        | 2 +-
+>  net/ipv4/fib_trie.c                              | 2 +-
+>  net/ipv6/addrlabel.c                             | 2 +-
+>  net/xfrm/xfrm_policy.c                           | 4 ++--
+>  15 files changed, 21 insertions(+), 21 deletions(-)
 
-Note that there is another possible implementation that sets vlan protocols
-per port. Some HW switches seem to take that approach.
-However, I think per-bridge approach is better, because;
-- I think the typical usage of an 802.1ad bridge is segregating 802.1Q tagged
-  traffic (like what is described above), and this doesn't need the ability to
-  be set protocols per port. Also, If a bridge has many ports and it supports
-  per-port setting, we might have to make much more extra configurations to
-  change protocols of all ports.
 
-- I assume that the main perpose to set protocol per port is to assign S-VID
-  according to C-VID, or to realize two logical bridges (one is an 802.1Q
-  filtering bridge and the other is an 802.1ad filtering bridge) in one bridge.
-  The former usually needs additional features such as vlan id mapping, and
-  is likely to make bridge's code complicated. If a user wants, such enhanced
-  features can be accomplished by a combination of multiple bridges, so it is
-  not absolutely necessary to implement these features in a bridge itself.
-  The latter is simply unnecessary because we can easily make two bridges of
-  which one is an 802.1Q bridge and the other is an 802.1ad bridge.
 
-Here is an example of the enhanced feature that we can realize by using
-multiple bridges and veth interfaces. This way is documented in
-IEEE 802.1Q-2011 clause 15.4 (C-tagged service interface).
+--=-o0coTsBl9GGr9ZZ4GW3Z
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
- +----+  +-------+p/u         +------+  +----+  +--+
- |eth0|--|802.1ad|----veth----|802.1Q|--|vnet|--|VM|
- +----+  |bridge |----veth----|bridge|  +----+  +--+
-         +-------+p/u         +------+
-p/u: pvid/untagged
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-In this configuration, we can map C-VIDs to any S-VID.
-For example;
- C-VID 10 and 20 to S-VID 100
- C-VID 30 to S-VID 110
-This is achieved through the 802.1Q bridge that forwards C-tagged frames to
-proper ports of the 802.1ad bridge.
+iQIcBAABCgAGBQJTlCSZAAoJEOVv75VaS+3Ok5UQAKJkXA4phG5ywUso5FFKUi7c
+GmuypU0v+yAQqOtyIApE0pzTbn4Sdm1Dr9ihhYSCM5om/iAEyzVFsyGBtW7SHMOE
+s9HxS+g6XBITslWreVlKpc/78cjvUNldUF1zbbySP7D+BrOWZNufXhJAlmQMt+rp
+cA5jAIELq1FrRDSWCaiWQio99Mp9I8b5WPLM1ruBgIBiHUkDUO7bkSi8pN4ph87Z
+/2QRmwTt4P1TLRSQe++4LXIl/fBFebr+dGWNSVHrehJPBorRejORRfGH++wsjzqS
+vR+lmTreMbWOY6LegOifBji0PBRuMcgqaCknb0bFsmsa/HKUokLgL7DoUhfRKPIQ
+EQznC+AJZop5QGbcIEiqr16UhySit/4kKBYOqMccz20wegL6Kpza4TUKzJdhZZ6a
+7toLQQSjcQGp26kJE0qQqh0qGIfc0cV3vX7shN66cjA/GwFhFUzHLvnnRRf5JbTd
+hJf7JJ4DDXBtr/qtOQTVwxwfaWqgOu41pO7/SZpBysL6KC5smifJFdKtPCW1/xet
+kbO9p7vMAJND78bCC45wjebJd6ir0Ul/W5QhNOSyWSLfSG69vBB3aiJYf+24wUn4
+3q6TvLgRPYeOqqwT1rRRNl00UWbPeoWEcbGIddU83D7xXhwbFRjqzDPXZjIMezyL
+7YK2Y4ACs689I34gyeKD
+=NPkK
+-----END PGP SIGNATURE-----
 
-Changes:
-RFC -> v1:
-- Add S-TAG tx offload.
-- Remove a fix around stacked vlan which has already been fixed.
-- Take into account Bridge Group Addresses.
-- Separate handling of protocol-mismatch from br_vlan_get_tag().
-- Change the way to set vlan_proto from netlink to sysfs because no other
-  existing configuration per bridge can be set by netlink.
-
-Toshiaki Makita (4):
-  bridge: Add 802.1ad tx vlan acceleration
-  bridge: Prepare for 802.1ad vlan filtering support
-  bridge: Consider the Nearest Customer Bridge group addresses
-  bridge: Support 802.1ad vlan filtering
-
- net/bridge/br_device.c   |   6 ++-
- net/bridge/br_input.c    |  15 +++++-
- net/bridge/br_private.h  |  18 +++++++
- net/bridge/br_sysfs_br.c |  18 +++++++
- net/bridge/br_vlan.c     | 137 ++++++++++++++++++++++++++++++++++++++++++-----
- 5 files changed, 179 insertions(+), 15 deletions(-)
-
--- 
-1.8.1.2
+--=-o0coTsBl9GGr9ZZ4GW3Z--
 
