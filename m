@@ -1,11 +1,11 @@
 Return-Path: <makita@lab.ntt.co.jp>
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Mon,  9 Jun 2014 20:34:44 +0900
-Message-Id: <1402313687-28067-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Date: Mon,  9 Jun 2014 20:34:46 +0900
+Message-Id: <1402313687-28067-4-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 In-Reply-To: <1402313687-28067-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 References: <1402313687-28067-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Subject: [Bridge] [PATCH net-next 1/4] bridge: Add 802.1ad tx vlan
-	acceleration
+Subject: [Bridge] [PATCH net-next 3/4] bridge: Consider the Nearest Customer
+	Bridge group addresses
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +17,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
 Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-Bridge device doesn't need to embed S-tag into skb->data.
+An 802.1ad bridge must forward the Nearest Customer Bridge group addresses.
+ 01-80-C2-00-00-00
+ 01-80-C2-00-00-0B
+ 01-80-C2-00-00-0C
+ 01-80-C2-00-00-0D
+ 01-80-C2-00-00-0F
+(For details, see IEEE 802.1Q-2011 8.6.3.)
+
+An exception is the br->group_addr, which needs to be passed to the higher
+layer entity so that STP works.
 
 Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 ---
- net/bridge/br_device.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/bridge/br_input.c   | 15 ++++++++++++++-
+ net/bridge/br_private.h | 10 ++++++++++
+ 2 files changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index d77e2f0..82a410a 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -361,8 +361,9 @@ void br_dev_setup(struct net_device *dev)
- 	dev->priv_flags = IFF_EBRIDGE;
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 04d6348..b05d419 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -194,13 +194,26 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+ 		case 0x00:	/* Bridge Group Address */
+ 			/* If STP is turned off,
+ 			   then must forward to keep loop detection */
+-			if (p->br->stp_enabled == BR_NO_STP)
++			if (p->br->stp_enabled == BR_NO_STP ||
++			    (br_vlan_enabled(p->br) &&
++			     br_vlan_get_proto(p->br) == htons(ETH_P_8021AD) &&
++			     p->br->group_addr[5] != dest[5]))
+ 				goto forward;
+ 			break;
  
- 	dev->features = COMMON_FEATURES | NETIF_F_LLTX | NETIF_F_NETNS_LOCAL |
--			NETIF_F_HW_VLAN_CTAG_TX;
--	dev->hw_features = COMMON_FEATURES | NETIF_F_HW_VLAN_CTAG_TX;
-+			NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_STAG_TX;
-+	dev->hw_features = COMMON_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
-+			   NETIF_F_HW_VLAN_STAG_TX;
- 	dev->vlan_features = COMMON_FEATURES;
+ 		case 0x01:	/* IEEE MAC (Pause) */
+ 			goto drop;
  
- 	br->dev = dev;
++		case 0x0B:
++		case 0x0C:
++		case 0x0D:
++		case 0x0F:
++			/* The Nearest Customer Bridge group address */
++			if (br_vlan_enabled(p->br) &&
++			    br_vlan_get_proto(p->br) == htons(ETH_P_8021AD) &&
++			    p->br->group_addr[5] != dest[5])
++				goto forward;
++			/* fall through */
+ 		default:
+ 			/* Allow selective forwarding for most other protocols */
+ 			if (p->br->group_fwd_mask & (1u << dest[5]))
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index b65fee9..65204c2 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -647,6 +647,11 @@ static inline int br_vlan_enabled(struct net_bridge *br)
+ {
+ 	return br->vlan_enabled;
+ }
++
++static inline __be16 br_vlan_get_proto(struct net_bridge *br)
++{
++	return br->vlan_proto;
++}
+ #else
+ static inline bool br_allowed_ingress(struct net_bridge *br,
+ 				      struct net_port_vlans *v,
+@@ -742,6 +747,11 @@ static inline int br_vlan_enabled(struct net_bridge *br)
+ {
+ 	return 0;
+ }
++
++static inline __be16 br_vlan_get_proto(struct net_bridge *br)
++{
++	return 0;
++}
+ #endif
+ 
+ /* br_netfilter.c */
 -- 
 1.8.1.2
 
