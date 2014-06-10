@@ -1,16 +1,11 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <5396B097.8050100@lab.ntt.co.jp>
-Date: Tue, 10 Jun 2014 16:15:35 +0900
+Return-Path: <makita@lab.ntt.co.jp>
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-MIME-Version: 1.0
-References: <1402313687-28067-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1402313687-28067-5-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<5396564A.5040108@gmail.com>
-In-Reply-To: <5396564A.5040108@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 4/4] bridge: Support 802.1ad vlan
-	filtering
+Date: Tue, 10 Jun 2014 20:59:22 +0900
+Message-Id: <1402401565-15423-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1402401565-15423-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+References: <1402401565-15423-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH v2 net-next 1/4] bridge: Add 802.1ad tx vlan
+	acceleration
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,43 +14,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vlad Yasevich <vyasevich@gmail.com>, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-(2014/06/10 9:50), Vlad Yasevich wrote:
-> On 06/09/2014 07:34 AM, Toshiaki Makita wrote:
->> This enables us to change the vlan protocol for vlan filtering.
->> We come to be able to filter frames on the basis of 802.1ad vlan tags
->> through a bridge.
->>
->> This also changes br->group_addr if it has not been set by user.
->> This is needed for an 802.1ad bridge.
->> (See IEEE 802.1Q-2011 8.13.5.)
->>
->> To change the vlan protocol, write a protocol in sysfs:
->> # echo 0x88a8 > /sys/class/net/br0/bridge/vlan_protocol
->>
->> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->> ---
->>  net/bridge/br_private.h  |  2 ++
->>  net/bridge/br_sysfs_br.c | 18 +++++++++++
->>  net/bridge/br_vlan.c     | 81 ++++++++++++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 101 insertions(+)
->>
->> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
->> index 65204c2..3c5b23b 100644
->> --- a/net/bridge/br_private.h
->> +++ b/net/bridge/br_private.h
->> @@ -246,6 +246,7 @@ struct net_bridge
->>  	unsigned long			bridge_forward_delay;
->>  
->>  	u8				group_addr[ETH_ALEN];
->> +	unsigned char			group_addr_set;
-> 
-> nit:  can be bool since you just use true/false.
+Bridge device doesn't need to embed S-tag into skb->data.
 
-I'm not sure which is better in struct... but maybe it's more explicit.
-will change it in v2.
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ net/bridge/br_device.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Thanks,
-Toshiaki Makita
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index d77e2f0..82a410a 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -361,8 +361,9 @@ void br_dev_setup(struct net_device *dev)
+ 	dev->priv_flags = IFF_EBRIDGE;
+ 
+ 	dev->features = COMMON_FEATURES | NETIF_F_LLTX | NETIF_F_NETNS_LOCAL |
+-			NETIF_F_HW_VLAN_CTAG_TX;
+-	dev->hw_features = COMMON_FEATURES | NETIF_F_HW_VLAN_CTAG_TX;
++			NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_STAG_TX;
++	dev->hw_features = COMMON_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
++			   NETIF_F_HW_VLAN_STAG_TX;
+ 	dev->vlan_features = COMMON_FEATURES;
+ 
+ 	br->dev = dev;
+-- 
+1.8.1.2
+
