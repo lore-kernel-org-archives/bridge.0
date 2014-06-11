@@ -1,15 +1,14 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <5397F331.5020608@lab.ntt.co.jp>
-Date: Wed, 11 Jun 2014 15:12:01 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-MIME-Version: 1.0
-References: <1402313687-28067-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>	<1402313687-28067-4-git-send-email-makita.toshiaki@lab.ntt.co.jp>	<20140609085243.32f88582@nehalam.linuxnetplumber.net>	<1402332351.1742.16.camel@localhost.localdomain>	<5396363E.2020501@redhat.com>	<5396AE23.80808@lab.ntt.co.jp>
-	<20140610092127.5b4f528f@nehalam.linuxnetplumber.net>
-In-Reply-To: <20140610092127.5b4f528f@nehalam.linuxnetplumber.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 3/4] bridge: Consider the Nearest
- Customer Bridge group addresses
+Return-Path: <davem@davemloft.net>
+Date: Tue, 10 Jun 2014 23:51:23 -0700 (PDT)
+Message-Id: <20140610.235123.310487202447168937.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1402158389-13239-1-git-send-email-linus.luessing@web.de>
+References: <1402158389-13239-1-git-send-email-linus.luessing@web.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCHv4 net-next 0/4] bridge: multicast snooping
+ patches / exports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,51 +17,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: vyasevic@redhat.com, netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org
+To: linus.luessing@web.de
+Cc: b.a.t.m.a.n@lists.open-mesh.org, herbert@gondor.apana.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
 
-(2014/06/11 1:21), Stephen Hemminger wrote:
-> On Tue, 10 Jun 2014 16:05:07 +0900
-> Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
-> 
->> (2014/06/10 7:33), Vlad Yasevich wrote:
->> ...
->>>>> Rather than special casing this around vlan filtering, I would prefer
->>>>> the code always forward these packets, or manipulate group_fwd_mask
->>>>> to allow it that way.
->>>>
->>>> These addresses must be forwarded only if the bridge is an S-VLAN
->>>> bridge. When it is a C-VLAN bridge or a .1D bridge, they may not be
->>>> forwarded. So, I don't think we can forward them always.
->>>>
->>>> Using group_fwd_mask is a bit complicated. If we use it to forward them,
->>>> user can optionally turn off forwarding ability of those addresses...
->>>> but we maybe need another information (named like group_fwd_mask_set)
->>>> that indicates which bit is set by user. (We have to set group_fwd_mask
->>>> automatically when we set vlan_proto to 88a8.)
->>>> Is this way acceptable?
->>>
->>> May be separate it into required mask and user mask.  Set required
->>> mask when this is an S-VLAN bridge.
->>
->> Sounds like a good idea.
->> I'll give it a try, thank you for your suggestion.
->>
->> Thanks,
->> Toshiaki Makita
->>
-> 
-> Looking again at the code.
-> 
-> 1. If doing vlan then it should forward frames as defined in standard
->    by default.
-> 
-> 2. For compatiability, and for those users doing bump-on-wire, allow
->    forwarding via group mask.
-> 
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Sat,  7 Jun 2014 18:26:25 +0200
 
-Thank you for reviewing. I sent v2 and I'm thinking it can satisfy these
-two.
+> The first patch is simply a cosmetic patch. So far I (and maybe other=
+s
+> too?) have been regularly confusing these two structs, therefore I'd
+> suggest renaming them and therefore making the follow-up patches easi=
+er
+> to understand and nicer to fit in.
+> =
 
-Thanks,
-Toshiaki Makita
+> The second patch fixes a minor issue, but probably not worth for stab=
+le.
+> =
+
+> On the other hand the first two patches are also preparations for the=
+
+> third and fourth patch:
+> =
+
+> These two patches are exporting functionality needed to marry the bri=
+dge
+> multicast snooping with the batman-adv multicast optimizations recent=
+ly
+> added for the 3.15 kernel, allowing to use these optimzations in comm=
+on
+> setups having a bridge on top of e.g. bat0, too. So far these bridged=
+
+> setups would fall back to simple flooding through the batman-adv mesh=
+
+> network for any multicast packet entering bat0.
+
+Series applied, thank you.
