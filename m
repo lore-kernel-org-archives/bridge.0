@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Tue, 10 Jun 2014 23:51:23 -0700 (PDT)
-Message-Id: <20140610.235123.310487202447168937.davem@davemloft.net>
+Date: Wed, 11 Jun 2014 15:23:21 -0700 (PDT)
+Message-Id: <20140611.152321.799416344244730112.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1402158389-13239-1-git-send-email-linus.luessing@web.de>
-References: <1402158389-13239-1-git-send-email-linus.luessing@web.de>
+In-Reply-To: <1402401565-15423-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+References: <1402401565-15423-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCHv4 net-next 0/4] bridge: multicast snooping
- patches / exports
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH v2 net-next 0/4] bridge: 802.1ad vlan protocol
+	support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,39 +17,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: b.a.t.m.a.n@lists.open-mesh.org, herbert@gondor.apana.org.au, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stephen@networkplumber.org
+To: makita.toshiaki@lab.ntt.co.jp
+Cc: stephen@networkplumber.org, vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Sat,  7 Jun 2014 18:26:25 +0200
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Tue, 10 Jun 2014 20:59:21 +0900
 
-> The first patch is simply a cosmetic patch. So far I (and maybe other=
-s
-> too?) have been regularly confusing these two structs, therefore I'd
-> suggest renaming them and therefore making the follow-up patches easi=
-er
-> to understand and nicer to fit in.
-> =
+> Currently bridge vlan filtering doesn't work fine with 802.1ad protocol.
+> Only if a bridge is configured without pvid, the bridge receives only
+> 802.1ad tagged frames and no STP is used, it will work.
+> Otherwise:
+> - If pvid is configured, it can put only 802.1Q tags but cannot put 802.1ad
+>   tags.
+> - If 802.1Q and 802.1ad tagged frames arrive in mixture, it applies filtering
+>   regardless of their protocols.
+> - While an 802.1ad bridge should use another mac address for STP BPDU and
+>   should forward customer's BPDU frames, it can't.
+> Thus, we can't properly handle frames once 802.1ad is used.
+> 
+> Handling 802.1ad is useful if we want to allow stacked vlans to be used,
+> e.g., guest VMs wants to use vlan tags and the host also wants to segregate
+> guest's traffic from other guests' by vlan tags.
+> 
+> Here is the image describing how to configure a bridge to filter VMs traffic.
+> 
+>          +-------+p/u   +-----+  +---------+
+>  +----+  |       |------|vnet0|--|User A VM|
+>  |eth0|--|802.1ad|      +-----+  +---------+
+>  +----+  |bridge |p/u   +-----+  +---------+
+>          |       |------|vnet1|--|User B VM|
+>          +-------+      +-----+  +---------+
+> p/u: pvid/untagged
+> 
+> This patch set enables us to set vlan protocols per bridge.
+> This tries to implement a bridge like S-VLAN component in IEEE 802.1Q-2011
+> spec.
 
-> The second patch fixes a minor issue, but probably not worth for stab=
-le.
-> =
-
-> On the other hand the first two patches are also preparations for the=
-
-> third and fourth patch:
-> =
-
-> These two patches are exporting functionality needed to marry the bri=
-dge
-> multicast snooping with the batman-adv multicast optimizations recent=
-ly
-> added for the 3.15 kernel, allowing to use these optimzations in comm=
-on
-> setups having a bridge on top of e.g. bat0, too. So far these bridged=
-
-> setups would fall back to simple flooding through the batman-adv mesh=
-
-> network for any multicast packet entering bat0.
-
-Series applied, thank you.
+Series applied, thanks.
