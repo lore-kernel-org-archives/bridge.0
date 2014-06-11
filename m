@@ -1,14 +1,12 @@
 Return-Path: <linus.luessing@web.de>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Thu, 12 Jun 2014 01:41:24 +0200
-Message-Id: <1402530084-15061-3-git-send-email-linus.luessing@web.de>
-In-Reply-To: <1402530084-15061-1-git-send-email-linus.luessing@web.de>
-References: <1402530084-15061-1-git-send-email-linus.luessing@web.de>
+Date: Thu, 12 Jun 2014 01:41:22 +0200
+Message-Id: <1402530084-15061-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 2/2] bridge: fix compile error when compiling
-	without IPv6 support
+Subject: [Bridge] [PATCH 0/2 net-next] bridge: fix bugs introduced by last
+	multicast patchset
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,37 +18,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 
-Some fields in "struct net_bridge" aren't available when compiling the
-kernel without IPv6 support. Therefore adding a check/macro to skip the
-complaining code sections in that case.
+Once my last patchset got applied, I got slapped by an automatic smatch
+and build bot. Here are two patches fixing the according issues, a potential
+null pointer dereference and a compile error when compiling without IPv6.
 
-Introduced by 2cd4143192e8c60f66cb32c3a30c76d0470a372d
-("bridge: memorize and export selected IGMP/MLD querier port")
+[PATCH 1/2] is probably not the ideal solution - the assignment of the
+group and max_delay is still a mess and has subtle differences between
+IGMPv2, IGMPv3, MLDv1 and MLDv2. That should probably be fixed $later.
+But for now, I think the easier fix might be better, restoring the
+behaviour before my "adhere to querier mechanism" patch and therefore
+keeping things bisect'able.
 
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Signed-off-by: Linus Lüssing <linus.luessing@web.de>
----
- net/bridge/br_multicast.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 876e5fb..abfa0b65 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -2246,11 +2246,13 @@ bool br_multicast_has_querier_adjacent(struct net_device *dev, int proto)
- 		    rcu_dereference(br->ip4_querier.port) == port)
- 			goto unlock;
- 		break;
-+#if IS_ENABLED(CONFIG_IPV6)
- 	case ETH_P_IPV6:
- 		if (!timer_pending(&br->ip6_other_query.timer) ||
- 		    rcu_dereference(br->ip6_querier.port) == port)
- 			goto unlock;
- 		break;
-+#endif
- 	default:
- 		goto unlock;
- 	}
--- 
-1.7.10.4
-
+Cheers, Linus
