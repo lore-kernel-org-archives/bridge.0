@@ -1,14 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 12 Jun 2014 11:00:42 -0700 (PDT)
-Message-Id: <20140612.110042.301380151424639820.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1402530084-15061-1-git-send-email-linus.luessing@web.de>
-References: <1402530084-15061-1-git-send-email-linus.luessing@web.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 0/2 net-next] bridge: fix bugs introduced by
- last multicast patchset
+Return-Path: <cwang@twopensource.com>
+MIME-Version: 1.0
+In-Reply-To: <539EE86E.6030806@profihost.ag>
+References: <539EE86E.6030806@profihost.ag>
+Date: Mon, 16 Jun 2014 11:05:57 -0700
+Message-ID: <CAHA+R7OrT+x_jvDeqKgFc=ndebhB6qwecJBcT5y0ZAA+hBCJ3Q@mail.gmail.com>
+From: Cong Wang <cwang@twopensource.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: Re: [Bridge] netconsole breaks netpoll on bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,17 +15,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@web.de
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Stefan Priebe - Profihost AG <s.priebe@profihost.ag>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, Linux Netdev List <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, LKML <linux-kernel@vger.kernel.org>
 
-From: Linus L=FCssing <linus.luessing@web.de>
-Date: Thu, 12 Jun 2014 01:41:22 +0200
+On Mon, Jun 16, 2014 at 5:51 AM, Stefan Priebe - Profihost AG
+<s.priebe@profihost.ag> wrote:
+> Hi,
+>
+> i'm using a vanilla 3.10.43 kernel and netconsole on top of a bridge.
+>
+> netconsole is used with vmbr0 (bridge) which is on top of bond0.
+>
+> If i want to add another bridge to vmbr0 is fails as long as netconsole
+> is in use.
+>
+> # brctl addif vmbr0 fwpr2004p0
+> can't add fwpr2004p0 to bridge vmbr0: Unknown error 524
+>
+> Kernel output:
+> netpoll: (null): fwpr2004p0 doesn't support polling, aborting
+>
+> If i do rmmod netconsole - everything is working fine again.
+>
 
-> Once my last patchset got applied, I got slapped by an automatic smat=
-ch
-> and build bot. Here are two patches fixing the according issues, a po=
-tential
-> null pointer dereference and a compile error when compiling without I=
-Pv6.
+This is expected, you can't add an interface which doesn't support
+netpoll to a bridge which is running netpoll.
 
-Series applied, thanks.
+You should stop netpoll before adding it.
