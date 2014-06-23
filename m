@@ -1,13 +1,8 @@
-Return-Path: <fw@strlen.de>
-From: Florian Westphal <fw@strlen.de>
-Message-ID: <20140627185207.GA2843@breakpoint.cc>
-References: <20140627174837.GG1353@login.tika.stderr.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140627174837.GG1353@login.tika.stderr.nl>
-Subject: Re: [Bridge] Unable to DNAT packets back into originating bridge
-	port
+Return-Path: <mbizon@freebox.fr>
+From: Maxime Bizon <mbizon@freebox.fr>
+Message-Id: <1403534015-28496-1-git-send-email-mbizon@freebox.fr>
+Subject: [Bridge] [PATCH] bridge: mark packets sent to any local mac address
+	as PACKET_HOST
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,19 +11,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 27 Jun 2014 18:52:13 -0000
-To: Matthijs Kooijman <matthijs@stdin.nl>, Stephen Hemminger <stephen@networkplumber.org>, Bart De Schuymer <bart.de.schuymer@pandora.be>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+Date: Mon, 23 Jun 2014 14:43:37 -0000
+To: stephen@networkplumber.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, Maxime Bizon <mbizon@freebox.fr>
 
-Matthijs Kooijman <matthijs@stdin.nl> wrote:
-> I recently stumbled upon an issue in my iptables setup. After some
-> extensive debugging, I've found that the problem occurs when trying to
-> DNAT (+SNAT) a packet that comes in through a bridge, back into the same bridge
-> port it originated from.
-> 
-> The code ultimately responsible for this is the should_deliver function
-> [1], which prevents packets from being delivered back to their
-> originating port (ultimately to prevent bouncing broadcast message, I
-> believe).
+The bridge code only set PACKET_HOST on packets sent to the bridge mac
+address, packets sent to other local mac addresses are sent to upper
+layers, but ignored because they are marked as PACKET_OTHERHOST.
 
-Sounds like
-http://marc.info/?t=136627796900001&r=1&w=2
+Signed-off-by: Maxime Bizon <mbizon@freebox.fr>
+---
+ net/bridge/br_input.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 366c436..b9cc8554 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -120,6 +120,7 @@ int br_handle_frame_finish(struct sk_buff *skb)
+ 			dst->is_local) {
+ 		skb2 = skb;
+ 		/* Do not forward the packet since it's local. */
++		skb2->pkt_type = PACKET_HOST;
+ 		skb = NULL;
+ 	}
+ 
+-- 
+1.7.9.5
+
