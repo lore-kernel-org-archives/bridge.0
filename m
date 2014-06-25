@@ -1,11 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 25 Jun 2014 16:09:25 -0700 (PDT)
-Message-Id: <20140625.160925.2125216104261498290.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
+Return-Path: <stephen@networkplumber.org>
+Date: Wed, 25 Jun 2014 16:13:35 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20140625161335.11598f09@haswell>
 In-Reply-To: <1403534015-28496-1-git-send-email-mbizon@freebox.fr>
 References: <1403534015-28496-1-git-send-email-mbizon@freebox.fr>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: mark packets sent to any local mac
  address as PACKET_HOST
@@ -17,11 +17,11 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: mbizon@freebox.fr
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Maxime Bizon <mbizon@freebox.fr>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-From: Maxime Bizon <mbizon@freebox.fr>
-Date: Mon, 23 Jun 2014 16:33:35 +0200
+On Mon, 23 Jun 2014 16:33:35 +0200
+Maxime Bizon <mbizon@freebox.fr> wrote:
 
 > The bridge code only set PACKET_HOST on packets sent to the bridge mac
 > address, packets sent to other local mac addresses are sent to upper
@@ -29,4 +29,8 @@ Date: Mon, 23 Jun 2014 16:33:35 +0200
 > 
 > Signed-off-by: Maxime Bizon <mbizon@freebox.fr>
 
-This looks fine to me, Stephen and other bridge hackers please review.
+What are you trying to do? Bridge device itself only has one MAC address.
+Are you trying to run macvlan on top of bridge?
+We only respond to ARP with bridge's MAC address.
+
+
