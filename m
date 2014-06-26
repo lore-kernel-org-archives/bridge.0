@@ -1,11 +1,13 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Wed, 25 Jun 2014 16:13:35 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20140625161335.11598f09@haswell>
-In-Reply-To: <1403534015-28496-1-git-send-email-mbizon@freebox.fr>
+Return-Path: <davem@davemloft.net>
+Date: Thu, 26 Jun 2014 13:35:50 -0700 (PDT)
+Message-Id: <20140626.133550.975175623908419742.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1403781352.52578.103.camel@sakura.staff.proxad.net>
 References: <1403534015-28496-1-git-send-email-mbizon@freebox.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	<20140625161335.11598f09@haswell>
+	<1403781352.52578.103.camel@sakura.staff.proxad.net>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] bridge: mark packets sent to any local mac
  address as PACKET_HOST
@@ -17,20 +19,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Maxime Bizon <mbizon@freebox.fr>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: mbizon@freebox.fr
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Mon, 23 Jun 2014 16:33:35 +0200
-Maxime Bizon <mbizon@freebox.fr> wrote:
+From: Maxime Bizon <mbizon@freebox.fr>
+Date: Thu, 26 Jun 2014 13:15:52 +0200
 
-> The bridge code only set PACKET_HOST on packets sent to the bridge mac
-> address, packets sent to other local mac addresses are sent to upper
-> layers, but ignored because they are marked as PACKET_OTHERHOST.
-> 
-> Signed-off-by: Maxime Bizon <mbizon@freebox.fr>
+> for some reasons, hostapd kept adding and removing the interface from
+> the bridge, triggering a mac address of the bridge change each time (I
+> did not notice that).
 
-What are you trying to do? Bridge device itself only has one MAC address.
-Are you trying to run macvlan on top of bridge?
-We only respond to ARP with bridge's MAC address.
-
-
+I think this is what you need to investigate rather than making
+changes to the bridge layer.
