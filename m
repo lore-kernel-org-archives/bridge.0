@@ -1,15 +1,14 @@
-Return-Path: <cwang@twopensource.com>
-MIME-Version: 1.0
-In-Reply-To: <1404704477-19448-2-git-send-email-linus.luessing@web.de>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 08 Jul 2014 16:13:41 -0700 (PDT)
+Message-Id: <20140708.161341.103939871003850198.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1404704477-19448-1-git-send-email-linus.luessing@web.de>
 References: <1404704477-19448-1-git-send-email-linus.luessing@web.de>
-	<1404704477-19448-2-git-send-email-linus.luessing@web.de>
-Date: Tue, 8 Jul 2014 11:41:59 -0700
-Message-ID: <CAHA+R7NjR4yovAskx3yym_wyXCOZRqSd81=+mnF_1wwUfPEn1Q@mail.gmail.com>
-From: Cong Wang <cwang@twopensource.com>
-Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH net-next 1/2] bridge: adding stubs for
-	multicast exports
+Subject: Re: [Bridge] [PATCH net-next 0/4] bridge: multicast snooping
+	exports #2
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,22 +17,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@web.de>
-Cc: b.a.t.m.a.n@lists.open-mesh.org, netdev <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+To: linus.luessing@web.de
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
 
-On Sun, Jul 6, 2014 at 8:41 PM, Linus L=C3=BCssing <linus.luessing@web.de> =
-wrote:
-> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-> index fd22789..e0c575c 100644
-> --- a/include/linux/if_bridge.h
-> +++ b/include/linux/if_bridge.h
-> @@ -36,8 +36,22 @@ extern void brioctl_set(int (*ioctl_hook)(struct net *=
-, unsigned int, void __use
->
->  typedef int br_should_route_hook_t(struct sk_buff *skb);
->  extern br_should_route_hook_t __rcu *br_should_route_hook;
-> +
-> +#if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_IGMP_SNOOPING)
+From: Linus L=FCssing <linus.luessing@web.de>
+Date: Mon,  7 Jul 2014 05:41:15 +0200
 
-Nit: CONFIG_BRIDGE_IGMP_SNOOPING depends CONFIG_BRIDGE,
-so you can just check CONFIG_BRIDGE_IGMP_SNOOPING.
+
+"0/4"?  Surely you meant "0/2" :-)
+
+> Some people pointed out to me that it might be helpful to add stubs f=
+or
+> the newly added multicast exports. That way e.g. batman-adv should co=
+ntinue
+> to be compile and useable without having to have a kernel compiled
+> with bridge code in the future. This is what the first patch is suppo=
+sed
+> to do.
+> =
+
+> The second patch adds a third multicast export for the bridge which
+> e.g. batman-adv is supposed to use, too, soon: Just like the bridge
+> disables its multicast snooping activities if no querier is present,
+> batman-adv needs to do the same if bridges are involved.
+> =
+
+> =
+
+> These three exports should be the final ones needed to marry the brid=
+ge
+> multicast snooping with the batman-adv multicast optimizations recent=
+ly
+> added for the 3.15 kernel, allowing to use these optimzations in comm=
+on
+> setups having a bridge on top of e.g. bat0, too. So far these bridged=
+
+> setups would fall back to simple flooding through the batman-adv mesh=
+
+> network for any multicast packet entering bat0.
+> =
+
+> More information about the batman-adv multicast optimizations current=
+ly
+> implemented can be found here:
+> =
+
+> http://www.open-mesh.org/projects/batman-adv/wiki/Basic-multicast-opt=
+imizations
+> =
+
+> The integration on the batman-adv side could afterwards look like thi=
+s,
+> for instance (now including the third export):
+> =
+
+> http://git.open-mesh.org/batman-adv.git/commitdiff/61e4f6af4b7a21ed40=
+40f2e711d50c778e5b6d93?hp=3D6ae4281474675fbca5bedcf768972a32db586eb6
+
+Series applied, thanks.
