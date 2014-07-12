@@ -1,22 +1,10 @@
-Return-Path: <stimits@comcast.net>
-Date: Thu, 31 Jul 2014 20:51:06 +0000 (UTC)
-From: stimits@comcast.net
-Message-ID: <1645433484.36982455.1406839866983.JavaMail.root@comcast.net>
+Return-Path: <jochen.dehm@freenet.de>
+Message-ID: <53C162B9.4070501@freenet.de>
+From: Jochen Dehm <jochen.dehm@freenet.de>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; 
-	boundary="----=_Part_36982454_1486465939.1406839866981"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=comcast.net;
-	s=q20140121; t=1406839867;
-	bh=e+MGpjfrsrQWhe64Xa2lAvoyh6/uy/aOjBSttOeCpKA=;
-	h=Received:Received:Date:From:To:Message-ID:Subject:MIME-Version:
-	Content-Type;
-	b=QnRaxtAAjihsO2zDQhdAWezf4FIHq8nhswJnfhPsi9+HuCEbMvJoEdLE0puIo3yHO
-	YS8rjJy1RSi3WWBpz/dN+sTAOjZ6r1N2tluriPW3HWrHLNimYIBKGP9bFTIrtFDZ2q
-	lfcMzPmC8ybFI/P/MzRIh92vRZ53SjkLQ5yP10rdKgIXsKm5lVqtCtdYLvLHIvmW0X
-	NX2Z7Zo92mFbaRCICrFO3GqtaBHuJzo4D7awTb8el+/lNeX0OhpLr752fuwoYBZdp1
-	IVd4gBhReQ6Ktl7uqGa0bnBxIPcztaLkXgCQl+pyBd7qXjX4CYPZHqdKXJVme64s8x
-	zASqiK4DhR3dw==
-Subject: [Bridge] Bridge "address x.x.x.x" Configuration
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] parallel bridging?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,28 +13,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
+Date: Sat, 12 Jul 2014 16:54:53 -0000
 To: bridge@lists.linux-foundation.org
 
-------=_Part_36982454_1486465939.1406839866981
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Hi there,
 
-Hi,
- 
-Long ago I used a linux bridge with an IP address bound specifically to one of the two NICs of the bridge. Currently, it seems as though the address configuration cannot be explicitly assigned to just one physical port (I have eth0 and eth1, wanted it bound specifically and only to eth0). I'm hoping this is just a quirk of how my Ubuntu 14.04 LTS is built, and not a limitation of the bridging software. Because I'm binding ports to the bridge, but not binding addresses to ports, I have to bind an address to the bridge as a whole. Using ifconfig after the bridge is up to bind an address directly to a port (independent of the bridge) fails.
- 
-One of my concerns is that I want the NIC on the "unfriendly" side to have no response to any address. The other concern is that with the current setup, I have a 10:1 latency increase problem using the address assigned, compared to the NIC just having an IP address without bridging. The latency issues are so bad that there is no use in using this for outside world connections. The system itself is ARMv7 embedded, and the two NICs are all that can ever be connected. No hardware flexibility exists for a third NIC to offload this function. Perhaps specifically binding the IP address to one NIC would remove the latency issue? If not, I have to debug and profile the kernel module on ARMv7, which will not be easy.
- 
-Thanks
-------=_Part_36982454_1486465939.1406839866981
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 7bit
+i have 2 locations, connected via telephone cable. Both locations are 
+connected via two dsl bridges.
+Everything works fine.
 
-<div>Hi,</div>
-<div>&nbsp;</div>
-<div>Long ago I used a linux bridge with an IP address bound specifically to one of the two NICs of the bridge. Currently, it seems as though the address configuration cannot be explicitly assigned to just one physical port (I have eth0 and eth1, wanted it bound specifically and only to eth0). I'm hoping this is just a quirk of how my Ubuntu 14.04 LTS is built, and not a limitation of the bridging software. Because I'm binding ports to the bridge, but not binding addresses to ports, I have to bind an address to the bridge as a whole. Using ifconfig after the bridge is up to bind an address directly to a port (independent of the bridge) fails.</div>
-<div>&nbsp;</div>
-<div>One of my concerns is that I want the NIC on the "unfriendly" side to have no response to any address. The other concern is that with the current setup, I have a 10:1 latency increase problem using the address assigned, compared to the NIC just having an IP address without bridging. The latency issues are so bad that there is no use in using this for outside world connections. The system itself is ARMv7 embedded, and the two NICs are all that can ever be connected. No hardware flexibility exists for a third NIC to offload this function. Perhaps specifically binding the IP address to one NIC would remove the latency issue? If not, I have to debug and profile the kernel module on ARMv7, which will not be easy.</div>
-<div>&nbsp;</div>
-<div>Thanks</div>
-------=_Part_36982454_1486465939.1406839866981--
+Now i have to increase the bandwith and want to build the following 
+szenario:
+
+                   Port 1/g1 ------ dsl bridge 1a ------- dsl bridge 2a 
+----- Port 2/g1
+/ \
+switch1 switch2
+\ /
+                   Port 1/g2 ------ dsl bridge 1b ------- dsl bridge 2b 
+----- Port 2/g2
+
+Building two etherchannels (LACP) 1/g1 with 1/g2 and 2/g1 with 2/g2 
+won't work, i guess the dsl bridge didn't transport LACP packets.
+
+RSTP won't fit my needs, increasing the bandwith.
+
+Does anyone have an idea, how to solve the problem?
+Do the dsl bridges need specific characteristics?
+
+regards
+joed
+
+
