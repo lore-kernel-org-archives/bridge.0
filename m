@@ -1,13 +1,14 @@
-Return-Path: <Igor@galilsoft.com>
-From: Igor Bezukh <Igor@galilsoft.com>
-Date: Fri, 11 Jul 2014 11:36:32 +0000
-Message-ID: <2bac19ce5f704178b25628b5e9e08344@DBXPR07MB093.eurprd07.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Subject: [Bridge] A question about Wireless dongle HW and driver support -
- best practice
+Return-Path: <pebolle@tiscali.nl>
+Message-ID: <1406291131.8231.20.camel@x220>
+From: Paul Bolle <pebolle@tiscali.nl>
+Date: Fri, 25 Jul 2014 14:25:31 +0200
+In-Reply-To: <20140723093949.GA3754@salvia>
+References: <1406107694.12441.8.camel@x220> <20140723093949.GA3754@salvia>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH] [linux-next] netfilter: kill remnants of ulog
+	targets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,33 +17,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: Pablo Neira Ayuso <pablo@netfilter.org>, "David S. Miller" <davem@davemloft.net>, Patrick McHardy <kaber@trash.net>, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Stephen Hemminger <stephen@networkplumber.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, James Morris <jmorris@namei.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: netdev@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
-Hi All,=0A=
-=0A=
-We have an embedded system that consists of Atmel AT91SAM9G20 SoC ( singgle=
- core ARMv5).=0A=
-This SoC also has USB 1.1 ( 11Mbps).=0A=
-=0A=
-Kernel version is 2.6.32.=0A=
-=0A=
-The solution should have two wireless dongles - one acting as Acess Point a=
-nd the other acting as WiFi client.=0A=
-=0A=
-In other words, we need the system to be a wireless repeater bridge.=0A=
-=0A=
-We had a lot of issues with the Atheros CARL9170 drivers and with Ralink 28=
-70.=0A=
-=0A=
-Ralink 2870 doesn't have support for AP mode, at least in it's 5572 driver =
-pack for linux from Meidatek website.=0A=
-=0A=
-We need the driver to support both Master and Managed modes, and working on=
- a single CPU core, no SMP.=0A=
-=0A=
-Can you please suggest a good chipset for such a solution hance from driver=
- perspective and HW performance perspective?=0A=
-=0A=
-TIA,=0A=
-=0A=
-Igor Bezukh=0A=
+The ulog targets were recently killed. A few references to the Kconfig
+macros CONFIG_IP_NF_TARGET_ULOG and CONFIG_BRIDGE_EBT_ULOG were left
+untouched. Kill these too.
+
+Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
+---
+Note that ulog_warn_deprecated and ebt_ulog_warn_deprecated do not exist
+anymore. Neither do */ebt_ulog.c and */ipt_ULOG.c.
+
+ include/net/netns/x_tables.h  | 6 ------
+ net/bridge/netfilter/Makefile | 1 -
+ net/ipv4/netfilter/Makefile   | 1 -
+ 3 files changed, 8 deletions(-)
+
+diff --git a/include/net/netns/x_tables.h b/include/net/netns/x_tables.h
+index 02fe40f8c8fd..c24060ee411e 100644
+--- a/include/net/netns/x_tables.h
++++ b/include/net/netns/x_tables.h
+@@ -15,11 +15,5 @@ struct netns_xt {
+ 	struct ebt_table *frame_filter;
+ 	struct ebt_table *frame_nat;
+ #endif
+-#if IS_ENABLED(CONFIG_IP_NF_TARGET_ULOG)
+-	bool ulog_warn_deprecated;
+-#endif
+-#if IS_ENABLED(CONFIG_BRIDGE_EBT_ULOG)
+-	bool ebt_ulog_warn_deprecated;
+-#endif
+ };
+ #endif
+diff --git a/net/bridge/netfilter/Makefile b/net/bridge/netfilter/Makefile
+index 1f78ea0d90e4..e0560a60cad4 100644
+--- a/net/bridge/netfilter/Makefile
++++ b/net/bridge/netfilter/Makefile
+@@ -36,5 +36,4 @@ obj-$(CONFIG_BRIDGE_EBT_SNAT) += ebt_snat.o
+ 
+ # watchers
+ obj-$(CONFIG_BRIDGE_EBT_LOG) += ebt_log.o
+-obj-$(CONFIG_BRIDGE_EBT_ULOG) += ebt_ulog.o
+ obj-$(CONFIG_BRIDGE_EBT_NFLOG) += ebt_nflog.o
+diff --git a/net/ipv4/netfilter/Makefile b/net/ipv4/netfilter/Makefile
+index 245db9df3337..33001621465b 100644
+--- a/net/ipv4/netfilter/Makefile
++++ b/net/ipv4/netfilter/Makefile
+@@ -57,7 +57,6 @@ obj-$(CONFIG_IP_NF_TARGET_ECN) += ipt_ECN.o
+ obj-$(CONFIG_IP_NF_TARGET_MASQUERADE) += ipt_MASQUERADE.o
+ obj-$(CONFIG_IP_NF_TARGET_REJECT) += ipt_REJECT.o
+ obj-$(CONFIG_IP_NF_TARGET_SYNPROXY) += ipt_SYNPROXY.o
+-obj-$(CONFIG_IP_NF_TARGET_ULOG) += ipt_ULOG.o
+ 
+ # generic ARP tables
+ obj-$(CONFIG_IP_NF_ARPTABLES) += arp_tables.o
+-- 
+1.9.3
+
