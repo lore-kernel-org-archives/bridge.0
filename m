@@ -1,11 +1,13 @@
-Return-Path: <mst@redhat.com>
-Date: Mon, 4 Aug 2014 15:22:40 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Message-ID: <1407158554-17384-1-git-send-email-mst@redhat.com>
+Return-Path: <stephen@networkplumber.org>
+Date: Mon, 4 Aug 2014 08:45:32 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20140804084532.6b84524c@haswell.linuxnetplumber.net>
+In-Reply-To: <1407158554-17384-1-git-send-email-mst@redhat.com>
+References: <1407158554-17384-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [PATCH] bridge: remove a useless comment
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: remove a useless comment
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,31 +16,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-commit 6cbdceeb1cb12c7d620161925a8c3e81daadb2e4
-    bridge: Dump vlan information from a bridge port
-introduced a comment in an attempt to explain the
-code logic. The comment is unfinished so it confuses more
-than it explains, remove it.
+On Mon, 4 Aug 2014 15:22:40 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- net/bridge/br_netlink.c | 1 -
- 1 file changed, 1 deletion(-)
+> commit 6cbdceeb1cb12c7d620161925a8c3e81daadb2e4
+>     bridge: Dump vlan information from a bridge port
+> introduced a comment in an attempt to explain the
+> code logic. The comment is unfinished so it confuses more
+> than it explains, remove it.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 26edb51..cb5fcf6 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -208,7 +208,6 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
- 	int err = 0;
- 	struct net_bridge_port *port = br_port_get_rtnl(dev);
- 
--	/* not a bridge port and  */
- 	if (!port && !(filter_mask & RTEXT_FILTER_BRVLAN))
- 		goto out;
- 
--- 
-MST
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+
