@@ -1,10 +1,11 @@
-Return-Path: <jochen.dehm@freenet.de>
-Message-ID: <53C162B9.4070501@freenet.de>
-From: Jochen Dehm <jochen.dehm@freenet.de>
+Return-Path: <mst@redhat.com>
+Date: Mon, 4 Aug 2014 15:22:40 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Message-ID: <1407158554-17384-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] parallel bridging?
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [PATCH] bridge: remove a useless comment
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +14,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sat, 12 Jul 2014 16:54:53 -0000
-To: bridge@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-Hi there,
+commit 6cbdceeb1cb12c7d620161925a8c3e81daadb2e4
+    bridge: Dump vlan information from a bridge port
+introduced a comment in an attempt to explain the
+code logic. The comment is unfinished so it confuses more
+than it explains, remove it.
 
-i have 2 locations, connected via telephone cable. Both locations are 
-connected via two dsl bridges.
-Everything works fine.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ net/bridge/br_netlink.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Now i have to increase the bandwith and want to build the following 
-szenario:
-
-                   Port 1/g1 ------ dsl bridge 1a ------- dsl bridge 2a 
------ Port 2/g1
-/ \
-switch1 switch2
-\ /
-                   Port 1/g2 ------ dsl bridge 1b ------- dsl bridge 2b 
------ Port 2/g2
-
-Building two etherchannels (LACP) 1/g1 with 1/g2 and 2/g1 with 2/g2 
-won't work, i guess the dsl bridge didn't transport LACP packets.
-
-RSTP won't fit my needs, increasing the bandwith.
-
-Does anyone have an idea, how to solve the problem?
-Do the dsl bridges need specific characteristics?
-
-regards
-joed
-
-
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 26edb51..cb5fcf6 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -208,7 +208,6 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 	int err = 0;
+ 	struct net_bridge_port *port = br_port_get_rtnl(dev);
+ 
+-	/* not a bridge port and  */
+ 	if (!port && !(filter_mask & RTEXT_FILTER_BRVLAN))
+ 		goto out;
+ 
+-- 
+MST
