@@ -1,13 +1,9 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 04 Aug 2014 12:47:05 -0700 (PDT)
-Message-Id: <20140804.124705.982661414906553098.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1407158554-17384-1-git-send-email-mst@redhat.com>
-References: <1407158554-17384-1-git-send-email-mst@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: remove a useless comment
+Return-Path: <makita@lab.ntt.co.jp>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Tue,  5 Aug 2014 15:57:15 +0900
+Message-Id: <1407221835-15529-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH net-next] bridge: Update outdated comment on
+	promiscuous mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,18 +12,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: mst@redhat.com
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Mon, 4 Aug 2014 15:22:40 +0200
+Now bridge ports can be non-promiscuous, vlan_vid_add() is no longer an
+unnecessary operation.
 
-> commit 6cbdceeb1cb12c7d620161925a8c3e81daadb2e4
->     bridge: Dump vlan information from a bridge port
-> introduced a comment in an attempt to explain the
-> code logic. The comment is unfinished so it confuses more
-> than it explains, remove it.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ net/bridge/br_vlan.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Applied, thanks.
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 2b2774f..febb0f8 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -55,10 +55,8 @@ static int __vlan_add(struct net_port_vlans *v, u16 vid, u16 flags)
+ 
+ 	if (p) {
+ 		/* Add VLAN to the device filter if it is supported.
+-		 * Stricly speaking, this is not necessary now, since
+-		 * devices are made promiscuous by the bridge, but if
+-		 * that ever changes this code will allow tagged
+-		 * traffic to enter the bridge.
++		 * This ensures tagged traffic enters the bridge when
++		 * promiscuous mode is disabled by br_manage_promisc().
+ 		 */
+ 		err = vlan_vid_add(dev, br->vlan_proto, vid);
+ 		if (err)
+-- 
+1.8.1.2
+
