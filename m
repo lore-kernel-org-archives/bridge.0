@@ -2,24 +2,24 @@ Return-Path: <toshiaki.makita1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=message-id:date:from:user-agent:mime-version:to:cc:subject
 	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=man3Sqwr2f1mgPdjLHTq8UmfmQ+9wPXOlnlef5RmYuc=;
-	b=znrnL6PEd1bn8nk/ww5R83qSZGfZtHveHL4qcH1al8xlhJGniSTnvJPSpWuWgtJ9Ig
-	kma7prOiBVVeZgc6YZU2yRmvNg2N020J9E3DMSXPDP86npnbctj1pwe3+o4dygqbfE1S
-	/L6cSstF60mUkWAkfa7QNuu0aokTYjBqnyydGbJYIvkpYWDf2fPuFRe5N3j7m7RDgrkX
-	wVHTrNJvzmG59ZU8UVXJd2WKbE9ZaeVq/+ck+/yFpP1S6XoGoKp9PJ/LhxHfXFJ9m44C
-	rVhFAuTiuE+4ZL6PBh4PSdVvG3/XKr06Ipq1adoOAVtcilQ8A5C2amojzLpsTzqCKG5y
-	Nwqg==
-Message-ID: <5415B27A.2000508@gmail.com>
-Date: Mon, 15 Sep 2014 00:21:30 +0900
+	bh=5tewL9MvMlpsHkqpsRztaH3r1qKNQSKCCgVVLWgdwV8=;
+	b=FifVxuzjlNLyvRruc5nGT5ovbtSwBUJpt3WC+QspjPXzeZHYlgmQX7pnXO7bV4FPLI
+	+tzf/LQCrkm6icY2oqu7ViKbuyGf/dgpEsFSRTrPij9NKhOd58VG9veCbb3LDTaZQcY/
+	NZJLmW4kiu/X9T1wc8dA2u2+rZ+6KXksjStM/rPOCpD8R1tcvpMsVp+HUGwNg55odmis
+	Pb2Pc8P5D7xrRF/sjl99URvWo0dL/flyN+8fGRiLmjvvHwe95SakRcqy6Wrfmhm/vnu8
+	5sF938PUdLcYDU/6UXLah2kbeXkLWEdxXgjPd/fLEy00W8YQmExo4DcOqoUDVbaCejSH
+	I6Lw==
+Message-ID: <5415B6C2.5030702@gmail.com>
+Date: Mon, 15 Sep 2014 00:39:46 +0900
 From: Toshiaki Makita <toshiaki.makita1@gmail.com>
 MIME-Version: 1.0
 References: <1410554691-18467-1-git-send-email-vyasevic@redhat.com>
-	<1410554691-18467-3-git-send-email-vyasevic@redhat.com>
-In-Reply-To: <1410554691-18467-3-git-send-email-vyasevic@redhat.com>
+	<1410554691-18467-4-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1410554691-18467-4-git-send-email-vyasevic@redhat.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 2/3] bridge: Add filtering support for
-	default_pvid
+Subject: Re: [Bridge] [PATCH 3/3] bridge;
+ Automatically filter vlans configured on top of bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,20 +32,35 @@ To: Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
 Cc: Vladislav Yasevich <vyasevic@redhat.com>, shemminger@vyatta.com, bridge@lists.linux-foundation.org
 
 (14/09/13 (土) 5:44), Vladislav Yasevich wrote:
-> Currently when vlan filtering is turned on on the bridge, the bridge
-> will drop all traffic untill the user configures the filter.  This
-> isn't very nice for ports that don't care about vlans and just
-> want untagged traffic.
-> 
-> A concept of a default_pvid was recently introduced.  This patch
-> adds filtering support for default_pvid.   Now, ports that don't
-> care about vlans and don't define there own filter will belong
-> to the VLAN of the default_pvid and continue to receive untagged
-> traffic.
+> If the user configures vlan devices on top of the bridge,
+> automatically set up filter entries for it as long as
+> bridge vlan protocol matches that of the vlan.
+> This allows the user to atomatically receive vlan traffic
+> for the vlans that are convifgured.
 
-If user sets pvid, then vid 1 (default_pvid) will become non-pvid but
-still not be filtered, right?
-vlan_bitmap of default_pvid shouldn't be cleared on setting pvid?
+Changing br->vlan_proto seems to cause inconsistency between vlan
+interfaces and filter settings.
+Can we automatically change filters when setting vlan_proto?
+
+>
+...
+> +static int br_vlan_rx_kill_vid(struct net_device *br_dev,
+> +			       __be16 proto, u16 vid)
+...
+> +	/* Don't report error.  This will fail if the vlan was
+> +	 * previousely remove by some other means and we don't
+> +	 * wan't to polute the log/bug the user.
+> +	 */
+> +	br_vlan_delete(br, vid);
+> +	return 0;
+> +}
+
+It might lead to unexpected behaviour, for example,
+1. create br0.10
+2. set pvid to 10 on br0
+3. delete br0.10
+Then, pvid will also be cleared?
+Something like ref counting is needed?
 
 Thanks,
 Toshiaki Makita
