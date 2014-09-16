@@ -1,15 +1,18 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <5418213F.2050105@lab.ntt.co.jp>
-Date: Tue, 16 Sep 2014 20:38:39 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <541839DD.5010303@redhat.com>
+Date: Tue, 16 Sep 2014 09:23:41 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
 MIME-Version: 1.0
 References: <1410554691-18467-1-git-send-email-vyasevic@redhat.com>
-	<20140915092405.124ff9d0@urahara>
-In-Reply-To: <20140915092405.124ff9d0@urahara>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 0/3] bridge: Some nice new things for vlan
-	filtering
+	<1410554691-18467-3-git-send-email-vyasevic@redhat.com>
+	<5415B27A.2000508@gmail.com> <5417011D.2000301@redhat.com>
+	<54181A93.2070604@lab.ntt.co.jp>
+In-Reply-To: <54181A93.2070604@lab.ntt.co.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 2/3] bridge: Add filtering support for
+	default_pvid
+Reply-To: vyasevic@redhat.com
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,59 +21,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, Vladislav Yasevich <vyasevich@gmail.com>
-Cc: Vladislav Yasevich <vyasevic@redhat.com>, netdev@vger.kernel.org, shemminger@vyatta.com, bridge@lists.linux-foundation.org
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Toshiaki Makita <toshiaki.makita1@gmail.com>, Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
+Cc: shemminger@vyatta.com, bridge@lists.linux-foundation.org
 
-On 2014/09/16 1:24, Stephen Hemminger wrote:
-> On Fri, 12 Sep 2014 16:44:48 -0400
-> Vladislav Yasevich <vyasevich@gmail.com> wrote:
->=20
->> While working with vlan filtering and non-promisc mode, I've found
->> myself wanting untagged traffic to automatically pass through the
->> bridge.  So I decided to introduce the concept of a per bridge default
->> pvid.  VLAN 1 is used as default pvid by default and can be changed
->> by user through sysfs while vlan filtering is off. (I'll be adding netli=
-nk
->> support now that Jiri Pirko kindly added the ifrastructure).  Default
->> pvid is assigned to all ports that do not assign their own pvid or
->> already have a given vlan configured.  This makes it very simple
->> to enable vlan filtering on the bridge, not have to configure a thing,
->> and still pass untagged traffic.
+On 09/16/2014 07:10 AM, Toshiaki Makita wrote:
+> On 2014/09/16 0:09, Vlad Yasevich wrote:
+>> On 09/14/2014 11:21 AM, Toshiaki Makita wrote:
+>>> (14/09/13 (土) 5:44), Vladislav Yasevich wrote:
+>>>> Currently when vlan filtering is turned on on the bridge, the bridge
+>>>> will drop all traffic untill the user configures the filter.  This
+>>>> isn't very nice for ports that don't care about vlans and just
+>>>> want untagged traffic.
+>>>>
+>>>> A concept of a default_pvid was recently introduced.  This patch
+>>>> adds filtering support for default_pvid.   Now, ports that don't
+>>>> care about vlans and don't define there own filter will belong
+>>>> to the VLAN of the default_pvid and continue to receive untagged
+>>>> traffic.
+>>>
+>>> If user sets pvid, then vid 1 (default_pvid) will become non-pvid but
+>>> still not be filtered, right?
 >>
->> The other small thing this series adds is automatic update of the
->> vlan filter when vlan is configured on top of the bridge.  In this
->> case we automatically add the given vlan to the bridge filter list.
->> The ports may still need to be updated as we don't know which ports
->> are allowed to receive a given vlan.
+>> Right.
 >>
->> Thanks
->> -vlad
+>>> vlan_bitmap of default_pvid shouldn't be cleared on setting pvid?
 >>
->> Vladislav Yasevich (3):
->>   bridge: Add a default_pvid sysfs attribute
->>   bridge: Add filtering support for default_pvid
->>   bridge; Automatically filter vlans configured on top of bridge
->>
->>  net/bridge/br_device.c   |  54 +++++++++++++++++++---
->>  net/bridge/br_if.c       |   2 +
->>  net/bridge/br_private.h  |  35 ++++++++++++++-
->>  net/bridge/br_sysfs_br.c |  17 +++++++
->>  net/bridge/br_vlan.c     | 113 ++++++++++++++++++++++++++++++++++++++++=
-++++++-
->>  5 files changed, 213 insertions(+), 8 deletions(-)
->>
->=20
-> Please, no special VLAN 1, other equipment has that silliness.
->=20
-> Why is untagged traffic not treated as VLAN 0?
+>> I can see arguments for both.  Just because the user wishes to set a
+>> different pvid may not always mean that vlan associated with default pvid
+>> shouldn't be filtered.  I think it's at user's discretion.  I hesitate
+>> to do too many things automatically.
+> 
+> On second thought, I agree with you.
+> It's reasonable that what default_pvid should do is only to set pvid on
+> adding a bridge/port.
+> 
+> My another concern is how we can disable default_pvid, since this
+> feature is originally non-existent.
 
-I guess it's respecting 802.1Q spec.
+My knee-jerk reaction is to disable it with a value of 0, but I am trying
+to think of a way to address Stephen's comment.
 
-  Table 9-2=97Reserved VID values
+The other alternative might be to use any invalid vlan id to disable it.
 
-  VID value: 1
-  The default PVID value used for classifying frames on ingress through
-  a Bridge Port. The PVID value of a Port can be changed by management.
+-vlad
+> 
+> Thanks,
+> Toshiaki Makita
+> 
 
-Thanks,
-Toshiaki Makita
