@@ -1,19 +1,12 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <541AAA43.1070200@lab.ntt.co.jp>
-Date: Thu, 18 Sep 2014 18:47:47 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Return-Path: <linus.luessing@web.de>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
+Date: Mon, 22 Sep 2014 01:32:44 +0200
+Message-Id: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-References: <1410554691-18467-1-git-send-email-vyasevic@redhat.com>
-	<1410554691-18467-4-git-send-email-vyasevic@redhat.com>
-	<5415B6C2.5030702@gmail.com> <54170372.4080903@redhat.com>
-	<54181EC1.2010608@lab.ntt.co.jp> <54183BCF.8070506@redhat.com>
-	<54184BB9.8010802@gmail.com> <54185095.4020102@redhat.com>
-	<5418D4F3.5070701@lab.ntt.co.jp> <54199753.8050608@redhat.com>
-In-Reply-To: <54199753.8050608@redhat.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH 3/3] bridge;
- Automatically filter vlans configured on top of bridge
+Subject: [Bridge] [PATCH] bridge: fix netfilter/NF_BR_LOCAL_OUT for own,
+	locally generated queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,82 +15,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com, Toshiaki Makita <toshiaki.makita1@gmail.com>, Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
-Cc: shemminger@vyatta.com, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
 
-On 2014/09/17 23:14, Vlad Yasevich wrote:
-> On 09/16/2014 08:25 PM, Toshiaki Makita wrote:
->> On 2014/09/17 0:00, Vlad Yasevich wrote:
->>> On 09/16/2014 10:39 AM, Toshiaki Makita wrote:
->>>> (14/09/16 (火) 22:31), Vlad Yasevich wrote:
->>>>> On 09/16/2014 07:28 AM, Toshiaki Makita wrote:
->>>>>> On 2014/09/16 0:19, Vlad Yasevich wrote:
->>>>>>> On 09/14/2014 11:39 AM, Toshiaki Makita wrote:
->>>>>>>> (14/09/13 (土) 5:44), Vladislav Yasevich wrote:
->>>>>>>>> If the user configures vlan devices on top of the bridge,
->>>>>>>>> automatically set up filter entries for it as long as
->>>>>>>>> bridge vlan protocol matches that of the vlan.
->>>>>>>>> This allows the user to atomatically receive vlan traffic
->>>>>>>>> for the vlans that are convifgured.
->>>>>>>>
->>>>>>>> Changing br->vlan_proto seems to cause inconsistency between vlan
->>>>>>>> interfaces and filter settings.
->>>>>>>> Can we automatically change filters when setting vlan_proto?
->>>>>>>>
->>>>>>>
->>>>>>> I thought we already do that in br_vlan_set_proto()?  Nothing
->>>>>>> here introduces any new kinds of issue with that code.
->>>>>>
->>>>>> I'm referring to a case like this:
->>>>>> 1. create br0.10 (802.1ad)
->>>>>> 2. change br->vlan_proto into 88a8
->>>>>>
->>>>>> When creating br0.10 (1), br->vlan_proto is 8100 and different from
->>>>>> protocol of br0.10, so it is ignored by br_vlan_rx_add_vid().
->>>>>> After changing br->vlan_proto (2), we might expect vlan 10 is not
->>>>>> filtered on br0, but it will be filtered.
->>>>>
->>>>> Ok, I see what you mean.  This one is a bit tough.  Our options are:
->>>>>   1) Return an error when configuring br0.10.  This might break user-space.  Not good.
->>>>>   2) Ignore protocol when crating the filter.  This is not good either as the user
->>>>>      may not switch the bridge vlan_proto value and we'd end up with a wrong filter.
->>>>>   3) Re-implement .1ad support per-vlan instead of per-bridge.
->>>>>
->>>>> You see another other alternatives?
->>>>
->>>> We might be able to configure filterings on changing vlan_proto.
->>>> 4) Memorize different protocol's filtering requests in
->>>> br_vlan_rx_add_vid() and use them when switching vlan_proto.
->>>
->>> If we do this, we might as well take it one small step further and make per-vlan protocol
->>> support.
->>>
->>>> 5) Scan vlan devices on bridge device when changing vlan_proto.
->>>>
->>>
->>> The scan could work...  walk the upper devices looking for vlans and add/delete filters
->>> based on the protocol of the vlan devices.
->>>
->>> Seems kind of hacky, but let me give this one a try...
->>
->> dev->vlan_info->vid_list might be a more appropriate list since
->> vlan_vid_add() can be called not only by vlan devices.
-> 
-> That's private to vlan implementation and I don't think this is a good reason
-> to expose it.
+Ebtables on the OUTPUT chain (NF_BR_LOCAL_OUT) would not work as expected
+for both locally generated IGMP and MLD queries. The IP header specific
+filter options are off by 14 Bytes for netfilter (actual output on
+interfaces is fine).
 
-I'm not thinking that scanning directly this list is appropriate.
-My point is that vlan layer manages the exact vid list that dev is
-required to unfilter and we maybe don't want to manage such lists
-redundantly.
-We can make APIs to utilize the vid list indirectly.
+NF_HOOK() expects the skb->data to point to the IP header, not the
+ethernet one (while dev_queue_xmit() does not). Luckily there is an
+br_dev_queue_push_xmit() helper function already - let's just use that.
 
-A simple (but inefficient) way is to make a function like
-"bool vlan_has_vid(dev, proto, vid)" and check for all 4094 vids using it.
+Introduced by eb1d16414339a6e113d89e2cca2556005d7ce919
+("bridge: Add core IGMP snooping support")
 
-A possible more efficient way is the one using bitmap. We can make a
-function vlan_vids_inuse(dev, proto, bitmap) and get bitmap of vids,
-like udp_lib_lport_inuse().
+Ebtables example:
 
-Thanks,
-Toshiaki Makita
+$ ebtables -I OUTPUT -p IPv6 -o eth1 --logical-out br0 \
+	--log --log-level 6 --log-ip6 --log-prefix="~EBT: " -j DROP
+
+before (broken):
+
+~EBT:  IN= OUT=eth1 MAC source = 02:04:64:a4:39:c2 \
+	MAC dest = 33:33:00:00:00:01 proto = 0x86dd IPv6 \
+	SRC=64a4:39c2:86dd:6000:0000:0020:0001:fe80 IPv6 \
+	DST=0000:0000:0000:0004:64ff:fea4:39c2:ff02, \
+	IPv6 priority=0x3, Next Header=2
+
+after (working):
+
+~EBT:  IN= OUT=eth1 MAC source = 02:04:64:a4:39:c2 \
+	MAC dest = 33:33:00:00:00:01 proto = 0x86dd IPv6 \
+	SRC=fe80:0000:0000:0000:0004:64ff:fea4:39c2 IPv6 \
+	DST=ff02:0000:0000:0000:0000:0000:0000:0001, \
+	IPv6 priority=0x0, Next Header=0
+
+Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+---
+ net/bridge/br_multicast.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 7751c92..9d02e6c 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -813,10 +813,9 @@ static void __br_multicast_send_query(struct net_bridge *br,
+ 		return;
+ 
+ 	if (port) {
+-		__skb_push(skb, sizeof(struct ethhdr));
+ 		skb->dev = port->dev;
+ 		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_OUT, skb, NULL, skb->dev,
+-			dev_queue_xmit);
++			br_dev_queue_push_xmit);
+ 	} else {
+ 		br_multicast_select_own_querier(br, ip, skb);
+ 		netif_rx(skb);
+-- 
+1.7.10.4
+
