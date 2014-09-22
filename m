@@ -1,12 +1,12 @@
-Return-Path: <linus.luessing@web.de>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
-Date: Mon, 22 Sep 2014 01:32:44 +0200
-Message-Id: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
+Return-Path: <michal.kepien@nask.pl>
+Message-ID: <541FCC73.7030208@nask.pl>
+Date: Mon, 22 Sep 2014 09:14:59 +0200
+From: =?UTF-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <michal.kepien@nask.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] bridge: fix netfilter/NF_BR_LOCAL_OUT for own,
-	locally generated queries
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Forwarding large fragmented IPv6 packets broken by
+	nf_defrag_ipv6
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,63 +15,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stephen Hemminger <stephen@networkplumber.org>, =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>, "David S. Miller" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-Ebtables on the OUTPUT chain (NF_BR_LOCAL_OUT) would not work as expected
-for both locally generated IGMP and MLD queries. The IP header specific
-filter options are off by 14 Bytes for netfilter (actual output on
-interfaces is fine).
+Greetings,
 
-NF_HOOK() expects the skb->data to point to the IP header, not the
-ethernet one (while dev_queue_xmit() does not). Luckily there is an
-br_dev_queue_push_xmit() helper function already - let's just use that.
+I have found an interoperability issue between two kernel modules:
+bridge and nf_defrag_ipv6. After analyzing the issue, I decided to post
+to this list first, assuming it would be more appropriate. However, if
+this should be reported to another party, please let me know and I'll be
+happy to follow your guidelines.
 
-Introduced by eb1d16414339a6e113d89e2cca2556005d7ce919
-("bridge: Add core IGMP snooping support")
+I believe kernel commit 6aafeef broke forwarding of large fragmented
+IPv6 packets through a bridge when conntrack is enabled. That commit,
+when nf_defrag_ipv6 is loaded, causes br_dev_queue_push_xmit() to
+receive a "reassembled SKB" containing a list of fragments, instead of
+fragment SKBs themselves. That in turn causes the is_skb_forwardable()
+call to return false as it compares the reassembled packet size to the
+destination MTU. If the former is larger, the packet is silently
+dropped, even though it has been marked as ACCEPTed in ip6tables.
 
-Ebtables example:
+If the above description is unclear, please let me know and I'll
+describe an example setup which would demonstrate the issue. I came
+across this problem after putting a DNSSEC-enabled DNS server behind a
+transparent firewall running Linux and querying for records which
+generate large UDP responses.
 
-$ ebtables -I OUTPUT -p IPv6 -o eth1 --logical-out br0 \
-	--log --log-level 6 --log-ip6 --log-prefix="~EBT: " -j DROP
-
-before (broken):
-
-~EBT:  IN= OUT=eth1 MAC source = 02:04:64:a4:39:c2 \
-	MAC dest = 33:33:00:00:00:01 proto = 0x86dd IPv6 \
-	SRC=64a4:39c2:86dd:6000:0000:0020:0001:fe80 IPv6 \
-	DST=0000:0000:0000:0004:64ff:fea4:39c2:ff02, \
-	IPv6 priority=0x3, Next Header=2
-
-after (working):
-
-~EBT:  IN= OUT=eth1 MAC source = 02:04:64:a4:39:c2 \
-	MAC dest = 33:33:00:00:00:01 proto = 0x86dd IPv6 \
-	SRC=fe80:0000:0000:0000:0004:64ff:fea4:39c2 IPv6 \
-	DST=ff02:0000:0000:0000:0000:0000:0000:0001, \
-	IPv6 priority=0x0, Next Header=0
-
-Signed-off-by: Linus Lüssing <linus.luessing@web.de>
----
- net/bridge/br_multicast.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 7751c92..9d02e6c 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -813,10 +813,9 @@ static void __br_multicast_send_query(struct net_bridge *br,
- 		return;
- 
- 	if (port) {
--		__skb_push(skb, sizeof(struct ethhdr));
- 		skb->dev = port->dev;
- 		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_OUT, skb, NULL, skb->dev,
--			dev_queue_xmit);
-+			br_dev_queue_push_xmit);
- 	} else {
- 		br_multicast_select_own_querier(br, ip, skb);
- 		netif_rx(skb);
--- 
-1.7.10.4
-
+--=20
+Best regards,
+Micha=C5=82 K=C4=99pie=C5=84
