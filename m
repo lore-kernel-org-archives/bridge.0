@@ -1,12 +1,18 @@
-Return-Path: <michal.kepien@nask.pl>
-Message-ID: <541FCC73.7030208@nask.pl>
-Date: Mon, 22 Sep 2014 09:14:59 +0200
-From: =?UTF-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <michal.kepien@nask.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Forwarding large fragmented IPv6 packets broken by
-	nf_defrag_ipv6
+Return-Path: <vyasevich@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:to:cc:subject:date:message-id;
+	bh=MeJi5EySNmfMDzpZ8U7JzDjX1oImZs307VzroQlr3D0=;
+	b=qMJjePkrGct1zYTVza/NpqV5cHKasmIo2o2u6W/4sfzssN7FGFGDSYEmx5tgd2q5oe
+	RHDYVWSAMdiPkbE9vthNsWVL+8wcn3dVB3gY9UZKmy1pSr5gy5q+6F8H6E3/6lGIbryq
+	lvCPbBL4ir3EbD5VrUfHWKGakvbBa3dSfnzJvuNBwkzVgGdhL6f9/sOoXhDHz70jGwha
+	faAKB/kvv54iYk481yDb99AT6k3dLe2NtcY6Nw3y1eZKGghVh9uxVnuL++hLHgjuDzYv
+	Afr3MNaMe/aBxOI0eOdKIqqUW6py0G5fonEhYlHcJPnYa29Uvi594/oOmhZgYLXl2gnK
+	Lo8Q==
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Date: Tue, 30 Sep 2014 15:30:59 -0400
+Message-Id: <1412105462-340-1-git-send-email-vyasevic@redhat.com>
+Subject: [Bridge] [PATCH v2 net 0/3] bridge: Add vlan filtering support for
+	default pvid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,31 +21,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: stephen@networkplumber.org, bridge@lists.linux-foundation.org, Vladislav Yasevich <vyasevic@redhat.com>
 
-Greetings,
+Version 2 of the series to introduce the default pvid support to
+vlan filtering in the bridge.  VLAN 1 (as recommended by 802.1q spec)
+is used as default pvid on ports. 
+The the user can over-ride this configuration by configuring their
+own vlan information. 
+The user can additionally change the default value throught the
+sysfs interface (netlink comming shortly).
+The user can turn off default pvid functionality by setting default
+pvid to 0. 
+This series changes the default behavior of the bridge when
+vlan filtering is turned on.  Currently, ports without any vlan
+filtering configured will not recevie any traffic at all.  This patch
+changes the behavior of the above ports to receive only untagged traffic.
 
-I have found an interoperability issue between two kernel modules:
-bridge and nf_defrag_ipv6. After analyzing the issue, I decided to post
-to this list first, assuming it would be more appropriate. However, if
-this should be reported to another party, please let me know and I'll be
-happy to follow your guidelines.
+Since v2:
+- Add ability to turn off default_pvid settings.
+- Drop the automiatic filtering support based on configured vlan devices (will
+  be its own series)
 
-I believe kernel commit 6aafeef broke forwarding of large fragmented
-IPv6 packets through a bridge when conntrack is enabled. That commit,
-when nf_defrag_ipv6 is loaded, causes br_dev_queue_push_xmit() to
-receive a "reassembled SKB" containing a list of fragments, instead of
-fragment SKBs themselves. That in turn causes the is_skb_forwardable()
-call to return false as it compares the reassembled packet size to the
-destination MTU. If the former is larger, the packet is silently
-dropped, even though it has been marked as ACCEPTed in ip6tables.
+Thanks
+-vlad
 
-If the above description is unclear, please let me know and I'll
-describe an example setup which would demonstrate the issue. I came
-across this problem after putting a DNSSEC-enabled DNS server behind a
-transparent firewall running Linux and querying for records which
-generate large UDP responses.
 
---=20
-Best regards,
-Micha=C5=82 K=C4=99pie=C5=84
+Vladislav Yasevich (3):
+  bridge: Add a default_pvid sysfs attribute
+  bridge: Simplify pvid checks.
+  bridge: Add filtering support for default_pvid
+
+ net/bridge/br_device.c   |   8 ++-
+ net/bridge/br_if.c       |   2 +
+ net/bridge/br_private.h  |  17 +++++-
+ net/bridge/br_sysfs_br.c |  17 ++++++
+ net/bridge/br_vlan.c     | 143 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 5 files changed, 179 insertions(+), 8 deletions(-)
+
+-- 
+1.9.3
+
