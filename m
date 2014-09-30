@@ -1,8 +1,17 @@
-Return-Path: <bernhard.thaler@wvnet.at>
-From: Bernhard Thaler <bernhard.thaler@wvnet.at>
-Message-Id: <1410816448-4401-1-git-send-email-bernhard.thaler@wvnet.at>
-Subject: [Bridge] [PATCH 1/1] bridge: Fix NAT66ed IPv6 packets not being
-	bridged correctly
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:to:cc:subject:date:message-id;
+	bh=eIEjJ70rnUfxmCjnIAyc4wYXkNEXA82pwZikgMdSqCw=;
+	b=rPqgm5ts47DYuJButSOOGZROL5XQYoSB8qs2u0xLbnK0HLMZ0HRNXGrYpBfxpIR3/q
+	wJ83hKVbaYrTkJXEVnv6OHrDHnKM7ApVodaKUUsD+bl2/PAZW0Z9NMHbCzxRFJ6dPRd6
+	vj2ptFvTktz6Ux86lou3QBulZZHJm0wNDZAdA8Sdtqy3rOnmqpZ7ONEVVMGvFWU6eGEU
+	2EYa/wD0mmOC3ZCVwnnboW7c8h/VrBEBjWIK2eOeUTDHGtYXTLAyPiSh8ZPvt0sWMX16
+	X14QpfpH2u8AOEGVppUsCMkTmiVm3ZiLD5Bn+CXZJdf0ipwO9CqRjdOTj6s2YsgVqnlh
+	px7A==
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Tue, 30 Sep 2014 15:59:07 -0700
+Message-Id: <1412117947-796-1-git-send-email-f.fainelli@gmail.com>
+Subject: [Bridge] [PATCH] net: bridge: add a br_set_state helper function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,237 +20,167 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 15 Sep 2014 21:37:22 -0000
-To: davem@davemloft.net, kuznet@ms2.inr.ac.ru, jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@trash.net, stephen@networkplumber.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Bernhard Thaler <bernhard.thaler@wvnet.at>
+To: netdev@vger.kernel.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>, jiri@resnulli.us, vyasevich@gmail.com, bridge@lists.linux-foundation.org, stephen@networkplumber.org, davem@davemloft.net
 
-Ethernet frames are not bridged to correct interface when packets have
-been NAT66ed; compared to IPv4 logic in code, IPv6 code does not store
-original address (before NAT) on transmit to determine if packet was
-NAT66ed on receive to swap addresses back.
+In preparation for being able to propagate port states to e.g: notifiers
+or other kernel parts, do not manipulate the port state directly, but
+instead use a helper function which will allow us to do a bit more than
+just setting the state.
 
-Changes added in br_netfilter.c to store original address, compare
-against it and determine correct output interface. Changes needed in
-netfilter_bridge.h to store IPv6 address in pre-existing union.
-Export of ip6_route_input needed to use it in br_netfilter.c.
-
-Problem may only affect systems doing NAT66 and ethernet bridging at
-the same time. Tested in NAT66 setup on base of an ethernet bridge.
-
-Signed-off-by: Bernhard Thaler <bernhard.thaler@wvnet.at>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- include/linux/netfilter_bridge.h |    2 +
- net/bridge/br_netfilter.c        |  136 ++++++++++++++++++++++++++++----------
- net/ipv6/route.c                 |    1 +
- 3 files changed, 105 insertions(+), 34 deletions(-)
+ net/bridge/br_if.c        |  2 +-
+ net/bridge/br_multicast.c |  2 +-
+ net/bridge/br_netlink.c   |  2 +-
+ net/bridge/br_private.h   |  1 +
+ net/bridge/br_stp.c       | 15 ++++++++++-----
+ net/bridge/br_stp_if.c    |  4 ++--
+ net/bridge/br_stp_timer.c |  4 ++--
+ 7 files changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/netfilter_bridge.h b/include/linux/netfilter_bridge.h
-index 8ab1c27..3a9cdcd 100644
---- a/include/linux/netfilter_bridge.h
-+++ b/include/linux/netfilter_bridge.h
-@@ -2,6 +2,7 @@
- #define __LINUX_BRIDGE_NETFILTER_H
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index a9f54a9b6690..7b7289ca2992 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -332,7 +332,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 	p->port_no = index;
+ 	p->flags = BR_LEARNING | BR_FLOOD;
+ 	br_init_port(p);
+-	p->state = BR_STATE_DISABLED;
++	br_set_state(p, BR_STATE_DISABLED);
+ 	br_stp_port_timer_init(p);
+ 	br_multicast_add_port(p);
  
- #include <uapi/linux/netfilter_bridge.h>
-+#include <uapi/linux/in6.h>
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 648d79ccf462..1f4fd22c84fc 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -645,7 +645,7 @@ struct net_bridge_port_group *br_multicast_new_port_group(
  
+ 	p->addr = *group;
+ 	p->port = port;
+-	p->state = state;
++	br_set_state(p, state);
+ 	rcu_assign_pointer(p->next, next);
+ 	hlist_add_head(&p->mglist, &port->mglist);
+ 	setup_timer(&p->timer, br_multicast_port_group_expired,
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 0fa66b83685f..2ff9706647f2 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -301,7 +301,7 @@ static int br_set_port_state(struct net_bridge_port *p, u8 state)
+ 	    (!netif_oper_up(p->dev) && state != BR_STATE_DISABLED))
+ 		return -ENETDOWN;
  
- enum nf_br_hook_priorities {
-@@ -79,6 +80,7 @@ static inline unsigned int nf_bridge_pad(const struct sk_buff *skb)
- struct bridge_skb_cb {
- 	union {
- 		__be32 ipv4;
-+		struct in6_addr ipv6;
- 	} daddr;
- };
- 
-diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
-index a615264..2ae3888 100644
---- a/net/bridge/br_netfilter.c
-+++ b/net/bridge/br_netfilter.c
-@@ -35,6 +35,9 @@
- #include <net/ip.h>
- #include <net/ipv6.h>
- #include <net/route.h>
-+#include <net/ip6_route.h>
-+#include <net/flow.h>
-+#include <net/dst.h>
- 
- #include <asm/uaccess.h>
- #include "br_private.h"
-@@ -42,10 +45,18 @@
- #include <linux/sysctl.h>
- #endif
- 
--#define skb_origaddr(skb)	 (((struct bridge_skb_cb *) \
--				 (skb->nf_bridge->data))->daddr.ipv4)
--#define store_orig_dstaddr(skb)	 (skb_origaddr(skb) = ip_hdr(skb)->daddr)
--#define dnat_took_place(skb)	 (skb_origaddr(skb) != ip_hdr(skb)->daddr)
-+#define skb_origaddr(skb)		(((struct bridge_skb_cb *)\
-+					(skb->nf_bridge->data))->daddr.ipv4)
-+#define skb_origaddr_ipv6(skb)		(((struct bridge_skb_cb *)\
-+					(skb->nf_bridge->data))->daddr.ipv6)
-+#define store_orig_dstaddr(skb)		(skb_origaddr(skb) = ip_hdr(skb)->daddr)
-+#define store_orig_dstaddr_ipv6(skb)	(skb_origaddr_ipv6(skb) = \
-+					ipv6_hdr(skb)->daddr)
-+#define dnat_took_place(skb)		(skb_origaddr(skb) != \
-+					ip_hdr(skb)->daddr)
-+#define dnat_took_place_ipv6(skb)	(memcmp(&skb_origaddr_ipv6(skb), \
-+					&(ipv6_hdr(skb)->daddr), \
-+					sizeof(struct in6_addr)) != 0)
- 
- #ifdef CONFIG_SYSCTL
- static struct ctl_table_header *brnf_sysctl_header;
-@@ -340,36 +351,6 @@ int nf_bridge_copy_header(struct sk_buff *skb)
+-	p->state = state;
++	br_set_state(p, state);
+ 	br_log_state(p);
+ 	br_port_state_selection(p->br);
  	return 0;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index f53592fc3ef9..4ff82fc0e79c 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -766,6 +766,7 @@ static inline void br_nf_core_fini(void) {}
+ 
+ /* br_stp.c */
+ void br_log_state(const struct net_bridge_port *p);
++void br_set_stp_state(const struct net_bridge_port *p);
+ struct net_bridge_port *br_get_port(struct net_bridge *br, u16 port_no);
+ void br_init_port(struct net_bridge_port *p);
+ void br_become_designated_port(struct net_bridge_port *p);
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index 3c86f0538cbb..a859373b7d68 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -36,6 +36,11 @@ void br_log_state(const struct net_bridge_port *p)
+ 		br_port_state_names[p->state]);
  }
  
--/* PF_BRIDGE/PRE_ROUTING *********************************************/
--/* Undo the changes made for ip6tables PREROUTING and continue the
-- * bridge PRE_ROUTING hook. */
--static int br_nf_pre_routing_finish_ipv6(struct sk_buff *skb)
--{
--	struct nf_bridge_info *nf_bridge = skb->nf_bridge;
--	struct rtable *rt;
--
--	if (nf_bridge->mask & BRNF_PKT_TYPE) {
--		skb->pkt_type = PACKET_OTHERHOST;
--		nf_bridge->mask ^= BRNF_PKT_TYPE;
--	}
--	nf_bridge->mask ^= BRNF_NF_BRIDGE_PREROUTING;
--
--	rt = bridge_parent_rtable(nf_bridge->physindev);
--	if (!rt) {
--		kfree_skb(skb);
--		return 0;
--	}
--	skb_dst_set_noref(skb, &rt->dst);
--
--	skb->dev = nf_bridge->physindev;
--	nf_bridge_update_protocol(skb);
--	nf_bridge_push_encap_header(skb);
--	NF_HOOK_THRESH(NFPROTO_BRIDGE, NF_BR_PRE_ROUTING, skb, skb->dev, NULL,
--		       br_handle_frame_finish, 1);
--
--	return 0;
--}
--
- /* Obtain the correct destination MAC address, while preserving the original
-  * source MAC address. If we already know this address, we just copy it. If we
-  * don't, we use the neighbour framework to find out. In both cases, we make
-@@ -527,6 +508,92 @@ bridged_dnat:
- 	return 0;
- }
- 
-+/* PF_BRIDGE/PRE_ROUTING *********************************************
-+ * Undo the changes made for ip6tables PREROUTING and continue the
-+ * bridge PRE_ROUTING hook.
-+ */
-+static int br_nf_pre_routing_finish_ipv6(struct sk_buff *skb)
++void br_set_state(const struct net_bridge_port *p, unsigned int state)
 +{
-+	struct net_device *dev = skb->dev;
-+	struct ipv6hdr *iph = ipv6_hdr(skb);
-+	struct nf_bridge_info *nf_bridge = skb->nf_bridge;
-+	struct rtable *rt;
-+	struct dst_entry *dst;
-+	struct flowi6 fl6 = {
-+		.flowi6_iif = skb->dev->ifindex,
-+		.daddr = iph->daddr,
-+		.saddr = iph->saddr,
-+		.flowlabel = ip6_flowinfo(iph),
-+		.flowi6_mark = skb->mark,
-+		.flowi6_proto = iph->nexthdr,
-+	};
-+
-+	if (nf_bridge->mask & BRNF_PKT_TYPE) {
-+		skb->pkt_type = PACKET_OTHERHOST;
-+		nf_bridge->mask ^= BRNF_PKT_TYPE;
-+	}
-+	nf_bridge->mask ^= BRNF_NF_BRIDGE_PREROUTING;
-+
-+	if (dnat_took_place_ipv6(skb)) {
-+		ip6_route_input(skb);
-+		/* ip6_route_input is void function,
-+		 * no int returned as in ip4_route_input
-+		 * changes value of skb->_skb_refdst) on success
-+		 */
-+		if (skb->_skb_refdst == 0) {
-+			struct in_device *in_dev = __in_dev_get_rcu(dev);
-+
-+			if (!in_dev || IN_DEV_FORWARD(in_dev))
-+				goto free_skb;
-+
-+			dst = ip6_route_output(dev_net(dev), skb->sk, &fl6);
-+			if (!IS_ERR(dst)) {
-+				/* - Bridged-and-DNAT'ed traffic doesn't
-+				 *   require ip_forwarding.
-+				 */
-+				if (dst->dev == dev) {
-+					skb_dst_set(skb, dst);
-+					goto bridged_dnat;
-+				}
-+				dst_release(dst);
-+			}
-+free_skb:
-+			kfree_skb(skb);
-+			return 0;
-+		} else {
-+			if (skb_dst(skb)->dev == dev) {
-+bridged_dnat:
-+				skb->dev = nf_bridge->physindev;
-+				nf_bridge_update_protocol(skb);
-+				nf_bridge_push_encap_header(skb);
-+				NF_HOOK_THRESH(NFPROTO_BRIDGE,
-+					       NF_BR_PRE_ROUTING,
-+					       skb, skb->dev, NULL,
-+					       br_nf_pre_routing_finish_bridge,
-+					       1);
-+				return 0;
-+			}
-+			memcpy(eth_hdr(skb)->h_dest, dev->dev_addr, ETH_ALEN);
-+			skb->pkt_type = PACKET_HOST;
-+		}
-+	} else {
-+		rt = bridge_parent_rtable(nf_bridge->physindev);
-+		if (!rt) {
-+			kfree_skb(skb);
-+			return 0;
-+		}
-+		skb_dst_set_noref(skb, &rt->dst);
-+	}
-+
-+	skb->dev = nf_bridge->physindev;
-+	nf_bridge_update_protocol(skb);
-+	nf_bridge_push_encap_header(skb);
-+	NF_HOOK_THRESH(NFPROTO_BRIDGE, NF_BR_PRE_ROUTING, skb, skb->dev, NULL,
-+		       br_handle_frame_finish, 1);
-+
-+	return 0;
++	p->state = state;
 +}
 +
- static struct net_device *brnf_get_logical_dev(struct sk_buff *skb, const struct net_device *dev)
+ /* called under bridge lock */
+ struct net_bridge_port *br_get_port(struct net_bridge *br, u16 port_no)
  {
- 	struct net_device *vlan, *br;
-@@ -658,6 +725,7 @@ static unsigned int br_nf_pre_routing_ipv6(const struct nf_hook_ops *ops,
- 	if (!setup_pre_routing(skb))
- 		return NF_DROP;
+@@ -107,7 +112,7 @@ static void br_root_port_block(const struct net_bridge *br,
+ 	br_notice(br, "port %u(%s) tried to become root port (blocked)",
+ 		  (unsigned int) p->port_no, p->dev->name);
  
-+	store_orig_dstaddr_ipv6(skb);
- 	skb->protocol = htons(ETH_P_IPV6);
- 	NF_HOOK(NFPROTO_IPV6, NF_INET_PRE_ROUTING, skb, skb->dev, NULL,
- 		br_nf_pre_routing_finish_ipv6);
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index f23fbd2..e328905 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -1017,6 +1017,7 @@ void ip6_route_input(struct sk_buff *skb)
+-	p->state = BR_STATE_LISTENING;
++	br_set_state(p, BR_STATE_LISTENING);
+ 	br_log_state(p);
+ 	br_ifinfo_notify(RTM_NEWLINK, p);
  
- 	skb_dst_set(skb, ip6_route_input_lookup(net, skb->dev, &fl6, flags));
+@@ -387,7 +392,7 @@ static void br_make_blocking(struct net_bridge_port *p)
+ 		    p->state == BR_STATE_LEARNING)
+ 			br_topology_change_detection(p->br);
+ 
+-		p->state = BR_STATE_BLOCKING;
++		br_set_state(p, BR_STATE_BLOCKING);
+ 		br_log_state(p);
+ 		br_ifinfo_notify(RTM_NEWLINK, p);
+ 
+@@ -404,13 +409,13 @@ static void br_make_forwarding(struct net_bridge_port *p)
+ 		return;
+ 
+ 	if (br->stp_enabled == BR_NO_STP || br->forward_delay == 0) {
+-		p->state = BR_STATE_FORWARDING;
++		br_set_state(p, BR_STATE_FORWARDING);
+ 		br_topology_change_detection(br);
+ 		del_timer(&p->forward_delay_timer);
+ 	} else if (br->stp_enabled == BR_KERNEL_STP)
+-		p->state = BR_STATE_LISTENING;
++		br_set_state(p, BR_STATE_LISTENING);
+ 	else
+-		p->state = BR_STATE_LEARNING;
++		br_set_state(p, BR_STATE_LEARNING);
+ 
+ 	br_multicast_enable_port(p);
+ 	br_log_state(p);
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 189ba1e7d851..41146872c1b4 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -37,7 +37,7 @@ void br_init_port(struct net_bridge_port *p)
+ {
+ 	p->port_id = br_make_port_id(p->priority, p->port_no);
+ 	br_become_designated_port(p);
+-	p->state = BR_STATE_BLOCKING;
++	br_set_state(p, BR_STATE_BLOCKING);
+ 	p->topology_change_ack = 0;
+ 	p->config_pending = 0;
  }
-+EXPORT_SYMBOL(ip6_route_input);
+@@ -100,7 +100,7 @@ void br_stp_disable_port(struct net_bridge_port *p)
  
- static struct rt6_info *ip6_pol_route_output(struct net *net, struct fib6_table *table,
- 					     struct flowi6 *fl6, int flags)
+ 	wasroot = br_is_root_bridge(br);
+ 	br_become_designated_port(p);
+-	p->state = BR_STATE_DISABLED;
++	br_set_state(p, BR_STATE_DISABLED);
+ 	p->topology_change_ack = 0;
+ 	p->config_pending = 0;
+ 
+diff --git a/net/bridge/br_stp_timer.c b/net/bridge/br_stp_timer.c
+index 558c46d19e05..4fcaa67750fd 100644
+--- a/net/bridge/br_stp_timer.c
++++ b/net/bridge/br_stp_timer.c
+@@ -87,11 +87,11 @@ static void br_forward_delay_timer_expired(unsigned long arg)
+ 		 (unsigned int) p->port_no, p->dev->name);
+ 	spin_lock(&br->lock);
+ 	if (p->state == BR_STATE_LISTENING) {
+-		p->state = BR_STATE_LEARNING;
++		br_set_state(p, BR_STATE_LEARNING);
+ 		mod_timer(&p->forward_delay_timer,
+ 			  jiffies + br->forward_delay);
+ 	} else if (p->state == BR_STATE_LEARNING) {
+-		p->state = BR_STATE_FORWARDING;
++		br_set_state(p, BR_STATE_FORWARDING);
+ 		if (br_is_designated_for_some_port(br))
+ 			br_topology_change_detection(br);
+ 		netif_carrier_on(br->dev);
 -- 
-1.7.10.4
+1.9.1
 
