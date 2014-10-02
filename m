@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Wed, 01 Oct 2014 21:53:16 -0400 (EDT)
-Message-Id: <20141001.215316.2186693268578428276.davem@davemloft.net>
+Date: Wed, 01 Oct 2014 22:05:26 -0400 (EDT)
+Message-Id: <20141001.220526.686849530279803994.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1412105462-340-1-git-send-email-vyasevic@redhat.com>
-References: <1412105462-340-1-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <1412118799-17128-1-git-send-email-f.fainelli@gmail.com>
+References: <1412118799-17128-1-git-send-email-f.fainelli@gmail.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2 net 0/3] bridge: Add vlan filtering support
- for default pvid
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: add a br_set_state
+ helper function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +17,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevich@gmail.com
-Cc: stephen@networkplumber.org, netdev@vger.kernel.org, vyasevic@redhat.com, bridge@lists.linux-foundation.org
+To: f.fainelli@gmail.com
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, vyasevich@gmail.com, bridge@lists.linux-foundation.org, jiri@resnulli.us
 
-From: Vladislav Yasevich <vyasevich@gmail.com>
-Date: Tue, 30 Sep 2014 15:30:59 -0400
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Tue, 30 Sep 2014 16:13:19 -0700
 
-> Version 2 of the series to introduce the default pvid support to
-> vlan filtering in the bridge.  VLAN 1 (as recommended by 802.1q spec)
-> is used as default pvid on ports. 
-> The the user can over-ride this configuration by configuring their
-> own vlan information. 
-> The user can additionally change the default value throught the
-> sysfs interface (netlink comming shortly).
-> The user can turn off default pvid functionality by setting default
-> pvid to 0. 
-> This series changes the default behavior of the bridge when
-> vlan filtering is turned on.  Currently, ports without any vlan
-> filtering configured will not recevie any traffic at all.  This patch
-> changes the behavior of the above ports to receive only untagged traffic.
+> In preparation for being able to propagate port states to e.g: notifiers
+> or other kernel parts, do not manipulate the port state directly, but
+> instead use a helper function which will allow us to do a bit more than
+> just setting the state.
 > 
-> Since v2:
-> - Add ability to turn off default_pvid settings.
-> - Drop the automiatic filtering support based on configured vlan devices (will
->   be its own series)
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 
-Please address the given feedback, thanks Vladislav.
+This looks fine to me, applied, thanks Florian.
