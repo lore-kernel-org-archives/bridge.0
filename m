@@ -1,16 +1,14 @@
-Return-Path: <cwang@twopensource.com>
-MIME-Version: 1.0
-In-Reply-To: <542EA697.7070109@redhat.com>
-References: <1412294070-11930-1-git-send-email-vyasevic@redhat.com>
-	<1412294070-11930-4-git-send-email-vyasevic@redhat.com>
-	<CAHA+R7OycteYron5K3YJ3qtsEE-5uUxhPkictJDWosXCihR5hA@mail.gmail.com>
-	<542EA697.7070109@redhat.com>
-Date: Fri, 3 Oct 2014 09:42:26 -0700
-Message-ID: <CAHA+R7N9zq=CCe0bd2xa-pL0c=v7bJV7ocY7VpHSvrizG4j8Jg@mail.gmail.com>
-From: Cong Wang <cwang@twopensource.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH v3 net-next 3/3] bridge: Add filtering support
-	for default_pvid
+Return-Path: <davem@davemloft.net>
+Date: Sun, 05 Oct 2014 21:22:04 -0400 (EDT)
+Message-Id: <20141005.212204.1337564321623828212.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1412350158-19061-1-git-send-email-vyasevic@redhat.com>
+References: <1412350158-19061-1-git-send-email-vyasevic@redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH v4 net-next 0/3] bridge: Add vlan filtering
+ support for default pvid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,26 +17,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: vyasevic@redhat.com
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev <netdev@vger.kernel.org>, Vladislav Yasevich <vyasevich@gmail.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: vyasevich@gmail.com
+Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, stephen@networkplumber.org, cwang@twopensource.com
 
-On Fri, Oct 3, 2014 at 6:37 AM, Vlad Yasevich <vyasevic@redhat.com> wrote:
-> On 10/03/2014 12:41 AM, Cong Wang wrote:
->> On Thu, Oct 2, 2014 at 4:54 PM, Vladislav Yasevich <vyasevich@gmail.com> wrote:
->>> +static int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid)
->>> +{
->>> +       struct net_bridge_port *p;
->>> +       u16 old_pvid;
->>> +       int err;
->>> +       DECLARE_BITMAP(changed, BR_MAX_PORTS);
->>
->>
->> This bitmap will use 128 bytes on stack, why not using heap?
->>
->
-> I suppose I wanted to avoid yet another memory allocation failure condition.
-> Is this really going to cause issues?
->
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Date: Fri,  3 Oct 2014 11:29:15 -0400
 
-Probably not a big issue, but generally stack is more limited than heap
-in kernel.
+> This series adds default pvid support to vlan filtering in the bridge.
+> VLAN 1 (as recommended by 802.1q spec) is used as default pvid on ports. 
+> The the user can over-ride this configuration by configuring their
+> own vlan information. 
+> The user can additionally change the default value throught the
+> sysfs interface (netlink comming shortly).
+> The user can turn off default pvid functionality by setting default
+> pvid to 0. 
+> This series changes the default behavior of the bridge when
+> vlan filtering is turned on.  Currently, ports without any vlan
+> filtering configured will not recevie any traffic at all.  This patch
+> changes the behavior of the above ports to receive only untagged traffic.
+
+Series applied, thanks Vlad.
