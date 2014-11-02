@@ -1,17 +1,14 @@
-Return-Path: <broonie@sirena.org.uk>
-Date: Thu, 13 Nov 2014 23:51:52 +0000
-From: Mark Brown <broonie@kernel.org>
-Message-ID: <20141113235152.GR3815@sirena.org.uk>
-References: <20141113114357.GA7857@salvia>
-	<20141113.143513.785778562781935404.davem@davemloft.net>
-	<20141113194752.GQ3815@sirena.org.uk>
-	<20141113.152353.548265176661091467.davem@davemloft.net>
+Return-Path: <linus.luessing@c0d3.blue>
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20141102153733.GA23084@odroid>
+References: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZAr10/UugL07XvY7"
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20141113.152353.548265176661091467.davem@davemloft.net>
-Subject: Re: [Bridge] arm64 allmodconfig failures in nft_reject_bridge.c
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
+Subject: Re: [Bridge] [PATCH] bridge: fix netfilter/NF_BR_LOCAL_OUT for own,
+ locally generated queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,44 +17,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: linaro-kernel@lists.linaro.org, kernel-build-reports@lists.linaro.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, stephen@networkplumber.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, kadlec@blackhole.kfki.hu, kaber@trash.net, linux@roeck-us.net
+Date: Sun, 02 Nov 2014 15:45:07 -0000
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>
 
+On Mon, Sep 22, 2014 at 01:32:44AM +0200, Linus Lüssing wrote:
+> Ebtables on the OUTPUT chain (NF_BR_LOCAL_OUT) would not work as expected
+> for both locally generated IGMP and MLD queries. The IP header specific
+> filter options are off by 14 Bytes for netfilter (actual output on
+> interfaces is fine).
+> 
+> NF_HOOK() expects the skb->data to point to the IP header, not the
+> ethernet one (while dev_queue_xmit() does not). Luckily there is an
+> br_dev_queue_push_xmit() helper function already - let's just use that.
 
---ZAr10/UugL07XvY7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Nov 13, 2014 at 03:23:53PM -0500, David Miller wrote:
-> Date: Thu, 13 Nov 2014 19:47:52 +0000
-
-> > On Thu, Nov 13, 2014 at 02:35:13PM -0500, David Miller wrote:
-
-> >> I hold changes in my tree for a week or more, because I want them to
-> >> "cook" there before they go to Linus.
-
-> > Hrm.  Guess there must've been some other change in -next that pulled
-> > the header in implicitly here :(
-
-> -next pulls in my 'net' tree, so got the fix.
-
-Right, but we didn't see the problem before you sent the tree with the
-problematic patch to Linus - we didn't detect it in -next.
-
---ZAr10/UugL07XvY7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBAgAGBQJUZUQXAAoJECTWi3JdVIfQ3OcH/Ax8XGlpjGf74neFu7BW2r8p
-FE38FVlrw1l6w0HpbyhgSgk+peB8yPlyMAmhhiOrPOt8YsN05t6fzixqENZUdrfN
-a+eY2HIxkgoWY4DbofrFG2Fmg7exkfrUs5QHh9wrSIpFyXKz8gMbhEZyX0a64yxZ
-zfIFu1XaWBZdTS+kpY/yxXsQoa84tCJlXG1CkpHc/V81Q6Ieiwxn5ARb4UNnja1y
-cSdvaSkrMVydhgRFngqPc3H11/bb8BoWTgwassfFxUCX5OocGGGQBsaHY2PwPRI1
-mY/jdgmhPu946qelwGWO2mqvEpZVpNO3ZiFcaDNwWZi4QwUlwu6cp4vsIzjELUA=
-=dbJv
------END PGP SIGNATURE-----
-
---ZAr10/UugL07XvY7--
+bump
