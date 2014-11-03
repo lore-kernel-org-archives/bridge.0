@@ -1,17 +1,12 @@
-Return-Path: <suhyun.park@ahnlab.com>
-From: =?utf-8?B?67CV7IiY7ZiE?= <suhyun.park@ahnlab.com>
-Message-ID: <8D1F1238A24CE743B8F3CED0F137C69E408AA143@EXMB02.ahnbang.ahnlab.com>
-References: <1415255192-13584-1-git-send-email-suhyun.park@ahnlab.com>
-	<545B1E27.3080302@lab.ntt.co.jp>
-	<8D1F1238A24CE743B8F3CED0F137C69E408AA087@EXMB02.ahnbang.ahnlab.com>
-	<1415273711.13896.67.camel@edumazet-glaptop2.roam.corp.google.com>
-In-Reply-To: <1415273711.13896.67.camel@edumazet-glaptop2.roam.corp.google.com>
-Content-Language: ko-KR
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH] bridge: missing null bridge device check
- causing null pointer dereference (bugfix)
+Return-Path: <linux@roeck-us.net>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=roeck-us.net;
+	s=default; h=Message-Id:Date:Subject:Cc:To:From;
+	bh=g8LQ1qe+BA/QfVyQnqwJ6yKn5rVJ11F+cthfAYqWhlw=; 
+	b=MfXCVDAhBz+d1uAnLgMcy01I/WbWY95uAP4caujdJDZ6f1aV3ueRc3p+bYMNnQrGXRsj3biPIKw3/NvCyq1I4D0Vn0dw89AYoM9nOU3ckuLSyyrCSKqofzZULYBuk3qR/WzxCnQ54XyVee+oj3baJWiEB260NQ1JsVw1tcVhc9I=;
+From: Guenter Roeck <linux@roeck-us.net>
+Message-Id: <1414981155-27155-1-git-send-email-linux@roeck-us.net>
+Subject: [Bridge] [PATCH] netfilter: nft_reject_bridge: Fix powerpc build
+	error
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,49 +15,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 06 Nov 2014 11:52:38 -0000
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
+Date: Mon, 03 Nov 2014 02:50:11 -0000
+To: Patrick McHardy <kaber@trash.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>, "David S. Miller" <davem@davemloft.net>, Guenter Roeck <linux@roeck-us.net>
 
-TXkgYXBwb2xvZ2llcywNCg0KSSB3YXMgd29ya2luZyBvbiBrZXJuZWwgMy4yLjMwIHdoZW4gSSBo
-aXQgdGhlIGNyYXNoLiBJIG9ubHkgbG9va2VkIGF0IHRoZSB1cC10by1kYXRlIGtlcm5lbCBmb3Ig
-YnJfaGFuZGxlX2ZyYW1lIGZ1bmN0aW9uIHdoZXJlIEkgc3RpbGwgZm91bmQgInAtPnN0YXRlIiBy
-ZWZlcmVuY2UuDQoNClBsZWFzZSBkaXNyZWdhcmQgbXkgcGF0Y2guDQoNClRoYW5rcywNClN1LUh5
-dW4gUGFyaw0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogRXJpYyBEdW1hemV0
-IFttYWlsdG86ZXJpYy5kdW1hemV0QGdtYWlsLmNvbV0gDQpTZW50OiBUaHVyc2RheSwgTm92ZW1i
-ZXIgMDYsIDIwMTQgODozNSBQTQ0KVG86IOuwleyImO2YhA0KQ2M6IFRvc2hpYWtpIE1ha2l0YTsg
-U3RlcGhlbiBIZW1taW5nZXI7IERhdmlkIFMuIE1pbGxlcjsgYnJpZGdlQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnOyBuZXRkZXZAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5r
-ZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogW1BBVENIXSBicmlkZ2U6IG1pc3NpbmcgbnVsbCBicmlk
-Z2UgZGV2aWNlIGNoZWNrIGNhdXNpbmcgbnVsbCBwb2ludGVyIGRlcmVmZXJlbmNlIChidWdmaXgp
-DQoNCk9uIFRodSwgMjAxNC0xMS0wNiBhdCAwNzo1OCArMDAwMCwg67CV7IiY7ZiEIHdyb3RlOg0K
-PiA+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPkZyb206IFRvc2hpYWtpIE1ha2l0YSBb
-bWFpbHRvOm1ha2l0YS50b3NoaWFraUBsYWIubnR0LmNvLmpwXQ0KPiA+U2VudDogVGh1cnNkYXks
-IE5vdmVtYmVyIDA2LCAyMDE0IDQ6MDcgUE0NCj4gPlRvOiDrsJXsiJjtmIQ7IFN0ZXBoZW4gSGVt
-bWluZ2VyOyBEYXZpZCBTLiBNaWxsZXINCj4gPkNjOiBicmlkZ2VAbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmc7IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LSANCj4gPmtlcm5lbEB2Z2Vy
-Lmtlcm5lbC5vcmcNCj4gPlN1YmplY3Q6IFJlOiBbUEFUQ0hdIGJyaWRnZTogbWlzc2luZyBudWxs
-IGJyaWRnZSBkZXZpY2UgY2hlY2sgY2F1c2luZyANCj4gPm51bGwgcG9pbnRlciBkZXJlZmVyZW5j
-ZSAoYnVnZml4KQ0KPiA+DQo+ID5PbiAyMDE0LzExLzA2IDE1OjI2LCBTdS1IeXVuIFBhcmsgd3Jv
-dGU6DQo+ID4+IHRoZSBicmlkZ2UgZGV2aWNlIGNhbiBiZSBudWxsIGlmIHRoZSBicmlkZ2UgaXMg
-YmVpbmcgZGVsZXRlZCB3aGlsZSANCj4gPj4gcHJvY2Vzc2luZyB0aGUgcGFja2V0LCB3aGljaCBj
-YXVzZXMgdGhlIG51bGwgcG9pbnRlciBkZXJlZmVyZW5jZSBpbg0KPiA+c3dpdGNoIHN0YXRlbWVu
-dC4NCj4gPg0KPiA+SG93IGNhbiB0aGlzIGhhcHBlbj8/DQo+ID5JdCBpcyBndWFyZGVkIGJ5IHJj
-dS4NCj4gPm5ldGRldl9yeF9oYW5kbGVyX3VucmVnaXN0ZXIoKSBlbnN1cmVzIHJ4X2hhbmRsZXJf
-ZGF0YSBpcyBub24gTlVMTC4NCj4gPg0KPiANCj4gVGhlIFJDVSBwcm90ZWN0IHJ4X2hhbmRsZXJf
-ZGF0YSwgbm90IHRoZSBicmlkZ2UgbWVtYmVyIHBvcnQuIEl0IGNhbiBiZSBOVUxMIGFjY29yZGlu
-ZyB0byBiZWxvdyBjb2RlLg0KPiANCg0KV2hlcmUgZG8geW91IGZpbmQgdGhpcyAnYmVsb3cgY29k
-ZScgPw0KDQpBcmUgeW91IHNlbmRpbmcgYSBwYXRjaCBmb3IgYW4gb2xkIGxpbnV4IGtlcm5lbCA/
-DQoNCj4gc3RhdGljIGlubGluZSBzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpicl9wb3J0X2dldF9y
-Y3UoY29uc3Qgc3RydWN0IG5ldF9kZXZpY2UgKmRldikgew0KPiAJc3RydWN0IG5ldF9icmlkZ2Vf
-cG9ydCAqcG9ydCA9IHJjdV9kZXJlZmVyZW5jZShkZXYtPnJ4X2hhbmRsZXJfZGF0YSk7DQo+IAly
-ZXR1cm4gYnJfcG9ydF9leGlzdHMoZGV2KSA/IHBvcnQgOiBOVUxMOyB9DQoNCkFjdHVhbCBjb2Rl
-IGlzIDoNCg0Kc3RhdGljIGlubGluZSBzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpicl9wb3J0X2dl
-dF9yY3UoY29uc3Qgc3RydWN0IG5ldF9kZXZpY2UgKmRldikgew0KCXJldHVybiByY3VfZGVyZWZl
-cmVuY2UoZGV2LT5yeF9oYW5kbGVyX2RhdGEpOw0KfQ0KDQoNCj4gDQo+IFRoZSBjcmFzaCBoYXBw
-ZW5zIGF0IHRoZSBiZWxvdyBzd2l0Y2ggc3RhdGVtZW50IGluIGJyX2hhbmRsZV9mcmFtZSwgd2hl
-cmUgcCBpcyBOVUxMLg0KPiANCj4gCXN3aXRjaCAocC0+c3RhdGUpDQoNCklzIHlvdXIgdHJlZSBy
-ZWFsbHkgaW5jbHVkaW5nIHRoZSBmaXggd2UgYWxyZWFkeSBkaWQgdG8gZml4IHRoaXMgaXNzdWUg
-Pw0KDQooY29tbWl0IDcxNmVjMDUyZDIyODBkNTExZTEwZTkwYWQ1NGE4NmY1YjVkNGRjYzIgKQ0K
-YnJpZGdlOiBmaXggTlVMTCBwb2ludGVyIGRlcmVmIG9mIGJyX3BvcnRfZ2V0X3JjdQ0KDQoNCg0K
-DQo=
+Fix:
+net/bridge/netfilter/nft_reject_bridge.c:
+In function 'nft_reject_br_send_v6_unreach':
+net/bridge/netfilter/nft_reject_bridge.c:240:3:
+	error: implicit declaration of function 'csum_ipv6_magic'
+   csum_ipv6_magic(&nip6h->saddr, &nip6h->daddr,
+   ^
+make[3]: *** [net/bridge/netfilter/nft_reject_bridge.o] Error 1
+
+Seen with powerpc:allmodconfig.
+
+Fixes: 523b929d5446 ("netfilter: nft_reject_bridge: don't use IP stack to reject traffic")
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ net/bridge/netfilter/nft_reject_bridge.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/bridge/netfilter/nft_reject_bridge.c b/net/bridge/netfilter/nft_reject_bridge.c
+index 654c901..48da2c5 100644
+--- a/net/bridge/netfilter/nft_reject_bridge.c
++++ b/net/bridge/netfilter/nft_reject_bridge.c
+@@ -18,6 +18,7 @@
+ #include <net/netfilter/ipv6/nf_reject.h>
+ #include <linux/ip.h>
+ #include <net/ip.h>
++#include <net/ip6_checksum.h>
+ #include <linux/netfilter_bridge.h>
+ #include "../br_private.h"
+ 
+-- 
+1.9.1
+
