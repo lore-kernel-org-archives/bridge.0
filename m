@@ -1,14 +1,10 @@
-Return-Path: <linus.luessing@c0d3.blue>
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20141102153733.GA23084@odroid>
-References: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
+Return-Path: <suhyun.park@ahnlab.com>
+From: Su-Hyun Park <suhyun.park@ahnlab.com>
+Message-ID: <1415255192-13584-1-git-send-email-suhyun.park@ahnlab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
-Subject: Re: [Bridge] [PATCH] bridge: fix netfilter/NF_BR_LOCAL_OUT for own,
- locally generated queries
+Content-Type: text/plain
+Subject: [Bridge] [PATCH] bridge: missing null bridge device check causing
+	null pointer dereference (bugfix)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,18 +13,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sun, 02 Nov 2014 15:45:07 -0000
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>
+Date: Thu, 06 Nov 2014 06:33:43 -0000
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Su-Hyun Park <suhyun.park@ahnlab.com>
 
-On Mon, Sep 22, 2014 at 01:32:44AM +0200, Linus Lüssing wrote:
-> Ebtables on the OUTPUT chain (NF_BR_LOCAL_OUT) would not work as expected
-> for both locally generated IGMP and MLD queries. The IP header specific
-> filter options are off by 14 Bytes for netfilter (actual output on
-> interfaces is fine).
-> 
-> NF_HOOK() expects the skb->data to point to the IP header, not the
-> ethernet one (while dev_queue_xmit() does not). Luckily there is an
-> br_dev_queue_push_xmit() helper function already - let's just use that.
+the bridge device can be null if the bridge is being deleted while processing 
+the packet, which causes the null pointer dereference in switch statement.
 
-bump
+crash dump snippet:
+
+<1>BUG: unable to handle kernel NULL pointer dereference at 0000000000000021
+<1>IP: [<ffffffff814179f6>] br_handle_frame+0xe6/0x270
+
+<0>Code: 4c 0f 44 f0 89 f8 66 33 15 32 52 24 00 66 33 05 29 52 24 00 09 c2 89 
+f0 66 33 05 22 52 24 00 80 e4 f0 66 09 c2 0f 84 eb 00 00 00 <41> 0f b6 46 21 
+3c 02 74 61 3c 03 74 1d 48 89 df e8 d5 bc f0 ff
+---
+ net/bridge/br_input.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 6fd5522..7e899ca 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -176,6 +176,8 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+ 		return RX_HANDLER_CONSUMED;
+ 
+ 	p = br_port_get_rcu(skb->dev);
++	if (!p)
++		goto drop;
+ 
+ 	if (unlikely(is_link_local_ether_addr(dest))) {
+ 		u16 fwd_mask = p->br->group_fwd_mask_required;
+-- 
+1.8.1.4
+
