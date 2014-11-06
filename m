@@ -1,14 +1,24 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <545B3148.8000704@lab.ntt.co.jp>
-Date: Thu, 06 Nov 2014 17:28:56 +0900
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-MIME-Version: 1.0
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:mime-version:content-transfer-encoding;
+	bh=vLx37Dv60GzbMxSbWWBUzcw58Up4QMqZZulb7eeLxRY=;
+	b=IAkZdJHpnWRzNwMdIKRSfS8NxRnayIxvym8rlArOYNtpusviia1HkFYxW8a1502JoT
+	fxZk2XDL4KM/xjQGHcFsNk+AavlNF0E+ku1kx2yyaXbsabQBJtlGz4967QBBT2QQ13Tk
+	VHXOKMNQPy6E/Yw6L+2USLyWJMLYXbiXXlBcw/pfyi0PKU48gfD+0ZgtVtWujyfDo59Z
+	1HW6EgO0709V209gmJWTU4VRcG785ZTksvwL3D4xzsUXUXYka7MH1trNrF7RkeLZdQED
+	WHo9FnkiKac7bWrJeZG3nsPkZlHhE2ca6JjPM5qqZ+GoJRM3yYMH1jjeL8z8/0LZsn4D
+	XFpA==
+Message-ID: <1415273711.13896.67.camel@edumazet-glaptop2.roam.corp.google.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Thu, 06 Nov 2014 03:35:11 -0800
+In-Reply-To: <8D1F1238A24CE743B8F3CED0F137C69E408AA087@EXMB02.ahnbang.ahnlab.com>
 References: <1415255192-13584-1-git-send-email-suhyun.park@ahnlab.com>
 	<545B1E27.3080302@lab.ntt.co.jp>
 	<8D1F1238A24CE743B8F3CED0F137C69E408AA087@EXMB02.ahnbang.ahnlab.com>
-In-Reply-To: <8D1F1238A24CE743B8F3CED0F137C69E408AA087@EXMB02.ahnbang.ahnlab.com>
-Content-Type: text/plain; charset="euc-kr"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH] bridge: missing null bridge device check
  causing null pointer dereference (bugfix)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -19,28 +29,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?EUC-KR?B?udq89sf2?= <suhyun.park@ahnlab.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: =?UTF-8?Q?=EB=B0=95=EC=88=98=ED=98=84?= <suhyun.park@ahnlab.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
 
-T24gMjAxNC8xMS8wNiAxNjo1OCwgudq89sf2IHdyb3RlOgo+PiAtLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQo+PiBGcm9tOiBUb3NoaWFraSBNYWtpdGEgW21haWx0bzptYWtpdGEudG9zaGlha2lA
-bGFiLm50dC5jby5qcF0KPj4gU2VudDogVGh1cnNkYXksIE5vdmVtYmVyIDA2LCAyMDE0IDQ6MDcg
-UE0KPj4gVG86ILnavPbH9jsgU3RlcGhlbiBIZW1taW5nZXI7IERhdmlkIFMuIE1pbGxlcgo+PiBD
-YzogYnJpZGdlQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnOyBuZXRkZXZAdmdlci5rZXJuZWwu
-b3JnOyBsaW51eC0KPj4ga2VybmVsQHZnZXIua2VybmVsLm9yZwo+PiBTdWJqZWN0OiBSZTogW1BB
-VENIXSBicmlkZ2U6IG1pc3NpbmcgbnVsbCBicmlkZ2UgZGV2aWNlIGNoZWNrIGNhdXNpbmcgbnVs
-bAo+PiBwb2ludGVyIGRlcmVmZXJlbmNlIChidWdmaXgpCj4+Cj4+IE9uIDIwMTQvMTEvMDYgMTU6
-MjYsIFN1LUh5dW4gUGFyayB3cm90ZToKPj4+IHRoZSBicmlkZ2UgZGV2aWNlIGNhbiBiZSBudWxs
-IGlmIHRoZSBicmlkZ2UgaXMgYmVpbmcgZGVsZXRlZCB3aGlsZQo+Pj4gcHJvY2Vzc2luZyB0aGUg
-cGFja2V0LCB3aGljaCBjYXVzZXMgdGhlIG51bGwgcG9pbnRlciBkZXJlZmVyZW5jZSBpbgo+PiBz
-d2l0Y2ggc3RhdGVtZW50Lgo+Pgo+PiBIb3cgY2FuIHRoaXMgaGFwcGVuPz8KPj4gSXQgaXMgZ3Vh
-cmRlZCBieSByY3UuCj4+IG5ldGRldl9yeF9oYW5kbGVyX3VucmVnaXN0ZXIoKSBlbnN1cmVzIHJ4
-X2hhbmRsZXJfZGF0YSBpcyBub24gTlVMTC4KPj4KPiAKPiBUaGUgUkNVIHByb3RlY3QgcnhfaGFu
-ZGxlcl9kYXRhLCBub3QgdGhlIGJyaWRnZSBtZW1iZXIgcG9ydC4gSXQgY2FuIGJlIE5VTEwgYWNj
-b3JkaW5nIHRvIGJlbG93IGNvZGUuCj4gCj4gc3RhdGljIGlubGluZSBzdHJ1Y3QgbmV0X2JyaWRn
-ZV9wb3J0ICpicl9wb3J0X2dldF9yY3UoY29uc3Qgc3RydWN0IG5ldF9kZXZpY2UgKmRldikgewo+
-IAlzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpwb3J0ID0gcmN1X2RlcmVmZXJlbmNlKGRldi0+cnhf
-aGFuZGxlcl9kYXRhKTsKPiAJcmV0dXJuIGJyX3BvcnRfZXhpc3RzKGRldikgPyBwb3J0IDogTlVM
-TDsgCj4gfQoKU2VlbXMgdG8gaGF2ZSBiZWVuIGZpeGVkIGZvciBhIHllYXIuCjcxNmVjMDUyZDIy
-OCAoImJyaWRnZTogZml4IE5VTEwgcG9pbnRlciBkZXJlZiBvZiBicl9wb3J0X2dldF9yY3UiKQoK
-VGhhbmtzLApUb3NoaWFraSBNYWtpdGEKCg==
+On Thu, 2014-11-06 at 07:58 +0000, 박수현 wrote:
+> >-----Original Message-----
+> >From: Toshiaki Makita [mailto:makita.toshiaki@lab.ntt.co.jp]
+> >Sent: Thursday, November 06, 2014 4:07 PM
+> >To: 박수현; Stephen Hemminger; David S. Miller
+> >Cc: bridge@lists.linux-foundation.org; netdev@vger.kernel.org; linux-
+> >kernel@vger.kernel.org
+> >Subject: Re: [PATCH] bridge: missing null bridge device check causing null
+> >pointer dereference (bugfix)
+> >
+> >On 2014/11/06 15:26, Su-Hyun Park wrote:
+> >> the bridge device can be null if the bridge is being deleted while
+> >> processing the packet, which causes the null pointer dereference in
+> >switch statement.
+> >
+> >How can this happen??
+> >It is guarded by rcu.
+> >netdev_rx_handler_unregister() ensures rx_handler_data is non NULL.
+> >
+> 
+> The RCU protect rx_handler_data, not the bridge member port. It can be NULL according to below code.
+> 
+
+Where do you find this 'below code' ?
+
+Are you sending a patch for an old linux kernel ?
+
+> static inline struct net_bridge_port *br_port_get_rcu(const struct net_device *dev) {
+> 	struct net_bridge_port *port = rcu_dereference(dev->rx_handler_data);
+> 	return br_port_exists(dev) ? port : NULL; 
+> }
+
+Actual code is :
+
+static inline struct net_bridge_port *br_port_get_rcu(const struct net_device *dev)
+{
+	return rcu_dereference(dev->rx_handler_data);
+}
+
+
+> 
+> The crash happens at the below switch statement in br_handle_frame, where p is NULL.
+> 
+> 	switch (p->state)
+
+Is your tree really including the fix we already did to fix this issue ?
+
+(commit 716ec052d2280d511e10e90ad54a86f5b5d4dcc2 )
+bridge: fix NULL pointer deref of br_port_get_rcu
+
+
+
