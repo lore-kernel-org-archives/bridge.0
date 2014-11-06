@@ -1,10 +1,15 @@
 Return-Path: <suhyun.park@ahnlab.com>
-From: Su-Hyun Park <suhyun.park@ahnlab.com>
-Message-ID: <1415255192-13584-1-git-send-email-suhyun.park@ahnlab.com>
+From: =?ks_c_5601-1987?B?udq89sf2?= <suhyun.park@ahnlab.com>
+Message-ID: <8D1F1238A24CE743B8F3CED0F137C69E408AA087@EXMB02.ahnbang.ahnlab.com>
+References: <1415255192-13584-1-git-send-email-suhyun.park@ahnlab.com>
+	<545B1E27.3080302@lab.ntt.co.jp>
+In-Reply-To: <545B1E27.3080302@lab.ntt.co.jp>
+Content-Language: ko-KR
+Content-Type: text/plain; charset="ks_c_5601-1987"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH] bridge: missing null bridge device check causing
-	null pointer dereference (bugfix)
+Subject: Re: [Bridge] [PATCH] bridge: missing null bridge device check
+ causing null pointer dereference (bugfix)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,38 +18,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 06 Nov 2014 06:33:43 -0000
-To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Su-Hyun Park <suhyun.park@ahnlab.com>
+Date: Thu, 06 Nov 2014 07:58:45 -0000
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-the bridge device can be null if the bridge is being deleted while processing 
-the packet, which causes the null pointer dereference in switch statement.
-
-crash dump snippet:
-
-<1>BUG: unable to handle kernel NULL pointer dereference at 0000000000000021
-<1>IP: [<ffffffff814179f6>] br_handle_frame+0xe6/0x270
-
-<0>Code: 4c 0f 44 f0 89 f8 66 33 15 32 52 24 00 66 33 05 29 52 24 00 09 c2 89 
-f0 66 33 05 22 52 24 00 80 e4 f0 66 09 c2 0f 84 eb 00 00 00 <41> 0f b6 46 21 
-3c 02 74 61 3c 03 74 1d 48 89 df e8 d5 bc f0 ff
----
- net/bridge/br_input.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 6fd5522..7e899ca 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -176,6 +176,8 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 		return RX_HANDLER_CONSUMED;
- 
- 	p = br_port_get_rcu(skb->dev);
-+	if (!p)
-+		goto drop;
- 
- 	if (unlikely(is_link_local_ether_addr(dest))) {
- 		u16 fwd_mask = p->br->group_fwd_mask_required;
--- 
-1.8.1.4
-
+Pi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+RnJvbTogVG9zaGlha2kgTWFraXRhIFttYWls
+dG86bWFraXRhLnRvc2hpYWtpQGxhYi5udHQuY28uanBdDQo+U2VudDogVGh1cnNkYXksIE5vdmVt
+YmVyIDA2LCAyMDE0IDQ6MDcgUE0NCj5Ubzogudq89sf2OyBTdGVwaGVuIEhlbW1pbmdlcjsgRGF2
+aWQgUy4gTWlsbGVyDQo+Q2M6IGJyaWRnZUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsgbmV0
+ZGV2QHZnZXIua2VybmVsLm9yZzsgbGludXgtDQo+a2VybmVsQHZnZXIua2VybmVsLm9yZw0KPlN1
+YmplY3Q6IFJlOiBbUEFUQ0hdIGJyaWRnZTogbWlzc2luZyBudWxsIGJyaWRnZSBkZXZpY2UgY2hl
+Y2sgY2F1c2luZyBudWxsDQo+cG9pbnRlciBkZXJlZmVyZW5jZSAoYnVnZml4KQ0KPg0KPk9uIDIw
+MTQvMTEvMDYgMTU6MjYsIFN1LUh5dW4gUGFyayB3cm90ZToNCj4+IHRoZSBicmlkZ2UgZGV2aWNl
+IGNhbiBiZSBudWxsIGlmIHRoZSBicmlkZ2UgaXMgYmVpbmcgZGVsZXRlZCB3aGlsZQ0KPj4gcHJv
+Y2Vzc2luZyB0aGUgcGFja2V0LCB3aGljaCBjYXVzZXMgdGhlIG51bGwgcG9pbnRlciBkZXJlZmVy
+ZW5jZSBpbg0KPnN3aXRjaCBzdGF0ZW1lbnQuDQo+DQo+SG93IGNhbiB0aGlzIGhhcHBlbj8/DQo+
+SXQgaXMgZ3VhcmRlZCBieSByY3UuDQo+bmV0ZGV2X3J4X2hhbmRsZXJfdW5yZWdpc3RlcigpIGVu
+c3VyZXMgcnhfaGFuZGxlcl9kYXRhIGlzIG5vbiBOVUxMLg0KPg0KDQpUaGUgUkNVIHByb3RlY3Qg
+cnhfaGFuZGxlcl9kYXRhLCBub3QgdGhlIGJyaWRnZSBtZW1iZXIgcG9ydC4gSXQgY2FuIGJlIE5V
+TEwgYWNjb3JkaW5nIHRvIGJlbG93IGNvZGUuDQoNCnN0YXRpYyBpbmxpbmUgc3RydWN0IG5ldF9i
+cmlkZ2VfcG9ydCAqYnJfcG9ydF9nZXRfcmN1KGNvbnN0IHN0cnVjdCBuZXRfZGV2aWNlICpkZXYp
+IHsNCglzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpwb3J0ID0gcmN1X2RlcmVmZXJlbmNlKGRldi0+
+cnhfaGFuZGxlcl9kYXRhKTsNCglyZXR1cm4gYnJfcG9ydF9leGlzdHMoZGV2KSA/IHBvcnQgOiBO
+VUxMOyANCn0NCg0KVGhlIGNyYXNoIGhhcHBlbnMgYXQgdGhlIGJlbG93IHN3aXRjaCBzdGF0ZW1l
+bnQgaW4gYnJfaGFuZGxlX2ZyYW1lLCB3aGVyZSBwIGlzIE5VTEwuDQoNCglzd2l0Y2ggKHAtPnN0
+YXRlKQ0KDQo+Pg0KPj4gY3Jhc2ggZHVtcCBzbmlwcGV0Og0KPj4NCj4+IDwxPkJVRzogdW5hYmxl
+IHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0DQo+PiAwMDAwMDAw
+MDAwMDAwMDIxDQo+PiA8MT5JUDogWzxmZmZmZmZmZjgxNDE3OWY2Pl0gYnJfaGFuZGxlX2ZyYW1l
+KzB4ZTYvMHgyNzANCj4+DQo+PiA8MD5Db2RlOiA0YyAwZiA0NCBmMCA4OSBmOCA2NiAzMyAxNSAz
+MiA1MiAyNCAwMCA2NiAzMyAwNSAyOSA1MiAyNCAwMA0KPj4gMDkgYzIgODkNCj4+IGYwIDY2IDMz
+IDA1IDIyIDUyIDI0IDAwIDgwIGU0IGYwIDY2IDA5IGMyIDBmIDg0IGViIDAwIDAwIDAwIDw0MT4g
+MGYgYjYNCj4+IDQ2IDIxIDNjIDAyIDc0IDYxIDNjIDAzIDc0IDFkIDQ4IDg5IGRmIGU4IGQ1IGJj
+IGYwIGZmDQo+PiAtLS0NCj4+ICBuZXQvYnJpZGdlL2JyX2lucHV0LmMgfCAyICsrDQo+PiAgMSBm
+aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9uZXQvYnJp
+ZGdlL2JyX2lucHV0LmMgYi9uZXQvYnJpZGdlL2JyX2lucHV0LmMgaW5kZXgNCj4+IDZmZDU1MjIu
+LjdlODk5Y2EgMTAwNjQ0DQo+PiAtLS0gYS9uZXQvYnJpZGdlL2JyX2lucHV0LmMNCj4+ICsrKyBi
+L25ldC9icmlkZ2UvYnJfaW5wdXQuYw0KPj4gQEAgLTE3Niw2ICsxNzYsOCBAQCByeF9oYW5kbGVy
+X3Jlc3VsdF90IGJyX2hhbmRsZV9mcmFtZShzdHJ1Y3Qgc2tfYnVmZg0KPioqcHNrYikNCj4+ICAJ
+CXJldHVybiBSWF9IQU5ETEVSX0NPTlNVTUVEOw0KPj4NCj4+ICAJcCA9IGJyX3BvcnRfZ2V0X3Jj
+dShza2ItPmRldik7DQo+PiArCWlmICghcCkNCj4+ICsJCWdvdG8gZHJvcDsNCj4+DQo+PiAgCWlm
+ICh1bmxpa2VseShpc19saW5rX2xvY2FsX2V0aGVyX2FkZHIoZGVzdCkpKSB7DQo+PiAgCQl1MTYg
+ZndkX21hc2sgPSBwLT5ici0+Z3JvdXBfZndkX21hc2tfcmVxdWlyZWQ7DQo+Pg0KPg0KDQo=
