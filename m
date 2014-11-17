@@ -1,15 +1,14 @@
-Return-Path: <herbert@gondor.apana.org.au>
-Date: Mon, 17 Nov 2014 10:33:09 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Message-ID: <20141117023309.GA30015@gondor.apana.org.au>
+Return-Path: <davem@davemloft.net>
+Date: Mon, 17 Nov 2014 01:12:44 -0500 (EST)
+Message-Id: <20141117.011244.411942491718443458.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20141117020816.GD2469@odroid>
 References: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
 	<20141102220145.GA25604@gondor.apana.org.au>
 	<20141117020816.GD2469@odroid>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20141117020816.GD2469@odroid>
 Subject: Re: [Bridge] [PATCH] bridge: fix netfilter/NF_BR_LOCAL_OUT for own,
  locally generated queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -20,24 +19,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
-Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+To: linus.luessing@c0d3.blue
+Cc: stephen@networkplumber.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2014 at 03:08:16AM +0100, Linus L=FCssing wrote:
+From: Linus L=FCssing <linus.luessing@c0d3.blue>
+Date: Mon, 17 Nov 2014 03:08:16 +0100
+
 > On Mon, Nov 03, 2014 at 06:01:46AM +0800, Herbert Xu wrote:
-> > On Mon, Sep 22, 2014 at 01:32:44AM +0200, Linus L=FCssing wrote:
-> > > Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
-> >=20
-> > Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
->=20
+>> On Mon, Sep 22, 2014 at 01:32:44AM +0200, Linus L=FCssing wrote:
+>> > Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
+>> =
+
+>> Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+> =
+
 > Hi David,
->=20
+> =
+
 > are there any unanswered questions left?
 
-Please resubmit your patch as it's no longer in David's queue.
-
-Cheers,
---=20
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I expect to get this from the netfilter folks, since it is a
+netfilter change.  So you should submit it to the netfilter
+maintainers.
