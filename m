@@ -1,15 +1,17 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 13 Nov 2014 15:23:53 -0500 (EST)
-Message-Id: <20141113.152353.548265176661091467.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20141113194752.GQ3815@sirena.org.uk>
-References: <20141113114357.GA7857@salvia>
-	<20141113.143513.785778562781935404.davem@davemloft.net>
-	<20141113194752.GQ3815@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] arm64 allmodconfig failures in nft_reject_bridge.c
+Return-Path: <herbert@gondor.apana.org.au>
+Date: Mon, 17 Nov 2014 10:33:09 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-ID: <20141117023309.GA30015@gondor.apana.org.au>
+References: <1411342364-4791-1-git-send-email-linus.luessing@web.de>
+	<20141102220145.GA25604@gondor.apana.org.au>
+	<20141117020816.GD2469@odroid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20141117020816.GD2469@odroid>
+Subject: Re: [Bridge] [PATCH] bridge: fix netfilter/NF_BR_LOCAL_OUT for own,
+ locally generated queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,18 +20,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: broonie@kernel.org
-Cc: linaro-kernel@lists.linaro.org, kernel-build-reports@lists.linaro.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, stephen@networkplumber.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, kadlec@blackhole.kfki.hu, kaber@trash.net, linux@roeck-us.net
+To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
+Cc: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
-Date: Thu, 13 Nov 2014 19:47:52 +0000
+On Mon, Nov 17, 2014 at 03:08:16AM +0100, Linus L=FCssing wrote:
+> On Mon, Nov 03, 2014 at 06:01:46AM +0800, Herbert Xu wrote:
+> > On Mon, Sep 22, 2014 at 01:32:44AM +0200, Linus L=FCssing wrote:
+> > > Signed-off-by: Linus L=FCssing <linus.luessing@web.de>
+> >=20
+> > Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+>=20
+> Hi David,
+>=20
+> are there any unanswered questions left?
 
-> On Thu, Nov 13, 2014 at 02:35:13PM -0500, David Miller wrote:
-> 
->> I hold changes in my tree for a week or more, because I want them to
->> "cook" there before they go to Linus.
-> 
-> Hrm.  Guess there must've been some other change in -next that pulled
-> the header in implicitly here :(
+Please resubmit your patch as it's no longer in David's queue.
 
--next pulls in my 'net' tree, so got the fix.
+Cheers,
+--=20
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
