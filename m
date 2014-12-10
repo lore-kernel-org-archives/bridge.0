@@ -1,11 +1,15 @@
-Return-Path: <makita@lab.ntt.co.jp>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Wed, 10 Dec 2014 11:43:14 +0900
-Message-Id: <1418179394-4470-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-In-Reply-To: <1418179394-4470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1418179394-4470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Subject: [Bridge] [PATCH net-next] bridge: Add ability to always enable
-	TSO/UFO
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Wed, 10 Dec 2014 20:16:33 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20141210191633.GA2473@odroid>
+References: <20140324094107.2cfbf103@nehalam.linuxnetplumber.net>
+	<20140325125231.GW6008@Linus-Debian> <20140910133341.GI7058@odroid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20140910133341.GI7058@odroid>
+Subject: Re: [Bridge] Multicast packets being lost (3.10 stable)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,33 +18,104 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: Stephen Hemminger <shemming@brocade.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, openwrt-devel@lists.openwrt.org, David Miller <davem@davemloft.net>
 
-Currently a bridge device turns off TSO/UFO features if no bridge ports
-support it. We can always enable them, since packets can be segmented
-on ports by software as well as on the bridge device.
-This will reduce the number of packets processed in the bridge.
+Hi David,
 
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- net/bridge/br_if.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+did you have a chance to look into backporting these fixes for
+stable yet? (if I read the docs correctly, I should query you for
+suggestions for stable kernels, right?)
 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index ed307db..e93bf17 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -418,7 +418,7 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
- 		return features;
- 
- 	mask = features;
--	features &= ~NETIF_F_ONE_FOR_ALL;
-+	features &= ~NETIF_F_ONE_FOR_ALL | NETIF_F_GSO_SOFTWARE;
- 
- 	list_for_each_entry(p, &br->port_list, list) {
- 		features = netdev_increment_features(features,
--- 
-1.8.1.2
+Also, an eighth patch I'd suggest for stable now:
+
+8) bridge: fix netfilter/NF_BR_LOCAL_OUT for own, locally generated queries
+   -> f0b4eeced (since 3.18)
 
 
+If there's anything unclear, just let me know. Thanks :)!
+
+Cheers, Linus
+
+
+On Wed, Sep 10, 2014 at 03:33:41PM +0200, Linus Lüssing wrote:
+> I just got a complaint about bridges, multicast and a
+> 3.10 kernel again. Seems like nobody had any objections about
+> queueing these two patches for stable ( 2)+3) )?
+> 
+> Also I'm still missing some more fixes in the stable branches.
+> Especially 5), 6) and 7) are of high priority (next to 2) and 3) )
+> in my opinion as otherwise IPv6 in general could be broken for people
+> using 3.12 or 3.13 (as 3.12 contains a patch which activates
+> multicast snooping for link-local addresses, too: 3c3769e63).
+> 
+> Here is a more ordered list of patches I'd suggest to be queued for
+> stable:
+> 
+> 1) bridge: fix switched interval for MLD Query types
+>    -> 32de868cb (present since 3.10)
+> 2) bridge: disable snooping if there is no querier
+>    -> b00589af3 (present since 3.11)
+> 3) bridge: don't try to update timers in case of broken MLD queries
+>    -> 248ba8ec0 (present since 3.11)
+> 4) Revert "bridge: only expire the mdb entry when query is received"
+>    -> 454594f3b (present since 3.12)
+> 5) bridge: multicast: add sanity check for query source addresses
+>    -> 6565b9eee (present since 3.14)
+> 6) bridge: multicast: add sanity check for general query destination
+>    -> 9ed973cc4 (present since 3.14)
+> 7) bridge: multicast: enable snooping on general queries only
+>    -> 20a599bec (present since 3.14)
+> 
+> Let me know what you'd think about that or if there's any trouble
+> applying them to older kernels.
+> 
+> Cheers, Linus
+> 
+> 
+> On Tue, Mar 25, 2014 at 02:06:07PM +0100, Linus Lüssing wrote:
+> > That commit is supposed to be a fix and seems to be a easily
+> > cherry-pickable on top of 3.10. So I think it's suitable for
+> > stable
+> > 
+> > There are two follow-up commit for this particular patch that I'm aware
+> > of: "bridge: separate querier and query timer into IGMP/IPv4
+> > and MLD/IPv6 ones" (cc0fdd80). That's just an optimization
+> > and can be ignored for stable.
+> > 
+> > The second one is "bridge: don't try to update timers in case of
+> > broken MLD queries" (248ba8ec0). Which is a direct fix for
+> > b00589af3 and should therefore go into stable, too, if b00589af3
+> > goes into stable.
+> > 
+> > Cheers, Linus
+> > 
+> > 
+> > On Mon, Mar 24, 2014 at 09:41:07AM -0700, Stephen Hemminger wrote:
+> > > We are seeing multicast snooping related issues.
+> > > Is there some reason this commit never went into stable (3.10)
+> > > 
+> > > commit b00589af3b04736376f24625ab0b394642e89e29
+> > > Author: Linus Lüssing <linus.luessing@web.de>
+> > > Date:   Thu Aug 1 01:06:20 2013 +0200
+> > > 
+> > >     bridge: disable snooping if there is no querier
+> > >     
+> > >     If there is no querier on a link then we won't get periodic reports and
+> > >     therefore won't be able to learn about multicast listeners behind ports,
+> > >     potentially leading to lost multicast packets, especially for multicast
+> > >     listeners that joined before the creation of the bridge.
+> > >     
+> > >     These lost multicast packets can appear since c5c23260594
+> > >     ("bridge: Add multicast_querier toggle and disable queries by default")
+> > >     in particular.
+> > >     
+> > >     With this patch we are flooding multicast packets if our querier is
+> > >     disabled and if we didn't detect any other querier.
+> > >     
+> > >     A grace period of the Maximum Response Delay of the querier is added to
+> > >     give multicast responses enough time to arrive and to be learned from
+> > >     before disabling the flooding behaviour again.
+> > >     
+> > >     Signed-off-by: Linus Lüssing <linus.luessing@web.de>
+> > >     Signed-off-by: David S. Miller <davem@davemloft.net>
