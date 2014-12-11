@@ -1,12 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 10 Dec 2014 14:50:47 -0500 (EST)
-Message-Id: <20141210.145047.1148744559031706340.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1418179394-4470-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1418179394-4470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1418179394-4470-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <5488FBBC.2050105@lab.ntt.co.jp>
+Date: Thu, 11 Dec 2014 11:04:44 +0900
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+MIME-Version: 1.0
+References: <1418179394-4470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>	<1418179394-4470-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20141210.145047.1148744559031706340.davem@davemloft.net>
+In-Reply-To: <20141210.145047.1148744559031706340.davem@davemloft.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: Add ability to always enable
 	TSO/UFO
@@ -18,22 +18,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
+To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Wed, 10 Dec 2014 11:43:14 +0900
+On 2014/12/11 4:50, David Miller wrote:
+> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Date: Wed, 10 Dec 2014 11:43:14 +0900
+> 
+>> -	features &= ~NETIF_F_ONE_FOR_ALL;
+>> +	features &= ~NETIF_F_ONE_FOR_ALL | NETIF_F_GSO_SOFTWARE;
+> 
+> I don't think this is the expression you intend to use.
 
-> -	features &= ~NETIF_F_ONE_FOR_ALL;
-> +	features &= ~NETIF_F_ONE_FOR_ALL | NETIF_F_GSO_SOFTWARE;
+Thank you, but this is really my intended expression.
 
-I don't think this is the expression you intend to use.
+"features &= ~NETIF_F_ONE_FOR_ALL" drops all of ONE_FOR_ALL bits
+including GSO_SOFTWARE.
+But I want to leave GSO_SOFTWARE bits here.
 
-I think you meant:
+> 
+> I think you meant:
+> 
+> 	features &= ~(NETIF_F_ONE_FOR_ALL | NETIF_F_GSO_SOFTWARE);
 
-	features &= ~(NETIF_F_ONE_FOR_ALL | NETIF_F_GSO_SOFTWARE);
+ONE_FOR_ALL already includes GSO_SOFTWARE.
 
-Or:
+> 
+> Or:
+> 
+> 	features = ~NETIF_F_ONE_FOR_ALL;
+> 	features |= NETIF_F_GSO_SOFTWARE;
 
-	features = ~NETIF_F_ONE_FOR_ALL;
-	features |= NETIF_F_GSO_SOFTWARE;
+This way, users cannot drop TSO/UFO by ethtool.
+
+Thanks,
+Toshiaki Makita
+
