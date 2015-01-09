@@ -1,14 +1,8 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Mon, 5 Jan 2015 22:10:34 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20150105221034.0f69d6fd@urahara>
-In-Reply-To: <1420505776-26827-1-git-send-email-bernhard.thaler@wvnet.at>
-References: <1420505776-26827-1-git-send-email-bernhard.thaler@wvnet.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 1/1] bridge: remove BR_GROUPFWD_RESTRICTED for
- arbitrary forwarding of reserved addresses
+Return-Path: <makita@lab.ntt.co.jp>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Fri,  9 Jan 2015 14:16:40 +0900
+Message-Id: <1420780600-11313-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH v2 net-next] bridge: Add ability to enable TSO
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,49 +11,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Bernhard Thaler <bernhard.thaler@wvnet.at>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Tue,  6 Jan 2015 01:56:15 +0100
-Bernhard Thaler <bernhard.thaler@wvnet.at> wrote:
+Currently a bridge device turns off TSO feature if no bridge ports
+support it. We can always enable it, since packets can be segmented on
+ports by software as well as on the bridge device.
+This will reduce the number of packets processed in the bridge.
 
-> BR_GROUPFWD_RESTRICTED bitmask restricts users from setting values to
-> /sys/class/net/brX/bridge/group_fwd_mask that allow forwarding of
-> some IEEE 802.1D Table 7-10 Reserved addresses:
-> 	(MAC Control) 802.3		01-80-C2-00-00-01
-> 	(Link Aggregation) 802.3	01-80-C2-00-00-02
-> 	802.1AB LLDP			01-80-C2-00-00-0E
-> BR_GROUPFWD_RESTRICTED may have been set as an extra protection against
-> forwarding these control frames as forwarding 802.1X PAE (01-80-C2-00-00-03)
-> in 802.1X setups satisfies most common use-cases.
-> Other situations, such as placing a software based bridge as a "TAP" between two
-> devices may require to forward e.g. LLDP frames while debugging network problems
-> or actively changing/filtering traffic with ebtables.
-> 
-> This patch allows to set e.g.:
-> 	echo 65535 > /sys/class/net/brX/bridge/group_fwd_mask
-> which sets no restrictions on the forwardable reserved addresses.
-> 
-> - the default value 0 will still comply with 802.1D and not forward any
->   reserved addresses
-> - values such as 8 for forwarding 802.1X related frames will behave the
->   same way as with BR_GROUPFWD_RESTRICTED currently in place, so backward
->   compatibility to current scripts using group_fwd_masks shoudl be possible
-> 
-> Administrators and network engineers however will be able to arbitrarily
-> forward any reserved addresses without BR_GROUPFWD_RESTRICTED. This will
-> be non-standard compliant behavior, but forwarding of any reserved address
-> right from the beginning is. Users should be aware of this anyway and
-> know what/why they are doing when setting values such as 65535, 32768, 16384,
-> 4, 2 for group_fwd_mask
-> 
-> This patch was tested on a bridge with two interfaces created with bridge-utils.
-> 
-> Signed-off-by: Bernhard Thaler <bernhard.thaler@wvnet.at>
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+v2: Use an existing helper function.
 
-I am ok with forwarding LLDP because some people need it.
-But allowing forwarding STP or PAUSE frames is bad.
+ net/bridge/br_if.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-We don't let people do things that break networks. Other examples
-already exist like set all 0 ethernet addresses, or the restrictions
-on allowing net 127 in IP addresses.
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index ed307db..81e49fb 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -424,6 +424,7 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+ 		features = netdev_increment_features(features,
+ 						     p->dev->features, mask);
+ 	}
++	features = netdev_add_tso_features(features, mask);
+ 
+ 	return features;
+ }
+-- 
+1.8.1.2
+
+
