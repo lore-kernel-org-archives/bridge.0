@@ -1,13 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 12 Jan 2015 16:18:33 -0500 (EST)
-Message-Id: <20150112.161833.1081573233180480559.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1420780600-11313-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1420780600-11313-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2 net-next] bridge: Add ability to enable TSO
+Return-Path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 13 Jan 2015 15:10:27 +0100
+Message-ID: <56868207.rHBDZL3pbk@wuerfel>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+Subject: [Bridge] [PATCH] bridge: only provide proxy ARP when CONFIG_INET is
+	enabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,19 +15,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Kyeyoon Park <kyeyoonp@codeaurora.org>, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Fri,  9 Jan 2015 14:16:40 +0900
+When IPV4 support is disabled, we cannot call arp_send from
+the bridge code, which would result in a kernel link error:
 
-> Currently a bridge device turns off TSO feature if no bridge ports
-> support it. We can always enable it, since packets can be segmented on
-> ports by software as well as on the bridge device.
-> This will reduce the number of packets processed in the bridge.
-> 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> ---
-> v2: Use an existing helper function.
+net/built-in.o: In function `br_handle_frame_finish':
+:(.text+0x59914): undefined reference to `arp_send'
+:(.text+0x59a50): undefined reference to `arp_tbl'
 
-Applied, thank you.
+This makes the newly added proxy ARP support in the bridge
+code depend on the CONFIG_INET symbol and lets the compiler
+optimize the code out to avoid the link error.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 958501163ddd ("bridge: Add support for IEEE 802.11 Proxy ARP")
+Cc: Kyeyoon Park <kyeyoonp@codeaurora.org>
+
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 1f1de715197c..e2aa7be3a847 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -154,7 +154,8 @@ int br_handle_frame_finish(struct sk_buff *skb)
+ 	dst = NULL;
+ 
+ 	if (is_broadcast_ether_addr(dest)) {
+-		if (p->flags & BR_PROXYARP &&
++		if (IS_ENABLED(CONFIG_INET) &&
++		    p->flags & BR_PROXYARP &&
+ 		    skb->protocol == htons(ETH_P_ARP))
+ 			br_do_proxy_arp(skb, br, vid);
+ 
+
