@@ -1,20 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=RLzCcWSvjmmm2uELpX8rsFiP77zXFodpEVkn0mGblas=;
-	b=bkAxgo1itWKDKWNWCVG4xwet0GPWTNuBkkkQqLSyZMNQqUL6YlS+RlQkHPafDlz6CI
-	pLL1pwGoE949at1TvLAhXmTITJEo5aLM2OJ6p/j3+xh5v1G86JpsMpKinAtM6rL+msGo
-	E5XfkULP1UB7Uo0iUdf3zEvJcrFr5i6Ui+I2RsDPFTdRW5a1VOmMSorqES2u81u3Eti4
-	k8Y7jhCFX/mqF6hrKaol69ofcQk7LaCxp3xCmSjNYdGhTI8alo7Xie3eb9mIIT9vO3+S
-	PnX8MQZO5/TWiUc20h5ykwOCUmQHPItAgUNPB1ZyRokWV7mI+nZA/fqoIVkfpUHlmPzc
-	VHwA==
+	bh=WGnOG0JpJKzUjl5Bwk2bg29FCQEPzjElbHjoFVQYAww=;
+	b=HsW3CfYklay0PABbmjUCf54EUhZVmkQMYHHIkwDl4rTla0VtF616tXiHnYajxKh3Zr
+	ssWqxm+zGDdP1fvp87QrEAwvtkHByNoG8SYjqVps97d83ak4W6gwHJWl0UjVAZ74uFXP
+	lLdKn57GBKARpXk52uDKw/5QiaqewBi6vJj0Wu7vy2P8QuecSJr1z4D0dFBzsdVnUtWh
+	9WasyMMsRDqlYTLO6wwTxWSG/cmNRGZXiq8axl+bmfJVGfvOdbzZfTUt3iQ0Brfx5iEh
+	F5lduggF7fwZZDBkHgITk9V68ECY92/JhUyFlet97BcvB0sNjFgtz/75FvKBf3QEMWRL
+	6zqQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Fri, 16 Jan 2015 09:56:01 -0800
-Message-Id: <1421430962-18119-2-git-send-email-f.fainelli@gmail.com>
+Date: Fri, 16 Jan 2015 09:56:02 -0800
+Message-Id: <1421430962-18119-3-git-send-email-f.fainelli@gmail.com>
 In-Reply-To: <1421430962-18119-1-git-send-email-f.fainelli@gmail.com>
 References: <1421430962-18119-1-git-send-email-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v2 1/2] net: ipv4: handle DSA enabled
-	master network devices
+Subject: [Bridge] [PATCH net-next v2 2/2] net: bridge: reject DSA-enabled
+	master netdevices as bridge members
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,61 +26,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, kaber@trash.net, davem@davemloft.net, buytenh@wantstofly.org
 
-The logic to configure a network interface for kernel IP
-auto-configuration is very simplistic, and does not handle the case
-where a device is stacked onto another such as with DSA. This causes the
-kernel not to open and configure the master network device in a DSA
-switch tree, and therefore slave network devices using this master
-network devices as conduit device cannot be open.
+DSA-enabled master network devices with a switch tagging protocol should
+strip the protocol specific format before handing the frame over to
+higher layer.
 
-This restriction comes from a check in net/dsa/slave.c, which is
-basically checking the master netdev flags for IFF_UP and returns
--ENETDOWN if it is not the case.
+When adding such a DSA master network device as a bridge member, we go
+through the following code path when receiving a frame:
 
-Automatically bringing-up DSA master network devices allows DSA slave
-network devices to be used as valid interfaces for e.g: NFS root booting
-by allowing kernel IP autoconfiguration to succeed on these interfaces.
+__netif_receive_skb_core
+	-> first ptype check against ptype_all is not returning any
+	   handler for this skb
 
-On the reverse path, make sure we do not attempt to close a DSA-enabled
-device as this would implicitely prevent the slave DSA network device
-from operating.
+	-> check and invoke rx_handler:
+		-> deliver frame to the bridge layer: br_handle_frame
+
+DSA registers a ptype handler with the fake ETH_XDSA ethertype, which is
+called *after* the bridge-layer rx_handler has run. br_handle_frame()
+tries to parse the frame it received from the DSA master network device,
+and will not be able to match any of its conditions and jumps straight
+at the end of the end of br_handle_frame() and returns
+RX_HANDLER_CONSUMED there.
+
+Since we returned RX_HANDLER_CONSUMED, __netif_receive_skb_core() stops
+RX processing for this frame and returns NET_RX_SUCCESS, so we never get
+a chance to call our switch tag packet processing logic and deliver
+frames to the DSA slave network devices, and so we do not get any
+functional bridge members at all.
+
+Instead of cluttering the bridge receive path with DSA-specific checks,
+and rely on assumptions about how __netif_receive_skb_core() is
+processing frames, we simply deny adding the DSA master network device
+(conduit interface) as a bridge member, leaving only the slave DSA
+network devices to be bridge members, since those will work correctly in
+all circumstances.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
-Changes in v2:
+ net/bridge/br_if.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-- fixed typo in first comment hunk
-- remove spurious newline change
-- removed second comment, the code is obvious enough
-
- net/ipv4/ipconfig.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
-index 7fa18bc7e47f..b26376ef87f6 100644
---- a/net/ipv4/ipconfig.c
-+++ b/net/ipv4/ipconfig.c
-@@ -209,9 +209,9 @@ static int __init ic_open_devs(void)
- 	last = &ic_first_dev;
- 	rtnl_lock();
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 81e49fb73169..b087d278c679 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -436,10 +436,16 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
+ 	int err = 0;
+ 	bool changed_addr;
  
--	/* bring loopback device up first */
-+	/* bring loopback and DSA master network devices up first */
- 	for_each_netdev(&init_net, dev) {
--		if (!(dev->flags & IFF_LOOPBACK))
-+		if (!(dev->flags & IFF_LOOPBACK) && !netdev_uses_dsa(dev))
- 			continue;
- 		if (dev_change_flags(dev, dev->flags | IFF_UP) < 0)
- 			pr_err("IP-Config: Failed to open %s\n", dev->name);
-@@ -306,7 +306,7 @@ static void __init ic_close_devs(void)
- 	while ((d = next)) {
- 		next = d->next;
- 		dev = d->dev;
--		if (dev != ic_dev) {
-+		if (dev != ic_dev && !netdev_uses_dsa(dev)) {
- 			DBG(("IP-Config: Downing %s\n", dev->name));
- 			dev_change_flags(dev, d->flags);
- 		}
+-	/* Don't allow bridging non-ethernet like devices */
++	/* Don't allow bridging non-ethernet like devices, or DSA-enabled
++	 * master network devices since the bridge layer rx_handler prevents
++	 * the DSA fake ethertype handler to be invoked, so we do not strip off
++	 * the DSA switch tag protocol header and the bridge layer just return
++	 * RX_HANDLER_CONSUMED, stopping RX processing for these frames.
++	 */
+ 	if ((dev->flags & IFF_LOOPBACK) ||
+ 	    dev->type != ARPHRD_ETHER || dev->addr_len != ETH_ALEN ||
+-	    !is_valid_ether_addr(dev->dev_addr))
++	    !is_valid_ether_addr(dev->dev_addr) ||
++	    netdev_uses_dsa(dev))
+ 		return -EINVAL;
+ 
+ 	/* No bridging of bridges */
 -- 
 2.1.0
 
