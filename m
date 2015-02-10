@@ -1,14 +1,12 @@
-Return-Path: <vvs@parallels.com>
-Message-ID: <54DA0EAD.60002@parallels.com>
-Date: Tue, 10 Feb 2015 16:59:09 +0300
-From: Vasily Averin <vvs@parallels.com>
+Return-Path: <g.danti@assyoma.it>
+Message-ID: <54DA4E5F.3090800@assyoma.it>
+Date: Tue, 10 Feb 2015 19:30:55 +0100
+From: Gionatan Danti <g.danti@assyoma.it>
 MIME-Version: 1.0
-References: <1378253619-23918-1-git-send-email-linus.luessing@web.de>
-	<54D9C4ED.6040601@parallels.com> <20150210114428.GK2489@odroid>
-In-Reply-To: <20150210114428.GK2489@odroid>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] bride: IPv6 multicast snooping enhancements
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] VLAN tagged traffic and different behavior on two CentOS
+ 6.6 boxes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +15,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?B?TGludXMgTMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Cong Wang <amwang@redhat.com>
+To: bridge@lists.linux-foundation.org
 
-On 10.02.2015 14:44, Linus Lüssing wrote:
-> Hi Vasily,
-> 
-> On Tue, Feb 10, 2015 at 11:44:29AM +0300, Vasily Averin wrote:
->> This patch prevent forwarding of ICMPv6 in bridges,
->> so containers/VMs with virtual eth adapters connected in local bridge cannot ping each other via ipv6 (but can do it via ipv4)
-> 
-> If a host wants to receive packets, then it needs to signalize
-> that via MLD. If your host does not do that, then it is expected
-> to not receive ICMPv6 echo requests to multicast addresses. An
-> exception is ff02::1, that should always work.
+Hi list,
+I have a bridged KVM setup where I would trunk both tagged and untagged 
+traffic. In other words, some VMs will reside on the untagged portion, 
+while other on the tagged one.
 
-Thank you for explanation, seems now I understand finally how it should work.
+I have two CentOS 6.6 boxes that behave quite differently each other and 
+I can not understand why. On both boxes I have:
+- an eth0 interface bridged to lanbr0
+- an eth0.10 interface bridged to lanbr10
 
-I'm trying to fix ICMPv6 processing broken in OpenVZ after rebase to last RHEL6u6 kernel.
-After some unclear manipulation bridge begins to forward icmp6 NS (fe02::1) into wrong port,
-and at present I do not found the reason of this failure.
+ From what I read here [1] and here [2], to have a working setup I need 
+to create an ebtables rules similar to "ebtables -t broute -A BROUTING 
+-p 802_1Q -i eth0 -j DROP". On the first system, until I create that 
+rules I can not ping the lanbr10 interface (from another system).
 
-Thank you,
-	Vasily Averin
+But on the second system, after some 20-25 seconds (less if I disable 
+STP on the bridge) I can ping the lanbr10 interface even _without_ the 
+ebtables rules above.
+
+How that is possibile? Why the second box seems to auto-configure it 
+while the first one need the ebtables rule? I hope this is the right list...
+
+Thanks.
+
+[1] http://ebtables.netfilter.org/misc/brnf-faq.html
+[2] http://www.rackspace.com/blog/vms-vlans-and-bridges-oh-my-part-2/
+
+Additional informations:
+
+FIRST BOX:
+[root@singularity ~]# ifconfig eth0.10 0.0.0.0
+[root@singularity ~]# brctl addbr lanbr10
+[root@singularity ~]# brctl addif lanbr10 eth0.10
+[root@singularity ~]# ifconfig lanbr10 10.0.0.100 netmask 255.255.255.0
+[root@singularity ~]# brctl show
+bridge name	bridge id		STP enabled	interfaces
+dmzbr0		8000.00a0d213ef5d	yes		eth1
+							vnet0
+							vnet4
+							vnet7
+lanbr0		8000.002522027e10	yes		eth0
+							vnet1
+							vnet2
+							vnet3
+							vnet5
+lanbr10		8000.002522027e10	no		eth0.10
+virbr0		8000.5254005a0aac	yes		virbr0-nic
+
+
+SECOND BOX:
+[root@kvm-black ~]# brctl addbr lanbr10
+[root@kvm-black ~]# brctl addif lanbr10 eth0.10
+[root@kvm-black ~]# ifconfig lanbr10 10.0.0.85 netmask 255.255.255.0
+[root@kvm-black ~]# brctl show
+bridge name	bridge id		STP enabled	interfaces
+lanbr		8000.0022196645d4	yes		eth0
+lanbr10		8000.0022196645d4	no		eth0.10
+
+
+-- 
+Danti Gionatan
+Supporto Tecnico
+Assyoma S.r.l. - www.assyoma.it
+email: g.danti@assyoma.it - info@assyoma.it
+GPG public key ID: FF5F32A8
