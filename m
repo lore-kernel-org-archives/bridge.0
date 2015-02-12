@@ -1,14 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 11 Feb 2015 14:29:36 -0800 (PST)
-Message-Id: <20150211.142936.951620487173949333.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1423560744-19011-1-git-send-email-imrep.amz@gmail.com>
-References: <1423560744-19011-1-git-send-email-imrep.amz@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: make it possible for packets to
- traverse the bridge withour hitting netfilter
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Thu, 12 Feb 2015 12:41:17 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20150212114117.GC3665@odroid>
+References: <1378253619-23918-1-git-send-email-linus.luessing@web.de>
+	<54D9C4ED.6040601@parallels.com> <20150210114428.GK2489@odroid>
+	<54DA0EAD.60002@parallels.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <54DA0EAD.60002@parallels.com>
+Subject: Re: [Bridge] bride: IPv6 multicast snooping enhancements
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,30 +18,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: imrep.amz@gmail.com
-Cc: imrep@amazon.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, aliguori@amazon.com
+To: Vasily Averin <vvs@parallels.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Cong Wang <amwang@redhat.com>
 
-From: Imre Palik <imrep.amz@gmail.com>
-Date: Tue, 10 Feb 2015 10:32:24 +0100
+On Tue, Feb 10, 2015 at 04:59:09PM +0300, Vasily Averin wrote:
+> I'm trying to fix ICMPv6 processing broken in OpenVZ after rebase to last RHEL6u6 kernel.
+> After some unclear manipulation bridge begins to forward icmp6 NS (fe02::1) into wrong port,
+> and at present I do not found the reason of this failure.
 
-> From: "Palik, Imre" <imrep@amazon.de>
-> 
-> The netfilter code is made with flexibility instead of performance in mind.
-> So when all we want is to pass packets between different interfaces, the
-> performance penalty of hitting netfilter code can be considerable, even when
-> all the firewalling is disabled for the bridge.
-> 
-> This change makes it possible to disable netfilter both on a per bridge basis,
-> or for the whole bridging subsystem.  In the case interesting to us, this can
-> lead to more than 10% speedup compared to the case when only bridge-iptables
-> are disabled.
-> 
-> Cc: Anthony Liguori <aliguori@amazon.com>
-> Signed-off-by: Imre Palik <imrep@amazon.de>
+fe02::1 seems uncommon for ICMPv6 NS messages. Would you mind
+making some dumps for ~10 minutes with tcpdump on all bridge ports
+and the bridge interface itself with a filter "icmp6" and uploading the
+result somewhere?
 
-Sorry, no.
+Also provide a dump from "bridge mdb show dev $bridge" please (if
+possible - not sure whether that's available on the ancient 2.6.32
+kernel as used on RHEL6u6).
 
-If I apply this, someone is going to try to submit a patch for every
-damn protocol layer to add a stupid hack like this.
-
-Makw NF_HOOK() faster instead.
+Cheers, Linus
