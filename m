@@ -1,17 +1,12 @@
-Return-Path: <fw@strlen.de>
-Date: Fri, 13 Feb 2015 20:03:30 +0100
-From: Florian Westphal <fw@strlen.de>
-Message-ID: <20150213190330.GD15141@breakpoint.cc>
-References: <1423560744-19011-1-git-send-email-imrep.amz@gmail.com>
-	<20150211.142936.951620487173949333.davem@davemloft.net>
-	<54DE2174.6040001@gmail.com> <20150213163703.GC15141@breakpoint.cc>
-	<54DE3851.7000206@gmail.com>
+Return-Path: <geert@linux-m68k.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 12 Feb 2015 15:17:27 +0100
+Message-Id: <1423750647-30389-1-git-send-email-geert@linux-m68k.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <54DE3851.7000206@gmail.com>
-Subject: Re: [Bridge] [PATCH] bridge: make it possible for packets to
- traverse the bridge withour hitting netfilter
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] bridge: netfilter: Move sysctl-specific error code
+	inside #ifdef
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,32 +15,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Imre Palik <imrep.amz@gmail.com>
-Cc: imrep@amazon.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, aliguori@amazon.com, David Miller <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org
 
-Imre Palik <imrep.amz@gmail.com> wrote:
-> The trouble is that there are some bridges (with low traffic) where I need netfilter, and some other bridges (carrying lots of traffic), where I don't.  Being able to set things up on a per bridge basis is a powerful thing.
-> 
-> I only implemented the global switch because the iptables and arptables support also have one.  If this is what bugs people here, I can remove it, and resubmit.
+If CONFIG_SYSCTL=n:
 
-I see.  But I agree with David, accepting such patch would pave way
-for all kinds of ugly hacks.
+    net/bridge/br_netfilter.c: In function ‘br_netfilter_init’:
+    net/bridge/br_netfilter.c:996: warning: label ‘err1’ defined but not used
 
-It seems that technically the best solution would be to allow attaching
-filter rules to devices, but alas, netfilter doesn't support that.
+Move the label and the code after it inside the existing #ifdef to get
+rid of the warning.
 
-Alternatively, you patch *might* be ok iff you can get rid of the extra
-userspace-visible configuration knobs, we already have way too many of
-these.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ net/bridge/br_netfilter.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-You'll also have to figure out how to avoid any run-time dependency on
-br_netfilter module from the bridge core.
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 65728e0dc4ffd011..0ee453fad3de6521 100644
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -987,15 +987,12 @@ static int __init br_netfilter_init(void)
+ 	if (brnf_sysctl_header == NULL) {
+ 		printk(KERN_WARNING
+ 		       "br_netfilter: can't register to sysctl.\n");
+-		ret = -ENOMEM;
+-		goto err1;
++		nf_unregister_hooks(br_nf_ops, ARRAY_SIZE(br_nf_ops));
++		return -ENOMEM;
+ 	}
+ #endif
+ 	printk(KERN_NOTICE "Bridge firewalling registered\n");
+ 	return 0;
+-err1:
+-	nf_unregister_hooks(br_nf_ops, ARRAY_SIZE(br_nf_ops));
+-	return ret;
+ }
+ 
+ static void __exit br_netfilter_fini(void)
+-- 
+1.9.1
 
-If you can do this, you might be able to get similar effect as your patch
-by replacing
-
-NF_HOOK with NF_HOOK_COND(..., !(br->flags & NO_NETFILTER))
-
-or something like this.
-
-I don't know how invasive this would be, though.
