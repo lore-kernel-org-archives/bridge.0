@@ -1,17 +1,19 @@
-Return-Path: <theq@rogers.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rogers.com; s=s2048;
-	t=1424132446; bh=8RlUH+sZoG+xpWOYfZDRzmBhSI1s3wOYSftc3dOndgE=;
-	h=From:To:Subject:Date:From:Subject;
-	b=YYSCeBAyRorBd7qO4OpRro82Sct6XwI9XOppXdFkaKjMmxWGFxhYX3LFVOtp21qE7pYXoXn/5lC9EANPlJwYlqpB3XU+0iRSUs0MTzEUS9LyNA8D/XBrFCQ83/ZfWmldV6RIT7BgakUOxaKIudeJZM/yBekoiMPuq+twJdV9qLKBIU2DwS2DjEXfJNEi8lwm7SWNNOPHDuqqJb0BSMC30YbWuv1rw4H/hoPoJ9w25lZRgKyfmmnjFIJKdKIBot5Bv0hee6tqRxCuVsyL+jagTERKE7XoZiXwwN/zZt7CeFrDHzdp3NqC/2+c+T6jhK/Ox/u8saTaTPz0WjYJSoSmIQ==
-From: "Q" <theq@rogers.com>
-Date: Mon, 16 Feb 2015 19:20:42 -0500
-Message-ID: <032801d04a47$9181f110$b485d330$@rogers.com>
+Return-Path: <jlausuch@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:date:message-id:subject:from:to:content-type;
+	bh=v2ts17lJbguiPBCBuFspNEQ9LxCtN28RZAuN5UU/zXA=;
+	b=oe+1BVbkrLxYVkHtL7sTJaJsUqOIFXVZT+Qjw+kn7J13oeysG6Exb1JcyAjPTv1Gm1
+	qEU3Q5wtC09Rty0PGudtfzx0N2tQEvcdWlI31oXux3bt9gfAnn/Y6cMqliafvWS4GfCU
+	fzdVW+05RX+JacauPSSMcQQRRb9WrW7NE0NDiOlMxDMcOVStYYcXYC0ObNmPmLyGI/F1
+	onNo4qUJL9eQ/08hFomY5bvapj037RIR6L9gqpPlmHuZYSwao8mwKoHXOksJq2qz/tVZ
+	oRcsx/TQjx1Z2ac4pgmiBMp/kaUdi/+Hz94wmJVvfcMsh2/Cj/t4HUp2D7wqVWY3Jud3
+	VQwA==
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0329_01D04A1D.A8B1DC80"
-Content-Language: en-ca
-Subject: [Bridge] What is the difference between using a virtual bridge and
-	a an ethernet interface used a bdrige
+Date: Tue, 17 Feb 2015 11:41:21 +0100
+Message-ID: <CAL3uegjAdY2xsJaprsmzdYCVrHvFDZ_OHpJmDLxLn8CE1tZ_cQ@mail.gmail.com>
+From: =?UTF-8?Q?Jos=C3=A9_A=2E_Lausuch_Sales?= <jlausuch@gmail.com>
+Content-Type: multipart/alternative; boundary=001a11c16dfcf5fd3c050f465778
+Subject: [Bridge] Vlan tagging through a bridge to a VM
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,116 +24,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
-This is a multipart message in MIME format.
+--001a11c16dfcf5fd3c050f465778
+Content-Type: text/plain; charset=UTF-8
 
-------=_NextPart_000_0329_01D04A1D.A8B1DC80
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Here is a program that can be used to bridge a virtual process (a router) to
-a specific interface
+I want to create a guest VM with a single bridge (br0) and I want it to
+talk untagged traffic and tagged traffic using vlans 11 and 22.
 
-https://github.com/jlgaddis/ioulive86
+From the Host where I create the VM, I use the following commands to create
+the bridge.
+--------------------------------------------------
+ip link add name eth1.11 link eth1 type vlan id 11
+ip link set eth1.11 up
+ip link add name eth1.22 link eth1 type vlan id 22
+ip link set eth1.22 up
 
- 
+brctl addbr br0
+brctl addif br0 eth1
+brctl addif br0 eth1.11
+brctl addif br0 eth1.22
 
-I have tried to use br0 as the interface that I am bridging to but it did
-not work
+ip addr add 192.168.0.100/24 broadcast 192.168.0.255 dev br0
+ip addr add 192.168.11.100/24 broadcast 192.168.0.255 dev br0 label br0:11
+ip addr add 192.168.22.100/24 broadcast 192.168.0.255 dev br0 label br0:22
 
-The first router is connecting and, by sniffing BR0 you can see its traffic
+--------------------------------------------------
 
-The second router does not seem to connect properly and I am wondering why.
+So far, everything ok. I can ping the IPs in vlans 11 and 22 from that
+bridge (e.g. ping -I br0 192.168.11.3) and also untagged network (e.g. ping
+-I br0 192.168.0.5).
 
- 
+Now when I use that br0 to create a VM, it can ping the untagged network
+but not the tagged ones (creating also vlan interfaces in the VM).
 
-If I repeat the experiment by bridging the two processes to eth0 I can see
-traffic coming from both virtual routers and they can see each other
+What am I missing?
 
- 
-
- 
-
-What is the fundamental difference between br0 and eth0 in these situations
-?
-
- 
-
-Thanks
-
-Q
-
-
-------=_NextPart_000_0329_01D04A1D.A8B1DC80
-Content-Type: text/html;
-	charset="us-ascii"
+--001a11c16dfcf5fd3c050f465778
+Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta =
-http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
-(filtered medium)"><style><!--
-/* Font Definitions */
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif";
-	mso-fareast-language:EN-US;}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri","sans-serif";
-	mso-fareast-language:EN-US;}
-@page WordSection1
-	{size:612.0pt 792.0pt;
-	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]--></head><body lang=3DEN-CA link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal>Here is a =
-program that can be used to bridge a virtual process (a router) to a =
-specific interface<o:p></o:p></p><p class=3DMsoNormal><a =
-href=3D"https://github.com/jlgaddis/ioulive86">https://github.com/jlgaddi=
-s/ioulive86</a><o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>I have tried =
-to use br0 as the interface that I am bridging to but it did not =
-work<o:p></o:p></p><p class=3DMsoNormal>The first router is connecting =
-and, by sniffing BR0 you can see its traffic<o:p></o:p></p><p =
-class=3DMsoNormal>The second router does not seem to connect properly =
-and I am wondering why.<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>If I repeat =
-the experiment by bridging the two processes to eth0 I can see traffic =
-coming from both virtual routers and they can see each =
-other<o:p></o:p></p><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>What is the =
-fundamental difference between br0 and eth0 in these situations =
-?<o:p></o:p></p><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal>Thanks<o:p></o:p></p><p =
-class=3DMsoNormal>Q<o:p></o:p></p></div></body></html>
-------=_NextPart_000_0329_01D04A1D.A8B1DC80--
+<div dir=3D"ltr"><div style=3D"font-size:12.8000001907349px">Hi,</div><div =
+style=3D"font-size:12.8000001907349px"><br></div><div style=3D"font-size:12=
+.8000001907349px">I want to create a guest VM with a single bridge (br0) an=
+d I want it to talk untagged traffic and tagged traffic using vlans 11 and =
+22.</div><div style=3D"font-size:12.8000001907349px"><br></div><div style=
+=3D"font-size:12.8000001907349px">From the Host where I create the VM, I us=
+e the following commands to create the bridge.</div><div style=3D"font-size=
+:12.8000001907349px">--------------------------------------------------</di=
+v><div style=3D"font-size:12.8000001907349px">ip link add name eth1.11 link=
+ eth1 type vlan id 11</div><div style=3D"font-size:12.8000001907349px">ip l=
+ink set eth1.11 up</div><div style=3D"font-size:12.8000001907349px">ip link=
+ add name eth1.22 link eth1 type vlan id 22</div><div style=3D"font-size:12=
+.8000001907349px">ip link set eth1.22 up</div><div style=3D"font-size:12.80=
+00001907349px"><br></div><div style=3D"font-size:12.8000001907349px">brctl =
+addbr br0</div><div style=3D"font-size:12.8000001907349px">brctl addif br0 =
+eth1</div><div style=3D"font-size:12.8000001907349px">brctl addif br0 eth1.=
+11</div><div style=3D"font-size:12.8000001907349px">brctl addif br0 eth1.22=
+</div><div style=3D"font-size:12.8000001907349px"><br></div><div style=3D"f=
+ont-size:12.8000001907349px">ip addr add=C2=A0<a href=3D"http://192.168.0.1=
+00/24" target=3D"_blank">192.168.0.100/24</a>=C2=A0broadcast 192.168.0.255 =
+dev br0</div><div style=3D"font-size:12.8000001907349px">ip addr add=C2=A0<=
+a href=3D"http://192.168.11.100/24" target=3D"_blank">192.168.11.100/24</a>=
+=C2=A0broadcast 192.168.0.255 dev br0 label br0:11</div><div style=3D"font-=
+size:12.8000001907349px">ip addr add=C2=A0<a href=3D"http://192.168.22.100/=
+24" target=3D"_blank">192.168.22.100/24</a>=C2=A0broadcast 192.168.0.255 de=
+v br0 label br0:22</div><div style=3D"font-size:12.8000001907349px"><br></d=
+iv><div style=3D"font-size:12.8000001907349px">----------------------------=
+----------------------</div><div style=3D"font-size:12.8000001907349px"><br=
+></div><div style=3D"font-size:12.8000001907349px">So far, everything ok. I=
+ can ping the IPs in vlans 11 and 22 from that bridge (e.g. ping -I br0 192=
+.168.11.3) and also untagged network (e.g. ping -I br0 192.168.0.5).</div><=
+div style=3D"font-size:12.8000001907349px"><br></div><div style=3D"font-siz=
+e:12.8000001907349px">Now when I use that br0 to create a VM, it can ping t=
+he untagged network but not the tagged ones (creating also vlan interfaces =
+in the VM).</div><div style=3D"font-size:12.8000001907349px"><br></div><div=
+ style=3D"font-size:12.8000001907349px">What am I missing?</div></div>
 
+--001a11c16dfcf5fd3c050f465778--
