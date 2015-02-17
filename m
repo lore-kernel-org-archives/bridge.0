@@ -1,19 +1,17 @@
 Return-Path: <theq@rogers.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rogers.com; s=s2048;
-	t=1424126394; bh=yAGhWnY5f4Wm2WW9052vCCw0qF69226qIR8Tr5yYheY=;
-	h=From:To:Cc:References:In-Reply-To:Subject:Date:From:Subject;
-	b=ZtINSpe//v2Ma0DOG3iKhAs9e5S2dRUYYdbWDGBvaP9Q5HFb4Kz8+s4ix98zce1WFl1Du3vZuPDWDsUy3vWrZ1AfDQSwBpv638dlOGD6cxzeCn7z0g4P60GbCiHlvZPwN7xfTXUld8xHSF2XVsXEhKnJL29dheXBVJnUhruN81MxAVcexkiKjDzDHTQRP9Ze+ch2KZg0P4psmIrvHLPx2mmBbAcnagnoME3O48KEoCD0RxbiDDZejL7kwazdsXMzkZzurw4dSRzJDtkAL13gVpXDPI0J8JSzmpqsHZegzClRkj5Fe/ELkDfhTjE6bbIzIrYAiHyxJ12qBLBeilwY3w==
+	t=1424144213; bh=YEwAO3Xak2Qehamebpbwz1AEVojda6JI+UlERmVgiJw=;
+	h=From:To:Subject:Date:From:Subject;
+	b=bR382LswlV4QQaY+n4WxZ4cXW8f0bNQ7ErvouwG+Oaovdra1VPRNH/osjn++1KdGrwP81fSgSW00sPU/Kpe9LsTfkFokLXgj39pHyzUCIY3o2uBLDdB/YiYyzfR7fZtL3TE3vFqQPgQRbuji2QSAnM0rUmwJqAwJOMGs8quDiulE+zY+Tkx7JbmeYQOU5SoZ+0+mEx2GEKlKmgRizWCVS3vI9cyUf/T9o51fz4N6l/PO+dJ/HkLUCjLfEfvKMV3zWf4jX2Mja2aE/s+0cuLOn7WxJGY6WonYhdfMdjNsioEYKA4HHz5elMbYQTdO/TOj9VAErPJowC5TEocLGb+40g==
 From: "Q" <theq@rogers.com>
-References: <02f601d04a30$8eb33820$ac19a860$@rogers.com>
-	<CAKiAkGT_2Ce9jWvQYgJ2PfRNAoKTAmoQ2aBPYCy-z8MjJi4zGQ@mail.gmail.com>
-In-Reply-To: <CAKiAkGT_2Ce9jWvQYgJ2PfRNAoKTAmoQ2aBPYCy-z8MjJi4zGQ@mail.gmail.com>
-Date: Mon, 16 Feb 2015 17:39:49 -0500
-Message-ID: <031001d04a39$7a1e45e0$6e5ad1a0$@rogers.com>
+Date: Mon, 16 Feb 2015 22:36:45 -0500
+Message-ID: <033601d04a62$f67c3510$e3749f30$@rogers.com>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0311_01D04A0F.914DBC20"
+	boundary="----=_NextPart_000_0337_01D04A39.0DB9B510"
 Content-Language: en-ca
-Subject: Re: [Bridge] Sniffing a linux bridge vs sniffing enslaved interfaces
+Subject: [Bridge] Is there anyway to force an ethernet inteface to stay up
+	(ignore carrier detection) in order to keep the bridge up?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,158 +20,120 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?'Joel_Wir=C4=81mu_Pauling'?= <joel@aenertia.net>
-Cc: bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
 This is a multipart message in MIME format.
 
-------=_NextPart_000_0311_01D04A0F.914DBC20
+------=_NextPart_000_0337_01D04A39.0DB9B510
 Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Thanks Joel
+Hi guys
 
-I have the feeling that you are using developer terms which I =
-don=E2=80=99t totally udersta
+ 
 
-I will rephrase what I believe you said below, just to make sure that I =
-got the idea:
+I am trying to keep a linux bridge up even when there is no interface
+connected to it. Is this possible?
 
-=20
+ 
 
-Eth0=C3=9F=C3=A0 br0=C3=9F=C3=A0eth1
+ 
 
-=20
+br0 has eth13 and eth0 ensalved to it
 
-From what you are saying if I sniff eth0 only there is chances that I =
-will miss L1 traffic injected by the host or by the other eth1
+eth0 is up
 
-If eth0 and eht1 have respectively vlan 1 and vlan 2 the only way to =
-sniff both simultaneously would be by sniffing br0
+eht13 is down
 
-There are also L1-L2 packet originated by br0 that might be misses
+ 
 
-=20
+ 
 
-Are these correct?
+ 
 
-=20
+ 
 
-Thanks
+    /opt# ip link show br0
+
+    25: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state
+UP mode DEFAULT group default 
+
+        link/ether 00:0f:20:67:dc:b4 brd ff:ff:ff:ff:ff:ff
+
+    /opt# 
+
+    /opt# 
+
+    /opt/iou/bin# ip link show eth13
+
+    15: eth13: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast
+master br0 state DOWN mode DEFAULT group default qlen 1000
+
+        link/ether 00:e0:4c:80:1a:50 brd ff:ff:ff:ff:ff:ff
+
+    /opt# 
+
+    /opt# 
+
+    /opt# ip link show eth0
+
+    3: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast
+master br0 state UP mode DEFAULT group default qlen 1000
+
+        link/ether 00:0f:20:67:dc:b4 brd ff:ff:ff:ff:ff:ff
+
+    /opt# 
+
+    /opt# ip link show eth13
+
+    15: eth13: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast
+master br0 state DOWN mode DEFAULT group default qlen 1000
+
+        link/ether 00:e0:4c:80:1a:50 brd ff:ff:ff:ff:ff:ff
+
+    
+
+    /opt# brctl delif br0 eth0   
+
+    /opt# ip link show br0        
+
+    25: br0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue
+state DOWN mode DEFAULT group default 
+
+        link/ether 00:e0:4c:80:1a:50 brd ff:ff:ff:ff:ff:ff
+
+ 
+
+thanks
 
 Q
 
-=20
 
-From: aenertia@aenertia.net [mailto:aenertia@aenertia.net] On Behalf Of =
-Joel Wiramu Pauling
-Sent: February-16-15 5:17 PM
-To: The Q
-Cc: bridge@lists.linux-foundation.org
-Subject: Re: [Bridge] Sniffing a linux bridge vs sniffing enslaved =
-interfaces
-
-=20
-
-I can think of several potential differences. =E2=80=8BYou may miss any =
-bridge specific traffic (STP, LLDP) using the interfaces generated by =
-the bridge itself.
-
-=20
-
-If you have vlan tagged sub interfaces you might also miss that traffic =
-if you were snooping a particular interface. Obviously you will miss any =
-on-wire broadcast traffic specific to the layer1 connection a particular =
-interface was connected to if you sniff on an individual device.=20
-
-=20
-
-Basically unless you are trying to trouble shoot a physical link issue I =
-would likely always use the container link when doing a packet dump, due =
-to several edge cases.=20
-
-=20
-
-If your bridge node host is participating (i.e has an IP etc on the br0 =
-device itself , rather than in the case of a container for =
-Vtap's/Virtual machine nics') You would also miss the hypervisors/hosts =
-traffic if you sniffed the contained nics.
-
-=20
-
-=20
-
--Joel
-
-=20
-
-=20
-
-=20
-
-On 16 February 2015 at 15:35, The Q <theq@rogers.com> wrote:
-
-=20
-
-Hi all
-
-=20
-
-Assume that you have a linux bridge with two interfaces eth0 and eth1 =
-enslaved to this bridge
-
-What is the difference between sniffing the bridge and sniffing its =
-interfaces?
-
-=20
-
-tcpdump -i br0   vs tcpdump =E2=80=93i eth0
-
-=20
-
-Thanks
-
-MiniME
-
-=20
-
-
-------=_NextPart_000_0311_01D04A0F.914DBC20
+------=_NextPart_000_0337_01D04A39.0DB9B510
 Content-Type: text/html;
-	charset="UTF-8"
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 <html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
 xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
 xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
 xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta =
-http-equiv=3DContent-Type content=3D"text/html; charset=3Dutf-8"><meta =
-name=3DGenerator content=3D"Microsoft Word 14 (filtered =
-medium)"><style><!--
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
+(filtered medium)"><style><!--
 /* Font Definitions */
-@font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;}
 @font-face
 	{font-family:Calibri;
 	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:Tahoma;
-	panose-1:2 11 6 4 3 5 4 4 2 4;}
-@font-face
-	{font-family:Verdana;
-	panose-1:2 11 6 4 3 5 4 4 2 4;}
 /* Style Definitions */
 p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{margin:0cm;
 	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
 a:link, span.MsoHyperlink
 	{mso-style-priority:99;
 	color:blue;
@@ -183,9 +143,9 @@ a:visited, span.MsoHyperlinkFollowed
 	color:purple;
 	text-decoration:underline;}
 span.EmailStyle17
-	{mso-style-type:personal-reply;
+	{mso-style-type:personal-compose;
 	font-family:"Calibri","sans-serif";
-	color:#1F497D;}
+	color:windowtext;}
 .MsoChpDefault
 	{mso-style-type:export-only;
 	font-family:"Calibri","sans-serif";
@@ -201,133 +161,61 @@ div.WordSection1
 <o:shapelayout v:ext=3D"edit">
 <o:idmap v:ext=3D"edit" data=3D"1" />
 </o:shapelayout></xml><![endif]--></head><body lang=3DEN-CA link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>Thanks Joel<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>I have the feeling that you are using developer terms which I =
-don=E2=80=99t totally udersta<o:p></o:p></span></p><p =
-class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>I will rephrase what I believe you said below, just to make sure that =
-I got the idea:<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>Eth0</span><span =
-style=3D'font-size:11.0pt;font-family:Wingdings;color:#1F497D'>=C3=9F</sp=
-an><span =
-style=3D'font-size:11.0pt;font-family:Wingdings;color:#1F497D'>=C3=A0</sp=
-an><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'> br0</span><span =
-style=3D'font-size:11.0pt;font-family:Wingdings;color:#1F497D'>=C3=9F</sp=
-an><span =
-style=3D'font-size:11.0pt;font-family:Wingdings;color:#1F497D'>=C3=A0</sp=
-an><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>eth1<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>From what you are saying if I sniff eth0 only there is chances that I =
-will miss L1 traffic injected by the host or by the other =
-eth1<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>If eth0 and eht1 have respectively vlan 1 and vlan 2 the only way to =
-sniff both simultaneously would be by sniffing =
-br0<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>There are also L1-L2 packet originated by br0 that might be =
-misses<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>Are these correct?<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>Thanks<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>Q<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><b><span =
-lang=3DEN-US =
-style=3D'font-size:10.0pt;font-family:"Tahoma","sans-serif"'>From:</span>=
-</b><span lang=3DEN-US =
-style=3D'font-size:10.0pt;font-family:"Tahoma","sans-serif"'> =
-aenertia@aenertia.net [mailto:aenertia@aenertia.net] <b>On Behalf Of =
-</b>Joel Wiramu Pauling<br><b>Sent:</b> February-16-15 5:17 =
-PM<br><b>To:</b> The Q<br><b>Cc:</b> =
-bridge@lists.linux-foundation.org<br><b>Subject:</b> Re: [Bridge] =
-Sniffing a linux bridge vs sniffing enslaved =
-interfaces<o:p></o:p></span></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><div><div><p =
-class=3DMsoNormal><span style=3D'font-family:"Verdana","sans-serif"'>I =
-can think of several potential differences. </span><span =
-style=3D'font-family:"Arial","sans-serif"'>=E2=80=8B</span><span =
-style=3D'font-family:"Verdana","sans-serif"'>You may miss any bridge =
-specific traffic (STP, LLDP) using the interfaces generated by the =
-bridge itself.<o:p></o:p></span></p></div><div><p =
-class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'>If you have vlan tagged sub =
-interfaces you might also miss that traffic if you were snooping a =
-particular interface. Obviously you will miss any on-wire broadcast =
-traffic specific to the layer1 connection a particular interface was =
-connected to if you sniff on an individual =
-device.&nbsp;<o:p></o:p></span></p></div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'>Basically unless you are =
-trying to trouble shoot a physical link issue I would likely always use =
-the container link when doing a packet dump, due to several edge =
-cases.&nbsp;<o:p></o:p></span></p></div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'>If your bridge node host is =
-participating (i.e has an IP etc on the br0 device itself , rather than =
-in the case of a container for Vtap's/Virtual machine nics') You would =
-also miss the hypervisors/hosts traffic if you sniffed the contained =
-nics.<o:p></o:p></span></p></div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'>-Joel<o:p></o:p></span></p><=
-/div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div><div><p class=3DMsoNormal><span =
-style=3D'font-family:"Verdana","sans-serif"'><o:p>&nbsp;</o:p></span></p>=
-</div></div><div><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><div><p =
-class=3DMsoNormal>On 16 February 2015 at 15:35, The Q &lt;<a =
-href=3D"mailto:theq@rogers.com" =
-target=3D"_blank">theq@rogers.com</a>&gt; =
-wrote:<o:p></o:p></p><div><div><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>&nbsp;<o:p><=
-/o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>Hi =
-all<o:p></o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>&nbsp;<o:p><=
-/o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>Assume that =
-you have a linux bridge with two interfaces eth0 and eth1 enslaved to =
-this bridge<o:p></o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>What is the =
-difference between sniffing the bridge and sniffing its =
-interfaces?<o:p></o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>&nbsp;<o:p><=
-/o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>tcpdump -i =
-br0 &nbsp;&nbsp;vs tcpdump =E2=80=93i eth0<o:p></o:p></p><p =
-class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>&nbsp;<o:p><=
-/o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>Thanks<o:p><=
-/o:p></p><p class=3DMsoNormal =
-style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>MiniME<o:p><=
-/o:p></p></div></div></div><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></div></body></html>
-------=_NextPart_000_0311_01D04A0F.914DBC20--
+vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal>Hi =
+guys<o:p></o:p></p><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal>I am trying to keep a linux bridge up even when there =
+is no interface connected to it. Is this possible?<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>br0 has =
+eth13 and eth0 ensalved to it<o:p></o:p></p><p class=3DMsoNormal>eth0 is =
+up<o:p></o:p></p><p class=3DMsoNormal>eht13 is down<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp; /opt# ip link show =
+br0<o:p></o:p></p><p class=3DMsoNormal>&nbsp;&nbsp;&nbsp; 25: br0: =
+&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP =
+mode DEFAULT group default <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;link/et=
+her 00:0f:20:67:dc:b4 brd ff:ff:ff:ff:ff:ff<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp; /opt# <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt# <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt/iou/bin# ip link show =
+eth13<o:p></o:p></p><p class=3DMsoNormal>&nbsp;&nbsp;&nbsp; 15: eth13: =
+&lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc pfifo_fast =
+master br0 state DOWN mode DEFAULT group default qlen =
+1000<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; link/ether =
+00:e0:4c:80:1a:50 brd ff:ff:ff:ff:ff:ff<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp; /opt# <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt# <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt# ip link show =
+eth0<o:p></o:p></p><p class=3DMsoNormal>&nbsp;&nbsp;&nbsp; 3: eth0: =
+&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast master =
+br0 state UP mode DEFAULT group default qlen 1000<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; link/ether =
+00:0f:20:67:dc:b4 brd ff:ff:ff:ff:ff:ff<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp; /opt# <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt# ip link show =
+eth13<o:p></o:p></p><p class=3DMsoNormal>&nbsp;&nbsp;&nbsp; 15: eth13: =
+&lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc pfifo_fast =
+master br0 state DOWN mode DEFAULT group default qlen =
+1000<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; link/ether =
+00:e0:4c:80:1a:50 brd ff:ff:ff:ff:ff:ff<o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp; <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt# brctl delif br0 =
+eth0&nbsp;&nbsp; <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;/opt# ip link show =
+br0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;25: br0: =
+&lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state =
+DOWN mode DEFAULT group default <o:p></o:p></p><p =
+class=3DMsoNormal>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;link/et=
+her 00:e0:4c:80:1a:50 brd ff:ff:ff:ff:ff:ff<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal>thanks<o:p></o:p></p><p =
+class=3DMsoNormal>Q<o:p></o:p></p></div></body></html>
+------=_NextPart_000_0337_01D04A39.0DB9B510--
 
