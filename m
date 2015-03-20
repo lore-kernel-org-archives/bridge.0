@@ -1,19 +1,22 @@
-Return-Path: <joerg@higgsboson.tk>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=higgsboson.tk;
-	s=default; t=1426663695;
-	bh=bF131cFvw1RSkMPzgFMV37JVpZllaA6dksKv7xQq6nM=;
-	h=Date:From:To:Subject:From;
-	b=qpPDqvKfs27SG0OzXSM9XFCkpK5W15XajJhKJpwBXlECzDXTVKrGW89YkWNOkr7BQ
-	YUy2MxQo56x+jpE3wFwv1trlZDE8yW4bxzWjbYCa1a96Vn+K5veyNeXvzplENgLk6x
-	ptc9DR14I3Hn1UhjqvildWDICG7nmBK5UVFghYt0=
-Date: Wed, 18 Mar 2015 08:28:10 +0100
-From: =?UTF-8?B?SsO2cmc=?= Thalheim <joerg@higgsboson.tk>
-Message-ID: <20150318082810.56e5968d@turingmachine>
+Return-Path: <brett.worth@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:date:from:reply-to:user-agent:mime-version:to:subject
+	:content-type:content-transfer-encoding;
+	bh=K51IrljsAQgFT2i4RjPbmPwUKqylnLKPhj8X4+M5lKQ=;
+	b=PL59ubgHqSFbyy+ybHrJJ1RFUNriZSEmlRz5fLANdKVQJyEx38k8hjpg10bxcT9FUL
+	o9CRfbqcgxwx0ivrtMqX2BWyHah+dhBoIz9m2B+NTXCnAN3XH3InXnfTg4jkzGxfTytc
+	B8/2t0jYP3IREvMLGSglott8khTLo29DQ5LlCb+I0C8FzIdyXyuQGxUHSvSy8pqzUdPF
+	yqtnpL2qNas8f2K/WIZG/hsuiQaLkGVa/JyVfluYM45QL4Kr5SQ90/G6pCA8PnDTfKCw
+	j3V+o/FkBOHnAiV4h3N/HRK5EQkYbTL3hVkdFbCrr5ykD8lal26bUE1tAJFdLdWOP7wx
+	v8ew==
+Message-ID: <550BABAA.10803@gmail.com>
+Date: Fri, 20 Mar 2015 16:10:02 +1100
+From: Brett Worth <brett.worth@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	boundary="Sig_/Es/IHTjD23RgXlMC1DrFdii";
-	protocol="application/pgp-signature"
-Subject: [Bridge] Bounce Test (ignore this)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] bridge port number changing
+Reply-To: brett@worth.id.au
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,28 +27,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: bridge@lists.linux-foundation.org
 
---Sig_/Es/IHTjD23RgXlMC1DrFdii
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi all.  This is my first post to this list and I hope you'll be able to =
+help.
 
-This is just a test email. To test DKIM verification.
+I have been using the Linux bridge module for a long time under kvm on ce=
+ntos.  This has
+not given me any problems until now.
 
---Sig_/Es/IHTjD23RgXlMC1DrFdii
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+I'm adding some host servers and am using HP BL660 blades.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+The kvm nic script in /etc/kvm creates a tap device then assigns a MAC ad=
+dress after
+modifying the first byte to FE.  This is so the port 1 host mac doesn't c=
+hange.
 
-iQF8BAEBCgBmBQJVCSkKXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
-ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXQ0QUJBMDczODJBRDU3RTZCOUFBNEU4OERD
-QTQxMDZCOEQ3Q0M3OUZBAAoJEMpBBrjXzHn6LJkH/11foBAtiOBPtXFO0wR+qXuf
-Kj2R/yU21yRdZPBr2y+pLlk5pnrohewEIy8FDRx2ZOWcXCkuoYwa18f5I5NEBVFp
-D3Oxd+EEshvbOzfZ64iaxl7T5aXbEcZ9pzqIkJqVm487tObY/NMtUmY8qFhUVBw1
-S2BVF6Sf+f/jkNsnppTZKE2gGaM9pCBvg0PtO6IW30oTPP2RLpkuOpquNICHOvBt
-6TTRb9Gj7qUsGKZ0rJIzIZO/bCdDfQgX6lBuIke/b8OeFtdJhGLC2sDs+V7Iohs7
-k65iJIYxwQVRp6ydvEPjKQZRjaMVXbOXDPViNOt0uF0SxRzjfFnJ8C0PBV16Ng4=
-=egCs
------END PGP SIGNATURE-----
+On a working host server when running brctl showmacs br0 I see the tap ma=
+c address and the
+mac address assigned to the vm on the same port. The tap mac shows as loc=
+al and the vm mac
+is not.
 
---Sig_/Es/IHTjD23RgXlMC1DrFdii--
+The problem:
+
+Intermittently (once a minute or so) the port number shown for the VM wil=
+l switch to port
+1.  During this time the VM cannot be contacted. The tap device mac remai=
+ns at it's
+original value.  If I wait it will switch back to the correct port number=
+ i.e. the one
+associated with the tap device at which point network connectivity is re-=
+established.
+
+I have looked for the VM mac address on the LAN but cannot see it so it s=
+eems to be
+something internal to the bridge.
+
+Can anyone offer a suggestion as to what might be happening?
+
+I'm running centos 6.6 and the bridge is 2.3.
+
+Regards
+Brett
+
+--=20
+  /) _ _ _/_/ / / /  _ _//
+ /_)/</=3D / / (_(_/()/< ///
+
+
