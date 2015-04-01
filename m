@@ -1,15 +1,15 @@
 Return-Path: <davem@davemloft.net>
-Date: Wed, 01 Apr 2015 13:44:31 -0400 (EDT)
-Message-Id: <20150401.134431.1653220163353310062.davem@davemloft.net>
+Date: Wed, 01 Apr 2015 15:28:45 -0400 (EDT)
+Message-Id: <20150401.152845.1522826021699870645.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1427875479-9240-4-git-send-email-linus.luessing@c0d3.blue>
-References: <1427875479-9240-1-git-send-email-linus.luessing@c0d3.blue>
-	<1427875479-9240-4-git-send-email-linus.luessing@c0d3.blue>
+In-Reply-To: <1427666762-23683-1-git-send-email-bernhard.thaler@wvnet.at>
+References: <1427063051-1236-1-git-send-email-bernhard.thaler@wvnet.at>
+	<1427666762-23683-1-git-send-email-bernhard.thaler@wvnet.at>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH RFCv2 3/4] batman-adv: Forward IGMP/MLD reports
- to selected querier (only)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: relax BR_GROUPFWD_RESTRICTED to
+ forward LLDP frames
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,31 +18,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: netdev@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org
+To: bernhard.thaler@wvnet.at
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Wed,  1 Apr 2015 10:04:38 +0200
+From: Bernhard Thaler <bernhard.thaler@wvnet.at>
+Date: Mon, 30 Mar 2015 00:06:02 +0200
 
-> With this patch IGMP or MLD reports are only forwarded to the selecte=
-d
-> IGMP/MLD querier as RFC4541 suggests. This is necessary to avoid
-> multicast packet loss in bridged scenarios later:
-> =
+> BR_GROUPFWD_RESTRICTED bitmask restricts users from setting values to
+> /sys/class/net/brX/bridge/group_fwd_mask that allow forwarding of
+> some IEEE 802.1D Table 7-10 Reserved addresses:
+> 
+> 	(MAC Control) 802.3		01-80-C2-00-00-01
+> 	(Link Aggregation) 802.3	01-80-C2-00-00-02
+> 	802.1AB LLDP			01-80-C2-00-00-0E
+> 
+> Relax BR_GROUPFWD_RESTRICTED to at least forward LLDP frames and document
+> group_fwd_mask.
+> 
+> e.g.
+>    echo 16384 > /sys/class/net/brX/bridge/group_fwd_mask
+> allows to forward LLDP frames.
+> 
+> Tested on a simple bridge setup with two interfaces. Setting group_fwd_mask
+> as described above lets crafted LLDP frames traverse bridge.
+> 
+> Signed-off-by: Bernhard Thaler <bernhard.thaler@wvnet.at>
 
-> An IGMPv2/MLDv1 querier does not actively join the multicast group th=
-e
-> reports are sent to. Because of this, this leads to snooping
-> bridges/switches not being able to learn of multicast listeners in th=
-e
-> mesh and wrongly shutting down ports for multicast traffic to the mes=
-h.
+I don't understand why we want to allow forwarding LLDP by default, it
+specifically is the case that an 802.1D bridge is only compliant if it
+does not forward LLDP packets.
 
-There is no way this is going to work.
-
-First of all, you have no proper Kconfig dependencies upon IPV6, yet
-you are calling these newly exported ipv6 multicast interfaces
-unconditionally.
-
-Even once you resolve that, you are going to run into problems in
-situations where BATMAN_ADV=3Dy and IPV6=3Dm, for example.
+We've blocked forwarding of LLDP by default for such a long time, so I
+argue against this change from the perspective of users expecting LLDP
+to be not forwarded by the Linux bridge by default.
