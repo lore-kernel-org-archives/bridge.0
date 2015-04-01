@@ -1,12 +1,14 @@
 Return-Path: <linus.luessing@c0d3.blue>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Wed,  1 Apr 2015 10:04:35 +0200
-Message-Id: <1427875479-9240-1-git-send-email-linus.luessing@c0d3.blue>
+Date: Wed,  1 Apr 2015 10:04:36 +0200
+Message-Id: <1427875479-9240-2-git-send-email-linus.luessing@c0d3.blue>
+In-Reply-To: <1427875479-9240-1-git-send-email-linus.luessing@c0d3.blue>
+References: <1427875479-9240-1-git-send-email-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH RFCv2 0/4] batman-adv: Unicasting multicast reports
- to querier-node only
+Subject: [Bridge] [PATCH RFCv2 1/4] bridge: multicast: call
+ skb_checksum_{simple_, }validate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,28 +18,61 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
 
-The last round of multicast patches send to the batman-adv mailinglist
-to add support for the multicast optimizations in bridged scenarios, too,
-unfortunately had one major conceptual flaw: It could lead to packet loss.
-It's not sufficient to have the unicasting of reports implemented on
-bridge-nodes only. Nodes without bridges need to treat reports the same
-way.
+Let's use these new, neat helpers.
 
-The issue is described in detail here:
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ net/bridge/br_multicast.c |   28 ++++------------------------
+ 1 file changed, 4 insertions(+), 24 deletions(-)
 
-https://www.open-mesh.org/projects/batman-adv/wiki/Multicast-optimizations-listener-reports
-
-
-I'd also be interested in what the netdev/bridge people think about
-patches #1 and #2 in particular, therefore including the according mailinglists
-now.
-
-Cheers, Linus
-
-
-Changelog:
-v2:
- * various bugfixes (now runtime tested, too - should(tm) work)
- * added netdev+bridge mailinglists
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index c465876..3c630c7 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1609,16 +1609,8 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
+ 	if (!pskb_may_pull(skb2, sizeof(*ih)))
+ 		goto out;
+ 
+-	switch (skb2->ip_summed) {
+-	case CHECKSUM_COMPLETE:
+-		if (!csum_fold(skb2->csum))
+-			break;
+-		/* fall through */
+-	case CHECKSUM_NONE:
+-		skb2->csum = 0;
+-		if (skb_checksum_complete(skb2))
+-			goto out;
+-	}
++	if (skb_checksum_simple_validate(skb2))
++		goto out;
+ 
+ 	err = 0;
+ 
+@@ -1736,20 +1728,8 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
+ 
+ 	ip6h = ipv6_hdr(skb2);
+ 
+-	switch (skb2->ip_summed) {
+-	case CHECKSUM_COMPLETE:
+-		if (!csum_ipv6_magic(&ip6h->saddr, &ip6h->daddr, skb2->len,
+-					IPPROTO_ICMPV6, skb2->csum))
+-			break;
+-		/*FALLTHROUGH*/
+-	case CHECKSUM_NONE:
+-		skb2->csum = ~csum_unfold(csum_ipv6_magic(&ip6h->saddr,
+-							&ip6h->daddr,
+-							skb2->len,
+-							IPPROTO_ICMPV6, 0));
+-		if (__skb_checksum_complete(skb2))
+-			goto out;
+-	}
++	if (skb_checksum_validate(skb2, IPPROTO_ICMPV6, ip6_compute_pseudo))
++		goto out;
+ 
+ 	err = 0;
+ 
+-- 
+1.7.10.4
 
