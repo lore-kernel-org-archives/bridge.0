@@ -1,11 +1,15 @@
-Return-Path: <linus.luessing@c0d3.blue>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Tue,  7 Apr 2015 21:57:32 +0200
-Message-Id: <1428436652-4676-5-git-send-email-linus.luessing@c0d3.blue>
-In-Reply-To: <1428436652-4676-1-git-send-email-linus.luessing@c0d3.blue>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 07 Apr 2015 23:22:13 -0400 (EDT)
+Message-Id: <20150407.232213.861958959839557793.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1428436652-4676-3-git-send-email-linus.luessing@c0d3.blue>
 References: <1428436652-4676-1-git-send-email-linus.luessing@c0d3.blue>
-Subject: [Bridge] [PATCH RFCv3 4/4] batman-adv: Increase BATADV_TVLV_MCAST
- version number to 2
+	<1428436652-4676-3-git-send-email-linus.luessing@c0d3.blue>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH RFCv3 2/4] net: Export IGMP/MLD message
+	validation code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,58 +18,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+To: linus.luessing@c0d3.blue
+Cc: netdev@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org
 
-The multicast optimizations bridge integration will require the just
-implemented IGMP/MLD report handling later. Therefore bumping the
-version number.
----
- net/batman-adv/multicast.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+From: Linus L=FCssing <linus.luessing@c0d3.blue>
+Date: Tue,  7 Apr 2015 21:57:30 +0200
 
-diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
-index a6eff07..ff5d866 100644
---- a/net/batman-adv/multicast.c
-+++ b/net/batman-adv/multicast.c
-@@ -200,7 +200,7 @@ static bool batadv_mcast_mla_tvlv_update(struct batadv_priv *bat_priv)
- 	if (batadv_mcast_has_bridge(bat_priv)) {
- 		if (bat_priv->mcast.enabled) {
- 			batadv_tvlv_container_unregister(bat_priv,
--							 BATADV_TVLV_MCAST, 1);
-+							 BATADV_TVLV_MCAST, 2);
- 			bat_priv->mcast.enabled = false;
- 		}
- 
-@@ -209,7 +209,7 @@ static bool batadv_mcast_mla_tvlv_update(struct batadv_priv *bat_priv)
- 
- 	if (!bat_priv->mcast.enabled ||
- 	    mcast_data.flags != bat_priv->mcast.flags) {
--		batadv_tvlv_container_register(bat_priv, BATADV_TVLV_MCAST, 1,
-+		batadv_tvlv_container_register(bat_priv, BATADV_TVLV_MCAST, 2,
- 					       &mcast_data, sizeof(mcast_data));
- 		bat_priv->mcast.flags = mcast_data.flags;
- 		bat_priv->mcast.enabled = true;
-@@ -960,7 +960,7 @@ static void batadv_mcast_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
- void batadv_mcast_init(struct batadv_priv *bat_priv)
- {
- 	batadv_tvlv_handler_register(bat_priv, batadv_mcast_tvlv_ogm_handler_v1,
--				     NULL, BATADV_TVLV_MCAST, 1,
-+				     NULL, BATADV_TVLV_MCAST, 2,
- 				     BATADV_TVLV_HANDLER_OGM_CIFNOTFND);
- }
- 
-@@ -970,8 +970,8 @@ void batadv_mcast_init(struct batadv_priv *bat_priv)
-  */
- void batadv_mcast_free(struct batadv_priv *bat_priv)
- {
--	batadv_tvlv_container_unregister(bat_priv, BATADV_TVLV_MCAST, 1);
--	batadv_tvlv_handler_unregister(bat_priv, BATADV_TVLV_MCAST, 1);
-+	batadv_tvlv_container_unregister(bat_priv, BATADV_TVLV_MCAST, 2);
-+	batadv_tvlv_handler_unregister(bat_priv, BATADV_TVLV_MCAST, 2);
- 
- 	batadv_mcast_mla_tt_retract(bat_priv, NULL);
- }
--- 
-1.7.10.4
+> With this patch, the IGMP and MLD message validation functions are mo=
+ved
+> from the bridge code to the IPv4/IPv6 multicast files. Some small
+> refactoring was done to enhance readibility and to iron out some
+> differences in behaviour between the IGMP and MLD parsing code (e.g. =
+the
+> skb-cloning of MLD messages is now only done if necessary, just like =
+the
+> IGMP part always did).
+> =
+
+> Finally, these IGMP and MLD message validation functions are exported=
+ so
+> that not only the bridge can use it but batman-adv later, too.
+
+First, you're missing a proper signoff for this patch.
+
+Second, this is going to run into the usual ugly case of how to
+deal with the exports when someone wants to build batman-adv
+statically into the kernel, yet keep ipv6 modular.
+
+This:
+
++	depends on !BATMAN_ADV_MCAST || IPV6 || IPV6=3Dn
+
+Doesn't really cut it.  How can a user who made IPV6 modular
+and BATMAN_ADV static figure out that he needs to abide by
+this convoluted rule just to enable multicasting properly?
+
+Look at the obj-y rules in net/ipv6/Makefile for a better way
+to handle this.
 
