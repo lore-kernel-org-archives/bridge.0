@@ -1,15 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 07 Apr 2015 23:22:13 -0400 (EDT)
-Message-Id: <20150407.232213.861958959839557793.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1428436652-4676-3-git-send-email-linus.luessing@c0d3.blue>
-References: <1428436652-4676-1-git-send-email-linus.luessing@c0d3.blue>
-	<1428436652-4676-3-git-send-email-linus.luessing@c0d3.blue>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH RFCv3 2/4] net: Export IGMP/MLD message
-	validation code
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Fri, 10 Apr 2015 19:46:38 +0200
+Message-Id: <1428687999-18428-1-git-send-email-linus.luessing@c0d3.blue>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH 1/2] bridge: multicast: call skb_checksum_{simple_,
+	}validate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,41 +15,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: netdev@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org
+To: b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Stephen Hemminger <stephen@networkplumber.org>, Herbert Xu <herbert@gondor.apana.org.au>, Tom Herbert <therbert@google.com>, "David S. Miller" <davem@davemloft.net>
+Cc: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Tue,  7 Apr 2015 21:57:30 +0200
+Let's use these new, neat helpers.
 
-> With this patch, the IGMP and MLD message validation functions are mo=
-ved
-> from the bridge code to the IPv4/IPv6 multicast files. Some small
-> refactoring was done to enhance readibility and to iron out some
-> differences in behaviour between the IGMP and MLD parsing code (e.g. =
-the
-> skb-cloning of MLD messages is now only done if necessary, just like =
-the
-> IGMP part always did).
-> =
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ net/bridge/br_multicast.c |   28 ++++------------------------
+ 1 file changed, 4 insertions(+), 24 deletions(-)
 
-> Finally, these IGMP and MLD message validation functions are exported=
- so
-> that not only the bridge can use it but batman-adv later, too.
-
-First, you're missing a proper signoff for this patch.
-
-Second, this is going to run into the usual ugly case of how to
-deal with the exports when someone wants to build batman-adv
-statically into the kernel, yet keep ipv6 modular.
-
-This:
-
-+	depends on !BATMAN_ADV_MCAST || IPV6 || IPV6=3Dn
-
-Doesn't really cut it.  How can a user who made IPV6 modular
-and BATMAN_ADV static figure out that he needs to abide by
-this convoluted rule just to enable multicasting properly?
-
-Look at the obj-y rules in net/ipv6/Makefile for a better way
-to handle this.
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 4b6722f..b52f4cb 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1610,16 +1610,8 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
+ 	if (!pskb_may_pull(skb2, sizeof(*ih)))
+ 		goto out;
+ 
+-	switch (skb2->ip_summed) {
+-	case CHECKSUM_COMPLETE:
+-		if (!csum_fold(skb2->csum))
+-			break;
+-		/* fall through */
+-	case CHECKSUM_NONE:
+-		skb2->csum = 0;
+-		if (skb_checksum_complete(skb2))
+-			goto out;
+-	}
++	if (skb_checksum_simple_validate(skb2))
++		goto out;
+ 
+ 	err = 0;
+ 
+@@ -1737,20 +1729,8 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
+ 
+ 	ip6h = ipv6_hdr(skb2);
+ 
+-	switch (skb2->ip_summed) {
+-	case CHECKSUM_COMPLETE:
+-		if (!csum_ipv6_magic(&ip6h->saddr, &ip6h->daddr, skb2->len,
+-					IPPROTO_ICMPV6, skb2->csum))
+-			break;
+-		/*FALLTHROUGH*/
+-	case CHECKSUM_NONE:
+-		skb2->csum = ~csum_unfold(csum_ipv6_magic(&ip6h->saddr,
+-							&ip6h->daddr,
+-							skb2->len,
+-							IPPROTO_ICMPV6, 0));
+-		if (__skb_checksum_complete(skb2))
+-			goto out;
+-	}
++	if (skb_checksum_validate(skb2, IPPROTO_ICMPV6, ip6_compute_pseudo))
++		goto out;
+ 
+ 	err = 0;
+ 
+-- 
+1.7.10.4
 
