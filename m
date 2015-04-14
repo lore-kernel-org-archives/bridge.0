@@ -1,15 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 13 Apr 2015 13:32:28 -0400 (EDT)
-Message-Id: <20150413.133228.1185934929215664377.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1428687999-18428-2-git-send-email-linus.luessing@c0d3.blue>
-References: <1428687999-18428-1-git-send-email-linus.luessing@c0d3.blue>
-	<1428687999-18428-2-git-send-email-linus.luessing@c0d3.blue>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 2/2] net: Export IGMP/MLD message validation
-	code
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Tue, 14 Apr 2015 08:37:40 +0200
+Message-Id: <1428993462-6079-1-git-send-email-linus.luessing@c0d3.blue>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCHv2 net-next 0/2] Exporting IGMP/MLD checking from
+	bridge code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,35 +15,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, linux-kernel@vger.kernel.org, therbert@google.com
+To: b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Stephen Hemminger <stephen@networkplumber.org>, Herbert Xu <herbert@gondor.apana.org.au>, Tom Herbert <therbert@google.com>, "David S. Miller" <davem@davemloft.net>
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Fri, 10 Apr 2015 19:46:39 +0200
+The multicast optimizations in batman-adv are yet only usable and
+enabled in non-bridged scenarios. To be able to support bridged setups
+batman-adv needs to be able to detect IGMP/MLD queriers and reports on
+mesh nodes without bridges, too. See the following link for details:
 
-> With this patch, the IGMP and MLD message validation functions are mo=
-ved
-> from the bridge code to IPv4/IPv6 multicast files. Some small
-> refactoring was done to enhance readibility and to iron out some
-> differences in behaviour between the IGMP and MLD parsing code (e.g. =
-the
-> skb-cloning of MLD messages is now only done if necessary, just like =
-the
-> IGMP part always did).
-> =
+http://www.open-mesh.org/projects/batman-adv/wiki/Multicast-optimizations-listener-reports
 
-> Finally, these IGMP and MLD message validation functions are exported=
- so
-> that not only the bridge can use it but batman-adv later, too.
-> =
+To avoid duplicate code between the bridge and batman-adv, the IGMP/MLD
+message validation code is moved from the bridge to the IPv4/IPv6 stack.
 
-> Signed-off-by: Linus L=FCssing <linus.luessing@c0d3.blue>
+On the way, some refactoring to increase readability and to iron out
+some subtle differences between the IGMP and MLD parsing code is done.
 
-Please update the copyrights as per your discussion with YOSHIFUJI
-Hideaki.
+Cheers, Linus
 
-Also, please provide a cover "[PATCH 0/2] " posting with a top-level
-summary of what this series is doing so I can use that text in the
-message of the merge commit I'll create when applying your series.
 
-Thanks.
+Changelog v2:
+* Updated copyright for mcast_snoop.c
+
