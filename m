@@ -1,9 +1,13 @@
-Return-Path: <luis.henriques@canonical.com>
-From: Luis Henriques <luis.henriques@canonical.com>
-Date: Tue, 12 May 2015 11:32:56 +0100
-Message-Id: <1431426776-12744-1-git-send-email-luis.henriques@canonical.com>
-Subject: [Bridge] [3.16.y-ckt stable] Patch "bridge/mdb: remove wrong use of
-	NLM_F_MULTI" has been added to staging queue
+Return-Path: <pvinod.sarma@freescale.com>
+From: Pullabhatla Vinod <pvinod.sarma@freescale.com>
+Date: Tue, 19 May 2015 11:14:01 +0000
+Message-ID: <BLUPR03MB13643A6C0CE8F49B31B5E67A91C30@BLUPR03MB1364.namprd03.prod.outlook.com>
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_BLUPR03MB13643A6C0CE8F49B31B5E67A91C30BLUPR03MB1364namp_"
+MIME-Version: 1.0
+Subject: [Bridge] Linux kernel not supporting STP enablement in NON-ROOT
+	namespace
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,64 +16,99 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Cc: Cong Wang <amwang@redhat.com>, Luis Henriques <luis.henriques@canonical.com>, bridge@lists.linux-foundation.org, kernel-team@lists.ubuntu.com, "David S. Miller" <davem@davemloft.net>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-This is a note to let you know that I have just added a patch titled
+--_000_BLUPR03MB13643A6C0CE8F49B31B5E67A91C30BLUPR03MB1364namp_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-    bridge/mdb: remove wrong use of NLM_F_MULTI
+Hi ,
+Linux doesn't support multiple namspaces while using STP in bridges . What =
+is the actual reason behind supporting only root namespaces for STP support=
+ and dropping the BPDU packets for other namespaces. Will there be any issu=
+e if I patch the kernel to enable multiple namespace support?
+Please hepl me out.
 
-to the linux-3.16.y-queue branch of the 3.16.y-ckt extended stable tree 
-which can be found at:
+Thanks,
+Vinod.
 
-    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.16.y-queue
 
-This patch is scheduled to be released in version 3.16.7-ckt12.
+Thanks,
+Vinod.
 
-If you, or anyone else, feels it should not be added to this tree, please 
-reply to this email.
 
-For more information about the 3.16.y-ckt tree, see
-https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
+--_000_BLUPR03MB13643A6C0CE8F49B31B5E67A91C30BLUPR03MB1364namp_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Thanks.
--Luis
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">Hi ,<o:p></o:p></p>
+<p class=3D"MsoNormal">Linux doesn&#8217;t support multiple namspaces while=
+ using STP in bridges . What is the actual reason behind supporting only ro=
+ot namespaces for STP support and dropping the BPDU packets for other names=
+paces. Will there be any issue if I patch
+ the kernel to enable multiple namespace support? <o:p></o:p></p>
+<p class=3D"MsoNormal">Please hepl me out.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Thanks,<o:p></o:p></p>
+<p class=3D"MsoNormal">Vinod.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Thanks,<o:p></o:p></p>
+<p class=3D"MsoNormal">Vinod.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
 
-------
-
-From d48583cc5f78c60061c11aafe217a41d9219bd1a Mon Sep 17 00:00:00 2001
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Date: Tue, 28 Apr 2015 18:33:48 +0200
-Subject: bridge/mdb: remove wrong use of NLM_F_MULTI
-
-commit 821996795973fd52703c35811a03db9fec1ac141 upstream.
-
-NLM_F_MULTI must be used only when a NLMSG_DONE message is sent. In fact,
-it is sent only at the end of a dump.
-
-Libraries like libnl will wait forever for NLMSG_DONE.
-
-Fixes: 37a393bc4932 ("bridge: notify mdb changes via netlink")
-CC: Cong Wang <amwang@redhat.com>
-CC: Stephen Hemminger <stephen@networkplumber.org>
-CC: bridge@lists.linux-foundation.org
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
----
- net/bridge/br_mdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 5df05269d17a..d8b1833a363e 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -170,7 +170,7 @@ static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
- 	struct br_port_msg *bpm;
- 	struct nlattr *nest, *nest2;
-
--	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), NLM_F_MULTI);
-+	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), 0);
- 	if (!nlh)
- 		return -EMSGSIZE;
-
+--_000_BLUPR03MB13643A6C0CE8F49B31B5E67A91C30BLUPR03MB1364namp_--
