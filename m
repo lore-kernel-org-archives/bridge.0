@@ -1,14 +1,13 @@
 Return-Path: <davem@davemloft.net>
-Date: Fri, 22 May 2015 14:56:36 -0400 (EDT)
-Message-Id: <20150522.145636.734827115116283588.davem@davemloft.net>
+Date: Fri, 22 May 2015 15:09:03 -0400 (EDT)
+Message-Id: <20150522.150903.570785706419447424.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1432301557-6928-1-git-send-email-linus.luessing@c0d3.blue>
-References: <1432301557-6928-1-git-send-email-linus.luessing@c0d3.blue>
+In-Reply-To: <1432307939-19640-1-git-send-email-cascardo@redhat.com>
+References: <1432307939-19640-1-git-send-email-cascardo@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCHv2 net-next] bridge: allow setting hash_max +
- multicast_router if interface is down
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: fix parsing of MLDv2 reports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,46 +16,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: herbert@gondor.apana.org.au, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, wkok@cumulusnetworks.com, cwang@twopensource.com
+To: cascardo@redhat.com
+Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Rik.Theys@esat.kuleuven.be
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Fri, 22 May 2015 15:32:37 +0200
+From: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
+Date: Fri, 22 May 2015 12:18:59 -0300
 
-> @@ -1786,14 +1784,8 @@ int br_multicast_set_router(struct net_bridge =
-*br, unsigned long val)
->  	case 1:
->  		br->multicast_router =3D val;
->  		err =3D 0;
-> -		break;
-> -
-> -	default:
-> -		err =3D -EINVAL;
-> -		break;
->  	}
+> When more than a multicast address is present in a MLDv2 report, all but
+> the first address is ignored, because the code breaks out of the loop if
+> there has not been an error adding that address.
+> 
+> This has caused failures when two guests connected through the bridge
+> tried to communicate using IPv6. Neighbor discoveries would not be
+> transmitted to the other guest when both used a link-local address and a
+> static address.
+> 
+> This only happens when there is a MLDv2 querier in the network.
+> 
+> The fix will only break out of the loop when there is a failure adding a
+> multicast address.
+ ...
+> Reported-by: Rik Theys <Rik.Theys@esat.kuleuven.be>
+> Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
+> Tested-by: Rik Theys <Rik.Theys@esat.kuleuven.be>
 
-Please don't remove the break; statement.
-
-> @@ -1827,14 +1817,8 @@ int br_multicast_set_port_router(struct net_br=
-idge_port *p, unsigned long val)
->  			break;
->  =
-
->  		br_multicast_add_router(br, p);
-> -		break;
-> -
-> -	default:
-> -		err =3D -EINVAL;
-> -		break;
->  	}
->  =
-
-> -unlock:
->  	spin_unlock(&br->multicast_lock);
->  =
-
->  	return err;
-
-Likewise.
-
-Thanks.
+Applied and queued up for -stable, thanks.
