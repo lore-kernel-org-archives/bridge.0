@@ -1,8 +1,14 @@
-Return-Path: <cascardo@redhat.com>
-From: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
-Date: Fri, 22 May 2015 12:18:59 -0300
-Message-Id: <1432307939-19640-1-git-send-email-cascardo@redhat.com>
-Subject: [Bridge] [PATCH] bridge: fix parsing of MLDv2 reports
+Return-Path: <davem@davemloft.net>
+Date: Fri, 22 May 2015 14:56:36 -0400 (EDT)
+Message-Id: <20150522.145636.734827115116283588.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1432301557-6928-1-git-send-email-linus.luessing@c0d3.blue>
+References: <1432301557-6928-1-git-send-email-linus.luessing@c0d3.blue>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCHv2 net-next] bridge: allow setting hash_max +
+ multicast_router if interface is down
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,62 +17,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stephen@networkplumber.org
-Cc: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Rik.Theys@esat.kuleuven.be, davem@davemloft.net
+To: linus.luessing@c0d3.blue
+Cc: herbert@gondor.apana.org.au, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, wkok@cumulusnetworks.com, cwang@twopensource.com
 
-When more than a multicast address is present in a MLDv2 report, all but
-the first address is ignored, because the code breaks out of the loop if
-there has not been an error adding that address.
+From: Linus L=FCssing <linus.luessing@c0d3.blue>
+Date: Fri, 22 May 2015 15:32:37 +0200
 
-This has caused failures when two guests connected through the bridge
-tried to communicate using IPv6. Neighbor discoveries would not be
-transmitted to the other guest when both used a link-local address and a
-static address.
+> @@ -1786,14 +1784,8 @@ int br_multicast_set_router(struct net_bridge =
+*br, unsigned long val)
+>  	case 1:
+>  		br->multicast_router =3D val;
+>  		err =3D 0;
+> -		break;
+> -
+> -	default:
+> -		err =3D -EINVAL;
+> -		break;
+>  	}
 
-This only happens when there is a MLDv2 querier in the network.
+Please don't remove the break; statement.
 
-The fix will only break out of the loop when there is a failure adding a
-multicast address.
+> @@ -1827,14 +1817,8 @@ int br_multicast_set_port_router(struct net_br=
+idge_port *p, unsigned long val)
+>  			break;
+>  =
 
-The mdb before the patch:
+>  		br_multicast_add_router(br, p);
+> -		break;
+> -
+> -	default:
+> -		err =3D -EINVAL;
+> -		break;
+>  	}
+>  =
 
-dev ovirtmgmt port vnet0 grp ff02::1:ff7d:6603 temp
-dev ovirtmgmt port vnet1 grp ff02::1:ff7d:6604 temp
-dev ovirtmgmt port bond0.86 grp ff02::2 temp
+> -unlock:
+>  	spin_unlock(&br->multicast_lock);
+>  =
 
-After the patch:
+>  	return err;
 
-dev ovirtmgmt port vnet0 grp ff02::1:ff7d:6603 temp
-dev ovirtmgmt port vnet1 grp ff02::1:ff7d:6604 temp
-dev ovirtmgmt port bond0.86 grp ff02::fb temp
-dev ovirtmgmt port bond0.86 grp ff02::2 temp
-dev ovirtmgmt port bond0.86 grp ff02::d temp
-dev ovirtmgmt port vnet0 grp ff02::1:ff00:76 temp
-dev ovirtmgmt port bond0.86 grp ff02::16 temp
-dev ovirtmgmt port vnet1 grp ff02::1:ff00:77 temp
-dev ovirtmgmt port bond0.86 grp ff02::1:ff00:def temp
-dev ovirtmgmt port bond0.86 grp ff02::1:ffa1:40bf temp
+Likewise.
 
-Reported-by: Rik Theys <Rik.Theys@esat.kuleuven.be>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
-Tested-by: Rik Theys <Rik.Theys@esat.kuleuven.be>
----
- net/bridge/br_multicast.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 4b6722f..a3abe6e 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1072,7 +1072,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
- 
- 		err = br_ip6_multicast_add_group(br, port, &grec->grec_mca,
- 						 vid);
--		if (!err)
-+		if (err)
- 			break;
- 	}
- 
--- 
-2.4.1
-
+Thanks.
