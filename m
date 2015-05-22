@@ -1,22 +1,8 @@
-Return-Path: <roopa@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=w33JEFpyzAxvNgDAUg0PodL7Nty/T/DNJyrdZCLaPdc=;
-	b=WZWIM4rhnHEOnZ3WvoiuldWO2Y9PBq07Jo6bqPtmde2WNZ+SgzNUDYwuex/10wZ58a
-	tIN62+WwMKEsxwaKu1sBfNm7/yLWBx9dhV8/dnE8Xi+2Npt9NrZXlQxPSnT54spsTsYq
-	0Ubb00byN5vblOuzLRzY0KPk4Zd9XpDkdG9BE=
-Message-ID: <555E8CD9.9030004@cumulusnetworks.com>
-Date: Thu, 21 May 2015 18:56:41 -0700
-From: roopa <roopa@cumulusnetworks.com>
-MIME-Version: 1.0
-References: <1432256161-4425-1-git-send-email-linus.luessing@c0d3.blue>
-In-Reply-To: <1432256161-4425-1-git-send-email-linus.luessing@c0d3.blue>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: allow setting hash_max +
- multicast_router if interface is down
+Return-Path: <cascardo@redhat.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
+Date: Fri, 22 May 2015 12:18:59 -0300
+Message-Id: <1432307939-19640-1-git-send-email-cascardo@redhat.com>
+Subject: [Bridge] [PATCH] bridge: fix parsing of MLDv2 reports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,31 +11,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?B?TGludXMgTMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Wilson Kok <wkok@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>
+To: stephen@networkplumber.org
+Cc: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Rik.Theys@esat.kuleuven.be, davem@davemloft.net
 
-On 5/21/15, 5:56 PM, Linus Lüssing wrote:
-> Network managers like netifd (used in OpenWRT for instance) try to
-> configure interface options after creation but before setting the
-> interface up.
->
-> Unfortunately the sysfs / bridge currently only allows to configure the
-> hash_max and multicast_router options when the bridge interface is up.
-> But since br_multicast_init() doesn't start any timers and only sets
-> default values and initializes timers it should be save to reconfigure
-> the default values after that, before things actually get active after
-> the bridge is set up.
->
-> With this patch hash_max and multicast_router attributes can be
-> changed even if the according bridge (port) is down, just like other
-> other bridge (port) attributes allow too.
->
-> Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-> ---
-> Changelog:
-> * [RFC PATCH net-next] -> [PATCH net-next]
-Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+When more than a multicast address is present in a MLDv2 report, all but
+the first address is ignored, because the code breaks out of the loop if
+there has not been an error adding that address.
 
-we have a similar patch in-house waiting to be up-streamed.
+This has caused failures when two guests connected through the bridge
+tried to communicate using IPv6. Neighbor discoveries would not be
+transmitted to the other guest when both used a link-local address and a
+static address.
 
-thanks.
+This only happens when there is a MLDv2 querier in the network.
+
+The fix will only break out of the loop when there is a failure adding a
+multicast address.
+
+The mdb before the patch:
+
+dev ovirtmgmt port vnet0 grp ff02::1:ff7d:6603 temp
+dev ovirtmgmt port vnet1 grp ff02::1:ff7d:6604 temp
+dev ovirtmgmt port bond0.86 grp ff02::2 temp
+
+After the patch:
+
+dev ovirtmgmt port vnet0 grp ff02::1:ff7d:6603 temp
+dev ovirtmgmt port vnet1 grp ff02::1:ff7d:6604 temp
+dev ovirtmgmt port bond0.86 grp ff02::fb temp
+dev ovirtmgmt port bond0.86 grp ff02::2 temp
+dev ovirtmgmt port bond0.86 grp ff02::d temp
+dev ovirtmgmt port vnet0 grp ff02::1:ff00:76 temp
+dev ovirtmgmt port bond0.86 grp ff02::16 temp
+dev ovirtmgmt port vnet1 grp ff02::1:ff00:77 temp
+dev ovirtmgmt port bond0.86 grp ff02::1:ff00:def temp
+dev ovirtmgmt port bond0.86 grp ff02::1:ffa1:40bf temp
+
+Reported-by: Rik Theys <Rik.Theys@esat.kuleuven.be>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
+Tested-by: Rik Theys <Rik.Theys@esat.kuleuven.be>
+---
+ net/bridge/br_multicast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 4b6722f..a3abe6e 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1072,7 +1072,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
+ 
+ 		err = br_ip6_multicast_add_group(br, port, &grec->grec_mca,
+ 						 vid);
+-		if (!err)
++		if (err)
+ 			break;
+ 	}
+ 
+-- 
+2.4.1
+
