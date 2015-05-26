@@ -1,14 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 25 May 2015 17:28:18 -0400 (EDT)
-Message-Id: <20150525.172818.2000334376621437405.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1432343554-3493-1-git-send-email-linus.luessing@c0d3.blue>
-References: <1432343554-3493-1-git-send-email-linus.luessing@c0d3.blue>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCHv3 net-next] bridge: allow setting hash_max +
- multicast_router if interface is down
+Return-Path: <stephen@networkplumber.org>
+Date: Tue, 26 May 2015 10:28:09 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20150526102809.5c3e8abc@urahara>
+In-Reply-To: <1432204977-4293-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1432204977-4293-1-git-send-email-nikolay@cumulusnetworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: skip fdb add if the port
+ shouldn't learn
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,30 +17,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: herbert@gondor.apana.org.au, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, wkok@cumulusnetworks.com, cwang@twopensource.com
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, wkok@cumulusnetworks.com
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Sat, 23 May 2015 03:12:34 +0200
+On Thu, 21 May 2015 03:42:57 -0700
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
 
-> Network managers like netifd (used in OpenWRT for instance) try to
-> configure interface options after creation but before setting the
-> interface up.
-> =
+> From: Wilson Kok <wkok@cumulusnetworks.com>
+> 
+> Check in fdb_add_entry() if the source port should learn, similar
+> check is used in br_fdb_update.
+> Note that new fdb entries which are added manually or
+> as local ones are still permitted.
+> This patch has been tested by running traffic via a bridge port and
+> switching the port's state, also by manually adding/removing entries
+> from the bridge's fdb.
+> 
+> Signed-off-by: Wilson Kok <wkok@cumulusnetworks.com>
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> Unfortunately the sysfs / bridge currently only allows to configure t=
-he
-> hash_max and multicast_router options when the bridge interface is up=
-.=
+What is the problem this is trying to solve?
 
-> But since br_multicast_init() doesn't start any timers and only sets
-> default values and initializes timers it should be save to reconfigur=
-e
-> the default values after that, before things actually get active afte=
-r
-> the bridge is set up.
-> =
-
-> Signed-off-by: Linus L=FCssing <linus.luessing@c0d3.blue>
-
-Applied to net-next, thanks.
+I think user should be allowed to manually add any entry
+even if learning.
