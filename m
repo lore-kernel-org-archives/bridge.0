@@ -1,10 +1,10 @@
 Return-Path: <kamal@canonical.com>
 From: Kamal Mostafa <kamal@canonical.com>
-Date: Wed, 17 Jun 2015 15:22:01 -0700
-Message-Id: <1434579851-1719-17-git-send-email-kamal@canonical.com>
-In-Reply-To: <1434579851-1719-1-git-send-email-kamal@canonical.com>
-References: <1434579851-1719-1-git-send-email-kamal@canonical.com>
-Subject: [Bridge] [PATCH 3.19.y-ckt 016/146] bridge/mdb: remove wrong use of
+Date: Wed, 17 Jun 2015 15:27:42 -0700
+Message-Id: <1434580149-3095-36-git-send-email-kamal@canonical.com>
+In-Reply-To: <1434580149-3095-1-git-send-email-kamal@canonical.com>
+References: <1434580149-3095-1-git-send-email-kamal@canonical.com>
+Subject: [Bridge] [PATCH 3.13.y-ckt 035/122] bridge/mdb: remove wrong use of
 	NLM_F_MULTI
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
 Cc: Cong Wang <amwang@redhat.com>, Kamal Mostafa <kamal@canonical.com>, bridge@lists.linux-foundation.org, Nicolas Dichtel <nicolas.dichtel@6wind.com>, "David S. Miller" <davem@davemloft.net>
 
-3.19.8-ckt2 -stable review patch.  If anyone has any objections, please let me know.
+3.13.11-ckt22 -stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -42,7 +42,7 @@ Signed-off-by: Kamal Mostafa <kamal@canonical.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 5df0526..d8b1833 100644
+index b7b1914..b734575 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
 @@ -170,7 +170,7 @@ static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
