@@ -1,11 +1,16 @@
-Return-Path: <kamal@canonical.com>
-From: Kamal Mostafa <kamal@canonical.com>
-Date: Wed, 17 Jun 2015 15:27:42 -0700
-Message-Id: <1434580149-3095-36-git-send-email-kamal@canonical.com>
-In-Reply-To: <1434580149-3095-1-git-send-email-kamal@canonical.com>
-References: <1434580149-3095-1-git-send-email-kamal@canonical.com>
-Subject: [Bridge] [PATCH 3.13.y-ckt 035/122] bridge/mdb: remove wrong use of
-	NLM_F_MULTI
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=I3fj5zBS6p3M/G7hMXB205ovi+nESIEJDpj72yUICaI=;
+	b=IHeX4oJzQPTYKbDCugACY8H9ldsEFBI+/1Joe0GAZmNICX6APPvzbUzNq+LtNM6eXY
+	pstt+LgE+Mkk+BmCKNXvsHk931yK7bKrHdXh53rv3tdRDK3DttgbrZGoex582wHcwYrI
+	VPc190Qf6HpsQvbP3ugD6QjLFQaRB671zb6bI=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Tue, 23 Jun 2015 05:28:16 -0700
+Message-Id: <1435062496-14596-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next] bridge: vlan: flush the dynamically
+	learned entries on port vlan delete
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,46 +19,135 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
-Cc: Cong Wang <amwang@redhat.com>, Kamal Mostafa <kamal@canonical.com>, bridge@lists.linux-foundation.org, Nicolas Dichtel <nicolas.dichtel@6wind.com>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, vyasevich@gmail.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-3.13.11-ckt22 -stable review patch.  If anyone has any objections, please let me know.
+Add a new argument to br_fdb_delete_by_port which allows to specify a
+vid to match when flushing entries and use it in nbp_vlan_delete() to
+flush the dynamically learned entries of the vlan/port pair when removing
+a vlan from a port. Before this patch only the local mac was being
+removed and the dynamically learned ones were left to expire.
+Note that the do_all argument is still respected and if specified, the
+vid will be ignored.
 
-------------------
-
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-
-commit 821996795973fd52703c35811a03db9fec1ac141 upstream.
-
-NLM_F_MULTI must be used only when a NLMSG_DONE message is sent. In fact,
-it is sent only at the end of a dump.
-
-Libraries like libnl will wait forever for NLMSG_DONE.
-
-Fixes: 37a393bc4932 ("bridge: notify mdb changes via netlink")
-CC: Cong Wang <amwang@redhat.com>
-CC: Stephen Hemminger <stephen@networkplumber.org>
-CC: bridge@lists.linux-foundation.org
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_mdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+note: There are 2 warnings, the C99 comment was already there and the 81
+      char line is the prototype and I think it looks better this way.
+      One unclear thing is about vid 0, I see that it can be passed to
+      nbp_vlan_(add|delete) although the comment says it shouldn't.
+      Adding Vlad to CC list since he has introduced the vlan filtering
+      infrastructure.
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index b7b1914..b734575 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -170,7 +170,7 @@ static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
- 	struct br_port_msg *bpm;
- 	struct nlattr *nest, *nest2;
+ net/bridge/br_fdb.c      | 7 +++++--
+ net/bridge/br_if.c       | 4 ++--
+ net/bridge/br_private.h  | 2 +-
+ net/bridge/br_stp_if.c   | 2 +-
+ net/bridge/br_sysfs_if.c | 2 +-
+ net/bridge/br_vlan.c     | 1 +
+ 6 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index be84b7e5a3da..9e9875da0a4f 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -330,9 +330,11 @@ void br_fdb_flush(struct net_bridge *br)
  
--	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), NLM_F_MULTI);
-+	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), 0);
- 	if (!nlh)
- 		return -EMSGSIZE;
+ /* Flush all entries referring to a specific port.
+  * if do_all is set also flush static entries
++ * if vid is set delete all entries that match the vlan_id
+  */
+ void br_fdb_delete_by_port(struct net_bridge *br,
+ 			   const struct net_bridge_port *p,
++			   u16 vid,
+ 			   int do_all)
+ {
+ 	int i;
+@@ -347,8 +349,9 @@ void br_fdb_delete_by_port(struct net_bridge *br,
+ 			if (f->dst != p)
+ 				continue;
  
+-			if (f->is_static && !do_all)
+-				continue;
++			if (!do_all)
++				if (f->is_static || (vid && f->vlan_id != vid))
++					continue;
+ 
+ 			if (f->is_local)
+ 				fdb_delete_local(br, p, f);
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 1849d96b3c91..a538cb1199a3 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -249,7 +249,7 @@ static void del_nbp(struct net_bridge_port *p)
+ 	list_del_rcu(&p->list);
+ 
+ 	nbp_vlan_flush(p);
+-	br_fdb_delete_by_port(br, p, 1);
++	br_fdb_delete_by_port(br, p, 0, 1);
+ 	nbp_update_port_count(br);
+ 
+ 	netdev_upper_dev_unlink(dev, br->dev);
+@@ -278,7 +278,7 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
+ 		del_nbp(p);
+ 	}
+ 
+-	br_fdb_delete_by_port(br, NULL, 1);
++	br_fdb_delete_by_port(br, NULL, 0, 1);
+ 
+ 	br_vlan_flush(br);
+ 	del_timer_sync(&br->gc_timer);
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 5dccced71269..8b21146b24a0 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -387,7 +387,7 @@ void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr);
+ void br_fdb_change_mac_address(struct net_bridge *br, const u8 *newaddr);
+ void br_fdb_cleanup(unsigned long arg);
+ void br_fdb_delete_by_port(struct net_bridge *br,
+-			   const struct net_bridge_port *p, int do_all);
++			   const struct net_bridge_port *p, u16 vid, int do_all);
+ struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+ 					  const unsigned char *addr, __u16 vid);
+ int br_fdb_test_addr(struct net_device *dev, unsigned char *addr);
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 41146872c1b4..762d490a16f2 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -111,7 +111,7 @@ void br_stp_disable_port(struct net_bridge_port *p)
+ 	del_timer(&p->forward_delay_timer);
+ 	del_timer(&p->hold_timer);
+ 
+-	br_fdb_delete_by_port(br, p, 0);
++	br_fdb_delete_by_port(br, p, 0, 0);
+ 	br_multicast_disable_port(p);
+ 
+ 	br_configuration_update(br);
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 4905845a94e9..efe415ad842a 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -160,7 +160,7 @@ static BRPORT_ATTR(hold_timer, S_IRUGO, show_hold_timer, NULL);
+ 
+ static int store_flush(struct net_bridge_port *p, unsigned long v)
+ {
+-	br_fdb_delete_by_port(p->br, p, 0); // Don't delete local entry
++	br_fdb_delete_by_port(p->br, p, 0, 0); // Don't delete local entry
+ 	return 0;
+ }
+ static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 17fc358a5432..9e1b9c1b4880 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -741,6 +741,7 @@ int nbp_vlan_delete(struct net_bridge_port *port, u16 vid)
+ 		return -EINVAL;
+ 
+ 	br_fdb_find_delete_local(port->br, port, port->dev->dev_addr, vid);
++	br_fdb_delete_by_port(port->br, port, vid, 0);
+ 
+ 	return __vlan_del(pv, vid);
+ }
 -- 
-1.9.1
+2.4.3
 
