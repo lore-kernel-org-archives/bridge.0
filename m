@@ -1,16 +1,24 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=I3fj5zBS6p3M/G7hMXB205ovi+nESIEJDpj72yUICaI=;
-	b=IHeX4oJzQPTYKbDCugACY8H9ldsEFBI+/1Joe0GAZmNICX6APPvzbUzNq+LtNM6eXY
-	pstt+LgE+Mkk+BmCKNXvsHk931yK7bKrHdXh53rv3tdRDK3DttgbrZGoex582wHcwYrI
-	VPc190Qf6HpsQvbP3ugD6QjLFQaRB671zb6bI=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 23 Jun 2015 05:28:16 -0700
-Message-Id: <1435062496-14596-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next] bridge: vlan: flush the dynamically
-	learned entries on port vlan delete
+Return-Path: <toshiaki.makita1@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=message-id:date:from:user-agent:mime-version:to:cc:subject
+	:references:in-reply-to:content-type:content-transfer-encoding;
+	bh=nTfIM9eNSGKJ8QebLz/EL1nRM+ak2uWVNM6o/sMc+RE=;
+	b=e6cSvZ2K+QvlN09dqC871yy0Q9J50buJX7HnV2c1EKSbMeAkrrvlFu4BRY6phzviaR
+	Wc1/TBKkyVrseFwX6RdqbCgZaqs7pN9oeo8JdChA+3GDNcWoo4PFc75ovj9AReHZTYIr
+	7W7t6kwpB+t0ob4blOeMJZCRZKNer+NNrW6pAsBcWeky2eWC+iBDXGlAlqZlZViN9a/w
+	+0eg2SHMAz+9ciEovaW3vfl46/311YyvBpjt4oBf3LxqOWHTMa7IjODK7OvZRTbUmztB
+	cByajyjvkOc2+fKkiYx29rOw8vosonrxH4PhTk6dV1/xC1kh/AocugGKpoUVBwb5YNhq
+	9zDA==
+Message-ID: <55897509.8010205@gmail.com>
+Date: Wed, 24 Jun 2015 00:02:33 +0900
+From: Toshiaki Makita <toshiaki.makita1@gmail.com>
+MIME-Version: 1.0
+References: <1435062496-14596-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <1435062496-14596-1-git-send-email-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: vlan: flush the dynamically
+ learned entries on port vlan delete
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,135 +27,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, vyasevich@gmail.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
+Cc: vyasevich@gmail.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Add a new argument to br_fdb_delete_by_port which allows to specify a
-vid to match when flushing entries and use it in nbp_vlan_delete() to
-flush the dynamically learned entries of the vlan/port pair when removing
-a vlan from a port. Before this patch only the local mac was being
-removed and the dynamically learned ones were left to expire.
-Note that the do_all argument is still respected and if specified, the
-vid will be ignored.
+On 15/06/23 (火) 21:28, Nikolay Aleksandrov wrote:
+> Add a new argument to br_fdb_delete_by_port which allows to specify a
+> vid to match when flushing entries and use it in nbp_vlan_delete() to
+> flush the dynamically learned entries of the vlan/port pair when removing
+> a vlan from a port. Before this patch only the local mac was being
+> removed and the dynamically learned ones were left to expire.
+> Note that the do_all argument is still respected and if specified, the
+> vid will be ignored.
+> 
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+> note: There are 2 warnings, the C99 comment was already there and the 81
+>        char line is the prototype and I think it looks better this way.
+>        One unclear thing is about vid 0, I see that it can be passed to
+>        nbp_vlan_(add|delete) although the comment says it shouldn't.
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-note: There are 2 warnings, the C99 comment was already there and the 81
-      char line is the prototype and I think it looks better this way.
-      One unclear thing is about vid 0, I see that it can be passed to
-      nbp_vlan_(add|delete) although the comment says it shouldn't.
-      Adding Vlad to CC list since he has introduced the vlan filtering
-      infrastructure.
+nbp_vlan_add() should not be called with vid 0 because vid 0 of fdb
+entries is internally used when vlan_filtering is disabled, and such
+entries are exposed to userspace as those without any vlan id.
+bridge's vlan_filtering is respecting 802.1Q-2011 spec, which says vid 0
+cannot be used as a normal vlan id.
+If vlan 0 can be added, it should be a bug.
 
- net/bridge/br_fdb.c      | 7 +++++--
- net/bridge/br_if.c       | 4 ++--
- net/bridge/br_private.h  | 2 +-
- net/bridge/br_stp_if.c   | 2 +-
- net/bridge/br_sysfs_if.c | 2 +-
- net/bridge/br_vlan.c     | 1 +
- 6 files changed, 11 insertions(+), 7 deletions(-)
-
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index be84b7e5a3da..9e9875da0a4f 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -330,9 +330,11 @@ void br_fdb_flush(struct net_bridge *br)
- 
- /* Flush all entries referring to a specific port.
-  * if do_all is set also flush static entries
-+ * if vid is set delete all entries that match the vlan_id
-  */
- void br_fdb_delete_by_port(struct net_bridge *br,
- 			   const struct net_bridge_port *p,
-+			   u16 vid,
- 			   int do_all)
- {
- 	int i;
-@@ -347,8 +349,9 @@ void br_fdb_delete_by_port(struct net_bridge *br,
- 			if (f->dst != p)
- 				continue;
- 
--			if (f->is_static && !do_all)
--				continue;
-+			if (!do_all)
-+				if (f->is_static || (vid && f->vlan_id != vid))
-+					continue;
- 
- 			if (f->is_local)
- 				fdb_delete_local(br, p, f);
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 1849d96b3c91..a538cb1199a3 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -249,7 +249,7 @@ static void del_nbp(struct net_bridge_port *p)
- 	list_del_rcu(&p->list);
- 
- 	nbp_vlan_flush(p);
--	br_fdb_delete_by_port(br, p, 1);
-+	br_fdb_delete_by_port(br, p, 0, 1);
- 	nbp_update_port_count(br);
- 
- 	netdev_upper_dev_unlink(dev, br->dev);
-@@ -278,7 +278,7 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
- 		del_nbp(p);
- 	}
- 
--	br_fdb_delete_by_port(br, NULL, 1);
-+	br_fdb_delete_by_port(br, NULL, 0, 1);
- 
- 	br_vlan_flush(br);
- 	del_timer_sync(&br->gc_timer);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 5dccced71269..8b21146b24a0 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -387,7 +387,7 @@ void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr);
- void br_fdb_change_mac_address(struct net_bridge *br, const u8 *newaddr);
- void br_fdb_cleanup(unsigned long arg);
- void br_fdb_delete_by_port(struct net_bridge *br,
--			   const struct net_bridge_port *p, int do_all);
-+			   const struct net_bridge_port *p, u16 vid, int do_all);
- struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
- 					  const unsigned char *addr, __u16 vid);
- int br_fdb_test_addr(struct net_device *dev, unsigned char *addr);
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 41146872c1b4..762d490a16f2 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -111,7 +111,7 @@ void br_stp_disable_port(struct net_bridge_port *p)
- 	del_timer(&p->forward_delay_timer);
- 	del_timer(&p->hold_timer);
- 
--	br_fdb_delete_by_port(br, p, 0);
-+	br_fdb_delete_by_port(br, p, 0, 0);
- 	br_multicast_disable_port(p);
- 
- 	br_configuration_update(br);
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 4905845a94e9..efe415ad842a 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -160,7 +160,7 @@ static BRPORT_ATTR(hold_timer, S_IRUGO, show_hold_timer, NULL);
- 
- static int store_flush(struct net_bridge_port *p, unsigned long v)
- {
--	br_fdb_delete_by_port(p->br, p, 0); // Don't delete local entry
-+	br_fdb_delete_by_port(p->br, p, 0, 0); // Don't delete local entry
- 	return 0;
- }
- static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 17fc358a5432..9e1b9c1b4880 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -741,6 +741,7 @@ int nbp_vlan_delete(struct net_bridge_port *port, u16 vid)
- 		return -EINVAL;
- 
- 	br_fdb_find_delete_local(port->br, port, port->dev->dev_addr, vid);
-+	br_fdb_delete_by_port(port->br, port, vid, 0);
- 
- 	return __vlan_del(pv, vid);
- }
--- 
-2.4.3
-
+Toshiaki Makita
