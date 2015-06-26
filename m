@@ -1,12 +1,12 @@
-Return-Path: <prvs=61543b058=julien.grall@citrix.com>
-Message-ID: <55916C5D.3080602@citrix.com>
-Date: Mon, 29 Jun 2015 17:03:41 +0100
-From: Julien Grall <julien.grall@citrix.com>
+Return-Path: <jmadom@televes.com>
+Message-ID: <558D3FD9.60007@televes.com>
+Date: Fri, 26 Jun 2015 14:04:41 +0200
+From: Jorge Dominguez <jmadom@televes.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Unable to unregister netdevice after "netfilter: bridge:
- forward IPv6 fragmented packets"
+Content-Type: multipart/alternative;
+	boundary="------------080004040700060108030904"
+Subject: [Bridge] unregister_netdevice: waiting for br0 to become free.
+ Usage count = 1 (2.6.12.3)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,117 +15,257 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bernhard.thaler@wvnet.at, pablo@netfilter.org
-Cc: Wei Liu <wei.liu2@citrix.com>, Ian Campbell <ian.campbell@citrix.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, xen-devel <xen-devel@lists.xenproject.org>
+To: bridge@lists.linux-foundation.org
+
+This is a multi-part message in MIME format.
+--------------080004040700060108030904
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 Hi,
 
-I tried to run the latest Linux tree
-(4a10a91756ef381bced7b88cfb9232f660b92d93) as DOM0 Xen.
-After destroying a guest using network, I got the following
-lines in the DOM0 kernel log:
+This mail list provides me a lot of information about problem and I want share solution to bad refcount on bridge.
 
-unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
+Solution is applied on kernel
 
-The bisector pointed the problem after the commit
-efb6de9b4ba0092b2c55f6a52d16294a8a698edd
-"netfilter: bridge: forward IPv6 fragmented packets".
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f3abc9b963e004b8c96cd7fbee6fd905f2bfd620
 
-This is happening on an xgene board. The bridge is configured
-using /etc/network/interfaces:
+commit f216f082b2b37c4943f1e7c393e2786648d48f6f
+([NETFILTER]: bridge netfilter: deal with martians correctly)
+added a refcount leak on in_dev.
 
-# The primary network interface
-auto xenbr0
-iface xenbr0 inet dhcp
-        hostname pony
-        bridge_ports eth0
-        bridge_stp off
-        bridge_waitport 0
-        bridge_fd 0
-        bridge_maxwait 0
+Instead of using in_dev_get(), we can use __in_dev_get_rcu(),
+as netfilter hooks are running under rcu_read_lock(), as pointed
+by Patrick.
 
-Xen tools is creating the interface vif1.0 and adding to the
-bridge xenbr0.
 
-Linux log:
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+index 4fde742..907a82e 100644
+--- a/net/bridge/br_netfilter.c 
+<https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/bridge/br_netfilter.c?id=cce5a5c3029f731b5ea17a8a9a953ff742abf0d6>
++++ b/net/bridge/br_netfilter.c 
+<https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/bridge/br_netfilter.c?id=f3abc9b963e004b8c96cd7fbee6fd905f2bfd620>
+@@ -359,7 +359,7 @@ static int br_nf_pre_routing_finish(struct sk_buff *skb)
+},
+.proto = 0,
+};
+- struct in_device *in_dev = in_dev_get(dev);
++ struct in_device *in_dev = __in_dev_get_rcu(dev);
 
-device eth0 entered promiscuous mode
-xenbr0: port 1(eth0) entered forwarding state
-xenbr0: port 1(eth0) entered forwarding state
-xenbr0: port 1(eth0) entered disabled state
-xgene-enet 17020000.ethernet eth0: Link is Down
-random: nonblocking pool is initialized
-[....] Configuring network interfaces...
-Waiting for a max of 0 seconds for eth0 to become available.
-Internet Systems Consortium DHCP Client 4.3.1
-Copyright 2004-2014 Internet Systems Consortium.
-All rights reserved.
-For info, please visit https://www.isc.org/software/dhcp/
+Best Regards,
+Jorge.
 
-Listening on LPF/xenbr0/00:01:73:02:1a:00
-Sending on   LPF/xenbr0/00:01:73:02:1a:00
-Sending on   Socket/fallback
-DHCPDISCOVER on xenbr0 to 255.255.255.255 port 67 interval 7
-xgene-enet 17020000.ethernet eth0: Link is Up - 1Gbps/Full - flow control rx/tx
-xenbr0: port 1(eth0) entered forwarding state
-xenbr0: port 1(eth0) entered forwarding state
-DHCPDISCOVER on xenbr0 to 255.255.255.255 port 67 interval 13
-DHCPREQUEST on xenbr0 to 255.255.255.255 port 67
-DHCPOFFER from 10.80.224.1
-DHCPACK from 10.80.224.1
-bound to 10.80.229.126 -- renewal in 19083 seconds.
-done.
-[ ok ] Starting rpcbind daemon....
-[ ok ] Starting NFS common utilities: statd idmapd.
-[ ok ] Cleaning up temporary files....
-[info] Setting console screen modes.
-setterm: cannot (un)set powersave mode: Inappropriate ioctl for device
-[....] Setting up console font and keymap...Couldn't get a file descriptor referring to the console
-Couldn't get a file descriptor referring to the console
-done.
-[ ok ] Setting up X socket directories... /tmp/.X11-unix /tmp/.ICE-unix.
-INIT: Entering runlevel: 2
-[info] Using makefile-style concurrent boot in runlevel 2.
-[ ok ] Starting enhanced syslogd: rsyslogd.
-[ ok ] Starting deferred execution scheduler: atd.
-[ ok ] Starting periodic command scheduler: cron.
-[ ok ] Starting SMP IRQ Balancer: irqbalance.
 
-[ ok ] Starting NTP server: ntpd.
-[ ok ] Starting OpenBSD Secure Shell server: sshd.
-[ ok ] Starting system message bus: dbus.
-Starting /usr/local/sbin/xenstored...
-Setting domain 0 name, domid and JSON config...
-Done setting up Dom0
-Starting xenconsoled...
-Starting QEMU as disk backend for dom0
 
-Debian GNU/Linux 8 pony hvc0
+>/  Two other recent reports are:
+/>/  1. Buggy applications that hold packets in their input queue forever,
+/>/     and/or netfilters.  The socket buffer's contain a reference for
+/>/     packets in flight.
+/
+that may be it, but I am not sure which queue you are talking about,
+but there is an application that is using the netfiler ip_queue to
+queue packets to user space.  in this application, these packets can
+be held in user space for extended periods of time (up to 30/60
+seconds), and then they are either dropped or released.  Could this
+possibly be creating a problem?
 
-pony login: device vif1.0 entered promiscuous mode
-IPv6: ADDRCONF(NETDEV_UP): vif1.0: link is not ready
-xen-blkback: ring-ref 8, event-channel 3, protocol 1 (arm-abi) persistent grants
-vif vif-1-0 vif1.0: Guest Rx ready
-IPv6: ADDRCONF(NETDEV_CHANGE): vif1.0: link becomes ready
-xenbr0: port 2(vif1.0) entered forwarding state
-xenbr0: port 2(vif1.0) entered forwarding state
-(XEN) mm.c:1251:d0v2 gnttab_mark_dirty not implemented yet
-xenbr0: port 2(vif1.0) entered disabled state
-xenbr0: port 2(vif1.0) entered disabled state
-device vif1.0 left promiscuous mode
-xenbr0: port 2(vif1.0) entered disabled state
-INIT: Id "1" respawning too fast: disabled for 5 minutes
-INIT: Id "3" respawning too fast: disabled for 5 minutes
-INIT: Id "5" respawning too fast: disabled for 5 minutes
-INIT: Id "2" respawning too fast: disabled for 5 minutes
-INIT: Id "6" respawning too fast: disabled for 5 minutes
-INIT: Id "T0" respawning too fast: disabled for 5 minutes
-INIT: Id "4" respawning too fast: disabled for 5 minutes
-unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
-unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
-unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
+I don't believe that the system is using any of the VLAN code.
 
-Regards,
+>/  I have found an appearant leak of a route object, which holds a
+/>/  reference
+/>/  to a device.  I reproduced in both 2.6.11 and 2.6.13 using 802.1Q
+/>/  VLANs.
+/>/  I have a patch that will print out the place of the leaked reference
+/>/  against 2.6.13.
+/>/
+/>/  http://www.candelatech.com/oss/rfcnt.patch
+/>/
+/>/  Enable the feature in the Networking section of Kconfig.
+/Ben, i will incorporate this patch and let you know if i turn up any
+results.
 
--- 
-Julien Grall
+thanks,
+--robert
+
+On Aug 31, 2005, at 9:37 PM, Stephen Hemminger wrote:
+
+>/  On Wed, 31 Aug 2005 19:04:01 -0700
+/>/  Robert Scott <rbscott at axentra.net  <https://lists.linux-foundation.org/mailman/listinfo/bridge>> wrote:
+/>/
+/>/
+/>>/  Hello,
+/>>/
+/>>/  I know that this bug has been discussed before at length on this
+/>>/  mailing list, but previous post seemed to indicate that it was fixed
+/>>/  before kernel 2.6.12.  I am still seeing this occasionally in kernel
+/>>/  2.6.12.3.  The system is running knoppix, and IPV6 is not compiled
+/>>/  into the kernel(other posts mentioned numerous problems with the IPV6
+/>>/  code).  But every so often, when bringing down the bridge (it doesn't
+/>>/  happen every time), the process hangs, and the following message
+/>>/  appears in dmesg repeatedly:
+/>>/
+/>>/  'unregister_netdevice: waiting for br0 to become free. Usage count
+/>>/  = 1'
+/>>/
+/>>/  None of the processes involved can be killed, and an attempt to run
+/>>/  an ifconfig results in a process that is also waiting forever.  At
+/>>/  this point the box must be rebooted forcefully.
+/>>/
+/>>/  Two questions.
+/>>/  1. In a previous post, someone mentioned one solution was to
+/>>/  commenting out the check that is hanging in the kernel.   Does this
+/>>/  check preventing something terrible from happening(i assumed that it
+/>>/  does), or is it safe to remove it
+/>>/
+/>/
+/>/  Really bad idea, because if the thing that is holding the reference
+/>/  like packets stuck in some dead queue, ever get processed the kernel
+/>/  will die.
+/>/
+/>/
+/>>/  2. Any ideas of something to try in order to make this repeatable?
+/>>/
+/>/
+/>/  Two other recent reports are:
+/>/  1. Buggy applications that hold packets in their input queue forever,
+/>/     and/or netfilters.  The socket buffer's contain a reference for
+/>/     packets in flight.
+/>/
+/>/  2. The VLAN code had a number of reference bugs, if you look through
+/>/     recent netdev mailing list you will see the discussion.
+/>/
+/
+
+
+--------------080004040700060108030904
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <pre>Hi, 
+
+This mail list provides me a lot of information about problem and I want share solution to bad refcount on bridge. 
+
+Solution is applied on kernel 
+
+<a class="moz-txt-link-freetext" href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f3abc9b963e004b8c96cd7fbee6fd905f2bfd620">https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f3abc9b963e004b8c96cd7fbee6fd905f2bfd620</a>
+
+commit f216f082b2b37c4943f1e7c393e2786648d48f6f
+([NETFILTER]: bridge netfilter: deal with martians correctly)
+added a refcount leak on in_dev.
+
+Instead of using in_dev_get(), we can use __in_dev_get_rcu(),
+as netfilter hooks are running under rcu_read_lock(), as pointed
+by Patrick.
+
+
+</pre>
+    <div class="head">diff --git a/net/bridge/br_netfilter.c
+      b/net/bridge/br_netfilter.c<br>
+      index 4fde742..907a82e 100644<br>
+      --- a/<a
+href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/bridge/br_netfilter.c?id=cce5a5c3029f731b5ea17a8a9a953ff742abf0d6">net/bridge/br_netfilter.c</a><br>
+      +++ b/<a
+href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/bridge/br_netfilter.c?id=f3abc9b963e004b8c96cd7fbee6fd905f2bfd620">net/bridge/br_netfilter.c</a></div>
+    <div class="hunk">@@ -359,7 +359,7 @@ static int
+      br_nf_pre_routing_finish(struct sk_buff *skb)</div>
+    <div class="ctx"> },</div>
+    <div class="ctx"> .proto = 0,</div>
+    <div class="ctx"> };</div>
+    <div class="del">- struct in_device *in_dev = in_dev_get(dev);</div>
+    <div class="add">+ struct in_device *in_dev = __in_dev_get_rcu(dev);<br>
+      <br>
+      Best Regards,<br>
+      Jorge.<br>
+    </div>
+    <pre>
+
+
+&gt;<i> Two other recent reports are:
+</i>&gt;<i> 1. Buggy applications that hold packets in their input queue forever,
+</i>&gt;<i>    and/or netfilters.  The socket buffer's contain a reference for
+</i>&gt;<i>    packets in flight.
+</i>
+that may be it, but I am not sure which queue you are talking about,  
+but there is an application that is using the netfiler ip_queue to  
+queue packets to user space.  in this application, these packets can  
+be held in user space for extended periods of time (up to 30/60  
+seconds), and then they are either dropped or released.  Could this  
+possibly be creating a problem?
+
+I don't believe that the system is using any of the VLAN code.
+
+&gt;<i> I have found an appearant leak of a route object, which holds a  
+</i>&gt;<i> reference
+</i>&gt;<i> to a device.  I reproduced in both 2.6.11 and 2.6.13 using 802.1Q  
+</i>&gt;<i> VLANs.
+</i>&gt;<i> I have a patch that will print out the place of the leaked reference
+</i>&gt;<i> against 2.6.13.
+</i>&gt;<i>
+</i>&gt;<i> <a href="http://www.candelatech.com/oss/rfcnt.patch">http://www.candelatech.com/oss/rfcnt.patch</a>
+</i>&gt;<i>
+</i>&gt;<i> Enable the feature in the Networking section of Kconfig.
+</i>Ben, i will incorporate this patch and let you know if i turn up any  
+results.
+
+thanks,
+--robert
+
+On Aug 31, 2005, at 9:37 PM, Stephen Hemminger wrote:
+
+&gt;<i> On Wed, 31 Aug 2005 19:04:01 -0700
+</i>&gt;<i> Robert Scott &lt;<a href="https://lists.linux-foundation.org/mailman/listinfo/bridge">rbscott at axentra.net</a>&gt; wrote:
+</i>&gt;<i>
+</i>&gt;<i>
+</i>&gt;&gt;<i> Hello,
+</i>&gt;&gt;<i>
+</i>&gt;&gt;<i> I know that this bug has been discussed before at length on this
+</i>&gt;&gt;<i> mailing list, but previous post seemed to indicate that it was fixed
+</i>&gt;&gt;<i> before kernel 2.6.12.  I am still seeing this occasionally in kernel
+</i>&gt;&gt;<i> 2.6.12.3.  The system is running knoppix, and IPV6 is not compiled
+</i>&gt;&gt;<i> into the kernel(other posts mentioned numerous problems with the IPV6
+</i>&gt;&gt;<i> code).  But every so often, when bringing down the bridge (it doesn't
+</i>&gt;&gt;<i> happen every time), the process hangs, and the following message
+</i>&gt;&gt;<i> appears in dmesg repeatedly:
+</i>&gt;&gt;<i>
+</i>&gt;&gt;<i> 'unregister_netdevice: waiting for br0 to become free. Usage count  
+</i>&gt;&gt;<i> = 1'
+</i>&gt;&gt;<i>
+</i>&gt;&gt;<i> None of the processes involved can be killed, and an attempt to run
+</i>&gt;&gt;<i> an ifconfig results in a process that is also waiting forever.  At
+</i>&gt;&gt;<i> this point the box must be rebooted forcefully.
+</i>&gt;&gt;<i>
+</i>&gt;&gt;<i> Two questions.
+</i>&gt;&gt;<i> 1. In a previous post, someone mentioned one solution was to
+</i>&gt;&gt;<i> commenting out the check that is hanging in the kernel.   Does this
+</i>&gt;&gt;<i> check preventing something terrible from happening(i assumed that it
+</i>&gt;&gt;<i> does), or is it safe to remove it
+</i>&gt;&gt;<i>
+</i>&gt;<i>
+</i>&gt;<i> Really bad idea, because if the thing that is holding the reference
+</i>&gt;<i> like packets stuck in some dead queue, ever get processed the kernel
+</i>&gt;<i> will die.
+</i>&gt;<i>
+</i>&gt;<i>
+</i>&gt;&gt;<i> 2. Any ideas of something to try in order to make this repeatable?
+</i>&gt;&gt;<i>
+</i>&gt;<i>
+</i>&gt;<i> Two other recent reports are:
+</i>&gt;<i> 1. Buggy applications that hold packets in their input queue forever,
+</i>&gt;<i>    and/or netfilters.  The socket buffer's contain a reference for
+</i>&gt;<i>    packets in flight.
+</i>&gt;<i>
+</i>&gt;<i> 2. The VLAN code had a number of reference bugs, if you look through
+</i>&gt;<i>    recent netdev mailing list you will see the discussion.
+</i>&gt;<i>
+</i>
+</pre>
+  </body>
+</html>
+
+--------------080004040700060108030904--
