@@ -1,24 +1,12 @@
-Return-Path: <vyasevich@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=g9WB6m0Gih/i+M0bfgcQz40pt9pnuQpWie6n4pc5PZs=;
-	b=Q9lLhuLgxRYKUQudiss5mwVijTA4gIV18jeqDJ9pO9KLp64Gh3i6JyksjiK41qCE7Q
-	8PfMfSRI0oEfv+rhjdbusGKzRbHb1Q19RDtWIEq4Pped9T8uRejKLGYMLTjjZx6LqvCE
-	ElW1wskOrTrg4beNgMtejS4kF0xJeP23mhiFml4Xa2kLLUDyMvKF09y19pw/O7uuFIw+
-	VIuMAIc1zpGf4Q+buqv4oQrEdHPGaAY349bZJnuNWruMVC1WueMdlufiGxVZHhIVdu8l
-	fpIN/E6Yw7gAlSBOu8NjJjEvoTr1Yt2us/xk+xzQE9ozVeBFBHN0lu+wpXolZQAzXTnO
-	Vy4g==
-Message-ID: <55929E93.90703@gmail.com>
-Date: Tue, 30 Jun 2015 09:50:11 -0400
-From: Vlad Yasevich <vyasevich@gmail.com>
+Return-Path: <prvs=61543b058=julien.grall@citrix.com>
+Message-ID: <55916C5D.3080602@citrix.com>
+Date: Mon, 29 Jun 2015 17:03:41 +0100
+From: Julien Grall <julien.grall@citrix.com>
 MIME-Version: 1.0
-References: <1435062496-14596-1-git-send-email-nikolay@cumulusnetworks.com>
-In-Reply-To: <1435062496-14596-1-git-send-email-nikolay@cumulusnetworks.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: vlan: flush the dynamically
- learned entries on port vlan delete
+Subject: [Bridge] Unable to unregister netdevice after "netfilter: bridge:
+ forward IPv6 fragmented packets"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,148 +15,117 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, davem@davemloft.net
+To: bernhard.thaler@wvnet.at, pablo@netfilter.org
+Cc: Wei Liu <wei.liu2@citrix.com>, Ian Campbell <ian.campbell@citrix.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, xen-devel <xen-devel@lists.xenproject.org>
 
-On 06/23/2015 08:28 AM, Nikolay Aleksandrov wrote:
-> Add a new argument to br_fdb_delete_by_port which allows to specify a
-> vid to match when flushing entries and use it in nbp_vlan_delete() to
-> flush the dynamically learned entries of the vlan/port pair when removing
-> a vlan from a port. Before this patch only the local mac was being
-> removed and the dynamically learned ones were left to expire.
-> Note that the do_all argument is still respected and if specified, the
-> vid will be ignored.
-> 
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> ---
-> note: There are 2 warnings, the C99 comment was already there and the 81
->       char line is the prototype and I think it looks better this way.
->       One unclear thing is about vid 0, I see that it can be passed to
->       nbp_vlan_(add|delete) although the comment says it shouldn't.
->       Adding Vlad to CC list since he has introduced the vlan filtering
->       infrastructure.
+Hi,
 
-sorry, missed this one somewhow...
+I tried to run the latest Linux tree
+(4a10a91756ef381bced7b88cfb9232f660b92d93) as DOM0 Xen.
+After destroying a guest using network, I got the following
+lines in the DOM0 kernel log:
 
-There is no explicit check inside the nbp_vlan_[add|del] because most checks
-are at higher level functions.  It should be impossible to call it with vid of
-0.
+unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
 
-This code looks fine to me.
+The bisector pointed the problem after the commit
+efb6de9b4ba0092b2c55f6a52d16294a8a698edd
+"netfilter: bridge: forward IPv6 fragmented packets".
 
-Acked-by: Vlad Yasevich <vyasevich@gmail.com>
+This is happening on an xgene board. The bridge is configured
+using /etc/network/interfaces:
 
--vlad
+# The primary network interface
+auto xenbr0
+iface xenbr0 inet dhcp
+        hostname pony
+        bridge_ports eth0
+        bridge_stp off
+        bridge_waitport 0
+        bridge_fd 0
+        bridge_maxwait 0
 
-> 
->  net/bridge/br_fdb.c      | 7 +++++--
->  net/bridge/br_if.c       | 4 ++--
->  net/bridge/br_private.h  | 2 +-
->  net/bridge/br_stp_if.c   | 2 +-
->  net/bridge/br_sysfs_if.c | 2 +-
->  net/bridge/br_vlan.c     | 1 +
->  6 files changed, 11 insertions(+), 7 deletions(-)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index be84b7e5a3da..9e9875da0a4f 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -330,9 +330,11 @@ void br_fdb_flush(struct net_bridge *br)
->  
->  /* Flush all entries referring to a specific port.
->   * if do_all is set also flush static entries
-> + * if vid is set delete all entries that match the vlan_id
->   */
->  void br_fdb_delete_by_port(struct net_bridge *br,
->  			   const struct net_bridge_port *p,
-> +			   u16 vid,
->  			   int do_all)
->  {
->  	int i;
-> @@ -347,8 +349,9 @@ void br_fdb_delete_by_port(struct net_bridge *br,
->  			if (f->dst != p)
->  				continue;
->  
-> -			if (f->is_static && !do_all)
-> -				continue;
-> +			if (!do_all)
-> +				if (f->is_static || (vid && f->vlan_id != vid))
-> +					continue;
->  
->  			if (f->is_local)
->  				fdb_delete_local(br, p, f);
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 1849d96b3c91..a538cb1199a3 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -249,7 +249,7 @@ static void del_nbp(struct net_bridge_port *p)
->  	list_del_rcu(&p->list);
->  
->  	nbp_vlan_flush(p);
-> -	br_fdb_delete_by_port(br, p, 1);
-> +	br_fdb_delete_by_port(br, p, 0, 1);
->  	nbp_update_port_count(br);
->  
->  	netdev_upper_dev_unlink(dev, br->dev);
-> @@ -278,7 +278,7 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
->  		del_nbp(p);
->  	}
->  
-> -	br_fdb_delete_by_port(br, NULL, 1);
-> +	br_fdb_delete_by_port(br, NULL, 0, 1);
->  
->  	br_vlan_flush(br);
->  	del_timer_sync(&br->gc_timer);
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 5dccced71269..8b21146b24a0 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -387,7 +387,7 @@ void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr);
->  void br_fdb_change_mac_address(struct net_bridge *br, const u8 *newaddr);
->  void br_fdb_cleanup(unsigned long arg);
->  void br_fdb_delete_by_port(struct net_bridge *br,
-> -			   const struct net_bridge_port *p, int do_all);
-> +			   const struct net_bridge_port *p, u16 vid, int do_all);
->  struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
->  					  const unsigned char *addr, __u16 vid);
->  int br_fdb_test_addr(struct net_device *dev, unsigned char *addr);
-> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-> index 41146872c1b4..762d490a16f2 100644
-> --- a/net/bridge/br_stp_if.c
-> +++ b/net/bridge/br_stp_if.c
-> @@ -111,7 +111,7 @@ void br_stp_disable_port(struct net_bridge_port *p)
->  	del_timer(&p->forward_delay_timer);
->  	del_timer(&p->hold_timer);
->  
-> -	br_fdb_delete_by_port(br, p, 0);
-> +	br_fdb_delete_by_port(br, p, 0, 0);
->  	br_multicast_disable_port(p);
->  
->  	br_configuration_update(br);
-> diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-> index 4905845a94e9..efe415ad842a 100644
-> --- a/net/bridge/br_sysfs_if.c
-> +++ b/net/bridge/br_sysfs_if.c
-> @@ -160,7 +160,7 @@ static BRPORT_ATTR(hold_timer, S_IRUGO, show_hold_timer, NULL);
->  
->  static int store_flush(struct net_bridge_port *p, unsigned long v)
->  {
-> -	br_fdb_delete_by_port(p->br, p, 0); // Don't delete local entry
-> +	br_fdb_delete_by_port(p->br, p, 0, 0); // Don't delete local entry
->  	return 0;
->  }
->  static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 17fc358a5432..9e1b9c1b4880 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -741,6 +741,7 @@ int nbp_vlan_delete(struct net_bridge_port *port, u16 vid)
->  		return -EINVAL;
->  
->  	br_fdb_find_delete_local(port->br, port, port->dev->dev_addr, vid);
-> +	br_fdb_delete_by_port(port->br, port, vid, 0);
->  
->  	return __vlan_del(pv, vid);
->  }
-> 
+Xen tools is creating the interface vif1.0 and adding to the
+bridge xenbr0.
 
+Linux log:
+
+device eth0 entered promiscuous mode
+xenbr0: port 1(eth0) entered forwarding state
+xenbr0: port 1(eth0) entered forwarding state
+xenbr0: port 1(eth0) entered disabled state
+xgene-enet 17020000.ethernet eth0: Link is Down
+random: nonblocking pool is initialized
+[....] Configuring network interfaces...
+Waiting for a max of 0 seconds for eth0 to become available.
+Internet Systems Consortium DHCP Client 4.3.1
+Copyright 2004-2014 Internet Systems Consortium.
+All rights reserved.
+For info, please visit https://www.isc.org/software/dhcp/
+
+Listening on LPF/xenbr0/00:01:73:02:1a:00
+Sending on   LPF/xenbr0/00:01:73:02:1a:00
+Sending on   Socket/fallback
+DHCPDISCOVER on xenbr0 to 255.255.255.255 port 67 interval 7
+xgene-enet 17020000.ethernet eth0: Link is Up - 1Gbps/Full - flow control rx/tx
+xenbr0: port 1(eth0) entered forwarding state
+xenbr0: port 1(eth0) entered forwarding state
+DHCPDISCOVER on xenbr0 to 255.255.255.255 port 67 interval 13
+DHCPREQUEST on xenbr0 to 255.255.255.255 port 67
+DHCPOFFER from 10.80.224.1
+DHCPACK from 10.80.224.1
+bound to 10.80.229.126 -- renewal in 19083 seconds.
+done.
+[ ok ] Starting rpcbind daemon....
+[ ok ] Starting NFS common utilities: statd idmapd.
+[ ok ] Cleaning up temporary files....
+[info] Setting console screen modes.
+setterm: cannot (un)set powersave mode: Inappropriate ioctl for device
+[....] Setting up console font and keymap...Couldn't get a file descriptor referring to the console
+Couldn't get a file descriptor referring to the console
+done.
+[ ok ] Setting up X socket directories... /tmp/.X11-unix /tmp/.ICE-unix.
+INIT: Entering runlevel: 2
+[info] Using makefile-style concurrent boot in runlevel 2.
+[ ok ] Starting enhanced syslogd: rsyslogd.
+[ ok ] Starting deferred execution scheduler: atd.
+[ ok ] Starting periodic command scheduler: cron.
+[ ok ] Starting SMP IRQ Balancer: irqbalance.
+
+[ ok ] Starting NTP server: ntpd.
+[ ok ] Starting OpenBSD Secure Shell server: sshd.
+[ ok ] Starting system message bus: dbus.
+Starting /usr/local/sbin/xenstored...
+Setting domain 0 name, domid and JSON config...
+Done setting up Dom0
+Starting xenconsoled...
+Starting QEMU as disk backend for dom0
+
+Debian GNU/Linux 8 pony hvc0
+
+pony login: device vif1.0 entered promiscuous mode
+IPv6: ADDRCONF(NETDEV_UP): vif1.0: link is not ready
+xen-blkback: ring-ref 8, event-channel 3, protocol 1 (arm-abi) persistent grants
+vif vif-1-0 vif1.0: Guest Rx ready
+IPv6: ADDRCONF(NETDEV_CHANGE): vif1.0: link becomes ready
+xenbr0: port 2(vif1.0) entered forwarding state
+xenbr0: port 2(vif1.0) entered forwarding state
+(XEN) mm.c:1251:d0v2 gnttab_mark_dirty not implemented yet
+xenbr0: port 2(vif1.0) entered disabled state
+xenbr0: port 2(vif1.0) entered disabled state
+device vif1.0 left promiscuous mode
+xenbr0: port 2(vif1.0) entered disabled state
+INIT: Id "1" respawning too fast: disabled for 5 minutes
+INIT: Id "3" respawning too fast: disabled for 5 minutes
+INIT: Id "5" respawning too fast: disabled for 5 minutes
+INIT: Id "2" respawning too fast: disabled for 5 minutes
+INIT: Id "6" respawning too fast: disabled for 5 minutes
+INIT: Id "T0" respawning too fast: disabled for 5 minutes
+INIT: Id "4" respawning too fast: disabled for 5 minutes
+unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
+unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
+unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
+
+Regards,
+
+-- 
+Julien Grall
