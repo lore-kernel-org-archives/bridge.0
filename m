@@ -1,14 +1,16 @@
-Return-Path: <prvs=616840f11=julien.grall@citrix.com>
-Message-ID: <55927095.1060607@citrix.com>
-Date: Tue, 30 Jun 2015 11:33:57 +0100
-From: Julien Grall <julien.grall@citrix.com>
-MIME-Version: 1.0
-References: <55916C5D.3080602@citrix.com> <20150629185525.GF2324@breakpoint.cc>
-In-Reply-To: <20150629185525.GF2324@breakpoint.cc>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [Xen-devel] Unable to unregister netdevice after
- "netfilter: bridge: forward IPv6 fragmented packets"
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=JiCMZlovp5WrFd17hjhlXJ/qxRogvL9CPIoFONqWjJU=;
+	b=DZom0tZX89I1Z23mxJPXbZlCxyowtpxI/gouC7aDnAHV3NBjL3y6mYCXy0MAvEnI63
+	BQ7FgFRQccqURpJ4WyOLzjtrmsysfOuADklXYFhVPQqFug6lRET4Z6uJCkSfE7kmS1fw
+	gwCFvlvfK8gt41oTeXr+A5qmkVrqScD4CvTcg=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu,  2 Jul 2015 05:48:17 -0700
+Message-Id: <1435841297-44200-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] bridge: vlan: fix usage of vlan 0 and 4095
+	again
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,31 +19,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>
-Cc: Wei Liu <wei.liu2@citrix.com>, Ian Campbell <ian.campbell@citrix.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, bernhard.thaler@wvnet.at, xen-devel <xen-devel@lists.xenproject.org>, pablo@netfilter.org, David Vrabel <david.vrabel@citrix.com>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, vyasevich@gmail.com, davem@davemloft.net, roopa@cumulusnetworks.com
 
-Hi Florian,
+Vlan ids 0 and 4095 were disallowed by commit:
+8adff41c3d25 ("bridge: Don't use VID 0 and 4095 in vlan filtering")
+but then the check was removed when vlan ranges were introduced by:
+bdced7ef7838 ("bridge: support for multiple vlans and vlan ranges in setlink and dellink requests")
+So reintroduce the vlan range check.
+Before patch:
+[root@testvm ~]# bridge vlan add vid 0 dev eth0 master
+(succeeds)
+After Patch:
+[root@testvm ~]# bridge vlan add vid 0 dev eth0 master
+RTNETLINK answers: Invalid argument
 
-On 29/06/15 19:55, Florian Westphal wrote:
-> Julien Grall <julien.grall@citrix.com> wrote:
->> I tried to run the latest Linux tree
->> (4a10a91756ef381bced7b88cfb9232f660b92d93) as DOM0 Xen.
->> After destroying a guest using network, I got the following
->> lines in the DOM0 kernel log:
->>
->> unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1
->>
->> The bisector pointed the problem after the commit
->> efb6de9b4ba0092b2c55f6a52d16294a8a698edd
->> "netfilter: bridge: forward IPv6 fragmented packets".
-> 
-> Seems we can leak skb in br_nf_dev_queue_xmit()...  Does this fix the problem?
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Fixes: bdced7ef7838 ("bridge: support for multiple vlans and vlan ranges in setlink and dellink requests")
+---
+ net/bridge/br_netlink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-It doesn't resolve the problem. I added some printk to see if the fixed
-paths are executed and I don't see any.
-
-Regards,
-
-
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 6b67ed3831de..364bdc98bd9b 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -457,6 +457,8 @@ static int br_afspec(struct net_bridge *br,
+ 		if (nla_len(attr) != sizeof(struct bridge_vlan_info))
+ 			return -EINVAL;
+ 		vinfo = nla_data(attr);
++		if (!vinfo->vid || vinfo->vid >= VLAN_VID_MASK)
++			return -EINVAL;
+ 		if (vinfo->flags & BRIDGE_VLAN_INFO_RANGE_BEGIN) {
+ 			if (vinfo_start)
+ 				return -EINVAL;
 -- 
-Julien Grall
+2.4.3
+
