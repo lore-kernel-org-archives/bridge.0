@@ -1,14 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 02 Jul 2015 12:19:43 -0700 (PDT)
-Message-Id: <20150702.121943.1748089320778953562.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1435841297-44200-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1435841297-44200-1-git-send-email-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: vlan: fix usage of vlan 0 and 4095
-	again
+Return-Path: <prvs=6190ec9e4=julien.grall@citrix.com>
+From: Julien Grall <julien.grall@citrix.com>
+Date: Fri, 3 Jul 2015 19:01:31 +0100
+Message-ID: <1435946491-11148-1-git-send-email-julien.grall@citrix.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: [Bridge] [PATCH] net/bridge: Add missing in6_dev_put in
+	br_validate_ipv6
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,25 +14,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, vyasevich@gmail.com, bridge@lists.linux-foundation.org, roopa@cumulusnetworks.com
+To: stephen@networkplumber.org, davem@davemloft.net, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: wei.liu2@citrix.com, ian.campbell@citrix.com, fw@strlen.de, linux-kernel@vger.kernel.org, Julien Grall <julien.grall@citrix.com>, Bernhard Thaler <bernhard.thaler@wvnet.at>, xen-devel@lists.xenproject.org, Pablo Neira Ayuso <pablo@netfilter.org>
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Thu,  2 Jul 2015 05:48:17 -0700
+The commit efb6de9b4ba0092b2c55f6a52d16294a8a698edd "netfilter: bridge:
+forward IPv6 fragmented packets" introduced a new function
+br_validate_ipv6 which take a reference on the inet6 device. Although,
+the reference is not released at the end.
 
-> Vlan ids 0 and 4095 were disallowed by commit:
-> 8adff41c3d25 ("bridge: Don't use VID 0 and 4095 in vlan filtering")
-> but then the check was removed when vlan ranges were introduced by:
-> bdced7ef7838 ("bridge: support for multiple vlans and vlan ranges in setlink and dellink requests")
-> So reintroduce the vlan range check.
-> Before patch:
-> [root@testvm ~]# bridge vlan add vid 0 dev eth0 master
-> (succeeds)
-> After Patch:
-> [root@testvm ~]# bridge vlan add vid 0 dev eth0 master
-> RTNETLINK answers: Invalid argument
-> 
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Fixes: bdced7ef7838 ("bridge: support for multiple vlans and vlan ranges in setlink and dellink requests")
+This will result to the impossibility to destroy any netdevice using
+ipv6 and bridge.
 
-Applied.
+Spotted while trying to destroy a Xen guest on the upstream Linux:
+"unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1"
+
+Signed-off-by: Julien Grall <julien.grall@citrix.com>
+Cc: Bernhard Thaler <bernhard.thaler@wvnet.at>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: fw@strlen.de
+Cc: ian.campbell@citrix.com
+Cc: wei.liu2@citrix.com
+
+---
+    Note that it's impossible to create new guest after this message.
+    I'm not sure if it's normal.
+---
+ net/bridge/br_netfilter_ipv6.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index 6d12d26..7046e19 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -140,11 +140,16 @@ int br_validate_ipv6(struct sk_buff *skb)
+ 	/* No IP options in IPv6 header; however it should be
+ 	 * checked if some next headers need special treatment
+ 	 */
++
++	in6_dev_put(idev);
++
+ 	return 0;
+ 
+ inhdr_error:
+ 	IP6_INC_STATS_BH(dev_net(dev), idev, IPSTATS_MIB_INHDRERRORS);
+ drop:
++	in6_dev_put(idev);
++
+ 	return -1;
+ }
+ 
+-- 
+2.1.4
+
