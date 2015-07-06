@@ -1,16 +1,16 @@
-Return-Path: <prvs=6224e9363=julien.grall@citrix.com>
-Message-ID: <559A675B.80408@citrix.com>
-Date: Mon, 6 Jul 2015 12:32:43 +0100
-From: Julien Grall <julien.grall@citrix.com>
-MIME-Version: 1.0
-References: <1435946491-11148-1-git-send-email-julien.grall@citrix.com>
-	<20150703204213.GM16529@breakpoint.cc>	<559A5A0B.4040700@citrix.com>
-	<20150706111952.GC16864@breakpoint.cc>
-In-Reply-To: <20150706111952.GC16864@breakpoint.cc>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [Xen-devel] [PATCH] net/bridge: Add missing
-	in6_dev_put in br_validate_ipv6
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=ALnprSdmvN4ZFeDPi208IDFQljnWFRNjtCw5Ow3OokU=;
+	b=GrnQtdHHb5GkyJxewudTYiGqS47i53VnKeGBTuLnX7onwsf09j6qyUBlmcH3KZn2oB
+	r30LJ7O64pNdEk8s9XwgSuVbEBgE4ZuzXM87cxcfk2mTfVHZ/Wdzf26Mee+snlAWvr9E
+	a7kOSng900GfD5SKEVexe0EJuOdYs0CGp8Ou4=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Mon,  6 Jul 2015 05:53:35 -0700
+Message-Id: <1436187215-4973-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] bridge: mdb: start delete timer for temp
+	static entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,29 +19,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>
-Cc: wei.liu2@citrix.com, ian.campbell@citrix.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Bernhard Thaler <bernhard.thaler@wvnet.at>, xen-devel@lists.xenproject.org, davem@davemloft.net, Pablo Neira Ayuso <pablo@netfilter.org>
+To: netdev@vger.kernel.org
+Cc: amwang@redhat.com, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 06/07/15 12:19, Florian Westphal wrote:
-> Julien Grall <julien.grall@citrix.com> wrote:
->> On 03/07/15 21:42, Florian Westphal wrote:
->>> I think it makes more sense to use __in6_dev_get() instead which doesn't
->>> take a reference.
->>
->> __in6_dev_get requires to hold rcu_read_lock or RTNL. My knowledge on
->> this code is very limited. Are we sure that one this lock is hold? At
->> first glance, I wasn't able to find one.
-> 
-> All netfilter hooks are rcu_read_locked via nf_hook_slow().
+From: Satish Ashok <sashok@cumulusnetworks.com>
 
-Ok. I will resend the patch with __in6_dev_get.
+Start the delete timer when adding temp static entries so they can expire.
 
-> BTW, netfilter patches should be sent to netfilter-devel@vger.kernel.org.
+Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Fixes: ccb1c31a7a87 ("bridge: add flags to distinguish permanent mdb entires")
+---
+ net/bridge/br_mdb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I used scripts/get_maintainer.pl which doesn't provide this mailing list
-for net/bridge/br_netfilter*.c
-
-Regards,
-
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index e29ad70b3000..3bfc675cf0d1 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -323,6 +323,7 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	struct net_bridge_port_group *p;
+ 	struct net_bridge_port_group __rcu **pp;
+ 	struct net_bridge_mdb_htable *mdb;
++	unsigned long now = jiffies;
+ 	int err;
+ 
+ 	mdb = mlock_dereference(br->mdb, br);
+@@ -347,6 +348,8 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	if (unlikely(!p))
+ 		return -ENOMEM;
+ 	rcu_assign_pointer(*pp, p);
++	if (state == MDB_TEMPORARY)
++		mod_timer(&p->timer, now + br->multicast_membership_interval);
+ 
+ 	br_mdb_notify(br->dev, port, group, RTM_NEWMDB);
+ 	return 0;
 -- 
-Julien Grall
+1.9.3
+
