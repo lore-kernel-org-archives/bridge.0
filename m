@@ -1,14 +1,9 @@
-Return-Path: <bob.liu@oracle.com>
-Message-ID: <559A5142.5000109@oracle.com>
-Date: Mon, 06 Jul 2015 17:58:26 +0800
-From: Bob Liu <bob.liu@oracle.com>
-MIME-Version: 1.0
-References: <1435946491-11148-1-git-send-email-julien.grall@citrix.com>
-In-Reply-To: <1435946491-11148-1-git-send-email-julien.grall@citrix.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [Xen-devel] [PATCH] net/bridge: Add missing
-	in6_dev_put in br_validate_ipv6
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Tue,  7 Jul 2015 15:55:56 +0200
+Message-Id: <1436277356-21404-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net] bridge: mdb: zero out the local br_ip variable
+	before use
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,60 +12,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Julien Grall <julien.grall@citrix.com>
-Cc: wei.liu2@citrix.com, ian.campbell@citrix.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, Bernhard Thaler <bernhard.thaler@wvnet.at>, xen-devel@lists.xenproject.org, davem@davemloft.net, Pablo Neira Ayuso <pablo@netfilter.org>
+To: netdev@vger.kernel.org
+Cc: vyasevich@gmail.com, bridge@lists.linux-foundation.org, davem@davemloft.net, Nikolay Aleksandrov <razor@blackwall.org>
 
+Since commit b0e9a30dd669 ("bridge: Add vlan id to multicast groups")
+there's a check in br_ip_equal() for a matching vlan id, but the mdb
+functions were not modified to use (or at least zero it) so when an
+entry was added it would have a garbage vlan id (from the local br_ip
+variable in __br_mdb_add/del) and this would prevent it from being
+matched and also deleted. So zero out the whole local ip var to protect
+ourselves from future changes and also to fix the current bug, since
+there's no vlan id support in the mdb uapi - use always vlan id 0.
+Example before patch:
+root@debian:~# bridge mdb add dev br0 port eth1 grp 239.0.0.1 permanent
+root@debian:~# bridge mdb
+dev br0 port eth1 grp 239.0.0.1 permanent
+root@debian:~# bridge mdb del dev br0 port eth1 grp 239.0.0.1 permanent
+RTNETLINK answers: Invalid argument
 
-On 07/04/2015 02:01 AM, Julien Grall wrote:
-> The commit efb6de9b4ba0092b2c55f6a52d16294a8a698edd "netfilter: bridge:
-> forward IPv6 fragmented packets" introduced a new function
-> br_validate_ipv6 which take a reference on the inet6 device. Although,
-> the reference is not released at the end.
-> 
-> This will result to the impossibility to destroy any netdevice using
-> ipv6 and bridge.
-> 
-> Spotted while trying to destroy a Xen guest on the upstream Linux:
-> "unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1"
-> 
-> Signed-off-by: Julien Grall <julien.grall@citrix.com>
+After patch:
+root@debian:~# bridge mdb add dev br0 port eth1 grp 239.0.0.1 permanent
+root@debian:~# bridge mdb
+dev br0 port eth1 grp 239.0.0.1 permanent
+root@debian:~# bridge mdb del dev br0 port eth1 grp 239.0.0.1 permanent
+root@debian:~# bridge mdb
 
-Also hit the same issue, thank you for the fix.
+Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+Fixes: b0e9a30dd669 ("bridge: Add vlan id to multicast groups")
+---
+ net/bridge/br_mdb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Tested-by: Bob Liu <bob.liu@oracle.com>
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index e29ad70b3000..cc00066c0622 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -371,6 +371,7 @@ static int __br_mdb_add(struct net *net, struct net_bridge *br,
+ 	if (!p || p->br != br || p->state == BR_STATE_DISABLED)
+ 		return -EINVAL;
+ 
++	memset(&ip, 0, sizeof(ip));
+ 	ip.proto = entry->addr.proto;
+ 	if (ip.proto == htons(ETH_P_IP))
+ 		ip.u.ip4 = entry->addr.u.ip4;
+@@ -417,6 +418,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 	if (!netif_running(br->dev) || br->multicast_disabled)
+ 		return -EINVAL;
+ 
++	memset(&ip, 0, sizeof(ip));
+ 	ip.proto = entry->addr.proto;
+ 	if (ip.proto == htons(ETH_P_IP)) {
+ 		if (timer_pending(&br->ip4_other_query.timer))
+-- 
+1.9.3
 
-> Cc: Bernhard Thaler <bernhard.thaler@wvnet.at>
-> Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-> Cc: fw@strlen.de
-> Cc: ian.campbell@citrix.com
-> Cc: wei.liu2@citrix.com
-> 
-> ---
->     Note that it's impossible to create new guest after this message.
->     I'm not sure if it's normal.
-> ---
->  net/bridge/br_netfilter_ipv6.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-> index 6d12d26..7046e19 100644
-> --- a/net/bridge/br_netfilter_ipv6.c
-> +++ b/net/bridge/br_netfilter_ipv6.c
-> @@ -140,11 +140,16 @@ int br_validate_ipv6(struct sk_buff *skb)
->  	/* No IP options in IPv6 header; however it should be
->  	 * checked if some next headers need special treatment
->  	 */
-> +
-> +	in6_dev_put(idev);
-> +
->  	return 0;
->  
->  inhdr_error:
->  	IP6_INC_STATS_BH(dev_net(dev), idev, IPSTATS_MIB_INHDRERRORS);
->  drop:
-> +	in6_dev_put(idev);
-> +
->  	return -1;
->  }
->  
-> 
