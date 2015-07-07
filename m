@@ -1,16 +1,11 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=ALnprSdmvN4ZFeDPi208IDFQljnWFRNjtCw5Ow3OokU=;
-	b=GrnQtdHHb5GkyJxewudTYiGqS47i53VnKeGBTuLnX7onwsf09j6qyUBlmcH3KZn2oB
-	r30LJ7O64pNdEk8s9XwgSuVbEBgE4ZuzXM87cxcfk2mTfVHZ/Wdzf26Mee+snlAWvr9E
-	a7kOSng900GfD5SKEVexe0EJuOdYs0CGp8Ou4=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Mon,  6 Jul 2015 05:53:35 -0700
-Message-Id: <1436187215-4973-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net] bridge: mdb: start delete timer for temp
-	static entries
+Return-Path: <prvs=62306e0f2=julien.grall@citrix.com>
+From: Julien Grall <julien.grall@citrix.com>
+Date: Tue, 7 Jul 2015 15:55:21 +0100
+Message-ID: <1436280921-2795-1-git-send-email-julien.grall@citrix.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: [Bridge] [PATCH v2] net/bridge: Use __in6_dev_get rather than
+	in6_dev_get in br_validate_ipv6
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,41 +14,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: amwang@redhat.com, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: xen-devel@lists.xenproject.org, pablo@netfilter.org, kaber@trash.net, kadlec@blackhole.kfki.hu, stephen@networkplumber.org, davem@davemloft.net, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: wei.liu2@citrix.com, ian.campbell@citrix.com, fw@strlen.de, linux-kernel@vger.kernel.org, Julien Grall <julien.grall@citrix.com>, Bob Liu <bob.liu@oracle.com>, Bernhard Thaler <bernhard.thaler@wvnet.at>
 
-From: Satish Ashok <sashok@cumulusnetworks.com>
+The commit efb6de9b4ba0092b2c55f6a52d16294a8a698edd "netfilter: bridge:
+forward IPv6 fragmented packets" introduced a new function
+br_validate_ipv6 which take a reference on the inet6 device. Although,
+the reference is not released at the end.
 
-Start the delete timer when adding temp static entries so they can expire.
+This will result to the impossibility to destroy any netdevice using
+ipv6 and bridge.
 
-Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Fixes: ccb1c31a7a87 ("bridge: add flags to distinguish permanent mdb entires")
+It's possible to directly retrieve the inet6 device without taking a
+reference as all netfilter hooks are protected by rcu_read_lock via
+nf_hook_slow.
+
+Spotted while trying to destroy a Xen guest on the upstream Linux:
+"unregister_netdevice: waiting for vif1.0 to become free. Usage count = 1"
+
+Signed-off-by: Julien Grall <julien.grall@citrix.com>
+Cc: Bernhard Thaler <bernhard.thaler@wvnet.at>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: fw@strlen.de
+Cc: ian.campbell@citrix.com
+Cc: wei.liu2@citrix.com
+Cc: Bob Liu <bob.liu@oracle.com>
+
 ---
- net/bridge/br_mdb.c | 3 +++
- 1 file changed, 3 insertions(+)
+    Note that it's impossible to create new guest after this message.
+    I'm not sure if it's normal.
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index e29ad70b3000..3bfc675cf0d1 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -323,6 +323,7 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	struct net_bridge_port_group *p;
- 	struct net_bridge_port_group __rcu **pp;
- 	struct net_bridge_mdb_htable *mdb;
-+	unsigned long now = jiffies;
- 	int err;
+    Changes in v2:
+        - Don't take a reference to inet6.
+        - This was "net/bridge: Add missing in6_dev_put in
+        br_validate_ipv6" [0]
+
+    [0] https://lkml.org/lkml/2015/7/3/443
+---
+ net/bridge/br_netfilter_ipv6.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index 6d12d26..13b7d1e 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -104,7 +104,7 @@ int br_validate_ipv6(struct sk_buff *skb)
+ {
+ 	const struct ipv6hdr *hdr;
+ 	struct net_device *dev = skb->dev;
+-	struct inet6_dev *idev = in6_dev_get(skb->dev);
++	struct inet6_dev *idev = __in6_dev_get(skb->dev);
+ 	u32 pkt_len;
+ 	u8 ip6h_len = sizeof(struct ipv6hdr);
  
- 	mdb = mlock_dereference(br->mdb, br);
-@@ -347,6 +348,8 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	if (unlikely(!p))
- 		return -ENOMEM;
- 	rcu_assign_pointer(*pp, p);
-+	if (state == MDB_TEMPORARY)
-+		mod_timer(&p->timer, now + br->multicast_membership_interval);
- 
- 	br_mdb_notify(br->dev, port, group, RTM_NEWMDB);
- 	return 0;
 -- 
-1.9.3
+2.1.4
 
