@@ -1,16 +1,14 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=o0bhWDrNc2ny5uM20lNGKKtnk/n7mbBFqNYX4/i+UK8=;
-	b=YSz6SU4N6cmCcddhq7jTzeHg1/rSdZth+20NyHxq3CU13DFnu7UjSA4ZHu+IlbV2J7
-	tHxxkOAEQqoKzeb9zPERSeeRv4dBXnOpjky5DR5e/79uReOnY0kQGsIsDbehZV3NyCRR
-	mDWiROKaf4pBpl1eyCP7UFFSFD9+k+A8cw4Cc=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Thu,  9 Jul 2015 04:12:45 -0700
-Message-Id: <1436440365-909-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net] bridge: mdb: allow the user to delete mdb
-	entry if there's a querier
+Return-Path: <davem@davemloft.net>
+Date: Thu, 09 Jul 2015 21:41:55 -0700 (PDT)
+Message-Id: <20150709.214155.32188836452637862.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1436436670-28859-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1436436670-28859-1-git-send-email-nikolay@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: mdb: fill state in
+	br_mdb_notify
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,47 +17,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Satish Ashok <sashok@cumulusnetworks.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu,  9 Jul 2015 03:11:10 -0700
 
-Until now when a querier was present static entries couldn't be deleted.
-Fix this and allow the user to manipulate the mdb with or without a
-querier.
+> Fill also the port group state when sending notifications.
+> 
+> Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- net/bridge/br_mdb.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
-
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 60868c212679..c11cf2611db0 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -423,19 +423,12 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
- 
- 	memset(&ip, 0, sizeof(ip));
- 	ip.proto = entry->addr.proto;
--	if (ip.proto == htons(ETH_P_IP)) {
--		if (timer_pending(&br->ip4_other_query.timer))
--			return -EBUSY;
--
-+	if (ip.proto == htons(ETH_P_IP))
- 		ip.u.ip4 = entry->addr.u.ip4;
- #if IS_ENABLED(CONFIG_IPV6)
--	} else {
--		if (timer_pending(&br->ip6_other_query.timer))
--			return -EBUSY;
--
-+	else
- 		ip.u.ip6 = entry->addr.u.ip6;
- #endif
--	}
- 
- 	spin_lock_bh(&br->multicast_lock);
- 	mdb = mlock_dereference(br->mdb, br);
--- 
-1.9.1
-
+This looks fine, applied, thanks.
