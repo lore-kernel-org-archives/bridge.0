@@ -1,14 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 13 Jul 2015 14:41:40 -0700 (PDT)
-Message-Id: <20150713.144140.2082284542914664511.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1436540528-42334-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1436540528-42334-1-git-send-email-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: mdb: add vlan support for
-	user entries
+Return-Path: <cwang@twopensource.com>
+MIME-Version: 1.0
+In-Reply-To: <1436794579-4188-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1436794579-4188-1-git-send-email-nikolay@cumulusnetworks.com>
+Date: Mon, 13 Jul 2015 20:53:38 -0700
+Message-ID: <CAHA+R7OJ0bQ_vG7Tt8jZ8gkdjevjXL-4ER7ZhTjL1CmARsFqgw@mail.gmail.com>
+From: Cong Wang <cwang@twopensource.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: Re: [Bridge] [PATCH net] bridge: mdb: fix double add notification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,24 +15,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Cong Wang <amwang@redhat.com>, David Miller <davem@davemloft.net>
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 10 Jul 2015 08:02:08 -0700
-
-> Until now all user mdb entries were added in vlan 0, this patch adds
-> support to allow the user to specify the vlan for the entry.
-> About the uapi change a hole in struct br_mdb_entry is used so the size
-> and offsets are kept the same (verified with pahole and tested with older
-> iproute2).
-> 
+On Mon, Jul 13, 2015 at 6:36 AM, Nikolay Aleksandrov
+<nikolay@cumulusnetworks.com> wrote:
+> Since the mdb add/del code was introduced there have been 2 br_mdb_notify
+> calls when doing br_mdb_add() resulting in 2 notifications on each add.
+>
 > Example:
-> $ bridge mdb
-> dev br0 port eth1 grp 239.0.0.1 permanent vlan 2000
-> dev br0 port eth1 grp 239.0.0.1 permanent vlan 200
-> dev br0 port eth1 grp 239.0.0.1 permanent
-> 
+>  Command: bridge mdb add dev br0 port eth1 grp 239.0.0.1 permanent
+>  Before patch:
+>  root@debian:~# bridge monitor all
+>  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
+>  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
+>
+>  After patch:
+>  root@debian:~# bridge monitor all
+>  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
+>
 > Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Fixes: cfd567543590 ("bridge: add support of adding and deleting mdb entries")
+> ---
+>  net/bridge/br_mdb.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index c11cf2611db0..1198a3dbad95 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+> @@ -351,7 +351,6 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+>         if (state == MDB_TEMPORARY)
+>                 mod_timer(&p->timer, now + br->multicast_membership_interval);
+>
+> -       br_mdb_notify(br->dev, port, group, RTM_NEWMDB);
+>         return 0;
+>  }
 
-This looks ok, applied thanks Nikolay.
+Looks good to me.
+
+And probably we can convert existing __br_mdb_notify() to using
+non-atomic allocation too, but that is for net-next.
