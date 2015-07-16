@@ -1,14 +1,13 @@
 Return-Path: <davem@davemloft.net>
-Date: Wed, 15 Jul 2015 17:10:57 -0700 (PDT)
-Message-Id: <20150715.171057.1821073433510335063.davem@davemloft.net>
+Date: Wed, 15 Jul 2015 17:15:41 -0700 (PDT)
+Message-Id: <20150715.171541.949546821782337351.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1436790517-30266-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1436790517-30266-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <1436794579-4188-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1436794579-4188-1-git-send-email-nikolay@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: multicast: treat igmpv3 report
- with INCLUDE and no sources as a leave
+Subject: Re: [Bridge] [PATCH net] bridge: mdb: fix double add notification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,21 +17,26 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, amwang@redhat.com
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Mon, 13 Jul 2015 05:28:37 -0700
+Date: Mon, 13 Jul 2015 06:36:19 -0700
 
-> From: Satish Ashok <sashok@cumulusnetworks.com>
+> Since the mdb add/del code was introduced there have been 2 br_mdb_notify
+> calls when doing br_mdb_add() resulting in 2 notifications on each add.
 > 
-> A report with INCLUDE/Change_to_include and empty source list should be
-> treated as a leave, specified by RFC 3376, section 3.1:
-> "If the requested filter mode is INCLUDE *and* the requested source
->  list is empty, then the entry corresponding to the requested
->  interface and multicast address is deleted if present.  If no such
->  entry is present, the request is ignored."
+> Example:
+>  Command: bridge mdb add dev br0 port eth1 grp 239.0.0.1 permanent
+>  Before patch:
+>  root@debian:~# bridge monitor all
+>  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
+>  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
 > 
-> Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
+>  After patch:
+>  root@debian:~# bridge monitor all
+>  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
+> 
 > Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Fixes: cfd567543590 ("bridge: add support of adding and deleting mdb entries")
 
-Applied, thanks.
+Applied and queued up for -stable, thanks.
