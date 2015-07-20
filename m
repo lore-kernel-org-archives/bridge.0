@@ -1,23 +1,15 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=fqrnWMbt1UoNeULKH1YOUODp8nQ/bLiLNFqU71/K0Tk=;
-	b=TbJBbjaKUtPXvuHmLnV92sIauUF0AIAYlzLw1TKW+aHaLjyKGngOpylDuFVef95KF9
-	GTiB9u/KlTiDqyk40YWd/iF6mw6KOOwQca4lYKvbaClyyqnNBAfnEzC+fp57AxhAq2Nz
-	xGXbLqn0Rgp8ZLIpWY+sxCF6AJnNlrXYBRhj4=
-Message-ID: <55AD7BD5.4090505@cumulusnetworks.com>
-Date: Tue, 21 Jul 2015 00:53:09 +0200
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-MIME-Version: 1.0
-References: <1436540528-42334-1-git-send-email-nikolay@cumulusnetworks.com>
-	<20150720152817.4c2f5c73@urahara>
-In-Reply-To: <20150720152817.4c2f5c73@urahara>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: <davem@davemloft.net>
+Date: Mon, 20 Jul 2015 16:20:37 -0700 (PDT)
+Message-Id: <20150720.162037.22945315511431028.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1437426225-28418-1-git-send-email-razor@blackwall.org>
+References: <201507210410.H5dNw6Lx%fengguang.wu@intel.com>
+	<1437426225-28418-1-git-send-email-razor@blackwall.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: mdb: add vlan support for
-	user entries
+Subject: Re: [Bridge] [PATCH net-next] bridge: mcast: fix
+ br_multicast_dev_del warn when igmp snooping is not defined
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,41 +18,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: razor@blackwall.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com
 
-On 07/21/2015 12:28 AM, Stephen Hemminger wrote:
-> On Fri, 10 Jul 2015 08:02:08 -0700
-> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-> 
->> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
->> index eaaea6208b42..3635b7797508 100644
->> --- a/include/uapi/linux/if_bridge.h
->> +++ b/include/uapi/linux/if_bridge.h
->> @@ -182,6 +182,7 @@ struct br_mdb_entry {
->>  #define MDB_TEMPORARY 0
->>  #define MDB_PERMANENT 1
->>  	__u8 state;
->> +	__u16 vid;
->>  	struct {
->>  		union {
->>  			__be32	ip4;
-> 
-> You added a new field into an unused hole in a data
-> structure shared as part of API with user space.
-> 
-> This seems like it might break when newer iproute
-> is run on older kernels. The vid would always be 0
-> on show and ignored when adding entries.
-> 
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Mon, 20 Jul 2015 23:03:45 +0200
 
-I thought it'd be fine because the vid was 0 anyway and 
-when it's 0 it's not shown i.e. no vid so the show command
-will have the same output. And when set - it'll be ignored
-which is again as the behaviour before when it couldn't be
-specified.
+> Fix:
+> net/bridge/br_if.c: In function 'br_dev_delete':
+>>> net/bridge/br_if.c:284:2: error: implicit declaration of function
+>>> 'br_multicast_dev_del' [-Werror=implicit-function-declaration]
+>      br_multicast_dev_del(br);
+>      ^
+>    cc1: some warnings being treated as errors
+> 
+> when igmp snooping is not defined.
+> 
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+> Apologies for the mess.
 
-Here's the new iproute2 on an older kernel:
-# ./bridge/bridge mdb add dev virbr0 port vnet1 grp 239.0.0.1 permanent vid 200
-# ./bridge/bridge mdb
-dev virbr0 port vnet1 grp 239.0.0.1 permanent
+Applied, thanks.
