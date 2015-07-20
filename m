@@ -1,13 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Wed, 15 Jul 2015 17:15:41 -0700 (PDT)
-Message-Id: <20150715.171541.949546821782337351.davem@davemloft.net>
+Date: Mon, 20 Jul 2015 12:49:39 -0700 (PDT)
+Message-Id: <20150720.124939.1328394717828737521.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1436794579-4188-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1436794579-4188-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <1436969811-13237-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1436969811-13237-1-git-send-email-nikolay@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: mdb: fix double add notification
+Subject: Re: [Bridge] [PATCH net-next 0/2] bridge: multicast: temp and perm
+ entries behaviour enhancements
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +18,18 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, amwang@redhat.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Mon, 13 Jul 2015 06:36:19 -0700
+Date: Wed, 15 Jul 2015 07:16:49 -0700
 
-> Since the mdb add/del code was introduced there have been 2 br_mdb_notify
-> calls when doing br_mdb_add() resulting in 2 notifications on each add.
-> 
-> Example:
->  Command: bridge mdb add dev br0 port eth1 grp 239.0.0.1 permanent
->  Before patch:
->  root@debian:~# bridge monitor all
->  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
->  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
-> 
->  After patch:
->  root@debian:~# bridge monitor all
->  [MDB]dev br0 port eth1 grp 239.0.0.1 permanent
-> 
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Fixes: cfd567543590 ("bridge: add support of adding and deleting mdb entries")
+> Hi,
+> Patch 01 adds a notify when a group is deleted via br_multicast_del_pg()
+> (on expire, on device delete or on device down).
+> Patch 02 changes how bridge device and bridge port delete and down/up are
+> handled. Until now on bridge down all groups were flushed, now only the
+> temp ones are (same for port), perm entries are flushed only on port or
+> bridge removal.
 
-Applied and queued up for -stable, thanks.
+Series applied, but if patch #2 breaks things for anyone depending upon the
+old behavior of flushing all entries I will have to revert.
