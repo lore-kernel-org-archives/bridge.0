@@ -1,9 +1,13 @@
-Return-Path: <razor@blackwall.org>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 22 Jul 2015 13:03:40 +0200
-Message-Id: <1437563020-23506-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net] bridge: netlink: fix
-	slave_changelink/br_setport race conditions
+Return-Path: <cwang@twopensource.com>
+MIME-Version: 1.0
+In-Reply-To: <1437560929-25827-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1437560929-25827-1-git-send-email-nikolay@cumulusnetworks.com>
+Date: Wed, 22 Jul 2015 10:03:43 -0700
+Message-ID: <CAHA+R7PTV5aTk2JyaaCQ1awi_Cwz+jzA4tv9n2nEvaFxhuD0Pg@mail.gmail.com>
+From: Cong Wang <cwang@twopensource.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: Re: [Bridge] [PATCH net-next] bridge: mcast: when multicast is
+ disabled flush the groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,46 +16,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, jiri@resnulli.us, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, David Miller <davem@davemloft.net>
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+On Wed, Jul 22, 2015 at 3:28 AM, Nikolay Aleksandrov
+<nikolay@cumulusnetworks.com> wrote:
+> From: Satish Ashok <sashok@cumulusnetworks.com>
+>
+> Once multicast gets disabled we should flush the groups.
+> Example:
+> # bridge mdb add dev br0 port eth3 grp 239.0.0.1
+> # bridge mdb
+> dev br0 port eth3 grp 239.0.0.1 temp
+> # echo 0 > multicast_snooping
+> # bridge mdb
 
-Since slave_changelink support was added there have been a few race
-conditions when using br_setport() since some of the port functions it
-uses require the bridge lock. It is very easy to trigger a lockup due to
-some internal spin_lock() usage without bh disabled, also it's possible to
-get the bridge into an inconsistent state.
-
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Fixes: 3ac636b8591c ("bridge: implement rtnl_link_ops->slave_changelink")
----
- net/bridge/br_netlink.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 364bdc98bd9b..3da5525eb8a2 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -693,9 +693,17 @@ static int br_port_slave_changelink(struct net_device *brdev,
- 				    struct nlattr *tb[],
- 				    struct nlattr *data[])
- {
-+	struct net_bridge *br = netdev_priv(brdev);
-+	int ret;
-+
- 	if (!data)
- 		return 0;
--	return br_setport(br_port_get_rtnl(dev), data);
-+
-+	spin_lock_bh(&br->lock);
-+	ret = br_setport(br_port_get_rtnl(dev), data);
-+	spin_unlock_bh(&br->lock);
-+
-+	return ret;
- }
- 
- static int br_port_fill_slave_info(struct sk_buff *skb,
--- 
-2.4.3
-
+Why? Why we can't save the mdb config for a mcast snooping flip?
