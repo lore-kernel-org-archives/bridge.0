@@ -2,15 +2,15 @@ Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id;
-	bh=0iYNNPrpjv2VTmQxa+UP4iVljicBSm7r9L7X5ib5rx0=;
-	b=MkJJsghbnhV46YG89dVt5Vwa1+47jrqH0UHXuy/UnDW32qy7RXoUVs/8czwmJcJ0hZ
-	ZKoGCwMzNh3ayyBqsSBT7DhmMXkzYaZt+NG2hpTQJIExl/9iedr9iurszT/XdZzuyaWJ
-	+/5rLO80/SIcb5vdg04lCplVPF/bCyNBhI70M=
+	bh=cz4W8vISZXa8l7n8Ea21qhuAoB/SJhzLfnerhUHy/gY=;
+	b=eTA+RY7IQq1vDosYdeVqq0SFwd1jkJPRFmlHwNn3LE/PXhNMszCr6DNNLpuG0hCwb7
+	X8MWI53OyHlaNkoxJKxpW3JKVae01sFBBLoMt5Dh07F6p4cuqaMKHiC0/4lH4TM8Nw+k
+	9LVU1fdjxk7L87sqnzml/6vVuP8qWTOIqwk5s=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Thu, 23 Jul 2015 05:00:53 -0700
-Message-Id: <1437652853-941-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next] bridge: mdb: notify on router port add
-	and del
+Date: Thu, 23 Jul 2015 09:07:37 -0700
+Message-Id: <1437667657-16954-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] bridge: stp: when using userspace stp stop
+	kernel hello and hold timers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,155 +24,146 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetwo
 
 From: Satish Ashok <sashok@cumulusnetworks.com>
 
-Send notifications on router port add and del/expire, re-use the already
-existing MDBA_ROUTER and send NEWMDB/DELMDB netlink notifications
-respectively.
+Stop the kernel STP hello and hold timers when user-space STP is being
+used to stop generating both packets. These should be handled only by
+the respective STP which is in control. Also ensure that when the bridge
+is up these timers are started only when running with kernel STP.
+The kernel STP should function as before.
+
+Test done using user-space RSTP.
+Before patch:
+14:55:35.043194 52:54:00:28:9d:4c > 01:80:c2:00:00:00, 802.3, length 52:
+LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl 0x03: STP
+802.1d, Config, Flags [none], bridge-id 8000.52:54:00:28:9d:4c.8001,
+length 35
+	message-age 0.00s, max-age 20.00s, hello-time 2.00s,
+forwarding-delay 15.00s
+	root-id 8000.52:54:00:28:9d:4c, root-pathcost 0
+^^^^^^^
+Kernel STP.
+
+14:55:35.333807 52:54:00:28:9d:4c > 01:80:c2:00:00:00, 802.3, length 53:
+LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl 0x03: STP
+802.1w, Rapid STP, Flags [Learn, Forward], bridge-id
+8000.52:54:00:28:9d:4c.8001, length 36
+	message-age 0.00s, max-age 20.00s, hello-time 3.00s,
+forwarding-delay 15.00s
+	root-id 8000.52:54:00:28:9d:4c, root-pathcost 0, port-role
+Designated
+^^^^^^^
+User-space STP (rstpd, configured with 3s hello-time)
+
+After patch:
+15:02:31.821511 52:54:00:28:9d:4c > 01:80:c2:00:00:00, 802.3, length 52:
+LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl 0x03: STP
+802.1d, Config, Flags [Topology change], bridge-id
+8000.52:54:00:28:9d:4c.8002, length 35
+	message-age 0.00s, max-age 20.00s, hello-time 3.00s,
+forwarding-delay 15.00s
+	root-id 8000.52:54:00:28:9d:4c, root-pathcost 0
+
+15:02:34.821819 52:54:00:28:9d:4c > 01:80:c2:00:00:00, 802.3, length 52:
+LLC, dsap STP (0x42) Individual, ssap STP (0x42) Command, ctrl 0x03: STP
+802.1d, Config, Flags [Topology change], bridge-id
+8000.52:54:00:28:9d:4c.8002, length 35
+	message-age 0.00s, max-age 20.00s, hello-time 3.00s,
+forwarding-delay 15.00s
+	root-id 8000.52:54:00:28:9d:4c, root-pathcost 0
+^^^^^
+Only user-space STP.
 
 Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
-note: if this patch is accepted a related iproute2 patch will be sent
+ net/bridge/br_stp.c       |  5 +++--
+ net/bridge/br_stp_if.c    | 15 ++++++++++++++-
+ net/bridge/br_stp_timer.c |  4 +++-
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
- net/bridge/br_mdb.c       | 67 +++++++++++++++++++++++++++++++++++++++++++++++
- net/bridge/br_multicast.c | 10 +++++--
- net/bridge/br_private.h   |  2 ++
- 3 files changed, 77 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 6a591e6e2d04..5e9d1c5e1194 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -247,6 +247,73 @@ void br_mdb_notify(struct net_device *dev, struct net_bridge_port *port,
- 	__br_mdb_notify(dev, &entry, type);
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index b4b6dab9c285..ed74ffaa851f 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -209,8 +209,9 @@ void br_transmit_config(struct net_bridge_port *p)
+ 		br_send_config_bpdu(p, &bpdu);
+ 		p->topology_change_ack = 0;
+ 		p->config_pending = 0;
+-		mod_timer(&p->hold_timer,
+-			  round_jiffies(jiffies + BR_HOLD_TIME));
++		if (p->br->stp_enabled == BR_KERNEL_STP)
++			mod_timer(&p->hold_timer,
++				  round_jiffies(jiffies + BR_HOLD_TIME));
+ 	}
  }
  
-+static int nlmsg_populate_rtr_fill(struct sk_buff *skb,
-+				   struct net_device *dev,
-+				   int ifindex, u32 pid,
-+				   u32 seq, int type, unsigned int flags)
-+{
-+	struct br_port_msg *bpm;
-+	struct nlmsghdr *nlh;
-+	struct nlattr *nest;
-+
-+	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*bpm), NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	bpm = nlmsg_data(nlh);
-+	memset(bpm, 0, sizeof(*bpm));
-+	bpm->family = AF_BRIDGE;
-+	bpm->ifindex = dev->ifindex;
-+	nest = nla_nest_start(skb, MDBA_ROUTER);
-+	if (!nest)
-+		goto cancel;
-+
-+	if (nla_put_u32(skb, MDBA_ROUTER_PORT, ifindex))
-+		goto end;
-+
-+	nla_nest_end(skb, nest);
-+	nlmsg_end(skb, nlh);
-+	return 0;
-+
-+end:
-+	nla_nest_end(skb, nest);
-+cancel:
-+	nlmsg_cancel(skb, nlh);
-+	return -EMSGSIZE;
-+}
-+
-+static inline size_t rtnl_rtr_nlmsg_size(void)
-+{
-+	return NLMSG_ALIGN(sizeof(struct br_port_msg))
-+		+ nla_total_size(sizeof(__u32));
-+}
-+
-+void br_rtr_notify(struct net_device *dev, struct net_bridge_port *port,
-+		   int type)
-+{
-+	struct net *net = dev_net(dev);
-+	struct sk_buff *skb;
-+	int err = -ENOBUFS;
-+	int ifindex;
-+
-+	ifindex = port ? port->dev->ifindex : 0;
-+	skb = nlmsg_new(rtnl_rtr_nlmsg_size(), GFP_ATOMIC);
-+	if (!skb)
-+		goto errout;
-+
-+	err = nlmsg_populate_rtr_fill(skb, dev, ifindex, 0, 0, type, NTF_SELF);
-+	if (err < 0) {
-+		kfree_skb(skb);
-+		goto errout;
-+	}
-+
-+	rtnl_notify(skb, net, 0, RTNLGRP_MDB, NULL, GFP_ATOMIC);
-+	return;
-+
-+errout:
-+	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
-+}
-+
- static bool is_valid_mdb_entry(struct br_mdb_entry *entry)
- {
- 	if (entry->ifindex == 0)
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index ed5dc684a4ce..fd238587e032 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -766,6 +766,7 @@ static void br_multicast_router_expired(unsigned long data)
- 		goto out;
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index a2730e7196cd..962a149b117a 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -48,7 +48,8 @@ void br_stp_enable_bridge(struct net_bridge *br)
+ 	struct net_bridge_port *p;
  
- 	hlist_del_init_rcu(&port->rlist);
-+	br_rtr_notify(br->dev, port, RTM_DELMDB);
+ 	spin_lock_bh(&br->lock);
+-	mod_timer(&br->hello_timer, jiffies + br->hello_time);
++	if (br->stp_enabled == BR_KERNEL_STP)
++		mod_timer(&br->hello_timer, jiffies + br->hello_time);
+ 	mod_timer(&br->gc_timer, jiffies + HZ/10);
  
- out:
- 	spin_unlock(&br->multicast_lock);
-@@ -977,8 +978,10 @@ void br_multicast_disable_port(struct net_bridge_port *port)
- 		if (pg->state == MDB_TEMPORARY)
- 			br_multicast_del_pg(br, pg);
+ 	br_config_bpdu_generation(br);
+@@ -127,6 +128,7 @@ static void br_stp_start(struct net_bridge *br)
+ 	int r;
+ 	char *argv[] = { BR_STP_PROG, br->dev->name, "start", NULL };
+ 	char *envp[] = { NULL };
++	struct net_bridge_port *p;
  
--	if (!hlist_unhashed(&port->rlist))
-+	if (!hlist_unhashed(&port->rlist)) {
- 		hlist_del_init_rcu(&port->rlist);
-+		br_rtr_notify(br->dev, port, RTM_DELMDB);
-+	}
- 	del_timer(&port->multicast_router_timer);
- 	del_timer(&port->ip4_own_query.timer);
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -1216,6 +1219,7 @@ static void br_multicast_add_router(struct net_bridge *br,
- 		hlist_add_behind_rcu(&port->rlist, slot);
- 	else
- 		hlist_add_head_rcu(&port->rlist, &br->router_list);
-+	br_rtr_notify(br->dev, port, RTM_NEWMDB);
+ 	r = call_usermodehelper(BR_STP_PROG, argv, envp, UMH_WAIT_PROC);
+ 
+@@ -140,6 +142,12 @@ static void br_stp_start(struct net_bridge *br)
+ 	if (r == 0) {
+ 		br->stp_enabled = BR_USER_STP;
+ 		br_debug(br, "userspace STP started\n");
++		/* Stop hello and hold timer */
++		spin_lock_bh(&br->lock);
++		del_timer(&br->hello_timer);
++		list_for_each_entry(p, &br->port_list, list)
++			del_timer(&p->hold_timer);
++		spin_unlock_bh(&br->lock);
+ 	} else {
+ 		br->stp_enabled = BR_KERNEL_STP;
+ 		br_debug(br, "using kernel STP\n");
+@@ -156,12 +164,17 @@ static void br_stp_stop(struct net_bridge *br)
+ 	int r;
+ 	char *argv[] = { BR_STP_PROG, br->dev->name, "stop", NULL };
+ 	char *envp[] = { NULL };
++	struct net_bridge_port *p;
+ 
+ 	if (br->stp_enabled == BR_USER_STP) {
+ 		r = call_usermodehelper(BR_STP_PROG, argv, envp, UMH_WAIT_PROC);
+ 		br_info(br, "userspace STP stopped, return code %d\n", r);
+ 
+ 		/* To start timers on any ports left in blocking */
++		mod_timer(&br->hello_timer, jiffies + br->hello_time);
++		list_for_each_entry(p, &br->port_list, list)
++			mod_timer(&p->hold_timer,
++				  round_jiffies(jiffies + BR_HOLD_TIME));
+ 		spin_lock_bh(&br->lock);
+ 		br_port_state_selection(br);
+ 		spin_unlock_bh(&br->lock);
+diff --git a/net/bridge/br_stp_timer.c b/net/bridge/br_stp_timer.c
+index 7caf7fae2d5b..5f0f5af0ec35 100644
+--- a/net/bridge/br_stp_timer.c
++++ b/net/bridge/br_stp_timer.c
+@@ -40,7 +40,9 @@ static void br_hello_timer_expired(unsigned long arg)
+ 	if (br->dev->flags & IFF_UP) {
+ 		br_config_bpdu_generation(br);
+ 
+-		mod_timer(&br->hello_timer, round_jiffies(jiffies + br->hello_time));
++		if (br->stp_enabled != BR_USER_STP)
++			mod_timer(&br->hello_timer,
++				  round_jiffies(jiffies + br->hello_time));
+ 	}
+ 	spin_unlock(&br->lock);
  }
- 
- static void br_multicast_mark_router(struct net_bridge *br,
-@@ -1848,8 +1852,10 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
- 		p->multicast_router = val;
- 		err = 0;
- 
--		if (val < 2 && !hlist_unhashed(&p->rlist))
-+		if (val < 2 && !hlist_unhashed(&p->rlist)) {
- 			hlist_del_init_rcu(&p->rlist);
-+			br_rtr_notify(br->dev, p, RTM_DELMDB);
-+		}
- 
- 		if (val == 1)
- 			break;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 3ad1290528af..e2cb359f9dd3 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -490,6 +490,8 @@ void br_mdb_init(void);
- void br_mdb_uninit(void);
- void br_mdb_notify(struct net_device *dev, struct net_bridge_port *port,
- 		   struct br_ip *group, int type, u8 state);
-+void br_rtr_notify(struct net_device *dev, struct net_bridge_port *port,
-+		   int type);
- 
- #define mlock_dereference(X, br) \
- 	rcu_dereference_protected(X, lockdep_is_held(&br->multicast_lock))
 -- 
 2.4.3
 
