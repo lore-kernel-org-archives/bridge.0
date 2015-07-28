@@ -1,9 +1,9 @@
-Return-Path: <makita@lab.ntt.co.jp>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Tue, 28 Jul 2015 19:05:37 +0900
-Message-Id: <1438077937-16134-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Subject: [Bridge] [PATCH net] bridge: Fix network header pointer for vlan
-	tagged packets
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Tue, 28 Jul 2015 13:10:44 +0200
+Message-Id: <1438081844-18801-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net] bridge: mdb: fix delmdb state in the
+	notification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,70 +12,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Ivan Vecera <ivecera@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: amwang@redhat.com, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, cwang@twopensource.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-There are several devices that can receive vlan tagged packets with
-CHECKSUM_PARTIAL like tap, possibly veth and xennet.
-When (multiple) vlan tagged packets with CHECKSUM_PARTIAL are forwarded
-by bridge to a device with the IP_CSUM feature, they end up with checksum
-error because before entering bridge, the network header is set to
-ETH_HLEN (not including vlan header length) in __netif_receive_skb_core(),
-get_rps_cpu(), or drivers' rx functions, and nobody fixes the pointer later.
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Since the network header is exepected to be ETH_HLEN in flow-dissection
-and hash-calculation in RPS in rx path, and since the header pointer fix
-is needed only in tx path, set the appropriate network header on forwarding
-packets.
+Since mdb states were introduced when deleting an entry the state was
+left as it was set in the delete request from the user which leads to
+the following output when doing a monitor (for example):
+$ bridge mdb add dev br0 port eth3 grp 239.0.0.1 permanent
+(monitor) dev br0 port eth3 grp 239.0.0.1 permanent
+$ bridge mdb del dev br0 port eth3 grp 239.0.0.1 permanent
+(monitor) dev br0 port eth3 grp 239.0.0.1 temp
+^^^
+Note the "temp" state in the delete notification which is wrong since
+the entry was permanent, the state in a delete is always reported as
+"temp" regardless of the real state of the entry.
 
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+After this patch:
+$ bridge mdb add dev br0 port eth3 grp 239.0.0.1 permanent
+(monitor) dev br0 port eth3 grp 239.0.0.1 permanent
+$ bridge mdb del dev br0 port eth3 grp 239.0.0.1 permanent
+(monitor) dev br0 port eth3 grp 239.0.0.1 permanent
+
+There's one important note to make here that the state is actually not
+matched when doing a delete, so one can delete a permanent entry by
+stating "temp" in the end of the command, I've chosen this fix in order
+not to break user-space tools which rely on this (incorrect) behaviour.
+
+So to give an example after this patch and using the wrong state:
+$ bridge mdb add dev br0 port eth3 grp 239.0.0.1 permanent
+(monitor) dev br0 port eth3 grp 239.0.0.1 permanent
+$ bridge mdb del dev br0 port eth3 grp 239.0.0.1 temp
+(monitor) dev br0 port eth3 grp 239.0.0.1 permanent
+
+Note the state of the entry that got deleted is correct in the
+notification.
+
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Fixes: ccb1c31a7a87 ("bridge: add flags to distinguish permanent mdb entires")
 ---
- net/bridge/br_forward.c | 29 ++++++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 7 deletions(-)
+I propose to fix the state matching in net-next but we may risk breaking
+some user-space tools which rely on this behaviour.
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 0ff6e1b..fa7bfce 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -37,15 +37,30 @@ static inline int should_deliver(const struct net_bridge_port *p,
+ net/bridge/br_mdb.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 1198a3dbad95..c94321955db7 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -445,6 +445,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 		if (p->port->state == BR_STATE_DISABLED)
+ 			goto unlock;
  
- int br_dev_queue_push_xmit(struct sock *sk, struct sk_buff *skb)
- {
--	if (!is_skb_forwardable(skb->dev, skb)) {
--		kfree_skb(skb);
--	} else {
--		skb_push(skb, ETH_HLEN);
--		br_drop_fake_rtable(skb);
--		skb_sender_cpu_clear(skb);
--		dev_queue_xmit(skb);
-+	if (!is_skb_forwardable(skb->dev, skb))
-+		goto drop;
-+
-+	skb_push(skb, ETH_HLEN);
-+	br_drop_fake_rtable(skb);
-+	skb_sender_cpu_clear(skb);
-+
-+	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-+	    (skb->protocol == htons(ETH_P_8021Q) ||
-+	     skb->protocol == htons(ETH_P_8021AD))) {
-+		int depth;
-+
-+		if (!__vlan_get_protocol(skb, skb->protocol, &depth))
-+			goto drop;
-+
-+		skb_set_network_header(skb, depth);
- 	}
- 
-+	dev_queue_xmit(skb);
-+
-+	return 0;
-+
-+drop:
-+	kfree_skb(skb);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(br_dev_queue_push_xmit);
++		entry->state = p->state;
+ 		rcu_assign_pointer(*pp, p->next);
+ 		hlist_del_init(&p->mglist);
+ 		del_timer(&p->timer);
 -- 
-1.8.1.2
-
+2.4.3
 
