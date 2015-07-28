@@ -1,16 +1,9 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=zgdY7J2Gb0Z9vXLNKWbEjnJJJvs8KLl3QuBaevgKCuQ=;
-	b=QFU4Acg8eOg/GIK+72Ap8ThIDyBRmOEnwrfWXnuyFdDGYOao1e9WkXXz+efhzVFaSc
-	PtUUhKNPcU9i52bRfqmj7BPe8hhR8eN16llQBY9UTDg1miYfp/oepyE4jIownC+qxjnz
-	uxG/pDgdM1LR/5ovgHK9HkVrVL6bezFrMEgo0=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 28 Jul 2015 03:28:27 -0700
-Message-Id: <1438079308-25040-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net] bridge: mcast: give fast leave precedence over
-	multicast router and querier
+Return-Path: <makita@lab.ntt.co.jp>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Tue, 28 Jul 2015 19:05:37 +0900
+Message-Id: <1438077937-16134-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH net] bridge: Fix network header pointer for vlan
+	tagged packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,97 +12,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au, davem@davemloft.net
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: Ivan Vecera <ivecera@redhat.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Satish Ashok <sashok@cumulusnetworks.com>
+There are several devices that can receive vlan tagged packets with
+CHECKSUM_PARTIAL like tap, possibly veth and xennet.
+When (multiple) vlan tagged packets with CHECKSUM_PARTIAL are forwarded
+by bridge to a device with the IP_CSUM feature, they end up with checksum
+error because before entering bridge, the network header is set to
+ETH_HLEN (not including vlan header length) in __netif_receive_skb_core(),
+get_rps_cpu(), or drivers' rx functions, and nobody fixes the pointer later.
 
-When fast leave is configured on a bridge port and an IGMP leave is
-received for a group, the group is not deleted immediately if there is
-a router detected or if multicast querier is configured.
-Ideally the group should be deleted immediately when fast leave is
-configured.
+Since the network header is exepected to be ETH_HLEN in flow-dissection
+and hash-calculation in RPS in rx path, and since the header pointer fix
+is needed only in tx path, set the appropriate network header on forwarding
+packets.
 
-Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 ---
- net/bridge/br_multicast.c | 50 ++++++++++++++++++++++++-----------------------
- 1 file changed, 26 insertions(+), 24 deletions(-)
+ net/bridge/br_forward.c | 29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 79db489cdade..0b39dcc65b94 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1416,8 +1416,7 @@ br_multicast_leave_group(struct net_bridge *br,
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 0ff6e1b..fa7bfce 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -37,15 +37,30 @@ static inline int should_deliver(const struct net_bridge_port *p,
  
- 	spin_lock(&br->multicast_lock);
- 	if (!netif_running(br->dev) ||
--	    (port && port->state == BR_STATE_DISABLED) ||
--	    timer_pending(&other_query->timer))
-+	    (port && port->state == BR_STATE_DISABLED))
- 		goto out;
- 
- 	mdb = mlock_dereference(br->mdb, br);
-@@ -1425,6 +1424,31 @@ br_multicast_leave_group(struct net_bridge *br,
- 	if (!mp)
- 		goto out;
- 
-+	if (port && (port->flags & BR_MULTICAST_FAST_LEAVE)) {
-+		struct net_bridge_port_group __rcu **pp;
+ int br_dev_queue_push_xmit(struct sock *sk, struct sk_buff *skb)
+ {
+-	if (!is_skb_forwardable(skb->dev, skb)) {
+-		kfree_skb(skb);
+-	} else {
+-		skb_push(skb, ETH_HLEN);
+-		br_drop_fake_rtable(skb);
+-		skb_sender_cpu_clear(skb);
+-		dev_queue_xmit(skb);
++	if (!is_skb_forwardable(skb->dev, skb))
++		goto drop;
 +
-+		for (pp = &mp->ports;
-+		     (p = mlock_dereference(*pp, br)) != NULL;
-+		     pp = &p->next) {
-+			if (p->port != port)
-+				continue;
++	skb_push(skb, ETH_HLEN);
++	br_drop_fake_rtable(skb);
++	skb_sender_cpu_clear(skb);
 +
-+			rcu_assign_pointer(*pp, p->next);
-+			hlist_del_init(&p->mglist);
-+			del_timer(&p->timer);
-+			call_rcu_bh(&p->rcu, br_multicast_free_pg);
-+			br_mdb_notify(br->dev, port, group, RTM_DELMDB);
++	if (skb->ip_summed == CHECKSUM_PARTIAL &&
++	    (skb->protocol == htons(ETH_P_8021Q) ||
++	     skb->protocol == htons(ETH_P_8021AD))) {
++		int depth;
 +
-+			if (!mp->ports && !mp->mglist &&
-+			    netif_running(br->dev))
-+				mod_timer(&mp->timer, jiffies);
-+		}
-+		goto out;
-+	}
++		if (!__vlan_get_protocol(skb, skb->protocol, &depth))
++			goto drop;
 +
-+	if (timer_pending(&other_query->timer))
-+		goto out;
-+
- 	if (br->multicast_querier) {
- 		__br_multicast_send_query(br, port, &mp->addr);
- 
-@@ -1450,28 +1474,6 @@ br_multicast_leave_group(struct net_bridge *br,
- 		}
++		skb_set_network_header(skb, depth);
  	}
  
--	if (port && (port->flags & BR_MULTICAST_FAST_LEAVE)) {
--		struct net_bridge_port_group __rcu **pp;
--
--		for (pp = &mp->ports;
--		     (p = mlock_dereference(*pp, br)) != NULL;
--		     pp = &p->next) {
--			if (p->port != port)
--				continue;
--
--			rcu_assign_pointer(*pp, p->next);
--			hlist_del_init(&p->mglist);
--			del_timer(&p->timer);
--			call_rcu_bh(&p->rcu, br_multicast_free_pg);
--			br_mdb_notify(br->dev, port, group, RTM_DELMDB);
--
--			if (!mp->ports && !mp->mglist &&
--			    netif_running(br->dev))
--				mod_timer(&mp->timer, jiffies);
--		}
--		goto out;
--	}
--
- 	now = jiffies;
- 	time = now + br->multicast_last_member_count *
- 		     br->multicast_last_member_interval;
++	dev_queue_xmit(skb);
++
++	return 0;
++
++drop:
++	kfree_skb(skb);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(br_dev_queue_push_xmit);
 -- 
-2.4.3
+1.8.1.2
+
 
