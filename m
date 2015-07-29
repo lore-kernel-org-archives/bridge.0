@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Wed, 29 Jul 2015 12:21:23 -0700 (PDT)
-Message-Id: <20150729.122123.754536415828052026.davem@davemloft.net>
+Date: Wed, 29 Jul 2015 14:57:40 -0700 (PDT)
+Message-Id: <20150729.145740.1642510215945079225.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1438077937-16134-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1438077937-16134-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1438079308-25040-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1438079308-25040-1-git-send-email-nikolay@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Fix network header pointer for
- vlan tagged packets
+Subject: Re: [Bridge] [PATCH net] bridge: mcast: give fast leave precedence
+ over multicast router and querier
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,25 +17,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, ivecera@redhat.com
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, herbert@gondor.apana.org.au
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Tue, 28 Jul 2015 19:05:37 +0900
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Tue, 28 Jul 2015 03:28:27 -0700
 
-> There are several devices that can receive vlan tagged packets with
-> CHECKSUM_PARTIAL like tap, possibly veth and xennet.
-> When (multiple) vlan tagged packets with CHECKSUM_PARTIAL are forwarded
-> by bridge to a device with the IP_CSUM feature, they end up with checksum
-> error because before entering bridge, the network header is set to
-> ETH_HLEN (not including vlan header length) in __netif_receive_skb_core(),
-> get_rps_cpu(), or drivers' rx functions, and nobody fixes the pointer later.
+> From: Satish Ashok <sashok@cumulusnetworks.com>
 > 
-> Since the network header is exepected to be ETH_HLEN in flow-dissection
-> and hash-calculation in RPS in rx path, and since the header pointer fix
-> is needed only in tx path, set the appropriate network header on forwarding
-> packets.
+> When fast leave is configured on a bridge port and an IGMP leave is
+> received for a group, the group is not deleted immediately if there is
+> a router detected or if multicast querier is configured.
+> Ideally the group should be deleted immediately when fast leave is
+> configured.
 > 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
 
-Applied, thank you.
+Applied, thanks.
