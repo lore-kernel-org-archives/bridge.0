@@ -1,14 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 03 Aug 2015 15:44:07 -0700 (PDT)
-Message-Id: <20150803.154407.1641134905324878853.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1438601356-20885-1-git-send-email-razor@blackwall.org>
-References: <1438601356-20885-1-git-send-email-razor@blackwall.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: mdb: add/del entry on all
- vlans if vlan_filter is enabled and vid is 0
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Tue,  4 Aug 2015 01:19:58 +0200
+Message-Id: <1438643998-9259-1-git-send-email-razor@blackwall.org>
+In-Reply-To: <201508040606.8x0wKgcJ%fengguang.wu@intel.com>
+References: <201508040606.8x0wKgcJ%fengguang.wu@intel.com>
+Subject: [Bridge] [PATCH net-next] bridge: mdb: fix vlan_enabled access when
+	vlans are not configured
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,25 +14,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: razor@blackwall.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon,  3 Aug 2015 13:29:16 +0200
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> From: Satish Ashok <sashok@cumulusnetworks.com>
-> 
-> Before this patch when a vid was not specified, the entry was added with
-> vid 0 which is useless when vlan_filtering is enabled. This patch makes
-> the entry to be added on all configured vlans when vlan filtering is
-> enabled and respectively deleted from all, if the entry vid is 0.
-> This is also closer to the way fdb works with regard to vid 0 and vlan
-> filtering.
- ...
-> Signed-off-by: Satish Ashok <sashok@cumulusnetworks.com>
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Instead of trying to access br->vlan_enabled directly use the provided
+helper br_vlan_enabled().
 
-Applied, but as usual if any existing user ends up being broken I will
-revert this.
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+Sorry, forgot to change this before sending the patch.
 
-Thanks.
+ net/bridge/br_mdb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 1df3ef4a73b9..d747275fad18 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -490,7 +490,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 		return -EINVAL;
+ 
+ 	pv = nbp_get_vlan_info(p);
+-	if (br->vlan_enabled && pv && entry->vid == 0) {
++	if (br_vlan_enabled(br) && pv && entry->vid == 0) {
+ 		for_each_set_bit(vid, pv->vlan_bitmap, VLAN_N_VID) {
+ 			entry->vid = vid;
+ 			err = __br_mdb_add(net, br, entry);
+@@ -592,7 +592,7 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 		return -EINVAL;
+ 
+ 	pv = nbp_get_vlan_info(p);
+-	if (br->vlan_enabled && pv && entry->vid == 0) {
++	if (br_vlan_enabled(br) && pv && entry->vid == 0) {
+ 		for_each_set_bit(vid, pv->vlan_bitmap, VLAN_N_VID) {
+ 			entry->vid = vid;
+ 			err = __br_mdb_del(br, entry);
+-- 
+2.4.3
+
