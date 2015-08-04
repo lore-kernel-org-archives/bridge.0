@@ -1,11 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue,  4 Aug 2015 19:06:32 +0200
-Message-Id: <1438707993-14561-2-git-send-email-razor@blackwall.org>
+Date: Tue,  4 Aug 2015 19:06:33 +0200
+Message-Id: <1438707993-14561-3-git-send-email-razor@blackwall.org>
 In-Reply-To: <1438707993-14561-1-git-send-email-razor@blackwall.org>
 References: <1438707993-14561-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net 1/2] bridge: netlink: account for the
-	IFLA_BRPORT_PROXYARP attribute size and policy
+Subject: [Bridge] [PATCH net 2/2] bridge: netlink: account for the
+	IFLA_BRPORT_PROXYARP_WIFI attribute size and policy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,28 +24,28 @@ The attribute size wasn't accounted for in the get_slave_size() callback
 a policy entry for it in br_port_policy.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Fixes: 958501163ddd ("bridge: Add support for IEEE 802.11 Proxy ARP")
+Fixes: 842a9ae08a25 ("bridge: Extend Proxy ARP design to allow optional rules for Wi-Fi")
 ---
  net/bridge/br_netlink.c | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 3da5525eb8a2..5390536d500c 100644
+index 5390536d500c..4d74a0639c4c 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -112,6 +112,7 @@ static inline size_t br_port_info_size(void)
- 		+ nla_total_size(1)	/* IFLA_BRPORT_FAST_LEAVE */
+@@ -113,6 +113,7 @@ static inline size_t br_port_info_size(void)
  		+ nla_total_size(1)	/* IFLA_BRPORT_LEARNING */
  		+ nla_total_size(1)	/* IFLA_BRPORT_UNICAST_FLOOD */
-+		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP */
++		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP_WIFI */
  		+ 0;
  }
  
-@@ -506,6 +507,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
- 	[IFLA_BRPORT_FAST_LEAVE]= { .type = NLA_U8 },
+@@ -508,6 +509,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
  	[IFLA_BRPORT_LEARNING]	= { .type = NLA_U8 },
  	[IFLA_BRPORT_UNICAST_FLOOD] = { .type = NLA_U8 },
-+	[IFLA_BRPORT_PROXYARP]	= { .type = NLA_U8 },
+ 	[IFLA_BRPORT_PROXYARP]	= { .type = NLA_U8 },
++	[IFLA_BRPORT_PROXYARP_WIFI] = { .type = NLA_U8 },
  };
  
  /* Change the state of the port and notify spanning tree */
