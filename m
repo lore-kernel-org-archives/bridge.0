@@ -1,15 +1,9 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 03 Aug 2015 16:21:06 -0700 (PDT)
-Message-Id: <20150803.162106.34968979073178630.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1438643998-9259-1-git-send-email-razor@blackwall.org>
-References: <201508040606.8x0wKgcJ%fengguang.wu@intel.com>
-	<1438643998-9259-1-git-send-email-razor@blackwall.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: mdb: fix vlan_enabled access
- when vlans are not configured
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Tue,  4 Aug 2015 19:06:31 +0200
+Message-Id: <1438707993-14561-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net 0/2] bridge: netlink: add missing policy
+	entries and sizes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,17 +12,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: razor@blackwall.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, kyeyoonp@codeaurora.org, jouni@codeaurora.org, davem@davemloft.net
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue,  4 Aug 2015 01:19:58 +0200
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> 
-> Instead of trying to access br->vlan_enabled directly use the provided
-> helper br_vlan_enabled().
-> 
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Hi,
+When IFLA_BRPORT_PROXYARP and PROXYARP_WIFI were introduced they weren't
+accounted for in the get_slave_size() callback and didn't get a policy
+entry, so fix it now. Sending as two separate patches because the first
+one goes further back than the second and thus we get 2 different Fixes
+tags.
 
-Applied.
+Cheers,
+ Nik
+
+Nikolay Aleksandrov (2):
+  bridge: netlink: account for the IFLA_BRPORT_PROXYARP attribute size
+    and policy
+  bridge: netlink: account for the IFLA_BRPORT_PROXYARP_WIFI attribute
+    size and policy
+
+ net/bridge/br_netlink.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+-- 
+2.4.3
+
