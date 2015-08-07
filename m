@@ -1,15 +1,15 @@
 Return-Path: <davem@davemloft.net>
-Date: Thu, 06 Aug 2015 23:55:08 -0700 (PDT)
-Message-Id: <20150806.235508.799001332675093580.davem@davemloft.net>
+Date: Thu, 06 Aug 2015 23:55:13 -0700 (PDT)
+Message-Id: <20150806.235513.1046191182801102990.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1438707993-14561-2-git-send-email-razor@blackwall.org>
+In-Reply-To: <1438707993-14561-3-git-send-email-razor@blackwall.org>
 References: <1438707993-14561-1-git-send-email-razor@blackwall.org>
-	<1438707993-14561-2-git-send-email-razor@blackwall.org>
+	<1438707993-14561-3-git-send-email-razor@blackwall.org>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net 1/2] bridge: netlink: account for the
- IFLA_BRPORT_PROXYARP attribute size and policy
+Subject: Re: [Bridge] [PATCH net 2/2] bridge: netlink: account for the
+ IFLA_BRPORT_PROXYARP_WIFI attribute size and policy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,7 +22,7 @@ To: razor@blackwall.org
 Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kyeyoonp@codeaurora.org, jouni@codeaurora.org
 
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue,  4 Aug 2015 19:06:32 +0200
+Date: Tue,  4 Aug 2015 19:06:33 +0200
 
 > From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 > 
@@ -31,6 +31,6 @@ Date: Tue,  4 Aug 2015 19:06:32 +0200
 > a policy entry for it in br_port_policy.
 > 
 > Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Fixes: 958501163ddd ("bridge: Add support for IEEE 802.11 Proxy ARP")
+> Fixes: 842a9ae08a25 ("bridge: Extend Proxy ARP design to allow optional rules for Wi-Fi")
 
 Applied.
