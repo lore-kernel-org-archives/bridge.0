@@ -2,15 +2,15 @@ Return-Path: <xerofoify@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=from:to:cc:subject:date:message-id;
 	bh=+E0RS35K1qfhTXzmMf4araoGKCY0lxVoDg4hDmKzBak=;
-	b=YZM3CXDkgbHUrwJ/rMHQMZA84sUDdCWefFe4bRodCgNdx6mYneTDWrPNcg8RthZeyb
-	jBpBeOEu8RpCplC/aRY9tWwmNyUjw8KdPLxMT5oDsZxZahV6OUVYYh6bDBRKDyPMt71I
-	c8ZDejUkGzstKC18rM9ZMe4smFKWn5XOdP0o2FEJ7PXZK66LAOGd0DuXTnsp5r+9+3zJ
-	lJn8IDAtivBJ1WxlEoun2Z/2+45E4yEL1/HB7B5ZwaYl79lZH7WAWYWTCTWvaqCX7HSe
-	A0SBmyVG+fyOZZbb1b/+aeNjUw8CQlcM/hehKob/3vxqbpUdW6orymI6cliDK6U5riSn
-	hjDA==
+	b=lBNN3PHivFv2WquPT9dXa/f9a/2TBW+YdLzUPNEiCK+Zz3SWIS7q/dOoCNdduH4TS6
+	Eg6ThtjQBjsekg6k47TlZ91+QkkavFdTugHR/KbMdtEOqDWX0POYWPnPQX0hq5lkdlR7
+	Q3II7v9UgAGqRdUmuQt+7x6UyXbM07ByzpF5blQ3a7C7ybQUagfOpKp7y6VVgoPbQnCE
+	oqjpJLTAUPOwjrRuXIgoawFA+Dxm+LA5uQ9n76ZISYZ1nBaXWclLuWE3okPzP+ChiocL
+	y3FIX+GuIIYdV8SiwfbTdaDxwk7ZKwaGhTdFgtz01YIxFqrtiFiooNgoZWgaQAy5vrao
+	zAKA==
 From: Nicholas Krause <xerofoify@gmail.com>
-Date: Sat, 22 Aug 2015 00:47:26 -0400
-Message-Id: <1440218846-760-1-git-send-email-xerofoify@gmail.com>
+Date: Sat, 22 Aug 2015 00:48:21 -0400
+Message-Id: <1440218901-814-1-git-send-email-xerofoify@gmail.com>
 Subject: [Bridge] [PATCH] bridge:Fix concurrent access issue in the function
 	brnf_get_logical_dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -22,7 +22,7 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: pablo@netfilter.org
-Cc: kadlec@blackhole.kfki.h, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, kaber@trash.net
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kaber@trash.net, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
 
 This fixes a concurrent access issue in the function brnf_get_logical_dev
 by properly locking with the function rcu_read_lock before calling the
