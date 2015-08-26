@@ -1,14 +1,13 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Tue, 25 Aug 2015 17:58:20 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20150825175820.0b0538c1@urahara>
-In-Reply-To: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
+Return-Path: <dennisml@conversis.de>
+References: <55DCBB02.6050308@conversis.de> <20150825142158.3e95b05a@urahara>
+From: Dennis Jacobfeuerborn <dennisml@conversis.de>
+Message-ID: <55DD1DDA.2040809@conversis.de>
+Date: Wed, 26 Aug 2015 04:00:58 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20150825142158.3e95b05a@urahara>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
- local mac install for all vlans
+Subject: Re: [Bridge] vlan "aware" bridges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,32 +16,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, wkok@cumulusnetworks.com, davem@davemloft.net
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: bridge@lists.linux-foundation.org
 
-On Tue, 25 Aug 2015 17:34:55 -0700
-Nikolay Aleksandrov <razor@blackwall.org> wrote:
+On 08/25/2015 11:21 PM, Stephen Hemminger wrote:
+> On Tue, 25 Aug 2015 20:59:14 +0200
+> Dennis Jacobfeuerborn <dennisml@conversis.de> wrote:
+> 
+>> Hi,
+>> through the cumulus documentation I learned that there apparently now
+>> exists a way to create a single bridge that allows vlan filtering rather
+>> than the old method using an individual bridge for each vlan.
+>> That documentation only uses this new bridge model in the context of
+>> their new ifupdown2 tool though.
+>>
+>> Is there any practical documentation out there or some
+>> tutorials/examples that explain how to use/configure such a vlan aware
+>> bridge using the basic bridge/ip toolset?
+>>
+>> Regards,
+>>   Dennis
+> 
+> Did you look in current iproute2 man pages.
+> 
 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 3d95647039d0..2bda472c5a6e 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -294,6 +294,7 @@ struct net_bridge
->  	u32				auto_cnt;
->  #ifdef CONFIG_BRIDGE_VLAN_FILTERING
->  	u8				vlan_enabled;
-> +	bool				vlan_ignore_local_fdb;
+I've looked at the man pages but they only contain information about the
+syntax of the commands and don't give any explanation of the bigger
+picture of examples of common possible setups.
+I can find plenty of examples on the net when it comes to the
+"traditional" one-bridge-per-vlan setup but none that explain similar
+setups for the vlan aware bridge.
+In fact there seem to be few people out there who even know about this
+probably because this seems to be a bit of a secret right now because of
+a lack of documentation.
 
-bool takes more space than u8.
+Regards,
+  Dennis
 
-
->  	__be16				vlan_proto;
->  	u16				default_pvid;
->  	struct net_port_vlans __rcu	*vlan_info;
-
-> +int br_vlan_ignore_local_fdb_toggle(struct net_bridge *br, unsigned long val)
-> +{
-> +	br->vlan_ignore_local_fdb = val ? true : false;
-
-personal preference is for:
-	br->vlan_ignore_local_fdb = !!val;
