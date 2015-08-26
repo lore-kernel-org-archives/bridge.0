@@ -1,23 +1,16 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=content-type:mime-version:subject:from:in-reply-to:date:cc
-	:content-transfer-encoding:message-id:references:to;
-	bh=rYQMSv1aK6k6wk6HF8rDk0FWCdb1a0XWzz8dz4xq90c=;
-	b=PNhxAr0Ph00NEibVUBnVnyJ4g1khTtbW4GnLyveMoQhpWUdvAb+YJoy6nrUwyW+qKE
-	3sAr0Xd08w9Wb5X3uYNMdEXrTi6jYku++8vCbG+NBD6ew/VdKYsa1oatWurlBaWYq5Ow
-	WBL874sGL8aV7++yLTgMgEz5CriCm+bw6XjT4=
-Content-Type: text/plain; charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-In-Reply-To: <20150825175627.66ca9f30@urahara>
-Date: Tue, 25 Aug 2015 22:42:49 -0700
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <B58362A0-3860-42AB-A13A-8158891EC956@cumulusnetworks.com>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 25 Aug 2015 23:06:41 -0700 (PDT)
+Message-Id: <20150825.230641.773630246486190390.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
 References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-	<20150825175627.66ca9f30@urahara>
+	<20150825.194222.390859854071446877.davem@davemloft.net>
+	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-7
+Content-Transfer-Encoding: base64
 Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
-	local mac install for all vlans
+ local mac install for all vlans
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,51 +19,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com
 
-
-> On Aug 25, 2015, at 5:56 PM, Stephen Hemminger =
-<stephen@networkplumber.org> wrote:
->=20
-> On Tue, 25 Aug 2015 17:34:55 -0700
-> Nikolay Aleksandrov <razor@blackwall.org> wrote:
->=20
->> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>=20
->> This patch adds a new knob that, when enabled, allows to suppress the
->> installation of local fdb entries in newly created vlans. This could
->> pose a big scalability issue if we have a large number of ports and a
->> large number of vlans, e.g. in a 48 port device with 2000 vlans these
->> entries easily go up to 96000.
->> Note that packets for these macs are still received properly because =
-they
->> are added in vlan 0 as "own" macs and referenced when fdb lookup by =
-vlan
->> results in a miss.
->> Also note that vlan membership of ingress port and the bridge device
->> as egress are still being correctly enforced.
->>=20
->> The default (0/off) is keeping the current behaviour.
->>=20
->> Based on a patch by Wilson Kok (wkok@cumulusnetworks.com).
->=20
->=20
-> This is getting messy, but then again the bridge seems to have become
-> a ghetto for a long time. I would rather see the lookup code fixed so
-> that the fdb was correct.
-
-What do you mean by it is getting messy ? The entries (normally) are =
-being added to each
-vlan so there=E2=80=99s not much in terms of lookup that you can fix =
-except making the table bigger/better
-but that will be only a temporary win. If you elaborate on what you mean =
-by fdb code being fixed
-I could spend time and work on fixing it. If it is resizing the table so =
-it can handle 96k entries and
-probably using the rhashtable, that is what I have in mind too.
-I still think that it would be nice to have the option to avoid adding =
-the 96k entries in the first place
-and that space could be better utilized by real ones, which this option =
-does.
-
+RnJvbTogTmlrb2xheSBBbGVrc2FuZHJvdiA8bmlrb2xheUBjdW11bHVzbmV0d29ya3MuY29tPg0K
+RGF0ZTogVHVlLCAyNSBBdWcgMjAxNSAyMjoyODoxNiAtMDcwMA0KDQo+IENlcnRhaW5seSwgdGhh
+dCBzaG91bGQgYmUgZG9uZSBhbmQgSSB3aWxsIGxvb2sgaW50byBpdCwgYnV0IHRoZQ0KPiBlc3Nl
+bmNlIG9mIHRoaXMgcGF0Y2ggaXMgYSBiaXQgZGlmZmVyZW50LiBUaGUgcHJvYmxlbSBoZXJlIGlz
+IG5vdA0KPiB0aGUgc2l6ZSBvZiB0aGUgZmRiIGVudHJpZXMsIGl0onMgbW9yZSB0aGUgbnVtYmVy
+IG9mIHRoZW0gLSBoYXZpbmcNCj4gOTYwMDAgZW50cmllcyAoZXZlbiBpZiB0aGV5IHdlcmUgMSBi
+eXRlIG9uZXMpIGlzIGp1c3Qgd2F5IHRvbyBtdWNoDQo+IGVzcGVjaWFsbHkgd2hlbiB0aGUgZmRi
+IGhhc2ggc2l6ZSBpcyBzbWFsbCBhbmQgc3RhdGljLiBXZSBjb3VsZCB3b3JrDQo+IG9uIG1ha2lu
+ZyBpdCBkeW5hbWljIHRob3VnaCwgYnV0IHN0aWxsIHRoZXNlIHR5cGUgb2YgbG9jYWwgZW50cmll
+cw0KPiBwZXIgdmxhbiBwZXIgcG9ydCBjYW4gZWFzaWx5IGJlIGF2b2lkZWQgd2l0aCB0aGlzIG9w
+dGlvbi4NCg0KOTYwMDAgYml0cyBjYW4gYmUgc3RvcmVkIGluIDEyay4gIEdldCB3aGVyZSBJJ20g
+Z29pbmcgd2l0aCB0aGlzPw0KDQpMb29rIGF0IHRoZSBwcm9ibGVtIHNpZGV3YXlzLg0K
