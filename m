@@ -1,14 +1,23 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-References: <55DCBB02.6050308@conversis.de> <20150825142158.3e95b05a@urahara>
-	<55DD1DDA.2040809@conversis.de>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <55DD3682.1070508@lab.ntt.co.jp>
-Date: Wed, 26 Aug 2015 12:46:10 +0900
-MIME-Version: 1.0
-In-Reply-To: <55DD1DDA.2040809@conversis.de>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] vlan "aware" bridges
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=content-type:mime-version:subject:from:in-reply-to:date:cc
+	:content-transfer-encoding:message-id:references:to;
+	bh=mqZlUgHXwxu/Tl9tUmAx/kYhxcR6Oh60aqOgP9ILvA0=;
+	b=VKRDKUr+ZmOnhOsQfmZ0ntckiYX5rmDifrKsoaNr/mgelTIf61wm1PBVBj+2gTj6X4
+	7TpZU5jV8UrVugl1+OOsnIFd39QwMp+4s9J1iXz44H7htkrajRPMk2LSt7D5i4Zsi5pL
+	fp1OEQaVr/rglyB7Sp7FMfd9YOC4CLhuMetrA=
+Content-Type: text/plain; charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+In-Reply-To: <20150825.194222.390859854071446877.davem@davemloft.net>
+Date: Tue, 25 Aug 2015 22:28:16 -0700
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
+References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
+	<20150825.194222.390859854071446877.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
+	local mac install for all vlans
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,48 +26,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dennis Jacobfeuerborn <dennisml@conversis.de>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: bridge@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com
 
-On 2015/08/26 11:00, Dennis Jacobfeuerborn wrote:
-> On 08/25/2015 11:21 PM, Stephen Hemminger wrote:
->> On Tue, 25 Aug 2015 20:59:14 +0200
->> Dennis Jacobfeuerborn <dennisml@conversis.de> wrote:
->>
->>> Hi,
->>> through the cumulus documentation I learned that there apparently now
->>> exists a way to create a single bridge that allows vlan filtering rather
->>> than the old method using an individual bridge for each vlan.
->>> That documentation only uses this new bridge model in the context of
->>> their new ifupdown2 tool though.
->>>
->>> Is there any practical documentation out there or some
->>> tutorials/examples that explain how to use/configure such a vlan aware
->>> bridge using the basic bridge/ip toolset?
->>>
->>> Regards,
->>>   Dennis
->>
->> Did you look in current iproute2 man pages.
->>
-> 
-> I've looked at the man pages but they only contain information about the
-> syntax of the commands and don't give any explanation of the bigger
-> picture of examples of common possible setups.
-> I can find plenty of examples on the net when it comes to the
-> "traditional" one-bridge-per-vlan setup but none that explain similar
-> setups for the vlan aware bridge.
-> In fact there seem to be few people out there who even know about this
-> probably because this seems to be a bit of a secret right now because of
-> a lack of documentation.
 
-Would you check this?
-https://www.netdev01.org/docs/netdev_tutorial_bridge_makita_150213.pdf
+> On Aug 25, 2015, at 7:42 PM, David Miller <davem@davemloft.net> wrote:
+>=20
+> From: Nikolay Aleksandrov <razor@blackwall.org>
+> Date: Tue, 25 Aug 2015 17:34:55 -0700
+>=20
+>> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+>>=20
+>> This patch adds a new knob that, when enabled, allows to suppress the
+>> installation of local fdb entries in newly created vlans. This could
+>> pose a big scalability issue if we have a large number of ports and a
+>> large number of vlans, e.g. in a 48 port device with 2000 vlans these
+>> entries easily go up to 96000.
+>> Note that packets for these macs are still received properly because =
+they
+>> are added in vlan 0 as "own" macs and referenced when fdb lookup by =
+vlan
+>> results in a miss.
+>> Also note that vlan membership of ingress port and the bridge device
+>> as egress are still being correctly enforced.
+>>=20
+>> The default (0/off) is keeping the current behaviour.
+>>=20
+>> Based on a patch by Wilson Kok (wkok@cumulusnetworks.com).
+>>=20
+>> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+>> ---
+>> v2: Triple checked the timezone
+>=20
+> I'd rather we fix the essence of the scalability problem than add
+> more spaghetti code to the various bridge paths.
+>=20
+> Can we make the fdb entries smaller?
+>=20
+> Can we enhance how we store such local entries such that they live in
+> a compact datastructure?  Perhaps the FDB can consist of a very dense
+> lookup mechanism for local stuff sitting alongside the current table.
 
-Note that these slides are getting old and now the latest net-next
-kernel and iproute2 have most features to manipulate vlan_filtering by
-netlink rather than sysfs, like
-# ip link set br0 type bridge vlan_filtering 1
+Certainly, that should be done and I will look into it, but the essence =
+of this patch
+is a bit different. The problem here is not the size of the fdb entries, =
+it=E2=80=99s more the
+number of them - having 96000 entries (even if they were 1 byte ones) is =
+just way
+too much especially when the fdb hash size is small and static. We could =
+work on making
+it dynamic though, but still these type of local entries per vlan per =
+port can easily be avoided
+with this option.
 
-Toshiaki Makita
 
