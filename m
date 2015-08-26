@@ -1,25 +1,15 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=content-type:mime-version:subject:from:in-reply-to:date:cc
-	:content-transfer-encoding:message-id:references:to;
-	bh=/F3EpuLwl1j5GcM8ygDsgActaC8NVviNcH0Fj8PjEp0=;
-	b=ZPctnP28V+2Ga5QKVP8hYAU1+YpdyQTDTmOFDb/mtEPzFWTwpKUFvrw+SH0vLumqAU
-	NTj/+DTDv3cxReQzHVvn71T8OHe2IyVTkxxRAAMmesE0/LQoijdq8cM+sGmNwDdXG9Um
-	+RW/nj9C+XKqTkJiJ7hI5osAzU3OotLPr20BA=
-Content-Type: text/plain; charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-In-Reply-To: <20150825.230641.773630246486190390.davem@davemloft.net>
-Date: Wed, 26 Aug 2015 04:33:43 -0700
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
-References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-	<20150825.194222.390859854071446877.davem@davemloft.net>
-	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
-	<20150825.230641.773630246486190390.davem@davemloft.net>
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
-	local mac install for all vlans
+Return-Path: <vyasevic@redhat.com>
+Message-ID: <55DDB42E.5010802@redhat.com>
+Date: Wed, 26 Aug 2015 08:42:22 -0400
+From: Vlad Yasevich <vyasevic@redhat.com>
+Reply-To: vyasevic@redhat.com
+MIME-Version: 1.0
+References: <1440464127-27391-1-git-send-email-razor@blackwall.org>
+In-Reply-To: <1440464127-27391-1-git-send-email-razor@blackwall.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: vlan: allow to suppress local
+ mac install for all vlans
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,31 +18,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, wkok@cumulusnetworks.com, davem@davemloft.net
 
-
-> On Aug 25, 2015, at 11:06 PM, David Miller <davem@davemloft.net> =
-wrote:
->=20
+On 08/24/2015 08:55 PM, Nikolay Aleksandrov wrote:
 > From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Date: Tue, 25 Aug 2015 22:28:16 -0700
->=20
->> Certainly, that should be done and I will look into it, but the
->> essence of this patch is a bit different. The problem here is not
->> the size of the fdb entries, it=E2=80=99s more the number of them - =
-having
->> 96000 entries (even if they were 1 byte ones) is just way too much
->> especially when the fdb hash size is small and static. We could work
->> on making it dynamic though, but still these type of local entries
->> per vlan per port can easily be avoided with this option.
->=20
-> 96000 bits can be stored in 12k.  Get where I'm going with this?
->=20
-> Look at the problem sideways.
+> 
+> This patch adds a new knob that, when enabled, allows to suppress the
+> installation of local fdb entries in newly created vlans. This could
+> pose a big scalability issue if we have a large number of ports and a
+> large number of vlans, e.g. in a 48 port device with 2000 vlans these
+> entries easily go up to 96000.
+> Note that packets for these macs are still received properly because they
+> are added in vlan 0 as "own" macs and referenced when fdb lookup by vlan
+> results in a miss.
+> Also note that vlan membership of ingress port and the bridge device
+> as egress are still being correctly enforced.
+> 
+> The default (0/off) is keeping the current behaviour.
+> 
+> Based on a patch by Wilson Kok (wkok@cumulusnetworks.com).
+> 
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+> As usual I'll post iproute2 patch if this one gets accepted.
+> 
 
-Oh okay, I misunderstood your previous comment. I=E2=80=99ll look into =
-that.
+... snip...
 
-Thanks,
- Nik=
+> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+> index 3cef6892c0bb..f9efa1b07994 100644
+> --- a/net/bridge/br_vlan.c
+> +++ b/net/bridge/br_vlan.c
+> @@ -98,11 +98,12 @@ static int __vlan_add(struct net_port_vlans *v, u16 vid, u16 flags)
+>  			return err;
+>  	}
+>  
+> -	err = br_fdb_insert(br, p, dev->dev_addr, vid);
+> -	if (err) {
+> -		br_err(br, "failed insert local address into bridge "
+> -		       "forwarding table\n");
+> -		goto out_filt;
+> +	if (!br_vlan_ignore_local_fdb(br) || !v->port_idx) {
+> +		err = br_fdb_insert(br, p, dev->dev_addr, vid);
+> +		if (err) {
+> +			br_err(br, "failed insert local address into bridge forwarding table\n");
+> +			goto out_filt;
+> +		}
+>  	}
+>
+
+One question.  Does it make sense to push this down into br_fdb_insert?
+This patch prevents automatic entries from being added.  But what about
+manual entries for a local fdb?  The code in br_fdb_add() will still a
+vid 0 entry as well as entries for all vlans currently configured on the port.
+
+-vlad
+
+>  	set_bit(vid, v->vlan_bitmap);
+> @@ -492,6 +493,13 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val)
+>  	return 0;
+>  }
+>  
+> +int br_vlan_ignore_local_fdb_toggle(struct net_bridge *br, unsigned long val)
+> +{
+> +	br->vlan_ignore_local_fdb = val ? true : false;
+> +
+> +	return 0;
+> +}
+> +
+>  int br_vlan_set_proto(struct net_bridge *br, unsigned long val)
+>  {
+>  	int err = 0;
+> 
+
