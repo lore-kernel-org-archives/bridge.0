@@ -1,24 +1,24 @@
-Return-Path: <marichika4@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc:content-type:content-transfer-encoding;
-	bh=xYjrdIfYqnypJ5IK/OpNMslVoE6CyDeBEh2w8LN01OQ=;
-	b=WDV3LgcyaKJA10yDsVkZkIBN3PBcehbNVOoJ/yS6fCILslja+ZFEwIeK0G2A+yKO8u
-	Kt72fpYW5RTlCkFgXi9UMFUMakV7yP0uPNzwvjsNQdtYtJpbIAt/hrDgIHZEFaXqIu/K
-	WpMgEcr6C8mkwColfq8Nw6pswsz0ldIXkC39Bq/ADo6z+tlLltiUIsoKtbCQDrQq3Fpn
-	mHEzv3xpjf8TVxk9eB7YkzZ6p/FeeNUyB/0KfdZ+2iZ6ZpCFEVGHiaNR/n1uk9knRbuy
-	vKjm5PxPYdzvlG7kVWSYI/JlmCejkc0CXxMnCNtlrI+HYnb4+hGjEjYBVaVUWNn5XZzf
-	7j0g==
+Return-Path: <roopa@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=message-id:date:from:user-agent:mime-version:to:cc:subject
+	:references:in-reply-to:content-type:content-transfer-encoding;
+	bh=YBL8RTl7wbpirBloRXMmbAg6UzwqHsaATJaKZ6ZfcjM=;
+	b=eEzkgqw1+lmel9wgQxgyG/Wwz5EZXx3rolQUUpbA1OGIFVjfCclQO9KbL+zI7QzsxJ
+	jAnxbNrdSLfdDU1YkUiXuX7gCDx6x4CdtjgPJRjw6A0HUt5aomjvkmlbPBKw3zK03M7A
+	3HYnnZuurQ/63cJzKSi3AW79qVrIjbDZTuxXo=
+Message-ID: <55DE98AF.8000503@cumulusnetworks.com>
+Date: Wed, 26 Aug 2015 21:57:19 -0700
+From: roopa <roopa@cumulusnetworks.com>
 MIME-Version: 1.0
-In-Reply-To: <E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
 References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
 	<20150825.194222.390859854071446877.davem@davemloft.net>
 	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
-Date: Wed, 26 Aug 2015 11:40:27 +0530
-Message-ID: <CAN+pFwJKFeQJw_4mPEH5_WmHdBUn75FL+-Cq=YaR+FR-+cRfEw@mail.gmail.com>
-From: B Viswanath <marichika4@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+	<20150825.230641.773630246486190390.davem@davemloft.net>
+	<AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
+In-Reply-To: <AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
  local mac install for all vlans
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,44 +30,34 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: "vyasevic@redhat.com" <vyasevic@redhat.com>, bridge@lists.linux-foundation.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, wkok@cumulusnetworks.com, David Miller <davem@davemloft.net>
+Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com, David Miller <davem@davemloft.net>
 
+On 8/26/15, 4:33 AM, Nikolay Aleksandrov wrote:
+>> On Aug 25, 2015, at 11:06 PM, David Miller <davem@davemloft.net> wrote:
 >>
->> I'd rather we fix the essence of the scalability problem than add
->> more spaghetti code to the various bridge paths.
+>> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+>> Date: Tue, 25 Aug 2015 22:28:16 -0700
 >>
->> Can we make the fdb entries smaller?
+>>> Certainly, that should be done and I will look into it, but the
+>>> essence of this patch is a bit different. The problem here is not
+>>> the size of the fdb entries, it’s more the number of them - having
+>>> 96000 entries (even if they were 1 byte ones) is just way too much
+>>> especially when the fdb hash size is small and static. We could work
+>>> on making it dynamic though, but still these type of local entries
+>>> per vlan per port can easily be avoided with this option.
+>> 96000 bits can be stored in 12k.  Get where I'm going with this?
 >>
->> Can we enhance how we store such local entries such that they live in
->> a compact datastructure?  Perhaps the FDB can consist of a very dense
->> lookup mechanism for local stuff sitting alongside the current table.
+>> Look at the problem sideways.
+> Oh okay, I misunderstood your previous comment. I’ll look into that.
 >
-> Certainly, that should be done and I will look into it, but the essence o=
-f this patch
-> is a bit different. The problem here is not the size of the fdb entries, =
-it=E2=80=99s more the
-> number of them - having 96000 entries (even if they were 1 byte ones) is =
-just way
-> too much especially when the fdb hash size is small and static. We could =
-work on making
-> it dynamic though, but still these type of local entries per vlan per por=
-t can easily be avoided
-> with this option.
->
+I just wanted to add the other problems we have had with keeping these 
+macs (mostly from userspace POV):
+- add/del netlink notification storms
+- and large netlink dumps
 
-I was wondering if it is possible to assign a vlan bitmap for the FDB
-entry, instead of replicating the entry for each vlan. ( I believe
-Roopa has done something similar, but not so sure). This means that
-the number of FDB entries remain static for any number of vlans.
+In addition to in-kernel optimizations, will be nice to have a solution 
+that reduces the burden on userspace. That will need a newer netlink 
+dump format for fdbs. Considering all the changes needed, Nikolays patch 
+seems less intrusive.
 
-I guess its more complicated than it sounds, but just wanted to know
-if its feasible at all.
 
-Thanks
-Vissu
-
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
