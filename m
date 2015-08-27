@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Thu, 27 Aug 2015 15:35:44 -0700 (PDT)
-Message-Id: <20150827.153544.1324848960394791457.davem@davemloft.net>
+Date: Thu, 27 Aug 2015 16:39:09 -0700 (PDT)
+Message-Id: <20150827.163909.1905886152046450354.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1440657146-23437-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1440657146-23437-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1440710360-5390-1-git-send-email-razor@blackwall.org>
+References: <1440710360-5390-1-git-send-email-razor@blackwall.org>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2 net-next] bridge: Add netlink support for
- vlan_protocol attribute
+Subject: Re: [Bridge] [PATCH net-next] bridge: fdb: rearrange
+	net_bridge_fdb_entry
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,19 +17,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: razor@blackwall.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Thu, 27 Aug 2015 15:32:26 +0900
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Thu, 27 Aug 2015 14:19:20 -0700
 
-> This enables bridge vlan_protocol to be configured through netlink.
+> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 > 
-> When CONFIG_BRIDGE_VLAN_FILTERING is disabled, kernel behaves the
-> same way as this feature is not implemented.
-> 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> ---
-> v2: Fix u16 to __be16
+> While looking into fixing the local entries scalability issue I noticed
+> that the structure is badly arranged because vlan_id would fall in a
+> second cache line while keeping rcu which is used only when deleting
+> in the first, so re-arrange the structure and push rcu to the end so we
+> can get 16 bytes which can be used for other fields (by pushing rcu
+> fully in the second 64 byte chunk). With this change all the core
+> necessary information when doing fdb lookups will be available in a
+> single cache line.
+ ...
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Applied, thank you.
+This looks fine, applied, thanks.
