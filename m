@@ -1,26 +1,9 @@
-Return-Path: <roopa@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=YBL8RTl7wbpirBloRXMmbAg6UzwqHsaATJaKZ6ZfcjM=;
-	b=eEzkgqw1+lmel9wgQxgyG/Wwz5EZXx3rolQUUpbA1OGIFVjfCclQO9KbL+zI7QzsxJ
-	jAnxbNrdSLfdDU1YkUiXuX7gCDx6x4CdtjgPJRjw6A0HUt5aomjvkmlbPBKw3zK03M7A
-	3HYnnZuurQ/63cJzKSi3AW79qVrIjbDZTuxXo=
-Message-ID: <55DE98AF.8000503@cumulusnetworks.com>
-Date: Wed, 26 Aug 2015 21:57:19 -0700
-From: roopa <roopa@cumulusnetworks.com>
-MIME-Version: 1.0
-References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-	<20150825.194222.390859854071446877.davem@davemloft.net>
-	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
-	<20150825.230641.773630246486190390.davem@davemloft.net>
-	<AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
-In-Reply-To: <AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
- local mac install for all vlans
+Return-Path: <makita@lab.ntt.co.jp>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Thu, 27 Aug 2015 15:00:05 +0900
+Message-Id: <1440655205-14247-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [Bridge] [PATCH net-next] bridge: Add netlink support for
+	vlan_protocol attribute
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,35 +12,187 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com, David Miller <davem@davemloft.net>
+To: "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On 8/26/15, 4:33 AM, Nikolay Aleksandrov wrote:
->> On Aug 25, 2015, at 11:06 PM, David Miller <davem@davemloft.net> wrote:
->>
->> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->> Date: Tue, 25 Aug 2015 22:28:16 -0700
->>
->>> Certainly, that should be done and I will look into it, but the
->>> essence of this patch is a bit different. The problem here is not
->>> the size of the fdb entries, it’s more the number of them - having
->>> 96000 entries (even if they were 1 byte ones) is just way too much
->>> especially when the fdb hash size is small and static. We could work
->>> on making it dynamic though, but still these type of local entries
->>> per vlan per port can easily be avoided with this option.
->> 96000 bits can be stored in 12k.  Get where I'm going with this?
->>
->> Look at the problem sideways.
-> Oh okay, I misunderstood your previous comment. I’ll look into that.
->
-I just wanted to add the other problems we have had with keeping these 
-macs (mostly from userspace POV):
-- add/del netlink notification storms
-- and large netlink dumps
+This enables bridge vlan_protocol to be configured through netlink.
 
-In addition to in-kernel optimizations, will be nice to have a solution 
-that reduces the burden on userspace. That will need a newer netlink 
-dump format for fdbs. Considering all the changes needed, Nikolays patch 
-seems less intrusive.
+When CONFIG_BRIDGE_VLAN_FILTERING is disabled, kernel behaves the
+same way as this feature is not implemented.
+
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ include/uapi/linux/if_link.h |  1 +
+ net/bridge/br_netlink.c      | 34 ++++++++++++++++++++++++++++++++++
+ net/bridge/br_private.h      |  1 +
+ net/bridge/br_vlan.c         | 35 +++++++++++++++++++++--------------
+ 4 files changed, 57 insertions(+), 14 deletions(-)
+
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index 313c305..2d13dd4 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -231,6 +231,7 @@ enum {
+ 	IFLA_BR_STP_STATE,
+ 	IFLA_BR_PRIORITY,
+ 	IFLA_BR_VLAN_FILTERING,
++	IFLA_BR_VLAN_PROTOCOL,
+ 	__IFLA_BR_MAX,
+ };
+ 
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index dbcb194..9cea3cf 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -673,6 +673,21 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
+ 			return -EADDRNOTAVAIL;
+ 	}
+ 
++	if (!data)
++		return 0;
++
++#ifdef CONFIG_BRIDGE_VLAN_FILTERING
++	if (data[IFLA_BR_VLAN_PROTOCOL]) {
++		switch (nla_get_be16(data[IFLA_BR_VLAN_PROTOCOL])) {
++		case htons(ETH_P_8021Q):
++		case htons(ETH_P_8021AD):
++			break;
++		default:
++			return -EPROTONOSUPPORT;
++		}
++	}
++#endif
++
+ 	return 0;
+ }
+ 
+@@ -729,6 +744,7 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
+ 	[IFLA_BR_STP_STATE] = { .type = NLA_U32 },
+ 	[IFLA_BR_PRIORITY] = { .type = NLA_U16 },
+ 	[IFLA_BR_VLAN_FILTERING] = { .type = NLA_U8 },
++	[IFLA_BR_VLAN_PROTOCOL] = { .type = NLA_U16 },
+ };
+ 
+ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+@@ -784,6 +800,16 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 			return err;
+ 	}
+ 
++#ifdef CONFIG_BRIDGE_VLAN_FILTERING
++	if (data[IFLA_BR_VLAN_PROTOCOL]) {
++		u16 vlan_proto = nla_get_be16(data[IFLA_BR_VLAN_PROTOCOL]);
++
++		err = __br_vlan_set_proto(br, vlan_proto);
++		if (err)
++			return err;
++	}
++#endif
++
+ 	return 0;
+ }
+ 
+@@ -796,6 +822,9 @@ static size_t br_get_size(const struct net_device *brdev)
+ 	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_STP_STATE */
+ 	       nla_total_size(sizeof(u16)) +    /* IFLA_BR_PRIORITY */
+ 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_VLAN_FILTERING */
++#ifdef CONFIG_BRIDGE_VLAN_FILTERING
++	       nla_total_size(sizeof(__be16)) +	/* IFLA_BR_VLAN_PROTOCOL */
++#endif
+ 	       0;
+ }
+ 
+@@ -819,6 +848,11 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ 	    nla_put_u8(skb, IFLA_BR_VLAN_FILTERING, vlan_enabled))
+ 		return -EMSGSIZE;
+ 
++#ifdef CONFIG_BRIDGE_VLAN_FILTERING
++	if (nla_put_be16(skb, IFLA_BR_VLAN_PROTOCOL, br->vlan_proto))
++		return -EMSGSIZE;
++#endif
++
+ 	return 0;
+ }
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 3d95647..19e8f79 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -616,6 +616,7 @@ bool br_vlan_find(struct net_bridge *br, u16 vid);
+ void br_recalculate_fwd_mask(struct net_bridge *br);
+ int __br_vlan_filter_toggle(struct net_bridge *br, unsigned long val);
+ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val);
++int __br_vlan_set_proto(struct net_bridge *br, __be16 proto);
+ int br_vlan_set_proto(struct net_bridge *br, unsigned long val);
+ int br_vlan_init(struct net_bridge *br);
+ int br_vlan_set_default_pvid(struct net_bridge *br, unsigned long val);
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 3cef689..3cd8cc9 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -492,23 +492,16 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val)
+ 	return 0;
+ }
+ 
+-int br_vlan_set_proto(struct net_bridge *br, unsigned long val)
++int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ {
+ 	int err = 0;
+ 	struct net_bridge_port *p;
+ 	struct net_port_vlans *pv;
+-	__be16 proto, oldproto;
++	__be16 oldproto;
+ 	u16 vid, errvid;
+ 
+-	if (val != ETH_P_8021Q && val != ETH_P_8021AD)
+-		return -EPROTONOSUPPORT;
+-
+-	if (!rtnl_trylock())
+-		return restart_syscall();
+-
+-	proto = htons(val);
+ 	if (br->vlan_proto == proto)
+-		goto unlock;
++		return 0;
+ 
+ 	/* Add VLANs for the new proto to the device filter. */
+ 	list_for_each_entry(p, &br->port_list, list) {
+@@ -539,9 +532,7 @@ int br_vlan_set_proto(struct net_bridge *br, unsigned long val)
+ 			vlan_vid_del(p->dev, oldproto, vid);
+ 	}
+ 
+-unlock:
+-	rtnl_unlock();
+-	return err;
++	return 0;
+ 
+ err_filt:
+ 	errvid = vid;
+@@ -557,7 +548,23 @@ err_filt:
+ 			vlan_vid_del(p->dev, proto, vid);
+ 	}
+ 
+-	goto unlock;
++	return err;
++}
++
++int br_vlan_set_proto(struct net_bridge *br, unsigned long val)
++{
++	int err;
++
++	if (val != ETH_P_8021Q && val != ETH_P_8021AD)
++		return -EPROTONOSUPPORT;
++
++	if (!rtnl_trylock())
++		return restart_syscall();
++
++	err = __br_vlan_set_proto(br, htons(val));
++	rtnl_unlock();
++
++	return err;
+ }
+ 
+ static bool vlan_default_pvid(struct net_port_vlans *pv, u16 vid)
+-- 
+1.8.1.2
 
 
