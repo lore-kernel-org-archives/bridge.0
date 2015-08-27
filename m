@@ -1,27 +1,9 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=content-type:mime-version:subject:from:in-reply-to:date:cc
-	:content-transfer-encoding:message-id:references:to;
-	bh=SQVE6lAKJPwwph9cq8nVuiVlQMbg6Ybk5Vb3NRyxeIw=;
-	b=TOPkr5qDBn82EMmBSNJ5z7qyNjiTujpmotJDcbRuSCdeAGK2euw+jxgpa0jh1W7Wma
-	xGRwywix/5iGJcfsD8N7ASCCvzKC8JXE0QO3R87mwcj1ARSwffR7pvVukIu97nc1Cktf
-	fvFf1lEQuM+FEnHLi5Lrk68aI6TBfexlZvlMQ=
-Content-Type: text/plain; charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-In-Reply-To: <55DE98AF.8000503@cumulusnetworks.com>
-Date: Thu, 27 Aug 2015 14:02:05 -0700
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <2125A434-6529-4D5A-BA6B-9F64C6B7A8C0@cumulusnetworks.com>
-References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-	<20150825.194222.390859854071446877.davem@davemloft.net>
-	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
-	<20150825.230641.773630246486190390.davem@davemloft.net>
-	<AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
-	<55DE98AF.8000503@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
-	local mac install for all vlans
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Thu, 27 Aug 2015 14:19:20 -0700
+Message-Id: <1440710360-5390-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net-next] bridge: fdb: rearrange
+	net_bridge_fdb_entry
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,81 +12,98 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: roopa <roopa@cumulusnetworks.com>
-Cc: vyasevic@redhat.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, wkok@cumulusnetworks.com, David Miller <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net
 
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> On Aug 26, 2015, at 9:57 PM, roopa <roopa@cumulusnetworks.com> wrote:
->=20
-> On 8/26/15, 4:33 AM, Nikolay Aleksandrov wrote:
->>> On Aug 25, 2015, at 11:06 PM, David Miller <davem@davemloft.net> =
-wrote:
->>>=20
->>> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>> Date: Tue, 25 Aug 2015 22:28:16 -0700
->>>=20
->>>> Certainly, that should be done and I will look into it, but the
->>>> essence of this patch is a bit different. The problem here is not
->>>> the size of the fdb entries, it=E2=80=99s more the number of them - =
-having
->>>> 96000 entries (even if they were 1 byte ones) is just way too much
->>>> especially when the fdb hash size is small and static. We could =
-work
->>>> on making it dynamic though, but still these type of local entries
->>>> per vlan per port can easily be avoided with this option.
->>> 96000 bits can be stored in 12k.  Get where I'm going with this?
->>>=20
->>> Look at the problem sideways.
->> Oh okay, I misunderstood your previous comment. I=E2=80=99ll look =
-into that.
->>=20
-> I just wanted to add the other problems we have had with keeping these =
-macs (mostly from userspace POV):
-> - add/del netlink notification storms
-> - and large netlink dumps
->=20
-> In addition to in-kernel optimizations, will be nice to have a =
-solution that reduces the burden on userspace. That will need a newer =
-netlink dump format for fdbs. Considering all the changes needed, =
-Nikolays patch seems less intrusive.
+While looking into fixing the local entries scalability issue I noticed
+that the structure is badly arranged because vlan_id would fall in a
+second cache line while keeping rcu which is used only when deleting
+in the first, so re-arrange the structure and push rcu to the end so we
+can get 16 bytes which can be used for other fields (by pushing rcu
+fully in the second 64 byte chunk). With this change all the core
+necessary information when doing fdb lookups will be available in a
+single cache line.
 
-Right, we need to take these into account as well. I=E2=80=99ll continue =
-the discussion on this (or restart it) because
-I looked into using a bitmap for the local entries only and while it =
-fixes the scalability issue, it presents
-a few new ones which are mostly related to the fact that these entries =
-now exist only without a vlan
-and if a new mac comes along which matches one of these but is in a =
-vlan, the entry will get created
-in br_fdb_update() unless we add a second lookup, but that will slow =
-down the learning path.
-Also this change requires an update of every fdb function that uses the =
-vid as a key (every fdb function?!)
-because now we can have the mac in two places instead of one which is a =
-pretty big churn with lots
-of conditionals all over the place and I don=E2=80=99t like it. Adding =
-this complexity for the local addresses only
-seems like an overkill, so I think to drop this issue for now.
-This patch (that works around the initial problem) also has these =
-issues.
-Note that one way to take care of this in a more straight-forward way =
-would be to have each entry
-with some sort of a bitmap (like Vlad has tried earlier) and then we can =
-combine the paths so most
-of these issues disappear, but that will not be easy as was already =
-commented earlier. I=E2=80=99ve looked
-briefly into doing this with rhashtable so we can keep the memory =
-footprint for each entry relatively
-small but it still affects the performance and we can have thousands of =
-resizes happening.=20
+pahole before (note vlan_id):
+struct net_bridge_fdb_entry {
+	struct hlist_node          hlist;                /*     0    16 */
+	struct net_bridge_port *   dst;                  /*    16     8 */
+	struct callback_head       rcu;                  /*    24    16 */
+	long unsigned int          updated;              /*    40     8 */
+	long unsigned int          used;                 /*    48     8 */
+	mac_addr                   addr;                 /*    56     6 */
+	unsigned char              is_local:1;           /*    62: 7  1 */
+	unsigned char              is_static:1;          /*    62: 6  1 */
+	unsigned char              added_by_user:1;      /*    62: 5  1 */
+	unsigned char              added_by_external_learn:1; /*    62: 4  1 */
 
-On the notification side if we can fix that, we can actually delete the =
-96000 entries without creating a
-huge notification storm and do a user-land workaround of the original =
-issue, so I=E2=80=99ll look into that next.
+	/* XXX 4 bits hole, try to pack */
+	/* XXX 1 byte hole, try to pack */
 
-Any comments or ideas are very welcome.
+	/* --- cacheline 1 boundary (64 bytes) --- */
+	__u16                      vlan_id;              /*    64     2 */
 
-Thank you,
- Nik
+	/* size: 72, cachelines: 2, members: 11 */
+	/* sum members: 65, holes: 1, sum holes: 1 */
+	/* bit holes: 1, sum bit holes: 4 bits */
+	/* padding: 6 */
+	/* last cacheline: 8 bytes */
+}
+
+pahole after (note vlan_id):
+struct net_bridge_fdb_entry {
+	struct hlist_node          hlist;                /*     0    16 */
+	struct net_bridge_port *   dst;                  /*    16     8 */
+	long unsigned int          updated;              /*    24     8 */
+	long unsigned int          used;                 /*    32     8 */
+	mac_addr                   addr;                 /*    40     6 */
+	__u16                      vlan_id;              /*    46     2 */
+	unsigned char              is_local:1;           /*    48: 7  1 */
+	unsigned char              is_static:1;          /*    48: 6  1 */
+	unsigned char              added_by_user:1;      /*    48: 5  1 */
+	unsigned char              added_by_external_learn:1; /*    48: 4  1 */
+
+	/* XXX 4 bits hole, try to pack */
+	/* XXX 7 bytes hole, try to pack */
+
+	struct callback_head       rcu;                  /*    56    16 */
+	/* --- cacheline 1 boundary (64 bytes) was 8 bytes ago --- */
+
+	/* size: 72, cachelines: 2, members: 11 */
+	/* sum members: 65, holes: 1, sum holes: 7 */
+	/* bit holes: 1, sum bit holes: 4 bits */
+	/* last cacheline: 8 bytes */
+}
+
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_private.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 3d95647039d0..8c97a22b1790 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -95,15 +95,15 @@ struct net_bridge_fdb_entry
+ 	struct hlist_node		hlist;
+ 	struct net_bridge_port		*dst;
+ 
+-	struct rcu_head			rcu;
+ 	unsigned long			updated;
+ 	unsigned long			used;
+ 	mac_addr			addr;
++	__u16				vlan_id;
+ 	unsigned char			is_local:1,
+ 					is_static:1,
+ 					added_by_user:1,
+ 					added_by_external_learn:1;
+-	__u16				vlan_id;
++	struct rcu_head			rcu;
+ };
+ 
+ struct net_bridge_port_group {
+-- 
+2.4.3
 
