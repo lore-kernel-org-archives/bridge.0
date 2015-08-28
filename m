@@ -1,23 +1,24 @@
-Return-Path: <vyasevic@redhat.com>
-Message-ID: <55E05486.5090500@redhat.com>
-Date: Fri, 28 Aug 2015 08:31:02 -0400
-From: Vlad Yasevich <vyasevic@redhat.com>
-Reply-To: vyasevic@redhat.com
-MIME-Version: 1.0
-References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-	<20150825.194222.390859854071446877.davem@davemloft.net>
-	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
-	<20150825.230641.773630246486190390.davem@davemloft.net>
-	<AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
-	<55DE98AF.8000503@cumulusnetworks.com>
-	<2125A434-6529-4D5A-BA6B-9F64C6B7A8C0@cumulusnetworks.com>
-	<55DFA1A3.30601@redhat.com>
-	<691CF770-DDF3-4AC9-B99C-9640992037C5@cumulusnetworks.com>
-In-Reply-To: <691CF770-DDF3-4AC9-B99C-9640992037C5@cumulusnetworks.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
- local mac install for all vlans
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=content-type:mime-version:subject:from:in-reply-to:date:cc
+	:content-transfer-encoding:message-id:references:to;
+	bh=xxp1XcyJvoHbntVyDGFW9WBQc62LIw3u/FrJTa+ksQE=;
+	b=AMcvMShZaydLwVGqcp2emq8qYj6P3wQBzCR9qaRwAvZbR1fdulNh0BE55pGqChYXSa
+	PXz2mfEmXby5bCK6Wtq8FjSmu9Jhvt2PnMvo//hCA2IN66AiXRk6NyrJFQcUL6XvXfHb
+	42k5xyZIKJnv1uyaMwXPpOMsEamC41hMGh0Is=
+Content-Type: text/plain; charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+In-Reply-To: <55E040A9.8040707@gmail.com>
+Date: Fri, 28 Aug 2015 08:25:26 -0700
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <23C117DA-E4B0-42B5-9445-FCD59BB8B48B@cumulusnetworks.com>
+References: <1440655205-14247-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<63AC6A69-F9A1-4A83-8EF7-D897243743B4@cumulusnetworks.com>
+	<55E040A9.8040707@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next] bridge: Add netlink support for
+	vlan_protocol attribute
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,104 +27,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, roopa <roopa@cumulusnetworks.com>, wkok@cumulusnetworks.com, David Miller <davem@davemloft.net>
+To: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>
 
-On 08/27/2015 10:17 PM, Nikolay Aleksandrov wrote:
-> 
->> On Aug 27, 2015, at 4:47 PM, Vlad Yasevich <vyasevic@redhat.com> wrote:
->>
->> On 08/27/2015 05:02 PM, Nikolay Aleksandrov wrote:
->>>
->>>> On Aug 26, 2015, at 9:57 PM, roopa <roopa@cumulusnetworks.com> wrote:
->>>>
->>>> On 8/26/15, 4:33 AM, Nikolay Aleksandrov wrote:
->>>>>> On Aug 25, 2015, at 11:06 PM, David Miller <davem@davemloft.net> wrote:
->>>>>>
->>>>>> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>>>>> Date: Tue, 25 Aug 2015 22:28:16 -0700
->>>>>>
->>>>>>> Certainly, that should be done and I will look into it, but the
->>>>>>> essence of this patch is a bit different. The problem here is not
->>>>>>> the size of the fdb entries, it’s more the number of them - having
->>>>>>> 96000 entries (even if they were 1 byte ones) is just way too much
->>>>>>> especially when the fdb hash size is small and static. We could work
->>>>>>> on making it dynamic though, but still these type of local entries
->>>>>>> per vlan per port can easily be avoided with this option.
->>>>>> 96000 bits can be stored in 12k.  Get where I'm going with this?
->>>>>>
->>>>>> Look at the problem sideways.
->>>>> Oh okay, I misunderstood your previous comment. I’ll look into that.
->>>>>
->>>> I just wanted to add the other problems we have had with keeping these macs (mostly from userspace POV):
->>>> - add/del netlink notification storms
->>>> - and large netlink dumps
->>>>
->>>> In addition to in-kernel optimizations, will be nice to have a solution that reduces the burden on userspace. That will need a newer netlink dump format for fdbs. Considering all the changes needed, Nikolays patch seems less intrusive.
->>>
->>> Right, we need to take these into account as well. I’ll continue the discussion on this (or restart it) because
->>> I looked into using a bitmap for the local entries only and while it fixes the scalability issue, it presents
->>> a few new ones which are mostly related to the fact that these entries now exist only without a vlan
->>> and if a new mac comes along which matches one of these but is in a vlan, the entry will get created
->>> in br_fdb_update() unless we add a second lookup, but that will slow down the learning path.
->>> Also this change requires an update of every fdb function that uses the vid as a key (every fdb function?!)
->>> because now we can have the mac in two places instead of one which is a pretty big churn with lots
->>> of conditionals all over the place and I don’t like it. Adding this complexity for the local addresses only
->>> seems like an overkill, so I think to drop this issue for now.
->>
->> I seem to recall Roopa and I and maybe a few others have discussing this a few
->> years ago at plumbers, I can't remember the details any more.  All these local
->> addresses add a ton of confusion.  Does anyone (Stephen?) remember what the
->> original reason was for all these local addresses? I wonder if we can have
->> a nob to disable all of them (not just per vlan)?  That might be cleaner and
->> easier to swallow.
->>
-> 
-> Right, this would be the easiest way and if the others agree - I’ll post a patch for it so we can
-> have some way to resolve it today and even if we fix the scalability issue, this is still a valid case
-> that some people don’t want local fdbs installed automatically.
-> Any objections to this ?
-> 
->>> This patch (that works around the initial problem) also has these issues.
->>> Note that one way to take care of this in a more straight-forward way would be to have each entry
->>> with some sort of a bitmap (like Vlad has tried earlier) and then we can combine the paths so most
->>> of these issues disappear, but that will not be easy as was already commented earlier. I’ve looked
->>> briefly into doing this with rhashtable so we can keep the memory footprint for each entry relatively
->>> small but it still affects the performance and we can have thousands of resizes happening. 
->>>
->>
->> So, one of the earlier approaches that I've tried (before rhashtable was
->> in the kernel) was to have a hash of vlan ids each with a data structure
->> pointing to a list of ports for a given vlan as well as a list of fdbs for
->> a given vlan.  As far as scalability goes, that's really the best approach.
->> It would also allow us to do packet accounting per vlan.  The only concern
->> at the time was performance of ingress lookup.   I think rhashtables might
->> help with this as well as ability to grow the footprint of the vlan hash
->> table dynamically.
->>
->> -vlad
->>
-> I’ll look into it but I’m guessing the learning will become a more complicated process with additional 
-> allocations and some hash handling.
 
-I don't remember learning being all that complicated.  The hash only changed under
-rtnl when vlans were added/removed.  The nice this is that we wouldn't need
-to rebalance, because if the vlan is removed all fdb links get removed too.  They
-don't move to another bucket (But that was with static hash.  Need to look at rhash in
-more detail).
+> On Aug 28, 2015, at 4:06 AM, Toshiaki Makita =
+<toshiaki.makita1@gmail.com> wrote:
+>=20
+> On 15/08/28 (=E9=87=91) 0:48, Nikolay Aleksandrov wrote:
+>>=20
+>>> On Aug 26, 2015, at 11:00 PM, Toshiaki Makita =
+<makita.toshiaki@lab.ntt.co.jp> wrote:
+>>>=20
+>>> This enables bridge vlan_protocol to be configured through netlink.
+>>>=20
+>>> When CONFIG_BRIDGE_VLAN_FILTERING is disabled, kernel behaves the
+>>> same way as this feature is not implemented.
+>>>=20
+>>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+>>> ---
+>>> include/uapi/linux/if_link.h |  1 +
+>>> net/bridge/br_netlink.c      | 34 ++++++++++++++++++++++++++++++++++
+>>> net/bridge/br_private.h      |  1 +
+>>> net/bridge/br_vlan.c         | 35 =
++++++++++++++++++++++--------------
+>>> 4 files changed, 57 insertions(+), 14 deletions(-)
+>>>=20
+>>=20
+>> Nice, looks good. I have a similar patch as well and was going to ask =
+wouldn=E2=80=99t it be
+>> better to make empty stubs which return an error when vlan filtering =
+isn=E2=80=99t configured
+>> and drop the ifdefs in the netlink handling code ?
+>> Similar to how vlan_filtering netlink attribute is handled in commit:
+>> a7854037da00 ("bridge: netlink: add support for vlan_filtering =
+attribute=E2=80=9D)
+>>=20
+>> Potential problem would be the return of the protocol, but I think if =
+0 is returned that
+>> can be handled.
+>=20
+> This is the exact reason why I didn't implement the stub.
+> I wanted to avoid to charge userspace with that special casing 0.
+> Also, this is consistent with sysfs implementation, which doesn't =
+expose vlan_* entries when CONFIG_BRIDGE_VLAN_PROTOCOL is disabled.
+>=20
+> Toshiaki Makita
 
-If you want, I might still have patches hanging around on my machine that had a hash
-table implementation.  I can send them to you.
+Okay, fair enough.
 
--vlad
-
-> 
->>> On the notification side if we can fix that, we can actually delete the 96000 entries without creating a
->>> huge notification storm and do a user-land workaround of the original issue, so I’ll look into that next.
->>>
->>> Any comments or ideas are very welcome.
->>>
->>> Thank you,
->>> Nik
-> 
-
+Thanks,
+ Nik=
