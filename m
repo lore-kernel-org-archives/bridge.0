@@ -1,25 +1,13 @@
-Return-Path: <vyasevic@redhat.com>
-Message-ID: <55E106DC.5040802@redhat.com>
-Date: Fri, 28 Aug 2015 21:11:56 -0400
-From: Vlad Yasevich <vyasevic@redhat.com>
-Reply-To: vyasevic@redhat.com
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Tue, 8 Sep 2015 04:24:17 +0200
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20150908022303.GA1562@odroid>
+References: <55ED8723.9070501@googlemail.com>
 MIME-Version: 1.0
-References: <1440549295-3979-1-git-send-email-razor@blackwall.org>
-	<20150825.194222.390859854071446877.davem@davemloft.net>
-	<E065D3DC-6CBC-4625-8800-5133E21C5483@cumulusnetworks.com>
-	<20150825.230641.773630246486190390.davem@davemloft.net>
-	<AB16F445-DCA7-437E-B6E1-B70FDC63E55A@cumulusnetworks.com>
-	<55DE98AF.8000503@cumulusnetworks.com>
-	<2125A434-6529-4D5A-BA6B-9F64C6B7A8C0@cumulusnetworks.com>
-	<55DFA1A3.30601@redhat.com>
-	<691CF770-DDF3-4AC9-B99C-9640992037C5@cumulusnetworks.com>
-	<55E05486.5090500@redhat.com>
-	<B05F9EE8-169A-4E9E-8929-24ED64F8EBE9@cumulusnetworks.com>
-In-Reply-To: <B05F9EE8-169A-4E9E-8929-24ED64F8EBE9@cumulusnetworks.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: vlan: allow to suppress
- local mac install for all vlans
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <55ED8723.9070501@googlemail.com>
+Subject: Re: [Bridge] net: Export IGMP/MLD message validation code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,127 +16,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, roopa <roopa@cumulusnetworks.com>, wkok@cumulusnetworks.com, David Miller <davem@davemloft.net>
+To: Tobias Powalowski <tobias.powalowski@googlemail.com>
+Cc: bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 08/28/2015 11:26 AM, Nikolay Aleksandrov wrote:
+Hi tpowa,
+
+Thanks for your feedback.
+
+
+On Mon, Sep 07, 2015 at 02:46:27PM +0200, Tobias Powalowski wrote:
+> Hi,
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9afd85c9e4552b276e2f4cfefd622bdeeffbbf26
 > 
->> On Aug 28, 2015, at 5:31 AM, Vlad Yasevich <vyasevic@redhat.com> wrote:
->>
->> On 08/27/2015 10:17 PM, Nikolay Aleksandrov wrote:
->>>
->>>> On Aug 27, 2015, at 4:47 PM, Vlad Yasevich <vyasevic@redhat.com> wrote:
->>>>
->>>> On 08/27/2015 05:02 PM, Nikolay Aleksandrov wrote:
->>>>>
->>>>>> On Aug 26, 2015, at 9:57 PM, roopa <roopa@cumulusnetworks.com> wrote:
->>>>>>
->>>>>> On 8/26/15, 4:33 AM, Nikolay Aleksandrov wrote:
->>>>>>>> On Aug 25, 2015, at 11:06 PM, David Miller <davem@davemloft.net> wrote:
->>>>>>>>
->>>>>>>> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>>>>>>> Date: Tue, 25 Aug 2015 22:28:16 -0700
->>>>>>>>
->>>>>>>>> Certainly, that should be done and I will look into it, but the
->>>>>>>>> essence of this patch is a bit different. The problem here is not
->>>>>>>>> the size of the fdb entries, it’s more the number of them - having
->>>>>>>>> 96000 entries (even if they were 1 byte ones) is just way too much
->>>>>>>>> especially when the fdb hash size is small and static. We could work
->>>>>>>>> on making it dynamic though, but still these type of local entries
->>>>>>>>> per vlan per port can easily be avoided with this option.
->>>>>>>> 96000 bits can be stored in 12k.  Get where I'm going with this?
->>>>>>>>
->>>>>>>> Look at the problem sideways.
->>>>>>> Oh okay, I misunderstood your previous comment. I’ll look into that.
->>>>>>>
->>>>>> I just wanted to add the other problems we have had with keeping these macs (mostly from userspace POV):
->>>>>> - add/del netlink notification storms
->>>>>> - and large netlink dumps
->>>>>>
->>>>>> In addition to in-kernel optimizations, will be nice to have a solution that reduces the burden on userspace. That will need a newer netlink dump format for fdbs. Considering all the changes needed, Nikolays patch seems less intrusive.
->>>>>
->>>>> Right, we need to take these into account as well. I’ll continue the discussion on this (or restart it) because
->>>>> I looked into using a bitmap for the local entries only and while it fixes the scalability issue, it presents
->>>>> a few new ones which are mostly related to the fact that these entries now exist only without a vlan
->>>>> and if a new mac comes along which matches one of these but is in a vlan, the entry will get created
->>>>> in br_fdb_update() unless we add a second lookup, but that will slow down the learning path.
->>>>> Also this change requires an update of every fdb function that uses the vid as a key (every fdb function?!)
->>>>> because now we can have the mac in two places instead of one which is a pretty big churn with lots
->>>>> of conditionals all over the place and I don’t like it. Adding this complexity for the local addresses only
->>>>> seems like an overkill, so I think to drop this issue for now.
->>>>
->>>> I seem to recall Roopa and I and maybe a few others have discussing this a few
->>>> years ago at plumbers, I can't remember the details any more.  All these local
->>>> addresses add a ton of confusion.  Does anyone (Stephen?) remember what the
->>>> original reason was for all these local addresses? I wonder if we can have
->>>> a nob to disable all of them (not just per vlan)?  That might be cleaner and
->>>> easier to swallow.
->>>>
->>>
->>> Right, this would be the easiest way and if the others agree - I’ll post a patch for it so we can
->>> have some way to resolve it today and even if we fix the scalability issue, this is still a valid case
->>> that some people don’t want local fdbs installed automatically.
->>> Any objections to this ?
->>>
->>>>> This patch (that works around the initial problem) also has these issues.
->>>>> Note that one way to take care of this in a more straight-forward way would be to have each entry
->>>>> with some sort of a bitmap (like Vlad has tried earlier) and then we can combine the paths so most
->>>>> of these issues disappear, but that will not be easy as was already commented earlier. I’ve looked
->>>>> briefly into doing this with rhashtable so we can keep the memory footprint for each entry relatively
->>>>> small but it still affects the performance and we can have thousands of resizes happening. 
->>>>>
->>>>
->>>> So, one of the earlier approaches that I've tried (before rhashtable was
->>>> in the kernel) was to have a hash of vlan ids each with a data structure
->>>> pointing to a list of ports for a given vlan as well as a list of fdbs for
->>>> a given vlan.  As far as scalability goes, that's really the best approach.
->>>> It would also allow us to do packet accounting per vlan.  The only concern
->>>> at the time was performance of ingress lookup.   I think rhashtables might
->>>> help with this as well as ability to grow the footprint of the vlan hash
->>>> table dynamically.
->>>>
->>>> -vlad
->>>>
->>> I’ll look into it but I’m guessing the learning will become a more complicated process with additional 
->>> allocations and some hash handling.
->>
->> I don't remember learning being all that complicated.  The hash only changed under
->> rtnl when vlans were added/removed.  The nice this is that we wouldn't need
->> to rebalance, because if the vlan is removed all fdb links get removed too.  They
->> don't move to another bucket (But that was with static hash.  Need to look at rhash in
->> more detail).
->>
->> If you want, I might still have patches hanging around on my machine that had a hash
->> table implementation.  I can send them to you.
->>
->> -vlad
->>
+> This commit introduces a weird behaviour on my dlna server.
+
+Did you experience this on the released 4.2 kernel or on a 4.2 release
+candidate?
+
+> This commit was merged into 4.2 series, which makes my dlna services
+> disappear real soon after starting from discovering from other clients.
+> Localhost seems not to be affected but every external discovery is broken.
+> The dlna services run on a bridge device. Mythtv and Minidlna both
+> disappear after some minutes of running.
+> Git bisect shows first commit as reason, trying now a 4.2 with those 3
+> patches reverted:
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a516993f0ac1694673412eb2d16a091eafa77d2a
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fcba67c94abe83e0e69a65737000ccbb16a4fa03
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9afd85c9e4552b276e2f4cfefd622bdeeffbbf26
 > 
-> :-) Okay, I’m putting the crystal ball away. If you could send me these patches it’d be great so
-> I don’t have to start this from scratch.
+> Do you need any more information to get this really weird bug fixed?
+
+If you have this issue with the vanilla, released 4.2 kernel, then
+a "tcpdump -i br0 'icmp6 or ip6 proto 0'" for about five minutes and
+a "bridge mdb show" would be helpful.
+
+Also which distros are the dlna server and dlna client running,
+how are they connected?
+
+> 
+> Thanks in advance.
+> 
+> greetings
+> tpowa
+
+Cheers, Linus
+
+> 
+> -- 
+> Tobias Powalowski
+> Archlinux Developer & Package Maintainer (tpowa)
+> http://www.archlinux.org
+> tpowa@archlinux.org
+> 
 > 
 
-So, I forgot that I lost an old disk that had all that code, so I am a bit bummed about
-that.  I did however find the series that got posted.
-http://www.spinics.net/lists/netdev/msg219737.html
-
-That was the series where I briefly switch from bitmaps to hash and list.
-However, I see that the fdb code that was playing with never got posted...
-
-Sorry.
-
--vlad
-
-> Thanks,
->  Nik
-> 
->>>
->>>>> On the notification side if we can fix that, we can actually delete the 96000 entries without creating a
->>>>> huge notification storm and do a user-land workaround of the original issue, so I’ll look into that next.
->>>>>
->>>>> Any comments or ideas are very welcome.
->>>>>
->>>>> Thank you,
->>>>> Nik
-> 
 
