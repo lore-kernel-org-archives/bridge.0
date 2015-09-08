@@ -1,13 +1,11 @@
 Return-Path: <linus.luessing@c0d3.blue>
-Date: Tue, 8 Sep 2015 04:24:17 +0200
+Date: Tue, 8 Sep 2015 05:11:22 +0200
 From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20150908022303.GA1562@odroid>
-References: <55ED8723.9070501@googlemail.com>
+Message-ID: <20150908031122.GB1562@odroid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <55ED8723.9070501@googlemail.com>
-Subject: Re: [Bridge] net: Export IGMP/MLD message validation code
+Subject: [Bridge] Roaming trouble with bridge & multicast snooping
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,58 +14,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Powalowski <tobias.powalowski@googlemail.com>
-Cc: bridge@lists.linux-foundation.org, davem@davemloft.net
+To: bridge@lists.linux-foundation.org, b.a.t.m.a.n@lists.open-mesh.org
 
-Hi tpowa,
+Hi bridge folks,
 
-Thanks for your feedback.
+I'm currently stuck with a simple scenario where enabling bridge
+multicast snooping causes packetloss for some time:
+
+----------
+
+(c) <~~~> (A) <---> (B)
+
+(c) is a wifi client, connected to a wifi access point (A).
+(B) is another AP connected to (A) via ethernet cable.
+The wifi-ap and ethernet interface are bridged on both (A) and (B).
 
 
-On Mon, Sep 07, 2015 at 02:46:27PM +0200, Tobias Powalowski wrote:
-> Hi,
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9afd85c9e4552b276e2f4cfefd622bdeeffbbf26
-> 
-> This commit introduces a weird behaviour on my dlna server.
+Now (c) roams from (A) to (B):
 
-Did you experience this on the released 4.2 kernel or on a 4.2 release
-candidate?
+          (A) <---> (B) <~~~> (c)
 
-> This commit was merged into 4.2 series, which makes my dlna services
-> disappear real soon after starting from discovering from other clients.
-> Localhost seems not to be affected but every external discovery is broken.
-> The dlna services run on a bridge device. Mythtv and Minidlna both
-> disappear after some minutes of running.
-> Git bisect shows first commit as reason, trying now a 4.2 with those 3
-> patches reverted:
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a516993f0ac1694673412eb2d16a091eafa77d2a
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fcba67c94abe83e0e69a65737000ccbb16a4fa03
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9afd85c9e4552b276e2f4cfefd622bdeeffbbf26
-> 
-> Do you need any more information to get this really weird bug fixed?
+----------
 
-If you have this issue with the vanilla, released 4.2 kernel, then
-a "tcpdump -i br0 'icmp6 or ip6 proto 0'" for about five minutes and
-a "bridge mdb show" would be helpful.
+Until the next multicast query is send (up to 125 seconds), (c)
+will experience multicast packet loss: (B) does not know which
+multicast traffic (c) wants yet and blocks forwarding multicast
+traffic to it.
 
-Also which distros are the dlna server and dlna client running,
-how are they connected?
+I couldn't find an IETF standard or discussion saying something
+about how to deal with multicast snooping and roaming yet (I still
+have the feeling I must have overlooked something as this scenario
+seems common to me). Does anyone know anything about that or how
+vendors implement that on their snooping switches?
 
-> 
-> Thanks in advance.
-> 
-> greetings
-> tpowa
+
+The behaviour of (c) running a 3.16 kernel is:
+After setting its wifi interface up, it stays quiet. After getting
+a link / wifi connects, it sends an IGMP/MLD report first, without
+waiting for a query. It then sends the IPv6 Neighbor Solicitation
+messages for Duplicate Address Detection to be able to claim its
+own IPv6 addresses.
+
+However it does not resend reports / Neighbor Solicitations after
+the link goes down and up again while the interface itself stays up.
+
+
+I could think of two ways to solve the issue:
+
+Either let mac80211 (hostapd?) notify the bridge once a new client
+connects. Then let the bridge send a query to the client
+immediately and directly.
+
+Or once the bridge adds an fdb entry for a new host, send a query
+to this host (no matter if it's wireless or not) immediately,
+directly.
+
+
+The "directly" could be implemented by setting the ethernet
+destination to the according unicast MAC instead.
+
+
+Even though slightly more latency, I'd opt (and would going to
+provide a patch) for the second case.
+
+
+What do others think about this?
 
 Cheers, Linus
-
-> 
-> -- 
-> Tobias Powalowski
-> Archlinux Developer & Package Maintainer (tpowa)
-> http://www.archlinux.org
-> tpowa@archlinux.org
-> 
-> 
-
-
