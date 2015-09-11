@@ -1,11 +1,14 @@
-Return-Path: <linus.luessing@c0d3.blue>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Fri, 11 Sep 2015 18:39:48 +0200
-Message-Id: <1441989588-26312-1-git-send-email-linus.luessing@c0d3.blue>
+Return-Path: <stephen@networkplumber.org>
+Date: Fri, 11 Sep 2015 12:24:45 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20150911122445.53cdfbcf@urahara>
+In-Reply-To: <1441999323-29381-1-git-send-email-phil@nwl.cc>
+References: <1441999323-29381-1-git-send-email-phil@nwl.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] bridge: fix igmpv3 / mldv2 report parsing
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [net-next PATCH] net: bridge: fix for bridging 802.1Q
+ without REORDER_HDR
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,50 +17,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Tobias Powalowski <tobias.powalowski@googlemail.com>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Phil Sutter <phil@nwl.cc>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-With the newly introduced helper functions the skb pulling is hidden in
-the checksumming function - and undone before returning to the caller.
+On Fri, 11 Sep 2015 21:22:03 +0200
+Phil Sutter <phil@nwl.cc> wrote:
 
-The IGMPv3 and MLDv2 report parsing functions in the bridge still
-assumed that the skb is pointing to the beginning of the IGMP/MLD
-message while it is now kept at the beginning of the IPv4/6 header,
-breaking the message parsing and creating packet loss.
+> When forwarding packets from an 802.1Q interface with REORDER_HDR set to
+> zero, the VLAN header previously inserted by vlan_do_receive() needs to
+> be stripped from the packet and the mac_header adjustment undone,
+> otherwise a tagged frame with first four bytes missing will be
+> transmitted.
+> 
+> Signed-off-by: Phil Sutter <phil@nwl.cc>
+> ---
+>  net/bridge/br_input.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index f921a5d..e4e3fc7 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -288,6 +288,16 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+>  	}
+>  
+>  forward:
+> +	if (is_vlan_dev(skb->dev) &&
+> +	    !(vlan_dev_priv(skb->dev)->flags & VLAN_FLAG_REORDER_HDR)) {
+> +		unsigned int offset = skb->data - skb_mac_header(skb);
+> +
+> +		skb_push(skb, offset);
+> +		memmove(skb->data + VLAN_HLEN, skb->data, 2 * ETH_ALEN);
+> +		skb->mac_header += VLAN_HLEN;
+> +		skb_pull(skb, offset);
+> +		skb_reset_mac_len(skb);
+> +	}
+>  	switch (p->state) {
+>  	case BR_STATE_FORWARDING:
+>  		rhook = rcu_dereference(br_should_route_hook);
 
-Fixing this by taking the offset between IP and IGMP/MLD header into
-account, too.
+Thanks for finding this. Is this a new thing or has it always been there?
 
-Fixes: 9afd85c9e455 ("net: Export IGMP/MLD message validation code")
-Reported-by: Tobias Powalowski <tobias.powalowski@googlemail.com>
-Tested-by: Tobias Powalowski <tobias.powalowski@googlemail.com>
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
----
- net/bridge/br_multicast.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 66efdc2..480b3de 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1006,7 +1006,7 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
- 
- 	ih = igmpv3_report_hdr(skb);
- 	num = ntohs(ih->ngrec);
--	len = sizeof(*ih);
-+	len = skb_transport_offset(skb) + sizeof(*ih);
- 
- 	for (i = 0; i < num; i++) {
- 		len += sizeof(*grec);
-@@ -1067,7 +1067,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
- 
- 	icmp6h = icmp6_hdr(skb);
- 	num = ntohs(icmp6h->icmp6_dataun.un_data16[1]);
--	len = sizeof(*icmp6h);
-+	len = skb_transport_offset(skb) + sizeof(*icmp6h);
- 
- 	for (i = 0; i < num; i++) {
- 		__be16 *nsrcs, _nsrcs;
--- 
-1.7.10.4
-
+Sorry, this looks so special case it doesn't seem like a good idea.
+Something is broken in VLAN handling if this is required.
