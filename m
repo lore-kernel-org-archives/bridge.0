@@ -1,14 +1,13 @@
-Return-Path: <stephen@networkplumber.org>
-Date: Fri, 11 Sep 2015 12:24:45 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20150911122445.53cdfbcf@urahara>
-In-Reply-To: <1441999323-29381-1-git-send-email-phil@nwl.cc>
-References: <1441999323-29381-1-git-send-email-phil@nwl.cc>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [net-next PATCH] net: bridge: fix for bridging 802.1Q
- without REORDER_HDR
+Return-Path: <davem@davemloft.net>
+Date: Fri, 11 Sep 2015 15:09:04 -0700 (PDT)
+Message-Id: <20150911.150904.2037048001164493906.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1441989588-26312-1-git-send-email-linus.luessing@c0d3.blue>
+References: <1441989588-26312-1-git-send-email-linus.luessing@c0d3.blue>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH net] bridge: fix igmpv3 / mldv2 report parsing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,46 +16,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Phil Sutter <phil@nwl.cc>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: linus.luessing@c0d3.blue
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, tobias.powalowski@googlemail.com
 
-On Fri, 11 Sep 2015 21:22:03 +0200
-Phil Sutter <phil@nwl.cc> wrote:
+From: Linus L=FCssing <linus.luessing@c0d3.blue>
+Date: Fri, 11 Sep 2015 18:39:48 +0200
 
-> When forwarding packets from an 802.1Q interface with REORDER_HDR set to
-> zero, the VLAN header previously inserted by vlan_do_receive() needs to
-> be stripped from the packet and the mac_header adjustment undone,
-> otherwise a tagged frame with first four bytes missing will be
-> transmitted.
-> 
-> Signed-off-by: Phil Sutter <phil@nwl.cc>
-> ---
->  net/bridge/br_input.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index f921a5d..e4e3fc7 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -288,6 +288,16 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  	}
->  
->  forward:
-> +	if (is_vlan_dev(skb->dev) &&
-> +	    !(vlan_dev_priv(skb->dev)->flags & VLAN_FLAG_REORDER_HDR)) {
-> +		unsigned int offset = skb->data - skb_mac_header(skb);
-> +
-> +		skb_push(skb, offset);
-> +		memmove(skb->data + VLAN_HLEN, skb->data, 2 * ETH_ALEN);
-> +		skb->mac_header += VLAN_HLEN;
-> +		skb_pull(skb, offset);
-> +		skb_reset_mac_len(skb);
-> +	}
->  	switch (p->state) {
->  	case BR_STATE_FORWARDING:
->  		rhook = rcu_dereference(br_should_route_hook);
+> With the newly introduced helper functions the skb pulling is hidden =
+in
+> the checksumming function - and undone before returning to the caller=
+.=
 
-Thanks for finding this. Is this a new thing or has it always been there?
+> =
 
-Sorry, this looks so special case it doesn't seem like a good idea.
-Something is broken in VLAN handling if this is required.
+> The IGMPv3 and MLDv2 report parsing functions in the bridge still
+> assumed that the skb is pointing to the beginning of the IGMP/MLD
+> message while it is now kept at the beginning of the IPv4/6 header,
+> breaking the message parsing and creating packet loss.
+> =
+
+> Fixing this by taking the offset between IP and IGMP/MLD header into
+> account, too.
+> =
+
+> Fixes: 9afd85c9e455 ("net: Export IGMP/MLD message validation code")
+> Reported-by: Tobias Powalowski <tobias.powalowski@googlemail.com>
+> Tested-by: Tobias Powalowski <tobias.powalowski@googlemail.com>
+> Signed-off-by: Linus L=FCssing <linus.luessing@c0d3.blue>
+
+There were many serious regressions introduced by that commit, I'm
+extremely disappointed.
+
+Patch applied and queued up for -stable, thanks.
