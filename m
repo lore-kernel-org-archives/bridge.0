@@ -1,13 +1,9 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 01 Oct 2015 18:07:29 -0700 (PDT)
-Message-Id: <20151001.180729.1453077933138144189.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1443637015-4153-1-git-send-email-razor@blackwall.org>
-References: <1443637015-4153-1-git-send-email-razor@blackwall.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/5] bridge: vlan: cleanups & fixes
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Fri,  2 Oct 2015 15:05:09 +0200
+Message-Id: <1443791113-12738-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net-next 0/4] bridge: vlan: cleanups & fixes (part
+	2)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,22 +12,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: razor@blackwall.org
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, vyasevich@gmail.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, vyasevich@gmail.com
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 30 Sep 2015 20:16:50 +0200
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> This is the first follow-up set, patch 01 reduces the default rhashtable
-> size and the number of locks that can be allocated. Patch 02 and 04 fix
-> possible null pointer dereferences due to the new ordering and
-> initialization on port add/del, and patch 03 moves the "pvid" member in
-> the net_bridge_vlan_group struct in order to simplify code (similar to how
-> it was with the older struct). Patch 05 fixes adding a vlan on a port which
-> is pvid and doesn't have a global context yet.
-> Please review carefully, I think this is the first use of rhashtable's
-> "locks_mul" member in the tree and I'd like to make sure it's correct.
-> Another thing that needs special attention is the nbp_vlan_flush() move
-> after the rx_handler unregister.
+Hi,
+This is the second follow-up set with one fix (patch 01) and more cleanups
+(patches 02,03 and 04). These are minor compared to the previous ones and
+should be the last before taking on the optimization changes on the
+fast-path.
 
-Series applied, thanks.
+Cheers,
+ Nik
+
+Nikolay Aleksandrov (4):
+  bridge: vlan: use rcu list for the ordered vlan list
+  bridge: vlan: use br_vlan_(get|put)_master to deal with refcounts
+  bridge: vlan: drop master_flags from __vlan_add
+  bridge: vlan: use br_vlan_should_use to simplify __vlan_add/del
+
+ net/bridge/br_netlink.c |  10 ++++-
+ net/bridge/br_private.h |   2 +-
+ net/bridge/br_vlan.c    | 102 +++++++++++++++++++++++++++---------------------
+ 3 files changed, 66 insertions(+), 48 deletions(-)
+
+-- 
+2.4.3
+
