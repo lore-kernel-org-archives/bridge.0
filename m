@@ -1,11 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri,  2 Oct 2015 15:05:10 +0200
-Message-Id: <1443791113-12738-2-git-send-email-razor@blackwall.org>
+Date: Fri,  2 Oct 2015 15:05:11 +0200
+Message-Id: <1443791113-12738-3-git-send-email-razor@blackwall.org>
 In-Reply-To: <1443791113-12738-1-git-send-email-razor@blackwall.org>
 References: <1443791113-12738-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next 1/4] bridge: vlan: use rcu list for the
-	ordered vlan list
+Subject: [Bridge] [PATCH net-next 2/4] bridge: vlan: use
+	br_vlan_(get|put)_master to deal with refcounts
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,73 +19,105 @@ Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-When I did the conversion to rhashtable I missed the required locking of
-one important user of the vlan list - br_get_link_af_size_filtered()
-which is called:
-br_ifinfo_notify() -> br_nlmsg_size() -> br_get_link_af_size_filtered()
-and the notifications can be sent without holding rtnl. Before this
-conversion the function relied on using rcu and since we already use rcu to
-destroy the vlans, we can simply migrate the list to use the rcu helpers.
+Introduce br_vlan_(get|put)_master which take a reference (or create the
+master vlan first if it didn't exist) and drop a reference respectively.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_netlink.c | 10 ++++++++--
- net/bridge/br_vlan.c    |  4 ++--
- 2 files changed, 10 insertions(+), 4 deletions(-)
+There's one slightly longer line (81 chars) but I think it looks better
+this way.
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index c64dcad11662..c3186198d46d 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -34,7 +34,7 @@ static int __get_num_vlan_infos(struct net_bridge_vlan_group *vg,
- 
- 	pvid = br_get_pvid(vg);
- 	/* Count number of vlan infos */
--	list_for_each_entry(v, &vg->vlan_list, vlist) {
-+	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
- 		flags = 0;
- 		/* only a context, bridge vlan not activated */
- 		if (!br_vlan_should_use(v))
-@@ -76,13 +76,19 @@ initvars:
- static int br_get_num_vlan_infos(struct net_bridge_vlan_group *vg,
- 				 u32 filter_mask)
- {
-+	int num_vlans;
-+
- 	if (!vg)
- 		return 0;
- 
- 	if (filter_mask & RTEXT_FILTER_BRVLAN)
- 		return vg->num_vlans;
- 
--	return __get_num_vlan_infos(vg, filter_mask);
-+	rcu_read_lock();
-+	num_vlans = __get_num_vlan_infos(vg, filter_mask);
-+	rcu_read_unlock();
-+
-+	return num_vlans;
- }
- 
- static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+ net/bridge/br_vlan.c | 56 ++++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 39 insertions(+), 17 deletions(-)
+
 diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 75214a51cf0e..106d3f890b73 100644
+index 106d3f890b73..8481d2567513 100644
 --- a/net/bridge/br_vlan.c
 +++ b/net/bridge/br_vlan.c
-@@ -110,12 +110,12 @@ static void __vlan_add_list(struct net_bridge_vlan *v)
- 		else
- 			break;
+@@ -144,6 +144,40 @@ static int __vlan_vid_del(struct net_device *dev, struct net_bridge *br,
+ 	return err;
+ }
+ 
++/* Returns a master vlan, if it didn't exist it gets created. In all cases a
++ * a reference is taken to the master vlan before returning.
++ */
++static struct net_bridge_vlan *br_vlan_get_master(struct net_bridge *br, u16 vid)
++{
++	struct net_bridge_vlan *masterv;
++
++	masterv = br_vlan_find(br->vlgrp, vid);
++	if (!masterv) {
++		/* missing global ctx, create it now */
++		if (br_vlan_add(br, vid, 0))
++			return NULL;
++		masterv = br_vlan_find(br->vlgrp, vid);
++		if (WARN_ON(!masterv))
++			return NULL;
++	}
++	atomic_inc(&masterv->refcnt);
++
++	return masterv;
++}
++
++static void br_vlan_put_master(struct net_bridge_vlan *masterv)
++{
++	if (!br_vlan_is_master(masterv))
++		return;
++
++	if (atomic_dec_and_test(&masterv->refcnt)) {
++		rhashtable_remove_fast(&masterv->br->vlgrp->vlan_hash,
++				       &masterv->vnode, br_vlan_rht_params);
++		__vlan_del_list(masterv);
++		kfree_rcu(masterv, rcu);
++	}
++}
++
+ /* This is the shared VLAN add function which works for both ports and bridge
+  * devices. There are four possible calls to this function in terms of the
+  * vlan entry type:
+@@ -194,16 +228,9 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags)
+ 				goto out_filt;
+ 		}
+ 
+-		masterv = br_vlan_find(br->vlgrp, v->vid);
+-		if (!masterv) {
+-			/* missing global ctx, create it now */
+-			err = br_vlan_add(br, v->vid, 0);
+-			if (err)
+-				goto out_filt;
+-			masterv = br_vlan_find(br->vlgrp, v->vid);
+-			WARN_ON(!masterv);
+-		}
+-		atomic_inc(&masterv->refcnt);
++		masterv = br_vlan_get_master(br, v->vid);
++		if (!masterv)
++			goto out_filt;
+ 		v->brvlan = masterv;
  	}
--	list_add(&v->vlist, hpos);
-+	list_add_rcu(&v->vlist, hpos);
- }
  
- static void __vlan_del_list(struct net_bridge_vlan *v)
- {
--	list_del(&v->vlist);
-+	list_del_rcu(&v->vlist);
- }
+@@ -238,7 +265,7 @@ out_filt:
+ 	if (p) {
+ 		__vlan_vid_del(dev, br, v->vid);
+ 		if (masterv) {
+-			atomic_dec(&masterv->refcnt);
++			br_vlan_put_master(masterv);
+ 			v->brvlan = NULL;
+ 		}
+ 	}
+@@ -287,12 +314,7 @@ static int __vlan_del(struct net_bridge_vlan *v)
+ 		kfree_rcu(v, rcu);
+ 	}
  
- static int __vlan_vid_del(struct net_device *dev, struct net_bridge *br,
+-	if (atomic_dec_and_test(&masterv->refcnt)) {
+-		rhashtable_remove_fast(&masterv->br->vlgrp->vlan_hash,
+-				       &masterv->vnode, br_vlan_rht_params);
+-		__vlan_del_list(masterv);
+-		kfree_rcu(masterv, rcu);
+-	}
++	br_vlan_put_master(masterv);
+ out:
+ 	return err;
+ }
 -- 
 2.4.3
 
