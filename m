@@ -1,10 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Sun,  4 Oct 2015 14:23:31 +0200
-Message-Id: <1443961427-15085-5-git-send-email-razor@blackwall.org>
+Date: Sun,  4 Oct 2015 14:23:32 +0200
+Message-Id: <1443961427-15085-6-git-send-email-razor@blackwall.org>
 In-Reply-To: <1443961427-15085-1-git-send-email-razor@blackwall.org>
 References: <1443961427-15085-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next 04/20] bridge: netlink: export root port
+Subject: [Bridge] [PATCH net-next 05/20] bridge: netlink: export root path
+	cost
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,7 +19,7 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetwo
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Add IFLA_BR_ROOT_PORT and export it via netlink.
+Add IFLA_BR_ROOT_PATH_COST and export it via netlink.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
@@ -27,36 +28,36 @@ Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
  2 files changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 748495438a8b..172268a5767d 100644
+index 172268a5767d..7d7236d143fb 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -235,6 +235,7 @@ enum {
- 	IFLA_BR_GROUP_FWD_MASK,
+@@ -236,6 +236,7 @@ enum {
  	IFLA_BR_ROOT_ID,
  	IFLA_BR_BRIDGE_ID,
-+	IFLA_BR_ROOT_PORT,
+ 	IFLA_BR_ROOT_PORT,
++	IFLA_BR_ROOT_PATH_COST,
  	__IFLA_BR_MAX,
  };
  
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index a63f944a7f12..652db1ca0acc 100644
+index 652db1ca0acc..cd0488b689d4 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -856,6 +856,7 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size(sizeof(u16)) +    /* IFLA_BR_GROUP_FWD_MASK */
+@@ -857,6 +857,7 @@ static size_t br_get_size(const struct net_device *brdev)
  	       nla_total_size(sizeof(struct ifla_bridge_id)) +   /* IFLA_BR_ROOT_ID */
  	       nla_total_size(sizeof(struct ifla_bridge_id)) +   /* IFLA_BR_BRIDGE_ID */
-+	       nla_total_size(sizeof(u16)) +    /* IFLA_BR_ROOT_PORT */
+ 	       nla_total_size(sizeof(u16)) +    /* IFLA_BR_ROOT_PORT */
++	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_ROOT_PATH_COST */
  	       0;
  }
  
-@@ -888,7 +889,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	    nla_put_u8(skb, IFLA_BR_VLAN_FILTERING, vlan_enabled) ||
+@@ -890,7 +891,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
  	    nla_put_u16(skb, IFLA_BR_GROUP_FWD_MASK, group_fwd_mask) ||
  	    nla_put(skb, IFLA_BR_ROOT_ID, sizeof(root_id), &root_id) ||
--	    nla_put(skb, IFLA_BR_BRIDGE_ID, sizeof(bridge_id), &bridge_id))
-+	    nla_put(skb, IFLA_BR_BRIDGE_ID, sizeof(bridge_id), &bridge_id) ||
-+	    nla_put_u16(skb, IFLA_BR_ROOT_PORT, br->root_port))
+ 	    nla_put(skb, IFLA_BR_BRIDGE_ID, sizeof(bridge_id), &bridge_id) ||
+-	    nla_put_u16(skb, IFLA_BR_ROOT_PORT, br->root_port))
++	    nla_put_u16(skb, IFLA_BR_ROOT_PORT, br->root_port) ||
++	    nla_put_u32(skb, IFLA_BR_ROOT_PATH_COST, br->root_path_cost))
  		return -EMSGSIZE;
  
  #ifdef CONFIG_BRIDGE_VLAN_FILTERING
