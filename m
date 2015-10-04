@@ -1,11 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Sun,  4 Oct 2015 14:23:41 +0200
-Message-Id: <1443961427-15085-15-git-send-email-razor@blackwall.org>
+Date: Sun,  4 Oct 2015 14:23:42 +0200
+Message-Id: <1443961427-15085-16-git-send-email-razor@blackwall.org>
 In-Reply-To: <1443961427-15085-1-git-send-email-razor@blackwall.org>
 References: <1443961427-15085-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next 14/20] bridge: netlink: add support for
-	igmp's hash_elasticity
+Subject: [Bridge] [PATCH net-next 15/20] bridge: netlink: add support for
+	igmp's hash_max
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,68 +19,69 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetwo
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Add IFLA_BR_MCAST_HASH_ELASTICITY to allow setting/getting
-br->hash_elasticity via netlink.
+Add IFLA_BR_MCAST_HASH_MAX to allow setting/getting br->hash_max via
+netlink.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
  include/uapi/linux/if_link.h |  1 +
- net/bridge/br_netlink.c      | 12 +++++++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ net/bridge/br_netlink.c      | 13 ++++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index fe5fac5c2a7f..ca7ca766d8af 100644
+index ca7ca766d8af..10a44a735512 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -249,6 +249,7 @@ enum {
- 	IFLA_BR_MCAST_SNOOPING,
+@@ -250,6 +250,7 @@ enum {
  	IFLA_BR_MCAST_QUERY_USE_IFADDR,
  	IFLA_BR_MCAST_QUERIER,
-+	IFLA_BR_MCAST_HASH_ELASTICITY,
+ 	IFLA_BR_MCAST_HASH_ELASTICITY,
++	IFLA_BR_MCAST_HASH_MAX,
  	__IFLA_BR_MAX,
  };
  
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index e21296dacf42..b210a639e8d1 100644
+index b210a639e8d1..d6b61b0eeada 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -771,6 +771,7 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
- 	[IFLA_BR_MCAST_SNOOPING] = { .type = NLA_U8 },
+@@ -772,6 +772,7 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
  	[IFLA_BR_MCAST_QUERY_USE_IFADDR] = { .type = NLA_U8 },
  	[IFLA_BR_MCAST_QUERIER] = { .type = NLA_U8 },
-+	[IFLA_BR_MCAST_HASH_ELASTICITY] = { .type = NLA_U32 },
+ 	[IFLA_BR_MCAST_HASH_ELASTICITY] = { .type = NLA_U32 },
++	[IFLA_BR_MCAST_HASH_MAX] = { .type = NLA_U32 },
  };
  
  static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
-@@ -897,6 +898,12 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 		if (err)
- 			return err;
+@@ -904,6 +905,14 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 
+ 		br->hash_elasticity = val;
  	}
 +
-+	if (data[IFLA_BR_MCAST_HASH_ELASTICITY]) {
-+		u32 val = nla_get_u32(data[IFLA_BR_MCAST_HASH_ELASTICITY]);
++	if (data[IFLA_BR_MCAST_HASH_MAX]) {
++		u32 hash_max = nla_get_u32(data[IFLA_BR_MCAST_HASH_MAX]);
 +
-+		br->hash_elasticity = val;
++		err = br_multicast_set_hash_max(br, hash_max);
++		if (err)
++			return err;
 +	}
  #endif
  
  	return 0;
-@@ -931,6 +938,7 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_SNOOPING */
+@@ -939,6 +948,7 @@ static size_t br_get_size(const struct net_device *brdev)
  	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_QUERY_USE_IFADDR */
  	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_QUERIER */
-+	       nla_total_size(sizeof(u32)) +     /* IFLA_BR_MCAST_HASH_ELASTICITY */
+ 	       nla_total_size(sizeof(u32)) +     /* IFLA_BR_MCAST_HASH_ELASTICITY */
++	       nla_total_size(sizeof(u32)) +     /* IFLA_BR_MCAST_HASH_MAX */
  #endif
  	       0;
  }
-@@ -993,7 +1001,9 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	    nla_put_u8(skb, IFLA_BR_MCAST_SNOOPING, !br->multicast_disabled) ||
- 	    nla_put_u8(skb, IFLA_BR_MCAST_QUERY_USE_IFADDR,
+@@ -1003,7 +1013,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
  		       br->multicast_query_use_ifaddr) ||
--	    nla_put_u8(skb, IFLA_BR_MCAST_QUERIER, br->multicast_querier))
-+	    nla_put_u8(skb, IFLA_BR_MCAST_QUERIER, br->multicast_querier) ||
-+	    nla_put_u32(skb, IFLA_BR_MCAST_HASH_ELASTICITY,
-+			br->hash_elasticity))
+ 	    nla_put_u8(skb, IFLA_BR_MCAST_QUERIER, br->multicast_querier) ||
+ 	    nla_put_u32(skb, IFLA_BR_MCAST_HASH_ELASTICITY,
+-			br->hash_elasticity))
++			br->hash_elasticity) ||
++	    nla_put_u32(skb, IFLA_BR_MCAST_HASH_MAX, br->hash_max))
  		return -EMSGSIZE;
  #endif
  
