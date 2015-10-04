@@ -1,10 +1,10 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Sun,  4 Oct 2015 14:23:29 +0200
-Message-Id: <1443961427-15085-3-git-send-email-razor@blackwall.org>
+Date: Sun,  4 Oct 2015 14:23:30 +0200
+Message-Id: <1443961427-15085-4-git-send-email-razor@blackwall.org>
 In-Reply-To: <1443961427-15085-1-git-send-email-razor@blackwall.org>
 References: <1443961427-15085-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next 02/20] bridge: netlink: export root id
+Subject: [Bridge] [PATCH net-next 03/20] bridge: netlink: export bridge id
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,68 +18,61 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetwo
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Add IFLA_BR_ROOT_ID and export br->designated_root via netlink. For this
-purpose add struct ifla_bridge_id that would represent struct bridge_id.
+Add IFLA_BR_BRIDGE_ID and export br->bridge_id via netlink.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- include/uapi/linux/if_link.h | 6 ++++++
- net/bridge/br_netlink.c      | 9 ++++++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ include/uapi/linux/if_link.h | 1 +
+ net/bridge/br_netlink.c      | 9 +++++++--
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index f7f480613555..03814371df44 100644
+index 03814371df44..748495438a8b 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -233,11 +233,17 @@ enum {
- 	IFLA_BR_VLAN_FILTERING,
+@@ -234,6 +234,7 @@ enum {
  	IFLA_BR_VLAN_PROTOCOL,
  	IFLA_BR_GROUP_FWD_MASK,
-+	IFLA_BR_ROOT_ID,
+ 	IFLA_BR_ROOT_ID,
++	IFLA_BR_BRIDGE_ID,
  	__IFLA_BR_MAX,
  };
  
- #define IFLA_BR_MAX	(__IFLA_BR_MAX - 1)
- 
-+struct ifla_bridge_id {
-+	__u8	prio[2];
-+	__u8	addr[6]; /* ETH_ALEN */
-+};
-+
- enum {
- 	BRIDGE_MODE_UNSPEC,
- 	BRIDGE_MODE_HAIRPIN,
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 39b201a2bc12..7a3692469db6 100644
+index 7a3692469db6..a63f944a7f12 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -854,6 +854,7 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size(sizeof(__be16)) +	/* IFLA_BR_VLAN_PROTOCOL */
+@@ -855,6 +855,7 @@ static size_t br_get_size(const struct net_device *brdev)
  #endif
  	       nla_total_size(sizeof(u16)) +    /* IFLA_BR_GROUP_FWD_MASK */
-+	       nla_total_size(sizeof(struct ifla_bridge_id)) +   /* IFLA_BR_ROOT_ID */
+ 	       nla_total_size(sizeof(struct ifla_bridge_id)) +   /* IFLA_BR_ROOT_ID */
++	       nla_total_size(sizeof(struct ifla_bridge_id)) +   /* IFLA_BR_BRIDGE_ID */
  	       0;
  }
  
-@@ -868,6 +869,11 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+@@ -869,11 +870,14 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
  	u16 priority = (br->bridge_id.prio[0] << 8) | br->bridge_id.prio[1];
  	u16 group_fwd_mask = br->group_fwd_mask;
  	u8 vlan_enabled = br_vlan_enabled(br);
-+	struct ifla_bridge_id root_id;
-+
-+	memset(&root_id, 0, sizeof(root_id));
-+	memcpy(root_id.prio, br->designated_root.prio, sizeof(root_id.prio));
-+	memcpy(root_id.addr, br->designated_root.addr, sizeof(root_id.addr));
+-	struct ifla_bridge_id root_id;
++	struct ifla_bridge_id root_id, bridge_id;
+ 
++	memset(&bridge_id, 0, sizeof(bridge_id));
+ 	memset(&root_id, 0, sizeof(root_id));
+ 	memcpy(root_id.prio, br->designated_root.prio, sizeof(root_id.prio));
+ 	memcpy(root_id.addr, br->designated_root.addr, sizeof(root_id.addr));
++	memcpy(bridge_id.prio, br->bridge_id.prio, sizeof(bridge_id.prio));
++	memcpy(bridge_id.addr, br->bridge_id.addr, sizeof(bridge_id.addr));
  
  	if (nla_put_u32(skb, IFLA_BR_FORWARD_DELAY, forward_delay) ||
  	    nla_put_u32(skb, IFLA_BR_HELLO_TIME, hello_time) ||
-@@ -876,7 +882,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	    nla_put_u32(skb, IFLA_BR_STP_STATE, stp_enabled) ||
+@@ -883,7 +887,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
  	    nla_put_u16(skb, IFLA_BR_PRIORITY, priority) ||
  	    nla_put_u8(skb, IFLA_BR_VLAN_FILTERING, vlan_enabled) ||
--	    nla_put_u16(skb, IFLA_BR_GROUP_FWD_MASK, group_fwd_mask))
-+	    nla_put_u16(skb, IFLA_BR_GROUP_FWD_MASK, group_fwd_mask) ||
-+	    nla_put(skb, IFLA_BR_ROOT_ID, sizeof(root_id), &root_id))
+ 	    nla_put_u16(skb, IFLA_BR_GROUP_FWD_MASK, group_fwd_mask) ||
+-	    nla_put(skb, IFLA_BR_ROOT_ID, sizeof(root_id), &root_id))
++	    nla_put(skb, IFLA_BR_ROOT_ID, sizeof(root_id), &root_id) ||
++	    nla_put(skb, IFLA_BR_BRIDGE_ID, sizeof(bridge_id), &bridge_id))
  		return -EMSGSIZE;
  
  #ifdef CONFIG_BRIDGE_VLAN_FILTERING
