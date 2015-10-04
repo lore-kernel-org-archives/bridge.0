@@ -1,11 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Sun,  4 Oct 2015 14:23:44 +0200
-Message-Id: <1443961427-15085-18-git-send-email-razor@blackwall.org>
+Date: Sun,  4 Oct 2015 14:23:45 +0200
+Message-Id: <1443961427-15085-19-git-send-email-razor@blackwall.org>
 In-Reply-To: <1443961427-15085-1-git-send-email-razor@blackwall.org>
 References: <1443961427-15085-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next 17/20] bridge: netlink: add support for
-	multicast_startup_query_count
+Subject: [Bridge] [PATCH net-next 18/20] bridge: netlink: add support for
+	igmp's intervals
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,89 +19,154 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetwo
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Add IFLA_BR_MCAST_STARTUP_QUERY_CNT to allow setting/getting
-br->multicast_startup_query_count via netlink. Also align the ifla
-comments.
+Add support to set/get all of the igmp's configurable intervals via
+netlink. These currently are:
+IFLA_BR_MCAST_LAST_MEMBER_INTVL
+IFLA_BR_MCAST_MEMBERSHIP_INTVL
+IFLA_BR_MCAST_QUERIER_INTVL
+IFLA_BR_MCAST_QUERY_INTVL
+IFLA_BR_MCAST_QUERY_RESPONSE_INTVL
+IFLA_BR_MCAST_STARTUP_QUERY_INTVL
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- include/uapi/linux/if_link.h |  1 +
- net/bridge/br_netlink.c      | 22 ++++++++++++++++------
- 2 files changed, 17 insertions(+), 6 deletions(-)
+ include/uapi/linux/if_link.h |  6 ++++
+ net/bridge/br_netlink.c      | 70 +++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 75 insertions(+), 1 deletion(-)
 
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 5409a461e47e..fd841b5269c1 100644
+index fd841b5269c1..b8c88aa19fef 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -252,6 +252,7 @@ enum {
- 	IFLA_BR_MCAST_HASH_ELASTICITY,
+@@ -253,6 +253,12 @@ enum {
  	IFLA_BR_MCAST_HASH_MAX,
  	IFLA_BR_MCAST_LAST_MEMBER_CNT,
-+	IFLA_BR_MCAST_STARTUP_QUERY_CNT,
+ 	IFLA_BR_MCAST_STARTUP_QUERY_CNT,
++	IFLA_BR_MCAST_LAST_MEMBER_INTVL,
++	IFLA_BR_MCAST_MEMBERSHIP_INTVL,
++	IFLA_BR_MCAST_QUERIER_INTVL,
++	IFLA_BR_MCAST_QUERY_INTVL,
++	IFLA_BR_MCAST_QUERY_RESPONSE_INTVL,
++	IFLA_BR_MCAST_STARTUP_QUERY_INTVL,
  	__IFLA_BR_MAX,
  };
  
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index cf6ccaea8180..6744e30120af 100644
+index 6744e30120af..30def4fb5901 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -774,6 +774,7 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
- 	[IFLA_BR_MCAST_HASH_ELASTICITY] = { .type = NLA_U32 },
+@@ -775,6 +775,12 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
  	[IFLA_BR_MCAST_HASH_MAX] = { .type = NLA_U32 },
  	[IFLA_BR_MCAST_LAST_MEMBER_CNT] = { .type = NLA_U32 },
-+	[IFLA_BR_MCAST_STARTUP_QUERY_CNT] = { .type = NLA_U32 },
+ 	[IFLA_BR_MCAST_STARTUP_QUERY_CNT] = { .type = NLA_U32 },
++	[IFLA_BR_MCAST_LAST_MEMBER_INTVL] = { .type = NLA_U64 },
++	[IFLA_BR_MCAST_MEMBERSHIP_INTVL] = { .type = NLA_U64 },
++	[IFLA_BR_MCAST_QUERIER_INTVL] = { .type = NLA_U64 },
++	[IFLA_BR_MCAST_QUERY_INTVL] = { .type = NLA_U64 },
++	[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL] = { .type = NLA_U64 },
++	[IFLA_BR_MCAST_STARTUP_QUERY_INTVL] = { .type = NLA_U64 },
  };
  
  static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
-@@ -920,6 +921,12 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+@@ -927,6 +933,42 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
  
- 		br->multicast_last_member_count = val;
+ 		br->multicast_startup_query_count = val;
  	}
 +
-+	if (data[IFLA_BR_MCAST_STARTUP_QUERY_CNT]) {
-+		u32 val = nla_get_u32(data[IFLA_BR_MCAST_STARTUP_QUERY_CNT]);
++	if (data[IFLA_BR_MCAST_LAST_MEMBER_INTVL]) {
++		u64 val = nla_get_u64(data[IFLA_BR_MCAST_LAST_MEMBER_INTVL]);
 +
-+		br->multicast_startup_query_count = val;
++		br->multicast_last_member_interval = clock_t_to_jiffies(val);
++	}
++
++	if (data[IFLA_BR_MCAST_MEMBERSHIP_INTVL]) {
++		u64 val = nla_get_u64(data[IFLA_BR_MCAST_MEMBERSHIP_INTVL]);
++
++		br->multicast_membership_interval = clock_t_to_jiffies(val);
++	}
++
++	if (data[IFLA_BR_MCAST_QUERIER_INTVL]) {
++		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERIER_INTVL]);
++
++		br->multicast_querier_interval = clock_t_to_jiffies(val);
++	}
++
++	if (data[IFLA_BR_MCAST_QUERY_INTVL]) {
++		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_INTVL]);
++
++		br->multicast_query_interval = clock_t_to_jiffies(val);
++	}
++
++	if (data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]) {
++		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]);
++
++		br->multicast_query_response_interval = clock_t_to_jiffies(val);
++	}
++
++	if (data[IFLA_BR_MCAST_STARTUP_QUERY_INTVL]) {
++		u64 val = nla_get_u64(data[IFLA_BR_MCAST_STARTUP_QUERY_INTVL]);
++
++		br->multicast_startup_query_interval = clock_t_to_jiffies(val);
 +	}
  #endif
  
  	return 0;
-@@ -942,8 +949,8 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size(sizeof(struct ifla_bridge_id)) +   /* IFLA_BR_BRIDGE_ID */
- 	       nla_total_size(sizeof(u16)) +    /* IFLA_BR_ROOT_PORT */
- 	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_ROOT_PATH_COST */
--	       nla_total_size(sizeof(u8)) +    /* IFLA_BR_TOPOLOGY_CHANGE */
--	       nla_total_size(sizeof(u8)) +    /* IFLA_BR_TOPOLOGY_CHANGE_DETECTED */
-+	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_TOPOLOGY_CHANGE */
-+	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_TOPOLOGY_CHANGE_DETECTED */
- 	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_HELLO_TIMER */
- 	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_TCN_TIMER */
- 	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_TOPOLOGY_CHANGE_TIMER */
-@@ -954,9 +961,10 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_SNOOPING */
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_QUERY_USE_IFADDR */
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_QUERIER */
--	       nla_total_size(sizeof(u32)) +     /* IFLA_BR_MCAST_HASH_ELASTICITY */
--	       nla_total_size(sizeof(u32)) +     /* IFLA_BR_MCAST_HASH_MAX */
--	       nla_total_size(sizeof(u32)) +     /* IFLA_BR_MCAST_LAST_MEMBER_CNT */
-+	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_HASH_ELASTICITY */
-+	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_HASH_MAX */
-+	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_LAST_MEMBER_CNT */
-+	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_STARTUP_QUERY_CNT */
+@@ -965,6 +1007,12 @@ static size_t br_get_size(const struct net_device *brdev)
+ 	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_HASH_MAX */
+ 	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_LAST_MEMBER_CNT */
+ 	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_MCAST_STARTUP_QUERY_CNT */
++	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_MCAST_LAST_MEMBER_INTVL */
++	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_MCAST_MEMBERSHIP_INTVL */
++	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_MCAST_QUERIER_INTVL */
++	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_MCAST_QUERY_INTVL */
++	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_MCAST_QUERY_RESPONSE_INTVL */
++	       nla_total_size(sizeof(u64)) +    /* IFLA_BR_MCAST_STARTUP_QUERY_INTVL */
  #endif
  	       0;
  }
-@@ -1024,7 +1032,9 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 			br->hash_elasticity) ||
- 	    nla_put_u32(skb, IFLA_BR_MCAST_HASH_MAX, br->hash_max) ||
- 	    nla_put_u32(skb, IFLA_BR_MCAST_LAST_MEMBER_CNT,
--			br->multicast_last_member_count))
-+			br->multicast_last_member_count) ||
-+	    nla_put_u32(skb, IFLA_BR_MCAST_STARTUP_QUERY_CNT,
-+			br->multicast_startup_query_count))
+@@ -972,7 +1020,7 @@ static size_t br_get_size(const struct net_device *brdev)
+ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ {
+ 	struct net_bridge *br = netdev_priv(brdev);
+-	u64 hello_timer, tcn_timer, topology_change_timer, gc_timer;
++	u64 hello_timer, tcn_timer, topology_change_timer, gc_timer, clockval;
+ 	u32 forward_delay = jiffies_to_clock_t(br->forward_delay);
+ 	u32 hello_time = jiffies_to_clock_t(br->hello_time);
+ 	u32 age_time = jiffies_to_clock_t(br->max_age);
+@@ -993,6 +1041,7 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ 	tcn_timer = br_timer_value(&br->tcn_timer);
+ 	topology_change_timer = br_timer_value(&br->topology_change_timer);
+ 	gc_timer = br_timer_value(&br->gc_timer);
++	clockval = 0;
+ 
+ 	if (nla_put_u32(skb, IFLA_BR_FORWARD_DELAY, forward_delay) ||
+ 	    nla_put_u32(skb, IFLA_BR_HELLO_TIME, hello_time) ||
+@@ -1036,6 +1085,25 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ 	    nla_put_u32(skb, IFLA_BR_MCAST_STARTUP_QUERY_CNT,
+ 			br->multicast_startup_query_count))
  		return -EMSGSIZE;
++
++	clockval = jiffies_to_clock_t(br->multicast_last_member_interval);
++	if (nla_put_u64(skb, IFLA_BR_MCAST_LAST_MEMBER_INTVL, clockval))
++		return -EMSGSIZE;
++	clockval = jiffies_to_clock_t(br->multicast_membership_interval);
++	if (nla_put_u64(skb, IFLA_BR_MCAST_MEMBERSHIP_INTVL, clockval))
++		return -EMSGSIZE;
++	clockval = jiffies_to_clock_t(br->multicast_querier_interval);
++	if (nla_put_u64(skb, IFLA_BR_MCAST_QUERIER_INTVL, clockval))
++		return -EMSGSIZE;
++	clockval = jiffies_to_clock_t(br->multicast_query_interval);
++	if (nla_put_u64(skb, IFLA_BR_MCAST_QUERY_INTVL, clockval))
++		return -EMSGSIZE;
++	clockval = jiffies_to_clock_t(br->multicast_query_response_interval);
++	if (nla_put_u64(skb, IFLA_BR_MCAST_QUERY_RESPONSE_INTVL, clockval))
++		return -EMSGSIZE;
++	clockval = jiffies_to_clock_t(br->multicast_startup_query_interval);
++	if (nla_put_u64(skb, IFLA_BR_MCAST_STARTUP_QUERY_INTVL, clockval))
++		return -EMSGSIZE;
  #endif
  
+ 	return 0;
 -- 
 2.4.3
 
