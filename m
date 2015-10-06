@@ -1,22 +1,16 @@
-Return-Path: <roopa@cumulusnetworks.com>
+Return-Path: <>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-type:content-transfer-encoding;
-	bh=pl6pYc6p+pbJQuRt6FT0YxhGk92SgQawWGeJLwiTUdI=;
-	b=ByN5UcZ5+QW6EJYu4gK2WM1BDfkTu065+t2fV9umljDmo3VrW3qqeVcM3P+R47iFJD
-	104dh0BwP9lV9Rt4lots3Q6bHlZA4kV/5+YOv6c2wqkhq0T5Aq5H/91CaJZMhkO+axxl
-	dJ0Who7Vu2cOAgzZpcNwzCI0g5Xb6QNAcZyqc=
-Message-ID: <5613EF0B.8070901@cumulusnetworks.com>
-Date: Tue, 06 Oct 2015 08:55:55 -0700
-From: roopa <roopa@cumulusnetworks.com>
-MIME-Version: 1.0
-References: <201510062313.0dtpdZ0k%fengguang.wu@intel.com>
-In-Reply-To: <201510062313.0dtpdZ0k%fengguang.wu@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: allow adding of fdb entries
- pointing to the bridge device
+	h=from:to:cc:subject:date:message-id;
+	bh=8xyaHRtLbbdsT4fjbuFGt0z+O3vuX5kB/fGUMRK0rN8=;
+	b=UFM2d8ZcM1lRa0Mx/byyxPZJccZSmYPtOx6MTnHr7NNMBJHhuQo+0z3bMJrlaK6BB2
+	0uET+pokS2WYVea/Nr7+PKgkPF859+mZ8i2g6jSsTDzQ3VRa/zFu4IxXvsYFUP9c2LNl
+	t7JCwkUdsNcmTlI587dGmj2B6XhitgtbQWH0o=
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date: Tue,  6 Oct 2015 09:06:29 -0700
+Message-Id: <1444147589-11153-1-git-send-email-roopa@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next v2] bridge: allow adding of fdb entries
+	pointing to the bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,62 +19,231 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: kbuild test robot <lkp@intel.com>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kbuild-all@01.org, davem@davemloft.net
+To: davem@davemloft.net, netdev@vger.kernel.org
+Cc: nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
-On 10/6/15, 8:29 AM, kbuild test robot wrote:
-> Hi Roopa,
->
-> [auto build test WARNING on next-20151006 -- if it's inappropriate base, please ignore]
->
-> config: sh-titan_defconfig (attached as .config)
-> reproduce:
->         wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # save the attached .config to linux build tree
->         make.cross ARCH=sh 
->
-> Note: it may well be a FALSE warning. FWIW you are at least aware of it now.
-> http://gcc.gnu.org/wiki/Better_Uninitialized_Warnings
->
-> All warnings (new ones prefixed by >>):
->
->    net/bridge/br_fdb.c: In function 'br_fdb_add':
->>> net/bridge/br_fdb.c:784:13: warning: 'p' may be used uninitialized in this function [-Wuninitialized]
->    net/bridge/br_fdb.c:850:26: note: 'p' was declared here
->    net/bridge/br_fdb.c: In function 'br_fdb_delete':
->    net/bridge/br_fdb.c:952:11: warning: 'p' may be used uninitialized in this function [-Wuninitialized]
->    net/bridge/br_fdb.c:977:26: note: 'p' was declared here
->
-> vim +/p +784 net/bridge/br_fdb.c
->
-> eb8d7baa Wilson Kok        2015-05-25  768  
-> 2ba071ec Vlad Yasevich     2013-02-13  769  	fdb = fdb_find(head, addr, vid);
-> 64af1bac stephen hemminger 2011-09-30  770  	if (fdb == NULL) {
-> 64af1bac stephen hemminger 2011-09-30  771  		if (!(flags & NLM_F_CREATE))
-> 64af1bac stephen hemminger 2011-09-30  772  			return -ENOENT;
-> 36fd2b63 stephen hemminger 2011-04-04  773  
-> 2ba071ec Vlad Yasevich     2013-02-13  774  		fdb = fdb_create(head, source, addr, vid);
-> 36fd2b63 stephen hemminger 2011-04-04  775  		if (!fdb)
-> 36fd2b63 stephen hemminger 2011-04-04  776  			return -ENOMEM;
-> b0a397fb roopa             2013-04-22  777  
-> b0a397fb roopa             2013-04-22  778  		modified = true;
-> 64af1bac stephen hemminger 2011-09-30  779  	} else {
-> 64af1bac stephen hemminger 2011-09-30  780  		if (flags & NLM_F_EXCL)
-> 64af1bac stephen hemminger 2011-09-30  781  			return -EEXIST;
-> b0a397fb roopa             2013-04-22  782  
-> b0a397fb roopa             2013-04-22  783  		if (fdb->dst != source) {
-> b0a397fb roopa             2013-04-22 @784  			fdb->dst = source;
-> b0a397fb roopa             2013-04-22  785  			modified = true;
-> b0a397fb roopa             2013-04-22  786  		}
-> 64af1bac stephen hemminger 2011-09-30  787  	}
-> 36fd2b63 stephen hemminger 2011-04-04  788  
-> 0e29720e Roopa Prabhu      2015-10-06  789  	if (fdb_to_nud(br, fdb) != state) {
-> 145beee8 Vlad Yasevich     2014-05-16  790  		if (state & NUD_PERMANENT) {
-> 145beee8 Vlad Yasevich     2014-05-16  791  			fdb->is_local = 1;
-> 145beee8 Vlad Yasevich     2014-05-16  792  			if (!fdb->is_static) {
->
->
-It is not used when it is not initialized. But I will resubmit the patch by initializing it to NULL (thanks nikolay for the suggestion).
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
 
-Thanks.
+This patch enables adding of fdb entries pointing to the bridge device.
+This can be used to propagate mac address of vlan interfaces
+configured on top of the vlan filtering bridge.
+
+Before:
+$bridge fdb add 44:38:39:00:27:9f dev bridge
+RTNETLINK answers: Invalid argument
+
+After:
+$bridge fdb add 44:38:39:00:27:9f dev bridge
+
+Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_fdb.c | 110 ++++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 85 insertions(+), 25 deletions(-)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 7f7d551..2f8858a 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -608,13 +608,14 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 	}
+ }
+ 
+-static int fdb_to_nud(const struct net_bridge_fdb_entry *fdb)
++static int fdb_to_nud(const struct net_bridge *br,
++		      const struct net_bridge_fdb_entry *fdb)
+ {
+ 	if (fdb->is_local)
+ 		return NUD_PERMANENT;
+ 	else if (fdb->is_static)
+ 		return NUD_NOARP;
+-	else if (has_expired(fdb->dst->br, fdb))
++	else if (has_expired(br, fdb))
+ 		return NUD_STALE;
+ 	else
+ 		return NUD_REACHABLE;
+@@ -640,7 +641,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+ 	ndm->ndm_flags	 = fdb->added_by_external_learn ? NTF_EXT_LEARNED : 0;
+ 	ndm->ndm_type	 = 0;
+ 	ndm->ndm_ifindex = fdb->dst ? fdb->dst->dev->ifindex : br->dev->ifindex;
+-	ndm->ndm_state   = fdb_to_nud(fdb);
++	ndm->ndm_state   = fdb_to_nud(br, fdb);
+ 
+ 	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->addr))
+ 		goto nla_put_failure;
+@@ -785,7 +786,7 @@ static int fdb_add_entry(struct net_bridge_port *source, const __u8 *addr,
+ 		}
+ 	}
+ 
+-	if (fdb_to_nud(fdb) != state) {
++	if (fdb_to_nud(br, fdb) != state) {
+ 		if (state & NUD_PERMANENT) {
+ 			fdb->is_local = 1;
+ 			if (!fdb->is_static) {
+@@ -846,8 +847,9 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 	       const unsigned char *addr, u16 vid, u16 nlh_flags)
+ {
+ 	struct net_bridge_vlan_group *vg;
+-	struct net_bridge_port *p;
++	struct net_bridge_port *p = NULL;
+ 	struct net_bridge_vlan *v;
++	struct net_bridge *br = NULL;
+ 	int err = 0;
+ 
+ 	if (!(ndm->ndm_state & (NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE))) {
+@@ -860,14 +862,19 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		return -EINVAL;
+ 	}
+ 
+-	p = br_port_get_rtnl(dev);
+-	if (p == NULL) {
+-		pr_info("bridge: RTM_NEWNEIGH %s not a bridge port\n",
+-			dev->name);
+-		return -EINVAL;
++	if (dev->priv_flags & IFF_EBRIDGE) {
++		br = netdev_priv(dev);
++		vg = br_vlan_group(br);
++	} else {
++		p = br_port_get_rtnl(dev);
++		if (!p) {
++			pr_info("bridge: RTM_NEWNEIGH %s not a bridge port\n",
++				dev->name);
++			return -EINVAL;
++		}
++		vg = nbp_vlan_group(p);
+ 	}
+ 
+-	vg = nbp_vlan_group(p);
+ 	if (vid) {
+ 		v = br_vlan_find(vg, vid);
+ 		if (!v) {
+@@ -877,9 +884,15 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		}
+ 
+ 		/* VID was specified, so use it. */
+-		err = __br_fdb_add(ndm, p, addr, nlh_flags, vid);
++		if (dev->priv_flags & IFF_EBRIDGE)
++			err = br_fdb_insert(br, NULL, addr, vid);
++		else
++			err = __br_fdb_add(ndm, p, addr, nlh_flags, vid);
+ 	} else {
+-		err = __br_fdb_add(ndm, p, addr, nlh_flags, 0);
++		if (dev->priv_flags & IFF_EBRIDGE)
++			err = br_fdb_insert(br, NULL, addr, 0);
++		else
++			err = __br_fdb_add(ndm, p, addr, nlh_flags, 0);
+ 		if (err || !vg || !vg->num_vlans)
+ 			goto out;
+ 
+@@ -888,7 +901,11 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		 * vlan on this port.
+ 		 */
+ 		list_for_each_entry(v, &vg->vlan_list, vlist) {
+-			err = __br_fdb_add(ndm, p, addr, nlh_flags, v->vid);
++			if (dev->priv_flags & IFF_EBRIDGE)
++				err = br_fdb_insert(br, NULL, addr, v->vid);
++			else
++				err = __br_fdb_add(ndm, p, addr, nlh_flags,
++						   v->vid);
+ 			if (err)
+ 				goto out;
+ 		}
+@@ -898,6 +915,32 @@ out:
+ 	return err;
+ }
+ 
++static int fdb_delete_by_addr(struct net_bridge *br, const u8 *addr,
++			      u16 vid)
++{
++	struct hlist_head *head = &br->hash[br_mac_hash(addr, vid)];
++	struct net_bridge_fdb_entry *fdb;
++
++	fdb = fdb_find(head, addr, vid);
++	if (!fdb)
++		return -ENOENT;
++
++	fdb_delete(br, fdb);
++	return 0;
++}
++
++static int __br_fdb_delete_by_addr(struct net_bridge *br,
++				   const unsigned char *addr, u16 vid)
++{
++	int err;
++
++	spin_lock_bh(&br->hash_lock);
++	err = fdb_delete_by_addr(br, addr, vid);
++	spin_unlock_bh(&br->hash_lock);
++
++	return err;
++}
++
+ static int fdb_delete_by_addr_and_port(struct net_bridge_port *p,
+ 				       const u8 *addr, u16 vlan)
+ {
+@@ -931,18 +974,24 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
+ 		  const unsigned char *addr, u16 vid)
+ {
+ 	struct net_bridge_vlan_group *vg;
+-	struct net_bridge_port *p;
++	struct net_bridge_port *p = NULL;
+ 	struct net_bridge_vlan *v;
++	struct net_bridge *br = NULL;
+ 	int err;
+ 
+-	p = br_port_get_rtnl(dev);
+-	if (p == NULL) {
+-		pr_info("bridge: RTM_DELNEIGH %s not a bridge port\n",
+-			dev->name);
+-		return -EINVAL;
++	if (dev->priv_flags & IFF_EBRIDGE) {
++		br = netdev_priv(dev);
++		vg = br_vlan_group(br);
++	} else {
++		p = br_port_get_rtnl(dev);
++		if (!p) {
++			pr_info("bridge: RTM_DELNEIGH %s not a bridge port\n",
++				dev->name);
++			return -EINVAL;
++		}
++		vg = nbp_vlan_group(p);
+ 	}
+ 
+-	vg = nbp_vlan_group(p);
+ 	if (vid) {
+ 		v = br_vlan_find(vg, vid);
+ 		if (!v) {
+@@ -951,15 +1000,26 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
+ 			return -EINVAL;
+ 		}
+ 
+-		err = __br_fdb_delete(p, addr, vid);
++		if (dev->priv_flags & IFF_EBRIDGE)
++			err = __br_fdb_delete_by_addr(br, addr, vid);
++		else
++			err = __br_fdb_delete(p, addr, vid);
+ 	} else {
+ 		err = -ENOENT;
+-		err &= __br_fdb_delete(p, addr, 0);
++		if (dev->priv_flags & IFF_EBRIDGE)
++			err = __br_fdb_delete_by_addr(br, addr, 0);
++		else
++			err &= __br_fdb_delete(p, addr, 0);
++
+ 		if (!vg || !vg->num_vlans)
+ 			goto out;
+ 
+-		list_for_each_entry(v, &vg->vlan_list, vlist)
+-			err &= __br_fdb_delete(p, addr, v->vid);
++		list_for_each_entry(v, &vg->vlan_list, vlist) {
++			if (dev->priv_flags & IFF_EBRIDGE)
++				err = __br_fdb_delete_by_addr(br, addr, v->vid);
++			else
++				err &= __br_fdb_delete(p, addr, v->vid);
++		}
+ 	}
+ out:
+ 	return err;
+-- 
+1.9.1
+
