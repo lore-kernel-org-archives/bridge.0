@@ -1,10 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue,  6 Oct 2015 14:11:55 +0200
-Message-Id: <1444133522-16907-2-git-send-email-razor@blackwall.org>
+Date: Tue,  6 Oct 2015 14:11:56 +0200
+Message-Id: <1444133522-16907-3-git-send-email-razor@blackwall.org>
 In-Reply-To: <1444133522-16907-1-git-send-email-razor@blackwall.org>
 References: <1444133522-16907-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next 1/8] bridge: netlink: export port's root id
+Subject: [Bridge] [PATCH net-next 2/8] bridge: netlink: export port's bridge
+	id
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,7 +19,7 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetwo
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Add IFLA_BRPORT_ROOT_ID to allow getting the designated root id via
+Add IFLA_BRPORT_BRIDGE_ID to allow getting the designated bridge id via
 netlink.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
@@ -28,37 +29,37 @@ Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index c5b15bfeabe2..c45c1d7894e7 100644
+index c45c1d7894e7..e891c32c9993 100644
 --- a/include/uapi/linux/if_link.h
 +++ b/include/uapi/linux/if_link.h
-@@ -292,6 +292,7 @@ enum {
- 	IFLA_BRPORT_PROXYARP,	/* proxy ARP */
+@@ -293,6 +293,7 @@ enum {
  	IFLA_BRPORT_LEARNING_SYNC, /* mac learning sync from device */
  	IFLA_BRPORT_PROXYARP_WIFI, /* proxy ARP for Wi-Fi */
-+	IFLA_BRPORT_ROOT_ID,	/* designated root */
+ 	IFLA_BRPORT_ROOT_ID,	/* designated root */
++	IFLA_BRPORT_BRIDGE_ID,	/* designated bridge */
  	__IFLA_BRPORT_MAX
  };
  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 330abf4b033a..cad4050310ee 100644
+index cad4050310ee..c3e0b73d660d 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -127,6 +127,7 @@ static inline size_t br_port_info_size(void)
- 		+ nla_total_size(1)	/* IFLA_BRPORT_UNICAST_FLOOD */
+@@ -128,6 +128,7 @@ static inline size_t br_port_info_size(void)
  		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP */
  		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP_WIFI */
-+		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
++		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_BRIDGE_ID */
  		+ 0;
  }
  
-@@ -160,7 +161,9 @@ static int br_port_fill_attrs(struct sk_buff *skb,
- 	    nla_put_u8(skb, IFLA_BRPORT_UNICAST_FLOOD, !!(p->flags & BR_FLOOD)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_PROXYARP, !!(p->flags & BR_PROXYARP)) ||
+@@ -163,7 +164,9 @@ static int br_port_fill_attrs(struct sk_buff *skb,
  	    nla_put_u8(skb, IFLA_BRPORT_PROXYARP_WIFI,
--		       !!(p->flags & BR_PROXYARP_WIFI)))
-+		       !!(p->flags & BR_PROXYARP_WIFI)) ||
-+	    nla_put(skb, IFLA_BRPORT_ROOT_ID, sizeof(struct ifla_bridge_id),
-+		    &p->designated_root))
+ 		       !!(p->flags & BR_PROXYARP_WIFI)) ||
+ 	    nla_put(skb, IFLA_BRPORT_ROOT_ID, sizeof(struct ifla_bridge_id),
+-		    &p->designated_root))
++		    &p->designated_root) ||
++	    nla_put(skb, IFLA_BRPORT_BRIDGE_ID, sizeof(struct ifla_bridge_id),
++		    &p->designated_bridge))
  		return -EMSGSIZE;
  
  	return 0;
