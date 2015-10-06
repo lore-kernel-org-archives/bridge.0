@@ -1,13 +1,9 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 04 Oct 2015 16:47:08 -0700 (PDT)
-Message-Id: <20151004.164708.1245786027485004311.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1443961427-15085-1-git-send-email-razor@blackwall.org>
-References: <1443961427-15085-1-git-send-email-razor@blackwall.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 00/20] bridge: complete netlink support
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Tue,  6 Oct 2015 14:11:54 +0200
+Message-Id: <1444133522-16907-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net-next 0/8] bridge: netlink: complete port
+	attribute support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,23 +12,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: razor@blackwall.org
-Cc: shm@cumulusnetworks.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, shm@cumulusnetworks.com, davem@davemloft.net
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Sun,  4 Oct 2015 14:23:27 +0200
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> This set completes the bridge device's netlink support and makes it
-> possible to view and configure everything that can be configured via
-> sysfs. I have tested all of these (setting and getting). There're a few
-> longer line warnings about the br_get_size() ifla comments but I think we
-> should have them to know what has been accounted for. I have used the sysfs
-> interface as a guide of what and how to set. As usual I'll send the
-> corresponding iproute2 patches later.
-> The bridge port's netlink interface will be completed after this set gets
-> applied in some form.
-> 
-> This patch-set is on top of my last vlan cleanups set:
-> http://www.spinics.net/lists/netdev/msg346005.html
+Hi,
+This is the second set that completes the bridge port's netlink support and
+makes everything from sysfs available via netlink. I've used sysfs as a
+guide of what and how to set again. I've tested setting/getting every
+option and also this time tested enabling KASAN. Again there're a few long
+line warnings about the ifla attribute names in br_port_info_size() but
+as the previous set - it's good to know what's been accounted for.
 
-Series applied, thanks.
+Cheers,
+ Nik
+
+Nikolay Aleksandrov (8):
+  bridge: netlink: export port's root id
+  bridge: netlink: export port's bridge id
+  bridge: netlink: export port's designated cost and port
+  bridge: netlink: export port's id and number
+  bridge: netlink: export port's topology_change_ack and config_pending
+  bridge: netlink: export port's timer values
+  bridge: netlink: allow to flush port's fdb
+  bridge: netlink: add support for port's multicast_router attribute
+
+ include/uapi/linux/if_link.h | 13 ++++++++++
+ net/bridge/br_netlink.c      | 57 +++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 69 insertions(+), 1 deletion(-)
+
+-- 
+2.4.3
+
