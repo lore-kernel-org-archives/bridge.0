@@ -1,15 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 07 Oct 2015 05:14:24 -0700 (PDT)
-Message-Id: <20151007.051424.1916007556104089392.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <56150495.2070909@cumulusnetworks.com>
-References: <1444147589-11153-1-git-send-email-roopa@cumulusnetworks.com>
-	<56150495.2070909@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: allow adding of fdb
- entries pointing to the bridge device
+Return-Path: <razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Sun, 11 Oct 2015 12:49:56 +0200
+Message-Id: <1444560596-7140-1-git-send-email-razor@blackwall.org>
+In-Reply-To: <20151011071208.GA2188@nanopsycho.orion>
+References: <20151011071208.GA2188@nanopsycho.orion>
+Subject: [Bridge] [PATCH net-next] bridge: vlan: enforce no pvid flag in
+	vlan ranges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,13 +14,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: jiri@resnulli.us, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, eladr@mellanox.com, davem@davemloft.net
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 7 Oct 2015 13:40:05 +0200
 
-> Ugh my bad, Dave please don't apply this version, there're still a few rough
-> edges we need to take care of.
+Currently it's possible for someone to send a vlan range to the kernel
+with the pvid flag set which will result in the pvid bouncing from a
+vlan to vlan and isn't correct, it also introduces problems for hardware
+where it doesn't make sense having more than 1 pvid. iproute2 already
+enforces this, so let's enforce it on kernel-side as well.
 
-Ok.
+Reported-by: Elad Raz <eladr@mellanox.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_netlink.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index d78b4429505a..02b17b53e9a6 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -524,6 +524,9 @@ static int br_afspec(struct net_bridge *br,
+ 			if (vinfo_start)
+ 				return -EINVAL;
+ 			vinfo_start = vinfo;
++			/* don't allow range of pvids */
++			if (vinfo_start->flags & BRIDGE_VLAN_INFO_PVID)
++				return -EINVAL;
+ 			continue;
+ 		}
+ 
+-- 
+2.4.3
+
