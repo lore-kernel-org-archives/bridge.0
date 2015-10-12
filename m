@@ -1,9 +1,11 @@
 Return-Path: <razor@blackwall.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 12 Oct 2015 21:47:01 +0200
-Message-Id: <1444679225-7354-1-git-send-email-razor@blackwall.org>
-Subject: [Bridge] [PATCH net-next v2 0/4] bridge: vlan: cleanups & fixes
-	(part 3)
+Date: Mon, 12 Oct 2015 21:47:03 +0200
+Message-Id: <1444679225-7354-3-git-send-email-razor@blackwall.org>
+In-Reply-To: <1444679225-7354-1-git-send-email-razor@blackwall.org>
+References: <1444679225-7354-1-git-send-email-razor@blackwall.org>
+Subject: [Bridge] [PATCH net-next v2 2/4] bridge: vlan: use rcu for
+	vlan_list traversal in br_fill_ifinfo
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,36 +19,74 @@ Cc: idosch@mellanox.com, shm@cumulusnetworks.com, Nikolay Aleksandrov <nikolay@c
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Hi,
-Patch 01 converts the vlgrp member to use rcu as it was already used in a
-similar way so better to make it official and use all the available RCU
-instrumentation. Patch 02 fixes a bug where the vlan_list can be traversed
-without rtnl or rcu held which could lead to using freed entries.
-Patch 03 removes some redundant code that isn't needed anymore.
-Patch 04 fixes a bug reported by Ido Schimmel about the vlan_flush order
-and switchdevs, it moves it back.
+br_fill_ifinfo is called by br_ifinfo_notify which can be called from
+many contexts with different locks held, sometimes it relies upon
+bridge's spinlock only which is a problem for the vlan code, so use
+explicitly rcu for that to avoid problems.
 
-v2: patch 03 and 04 are new, couldn't escape the second synchronize_rcu()
-since the rhtable destruction can sleep
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+v2: no change
 
-Thank you,
- Nik
+ net/bridge/br_netlink.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-Nikolay Aleksandrov (4):
-  bridge: vlan: use proper rcu for the vlgrp member
-  bridge: vlan: use rcu for vlan_list traversal in br_fill_ifinfo
-  bridge: vlan: drop unnecessary flush code
-  bridge: vlan: move back vlan_flush
-
- net/bridge/br_device.c  |   2 +-
- net/bridge/br_forward.c |   6 +--
- net/bridge/br_if.c      |   3 +-
- net/bridge/br_input.c   |   4 +-
- net/bridge/br_netlink.c |  25 +++++----
- net/bridge/br_private.h |  33 ++++++++++--
- net/bridge/br_vlan.c    | 133 ++++++++++++++++++++++++++++++------------------
- 7 files changed, 135 insertions(+), 71 deletions(-)
-
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 7723a5be6c18..b1acb04b1485 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -253,7 +253,7 @@ static int br_fill_ifvlaninfo_compressed(struct sk_buff *skb,
+ 	 * if vlaninfo represents a range
+ 	 */
+ 	pvid = br_get_pvid(vg);
+-	list_for_each_entry(v, &vg->vlan_list, vlist) {
++	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
+ 		flags = 0;
+ 		if (!br_vlan_should_use(v))
+ 			continue;
+@@ -303,7 +303,7 @@ static int br_fill_ifvlaninfo(struct sk_buff *skb,
+ 	u16 pvid;
+ 
+ 	pvid = br_get_pvid(vg);
+-	list_for_each_entry(v, &vg->vlan_list, vlist) {
++	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
+ 		if (!br_vlan_should_use(v))
+ 			continue;
+ 
+@@ -386,22 +386,27 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 		struct nlattr *af;
+ 		int err;
+ 
++		/* RCU needed because of the VLAN locking rules (rcu || rtnl) */
++		rcu_read_lock();
+ 		if (port)
+-			vg = nbp_vlan_group(port);
++			vg = nbp_vlan_group_rcu(port);
+ 		else
+-			vg = br_vlan_group(br);
++			vg = br_vlan_group_rcu(br);
+ 
+-		if (!vg || !vg->num_vlans)
++		if (!vg || !vg->num_vlans) {
++			rcu_read_unlock();
+ 			goto done;
+-
++		}
+ 		af = nla_nest_start(skb, IFLA_AF_SPEC);
+-		if (!af)
++		if (!af) {
++			rcu_read_unlock();
+ 			goto nla_put_failure;
+-
++		}
+ 		if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
+ 			err = br_fill_ifvlaninfo_compressed(skb, vg);
+ 		else
+ 			err = br_fill_ifvlaninfo(skb, vg);
++		rcu_read_unlock();
+ 		if (err)
+ 			goto nla_put_failure;
+ 		nla_nest_end(skb, af);
 -- 
 2.4.3
 
