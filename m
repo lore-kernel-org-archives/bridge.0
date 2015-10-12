@@ -1,15 +1,15 @@
 Return-Path: <idosch@mellanox.com>
-Date: Sun, 11 Oct 2015 15:21:18 +0300
+Date: Mon, 12 Oct 2015 20:29:55 +0300
 From: Ido Schimmel <idosch@mellanox.com>
-Message-ID: <20151011122118.GB2793@colbert.mtl.com>
-References: <1443637015-4153-1-git-send-email-razor@blackwall.org>
-	<1443637015-4153-5-git-send-email-razor@blackwall.org>
+Message-ID: <20151012172921.GB6756@colbert.mtl.com>
+References: <1444650069-32572-1-git-send-email-razor@blackwall.org>
+	<1444650069-32572-2-git-send-email-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <1443637015-4153-5-git-send-email-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next 4/5] bridge: vlan: fix possible null
- ptr derefs on port init and deinit
+In-Reply-To: <1444650069-32572-2-git-send-email-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next 1/4] bridge: vlan: use proper rcu for
+ the vlgrp member
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,33 +19,47 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, vyasevich@gmail.com
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, shm@cumulusnetworks.com, davem@davemloft.net
 
-Wed, Sep 30, 2015 at 09:16:54PM IDT, razor@blackwall.org wrote:
+Mon, Oct 12, 2015 at 02:41:06PM IDT, razor@blackwall.org wrote:
 >From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 >
->When a new port is being added we need to make vlgrp available after
->rhashtable has been initialized and when removing a port we need to
->flush the vlans and free the resources after we're sure noone can use
->the port, i.e. after it's removed from the port list and synchronize_rcu
->is executed.
+Hi Nik,
 
-Hi Nikolay,
+Small nitpick:
 
-Changing the order of port deinit breaks symmetry with the init
-sequence. It also introduces a problem for switchdev drivers. Flushing
-the VLANs clears HW VLAN filters and then, when port is unlinked from
-bridge and CHANGEUPPER is received, port is configured to direct traffic
-to CPU (as it's not offloaded anymore). Doing the reverse (like in this
-patch) renders the port unusable.
+<snip>
 
-Regarding the reason for this change, are you afraid that vlgrp will be
-accessed in bridge's rx handler or xmit function after it's freed? If
-so, maybe we can access it using RCU primitives? That way, both the rx
-handler and xmit function (executed under RCU lock) will either have a
-valid copy or not. Looking at previous iterations of this code, I see
-that was the case with the 'net_port_vlans' struct.
+>@@ -825,17 +848,19 @@ unlock:
+> 
+> int br_vlan_init(struct net_bridge *br)
+> {
+>+	struct net_bridge_vlan_group *vg;
+> 	int ret = -ENOMEM;
+> 
+>-	br->vlgrp = kzalloc(sizeof(struct net_bridge_vlan_group), GFP_KERNEL);
+>-	if (!br->vlgrp)
+>+	vg = kzalloc(sizeof(struct net_bridge_vlan_group), GFP_KERNEL);
+Maybe just do sizeof(*vg)?
+>+	if (!vg)
+> 		goto out;
+>-	ret = rhashtable_init(&br->vlgrp->vlan_hash, &br_vlan_rht_params);
+>+	ret = rhashtable_init(&vg->vlan_hash, &br_vlan_rht_params);
+> 	if (ret)
+> 		goto err_rhtbl;
+>-	INIT_LIST_HEAD(&br->vlgrp->vlan_list);
+>+	INIT_LIST_HEAD(&vg->vlan_list);
+> 	br->vlan_proto = htons(ETH_P_8021Q);
+> 	br->default_pvid = 1;
+>+	rcu_assign_pointer(br->vlgrp, vg);
+> 	ret = br_vlan_add(br, 1,
+> 			  BRIDGE_VLAN_INFO_PVID | BRIDGE_VLAN_INFO_UNTAGGED |
+> 			  BRIDGE_VLAN_INFO_BRENTRY);
+>@@ -846,9 +871,9 @@ out:
+> 	return ret;
 
-I can start working on a fix if you agree with the proposed solution.
+</snip>
 
-Thanks.
+>-- 
+>2.4.3
+>
