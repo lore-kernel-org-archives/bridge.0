@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Tue, 13 Oct 2015 04:52:16 -0700 (PDT)
-Message-Id: <20151013.045216.838190689363270571.davem@davemloft.net>
+Date: Tue, 13 Oct 2015 04:58:28 -0700 (PDT)
+Message-Id: <20151013.045828.226876535388974150.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1444665355-28448-1-git-send-email-razor@blackwall.org>
-References: <1444665355-28448-1-git-send-email-razor@blackwall.org>
+In-Reply-To: <1444679225-7354-1-git-send-email-razor@blackwall.org>
+References: <1444679225-7354-1-git-send-email-razor@blackwall.org>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: fix gc_timer mod/del race
-	condition
+Subject: Re: [Bridge] [PATCH net-next v2 0/4] bridge: vlan: cleanups & fixes
+	(part 3)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,24 +18,20 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: razor@blackwall.org
-Cc: jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, sfeldma@gmail.com
+Cc: idosch@mellanox.com, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, shm@cumulusnetworks.com
 
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 12 Oct 2015 17:55:55 +0200
+Date: Mon, 12 Oct 2015 21:47:01 +0200
 
-> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Patch 01 converts the vlgrp member to use rcu as it was already used in a
+> similar way so better to make it official and use all the available RCU
+> instrumentation. Patch 02 fixes a bug where the vlan_list can be traversed
+> without rtnl or rcu held which could lead to using freed entries.
+> Patch 03 removes some redundant code that isn't needed anymore.
+> Patch 04 fixes a bug reported by Ido Schimmel about the vlan_flush order
+> and switchdevs, it moves it back.
 > 
-> commit c62987bbd8a1 ("bridge: push bridge setting ageing_time down to
-> switchdev") introduced a timer race condition because the gc_timer can
-> get rearmed after it's supposedly stopped and flushed in br_dev_delete()
-> leading to a use of freed memory. So take rtnl to sync with bridge
-> destruction when setting ageing_timer.
-> Here's the trace reproduced with these two commands running in parallel:
-> while :; do echo 10000 > /sys/class/net/br0/bridge/ageing_timer; done;
-> while :; do brctl addbr br0; ip l set br0 up; ip l set br0 down;
-> brctl delbr br0; done;
- ...
-> Fixes: c62987bbd8a1 ("bridge: push bridge setting ageing_time down to switchdev")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> v2: patch 03 and 04 are new, couldn't escape the second synchronize_rcu()
+> since the rhtable destruction can sleep
 
-Applied, thanks.
+Series applied, thanks Nik.
