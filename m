@@ -1,11 +1,15 @@
-Return-Path: <richard@nod.at>
-From: Richard Weinberger <richard@nod.at>
-Message-ID: <565B7F7D.80208@nod.at>
-Date: Sun, 29 Nov 2015 23:43:09 +0100
+Return-Path: <ebiederm@xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+References: <565B7F7D.80208@nod.at>
+	<CAGXu5jJqQKAmFK0nL69E0QOpo8WSVDqStGZo7-m7gy3vnXBa=A@mail.gmail.com>
+Date: Mon, 30 Nov 2015 15:38:15 -0600
+In-Reply-To: <CAGXu5jJqQKAmFK0nL69E0QOpo8WSVDqStGZo7-m7gy3vnXBa=A@mail.gmail.com>
+	(Kees Cook's message of "Mon, 30 Nov 2015 12:14:41 -0800")
+Message-ID: <87egf7183c.fsf_-_@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] user controllable usermodehelper in br_stp_if.c
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] bridge: Only call /sbin/bridge-stp for the
+	initial network namespace
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,25 +18,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "keescook@chromium.org" <keescook@chromium.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>
+To: David Miller <davem@davemloft.net>
+Cc: Kees Cook <keescook@chromium.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Richard Weinberger <richard@nod.at>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 
-Hi!
 
-By spawning new network and user namesapces an unprivileged user
-is able to execute /sbin/bridge-stp within the initial mount namespace
-with global root rights.
-While this cannot directly be used to break out of a container or gain
-global root rights it could be used by exploit writers as valuable building block.
+There is no defined mechanism to pass network namespace information
+into /sbin/bridge-stp therefore don't even try to invoke it except
+for bridge devices in the initial network namespace.
 
-e.g.
-$ unshare -U -r -n /bin/sh
-$ brctl addbr br0
-$ brctl stp br0 on # this will execute /sbin/bridge-stp
+It is possible for unprivileged users to cause /sbin/bridge-stp to be
+invoked for any network device name which if /sbin/bridge-stp does not
+guard against unreasonable arguments or being invoked twice on the same
+network device could cause problems.
 
-As this mechanism clearly cannot work with containers and seems to be legacy code
-I suggest not calling call_usermodehelper() at all if we're not in the initial user namespace.
-What do you think?
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+---
+ net/bridge/br_stp_if.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thanks,
-//richard
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 5396ff08af32..742fa89528ab 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -142,7 +142,9 @@ static void br_stp_start(struct net_bridge *br)
+ 	char *envp[] = { NULL };
+ 	struct net_bridge_port *p;
+ 
+-	r = call_usermodehelper(BR_STP_PROG, argv, envp, UMH_WAIT_PROC);
++	r = -ENOENT;
++	if (dev_net(br->dev) == &init_net)
++		r = call_usermodehelper(BR_STP_PROG, argv, envp, UMH_WAIT_PROC);
+ 
+ 	spin_lock_bh(&br->lock);
+ 
+-- 
+2.2.1
+
