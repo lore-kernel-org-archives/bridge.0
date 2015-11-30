@@ -1,16 +1,14 @@
 Return-Path: <richard@nod.at>
 References: <565B7F7D.80208@nod.at>
 	<CAGXu5jJqQKAmFK0nL69E0QOpo8WSVDqStGZo7-m7gy3vnXBa=A@mail.gmail.com>
-	<87egf7183c.fsf_-_@x220.int.ebiederm.org>
 From: Richard Weinberger <richard@nod.at>
-Message-ID: <565CD459.6010402@nod.at>
-Date: Mon, 30 Nov 2015 23:57:29 +0100
+Message-ID: <565CD5A4.4010106@nod.at>
+Date: Tue, 1 Dec 2015 00:03:00 +0100
 MIME-Version: 1.0
-In-Reply-To: <87egf7183c.fsf_-_@x220.int.ebiederm.org>
-Content-Type: text/plain; charset=iso-8859-15
+In-Reply-To: <CAGXu5jJqQKAmFK0nL69E0QOpo8WSVDqStGZo7-m7gy3vnXBa=A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Only call /sbin/bridge-stp for the
- initial network namespace
+Subject: Re: [Bridge] user controllable usermodehelper in br_stp_if.c
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,26 +17,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, David Miller <davem@davemloft.net>
-Cc: Kees Cook <keescook@chromium.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Kees Cook <keescook@chromium.org>, "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, shayan@liveve.org
 
-Am 30.11.2015 um 22:38 schrieb Eric W. Biederman:
+Am 30.11.2015 um 21:14 schrieb Kees Cook:
+> On Sun, Nov 29, 2015 at 2:43 PM, Richard Weinberger <richard@nod.at> wrote:
+>> Hi!
+>>
+>> By spawning new network and user namesapces an unprivileged user
+>> is able to execute /sbin/bridge-stp within the initial mount namespace
+>> with global root rights.
+>> While this cannot directly be used to break out of a container or gain
+>> global root rights it could be used by exploit writers as valuable building block.
+>>
+>> e.g.
+>> $ unshare -U -r -n /bin/sh
+>> $ brctl addbr br0
+>> $ brctl stp br0 on # this will execute /sbin/bridge-stp
+>>
+>> As this mechanism clearly cannot work with containers and seems to be legacy code
+>> I suggest not calling call_usermodehelper() at all if we're not in the initial user namespace.
+>> What do you think?
 > 
-> There is no defined mechanism to pass network namespace information
-> into /sbin/bridge-stp therefore don't even try to invoke it except
-> for bridge devices in the initial network namespace.
-> 
-> It is possible for unprivileged users to cause /sbin/bridge-stp to be
-> invoked for any network device name which if /sbin/bridge-stp does not
-> guard against unreasonable arguments or being invoked twice on the same
-> network device could cause problems.
-> 
-> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> I'm not familiar with how bridge-stp is expected to operate with a
+> network namespace, but if it's meaningless, then yeah, that seems like
+> a reasonable change. Can you send a patch? (Also, if it's legacy code,
+> maybe it could be turned off entirely, not just for containers?)
 
-Just figured that /sbin/bridge-stp is a shell script.
-Network interfaces can contain a lot of funny characters,
-maybe this is after all a security issue.
+Eric was faster than me. :-)
+
+BTW: kernel.core_pattern is also worth a look.
+If the pipe mode is used, "|/bin/core_tool", it will be executed in the
+initial namespace and any user/container can trigger it.
+Shayan reported that some weeks ago: https://lkml.org/lkml/2015/10/24/134
 
 Thanks,
 //richard
-
