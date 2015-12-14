@@ -1,34 +1,19 @@
-Return-Path: <keescook@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20120113;
-	h=mime-version:sender:in-reply-to:references:date:message-id:subject
-	:from:to:cc:content-type;
-	bh=eGFYzYaInhvSxswFmpg1gEqXJ45sqgq/PPHESUSyKB4=;
-	b=DNHTX2uc/iwtSpnhxZka+7l71oBjWinL54/5YTQL24yUGqhGbHYYV4RGf8corvYBmk
-	b/Cd4kiME3tFxoRjMhI7mvLbnxm1iMPAQV4IWg8imJ4tpWC368qBzyPPQ6nLaycrFQvy
-	xC2kwv1Z49ZzpA400pp04ZFYQ8N8+KCdVt1MaPuPoExMcsBXw8kpiu58/vw/Kl7oln6S
-	vFr33DxHhyO2zdEUDac1u5z+8WGD91Jj3Ei6gClzim2jJkU+aepsNaksS6q5w5iJA9En
-	bjYn9SL4USILsvRf8WkD8O/SAZG6dh8wQFyf65OdtTpzal37S+S72NAyFoQRan/RQXO/
-	zV7g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
-	h=mime-version:sender:in-reply-to:references:date:message-id:subject
-	:from:to:cc:content-type;
-	bh=eGFYzYaInhvSxswFmpg1gEqXJ45sqgq/PPHESUSyKB4=;
-	b=SPumLepNSMi7z4314q2xZEWTbiKSJdyukxutjnZ6Tw5Y6xUz9zNGtAp3JlyfXXsXbF
-	XYWndU5IMBeF8DsN0m2TDF08YmzMz3a8eZw5H5ZPFqlB9nJdLYvs1FiR/eoM0QrqM23z
-	LfWne4nBsirK9bowU0h86nwm3/cgYsmwCP2Dg=
+Return-Path: <oliver.graute@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:date:message-id:subject:from:to:content-type;
+	bh=ApVTDpHXk8cw0ItnIteW4pCjmDd/T8tZpRyJd3p75jg=;
+	b=RKKGbBf+PJqPX7ze+bM4c44ElOXPmMwF+aDAqxnUE+T/I8xrwIsSZrZuR3ht+LhHB+
+	tVOYJ8FPhyRX3J7EQP3E+SWceurLIPWfbivvDYhJh/IoNO2Q/9V6KiBMnRa4oOIdZ8Um
+	CYTtY3buDQpClHmfiQ83BYcc8TnP65ZsO5u7k3vPJJOafFRDxivWfYI/BRLmJ9SncYHa
+	/JQccU0ik/VTiADaB0pxJ3qsWKYCC1kul0dAqA59s2RVfTfTpqge1crZnUBOF+YXuYRs
+	2I9cpHp7Pcy4Vyin6wtRXbdPbNGDOjV+p71RKl+Bh7iGJG7/a3VYmDoGnr+6hQ8XNldx
+	cdKw==
 MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <20151202.235049.2068953758962834535.davem@davemloft.net>
-References: <565B7F7D.80208@nod.at>
-	<CAGXu5jJqQKAmFK0nL69E0QOpo8WSVDqStGZo7-m7gy3vnXBa=A@mail.gmail.com>
-	<87egf7183c.fsf_-_@x220.int.ebiederm.org>
-	<20151202.235049.2068953758962834535.davem@davemloft.net>
-Date: Tue, 8 Dec 2015 12:56:43 -0800
-Message-ID: <CAGXu5jJJ-cYuckKPbmLejEZ82FY5eWR5R5MVRgxgTD+7hHZ1gg@mail.gmail.com>
-From: Kees Cook <keescook@chromium.org>
+Date: Mon, 14 Dec 2015 15:05:26 +0100
+Message-ID: <CA+KjHfbJyF-RqqTYoh6=X7KpPTo-==T14wpn=+2oduDy=S3+xw@mail.gmail.com>
+From: Oliver Graute <oliver.graute@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH net] bridge: Only call /sbin/bridge-stp for the
- initial network namespace
+Subject: [Bridge] adding a vlan interface to a bridge interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,21 +22,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Richard Weinberger <richard@nod.at>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Network Development <netdev@vger.kernel.org>
+To: bridge@lists.linux-foundation.org
 
-On Wed, Dec 2, 2015 at 8:50 PM, David Miller <davem@davemloft.net> wrote:
-> From: ebiederm@xmission.com (Eric W. Biederman)
-> Date: Mon, 30 Nov 2015 15:38:15 -0600
->
->> +     if (dev_net(br->dev) == &init_net)
->
-> Please respin this using net_eq() as Hannes pointed out.
+Hello,
 
-Sorry if I missed it: this this happen yet?
+I try to add a vlan interface to a bridge interface.
 
--Kees
+But in the moment I add the eth1.4 vlan interface to the br0 Interface
+icmp pings to another host in the same vlan aren't working anymore. In
+tcpdump I see some arp request/reply come through. But no ping reply.
 
--- 
-Kees Cook
-Chrome OS & Brillo Security
+
+brctl addbr br0
+brctl addif br0 eth1.4
+ifconfig br0 192.168.1.1 up
+
+brctl show
+bridge name     bridge id               STP enabled     interfaces
+br0             8000.00604cc70004       no              eth1
+                                                        eth1.4
+
+I tried to configure this kernel parameter
+
+/proc/sys/net/bridge/bridge-nf-filter-vlan-tagged = 0
+
+but with no effect.
+
+if I remove the eth1.4 interface from the bridge the icmp pings are
+working again. I do not understand why, can somebody point me in the
+right direction?
+
+I should mention that I am using an older 3.9.11 kernel for this.
+
+Best regards,
+
+Oliver
