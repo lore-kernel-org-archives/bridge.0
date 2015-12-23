@@ -1,22 +1,18 @@
-Return-Path: <vel21ripn@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=message-id:date:from:user-agent:mime-version:to:subject
-	:content-type:content-transfer-encoding;
-	bh=gNyppQMYg/oEw5tKnQz88x6sIIkJKbng79+n+qAFV+E=;
-	b=tOuGFkZZON9rza9kOzxBFGzEzRWSdyrxK1nbi7B5hDKo6acgiIq1vny44YQ9ifHFaY
-	EbGSotijJTTfvVSM/ZMXVNTWYXM+slg9s7Sre6c0jgAbWxSjZ+AWWSerzhZrn/sByMZq
-	Kr9HaBjFAIEyUVIZChD9fFNF1FYm1VY9p3PLAREyZc1JylfSb+BOjLZdsH46GSOvS4HB
-	N0e5nDwsD4CUR4z1V6Gh8JlMia9NL+HeO9Eppp6+7tgA+kWHzjv9ezd9ZXKlMlREfeqT
-	Jsk4Ix/KBRfpUJaC4WE3J+tNcjJ8KKL5S/oapaHvVF5KWq9cJqMizTxpHv1q2Od02+aL
-	F/qw==
-Message-ID: <566F16C7.9060808@gmail.com>
-Date: Mon, 14 Dec 2015 22:21:43 +0300
-From: Vitaly Lavrov <vel21ripn@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [RFC] The problem with the mirrored traffic: setageing 0
-	not work
+Return-Path: <geliangtang@163.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:Subject:Date:Message-Id; bh=k4qVpP1CET1sH/s2CM
+	JYvNx3jM1slZ47DwYMLntuOS0=; b=byFlEcMF6cvUS9q1qD6s16ZwV4y2VkmWqE
+	JRJ5K66rf6VCaiJMvco990m1qAF3DXIkJpan8FLBDGfSY+Hpbn+ImXvCrBITRRKp
+	i1fizwSDpkN5hLEPTY47n9vyjzZxAP+0qry4rrQopZsfRQW9MIGkN6yRtqheKuen
+	lfzQ1rYYQ=
+From: Geliang Tang <geliangtang@163.com>
+Date: Wed, 23 Dec 2015 20:42:21 +0800
+Message-Id: <544026a4b733db9633610b0744ec99075788157a.1450874224.git.geliangtang@163.com>
+In-Reply-To: <2e7e038ba8b7872e9e510aecde073bf944924a51.1450874224.git.geliangtang@163.com>
+References: <2e7e038ba8b7872e9e510aecde073bf944924a51.1450874224.git.geliangtang@163.com>
+In-Reply-To: <2e7e038ba8b7872e9e510aecde073bf944924a51.1450874224.git.geliangtang@163.com>
+References: <2e7e038ba8b7872e9e510aecde073bf944924a51.1450874224.git.geliangtang@163.com>
+Subject: [Bridge] [PATCH 2/2] bridge: use kobj_to_dev instead of to_dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,42 +21,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Geliang Tang <geliangtang@163.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 
-Hi!
+kobj_to_dev has been defined in linux/device.h, so I replace to_dev
+with it.
 
-After commit c62987bbd8a1a1664f99e89e3959339350a6131e (bridge: push bridge setting ageing_time down to switchdev)
-impossible to handle mirrored traffic through netfilter and it is impossible to transfer it to a virtual machine.
+Signed-off-by: Geliang Tang <geliangtang@163.com>
+---
+ net/bridge/br_sysfs_br.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-The problem code is net/bridge/br_stp.c:br_set_ageing_time() line 580
----------------------------------------------------------------------
-570 int br_set_ageing_time(struct net_bridge *br, u32 ageing_time)
-571 {
-572         struct switchdev_attr attr = {
-573                 .id = SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
-574                 .flags = SWITCHDEV_F_SKIP_EOPNOTSUPP,
-575                 .u.ageing_time = ageing_time,
-576         };
-577         unsigned long t = clock_t_to_jiffies(ageing_time);
-578         int err;
-579
-580         if (t < BR_MIN_AGEING_TIME || t > BR_MAX_AGEING_TIME)
-581                 return -ERANGE;
-582
-583         err = switchdev_port_attr_set(br->dev, &attr);
-584         if (err)
-585                 return err;
-586
-587         br->ageing_time = t;
------------------------------------------------------------------------
-
-To handle the mirrored traffic we must have ageing_time = 0.
-IMHO check aging_time need to move in ops->switchdev_port_attr_set().
-If it is a hardware switch and it has restrictions on ageing_time, then it must return -ERANGE.
-For a software implementation of a switch(brigde) we can allow the special value "0" ageing_time.
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 8365bd5..6b80914 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -22,7 +22,6 @@
+ 
+ #include "br_private.h"
+ 
+-#define to_dev(obj)	container_of(obj, struct device, kobj)
+ #define to_bridge(cd)	((struct net_bridge *)netdev_priv(to_net_dev(cd)))
+ 
+ /*
+@@ -814,7 +813,7 @@ static ssize_t brforward_read(struct file *filp, struct kobject *kobj,
+ 			      struct bin_attribute *bin_attr,
+ 			      char *buf, loff_t off, size_t count)
+ {
+-	struct device *dev = to_dev(kobj);
++	struct device *dev = kobj_to_dev(kobj);
+ 	struct net_bridge *br = to_bridge(dev);
+ 	int n;
+ 
+-- 
+2.5.0
 
 
-The second problem is in the line 584 - Do not check the error code "EOPNOTSUPP"
-This line must be  "if (err && err != -EOPNOTSUPP)"
-
-How better to done in such situation?
