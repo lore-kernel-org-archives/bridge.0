@@ -1,14 +1,21 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 15 Jan 2016 15:41:45 -0500 (EST)
-Message-Id: <20160115.154145.18804969118533519.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1452881034-19128-1-git-send-email-razor@blackwall.org>
-References: <1452881034-19128-1-git-send-email-razor@blackwall.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: fix lockdep addr_list_lock false
- positive splat
+Return-Path: <noltari@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=to:from:subject:message-id:date:user-agent:mime-version
+	:content-type:content-transfer-encoding;
+	bh=sseQt4CvrviBQk+h6QMVMZjTvws91lO77uiO02/6eOw=;
+	b=BIW6NNoGe9Pdn2Q+PFLuaRIy16PrwEM/c1+SmFCcdGC3jpegxklkHIBJlcKTNDpHSO
+	6nsaD+v5b8p9Ofp1Y8PPUGnmwPefOgi1EJ0VepMw8qlZVliOcghW6ksJizI7hHbhs8X5
+	4VcqsL25ilWI89kWrfdr18UrGXTeP54timAJhc8lNxVq51gcFN0T6zUxmMOdVdfWoxG5
+	iBkCq+8Wsj3RDD45HKa1aWXCcHLn6A0TspV1lUC2XsZ11BOrBTyctKibMtlfxWuWkCkb
+	ijZ8MIlafYozet5rPiJ1sOcJ9ut5L1FmFWzY6N3KMnZ+I3jbSG1+/OkpRUAazztR6zVm
+	WUFQ==
+From: =?UTF-8?Q?=c3=81lvaro_Fern=c3=a1ndez_Rojas?= <noltari@gmail.com>
+Message-ID: <56A2993B.4070307@gmail.com>
+Date: Fri, 22 Jan 2016 22:03:55 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] hw csum failure introduced in linux-4.2
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,38 +24,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: razor@blackwall.org
-Cc: vyasevic@redhat.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, gospo@cumulusnetworks.com
+To: bridge@lists.linux-foundation.org, linus.luessing@c0d3.blue, davem@davemloft.net
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri, 15 Jan 2016 19:03:54 +0100
+ From linux-4.2 there's a "hw csum failure" for bridges using hardware 
+checksums when IPv6 multicast traffic is received.
 
-> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> 
-> After promisc mode management was introduced a bridge device could do
-> dev_set_promiscuity from its ndo_change_rx_flags() callback which in
-> turn can be called after the bridge's addr_list_lock has been taken
-> (e.g. by dev_uc_add). This causes a false positive lockdep splat because
-> the port interfaces' addr_list_lock is taken when br_manage_promisc()
-> runs after the bridge's addr list lock was already taken.
-> To remove the false positive introduce a custom bridge addr_list_lock
-> class and set it on bridge init.
-> A simple way to reproduce this is with the following:
-> $ brctl addbr br0
-> $ ip l add l br0 br0.100 type vlan id 100
-> $ ip l set br0 up
-> $ ip l set br0.100 up
-> $ echo 1 > /sys/class/net/br0/bridge/vlan_filtering
-> $ brctl addif br0 eth0
-> Splat:
- ...
-> CC: Vlad Yasevich <vyasevic@redhat.com>
-> CC: Stephen Hemminger <stephen@networkplumber.org>
-> CC: Bridge list <bridge@lists.linux-foundation.org>
-> CC: Andy Gospodarek <gospo@cumulusnetworks.com>
-> CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-> Reported-by: Andy Gospodarek <gospo@cumulusnetworks.com>
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Here are some reports:
+https://lkml.org/lkml/2015/12/1/699
+https://bugzilla.redhat.com/show_bug.cgi?id=1266601
+https://discourse.osmc.tv/t/hw-csum-failure/9990
+https://github.com/raspberrypi/linux/issues/1259
 
-Applied and queued up for -stable, thanks Nikolay.
+I think it may have been introduced in commit 
+9afd85c9e4552b276e2f4cfefd622bdeeffbbf26 (net: Export IGMP/MLD message 
+validation code) but I haven't done any tests to confirm it.
+Any help on this issue would be really appreciated.
+
+Regards,
+Álvaro.
