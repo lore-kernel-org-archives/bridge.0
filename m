@@ -1,23 +1,10 @@
-Return-Path: <noltari@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-type:content-transfer-encoding;
-	bh=stAK70iWnZhl6ACCVGYQWTmyVxgDID9B1BJTGhr+I5Q=;
-	b=WAYOW4wBwP5i+hP9ub6+spxfN+pUnyIlL/8TCW74yds7PQ6voRir0ZB4bs3jAMOj2W
-	kto5Fr/1Nyifd8IKOwMzSk+Wn+VeCrOSLct7vwiBYSmgT55eU6/nwrCQFywrRhadbifn
-	dFmUZ9y1ZrmWyJn0bQMzmC8K8jJsyu7egZYexTX0BkxqSSkjSNfKxZHOg2alwCKNqSZw
-	CFzWd14tYUTBpJIvQHbOIj0VHeV5Ml6ZiEVittbHB0zubMm9ee7YampsWvN0bQ9KfGS+
-	bZ4uLrnibe4qMh5Gm9bOGLRe4HOcDMFfSSasFzW3NHeMDsj9uP4DVzYNBRHz+71zS8gm
-	nSaA==
-References: <56A2993B.4070307@gmail.com> <20160122131046.6f141681@xeon-e3>
-From: =?UTF-8?Q?=c3=81lvaro_Fern=c3=a1ndez_Rojas?= <noltari@gmail.com>
-Message-ID: <56A2AF73.2090204@gmail.com>
-Date: Fri, 22 Jan 2016 23:38:43 +0100
-MIME-Version: 1.0
-In-Reply-To: <20160122131046.6f141681@xeon-e3>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] hw csum failure introduced in linux-4.2
+Return-Path: <kamal@canonical.com>
+From: Kamal Mostafa <kamal@canonical.com>
+Date: Tue, 26 Jan 2016 16:14:24 -0800
+Message-Id: <1453853664-23913-1-git-send-email-kamal@canonical.com>
+Subject: [Bridge] [4.2.y-ckt stable] Patch "bridge: fix lockdep
+	addr_list_lock false positive splat" has been added to the
+	4.2.y-ckt tree
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,40 +13,164 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, Kamal Mostafa <kamal@canonical.com>, kernel-team@lists.ubuntu.com, "David S. Miller" <davem@davemloft.net>
 
-Yes, I could reproduce it on OpenWrt using linux-4.4 on a Raspberry Pi 2.
-https://gist.github.com/Noltari/5b1cfdecce5ed4bc08fd
+This is a note to let you know that I have just added a patch titled
 
-No, I didn't open any issue on the kernel bugzilla.
-If you want me to report it somewhere else I don't have any problem with it.
+    bridge: fix lockdep addr_list_lock false positive splat
 
-Regards,
-Álvaro.
+to the linux-4.2.y-queue branch of the 4.2.y-ckt extended stable tree 
+which can be found at:
 
-El 22/01/2016 a las 22:10, Stephen Hemminger escribió:
-> On Fri, 22 Jan 2016 22:03:55 +0100
-> Álvaro Fernández Rojas <noltari@gmail.com> wrote:
->
->>   From linux-4.2 there's a "hw csum failure" for bridges using hardware
->> checksums when IPv6 multicast traffic is received.
->>
->> Here are some reports:
->> https://lkml.org/lkml/2015/12/1/699
->> https://bugzilla.redhat.com/show_bug.cgi?id=1266601
->> https://discourse.osmc.tv/t/hw-csum-failure/9990
->> https://github.com/raspberrypi/linux/issues/1259
->>
->> I think it may have been introduced in commit
->> 9afd85c9e4552b276e2f4cfefd622bdeeffbbf26 (net: Export IGMP/MLD message
->> validation code) but I haven't done any tests to confirm it.
->> Any help on this issue would be really appreciated.
->>
->> Regards,
->> Álvaro.
-> What hardware? You missed the kernel bugzilla? If it was reported
-> there I would have forwarded it to netdev@vger.kernel.org.
->
-> Can you reproduce it with 4.4?
+    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-4.2.y-queue
+
+This patch is scheduled to be released in version 4.2.8-ckt3.
+
+If you, or anyone else, feels it should not be added to this tree, please 
+reply to this email.
+
+For more information about the 4.2.y-ckt tree, see
+https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
+
+Thanks.
+-Kamal
+
+---8<------------------------------------------------------------
+
+From c6991c894e56045ccbd210329fab8a7b8921ef93 Mon Sep 17 00:00:00 2001
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 15 Jan 2016 19:03:54 +0100
+Subject: bridge: fix lockdep addr_list_lock false positive splat
+
+commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 upstream.
+
+After promisc mode management was introduced a bridge device could do
+dev_set_promiscuity from its ndo_change_rx_flags() callback which in
+turn can be called after the bridge's addr_list_lock has been taken
+(e.g. by dev_uc_add). This causes a false positive lockdep splat because
+the port interfaces' addr_list_lock is taken when br_manage_promisc()
+runs after the bridge's addr list lock was already taken.
+To remove the false positive introduce a custom bridge addr_list_lock
+class and set it on bridge init.
+A simple way to reproduce this is with the following:
+$ brctl addbr br0
+$ ip l add l br0 br0.100 type vlan id 100
+$ ip l set br0 up
+$ ip l set br0.100 up
+$ echo 1 > /sys/class/net/br0/bridge/vlan_filtering
+$ brctl addif br0 eth0
+Splat:
+[   43.684325] =============================================
+[   43.684485] [ INFO: possible recursive locking detected ]
+[   43.684636] 4.4.0-rc8+ #54 Not tainted
+[   43.684755] ---------------------------------------------
+[   43.684906] brctl/1187 is trying to acquire lock:
+[   43.685047]  (_xmit_ETHER){+.....}, at: [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
+[   43.685460]  but task is already holding lock:
+[   43.685618]  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
+[   43.686015]  other info that might help us debug this:
+[   43.686316]  Possible unsafe locking scenario:
+
+[   43.686743]        CPU0
+[   43.686967]        ----
+[   43.687197]   lock(_xmit_ETHER);
+[   43.687544]   lock(_xmit_ETHER);
+[   43.687886] *** DEADLOCK ***
+
+[   43.688438]  May be due to missing lock nesting notation
+
+[   43.688882] 2 locks held by brctl/1187:
+[   43.689134]  #0:  (rtnl_mutex){+.+.+.}, at: [<ffffffff81510317>] rtnl_lock+0x17/0x20
+[   43.689852]  #1:  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
+[   43.690575] stack backtrace:
+[   43.690970] CPU: 0 PID: 1187 Comm: brctl Not tainted 4.4.0-rc8+ #54
+[   43.691270] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.8.1-20150318_183358- 04/01/2014
+[   43.691770]  ffffffff826a25c0 ffff8800369fb8e0 ffffffff81360ceb ffffffff826a25c0
+[   43.692425]  ffff8800369fb9b8 ffffffff810d0466 ffff8800369fb968 ffffffff81537139
+[   43.693071]  ffff88003a08c880 0000000000000000 00000000ffffffff 0000000002080020
+[   43.693709] Call Trace:
+[   43.693931]  [<ffffffff81360ceb>] dump_stack+0x4b/0x70
+[   43.694199]  [<ffffffff810d0466>] __lock_acquire+0x1e46/0x1e90
+[   43.694483]  [<ffffffff81537139>] ? netlink_broadcast_filtered+0x139/0x3e0
+[   43.694789]  [<ffffffff8153b5da>] ? nlmsg_notify+0x5a/0xc0
+[   43.695064]  [<ffffffff810d10f5>] lock_acquire+0xe5/0x1f0
+[   43.695340]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
+[   43.695623]  [<ffffffff815edea5>] _raw_spin_lock_bh+0x45/0x80
+[   43.695901]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
+[   43.696180]  [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
+[   43.696460]  [<ffffffff8150189c>] dev_set_promiscuity+0x3c/0x50
+[   43.696750]  [<ffffffffa0586845>] br_port_set_promisc+0x25/0x50 [bridge]
+[   43.697052]  [<ffffffffa05869aa>] br_manage_promisc+0x8a/0xe0 [bridge]
+[   43.697348]  [<ffffffffa05826ee>] br_dev_change_rx_flags+0x1e/0x20 [bridge]
+[   43.697655]  [<ffffffff81501532>] __dev_set_promiscuity+0x132/0x1f0
+[   43.697943]  [<ffffffff81501672>] __dev_set_rx_mode+0x82/0x90
+[   43.698223]  [<ffffffff815072de>] dev_uc_add+0x5e/0x80
+[   43.698498]  [<ffffffffa05b3c62>] vlan_device_event+0x542/0x650 [8021q]
+[   43.698798]  [<ffffffff8109886d>] notifier_call_chain+0x5d/0x80
+[   43.699083]  [<ffffffff810988b6>] raw_notifier_call_chain+0x16/0x20
+[   43.699374]  [<ffffffff814f456e>] call_netdevice_notifiers_info+0x6e/0x80
+[   43.699678]  [<ffffffff814f4596>] call_netdevice_notifiers+0x16/0x20
+[   43.699973]  [<ffffffffa05872be>] br_add_if+0x47e/0x4c0 [bridge]
+[   43.700259]  [<ffffffffa058801e>] add_del_if+0x6e/0x80 [bridge]
+[   43.700548]  [<ffffffffa0588b5f>] br_dev_ioctl+0xaf/0xc0 [bridge]
+[   43.700836]  [<ffffffff8151a7ac>] dev_ifsioc+0x30c/0x3c0
+[   43.701106]  [<ffffffff8151aac9>] dev_ioctl+0xf9/0x6f0
+[   43.701379]  [<ffffffff81254345>] ? mntput_no_expire+0x5/0x450
+[   43.701665]  [<ffffffff812543ee>] ? mntput_no_expire+0xae/0x450
+[   43.701947]  [<ffffffff814d7b02>] sock_do_ioctl+0x42/0x50
+[   43.702219]  [<ffffffff814d8175>] sock_ioctl+0x1e5/0x290
+[   43.702500]  [<ffffffff81242d0b>] do_vfs_ioctl+0x2cb/0x5c0
+[   43.702771]  [<ffffffff81243079>] SyS_ioctl+0x79/0x90
+[   43.703033]  [<ffffffff815eebb6>] entry_SYSCALL_64_fastpath+0x16/0x7a
+
+CC: Vlad Yasevich <vyasevic@redhat.com>
+CC: Stephen Hemminger <stephen@networkplumber.org>
+CC: Bridge list <bridge@lists.linux-foundation.org>
+CC: Andy Gospodarek <gospo@cumulusnetworks.com>
+CC: Roopa Prabhu <roopa@cumulusnetworks.com>
+Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
+Reported-by: Andy Gospodarek <gospo@cumulusnetworks.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+---
+ net/bridge/br_device.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 4ff77a1..3d6c8e2 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -28,6 +28,8 @@
+ const struct nf_br_ops __rcu *nf_br_ops __read_mostly;
+ EXPORT_SYMBOL_GPL(nf_br_ops);
+
++static struct lock_class_key bridge_netdev_addr_lock_key;
++
+ /* net device transmit always called with BH disabled */
+ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+@@ -87,6 +89,11 @@ out:
+ 	return NETDEV_TX_OK;
+ }
+
++static void br_set_lockdep_class(struct net_device *dev)
++{
++	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
++}
++
+ static int br_dev_init(struct net_device *dev)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+@@ -99,6 +106,7 @@ static int br_dev_init(struct net_device *dev)
+ 	err = br_vlan_init(br);
+ 	if (err)
+ 		free_percpu(br->stats);
++	br_set_lockdep_class(dev);
+
+ 	return err;
+ }
+--
+1.9.1
 
