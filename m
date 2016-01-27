@@ -1,12 +1,13 @@
 Return-Path: <gregkh@linuxfoundation.org>
-From: <gregkh@linuxfoundation.org>
-Date: Tue, 26 Jan 2016 22:30:12 -0800
-Message-ID: <145387621218171@kroah.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 27 Jan 2016 10:12:44 -0800
+Message-Id: <20160127180912.839995917@linuxfoundation.org>
+In-Reply-To: <20160127180907.419868641@linuxfoundation.org>
+References: <20160127180907.419868641@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Patch "bridge: fix lockdep addr_list_lock false positive
-	splat" has been added to the 4.4-stable tree
+Content-Type: text/plain; charset=ISO-8859-15
+Subject: [Bridge] [PATCH 4.4 50/67] bridge: fix lockdep addr_list_lock false
+	positive splat
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,29 +16,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, gospo@cumulusnetworks.com, gregkh@linuxfoundation.org, roopa@cumulusnetworks.com, stephen@networkplumber.org, vyasevic@redhat.com
-Cc: stable@vger.kernel.org, stable-commits@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, stable@vger.kernel.org, Andy Gospodarek <gospo@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>
 
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
-This is a note to let you know that I've just added the patch titled
-
-    bridge: fix lockdep addr_list_lock false positive splat
-
-to the 4.4-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     bridge-fix-lockdep-addr_list_lock-false-positive-splat.patch
-and it can be found in the queue-4.4 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From foo@baz Tue Jan 26 21:31:27 PST 2016
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 15 Jan 2016 19:03:54 +0100
-Subject: bridge: fix lockdep addr_list_lock false positive splat
+------------------
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
@@ -169,6 +153,3 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
 
 
-Patches currently in stable-queue which might be from nikolay@cumulusnetworks.com are
-
-queue-4.4/bridge-fix-lockdep-addr_list_lock-false-positive-splat.patch
