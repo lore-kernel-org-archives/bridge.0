@@ -1,13 +1,13 @@
 Return-Path: <gregkh@linuxfoundation.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Wed, 27 Jan 2016 10:12:44 -0800
-Message-Id: <20160127180912.839995917@linuxfoundation.org>
-In-Reply-To: <20160127180907.419868641@linuxfoundation.org>
-References: <20160127180907.419868641@linuxfoundation.org>
+Date: Wed, 27 Jan 2016 10:12:57 -0800
+Message-Id: <20160127180938.532749701@linuxfoundation.org>
+In-Reply-To: <20160127180932.533735338@linuxfoundation.org>
+References: <20160127180932.533735338@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
-Subject: [Bridge] [PATCH 4.4 50/67] bridge: fix lockdep addr_list_lock false
-	positive splat
+Subject: [Bridge] [PATCH 4.3 110/157] bridge: fix lockdep addr_list_lock
+	false positive splat
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,7 +19,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org
 Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, stable@vger.kernel.org, Andy Gospodarek <gospo@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
+4.3-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
