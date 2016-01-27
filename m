@@ -1,11 +1,12 @@
-Return-Path: <kamal@canonical.com>
-From: Kamal Mostafa <kamal@canonical.com>
-Date: Thu, 28 Jan 2016 17:18:55 -0800
-Message-Id: <1454030348-17736-198-git-send-email-kamal@canonical.com>
-In-Reply-To: <1454030348-17736-1-git-send-email-kamal@canonical.com>
-References: <1454030348-17736-1-git-send-email-kamal@canonical.com>
-Subject: [Bridge] [PATCH 3.19.y-ckt 197/210] bridge: fix lockdep
-	addr_list_lock false positive splat
+Return-Path: <gregkh@linuxfoundation.org>
+From: <gregkh@linuxfoundation.org>
+Date: Tue, 26 Jan 2016 22:27:49 -0800
+Message-ID: <1453876069171169@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] Patch "bridge: fix lockdep addr_list_lock false positive
+	splat" has been added to the 4.1-stable tree
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,12 +15,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
-Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, Kamal Mostafa <kamal@canonical.com>, "David S. Miller" <davem@davemloft.net>
+To: nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, gospo@cumulusnetworks.com, gregkh@linuxfoundation.org, roopa@cumulusnetworks.com, stephen@networkplumber.org, vyasevic@redhat.com
+Cc: stable@vger.kernel.org, stable-commits@vger.kernel.org
 
-3.19.8-ckt14 -stable review patch.  If anyone has any objections, please let me know.
 
----8<------------------------------------------------------------
+This is a note to let you know that I've just added the patch titled
+
+    bridge: fix lockdep addr_list_lock false positive splat
+
+to the 4.1-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     bridge-fix-lockdep-addr_list_lock-false-positive-splat.patch
+and it can be found in the queue-4.1 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From foo@baz Tue Jan 26 21:37:04 PST 2016
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 15 Jan 2016 19:03:54 +0100
+Subject: bridge: fix lockdep addr_list_lock false positive splat
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
@@ -113,25 +131,23 @@ Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
 Reported-by: Andy Gospodarek <gospo@cumulusnetworks.com>
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_device.c | 8 ++++++++
+ net/bridge/br_device.c |    8 ++++++++
  1 file changed, 8 insertions(+)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index ffd379d..986ff12 100644
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -25,6 +25,8 @@
- #define COMMON_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA | \
- 			 NETIF_F_GSO_MASK | NETIF_F_HW_CSUM)
+@@ -28,6 +28,8 @@
+ const struct nf_br_ops __rcu *nf_br_ops __read_mostly;
+ EXPORT_SYMBOL_GPL(nf_br_ops);
  
 +static struct lock_class_key bridge_netdev_addr_lock_key;
 +
  /* net device transmit always called with BH disabled */
  netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
  {
-@@ -85,6 +87,11 @@ out:
+@@ -87,6 +89,11 @@ out:
  	return NETDEV_TX_OK;
  }
  
@@ -143,7 +159,7 @@ index ffd379d..986ff12 100644
  static int br_dev_init(struct net_device *dev)
  {
  	struct net_bridge *br = netdev_priv(dev);
-@@ -97,6 +104,7 @@ static int br_dev_init(struct net_device *dev)
+@@ -99,6 +106,7 @@ static int br_dev_init(struct net_device
  	err = br_vlan_init(br);
  	if (err)
  		free_percpu(br->stats);
@@ -151,6 +167,8 @@ index ffd379d..986ff12 100644
  
  	return err;
  }
--- 
-1.9.1
 
+
+Patches currently in stable-queue which might be from nikolay@cumulusnetworks.com are
+
+queue-4.1/bridge-fix-lockdep-addr_list_lock-false-positive-splat.patch
