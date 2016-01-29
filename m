@@ -1,11 +1,10 @@
 Return-Path: <kamal@canonical.com>
 From: Kamal Mostafa <kamal@canonical.com>
-Date: Wed, 27 Jan 2016 12:34:58 -0800
-Message-Id: <1453926929-17663-238-git-send-email-kamal@canonical.com>
-In-Reply-To: <1453926929-17663-1-git-send-email-kamal@canonical.com>
-References: <1453926929-17663-1-git-send-email-kamal@canonical.com>
-Subject: [Bridge] [PATCH 4.2.y-ckt 237/268] bridge: fix lockdep
-	addr_list_lock false positive splat
+Date: Thu, 28 Jan 2016 17:11:37 -0800
+Message-Id: <1454029897-16602-1-git-send-email-kamal@canonical.com>
+Subject: [Bridge] [3.19.y-ckt stable] Patch "bridge: fix lockdep
+	addr_list_lock false positive splat" has been added to the
+	3.19.y-ckt tree
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,16 +13,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
-Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, Kamal Mostafa <kamal@canonical.com>, "David S. Miller" <davem@davemloft.net>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, Kamal Mostafa <kamal@canonical.com>, kernel-team@lists.ubuntu.com, "David S. Miller" <davem@davemloft.net>
 
-4.2.8-ckt3 -stable review patch.  If anyone has any objections, please let me know.
+This is a note to let you know that I have just added a patch titled
+
+    bridge: fix lockdep addr_list_lock false positive splat
+
+to the linux-3.19.y-queue branch of the 3.19.y-ckt extended stable tree 
+which can be found at:
+
+    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.19.y-queue
+
+This patch is scheduled to be released in version 3.19.8-ckt14.
+
+If you, or anyone else, feels it should not be added to this tree, please 
+reply to this email.
+
+For more information about the 3.19.y-ckt tree, see
+https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
+
+Thanks.
+-Kamal
 
 ---8<------------------------------------------------------------
 
+From d2f1feae358fc998a75409f635d2d34c393dfeb9 Mon Sep 17 00:00:00 2001
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 15 Jan 2016 19:03:54 +0100
+Subject: bridge: fix lockdep addr_list_lock false positive splat
 
-commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 upstream.
+[ Upstream commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 ]
 
 After promisc mode management was introduced a bridge device could do
 dev_set_promiscuity from its ndo_change_rx_flags() callback which in
@@ -119,22 +139,22 @@ Signed-off-by: Kamal Mostafa <kamal@canonical.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 4ff77a1..3d6c8e2 100644
+index ffd379d..986ff12 100644
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -28,6 +28,8 @@
- const struct nf_br_ops __rcu *nf_br_ops __read_mostly;
- EXPORT_SYMBOL_GPL(nf_br_ops);
- 
+@@ -25,6 +25,8 @@
+ #define COMMON_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA | \
+ 			 NETIF_F_GSO_MASK | NETIF_F_HW_CSUM)
+
 +static struct lock_class_key bridge_netdev_addr_lock_key;
 +
  /* net device transmit always called with BH disabled */
  netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
  {
-@@ -87,6 +89,11 @@ out:
+@@ -85,6 +87,11 @@ out:
  	return NETDEV_TX_OK;
  }
- 
+
 +static void br_set_lockdep_class(struct net_device *dev)
 +{
 +	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
@@ -143,14 +163,14 @@ index 4ff77a1..3d6c8e2 100644
  static int br_dev_init(struct net_device *dev)
  {
  	struct net_bridge *br = netdev_priv(dev);
-@@ -99,6 +106,7 @@ static int br_dev_init(struct net_device *dev)
+@@ -97,6 +104,7 @@ static int br_dev_init(struct net_device *dev)
  	err = br_vlan_init(br);
  	if (err)
  		free_percpu(br->stats);
 +	br_set_lockdep_class(dev);
- 
+
  	return err;
  }
--- 
+--
 1.9.1
 
