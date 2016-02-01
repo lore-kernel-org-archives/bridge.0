@@ -1,13 +1,20 @@
-Return-Path: <gregkh@linuxfoundation.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Wed, 27 Jan 2016 10:14:07 -0800
-Message-Id: <20160127180809.795068722@linuxfoundation.org>
-In-Reply-To: <20160127180805.624425994@linuxfoundation.org>
-References: <20160127180805.624425994@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Subject: [Bridge] [PATCH 4.1 083/127] bridge: fix lockdep addr_list_lock
-	false positive splat
+Return-Path: <djlogan2.dl@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:content-type:subject:message-id:date:to:mime-version;
+	bh=taUPkX6PqoIwfDZx/NsbvdbegfOFD0HLPMCt9YseTZ8=;
+	b=Gypu8yBnUSU1LIb96pbU65kTeZsrD6tAHjlu3Tk5bYIbbTPDEQmXmajcMqh79FcxMr
+	GFOnG1mn1vjzV+8CvzXtTS0XpwWKtN+WqDqBFAekMK3DODZAGqBpp+dvz0gfuPjHcaEb
+	lMPD3/eeb1TFl9O4l3jFQtvqpVDk3OrIb64rapE9OEQc5k0UE2DmXlOkKBpxzaWLFvbb
+	mLK710HI44YydkA/URN1p0rWrGcXXvyLDn0JiR5Qi/0a5svaFSbtB2/bctLk0hTphP9O
+	7+MRVvzp3VcnlgLiiumsfu/ctJDSV8fAOn0e0V+bWyy2ipAOXOmKN16ONLjyH7kBhVNK
+	S9SA==
+From: David Logan <djlogan2.dl@gmail.com>
+Content-Type: multipart/alternative;
+	boundary="Apple-Mail=_3063BF53-B99B-4B3E-9075-867988A6F5F4"
+Message-Id: <5FA3B72D-03E5-43BD-B635-6A46070C6898@gmail.com>
+Date: Mon, 1 Feb 2016 12:51:20 -0700
+Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
+Subject: [Bridge] Help with Ubuntu + bridge + tap + qemu + Windows
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,140 +23,111 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, stable@vger.kernel.org, Andy Gospodarek <gospo@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>
-
-4.1-stable review patch.  If anyone has any objections, please let me know.
-
-------------------
-
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-
-[ Upstream commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 ]
-
-After promisc mode management was introduced a bridge device could do
-dev_set_promiscuity from its ndo_change_rx_flags() callback which in
-turn can be called after the bridge's addr_list_lock has been taken
-(e.g. by dev_uc_add). This causes a false positive lockdep splat because
-the port interfaces' addr_list_lock is taken when br_manage_promisc()
-runs after the bridge's addr list lock was already taken.
-To remove the false positive introduce a custom bridge addr_list_lock
-class and set it on bridge init.
-A simple way to reproduce this is with the following:
-$ brctl addbr br0
-$ ip l add l br0 br0.100 type vlan id 100
-$ ip l set br0 up
-$ ip l set br0.100 up
-$ echo 1 > /sys/class/net/br0/bridge/vlan_filtering
-$ brctl addif br0 eth0
-Splat:
-[   43.684325] =============================================
-[   43.684485] [ INFO: possible recursive locking detected ]
-[   43.684636] 4.4.0-rc8+ #54 Not tainted
-[   43.684755] ---------------------------------------------
-[   43.684906] brctl/1187 is trying to acquire lock:
-[   43.685047]  (_xmit_ETHER){+.....}, at: [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
-[   43.685460]  but task is already holding lock:
-[   43.685618]  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
-[   43.686015]  other info that might help us debug this:
-[   43.686316]  Possible unsafe locking scenario:
-
-[   43.686743]        CPU0
-[   43.686967]        ----
-[   43.687197]   lock(_xmit_ETHER);
-[   43.687544]   lock(_xmit_ETHER);
-[   43.687886] *** DEADLOCK ***
-
-[   43.688438]  May be due to missing lock nesting notation
-
-[   43.688882] 2 locks held by brctl/1187:
-[   43.689134]  #0:  (rtnl_mutex){+.+.+.}, at: [<ffffffff81510317>] rtnl_lock+0x17/0x20
-[   43.689852]  #1:  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
-[   43.690575] stack backtrace:
-[   43.690970] CPU: 0 PID: 1187 Comm: brctl Not tainted 4.4.0-rc8+ #54
-[   43.691270] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.8.1-20150318_183358- 04/01/2014
-[   43.691770]  ffffffff826a25c0 ffff8800369fb8e0 ffffffff81360ceb ffffffff826a25c0
-[   43.692425]  ffff8800369fb9b8 ffffffff810d0466 ffff8800369fb968 ffffffff81537139
-[   43.693071]  ffff88003a08c880 0000000000000000 00000000ffffffff 0000000002080020
-[   43.693709] Call Trace:
-[   43.693931]  [<ffffffff81360ceb>] dump_stack+0x4b/0x70
-[   43.694199]  [<ffffffff810d0466>] __lock_acquire+0x1e46/0x1e90
-[   43.694483]  [<ffffffff81537139>] ? netlink_broadcast_filtered+0x139/0x3e0
-[   43.694789]  [<ffffffff8153b5da>] ? nlmsg_notify+0x5a/0xc0
-[   43.695064]  [<ffffffff810d10f5>] lock_acquire+0xe5/0x1f0
-[   43.695340]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
-[   43.695623]  [<ffffffff815edea5>] _raw_spin_lock_bh+0x45/0x80
-[   43.695901]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
-[   43.696180]  [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
-[   43.696460]  [<ffffffff8150189c>] dev_set_promiscuity+0x3c/0x50
-[   43.696750]  [<ffffffffa0586845>] br_port_set_promisc+0x25/0x50 [bridge]
-[   43.697052]  [<ffffffffa05869aa>] br_manage_promisc+0x8a/0xe0 [bridge]
-[   43.697348]  [<ffffffffa05826ee>] br_dev_change_rx_flags+0x1e/0x20 [bridge]
-[   43.697655]  [<ffffffff81501532>] __dev_set_promiscuity+0x132/0x1f0
-[   43.697943]  [<ffffffff81501672>] __dev_set_rx_mode+0x82/0x90
-[   43.698223]  [<ffffffff815072de>] dev_uc_add+0x5e/0x80
-[   43.698498]  [<ffffffffa05b3c62>] vlan_device_event+0x542/0x650 [8021q]
-[   43.698798]  [<ffffffff8109886d>] notifier_call_chain+0x5d/0x80
-[   43.699083]  [<ffffffff810988b6>] raw_notifier_call_chain+0x16/0x20
-[   43.699374]  [<ffffffff814f456e>] call_netdevice_notifiers_info+0x6e/0x80
-[   43.699678]  [<ffffffff814f4596>] call_netdevice_notifiers+0x16/0x20
-[   43.699973]  [<ffffffffa05872be>] br_add_if+0x47e/0x4c0 [bridge]
-[   43.700259]  [<ffffffffa058801e>] add_del_if+0x6e/0x80 [bridge]
-[   43.700548]  [<ffffffffa0588b5f>] br_dev_ioctl+0xaf/0xc0 [bridge]
-[   43.700836]  [<ffffffff8151a7ac>] dev_ifsioc+0x30c/0x3c0
-[   43.701106]  [<ffffffff8151aac9>] dev_ioctl+0xf9/0x6f0
-[   43.701379]  [<ffffffff81254345>] ? mntput_no_expire+0x5/0x450
-[   43.701665]  [<ffffffff812543ee>] ? mntput_no_expire+0xae/0x450
-[   43.701947]  [<ffffffff814d7b02>] sock_do_ioctl+0x42/0x50
-[   43.702219]  [<ffffffff814d8175>] sock_ioctl+0x1e5/0x290
-[   43.702500]  [<ffffffff81242d0b>] do_vfs_ioctl+0x2cb/0x5c0
-[   43.702771]  [<ffffffff81243079>] SyS_ioctl+0x79/0x90
-[   43.703033]  [<ffffffff815eebb6>] entry_SYSCALL_64_fastpath+0x16/0x7a
-
-CC: Vlad Yasevich <vyasevic@redhat.com>
-CC: Stephen Hemminger <stephen@networkplumber.org>
-CC: Bridge list <bridge@lists.linux-foundation.org>
-CC: Andy Gospodarek <gospo@cumulusnetworks.com>
-CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-Reported-by: Andy Gospodarek <gospo@cumulusnetworks.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/bridge/br_device.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -28,6 +28,8 @@
- const struct nf_br_ops __rcu *nf_br_ops __read_mostly;
- EXPORT_SYMBOL_GPL(nf_br_ops);
- 
-+static struct lock_class_key bridge_netdev_addr_lock_key;
-+
- /* net device transmit always called with BH disabled */
- netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- {
-@@ -87,6 +89,11 @@ out:
- 	return NETDEV_TX_OK;
- }
- 
-+static void br_set_lockdep_class(struct net_device *dev)
-+{
-+	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
-+}
-+
- static int br_dev_init(struct net_device *dev)
- {
- 	struct net_bridge *br = netdev_priv(dev);
-@@ -99,6 +106,7 @@ static int br_dev_init(struct net_device
- 	err = br_vlan_init(br);
- 	if (err)
- 		free_percpu(br->stats);
-+	br_set_lockdep_class(dev);
- 
- 	return err;
- }
+To: bridge@lists.linux-foundation.org
 
 
+--Apple-Mail=_3063BF53-B99B-4B3E-9075-867988A6F5F4
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+Hi guys
+
+I have been researching this problem for weeks, and I have tried =
+everything every web page has even remotely suggested, and nothing =
+works. I am at my wits end, and I simply *must* get my issue resolved.
+
+Basically, when I bring up one or more VMs using tap# on a br# on an =
+eth#, the network interface will work for a random amount of time, but =
+inevitably something will die, and the =E2=80=9CTX packets=E2=80=9D =
+stops incrementing, and the =E2=80=9CTX packets dropped=E2=80=9D takes =
+over. At that point, I can shut down and start up my VM, and go through =
+the cycle again with a different random time and packets transmitted.
+
+tap2      Link encap:Ethernet  HWaddr 8a:21:a8:cb:f5:98 =20
+          inet6 addr: fe80::8821:a8ff:fecb:f598/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:51870 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:741595 errors:0 dropped:5702 overruns:0 carrier:0
+          collisions:0 txqueuelen:500=20
+          RX bytes:3220139 (3.2 MB)  TX bytes:1113177111 (1.1 GB)
+
+I could obviously post every shred of information I have, ethtool, =
+iptables, netstat, brctl, etc. but I hate to create a 10K email with =
+mostly unnecessary outputs. If anyone has a specific set of questions =
+they need answered, I am more than happy to provide. I=E2=80=99m running =
+the latest Ubuntu and get updates daily. The uname -a as of this morning =
+is:
+
+Darwin Carolyns-MacBook-Air.local 15.3.0 Darwin Kernel Version 15.3.0: =
+Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64
+
+What in the world am I doing wrong, or where is this failing, how do I =
+find it, and most importantly, how do I fix it? :)
+
+Thank you,
+David Logan
+
+
+--Apple-Mail=_3063BF53-B99B-4B3E-9075-867988A6F5F4
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;
+	charset=utf-8
+
+<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html =
+charset=3Dutf-8"></head><body style=3D"word-wrap: break-word; =
+-webkit-nbsp-mode: space; -webkit-line-break: after-white-space;" =
+class=3D"">Hi guys<div class=3D""><br class=3D""></div><div class=3D"">I =
+have been researching this problem for weeks, and I have tried =
+everything every web page has even remotely suggested, and nothing =
+works. I am at my wits end, and I simply *must* get my issue =
+resolved.</div><div class=3D""><br class=3D""></div><div =
+class=3D"">Basically, when I bring up one or more VMs using tap# on a =
+br# on an eth#, the network interface will work for a random amount of =
+time, but inevitably something will die, and the =E2=80=9CTX packets=E2=80=
+=9D stops incrementing, and the =E2=80=9CTX packets dropped=E2=80=9D =
+takes over. At that point, I can shut down and start up my VM, and go =
+through the cycle again with a different random time and packets =
+transmitted.</div><div class=3D""><br class=3D""></div><div =
+class=3D""><div style=3D"margin: 0px; font-size: 11px; line-height: =
+normal; font-family: Menlo;" class=3D"">tap2&nbsp; &nbsp; &nbsp; Link =
+encap:Ethernet&nbsp; HWaddr 8a:21:a8:cb:f5:98 &nbsp;</div><div =
+style=3D"margin: 0px; font-size: 11px; line-height: normal; font-family: =
+Menlo;" class=3D"">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inet6 addr: =
+fe80::8821:a8ff:fecb:f598/64 Scope:Link</div><div style=3D"margin: 0px; =
+font-size: 11px; line-height: normal; font-family: Menlo;" =
+class=3D"">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; UP BROADCAST RUNNING =
+MULTICAST&nbsp; MTU:1500&nbsp; Metric:1</div><div style=3D"margin: 0px; =
+font-size: 11px; line-height: normal; font-family: Menlo;" =
+class=3D"">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; RX packets:51870 errors:0 =
+dropped:0 overruns:0 frame:0</div><div style=3D"margin: 0px; font-size: =
+11px; line-height: normal; font-family: Menlo;" class=3D"">&nbsp; &nbsp; =
+&nbsp; &nbsp; &nbsp; TX packets:741595 errors:0 dropped:5702 overruns:0 =
+carrier:0</div><div style=3D"margin: 0px; font-size: 11px; line-height: =
+normal; font-family: Menlo;" class=3D"">&nbsp; &nbsp; &nbsp; &nbsp; =
+&nbsp; collisions:0 txqueuelen:500&nbsp;</div><div style=3D"margin: 0px; =
+font-size: 11px; line-height: normal; font-family: Menlo;" =
+class=3D"">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; RX bytes:3220139 (3.2 =
+MB)&nbsp; TX bytes:1113177111 (1.1 GB)</div><div style=3D"margin: 0px; =
+font-size: 11px; line-height: normal; font-family: Menlo;" class=3D""><br =
+class=3D""></div><div class=3D"">I could obviously post every shred of =
+information I have, ethtool, iptables, netstat, brctl, etc. but I hate =
+to create a 10K email with mostly unnecessary outputs. If anyone has a =
+specific set of questions they need answered, I am more than happy to =
+provide. I=E2=80=99m running the latest Ubuntu and get updates daily. =
+The uname -a as of this morning is:</div><div class=3D""><br =
+class=3D""></div><div class=3D""><div style=3D"margin: 0px; font-size: =
+11px; line-height: normal; font-family: Menlo;" class=3D"">Darwin =
+Carolyns-MacBook-Air.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec =
+10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 =
+x86_64</div></div><div style=3D"margin: 0px; font-size: 11px; =
+line-height: normal; font-family: Menlo;" class=3D""><br =
+class=3D""></div><div class=3D"">What in the world am I doing wrong, or =
+where is this failing, how do I find it, and most importantly, how do I =
+fix it? :)</div><div class=3D""><br class=3D""></div><div class=3D"">Thank=
+ you,</div><div class=3D"">
+<span class=3D"Apple-style-span" style=3D"border-collapse: separate; =
+line-height: normal; border-spacing: 0px;">David Logan<br class=3D""><br =
+class=3D""></span></div></div></body></html>=
+
+--Apple-Mail=_3063BF53-B99B-4B3E-9075-867988A6F5F4--
