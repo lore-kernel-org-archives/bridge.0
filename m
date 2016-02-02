@@ -1,23 +1,18 @@
-Return-Path: <djlogan2.dl@gmail.com>
+Return-Path: <xerofoify@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=from:content-type:message-id:mime-version:subject:date:references
-	:to:in-reply-to;
-	bh=r7l4g3Wjvf3grP3i8w55y3fLZhI7y4wsiTpQNKzuABc=;
-	b=rpbZnNL0ynhIorLXupe48t7cCSstWgIshbd7j/qvbpew6vr1FeMyXXc4hNp2kEx5jj
-	qkuWzyBBRdwI8sxb6imT2KwJDSFxaLWTI6alqaS7TxTQSlnWN77ronMqJ5d+RMBIoGDe
-	wekBF5+yLJL9xxOZ3uA50jlOaGNCvGtM9x0ouapYRHZRQkoiuehX5OjeYX1wXBAoJmeG
-	ZXoGcgdGW1OqQJGhasxULmJU37mpkgsaWxkAWRkhmnxy648lpxXRC5Z0ni4fHZkAfjn5
-	e8rInxg8lt9AMbWc5JhHz5J/h4rB7FAqGnAxQvVsj6n3vTQtyofL0wMGnbpizjnCsNJS
-	tp2g==
-From: David Logan <djlogan2.dl@gmail.com>
-Content-Type: multipart/alternative;
-	boundary="Apple-Mail=_E8425DAF-8924-42EC-A96A-DF8EB537758B"
-Message-Id: <6B2C2A75-2FC1-4938-B8FD-19D9325583A4@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
-Date: Mon, 1 Feb 2016 13:04:48 -0700
-References: <5FA3B72D-03E5-43BD-B635-6A46070C6898@gmail.com>
-In-Reply-To: <5FA3B72D-03E5-43BD-B635-6A46070C6898@gmail.com>
-Subject: Re: [Bridge] Help with Ubuntu + bridge + tap + qemu + Windows
+	h=from:to:cc:subject:date:message-id;
+	bh=+E0RS35K1qfhTXzmMf4araoGKCY0lxVoDg4hDmKzBak=;
+	b=r/SwXh/+qmaAMcQOGJsmjBAPil+4F3PoUVpsvID1/Gb+B7PHT/gKNz2i+PX042yNoC
+	eV+q2Z6WGAJ7hiY4siUnYgT2ooO/gtFO+M9LrkKPZzqRS7beEHpTnzKdKwEnUMSr5+AQ
+	9uH/QNw3m8h5DOXR6CFlAYxzSRFj6sNQq3I6OnQMYgn+s9kcKS1EcCu+6CyUwTQvvc61
+	46r0HWvxD9iX0trabAq78m1CsQRYz698lDH1u1fwHXDlyeyMmBuFDZlpbMb76Wb/ico+
+	tlUAUWCBn/tlaITSaqasGxulynY/aRuW7+f8aSKMLzBiftX2szqkvMeXPeITn4092MQ+
+	RSjQ==
+From: Nicholas Krause <xerofoify@gmail.com>
+Date: Mon,  1 Feb 2016 22:19:33 -0500
+Message-Id: <1454383173-9560-1-git-send-email-xerofoify@gmail.com>
+Subject: [Bridge] [PATCH RESEND] bridge:Fix concurrent access issue in the
+	function brnf_get_logical_dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,31 +21,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: pablo@netfilter.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kaber@trash.net, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
 
+This fixes a concurrent access issue in the function brnf_get_logical_dev
+by properly locking with the function rcu_read_lock before calling the
+function vlan_find_dev_deep_rcu and unlocking after this function call
+as all callers of this function are required to do this in order to
+improve issues with concurrent access by other threads executing
+on this data structures simultaneously.
 
---Apple-Mail=_E8425DAF-8924-42EC-A96A-DF8EB537758B
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=us-ascii
+Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+---
+ net/bridge/br_netfilter_hooks.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-oops. Wrong machine. The uname -a really is
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index c8b9bcf..73c84a8 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -428,9 +428,10 @@ static struct net_device *brnf_get_logical_dev(struct sk_buff *skb, const struct
+ 	if (brnf_pass_vlan_indev == 0 || !skb_vlan_tag_present(skb))
+ 		return br;
+ 
++	rcu_read_lock();
+ 	vlan = __vlan_find_dev_deep_rcu(br, skb->vlan_proto,
+ 				    skb_vlan_tag_get(skb) & VLAN_VID_MASK);
+-
++	rcu_read_unlock();
+ 	return vlan ? vlan : br;
+ }
+ 
+-- 
+2.1.4
 
-Linux server2 3.16.0-59-generic #79~14.04.1-Ubuntu SMP Mon Jan 18 =
-15:41:27 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
-
-David Logan
-
-
-
---Apple-Mail=_E8425DAF-8924-42EC-A96A-DF8EB537758B
-Content-Transfer-Encoding: 7bit
-Content-Type: text/html;
-	charset=us-ascii
-
-<html><head><meta http-equiv="Content-Type" content="text/html charset=us-ascii"></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;" class="">oops. Wrong machine. The uname -a really is<div class=""><br class=""></div><div class=""><div style="margin: 0px; font-size: 11px; line-height: normal; font-family: Menlo;" class="">Linux server2 3.16.0-59-generic #79~14.04.1-Ubuntu SMP Mon Jan 18 15:41:27 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux</div><div style="margin: 0px; font-size: 11px; line-height: normal; font-family: Menlo;" class=""><br class=""></div><div class="">
-<span class="Apple-style-span" style="border-collapse: separate; line-height: normal; border-spacing: 0px;">David Logan<br class=""><br class=""></span>
-
-</div>
-<br class=""></div></body></html>
---Apple-Mail=_E8425DAF-8924-42EC-A96A-DF8EB537758B--
