@@ -1,18 +1,25 @@
-Return-Path: <xerofoify@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=from:to:cc:subject:date:message-id;
-	bh=+E0RS35K1qfhTXzmMf4araoGKCY0lxVoDg4hDmKzBak=;
-	b=r/SwXh/+qmaAMcQOGJsmjBAPil+4F3PoUVpsvID1/Gb+B7PHT/gKNz2i+PX042yNoC
-	eV+q2Z6WGAJ7hiY4siUnYgT2ooO/gtFO+M9LrkKPZzqRS7beEHpTnzKdKwEnUMSr5+AQ
-	9uH/QNw3m8h5DOXR6CFlAYxzSRFj6sNQq3I6OnQMYgn+s9kcKS1EcCu+6CyUwTQvvc61
-	46r0HWvxD9iX0trabAq78m1CsQRYz698lDH1u1fwHXDlyeyMmBuFDZlpbMb76Wb/ico+
-	tlUAUWCBn/tlaITSaqasGxulynY/aRuW7+f8aSKMLzBiftX2szqkvMeXPeITn4092MQ+
-	RSjQ==
-From: Nicholas Krause <xerofoify@gmail.com>
-Date: Mon,  1 Feb 2016 22:19:33 -0500
-Message-Id: <1454383173-9560-1-git-send-email-xerofoify@gmail.com>
-Subject: [Bridge] [PATCH RESEND] bridge:Fix concurrent access issue in the
-	function brnf_get_logical_dev
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-type:content-transfer-encoding;
+	bh=r2vO8I5rZC1YfcA0/M8BU9rBIZ5bUsZuQwY7OK4eeFk=;
+	b=PaYu+RwV6zzlxNfAqkApa2MyTu9qR7YP6bjjxgJnsflwpP3t0hfOrj21txPR9lCWwN
+	xgzESW67Yf/V8HnIKrDit4AJiEkxksWSkb1NC3Of54dV+wYIfvW1ENudkIzyB3i/4fLU
+	hEzl99tAIviQl2vmexgQGzYEHPPwKcwt3ryOF6saX5sSY0fc4NTXlpgmf3AaIJbgUhj5
+	aHdgkUPnzxt+sUNv68w4yYZeoOJo07IQrRIxaMZDv6l9uPlPSG8zl05+dcrfAT2JMscD
+	33+ldmYLeoaIPkk0a8lHtoVxjPCGi4Xhcb1ayhXw1CeflTSaSyXxB2F1Fa4wlEDVYOaF
+	eGAQ==
+Date: Tue, 2 Feb 2016 14:27:08 +1100
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20160202142708.512d1cc8@samsung9>
+In-Reply-To: <6B2C2A75-2FC1-4938-B8FD-19D9325583A4@gmail.com>
+References: <5FA3B72D-03E5-43BD-B635-6A46070C6898@gmail.com>
+	<6B2C2A75-2FC1-4938-B8FD-19D9325583A4@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Help with Ubuntu + bridge + tap + qemu + Windows
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,37 +28,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: pablo@netfilter.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kaber@trash.net, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
+To: David Logan <djlogan2.dl@gmail.com>
+Cc: bridge@lists.linux-foundation.org
 
-This fixes a concurrent access issue in the function brnf_get_logical_dev
-by properly locking with the function rcu_read_lock before calling the
-function vlan_find_dev_deep_rcu and unlocking after this function call
-as all callers of this function are required to do this in order to
-improve issues with concurrent access by other threads executing
-on this data structures simultaneously.
+On Mon, 1 Feb 2016 13:04:48 -0700
+David Logan <djlogan2.dl@gmail.com> wrote:
 
-Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
----
- net/bridge/br_netfilter_hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> oops. Wrong machine. The uname -a really is
+> 
+> Linux server2 3.16.0-59-generic #79~14.04.1-Ubuntu SMP Mon Jan 18 15:41:27 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+> 
+> David Logan
+> 
+> 
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index c8b9bcf..73c84a8 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -428,9 +428,10 @@ static struct net_device *brnf_get_logical_dev(struct sk_buff *skb, const struct
- 	if (brnf_pass_vlan_indev == 0 || !skb_vlan_tag_present(skb))
- 		return br;
- 
-+	rcu_read_lock();
- 	vlan = __vlan_find_dev_deep_rcu(br, skb->vlan_proto,
- 				    skb_vlan_tag_get(skb) & VLAN_VID_MASK);
--
-+	rcu_read_unlock();
- 	return vlan ? vlan : br;
- }
- 
--- 
-2.1.4
+I suspect you have a loop and STP is detecting that the STP packets being sent
+out one of the ports on the bridge are showing back up on another port on the bridge.
 
+The way bridging works you need to make each port on the bridge is a separate L2 domain;
+otherwise you create a loop.
