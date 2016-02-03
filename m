@@ -1,24 +1,10 @@
-Return-Path: <djlogan2.dl@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=content-type:mime-version:subject:from:in-reply-to:date:cc
-	:message-id:references:to;
-	bh=ubBHG+qgfmMJYtez7KWbkUOis/GQl9hMLWGBT+pMnss=;
-	b=IUmtpeIEMbAca76P95LVWDLQUabewLBRoL/EFByeaZCXNchfHXSKo60vLOARXpGjmv
-	vhZGjh1tXMVTrEUW6fg7ca/Csc+vuLR7GlTk5kYz7Dq2g+HzOMeKz7B58Q02HRfHYIsw
-	iCZcMH9vUKo/zH6F+dkg2wNYclm9olgS4XczOeLWJL6a/lkJI5Sgn23kEn1PHUUdrdhG
-	TBrf/anwtUdITM3SkCJmdfjlz9exPj2uRTGXKXM1dIUJfhhdMFDIWSbKT+QJ82Dn9fge
-	n8jRedBlCPmXc/yarHj3K2EHpvmCvT3nccRbn7QGnKNi6ZPfwg/CFPcaBuDNonHIkiLq
-	ljag==
-Content-Type: multipart/alternative;
-	boundary="Apple-Mail=_F48B6BCA-56CC-4325-9E40-F8671E2A56ED"
-Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
-From: David Logan <djlogan2.dl@gmail.com>
-In-Reply-To: <20160203115135.5654c1f5@samsung9>
-Date: Tue, 2 Feb 2016 21:47:13 -0700
-Message-Id: <11D8E565-5289-4471-B2A6-D6E26EF006AE@gmail.com>
-References: <CAP9G-NKzk7QwFtD=YjqyFpt7sS+J=JYzCTPLjNAGoCTv_cxEMQ@mail.gmail.com>
-	<20160203115135.5654c1f5@samsung9>
-Subject: Re: [Bridge] Help with Ubuntu + bridge + tap + qemu + Windows
+Return-Path: <luis.henriques@canonical.com>
+From: Luis Henriques <luis.henriques@canonical.com>
+Date: Wed,  3 Feb 2016 14:03:33 +0000
+Message-Id: <1454508213-742-1-git-send-email-luis.henriques@canonical.com>
+Subject: [Bridge] [3.16.y-ckt stable] Patch "bridge: fix lockdep
+	addr_list_lock false positive splat" has been added to the
+	3.16.y-ckt tree
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,92 +13,162 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: bridge@lists.linux-foundation.org, gilberto dos santos alves <gsavix@gmail.com>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Luis Henriques <luis.henriques@canonical.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, kernel-team@lists.ubuntu.com, "David S . Miller" <davem@davemloft.net>
 
+This is a note to let you know that I have just added a patch titled
 
---Apple-Mail=_F48B6BCA-56CC-4325-9E40-F8671E2A56ED
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
+    bridge: fix lockdep addr_list_lock false positive splat
 
-Hi guys
-Thanks you all very much for you willingness to help. I had been =
-struggling with this problem for weeks! It seems as though it really =
-wasn=E2=80=99t a bridge problem as Srinivas pointed out. I was careful =
-to reinstall the virtio drivers from the appropriate web site, and all =
-of my VMs have been up all day long.
+to the linux-3.16.y-queue branch of the 3.16.y-ckt extended stable tree 
+which can be found at:
 
-My main problem (aside from my overall lack of network knowledge) was =
-simply not realizing that the bridge transmit queue meant transmitting =
-from the tap interface to the virtio driver. I thought it was simply =
-reflecting the numbers of the guest (meaning I thought the transmit =
-count meant the number of packets transmitted from the virtio driver, =
-and subsequently transmitted from the tap interface to the bridge.)
+    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.16.y-queue
 
-My humble apologies for making the network experts spend time on a very =
-simple issue, but thank you all so much for your help. I was all but =
-disabled due to this problem.
+This patch is scheduled to be released in version 3.16.7-ckt24.
 
-David Logan
-http://www.linkedin.com/in/davidjlogan
-303-818-8222
+If you, or anyone else, feels it should not be added to this tree, please 
+reply to this email.
 
+For more information about the 3.16.y-ckt tree, see
+https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
 
-> On Feb 2, 2016, at 5:51 PM, Stephen Hemminger =
-<stephen@networkplumber.org> wrote:
->=20
-> Read Wikipedia on Spanning Tree to see how it detects bridging loops.
-> Look at dmesg to see when bridge STP disables a port when it detects =
-loop
+Thanks.
+-Luis
 
+---8<------------------------------------------------------------
 
---Apple-Mail=_F48B6BCA-56CC-4325-9E40-F8671E2A56ED
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/html;
-	charset=utf-8
+From 9647516fabfdfa5e60cf0e76fcc56f4b2f691dca Mon Sep 17 00:00:00 2001
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 15 Jan 2016 19:03:54 +0100
+Subject: bridge: fix lockdep addr_list_lock false positive splat
 
-<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html =
-charset=3Dutf-8"></head><body style=3D"word-wrap: break-word; =
--webkit-nbsp-mode: space; -webkit-line-break: after-white-space;" =
-class=3D"">Hi guys<div class=3D"">Thanks you all very much for you =
-willingness to help. I had been struggling with this problem for weeks! =
-It seems as though it really wasn=E2=80=99t a bridge problem as Srinivas =
-pointed out. I was careful to reinstall the virtio drivers from the =
-appropriate web site, and all of my VMs have been up all day =
-long.</div><div class=3D""><br class=3D""></div><div class=3D"">My main =
-problem (aside from my overall lack of network knowledge) was simply not =
-realizing that the bridge transmit queue meant transmitting from the tap =
-interface to the virtio driver. I thought it was simply reflecting the =
-numbers of the guest (meaning I thought the transmit count meant the =
-number of packets transmitted from the virtio driver, and subsequently =
-transmitted from the tap interface to the bridge.)</div><div =
-class=3D""><br class=3D""></div><div class=3D"">My humble apologies for =
-making the network experts spend time on a very simple issue, but thank =
-you all so much for your help. I was all but disabled due to this =
-problem.</div><div class=3D""><br class=3D""><div class=3D"">
-<span class=3D"Apple-style-span" style=3D"border-collapse: separate; =
-color: rgb(0, 0, 0); font-family: Helvetica; font-style: normal; =
-font-variant: normal; font-weight: normal; letter-spacing: normal; =
-line-height: normal; orphans: 2; text-align: -webkit-auto; text-indent: =
-0px; text-transform: none; white-space: normal; widows: 2; word-spacing: =
-0px; -webkit-border-horizontal-spacing: 0px; =
--webkit-border-vertical-spacing: 0px; =
--webkit-text-decorations-in-effect: none; -webkit-text-size-adjust: =
-auto; -webkit-text-stroke-width: 0px;  ">David Logan<br class=3D""><a =
-href=3D"http://www.linkedin.com/in/davidjlogan" =
-class=3D"">http://www.linkedin.com/in/davidjlogan</a><br =
-class=3D"">303-818-8222<br class=3D""><br class=3D""></span>
+commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 upstream.
 
-</div>
-<br class=3D""><div><blockquote type=3D"cite" class=3D""><div =
-class=3D"">On Feb 2, 2016, at 5:51 PM, Stephen Hemminger &lt;<a =
-href=3D"mailto:stephen@networkplumber.org" =
-class=3D"">stephen@networkplumber.org</a>&gt; wrote:</div><br =
-class=3D"Apple-interchange-newline"><div class=3D""><div class=3D"">Read =
-Wikipedia on Spanning Tree to see how it detects bridging loops.<br =
-class=3D"">Look at dmesg to see when bridge STP disables a port when it =
-detects loop<br class=3D""></div></div></blockquote></div><br =
-class=3D""></div></body></html>=
+After promisc mode management was introduced a bridge device could do
+dev_set_promiscuity from its ndo_change_rx_flags() callback which in
+turn can be called after the bridge's addr_list_lock has been taken
+(e.g. by dev_uc_add). This causes a false positive lockdep splat because
+the port interfaces' addr_list_lock is taken when br_manage_promisc()
+runs after the bridge's addr list lock was already taken.
+To remove the false positive introduce a custom bridge addr_list_lock
+class and set it on bridge init.
+A simple way to reproduce this is with the following:
+$ brctl addbr br0
+$ ip l add l br0 br0.100 type vlan id 100
+$ ip l set br0 up
+$ ip l set br0.100 up
+$ echo 1 > /sys/class/net/br0/bridge/vlan_filtering
+$ brctl addif br0 eth0
+Splat:
+[   43.684325] =============================================
+[   43.684485] [ INFO: possible recursive locking detected ]
+[   43.684636] 4.4.0-rc8+ #54 Not tainted
+[   43.684755] ---------------------------------------------
+[   43.684906] brctl/1187 is trying to acquire lock:
+[   43.685047]  (_xmit_ETHER){+.....}, at: [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
+[   43.685460]  but task is already holding lock:
+[   43.685618]  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
+[   43.686015]  other info that might help us debug this:
+[   43.686316]  Possible unsafe locking scenario:
 
---Apple-Mail=_F48B6BCA-56CC-4325-9E40-F8671E2A56ED--
+[   43.686743]        CPU0
+[   43.686967]        ----
+[   43.687197]   lock(_xmit_ETHER);
+[   43.687544]   lock(_xmit_ETHER);
+[   43.687886] *** DEADLOCK ***
+
+[   43.688438]  May be due to missing lock nesting notation
+
+[   43.688882] 2 locks held by brctl/1187:
+[   43.689134]  #0:  (rtnl_mutex){+.+.+.}, at: [<ffffffff81510317>] rtnl_lock+0x17/0x20
+[   43.689852]  #1:  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
+[   43.690575] stack backtrace:
+[   43.690970] CPU: 0 PID: 1187 Comm: brctl Not tainted 4.4.0-rc8+ #54
+[   43.691270] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.8.1-20150318_183358- 04/01/2014
+[   43.691770]  ffffffff826a25c0 ffff8800369fb8e0 ffffffff81360ceb ffffffff826a25c0
+[   43.692425]  ffff8800369fb9b8 ffffffff810d0466 ffff8800369fb968 ffffffff81537139
+[   43.693071]  ffff88003a08c880 0000000000000000 00000000ffffffff 0000000002080020
+[   43.693709] Call Trace:
+[   43.693931]  [<ffffffff81360ceb>] dump_stack+0x4b/0x70
+[   43.694199]  [<ffffffff810d0466>] __lock_acquire+0x1e46/0x1e90
+[   43.694483]  [<ffffffff81537139>] ? netlink_broadcast_filtered+0x139/0x3e0
+[   43.694789]  [<ffffffff8153b5da>] ? nlmsg_notify+0x5a/0xc0
+[   43.695064]  [<ffffffff810d10f5>] lock_acquire+0xe5/0x1f0
+[   43.695340]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
+[   43.695623]  [<ffffffff815edea5>] _raw_spin_lock_bh+0x45/0x80
+[   43.695901]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
+[   43.696180]  [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
+[   43.696460]  [<ffffffff8150189c>] dev_set_promiscuity+0x3c/0x50
+[   43.696750]  [<ffffffffa0586845>] br_port_set_promisc+0x25/0x50 [bridge]
+[   43.697052]  [<ffffffffa05869aa>] br_manage_promisc+0x8a/0xe0 [bridge]
+[   43.697348]  [<ffffffffa05826ee>] br_dev_change_rx_flags+0x1e/0x20 [bridge]
+[   43.697655]  [<ffffffff81501532>] __dev_set_promiscuity+0x132/0x1f0
+[   43.697943]  [<ffffffff81501672>] __dev_set_rx_mode+0x82/0x90
+[   43.698223]  [<ffffffff815072de>] dev_uc_add+0x5e/0x80
+[   43.698498]  [<ffffffffa05b3c62>] vlan_device_event+0x542/0x650 [8021q]
+[   43.698798]  [<ffffffff8109886d>] notifier_call_chain+0x5d/0x80
+[   43.699083]  [<ffffffff810988b6>] raw_notifier_call_chain+0x16/0x20
+[   43.699374]  [<ffffffff814f456e>] call_netdevice_notifiers_info+0x6e/0x80
+[   43.699678]  [<ffffffff814f4596>] call_netdevice_notifiers+0x16/0x20
+[   43.699973]  [<ffffffffa05872be>] br_add_if+0x47e/0x4c0 [bridge]
+[   43.700259]  [<ffffffffa058801e>] add_del_if+0x6e/0x80 [bridge]
+[   43.700548]  [<ffffffffa0588b5f>] br_dev_ioctl+0xaf/0xc0 [bridge]
+[   43.700836]  [<ffffffff8151a7ac>] dev_ifsioc+0x30c/0x3c0
+[   43.701106]  [<ffffffff8151aac9>] dev_ioctl+0xf9/0x6f0
+[   43.701379]  [<ffffffff81254345>] ? mntput_no_expire+0x5/0x450
+[   43.701665]  [<ffffffff812543ee>] ? mntput_no_expire+0xae/0x450
+[   43.701947]  [<ffffffff814d7b02>] sock_do_ioctl+0x42/0x50
+[   43.702219]  [<ffffffff814d8175>] sock_ioctl+0x1e5/0x290
+[   43.702500]  [<ffffffff81242d0b>] do_vfs_ioctl+0x2cb/0x5c0
+[   43.702771]  [<ffffffff81243079>] SyS_ioctl+0x79/0x90
+[   43.703033]  [<ffffffff815eebb6>] entry_SYSCALL_64_fastpath+0x16/0x7a
+
+CC: Vlad Yasevich <vyasevic@redhat.com>
+CC: Stephen Hemminger <stephen@networkplumber.org>
+CC: Bridge list <bridge@lists.linux-foundation.org>
+CC: Andy Gospodarek <gospo@cumulusnetworks.com>
+CC: Roopa Prabhu <roopa@cumulusnetworks.com>
+Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
+Reported-by: Andy Gospodarek <gospo@cumulusnetworks.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[ luis: backported to 3.16: adjusted context ]
+Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
+---
+ net/bridge/br_device.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 568cccd39a3d..f3526464bded 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -25,6 +25,8 @@
+ #define COMMON_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA | \
+ 			 NETIF_F_GSO_MASK | NETIF_F_HW_CSUM)
+
++static struct lock_class_key bridge_netdev_addr_lock_key;
++
+ /* net device transmit always called with BH disabled */
+ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+@@ -85,6 +87,11 @@ out:
+ 	return NETDEV_TX_OK;
+ }
+
++static void br_set_lockdep_class(struct net_device *dev)
++{
++	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
++}
++
+ static int br_dev_init(struct net_device *dev)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+@@ -92,6 +99,7 @@ static int br_dev_init(struct net_device *dev)
+ 	br->stats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
+ 	if (!br->stats)
+ 		return -ENOMEM;
++	br_set_lockdep_class(dev);
+
+ 	return 0;
+ }
