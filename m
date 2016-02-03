@@ -1,10 +1,11 @@
 Return-Path: <luis.henriques@canonical.com>
 From: Luis Henriques <luis.henriques@canonical.com>
-Date: Wed,  3 Feb 2016 14:03:33 +0000
-Message-Id: <1454508213-742-1-git-send-email-luis.henriques@canonical.com>
-Subject: [Bridge] [3.16.y-ckt stable] Patch "bridge: fix lockdep
-	addr_list_lock false positive splat" has been added to the
-	3.16.y-ckt tree
+Date: Wed,  3 Feb 2016 22:32:49 +0000
+Message-Id: <1454538786-12215-164-git-send-email-luis.henriques@canonical.com>
+In-Reply-To: <1454538786-12215-1-git-send-email-luis.henriques@canonical.com>
+References: <1454538786-12215-1-git-send-email-luis.henriques@canonical.com>
+Subject: [Bridge] [PATCH 3.16.y-ckt 163/180] bridge: fix lockdep
+	addr_list_lock false positive splat
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +14,14 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, Luis Henriques <luis.henriques@canonical.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, kernel-team@lists.ubuntu.com, "David S . Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, Luis Henriques <luis.henriques@canonical.com>, "David S . Miller" <davem@davemloft.net>
 
-This is a note to let you know that I have just added a patch titled
-
-    bridge: fix lockdep addr_list_lock false positive splat
-
-to the linux-3.16.y-queue branch of the 3.16.y-ckt extended stable tree 
-which can be found at:
-
-    http://kernel.ubuntu.com/git/ubuntu/linux.git/log/?h=linux-3.16.y-queue
-
-This patch is scheduled to be released in version 3.16.7-ckt24.
-
-If you, or anyone else, feels it should not be added to this tree, please 
-reply to this email.
-
-For more information about the 3.16.y-ckt tree, see
-https://wiki.ubuntu.com/Kernel/Dev/ExtendedStable
-
-Thanks.
--Luis
+3.16.7-ckt24 -stable review patch.  If anyone has any objections, please let me know.
 
 ---8<------------------------------------------------------------
 
-From 9647516fabfdfa5e60cf0e76fcc56f4b2f691dca Mon Sep 17 00:00:00 2001
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 15 Jan 2016 19:03:54 +0100
-Subject: bridge: fix lockdep addr_list_lock false positive splat
 
 commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 upstream.
 
@@ -146,7 +126,7 @@ index 568cccd39a3d..f3526464bded 100644
 @@ -25,6 +25,8 @@
  #define COMMON_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA | \
  			 NETIF_F_GSO_MASK | NETIF_F_HW_CSUM)
-
+ 
 +static struct lock_class_key bridge_netdev_addr_lock_key;
 +
  /* net device transmit always called with BH disabled */
@@ -155,7 +135,7 @@ index 568cccd39a3d..f3526464bded 100644
 @@ -85,6 +87,11 @@ out:
  	return NETDEV_TX_OK;
  }
-
+ 
 +static void br_set_lockdep_class(struct net_device *dev)
 +{
 +	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
@@ -169,6 +149,6 @@ index 568cccd39a3d..f3526464bded 100644
  	if (!br->stats)
  		return -ENOMEM;
 +	br_set_lockdep_class(dev);
-
+ 
  	return 0;
  }
