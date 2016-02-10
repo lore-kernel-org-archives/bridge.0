@@ -1,11 +1,8 @@
-Return-Path: <luis.henriques@canonical.com>
-From: Luis Henriques <luis.henriques@canonical.com>
-Date: Wed,  3 Feb 2016 22:32:49 +0000
-Message-Id: <1454538786-12215-164-git-send-email-luis.henriques@canonical.com>
-In-Reply-To: <1454538786-12215-1-git-send-email-luis.henriques@canonical.com>
-References: <1454538786-12215-1-git-send-email-luis.henriques@canonical.com>
-Subject: [Bridge] [PATCH 3.16.y-ckt 163/180] bridge: fix lockdep
-	addr_list_lock false positive splat
+Return-Path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 10 Feb 2016 16:09:02 +0100
+Message-Id: <1455116946-2948649-1-git-send-email-arnd@arndb.de>
+Subject: [Bridge] [PATCH] bridge: mdb: avoid uninitialized variable warning
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,141 +11,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
-Cc: Vlad Yasevich <vyasevic@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Andy Gospodarek <gospo@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Bridge list <bridge@lists.linux-foundation.org>, Luis Henriques <luis.henriques@canonical.com>, "David S . Miller" <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>, Elad Raz <eladr@mellanox.com>, linux-arm-kernel@lists.infradead.org
 
-3.16.7-ckt24 -stable review patch.  If anyone has any objections, please let me know.
+A recent change to the mdb code confused the compiler to the point
+where it did not realize that the port-group returned from
+br_mdb_add_group() is always valid when the function returns a nonzero
+return value, so we get a spurious warning:
 
----8<------------------------------------------------------------
+net/bridge/br_mdb.c: In function 'br_mdb_add':
+net/bridge/br_mdb.c:542:4: error: 'pg' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+    __br_mdb_notify(dev, entry, RTM_NEWMDB, pg);
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Slightly rearranging the code in br_mdb_add_group() makes the problem
+go away, as gcc is clever enough to see that both functions check
+for 'ret != 0'.
 
-commit c6894dec8ea9ae05747124dce98b3b5c2e69b168 upstream.
-
-After promisc mode management was introduced a bridge device could do
-dev_set_promiscuity from its ndo_change_rx_flags() callback which in
-turn can be called after the bridge's addr_list_lock has been taken
-(e.g. by dev_uc_add). This causes a false positive lockdep splat because
-the port interfaces' addr_list_lock is taken when br_manage_promisc()
-runs after the bridge's addr list lock was already taken.
-To remove the false positive introduce a custom bridge addr_list_lock
-class and set it on bridge init.
-A simple way to reproduce this is with the following:
-$ brctl addbr br0
-$ ip l add l br0 br0.100 type vlan id 100
-$ ip l set br0 up
-$ ip l set br0.100 up
-$ echo 1 > /sys/class/net/br0/bridge/vlan_filtering
-$ brctl addif br0 eth0
-Splat:
-[   43.684325] =============================================
-[   43.684485] [ INFO: possible recursive locking detected ]
-[   43.684636] 4.4.0-rc8+ #54 Not tainted
-[   43.684755] ---------------------------------------------
-[   43.684906] brctl/1187 is trying to acquire lock:
-[   43.685047]  (_xmit_ETHER){+.....}, at: [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
-[   43.685460]  but task is already holding lock:
-[   43.685618]  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
-[   43.686015]  other info that might help us debug this:
-[   43.686316]  Possible unsafe locking scenario:
-
-[   43.686743]        CPU0
-[   43.686967]        ----
-[   43.687197]   lock(_xmit_ETHER);
-[   43.687544]   lock(_xmit_ETHER);
-[   43.687886] *** DEADLOCK ***
-
-[   43.688438]  May be due to missing lock nesting notation
-
-[   43.688882] 2 locks held by brctl/1187:
-[   43.689134]  #0:  (rtnl_mutex){+.+.+.}, at: [<ffffffff81510317>] rtnl_lock+0x17/0x20
-[   43.689852]  #1:  (_xmit_ETHER){+.....}, at: [<ffffffff815072a7>] dev_uc_add+0x27/0x80
-[   43.690575] stack backtrace:
-[   43.690970] CPU: 0 PID: 1187 Comm: brctl Not tainted 4.4.0-rc8+ #54
-[   43.691270] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.8.1-20150318_183358- 04/01/2014
-[   43.691770]  ffffffff826a25c0 ffff8800369fb8e0 ffffffff81360ceb ffffffff826a25c0
-[   43.692425]  ffff8800369fb9b8 ffffffff810d0466 ffff8800369fb968 ffffffff81537139
-[   43.693071]  ffff88003a08c880 0000000000000000 00000000ffffffff 0000000002080020
-[   43.693709] Call Trace:
-[   43.693931]  [<ffffffff81360ceb>] dump_stack+0x4b/0x70
-[   43.694199]  [<ffffffff810d0466>] __lock_acquire+0x1e46/0x1e90
-[   43.694483]  [<ffffffff81537139>] ? netlink_broadcast_filtered+0x139/0x3e0
-[   43.694789]  [<ffffffff8153b5da>] ? nlmsg_notify+0x5a/0xc0
-[   43.695064]  [<ffffffff810d10f5>] lock_acquire+0xe5/0x1f0
-[   43.695340]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
-[   43.695623]  [<ffffffff815edea5>] _raw_spin_lock_bh+0x45/0x80
-[   43.695901]  [<ffffffff8150169e>] ? dev_set_rx_mode+0x1e/0x40
-[   43.696180]  [<ffffffff8150169e>] dev_set_rx_mode+0x1e/0x40
-[   43.696460]  [<ffffffff8150189c>] dev_set_promiscuity+0x3c/0x50
-[   43.696750]  [<ffffffffa0586845>] br_port_set_promisc+0x25/0x50 [bridge]
-[   43.697052]  [<ffffffffa05869aa>] br_manage_promisc+0x8a/0xe0 [bridge]
-[   43.697348]  [<ffffffffa05826ee>] br_dev_change_rx_flags+0x1e/0x20 [bridge]
-[   43.697655]  [<ffffffff81501532>] __dev_set_promiscuity+0x132/0x1f0
-[   43.697943]  [<ffffffff81501672>] __dev_set_rx_mode+0x82/0x90
-[   43.698223]  [<ffffffff815072de>] dev_uc_add+0x5e/0x80
-[   43.698498]  [<ffffffffa05b3c62>] vlan_device_event+0x542/0x650 [8021q]
-[   43.698798]  [<ffffffff8109886d>] notifier_call_chain+0x5d/0x80
-[   43.699083]  [<ffffffff810988b6>] raw_notifier_call_chain+0x16/0x20
-[   43.699374]  [<ffffffff814f456e>] call_netdevice_notifiers_info+0x6e/0x80
-[   43.699678]  [<ffffffff814f4596>] call_netdevice_notifiers+0x16/0x20
-[   43.699973]  [<ffffffffa05872be>] br_add_if+0x47e/0x4c0 [bridge]
-[   43.700259]  [<ffffffffa058801e>] add_del_if+0x6e/0x80 [bridge]
-[   43.700548]  [<ffffffffa0588b5f>] br_dev_ioctl+0xaf/0xc0 [bridge]
-[   43.700836]  [<ffffffff8151a7ac>] dev_ifsioc+0x30c/0x3c0
-[   43.701106]  [<ffffffff8151aac9>] dev_ioctl+0xf9/0x6f0
-[   43.701379]  [<ffffffff81254345>] ? mntput_no_expire+0x5/0x450
-[   43.701665]  [<ffffffff812543ee>] ? mntput_no_expire+0xae/0x450
-[   43.701947]  [<ffffffff814d7b02>] sock_do_ioctl+0x42/0x50
-[   43.702219]  [<ffffffff814d8175>] sock_ioctl+0x1e5/0x290
-[   43.702500]  [<ffffffff81242d0b>] do_vfs_ioctl+0x2cb/0x5c0
-[   43.702771]  [<ffffffff81243079>] SyS_ioctl+0x79/0x90
-[   43.703033]  [<ffffffff815eebb6>] entry_SYSCALL_64_fastpath+0x16/0x7a
-
-CC: Vlad Yasevich <vyasevic@redhat.com>
-CC: Stephen Hemminger <stephen@networkplumber.org>
-CC: Bridge list <bridge@lists.linux-foundation.org>
-CC: Andy Gospodarek <gospo@cumulusnetworks.com>
-CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-Reported-by: Andy Gospodarek <gospo@cumulusnetworks.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[ luis: backported to 3.16: adjusted context ]
-Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 9e8430f8d60d ("bridge: mdb: Passing the port-group pointer to br_mdb module")
 ---
- net/bridge/br_device.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/bridge/br_mdb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 568cccd39a3d..f3526464bded 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -25,6 +25,8 @@
- #define COMMON_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HIGHDMA | \
- 			 NETIF_F_GSO_MASK | NETIF_F_HW_CSUM)
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index ac089286526e..9ab1fcd488c6 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -437,8 +437,8 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	mp = br_mdb_ip_get(mdb, group);
+ 	if (!mp) {
+ 		mp = br_multicast_new_group(br, port, group);
+-		err = PTR_ERR(mp);
+-		if (IS_ERR(mp))
++		err = PTR_ERR_OR_ZERO(mp);
++		if (err)
+ 			return err;
+ 	}
  
-+static struct lock_class_key bridge_netdev_addr_lock_key;
-+
- /* net device transmit always called with BH disabled */
- netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- {
-@@ -85,6 +87,11 @@ out:
- 	return NETDEV_TX_OK;
- }
- 
-+static void br_set_lockdep_class(struct net_device *dev)
-+{
-+	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
-+}
-+
- static int br_dev_init(struct net_device *dev)
- {
- 	struct net_bridge *br = netdev_priv(dev);
-@@ -92,6 +99,7 @@ static int br_dev_init(struct net_device *dev)
- 	br->stats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
- 	if (!br->stats)
- 		return -ENOMEM;
-+	br_set_lockdep_class(dev);
- 
- 	return 0;
- }
+-- 
+2.7.0
+
