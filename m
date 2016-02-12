@@ -1,8 +1,22 @@
-Return-Path: <arnd@arndb.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 10 Feb 2016 16:09:02 +0100
-Message-Id: <1455116946-2948649-1-git-send-email-arnd@arndb.de>
-Subject: [Bridge] [PATCH] bridge: mdb: avoid uninitialized variable warning
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:mime-version:content-type
+	:content-transfer-encoding;
+	bh=yVEYMJ3DEzs6KEl/bhTjxad/WfSUqdgL32WAW6JOpJA=;
+	b=ToNVPhQbKi74NRT9FodtPxYXl2S6wliwW8WNkPcZZjJ5kdcKLZLhPN9pkXZ+VLBJEa
+	S0iXBw1A+4LBjG15eR7Ej8jA4Bd9sYiatGe4UJ3abwam2FEa1811XqsruUtNyoIpKpyq
+	CYYBYAGoiTuZgZ3iXPRwZAZhbe7OzLqWBM5u/HnphjOHCfWe0hGxYs7ZRyLwVQFYsVZG
+	Wr9C5zaonyvp2ZNFTsDM0Js1pWKIeoq6xRs43NQBgkqCJWojnjgLjKl29hJ2GjmNdJPt
+	tefD8JOo2tS+cmx7S3ghPcEhAHkp8z9/RRcqzG/M9gPV/cuFRZYHsnmtohOCT32ssBlk
+	TGCg==
+Date: Fri, 12 Feb 2016 13:31:09 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20160212133109.218ed423@xeon-e3>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH net] bridge: fix regression in ageing time
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,43 +25,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>, Elad Raz <eladr@mellanox.com>, linux-arm-kernel@lists.infradead.org
+To: David Miller <davem@davemloft.net>, Scott Feldman <sfeldma@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Jiri Pirko <jiri@resnulli.us>, Jouni Malinen <jouni@codeaurora.org>
 
-A recent change to the mdb code confused the compiler to the point
-where it did not realize that the port-group returned from
-br_mdb_add_group() is always valid when the function returns a nonzero
-return value, so we get a spurious warning:
+This fixes a regression in the bridge ageing time caused by:
 
-net/bridge/br_mdb.c: In function 'br_mdb_add':
-net/bridge/br_mdb.c:542:4: error: 'pg' may be used uninitialized in this function [-Werror=maybe-uninitialized]
-    __br_mdb_notify(dev, entry, RTM_NEWMDB, pg);
+commit c62987bbd8a1 ("bridge: push bridge setting ageing_time down to switchdev")
 
-Slightly rearranging the code in br_mdb_add_group() makes the problem
-go away, as gcc is clever enough to see that both functions check
-for 'ret != 0'.
+There are users of Linux bridge which use the feature that if ageing time
+is set to 0 it causes entries to never expire.
+This feature is even listed on the web page:
+  https://www.linuxfoundation.org/collaborate/workgroups/networking/bridge
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: 9e8430f8d60d ("bridge: mdb: Passing the port-group pointer to br_mdb module")
+For a pure software bridge, it is unnecessary for the code to have
+arbitrary restrictions on what values are allowable.
+
+Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+
 ---
- net/bridge/br_mdb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Please apply to 4.4 for stable as well.
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index ac089286526e..9ab1fcd488c6 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -437,8 +437,8 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	mp = br_mdb_ip_get(mdb, group);
- 	if (!mp) {
- 		mp = br_multicast_new_group(br, port, group);
--		err = PTR_ERR(mp);
--		if (IS_ERR(mp))
-+		err = PTR_ERR_OR_ZERO(mp);
-+		if (err)
- 			return err;
- 	}
+ include/linux/if_bridge.h |    5 -----
+ net/bridge/br_stp.c       |    9 ++++++---
+ 2 files changed, 6 insertions(+), 8 deletions(-)
+
+--- a/include/linux/if_bridge.h	2015-09-23 16:17:25.387594110 -0700
++++ b/include/linux/if_bridge.h	2016-02-11 07:49:35.016689397 -0800
+@@ -45,11 +45,6 @@ struct br_ip_list {
+ #define BR_PROXYARP		BIT(8)
+ #define BR_LEARNING_SYNC	BIT(9)
+ #define BR_PROXYARP_WIFI	BIT(10)
+-
+-/* values as per ieee8021QBridgeFdbAgingTime */
+-#define BR_MIN_AGEING_TIME	(10 * HZ)
+-#define BR_MAX_AGEING_TIME	(1000000 * HZ)
+-
+ #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
  
--- 
-2.7.0
-
+ extern void brioctl_set(int (*ioctl_hook)(struct net *, unsigned int, void __user *));
+--- a/net/bridge/br_stp.c	2015-12-17 17:17:18.650746679 -0800
++++ b/net/bridge/br_stp.c	2016-02-11 07:49:53.240772672 -0800
+@@ -568,6 +568,12 @@ int br_set_max_age(struct net_bridge *br
+ 
+ }
+ 
++/* Set the how long dynamic forwarding database entries live.
++ * The Linux bridge allows values outside the standard 802.1
++ * specification to allow for special cases:
++ *   0 - means entry never age.
++ *   1 - means entries disappear in next clock tick
++ */
+ int br_set_ageing_time(struct net_bridge *br, u32 ageing_time)
+ {
+ 	struct switchdev_attr attr = {
+@@ -579,9 +585,6 @@ int br_set_ageing_time(struct net_bridge
+ 	unsigned long t = clock_t_to_jiffies(ageing_time);
+ 	int err;
+ 
+-	if (t < BR_MIN_AGEING_TIME || t > BR_MAX_AGEING_TIME)
+-		return -ERANGE;
+-
+ 	err = switchdev_port_attr_set(br->dev, &attr);
+ 	if (err)
+ 		return err;
