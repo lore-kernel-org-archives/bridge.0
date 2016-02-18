@@ -1,14 +1,16 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 16 Feb 2016 15:37:58 -0500 (EST)
-Message-Id: <20160216.153758.1508523820142527071.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1455116946-2948649-1-git-send-email-arnd@arndb.de>
-References: <1455116946-2948649-1-git-send-email-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: mdb: avoid uninitialized variable
-	warning
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Thu, 18 Feb 2016 14:36:44 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20160218133644.GL3010@otheros>
+References: <1455502026-23144-1-git-send-email-linus.luessing@c0d3.blue>
+	<20160218125134.GA20283@sesse.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20160218125134.GA20283@sesse.net>
+Subject: Re: [Bridge] [PATCH] net: fix bridge multicast packet checksum
+	validation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +19,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: arnd@arndb.de
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jiri@mellanox.com, eladr@mellanox.com, linux-arm-kernel@lists.infradead.org
+To: netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, =?utf-8?B?w4FsdmFybyBGZXJuw6FuZGV6?= Rojas <noltari@gmail.com>, Tom Herbert <tom@herbertland.com>
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 10 Feb 2016 16:09:02 +0100
+On Thu, Feb 18, 2016 at 01:51:34PM +0100, Steinar H. Gunderson wrote:
+> On Mon, Feb 15, 2016 at 03:07:06AM +0100, Linus Lüssing wrote:
+> > Steinar, can you check whether this fixes the bridge issues you reported on
+> > bugzilla #99081? Not quite sure whether it is the same as yours as you
+> > do not seem to have any such call traces.
+> 
+> It doesn't immediately sound like the same problem; why would promisc change
+> anything if the problem is the checksumming?
 
-> A recent change to the mdb code confused the compiler to the point
-> where it did not realize that the port-group returned from
-> br_mdb_add_group() is always valid when the function returns a nonzero
-> return value, so we get a spurious warning:
-> 
-> net/bridge/br_mdb.c: In function 'br_mdb_add':
-> net/bridge/br_mdb.c:542:4: error: 'pg' may be used uninitialized in this function [-Werror=maybe-uninitialized]
->     __br_mdb_notify(dev, entry, RTM_NEWMDB, pg);
-> 
-> Slightly rearranging the code in br_mdb_add_group() makes the problem
-> go away, as gcc is clever enough to see that both functions check
-> for 'ret != 0'.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 9e8430f8d60d ("bridge: mdb: Passing the port-group pointer to br_mdb module")
+The mdb you provided in the bugzilla ticket misses reports, so it
+was unable to parse reports. Which could point to a checksumming
+problem.
 
-Applied, thanks Arnd.
+Enabling promisc probably did not fix the parsing for you, but instead
+promisc forces to forward packets upstream on your interface independent
+of the mdb. I would assume that even with promisc, your output
+from "bridge mdb show" looks rather empty. Can you check?
+
+> 
+> I don't have any reboots scheduled for this machine right now, but I'll see
+> what I can do wrt. testing.
+
+Thanks :).
