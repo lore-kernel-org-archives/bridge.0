@@ -1,11 +1,11 @@
 Return-Path: <linus.luessing@c0d3.blue>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Wed, 24 Feb 2016 02:13:01 +0100
-Message-Id: <1456276381-30370-1-git-send-email-linus.luessing@c0d3.blue>
+Date: Wed, 24 Feb 2016 04:21:42 +0100
+Message-Id: <1456284102-32557-1-git-send-email-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCHv2] net: fix bridge multicast packet checksum
+Subject: [Bridge] [PATCHv3] net: fix bridge multicast packet checksum
 	validation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -43,6 +43,10 @@ Reported-by: Álvaro Fernández Rojas <noltari@gmail.com>
 Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 ---
 
+v3:
+* Missed that an skb_postpush_rcsum() was just added for v4.5, using that
+  one instead
+
 v2:
 * substituted the storing of the csum with an skb_push_rcsum() approach
  (did some more reading about CHECKSUM_PARTIAL, and it seems to me that the
@@ -52,38 +56,10 @@ v2:
   due to "automatic" checksum recomputations in software if skb->csum
   is bogus (in the CHECKSUM_COMPLETE case)
 
- include/linux/skbuff.h |   17 +++++++++++++++++
- net/core/skbuff.c      |   22 ++++++++++++++++++++--
- 2 files changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 4ce9ff7..d66e007 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -2784,6 +2784,23 @@ static inline int skb_linearize_cow(struct sk_buff *skb)
- }
- 
- /**
-+ *	skb_postpush_rcsum - update checksum for received skb after push
-+ *	@skb: buffer to update
-+ *	@start: start of data before push
-+ *	@len: length of data pushed
-+ *
-+ *	After doing a push on a received packet, you need to call this to
-+ *	update the CHECKSUM_COMPLETE checksum.
-+ */
-+
-+static inline void skb_postpush_rcsum(struct sk_buff *skb,
-+				      const void *start, unsigned int len)
-+{
-+	if (skb->ip_summed == CHECKSUM_COMPLETE)
-+		skb->csum = csum_add(skb->csum, csum_partial(start, len, 0));
-+}
-+
-+/**
-  *	skb_postpull_rcsum - update checksum for received skb after pull
-  *	@skb: buffer to update
-  *	@start: start of data before pull
+ net/core/skbuff.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
 diff --git a/net/core/skbuff.c b/net/core/skbuff.c
 index 5bf88f5..8616d11 100644
 --- a/net/core/skbuff.c
