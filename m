@@ -1,23 +1,19 @@
-Return-Path: <lucien.xin@gmail.com>
+Return-Path: <paleopoe@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-	:cc; bh=KcUMF9RvxBnidL65EdXls+n0clS5oze0F6lmaqg8m/Q=;
-	b=zyJ+i8APS6QOYfBw6ls3PRQK2621EkQvRB8JNUdeUMNaJoqNVwjfOmS4u8iQ4tScuB
-	dKoEHq2KOxZjVtLVvEbNEPBXCxC5puEQQO5zVDVJpoE18yjz2hDpVin33EDuRxfBpz6/
-	PqUz6UpIwPIY8+4gjYgLFIj5j9l4e5y4q341NlsmxjnoLzbpLpDYHTHByJpptPHKbmPz
-	OFEQ+q+EQNtpxSknD3jJ6YmNLoLRzZ+ttM0OUF0h0PHNht98vxUKI9Ofb/er9kfnfx1u
-	Ur+KeDIxcnfbuKbiVpXf2oY1oRrZeiXolOPZUjGTmS7z4DXXevqZZFpKVS0696hw70+9
-	XHDw==
+	h=mime-version:date:message-id:subject:from:to;
+	bh=1vOK7DazMr32IM3UdZQzm8FfxVkHynQrLaSW5qqlq+Q=;
+	b=k4dBnF8EQDRtGA3nlmJLb+ax3mwMIa46PgnPIXMR8H2vAJP6WSyzZdnKN+nMbS3V4W
+	jhWdLmFt3ueq4x2B5KKlSCqTgtsR0msBvdZRmD+bgZjeqEd3Ofsai1z0MWhI8kEBMpMf
+	nL4T8IvqRb2/AMtyfInT2PLAJrqXuBqc+05HPwqWQIarajfcfH9NKodM4md875AD7Zmn
+	90G8LEjp93A33qPtGwUGnLm1UguDAevCTK84eOM3vhgWvsKzUXz4vqMD0um7AdI/7IFF
+	B/UojrU/dzDwNxMf2G6qLTOBWL+pLoW24uuvPFcj2LdF8D2VFmKPDghSNhvsc8AXumTu
+	mmHQ==
 MIME-Version: 1.0
-In-Reply-To: <56E96DFC.7090608@cumulusnetworks.com>
-References: <cover.1458134414.git.lucien.xin@gmail.com>
-	<56E96DFC.7090608@cumulusnetworks.com>
-Date: Wed, 16 Mar 2016 22:59:37 +0800
-Message-ID: <CADvbK_ce_0p8j4pi3wQ6OkYWVZOde6guhGKdJ49H0W228df27g@mail.gmail.com>
-From: Xin Long <lucien.xin@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH net-next 0/6] bridge: support sending rntl info
- when we set attributes through sysfs/ioctl
+Date: Tue, 15 Mar 2016 16:50:44 -0500
+Message-ID: <CACyobKnP5mrx5sW9bKt3PQsQib6+VCXArMdBCRXHd4vo3qMHqw@mail.gmail.com>
+From: Andy <paleopoe@gmail.com>
+Content-Type: multipart/alternative; boundary=001a113d2a96aaf787052e1d6347
+Subject: [Bridge] DEI Bit Behavior
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,43 +22,212 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: network dev <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, davem <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-On Wed, Mar 16, 2016 at 10:30 PM, Nikolay Aleksandrov
-<nikolay@cumulusnetworks.com> wrote:
-> On 03/16/2016 02:34 PM, Xin Long wrote:
->> This patchset is used to support sending rntl info to user in some places,
->> and ensure that whenever those attributes change internally or from sysfs,
->> that a netlink notification is sent out to listeners.
->>
->> It also make some adjustment in bridge sysfs so that we can implement this
->> easily.
->>
->> I've done some tests on this patchset, like:
->> [br_sysfs]
->>   1. change all the attribute values of br or brif:
->>   $ echo $value > /sys/class/net/br0/bridge/{*}
->>   $ echo $value > /sys/class/net/br0/brif/eth1/{*}
->>
->>   2. meanwhile, on another terminal to observe the msg:
->>   $ bridge monitor
->>
->> [br_ioctl]
->>   1. in bridge-utils package, do some changes in br_set, let brctl command
->>   use ioctl to set attribute:
->>          if ((ret = set_sysfs(path, value)) < 0) { -->
->>          if (1) {
->>
->>   $ brctl set*
->>
->>   2. meanwhile, on another terminal to observe the msg:
->>   $ bridge monitor
->>
->> This test covers all the attributes that brctl and sysfs support to set.
->>
->
-> Please also include the bridge maintainers (CCed).
->
-okay,  I will post v2 with CC maintainers.
-thanks
+--001a113d2a96aaf787052e1d6347
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hello Community,
+
+
+
+I've been working on a project that requires a very simple setup:
+
+
+
+Packet Generator ---> ETH0 --- Bridge --- ETH1 ---> Packet Capture
+
+
+
+What I want to see are packets going through my setup unmodified but
+instead I'm seeing an interesting behavior when I send QnQ Ethernet traffic=
+.
+
+While sending double tagged packets, I=E2=80=99ve noticed that the DEI bit =
+in the
+VLAN tag is getting reset to zero.  This only happens if my SVLAN tag uses
+the TPID value 0x88A8 or 0x8100. If I use a non-standard TPID like 0x9100,
+the value of the DEI bit is passed through the system unmodified (as
+desired).
+
+
+
+To be honest, I'm not sure if this is intentional or unexpected but I've
+done a lot of investigating and everything seems to imply that packets
+should not be modified as it goes through the setup.
+
+
+
+I have run my experiment on multiple devices, different interfaces and
+different Linux distributions/Kernels.
+
+As far as I can tell, the behavior seems consistent.
+
+
+
+Is the resetting of the DEI bit intentional (seeing how it is not reset
+when I pass a non-standard TPID, kind of makes me think it is)? If so, why?
+
+Is there a way to prevent this from happening?
+
+
+
+Here are some details:
+
+Packet Generator Used: JDSU test set and Ostinato
+
+Packet Capture: Wireshark running on a Windows
+
+Bridge Commands used (pretty basic):
+
+brctl addbr mybr
+
+brctl addif mybr eth0
+
+brctl addif mybr eth1
+
+ifconfig mybr up
+
+
+
+Version of Linux used:
+
+Ubuntu 14.04, Kernel: 3.10
+
+Ubuntu 15.10 Kernel: 3.10
+
+Raspbian Jessie, Kernel: 4.1
+
+Red Hat 7.1, Kernel 3.10
+
+
+
+Thank you for any help and clarity you can provide.
+
+Andrew Mao
+
+--001a113d2a96aaf787052e1d6347
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><span style=3D"font-family:Arial,sans-serif;font-size=
+:12pt">Hello Community,</span><br></div><div>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">I&#39;ve been working on a project that requires a very simple
+setup:</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Packet Generator ---&gt; ETH0 --- Bridge --- ETH1 ---&gt; Packet
+Capture</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">What I want to see are packets going through my setup unmodified
+but instead I&#39;m seeing an interesting behavior when I send QnQ Ethernet
+traffic.</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">While sending double tagged packets, I=E2=80=99ve noticed that the =
+DEI
+bit in the VLAN tag is getting reset to zero.=C2=A0 This only happens if my
+SVLAN tag uses the TPID value 0x88A8 or 0x8100. If I use a non-standard TPI=
+D
+like 0x9100, the value of the DEI bit is passed through the system unmodifi=
+ed
+(as desired).</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">To be honest, I&#39;m not sure if this is intentional or unexpected
+but I&#39;ve done a lot of investigating and everything seems to imply that=
+ packets
+should not be modified as it goes through the setup.</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">I have run my experiment on multiple devices, different
+interfaces and different Linux distributions/Kernels.</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">As far as I can tell, the behavior seems consistent.</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Is the resetting of the DEI bit intentional (seeing how it is
+not reset when I pass a non-standard TPID, kind of makes me think it is)? I=
+f so, why?</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Is there a way to prevent this from happening?</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Here are some details:</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Packet Generator Used: JDSU test set and Ostinato</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Packet Capture: Wireshark running on a Windows</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Bridge Commands used (pretty basic):</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">brctl addbr mybr</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">brctl addif mybr eth0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">brctl addif mybr eth1</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">ifconfig mybr up</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Version of Linux used:</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Ubuntu 14.04, Kernel: 3.10</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Ubuntu 15.10 Kernel: 3.10</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Raspbian Jessie, Kernel: 4.1</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Red Hat 7.1, Kernel 3.10</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">=C2=A0</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Thank you for any help and clarity you can provide.</span></p>
+
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt;font-family:Arial,sans=
+-serif">Andrew Mao</span></p></div></div>
+
+--001a113d2a96aaf787052e1d6347--
