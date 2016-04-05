@@ -1,17 +1,18 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-References: <cover.1459827115.git.lucien.xin@gmail.com>
-	<6e2cf6821542a253904dfc7d8ec431d6bbda2b4e.1459827115.git.lucien.xin@gmail.com>
-	<6197a35a2eb6df2caf90edcbf1b49da12077f659.1459827115.git.lucien.xin@gmail.com>
-	<baf4788b6ac529a2132ace735fc1caf4989307da.1459827115.git.lucien.xin@gmail.com>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <5703483D.80109@lab.ntt.co.jp>
-Date: Tue, 5 Apr 2016 14:08:13 +0900
-MIME-Version: 1.0
-In-Reply-To: <baf4788b6ac529a2132ace735fc1caf4989307da.1459827115.git.lucien.xin@gmail.com>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCHv2 net-next 3/6] bridge: simplify the
- stp_state_store by calling store_bridge_parm
+Return-Path: <lucien.xin@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=from:to:cc:subject:date:message-id;
+	bh=DtKqfl7X8CUmfyC1wMuazcBxbzQnkIutOQomvFXkmLo=;
+	b=CII+EeMmeDcfKdJ9gJbne+/Kqt/x5NVaVWDUG6D6ru33GEnVfPJimTFVsf81MBSLZz
+	3rITGfx9yTtK4KpEzwZjyrL+Pk3SyVnJ7yCN+N3lhG5eR53GDIZRmzUlsfQni9giNVrf
+	Ysw+GHdJHHWZpE34xx+PH3+KxfvLCuFSqTmN1C7ADFvzZwDXpdYWyN0Iz8FW26+6amxf
+	GuVMXqiUHJ/W2JKDCC3RkRMNexfqpbA9e07gMUrwr8VB0x4ipRVVn1LJ50PSSzgNI+YZ
+	ICAAuGq80Dk29yG6sqtsbjvJHsFuAfXZaPZbFwn9FTwhApdStAdWlXru3pfsqVHbtZtl
+	aCKw==
+From: Xin Long <lucien.xin@gmail.com>
+Date: Tue,  5 Apr 2016 11:32:35 +0800
+Message-Id: <cover.1459827115.git.lucien.xin@gmail.com>
+Subject: [Bridge] [PATCHv2 net-next 0/6] bridge: support sending rntl info
+	when we set attributes through sysfs/ioctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,37 +21,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Xin Long <lucien.xin@gmail.com>, network dev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+To: network dev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
 Cc: nikolay@cumulusnetworks.com, davem@davemloft.net
 
-On 2016/04/05 12:32, Xin Long wrote:
-> There are some repetitive codes in stp_state_store, we can remove
-> them by calling store_bridge_parm.
-> 
-> Signed-off-by: Xin Long <lucien.xin@gmail.com>
-> ---
->  net/bridge/br_sysfs_br.c | 24 +++++++-----------------
->  1 file changed, 7 insertions(+), 17 deletions(-)
-> 
-> diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-> index 137cd3b..9918763 100644
-> --- a/net/bridge/br_sysfs_br.c
-> +++ b/net/bridge/br_sysfs_br.c
-> @@ -128,27 +128,17 @@ static ssize_t stp_state_show(struct device *d,
->  }
->  
->  
-> +static int set_stp_state(struct net_bridge *br, unsigned long val)
-> +{
+This patchset is used to support sending rntl info to user in some places,
+and ensure that whenever those attributes change internally or from sysfs,
+that a netlink notification is sent out to listeners.
 
-You forgot to add rtnl lock here?
-The missing lock is restored in patch 4, but at this point bisect could
-break..
+It also make some adjustment in bridge sysfs so that we can implement this
+easily.
 
-> +	br_stp_set_enabled(br, val);
-> +	return 0;
-> +}
+I've done some tests on this patchset, like:
+[br_sysfs]
+  1. change all the attribute values of br or brif:
+  $ echo $value > /sys/class/net/br0/bridge/{*}
+  $ echo $value > /sys/class/net/br0/brif/eth1/{*}
 
-Toshiaki Makita
+  2. meanwhile, on another terminal to observe the msg:
+  $ bridge monitor
 
+[br_ioctl]
+  1. in bridge-utils package, do some changes in br_set, let brctl command
+  use ioctl to set attribute:
+         if ((ret = set_sysfs(path, value)) < 0) { -->
+         if (1) {
+
+  $ brctl set*
+
+  2. meanwhile, on another terminal to observe the msg:
+  $ bridge monitor
+
+This test covers all the attributes that brctl and sysfs support to set.
+
+Xin Long (6):
+  bridge: simplify the flush_store by calling store_bridge_parm
+  bridge: simplify the forward_delay_store by calling store_bridge_parm
+  bridge: simplify the stp_state_store by calling store_bridge_parm
+  bridge: a netlink notification should be sent when those attributes
+    are changed by br_sysfs_br
+  bridge: a netlink notification should be sent when those attributes
+    are changed by br_sysfs_if
+  bridge: a netlink notification should be sent when those attributes
+    are changed by ioctl
+
+ net/bridge/br_ioctl.c    | 40 +++++++++++++----------
+ net/bridge/br_sysfs_br.c | 83 +++++++++++++++++++-----------------------------
+ net/bridge/br_sysfs_if.c |  5 +--
+ net/bridge/br_vlan.c     | 30 +++--------------
+ 4 files changed, 65 insertions(+), 93 deletions(-)
+
+-- 
+2.1.0
 
