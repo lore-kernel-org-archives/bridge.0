@@ -2,26 +2,27 @@ Return-Path: <lucien.xin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:in-reply-to:references;
-	bh=lyN99P58NnZgzDd6tM4tQm6wU7x+Iv4T7hdOYs8j5lk=;
-	b=L/M5Gs11W7YrZl9zhhJMwHKQuc/F4w+2Jvyl0a7kFLduPTh4e/eS9dVbu2JibYMzBJ
-	1476mn0Rh3qnZcJKQ0IlzU8FxZ44KchDCT9i3wzMzDtyLkaHiUAxVuVGMkYU/36Vjjhv
-	D5nNh+xoJJmZcQDQvSiFZm8xslHw59t8Glysbg0fi6vbnDH60RtuIIYt/AQFRZ6g6heg
-	W3GmG2ussW4BNFkfZeWWwUXqZ35z3MgqYlC942Bi+xUkREetEy8jMaMZl8aXKmVQg4BR
-	S7exp6mzOFGS4+gDuQRGswH/Y7iV7q64SbzUv1hwK0tbSLDdLWS5p5QgjptfC12ZqHrV
-	qR9w==
+	bh=KndCAHC/403/eDQ9lAZo0DLX5IkB0ZYRUqI09SmOOuo=;
+	b=hmFmKymLx3IKWITEOUZKB4WOXR/uzzT2hlGrH7uw+ze4/K+kXHrTjVYbrCoFNapTRO
+	eMDcwlmcVYsVuJsuNcuHY4Iu666QyhgOhbbzMsiPWppLn7evdE1rvIKXHpli1OY/Wdqa
+	3OyHUdL+ZdsBNgrR+lS3TTiuLW+qAsoQYjLBWsCoSFJ+a7IpqSlHQOL2YoFQDudzGGjL
+	JclO6c1L12+Ve8OWzgtH65xHAM9/5p6j/pm3GXO+FVW40WBOU8qZe37ByAnzG8R95itC
+	a1kr+vUNjdF75g+Q70Jg2c2ngVh2Je20HkBPmZ4VSXN08OwRV/OUTCGxh648mPKPD/HG
+	a6ow==
 From: Xin Long <lucien.xin@gmail.com>
-Date: Sat,  9 Apr 2016 00:03:32 +0800
-Message-Id: <8c87a70b3c214f90b7345edb68536429fdaad096.1460131308.git.lucien.xin@gmail.com>
-In-Reply-To: <1dd5e14c7f042753a4d70b585de407a4e388262a.1460131308.git.lucien.xin@gmail.com>
+Date: Sat,  9 Apr 2016 00:03:33 +0800
+Message-Id: <412ca1bb5690dfd7a73a37d7e821784f24edd059.1460131308.git.lucien.xin@gmail.com>
+In-Reply-To: <8c87a70b3c214f90b7345edb68536429fdaad096.1460131308.git.lucien.xin@gmail.com>
 References: <cover.1460131308.git.lucien.xin@gmail.com>
 	<6e2cf6821542a253904dfc7d8ec431d6bbda2b4e.1460131308.git.lucien.xin@gmail.com>
 	<6197a35a2eb6df2caf90edcbf1b49da12077f659.1460131308.git.lucien.xin@gmail.com>
 	<8c14a891d0a8bcea071d4e5305776a5c5cd9fd17.1460131308.git.lucien.xin@gmail.com>
 	<1dd5e14c7f042753a4d70b585de407a4e388262a.1460131308.git.lucien.xin@gmail.com>
+	<8c87a70b3c214f90b7345edb68536429fdaad096.1460131308.git.lucien.xin@gmail.com>
 In-Reply-To: <cover.1460131308.git.lucien.xin@gmail.com>
 References: <cover.1460131308.git.lucien.xin@gmail.com>
-Subject: [Bridge] [PATCHv3 net-next 5/6] bridge: a netlink notification
-	should be sent when those attributes are changed by br_sysfs_if
+Subject: [Bridge] [PATCHv3 net-next 6/6] bridge: a netlink notification
+	should be sent when those attributes are changed by ioctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -44,38 +45,128 @@ Also, NetworkManager will use this in the future to listen for out-of-band
 bridge master attribute updates and incorporate them into the runtime
 configuration.
 
-This patch is used for br_sysfs_if, and we also move br_ifinfo_notify out
-of store_flag.
+This patch is used for ioctl.
 
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 ---
- net/bridge/br_sysfs_if.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/bridge/br_ioctl.c | 40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index efe415a..1e04d4d 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -61,7 +61,6 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
- 	if (flags != p->flags) {
- 		p->flags = flags;
- 		br_port_flags_change(p, mask);
--		br_ifinfo_notify(RTM_NEWLINK, p);
+diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+index 263b4de..f8fc624 100644
+--- a/net/bridge/br_ioctl.c
++++ b/net/bridge/br_ioctl.c
+@@ -112,7 +112,9 @@ static int add_del_if(struct net_bridge *br, int ifindex, int isadd)
+ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
++	struct net_bridge_port *p = NULL;
+ 	unsigned long args[4];
++	int ret = -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(args, rq->ifr_data, sizeof(args)))
+ 		return -EFAULT;
+@@ -182,25 +184,29 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		return br_set_forward_delay(br, args[1]);
++		ret = br_set_forward_delay(br, args[1]);
++		break;
+ 
+ 	case BRCTL_SET_BRIDGE_HELLO_TIME:
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		return br_set_hello_time(br, args[1]);
++		ret = br_set_hello_time(br, args[1]);
++		break;
+ 
+ 	case BRCTL_SET_BRIDGE_MAX_AGE:
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		return br_set_max_age(br, args[1]);
++		ret = br_set_max_age(br, args[1]);
++		break;
+ 
+ 	case BRCTL_SET_AGEING_TIME:
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		return br_set_ageing_time(br, args[1]);
++		ret = br_set_ageing_time(br, args[1]);
++		break;
+ 
+ 	case BRCTL_GET_PORT_INFO:
+ 	{
+@@ -240,20 +246,19 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 			return -EPERM;
+ 
+ 		br_stp_set_enabled(br, args[1]);
+-		return 0;
++		ret = 0;
++		break;
+ 
+ 	case BRCTL_SET_BRIDGE_PRIORITY:
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+ 		br_stp_set_bridge_priority(br, args[1]);
+-		return 0;
++		ret = 0;
++		break;
+ 
+ 	case BRCTL_SET_PORT_PRIORITY:
+ 	{
+-		struct net_bridge_port *p;
+-		int ret;
+-
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+@@ -263,14 +268,11 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 		else
+ 			ret = br_stp_set_port_priority(p, args[2]);
+ 		spin_unlock_bh(&br->lock);
+-		return ret;
++		break;
  	}
- 	return 0;
+ 
+ 	case BRCTL_SET_PATH_COST:
+ 	{
+-		struct net_bridge_port *p;
+-		int ret;
+-
+ 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+@@ -280,8 +282,7 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 		else
+ 			ret = br_stp_set_path_cost(p, args[2]);
+ 		spin_unlock_bh(&br->lock);
+-
+-		return ret;
++		break;
+ 	}
+ 
+ 	case BRCTL_GET_FDB_ENTRIES:
+@@ -289,7 +290,14 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 				       args[2], args[3]);
+ 	}
+ 
+-	return -EOPNOTSUPP;
++	if (!ret) {
++		if (p)
++			br_ifinfo_notify(RTM_NEWLINK, p);
++		else
++			netdev_state_change(br->dev);
++	}
++
++	return ret;
  }
-@@ -253,8 +252,10 @@ static ssize_t brport_store(struct kobject *kobj,
- 			spin_lock_bh(&p->br->lock);
- 			ret = brport_attr->store(p, val);
- 			spin_unlock_bh(&p->br->lock);
--			if (ret == 0)
-+			if (!ret) {
-+				br_ifinfo_notify(RTM_NEWLINK, p);
- 				ret = count;
-+			}
- 		}
- 		rtnl_unlock();
- 	}
+ 
+ static int old_deviceless(struct net *net, void __user *uarg)
 -- 
 2.1.0
 
