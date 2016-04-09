@@ -3,25 +3,26 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:references:cc:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=3RBzGHQDVY4kbPtiF0+OHVdjD9iOb/QdKRse6iriDfQ=;
-	b=BKKnqrw/0VXG2hNO501UasFLQLvS1DPPct7PfhY5fJeoo1P2dOYr5+quxgsWzaurX9
-	ZPxgXkSiGKNm0rxLwGSNhcm3L5zJ6yt+2p/LRfPpDlExjfmfArzLV1tHfU95beaH3PhR
-	EMJJRx8Qc6qj9GPyh/M3TchLC5W/NrICSZY7I=
+	bh=nyseQgzGfVHq6fEhB4xJ4MlndpkzPoegIf8Ozkx/YxU=;
+	b=LgNGmLo+iu5I+vQuWspmuL3UzBYsHtlvOTUbuHw5K3WMggtyxQrth/yGhDU/DDVFxn
+	dOV//26yvANNf6ue6/BJekf4eFF57xygOAB+xyjhJHCMfFkPAVuggtHKVzZZsgHh/6hY
+	gJShSl8siNCWC0sChQxcPyAUzgOx18yc3y2Mw=
 References: <cover.1460131308.git.lucien.xin@gmail.com>
 	<6e2cf6821542a253904dfc7d8ec431d6bbda2b4e.1460131308.git.lucien.xin@gmail.com>
 	<6197a35a2eb6df2caf90edcbf1b49da12077f659.1460131308.git.lucien.xin@gmail.com>
 	<8c14a891d0a8bcea071d4e5305776a5c5cd9fd17.1460131308.git.lucien.xin@gmail.com>
 	<1dd5e14c7f042753a4d70b585de407a4e388262a.1460131308.git.lucien.xin@gmail.com>
 	<8c87a70b3c214f90b7345edb68536429fdaad096.1460131308.git.lucien.xin@gmail.com>
+	<412ca1bb5690dfd7a73a37d7e821784f24edd059.1460131308.git.lucien.xin@gmail.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <5708F964.1090407@cumulusnetworks.com>
-Date: Sat, 9 Apr 2016 14:45:24 +0200
+Message-ID: <5708FA6A.3030006@cumulusnetworks.com>
+Date: Sat, 9 Apr 2016 14:49:46 +0200
 MIME-Version: 1.0
-In-Reply-To: <8c87a70b3c214f90b7345edb68536429fdaad096.1460131308.git.lucien.xin@gmail.com>
+In-Reply-To: <412ca1bb5690dfd7a73a37d7e821784f24edd059.1460131308.git.lucien.xin@gmail.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCHv3 net-next 5/6] bridge: a netlink notification
- should be sent when those attributes are changed by br_sysfs_if
+Subject: Re: [Bridge] [PATCHv3 net-next 6/6] bridge: a netlink notification
+ should be sent when those attributes are changed by ioctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -45,18 +46,15 @@ On 04/08/2016 06:03 PM, Xin Long wrote:
 > bridge master attribute updates and incorporate them into the runtime
 > configuration.
 > 
-> This patch is used for br_sysfs_if, and we also move br_ifinfo_notify out
-> of store_flag.
+> This patch is used for ioctl.
 > 
 > Signed-off-by: Xin Long <lucien.xin@gmail.com>
 > ---
->  net/bridge/br_sysfs_if.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+>  net/bridge/br_ioctl.c | 40 ++++++++++++++++++++++++----------------
+>  1 file changed, 24 insertions(+), 16 deletions(-)
 > 
 
-Note: there's a slight behaviour change, before if the flags were the same
-a notification wouldn't be sent, now it would. Anyway I don't see a problem
-as this is true for other attributes which are set to the same value.
+LGTM,
 
 Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
