@@ -1,15 +1,9 @@
-Return-Path: <ser@man.szczecin.pl>
-References: <571F6F45.7070000@man.szczecin.pl>
-	<CAOaVG17inj4fb8R42q5PTMPUtgS0SQHErZmoNEUGFsJeXFdB=A@mail.gmail.com>
-	<5720BBCD.2070009@man.szczecin.pl> <20160427123726.65ce2ecb@samsung9>
-From: Seweryn Niemiec <ser@man.szczecin.pl>
-Message-ID: <57234D9C.3030509@man.szczecin.pl>
-Date: Fri, 29 Apr 2016 14:03:40 +0200
-MIME-Version: 1.0
-In-Reply-To: <20160427123726.65ce2ecb@samsung9>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PROBLEM] mac address learned on wrong port
+Return-Path: <mkubecek@suse.cz>
+From: Michal Kubecek <mkubecek@suse.cz>
+Date: Wed, 27 Apr 2016 14:48:02 +0200
+Message-Id: <20160428074838.0BBB5A0C94@unicorn.suse.cz>
+Subject: [Bridge] [PATCH nf-next] netfilter: allow logging from non-init
+	namespaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,44 +12,179 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Cc: bridge <bridge@lists.linux-foundation.org>
+To: netfilter-devel@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Jonathan Corbet <corbet@lwn.net>, netdev@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Patrick McHardy <kaber@trash.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On 27.04.2016 21:37, Stephen Hemminger wrote:
-> On Wed, 27 Apr 2016 15:17:01 +0200
-> Seweryn Niemiec <ser@man.szczecin.pl> wrote:
->
->> On 26.04.2016 18:49, Stephen Hemminger wrote:
->>> This usualy happens when you either have a loop or packet leaks in from other port.
->>
->> Yeah, it looks like a loop, but p2p1 is connected to a production network with
->> running MSTP, so I was sure there is no loop, but I have double checked it today
->> and I'm still sure there is no loop in the net outside of the server. To make it
->> super sure I have connected p2p1 to a dead end port (vlan with this one port
->> only) on a switch and the effect was the same - container's mac is learned on p2p1.
->>
->
-> But you are not running Spanning Tree on your bridge.
+Commit 69b34fb996b2 ("netfilter: xt_LOG: add net namespace support for
+xt_LOG") disabled logging packets using the LOG target from non-init
+namespaces. The motivation was to prevent containers from flooding
+kernel log of the host. The plan was to keep it that way until syslog
+namespace implementation allows containers to log in a safe way.
 
-After two more days of tests :)
+However, the work on syslog namespace seems to have hit a dead end
+somewhere in 2013 and there are users who want to use xt_LOG in all
+network namespaces. This patch allows to do so by setting
 
-Now I'm running stp on my bridge too and it doesn't change anything. Booth ports 
-are in forwarding state. This is freshly installed Ubuntu 14.04.3. There is only 
-one bridge configured and two ports in the bridge. For me, it's impossible to 
-have a loop there.
+  /proc/sys/net/netfilter/nf_log_all_netns
 
-To make sure it's not a problem with the switch I have connected p2p1 port to 
-powered on but unbootable server (just to keep link up) and the problem still 
-exists.
+to a nonzero value. This sysctl is only accessible from init_net so that
+one cannot switch the behaviour from inside a container.
 
-The other test I have made was to remove p2p1 from the bridge and add some other 
-physical port. The results was:
-  - other port with same drive (p2p2) - problem exists
-  - other port and other driver (em2) - problem does not exist
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+---
+ Documentation/networking/netfilter-sysctl.txt | 10 ++++++++++
+ include/net/netfilter/nf_log.h                |  3 +++
+ net/bridge/netfilter/ebt_log.c                |  2 +-
+ net/ipv4/netfilter/nf_log_arp.c               |  2 +-
+ net/ipv4/netfilter/nf_log_ipv4.c              |  2 +-
+ net/ipv6/netfilter/nf_log_ipv6.c              |  2 +-
+ net/netfilter/nf_log.c                        | 22 ++++++++++++++++++++++
+ 7 files changed, 39 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/networking/netfilter-sysctl.txt
 
-p2pX are Intel X710 with i40e driver
-emX are Broadcom BCM5720 with tg3 driver
-
-Any ideas where to look further?
-
+diff --git a/Documentation/networking/netfilter-sysctl.txt b/Documentation/networking/netfilter-sysctl.txt
+new file mode 100644
+index 000000000000..55791e50e169
+--- /dev/null
++++ b/Documentation/networking/netfilter-sysctl.txt
+@@ -0,0 +1,10 @@
++/proc/sys/net/netfilter/* Variables:
++
++nf_log_all_netns - BOOLEAN
++	0 - disabled (default)
++	not 0 - enabled
++
++	By default, only init_net namespace can log packets into kernel log
++	with LOG target; this aims to prevent containers from flooding host
++	kernel log. If enabled, this target also works in other network
++	namespaces. This variable is only accessible from init_net.
+diff --git a/include/net/netfilter/nf_log.h b/include/net/netfilter/nf_log.h
+index 57639fca223a..8c4b018eef72 100644
+--- a/include/net/netfilter/nf_log.h
++++ b/include/net/netfilter/nf_log.h
+@@ -49,6 +49,9 @@ struct nf_logger {
+ 	struct module		*me;
+ };
+ 
++/* sysctl_nf_log_all_netns - allow LOG target in all network namespaces */
++extern int sysctl_nf_log_all_netns;
++
+ /* Function to register/unregister log function. */
+ int nf_log_register(u_int8_t pf, struct nf_logger *logger);
+ void nf_log_unregister(struct nf_logger *logger);
+diff --git a/net/bridge/netfilter/ebt_log.c b/net/bridge/netfilter/ebt_log.c
+index 152300d164ac..735230ec0e49 100644
+--- a/net/bridge/netfilter/ebt_log.c
++++ b/net/bridge/netfilter/ebt_log.c
+@@ -78,7 +78,7 @@ ebt_log_packet(struct net *net, u_int8_t pf, unsigned int hooknum,
+ 	unsigned int bitmask;
+ 
+ 	/* FIXME: Disabled from containers until syslog ns is supported */
+-	if (!net_eq(net, &init_net))
++	if (!net_eq(net, &init_net) && !sysctl_nf_log_all_netns)
+ 		return;
+ 
+ 	spin_lock_bh(&ebt_log_lock);
+diff --git a/net/ipv4/netfilter/nf_log_arp.c b/net/ipv4/netfilter/nf_log_arp.c
+index e7ad950cf9ef..39e1348dfe45 100644
+--- a/net/ipv4/netfilter/nf_log_arp.c
++++ b/net/ipv4/netfilter/nf_log_arp.c
+@@ -87,7 +87,7 @@ static void nf_log_arp_packet(struct net *net, u_int8_t pf,
+ 	struct nf_log_buf *m;
+ 
+ 	/* FIXME: Disabled from containers until syslog ns is supported */
+-	if (!net_eq(net, &init_net))
++	if (!net_eq(net, &init_net) && !sysctl_nf_log_all_netns)
+ 		return;
+ 
+ 	m = nf_log_buf_open();
+diff --git a/net/ipv4/netfilter/nf_log_ipv4.c b/net/ipv4/netfilter/nf_log_ipv4.c
+index 076aadda0473..2b0083112ed8 100644
+--- a/net/ipv4/netfilter/nf_log_ipv4.c
++++ b/net/ipv4/netfilter/nf_log_ipv4.c
+@@ -319,7 +319,7 @@ static void nf_log_ip_packet(struct net *net, u_int8_t pf,
+ 	struct nf_log_buf *m;
+ 
+ 	/* FIXME: Disabled from containers until syslog ns is supported */
+-	if (!net_eq(net, &init_net))
++	if (!net_eq(net, &init_net) && !sysctl_nf_log_all_netns)
+ 		return;
+ 
+ 	m = nf_log_buf_open();
+diff --git a/net/ipv6/netfilter/nf_log_ipv6.c b/net/ipv6/netfilter/nf_log_ipv6.c
+index 8dd869642f45..04960486d0e2 100644
+--- a/net/ipv6/netfilter/nf_log_ipv6.c
++++ b/net/ipv6/netfilter/nf_log_ipv6.c
+@@ -351,7 +351,7 @@ static void nf_log_ip6_packet(struct net *net, u_int8_t pf,
+ 	struct nf_log_buf *m;
+ 
+ 	/* FIXME: Disabled from containers until syslog ns is supported */
+-	if (!net_eq(net, &init_net))
++	if (!net_eq(net, &init_net) && !sysctl_nf_log_all_netns)
+ 		return;
+ 
+ 	m = nf_log_buf_open();
+diff --git a/net/netfilter/nf_log.c b/net/netfilter/nf_log.c
+index a5d41dfa9f05..a5f4c57b14c5 100644
+--- a/net/netfilter/nf_log.c
++++ b/net/netfilter/nf_log.c
+@@ -16,6 +16,9 @@
+ #define NF_LOG_PREFIXLEN		128
+ #define NFLOGGER_NAME_LEN		64
+ 
++int sysctl_nf_log_all_netns __read_mostly;
++EXPORT_SYMBOL(sysctl_nf_log_all_netns);
++
+ static struct nf_logger __rcu *loggers[NFPROTO_NUMPROTO][NF_LOG_TYPE_MAX] __read_mostly;
+ static DEFINE_MUTEX(nf_log_mutex);
+ 
+@@ -392,6 +395,18 @@ static const struct file_operations nflog_file_ops = {
+ #ifdef CONFIG_SYSCTL
+ static char nf_log_sysctl_fnames[NFPROTO_NUMPROTO-NFPROTO_UNSPEC][3];
+ static struct ctl_table nf_log_sysctl_table[NFPROTO_NUMPROTO+1];
++static struct ctl_table_header *nf_log_sysctl_fhdr;
++
++static struct ctl_table nf_log_sysctl_ftable[] = {
++	{
++		.procname	= "nf_log_all_netns",
++		.data		= &sysctl_nf_log_all_netns,
++		.maxlen		= sizeof(sysctl_nf_log_all_netns),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec,
++	},
++	{ }
++};
+ 
+ static int nf_log_proc_dostring(struct ctl_table *table, int write,
+ 			 void __user *buffer, size_t *lenp, loff_t *ppos)
+@@ -461,6 +476,10 @@ static int netfilter_log_sysctl_init(struct net *net)
+ 			nf_log_sysctl_table[i].extra1 =
+ 				(void *)(unsigned long) i;
+ 		}
++		nf_log_sysctl_fhdr = register_net_sysctl(net, "net/netfilter",
++							 nf_log_sysctl_ftable);
++		if (!nf_log_sysctl_fhdr)
++			goto err_freg;
+ 	}
+ 
+ 	net->nf.nf_log_dir_header = register_net_sysctl(net,
+@@ -474,6 +493,7 @@ static int netfilter_log_sysctl_init(struct net *net)
+ err_reg:
+ 	if (!net_eq(net, &init_net))
+ 		kfree(table);
++err_freg:
+ err_alloc:
+ 	return -ENOMEM;
+ }
+@@ -486,6 +506,8 @@ static void netfilter_log_sysctl_exit(struct net *net)
+ 	unregister_net_sysctl_table(net->nf.nf_log_dir_header);
+ 	if (!net_eq(net, &init_net))
+ 		kfree(table);
++	else
++		unregister_net_sysctl_table(nf_log_sysctl_fhdr);
+ }
+ #else
+ static int netfilter_log_sysctl_init(struct net *net)
 -- 
-Sew
+2.8.1
+
