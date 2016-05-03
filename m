@@ -1,24 +1,11 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=MCrRu55b8X8LsfK+2A7txlXcLhqFKk9YY0k3X6th/1k=;
-	b=g6inrKbE1KyeOVsFJyIFVDt4d/oWN/ZK6b5Xlt1t7BNIimkijnfLXroXk177Fp1V/z
-	kpTtCCGCdH8fHG4DOMzZ02B0OF1BY66/bxw4jwQTPWRCtmnOthvJkU0M2xYepIFNEUat
-	BohN8YFFUxh5D8Ackeg2aKwz8qDwTSTjUJGTnUqWW6O8X8/dR17VvZPZBxxth3W/xCMd
-	OEa0kmZXsOOcvYFYc71cnCQwMWdvhmd06k+CFEXgqiOnZiWsX4P+lzkRL5B/obL1QWMK
-	/1bRThwV0DisJzD0+OMDzQ0EX8mJ6L6DTIZz+lNMiU3hwpM0941ZBwKrX/xRipxgua2j
-	lkYQ==
-Date: Tue, 3 May 2016 13:26:23 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20160503132623.59cf54fb@xeon-e3>
-In-Reply-To: <1462306734-4183-1-git-send-email-linus.luessing@c0d3.blue>
-References: <1462306734-4183-1-git-send-email-linus.luessing@c0d3.blue>
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Tue,  3 May 2016 22:18:54 +0200
+Message-Id: <1462306734-4183-1-git-send-email-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH net] bridge: fix igmp / mld query parsing
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] bridge: fix igmp / mld query parsing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,20 +14,89 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?UTF-8?B?TMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
-Cc: Simon Wunderlich <sw@simonwunderlich.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: Simon Wunderlich <sw@simonwunderlich.de>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
 
-On Tue,  3 May 2016 22:18:54 +0200
-Linus L=C3=BCssing <linus.luessing@c0d3.blue> wrote:
+With the newly introduced helper functions the skb pulling is hidden
+in the checksumming function - and undone before returning to the
+caller.
 
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 03661d9..7105cdf 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -1271,6 +1271,7 @@ static int br_ip4_multicast_query(struct net_bridge=
- *br,
->  	unsigned long max_delay;
->  	unsigned long now =3D jiffies;
->  	__be32 group;
-> +	int offset =3D skb_transport_offset(skb);
-shouldn't this be unsigned?
+The IGMP and MLD query parsing functions in the bridge still
+assumed that the skb is pointing to the beginning of the IGMP/MLD
+message while it is now kept at the beginning of the IPv4/6 header.
+
+If there is a querier somewhere else, then this either causes
+the multicast snooping to stay disabled even though it could be
+enabled. Or, if we have the querier enabled too, then this can
+create unnecessary IGMP / MLD query messages on the link.
+
+Fixing this by taking the offset between IP and IGMP/MLD header into
+account, too.
+
+Fixes: 9afd85c9e455 ("net: Export IGMP/MLD message validation code")
+Reported-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ net/bridge/br_multicast.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 03661d9..7105cdf 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1271,6 +1271,7 @@ static int br_ip4_multicast_query(struct net_bridge *br,
+ 	unsigned long max_delay;
+ 	unsigned long now = jiffies;
+ 	__be32 group;
++	int offset = skb_transport_offset(skb);
+ 	int err = 0;
+ 
+ 	spin_lock(&br->multicast_lock);
+@@ -1280,14 +1281,14 @@ static int br_ip4_multicast_query(struct net_bridge *br,
+ 
+ 	group = ih->group;
+ 
+-	if (skb->len == sizeof(*ih)) {
++	if (skb->len == offset + sizeof(*ih)) {
+ 		max_delay = ih->code * (HZ / IGMP_TIMER_SCALE);
+ 
+ 		if (!max_delay) {
+ 			max_delay = 10 * HZ;
+ 			group = 0;
+ 		}
+-	} else if (skb->len >= sizeof(*ih3)) {
++	} else if (skb->len >= offset + sizeof(*ih3)) {
+ 		ih3 = igmpv3_query_hdr(skb);
+ 		if (ih3->nsrcs)
+ 			goto out;
+@@ -1350,6 +1351,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 	unsigned long now = jiffies;
+ 	const struct in6_addr *group = NULL;
+ 	bool is_general_query;
++	int offset = skb_transport_offset(skb);
+ 	int err = 0;
+ 
+ 	spin_lock(&br->multicast_lock);
+@@ -1357,8 +1359,8 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 	    (port && port->state == BR_STATE_DISABLED))
+ 		goto out;
+ 
+-	if (skb->len == sizeof(*mld)) {
+-		if (!pskb_may_pull(skb, sizeof(*mld))) {
++	if (skb->len == offset + sizeof(*mld)) {
++		if (!pskb_may_pull(skb, offset + sizeof(*mld))) {
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
+@@ -1367,7 +1369,7 @@ static int br_ip6_multicast_query(struct net_bridge *br,
+ 		if (max_delay)
+ 			group = &mld->mld_mca;
+ 	} else {
+-		if (!pskb_may_pull(skb, sizeof(*mld2q))) {
++		if (!pskb_may_pull(skb, offset + sizeof(*mld2q))) {
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
+-- 
+1.7.10.4
+
