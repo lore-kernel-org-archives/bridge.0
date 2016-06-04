@@ -1,14 +1,24 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 08 Jun 2016 00:33:11 -0700 (PDT)
-Message-Id: <20160608.003311.700392281898371509.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1465294457-2785-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1465294457-2785-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <shmulik.ladkani@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=VR4I9c24OaZJQyeFIfyZlPOmLSiN4V5WGTJgMGNkcqc=;
+	b=FK8dXKU0Ryf7UDf9e781Mfkjwgjf9Vog7huwKMxRfdjWj/MV8dbEhTHfT1yFMuMmte
+	18+KjTXXv5hsKqYDOTT/fZS4TaRHCTabF74FDKDIkmDIUQn63ug5bOz9+0kXQOtIqTEB
+	Ni7SpKolIJz1kj829qqvbrutwVrFWx1nCluo29uXEcqe0GPsOAb4F6nfQpNwbc1yJAhu
+	JPC00S5SPU2BqtRtiB5llFVe6U8gFA8fcX4zRFOWk8kNTMsDyLWWqfGRuwX34G0UJpI7
+	xybrDtijGgxUejU8OF12TbPvED4Na46SLhkal9ZF/PgDy3BPprhbLdFhxhTxpIgcBcHj
+	4www==
+Date: Sat, 4 Jun 2016 09:41:41 +0300
+From: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Message-ID: <20160604094141.7dcc5687@halley>
+In-Reply-To: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
+References: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Don't insert unnecessary local fdb
- entry on changing mac address
+Subject: Re: [Bridge] [PATCH net] bridge: Fix incorrect re-injection of STP
+	packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,18 +27,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com
+To: Ido Schimmel <idosch@mellanox.com>
+Cc: yotamg@mellanox.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, jiri@mellanox.com, nogahf@mellanox.com, eladr@mellanox.com, ogerlitz@mellanox.com, davem@davemloft.net
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Tue,  7 Jun 2016 19:14:17 +0900
+Hi,
 
-> The missing br_vlan_should_use() test caused creation of an unneeded
-> local fdb entry on changing mac address of a bridge device when there is
-> a vlan which is configured on a bridge port but not on the bridge
-> device.
-> 
-> Fixes: 2594e9064a57 ("bridge: vlan: add per-vlan struct and move to rhashtables")
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+On Fri, 3 Jun 2016 12:39:45 +0300 Ido Schimmel <idosch@mellanox.com> wrote:
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index 1607977..c73ed44 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -223,9 +223,7 @@ static int br_handle_local_finish(struct net *net, struct sock *sk, struct sk_bu
+>  	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
+>  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
+>  
+> -	BR_INPUT_SKB_CB(skb)->brdev = p->br->dev;
+> -	br_pass_frame_up(skb);
+> -	return 0;
+> +	return RX_HANDLER_PASS;
+>  }
+>  
+>  /*
+> @@ -238,6 +236,7 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+>  	struct sk_buff *skb = *pskb;
+>  	const unsigned char *dest = eth_hdr(skb)->h_dest;
+>  	br_should_route_hook_t *rhook;
+> +	int err;
+>  
+>  	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
+>  		return RX_HANDLER_PASS;
+> @@ -287,8 +286,11 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+>  		}
+>  
+>  		/* Deliver packet to local host only */
+> -		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, dev_net(skb->dev),
+> -			NULL, skb, skb->dev, NULL, br_handle_local_finish);
+> +		err = NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, dev_net(skb->dev),
+> +			      NULL, skb, skb->dev, NULL,
+> +			      br_handle_local_finish);
+> +		if (err == RX_HANDLER_PASS)
+> +			return RX_HANDLER_PASS;
+>  		return RX_HANDLER_CONSUMED;
 
-Applied and queued up for -stable, thanks.
+Seems '*pskb = skb' is needed prior returning RX_HANDLER_PASS - there's
+a 'skb = skb_share_check()' at beginning of br_handle_frame.
+
+(The *pskb = skb was present prior 8626c56c8279, but gone since there
+was no longer an RX_HANDLER_PASS return).
+
+One nit to consider:
+
+The fix relies on the fact that RX_HANDLER_PASS != 0 (otherwise we end up
+not knowing whether skb was STOLEN or br_handle_local_finish has
+executed, which was the original problem 8626c56c8279 tried to address).
+
+No reason to use the RX_HANDLER_xxx enumeration space as the ret code
+of an 'okfn' (br_handle_local_finish in this case).
+Some positive value locally defined in br_input.c (and documented in
+br_handle_local_finish) would do.
+
+Regards,
+Shmulik
