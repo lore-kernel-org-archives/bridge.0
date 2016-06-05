@@ -1,17 +1,16 @@
 Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
-	bh=BK2HF/Nt+vte/gD9Tx/2NUPyQNSG8/VvJNDBmWSE7UI=;
-	b=STQsKQU0JV4u+LUuP3RD1UFKINDHd+gXvrCwwDg1vksoFjrcARdnedwVrq7LNnEz9WZQTMP0D9dy+6g1gC1i3qUj7SvVHadeYqF5tbSlCujCX+XWxZ5bMoniGEgG4LoiXpmItoNP2zu1VdpA/dJ93Uyme2JVtj2jIEBpW0RNFno=
-Date: Sat, 4 Jun 2016 11:15:34 +0300
+	bh=wh8yzMVgUeu1XlXaeVbKlLyxyd/NxPQ9zWKZq/xxG1w=;
+	b=esDXETAHAH+splf2k4rUgfCHfmaPasmmIsrBE4mV6GT/Kb17pVO4bo7ufIrPcGObgOT8eVzKQ/bdjZO4KFXwCjCzEEUcnT2l2CKEWSI8Ggi/N77txBwprXi5fctYeav1QVcPuU1PH/+Lh1DmrDjsRvDGYo7/G3xtV5AlZ7LK+Hs=
+Date: Sun, 5 Jun 2016 10:40:04 +0300
 From: Ido Schimmel <idosch@mellanox.com>
-Message-ID: <20160604081534.GA22055@colbert.idosch.org>
+Message-ID: <20160605074004.GA4491@colbert.mtl.com>
 References: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
-	<20160604094141.7dcc5687@halley>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20160604094141.7dcc5687@halley>
+In-Reply-To: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
 Subject: Re: [Bridge] [PATCH net] bridge: Fix incorrect re-injection of STP
 	packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -22,70 +21,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Cc: yotamg@mellanox.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, jiri@mellanox.com, nogahf@mellanox.com, eladr@mellanox.com, ogerlitz@mellanox.com, davem@davemloft.net
+To: stephen@networkplumber.org, davem@davemloft.net, fw@strlen.de
+Cc: yotamg@mellanox.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@mellanox.com, nogahf@mellanox.com, eladr@mellanox.com, ogerlitz@mellanox.com
 
-Sat, Jun 04, 2016 at 09:41:41AM IDT, shmulik.ladkani@gmail.com wrote:
->Hi,
->
->On Fri, 3 Jun 2016 12:39:45 +0300 Ido Schimmel <idosch@mellanox.com> wrote:
->> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
->> index 1607977..c73ed44 100644
->> --- a/net/bridge/br_input.c
->> +++ b/net/bridge/br_input.c
->> @@ -223,9 +223,7 @@ static int br_handle_local_finish(struct net *net, struct sock *sk, struct sk_bu
->>  	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
->>  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
->>  
->> -	BR_INPUT_SKB_CB(skb)->brdev = p->br->dev;
->> -	br_pass_frame_up(skb);
->> -	return 0;
->> +	return RX_HANDLER_PASS;
->>  }
->>  
->>  /*
->> @@ -238,6 +236,7 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->>  	struct sk_buff *skb = *pskb;
->>  	const unsigned char *dest = eth_hdr(skb)->h_dest;
->>  	br_should_route_hook_t *rhook;
->> +	int err;
->>  
->>  	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
->>  		return RX_HANDLER_PASS;
->> @@ -287,8 +286,11 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->>  		}
->>  
->>  		/* Deliver packet to local host only */
->> -		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, dev_net(skb->dev),
->> -			NULL, skb, skb->dev, NULL, br_handle_local_finish);
->> +		err = NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, dev_net(skb->dev),
->> +			      NULL, skb, skb->dev, NULL,
->> +			      br_handle_local_finish);
->> +		if (err == RX_HANDLER_PASS)
->> +			return RX_HANDLER_PASS;
->>  		return RX_HANDLER_CONSUMED;
->
->Seems '*pskb = skb' is needed prior returning RX_HANDLER_PASS - there's
->a 'skb = skb_share_check()' at beginning of br_handle_frame.
->
->(The *pskb = skb was present prior 8626c56c8279, but gone since there
->was no longer an RX_HANDLER_PASS return).
+Hi Florian,
 
-Right! Will fix that in v2.
-
+Fri, Jun 03, 2016 at 12:39:45PM IDT, idosch@mellanox.com wrote:
+>Commit 8626c56c8279 ("bridge: fix potential use-after-free when hook
+>returns QUEUE or STOLEN verdict") fixed incorrect usage of NF_HOOK's
+>return value by consuming packets in okfn via br_pass_frame_up().
 >
->One nit to consider:
+>However, this function re-injects packets to the Rx path with skb->dev
+>set to the bridge device, which breaks kernel's STP, as all STP packets
+>appear to originate from the bridge device itself.
 >
->The fix relies on the fact that RX_HANDLER_PASS != 0 (otherwise we end up
->not knowing whether skb was STOLEN or br_handle_local_finish has
->executed, which was the original problem 8626c56c8279 tried to address).
+>Instead, if okfn was called for a packet, make bridge's rx_handler
+>re-inject it to the Rx path by returning RX_HANDLER_PASS. This is
+>consistent with previous behavior.
 >
->No reason to use the RX_HANDLER_xxx enumeration space as the ret code
->of an 'okfn' (br_handle_local_finish in this case).
->Some positive value locally defined in br_input.c (and documented in
->br_handle_local_finish) would do.
+>Cc: Florian Westphal <fw@strlen.de>
+>Fixes: 8626c56c8279 ("bridge: fix potential use-after-free when hook returns QUEUE or STOLEN verdict")
+>Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+>Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 
-Yes, I agree it would be clearer to state that explicitly. Will add that
-in v2.
+I read your commit more closely and also looked at nf_reinject() and I'm
+not sure how the fix should be carried out.
 
-Thanks for reviewing!
+After packet is processed by okfn it should return to the Rx path -
+by making bridge's rx_handler return RX_HANDLER_PASS - so that it 
+could be picked up by the packet handlers.
+
+However, if verdict is NF_QUEUE and packet is later re-injected via
+nf_reinject() then this can't happen, as rx_handler already returned
+RX_HANDLER_CONSUMED for the packet.
+
+So, my patch is wrong because it doesn't consume the packet in okfn, but
+yours consumes it in a way which breaks current packet handlers.
+
+Any suggestions regarding a fix? I have a feeling I'm missing something
+obvious.
+
+Thanks!
