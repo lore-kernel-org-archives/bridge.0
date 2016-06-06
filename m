@@ -1,18 +1,16 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
-	bh=wh8yzMVgUeu1XlXaeVbKlLyxyd/NxPQ9zWKZq/xxG1w=;
-	b=esDXETAHAH+splf2k4rUgfCHfmaPasmmIsrBE4mV6GT/Kb17pVO4bo7ufIrPcGObgOT8eVzKQ/bdjZO4KFXwCjCzEEUcnT2l2CKEWSI8Ggi/N77txBwprXi5fctYeav1QVcPuU1PH/+Lh1DmrDjsRvDGYo7/G3xtV5AlZ7LK+Hs=
-Date: Sun, 5 Jun 2016 10:40:04 +0300
-From: Ido Schimmel <idosch@mellanox.com>
-Message-ID: <20160605074004.GA4491@colbert.mtl.com>
-References: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
+References: <1464942808-3945-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<F363D072-00A6-447C-9EA8-646362CC9F40@cumulusnetworks.com>
+	<C993CB45-67E7-4E80-8029-002E165E3504@cumulusnetworks.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <83ef3ee5-024a-d97a-147e-58018426c931@lab.ntt.co.jp>
+Date: Mon, 6 Jun 2016 20:03:49 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
-Subject: Re: [Bridge] [PATCH net] bridge: Fix incorrect re-injection of STP
-	packets
+In-Reply-To: <C993CB45-67E7-4E80-8029-002E165E3504@cumulusnetworks.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: Synchronize unicast filtering
+	with FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,44 +19,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stephen@networkplumber.org, davem@davemloft.net, fw@strlen.de
-Cc: yotamg@mellanox.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@mellanox.com, nogahf@mellanox.com, eladr@mellanox.com, ogerlitz@mellanox.com
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, Patrick Schaaf <netdev@bof.de>
 
-Hi Florian,
+On 2016/06/04 2:35, Nikolay Aleksandrov wrote:
+...
+>>> void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr)
+>>> @@ -288,6 +296,95 @@ out:
+>>> 	spin_unlock_bh(&br->hash_lock);
+>>> }
+>>>
+>>> +void br_fdb_sync_uc(struct net_bridge *br)
+>>> +{
+>>> +	struct net_bridge_vlan_group *vg;
+>>> +	struct netdev_hw_addr *ha;
+>>> +	int i;
+>>> +
+>>> +	spin_lock_bh(&br->hash_lock);
+>>> +
+>>> +	for (i = 0; i < BR_HASH_SIZE; i++) {
+>>> +		struct hlist_node *h;
+>>> +
+>>> +		hlist_for_each(h, &br->hash[i]) {
+>>> +			struct net_bridge_fdb_entry *f;
+>>> +
+>>> +			f = hlist_entry(h, struct net_bridge_fdb_entry, hlist);
+>>> +			if (!f->dst && f->is_local && !f->added_by_user &&
+>>> +			    !ether_addr_equal(f->addr.addr, br->dev->dev_addr)) {
+>>> +				/* delete old one */
+>>> +				fdb_delete_local(br, NULL, f);
+>>> +			}
+>>> +		}
+>>> +	}
+>>> +
+>>> +	vg = br_vlan_group(br);
+>>> +
+>>> +	/* insert new address,  may fail if invalid address or dup. */
+>>> +	netdev_for_each_uc_addr(ha, br->dev) {
+>>> +		struct net_bridge_vlan *v;
+>>> +
+>>> +		fdb_insert(br, NULL, ha->addr, 0);
+>>> +
+>>> +		if (!vg || !vg->num_vlans)
+>>> +			continue;
+>>> +
+>>> +		list_for_each_entry(v, &vg->vlan_list, vlist)
+>>> +			fdb_insert(br, NULL, ha->addr, v->vid);
+>>
+>> Since here you’re walking over the bridge’s vlan list, you should test the vlans with br_vlan_should_use()
+>> because it can be a global context holder if the vlan was configured only on ports.
 
-Fri, Jun 03, 2016 at 12:39:45PM IDT, idosch@mellanox.com wrote:
->Commit 8626c56c8279 ("bridge: fix potential use-after-free when hook
->returns QUEUE or STOLEN verdict") fixed incorrect usage of NF_HOOK's
->return value by consuming packets in okfn via br_pass_frame_up().
->
->However, this function re-injects packets to the Rx path with skb->dev
->set to the bridge device, which breaks kernel's STP, as all STP packets
->appear to originate from the bridge device itself.
->
->Instead, if okfn was called for a packet, make bridge's rx_handler
->re-inject it to the Rx path by returning RX_HANDLER_PASS. This is
->consistent with previous behavior.
->
->Cc: Florian Westphal <fw@strlen.de>
->Fixes: 8626c56c8279 ("bridge: fix potential use-after-free when hook returns QUEUE or STOLEN verdict")
->Reviewed-by: Jiri Pirko <jiri@mellanox.com>
->Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Thank you for your feedback.
+will fix in v2.
 
-I read your commit more closely and also looked at nf_reinject() and I'm
-not sure how the fix should be carried out.
+I actually thought that this is the same logic as
+br_fdb_change_mac_address() so assumed it should be all right.
+Does br_fdb_change_mac_address() need br_vlan_should_use() as well?
 
-After packet is processed by okfn it should return to the Rx path -
-by making bridge's rx_handler return RX_HANDLER_PASS - so that it 
-could be picked up by the packet handlers.
+Toshiaki Makita
 
-However, if verdict is NF_QUEUE and packet is later re-injected via
-nf_reinject() then this can't happen, as rx_handler already returned
-RX_HANDLER_CONSUMED for the packet.
 
-So, my patch is wrong because it doesn't consume the packet in okfn, but
-yours consumes it in a way which breaks current packet handlers.
-
-Any suggestions regarding a fix? I have a feeling I'm missing something
-obvious.
-
-Thanks!
