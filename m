@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Fri, 10 Jun 2016 22:35:12 -0700 (PDT)
-Message-Id: <20160610.223512.206489271156278288.davem@davemloft.net>
+Date: Fri, 10 Jun 2016 22:42:12 -0700 (PDT)
+Message-Id: <20160610.224212.426571796038760142.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1465215613-3468-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-References: <1465215613-3468-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1465290418-8015-1-git-send-email-idosch@mellanox.com>
+References: <1465290418-8015-1-git-send-email-idosch@mellanox.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: Synchronize unicast
- filtering with FDB
+Subject: Re: [Bridge] [PATCH net v2] bridge: Fix incorrect re-injection of
+ STP packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,30 +17,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com, netdev@bof.de
+To: idosch@mellanox.com
+Cc: yotamg@mellanox.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, fw@strlen.de, jiri@mellanox.com, nogahf@mellanox.com, eladr@mellanox.com, ogerlitz@mellanox.com, shmulik.ladkani@gmail.com
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Mon,  6 Jun 2016 21:20:13 +0900
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Tue, 7 Jun 2016 12:06:58 +0300
 
-> Patrick Schaaf reported that flooding due to a missing fdb entry of
-> the address of macvlan on the bridge device caused high CPU
-> consumption of an openvpn process behind a tap bridge port.
-> Adding an fdb entry of the macvlan address can suppress flooding
-> and avoid this problem.
+> Commit 8626c56c8279 ("bridge: fix potential use-after-free when hook
+> returns QUEUE or STOLEN verdict") fixed incorrect usage of NF_HOOK's
+> return value by consuming packets in okfn via br_pass_frame_up().
 > 
-> This change makes bridge able to synchronize unicast filtering with
-> fdb automatically so admin do not need to manually add an fdb entry.
-> This effectively supports IFF_UNICAST_FLT in bridge, thus adding an
-> macvlan device would not place bridge into promiscuous mode as well.
+> However, this function re-injects packets to the Rx path with skb->dev
+> set to the bridge device, which breaks kernel's STP, as all STP packets
+> appear to originate from the bridge device itself.
 > 
-> v2:
-> - Test vlan with br_vlan_should_use() in br_fdb_sync_uc() as per
->   Nikolay Aleksandrov.
+> Instead, if STP is enabled and bridge isn't a 802.1ad bridge, then learn
+> packet's SMAC and inject it back to the Rx path for further processing
+> by the packet handlers.
 > 
-> Reported-by: Patrick Schaaf <netdev@bof.de>
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> The patch also makes netfilter's behavior consistent with regards to
+> packets destined to the Bridge Group Address, as no hook registered at
+> LOCAL_IN will ever be called, regardless if STP is enabled or not.
+> 
+> Cc: Florian Westphal <fw@strlen.de>
+> Cc: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+> Cc: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Fixes: 8626c56c8279 ("bridge: fix potential use-after-free when hook returns QUEUE or STOLEN verdict")
+> Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 
-I really need bridging experts to review and ACK/NACK this.
-
-Thanks.
+Applied, thanks.
