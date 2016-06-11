@@ -1,24 +1,14 @@
-Return-Path: <shmulik.ladkani@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=VR4I9c24OaZJQyeFIfyZlPOmLSiN4V5WGTJgMGNkcqc=;
-	b=FK8dXKU0Ryf7UDf9e781Mfkjwgjf9Vog7huwKMxRfdjWj/MV8dbEhTHfT1yFMuMmte
-	18+KjTXXv5hsKqYDOTT/fZS4TaRHCTabF74FDKDIkmDIUQn63ug5bOz9+0kXQOtIqTEB
-	Ni7SpKolIJz1kj829qqvbrutwVrFWx1nCluo29uXEcqe0GPsOAb4F6nfQpNwbc1yJAhu
-	JPC00S5SPU2BqtRtiB5llFVe6U8gFA8fcX4zRFOWk8kNTMsDyLWWqfGRuwX34G0UJpI7
-	xybrDtijGgxUejU8OF12TbPvED4Na46SLhkal9ZF/PgDy3BPprhbLdFhxhTxpIgcBcHj
-	4www==
-Date: Sat, 4 Jun 2016 09:41:41 +0300
-From: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Message-ID: <20160604094141.7dcc5687@halley>
-In-Reply-To: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
-References: <1464946785-7651-1-git-send-email-idosch@mellanox.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <davem@davemloft.net>
+Date: Fri, 10 Jun 2016 22:35:12 -0700 (PDT)
+Message-Id: <20160610.223512.206489271156278288.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1465215613-3468-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+References: <1465215613-3468-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: Fix incorrect re-injection of STP
-	packets
+Subject: Re: [Bridge] [PATCH net-next v2] bridge: Synchronize unicast
+ filtering with FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,64 +17,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@mellanox.com>
-Cc: yotamg@mellanox.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, jiri@mellanox.com, nogahf@mellanox.com, eladr@mellanox.com, ogerlitz@mellanox.com, davem@davemloft.net
+To: makita.toshiaki@lab.ntt.co.jp
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com, netdev@bof.de
 
-Hi,
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Mon,  6 Jun 2016 21:20:13 +0900
 
-On Fri, 3 Jun 2016 12:39:45 +0300 Ido Schimmel <idosch@mellanox.com> wrote:
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 1607977..c73ed44 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -223,9 +223,7 @@ static int br_handle_local_finish(struct net *net, struct sock *sk, struct sk_bu
->  	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
->  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
->  
-> -	BR_INPUT_SKB_CB(skb)->brdev = p->br->dev;
-> -	br_pass_frame_up(skb);
-> -	return 0;
-> +	return RX_HANDLER_PASS;
->  }
->  
->  /*
-> @@ -238,6 +236,7 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  	struct sk_buff *skb = *pskb;
->  	const unsigned char *dest = eth_hdr(skb)->h_dest;
->  	br_should_route_hook_t *rhook;
-> +	int err;
->  
->  	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
->  		return RX_HANDLER_PASS;
-> @@ -287,8 +286,11 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  		}
->  
->  		/* Deliver packet to local host only */
-> -		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, dev_net(skb->dev),
-> -			NULL, skb, skb->dev, NULL, br_handle_local_finish);
-> +		err = NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, dev_net(skb->dev),
-> +			      NULL, skb, skb->dev, NULL,
-> +			      br_handle_local_finish);
-> +		if (err == RX_HANDLER_PASS)
-> +			return RX_HANDLER_PASS;
->  		return RX_HANDLER_CONSUMED;
+> Patrick Schaaf reported that flooding due to a missing fdb entry of
+> the address of macvlan on the bridge device caused high CPU
+> consumption of an openvpn process behind a tap bridge port.
+> Adding an fdb entry of the macvlan address can suppress flooding
+> and avoid this problem.
+> 
+> This change makes bridge able to synchronize unicast filtering with
+> fdb automatically so admin do not need to manually add an fdb entry.
+> This effectively supports IFF_UNICAST_FLT in bridge, thus adding an
+> macvlan device would not place bridge into promiscuous mode as well.
+> 
+> v2:
+> - Test vlan with br_vlan_should_use() in br_fdb_sync_uc() as per
+>   Nikolay Aleksandrov.
+> 
+> Reported-by: Patrick Schaaf <netdev@bof.de>
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 
-Seems '*pskb = skb' is needed prior returning RX_HANDLER_PASS - there's
-a 'skb = skb_share_check()' at beginning of br_handle_frame.
+I really need bridging experts to review and ACK/NACK this.
 
-(The *pskb = skb was present prior 8626c56c8279, but gone since there
-was no longer an RX_HANDLER_PASS return).
-
-One nit to consider:
-
-The fix relies on the fact that RX_HANDLER_PASS != 0 (otherwise we end up
-not knowing whether skb was STOLEN or br_handle_local_finish has
-executed, which was the original problem 8626c56c8279 tried to address).
-
-No reason to use the RX_HANDLER_xxx enumeration space as the ret code
-of an 'okfn' (br_handle_local_finish in this case).
-Some positive value locally defined in br_input.c (and documented in
-br_handle_local_finish) would do.
-
-Regards,
-Shmulik
+Thanks.
