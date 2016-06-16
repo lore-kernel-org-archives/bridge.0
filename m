@@ -1,28 +1,14 @@
-Return-Path: <toshiaki.makita1@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=kbjZSwXAEJcEbXTEPAOajOQKAcRE3MHTjnsaXQt2NQQ=;
-	b=RK9zNAvdPHwp8BKWmFp/pwjO//eT88VCSo1vyWoSW8BaaF0wv0VMINLg8o1jxO35fV
-	ZoWAH4P61RvuRtjnggUJXz0jDWLv95PXjqMv5UoiOaK1h1do23k7lrA/9B6heAd7e1ID
-	P5vpCxl7aePAfbAbklsBkag0WCB6S8fX8uD4pj/Fta96DFEqUEITkHovzrOS5W0+MCm4
-	vLv6Tr4UDb/3oAHIfksEkwyEkZjktnqih9y+xrT/RuTzivGztIFEE078ReSqvgcrh2Vj
-	LUjECOoNgQRRyAJl5OAB2r8+bRuebkSgZpcleRWFYwxRvJ71jSXFkH6idq6XMlFzocHX
-	XRMA==
-References: <1465215613-3468-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20160610.223512.206489271156278288.davem@davemloft.net>
-	<575C39B1.3010300@cumulusnetworks.com> <575D02AB.6040008@gmail.com>
-	<af1a5db5-fb9a-f3d9-f94c-b987c70f02da@lab.ntt.co.jp>
-	<575E97B3.1060704@cumulusnetworks.com>
-From: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Message-ID: <575EC7E9.4040000@gmail.com>
-Date: Mon, 13 Jun 2016 23:49:13 +0900
-MIME-Version: 1.0
-In-Reply-To: <575E97B3.1060704@cumulusnetworks.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: Synchronize unicast
- filtering with FDB
+Return-Path: <joe@perches.com>
+Message-ID: <1466057044.19647.42.camel@perches.com>
+From: Joe Perches <joe@perches.com>
+Date: Wed, 15 Jun 2016 23:04:04 -0700
+In-Reply-To: <f39576f17e9f5dee35258917917f2d740e820a77.1466024030.git.joe@perches.com>
+References: <f39576f17e9f5dee35258917917f2d740e820a77.1466024030.git.joe@perches.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] bridge: netfilter: spanning tree: Add
+ masked_ether_addr_equal and neatening
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,134 +17,282 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netdev@bof.de
+To: Pablo Neira Ayuso <pablo@netfilter.org>, Patrick McHardy <kaber@trash.net>, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-On 16/06/13 (月) 20:23, Nikolay Aleksandrov wrote:
-> On 13/06/16 13:13, Toshiaki Makita wrote:
->> On 2016/06/12 15:35, Toshiaki Makita wrote:
->>> On 16/06/12 (日) 1:17, Nikolay Aleksandrov via Bridge wrote:
->>>> On 06/11/2016 07:35 AM, David Miller wrote:
->>>>> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->>>>> Date: Mon,  6 Jun 2016 21:20:13 +0900
->>>>>
->>>>>> Patrick Schaaf reported that flooding due to a missing fdb entry of
->>>>>> the address of macvlan on the bridge device caused high CPU
->>>>>> consumption of an openvpn process behind a tap bridge port.
->>>>>> Adding an fdb entry of the macvlan address can suppress flooding
->>>>>> and avoid this problem.
->>>>>>
->>>>>> This change makes bridge able to synchronize unicast filtering with
->>>>>> fdb automatically so admin do not need to manually add an fdb entry.
->>>>>> This effectively supports IFF_UNICAST_FLT in bridge, thus adding an
->>>>>> macvlan device would not place bridge into promiscuous mode as well.
->>>>>>
->>>>>> v2:
->>>>>> - Test vlan with br_vlan_should_use() in br_fdb_sync_uc() as per
->>>>>>     Nikolay Aleksandrov.
->>>>>>
->>>>>> Reported-by: Patrick Schaaf <netdev@bof.de>
->>>>>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->>>>>
->>>>> I really need bridging experts to review and ACK/NACK this.
->>>>>
->>>>> Thanks.
->>>>>
->>>>
->>>> Oops, I almost missed the v2, sorry about that. So, technically it
->>>> looks correct, but
->>>> I only fear the scalability impact of the change. If there're a large
->>>> number of vlans
->>>> adding a macvlan (or any device that syncs uc addr) might become very
->>>> slow and every
->>>> flag change will become very slow too without an option to revert to
->>>> the original
->>>> behaviour so we'll have to wait for the entries to be added in order
->>>> to delete them.
->>>> Another common scenario is having 8021q interfaces on top of the
->>>> bridge with different
->>>> mac addresses for some of the configured vlans (or with macvlans on
->>>> top of them for VRR),
->>>> that use case would suffer as well because their macs need to be local
->>>> only for those vlans,
->>>> and not the 2000+ other vlans that might exist.
->>>> On every sync_uc() call all the fdb entries get deleted and added
->>>> again, so even after deleting
->>>> some manually they can come back unexpectedly after some operation and
->>>> also the message storm from
->>>> all the deletes and adds could be problematic as well.
->>>>
->>>> E.g. 2000 br0 vlans, 25 macvlans on br0 (adding them took more than 5
->>>> minutes, 53k fdb entries):
->>>> $ bridge fdb del de:8e:9f:16:c5:71 dev br0 vlan 289
->>>> $ ip l set br0 multicast on
->>>> $ bridge fdb | grep 289 | grep de:8e:9f:16:c5:71
->>>> de:8e:9f:16:c5:71 dev br0 vlan 1289 master br0 permanent
->>>> de:8e:9f:16:c5:71 dev br0 vlan 289 master br0 permanent
->>>>
->>>> In fact you can't escape the slow performance even if you delete all
->>>> entries because on the
->>>> next flag change or interface add, they will be added back.
->>>
->>> I still think this auto-sync should be done, otherwise macvlan imposes
->>> promiscuous mode on bridge even if you manually add such fdb entries.
->>> I believe most of your concern would disappear by making use of
->>> __dev_uc_sync() instead.
->>> Indeed it seems that there is no easy way to propagate the combination
->>> of uc addr and vlan from upper device, so local entries for unneeded
->>> vlan can still be created even if using __dev_uc_sync(). In case you
->>> worry about those unneeded entries, I can add a knob to disable this
->>> feature.
->>> Are you comfortable with this change?
->>
->> Tested performance using __dev_uc_sync() and got expected results.
->> (Add 3000 br0 vlans, 50 macvlans on br0)
->>
->> * Without patch
->>   1.8s
->>
->> * Patch v2
->>   2m42s
-> Your machine is much faster apparently. :-) It took me ~5 minutes for 25
-> macvlans
-> in my VM.
->
->>
->> * Patch using __dev_uc_sync()
->>   3.5s
->>   Also, a manually deleted entry is not restored by flag change.
->>
->>
->> Nikolay, David, I'd like to hear your feedback.
->> I'm thinking the performance implication now looks reasonable.
->> If you don't have objection, I'll work on v3 (using __dev_uc_sync() and
->> knob to disable the feature).
->>
->> Thanks,
->> Toshiaki Makita
->>
->
-> The numbers sound okay, but I'd have to see the patch to be able to comment
-> further.
+On Wed, 2016-06-15 at 13:58 -0700, Joe Perches wrote:
+> There is code duplication of a masked ethernet address comparison here
+> so make it a separate function instead.
+>=20
+> Miscellanea:
+>=20
+> o Neaten alignment of FWINV macro uses to make it clearer for the reader
+>=20
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>=20
+> This masked_ether_addr_equal function could go into etherdevice.h,
+> but I don't see another use like it in kernel code.=A0=A0Is there one?
 
-Sure.
+Turns out there are at least a few more uses in bridge/netfilter
 
- > I wonder why the push for this change when this can be currently
-> "fixed" by adding the macs manually as local (pointing to the bridge) ?
+=A0net/bridge/netfilter/ebt_arp.c
+=A0net/bridge/netfilter/ebtables.c
 
-Well, there are two problems.
-One is what Patrick Schaaf reported and can be solved by manually adding 
-local entries as well.
-The other is that macvlans force the bridge to be promiscuous. That 
-means bridge ports cannot be non-promiscuous if any macvlan exists. This 
-is because bridge's non-promiscuous feature requires all necessary fdb 
-entries to be configured in order to sync them to brport's uc list. 
-Without sync_uc of the bridge device, bridge cannot know what addresses 
-are needed for brport's uc filter so we cannot get around promiscuous 
-mode with macvlans. This is what I feel is worth fixing with this patch. 
-I'm thinking this auto non-promiscuous should be transparently done with 
-macvlans...
-Sorry about the lack of explanation.
+Maybe this?
+---
+From 770261c682a745b8de663a5756a66cd00bb5b79b Mon Sep 17 00:00:00 2001
+Message-Id: <770261c682a745b8de663a5756a66cd00bb5b79b.1466056695.git.joe@pe=
+rches.com>
+From: Joe Perches <joe@perches.com>
+Date: Wed, 15 Jun 2016 13:45:54 -0700
+Subject: [PATCH] etherdevice.h & bridge: netfilter: Add and use
+=A0ether_addr_equal_masked
 
-Thanks,
-Toshiaki Makita
+There are code duplications of a masked ethernet address comparison here
+so make it a separate function instead.
+
+Miscellanea:
+
+o Neaten alignment of FWINV macro uses to make it clearer for the reader
+
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+=A0include/linux/etherdevice.h=A0=A0=A0=A0=A0| 22 ++++++++++++++++++
+=A0net/bridge/netfilter/ebt_arp.c=A0=A0| 17 +++++---------
+=A0net/bridge/netfilter/ebt_stp.c=A0=A0| 49 ++++++++++++++++++-------------=
+----------
+=A0net/bridge/netfilter/ebtables.c | 17 +++++---------
+=A04 files changed, 56 insertions(+), 49 deletions(-)
+
+diff --git a/include/linux/etherdevice.h b/include/linux/etherdevice.h
+index 37ff4a6..942a24c 100644
+--- a/include/linux/etherdevice.h
++++ b/include/linux/etherdevice.h
+@@ -374,6 +374,28 @@ static inline bool ether_addr_equal_unaligned(const u8=
+ *addr1, const u8 *addr2)
+=A0}
+=A0
+=A0/**
++ * ether_addr_equal_masked - Compare two Ethernet addresses with a mask
++ * @addr1: Pointer to a six-byte array containing the 1st Ethernet address
++ * @addr2: Pointer to a six-byte array containing the 2nd Ethernet address
++ * @mask: Pointer to a six-byte array containing the Ethernet address bitm=
+ask
++ *
++ * Compare two Ethernet addresses with a mask, returns true if for every b=
+it
++ * set in the bitmask the equivalent bits in the ethernet addresses are eq=
+ual.
++ */
++static inline bool ether_addr_equal_masked(const u8 *addr1, const u8 *addr=
+2,
++					=A0=A0=A0const u8 *mask)
++{
++	int i;
++
++	for (i =3D 0; i < ETH_ALEN; i++) {
++		if ((addr1[i] ^ addr2[i]) & mask[i])
++			return false;
++	}
++
++	return true;
++}
++
++/**
+=A0 * is_etherdev_addr - Tell if given Ethernet address belongs to the devi=
+ce.
+=A0 * @dev: Pointer to a device structure
+=A0 * @addr: Pointer to a six-byte array containing the Ethernet address
+diff --git a/net/bridge/netfilter/ebt_arp.c b/net/bridge/netfilter/ebt_arp.c
+index cd457b8..cca0a89 100644
+--- a/net/bridge/netfilter/ebt_arp.c
++++ b/net/bridge/netfilter/ebt_arp.c
+@@ -65,7 +65,6 @@ ebt_arp_mt(const struct sk_buff *skb, struct xt_action_pa=
+ram *par)
+=A0	if (info->bitmask & (EBT_ARP_SRC_MAC | EBT_ARP_DST_MAC)) {
+=A0		const unsigned char *mp;
+=A0		unsigned char _mac[ETH_ALEN];
+-		uint8_t verdict, i;
+=A0
+=A0		if (ah->ar_hln !=3D ETH_ALEN || ah->ar_hrd !=3D htons(ARPHRD_ETHER))
+=A0			return false;
+@@ -74,11 +73,9 @@ ebt_arp_mt(const struct sk_buff *skb, struct xt_action_p=
+aram *par)
+=A0						sizeof(_mac), &_mac);
+=A0			if (mp =3D=3D NULL)
+=A0				return false;
+-			verdict =3D 0;
+-			for (i =3D 0; i < 6; i++)
+-				verdict |=3D (mp[i] ^ info->smaddr[i]) &
+-				=A0=A0=A0=A0=A0=A0=A0info->smmsk[i];
+-			if (FWINV(verdict !=3D 0, EBT_ARP_SRC_MAC))
++			if (FWINV(!ether_addr_equal_masked(mp, info->smaddr,
++							=A0=A0=A0info->smmsk),
++				=A0=A0EBT_ARP_SRC_MAC))
+=A0				return false;
+=A0		}
+=A0
+@@ -88,11 +85,9 @@ ebt_arp_mt(const struct sk_buff *skb, struct xt_action_p=
+aram *par)
+=A0						sizeof(_mac), &_mac);
+=A0			if (mp =3D=3D NULL)
+=A0				return false;
+-			verdict =3D 0;
+-			for (i =3D 0; i < 6; i++)
+-				verdict |=3D (mp[i] ^ info->dmaddr[i]) &
+-					info->dmmsk[i];
+-			if (FWINV(verdict !=3D 0, EBT_ARP_DST_MAC))
++			if (FWINV(!ether_addr_equal_masked(mp, info->dmaddr,
++							=A0=A0=A0info->dmmsk),
++				=A0=A0EBT_ARP_DST_MAC))
+=A0				return false;
+=A0		}
+=A0	}
+diff --git a/net/bridge/netfilter/ebt_stp.c b/net/bridge/netfilter/ebt_stp.c
+index e77f90b..45f73d5 100644
+--- a/net/bridge/netfilter/ebt_stp.c
++++ b/net/bridge/netfilter/ebt_stp.c
+@@ -46,7 +46,6 @@ static bool ebt_filter_config(const struct ebt_stp_info *=
+info,
+=A0	const struct ebt_stp_config_info *c;
+=A0	u16 v16;
+=A0	u32 v32;
+-	int verdict, i;
+=A0
+=A0	c =3D &info->config;
+=A0	if ((info->bitmask & EBT_STP_FLAGS) &&
+@@ -54,66 +53,62 @@ static bool ebt_filter_config(const struct ebt_stp_info=
+ *info,
+=A0		return false;
+=A0	if (info->bitmask & EBT_STP_ROOTPRIO) {
+=A0		v16 =3D NR16(stpc->root);
+-		if (FWINV(v16 < c->root_priol ||
+-		=A0=A0=A0=A0v16 > c->root_priou, EBT_STP_ROOTPRIO))
++		if (FWINV(v16 < c->root_priol || v16 > c->root_priou,
++			=A0=A0EBT_STP_ROOTPRIO))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_ROOTADDR) {
+-		verdict =3D 0;
+-		for (i =3D 0; i < 6; i++)
+-			verdict |=3D (stpc->root[2+i] ^ c->root_addr[i]) &
+-				=A0=A0=A0c->root_addrmsk[i];
+-		if (FWINV(verdict !=3D 0, EBT_STP_ROOTADDR))
++		if (FWINV(!ether_addr_equal_masked(&stpc->root[2], c->root_addr,
++						=A0=A0=A0c->root_addrmsk),
++			=A0=A0EBT_STP_ROOTADDR))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_ROOTCOST) {
+=A0		v32 =3D NR32(stpc->root_cost);
+-		if (FWINV(v32 < c->root_costl ||
+-		=A0=A0=A0=A0v32 > c->root_costu, EBT_STP_ROOTCOST))
++		if (FWINV(v32 < c->root_costl || v32 > c->root_costu,
++			=A0=A0EBT_STP_ROOTCOST))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_SENDERPRIO) {
+=A0		v16 =3D NR16(stpc->sender);
+-		if (FWINV(v16 < c->sender_priol ||
+-		=A0=A0=A0=A0v16 > c->sender_priou, EBT_STP_SENDERPRIO))
++		if (FWINV(v16 < c->sender_priol || v16 > c->sender_priou,
++			=A0=A0EBT_STP_SENDERPRIO))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_SENDERADDR) {
+-		verdict =3D 0;
+-		for (i =3D 0; i < 6; i++)
+-			verdict |=3D (stpc->sender[2+i] ^ c->sender_addr[i]) &
+-				=A0=A0=A0c->sender_addrmsk[i];
+-		if (FWINV(verdict !=3D 0, EBT_STP_SENDERADDR))
++		if (FWINV(!ether_addr_equal_masked(&stpc->sender[2],
++						=A0=A0=A0c->sender_addr,
++						=A0=A0=A0c->sender_addrmsk),
++			=A0=A0EBT_STP_SENDERADDR))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_PORT) {
+=A0		v16 =3D NR16(stpc->port);
+-		if (FWINV(v16 < c->portl ||
+-		=A0=A0=A0=A0v16 > c->portu, EBT_STP_PORT))
++		if (FWINV(v16 < c->portl || v16 > c->portu, EBT_STP_PORT))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_MSGAGE) {
+=A0		v16 =3D NR16(stpc->msg_age);
+-		if (FWINV(v16 < c->msg_agel ||
+-		=A0=A0=A0=A0v16 > c->msg_ageu, EBT_STP_MSGAGE))
++		if (FWINV(v16 < c->msg_agel || v16 > c->msg_ageu,
++			=A0=A0EBT_STP_MSGAGE))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_MAXAGE) {
+=A0		v16 =3D NR16(stpc->max_age);
+-		if (FWINV(v16 < c->max_agel ||
+-		=A0=A0=A0=A0v16 > c->max_ageu, EBT_STP_MAXAGE))
++		if (FWINV(v16 < c->max_agel || v16 > c->max_ageu,
++			=A0=A0EBT_STP_MAXAGE))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_HELLOTIME) {
+=A0		v16 =3D NR16(stpc->hello_time);
+-		if (FWINV(v16 < c->hello_timel ||
+-		=A0=A0=A0=A0v16 > c->hello_timeu, EBT_STP_HELLOTIME))
++		if (FWINV(v16 < c->hello_timel || v16 > c->hello_timeu,
++			=A0=A0EBT_STP_HELLOTIME))
+=A0			return false;
+=A0	}
+=A0	if (info->bitmask & EBT_STP_FWDD) {
+=A0		v16 =3D NR16(stpc->forward_delay);
+-		if (FWINV(v16 < c->forward_delayl ||
+-		=A0=A0=A0=A0v16 > c->forward_delayu, EBT_STP_FWDD))
++		if (FWINV(v16 < c->forward_delayl || v16 > c->forward_delayu,
++			=A0=A0EBT_STP_FWDD))
+=A0			return false;
+=A0	}
+=A0	return true;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtable=
+s.c
+index 5a61f35..5721a25 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -130,7 +130,6 @@ ebt_basic_match(const struct ebt_entry *e, const struct=
+ sk_buff *skb,
+=A0	const struct ethhdr *h =3D eth_hdr(skb);
+=A0	const struct net_bridge_port *p;
+=A0	__be16 ethproto;
+-	int verdict, i;
+=A0
+=A0	if (skb_vlan_tag_present(skb))
+=A0		ethproto =3D htons(ETH_P_8021Q);
+@@ -157,19 +156,15 @@ ebt_basic_match(const struct ebt_entry *e, const stru=
+ct sk_buff *skb,
+=A0		return 1;
+=A0
+=A0	if (e->bitmask & EBT_SOURCEMAC) {
+-		verdict =3D 0;
+-		for (i =3D 0; i < 6; i++)
+-			verdict |=3D (h->h_source[i] ^ e->sourcemac[i]) &
+-			=A0=A0=A0e->sourcemsk[i];
+-		if (FWINV2(verdict !=3D 0, EBT_ISOURCE))
++		if (FWINV2(!ether_addr_equal_masked(h->h_source,
++						=A0=A0=A0=A0e->sourcemac, e->sourcemsk),
++			=A0=A0=A0EBT_ISOURCE))
+=A0			return 1;
+=A0	}
+=A0	if (e->bitmask & EBT_DESTMAC) {
+-		verdict =3D 0;
+-		for (i =3D 0; i < 6; i++)
+-			verdict |=3D (h->h_dest[i] ^ e->destmac[i]) &
+-			=A0=A0=A0e->destmsk[i];
+-		if (FWINV2(verdict !=3D 0, EBT_IDEST))
++		if (FWINV2(!ether_addr_equal_masked(h->h_dest,
++						=A0=A0=A0=A0e->destmac, e->destmsk),
++			=A0=A0=A0EBT_IDEST))
+=A0			return 1;
+=A0	}
+=A0	return 0;
+--=A0
+2.8.0.rc4.16.g56331f8
+
