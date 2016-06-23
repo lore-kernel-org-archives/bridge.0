@@ -1,14 +1,14 @@
-Return-Path: <pneira@us.es>
-Date: Thu, 23 Jun 2016 19:36:59 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20160623173659.GA3474@salvia>
-References: <f39576f17e9f5dee35258917917f2d740e820a77.1466024030.git.joe@perches.com>
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Thu, 23 Jun 2016 20:42:42 +0200
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20160623184242.GC5511@otheros>
+References: <4375d883-a95f-d032-c678-ed2fd665c36b@dd-wrt.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <f39576f17e9f5dee35258917917f2d740e820a77.1466024030.git.joe@perches.com>
-Subject: Re: [Bridge] [PATCH] bridge: netfilter: spanning tree: Add
- masked_ether_addr_equal and neatening
+In-Reply-To: <4375d883-a95f-d032-c678-ed2fd665c36b@dd-wrt.com>
+Subject: Re: [Bridge] [PATCH] Bridge: Fix ipv6 mc snooping if it has no ipv6
+	address.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,24 +17,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Joe Perches <joe@perches.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Patrick McHardy <kaber@trash.net>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S. Miller" <davem@davemloft.net>
+To: daniel <daniel@dd-wrt.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Ulrich Weber <ulrich.weber@sophos.com>
 
-On Wed, Jun 15, 2016 at 01:58:45PM -0700, Joe Perches wrote:
-> There is code duplication of a masked ethernet address comparison here
-> so make it a separate function instead.
+Hi Daniel,
+
+Thanks for submitting this patch here :).
+
+
+On Thu, Jun 23, 2016 at 11:28:55AM +0200, daniel wrote:
+> The bridge is falsly dropping ipv6 mulitcast packets
+> if there is no ipv6 address assigned on the brigde and no
+> external mld querier is present.
+
+and if the bridge internal querier is enabled (usually disabled
+by default in the bridge code, but enabled by default in OpenWRT
+for instance).
+
 > 
-> Miscellanea:
+> When the bridge fails to build mld queries, because it has no
+> ipv6 address, it silently returns, but keeps the local querier enabled.
+> (br_multicast.c:832)
+
+Not sure whether David or others like line numbers in commit messages, as
+they can change over time.
+
 > 
-> o Neaten alignment of FWINV macro uses to make it clearer for the reader
+> Ipv6 multicast snooping can only work if:
+>  a) an external querier is present
 
-Applied, thanks.
+maybe clarify that this is an OR, not AND?
 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> 
-> This masked_ether_addr_equal function could go into etherdevice.h,
-> but I don't see another use like it in kernel code.  Is there one?
 
-This is specific of iptables, not even nftables would use this. So I
-would keep this in the iptables tree.
+I think you can add a [PATCH net] tag, as it seems small
+enough for stable kernels and fixes a potential, confusing packet
+loss case.
+
+Also maybe add a:
+--
+Fixes: 1d81d4c3dd88 ("bridge: check return value of ipv6_dev_get_saddr()")
+--
+
+Regards, Linus
+
+
+PS: Does not seem to apply for me on either David's net branch or
+Torvald's master branch.
+
+"fatal: patch fragment without header at line 7: @@ -599,10
++612,12 @@ static inline bool"
+
+Try using "git format-patch" and "git send-email" instead. Also
+check ./scripts/get_maintainer.pl for a few more email addresses
+to add.
