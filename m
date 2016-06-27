@@ -1,14 +1,15 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Sat, 25 Jun 2016 16:20:28 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20160625142028.GF4407@otheros>
-References: <1466764518-11358-1-git-send-email-daniel@dd-wrt.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1466764518-11358-1-git-send-email-daniel@dd-wrt.com>
-Subject: Re: [Bridge] [PATCH net] Bridge: Fix ipv6 mc snooping if bridge has
- no ipv6 address
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=JzIoqbvPALuqhXWpvh/jpfdsoJtUZUKK3tVThIs3yXQ=;
+	b=OVw/UIuEP/TPXwgXI4Tezf5aVeq7h9qOsNhnHhv79a8Fuk8ySp+PT6sUdN9ZfPuKqr
+	o5j++anJ6Fp4kvDvcuYbOz4XKHSYFNd6l6shkRhrja2KUGi+k3n1DVUAaQVmqc45f6+/
+	4D4Q4CcBG09hYjvQWmPswBa5zqSt0M8MSStNE=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Mon, 27 Jun 2016 18:34:42 +0200
+Message-Id: <1467045282-21612-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] net: bridge: fix vlan stats continue counter
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,30 +18,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Daniel Danzberger <daniel@dd-wrt.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ulrich Weber <ulrich.weber@sophos.com>, Ulrich Weber <uw@ocedo.com>, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Fri, Jun 24, 2016 at 12:35:18PM +0200, Daniel Danzberger wrote:
-> The bridge is falsly dropping ipv6 mulitcast packets if there is:
->  1. No ipv6 address assigned on the brigde.
->  2. No external mld querier present.
->  3. The internal querier enabled.
-> 
-> When the bridge fails to build mld queries, because it has no
-> ipv6 address, it slilently returns, but keeps the local querier enabled.
-> This specific case causes confusing packet loss.
-> 
-> Ipv6 multicast snooping can only work if:
->  a) An external querier is present
->  OR
->  b) The bridge has an ipv6 address an is capable of sending own queries
-> 
-> Otherwise it has to forward/flood the ipv6 multicast traffic,
-> because snooping cannot work.
-> 
-> This patch fixes the issue by adding a flag to the bridge struct that
-> indicates that there is currently no ipv6 address assinged to the bridge
-> and returns a false state for the local querier in
-> __br_multicast_querier_exists().
+I made a dumb off-by-one mistake when I added the vlan stats counter
+dumping code. The increment should happen before the check, not after
+otherwise we miss one entry when we continue dumping.
 
-Fixes: 1d81d4c3dd88 ("bridge: check return value of ipv6_dev_get_saddr()")
+Fixes: a60c090361ea ("bridge: netlink: export per-vlan stats")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index a5343c7232bf..85e89f693589 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1273,7 +1273,7 @@ static int br_fill_linkxstats(struct sk_buff *skb, const struct net_device *dev,
+ 		struct bridge_vlan_xstats vxi;
+ 		struct br_vlan_stats stats;
+ 
+-		if (vl_idx++ < *prividx)
++		if (++vl_idx < *prividx)
+ 			continue;
+ 		memset(&vxi, 0, sizeof(vxi));
+ 		vxi.vid = v->vid;
+-- 
+2.1.4
+
