@@ -1,15 +1,22 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 28 Jun 2016 08:04:42 -0400 (EDT)
-Message-Id: <20160628.080442.1941457943482109633.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20160625142028.GF4407@otheros>
-References: <1466764518-11358-1-git-send-email-daniel@dd-wrt.com>
-	<20160625142028.GF4407@otheros>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH net] Bridge: Fix ipv6 mc snooping if bridge has
- no ipv6 address
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=zFF6PgQHFCOKAculoPnoUIWdDx/7uLB2CfDa3FnV8pw=;
+	b=XOKEp1PsKIPyORSV43BrUk7am0JEYAPPSaA958LjEJ0RVSIvfxfsZ6siU0Nl39zSzK
+	N7GjfO+2nhMci6ke4V8cavnPDQn9eTsixh92JDYlHrRTf5PBSnU1i8rqS76/hDNunDJF
+	jnOOEnEXJK78GrxrVUTcX8LvQeASYQaS6tV7Y=
+References: <1467051048-32604-1-git-send-email-nikolay@cumulusnetworks.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <57727211.30508@cumulusnetworks.com>
+Date: Tue, 28 Jun 2016 14:48:17 +0200
+MIME-Version: 1.0
+In-Reply-To: <1467051048-32604-1-git-send-email-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: add support for IGMP/MLD
+ stats and export them via netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,47 +25,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, ulrich.weber@sophos.com, uw@ocedo.com
+To: netdev@vger.kernel.org
+Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Sat, 25 Jun 2016 16:20:28 +0200
+On 27/06/16 20:10, Nikolay Aleksandrov wrote:
+> This patch adds stats support for the currently used IGMP/MLD types by the
+> bridge. The stats are per-port (plus one stat per-bridge) and per-direction
+> (RX/TX). The stats are exported via netlink via the new linkxstats API
+> (RTM_GETSTATS). In order to minimize the performance impact, a new option
+> is used to enable/disable the stats - multicast_stats_enabled, similar to
+> the recent vlan stats. Also in order to avoid multiple IGMP/MLD type
+> lookups and checks, we make use of the current "igmp" member of the bridge
+> private skb->cb region to record the type on Rx (both host-generated and
+> external packets pass by multicast_rcv()). We can do that since the igmp
+> member was used as a boolean and all the valid IGMP/MLD types are positive
+> values. The normal bridge fast-path is not affected at all, the only
+> affected paths are the flooding ones and since we make use of the IGMP/MLD
+> type, we can quickly determine if the packet should be counted using
+> cache-hot data (cb's igmp member). We add counters for:
+> * IGMP Queries
+> * IGMP Leaves
+> * IGMP v1/v2/v3 reports
+> 
+> * MLD Queries
+> * MLD Leaves
+> * MLD v1/v2 reports
+> 
+> These are invaluable when monitoring or debugging complex multicast setups
+> with bridges.
+> 
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+>  include/uapi/linux/if_bridge.h |  27 +++++++
+>  include/uapi/linux/if_link.h   |   1 +
+>  net/bridge/br_device.c         |  10 ++-
+>  net/bridge/br_forward.c        |  13 ++-
+>  net/bridge/br_if.c             |   9 ++-
+>  net/bridge/br_input.c          |   3 +
+>  net/bridge/br_multicast.c      | 176 +++++++++++++++++++++++++++++++++++++----
+>  net/bridge/br_netlink.c        |  94 ++++++++++++++++------
+>  net/bridge/br_private.h        |  41 +++++++++-
+>  net/bridge/br_sysfs_br.c       |  25 ++++++
+>  10 files changed, 356 insertions(+), 43 deletions(-)
+> 
 
-> On Fri, Jun 24, 2016 at 12:35:18PM +0200, Daniel Danzberger wrote:
->> The bridge is falsly dropping ipv6 mulitcast packets if there is:
->>  1. No ipv6 address assigned on the brigde.
->>  2. No external mld querier present.
->>  3. The internal querier enabled.
->> =
+Self-NAK, while the patch is okay, me and Roopa have been talking about exporting
+the stats via the new API better and would like to introduce a way to expose only
+per-port stats via a specific RTM_GETSTATS request instead of dumping it all via
+the bridge request in order to be able to get the stats only for a single device.
 
->> When the bridge fails to build mld queries, because it has no
->> ipv6 address, it slilently returns, but keeps the local querier enab=
-led.
->> This specific case causes confusing packet loss.
->> =
+I will post v2 after working out the details on how to achieve per-port export of
+linkxstats.
 
->> Ipv6 multicast snooping can only work if:
->>  a) An external querier is present
->>  OR
->>  b) The bridge has an ipv6 address an is capable of sending own quer=
-ies
->> =
+Thanks,
+ Nik
 
->> Otherwise it has to forward/flood the ipv6 multicast traffic,
->> because snooping cannot work.
->> =
 
->> This patch fixes the issue by adding a flag to the bridge struct tha=
-t
->> indicates that there is currently no ipv6 address assinged to the br=
-idge
->> and returns a false state for the local querier in
->> __br_multicast_querier_exists().
-> =
 
-> Fixes: 1d81d4c3dd88 ("bridge: check return value of ipv6_dev_get_sadd=
-r()")
-
-You're missing an initial 'd' in that SHA1-ID.
-
-With that fixed, applied and queued up for -stable.
