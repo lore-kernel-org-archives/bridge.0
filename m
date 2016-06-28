@@ -1,15 +1,17 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 28 Jun 2016 09:01:12 -0400 (EDT)
-Message-Id: <20160628.090112.1438085992622018555.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <3dcddfef3b9ac0eceb2869d9e95ae857b509fabe.1466793022.git.joe@perches.com>
-References: <20160624085752.GB1939@salvia>
-	<3dcddfef3b9ac0eceb2869d9e95ae857b509fabe.1466793022.git.joe@perches.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] etherdevice.h & bridge: netfilter: Add and use
- ether_addr_equal_masked
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Tue, 28 Jun 2016 15:22:36 +0200
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20160628132236.GE3221@otheros>
+References: <1466764518-11358-1-git-send-email-daniel@dd-wrt.com>
+	<20160625142028.GF4407@otheros>
+	<20160628.080442.1941457943482109633.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20160628.080442.1941457943482109633.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH net] Bridge: Fix ipv6 mc snooping if bridge has
+ no ipv6 address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,21 +20,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: joe@perches.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, kaber@trash.net, pablo@netfilter.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, ulrich.weber@sophos.com, uw@ocedo.com
 
-From: Joe Perches <joe@perches.com>
-Date: Fri, 24 Jun 2016 11:32:26 -0700
-
-> There are code duplications of a masked ethernet address comparison here
-> so make it a separate function instead.
+On Tue, Jun 28, 2016 at 08:04:42AM -0400, David Miller wrote:
+> From: Linus Lüssing <linus.luessing@c0d3.blue>
+> [...]
+> > Fixes: 1d81d4c3dd88 ("bridge: check return value of ipv6_dev_get_saddr()")
 > 
-> Miscellanea:
+> You're missing an initial 'd' in that SHA1-ID.
 > 
-> o Neaten alignment of FWINV macro uses to make it clearer for the reader
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
+> With that fixed, applied and queued up for -stable.
 
-Pablo feel free to take this:
-
-Acked-by: David S. Miller <davem@davemloft.net>
+Sorry :(. Thanks for taking care of it!
