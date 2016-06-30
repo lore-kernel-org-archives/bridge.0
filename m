@@ -1,14 +1,16 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 29 Jun 2016 05:40:01 -0400 (EDT)
-Message-Id: <20160629.054001.1335885793021861692.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1467045282-21612-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1467045282-21612-1-git-send-email-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: fix vlan stats continue
-	counter
+Return-Path: <pneira@us.es>
+Date: Thu, 30 Jun 2016 11:26:50 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20160630092650.GA2107@salvia>
+References: <20160624085752.GB1939@salvia>
+	<3dcddfef3b9ac0eceb2869d9e95ae857b509fabe.1466793022.git.joe@perches.com>
+	<20160628.090112.1438085992622018555.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160628.090112.1438085992622018555.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH] etherdevice.h & bridge: netfilter: Add and use
+ ether_addr_equal_masked
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,17 +19,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, joe@perches.com, kaber@trash.net
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Mon, 27 Jun 2016 18:34:42 +0200
-
-> I made a dumb off-by-one mistake when I added the vlan stats counter
-> dumping code. The increment should happen before the check, not after
-> otherwise we miss one entry when we continue dumping.
+On Tue, Jun 28, 2016 at 09:01:12AM -0400, David Miller wrote:
+> From: Joe Perches <joe@perches.com>
+> Date: Fri, 24 Jun 2016 11:32:26 -0700
 > 
-> Fixes: a60c090361ea ("bridge: netlink: export per-vlan stats")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> > There are code duplications of a masked ethernet address comparison here
+> > so make it a separate function instead.
+> > 
+> > Miscellanea:
+> > 
+> > o Neaten alignment of FWINV macro uses to make it clearer for the reader
+> > 
+> > Signed-off-by: Joe Perches <joe@perches.com>
+> 
+> Pablo feel free to take this:
+> 
+> Acked-by: David S. Miller <davem@davemloft.net>
 
-Applied.
+Applied, thanks!
