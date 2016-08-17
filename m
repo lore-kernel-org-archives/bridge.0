@@ -1,16 +1,16 @@
-Return-Path: <mkubecek@suse.cz>
-Date: Tue, 16 Aug 2016 13:20:05 +0200
-From: Michal Kubecek <mkubecek@suse.cz>
-Message-ID: <20160816112005.GA6621@unicorn.suse.cz>
-References: <20160428074838.0BBB5A0C94@unicorn.suse.cz>
-	<20160512095726.GA1975@salvia>
-	<20160516064316.GA6455@unicorn.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20160516064316.GA6455@unicorn.suse.cz>
-Subject: Re: [Bridge] [PATCH nf-next] netfilter: allow logging from non-init
-	namespaces
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=/QL3qjq3n13D0RA32+XzF8FWvSXarZUAeteVYp7C+mo=;
+	b=OXnKREBnqpi+aFf1FW/MuSne4In9Ehl6iCJQjlJbmHwwdkH7jTHtxEIdxOPyFd68JG
+	p17PV4owdemZmcAYLTFbocoZLaMgVwmrf8GGd+SDDDFTVbfP3U6E+XU2sHG+bPp+w203
+	tbnF3KhRVSw6Pie5J4xV2sk+Qp3TeHIW5V9mk=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Wed, 17 Aug 2016 12:53:08 +0200
+Message-Id: <1471431190-27442-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next 0/2] net: bridge: export vlan stats
+	per-port with flags
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,38 +19,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: bridge@lists.linux-foundation.org, Jonathan Corbet <corbet@lwn.net>, netdev@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Patrick McHardy <kaber@trash.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Mon, May 16, 2016 at 08:43:16AM +0200, Michal Kubecek wrote:
-> On Thu, May 12, 2016 at 11:57:26AM +0200, Pablo Neira Ayuso wrote:
-> > On Wed, Apr 27, 2016 at 02:48:02PM +0200, Michal Kubecek wrote:
-> > > Commit 69b34fb996b2 ("netfilter: xt_LOG: add net namespace support for
-> > > xt_LOG") disabled logging packets using the LOG target from non-init
-> > > namespaces. The motivation was to prevent containers from flooding
-> > > kernel log of the host. The plan was to keep it that way until syslog
-> > > namespace implementation allows containers to log in a safe way.
-> > > 
-> > > However, the work on syslog namespace seems to have hit a dead end
-> > > somewhere in 2013 and there are users who want to use xt_LOG in all
-> > > network namespaces. This patch allows to do so by setting
-> > 
-> > I understand this stuff is tricky. Did you contact already namespace
-> > folks to see if they plan any move on this?
-> 
-> Not yet. I'll contact the people involved in the discussion about the
-> serires submitted in 2013 to check what their plans are (and if there
-> are any).
+Hi,
+This set adds the ability to export vlan stats per-port. Patch 01 makes
+that possible by consolidating the bridge and port linkxstats calls. Then
+patch 02 allows to dump the vlan entry flags in order to be able to
+distinguish between bridge and port vlan entries when dumping the master
+device vlan stats. That is needed because that call was implemented when
+the stats API didn't have slave dumping capabilities and it dumps all vlan
+stats (for both bridge and port entries). We also need it in order to print
+the vlan flags when dumping the stats.
 
-Sorry for the delay, there were some security bugs so that this lost my
-attention.
+Cheers,
+ Nik
 
-I did some asking around and the syslog namespace work is dead. There
-were some design issues that turned out to be hard to address and the
-overall consensus was that use cases like netfilter logging can be
-handled in a different way (e.g. using NFLOG target).
+Nikolay Aleksandrov (2):
+  net: bridge: consolidate bridge and port linkxstats calls
+  net: bridge: export vlan flags with the stats
 
-Would the patch be acceptable? (It still applies cleanly to current
-nf-next tree but I can resend a rebased version if needed.)
+ include/uapi/linux/if_bridge.h |   2 +-
+ net/bridge/br_netlink.c        | 115 ++++++++++++++---------------------------
+ 2 files changed, 41 insertions(+), 76 deletions(-)
 
-                                                         Michal Kubecek
+-- 
+2.1.4
+
