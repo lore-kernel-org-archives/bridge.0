@@ -1,8 +1,14 @@
 Return-Path: <green@linuxhacker.ru>
+Mime-Version: 1.0 (Apple Message framework v1283)
+Content-Type: text/plain; charset=windows-1252
 From: Oleg Drokin <green@linuxhacker.ru>
-Date: Fri, 26 Aug 2016 23:10:28 -0400
-Message-Id: <1472267428-810527-1-git-send-email-green@linuxhacker.ru>
-Subject: [Bridge] [PATCH] bridge: Fix format string for %ul
+In-Reply-To: <11e50e3c-2e1f-4614-07e3-3bd144af4f94@cogentembedded.com>
+Date: Sat, 27 Aug 2016 11:58:00 -0400
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <95BF7F27-59F7-4BDA-941B-BB00C60423A4@linuxhacker.ru>
+References: <1472267428-810527-1-git-send-email-green@linuxhacker.ru>
+	<11e50e3c-2e1f-4614-07e3-3bd144af4f94@cogentembedded.com>
+Subject: Re: [Bridge] [PATCH] bridge: Fix format string for %ul
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,32 +17,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Oleg Drokin <green@linuxhacker.ru>
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 
-%ul would print an unsigned value and a letter l,
-likely it was %lu that was meant to print the long int,
-but in reality the values printed there are just regular signed
-ints, so just dropping the l altogether.
 
-Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
----
- net/bridge/br_stp_bpdu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Aug 27, 2016, at 11:13 AM, Sergei Shtylyov wrote:
 
-diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
-index 5881fbc..15c4a9c 100644
---- a/net/bridge/br_stp_bpdu.c
-+++ b/net/bridge/br_stp_bpdu.c
-@@ -230,7 +230,7 @@ void br_stp_rcv(const struct stp_proto *proto, struct sk_buff *skb,
- 			if (net_ratelimit())
- 				br_notice(p->br,
- 					  "port %u config from %pM"
--					  " (message_age %ul > max_age %ul)\n",
-+					  " (message_age %u > max_age %u)\n",
- 					  p->port_no,
- 					  eth_hdr(skb)->h_source,
- 					  bpdu.message_age, bpdu.max_age);
--- 
-2.7.4
+> Hello.
+>=20
+> On 8/27/2016 6:10 AM, Oleg Drokin wrote:
+>=20
+>> %ul would print an unsigned value and a letter l,
+>> likely it was %lu that was meant to print the long int,
+>> but in reality the values printed there are just regular signed
+>=20
+>   Signed? Then you need probably "%d" or "%i"=85
+
+They are signed in the struct definition, but in reality they
+designate time, so could not be negative, I imagine?
+
+>=20
+>> ints, so just dropping the l altogether.
+>>=20
+>> Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
+> [...]
+>=20
+> MBR, Sergei
 
