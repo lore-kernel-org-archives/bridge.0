@@ -1,21 +1,23 @@
-Return-Path: <nikolay@cumulusnetworks.com>
+Return-Path: <stephen@networkplumber.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=I5VWfn6GTv69y1YGBSRL3K9gQdwYj2y6uv+z8KGiB68=;
-	b=JVZTOU8Dm4K4Xk1b5QibW11ghri2lg6FE2VXiWugPgh+nl1t7LBr+b1/NqIL0P38N3
-	FcmG/qqqNfpOPPrG+h1WACK13NKSG3i51WAufyuq4gT1TR+argp4rExKwOcKia2dmQkU
-	e8CZDMGsJJCutrx79PFB6QJOHrTbVU+f0ysbg=
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=qOX3COHYXkmBsxbfjZpK8QbOuW2k4urIIWxueW7vgnI=;
+	b=gadwA0LUuREBaPOZ3Q2OQkLp7wmBG2EeYyXEIJwr7SINYgQT5SUbh1Rsm7ErP/8t1b
+	Kf6A1qQu2dREsEGFV9Q/KDDnxL4ntRzsrYf+a+l34XIhvc9tuvqFkMgi6ncCJZZOy9WF
+	9d5N9HObvCJ+ugGhiTaMRKBC6QqHNuXDmJJfO9FwEVNMJU9j4z7n+abUY+oNZyeZZGWb
+	tOxuDb9381/s5SROZbCajanegFxsdw2fwMBC8PsCQiyxu9DAHb4U9UtR1MjkLkA7VAPN
+	ORqoFIN7VyzVm0t3XsqnnYxOaMsNKpa93kFehpio45YUVnEDvCYX0GY05e6FDnBx/H2E
+	n9Ow==
+Date: Tue, 30 Aug 2016 07:59:53 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20160830075953.739291e1@xeon-e3>
+In-Reply-To: <1472562539-23247-2-git-send-email-nikolay@cumulusnetworks.com>
 References: <1472562539-23247-1-git-send-email-nikolay@cumulusnetworks.com>
 	<1472562539-23247-2-git-send-email-nikolay@cumulusnetworks.com>
-	<20160830075623.15af2674@xeon-e3>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <45e77078-6acf-5ac0-5222-4b435fdc7524@cumulusnetworks.com>
-Date: Tue, 30 Aug 2016 16:57:53 +0200
 MIME-Version: 1.0
-In-Reply-To: <20160830075623.15af2674@xeon-e3>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next 1/2] net: bridge: change unicast
  boolean to exact pkt_type
@@ -27,37 +29,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, davem@davemloft.net, bridge@lists.linux-foundation.org
 
-On 30/08/16 16:56, Stephen Hemminger wrote:
-> On Tue, 30 Aug 2016 15:08:58 +0200
-> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-> 
->>  /* br_forward.c */
->> +enum {
->> +	BR_PKT_UNICAST,
->> +	BR_PKT_MULTICAST,
->> +	BR_PKT_BROADCAST
->> +};
->>  int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb);
->>  void br_forward(const struct net_bridge_port *to, struct sk_buff *skb,
->>  		bool local_rcv, bool local_orig);
->>  int br_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
->>  void br_flood(struct net_bridge *br, struct sk_buff *skb,
->> -	      bool unicast, bool local_rcv, bool local_orig);
->> +	      int pkt_type, bool local_rcv, bool local_orig);
-> 
-> Why not make pkt_type an enum value, you already have that infrastructure there.
-> 
-> enum br_pkt_type {
-> 	BR_PKT_UNICAST,
-> ...
-> };
-> 
-> void br_flood(struct net_bridge *br, struct sk_buff *skb,
->               enum br_pkt_type pkt_type, ...
-> 
+On Tue, 30 Aug 2016 15:08:58 +0200
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
 
-sure, will change it to enum
-v2 coming up
+> -	if (!is_broadcast_ether_addr(dest) && is_multicast_ether_addr(dest) &&
+> -	    br_multicast_rcv(br, p, skb, vid))
+> -		goto drop;
+> +	local_rcv = !!(br->dev->flags & IFF_PROMISC);
+local_rcv is needlessly initialized in existing code. Pls remove that.
+
+> +	if (is_multicast_ether_addr(dest)) {
+> +		/* by definition the broadcast is also a multicast address */
+> +		if (is_broadcast_ether_addr(dest)) {
+> +			pkt_type = BR_PKT_BROADCAST;
+> +			local_rcv = true;
+> +		} else {
+> +			pkt_type = BR_PKT_MULTICAST;
+> +			if (br_multicast_rcv(br, p, skb, vid))
+> +				goto drop;
+> +		}
+> +	}
+>
+
+
+These could go after the BR_STATE_LEARNING check
+
+>  	if (p->state == BR_STATE_LEARNING)
+>  		goto drop;
+>  
+>  	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
+>  
+> -	local_rcv = !!(br->dev->flags & IFF_PROMISC);
+> -
+>  	if (IS_ENABLED(CONFIG_INET) && skb->protocol == htons(ETH_P_ARP))
+>  		br_do_proxy_arp(skb, br, vid, p);
+>
+
+can't proxy_arp change what was a broadcast packet into a unicast packet?
