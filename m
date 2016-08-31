@@ -1,18 +1,9 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Wed, 31 Aug 2016 19:28:12 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20160831172812.GJ4883@otheros>
-References: <1472570588-32503-1-git-send-email-nikolay@cumulusnetworks.com>
-	<1472570588-32503-3-git-send-email-nikolay@cumulusnetworks.com>
-	<20160831013726.GD4883@otheros>
-	<7d1fc865-f092-5d9d-8f4c-f19aeac914c0@cumulusnetworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7d1fc865-f092-5d9d-8f4c-f19aeac914c0@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH net-next v2 2/2] net: bridge: add per-port
- multicast flood flag
+Return-Path: <dcaratti@redhat.com>
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed, 31 Aug 2016 14:16:44 +0200
+Message-Id: <00146cf9bbd373722167f61183d5d02a9d6c080e.1472644765.git.dcaratti@redhat.com>
+Subject: [Bridge] [PATCH net] bridge: re-introduce 'fix parsing of MLDv2
+	reports'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,44 +12,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wed, Aug 31, 2016 at 08:02:22AM +0200, Nikolay Aleksandrov wrote:
-> On 31/08/16 03:37, Linus Lüssing wrote:
-> > On Tue, Aug 30, 2016 at 05:23:08PM +0200, Nikolay Aleksandrov via Bridge wrote:
-> >> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> >> index 1da3221845f1..ed0dd3340084 100644
-> >> --- a/net/bridge/br_if.c
-> >> +++ b/net/bridge/br_if.c
-> >> @@ -362,7 +362,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
-> >>  	p->path_cost = port_cost(dev);
-> >>  	p->priority = 0x8000 >> BR_PORT_BITS;
-> >>  	p->port_no = index;
-> >> -	p->flags = BR_LEARNING | BR_FLOOD;
-> >> +	p->flags = BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD;
-> > 
-> > I'm discontent with this new flag becoming the default.
-> > 
-> > Could you elaborate a little more on your use-case, when/why do
-> > you want/need this flag?
-> > 
-> 
-> The use case is the current default behaviour if we don't make this flag on by default
-> then we'll change user-visible default behaviour. Right now we flood unregistered mcast
-> traffic by default (if there's no querier and router port, which continues to function
-> as before). Also we have the port flags equal to BR_AUTO_MASK by default.
+commit bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with
+INCLUDE and no sources as a leave") seems to have accidentally reverted
+commit 47cc84ce0c2f ("bridge: fix parsing of MLDv2 reports"). This
+commit brings back a change to br_ip6_multicast_mld2_report() where
+parsing of MLDv2 reports stops when the first group is successfully
+added to the MDB cache.
 
-Ok, you're right, the way you implemented it doesn't
-change the default behaviour (ignoring the BR_AUTO_MASK change you
-removed in v3).
+Fixes: bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with INCLUDE and no sources as a leave")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+---
+ net/bridge/br_multicast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I guess the "similar to the unknown unicast flood flag" confused
-me a little and I was afraid that the "flood if there is no
-listener / MDB entry" behaviour, which was removed some years ago,
-would be reintroduced. (but yeah, looking at the code more
-closely, it doesn't do that)
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index a5423a1..c5fea93 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1138,7 +1138,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
+ 		} else {
+ 			err = br_ip6_multicast_add_group(br, port,
+ 							 &grec->grec_mca, vid);
+-			if (!err)
++			if (err)
+ 				break;
+ 		}
+ 	}
+-- 
+2.5.5
 
-Thanks for the clarification!
-
-Regards, Linus
