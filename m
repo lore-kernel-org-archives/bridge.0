@@ -1,18 +1,25 @@
-Return-Path: <nikolay@cumulusnetworks.com>
+Return-Path: <stephen@networkplumber.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=hgTUH1Gm4byelP+JoTACT06T4Pj45aUB5JO00pqmWJ8=;
-	b=bzHkZfkG5IANTi9qelNwl81dkselbPiTQCbRahJWWWklT/KTtDVorJ3WEtD6OHYaa3
-	CdDkDTHEpbx8UG2bc5QlTyY6HWkY/Zw1NaITtQOlSXDXGqhPkjqLm61OBADDdNJ0ORvJ
-	sSX0rkWkABX0muxyzx59mtxDQ3c2lS+0siIv4=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 31 Aug 2016 15:36:52 +0200
-Message-Id: <1472650612-2123-3-git-send-email-nikolay@cumulusnetworks.com>
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=ByAhn8PBoSHwSze0020yTDNOWgitigJYN6xUVhhH4V4=;
+	b=i8WHatCXHlzWML1a/dlS1DOzjGvAB8+Sp0/Fuft4o3RaC3VR13ilXcV8SnH8e1lRCk
+	al9rcbRQ5/lZ7O//56aSijBddb/sAc+FlnoV8XnFYMXBkGD0UieIKfAUMURbM/WmoJl4
+	fHmwM3UcXT7FaKMV+BOUD5G8e0fW17/6v2OcnSzhB5HpHn9ERthWXPUC/0cOCfT0ElP7
+	x8skdfHzkKTWhi6M8DgwYj/dGdVTamGj+ek02WDQpHVd/b3+50rcgdbc/4ES0SM0ue3G
+	9AXZued68MH4/+9jHAqSWu7woFktXLR2sX2nBqtwpZYz+cCMhTB79qSbr2AhexCBbdQh
+	QEEg==
+Date: Wed, 31 Aug 2016 08:59:18 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20160831085918.686148a6@xeon-e3>
 In-Reply-To: <1472650612-2123-1-git-send-email-nikolay@cumulusnetworks.com>
 References: <1472650612-2123-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v3 2/2] net: bridge: add per-port
-	multicast flood flag
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v3 0/2] net: bridge: add per-port
+ unknown multicast flood control
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,120 +28,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Add a per-port flag to control the unknown multicast flood, similar to the
-unknown unicast flood flag and break a few long lines in the netlink flag
-exports.
+On Wed, 31 Aug 2016 15:36:50 +0200
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-v3: don't change br_auto_mask
-v2: no change
+> Hi,
+> The first patch prepares the forwarding path by having the exact packet
+> type passed down so we can later filter based on it and the per-port
+> unknown mcast flood flag introduced in the second patch. It is similar to
+> how the per-port unknown unicast flood flag works.
+> Nice side-effects of patch 01 are the slight reduction of tests in the
+> fast-path and a few minor checkpatch fixes.
+> 
+> v3: don't change br_auto_mask as that will change user-visible behaviour
+> v2: make pkt_type an enum as per Stephen's comment
+> 
+> Thanks,
+>  Nik
+> 
+> 
+> Nikolay Aleksandrov (2):
+>   net: bridge: change unicast boolean to exact pkt_type
+>   net: bridge: add per-port multicast flood flag
+> 
+>  include/linux/if_bridge.h    |  1 +
+>  include/uapi/linux/if_link.h |  1 +
+>  net/bridge/br_device.c       |  8 ++++----
+>  net/bridge/br_forward.c      |  7 +++++--
+>  net/bridge/br_if.c           |  2 +-
+>  net/bridge/br_input.c        | 40 +++++++++++++++++++++++++---------------
+>  net/bridge/br_netlink.c      | 12 +++++++++---
+>  net/bridge/br_private.h      |  7 ++++++-
+>  net/bridge/br_sysfs_if.c     |  1 +
+>  9 files changed, 53 insertions(+), 26 deletions(-)
+> 
 
- include/linux/if_bridge.h    |  1 +
- include/uapi/linux/if_link.h |  1 +
- net/bridge/br_forward.c      |  3 +++
- net/bridge/br_if.c           |  2 +-
- net/bridge/br_netlink.c      | 12 +++++++++---
- net/bridge/br_sysfs_if.c     |  1 +
- 6 files changed, 16 insertions(+), 4 deletions(-)
+Looks good thanks, and most importantly shouldn't break existing users.
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index dcb89e3515db..c6587c01d951 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -45,6 +45,7 @@ struct br_ip_list {
- #define BR_PROXYARP		BIT(8)
- #define BR_LEARNING_SYNC	BIT(9)
- #define BR_PROXYARP_WIFI	BIT(10)
-+#define BR_MCAST_FLOOD		BIT(11)
- 
- #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
- 
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index a1b5202c5f6b..9bf3aecfe05b 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -318,6 +318,7 @@ enum {
- 	IFLA_BRPORT_FLUSH,
- 	IFLA_BRPORT_MULTICAST_ROUTER,
- 	IFLA_BRPORT_PAD,
-+	IFLA_BRPORT_MCAST_FLOOD,
- 	__IFLA_BRPORT_MAX
- };
- #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 5de854ed3340..7cb41aee4c82 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -186,6 +186,9 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 		/* Do not flood unicast traffic to ports that turn it off */
- 		if (pkt_type == BR_PKT_UNICAST && !(p->flags & BR_FLOOD))
- 			continue;
-+		if (pkt_type == BR_PKT_MULTICAST &&
-+		    !(p->flags & BR_MCAST_FLOOD))
-+			continue;
- 
- 		/* Do not flood to ports that enable proxy ARP */
- 		if (p->flags & BR_PROXYARP)
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 1da3221845f1..ed0dd3340084 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -362,7 +362,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
- 	p->path_cost = port_cost(dev);
- 	p->priority = 0x8000 >> BR_PORT_BITS;
- 	p->port_no = index;
--	p->flags = BR_LEARNING | BR_FLOOD;
-+	p->flags = BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD;
- 	br_init_port(p);
- 	br_set_state(p, BR_STATE_DISABLED);
- 	br_stp_port_timer_init(p);
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 190a5bc00f4a..e99037c6f7b7 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -169,10 +169,15 @@ static int br_port_fill_attrs(struct sk_buff *skb,
- 	    nla_put_u32(skb, IFLA_BRPORT_COST, p->path_cost) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_MODE, mode) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_GUARD, !!(p->flags & BR_BPDU_GUARD)) ||
--	    nla_put_u8(skb, IFLA_BRPORT_PROTECT, !!(p->flags & BR_ROOT_BLOCK)) ||
--	    nla_put_u8(skb, IFLA_BRPORT_FAST_LEAVE, !!(p->flags & BR_MULTICAST_FAST_LEAVE)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_PROTECT,
-+		       !!(p->flags & BR_ROOT_BLOCK)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_FAST_LEAVE,
-+		       !!(p->flags & BR_MULTICAST_FAST_LEAVE)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_LEARNING, !!(p->flags & BR_LEARNING)) ||
--	    nla_put_u8(skb, IFLA_BRPORT_UNICAST_FLOOD, !!(p->flags & BR_FLOOD)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_UNICAST_FLOOD,
-+		       !!(p->flags & BR_FLOOD)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_MCAST_FLOOD,
-+		       !!(p->flags & BR_MCAST_FLOOD)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_PROXYARP, !!(p->flags & BR_PROXYARP)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_PROXYARP_WIFI,
- 		       !!(p->flags & BR_PROXYARP_WIFI)) ||
-@@ -630,6 +635,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- 	br_set_port_flag(p, tb, IFLA_BRPORT_PROTECT, BR_ROOT_BLOCK);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_LEARNING, BR_LEARNING);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_UNICAST_FLOOD, BR_FLOOD);
-+	br_set_port_flag(p, tb, IFLA_BRPORT_MCAST_FLOOD, BR_MCAST_FLOOD);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP, BR_PROXYARP);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP_WIFI, BR_PROXYARP_WIFI);
- 
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 1e04d4d44273..e657258e1f2c 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -171,6 +171,7 @@ BRPORT_ATTR_FLAG(learning, BR_LEARNING);
- BRPORT_ATTR_FLAG(unicast_flood, BR_FLOOD);
- BRPORT_ATTR_FLAG(proxyarp, BR_PROXYARP);
- BRPORT_ATTR_FLAG(proxyarp_wifi, BR_PROXYARP_WIFI);
-+BRPORT_ATTR_FLAG(multicast_flood, BR_MCAST_FLOOD);
- 
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
--- 
-2.1.4
-
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
