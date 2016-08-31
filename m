@@ -1,20 +1,12 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=yQhomdYyvf87ClA4XlO7DReWuVJArKk0RwiR7CWtH8k=;
-	b=GGyhrHZMmSdUN2vGoZ6v7aD/Qaqifi6AWZIm5+K3curV7lxTqmJeXyQwpM2DVoKY8g
-	kf5fDC37jUPfvHLxFjc9GJnSS1oqa0ZxyBwyg7cJ2GXB6i99362KWVOotiNH77KDLcD/
-	5reWA6U14d3zmDPmYNiktpzWz2YvDgxCiKd0w=
+Return-Path: <cascardo@redhat.com>
+Date: Wed, 31 Aug 2016 10:29:31 -0300
+From: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
+Message-ID: <20160831132930.GG22660@indiana.gru.redhat.com>
 References: <00146cf9bbd373722167f61183d5d02a9d6c080e.1472644765.git.dcaratti@redhat.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <e00ff342-d6ee-1172-7ac2-4d13929531b4@cumulusnetworks.com>
-Date: Wed, 31 Aug 2016 14:24:11 +0200
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <00146cf9bbd373722167f61183d5d02a9d6c080e.1472644765.git.dcaratti@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net] bridge: re-introduce 'fix parsing of MLDv2
 	reports'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -25,10 +17,10 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Davide Caratti <dcaratti@redhat.com>, "David S. Miller" <davem@davemloft.net>
-Cc: bridge@lists.linux-foundation.org, Thadeu Lima de Souza Cascardo <cascardo@redhat.com>, netdev@vger.kernel.org
+To: Davide Caratti <dcaratti@redhat.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-On 31/08/16 14:16, Davide Caratti wrote:
+On Wed, Aug 31, 2016 at 02:16:44PM +0200, Davide Caratti wrote:
 > commit bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with
 > INCLUDE and no sources as a leave") seems to have accidentally reverted
 > commit 47cc84ce0c2f ("bridge: fix parsing of MLDv2 reports"). This
@@ -55,9 +47,8 @@ On 31/08/16 14:16, Davide Caratti wrote:
 >  				break;
 >  		}
 >  	}
+> -- 
+> 2.5.5
 > 
 
-Indeed, good catch.
-
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-
+Acked-by: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>
