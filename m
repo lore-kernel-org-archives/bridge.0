@@ -1,9 +1,14 @@
-Return-Path: <dcaratti@redhat.com>
-From: Davide Caratti <dcaratti@redhat.com>
-Date: Wed, 31 Aug 2016 14:16:44 +0200
-Message-Id: <00146cf9bbd373722167f61183d5d02a9d6c080e.1472644765.git.dcaratti@redhat.com>
-Subject: [Bridge] [PATCH net] bridge: re-introduce 'fix parsing of MLDv2
-	reports'
+Return-Path: <davem@davemloft.net>
+Date: Thu, 01 Sep 2016 16:35:42 -0700 (PDT)
+Message-Id: <20160901.163542.1374337978886389909.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1472571869-3005-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1472571869-3005-1-git-send-email-nikolay@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] net: bridge: don't increment tx_dropped in
+ br_do_proxy_arp
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,35 +17,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Thadeu Lima de Souza Cascardo <cascardo@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, kyeyoonp@codeaurora.org, bridge@lists.linux-foundation.org, roopa@cumulusnetworks.com
 
-commit bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with
-INCLUDE and no sources as a leave") seems to have accidentally reverted
-commit 47cc84ce0c2f ("bridge: fix parsing of MLDv2 reports"). This
-commit brings back a change to br_ip6_multicast_mld2_report() where
-parsing of MLDv2 reports stops when the first group is successfully
-added to the MDB cache.
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Tue, 30 Aug 2016 17:44:29 +0200
 
-Fixes: bc8c20acaea1 ("bridge: multicast: treat igmpv3 report with INCLUDE and no sources as a leave")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
----
- net/bridge/br_multicast.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> pskb_may_pull may fail due to various reasons (e.g. alloc failure), but the
+> skb isn't changed/dropped and processing continues so we shouldn't
+> increment tx_dropped.
+> 
+> CC: Kyeyoon Park <kyeyoonp@codeaurora.org>
+> CC: Roopa Prabhu <roopa@cumulusnetworks.com>
+> CC: Stephen Hemminger <stephen@networkplumber.org>
+> CC: bridge@lists.linux-foundation.org
+> Fixes: 958501163ddd ("bridge: Add support for IEEE 802.11 Proxy ARP")
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index a5423a1..c5fea93 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1138,7 +1138,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
- 		} else {
- 			err = br_ip6_multicast_add_group(br, port,
- 							 &grec->grec_mca, vid);
--			if (!err)
-+			if (err)
- 				break;
- 		}
- 	}
--- 
-2.5.5
-
+Applied, thanks.
