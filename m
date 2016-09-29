@@ -1,14 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 01 Sep 2016 22:48:56 -0700 (PDT)
-Message-Id: <20160901.224856.296397400865362347.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1472650612-2123-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1472650612-2123-1-git-send-email-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 0/2] net: bridge: add per-port
- unknown multicast flood control
+Return-Path: <fw@strlen.de>
+Date: Thu, 29 Sep 2016 04:25:20 +0200
+From: Florian Westphal <fw@strlen.de>
+Message-ID: <20160929022520.GH17426@breakpoint.cc>
+References: <20160928220528.17478-1-stefan@agner.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160928220528.17478-1-stefan@agner.ch>
+Subject: Re: [Bridge] [PATCH] netfilter: bridge: clarify bridge/netfilter
+	message
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,20 +17,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: Stefan Agner <stefan@agner.ch>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, pablo@netfilter.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 31 Aug 2016 15:36:50 +0200
+Stefan Agner <stefan@agner.ch> wrote:
+> When using bridge without bridge netfilter enabled the message
+> displayed is rather confusing and leads to belive that a deprecated
+> feature is in use. Use IS_MODULE to be explicit that the message only
+> affects users which use bridge netfilter as module and reword the
+> message.
 
-> The first patch prepares the forwarding path by having the exact packet
-> type passed down so we can later filter based on it and the per-port
-> unknown mcast flood flag introduced in the second patch. It is similar to
-> how the per-port unknown unicast flood flag works.
-> Nice side-effects of patch 01 are the slight reduction of tests in the
-> fast-path and a few minor checkpatch fixes.
-> 
-> v3: don't change br_auto_mask as that will change user-visible behaviour
-> v2: make pkt_type an enum as per Stephen's comment
+Acked-by: Florian Westphal <fw@strlen.de>
 
-Series applied, thanks Nikolay.
