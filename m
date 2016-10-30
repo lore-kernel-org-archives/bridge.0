@@ -1,11 +1,11 @@
-Return-Path: <vivien.didelot@savoirfairelinux.com>
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Date: Wed, 19 Oct 2016 17:38:03 -0400
-Message-Id: <20161019213803.22837-4-vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <20161019213803.22837-1-vivien.didelot@savoirfairelinux.com>
-References: <20161019213803.22837-1-vivien.didelot@savoirfairelinux.com>
-Subject: [Bridge] [RFC net 3/3] net: dsa: shorten ageing time on topology
-	change
+Return-Path: <baruch@tkos.co.il>
+From: Baruch Siach <baruch@tkos.co.il>
+Date: Sun, 30 Oct 2016 18:17:50 +0200
+Message-Id: <7d18acc0c8d7473ddb936b06bdd01426f1d54aa2.1477844270.git.baruch@tkos.co.il>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] libbridge: fix headers conflict with musl libc
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,106 +14,136 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@mellanox.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Vivien Didelot <vivien.didelot@savoirfairelinux.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>, kernel@savoirfairelinux.com, "David S. Miller" <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Baruch Siach <baruch@tkos.co.il>, bridge@lists.linux-foundation.org
 
-802.1D [1] specifies that the bridges must use a short value to age out
-dynamic entries in the Filtering Database for a period, once a topology
-change has been communicated by the root bridge.
+Don't including kernel headers directly to avoid headers conflict like:
 
-Add a bridge_ageing_time member in the net_bridge structure to store the
-bridge ageing time value configured by the user (ioctl/netlink/sysfs).
+In file included from .../sysroot/usr/include/linux/if_bridge.h:18:0,
+                 from libbridge.h:26,
+                 from libbridge_if.c:26:
+.../sysroot/usr/include/linux/in6.h:32:8: error: redefinition of ‘struct in6_addr’
+ struct in6_addr {
+        ^
+In file included from libbridge.h:24:0,
+                 from libbridge_if.c:26:
+.../sysroot/usr/include/netinet/in.h:23:8: note: originally defined here
+ struct in6_addr {
+        ^
 
-If we are using in-kernel STP, shorten the ageing time value to twice
-the forward delay used by the topology when the topology change flag is
-set. When the flag is cleared, restore the configured ageing time.
+Instead copy the required linux/if_bridge.h definitions into
+libbridge_private.h.
 
-[1] "8.3.5 Notifying topology changes ",
-    http://profesores.elo.utfsm.cl/~agv/elo309/doc/802.1D-1998.pdf
-
-Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 ---
- net/bridge/br_device.c  |  2 +-
- net/bridge/br_private.h |  3 ++-
- net/bridge/br_stp.c     | 27 +++++++++++++++++++++++++++
- 3 files changed, 30 insertions(+), 2 deletions(-)
+ libbridge/libbridge.h         |  1 -
+ libbridge/libbridge_private.h | 81 ++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 80 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 89a687f..207318a 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -409,7 +409,7 @@ void br_dev_setup(struct net_device *dev)
- 	br->bridge_max_age = br->max_age = 20 * HZ;
- 	br->bridge_hello_time = br->hello_time = 2 * HZ;
- 	br->bridge_forward_delay = br->forward_delay = 15 * HZ;
--	br->ageing_time = BR_DEFAULT_AGEING_TIME;
-+	br->bridge_ageing_time = br->ageing_time = BR_DEFAULT_AGEING_TIME;
+diff --git a/libbridge/libbridge.h b/libbridge/libbridge.h
+index ff047f933cd6..18b40cd90413 100644
+--- a/libbridge/libbridge.h
++++ b/libbridge/libbridge.h
+@@ -23,7 +23,6 @@
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <linux/if.h>
+-#include <linux/if_bridge.h>
  
- 	br_netfilter_rtable_init(br);
- 	br_stp_timer_init(br);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 3c294b4..43efeb9 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -300,10 +300,11 @@ struct net_bridge
- 	unsigned long			max_age;
- 	unsigned long			hello_time;
- 	unsigned long			forward_delay;
--	unsigned long			bridge_max_age;
- 	unsigned long			ageing_time;
-+	unsigned long			bridge_max_age;
- 	unsigned long			bridge_hello_time;
- 	unsigned long			bridge_forward_delay;
-+	unsigned long			bridge_ageing_time;
+ /* defined in net/if.h but that conflicts with linux/if.h... */
+ extern unsigned int if_nametoindex (const char *__ifname);
+diff --git a/libbridge/libbridge_private.h b/libbridge/libbridge_private.h
+index 99a511dae00a..3ddbe1a7c48d 100644
+--- a/libbridge/libbridge_private.h
++++ b/libbridge/libbridge_private.h
+@@ -24,7 +24,86 @@
+ #include <linux/sockios.h>
+ #include <sys/time.h>
+ #include <sys/ioctl.h>
+-#include <linux/if_bridge.h>
++
++/* From linux/if_ether.h */
++#ifndef ETH_ALEN
++#define ETH_ALEN	6
++#endif
++
++/* From linux/if_bridge.h */
++#define BRCTL_GET_VERSION 0
++#define BRCTL_GET_BRIDGES 1
++#define BRCTL_ADD_BRIDGE 2
++#define BRCTL_DEL_BRIDGE 3
++#define BRCTL_ADD_IF 4
++#define BRCTL_DEL_IF 5
++#define BRCTL_GET_BRIDGE_INFO 6
++#define BRCTL_GET_PORT_LIST 7
++#define BRCTL_SET_BRIDGE_FORWARD_DELAY 8
++#define BRCTL_SET_BRIDGE_HELLO_TIME 9
++#define BRCTL_SET_BRIDGE_MAX_AGE 10
++#define BRCTL_SET_AGEING_TIME 11
++#define BRCTL_SET_GC_INTERVAL 12
++#define BRCTL_GET_PORT_INFO 13
++#define BRCTL_SET_BRIDGE_STP_STATE 14
++#define BRCTL_SET_BRIDGE_PRIORITY 15
++#define BRCTL_SET_PORT_PRIORITY 16
++#define BRCTL_SET_PATH_COST 17
++#define BRCTL_GET_FDB_ENTRIES 18
++
++#define BR_STATE_DISABLED 0
++#define BR_STATE_LISTENING 1
++#define BR_STATE_LEARNING 2
++#define BR_STATE_FORWARDING 3
++#define BR_STATE_BLOCKING 4
++
++struct __bridge_info {
++	__u64 designated_root;
++	__u64 bridge_id;
++	__u32 root_path_cost;
++	__u32 max_age;
++	__u32 hello_time;
++	__u32 forward_delay;
++	__u32 bridge_max_age;
++	__u32 bridge_hello_time;
++	__u32 bridge_forward_delay;
++	__u8 topology_change;
++	__u8 topology_change_detected;
++	__u8 root_port;
++	__u8 stp_enabled;
++	__u32 ageing_time;
++	__u32 gc_interval;
++	__u32 hello_timer_value;
++	__u32 tcn_timer_value;
++	__u32 topology_change_timer_value;
++	__u32 gc_timer_value;
++};
++
++struct __port_info {
++	__u64 designated_root;
++	__u64 designated_bridge;
++	__u16 port_id;
++	__u16 designated_port;
++	__u32 path_cost;
++	__u32 designated_cost;
++	__u8 state;
++	__u8 top_change_ack;
++	__u8 config_pending;
++	__u8 unused0;
++	__u32 message_age_timer_value;
++	__u32 forward_delay_timer_value;
++	__u32 hold_timer_value;
++};
++
++struct __fdb_entry {
++	__u8 mac_addr[ETH_ALEN];
++	__u8 port_no;
++	__u8 is_local;
++	__u32 ageing_timer_value;
++	__u8 port_hi;
++	__u8 pad0;
++	__u16 unused;
++};
  
- 	u8				group_addr[ETH_ALEN];
- 	bool				group_addr_set;
-diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
-index 8d7b4c7..71fd1a4 100644
---- a/net/bridge/br_stp.c
-+++ b/net/bridge/br_stp.c
-@@ -597,7 +597,11 @@ int br_set_ageing_time(struct net_bridge *br, clock_t ageing_time)
- 	if (err)
- 		return err;
- 
-+	spin_lock_bh(&br->lock);
-+	br->bridge_ageing_time = t;
- 	br->ageing_time = t;
-+	spin_unlock_bh(&br->lock);
-+
- 	mod_timer(&br->gc_timer, jiffies);
- 
- 	return 0;
-@@ -606,6 +610,29 @@ int br_set_ageing_time(struct net_bridge *br, clock_t ageing_time)
- /* called under bridge lock */
- void __br_set_topology_change(struct net_bridge *br, unsigned char val)
- {
-+	unsigned long t;
-+	int err;
-+
-+	if (br->stp_enabled == BR_KERNEL_STP && br->topology_change != val) {
-+		/* On topology change, set the bridge ageing time to twice the
-+		 * forward delay. Otherwise, restore its default ageing time.
-+		 */
-+
-+		if (val) {
-+			t = 2 * br->forward_delay;
-+			br_debug(br, "decreasing ageing time to %lu\n", t);
-+		} else {
-+			t = br->bridge_ageing_time;
-+			br_debug(br, "restoring ageing time to %lu\n", t);
-+		}
-+
-+		err = __set_ageing_time(br->dev, t);
-+		if (err)
-+			br_warn(br, "error offloading ageing time\n");
-+		else
-+			br->ageing_time = t;
-+	}
-+
- 	br->topology_change = val;
- }
- 
+ #define MAX_BRIDGES	1024
+ #define MAX_PORTS	1024
 -- 
-2.10.0
+2.10.1
 
