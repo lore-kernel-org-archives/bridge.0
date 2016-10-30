@@ -1,11 +1,11 @@
 Return-Path: <baruch@tkos.co.il>
 From: Baruch Siach <baruch@tkos.co.il>
-Date: Sun, 30 Oct 2016 18:17:50 +0200
-Message-Id: <7d18acc0c8d7473ddb936b06bdd01426f1d54aa2.1477844270.git.baruch@tkos.co.il>
+Date: Sun, 30 Oct 2016 19:58:30 +0200
+Message-Id: <d60077689fd40b84fade5c23ee2d3b2c0b2cfe98.1477850310.git.baruch@tkos.co.il>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] libbridge: fix headers conflict with musl libc
+Subject: [Bridge] [PATCH v2] libbridge: fix headers conflict with musl libc
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -36,9 +36,11 @@ libbridge_private.h.
 
 Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 ---
+v2: Add #ifdef to protect against redefinition of if_bridge.h identifiers
+---
  libbridge/libbridge.h         |  1 -
- libbridge/libbridge_private.h | 81 ++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 80 insertions(+), 2 deletions(-)
+ libbridge/libbridge_private.h | 83 ++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 82 insertions(+), 2 deletions(-)
 
 diff --git a/libbridge/libbridge.h b/libbridge/libbridge.h
 index ff047f933cd6..18b40cd90413 100644
@@ -53,10 +55,10 @@ index ff047f933cd6..18b40cd90413 100644
  /* defined in net/if.h but that conflicts with linux/if.h... */
  extern unsigned int if_nametoindex (const char *__ifname);
 diff --git a/libbridge/libbridge_private.h b/libbridge/libbridge_private.h
-index 99a511dae00a..3ddbe1a7c48d 100644
+index 99a511dae00a..565025b7bccb 100644
 --- a/libbridge/libbridge_private.h
 +++ b/libbridge/libbridge_private.h
-@@ -24,7 +24,86 @@
+@@ -24,7 +24,88 @@
  #include <linux/sockios.h>
  #include <sys/time.h>
  #include <sys/ioctl.h>
@@ -68,6 +70,7 @@ index 99a511dae00a..3ddbe1a7c48d 100644
 +#endif
 +
 +/* From linux/if_bridge.h */
++#ifndef BRCTL_GET_VERSION
 +#define BRCTL_GET_VERSION 0
 +#define BRCTL_GET_BRIDGES 1
 +#define BRCTL_ADD_BRIDGE 2
@@ -141,6 +144,7 @@ index 99a511dae00a..3ddbe1a7c48d 100644
 +	__u8 pad0;
 +	__u16 unused;
 +};
++#endif /* BRCTL_GET_VERSION */
  
  #define MAX_BRIDGES	1024
  #define MAX_PORTS	1024
