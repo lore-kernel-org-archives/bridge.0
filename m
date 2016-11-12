@@ -1,12 +1,14 @@
-Return-Path: <cmelanson@blackberry.com>
-From: Corey Melanson <cmelanson@blackberry.com>
-Date: Fri, 4 Nov 2016 20:44:48 +0000
-Message-ID: <E5B11A06AD89DB429345609918715652FBF2FF58@XMB121CNC.rim.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Sat, 12 Nov 2016 12:52:13 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20161112115213.GG3151@otheros>
+Reply-To: bridge@lists.linux-foundation.org
+References: <E5B11A06AD89DB429345609918715652FBF2FF58@XMB121CNC.rim.net>
 MIME-Version: 1.0
-Subject: [Bridge] Force IGMP membership
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <E5B11A06AD89DB429345609918715652FBF2FF58@XMB121CNC.rim.net>
+Subject: Re: [Bridge] Force IGMP membership
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,34 +17,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: Corey Melanson <cmelanson@blackberry.com>
+Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-Hello,
+On Fri, Nov 04, 2016 at 08:44:48PM +0000, Corey Melanson wrote:
+> After the live migration, multicast traffic to 239.236.15.150 stops as expected. If I try to manually add the multicast group membership:
+> # bridge mdb add dev br.128 port vnet3 grp 239.236.15.150 temp     
+> # bridge mdb list | grep vnet3
+> dev onebr.128 port vnet3 grp 239.236.15.150 temp
+> 
+> The multicast traffic does not resume until the VM sends a IGMP membership report after receiving an IGMP query from the switch, which takes too long most of the time (over a minute). 
 
-I'm trying to add a bridge port to a multicast group manually to work aroun=
-d the situation where VMs that are live migrated lose their IGMP membership=
-. We have IGMP snooping enabled on the bridge, and during this example ther=
-e were other VMs on the same bridge/vlan which are part of this multicast g=
-roup address sending/receiving traffic. These systems are running Ubuntu 14=
-.04 (kernel 3.13).
+Hm, sounds weird. Have you verified with tcpdump that
+on <brport-multicast-in> you see the according frame and on vnet3
+it is missing then?
 
-Prior to live migration, I see the IGMP group membership on the kvm hypervi=
-sor:
-$ bridge -d mdb | grep vnet8
-dev br.128 port vnet8 grp 239.236.15.150 temp
+Does it make a difference when instead of adding a group
+explicitly to mark the whole port as a router port?
 
-After the live migration, multicast traffic to 239.236.15.150 stops as expe=
-cted. If I try to manually add the multicast group membership:
-# bridge mdb add dev br.128 port vnet3 grp 239.236.15.150 temp    =20
-# bridge mdb list | grep vnet3
-dev onebr.128 port vnet3 grp 239.236.15.150 temp
+($ echo 2 > /sys/class/net/vnet3/brport/multicast_router
+- not a solution proposal but just to narrow things down)
 
-The multicast traffic does not resume until the VM sends a IGMP membership =
-report after receiving an IGMP query from the switch, which takes too long =
-most of the time (over a minute).=20
-
-I haven't been able to find anyone online in this situation, so any help wo=
-uld be greatly appreciated.
-
-Thank you,
-Corey Melanson
+Regards, Linus
