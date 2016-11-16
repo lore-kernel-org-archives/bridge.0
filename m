@@ -1,13 +1,14 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Sat, 12 Nov 2016 12:52:13 +0100
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20161112115213.GG3151@otheros>
-Reply-To: bridge@lists.linux-foundation.org
+Return-Path: <cmelanson@blackberry.com>
+From: Corey Melanson <cmelanson@blackberry.com>
+Date: Wed, 16 Nov 2016 17:24:36 +0000
+Message-ID: <E5B11A06AD89DB429345609918715652FBF54303@XMB121CNC.rim.net>
 References: <E5B11A06AD89DB429345609918715652FBF2FF58@XMB121CNC.rim.net>
+	<20161112115213.GG3151@otheros>
+In-Reply-To: <20161112115213.GG3151@otheros>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <E5B11A06AD89DB429345609918715652FBF2FF58@XMB121CNC.rim.net>
 Subject: Re: [Bridge] Force IGMP membership
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -17,25 +18,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Corey Melanson <cmelanson@blackberry.com>
-Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-On Fri, Nov 04, 2016 at 08:44:48PM +0000, Corey Melanson wrote:
-> After the live migration, multicast traffic to 239.236.15.150 stops as expected. If I try to manually add the multicast group membership:
-> # bridge mdb add dev br.128 port vnet3 grp 239.236.15.150 temp     
-> # bridge mdb list | grep vnet3
-> dev onebr.128 port vnet3 grp 239.236.15.150 temp
-> 
-> The multicast traffic does not resume until the VM sends a IGMP membership report after receiving an IGMP query from the switch, which takes too long most of the time (over a minute). 
-
-Hm, sounds weird. Have you verified with tcpdump that
-on <brport-multicast-in> you see the according frame and on vnet3
-it is missing then?
-
-Does it make a difference when instead of adding a group
-explicitly to mark the whole port as a router port?
-
-($ echo 2 > /sys/class/net/vnet3/brport/multicast_router
-- not a solution proposal but just to narrow things down)
-
-Regards, Linus
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBMaW51cyBMw7xzc2luZyBbbWFp
+bHRvOmxpbnVzLmx1ZXNzaW5nQGMwZDMuYmx1ZV0NCj4gU2VudDogU2F0dXJkYXksIE5vdmVtYmVy
+IDEyLCAyMDE2IDY6NTIgQU0NCj4gVG86IENvcmV5IE1lbGFuc29uIDxjbWVsYW5zb25AYmxhY2ti
+ZXJyeS5jb20+DQo+IENjOiBicmlkZ2VAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCj4gU3Vi
+amVjdDogUmU6IFtCcmlkZ2VdIEZvcmNlIElHTVAgbWVtYmVyc2hpcA0KPiANCj4gT24gRnJpLCBO
+b3YgMDQsIDIwMTYgYXQgMDg6NDQ6NDhQTSArMDAwMCwgQ29yZXkgTWVsYW5zb24gd3JvdGU6DQo+
+ID4gQWZ0ZXIgdGhlIGxpdmUgbWlncmF0aW9uLCBtdWx0aWNhc3QgdHJhZmZpYyB0byAyMzkuMjM2
+LjE1LjE1MCBzdG9wcyBhcw0KPiBleHBlY3RlZC4gSWYgSSB0cnkgdG8gbWFudWFsbHkgYWRkIHRo
+ZSBtdWx0aWNhc3QgZ3JvdXAgbWVtYmVyc2hpcDoNCj4gPiAjIGJyaWRnZSBtZGIgYWRkIGRldiBi
+ci4xMjggcG9ydCB2bmV0MyBncnAgMjM5LjIzNi4xNS4xNTAgdGVtcA0KPiA+ICMgYnJpZGdlIG1k
+YiBsaXN0IHwgZ3JlcCB2bmV0Mw0KPiA+IGRldiBvbmVici4xMjggcG9ydCB2bmV0MyBncnAgMjM5
+LjIzNi4xNS4xNTAgdGVtcA0KPiA+DQo+ID4gVGhlIG11bHRpY2FzdCB0cmFmZmljIGRvZXMgbm90
+IHJlc3VtZSB1bnRpbCB0aGUgVk0gc2VuZHMgYSBJR01QDQo+IG1lbWJlcnNoaXAgcmVwb3J0IGFm
+dGVyIHJlY2VpdmluZyBhbiBJR01QIHF1ZXJ5IGZyb20gdGhlIHN3aXRjaCwgd2hpY2gNCj4gdGFr
+ZXMgdG9vIGxvbmcgbW9zdCBvZiB0aGUgdGltZSAob3ZlciBhIG1pbnV0ZSkuDQo+IA0KPiBIbSwg
+c291bmRzIHdlaXJkLiBIYXZlIHlvdSB2ZXJpZmllZCB3aXRoIHRjcGR1bXAgdGhhdA0KPiBvbiA8
+YnJwb3J0LW11bHRpY2FzdC1pbj4geW91IHNlZSB0aGUgYWNjb3JkaW5nIGZyYW1lIGFuZCBvbiB2
+bmV0Mw0KPiBpdCBpcyBtaXNzaW5nIHRoZW4/DQo+IA0KPiBEb2VzIGl0IG1ha2UgYSBkaWZmZXJl
+bmNlIHdoZW4gaW5zdGVhZCBvZiBhZGRpbmcgYSBncm91cA0KPiBleHBsaWNpdGx5IHRvIG1hcmsg
+dGhlIHdob2xlIHBvcnQgYXMgYSByb3V0ZXIgcG9ydD8NCj4gDQo+ICgkIGVjaG8gMiA+IC9zeXMv
+Y2xhc3MvbmV0L3ZuZXQzL2JycG9ydC9tdWx0aWNhc3Rfcm91dGVyDQo+IC0gbm90IGEgc29sdXRp
+b24gcHJvcG9zYWwgYnV0IGp1c3QgdG8gbmFycm93IHRoaW5ncyBkb3duKQ0KPiANCj4gUmVnYXJk
+cywgTGludXMNCg0KSGkgTGludXMsDQoNCkR1cmluZyB0aGVzZSB0ZXN0cyBJIGhhdmUgYW5vdGhl
+ciBWTSBvbiB0aGUgc2FtZSBicmlkZ2UvdmxhbiBqb2luZWQgdG8gdGhlIHNhbWUgbXVsdGljYXN0
+IGdyb3VwLCBhbmQgaXQgaXMgcmVjZWl2aW5nL3NlbmRpbmcgbXVsdGljYXN0IHRyYWZmaWMsIHNv
+IHRjcGR1bXAgc2hvd3MgdGhhdCB0aGUgdXBzdHJlYW0gYm9uZCB2bGFuIGludGVyZmFjZSBzZWVz
+IHRoZSBtdWx0aWNhc3QgZ3JvdXAgdHJhZmZpYy4gSXQgc2VlbXMgdGhlIHRyYWZmaWMgaXMganVz
+dCBpcyBub3QgYmVpbmcgc2VudCB0byB0aGUgVk0gd2hlbiBpdCBpcyBtYW51YWxseSBqb2luZWQg
+dmlhOg0KJCBicmlkZ2UgbWRiIGFkZCBkZXYgb25lYnIuMTI4IHBvcnQgdm5ldDMgZ3JwIDIzOS4y
+MzYuMTUuMTUwIHRlbXANCg0KV2hlbiBJIHNldCB0aGUgdm5ldCBwb3J0IGFzIGEgcm91dGVyOg0K
+JCBlY2hvIDIgPiAvc3lzL2NsYXNzL25ldC92bmV0My9icnBvcnQvbXVsdGljYXN0X3JvdXRlcg0K
+VGhlIFZNIHN0YXJ0cyByZWNlaXZpbmcgbXVsdGljYXN0IHRyYWZmaWMgaW1tZWRpYXRlbHkuDQoN
+ClBsZWFzZSBsZXQgbWUga25vdyBpZiB0aGVyZSBpcyBhbnkgb3RoZXIgaW5mb3JtYXRpb24gdGhh
+dCB3b3VsZCBiZSBoZWxwZnVsLg0KDQpUaGFuayB5b3UsDQpDb3JleQ0KDQo=
