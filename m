@@ -1,13 +1,14 @@
 Return-Path: <vivien.didelot@savoirfairelinux.com>
 From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <20161121190925.14530-1-f.fainelli@gmail.com>
+In-Reply-To: <20161121190925.14530-2-f.fainelli@gmail.com>
 References: <20161121190925.14530-1-f.fainelli@gmail.com>
-Date: Tue, 22 Nov 2016 10:29:59 -0500
-Message-ID: <87k2bvzg5k.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
+	<20161121190925.14530-2-f.fainelli@gmail.com>
+Date: Tue, 22 Nov 2016 10:46:25 -0500
+Message-ID: <87h96zzfe6.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [Bridge] [RFC net-next 0/3] net: bridge: Allow CPU port
-	configuration
+Subject: Re: [Bridge] [RFC net-next 1/3] net: bridge: Allow bridge master
+	device to configure switch CPU port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,33 +24,36 @@ Hi Florian,
 
 Florian Fainelli <f.fainelli@gmail.com> writes:
 
-> This patch series allows using the bridge master interface to configure
-> an Ethernet switch port's CPU/management port with different VLAN attributes than
-> those of the bridge downstream ports/members.
->
-> Jiri, Ido, Andrew, Vivien, please review the impact on mlxsw and mv88e6xxx, I
-> tested this with b53 and a mockup DSA driver.
+> bridge vlan add vid 2 dev br0 self
+> 	-> CPU port gets programmed
+> bridge vlan add vid 2 dev port0
+> 	-> port0 (switch port 0) gets programmed
 
-Patchset looks fine to me overall. I'm cooking a patch similar to 3/3
-for mv88e6xxx to put on top of this patchset.
+Although this is not specific to this patch, I'd like to point out that
+this seems not to be the behavior bridge expects.
 
-Minor comments in individual patchs will follow.
+The bridge manpage says:
 
-> Open questions:
->
-> - if we have more than one bridge on top of a physical switch, the driver
->   should keep track of that and verify that we are not going to change
->   the CPU port VLAN attributes in a way that results in incompatible settings
->   to be applied
+    bridge vlan add - add a new vlan filter entry
+    ...
 
-In mv88e6xxx, mv88e6xxx_port_check_hw_vlan() does that. It needs a small
-adjustment though.
+       self   the vlan is configured on the specified physical device.
+              Required if the device is the bridge device.
 
-> - if the default behavior is to have all VLANs associated with the CPU port
->   be ingressing/egressing tagged to the CPU, is this really useful?
+       master the vlan is configured on the software bridge (default).
 
-I have no strong opinion on this. Intuitively I'd expect the CPU port to
-be excluded until I add it myself, but I didn't think much about it.
+So if I'm not mistaken, the switch chip must be programmed only when the
+bridge command is called with the "self" attribute. Without it, only
+software configuration must be made, like what happens when the driver
+returns -EOPNOTSUPP.
+
+Currently, both commands below program the hardware:
+
+    # bridge vlan add vid 2 dev port0 [master]
+    # bridge vlan add vid 2 dev port0 [master] self
+
+Jiri, what do you think? Is there a reason for switchdev not to be
+consistent with the bridge doc, or should this be fixed?
 
 Thanks,
 
