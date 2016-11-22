@@ -1,14 +1,25 @@
-Return-Path: <vivien.didelot@savoirfairelinux.com>
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <20161121190925.14530-3-f.fainelli@gmail.com>
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=6/gOWEA/o1Vp3S0vFjVonEdLCwdCnadcbmKl1FTg7nk=;
+	b=trVRci8uXORrGw7WlwhxsoavhhK125Oex8r/ZA7dYSWMJV0CwTdPvnTzY0xcbXXgE0
+	Hb+TcpIwg8ZM9LO9q0v1G/7FZLC1W5ijPGypQ/bt3WxbMTbM2eN5CzsW8m2tUvBBoPfE
+	PKlna6lsL36mUtBorMByqmkpxu5aUOHoETu6DlmB3pYu79BsDmuSJJmD4lNzg7+kWPGJ
+	zFyKzIA+UxDIgU0IVqO63/NgIROIJhKRpBqBvXOWmaI2SI5AzDChnT3YLwr3iNy3oucW
+	SLUsRhvcTFWoNVZ6N84KjEAqyyhO42tV1VoPUoxeMunl/kGO1obk8r0u0GUmpRkhw8RS
+	YoPw==
 References: <20161121190925.14530-1-f.fainelli@gmail.com>
-	<20161121190925.14530-3-f.fainelli@gmail.com>
-Date: Tue, 22 Nov 2016 11:50:38 -0500
-Message-ID: <87eg23zcf5.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
+	<20161122174140.2ly226dcxkv23nlo@splinter.mtl.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <e9bbd22e-215f-a1fd-62ba-c0d33b255154@gmail.com>
+Date: Tue, 22 Nov 2016 09:56:30 -0800
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [RFC net-next 2/3] net: dsa: Propagate VLAN add/del to
-	CPU port(s)
+In-Reply-To: <20161122174140.2ly226dcxkv23nlo@splinter.mtl.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [RFC net-next 0/3] net: bridge: Allow CPU port
+	configuration
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,116 +28,92 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org
-Cc: idosch@mellanox.com, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
+To: Ido Schimmel <idosch@idosch.org>
+Cc: idosch@mellanox.com, andrew@lunn.ch, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
 
-Hi Florian,
+On 11/22/2016 09:41 AM, Ido Schimmel wrote:
+> Hi Florian,
+> 
+> On Mon, Nov 21, 2016 at 11:09:22AM -0800, Florian Fainelli wrote:
+>> Hi all,
+>>
+>> This patch series allows using the bridge master interface to configure
+>> an Ethernet switch port's CPU/management port with different VLAN attributes than
+>> those of the bridge downstream ports/members.
+>>
+>> Jiri, Ido, Andrew, Vivien, please review the impact on mlxsw and mv88e6xxx, I
+>> tested this with b53 and a mockup DSA driver.
+> 
+> We'll need to add a check in mlxsw and ignore any VLAN configuration for
+> the bridge device itself. Otherwise, any configuration done on br0 will
+> be propagated to all of its slaves, which is incorrect.
+> 
+>>
+>> Open questions:
+>>
+>> - if we have more than one bridge on top of a physical switch, the driver
+>>   should keep track of that and verify that we are not going to change
+>>   the CPU port VLAN attributes in a way that results in incompatible settings
+>>   to be applied
+>>
+>> - if the default behavior is to have all VLANs associated with the CPU port
+>>   be ingressing/egressing tagged to the CPU, is this really useful?
+> 
+> First of all, I want to be sure that when we say "CPU port", we're
+> talking about the same thing. In mlxsw, the CPU port is a pipe between
+> the device and the host, through which all packets trapped to the host
+> go through. So, when a packet is trapped, the driver reads its Rx
+> descriptor, checks through which port it ingressed, resolves its netdev,
+> sets skb->dev accordingly and injects it to the Rx path via
+> netif_receive_skb(). The CPU port itself isn't represented using a
+> netdev.
 
-Open question: will we need to do the same for FDB and MDB objects?
+In the case of DSA, the CPU port is a normal Ethernet MAC driver, but in
+premise, this driver plus the DSA tag protocol hook do exactly the same
+things as you just describe.
 
-Florian Fainelli <f.fainelli@gmail.com> writes:
+> 
+> Given the above, having VLAN filters (or STP) on the CPU port itself
+> isn't really helpful (we do have them for physical ports of course...).
+> So, mlxsw will not benefit from this patchset and if we've the same
+> concept of "CPU port", then I'm not sure why you don't just enable all
+> the VLANs on it?
 
-> Now that the bridge layer can call into switchdev to signal programming
-> requests targeting the bridge master device itself, allow the switch
-> drivers to implement separate programming of downstream and
-> upstream/management ports.
->
-> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  net/dsa/slave.c | 45 +++++++++++++++++++++++++++++++++------------
->  1 file changed, 33 insertions(+), 12 deletions(-)
->
-> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-> index d0c7bce88743..18288261b964 100644
-> --- a/net/dsa/slave.c
-> +++ b/net/dsa/slave.c
-> @@ -223,35 +223,30 @@ static int dsa_slave_set_mac_address(struct net_device *dev, void *a)
->  	return 0;
->  }
->  
-> -static int dsa_slave_port_vlan_add(struct net_device *dev,
-> +static int dsa_slave_port_vlan_add(struct dsa_switch *ds, int port,
->  				   const struct switchdev_obj_port_vlan *vlan,
->  				   struct switchdev_trans *trans)
->  {
-> -	struct dsa_slave_priv *p = netdev_priv(dev);
-> -	struct dsa_switch *ds = p->parent;
->  
+We do enable all VLANs on the CPU port (at least with b53, but I think
+mv88e6xxx does it too), but compared to e.g: mlxsw, we trap all traffic
+by default, and actually, quite often (always actually, until we add IP
+routing offloads) the CPU is involved in the LAN/WAN routing, so it is
+not infrequent to have the following packet flow:
 
-Extra newline ^.
+LAN port -> VLAN 1 -> eth0.1 -> NAT/routing -> eth0.2 -> VLAN 2 -> WAN port
 
->  	if (switchdev_trans_ph_prepare(trans)) {
->  		if (!ds->ops->port_vlan_prepare || !ds->ops->port_vlan_add)
->  			return -EOPNOTSUPP;
->  
-> -		return ds->ops->port_vlan_prepare(ds, p->port, vlan, trans);
-> +		return ds->ops->port_vlan_prepare(ds, port, vlan, trans);
->  	}
->  
-> -	ds->ops->port_vlan_add(ds, p->port, vlan, trans);
-> +	ds->ops->port_vlan_add(ds, port, vlan, trans);
->  
->  	return 0;
->  }
->  
-> -static int dsa_slave_port_vlan_del(struct net_device *dev,
-> +static int dsa_slave_port_vlan_del(struct dsa_switch *ds, int port,
->  				   const struct switchdev_obj_port_vlan *vlan)
->  {
-> -	struct dsa_slave_priv *p = netdev_priv(dev);
-> -	struct dsa_switch *ds = p->parent;
-> -
->  	if (!ds->ops->port_vlan_del)
->  		return -EOPNOTSUPP;
->  
-> -	return ds->ops->port_vlan_del(ds, p->port, vlan);
-> +	return ds->ops->port_vlan_del(ds, port, vlan);
->  }
->  
->  static int dsa_slave_port_vlan_dump(struct net_device *dev,
-> @@ -465,8 +460,21 @@ static int dsa_slave_port_obj_add(struct net_device *dev,
->  				  const struct switchdev_obj *obj,
->  				  struct switchdev_trans *trans)
->  {
-> +	struct dsa_slave_priv *p = netdev_priv(dev);
-> +	struct dsa_switch *ds = p->parent;
-> +	int port = p->port;
->  	int err;
->  
-> +	/* Here we may be called with an orig_dev which is different from dev,
-> +	 * on purpose, to receive request coming from e.g the bridge master
-> +	 * device. Although there are no network device associated with CPU/DSA
-> +	 * ports, we may still have programming operation for these ports.
-> +	 */
-> +	if (obj->orig_dev == p->bridge_dev) {
-> +		ds = ds->dst->ds[0];
-> +		port = ds->dst->cpu_port;
-> +	}
-> +
->  	/* For the prepare phase, ensure the full set of changes is feasable in
->  	 * one go in order to signal a failure properly. If an operation is not
->  	 * supported, return -EOPNOTSUPP.
-> @@ -483,7 +491,7 @@ static int dsa_slave_port_obj_add(struct net_device *dev,
->  					     trans);
->  		break;
->  	case SWITCHDEV_OBJ_ID_PORT_VLAN:
-> -		err = dsa_slave_port_vlan_add(dev,
-> +		err = dsa_slave_port_vlan_add(ds, port,
->  					      SWITCHDEV_OBJ_PORT_VLAN(obj),
->  					      trans);
+In that case, having the ability to define the per-port membership for
+VLANs, including the CPU, kind of helps, especially if there are
+private/guests VLAN on either the LAN or WAN segments that the CPU does
+not necessarily need to play a role in.
 
-Note that dsa_slave_port_vlan_add() will be called N times, N being the
-number of bridge ports. This is not an issue for the moment though.
-Programming it only once requires caching, so leave it for an eventual
-future patch.
+NB: this scheme works because in most configurations that we support
+today, the CPU port's speed is greater or equal than the speed of the
+downstream/front panel ports.
 
-When issuing the following command (lan0 being a member of br0):
+> 
+> Also, how are you going to set the VLAN filters for the CPU port when
+> you don't offload a bridge, but instead vlan devices between which you
+> route packets? You lose your abstraction of CPU port...
 
-    # bridge vlan add vid 42 dev lan0
+As far as I can tell today, this is not particularly helpful with DSA,
+where we start with all traffic going to the CPU (each DSA created
+network device is segregated from the other) and only then we require
+having bridge VLAN filtering enabled in the kernel, and configuring
+bridge VLAN membership to have a proper VLAN-based scheme.
 
-the CPU port is also programmed as tagged in VLAN 42. Is that expected?
+If you did configure VLAN membership with e.g: port0.<vid> we could
+support that just fine, but that programming interface does not allow
+configuring the default VLAN, and in our case, it matters a bit to
+support the LAN/WAN routing scenario described. We could agree that all
+untagged traffic should go to VLAN 0 or 1 for instance, but that could
+then, vary on a per-driver/HW basis.
 
-Thanks,
-
-        Vivien
+Hope this clarifies things a bit!
+-- 
+Florian
