@@ -1,16 +1,13 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Mon, 21 Nov 2016 22:44:52 +0100
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20161121214452.GA10227@otheros>
-Reply-To: bridge@lists.linux-foundation.org
-References: <E5B11A06AD89DB429345609918715652FBF2FF58@XMB121CNC.rim.net>
-	<20161112115213.GG3151@otheros>
-	<E5B11A06AD89DB429345609918715652FBF54303@XMB121CNC.rim.net>
+Return-Path: <vivien.didelot@savoirfairelinux.com>
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+In-Reply-To: <20161121190925.14530-1-f.fainelli@gmail.com>
+References: <20161121190925.14530-1-f.fainelli@gmail.com>
+Date: Tue, 22 Nov 2016 10:29:59 -0500
+Message-ID: <87k2bvzg5k.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <E5B11A06AD89DB429345609918715652FBF54303@XMB121CNC.rim.net>
-Subject: Re: [Bridge] Force IGMP membership
+Content-Type: text/plain
+Subject: Re: [Bridge] [RFC net-next 0/3] net: bridge: Allow CPU port
+	configuration
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,53 +16,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Corey Melanson <cmelanson@blackberry.com>
-Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+To: Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org
+Cc: idosch@mellanox.com, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
 
-On Wed, Nov 16, 2016 at 05:24:36PM +0000, Corey Melanson wrote:
-> Please let me know if there is any other information that would be helpful.
-> 
-> Thank you,
-> Corey
+Hi Florian,
 
-Hi Corey,
+Florian Fainelli <f.fainelli@gmail.com> writes:
 
-I tried to reproduce your issue in a similar VM setup, but was
-unsuccessful so far. For me things seem to work with 4.9-rc3
-kernels.
+> This patch series allows using the bridge master interface to configure
+> an Ethernet switch port's CPU/management port with different VLAN attributes than
+> those of the bridge downstream ports/members.
+>
+> Jiri, Ido, Andrew, Vivien, please review the impact on mlxsw and mv88e6xxx, I
+> tested this with b53 and a mockup DSA driver.
 
+Patchset looks fine to me overall. I'm cooking a patch similar to 3/3
+for mv88e6xxx to put on top of this patchset.
 
-What I tried:
-            
-    [vm-s] -- [vm-br] == [vm-r]
+Minor comments in individual patchs will follow.
 
-vm-s and vm-br are connected via one interface pair. vm-br and
-vm-r share two interfaces.
+> Open questions:
+>
+> - if we have more than one bridge on top of a physical switch, the driver
+>   should keep track of that and verify that we are not going to change
+>   the CPU port VLAN attributes in a way that results in incompatible settings
+>   to be applied
 
-On vm-r's 1st interface there is socat running which joins
-239.236.15.150 [1]. On vm-r's 2nd interface there is a tcpdump
-listening for UDP packets.
--> vm-br with a "bridge mdb show dev br0" shows one entry for
-   239.236.15.150 for the 1st interface towards vm-r
+In mv88e6xxx, mv88e6xxx_port_check_hw_vlan() does that. It needs a small
+adjustment though.
 
-vm-s sends multicast traffic to 239.236.15.150 via socat [2].
--> Is received successfully in socat on vm-r,
-   tcpdump on 2nd interface stays empty
+> - if the default behavior is to have all VLANs associated with the CPU port
+>   be ingressing/egressing tagged to the CPU, is this really useful?
 
+I have no strong opinion on this. Intuitively I'd expect the CPU port to
+be excluded until I add it myself, but I didn't think much about it.
 
-Then I did not do the full interface hotplugging, but instead
-typed your "bridge mdb add..." command on vm-br for the 2nd
-interface towards vm-r.
+Thanks,
 
-Finally I redid the socat transmission on vm-s. And vm-r received
-this packet successfully both in socat running on its 1st
-interface and in tcpdump running on its 2nd one.
-
-
-Could you retry with a recent kernel, too, Corey?
-
-Regards, Linus
-
-
-[1]: $ socat -u UDP4-RECV:1234,reuseaddr,ip-add-membership="239.236.15.150:ens3" -
-[2]: $ socat - UDP4-DATAGRAM:"239.236.15.150:1234"
+        Vivien
