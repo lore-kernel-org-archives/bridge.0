@@ -1,26 +1,16 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=t1kNRKNTPXy7J5HWsir7jpn31HdevDEBf8+AidCpzWw=;
-	b=fgQ2uI6mLBeLVO6YERQwkGSRvuJ6PY5xie5ym57gcXi0/p0k0NC0pMOFIXssI5xv+A
-	uf2Uo2fjTIyqiXPaytIj4kCovW0j2mIagzWQgA1ek3YpBM+DXwwvm3E1Yyd4dMn0GORC
-	ArHoEG4raVmeQKd9oOxmlytqZGZ/Oc4vOOw0UwSn+Y4VZ2UZkc4UXVqOTNOza2pw7ZSM
-	A9Ke1ga+cQxdkAdn96d4JJdiK9jCfzz3rEnSIOX7hV4x1NPwEnbg7c+4SvrHlrM/GEkk
-	gqnc3MuRmWVD2+sXpyBnPcE7NQTaCpk2FXiIzGhn7dwDzaypZGdJxb1m5wIshahx2CG1
-	RIlw==
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
 References: <20161121190925.14530-1-f.fainelli@gmail.com>
-	<20161122174140.2ly226dcxkv23nlo@splinter.mtl.com>
-	<20161122174829.GD14947@lunn.ch> <20161122220859.GF1819@nanopsycho>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <6e1bce5a-3bc6-ad7b-6cc0-ca80c0f86f55@gmail.com>
-Date: Tue, 22 Nov 2016 16:24:30 -0800
+	<20161121190925.14530-2-f.fainelli@gmail.com>
+	<87h96zzfe6.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <ee14a75c-b0f5-59e5-e621-2855ec583ae6@lab.ntt.co.jp>
+Date: Thu, 24 Nov 2016 10:49:08 +0900
 MIME-Version: 1.0
-In-Reply-To: <20161122220859.GF1819@nanopsycho>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [RFC net-next 0/3] net: bridge: Allow CPU port
-	configuration
+In-Reply-To: <87h96zzfe6.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC net-next 1/3] net: bridge: Allow bridge master
+ device to configure switch CPU port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,52 +19,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jiri Pirko <jiri@resnulli.us>, Andrew Lunn <andrew@lunn.ch>
-Cc: idosch@mellanox.com, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, jiri@mellanox.com, davem@davemloft.net
+To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org
+Cc: idosch@mellanox.com, andrew@lunn.ch, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
 
-On 11/22/2016 02:08 PM, Jiri Pirko wrote:
-> Tue, Nov 22, 2016 at 06:48:29PM CET, andrew@lunn.ch wrote:
->> Hi Ido
->>
->>> First of all, I want to be sure that when we say "CPU port", we're
->>> talking about the same thing. In mlxsw, the CPU port is a pipe between
->>> the device and the host, through which all packets trapped to the host
->>> go through. So, when a packet is trapped, the driver reads its Rx
->>> descriptor, checks through which port it ingressed, resolves its netdev,
->>> sets skb->dev accordingly and injects it to the Rx path via
->>> netif_receive_skb(). The CPU port itself isn't represented using a
->>> netdev.
->>
->> With DSA, we have a real physical ethernet network interface for the
->> 'cpu' port. It connects to one of the ports of the switch. Frames on
+On 2016/11/23 0:46, Vivien Didelot wrote:
+> Hi Florian,
 > 
-> Every port should be visible as a netdevice, including cpu port.
-> Would it make sence to have representors for those?
+> Florian Fainelli <f.fainelli@gmail.com> writes:
+> 
+>> bridge vlan add vid 2 dev br0 self
+>> 	-> CPU port gets programmed
+>> bridge vlan add vid 2 dev port0
+>> 	-> port0 (switch port 0) gets programmed
+> 
+> Although this is not specific to this patch, I'd like to point out that
+> this seems not to be the behavior bridge expects.
+> 
+> The bridge manpage says:
+> 
+>     bridge vlan add - add a new vlan filter entry
+>     ...
+> 
+>        self   the vlan is configured on the specified physical device.
+>               Required if the device is the bridge device.
+> 
+>        master the vlan is configured on the software bridge (default).
+> 
+> So if I'm not mistaken, the switch chip must be programmed only when the
+> bridge command is called with the "self" attribute. Without it, only
+> software configuration must be made, like what happens when the driver
+> returns -EOPNOTSUPP.
+> 
+> Currently, both commands below program the hardware:
+> 
+>     # bridge vlan add vid 2 dev port0 [master]
+>     # bridge vlan add vid 2 dev port0 [master] self
 
-The CPU port is kind of already visible with DSA since you need the
-switch to be attached to a normal Ethernet MAC driver (later referenced
-as eth0 for simplicity). Since eth0 is going to potentially receive/send
-switch tagged traffic, and the model is to terminate the interfaces at
-the port level, this interface does not really have any meaningful use
-from a data exchange, apart from multiplexing/demultiplexing switch tags
-(when enabled).
+Actually this is intended behavior, which keeps backward compatibility.
+http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=7f1095394918c7058ff81c96c3bab3a897e97a9d
 
-If we did create a "cpu" network device, this interface would not be
-able to send/receive traffic either, because the per-port network
-interfaces are terminated at their level, and the conduit interface is
-just used for transmitting/receiving switch tagged traffic. It does have
-value as a controlling interface only though.
+Thanks,
+Toshiaki Makita
 
-As a controlling interface, this can be helpful, but we need to decide
-which side of the switch this CPU interface would represent, is it the
-switch's view of the CPU port, or is the Ethernet MAC view's of the
-switch's CPU port, attached to it (especially true with discrete switch
-chips).
 
-If we did use eth0 as a controlling interface, we need to somehow be
-able to overload (in an objected oriented fashioned) the netdev_ops,
-ethtool_ops and switchdev_ops for that interface so as to make it
-participate in the switch configuration (we actually do this already for
-ethtool statistics, but this is ugly).
--- 
-Florian
