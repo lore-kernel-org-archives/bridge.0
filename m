@@ -1,23 +1,26 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to:x-me-sender
-	:x-me-sender:x-sasl-enc:x-sasl-enc; s=smtpout; bh=RvsUFzCnMj326S
-	sc3ZEAHfUphrM=; b=Q8AT6AlHuMMbUkt5617F9pVT914AzdTIMtkV3Mef1YGgY6
-	6b1wL1m19FsJDvGvWAFqeIIT6KJLwujD+pp+0l0Hrj2H8HQzAU1aEFXPZDKN/ouw
-	cl0LZzjeS9RBumAiWbBhW1pZxiDfGDK8FsxhKZ3QmIRXkq1HGpX8PX9Wa7wTM=
-Date: Wed, 23 Nov 2016 15:48:56 +0200
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <20161123134856.cwk6sznnwa7p4xtq@splinter.mtl.com>
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=Y96sbQtBaO5Pa/YCAgcSWhjwlhbKqH2/lV/Ub9rOQiM=;
+	b=mMq5A9AI6pGVBu4WqU7d18RLkP8pW7p3IrclHP139RYVw1mbs4m3KnIKRE+TbyiXCC
+	9Dj85I5HP9U+v5rpbAVhCDPt5GpILMQw5nMxRj56tqc9zF7Ho03lceOgDott87DTJkyP
+	tLC9qu8s6bCD1MKzLm6HKiINo1CaJsEC+so5eHWlA0v8J6I8ndEff7ANfVpMARqm0mXN
+	CWBk0Vfk8qpfTLAItqVhfOVygLaNG2q7doJ3swGeGxVPmlz1YsmEgfFgc6hJsC0grsjY
+	maYiSCk5YCUjnA6Do/lP+INCVXhsLNv2YMu/06D2RKpz0Z8fGVLPLWpyQ8oMaRfSVhqJ
+	iMpQ==
 References: <20161121190925.14530-1-f.fainelli@gmail.com>
-	<20161122174140.2ly226dcxkv23nlo@splinter.mtl.com>
-	<e9bbd22e-215f-a1fd-62ba-c0d33b255154@gmail.com>
+	<20161121190925.14530-3-f.fainelli@gmail.com>
+	<87eg23zcf5.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <7d7189ac-d5d5-d22b-4f9a-1f9c890236c2@gmail.com>
+Date: Sun, 27 Nov 2016 20:30:38 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e9bbd22e-215f-a1fd-62ba-c0d33b255154@gmail.com>
-Subject: Re: [Bridge] [RFC net-next 0/3] net: bridge: Allow CPU port
-	configuration
+In-Reply-To: <87eg23zcf5.fsf@ketchup.i-did-not-set--mail-host-address--so-tickle-me>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [RFC net-next 2/3] net: dsa: Propagate VLAN add/del to
+ CPU port(s)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,63 +29,126 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: idosch@mellanox.com, andrew@lunn.ch, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
+To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, netdev@vger.kernel.org
+Cc: idosch@mellanox.com, andrew@lunn.ch, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
 
-Hi Florian,
 
-On Tue, Nov 22, 2016 at 09:56:30AM -0800, Florian Fainelli wrote:
-> On 11/22/2016 09:41 AM, Ido Schimmel wrote:
-> > Hi Florian,
-> > 
-> > On Mon, Nov 21, 2016 at 11:09:22AM -0800, Florian Fainelli wrote:
-> >> Hi all,
-> >>
-> >> This patch series allows using the bridge master interface to configure
-> >> an Ethernet switch port's CPU/management port with different VLAN attributes than
-> >> those of the bridge downstream ports/members.
-> >>
-> >> Jiri, Ido, Andrew, Vivien, please review the impact on mlxsw and mv88e6xxx, I
-> >> tested this with b53 and a mockup DSA driver.
-> > 
-> > We'll need to add a check in mlxsw and ignore any VLAN configuration for
-> > the bridge device itself. Otherwise, any configuration done on br0 will
-> > be propagated to all of its slaves, which is incorrect.
-> > 
-> >>
-> >> Open questions:
-> >>
-> >> - if we have more than one bridge on top of a physical switch, the driver
-> >>   should keep track of that and verify that we are not going to change
-> >>   the CPU port VLAN attributes in a way that results in incompatible settings
-> >>   to be applied
-> >>
-> >> - if the default behavior is to have all VLANs associated with the CPU port
-> >>   be ingressing/egressing tagged to the CPU, is this really useful?
-> > 
-> > First of all, I want to be sure that when we say "CPU port", we're
-> > talking about the same thing. In mlxsw, the CPU port is a pipe between
-> > the device and the host, through which all packets trapped to the host
-> > go through. So, when a packet is trapped, the driver reads its Rx
-> > descriptor, checks through which port it ingressed, resolves its netdev,
-> > sets skb->dev accordingly and injects it to the Rx path via
-> > netif_receive_skb(). The CPU port itself isn't represented using a
-> > netdev.
+
+On 11/22/2016 08:50 AM, Vivien Didelot wrote:
+> Hi Florian,
 > 
-> In the case of DSA, the CPU port is a normal Ethernet MAC driver, but in
-> premise, this driver plus the DSA tag protocol hook do exactly the same
-> things as you just describe.
+> Open question: will we need to do the same for FDB and MDB objects?
 
-Thanks for the detailed explanation! I also took the time to read
-dsa.txt, however I still don't quite understand the motivation for
-VLAN filtering on the CPU port. In which cases would you like to prevent
-packets from going to the host due to their VLAN header? This change
-would make sense to me if you only had a limited number of VLANs you
-could enable on the CPU port, but from your response I understand that
-this isn't the case.
+(overlooked that question early this week), I do expect that this could
+be helpful for FDB and MBD objects as well, yes.
 
-FWIW, I don't have a problem with patches if they are useful for you,
-I'm just trying to understand the use case. We can easily patch mlxsw to
-ignore calls with orig_dev=br0.
+> 
+> Florian Fainelli <f.fainelli@gmail.com> writes:
+> 
+>> Now that the bridge layer can call into switchdev to signal programming
+>> requests targeting the bridge master device itself, allow the switch
+>> drivers to implement separate programming of downstream and
+>> upstream/management ports.
+>>
+>> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+>> ---
+>>  net/dsa/slave.c | 45 +++++++++++++++++++++++++++++++++------------
+>>  1 file changed, 33 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+>> index d0c7bce88743..18288261b964 100644
+>> --- a/net/dsa/slave.c
+>> +++ b/net/dsa/slave.c
+>> @@ -223,35 +223,30 @@ static int dsa_slave_set_mac_address(struct net_device *dev, void *a)
+>>  	return 0;
+>>  }
+>>  
+>> -static int dsa_slave_port_vlan_add(struct net_device *dev,
+>> +static int dsa_slave_port_vlan_add(struct dsa_switch *ds, int port,
+>>  				   const struct switchdev_obj_port_vlan *vlan,
+>>  				   struct switchdev_trans *trans)
+>>  {
+>> -	struct dsa_slave_priv *p = netdev_priv(dev);
+>> -	struct dsa_switch *ds = p->parent;
+>>  
+> 
+> Extra newline ^.
+> 
+>>  	if (switchdev_trans_ph_prepare(trans)) {
+>>  		if (!ds->ops->port_vlan_prepare || !ds->ops->port_vlan_add)
+>>  			return -EOPNOTSUPP;
+>>  
+>> -		return ds->ops->port_vlan_prepare(ds, p->port, vlan, trans);
+>> +		return ds->ops->port_vlan_prepare(ds, port, vlan, trans);
+>>  	}
+>>  
+>> -	ds->ops->port_vlan_add(ds, p->port, vlan, trans);
+>> +	ds->ops->port_vlan_add(ds, port, vlan, trans);
+>>  
+>>  	return 0;
+>>  }
+>>  
+>> -static int dsa_slave_port_vlan_del(struct net_device *dev,
+>> +static int dsa_slave_port_vlan_del(struct dsa_switch *ds, int port,
+>>  				   const struct switchdev_obj_port_vlan *vlan)
+>>  {
+>> -	struct dsa_slave_priv *p = netdev_priv(dev);
+>> -	struct dsa_switch *ds = p->parent;
+>> -
+>>  	if (!ds->ops->port_vlan_del)
+>>  		return -EOPNOTSUPP;
+>>  
+>> -	return ds->ops->port_vlan_del(ds, p->port, vlan);
+>> +	return ds->ops->port_vlan_del(ds, port, vlan);
+>>  }
+>>  
+>>  static int dsa_slave_port_vlan_dump(struct net_device *dev,
+>> @@ -465,8 +460,21 @@ static int dsa_slave_port_obj_add(struct net_device *dev,
+>>  				  const struct switchdev_obj *obj,
+>>  				  struct switchdev_trans *trans)
+>>  {
+>> +	struct dsa_slave_priv *p = netdev_priv(dev);
+>> +	struct dsa_switch *ds = p->parent;
+>> +	int port = p->port;
+>>  	int err;
+>>  
+>> +	/* Here we may be called with an orig_dev which is different from dev,
+>> +	 * on purpose, to receive request coming from e.g the bridge master
+>> +	 * device. Although there are no network device associated with CPU/DSA
+>> +	 * ports, we may still have programming operation for these ports.
+>> +	 */
+>> +	if (obj->orig_dev == p->bridge_dev) {
+>> +		ds = ds->dst->ds[0];
+>> +		port = ds->dst->cpu_port;
+>> +	}
+>> +
+>>  	/* For the prepare phase, ensure the full set of changes is feasable in
+>>  	 * one go in order to signal a failure properly. If an operation is not
+>>  	 * supported, return -EOPNOTSUPP.
+>> @@ -483,7 +491,7 @@ static int dsa_slave_port_obj_add(struct net_device *dev,
+>>  					     trans);
+>>  		break;
+>>  	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+>> -		err = dsa_slave_port_vlan_add(dev,
+>> +		err = dsa_slave_port_vlan_add(ds, port,
+>>  					      SWITCHDEV_OBJ_PORT_VLAN(obj),
+>>  					      trans);
+> 
+> Note that dsa_slave_port_vlan_add() will be called N times, N being the
+> number of bridge ports. This is not an issue for the moment though.
+> Programming it only once requires caching, so leave it for an eventual
+> future patch.
+> 
+> When issuing the following command (lan0 being a member of br0):
+> 
+>     # bridge vlan add vid 42 dev lan0
+> 
+> the CPU port is also programmed as tagged in VLAN 42. Is that expected?
 
-Thanks!
+The first time the VLAN id is programmed to either lan0 or br0, and it
+did not exist prior to that call, it also gets populated into the bridge
+VLAN database, which is why both the lan0 interface and the CPU port get
+programmed.
+-- 
+Florian
