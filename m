@@ -1,11 +1,14 @@
-Return-Path: <vivien.didelot@savoirfairelinux.com>
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Date: Sat, 10 Dec 2016 13:44:27 -0500
-Message-Id: <20161210184429.31600-2-vivien.didelot@savoirfairelinux.com>
+Return-Path: <davem@davemloft.net>
+Date: Sat, 10 Dec 2016 21:55:12 -0500 (EST)
+Message-Id: <20161210.215512.1243458025069409442.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20161210184429.31600-1-vivien.didelot@savoirfairelinux.com>
 References: <20161210184429.31600-1-vivien.didelot@savoirfairelinux.com>
-Subject: [Bridge] [PATCH net 1/3] net: bridge: add helper to offload ageing
-	time
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net 0/3] net: bridge: fast ageing on topology
+	change
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,115 +17,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@mellanox.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Vivien Didelot <vivien.didelot@savoirfairelinux.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>, kernel@savoirfairelinux.com, "David S. Miller" <davem@davemloft.net>
+To: vivien.didelot@savoirfairelinux.com
+Cc: idosch@mellanox.com, andrew@lunn.ch, f.fainelli@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jiri@mellanox.com, kernel@savoirfairelinux.com
 
-The SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME switchdev attr is actually set
-when initializing a bridge port, and when configuring the bridge ageing
-time from ioctl/netlink/sysfs.
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+Date: Sat, 10 Dec 2016 13:44:26 -0500
 
-Add a __set_ageing_time helper to offload the ageing time to physical
-switches, and add the SWITCHDEV_F_DEFER flag since it can be called
-under bridge lock.
+> 802.1D [1] specifies that the bridges in a network must use a short
+> value to age out dynamic entries in the Filtering Database for a period,
+> once a topology change has been communicated by the root bridge.
+> 
+> This patchset fixes this for the in-kernel STP implementation.
+ ...
 
-Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- net/bridge/br_private.h |  1 +
- net/bridge/br_stp.c     | 28 ++++++++++++++++++++--------
- net/bridge/br_stp_if.c  | 12 +++---------
- 3 files changed, 24 insertions(+), 17 deletions(-)
-
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1b63177..3c294b4 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -992,6 +992,7 @@ void __br_set_forward_delay(struct net_bridge *br, unsigned long t);
- int br_set_forward_delay(struct net_bridge *br, unsigned long x);
- int br_set_hello_time(struct net_bridge *br, unsigned long x);
- int br_set_max_age(struct net_bridge *br, unsigned long x);
-+int __set_ageing_time(struct net_device *dev, unsigned long t);
- int br_set_ageing_time(struct net_bridge *br, clock_t ageing_time);
- 
- 
-diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
-index 9258b8e..6ebe2a0 100644
---- a/net/bridge/br_stp.c
-+++ b/net/bridge/br_stp.c
-@@ -562,6 +562,24 @@ int br_set_max_age(struct net_bridge *br, unsigned long val)
- 
- }
- 
-+/* called under bridge lock */
-+int __set_ageing_time(struct net_device *dev, unsigned long t)
-+{
-+	struct switchdev_attr attr = {
-+		.orig_dev = dev,
-+		.id = SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
-+		.flags = SWITCHDEV_F_SKIP_EOPNOTSUPP | SWITCHDEV_F_DEFER,
-+		.u.ageing_time = jiffies_to_clock_t(t),
-+	};
-+	int err;
-+
-+	err = switchdev_port_attr_set(dev, &attr);
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
-+
-+	return 0;
-+}
-+
- /* Set time interval that dynamic forwarding entries live
-  * For pure software bridge, allow values outside the 802.1
-  * standard specification for special cases:
-@@ -572,17 +590,11 @@ int br_set_max_age(struct net_bridge *br, unsigned long val)
-  */
- int br_set_ageing_time(struct net_bridge *br, clock_t ageing_time)
- {
--	struct switchdev_attr attr = {
--		.orig_dev = br->dev,
--		.id = SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
--		.flags = SWITCHDEV_F_SKIP_EOPNOTSUPP,
--		.u.ageing_time = ageing_time,
--	};
- 	unsigned long t = clock_t_to_jiffies(ageing_time);
- 	int err;
- 
--	err = switchdev_port_attr_set(br->dev, &attr);
--	if (err && err != -EOPNOTSUPP)
-+	err = __set_ageing_time(br->dev, t);
-+	if (err)
- 		return err;
- 
- 	br->ageing_time = t;
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index d8ad73b..2efbba5 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -36,12 +36,6 @@ static inline port_id br_make_port_id(__u8 priority, __u16 port_no)
- /* called under bridge lock */
- void br_init_port(struct net_bridge_port *p)
- {
--	struct switchdev_attr attr = {
--		.orig_dev = p->dev,
--		.id = SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
--		.flags = SWITCHDEV_F_SKIP_EOPNOTSUPP | SWITCHDEV_F_DEFER,
--		.u.ageing_time = jiffies_to_clock_t(p->br->ageing_time),
--	};
- 	int err;
- 
- 	p->port_id = br_make_port_id(p->priority, p->port_no);
-@@ -50,9 +44,9 @@ void br_init_port(struct net_bridge_port *p)
- 	p->topology_change_ack = 0;
- 	p->config_pending = 0;
- 
--	err = switchdev_port_attr_set(p->dev, &attr);
--	if (err && err != -EOPNOTSUPP)
--		netdev_err(p->dev, "failed to set HW ageing time\n");
-+	err = __set_ageing_time(p->dev, p->br->ageing_time);
-+	if (err)
-+		netdev_err(p->dev, "failed to offload ageing time\n");
- }
- 
- /* NO locks held */
--- 
-2.10.2
-
+Series applied.
