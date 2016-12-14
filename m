@@ -1,26 +1,17 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=4NRVQZgdFUjGBGAueKqQeMYGLe8UHYW/Sr0A3grzrqU=;
-	b=wKCt36W6LbehUwZSFBrv2pd+f6tkL+B2lY4HDmFmXGbs9I9AbmegBIpTSMJKw2doV3
-	cyT0y8kVzaZYCf5JPDkwN9q7rf6zyK4YO86sNQqp4YWzf+hN26JXHw5tivrXeUsn67oZ
-	EQFkucxpaUFaOa+wWxUfeozZbG2/NnJDq/yCSdaPlXWn6YQiA6pQWmMdpDXfTYGyqkbW
-	sfuZUWZ83L+oOoxssMVErJIsuF4Gtvg/KxDAjbef6ygodQJAhc9VtETY/fQdgA8Df3vV
-	O7wAAM7/XTxUydfZD58bk4dNZxN8XJlr/bU+zdzzzxPAJF9p8AmcESJ8U8FCbgEAM5wm
-	0Qog==
-Date: Tue, 13 Dec 2016 11:16:49 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20161213111649.4d983c5f@xeon-e3>
-In-Reply-To: <CAAtMjxYTtqk3f5ucZuhP=Uv+bJR7NEYPXrB_vUtX+MpzoMt78Q@mail.gmail.com>
-References: <CAAtMjxaGCpd_3axCbinnpDpgR+H3DPn9y+cLabodGiytwckc7A@mail.gmail.com>
-	<20161213094128.3fa3f4a5@xeon-e3>
-	<CAAtMjxYTtqk3f5ucZuhP=Uv+bJR7NEYPXrB_vUtX+MpzoMt78Q@mail.gmail.com>
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
+References: <cover.1481586602.git.mirq-linux@rere.qmqm.pl>
+	<e6e09a2f745a652382ac7859770ec16c75d8e149.1481586602.git.mirq-linux@rere.qmqm.pl>
+	<f5078470-0fc0-cfcd-36df-3ebb380b547a@cogentembedded.com>
+	<20161213151110.yapgecrospdd23oj@rere.qmqm.pl>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <ca5bb9f1-16ef-c442-b6d7-eb6ae39dae48@lab.ntt.co.jp>
+Date: Wed, 14 Dec 2016 09:40:57 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Bridge interface not forwarding DHCP-Broadcast
+In-Reply-To: <20161213151110.yapgecrospdd23oj@rere.qmqm.pl>
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH net-next 13/27] bridge: use __vlan_hwaccel
+	helpers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,38 +20,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Balaji J <ping2balaji@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: netdev@vger.kernel.org, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, "open list:NETFILTER ({IP, IP6, ARP, EB ,
+	NF}TABLES)" <netfilter-devel@vger.kernel.org>, "Jozsef Kadlecsik (supporter:NETFILTER ({IP, IP6, ARP, EB,
+	NF}TABLES))" <kadlec@blackhole.kfki.hu>, "Patrick McHardy (supporter:NETFILTER ({IP, IP6, ARP , EB,
+	NF}TABLES))" <kaber@trash.net>, "Pablo Neira Ayuso (supporter:NETFILTER ({IP , IP6, ARP, EB,
+	NF}TABLES))" <pablo@netfilter.org>
 
-On Tue, 13 Dec 2016 23:45:52 +0530
-Balaji J <ping2balaji@gmail.com> wrote:
+On 2016/12/14 0:11, Micha=B3 Miros=B3aw wrote:
+> On Tue, Dec 13, 2016 at 03:59:46PM +0300, Sergei Shtylyov wrote:
+>> Hello!
+>>
+>> On 12/13/2016 3:12 AM, Micha=B3 Miros=B3aw wrote:
+>>
+>>> This removes assumption than vlan_tci !=3D 0 when tag is present.
+>>>
+>>> Signed-off-by: Micha=B3 Miros=B3aw <mirq-linux@rere.qmqm.pl>
+>>> ---
+>>>  net/bridge/br_netfilter_hooks.c | 14 ++++++++------
+>>>  net/bridge/br_private.h         |  2 +-
+>>>  net/bridge/br_vlan.c            |  6 +++---
+>>>  3 files changed, 12 insertions(+), 10 deletions(-)
+>>>
+>>> diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_=
+hooks.c
+>>> index b12501a..2cc0747 100644
+>>> --- a/net/bridge/br_netfilter_hooks.c
+>>> +++ b/net/bridge/br_netfilter_hooks.c
+>> [...]
+>>> @@ -749,8 +747,12 @@ static int br_nf_dev_queue_xmit(struct net *net, s=
+truct sock *sk, struct sk_buff
+>>>
+>>>  		data =3D this_cpu_ptr(&brnf_frag_data_storage);
+>>>
+>>> -		data->vlan_tci =3D skb->vlan_tci;
+>>> -		data->vlan_proto =3D skb->vlan_proto;
+>>> +		if (skb_vlan_tag_present(skb)) {
+>>> +			data->vlan_tci =3D skb->vlan_tci;
+>>> +			data->vlan_proto =3D skb->vlan_proto;
+>>> +		} else
+>>> +			data->vlan_proto =3D 0;
+>>
+>>    CodingStyle: should use {} in all branches of *if* if at least one br=
+anch
+>> has {}.
+>>
+>> [...]
+>>> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+>>> index b6de4f4..ef94664 100644
+>>> --- a/net/bridge/br_vlan.c
+>>> +++ b/net/bridge/br_vlan.c
+>>
+>>> @@ -444,8 +444,8 @@ static bool __allowed_ingress(const struct net_brid=
+ge *br,
+>>>  			__vlan_hwaccel_put_tag(skb, br->vlan_proto, pvid);
+>>>  		else
+>>>  			/* Priority-tagged Frame.
+>>> -			 * At this point, We know that skb->vlan_tci had
+>>> -			 * VLAN_TAG_PRESENT bit and its VID field was 0x000.
+>>> +			 * At this point, We know that skb->vlan_tci VID
+>>
+>>    s/We/we/.
+>>
+>>> +			 * field was 0x000.
+>>
+>>    Simply 0, maybe?
 
-> Thanks Stephen.
-> Can i attach an interface with IP assigned to it already/statically to a
-> bridge?
-> So if i understand correctly from your response, i should run dhcpclient on
-> br0 interface to assign IP for the same? and Lets say br0 gets an IP
-> assigned by DHCP-Server as "12.0.0.1".
-> 
-> Now my intention is to assign IP address to the Host(say host1) behind
-> Router-1 using the DHCP-Server running on/behind Router-2 as shown below:
-> Host1 <------> (eth2)[Router-1](eth1:100.1.1.1) <----------EoGRE
-> Tunnel----->(eth0:100.1.1.254)[Router-2](DHCP-Server)
-> 
-> So i thought Bridging eth2 to eth1 in Router-1 is the only way to achieve
-> the same as i want the dhcp-broadcast packet from Host-1 to get tunneled
-> over EogRE till Router-2. Is this assumption correct? or i am missing
-> something here?
-> 
-> Or i should not assign any IP to eth2 and instead do it in br0 in Router-1?
-> 
-> Any guidance would be very helpful and greatly appreciated.
-> 
-> Thanks,
-> ...Balaji.J
+I originally wrote it like this because we are playing with bit field here.
+I meant that all of 12 bits are 0 thus we can safely perform bitwise-OR
+to update the VID field.
 
-The problem is that the IP address on an enslaved interface is not used
-by the IP stack and packets destined for that address tend to be blackholed.
-Packets being sent out get put on the enslaved interface and only sent
-out that interface not bridged.
+Thanks,
+Toshiaki Makita
+
 
