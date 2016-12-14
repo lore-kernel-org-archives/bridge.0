@@ -1,25 +1,15 @@
-Return-Path: <srinivas.aji@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=Oe38HN+yZzSv+G7zEnuqW3DzbTIs+WoBuIwY3eN8GT4=;
-	b=E7wwJ4lKP9zFqiEfO7x0F9LBIkqUqogWZfGjq5ikngw59OQtt+uu8BDKu7xCdImBvJ
-	PuQ4ikiKsw3348ji+RfklHq3dqcOXwCoF3zmcGwxwgYiGSFSt7gfaDHGqCr79RChUk7p
-	AXoE5p7kvUXIYy4eeYDTVwqEHXSmFlTnuh8p98JrynPxu9JJzbXsIS1Ur+gDgwa6KREq
-	hqTtfJkRZhX2ezFWSJOYlKIyQwPVj8OWTvFfd4R0V9Is4HllTBAfnbLixDuOoiX4axmj
-	QCZpaLin6MHUdpikdj02cYjiTT2Yz1QZOiCdciGbW9KJNhbeD6D1wz+nAzQA8hHLJKmJ
-	44EA==
+Return-Path: <mirq@rere.qmqm.pl>
+Date: Wed, 14 Dec 2016 15:28:30 +0100
+From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+Message-ID: <20161214142830.54gdkfkpzlcdx4my@rere.qmqm.pl>
+References: <cfa1f2efae2217b50cbefccbf9ba7f0d24a23c63.1480755768.git.mirq-linux@rere.qmqm.pl>
+	<20161213172118.2f55c503@xeon-e3>
 MIME-Version: 1.0
-In-Reply-To: <CAAtMjxZGZc6+xDhUqLVGrhVwhy33AHft8DU-Rf+tX3ahzs4iRA@mail.gmail.com>
-References: <CAAtMjxaGCpd_3axCbinnpDpgR+H3DPn9y+cLabodGiytwckc7A@mail.gmail.com>
-	<20161213094128.3fa3f4a5@xeon-e3>
-	<CAAtMjxYTtqk3f5ucZuhP=Uv+bJR7NEYPXrB_vUtX+MpzoMt78Q@mail.gmail.com>
-	<20161213111649.4d983c5f@xeon-e3>
-	<CAAtMjxZGZc6+xDhUqLVGrhVwhy33AHft8DU-Rf+tX3ahzs4iRA@mail.gmail.com>
-From: "Srinivas M.A." <srinivas.aji@gmail.com>
-Date: Wed, 14 Dec 2016 13:31:29 +0530
-Message-ID: <CANbryT9wiSF1=wwb6Rfo9D27Oi5Ra858tQ6=HCLS-OZuZ9OX3A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] Bridge interface not forwarding DHCP-Broadcast
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20161213172118.2f55c503@xeon-e3>
+Subject: Re: [Bridge] [PATCH net-next] net: remove abuse of VLAN DEI/CFI bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,18 +18,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Balaji J <ping2balaji@gmail.com>
-Cc: bridge@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "open list:OPENVSWITCH" <dev@openvswitch.org>, netdev@vger.kernel.org, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>
 
-On Wed, Dec 14, 2016 at 7:33 AM, Balaji J <ping2balaji@gmail.com> wrote:
+On Tue, Dec 13, 2016 at 05:21:18PM -0800, Stephen Hemminger wrote:
+> On Sat,  3 Dec 2016 10:22:28 +0100 (CET)
+> Micha=B3 Miros=B3aw <mirq-linux@rere.qmqm.pl> wrote:
+>=20
+> > This All-in-one patch removes abuse of VLAN CFI bit, so it can be passed
+> > intact through linux networking stack.
+> >=20
+> > Signed-off-by: Micha=B3 Miros=B3aw <michal.miroslaw@atendesoftware.pl>
+> > ---
+> >=20
+> > Dear NetDevs
+> >=20
+> > I guess this needs to be split to the prep..convert[]..finish sequence,
+> > but if you like it as is, then it's ready.
+> >=20
+> > The biggest question is if the modified interface and vlan_present
+> > is the way to go. This can be changed to use vlan_proto !=3D 0 instead
+> > of an extra flag bit.
+> >=20
+> > As I can't test most of the driver changes, please look at them careful=
+ly.
+> > OVS and bridge eyes are especially welcome.
+> >=20
+> > Best Regards,
+> > Micha=B3=A0Miros=B3aw
+>=20
+> Is the motivation to support 802.1ad Drop Eligability Indicator (DEI)?
+>=20
+> If so then you need to be more verbose in the commit log, and lots more
+> work is needed. You need to rename fields and validate every place a
+> driver is using DEI bit to make sure it really does the right thing
+> on that hardware. It is not just a mechanical change.
 
-> In the following article it is quoted that dhclient can be run on the
-> interface attached to the bridge:
-> https://wiki.linuxfoundation.org/networking/bridge
+There are not many mentions of CFI bit in the Linux tree. Places that
+used it as VLAN_TAG_PRESENT are fixed with this patchset. Other uses are:
 
->  # brctl setfd br0 0
->  # brctl addif br0 eth0
->  # dhclient eth0
+ - VLAN code: ignored
+ - ebt_vlan: ignored
+ - OVS: cleared because of netlink API assumptions
+ - DSA: transferred to/from (E)DSA tag
+ - drivers: gianfar: uses properly in filtering rules
+ - drivers: cnic: false-positive (uses only VLAN ID, CFI bit marks the fiel=
+d 'valid')
+ - drivers: qedr: false-positive (like cnic)
 
-This seems like a typo. It should be "dhclient br0" just like the
-"dhclient mybridge" in an example further up in the page.
+So unless there is something hidden in the hardware, no driver does anything
+special with the CFI bit.
+
+After this patchset only OVS will need further modifications to be able to
+support handling of DEI bit.
+
+Best Regards,
+Micha=B3=A0Miros=B3aw
