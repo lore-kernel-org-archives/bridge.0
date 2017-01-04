@@ -1,14 +1,13 @@
 Return-Path: <mirq@rere.qmqm.pl>
-Message-Id: <968f5e13eec35e176d0076ea8f89de63caef1a79.1483475202.git.mirq-linux@rere.qmqm.pl>
-In-Reply-To: <cover.1483475202.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1483475202.git.mirq-linux@rere.qmqm.pl>
+Message-Id: <7e98c3999f4ad1a80a96234b955e8d41791e2ba4.1483488960.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <cover.1483488960.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1483488960.git.mirq-linux@rere.qmqm.pl>
 From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Date: Tue,  3 Jan 2017 21:52:36 +0100 (CET)
-Subject: [Bridge] [PATCH net-next v2 13/27] bridge: use __vlan_hwaccel
-	helpers
+Date: Wed,  4 Jan 2017 01:24:26 +0100 (CET)
+Subject: [Bridge] [PATCH net-next 5/8] bridge: use __vlan_hwaccel helpers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
