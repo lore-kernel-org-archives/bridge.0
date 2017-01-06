@@ -1,14 +1,14 @@
 Return-Path: <johannes@sipsolutions.net>
-Message-ID: <1483706872.4089.8.camel@sipsolutions.net>
+Message-ID: <1483710841.12677.1.camel@sipsolutions.net>
 From: Johannes Berg <johannes@sipsolutions.net>
-Date: Fri, 06 Jan 2017 13:47:52 +0100
-In-Reply-To: <20170102193214.31723-1-linus.luessing@c0d3.blue>
-	(sfid-20170102_204412_831542_1DC6188A)
+Date: Fri, 06 Jan 2017 14:54:01 +0100
+In-Reply-To: <8836daaa-9638-4502-d079-fd428595f822@nbd.name>
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
-	(sfid-20170102_204412_831542_1DC6188A)
-Content-Type: text/plain; charset="utf-8"
+	<1483706872.4089.8.camel@sipsolutions.net>
+	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -18,42 +18,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>, netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
-
-On Mon, 2017-01-02 at 20:32 +0100, Linus Lüssing wrote:
-> Implements an optional, per bridge port flag and feature to deliver
-> multicast packets to any host on the according port via unicast
-> individually. This is done by copying the packet per host and
-> changing the multicast destination MAC to a unicast one accordingly.
-
-How does this compare and/or relate to the multicast-to-unicast feature
-we were going to add to the wifi stack, particularly mac80211? Do we
-perhaps not need that feature at all, if bridging will have it?
-
-I suppose that the feature there could apply also to locally generated
-traffic when the AP interface isn't in a bridge, but I think I could
-live with requiring the AP to be put into a bridge to achieve a similar
-configuration?
-
-Additionally, on an unrelated note, this seems to apply generically to
-all kinds of frames, losing information by replacing the address.
-Shouldn't it have similar limitations as the wifi stack feature has
-then, like only applying to ARP, IPv4, IPv6 and not general protocols?
-
-Also, it should probably come with the same caveat as we documented for
-the wifi feature:
-
-    Note that this may break certain expectations of the receiver,
-    such as the ability to drop unicast IP packets received within
-    multicast L2 frames, or the ability to not send ICMP destination
-    unreachable messages for packets received in L2 multicast (which
-    is required, but the receiver can't tell the difference if this
-    new option is enabled.)
+To: Felix Fietkau <nbd@nbd.name>, Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Michael Braun <michael-dev@fami-braun.de>
 
 
-I'll hold off sending my tree in until we see that we really need both
-features, or decide that we want the wifi feature *instead* of the
-bridge feature.
+> The bridge layer can use IGMP snooping to ensure that the multicast
+> stream is only transmitted to clients that are actually a member of
+> the group. Can the mac80211 feature do the same?
+
+No, it'll convert the packet for all clients that are behind that
+netdev. But that's an argument for dropping the mac80211 feature, which
+hasn't been merged upstream yet, no?
 
 johannes
