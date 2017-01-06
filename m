@@ -1,13 +1,15 @@
-Return-Path: <mirq@rere.qmqm.pl>
-Message-Id: <7e98c3999f4ad1a80a96234b955e8d41791e2ba4.1483488960.git.mirq-linux@rere.qmqm.pl>
-In-Reply-To: <cover.1483488960.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1483488960.git.mirq-linux@rere.qmqm.pl>
-From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-MIME-Version: 1.0
+Return-Path: <johannes@sipsolutions.net>
+Message-ID: <1483706872.4089.8.camel@sipsolutions.net>
+From: Johannes Berg <johannes@sipsolutions.net>
+Date: Fri, 06 Jan 2017 13:47:52 +0100
+In-Reply-To: <20170102193214.31723-1-linus.luessing@c0d3.blue>
+	(sfid-20170102_204412_831542_1DC6188A)
+References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
+	(sfid-20170102_204412_831542_1DC6188A)
 Content-Type: text/plain; charset="utf-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Date: Wed,  4 Jan 2017 01:24:26 +0100 (CET)
-Subject: [Bridge] [PATCH net-next 5/8] bridge: use __vlan_hwaccel helpers
+Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,88 +18,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Patrick McHardy <kaber@trash.net>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
 
-This removes assumption than vlan_tci != 0 when tag is present.
+On Mon, 2017-01-02 at 20:32 +0100, Linus Lüssing wrote:
+> Implements an optional, per bridge port flag and feature to deliver
+> multicast packets to any host on the according port via unicast
+> individually. This is done by copying the packet per host and
+> changing the multicast destination MAC to a unicast one accordingly.
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
----
- net/bridge/br_netfilter_hooks.c | 15 +++++++++------
- net/bridge/br_private.h         |  2 +-
- net/bridge/br_vlan.c            |  6 +++---
- 3 files changed, 13 insertions(+), 10 deletions(-)
+How does this compare and/or relate to the multicast-to-unicast feature
+we were going to add to the wifi stack, particularly mac80211? Do we
+perhaps not need that feature at all, if bridging will have it?
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 8ca6a929bf12..b62177a980e1 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -682,10 +682,8 @@ static int br_nf_push_frag_xmit(struct net *net, struct sock *sk, struct sk_buff
- 		return 0;
- 	}
- 
--	if (data->vlan_tci) {
--		skb->vlan_tci = data->vlan_tci;
--		skb->vlan_proto = data->vlan_proto;
--	}
-+	if (data->vlan_proto)
-+		__vlan_hwaccel_put_tag(skb, data->vlan_proto, data->vlan_tci);
- 
- 	skb_copy_to_linear_data_offset(skb, -data->size, data->mac, data->size);
- 	__skb_push(skb, data->encap_size);
-@@ -749,8 +747,13 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 
- 		data = this_cpu_ptr(&brnf_frag_data_storage);
- 
--		data->vlan_tci = skb->vlan_tci;
--		data->vlan_proto = skb->vlan_proto;
-+		if (skb_vlan_tag_present(skb)) {
-+			data->vlan_tci = skb->vlan_tci;
-+			data->vlan_proto = skb->vlan_proto;
-+		} else {
-+			data->vlan_proto = 0;
-+		}
-+
- 		data->encap_size = nf_bridge_encap_header_len(skb);
- 		data->size = ETH_HLEN + data->encap_size;
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 8ce621e8345c..2efbdaf9ae1b 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -819,7 +819,7 @@ static inline int br_vlan_get_tag(const struct sk_buff *skb, u16 *vid)
- 	int err = 0;
- 
- 	if (skb_vlan_tag_present(skb)) {
--		*vid = skb_vlan_tag_get(skb) & VLAN_VID_MASK;
-+		*vid = skb_vlan_tag_get_id(skb);
- 	} else {
- 		*vid = 0;
- 		err = -EINVAL;
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index b6de4f457161..d25a5b34dc76 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -377,7 +377,7 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
- 	}
- 
- 	if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED)
--		skb->vlan_tci = 0;
-+		__vlan_hwaccel_clear_tag(skb);
- out:
- 	return skb;
- }
-@@ -444,8 +444,8 @@ static bool __allowed_ingress(const struct net_bridge *br,
- 			__vlan_hwaccel_put_tag(skb, br->vlan_proto, pvid);
- 		else
- 			/* Priority-tagged Frame.
--			 * At this point, We know that skb->vlan_tci had
--			 * VLAN_TAG_PRESENT bit and its VID field was 0x000.
-+			 * At this point, we know that skb->vlan_tci VID
-+			 * field was 0.
- 			 * We update only VID field and preserve PCP field.
- 			 */
- 			skb->vlan_tci |= pvid;
--- 
-2.11.0
+I suppose that the feature there could apply also to locally generated
+traffic when the AP interface isn't in a bridge, but I think I could
+live with requiring the AP to be put into a bridge to achieve a similar
+configuration?
 
+Additionally, on an unrelated note, this seems to apply generically to
+all kinds of frames, losing information by replacing the address.
+Shouldn't it have similar limitations as the wifi stack feature has
+then, like only applying to ARP, IPv4, IPv6 and not general protocols?
+
+Also, it should probably come with the same caveat as we documented for
+the wifi feature:
+
+    Note that this may break certain expectations of the receiver,
+    such as the ability to drop unicast IP packets received within
+    multicast L2 frames, or the ability to not send ICMP destination
+    unreachable messages for packets received in L2 multicast (which
+    is required, but the receiver can't tell the difference if this
+    new option is enabled.)
+
+
+I'll hold off sending my tree in until we see that we really need both
+features, or decide that we want the wifi feature *instead* of the
+bridge feature.
+
+johannes
