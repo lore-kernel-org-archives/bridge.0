@@ -1,14 +1,23 @@
-Return-Path: <johannes@sipsolutions.net>
-Message-ID: <1483710841.12677.1.camel@sipsolutions.net>
-From: Johannes Berg <johannes@sipsolutions.net>
-Date: Fri, 06 Jan 2017 14:54:01 +0100
-In-Reply-To: <8836daaa-9638-4502-d079-fd428595f822@nbd.name>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=HqMTbCWSfnW2iygd8S3qIxs+5b3UuvJjn6Tu1L46aIo=;
+	b=jWYUbqSPKXQ830ciUlET0l9Dv8KX97mBUr6LGVcYk1WQ/LzrQQCDId7vU9P9oW3U3j
+	LrhsDfF/ylu1R5aXGsJJ5UxEalTxWHnm/aAcuDSq1mjxvbjTQPPVs8AlTGFmSHXU6UEW
+	/lQ3eUwT0rFhvpOk+s07l9wpH4Go6rIMRRu+mXwhDVw0PMgc+aOQ4JkaBWgtoC1uw2hL
+	pKAU5KQFAGuFBtYxI+EjDLjWBFX+xO0WeFbQsCWU2QB4MgUPlcb8XJMzav+EaAzSNVj9
+	wEZmUWSArZLDHhufKcsFyaoOHP2yGqXoYDAUIlEj4GQfdEGE5UynvpOZE3/RGHYFQD5H
+	knBw==
+Date: Fri, 6 Jan 2017 19:13:56 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20170106191356.43740a26@xeon-e3>
+In-Reply-To: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
-	<1483706872.4089.8.camel@sipsolutions.net>
-	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -18,16 +27,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Felix Fietkau <nbd@nbd.name>, Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>, netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Michael Braun <michael-dev@fami-braun.de>
+To: Linus =?UTF-8?B?TMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+
+On Mon,  2 Jan 2017 20:32:14 +0100
+Linus L=C3=BCssing <linus.luessing@c0d3.blue> wrote:
+
+> This feature is intended for interface types which have a more reliable
+> and/or efficient way to deliver unicast packets than broadcast ones
+> (e.g. wifi).
 
 
-> The bridge layer can use IGMP snooping to ensure that the multicast
-> stream is only transmitted to clients that are actually a member of
-> the group. Can the mac80211 feature do the same?
-
-No, it'll convert the packet for all clients that are behind that
-netdev. But that's an argument for dropping the mac80211 feature, which
-hasn't been merged upstream yet, no?
-
-johannes
+Why is this not done in MAC80211 rather than  bridge?
