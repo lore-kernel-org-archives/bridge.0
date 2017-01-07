@@ -1,16 +1,14 @@
 Return-Path: <linus.luessing@c0d3.blue>
-Date: Sat, 7 Jan 2017 15:55:16 +0100
+Date: Sat, 7 Jan 2017 16:06:34 +0100
 From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20170107145516.GE3134@otheros>
+Message-ID: <20170107150634.GF3134@otheros>
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
-	<1483706872.4089.8.camel@sipsolutions.net>
-	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
-	<1483710841.12677.1.camel@sipsolutions.net>
-	<22fad045-57c6-7789-d19f-f47bd0faf441@fami-braun.de>
+	<20170106191356.43740a26@xeon-e3>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <22fad045-57c6-7789-d19f-f47bd0faf441@fami-braun.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20170106191356.43740a26@xeon-e3>
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -20,51 +18,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "M. Braun" <michael-dev@fami-braun.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
 
-On Sat, Jan 07, 2017 at 11:32:57AM +0100, M. Braun wrote:
-> Am 06.01.2017 um 14:54 schrieb Johannes Berg:
-> > 
-> >> The bridge layer can use IGMP snooping to ensure that the multicast
-> >> stream is only transmitted to clients that are actually a member of
-> >> the group. Can the mac80211 feature do the same?
-> > 
-> > No, it'll convert the packet for all clients that are behind that
-> > netdev. But that's an argument for dropping the mac80211 feature, which
-> > hasn't been merged upstream yet, no?
+On Fri, Jan 06, 2017 at 07:13:56PM -0800, Stephen Hemminger wrote:
+> On Mon,  2 Jan 2017 20:32:14 +0100
+> Linus Lüssing <linus.luessing@c0d3.blue> wrote:
 > 
-> But there is multicast/broadcast traffic like e.g. ARP and some IP
-> multicast groups that are not covered by IGMP snooping. The mac80211
-> patch converts this to unicast as well, which the bridge cannot do.
+> > This feature is intended for interface types which have a more reliable
+> > and/or efficient way to deliver unicast packets than broadcast ones
+> > (e.g. wifi).
 > 
-> That way, these features both complement and overlap each other.
+> 
+> Why is this not done in MAC80211 rather than  bridge?
 
-Right, I'd agree with that.
+Because mac80211 does not have the IGMP/MLD snooping code as
+the bridge has?
 
-I didn't write it explicitly in the commit message, but yes, the
-like anything concerning bridge multicast snooping, bridge
-multicast-to-unicast can only affect packets as noted in
-RFC4541 ("Considerations for Internet Group Management Protocol (IGMP)
-and Multicast Listener Discovery (MLD) Snooping Switches"), too.
+Reimplementing the snooping in mac80211 does not make sense
+because of duplicating code. Moving the snooping code from the
+bridge to mac80211 does not make sense either, because we want
+multicast snooping, software based, (virtually) wired switches,
+too.
 
-So it is only working for IPv4 multicast, excluding link-local
-(224.0.0.0/24), and IPv6 multicast, excluding all-host-multicast
-(ff02::1).
+The "best way" (TM) would probably be to migrate the IGMP/MLD
+snooping from the bridge code to the net device code on the long
+run to make such a database usable for any kind of device, without
+needing this bridge hack.
 
-And does not concern ARP in any way.
+But such a migration would also need a way more invasive patchset.
 
-
-The nice complementary effect is, that the bridge can first sieve
-out those IP packets thanks to IGMP/MLD snooping knowledge and for
-anything else, like ARP, 224.0.0.x or ff02::1, the mac80211
-multicast-to-unicast could do its job.
-
-
-For APs with a small number of STAs (like your private home AP),
-you might want to enable both bridge multicast-to-unicast and
-mac80211 multicast-to-unicast for this complementary effect. While
-on public APs with 30 to 50 STAs with varying distances and bitrates,
-you might only one to enable the bridge one, because sending an ARP
-packet 50x might actually reduce performance and airtime
-significantly.
+While Felix's idea might look a little "ugly" due it's hacky
+nature, I think it is also quite beautiful thanks to it's
+simplicity.
