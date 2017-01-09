@@ -1,21 +1,15 @@
-Return-Path: <johannes@sipsolutions.net>
-Message-ID: <1484045763.1014.0.camel@sipsolutions.net>
-From: Johannes Berg <johannes@sipsolutions.net>
-Date: Tue, 10 Jan 2017 11:56:03 +0100
-In-Reply-To: <20170110041816.GJ5513@otheros>
+Return-Path: <jp.tosoni@acksys.fr>
+From: "Jean-Pierre Tosoni" <jp.tosoni@acksys.fr>
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
-	<1483706872.4089.8.camel@sipsolutions.net>
-	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
-	<1483710841.12677.1.camel@sipsolutions.net>
-	<22fad045-57c6-7789-d19f-f47bd0faf441@fami-braun.de>
-	<20170107145516.GE3134@otheros>
-	<1483949336.17582.3.camel@sipsolutions.net>
-	<6f5ec9f1-800a-2bc4-2f41-9d803343bb22@fami-braun.de>
-	<20170109212345.GA5513@otheros> <20170109133032.221f8669@xeon-e3>
-	<20170110041816.GJ5513@otheros>
-Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	<20170106191356.43740a26@xeon-e3>
+In-Reply-To: <20170106191356.43740a26@xeon-e3>
+Date: Mon, 9 Jan 2017 09:36:55 +0100
+Message-ID: <002f01d26a53$88c8da60$9a5a8f20$@acksys.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Language: fr
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -25,17 +19,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "M. Braun" <michael-dev@fami-braun.de>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+To: 'Stephen Hemminger' <stephen@networkplumber.org>, =?UTF-8?Q?'Linus_L=C3=BCssing'?= <linus.luessing@c0d3.blue>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "'David S . Miller'" <davem@davemloft.net>, 'Felix Fietkau' <nbd@nbd.name>
 
-On Tue, 2017-01-10 at 05:18 +0100, Linus Lüssing wrote:
-> On Mon, Jan 09, 2017 at 01:30:32PM -0800, Stephen Hemminger wrote:
-> > I wonder if MAC80211 should be doing IGMP snooping and not bridge
-> > in this environment.
-> 
-> In the long term, yes. For now, not quite sure.
+> -----Message d'origine-----
+> De : linux-wireless-owner@vger.kernel.org [mailto:linux-wireless-
+> owner@vger.kernel.org] De la part de Stephen Hemminger
+> Envoy=C3=A9 : samedi 7 janvier 2017 04:14
+> =C3=80 : Linus L=C3=BCssing
+> Cc : netdev@vger.kernel.org; David S . Miller; bridge@lists.linux-
+> foundation.org; linux-kernel@vger.kernel.org; linux-
+> wireless@vger.kernel.org; Felix Fietkau
+> Objet : Re: [PATCH net-next] bridge: multicast to unicast
+>=20
+> On Mon,  2 Jan 2017 20:32:14 +0100
+> Linus L=C3=BCssing <linus.luessing@c0d3.blue> wrote:
+>=20
+> > This feature is intended for interface types which have a more
+> > reliable and/or efficient way to deliver unicast packets than
+> > broadcast ones (e.g. wifi).
+>=20
+>=20
+> Why is this not done in MAC80211 rather than  bridge?
 
-There's no "for now" in the kernel. Code added now will have to be
-maintained essentially forever.
+OTOH mac80211 has more information to decide whether it is more economic =
+to send one multicast or several unicast.
+It depends on the bitrate of each station, number of stations and the =
+(not necessarily slower) bitrate of multicasts.
 
-johannes
