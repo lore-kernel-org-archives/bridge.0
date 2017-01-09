@@ -1,8 +1,7 @@
-Return-Path: <johannes@sipsolutions.net>
-Message-ID: <1483976821.20579.0.camel@sipsolutions.net>
-From: Johannes Berg <johannes@sipsolutions.net>
-Date: Mon, 09 Jan 2017 16:47:01 +0100
-In-Reply-To: <ebc5050e12c04273fa518e35d7f0b8bc@fami-braun.de>
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Mon, 9 Jan 2017 22:23:45 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20170109212345.GA5513@otheros>
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<1483706872.4089.8.camel@sipsolutions.net>
 	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
@@ -11,11 +10,10 @@ References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<20170107145516.GE3134@otheros>
 	<1483949336.17582.3.camel@sipsolutions.net>
 	<6f5ec9f1-800a-2bc4-2f41-9d803343bb22@fami-braun.de>
-	<1483964159.17582.34.camel@sipsolutions.net>
-	<ebc5050e12c04273fa518e35d7f0b8bc@fami-braun.de>
-Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <6f5ec9f1-800a-2bc4-2f41-9d803343bb22@fami-braun.de>
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -25,25 +23,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: michael-dev <michael-dev@fami-braun.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+To: "M. Braun" <michael-dev@fami-braun.de>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
 
-On Mon, 2017-01-09 at 16:25 +0100, michael-dev wrote:
-> Am 09.01.2017 13:15, schrieb Johannes Berg:
-> > > That is bridge fdb entries (need to) expire so the bridge might
-> > > "forget" a still-connected station not sending but only consuming
-> > > broadcast traffic.
+On Mon, Jan 09, 2017 at 12:44:19PM +0100, M. Braun wrote:
+> Am 09.01.2017 um 09:08 schrieb Johannes Berg:
+> > Does it make sense to implement the two in separate layers though?
 > > 
-> > Ok, that I don't know. Somehow if you address a unicast packet
-> > there
-> > the bridge has to make a decision - so it really should know?
+> > Clearly, this part needs to be implemented in the bridge layer due to
+> > the snooping knowledge, but the code is very similar to what mac80211
+> > has now.
 > 
-> If the bridge has not learned the unicast destination mac address on
-> any port, it will flood the packet on all ports except the port it
-> received the packet on.
+> Does the bridge always know about all stations connected?
 
-Ok, so this really needs to be done in mac80211.
+The bridge does not always know about all stations, especially the
+silent ones like in your DVB-T example.
 
-I'll send out the pull request soon then.
+However, concerning IP multicast, there is IGMP/MLD. So the bridge
+does know about all stations which are interested in a specific IP
+multicast stream.
 
-johannes
+(As long as there is a querier on the link, which periodically
+queriers for IGMP/MLD reports from any listener. If there is no
+querier then the bridge multicast snooping, including the bridge
+multicast-to-unicast will fall back to flooding)
+
+
+So if your television example uses IP multicast properly, it is
+completely doable with the bridge multicast-to-unicast, thanks to
+IGMP/MLD.
