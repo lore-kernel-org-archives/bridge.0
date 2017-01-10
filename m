@@ -2,8 +2,8 @@ Return-Path: <nbd@nbd.name>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
 	s=20160729; 
 	h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:Cc:References:To:Subject;
-	bh=mn1cdVMyUWFfBWSz5U9mFh8SWeuDpENypXh3Vx/6JII=; 
-	b=bjcJjw5CPC1VEVXi8sWIX50MjT9/++NVyqcNZ56SCn6Q41T8u9QaIx8ZBm4zMeXe1v0mWeWbknEJUR4MJEsms1dGtQ7xqYT5cWqVz1yAzQpMS2Gs1+RKRV5o/4P5sPbnEwKD1PsvfvVbQpS0DLR72OLd5FAqPs546/n1sjcsqYo=;
+	bh=KjVTWGh4rO0uECwfxUN6K0EqlMuPEvxbvyWr9UgCtVg=; 
+	b=pEAGa8atniyITLWQkjxXWUFVGV2S/SPggRUppEJSmA5KqlfU3Z3JikhKiivNRG7rDI1q4sbnTdFmoqZ9uXDDmPVYh81gG2mhRx6HjSS0+1oVffOnnFB23z+1gnOJCnc9bIFRjqexN0rQdwrQQbsIjWW/L6bvtWSk1eI4gwFv7ik=;
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<1483706872.4089.8.camel@sipsolutions.net>
 	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
@@ -15,14 +15,13 @@ References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<20170109212345.GA5513@otheros> <20170109133032.221f8669@xeon-e3>
 	<20170110041816.GJ5513@otheros>
 	<1484045763.1014.0.camel@sipsolutions.net>
-	<CAA93jw6+P8um7TxDCYgJ=SJfFzpskboR7njgudMb3NR4JZ34BA@mail.gmail.com>
 From: Felix Fietkau <nbd@nbd.name>
-Message-ID: <99c01ce6-d80c-790e-25e5-157be31aee9a@nbd.name>
-Date: Tue, 10 Jan 2017 18:23:29 +0100
+Message-ID: <73f29777-cf95-de99-f7a9-9d82e94c298d@nbd.name>
+Date: Tue, 10 Jan 2017 22:27:25 +0100
 MIME-Version: 1.0
-In-Reply-To: <CAA93jw6+P8um7TxDCYgJ=SJfFzpskboR7njgudMb3NR4JZ34BA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1484045763.1014.0.camel@sipsolutions.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -32,43 +31,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dave Taht <dave.taht@gmail.com>, Johannes Berg <johannes@sipsolutions.net>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "M. Braun" <michael-dev@fami-braun.de>, "David S . Miller" <davem@davemloft.net>
+To: Johannes Berg <johannes@sipsolutions.net>, =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, "M. Braun" <michael-dev@fami-braun.de>
 
-On 2017-01-10 18:17, Dave Taht wrote:
-> In the case of wifi I have 3 issues with this line of thought.
+On 2017-01-10 11:56, Johannes Berg wrote:
+> On Tue, 2017-01-10 at 05:18 +0100, Linus Lüssing wrote:
+>> On Mon, Jan 09, 2017 at 01:30:32PM -0800, Stephen Hemminger wrote:
+>> > I wonder if MAC80211 should be doing IGMP snooping and not bridge
+>> > in this environment.
+>> 
+>> In the long term, yes. For now, not quite sure.
 > 
-> multicast in wifi has generally supposed to be unreliable. This makes
-> it reliable. reliability comes at a cost -
-> 
-> multicast is typically set at a fixed low rate today. unicast is
-> retried at different rates until it succeeds - for every station
-> listening. If one station is already at the lowest rate, the total
-> cost of the transmit increases, rather than decreases.
-> 
-> unicast gets block acks until it succeeds. Again, more delay.
-> 
-> I think there is something like 31 soft-retries in the ath9k driver....
-If I remember correctly, hardware retries are counted here as well.
+> There's no "for now" in the kernel. Code added now will have to be
+> maintained essentially forever.
+I'm not sure that putting the IGMP snooping code in mac80211 is a good
+idea, that would be quite a bit of code duplication.
+This implementation works, it's very simple, and it's quite flexible for
+a number of use cases.
 
-> what happens to diffserv markings here? for unicast CS1 goes into the
-> BE queue, CS6, the VO queue. Do we go from one flat queue for all of
-> multicast to punching it through one of the hardware queues based on
-> the diffserv mark now with this patch?
-> 
-> I would like it if there was a way to preserve the unreliability
-> (which multiple mesh protocols depend on), send stuff with QoSNoack,
-> etc - or dynamically choose (based on the rates of the stations)
-> between conventional multicast and unicast.
-> 
-> Or - better, IMHO, keep sending multicast as is but pick the best of
-> the rates available to all the listening stations for it.
-The advantage of the multicast-to-unicast conversion goes beyond simply
-selecting a better rate - aggregation matters a lot as well, and that is
-simply incompatible with normal multicast.
-
-Some multicast streams use lots of small-ish packets, the airtime impact
-of those is vastly reduced, even if the transmission has to be
-duplicated for a few stations.
+Is there any remaining objection to merging this in principle (aside
+from potential issues with the code)?
 
 - Felix
