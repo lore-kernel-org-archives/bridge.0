@@ -1,15 +1,16 @@
 Return-Path: <dave.taht@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=NH/tfrMOCB6pUY8CmQS8dFsusfW5klKMmWTf3H8Fq74=;
-	b=IqyEQ0It8jgwnCsdvY7by63ixAnn691Pe2L7Vla5toeP3b6GI48aKCl1hy6BYywkr4
-	jh6I3x6Ihoq5Art0yIDIJ/XcD90we8jkp3/79Yye0ukHsX0YxtOFN6X1cVnv/7jCFmfV
-	oXcMMYDS7yiTzFE1f8SuMlh9akwLkRw8ZNEAg0HcxPHnZupR7G5UTayRtTh9jeLMfh0I
-	uGm2na9152b58fsuWqe6RbSjweGC8RMF5LbGpcDGYn9nTKkHuxAD9Z6pL5sUZkFR0aJb
-	ZsJJsh1ZioKsSCtOoQP7PVQAUZmRfLkpgSOnuHWXkEVef3GWe6BxpoYXpsdhfbzBCqCA
-	EWOw==
+	:cc:content-transfer-encoding;
+	bh=zP67i+HPRdQe5TLefQ7frZAGfyh+R6iA1KlHa/la2kM=;
+	b=JXriUHI2as9uH/y1p1GuhkhwY1zMaMl0EIuxRWTu+TT7kkTv5xoq5nDKvTq11XI66l
+	JDoO1qB9e4R5b8ELtjaAYEvNL/e46XMWmaYkOQiEUbC9W4y0DL1umnFfcfLoWAJm0CP/
+	cE2XTapqFe/bL9q2t2d2mZZp2Onq8YvKzDpVSe8h+mf/TlC8hf1aW1Q6WYTNpROdyM0P
+	zdQxkVZUaXd8jBzf/rhSwF1kyDAiL9kDlSKR3I117MdhwRzq9MjMwyBZhpfQPyEk92Tq
+	0XGzzOiL727CWruVhXQvwzMfa4SBgJ0MmvuOWw2FonN/MoW8/2dm1HwUWIZINaVXahqO
+	+zEQ==
 MIME-Version: 1.0
-In-Reply-To: <1484045763.1014.0.camel@sipsolutions.net>
+In-Reply-To: <99c01ce6-d80c-790e-25e5-157be31aee9a@nbd.name>
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<1483706872.4089.8.camel@sipsolutions.net>
 	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
@@ -21,10 +22,13 @@ References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<20170109212345.GA5513@otheros>
 	<20170109133032.221f8669@xeon-e3> <20170110041816.GJ5513@otheros>
 	<1484045763.1014.0.camel@sipsolutions.net>
+	<CAA93jw6+P8um7TxDCYgJ=SJfFzpskboR7njgudMb3NR4JZ34BA@mail.gmail.com>
+	<99c01ce6-d80c-790e-25e5-157be31aee9a@nbd.name>
 From: Dave Taht <dave.taht@gmail.com>
-Date: Tue, 10 Jan 2017 09:17:14 -0800
-Message-ID: <CAA93jw6+P8um7TxDCYgJ=SJfFzpskboR7njgudMb3NR4JZ34BA@mail.gmail.com>
+Date: Tue, 10 Jan 2017 10:24:36 -0800
+Message-ID: <CAA93jw7jBCFLGgMbBbDcUGwSRS5uWnLQU0w-T4UxEQOyQdiUgA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -34,36 +38,120 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "M. Braun" <michael-dev@fami-braun.de>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+To: Felix Fietkau <nbd@nbd.name>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "M. Braun" <michael-dev@fami-braun.de>, Johannes Berg <johannes@sipsolutions.net>, "David S . Miller" <davem@davemloft.net>
 
-In the case of wifi I have 3 issues with this line of thought.
+On Tue, Jan 10, 2017 at 9:23 AM, Felix Fietkau <nbd@nbd.name> wrote:
+> On 2017-01-10 18:17, Dave Taht wrote:
+>> In the case of wifi I have 3 issues with this line of thought.
+>>
+>> multicast in wifi has generally supposed to be unreliable. This makes
+>> it reliable. reliability comes at a cost -
+>>
+>> multicast is typically set at a fixed low rate today. unicast is
+>> retried at different rates until it succeeds - for every station
+>> listening. If one station is already at the lowest rate, the total
+>> cost of the transmit increases, rather than decreases.
+>>
+>> unicast gets block acks until it succeeds. Again, more delay.
+>>
+>> I think there is something like 31 soft-retries in the ath9k driver....
+> If I remember correctly, hardware retries are counted here as well.
 
-multicast in wifi has generally supposed to be unreliable. This makes
-it reliable. reliability comes at a cost -
+I chopped this to something more reasonable but never got around to
+quantifying it, so never pushed the patch. I figured I'd measure ATF
+in a noisy environment (which I'd be doing now if it weren't for
+https://bugs.lede-project.org/index.php?do=3Ddetails&task_id=3D368 )
+first.
 
-multicast is typically set at a fixed low rate today. unicast is
-retried at different rates until it succeeds - for every station
-listening. If one station is already at the lowest rate, the total
-cost of the transmit increases, rather than decreases.
+>> what happens to diffserv markings here? for unicast CS1 goes into the
+>> BE queue, CS6, the VO queue. Do we go from one flat queue for all of
+>> multicast to punching it through one of the hardware queues based on
+>> the diffserv mark now with this patch?
 
-unicast gets block acks until it succeeds. Again, more delay.
+I meant CS1=3DBK here. Tracing the path through the bridge code made my
+head hurt, I can go look at some aircaps to see if the mcast->unicast
+conversion respects those markings or not (my vote is *not*).
 
-I think there is something like 31 soft-retries in the ath9k driver....
+>> I would like it if there was a way to preserve the unreliability
+>> (which multiple mesh protocols depend on), send stuff with QoSNoack,
+>> etc - or dynamically choose (based on the rates of the stations)
+>> between conventional multicast and unicast.
+>>
+>> Or - better, IMHO, keep sending multicast as is but pick the best of
+>> the rates available to all the listening stations for it.
 
-what happens to diffserv markings here? for unicast CS1 goes into the
-BE queue, CS6, the VO queue. Do we go from one flat queue for all of
-multicast to punching it through one of the hardware queues based on
-the diffserv mark now with this patch?
+> The advantage of the multicast-to-unicast conversion goes beyond simply
+> selecting a better rate - aggregation matters a lot as well, and that is
+> simply incompatible with normal multicast.
 
-I would like it if there was a way to preserve the unreliability
-(which multiple mesh protocols depend on), send stuff with QoSNoack,
-etc - or dynamically choose (based on the rates of the stations)
-between conventional multicast and unicast.
+Except for the VO queue which cannot aggregate. And for that matter,
+using any other hardware queue than BE tends to eat a txop that would
+otherwise possibly be combined with an aggregate.
 
-Or - better, IMHO, keep sending multicast as is but pick the best of
-the rates available to all the listening stations for it.
+(and the VI queue has always misbehaved, long on my todo list)
 
-Has anyone actually looked at the effects of this with, say, 5-10
-stations at middlin to poor quality (longer distance)? using something
-to measure the real effect of the multicast conversion? (uftp, mdns?)
+> Some multicast streams use lots of small-ish packets, the airtime impact
+> of those is vastly reduced, even if the transmission has to be
+> duplicated for a few stations.
+
+The question was basically how far up does it scale. Arguably, for a
+very few, well connected stations, this patch would help. For a
+network with more - and more badly connected stations, I think it
+would hurt.
+
+What sorts of multicast traffic are being observed that flood the
+network sufficiently to be worth optimizing out? arp? nd? upnp? mdns?
+uftp? tv?
+
+(my questions above are related to basically trying to setup a sane
+a/b test, I've been building up a new testbed in noisy environment to
+match the one I have in a quiet one, and don't have any "good" mcast
+tests defined. Has anyone done an a/b test of this code with some
+repeatable test already?)
+
+(In my observations... The only truly heavy creator of a multicast
+"burp" has tended to be upnp and mdns on smaller networks. Things like
+nd and arp get more problematic as the number of stations go up also.
+I can try things like abusing vlc or uftp to see what happens?)
+
+I certainly agree multicast is a "problem" (I've seen 20-80% or more
+of a given wifi network eaten by multicast) but I'm not convinced that
+making it reliable, aggregatable unicast scales much past
+basement-level testing of a few "good" stations, and don't know which
+protocols are making it worse, the worst, in typical environments.
+Certainly apple gear puts out a lot of multicast.
+
+...
+
+As best as I recall a recommendation in the 802.11-2012 standard was
+that multicast packets be rate-limited so that you'd have a fixed
+amount of crap after each beacon sufficient to keep the rest of the
+unicast traffic flowing rapidly, instead of dumping everything into a
+given beacon transmit.
+
+That, combined with (maybe) picking the "best" union of known rates
+per station, was essentially the strategy I'd intended[1] to pursue
+for tackling the currently infinite wifi multicast queue - fq the
+entries, have a fairly short queue (codel is not the best choice here)
+drop from head, and limit the number of packets transmitted per beacon
+to spread them out. That would solve the issue for sparse multicast
+(dhcp etc), and smooth out the burps from bigger chunks while
+impacting conventional unicast minimally.
+
+There's also the pursuit of less multicast overall at least in some protoco=
+ls
+
+https://tools.ietf.org/html/draft-ietf-dnssd-hybrid-05
+
+
+>
+> - Felix
+
+
+[1] but make-wifi-fast has been out of funding since august
+
+--=20
+Dave T=C3=A4ht
+Let's go make home routers and wifi faster! With better software!
+http://blog.cerowrt.org
