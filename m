@@ -1,16 +1,8 @@
-Return-Path: <dave.taht@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=zP67i+HPRdQe5TLefQ7frZAGfyh+R6iA1KlHa/la2kM=;
-	b=JXriUHI2as9uH/y1p1GuhkhwY1zMaMl0EIuxRWTu+TT7kkTv5xoq5nDKvTq11XI66l
-	JDoO1qB9e4R5b8ELtjaAYEvNL/e46XMWmaYkOQiEUbC9W4y0DL1umnFfcfLoWAJm0CP/
-	cE2XTapqFe/bL9q2t2d2mZZp2Onq8YvKzDpVSe8h+mf/TlC8hf1aW1Q6WYTNpROdyM0P
-	zdQxkVZUaXd8jBzf/rhSwF1kyDAiL9kDlSKR3I117MdhwRzq9MjMwyBZhpfQPyEk92Tq
-	0XGzzOiL727CWruVhXQvwzMfa4SBgJ0MmvuOWw2FonN/MoW8/2dm1HwUWIZINaVXahqO
-	+zEQ==
-MIME-Version: 1.0
-In-Reply-To: <99c01ce6-d80c-790e-25e5-157be31aee9a@nbd.name>
+Return-Path: <igor.mitsyanko.os@quantenna.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quantenna.com;
+	s=selector2; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
+	bh=fsw5BK1wpo5AzA2jZO0Pnceo2d9cE0sCL3w7EcZCPRU=;
+	b=cyIj3ewnzunqKCqqEDro03+xg0Nv8yIpY2t//qY0QF80vTs6v9SxsJRCfrsmVhF0i1BMBokNCxOeaoV3DfvGRA4D8SoZBeRtONTBkwdL0uESSeU2t3L0DAebdABAN57oEZcIPM3s5h5QECz0kcJy4nHbclQmMPmyqd8e4qFYaKk=
 References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<1483706872.4089.8.camel@sipsolutions.net>
 	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
@@ -19,16 +11,17 @@ References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
 	<20170107145516.GE3134@otheros>
 	<1483949336.17582.3.camel@sipsolutions.net>
 	<6f5ec9f1-800a-2bc4-2f41-9d803343bb22@fami-braun.de>
-	<20170109212345.GA5513@otheros>
-	<20170109133032.221f8669@xeon-e3> <20170110041816.GJ5513@otheros>
+	<20170109212345.GA5513@otheros> <20170109133032.221f8669@xeon-e3>
+	<20170110041816.GJ5513@otheros>
 	<1484045763.1014.0.camel@sipsolutions.net>
-	<CAA93jw6+P8um7TxDCYgJ=SJfFzpskboR7njgudMb3NR4JZ34BA@mail.gmail.com>
-	<99c01ce6-d80c-790e-25e5-157be31aee9a@nbd.name>
-From: Dave Taht <dave.taht@gmail.com>
-Date: Tue, 10 Jan 2017 10:24:36 -0800
-Message-ID: <CAA93jw7jBCFLGgMbBbDcUGwSRS5uWnLQU0w-T4UxEQOyQdiUgA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+	<73f29777-cf95-de99-f7a9-9d82e94c298d@nbd.name>
+From: IgorMitsyanko <igor.mitsyanko.os@quantenna.com>
+Message-ID: <058f2afd-2502-e2e5-6427-1536fcd5851f@quantenna.com>
+Date: Wed, 11 Jan 2017 14:26:16 +0300
+MIME-Version: 1.0
+In-Reply-To: <73f29777-cf95-de99-f7a9-9d82e94c298d@nbd.name>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -38,120 +31,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Felix Fietkau <nbd@nbd.name>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "M. Braun" <michael-dev@fami-braun.de>, Johannes Berg <johannes@sipsolutions.net>, "David S . Miller" <davem@davemloft.net>
+To: Felix Fietkau <nbd@nbd.name>, Johannes Berg <johannes@sipsolutions.net>, =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S .
+	Miller" <davem@davemloft.net>, "M. Braun" <michael-dev@fami-braun.de>
 
-On Tue, Jan 10, 2017 at 9:23 AM, Felix Fietkau <nbd@nbd.name> wrote:
-> On 2017-01-10 18:17, Dave Taht wrote:
->> In the case of wifi I have 3 issues with this line of thought.
+On 01/11/2017 12:27 AM, Felix Fietkau wrote:
+> On 2017-01-10 11:56, Johannes Berg wrote:
+>> On Tue, 2017-01-10 at 05:18 +0100, Linus Lüssing wrote:
+>>> On Mon, Jan 09, 2017 at 01:30:32PM -0800, Stephen Hemminger wrote:
+>>>> I wonder if MAC80211 should be doing IGMP snooping and not bridge
+>>>> in this environment.
+>>>
+>>> In the long term, yes. For now, not quite sure.
 >>
->> multicast in wifi has generally supposed to be unreliable. This makes
->> it reliable. reliability comes at a cost -
->>
->> multicast is typically set at a fixed low rate today. unicast is
->> retried at different rates until it succeeds - for every station
->> listening. If one station is already at the lowest rate, the total
->> cost of the transmit increases, rather than decreases.
->>
->> unicast gets block acks until it succeeds. Again, more delay.
->>
->> I think there is something like 31 soft-retries in the ath9k driver....
-> If I remember correctly, hardware retries are counted here as well.
-
-I chopped this to something more reasonable but never got around to
-quantifying it, so never pushed the patch. I figured I'd measure ATF
-in a noisy environment (which I'd be doing now if it weren't for
-https://bugs.lede-project.org/index.php?do=3Ddetails&task_id=3D368 )
-first.
-
->> what happens to diffserv markings here? for unicast CS1 goes into the
->> BE queue, CS6, the VO queue. Do we go from one flat queue for all of
->> multicast to punching it through one of the hardware queues based on
->> the diffserv mark now with this patch?
-
-I meant CS1=3DBK here. Tracing the path through the bridge code made my
-head hurt, I can go look at some aircaps to see if the mcast->unicast
-conversion respects those markings or not (my vote is *not*).
-
->> I would like it if there was a way to preserve the unreliability
->> (which multiple mesh protocols depend on), send stuff with QoSNoack,
->> etc - or dynamically choose (based on the rates of the stations)
->> between conventional multicast and unicast.
->>
->> Or - better, IMHO, keep sending multicast as is but pick the best of
->> the rates available to all the listening stations for it.
-
-> The advantage of the multicast-to-unicast conversion goes beyond simply
-> selecting a better rate - aggregation matters a lot as well, and that is
-> simply incompatible with normal multicast.
-
-Except for the VO queue which cannot aggregate. And for that matter,
-using any other hardware queue than BE tends to eat a txop that would
-otherwise possibly be combined with an aggregate.
-
-(and the VI queue has always misbehaved, long on my todo list)
-
-> Some multicast streams use lots of small-ish packets, the airtime impact
-> of those is vastly reduced, even if the transmission has to be
-> duplicated for a few stations.
-
-The question was basically how far up does it scale. Arguably, for a
-very few, well connected stations, this patch would help. For a
-network with more - and more badly connected stations, I think it
-would hurt.
-
-What sorts of multicast traffic are being observed that flood the
-network sufficiently to be worth optimizing out? arp? nd? upnp? mdns?
-uftp? tv?
-
-(my questions above are related to basically trying to setup a sane
-a/b test, I've been building up a new testbed in noisy environment to
-match the one I have in a quiet one, and don't have any "good" mcast
-tests defined. Has anyone done an a/b test of this code with some
-repeatable test already?)
-
-(In my observations... The only truly heavy creator of a multicast
-"burp" has tended to be upnp and mdns on smaller networks. Things like
-nd and arp get more problematic as the number of stations go up also.
-I can try things like abusing vlc or uftp to see what happens?)
-
-I certainly agree multicast is a "problem" (I've seen 20-80% or more
-of a given wifi network eaten by multicast) but I'm not convinced that
-making it reliable, aggregatable unicast scales much past
-basement-level testing of a few "good" stations, and don't know which
-protocols are making it worse, the worst, in typical environments.
-Certainly apple gear puts out a lot of multicast.
-
-...
-
-As best as I recall a recommendation in the 802.11-2012 standard was
-that multicast packets be rate-limited so that you'd have a fixed
-amount of crap after each beacon sufficient to keep the rest of the
-unicast traffic flowing rapidly, instead of dumping everything into a
-given beacon transmit.
-
-That, combined with (maybe) picking the "best" union of known rates
-per station, was essentially the strategy I'd intended[1] to pursue
-for tackling the currently infinite wifi multicast queue - fq the
-entries, have a fairly short queue (codel is not the best choice here)
-drop from head, and limit the number of packets transmitted per beacon
-to spread them out. That would solve the issue for sparse multicast
-(dhcp etc), and smooth out the burps from bigger chunks while
-impacting conventional unicast minimally.
-
-There's also the pursuit of less multicast overall at least in some protoco=
-ls
-
-https://tools.ietf.org/html/draft-ietf-dnssd-hybrid-05
-
-
+>> There's no "for now" in the kernel. Code added now will have to be
+>> maintained essentially forever.
+> I'm not sure that putting the IGMP snooping code in mac80211 is a good
+> idea, that would be quite a bit of code duplication.
+> This implementation works, it's very simple, and it's quite flexible for
+> a number of use cases.
+>
+> Is there any remaining objection to merging this in principle (aside
+> from potential issues with the code)?
 >
 > - Felix
+>
 
 
-[1] but make-wifi-fast has been out of funding since august
+Hi Felix, can we consider two examples configurations with multicast 
+traffic:
 
---=20
-Dave T=C3=A4ht
-Let's go make home routers and wifi faster! With better software!
-http://blog.cerowrt.org
+1. AP is a source of multicast traffic itself, no bridge on AP. For 
+example, wireless video server streaming to several clients.
+In this situation, we can not make use of possible advantages given by 
+mc-to-uc conversion?
+
+2. A configuration with AP + STA + 3 client devices behind STA.
+                             ----|client 1|
+                             |
+|  mc  |----|AP|----|STA|---|---|client 2|
+|server|                    |
+                             ----|client 3|
+
+Multicast server behind AP streams MC video traffic. All 3 clients 
+behind the STA have joined the multicast group.
+I'm not sure if this case will be handled correctly with mc-to-uc 
+conversion in bridge on AP?
+
