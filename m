@@ -1,11 +1,28 @@
-Return-Path: <johannes@sipsolutions.net>
-Message-ID: <1484126278.23671.3.camel@sipsolutions.net>
-From: Johannes Berg <johannes@sipsolutions.net>
-Date: Wed, 11 Jan 2017 10:17:58 +0100
-In-Reply-To: <20170109231203.GC5513@otheros>
-References: <20170109231203.GC5513@otheros>
+Return-Path: <nbd@nbd.name>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+	s=20160729; 
+	h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:Cc:References:To:Subject;
+	bh=m+MOMa0qlAnV52lUF3a2nTyHCfrA4Jd0KFdcmN5/5/k=; 
+	b=KBpx3Lj2DwpO0XNs1V5HBSQIP2urvwZwPjE0g4SaMk0BxfQIL2WvLbsTzXXPfKrNitd0yaglbja1XRHFDYwdPFNF+LPdAa81sskyeWkaN+3EaNKJdgxZbYyuNa6y7y/tjgYS1BVOvXo47Z1lTsar8T9PhjyAYt4nQuXiMQBNAyU=;
+References: <20170102193214.31723-1-linus.luessing@c0d3.blue>
+	<1483706872.4089.8.camel@sipsolutions.net>
+	<8836daaa-9638-4502-d079-fd428595f822@nbd.name>
+	<1483710841.12677.1.camel@sipsolutions.net>
+	<22fad045-57c6-7789-d19f-f47bd0faf441@fami-braun.de>
+	<20170107145516.GE3134@otheros>
+	<1483949336.17582.3.camel@sipsolutions.net>
+	<6f5ec9f1-800a-2bc4-2f41-9d803343bb22@fami-braun.de>
+	<20170109212345.GA5513@otheros> <20170109133032.221f8669@xeon-e3>
+	<20170110041816.GJ5513@otheros>
+	<1484045763.1014.0.camel@sipsolutions.net>
+	<73f29777-cf95-de99-f7a9-9d82e94c298d@nbd.name>
+	<058f2afd-2502-e2e5-6427-1536fcd5851f@quantenna.com>
+From: Felix Fietkau <nbd@nbd.name>
+Message-ID: <015bf651-7584-13c0-16b9-d4e29e23c96b@nbd.name>
+Date: Wed, 11 Jan 2017 12:30:36 +0100
+MIME-Version: 1.0
+In-Reply-To: <058f2afd-2502-e2e5-6427-1536fcd5851f@quantenna.com>
 Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -16,39 +33,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?ISO-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+To: IgorMitsyanko <igor.mitsyanko.os@quantenna.com>, Johannes Berg <johannes@sipsolutions.net>, =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, "M. Braun" <michael-dev@fami-braun.de>
 
-
-> > Exactly. My point is that this is breaking the expectation that
-> > hosts are actually able to drop such packets.
+On 2017-01-11 12:26, IgorMitsyanko wrote:
+> On 01/11/2017 12:27 AM, Felix Fietkau wrote:
+>> On 2017-01-10 11:56, Johannes Berg wrote:
+>>> On Tue, 2017-01-10 at 05:18 +0100, Linus Lüssing wrote:
+>>>> On Mon, Jan 09, 2017 at 01:30:32PM -0800, Stephen Hemminger wrote:
+>>>>> I wonder if MAC80211 should be doing IGMP snooping and not bridge
+>>>>> in this environment.
+>>>>
+>>>> In the long term, yes. For now, not quite sure.
+>>>
+>>> There's no "for now" in the kernel. Code added now will have to be
+>>> maintained essentially forever.
+>> I'm not sure that putting the IGMP snooping code in mac80211 is a good
+>> idea, that would be quite a bit of code duplication.
+>> This implementation works, it's very simple, and it's quite flexible for
+>> a number of use cases.
+>>
+>> Is there any remaining objection to merging this in principle (aside
+>> from potential issues with the code)?
+>>
+>> - Felix
+>>
 > 
-> [readding CCs I removed earlier]
 > 
-> Ah! Thanks. I was worried about creating packetloss :D.
-
-Ah, well, no - at least not in this case.
-
-> Hm, for this other other way round, I think it does not apply for
-> the bridge multicast-to-unicast patch if I'm not misreading the
-> bridge code:
+> Hi Felix, can we consider two examples configurations with multicast 
+> traffic:
 > 
-> For a packet with a link-layer multicast address but a unicast IP
-> destination, the bridge MDB lookup will fail.
-> (http://lxr.free-electrons.com/source/net/bridge/br_multicast.c?v=4.8
-> #L178
->  returns NULL)
-> 
-> Case A): No multicast router on port:
-> -> bridge, br_multicast_flood(), will drop the packet already
->    (no matter if multicast-to-unicast is enabled or not)
-> 
-> Case B): Multicast router present on port:
-> -> The new patch does not apply multicast-to-unicast but just floods
->    packet unaltered
->    ("else { port = rport; addr = NULL; }" branch)
+> 1. AP is a source of multicast traffic itself, no bridge on AP. For 
+> example, wireless video server streaming to several clients.
+> In this situation, we can not make use of possible advantages given by 
+> mc-to-uc conversion?
+You could simply put the AP interface in a bridge, no need to have any
+other bridge members present.
 
-Ah, interesting. This is different then - the mac80211 code is not L3
-aware at all.
+> 2. A configuration with AP + STA + 3 client devices behind STA.
+>                              ----|client 1|
+>                              |
+> |  mc  |----|AP|----|STA|---|---|client 2|
+> |server|                    |
+>                              ----|client 3|
+> 
+> Multicast server behind AP streams MC video traffic. All 3 clients 
+> behind the STA have joined the multicast group.
+> I'm not sure if this case will be handled correctly with mc-to-uc 
+> conversion in bridge on AP?
+What do you mean by "3 client devices behind STA"? Are you using a
+4-addr STA, multicast routing, or some kind of vendor specific "client
+bridge" hackery?
 
-johannes
+- Felix
