@@ -1,11 +1,11 @@
 Return-Path: <linus.luessing@c0d3.blue>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Tue, 17 Jan 2017 20:59:17 +0100
-Message-Id: <20170117195917.16209-1-linus.luessing@c0d3.blue>
+Date: Thu, 19 Jan 2017 01:23:39 +0100
+Message-Id: <20170119002339.11609-1-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2] bridge: multicast to unicast
+Subject: [Bridge] [PATCH net-next v3] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,8 +16,6 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
-
-From: Felix Fietkau <nbd@nbd.name>
 
 Implements an optional, per bridge port flag and feature to deliver
 multicast packets to any host on the according port via unicast
@@ -56,6 +54,10 @@ incoming port as a potential outgoing port, too.
 
 Hairpin-mode is performed after multicast snooping, therefore leading to
 only deliver reports to STAs running a multicast router.
+
+Changes in v3:
+* fix an uninitialized variable bug introduced in br_multicast_flood()
+  in v2, found by kbuild test bot
 
 Changes in v2:
 * netlink support (thanks Nik!)
@@ -110,7 +112,7 @@ index 6b13e59..4e59565 100644
  };
  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
 diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 7cb41ae..75d041e 100644
+index 7cb41ae..a6c8a27 100644
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
 @@ -174,6 +174,29 @@ static struct net_bridge_port *maybe_deliver(
@@ -150,13 +152,13 @@ index 7cb41ae..75d041e 100644
 -		port = (unsigned long)lport > (unsigned long)rport ?
 -		       lport : rport;
 +		if ((unsigned long)lport > (unsigned long)rport) {
++			port = lport;
++
 +			if (p->flags & MDB_PG_FLAGS_MCAST_TO_UCAST) {
 +				maybe_deliver_addr(lport, skb, p->eth_addr,
 +						   local_orig);
 +				goto delivered;
 +			}
-+
-+			port = lport;
 +		} else {
 +			port = rport;
 +		}
