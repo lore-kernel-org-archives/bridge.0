@@ -1,11 +1,11 @@
 Return-Path: <linus.luessing@c0d3.blue>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Thu, 19 Jan 2017 01:23:39 +0100
-Message-Id: <20170119002339.11609-1-linus.luessing@c0d3.blue>
+Date: Thu, 19 Jan 2017 03:45:10 +0100
+Message-Id: <20170119024510.3284-1-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3] bridge: multicast to unicast
+Subject: [Bridge] [PATCH net-next v4] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,6 +16,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+
+From: Felix Fietkau <nbd@nbd.name>
 
 Implements an optional, per bridge port flag and feature to deliver
 multicast packets to any host on the according port via unicast
@@ -54,6 +56,9 @@ incoming port as a potential outgoing port, too.
 
 Hairpin-mode is performed after multicast snooping, therefore leading to
 only deliver reports to STAs running a multicast router.
+
+Changes in v4:
+* readd "From: Felix Fietkau [...]" (missed it again in v3)
 
 Changes in v3:
 * fix an uninitialized variable bug introduced in br_multicast_flood()
