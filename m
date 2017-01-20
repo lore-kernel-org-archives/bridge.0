@@ -1,9 +1,9 @@
 Return-Path: <cera@cera.cz>
 From: Ivan Vecera <cera@cera.cz>
-Date: Fri, 20 Jan 2017 17:46:21 +0100
-Message-Id: <20170120164621.19539-1-cera@cera.cz>
-Subject: [Bridge] [PATCH net] bridge: netlink: call br_changelink() during
-	br_dev_newlink()
+Date: Fri, 20 Jan 2017 17:59:33 +0100
+Message-Id: <20170120165933.19991-1-cera@cera.cz>
+Subject: [Bridge] [PATCH net v2] bridge: netlink: call br_changelink()
+	during br_dev_newlink()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,6 +19,7 @@ Any bridge options specified during link creation (e.g. ip link add)
 are ignored as br_dev_newlink() does not process them.
 Use br_changelink() to do it.
 
+Fixes: 1332351 bridge: implement rtnl_link_ops->changelink
 Signed-off-by: Ivan Vecera <cera@cera.cz>
 ---
  net/bridge/br_netlink.c | 33 +++++++++++++++++++--------------
