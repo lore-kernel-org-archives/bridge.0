@@ -1,21 +1,9 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=c2bMuHhfg37X+oVwELd5sbysm4zIyDFOajYtDdwTzgA=;
-	b=UMw2P0rgXm/mxYYJMEQ7dxcbLRMYQQkIb+usjXLznMop47CSng04vusXjx6Uep5N1g
-	0nSqNprEP5qBJ4x5rSG6C2cJ+lTCxi5ioK0MN2mVaeHIXO3Vas+dzhcFZm9Tp9HRnHP2
-	eRr+OeufPV6NTzasAhfbWngTcBwFAnVogSlAI=
-References: <20170121200133.1864-1-linus.luessing@c0d3.blue>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <e76bd3d2-5c73-acf1-a047-c027df33ba23@cumulusnetworks.com>
-Date: Sat, 21 Jan 2017 23:29:47 +0100
-MIME-Version: 1.0
-In-Reply-To: <20170121200133.1864-1-linus.luessing@c0d3.blue>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v5] bridge: multicast to unicast
+Return-Path: <cera@cera.cz>
+From: Ivan Vecera <cera@cera.cz>
+Date: Fri, 20 Jan 2017 17:46:21 +0100
+Message-Id: <20170120164621.19539-1-cera@cera.cz>
+Subject: [Bridge] [PATCH net] bridge: netlink: call br_changelink() during
+	br_dev_newlink()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,94 +12,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
+To: netdev@vger.kernel.org
+Cc: jiri@mellanox.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 21/01/17 21:01, Linus Lüssing wrote:
-> From: Felix Fietkau <nbd@nbd.name>
-> 
-> Implements an optional, per bridge port flag and feature to deliver
-> multicast packets to any host on the according port via unicast
-> individually. This is done by copying the packet per host and
-> changing the multicast destination MAC to a unicast one accordingly.
-> 
-> multicast-to-unicast works on top of the multicast snooping feature of
-> the bridge. Which means unicast copies are only delivered to hosts which
-> are interested in it and signalized this via IGMP/MLD reports
-> previously.
-> 
-> This feature is intended for interface types which have a more reliable
-> and/or efficient way to deliver unicast packets than broadcast ones
-> (e.g. wifi).
-> 
-> However, it should only be enabled on interfaces where no IGMPv2/MLDv1
-> report suppression takes place. This feature is disabled by default.
-> 
-> The initial patch and idea is from Felix Fietkau.
-> 
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> [linus.luessing@c0d3.blue: various bug + style fixes, commit message]
-> Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-> 
-> ---
-> 
-> This feature is used and enabled by default in OpenWRT and LEDE for AP
-> interfaces for more than a year now to allow both a more robust multicast
-> delivery and multicast at higher rates (e.g. multicast streaming).
-> 
-> In OpenWRT/LEDE the IGMP/MLD report suppression issue is overcome by
-> the network daemon enabling AP isolation and by that separating all STAs.
-> Delivery of STA-to-STA IP mulitcast is made possible again by
-> enabling and utilizing the bridge hairpin mode, which considers the
-> incoming port as a potential outgoing port, too.
-> 
-> Hairpin-mode is performed after multicast snooping, therefore leading to
-> only deliver reports to STAs running a multicast router.
-> 
-> Changes in v5:
-> * fix a potential pagefault in br_ip6_multicast_mld2_report():
->   -> a pskb_may_pull() might reallocate skb->data, therefore perform
->      the "src = eth_hdr(skb)->h_source" only afterwards
-> * simplify code by always adding ether source address to a port group
->   and checking the per-port multicast-to-unicast flag instead of a
->   per-port-group one (thanks Stephen!)
-> 
-> Changes in v4:
-> * readd "From: Felix Fietkau [...]" (missed it again in v3)
-> 
-> Changes in v3:
-> * fix an uninitialized variable bug introduced in br_multicast_flood()
->   in v2, found by kbuild test bot
-> 
-> Changes in v2:
-> * netlink support (thanks Nik!)
-> * fixed switching between multicast_to_unicast on/off
->   -> even after toggling an already existing entry would
->      stale in its mode and would never be replaced
->   -> new extra check in br_port_group_equal)
-> * reduced checks in br_multicast_flood() from two to one
->   to address fast-path concerns (thanks Nik!)
-> * rev-christmas tree ordering (thanks Nik!)
-> * removed "net_bridge_port_group::unicast", using
->   ::flags instead (thanks Nik!)
-> * BR_MULTICAST_TO_UCAST -> BR_MULTICAST_TO_UNICAST
->   (BR_MULTICAST_FLAST_LEAVE has the same length anyway)
-> * simplified maybe_deliver_addr()
->   (no return, no "prev" paramater -> was a NOP anyway)
-> * added "From: Felix Fietkau [...]"
-> * added "Signed-off-by: Felix Fietkau [...]"
-> ---
->  include/linux/if_bridge.h    |  1 +
->  include/uapi/linux/if_link.h |  1 +
->  net/bridge/br_forward.c      | 39 ++++++++++++++++++-
->  net/bridge/br_mdb.c          |  2 +-
->  net/bridge/br_multicast.c    | 90 ++++++++++++++++++++++++++++++++------------
->  net/bridge/br_netlink.c      |  5 +++
->  net/bridge/br_private.h      |  3 +-
->  net/bridge/br_sysfs_if.c     |  2 +
->  8 files changed, 114 insertions(+), 29 deletions(-)
-> 
+Any bridge options specified during link creation (e.g. ip link add)
+are ignored as br_dev_newlink() does not process them.
+Use br_changelink() to do it.
 
-Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: Ivan Vecera <cera@cera.cz>
+---
+ net/bridge/br_netlink.c | 33 +++++++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 14 deletions(-)
 
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 71c7453..7109b38 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -781,20 +781,6 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[])
+ 	return 0;
+ }
+ 
+-static int br_dev_newlink(struct net *src_net, struct net_device *dev,
+-			  struct nlattr *tb[], struct nlattr *data[])
+-{
+-	struct net_bridge *br = netdev_priv(dev);
+-
+-	if (tb[IFLA_ADDRESS]) {
+-		spin_lock_bh(&br->lock);
+-		br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
+-		spin_unlock_bh(&br->lock);
+-	}
+-
+-	return register_netdevice(dev);
+-}
+-
+ static int br_port_slave_changelink(struct net_device *brdev,
+ 				    struct net_device *dev,
+ 				    struct nlattr *tb[],
+@@ -1115,6 +1101,25 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 	return 0;
+ }
+ 
++static int br_dev_newlink(struct net *src_net, struct net_device *dev,
++			  struct nlattr *tb[], struct nlattr *data[])
++{
++	struct net_bridge *br = netdev_priv(dev);
++	int err;
++
++	if (tb[IFLA_ADDRESS]) {
++		spin_lock_bh(&br->lock);
++		br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
++		spin_unlock_bh(&br->lock);
++	}
++
++	err = br_changelink(dev, tb, data);
++	if (err)
++		return err;
++
++	return register_netdevice(dev);
++}
++
+ static size_t br_get_size(const struct net_device *brdev)
+ {
+ 	return nla_total_size(sizeof(u32)) +	/* IFLA_BR_FORWARD_DELAY  */
+-- 
+2.10.2
 
