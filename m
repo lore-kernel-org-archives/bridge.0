@@ -1,11 +1,22 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 24 Jan 2017 12:41:19 -0500 (EST)
-Message-Id: <20170124.124119.2246238373876916746.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=jQdnElDFu9djwJ8//igK5TWMQOehTO7KM79mIoRLSP8=;
+	b=sb5b+VezaAv3NpPXo6umABnQ6+GnxgUzEwo7eeeP+rRPghN96TepnFD6/r+H+QBc/T
+	AeFXpadw8za+Z3KALZ9N8qMWoehtq1rPQ6qXiXKSeSnT4F/dYhAlHuhZWP/LbOWAIsn4
+	j2zHhGYvh1rdCo0G9zggX0vXpVYHQTGhXSI9KcsMAmGbY7eNA2mM9vE0z4euOkqsqOEz
+	wRwcdvfDX6l9kgtlgzdeQrfgVdMkcrsjpHuDNu0AAhBCb11FxT0lmKErQUk6LaQO/6yz
+	xc/CbOpjqLO59iV0asRRUY2c2NyMGiB1Qpi2yQTgp8cal8SRXrjtiOZA0dLrITETGHpa
+	Lz+Q==
+Date: Tue, 24 Jan 2017 10:10:41 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20170124101041.55c2ab39@xeon-e3>
 In-Reply-To: <20170121200133.1864-1-linus.luessing@c0d3.blue>
 References: <20170121200133.1864-1-linus.luessing@c0d3.blue>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCH net-next v5] bridge: multicast to unicast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -16,47 +27,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linus.luessing@c0d3.blue
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, nbd@nbd.name
+To: Linus =?UTF-8?B?TMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Felix Fietkau <nbd@nbd.name>
 
-From: Linus L=FCssing <linus.luessing@c0d3.blue>
-Date: Sat, 21 Jan 2017 21:01:32 +0100
+On Sat, 21 Jan 2017 21:01:32 +0100
+Linus L=C3=BCssing <linus.luessing@c0d3.blue> wrote:
 
-> From: Felix Fietkau <nbd@nbd.name>
-> =
+> @@ -726,12 +729,32 @@ struct net_bridge_port_group *br_multicast_new_port=
+_group(
+>  	hlist_add_head(&p->mglist, &port->mglist);
+>  	setup_timer(&p->timer, br_multicast_port_group_expired,
+>  		    (unsigned long)p);
+> +
+> +	if (src)
+> +		memcpy(p->eth_addr, src, ETH_ALEN);
+> +	else
+> +		memset(p->eth_addr, 0xff, ETH_ALEN);
+> +
+>  	return p;
+>  }
 
-> Implements an optional, per bridge port flag and feature to deliver
-> multicast packets to any host on the according port via unicast
-> individually. This is done by copying the packet per host and
-> changing the multicast destination MAC to a unicast one accordingly.
-> =
-
-> multicast-to-unicast works on top of the multicast snooping feature o=
-f
-> the bridge. Which means unicast copies are only delivered to hosts wh=
-ich
-> are interested in it and signalized this via IGMP/MLD reports
-> previously.
-> =
-
-> This feature is intended for interface types which have a more reliab=
-le
-> and/or efficient way to deliver unicast packets than broadcast ones
-> (e.g. wifi).
-> =
-
-> However, it should only be enabled on interfaces where no IGMPv2/MLDv=
-1
-> report suppression takes place. This feature is disabled by default.
-> =
-
-> The initial patch and idea is from Felix Fietkau.
-> =
-
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> [linus.luessing@c0d3.blue: various bug + style fixes, commit message]=
-
-> Signed-off-by: Linus L=FCssing <linus.luessing@c0d3.blue>
-
-I'm not completely happy that things have progressed this way, however
-I don't have a better solution to suggest.
+Maybe use ether_addr_copy here, but is not performance critical
