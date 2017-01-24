@@ -3,16 +3,16 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
 	h=date:from:to:cc:subject:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=jQdnElDFu9djwJ8//igK5TWMQOehTO7KM79mIoRLSP8=;
-	b=sb5b+VezaAv3NpPXo6umABnQ6+GnxgUzEwo7eeeP+rRPghN96TepnFD6/r+H+QBc/T
-	AeFXpadw8za+Z3KALZ9N8qMWoehtq1rPQ6qXiXKSeSnT4F/dYhAlHuhZWP/LbOWAIsn4
-	j2zHhGYvh1rdCo0G9zggX0vXpVYHQTGhXSI9KcsMAmGbY7eNA2mM9vE0z4euOkqsqOEz
-	wRwcdvfDX6l9kgtlgzdeQrfgVdMkcrsjpHuDNu0AAhBCb11FxT0lmKErQUk6LaQO/6yz
-	xc/CbOpjqLO59iV0asRRUY2c2NyMGiB1Qpi2yQTgp8cal8SRXrjtiOZA0dLrITETGHpa
-	Lz+Q==
-Date: Tue, 24 Jan 2017 10:10:41 -0800
+	bh=p/XfdFip30RoTnsv4G2HaNKpqyrr5Vhjb7XmyAhIhLg=;
+	b=Q5yTP3a5upUsisRqN5cT+bqmXD6EpVUpXecNr1SCQ/ZdYKOIfMQhims+Gw+5E3Uj1/
+	M3kYGkzwlOTE7terLCDrOgIEQGCd4dMg+2uvx2Jqwal4HHQWjVriIIcdwx36TvGRq6Eg
+	k8dqGDfWUEUyYnpfqIywcfy29fpnOiUbcU4moF8yYjYnDEV+JxJyaiQnaAMnB18i+Vx4
+	8tbM0l3NFlzDkVjklLkbpsKHssFefvqoe18YX3fZhJqq8vB82+yZ8TQGBduaGbwddaOc
+	7yFM6EopCoZzklXuwcMYeTn9ew8qTPFX+f73MrH6kc6cVTzlmuLAGu+xO0zFYtc6noMz
+	PLnQ==
+Date: Tue, 24 Jan 2017 10:12:15 -0800
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170124101041.55c2ab39@xeon-e3>
+Message-ID: <20170124101215.4e3017b2@xeon-e3>
 In-Reply-To: <20170121200133.1864-1-linus.luessing@c0d3.blue>
 References: <20170121200133.1864-1-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
@@ -33,18 +33,18 @@ Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, b
 On Sat, 21 Jan 2017 21:01:32 +0100
 Linus L=C3=BCssing <linus.luessing@c0d3.blue> wrote:
 
-> @@ -726,12 +729,32 @@ struct net_bridge_port_group *br_multicast_new_port=
-_group(
->  	hlist_add_head(&p->mglist, &port->mglist);
->  	setup_timer(&p->timer, br_multicast_port_group_expired,
->  		    (unsigned long)p);
+> +static bool br_port_group_equal(struct net_bridge_port_group *p,
+> +				struct net_bridge_port *port,
+> +				const unsigned char *src)
+> +{
+> +	if (p->port !=3D port)
+> +		return false;
 > +
-> +	if (src)
-> +		memcpy(p->eth_addr, src, ETH_ALEN);
-> +	else
-> +		memset(p->eth_addr, 0xff, ETH_ALEN);
+> +	if (!(port->flags & BR_MULTICAST_TO_UNICAST))
+> +		return true;
 > +
->  	return p;
->  }
+> +	return ether_addr_equal(src, p->eth_addr);
+> +}
+> +
 
-Maybe use ether_addr_copy here, but is not performance critical
+I prefer that argument to functions like this be const.
