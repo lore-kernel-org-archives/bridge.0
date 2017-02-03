@@ -1,14 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 25 Jan 2017 23:16:25 -0500 (EST)
-Message-Id: <20170125.231625.778055316669261176.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20170125222950.1352566-1-arnd@arndb.de>
-References: <20170125222950.1352566-1-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] [net-next] bridge: move maybe_deliver_addr()
- inside #ifdef
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Fri,  3 Feb 2017 08:11:03 +0100
+Message-Id: <20170203071103.25976-1-linus.luessing@c0d3.blue>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] ipv6: Fix IPv6 packet loss in scenarios
+	involving roaming + snooping switches
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,19 +15,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: arnd@arndb.de
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nbd@nbd.name
+To: netdev@vger.kernel.org
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Moni Shoua <monis@voltaire.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, James Morris <jmorris@namei.org>, "David S . Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Patrick McHardy <kaber@trash.net>, linux-kernel@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 25 Jan 2017 23:29:33 +0100
+When for instance a mobile Linux device roams from one access point to
+another with both APs sharing the same broadcast domain and a
+multicast snooping switch in between:
 
-> The only caller of this new function is inside of an #ifdef checking
-> for CONFIG_BRIDGE_IGMP_SNOOPING, so we should move the implementation
-> there too, in order to avoid this harmless warning:
-> 
-> net/bridge/br_forward.c:177:13: error: 'maybe_deliver_addr' defined but not used [-Werror=unused-function]
-> 
-> Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+1)    (c) <~~~> (AP1) <--[SSW]--> (AP2)
 
-Applied, thank you.
+2)              (AP1) <--[SSW]--> (AP2) <~~~> (c)
+
+Then currently IPv6 multicast packets will get lost for (c) until an
+MLD Querier sends its next query message. The packet loss occurs
+because upon roaming the Linux host so far stayed silent regarding
+MLD and the snooping switch will therefore be unaware of the
+multicast topology change for a while.
+
+This patch fixes this by always resending MLD reports when an interface
+change happens, for instance from NO-CARRIER to CARRIER state.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+
+---
+
+Initial problem report was sent to the bridge mailing list a while ago:
+- https://lists.linuxfoundation.org/pipermail/bridge/2015-September/009754.html
+
+The RFCs concerning IGMP, MLD and snooping switches seem a have a hole
+concerning roaming. A request for clarification to mcast-wifi@ietf.org
+was left unanswered, unfortunately:
+- https://mailarchive.ietf.org/arch/msg/mcast-wifi/Ghn2cGy1oN2ZwG1qaQO9SE13g6g
+
+However, simply resending reports seems to be the straight forward way
+to me to fix the issue mentioned above.
+---
+ net/ipv6/addrconf.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index f60e88e..81f7b4e 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3386,9 +3386,15 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
+ 			}
+ 
+ 			if (idev) {
+-				if (idev->if_flags & IF_READY)
+-					/* device is already configured. */
++				if (idev->if_flags & IF_READY) {
++					/* device is already configured -
++					 * but resend MLD reports, we might
++					 * have roamed and need to update
++					 * multicast snooping switches
++					 */
++					ipv6_mc_up(idev);
+ 					break;
++				}
+ 				idev->if_flags |= IF_READY;
+ 			}
+ 
+-- 
+2.1.4
+
