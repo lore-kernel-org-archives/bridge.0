@@ -2,17 +2,16 @@ Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=MYnDkfJ7uAer8ttESPhc9/WGOCVzTSnoof4Md1l1Xac=;
-	b=PC1PE4gx4X3uJdln4PkjO7fFk/IIlFFXib50MrrNG2nrQIgs5a322w9Ln3sv/R0jfq
-	+gSn3e2fDrpoGB5ZuS+4ThzolkrJjGGqd+wnqNVvxFxF8I40bIxYKLracML30N2rlga6
-	ItBr1qgE+JnGDFWEWxU3egOiSsHEsJVz2L8/M=
+	bh=unu3dpaQzjXKdyAmDPe4u6VYsR08uEMvv0nV3ArRdek=;
+	b=MuH+MNr/R3cmedKukax7fWl3kQeLvwlidPAeeAC8lITSSt2rrNQW27AeQR2RnfukSj
+	IG66u5GEQBqGu8TzlEwZPVKWjpIlZ6+eZmPsJ06NpTo5eFdXakDYuWDSsF3GrcBPcyn1
+	Fv0lxjF+/UKbxDQt3u2T+y+7wT9FodRANIv60=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat,  4 Feb 2017 18:05:06 +0100
-Message-Id: <1486227909-18319-2-git-send-email-nikolay@cumulusnetworks.com>
+Date: Sat,  4 Feb 2017 18:05:07 +0100
+Message-Id: <1486227909-18319-3-git-send-email-nikolay@cumulusnetworks.com>
 In-Reply-To: <1486227909-18319-1-git-send-email-nikolay@cumulusnetworks.com>
 References: <1486227909-18319-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next 1/4] bridge: modify bridge and port to
-	have often accessed fields in one cache line
+Subject: [Bridge] [PATCH net-next 2/4] bridge: move to workqueue gc
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,128 +23,235 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Move around net_bridge so the vlan fields are in the beginning since
-they're checked on every packet even if vlan filtering is disabled.
-For the port move flags & vlan group to the beginning, so they're in the
-same cache line with the port's state (both flags and state are checked
-on each packet).
+Move the fdb garbage collector to a workqueue which fires at least 10
+milliseconds apart and cleans chain by chain allowing for other tasks
+to run in the meantime. When having thousands of fdbs the system is much
+more responsive. Most importantly remove the need to check if the
+matched entry has expired in __br_fdb_get that causes false-sharing and
+is completely unnecessary if we cleanup entries, at worst we'll get 10ms
+of traffic for that entry before it gets deleted.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_private.h | 43 ++++++++++++++++++++-----------------------
- 1 file changed, 20 insertions(+), 23 deletions(-)
+ net/bridge/br_device.c    |  1 +
+ net/bridge/br_fdb.c       | 31 +++++++++++++++++++------------
+ net/bridge/br_if.c        |  2 +-
+ net/bridge/br_ioctl.c     |  2 +-
+ net/bridge/br_netlink.c   |  2 +-
+ net/bridge/br_private.h   |  4 ++--
+ net/bridge/br_stp.c       |  2 +-
+ net/bridge/br_stp_if.c    |  4 ++--
+ net/bridge/br_stp_timer.c |  2 --
+ net/bridge/br_sysfs_br.c  |  2 +-
+ 10 files changed, 29 insertions(+), 23 deletions(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 40177df45ba6..ec8560349b6f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -212,12 +212,16 @@ struct net_bridge_mdb_htable
- 	u32				ver;
- };
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 6c46d1b4cdbb..89b414fd1901 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -413,4 +413,5 @@ void br_dev_setup(struct net_device *dev)
+ 	br_netfilter_rtable_init(br);
+ 	br_stp_timer_init(br);
+ 	br_multicast_init(br);
++	INIT_DELAYED_WORK(&br->gc_work, br_fdb_cleanup);
+ }
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index e4a4176171c9..5cbed5c0db88 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -154,7 +154,7 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f)
+ 	if (f->added_by_external_learn)
+ 		fdb_del_external_learn(f);
  
--struct net_bridge_port
--{
-+struct net_bridge_port {
- 	struct net_bridge		*br;
- 	struct net_device		*dev;
- 	struct list_head		list;
- 
-+	unsigned long			flags;
-+#ifdef CONFIG_BRIDGE_VLAN_FILTERING
-+	struct net_bridge_vlan_group	__rcu *vlgrp;
-+#endif
-+
- 	/* STP */
- 	u8				priority;
- 	u8				state;
-@@ -238,8 +242,6 @@ struct net_bridge_port
- 	struct kobject			kobj;
- 	struct rcu_head			rcu;
- 
--	unsigned long 			flags;
--
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	struct bridge_mcast_own_query	ip4_own_query;
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -259,9 +261,6 @@ struct net_bridge_port
- #ifdef CONFIG_NET_POLL_CONTROLLER
- 	struct netpoll			*np;
- #endif
--#ifdef CONFIG_BRIDGE_VLAN_FILTERING
--	struct net_bridge_vlan_group	__rcu *vlgrp;
--#endif
- #ifdef CONFIG_NET_SWITCHDEV
- 	int				offload_fwd_mark;
- #endif
-@@ -283,14 +282,21 @@ static inline struct net_bridge_port *br_port_get_rtnl(const struct net_device *
- 		rtnl_dereference(dev->rx_handler_data) : NULL;
+-	hlist_del_rcu(&f->hlist);
++	hlist_del_init_rcu(&f->hlist);
+ 	fdb_notify(br, f, RTM_DELNEIGH);
+ 	call_rcu(&f->rcu, fdb_rcu_free);
+ }
+@@ -290,34 +290,43 @@ void br_fdb_change_mac_address(struct net_bridge *br, const u8 *newaddr)
+ 	spin_unlock_bh(&br->hash_lock);
  }
  
--struct net_bridge
--{
-+struct net_bridge {
- 	spinlock_t			lock;
-+	spinlock_t			hash_lock;
- 	struct list_head		port_list;
- 	struct net_device		*dev;
--
- 	struct pcpu_sw_netstats		__percpu *stats;
--	spinlock_t			hash_lock;
-+	/* These fields are accessed on each packet */
-+#ifdef CONFIG_BRIDGE_VLAN_FILTERING
-+	u8				vlan_enabled;
-+	u8				vlan_stats_enabled;
-+	__be16				vlan_proto;
-+	u16				default_pvid;
-+	struct net_bridge_vlan_group	__rcu *vlgrp;
-+#endif
+-void br_fdb_cleanup(unsigned long _data)
++void br_fdb_cleanup(struct work_struct *work)
+ {
+-	struct net_bridge *br = (struct net_bridge *)_data;
++	struct net_bridge *br = container_of(work, struct net_bridge,
++					     gc_work.work);
+ 	unsigned long delay = hold_time(br);
+-	unsigned long next_timer = jiffies + br->ageing_time;
++	unsigned long work_delay = delay;
++	unsigned long now = jiffies;
+ 	int i;
+ 
+-	spin_lock(&br->hash_lock);
+ 	for (i = 0; i < BR_HASH_SIZE; i++) {
+ 		struct net_bridge_fdb_entry *f;
+ 		struct hlist_node *n;
+ 
++		if (!br->hash[i].first)
++			continue;
 +
- 	struct hlist_head		hash[BR_HASH_SIZE];
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- 	union {
-@@ -308,6 +314,9 @@ struct net_bridge
- 	bridge_id			designated_root;
- 	bridge_id			bridge_id;
- 	u32				root_path_cost;
-+	unsigned char			topology_change;
-+	unsigned char			topology_change_detected;
-+	u16				root_port;
- 	unsigned long			max_age;
- 	unsigned long			hello_time;
- 	unsigned long			forward_delay;
-@@ -319,7 +328,6 @@ struct net_bridge
++		spin_lock_bh(&br->hash_lock);
+ 		hlist_for_each_entry_safe(f, n, &br->hash[i], hlist) {
+ 			unsigned long this_timer;
++
+ 			if (f->is_static)
+ 				continue;
+ 			if (f->added_by_external_learn)
+ 				continue;
+ 			this_timer = f->updated + delay;
+-			if (time_before_eq(this_timer, jiffies))
++			if (time_after(this_timer, now))
++				work_delay = min(work_delay, this_timer - now);
++			else
+ 				fdb_delete(br, f);
+-			else if (time_before(this_timer, next_timer))
+-				next_timer = this_timer;
+ 		}
++		spin_unlock_bh(&br->hash_lock);
++		cond_resched();
+ 	}
+-	spin_unlock(&br->hash_lock);
  
- 	u8				group_addr[ETH_ALEN];
- 	bool				group_addr_set;
--	u16				root_port;
+-	mod_timer(&br->gc_timer, round_jiffies_up(next_timer));
++	/* Cleanup minimum 10 milliseconds apart */
++	work_delay = max_t(unsigned long, work_delay, msecs_to_jiffies(10));
++	mod_delayed_work(system_long_wq, &br->gc_work, work_delay);
+ }
  
- 	enum {
- 		BR_NO_STP, 		/* no spanning tree */
-@@ -327,9 +335,6 @@ struct net_bridge
- 		BR_USER_STP,		/* new RSTP in userspace */
- 	} stp_enabled;
+ /* Completely flush all dynamic entries in forwarding database.*/
+@@ -382,8 +391,6 @@ struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+ 				&br->hash[br_mac_hash(addr, vid)], hlist) {
+ 		if (ether_addr_equal(fdb->addr.addr, addr) &&
+ 		    fdb->vlan_id == vid) {
+-			if (unlikely(has_expired(br, fdb)))
+-				break;
+ 			return fdb;
+ 		}
+ 	}
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index ed0dd3340084..8ac1770aa222 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -313,7 +313,7 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
  
--	unsigned char			topology_change;
--	unsigned char			topology_change_detected;
+ 	br_vlan_flush(br);
+ 	br_multicast_dev_del(br);
+-	del_timer_sync(&br->gc_timer);
++	cancel_delayed_work_sync(&br->gc_work);
+ 
+ 	br_sysfs_delbr(br->dev);
+ 	unregister_netdevice_queue(br->dev, head);
+diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+index da8157c57eb1..7970f8540cbb 100644
+--- a/net/bridge/br_ioctl.c
++++ b/net/bridge/br_ioctl.c
+@@ -149,7 +149,7 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ 		b.hello_timer_value = br_timer_value(&br->hello_timer);
+ 		b.tcn_timer_value = br_timer_value(&br->tcn_timer);
+ 		b.topology_change_timer_value = br_timer_value(&br->topology_change_timer);
+-		b.gc_timer_value = br_timer_value(&br->gc_timer);
++		b.gc_timer_value = br_timer_value(&br->gc_work.timer);
+ 		rcu_read_unlock();
+ 
+ 		if (copy_to_user((void __user *)args[1], &b, sizeof(b)))
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index fc5d885dbb22..1cbdc5b96aa7 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1250,7 +1250,7 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ 	if (nla_put_u64_64bit(skb, IFLA_BR_TOPOLOGY_CHANGE_TIMER, clockval,
+ 			      IFLA_BR_PAD))
+ 		return -EMSGSIZE;
+-	clockval = br_timer_value(&br->gc_timer);
++	clockval = br_timer_value(&br->gc_work.timer);
+ 	if (nla_put_u64_64bit(skb, IFLA_BR_GC_TIMER, clockval, IFLA_BR_PAD))
+ 		return -EMSGSIZE;
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index ec8560349b6f..47fd64bf5022 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -379,7 +379,7 @@ struct net_bridge {
+ 	struct timer_list		hello_timer;
+ 	struct timer_list		tcn_timer;
+ 	struct timer_list		topology_change_timer;
+-	struct timer_list		gc_timer;
++	struct delayed_work		gc_work;
+ 	struct kobject			*ifobj;
+ 	u32				auto_cnt;
+ 
+@@ -502,7 +502,7 @@ void br_fdb_find_delete_local(struct net_bridge *br,
+ 			      const unsigned char *addr, u16 vid);
+ void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr);
+ void br_fdb_change_mac_address(struct net_bridge *br, const u8 *newaddr);
+-void br_fdb_cleanup(unsigned long arg);
++void br_fdb_cleanup(struct work_struct *work);
+ void br_fdb_delete_by_port(struct net_bridge *br,
+ 			   const struct net_bridge_port *p, u16 vid, int do_all);
+ struct net_bridge_fdb_entry *__br_fdb_get(struct net_bridge *br,
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index 71fd1a4e63cc..8f56c2d1f1a7 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -602,7 +602,7 @@ int br_set_ageing_time(struct net_bridge *br, clock_t ageing_time)
+ 	br->ageing_time = t;
+ 	spin_unlock_bh(&br->lock);
+ 
+-	mod_timer(&br->gc_timer, jiffies);
++	mod_delayed_work(system_long_wq, &br->gc_work, 0);
+ 
+ 	return 0;
+ }
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 6c1e21411125..08341d2aa9c9 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -57,7 +57,7 @@ void br_stp_enable_bridge(struct net_bridge *br)
+ 	spin_lock_bh(&br->lock);
+ 	if (br->stp_enabled == BR_KERNEL_STP)
+ 		mod_timer(&br->hello_timer, jiffies + br->hello_time);
+-	mod_timer(&br->gc_timer, jiffies + HZ/10);
++	mod_delayed_work(system_long_wq, &br->gc_work, HZ / 10);
+ 
+ 	br_config_bpdu_generation(br);
+ 
+@@ -88,7 +88,7 @@ void br_stp_disable_bridge(struct net_bridge *br)
+ 	del_timer_sync(&br->hello_timer);
+ 	del_timer_sync(&br->topology_change_timer);
+ 	del_timer_sync(&br->tcn_timer);
+-	del_timer_sync(&br->gc_timer);
++	cancel_delayed_work_sync(&br->gc_work);
+ }
+ 
+ /* called under bridge lock */
+diff --git a/net/bridge/br_stp_timer.c b/net/bridge/br_stp_timer.c
+index 7ddb38e0a06e..c98b3e5c140a 100644
+--- a/net/bridge/br_stp_timer.c
++++ b/net/bridge/br_stp_timer.c
+@@ -153,8 +153,6 @@ void br_stp_timer_init(struct net_bridge *br)
+ 	setup_timer(&br->topology_change_timer,
+ 		      br_topology_change_timer_expired,
+ 		      (unsigned long) br);
 -
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	unsigned char			multicast_router;
+-	setup_timer(&br->gc_timer, br_fdb_cleanup, (unsigned long) br);
+ }
  
-@@ -381,14 +386,6 @@ struct net_bridge
- #ifdef CONFIG_NET_SWITCHDEV
- 	int offload_fwd_mark;
- #endif
--
--#ifdef CONFIG_BRIDGE_VLAN_FILTERING
--	struct net_bridge_vlan_group	__rcu *vlgrp;
--	u8				vlan_enabled;
--	u8				vlan_stats_enabled;
--	__be16				vlan_proto;
--	u16				default_pvid;
--#endif
- };
+ void br_stp_port_timer_init(struct net_bridge_port *p)
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index a18148213b08..0f4034934d56 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -263,7 +263,7 @@ static ssize_t gc_timer_show(struct device *d, struct device_attribute *attr,
+ 			     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->gc_timer));
++	return sprintf(buf, "%ld\n", br_timer_value(&br->gc_work.timer));
+ }
+ static DEVICE_ATTR_RO(gc_timer);
  
- struct br_input_skb_cb {
 -- 
 2.1.4
 
