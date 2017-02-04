@@ -2,17 +2,17 @@ Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=TGz9GY8jnm6NDrnJ7geFVXNA8FfXUHrf0B/2pDKSLgA=;
-	b=O0ZmO5HH2QZKciQ5sQ0T65AgHIs8bFF2QQiR537CQ+/b31RjIStLaQNoI7UgN44tLh
-	eXocF59PHrNSt08XYe4CjN3aAm6r3+AMLuloACKm63gUBv8aOMWVsvakcSf4j5vKPTnS
-	+us2ZEPHZb4F7FVv9/N/xmwhZSXY/8vOOni70=
+	bh=iQYoYM8X1LqW4g/mGCfgjXV09fmDxSlweY74Wjc7gzc=;
+	b=JmKMEZIIYgVALy9a2DtmIoJzACmkhSAW3E3Jo1Dxli1Mra/E8KziGXkqAIh5uZA0AG
+	e3SLsZCMdwRWMb+IRJAlnHfs2yL/PRjku1GRXKI490nMRr8qHe/v8WZBR1Mv4wAVcHN2
+	ki46U6Jmi3V+mdXkEOIcMWNgyFaYJQbFOqZr8=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat,  4 Feb 2017 18:05:08 +0100
-Message-Id: <1486227909-18319-4-git-send-email-nikolay@cumulusnetworks.com>
+Date: Sat,  4 Feb 2017 18:05:09 +0100
+Message-Id: <1486227909-18319-5-git-send-email-nikolay@cumulusnetworks.com>
 In-Reply-To: <1486227909-18319-1-git-send-email-nikolay@cumulusnetworks.com>
 References: <1486227909-18319-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next 3/4] bridge: move write-heavy fdb members
-	in their own cache line
+Subject: [Bridge] [PATCH net-next 4/4] bridge: fdb: write to used and
+	updated at most once per jiffy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,53 +24,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Fdb's used and updated fields are written to on every packet forward and
-packet receive respectively. Thus if we are receiving packets from a
-particular fdb, they'll cause false-sharing with everyone who has looked
-it up (even if it didn't match, since mac/vid share cache line!). The
-"used" field is even worse since it is updated on every packet forward
-to that fdb, thus the standard config where X ports use a single gateway
-results in 100% fdb false-sharing. Note that this patch does not prevent
-the last scenario, but it makes it better for other bridge participants
-which are not using that fdb (and are only doing lookups over it).
-The point is with this move we make sure that only communicating parties
-get the false-sharing, in a later patch we'll show how to avoid that too.
+Writing once per jiffy is enough to limit the bridge's false sharing.
+After this change the bridge doesn't show up in the local load HitM stats.
 
+Suggested-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_private.h | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/bridge/br_fdb.c   | 3 ++-
+ net/bridge/br_input.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 47fd64bf5022..1cbbf63a5ef7 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -160,19 +160,21 @@ struct net_bridge_vlan_group {
- 	u16				pvid;
- };
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 5cbed5c0db88..5028691fa68a 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -597,7 +597,8 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 				fdb->dst = source;
+ 				fdb_modified = true;
+ 			}
+-			fdb->updated = jiffies;
++			if (jiffies != fdb->updated)
++				fdb->updated = jiffies;
+ 			if (unlikely(added_by_user))
+ 				fdb->added_by_user = 1;
+ 			if (unlikely(fdb_modified))
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index fba38d8a1a08..220943f920d2 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -198,7 +198,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 		if (dst->is_local)
+ 			return br_pass_frame_up(skb);
  
--struct net_bridge_fdb_entry
--{
-+struct net_bridge_fdb_entry {
- 	struct hlist_node		hlist;
- 	struct net_bridge_port		*dst;
- 
--	unsigned long			updated;
--	unsigned long			used;
- 	mac_addr			addr;
- 	__u16				vlan_id;
- 	unsigned char			is_local:1,
- 					is_static:1,
- 					added_by_user:1,
- 					added_by_external_learn:1;
-+
-+	/* write-heavy members should not affect lookups */
-+	unsigned long			updated ____cacheline_aligned_in_smp;
-+	unsigned long			used;
-+
- 	struct rcu_head			rcu;
- };
- 
+-		dst->used = jiffies;
++		if (jiffies != dst->used)
++			dst->used = jiffies;
+ 		br_forward(dst->dst, skb, local_rcv, false);
+ 	} else {
+ 		if (!mcast_hit)
 -- 
 2.1.4
 
