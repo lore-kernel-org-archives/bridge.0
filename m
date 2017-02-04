@@ -1,12 +1,15 @@
-Return-Path: <linus.luessing@c0d3.blue>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Fri,  3 Feb 2017 08:11:03 +0100
-Message-Id: <20170203071103.25976-1-linus.luessing@c0d3.blue>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] ipv6: Fix IPv6 packet loss in scenarios
-	involving roaming + snooping switches
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=se5QPCCc3CwSQcohXg1e4Q8R/nmuOKA3ae9ntCIP3o8=;
+	b=cVM0jhomja65AqaJg9N8ZRcQFckeY1O33OpwJKtKxUlk5brNuJ4ehqJQm3IfiKpRno
+	4Lc+YgS0QVhP5CLst4KJJHpTH8GfyFgr50BG+KAhkaxHw5PyvAtrj6SYFVhZT9XGoouF
+	DonN6JfQMb18kcIFRkc/gYpnEAQwwW0fIYjc8=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Sat,  4 Feb 2017 18:05:05 +0100
+Message-Id: <1486227909-18319-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next 0/4] bridge: improve cache utilization
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,65 +19,60 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Moni Shoua <monis@voltaire.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, James Morris <jmorris@namei.org>, "David S . Miller" <davem@davemloft.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Patrick McHardy <kaber@trash.net>, linux-kernel@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-When for instance a mobile Linux device roams from one access point to
-another with both APs sharing the same broadcast domain and a
-multicast snooping switch in between:
+Hi all,
+This is the first set which begins to deal with the bad bridge cache
+access patterns. The first patch rearranges the bridge and port structs
+a little so the frequently (and closely) accessed members are in the same
+cache line. The second patch then moves the garbage collection to a
+workqueue trying to improve system responsiveness under load (many fdbs)
+and more importantly removes the need to check if the matched entry is
+expired in __br_fdb_get which was a major source of false-sharing.
+The third patch is a preparation for the final one which
+If properly configured, i.e. ports bound to CPUs (thus updating "updated"
+locally) then the bridge's HitM goes from 100% to 0%, but even without
+binding we get a win because previously every lookup that iterated over
+the hash chain caused false-sharing due to the first cache line being
+used for both mac/vid and used/updated fields.
 
-1)    (c) <~~~> (AP1) <--[SSW]--> (AP2)
+Some results from tests I've run:
+(note that these were run in good conditions for the baseline, everything
+ ran on a single NUMA node and there were only 3 fdbs)
 
-2)              (AP1) <--[SSW]--> (AP2) <~~~> (c)
+1. baseline
+100% Load HitM on the fdbs (between everyone who has done lookups and hit
+                            one of the 3 hash chains of the communicating
+                            src/dst fdbs)
+Overall 5.06% Load HitM for the bridge, first place in the list
 
-Then currently IPv6 multicast packets will get lost for (c) until an
-MLD Querier sends its next query message. The packet loss occurs
-because upon roaming the Linux host so far stayed silent regarding
-MLD and the snooping switch will therefore be unaware of the
-multicast topology change for a while.
+2. patched & ports bound to CPUs
+0% Local load HitM, bridge is not even in the c2c report list
+Also there's 3% consistent improvement in netperf tests.
 
-This patch fixes this by always resending MLD reports when an interface
-change happens, for instance from NO-CARRIER to CARRIER state.
+Thanks,
+ Nik
 
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Nikolay Aleksandrov (4):
+  bridge: modify bridge and port to have often accessed fields in one
+    cache line
+  bridge: move to workqueue gc
+  bridge: move write-heavy fdb members in their own cache line
+  bridge: fdb: write to used and updated at most once per jiffy
 
----
+ net/bridge/br_device.c    |  1 +
+ net/bridge/br_fdb.c       | 34 +++++++++++++++++-----------
+ net/bridge/br_if.c        |  2 +-
+ net/bridge/br_input.c     |  3 ++-
+ net/bridge/br_ioctl.c     |  2 +-
+ net/bridge/br_netlink.c   |  2 +-
+ net/bridge/br_private.h   | 57 +++++++++++++++++++++++------------------------
+ net/bridge/br_stp.c       |  2 +-
+ net/bridge/br_stp_if.c    |  4 ++--
+ net/bridge/br_stp_timer.c |  2 --
+ net/bridge/br_sysfs_br.c  |  2 +-
+ 11 files changed, 59 insertions(+), 52 deletions(-)
 
-Initial problem report was sent to the bridge mailing list a while ago:
-- https://lists.linuxfoundation.org/pipermail/bridge/2015-September/009754.html
-
-The RFCs concerning IGMP, MLD and snooping switches seem a have a hole
-concerning roaming. A request for clarification to mcast-wifi@ietf.org
-was left unanswered, unfortunately:
-- https://mailarchive.ietf.org/arch/msg/mcast-wifi/Ghn2cGy1oN2ZwG1qaQO9SE13g6g
-
-However, simply resending reports seems to be the straight forward way
-to me to fix the issue mentioned above.
----
- net/ipv6/addrconf.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index f60e88e..81f7b4e 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3386,9 +3386,15 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
- 			}
- 
- 			if (idev) {
--				if (idev->if_flags & IF_READY)
--					/* device is already configured. */
-+				if (idev->if_flags & IF_READY) {
-+					/* device is already configured -
-+					 * but resend MLD reports, we might
-+					 * have roamed and need to update
-+					 * multicast snooping switches
-+					 */
-+					ipv6_mc_up(idev);
- 					break;
-+				}
- 				idev->if_flags |= IF_READY;
- 			}
- 
 -- 
 2.1.4
 
