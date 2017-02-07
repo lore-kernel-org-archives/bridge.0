@@ -1,11 +1,23 @@
-Return-Path: <dan.carpenter@oracle.com>
-Date: Tue, 7 Feb 2017 15:15:21 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Message-ID: <20170207121520.GA15359@mwanda>
+Return-Path: <roopa@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=message-id:date:from:user-agent:mime-version:to:cc:subject
+	:references:in-reply-to:content-transfer-encoding;
+	bh=GyNEkN1SbJZ0p314uqjjzUom9Ab1dUUA/y2mQV6Rd2Q=;
+	b=OQ/m1bUCX8IGHxdnpsnc22jazI0W6xLji/kpLH6cYR4DaZ+PoHRrNNVlocUAbGVjFL
+	YGYC7IoUAxmKBBlQPPzrefV4v5dGHVvrPxGVueL+gpmzC0s4Dc1V3K3AJrT4o69G7Kik
+	xYY2M6+eTXiSpEG3bFWLzbkgYQOo5SycXlzi8=
+Message-ID: <5899CA80.8030108@cumulusnetworks.com>
+Date: Tue, 07 Feb 2017 05:24:16 -0800
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [bug report] bridge: per vlan dst_metadata netlink support
+References: <c341a60f-f3d1-29f6-b825-5ebd1432e5b9@cumulusnetworks.com>
+	<1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: tunnel: fix attribute checks
+	in br_parse_vlan_tunnel_info
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,44 +26,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: roopa@cumulusnetworks.com
-Cc: bridge@lists.linux-foundation.org
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Colin Ian King <colin.king@canonical.com>
 
-Hello Roopa Prabhu,
-
-This is a semi-automatic email about new static checker warnings.
-
-The patch efa5356b0d97: "bridge: per vlan dst_metadata netlink
-support" from Jan 31, 2017, leads to the following Smatch complaint:
-
-    net/bridge/br_netlink_tunnel.c:144 br_fill_vlan_tinfo_range()
-    error: we previously assumed 'vtbegin' could be null (see line 130)
-
-net/bridge/br_netlink_tunnel.c
-   129	
-   130		if (vtbegin && vtend && (vtend->vid - vtbegin->vid) > 0) {
-                    ^^^^^^^
-Check for NULL.
-
-   131			/* add range to skb */
-   132			err = br_fill_vlan_tinfo(skb, vtbegin->vid,
-   133						 vtbegin->tinfo.tunnel_id,
-   134						 BRIDGE_VLAN_INFO_RANGE_BEGIN);
-   135			if (err)
-   136				return err;
-   137	
-   138			err = br_fill_vlan_tinfo(skb, vtend->vid,
-   139						 vtend->tinfo.tunnel_id,
-   140						 BRIDGE_VLAN_INFO_RANGE_END);
-   141			if (err)
-   142				return err;
-   143		} else {
-   144			err = br_fill_vlan_tinfo(skb, vtbegin->vid,
-                                                      ^^^^^^^^^^^^
-Unchecked dereference.
-
-   145						 vtbegin->tinfo.tunnel_id,
-   146						 0);
-
-regards,
-dan carpenter
+On 2/7/17, 3:46 AM, Nikolay Aleksandrov wrote:
+> These checks should go after the attributes have been parsed otherwise
+> we're using tb uninitialized.
+>
+> Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+> Reported-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+>  
+ouch, am surprised i did not catch this. Thanks Colin and Nikolay.
