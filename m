@@ -1,23 +1,16 @@
-Return-Path: <roopa@cumulusnetworks.com>
+Return-Path: <>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=message-id:date:from:user-agent:mime-version:to:cc:subject
-	:references:in-reply-to:content-transfer-encoding;
-	bh=GyNEkN1SbJZ0p314uqjjzUom9Ab1dUUA/y2mQV6Rd2Q=;
-	b=OQ/m1bUCX8IGHxdnpsnc22jazI0W6xLji/kpLH6cYR4DaZ+PoHRrNNVlocUAbGVjFL
-	YGYC7IoUAxmKBBlQPPzrefV4v5dGHVvrPxGVueL+gpmzC0s4Dc1V3K3AJrT4o69G7Kik
-	xYY2M6+eTXiSpEG3bFWLzbkgYQOo5SycXlzi8=
-Message-ID: <5899CA80.8030108@cumulusnetworks.com>
-Date: Tue, 07 Feb 2017 05:24:16 -0800
+	h=from:to:cc:subject:date:message-id;
+	bh=jwyHlQZiMlF5skMniqbyiPT1HEiadnyGyu+iivxuxrs=;
+	b=MfvtXWhTjwKpr8tl7+KKCqYpicUr+q8v88B6Blk5sAWQg/sNwJ9vWlTLNxsVigvqOe
+	vs4nc/HWpv94CtglBAOvOyzC4ywfw/o1Cjh5w0GAgoonKSyJSvkQ+vqS8C4ZZfKWbDK4
+	+oA50CGspK2Mnzx8TTlIKxPv1f5hm7cI6riVY=
 From: Roopa Prabhu <roopa@cumulusnetworks.com>
-MIME-Version: 1.0
-References: <c341a60f-f3d1-29f6-b825-5ebd1432e5b9@cumulusnetworks.com>
-	<1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
-In-Reply-To: <1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: tunnel: fix attribute checks
-	in br_parse_vlan_tunnel_info
+Date: Tue,  7 Feb 2017 06:43:23 -0800
+Message-Id: <1486478603-38776-1-git-send-email-roopa@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next] bridge: remove unnecessary check for
+	vtbegin in br_fill_vlan_tinfo_range
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,16 +19,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Colin Ian King <colin.king@canonical.com>
+To: davem@davemloft.net
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, dan.carpenter@oracle.com
 
-On 2/7/17, 3:46 AM, Nikolay Aleksandrov wrote:
-> These checks should go after the attributes have been parsed otherwise
-> we're using tb uninitialized.
->
-> Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
-> Reported-by: Colin Ian King <colin.king@canonical.com>
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> ---
->  
-ouch, am surprised i did not catch this. Thanks Colin and Nikolay.
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+
+vtbegin should not be NULL in this function, Its already checked by the
+caller.
+
+this should silence the below smatch complaint:
+  net/bridge/br_netlink_tunnel.c:144 br_fill_vlan_tinfo_range()
+    error: we previously assumed 'vtbegin' could be null (see line 130)
+
+net/bridge/br_netlink_tunnel.c
+   129
+   130      if (vtbegin && vtend && (vtend->vid - vtbegin->vid) > 0) {
+                    ^^^^^^^
+Check for NULL.
+
+Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+Reported-By: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+---
+ net/bridge/br_netlink_tunnel.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
+index 99c6801..4c1303b 100644
+--- a/net/bridge/br_netlink_tunnel.c
++++ b/net/bridge/br_netlink_tunnel.c
+@@ -127,7 +127,7 @@ static int br_fill_vlan_tinfo_range(struct sk_buff *skb,
+ {
+ 	int err;
+ 
+-	if (vtbegin && vtend && (vtend->vid - vtbegin->vid) > 0) {
++	if (vtend && (vtend->vid - vtbegin->vid) > 0) {
+ 		/* add range to skb */
+ 		err = br_fill_vlan_tinfo(skb, vtbegin->vid,
+ 					 vtbegin->tinfo.tunnel_id,
+-- 
+1.7.10.4
+
