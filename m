@@ -1,22 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=dx2GBEFC9mq5K6ySGQw1MAoUdFvf+ox+Er9yAgQyuyI=;
-	b=LQ4zkfOY6vKSvgj9ueq+39sDg/g07OwoCcSbDo6jTMCU+cShGXzmfTHVE+IexnjVhJ
-	RVjcDYdNMI3v+m7JDj1jTisiJOXf4M9ZvVeECdQRHIdvhbhr8uVlf+nqxd27b8C8SykF
-	KlmLubGZQhgvyuwIlTWuSVVeiyBtSZywk8Bzc=
-References: <20170207105638.17918-1-colin.king@canonical.com>
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=n0+dypEw/mmwj4n5umZPIEkoXA5RHLYMjIpmLep+nuo=;
+	b=ZjmYF+khrnKEBPqdQVUNPGyXaF8Q8XMnKbGzr7/Ld8CbbWboUaFUyxK5bZYjva+15F
+	q1tzyl/AEbkpk3okxJK/TC74X/vwIHthZynf3rRanStYhyr6PRFziW5jXdEgcPgZ1x2Y
+	ujKT7CvpBkTOzpWHWp8s8bqkVo/GXQlFBPHa4=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <d92d3afc-140f-8959-c6ea-9758eb1aa539@cumulusnetworks.com>
-Date: Tue, 7 Feb 2017 12:30:17 +0100
-MIME-Version: 1.0
-In-Reply-To: <20170207105638.17918-1-colin.king@canonical.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH][net-next] net: bridge: remove redundant check
- to see if err is set
+Date: Tue,  7 Feb 2017 12:46:46 +0100
+Message-Id: <1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <c341a60f-f3d1-29f6-b825-5ebd1432e5b9@cumulusnetworks.com>
+References: <c341a60f-f3d1-29f6-b825-5ebd1432e5b9@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next] bridge: tunnel: fix attribute checks in
+	br_parse_vlan_tunnel_info
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,40 +21,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Colin King <colin.king@canonical.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S . Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Colin Ian King <colin.king@canonical.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-On 07/02/17 11:56, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> The error check on err is redundant as it is being checked
-> previously each time it has been updated.  Remove this redundant
-> check.
-> 
-> Detected with CoverityScan, CID#140030("Logically dead code")
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  net/bridge/br_netlink.c | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index fc5d885..cdc4e2a 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -612,9 +612,6 @@ static int br_afspec(struct net_bridge *br,
->  				return err;
->  			break;
->  		}
-> -
-> -		if (err)
-> -			return err;
->  	}
->  
->  	return err;
-> 
+These checks should go after the attributes have been parsed otherwise
+we're using tb uninitialized.
 
-Actually that code can be reduced further, I'll follow up with a patch later.
+Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_netlink_tunnel.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
+index 99c68012c9d4..62eaf750bd9e 100644
+--- a/net/bridge/br_netlink_tunnel.c
++++ b/net/bridge/br_netlink_tunnel.c
+@@ -229,15 +229,15 @@ int br_parse_vlan_tunnel_info(struct nlattr *attr,
+ 
+ 	memset(tinfo, 0, sizeof(*tinfo));
+ 
+-	if (!tb[IFLA_BRIDGE_VLAN_TUNNEL_ID] ||
+-	    !tb[IFLA_BRIDGE_VLAN_TUNNEL_VID])
+-		return -EINVAL;
+-
+ 	err = nla_parse_nested(tb, IFLA_BRIDGE_VLAN_TUNNEL_MAX,
+ 			       attr, vlan_tunnel_policy);
+ 	if (err < 0)
+ 		return err;
+ 
++	if (!tb[IFLA_BRIDGE_VLAN_TUNNEL_ID] ||
++	    !tb[IFLA_BRIDGE_VLAN_TUNNEL_VID])
++		return -EINVAL;
++
+ 	tun_id = nla_get_u32(tb[IFLA_BRIDGE_VLAN_TUNNEL_ID]);
+ 	vid = nla_get_u16(tb[IFLA_BRIDGE_VLAN_TUNNEL_VID]);
+ 	if (vid >= VLAN_VID_MASK)
+-- 
+2.1.4
 
