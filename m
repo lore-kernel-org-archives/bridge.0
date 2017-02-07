@@ -1,16 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 07 Feb 2017 14:16:30 -0500 (EST)
-Message-Id: <20170207.141630.1294831074568265709.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20170207084646.70dc888a@xeon-e3>
-References: <1486227909-18319-1-git-send-email-nikolay@cumulusnetworks.com>
-	<1486227909-18319-5-git-send-email-nikolay@cumulusnetworks.com>
-	<20170207084646.70dc888a@xeon-e3>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: avoid unnecessary read of
-	jiffies
+Return-Path: <colin.king@canonical.com>
+From: Colin King <colin.king@canonical.com>
+Date: Tue,  7 Feb 2017 10:56:38 +0000
+Message-Id: <20170207105638.17918-1-colin.king@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH][net-next] net: bridge: remove redundant check to
+	see if err is set
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,14 +15,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stephen@networkplumber.org
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S . Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <stephen@networkplumber.org>
-Date: Tue, 7 Feb 2017 08:46:46 -0800
+From: Colin Ian King <colin.king@canonical.com>
 
-> Jiffies is volatile so read it once.
-> 
-> Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
+The error check on err is redundant as it is being checked
+previously each time it has been updated.  Remove this redundant
+check.
 
-Applied, thanks Stephen.
+Detected with CoverityScan, CID#140030("Logically dead code")
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ net/bridge/br_netlink.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index fc5d885..cdc4e2a 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -612,9 +612,6 @@ static int br_afspec(struct net_bridge *br,
+ 				return err;
+ 			break;
+ 		}
+-
+-		if (err)
+-			return err;
+ 	}
+ 
+ 	return err;
+-- 
+2.10.2
+
