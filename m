@@ -1,14 +1,15 @@
 Return-Path: <davem@davemloft.net>
-Date: Tue, 07 Feb 2017 14:05:01 -0500 (EST)
-Message-Id: <20170207.140501.318284472850132434.davem@davemloft.net>
+Date: Tue, 07 Feb 2017 14:05:47 -0500 (EST)
+Message-Id: <20170207.140547.2299505726498784722.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20170207105638.17918-1-colin.king@canonical.com>
-References: <20170207105638.17918-1-colin.king@canonical.com>
+In-Reply-To: <1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <c341a60f-f3d1-29f6-b825-5ebd1432e5b9@cumulusnetworks.com>
+	<1486468006-8080-1-git-send-email-nikolay@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH][net-next] net: bridge: remove redundant check
- to see if err is set
+Subject: Re: [Bridge] [PATCH net-next] bridge: tunnel: fix attribute checks
+ in br_parse_vlan_tunnel_info
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,20 +18,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: colin.king@canonical.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, colin.king@canonical.com
 
-From: Colin King <colin.king@canonical.com>
-Date: Tue,  7 Feb 2017 10:56:38 +0000
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Tue,  7 Feb 2017 12:46:46 +0100
 
-> From: Colin Ian King <colin.king@canonical.com>
+> These checks should go after the attributes have been parsed otherwise
+> we're using tb uninitialized.
 > 
-> The error check on err is redundant as it is being checked
-> previously each time it has been updated.  Remove this redundant
-> check.
-> 
-> Detected with CoverityScan, CID#140030("Logically dead code")
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+> Reported-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
 Applied.
