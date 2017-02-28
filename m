@@ -1,21 +1,22 @@
-Return-Path: <andreyknvl@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=kfsWe+dLovGG5G7ys7yYM+lmW8imAkEF1U1rEyNb/W4=;
-	b=iVp/C5Yc7gO8cXyrYWtn0+APIakIN7qS66uu/7RREXVmXne+arbYV+3fxVQncklwh9
-	2G7MPLgujIm/AAkY690ZzuRGaIlSWn3AZ+xE3pg+qFkSufPNDl9RHUC0ftZBgIRPm3Sf
-	2cK3VFHh/QdEGeQ4zBmCLALrLR16PrEB30GJnUN+nzdHvF6s4MaFzUHH7oL2YPW/8UfS
-	vKrS0puND0A5g0iYNOxIxOGRt8HPuP2Dgoayj0LIL6E5Po6X1TpUHbFb2isyh3B5sQET
-	ltp5RDXXxtFvZpdhTYfzF4iShBZUzVHVwTpjA3yoVC8tqlp5ExfXsaO1d7Z/K2RkRMLh
-	ZO4A==
-MIME-Version: 1.0
-In-Reply-To: <CAAeHK+ziub42iBx7fvoQaa6NYysSFH5o31M+hVStCqdYFVvO+g@mail.gmail.com>
-References: <CAAeHK+ziub42iBx7fvoQaa6NYysSFH5o31M+hVStCqdYFVvO+g@mail.gmail.com>
-From: Andrey Konovalov <andreyknvl@google.com>
-Date: Mon, 27 Feb 2017 16:34:38 +0100
-Message-ID: <CAAeHK+xQy5aGOUd3rGJBMkaXWixicO6ozevjnxA_J4K9M8G=+g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] net/bridge: warning in br_fdb_find
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=mime-version:subject:from:in-reply-to:date:cc
+	:content-transfer-encoding:message-id:references:to;
+	bh=ceJC9IWMR2NlkE4dleqJimj/vVyXPk3f2UgcL+qTX34=;
+	b=aarZpqLk2rTPKMXh13lNMVa8QSFQhGCFFZ4mVW0oD8i9RZ0+GG1nTDizbJfcNXEXHg
+	ibaUizoZxi1GBVr/lLCPSrCC70+ZCZ2PQMgBfQXRNmtMgdZA+hx/KtrKZNxr4CD0sc1h
+	9sc/PEZqvIhfAoMplftPAdbieVYm6hOq/brEU=
+Content-Type: text/plain; charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+In-Reply-To: <1488215489-26372-1-git-send-email-mmanning@brocade.com>
+Date: Tue, 28 Feb 2017 11:20:53 +0200
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E4A652DE-AC03-4E8D-B50E-8BE92DCA31C5@cumulusnetworks.com>
+References: <1488215489-26372-1-git-send-email-mmanning@brocade.com>
+Subject: Re: [Bridge] [PATCH] net: bridge: allow IPv6 when multicast flood
+	is disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,59 +25,100 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Kostya Serebryany <kcc@google.com>, Eric Dumazet <edumazet@google.com>, syzkaller <syzkaller@googlegroups.com>, Dmitry Vyukov <dvyukov@google.com>
+To: Mike Manning <mmanning@brocade.com>
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-On Mon, Feb 27, 2017 at 4:33 PM, Andrey Konovalov <andreyknvl@google.com> wrote:
-> Hi,
->
-> I'm getting a huge number of warning reports while fuzzing the kernel
-> with syzkaller.
-> Unfortunately they are not reproducible.
->
-> On commit e5d56efc97f8240d0b5d66c03949382b6d7e5570 (Feb 26).
->
-> My .config is attached.
->
-> WARNING: CPU: 1 PID: 6203 at net/bridge/br_fdb.c:109
-> br_fdb_find+0x20c/0x220 net/bridge/br_fdb.c:109
-> Kernel panic - not syncing: panic_on_warn set ...
->
-> CPU: 1 PID: 6203 Comm: syz-executor0 Not tainted 4.10.0+ #54
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:15 [inline]
->  dump_stack+0x292/0x398 lib/dump_stack.c:51
->  panic+0x1cb/0x3a9 kernel/panic.c:179
->  __warn+0x1c4/0x1e0 kernel/panic.c:540
->  warn_slowpath_null+0x2c/0x40 kernel/panic.c:583
->  br_fdb_find+0x20c/0x220 net/bridge/br_fdb.c:109
->  fdb_insert+0xf7/0x300 net/bridge/br_fdb.c:529
->  br_fdb_insert+0x3a/0x60 net/bridge/br_fdb.c:557
->  __vlan_add+0x1621/0x3670 net/bridge/br_vlan.c:250
->  br_vlan_add+0x9e1/0xf30 net/bridge/br_vlan.c:599
->  br_vlan_init+0x241/0x320 net/bridge/br_vlan.c:940
->  br_dev_init+0xe2/0x220 net/bridge/br_device.c:106
->  register_netdevice+0x2f1/0xee0 net/core/dev.c:7137
->  register_netdev+0x1a/0x30 net/core/dev.c:7313
->  br_add_bridge+0x97/0xd0 net/bridge/br_if.c:393
->  br_ioctl_deviceless_stub+0x800/0xa40 net/bridge/br_ioctl.c:378
->  sock_ioctl+0x256/0x440 net/socket.c:960
->  vfs_ioctl fs/ioctl.c:43 [inline]
->  do_vfs_ioctl+0x1bf/0x1780 fs/ioctl.c:683
->  SYSC_ioctl fs/ioctl.c:698 [inline]
->  SyS_ioctl+0x8f/0xc0 fs/ioctl.c:689
->  entry_SYSCALL_64_fastpath+0x1f/0xc2
-> RIP: 0033:0x4458b9
-> RSP: 002b:00007f4afad8fb58 EFLAGS: 00000286 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00000000004458b9
-> RDX: 0000000020000000 RSI: 01400000000089a0 RDI: 0000000000000005
-> RBP: 00000000006e0be0 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000286 R12: 0000000000708000
-> R13: 0000000000000010 R14: 0000000000080003 R15: 0000000000000000
-> Dumping ftrace buffer:
->    (ftrace buffer empty)
-> Kernel Offset: disabled
-> Rebooting in 86400 seconds..
 
-+syzkaller@googlegroups.com
+> On Feb 27, 2017, at 7:11 PM, Mike Manning <mmanning@brocade.com> =
+wrote:
+>=20
+
++CC bridge maintainers
+
+> Even with multicast flooding turned off, IPv6 ND should still work so
+> that IPv6 connectivity is provided. Allow this by continuing to flood
+> multicast traffic originated by us. And similar to the unicast case,
+> set auto-mask if the multicast flood flag is set.
+>=20
+> Fixes: b6cb5ac8331b ("net: bridge: add per-port multicast flood flag")
+> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Signed-off-by: Mike Manning <mmanning@brocade.com>
+> ---
+> include/linux/if_bridge.h | 2 +-
+> net/bridge/br_forward.c   | 3 ++-
+> 2 files changed, 3 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+> index c5847dc..7731808 100644
+> --- a/include/linux/if_bridge.h
+> +++ b/include/linux/if_bridge.h
+> @@ -40,12 +40,12 @@ struct br_ip_list {
+> #define BR_ADMIN_COST		BIT(4)
+> #define BR_LEARNING		BIT(5)
+> #define BR_FLOOD		BIT(6)
+> -#define BR_AUTO_MASK		(BR_FLOOD | BR_LEARNING)
+> #define BR_PROMISC		BIT(7)
+> #define BR_PROXYARP		BIT(8)
+> #define BR_LEARNING_SYNC	BIT(9)
+> #define BR_PROXYARP_WIFI	BIT(10)
+> #define BR_MCAST_FLOOD		BIT(11)
+> +#define BR_AUTO_MASK		(BR_FLOOD | BR_LEARNING | =
+BR_MCAST_FLOOD)
+
+Quoting myself from v2 of the patch-set that introduced the mcast flood =
+flag:
+=E2=80=9C
+Actually there is one potential issue with br_auto_mask. I shouldn't =
+change it=20
+because that
+changes the requirement for a br_auto_port and it may change =
+user-visible=20
+behaviour (e.g.
+having to disable both unicast flood and multicast flood to get the same =
+config=20
+for
+auto ports).=E2=80=9D
+
+Source: =
+http://www.mail-archive.com/netdev@vger.kernel.org/msg125724.html
+
+> #define BR_MULTICAST_TO_UNICAST	BIT(12)
+> #define BR_VLAN_TUNNEL		BIT(13)
+>=20
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index 6bfac29..7fe7d58 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -186,8 +186,9 @@ void br_flood(struct net_bridge *br, struct =
+sk_buff *skb,
+> 		/* Do not flood unicast traffic to ports that turn it =
+off */
+> 		if (pkt_type =3D=3D BR_PKT_UNICAST && !(p->flags & =
+BR_FLOOD))
+> 			continue;
+> +		/* Do not flood if mc off, except for traffic we =
+originate */
+> 		if (pkt_type =3D=3D BR_PKT_MULTICAST &&
+> -		    !(p->flags & BR_MCAST_FLOOD))
+> +		    !(p->flags & BR_MCAST_FLOOD) && (skb->dev !=3D =
+br->dev))
+
+Please drop the extra () around the device check
+
+> 			continue;
+>=20
+> 		/* Do not flood to ports that enable proxy ARP */
+
+We are aware of this and have discussed it, but I=E2=80=99m not sure =
+this is the best way to fix it,
+it will still allow local IPv4 mcast to be flooded on all ports even =
+with that flag removed and
+that definitely changes user-visible behaviour (even if it is okay) and =
+will not be appropriate
+for -net.
+
+Let me get back to you on this one.
+
+Thanks,
+ Nik
+
