@@ -1,22 +1,8 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=mime-version:subject:from:in-reply-to:date:cc
-	:content-transfer-encoding:message-id:references:to;
-	bh=ceJC9IWMR2NlkE4dleqJimj/vVyXPk3f2UgcL+qTX34=;
-	b=aarZpqLk2rTPKMXh13lNMVa8QSFQhGCFFZ4mVW0oD8i9RZ0+GG1nTDizbJfcNXEXHg
-	ibaUizoZxi1GBVr/lLCPSrCC70+ZCZ2PQMgBfQXRNmtMgdZA+hx/KtrKZNxr4CD0sc1h
-	9sc/PEZqvIhfAoMplftPAdbieVYm6hOq/brEU=
-Content-Type: text/plain; charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-In-Reply-To: <1488215489-26372-1-git-send-email-mmanning@brocade.com>
-Date: Tue, 28 Feb 2017 11:20:53 +0200
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <E4A652DE-AC03-4E8D-B50E-8BE92DCA31C5@cumulusnetworks.com>
-References: <1488215489-26372-1-git-send-email-mmanning@brocade.com>
-Subject: Re: [Bridge] [PATCH] net: bridge: allow IPv6 when multicast flood
-	is disabled
+Return-Path: <joe@perches.com>
+From: Joe Perches <joe@perches.com>
+Date: Tue, 28 Feb 2017 14:09:24 -0800
+Message-Id: <82a5ec63e547c425644d2dd0165fcc664a2b265e.1488319732.git.joe@perches.com>
+Subject: [Bridge] [PATCH] netfilter: Use pr_cont where appropriate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,100 +11,144 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Mike Manning <mmanning@brocade.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+To: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, "David S. Miller" <davem@davemloft.net>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Patrick McHardy <kaber@trash.net>, linux-kernel@vger.kernel.org
 
+Logging output was changed when simple printks without KERN_CONT
+are now emitted on a new line and KERN_CONT is required to continue
+lines so use pr_cont.
 
-> On Feb 27, 2017, at 7:11 PM, Mike Manning <mmanning@brocade.com> =
-wrote:
->=20
+Miscellanea:
 
-+CC bridge maintainers
+o realign arguments
+o use print_hex_dump instead of a local variant
 
-> Even with multicast flooding turned off, IPv6 ND should still work so
-> that IPv6 connectivity is provided. Allow this by continuing to flood
-> multicast traffic originated by us. And similar to the unicast case,
-> set auto-mask if the multicast flood flag is set.
->=20
-> Fixes: b6cb5ac8331b ("net: bridge: add per-port multicast flood flag")
-> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Signed-off-by: Mike Manning <mmanning@brocade.com>
-> ---
-> include/linux/if_bridge.h | 2 +-
-> net/bridge/br_forward.c   | 3 ++-
-> 2 files changed, 3 insertions(+), 2 deletions(-)
->=20
-> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-> index c5847dc..7731808 100644
-> --- a/include/linux/if_bridge.h
-> +++ b/include/linux/if_bridge.h
-> @@ -40,12 +40,12 @@ struct br_ip_list {
-> #define BR_ADMIN_COST		BIT(4)
-> #define BR_LEARNING		BIT(5)
-> #define BR_FLOOD		BIT(6)
-> -#define BR_AUTO_MASK		(BR_FLOOD | BR_LEARNING)
-> #define BR_PROMISC		BIT(7)
-> #define BR_PROXYARP		BIT(8)
-> #define BR_LEARNING_SYNC	BIT(9)
-> #define BR_PROXYARP_WIFI	BIT(10)
-> #define BR_MCAST_FLOOD		BIT(11)
-> +#define BR_AUTO_MASK		(BR_FLOOD | BR_LEARNING | =
-BR_MCAST_FLOOD)
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ net/bridge/netfilter/ebt_log.c         | 34 +++++++++++++++++-----------------
+ net/ipv4/netfilter/nf_nat_snmp_basic.c | 15 ++-------------
+ 2 files changed, 19 insertions(+), 30 deletions(-)
 
-Quoting myself from v2 of the patch-set that introduced the mcast flood =
-flag:
-=E2=80=9C
-Actually there is one potential issue with br_auto_mask. I shouldn't =
-change it=20
-because that
-changes the requirement for a br_auto_port and it may change =
-user-visible=20
-behaviour (e.g.
-having to disable both unicast flood and multicast flood to get the same =
-config=20
-for
-auto ports).=E2=80=9D
-
-Source: =
-http://www.mail-archive.com/netdev@vger.kernel.org/msg125724.html
-
-> #define BR_MULTICAST_TO_UNICAST	BIT(12)
-> #define BR_VLAN_TUNNEL		BIT(13)
->=20
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index 6bfac29..7fe7d58 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -186,8 +186,9 @@ void br_flood(struct net_bridge *br, struct =
-sk_buff *skb,
-> 		/* Do not flood unicast traffic to ports that turn it =
-off */
-> 		if (pkt_type =3D=3D BR_PKT_UNICAST && !(p->flags & =
-BR_FLOOD))
-> 			continue;
-> +		/* Do not flood if mc off, except for traffic we =
-originate */
-> 		if (pkt_type =3D=3D BR_PKT_MULTICAST &&
-> -		    !(p->flags & BR_MCAST_FLOOD))
-> +		    !(p->flags & BR_MCAST_FLOOD) && (skb->dev !=3D =
-br->dev))
-
-Please drop the extra () around the device check
-
-> 			continue;
->=20
-> 		/* Do not flood to ports that enable proxy ARP */
-
-We are aware of this and have discussed it, but I=E2=80=99m not sure =
-this is the best way to fix it,
-it will still allow local IPv4 mcast to be flooded on all ports even =
-with that flag removed and
-that definitely changes user-visible behaviour (even if it is okay) and =
-will not be appropriate
-for -net.
-
-Let me get back to you on this one.
-
-Thanks,
- Nik
+diff --git a/net/bridge/netfilter/ebt_log.c b/net/bridge/netfilter/ebt_log.c
+index 98b9c8e8615e..707caea39743 100644
+--- a/net/bridge/netfilter/ebt_log.c
++++ b/net/bridge/netfilter/ebt_log.c
+@@ -62,10 +62,10 @@ print_ports(const struct sk_buff *skb, uint8_t protocol, int offset)
+ 		pptr = skb_header_pointer(skb, offset,
+ 					  sizeof(_ports), &_ports);
+ 		if (pptr == NULL) {
+-			printk(" INCOMPLETE TCP/UDP header");
++			pr_cont(" INCOMPLETE TCP/UDP header");
+ 			return;
+ 		}
+-		printk(" SPT=%u DPT=%u", ntohs(pptr->src), ntohs(pptr->dst));
++		pr_cont(" SPT=%u DPT=%u", ntohs(pptr->src), ntohs(pptr->dst));
+ 	}
+ }
+ 
+@@ -100,11 +100,11 @@ ebt_log_packet(struct net *net, u_int8_t pf, unsigned int hooknum,
+ 
+ 		ih = skb_header_pointer(skb, 0, sizeof(_iph), &_iph);
+ 		if (ih == NULL) {
+-			printk(" INCOMPLETE IP header");
++			pr_cont(" INCOMPLETE IP header");
+ 			goto out;
+ 		}
+-		printk(" IP SRC=%pI4 IP DST=%pI4, IP tos=0x%02X, IP proto=%d",
+-		       &ih->saddr, &ih->daddr, ih->tos, ih->protocol);
++		pr_cont(" IP SRC=%pI4 IP DST=%pI4, IP tos=0x%02X, IP proto=%d",
++			&ih->saddr, &ih->daddr, ih->tos, ih->protocol);
+ 		print_ports(skb, ih->protocol, ih->ihl*4);
+ 		goto out;
+ 	}
+@@ -120,11 +120,11 @@ ebt_log_packet(struct net *net, u_int8_t pf, unsigned int hooknum,
+ 
+ 		ih = skb_header_pointer(skb, 0, sizeof(_iph), &_iph);
+ 		if (ih == NULL) {
+-			printk(" INCOMPLETE IPv6 header");
++			pr_cont(" INCOMPLETE IPv6 header");
+ 			goto out;
+ 		}
+-		printk(" IPv6 SRC=%pI6 IPv6 DST=%pI6, IPv6 priority=0x%01X, Next Header=%d",
+-		       &ih->saddr, &ih->daddr, ih->priority, ih->nexthdr);
++		pr_cont(" IPv6 SRC=%pI6 IPv6 DST=%pI6, IPv6 priority=0x%01X, Next Header=%d",
++			&ih->saddr, &ih->daddr, ih->priority, ih->nexthdr);
+ 		nexthdr = ih->nexthdr;
+ 		offset_ph = ipv6_skip_exthdr(skb, sizeof(_iph), &nexthdr, &frag_off);
+ 		if (offset_ph == -1)
+@@ -142,12 +142,12 @@ ebt_log_packet(struct net *net, u_int8_t pf, unsigned int hooknum,
+ 
+ 		ah = skb_header_pointer(skb, 0, sizeof(_arph), &_arph);
+ 		if (ah == NULL) {
+-			printk(" INCOMPLETE ARP header");
++			pr_cont(" INCOMPLETE ARP header");
+ 			goto out;
+ 		}
+-		printk(" ARP HTYPE=%d, PTYPE=0x%04x, OPCODE=%d",
+-		       ntohs(ah->ar_hrd), ntohs(ah->ar_pro),
+-		       ntohs(ah->ar_op));
++		pr_cont(" ARP HTYPE=%d, PTYPE=0x%04x, OPCODE=%d",
++			ntohs(ah->ar_hrd), ntohs(ah->ar_pro),
++			ntohs(ah->ar_op));
+ 
+ 		/* If it's for Ethernet and the lengths are OK,
+ 		 * then log the ARP payload
+@@ -161,17 +161,17 @@ ebt_log_packet(struct net *net, u_int8_t pf, unsigned int hooknum,
+ 			ap = skb_header_pointer(skb, sizeof(_arph),
+ 						sizeof(_arpp), &_arpp);
+ 			if (ap == NULL) {
+-				printk(" INCOMPLETE ARP payload");
++				pr_cont(" INCOMPLETE ARP payload");
+ 				goto out;
+ 			}
+-			printk(" ARP MAC SRC=%pM ARP IP SRC=%pI4 ARP MAC DST=%pM ARP IP DST=%pI4",
+-					ap->mac_src, ap->ip_src, ap->mac_dst, ap->ip_dst);
++			pr_cont(" ARP MAC SRC=%pM ARP IP SRC=%pI4 ARP MAC DST=%pM ARP IP DST=%pI4",
++				ap->mac_src, ap->ip_src,
++				ap->mac_dst, ap->ip_dst);
+ 		}
+ 	}
+ out:
+-	printk("\n");
++	pr_cont("\n");
+ 	spin_unlock_bh(&ebt_log_lock);
+-
+ }
+ 
+ static unsigned int
+diff --git a/net/ipv4/netfilter/nf_nat_snmp_basic.c b/net/ipv4/netfilter/nf_nat_snmp_basic.c
+index c9b52c361da2..ef49989c93b1 100644
+--- a/net/ipv4/netfilter/nf_nat_snmp_basic.c
++++ b/net/ipv4/netfilter/nf_nat_snmp_basic.c
+@@ -998,18 +998,6 @@ static unsigned char snmp_trap_decode(struct asn1_ctx *ctx,
+  *
+  *****************************************************************************/
+ 
+-static void hex_dump(const unsigned char *buf, size_t len)
+-{
+-	size_t i;
+-
+-	for (i = 0; i < len; i++) {
+-		if (i && !(i % 16))
+-			printk("\n");
+-		printk("%02x ", *(buf + i));
+-	}
+-	printk("\n");
+-}
+-
+ /*
+  * Parse and mangle SNMP message according to mapping.
+  * (And this is the fucking 'basic' method).
+@@ -1026,7 +1014,8 @@ static int snmp_parse_mangle(unsigned char *msg,
+ 	struct snmp_object *obj;
+ 
+ 	if (debug > 1)
+-		hex_dump(msg, len);
++		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_NONE, 16, 1,
++			       msg, len, 0);
+ 
+ 	asn1_open(&ctx, msg, len);
+ 
+-- 
+2.10.0.rc2.1.g053435c
 
