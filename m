@@ -1,14 +1,13 @@
-Return-Path: <pneira@us.es>
-Date: Wed, 15 Mar 2017 11:42:11 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20170315104211.GA24409@salvia>
+Return-Path: <fw@strlen.de>
+Date: Wed, 15 Mar 2017 11:26:08 +0100
+From: Florian Westphal <fw@strlen.de>
+Message-ID: <20170315102608.GB24366@breakpoint.cc>
 References: <20170315031811.22714-1-linus.luessing@c0d3.blue>
-	<20170315102608.GB24366@breakpoint.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20170315102608.GB24366@breakpoint.cc>
+In-Reply-To: <20170315031811.22714-1-linus.luessing@c0d3.blue>
 Subject: Re: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
  DNAT-ed to bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -19,23 +18,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
+To: Linus =?iso-8859-15?Q?L=FCssing?= <linus.luessing@c0d3.blue>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Wed, Mar 15, 2017 at 11:26:08AM +0100, Florian Westphal wrote:
-> Linus L=FCssing <linus.luessing@c0d3.blue> wrote:
-> > When trying to redirect bridged frames to the bridge device itself
-> > via the ebtables nat-prerouting chain and the dnat target then this
-> > currently fails:
-> >=20
-> > The ethernet destination of the frame is dnat'ed to the MAC address of
-> > the bridge itself just fine and the correctly altered frame can even
-> > be captured via a tcpdump on br0 (with or without promisc mode).
-> >
-> > However, the IP code drops it in the beginning of ip_input.c/ip_rcv()
-> > as the dnat target did not update the skb->pkt_type.
+Linus L=FCssing <linus.luessing@c0d3.blue> wrote:
+> When trying to redirect bridged frames to the bridge device itself
+> via the ebtables nat-prerouting chain and the dnat target then this
+> currently fails:
 >=20
-> Right, thats the reason why ebtables also has ebt_redirect target
-> which does this pkt_type fixup.
+> The ethernet destination of the frame is dnat'ed to the MAC address of
+> the bridge itself just fine and the correctly altered frame can even
+> be captured via a tcpdump on br0 (with or without promisc mode).
+>
+> However, the IP code drops it in the beginning of ip_input.c/ip_rcv()
+> as the dnat target did not update the skb->pkt_type.
 
-I'm missing then why redirect is not then just enough for Linus usecase.
+Right, thats the reason why ebtables also has ebt_redirect target
+which does this pkt_type fixup.
+
+> -		if (dst->is_local)
+> +		if (dst->is_local) {
+> +			/* fix up potential DNAT mess */
+> +			skb->pkt_type =3D PACKET_HOST;
+> +
+>  			return br_pass_frame_up(skb);
+> +		}
+
+I don't mind this change though (i.e. I don't see how this would
+bite us later).
