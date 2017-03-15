@@ -1,13 +1,12 @@
-Return-Path: <pneira@us.es>
-Date: Mon, 6 Mar 2017 18:02:05 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20170306170204.GA5643@salvia>
-References: <82a5ec63e547c425644d2dd0165fcc664a2b265e.1488319732.git.joe@perches.com>
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Wed, 15 Mar 2017 04:18:11 +0100
+Message-Id: <20170315031811.22714-1-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <82a5ec63e547c425644d2dd0165fcc664a2b265e.1488319732.git.joe@perches.com>
-Subject: Re: [Bridge] [PATCH] netfilter: Use pr_cont where appropriate
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
+	DNAT-ed to bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,17 +15,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Joe Perches <joe@perches.com>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Patrick McHardy <kaber@trash.net>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Tue, Feb 28, 2017 at 02:09:24PM -0800, Joe Perches wrote:
-> Logging output was changed when simple printks without KERN_CONT
-> are now emitted on a new line and KERN_CONT is required to continue
-> lines so use pr_cont.
-> 
-> Miscellanea:
-> 
-> o realign arguments
-> o use print_hex_dump instead of a local variant
+When trying to redirect bridged frames to the bridge device itself
+via the ebtables nat-prerouting chain and the dnat target then this
+currently fails:
 
-Applied, thanks Joe.
+The ethernet destination of the frame is dnat'ed to the MAC address of
+the bridge itself just fine and the correctly altered frame can even
+be captured via a tcpdump on br0 (with or without promisc mode).
+
+However, the IP code drops it in the beginning of ip_input.c/ip_rcv()
+as the dnat target did not update the skb->pkt_type. If after
+dnat'ing the packet is now destined to us then the skb->pkt_type
+needs to be updated from PACKET_OTHERHOST to PACKET_HOST, too.
+
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ net/bridge/br_input.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 013f2290b..ec83175 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -198,8 +198,12 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	if (dst) {
+ 		unsigned long now = jiffies;
+ 
+-		if (dst->is_local)
++		if (dst->is_local) {
++			/* fix up potential DNAT mess */
++			skb->pkt_type = PACKET_HOST;
++
+ 			return br_pass_frame_up(skb);
++		}
+ 
+ 		if (now != dst->used)
+ 			dst->used = now;
+-- 
+2.1.4
+
