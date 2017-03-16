@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Thu, 16 Mar 2017 17:29:04 +0200
-Message-Id: <1489678147-21404-15-git-send-email-elena.reshetova@intel.com>
+Date: Thu, 16 Mar 2017 17:29:05 +0200
+Message-Id: <1489678147-21404-16-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489678147-21404-1-git-send-email-elena.reshetova@intel.com>
 References: <1489678147-21404-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 14/17] net: convert inet_frag_queue.refcnt from
-	atomic_t to refcount_t
+Subject: [Bridge] [PATCH 15/17] net: convert net.passive from atomic_t to
+	refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,102 +28,66 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/inet_frag.h  |  4 ++--
- net/ipv4/inet_fragment.c | 14 +++++++-------
- net/ipv4/ip_fragment.c   |  2 +-
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ include/net/net_namespace.h | 3 ++-
+ net/core/net-sysfs.c        | 2 +-
+ net/core/net_namespace.c    | 4 ++--
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/inet_frag.h b/include/net/inet_frag.h
-index 5894730..5a334bf 100644
---- a/include/net/inet_frag.h
-+++ b/include/net/inet_frag.h
-@@ -50,7 +50,7 @@ struct inet_frag_queue {
- 	spinlock_t		lock;
- 	struct timer_list	timer;
- 	struct hlist_node	list;
--	atomic_t		refcnt;
-+	refcount_t		refcnt;
- 	struct sk_buff		*fragments;
- 	struct sk_buff		*fragments_tail;
- 	ktime_t			stamp;
-@@ -129,7 +129,7 @@ void inet_frag_maybe_warn_overflow(struct inet_frag_queue *q,
+diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
+index af8fe8a..ec6dcaf 100644
+--- a/include/net/net_namespace.h
++++ b/include/net/net_namespace.h
+@@ -5,6 +5,7 @@
+ #define __NET_NET_NAMESPACE_H
  
- static inline void inet_frag_put(struct inet_frag_queue *q, struct inet_frags *f)
- {
--	if (atomic_dec_and_test(&q->refcnt))
-+	if (refcount_dec_and_test(&q->refcnt))
- 		inet_frag_destroy(q, f);
- }
+ #include <linux/atomic.h>
++#include <linux/refcount.h>
+ #include <linux/workqueue.h>
+ #include <linux/list.h>
+ #include <linux/sysctl.h>
+@@ -45,7 +46,7 @@ struct netns_ipvs;
+ #define NETDEV_HASHENTRIES (1 << NETDEV_HASHBITS)
  
-diff --git a/net/ipv4/inet_fragment.c b/net/ipv4/inet_fragment.c
-index b5e9317..96e95e8 100644
---- a/net/ipv4/inet_fragment.c
-+++ b/net/ipv4/inet_fragment.c
-@@ -276,11 +276,11 @@ static inline void fq_unlink(struct inet_frag_queue *fq, struct inet_frags *f)
- void inet_frag_kill(struct inet_frag_queue *fq, struct inet_frags *f)
- {
- 	if (del_timer(&fq->timer))
--		atomic_dec(&fq->refcnt);
-+		refcount_dec(&fq->refcnt);
- 
- 	if (!(fq->flags & INET_FRAG_COMPLETE)) {
- 		fq_unlink(fq, f);
--		atomic_dec(&fq->refcnt);
-+		refcount_dec(&fq->refcnt);
- 	}
- }
- EXPORT_SYMBOL(inet_frag_kill);
-@@ -329,7 +329,7 @@ static struct inet_frag_queue *inet_frag_intern(struct netns_frags *nf,
- 	 */
- 	hlist_for_each_entry(qp, &hb->chain, list) {
- 		if (qp->net == nf && f->match(qp, arg)) {
--			atomic_inc(&qp->refcnt);
-+			refcount_inc(&qp->refcnt);
- 			spin_unlock(&hb->chain_lock);
- 			qp_in->flags |= INET_FRAG_COMPLETE;
- 			inet_frag_put(qp_in, f);
-@@ -339,9 +339,9 @@ static struct inet_frag_queue *inet_frag_intern(struct netns_frags *nf,
+ struct net {
+-	atomic_t		passive;	/* To decided when the network
++	refcount_t		passive;	/* To decided when the network
+ 						 * namespace should be freed.
+ 						 */
+ 	atomic_t		count;		/* To decided when the network
+diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+index 3945821..d62caad 100644
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -1444,7 +1444,7 @@ static void *net_grab_current_ns(void)
+ 	struct net *ns = current->nsproxy->net_ns;
+ #ifdef CONFIG_NET_NS
+ 	if (ns)
+-		atomic_inc(&ns->passive);
++		refcount_inc(&ns->passive);
  #endif
- 	qp = qp_in;
- 	if (!mod_timer(&qp->timer, jiffies + nf->timeout))
--		atomic_inc(&qp->refcnt);
-+		refcount_inc(&qp->refcnt);
- 
--	atomic_inc(&qp->refcnt);
-+	refcount_inc(&qp->refcnt);
- 	hlist_add_head(&qp->list, &hb->chain);
- 
- 	spin_unlock(&hb->chain_lock);
-@@ -370,7 +370,7 @@ static struct inet_frag_queue *inet_frag_alloc(struct netns_frags *nf,
- 
- 	setup_timer(&q->timer, f->frag_expire, (unsigned long)q);
- 	spin_lock_init(&q->lock);
--	atomic_set(&q->refcnt, 1);
-+	refcount_set(&q->refcnt, 1);
- 
- 	return q;
+ 	return ns;
  }
-@@ -405,7 +405,7 @@ struct inet_frag_queue *inet_frag_find(struct netns_frags *nf,
- 	spin_lock(&hb->chain_lock);
- 	hlist_for_each_entry(q, &hb->chain, list) {
- 		if (q->net == nf && f->match(q, key)) {
--			atomic_inc(&q->refcnt);
-+			refcount_inc(&q->refcnt);
- 			spin_unlock(&hb->chain_lock);
- 			return q;
- 		}
-diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
-index bbe7f72..4fed6f6 100644
---- a/net/ipv4/ip_fragment.c
-+++ b/net/ipv4/ip_fragment.c
-@@ -303,7 +303,7 @@ static int ip_frag_reinit(struct ipq *qp)
- 	unsigned int sum_truesize = 0;
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index 652468f..cb981aa 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -283,7 +283,7 @@ static __net_init int setup_net(struct net *net, struct user_namespace *user_ns)
+ 	LIST_HEAD(net_exit_list);
  
- 	if (!mod_timer(&qp->q.timer, jiffies + qp->q.net->timeout)) {
--		atomic_inc(&qp->q.refcnt);
-+		refcount_inc(&qp->q.refcnt);
- 		return -ETIMEDOUT;
- 	}
+ 	atomic_set(&net->count, 1);
+-	atomic_set(&net->passive, 1);
++	refcount_set(&net->passive, 1);
+ 	net->dev_base_seq = 1;
+ 	net->user_ns = user_ns;
+ 	idr_init(&net->netns_ids);
+@@ -360,7 +360,7 @@ static void net_free(struct net *net)
+ void net_drop_ns(void *p)
+ {
+ 	struct net *ns = p;
+-	if (ns && atomic_dec_and_test(&ns->passive))
++	if (ns && refcount_dec_and_test(&ns->passive))
+ 		net_free(ns);
+ }
  
 -- 
 2.7.4
