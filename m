@@ -1,10 +1,10 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Thu, 16 Mar 2017 17:28:58 +0200
-Message-Id: <1489678147-21404-9-git-send-email-elena.reshetova@intel.com>
+Date: Thu, 16 Mar 2017 17:28:59 +0200
+Message-Id: <1489678147-21404-10-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489678147-21404-1-git-send-email-elena.reshetova@intel.com>
 References: <1489678147-21404-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 08/17] net: convert sk_filter.refcnt from atomic_t
+Subject: [Bridge] [PATCH 09/17] net: convert ip_mc_list.refcnt from atomic_t
 	to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -28,68 +28,80 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/linux/filter.h | 3 ++-
- net/core/filter.c      | 7 ++++---
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ include/linux/igmp.h |  3 ++-
+ net/ipv4/igmp.c      | 10 +++++-----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 8053c38..20247e7 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -7,6 +7,7 @@
- #include <stdarg.h>
- 
- #include <linux/atomic.h>
-+#include <linux/refcount.h>
- #include <linux/compat.h>
+diff --git a/include/linux/igmp.h b/include/linux/igmp.h
+index 12f6fba..97caf18 100644
+--- a/include/linux/igmp.h
++++ b/include/linux/igmp.h
+@@ -18,6 +18,7 @@
  #include <linux/skbuff.h>
- #include <linux/linkage.h>
-@@ -431,7 +432,7 @@ struct bpf_prog {
- };
+ #include <linux/timer.h>
+ #include <linux/in.h>
++#include <linux/refcount.h>
+ #include <uapi/linux/igmp.h>
  
- struct sk_filter {
--	atomic_t	refcnt;
-+	refcount_t	refcnt;
- 	struct rcu_head	rcu;
- 	struct bpf_prog	*prog;
- };
-diff --git a/net/core/filter.c b/net/core/filter.c
-index ebaeaf2..62267e2 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -928,7 +928,7 @@ static void sk_filter_release_rcu(struct rcu_head *rcu)
-  */
- static void sk_filter_release(struct sk_filter *fp)
+ static inline struct igmphdr *igmp_hdr(const struct sk_buff *skb)
+@@ -84,7 +85,7 @@ struct ip_mc_list {
+ 	struct ip_mc_list __rcu *next_hash;
+ 	struct timer_list	timer;
+ 	int			users;
+-	atomic_t		refcnt;
++	refcount_t		refcnt;
+ 	spinlock_t		lock;
+ 	char			tm_running;
+ 	char			reporter;
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 44fd86d..0ed4f7b 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -173,7 +173,7 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ 
+ static void ip_ma_put(struct ip_mc_list *im)
  {
--	if (atomic_dec_and_test(&fp->refcnt))
-+	if (refcount_dec_and_test(&fp->refcnt))
- 		call_rcu(&fp->rcu, sk_filter_release_rcu);
+-	if (atomic_dec_and_test(&im->refcnt)) {
++	if (refcount_dec_and_test(&im->refcnt)) {
+ 		in_dev_put(im->interface);
+ 		kfree_rcu(im, rcu);
+ 	}
+@@ -199,7 +199,7 @@ static void igmp_stop_timer(struct ip_mc_list *im)
+ {
+ 	spin_lock_bh(&im->lock);
+ 	if (del_timer(&im->timer))
+-		atomic_dec(&im->refcnt);
++		refcount_dec(&im->refcnt);
+ 	im->tm_running = 0;
+ 	im->reporter = 0;
+ 	im->unsolicit_count = 0;
+@@ -213,7 +213,7 @@ static void igmp_start_timer(struct ip_mc_list *im, int max_delay)
+ 
+ 	im->tm_running = 1;
+ 	if (!mod_timer(&im->timer, jiffies+tv+2))
+-		atomic_inc(&im->refcnt);
++		refcount_inc(&im->refcnt);
  }
  
-@@ -950,7 +950,7 @@ bool sk_filter_charge(struct sock *sk, struct sk_filter *fp)
- 	/* same check as in sock_kmalloc() */
- 	if (filter_size <= sysctl_optmem_max &&
- 	    atomic_read(&sk->sk_omem_alloc) + filter_size < sysctl_optmem_max) {
--		atomic_inc(&fp->refcnt);
-+		refcount_inc(&fp->refcnt);
- 		atomic_add(filter_size, &sk->sk_omem_alloc);
- 		return true;
+ static void igmp_gq_start_timer(struct in_device *in_dev)
+@@ -249,7 +249,7 @@ static void igmp_mod_timer(struct ip_mc_list *im, int max_delay)
+ 			spin_unlock_bh(&im->lock);
+ 			return;
+ 		}
+-		atomic_dec(&im->refcnt);
++		refcount_dec(&im->refcnt);
  	}
-@@ -1179,12 +1179,13 @@ static int __sk_attach_prog(struct bpf_prog *prog, struct sock *sk)
- 		return -ENOMEM;
- 
- 	fp->prog = prog;
--	atomic_set(&fp->refcnt, 0);
-+	refcount_set(&fp->refcnt, 1);
- 
- 	if (!sk_filter_charge(sk, fp)) {
- 		kfree(fp);
- 		return -ENOMEM;
- 	}
-+	refcount_set(&fp->refcnt, 1);
- 
- 	old_fp = rcu_dereference_protected(sk->sk_filter,
- 					   lockdep_sock_is_held(sk));
+ 	igmp_start_timer(im, max_delay);
+ 	spin_unlock_bh(&im->lock);
+@@ -1373,7 +1373,7 @@ void ip_mc_inc_group(struct in_device *in_dev, __be32 addr)
+ 	/* initial mode is (EX, empty) */
+ 	im->sfmode = MCAST_EXCLUDE;
+ 	im->sfcount[MCAST_EXCLUDE] = 1;
+-	atomic_set(&im->refcnt, 1);
++	refcount_set(&im->refcnt, 1);
+ 	spin_lock_init(&im->lock);
+ #ifdef CONFIG_IP_MULTICAST
+ 	setup_timer(&im->timer, igmp_timer_expire, (unsigned long)im);
 -- 
 2.7.4
 
