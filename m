@@ -1,33 +1,23 @@
-Return-Path: <keescook@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc;
-	bh=vmCYz3imhkOxt0ona3TrMXgnE0qriIjH7P7O+Ded8+8=;
-	b=Xvm+eYEowtcTImlBaXWvRhk2MZKGK77+4jCDWXuRGWo7cL6JM96Awvh1/teMi+53Ho
-	hUazfQfvT8VHUlEP0Jh6DNy1zt2nxrNuBtcsC0OP+zTBX8Gd+sFdGH4yvJeCKbTnf1Z4
-	U1eQ7RvE56ar1F0Wh03SUk8QIaXo5KbBzGunsTxzr0JZkdFKRaJYI9OzudC/amRPx97N
-	s0/ZbVhVtppkjyx0hbWrGiyWyE0srEee1JBRS6DIlU4F+0KL9OkTZjmKb4HEyeT27tkm
-	Q/W4qaOSLQqjqrGMIGtaSgfk7eEfxVifKXIiaoWXCPXIH8mfrO4z3WKd3ZzdJxORG5XF
-	QK9Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc;
-	bh=vmCYz3imhkOxt0ona3TrMXgnE0qriIjH7P7O+Ded8+8=;
-	b=Wf0dWesINUlftA9ilnuZejjFSHLqYH+g+TasaDmXYR5twDjw4y0R/ebFN7I4t3Nur6
-	9MnEas+AE5EQqPIjitQvSedGgAVchkfVfJk/ufPkTL95/6YIOxTNR2Y1VLcs8B9VY3KM
-	B3nq+YNZQC+zUsFGVR8mAqVFiOdTiZuMo0KEQ=
+Return-Path: <avagin@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=JjLOvTPZwgTs6UJMcLVbr28yKBBooL002kPwUzThnco=;
+	b=oSQw2uzokLyq6CtSMeDMyuYeG3GFe9BsgHKbVP66wDaAbuIWIktrY7cYR7xYRKE4Qx
+	y2pbRiPcU1DKtHMkUxTT9OSA7JqYWrATYxg5vDao/aOxcx7Ry6ogI6XO2bV4TPhF//qQ
+	dBwtadxGFiDpz1KxtveLSn7dUL2NGUiR4fZc4G8saHWJXV9k0i0wWyZvEaGFwf7ymVOW
+	ffCaArDDcVT8rLsecNotV/zMrELhlAdT6dbXNE/nQWCMP9t1Wo1xyVmFBFkeHKQtN4fT
+	ieb8c+BIXxybeKcBEFKHs3o7BIdHJkRoktX4zwdrqTuiiIgiVb8Gr3rBMRf2pHguWTnG
+	46tQ==
 MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <1489683534.28631.231.camel@edumazet-glaptop3.roam.corp.google.com>
-References: <1489678147-21404-1-git-send-email-elena.reshetova@intel.com>
-	<1489678147-21404-8-git-send-email-elena.reshetova@intel.com>
-	<1489683534.28631.231.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Kees Cook <keescook@chromium.org>
-Date: Thu, 16 Mar 2017 11:38:25 -0600
-Message-ID: <CAGXu5jJpFwiDR_o=oarN_2vDr56cwQ=Bg-5NikUmDtxtzWnAcQ@mail.gmail.com>
+In-Reply-To: <CAM_iQpVoupZGkrUZu2ossrW8uOdQ9uT9FYLybBqh6qi205w54g@mail.gmail.com>
+References: <CANaxB-zhLdJLz1AHdensX_zfQ7O3rzjhJn5eSTWC1tUAk2axTA@mail.gmail.com>
+	<CAM_iQpVoupZGkrUZu2ossrW8uOdQ9uT9FYLybBqh6qi205w54g@mail.gmail.com>
+From: Andrei Vagin <avagin@gmail.com>
+Date: Thu, 16 Mar 2017 11:43:06 -0700
+Message-ID: <CANaxB-z-pc61LuDNj1-oD_pg1DKyRfThKuhfgdjgns5if4YM2Q@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
-	atomic_t to refcount_t
+Subject: Re: [Bridge] linux-next: WARNING: CPU: 1 PID: 19544 at
+	net/bridge/br_fdb.c:109 br_fdb_find+0x19d/0x1b0
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -36,66 +26,76 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, LKML <linux-kernel@vger.kernel.org>, Hans Liljestrand <ishkamiel@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Patrick McHardy <kaber@trash.net>, Elena Reshetova <elena.reshetova@intel.com>, David Windsor <dwindsor@gmail.com>
+To: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-On Thu, Mar 16, 2017 at 10:58 AM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> On Thu, 2017-03-16 at 17:28 +0200, Elena Reshetova wrote:
->> refcount_t type and corresponding API should be
->> used instead of atomic_t when the variable is used as
->> a reference counter. This allows to avoid accidental
->> refcounter overflows that might lead to use-after-free
->> situations.
->
->
-> ...
->
->>  static __always_inline void sock_hold(struct sock *sk)
->>  {
->> -     atomic_inc(&sk->sk_refcnt);
->> +     refcount_inc(&sk->sk_refcnt);
->>  }
+On Wed, Mar 15, 2017 at 9:19 PM, Cong Wang <xiyou.wangcong@gmail.com> wrote:
+> On Wed, Mar 15, 2017 at 6:12 PM, Andrei Vagin <avagin@gmail.com> wrote:
+>> Hello,
 >>
+>> We execute CRIU tests for linux-next and here is a new warning:
+>> [  178.930950] ------------[ cut here ]------------
+>> [  178.930960] WARNING: CPU: 1 PID: 19544 at net/bridge/br_fdb.c:109
+>> br_fdb_find+0x19d/0x1b0
+>> [  178.930961] Modules linked in:
+>> [  178.930966] CPU: 1 PID: 19544 Comm: criu Not tainted
+>> 4.11.0-rc1-next-20170310 #1
+>> [  178.930968] Hardware name: Google Google Compute Engine/Google
+>> Compute Engine, BIOS Google 01/01/2011
+>> [  178.930970] Call Trace:
+>> [  178.930976]  dump_stack+0x85/0xc9
+>> [  178.930982]  __warn+0xd1/0xf0
+>> [  178.930988]  warn_slowpath_null+0x1d/0x20
+>> [  178.930990]  br_fdb_find+0x19d/0x1b0
+>> [  178.930994]  br_fdb_change_mac_address+0x38/0x80
+>> [  178.930999]  br_stp_change_bridge_id+0x44/0x140
+>> [  178.931003]  br_dev_newlink+0x3f/0x70
+>> [  178.931009]  rtnl_newlink+0x68e/0x830
+>> [  178.931014]  ? netlink_broadcast_filtered+0x134/0x3e0
+>> [  178.931025]  ? get_partial_node.isra.76+0x4b/0x2a0
+>> [  178.931032]  ? nla_parse+0xa3/0x100
+>> [  178.931035]  ? nla_strlcpy+0x5b/0x70
+>> [  178.931037]  ? rtnl_link_ops_get+0x39/0x50
+>> [  178.931040]  ? rtnl_newlink+0x158/0x830
+>> [  178.931064]  rtnetlink_rcv_msg+0x95/0x230
+>> [  178.931068]  ? rtnl_newlink+0x830/0x830
+>> [  178.931072]  netlink_rcv_skb+0xa7/0xc0
+>> [  178.931075]  rtnetlink_rcv+0x2a/0x40
+>> [  178.931078]  netlink_unicast+0x15b/0x210
+>> [  178.931082]  netlink_sendmsg+0x31a/0x3a0
+>> [  178.931089]  sock_sendmsg+0x38/0x50
+>> [  178.931092]  ___sys_sendmsg+0x26c/0x280
+>> [  178.931099]  ? __generic_file_write_iter+0x19b/0x1e0
+>> [  178.931105]  ? up_write+0x1f/0x40
+>> [  178.931110]  ? ext4_file_write_iter+0xa4/0x390
+>> [  178.931120]  __sys_sendmsg+0x45/0x80
+>> [  178.931126]  SyS_sendmsg+0x12/0x20
+>> [  178.931130]  entry_SYSCALL_64_fastpath+0x23/0xc2
+>> [  178.931132] RIP: 0033:0x2b71009f99a0
+>> [  178.931134] RSP: 002b:00007ffed7413c58 EFLAGS: 00000246 ORIG_RAX:
+>> 000000000000002e
+>> [  178.931137] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00002b71009f99a0
+>> [  178.931139] RDX: 0000000000000000 RSI: 00007ffed7413c90 RDI: 0000000000000002
+>> [  178.931140] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+>> [  178.931142] R10: 00002b710180cfe0 R11: 0000000000000246 R12: 0000000000000001
+>> [  178.931144] R13: 0000000000000004 R14: 00007ffed74134b0 R15: 0000000000000003
+>> [  178.931152] ---[ end trace 61d5dd5e3b9abaf8 ]---
+>> [  178.931453] IPv6: ADDRCONF(NETDEV_UP): zdtmbr0: li
+>>
+>> All logs are here:
+>> https://s3.amazonaws.com/archive.travis-ci.org/jobs/211220073/log.txt
 >
-> While I certainly see the value of these refcount_t, we have a very
-> different behavior on these atomic_inc() which were doing a single
-> inlined LOCK RMW on x86.
-
-I think we can certainly investigate arch-specific ways to improve the
-performance, but the consensus seemed to be that getting the
-infrastructure in and doing the migration was the first set of steps.
-
-> We now call an external function performing a
-> atomic_read(), various ops/tests, then atomic_cmpxchg_relaxed(), in a
-> loop, loosing the nice ability for x86 of preventing live locks.
 >
-> Looks a lot of bloat, just to be able to chase hypothetical bugs in the
-> kernel.
+> Could the attached patch fix this false alarm?
+
+Hi Cong,
+
+I haven't noticed that there was one more warning in the kernel log. I
+think it is a right patch. I executed CRIU tests on the kernel with
+your patch and there is nothing to worry about:
+https://travis-ci.org/avagin/criu/builds/211623238
+
+Thank you.
+
 >
-> I would love to have a way to enable extra debugging when I want a debug
-> kernel, like LOCKDEP or KASAN.
->
-> By adding all this bloat, we assert linux kernel is terminally buggy and
-> every atomic_inc() we did was suspicious, and need to be always
-> instrumented/validated.
-
-This IS the assertion, unfortunately. With average 5 year lifetimes on
-security flaws[1], and many of the last couple years' public exploits
-being refcount flaws[2], this is something we have to get done. We
-need the default kernel to be much more self-protective, and this is
-one of many places to make it happen.
-
-I am, of course, biased, but I think the evidence of actual
-refcounting attacks outweighs the theoretical performance cost of
-these changes. If there is a realistic workflow that shows actual
-problems, let's examine it and find a solution for that as a separate
-part of this work without blocking this migration.
-
--Kees
-
-[1] https://outflux.net/blog/archives/2016/10/18/security-bug-lifetime/
-[2] http://kernsec.org/wiki/index.php/Bug_Classes/Integer_overflow
-
--- 
-Kees Cook
-Pixel Security
+> Thanks.
