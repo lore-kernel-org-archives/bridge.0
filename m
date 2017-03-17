@@ -1,18 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-	d=intel.com; i=@intel.com; q=dns/txt; s=intel;
-	t=1489749358; x=1521285358;
-	h=from:to:cc:subject:date:message-id:in-reply-to: references;
-	bh=X+RZwiG1zxCGMph03tlMj2lJpl4bkL9FiLnzMp2O0y4=;
-	b=CQBOhahszgsBSIC2D7EZynCzVI7T/qG+1COoVMMxE81EtSXfCxb9zmwi
-	FWDr73CV+GkYP1G/5UFflgYWm7jADQ==;
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:57 +0200
-Message-Id: <1489749179-12063-17-git-send-email-elena.reshetova@intel.com>
+Date: Fri, 17 Mar 2017 13:12:58 +0200
+Message-Id: <1489749179-12063-18-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 16/18] net,
-	ipx: convert ipx_route.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 17/18] net,
+	netrom: convert nr_neigh.refcount from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,51 +28,67 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/ipx.h   | 6 +++---
- net/ipx/ipx_route.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/netrom.h  | 7 ++++---
+ net/netrom/nr_route.c | 4 ++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/ipx.h b/include/net/ipx.h
-index 2de1281..af32b97 100644
---- a/include/net/ipx.h
-+++ b/include/net/ipx.h
-@@ -81,7 +81,7 @@ struct ipx_route {
- 	unsigned char		ir_routed;
- 	unsigned char		ir_router_node[IPX_NODE_LEN];
- 	struct list_head	node; /* node in ipx_routes list */
--	atomic_t		refcnt;
-+	refcount_t		refcnt;
+diff --git a/include/net/netrom.h b/include/net/netrom.h
+index 110350a..cecb4fd 100644
+--- a/include/net/netrom.h
++++ b/include/net/netrom.h
+@@ -11,6 +11,7 @@
+ #include <linux/list.h>
+ #include <linux/slab.h>
+ #include <net/sock.h>
++#include <linux/refcount.h>
+ 
+ #define	NR_NETWORK_LEN			15
+ #define	NR_TRANSPORT_LEN		5
+@@ -93,7 +94,7 @@ struct nr_neigh {
+ 	unsigned short		count;
+ 	unsigned int		number;
+ 	unsigned char		failed;
+-	atomic_t		refcount;
++	refcount_t		refcount;
  };
  
- struct ipx_cb {
-@@ -164,12 +164,12 @@ static __inline__ void ipxitf_put(struct ipx_interface *intrfc)
- 
- static __inline__ void ipxrtr_hold(struct ipx_route *rt)
- {
--	        atomic_inc(&rt->refcnt);
-+	        refcount_inc(&rt->refcnt);
+ struct nr_route {
+@@ -128,11 +129,11 @@ static __inline__ void nr_node_put(struct nr_node *nr_node)
  }
  
- static __inline__ void ipxrtr_put(struct ipx_route *rt)
- {
--	        if (atomic_dec_and_test(&rt->refcnt))
-+	        if (refcount_dec_and_test(&rt->refcnt))
- 			                kfree(rt);
- }
- #endif /* _NET_INET_IPX_H_ */
-diff --git a/net/ipx/ipx_route.c b/net/ipx/ipx_route.c
-index 3e2a32a..b5d9144 100644
---- a/net/ipx/ipx_route.c
-+++ b/net/ipx/ipx_route.c
-@@ -59,7 +59,7 @@ int ipxrtr_add_route(__be32 network, struct ipx_interface *intrfc,
- 		if (!rt)
- 			goto out;
+ #define nr_neigh_hold(__nr_neigh) \
+-	atomic_inc(&((__nr_neigh)->refcount))
++	refcount_inc(&((__nr_neigh)->refcount))
  
--		atomic_set(&rt->refcnt, 1);
-+		refcount_set(&rt->refcnt, 1);
- 		ipxrtr_hold(rt);
- 		write_lock_bh(&ipx_routes_lock);
- 		list_add(&rt->node, &ipx_routes);
+ static __inline__ void nr_neigh_put(struct nr_neigh *nr_neigh)
+ {
+-	if (atomic_dec_and_test(&nr_neigh->refcount)) {
++	if (refcount_dec_and_test(&nr_neigh->refcount)) {
+ 		if (nr_neigh->ax25)
+ 			ax25_cb_put(nr_neigh->ax25);
+ 		kfree(nr_neigh->digipeat);
+diff --git a/net/netrom/nr_route.c b/net/netrom/nr_route.c
+index d72a4f1..6b72970 100644
+--- a/net/netrom/nr_route.c
++++ b/net/netrom/nr_route.c
+@@ -149,7 +149,7 @@ static int __must_check nr_add_node(ax25_address *nr, const char *mnemonic,
+ 		nr_neigh->count    = 0;
+ 		nr_neigh->number   = nr_neigh_no++;
+ 		nr_neigh->failed   = 0;
+-		atomic_set(&nr_neigh->refcount, 1);
++		refcount_set(&nr_neigh->refcount, 1);
+ 
+ 		if (ax25_digi != NULL && ax25_digi->ndigi > 0) {
+ 			nr_neigh->digipeat = kmemdup(ax25_digi,
+@@ -431,7 +431,7 @@ static int __must_check nr_add_neigh(ax25_address *callsign,
+ 	nr_neigh->count    = 0;
+ 	nr_neigh->number   = nr_neigh_no++;
+ 	nr_neigh->failed   = 0;
+-	atomic_set(&nr_neigh->refcount, 1);
++	refcount_set(&nr_neigh->refcount, 1);
+ 
+ 	if (ax25_digi != NULL && ax25_digi->ndigi > 0) {
+ 		nr_neigh->digipeat = kmemdup(ax25_digi, sizeof(*ax25_digi),
 -- 
 2.7.4
 
