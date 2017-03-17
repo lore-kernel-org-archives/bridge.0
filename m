@@ -1,18 +1,18 @@
 Return-Path: <elena.reshetova@intel.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
 	d=intel.com; i=@intel.com; q=dns/txt; s=intel;
-	t=1489749218; x=1521285218;
+	t=1489749225; x=1521285225;
 	h=from:to:cc:subject:date:message-id:in-reply-to: references;
-	bh=+Lmt4CUrPw0adsaeR4a+5cGV/LraUMulAPBhooT2xIo=;
-	b=YCPpr2VuQxrSMCSLEyrHRsMZgUqG82/ks1QK51aCtE1aZd2K1V3TEkxX
-	P+l8XDqlBi1swxgJ8yjtPKvVQTne5A==;
+	bh=RtLsxPtknQ/AxY0coG6R7cHKi3p1PW5dFIqOEa1Bl7s=;
+	b=ERlCOvEpShNw2wK9J0vOvQP72NHK6XLqCuetZL0vBbAOaWoI+yB3HFKM
+	IbcyDx42ZBvdC9cQ13xa7DFPoMfAlg==;
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:45 +0200
-Message-Id: <1489749179-12063-5-git-send-email-elena.reshetova@intel.com>
+Date: Fri, 17 Mar 2017 13:12:46 +0200
+Message-Id: <1489749179-12063-6-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 04/18] net,
-	vxlan: convert vxlan_sock.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 05/18] net,
+	bluetooth: convert rfcomm_dlc.refcnt from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,68 +35,69 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- drivers/net/vxlan.c | 10 +++++-----
- include/net/vxlan.h |  2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ include/net/bluetooth/rfcomm.h | 8 +++++---
+ net/bluetooth/rfcomm/core.c    | 4 ++--
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index b791199..21a9251 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -999,11 +999,11 @@ static bool vxlan_group_used(struct vxlan_net *vn, struct vxlan_dev *dev)
- 	/* The vxlan_sock is only used by dev, leaving group has
- 	 * no effect on other vxlan devices.
- 	 */
--	if (family == AF_INET && sock4 && atomic_read(&sock4->refcnt) == 1)
-+	if (family == AF_INET && sock4 && refcount_read(&sock4->refcnt) == 1)
- 		return false;
- #if IS_ENABLED(CONFIG_IPV6)
- 	sock6 = rtnl_dereference(dev->vn6_sock);
--	if (family == AF_INET6 && sock6 && atomic_read(&sock6->refcnt) == 1)
-+	if (family == AF_INET6 && sock6 && refcount_read(&sock6->refcnt) == 1)
- 		return false;
- #endif
+diff --git a/include/net/bluetooth/rfcomm.h b/include/net/bluetooth/rfcomm.h
+index 4190af5..da4acef 100644
+--- a/include/net/bluetooth/rfcomm.h
++++ b/include/net/bluetooth/rfcomm.h
+@@ -21,6 +21,8 @@
+    SOFTWARE IS DISCLAIMED.
+ */
  
-@@ -1040,7 +1040,7 @@ static bool __vxlan_sock_release_prep(struct vxlan_sock *vs)
++#include <linux/refcount.h>
++
+ #ifndef __RFCOMM_H
+ #define __RFCOMM_H
  
- 	if (!vs)
- 		return false;
--	if (!atomic_dec_and_test(&vs->refcnt))
-+	if (!refcount_dec_and_test(&vs->refcnt))
- 		return false;
+@@ -174,7 +176,7 @@ struct rfcomm_dlc {
+ 	struct mutex  lock;
+ 	unsigned long state;
+ 	unsigned long flags;
+-	atomic_t      refcnt;
++	refcount_t    refcnt;
+ 	u8            dlci;
+ 	u8            addr;
+ 	u8            priority;
+@@ -247,12 +249,12 @@ struct rfcomm_dlc *rfcomm_dlc_exists(bdaddr_t *src, bdaddr_t *dst, u8 channel);
  
- 	vn = net_generic(sock_net(vs->sock->sk), vxlan_net_id);
-@@ -2757,7 +2757,7 @@ static struct vxlan_sock *vxlan_socket_create(struct net *net, bool ipv6,
- 	}
+ static inline void rfcomm_dlc_hold(struct rfcomm_dlc *d)
+ {
+-	atomic_inc(&d->refcnt);
++	refcount_inc(&d->refcnt);
+ }
  
- 	vs->sock = sock;
--	atomic_set(&vs->refcnt, 1);
-+	refcount_set(&vs->refcnt, 1);
- 	vs->flags = (flags & VXLAN_F_RCV_FLAGS);
+ static inline void rfcomm_dlc_put(struct rfcomm_dlc *d)
+ {
+-	if (atomic_dec_and_test(&d->refcnt))
++	if (refcount_dec_and_test(&d->refcnt))
+ 		rfcomm_dlc_free(d);
+ }
  
- 	spin_lock(&vn->sock_lock);
-@@ -2791,7 +2791,7 @@ static int __vxlan_sock_add(struct vxlan_dev *vxlan, bool ipv6)
- 		spin_lock(&vn->sock_lock);
- 		vs = vxlan_find_sock(vxlan->net, ipv6 ? AF_INET6 : AF_INET,
- 				     vxlan->cfg.dst_port, vxlan->flags);
--		if (vs && !atomic_add_unless(&vs->refcnt, 1, 0)) {
-+		if (vs && !refcount_inc_not_zero(&vs->refcnt)) {
- 			spin_unlock(&vn->sock_lock);
- 			return -EBUSY;
- 		}
-diff --git a/include/net/vxlan.h b/include/net/vxlan.h
-index 49a5920..5c117b4 100644
---- a/include/net/vxlan.h
-+++ b/include/net/vxlan.h
-@@ -183,7 +183,7 @@ struct vxlan_sock {
- 	struct hlist_node hlist;
- 	struct socket	 *sock;
- 	struct hlist_head vni_list[VNI_HASH_SIZE];
--	atomic_t	  refcnt;
-+	refcount_t	  refcnt;
- 	u32		  flags;
- };
+diff --git a/net/bluetooth/rfcomm/core.c b/net/bluetooth/rfcomm/core.c
+index f7eb02f..8ebca90 100644
+--- a/net/bluetooth/rfcomm/core.c
++++ b/net/bluetooth/rfcomm/core.c
+@@ -311,7 +311,7 @@ struct rfcomm_dlc *rfcomm_dlc_alloc(gfp_t prio)
  
+ 	skb_queue_head_init(&d->tx_queue);
+ 	mutex_init(&d->lock);
+-	atomic_set(&d->refcnt, 1);
++	refcount_set(&d->refcnt, 1);
+ 
+ 	rfcomm_dlc_clear_state(d);
+ 
+@@ -342,7 +342,7 @@ static void rfcomm_dlc_unlink(struct rfcomm_dlc *d)
+ {
+ 	struct rfcomm_session *s = d->session;
+ 
+-	BT_DBG("dlc %p refcnt %d session %p", d, atomic_read(&d->refcnt), s);
++	BT_DBG("dlc %p refcnt %d session %p", d, refcount_read(&d->refcnt), s);
+ 
+ 	list_del(&d->list);
+ 	d->session = NULL;
 -- 
 2.7.4
 
