@@ -1,11 +1,18 @@
 Return-Path: <elena.reshetova@intel.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+	d=intel.com; i=@intel.com; q=dns/txt; s=intel;
+	t=1489749218; x=1521285218;
+	h=from:to:cc:subject:date:message-id:in-reply-to: references;
+	bh=+Lmt4CUrPw0adsaeR4a+5cGV/LraUMulAPBhooT2xIo=;
+	b=YCPpr2VuQxrSMCSLEyrHRsMZgUqG82/ks1QK51aCtE1aZd2K1V3TEkxX
+	P+l8XDqlBi1swxgJ8yjtPKvVQTne5A==;
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:44 +0200
-Message-Id: <1489749179-12063-4-git-send-email-elena.reshetova@intel.com>
+Date: Fri, 17 Mar 2017 13:12:45 +0200
+Message-Id: <1489749179-12063-5-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 03/18] net,
-	l2tp: convert l2tp_session.ref_count from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 04/18] net,
+	vxlan: convert vxlan_sock.refcnt from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,68 +35,68 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- net/l2tp/l2tp_core.c |  2 +-
- net/l2tp/l2tp_core.h | 10 +++++-----
+ drivers/net/vxlan.c | 10 +++++-----
+ include/net/vxlan.h |  2 +-
  2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-index 37e9cf3..20ee848 100644
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1796,7 +1796,7 @@ struct l2tp_session *l2tp_session_create(int priv_size, struct l2tp_tunnel *tunn
- 		/* Bump the reference count. The session context is deleted
- 		 * only when this drops to zero.
- 		 */
--		l2tp_session_inc_refcount(session);
-+		refcount_set(&session->ref_count, 1);
- 		l2tp_tunnel_inc_refcount(tunnel);
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index b791199..21a9251 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -999,11 +999,11 @@ static bool vxlan_group_used(struct vxlan_net *vn, struct vxlan_dev *dev)
+ 	/* The vxlan_sock is only used by dev, leaving group has
+ 	 * no effect on other vxlan devices.
+ 	 */
+-	if (family == AF_INET && sock4 && atomic_read(&sock4->refcnt) == 1)
++	if (family == AF_INET && sock4 && refcount_read(&sock4->refcnt) == 1)
+ 		return false;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	sock6 = rtnl_dereference(dev->vn6_sock);
+-	if (family == AF_INET6 && sock6 && atomic_read(&sock6->refcnt) == 1)
++	if (family == AF_INET6 && sock6 && refcount_read(&sock6->refcnt) == 1)
+ 		return false;
+ #endif
  
- 		/* Ensure tunnel socket isn't deleted */
-diff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h
-index b942854..568b721 100644
---- a/net/l2tp/l2tp_core.h
-+++ b/net/l2tp/l2tp_core.h
-@@ -99,7 +99,7 @@ struct l2tp_session {
- 	int			nr_oos_count;	/* For OOS recovery */
- 	int			nr_oos_count_max;
- 	struct hlist_node	hlist;		/* Hash list node */
--	atomic_t		ref_count;
-+	refcount_t		ref_count;
+@@ -1040,7 +1040,7 @@ static bool __vxlan_sock_release_prep(struct vxlan_sock *vs)
  
- 	char			name[32];	/* for logging */
- 	char			ifname[IFNAMSIZ];
-@@ -271,12 +271,12 @@ int l2tp_ioctl(struct sock *sk, int cmd, unsigned long arg);
-  */
- static inline void l2tp_session_inc_refcount_1(struct l2tp_session *session)
- {
--	atomic_inc(&session->ref_count);
-+	refcount_inc(&session->ref_count);
- }
+ 	if (!vs)
+ 		return false;
+-	if (!atomic_dec_and_test(&vs->refcnt))
++	if (!refcount_dec_and_test(&vs->refcnt))
+ 		return false;
  
- static inline void l2tp_session_dec_refcount_1(struct l2tp_session *session)
- {
--	if (atomic_dec_and_test(&session->ref_count))
-+	if (refcount_dec_and_test(&session->ref_count))
- 		l2tp_session_free(session);
- }
+ 	vn = net_generic(sock_net(vs->sock->sk), vxlan_net_id);
+@@ -2757,7 +2757,7 @@ static struct vxlan_sock *vxlan_socket_create(struct net *net, bool ipv6,
+ 	}
  
-@@ -285,14 +285,14 @@ static inline void l2tp_session_dec_refcount_1(struct l2tp_session *session)
- do {									\
- 	pr_debug("l2tp_session_inc_refcount: %s:%d %s: cnt=%d\n",	\
- 		 __func__, __LINE__, (_s)->name,			\
--		 atomic_read(&_s->ref_count));				\
-+		 refcount_read(&_s->ref_count));			\
- 	l2tp_session_inc_refcount_1(_s);				\
- } while (0)
- #define l2tp_session_dec_refcount(_s)					\
- do {									\
- 	pr_debug("l2tp_session_dec_refcount: %s:%d %s: cnt=%d\n",	\
- 		 __func__, __LINE__, (_s)->name,			\
--		 atomic_read(&_s->ref_count));				\
-+		 refcount_read(&_s->ref_count));			\
- 	l2tp_session_dec_refcount_1(_s);				\
- } while (0)
- #else
+ 	vs->sock = sock;
+-	atomic_set(&vs->refcnt, 1);
++	refcount_set(&vs->refcnt, 1);
+ 	vs->flags = (flags & VXLAN_F_RCV_FLAGS);
+ 
+ 	spin_lock(&vn->sock_lock);
+@@ -2791,7 +2791,7 @@ static int __vxlan_sock_add(struct vxlan_dev *vxlan, bool ipv6)
+ 		spin_lock(&vn->sock_lock);
+ 		vs = vxlan_find_sock(vxlan->net, ipv6 ? AF_INET6 : AF_INET,
+ 				     vxlan->cfg.dst_port, vxlan->flags);
+-		if (vs && !atomic_add_unless(&vs->refcnt, 1, 0)) {
++		if (vs && !refcount_inc_not_zero(&vs->refcnt)) {
+ 			spin_unlock(&vn->sock_lock);
+ 			return -EBUSY;
+ 		}
+diff --git a/include/net/vxlan.h b/include/net/vxlan.h
+index 49a5920..5c117b4 100644
+--- a/include/net/vxlan.h
++++ b/include/net/vxlan.h
+@@ -183,7 +183,7 @@ struct vxlan_sock {
+ 	struct hlist_node hlist;
+ 	struct socket	 *sock;
+ 	struct hlist_head vni_list[VNI_HASH_SIZE];
+-	atomic_t	  refcnt;
++	refcount_t	  refcnt;
+ 	u32		  flags;
+ };
+ 
 -- 
 2.7.4
 
