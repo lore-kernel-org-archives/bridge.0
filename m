@@ -1,18 +1,18 @@
 Return-Path: <elena.reshetova@intel.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
 	d=intel.com; i=@intel.com; q=dns/txt; s=intel;
-	t=1489749239; x=1521285239;
+	t=1489749246; x=1521285246;
 	h=from:to:cc:subject:date:message-id:in-reply-to: references;
-	bh=c69CBN1i/ulA8bwHfkG4FtXiFolYTf9oR+ZW4znL6EQ=;
-	b=OYuw5b4xu/9A8v/bo/m9W5GuXPw0c+FI100Uai4tkuxPqUZsRKf+LQXp
-	bFWKFTy2gFy4340VpFv/6xwSbeV/9g==;
+	bh=FvkFtm2kl8a8VpEA1rkQj9RYlPdMlElP3HWRGAn/ZPI=;
+	b=r5Ohral/CyHe2Amm/MeCZCUJJwx7ayoP9bl+SBXWBO4agjPoOhn7ondD
+	Y4DdIcSaBEvWBDgDqDIgj3l/myc3Uw==;
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:48 +0200
-Message-Id: <1489749179-12063-8-git-send-email-elena.reshetova@intel.com>
+Date: Fri, 17 Mar 2017 13:12:49 +0200
+Message-Id: <1489749179-12063-9-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 07/18] net,
-	atm: convert atm_dev.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 08/18] net,
+	atm: convert lec_arp_table.usage from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,74 +35,51 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/linux/atmdev.h | 7 ++++---
- net/atm/proc.c         | 2 +-
- net/atm/resources.c    | 2 +-
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ net/atm/lec.c      | 6 +++---
+ net/atm/lec_arpc.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/atmdev.h b/include/linux/atmdev.h
-index c1da539..2a87aea 100644
---- a/include/linux/atmdev.h
-+++ b/include/linux/atmdev.h
-@@ -11,6 +11,7 @@
- #include <linux/uio.h>
- #include <net/sock.h>
- #include <linux/atomic.h>
-+#include <linux/refcount.h>
- #include <uapi/linux/atmdev.h>
- 
- #ifdef CONFIG_PROC_FS
-@@ -158,7 +159,7 @@ struct atm_dev {
- 	struct k_atm_dev_stats stats;	/* statistics */
- 	char		signal;		/* signal status (ATM_PHY_SIG_*) */
- 	int		link_rate;	/* link rate (default: OC3) */
--	atomic_t	refcnt;		/* reference count */
-+	refcount_t	refcnt;		/* reference count */
- 	spinlock_t	lock;		/* protect internal members */
- #ifdef CONFIG_PROC_FS
- 	struct proc_dir_entry *proc_entry; /* proc entry */
-@@ -261,13 +262,13 @@ static inline int atm_may_send(struct atm_vcc *vcc,unsigned int size)
- 
- static inline void atm_dev_hold(struct atm_dev *dev)
+diff --git a/net/atm/lec.c b/net/atm/lec.c
+index 09cfe87..431f32c 100644
+--- a/net/atm/lec.c
++++ b/net/atm/lec.c
+@@ -101,12 +101,12 @@ static void lec_vcc_close(struct lec_priv *priv, struct atm_vcc *vcc);
+ /* must be done under lec_arp_lock */
+ static inline void lec_arp_hold(struct lec_arp_table *entry)
  {
--	atomic_inc(&dev->refcnt);
-+	refcount_inc(&dev->refcnt);
+-	atomic_inc(&entry->usage);
++	refcount_inc(&entry->usage);
  }
  
- 
- static inline void atm_dev_put(struct atm_dev *dev)
+ static inline void lec_arp_put(struct lec_arp_table *entry)
  {
--	if (atomic_dec_and_test(&dev->refcnt)) {
-+	if (refcount_dec_and_test(&dev->refcnt)) {
- 		BUG_ON(!test_bit(ATM_DF_REMOVED, &dev->flags));
- 		if (dev->ops->dev_close)
- 			dev->ops->dev_close(dev);
-diff --git a/net/atm/proc.c b/net/atm/proc.c
-index bbb6461..bcb8ee5 100644
---- a/net/atm/proc.c
-+++ b/net/atm/proc.c
-@@ -61,7 +61,7 @@ static void atm_dev_info(struct seq_file *seq, const struct atm_dev *dev)
- 	add_stats(seq, "0", &dev->stats.aal0);
- 	seq_puts(seq, "  ");
- 	add_stats(seq, "5", &dev->stats.aal5);
--	seq_printf(seq, "\t[%d]", atomic_read(&dev->refcnt));
-+	seq_printf(seq, "\t[%d]", refcount_read(&dev->refcnt));
- 	seq_putc(seq, '\n');
+-	if (atomic_dec_and_test(&entry->usage))
++	if (refcount_dec_and_test(&entry->usage))
+ 		kfree(entry);
  }
  
-diff --git a/net/atm/resources.c b/net/atm/resources.c
-index 0447d5d..9182447 100644
---- a/net/atm/resources.c
-+++ b/net/atm/resources.c
-@@ -109,7 +109,7 @@ struct atm_dev *atm_dev_register(const char *type, struct device *parent,
- 	else
- 		memset(&dev->flags, 0, sizeof(dev->flags));
- 	memset(&dev->stats, 0, sizeof(dev->stats));
--	atomic_set(&dev->refcnt, 1);
-+	refcount_set(&dev->refcnt, 1);
+@@ -1564,7 +1564,7 @@ static struct lec_arp_table *make_entry(struct lec_priv *priv,
+ 	to_return->last_used = jiffies;
+ 	to_return->priv = priv;
+ 	skb_queue_head_init(&to_return->tx_wait);
+-	atomic_set(&to_return->usage, 1);
++	refcount_set(&to_return->usage, 1);
+ 	return to_return;
+ }
  
- 	if (atm_proc_dev_register(dev) < 0) {
- 		pr_err("atm_proc_dev_register failed for dev %s\n", type);
+diff --git a/net/atm/lec_arpc.h b/net/atm/lec_arpc.h
+index ec67435..d923f53 100644
+--- a/net/atm/lec_arpc.h
++++ b/net/atm/lec_arpc.h
+@@ -47,7 +47,7 @@ struct lec_arp_table {
+ 					 * the length of the tlvs array
+ 					 */
+ 	struct sk_buff_head tx_wait;	/* wait queue for outgoing packets */
+-	atomic_t usage;			/* usage count */
++	refcount_t usage;		/* usage count */
+ };
+ 
+ /*
 -- 
 2.7.4
 
