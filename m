@@ -1,11 +1,19 @@
-Return-Path: <elena.reshetova@intel.com>
-From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:59 +0200
-Message-Id: <1489749179-12063-19-git-send-email-elena.reshetova@intel.com>
-In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 18/18] net,
-	netrom: convert nr_node.refcount from atomic_t to refcount_t
+Return-Path: <pneira@us.es>
+Date: Fri, 17 Mar 2017 14:10:44 +0100
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20170317131044.GA11995@salvia>
+References: <20170315031811.22714-1-linus.luessing@c0d3.blue>
+	<20170315102608.GB24366@breakpoint.cc>
+	<20170315104211.GA24409@salvia> <20170315142720.GU15692@otheros>
+	<20170315181539.GA31875@salvia> <20170315211619.GA3464@otheros>
+	<20170315220605.GA1766@salvia>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20170315220605.GA1766@salvia>
+Subject: Re: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
+ DNAT-ed to bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,64 +22,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: peterz@infradead.org, jchapman@katalix.com, Elena Reshetova <elena.reshetova@intel.com>, johan.hedberg@gmail.com, linux-x25@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, 3chas3@gmail.com, Hans Liljestrand <ishkamiel@gmail.com>, keescook@chromium.org, marcel@holtmann.org, jhs@mojatatu.com, kuznet@ms2.inr.ac.ru, linux-hams@vger.kernel.org, David Windsor <dwindsor@gmail.com>, yoshfuji@linux-ipv6.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, ralf@linux-mips.org, kaber@trash.net, linux-bluetooth@vger.kernel.org, davem@davemloft.net
+To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
 
-refcount_t type and corresponding API should be
-used instead of atomic_t when the variable is used as
-a reference counter. This allows to avoid accidental
-refcounter overflows that might lead to use-after-free
-situations.
+On Wed, Mar 15, 2017 at 11:06:05PM +0100, Pablo Neira Ayuso wrote:
+> On Wed, Mar 15, 2017 at 10:16:19PM +0100, Linus L=FCssing wrote:
+> > On Wed, Mar 15, 2017 at 07:15:39PM +0100, Pablo Neira Ayuso wrote:
+> > > Could you update ebtables dnat to check if the ethernet address
+> > > matches the one of the input bridge interface, so we mangle the
+> > > ->pkt_type accordingly from there, instead of doing this from the
+> > > core?
+> >=20
+> > Actually, that was the approach I thought about and went for first
+> > (and it would probably work for me). Just checking against the
+> > bridge device's net_device::dev_addr.
+> >=20
+> > I scratched it though, as I was afraid that the issue might still
+> > exist for people using some other upper device on top of the bridge
+> > device. For instance, macvlan? And iterating over the
+> > net_device::dev_addrs list seemed too costly for fast path to me.
+>=20
+> I was more thinking of following the simple approach that we follow in
+> ebt_redirect_tg() by taking the input interface.
+>=20
+> Anyway, I'm ok with this.
 
-Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David Windsor <dwindsor@gmail.com>
----
- include/net/netrom.h  | 6 +++---
- net/netrom/nr_route.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+Wait.
 
-diff --git a/include/net/netrom.h b/include/net/netrom.h
-index cecb4fd..443a4ff 100644
---- a/include/net/netrom.h
-+++ b/include/net/netrom.h
-@@ -110,7 +110,7 @@ struct nr_node {
- 	unsigned char		which;
- 	unsigned char		count;
- 	struct nr_route		routes[3];
--	atomic_t		refcount;
-+	refcount_t		refcount;
- 	spinlock_t		node_lock;
- };
- 
-@@ -119,11 +119,11 @@ struct nr_node {
-  *********************************************************************/
- 
- #define nr_node_hold(__nr_node) \
--	atomic_inc(&((__nr_node)->refcount))
-+	refcount_inc(&((__nr_node)->refcount))
- 
- static __inline__ void nr_node_put(struct nr_node *nr_node)
- {
--	if (atomic_dec_and_test(&nr_node->refcount)) {
-+	if (refcount_dec_and_test(&nr_node->refcount)) {
- 		kfree(nr_node);
- 	}
- }
-diff --git a/net/netrom/nr_route.c b/net/netrom/nr_route.c
-index 6b72970..0c59354 100644
---- a/net/netrom/nr_route.c
-+++ b/net/netrom/nr_route.c
-@@ -184,7 +184,7 @@ static int __must_check nr_add_node(ax25_address *nr, const char *mnemonic,
- 
- 		nr_node->which = 0;
- 		nr_node->count = 1;
--		atomic_set(&nr_node->refcount, 1);
-+		refcount_set(&nr_node->refcount, 1);
- 		spin_lock_init(&nr_node->node_lock);
- 
- 		nr_node->routes[0].quality   = quality;
--- 
-2.7.4
+May this break local multicast listener that are bound to the bridge
+interface? Assuming the bridge interface got an IP address, and that
+there is local multicast listener.
 
+Missing anything here?
