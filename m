@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:52 +0200
-Message-Id: <1489749179-12063-12-git-send-email-elena.reshetova@intel.com>
+Date: Fri, 17 Mar 2017 13:12:53 +0200
+Message-Id: <1489749179-12063-13-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 11/18] net,
-	bridge: convert net_bridge_vlan.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 12/18] net,
+	calipso: convert calipso_doi.refcount from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,71 +28,90 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- net/bridge/br_private.h | 3 ++-
- net/bridge/br_vlan.c    | 8 ++++----
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ include/net/calipso.h |  4 ++--
+ net/ipv6/calipso.c    | 12 ++++++------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 2288fca..16cb470 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -21,6 +21,7 @@
- #include <net/ip6_fib.h>
- #include <linux/if_vlan.h>
- #include <linux/rhashtable.h>
+diff --git a/include/net/calipso.h b/include/net/calipso.h
+index b1b30cd..5f95b11 100644
+--- a/include/net/calipso.h
++++ b/include/net/calipso.h
+@@ -38,7 +38,7 @@
+ #include <linux/skbuff.h>
+ #include <net/netlabel.h>
+ #include <net/request_sock.h>
+-#include <linux/atomic.h>
 +#include <linux/refcount.h>
+ #include <asm/unaligned.h>
  
- #define BR_HASH_BITS 8
- #define BR_HASH_SIZE (1 << BR_HASH_BITS)
-@@ -127,7 +128,7 @@ struct net_bridge_vlan {
- 		struct net_bridge_port	*port;
- 	};
- 	union {
--		atomic_t		refcnt;
-+		refcount_t		refcnt;
- 		struct net_bridge_vlan	*brvlan;
- 	};
+ /* known doi values */
+@@ -57,7 +57,7 @@ struct calipso_doi {
+ 	u32 doi;
+ 	u32 type;
  
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 62e68c0..e4e9e1a 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -158,7 +158,7 @@ static struct net_bridge_vlan *br_vlan_get_master(struct net_bridge *br, u16 vid
- 		if (WARN_ON(!masterv))
- 			return NULL;
- 	}
--	atomic_inc(&masterv->refcnt);
-+	refcount_inc(&masterv->refcnt);
+-	atomic_t refcount;
++	refcount_t refcount;
+ 	struct list_head list;
+ 	struct rcu_head rcu;
+ };
+diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
+index 37ac9de..997611f 100644
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -338,7 +338,7 @@ static struct calipso_doi *calipso_doi_search(u32 doi)
+ 	struct calipso_doi *iter;
  
- 	return masterv;
+ 	list_for_each_entry_rcu(iter, &calipso_doi_list, list)
+-		if (iter->doi == doi && atomic_read(&iter->refcount))
++		if (iter->doi == doi && refcount_read(&iter->refcount))
+ 			return iter;
+ 	return NULL;
  }
-@@ -182,7 +182,7 @@ static void br_vlan_put_master(struct net_bridge_vlan *masterv)
+@@ -370,7 +370,7 @@ static int calipso_doi_add(struct calipso_doi *doi_def,
+ 	if (doi_def->doi == CALIPSO_DOI_UNKNOWN)
+ 		goto doi_add_return;
+ 
+-	atomic_set(&doi_def->refcount, 1);
++	refcount_set(&doi_def->refcount, 1);
+ 
+ 	spin_lock(&calipso_doi_list_lock);
+ 	if (calipso_doi_search(doi_def->doi)) {
+@@ -458,7 +458,7 @@ static int calipso_doi_remove(u32 doi, struct netlbl_audit *audit_info)
+ 		ret_val = -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!atomic_dec_and_test(&doi_def->refcount)) {
++	if (!refcount_dec_and_test(&doi_def->refcount)) {
+ 		spin_unlock(&calipso_doi_list_lock);
+ 		ret_val = -EBUSY;
+ 		goto doi_remove_return;
+@@ -499,7 +499,7 @@ static struct calipso_doi *calipso_doi_getdef(u32 doi)
+ 	doi_def = calipso_doi_search(doi);
+ 	if (!doi_def)
+ 		goto doi_getdef_return;
+-	if (!atomic_inc_not_zero(&doi_def->refcount))
++	if (!refcount_inc_not_zero(&doi_def->refcount))
+ 		doi_def = NULL;
+ 
+ doi_getdef_return:
+@@ -520,7 +520,7 @@ static void calipso_doi_putdef(struct calipso_doi *doi_def)
+ 	if (!doi_def)
  		return;
  
- 	vg = br_vlan_group(masterv->br);
--	if (atomic_dec_and_test(&masterv->refcnt)) {
-+	if (refcount_dec_and_test(&masterv->refcnt)) {
- 		rhashtable_remove_fast(&vg->vlan_hash,
- 				       &masterv->vnode, br_vlan_rht_params);
- 		__vlan_del_list(masterv);
-@@ -573,7 +573,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
- 				br_err(br, "failed insert local address into bridge forwarding table\n");
- 				return ret;
- 			}
--			atomic_inc(&vlan->refcnt);
-+			refcount_inc(&vlan->refcnt);
- 			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
- 			vg->num_vlans++;
- 		}
-@@ -595,7 +595,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
- 	vlan->flags &= ~BRIDGE_VLAN_INFO_PVID;
- 	vlan->br = br;
- 	if (flags & BRIDGE_VLAN_INFO_BRENTRY)
--		atomic_set(&vlan->refcnt, 1);
-+		refcount_set(&vlan->refcnt, 1);
- 	ret = __vlan_add(vlan, flags);
- 	if (ret) {
- 		free_percpu(vlan->stats);
+-	if (!atomic_dec_and_test(&doi_def->refcount))
++	if (!refcount_dec_and_test(&doi_def->refcount))
+ 		return;
+ 	spin_lock(&calipso_doi_list_lock);
+ 	list_del_rcu(&doi_def->list);
+@@ -553,7 +553,7 @@ static int calipso_doi_walk(u32 *skip_cnt,
+ 
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(iter_doi, &calipso_doi_list, list)
+-		if (atomic_read(&iter_doi->refcount) > 0) {
++		if (refcount_read(&iter_doi->refcount) > 0) {
+ 			if (doi_cnt++ < *skip_cnt)
+ 				continue;
+ 			ret_val = callback(iter_doi, cb_arg);
 -- 
 2.7.4
 
