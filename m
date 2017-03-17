@@ -1,19 +1,28 @@
-Return-Path: <pneira@us.es>
-Date: Fri, 17 Mar 2017 14:10:44 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20170317131044.GA11995@salvia>
-References: <20170315031811.22714-1-linus.luessing@c0d3.blue>
-	<20170315102608.GB24366@breakpoint.cc>
-	<20170315104211.GA24409@salvia> <20170315142720.GU15692@otheros>
-	<20170315181539.GA31875@salvia> <20170315211619.GA3464@otheros>
-	<20170315220605.GA1766@salvia>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20170315220605.GA1766@salvia>
-Subject: Re: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
- DNAT-ed to bridge device
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=1d36NR9a5PMcfQQSAVB/KUEVsKpz13ivcKKndAtR4/M=;
+	b=SuTZIg6S4ByT4+ulGF7F55sNslD72Zh+O01H0ThFBmWXf0FNBPNq8stCL3S+rkmQ+w
+	xcKtjmyRxiAaraYH7axOAwtFkUIoP//BMmW+VA3DW8/HUJ0sYaB9iTIcnF/xDL3D1Yf0
+	cY7r8krvtjqqAcEDW/bTuCD+uF71Hq17IzTqhbYNQBj5XOypC0/o9PqfIvJM8F3MdSoX
+	xuzGP09biQtRkN2iiG0z5BLJcP0EfefoxqkvuEsgtwR0hBiDsmLOuR+5CNi5fsc+UxKh
+	BFYgxMhDlAQSXcAyu4jFfEZ08jw12U97oU500YcVmq96phJXuK6olZYqqaJe90NiokYS
+	TGJA==
+Message-ID: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Fri, 17 Mar 2017 09:13:16 -0700
+In-Reply-To: <2236FBA76BA1254E88B949DDB74E612B41C5A53B@IRSMSX102.ger.corp.intel.com>
+References: <1489678147-21404-8-git-send-email-elena.reshetova@intel.com>
+	<1489683534.28631.231.camel@edumazet-glaptop3.roam.corp.google.com>
+	<CAGXu5jJpFwiDR_o=oarN_2vDr56cwQ=Bg-5NikUmDtxtzWnAcQ@mail.gmail.com>
+	<20170316.121032.405930218798336643.davem@davemloft.net>
+	<2236FBA76BA1254E88B949DDB74E612B41C5A53B@IRSMSX102.ger.corp.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
+ atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,35 +31,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
+To: "Reshetova, Elena" <elena.reshetova@intel.com>
+Cc: "keescook@chromium.org" <keescook@chromium.org>, "kaber@trash.net" <kaber@trash.net>, "peterz@infradead.org" <peterz@infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jmorris@namei.org" <jmorris@namei.org>, "ishkamiel@gmail.com" <ishkamiel@gmail.com>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, David Miller <davem@davemloft.net>, "dwindsor@gmail.com" <dwindsor@gmail.com>
 
-On Wed, Mar 15, 2017 at 11:06:05PM +0100, Pablo Neira Ayuso wrote:
-> On Wed, Mar 15, 2017 at 10:16:19PM +0100, Linus L=FCssing wrote:
-> > On Wed, Mar 15, 2017 at 07:15:39PM +0100, Pablo Neira Ayuso wrote:
-> > > Could you update ebtables dnat to check if the ethernet address
-> > > matches the one of the input bridge interface, so we mangle the
-> > > ->pkt_type accordingly from there, instead of doing this from the
-> > > core?
-> >=20
-> > Actually, that was the approach I thought about and went for first
-> > (and it would probably work for me). Just checking against the
-> > bridge device's net_device::dev_addr.
-> >=20
-> > I scratched it though, as I was afraid that the issue might still
-> > exist for people using some other upper device on top of the bridge
-> > device. For instance, macvlan? And iterating over the
-> > net_device::dev_addrs list seemed too costly for fast path to me.
->=20
-> I was more thinking of following the simple approach that we follow in
-> ebt_redirect_tg() by taking the input interface.
->=20
-> Anyway, I'm ok with this.
+On Fri, 2017-03-17 at 07:42 +0000, Reshetova, Elena wrote:
 
-Wait.
+> Should we then first measure the actual numbers to understand what we
+> are talking here about? 
+> I would be glad to do it if you suggest what is the correct way to do
+> measurements here to actually reflect the real life use cases. 
 
-May this break local multicast listener that are bound to the bridge
-interface? Assuming the bridge interface got an IP address, and that
-there is local multicast listener.
+How have these patches been tested in real life exactly ?
 
-Missing anything here?
+Can you quantify number of added cycles per TCP packet, where I expect
+we have maybe 20 atomic operations in all layers ...
+
+
+(sk refcnt, skb->users, page refcounts, sk->sk_wmem_alloc,
+sk->sk_rmem_alloc, qdisc ...)
+
+Once we 'protect' all of them, cost will be quite high.
+
+This translates to more fossil fuel being burnt.
+
+one atomic_inc() used to be a single x86 instruction.
+
+Rough estimate of refcount_inc() :
+
+0000000000000140 <refcount_inc>:
+ 140:	55                   	push   %rbp
+ 141:	48 89 e5             	mov    %rsp,%rbp
+ 144:	e8 00 00 00 00       	callq  refcount_inc_not_zero
+ 149:	84 c0                	test   %al,%al
+ 14b:	74 02                	je     14f <refcount_inc+0xf>
+ 14d:	5d                   	pop    %rbp
+ 14e:	c3                   	retq   
+
+00000000000000e0 <refcount_inc_not_zero>:
+  e0:	8b 17                	mov    (%rdi),%edx
+  e2:	eb 10                	jmp    f4 <refcount_inc_not_zero+0x14>
+  e4:	85 c9                	test   %ecx,%ecx
+  e6:	74 1b                	je     103 <refcount_inc_not_zero+0x23>
+  e8:	89 d0                	mov    %edx,%eax
+  ea:	f0 0f b1 0f          	lock cmpxchg %ecx,(%rdi)
+  ee:	39 d0                	cmp    %edx,%eax
+  f0:	74 0c                	je     fe <refcount_inc_not_zero+0x1e>
+  f2:	89 c2                	mov    %eax,%edx
+  f4:	85 d2                	test   %edx,%edx
+  f6:	8d 4a 01             	lea    0x1(%rdx),%ecx
+  f9:	75 e9                	jne    e4 <refcount_inc_not_zero+0x4>
+  fb:	31 c0                	xor    %eax,%eax
+  fd:	c3                   	retq   
+  fe:	83 f9 ff             	cmp    $0xffffffff,%ecx
+ 101:	74 06                	je     109 <refcount_inc_not_zero+0x29>
+ 103:	b8 01 00 00 00       	mov    $0x1,%eax
+ 108:	c3                   	retq   
+
+This is simply bloat for most cases.
+
+Again, I believe this infrastructure makes sense for debugging kernels.
+
+If some vendors are willing to run fully enabled debug kernels,
+that is their choice. Probably many devices wont show any difference.
+
+Have we forced KASAN being enabled in linux kernel, just because
+it found ~400 bugs so far ?
+
+I believe refcount_t infra is not mature enough to be widely used
+right now.
+
+Maybe in few months when we have more flexibility, like existing
+debugging facilities (CONFIG_DEBUG_PAGEALLOC, CONFIG_DEBUG_PAGE_REF,
+LOCKDEP, KMEMLEAK, KASAN, ...)
+
+
