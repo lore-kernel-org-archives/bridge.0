@@ -1,18 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-	d=intel.com; i=@intel.com; q=dns/txt; s=intel;
-	t=1489749225; x=1521285225;
-	h=from:to:cc:subject:date:message-id:in-reply-to: references;
-	bh=RtLsxPtknQ/AxY0coG6R7cHKi3p1PW5dFIqOEa1Bl7s=;
-	b=ERlCOvEpShNw2wK9J0vOvQP72NHK6XLqCuetZL0vBbAOaWoI+yB3HFKM
-	IbcyDx42ZBvdC9cQ13xa7DFPoMfAlg==;
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Fri, 17 Mar 2017 13:12:46 +0200
-Message-Id: <1489749179-12063-6-git-send-email-elena.reshetova@intel.com>
+Date: Fri, 17 Mar 2017 13:12:47 +0200
+Message-Id: <1489749179-12063-7-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
 References: <1489749179-12063-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 05/18] net,
-	bluetooth: convert rfcomm_dlc.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 06/18] net,
+	decnet: convert dn_fib_info.fib_clntref from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,69 +28,71 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/bluetooth/rfcomm.h | 8 +++++---
- net/bluetooth/rfcomm/core.c    | 4 ++--
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ include/net/dn_fib.h | 5 +++--
+ net/decnet/dn_fib.c  | 6 +++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/bluetooth/rfcomm.h b/include/net/bluetooth/rfcomm.h
-index 4190af5..da4acef 100644
---- a/include/net/bluetooth/rfcomm.h
-+++ b/include/net/bluetooth/rfcomm.h
-@@ -21,6 +21,8 @@
-    SOFTWARE IS DISCLAIMED.
- */
+diff --git a/include/net/dn_fib.h b/include/net/dn_fib.h
+index f2ca135..81210a8 100644
+--- a/include/net/dn_fib.h
++++ b/include/net/dn_fib.h
+@@ -2,6 +2,7 @@
+ #define _NET_DN_FIB_H
  
+ #include <linux/netlink.h>
 +#include <linux/refcount.h>
-+
- #ifndef __RFCOMM_H
- #define __RFCOMM_H
  
-@@ -174,7 +176,7 @@ struct rfcomm_dlc {
- 	struct mutex  lock;
- 	unsigned long state;
- 	unsigned long flags;
--	atomic_t      refcnt;
-+	refcount_t    refcnt;
- 	u8            dlci;
- 	u8            addr;
- 	u8            priority;
-@@ -247,12 +249,12 @@ struct rfcomm_dlc *rfcomm_dlc_exists(bdaddr_t *src, bdaddr_t *dst, u8 channel);
+ extern const struct nla_policy rtm_dn_policy[];
  
- static inline void rfcomm_dlc_hold(struct rfcomm_dlc *d)
+@@ -28,7 +29,7 @@ struct dn_fib_info {
+ 	struct dn_fib_info	*fib_next;
+ 	struct dn_fib_info	*fib_prev;
+ 	int 			fib_treeref;
+-	atomic_t		fib_clntref;
++	refcount_t		fib_clntref;
+ 	int			fib_dead;
+ 	unsigned int		fib_flags;
+ 	int			fib_protocol;
+@@ -130,7 +131,7 @@ void dn_fib_free_info(struct dn_fib_info *fi);
+ 
+ static inline void dn_fib_info_put(struct dn_fib_info *fi)
  {
--	atomic_inc(&d->refcnt);
-+	refcount_inc(&d->refcnt);
+-	if (atomic_dec_and_test(&fi->fib_clntref))
++	if (refcount_dec_and_test(&fi->fib_clntref))
+ 		dn_fib_free_info(fi);
  }
  
- static inline void rfcomm_dlc_put(struct rfcomm_dlc *d)
- {
--	if (atomic_dec_and_test(&d->refcnt))
-+	if (refcount_dec_and_test(&d->refcnt))
- 		rfcomm_dlc_free(d);
- }
+diff --git a/net/decnet/dn_fib.c b/net/decnet/dn_fib.c
+index 7af0ba61..85058c3 100644
+--- a/net/decnet/dn_fib.c
++++ b/net/decnet/dn_fib.c
+@@ -389,7 +389,7 @@ struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, struct nlattr *att
+ 	}
  
-diff --git a/net/bluetooth/rfcomm/core.c b/net/bluetooth/rfcomm/core.c
-index f7eb02f..8ebca90 100644
---- a/net/bluetooth/rfcomm/core.c
-+++ b/net/bluetooth/rfcomm/core.c
-@@ -311,7 +311,7 @@ struct rfcomm_dlc *rfcomm_dlc_alloc(gfp_t prio)
- 
- 	skb_queue_head_init(&d->tx_queue);
- 	mutex_init(&d->lock);
--	atomic_set(&d->refcnt, 1);
-+	refcount_set(&d->refcnt, 1);
- 
- 	rfcomm_dlc_clear_state(d);
- 
-@@ -342,7 +342,7 @@ static void rfcomm_dlc_unlink(struct rfcomm_dlc *d)
- {
- 	struct rfcomm_session *s = d->session;
- 
--	BT_DBG("dlc %p refcnt %d session %p", d, atomic_read(&d->refcnt), s);
-+	BT_DBG("dlc %p refcnt %d session %p", d, refcount_read(&d->refcnt), s);
- 
- 	list_del(&d->list);
- 	d->session = NULL;
+ 	fi->fib_treeref++;
+-	atomic_inc(&fi->fib_clntref);
++	refcount_set(&fi->fib_clntref, 1);
+ 	spin_lock(&dn_fib_info_lock);
+ 	fi->fib_next = dn_fib_info_list;
+ 	fi->fib_prev = NULL;
+@@ -425,7 +425,7 @@ int dn_fib_semantic_match(int type, struct dn_fib_info *fi, const struct flowidn
+ 		switch (type) {
+ 		case RTN_NAT:
+ 			DN_FIB_RES_RESET(*res);
+-			atomic_inc(&fi->fib_clntref);
++			refcount_inc(&fi->fib_clntref);
+ 			return 0;
+ 		case RTN_UNICAST:
+ 		case RTN_LOCAL:
+@@ -438,7 +438,7 @@ int dn_fib_semantic_match(int type, struct dn_fib_info *fi, const struct flowidn
+ 			}
+ 			if (nhsel < fi->fib_nhs) {
+ 				res->nh_sel = nhsel;
+-				atomic_inc(&fi->fib_clntref);
++				refcount_inc(&fi->fib_clntref);
+ 				return 0;
+ 			}
+ 			endfor_nexthops(fi);
 -- 
 2.7.4
 
