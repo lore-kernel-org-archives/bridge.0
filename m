@@ -1,15 +1,18 @@
-Return-Path: <davem@davemloft.net>
-Date: Sat, 18 Mar 2017 18:21:21 -0700 (PDT)
-Message-Id: <20170318.182121.439615057765380575.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20170318164759.GA23837@gondor.apana.org.au>
-References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
-	<20170318164759.GA23837@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
- atomic_t to refcount_t
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Sun, 19 Mar 2017 17:55:06 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20170319165506.GA15475@otheros>
+References: <20170315031811.22714-1-linus.luessing@c0d3.blue>
+	<20170315102608.GB24366@breakpoint.cc>
+	<20170315104211.GA24409@salvia> <20170315142720.GU15692@otheros>
+	<20170315181539.GA31875@salvia> <20170315211619.GA3464@otheros>
+	<20170315220605.GA1766@salvia> <20170317131044.GA11995@salvia>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20170317131044.GA11995@salvia>
+Subject: Re: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
+ DNAT-ed to bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,27 +21,23 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: herbert@gondor.apana.org.au
-Cc: keescook@chromium.org, eric.dumazet@gmail.com, peterz@infradead.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmorris@namei.org, ishkamiel@gmail.com, kuznet@ms2.inr.ac.ru, akpm@linux-foundation.org, kaber@trash.net, elena.reshetova@intel.com, dwindsor@gmail.com
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sun, 19 Mar 2017 00:47:59 +0800
-
-> Eric Dumazet <eric.dumazet@gmail.com> wrote:
->> On Fri, 2017-03-17 at 07:42 +0000, Reshetova, Elena wrote:
->> 
->>> Should we then first measure the actual numbers to understand what we
->>> are talking here about? 
->>> I would be glad to do it if you suggest what is the correct way to do
->>> measurements here to actually reflect the real life use cases. 
->> 
->> How have these patches been tested in real life exactly ?
->> 
->> Can you quantify number of added cycles per TCP packet, where I expect
->> we have maybe 20 atomic operations in all layers ...
+On Fri, Mar 17, 2017 at 02:10:44PM +0100, Pablo Neira Ayuso wrote:
+> Wait.
 > 
-> I completely agree.  I think this thing needs to default to the
-> existing atomic_t behaviour.
+> May this break local multicast listener that are bound to the bridge
+> interface? Assuming the bridge interface got an IP address, and that
+> there is local multicast listener.
+> 
+> Missing anything here?
 
-I totally agree as well, the refcount_t facility as-is is unacceptable
-for networking.
+Hm, for multicast packets usually the code path a few lines
+later in br_handle_frame_finish() should be taken instead.
+
+But you might be right for IP multicast packets with a unicast MAC
+destination (due to whatever reason, for instance via DNAT'ing
+again).
+
+Will check that - thanks!
