@@ -1,20 +1,30 @@
-Return-Path: <pneira@us.es>
-Date: Tue, 21 Mar 2017 11:11:21 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20170321101121.GB1719@salvia>
-References: <20170315031811.22714-1-linus.luessing@c0d3.blue>
-	<20170315102608.GB24366@breakpoint.cc>
-	<20170315104211.GA24409@salvia> <20170315142720.GU15692@otheros>
-	<20170315181539.GA31875@salvia> <20170315211619.GA3464@otheros>
-	<20170315220605.GA1766@salvia> <20170317131044.GA11995@salvia>
-	<20170319165506.GA15475@otheros> <20170321000947.GA31709@otheros>
+Return-Path: <peterz@infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20170209;
+	h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=h9qnr/glqt4VA9w+UMBX9VDBryezCx707GbbMasY1DQ=;
+	b=G1hE7I0ikr/i/VHy5se3rvX5/
+	FKXqFObLzpL3tpztBLDe4wD0VpDa864baPRpwkqCCE8/sXvz9QXrp0sqk/vfBeILRzxRhZ3lQtMQW
+	23j/51lZ0oulnsRayNkS4LkVsTLTOEC1l1oIr0gq4whLVxlJji1oUMkLGfpMatniQ2KlVPJBpJNFI
+	Wa0Y8QKixBPfgwPPs2clJKriivzHkyHOZhX/V18anH6qWoPI++7PfpG4Icq8iDrs7xk3igAJPcbf7
+	QBuHiDNr6uK9WE1HI0fFpbDfQjvL5wbDl7LIdUo4A4A9Qka1lGlEc7WD3aL0oFoeGQmLGIBWwDtSC
+	OxG5DCB0Q==;
+Date: Mon, 20 Mar 2017 11:39:37 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+Message-ID: <20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
+References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
+	<20170318164759.GA23837@gondor.apana.org.au>
+	<20170318.182121.439615057765380575.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20170321000947.GA31709@otheros>
-Subject: Re: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
- DNAT-ed to bridge device
+In-Reply-To: <20170318.182121.439615057765380575.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
+ atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,53 +33,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
+To: David Miller <davem@davemloft.net>
+Cc: herbert@gondor.apana.org.au, eric.dumazet@gmail.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmorris@namei.org, ishkamiel@gmail.com, kuznet@ms2.inr.ac.ru, akpm@linux-foundation.org, dwindsor@gmail.com, kaber@trash.net, elena.reshetova@intel.com, keescook@chromium.org
 
-On Tue, Mar 21, 2017 at 01:09:47AM +0100, Linus L=FCssing wrote:
-> On Sun, Mar 19, 2017 at 05:55:06PM +0100, Linus L=FCssing wrote:
-> > On Fri, Mar 17, 2017 at 02:10:44PM +0100, Pablo Neira Ayuso wrote:
-> > > Wait.
-> > >=20
-> > > May this break local multicast listener that are bound to the bridge
-> > > interface? Assuming the bridge interface got an IP address, and that
-> > > there is local multicast listener.
-> > >=20
-> > > Missing anything here?
-> >=20
-> > Hm, for multicast packets usually the code path a few lines
-> > later in br_handle_frame_finish() should be taken instead.
-> >=20
-> > But you might be right for IP multicast packets with a unicast MAC
-> > destination (due to whatever reason, for instance via DNAT'ing
-> > again).
-> >=20
-> > Will check that - thanks!
->=20
-> Ok, I tested DNAT'ing an IP multicast packet to the unicast MAC address
-> of the bridge interface.
->=20
-> Both ping-ing to an IPv4 and IPv6 multicast listener on br0 worked
-> and was replied to fine, both with or without changing skb->pkt_type
-> from PACKET_MULTICAST to PACKET_HOST.
-> ("$ ping 224.1.0.123" and "$ ping6 ff02::1:ff40:707c%in0" from a
->  network namespace, tied into the bridge via veth)
->=20
-> Also, a DNAT'ed PACKET_BROADCAST worked, with or without changing
-> it to PACKET_HOST.
->=20
-> I also checked via tcpdump that the destination MAC was changed
-> successfully.
+On Sat, Mar 18, 2017 at 06:21:21PM -0700, David Miller wrote:
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Sun, 19 Mar 2017 00:47:59 +0800
+> 
+> > Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> >> On Fri, 2017-03-17 at 07:42 +0000, Reshetova, Elena wrote:
+> >> 
+> >>> Should we then first measure the actual numbers to understand what we
+> >>> are talking here about? 
+> >>> I would be glad to do it if you suggest what is the correct way to do
+> >>> measurements here to actually reflect the real life use cases. 
+> >> 
+> >> How have these patches been tested in real life exactly ?
+> >> 
+> >> Can you quantify number of added cycles per TCP packet, where I expect
+> >> we have maybe 20 atomic operations in all layers ...
+> > 
+> > I completely agree.  I think this thing needs to default to the
+> > existing atomic_t behaviour.
+> 
+> I totally agree as well, the refcount_t facility as-is is unacceptable
+> for networking.
 
-Thanks for looking into this more in depth.
+Can we at least give a benchmark and have someone run numbers? We should
+be able to quantify these things.
 
-> So, so far I wasn't able to find any bugs with the current
-> patch. But I think I like the idea of leaving the skb->pkt_type
-> unaltered for PACKET_MULTICAST and PACKET_BROADCAST, seems cleaner.
-
-Yes, and matching on skb->pkt_type would not break from netfilter.
-
-> I'd just add an "if (skb->pkt_type =3D=3D PACKET_OTHERHOST)" check
-> then and resend a PATCH v2.
-
-Thanks.
