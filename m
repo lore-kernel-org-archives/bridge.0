@@ -1,30 +1,19 @@
-Return-Path: <eric.dumazet@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=RkL5kdWAWnAys8UGPMTyw2/M7xRALcLu52ccYqX/ku4=;
-	b=kXrko6TzljT1kqPUFgu1aTqlaLA7jKWG1hTp+flFgR792sUgX4kjebrJJJa8U/Vnps
-	H9TcPsOu7ZZyfhffUaHRgrWsQOAF/wqSsFfLr8yrgm2w5M67dcalxea8s3yU2PAVPSkj
-	68duUI8kGVxRxhYXmPzAZysiSj3LxrcW+bmIiob5sky88p0AMSET8y/cjx6te1firIfQ
-	I0oO3zbno6F9FJMZSCDCWEkJjIOtGZwhdqoz9XHj5NpfCss+ej086cnyjJd1BKpDTPir
-	mrAR8Vntpw10adC2vTmaeaUae6bmOF0aIqs1CkiBAjwR54ohLwFYqiJduStz01/xoDb5
-	Y29w==
-Message-ID: <1490021946.16816.54.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Mon, 20 Mar 2017 07:59:06 -0700
-In-Reply-To: <1490021461.16816.52.camel@edumazet-glaptop3.roam.corp.google.com>
+Return-Path: <David.Laight@ACULAB.COM>
+From: David Laight <David.Laight@ACULAB.COM>
+Date: Mon, 20 Mar 2017 15:00:33 +0000
+Message-ID: <063D6719AE5E284EB5DD2968C1650D6DCFFB5570@AcuExch.aculab.com>
 References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
 	<20170318164759.GA23837@gondor.apana.org.au>
 	<20170318.182121.439615057765380575.davem@davemloft.net>
 	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
 	<20170320131629.GA26405@gondor.apana.org.au>
-	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
-	<20170320132713.GA26954@gondor.apana.org.au>
-	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
-	<1490021461.16816.52.camel@edumazet-glaptop3.roam.corp.google.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	<063D6719AE5E284EB5DD2968C1650D6DCFFB5483@AcuExch.aculab.com>
+	<20170320142807.mhu3xod2x2zzvego@hirez.programming.kicks-ass.net>
+In-Reply-To: <20170320142807.mhu3xod2x2zzvego@hirez.programming.kicks-ass.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
  atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -35,18 +24,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: keescook@chromium.org, kaber@trash.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmorris@namei.org, ishkamiel@gmail.com, kuznet@ms2.inr.ac.ru, akpm@linux-foundation.org, dwindsor@gmail.com, David Miller <davem@davemloft.net>, elena.reshetova@intel.com, Herbert Xu <herbert@gondor.apana.org.au>
+To: 'Peter Zijlstra' <peterz@infradead.org>
+Cc: "keescook@chromium.org" <keescook@chromium.org>, "eric.dumazet@gmail.com" <eric.dumazet@gmail.com>, "kaber@trash.net" <kaber@trash.net>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jmorris@namei.org" <jmorris@namei.org>, "ishkamiel@gmail.com" <ishkamiel@gmail.com>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dwindsor@gmail.com" <dwindsor@gmail.com>, David Miller <davem@davemloft.net>, "elena.reshetova@intel.com" <elena.reshetova@intel.com>, 'Herbert Xu' <herbert@gondor.apana.org.au>
 
-On Mon, 2017-03-20 at 07:51 -0700, Eric Dumazet wrote:
+From: Peter Zijlstra
+> Sent: 20 March 2017 14:28
+> On Mon, Mar 20, 2017 at 02:10:24PM +0000, David Laight wrote:
+> > On x86 the cpu flags from the 'lock inc/dec' could be used to reasonabl=
+y
+> > cheaply detect errors - provided you actually generate a forwards branc=
+h.
+>=20
+> Note that currently there is no arch specific implementation. We could
+> of course cure this.
+>=20
+> But note that the thing you propose; using the overflow flag, can only
+> reasonably be done on PREEMPT=3Dn kernels, otherwise we have an incredibl=
+e
+> number of contexts that can nest.
+>=20
+> Sure; getting all starts aligned to double overflow is incredibly rare,
+> but I don't want to be the one to have to debug that.
 
-> atomic_cmpxchg() on PowerPC is horribly more expensive because of the
-> added two SYNC instructions.
+One overflow would set the overflow flag, you don't need both to fail.
 
-Although I just saw that refcount was using atomic_cmpxchg_relaxed()
+In any case you can use the sign flag.
+Say valid count values are -64k to -256 and 0 to MAXINT.
+The count will normally be +ve unless the 'main free path'
+has released the 64k references it holds.
+If the sign bit is set after inc/dec the value is checked;=20
+might valid, an error, or require the item be freed.
 
-Time to find some documentation (probably missing) or get some specs for
-this thing.
+Ok assuming the items have reasonable lifetimes and have a nominal
+'delete' function.
 
-
+	David
 
