@@ -6,27 +6,26 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
 	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=IBn3hNxei4mgejfaJWDv3W74Y2c1hAvHH2uk7TD7qiM=;
-	b=BKj4DqyyHd2lLmaajEaTBQ7ek
-	iwi0sgdqFYmFo4R596xkz6R4nT3Bi/p03fakhjpAXUL1k1+nGHmvyVzbRBi3eZ7+Qv/QWy+/OADNH
-	uingLuZty1ruPb6cMBC3ivgWjvZEvxJxrgNvn42yvIGKeGlRJW81NT0bCNB9EqQizWzIMRiovv1YL
-	HDSdaFo3h6Q6xrypiRbcqrZjwNDQJSgIetXuV8IaliaTBE8FtEf7Ybn9Ygv84+y7b0mR27S8pDylK
-	fvZb7ZVEGFWUNlErltbf4Za86qM56o0URf+Cam63Nijnsh4JKC+MOqAD1Bw/1Ur3kdOm+k+i2rnL1
-	x0KpAyx2g==;
-Date: Mon, 20 Mar 2017 14:40:17 +0100
+	bh=dthYgeX6j2t+jms395gXmEA8nISpEo3Jtw0BjgZ+pDw=;
+	b=PVRndvYRjLrpXJAclhTtu26r8
+	087Wem6/qD86VSauRbAFSZXwBsfYp6j5tbvZ/sShBy0YO07NN3jVO1HEpdidMn2mgudg3kBuCY6yf
+	+SO5bLSg9bY0nea8asKwWkiDo8wvIK142o1MhzDS6URLORcZk1utNIt0jB2QJG/ycDFXT66y/1jBa
+	RpVZ+KKwvCT3wTeP7sMesKkdeRyh4AbnQmjUdflDWGAwbn7p4HeS2AWsnSmKd7EBJp1UMGhjNcxVU
+	gAkefWBTB+QjZdTpSrF7SRfYdGk/JbtgflbE1j0YAzmefmx27kXPuRtHh7IuTqwbYXU8EffDlM9r7
+	IReUUsAgw==;
+Date: Mon, 20 Mar 2017 15:28:07 +0100
 From: Peter Zijlstra <peterz@infradead.org>
-Message-ID: <20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
+Message-ID: <20170320142807.mhu3xod2x2zzvego@hirez.programming.kicks-ass.net>
 References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
 	<20170318164759.GA23837@gondor.apana.org.au>
 	<20170318.182121.439615057765380575.davem@davemloft.net>
 	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
 	<20170320131629.GA26405@gondor.apana.org.au>
-	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
-	<20170320132713.GA26954@gondor.apana.org.au>
+	<063D6719AE5E284EB5DD2968C1650D6DCFFB5483@AcuExch.aculab.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170320132713.GA26954@gondor.apana.org.au>
+In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6DCFFB5483@AcuExch.aculab.com>
 Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
  atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -37,23 +36,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: keescook@chromium.org, eric.dumazet@gmail.com, kaber@trash.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmorris@namei.org, ishkamiel@gmail.com, kuznet@ms2.inr.ac.ru, akpm@linux-foundation.org, David Miller <davem@davemloft.net>, elena.reshetova@intel.com, dwindsor@gmail.com
+To: David Laight <David.Laight@ACULAB.COM>
+Cc: "keescook@chromium.org" <keescook@chromium.org>, "eric.dumazet@gmail.com" <eric.dumazet@gmail.com>, "kaber@trash.net" <kaber@trash.net>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jmorris@namei.org" <jmorris@namei.org>, "ishkamiel@gmail.com" <ishkamiel@gmail.com>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dwindsor@gmail.com" <dwindsor@gmail.com>, David Miller <davem@davemloft.net>, "elena.reshetova@intel.com" <elena.reshetova@intel.com>, 'Herbert Xu' <herbert@gondor.apana.org.au>
 
-On Mon, Mar 20, 2017 at 09:27:13PM +0800, Herbert Xu wrote:
-> On Mon, Mar 20, 2017 at 02:23:57PM +0100, Peter Zijlstra wrote:
-> >
-> > So what bench/setup do you want ran?
-> 
-> You can start by counting how many cycles an atomic op takes
-> vs. how many cycles this new code takes.
+On Mon, Mar 20, 2017 at 02:10:24PM +0000, David Laight wrote:
+> On x86 the cpu flags from the 'lock inc/dec' could be used to reasonably
+> cheaply detect errors - provided you actually generate a forwards branch.
 
-On what uarch?
+Note that currently there is no arch specific implementation. We could
+of course cure this.
 
-I think I tested hand coded asm version and it ended up about double the
-cycles for a cmpxchg loop vs the direct instruction on an IVB-EX (until
-the memory bus saturated, at which point they took the same). Newer
-parts will of course have different numbers,
+But note that the thing you propose; using the overflow flag, can only
+reasonably be done on PREEMPT=n kernels, otherwise we have an incredible
+number of contexts that can nest.
 
-Can't we run some iperf on a 40gbe fiber loop or something? It would be
-very useful to have an actual workload we can run.
+Sure; getting all starts aligned to double overflow is incredibly rare,
+but I don't want to be the one to have to debug that.
