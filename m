@@ -1,19 +1,31 @@
-Return-Path: <David.Laight@ACULAB.COM>
-From: David Laight <David.Laight@ACULAB.COM>
-Date: Mon, 20 Mar 2017 15:00:33 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6DCFFB5570@AcuExch.aculab.com>
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=MskR2oFcVs43DjM5gKHHy/wJEdoDs7c83UXe9WIzYBg=;
+	b=WvBHmHsXMNtCqzUCGGnz5IuxLzWUTUyJnE0p/cu06tVt2TldPXUezXWHPoZ2VgZ/Zr
+	EF6ldc91VQRNojdv86aDMfw5yQbnqrHAN7Tc9TIBBFSNhZ6wgfa/IFf4WCLmXNHygRNR
+	8CrRJECzkeub/68Kj8oBYUKWA6m6cenhm98k0bp4tA29DZQIVmJtBCfMu7rWjM8YWVeF
+	euz1npzVGCLsfpG6cFA1Pzdju+eLyseaPWIGlevNdA4QHFKGukKGxTz9F+lKDU0oiSTw
+	fwduKRFFdUbMYVP5wpTP30zne8gUsmOUGYKQ2VsD4Vmo1TrsIysmp2DZOQZXOU6V/DhJ
+	8Mgw==
+Message-ID: <1490026735.16816.58.camel@edumazet-glaptop3.roam.corp.google.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Mon, 20 Mar 2017 09:18:55 -0700
+In-Reply-To: <1490021946.16816.54.camel@edumazet-glaptop3.roam.corp.google.com>
 References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
 	<20170318164759.GA23837@gondor.apana.org.au>
 	<20170318.182121.439615057765380575.davem@davemloft.net>
 	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
 	<20170320131629.GA26405@gondor.apana.org.au>
-	<063D6719AE5E284EB5DD2968C1650D6DCFFB5483@AcuExch.aculab.com>
-	<20170320142807.mhu3xod2x2zzvego@hirez.programming.kicks-ass.net>
-In-Reply-To: <20170320142807.mhu3xod2x2zzvego@hirez.programming.kicks-ass.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
+	<20170320132713.GA26954@gondor.apana.org.au>
+	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
+	<1490021461.16816.52.camel@edumazet-glaptop3.roam.corp.google.com>
+	<1490021946.16816.54.camel@edumazet-glaptop3.roam.corp.google.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
  atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -24,39 +36,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'Peter Zijlstra' <peterz@infradead.org>
-Cc: "keescook@chromium.org" <keescook@chromium.org>, "eric.dumazet@gmail.com" <eric.dumazet@gmail.com>, "kaber@trash.net" <kaber@trash.net>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jmorris@namei.org" <jmorris@namei.org>, "ishkamiel@gmail.com" <ishkamiel@gmail.com>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "dwindsor@gmail.com" <dwindsor@gmail.com>, David Miller <davem@davemloft.net>, "elena.reshetova@intel.com" <elena.reshetova@intel.com>, 'Herbert Xu' <herbert@gondor.apana.org.au>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: keescook@chromium.org, kaber@trash.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmorris@namei.org, ishkamiel@gmail.com, kuznet@ms2.inr.ac.ru, akpm@linux-foundation.org, dwindsor@gmail.com, David Miller <davem@davemloft.net>, elena.reshetova@intel.com, Herbert Xu <herbert@gondor.apana.org.au>
 
-From: Peter Zijlstra
-> Sent: 20 March 2017 14:28
-> On Mon, Mar 20, 2017 at 02:10:24PM +0000, David Laight wrote:
-> > On x86 the cpu flags from the 'lock inc/dec' could be used to reasonabl=
-y
-> > cheaply detect errors - provided you actually generate a forwards branc=
-h.
->=20
-> Note that currently there is no arch specific implementation. We could
-> of course cure this.
->=20
-> But note that the thing you propose; using the overflow flag, can only
-> reasonably be done on PREEMPT=3Dn kernels, otherwise we have an incredibl=
-e
-> number of contexts that can nest.
->=20
-> Sure; getting all starts aligned to double overflow is incredibly rare,
-> but I don't want to be the one to have to debug that.
+On Mon, 2017-03-20 at 07:59 -0700, Eric Dumazet wrote:
+> On Mon, 2017-03-20 at 07:51 -0700, Eric Dumazet wrote:
+> 
+> > atomic_cmpxchg() on PowerPC is horribly more expensive because of the
+> > added two SYNC instructions.
+> 
+> Although I just saw that refcount was using atomic_cmpxchg_relaxed()
+> 
+> Time to find some documentation (probably missing) or get some specs for
+> this thing.
 
-One overflow would set the overflow flag, you don't need both to fail.
+Interesting.
 
-In any case you can use the sign flag.
-Say valid count values are -64k to -256 and 0 to MAXINT.
-The count will normally be +ve unless the 'main free path'
-has released the 64k references it holds.
-If the sign bit is set after inc/dec the value is checked;=20
-might valid, an error, or require the item be freed.
+UDP ipv4 xmit path gets a ~25 % improvement on PPC with this patch.
 
-Ok assuming the items have reasonable lifetimes and have a nominal
-'delete' function.
+( 20 concurrent netperf -t UDP_STREAM  : 2.45 Mpps -> 3.07 Mpps )
 
-	David
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 8471dd116771462d149e1da2807e446b69b74bcc..9f14aebf0ae1f5f366cfff0fbf58c48603916bc7 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -497,14 +497,14 @@ u32 ip_idents_reserve(u32 hash, int segs)
+ 	u32 now = (u32)jiffies;
+ 	u32 new, delta = 0;
+ 
+-	if (old != now && cmpxchg(p_tstamp, old, now) == old)
++	if (old != now && cmpxchg_relaxed(p_tstamp, old, now) == old)
+ 		delta = prandom_u32_max(now - old);
+ 
+ 	/* Do not use atomic_add_return() as it makes UBSAN unhappy */
+ 	do {
+ 		old = (u32)atomic_read(p_id);
+ 		new = old + delta + segs;
+-	} while (atomic_cmpxchg(p_id, old, new) != old);
++	} while (atomic_cmpxchg_relaxed(p_id, old, new) != old);
+ 
+ 	return new - segs;
+ }
+
+
 
