@@ -1,34 +1,20 @@
-Return-Path: <eric.dumazet@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=1oVtlRZlzkOWP7gwTWq7MlIOnn8fWxbB28QibL93Amg=;
-	b=WVqRqL9443+E+qrr++nO4TMaPxV4hjs+Vs9WuMFREto80Dhi5tAp785ZnlbwEuYaTW
-	Ag48vE+XBSFYTk4LEylT4tIWsxNHXKL5e6p82CBitFNNmBb8oAr4edIh1M9vGQ8DdYBn
-	PKsyAdIB8Y1saSbpwT2EbTCzQvoPICd2K8nrwenbGOeZZvoxiFskjt5k7yq7ilPz7Z/L
-	RtZKLR1PIq5vKfHugwWAbKOW1FLdHhZDuHQb2v8pPt7tG6Z/MzhPL9KoII7B5pw/6Paq
-	6dqWw/LNsoaC447JttodmYEQJVg9Wucv93zSIWvI9Pl5fa9xGQn3Qwczlz+gp8ND5wLt
-	mNRw==
-Message-ID: <1490027684.16816.63.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Mon, 20 Mar 2017 09:34:44 -0700
-In-Reply-To: <1490026735.16816.58.camel@edumazet-glaptop3.roam.corp.google.com>
-References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
-	<20170318164759.GA23837@gondor.apana.org.au>
-	<20170318.182121.439615057765380575.davem@davemloft.net>
-	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
-	<20170320131629.GA26405@gondor.apana.org.au>
-	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
-	<20170320132713.GA26954@gondor.apana.org.au>
-	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
-	<1490021461.16816.52.camel@edumazet-glaptop3.roam.corp.google.com>
-	<1490021946.16816.54.camel@edumazet-glaptop3.roam.corp.google.com>
-	<1490026735.16816.58.camel@edumazet-glaptop3.roam.corp.google.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
- atomic_t to refcount_t
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Tue, 21 Mar 2017 01:09:47 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20170321000947.GA31709@otheros>
+References: <20170315031811.22714-1-linus.luessing@c0d3.blue>
+	<20170315102608.GB24366@breakpoint.cc>
+	<20170315104211.GA24409@salvia> <20170315142720.GU15692@otheros>
+	<20170315181539.GA31875@salvia> <20170315211619.GA3464@otheros>
+	<20170315220605.GA1766@salvia> <20170317131044.GA11995@salvia>
+	<20170319165506.GA15475@otheros>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20170319165506.GA15475@otheros>
+Subject: Re: [Bridge] [PATCH net] bridge: ebtables: fix reception of frames
+ DNAT-ed to bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,26 +23,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: keescook@chromium.org, kaber@trash.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, jmorris@namei.org, ishkamiel@gmail.com, kuznet@ms2.inr.ac.ru, akpm@linux-foundation.org, dwindsor@gmail.com, David Miller <davem@davemloft.net>, elena.reshetova@intel.com, Herbert Xu <herbert@gondor.apana.org.au>
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
 
-On Mon, 2017-03-20 at 09:18 -0700, Eric Dumazet wrote:
-
-> Interesting.
+On Sun, Mar 19, 2017 at 05:55:06PM +0100, Linus Lüssing wrote:
+> On Fri, Mar 17, 2017 at 02:10:44PM +0100, Pablo Neira Ayuso wrote:
+> > Wait.
+> > 
+> > May this break local multicast listener that are bound to the bridge
+> > interface? Assuming the bridge interface got an IP address, and that
+> > there is local multicast listener.
+> > 
+> > Missing anything here?
 > 
-> UDP ipv4 xmit path gets a ~25 % improvement on PPC with this patch.
+> Hm, for multicast packets usually the code path a few lines
+> later in br_handle_frame_finish() should be taken instead.
 > 
-> ( 20 concurrent netperf -t UDP_STREAM  : 2.45 Mpps -> 3.07 Mpps )
+> But you might be right for IP multicast packets with a unicast MAC
+> destination (due to whatever reason, for instance via DNAT'ing
+> again).
+> 
+> Will check that - thanks!
 
-Well, there _is_ a difference, but not 25 % (this was probably caused by
-different queues on TX or RX between my reboots).
+Ok, I tested DNAT'ing an IP multicast packet to the unicast MAC address
+of the bridge interface.
 
-I added a sysctl hack to be able to dynamically change on a given
-workload, and we hit other bottlenecks (mainly qdisc locks and driver tx
-locks) anyway.
+Both ping-ing to an IPv4 and IPv6 multicast listener on br0 worked
+and was replied to fine, both with or without changing skb->pkt_type
+from PACKET_MULTICAST to PACKET_HOST.
+("$ ping 224.1.0.123" and "$ ping6 ff02::1:ff40:707c%in0" from a
+ network namespace, tied into the bridge via veth)
+
+Also, a DNAT'ed PACKET_BROADCAST worked, with or without changing
+it to PACKET_HOST.
+
+I also checked via tcpdump that the destination MAC was changed
+successfully.
 
 
+So, so far I wasn't able to find any bugs with the current
+patch. But I think I like the idea of leaving the skb->pkt_type
+unaltered for PACKET_MULTICAST and PACKET_BROADCAST, seems cleaner.
 
-
-
-
+I'd just add an "if (skb->pkt_type == PACKET_OTHERHOST)" check
+then and resend a PATCH v2.
