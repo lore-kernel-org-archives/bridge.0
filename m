@@ -1,32 +1,12 @@
-Return-Path: <eric.dumazet@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=MbhRis1i84PDaCQwNwRgdxEO402R/WzKiEy/M830NEw=;
-	b=bvANNkEHwXp2/0/INp3P4ol5bYTRqK5Rkkk1VQLAF3jFNRqXLMfvlcsfWUcMkTcbrC
-	EzHdzDYADIWrIf4ZCQj5LNr6NoUAXOstAFsDv64ryxXUFxRn1xlejexyNQdKwzRANtR9
-	HNEAoXAdIYDFedBWMUglE38EFY96eZzAvxJpq/RGx4JP5iLDvEQES5xjbsMDdHSP0R03
-	YWEb9ZV8V0whkxNusGWf/R0TZWa9/4QeXvPCIZSdbnRq4X1B48y+7qEoHbcx5Sc+MBra
-	VNjx/ZvTJ0YfIGpiNbh4+gOot70471vH5Xp4COuqTnXF1XK8AeqCWvMlMs5E235B0LLS
-	GhUA==
-Message-ID: <1490131389.16816.123.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Tue, 21 Mar 2017 14:23:09 -0700
-In-Reply-To: <CAGXu5j+HK6jXeA3EdJGMLK_7o04AiTwXmmjuKOmExz0g5rs=kw@mail.gmail.com>
-References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
-	<20170318164759.GA23837@gondor.apana.org.au>
-	<20170318.182121.439615057765380575.davem@davemloft.net>
-	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
-	<20170320131629.GA26405@gondor.apana.org.au>
-	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
-	<20170320132713.GA26954@gondor.apana.org.au>
-	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
-	<CAGXu5j+HK6jXeA3EdJGMLK_7o04AiTwXmmjuKOmExz0g5rs=kw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
- atomic_t to refcount_t
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Tue, 21 Mar 2017 23:28:45 +0100
+Message-Id: <20170321222845.8373-1-linus.luessing@c0d3.blue>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v2] bridge: ebtables: fix reception of frames
+	DNAT-ed to bridge device
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,36 +15,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Kees Cook <keescook@chromium.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Patrick McHardy <kaber@trash.net>, Peter Zijlstra <peterz@infradead.org>, Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>, Hans Liljestrand <ishkamiel@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, "Reshetova,
-	Elena" <elena.reshetova@intel.com>, David Windsor <dwindsor@gmail.com>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Tue, 2017-03-21 at 13:49 -0700, Kees Cook wrote:
+When trying to redirect bridged frames to the bridge device itself
+via the ebtables nat-prerouting chain and the dnat target then this
+currently fails:
 
-> Yeah, this is exactly what I'd like to find as well. Just comparing
-> cycles between refcount implementations, while interesting, doesn't
-> show us real-world performance changes, which is what we need to
-> measure.
-> 
-> Is Eric's "20 concurrent 'netperf -t UDP_STREAM'" example (from
-> elsewhere in this email thread) real-world meaningful enough?
+The ethernet destination of the frame is dnat'ed to the MAC address of
+the bridge itself just fine and the correctly altered frame can even
+be captured via a tcpdump on br0 (with or without promisc mode).
 
-Not at all ;)
+However, the IP code drops it in the beginning of ip_input.c/ip_rcv()
+as the dnat target did not update the skb->pkt_type. If after
+dnat'ing the packet is now destined to us then the skb->pkt_type
+needs to be updated from PACKET_OTHERHOST to PACKET_HOST, too.
 
-This was targeting the specific change I had in mind for
-ip_idents_reserve(), which is not used by TCP flows.
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 
-Unfortunately there is no good test simulating real-world workloads,
-which are mostly using TCP flows.
+---
+Changelog v2:
+* refrain from altering pkt_type for multicast packets
+  with a unicast destination MAC
+---
+ net/bridge/br_input.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Most synthetic tools you can find are not using epoll(), and very often
-hit bottlenecks in other layers.
-
-
-It looks like our suggestion to get kernel builds with atomic_inc()
-being exactly an atomic_inc() is not even discussed or implemented.
-
-Coding this would require less time than running a typical Google kernel
-qualification (roughly one month, thousands of hosts..., days of SWE).
-
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 013f2290b..fd7bc4c 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -198,8 +198,13 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	if (dst) {
+ 		unsigned long now = jiffies;
+ 
+-		if (dst->is_local)
++		if (dst->is_local) {
++			/* fix up potential DNAT inconsistencies */
++			if (skb->pkt_type == PACKET_OTHERHOST)
++				skb->pkt_type = PACKET_HOST;
++
+ 			return br_pass_frame_up(skb);
++		}
+ 
+ 		if (now != dst->used)
+ 			dst->used = now;
+-- 
+2.1.4
 
