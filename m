@@ -1,25 +1,40 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=V8w60uDCqV6Ul+syvWShyLOQLdd5ErCupOLZ2qYgX8s=;
-	b=wR4VsOBmYnIm215jBQlCZtdfB2SsGw2WvrTEYT9cdFIqKy25JsIS4WKn7vTWh622xt
-	5o2af2u4V21P6Gd4+ptUNHxzM9C11We346i65lIAKJ7ECkj/eOc8wTJJv0kJjlQyY/Tr
-	niaiZ2ts65zBvAnIv4XBwFvFDL//5Bu4T8eZfcUqmJW35l7F6wkDb1iiQf1tjUI79UmL
-	qvtXQVZ7yXL3vNQajCrZZfpXZDyb2TVyy/IgXniyh0+q71Sidr1eQCSmQYx5ZPZM8Sp7
-	eQzucUh++gRqBOM+dL4qDm75npr5Z9ZQhq0KkNezWfJJJ4tlQRjdKxSxTek6xPIIPnag
-	VJbg==
-Date: Tue, 21 Mar 2017 16:32:45 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170321163245.34159349@xeon-e3>
-In-Reply-To: <20170321222845.8373-1-linus.luessing@c0d3.blue>
-References: <20170321222845.8373-1-linus.luessing@c0d3.blue>
+Return-Path: <keescook@google.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc;
+	bh=+WvYQZhGHK8lRuhla3gJvEN3OU0s4Cdye36L0xhCIpg=;
+	b=AXXewWYmkiznXH5uosEG5AhJNz1zXQ2GSNT4UFYbnNKrhM6Bc/xVMRptpttGbifS8D
+	P4ce865vm8hu+GR0xXUusuKTGxRvQyKbnQe+ZTtO0rk6GyNys/dZWjVDxBgeX65Qljpa
+	W+Ozpa9TQV4QuVTtHZiToACpURCIwGucF8RVbMG8G4x/t696HqyJyqKecD5PvtYTuSRZ
+	1P5mXuSxj7XdY9ctLPt7aIgJ+r5jU9l5GO/U+sfYTX+hgfGTu8ut1x09BG/YPkDd0dPm
+	zoL59e4Xc4jV9EF/+3aYaXomaN5iYsyp2leV2/YWB72T61xJwZzQiavWew0ZRkO0Fnw6
+	VlsA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc;
+	bh=+WvYQZhGHK8lRuhla3gJvEN3OU0s4Cdye36L0xhCIpg=;
+	b=cJyViX+oVZtbThImnGxfN0yMN1I+iZ7uJ5KDrm1lyCztVr754GNmcJgKobZ5OEZhia
+	zOLGQKf/+Tfj0gN5zu5Gv4bcEVCn5HmzQvLAwTEedPS5K53KBjoiyCMf9mWKZvuaa/LW
+	3w6Yk5Fcc8wyD+4epGyAu2MFiIIrahI4WsGGc=
 MIME-Version: 1.0
+Sender: keescook@google.com
+In-Reply-To: <1490131389.16816.123.camel@edumazet-glaptop3.roam.corp.google.com>
+References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
+	<20170318164759.GA23837@gondor.apana.org.au>
+	<20170318.182121.439615057765380575.davem@davemloft.net>
+	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
+	<20170320131629.GA26405@gondor.apana.org.au>
+	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
+	<20170320132713.GA26954@gondor.apana.org.au>
+	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
+	<CAGXu5j+HK6jXeA3EdJGMLK_7o04AiTwXmmjuKOmExz0g5rs=kw@mail.gmail.com>
+	<1490131389.16816.123.camel@edumazet-glaptop3.roam.corp.google.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Tue, 21 Mar 2017 16:51:13 -0700
+Message-ID: <CAGXu5jKPckDxKV8ShY=5VtGm62Qxr5-gO9JDa_C+UL_P84jxVw@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH v2] bridge: ebtables: fix reception of frames
- DNAT-ed to bridge device
+Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
+	atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,15 +43,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?UTF-8?B?TMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Patrick McHardy <kaber@trash.net>, Peter Zijlstra <peterz@infradead.org>, Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>, Hans Liljestrand <ishkamiel@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, "Reshetova,
+	Elena" <elena.reshetova@intel.com>, David Windsor <dwindsor@gmail.com>
 
-On Tue, 21 Mar 2017 23:28:45 +0100
-Linus L=C3=BCssing <linus.luessing@c0d3.blue> wrote:
+On Tue, Mar 21, 2017 at 2:23 PM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> On Tue, 2017-03-21 at 13:49 -0700, Kees Cook wrote:
+>
+>> Yeah, this is exactly what I'd like to find as well. Just comparing
+>> cycles between refcount implementations, while interesting, doesn't
+>> show us real-world performance changes, which is what we need to
+>> measure.
+>>
+>> Is Eric's "20 concurrent 'netperf -t UDP_STREAM'" example (from
+>> elsewhere in this email thread) real-world meaningful enough?
+>
+> Not at all ;)
+>
+> This was targeting the specific change I had in mind for
+> ip_idents_reserve(), which is not used by TCP flows.
 
-> However, the IP code drops it in the beginning of ip_input.c/ip_rcv()
-> as the dnat target did not update the skb->pkt_type. If after
-> dnat'ing the packet is now destined to us then the skb->pkt_type
-> needs to be updated from PACKET_OTHERHOST to PACKET_HOST, too.
+Okay, I just wanted to check. I didn't think so, but it was the only
+example in the thread.
 
-Why not fix DNAT netfilter module rather than hacking bridge code here.
+> Unfortunately there is no good test simulating real-world workloads,
+> which are mostly using TCP flows.
+
+Sure, but there has to be _something_ that can be used to test to
+measure the effects. Without a meaningful test, it's weird to reject a
+change for performance reasons.
+
+> Most synthetic tools you can find are not using epoll(), and very often
+> hit bottlenecks in other layers.
+>
+>
+> It looks like our suggestion to get kernel builds with atomic_inc()
+> being exactly an atomic_inc() is not even discussed or implemented.
+
+So, FWIW, I originally tried to make this a CONFIG in the first couple
+passes at getting a refcount defense. I would be fine with this, but I
+was not able to convince Peter. :) However, things have evolved a lot
+since then, so perhaps there are things do be done here.
+
+> Coding this would require less time than running a typical Google kernel
+> qualification (roughly one month, thousands of hosts..., days of SWE).
+
+It wasn't the issue of coding time; just that it had been specifically
+not wanted. :)
+
+Am I understanding you correctly that you'd want something like:
+
+refcount.h:
+#ifdef UNPROTECTED_REFCOUNT
+#define refcount_inc(x)   atomic_inc(x)
+...
+#else
+void refcount_inc(...
+...
+#endif
+
+some/net.c:
+#define UNPROTECTED_REFCOUNT
+#include <refcount.h>
+
+or similar?
+
+-Kees
+
+-- 
+Kees Cook
+Pixel Security
