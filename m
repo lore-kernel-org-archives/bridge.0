@@ -1,24 +1,18 @@
-Return-Path: <keescook@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc;
-	bh=+WvYQZhGHK8lRuhla3gJvEN3OU0s4Cdye36L0xhCIpg=;
-	b=AXXewWYmkiznXH5uosEG5AhJNz1zXQ2GSNT4UFYbnNKrhM6Bc/xVMRptpttGbifS8D
-	P4ce865vm8hu+GR0xXUusuKTGxRvQyKbnQe+ZTtO0rk6GyNys/dZWjVDxBgeX65Qljpa
-	W+Ozpa9TQV4QuVTtHZiToACpURCIwGucF8RVbMG8G4x/t696HqyJyqKecD5PvtYTuSRZ
-	1P5mXuSxj7XdY9ctLPt7aIgJ+r5jU9l5GO/U+sfYTX+hgfGTu8ut1x09BG/YPkDd0dPm
-	zoL59e4Xc4jV9EF/+3aYaXomaN5iYsyp2leV2/YWB72T61xJwZzQiavWew0ZRkO0Fnw6
-	VlsA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc;
-	bh=+WvYQZhGHK8lRuhla3gJvEN3OU0s4Cdye36L0xhCIpg=;
-	b=cJyViX+oVZtbThImnGxfN0yMN1I+iZ7uJ5KDrm1lyCztVr754GNmcJgKobZ5OEZhia
-	zOLGQKf/+Tfj0gN5zu5Gv4bcEVCn5HmzQvLAwTEedPS5K53KBjoiyCMf9mWKZvuaa/LW
-	3w6Yk5Fcc8wyD+4epGyAu2MFiIIrahI4WsGGc=
-MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <1490131389.16816.123.camel@edumazet-glaptop3.roam.corp.google.com>
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=rOJGUI2c5O/4oVqGtgIPei4v6P9V7JK1+Owvk600tak=;
+	b=Vbw+fImkIxn7NJ3Fxdf0oqTlTEtd0GzWLAeWFw3ipjUeHpmik5efEHiaf8mxaV6Bet
+	RJykAvcxiI8XDqlqjCGzIebvuGH/0daWdNkyCXaoRkDb/fqXpkRJI60vav75rxXclPzY
+	v8XVUW9cAbcWEnqFNhAOezUga1rV5rPQvAvjA07zOq45+iPodLko49P3z2jHmQVieqAi
+	b5wxWsZgf+09RdWbaEp8cKYJKN0qHa1IkIB+bzj0Z6VA8uLRnYMLsLVB4gGRDumXiE/c
+	o3EeBvGcA41exKvom4GxZPvXbJee7zoTULkRWIAM2UpSXENtgKtuBbG25DX0S0dlIZYo
+	MLGw==
+Message-ID: <1490148199.16816.126.camel@edumazet-glaptop3.roam.corp.google.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Tue, 21 Mar 2017 19:03:19 -0700
+In-Reply-To: <CAGXu5jKPckDxKV8ShY=5VtGm62Qxr5-gO9JDa_C+UL_P84jxVw@mail.gmail.com>
 References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
 	<20170318164759.GA23837@gondor.apana.org.au>
 	<20170318.182121.439615057765380575.davem@davemloft.net>
@@ -29,12 +23,12 @@ References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
 	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
 	<CAGXu5j+HK6jXeA3EdJGMLK_7o04AiTwXmmjuKOmExz0g5rs=kw@mail.gmail.com>
 	<1490131389.16816.123.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Kees Cook <keescook@chromium.org>
-Date: Tue, 21 Mar 2017 16:51:13 -0700
-Message-ID: <CAGXu5jKPckDxKV8ShY=5VtGm62Qxr5-gO9JDa_C+UL_P84jxVw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+	<CAGXu5jKPckDxKV8ShY=5VtGm62Qxr5-gO9JDa_C+UL_P84jxVw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
-	atomic_t to refcount_t
+ atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -43,73 +37,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>
+To: Kees Cook <keescook@chromium.org>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>, Patrick McHardy <kaber@trash.net>, Peter Zijlstra <peterz@infradead.org>, Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>, Hans Liljestrand <ishkamiel@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, "Reshetova,
 	Elena" <elena.reshetova@intel.com>, David Windsor <dwindsor@gmail.com>
 
-On Tue, Mar 21, 2017 at 2:23 PM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> On Tue, 2017-03-21 at 13:49 -0700, Kees Cook wrote:
->
->> Yeah, this is exactly what I'd like to find as well. Just comparing
->> cycles between refcount implementations, while interesting, doesn't
->> show us real-world performance changes, which is what we need to
->> measure.
->>
->> Is Eric's "20 concurrent 'netperf -t UDP_STREAM'" example (from
->> elsewhere in this email thread) real-world meaningful enough?
->
-> Not at all ;)
->
-> This was targeting the specific change I had in mind for
-> ip_idents_reserve(), which is not used by TCP flows.
+On Tue, 2017-03-21 at 16:51 -0700, Kees Cook wrote:
 
-Okay, I just wanted to check. I didn't think so, but it was the only
-example in the thread.
+> Am I understanding you correctly that you'd want something like:
+> 
+> refcount.h:
+> #ifdef UNPROTECTED_REFCOUNT
+> #define refcount_inc(x)   atomic_inc(x)
+> ...
+> #else
+> void refcount_inc(...
+> ...
+> #endif
+> 
+> some/net.c:
+> #define UNPROTECTED_REFCOUNT
+> #include <refcount.h>
+> 
+> or similar?
 
-> Unfortunately there is no good test simulating real-world workloads,
-> which are mostly using TCP flows.
+At first, it could be something simple like that yes.
 
-Sure, but there has to be _something_ that can be used to test to
-measure the effects. Without a meaningful test, it's weird to reject a
-change for performance reasons.
+Note that we might define two refcount_inc()  : One that does whole
+tests, and refcount_inc_relaxed() that might translate to atomic_inc()
+on non debug kernels.
 
-> Most synthetic tools you can find are not using epoll(), and very often
-> hit bottlenecks in other layers.
->
->
-> It looks like our suggestion to get kernel builds with atomic_inc()
-> being exactly an atomic_inc() is not even discussed or implemented.
+Then later, maybe provide a dynamic infrastructure so that we can
+dynamically force the full checks even for refcount_inc_relaxed() on say
+1% of the hosts, to get better debug coverage ?
 
-So, FWIW, I originally tried to make this a CONFIG in the first couple
-passes at getting a refcount defense. I would be fine with this, but I
-was not able to convince Peter. :) However, things have evolved a lot
-since then, so perhaps there are things do be done here.
 
-> Coding this would require less time than running a typical Google kernel
-> qualification (roughly one month, thousands of hosts..., days of SWE).
 
-It wasn't the issue of coding time; just that it had been specifically
-not wanted. :)
-
-Am I understanding you correctly that you'd want something like:
-
-refcount.h:
-#ifdef UNPROTECTED_REFCOUNT
-#define refcount_inc(x)   atomic_inc(x)
-...
-#else
-void refcount_inc(...
-...
-#endif
-
-some/net.c:
-#define UNPROTECTED_REFCOUNT
-#include <refcount.h>
-
-or similar?
-
--Kees
-
--- 
-Kees Cook
-Pixel Security
