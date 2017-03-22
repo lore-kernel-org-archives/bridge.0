@@ -1,21 +1,18 @@
-Return-Path: <peterz@infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20170209;
-	h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=k6EUKWGvTQcbUKvq2h9oErZvSFV3CoIODAlYEwWWmgU=;
-	b=rY454KTsEOKLxMy9ieXCdVvf6
-	kXmwH41RucR5OwT4SFTpeR8go55VaMhMgPMJnknsLUsuJRFAVc2qNtnXSUcvhTdidaAhdNddaZB2e
-	WkOBYc5f+y3fPqJPH3crA/UfeLDUtzzHkvtQ0VwkJ+S7hkzyixR8+ISFCksQnuBKqtTVFDtDGD7Lt
-	kq7h7IaUvtrMGbHnVTgKMMjBZQLuJbJhlu67aaHY4aIg7Zi+e7YBbvrAGpE0hEditl5rkQLrcGRN6
-	DMJ4sdTI748tnLotoQig+bkanYfklslJCdJKrsbAPUr3hR9lUZ1/BIY15eXVs2lqSitkDRYSMsUSf
-	HOYl85fsw==;
-Date: Wed, 22 Mar 2017 15:33:29 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-Message-ID: <20170322143329.ya5jnretfptf4iud@hirez.programming.kicks-ass.net>
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=message-id:subject:from:to:cc:date:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=R6+5EMPsoTJ6H0AP9iU/TFo+GNIHWrj1s+LnYnNIzro=;
+	b=L7MkhglwgIY8SJcO7JSYkT7DRyLnWcHdgQLGJOwj12EAbqnI+H7HaXAVrAl+2O6nAa
+	BYMS2qTqFdCqlG5NeiFGTpUV79tSI8MtVyJDxsTFHaqyeot9uqggrFENg6LRBlqSAded
+	pV3Bv54U6eGQ/PwUb0aGIwfbOxI+ukqu+bCX6E79Nj4p6qvebzmVTbohxhSQmKpQIgvH
+	UpBle6y9qVQ+dAp28+ZcLXLX5ct0W8HETpaXDuirPvKA7+ixQzcFF3zGaUgaaSqBforV
+	z9+mg8uaPwUXakp3ob62No0vlbEvR1BaOV7NKRjSPm2P0HrBQ33rgEWpDvtK0184itDx
+	eBOw==
+Message-ID: <1490194444.16816.154.camel@edumazet-glaptop3.roam.corp.google.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Wed, 22 Mar 2017 07:54:04 -0700
+In-Reply-To: <20170322143329.ya5jnretfptf4iud@hirez.programming.kicks-ass.net>
 References: <20170320131629.GA26405@gondor.apana.org.au>
 	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
 	<20170320132713.GA26954@gondor.apana.org.au>
@@ -26,10 +23,10 @@ References: <20170320131629.GA26405@gondor.apana.org.au>
 	<1490148199.16816.126.camel@edumazet-glaptop3.roam.corp.google.com>
 	<20170322122540.odnm4j3r4c4uf7wt@hirez.programming.kicks-ass.net>
 	<1490188936.16816.143.camel@edumazet-glaptop3.roam.corp.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1490188936.16816.143.camel@edumazet-glaptop3.roam.corp.google.com>
+	<20170322143329.ya5jnretfptf4iud@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
  atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -40,28 +37,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: Kees Cook <keescook@chromium.org>, Patrick McHardy <kaber@trash.net>, Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>, Hans Liljestrand <ishkamiel@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@linux-foundation.org>, David Windsor <dwindsor@gmail.com>, David Miller <davem@davemloft.net>, "Reshetova,
 	Elena" <elena.reshetova@intel.com>, Herbert Xu <herbert@gondor.apana.org.au>
 
-On Wed, Mar 22, 2017 at 06:22:16AM -0700, Eric Dumazet wrote:
+On Wed, 2017-03-22 at 15:33 +0100, Peter Zijlstra wrote:
 
-> But admittedly we can replace all these by standard refcount_inc() and
-> simply provide a CONFIG option to turn off the checks, and let brave
-> people enable this option.
+> 
+> But I would feel a whole lot better about the entire thing if we could
+> measure their impact. It would also give us good precedent to whack
+> other potential users of _nocheck over the head with -- show numbers.
 
-Still brings us back to lacking a real reason to provide that CONFIG
-option. Not to mention that this CONFIG knob will kill the warnings for
-everything, even the code that might not be as heavily audited as
-network and which doesn't really care much about the performance of
-refcount operations.
+I wont be able to measure the impact on real workloads, our productions
+kernels are based on 4.3 at this moment.
+
+I guess someone could code a lib/test_refcount.c launching X threads
+using either atomic_inc or refcount_inc() in a loop.
+
+That would give a rough estimate of the refcount_t overhead among
+various platforms.
 
 
-So I'm actually in favour of _nocheck variants, if we can show the need
-for them. And I like your idea of being able to dynamically switch them
-back to full debug as well.
-
-
-But I would feel a whole lot better about the entire thing if we could
-measure their impact. It would also give us good precedent to whack
-other potential users of _nocheck over the head with -- show numbers.
