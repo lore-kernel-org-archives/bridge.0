@@ -1,16 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=1HIY27ATwupBIbMYAAzidn8eGOV+MLost0/em/IGBjo=;
-	b=BmcKXjpgwklx8lu+/xEkxLCxIZKHSz4bcfL16o1KFEvTzu9yU2iJyeiLIea7AsSKD3
-	QrdoD9v6aGPcL+7amM8qIvgpH+8R7WZkZG/biUteV3ziNVJ6Ibxi76SSVwYS4jqKbX2u
-	8uysEwAURn5fi2457rxSv1RySqs78tIXBAW6s=
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=U/TEpuCG8YO7s6iDZFCCShWSZyb9ZqAe8/JdqPQ0KmI=;
+	b=IjTrJU2iLAyxvW53o/jIFlfvujlejZPYfbU1pdkfjbzKf8y1pSfXbYk7ZDR/WK+Adm
+	d54RYZVhHVV/5oLo9yk5z9i5Elc/YJFY8uf/hkhybONMT2s4NZlUfwYTfoIkrFwO0bHq
+	GX4qr5ZucRSxBNwWbkLEnNAzDEXlvfOJFB1ec=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Thu, 23 Mar 2017 12:27:11 +0200
-Message-Id: <1490264833-28867-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next 0/2] net: bridge: allow user-space to add
-	ext learned entries
+Date: Thu, 23 Mar 2017 12:27:12 +0200
+Message-Id: <1490264833-28867-2-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <1490264833-28867-1-git-send-email-nikolay@cumulusnetworks.com>
+References: <1490264833-28867-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next 1/2] net: bridge: allow SW learn to take
+	over HW fdb entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,28 +24,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: jiri@resnulli.us, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, idosch@mellanox.com, davem@davemloft.net
 
-Hi,
-This set adds the ability to add externally learned entries from
-user-space. For symmetry and proper function we need to allow SW entries
-to take over HW learned ones (similar to how HW can take over SW entries
-currently) which is needed for our use case (evpn) where we have pure SW
-ports and HW ports mixed in a single bridge. This does not play well with
-switchdev devices currently because there's no feedback when the entry is
-taken over, but this case has never worked anyway and feedback can be
-easily added when needed.
-Patch 02 simply allows to use NTF_EXT_LEARNED from user-space, we already
-have Quagga patches that make use of this functionality.
+Allow to take over an entry which was previously learned via HW when it
+shows up from a SW port. This is analogous to how HW takes over SW learned
+entries already.
 
-Thanks,
- Nik
+Suggested-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_fdb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Nikolay Aleksandrov (2):
-  net: bridge: allow SW learn to take over HW fdb entries
-  net: bridge: allow to add externally learned entries from user-space
-
- net/bridge/br_fdb.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 4f598dc2d916..e4c8adf517ea 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -594,6 +594,9 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 				fdb->updated = now;
+ 			if (unlikely(added_by_user))
+ 				fdb->added_by_user = 1;
++			/* Take over HW learned entry */
++			if (unlikely(fdb->added_by_external_learn))
++				fdb->added_by_external_learn = 0;
+ 			if (unlikely(fdb_modified))
+ 				fdb_notify(br, fdb, RTM_NEWNEIGH);
+ 		}
 -- 
 2.1.4
 
