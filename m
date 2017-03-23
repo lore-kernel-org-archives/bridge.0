@@ -1,42 +1,16 @@
-Return-Path: <keescook@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc;
-	bh=dAioBKbwAKWQ4WfSJyy7F1Z99pFPFa3ugtcBpUnRzVc=;
-	b=QNTuEs/TweZ+0Aof1JNRTOu+tN45bh9vCfnAPVKTzenO74f+RornMlhULePhR55351
-	S1akmBupicUQsRcxjjTdV1EMWYTx8gmGVIMq5ixbyKBY6TLCXASCpE4iLZWnrcWSYD67
-	oygMNoMtILZrubUE824iFdA8zTD5G4Lalr2qMzbPZJg2CNsUwYT2t1AblyVv2GvdIoQP
-	FUJ0CklsJSBWSR6xz5iTr6D7QdG0Xaca9/pZGHugaAcLWIhe+CAa7nlf3e3MmF/8hVLR
-	DPfsbYBZQn50aGR1k1/dgjlqMBrhOc/fYZl5181aUaaMM6u3B5xDYhHygV8BCwwkNr1b
-	7tXw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
-	h=mime-version:sender:in-reply-to:references:from:date:message-id
-	:subject:to:cc;
-	bh=dAioBKbwAKWQ4WfSJyy7F1Z99pFPFa3ugtcBpUnRzVc=;
-	b=kdr/qjASaofDsGqKlKdc5HmuL/9ZSJktfstHJVBWavmWWRQUP98HSJgZcLXRLaGEPH
-	9r2OJbiSNsnJ36LCrFhy3nV06mK1g65YnLxvCuj4gVzbK4Egw1b+N75B4VO3XPqNsnKY
-	OnWiBtWsB3DjzLnwQwCpzJTcWlyoHmuANnKwE=
-MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <1490148199.16816.126.camel@edumazet-glaptop3.roam.corp.google.com>
-References: <1489767196.28631.305.camel@edumazet-glaptop3.roam.corp.google.com>
-	<20170318164759.GA23837@gondor.apana.org.au>
-	<20170318.182121.439615057765380575.davem@davemloft.net>
-	<20170320103937.lq7nfnutupr3gkn7@hirez.programming.kicks-ass.net>
-	<20170320131629.GA26405@gondor.apana.org.au>
-	<20170320132357.acygo3umw6fiwb4p@hirez.programming.kicks-ass.net>
-	<20170320132713.GA26954@gondor.apana.org.au>
-	<20170320134017.h3c2jrsnd4guuyu7@hirez.programming.kicks-ass.net>
-	<CAGXu5j+HK6jXeA3EdJGMLK_7o04AiTwXmmjuKOmExz0g5rs=kw@mail.gmail.com>
-	<1490131389.16816.123.camel@edumazet-glaptop3.roam.corp.google.com>
-	<CAGXu5jKPckDxKV8ShY=5VtGm62Qxr5-gO9JDa_C+UL_P84jxVw@mail.gmail.com>
-	<1490148199.16816.126.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Kees Cook <keescook@chromium.org>
-Date: Wed, 22 Mar 2017 12:08:03 -0700
-Message-ID: <CAGXu5jKT3So5KcKG5_BOZVtw7HtBn5-g8HpzWSSspmkczZNWTA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH 07/17] net: convert sock.sk_refcnt from
-	atomic_t to refcount_t
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=1HIY27ATwupBIbMYAAzidn8eGOV+MLost0/em/IGBjo=;
+	b=BmcKXjpgwklx8lu+/xEkxLCxIZKHSz4bcfL16o1KFEvTzu9yU2iJyeiLIea7AsSKD3
+	QrdoD9v6aGPcL+7amM8qIvgpH+8R7WZkZG/biUteV3ziNVJ6Ibxi76SSVwYS4jqKbX2u
+	8uysEwAURn5fi2457rxSv1RySqs78tIXBAW6s=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu, 23 Mar 2017 12:27:11 +0200
+Message-Id: <1490264833-28867-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next 0/2] net: bridge: allow user-space to add
+	ext learned entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -45,47 +19,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Patrick McHardy <kaber@trash.net>, Peter Zijlstra <peterz@infradead.org>, Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>, Hans Liljestrand <ishkamiel@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, "Reshetova,
-	Elena" <elena.reshetova@intel.com>, David Windsor <dwindsor@gmail.com>
+To: netdev@vger.kernel.org
+Cc: jiri@resnulli.us, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, idosch@mellanox.com, davem@davemloft.net
 
-On Tue, Mar 21, 2017 at 7:03 PM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> On Tue, 2017-03-21 at 16:51 -0700, Kees Cook wrote:
->
->> Am I understanding you correctly that you'd want something like:
->>
->> refcount.h:
->> #ifdef UNPROTECTED_REFCOUNT
->> #define refcount_inc(x)   atomic_inc(x)
->> ...
->> #else
->> void refcount_inc(...
->> ...
->> #endif
->>
->> some/net.c:
->> #define UNPROTECTED_REFCOUNT
->> #include <refcount.h>
->>
->> or similar?
->
-> At first, it could be something simple like that yes.
->
-> Note that we might define two refcount_inc()  : One that does whole
-> tests, and refcount_inc_relaxed() that might translate to atomic_inc()
-> on non debug kernels.
->
-> Then later, maybe provide a dynamic infrastructure so that we can
-> dynamically force the full checks even for refcount_inc_relaxed() on say
-> 1% of the hosts, to get better debug coverage ?
+Hi,
+This set adds the ability to add externally learned entries from
+user-space. For symmetry and proper function we need to allow SW entries
+to take over HW learned ones (similar to how HW can take over SW entries
+currently) which is needed for our use case (evpn) where we have pure SW
+ports and HW ports mixed in a single bridge. This does not play well with
+switchdev devices currently because there's no feedback when the entry is
+taken over, but this case has never worked anyway and feedback can be
+easily added when needed.
+Patch 02 simply allows to use NTF_EXT_LEARNED from user-space, we already
+have Quagga patches that make use of this functionality.
 
-Well, this isn't about finding bugs in normal workflows. This is about
-catching bugs that attackers have found and start exploiting to gain a
-use-after-free primitive. The intention is for it to be always
-enabled.
+Thanks,
+ Nik
 
--Kees
+Nikolay Aleksandrov (2):
+  net: bridge: allow SW learn to take over HW fdb entries
+  net: bridge: allow to add externally learned entries from user-space
+
+ net/bridge/br_fdb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 -- 
-Kees Cook
-Pixel Security
+2.1.4
+
