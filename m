@@ -1,26 +1,24 @@
-Return-Path: <stephen@networkplumber.org>
+Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=Ef6QptEhiHKRtysd1H37AXoOz0RVovI6RFho48ILrHs=;
-	b=HGMlPIKEMzMaAd8wXiWZLIxu0mJotY+eC2NEPDE0ud4Fy3lzsNocEJl6frAWIl5KLP
-	p6/7RP6eFh3JVz9BMB/A/vtfckyCc4AdD2WDiQGVNz7RYQMTSN1kBMNOC7EvcSDE1P+F
-	61NR3jKqdwyCfs586eNmgmAoKJA0ea6XsVvDO350Ro8tQWoVIJvKHYSu72kiuGrUdGSw
-	VKPW6KUpJuRKfriMhz6dsDzQqnQIBWyJxzkElVlKyBPxUpdG27Vf/cOh+nrBZNkPI8QX
-	DlSJAyl2/LUHP7GSS0Equ4Mxd55c8qwfXQRHq3BmFY/FjY6zhyAvSdYyabDQOJClifgo
-	if+A==
-Date: Fri, 7 Apr 2017 11:36:15 -0400
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170407113615.15891fde@plumbers-lap.home.lan>
-In-Reply-To: <23249e09-a712-920f-9a9f-850055aaf3af@cumulusnetworks.com>
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=LUjbtzgJcK77MqPQAItI/ZcecSXecUo/299dWl3ENKQ=;
+	b=UJbNqAvvOxgLv+AMEJp8WriZNNyyRDC14RwLMqeA+yRkdoqte2GLABCQpF5s51HN3o
+	NF5zUdGopjXt2fVOW2ciTlrkg25e06YS+tC1Te1xmUCfzdmGWFzJAW0NgQWHsCxrbLUJ
+	IvYH0mRt5IAcFoFPv3y9DDk+LGPgHySqXGfuA=
 References: <20170407124915.15508-1-idosch@mellanox.com>
 	<20170407101055.745d95d0@plumbers-lap.home.lan>
 	<3d567660-7fa5-979e-3097-89427270e554@cumulusnetworks.com>
 	<20170407112206.77b515cd@plumbers-lap.home.lan>
 	<23249e09-a712-920f-9a9f-850055aaf3af@cumulusnetworks.com>
+	<20170407113615.15891fde@plumbers-lap.home.lan>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <c3769204-4803-6c5f-1286-c8f1f5e045be@cumulusnetworks.com>
+Date: Fri, 7 Apr 2017 18:43:06 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20170407113615.15891fde@plumbers-lap.home.lan>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net] bridge: netlink: register netdevice before
  executing changelink
@@ -32,135 +30,123 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: cera@cera.cz, mlxsw@mellanox.com, netdev@vger.kernel.org, peter@svinota.eu, bridge@lists.linux-foundation.org, idosch@mellanox.com, davem@davemloft.net
 
-On Fri, 7 Apr 2017 18:27:37 +0300
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-
-> On 07/04/17 18:22, Stephen Hemminger wrote:
-> > On Fri, 7 Apr 2017 17:19:48 +0300
-> > Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-> >   
-> >> On 07/04/17 17:10, Stephen Hemminger wrote:  
-> >>> On Fri, 7 Apr 2017 15:49:15 +0300
-> >>> <idosch@mellanox.com> wrote:
-> >>>     
-> >>>> From: Ido Schimmel <idosch@mellanox.com>
-> >>>>
-> >>>> Peter reported a kernel oops when executing the following command:
-> >>>>
-> >>>> $ ip link add name test type bridge vlan_default_pvid 1
-> >>>>
-> >>>> [13634.939408] BUG: unable to handle kernel NULL pointer dereference at
-> >>>> 0000000000000190
-> >>>> [13634.939436] IP: __vlan_add+0x73/0x5f0
-> >>>> [...]
-> >>>> [13634.939783] Call Trace:
-> >>>> [13634.939791]  ? pcpu_next_unpop+0x3b/0x50
-> >>>> [13634.939801]  ? pcpu_alloc+0x3d2/0x680
-> >>>> [13634.939810]  ? br_vlan_add+0x135/0x1b0
-> >>>> [13634.939820]  ? __br_vlan_set_default_pvid.part.28+0x204/0x2b0
-> >>>> [13634.939834]  ? br_changelink+0x120/0x4e0
-> >>>> [13634.939844]  ? br_dev_newlink+0x50/0x70
-> >>>> [13634.939854]  ? rtnl_newlink+0x5f5/0x8a0
-> >>>> [13634.939864]  ? rtnl_newlink+0x176/0x8a0
-> >>>> [13634.939874]  ? mem_cgroup_commit_charge+0x7c/0x4e0
-> >>>> [13634.939886]  ? rtnetlink_rcv_msg+0xe1/0x220
-> >>>> [13634.939896]  ? lookup_fast+0x52/0x370
-> >>>> [13634.939905]  ? rtnl_newlink+0x8a0/0x8a0
-> >>>> [13634.939915]  ? netlink_rcv_skb+0xa1/0xc0
-> >>>> [13634.939925]  ? rtnetlink_rcv+0x24/0x30
-> >>>> [13634.939934]  ? netlink_unicast+0x177/0x220
-> >>>> [13634.939944]  ? netlink_sendmsg+0x2fe/0x3b0
-> >>>> [13634.939954]  ? _copy_from_user+0x39/0x40
-> >>>> [13634.939964]  ? sock_sendmsg+0x30/0x40
-> >>>> [13634.940159]  ? ___sys_sendmsg+0x29d/0x2b0
-> >>>> [13634.940326]  ? __alloc_pages_nodemask+0xdf/0x230
-> >>>> [13634.940478]  ? mem_cgroup_commit_charge+0x7c/0x4e0
-> >>>> [13634.940592]  ? mem_cgroup_try_charge+0x76/0x1a0
-> >>>> [13634.940701]  ? __handle_mm_fault+0xdb9/0x10b0
-> >>>> [13634.940809]  ? __sys_sendmsg+0x51/0x90
-> >>>> [13634.940917]  ? entry_SYSCALL_64_fastpath+0x1e/0xad
-> >>>>
-> >>>> The problem is that the bridge's VLAN group is created after setting the
-> >>>> default PVID, when registering the netdevice and executing its
-> >>>> ndo_init().
-> >>>>
-> >>>> Fix this by changing the order of both operations, so that
-> >>>> br_changelink() is only processed after the netdevice is registered,
-> >>>> when the VLAN group is already initialized.
-> >>>>
-> >>>> The changelink() call is done on a best-effort basis since unregistering
-> >>>> the netdevice upon failure won't perform a proper cleanup due to a
-> >>>> missing ndo_uninit(), which I'll try to add for net-next.
-> >>>>
-> >>>> Fixes: b6677449dff6 ("bridge: netlink: call br_changelink() during br_dev_newlink()")
-> >>>> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> >>>> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-> >>>> Reported-by: Peter V. Saveliev <peter@svinota.eu>
-> >>>> ---
-> >>>> Please consider this for 4.4.y, 4.9.y and 4.10.y as well.    
-> >>>
-> >>> Although this patch fixes the OOPS it breaks all the error handling
-> >>> of br_changelink. If bad attributes are passed to newlink, you leave a
-> >>> broken partially configured bridge device. The code needs to cleanup
-> >>> and return the correct errno.
-> >>>     
-> >>
-> >> The cleanup would require adding ndo_uninit() and a much bigger churn
-> >> which doesn't seem okay for -net, it will be targetted at net-next.
-> >> The bridge can always be reconfigured as all of the options can be set
-> >> during runtime, so anything can be fixed, thus the best-effort changelink.
-> >>
-> >> If it is not desirable for -net then maybe we should just revert the
-> >> patch there altogether and make it again correctly with cleanup and so
-> >> on in net-next.
-> >>
-> >>
-> >>  
-> > 
-> > Why not just add pointer validation in the PVID attribute parsing.
-> >   
+On 07/04/17 18:36, Stephen Hemminger wrote:
+> On Fri, 7 Apr 2017 18:27:37 +0300
+> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
 > 
-> We cannot have the changelink() before the register  for many reasons,
-> first the vlan config will not be applied so all of the vlan options
-> won't get set even though they're passed, then the changelink() can
-> cause more trouble via the STP calls (f.e. br_stp_start) which can use
-> br->dev->ifindex (= 0 at that point), also can use br->dev->name (still
-> haven't passed validation and is uninitialized, i.e.
-> dev_get_valid_name() hasn't been called and we can have format
-> specifiers in it), multicast code also has some codepaths that will
-> cause various timers to get started...
+>> On 07/04/17 18:22, Stephen Hemminger wrote:
+>>> On Fri, 7 Apr 2017 17:19:48 +0300
+>>> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
+>>>   
+>>>> On 07/04/17 17:10, Stephen Hemminger wrote:  
+>>>>> On Fri, 7 Apr 2017 15:49:15 +0300
+>>>>> <idosch@mellanox.com> wrote:
+>>>>>     
+>>>>>> From: Ido Schimmel <idosch@mellanox.com>
+>>>>>>
+>>>>>> Peter reported a kernel oops when executing the following command:
+>>>>>>
+>>>>>> $ ip link add name test type bridge vlan_default_pvid 1
+>>>>>>
+>>>>>> [13634.939408] BUG: unable to handle kernel NULL pointer dereference at
+>>>>>> 0000000000000190
+>>>>>> [13634.939436] IP: __vlan_add+0x73/0x5f0
+>>>>>> [...]
+>>>>>> [13634.939783] Call Trace:
+>>>>>> [13634.939791]  ? pcpu_next_unpop+0x3b/0x50
+>>>>>> [13634.939801]  ? pcpu_alloc+0x3d2/0x680
+>>>>>> [13634.939810]  ? br_vlan_add+0x135/0x1b0
+>>>>>> [13634.939820]  ? __br_vlan_set_default_pvid.part.28+0x204/0x2b0
+>>>>>> [13634.939834]  ? br_changelink+0x120/0x4e0
+>>>>>> [13634.939844]  ? br_dev_newlink+0x50/0x70
+>>>>>> [13634.939854]  ? rtnl_newlink+0x5f5/0x8a0
+>>>>>> [13634.939864]  ? rtnl_newlink+0x176/0x8a0
+>>>>>> [13634.939874]  ? mem_cgroup_commit_charge+0x7c/0x4e0
+>>>>>> [13634.939886]  ? rtnetlink_rcv_msg+0xe1/0x220
+>>>>>> [13634.939896]  ? lookup_fast+0x52/0x370
+>>>>>> [13634.939905]  ? rtnl_newlink+0x8a0/0x8a0
+>>>>>> [13634.939915]  ? netlink_rcv_skb+0xa1/0xc0
+>>>>>> [13634.939925]  ? rtnetlink_rcv+0x24/0x30
+>>>>>> [13634.939934]  ? netlink_unicast+0x177/0x220
+>>>>>> [13634.939944]  ? netlink_sendmsg+0x2fe/0x3b0
+>>>>>> [13634.939954]  ? _copy_from_user+0x39/0x40
+>>>>>> [13634.939964]  ? sock_sendmsg+0x30/0x40
+>>>>>> [13634.940159]  ? ___sys_sendmsg+0x29d/0x2b0
+>>>>>> [13634.940326]  ? __alloc_pages_nodemask+0xdf/0x230
+>>>>>> [13634.940478]  ? mem_cgroup_commit_charge+0x7c/0x4e0
+>>>>>> [13634.940592]  ? mem_cgroup_try_charge+0x76/0x1a0
+>>>>>> [13634.940701]  ? __handle_mm_fault+0xdb9/0x10b0
+>>>>>> [13634.940809]  ? __sys_sendmsg+0x51/0x90
+>>>>>> [13634.940917]  ? entry_SYSCALL_64_fastpath+0x1e/0xad
+>>>>>>
+>>>>>> The problem is that the bridge's VLAN group is created after setting the
+>>>>>> default PVID, when registering the netdevice and executing its
+>>>>>> ndo_init().
+>>>>>>
+>>>>>> Fix this by changing the order of both operations, so that
+>>>>>> br_changelink() is only processed after the netdevice is registered,
+>>>>>> when the VLAN group is already initialized.
+>>>>>>
+>>>>>> The changelink() call is done on a best-effort basis since unregistering
+>>>>>> the netdevice upon failure won't perform a proper cleanup due to a
+>>>>>> missing ndo_uninit(), which I'll try to add for net-next.
+>>>>>>
+>>>>>> Fixes: b6677449dff6 ("bridge: netlink: call br_changelink() during br_dev_newlink()")
+>>>>>> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+>>>>>> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+>>>>>> Reported-by: Peter V. Saveliev <peter@svinota.eu>
+>>>>>> ---
+>>>>>> Please consider this for 4.4.y, 4.9.y and 4.10.y as well.    
+>>>>>
+>>>>> Although this patch fixes the OOPS it breaks all the error handling
+>>>>> of br_changelink. If bad attributes are passed to newlink, you leave a
+>>>>> broken partially configured bridge device. The code needs to cleanup
+>>>>> and return the correct errno.
+>>>>>     
+>>>>
+>>>> The cleanup would require adding ndo_uninit() and a much bigger churn
+>>>> which doesn't seem okay for -net, it will be targetted at net-next.
+>>>> The bridge can always be reconfigured as all of the options can be set
+>>>> during runtime, so anything can be fixed, thus the best-effort changelink.
+>>>>
+>>>> If it is not desirable for -net then maybe we should just revert the
+>>>> patch there altogether and make it again correctly with cleanup and so
+>>>> on in net-next.
+>>>>
+>>>>
+>>>>  
+>>>
+>>> Why not just add pointer validation in the PVID attribute parsing.
+>>>   
+>>
+>> We cannot have the changelink() before the register  for many reasons,
+>> first the vlan config will not be applied so all of the vlan options
+>> won't get set even though they're passed, then the changelink() can
+>> cause more trouble via the STP calls (f.e. br_stp_start) which can use
+>> br->dev->ifindex (= 0 at that point), also can use br->dev->name (still
+>> haven't passed validation and is uninitialized, i.e.
+>> dev_get_valid_name() hasn't been called and we can have format
+>> specifiers in it), multicast code also has some codepaths that will
+>> cause various timers to get started...
+>>
+>> Moving changelink() after the register is much safer.
+>>
 > 
-> Moving changelink() after the register is much safer.
+> Then just fix error handling. Why not call unregister?
 > 
 
-Then just fix error handling. Why not call unregister?
+Right, because there's no ndo_uninit() and this will not cleanup the
+bridge properly. That's the plan for net-next, reorg the code and add
+ndo_uninit() for that reason.
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index a8f6acd23e30..6d92d3198e8b 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1165,11 +1165,15 @@ static int br_dev_newlink(struct net *src_net, struct net_device *dev,
- 		spin_unlock_bh(&br->lock);
- 	}
- 
--	err = br_changelink(dev, tb, data);
-+	err = register_netdevice(dev);
- 	if (err)
- 		return err;
- 
--	return register_netdevice(dev);
-+	err = br_changelink(dev, tb, data);
-+	if (err)
-+		unregister_netdevice(dev);
-+
-+	return err;
- }
- 
- static size_t br_get_size(const struct net_device *brdev)
--- 
-2.11.0
+From Ido's commit message above:
+"The changelink() call is done on a best-effort basis since
+unregistering the netdevice upon failure won't perform a proper cleanup
+due to a missing ndo_uninit(), which I'll try to add for net-next."
+
+
 
 
