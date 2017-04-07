@@ -3,16 +3,16 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
 	h=date:from:to:cc:subject:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=szAIJSEnmpJBncT1tVfk7J83CA7nFcdRWDMfH+IQZbQ=;
-	b=yKgVNMQlHgTrR5RSFurlSXEDlkXH3wXSTiLoZiLEAd34ABO/I3PceOOnCg4MvNcGIn
-	PQ9uT9PCy22QRumONwx80XBrnTQr1yYHYdhqBPtCcJh3hH2xWKwHeRXGOm2buJ9aMgUd
-	ihaRudgiovPy3/xlbNdZ82awNbEqEmkIHsWieQ8i0Zf5GHVorGKk+FQTJxj3Rxy2h34h
-	1MTs7ZzqQsg7+T5o3he5RgBeyYt8yo7NEgFqddY7L1SzrECZT90c2zzfsF0+fn8n1r+4
-	0NDW3nJ0IhizikB2bOMJDewySomncV8pPOdkyW36LbTaRoVGS0nkkBUNulGePgJZx8b0
-	icxA==
-Date: Fri, 7 Apr 2017 14:44:16 -0400
+	bh=OwfBseYzWPSyCXbllXXdfIsLTTFlanj8fBJA8jLyUoI=;
+	b=lj/cyNe8E5Tqb98VWM6sliuTl7Eq323C7EompYEkSL+voBhUp0vm5FHajBCkFXGZbs
+	Mnx0y7DFAwtBFBRMJIXjSuCkOTQahVtTYajk0wT5gWP5VMAqCWjqpRxC4OHKzfbCfvH/
+	UEiW/EpfYXWPT2XdLyQFo2oXeHaQOuRpHrvig2LREnfaygzK4Rm3wjCgem27msR/0mir
+	xRphSPp4GLusw934pCtShdsFuH9nZDmeA/VbuWdQxXUXaKjcS4IC/FK+JmOL6WwyGZTv
+	2iJQLJs3hV93bblX4wgHJPQcAh0+TDacSDTtX6gH91Me/CDO2gL+x1fvNXrwY/q3cMTb
+	9MpQ==
+Date: Fri, 7 Apr 2017 14:45:13 -0400
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170407144416.625462ec@plumbers-lap.home.lan>
+Message-ID: <20170407144513.086c3e9f@plumbers-lap.home.lan>
 In-Reply-To: <20170407181649.GA21938@splinter>
 References: <20170407124915.15508-1-idosch@mellanox.com>
 	<20170407101055.745d95d0@plumbers-lap.home.lan>
@@ -52,5 +52,4 @@ Ido Schimmel <idosch@idosch.org> wrote:
 > I'll work on the ndo_uninit() patch and submit it. Then people can
 > decide which course of action they're more comfortable with.
 
-I don't want enterprise distros to ship without error reporting.
-At a minimum just return correct errno and leave bridge in stuck/broken state.
+Other option for stable is to revert b6677449dff6 ("bridge: netlink: call br_changelink() during br_dev_newlink()")
