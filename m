@@ -3,24 +3,24 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
 	h=date:from:to:cc:subject:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=GxvA5GR08XX3oXnuvcFVmS/CSR0xfOx4Vk95qm7h32c=;
-	b=ZyNdaYjREIL82bsC9jH+3PD39K+ch2yx3dvpf3+nDz09zk8N8NPgeK/qFTGcm3NcnX
-	uXnoL5rFnjrXXzMhJVhjxHHfWw8xS2WeWkcU7Wu5BJPV+bnS9cr4W26sCj1+JAAw8uEp
-	5+o0bXlwvSH5dS6aGW1KWNaYHmM1o7CkXNactc/NNUMhGf02CgnR/2OWFSepNc0k7J/O
-	BGFJ9cnpp7umVFpYkIQAipUBkVIW4HHBRDJrBW+gBjVJ0I4pDKHMrSe3L4DIMxSc/85N
-	9PGh1NxcNVwDEJKOiK2NuLvunT97/WX0dqruNiZwHgddZLBe7Jd+OrzFy+8E4vYFFVp1
-	b7ZA==
-Date: Sat, 8 Apr 2017 09:30:42 -0400
+	bh=xULWiIa1ytjcChpwBwF/Y3gBMxq9+JA4zgWvxH5xEyU=;
+	b=FcsXEOY90JnLHea4O7gm7usUQiS9cmJ2OtfliGOrdNzkVlewj10WlRBxO8QNoQRtoU
+	uJyFa3QruBKvSplbALkiJXH4jvd8xFY8avzQlUJ1tG8XFtLHgR4cE+VB2fJoTwHdhSbm
+	9eMvSOgdFwmVRuKw/I+SPfp1/2AEF52XukLkoSR/GCwJ5bhUwbHvuS8R3g5tgYvX64KV
+	PXKO6qorKq56ik0+LqDLxu8OZMDKIhYt73NO6w3gUJCt+/R86lFqZt9eozG2DLccz5EM
+	YZ5AISCs2d6XH77l9TaAzXuagIRffsie0JKx8SuQ0zQApISY3F9FygIS7tinYo7l6umO
+	gDqw==
+Date: Sat, 8 Apr 2017 09:32:44 -0400
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170408093042.20b08c5d@plumbers-lap.home.lan>
-In-Reply-To: <20170408114159.12722-2-idosch@mellanox.com>
+Message-ID: <20170408093244.593a8624@plumbers-lap.home.lan>
+In-Reply-To: <20170408114159.12722-3-idosch@mellanox.com>
 References: <20170408114159.12722-1-idosch@mellanox.com>
-	<20170408114159.12722-2-idosch@mellanox.com>
+	<20170408114159.12722-3-idosch@mellanox.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net v2 1/2] bridge: implement missing
-	ndo_uninit()
+Subject: Re: [Bridge] [PATCH net v2 2/2] bridge: netlink: register netdevice
+ before executing changelink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,18 +32,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: idosch@mellanox.com
 Cc: cera@cera.cz, mlxsw@mellanox.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, peter@svinota.eu, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Sat, 8 Apr 2017 14:41:58 +0300
+On Sat, 8 Apr 2017 14:41:59 +0300
 <idosch@mellanox.com> wrote:
 
->  static void br_dev_free(struct net_device *dev)
->  {
-> -	struct net_bridge *br = netdev_priv(dev);
-> -
-> -	free_percpu(br->stats);
->  	free_netdev(dev);
+> +	err = br_changelink(dev, tb, data);
+> +	if (err)
+> +		goto unregister;
+> +
+> +	return 0;
+> +
+> +unregister:
+> +	unregister_netdevice(dev);
+> +	return err;
 >  }
->  
 
-Since the only thing left is free_netdev, you can now just set dev->destructor
-to be free_netdev.
+Why use a goto? just do:
+	err = br_changelink(dev, tb, data);
+	if (err)
+		unregister_netdevice(dev)
+	return err;
+}
 
+
+The goto looks ugly
