@@ -1,14 +1,15 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 11 Apr 2017 22:23:03 -0400 (EDT)
-Message-Id: <20170411.222303.1239914373445400319.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20170410115928.9344-1-idosch@idosch.org>
-References: <20170410115928.9344-1-idosch@idosch.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net v3 0/2] bridge: Fix kernel oops during
- bridge creation
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=tHegLLLpI4YJD/bVO5/f+SusNyHsru2EaSNK/NdG96A=;
+	b=Gl4MQJMxZqzfhd80n187OChkfwmtBqVDN8A+0w8NWCjt/DAzeGOfkf9YmsAKaLcyCp
+	2Jbnn7a38R882lXy8S2KUaity35z0vHG3X1bz1DOXAcjgDPWbSxY0tdLDNIcIiW/CY6S
+	8QUov2U9oj4Vnz8soy+Z0kZ+dinjQd7rlYocA=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 14 Apr 2017 13:49:34 +0300
+Message-Id: <1492166974-20578-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next] net: bridge: notify on hw fdb takeover
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,17 +18,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: idosch@idosch.org
-Cc: idosch@mellanox.com, mlxsw@mellanox.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, peter@svinota.eu, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: idosch@mellanox.com, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-From: idosch@idosch.org
-Date: Mon, 10 Apr 2017 14:59:26 +0300
+Recently we added support for SW fdbs to take over HW ones, but that
+results in changing a user-visible fdb flag thus we need to send a
+notification, also it's consistent with how HW takes over SW entries.
 
-> From: Ido Schimmel <idosch@mellanox.com>
-> 
-> First patch adds a missing ndo_uninit() in the bridge driver, which is a
-> prerequisite for the second patch that actually fixes the oops.
-> 
-> Please consider both patches for 4.4.y, 4.9.y and 4.10.y
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_fdb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Series applied and queued up for -stable, thank you.
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 5a40a87c4f4f..de7988b0349e 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -595,8 +595,10 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 			if (unlikely(added_by_user))
+ 				fdb->added_by_user = 1;
+ 			/* Take over HW learned entry */
+-			if (unlikely(fdb->added_by_external_learn))
++			if (unlikely(fdb->added_by_external_learn)) {
+ 				fdb->added_by_external_learn = 0;
++				fdb_modified = true;
++			}
+ 			if (unlikely(fdb_modified))
+ 				fdb_notify(br, fdb, RTM_NEWNEIGH);
+ 		}
+-- 
+2.1.4
+
