@@ -3,15 +3,15 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:references:cc:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=3a0Tbu4YGS0e56VOSDcBtnxqkQ/rW+chb+YUk1UyVco=;
-	b=dzvGBSAucdGgODXZN/Q3kg1p9L5UVhtNzn6fR57hXQxdqTzAsrL1vp/MAM4QrD9oeb
-	Bo4tDb4z87IqpJ4Km1sSdbXiozp5l51u0UiAN/ClHWtyvzVkrxwQzNAkjA4+lUPWbvnJ
-	Y75wu9gO7jc1ogcoU4tSWpkSU6CCmSf2ycfqo=
+	bh=NBxdjnA+JehX1X+Js7FIGi0BoZTiUmCwcyPbPNC0VuU=;
+	b=ATWfoxh+Y7fkCEqN46CHk1sw47fD3wGGjLzRO/bOlUQssam9WYTFnyEy8Sb4wJ9nL/
+	5zjEmIbzHav9KKXH/ljS+oR8XhNJEknwtoYkKa2qnEqNefj8zsXtXFvyJ1VzAsRr2Hcj
+	46y4cYaH3BiQN52fZH7HpoFgtU8LOLcrs7CoQ=
 References: <a8b2b2c876f416431dac031a0beb7ce079c7d0a9.1493018730.git.lucien.xin@gmail.com>
 	<3d77b47d-c8c3-de57-946e-59096a88964e@cumulusnetworks.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <354b75ce-3eab-4b73-75d9-2b235331359f@cumulusnetworks.com>
-Date: Mon, 24 Apr 2017 14:29:12 +0300
+Message-ID: <6144408f-4cfd-dd87-7444-8c61269b105a@cumulusnetworks.com>
+Date: Mon, 24 Apr 2017 15:07:26 +0300
 MIME-Version: 1.0
 In-Reply-To: <3d77b47d-c8c3-de57-946e-59096a88964e@cumulusnetworks.com>
 Content-Type: text/plain; charset=windows-1252
@@ -67,9 +67,6 @@ On 24/04/17 14:01, Nikolay Aleksandrov wrote:
 > The patch looks good to me, actually I think it fixes another issue with
 > mcast stats where the percpu pointer can be accessed after it's freed if
 > an mcast packet can get sent via br->dev after the br_multicast_dev_del() call.
-
-Never mind the another issue part, Ido's recent ndo_uninit() patch fixed it.
-
 > This is definitely stable material, if I'm not mistaken the issue is there since
 > the introduction of br_dev_delete:
 > commit e10177abf842
@@ -82,10 +79,36 @@ Never mind the another issue part, Ido's recent ndo_uninit() patch fixed it.
 > 
 > Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 > 
-> 
-> 
-> 
-> 
-> 
-> 
+
+Actually I have a better idea for a fix because dev_close() for a single device is rather heavy.
+Why don't you move the mdb flush logic in the bridge's ndo_uninit() callback ?
+That should have the same effect and be much faster.
+
+By the way I just noticed that there's also a memory leak - the mdb hash is reallocated
+and not freed due to the mdb rehash, here's also kmemleak's object:
+
+unreferenced object 0xffff8800540ba800 (size 2048):
+  comm "softirq", pid 0, jiffies 4520588901 (age 5787.284s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816e2287>] kmemleak_alloc+0x67/0xc0
+    [<ffffffff81260bea>] __kmalloc+0x1ba/0x3e0
+    [<ffffffffa05c60ee>] br_mdb_rehash+0x5e/0x340 [bridge]
+    [<ffffffffa05c74af>] br_multicast_new_group+0x43f/0x6e0 [bridge]
+    [<ffffffffa05c7aa3>] br_multicast_add_group+0x203/0x260 [bridge]
+    [<ffffffffa05ca4b5>] br_multicast_rcv+0x945/0x11d0 [bridge]
+    [<ffffffffa05b6b10>] br_dev_xmit+0x180/0x470 [bridge]
+    [<ffffffff815c781b>] dev_hard_start_xmit+0xbb/0x3d0
+    [<ffffffff815c8743>] __dev_queue_xmit+0xb13/0xc10
+    [<ffffffff815c8850>] dev_queue_xmit+0x10/0x20
+    [<ffffffffa02f8d7a>] ip6_finish_output2+0x5ca/0xac0 [ipv6]
+    [<ffffffffa02fbfc6>] ip6_finish_output+0x126/0x2c0 [ipv6]
+    [<ffffffffa02fc245>] ip6_output+0xe5/0x390 [ipv6]
+    [<ffffffffa032b92c>] NF_HOOK.constprop.44+0x6c/0x240 [ipv6]
+    [<ffffffffa032bd16>] mld_sendpack+0x216/0x3e0 [ipv6]
+    [<ffffffffa032d5eb>] mld_ifc_timer_expire+0x18b/0x2b0 [ipv6]
+
+
 
