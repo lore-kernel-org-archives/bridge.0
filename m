@@ -3,14 +3,14 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:references:cc:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=+xLZawuiFIsELy62baflbRjhuxLhOfbmlCltdBu3924=;
-	b=bWRzoiE5uBvP27sfWhWdTPpxvPaAZizRGrK0z+fwZhKYHaV1EOFQnXy5eh5/I4unfU
-	lGKg2qeyih2qqZrA5qc62zW14Wvg9RmeVjU05JkcRiwiNPVAUYL2ElKHO2nJH3SWPW4f
-	ot9knqT8WuzyC1dTNHVN831yJLBzA6oEdqIQs=
+	bh=x9vIwKVAP4uzzQos/vcwPneJPAuiEmLMPPJGI+yocpc=;
+	b=IVhbASHosX1y5V1UNrmLjsYOIVZ2R1nefultSQx+acuPjrN1qvvuxLdRUNVSi4wDRW
+	AV5PaskLe5kdfLDieqxeq1S0QWLop6vMdF0GoK+5iyVvUixh1/UHYoQIyZCnMfj2A3UU
+	1qdkEVOLk0xCKqDJSW9ynv1e9s+0p9/jOiI4Y=
 References: <1493280485-37845-1-git-send-email-arkadis@mellanox.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <b096c9c6-481a-6d87-6d4e-99479d78a089@cumulusnetworks.com>
-Date: Thu, 27 Apr 2017 15:33:33 +0300
+Message-ID: <45eb4630-0d54-bff4-2288-cf73f9807a3d@cumulusnetworks.com>
+Date: Thu, 27 Apr 2017 16:40:33 +0300
 MIME-Version: 1.0
 In-Reply-To: <1493280485-37845-1-git-send-email-arkadis@mellanox.com>
 Content-Type: text/plain; charset=windows-1252
@@ -46,9 +46,34 @@ On 27/04/17 11:08, Arkadi Sharshevsky wrote:
 > ---
 >  net/bridge/br_fdb.c | 6 +++---
 >  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index 5a40a87..ab0c7cc 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -589,14 +589,14 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>  			if (unlikely(source != fdb->dst)) {
+>  				fdb->dst = source;
+>  				fdb_modified = true;
+> +				/* Take over HW learned entry */
+> +				if (unlikely(fdb->added_by_external_learn))
+> +					fdb->added_by_external_learn = 0;
+>  			}
+>  			if (now != fdb->updated)
+>  				fdb->updated = now;
+>  			if (unlikely(added_by_user))
+>  				fdb->added_by_user = 1;
+> -			/* Take over HW learned entry */
+> -			if (unlikely(fdb->added_by_external_learn))
+> -				fdb->added_by_external_learn = 0;
+>  			if (unlikely(fdb_modified))
+>  				fdb_notify(br, fdb, RTM_NEWNEIGH);
+>  		}
+> 
 
-Thanks!
+Wait, this won't apply to latest net-next due to my patch that added
+fdb_modified when changing the ext learned flag. I think you'll have to
+respin on top of latest net-next.
 
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
 
