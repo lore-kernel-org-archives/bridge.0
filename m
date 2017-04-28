@@ -1,9 +1,24 @@
-Return-Path: <arkadis@mellanox.com>
-From: Arkadi Sharshevsky <arkadis@mellanox.com>
-Date: Fri, 28 Apr 2017 19:31:38 +0300
-Message-Id: <1493397098-38756-1-git-send-email-arkadis@mellanox.com>
-Subject: [Bridge] [PATCH net-next v2] net: bridge: Fix improper taking over
-	HW learned FDB
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to:x-me-sender
+	:x-me-sender:x-sasl-enc:x-sasl-enc; s=fm1; bh=CbdKUZ6P4ac2s5GCnJ
+	mKZ0xXZwViN0AH3snkVw2r918=; b=UuTnDwvUjynfizW9iRhPyXxiMxIuXevZQf
+	acAjfDO0WBqaE97bGRCVT5awsbs1moNBt45XXeFXKeQBtkdYg8PhhgVqIiybKdOq
+	skLvAAMEPUbiCjoTvK9KqDJVoibJep8OW4P6307l0dpuvClCaJ1R9ZkMoghdgtru
+	4e9/CZdQkKxX+X9ngul1RPo0YeA4dvpBBfyXwMY3Okf5d3gwlCvvTqSqesnQjQZJ
+	m3BEHLLN/ZlQ/GwXreRIP5upVLA+Ed0AKsTY/5nYPIEaYNIu3pZguQhkSucUrR6u
+	RvmxMukkKJic5/JS3Pjd5B4s4ow+GwGtGSOxE8NJy0KyV8FY2s5w==
+Date: Fri, 28 Apr 2017 20:36:35 +0300
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <20170428173635.GA8634@splinter>
+References: <1493397098-38756-1-git-send-email-arkadis@mellanox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1493397098-38756-1-git-send-email-arkadis@mellanox.com>
+Subject: Re: [Bridge] [PATCH net-next v2] net: bridge: Fix improper taking
+ over HW learned FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,56 +27,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@mellanox.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Arkadi Sharshevsky <arkadis@mellanox.com>, davem@davemloft.net
+To: Arkadi Sharshevsky <arkadis@mellanox.com>
+Cc: Ido Schimmel <idosch@mellanox.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Commit 7e26bf45e4cb ("net: bridge: allow SW learn to take over HW fdb
-entries") added the ability to "take over an entry which was previously
-learned via HW when it shows up from a SW port".
+On Fri, Apr 28, 2017 at 07:31:38PM +0300, Arkadi Sharshevsky wrote:
+> Commit 7e26bf45e4cb ("net: bridge: allow SW learn to take over HW fdb
+> entries") added the ability to "take over an entry which was previously
+> learned via HW when it shows up from a SW port".
+> 
+> However, if an entry was learned via HW and then a control packet
+> (e.g., ARP request) was trapped to the CPU, the bridge driver will
+> update the entry and remove the externally learned flag, although the
+> entry is still present in HW. Instead, only clear the externally learned
+> flag in case of roaming.
+> 
+> Fixes: 7e26bf45e4cb ("net: bridge: allow SW learn to take over HW fdb entries")
+> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+> Signed-off-by: Arkadi Sharashevsky <arkadis@mellanox.com>
+> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+> v1->v2
+> - net-next rebase.
+> ---
+>  net/bridge/br_fdb.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index de7988b..5905eb7 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -589,16 +589,16 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>  			if (unlikely(source != fdb->dst)) {
+>  				fdb->dst = source;
+>  				fdb_modified = true;
+> +				/* Take over HW learned entry */
+> +				if (unlikely(fdb->added_by_external_learn)) {
+> +					fdb->added_by_external_learn = 0;
+> +					fdb_modified = true;
 
-However, if an entry was learned via HW and then a control packet
-(e.g., ARP request) was trapped to the CPU, the bridge driver will
-update the entry and remove the externally learned flag, although the
-entry is still present in HW. Instead, only clear the externally learned
-flag in case of roaming.
+This line is redundant. 'fdb_modified' is already set.
 
-Fixes: 7e26bf45e4cb ("net: bridge: allow SW learn to take over HW fdb entries")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: Arkadi Sharashevsky <arkadis@mellanox.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-v1->v2
-- net-next rebase.
----
- net/bridge/br_fdb.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index de7988b..5905eb7 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -589,16 +589,16 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 			if (unlikely(source != fdb->dst)) {
- 				fdb->dst = source;
- 				fdb_modified = true;
-+				/* Take over HW learned entry */
-+				if (unlikely(fdb->added_by_external_learn)) {
-+					fdb->added_by_external_learn = 0;
-+					fdb_modified = true;
-+				}
- 			}
- 			if (now != fdb->updated)
- 				fdb->updated = now;
- 			if (unlikely(added_by_user))
- 				fdb->added_by_user = 1;
--			/* Take over HW learned entry */
--			if (unlikely(fdb->added_by_external_learn)) {
--				fdb->added_by_external_learn = 0;
--				fdb_modified = true;
--			}
- 			if (unlikely(fdb_modified))
- 				fdb_notify(br, fdb, RTM_NEWNEIGH);
- 		}
--- 
-2.4.11
-
+> +				}
+>  			}
+>  			if (now != fdb->updated)
+>  				fdb->updated = now;
+>  			if (unlikely(added_by_user))
+>  				fdb->added_by_user = 1;
+> -			/* Take over HW learned entry */
+> -			if (unlikely(fdb->added_by_external_learn)) {
+> -				fdb->added_by_external_learn = 0;
+> -				fdb_modified = true;
+> -			}
+>  			if (unlikely(fdb_modified))
+>  				fdb_notify(br, fdb, RTM_NEWNEIGH);
+>  		}
+> -- 
+> 2.4.11
+> 
