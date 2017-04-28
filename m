@@ -1,9 +1,9 @@
 Return-Path: <arkadis@mellanox.com>
 From: Arkadi Sharshevsky <arkadis@mellanox.com>
-Date: Thu, 27 Apr 2017 11:08:05 +0300
-Message-Id: <1493280485-37845-1-git-send-email-arkadis@mellanox.com>
-Subject: [Bridge] [PATCH net-next] net: bridge: Fix improper taking over HW
-	learned FDB
+Date: Fri, 28 Apr 2017 19:31:38 +0300
+Message-Id: <1493397098-38756-1-git-send-email-arkadis@mellanox.com>
+Subject: [Bridge] [PATCH net-next v2] net: bridge: Fix improper taking over
+	HW learned FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,28 +30,35 @@ Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: Arkadi Sharashevsky <arkadis@mellanox.com>
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_fdb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+v1->v2
+- net-next rebase.
+---
+ net/bridge/br_fdb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 5a40a87..ab0c7cc 100644
+index de7988b..5905eb7 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -589,14 +589,14 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+@@ -589,16 +589,16 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
  			if (unlikely(source != fdb->dst)) {
  				fdb->dst = source;
  				fdb_modified = true;
 +				/* Take over HW learned entry */
-+				if (unlikely(fdb->added_by_external_learn))
++				if (unlikely(fdb->added_by_external_learn)) {
 +					fdb->added_by_external_learn = 0;
++					fdb_modified = true;
++				}
  			}
  			if (now != fdb->updated)
  				fdb->updated = now;
  			if (unlikely(added_by_user))
  				fdb->added_by_user = 1;
 -			/* Take over HW learned entry */
--			if (unlikely(fdb->added_by_external_learn))
+-			if (unlikely(fdb->added_by_external_learn)) {
 -				fdb->added_by_external_learn = 0;
+-				fdb_modified = true;
+-			}
  			if (unlikely(fdb_modified))
  				fdb_notify(br, fdb, RTM_NEWNEIGH);
  		}
