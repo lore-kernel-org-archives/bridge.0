@@ -1,22 +1,11 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=VM5a29fqP95S1lJxPMUQbYsDCLKj49ryy4WzRwBltm0=;
-	b=YP7lSbEoon+8DAygCdWSk1yRFfssjGAZL1y6hjnyrcEwt8+WOVr/7LzRLlsccRuLUd
-	RBVYyOEBqY4CXP+UIcu2tFZNl8uiKTdPa3CYJnYcDyhoO/KEPapnWdrP6bJmWihOscxD
-	yDrjPhyIQ4DVOVmYExxc2F5qhuaSKhkDh8W0+wUt2XC9dTwywPuxXdtu+0NCJsBpdOJC
-	SYAyhxW9ugkbkYXDj9DXsxXyLh3dXy+5bydmBl9bqFuIr/BmXEKU/o269j7knp8EApIw
-	ik9AnM/pWKUJjemyFLq/ZQD1AQTbmy+7Pb1fh/hVBLZlOhDYw7XoZCuJPRlxjlVysI4p
-	BbXw==
-Date: Tue, 9 May 2017 08:49:28 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170509084928.4cfcbda5@xeon-e3>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 09 May 2017 13:48:39 -0400 (EDT)
+Message-Id: <20170509.134839.2008658486655854998.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
 References: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 0/2] net: Set maximum receive packet size on
  veth interfaces
@@ -28,15 +17,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Fredrik Markstrom <fredrik.markstrom@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: fredrik.markstrom@gmail.com
+Cc: eric.dumazet@gmail.com, daniel@iogearbox.net, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, ast@kernel.org, linux-kernel@vger.kernel.org
 
-On Tue,  9 May 2017 14:44:36 +0200
-Fredrik Markstrom <fredrik.markstrom@gmail.com> wrote:
+From: Fredrik Markstrom <fredrik.markstrom@gmail.com>
+Date: Tue,  9 May 2017 14:44:36 +0200
 
-> Currently veth drops all packets larger then the mtu set on the receiving
-> end of the pair. This is inconsistent with most hardware ethernet drivers.
+> Currently veth drops all packets larger then the mtu set on the
+> receiving end of the pair. This is inconsistent with most hardware
+> ethernet drivers.
 
-There is no guarantee that packets larger than MTU + VLAN tag will be received
-by hardware drivers. So why is this necessary for veth? What is your special
-use case which makes this necessary?
+False.
+
+In fact, many pieces of ethernet hardware a not physically capable of
+sending even VLAN packets that are above the normal base ethernet MTU.
+
+It is therefore untenable to remove this restriction univerally like
+this.
