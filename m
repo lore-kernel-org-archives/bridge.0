@@ -1,21 +1,21 @@
 Return-Path: <fredrik.markstrom@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=aB6Wl1/GGp4e03jzVZ57nB69J2Jx9p1ZWPSGto0Za0U=;
-	b=gjIjLGEOeZJ8USXKHOFl4d3aaR7wRMWrIFI3egcZcDtRm3zqaMb084251VJr4KSKeB
-	3MHQOV9YyE2y8zJT298B6Azx9Cxp+l9QuWTD0d9kVEsIn3kIAolNJsTlZ55HPJqQa5a3
-	XBL80WWs7N78yzQfMMoDqPUsgjyqGhkp6TLlQ5O5dNoZCRxWZP0OjLUnfxiBiq0blwag
-	T6B6yhsKVLmwOplqU+Z0n5mBHTWFssi+2P0Mjrcg9kEJneVWvSX+XmB1Co6nZTq7adwn
-	KZDAg7WcWUIgYwDHEjdw61rqZDK7ZrR4h/u6fN1mTPJx+BqAAK8IT6lg1hmzEHuEhT/W
-	WSMw==
+	:cc; bh=t+eejlVZQeao3Y0eESvfl2DrtLlrc6VOIWygWnGHtyY=;
+	b=Npn+FxD5S9nC9J9zQX/0YiYK4W5X1viQBjdZNfcM5ZPhrV1PnDnoLXNyRrHfkixcFZ
+	duJBrbBd78ZotC5tCo6L9xTxKKM+qWl3xAlXMYhZyLfZq/pP54TOpMZVuKLp0k4l2msj
+	nlOuJikbk0smADppKMYit6Jsw4vnjBeCkeKBwyJ4CoPfSFL3jLMXEipnepk1HdLdR8qG
+	0rE9auj+aN89ZVruFgzbAf1zXOU0I0s2LP89cGh9PWZod71FzYIApG937oWrUoTxTx7L
+	KcbC1eO189L3l5EKvs5d+nXXWmHrzmPut+LiHSGljVHIqHWUJ0nSE/hqksiLyFvmWwbt
+	/nWw==
 MIME-Version: 1.0
 In-Reply-To: <20170509.134839.2008658486655854998.davem@davemloft.net>
 References: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
 	<20170509.134839.2008658486655854998.davem@davemloft.net>
 From: =?UTF-8?Q?Fredrik_Markstr=C3=B6m?= <fredrik.markstrom@gmail.com>
-Date: Wed, 10 May 2017 02:38:27 +0200
-Message-ID: <CAKdL+dTZ3+GMrm04W0KwcoC65KEFdeC15Ofki3jfcsN+9ZnjxA@mail.gmail.com>
-Content-Type: multipart/alternative; boundary=94eb2c084c98a1abbd054f20b23c
+Date: Wed, 10 May 2017 02:42:47 +0200
+Message-ID: <CAKdL+dQh9ZEWZKHam0Z3iaVpxgZY0mziT3ZWN1OcuS55zUjEXg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Subject: Re: [Bridge] [PATCH 0/2] net: Set maximum receive packet size on
 	veth interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -28,9 +28,6 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: David Miller <davem@davemloft.net>
 Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Alexei Starovoitov <ast@kernel.org>, linux-kernel@vger.kernel.org
-
---94eb2c084c98a1abbd054f20b23c
-Content-Type: text/plain; charset=UTF-8
 
 On Tue, May 9, 2017 at 7:48 PM, David Miller <davem@davemloft.net> wrote:
 >
@@ -47,16 +44,14 @@ On Tue, May 9, 2017 at 7:48 PM, David Miller <davem@davemloft.net> wrote:
 > sending even VLAN packets that are above the normal base ethernet MTU.
 >
 
-Maybe I was unclear, the veth implementation drops all packers larger then
-the
+Maybe I was unclear, the veth implementation drops all packers larger then the
 configured MTU (on the receiving interface).
 Most ethernet drivers accepts packets up to the ethernet MTU no matter the
 configured MTU. As far as I can tell from the RFC:s that is ok.
 
-A simpler solution would be to only drop packets larger then ethernet MTU
-(like
-most network drivers), but I guess that will break existing stuff already
-out there.
+A simpler solution would be to only drop packets larger then ethernet MTU (like
+most network drivers), but I guess that will break existing stuff
+already out there.
 
 The example below demonstrates what behaviour I'm referring to.
 
@@ -106,48 +101,3 @@ rtt min/avg/max/mdev = 1.573/1.573/1.573/0.000 ms
 With the explaination above, do you still think it's untenable ?
 
 /Fredrik
-
---94eb2c084c98a1abbd054f20b23c
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">On Tue, May 9, 2017 at 7:48 PM, David Miller &lt;<a href=
-=3D"mailto:davem@davemloft.net">davem@davemloft.net</a>&gt; wrote:<br>&gt;<=
-br>&gt; From: Fredrik Markstrom &lt;<a href=3D"mailto:fredrik.markstrom@gma=
-il.com">fredrik.markstrom@gmail.com</a>&gt;<br>&gt; Date: Tue, =C2=A09 May =
-2017 14:44:36 +0200<br>&gt;<br>&gt; &gt; Currently veth drops all packets l=
-arger then the mtu set on the<br>&gt; &gt; receiving end of the pair. This =
-is inconsistent with most hardware<br>&gt; &gt; ethernet drivers.<br>&gt;<b=
-r>&gt; False.<br>&gt;<br>&gt; In fact, many pieces of ethernet hardware a n=
-ot physically capable of<br>&gt; sending even VLAN packets that are above t=
-he normal base ethernet MTU.<br>&gt;<br><br>Maybe I was unclear, the veth i=
-mplementation drops all packers larger then the<br>configured MTU (on the r=
-eceiving interface).<br>Most ethernet drivers accepts packets up to the eth=
-ernet MTU no matter the<br>configured MTU. As far as I can tell from the RF=
-C:s that is ok.<br><br>A simpler solution would be to only drop packets lar=
-ger then ethernet MTU (like<br>most network drivers), but I guess that will=
- break existing stuff already out there.<br><br>The example below demonstra=
-tes what behaviour I&#39;m referring to.<br><br>Example:<br>---- 8&lt; ----=
---<br># veth0 and veth1 is a veth pair and veth1 has ben moved to a separat=
-e network namespace.<br>% # NS A<br>% ip address add <a href=3D"http://1.2.=
-3.4/24">1.2.3.4/24</a> dev veth0<br>% ip link set veth0 mtu 300 up<br><br>%=
- # NS B<br>% ip address add <a href=3D"http://1.2.3.5/24">1.2.3.5/24</a> de=
-v veth1<br>% ip link set veth1 mtu 1000 up<br>% ping -c 1 -W 1 -s 400 1.2.3=
-.4<br>PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.<br><br>--- 1.2.3.4 pin=
-g statistics ---<br>1 packets transmitted, 0 received, 100% packet loss, ti=
-me 0ms<br>---- 8&lt; ------<br><br>While it works fine in most setup:s with=
- hw-interfaces:<br><br>---- 8&lt; ------<br># Host A eth2 and Host B eth0 i=
-s on the same network.<br><br># On HOST A<br>% ip address add <a href=3D"ht=
-tp://1.2.3.4/24">1.2.3.4/24</a> dev eth2<br>% ip link set eth2 mtu 300 up<b=
-r><br>% # HOST B<br>% ip address add <a href=3D"http://1.2.3.5/24">1.2.3.5/=
-24</a> dev eth0<br>% ip link set eth0 mtu 1000 up<br>% ping -c 1 -W 1 -s 40=
-0 1.2.3.4<br>PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.<br>408 bytes fr=
-om <a href=3D"http://1.2.3.4">1.2.3.4</a>: icmp_seq=3D1 ttl=3D64 time=3D1.5=
-7 ms<br><br>--- 1.2.3.4 ping statistics ---<br>1 packets transmitted, 1 rec=
-eived, 0% packet loss, time 0ms<br>rtt min/avg/max/mdev =3D 1.573/1.573/1.5=
-73/0.000 ms<br>---- 8&lt; ------<br>=C2=A0<br>&gt;<br>&gt; It is therefore =
-untenable to remove this restriction univerally like<br>&gt; this.<br><br>W=
-ith the explaination above, do you still think it&#39;s untenable ?<br>=C2=
-=A0<br>/Fredrik</div>
-
---94eb2c084c98a1abbd054f20b23c--
