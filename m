@@ -1,19 +1,23 @@
 Return-Path: <fredrik.markstrom@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=01UDJF87SX6NmV+5FEBo1F4K17/D5d73CuncMuTv9NQ=;
-	b=vD8oGNGKyVmioq/1fAHtysMEGW0lUm5UOcV/ynzHse5J9iy4tEbL1Pgics/Hkh+/py
-	Wzkh6KzWdVPB0eZ0Hix01NOqeW2EXXtb19cfne3Lrgh8A9qy7fA2pWh0iFgE4NagwANO
-	aHKaoM2WD5yDJpm2JisbbmwfWk8gZjLIbnlngB3CL9zIZnOtO5FXzU2yQgxFmLqdF0fj
-	rG7qM3esI/ItZ196m+W3n47Wi9jVHLjPSmwRYv3ppfuKEy96JYufuMnIIQaUxVlixWC6
-	Xe5CeXd9ucnvmAHsMrVXbNGa0C50TRuImLlCphhdW3sPr/mW2q1dsczQHKzHu3KBhhN1
-	VmVQ==
-From: Fredrik Markstrom <fredrik.markstrom@gmail.com>
-Date: Tue,  9 May 2017 14:44:39 +0200
-Message-Id: <20170509124439.45674-4-fredrik.markstrom@gmail.com>
-In-Reply-To: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=aB6Wl1/GGp4e03jzVZ57nB69J2Jx9p1ZWPSGto0Za0U=;
+	b=gjIjLGEOeZJ8USXKHOFl4d3aaR7wRMWrIFI3egcZcDtRm3zqaMb084251VJr4KSKeB
+	3MHQOV9YyE2y8zJT298B6Azx9Cxp+l9QuWTD0d9kVEsIn3kIAolNJsTlZ55HPJqQa5a3
+	XBL80WWs7N78yzQfMMoDqPUsgjyqGhkp6TLlQ5O5dNoZCRxWZP0OjLUnfxiBiq0blwag
+	T6B6yhsKVLmwOplqU+Z0n5mBHTWFssi+2P0Mjrcg9kEJneVWvSX+XmB1Co6nZTq7adwn
+	KZDAg7WcWUIgYwDHEjdw61rqZDK7ZrR4h/u6fN1mTPJx+BqAAK8IT6lg1hmzEHuEhT/W
+	WSMw==
+MIME-Version: 1.0
+In-Reply-To: <20170509.134839.2008658486655854998.davem@davemloft.net>
 References: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
-Subject: [Bridge] Support for VETH_MRU in libnl
+	<20170509.134839.2008658486655854998.davem@davemloft.net>
+From: =?UTF-8?Q?Fredrik_Markstr=C3=B6m?= <fredrik.markstrom@gmail.com>
+Date: Wed, 10 May 2017 02:38:27 +0200
+Message-ID: <CAKdL+dTZ3+GMrm04W0KwcoC65KEFdeC15Ofki3jfcsN+9ZnjxA@mail.gmail.com>
+Content-Type: multipart/alternative; boundary=94eb2c084c98a1abbd054f20b23c
+Subject: Re: [Bridge] [PATCH 0/2] net: Set maximum receive packet size on
+	veth interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,298 +26,128 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, Fredrik Markstrom <fredrik.markstrom@gmail.com>, "David S. Miller" <davem@davemloft.net>
+To: David Miller <davem@davemloft.net>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Alexei Starovoitov <ast@kernel.org>, linux-kernel@vger.kernel.org
 
----
- include/linux/if_link.h           |   1 +
- include/netlink-private/types.h   |   1 +
- include/netlink/route/link/veth.h |   4 ++
- lib/route/link.c                  |   4 ++
- lib/route/link/veth.c             | 141 +++++++++++++++++++++++++++++---------
- 5 files changed, 118 insertions(+), 33 deletions(-)
+--94eb2c084c98a1abbd054f20b23c
+Content-Type: text/plain; charset=UTF-8
 
-diff --git a/include/linux/if_link.h b/include/linux/if_link.h
-index 8b84939..b9859bd 100644
---- a/include/linux/if_link.h
-+++ b/include/linux/if_link.h
-@@ -316,6 +316,7 @@ struct ifla_vxlan_port_range {
- enum {
- 	VETH_INFO_UNSPEC,
- 	VETH_INFO_PEER,
-+	VETH_MRU,
- 
- 	__VETH_INFO_MAX
- #define VETH_INFO_MAX   (__VETH_INFO_MAX - 1)
-diff --git a/include/netlink-private/types.h b/include/netlink-private/types.h
-index 3ff4fe1..c97090b 100644
---- a/include/netlink-private/types.h
-+++ b/include/netlink-private/types.h
-@@ -165,6 +165,7 @@ struct rtnl_link
- 	uint32_t			l_flags;
- 	uint32_t			l_change;
- 	uint32_t 			l_mtu;
-+	uint32_t 			l_mru;
- 	uint32_t			l_link;
- 	uint32_t			l_txqlen;
- 	uint32_t			l_weight;
-diff --git a/include/netlink/route/link/veth.h b/include/netlink/route/link/veth.h
-index 35c2345..58eeb98 100644
---- a/include/netlink/route/link/veth.h
-+++ b/include/netlink/route/link/veth.h
-@@ -29,6 +29,10 @@ extern struct rtnl_link *rtnl_link_veth_get_peer(struct rtnl_link *);
- extern int rtnl_link_veth_add(struct nl_sock *sock, const char *name,
- 			      const char *peer, pid_t pid);
- 
-+extern int rtnl_link_veth_set_mru(struct rtnl_link *, uint32_t);
-+
-+extern uint32_t rtnl_link_veth_get_mru(struct rtnl_link *);
-+
- #ifdef __cplusplus
- }
- #endif
-diff --git a/lib/route/link.c b/lib/route/link.c
-index 3d31ffc..3cdacbb 100644
---- a/lib/route/link.c
-+++ b/lib/route/link.c
-@@ -61,6 +61,7 @@
- #define LINK_ATTR_PHYS_PORT_ID	(1 << 28)
- #define LINK_ATTR_NS_FD		(1 << 29)
- #define LINK_ATTR_NS_PID	(1 << 30)
-+#define LINK_ATTR_MRU		(1 << 31)
- 
- static struct nl_cache_ops rtnl_link_ops;
- static struct nl_object_ops link_obj_ops;
-@@ -1255,6 +1256,9 @@ int rtnl_link_fill_info(struct nl_msg *msg, struct rtnl_link *link)
- 	if (link->ce_mask & LINK_ATTR_MTU)
- 		NLA_PUT_U32(msg, IFLA_MTU, link->l_mtu);
- 
-+	if (link->ce_mask & LINK_ATTR_MRU)
-+		NLA_PUT_U32(msg, IFLA_MTU, link->l_mru);
-+
- 	if (link->ce_mask & LINK_ATTR_TXQLEN)
- 		NLA_PUT_U32(msg, IFLA_TXQLEN, link->l_txqlen);
- 
-diff --git a/lib/route/link/veth.c b/lib/route/link/veth.c
-index e7e4a26..5dc15af 100644
---- a/lib/route/link/veth.c
-+++ b/lib/route/link/veth.c
-@@ -33,16 +33,62 @@
- 
- #include <linux/if_link.h>
- 
-+#define VETH_HAS_MRU		(1<<0)
-+
-+struct veth_info
-+{
-+	struct rtnl_link *peer;
-+	uint32_t		vei_mru;
-+	uint32_t		vei_mask;
-+};
-+
- static struct nla_policy veth_policy[VETH_INFO_MAX+1] = {
- 	[VETH_INFO_PEER]	= { .minlen = sizeof(struct ifinfomsg) },
-+	[VETH_MRU]		= { .type = NLA_U32 },
- };
- 
-+static int veth_alloc(struct rtnl_link *link)
-+{
-+	struct rtnl_link *peer;
-+	struct veth_info *vei = link->l_info;
-+	int err;
-+
-+	/* return early if we are in recursion */
-+	if (vei && vei->peer)
-+		return 0;
-+
-+	if (!(peer = rtnl_link_alloc()))
-+		return -NLE_NOMEM;
-+
-+	if ((vei = calloc(1, sizeof(*vei))) == NULL)
-+	  return -NLE_NOMEM;
-+
-+	/* We don't need to hold a reference here, as link and
-+	 * its peer should always be freed together.
-+	 */
-+	vei->peer = link;
-+
-+	peer->l_info = vei;
-+	if ((err = rtnl_link_set_type(peer, "veth")) < 0) {
-+		rtnl_link_put(peer);
-+		return err;
-+	}
-+
-+	if ((vei = calloc(1, sizeof(*vei))) == NULL)
-+	  return -NLE_NOMEM;
-+
-+	vei->peer = peer;
-+	link->l_info = vei;
-+	return 0;
-+}
-+
- static int veth_parse(struct rtnl_link *link, struct nlattr *data,
- 		      struct nlattr *xstats)
- {
- 	struct nlattr *tb[VETH_INFO_MAX+1];
- 	struct nlattr *peer_tb[IFLA_MAX + 1];
--	struct rtnl_link *peer = link->l_info;
-+	struct veth_info *vei = link->l_info;
-+	struct rtnl_link *peer = vei->peer;
- 	int err;
- 
- 	NL_DBG(3, "Parsing veth link info");
-@@ -50,6 +96,14 @@ static int veth_parse(struct rtnl_link *link, struct nlattr *data,
- 	if ((err = nla_parse_nested(tb, VETH_INFO_MAX, data, veth_policy)) < 0)
- 		goto errout;
- 
-+	if ((err = veth_alloc(link)) < 0)
-+		goto errout;
-+
-+	if (tb[VETH_MRU]) {
-+		vei->vei_mru = nla_get_u32(tb[VETH_MRU]);
-+		vei->vei_mask |= VETH_HAS_MRU;
-+	}
-+
- 	if (tb[VETH_INFO_PEER]) {
- 		struct nlattr *nla_peer;
- 		struct ifinfomsg *ifi;
-@@ -86,7 +140,8 @@ static void veth_dump_line(struct rtnl_link *link, struct nl_dump_params *p)
- 
- static void veth_dump_details(struct rtnl_link *link, struct nl_dump_params *p)
- {
--	struct rtnl_link *peer = link->l_info;
-+	struct veth_info *vei = link->l_info;
-+	struct rtnl_link *peer = vei->peer;
- 	char *name;
- 	name = rtnl_link_get_name(peer);
- 	nl_dump(p, "      peer ");
-@@ -98,7 +153,14 @@ static void veth_dump_details(struct rtnl_link *link, struct nl_dump_params *p)
- 
- static int veth_clone(struct rtnl_link *dst, struct rtnl_link *src)
- {
--	struct rtnl_link *dst_peer = NULL, *src_peer = src->l_info;
-+	struct veth_info *src_vei = src->l_info;
-+	struct veth_info *dst_vei = dst->l_info;
-+	struct rtnl_link *dst_peer = NULL, *src_peer = src_vei->peer;
-+
-+
-+	printf("veth_clone not implemented\n");
-+
-+	// FIXME:
- 
- 	/* we are calling nl_object_clone() recursively, this should
- 	 * happen only once */
-@@ -116,7 +178,8 @@ static int veth_clone(struct rtnl_link *dst, struct rtnl_link *src)
- 
- static int veth_put_attrs(struct nl_msg *msg, struct rtnl_link *link)
- {
--	struct rtnl_link *peer = link->l_info;
-+	struct veth_info *vei = link->l_info;
-+	struct rtnl_link *peer = vei->peer;
- 	struct ifinfomsg ifi;
- 	struct nlattr *data, *info_peer;
- 
-@@ -135,44 +198,31 @@ static int veth_put_attrs(struct nl_msg *msg, struct rtnl_link *link)
- 		return -NLE_MSGSIZE;
- 	rtnl_link_fill_info(msg, peer);
- 	nla_nest_end(msg, info_peer);
--	nla_nest_end(msg, data);
- 
--	return 0;
--}
--
--static int veth_alloc(struct rtnl_link *link)
--{
--	struct rtnl_link *peer;
--	int err;
--
--	/* return early if we are in recursion */
--	if (link->l_info)
--		return 0;
-+	if (vei->vei_mask & VETH_HAS_MRU)
-+		NLA_PUT_U32(msg, VETH_MRU, vei->vei_mru);
- 
--	if (!(peer = rtnl_link_alloc()))
--		return -NLE_NOMEM;
-+	nla_nest_end(msg, data);
- 
--	/* We don't need to hold a reference here, as link and
--	 * its peer should always be freed together.
--	 */
--	peer->l_info = link;
--	if ((err = rtnl_link_set_type(peer, "veth")) < 0) {
--		rtnl_link_put(peer);
--		return err;
--	}
-+nla_put_failure:
- 
--	link->l_info = peer;
- 	return 0;
- }
- 
- static void veth_free(struct rtnl_link *link)
- {
--	struct rtnl_link *peer = link->l_info;
--	if (peer) {
-+	struct veth_info *vei = link->l_info;
-+	if (vei) {
-+		struct rtnl_link *peer = vei->peer;
-+		if (peer) {
-+			vei->peer = NULL;
-+			rtnl_link_put(peer);
-+			/* avoid calling this recursively */
-+			free(peer->l_info);
-+			peer->l_info = NULL;
-+		}
-+		free(vei);
- 		link->l_info = NULL;
--		/* avoid calling this recursively */
--		peer->l_info = NULL;
--		rtnl_link_put(peer);
- 	}
- 	/* the caller should finally free link */
- }
-@@ -195,7 +245,7 @@ static struct rtnl_link_info_ops veth_info_ops = {
- #define IS_VETH_LINK_ASSERT(link) \
- 	if ((link)->l_info_ops != &veth_info_ops) { \
- 		APPBUG("Link is not a veth link. set type \"veth\" first."); \
--		return NULL; \
-+		return -NLE_OPNOTSUPP; \
- 	}
- /** @endcond */
- 
-@@ -293,6 +343,31 @@ int rtnl_link_veth_add(struct nl_sock *sock, const char *name,
- 	return err;
- }
- 
-+int rtnl_link_veth_set_mru(struct rtnl_link *link, uint32_t mru)
-+{
-+	struct veth_info *vei = link->l_info;
-+
-+	IS_VETH_LINK_ASSERT(link);
-+
-+	vei->vei_mru = mru;
-+	vei->vei_mask |= VETH_HAS_MRU;
-+
-+	return 0;
-+}
-+
-+uint32_t rtnl_link_veth_get_mru(struct rtnl_link *link)
-+{
-+	struct veth_info *vei = link->l_info;
-+
-+	IS_VETH_LINK_ASSERT(link);
-+
-+	if (vei->vei_mask & VETH_HAS_MRU)
-+		return vei->vei_mru;
-+	else
-+		return 0;
-+}
-+
-+
- /** @} */
- 
- static void __init veth_init(void)
--- 
-2.10.1
+On Tue, May 9, 2017 at 7:48 PM, David Miller <davem@davemloft.net> wrote:
+>
+> From: Fredrik Markstrom <fredrik.markstrom@gmail.com>
+> Date: Tue,  9 May 2017 14:44:36 +0200
+>
+> > Currently veth drops all packets larger then the mtu set on the
+> > receiving end of the pair. This is inconsistent with most hardware
+> > ethernet drivers.
+>
+> False.
+>
+> In fact, many pieces of ethernet hardware a not physically capable of
+> sending even VLAN packets that are above the normal base ethernet MTU.
+>
 
+Maybe I was unclear, the veth implementation drops all packers larger then
+the
+configured MTU (on the receiving interface).
+Most ethernet drivers accepts packets up to the ethernet MTU no matter the
+configured MTU. As far as I can tell from the RFC:s that is ok.
+
+A simpler solution would be to only drop packets larger then ethernet MTU
+(like
+most network drivers), but I guess that will break existing stuff already
+out there.
+
+The example below demonstrates what behaviour I'm referring to.
+
+Example:
+---- 8< ------
+# veth0 and veth1 is a veth pair and veth1 has ben moved to a separate
+network namespace.
+% # NS A
+% ip address add 1.2.3.4/24 dev veth0
+% ip link set veth0 mtu 300 up
+
+% # NS B
+% ip address add 1.2.3.5/24 dev veth1
+% ip link set veth1 mtu 1000 up
+% ping -c 1 -W 1 -s 400 1.2.3.4
+PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.
+
+--- 1.2.3.4 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+---- 8< ------
+
+While it works fine in most setup:s with hw-interfaces:
+
+---- 8< ------
+# Host A eth2 and Host B eth0 is on the same network.
+
+# On HOST A
+% ip address add 1.2.3.4/24 dev eth2
+% ip link set eth2 mtu 300 up
+
+% # HOST B
+% ip address add 1.2.3.5/24 dev eth0
+% ip link set eth0 mtu 1000 up
+% ping -c 1 -W 1 -s 400 1.2.3.4
+PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.
+408 bytes from 1.2.3.4: icmp_seq=1 ttl=64 time=1.57 ms
+
+--- 1.2.3.4 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.573/1.573/1.573/0.000 ms
+---- 8< ------
+
+>
+> It is therefore untenable to remove this restriction univerally like
+> this.
+
+With the explaination above, do you still think it's untenable ?
+
+/Fredrik
+
+--94eb2c084c98a1abbd054f20b23c
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">On Tue, May 9, 2017 at 7:48 PM, David Miller &lt;<a href=
+=3D"mailto:davem@davemloft.net">davem@davemloft.net</a>&gt; wrote:<br>&gt;<=
+br>&gt; From: Fredrik Markstrom &lt;<a href=3D"mailto:fredrik.markstrom@gma=
+il.com">fredrik.markstrom@gmail.com</a>&gt;<br>&gt; Date: Tue, =C2=A09 May =
+2017 14:44:36 +0200<br>&gt;<br>&gt; &gt; Currently veth drops all packets l=
+arger then the mtu set on the<br>&gt; &gt; receiving end of the pair. This =
+is inconsistent with most hardware<br>&gt; &gt; ethernet drivers.<br>&gt;<b=
+r>&gt; False.<br>&gt;<br>&gt; In fact, many pieces of ethernet hardware a n=
+ot physically capable of<br>&gt; sending even VLAN packets that are above t=
+he normal base ethernet MTU.<br>&gt;<br><br>Maybe I was unclear, the veth i=
+mplementation drops all packers larger then the<br>configured MTU (on the r=
+eceiving interface).<br>Most ethernet drivers accepts packets up to the eth=
+ernet MTU no matter the<br>configured MTU. As far as I can tell from the RF=
+C:s that is ok.<br><br>A simpler solution would be to only drop packets lar=
+ger then ethernet MTU (like<br>most network drivers), but I guess that will=
+ break existing stuff already out there.<br><br>The example below demonstra=
+tes what behaviour I&#39;m referring to.<br><br>Example:<br>---- 8&lt; ----=
+--<br># veth0 and veth1 is a veth pair and veth1 has ben moved to a separat=
+e network namespace.<br>% # NS A<br>% ip address add <a href=3D"http://1.2.=
+3.4/24">1.2.3.4/24</a> dev veth0<br>% ip link set veth0 mtu 300 up<br><br>%=
+ # NS B<br>% ip address add <a href=3D"http://1.2.3.5/24">1.2.3.5/24</a> de=
+v veth1<br>% ip link set veth1 mtu 1000 up<br>% ping -c 1 -W 1 -s 400 1.2.3=
+.4<br>PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.<br><br>--- 1.2.3.4 pin=
+g statistics ---<br>1 packets transmitted, 0 received, 100% packet loss, ti=
+me 0ms<br>---- 8&lt; ------<br><br>While it works fine in most setup:s with=
+ hw-interfaces:<br><br>---- 8&lt; ------<br># Host A eth2 and Host B eth0 i=
+s on the same network.<br><br># On HOST A<br>% ip address add <a href=3D"ht=
+tp://1.2.3.4/24">1.2.3.4/24</a> dev eth2<br>% ip link set eth2 mtu 300 up<b=
+r><br>% # HOST B<br>% ip address add <a href=3D"http://1.2.3.5/24">1.2.3.5/=
+24</a> dev eth0<br>% ip link set eth0 mtu 1000 up<br>% ping -c 1 -W 1 -s 40=
+0 1.2.3.4<br>PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.<br>408 bytes fr=
+om <a href=3D"http://1.2.3.4">1.2.3.4</a>: icmp_seq=3D1 ttl=3D64 time=3D1.5=
+7 ms<br><br>--- 1.2.3.4 ping statistics ---<br>1 packets transmitted, 1 rec=
+eived, 0% packet loss, time 0ms<br>rtt min/avg/max/mdev =3D 1.573/1.573/1.5=
+73/0.000 ms<br>---- 8&lt; ------<br>=C2=A0<br>&gt;<br>&gt; It is therefore =
+untenable to remove this restriction univerally like<br>&gt; this.<br><br>W=
+ith the explaination above, do you still think it&#39;s untenable ?<br>=C2=
+=A0<br>/Fredrik</div>
+
+--94eb2c084c98a1abbd054f20b23c--
