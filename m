@@ -1,22 +1,21 @@
 Return-Path: <fredrik.markstrom@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=t+eejlVZQeao3Y0eESvfl2DrtLlrc6VOIWygWnGHtyY=;
-	b=Npn+FxD5S9nC9J9zQX/0YiYK4W5X1viQBjdZNfcM5ZPhrV1PnDnoLXNyRrHfkixcFZ
-	duJBrbBd78ZotC5tCo6L9xTxKKM+qWl3xAlXMYhZyLfZq/pP54TOpMZVuKLp0k4l2msj
-	nlOuJikbk0smADppKMYit6Jsw4vnjBeCkeKBwyJ4CoPfSFL3jLMXEipnepk1HdLdR8qG
-	0rE9auj+aN89ZVruFgzbAf1zXOU0I0s2LP89cGh9PWZod71FzYIApG937oWrUoTxTx7L
-	KcbC1eO189L3l5EKvs5d+nXXWmHrzmPut+LiHSGljVHIqHWUJ0nSE/hqksiLyFvmWwbt
-	/nWw==
+	h=from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding;
+	bh=vH6alTiayX1LhY4/NYIkKgGfNtfNSQzjbLtoLm/QWkk=;
+	b=VpnUlRt7OlnBdCphnfPWa6TbOuE5yZjVuHxh+5LyVi2sbITK4brLXan/CT1F9EgxYL
+	r+KKdkKsnhX6bzLg3SG3JwUg6GjlYsetFLPE9Oi7UxGTlEPL3gHaw5krDp7mupJkn2QJ
+	RmSpN1UI5X4zYjn0NwXgyeRdjMy0gak4D79D73wNoqBcH3kYms33OeagOddOBaH+KCLP
+	BmvcFUeHgVrTj/hyb3n4vOZQYEeILYRLZ8SokXRUbfaXt3PEkvNCuKyN7WBhLz3DRfh/
+	E7KtX4Eo/Dy1A1IBWcg1N0SI4LcSJBhVC1uIowfhf+JGcaZ9eVSn2dBL9Pypl0Ls4rK3
+	lBnA==
+From: Fredrik Markstrom <fredrik.markstrom@gmail.com>
+Date: Thu, 11 May 2017 15:46:26 +0200
+Message-Id: <20170511134629.139528-1-fredrik.markstrom@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20170509.134839.2008658486655854998.davem@davemloft.net>
-References: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
-	<20170509.134839.2008658486655854998.davem@davemloft.net>
-From: =?UTF-8?Q?Fredrik_Markstr=C3=B6m?= <fredrik.markstrom@gmail.com>
-Date: Wed, 10 May 2017 02:42:47 +0200
-Message-ID: <CAKdL+dQh9ZEWZKHam0Z3iaVpxgZY0mziT3ZWN1OcuS55zUjEXg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [Bridge] [PATCH 0/2] net: Set maximum receive packet size on
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v2 0/2] net: Set maximum receive packet size on
 	veth interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -26,78 +25,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Alexei Starovoitov <ast@kernel.org>, linux-kernel@vger.kernel.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, Fredrik Markstrom <fredrik.markstrom@gmail.com>, "David S. Miller" <davem@davemloft.net>
 
-On Tue, May 9, 2017 at 7:48 PM, David Miller <davem@davemloft.net> wrote:
->
-> From: Fredrik Markstrom <fredrik.markstrom@gmail.com>
-> Date: Tue,  9 May 2017 14:44:36 +0200
->
-> > Currently veth drops all packets larger then the mtu set on the
-> > receiving end of the pair. This is inconsistent with most hardware
-> > ethernet drivers.
->
-> False.
->
-> In fact, many pieces of ethernet hardware a not physically capable of
-> sending even VLAN packets that are above the normal base ethernet MTU.
->
 
-Maybe I was unclear, the veth implementation drops all packers larger then the
-configured MTU (on the receiving interface).
-Most ethernet drivers accepts packets up to the ethernet MTU no matter the
-configured MTU. As far as I can tell from the RFC:s that is ok.
+Currently veth drops all packets larger then the mtu set on the receiving
+end of the pair. This is inconsistent with most hardware ethernet drivers
+that happily receives packets up the the ethernet MTU independent of the
+configured MTU.
 
-A simpler solution would be to only drop packets larger then ethernet MTU (like
-most network drivers), but I guess that will break existing stuff
-already out there.
+This patch set adds a new driver attribute to set the maximum size of
+received packet to make it possible to create configurations similar to
+those possible with (most) hardware ethernet interfaces.
 
-The example below demonstrates what behaviour I'm referring to.
+The set consists of two patches. The first one adding a parameter do the
+dev_forward_skb functions to specify the maximum packet size, the
+second one implents a new attribute (VETH_MRU) in the veth driver.
 
-Example:
----- 8< ------
-# veth0 and veth1 is a veth pair and veth1 has ben moved to a separate
-network namespace.
-% # NS A
-% ip address add 1.2.3.4/24 dev veth0
-% ip link set veth0 mtu 300 up
+Fredrik Markstrom (1):
+  veth: Added attribute to set maximum receive size on veth interfaces
 
-% # NS B
-% ip address add 1.2.3.5/24 dev veth1
-% ip link set veth1 mtu 1000 up
-% ping -c 1 -W 1 -s 400 1.2.3.4
-PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.
+Fredrik Markström (1):
+  net: Added mtu parameter to dev_forward_skb calls
 
---- 1.2.3.4 ping statistics ---
-1 packets transmitted, 0 received, 100% packet loss, time 0ms
----- 8< ------
+ drivers/net/ipvlan/ipvlan_core.c |  7 ++++---
+ drivers/net/macvlan.c            |  4 ++--
+ drivers/net/veth.c               | 45 +++++++++++++++++++++++++++++++++++++++-
+ include/linux/netdevice.h        | 10 ++++-----
+ include/uapi/linux/veth.h        |  1 +
+ net/bridge/br_forward.c          |  4 ++--
+ net/core/dev.c                   | 17 +++++++++------
+ net/core/filter.c                |  4 ++--
+ net/l2tp/l2tp_eth.c              |  2 +-
+ 9 files changed, 72 insertions(+), 22 deletions(-)
 
-While it works fine in most setup:s with hw-interfaces:
+v2 - Updated description and fixed compile error in net/bridge/br_forward.c
 
----- 8< ------
-# Host A eth2 and Host B eth0 is on the same network.
+-- 
+2.11.0
 
-# On HOST A
-% ip address add 1.2.3.4/24 dev eth2
-% ip link set eth2 mtu 300 up
-
-% # HOST B
-% ip address add 1.2.3.5/24 dev eth0
-% ip link set eth0 mtu 1000 up
-% ping -c 1 -W 1 -s 400 1.2.3.4
-PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.
-408 bytes from 1.2.3.4: icmp_seq=1 ttl=64 time=1.57 ms
-
---- 1.2.3.4 ping statistics ---
-1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 1.573/1.573/1.573/0.000 ms
----- 8< ------
-
->
-> It is therefore untenable to remove this restriction univerally like
-> this.
-
-With the explaination above, do you still think it's untenable ?
-
-/Fredrik
