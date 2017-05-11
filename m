@@ -1,26 +1,26 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=vTKVuZ2QR6rXGjk6/X2/a/WeOHrosvic3Ql+ZuIkvTY=;
-	b=yfYeZaXqsanXdsOtjBKrOznNK8lmMtpn6g3arMHQI3kwDh+cRyuQoecmFBcFu+zNNW
-	p6mc8OAByuVO+3Knd9ho02ePyRtPMl5ugTRvdGjKDbnm4k7gToBXLaW5DS6kNVTCVgr9
-	oMN3LraCAEFjqkgTHa+hveEeV/OEYWNsaFVcrf+GruHkUt8JqyfHJn1ZEXzdQsciPle7
-	/nigCujzEW1yIcRce9FC01n4Xd+WW2Qh6z9hEq5Y2Fy+a1hWs12kIEUXoayz7c9if6gh
-	asugUDDUVSBrODJ3rJyNU7c/lVdr68QzFOTmzXkRRscXA4AhslAJOIyfjo4ijlwZ3JQj
-	sH1A==
-Date: Thu, 11 May 2017 09:01:32 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170511090132.79fdbf12@xeon-e3>
-In-Reply-To: <20170511134629.139528-2-fredrik.markstrom@gmail.com>
+Return-Path: <fredrik.markstrom@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc:content-transfer-encoding;
+	bh=Eph/f0sBXpfV45TtNGsDv8PR0HjCHS8lMRr+bZAdecQ=;
+	b=L3owLMU3Hv0cKT0k5e/lymErIiC1wgBNQ9GPf0P+ZWksmkk2iW8Z2lz06TRZ6HDjzu
+	tONWe7zQhhCuOJ0hK/85OIVqb1oDycqe3y9Am31TqleLIarYdna21xQbl8xGelWEeVbg
+	aqxQ+BNerY/JYSmengGurdQyIBxrgHyYhGLS86DzQhgHoGh3I5H/YKR+LuetRhZGDiFW
+	8ZsEJaozRSEmyJ+DkzbO2s5ierP4QKV8ByqWCZvy7CVMYdwdBrvEzXEIDPCZbeVPpdgR
+	CI4yZWI9MY5Z1RVrB8+J6bIVcHBmf36eGruP8DaGwAx5BEj8ugE9CnkKB5B23+b0RmcP
+	sGGg==
+MIME-Version: 1.0
+In-Reply-To: <20170511090132.79fdbf12@xeon-e3>
 References: <20170511134629.139528-1-fredrik.markstrom@gmail.com>
 	<20170511134629.139528-2-fredrik.markstrom@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	<20170511090132.79fdbf12@xeon-e3>
+From: =?UTF-8?Q?Fredrik_Markstr=C3=B6m?= <fredrik.markstrom@gmail.com>
+Date: Thu, 11 May 2017 21:10:11 +0200
+Message-ID: <CAKdL+dS_-UiHA5tr7zP-5LtwDd0aXpZq5tpMYf9kr7hu2SwdGQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCH v2 1/2] net: Added mtu parameter to
- dev_forward_skb calls
+	dev_forward_skb calls
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,28 +29,90 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Fredrik Markstrom <fredrik.markstrom@gmail.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-On Thu, 11 May 2017 15:46:27 +0200
-Fredrik Markstrom <fredrik.markstrom@gmail.com> wrote:
+On Thu, May 11, 2017 at 6:01 PM, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> On Thu, 11 May 2017 15:46:27 +0200
+> Fredrik Markstrom <fredrik.markstrom@gmail.com> wrote:
+>
+>> From: Fredrik Markstr=C3=B6m <fredrik.markstrom@gmail.com>
+>>
+>> is_skb_forwardable() currently checks if the packet size is <=3D mtu of
+>> the receiving interface. This is not consistent with most of the hardwar=
+e
+>> ethernet drivers that happily receives packets larger then MTU.
+>
+> Wrong.
 
-> From: Fredrik Markstr=C3=B6m <fredrik.markstrom@gmail.com>
->=20
-> is_skb_forwardable() currently checks if the packet size is <=3D mtu of
-> the receiving interface. This is not consistent with most of the hardware
-> ethernet drivers that happily receives packets larger then MTU.
+What is "Wrong" ? I was initially skeptical to implement this patch,
+since it feels odd to have different MTU:s set on the two sides of a
+link. After consulting some IP people and the RFC:s I kind of changed
+my mind and thought I'd give it a shot. In the RFCs I couldn't find
+anything that defined when and when not a received packet should be
+dropped.
 
-Wrong.
+>
+> Hardware interfaces are free to drop any packet greater than MTU (actuall=
+y MTU + VLAN).
+> The actual limit is a function of the hardware. Some hardware can only li=
+mit by
+> power of 2; some can only limit frames larger than 1500; some have no lim=
+iting at all.
 
-Hardware interfaces are free to drop any packet greater than MTU (actually =
-MTU + VLAN).
-The actual limit is a function of the hardware. Some hardware can only limi=
-t by
-power of 2; some can only limit frames larger than 1500; some have no limit=
-ing at all.
-Any application that should:
-  * not expect packets larger than MTU to be received
-  * not send packets larger than MTU
-  * check actual receive size. IP protocols will do truncation of padded pa=
-ckets
+Agreed. The purpose of these patches is to be able to configure an
+veth interface to mimic these different behaviors. Non of the Ethernet
+interfaces I have access to drops packets due to them being larger
+then the configured MTU like veth does.
+
+Being able to mimic real Ethernet hardware is useful when
+consolidating hardware using containers/namespaces.
+
+In a reply to a comment from David Miller in my previous version of
+the patch I attached the example below to demonstrate the case in
+detail.
+
+This works with all ethernet hardware setups I have access to:
+
+---- 8< ------
+# Host A eth2 and Host B eth0 is on the same network.
+
+# On HOST A
+% ip address add 1.2.3.4/24 dev eth2
+% ip link set eth2 mtu 300 up
+
+% # HOST B
+% ip address add 1.2.3.5/24 dev eth0
+% ip link set eth0 mtu 1000 up
+% ping -c 1 -W 1 -s 400 1.2.3.4
+PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.
+408 bytes from 1.2.3.4: icmp_seq=3D1 ttl=3D64 time=3D1.57 ms
+
+--- 1.2.3.4 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev =3D 1.573/1.573/1.573/0.000 ms
+---- 8< ------
+
+
+But it doesn't work with veth:
+
+---- 8< ------
+# veth0 and veth1 is a veth pair and veth1 has ben moved to a separate
+network namespace.
+% # NS A
+% ip address add 1.2.3.4/24 dev veth0
+% ip link set veth0 mtu 300 up
+
+% # NS B
+% ip address add 1.2.3.5/24 dev veth1
+% ip link set veth1 mtu 1000 up
+% ping -c 1 -W 1 -s 400 1.2.3.4
+PING 1.2.3.4 (1.2.3.4) 400(428) bytes of data.
+
+--- 1.2.3.4 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+---- 8< ------
+
+--=20
+/Fredrik
