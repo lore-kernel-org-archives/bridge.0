@@ -1,28 +1,26 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=BIyR7MFXgrGvKgnPAipY6MYXQYRgbqRGQP1I9hnQ0Rw=;
-	b=igKa2JykRPzMwBckDYm22bzbA51aNpYw5xkon7YkFgBGam6zFfXq/5z5wQCf2iO2P1
-	qXsiqBAq2mTV6Icbm9TIuNMmyLyXUlM89UpPM7NR48JpXchoQQysTImpqPfGezse2BY3
-	6kUvspqDkmDEqc9r94/mjwN3C6TyKNoStA0RvQF4mxVKEkKHB7YZTWPJQ19OHPpQdKPs
-	SQwU3GqjZMlrNsqgcGDuywxOci+WZ3wqh7BO4Hp2o6vwlAJLjCN6O+TOj4h5UCuYgtUo
-	c2/N/V0ab7d740i3Qo+mUN/OeQ6LrCHJ3X2FBkjHVqprEkXtYNIEMdVXjacu84OOLF1D
-	fJsg==
-Date: Thu, 11 May 2017 12:44:54 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20170511124454.473dd56e@xeon-e3>
-In-Reply-To: <CAKdL+dS_-UiHA5tr7zP-5LtwDd0aXpZq5tpMYf9kr7hu2SwdGQ@mail.gmail.com>
-References: <20170511134629.139528-1-fredrik.markstrom@gmail.com>
-	<20170511134629.139528-2-fredrik.markstrom@gmail.com>
-	<20170511090132.79fdbf12@xeon-e3>
-	<CAKdL+dS_-UiHA5tr7zP-5LtwDd0aXpZq5tpMYf9kr7hu2SwdGQ@mail.gmail.com>
+Return-Path: <xiyou.wangcong@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc:content-transfer-encoding;
+	bh=dcuy7pu4un2Gywwi19OD2tuIlxZn2UT7s1XBDGmRceY=;
+	b=HGcxNVmHKMBUwHAHGHRLOBo8SP5UOWlb5PWazZV86sAyaUCpzYZ5q5SY0nBankGXMB
+	nzqSwZHQMBnG9KxrPIBPjorW6OM2zPWkaGxwKW/8FCIr31E41782sQ4G2u28OsAQBnAz
+	vy0moCGeUkGu4I4VuCSGAcR6Ocv0Hc7hI1WQ1+xkaRjPqyW9QcfgA5liErFHubfwJZrC
+	MLb5+0t+wER0mFrF/n5WrqHhMtbric0qjN4igBpc6rcb+1akrAXy6jjjy0dar/8XCJQ7
+	lqGY6X1zW4AiuJf8shIu0wwy7PevZzrWH634Ge+alatMgjb8S1qKMLOr3lzuZrgj312i
+	8hzg==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAKdL+dQh9ZEWZKHam0Z3iaVpxgZY0mziT3ZWN1OcuS55zUjEXg@mail.gmail.com>
+References: <20170509124439.45674-1-fredrik.markstrom@gmail.com>
+	<20170509.134839.2008658486655854998.davem@davemloft.net>
+	<CAKdL+dQh9ZEWZKHam0Z3iaVpxgZY0mziT3ZWN1OcuS55zUjEXg@mail.gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
+Date: Thu, 11 May 2017 20:27:10 -0700
+Message-ID: <CAM_iQpVKJp5Dg_x-ymJa-wpLbbgUpn2cQv+--eXRwr2Eh23Vgw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH v2 1/2] net: Added mtu parameter to
- dev_forward_skb calls
+Subject: Re: [Bridge] [PATCH 0/2] net: Set maximum receive packet size on
+	veth interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,56 +29,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Fredrik =?UTF-8?B?TWFya3N0csO2bQ==?= <fredrik.markstrom@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: =?UTF-8?Q?Fredrik_Markstr=C3=B6m?= <fredrik.markstrom@gmail.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Linux Kernel Network Developers <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Alexei Starovoitov <ast@kernel.org>, LKML <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>
 
-On Thu, 11 May 2017 21:10:11 +0200
-Fredrik Markstr=C3=B6m <fredrik.markstrom@gmail.com> wrote:
+On Tue, May 9, 2017 at 5:42 PM, Fredrik Markstr=C3=B6m
+<fredrik.markstrom@gmail.com> wrote:
+>
+> Maybe I was unclear, the veth implementation drops all packers larger the=
+n the
+> configured MTU (on the receiving interface).
+> Most ethernet drivers accepts packets up to the ethernet MTU no matter th=
+e
+> configured MTU. As far as I can tell from the RFC:s that is ok.
 
-> On Thu, May 11, 2017 at 6:01 PM, Stephen Hemminger
-> <stephen@networkplumber.org> wrote:
-> > On Thu, 11 May 2017 15:46:27 +0200
-> > Fredrik Markstrom <fredrik.markstrom@gmail.com> wrote:
-> > =20
-> >> From: Fredrik Markstr=C3=B6m <fredrik.markstrom@gmail.com>
-> >>
-> >> is_skb_forwardable() currently checks if the packet size is <=3D mtu of
-> >> the receiving interface. This is not consistent with most of the hardw=
-are
-> >> ethernet drivers that happily receives packets larger then MTU. =20
-> >
-> > Wrong. =20
->=20
-> What is "Wrong" ? I was initially skeptical to implement this patch,
-> since it feels odd to have different MTU:s set on the two sides of a
-> link. After consulting some IP people and the RFC:s I kind of changed
-> my mind and thought I'd give it a shot. In the RFCs I couldn't find
-> anything that defined when and when not a received packet should be
-> dropped.
->=20
-> >
-> > Hardware interfaces are free to drop any packet greater than MTU (actua=
-lly MTU + VLAN).
-> > The actual limit is a function of the hardware. Some hardware can only =
-limit by
-> > power of 2; some can only limit frames larger than 1500; some have no l=
-imiting at all. =20
->=20
-> Agreed. The purpose of these patches is to be able to configure an
-> veth interface to mimic these different behaviors. Non of the Ethernet
-> interfaces I have access to drops packets due to them being larger
-> then the configured MTU like veth does.
->=20
-> Being able to mimic real Ethernet hardware is useful when
-> consolidating hardware using containers/namespaces.
->=20
-> In a reply to a comment from David Miller in my previous version of
-> the patch I attached the example below to demonstrate the case in
-> detail.
->=20
-> This works with all ethernet hardware setups I have access to:
->=20
+This is because IP layer does the fragmentation for you. But some drivers,
+for example tg3, drop packet larger than its dev->mtu very early too.
 
-Why not just use an iptables rule to enforce what ever semantic you
-want?
+>
+> A simpler solution would be to only drop packets larger then ethernet MTU=
+ (like
+> most network drivers), but I guess that will break existing stuff
+> already out there.
 
+I wonder why did we introduce that mtu check for veth when IP layer
+could either fragment or reject with ICMP?
