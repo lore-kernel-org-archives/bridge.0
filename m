@@ -1,24 +1,15 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=MP5lMER/PlVqjHWS1aSpCSim56x9Y3IfO2oGhRCu8Sw=;
-	b=aFR7j+93a5dIisFknK7PSxWDg/dPndsm1T8JA0C/LfIAubrT+tGZVT6I2a45wztgvW
-	wrsIFpVvdBptDSdyzAoEPO9p77mCKdlk/Mtt+e1f0dTjyRKnzwid+bQOyLZ4UrM0vJ3z
-	NgDeRraYodZrizFvp28fcEM1OpPL/e/pEgNHg=
+Return-Path: <vivien.didelot@savoirfairelinux.com>
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+In-Reply-To: <5d8f53ea-a9de-7c76-f088-48c5357cb2a2@cumulusnetworks.com>
 References: <20170517212709.6473-1-vivien.didelot@savoirfairelinux.com>
 	<20170517212709.6473-4-vivien.didelot@savoirfairelinux.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <5d8f53ea-a9de-7c76-f088-48c5357cb2a2@cumulusnetworks.com>
-Date: Thu, 18 May 2017 16:45:32 +0300
+	<5d8f53ea-a9de-7c76-f088-48c5357cb2a2@cumulusnetworks.com>
+Date: Thu, 18 May 2017 11:08:50 -0400
+Message-ID: <877f1edwxp.fsf@weeman.i-did-not-set--mail-host-address--so-tickle-me>
 MIME-Version: 1.0
-In-Reply-To: <20170517212709.6473-4-vivien.didelot@savoirfairelinux.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH net-next 3/6] net: bridge: break if
-	__br_mdb_del fails
+	__br_mdb_del	fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,41 +18,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, netdev@vger.kernel.org
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
 Cc: "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, kernel@savoirfairelinux.com, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-On 5/18/17 12:27 AM, Vivien Didelot wrote:
-> Be symmetric with br_mdb_add and break if __br_mdb_del returns an error.
-> 
-> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-> ---
->   net/bridge/br_mdb.c | 5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-> index d20a01622b20..24eeeefb4179 100644
-> --- a/net/bridge/br_mdb.c
-> +++ b/net/bridge/br_mdb.c
-> @@ -688,8 +688,9 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
->   		list_for_each_entry(v, &vg->vlan_list, vlist) {
->   			entry->vid = v->vid;
->   			err = __br_mdb_del(br, entry);
-> -			if (!err)
-> -				__br_mdb_notify(dev, p, entry, RTM_DELMDB);
-> +			if (err)
-> +				break;
-> +			__br_mdb_notify(dev, p, entry, RTM_DELMDB);
->   		}
->   	} else {
->   		err = __br_mdb_del(br, entry);
-> 
+Hi Nikolay,
 
-This can potentially break user-space scripts that rely on the best-effort
-behaviour, this is the normal "delete without vid & enabled vlan filtering".
-You can check the fdb delete code which does the same, this was intentional.
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com> writes:
 
-You can add an mdb entry without a vid to all vlans, add a vlan and then try
-to remove it from all vlans where it is present - with this patch obviously
-that will fail at the new vlan.
+>>   			err = __br_mdb_del(br, entry);
+>> -			if (!err)
+>> -				__br_mdb_notify(dev, p, entry, RTM_DELMDB);
+>> +			if (err)
+>> +				break;
+>> +			__br_mdb_notify(dev, p, entry, RTM_DELMDB);
+>>   		}
+>>   	} else {
+>>   		err = __br_mdb_del(br, entry);
+>> 
+>
+> This can potentially break user-space scripts that rely on the best-effort
+> behaviour, this is the normal "delete without vid & enabled vlan filtering".
+> You can check the fdb delete code which does the same, this was intentional.
+>
+> You can add an mdb entry without a vid to all vlans, add a vlan and then try
+> to remove it from all vlans where it is present - with this patch obviously
+> that will fail at the new vlan.
 
+OK good to know. That intention wasn't obvious. I can make __br_mdb_del
+return void instead? What about the rest of the patchset if I do so?
 
+Thanks,
+
+        Vivien
