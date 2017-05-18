@@ -1,11 +1,24 @@
-Return-Path: <vivien.didelot@savoirfairelinux.com>
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Date: Wed, 17 May 2017 17:27:04 -0400
-Message-Id: <20170517212709.6473-2-vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <20170517212709.6473-1-vivien.didelot@savoirfairelinux.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=MP5lMER/PlVqjHWS1aSpCSim56x9Y3IfO2oGhRCu8Sw=;
+	b=aFR7j+93a5dIisFknK7PSxWDg/dPndsm1T8JA0C/LfIAubrT+tGZVT6I2a45wztgvW
+	wrsIFpVvdBptDSdyzAoEPO9p77mCKdlk/Mtt+e1f0dTjyRKnzwid+bQOyLZ4UrM0vJ3z
+	NgDeRraYodZrizFvp28fcEM1OpPL/e/pEgNHg=
 References: <20170517212709.6473-1-vivien.didelot@savoirfairelinux.com>
-Subject: [Bridge] [PATCH net-next 1/6] net: bridge: pass net_bridge_port to
-	__br_mdb_add
+	<20170517212709.6473-4-vivien.didelot@savoirfairelinux.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <5d8f53ea-a9de-7c76-f088-48c5357cb2a2@cumulusnetworks.com>
+Date: Thu, 18 May 2017 16:45:32 +0300
+MIME-Version: 1.0
+In-Reply-To: <20170517212709.6473-4-vivien.didelot@savoirfairelinux.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 3/6] net: bridge: break if
+	__br_mdb_del fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,67 +27,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kernel@savoirfairelinux.com, "David S. Miller" <davem@davemloft.net>
+To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, netdev@vger.kernel.org
+Cc: "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, kernel@savoirfairelinux.com, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-The __br_mdb_add function uses exactly the same mechanism as its caller
-br_mdb_add to retrieve the net_bridge_port pointer from br_mdb_entry.
+On 5/18/17 12:27 AM, Vivien Didelot wrote:
+> Be symmetric with br_mdb_add and break if __br_mdb_del returns an error.
+> 
+> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+> ---
+>   net/bridge/br_mdb.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index d20a01622b20..24eeeefb4179 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+> @@ -688,8 +688,9 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+>   		list_for_each_entry(v, &vg->vlan_list, vlist) {
+>   			entry->vid = v->vid;
+>   			err = __br_mdb_del(br, entry);
+> -			if (!err)
+> -				__br_mdb_notify(dev, p, entry, RTM_DELMDB);
+> +			if (err)
+> +				break;
+> +			__br_mdb_notify(dev, p, entry, RTM_DELMDB);
+>   		}
+>   	} else {
+>   		err = __br_mdb_del(br, entry);
+> 
 
-Remove it and pass directly the net_bridge_port pointer to __br_mdb_add.
+This can potentially break user-space scripts that rely on the best-effort
+behaviour, this is the normal "delete without vid & enabled vlan filtering".
+You can check the fdb delete code which does the same, this was intentional.
 
-Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- net/bridge/br_mdb.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+You can add an mdb entry without a vid to all vlans, add a vlan and then try
+to remove it from all vlans where it is present - with this patch obviously
+that will fail at the new vlan.
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index b0845480a3ae..bef0331f46a4 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -542,25 +542,15 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	return 0;
- }
- 
--static int __br_mdb_add(struct net *net, struct net_bridge *br,
--			struct br_mdb_entry *entry)
-+static int __br_mdb_add(struct net_bridge_port *p, struct br_mdb_entry *entry)
- {
-+	struct net_bridge *br = p->br;
- 	struct br_ip ip;
--	struct net_device *dev;
--	struct net_bridge_port *p;
- 	int ret;
- 
- 	if (!netif_running(br->dev) || br->multicast_disabled)
- 		return -EINVAL;
- 
--	dev = __dev_get_by_index(net, entry->ifindex);
--	if (!dev)
--		return -ENODEV;
--
--	p = br_port_get_rtnl(dev);
--	if (!p || p->br != br || p->state == BR_STATE_DISABLED)
--		return -EINVAL;
--
- 	__mdb_entry_to_br_ip(entry, &ip);
- 
- 	spin_lock_bh(&br->multicast_lock);
-@@ -602,13 +592,13 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (br_vlan_enabled(br) && vg && entry->vid == 0) {
- 		list_for_each_entry(v, &vg->vlan_list, vlist) {
- 			entry->vid = v->vid;
--			err = __br_mdb_add(net, br, entry);
-+			err = __br_mdb_add(p, entry);
- 			if (err)
- 				break;
- 			__br_mdb_notify(dev, p, entry, RTM_NEWMDB);
- 		}
- 	} else {
--		err = __br_mdb_add(net, br, entry);
-+		err = __br_mdb_add(p, entry);
- 		if (!err)
- 			__br_mdb_notify(dev, p, entry, RTM_NEWMDB);
- 	}
--- 
-2.13.0
 
