@@ -1,9 +1,24 @@
-Return-Path: <cera@cera.cz>
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.redhat.com AF44B80468
-From: Ivan Vecera <cera@cera.cz>
-Date: Fri, 19 May 2017 18:25:43 +0200
-Message-Id: <20170519162543.31670-1-cera@cera.cz>
-Subject: [Bridge] [PATCH net] bridge: fix hello and hold timers
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=XuDzWfhKvjY5lxnMk0ZoRN9MBzugSn39CLtt5u1I7Pw=;
+	b=Ceg+zQh4nv5nwtC6C6yHUTy9bhFxCFrBIbrCn0fJibI1b9z6VI0q7XPhikAHj+Lh8y
+	eJtB1x1oHN/DBwVNevIiRAdxbzzXHucDUrviwsMylHvLX2LuM1z6h/nA9y+bFIcb5JRh
+	+odAxDblYgEd5oRiwUR+gHReHzsgL9BRGFVZgdbzCnbcdzbdSy5xi9kjE05j8s8Ho6zO
+	4Za/N2MJqYr/GVKq5JOUHXYgk/+1HbraHmf/IC2u1bjGP47Q7wKZ2v5PZ37eP1sBeuN3
+	aCKeKMznMNYqKoRi69NUFfLndSpEWDCs744rxnMMn2/wEo7uWeZowvQGaB5o5GDjW9aD
+	P3Eg==
+Date: Fri, 19 May 2017 09:38:16 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20170519093816.2b556a1b@xeon-e3>
+In-Reply-To: <20170519162543.31670-1-cera@cera.cz>
+References: <20170519162543.31670-1-cera@cera.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] bridge: fix hello and hold timers
 	starting/stopping
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -13,81 +28,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: lucien.xin@gmail.com, nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Ivan Vecera <cera@cera.cz>
+Cc: lucien.xin@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Current bridge code incorrectly handles starting/stopping of hello and
-hold timers during STP enable/disable.
+On Fri, 19 May 2017 18:25:43 +0200
+Ivan Vecera <cera@cera.cz> wrote:
 
-1. Timers are stopped in br_stp_start() during NO_STP->USER_STP
-   transition. This is not correct as the timers are stopped in NO_STP
-   case.
+> Current bridge code incorrectly handles starting/stopping of hello and
+> hold timers during STP enable/disable.
+> 
+> 1. Timers are stopped in br_stp_start() during NO_STP->USER_STP
+>    transition. This is not correct as the timers are stopped in NO_STP
+>    case.
+> 
+> 2. Timers are started in br_stp_stop() during USER_STP->NO_STP transition.
+>    This is not also correct as the timers should be stopped in NO_STP
+>    state.
+> 
+> 3. Timers are NOT stopped in br_stp_stop() during KERNEL_STP->NO_STP
+>    transition. They should be stopped as they are running in KERNEL_STP
+>    state and should not run in NO_STP case.
+> 
+> The patch is a follow-up for "bridge: start hello_timer when enabling
+> KERNEL_STP in br_stp_start" patch from Xin Long.
+> 
+> Cc: davem@davemloft.net
+> Cc: sashok@cumulusnetworks.com
+> Cc: stephen@networkplumber.org
+> Cc: bridge@lists.linux-foundation.org
+> Cc: lucien.xin@gmail.com
+> Cc: nikolay@cumulusnetworks.com
+> Signed-off-by: Ivan Vecera <cera@cera.cz>
 
-2. Timers are started in br_stp_stop() during USER_STP->NO_STP transition.
-   This is not also correct as the timers should be stopped in NO_STP
-   state.
+Overall, this looks correct but the wording of commit message
+is too terse.
 
-3. Timers are NOT stopped in br_stp_stop() during KERNEL_STP->NO_STP
-   transition. They should be stopped as they are running in KERNEL_STP
-   state and should not run in NO_STP case.
+It would be better to add a more complete description of the impact
+of this from a user's point of view. I am concerned that this
+might have other side effects.
 
-The patch is a follow-up for "bridge: start hello_timer when enabling
-KERNEL_STP in br_stp_start" patch from Xin Long.
+For example, what is the sequence of commands to validated this.
 
-Cc: davem@davemloft.net
-Cc: sashok@cumulusnetworks.com
-Cc: stephen@networkplumber.org
-Cc: bridge@lists.linux-foundation.org
-Cc: lucien.xin@gmail.com
-Cc: nikolay@cumulusnetworks.com
-Signed-off-by: Ivan Vecera <cera@cera.cz>
----
- net/bridge/br_stp_if.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+What is the impact, should this go to stable?
 
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 0db8102995a5..f137ebf27755 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -150,7 +150,6 @@ static int br_stp_call_user(struct net_bridge *br, char *arg)
- 
- static void br_stp_start(struct net_bridge *br)
- {
--	struct net_bridge_port *p;
- 	int err = -ENOENT;
- 
- 	if (net_eq(dev_net(br->dev), &init_net))
-@@ -169,11 +168,6 @@ static void br_stp_start(struct net_bridge *br)
- 	if (!err) {
- 		br->stp_enabled = BR_USER_STP;
- 		br_debug(br, "userspace STP started\n");
--
--		/* Stop hello and hold timers */
--		del_timer(&br->hello_timer);
--		list_for_each_entry(p, &br->port_list, list)
--			del_timer(&p->hold_timer);
- 	} else {
- 		br->stp_enabled = BR_KERNEL_STP;
- 		br_debug(br, "using kernel STP\n");
-@@ -197,13 +191,14 @@ static void br_stp_stop(struct net_bridge *br)
- 			br_err(br, "failed to stop userspace STP (%d)\n", err);
- 
- 		/* To start timers on any ports left in blocking */
--		mod_timer(&br->hello_timer, jiffies + br->hello_time);
--		list_for_each_entry(p, &br->port_list, list)
--			mod_timer(&p->hold_timer,
--				  round_jiffies(jiffies + BR_HOLD_TIME));
- 		spin_lock_bh(&br->lock);
- 		br_port_state_selection(br);
- 		spin_unlock_bh(&br->lock);
-+	} else {
-+		/* BR_KERNEL_STP - stop hello and hold timers */
-+		del_timer(&br->hello_timer);
-+		list_for_each_entry(p, &br->port_list, list)
-+			del_timer(&p->hold_timer);
- 	}
- 
- 	br->stp_enabled = BR_NO_STP;
--- 
-2.13.0
 
