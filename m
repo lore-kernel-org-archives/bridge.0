@@ -2,21 +2,23 @@ Return-Path: <liuhangbin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=date:from:to:cc:subject:message-id:references:mime-version
 	:content-disposition:in-reply-to:user-agent;
-	bh=MATRZxhEsc+WHJSbjAUCV+pGYm1I7g19FKrsEa/0Yf4=;
-	b=nMvmHAmepzVjwKgv1spz/NcNnp8/xKxUJjL6aNoLfJK2VMF+ckeYROz40DwGpFpPhO
-	MURFAHdTC7MXc7PPoCeo7KaKPI1pNx/qdz/VZi7Wk0TntVuHLp6WA5ws1fYYRK9knwb1
-	ht6JARL979VnMk+JNtk2wZV6fJfm19uhMHsYHYBz/9zv1iA9i+XFWk7eHSqLCmElMC37
-	v//2l1QReTS3lRG8j3VyQghQxr56BHO1pfz4ll3NT9VmMStqJL4uPE/2CHmlEXSH7kbI
-	s0HrmiUdUInrHSeGy2kwcAlEe+rVeqkTNqSPj2RmIFuf7HxV7SnIZmJfF235gNM9S2n8
-	dQrw==
-Date: Sat, 20 May 2017 13:57:20 +0800
+	bh=HYDa4u0C8LzzGhtlqYm5jEoYH/h3tuB2FGruj+mgVaM=;
+	b=Yv/hZFyBKfHsnuAmCHRSDrV944KdmWO31WxgfBze1lcrkYYom7UX1ADDkEdqtyVM8W
+	N8pl5CnzkE6Yum/kS2ZwXs1KvDgTqHZTv35BFeh5dt3fu6Hk5Z/QHFbj0aVmD/R0OT7O
+	DibF2ZqBJOrC6kiNF4rMVbjMkCJbp2DZlh9Az+Jxe4m5J7owXoUSNtSE0Y+R22Z21yv4
+	jU5YnO9x2nUIF/8vmbg2cSxQb4SdAlLNLviG6UIq2kNBVKit6U6E1mFvbNtjVxvGumdP
+	IjY9mIPpH3meTCiIICSMhjC0wT1poUwaVLrQT3BqhTPRz6rJbB03LEWmSMPb7KAWAfsH
+	ZHfg==
+Date: Sat, 20 May 2017 15:47:48 +0800
 From: Hangbin Liu <liuhangbin@gmail.com>
-Message-ID: <20170520055720.GA12974@leo.usersys.redhat.com>
+Message-ID: <20170520074748.GB12974@leo.usersys.redhat.com>
 References: <20170519173043.10201-1-cera@cera.cz>
+	<20170520055720.GA12974@leo.usersys.redhat.com>
+	<CA+Nub0aY6hjWeg8h2Qgx_c+yazh5WnA1u0D8bDtxChjWXsEHSw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170519173043.10201-1-cera@cera.cz>
+In-Reply-To: <CA+Nub0aY6hjWeg8h2Qgx_c+yazh5WnA1u0D8bDtxChjWXsEHSw@mail.gmail.com>
 Subject: Re: [Bridge] [PATCH net-next v2] bridge: fix hello and hold timers
  starting/stopping
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -27,123 +29,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ivan Vecera <cera@cera.cz>
-Cc: lucien.xin@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: ivan.vecera@cera.cz
+Cc: Xin Long <lucien.xin@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, network dev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 
-On Fri, May 19, 2017 at 07:30:43PM +0200, Ivan Vecera wrote:
-> Current bridge code incorrectly handles starting/stopping of hello and
-> hold timers during STP enable/disable.
+On Sat, May 20, 2017 at 09:06:16AM +0200, Ivan Vecera wrote:
+> 2017-05-20 7:57 GMT+02:00 Hangbin Liu <liuhangbin@gmail.com>:
+> > On Fri, May 19, 2017 at 07:30:43PM +0200, Ivan Vecera wrote:
+> >> Current bridge code incorrectly handles starting/stopping of hello and
+> >> hold timers during STP enable/disable.
+> >>
+> >> 1. Timers are stopped in br_stp_start() during NO_STP->USER_STP
+> >>    transition. The timers are already stopped in NO_STP state so
+> >>    this is confusing no-op.
+> >
+> > Hi Ivan,
+> >
+> > Shouldn't we start hello timer in br_stp_start when NO_STP -> BR_KERNEL_STP ?
 > 
-> 1. Timers are stopped in br_stp_start() during NO_STP->USER_STP
->    transition. The timers are already stopped in NO_STP state so
->    this is confusing no-op.
+> As Nikolay mentioned, this is fixed by
+> https://patchwork.ozlabs.org/patch/764685/
 
-Hi Ivan,
+Ah, sorry. My mistake. I only saw xin's patch and your v2 patch. So I mixed
+them up and thought this is xin's V2 patch. That's why I wonder we didn't
+start hello timer in br_stp_start...
 
-Shouldn't we start hello timer in br_stp_start when NO_STP -> BR_KERNEL_STP ?
+Now I see your v1 patch with:
+
+The patch is a follow-up for "bridge: start hello_timer when enabling
+KERNEL_STP in br_stp_start" patch from Xin Long."
+
+Sorry for mixed them up.
 > 
-> 2. During USER_STP->NO_STP transition the timers are started. This
->    does not make sense and is confusion because the timer should not be
->    active in NO_STP state.
-
-Yes, but what about BR_KERNEL_STP -> NO_STP in function br_stp_stop() ?
+> >>
+> >> 2. During USER_STP->NO_STP transition the timers are started. This
+> >>    does not make sense and is confusion because the timer should not be
+> >>    active in NO_STP state.
+> >
+> > Yes, but what about BR_KERNEL_STP -> NO_STP in function br_stp_stop() ?
 > 
-> Cc: davem@davemloft.net
-> Cc: sashok@cumulusnetworks.com
-> Cc: stephen@networkplumber.org
-> Cc: bridge@lists.linux-foundation.org
-> Cc: lucien.xin@gmail.com
-> Cc: nikolay@cumulusnetworks.com
-> Signed-off-by: Ivan Vecera <cera@cera.cz>
-> ---
->  net/bridge/br_stp_if.c | 11 -----------
->  1 file changed, 11 deletions(-)
-> 
-> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-> index 08341d2aa9c9..a05027027513 100644
-> --- a/net/bridge/br_stp_if.c
-> +++ b/net/bridge/br_stp_if.c
-> @@ -150,7 +150,6 @@ static int br_stp_call_user(struct net_bridge *br, char *arg)
->  
->  static void br_stp_start(struct net_bridge *br)
->  {
-> -	struct net_bridge_port *p;
->  	int err = -ENOENT;
->  
->  	if (net_eq(dev_net(br->dev), &init_net))
-> @@ -169,11 +168,6 @@ static void br_stp_start(struct net_bridge *br)
->  	if (!err) {
->  		br->stp_enabled = BR_USER_STP;
->  		br_debug(br, "userspace STP started\n");
-> -
-> -		/* Stop hello and hold timers */
-> -		del_timer(&br->hello_timer);
-> -		list_for_each_entry(p, &br->port_list, list)
-> -			del_timer(&p->hold_timer);
+> The timer is lazily stopped by itself in its handler... or not rearmed
+> respectively.
 
-I'm not sure if user space daemon will send bpdu or not? In comment
-76b91c32dd86 ("bridge: stp: when using userspace stp stop kernel hello and
-hold timers"). Nikolay said we should not handle it with BR_USER_STP.
-
->  	} else {
->  		br->stp_enabled = BR_KERNEL_STP;
->  		br_debug(br, "using kernel STP\n");
-> @@ -187,7 +181,6 @@ static void br_stp_start(struct net_bridge *br)
->  
->  static void br_stp_stop(struct net_bridge *br)
->  {
-> -	struct net_bridge_port *p;
->  	int err;
->  
->  	if (br->stp_enabled == BR_USER_STP) {
-> @@ -196,10 +189,6 @@ static void br_stp_stop(struct net_bridge *br)
->  			br_err(br, "failed to stop userspace STP (%d)\n", err);
->  
->  		/* To start timers on any ports left in blocking */
-> -		mod_timer(&br->hello_timer, jiffies + br->hello_time);
-> -		list_for_each_entry(p, &br->port_list, list)
-> -			mod_timer(&p->hold_timer,
-> -				  round_jiffies(jiffies + BR_HOLD_TIME));
-
-If we do not del hello_timer. after it expired in br_hello_timer_expired(),
-Our state is br->dev->flags & IFF_UP and br->stp_enabled == NO_STP, it will
-call mod_timer(&br->hello_timer, round_jiffies(jiffies + br->hello_time))
-and we will keep sending bpdu message even after stp stoped.
-
->  		spin_lock_bh(&br->lock);
->  		br_port_state_selection(br);
->  		spin_unlock_bh(&br->lock);
-> -- 
-
-So how about just like
-
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index d8ad73b..0198f62 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -183,6 +183,7 @@ static void br_stp_start(struct net_bridge *br)
-        } else {
-                br->stp_enabled = BR_KERNEL_STP;
-                br_debug(br, "using kernel STP\n");
-+               mod_timer(&br->hello_timer, jiffies + br->hello_time);
-
-                /* To start timers on any ports left in blocking */
-                br_port_state_selection(br);
-@@ -202,7 +203,6 @@ static void br_stp_stop(struct net_bridge *br)
-                        br_err(br, "failed to stop userspace STP (%d)\n", err);
-
-                /* To start timers on any ports left in blocking */
--               mod_timer(&br->hello_timer, jiffies + br->hello_time);
-                list_for_each_entry(p, &br->port_list, list)
-                        mod_timer(&p->hold_timer,
-                                  round_jiffies(jiffies + BR_HOLD_TIME));
-@@ -211,6 +211,7 @@ static void br_stp_stop(struct net_bridge *br)
-                spin_unlock_bh(&br->lock);
-        }
-
-+       del_timer_sync(&br->hello_timer);
-        br->stp_enabled = BR_NO_STP;
- }
+Yes, with xin's patch this timer will stoped by itself.
 
 Thanks
 Hangbin
