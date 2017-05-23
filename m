@@ -1,14 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 22 May 2017 14:41:30 -0400 (EDT)
-Message-Id: <20170522.144130.1968086500919533289.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20170519173043.10201-1-cera@cera.cz>
-References: <20170519173043.10201-1-cera@cera.cz>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
+References: <CA+N+6-xY7+coc6zFqzP665WMhbGFFMHOfre9wNxRAcSF2Bthzw@mail.gmail.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <e6143108-3eb4-6f6a-c58b-857722f706b9@lab.ntt.co.jp>
+Date: Tue, 23 May 2017 12:17:39 +0900
+MIME-Version: 1.0
+In-Reply-To: <CA+N+6-xY7+coc6zFqzP665WMhbGFFMHOfre9wNxRAcSF2Bthzw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2] bridge: fix hello and hold timers
- starting/stopping
+Subject: Re: [Bridge] Deleting a dynamic mac entry..
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +17,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: cera@cera.cz
-Cc: lucien.xin@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Manohar Kumar <forwardinglnx@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Ivan Vecera <cera@cera.cz>
-Date: Fri, 19 May 2017 19:30:43 +0200
+On 2017/05/21 11:28, Manohar Kumar wrote:
+> Hello,
+> 
+> In 3.19 the following bridge fdb command to delete a dynamically
+> learned entry fails..
+> 
+> root@net-3:~# bridge fdb show | grep 02:42:0a:ff:00:06
+> 02:42:0a:ff:00:06 dev vxlan0 master br0
+> root@net-3:~# bridge fdb del 02:42:0a:ff:00:06 dev vxlan0 master
+> RTNETLINK answers: No such file or directory
+> 
+> It works in 4.4.
+> 
+> Can someone please point to the patch that made this change ?
 
-> Current bridge code incorrectly handles starting/stopping of hello and
-> hold timers during STP enable/disable.
-> 
-> 1. Timers are stopped in br_stp_start() during NO_STP->USER_STP
->    transition. The timers are already stopped in NO_STP state so
->    this is confusing no-op.
-> 
-> 2. During USER_STP->NO_STP transition the timers are started. This
->    does not make sense and is confusion because the timer should not be
->    active in NO_STP state.
-> 
-> Cc: davem@davemloft.net
-> Cc: sashok@cumulusnetworks.com
-> Cc: stephen@networkplumber.org
-> Cc: bridge@lists.linux-foundation.org
-> Cc: lucien.xin@gmail.com
-> Cc: nikolay@cumulusnetworks.com
-> Signed-off-by: Ivan Vecera <cera@cera.cz>
+25d3b493a52d ("bridge: Fix inability to add non-vlan fdb entry") might
+be what you are looking for, but you might want to do git-bisect to
+track down any regression or fix.
 
-Applied.
+> In kernels without this patch is there an alternative to delete
+> (actually I want to do it programmatically) dynamic mac entries ?
+
+If 25d3b493a52d is causing your problem, set default_pvid to 0 in order
+to disable default_pvid, and delete any vlans which is already
+configured in bridge's vlan_filtering. Then, delete the fdb entry.
+
+Toshiaki Makita
+
