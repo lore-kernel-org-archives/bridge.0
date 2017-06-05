@@ -1,26 +1,22 @@
-Return-Path: <forwardinglnx@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=xYziw1idVEaiP5mfR0cRMEpbfNeGPwR/YgKvoLaUZxM=;
-	b=ltDmGnAPWD+JPFncgFrReDnoyGEBCsNBMJMhSj0RZVjwNas37qE2NxbGjvUYPGwRPC
-	s6O3Fk3Ej+mUAqWFdzb6QpObZbWPOMKvIvHnv0z4aSJoDbURuv04Zd2Bbev2cu6a46sR
-	4gLmCOeCB6fVkR/qXyvqK9VA7AI4mshXP0CWw46tMggWJVF7xI/qvfzo8mqVO2/DQnqu
-	6hyTOorqp/XBXoHqoZlnhFoA5MEbUQcrHKC2dYXkSu7lcas7ptjZayfEILDGU4Kg6wNf
-	WgdrPLnsug/HPuC7b6fbcw8Mw83FDIowIXeW/gTMl29aQlbZQtLWtRcjKM2qjDA8DoB2
-	lDSQ==
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=qTyfpQS94qTqDH/wIYFRzTC9LrhG+MoloiFvya4SOJE=;
+	b=LDlA5sRNIzSmKM3WWMAThQNokE0bHFPypA1i3Gxaae1uBJBZlkCY5xMQhXj7OFsFoK
+	T15vXSAYUMXHkIhFUK0P4Y9sYPy9Tzb1CCCaQfZQRcKwmLH4orpWuJAeDMw2oSWRndVR
+	5w4api2wTy4uv4MapfNHv2AJ3gH3sQc7L1Pys=
+References: <20170605213030.GA6272@embeddedgus>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <840022de-3d31-4f62-aaaf-ba83d5c78ad7@cumulusnetworks.com>
+Date: Tue, 6 Jun 2017 01:05:18 +0300
 MIME-Version: 1.0
-In-Reply-To: <45967005-7501-6c96-eb95-f83c5f631277@lab.ntt.co.jp>
-References: <CA+N+6-xY7+coc6zFqzP665WMhbGFFMHOfre9wNxRAcSF2Bthzw@mail.gmail.com>
-	<e6143108-3eb4-6f6a-c58b-857722f706b9@lab.ntt.co.jp>
-	<CA+N+6-xtSgQ4eDN7SBMg43WXEc=6quPNE4L1-3xjLuTMte0DSA@mail.gmail.com>
-	<fbf9c273-d326-c26e-593f-ccf139bc0049@lab.ntt.co.jp>
-	<CA+N+6-wErt=9XX6u8tPnLbb2DrLqADOnCBn3mDe=qvxCoLCFyg@mail.gmail.com>
-	<45967005-7501-6c96-eb95-f83c5f631277@lab.ntt.co.jp>
-From: Manohar Kumar <forwardinglnx@gmail.com>
-Date: Tue, 30 May 2017 18:50:35 -0700
-Message-ID: <CA+N+6-xBtWg1+cUeCvdEK1fJbHHVdXpdORWvALosUZtWWG4C8g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] Deleting a dynamic mac entry..
+In-Reply-To: <20170605213030.GA6272@embeddedgus>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net: bridge: fix potential NULL pointer
+	dereference
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,60 +25,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, roopa <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
 
-Please see inline..
+On 06/06/17 00:30, Gustavo A. R. Silva wrote:
+> Add NULL check before dereferencing pointer _p_ inside br_afspec().
+> 
+> Addresses-Coverity-ID: 1401872
+> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+> ---
+>  net/bridge/br_netlink.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 1e63ec4..ad85a9c 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -776,7 +776,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh, u16 flags)
+>  			goto out;
+>  	}
+>  
+> -	if (afspec) {
+> +	if (p && afspec) {
+>  		err = br_afspec((struct net_bridge *)netdev_priv(dev), p,
+>  				afspec, RTM_SETLINK);
+>  	}
+> 
 
-On Fri, May 26, 2017 at 1:15 AM, Toshiaki Makita
-<makita.toshiaki@lab.ntt.co.jp> wrote:
-> On 2017/05/26 14:08, Manohar Kumar wrote:
->> On Wed, May 24, 2017 at 6:11 PM, Toshiaki Makita
->> <makita.toshiaki@lab.ntt.co.jp> wrote:
->>> On 2017/05/25 3:05, Manohar Kumar wrote:
->>>> Thanks, Toshiaki.
->>>>
->>>> What is the right way to set the default_pvid using the bridge command
->>>> ? I tried this, which fails..
->>>>
->>>> root@net-3:~# ip link set dev vxlan0 name untagged type vlan id 0
->>>> RTNETLINK answers: Operation not supported
->>>> root@net-3:~#
->>>>
->>>> All the interfaces in the bridge are untagged.
->>>
->>> # ip link set br0 down
->>> # echo 0 > /sys/class/net/br0/bridge/default_pvid
->>>
->>
->> I have the bridge inside a network namespace. There is no
->> /sys/class/net entry for the bridge interface inside the namespace.
->>
->> I see online references to this concept of 'tagged' sysfs directories
->> to support namespaces. But its not clear how to access the sysfs
->> entries for a particular namespace.
->
-> Did you remount /sys after entering netns?
+While I see a possible issue with the new bridge tunnel code (+CC Roopa), this is 
+the wrong fix because there are legitimate use cases where p is null and br_afspec
+is called.
+We need to change the p->flags check in br_afspec()'s IFLA_BRIDGE_VLAN_TUNNEL_INFO case
+to check for a NULL p first.
 
-No, that was the problem. Mounting /sys did the trick. Appreciate your help.
-
-Trying to understanding this better. How is the sysfs tree maintained
-per network namespace ? I assume only the /sys/class/net is per
-network namespace and the rest of the /sys is shared with the host
-namespace ? Also, how does mounting /sys in the network namespace make
-the new /sys/class/net tree visible ?
-
-thanks,
-Manohar.
+Thanks for the report!
 
 
-> If not, remount /sys or use "ip netns" which automatically do it.
->
->> Is there any other way to set the default_pvid for the bridge
->> interface inside namespace ?
->
-> No, as of 3.19.
->
->
-> Toshiaki Makita
->
