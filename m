@@ -1,22 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=qTyfpQS94qTqDH/wIYFRzTC9LrhG+MoloiFvya4SOJE=;
-	b=LDlA5sRNIzSmKM3WWMAThQNokE0bHFPypA1i3Gxaae1uBJBZlkCY5xMQhXj7OFsFoK
-	T15vXSAYUMXHkIhFUK0P4Y9sYPy9Tzb1CCCaQfZQRcKwmLH4orpWuJAeDMw2oSWRndVR
-	5w4api2wTy4uv4MapfNHv2AJ3gH3sQc7L1Pys=
-References: <20170605213030.GA6272@embeddedgus>
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=UlKckfrIHU65HVSmDyzxdhwKEKQ84tnWNrbUl9eAUEk=;
+	b=SmkzYfvj3DKoLNk83RhochXuATZwMueovrOREQhT3GUNDfpsaDGA7ly152+7v/tKtR
+	GFuUimOr+UPz82kL/H60+YfJ8W0yr056PzfglIT9j9eSjdsARkfzWZCbd98AXO0Kjmaq
+	RZgAGI/RH1Gm9CRS+oCPEZXBDyMN5+19vzSq0=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <840022de-3d31-4f62-aaaf-ba83d5c78ad7@cumulusnetworks.com>
-Date: Tue, 6 Jun 2017 01:05:18 +0300
-MIME-Version: 1.0
-In-Reply-To: <20170605213030.GA6272@embeddedgus>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net: bridge: fix potential NULL pointer
-	dereference
+Date: Tue,  6 Jun 2017 01:26:24 +0300
+Message-Id: <1496701584-26855-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <840022de-3d31-4f62-aaaf-ba83d5c78ad7@cumulusnetworks.com>
+References: <840022de-3d31-4f62-aaaf-ba83d5c78ad7@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] net: bridge: fix a null pointer dereference in
+	br_afspec
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,39 +21,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, roopa <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, garsilva@embeddedor.com, davem@davemloft.net
 
-On 06/06/17 00:30, Gustavo A. R. Silva wrote:
-> Add NULL check before dereferencing pointer _p_ inside br_afspec().
-> 
-> Addresses-Coverity-ID: 1401872
-> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
-> ---
->  net/bridge/br_netlink.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 1e63ec4..ad85a9c 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -776,7 +776,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh, u16 flags)
->  			goto out;
->  	}
->  
-> -	if (afspec) {
-> +	if (p && afspec) {
->  		err = br_afspec((struct net_bridge *)netdev_priv(dev), p,
->  				afspec, RTM_SETLINK);
->  	}
-> 
+We might call br_afspec() with p == NULL which is a valid use case if
+the action is on the bridge device itself, but the bridge tunnel code
+dereferences the p pointer without checking, so check if p is null
+first.
 
-While I see a possible issue with the new bridge tunnel code (+CC Roopa), this is 
-the wrong fix because there are legitimate use cases where p is null and br_afspec
-is called.
-We need to change the p->flags check in br_afspec()'s IFLA_BRIDGE_VLAN_TUNNEL_INFO case
-to check for a NULL p first.
+Reported-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks for the report!
-
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 1e63ec466d7c..3bcda556971e 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -595,7 +595,7 @@ static int br_afspec(struct net_bridge *br,
+ 		err = 0;
+ 		switch (nla_type(attr)) {
+ 		case IFLA_BRIDGE_VLAN_TUNNEL_INFO:
+-			if (!(p->flags & BR_VLAN_TUNNEL))
++			if (!p || !(p->flags & BR_VLAN_TUNNEL))
+ 				return -EINVAL;
+ 			err = br_parse_vlan_tunnel_info(attr, &tinfo_curr);
+ 			if (err)
+-- 
+2.1.4
 
