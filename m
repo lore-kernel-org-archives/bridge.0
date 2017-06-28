@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Wed, 28 Jun 2017 14:54:51 +0300
-Message-Id: <1498650906-12907-3-git-send-email-elena.reshetova@intel.com>
+Date: Wed, 28 Jun 2017 14:54:52 +0300
+Message-Id: <1498650906-12907-4-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1498650906-12907-1-git-send-email-elena.reshetova@intel.com>
 References: <1498650906-12907-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 02/17] net: convert neighbour.refcnt from atomic_t
-	to refcount_t
+Subject: [Bridge] [PATCH 03/17] net: convert neigh_params.refcnt from
+	atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,190 +28,78 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/arp.h       |  2 +-
- include/net/ndisc.h     |  2 +-
- include/net/neighbour.h |  9 +++++----
- net/atm/clip.c          |  6 +++---
- net/core/neighbour.c    | 14 +++++++-------
- net/decnet/dn_neigh.c   |  2 +-
- 6 files changed, 18 insertions(+), 17 deletions(-)
+ include/net/neighbour.h | 6 +++---
+ net/core/neighbour.c    | 8 ++++----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/net/arp.h b/include/net/arp.h
-index 65619a2..17d90e4 100644
---- a/include/net/arp.h
-+++ b/include/net/arp.h
-@@ -28,7 +28,7 @@ static inline struct neighbour *__ipv4_neigh_lookup(struct net_device *dev, u32
- 
- 	rcu_read_lock_bh();
- 	n = __ipv4_neigh_lookup_noref(dev, key);
--	if (n && !atomic_inc_not_zero(&n->refcnt))
-+	if (n && !refcount_inc_not_zero(&n->refcnt))
- 		n = NULL;
- 	rcu_read_unlock_bh();
- 
-diff --git a/include/net/ndisc.h b/include/net/ndisc.h
-index 1036c90..31b1bb1 100644
---- a/include/net/ndisc.h
-+++ b/include/net/ndisc.h
-@@ -384,7 +384,7 @@ static inline struct neighbour *__ipv6_neigh_lookup(struct net_device *dev, cons
- 
- 	rcu_read_lock_bh();
- 	n = __ipv6_neigh_lookup_noref(dev, pkey);
--	if (n && !atomic_inc_not_zero(&n->refcnt))
-+	if (n && !refcount_inc_not_zero(&n->refcnt))
- 		n = NULL;
- 	rcu_read_unlock_bh();
- 
 diff --git a/include/net/neighbour.h b/include/net/neighbour.h
-index e4dd3a2..c5f6d51 100644
+index c5f6d51..83d1e9f 100644
 --- a/include/net/neighbour.h
 +++ b/include/net/neighbour.h
-@@ -17,6 +17,7 @@
-  */
+@@ -77,7 +77,7 @@ struct neigh_parms {
+ 	void	*sysctl_table;
  
- #include <linux/atomic.h>
-+#include <linux/refcount.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <linux/rcupdate.h>
-@@ -137,7 +138,7 @@ struct neighbour {
- 	unsigned long		confirmed;
- 	unsigned long		updated;
- 	rwlock_t		lock;
--	atomic_t		refcnt;
-+	refcount_t		refcnt;
- 	struct sk_buff_head	arp_queue;
- 	unsigned int		arp_queue_len_bytes;
- 	struct timer_list	timer;
-@@ -409,18 +410,18 @@ static inline struct neigh_parms *neigh_parms_clone(struct neigh_parms *parms)
+ 	int dead;
+-	atomic_t refcnt;
++	refcount_t refcnt;
+ 	struct rcu_head rcu_head;
  
- static inline void neigh_release(struct neighbour *neigh)
+ 	int	reachable_time;
+@@ -395,12 +395,12 @@ void neigh_sysctl_unregister(struct neigh_parms *p);
+ 
+ static inline void __neigh_parms_put(struct neigh_parms *parms)
  {
--	if (atomic_dec_and_test(&neigh->refcnt))
-+	if (refcount_dec_and_test(&neigh->refcnt))
- 		neigh_destroy(neigh);
+-	atomic_dec(&parms->refcnt);
++	refcount_dec(&parms->refcnt);
  }
  
- static inline struct neighbour * neigh_clone(struct neighbour *neigh)
+ static inline struct neigh_parms *neigh_parms_clone(struct neigh_parms *parms)
  {
- 	if (neigh)
--		atomic_inc(&neigh->refcnt);
-+		refcount_inc(&neigh->refcnt);
- 	return neigh;
+-	atomic_inc(&parms->refcnt);
++	refcount_inc(&parms->refcnt);
+ 	return parms;
  }
  
--#define neigh_hold(n)	atomic_inc(&(n)->refcnt)
-+#define neigh_hold(n)	refcount_inc(&(n)->refcnt)
- 
- static inline int neigh_event_send(struct neighbour *neigh, struct sk_buff *skb)
- {
-diff --git a/net/atm/clip.c b/net/atm/clip.c
-index ec527b6..68435f6 100644
---- a/net/atm/clip.c
-+++ b/net/atm/clip.c
-@@ -137,11 +137,11 @@ static int neigh_check_cb(struct neighbour *n)
- 	if (entry->vccs || time_before(jiffies, entry->expires))
- 		return 0;
- 
--	if (atomic_read(&n->refcnt) > 1) {
-+	if (refcount_read(&n->refcnt) > 1) {
- 		struct sk_buff *skb;
- 
- 		pr_debug("destruction postponed with ref %d\n",
--			 atomic_read(&n->refcnt));
-+			 refcount_read(&n->refcnt));
- 
- 		while ((skb = skb_dequeue(&n->arp_queue)) != NULL)
- 			dev_kfree_skb(skb);
-@@ -767,7 +767,7 @@ static void atmarp_info(struct seq_file *seq, struct neighbour *n,
- 			seq_printf(seq, "(resolving)\n");
- 		else
- 			seq_printf(seq, "(expired, ref %d)\n",
--				   atomic_read(&entry->neigh->refcnt));
-+				   refcount_read(&entry->neigh->refcnt));
- 	} else if (!svc) {
- 		seq_printf(seq, "%d.%d.%d\n",
- 			   clip_vcc->vcc->dev->number,
 diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index d274f81..bc52190 100644
+index bc52190..24afede 100644
 --- a/net/core/neighbour.c
 +++ b/net/core/neighbour.c
-@@ -141,7 +141,7 @@ static int neigh_forced_gc(struct neigh_table *tbl)
- 			 * - it is not permanent
- 			 */
- 			write_lock(&n->lock);
--			if (atomic_read(&n->refcnt) == 1 &&
-+			if (refcount_read(&n->refcnt) == 1 &&
- 			    !(n->nud_state & NUD_PERMANENT)) {
- 				rcu_assign_pointer(*np,
- 					rcu_dereference_protected(n->next,
-@@ -219,7 +219,7 @@ static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev)
- 			neigh_del_timer(n);
- 			n->dead = 1;
+@@ -674,7 +674,7 @@ static void neigh_parms_destroy(struct neigh_parms *parms);
  
--			if (atomic_read(&n->refcnt) != 1) {
-+			if (refcount_read(&n->refcnt) != 1) {
- 				/* The most unpleasant situation.
- 				   We must destroy neighbour entry,
- 				   but someone still uses it.
-@@ -300,7 +300,7 @@ static struct neighbour *neigh_alloc(struct neigh_table *tbl, struct net_device
+ static inline void neigh_parms_put(struct neigh_parms *parms)
+ {
+-	if (atomic_dec_and_test(&parms->refcnt))
++	if (refcount_dec_and_test(&parms->refcnt))
+ 		neigh_parms_destroy(parms);
+ }
  
- 	NEIGH_CACHE_STAT_INC(tbl, allocs);
- 	n->tbl		  = tbl;
--	atomic_set(&n->refcnt, 1);
-+	refcount_set(&n->refcnt, 1);
- 	n->dead		  = 1;
- out:
- 	return n;
-@@ -409,7 +409,7 @@ struct neighbour *neigh_lookup(struct neigh_table *tbl, const void *pkey,
- 	rcu_read_lock_bh();
- 	n = __neigh_lookup_noref(tbl, pkey, dev);
- 	if (n) {
--		if (!atomic_inc_not_zero(&n->refcnt))
-+		if (!refcount_inc_not_zero(&n->refcnt))
- 			n = NULL;
- 		NEIGH_CACHE_STAT_INC(tbl, hits);
- 	}
-@@ -438,7 +438,7 @@ struct neighbour *neigh_lookup_nodev(struct neigh_table *tbl, struct net *net,
- 	     n = rcu_dereference_bh(n->next)) {
- 		if (!memcmp(n->primary_key, pkey, key_len) &&
- 		    net_eq(dev_net(n->dev), net)) {
--			if (!atomic_inc_not_zero(&n->refcnt))
-+			if (!refcount_inc_not_zero(&n->refcnt))
- 				n = NULL;
- 			NEIGH_CACHE_STAT_INC(tbl, hits);
- 			break;
-@@ -786,7 +786,7 @@ static void neigh_periodic_work(struct work_struct *work)
- 			if (time_before(n->used, n->confirmed))
- 				n->used = n->confirmed;
+@@ -1444,7 +1444,7 @@ struct neigh_parms *neigh_parms_alloc(struct net_device *dev,
+ 	p = kmemdup(&tbl->parms, sizeof(*p), GFP_KERNEL);
+ 	if (p) {
+ 		p->tbl		  = tbl;
+-		atomic_set(&p->refcnt, 1);
++		refcount_set(&p->refcnt, 1);
+ 		p->reachable_time =
+ 				neigh_rand_reach_time(NEIGH_VAR(p, BASE_REACHABLE_TIME));
+ 		dev_hold(dev);
+@@ -1507,7 +1507,7 @@ void neigh_table_init(int index, struct neigh_table *tbl)
+ 	INIT_LIST_HEAD(&tbl->parms_list);
+ 	list_add(&tbl->parms.list, &tbl->parms_list);
+ 	write_pnet(&tbl->parms.net, &init_net);
+-	atomic_set(&tbl->parms.refcnt, 1);
++	refcount_set(&tbl->parms.refcnt, 1);
+ 	tbl->parms.reachable_time =
+ 			  neigh_rand_reach_time(NEIGH_VAR(&tbl->parms, BASE_REACHABLE_TIME));
  
--			if (atomic_read(&n->refcnt) == 1 &&
-+			if (refcount_read(&n->refcnt) == 1 &&
- 			    (state == NUD_FAILED ||
- 			     time_after(jiffies, n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
- 				*np = n->next;
-@@ -2196,7 +2196,7 @@ static int neigh_fill_info(struct sk_buff *skb, struct neighbour *neigh,
- 	ci.ndm_used	 = jiffies_to_clock_t(now - neigh->used);
- 	ci.ndm_confirmed = jiffies_to_clock_t(now - neigh->confirmed);
- 	ci.ndm_updated	 = jiffies_to_clock_t(now - neigh->updated);
--	ci.ndm_refcnt	 = atomic_read(&neigh->refcnt) - 1;
-+	ci.ndm_refcnt	 = refcount_read(&neigh->refcnt) - 1;
- 	read_unlock_bh(&neigh->lock);
+@@ -1758,7 +1758,7 @@ static int neightbl_fill_parms(struct sk_buff *skb, struct neigh_parms *parms)
  
- 	if (nla_put_u32(skb, NDA_PROBES, atomic_read(&neigh->probes)) ||
-diff --git a/net/decnet/dn_neigh.c b/net/decnet/dn_neigh.c
-index eeb5fc5..21dedf6 100644
---- a/net/decnet/dn_neigh.c
-+++ b/net/decnet/dn_neigh.c
-@@ -559,7 +559,7 @@ static inline void dn_neigh_format_entry(struct seq_file *seq,
- 		   (dn->flags&DN_NDFLAG_R2) ? "2" : "-",
- 		   (dn->flags&DN_NDFLAG_P3) ? "3" : "-",
- 		   dn->n.nud_state,
--		   atomic_read(&dn->n.refcnt),
-+		   refcount_read(&dn->n.refcnt),
- 		   dn->blksize,
- 		   (dn->n.dev) ? dn->n.dev->name : "?");
- 	read_unlock(&n->lock);
+ 	if ((parms->dev &&
+ 	     nla_put_u32(skb, NDTPA_IFINDEX, parms->dev->ifindex)) ||
+-	    nla_put_u32(skb, NDTPA_REFCNT, atomic_read(&parms->refcnt)) ||
++	    nla_put_u32(skb, NDTPA_REFCNT, refcount_read(&parms->refcnt)) ||
+ 	    nla_put_u32(skb, NDTPA_QUEUE_LENBYTES,
+ 			NEIGH_VAR(parms, QUEUE_LEN_BYTES)) ||
+ 	    /* approximative value for deprecated QUEUE_LEN (in packets) */
 -- 
 2.7.4
 
