@@ -1,10 +1,10 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Wed, 28 Jun 2017 14:55:00 +0300
-Message-Id: <1498650906-12907-12-git-send-email-elena.reshetova@intel.com>
+Date: Wed, 28 Jun 2017 14:55:01 +0300
+Message-Id: <1498650906-12907-13-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1498650906-12907-1-git-send-email-elena.reshetova@intel.com>
 References: <1498650906-12907-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 11/17] net: convert netpoll_info.refcnt from
+Subject: [Bridge] [PATCH 12/17] net: convert unix_address.refcnt from
 	atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -28,62 +28,71 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/linux/netpoll.h | 3 ++-
- net/core/netpoll.c      | 6 +++---
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ include/net/af_unix.h | 3 ++-
+ net/unix/af_unix.c    | 8 ++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/netpoll.h b/include/linux/netpoll.h
-index 1828900..27c0aaa 100644
---- a/include/linux/netpoll.h
-+++ b/include/linux/netpoll.h
-@@ -11,6 +11,7 @@
- #include <linux/interrupt.h>
- #include <linux/rcupdate.h>
- #include <linux/list.h>
+diff --git a/include/net/af_unix.h b/include/net/af_unix.h
+index fd60ecc..3a385e4 100644
+--- a/include/net/af_unix.h
++++ b/include/net/af_unix.h
+@@ -4,6 +4,7 @@
+ #include <linux/socket.h>
+ #include <linux/un.h>
+ #include <linux/mutex.h>
 +#include <linux/refcount.h>
+ #include <net/sock.h>
  
- union inet_addr {
- 	__u32		all[4];
-@@ -34,7 +35,7 @@ struct netpoll {
- };
+ void unix_inflight(struct user_struct *user, struct file *fp);
+@@ -21,7 +22,7 @@ extern spinlock_t unix_table_lock;
+ extern struct hlist_head unix_socket_table[2 * UNIX_HASH_SIZE];
  
- struct netpoll_info {
--	atomic_t refcnt;
-+	refcount_t refcnt;
+ struct unix_address {
+-	atomic_t	refcnt;
++	refcount_t	refcnt;
+ 	int		len;
+ 	unsigned int	hash;
+ 	struct sockaddr_un name[0];
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index c885254..b9ee766 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -212,7 +212,7 @@ EXPORT_SYMBOL_GPL(unix_peer_get);
  
- 	struct semaphore dev_lock;
+ static inline void unix_release_addr(struct unix_address *addr)
+ {
+-	if (atomic_dec_and_test(&addr->refcnt))
++	if (refcount_dec_and_test(&addr->refcnt))
+ 		kfree(addr);
+ }
  
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index e256cd8..59a08e5 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -632,7 +632,7 @@ int __netpoll_setup(struct netpoll *np, struct net_device *ndev)
- 		skb_queue_head_init(&npinfo->txq);
- 		INIT_DELAYED_WORK(&npinfo->tx_work, queue_process);
+@@ -864,7 +864,7 @@ static int unix_autobind(struct socket *sock)
+ 		goto out;
  
--		atomic_set(&npinfo->refcnt, 1);
-+		refcount_set(&npinfo->refcnt, 1);
+ 	addr->name->sun_family = AF_UNIX;
+-	atomic_set(&addr->refcnt, 1);
++	refcount_set(&addr->refcnt, 1);
  
- 		ops = np->dev->netdev_ops;
- 		if (ops->ndo_netpoll_setup) {
-@@ -642,7 +642,7 @@ int __netpoll_setup(struct netpoll *np, struct net_device *ndev)
- 		}
- 	} else {
- 		npinfo = rtnl_dereference(ndev->npinfo);
--		atomic_inc(&npinfo->refcnt);
-+		refcount_inc(&npinfo->refcnt);
+ retry:
+ 	addr->len = sprintf(addr->name->sun_path+1, "%05x", ordernum) + 1 + sizeof(short);
+@@ -1040,7 +1040,7 @@ static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	memcpy(addr->name, sunaddr, addr_len);
+ 	addr->len = addr_len;
+ 	addr->hash = hash ^ sk->sk_type;
+-	atomic_set(&addr->refcnt, 1);
++	refcount_set(&addr->refcnt, 1);
+ 
+ 	if (sun_path[0]) {
+ 		addr->hash = UNIX_HASH_SIZE;
+@@ -1335,7 +1335,7 @@ static int unix_stream_connect(struct socket *sock, struct sockaddr *uaddr,
+ 
+ 	/* copy address information from listening to new sock*/
+ 	if (otheru->addr) {
+-		atomic_inc(&otheru->addr->refcnt);
++		refcount_inc(&otheru->addr->refcnt);
+ 		newu->addr = otheru->addr;
  	}
- 
- 	npinfo->netpoll = np;
-@@ -821,7 +821,7 @@ void __netpoll_cleanup(struct netpoll *np)
- 
- 	synchronize_srcu(&netpoll_srcu);
- 
--	if (atomic_dec_and_test(&npinfo->refcnt)) {
-+	if (refcount_dec_and_test(&npinfo->refcnt)) {
- 		const struct net_device_ops *ops;
- 
- 		ops = np->dev->netdev_ops;
+ 	if (otheru->path.dentry) {
 -- 
 2.7.4
 
