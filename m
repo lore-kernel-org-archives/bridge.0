@@ -1,26 +1,19 @@
-Return-Path: <eric.dumazet@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=message-id:subject:from:to:cc:date:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=PL3yO4+9b5Kg0eGT8dzywNhl3Ige7J/+FhNyrZejpQw=;
-	b=VwFutL/KQpJ4ygvQa/hTSt6rhMXSQpmF2OrcrxE9QJVUdk1HAExDoNIHRUZ56lA3/3
-	HIC8FblaARPI+suKbJxnmJhSjrkJ1MBA1MhHfTWH+EFxZFEhYBts3HP3Pgcb0L2IV4JJ
-	NqWo9s8NI/WE/RFHILeJ4R7XhQHV/PJDJLx8S+RMIu914uQHb1876NrV+8q99Q9dikuc
-	aAsh7GD8cXwhhYnwF+R9phpS23z1OuzxiSXMaTqTpecF5gwUNE+ogaQ01Zu1oSp+CoOq
-	68ClSg7ZQNEzl+TdMx/szvhk+UDwVUnyHZBvk+MiCLGyWwaKhM4xnfn0S7aoAh6SVsD1
-	Wg8g==
-Message-ID: <1499077817.1462.8.camel@edumazet-glaptop3.roam.corp.google.com>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Mon, 03 Jul 2017 03:30:17 -0700
-In-Reply-To: <2236FBA76BA1254E88B949DDB74E612B6FF2029D@IRSMSX102.ger.corp.intel.com>
-References: <1498817290-3368-1-git-send-email-elena.reshetova@intel.com>
-	<1499074136.1462.0.camel@edumazet-glaptop3.roam.corp.google.com>
-	<2236FBA76BA1254E88B949DDB74E612B6FF2029D@IRSMSX102.ger.corp.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 00/17] v3 net generic subsystem refcount
-	conversions
+Return-Path: <prvs=3503c98d5=eduval@lab126.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+	t=1499101648; x=1530637648;
+	h=from:to:cc:subject:date:message-id:mime-version;
+	bh=t8VFVmKrPIdJotZvRHa+Pcg1DH3DN+l1+YuQhk3ZmWM=;
+	b=DzSVEcQA5lgxtH1BfaQFXFDVXpyffCl4/7xBfCsD8z1AaxAG44p/T7P/
+	b+GYQAc6xB3LwfLF+5zx1HibGyMNIurMQbsgXDZy22JSOR0cwzpa83CKT
+	H4KSWZX0s5XuYV1+x6VFIEuyKe5gY5EJPfEoBuVLCG4nOamAOQNN58rCn U=;
+From: Eduardo Valentin <eduval@amazon.com>
+Date: Mon, 3 Jul 2017 10:06:34 -0700
+Message-ID: <1499101594-22421-1-git-send-email-eduval@amazon.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: [Bridge] [PATCH 1/1] bridge: mdb: report complete_info ptr as not a
+	kmemleak
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,28 +22,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Reshetova, Elena" <elena.reshetova@intel.com>
-Cc: "keescook@chromium.org" <keescook@chromium.org>, "peterz@infradead.org" <peterz@infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "jmorris@namei.org" <jmorris@namei.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "kaber@trash.net" <kaber@trash.net>
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S . Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "stable # v4 . 9+" <stable@vger.kernel.org>
 
-On Mon, 2017-07-03 at 09:57 +0000, Reshetova, Elena wrote:
+We currently get the following kmemleak report:
+unreferenced object 0xffff8800039d9820 (size 32):
+  comm "softirq", pid 0, jiffies 4295212383 (age 792.416s)
+  hex dump (first 32 bytes):
+    00 0c e0 03 00 88 ff ff ff 02 00 00 00 00 00 00  ................
+    00 00 00 01 ff 11 00 02 86 dd 00 00 ff ff ff ff  ................
+  backtrace:
+    [<ffffffff8152b4aa>] kmemleak_alloc+0x4a/0xa0
+    [<ffffffff811d8ec8>] kmem_cache_alloc_trace+0xb8/0x1c0
+    [<ffffffffa0389683>] __br_mdb_notify+0x2a3/0x300 [bridge]
+    [<ffffffffa038a0ce>] br_mdb_notify+0x6e/0x70 [bridge]
+    [<ffffffffa0386479>] br_multicast_add_group+0x109/0x150 [bridge]
+    [<ffffffffa0386518>] br_ip6_multicast_add_group+0x58/0x60 [bridge]
+    [<ffffffffa0387fb5>] br_multicast_rcv+0x1d5/0xdb0 [bridge]
+    [<ffffffffa037d7cf>] br_handle_frame_finish+0xcf/0x510 [bridge]
+    [<ffffffffa03a236b>] br_nf_hook_thresh.part.27+0xb/0x10 [br_netfilter]
+    [<ffffffffa03a3738>] br_nf_hook_thresh+0x48/0xb0 [br_netfilter]
+    [<ffffffffa03a3fb9>] br_nf_pre_routing_finish_ipv6+0x109/0x1d0 [br_netfilter]
+    [<ffffffffa03a4400>] br_nf_pre_routing_ipv6+0xd0/0x14c [br_netfilter]
+    [<ffffffffa03a3c27>] br_nf_pre_routing+0x197/0x3d0 [br_netfilter]
+    [<ffffffff814a2952>] nf_iterate+0x52/0x60
+    [<ffffffff814a29bc>] nf_hook_slow+0x5c/0xb0
+    [<ffffffffa037ddf4>] br_handle_frame+0x1a4/0x2c0 [bridge]
 
-> Thank you very much for the report! This is an underflow (dec/sub from
-> zero) that is reported by WARNING. 
-> I guess it is unlikely that actual code underflows, so the most
-> probable cause is that it attempted to do refcount_inc/add() from
-> zero, but then failed. 
-> However  in that case you should have seen another warning on
-> refcount_inc() somewhere earlier. That one is actually the one I need
-> to see to track the root cause. 
-> Could you tell me how do you arrive to the below output? Boot in what
-> config/etc. 
-> I can try to reproduce to debug further. 
+This patch flags the complete_info ptr object as not a leak as it will
+get freed when .complete_priv() is called, for the br mdb case, it
+will be freed at br_mdb_complete().
 
-I sent this fix : 
+Cc: stable <stable@vger.kernel.org> # v4.9+
+Reviewed-by: Vallish Vaidyeshwara <vallish@amazon.com>
+Signed-off-by: Eduardo Valentin <eduval@amazon.com>
+---
+ net/bridge/br_mdb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-https://patchwork.ozlabs.org/patch/783389/
-
-Thanks.
-
-
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index b084548..1c81546 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -5,6 +5,7 @@
+ #include <linux/rculist.h>
+ #include <linux/skbuff.h>
+ #include <linux/if_ether.h>
++#include <linux/kmemleak.h>
+ #include <net/ip.h>
+ #include <net/netlink.h>
+ #include <net/switchdev.h>
+@@ -319,6 +320,8 @@ static void __br_mdb_notify(struct net_device *dev, struct net_bridge_port *p,
+ 	if (port_dev && type == RTM_NEWMDB) {
+ 		complete_info = kmalloc(sizeof(*complete_info), GFP_ATOMIC);
+ 		if (complete_info) {
++			/* This pointer is freed in br_mdb_complete() */
++			kmemleak_not_leak(complete_info);
+ 			complete_info->port = p;
+ 			__mdb_entry_to_br_ip(entry, &complete_info->ip);
+ 			mdb.obj.complete_priv = complete_info;
+-- 
+2.7.4
 
