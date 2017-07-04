@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Tue,  4 Jul 2017 15:53:20 +0300
-Message-Id: <1499172811-16271-26-git-send-email-elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:53:21 +0300
+Message-Id: <1499172811-16271-27-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 25/36] net,
-	x25: convert x25_neigh.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 26/36] net,
+	xfrm: convert xfrm_state.refcnt from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,51 +28,75 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/x25.h  | 6 +++---
- net/x25/x25_link.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/xfrm.h    | 9 +++++----
+ net/xfrm/xfrm_state.c | 4 ++--
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/x25.h b/include/net/x25.h
-index 1ac1400..2609b57 100644
---- a/include/net/x25.h
-+++ b/include/net/x25.h
-@@ -142,7 +142,7 @@ struct x25_neigh {
- 	unsigned long		t20;
- 	struct timer_list	t20timer;
- 	unsigned long		global_facil_mask;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 01fa357..f5272a2 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -13,6 +13,7 @@
+ #include <linux/mutex.h>
+ #include <linux/audit.h>
+ #include <linux/slab.h>
++#include <linux/refcount.h>
+ 
+ #include <net/sock.h>
+ #include <net/dst.h>
+@@ -137,7 +138,7 @@ struct xfrm_state {
+ 	struct hlist_node	bysrc;
+ 	struct hlist_node	byspi;
+ 
 -	atomic_t		refcnt;
 +	refcount_t		refcnt;
- };
+ 	spinlock_t		lock;
  
- struct x25_sock {
-@@ -243,12 +243,12 @@ void x25_link_free(void);
- /* x25_neigh.c */
- static __inline__ void x25_neigh_hold(struct x25_neigh *nb)
+ 	struct xfrm_id		id;
+@@ -837,18 +838,18 @@ void __xfrm_state_destroy(struct xfrm_state *);
+ 
+ static inline void __xfrm_state_put(struct xfrm_state *x)
  {
--	atomic_inc(&nb->refcnt);
-+	refcount_inc(&nb->refcnt);
+-	atomic_dec(&x->refcnt);
++	refcount_dec(&x->refcnt);
  }
  
- static __inline__ void x25_neigh_put(struct x25_neigh *nb)
+ static inline void xfrm_state_put(struct xfrm_state *x)
  {
--	if (atomic_dec_and_test(&nb->refcnt))
-+	if (refcount_dec_and_test(&nb->refcnt))
- 		kfree(nb);
+-	if (atomic_dec_and_test(&x->refcnt))
++	if (refcount_dec_and_test(&x->refcnt))
+ 		__xfrm_state_destroy(x);
  }
  
-diff --git a/net/x25/x25_link.c b/net/x25/x25_link.c
-index bcaa180..e0cd04d 100644
---- a/net/x25/x25_link.c
-+++ b/net/x25/x25_link.c
-@@ -266,7 +266,7 @@ void x25_link_device_up(struct net_device *dev)
- 				       X25_MASK_PACKET_SIZE |
- 				       X25_MASK_WINDOW_SIZE;
- 	nb->t20      = sysctl_x25_restart_request_timeout;
--	atomic_set(&nb->refcnt, 1);
-+	refcount_set(&nb->refcnt, 1);
+ static inline void xfrm_state_hold(struct xfrm_state *x)
+ {
+-	atomic_inc(&x->refcnt);
++	refcount_inc(&x->refcnt);
+ }
  
- 	write_lock_bh(&x25_neigh_list_lock);
- 	list_add(&nb->node, &x25_neigh_list);
+ static inline bool addr_match(const void *token1, const void *token2,
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 4a28f66..6c0956d 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -48,7 +48,7 @@ static HLIST_HEAD(xfrm_state_gc_list);
+ 
+ static inline bool xfrm_state_hold_rcu(struct xfrm_state __rcu *x)
+ {
+-	return atomic_inc_not_zero(&x->refcnt);
++	return refcount_inc_not_zero(&x->refcnt);
+ }
+ 
+ static inline unsigned int xfrm_dst_hash(struct net *net,
+@@ -558,7 +558,7 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
+ 
+ 	if (x) {
+ 		write_pnet(&x->xs_net, net);
+-		atomic_set(&x->refcnt, 1);
++		refcount_set(&x->refcnt, 1);
+ 		atomic_set(&x->tunnel_users, 0);
+ 		INIT_LIST_HEAD(&x->km.all);
+ 		INIT_HLIST_NODE(&x->bydst);
 -- 
 2.7.4
 
