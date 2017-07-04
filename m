@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Tue,  4 Jul 2017 15:52:59 +0300
-Message-Id: <1499172811-16271-5-git-send-email-elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:53:00 +0300
+Message-Id: <1499172811-16271-6-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 04/36] net,
-	vxlan: convert vxlan_sock.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 05/36] net,
+	decnet: convert dn_fib_info.fib_clntref from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,68 +28,71 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- drivers/net/vxlan.c | 10 +++++-----
- include/net/vxlan.h |  2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ include/net/dn_fib.h | 5 +++--
+ net/decnet/dn_fib.c  | 6 +++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index b04e103..96aa7e6 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -1034,11 +1034,11 @@ static bool vxlan_group_used(struct vxlan_net *vn, struct vxlan_dev *dev)
- 	/* The vxlan_sock is only used by dev, leaving group has
- 	 * no effect on other vxlan devices.
- 	 */
--	if (family == AF_INET && sock4 && atomic_read(&sock4->refcnt) == 1)
-+	if (family == AF_INET && sock4 && refcount_read(&sock4->refcnt) == 1)
- 		return false;
- #if IS_ENABLED(CONFIG_IPV6)
- 	sock6 = rtnl_dereference(dev->vn6_sock);
--	if (family == AF_INET6 && sock6 && atomic_read(&sock6->refcnt) == 1)
-+	if (family == AF_INET6 && sock6 && refcount_read(&sock6->refcnt) == 1)
- 		return false;
- #endif
+diff --git a/include/net/dn_fib.h b/include/net/dn_fib.h
+index f2ca135..81210a8 100644
+--- a/include/net/dn_fib.h
++++ b/include/net/dn_fib.h
+@@ -2,6 +2,7 @@
+ #define _NET_DN_FIB_H
  
-@@ -1075,7 +1075,7 @@ static bool __vxlan_sock_release_prep(struct vxlan_sock *vs)
+ #include <linux/netlink.h>
++#include <linux/refcount.h>
  
- 	if (!vs)
- 		return false;
--	if (!atomic_dec_and_test(&vs->refcnt))
-+	if (!refcount_dec_and_test(&vs->refcnt))
- 		return false;
+ extern const struct nla_policy rtm_dn_policy[];
  
- 	vn = net_generic(sock_net(vs->sock->sk), vxlan_net_id);
-@@ -2825,7 +2825,7 @@ static struct vxlan_sock *vxlan_socket_create(struct net *net, bool ipv6,
+@@ -28,7 +29,7 @@ struct dn_fib_info {
+ 	struct dn_fib_info	*fib_next;
+ 	struct dn_fib_info	*fib_prev;
+ 	int 			fib_treeref;
+-	atomic_t		fib_clntref;
++	refcount_t		fib_clntref;
+ 	int			fib_dead;
+ 	unsigned int		fib_flags;
+ 	int			fib_protocol;
+@@ -130,7 +131,7 @@ void dn_fib_free_info(struct dn_fib_info *fi);
+ 
+ static inline void dn_fib_info_put(struct dn_fib_info *fi)
+ {
+-	if (atomic_dec_and_test(&fi->fib_clntref))
++	if (refcount_dec_and_test(&fi->fib_clntref))
+ 		dn_fib_free_info(fi);
+ }
+ 
+diff --git a/net/decnet/dn_fib.c b/net/decnet/dn_fib.c
+index f9058eb..f9f6fb3 100644
+--- a/net/decnet/dn_fib.c
++++ b/net/decnet/dn_fib.c
+@@ -389,7 +389,7 @@ struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, struct nlattr *att
  	}
  
- 	vs->sock = sock;
--	atomic_set(&vs->refcnt, 1);
-+	refcount_set(&vs->refcnt, 1);
- 	vs->flags = (flags & VXLAN_F_RCV_FLAGS);
- 
- 	spin_lock(&vn->sock_lock);
-@@ -2860,7 +2860,7 @@ static int __vxlan_sock_add(struct vxlan_dev *vxlan, bool ipv6)
- 		spin_lock(&vn->sock_lock);
- 		vs = vxlan_find_sock(vxlan->net, ipv6 ? AF_INET6 : AF_INET,
- 				     vxlan->cfg.dst_port, vxlan->cfg.flags);
--		if (vs && !atomic_add_unless(&vs->refcnt, 1, 0)) {
-+		if (vs && !refcount_inc_not_zero(&vs->refcnt)) {
- 			spin_unlock(&vn->sock_lock);
- 			return -EBUSY;
- 		}
-diff --git a/include/net/vxlan.h b/include/net/vxlan.h
-index 326e849..3f430e3 100644
---- a/include/net/vxlan.h
-+++ b/include/net/vxlan.h
-@@ -183,7 +183,7 @@ struct vxlan_sock {
- 	struct hlist_node hlist;
- 	struct socket	 *sock;
- 	struct hlist_head vni_list[VNI_HASH_SIZE];
--	atomic_t	  refcnt;
-+	refcount_t	  refcnt;
- 	u32		  flags;
- };
- 
+ 	fi->fib_treeref++;
+-	atomic_inc(&fi->fib_clntref);
++	refcount_set(&fi->fib_clntref, 1);
+ 	spin_lock(&dn_fib_info_lock);
+ 	fi->fib_next = dn_fib_info_list;
+ 	fi->fib_prev = NULL;
+@@ -425,7 +425,7 @@ int dn_fib_semantic_match(int type, struct dn_fib_info *fi, const struct flowidn
+ 		switch (type) {
+ 		case RTN_NAT:
+ 			DN_FIB_RES_RESET(*res);
+-			atomic_inc(&fi->fib_clntref);
++			refcount_inc(&fi->fib_clntref);
+ 			return 0;
+ 		case RTN_UNICAST:
+ 		case RTN_LOCAL:
+@@ -438,7 +438,7 @@ int dn_fib_semantic_match(int type, struct dn_fib_info *fi, const struct flowidn
+ 			}
+ 			if (nhsel < fi->fib_nhs) {
+ 				res->nh_sel = nhsel;
+-				atomic_inc(&fi->fib_clntref);
++				refcount_inc(&fi->fib_clntref);
+ 				return 0;
+ 			}
+ 			endfor_nexthops(fi);
 -- 
 2.7.4
 
