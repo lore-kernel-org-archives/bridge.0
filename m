@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Tue,  4 Jul 2017 15:53:06 +0300
-Message-Id: <1499172811-16271-12-git-send-email-elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:53:07 +0300
+Message-Id: <1499172811-16271-13-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 11/36] net,
-	calipso: convert calipso_doi.refcount from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 12/36] net,
+	sched: convert Qdisc.refcnt from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,90 +28,112 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- include/net/calipso.h |  4 ++--
- net/ipv6/calipso.c    | 12 ++++++------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ include/net/sch_generic.h | 3 ++-
+ net/sched/sch_api.c       | 8 ++++----
+ net/sched/sch_generic.c   | 8 ++++----
+ 3 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/include/net/calipso.h b/include/net/calipso.h
-index b1b30cd..5f95b11 100644
---- a/include/net/calipso.h
-+++ b/include/net/calipso.h
-@@ -38,7 +38,7 @@
- #include <linux/skbuff.h>
- #include <net/netlabel.h>
- #include <net/request_sock.h>
--#include <linux/atomic.h>
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index 3688501..1c123e2 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -9,6 +9,7 @@
+ #include <linux/percpu.h>
+ #include <linux/dynamic_queue_limits.h>
+ #include <linux/list.h>
 +#include <linux/refcount.h>
- #include <asm/unaligned.h>
+ #include <net/gen_stats.h>
+ #include <net/rtnetlink.h>
  
- /* known doi values */
-@@ -57,7 +57,7 @@ struct calipso_doi {
- 	u32 doi;
- 	u32 type;
+@@ -95,7 +96,7 @@ struct Qdisc {
+ 	struct sk_buff		*skb_bad_txq;
+ 	struct rcu_head		rcu_head;
+ 	int			padded;
+-	atomic_t		refcnt;
++	refcount_t		refcnt;
  
--	atomic_t refcount;
-+	refcount_t refcount;
- 	struct list_head list;
- 	struct rcu_head rcu;
+ 	spinlock_t		busylock ____cacheline_aligned_in_smp;
  };
-diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
-index 4406752..1323b96 100644
---- a/net/ipv6/calipso.c
-+++ b/net/ipv6/calipso.c
-@@ -338,7 +338,7 @@ static struct calipso_doi *calipso_doi_search(u32 doi)
- 	struct calipso_doi *iter;
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index 43b94c7..bd24a55 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -839,7 +839,7 @@ static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
  
- 	list_for_each_entry_rcu(iter, &calipso_doi_list, list)
--		if (iter->doi == doi && atomic_read(&iter->refcount))
-+		if (iter->doi == doi && refcount_read(&iter->refcount))
- 			return iter;
- 	return NULL;
- }
-@@ -370,7 +370,7 @@ static int calipso_doi_add(struct calipso_doi *doi_def,
- 	if (doi_def->doi == CALIPSO_DOI_UNKNOWN)
- 		goto doi_add_return;
+ 			old = dev_graft_qdisc(dev_queue, new);
+ 			if (new && i > 0)
+-				atomic_inc(&new->refcnt);
++				refcount_inc(&new->refcnt);
  
--	atomic_set(&doi_def->refcount, 1);
-+	refcount_set(&doi_def->refcount, 1);
+ 			if (!ingress)
+ 				qdisc_destroy(old);
+@@ -850,7 +850,7 @@ static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
+ 			notify_and_destroy(net, skb, n, classid,
+ 					   dev->qdisc, new);
+ 			if (new && !new->ops->attach)
+-				atomic_inc(&new->refcnt);
++				refcount_inc(&new->refcnt);
+ 			dev->qdisc = new ? : &noop_qdisc;
  
- 	spin_lock(&calipso_doi_list_lock);
- 	if (calipso_doi_search(doi_def->doi)) {
-@@ -458,7 +458,7 @@ static int calipso_doi_remove(u32 doi, struct netlbl_audit *audit_info)
- 		ret_val = -ENOENT;
- 		goto doi_remove_return;
- 	}
--	if (!atomic_dec_and_test(&doi_def->refcount)) {
-+	if (!refcount_dec_and_test(&doi_def->refcount)) {
- 		spin_unlock(&calipso_doi_list_lock);
- 		ret_val = -EBUSY;
- 		goto doi_remove_return;
-@@ -499,7 +499,7 @@ static struct calipso_doi *calipso_doi_getdef(u32 doi)
- 	doi_def = calipso_doi_search(doi);
- 	if (!doi_def)
- 		goto doi_getdef_return;
--	if (!atomic_inc_not_zero(&doi_def->refcount))
-+	if (!refcount_inc_not_zero(&doi_def->refcount))
- 		doi_def = NULL;
+ 			if (new && new->ops->attach)
+@@ -1259,7 +1259,7 @@ static int tc_modify_qdisc(struct sk_buff *skb, struct nlmsghdr *n,
+ 				if (q == p ||
+ 				    (p && check_loop(q, p, 0)))
+ 					return -ELOOP;
+-				atomic_inc(&q->refcnt);
++				refcount_inc(&q->refcnt);
+ 				goto graft;
+ 			} else {
+ 				if (!q)
+@@ -1374,7 +1374,7 @@ static int tc_fill_qdisc(struct sk_buff *skb, struct Qdisc *q, u32 clid,
+ 	tcm->tcm_ifindex = qdisc_dev(q)->ifindex;
+ 	tcm->tcm_parent = clid;
+ 	tcm->tcm_handle = q->handle;
+-	tcm->tcm_info = atomic_read(&q->refcnt);
++	tcm->tcm_info = refcount_read(&q->refcnt);
+ 	if (nla_put_string(skb, TCA_KIND, q->ops->id))
+ 		goto nla_put_failure;
+ 	if (q->ops->dump && q->ops->dump(q, skb) < 0)
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 52a2c55..57ba406 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -633,7 +633,7 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
+ 	sch->dequeue = ops->dequeue;
+ 	sch->dev_queue = dev_queue;
+ 	dev_hold(dev);
+-	atomic_set(&sch->refcnt, 1);
++	refcount_set(&sch->refcnt, 1);
  
- doi_getdef_return:
-@@ -520,7 +520,7 @@ static void calipso_doi_putdef(struct calipso_doi *doi_def)
- 	if (!doi_def)
+ 	return sch;
+ errout:
+@@ -701,7 +701,7 @@ void qdisc_destroy(struct Qdisc *qdisc)
+ 	const struct Qdisc_ops  *ops = qdisc->ops;
+ 
+ 	if (qdisc->flags & TCQ_F_BUILTIN ||
+-	    !atomic_dec_and_test(&qdisc->refcnt))
++	    !refcount_dec_and_test(&qdisc->refcnt))
  		return;
  
--	if (!atomic_dec_and_test(&doi_def->refcount))
-+	if (!refcount_dec_and_test(&doi_def->refcount))
- 		return;
- 	spin_lock(&calipso_doi_list_lock);
- 	list_del_rcu(&doi_def->list);
-@@ -553,7 +553,7 @@ static int calipso_doi_walk(u32 *skip_cnt,
+ #ifdef CONFIG_NET_SCHED
+@@ -739,7 +739,7 @@ struct Qdisc *dev_graft_qdisc(struct netdev_queue *dev_queue,
+ 	spin_lock_bh(root_lock);
  
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(iter_doi, &calipso_doi_list, list)
--		if (atomic_read(&iter_doi->refcount) > 0) {
-+		if (refcount_read(&iter_doi->refcount) > 0) {
- 			if (doi_cnt++ < *skip_cnt)
- 				continue;
- 			ret_val = callback(iter_doi, cb_arg);
+ 	/* Prune old scheduler */
+-	if (oqdisc && atomic_read(&oqdisc->refcnt) <= 1)
++	if (oqdisc && refcount_read(&oqdisc->refcnt) <= 1)
+ 		qdisc_reset(oqdisc);
+ 
+ 	/* ... and graft new one */
+@@ -785,7 +785,7 @@ static void attach_default_qdiscs(struct net_device *dev)
+ 	    dev->priv_flags & IFF_NO_QUEUE) {
+ 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+ 		dev->qdisc = txq->qdisc_sleeping;
+-		atomic_inc(&dev->qdisc->refcnt);
++		refcount_inc(&dev->qdisc->refcnt);
+ 	} else {
+ 		qdisc = qdisc_create_dflt(txq, &mq_qdisc_ops, TC_H_ROOT);
+ 		if (qdisc) {
 -- 
 2.7.4
 
