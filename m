@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Tue,  4 Jul 2017 15:53:16 +0300
-Message-Id: <1499172811-16271-22-git-send-email-elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:53:17 +0300
+Message-Id: <1499172811-16271-23-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 21/36] net,
-	rds: convert rds_incoming.i_refcount from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 22/36] net,
+	rds: convert rds_mr.r_refcount from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,72 +28,81 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- net/rds/rds.h  |  3 ++-
- net/rds/recv.c | 12 ++++++------
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ net/rds/rdma.c | 10 +++++-----
+ net/rds/rds.h  |  4 ++--
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
+diff --git a/net/rds/rdma.c b/net/rds/rdma.c
+index f06fac4..8886f15 100644
+--- a/net/rds/rdma.c
++++ b/net/rds/rdma.c
+@@ -84,7 +84,7 @@ static struct rds_mr *rds_mr_tree_walk(struct rb_root *root, u64 key,
+ 	if (insert) {
+ 		rb_link_node(&insert->r_rb_node, parent, p);
+ 		rb_insert_color(&insert->r_rb_node, root);
+-		atomic_inc(&insert->r_refcount);
++		refcount_inc(&insert->r_refcount);
+ 	}
+ 	return NULL;
+ }
+@@ -99,7 +99,7 @@ static void rds_destroy_mr(struct rds_mr *mr)
+ 	unsigned long flags;
+ 
+ 	rdsdebug("RDS: destroy mr key is %x refcnt %u\n",
+-			mr->r_key, atomic_read(&mr->r_refcount));
++			mr->r_key, refcount_read(&mr->r_refcount));
+ 
+ 	if (test_and_set_bit(RDS_MR_DEAD, &mr->r_state))
+ 		return;
+@@ -223,7 +223,7 @@ static int __rds_rdma_map(struct rds_sock *rs, struct rds_get_mr_args *args,
+ 		goto out;
+ 	}
+ 
+-	atomic_set(&mr->r_refcount, 1);
++	refcount_set(&mr->r_refcount, 1);
+ 	RB_CLEAR_NODE(&mr->r_rb_node);
+ 	mr->r_trans = rs->rs_transport;
+ 	mr->r_sock = rs;
+@@ -307,7 +307,7 @@ static int __rds_rdma_map(struct rds_sock *rs, struct rds_get_mr_args *args,
+ 
+ 	rdsdebug("RDS: get_mr key is %x\n", mr->r_key);
+ 	if (mr_ret) {
+-		atomic_inc(&mr->r_refcount);
++		refcount_inc(&mr->r_refcount);
+ 		*mr_ret = mr;
+ 	}
+ 
+@@ -756,7 +756,7 @@ int rds_cmsg_rdma_dest(struct rds_sock *rs, struct rds_message *rm,
+ 	if (!mr)
+ 		err = -EINVAL;	/* invalid r_key */
+ 	else
+-		atomic_inc(&mr->r_refcount);
++		refcount_inc(&mr->r_refcount);
+ 	spin_unlock_irqrestore(&rs->rs_rdma_lock, flags);
+ 
+ 	if (mr) {
 diff --git a/net/rds/rds.h b/net/rds/rds.h
-index 4a25db7..35ceaa2 100644
+index 35ceaa2..ea72d6e 100644
 --- a/net/rds/rds.h
 +++ b/net/rds/rds.h
-@@ -8,6 +8,7 @@
- #include <linux/mutex.h>
- #include <linux/rds.h>
- #include <linux/rhashtable.h>
-+#include <linux/refcount.h>
+@@ -277,7 +277,7 @@ struct rds_incoming {
  
- #include "info.h"
+ struct rds_mr {
+ 	struct rb_node		r_rb_node;
+-	atomic_t		r_refcount;
++	refcount_t		r_refcount;
+ 	u32			r_key;
  
-@@ -261,7 +262,7 @@ struct rds_ext_header_rdma_dest {
- #define	RDS_MSG_RX_CMSG		3
- 
- struct rds_incoming {
--	atomic_t		i_refcount;
-+	refcount_t		i_refcount;
- 	struct list_head	i_item;
- 	struct rds_connection	*i_conn;
- 	struct rds_conn_path	*i_conn_path;
-diff --git a/net/rds/recv.c b/net/rds/recv.c
-index 373a6aa1..b25bcfe 100644
---- a/net/rds/recv.c
-+++ b/net/rds/recv.c
-@@ -45,7 +45,7 @@ void rds_inc_init(struct rds_incoming *inc, struct rds_connection *conn,
+ 	/* A copy of the creation flags */
+@@ -857,7 +857,7 @@ int rds_cmsg_atomic(struct rds_sock *rs, struct rds_message *rm,
+ void __rds_put_mr_final(struct rds_mr *mr);
+ static inline void rds_mr_put(struct rds_mr *mr)
  {
- 	int i;
- 
--	atomic_set(&inc->i_refcount, 1);
-+	refcount_set(&inc->i_refcount, 1);
- 	INIT_LIST_HEAD(&inc->i_item);
- 	inc->i_conn = conn;
- 	inc->i_saddr = saddr;
-@@ -61,7 +61,7 @@ EXPORT_SYMBOL_GPL(rds_inc_init);
- void rds_inc_path_init(struct rds_incoming *inc, struct rds_conn_path *cp,
- 		       __be32 saddr)
- {
--	atomic_set(&inc->i_refcount, 1);
-+	refcount_set(&inc->i_refcount, 1);
- 	INIT_LIST_HEAD(&inc->i_item);
- 	inc->i_conn = cp->cp_conn;
- 	inc->i_conn_path = cp;
-@@ -74,14 +74,14 @@ EXPORT_SYMBOL_GPL(rds_inc_path_init);
- 
- static void rds_inc_addref(struct rds_incoming *inc)
- {
--	rdsdebug("addref inc %p ref %d\n", inc, atomic_read(&inc->i_refcount));
--	atomic_inc(&inc->i_refcount);
-+	rdsdebug("addref inc %p ref %d\n", inc, refcount_read(&inc->i_refcount));
-+	refcount_inc(&inc->i_refcount);
+-	if (atomic_dec_and_test(&mr->r_refcount))
++	if (refcount_dec_and_test(&mr->r_refcount))
+ 		__rds_put_mr_final(mr);
  }
  
- void rds_inc_put(struct rds_incoming *inc)
- {
--	rdsdebug("put inc %p ref %d\n", inc, atomic_read(&inc->i_refcount));
--	if (atomic_dec_and_test(&inc->i_refcount)) {
-+	rdsdebug("put inc %p ref %d\n", inc, refcount_read(&inc->i_refcount));
-+	if (refcount_dec_and_test(&inc->i_refcount)) {
- 		BUG_ON(!list_empty(&inc->i_item));
- 
- 		inc->i_conn->c_trans->inc_free(inc);
 -- 
 2.7.4
 
