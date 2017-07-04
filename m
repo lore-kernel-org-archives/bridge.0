@@ -1,11 +1,11 @@
 Return-Path: <elena.reshetova@intel.com>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Tue,  4 Jul 2017 15:53:25 +0300
-Message-Id: <1499172811-16271-31-git-send-email-elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:53:26 +0300
+Message-Id: <1499172811-16271-32-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 30/36] net,
-	sctp: convert sctp_datamsg.refcnt from atomic_t to refcount_t
+Subject: [Bridge] [PATCH 31/36] net,
+	sctp: convert sctp_chunk.refcnt from atomic_t to refcount_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,49 +29,49 @@ Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
  include/net/sctp/structs.h | 2 +-
- net/sctp/chunk.c           | 6 +++---
+ net/sctp/sm_make_chunk.c   | 6 +++---
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
-index 07c11fe..4d7c855 100644
+index 4d7c855..0dfc5c1 100644
 --- a/include/net/sctp/structs.h
 +++ b/include/net/sctp/structs.h
-@@ -496,7 +496,7 @@ struct sctp_datamsg {
- 	/* Chunks waiting to be submitted to lower layer. */
- 	struct list_head chunks;
- 	/* Reference counting. */
+@@ -524,7 +524,7 @@ int sctp_chunk_abandoned(struct sctp_chunk *);
+ struct sctp_chunk {
+ 	struct list_head list;
+ 
 -	atomic_t refcnt;
 +	refcount_t refcnt;
- 	/* When is this message no longer interesting to the peer? */
- 	unsigned long expires_at;
- 	/* Did the messenge fail to send? */
-diff --git a/net/sctp/chunk.c b/net/sctp/chunk.c
-index 81466f6..1323d41 100644
---- a/net/sctp/chunk.c
-+++ b/net/sctp/chunk.c
-@@ -49,7 +49,7 @@
- /* Initialize datamsg from memory. */
- static void sctp_datamsg_init(struct sctp_datamsg *msg)
+ 
+ 	/* How many times this chunk have been sent, for prsctp RTX policy */
+ 	int sent_count;
+diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+index 3af4dd0..4e16b02 100644
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -1345,7 +1345,7 @@ struct sctp_chunk *sctp_chunkify(struct sk_buff *skb,
+ 	INIT_LIST_HEAD(&retval->transmitted_list);
+ 	INIT_LIST_HEAD(&retval->frag_list);
+ 	SCTP_DBG_OBJCNT_INC(chunk);
+-	atomic_set(&retval->refcnt, 1);
++	refcount_set(&retval->refcnt, 1);
+ 
+ nodata:
+ 	return retval;
+@@ -1458,13 +1458,13 @@ void sctp_chunk_free(struct sctp_chunk *chunk)
+ /* Grab a reference to the chunk. */
+ void sctp_chunk_hold(struct sctp_chunk *ch)
  {
--	atomic_set(&msg->refcnt, 1);
-+	refcount_set(&msg->refcnt, 1);
- 	msg->send_failed = 0;
- 	msg->send_error = 0;
- 	msg->can_delay = 1;
-@@ -136,13 +136,13 @@ static void sctp_datamsg_destroy(struct sctp_datamsg *msg)
- /* Hold a reference. */
- static void sctp_datamsg_hold(struct sctp_datamsg *msg)
- {
--	atomic_inc(&msg->refcnt);
-+	refcount_inc(&msg->refcnt);
+-	atomic_inc(&ch->refcnt);
++	refcount_inc(&ch->refcnt);
  }
  
- /* Release a reference. */
- void sctp_datamsg_put(struct sctp_datamsg *msg)
+ /* Release a reference to the chunk. */
+ void sctp_chunk_put(struct sctp_chunk *ch)
  {
--	if (atomic_dec_and_test(&msg->refcnt))
-+	if (refcount_dec_and_test(&msg->refcnt))
- 		sctp_datamsg_destroy(msg);
+-	if (atomic_dec_and_test(&ch->refcnt))
++	if (refcount_dec_and_test(&ch->refcnt))
+ 		sctp_chunk_destroy(ch);
  }
  
 -- 
