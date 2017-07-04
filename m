@@ -1,11 +1,14 @@
-Return-Path: <elena.reshetova@intel.com>
-From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Tue,  4 Jul 2017 15:53:31 +0300
-Message-Id: <1499172811-16271-37-git-send-email-elena.reshetova@intel.com>
+Return-Path: <davem@davemloft.net>
+Date: Tue, 04 Jul 2017 23:00:40 +0100 (WEST)
+Message-Id: <20170704.230040.195111189904913382.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
 References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-Subject: [Bridge] [PATCH 36/36] net,
-	ax25: convert ax25_cb.refcount from atomic_t to refcount_t
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 00/36] v2 net subsystem misc refcounter
+	conversions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,64 +17,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: peterz@infradead.org, jchapman@katalix.com, bfields@fieldses.org, linux-sctp@vger.kernel.org, jlayton@poochiereds.net, Elena Reshetova <elena.reshetova@intel.com>, steffen.klassert@secunet.com, zyan@redhat.com, herbert@gondor.apana.org.au, linux-x25@vger.kernel.org, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, 3chas3@gmail.com, kuznet@ms2.inr.ac.ru, jreuter@yaina.de, keescook@chromium.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, Hans Liljestrand <ishkamiel@gmail.com>, linux-hams@vger.kernel.org, David Windsor <dwindsor@gmail.com>, linux-nfs@vger.kernel.org, sage@redhat.com, nhorman@tuxdriver.com, yoshfuji@linux-ipv6.org, vyasevich@gmail.com, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, ralf@linux-mips.org, kaber@trash.net, davem@davemloft.net
+To: elena.reshetova@intel.com
+Cc: peterz@infradead.org, jchapman@katalix.com, bfields@fieldses.org, linux-sctp@vger.kernel.org, jlayton@poochiereds.net, steffen.klassert@secunet.com, zyan@redhat.com, herbert@gondor.apana.org.au, linux-x25@vger.kernel.org, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, jmorris@namei.org, 3chas3@gmail.com, kuznet@ms2.inr.ac.ru, jreuter@yaina.de, keescook@chromium.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, linux-hams@vger.kernel.org, linux-nfs@vger.kernel.org, sage@redhat.com, nhorman@tuxdriver.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, vyasevich@gmail.com, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, ralf@linux-mips.org, kaber@trash.net
 
-refcount_t type and corresponding API should be
-used instead of atomic_t when the variable is used as
-a reference counter. This allows to avoid accidental
-refcounter overflows that might lead to use-after-free
-situations.
+From: Elena Reshetova <elena.reshetova@intel.com>
+Date: Tue,  4 Jul 2017 15:52:55 +0300
 
-Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David Windsor <dwindsor@gmail.com>
----
- include/net/ax25.h | 6 +++---
- net/ax25/af_ax25.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+> Changes in v2:
+>  * rebase on top of net-next
+>  * currently by default refcount_t = atomic_t (*) and uses all 
+>    atomic standard operations unless CONFIG_REFCOUNT_FULL is enabled.
+>    This is a compromise for the systems that are critical on
+>    performance (such as net) and cannot accept even slight delay
+>    on the refcounter operations.
+> 
+> This series, for various misc network components, replaces atomic_t reference
+> counters with the new refcount_t type and API (see include/linux/refcount.h).
+> By doing this we prevent intentional or accidental
+> underflows or overflows that can led to use-after-free vulnerabilities.
+> These are the last networking-related conversions with the exception of
+> network drivers (to be send separately).
+> 
+> Please excuse the long patch set, but seems like breaking it up
+> won't save that much on CC list and most of the changes are
+> trivial.
+> 
+> The patches are fully independent and can be cherry-picked separately.
+> In order to try with refcount functionality enabled in run-time,
+> CONFIG_REFCOUNT_FULL must be enabled.
+> 
+> NOTE: automatic kernel builder for some reason doesn't like all my
+> network branches and regularly times out the builds on these branches.
+> Suggestion for "waiting a day for a good coverage" doesn't work, as
+> we have seen with generic network conversions. So please wait for the
+> full report from kernel test rebot before merging further up.
+> This has been compile-tested in 116 configs, but 71 timed out (including
+> all s390-related configs again). I am trying to see if they can fix
+> build coverage for me in meanwhile.
+> 
+> * The respective change is currently merged into -next as
+>   "locking/refcount: Create unchecked atomic_t implementation".
 
-diff --git a/include/net/ax25.h b/include/net/ax25.h
-index e3467ba..c4a0cf6 100644
---- a/include/net/ax25.h
-+++ b/include/net/ax25.h
-@@ -244,7 +244,7 @@ typedef struct ax25_cb {
- 	unsigned char		window;
- 	struct timer_list	timer, dtimer;
- 	struct sock		*sk;		/* Backlink to socket */
--	atomic_t		refcount;
-+	refcount_t		refcount;
- } ax25_cb;
- 
- struct ax25_sock {
-@@ -266,11 +266,11 @@ static inline struct ax25_cb *sk_to_ax25(const struct sock *sk)
- 	hlist_for_each_entry(__ax25, list, ax25_node)
- 
- #define ax25_cb_hold(__ax25) \
--	atomic_inc(&((__ax25)->refcount))
-+	refcount_inc(&((__ax25)->refcount))
- 
- static __inline__ void ax25_cb_put(ax25_cb *ax25)
- {
--	if (atomic_dec_and_test(&ax25->refcount)) {
-+	if (refcount_dec_and_test(&ax25->refcount)) {
- 		kfree(ax25->digipeat);
- 		kfree(ax25);
- 	}
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 0c92ba0..f3f9d18 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -510,7 +510,7 @@ ax25_cb *ax25_create_cb(void)
- 	if ((ax25 = kzalloc(sizeof(*ax25), GFP_ATOMIC)) == NULL)
- 		return NULL;
- 
--	atomic_set(&ax25->refcount, 1);
-+	refcount_set(&ax25->refcount, 1);
- 
- 	skb_queue_head_init(&ax25->write_queue);
- 	skb_queue_head_init(&ax25->frag_queue);
--- 
-2.7.4
-
+Series applied, that's enough for this cycle, please.
