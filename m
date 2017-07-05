@@ -1,16 +1,24 @@
-Return-Path: <elena.reshetova@intel.com>
-From: "Reshetova, Elena" <elena.reshetova@intel.com>
-Date: Wed, 5 Jul 2017 09:03:06 +0000
-Message-ID: <2236FBA76BA1254E88B949DDB74E612B6FF20D45@IRSMSX102.ger.corp.intel.com>
-References: <1499172811-16271-1-git-send-email-elena.reshetova@intel.com>
-	<20170704.230040.195111189904913382.davem@davemloft.net>
-In-Reply-To: <20170704.230040.195111189904913382.davem@davemloft.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <prvs=3528a6f25=eduval@lab126.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+	t=1499270724; x=1530806724;
+	h=date:from:to:cc:subject:message-id:references:
+	mime-version:in-reply-to;
+	bh=yEwGL7natqJa7Umvy088891IHh7Zat33hZL6j9ZWgHo=;
+	b=vGSzbjwoZ7x5NItMeSb7Et9U8yPYEwOnDSPirUECL6z0ZprCKPeCzvdu
+	FsI02mPJvALvt77TvQyFSbT1gRd0xfpOu55k7qgZGM5EeizDV6J3/Etaq
+	IUuIwE9mrIc5NpF/FsqZh2gjqhjrKr459hKclMnk+cJw+LXkd/UC+kozS 0=;
+Date: Wed, 5 Jul 2017 09:05:14 -0700
+From: Eduardo Valentin <eduval@amazon.com>
+Message-ID: <20170705160514.GA11351@u40b0340c692b58f6553c.ant.amazon.com>
+References: <1499101594-22421-1-git-send-email-eduval@amazon.com>
+	<20170704.014842.1942928249505987408.davem@davemloft.net>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH 00/36] v2 net subsystem misc refcounter
-	conversions
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20170704.014842.1942928249505987408.davem@davemloft.net>
+Subject: Re: [Bridge] [PATCH 1/1] bridge: mdb: report complete_info ptr as
+ not a kmemleak
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,59 +28,40 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: David Miller <davem@davemloft.net>
-Cc: "peterz@infradead.org" <peterz@infradead.org>, "jchapman@katalix.com" <jchapman@katalix.com>, "bfields@fieldses.org" <bfields@fieldses.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, "steffen.klassert@secunet.com" <steffen.klassert@secunet.com>, "zyan@redhat.com" <zyan@redhat.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "jmorris@namei.org" <jmorris@namei.org>, "3chas3@gmail.com" <3chas3@gmail.com>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "jreuter@yaina.de" <jreuter@yaina.de>, "keescook@chromium.org" <keescook@chromium.org>, "santosh.shilimkar@oracle.com" <santosh.shilimkar@oracle.com>, "jhs@mojatatu.com" <jhs@mojatatu.com>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>, "sage@redhat.com" <sage@redhat.com>, "nhorman@tuxdriver.com" <nhorman@tuxdriver.com>, "yoshfuji@linux-ipv6.org" <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "vyasevich@gmail.com" <vyasevich@gmail.com>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ralf@linux-mips.org" <ralf@linux-mips.org>, "kaber@trash.net" <kaber@trash.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+
+On Tue, Jul 04, 2017 at 01:48:42AM -0700, David Miller wrote:
+> From: Eduardo Valentin <eduval@amazon.com>
+> Date: Mon, 3 Jul 2017 10:06:34 -0700
+> 
+> > We currently get the following kmemleak report:
+>  ...
+> > This patch flags the complete_info ptr object as not a leak as it will
+> > get freed when .complete_priv() is called,
+> 
+> We don't call .complete_priv().  We call .complete().
+
+True, I can fix this wording in the commit next version.
+
+> 
+>  for the br mdb case, it
+> > will be freed at br_mdb_complete().
+> > 
+> > Cc: stable <stable@vger.kernel.org> # v4.9+
+> > Reviewed-by: Vallish Vaidyeshwara <vallish@amazon.com>
+> > Signed-off-by: Eduardo Valentin <eduval@amazon.com>
+> 
+> I don't understand why kmemleak cannot see this.
+> 
+> We store the pointer globally when we do the switchdev_port_obv_add()
+> call and it should be able to see that.
+
+I see and agree. But even then I get these reports consistently on RTM_NEWMDB type.
+This is why I am proposing marking as a non-kmemleak.
+
+To me, this is only a leak if .complete() never gets called.
 
 
-> From: Elena Reshetova <elena.reshetova@intel.com>
-> Date: Tue,  4 Jul 2017 15:52:55 +0300
->=20
-> > Changes in v2:
-> >  * rebase on top of net-next
-> >  * currently by default refcount_t =3D atomic_t (*) and uses all
-> >    atomic standard operations unless CONFIG_REFCOUNT_FULL is enabled.
-> >    This is a compromise for the systems that are critical on
-> >    performance (such as net) and cannot accept even slight delay
-> >    on the refcounter operations.
-> >
-> > This series, for various misc network components, replaces atomic_t ref=
-erence
-> > counters with the new refcount_t type and API (see include/linux/refcou=
-nt.h).
-> > By doing this we prevent intentional or accidental
-> > underflows or overflows that can led to use-after-free vulnerabilities.
-> > These are the last networking-related conversions with the exception of
-> > network drivers (to be send separately).
-> >
-> > Please excuse the long patch set, but seems like breaking it up
-> > won't save that much on CC list and most of the changes are
-> > trivial.
-> >
-> > The patches are fully independent and can be cherry-picked separately.
-> > In order to try with refcount functionality enabled in run-time,
-> > CONFIG_REFCOUNT_FULL must be enabled.
-> >
-> > NOTE: automatic kernel builder for some reason doesn't like all my
-> > network branches and regularly times out the builds on these branches.
-> > Suggestion for "waiting a day for a good coverage" doesn't work, as
-> > we have seen with generic network conversions. So please wait for the
-> > full report from kernel test rebot before merging further up.
-> > This has been compile-tested in 116 configs, but 71 timed out (includin=
-g
-> > all s390-related configs again). I am trying to see if they can fix
-> > build coverage for me in meanwhile.
-> >
-> > * The respective change is currently merged into -next as
-> >   "locking/refcount: Create unchecked atomic_t implementation".
->=20
-> Series applied, that's enough for this cycle, please.
-
-Thank you very much David! I really appreciate you taking so many of these =
-conversions in
-one go! I will stop for now :)=20
-
-With regards to net, I only have networking drivers left (16 patches in tot=
-al), but I can submit them in the
-next round. Will go bug other subsystem maintainers next :)=20
-
-Best Regards,
-Elena.
+-- 
+All the best,
+Eduardo Valentin
