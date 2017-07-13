@@ -1,24 +1,16 @@
-Return-Path: <prvs=359b199cc=eduval@lab126.com>
+Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-	t=1499893510; x=1531429510;
-	h=date:from:to:cc:subject:message-id:references:
-	mime-version:in-reply-to;
-	bh=LccaFSW2M/Tl8uDKADa8/5p0+Oc5qAPe+c8LFkV5CDg=;
-	b=f7+JLpDr0VJtsfQYhXS5EiyE2tigNkhAYg/+BaZR2d7gT5W9A8WXT7ym
-	f7CnqiJHARmy/aoesbUX70MtDA8WrBg9ssoJgY2vSxJKf/7CQQbPYUmof
-	RYleed3I3R9ki/s562fnrju9ShLsPtYQWUEBQKtQnhgxXcOt/NqoLkKsk o=;
-Date: Wed, 12 Jul 2017 14:02:53 -0700
-From: Eduardo Valentin <eduval@amazon.com>
-Message-ID: <20170712210253.GA26755@u40b0340c692b58f6553c.ant.amazon.com>
-References: <1499810112-11790-1-git-send-email-eduval@amazon.com>
-	<20170711.200233.1157747601793057593.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20170711.200233.1157747601793057593.davem@davemloft.net>
-Subject: Re: [Bridge] [PATCH 1/1] bridge: mdb: fix leak on complete_info ptr
- on fail path
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=1+nsO9iJpif+4ozVeQzAyRHf4sGf+nDVuxLrjdVPsnU=;
+	b=C3Giu8JIMf5SDtRVbSlSEiBXzYUvq3vrmwORlbmSBvHTWx/SdqAHdHgl8OuZ5gK0U9
+	iis8VQPh8vGpG6h+iWRaVMTyz3+QUwL3P8IfYwnvyJu7jMH/ovPAE1mXeY2fvB8vbw9Q
+	RvZoYsQRgzmeDQQfsnitDu9GavyRFhxuw/DgM=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu, 13 Jul 2017 16:09:10 +0300
+Message-Id: <1499951350-2087-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] net: bridge: fix dest lookup when vlan proto
+	doesn't match
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,61 +19,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: anitha@cumulusnetworks.com, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Tue, Jul 11, 2017 at 08:02:33PM -0700, David Miller wrote:
-> From: Eduardo Valentin <eduval@amazon.com>
-> Date: Tue, 11 Jul 2017 14:55:12 -0700
-> 
-> > We currently get the following kmemleak report:
-> > unreferenced object 0xffff8800039d9820 (size 32):
-> >   comm "softirq", pid 0, jiffies 4295212383 (age 792.416s)
-> >   hex dump (first 32 bytes):
-> >     00 0c e0 03 00 88 ff ff ff 02 00 00 00 00 00 00  ................
-> >     00 00 00 01 ff 11 00 02 86 dd 00 00 ff ff ff ff  ................
-> >   backtrace:
-> >     [<ffffffff8152b4aa>] kmemleak_alloc+0x4a/0xa0
-> >     [<ffffffff811d8ec8>] kmem_cache_alloc_trace+0xb8/0x1c0
-> >     [<ffffffffa0389683>] __br_mdb_notify+0x2a3/0x300 [bridge]
-> >     [<ffffffffa038a0ce>] br_mdb_notify+0x6e/0x70 [bridge]
-> >     [<ffffffffa0386479>] br_multicast_add_group+0x109/0x150 [bridge]
-> >     [<ffffffffa0386518>] br_ip6_multicast_add_group+0x58/0x60 [bridge]
-> >     [<ffffffffa0387fb5>] br_multicast_rcv+0x1d5/0xdb0 [bridge]
-> >     [<ffffffffa037d7cf>] br_handle_frame_finish+0xcf/0x510 [bridge]
-> >     [<ffffffffa03a236b>] br_nf_hook_thresh.part.27+0xb/0x10 [br_netfilter]
-> >     [<ffffffffa03a3738>] br_nf_hook_thresh+0x48/0xb0 [br_netfilter]
-> >     [<ffffffffa03a3fb9>] br_nf_pre_routing_finish_ipv6+0x109/0x1d0 [br_netfilter]
-> >     [<ffffffffa03a4400>] br_nf_pre_routing_ipv6+0xd0/0x14c [br_netfilter]
-> >     [<ffffffffa03a3c27>] br_nf_pre_routing+0x197/0x3d0 [br_netfilter]
-> >     [<ffffffff814a2952>] nf_iterate+0x52/0x60
-> >     [<ffffffff814a29bc>] nf_hook_slow+0x5c/0xb0
-> >     [<ffffffffa037ddf4>] br_handle_frame+0x1a4/0x2c0 [bridge]
-> > 
-> > This happens when switchdev_port_obj_add() fails. This patch
-> > frees complete_info object in the fail path.
-> 
-> Applied, thanks.
-> 
+With 802.1ad support the vlan_ingress code started checking for vlan
+protocol mismatch which causes the current tag to be inserted and the
+bridge vlan protocol & pvid to be set. The vlan tag insertion changes
+the skb mac_header and thus the lookup mac dest pointer which was loaded
+prior to calling br_allowed_ingress in br_handle_frame_finish is VLAN_HLEN
+bytes off now, pointing to the last two bytes of the destination mac and
+the first four of the source mac causing lookups to always fail and
+broadcasting all such packets to all ports. Same thing happens for locally
+originated packets when passing via br_dev_xmit. So load the dest pointer
+after the vlan checks and possible skb change.
 
-Thanks!
+Fixes: 8580e2117c06 ("bridge: Prepare for 802.1ad vlan filtering support")
+Reported-by: Anitha Narasimha Murthy <anitha@cumulusnetworks.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_device.c | 3 ++-
+ net/bridge/br_input.c  | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-> I'm so glad I pushed back on your original patch :-)
-
-man, me too !! :-)
-
-> 
-> > Cc: stable <stable@vger.kernel.org> # v4.9+
-> 
-> Please do not add stable tags to networking patches, I queue up and
-> submit networking -stable changes myself upon request which I am doing
-> in this case as well.
-
-Oh, I see. I won't copy stable next time and I will request you to queue, when applicable.
-
-> 
-> Thanks.
-
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index f0f3447e8aa4..861ae2a165f4 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -34,11 +34,11 @@ static struct lock_class_key bridge_netdev_addr_lock_key;
+ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+-	const unsigned char *dest = skb->data;
+ 	struct net_bridge_fdb_entry *dst;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	struct pcpu_sw_netstats *brstats = this_cpu_ptr(br->stats);
+ 	const struct nf_br_ops *nf_ops;
++	const unsigned char *dest;
+ 	u16 vid = 0;
+ 
+ 	rcu_read_lock();
+@@ -61,6 +61,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (!br_allowed_ingress(br, br_vlan_group_rcu(br), skb, &vid))
+ 		goto out;
+ 
++	dest = eth_hdr(skb)->h_dest;
+ 	if (is_broadcast_ether_addr(dest)) {
+ 		br_flood(br, skb, BR_PKT_BROADCAST, false, true);
+ 	} else if (is_multicast_ether_addr(dest)) {
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 013f2290bfa5..7637f58c1226 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -131,11 +131,11 @@ static void br_do_proxy_arp(struct sk_buff *skb, struct net_bridge *br,
+ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
+-	const unsigned char *dest = eth_hdr(skb)->h_dest;
+ 	enum br_pkt_type pkt_type = BR_PKT_UNICAST;
+ 	struct net_bridge_fdb_entry *dst = NULL;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	bool local_rcv, mcast_hit = false;
++	const unsigned char *dest;
+ 	struct net_bridge *br;
+ 	u16 vid = 0;
+ 
+@@ -153,6 +153,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, false);
+ 
+ 	local_rcv = !!(br->dev->flags & IFF_PROMISC);
++	dest = eth_hdr(skb)->h_dest;
+ 	if (is_multicast_ether_addr(dest)) {
+ 		/* by definition the broadcast is also a multicast address */
+ 		if (is_broadcast_ether_addr(dest)) {
 -- 
-All the best,
-Eduardo Valentin
+2.1.4
+
