@@ -1,12 +1,11 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-References: <1499951350-2087-1-git-send-email-nikolay@cumulusnetworks.com>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <c5558df7-c1f3-d130-3d91-e3e423a669b1@lab.ntt.co.jp>
-Date: Fri, 14 Jul 2017 10:02:33 +0900
-MIME-Version: 1.0
+Return-Path: <davem@davemloft.net>
+Date: Fri, 14 Jul 2017 08:19:42 -0700 (PDT)
+Message-Id: <20170714.081942.1796952600877192514.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <1499951350-2087-1-git-send-email-nikolay@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <1499951350-2087-1-git-send-email-nikolay@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net] net: bridge: fix dest lookup when vlan
  proto doesn't match
@@ -18,10 +17,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, roopa@cumulusnetworks.com, anitha@cumulusnetworks.com, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: anitha@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
-On 2017/07/13 22:09, Nikolay Aleksandrov wrote:
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu, 13 Jul 2017 16:09:10 +0300
+
 > With 802.1ad support the vlan_ingress code started checking for vlan
 > protocol mismatch which causes the current tag to be inserted and the
 > bridge vlan protocol & pvid to be set. The vlan tag insertion changes
@@ -37,7 +38,4 @@ On 2017/07/13 22:09, Nikolay Aleksandrov wrote:
 > Reported-by: Anitha Narasimha Murthy <anitha@cumulusnetworks.com>
 > Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Oops. Thank you for fixing it.
-
-Acked-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-
+Applied.
