@@ -1,18 +1,16 @@
 Return-Path: <equinox@diac24.net>
-Date: Thu, 17 Aug 2017 14:20:13 +0200
+Date: Thu, 17 Aug 2017 14:45:30 +0200
 From: David Lamparter <equinox@diac24.net>
-Message-ID: <20170817122013.GM773745@eidolon>
+Message-ID: <20170817124530.GN773745@eidolon>
 References: <20170816170202.456851-1-equinox@diac24.net>
 	<20170816170202.456851-2-equinox@diac24.net>
 	<1fbaa432-6241-fad0-5407-8b87abb965ae@cumulusnetworks.com>
 	<20170817110324.GK773745@eidolon>
 	<4d4c8d17-1e0b-b78f-983b-e419e153b2bf@cumulusnetworks.com>
-	<d4265b8d-93bb-630f-8d39-5eb0a3a259b8@cumulusnetworks.com>
-	<20170817121020.GL773745@eidolon>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170817121020.GL773745@eidolon>
+In-Reply-To: <4d4c8d17-1e0b-b78f-983b-e419e153b2bf@cumulusnetworks.com>
 Subject: Re: [Bridge] [PATCH 1/6] bridge: learn dst metadata in FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -22,62 +20,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Lamparter <equinox@diac24.net>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, amine.kherbouche@6wind.com
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, amine.kherbouche@6wind.com, David Lamparter <equinox@diac24.net>
 
-On Thu, Aug 17, 2017 at 02:10:20PM +0200, David Lamparter wrote:
-> On Thu, Aug 17, 2017 at 02:51:12PM +0300, Nikolay Aleksandrov wrote:
-> > On 17/08/17 14:39, Nikolay Aleksandrov wrote:
-> > > On 17/08/17 14:03, David Lamparter wrote:
-> > >> On Wed, Aug 16, 2017 at 11:38:06PM +0300, Nikolay Aleksandrov wrote:
-> [cut]
-> > >>> and hitting the fast path for everyone in a few different places for a
-> > >>> feature that the majority will not use does not sound acceptable to
-> > >>> me. We've been trying hard to optimize it, trying to avoid additional
-> > >>> cache lines, removing tests and keeping special cases to a minimum. 
-> > >>
-> > >> skb->dst is on the same cacheline as skb->len.
-> > >> fdb->md_dst is on the same cacheline as fdb->dst.
-> > >> Both will be 0 in a lot of cases, so this should be two null checks on
-> > >> data that is hot in the cache.  Are you sure this is an actual problem?
-> > >>
-> > > 
-> > > Sure - no, I haven't benchmarked it, but I don't see skb->len being on
-> > > the same cache line as _skb_refdst assuming 64 byte cache lines.
+On Thu, Aug 17, 2017 at 02:39:43PM +0300, Nikolay Aleksandrov wrote:
+> On 17/08/17 14:03, David Lamparter wrote:
+> > On Wed, Aug 16, 2017 at 11:38:06PM +0300, Nikolay Aleksandrov wrote:
+> >> On 16/08/17 20:01, David Lamparter wrote:
+> >> and hitting the fast path for everyone in a few different places for a
+> >> feature that the majority will not use does not sound acceptable to
+> >> me. We've been trying hard to optimize it, trying to avoid additional
+> >> cache lines, removing tests and keeping special cases to a minimum. 
 > > 
-> > I should've been clearer - that obviously depends on the kernel config, but
-> > in order for them to be in the same line you need to disable either one of 
-> > conntrack, bridge_netfilter or xfrm, these are almost always enabled (at
-> > least in all major distributions).
+> > skb->dst is on the same cacheline as skb->len.
+> > fdb->md_dst is on the same cacheline as fdb->dst.
+> > Both will be 0 in a lot of cases, so this should be two null checks on
+> > data that is hot in the cache.  Are you sure this is an actual problem?
+> > 
 > 
-> Did I miscount somewhere?  This is what I counted:
-> offs    size
-> 00      16      next/prev/other union bits
+> Sure - no, I haven't benchmarked it, but I don't see skb->len being on
+> the same cache line as _skb_refdst assuming 64 byte cache lines.
+> But again any special cases, in my opinion, should be handled on their own,
+> it is both about the fast path and the code complexity that they bring in.
 
-Argh, struct rb_node is 24 bytes.  *sigh*
+(separate thread)
 
-Am I going to be stoned for saying that maybe the conditional fields
-(sp, nfcd, nf_bridge) should be moved down? :D
+[cut]
+> > I really hope you're not suggesting the entire MDB with IPv4 & IPv6
+> > snooping be duplicated into both VPLS and mac80211?
+> 
+> Code can always be shared if there are more users, no need to stuff
+> everything in the bridge,
 
-btw: nf_bridge / BRIDGE_NETFILTER is incompatible with this to begin
-with because it tramples over skb->dst with its DST_FAKE_RTABLE dst.
+The MDB code is far from trivial, has several configuration knobs, and
+even sends its own queries if configured to do so.  It can also use
+quite a bit of memory of there's a nontrivial number of multicast
+groups.  I *really* think it shouldn't be duplicated.
+
+> but I'm not that familiar with this case, once patches are out I can
+> comment further.
+
+I've pushed my hacks to:
+https://github.com/eqvinox/vpls-linux-kernel/commits/mdb-hack
+(top two commits)
+
+THIS IS ABSOLUTELY A PROOF OF CONCEPT.  It doesn't un-learn dst
+metadata, it probably leaks buckets, and it may kill your cat.
+(I haven't pushed my attempts at mac80211, because I haven't gotten
+anywhere useful there just yet.)
+
+> >> As you've noted this is only an RFC so I will not point out every issue, but there seems
+> >> to be a major problem with br_fdb_update(), note that it runs without any locks except RCU.
+> > 
+> > Right, Thanks! ... I only thought about concurrent access, forgetting
+> > about concurrent modification...  I'll replace it with an xchg I think.
+> > (No need for a lock that way)
+> 
+> I think you can still lose references to a dst that way, what if someone changes the
+> dst you read before the xchg and you xchg it ?
+
+The dst to be released is the return from (atomic) xchg, not the value
+read earlier for comparison.  This can happen in parallel, but apart
+from a little extra churn in the update case it has no ill effects.
+
+If someone changes it in the meantime, they have new dst information for
+the fdb entry, and so do we.  With xchg'ing it, either one of the
+updates will stick and the other will be properly released.  Considering
+that there is no correct ordering here (either packet could be processed
+a nanosecond later or earlier), this is perfectly fine as an outcome.
 
 
 -David
-
-> 16      8       sk
-> 24      8       dev
-> 32	32      cb (first 32 bytes)
-> ---- boundary @ 64
-> 64      16      cb (last 16 bytes)
-> 80      8       _skb_refdst
-> 88      8       destructor
-> 96      8 (0)   sp
-> 104     8 (0)   _nfct
-> 112     8 (0)   nf_bridge
-> 120     4       len
-> 124     4       data_len
-> ---- boundary @ 128
-> 128     2       mac_len
-> 130     2       hdr_len
-
