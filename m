@@ -1,25 +1,14 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=XikomZ5ReHRxqOdMymAq64tJn8MRUf5NrTR22MgsuTA=;
-	b=SEDOkFmiuOhQRlE5X7XVje5Q4EhRBpzPS5wUKH0t6Bqsp17Y8g3RO5DebEMiYjjdry
-	IhDFmnHrEEE5F5StG8k4y78r3ikr27djlfXs0hGR/OyCn5IOLESD30VXzOOwlL+vuzOF
-	O+XNlBRqU3cI0CCUkxnRBiyPd3jBOmwRpv8bA=
+Return-Path: <equinox@diac24.net>
+Date: Thu, 17 Aug 2017 18:16:39 +0200
+From: David Lamparter <equinox@diac24.net>
+Message-ID: <20170817161639.GO773745@eidolon>
 References: <20170816170202.456851-1-equinox@diac24.net>
 	<20170816170202.456851-2-equinox@diac24.net>
 	<1fbaa432-6241-fad0-5407-8b87abb965ae@cumulusnetworks.com>
-	<20170817110324.GK773745@eidolon>
-	<4d4c8d17-1e0b-b78f-983b-e419e153b2bf@cumulusnetworks.com>
-	<20170817124530.GN773745@eidolon>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <88c29511-ec61-8eba-3d37-8f467cef42eb@cumulusnetworks.com>
-Date: Thu, 17 Aug 2017 16:04:20 +0300
 MIME-Version: 1.0
-In-Reply-To: <20170817124530.GN773745@eidolon>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1fbaa432-6241-fad0-5407-8b87abb965ae@cumulusnetworks.com>
 Subject: Re: [Bridge] [PATCH 1/6] bridge: learn dst metadata in FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -29,80 +18,133 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Lamparter <equinox@diac24.net>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, amine.kherbouche@6wind.com
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, amine.kherbouche@6wind.com, David Lamparter <equinox@diac24.net>
 
-On 17/08/17 15:45, David Lamparter wrote:
-> On Thu, Aug 17, 2017 at 02:39:43PM +0300, Nikolay Aleksandrov wrote:
->> On 17/08/17 14:03, David Lamparter wrote:
->>> On Wed, Aug 16, 2017 at 11:38:06PM +0300, Nikolay Aleksandrov wrote:
->>>> On 16/08/17 20:01, David Lamparter wrote:
->>>> and hitting the fast path for everyone in a few different places for a
->>>> feature that the majority will not use does not sound acceptable to
->>>> me. We've been trying hard to optimize it, trying to avoid additional
->>>> cache lines, removing tests and keeping special cases to a minimum. 
->>>
->>> skb->dst is on the same cacheline as skb->len.
->>> fdb->md_dst is on the same cacheline as fdb->dst.
->>> Both will be 0 in a lot of cases, so this should be two null checks on
->>> data that is hot in the cache.  Are you sure this is an actual problem?
->>>
->>
->> Sure - no, I haven't benchmarked it, but I don't see skb->len being on
->> the same cache line as _skb_refdst assuming 64 byte cache lines.
->> But again any special cases, in my opinion, should be handled on their own,
->> it is both about the fast path and the code complexity that they bring in.
+On Wed, Aug 16, 2017 at 11:38:06PM +0300, Nikolay Aleksandrov wrote:
+> On 16/08/17 20:01, David Lamparter wrote:
+> > This implements holding dst metadata information in the bridge layer,
+> > but only for unicast entries in the MAC table.  Multicast is still left
+> > to design and implement.
+> > 
+> > Signed-off-by: David Lamparter <equinox@diac24.net>
+> > ---
 > 
-> (separate thread)
-> 
-> [cut]
->>> I really hope you're not suggesting the entire MDB with IPv4 & IPv6
->>> snooping be duplicated into both VPLS and mac80211?
->>
->> Code can always be shared if there are more users, no need to stuff
->> everything in the bridge,
-> 
-> The MDB code is far from trivial, has several configuration knobs, and
-> even sends its own queries if configured to do so.  It can also use
-> quite a bit of memory of there's a nontrivial number of multicast
-> groups.  I *really* think it shouldn't be duplicated.
-> 
->> but I'm not that familiar with this case, once patches are out I can
->> comment further.
-> 
-> I've pushed my hacks to:
-> https://github.com/eqvinox/vpls-linux-kernel/commits/mdb-hack
-> (top two commits)
-> 
-> THIS IS ABSOLUTELY A PROOF OF CONCEPT.  It doesn't un-learn dst
-> metadata, it probably leaks buckets, and it may kill your cat.
-> (I haven't pushed my attempts at mac80211, because I haven't gotten
-> anywhere useful there just yet.)
-> 
->>>> As you've noted this is only an RFC so I will not point out every issue, but there seems
->>>> to be a major problem with br_fdb_update(), note that it runs without any locks except RCU.
->>>
->>> Right, Thanks! ... I only thought about concurrent access, forgetting
->>> about concurrent modification...  I'll replace it with an xchg I think.
->>> (No need for a lock that way)
->>
->> I think you can still lose references to a dst that way, what if someone changes the
->> dst you read before the xchg and you xchg it ?
-> 
-> The dst to be released is the return from (atomic) xchg, not the value
-> read earlier for comparison.  This can happen in parallel, but apart
-> from a little extra churn in the update case it has no ill effects.
-> 
-> If someone changes it in the meantime, they have new dst information for
-> the fdb entry, and so do we.  With xchg'ing it, either one of the
-> updates will stick and the other will be properly released.  Considering
-> that there is no correct ordering here (either packet could be processed
-> a nanosecond later or earlier), this is perfectly fine as an outcome.
+> Hi David,
+> Sorry but I do not agree with this change, adding a special case for VPLS
 
-Yep right you are, my bad.
+To prove that this is not a special case for VPLS, I have attached a
+patch for GRETAP multicast+unicast learning below.
 
-> 
-> 
-> -David
-> 
+It's just 24(!) lines added to get functionality similar to "basic
+VXLAN" (i.e. multicast with dataplane learning.)
+
+
+-David
+
+---
+From: David Lamparter <equinox@diac24.net>
+Date: Thu, 17 Aug 2017 18:11:16 +0200
+Subject: [PATCH] gretap: support multicast + unicast learning
+
+This enables using an IPv4 multicast destination for gretap and enables
+learning unicast destinations through the bridge fdb.
+
+Signed-off-by: David Lamparter <equinox@diac24.net>
+---
+ net/ipv4/ip_gre.c    | 27 +++++++++++++++++++++++----
+ net/ipv4/ip_tunnel.c |  1 +
+ 2 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 7a7829e839c2..e58f8ccb2c87 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -266,7 +266,8 @@ static int __ipgre_rcv(struct sk_buff *skb, const struct tnl_ptk_info *tpi,
+ 			skb_pop_mac_header(skb);
+ 		else
+ 			skb_reset_mac_header(skb);
+-		if (tunnel->collect_md) {
++		if (tunnel->collect_md
++		    || ipv4_is_multicast(tunnel->parms.iph.daddr)) {
+ 			__be16 flags;
+ 			__be64 tun_id;
+ 
+@@ -379,7 +380,7 @@ static struct rtable *gre_get_rt(struct sk_buff *skb,
+ static void gre_fb_xmit(struct sk_buff *skb, struct net_device *dev,
+ 			__be16 proto)
+ {
+-	struct ip_tunnel_info *tun_info;
++	struct ip_tunnel_info *tun_info, flipped;
+ 	const struct ip_tunnel_key *key;
+ 	struct rtable *rt = NULL;
+ 	struct flowi4 fl;
+@@ -390,10 +391,22 @@ static void gre_fb_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	int err;
+ 
+ 	tun_info = skb_tunnel_info(skb);
+-	if (unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) ||
++	if (unlikely(!tun_info ||
+ 		     ip_tunnel_info_af(tun_info) != AF_INET))
+ 		goto err_free_skb;
+ 
++	if (!(tun_info->mode & IP_TUNNEL_INFO_TX)) {
++		struct ip_tunnel *tunnel = netdev_priv(dev);
++
++		flipped = *tun_info;
++		flipped.mode |= IP_TUNNEL_INFO_TX;
++		flipped.key.u.ipv4.dst = tun_info->key.u.ipv4.src;
++		flipped.key.u.ipv4.src = tunnel->parms.iph.saddr;
++		flipped.key.tp_src = tun_info->key.tp_dst;
++		flipped.key.tp_dst = tun_info->key.tp_src;
++		tun_info = &flipped;
++	}
++
+ 	key = &tun_info->key;
+ 	use_cache = ip_tunnel_dst_cache_usable(skb, tun_info);
+ 	if (use_cache)
+@@ -507,8 +520,9 @@ static netdev_tx_t gre_tap_xmit(struct sk_buff *skb,
+ 				struct net_device *dev)
+ {
+ 	struct ip_tunnel *tunnel = netdev_priv(dev);
++	struct ip_tunnel_info *tun_info = skb_tunnel_info(skb);
+ 
+-	if (tunnel->collect_md) {
++	if (tunnel->collect_md || tun_info) {
+ 		gre_fb_xmit(skb, dev, htons(ETH_P_TEB));
+ 		return NETDEV_TX_OK;
+ 	}
+@@ -933,6 +947,7 @@ static int gre_tap_init(struct net_device *dev)
+ {
+ 	__gre_tunnel_init(dev);
+ 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
++	netif_keep_dst(dev);
+ 
+ 	return ip_tunnel_init(dev);
+ }
+@@ -940,6 +955,10 @@ static int gre_tap_init(struct net_device *dev)
+ static const struct net_device_ops gre_tap_netdev_ops = {
+ 	.ndo_init		= gre_tap_init,
+ 	.ndo_uninit		= ip_tunnel_uninit,
++#ifdef CONFIG_NET_IPGRE_BROADCAST
++	.ndo_open		= ipgre_open,
++	.ndo_stop		= ipgre_close,
++#endif
+ 	.ndo_start_xmit		= gre_tap_xmit,
+ 	.ndo_set_mac_address 	= eth_mac_addr,
+ 	.ndo_validate_addr	= eth_validate_addr,
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index 129d1a3616f8..451c11fc9ae5 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -140,6 +140,7 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
+ 
+ 	hlist_for_each_entry_rcu(t, head, hash_node) {
+ 		if ((local != t->parms.iph.saddr || t->parms.iph.daddr != 0) &&
++		    (local != t->parms.iph.saddr || !ipv4_is_multicast(t->parms.iph.daddr)) &&
+ 		    (local != t->parms.iph.daddr || !ipv4_is_multicast(local)))
+ 			continue;
+ 
+-- 
+2.13.0
 
