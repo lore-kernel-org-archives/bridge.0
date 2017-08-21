@@ -1,10 +1,10 @@
 Return-Path: <equinox@diac24.net>
 From: David Lamparter <equinox@diac24.net>
-Date: Mon, 21 Aug 2017 19:15:20 +0200
-Message-Id: <20170821171523.951260-4-equinox@diac24.net>
+Date: Mon, 21 Aug 2017 19:15:21 +0200
+Message-Id: <20170821171523.951260-5-equinox@diac24.net>
 In-Reply-To: <20170821171523.951260-1-equinox@diac24.net>
 References: <20170821171523.951260-1-equinox@diac24.net>
-Subject: [Bridge] [PATCH 3/6] gretap: support lwtunnel under bridge (NVGRE)
+Subject: [Bridge] [PATCH 4/6] mpls: split forwarding path on rx/tx boundary
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,122 +16,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: roopa@cumulusnetworks.com, amine.kherbouche@6wind.com, David Lamparter <equinox@diac24.net>
 
-This enables using an IPv4 multicast destination for gretap and enables
-learning unicast destinations through the bridge fdb.  Alternatively, a
-zero destination can be used together with manual entry creation via
-netlink.
+This makes mpls_rt_xmit() available for use in upcoming VPLS code.  Same
+for mpls_route_input_rcu().
 
-This is essentially basic NVGRE support, if the GRE key is configured
-appropriately.  VLAN to key mapping is not supported.  Implementing
-NVGRE was actually an unintentional side effect.
-
-[v2: move src/dst flipping to RX path, allow zero tunnel daddr]
 Signed-off-by: David Lamparter <equinox@diac24.net>
 ---
- net/ipv4/ip_gre.c    | 40 +++++++++++++++++++++++++++++++++++-----
- net/ipv4/ip_tunnel.c |  1 +
- 2 files changed, 36 insertions(+), 5 deletions(-)
+ net/mpls/af_mpls.c  | 48 ++++++++++++++++++++++++++++++------------------
+ net/mpls/internal.h |  4 ++++
+ 2 files changed, 34 insertions(+), 18 deletions(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 7a7829e839c2..1596f709e5b6 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -266,15 +266,35 @@ static int __ipgre_rcv(struct sk_buff *skb, const struct tnl_ptk_info *tpi,
- 			skb_pop_mac_header(skb);
- 		else
- 			skb_reset_mac_header(skb);
--		if (tunnel->collect_md) {
-+		if (tunnel->collect_md ||
-+		    tunnel->parms.iph.daddr == 0 ||
-+		    ipv4_is_multicast(tunnel->parms.iph.daddr)) {
- 			__be16 flags;
- 			__be64 tun_id;
+diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
+index c5b9ce41d66f..1de2b3501dc8 100644
+--- a/net/mpls/af_mpls.c
++++ b/net/mpls/af_mpls.c
+@@ -43,7 +43,7 @@ static void rtmsg_lfib(int event, u32 label, struct mpls_route *rt,
+ 		       struct nlmsghdr *nlh, struct net *net, u32 portid,
+ 		       unsigned int nlm_flags);
  
- 			flags = tpi->flags & (TUNNEL_CSUM | TUNNEL_KEY);
- 			tun_id = key32_to_tunnel_id(tpi->key);
--			tun_dst = ip_tun_rx_dst(skb, flags, tun_id, 0);
--			if (!tun_dst)
--				return PACKET_REJECT;
-+			if (tunnel->collect_md) {
-+				tun_dst = ip_tun_rx_dst(skb, flags, tun_id, 0);
-+				if (!tun_dst)
-+					return PACKET_REJECT;
-+			} else {
-+				tun_dst = metadata_dst_alloc(0,
-+						METADATA_IP_TUNNEL, GFP_ATOMIC);
-+				if (!tun_dst)
-+					return PACKET_REJECT;
-+
-+				/* build dst appropriate for responding */
-+				tun_dst->u.tun_info.options_len = 0;
-+				tun_dst->u.tun_info.mode = IP_TUNNEL_INFO_TX;
-+
-+				ip_tunnel_key_init(&tun_dst->u.tun_info.key,
-+						   tunnel->parms.iph.saddr,
-+						   iph->saddr,
-+						   tunnel->parms.iph.tos,
-+						   tunnel->parms.iph.ttl,
-+						   0, 0, 0, tun_id, flags);
-+			}
- 		}
- 
- 		ip_tunnel_rcv(tunnel, skb, tpi, tun_dst, log_ecn_error);
-@@ -507,11 +527,14 @@ static netdev_tx_t gre_tap_xmit(struct sk_buff *skb,
- 				struct net_device *dev)
+-static struct mpls_route *mpls_route_input_rcu(struct net *net, unsigned index)
++struct mpls_route *mpls_route_input_rcu(struct net *net, unsigned index)
  {
- 	struct ip_tunnel *tunnel = netdev_priv(dev);
-+	struct ip_tunnel_info *tun_info = skb_tunnel_info(skb);
+ 	struct mpls_route *rt = NULL;
  
--	if (tunnel->collect_md) {
-+	if (tunnel->collect_md || tun_info) {
- 		gre_fb_xmit(skb, dev, htons(ETH_P_TEB));
- 		return NETDEV_TX_OK;
+@@ -313,15 +313,8 @@ static int mpls_forward(struct sk_buff *skb, struct net_device *dev,
+ 	struct net *net = dev_net(dev);
+ 	struct mpls_shim_hdr *hdr;
+ 	struct mpls_route *rt;
+-	struct mpls_nh *nh;
+ 	struct mpls_entry_decoded dec;
+-	struct net_device *out_dev;
+-	struct mpls_dev *out_mdev;
+ 	struct mpls_dev *mdev;
+-	unsigned int hh_len;
+-	unsigned int new_header_size;
+-	unsigned int mtu;
+-	int err;
+ 
+ 	/* Careful this entire function runs inside of an rcu critical section */
+ 
+@@ -356,9 +349,6 @@ static int mpls_forward(struct sk_buff *skb, struct net_device *dev,
+ 		goto drop;
  	}
-+	/* tunnel layer doesn't expect a metadata dst */
-+	skb_dst_drop(skb);
  
- 	if (gre_handle_offloads(skb, !!(tunnel->parms.o_flags & TUNNEL_CSUM)))
- 		goto free_skb;
-@@ -933,6 +956,7 @@ static int gre_tap_init(struct net_device *dev)
- {
- 	__gre_tunnel_init(dev);
- 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
-+	netif_keep_dst(dev);
+-	nh = mpls_select_multipath(rt, skb);
+-	if (!nh)
+-		goto err;
  
- 	return ip_tunnel_init(dev);
+ 	/* Pop the label */
+ 	skb_pull(skb, sizeof(*hdr));
+@@ -376,6 +366,32 @@ static int mpls_forward(struct sk_buff *skb, struct net_device *dev,
+ 		goto err;
+ 	dec.ttl -= 1;
+ 
++	if (mpls_rt_xmit(skb, rt, dec))
++		goto drop;
++	return 0;
++
++err:
++	MPLS_INC_STATS(mdev, rx_errors);
++drop:
++	kfree_skb(skb);
++	return NET_RX_DROP;
++}
++
++int mpls_rt_xmit(struct sk_buff *skb, struct mpls_route *rt,
++		 struct mpls_entry_decoded dec)
++{
++	struct mpls_nh *nh;
++	struct net_device *out_dev = NULL;
++	struct mpls_dev *out_mdev;
++	unsigned int hh_len;
++	unsigned int new_header_size;
++	unsigned int mtu;
++	int err;
++
++	nh = mpls_select_multipath(rt, skb);
++	if (!nh)
++		goto tx_err;
++
+ 	/* Find the output device */
+ 	out_dev = rcu_dereference(nh->nh_dev);
+ 	if (!mpls_output_possible(out_dev))
+@@ -401,8 +417,9 @@ static int mpls_forward(struct sk_buff *skb, struct net_device *dev,
+ 	if (unlikely(!new_header_size && dec.bos)) {
+ 		/* Penultimate hop popping */
+ 		if (!mpls_egress(dev_net(out_dev), rt, skb, dec))
+-			goto err;
++			goto tx_err;
+ 	} else {
++		struct mpls_shim_hdr *hdr;
+ 		bool bos;
+ 		int i;
+ 		skb_push(skb, new_header_size);
+@@ -435,12 +452,7 @@ static int mpls_forward(struct sk_buff *skb, struct net_device *dev,
+ 	out_mdev = out_dev ? mpls_dev_get(out_dev) : NULL;
+ 	if (out_mdev)
+ 		MPLS_INC_STATS(out_mdev, tx_errors);
+-	goto drop;
+-err:
+-	MPLS_INC_STATS(mdev, rx_errors);
+-drop:
+-	kfree_skb(skb);
+-	return NET_RX_DROP;
++	return -1;
  }
-@@ -940,6 +964,10 @@ static int gre_tap_init(struct net_device *dev)
- static const struct net_device_ops gre_tap_netdev_ops = {
- 	.ndo_init		= gre_tap_init,
- 	.ndo_uninit		= ip_tunnel_uninit,
-+#ifdef CONFIG_NET_IPGRE_BROADCAST
-+	.ndo_open		= ipgre_open,
-+	.ndo_stop		= ipgre_close,
-+#endif
- 	.ndo_start_xmit		= gre_tap_xmit,
- 	.ndo_set_mac_address 	= eth_mac_addr,
- 	.ndo_validate_addr	= eth_validate_addr,
-@@ -947,6 +975,8 @@ static const struct net_device_ops gre_tap_netdev_ops = {
- 	.ndo_get_stats64	= ip_tunnel_get_stats64,
- 	.ndo_get_iflink		= ip_tunnel_get_iflink,
- 	.ndo_fill_metadata_dst	= gre_fill_metadata_dst,
-+	.ndo_metadst_fill	= ip_tunnel_fill_metadst,
-+	.ndo_metadst_build	= ip_tunnel_build_metadst,
- };
  
- static void ipgre_tap_setup(struct net_device *dev)
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index 129d1a3616f8..451c11fc9ae5 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -140,6 +140,7 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
+ static struct packet_type mpls_packet_type __read_mostly = {
+diff --git a/net/mpls/internal.h b/net/mpls/internal.h
+index cf65aec2e551..b70c6663d4f3 100644
+--- a/net/mpls/internal.h
++++ b/net/mpls/internal.h
+@@ -210,4 +210,8 @@ bool mpls_pkt_too_big(const struct sk_buff *skb, unsigned int mtu);
+ void mpls_stats_inc_outucastpkts(struct net_device *dev,
+ 				 const struct sk_buff *skb);
  
- 	hlist_for_each_entry_rcu(t, head, hash_node) {
- 		if ((local != t->parms.iph.saddr || t->parms.iph.daddr != 0) &&
-+		    (local != t->parms.iph.saddr || !ipv4_is_multicast(t->parms.iph.daddr)) &&
- 		    (local != t->parms.iph.daddr || !ipv4_is_multicast(local)))
- 			continue;
- 
++struct mpls_route *mpls_route_input_rcu(struct net *net, unsigned index);
++int mpls_rt_xmit(struct sk_buff *skb, struct mpls_route *rt,
++		 struct mpls_entry_decoded dec);
++
+ #endif /* MPLS_INTERNAL_H */
 -- 
 2.13.0
 
