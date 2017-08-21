@@ -1,10 +1,10 @@
 Return-Path: <equinox@diac24.net>
 From: David Lamparter <equinox@diac24.net>
-Date: Mon, 21 Aug 2017 19:15:22 +0200
-Message-Id: <20170821171523.951260-6-equinox@diac24.net>
+Date: Mon, 21 Aug 2017 19:15:23 +0200
+Message-Id: <20170821171523.951260-7-equinox@diac24.net>
 In-Reply-To: <20170821171523.951260-1-equinox@diac24.net>
 References: <20170821171523.951260-1-equinox@diac24.net>
-Subject: [Bridge] [PATCH 5/6] mpls: add VPLS entry points
+Subject: [Bridge] [PATCH 6/6] mpls: VPLS support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,268 +16,712 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: roopa@cumulusnetworks.com, amine.kherbouche@6wind.com, David Lamparter <equinox@diac24.net>
 
-This wires up the neccessary calls for VPLS into the MPLS forwarding
-pieces.  Since CONFIG_MPLS_VPLS doesn't exist yet in Kconfig, it'll
-never be enabled, so we're on the stubs for now.
-
-[TODO: maybe rename VPLS_FLAGS to MPLS_FLAGS and use it for
-non-pseudowire OAM bits too (e.g. enabling G-ACh or LSP ping.)]
+[work-in-progress, works but needs changes]
+[v2: refactored lots of things, e.g. dst_metadata, no more genetlink]
+[v4: removed pointless include/net/vpls.h, squashed pseudowire control
+word support, squashed netlink lwtunnel access bits]
 
 Signed-off-by: David Lamparter <equinox@diac24.net>
 ---
- include/uapi/linux/rtnetlink.h |  5 ++++
- net/mpls/af_mpls.c             | 65 ++++++++++++++++++++++++++++++++++++++++++
- net/mpls/internal.h            | 40 ++++++++++++++++++++++----
- 3 files changed, 104 insertions(+), 6 deletions(-)
+ include/net/dst_metadata.h    |  24 ++
+ include/uapi/linux/lwtunnel.h |   8 +
+ net/core/lwtunnel.c           |   1 +
+ net/mpls/Kconfig              |  11 +
+ net/mpls/Makefile             |   1 +
+ net/mpls/vpls.c               | 550 ++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 595 insertions(+)
+ create mode 100644 net/mpls/vpls.c
 
-diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
-index dab7dad9e01a..b5a34e0e4327 100644
---- a/include/uapi/linux/rtnetlink.h
-+++ b/include/uapi/linux/rtnetlink.h
-@@ -326,6 +326,8 @@ enum rtattr_type_t {
- 	RTA_PAD,
- 	RTA_UID,
- 	RTA_TTL_PROPAGATE,
-+	RTA_VPLS_IF,
-+	RTA_VPLS_FLAGS,
- 	__RTA_MAX
+diff --git a/include/net/dst_metadata.h b/include/net/dst_metadata.h
+index 4bcc0f314853..307df53e5185 100644
+--- a/include/net/dst_metadata.h
++++ b/include/net/dst_metadata.h
+@@ -8,6 +8,7 @@
+ enum metadata_type {
+ 	METADATA_IP_TUNNEL,
+ 	METADATA_HW_PORT_MUX,
++	METADATA_VPLS,
  };
  
-@@ -334,6 +336,9 @@ enum rtattr_type_t {
- #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
- #define RTM_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct rtmsg))
+ struct hw_port_info {
+@@ -15,12 +16,17 @@ struct hw_port_info {
+ 	u32 port_id;
+ };
  
-+#define RTA_VPLS_F_CW_RX	(1 << 0)
-+#define RTA_VPLS_F_CW_TX	(1 << 1)
++struct vpls_info {
++	u32 pw_label;
++};
 +
- /* RTM_MULTIPATH --- array of struct rtnexthop.
-  *
-  * "struct rtnexthop" describes all necessary nexthop information,
-diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
-index 1de2b3501dc8..7a21d230f9e7 100644
---- a/net/mpls/af_mpls.c
-+++ b/net/mpls/af_mpls.c
-@@ -299,6 +299,11 @@ static bool mpls_egress(struct net *net, struct mpls_route *rt,
- 		success = true;
- 		break;
- 	}
-+	case MPT_VPLS:
-+		/* nothing to do here, no TTL in Ethernet
-+		 * (and we shouldn't mess with the TTL in inner IP packets,
-+		 * pseudowires are supposed to be transparent) */
-+		break;
- 	case MPT_UNSPEC:
- 		/* Should have decided which protocol it is by now */
- 		break;
-@@ -349,6 +354,8 @@ static int mpls_forward(struct sk_buff *skb, struct net_device *dev,
- 		goto drop;
- 	}
+ struct metadata_dst {
+ 	struct dst_entry		dst;
+ 	enum metadata_type		type;
+ 	union {
+ 		struct ip_tunnel_info	tun_info;
+ 		struct hw_port_info	port_info;
++		struct vpls_info	vpls_info;
+ 	} u;
+ };
  
-+	if (rt->rt_payload_type == MPT_VPLS)
-+		return vpls_rcv(skb, dev, pt, rt, hdr, orig_dev);
+@@ -54,6 +60,15 @@ static inline struct ip_tunnel_info *skb_tunnel_info(struct sk_buff *skb)
+ 	return NULL;
+ }
  
- 	/* Pop the label */
- 	skb_pull(skb, sizeof(*hdr));
-@@ -469,6 +476,8 @@ static const struct nla_policy rtm_mpls_policy[RTA_MAX+1] = {
- struct mpls_route_config {
- 	u32			rc_protocol;
- 	u32			rc_ifindex;
-+	u32			rc_vpls_ifindex;
-+	u8			rc_vpls_flags;
- 	u8			rc_via_table;
- 	u8			rc_via_alen;
- 	u8			rc_via[MAX_VIA_ALEN];
-@@ -541,6 +550,8 @@ static void mpls_route_update(struct net *net, unsigned index,
- 	rt = rtnl_dereference(platform_label[index]);
- 	rcu_assign_pointer(platform_label[index], new);
- 
-+	vpls_label_update(index, rt, new);
++static inline struct vpls_info *skb_vpls_info(struct sk_buff *skb)
++{
++	struct metadata_dst *md_dst = skb_metadata_dst(skb);
++	if (md_dst && md_dst->type == METADATA_VPLS)
++		return &md_dst->u.vpls_info;
++	return NULL;
++}
 +
- 	mpls_notify_route(net, index, rt, new, info);
++
+ static inline bool skb_valid_dst(const struct sk_buff *skb)
+ {
+ 	struct dst_entry *dst = skb_dst(skb);
+@@ -74,6 +89,9 @@ static inline int metadata_dst_cmp(const struct metadata_dst *a,
+ 	case METADATA_HW_PORT_MUX:
+ 		return memcmp(&a->u.port_info, &b->u.port_info,
+ 			      sizeof(a->u.port_info));
++	case METADATA_VPLS:
++		return memcmp(&a->u.vpls_info, &b->u.vpls_info,
++			      sizeof(a->u.vpls_info));
+ 	case METADATA_IP_TUNNEL:
+ 		return memcmp(&a->u.tun_info, &b->u.tun_info,
+ 			      sizeof(a->u.tun_info) +
+@@ -220,4 +238,10 @@ static inline struct metadata_dst *ipv6_tun_rx_dst(struct sk_buff *skb,
+ 				  0, ip6_flowlabel(ip6h), flags, tunnel_id,
+ 				  md_size);
+ }
++
++static inline struct metadata_dst *vpls_rx_dst(void)
++{
++	return metadata_dst_alloc(0, METADATA_VPLS, GFP_ATOMIC);
++}
++
+ #endif /* __NET_DST_METADATA_H */
+diff --git a/include/uapi/linux/lwtunnel.h b/include/uapi/linux/lwtunnel.h
+index 7fdd19ca7511..b7281441bccb 100644
+--- a/include/uapi/linux/lwtunnel.h
++++ b/include/uapi/linux/lwtunnel.h
+@@ -12,6 +12,7 @@ enum lwtunnel_encap_types {
+ 	LWTUNNEL_ENCAP_SEG6,
+ 	LWTUNNEL_ENCAP_BPF,
+ 	LWTUNNEL_ENCAP_SEG6_LOCAL,
++	LWTUNNEL_ENCAP_PSEUDOWIRE,
+ 	__LWTUNNEL_ENCAP_MAX,
+ };
  
- 	/* If we removed a route free it now */
-@@ -942,6 +953,7 @@ static int mpls_route_add(struct mpls_route_config *cfg,
- 	struct mpls_route __rcu **platform_label;
- 	struct net *net = cfg->rc_nlinfo.nl_net;
- 	struct mpls_route *rt, *old;
-+	struct net_device *vpls_dev = NULL;
- 	int err = -EINVAL;
- 	u8 max_via_alen;
- 	unsigned index;
-@@ -996,6 +1008,24 @@ static int mpls_route_add(struct mpls_route_config *cfg,
- 		goto errout;
- 	}
+@@ -67,4 +68,11 @@ enum {
  
-+	if (cfg->rc_vpls_ifindex) {
-+		vpls_dev = dev_get_by_index(net, cfg->rc_vpls_ifindex);
-+		if (!vpls_dev) {
-+			err = -ENODEV;
-+			NL_SET_ERR_MSG(extack, "Invalid VPLS ifindex");
-+			goto errout;
+ #define LWT_BPF_MAX_HEADROOM 256
+ 
++enum {
++	LWT_PSEUDOWIRE_LOCAL_LABEL,
++	__LWT_PSEUDOWIRE_MAX,
++};
++
++#define LWT_PSEUDOWIRE_MAX (__LWT_PSEUDOWIRE_MAX - 1)
++
+ #endif /* _UAPI_LWTUNNEL_H_ */
+diff --git a/net/core/lwtunnel.c b/net/core/lwtunnel.c
+index 0b171756453c..52563a4ecc22 100644
+--- a/net/core/lwtunnel.c
++++ b/net/core/lwtunnel.c
+@@ -49,6 +49,7 @@ static const char *lwtunnel_encap_str(enum lwtunnel_encap_types encap_type)
+ 	case LWTUNNEL_ENCAP_IP6:
+ 	case LWTUNNEL_ENCAP_IP:
+ 	case LWTUNNEL_ENCAP_NONE:
++	case LWTUNNEL_ENCAP_PSEUDOWIRE:
+ 	case __LWTUNNEL_ENCAP_MAX:
+ 		/* should not have got here */
+ 		WARN_ON(1);
+diff --git a/net/mpls/Kconfig b/net/mpls/Kconfig
+index 5c467ef97311..c15ba73efb34 100644
+--- a/net/mpls/Kconfig
++++ b/net/mpls/Kconfig
+@@ -27,6 +27,17 @@ config MPLS_ROUTING
+ 	---help---
+ 	 Add support for forwarding of mpls packets.
+ 
++config MPLS_VPLS
++	bool "VPLS support"
++	default y
++	depends on MPLS_ROUTING && BRIDGE_NETFILTER=n
++	---help---
++	 Add support for de-&encapsulating VPLS.  Not compatible with
++	 bridge netfilter due to the latter stomping over VPLS' dst metadata.
++
++comment "disable 'Bridged IP/ARP packets filtering' for VPLS support"
++	depends on BRIDGE_NETFILTER
++
+ config MPLS_IPTUNNEL
+ 	tristate "MPLS: IP over MPLS tunnel support"
+ 	depends on LWTUNNEL && MPLS_ROUTING
+diff --git a/net/mpls/Makefile b/net/mpls/Makefile
+index 9ca923625016..3c028600a980 100644
+--- a/net/mpls/Makefile
++++ b/net/mpls/Makefile
+@@ -6,3 +6,4 @@ obj-$(CONFIG_MPLS_ROUTING) += mpls_router.o
+ obj-$(CONFIG_MPLS_IPTUNNEL) += mpls_iptunnel.o
+ 
+ mpls_router-y := af_mpls.o
++mpls_router-$(CONFIG_MPLS_VPLS) += vpls.o
+diff --git a/net/mpls/vpls.c b/net/mpls/vpls.c
+new file mode 100644
+index 000000000000..12cbfe3063ae
+--- /dev/null
++++ b/net/mpls/vpls.c
+@@ -0,0 +1,550 @@
++/*
++ *  net/mpls/vpls.c
++ *
++ *  Copyright (C) 2016 David Lamparter
++ *
++ */
++
++#include <linux/netdevice.h>
++#include <linux/slab.h>
++#include <linux/ethtool.h>
++#include <linux/etherdevice.h>
++#include <linux/u64_stats_sync.h>
++#include <linux/mpls.h>
++
++#include <net/rtnetlink.h>
++#include <net/dst.h>
++#include <net/xfrm.h>
++#include <net/mpls.h>
++#include <linux/module.h>
++#include <net/dst_metadata.h>
++#include <net/ip_tunnels.h>
++#include <linux/lwtunnel.h>
++
++#include "internal.h"
++
++#define DRV_NAME	"vpls"
++
++#define MIN_MTU 68		/* Min L3 MTU */
++#define MAX_MTU 65535		/* Max L3 MTU (arbitrary) */
++
++struct vpls_cw {
++	u8 type_flags;
++#define VPLS_CWTYPE(cw) ((cw)->type_flags & 0x0f)
++
++	u8 len;
++	u16 seqno;
++};
++
++struct vpls_wirelist {
++	struct rcu_head rcu;
++	size_t count;
++	unsigned wires[0];
++};
++
++struct vpls_priv {
++	struct net *encap_net;
++	struct vpls_wirelist __rcu *wires;
++};
++
++static int vpls_xmit_wire(struct sk_buff *skb, struct net_device *dev,
++			  struct vpls_priv *vpls, u32 wire)
++{
++	struct mpls_route *rt;
++	struct mpls_entry_decoded dec;
++
++	dec.bos = 1;
++	dec.ttl = 255;
++
++	rt = mpls_route_input_rcu(vpls->encap_net, wire);
++	if (!rt)
++		return -ENOENT;
++	if (rt->rt_vpls_dev != dev)
++		return -EINVAL;
++
++	if (rt->rt_vpls_flags & RTA_VPLS_F_CW_TX) {
++		struct vpls_cw *cw;
++		if (skb_cow(skb, sizeof(*cw)))
++			return -ENOMEM;
++		cw = skb_push(skb, sizeof(*cw));
++		memset(cw, 0, sizeof(*cw));
++	}
++
++	return mpls_rt_xmit(skb, rt, dec);
++}
++
++static netdev_tx_t vpls_xmit(struct sk_buff *skb, struct net_device *dev)
++{
++	int err = -EINVAL, ok_count = 0;
++	struct vpls_priv *priv = netdev_priv(dev);
++	struct vpls_info *vi;
++	struct pcpu_sw_netstats *stats;
++	size_t len = skb->len;
++
++	vi = skb_vpls_info(skb);
++
++	skb_orphan(skb);
++	skb_forward_csum(skb);
++
++	if (vi) {
++		err = vpls_xmit_wire(skb, dev, priv, vi->pw_label);
++		if (err)
++			goto out_err;
++	} else {
++		struct sk_buff *cloned;
++		struct vpls_wirelist *wl;
++		size_t i;
++
++		rcu_read_lock();
++		wl = rcu_dereference(priv->wires);
++		if (wl->count == 0) {
++			dev->stats.tx_carrier_errors++;
++			goto out_err_rcu;
 +		}
-+		/* we're under RTNL; and we'll drop routes when we're
-+		 * notified the device is going away. */
-+		dev_put(vpls_dev);
 +
-+		if (!is_vpls_dev(vpls_dev)) {
-+			err = -ENODEV;
-+			NL_SET_ERR_MSG(extack, "Not a VPLS device");
-+			goto errout;
++		for (i = 0; i < wl->count; i++) {
++			cloned = skb_clone(skb, GFP_KERNEL);
++			if (vpls_xmit_wire(cloned, dev, priv, wl->wires[i]))
++				consume_skb(cloned);
++			else
++				ok_count++;
++		}
++		rcu_read_unlock();
++
++		if (!ok_count)
++			goto out_err;
++		consume_skb(skb);
++	}
++
++	stats = this_cpu_ptr(dev->tstats);
++	u64_stats_update_begin(&stats->syncp);
++	stats->tx_packets++;
++	stats->tx_bytes += len;
++	u64_stats_update_end(&stats->syncp);
++
++	return 0;
++
++out_err_rcu:
++	rcu_read_unlock();
++out_err:
++	dev->stats.tx_errors++;
++
++	consume_skb(skb);
++	return err;
++}
++
++int vpls_rcv(struct sk_buff *skb, struct net_device *in_dev,
++	     struct packet_type *pt, struct mpls_route *rt,
++	     struct mpls_shim_hdr *hdr, struct net_device *orig_dev)
++{
++	struct net_device *dev = rt->rt_vpls_dev;
++	struct mpls_entry_decoded dec;
++	struct metadata_dst *md_dst;
++	struct pcpu_sw_netstats *stats;
++	void *next;
++
++	if (!dev)
++		goto drop_nodev;
++
++	dec = mpls_entry_decode(hdr);
++	if (!dec.bos) {
++		dev->stats.rx_frame_errors++;
++		goto drop;
++	}
++
++	/* bottom label is still in the skb */
++	next = skb_pull(skb, sizeof(*hdr));
++
++	if (rt->rt_vpls_flags & RTA_VPLS_F_CW_RX) {
++		struct vpls_cw *cw = next;
++		if (unlikely(!pskb_may_pull(skb, sizeof(*cw)))) {
++			dev->stats.rx_length_errors++;
++			goto drop;
++		}
++		next = skb_pull(skb, sizeof(*cw));
++
++		if (VPLS_CWTYPE(cw) != 0) {
++			/* insert MPLS OAM implementation here */
++			goto drop_nodev;
 +		}
 +	}
 +
- 	err = -ENOMEM;
- 	rt = mpls_rt_alloc(nhs, max_via_alen, max_labels);
- 	if (IS_ERR(rt)) {
-@@ -1006,6 +1036,8 @@ static int mpls_route_add(struct mpls_route_config *cfg,
- 	rt->rt_protocol = cfg->rc_protocol;
- 	rt->rt_payload_type = cfg->rc_payload_type;
- 	rt->rt_ttl_propagate = cfg->rc_ttl_propagate;
-+	rt->rt_vpls_dev = vpls_dev;
-+	rt->rt_vpls_flags = cfg->rc_vpls_flags;
- 
- 	if (cfg->rc_mp)
- 		err = mpls_nh_build_multi(cfg, rt, max_labels, extack);
-@@ -1430,6 +1462,14 @@ static void mpls_ifdown(struct net_device *dev, int event)
- 		if (!rt)
- 			continue;
- 
-+		if (rt->rt_vpls_dev == dev) {
-+			switch (event) {
-+			case NETDEV_UNREGISTER:
-+				mpls_route_update(net, index, NULL, NULL);
-+				continue;
-+			}
-+		}
++	if (unlikely(!pskb_may_pull(skb, ETH_HLEN))) {
++		dev->stats.rx_length_errors++;
++		goto drop;
++	}
 +
- 		alive = 0;
- 		deleted = 0;
- 		change_nexthops(rt) {
-@@ -1777,6 +1817,13 @@ static int rtm_to_route_config(struct sk_buff *skb,
- 		case RTA_OIF:
- 			cfg->rc_ifindex = nla_get_u32(nla);
- 			break;
-+		case RTA_VPLS_IF:
-+			cfg->rc_vpls_ifindex = nla_get_u32(nla);
-+			cfg->rc_payload_type = MPT_VPLS;
-+			break;
-+		case RTA_VPLS_FLAGS:
-+			cfg->rc_vpls_flags = nla_get_u8(nla);
-+			break;
- 		case RTA_NEWDST:
- 			if (nla_get_labels(nla, MAX_NEW_LABELS,
- 					   &cfg->rc_output_labels,
-@@ -1911,6 +1958,14 @@ static int mpls_dump_route(struct sk_buff *skb, u32 portid, u32 seq, int event,
- 			       ttl_propagate))
- 			goto nla_put_failure;
- 	}
++	md_dst = vpls_rx_dst();
++	if (unlikely(!md_dst)) {
++		netdev_err(dev, "failed to allocate dst metadata\n");
++		goto drop;
++	}
++	md_dst->u.vpls_info.pw_label = dec.label;
 +
-+	if (rt->rt_vpls_dev)
-+		if (nla_put_u32(skb, RTA_VPLS_IF, rt->rt_vpls_dev->ifindex))
-+			goto nla_put_failure;
-+	if (rt->rt_vpls_flags)
-+		if (nla_put_u8(skb, RTA_VPLS_FLAGS, rt->rt_vpls_flags))
-+			goto nla_put_failure;
++	skb->dev = dev;
 +
- 	if (rt->rt_nhn == 1) {
- 		const struct mpls_nh *nh = rt->rt_nh;
- 
-@@ -2220,6 +2275,13 @@ static int mpls_getroute(struct sk_buff *in_skb, struct nlmsghdr *in_nlh,
- 	if (nla_put_labels(skb, RTA_DST, 1, &in_label))
- 		goto nla_put_failure;
- 
-+	if (rt->rt_vpls_dev)
-+		if (nla_put_u32(skb, RTA_VPLS_IF, rt->rt_vpls_dev->ifindex))
-+			goto nla_put_failure;
-+	if (rt->rt_vpls_flags)
-+		if (nla_put_u8(skb, RTA_VPLS_FLAGS, rt->rt_vpls_flags))
-+			goto nla_put_failure;
++	skb_reset_mac_header(skb);
++	skb->protocol = eth_type_trans(skb, dev);
++	skb->ip_summed = CHECKSUM_NONE;
++	skb->pkt_type = PACKET_HOST;
 +
- 	if (nh->nh_labels &&
- 	    nla_put_labels(skb, RTA_NEWDST, nh->nh_labels,
- 			   nh->nh_label))
-@@ -2491,6 +2553,8 @@ static int __init mpls_init(void)
- 
- 	rtnl_af_register(&mpls_af_ops);
- 
-+	vpls_init();
++	skb_clear_hash(skb);
++	skb->vlan_tci = 0;
++	skb_set_queue_mapping(skb, 0);
++	skb_scrub_packet(skb, !net_eq(dev_net(in_dev), dev_net(dev)));
 +
- 	rtnl_register(PF_MPLS, RTM_NEWROUTE, mpls_rtm_newroute, NULL, 0);
- 	rtnl_register(PF_MPLS, RTM_DELROUTE, mpls_rtm_delroute, NULL, 0);
- 	rtnl_register(PF_MPLS, RTM_GETROUTE, mpls_getroute, mpls_dump_routes,
-@@ -2510,6 +2574,7 @@ module_init(mpls_init);
- static void __exit mpls_exit(void)
- {
- 	rtnl_unregister_all(PF_MPLS);
-+	vpls_exit();
- 	rtnl_af_unregister(&mpls_af_ops);
- 	dev_remove_pack(&mpls_packet_type);
- 	unregister_netdevice_notifier(&mpls_dev_notifier);
-diff --git a/net/mpls/internal.h b/net/mpls/internal.h
-index b70c6663d4f3..f22e50b693ea 100644
---- a/net/mpls/internal.h
-+++ b/net/mpls/internal.h
-@@ -76,13 +76,9 @@ struct sk_buff;
- 
- enum mpls_payload_type {
- 	MPT_UNSPEC, /* IPv4 or IPv6 */
-+	MPT_VPLS = 2,	/* pseudowire */
- 	MPT_IPV4 = 4,
- 	MPT_IPV6 = 6,
--
--	/* Other types not implemented:
--	 *  - Pseudo-wire with or without control word (RFC4385)
--	 *  - GAL (RFC5586)
--	 */
- };
- 
- struct mpls_nh { /* next hop label forwarding entry */
-@@ -152,7 +148,10 @@ struct mpls_route { /* next hop label forwarding entry */
- 	u8			rt_nhn_alive;
- 	u8			rt_nh_size;
- 	u8			rt_via_offset;
--	u8			rt_reserved1;
++	skb_reset_network_header(skb);
++	skb_probe_transport_header(skb, 0);
 +
-+	u8			rt_vpls_flags;
-+	struct net_device	*rt_vpls_dev;
++	skb_dst_drop(skb);
++	skb_dst_set(skb, &md_dst->dst);
 +
- 	struct mpls_nh		rt_nh[0];
- };
- 
-@@ -214,4 +213,33 @@ struct mpls_route *mpls_route_input_rcu(struct net *net, unsigned index);
- int mpls_rt_xmit(struct sk_buff *skb, struct mpls_route *rt,
- 		 struct mpls_entry_decoded dec);
- 
-+#ifdef CONFIG_MPLS_VPLS
-+int vpls_rcv(struct sk_buff *skb, struct net_device *in_dev,
-+	     struct packet_type *pt, struct mpls_route *rt,
-+	     struct mpls_shim_hdr *hdr, struct net_device *orig_dev);
-+void vpls_label_update(unsigned label, struct mpls_route *rt_old,
-+		       struct mpls_route *rt_new);
-+__init int vpls_init(void);
-+__exit void vpls_exit(void);
-+int is_vpls_dev(struct net_device *dev);
++	stats = this_cpu_ptr(dev->tstats);
++	u64_stats_update_begin(&stats->syncp);
++	stats->rx_packets++;
++	stats->rx_bytes += skb->len;
++	u64_stats_update_end(&stats->syncp);
 +
-+#else /* !CONFIG_MPLS_VPLS */
-+static inline int vpls_rcv(struct sk_buff *skb, struct net_device *in_dev,
-+			   struct packet_type *pt, struct mpls_route *rt,
-+			   struct mpls_shim_hdr *hdr,
-+			   struct net_device *orig_dev)
-+{
++	netif_rx(skb);
++	return 0;
++
++drop:
++	dev->stats.rx_errors++;
++drop_nodev:
 +	kfree_skb(skb);
 +	return NET_RX_DROP;
 +}
-+static inline int is_vpls_dev(struct net_device *dev)
++
++void vpls_label_update(unsigned label, struct mpls_route *rt_old,
++		       struct mpls_route *rt_new)
 +{
++	struct vpls_priv *priv;
++	struct vpls_wirelist *wl, *wl_new;
++	size_t i;
++
++	ASSERT_RTNL();
++
++	if (rt_old && rt_new && rt_old->rt_vpls_dev == rt_new->rt_vpls_dev)
++		return;
++
++	if (rt_old && rt_old->rt_vpls_dev) {
++		priv = netdev_priv(rt_old->rt_vpls_dev);
++		wl = rcu_dereference(priv->wires);
++
++		for (i = 0; i < wl->count; i++)
++			if (wl->wires[i] == label)
++				break;
++
++		if (i == wl->count) {
++			netdev_err(rt_old->rt_vpls_dev,
++				   "can't find pseudowire to remove!\n");
++			goto update_new;
++		}
++
++		wl_new = kmalloc(sizeof(*wl) +
++				 (wl->count - 1) * sizeof(wl->wires[0]),
++				 GFP_ATOMIC);
++		if (!wl_new) {
++			netdev_err(rt_old->rt_vpls_dev,
++				   "out of memory for pseudowire delete!\n");
++			goto update_new;
++		}
++
++		wl_new->count = wl->count - 1;
++		memcpy(wl_new->wires, wl->wires, i * sizeof(wl->wires[0]));
++		memcpy(wl_new->wires + i, wl->wires + i + 1,
++			(wl->count - i - 1) * sizeof(wl->wires[0]));
++
++		rcu_assign_pointer(priv->wires, wl_new);
++		kfree_rcu(wl, rcu);
++
++		if (wl_new->count == 0)
++			netif_carrier_off(rt_old->rt_vpls_dev);
++	}
++
++update_new:
++	if (rt_new && rt_new->rt_vpls_dev) {
++		priv = netdev_priv(rt_new->rt_vpls_dev);
++		wl = rcu_dereference(priv->wires);
++
++		wl_new = kmalloc(sizeof(*wl) +
++				 (wl->count + 1) * sizeof(wl->wires[0]),
++				 GFP_ATOMIC);
++		if (!wl_new) {
++			netdev_err(rt_new->rt_vpls_dev,
++				   "out of memory for pseudowire add!\n");
++			return;
++		}
++		wl_new->count = wl->count + 1;
++		memcpy(wl_new->wires, wl->wires,
++			wl->count * sizeof(wl->wires[0]));
++		wl_new->wires[wl->count] = label;
++
++		rcu_assign_pointer(priv->wires, wl_new);
++		kfree_rcu(wl, rcu);
++
++		if (wl_new->count == 1)
++			netif_carrier_on(rt_new->rt_vpls_dev);
++	}
++}
++
++/* fake multicast ability */
++static void vpls_set_multicast_list(struct net_device *dev)
++{
++}
++
++static int vpls_open(struct net_device *dev)
++{
++	struct vpls_priv *priv = netdev_priv(dev);
++	struct vpls_wirelist *wl;
++
++	wl = rcu_dereference(priv->wires);
++	if (wl->count > 0)
++		netif_carrier_on(dev);
++
 +	return 0;
 +}
 +
-+#define vpls_label_update(label, rt_old, rt_new) do { } while (0)
-+#define vpls_init() do { } while (0)
-+#define vpls_exit() do { } while (0)
-+#endif /* !CONFIG_MPLS_VPLS */
++static int vpls_close(struct net_device *dev)
++{
++	netif_carrier_off(dev);
++	return 0;
++}
 +
- #endif /* MPLS_INTERNAL_H */
++static int is_valid_vpls_mtu(int new_mtu)
++{
++	return new_mtu >= MIN_MTU && new_mtu <= MAX_MTU;
++}
++
++static int vpls_change_mtu(struct net_device *dev, int new_mtu)
++{
++	if (!is_valid_vpls_mtu(new_mtu))
++		return -EINVAL;
++	dev->mtu = new_mtu;
++	return 0;
++}
++
++static int vpls_dev_init(struct net_device *dev)
++{
++	struct vpls_priv *priv = netdev_priv(dev);
++	priv->wires = kzalloc(sizeof(struct vpls_wirelist), GFP_KERNEL);
++	if (!priv->wires)
++		return -ENOMEM;
++
++	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
++	if (!dev->tstats) {
++		kfree(priv->wires);
++		return -ENOMEM;
++	}
++
++	return 0;
++}
++
++static void vpls_dev_free(struct net_device *dev)
++{
++	struct vpls_priv *priv = netdev_priv(dev);
++
++	free_percpu(dev->tstats);
++
++	if (priv->wires)
++		kfree(priv->wires);
++
++	if (priv->encap_net)
++		put_net(priv->encap_net);
++
++	free_netdev(dev);
++}
++
++static const struct nla_policy vpls_meta_policy[LWT_PSEUDOWIRE_MAX + 1] = {
++	[LWT_PSEUDOWIRE_LOCAL_LABEL]	= { .type = NLA_U32 },
++};
++
++static int vpls_fill_metadst(struct sk_buff *skb, struct metadata_dst *md_dst)
++{
++	struct vpls_info *vi;
++	if (md_dst->type != METADATA_VPLS)
++		return 0;
++
++	vi = &md_dst->u.vpls_info;
++	if (nla_put_u32(skb, LWT_PSEUDOWIRE_LOCAL_LABEL, vi->pw_label))
++		return -ENOMEM;
++	return LWTUNNEL_ENCAP_PSEUDOWIRE;
++}
++
++static int vpls_build_metadst(struct net_device *dev, struct nlattr *meta,
++			      struct metadata_dst **dst,
++			      struct netlink_ext_ack *extack)
++{
++	struct nlattr *tb[LWT_PSEUDOWIRE_MAX + 1];
++	struct metadata_dst *rv;
++	int err;
++	unsigned wire;
++
++	err = nla_parse_nested(tb, LWT_PSEUDOWIRE_MAX, meta,
++			       vpls_meta_policy, extack);
++	if (err < 0)
++		return err;
++
++	if (!tb[LWT_PSEUDOWIRE_LOCAL_LABEL])
++		return -EINVAL;
++	wire = nla_get_u32(tb[LWT_PSEUDOWIRE_LOCAL_LABEL]);
++	if (wire < MPLS_LABEL_FIRST_UNRESERVED)
++		return -EINVAL;
++
++	rv = vpls_rx_dst();
++	if (!rv)
++		return -ENOMEM;
++	rv->u.vpls_info.pw_label = wire;
++
++	*dst = rv;
++	return 0;
++}
++
++static const struct net_device_ops vpls_netdev_ops = {
++	.ndo_init		= vpls_dev_init,
++	.ndo_open		= vpls_open,
++	.ndo_stop		= vpls_close,
++	.ndo_start_xmit		= vpls_xmit,
++	.ndo_change_mtu		= vpls_change_mtu,
++	.ndo_get_stats64	= ip_tunnel_get_stats64,
++	.ndo_set_rx_mode	= vpls_set_multicast_list,
++	.ndo_set_mac_address	= eth_mac_addr,
++	.ndo_features_check	= passthru_features_check,
++	.ndo_metadst_fill	= vpls_fill_metadst,
++	.ndo_metadst_build	= vpls_build_metadst,
++};
++
++int is_vpls_dev(struct net_device *dev)
++{
++	return dev->netdev_ops == &vpls_netdev_ops;
++}
++
++#define VPLS_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | \
++		       NETIF_F_HW_CSUM | NETIF_F_RXCSUM | NETIF_F_HIGHDMA)
++
++static void vpls_setup(struct net_device *dev)
++{
++	ether_setup(dev);
++
++	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
++	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
++	dev->priv_flags |= IFF_NO_QUEUE;
++
++	dev->netdev_ops = &vpls_netdev_ops;
++	dev->features |= NETIF_F_LLTX;
++	dev->features |= VPLS_FEATURES;
++	dev->vlan_features = dev->features;
++	dev->priv_destructor = vpls_dev_free;
++
++	dev->hw_features = VPLS_FEATURES;
++	dev->hw_enc_features = VPLS_FEATURES;
++
++	netif_keep_dst(dev);
++}
++
++/*
++ * netlink interface
++ */
++
++static int vpls_validate(struct nlattr *tb[], struct nlattr *data[],
++			 struct netlink_ext_ack *extack)
++{
++	if (tb[IFLA_ADDRESS]) {
++		if (nla_len(tb[IFLA_ADDRESS]) != ETH_ALEN) {
++			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_ADDRESS],
++				    "Invalid Ethernet address length");
++			return -EINVAL;
++		}
++		if (!is_valid_ether_addr(nla_data(tb[IFLA_ADDRESS]))) {
++			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_ADDRESS],
++				    "Invalid Ethernet address");
++			return -EADDRNOTAVAIL;
++		}
++	}
++	if (tb[IFLA_MTU]) {
++		if (!is_valid_vpls_mtu(nla_get_u32(tb[IFLA_MTU]))) {
++			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_MTU],
++				    "Invalid MTU");
++			return -EINVAL;
++		}
++	}
++	return 0;
++}
++
++static struct rtnl_link_ops vpls_link_ops;
++
++static int vpls_newlink(struct net *src_net, struct net_device *dev,
++			struct nlattr *tb[], struct nlattr *data[],
++			struct netlink_ext_ack *extack)
++{
++	int err;
++	struct vpls_priv *priv = netdev_priv(dev);
++
++	if (tb[IFLA_ADDRESS] == NULL)
++		eth_hw_addr_random(dev);
++
++	if (tb[IFLA_IFNAME])
++		nla_strlcpy(dev->name, tb[IFLA_IFNAME], IFNAMSIZ);
++	else
++		snprintf(dev->name, IFNAMSIZ, DRV_NAME "%%d");
++
++	err = register_netdevice(dev);
++	if (err < 0)
++		goto err;
++	priv->encap_net = get_net(src_net);
++
++	netif_carrier_off(dev);
++	return 0;
++
++err:
++	return err;
++}
++
++static void vpls_dellink(struct net_device *dev, struct list_head *head)
++{
++	unregister_netdevice_queue(dev, head);
++}
++
++
++static struct rtnl_link_ops vpls_link_ops = {
++	.kind		= DRV_NAME,
++	.priv_size	= sizeof(struct vpls_priv),
++	.setup		= vpls_setup,
++	.validate	= vpls_validate,
++	.newlink	= vpls_newlink,
++	.dellink	= vpls_dellink,
++};
++
++/*
++ * init/fini
++ */
++
++__init int vpls_init(void)
++{
++	int ret;
++
++	ret = rtnl_link_register(&vpls_link_ops);
++	if (ret)
++		goto out;
++
++	return 0;
++
++out:
++	return ret;
++}
++
++__exit void vpls_exit(void)
++{
++	rtnl_link_unregister(&vpls_link_ops);
++}
++
++#if 0
++/* not currently available as a separate module... */
++
++module_init(vpls_init);
++module_exit(vpls_exit);
++
++MODULE_DESCRIPTION("Virtual Private LAN Service");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS_RTNL_LINK(DRV_NAME);
++#endif
 -- 
 2.13.0
 
