@@ -1,14 +1,23 @@
-Return-Path: <equinox@diac24.net>
-Date: Tue, 22 Aug 2017 13:32:07 +0200
-From: David Lamparter <equinox@diac24.net>
-Message-ID: <20170822113207.GB773745@eidolon>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=Va0LKypOTGSHEG3WECLxZF5z5wZ4YgT+pgsK/mtUK1g=;
+	b=IvbwYKiGQtKc64R3p0pdq9STnTPOjL5J15kitFIbemEkP9Te8FsFY3TDTaCyREDzZM
+	YIjKa45QEj72qO0+4g3AdOihzHMhdSSiC4QGHaWoASTeUZ4ilfBJJ/dRCQ8Wz+FDwdtX
+	sArPFZfXfTeeRtGVLM7vKd8OzZav1bRuMBdc8=
 References: <20170821171523.951260-1-equinox@diac24.net>
 	<20170821170151.5b12a392@xeon-e3>
 	<f96d548c-7a64-ae9a-d1ea-e9fd065f9303@cumulusnetworks.com>
+	<20170822113207.GB773745@eidolon>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <22d7d847-0914-dca9-66b8-4231e6e0b01c@cumulusnetworks.com>
+Date: Tue, 22 Aug 2017 14:55:04 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f96d548c-7a64-ae9a-d1ea-e9fd065f9303@cumulusnetworks.com>
+In-Reply-To: <20170822113207.GB773745@eidolon>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [RFC net-next v2] bridge lwtunnel, VPLS & NVGRE
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -18,32 +27,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, amine.kherbouche@6wind.com, David Lamparter <equinox@diac24.net>
+To: David Lamparter <equinox@diac24.net>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, amine.kherbouche@6wind.com
 
-On Tue, Aug 22, 2017 at 02:01:40PM +0300, Nikolay Aleksandrov wrote:
-> On 22/08/17 03:01, Stephen Hemminger wrote:
-> > I know the bridge is an easy target to extend L2 forwarding, but it is not
-> > the only option. Have you condidered building a new driver (like VXLAN does)
-> > which does the forwarding you want. Having all features in one driver
-> > makes for worse performance, and increased complexity.
-> > 
+On 22/08/17 14:32, David Lamparter wrote:
+> On Tue, Aug 22, 2017 at 02:01:40PM +0300, Nikolay Aleksandrov wrote:
+>> On 22/08/17 03:01, Stephen Hemminger wrote:
+>>> I know the bridge is an easy target to extend L2 forwarding, but it is not
+>>> the only option. Have you condidered building a new driver (like VXLAN does)
+>>> which does the forwarding you want. Having all features in one driver
+>>> makes for worse performance, and increased complexity.
+>>>
+>>
+>> +1
+>>
+>> As I said before, a separate implementation will be much cleaner and will not affect
+>> the bridge in any way, paying both performance and complexity price for something that
+>> the majority of users will not be using isn't worth it.  In addition this creates a
+>> silent dependency between the bridge and the fdb metadata dst users, it would be much
+>> more preferable to be able to run them separately.
+>> If there is any code that will need to be re-used by VPLS (or anyone else) figure out a way
+>> to factor it out.
 > 
-> +1
+> Could you tell me why this argument didn't apply to the bridge vlan
+> tunnel code?  It adds complexity to the bridge specifically for VXLAN
+> (and it does *not* transfer to VPLS or 802.11) and reduces performance
 > 
-> As I said before, a separate implementation will be much cleaner and will not affect
-> the bridge in any way, paying both performance and complexity price for something that
-> the majority of users will not be using isn't worth it.  In addition this creates a
-> silent dependency between the bridge and the fdb metadata dst users, it would be much
-> more preferable to be able to run them separately.
-> If there is any code that will need to be re-used by VPLS (or anyone else) figure out a way
-> to factor it out.
+> ... by actually accessing the same metadata that this patchset does.
+> 
+> 
+> -David
+> 
 
-Could you tell me why this argument didn't apply to the bridge vlan
-tunnel code?  It adds complexity to the bridge specifically for VXLAN
-(and it does *not* transfer to VPLS or 802.11) and reduces performance
+The separation is clean and does not add any dependencies, that code is well isolated.
+As for performance, the impact is minimal as it adds a test for a port flag that is
+already in the cache at that point. In fact it can be compiled-out entirely if you
+disable bridge vlan support. The metadata you're referring to is not accessed if
+the port flag is not set or vlan support is compiled out removing its impact entirely.
+You can have a vxlan setup without bridge, no ?
 
-... by actually accessing the same metadata that this patchset does.
 
-
--David
