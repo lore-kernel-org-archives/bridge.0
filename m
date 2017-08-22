@@ -1,13 +1,18 @@
-Return-Path: <equinox@diac24.net>
-Date: Tue, 22 Aug 2017 02:29:56 +0200
-From: David Lamparter <equinox@diac24.net>
-Message-ID: <20170822002956.GY773745@eidolon>
-References: <20170821171523.951260-1-equinox@diac24.net>
-	<20170821170151.5b12a392@xeon-e3>
+Return-Path: <roopa@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=PvLeXVJOEgo7CbXOm5svXii9UEDZdlgCb5z7nuy5uP4=;
+	b=BuOzZaW4NFivIsvZUqN44ispUUoFa79BEKf+BlxgCXPaMkHuwWe+YJmOrqQI3QJQrK
+	pmCdTkNTHO2i92YmcKjJMfUKjluVQgBXsjIit/nXL0Hg8L7+m5b3UDKsRXDBzHjQRqwh
+	JXNpG5LDMqSH/avLFiY48bRX4wqqgHMzXZF2c=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170821170151.5b12a392@xeon-e3>
+In-Reply-To: <20170821171523.951260-1-equinox@diac24.net>
+References: <20170821171523.951260-1-equinox@diac24.net>
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date: Mon, 21 Aug 2017 21:43:15 -0700
+Message-ID: <CAJieiUiz2EmzeaREa4PAd_=2J_MBWUMVh_4abS2HdtcmK30EBQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [Bridge] [RFC net-next v2] bridge lwtunnel, VPLS & NVGRE
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -17,56 +22,80 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, amine.kherbouche@6wind.com, David Lamparter <equinox@diac24.net>
+To: David Lamparter <equinox@diac24.net>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Amine Kherbouche <amine.kherbouche@6wind.com>
 
-On Mon, Aug 21, 2017 at 05:01:51PM -0700, Stephen Hemminger wrote:
-> On Mon, 21 Aug 2017 19:15:17 +0200 David Lamparter <equinox@diac24.net> wrote:
-> > > P.S.: For a little context on the bridge FDB changes - I'm hoping to
-> > > find some time to extend this to the MDB to allow aggregating dst
-> > > metadata and handing down a list of dst metas on TX.  This isn't
-> > > specifically for VPLS but rather to give sufficient information to the
-> > > 802.11 stack to allow it to optimize selecting rates (or unicasting)
-> > > for multicast traffic by having the multicast subscriber list known.
-> > > This is done by major commercial wifi solutions (e.g. google "dynamic
-> > > multicast optimization".)  
-> > 
-> > You can find hacks at this on:
-> > https://github.com/eqvinox/vpls-linux-kernel/tree/mdb-hack
-> > Please note that the patches in that branch are not at an acceptable
-> > quality level, but you can see the semantic relation to 802.11.
-> > 
-> > I would, however, like to point out that this branch has pseudo-working
-> > IGMP/MLD snooping for VPLS, and it'd be 20-ish lines to add it to NVGRE
-> > (I'll do that as soon as I get to it, it'll pop up on that branch too.)
-> > 
-> > This is relevant to the discussion because it's a feature which is
-> > non-obvious (to me) on how to do with the VXLAN model of having an
-> > entirely separate FDB.  Meanwhile, with this architecture, the proof of
-> > concept / hack is coming in at a measly cost of:
-> > 8 files changed, 176 insertions(+), 15 deletions(-)
-> 
-> I know the bridge is an easy target to extend L2 forwarding, but it is not
-> the only option. Have you condidered building a new driver
+On Mon, Aug 21, 2017 at 10:15 AM, David Lamparter <equinox@diac24.net> wrote:
+> Hi all,
+>
+>
+> this is an update on the earlier "[RFC net-next] VPLS support".  Note
+> I've changed the subject lines on some of the patches to better reflect
+> what they really do (tbh the earlier subject lines were crap.)
+>
+> As previously, iproute2 / FRR patches are at:
+> - https://github.com/eqvinox/vpls-iproute2
+> - https://github.com/opensourcerouting/frr/commits/vpls
+> while this patchset is also available at:
+> - https://github.com/eqvinox/vpls-linux-kernel
+> (but please be aware that I'm amending and rebasing commits)
+>
+> The NVGRE implementation in the 3rd patch in this series is actually an
+> accident - I was just wiring up gretap as a reference;  only after I was
+> done I noticed that that sums up to NVGRE, more or less.  IMHO, it does
+> serve well to demonstrate the bridge changes are not VPLS-specific.
+>
+> To refer some notes from the first announce mail:
+>> I've tested some basic setups, the chain from LDP down into the kernel
+>> works at least in these.  FRR has some testcases around from OpenBSD
+>> VPLS support, I haven't wired that up to run against Linux / this
+>> patchset yet.
+>
+> Same as before (API didn't change).
+>
+>> The patchset needs a lot of polishing (yes I left my TODO notes in the
+>> commit messages), for now my primary concern is overall design
+>> feedback.  Roopa has already provided a lot of input (Thanks!);  the
+>> major topic I'm expecting to get discussion on is the bridge FDB
+>> changes.
+>
+> Got some useful input;  but still need feedback on the bridge FDB
+> changes (first 2 patches).  I don't believe it to have a significant
+> impact on existing bridge operation, and I believe a multipoint tunnel
+> driver without its own FDB (e.g. NVGRE in this set) should perform
+> better than one with its own FDB (e.g. existing VXLAN).
+>
+>> P.S.: For a little context on the bridge FDB changes - I'm hoping to
+>> find some time to extend this to the MDB to allow aggregating dst
+>> metadata and handing down a list of dst metas on TX.  This isn't
+>> specifically for VPLS but rather to give sufficient information to the
+>> 802.11 stack to allow it to optimize selecting rates (or unicasting)
+>> for multicast traffic by having the multicast subscriber list known.
+>> This is done by major commercial wifi solutions (e.g. google "dynamic
+>> multicast optimization".)
+>
+> You can find hacks at this on:
+> https://github.com/eqvinox/vpls-linux-kernel/tree/mdb-hack
+> Please note that the patches in that branch are not at an acceptable
+> quality level, but you can see the semantic relation to 802.11.
+>
+> I would, however, like to point out that this branch has pseudo-working
+> IGMP/MLD snooping for VPLS, and it'd be 20-ish lines to add it to NVGRE
+> (I'll do that as soon as I get to it, it'll pop up on that branch too.)
+>
+> This is relevant to the discussion because it's a feature which is
+> non-obvious (to me) on how to do with the VXLAN model of having an
+> entirely separate FDB.  Meanwhile, with this architecture, the proof of
+> concept / hack is coming in at a measly cost of:
+> 8 files changed, 176 insertions(+), 15 deletions(-)
 
-Yes I have;  I dismissed the approach because even though an fdb is
-reasonable to duplicate, I did not believe replicating multicast
-snooping code into both VPLS and 802.11 (and possibly VXLAN) to be a
-viable option.  ...is it?
+David, what is special about the vpls igmp/mld snooping code ?...do
+you have to snoop vpls attrs ?.
+in the vxlan model.., the vxlan driver can snoop its own attrs eg
+vxlan-id, remote dst etc.
+and the pkt is passed up to the bridge where it will hit the normal
+bridge igmp/mpld snooping code.
+can you pls elaborate ?
 
-> (like VXLAN does) which does the forwarding you want. Having all
-> features in one driver makes for worse performance, and increased
-> complexity.
-
-Can you elaborate?  I agree with that sentence as a general statement,
-but a general statement needs to apply to a specific situation.  As
-discussed in the previous thread with Nikolay, checking skb->_refdst
-against 0 should be doable without touching additional cachelines, so
-the performance cost should be rather small.  For complexity - it's
-keeping an extra pointer around, which is semantically bound to the
-existing net_bridge_fdb_entry->dst.  On the other hand, it spares us
-from another copy of a fdb implementation, and two copies of multicast
-snooping code...  I honestly believe this patchset is a good approach.
-
-
--David
+keeping vpls specific code and api in a separate vpls driver allows
+for cleanly extending it in the future.
