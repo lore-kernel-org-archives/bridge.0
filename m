@@ -1,18 +1,16 @@
-Return-Path: <geliangtang@gmail.com>
+Return-Path: <bhumirks@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=N+zhXXDGY3xX/jeikbK7+hUU6rorjSIz8etj7++om0s=;
-	b=lYmwP8djt/9xD5W5KuDR20JOPeKYWP1tc3W2DMkabHQPRNiiGBbQlCg8IEcvWRumY/
-	E3sr3TWrqURn6OZ7uSq0VV+qfKtBNXA2FCBObO9hoFEj2A9/fJoNi/W7hDsnYEhu2M4B
-	r36C4Iwpm4yLNpmrjLNs4dorz2wZ1UyDzMUoWlxTHWZRwzxrWHeeqLpoqNfjnKfTqDPH
-	fb4/ihEEu1rXuDkwcj08fpDtGRqHvkeINgW6uGIc+0Rh7BmQaGjUL9yw/7DJHu4Vmxby
-	M0yUZrhS3qbnfU59JBVpUcmMcyaLXd4vaw+wAvf1CAbdbJiUs8o3txGBf/tu35ImpmnZ
-	akbw==
-From: Geliang Tang <geliangtang@gmail.com>
-Message-Id: <bcbd9b076cee1b585a756a1eadd16325dc341ca4.1502098910.git.geliangtang@gmail.com>
-In-Reply-To: <5f901760510d0dc6e6e971d4136c8d2d4e0a13fd.1502103408.git.geliangtang@gmail.com>
-References: <5f901760510d0dc6e6e971d4136c8d2d4e0a13fd.1502103408.git.geliangtang@gmail.com>
-Subject: [Bridge] [PATCH] netfilter: ebtables: use audit_log()
+	h=from:to:cc:subject:date:message-id;
+	bh=f4epf0R2uJXROaG7I21o3lLDGO97EvZRqxDhHO5dckM=;
+	b=R5mYci3sDHfxEAZlP7+Zfxjw79FPt2n3OovHgZTM/qhHPtrmhye496ZFyA5jQQpOmq
+	QqnbZedXYFrUR+Gw15x9Ku+g6Ti7e64lOKZCF30anF+zhLUljtbUD3f/KIxVF4TU+M/D
+	b91s9yXiisKAWdGE0C/6Gju2HjDRMFqgXZFXsgaoOxyXg9lwUzCVm9eXdNBMkatYW8bq
+	EwZrkq62AxNf99YAb0YG+qnGRncE94e+dvUcdupX1Rvdzf+feRuXn1Q28Pgpc3TIXhGo
+	fNc77tx31ekipGS9rdbIhpA1Wk3QyJiOkoVVvtbgZkyIyPBbei1vGjcIWSs73x7Zc7eA
+	3f2g==
+From: Bhumika Goyal <bhumirks@gmail.com>
+Message-Id: <1503670907-23221-1-git-send-email-bhumirks@gmail.com>
+Subject: [Bridge] [PATCH 0/7] net: make some structures const
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,41 +19,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 07 Aug 2017 13:45:26 -0000
-To: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Florian Westphal <fw@strlen.de>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Geliang Tang <geliangtang@gmail.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, netdev@vger.kernel.org
+Date: Fri, 25 Aug 2017 14:22:29 -0000
+To: julia.lawall@lip6.fr, marcel@holtmann.org, gustavo@padovan.org, johan.hedberg@gmail.com, davem@davemloft.net, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, stephen@networkplumber.org, alex.aring@gmail.com, stefan@osg.samsung.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, santosh.shilimkar@oracle.com, trond.myklebust@primarydata.com, anna.schumaker@netapp.com, bfields@fieldses.org, jlayton@poochiereds.net, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com, linux-nfs@vger.kernel.org
+Cc: Bhumika Goyal <bhumirks@gmail.com>
 
-Use audit_log() instead of open-coding it.
+Make these const as they are not modified.
 
-Signed-off-by: Geliang Tang <geliangtang@gmail.com>
----
- net/bridge/netfilter/ebtables.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+Bhumika Goyal (7):
+  Bluetooth: 6lowpan: make header_ops const
+  bridge: make ebt_table const
+  ieee802154: 6lowpan: make header_ops const
+  ipv4: make net_protocol const
+  RDS: make rhashtable_params const
+  netfilter: nat: make rhashtable_params const
+  SUNRPC: make kvec const
 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 9c6e619..54c7ef4 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1069,15 +1069,10 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
- 
- #ifdef CONFIG_AUDIT
- 	if (audit_enabled) {
--		struct audit_buffer *ab;
--
--		ab = audit_log_start(current->audit_context, GFP_KERNEL,
--				     AUDIT_NETFILTER_CFG);
--		if (ab) {
--			audit_log_format(ab, "table=%s family=%u entries=%u",
--					 repl->name, AF_BRIDGE, repl->nentries);
--			audit_log_end(ab);
--		}
-+		audit_log(current->audit_context, GFP_KERNEL,
-+			  AUDIT_NETFILTER_CFG,
-+			  "table=%s family=%u entries=%u",
-+			  repl->name, AF_BRIDGE, repl->nentries);
- 	}
- #endif
- 	return ret;
+ net/bluetooth/6lowpan.c            | 2 +-
+ net/bridge/netfilter/ebtable_nat.c | 2 +-
+ net/ieee802154/6lowpan/core.c      | 2 +-
+ net/ipv4/af_inet.c                 | 4 ++--
+ net/netfilter/nf_nat_core.c        | 2 +-
+ net/rds/bind.c                     | 2 +-
+ net/sunrpc/xdr.c                   | 2 +-
+ 7 files changed, 8 insertions(+), 8 deletions(-)
+
 -- 
-2.9.3
+1.9.1
 
