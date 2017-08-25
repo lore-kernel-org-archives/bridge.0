@@ -1,16 +1,18 @@
-Return-Path: <brouer@redhat.com>
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Message-ID: <20170831182012.5d321c6a@redhat.com>
-In-Reply-To: <a9349049-bfd7-b6c0-d1c7-2f70b0b0ab11@gmail.com>
-References: <1504156693-24692-1-git-send-email-roopa@cumulusnetworks.com>
-	<20170831143814.68709334@redhat.com>
-	<CAJieiUjZ5dTNpBFb8c2KMRgjXRCKVGhJsTfQcpiw+p6fyNVwDw@mail.gmail.com>
-	<a9349049-bfd7-b6c0-d1c7-2f70b0b0ab11@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: add tracepoint in
-	br_fdb_update
+Return-Path: <bhumirks@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=z98SltI4O4JZgJXEO5rJeprg6BuI6jlvxOPbToXar1I=;
+	b=Erlk1JV+VqImmqyGadXgoUZayRfRs+9gn50XUMCUjmlkyKoTJa8ovoQxHpkaMPxF6Z
+	f9Kh8BvrTuaOkwFHqWbxPfy+KoFTzpoVFtIbAQoDDIP/uEUxGLY6i5FkytYjpeKtc2wr
+	YlHpk4C3U+8wYpe80R8mClWTLT5sovP9+vSx102+h8hwf90ImhdGWfqsoKja47ijCI8a
+	1+Hu8vQ5eCkQa5nciu5YhyVXADVPBzrT/lOYwPE6cR85jk4h/QJUDw2e8kamkzN+X/fP
+	WGQm1TGlu2hbJA7j/zhe9qgxjGdciHQaqYQVEt8OckVI0ktVlmtjxAxlwPI+km5Iz8ws
+	jCng==
+From: Bhumika Goyal <bhumirks@gmail.com>
+Message-Id: <1503670907-23221-4-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <1503670907-23221-1-git-send-email-bhumirks@gmail.com>
+References: <1503670907-23221-1-git-send-email-bhumirks@gmail.com>
+Subject: [Bridge] [PATCH 3/7] ieee802154: 6lowpan: make header_ops const
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,106 +21,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 31 Aug 2017 16:20:20 -0000
-To: David Ahern <dsahern@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Arnaldo Carvalho de Melo <acme@redhat.com>, Peter Zijlstra <peterz@infradead.org>, brouer@redhat.com, "davem@davemloft.net" <davem@davemloft.net>
+Date: Fri, 25 Aug 2017 14:23:36 -0000
+To: julia.lawall@lip6.fr, marcel@holtmann.org, gustavo@padovan.org, johan.hedberg@gmail.com, davem@davemloft.net, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, stephen@networkplumber.org, alex.aring@gmail.com, stefan@osg.samsung.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, santosh.shilimkar@oracle.com, trond.myklebust@primarydata.com, anna.schumaker@netapp.com, bfields@fieldses.org, jlayton@poochiereds.net, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com, linux-nfs@vger.kernel.org
+Cc: Bhumika Goyal <bhumirks@gmail.com>
 
-On Thu, 31 Aug 2017 09:30:05 -0600
-David Ahern <dsahern@gmail.com> wrote:
+Make this const as it is only stored as a reference in a const field of
+a net_device structure.
 
-> On 8/31/17 9:21 AM, Roopa Prabhu wrote:
-> > On Thu, Aug 31, 2017 at 5:38 AM, Jesper Dangaard Brouer
-> > <brouer@redhat.com> wrote:  
-> >> On Wed, 30 Aug 2017 22:18:13 -0700
-> >> Roopa Prabhu <roopa@cumulusnetworks.com> wrote:
-> >>  
-> >>> From: Roopa Prabhu <roopa@cumulusnetworks.com>
-> >>>
-> >>> This extends bridge fdb table tracepoints to also cover
-> >>> learned fdb entries in the br_fdb_update path. Note that
-> >>> unlike other tracepoints I have moved this to when the fdb
-> >>> is modified because this is in the datapath and can generate
-> >>> a lot of noise in the trace output. br_fdb_update is also called
-> >>> from added_by_user context in the NTF_USE case which is already
-> >>> traced ..hence the !added_by_user check.
-> >>>
-> >>> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
-> >>> ---
-> >>>  include/trace/events/bridge.h | 31 +++++++++++++++++++++++++++++++
-> >>>  net/bridge/br_fdb.c           |  5 ++++-
-> >>>  net/core/net-traces.c         |  1 +
-> >>>  3 files changed, 36 insertions(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/include/trace/events/bridge.h b/include/trace/events/bridge.h
-> >>> index 0f1cde0..1bee3e7 100644
-> >>> --- a/include/trace/events/bridge.h
-> >>> +++ b/include/trace/events/bridge.h
-> >>> @@ -92,6 +92,37 @@ TRACE_EVENT(fdb_delete,
-> >>>                 __entry->addr[4], __entry->addr[5], __entry->vid)
-> >>>  );
-> >>>
-> >>> +TRACE_EVENT(br_fdb_update,
-> >>> +
-> >>> +     TP_PROTO(struct net_bridge *br, struct net_bridge_port *source,
-> >>> +              const unsigned char *addr, u16 vid, bool added_by_user),
-> >>> +
-> >>> +     TP_ARGS(br, source, addr, vid, added_by_user),
-> >>> +
-> >>> +     TP_STRUCT__entry(
-> >>> +             __string(br_dev, br->dev->name)
-> >>> +             __string(dev, source->dev->name)  
-> >>
-> >> I have found that using the device string name is
-> >>
-> >> (1) slow as it involves strcpy+strlen
-> >>
-> >>  See [1]+[2] where a single dev-name costed me 16 ns, and the base
-> >>  overhead of a bpf attached tracepoint is 25 ns (see [3]).
-> >>
-> >>  [1] https://git.kernel.org/davem/net-next/c/e7d12ce121a
-> >>  [2] https://git.kernel.org/davem/net-next/c/315ec3990ef
-> >>  [3] https://git.kernel.org/davem/net-next/c/25d4dae1a64
-> >>
-> >> (2) strings are also harder to work-with/extract when attaching a bpf_prog
-> >>
-> >> See the trouble I'm in accessing a dev string here napi:napi_poll here:
-> >>  https://github.com/netoptimizer/prototype-kernel/blob/103b955a080/kernel/samples/bpf/napi_monitor_kern.c#L52-L58
-> >>
-> >> Using ifindex'es in userspace is fairly easy see man if_indextoname(3).
-> >>  
-> > 
-> > Jesper thanks for the data!. GTK. Looking at include/trace/events,
-> > currently almost all tracepoints use dev->name.
+Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+---
+ net/ieee802154/6lowpan/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-True, but with my recent experience and benchmarking, I consider this
-generally a bad choice we have made for all these tracepoints.  In your
-case with 2 strings, 2x16=32ns, you basically introduced a overhead
-that is larger that to invocation cost.
-
-> > These bridge tracepoints in context are primarily for debugging fdb
-> > updates only, not for every packet and hence not in the performance
-> > path.
-> > In large scale deployments with thousands of bridge ports and fdb
-> > entries, dev->name will definately make it easier to trouble-shoot.
-> > So, I did like to leave these with dev->name unless there are strong objections.  
-> 
-> +1 for user friendliness for debugging tracepoints. The device name is
-> also more user friendly when adding filters to the data collection.
->
-> Being able to add bpf everywhere certainly changes the game a bit, but
-> we should not relinquish ease of use and understanding for the potential
-> that someone might want to put a bpf program on the tracepoint and want
-> to maintain high performance.
-
-(Cc. Acme and Peterz)
-I wonder if we can create a special perf-tracepoint type for ifindex'es
-and the tool reading (e.g. perf-script) can perform the name lookup in
-userspace (calling if_indextoname(3)) ?
-
-I don't know the perf tools well enough to know if this is possible?
-
+diff --git a/net/ieee802154/6lowpan/core.c b/net/ieee802154/6lowpan/core.c
+index de2661c..974765b 100644
+--- a/net/ieee802154/6lowpan/core.c
++++ b/net/ieee802154/6lowpan/core.c
+@@ -54,7 +54,7 @@
+ 
+ static int open_count;
+ 
+-static struct header_ops lowpan_header_ops = {
++static const struct header_ops lowpan_header_ops = {
+ 	.create	= lowpan_header_create,
+ };
+ 
 -- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+1.9.1
+
