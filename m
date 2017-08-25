@@ -1,14 +1,13 @@
-Return-Path: <brouer@redhat.com>
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Message-ID: <20170831235026.6377bf86@redhat.com>
-In-Reply-To: <20170831.114325.2027598728601121750.davem@davemloft.net>
-References: <1504156693-24692-1-git-send-email-roopa@cumulusnetworks.com>
-	<20170831.114325.2027598728601121750.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <jlayton@redhat.com>
+Message-ID: <1503672536.4722.20.camel@redhat.com>
+From: Jeff Layton <jlayton@redhat.com>
+In-Reply-To: <1503670907-23221-8-git-send-email-bhumirks@gmail.com>
+References: <1503670907-23221-1-git-send-email-bhumirks@gmail.com>
+	<1503670907-23221-8-git-send-email-bhumirks@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: add tracepoint in
-	br_fdb_update
+Subject: Re: [Bridge] [PATCH 7/7] SUNRPC: make kvec const
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,38 +16,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 31 Aug 2017 21:50:34 -0000
-To: David Miller <davem@davemloft.net>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, brouer@redhat.com
+Date: Fri, 25 Aug 2017 14:49:23 -0000
+To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr, marcel@holtmann.org, gustavo@padovan.org, johan.hedberg@gmail.com, davem@davemloft.net, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, stephen@networkplumber.org, alex.aring@gmail.com, stefan@osg.samsung.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, santosh.shilimkar@oracle.com, trond.myklebust@primarydata.com, anna.schumaker@netapp.com, bfields@fieldses.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com, linux-nfs@vger.kernel.org
 
-On Thu, 31 Aug 2017 11:43:25 -0700 (PDT)
-David Miller <davem@davemloft.net> wrote:
-
-> From: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Date: Wed, 30 Aug 2017 22:18:13 -0700
+On Fri, 2017-08-25 at 19:51 +0530, Bhumika Goyal wrote:
+> Make this const as it is only used during a copy operation.
 > 
-> > From: Roopa Prabhu <roopa@cumulusnetworks.com>
-> > 
-> > This extends bridge fdb table tracepoints to also cover
-> > learned fdb entries in the br_fdb_update path. Note that
-> > unlike other tracepoints I have moved this to when the fdb
-> > is modified because this is in the datapath and can generate
-> > a lot of noise in the trace output. br_fdb_update is also called
-> > from added_by_user context in the NTF_USE case which is already
-> > traced ..hence the !added_by_user check.
-> > 
-> > Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>  
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
+>  net/sunrpc/xdr.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Applied.
-> 
-> Let's use dev->name for now and if the tooling can eventually
-> do transparent ifindex->name then we can consider redoing
-> a bunch of networking tracepoints.
+> diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+> index e34f4ee..a096025 100644
+> --- a/net/sunrpc/xdr.c
+> +++ b/net/sunrpc/xdr.c
+> @@ -998,7 +998,7 @@ void xdr_enter_page(struct xdr_stream *xdr, unsigned int len)
+>  }
+>  EXPORT_SYMBOL_GPL(xdr_enter_page);
+>  
+> -static struct kvec empty_iov = {.iov_base = NULL, .iov_len = 0};
+> +static const struct kvec empty_iov = {.iov_base = NULL, .iov_len = 0};
+>  
+>  void
+>  xdr_buf_from_iov(struct kvec *iov, struct xdr_buf *buf)
 
-I agree! :-)
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
