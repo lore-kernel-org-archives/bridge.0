@@ -1,23 +1,13 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=4O5Wuc5vTp+DaUXrof1GD064VMEYE++BGMCo3IUude4=;
-	b=LrzzF4vAhGTSpCxTlNrp7SbPRgGAzNj0WlqsfTzO0MBQdSI/7EvFYiqxfsmkfgPhU6
-	aCwEAxO8HrBWjq4hySor0Uo3+twqtvzJIKx0Z5BoaCt/KLW0fRQexpGWzKq3L+mk0m+b
-	GTf/PDSqW5blh8HFapjtGz8wQtJVk6qMbhbeUgh+IPH9Ux/Ow/KoAO62dqWu2OjowaTB
-	oG9soV5fnPXJFQS4XhSGjyX9TJU1Rn592Anxr4zbpJ/yEZLyA9/YspPjHghbz+jKLKzk
-	mUWFfgi8EoJWrxJKinrJW6/SK597GV/78NSoKSfRhXhlo1znaxxmxOxDnoKijETTHXlt
-	qxUA==
+Return-Path: <andrew@lunn.ch>
+Date: Mon, 28 Aug 2017 15:45:29 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20170828134529.GC10418@lunn.ch>
 References: <1503780970-10312-1-git-send-email-andrew@lunn.ch>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <b5bf300b-58c1-d7a7-8851-651683a234b0@gmail.com>
-Date: Sun, 27 Aug 2017 19:44:15 -0700
+	<b5bf300b-58c1-d7a7-8851-651683a234b0@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1503780970-10312-1-git-send-email-andrew@lunn.ch>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b5bf300b-58c1-d7a7-8851-651683a234b0@gmail.com>
 Subject: Re: [Bridge] [PATCH RFC WIP 0/5] IGMP snooping for local traffic
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -27,93 +17,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>, netdev <netdev@vger.kernel.org>
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, jiri@mellanox.com
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, nikolay@cumulusnetworks.com, netdev <netdev@vger.kernel.org>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, jiri@mellanox.com
 
-Hi Andrew,
-
-On 08/26/2017 01:56 PM, Andrew Lunn wrote:
-> This is a WIP patchset i would like comments on from bridge,
-> switchdev and hardware offload people.
+On Sun, Aug 27, 2017 at 07:44:15PM -0700, Florian Fainelli wrote:
+> Hi Andrew,
 > 
-> The linux bridge supports IGMP snooping. It will listen to IGMP 
-> reports on bridge ports and keep track of which groups have been 
-> joined on an interface. It will then forward multicast based on this 
-> group membership.
+> On 08/26/2017 01:56 PM, Andrew Lunn wrote:
+> > This is a WIP patchset i would like comments on from bridge,
+> > switchdev and hardware offload people.
+> > 
+> > The linux bridge supports IGMP snooping. It will listen to IGMP 
+> > reports on bridge ports and keep track of which groups have been 
+> > joined on an interface. It will then forward multicast based on this 
+> > group membership.
+> > 
+> > When the bridge adds or removed groups from an interface, it uses 
+> > switchdev to request the hardware add an mdb to a port, so the 
+> > hardware can perform the selective forwarding between ports.
+> > 
+> > What is not covered by the current bridge code, is IGMP joins/leaves 
+> > from the host on the brX interface. No such monitoring is performed.
+> > With a pure software bridge, it is not required. All mulitcast frames
+> > are passed to the brX interface, and the network stack filters them,
+> > as it does for any interface. However, when hardware offload is
+> > involved, things change. We should program the hardware to only send
+> > multcast packets to the host when the host has in interest in them.
 > 
-> When the bridge adds or removed groups from an interface, it uses 
-> switchdev to request the hardware add an mdb to a port, so the 
-> hardware can perform the selective forwarding between ports.
-> 
-> What is not covered by the current bridge code, is IGMP joins/leaves 
-> from the host on the brX interface. No such monitoring is performed.
-> With a pure software bridge, it is not required. All mulitcast frames
-> are passed to the brX interface, and the network stack filters them,
-> as it does for any interface. However, when hardware offload is
-> involved, things change. We should program the hardware to only send
-> multcast packets to the host when the host has in interest in them.
+> OK, so if I understand this right, without a bridge, we have the
+> following happen today: with a DSA-enabled setup using any kind of
+> switch tagging protocol, if a host is interested in receiving particular
+> multicast traffic, we would receive IGMP joins/leaves through sw0p0, and
+> the stack should call ndo_set_rx_mode for sw0p0, which would be
+> dsa_slave_set_rx_mode() and which would synchronize the DSA master
+> network device with the slave network device, everything works fine
+> provided that the CPU port is configured to accept multicast traffic.
 
-OK, so if I understand this right, without a bridge, we have the
-following happen today: with a DSA-enabled setup using any kind of
-switch tagging protocol, if a host is interested in receiving particular
-multicast traffic, we would receive IGMP joins/leaves through sw0p0, and
-the stack should call ndo_set_rx_mode for sw0p0, which would be
-dsa_slave_set_rx_mode() and which would synchronize the DSA master
-network device with the slave network device, everything works fine
-provided that the CPU port is configured to accept multicast traffic.
+Hi Florian
 
-Note here that we don't really add a MDB entry for sw0p0 when that
-happens, but it seems like we should for switches that lack IGMP
-snooping and/or multicast filtering.
+That sounds about right, but it is not a use case i've looked at yet.
+I do need to look at it though, because there is a chance i break it
+with IGMP snooping support.
 
-With the current bridge and DSA code, are not we actually always going
-to get the CPU port to be added with the multicast address and therefore
-no filtering is occurring and snooping is pretty much useless?
+> Note here that we don't really add a MDB entry for sw0p0 when that
+> happens, but it seems like we should for switches that lack IGMP
+> snooping and/or multicast filtering.
 
-> 
-> Thus we need to perform IGMP snooping on the brX interface, just
-> like any other interface of the bridge. However, currently the brX 
-> interface is missing all the needed data structures to do this.
-> There is no net_bridge_port structure for the brX interface. This
-> strucuture is created when an interface is added to the bridge. But
-> the brX interface is not a member of the bridge. So this patchset
-> makes the brX interface a first class member of the bridge. When the
-> brX interface is opened, the interface is added to the bridge. A 
-> net_bridge_port is allocated for it, and IGMP snooping is performed
-> as usual.
+Yes. But it is not an MDB in the normal sense, at least from the
+switches perspective. An MDB passed to a switch using switchdev says
+that traffic for the specified group should go out that port. However,
+when the host does a join on sw0p0, we want the exact opposite,
+multicast traffic coming in that port of the switch which matches the
+group should be forwarded to the host. So my second attempt at this
+code adds a new switchdev object, SWITCHDEV_OBJ_ID_PORT_HOST_MDB.
 
-Would not making brX be part of the bridge have a huge negative
-performance impact on locally generated traffic either? Even though we
-do an early return in br_handle_frame() this may become noticeable.
+> With the current bridge and DSA code, are not we actually always going
+> to get the CPU port to be added with the multicast address and therefore
+> no filtering is occurring and snooping is pretty much useless?
 
-> 
-> There are some complexities here. Some assumptions are broken, like 
-> the master interface of a port interface is the bridge interface.
-> The brX interface cannot be its own master. The use of 
-> netdev_master_upper_dev_get() within the bridge code has been
-> changed to reflecit this. The bridge receive handler needs to not
-> process frames for the brX interface, etc.
-> 
-> The interface downward to the hardware is also an issue. The code 
-> presented here is a hack and needs to change. But that is secondary 
-> and can be solved once it is agreed how the bridge needs to change
-> to support this use case.
-> 
-> Comment welcome and wanted.
+Correct. At the moment, all multicast traffic gets delivered to the
+host.
 
-While I understand the reasons why you did it that way, I think this is
-going to break a lot of code in bridge that does not expect brX to be a
-bridge port member.
+> While I understand the reasons why you did it that way, I think this is
+> going to break a lot of code in bridge that does not expect brX to be a
+> bridge port member.
 
-Maybe we can just generate switch MDB events targeting the bridge
-network device and let switch drivers resolve that to whatever their
-CPU/master port is?
+It does. 
 
-It does sound like we are moving more and more to a model where brX
-becomes one (if not the only one) net_device representor of what the
-CPU/master port of a switch is (at least with DSA) which sort of makes
-us go back to the multi-CPU port discussion we had a while ago.
+Nikolay suggestion works a lot better, and i'm following that now. It
+looks good and only requires some minor tweaks to the bridge code.
 
-Thanks!
--- 
-Florian
+      Andrew
