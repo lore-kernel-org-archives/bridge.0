@@ -2,17 +2,17 @@ Return-Path: <roopa@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=pJeW6FvEctXusxKCwxTUBRkJn/YfUwAv9QePY/xvKUM=;
-	b=QFvGoU+J1xytk0QV8Vwu14BNJXwT4JXR7WvABgrVlJJC/0RKh94eXWfdjo+zP1D6Z+
-	T2kh26H2yqNTXaiRjIdehLzPiNs09J9Yfr+Qgi/BcCKFX4fSnE6Nb5BL/8i0BoWYIUVe
-	LpmI1vvuO4vlnfwLVdrOkbl1D0CRZBJMs4Suw=
+	:cc; bh=ae7OZEugP31QR2yBea4NLhugh1wcxVxJBcsG3ZUw7a8=;
+	b=FWTlbJBFlT9Evwy2q3rF5mIco7GRPPNdmR1Wi6A74N9y01hO1t6OO/RJMdAs3S9O8z
+	Np+KrirRQAX2oYLeCTNL2+TBLejXVW57MhU+NNrMEYqLVY9dEpTOHnpE/Rziq4iqLb3Q
+	oI+yYd9Y5ZfC9So7A/6b6G5WxZDl40Qv6Y9ZA=
 MIME-Version: 1.0
 In-Reply-To: <592631a3-6a80-407a-f087-37f7f04417d2@gmail.com>
 References: <1503869593-30165-1-git-send-email-roopa@cumulusnetworks.com>
 	<592631a3-6a80-407a-f087-37f7f04417d2@gmail.com>
 From: Roopa Prabhu <roopa@cumulusnetworks.com>
-Date: Mon, 28 Aug 2017 07:30:20 -0700
-Message-ID: <CAJieiUjYSosJ2UoKoLPMeCgubZ7rZq3sAA3svTNX6rnxdrm4XQ@mail.gmail.com>
+Date: Mon, 28 Aug 2017 08:03:47 -0700
+Message-ID: <CAJieiUgLAG9b8HVUEaWX=kTY13oUPDJPih+U8k19GG02XUeaTQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [Bridge] [PATCH net-next] bridge: fdb add and delete tracepoints
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -83,10 +83,6 @@ On Sun, Aug 27, 2017 at 7:11 PM, Florian Fainelli <f.fainelli@gmail.com> wrote:
 >> +             memcpy(__entry->addr, addr, 6);
 >
 > Likewise
-
-
-will do.
-
 >
 >> +             __entry->vid = vid;
 >> +             __entry->nlh_flags = nlh_flags;
@@ -96,61 +92,9 @@ will do.
 >> +     TP_printk("dev %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u nlh_flags %x ndm_flags = %x",
 >
 > I wonder if we could make %pM work for TP_printk() as this would
-> simplify the argument list a bitt.
-
-yeah i struggled with getting %pM to work here.
-
-> Can you use %04x for vid, nlh_flags
+> simplify the argument list a bitt. Can you use %04x for vid, nlh_flags
 > and %02x for ndm_flags?
 
-will do,
 
->
->> +               __get_str(dev), __entry->addr[0], __entry->addr[1],
->> +               __entry->addr[2], __entry->addr[3], __entry->addr[4],
->> +               __entry->addr[5], __entry->vid,
->> +               __entry->nlh_flags, __entry->ndm_flags)
->> +);
->> +
->> +TRACE_EVENT(br_fdb_external_learn_add,
->> +
->> +     TP_PROTO(struct net_bridge *br, struct net_bridge_port *p,
->> +              const unsigned char *addr, u16 vid),
->> +
->> +     TP_ARGS(br, p, addr, vid),
->> +
->> +     TP_STRUCT__entry(
->> +             __string(br_dev, br->dev->name)
->> +             __string(dev, p->dev->name)
->> +             __array(unsigned char, addr, 6)
->> +             __field(u16, vid)
->> +     ),
->> +
->> +     TP_fast_assign(
->> +             __assign_str(br_dev, br ? br->dev->name : "null");
->> +             __assign_str(dev, p ? p->dev->name : "null");
->> +             memcpy(__entry->addr, addr, 6);
->> +             __entry->vid = vid;
->> +     ),
->> +
->> +     TP_printk("br_dev %s port %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u",
->> +               __get_str(br_dev), __get_str(dev), __entry->addr[0],
->> +               __entry->addr[1], __entry->addr[2], __entry->addr[3],
->> +               __entry->addr[4], __entry->addr[5], __entry->vid)
->> +);
->> +
->> +TRACE_EVENT(fdb_delete,
->> +
->> +     TP_PROTO(struct net_bridge *br, struct net_bridge_fdb_entry *f),
->> +
->> +     TP_ARGS(br, f),
->> +
->> +     TP_STRUCT__entry(
->> +             __string(br_dev, br->dev->name)
->> +             __string(dev, f->dst ? f->dst->dev->name : "null")
->> +             __array(unsigned char, addr, 6)
->
-> Same here, using ETH_ALEN would be clearer.
->
-
-ack, thanks for the review.
+one thing here.., i think %u is better for vid. bridge driver debug
+prints also use %u for vid.
