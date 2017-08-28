@@ -1,14 +1,24 @@
-Return-Path: <santosh.shilimkar@oracle.com>
-References: <1503670907-23221-1-git-send-email-bhumirks@gmail.com>
-	<1503670907-23221-6-git-send-email-bhumirks@gmail.com>
-From: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Message-ID: <b3b84569-90d8-4f02-e79d-f7aacc07271a@oracle.com>
+Return-Path: <amine.kherbouche@6wind.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=6wind-com.20150623.gappssmtp.com; s=20150623;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=LNB4MwArLL0pEJf9Ml4gTFyIKbrIEdBDLuXAlIHwVbI=;
+	b=keKYld7R6lJ2HTEkMG8XAwNy+edj9FQX1QvbDVY184Mkm6ieH1hh7Z50SAMB68PvIl
+	QED6HgZSYE2UIu7PUAfls/H3sE0BCTj876FJzqvcnI2jCm3DA0xwdK+d2RkDd//yqpep
+	yxgrRirzb/x9vVaMhxV0fjHCY5NRg6SuS3h3Ms3WG+yX7jXEwzoRwqGev3xLfHp6AoNi
+	GOx5fJEvGyZapmzoUbVScTNSOwKXojP+2QsW4ls6bSdxCfOJ9PIP2LGjmctyWgN94oRf
+	IJYnwd1vuJ7kqTg99XFHgCfWrratJc1BBKOdpntAOFRuN0uU4hB+Y9VfygYZj30WhB2m
+	Yo5Q==
+References: <20170821171523.951260-1-equinox@diac24.net>
+	<20170821171523.951260-7-equinox@diac24.net>
+From: Amine Kherbouche <amine.kherbouche@6wind.com>
+Message-ID: <025f7bf9-72d6-53c4-6680-4e20313aecf2@6wind.com>
 MIME-Version: 1.0
-In-Reply-To: <1503670907-23221-6-git-send-email-bhumirks@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <20170821171523.951260-7-equinox@diac24.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 5/7] RDS: make rhashtable_params const
+Subject: Re: [Bridge] [PATCH 6/6] mpls: VPLS support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,13 +27,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 25 Aug 2017 15:33:27 -0000
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr, marcel@holtmann.org, gustavo@padovan.org, johan.hedberg@gmail.com, davem@davemloft.net, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, stephen@networkplumber.org, alex.aring@gmail.com, stefan@osg.samsung.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, trond.myklebust@primarydata.com, anna.schumaker@netapp.com, bfields@fieldses.org, jlayton@poochiereds.net, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com, linux-nfs@vger.kernel.org
+Date: Mon, 28 Aug 2017 09:21:39 -0000
+To: David Lamparter <equinox@diac24.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: roopa@cumulusnetworks.com
 
-8/25/2017 7:21 AM, Bhumika Goyal wrote:
-> Make this const as it is either used during a copy operation or passed
-> to a const argument of the function rhltable_init
-> 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+any opinion on vpls driver path ?
+
+On 08/21/2017 07:15 PM, David Lamparter wrote:
+> [work-in-progress, works but needs changes]
+> [v2: refactored lots of things, e.g. dst_metadata, no more genetlink]
+> [v4: removed pointless include/net/vpls.h, squashed pseudowire control
+> word support, squashed netlink lwtunnel access bits]
+>
+> Signed-off-by: David Lamparter <equinox@diac24.net>
 > ---
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+>  include/net/dst_metadata.h    |  24 ++
+>  include/uapi/linux/lwtunnel.h |   8 +
+>  net/core/lwtunnel.c           |   1 +
+>  net/mpls/Kconfig              |  11 +
+>  net/mpls/Makefile             |   1 +
+>  net/mpls/vpls.c               | 550 ++++++++++++++++++++++++++++++++++++++++++
+>  6 files changed, 595 insertions(+)
+>  create mode 100644 net/mpls/vpls.c
