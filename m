@@ -1,14 +1,20 @@
-Return-Path: <andrew@lunn.ch>
-Date: Mon, 28 Aug 2017 15:45:29 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20170828134529.GC10418@lunn.ch>
-References: <1503780970-10312-1-git-send-email-andrew@lunn.ch>
-	<b5bf300b-58c1-d7a7-8851-651683a234b0@gmail.com>
+Return-Path: <roopa@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=pJeW6FvEctXusxKCwxTUBRkJn/YfUwAv9QePY/xvKUM=;
+	b=QFvGoU+J1xytk0QV8Vwu14BNJXwT4JXR7WvABgrVlJJC/0RKh94eXWfdjo+zP1D6Z+
+	T2kh26H2yqNTXaiRjIdehLzPiNs09J9Yfr+Qgi/BcCKFX4fSnE6Nb5BL/8i0BoWYIUVe
+	LpmI1vvuO4vlnfwLVdrOkbl1D0CRZBJMs4Suw=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b5bf300b-58c1-d7a7-8851-651683a234b0@gmail.com>
-Subject: Re: [Bridge] [PATCH RFC WIP 0/5] IGMP snooping for local traffic
+In-Reply-To: <592631a3-6a80-407a-f087-37f7f04417d2@gmail.com>
+References: <1503869593-30165-1-git-send-email-roopa@cumulusnetworks.com>
+	<592631a3-6a80-407a-f087-37f7f04417d2@gmail.com>
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date: Mon, 28 Aug 2017 07:30:20 -0700
+Message-ID: <CAJieiUjYSosJ2UoKoLPMeCgubZ7rZq3sAA3svTNX6rnxdrm4XQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [PATCH net-next] bridge: fdb add and delete tracepoints
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,73 +24,133 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, nikolay@cumulusnetworks.com, netdev <netdev@vger.kernel.org>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, jiri@mellanox.com
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "davem@davemloft.net" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>
 
-On Sun, Aug 27, 2017 at 07:44:15PM -0700, Florian Fainelli wrote:
-> Hi Andrew,
-> 
-> On 08/26/2017 01:56 PM, Andrew Lunn wrote:
-> > This is a WIP patchset i would like comments on from bridge,
-> > switchdev and hardware offload people.
-> > 
-> > The linux bridge supports IGMP snooping. It will listen to IGMP 
-> > reports on bridge ports and keep track of which groups have been 
-> > joined on an interface. It will then forward multicast based on this 
-> > group membership.
-> > 
-> > When the bridge adds or removed groups from an interface, it uses 
-> > switchdev to request the hardware add an mdb to a port, so the 
-> > hardware can perform the selective forwarding between ports.
-> > 
-> > What is not covered by the current bridge code, is IGMP joins/leaves 
-> > from the host on the brX interface. No such monitoring is performed.
-> > With a pure software bridge, it is not required. All mulitcast frames
-> > are passed to the brX interface, and the network stack filters them,
-> > as it does for any interface. However, when hardware offload is
-> > involved, things change. We should program the hardware to only send
-> > multcast packets to the host when the host has in interest in them.
-> 
-> OK, so if I understand this right, without a bridge, we have the
-> following happen today: with a DSA-enabled setup using any kind of
-> switch tagging protocol, if a host is interested in receiving particular
-> multicast traffic, we would receive IGMP joins/leaves through sw0p0, and
-> the stack should call ndo_set_rx_mode for sw0p0, which would be
-> dsa_slave_set_rx_mode() and which would synchronize the DSA master
-> network device with the slave network device, everything works fine
-> provided that the CPU port is configured to accept multicast traffic.
+On Sun, Aug 27, 2017 at 7:11 PM, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> On 08/27/2017 02:33 PM, Roopa Prabhu wrote:
+>> From: Roopa Prabhu <roopa@cumulusnetworks.com>
+>>
+>> Tracepoints to trace bridge forwarding database updates.
+>
+> Thanks for adding this!
+>
+>>
+>> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+>> ---
+>>  include/trace/events/bridge.h | 98 +++++++++++++++++++++++++++++++++++++++++++
+>>  net/bridge/br_fdb.c           |  7 ++++
+>>  net/core/net-traces.c         |  6 +++
+>>  3 files changed, 111 insertions(+)
+>>  create mode 100644 include/trace/events/bridge.h
+>>
+>> diff --git a/include/trace/events/bridge.h b/include/trace/events/bridge.h
+>> new file mode 100644
+>> index 0000000..e2d52cf
+>> --- /dev/null
+>> +++ b/include/trace/events/bridge.h
+>> @@ -0,0 +1,98 @@
+>> +#undef TRACE_SYSTEM
+>> +#define TRACE_SYSTEM bridge
+>> +
+>> +#if !defined(_TRACE_BRIDGE_H) || defined(TRACE_HEADER_MULTI_READ)
+>> +#define _TRACE_BRIDGE_H
+>> +
+>> +#include <linux/netdevice.h>
+>> +#include <linux/tracepoint.h>
+>> +
+>> +#include "../../../net/bridge/br_private.h"
+>> +
+>> +TRACE_EVENT(br_fdb_add,
+>> +
+>> +     TP_PROTO(struct ndmsg *ndm, struct net_device *dev,
+>> +              const unsigned char *addr, u16 vid, u16 nlh_flags),
+>> +
+>> +     TP_ARGS(ndm, dev, addr, vid, nlh_flags),
+>> +
+>> +     TP_STRUCT__entry(
+>> +             __field(u8, ndm_flags)
+>> +             __string(dev, dev->name)
+>> +             __array(unsigned char, addr, 6)
+>
+> Can you use ETH_ALEN instead of 6 here?
+>
+>> +             __field(u16, vid)
+>> +             __field(u16, nlh_flags)
+>> +     ),
+>> +
+>> +     TP_fast_assign(
+>> +             __assign_str(dev, dev->name);
+>> +             memcpy(__entry->addr, addr, 6);
+>
+> Likewise
 
-Hi Florian
 
-That sounds about right, but it is not a use case i've looked at yet.
-I do need to look at it though, because there is a chance i break it
-with IGMP snooping support.
+will do.
 
-> Note here that we don't really add a MDB entry for sw0p0 when that
-> happens, but it seems like we should for switches that lack IGMP
-> snooping and/or multicast filtering.
+>
+>> +             __entry->vid = vid;
+>> +             __entry->nlh_flags = nlh_flags;
+>> +             __entry->ndm_flags = ndm->ndm_flags;
+>> +     ),
+>> +
+>> +     TP_printk("dev %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u nlh_flags %x ndm_flags = %x",
+>
+> I wonder if we could make %pM work for TP_printk() as this would
+> simplify the argument list a bitt.
 
-Yes. But it is not an MDB in the normal sense, at least from the
-switches perspective. An MDB passed to a switch using switchdev says
-that traffic for the specified group should go out that port. However,
-when the host does a join on sw0p0, we want the exact opposite,
-multicast traffic coming in that port of the switch which matches the
-group should be forwarded to the host. So my second attempt at this
-code adds a new switchdev object, SWITCHDEV_OBJ_ID_PORT_HOST_MDB.
+yeah i struggled with getting %pM to work here.
 
-> With the current bridge and DSA code, are not we actually always going
-> to get the CPU port to be added with the multicast address and therefore
-> no filtering is occurring and snooping is pretty much useless?
+> Can you use %04x for vid, nlh_flags
+> and %02x for ndm_flags?
 
-Correct. At the moment, all multicast traffic gets delivered to the
-host.
+will do,
 
-> While I understand the reasons why you did it that way, I think this is
-> going to break a lot of code in bridge that does not expect brX to be a
-> bridge port member.
+>
+>> +               __get_str(dev), __entry->addr[0], __entry->addr[1],
+>> +               __entry->addr[2], __entry->addr[3], __entry->addr[4],
+>> +               __entry->addr[5], __entry->vid,
+>> +               __entry->nlh_flags, __entry->ndm_flags)
+>> +);
+>> +
+>> +TRACE_EVENT(br_fdb_external_learn_add,
+>> +
+>> +     TP_PROTO(struct net_bridge *br, struct net_bridge_port *p,
+>> +              const unsigned char *addr, u16 vid),
+>> +
+>> +     TP_ARGS(br, p, addr, vid),
+>> +
+>> +     TP_STRUCT__entry(
+>> +             __string(br_dev, br->dev->name)
+>> +             __string(dev, p->dev->name)
+>> +             __array(unsigned char, addr, 6)
+>> +             __field(u16, vid)
+>> +     ),
+>> +
+>> +     TP_fast_assign(
+>> +             __assign_str(br_dev, br ? br->dev->name : "null");
+>> +             __assign_str(dev, p ? p->dev->name : "null");
+>> +             memcpy(__entry->addr, addr, 6);
+>> +             __entry->vid = vid;
+>> +     ),
+>> +
+>> +     TP_printk("br_dev %s port %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u",
+>> +               __get_str(br_dev), __get_str(dev), __entry->addr[0],
+>> +               __entry->addr[1], __entry->addr[2], __entry->addr[3],
+>> +               __entry->addr[4], __entry->addr[5], __entry->vid)
+>> +);
+>> +
+>> +TRACE_EVENT(fdb_delete,
+>> +
+>> +     TP_PROTO(struct net_bridge *br, struct net_bridge_fdb_entry *f),
+>> +
+>> +     TP_ARGS(br, f),
+>> +
+>> +     TP_STRUCT__entry(
+>> +             __string(br_dev, br->dev->name)
+>> +             __string(dev, f->dst ? f->dst->dev->name : "null")
+>> +             __array(unsigned char, addr, 6)
+>
+> Same here, using ETH_ALEN would be clearer.
+>
 
-It does. 
-
-Nikolay suggestion works a lot better, and i'm following that now. It
-looks good and only requires some minor tweaks to the bridge code.
-
-      Andrew
+ack, thanks for the review.
