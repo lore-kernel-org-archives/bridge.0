@@ -1,19 +1,11 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=JxvW90ZyeT/LhyRXGyYJJwhklxxWT/AHWFoezepUzbU=;
-	b=J/4iygF05VC4cBliWjiETv6UOVxyK+hgvaXh6+Jebwmwnt8lx2Mn8Nd8IPlrVnbq2U
-	HqAUaROjnmSLIvStOyeHiRina7jSKwfVdzrFYiRUqCNuWgxdMbhdKW5rVYtQx6BDLuN4
-	A5E2hDahiWJEJfs8M+mqH3stN+xcgD/iDCJSk=
-References: <1504037817-38107-1-git-send-email-roopa@cumulusnetworks.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <0c886358-0771-ed3c-c97f-f8366194eca2@cumulusnetworks.com>
-Date: Tue, 29 Aug 2017 23:35:24 +0300
-MIME-Version: 1.0
+Return-Path: <davem@davemloft.net>
+Date: Tue, 29 Aug 2017 14:49:59 -0700 (PDT)
+Message-Id: <20170829.144959.233090804778101017.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <1504037817-38107-1-git-send-email-roopa@cumulusnetworks.com>
-Content-Type: text/plain; charset=windows-1252
+References: <1504037817-38107-1-git-send-email-roopa@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next v3] bridge: fdb add and delete
 	tracepoints
@@ -25,10 +17,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@cumulusnetworks.com>, davem@davemloft.net
-Cc: netdev@vger.kernel.org, f.fainelli@gmail.com, bridge@lists.linux-foundation.org
+To: roopa@cumulusnetworks.com
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, f.fainelli@gmail.com, bridge@lists.linux-foundation.org
 
-On 29/08/17 23:16, Roopa Prabhu wrote:
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date: Tue, 29 Aug 2017 13:16:57 -0700
+
 > From: Roopa Prabhu <roopa@cumulusnetworks.com>
 > 
 > A few useful tracepoints to trace bridge forwarding
@@ -38,13 +32,5 @@ On 29/08/17 23:16, Roopa Prabhu wrote:
 > ---
 > v2: address comments from florian
 > v3: remove stray character '=' in print (pointed out by florian)
-> 
->  include/trace/events/bridge.h |   98 +++++++++++++++++++++++++++++++++++++++++
->  net/bridge/br_fdb.c           |    7 +++
->  net/core/net-traces.c         |    6 +++
->  3 files changed, 111 insertions(+)
->  create mode 100644 include/trace/events/bridge.h
-> 
 
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-
+Applied, thanks.
