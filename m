@@ -1,23 +1,19 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=QQ3b1ph9QN/ecfSJ1D7VcTLKbwEjNhLzVVyYsvCG7to=;
-	b=AtphGnR1FxmnO7qRjrqr/xIrhmdunIvUIXzPzLWnHAE37ymkzpOy5CAttoW6O0osnW
-	tHjMdi+LHrdfK2J1m4+wmll3qhR7zBAwZZUBBtoWGhvjfZxWOy3FAi5EKnt2BRE15GdY
-	woh5tXf8pm4M8aG+3Mpow0VOezjsvHgtiAw0s92slKn4oZxZw/cEvOJv+rB3YVCiBuvb
-	CQsM61gBpoDQfrPH24ri91jvb2kxiuRcDkPfJh3tFfdfQfAQesHLlcP3qD1q7EMU0eoJ
-	p3AqPcdr4oSsJiXDoghGckL8rkHSvWOQJh5oYY6I1osJyymjuFiT7XtEoRW5CUlaCeWu
-	h5og==
-References: <1503980568-35240-1-git-send-email-roopa@cumulusnetworks.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <8737eb73-3437-5529-6f4d-7aa52c770357@gmail.com>
-Date: Tue, 29 Aug 2017 09:46:05 -0700
+Return-Path: <roopa@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=l0OQSVEmfCX/6WvBLZKl0bFYaFrdaT5X5d2qM7ANddA=;
+	b=NdlbwNSMUOoMV2q0bibchvSfkUqAomjYA2HKMSjsWt0OHnjcRAZNeChGkUb2OSPTxP
+	Klguxn6H1ipfLk0CwSW84KEydP5y3B6OPz1NURqE4IhCZl1NBEsEk6MQ4Hr9C0SJ9m7Z
+	ZtFpqoz3+fIwCPJIIftmrkekaTtFKnck0BuzI=
 MIME-Version: 1.0
-In-Reply-To: <1503980568-35240-1-git-send-email-roopa@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <8737eb73-3437-5529-6f4d-7aa52c770357@gmail.com>
+References: <1503980568-35240-1-git-send-email-roopa@cumulusnetworks.com>
+	<8737eb73-3437-5529-6f4d-7aa52c770357@gmail.com>
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date: Tue, 29 Aug 2017 10:36:50 -0700
+Message-ID: <CAJieiUh6D5iUBBq1owL-=Sja9bEYYLOT6P7NTgKZYOMDwyLr_Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [Bridge] [PATCH net-next v2] bridge: fdb add and delete
 	tracepoints
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -28,32 +24,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@cumulusnetworks.com>, davem@davemloft.net
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "davem@davemloft.net" <davem@davemloft.net>
 
-On 08/28/2017 09:22 PM, Roopa Prabhu wrote:
-> From: Roopa Prabhu <roopa@cumulusnetworks.com>
-> 
-> A few useful tracepoints to trace bridge forwarding
-> database updates.
-> 
-> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+On Tue, Aug 29, 2017 at 9:46 AM, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> On 08/28/2017 09:22 PM, Roopa Prabhu wrote:
+>> From: Roopa Prabhu <roopa@cumulusnetworks.com>
+>>
+>> A few useful tracepoints to trace bridge forwarding
+>> database updates.
+>>
+>> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+>
+> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+>
+> Small nit below, but probably not a candidate for a v3
+>
+>> ---
+>
+>> +
+>> +     TP_printk("dev %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u nlh_flags %04x ndm_flags = %02x",
+>
+> Small nit, any particular reason why ndm_flags got a special treatment
+> with an equal character and not the other?
+>
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 
-Small nit below, but probably not a candidate for a v3
-
-> ---
-
-> +
-> +	TP_printk("dev %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u nlh_flags %04x ndm_flags = %02x",
-
-Small nit, any particular reason why ndm_flags got a special treatment
-with an equal character and not the other?
-
-> +		  __get_str(dev), __entry->addr[0], __entry->addr[1],
-> +		  __entry->addr[2], __entry->addr[3], __entry->addr[4],
-> +		  __entry->addr[5], __entry->vid,
-> +		  __entry->nlh_flags, __entry->ndm_flags)
--- 
-Florian
+good eyes, thats a typo. I did scan them once and removed the '=' and
+missed a spot.
+i will send v3.
