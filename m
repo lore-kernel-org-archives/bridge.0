@@ -1,15 +1,12 @@
-Return-Path: <acme@redhat.com>
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
-Message-ID: <20170831185657.GC2252@redhat.com>
+Return-Path: <brouer@redhat.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Message-ID: <20170831235026.6377bf86@redhat.com>
+In-Reply-To: <20170831.114325.2027598728601121750.davem@davemloft.net>
 References: <1504156693-24692-1-git-send-email-roopa@cumulusnetworks.com>
-	<20170831143814.68709334@redhat.com>
-	<CAJieiUjZ5dTNpBFb8c2KMRgjXRCKVGhJsTfQcpiw+p6fyNVwDw@mail.gmail.com>
-	<a9349049-bfd7-b6c0-d1c7-2f70b0b0ab11@gmail.com>
-	<20170831182012.5d321c6a@redhat.com>
+	<20170831.114325.2027598728601121750.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170831182012.5d321c6a@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: add tracepoint in
 	br_fdb_update
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -20,67 +17,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 31 Aug 2017 18:57:05 -0000
-To: Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, David Ahern <dsahern@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>
+Date: Thu, 31 Aug 2017 21:50:34 -0000
+To: David Miller <davem@davemloft.net>
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, brouer@redhat.com
 
-Em Thu, Aug 31, 2017 at 06:20:12PM +0200, Jesper Dangaard Brouer escreveu:
-> On Thu, 31 Aug 2017 09:30:05 -0600 David Ahern <dsahern@gmail.com> wrote:
-> > > On Thu, Aug 31, 2017 at 5:38 AM, Jesper Dangaard Brouer <brouer@redhat.com> wrote:  
-> > > These bridge tracepoints in context are primarily for debugging fdb
-> > > updates only, not for every packet and hence not in the performance
-> > > path.
-> > > In large scale deployments with thousands of bridge ports and fdb
-> > > entries, dev->name will definately make it easier to trouble-shoot.
-> > > So, I did like to leave these with dev->name unless there are strong objections.  
+On Thu, 31 Aug 2017 11:43:25 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
 
-> > +1 for user friendliness for debugging tracepoints. The device name is
-> > also more user friendly when adding filters to the data collection.
+> From: Roopa Prabhu <roopa@cumulusnetworks.com>
+> Date: Wed, 30 Aug 2017 22:18:13 -0700
+> 
+> > From: Roopa Prabhu <roopa@cumulusnetworks.com>
+> > 
+> > This extends bridge fdb table tracepoints to also cover
+> > learned fdb entries in the br_fdb_update path. Note that
+> > unlike other tracepoints I have moved this to when the fdb
+> > is modified because this is in the datapath and can generate
+> > a lot of noise in the trace output. br_fdb_update is also called
+> > from added_by_user context in the NTF_USE case which is already
+> > traced ..hence the !added_by_user check.
+> > 
+> > Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>  
+> 
+> Applied.
+> 
+> Let's use dev->name for now and if the tooling can eventually
+> do transparent ifindex->name then we can consider redoing
+> a bunch of networking tracepoints.
 
-> > Being able to add bpf everywhere certainly changes the game a bit, but
-> > we should not relinquish ease of use and understanding for the potential
-> > that someone might want to put a bpf program on the tracepoint and want
-> > to maintain high performance.
- 
-> (Cc. Acme and Peterz)
-> I wonder if we can create a special perf-tracepoint type for ifindex'es
-> and the tool reading (e.g. perf-script) can perform the name lookup in
-> userspace (calling if_indextoname(3)) ?
- 
-> I don't know the perf tools well enough to know if this is possible?
+I agree! :-)
 
-Yeah, there are libtraceevent plugins, and that gets used by trace-cmd
-and perf script, perf trace.
-
-[root@jouet ~]# ls -la ~/.traceevent/plugins/
-total 192
-drwxr-xr-x. 2 acme acme  4096 Aug 31 15:29 .
-drwxr-xr-x. 3 acme acme  4096 Jan 27  2017 ..
--rwxr-xr-x. 1 acme acme 13744 Aug 31 15:29 plugin_cfg80211.so
--rwxr-xr-x. 1 acme acme 20192 Aug 31 15:29 plugin_function.so
--rwxr-xr-x. 1 acme acme 13680 Aug 31 15:29 plugin_hrtimer.so
--rwxr-xr-x. 1 acme acme 13760 Aug 31 15:29 plugin_jbd2.so
--rwxr-xr-x. 1 acme acme 13704 Aug 31 15:29 plugin_kmem.so
--rwxr-xr-x. 1 acme acme 28568 Aug 31 15:29 plugin_kvm.so
--rwxr-xr-x. 1 acme acme 14184 Aug 31 15:29 plugin_mac80211.so
--rwxr-xr-x. 1 acme acme 14424 Aug 31 15:29 plugin_sched_switch.so
--rwxr-xr-x. 1 acme acme 20136 Aug 31 15:29 plugin_scsi.so
--rwxr-xr-x. 1 acme acme 14504 Aug 31 15:29 plugin_xen.so
-[root@jouet ~]#
-
-But... that index is something that is mutable, i.e. you'd have to
-somehow record all the assignments of an index to an interface and then,
-when processing the events, get from that state the mapping you want.
-
-So you don't store the device name by doing lookups at each of those
-high volume tracepoints, store just the index, but then, when
-establishing the mapping, collect that as well and we come up with some
-infrastructure to get that mapping in a place where a plugin can do the
-lookups at post processing time.
-
-For instance, the hrtimer plugin will get an address from the kernel,
-and, from a state recorded at the same time as the trace file, will
-lookup elf symbol tables for the kernel or modules and resolve that
-symbol, etc.
-
-- Arnaldo
+-- 
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
