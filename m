@@ -1,24 +1,17 @@
-Return-Path: <amine.kherbouche@6wind.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=6wind-com.20150623.gappssmtp.com; s=20150623;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=LNB4MwArLL0pEJf9Ml4gTFyIKbrIEdBDLuXAlIHwVbI=;
-	b=keKYld7R6lJ2HTEkMG8XAwNy+edj9FQX1QvbDVY184Mkm6ieH1hh7Z50SAMB68PvIl
-	QED6HgZSYE2UIu7PUAfls/H3sE0BCTj876FJzqvcnI2jCm3DA0xwdK+d2RkDd//yqpep
-	yxgrRirzb/x9vVaMhxV0fjHCY5NRg6SuS3h3Ms3WG+yX7jXEwzoRwqGev3xLfHp6AoNi
-	GOx5fJEvGyZapmzoUbVScTNSOwKXojP+2QsW4ls6bSdxCfOJ9PIP2LGjmctyWgN94oRf
-	IJYnwd1vuJ7kqTg99XFHgCfWrratJc1BBKOdpntAOFRuN0uU4hB+Y9VfygYZj30WhB2m
-	Yo5Q==
-References: <20170821171523.951260-1-equinox@diac24.net>
-	<20170821171523.951260-7-equinox@diac24.net>
-From: Amine Kherbouche <amine.kherbouche@6wind.com>
-Message-ID: <025f7bf9-72d6-53c4-6680-4e20313aecf2@6wind.com>
+Return-Path: <acme@redhat.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Message-ID: <20170831185657.GC2252@redhat.com>
+References: <1504156693-24692-1-git-send-email-roopa@cumulusnetworks.com>
+	<20170831143814.68709334@redhat.com>
+	<CAJieiUjZ5dTNpBFb8c2KMRgjXRCKVGhJsTfQcpiw+p6fyNVwDw@mail.gmail.com>
+	<a9349049-bfd7-b6c0-d1c7-2f70b0b0ab11@gmail.com>
+	<20170831182012.5d321c6a@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20170821171523.951260-7-equinox@diac24.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 6/6] mpls: VPLS support
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170831182012.5d321c6a@redhat.com>
+Subject: Re: [Bridge] [PATCH net-next] bridge: add tracepoint in
+	br_fdb_update
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,25 +20,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 28 Aug 2017 09:21:39 -0000
-To: David Lamparter <equinox@diac24.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: roopa@cumulusnetworks.com
+Date: Thu, 31 Aug 2017 18:57:05 -0000
+To: Jesper Dangaard Brouer <brouer@redhat.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, David Ahern <dsahern@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-any opinion on vpls driver path ?
+Em Thu, Aug 31, 2017 at 06:20:12PM +0200, Jesper Dangaard Brouer escreveu:
+> On Thu, 31 Aug 2017 09:30:05 -0600 David Ahern <dsahern@gmail.com> wrote:
+> > > On Thu, Aug 31, 2017 at 5:38 AM, Jesper Dangaard Brouer <brouer@redhat.com> wrote:  
+> > > These bridge tracepoints in context are primarily for debugging fdb
+> > > updates only, not for every packet and hence not in the performance
+> > > path.
+> > > In large scale deployments with thousands of bridge ports and fdb
+> > > entries, dev->name will definately make it easier to trouble-shoot.
+> > > So, I did like to leave these with dev->name unless there are strong objections.  
 
-On 08/21/2017 07:15 PM, David Lamparter wrote:
-> [work-in-progress, works but needs changes]
-> [v2: refactored lots of things, e.g. dst_metadata, no more genetlink]
-> [v4: removed pointless include/net/vpls.h, squashed pseudowire control
-> word support, squashed netlink lwtunnel access bits]
->
-> Signed-off-by: David Lamparter <equinox@diac24.net>
-> ---
->  include/net/dst_metadata.h    |  24 ++
->  include/uapi/linux/lwtunnel.h |   8 +
->  net/core/lwtunnel.c           |   1 +
->  net/mpls/Kconfig              |  11 +
->  net/mpls/Makefile             |   1 +
->  net/mpls/vpls.c               | 550 ++++++++++++++++++++++++++++++++++++++++++
->  6 files changed, 595 insertions(+)
->  create mode 100644 net/mpls/vpls.c
+> > +1 for user friendliness for debugging tracepoints. The device name is
+> > also more user friendly when adding filters to the data collection.
+
+> > Being able to add bpf everywhere certainly changes the game a bit, but
+> > we should not relinquish ease of use and understanding for the potential
+> > that someone might want to put a bpf program on the tracepoint and want
+> > to maintain high performance.
+ 
+> (Cc. Acme and Peterz)
+> I wonder if we can create a special perf-tracepoint type for ifindex'es
+> and the tool reading (e.g. perf-script) can perform the name lookup in
+> userspace (calling if_indextoname(3)) ?
+ 
+> I don't know the perf tools well enough to know if this is possible?
+
+Yeah, there are libtraceevent plugins, and that gets used by trace-cmd
+and perf script, perf trace.
+
+[root@jouet ~]# ls -la ~/.traceevent/plugins/
+total 192
+drwxr-xr-x. 2 acme acme  4096 Aug 31 15:29 .
+drwxr-xr-x. 3 acme acme  4096 Jan 27  2017 ..
+-rwxr-xr-x. 1 acme acme 13744 Aug 31 15:29 plugin_cfg80211.so
+-rwxr-xr-x. 1 acme acme 20192 Aug 31 15:29 plugin_function.so
+-rwxr-xr-x. 1 acme acme 13680 Aug 31 15:29 plugin_hrtimer.so
+-rwxr-xr-x. 1 acme acme 13760 Aug 31 15:29 plugin_jbd2.so
+-rwxr-xr-x. 1 acme acme 13704 Aug 31 15:29 plugin_kmem.so
+-rwxr-xr-x. 1 acme acme 28568 Aug 31 15:29 plugin_kvm.so
+-rwxr-xr-x. 1 acme acme 14184 Aug 31 15:29 plugin_mac80211.so
+-rwxr-xr-x. 1 acme acme 14424 Aug 31 15:29 plugin_sched_switch.so
+-rwxr-xr-x. 1 acme acme 20136 Aug 31 15:29 plugin_scsi.so
+-rwxr-xr-x. 1 acme acme 14504 Aug 31 15:29 plugin_xen.so
+[root@jouet ~]#
+
+But... that index is something that is mutable, i.e. you'd have to
+somehow record all the assignments of an index to an interface and then,
+when processing the events, get from that state the mapping you want.
+
+So you don't store the device name by doing lookups at each of those
+high volume tracepoints, store just the index, but then, when
+establishing the mapping, collect that as well and we come up with some
+infrastructure to get that mapping in a place where a plugin can do the
+lookups at post processing time.
+
+For instance, the hrtimer plugin will get an address from the kernel,
+and, from a state recorded at the same time as the trace file, will
+lookup elf symbol tables for the kernel or modules and resolve that
+symbol, etc.
+
+- Arnaldo
