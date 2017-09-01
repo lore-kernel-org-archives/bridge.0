@@ -1,13 +1,15 @@
-Return-Path: <jlayton@redhat.com>
-Message-ID: <1503672536.4722.20.camel@redhat.com>
-From: Jeff Layton <jlayton@redhat.com>
-In-Reply-To: <1503670907-23221-8-git-send-email-bhumirks@gmail.com>
-References: <1503670907-23221-1-git-send-email-bhumirks@gmail.com>
-	<1503670907-23221-8-git-send-email-bhumirks@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 7/7] SUNRPC: make kvec const
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
+	bh=1LiXyXx71jdN39Tyg4LGzC6Dq0efiqfsghPtVFAEDPQ=;
+	b=tZojQ9ubYIVjriLDATWEoS3CrOr9rFCpBXCxJayx9ON6lR5TplND1xLCM82cxxw3CfBOCUIshwRtYy5QtZrvTstrQahPB5YrLY997Z7GMTyL7Mp7DVeY2Rx8RhKyy2xBABYNDnAJhpQ3nayzc2Zslj4NA9lNzkFzVC+89xdaxi4=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Fri,  1 Sep 2017 12:22:25 +0300
+Message-Id: <20170901092225.31597-1-idosch@mellanox.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] bridge: switchdev: Clear forward mark when
+	transmitting packet
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,29 +18,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 25 Aug 2017 14:49:23 -0000
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr, marcel@holtmann.org, gustavo@padovan.org, johan.hedberg@gmail.com, davem@davemloft.net, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, stephen@networkplumber.org, alex.aring@gmail.com, stefan@osg.samsung.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, santosh.shilimkar@oracle.com, trond.myklebust@primarydata.com, anna.schumaker@netapp.com, bfields@fieldses.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com, linux-nfs@vger.kernel.org
+To: netdev@vger.kernel.org
+Cc: Ido Schimmel <idosch@mellanox.com>, mlxsw@mellanox.com, yotamg@mellanox.com, nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org, jiri@mellanox.com, davem@davemloft.net
 
-On Fri, 2017-08-25 at 19:51 +0530, Bhumika Goyal wrote:
-> Make this const as it is only used during a copy operation.
-> 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
->  net/sunrpc/xdr.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
-> index e34f4ee..a096025 100644
-> --- a/net/sunrpc/xdr.c
-> +++ b/net/sunrpc/xdr.c
-> @@ -998,7 +998,7 @@ void xdr_enter_page(struct xdr_stream *xdr, unsigned int len)
->  }
->  EXPORT_SYMBOL_GPL(xdr_enter_page);
->  
-> -static struct kvec empty_iov = {.iov_base = NULL, .iov_len = 0};
-> +static const struct kvec empty_iov = {.iov_base = NULL, .iov_len = 0};
->  
->  void
->  xdr_buf_from_iov(struct kvec *iov, struct xdr_buf *buf)
+Commit 6bc506b4fb06 ("bridge: switchdev: Add forward mark support for
+stacked devices") added the 'offload_fwd_mark' bit to the skb in order
+to allow drivers to indicate to the bridge driver that they already
+forwarded the packet in L2.
 
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
+In case the bit is set, before transmitting the packet from each port,
+the port's mark is compared with the mark stored in the skb's control
+block. If both marks are equal, we know the packet arrived from a switch
+device that already forwarded the packet and it's not re-transmitted.
+
+However, if the packet is transmitted from the bridge device itself
+(e.g., br0), we should clear the 'offload_fwd_mark' bit as the mark
+stored in the skb's control block isn't valid.
+
+This scenario can happen in rare cases where a packet was trapped during
+L3 forwarding and forwarded by the kernel to a bridge device.
+
+Fixes: 6bc506b4fb06 ("bridge: switchdev: Add forward mark support for stacked devices")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Yotam Gigi <yotamg@mellanox.com>
+Tested-by: Yotam Gigi <yotamg@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+---
+ net/bridge/br_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 861ae2a165f4..5a7be3bddfa9 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -53,6 +53,9 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	brstats->tx_bytes += skb->len;
+ 	u64_stats_update_end(&brstats->syncp);
+ 
++#ifdef CONFIG_NET_SWITCHDEV
++	skb->offload_fwd_mark = 0;
++#endif
+ 	BR_INPUT_SKB_CB(skb)->brdev = dev;
+ 
+ 	skb_reset_mac_header(skb);
+-- 
+2.13.5
+
