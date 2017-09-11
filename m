@@ -1,22 +1,23 @@
-Return-Path: <vincent@bernat.im>
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=bernat.im; h=from:to:cc
-	:subject:references:date:in-reply-to:message-id:mime-version
-	:content-type; s=postfix; bh=vcYa0jJme+obu0T0N+rmqxWldNI=; b=Hl6
-	AmtnmzMPoDAKDMzt0QqGvNqK6eUH9WVFQuyiFFe6GnMt3UykF4zHkagotlD7k5kp
-	QKKNUCf9ti/byJeT0S+k468cSqUrAUjWUE02onUIPl8yaMro+9og6iqIQFuLn9aM
-	/fpsfNUNKCRFpHadjn2mL70wmIdW1f6VBuSelhjQ=
-From: Vincent Bernat <vincent@bernat.im>
-References: <20170920162140.369bb198@xeon-e3>
-	<20170921100525.20395-1-vincent@bernat.im>
-	<20170921081542.4c266c83@xeon-e3>
-In-Reply-To: <20170921081542.4c266c83@xeon-e3> (Stephen Hemminger's message of
-	"Thu, 21 Sep 2017 08:15:42 -0700")
-Message-ID: <87ingc3vjm.fsf@luffy.cx>
+Return-Path: <amine.kherbouche@6wind.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=6wind-com.20150623.gappssmtp.com; s=20150623;
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=wBMWm490ahezJ/IA+4M+qw76Cbb1xhTctN7XFvFhuQY=;
+	b=pzeP7oAUzi91UgtokmTXQshamcy4Xd0VZRi5DVHNs7NOazZLOCTjukfOpjxEcS0wLL
+	+WUiEilh6u4gbPQ5DrtU0bmSbDLvM0RfIrj+yByEo+ykRYuT4I0WL1Tb3jYfvDuAFhfq
+	jxJ1N7Y1dK5klVv5/gp10vjoOJoCKLfM4XqYZKZk2GY420XqHQGCSozN0HpYuPVdBIxH
+	hhqJ59xSIMmwZEQIJQrfmbBpCf+7ksXbuPLWTIBbwc/EKqEEexmTUp9DfppqSeQ+14/v
+	akLHrK2BuehnhtGJxGxSCChaNUqbskETojdEEHg4Na/hYTTfPrVal/GtQ3+Wt48/sGWR
+	P1FA==
+References: <20170821171523.951260-1-equinox@diac24.net>
+From: Amine Kherbouche <amine.kherbouche@6wind.com>
+Message-ID: <6a538120-1941-7e81-c942-e97adeff2e3d@6wind.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [net-next v3] bridge: trigger RTM_NEWLINK when
-	interface is modified by bridge ioctl
+In-Reply-To: <20170821171523.951260-1-equinox@diac24.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC net-next v2] bridge lwtunnel, VPLS & NVGRE
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,95 +26,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 21 Sep 2017 15:45:20 -0000
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>, David Ahern <dsahern@gmail.com>
+Date: Mon, 11 Sep 2017 08:02:25 -0000
+To: David Lamparter <equinox@diac24.net>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: roopa@cumulusnetworks.com
 
- =E2=9D=A6 21 septembre 2017 08:15 -0700, Stephen Hemminger <stephen@networ=
-kplumber.org>=C2=A0:
+Hi David,
 
->> Currently, there is a difference in netlink events received when an
->> interface is modified through bridge ioctl() or through netlink. This
->> patch generates additional events when an interface is added to or
->> removed from a bridge via ioctl().
->>=20
->> When adding then removing an interface from a bridge with netlink, we
->> get:
->>=20
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue master b=
-ridge0 state UNKNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue master b=
-ridge0 state UNKNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->>=20
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue master b=
-ridge0 state UNKNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> Deleted 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0=
- state UNKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UN=
-KNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->>=20
->> When using ioctl():
->>=20
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue master b=
-ridge0 state UNKNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue master b=
-ridge0 state UNKNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->>=20
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue master b=
-ridge0 state UNKNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state U=
-NKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> Deleted 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0=
- state UNKNOWN
->>     link/ether 9e:da:60:ee:cf:c8
->> 5: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UN=
-KNOWN group default
->>     link/ether 9e:da:60:ee:cf:c8 brd ff:ff:ff:ff:ff:ff
->>=20
->> Without this patch, the last netlink notification is not sent.
->>=20
->> Signed-off-by: Vincent Bernat <vincent@bernat.im>
+Do you plan to send a v3?
+
+On 21/08/2017 18:15, David Lamparter wrote:
+> Hi all,
 >
-> This makes sense, you should probably add a Fixes: tag to help maintainers
-> of long term stable kernels.
 >
-> Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
-
-I wouldn't know which commit would be fixed since this is not a
-regression, just a behavior difference.
---=20
-Make sure special cases are truly special.
-            - The Elements of Programming Style (Kernighan & Plauger)
+> this is an update on the earlier "[RFC net-next] VPLS support".  Note
+> I've changed the subject lines on some of the patches to better reflect
+> what they really do (tbh the earlier subject lines were crap.)
+>
+> As previously, iproute2 / FRR patches are at:
+> - https://github.com/eqvinox/vpls-iproute2
+> - https://github.com/opensourcerouting/frr/commits/vpls
+> while this patchset is also available at:
+> - https://github.com/eqvinox/vpls-linux-kernel
+> (but please be aware that I'm amending and rebasing commits)
