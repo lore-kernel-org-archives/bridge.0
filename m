@@ -1,24 +1,13 @@
-Return-Path: <roopa@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=UO4SVp428xIAAGds4p3EAH+7SavjfZL6YUJ1/RFJpQ4=;
-	b=QmKfNKemNekYBp2r3k5oUbVrk5T7Z0UY2Fm/gSYwhWckBqtQxYw7xPnrx9C6L/TLyz
-	JHlr4Aa3nV2xloYWgFj0aWG+EBRIC+Fag+MYDktxa2TWtDih1FsAepUl7I2if+ntH25X
-	tE9w8HRZik/0tzurYxO4fmPHv3/5VjQCCw/ZA=
-MIME-Version: 1.0
-In-Reply-To: <5dd9e4e8-466d-47dc-1257-09823ba783b9@cumulusnetworks.com>
-References: <1506517964-17479-1-git-send-email-nikolay@cumulusnetworks.com>
-	<20170929081420.3b069170@xeon-e3>
-	<e9a70870-9b6b-0ec4-de1e-d41da80fd10f@cumulusnetworks.com>
-	<20170929145103.1e30f73c@xeon-e3>
-	<5dd9e4e8-466d-47dc-1257-09823ba783b9@cumulusnetworks.com>
-From: Roopa Prabhu <roopa@cumulusnetworks.com>
-Date: Fri, 29 Sep 2017 15:21:59 -0700
-Message-ID: <CAJieiUhqPL4XudHYFiAQR2UjV7LSAk44GTtUjkPsq3MDpWRwJA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: add per-port
- group_fwd_mask with less restrictions
+Return-Path: <bernat@luffy.cx>
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=bernat.im; h=from:to:cc
+	:subject:date:message-id; s=postfix; bh=2oonJjpyaies3zycCLAbM06l
+	NTo=; b=SppSkT4rgmEGCqZxVr4RBP3LsCt48w2WZJSW1oABa2xdA+H/GLheoDhQ
+	y7vopao1SJlPRFtaurAeYsZcpySNv4d1KuoChmlas/UIMIRJUFw0Ze0fatlI22Gb
+	XBScFBjj+91LlwzC/UexSs6UmbV1kJz3gskOhT/XgWNgAmbbaMM=
+From: Vincent Bernat <vincent@bernat.im>
+Message-Id: <20170915193808.22338-1-vincent@bernat.im>
+Subject: [Bridge] [PATCH net-next v1] bridge: also trigger RTM_NEWLINK when
+	interface is released from bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,66 +16,72 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+Date: Fri, 15 Sep 2017 19:47:10 -0000
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Vincent Bernat <vincent@bernat.im>
 
-On Fri, Sep 29, 2017 at 3:11 PM, Nikolay Aleksandrov
-<nikolay@cumulusnetworks.com> wrote:
-> On 30/09/17 00:51, Stephen Hemminger wrote:
->> On Sat, 30 Sep 2017 00:01:24 +0300
->> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
->>
->>> On 29/09/17 18:14, Stephen Hemminger wrote:
->>>> On Wed, 27 Sep 2017 16:12:44 +0300
->>>> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
->>>>
->>>>> We need to be able to transparently forward most link-local frames via
->>>>> tunnels (e.g. vxlan, qinq). Currently the bridge's group_fwd_mask has a
->>>>> mask which restricts the forwarding of STP and LACP, but we need to be able
->>>>> to forward these over tunnels and control that forwarding on a per-port
->>>>> basis thus add a new per-port group_fwd_mask option which only disallows
->>>>> mac pause frames to be forwarded (they're always dropped anyway).
->>>>> The patch does not change the current default situation - all of the others
->>>>> are still restricted unless configured for forwarding.
->>>>> We have successfully tested this patch with LACP and STP forwarding over
->>>>> VxLAN and qinq tunnels.
->>>>>
->>>>> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>>>
->>>> LACP is fine, but STP must not be forwarded if STP in user or kernel
->>>> mode is enabled.
->>>>
->>>> Please update this patch or revert it.
->>>>
->>>
->>> The default has not changed, STP is still _not_ forwarded. It can be only if explicitly
->>> requested by the user and that means the port might be participating in STP but not
->>> the bridge's STP, that is explicitly forward all STP frames from that port.
->>> I don't think we have to change anything.
->>>
->>
->> You need to fail if user does something stupid. And DNR.
->>
->
-> I get the motivation, but it does not have to be stupid. It may be 802.1q in q, not 802.1ad
-> where STP is already forwarded by default, or it may be that the port is participating
-> in a different STP. Wouldn't be enough to warn the user that STP forwarding was enabled
-> for that port, instead of forcing it off and having it only for 802.1ad ?
-> Later when we upstream 802.1Q in q patches we'll have to work around that anyway.
->
->> From 16c42db4852234c13288922c1bffbf7650e08434 Mon Sep 17 00:00:00 2001
->> From: Stephen Hemminger <sthemmin@microsoft.com>
->> Date: Fri, 29 Sep 2017 14:48:17 -0700
->> Subject: [PATCH] bridge: check for attempt to forward STP PDU's with STP
->>  enabled
->>
->> Move validation into set function and do not allow
->> configuring forwarding of STP packets if STP is enabled.
->>
->> Fixes: 5af48b59f35c ("net: bridge: add per-port group_fwd_mask with less restrictions")
->
-> What if the user requested explicitly to forward these frames from that port ?
->
+Currently, when an interface is released from a bridge, we get a
+RTM_DELLINK event through netlink:
 
-exactly and this could be on a provider bridge which is just tunneling
-stp frames from a customer.
+Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state UNKNOWN
+    link/ether 6e:23:c2:54:3a:b3
+
+Userspace has to interpret that as a removal from the bridge, not as a
+complete removal of the interface. When an bridged interface is
+completely removed, we get two events:
+
+Deleted 2: dummy0: <BROADCAST,NOARP> mtu 1500 master bridge0 state DOWN
+    link/ether 6e:23:c2:54:3a:b3
+Deleted 2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default
+    link/ether 6e:23:c2:54:3a:b3 brd ff:ff:ff:ff:ff:ff
+
+In constrast, when an interface is released from a bond, we get a
+RTM_NEWLINK with only the new characteristics (no master):
+
+3: dummy1: <BROADCAST,NOARP,SLAVE,UP,LOWER_UP> mtu 1500 qdisc noqueue master bond0 state UNKNOWN group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+3: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+3: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+3: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether ca:c8:7b:66:f8:25 brd ff:ff:ff:ff:ff:ff
+4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+
+Userland may be confused by the fact we say a link is deleted while
+its characteristics are only modified. A first solution would have
+been to turn the RTM_DELLINK event in del_nbp() into a RTM_NEWLINK
+event. However, maybe some piece of userland is relying on this
+RTM_DELLINK to detect when a bridged interface is released. Instead,
+we also emit a RTM_NEWLINK event once the interface is
+released (without master info).
+
+Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state UNKNOWN
+    link/ether 8a:bb:e7:94:b1:f8
+2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default
+    link/ether 8a:bb:e7:94:b1:f8 brd ff:ff:ff:ff:ff:ff
+
+Signed-off-by: Vincent Bernat <vincent@bernat.im>
+---
+ net/bridge/br_if.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index f3aef22931ab..636e0a842f8a 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -288,6 +288,8 @@ static void del_nbp(struct net_bridge_port *p)
+ 
+ 	dev->priv_flags &= ~IFF_BRIDGE_PORT;
+ 
++	rtmsg_ifinfo(RTM_NEWLINK, dev, IFF_MASTER, GFP_KERNEL);
++
+ 	netdev_rx_handler_unregister(dev);
+ 
+ 	br_multicast_del_port(p);
+-- 
+2.14.1
+
