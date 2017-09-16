@@ -1,20 +1,16 @@
-Return-Path: <vincent@bernat.im>
+Return-Path: <bernat@luffy.cx>
 DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=bernat.im; h=from:to:cc
-	:subject:references:date:in-reply-to:message-id:mime-version
-	:content-type; s=postfix; bh=cO00Z4JV3D5eI6UtRE72Z+5T6XI=; b=ZWF
-	vVWwHbJNQx6dBjfQPPyF4BJrPMJ32D32wGu46Yle9+ccwXnbs10Yw6nXLeUJeA5x
-	/IO6rglAPS2yHgefAPFppVDQYahJ3dhaVMyGXE2TsFyvHjPFVwPGr/3TPIonylSr
-	0OJHHGeZtffov7cVpSlXFrJwMRFf0cPqnU6XRZnc=
+	:subject:date:message-id:in-reply-to:references; s=postfix; bh=4
+	eJTWSvnK1XPNcDJnqWeU7RVVGg=; b=J8qpBCCvgZcqIP/FHrdGD3XVE5m22hJ+M
+	OkjhnTKknUFOTthnkOC71AXDiAFlymZ+VQ6EnKoxZmxNlo1cVw7vsFQkR9mm38K4
+	FjBqzUCAtvEtqropi9a0tSKoJa8AFMXWMf9UnWPnIYoSEmkNLN2sGGXFxI5KKsQ/
+	UpI9ryVrF4=
 From: Vincent Bernat <vincent@bernat.im>
-References: <20170915193808.22338-1-vincent@bernat.im>
-In-Reply-To: <20170915193808.22338-1-vincent@bernat.im> (Vincent Bernat's
-	message of "Fri, 15 Sep 2017 21:38:08 +0200")
-Message-ID: <m3zi9vbrfp.fsf@luffy.cx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH net-next v1] bridge: also trigger RTM_NEWLINK
-	when interface is released from bridge
+Message-Id: <20170916141833.28344-1-vincent@bernat.im>
+In-Reply-To: <m3zi9vbrfp.fsf@luffy.cx>
+References: <m3zi9vbrfp.fsf@luffy.cx>
+Subject: [Bridge] [PATCH net-next v2] bridge: also trigger RTM_NEWLINK when
+	interface is released from bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,23 +19,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Fri, 15 Sep 2017 21:17:10 -0000
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+Date: Sat, 16 Sep 2017 14:18:49 -0000
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Vincent Bernat <vincent@bernat.im>
 
- =E2=9D=A6 15 septembre 2017 21:38 +0200, Vincent Bernat <vincent@bernat.im=
->=C2=A0:
+Currently, when an interface is released from a bridge via
+ioctl(), we get a RTM_DELLINK event through netlink:
 
-> Currently, when an interface is released from a bridge, we get a
-> RTM_DELLINK event through netlink:
->
-> Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 =
-state UNKNOWN
->     link/ether 6e:23:c2:54:3a:b3
+Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state UNKNOWN
+    link/ether 6e:23:c2:54:3a:b3
 
-It should be noted this only happens when using the ioctl API. When
-using the netlink API, rtnetlink.c will send a RTM_NEWLINK because of
-the modification.
---=20
-When in doubt, tell the truth.
-		-- Mark Twain
+Userspace has to interpret that as a removal from the bridge, not as a
+complete removal of the interface. When an bridged interface is
+completely removed, we get two events:
+
+Deleted 2: dummy0: <BROADCAST,NOARP> mtu 1500 master bridge0 state DOWN
+    link/ether 6e:23:c2:54:3a:b3
+Deleted 2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default
+    link/ether 6e:23:c2:54:3a:b3 brd ff:ff:ff:ff:ff:ff
+
+In constrast, when an interface is released from a bond, we get a
+RTM_NEWLINK with only the new characteristics (no master):
+
+3: dummy1: <BROADCAST,NOARP,SLAVE,UP,LOWER_UP> mtu 1500 qdisc noqueue master bond0 state UNKNOWN group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+3: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+3: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+3: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether ca:c8:7b:66:f8:25 brd ff:ff:ff:ff:ff:ff
+4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+
+Userland may be confused by the fact we say a link is deleted while
+its characteristics are only modified. A first solution would have
+been to turn the RTM_DELLINK event in del_nbp() into a RTM_NEWLINK
+event. However, maybe some piece of userland is relying on this
+RTM_DELLINK to detect when a bridged interface is released. Instead,
+we also emit a RTM_NEWLINK event once the interface is
+released (without master info).
+
+Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state UNKNOWN
+    link/ether 8a:bb:e7:94:b1:f8
+2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default
+    link/ether 8a:bb:e7:94:b1:f8 brd ff:ff:ff:ff:ff:ff
+
+This is done only when using ioctl(). When using Netlink, such an
+event is already automatically emitted in do_setlink().
+
+Signed-off-by: Vincent Bernat <vincent@bernat.im>
+---
+ net/bridge/br_ioctl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+index 7970f8540cbb..3148cb3a8e82 100644
+--- a/net/bridge/br_ioctl.c
++++ b/net/bridge/br_ioctl.c
+@@ -99,8 +99,10 @@ static int add_del_if(struct net_bridge *br, int ifindex, int isadd)
+ 
+ 	if (isadd)
+ 		ret = br_add_if(br, dev);
+-	else
++	else {
+ 		ret = br_del_if(br, dev);
++		rtmsg_ifinfo(RTM_NEWLINK, dev, IFF_MASTER, GFP_KERNEL);
++	}
+ 
+ 	return ret;
+ }
+-- 
+2.14.1
+
