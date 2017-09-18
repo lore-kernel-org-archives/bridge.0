@@ -1,16 +1,21 @@
-Return-Path: <bernat@luffy.cx>
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=bernat.im; h=from:to:cc
-	:subject:date:message-id:in-reply-to:references; s=postfix; bh=4
-	eJTWSvnK1XPNcDJnqWeU7RVVGg=; b=J8qpBCCvgZcqIP/FHrdGD3XVE5m22hJ+M
-	OkjhnTKknUFOTthnkOC71AXDiAFlymZ+VQ6EnKoxZmxNlo1cVw7vsFQkR9mm38K4
-	FjBqzUCAtvEtqropi9a0tSKoJa8AFMXWMf9UnWPnIYoSEmkNLN2sGGXFxI5KKsQ/
-	UpI9ryVrF4=
-From: Vincent Bernat <vincent@bernat.im>
-Message-Id: <20170916141833.28344-1-vincent@bernat.im>
-In-Reply-To: <m3zi9vbrfp.fsf@luffy.cx>
-References: <m3zi9vbrfp.fsf@luffy.cx>
-Subject: [Bridge] [PATCH net-next v2] bridge: also trigger RTM_NEWLINK when
-	interface is released from bridge
+Return-Path: <andres.pozom@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:from:date:message-id:subject:to
+	:content-transfer-encoding;
+	bh=5rXIJqUGRqUgPRc81Q5I29loMA51rcGr3doRbGq3dJA=;
+	b=E1LsoBVQOsCxU1kwMllLRuDcdhfVHJ+bJ0duaNCVmOg/a/F/9hnqm+NivIhMMguFPn
+	Brjux0AB+ASOoWPzoEZh60m5csyXxOjS259kmVJS5xcJacNaOZ4gqFvJmGx2FwjzVMnF
+	j37iWzVCzY7Im+19roP2/dahiHuSI7n4xeBNn+Syvb1nMxI9O2shIz/zMYMgZFg/tz2I
+	8GVRyKLIaL9RXD74ocZSm0ugM22hkE94u4AjCRAlNGqwcxg0Sl+GZrFMDVy9hjxOJQLy
+	KjzZdnFCukx4mQ9lb2UWEGu6/+Hr2fKCTekk+LimO1QeIxHNR/TEEoWidh2fFXOHtpSJ
+	N9tA==
+MIME-Version: 1.0
+From: =?UTF-8?Q?Andr=C3=A9s_Pozo_Mu=C3=B1oz?= <andres.pozom@gmail.com>
+Message-ID: <CAPfKRs4GmA4568nt4a2kaHkmm3WmMETL1sXcT8xyByCvVGgFkQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] Problem with syslog in bridge(?) with ethernet broadcast
+	packets with QinQ
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,78 +24,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sat, 16 Sep 2017 14:18:49 -0000
-To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: Vincent Bernat <vincent@bernat.im>
+Date: Mon, 18 Sep 2017 15:21:33 -0000
+To: bridge@lists.linux-foundation.org
 
-Currently, when an interface is released from a bridge via
-ioctl(), we get a RTM_DELLINK event through netlink:
+Hi all,
 
-Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state UNKNOWN
-    link/ether 6e:23:c2:54:3a:b3
+I'm facing some problem with ethernet multicast traffic and QinQ
+(802.3q in both tags) in -apparently- a bridge in Ubuntu 16.04
+(4.12.0-041200-generic).
 
-Userspace has to interpret that as a removal from the bridge, not as a
-complete removal of the interface. When an bridged interface is
-completely removed, we get two events:
+My set up is the following:
++-----------+
+|     VM    |
++-----+-----+
+      |
+      | tag 55
++---------+------------+
+|        OVS           |
++-----------+----------+
+                | veth3.9
+veth3   +  |
+     +--+
+     | veth2
++-------+----------+
+|       BRIDGE     |
++-------+----------+
+     |
+     |
++-------+----------+
+|      ens11f1     |
++------------------+
 
-Deleted 2: dummy0: <BROADCAST,NOARP> mtu 1500 master bridge0 state DOWN
-    link/ether 6e:23:c2:54:3a:b3
-Deleted 2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default
-    link/ether 6e:23:c2:54:3a:b3 brd ff:ff:ff:ff:ff:ff
 
-In constrast, when an interface is released from a bond, we get a
-RTM_NEWLINK with only the new characteristics (no master):
+I am setting the inner tag with OVS and the outer tag with a vlan type veth=
+.
+The problem I have is that every packet sent from the VM to Ethernet
+broadcast addresses (33:33:xx:xx:xx:xx) generates a "IPv6 header not
+found" entry in syslog.
 
-3: dummy1: <BROADCAST,NOARP,SLAVE,UP,LOWER_UP> mtu 1500 qdisc noqueue master bond0 state UNKNOWN group default
-    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
-3: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default
-    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
-4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
-    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
-3: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noqueue state DOWN group default
-    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
-3: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noqueue state DOWN group default
-    link/ether ca:c8:7b:66:f8:25 brd ff:ff:ff:ff:ff:ff
-4: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
-    link/ether ae:dc:7a:8c:9a:3c brd ff:ff:ff:ff:ff:ff
+If I generate a 'ens11f1.9' interface and remove the BRIDGE, the log
+entry dissapears.
 
-Userland may be confused by the fact we say a link is deleted while
-its characteristics are only modified. A first solution would have
-been to turn the RTM_DELLINK event in del_nbp() into a RTM_NEWLINK
-event. However, maybe some piece of userland is relying on this
-RTM_DELLINK to detect when a bridged interface is released. Instead,
-we also emit a RTM_NEWLINK event once the interface is
-released (without master info).
+Some questions:
+* Is there any problem with these packets (ethernet multicast with
+QinQ) in bridges?
+* Is there any configuration I should change for the problem to dissapear?
 
-Deleted 2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 master bridge0 state UNKNOWN
-    link/ether 8a:bb:e7:94:b1:f8
-2: dummy0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default
-    link/ether 8a:bb:e7:94:b1:f8 brd ff:ff:ff:ff:ff:ff
+Thanks in advance for your help! Any hint about what could be
+generating those logs is appreciated.
 
-This is done only when using ioctl(). When using Netlink, such an
-event is already automatically emitted in do_setlink().
-
-Signed-off-by: Vincent Bernat <vincent@bernat.im>
----
- net/bridge/br_ioctl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
-index 7970f8540cbb..3148cb3a8e82 100644
---- a/net/bridge/br_ioctl.c
-+++ b/net/bridge/br_ioctl.c
-@@ -99,8 +99,10 @@ static int add_del_if(struct net_bridge *br, int ifindex, int isadd)
- 
- 	if (isadd)
- 		ret = br_add_if(br, dev);
--	else
-+	else {
- 		ret = br_del_if(br, dev);
-+		rtmsg_ifinfo(RTM_NEWLINK, dev, IFF_MASTER, GFP_KERNEL);
-+	}
- 
- 	return ret;
- }
--- 
-2.14.1
-
+Regards,
+Andr=C3=A9s Pozo
