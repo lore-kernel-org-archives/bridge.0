@@ -1,21 +1,23 @@
-Return-Path: <andres.pozom@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:from:date:message-id:subject:to
-	:content-transfer-encoding;
-	bh=5rXIJqUGRqUgPRc81Q5I29loMA51rcGr3doRbGq3dJA=;
-	b=E1LsoBVQOsCxU1kwMllLRuDcdhfVHJ+bJ0duaNCVmOg/a/F/9hnqm+NivIhMMguFPn
-	Brjux0AB+ASOoWPzoEZh60m5csyXxOjS259kmVJS5xcJacNaOZ4gqFvJmGx2FwjzVMnF
-	j37iWzVCzY7Im+19roP2/dahiHuSI7n4xeBNn+Syvb1nMxI9O2shIz/zMYMgZFg/tz2I
-	8GVRyKLIaL9RXD74ocZSm0ugM22hkE94u4AjCRAlNGqwcxg0Sl+GZrFMDVy9hjxOJQLy
-	KjzZdnFCukx4mQ9lb2UWEGu6/+Hr2fKCTekk+LimO1QeIxHNR/TEEoWidh2fFXOHtpSJ
-	N9tA==
+Return-Path: <vincent@bernat.im>
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=bernat.im; h=from:to:cc
+	:subject:references:date:in-reply-to:message-id:mime-version
+	:content-type; s=postfix; bh=1MMynOeKAlkFtU4tn12pxDqWyOk=; b=oRT
+	iuhmxiTvtPsZqN/sVsCW9uLIMIayry3p7vMgDB2vbtr3AIxr0KQ1zLJZK1wf4Zmn
+	QjNrfle0qheFIHybhJJaGzmT8ZtyDZlypS9pMjWTKq5pbsQ+SJJl6GDX9mF60UqY
+	hTAGTC+/kw677YiBPDpk8j95AqIZ/u8BFbYPuk+k=
+From: Vincent Bernat <vincent@bernat.im>
+References: <m3zi9vbrfp.fsf@luffy.cx>
+	<20170916141833.28344-1-vincent@bernat.im>
+	<20170920.140956.781667692297467325.davem@davemloft.net>
+	<16e5566a-909d-ba83-7637-1fb6c93126bc@gmail.com>
+In-Reply-To: <16e5566a-909d-ba83-7637-1fb6c93126bc@gmail.com> (David Ahern's
+	message of "Wed, 20 Sep 2017 15:57:16 -0600")
+Message-ID: <87bmm56mu2.fsf@luffy.cx>
 MIME-Version: 1.0
-From: =?UTF-8?Q?Andr=C3=A9s_Pozo_Mu=C3=B1oz?= <andres.pozom@gmail.com>
-Message-ID: <CAPfKRs4GmA4568nt4a2kaHkmm3WmMETL1sXcT8xyByCvVGgFkQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] Problem with syslog in bridge(?) with ethernet broadcast
-	packets with QinQ
+Subject: Re: [Bridge] [PATCH net-next v2] bridge: also trigger RTM_NEWLINK
+	when interface is released from bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,54 +26,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 18 Sep 2017 15:21:33 -0000
-To: bridge@lists.linux-foundation.org
+Date: Wed, 20 Sep 2017 22:13:00 -0000
+To: David Ahern <dsahern@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 
-Hi all,
+ =E2=9D=A6 20 septembre 2017 15:57 -0600, David Ahern <dsahern@gmail.com>=
+=C2=A0:
 
-I'm facing some problem with ethernet multicast traffic and QinQ
-(802.3q in both tags) in -apparently- a bridge in Ubuntu 16.04
-(4.12.0-041200-generic).
+> The DELLINK is for AF_BRIDGE family (ifi_family). Adding family to
+> print_linkinfo and running the monitor I get:
+>
+>
+> [LINK]family 0: 35: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc
+> noqueue master br0 state UNKNOWN group default
+>     link/ether d6:c3:73:86:3c:73 brd ff:ff:ff:ff:ff:ff
+>
+> [LINK]family 7: 35: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500
+> master br0 state UNKNOWN
+>     link/ether d6:c3:73:86:3c:73
+>
+> [LINK]Deleted family 7: 35: dummy1: <BROADCAST,NOARP,UP,LOWER_UP> mtu
+> 1500 master br0 state UNKNOWN
+>     link/ether d6:c3:73:86:3c:73
 
-My set up is the following:
-+-----------+
-|     VM    |
-+-----+-----+
-      |
-      | tag 55
-+---------+------------+
-|        OVS           |
-+-----------+----------+
-                | veth3.9
-veth3   +  |
-     +--+
-     | veth2
-+-------+----------+
-|       BRIDGE     |
-+-------+----------+
-     |
-     |
-+-------+----------+
-|      ens11f1     |
-+------------------+
-
-
-I am setting the inner tag with OVS and the outer tag with a vlan type veth=
-.
-The problem I have is that every packet sent from the VM to Ethernet
-broadcast addresses (33:33:xx:xx:xx:xx) generates a "IPv6 header not
-found" entry in syslog.
-
-If I generate a 'ens11f1.9' interface and remove the BRIDGE, the log
-entry dissapears.
-
-Some questions:
-* Is there any problem with these packets (ethernet multicast with
-QinQ) in bridges?
-* Is there any configuration I should change for the problem to dissapear?
-
-Thanks in advance for your help! Any hint about what could be
-generating those logs is appreciated.
-
-Regards,
-Andr=C3=A9s Pozo
+I didn't know about the family. We can drop the patch.
+--=20
+One of the most striking differences between a cat and a lie is that a cat =
+has
+only nine lives.
+		-- Mark Twain, "Pudd'nhead Wilson's Calendar"
