@@ -1,16 +1,25 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-References: <1507093953-59929-1-git-send-email-roopa@cumulusnetworks.com>
-	<1507093953-59929-3-git-send-email-roopa@cumulusnetworks.com>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <7b8bf9e3-b34c-38c3-4935-9136f7aa2d2d@lab.ntt.co.jp>
-Date: Wed, 4 Oct 2017 16:35:27 +0900
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to:x-me-sender
+	:x-me-sender:x-sasl-enc:x-sasl-enc; s=fm1; bh=VwSbSwTUHCQpbsNc43
+	Z9rP4Isz/DPPnt7E7vu7kBF0o=; b=mEskFHhRh4BIXVHIoT/bScsV/Mi0XLX+sK
+	cs77Z/yqISmYfoIZZBu9EVIvnbPVmgktGyVP9mEKpnUicLWTRAgXbNxn0kVs6v6w
+	U6pnAgS6cg1KPrazDQpTnDhCWpZcExWBOtdcrrQg7QaeLWXiOS5aJbe1F7Y/3YFk
+	DVnVQb+YpF2Lfotj2SpWesOgZhKIQ6djkQ7kzdpYPDYcz5MlrMeXSyAVsSQDvpAW
+	BNHJwUZXDwUBMEF/g8lw5QD8nCadidEASvuBe3gAXql5dQf1bpk3AA5UeajxscqO
+	LbLXLUhcC8//sM6Zzv60wTOKHFmkOIm5T49QhWKZs6jTgoaEvJmg==
+Date: Wed, 4 Oct 2017 16:24:03 +0300
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <20171004132403.GA14864@splinter>
+References: <1507093134-20406-1-git-send-email-dsahern@gmail.com>
+	<1507093134-20406-8-git-send-email-dsahern@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1507093953-59929-3-git-send-email-roopa@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 2/3] bridge: suppress arp pkts on
- BR_NEIGH_SUPPRESS ports
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1507093134-20406-8-git-send-email-dsahern@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next 7/7] mlxsw: spectrum: Add extack
+ messages for enslave failures
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,120 +28,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@cumulusnetworks.com>, davem@davemloft.net
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: David Ahern <dsahern@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vfalico@gmail.com, j.vosburgh@gmail.com, davem@davemloft.net
 
-On 2017/10/04 14:12, Roopa Prabhu wrote:
-> From: Roopa Prabhu <roopa@cumulusnetworks.com>
+On Tue, Oct 03, 2017 at 09:58:54PM -0700, David Ahern wrote:
+> mlxsw fails device enslavement for a number of reasons. Use the extack
+> facility to return an error message to the user stating why the enslave
+> is failing.
 > 
-> This patch avoids flooding and proxies arp packets
-> for BR_NEIGH_SUPPRESS ports.
+> Messages are prefixed with "spectrum" so users know it is a constraint
+> imposed by the hardware driver. For example:
+>     $ ip li add br0.11 link br0 type vlan id 11
+>     $ ip li set swp11 master br0
+>     Error: spectrum: Enslaving a port to a device that already has an upper device is not supported.
 > 
-> Moves existing br_do_proxy_arp to br_do_proxy_suppress_arp
-> to support both proxy arp and neigh suppress.
-> 
-> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+> Signed-off-by: David Ahern <dsahern@gmail.com>
+
+Great stuff, thanks David!
+
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
+Tested-by: Ido Schimmel <idosch@mellanox.com>
+
+See one small nit below, but I would like to patch
+mlxsw_sp_netdevice_port_vlan_event() as well, so I can take care of it
+then.
+
 > ---
-...
-> +static void br_arp_send(struct net_bridge_port *p, int type, int ptype,
+>  drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 46 ++++++++++++++++++++------
+>  1 file changed, 36 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+> index 3adf237c951a..a6cc00e4e543 100644
+> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+> @@ -4019,14 +4019,20 @@ static int mlxsw_sp_lag_index_get(struct mlxsw_sp *mlxsw_sp,
+>  static bool
+>  mlxsw_sp_master_lag_check(struct mlxsw_sp *mlxsw_sp,
+>  			  struct net_device *lag_dev,
+> -			  struct netdev_lag_upper_info *lag_upper_info)
+> +			  struct netdev_lag_upper_info *lag_upper_info,
+> +			  struct netlink_ext_ack *extack)
+>  {
+>  	u16 lag_id;
+>  
+> -	if (mlxsw_sp_lag_index_get(mlxsw_sp, lag_dev, &lag_id) != 0)
+> +	if (mlxsw_sp_lag_index_get(mlxsw_sp, lag_dev, &lag_id) != 0) {
+> +		NL_SET_ERR_MSG(extack, "spectrum: Unknown LAG device");
 
-type and ptype are always the same so seems unnecessary.
+A more accurate message would be:
+"spectrum: Exceeded number of supported LAG devices"
 
-> +			__be32 dest_ip, struct net_device *dev,
-> +			__be32 src_ip, const unsigned char *dest_hw,
-> +			const unsigned char *src_hw,
-> +			const unsigned char *target_hw,
-> +			__be16 vlan_proto, u16 vlan_tci)
-> +{
-> +	struct sk_buff *skb;
-> +
-> +	netdev_dbg(dev, "arp send dev %s dst %pI4 dst_hw %pM src %pI4 src_hw %pM\n",
-> +		   dev->name, &dest_ip, dest_hw, &src_ip, src_hw);
-> +
-> +	if (!vlan_tci) {
-> +		arp_send(type, ptype, dest_ip, dev, src_ip,
-> +			 dest_hw, src_hw, target_hw);
-
-I may be missing something, but wouldn't it send arp reply from the
-bridge device, while it should be received to the bridge device, when p
-== NULL?
-
-> +		return;
+>  		return false;
+> -	if (lag_upper_info->tx_type != NETDEV_LAG_TX_TYPE_HASH)
 > +	}
-> +
-> +	skb = arp_create(type, ptype, dest_ip, dev, src_ip,
-> +			 dest_hw, src_hw, target_hw);
-> +	if (!skb)
-> +		return;
-> +
-> +	if (p) {
-
-Why doesn't bridge device consider pvid?
-
-> +		struct net_bridge_vlan_group *vg;
-> +		u16 pvid;
-> +
-> +		vg = nbp_vlan_group_rcu(p);
-> +		pvid = br_get_pvid(vg);
-> +		if (pvid == vlan_tci)
-
-Need vlan_tci & VLAN_VID_MASK
-Or use skb_vlan_tag_get_id() in caller side.
-
-> +			vlan_tci = 0;
+> +	if (lag_upper_info->tx_type != NETDEV_LAG_TX_TYPE_HASH) {
+> +		NL_SET_ERR_MSG(extack,
+> +			       "spectrum: LAG device using unsupported Tx type");
+>  		return false;
 > +	}
-> +
-> +	if (vlan_tci) {
-> +		skb = vlan_insert_tag_set_proto(skb, vlan_proto,
-> +						vlan_tci);
-
-Should be __vlan_hwaccel_put_tag()
-
-> +		if (!skb) {
-> +			net_err_ratelimited("%s: failed to insert VLAN tag\n",
-> +					    __func__);
-> +			return;
-> +		}
-> +	}
-> +
-> +	arp_xmit(skb);
-> +}
-...
-> +void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
-> +			      u16 vid, struct net_bridge_port *p)
-> +{
-...
-> +	if (br->neigh_suppress_enabled) {
-> +		if (p && (p->flags & BR_NEIGH_SUPPRESS))
-> +			return;
-> +		if (ipv4_is_zeronet(sip) || sip == tip) {
-> +			/* prevent flooding to neigh suppress ports */
-> +			BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
-> +			return;
-> +		}
-> +	}
-> +
-> +	if (parp->ar_op != htons(ARPOP_REQUEST))
-> +		return;
-> +
-> +	if (vid != 0) {
-
-vid should be 0 if untagged is set on the bridge device?
-
-> +		vlandev = __vlan_find_dev_deep_rcu(br->dev, skb->vlan_proto,
-> +						   vid);
-> +		if (!vlandev)
-> +			return;
-> +	}
-> +
-> +	if (br->neigh_suppress_enabled && br_is_local_ip(vlandev, tip)) {
-> +		/* its our local ip, so don't proxy reply
-> +		 * and don't forward to neigh suppress ports
-> +		 */
-> +		BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
-> +		return;
-> +	}
-
--- 
-Toshiaki Makita
-
+>  	return true;
+>  }
