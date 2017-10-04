@@ -1,22 +1,27 @@
-Return-Path: <roopa@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=N/be8E/JppqyCh6/qQvUT/TknvrgRiGTRTiNGs/w6zQ=;
-	b=cwOoEtDS0d0IAEHbgJfsfFniGT5UZoBjG2G/6O35GkMLaBzkqm4GTTNlUVGvPktQMB
-	MX9t8tl9ix1+AcReNbxwyJXfscZ0hG9BRXE9pVzMgEkUNZFRNgUTqPsrZdthg+4Ki/Lj
-	jrNTZjU+3mO0h1mvO8UGJvxmFsg8ury6u5jEk=
+Return-Path: <dsahern@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=uw4O7MqRRH6cjz2l6gKUwYcEyZ2QUkzUVsKtVcx8rjI=;
+	b=mZmMn6v+jyVFq6LE8sQEoQPCMcREcYBbxccgehmz7Os7iDLMP7vXOuyIN748uFCZjA
+	FusniR3VNhik5BL+CoWXpwd9puyrCbLeGfK4JrCc40fGh1HQdma8eCF7ZHgEeXQPFLlX
+	UPSFPFo2Pcs7NsGLhXOupC1niZuRfNmzlZWahfSVvcnCHkB3Pahq6HJ8RtfFLoVVje0W
+	MWo4rnV9GMSX8o+A5aFvof40WyN7/15CZ5Q1aG8nLODAmAuBsNojeeLZv0mbY329U5og
+	afhKbaRoSju3Elw70OIlsUwsamBsct/5oEHFZ64WMVy/EzQ6YxK9Z23iF6Q3U3KGlmGs
+	fb7w==
+References: <1507093134-20406-1-git-send-email-dsahern@gmail.com>
+	<1507093134-20406-7-git-send-email-dsahern@gmail.com>
+	<20171004081357.37bfd941@xeon-e3>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <fc657f3d-0a6d-1df1-6373-e170dbdbee25@gmail.com>
+Date: Wed, 4 Oct 2017 09:16:20 -0700
 MIME-Version: 1.0
-In-Reply-To: <c4a04560-07c8-7d9e-d64c-558f99cfc653@lab.ntt.co.jp>
-References: <1507093953-59929-1-git-send-email-roopa@cumulusnetworks.com>
-	<1507093953-59929-2-git-send-email-roopa@cumulusnetworks.com>
-	<c4a04560-07c8-7d9e-d64c-558f99cfc653@lab.ntt.co.jp>
-From: Roopa Prabhu <roopa@cumulusnetworks.com>
-Date: Wed, 4 Oct 2017 09:06:53 -0700
-Message-ID: <CAJieiUhjH+gLKMvQmJj12_zFOnOQCMU7CLo__8wHyd0Ngxb+xw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH net-next v4 1/3] bridge: add new
- BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood
+In-Reply-To: <20171004081357.37bfd941@xeon-e3>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 6/7] net: bridge: Pass extack to down
+ to netdev_master_upper_dev_link
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,90 +30,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "davem@davemloft.net" <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vfalico@gmail.com, j.vosburgh@gmail.com, davem@davemloft.net
 
-On Wed, Oct 4, 2017 at 12:21 AM, Toshiaki Makita
-<makita.toshiaki@lab.ntt.co.jp> wrote:
-> On 2017/10/04 14:12, Roopa Prabhu wrote:
->> From: Roopa Prabhu <roopa@cumulusnetworks.com>
+On 10/4/17 8:13 AM, Stephen Hemminger wrote:
+> On Tue,  3 Oct 2017 21:58:53 -0700
+> David Ahern <dsahern@gmail.com> wrote:
+> 
+>> Pass extack arg to br_add_if. Add messages for a couple of failures
+>> and pass arg to netdev_master_upper_dev_link.
 >>
->> This patch adds a new bridge port flag BR_NEIGH_SUPPRESS to
->> suppress arp and nd flood on bridge ports. It implements
->> rfc7432, section 10.
->> https://tools.ietf.org/html/rfc7432#section-10
->> for ethernet VPN deployments. It is similar to the existing
->> BR_ARP_PROXY flag but has a few semantic differences to conform
->> to EVPN standard. In case of EVPN, it is mainly used to
->> avoid flooding to tunnel ports like vxlan. Unlike the existing
->> flags it suppresses flood of all neigh discovery packets
->> (arp, nd) to tunnel ports.
->>
->> This patch adds netlink and sysfs support to set this bridge port
->> flag.
->>
->> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
->> ---
-> ...
->> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
->> index dea88a2..d8c2706 100644
->> --- a/net/bridge/br_netlink.c
->> +++ b/net/bridge/br_netlink.c
->> @@ -138,6 +138,7 @@ static inline size_t br_port_info_size(void)
->>               + nla_total_size(1)     /* IFLA_BRPORT_PROXYARP */
->>               + nla_total_size(1)     /* IFLA_BRPORT_PROXYARP_WIFI */
->>               + nla_total_size(1)     /* IFLA_BRPORT_VLAN_TUNNEL */
->> +             + nla_total_size(1)     /* IFLA_BRPORT_NEIGH_SUPPRESS */
->>               + nla_total_size(sizeof(struct ifla_bridge_id)) /* IFLA_BRPORT_ROOT_ID */
->>               + nla_total_size(sizeof(struct ifla_bridge_id)) /* IFLA_BRPORT_BRIDGE_ID */
->>               + nla_total_size(sizeof(u16))   /* IFLA_BRPORT_DESIGNATED_PORT */
->> @@ -210,7 +211,9 @@ static int br_port_fill_attrs(struct sk_buff *skb,
->>           nla_put_u8(skb, IFLA_BRPORT_CONFIG_PENDING, p->config_pending) ||
->>           nla_put_u8(skb, IFLA_BRPORT_VLAN_TUNNEL, !!(p->flags &
->>                                                       BR_VLAN_TUNNEL)) ||
->> -         nla_put_u16(skb, IFLA_BRPORT_GROUP_FWD_MASK, p->group_fwd_mask))
->> +         nla_put_u16(skb, IFLA_BRPORT_GROUP_FWD_MASK, p->group_fwd_mask) ||
->> +         nla_put_u8(skb, IFLA_BRPORT_NEIGH_SUPPRESS, !!(p->flags &
->> +                                                     BR_NEIGH_SUPPRESS)))
->
-> Wouldn't it be better to make the indentation like this?
->
-> ... !!(p->flags &
->        BR_NEIGH_SUPPRESS)))
+>> Signed-off-by: David Ahern <dsahern@gmail.com>
+> 
+> This looks good. You might want to pass the netlink_ext_ack down as
+> an immutable pointer (const).
 
+Can't mark extack as const. The NL_SET_ERR_MSG sets _msg to the passed
+in string.
 
-not intentional. I think i will actually move the full condition on
-the next line.
+> 
+> Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+> 
 
->
->>               return -EMSGSIZE;
->>
->>       timerval = br_timer_value(&p->message_age_timer);
->> @@ -692,6 +695,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
->>  {
->>       unsigned long old_flags = p->flags;
->>       bool br_vlan_tunnel_old = false;
->> +     int neigh_suppress_old = 0;
->>       int err;
->>
->>       err = br_set_port_flag(p, tb, IFLA_BRPORT_MODE, BR_HAIRPIN_MODE);
->> @@ -785,6 +789,12 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
->>               p->group_fwd_mask = fwd_mask;
->>       }
->>
->> +     neigh_suppress_old = (p->flags & BR_NEIGH_SUPPRESS);
->> +     br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS,
->> +                      BR_NEIGH_SUPPRESS);
->> +     if (neigh_suppress_old != (p->flags & BR_NEIGH_SUPPRESS))
->> +             br_recalculate_neigh_suppress_enabled(p->br);
->> +
->
-> You are calling br_recalculate_neigh_suppress_enabled() from within
-> br_port_flags_change() immediately after this.
-> I think you can just call br_set_port_flag() here.
->
->>       br_port_flags_change(p, old_flags ^ p->flags);
->>       return 0;
->>  }
-
-you are right, i will remove the redundant call to recalc neigh_suppress
