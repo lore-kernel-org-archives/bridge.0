@@ -2,26 +2,26 @@ Return-Path: <dsahern@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=subject:to:cc:references:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=Uu1eZLi5YQra1TH7F2BKXRh1ceNMy5PIDeSFY+0chLc=;
-	b=Q1LSeiMRKqczevLCkLh9rUAsrWGPXenMjwdDQWX+Gb7d6EM3LCFlUIDbpKzy61HQwo
-	ri28oEhxUnx1/q6+q8nRL0RTd1XrpudO4Rquornmr5/KZvNKMcPMxQ0tW8gF21J8mBLP
-	dW2/2Fy05kD04Bi/8VyItV355oN6z0fLUPQXlyW+5CSZSnR4eSjA2Kqpd9Ko1Slz3/Ep
-	PNDbjUB/WDN71rBON0NXor+dGVjbeeyR/Y84vNRm8MHCLxPSNPJpiOjqDFV+y8ReLzZY
-	ks5CiT5lhLEiCAMIzLp6MTZTLbd0c+tNBWjc7rxNvIvXuGSyQDa8uF0XK3g3bWKlwcKN
-	Jz7w==
+	bh=Fh1LBsEbwxoiA7+7HZ8UbBiE/Bkz9Xz/i3gt1jxbVxY=;
+	b=ZJcvZ+Zdl1LpoVnPUGiNZUmvv3/daIVPQb4vqpl5yasO5CNAoEjO/B8rFNF3Qhmjqh
+	Iuu3fvbILK097tb9uyrf1CciqleY9P/THl9ZhZ06/zrkEpIAsom6BEbPJkB6HXSV7Phu
+	0BC575REV7UoW/BQez6jd88jVFMmdFxb/V7EKJ7VG7OGF8GC++tYIf3VYwSZ/j+D0szj
+	olmu80z1EhExkLK39pYAhhheqH+N+WpO7sDq+ZKjhTIRxsR+ENXT8sN4FixriTY0fQ0v
+	n1UaOfpA3hjyTI+F/rt3iSiYmXLuLrAAPkD+/ryg4GyRkFcMZLcw3G4zgmABx9Ja9VXW
+	CSsA==
 References: <1507093134-20406-1-git-send-email-dsahern@gmail.com>
-	<1507093134-20406-6-git-send-email-dsahern@gmail.com>
-	<20171004063828.GB1895@nanopsycho>
+	<1507093134-20406-8-git-send-email-dsahern@gmail.com>
+	<20171004132403.GA14864@splinter>
 From: David Ahern <dsahern@gmail.com>
-Message-ID: <354fae78-3b04-3807-7392-87c6a3f1b3db@gmail.com>
-Date: Wed, 4 Oct 2017 08:35:46 -0700
+Message-ID: <2db8450f-aa7a-24e5-603c-bb76c009fad7@gmail.com>
+Date: Wed, 4 Oct 2017 08:44:22 -0700
 MIME-Version: 1.0
-In-Reply-To: <20171004063828.GB1895@nanopsycho>
+In-Reply-To: <20171004132403.GA14864@splinter>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 5/7] net: bonding: Add extack messages
- for some enslave failures
+Subject: Re: [Bridge] [PATCH net-next 7/7] mlxsw: spectrum: Add extack
+ messages for enslave failures
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,32 +30,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jiri Pirko <jiri@resnulli.us>
+To: Ido Schimmel <idosch@idosch.org>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vfalico@gmail.com, j.vosburgh@gmail.com, davem@davemloft.net
 
-On 10/3/17 11:38 PM, Jiri Pirko wrote:
-> Wed, Oct 04, 2017 at 06:58:52AM CEST, dsahern@gmail.com wrote:
->> A number of bond_enslave errors are logged using the netdev_err API.
->> Return those messages to userspace via the extack facility.
+On 10/4/17 6:24 AM, Ido Schimmel wrote:
+> On Tue, Oct 03, 2017 at 09:58:54PM -0700, David Ahern wrote:
+>> mlxsw fails device enslavement for a number of reasons. Use the extack
+>> facility to return an error message to the user stating why the enslave
+>> is failing.
+>>
+>> Messages are prefixed with "spectrum" so users know it is a constraint
+>> imposed by the hardware driver. For example:
+>>     $ ip li add br0.11 link br0 type vlan id 11
+>>     $ ip li set swp11 master br0
+>>     Error: spectrum: Enslaving a port to a device that already has an upper device is not supported.
 >>
 >> Signed-off-by: David Ahern <dsahern@gmail.com>
->> ---
->> drivers/net/bonding/bond_main.c | 12 ++++++++++++
->> 1 file changed, 12 insertions(+)
->>
->> diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
->> index bc92307c2082..6688dc9154e0 100644
->> --- a/drivers/net/bonding/bond_main.c
->> +++ b/drivers/net/bonding/bond_main.c
->> @@ -1348,12 +1348,15 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
->>
->> 	/* already in-use? */
->> 	if (netdev_is_rx_handler_busy(slave_dev)) {
->> +		NL_SET_ERR_MSG(extack,
->> +			       "Device is in use and cannot be enslaved");
 > 
-> Please don't do this kind of wrapping. Just let the string be on the
-> same line.
+> Great stuff, thanks David!
 > 
+> Reviewed-by: Ido Schimmel <idosch@mellanox.com>
+> Tested-by: Ido Schimmel <idosch@mellanox.com>
+> 
+> See one small nit below, but I would like to patch
+> mlxsw_sp_netdevice_port_vlan_event() as well, so I can take care of it
+> then.
 
-Ok, I will do that for bonding only since it is the existing style.
+ok. Works for me. I was planning to add more error messages to mlxsw;
+happy to concede that to you or someone else. For example a bridge
+without vlan filtering:
+
+$ ip li add br1 type bridge
+$ ip li set swp20 master br1
+RTNETLINK answers: Invalid argument
+
+
+> 
+>> ---
+>>  drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 46 ++++++++++++++++++++------
+>>  1 file changed, 36 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+>> index 3adf237c951a..a6cc00e4e543 100644
+>> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+>> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+>> @@ -4019,14 +4019,20 @@ static int mlxsw_sp_lag_index_get(struct mlxsw_sp *mlxsw_sp,
+>>  static bool
+>>  mlxsw_sp_master_lag_check(struct mlxsw_sp *mlxsw_sp,
+>>  			  struct net_device *lag_dev,
+>> -			  struct netdev_lag_upper_info *lag_upper_info)
+>> +			  struct netdev_lag_upper_info *lag_upper_info,
+>> +			  struct netlink_ext_ack *extack)
+>>  {
+>>  	u16 lag_id;
+>>  
+>> -	if (mlxsw_sp_lag_index_get(mlxsw_sp, lag_dev, &lag_id) != 0)
+>> +	if (mlxsw_sp_lag_index_get(mlxsw_sp, lag_dev, &lag_id) != 0) {
+>> +		NL_SET_ERR_MSG(extack, "spectrum: Unknown LAG device");
+> 
+> A more accurate message would be:
+> "spectrum: Exceeded number of supported LAG devices"
+
+Right. will update.
+
+
+> 
+>>  		return false;
+>> -	if (lag_upper_info->tx_type != NETDEV_LAG_TX_TYPE_HASH)
+>> +	}
+>> +	if (lag_upper_info->tx_type != NETDEV_LAG_TX_TYPE_HASH) {
+>> +		NL_SET_ERR_MSG(extack,
+>> +			       "spectrum: LAG device using unsupported Tx type");
+>>  		return false;
+>> +	}
+>>  	return true;
+>>  }
+
