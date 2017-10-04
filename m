@@ -1,27 +1,22 @@
-Return-Path: <dsahern@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=Fh1LBsEbwxoiA7+7HZ8UbBiE/Bkz9Xz/i3gt1jxbVxY=;
-	b=ZJcvZ+Zdl1LpoVnPUGiNZUmvv3/daIVPQb4vqpl5yasO5CNAoEjO/B8rFNF3Qhmjqh
-	Iuu3fvbILK097tb9uyrf1CciqleY9P/THl9ZhZ06/zrkEpIAsom6BEbPJkB6HXSV7Phu
-	0BC575REV7UoW/BQez6jd88jVFMmdFxb/V7EKJ7VG7OGF8GC++tYIf3VYwSZ/j+D0szj
-	olmu80z1EhExkLK39pYAhhheqH+N+WpO7sDq+ZKjhTIRxsR+ENXT8sN4FixriTY0fQ0v
-	n1UaOfpA3hjyTI+F/rt3iSiYmXLuLrAAPkD+/ryg4GyRkFcMZLcw3G4zgmABx9Ja9VXW
-	CSsA==
-References: <1507093134-20406-1-git-send-email-dsahern@gmail.com>
-	<1507093134-20406-8-git-send-email-dsahern@gmail.com>
-	<20171004132403.GA14864@splinter>
-From: David Ahern <dsahern@gmail.com>
-Message-ID: <2db8450f-aa7a-24e5-603c-bb76c009fad7@gmail.com>
-Date: Wed, 4 Oct 2017 08:44:22 -0700
+Return-Path: <roopa@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=N/be8E/JppqyCh6/qQvUT/TknvrgRiGTRTiNGs/w6zQ=;
+	b=cwOoEtDS0d0IAEHbgJfsfFniGT5UZoBjG2G/6O35GkMLaBzkqm4GTTNlUVGvPktQMB
+	MX9t8tl9ix1+AcReNbxwyJXfscZ0hG9BRXE9pVzMgEkUNZFRNgUTqPsrZdthg+4Ki/Lj
+	jrNTZjU+3mO0h1mvO8UGJvxmFsg8ury6u5jEk=
 MIME-Version: 1.0
-In-Reply-To: <20171004132403.GA14864@splinter>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 7/7] mlxsw: spectrum: Add extack
- messages for enslave failures
+In-Reply-To: <c4a04560-07c8-7d9e-d64c-558f99cfc653@lab.ntt.co.jp>
+References: <1507093953-59929-1-git-send-email-roopa@cumulusnetworks.com>
+	<1507093953-59929-2-git-send-email-roopa@cumulusnetworks.com>
+	<c4a04560-07c8-7d9e-d64c-558f99cfc653@lab.ntt.co.jp>
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
+Date: Wed, 4 Oct 2017 09:06:53 -0700
+Message-ID: <CAJieiUhjH+gLKMvQmJj12_zFOnOQCMU7CLo__8wHyd0Ngxb+xw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [PATCH net-next v4 1/3] bridge: add new
+ BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,79 +25,90 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vfalico@gmail.com, j.vosburgh@gmail.com, davem@davemloft.net
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "davem@davemloft.net" <davem@davemloft.net>
 
-On 10/4/17 6:24 AM, Ido Schimmel wrote:
-> On Tue, Oct 03, 2017 at 09:58:54PM -0700, David Ahern wrote:
->> mlxsw fails device enslavement for a number of reasons. Use the extack
->> facility to return an error message to the user stating why the enslave
->> is failing.
+On Wed, Oct 4, 2017 at 12:21 AM, Toshiaki Makita
+<makita.toshiaki@lab.ntt.co.jp> wrote:
+> On 2017/10/04 14:12, Roopa Prabhu wrote:
+>> From: Roopa Prabhu <roopa@cumulusnetworks.com>
 >>
->> Messages are prefixed with "spectrum" so users know it is a constraint
->> imposed by the hardware driver. For example:
->>     $ ip li add br0.11 link br0 type vlan id 11
->>     $ ip li set swp11 master br0
->>     Error: spectrum: Enslaving a port to a device that already has an upper device is not supported.
+>> This patch adds a new bridge port flag BR_NEIGH_SUPPRESS to
+>> suppress arp and nd flood on bridge ports. It implements
+>> rfc7432, section 10.
+>> https://tools.ietf.org/html/rfc7432#section-10
+>> for ethernet VPN deployments. It is similar to the existing
+>> BR_ARP_PROXY flag but has a few semantic differences to conform
+>> to EVPN standard. In case of EVPN, it is mainly used to
+>> avoid flooding to tunnel ports like vxlan. Unlike the existing
+>> flags it suppresses flood of all neigh discovery packets
+>> (arp, nd) to tunnel ports.
 >>
->> Signed-off-by: David Ahern <dsahern@gmail.com>
-> 
-> Great stuff, thanks David!
-> 
-> Reviewed-by: Ido Schimmel <idosch@mellanox.com>
-> Tested-by: Ido Schimmel <idosch@mellanox.com>
-> 
-> See one small nit below, but I would like to patch
-> mlxsw_sp_netdevice_port_vlan_event() as well, so I can take care of it
-> then.
-
-ok. Works for me. I was planning to add more error messages to mlxsw;
-happy to concede that to you or someone else. For example a bridge
-without vlan filtering:
-
-$ ip li add br1 type bridge
-$ ip li set swp20 master br1
-RTNETLINK answers: Invalid argument
-
-
-> 
+>> This patch adds netlink and sysfs support to set this bridge port
+>> flag.
+>>
+>> Signed-off-by: Roopa Prabhu <roopa@cumulusnetworks.com>
 >> ---
->>  drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 46 ++++++++++++++++++++------
->>  1 file changed, 36 insertions(+), 10 deletions(-)
+> ...
+>> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+>> index dea88a2..d8c2706 100644
+>> --- a/net/bridge/br_netlink.c
+>> +++ b/net/bridge/br_netlink.c
+>> @@ -138,6 +138,7 @@ static inline size_t br_port_info_size(void)
+>>               + nla_total_size(1)     /* IFLA_BRPORT_PROXYARP */
+>>               + nla_total_size(1)     /* IFLA_BRPORT_PROXYARP_WIFI */
+>>               + nla_total_size(1)     /* IFLA_BRPORT_VLAN_TUNNEL */
+>> +             + nla_total_size(1)     /* IFLA_BRPORT_NEIGH_SUPPRESS */
+>>               + nla_total_size(sizeof(struct ifla_bridge_id)) /* IFLA_BRPORT_ROOT_ID */
+>>               + nla_total_size(sizeof(struct ifla_bridge_id)) /* IFLA_BRPORT_BRIDGE_ID */
+>>               + nla_total_size(sizeof(u16))   /* IFLA_BRPORT_DESIGNATED_PORT */
+>> @@ -210,7 +211,9 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+>>           nla_put_u8(skb, IFLA_BRPORT_CONFIG_PENDING, p->config_pending) ||
+>>           nla_put_u8(skb, IFLA_BRPORT_VLAN_TUNNEL, !!(p->flags &
+>>                                                       BR_VLAN_TUNNEL)) ||
+>> -         nla_put_u16(skb, IFLA_BRPORT_GROUP_FWD_MASK, p->group_fwd_mask))
+>> +         nla_put_u16(skb, IFLA_BRPORT_GROUP_FWD_MASK, p->group_fwd_mask) ||
+>> +         nla_put_u8(skb, IFLA_BRPORT_NEIGH_SUPPRESS, !!(p->flags &
+>> +                                                     BR_NEIGH_SUPPRESS)))
+>
+> Wouldn't it be better to make the indentation like this?
+>
+> ... !!(p->flags &
+>        BR_NEIGH_SUPPRESS)))
+
+
+not intentional. I think i will actually move the full condition on
+the next line.
+
+>
+>>               return -EMSGSIZE;
 >>
->> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
->> index 3adf237c951a..a6cc00e4e543 100644
->> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
->> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
->> @@ -4019,14 +4019,20 @@ static int mlxsw_sp_lag_index_get(struct mlxsw_sp *mlxsw_sp,
->>  static bool
->>  mlxsw_sp_master_lag_check(struct mlxsw_sp *mlxsw_sp,
->>  			  struct net_device *lag_dev,
->> -			  struct netdev_lag_upper_info *lag_upper_info)
->> +			  struct netdev_lag_upper_info *lag_upper_info,
->> +			  struct netlink_ext_ack *extack)
+>>       timerval = br_timer_value(&p->message_age_timer);
+>> @@ -692,6 +695,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
 >>  {
->>  	u16 lag_id;
->>  
->> -	if (mlxsw_sp_lag_index_get(mlxsw_sp, lag_dev, &lag_id) != 0)
->> +	if (mlxsw_sp_lag_index_get(mlxsw_sp, lag_dev, &lag_id) != 0) {
->> +		NL_SET_ERR_MSG(extack, "spectrum: Unknown LAG device");
-> 
-> A more accurate message would be:
-> "spectrum: Exceeded number of supported LAG devices"
-
-Right. will update.
-
-
-> 
->>  		return false;
->> -	if (lag_upper_info->tx_type != NETDEV_LAG_TX_TYPE_HASH)
->> +	}
->> +	if (lag_upper_info->tx_type != NETDEV_LAG_TX_TYPE_HASH) {
->> +		NL_SET_ERR_MSG(extack,
->> +			       "spectrum: LAG device using unsupported Tx type");
->>  		return false;
->> +	}
->>  	return true;
+>>       unsigned long old_flags = p->flags;
+>>       bool br_vlan_tunnel_old = false;
+>> +     int neigh_suppress_old = 0;
+>>       int err;
+>>
+>>       err = br_set_port_flag(p, tb, IFLA_BRPORT_MODE, BR_HAIRPIN_MODE);
+>> @@ -785,6 +789,12 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
+>>               p->group_fwd_mask = fwd_mask;
+>>       }
+>>
+>> +     neigh_suppress_old = (p->flags & BR_NEIGH_SUPPRESS);
+>> +     br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS,
+>> +                      BR_NEIGH_SUPPRESS);
+>> +     if (neigh_suppress_old != (p->flags & BR_NEIGH_SUPPRESS))
+>> +             br_recalculate_neigh_suppress_enabled(p->br);
+>> +
+>
+> You are calling br_recalculate_neigh_suppress_enabled() from within
+> br_port_flags_change() immediately after this.
+> I think you can just call br_set_port_flag() here.
+>
+>>       br_port_flags_change(p, old_flags ^ p->flags);
+>>       return 0;
 >>  }
 
+you are right, i will remove the redundant call to recalc neigh_suppress
