@@ -1,20 +1,20 @@
 Return-Path: <dsahern@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=mPC6WggH1Q2dwhq1iDLklPBdHl2i5f1+Vs+UuT0qOrk=;
-	b=L5VoZJBGJcYd9yXiy3HSVbdZYvVyieE3ejqF7kZIiIYnEco5BFoRXI+3IKVQTXqaJC
-	vKTyk+Kg865q25KTdkvREU1PXOpzq10iCZ3O5amzbECnEaUxovQ1sjvXZtfcar+go4rA
-	MC4xiiGUdrqmN/0KBf+mc2q/i5ewKZbEuCDlEr8KJBtt3rn+nOuZy1iEODYNKMmq5rj6
-	8Mmicxj0XadFZceRRcF5HtKBY3TQLJ6cgnf2ZfLQCLLyUZhXX3edDD+MVJvWNUHsuaho
-	iYah9RGeWaNVxS5O+rzFu83SfW7Aprd52DZ9RMEkbyumy4bfJ2rIzkW0O3c7dxNHfBWU
-	ofgw==
+	bh=+dOk/3z+ZXAAtfv/pF8pFXePcSUXXqyXoz1LlNGZsDY=;
+	b=noJb1dEvwbv9Nfe+BgBzWzxlmDncub/pXgOnnpbtsm8jk5hN741DZM+YXjVCOx/h+n
+	aQWXRfPdUuMDAqyZkxjhFtOr8X87j+WGPbIjruxRXxUUY7psZ8kp1G1x+ABGFSpasAKz
+	kFccchl4ADKZ+lIsKowUSGhXIy0RzBKPtVpNNY5AFZfA/SleNh1TwvxQA3hvTwFKwKp0
+	W0YWcZs8uHeRuqrMOSvPiu7Bm6v3eYENPBarpdsvhRqltyQURU68vFNF/aUeHB8w2xt0
+	GFdKqdYbJS2Du+U5Qc7C36c2QpbS/gcW7as7qM61ltAUjJTUc7qyrk2+JLCkU7Xtt1ZX
+	ZPyQ==
 From: David Ahern <dsahern@gmail.com>
-Date: Wed,  4 Oct 2017 17:48:49 -0700
-Message-Id: <1507164531-17732-6-git-send-email-dsahern@gmail.com>
+Date: Wed,  4 Oct 2017 17:48:50 -0700
+Message-Id: <1507164531-17732-7-git-send-email-dsahern@gmail.com>
 In-Reply-To: <1507164531-17732-1-git-send-email-dsahern@gmail.com>
 References: <1507164531-17732-1-git-send-email-dsahern@gmail.com>
-Subject: [Bridge] [PATCH v2 net-next 5/7] net: bonding: Add extack messages
-	for some enslave failures
+Subject: [Bridge] [PATCH v2 net-next 6/7] net: bridge: Pass extack to down
+	to netdev_master_upper_dev_link
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,73 +26,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: j.vosburgh@gmail.com, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vfalico@gmail.com, David Ahern <dsahern@gmail.com>, davem@davemloft.net
 
-A number of bond_enslave errors are logged using the netdev_err API.
-Return those messages to userspace via the extack facility.
+Pass extack arg to br_add_if. Add messages for a couple of failures
+and pass arg to netdev_master_upper_dev_link.
 
 Signed-off-by: David Ahern <dsahern@gmail.com>
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
 ---
- drivers/net/bonding/bond_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/bridge/br_device.c  |  2 +-
+ net/bridge/br_if.c      | 15 +++++++++++----
+ net/bridge/br_ioctl.c   |  2 +-
+ net/bridge/br_private.h |  3 ++-
+ 4 files changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index bc92307c2082..172eeeb68152 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1348,12 +1348,14 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index cb0131d70ab1..7acb77c9bd65 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -326,7 +326,7 @@ static int br_add_slave(struct net_device *dev, struct net_device *slave_dev,
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
  
- 	/* already in-use? */
- 	if (netdev_is_rx_handler_busy(slave_dev)) {
-+		NL_SET_ERR_MSG(extack, "Device is in use and cannot be enslaved");
- 		netdev_err(bond_dev,
- 			   "Error: Device is in use and cannot be enslaved\n");
- 		return -EBUSY;
- 	}
+-	return br_add_if(br, slave_dev);
++	return br_add_if(br, slave_dev, extack);
+ }
  
- 	if (bond_dev == slave_dev) {
-+		NL_SET_ERR_MSG(extack, "Cannot enslave bond to itself.");
- 		netdev_err(bond_dev, "cannot enslave bond to itself.\n");
- 		return -EPERM;
- 	}
-@@ -1364,6 +1366,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
- 		netdev_dbg(bond_dev, "%s is NETIF_F_VLAN_CHALLENGED\n",
- 			   slave_dev->name);
- 		if (vlan_uses_dev(bond_dev)) {
-+			NL_SET_ERR_MSG(extack, "Can not enslave VLAN challenged device to VLAN enabled bond");
- 			netdev_err(bond_dev, "Error: cannot enslave VLAN challenged slave %s on VLAN enabled bond %s\n",
- 				   slave_dev->name, bond_dev->name);
- 			return -EPERM;
-@@ -1383,6 +1386,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
- 	 * enslaving it; the old ifenslave will not.
- 	 */
- 	if (slave_dev->flags & IFF_UP) {
-+		NL_SET_ERR_MSG(extack, "Device can not be enslaved while up");
- 		netdev_err(bond_dev, "%s is up - this may be due to an out of date ifenslave\n",
- 			   slave_dev->name);
- 		return -EPERM;
-@@ -1423,6 +1427,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
- 						 bond_dev);
- 		}
- 	} else if (bond_dev->type != slave_dev->type) {
-+		NL_SET_ERR_MSG(extack, "Device type is different from other slaves");
- 		netdev_err(bond_dev, "%s ether type (%d) is different from other slaves (%d), can not enslave it\n",
- 			   slave_dev->name, slave_dev->type, bond_dev->type);
+ static int br_del_slave(struct net_device *dev, struct net_device *slave_dev)
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 0a3fd727048d..59a74a414e20 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -480,7 +480,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+ }
+ 
+ /* called with RTNL */
+-int br_add_if(struct net_bridge *br, struct net_device *dev)
++int br_add_if(struct net_bridge *br, struct net_device *dev,
++	      struct netlink_ext_ack *extack)
+ {
+ 	struct net_bridge_port *p;
+ 	int err = 0;
+@@ -500,16 +501,22 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
  		return -EINVAL;
-@@ -1430,6 +1435,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
  
- 	if (slave_dev->type == ARPHRD_INFINIBAND &&
- 	    BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP) {
-+		NL_SET_ERR_MSG(extack, "Only active-backup mode is supported for infiniband slaves");
- 		netdev_warn(bond_dev, "Type (%d) supports only active-backup mode\n",
- 			    slave_dev->type);
- 		res = -EOPNOTSUPP;
-@@ -1445,6 +1451,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
- 				bond->params.fail_over_mac = BOND_FOM_ACTIVE;
- 				netdev_warn(bond_dev, "Setting fail_over_mac to active for active-backup mode\n");
- 			} else {
-+				NL_SET_ERR_MSG(extack, "Slave device does not support setting the MAC address, but fail_over_mac is not set to active");
- 				netdev_err(bond_dev, "The slave device specified does not support setting the MAC address, but fail_over_mac is not set to active\n");
- 				res = -EOPNOTSUPP;
- 				goto err_undo_flags;
+ 	/* No bridging of bridges */
+-	if (dev->netdev_ops->ndo_start_xmit == br_dev_xmit)
++	if (dev->netdev_ops->ndo_start_xmit == br_dev_xmit) {
++		NL_SET_ERR_MSG(extack,
++			       "Can not enslave a bridge to a bridge");
+ 		return -ELOOP;
++	}
+ 
+ 	/* Device is already being bridged */
+ 	if (br_port_exists(dev))
+ 		return -EBUSY;
+ 
+ 	/* No bridging devices that dislike that (e.g. wireless) */
+-	if (dev->priv_flags & IFF_DONT_BRIDGE)
++	if (dev->priv_flags & IFF_DONT_BRIDGE) {
++		NL_SET_ERR_MSG(extack,
++			       "Device does not allow enslaving to a bridge");
+ 		return -EOPNOTSUPP;
++	}
+ 
+ 	p = new_nbp(br, dev);
+ 	if (IS_ERR(p))
+@@ -540,7 +547,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
+ 
+ 	dev->priv_flags |= IFF_BRIDGE_PORT;
+ 
+-	err = netdev_master_upper_dev_link(dev, br->dev, NULL, NULL, NULL);
++	err = netdev_master_upper_dev_link(dev, br->dev, NULL, NULL, extack);
+ 	if (err)
+ 		goto err5;
+ 
+diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+index 66cd98772051..8f29103935a3 100644
+--- a/net/bridge/br_ioctl.c
++++ b/net/bridge/br_ioctl.c
+@@ -98,7 +98,7 @@ static int add_del_if(struct net_bridge *br, int ifindex, int isadd)
+ 		return -EINVAL;
+ 
+ 	if (isadd)
+-		ret = br_add_if(br, dev);
++		ret = br_add_if(br, dev, NULL);
+ 	else
+ 		ret = br_del_if(br, dev);
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 020c709a017f..ab4df24f7bba 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -566,7 +566,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
+ void br_port_carrier_check(struct net_bridge_port *p);
+ int br_add_bridge(struct net *net, const char *name);
+ int br_del_bridge(struct net *net, const char *name);
+-int br_add_if(struct net_bridge *br, struct net_device *dev);
++int br_add_if(struct net_bridge *br, struct net_device *dev,
++	      struct netlink_ext_ack *extack);
+ int br_del_if(struct net_bridge *br, struct net_device *dev);
+ int br_min_mtu(const struct net_bridge *br);
+ netdev_features_t br_features_recompute(struct net_bridge *br,
 -- 
 2.1.4
 
