@@ -1,20 +1,20 @@
 Return-Path: <dsahern@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=KGcKxgyE9xkvTJhPYW8aqT60bbRa3jW0uDXqn2ARTAQ=;
-	b=iHyqslZST9Vvk5we3KbzyEuwvTjID1RaNbIA5nk8b58yus8Dtvndgz8bz1rxfQVaBI
-	L13mLzvO2O8scUT28yfQWCfrRHHnaFt2Y/i//xgSqq2dNwK4kylXACjzT6dfVm7xYUxN
-	X7CXunyBLABE+d3r4ANORfqkIWWzYxAcFqtILTIYDuhwXyKDibRvD0leOjg8mh0/njsP
-	ObHbPcw4E4qLf5zRe25vt6VZ7Vd53q93S+ibjxZwirIjpiYOp4fnTnw6hXomjMzmAqx/
-	OtaxB/abaui2vF122m4NLRML+uGueIgSr1jVoeHyUeqoR1L2RoaJWMzy2Qs4kKQyM5IO
-	sUVQ==
+	bh=mPC6WggH1Q2dwhq1iDLklPBdHl2i5f1+Vs+UuT0qOrk=;
+	b=L5VoZJBGJcYd9yXiy3HSVbdZYvVyieE3ejqF7kZIiIYnEco5BFoRXI+3IKVQTXqaJC
+	vKTyk+Kg865q25KTdkvREU1PXOpzq10iCZ3O5amzbECnEaUxovQ1sjvXZtfcar+go4rA
+	MC4xiiGUdrqmN/0KBf+mc2q/i5ewKZbEuCDlEr8KJBtt3rn+nOuZy1iEODYNKMmq5rj6
+	8Mmicxj0XadFZceRRcF5HtKBY3TQLJ6cgnf2ZfLQCLLyUZhXX3edDD+MVJvWNUHsuaho
+	iYah9RGeWaNVxS5O+rzFu83SfW7Aprd52DZ9RMEkbyumy4bfJ2rIzkW0O3c7dxNHfBWU
+	ofgw==
 From: David Ahern <dsahern@gmail.com>
-Date: Wed,  4 Oct 2017 17:48:48 -0700
-Message-Id: <1507164531-17732-5-git-send-email-dsahern@gmail.com>
+Date: Wed,  4 Oct 2017 17:48:49 -0700
+Message-Id: <1507164531-17732-6-git-send-email-dsahern@gmail.com>
 In-Reply-To: <1507164531-17732-1-git-send-email-dsahern@gmail.com>
 References: <1507164531-17732-1-git-send-email-dsahern@gmail.com>
-Subject: [Bridge] [PATCH v2 net-next 4/7] net: vrf: Add extack messages for
-	enslave errors
+Subject: [Bridge] [PATCH v2 net-next 5/7] net: bonding: Add extack messages
+	for some enslave failures
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,43 +26,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: j.vosburgh@gmail.com, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vfalico@gmail.com, David Ahern <dsahern@gmail.com>, davem@davemloft.net
 
+A number of bond_enslave errors are logged using the netdev_err API.
+Return those messages to userspace via the extack facility.
+
 Signed-off-by: David Ahern <dsahern@gmail.com>
 ---
- drivers/net/vrf.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index 77d0655a0250..0b54f553228e 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -772,8 +772,11 @@ static int do_vrf_add_slave(struct net_device *dev, struct net_device *port_dev,
- 	/* do not allow loopback device to be enslaved to a VRF.
- 	 * The vrf device acts as the loopback for the vrf.
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index bc92307c2082..172eeeb68152 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1348,12 +1348,14 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 
+ 	/* already in-use? */
+ 	if (netdev_is_rx_handler_busy(slave_dev)) {
++		NL_SET_ERR_MSG(extack, "Device is in use and cannot be enslaved");
+ 		netdev_err(bond_dev,
+ 			   "Error: Device is in use and cannot be enslaved\n");
+ 		return -EBUSY;
+ 	}
+ 
+ 	if (bond_dev == slave_dev) {
++		NL_SET_ERR_MSG(extack, "Cannot enslave bond to itself.");
+ 		netdev_err(bond_dev, "cannot enslave bond to itself.\n");
+ 		return -EPERM;
+ 	}
+@@ -1364,6 +1366,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 		netdev_dbg(bond_dev, "%s is NETIF_F_VLAN_CHALLENGED\n",
+ 			   slave_dev->name);
+ 		if (vlan_uses_dev(bond_dev)) {
++			NL_SET_ERR_MSG(extack, "Can not enslave VLAN challenged device to VLAN enabled bond");
+ 			netdev_err(bond_dev, "Error: cannot enslave VLAN challenged slave %s on VLAN enabled bond %s\n",
+ 				   slave_dev->name, bond_dev->name);
+ 			return -EPERM;
+@@ -1383,6 +1386,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 	 * enslaving it; the old ifenslave will not.
  	 */
--	if (port_dev == dev_net(dev)->loopback_dev)
-+	if (port_dev == dev_net(dev)->loopback_dev) {
-+		NL_SET_ERR_MSG(extack,
-+			       "Can not enslave loopback device to a VRF");
- 		return -EOPNOTSUPP;
-+	}
- 
- 	port_dev->priv_flags |= IFF_L3MDEV_SLAVE;
- 	ret = netdev_master_upper_dev_link(port_dev, dev, NULL, NULL, extack);
-@@ -792,7 +795,13 @@ static int do_vrf_add_slave(struct net_device *dev, struct net_device *port_dev,
- static int vrf_add_slave(struct net_device *dev, struct net_device *port_dev,
- 			 struct netlink_ext_ack *extack)
- {
--	if (netif_is_l3_master(port_dev) || netif_is_l3_slave(port_dev))
-+	if (netif_is_l3_master(port_dev)) {
-+		NL_SET_ERR_MSG(extack,
-+			       "Can not enslave an L3 master device to a VRF");
-+		return -EINVAL;
-+	}
-+
-+	if (netif_is_l3_slave(port_dev))
+ 	if (slave_dev->flags & IFF_UP) {
++		NL_SET_ERR_MSG(extack, "Device can not be enslaved while up");
+ 		netdev_err(bond_dev, "%s is up - this may be due to an out of date ifenslave\n",
+ 			   slave_dev->name);
+ 		return -EPERM;
+@@ -1423,6 +1427,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 						 bond_dev);
+ 		}
+ 	} else if (bond_dev->type != slave_dev->type) {
++		NL_SET_ERR_MSG(extack, "Device type is different from other slaves");
+ 		netdev_err(bond_dev, "%s ether type (%d) is different from other slaves (%d), can not enslave it\n",
+ 			   slave_dev->name, slave_dev->type, bond_dev->type);
  		return -EINVAL;
+@@ -1430,6 +1435,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
  
- 	return do_vrf_add_slave(dev, port_dev, extack);
+ 	if (slave_dev->type == ARPHRD_INFINIBAND &&
+ 	    BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP) {
++		NL_SET_ERR_MSG(extack, "Only active-backup mode is supported for infiniband slaves");
+ 		netdev_warn(bond_dev, "Type (%d) supports only active-backup mode\n",
+ 			    slave_dev->type);
+ 		res = -EOPNOTSUPP;
+@@ -1445,6 +1451,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 				bond->params.fail_over_mac = BOND_FOM_ACTIVE;
+ 				netdev_warn(bond_dev, "Setting fail_over_mac to active for active-backup mode\n");
+ 			} else {
++				NL_SET_ERR_MSG(extack, "Slave device does not support setting the MAC address, but fail_over_mac is not set to active");
+ 				netdev_err(bond_dev, "The slave device specified does not support setting the MAC address, but fail_over_mac is not set to active\n");
+ 				res = -EOPNOTSUPP;
+ 				goto err_undo_flags;
 -- 
 2.1.4
 
