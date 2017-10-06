@@ -1,22 +1,16 @@
-Return-Path: <roopa@cumulusnetworks.com>
+Return-Path: <>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=lx/SzwVzcARGLoh495jCv8lWxTHJtUJ0cvQwFxvLiVg=;
-	b=KQ92xIJdiDNnifi6OiH2JicQ7g1w5bGkNjy/XYk5UexILmiFbgU8eI4wVcjJ7vWmRW
-	Kja9B1fmsGZbbNatybFSwxOK2Jri+xug3zvP76E0gkkE53PBrN8tKH6IpvzjRdXZNbj6
-	Ez7ZClQ4YZDrOpqrAPAB9P1Pn9eKGjgCzQzfM=
-MIME-Version: 1.0
-In-Reply-To: <20171004.155255.2208423870631197976.davem@davemloft.net>
-References: <1507093953-59929-1-git-send-email-roopa@cumulusnetworks.com>
-	<1507093953-59929-2-git-send-email-roopa@cumulusnetworks.com>
-	<20171004.155255.2208423870631197976.davem@davemloft.net>
+	h=from:to:cc:subject:date:message-id;
+	bh=MsoGYwgcOdxxpWOGGpykf25Z0CTmrrSa3vQsf5q7v4E=;
+	b=EYysMZ+f1NDCC4aM30xaNfFwVJh/CU0hmET4S6YIiYvBoEDsuDv5WRgSIBQ0HEfD+r
+	BL3wtLm2M6f1D7BmThkVHmd2hywBzPjcO9RoLgwlJo6j0ITsGHRCT0yM3hsmDCAXHSAq
+	05CTb0sw6x7hAiuKXvAmUf4SRiwtEmIIJ0wJ4=
 From: Roopa Prabhu <roopa@cumulusnetworks.com>
-Date: Thu, 5 Oct 2017 07:31:35 -0700
-Message-ID: <CAJieiUi_3UxH8G1UUt1q8yQKsJC0YJr41M+q34xtS-ySkFAX=A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH net-next v4 1/3] bridge: add new
- BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood
+Date: Fri,  6 Oct 2017 11:34:37 -0700
+Message-Id: <1507314880-16310-1-git-send-email-roopa@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next v5 0/3] bridge: neigh msg proxy and flood
+	suppression support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,25 +19,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+To: davem@davemloft.net
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On Wed, Oct 4, 2017 at 3:52 PM, David Miller <davem@davemloft.net> wrote:
-> From: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Date: Tue,  3 Oct 2017 22:12:31 -0700
->
->> BR_ARP_PROXY flag but has a few semantic differences to conform
->
-> This should be "BR_PROXYARP".
+From: Roopa Prabhu <roopa@cumulusnetworks.com>
 
-ack, will fix.
+This series implements arp and nd suppression in the bridge
+driver for ethernet vpns. It implements rfc7432, section 10
+https://tools.ietf.org/html/rfc7432#section-10
+for ethernet VPN deployments. It is similar to the existing
+BR_PROXYARP* flags but has a few semantic differences to conform
+to EVPN standard. Unlike the existing flags, this new flag suppresses
+flood of all neigh discovery packets (arp and nd) to tunnel ports.
+Supports both vlan filtering and non-vlan filtering bridges.
 
->
-> Otherwise this series looks fine to me, but I see there will be
-> a v5 respin.
+In case of EVPN, it is mainly used to avoid flooding
+of arp and nd packets to tunnel ports like vxlan.
 
-yes, working on v5. I am currently testing a few more cases for
-locally generated arp/nd packets with bridge as the src dev (related
-to some questions from Toshiaki).
+v2 : rebase to latest + address some optimization feedback from Nikolay.
+v3 : fix kbuild reported build errors with CONFIG_INET off
+v4 : simplify port flag mask as suggested by stephen
+v5 : address some feedback from Toshiaki
 
-Thanks!.
+Roopa Prabhu (3):
+  bridge: add new BR_NEIGH_SUPPRESS port flag to suppress arp and nd
+    flood
+  neigh arp suppress first
+  bridge: suppress nd messages from going to BR_NEIGH_SUPPRESS ports
+
+ include/linux/if_bridge.h    |   1 +
+ include/uapi/linux/if_link.h |   1 +
+ net/bridge/Makefile          |   2 +-
+ net/bridge/br_arp_nd_proxy.c | 492 +++++++++++++++++++++++++++++++++++++++++++
+ net/bridge/br_device.c       |  18 ++
+ net/bridge/br_forward.c      |   3 +-
+ net/bridge/br_if.c           |   5 +
+ net/bridge/br_input.c        |  73 ++-----
+ net/bridge/br_netlink.c      |  16 +-
+ net/bridge/br_private.h      |   9 +
+ net/bridge/br_sysfs_if.c     |   2 +
+ 11 files changed, 561 insertions(+), 61 deletions(-)
+ create mode 100644 net/bridge/br_arp_nd_proxy.c
+
+-- 
+2.1.4
+
