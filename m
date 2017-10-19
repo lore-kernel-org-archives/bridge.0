@@ -1,22 +1,16 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=3fQhBX6V5vYsjhh8PtZm7PQQKeMuS3j7T5FSK4JWt8Q=;
-	b=eMVW3JKA+Co/hvf30G6tBS44mF0bjdNoVkKQ7KEYxGZbZn15fuwnLsk9QlrxJjKMtp
-	XcY3XqfhsgjaY/r5M/nu9+Ne52+ZVTXJHN9tJPDgWSd4jmTDq91VzMyjCc1xbe+0JPlb
-	RfPY68goIjOf4y4gK+LeI0cmcosQyTx0aEDFc=
-References: <1508428499-32355-1-git-send-email-nikolay@cumulusnetworks.com>
+	h=from:to:cc:subject:date:message-id;
+	bh=+kuDhnUR3YuImz4RVuNWZRkytTyl15c52epk+YukdGs=;
+	b=eeVBbiD58cLfc3LpHZFrDgq8ZhKTdFJSSNjJD4XRfIEE2+I33wbRYZfwqx5Msdl7FH
+	UAocV3/WPf/B+FVnG9C+48ah9/YuP6t/LCx786udDmFjbfezTKIc6QD+5lxyz8eJytkF
+	XY8Hnd0XXHwuJgSDbGUS8vhX/1Gharz0+43uU=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <01c5bff2-cb5d-2b52-b11b-d6c2e1ab52a8@cumulusnetworks.com>
-Date: Thu, 19 Oct 2017 19:10:11 +0300
-MIME-Version: 1.0
-In-Reply-To: <1508428499-32355-1-git-send-email-nikolay@cumulusnetworks.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/2] bridge: make setlink/dellink
- notifications more accurate
+Date: Thu, 19 Oct 2017 20:17:32 +0300
+Message-Id: <1508433452-23812-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] net: bridge: fix returning of vlan range op
+	errors
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,50 +20,34 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: dsa@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
-On 19/10/17 18:54, Nikolay Aleksandrov wrote:
-> Hi,
-> Before this set the bridge would generate a notification on vlan add or del
-> even if they didn't actually do any changes, which confuses listeners and
-> is generally not preferred. We could also lose notifications on actual
-> changes if one adds a range of vlans and there's an error in the middle.
-> The problem with just breaking and returning an error is that we could
-> break existing user-space scripts which rely on the vlan delete to clear
-> all existing entries in the specified range and ignore the non-existing
-> errors (typically used to clear the current vlan config).
-> So in order to make the notifications more accurate while keeping backwards
-> compatibility we add a boolean that tracks if anything actually changed
-> during the config calls.
-> 
-> The vlan add is more difficult to fix because it always returns 0 even if
-> nothing changed, so we use EEXIST to signal that and in order not to break
-> overlapping vlan range add or script return expectations we clear it on
-> return, the functions used by vlan add are not expected to return EEXIST.
-> 
-> Thanks,
->  Nik
-> 
-> Nikolay Aleksandrov (2):
->   bridge: netlink: make setlink/dellink notifications more accurate
->   bridge: vlan: return EEXIST on add if nothing changed
-> 
->  net/bridge/br_netlink.c        | 49 ++++++++++++++++++++++++++----------------
->  net/bridge/br_netlink_tunnel.c | 14 +++++++-----
->  net/bridge/br_private_tunnel.h |  3 ++-
->  net/bridge/br_vlan.c           | 38 +++++++++++++++++++++-----------
->  4 files changed, 68 insertions(+), 36 deletions(-)
-> 
+When vlan tunnels were introduced, vlan range errors got silently
+dropped and instead 0 was returned always. Restore the previous
+behaviour and return errors to user-space.
 
-Self-NAK
-Dave, please ignore this set and apologies for the noise.
+Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+err should be always set because we have a check for the vid range above
+the loop and it must ensure we will go through the loop at least once
 
-I'd actually prefer to send "changed" down to vlan_add and vlan_del
-to be set there instead of overloading EEXIST like that. It will be safer.
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I'll wait for some comments about the rest of the change and will send
-a v2.
-
-Thanks,
- Nik
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 3bc890716c89..de2152730809 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -573,7 +573,7 @@ static int br_process_vlan_info(struct net_bridge *br,
+ 		}
+ 		*vinfo_last = NULL;
+ 
+-		return 0;
++		return err;
+ 	}
+ 
+ 	return br_vlan_info(br, p, cmd, vinfo_curr);
+-- 
+2.1.4
 
