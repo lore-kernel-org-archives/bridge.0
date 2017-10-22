@@ -1,20 +1,15 @@
-Return-Path: <roopa@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=OWg+aaQ9WmN2Xf10xAVjfTAf+HVTe/lOP2pxOC7c57Y=;
-	b=IR/Wum+UZDxHk5SLB8V+TDEtw+K+AsrfeNWFMl06jBsiKZVta1x2k4mUru0Hm4nQ1X
-	VkBk7Y4Dn0Etp9fRQvWDAZdVOBpsfOOsJEdUaUxz1RVvRWPREzjhKZYKrOj/a2atS/xw
-	JpnnRh8mUzqvjsm/IBLOWyFEcEc1w7aiSftC8=
-MIME-Version: 1.0
-In-Reply-To: <1508433452-23812-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1508433452-23812-1-git-send-email-nikolay@cumulusnetworks.com>
-From: Roopa Prabhu <roopa@cumulusnetworks.com>
-Date: Thu, 19 Oct 2017 15:22:19 -0700
-Message-ID: <CAJieiUiM2FWA+7LomQTQjjCruFesoJo=cd2yGVg4s0XzGbxfHQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH net] net: bridge: fix returning of vlan range
-	op errors
+Return-Path: <davem@davemloft.net>
+Date: Sun, 22 Oct 2017 01:45:18 +0100 (WEST)
+Message-Id: <20171022.014518.1939149563078434380.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <01c5bff2-cb5d-2b52-b11b-d6c2e1ab52a8@cumulusnetworks.com>
+References: <1508428499-32355-1-git-send-email-nikolay@cumulusnetworks.com>
+	<01c5bff2-cb5d-2b52-b11b-d6c2e1ab52a8@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 0/2] bridge: make setlink/dellink
+ notifications more accurate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,19 +18,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com
 
-On Thu, Oct 19, 2017 at 10:17 AM, Nikolay Aleksandrov
-<nikolay@cumulusnetworks.com> wrote:
-> When vlan tunnels were introduced, vlan range errors got silently
-> dropped and instead 0 was returned always. Restore the previous
-> behaviour and return errors to user-space.
->
-> Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> ---
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu, 19 Oct 2017 19:10:11 +0300
 
-Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
+> Self-NAK
+> Dave, please ignore this set and apologies for the noise.
 
-thanks
+OK
