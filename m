@@ -1,18 +1,23 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=FebNJzhI9VT1t1ygKSVykQiHi0XPFPULXSiVNof1/4o=;
-	b=KOBbF4BSFxD7RZR8TkgB8FvrxXVjds7e0fFjXlBw0c9KE2+c8f7Bvk3CbL0mWWsgv2
-	ScUGRkKStbQRL4KGgGBJcr4Qttm5ZFw7YjfxjQN03m/mop0NijBtgBL8B3AFs06L7OG2
-	BB2sWWuNx9EQc4PFiRvd0YQY5TCkwhkgDh7+g=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 24 Oct 2017 15:32:42 +0300
-Message-Id: <1508848362-13750-3-git-send-email-nikolay@cumulusnetworks.com>
-In-Reply-To: <1508848362-13750-1-git-send-email-nikolay@cumulusnetworks.com>
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=9zd6uWGu58A0hPLttwizKMxhXsG2WsPRz2CwgQrhgvg=;
+	b=aDKcgMVk6zl/HibQmBsNx/z/Gyja53MEv5dzNBdz+RnzwtnejNJUMKmyKyTswD++U5
+	mjXtw5lwektksUwHqk5Na1x2wXhU7N5JYrDLS6mGfpD4kxoP7ovOy/l/MxtrXdm3XNbR
+	HoX7cN+OGLHd1A5pPsDjt0xIx3FFOTURpppAY=
 References: <1508848362-13750-1-git-send-email-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v2 2/2] bridge: vlan: signal if anything
-	changed on vlan add
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <43f36fb0-8543-7e60-a80e-6da35d74b69a@cumulusnetworks.com>
+Date: Thu, 26 Oct 2017 00:49:11 +0300
+MIME-Version: 1.0
+In-Reply-To: <1508848362-13750-1-git-send-email-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v2 0/2] bridge: make setlink/dellink
+ notifications more accurate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,332 +27,51 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com
+Cc: dsa@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com
 
-Before this patch there was no way to tell if the vlan add operation
-actually changed anything, thus we would always generate a notification
-on adds. Let's make the notifications more precise and generate them
-only if anything changed, so use the new bool parameter to signal that the
-vlan was updated. We cannot return an error because there are valid use
-cases that will be broken (e.g. overlapping range add) and also we can't
-risk masking errors due to calls into drivers for vlan add which can
-potentially return anything.
+On 24/10/17 15:32, Nikolay Aleksandrov wrote:
+> Hi,
+> Before this set the bridge would generate a notification on vlan add or del
+> even if they didn't actually do any changes, which confuses listeners and
+> is generally not preferred. We could also lose notifications on actual
+> changes if one adds a range of vlans and there's an error in the middle.
+> The problem with just breaking and returning an error is that we could
+> break existing user-space scripts which rely on the vlan delete to clear
+> all existing entries in the specified range and ignore the non-existing
+> errors (typically used to clear the current vlan config).
+> So in order to make the notifications more accurate while keeping backwards
+> compatibility we add a boolean that tracks if anything actually changed
+> during the config calls.
+> 
+> The vlan add is more difficult to fix because it always returns 0 even if
+> nothing changed, but we cannot use a specific error because the drivers
+> can return anything and we may mask it, also we'd need to update all places
+> that directly return the add result, thus to signal that a vlan was created
+> or updated and in order not to break overlapping vlan range add we pass
+> down the new boolean that tracks changes to the add functions to check
+> if anything was actually updated.
+> 
+> Can't say that I am happy with this change, but currently I don't see any
+> simpler way which doesn't affect user-space.
+> 
+> v2: pass changed down to vlan add instead of masking errors
+> 
+> Thanks,
+>  Nik
+> 
+> Nikolay Aleksandrov (2):
+>   bridge: netlink: make setlink/dellink notifications more accurate
+>   bridge: vlan: signal if anything changed on vlan add
+> 
+>  net/bridge/br_netlink.c        | 51 ++++++++++++++++-----------
+>  net/bridge/br_netlink_tunnel.c | 14 +++++---
+>  net/bridge/br_private.h        |  6 ++--
+>  net/bridge/br_private_tunnel.h |  3 +-
+>  net/bridge/br_vlan.c           | 78 ++++++++++++++++++++++++++++++------------
+>  5 files changed, 102 insertions(+), 50 deletions(-)
+> 
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-v2: pass changed down to vlan add functions instead of using a specific
-error that needs to be masked
+Ah, forgot to update the non-vlan bridge config case with the empty stubs,
+will send a fixed and tested v3 asap.
 
- net/bridge/br_netlink.c |  9 ++++--
- net/bridge/br_private.h |  6 ++--
- net/bridge/br_vlan.c    | 78 +++++++++++++++++++++++++++++++++++--------------
- 3 files changed, 66 insertions(+), 27 deletions(-)
-
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index d0290ede9342..e732403669c6 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -508,6 +508,7 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
- static int br_vlan_info(struct net_bridge *br, struct net_bridge_port *p,
- 			int cmd, struct bridge_vlan_info *vinfo, bool *changed)
- {
-+	bool curr_change;
- 	int err = 0;
- 
- 	switch (cmd) {
-@@ -516,12 +517,14 @@ static int br_vlan_info(struct net_bridge *br, struct net_bridge_port *p,
- 			/* if the MASTER flag is set this will act on the global
- 			 * per-VLAN entry as well
- 			 */
--			err = nbp_vlan_add(p, vinfo->vid, vinfo->flags);
-+			err = nbp_vlan_add(p, vinfo->vid, vinfo->flags,
-+					   &curr_change);
- 		} else {
- 			vinfo->flags |= BRIDGE_VLAN_INFO_BRENTRY;
--			err = br_vlan_add(br, vinfo->vid, vinfo->flags);
-+			err = br_vlan_add(br, vinfo->vid, vinfo->flags,
-+					  &curr_change);
- 		}
--		if (!err)
-+		if (curr_change)
- 			*changed = true;
- 		break;
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index fa0039f44818..e0eec033d656 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -803,7 +803,8 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
- 			       const struct net_bridge_port *port,
- 			       struct net_bridge_vlan_group *vg,
- 			       struct sk_buff *skb);
--int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags);
-+int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags,
-+		bool *changed);
- int br_vlan_delete(struct net_bridge *br, u16 vid);
- void br_vlan_flush(struct net_bridge *br);
- struct net_bridge_vlan *br_vlan_find(struct net_bridge_vlan_group *vg, u16 vid);
-@@ -816,7 +817,8 @@ int br_vlan_set_stats(struct net_bridge *br, unsigned long val);
- int br_vlan_init(struct net_bridge *br);
- int br_vlan_set_default_pvid(struct net_bridge *br, unsigned long val);
- int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid);
--int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags);
-+int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags,
-+		 bool *changed);
- int nbp_vlan_delete(struct net_bridge_port *port, u16 vid);
- void nbp_vlan_flush(struct net_bridge_port *port);
- int nbp_vlan_init(struct net_bridge_port *port);
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 233a30040c91..fb0a903d19d1 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -32,27 +32,34 @@ static struct net_bridge_vlan *br_vlan_lookup(struct rhashtable *tbl, u16 vid)
- 	return rhashtable_lookup_fast(tbl, &vid, br_vlan_rht_params);
- }
- 
--static void __vlan_add_pvid(struct net_bridge_vlan_group *vg, u16 vid)
-+static bool __vlan_add_pvid(struct net_bridge_vlan_group *vg, u16 vid)
- {
- 	if (vg->pvid == vid)
--		return;
-+		return false;
- 
- 	smp_wmb();
- 	vg->pvid = vid;
-+
-+	return true;
- }
- 
--static void __vlan_delete_pvid(struct net_bridge_vlan_group *vg, u16 vid)
-+static bool __vlan_delete_pvid(struct net_bridge_vlan_group *vg, u16 vid)
- {
- 	if (vg->pvid != vid)
--		return;
-+		return false;
- 
- 	smp_wmb();
- 	vg->pvid = 0;
-+
-+	return true;
- }
- 
--static void __vlan_add_flags(struct net_bridge_vlan *v, u16 flags)
-+/* return true if anything changed, false otherwise */
-+static bool __vlan_add_flags(struct net_bridge_vlan *v, u16 flags)
- {
- 	struct net_bridge_vlan_group *vg;
-+	u16 old_flags = v->flags;
-+	bool ret;
- 
- 	if (br_vlan_is_master(v))
- 		vg = br_vlan_group(v->br);
-@@ -60,14 +67,16 @@ static void __vlan_add_flags(struct net_bridge_vlan *v, u16 flags)
- 		vg = nbp_vlan_group(v->port);
- 
- 	if (flags & BRIDGE_VLAN_INFO_PVID)
--		__vlan_add_pvid(vg, v->vid);
-+		ret = __vlan_add_pvid(vg, v->vid);
- 	else
--		__vlan_delete_pvid(vg, v->vid);
-+		ret = __vlan_delete_pvid(vg, v->vid);
- 
- 	if (flags & BRIDGE_VLAN_INFO_UNTAGGED)
- 		v->flags |= BRIDGE_VLAN_INFO_UNTAGGED;
- 	else
- 		v->flags &= ~BRIDGE_VLAN_INFO_UNTAGGED;
-+
-+	return ret || !!(old_flags ^ v->flags);
- }
- 
- static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
-@@ -151,8 +160,10 @@ static struct net_bridge_vlan *br_vlan_get_master(struct net_bridge *br, u16 vid
- 	vg = br_vlan_group(br);
- 	masterv = br_vlan_find(vg, vid);
- 	if (!masterv) {
-+		bool changed;
-+
- 		/* missing global ctx, create it now */
--		if (br_vlan_add(br, vid, 0))
-+		if (br_vlan_add(br, vid, 0, &changed))
- 			return NULL;
- 		masterv = br_vlan_find(vg, vid);
- 		if (WARN_ON(!masterv))
-@@ -232,8 +243,11 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags)
- 
- 		/* need to work on the master vlan too */
- 		if (flags & BRIDGE_VLAN_INFO_MASTER) {
--			err = br_vlan_add(br, v->vid, flags |
--						      BRIDGE_VLAN_INFO_BRENTRY);
-+			bool changed;
-+
-+			err = br_vlan_add(br, v->vid,
-+					  flags | BRIDGE_VLAN_INFO_BRENTRY,
-+					  &changed);
- 			if (err)
- 				goto out_filt;
- 		}
-@@ -550,8 +564,9 @@ bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
- 
- /* Must be protected by RTNL.
-  * Must be called with vid in range from 1 to 4094 inclusive.
-+ * changed must be true only if the vlan was created or updated
-  */
--int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
-+int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags, bool *changed)
- {
- 	struct net_bridge_vlan_group *vg;
- 	struct net_bridge_vlan *vlan;
-@@ -559,6 +574,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
- 
- 	ASSERT_RTNL();
- 
-+	*changed = false;
- 	vg = br_vlan_group(br);
- 	vlan = br_vlan_find(vg, vid);
- 	if (vlan) {
-@@ -576,9 +592,12 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
- 			refcount_inc(&vlan->refcnt);
- 			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
- 			vg->num_vlans++;
-+			*changed = true;
- 		}
--		__vlan_add_flags(vlan, flags);
--		return 0;
-+		if (__vlan_add_flags(vlan, flags))
-+			*changed = true;
-+
-+		return ret;
- 	}
- 
- 	vlan = kzalloc(sizeof(*vlan), GFP_KERNEL);
-@@ -601,6 +620,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
- 		free_percpu(vlan->stats);
- 		kfree(vlan);
- 	}
-+	*changed = true;
- 
- 	return ret;
- }
-@@ -824,9 +844,10 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid)
- 	const struct net_bridge_vlan *pvent;
- 	struct net_bridge_vlan_group *vg;
- 	struct net_bridge_port *p;
-+	unsigned long *changed;
-+	bool vlchange;
- 	u16 old_pvid;
- 	int err = 0;
--	unsigned long *changed;
- 
- 	if (!pvid) {
- 		br_vlan_disable_default_pvid(br);
-@@ -850,7 +871,8 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid)
- 		err = br_vlan_add(br, pvid,
- 				  BRIDGE_VLAN_INFO_PVID |
- 				  BRIDGE_VLAN_INFO_UNTAGGED |
--				  BRIDGE_VLAN_INFO_BRENTRY);
-+				  BRIDGE_VLAN_INFO_BRENTRY,
-+				  &vlchange);
- 		if (err)
- 			goto out;
- 		br_vlan_delete(br, old_pvid);
-@@ -869,7 +891,8 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid)
- 
- 		err = nbp_vlan_add(p, pvid,
- 				   BRIDGE_VLAN_INFO_PVID |
--				   BRIDGE_VLAN_INFO_UNTAGGED);
-+				   BRIDGE_VLAN_INFO_UNTAGGED,
-+				   &vlchange);
- 		if (err)
- 			goto err_port;
- 		nbp_vlan_delete(p, old_pvid);
-@@ -890,7 +913,8 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid)
- 		if (old_pvid)
- 			nbp_vlan_add(p, old_pvid,
- 				     BRIDGE_VLAN_INFO_PVID |
--				     BRIDGE_VLAN_INFO_UNTAGGED);
-+				     BRIDGE_VLAN_INFO_UNTAGGED,
-+				     &vlchange);
- 		nbp_vlan_delete(p, pvid);
- 	}
- 
-@@ -899,7 +923,8 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid)
- 			br_vlan_add(br, old_pvid,
- 				    BRIDGE_VLAN_INFO_PVID |
- 				    BRIDGE_VLAN_INFO_UNTAGGED |
--				    BRIDGE_VLAN_INFO_BRENTRY);
-+				    BRIDGE_VLAN_INFO_BRENTRY,
-+				    &vlchange);
- 		br_vlan_delete(br, pvid);
- 	}
- 	goto out;
-@@ -931,6 +956,7 @@ int br_vlan_init(struct net_bridge *br)
- {
- 	struct net_bridge_vlan_group *vg;
- 	int ret = -ENOMEM;
-+	bool changed;
- 
- 	vg = kzalloc(sizeof(*vg), GFP_KERNEL);
- 	if (!vg)
-@@ -947,7 +973,7 @@ int br_vlan_init(struct net_bridge *br)
- 	rcu_assign_pointer(br->vlgrp, vg);
- 	ret = br_vlan_add(br, 1,
- 			  BRIDGE_VLAN_INFO_PVID | BRIDGE_VLAN_INFO_UNTAGGED |
--			  BRIDGE_VLAN_INFO_BRENTRY);
-+			  BRIDGE_VLAN_INFO_BRENTRY, &changed);
- 	if (ret)
- 		goto err_vlan_add;
- 
-@@ -992,9 +1018,12 @@ int nbp_vlan_init(struct net_bridge_port *p)
- 	INIT_LIST_HEAD(&vg->vlan_list);
- 	rcu_assign_pointer(p->vlgrp, vg);
- 	if (p->br->default_pvid) {
-+		bool changed;
-+
- 		ret = nbp_vlan_add(p, p->br->default_pvid,
- 				   BRIDGE_VLAN_INFO_PVID |
--				   BRIDGE_VLAN_INFO_UNTAGGED);
-+				   BRIDGE_VLAN_INFO_UNTAGGED,
-+				   &changed);
- 		if (ret)
- 			goto err_vlan_add;
- 	}
-@@ -1016,8 +1045,10 @@ int nbp_vlan_init(struct net_bridge_port *p)
- 
- /* Must be protected by RTNL.
-  * Must be called with vid in range from 1 to 4094 inclusive.
-+ * changed must be true only if the vlan was created or updated
-  */
--int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags)
-+int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags,
-+		 bool *changed)
- {
- 	struct switchdev_obj_port_vlan v = {
- 		.obj.orig_dev = port->dev,
-@@ -1031,13 +1062,15 @@ int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags)
- 
- 	ASSERT_RTNL();
- 
-+	*changed = false;
- 	vlan = br_vlan_find(nbp_vlan_group(port), vid);
- 	if (vlan) {
- 		/* Pass the flags to the hardware bridge */
- 		ret = switchdev_port_obj_add(port->dev, &v.obj);
- 		if (ret && ret != -EOPNOTSUPP)
- 			return ret;
--		__vlan_add_flags(vlan, flags);
-+		*changed = __vlan_add_flags(vlan, flags);
-+
- 		return 0;
- 	}
- 
-@@ -1050,6 +1083,7 @@ int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags)
- 	ret = __vlan_add(vlan, flags);
- 	if (ret)
- 		kfree(vlan);
-+	*changed = true;
- 
- 	return ret;
- }
--- 
-2.1.4
 
