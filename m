@@ -1,21 +1,22 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
+	h=subject:from:to:cc:references:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=n0vl9a1LWBQVz0WE+ZO9plXdZYaMrzSke8xwZPi4bVg=;
-	b=hsKrgDW0V10uaNAYpH+2jBVzZMBQElHHFJmZFR3icbtFW3aytmphQOQO26/oTbvFb7
-	hA/hpmPJikuN1Gb3jn3gVUsQl1AqviK4IatYMUeNLXsg4CGjQiGNJfznQWCXiNBoZxto
-	LrC0v6CR0MAFiBN+3FpQDzR3Cx9DwCDbekMnU=
+	bh=ozCVlj+EGkPpAY1tihUf+9wDD7FbL5BN8IcSEqHCAj8=;
+	b=P3VdiwBDvZVDboke+ShIMiJ508vKoMe/mHqCKjnuW2bJz37hc5n9OYYz67rjeUoRBL
+	/1B90FYtShyNeVTVHvuS257eZm4eMS69k9al8oBqQb6daRQfQftm0YZzZP3OG+lYXyO1
+	QvcjSelI9DDcM+jG6HGibC35jzzdxv/v6p93U=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 References: <f6c0da96-77f0-db19-7a9a-13b246d83d39@cumulusnetworks.com>
 	<1508971954-3567-1-git-send-email-nikolay@cumulusnetworks.com>
 	<1508971954-3567-3-git-send-email-nikolay@cumulusnetworks.com>
 	<622bf4ff-e493-58f0-bedf-8183a82e8772@lab.ntt.co.jp>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <3ad411f5-72fe-db6c-aa13-385dd1c10f36@cumulusnetworks.com>
-Date: Thu, 26 Oct 2017 14:02:20 +0300
+	<3ad411f5-72fe-db6c-aa13-385dd1c10f36@cumulusnetworks.com>
+Message-ID: <0f1e8fb5-b9a8-b363-c080-65c23f76b25e@cumulusnetworks.com>
+Date: Thu, 26 Oct 2017 14:08:02 +0300
 MIME-Version: 1.0
-In-Reply-To: <622bf4ff-e493-58f0-bedf-8183a82e8772@lab.ntt.co.jp>
+In-Reply-To: <3ad411f5-72fe-db6c-aa13-385dd1c10f36@cumulusnetworks.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -32,42 +33,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, netdev@vger.kernel.org
 Cc: dsa@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, davem@davemloft.net
 
-On 26/10/17 13:16, Toshiaki Makita wrote:
-> On 2017/10/26 7:52, Nikolay Aleksandrov wrote:
-> ...
->> @@ -559,6 +574,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
->>  
->>  	ASSERT_RTNL();
->>  
->> +	*changed = false;
->>  	vg = br_vlan_group(br);
->>  	vlan = br_vlan_find(vg, vid);
->>  	if (vlan) {
->> @@ -576,9 +592,12 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
->>  			refcount_inc(&vlan->refcnt);
->>  			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
->>  			vg->num_vlans++;
->> +			*changed = true;
->>  		}
->> -		__vlan_add_flags(vlan, flags);
->> -		return 0;
->> +		if (__vlan_add_flags(vlan, flags))
->> +			*changed = true;
->> +
->> +		return ret;
+On 26/10/17 14:02, Nikolay Aleksandrov wrote:
+> On 26/10/17 13:16, Toshiaki Makita wrote:
+>> On 2017/10/26 7:52, Nikolay Aleksandrov wrote:
+>> ...
+>>> @@ -559,6 +574,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
+>>>  
+>>>  	ASSERT_RTNL();
+>>>  
+>>> +	*changed = false;
+>>>  	vg = br_vlan_group(br);
+>>>  	vlan = br_vlan_find(vg, vid);
+>>>  	if (vlan) {
+>>> @@ -576,9 +592,12 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
+>>>  			refcount_inc(&vlan->refcnt);
+>>>  			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
+>>>  			vg->num_vlans++;
+>>> +			*changed = true;
+>>>  		}
+>>> -		__vlan_add_flags(vlan, flags);
+>>> -		return 0;
+>>> +		if (__vlan_add_flags(vlan, flags))
+>>> +			*changed = true;
+>>> +
+>>> +		return ret;
+>>
+>> "ret" isn't always initialized here, is it?
+>>
+>>
+>> Toshiaki Makita
 > 
-> "ret" isn't always initialized here, is it?
+> Oh, good catch! Right you are, weird that there was no warning even with W=1 as
+> I always check that before sending a set.
 > 
+> Thanks,
+>  Nik
 > 
-> Toshiaki Makita
 
-Oh, good catch! Right you are, weird that there was no warning even with W=1 as
-I always check that before sending a set.
-
-Thanks,
- Nik
-
-
-
+Unfortunately that was a leftover from v0 of this set where I always initialized ret.
+Will fix and send v5, thanks again.
 
 
