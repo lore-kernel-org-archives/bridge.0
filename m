@@ -1,26 +1,17 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=MUJwRTf0L6e6ztCST5Hlfxi1nWMWtCi1Ma4yorJ72Lo=;
-	b=P6v/uKs3YWRzbbKENTi0msw5e7MRtGW6KrKsYN2kZlfHoqfQ4RDe0ZmP4X6ql57geb
-	81VhBviDEQ/Nt9SdM4i3LAnjMx6fn7a5TTqTjx8CpgJdSQ3KJRjVsn6iDCuR/MMo8xtT
-	DyYb0/FufGZrbov8w90j5yl3mL20dHsFCjwTA=
-References: <43f36fb0-8543-7e60-a80e-6da35d74b69a@cumulusnetworks.com>
-	<1508968782-15530-1-git-send-email-nikolay@cumulusnetworks.com>
-	<1508968782-15530-2-git-send-email-nikolay@cumulusnetworks.com>
-	<20171026101702.6ff21fc1@shemminger-XPS-13-9360>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <3a9ba7b5-802c-7907-b91d-be076d448e78@cumulusnetworks.com>
-Date: Thu, 26 Oct 2017 11:25:21 +0300
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
+References: <f6c0da96-77f0-db19-7a9a-13b246d83d39@cumulusnetworks.com>
+	<1508971954-3567-1-git-send-email-nikolay@cumulusnetworks.com>
+	<1508971954-3567-3-git-send-email-nikolay@cumulusnetworks.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <622bf4ff-e493-58f0-bedf-8183a82e8772@lab.ntt.co.jp>
+Date: Thu, 26 Oct 2017 19:16:27 +0900
 MIME-Version: 1.0
-In-Reply-To: <20171026101702.6ff21fc1@shemminger-XPS-13-9360>
+In-Reply-To: <1508971954-3567-3-git-send-email-nikolay@cumulusnetworks.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 1/2] bridge: netlink: make
- setlink/dellink notifications more accurate
+Subject: Re: [Bridge] [PATCH net-next v4 2/2] bridge: vlan: signal if
+ anything changed on vlan add
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,37 +20,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
+Cc: dsa@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, davem@davemloft.net
 
-On 26/10/17 11:17, Stephen Hemminger wrote:
-> On Thu, 26 Oct 2017 00:59:41 +0300
-> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-> 
->> Before this patch we had cases that either sent notifications when there
->> were in fact no changes (e.g. non-existent vlan delete) or didn't send
->> notifications when there were changes (e.g. vlan add range with an error in
->> the middle, port flags change + vlan update error). This patch sends down
->> a boolean to the functions setlink/dellink use and if there is even a
->> single configuration change (port flag, vlan add/del, port state) then
->> we always send a notification. This is all done to keep backwards
->> compatibility with the opportunistic vlan delete, where one could
->> specify a vlan range that has missing vlans inside and still everything
->> in that range will be cleared, this is mostly used to clear the whole
->> vlan config with a single call, i.e. range 1-4094.
->>
->> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> 
-> This looks correct.
-> As a general note, generating a notice with no change should be ok for a correctly
-> written application. But missing a notification would cause synchronization problems.
-> 
-> Acked-by: Stephen Hemminger <stephen@networkplumber.org>
-> 
+On 2017/10/26 7:52, Nikolay Aleksandrov wrote:
+...
+> @@ -559,6 +574,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
+>  
+>  	ASSERT_RTNL();
+>  
+> +	*changed = false;
+>  	vg = br_vlan_group(br);
+>  	vlan = br_vlan_find(vg, vid);
+>  	if (vlan) {
+> @@ -576,9 +592,12 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
+>  			refcount_inc(&vlan->refcnt);
+>  			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
+>  			vg->num_vlans++;
+> +			*changed = true;
+>  		}
+> -		__vlan_add_flags(vlan, flags);
+> -		return 0;
+> +		if (__vlan_add_flags(vlan, flags))
+> +			*changed = true;
+> +
+> +		return ret;
 
-Stephen, thank you for the review. Could you please send the ack to
-v4 of this set ? Since it's already sent, I can't add it myself.
+"ret" isn't always initialized here, is it?
 
-Thanks,
- Nik
+
+Toshiaki Makita
 
