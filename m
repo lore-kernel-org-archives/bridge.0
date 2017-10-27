@@ -1,25 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=KV4Z3wON+dx6vGMNCHnoWxJlVoWz5lRMtiC+8r3QaOQ=;
-	b=UvGdRQeWiQpv30w9UhYzXwsY4pCiWTjKbsfzmtNvJqTwUjIWTiti4PfJZFdTzg+Ey6
-	oJSfKQnnIKv6j1XgTkQaN/MoAowyVVEqJ7mumB2e1mZjahSBLWDLyJpkrxz8DcmRXGwM
-	w3kzymJ0RIXqkkivY+kTpfcPJAeUDZZu/hoWk=
-References: <1509025309-10165-1-git-send-email-nikolay@cumulusnetworks.com>
-	<1509025309-10165-3-git-send-email-nikolay@cumulusnetworks.com>
-	<9dd7d80a-1afb-0d22-eb35-73023e65a881@lab.ntt.co.jp>
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=kmlc1a46OxTLiMxrmwc1i50t15846Z38xGC8BVFgBFY=;
+	b=KnrG+TppjA5/QU7AaotEBtz0htz8ZmVTwClsc4jhpe7HPbjwj/OoNzx8Qt6R7zmOe/
+	kJ8iC5SDN/wU3TAz9QGuG/ey2qLHrN4ccAltDDxx7C90mlsTSyx7jVkgFiyL8LUNStjK
+	1MhJVNekgjpPHlBLRPlJsqDxAG1zzd8JbLpt8=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <1f6df7e3-cd05-9b96-9f45-49c433011ff2@cumulusnetworks.com>
-Date: Fri, 27 Oct 2017 11:48:47 +0300
-MIME-Version: 1.0
-In-Reply-To: <9dd7d80a-1afb-0d22-eb35-73023e65a881@lab.ntt.co.jp>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v5 2/2] bridge: vlan: signal if
- anything changed on vlan add
+Date: Fri, 27 Oct 2017 13:19:35 +0300
+Message-Id: <1509099577-5959-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <1f6df7e3-cd05-9b96-9f45-49c433011ff2@cumulusnetworks.com>
+References: <1f6df7e3-cd05-9b96-9f45-49c433011ff2@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next v6 0/2] bridge: make setlink/dellink
+	notifications more accurate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,75 +21,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, netdev@vger.kernel.org
-Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com, davem@davemloft.net
 
-On 27/10/17 11:24, Toshiaki Makita wrote:
-> On 2017/10/26 22:41, Nikolay Aleksandrov wrote:
->> Before this patch there was no way to tell if the vlan add operation
->> actually changed anything, thus we would always generate a notification
->> on adds. Let's make the notifications more precise and generate them
->> only if anything changed, so use the new bool parameter to signal that the
->> vlan was updated. We cannot return an error because there are valid use
->> cases that will be broken (e.g. overlapping range add) and also we can't
->> risk masking errors due to calls into drivers for vlan add which can
->> potentially return anything.
->>
->> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> 
-> Thanks for the explanation in the previous mail.
-> 
->> ---
-> ...
->> @@ -576,8 +592,11 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
->>  			refcount_inc(&vlan->refcnt);
->>  			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
->>  			vg->num_vlans++;
->> +			*changed = true;
->>  		}
->> -		__vlan_add_flags(vlan, flags);
->> +		if (__vlan_add_flags(vlan, flags))
->> +			*changed = true;
->> +
->>  		return 0;
->>  	}
->>  
->> @@ -601,6 +620,7 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags)
->>  		free_percpu(vlan->stats);
->>  		kfree(vlan);
-> 
-> We should not set changed=true in this failure case?
-> 
+Hi,
+Before this set the bridge would generate a notification on vlan add or del
+even if they didn't actually do any changes, which confuses listeners and
+is generally not preferred. We could also lose notifications on actual
+changes if one adds a range of vlans and there's an error in the middle.
+The problem with just breaking and returning an error is that we could
+break existing user-space scripts which rely on the vlan delete to clear
+all existing entries in the specified range and ignore the non-existing
+errors (typically used to clear the current vlan config).
+So in order to make the notifications more accurate while keeping backwards
+compatibility we add a boolean that tracks if anything actually changed
+during the config calls.
 
-Right, I don't know what I was thinking, clearly I missed the fact that we directly
-clean up and return "ret" with an error. Very good catch, thanks! That should
-go in the else branch, will send a v6 later with that fixed up.
+The vlan add is more difficult to fix because it always returns 0 even if
+nothing changed, but we cannot use a specific error because the drivers
+can return anything and we may mask it, also we'd need to update all places
+that directly return the add result, thus to signal that a vlan was created
+or updated and in order not to break overlapping vlan range add we pass
+down the new boolean that tracks changes to the add functions to check
+if anything was actually updated.
+
+v6: moved "changed" in else branch in br|nbp_vlan_add, thanks to
+    Toshiaki Makita and retested everything again
+v5: fix br_vlan_add return (v1 leftover) spotted by Toshiaki Makita
+v4: set changed always to false in the non-vlan config case and retested
+v3: rebased to latest net-next and fixed non-vlan config functions reported
+    by kbuild test bot
+v2: pass changed down to vlan add instead of masking errors
 
 Thanks,
  Nik
 
->>  	}
->> +	*changed = true;
->>  
->>  	return ret;
->>  }
-> ...
->> @@ -1050,6 +1083,7 @@ int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags)
->>  	ret = __vlan_add(vlan, flags);
->>  	if (ret)
->>  		kfree(vlan);
-> 
-> Likewise.
-> 
->> +	*changed = true;
->>  
->>  	return ret;
->>  }
->>
-> 
+Nikolay Aleksandrov (2):
+  bridge: netlink: make setlink/dellink notifications more accurate
+  bridge: vlan: signal if anything changed on vlan add
 
+ net/bridge/br_netlink.c        | 51 ++++++++++++++++-----------
+ net/bridge/br_netlink_tunnel.c | 14 +++++---
+ net/bridge/br_private.h        | 14 +++++---
+ net/bridge/br_private_tunnel.h |  3 +-
+ net/bridge/br_vlan.c           | 78 ++++++++++++++++++++++++++++++------------
+ 5 files changed, 109 insertions(+), 51 deletions(-)
 
-
-
-
+-- 
+2.1.4
 
