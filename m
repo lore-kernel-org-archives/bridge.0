@@ -1,26 +1,15 @@
-Return-Path: <toshiaki.makita1@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=ry1u6dFP9VPVeVBN49nxl4dOmjIWDWyPAVFORKq8OOs=;
-	b=V7LrDmH3PmnXGFZ8ph7dHMhiZxNvYsNow+9j978REebbO9/Jh574GNBmTl9Yiwt7Nr
-	qZBXOl2rettETDVbMuR/6yakBvnBQ/KL65Vrb+qw6CYtdROyykC/0g4P2leQgu7fRf1Y
-	GtwcLP5bYRoq8TpP2c83cFQrbXBvk5Dq9j4CErXF15uRuiyZvYsRJV2kyQ2hA5LGq8fp
-	PcunzjMLmdSSinC7gdql7eoEGkO4LpG+lX+/+qI03gYHnqDGq9Iv03HoHQ7i/K/iBlQX
-	YJ4RVl6YwGkHWnzf2O+SbIaQdQsHr6H5Jqyk1KX/9v+pLqtcOXnUqQCJobBJKoBy5ea8
-	nfFg==
+Return-Path: <davem@davemloft.net>
+Date: Sun, 29 Oct 2017 11:04:05 +0900 (KST)
+Message-Id: <20171029.110405.363445271511169384.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1509099577-5959-1-git-send-email-nikolay@cumulusnetworks.com>
 References: <1f6df7e3-cd05-9b96-9f45-49c433011ff2@cumulusnetworks.com>
 	<1509099577-5959-1-git-send-email-nikolay@cumulusnetworks.com>
-	<1509099577-5959-3-git-send-email-nikolay@cumulusnetworks.com>
-From: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Message-ID: <01acc055-ad4e-c35b-e6b5-5f0493e9c5ac@gmail.com>
-Date: Sat, 28 Oct 2017 08:34:03 +0900
-MIME-Version: 1.0
-In-Reply-To: <1509099577-5959-3-git-send-email-nikolay@cumulusnetworks.com>
-Content-Type: text/plain; charset=iso-2022-jp; format=flowed; delsp=yes
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v6 2/2] bridge: vlan: signal if
- anything changed on vlan add
+Subject: Re: [Bridge] [PATCH net-next v6 0/2] bridge: make setlink/dellink
+ notifications more accurate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,21 +18,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
-Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com
 
-On 17/10/27 (金) 19:19, Nikolay Aleksandrov wrote:
-> Before this patch there was no way to tell if the vlan add operation
-> actually changed anything, thus we would always generate a notification
-> on adds. Let's make the notifications more precise and generate them
-> only if anything changed, so use the new bool parameter to signal that the
-> vlan was updated. We cannot return an error because there are valid use
-> cases that will be broken (e.g. overlapping range add) and also we can't
-> risk masking errors due to calls into drivers for vlan add which can
-> potentially return anything.
->
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 27 Oct 2017 13:19:35 +0300
 
-Reviewed-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Before this set the bridge would generate a notification on vlan add or del
+> even if they didn't actually do any changes, which confuses listeners and
+> is generally not preferred. We could also lose notifications on actual
+> changes if one adds a range of vlans and there's an error in the middle.
+> The problem with just breaking and returning an error is that we could
+> break existing user-space scripts which rely on the vlan delete to clear
+> all existing entries in the specified range and ignore the non-existing
+> errors (typically used to clear the current vlan config).
+> So in order to make the notifications more accurate while keeping backwards
+> compatibility we add a boolean that tracks if anything actually changed
+> during the config calls.
+> 
+> The vlan add is more difficult to fix because it always returns 0 even if
+> nothing changed, but we cannot use a specific error because the drivers
+> can return anything and we may mask it, also we'd need to update all places
+> that directly return the add result, thus to signal that a vlan was created
+> or updated and in order not to break overlapping vlan range add we pass
+> down the new boolean that tracks changes to the add functions to check
+> if anything was actually updated.
+> 
+> v6: moved "changed" in else branch in br|nbp_vlan_add, thanks to
+>     Toshiaki Makita and retested everything again
+> v5: fix br_vlan_add return (v1 leftover) spotted by Toshiaki Makita
+> v4: set changed always to false in the non-vlan config case and retested
+> v3: rebased to latest net-next and fixed non-vlan config functions reported
+>     by kbuild test bot
+> v2: pass changed down to vlan add instead of masking errors
 
-Toshiaki Makita
+Series applied, thank you.
