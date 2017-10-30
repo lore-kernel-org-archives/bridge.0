@@ -1,15 +1,16 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 29 Oct 2017 11:04:05 +0900 (KST)
-Message-Id: <20171029.110405.363445271511169384.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1509099577-5959-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1f6df7e3-cd05-9b96-9f45-49c433011ff2@cumulusnetworks.com>
-	<1509099577-5959-1-git-send-email-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v6 0/2] bridge: make setlink/dellink
- notifications more accurate
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=1eMkG/vKpLM1tn9R/p50s9EWdUNqlVtW/XmQNjeAZFE=;
+	b=eaK5giCZWLhgXELncsGFYm2f1vFPi+4wWN8Z92TZ4+HvmJ/mU1f9LRkBVGBMh5d6Je
+	rL6T3pwDwR/Zmf02gJYjITNANABVBtlh2GP7XSciC3QM7a3v2JAco9B3iZsK2QjRrG7J
+	welaJa6AzhJNbuhEJmuvxVgABYLzVvg6Ricvo=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Mon, 30 Oct 2017 12:56:33 +0200
+Message-Id: <1509360993-25227-1-git-send-email-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next] net: bridge: add neigh_suppress to bridge
+	port policies
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,38 +19,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, mrv@mojatatu.com, dsa@cumulusnetworks.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 27 Oct 2017 13:19:35 +0300
+Add an entry for IFLA_BRPORT_NEIGH_SUPPRESS to bridge port policies.
 
-> Before this set the bridge would generate a notification on vlan add or del
-> even if they didn't actually do any changes, which confuses listeners and
-> is generally not preferred. We could also lose notifications on actual
-> changes if one adds a range of vlans and there's an error in the middle.
-> The problem with just breaking and returning an error is that we could
-> break existing user-space scripts which rely on the vlan delete to clear
-> all existing entries in the specified range and ignore the non-existing
-> errors (typically used to clear the current vlan config).
-> So in order to make the notifications more accurate while keeping backwards
-> compatibility we add a boolean that tracks if anything actually changed
-> during the config calls.
-> 
-> The vlan add is more difficult to fix because it always returns 0 even if
-> nothing changed, but we cannot use a specific error because the drivers
-> can return anything and we may mask it, also we'd need to update all places
-> that directly return the add result, thus to signal that a vlan was created
-> or updated and in order not to break overlapping vlan range add we pass
-> down the new boolean that tracks changes to the add functions to check
-> if anything was actually updated.
-> 
-> v6: moved "changed" in else branch in br|nbp_vlan_add, thanks to
->     Toshiaki Makita and retested everything again
-> v5: fix br_vlan_add return (v1 leftover) spotted by Toshiaki Makita
-> v4: set changed always to false in the non-vlan config case and retested
-> v3: rebased to latest net-next and fixed non-vlan config functions reported
->     by kbuild test bot
-> v2: pass changed down to vlan add instead of masking errors
+Fixes: 821f1b21cabb ("bridge: add new BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_netlink.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Series applied, thank you.
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index e732403669c6..26aeb0b5cf30 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -651,6 +651,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_MCAST_FLOOD] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_BCAST_FLOOD] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_GROUP_FWD_MASK] = { .type = NLA_U16 },
++	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
+ };
+ 
+ /* Change the state of the port and notify spanning tree */
+-- 
+2.1.4
+
