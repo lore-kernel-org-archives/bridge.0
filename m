@@ -1,14 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 02 Nov 2017 15:54:17 +0900 (KST)
-Message-Id: <20171102.155417.1598178495654566553.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1509531493-17909-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <1509531493-17909-1-git-send-email-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: add notifications for
- the bridge dev on vlan change
+Return-Path: <andrew@lunn.ch>
+Date: Thu, 2 Nov 2017 13:53:05 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20171102125305.GI4772@lunn.ch>
+References: <20171102093648.4141-1-privat@egil-hjelmeland.no>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20171102093648.4141-1-privat@egil-hjelmeland.no>
+Subject: Re: [Bridge] [PATCH net-next] net: Define eth_stp_addr in
+	linux/etherdevice.h
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,24 +17,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: Egil Hjelmeland <privat@egil-hjelmeland.no>
+Cc: f.fainelli@gmail.com, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rafal@milecki.pl
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed,  1 Nov 2017 12:18:13 +0200
+On Thu, Nov 02, 2017 at 10:36:48AM +0100, Egil Hjelmeland wrote:
+> Why:
 
-> Currently the bridge device doesn't generate any notifications upon vlan
-> modifications on itself because it doesn't use the generic bridge
-> notifications.
-> With the recent changes we know if anything was modified in the vlan config
-> thus we can generate a notification when necessary for the bridge device
-> so add support to br_ifinfo_notify() similar to how other combined
-> functions are done - if port is present it takes precedence, otherwise
-> notify about the bridge. I've explicitly marked the locations where the
-> notification should be always for the port by setting bridge to NULL.
-> I've also taken the liberty to rearrange each modified function's local
-> variables in reverse xmas tree as well.
+Please drop the Why.
+
+> The lan9303 driver defines eth_stp_addr as a synonym to
+> eth_reserved_addr_base to get the STP ethernet address 01:80:c2:00:00:00.
 > 
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> eth_reserved_addr_base is also used to define the start of Bridge Reserved
+> ethernet address range, which happen to be the STP address.
+> 
+> br_dev_setup refer to eth_reserved_addr_base as a definition of STP
+> address.
+> 
+> Clean up by:
+>  - Move the eth_stp_addr definition to linux/etherdevice.h
+>  - Use eth_stp_addr instead of eth_reserved_addr_base in br_dev_setup.
+> 
+> Signed-off-by: Egil Hjelmeland <privat@egil-hjelmeland.no>
 
-Applied.
+I was thinking along the same lines when reviewing your lan9303 patch.
+
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+
+    Andrew
