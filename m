@@ -1,14 +1,14 @@
 Return-Path: <davem@davemloft.net>
-Date: Fri, 03 Nov 2017 14:14:28 +0900 (KST)
-Message-Id: <20171103.141428.1029481368155846689.davem@davemloft.net>
+Date: Fri, 03 Nov 2017 14:18:39 +0900 (KST)
+Message-Id: <20171103.141839.1785916247470411683.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1509600531-16086-1-git-send-email-allen.pais@oracle.com>
-References: <1509600531-16086-1-git-send-email-allen.pais@oracle.com>
+In-Reply-To: <20171102093648.4141-1-privat@egil-hjelmeland.no>
+References: <20171102093648.4141-1-privat@egil-hjelmeland.no>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 1/2] net: bridge: Convert timers to use
-	timer_setup()
+Subject: Re: [Bridge] [PATCH net-next] net: Define eth_stp_addr in
+ linux/etherdevice.h
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,14 +17,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: allen.pais@oracle.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, keescook@chromium.org
+To: privat@egil-hjelmeland.no
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rafal@milecki.pl
 
-From: Allen Pais <allen.pais@oracle.com>
-Date: Thu,  2 Nov 2017 10:58:50 +0530
+From: Egil Hjelmeland <privat@egil-hjelmeland.no>
+Date: Thu,  2 Nov 2017 10:36:48 +0100
 
-> switch to using the new timer_setup() and from_timer() api's.
+> The lan9303 driver defines eth_stp_addr as a synonym to
+> eth_reserved_addr_base to get the STP ethernet address 01:80:c2:00:00:00.
 > 
-> Signed-off-by: Allen Pais <allen.pais@oracle.com>
+> eth_reserved_addr_base is also used to define the start of Bridge Reserved
+> ethernet address range, which happen to be the STP address.
+> 
+> br_dev_setup refer to eth_reserved_addr_base as a definition of STP
+> address.
+> 
+> Clean up by:
+>  - Move the eth_stp_addr definition to linux/etherdevice.h
+>  - Use eth_stp_addr instead of eth_reserved_addr_base in br_dev_setup.
+> 
+> Signed-off-by: Egil Hjelmeland <privat@egil-hjelmeland.no>
 
-These two patches do not apply cleanly to net-next, please respin.
+Applied, thank you.
