@@ -1,15 +1,18 @@
-Return-Path: <pneira@us.es>
-Date: Tue, 28 Nov 2017 00:30:08 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20171127233008.GA1418@salvia>
-References: <20171125074418.16537-1-linus.luessing@c0d3.blue>
+Return-Path: <brandon.carpenter@cypherpath.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cypherpath.com; s=google;
+	h=date:from:subject:to:cc:message-id:mime-version;
+	bh=iLf+4bacF3VSdy7ZRjDKdN6i+DRpRqaq7vVkgFVmU9U=;
+	b=jEyyOZS84SHqgcy0fKhh3O92R3Hi99cmDcHKfXf50nY4kQDbz0bp1vlxUtHarrljoE
+	Ob7qn6zR9rAiHRRA/Iq0649+7vGcRZHdlQ68fZDD9qsP691oItpy4aQApILbP1Y/a4Cw
+	qYbmu7gXVyE9zeEHHIb+y8Mk4lWh85fDuz3fc=
+Date: Tue, 28 Nov 2017 09:21:17 -0800
+From: Brandon Carpenter <brandon.carpenter@cypherpath.com>
+Message-Id: <1511889677.1204.0@smtp.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20171125074418.16537-1-linus.luessing@c0d3.blue>
-Subject: Re: [Bridge] [PATCH net-next] bridge: ebtables: Avoid resetting
- limit rule state
+Content-Type: multipart/alternative; boundary="=-2uo575ZQ+byBnEeMkCuK"
+Subject: [Bridge] Sending 802.1Q packets using AF_PACKET socket on filtered
+ bridge forwards with wrong MAC addresses
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,55 +21,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 
-Hi Linus,
+--=-2uo575ZQ+byBnEeMkCuK
+Content-Type: text/plain; charset="US-ASCII"; format=flowed
 
-On Sat, Nov 25, 2017 at 08:44:18AM +0100, Linus L=FCssing wrote:
-> So far any changes with ebtables will reset the state of limit rules,
-> leading to spikes in traffic. This is especially noticeable if changes
-> are done frequently, for instance via a daemon.
->=20
-> This patch fixes this by bailing out from (re)setting if the limit
-> rule was initialized before.
->=20
-> When sending packets every 250ms for 600s, with a
-> "--limit 1/sec --limit-burst 50" rule and a command like this
-> in the background:
->=20
-> $ ebtables -N VOIDCHAIN
-> $ while true; do ebtables -F VOIDCHAIN; sleep 30; done
->=20
-> The results are:
->=20
-> Before: ~1600 packets
-> After: 650 packets
->=20
-> Signed-off-by: Linus L=FCssing <linus.luessing@c0d3.blue>
-> ---
->  net/bridge/netfilter/ebt_limit.c | 4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/net/bridge/netfilter/ebt_limit.c b/net/bridge/netfilter/ebt_=
-limit.c
-> index 61a9f1be1263..f74b48633feb 100644
-> --- a/net/bridge/netfilter/ebt_limit.c
-> +++ b/net/bridge/netfilter/ebt_limit.c
-> @@ -69,6 +69,10 @@ static int ebt_limit_mt_check(const struct xt_mtchk_pa=
-ram *par)
->  {
->  	struct ebt_limit_info *info =3D par->matchinfo;
-> =20
-> +	/* Do not reset state on unrelated table changes */
-> +	if (info->prev)
-> +		return 0;
+While attempting to send ARP DAD packets on a bridge device, I noticed 
+that hosts attached to the bridge ports were not responding. After 
+digging in with tcpdump/wireshark, I noticed that the MAC addresses of 
+the packets (the first 12 bytes of the Ethernet frame) were wrong and 
+were an exact duplicate of the following 12 bytes (bytes 13-24), but 
+only on slave bridge ports. The bridge device itself had the correct 
+addresses. Here is an example setup:
 
-What kernel version are you using? I suspect you don't have this
-applied?
+> # ip link add br0 type bridge vlan_filtering 1
 
-commit ec23189049651b16dc2ffab35a4371dc1f491aca
-Author: Willem de Bruijn <willemb@google.com>
-Date:   Mon Jan 2 17:19:46 2017 -0500
 
-    xtables: extend matches and targets with .usersize
+--
+Brandon Carpenter | Software Engineer
+Cypherpath, Inc.
+400 Columbia Point Drive Ste 101 | Richland, Washington USA
+Office: (650) 713-3060
+
+
+-- 
+
+
+CONFIDENTIALITY NOTICE: This e-mail message, including any attachments, is 
+for the sole use of the intended recipient(s) and may contain proprietary, 
+confidential or privileged information or otherwise be protected by law. 
+Any unauthorized review, use, disclosure or distribution is prohibited. If 
+you are not the intended recipient, please notify the sender and destroy 
+all copies and the original message.
+
+--=-2uo575ZQ+byBnEeMkCuK
+Content-Type: text/html; charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+<div id=3D"geary-body"><div>While attempting to send ARP DAD packets on a b=
+ridge device, I noticed that hosts attached to the bridge ports were not re=
+sponding. After digging in with tcpdump/wireshark, I noticed that the MAC a=
+ddresses of the packets (the first 12 bytes of the Ethernet frame) were wro=
+ng and were an exact duplicate of the following 12 bytes (bytes 13-24), but=
+ only on slave bridge ports. The bridge device itself had the correct addre=
+sses. Here is an example setup:</div><div><br></div><blockquote type=3D"cit=
+e"># ip link add br0 type bridge vlan_filtering 1</blockquote><br><br></div=
+><div id=3D"geary-signature"><div style=3D"white-space: pre;">--
+Brandon Carpenter | Software Engineer
+Cypherpath, Inc.
+400 Columbia Point Drive Ste 101 | Richland, Washington USA
+Office: (650) 713-3060
+</div></div>
+<br>
+<img src=3D"https://www.cypherpath.com/img/cypherpath-logo-r-trans-265.png"=
+><br><br>CONFIDENTIALITY NOTICE: This e-mail message, including any attachm=
+ents, is for the sole use of the intended recipient(s) and may contain prop=
+rietary, confidential or privileged information or otherwise be protected b=
+y law. Any unauthorized review, use, disclosure or distribution is prohibit=
+ed. If you are not the intended recipient, please notify the sender and des=
+troy all copies and the original message.
+--=-2uo575ZQ+byBnEeMkCuK--
+
