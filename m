@@ -1,20 +1,15 @@
-Return-Path: <brandon.carpenter@cypherpath.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cypherpath.com; s=google;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=N950m25Rty1j6JpGhNGRc504nbbz2j4mFznwzNXLVJw=;
-	b=Uv2s5jd1qTDq9ZV4OGKfuhWUl/nqNIi8HFnQ0mVl3dNpbX5LCu6Dl7vR7UhWyeHDP/
-	YvY2+XEtnDajxTRdu54aXJEjFMrIoc/kpac3Rm8fYbN5ppi3LZ45WnHwCcfhYL8oi4ge
-	H0u6vS8B963FT7ewxYZLWV1DjCQxZh8GLu05A=
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Mon, 4 Dec 2017 05:53:35 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20171204045335.GE3307@otheros>
+References: <20171125074418.16537-1-linus.luessing@c0d3.blue>
+	<20171127233008.GA1418@salvia>
 MIME-Version: 1.0
-In-Reply-To: <CAPpVWGuVsUP-4Ty7db4DQueL23yjPBMPG4+1Ui+OBTjfUHmVVg@mail.gmail.com>
-References: <CAPpVWGuVsUP-4Ty7db4DQueL23yjPBMPG4+1Ui+OBTjfUHmVVg@mail.gmail.com>
-From: Brandon Carpenter <brandon.carpenter@cypherpath.com>
-Date: Wed, 29 Nov 2017 14:01:11 -0800
-Message-ID: <CAPpVWGtgf1cLBq0fyXKbZnzAgzvoX2mm3sLYm5QS7us5H-0XKQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] Sending 802.1Q packets using AF_PACKET socket on
- filtered bridge forwards with wrong MAC addresses
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20171127233008.GA1418@salvia>
+Subject: Re: [Bridge] [PATCH net-next] bridge: ebtables: Avoid resetting
+ limit rule state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,46 +18,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S . Miller" <davem@davemloft.net>
 
-I narrowed the search to a memmove() called from
-skb_reorder_vlan_header() in net/core/skbuff.c.
+Hi Pablo,
 
->     memmove(skb->data - ETH_HLEN, skb->data - skb->mac_len - VLAN_HLEN,
->        2 * ETH_ALEN);
+Thanks for your reply!
 
-Calling skb_reset_mac_len() after skb_reset_mac_header() before
-calling br_allowed_ingress() in net/bridge/br_device.c fixes the
-problem.
+On Tue, Nov 28, 2017 at 12:30:08AM +0100, Pablo Neira Ayuso wrote:
+> [...]
+> > diff --git a/net/bridge/netfilter/ebt_limit.c b/net/bridge/netfilter/ebt_limit.c
+> > index 61a9f1be1263..f74b48633feb 100644
+> > --- a/net/bridge/netfilter/ebt_limit.c
+> > +++ b/net/bridge/netfilter/ebt_limit.c
+> > @@ -69,6 +69,10 @@ static int ebt_limit_mt_check(const struct xt_mtchk_param *par)
+> >  {
+> >  	struct ebt_limit_info *info = par->matchinfo;
+> >  
+> > +	/* Do not reset state on unrelated table changes */
+> > +	if (info->prev)
+> > +		return 0;
+> 
+> What kernel version are you using? I suspect you don't have this
+> applied?
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index af5b8c87f590..e10131e2f68f 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -58,6 +58,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct
-net_device *dev)
-        BR_INPUT_SKB_CB(skb)->brdev = dev;
+I'm indeed using a 4.4.102 kernel, as LEDE is still in the process
+of updating to 4.14. So 4.4 with LEDE is where I got the measurement
+results from.
 
-        skb_reset_mac_header(skb);
-+       skb_reset_mac_len(skb);
-        eth = eth_hdr(skb);
-        skb_pull(skb, ETH_HLEN);
+> 
+> commit ec23189049651b16dc2ffab35a4371dc1f491aca
+> Author: Willem de Bruijn <willemb@google.com>
+> Date:   Mon Jan 2 17:19:46 2017 -0500
+> 
+>     xtables: extend matches and targets with .usersize
 
+And so, no I do not have this patch. I looked at it now, but it
+does not seem to have any relation with .matchinfo, does it?
 
-I'll put together an official patch  and submit it. Should I use
-another email account? Are my emails being ignored because of that
-stupid disclaimer my employer attaches to my messages (outside my
-control)?
+I also had a quick look at a 4.15-rc1 kernel in a VM now. I still
+end up in ebt_limit_mt_check() with the variables being reset
+when editing the table somewhere.
 
-Brandon
-
--- 
-
-
-CONFIDENTIALITY NOTICE: This e-mail message, including any attachments, is 
-for the sole use of the intended recipient(s) and may contain proprietary, 
-confidential or privileged information or otherwise be protected by law. 
-Any unauthorized review, use, disclosure or distribution is prohibited. If 
-you are not the intended recipient, please notify the sender and destroy 
-all copies and the original message.
+Regards, Linus
