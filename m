@@ -3,16 +3,16 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
 	h=date:from:to:cc:subject:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=xgYzhRjXJW9puqpiDjeT26AcTUZTx4W/J3pG8OAtsaQ=;
-	b=olm0eRCeRni+xu8l3bxEk/Sye8PBjn7Tv4c/iZRGa518eSP8Jo8nX8YE8GA/rJDBO0
-	hEkuIRnuYbijTum7Ln11FeXcVxATkEX7KONWGesabpPHOX8uwvXIWkk+IhP1l4wKjYuP
-	w9dihCiyI+Bg+qnseSli8/sdbi8uhJWAVyrghDH7QBJHVOSI0V+mQQbfDJ3cVTeRncC6
-	49dKqy5jR66NFh67b5r3yjp5X384PYxjN7PoRdkEH9Z7Eifet8PdnChEtoVDolvWo3Yy
-	yVdUPirG7ONYPXAj8+SVAykjEHzchsVyEo+0/jOyM5mTyF+ofN5JzGcFXkgf9fW4wdix
-	p5TQ==
-Date: Tue, 12 Dec 2017 10:02:24 -0800
+	bh=h3IIt7XqOz/IWl9/kGhhZUhZqpYJm1DCRFWahUxp61A=;
+	b=1HNr5tBrsBuhBPKnMC+wbKXnpgysC9JEaV9wdMt8g9u3KlXOOQfUmsYURqvRugh1FG
+	p+99Idthl26aIuoxee/kiSo3l+P3OzKMwNs4EXwu9FIcKOCqYGth8Ap3ihfzlSuH5j4w
+	C2nTTKsbHsFXsjUJqTFcKnRk7+1kKJAy2+h+/UGDZh5aGwCVwLugwgchtPgKEJ2u03Zx
+	+PzGmzX2ai92yWCCiXZnao3ezTgKokOZkJxr+FaSqksllABBNKkb75ecwBsJBlRHFZ/6
+	1mZPBFl9w7aMAMbnIWyGT3okajx89Y/ZjV3lzNpitEENoy3f+qCo5wCWg7S8e4+PwplA
+	fxag==
+Date: Tue, 12 Dec 2017 10:07:13 -0800
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20171212100224.1aa33a96@xeon-e3>
+Message-ID: <20171212100713.6c24c9c3@xeon-e3>
 In-Reply-To: <1513087370-4791-1-git-send-email-nikolay@cumulusnetworks.com>
 References: <1513087370-4791-1-git-send-email-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
@@ -33,6 +33,35 @@ Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-founda
 On Tue, 12 Dec 2017 16:02:50 +0200
 Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
 
-> +		memcpy(__entry->addr, f->key.addr.addr, ETH_ALEN);
+> Before this patch the bridge used a fixed 256 element hash table which
+> was fine for small use cases (in my tests it starts to degrade
+> above 1000 entries), but it wasn't enough for medium or large
+> scale deployments. Modern setups have thousands of participants in a
+> single bridge, even only enabling vlans and adding a few thousand vlan
+> entries will cause a few thousand fdbs to be automatically inserted per
+> participating port. So we need to scale the fdb table considerably to
+> cope with modern workloads, and this patch converts it to use a
+> rhashtable for its operations thus improving the bridge scalability.
+> Tests show the following results (10 runs each), at up to 1000 entries
+> rhashtable is ~3% slower, at 2000 rhashtable is 30% faster, at 3000 it
+> is 2 times faster and at 30000 it is 50 times faster.
+> Obviously this happens because of the properties of the two constructs
+> and is expected, rhashtable keeps pretty much a constant time even with
+> 10000000 entries (tested), while the fixed hash table struggles
+> considerably even above 10000.
+> As a side effect this also reduces the net_bridge struct size from 3248
+> bytes to 1344 bytes. Also note that the key struct is 8 bytes.
+> 
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
 
-Maybe use ether_addr_copy() here?
+Thanks for doing this, it was on my list of things that never get done.
+
+Some downsides:
+ * size of the FDB entry gets larger.
+ * you lost the ability to salt the hash (and rekey) which is important
+   for DDoS attacks
+ * being slower for small (<10 entries) also matters and is is a common
+   use case for containers.
+
+
