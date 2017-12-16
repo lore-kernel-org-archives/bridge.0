@@ -1,26 +1,29 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=cfn4JKOiaSfhOLTPEL+Pg27hYiUK2qWzbI24BlY21Ns=;
-	b=AMaRN/kLJEnlfsTigWMwC+N02WSehaS/azJ1RhMl5uTyMt5oSWExM/gXk3jnLNLG61
-	ih6aT9rFK6PV+lQfzaSEPK7OOYTVARBnfQFqFSm02lNxNbtAct47ZBpUjmkyjM1KgpdO
-	Fwoo4j6PR/2iRq9fQVbZpWxGDXgU7YnBcu2Bg44XKf9rMjdAUN6fh91eeHKJeXUef/9y
-	3sOIhAgSyMDZpogM/OZ907N1nnU2WU+LKC/F35d2r+jS73VfAAzE3+mkdywlwygLlKq6
-	qBt8zR3qWKDY21lufkMGXYMRrFx1IwJPChHWgGalpQus0JP4mIqg07VMtEj1cG9tjisN
-	tlDw==
-Date: Sat, 16 Dec 2017 10:32:46 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20171216103246.099a900d@xeon-e3>
-In-Reply-To: <1513423896-30294-1-git-send-email-nikolay@cumulusnetworks.com>
-References: <73a472e3-e521-1930-0643-a6f2714db6ce@cumulusnetworks.com>
-	<1513423896-30294-1-git-send-email-nikolay@cumulusnetworks.com>
+Return-Path: <adrian27oradea@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=xn3h02zkEbTThtWG0+VfN08awRfi6E7mE7xgDsdZ/gU=;
+	b=M3Fro9wTW6WVk0H/iuBHZP5gyFUYbLH3VNjXnrB6YWX2ihgt8AQPPgp6XOI8lMiuY5
+	KocajMecowN9J5CjcW3MflME6kWoDVmYrD23xNYy9WXQoGi6hvWK8wK5EBLfk732sYOu
+	nyeDN+zY/OImhJ/5hXWFsTYsHJOPC0v0KqF6BJyaBg78A3M1LFvZ2Tt6JF6TRrt72ykq
+	4Bzc+130gShVjXpQFJM9ze0Cw64jcT84XUAAEqViGdSKX68zG+qF/AOGjpoITITWuT6w
+	UCoBhtN5f6mzNUJcgq/+CNRIVETpFS02S9sopO6SQB+VTvVNh/48GmXC7fOzwS3cz/hl
+	gaCg==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: fix early call to
- br_stp_change_bridge_id
+In-Reply-To: <CA+k9h3PEQ+MBq4A2a=k-Dgs=e5vGatc6oKQZd3V7iRysipHjMg@mail.gmail.com>
+References: <CA+k9h3PudMEAC7geZ7PPvR4m-6_9X4bFnWcvrBkb4sst0q3v8Q@mail.gmail.com>
+	<20171215075512.6138a258@xeon-e3>
+	<CA+k9h3OQen=ySLH_JyrqTNyHKOkgK+eFtB8JKKLpokiZN+OuPg@mail.gmail.com>
+	<20171215174709.4cea5b98@xeon-e3>
+	<CA+k9h3PrJK4u+wzQZWBxQxL-EN8gFx0wVCX6GZ_MkvU91VGieA@mail.gmail.com>
+	<CA+k9h3PN8xmXe0kSWOYsP=Rj6vK00ExPYPnPRF6hiKvECLimAQ@mail.gmail.com>
+	<20171216093520.74b7fafd@xeon-e3>
+	<CA+k9h3PEQ+MBq4A2a=k-Dgs=e5vGatc6oKQZd3V7iRysipHjMg@mail.gmail.com>
+From: Adrian P <adrian27oradea@gmail.com>
+Date: Sat, 16 Dec 2017 22:01:11 +0200
+Message-ID: <CA+k9h3N5+DMFj3jB8s8LinxpzicDwy_jbe42+M7e4ohgt02YxQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] linux bridge does not forward arp reply back packets
+ in a vmware vm
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,76 +32,87 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, avagin@gmail.com, davem@davemloft.net
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: bridge@lists.linux-foundation.org
 
-On Sat, 16 Dec 2017 13:31:36 +0200
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
+On Sat, Dec 16, 2017 at 8:14 PM, Adrian P <adrian27oradea@gmail.com> wrote:
+> On Sat, Dec 16, 2017 at 7:35 PM, Stephen Hemminger
+> <stephen@networkplumber.org> wrote:
+>> On Sat, 16 Dec 2017 16:19:03 +0200
+>> Adrian P <adrian27oradea@gmail.com> wrote:
+>>
+>>> Investigating this further, I have noticed that the mac address of the
+>>> eth0 interface from the cirros VM instance does not appear in the
+>>> bridge forwarding table, and this explains why everything starts
+>>> working only when I set ageing time to 0, because in that case all
+>>> packets are flooded on all ports and the bridge behaves like a hub.
+>>>
+>>> So now the question is: why the bridge does not learn the mac address
+>>> of the eth0 interface from the cirros VM instance? I am able to see
+>>> the arp request (ARP, Request who-has 10.20.21.1 tell 10.20.21.233)
+>>> going out from the cirros VM instance on tap interface, so the bridge
+>>> should learn the mac address and add it to the forwarding table.
+>>>
+>>> The reply back to the arp request (Reply 10.20.21.1 is-at
+>>> 00:17:08:c4:52:80) does not reach the cirros VM instance anymore, and
+>>> now I know why: there is no mac address in the forwarding table, so
+>>> the bridge does not know on which port to send the arp reply back.
+>>>
+>>> This happens with tap interfaces only. I can see many mac addresses
+>>> associated with "physical" interface ens160 (that is interface number
+>>> 1) in the forwarding table, but in case of the tap interfaces, there
+>>> are only two entries, and both entries shows the mac address of the
+>>> tap interfaces only:
+>>
+>> VMWare does ARP spoofing maybe it consumes the ARP
+>
+> The flow is like this:
+>
+> vmware <--> ens160 <--> bridge <--> tap if <--> eth0
+>
+> So my understanding is that when the arp request goes out on the eth0,
+> through the tap interface, the bridge should learn the eth0 mac
+> address and add it to the forwarding table. But this does not happen,
+> so when the arp reply back comes back, the bridge does not know on
+> which interface to send the arp reply, and this is why nothing works.
+>
+> I have another bare metal environment, without vmware, and I still
+> have this issue.
+>
+> I suspect this is a bug related to the bridge and the tap interface,
+> since I see many mac address learned by the bridge on the ens160
+> interface... or maybe some tap / bridge setting? I have no clue. Where
+> should I report such issue?
 
-> The early call to br_stp_change_bridge_id in bridge's newlink can cause
-> a memory leak if an error occurs during the newlink because the fdb
-> entries are not cleaned up if a different lladdr was specified, also
-> another minor issue is that it generates fdb notifications with
-> ifindex = 0. To remove this special case the call is done after netdev
-> register and we cleanup any bridge fdb entries on changelink error.
-> That also doesn't slow down normal bridge removal, alternative is to call
-> it in its ndo_uninit.
-> 
-> To reproduce the issue:
-> $ ip l add br0 address 00:11:22:33:44:55 type bridge group_fwd_mask 1
-> RTNETLINK answers: Invalid argument
-> 
-> $ rmmod bridge
-> [ 1822.142525] =============================================================================
-> [ 1822.143640] BUG bridge_fdb_cache (Tainted: G           O    ): Objects remaining in bridge_fdb_cache on __kmem_cache_shutdown()
-> [ 1822.144821] -----------------------------------------------------------------------------
-> 
-> [ 1822.145990] Disabling lock debugging due to kernel taint
-> [ 1822.146732] INFO: Slab 0x0000000092a844b2 objects=32 used=2 fp=0x00000000fef011b0 flags=0x1ffff8000000100
-> [ 1822.147700] CPU: 2 PID: 13584 Comm: rmmod Tainted: G    B      O     4.15.0-rc2+ #87
-> [ 1822.148578] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.7.5-20140531_083030-gandalf 04/01/2014
-> [ 1822.150008] Call Trace:
-> [ 1822.150510]  dump_stack+0x78/0xa9
-> [ 1822.151156]  slab_err+0xb1/0xd3
-> [ 1822.151834]  ? __kmalloc+0x1bb/0x1ce
-> [ 1822.152546]  __kmem_cache_shutdown+0x151/0x28b
-> [ 1822.153395]  shutdown_cache+0x13/0x144
-> [ 1822.154126]  kmem_cache_destroy+0x1c0/0x1fb
-> [ 1822.154669]  SyS_delete_module+0x194/0x244
-> [ 1822.155199]  ? trace_hardirqs_on_thunk+0x1a/0x1c
-> [ 1822.155773]  entry_SYSCALL_64_fastpath+0x23/0x9a
-> [ 1822.156343] RIP: 0033:0x7f929bd38b17
-> [ 1822.156859] RSP: 002b:00007ffd160e9a98 EFLAGS: 00000202 ORIG_RAX: 00000000000000b0
-> [ 1822.157728] RAX: ffffffffffffffda RBX: 00005578316ba090 RCX: 00007f929bd38b17
-> [ 1822.158422] RDX: 00007f929bd9ec60 RSI: 0000000000000800 RDI: 00005578316ba0f0
-> [ 1822.159114] RBP: 0000000000000003 R08: 00007f929bff5f20 R09: 00007ffd160e8a11
-> [ 1822.159808] R10: 00007ffd160e9860 R11: 0000000000000202 R12: 00007ffd160e8a80
-> [ 1822.160513] R13: 0000000000000000 R14: 0000000000000000 R15: 00005578316ba090
-> [ 1822.161278] INFO: Object 0x000000007645de29 @offset=0
-> [ 1822.161666] INFO: Object 0x00000000d5df2ab5 @offset=128
-> 
-> Fixes: a4b816d8ba1c ("bridge: Change local fdb entries whenever mac address of bridge device changes")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> ---
-> Consequently this also would fix the null ptr deref due to the rhashtable
-> not being initialized in net-next when br_stp_change_bridge_id is called.
-> 
-> Toshiaki, any reason you called br_stp_change_bridge_id before
-> register_netdevice when you introduced it in 30313a3d5794 ?
-> 
->  net/bridge/br_netlink.c | 14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
+Further investigation reveals something strange: when the
+communication starts with an arp request (which happens almost all the
+time), the bridge wrongly assigns the eth0 mac address to port 1,
+instead of port 3.
 
-Thanks for working on this.
+Flow again:
 
-I agree that fixing this in ndo_uninit would be wrong. There are less bugs
-if init and uninit do logically equivalent steps.
+default gw --- vmware --- [ ens160 bridge tap ] --- eth0
 
-A bridge device can be created either with netlink or ioctl.
-This change is also makes both ways of adding MAC have
-the same semantics;
-If bridge is created with ioctl then the bridge_id (and MAC)
-will not be changed until later device is added or MAC address
-is set by other operation.
+On my bridge, ens160 is port 1, and the tap interface is port 3. Eth0
+mac address is fa:16:3e:9a:04:95
 
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+What I have found is that in the forwarding table, the bridge wrongly
+assigns the eth0 mac address to the port 1, which is ens160 interface,
+instead of assigning it to the port 3, which is the tap interface.
+This happens only if the arp table in the cirros VM instance does not
+contain the mac address of the destination I am pinging (default gw in
+this case), so the cirros VM sends an arp request. See below the eth0
+mac address wrongly  assigned in the forwarding table to the port 1:
+
+# brctl showmacs brq025a9a94-58 | grep fa:16:3e:9a:04:95
+  1     fa:16:3e:9a:04:95       no                 0.67
+
+However, if I manually add the mac address of the destination IP I am
+pining into the cirros VM instance arp table, and there is no arp
+request sent, just icmp packets going out, then the bridge correctly
+assigns the eth0 mac address to the port 3, which is the tap
+interface, and everything starts working fine. See below the eth0 mac
+address correctly assigned in the forwarding table to the port 3:
+
+# brctl showmacs brq025a9a94-58 | grep fa:16:3e:9a:04:95
+  3     fa:16:3e:9a:04:95       no                 9.26
