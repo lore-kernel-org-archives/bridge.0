@@ -1,25 +1,18 @@
-Return-Path: <adrian27oradea@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=Ddmd3YISJoA0BX7m7eJMuOkWqTmqMO01kALqMg4bWI4=;
-	b=nNzls8gcv6GnLECI5oKe29DlPIqL06uKuMu1Jdt5TPB+/k1/mRbpw6foHUxAQH340H
-	Y1c9vb+dQCQoQ/XMaxxcXo5299HNDV5owg3tEHR+qDmMdV9mmaHVj52zubETWrDOOQoL
-	BYeJy8tE8YIAGSTcN0UWQqPCwHJIcMU7FfbYtT8KIUrMJzJ68izEZnMr7reRTvg0MFqd
-	u3paGjrt07Qq7720/y62EsOwHNmPh/x2nSI/GJPueCiafotY6dcpx+KNKo/DhUV08HSg
-	PCPOSLcGs72SkD9ePIYVsd5Ar9/6aKt3qN6Bc06Bhr7qWc/BU/C5K0G/FYi1eza+zui0
-	tk5A==
-MIME-Version: 1.0
-In-Reply-To: <20171215174709.4cea5b98@xeon-e3>
-References: <CA+k9h3PudMEAC7geZ7PPvR4m-6_9X4bFnWcvrBkb4sst0q3v8Q@mail.gmail.com>
-	<20171215075512.6138a258@xeon-e3>
-	<CA+k9h3OQen=ySLH_JyrqTNyHKOkgK+eFtB8JKKLpokiZN+OuPg@mail.gmail.com>
-	<20171215174709.4cea5b98@xeon-e3>
-From: Adrian P <adrian27oradea@gmail.com>
-Date: Sat, 16 Dec 2017 09:12:13 +0200
-Message-ID: <CA+k9h3PrJK4u+wzQZWBxQxL-EN8gFx0wVCX6GZ_MkvU91VGieA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] linux bridge does not forward arp reply back packets
- in a vmware vm
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=VC0/CimE/xOlMXuj2ELK2tKueacQfl/vq/95FAdq/3w=;
+	b=dN0Bw8efxNO9aR5kXsAvr/CDYjnL9kqUqA7WP3JtC38L8Pm2Kp4mlPXCNIjhnB08GW
+	e7s6B9mhVx7J2cE96VSeDSFchE9Fkc2TjYykU1ekbaASYbRvKmPSWLbrABfVLQFNxWcP
+	1+jyq1JgdroWrDuRF1OErP9UG/IyhZYDihNQM=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Sat, 16 Dec 2017 13:31:36 +0200
+Message-Id: <1513423896-30294-1-git-send-email-nikolay@cumulusnetworks.com>
+In-Reply-To: <73a472e3-e521-1930-0643-a6f2714db6ce@cumulusnetworks.com>
+References: <73a472e3-e521-1930-0643-a6f2714db6ce@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net] net: bridge: fix early call to
+	br_stp_change_bridge_id
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,170 +21,96 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, avagin@gmail.com, davem@davemloft.net
 
-On Sat, Dec 16, 2017 at 3:47 AM, Stephen Hemminger
-<stephen@networkplumber.org> wrote:
-> On Fri, 15 Dec 2017 18:29:58 +0200
-> Adrian P <adrian27oradea@gmail.com> wrote:
->
->> On Fri, Dec 15, 2017 at 5:55 PM, Stephen Hemminger
->> <stephen@networkplumber.org> wrote:
->> > On Fri, 15 Dec 2017 15:37:39 +0200
->> > Adrian P <adrian27oradea@gmail.com> wrote:
->> >
->> >> Hello,
->> >>
->> >> I have a strange issue with a linux bridge created by
->> >> openstack-neutron (pike release). This linux bridge is hosted in a
->> >> vmware VM running latest CentOS 7, with a single network interface in
->> >> promiscuous mode.
->> >>
->> >> From openstack neutron perspective, the networking setup is simple: a
->> >> single flat external provider network, with a single cirros VM
->> >> instance connected to it.
->> >>
->> >> Therefore, in the linux bridge running in the vmware host, I have 3 interfaces:
->> >>
->> >> # brctl show
->> >> bridge name     bridge id               STP enabled     interfaces
->> >> brq025a9a94-58          8000.005056a6b378       no              ens160
->> >>                                                         tap2eb4cad6-cd
->> >>    <----- neutron DHCP agent tap interface
->> >>                                                         tap6d31a191-9f
->> >>    <----- cirros VM instance tap interface
->> >>
->> >> The ens160 is the "physical" CentOS 7 host interface, that is in
->> >> promiscuous mode.
->> >>
->> >> The  tap2eb4cad6-cd tap interface is the neutron DHCP agent interface,
->> >> and the tap6d31a191-9f tap interface is used by the cirros VM
->> >> instance.
->> >>
->> >> The problem is the following:
->> >>
->> >> With a tcpdump, I am able to see the arp request (ARP, Request who-has
->> >> 10.20.21.1 tell 10.20.21.233) going out from the cirros VM instance on
->> >> tap interface tap6d31a191-9f, and well as on the bridge itself
->> >> (brq025a9a94-58). However, the reply back to the arp request (Reply
->> >> 10.20.21.1 is-at 00:17:08:c4:52:80) does not reach the cirros VM
->> >> instance anymore. With tcpdump, I am able to see the arp reply back
->> >> packets in the bridge (brq025a9a94-58), however they do not show up
->> >> anymore on the cirros VM instance tap interface tap6d31a191-9f.
->> >>
->> >> To me it seems that for whatever reason, the bridge does not forward
->> >> the arp reply back packets to the cirros VM tap interface, and I do
->> >> not understand why. The strange thing is that after a while, for
->> >> apparently no reason, a single arp reply back packet gets through the
->> >> bridge and the tap interface, and the arp table gets updated with
->> >> correct IP address in the cirros VM instance. However, if I clean up
->> >> the arp table in the cirros VM instance, it takes again 10 to 15
->> >> minutes of continuously sending arp requests, until a single arp reply
->> >> back packets gets through.
->> >>
->> >> I was banging my head to the table for a few days with this issue, and
->> >> finally, for apparent no reason, I manually configured the bridge max
->> >> aging time to 0, to convert it in a hub, and from that moment
->> >> everything started to work without any issue. Still, I do no
->> >> understand why is this happening, and obviously I cannot manually set
->> >> up the bridge aging time to 0 all the time in all the bridges
->> >> openstack neutron creates automatically.
->> >>
->> >> Any thoughts?
->> >>
->> >> Many thanks in advance.
->> >>
->> >> Best regards,
->> >> Adrian
->> >
->> > Does each tap instance and the ens160 have a different and valid Ethernet
->> > address?  Also make sure the these are in the bridge forwarding table.
->>
->> Yes, they have valid Ethernet addresses, and they do show up in the
->> forwarding table twice, see below:
->>
->> # ip addr
->> <...>
->> 2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq master
->> brq025a9a94-58 state UP qlen 1000
->>     link/ether 00:50:56:a6:b3:78 brd ff:ff:ff:ff:ff:ff
->>     inet6 fe80::250:56ff:fea6:b378/64 scope link
->>        valid_lft forever preferred_lft forever
->> 4: tap2eb4cad6-cd@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500
->> qdisc noqueue master brq025a9a94-58 state UP qlen 1000
->>     link/ether 8a:b2:15:4c:96:55 brd ff:ff:ff:ff:ff:ff link-netnsid 0
->> 5: brq025a9a94-58: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc
->> noqueue state UP qlen 1000
->>     link/ether 00:50:56:a6:b3:78 brd ff:ff:ff:ff:ff:ff
->>     inet 10.20.21.249/24 brd 10.20.21.255 scope global brq025a9a94-58
->>        valid_lft forever preferred_lft forever
->>     inet6 fe80::803d:d0ff:fe2e:3ae4/64 scope link
->>        valid_lft forever preferred_lft forever
->> 6: tap6d31a191-9f: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc
->> pfifo_fast master brq025a9a94-58 state UNKNOWN qlen 1000
->>     link/ether fe:16:3e:9a:04:95 brd ff:ff:ff:ff:ff:ff
->>     inet6 fe80::fc16:3eff:fe9a:495/64 scope link
->>        valid_lft forever preferred_lft forever
->>
->> # brctl showmacs brq025a9a94-58
->> port no mac addr                is local?       ageing timer
->>   1     00:50:56:a6:b3:78       yes                0.00
->>   1     00:50:56:a6:b3:78       yes                0.00
->>   2     8a:b2:15:4c:96:55       yes                0.00
->>   2     8a:b2:15:4c:96:55       yes                0.00
->>   3     fe:16:3e:9a:04:95       yes                0.00
->>   3     fe:16:3e:9a:04:95       yes                0.00
->
->
-> Since there are multiple entries per port maybe you are also using VLANs?
+The early call to br_stp_change_bridge_id in bridge's newlink can cause
+a memory leak if an error occurs during the newlink because the fdb
+entries are not cleaned up if a different lladdr was specified, also
+another minor issue is that it generates fdb notifications with
+ifindex = 0. To remove this special case the call is done after netdev
+register and we cleanup any bridge fdb entries on changelink error.
+That also doesn't slow down normal bridge removal, alternative is to call
+it in its ndo_uninit.
 
-So I have checked one more time: the host is a vmware centos7 VM, with
-a single interface (ens160 that can be seen above) connected to a
-vmware virtual switch port group configured in promiscuous mode, that
-removes the VLAN tagging (similar with access mode port in a physical
-switch).
+To reproduce the issue:
+$ ip l add br0 address 00:11:22:33:44:55 type bridge group_fwd_mask 1
+RTNETLINK answers: Invalid argument
 
-I have another environment that behaves the same, where the host is a
-physical server, and the interface is a bonded interface, with two
-slaves, and I also have two entries for each local interface in the
-forwarding table:
+$ rmmod bridge
+[ 1822.142525] =============================================================================
+[ 1822.143640] BUG bridge_fdb_cache (Tainted: G           O    ): Objects remaining in bridge_fdb_cache on __kmem_cache_shutdown()
+[ 1822.144821] -----------------------------------------------------------------------------
 
-# ip addr
-<...>
-6: eno5: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc mq
-master bond2 portid 01000000000000000000004c4930394833 state UP qlen
-1000
-    link/ether fc:15:b4:13:e6:a3 brd ff:ff:ff:ff:ff:ff
-7: eno6: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc mq
-master bond2 portid 02000000000000000000004c4930394833 state UP qlen
-1000
-    link/ether fc:15:b4:13:e6:a3 brd ff:ff:ff:ff:ff:ff
-<...>
-10: bond2: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc
-noqueue master brq75a55ef7-4a state UP qlen 1000
-    link/ether fc:15:b4:13:e6:a3 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::fe15:b4ff:fe13:e6a3/64 scope link
-       valid_lft forever preferred_lft forever
-<...>
-14: brq75a55ef7-4a: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc
-noqueue state UP qlen 1000
-    link/ether fc:15:b4:13:e6:a3 brd ff:ff:ff:ff:ff:ff
-    inet 10.20.21.55/24 brd 10.20.21.255 scope global brq75a55ef7-4a
-       valid_lft forever preferred_lft forever
-15: tap44bc34bb-e2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc
-pfifo_fast master brq75a55ef7-4a state UNKNOWN qlen 1000
-    link/ether fe:16:3e:cc:dc:ec brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::fc16:3eff:fecc:dcec/64 scope link
-       valid_lft forever preferred_lft forever
+[ 1822.145990] Disabling lock debugging due to kernel taint
+[ 1822.146732] INFO: Slab 0x0000000092a844b2 objects=32 used=2 fp=0x00000000fef011b0 flags=0x1ffff8000000100
+[ 1822.147700] CPU: 2 PID: 13584 Comm: rmmod Tainted: G    B      O     4.15.0-rc2+ #87
+[ 1822.148578] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.7.5-20140531_083030-gandalf 04/01/2014
+[ 1822.150008] Call Trace:
+[ 1822.150510]  dump_stack+0x78/0xa9
+[ 1822.151156]  slab_err+0xb1/0xd3
+[ 1822.151834]  ? __kmalloc+0x1bb/0x1ce
+[ 1822.152546]  __kmem_cache_shutdown+0x151/0x28b
+[ 1822.153395]  shutdown_cache+0x13/0x144
+[ 1822.154126]  kmem_cache_destroy+0x1c0/0x1fb
+[ 1822.154669]  SyS_delete_module+0x194/0x244
+[ 1822.155199]  ? trace_hardirqs_on_thunk+0x1a/0x1c
+[ 1822.155773]  entry_SYSCALL_64_fastpath+0x23/0x9a
+[ 1822.156343] RIP: 0033:0x7f929bd38b17
+[ 1822.156859] RSP: 002b:00007ffd160e9a98 EFLAGS: 00000202 ORIG_RAX: 00000000000000b0
+[ 1822.157728] RAX: ffffffffffffffda RBX: 00005578316ba090 RCX: 00007f929bd38b17
+[ 1822.158422] RDX: 00007f929bd9ec60 RSI: 0000000000000800 RDI: 00005578316ba0f0
+[ 1822.159114] RBP: 0000000000000003 R08: 00007f929bff5f20 R09: 00007ffd160e8a11
+[ 1822.159808] R10: 00007ffd160e9860 R11: 0000000000000202 R12: 00007ffd160e8a80
+[ 1822.160513] R13: 0000000000000000 R14: 0000000000000000 R15: 00005578316ba090
+[ 1822.161278] INFO: Object 0x000000007645de29 @offset=0
+[ 1822.161666] INFO: Object 0x00000000d5df2ab5 @offset=128
 
-# brctl show
-bridge name     bridge id               STP enabled     interfaces
-brq75a55ef7-4a          8000.fc15b413e6a3       no              bond2
-                                                        tap44bc34bb-e2
+Fixes: a4b816d8ba1c ("bridge: Change local fdb entries whenever mac address of bridge device changes")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+Consequently this also would fix the null ptr deref due to the rhashtable
+not being initialized in net-next when br_stp_change_bridge_id is called.
 
-# brctl showmacs brq75a55ef7-4a | grep yes
-  2     fc:15:b4:13:e6:a3       yes                0.00
-  2     fc:15:b4:13:e6:a3       yes                0.00
-  1     fe:16:3e:cc:dc:ec       yes                0.00
-  1     fe:16:3e:cc:dc:ec       yes                0.00
+Toshiaki, any reason you called br_stp_change_bridge_id before
+register_netdevice when you introduced it in 30313a3d5794 ?
+
+ net/bridge/br_netlink.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index d0ef0a8e8831..b0362cadb7c8 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1262,19 +1262,23 @@ static int br_dev_newlink(struct net *src_net, struct net_device *dev,
+ 	struct net_bridge *br = netdev_priv(dev);
+ 	int err;
+ 
++	err = register_netdevice(dev);
++	if (err)
++		return err;
++
+ 	if (tb[IFLA_ADDRESS]) {
+ 		spin_lock_bh(&br->lock);
+ 		br_stp_change_bridge_id(br, nla_data(tb[IFLA_ADDRESS]));
+ 		spin_unlock_bh(&br->lock);
+ 	}
+ 
+-	err = register_netdevice(dev);
+-	if (err)
+-		return err;
+-
+ 	err = br_changelink(dev, tb, data, extack);
+-	if (err)
++	if (err) {
++		/* clean possible fdbs from br_stp_change_bridge_id above */
++		br_fdb_delete_by_port(br, NULL, 0, 1);
+ 		unregister_netdevice(dev);
++	}
++
+ 	return err;
+ }
+ 
+-- 
+2.1.4
+
