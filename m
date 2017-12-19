@@ -1,24 +1,8 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=pdbViBEd36I19JNUQskQaHx0WbnqXEeOOznNCZBvO5o=;
-	b=nQ6GvE9iMHAPndtemfXq+PsN0TPSBIk/XEX3yhvlMNezuFqf7sDkahRosGU1k14VKd
-	d7I9shbnkPYjR2GP2vGLOVUX/mFTIORnMALJ0Fr++1wW/GAKLsP1iwQzP2qf5z1tJkzM
-	N82nmuz4UDvVENO7qFXwVZSGKtA2UnfC6UOtoS0lMII+OHrpWHMsWObPYK5FiMBTh8+I
-	3QPoiH7s1ie9CHvdQuZNuFRPbxhxp6lnAmN1oaiO3rY8xQ2tUdAzDG+Mrvb2qN2iPaeT
-	w0nYqdG7nrlo8+D13/4EdnUJFaI4QFrX69hCi5D8XAGwyQIC9K/khPL3X2ARqXYrL84u
-	h+OQ==
-Date: Tue, 19 Dec 2017 10:32:56 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20171219103256.07405db1@xeon-e3>
-In-Reply-To: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
-References: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v1] bridge: Use helpers to handle MAC address
+Return-Path: <andriy.shevchenko@linux.intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Tue, 19 Dec 2017 20:10:53 +0200
+Message-Id: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
+Subject: [Bridge] [PATCH v1] bridge: Use helpers to handle MAC address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,19 +11,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Tue, 19 Dec 2017 20:10:53 +0200
-Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+Use
+	%pM to print MAC
+	mac_pton() to convert it from ASCII to binary format, and
+	ether_addr_copy() to copy.
 
-> Use
-> 	%pM to print MAC
-> 	mac_pton() to convert it from ASCII to binary format, and
-> 	ether_addr_copy() to copy.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ net/bridge/br_sysfs_br.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-Looks good
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 723f25eed8ea..b1be0dcfba6b 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -272,10 +272,7 @@ static ssize_t group_addr_show(struct device *d,
+ 			       struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%x:%x:%x:%x:%x:%x\n",
+-		       br->group_addr[0], br->group_addr[1],
+-		       br->group_addr[2], br->group_addr[3],
+-		       br->group_addr[4], br->group_addr[5]);
++	return sprintf(buf, "%pM\n", br->group_addr);
+ }
+ 
+ static ssize_t group_addr_store(struct device *d,
+@@ -284,14 +281,11 @@ static ssize_t group_addr_store(struct device *d,
+ {
+ 	struct net_bridge *br = to_bridge(d);
+ 	u8 new_addr[6];
+-	int i;
+ 
+ 	if (!ns_capable(dev_net(br->dev)->user_ns, CAP_NET_ADMIN))
+ 		return -EPERM;
+ 
+-	if (sscanf(buf, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+-		   &new_addr[0], &new_addr[1], &new_addr[2],
+-		   &new_addr[3], &new_addr[4], &new_addr[5]) != 6)
++	if (!mac_pton(buf, new_addr))
+ 		return -EINVAL;
+ 
+ 	if (!is_link_local_ether_addr(new_addr))
+@@ -306,8 +300,7 @@ static ssize_t group_addr_store(struct device *d,
+ 		return restart_syscall();
+ 
+ 	spin_lock_bh(&br->lock);
+-	for (i = 0; i < 6; i++)
+-		br->group_addr[i] = new_addr[i];
++	ether_addr_copy(br->group_addr, new_addr);
+ 	spin_unlock_bh(&br->lock);
+ 
+ 	br->group_addr_set = true;
+-- 
+2.15.1
 
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
