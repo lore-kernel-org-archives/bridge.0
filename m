@@ -1,15 +1,24 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 18 Dec 2017 13:31:07 -0500 (EST)
-Message-Id: <20171218.133107.1225923645891511984.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20171218153509.7822-1-nikolay@cumulusnetworks.com>
-References: <e4948ab7-0f3b-a4f5-52ea-853a987f1abb@cumulusnetworks.com>
-	<20171218153509.7822-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=pdbViBEd36I19JNUQskQaHx0WbnqXEeOOznNCZBvO5o=;
+	b=nQ6GvE9iMHAPndtemfXq+PsN0TPSBIk/XEX3yhvlMNezuFqf7sDkahRosGU1k14VKd
+	d7I9shbnkPYjR2GP2vGLOVUX/mFTIORnMALJ0Fr++1wW/GAKLsP1iwQzP2qf5z1tJkzM
+	N82nmuz4UDvVENO7qFXwVZSGKtA2UnfC6UOtoS0lMII+OHrpWHMsWObPYK5FiMBTh8+I
+	3QPoiH7s1ie9CHvdQuZNuFRPbxhxp6lnAmN1oaiO3rY8xQ2tUdAzDG+Mrvb2qN2iPaeT
+	w0nYqdG7nrlo8+D13/4EdnUJFaI4QFrX69hCi5D8XAGwyQIC9K/khPL3X2ARqXYrL84u
+	h+OQ==
+Date: Tue, 19 Dec 2017 10:32:56 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20171219103256.07405db1@xeon-e3>
+In-Reply-To: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
+References: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net v2] net: bridge: fix early call to
- br_stp_change_bridge_id and plug newlink leaks
+Subject: Re: [Bridge] [PATCH v1] bridge: Use helpers to handle MAC address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,48 +27,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: idosch@mellanox.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, avagin@gmail.com
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Mon, 18 Dec 2017 17:35:09 +0200
+On Tue, 19 Dec 2017 20:10:53 +0200
+Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
 
-> The early call to br_stp_change_bridge_id in bridge's newlink can cause
-> a memory leak if an error occurs during the newlink because the fdb
-> entries are not cleaned up if a different lladdr was specified, also
-> another minor issue is that it generates fdb notifications with
-> ifindex = 0. Another unrelated memory leak is the bridge sysfs entries
-> which get added on NETDEV_REGISTER event, but are not cleaned up in the
-> newlink error path. To remove this special case the call to
-> br_stp_change_bridge_id is done after netdev register and we cleanup the
-> bridge on changelink error via br_dev_delete to plug all leaks.
+> Use
+> 	%pM to print MAC
+> 	mac_pton() to convert it from ASCII to binary format, and
+> 	ether_addr_copy() to copy.
 > 
-> This patch makes netlink bridge destruction on newlink error the same as
-> dellink and ioctl del which is necessary since at that point we have a
-> fully initialized bridge device.
-> 
-> To reproduce the issue:
-> $ ip l add br0 address 00:11:22:33:44:55 type bridge group_fwd_mask 1
-> RTNETLINK answers: Invalid argument
-> 
-> $ rmmod bridge
-> [ 1822.142525] =============================================================================
-> [ 1822.143640] BUG bridge_fdb_cache (Tainted: G           O    ): Objects remaining in bridge_fdb_cache on __kmem_cache_shutdown()
-> [ 1822.144821] -----------------------------------------------------------------------------
- ...
-> Fixes: 30313a3d5794 ("bridge: Handle IFLA_ADDRESS correctly when creating bridge device")
-> Fixes: 5b8d5429daa0 ("bridge: netlink: register netdevice before executing changelink")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> ---
-> v2: it's better to use br_dev_delete to clean up because the sysfs entries
-> were leaked as well, basically we use it for the bridge fdb flush and sysfs
-> entries delete
-> 
-> Consequently this also would fix the null ptr deref due to the rhashtable
-> not being initialized in net-next when br_stp_change_bridge_id is called.
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Applied, but doing state changes after register_netdev() is always dicey.
+Looks good
 
-I hope things go well if the device is brought up immediately during
-that register_netdev() call and before the stp bridge ID setting is
-done.
+Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
