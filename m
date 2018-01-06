@@ -1,28 +1,25 @@
-Return-Path: <rdunlap@infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=merlin.20170209;
-	h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:MIME-Version:Date:Message-ID:From:References:To:Subject:Sender:
-	Reply-To:Cc:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=moytDVJRpqZLFmEX64+WfUMnVcERhOMjomuChmO7lxc=;
-	b=XD56jdDwX+Inu8rB3G1N5zk49E
-	XJnX0YzQgw4E6iKClYcElReJu1AMLFmApFvQNha2eFprA/9fKhl+BgEdptbMGGzTEkul2x3IMHdS+
-	hlYDvZRga4hd5US5ICL7dPTFoQybayP3cJl/wqoDvT5Q8qAu/0u1QswzwjVpgMEz9jnfTis4V9GMN
-	2Fu4mDZAu0pUbemPuthoelkwT0sGbEyDmBI3spwnJUjNUoNliNwkMypkVuZa6gYf8ysAfjoMlpAgd
-	ZsX+soTto2xPjuAXbh6shydvYD9thMaEu4IrpX/QvNpaH/iKTuTFmpEawFC+ukrTelghE7JP/YXZz
-	mPd04WAw==;
-References: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <978985b0-1580-ab62-1dc6-127dac4a1620@infradead.org>
-Date: Tue, 19 Dec 2017 11:21:55 -0800
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=W4faYY0M01U4ESfD57KMLJ7ffDNzKcm/UAsSHBt08pA=;
+	b=0sjvMzBzuwpSWM+h/eZK457VwinrWElnNeUFGGhYyQ+RWa/qNBZ0kPdvG8RMWhAXgv
+	mK6N0LuCHDSoRBri6Gfz7xnvZwvE9gaNT8xDNxurJK06fTo1CCsmxn3y0r5NFf0ziJcm
+	7OpQN6Vg0xvasmM25+c3lxje5xeeLIgTMQf978ozNKIWSk7zmQIHso+la/33rhqBuZuE
+	Sl8xDLblhcNUMI/KQB2mhkjmPNNmKo9zhti7g+vpQvIzDbYpsnyKLp8n6cVqHRz6JU7b
+	9pgeub9lx6S9U2xLTjgKhJgvuo+7IKRkHm527t3TcyInosmtUfEkuVZ2gbEEd/gUO8Gu
+	EPog==
+Date: Sat, 6 Jan 2018 06:33:37 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20180106063337.33e2a3fa@xeon-e3>
+In-Reply-To: <CAOtoAkc_prks5PcRtwqh2Agp0TTT2jY4jpQzOoi_CgiSPjST-w@mail.gmail.com>
+References: <CAOtoAkc_prks5PcRtwqh2Agp0TTT2jY4jpQzOoi_CgiSPjST-w@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20171219181053.86320-1-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v1] bridge: Use helpers to handle MAC address
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH 3.2 01/06] "bridge should send gratuitous ARP
+ to notify peer while a bond, which is a port of this bridge, changes."
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,68 +28,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+To: =?UTF-8?B?6YKi5bqG5p2w?= <xqjcool@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-On 12/19/2017 10:10 AM, Andy Shevchenko wrote:
-> Use
-> 	%pM to print MAC
-> 	mac_pton() to convert it from ASCII to binary format, and
-> 	ether_addr_copy() to copy.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Sat, 6 Jan 2018 17:25:20 +0800
+=E9=82=A2=E5=BA=86=E6=9D=B0 <xqjcool@gmail.com> wrote:
 
-(same)
-	select GENERIC_NET_UTILS
-?
-
+> We create bond0 and add eth0&eth1 as slaves. Eth0 is active. Then we add
+> bond0
+> into br0 as a bridge port. Br0 has ip address. When eth0 is down, after
+> bond0's
+> failover eth1 become active. At this moment, we need br0 send a gratuitous
+> ARP
+> to notify peer to update ARP table.
+>=20
+> Signed-off-by: Xing.Qingjie <xqjcool@gmail.com>
 > ---
->  net/bridge/br_sysfs_br.c | 13 +++----------
->  1 file changed, 3 insertions(+), 10 deletions(-)
-> 
-> diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-> index 723f25eed8ea..b1be0dcfba6b 100644
-> --- a/net/bridge/br_sysfs_br.c
-> +++ b/net/bridge/br_sysfs_br.c
-> @@ -272,10 +272,7 @@ static ssize_t group_addr_show(struct device *d,
->  			       struct device_attribute *attr, char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%x:%x:%x:%x:%x:%x\n",
-> -		       br->group_addr[0], br->group_addr[1],
-> -		       br->group_addr[2], br->group_addr[3],
-> -		       br->group_addr[4], br->group_addr[5]);
-> +	return sprintf(buf, "%pM\n", br->group_addr);
->  }
->  
->  static ssize_t group_addr_store(struct device *d,
-> @@ -284,14 +281,11 @@ static ssize_t group_addr_store(struct device *d,
->  {
->  	struct net_bridge *br = to_bridge(d);
->  	u8 new_addr[6];
-> -	int i;
->  
->  	if (!ns_capable(dev_net(br->dev)->user_ns, CAP_NET_ADMIN))
->  		return -EPERM;
->  
-> -	if (sscanf(buf, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
-> -		   &new_addr[0], &new_addr[1], &new_addr[2],
-> -		   &new_addr[3], &new_addr[4], &new_addr[5]) != 6)
-> +	if (!mac_pton(buf, new_addr))
->  		return -EINVAL;
->  
->  	if (!is_link_local_ether_addr(new_addr))
-> @@ -306,8 +300,7 @@ static ssize_t group_addr_store(struct device *d,
->  		return restart_syscall();
->  
->  	spin_lock_bh(&br->lock);
-> -	for (i = 0; i < 6; i++)
-> -		br->group_addr[i] = new_addr[i];
-> +	ether_addr_copy(br->group_addr, new_addr);
->  	spin_unlock_bh(&br->lock);
->  
->  	br->group_addr_set = true;
-> 
+>  net/bridge/br_notify.c |   12 ++++++++++++
+>  1 files changed, 12 insertions(+), 0 deletions(-)
+> diff --git a/net/bridge/br_notify.c b/net/bridge/br_notify.c
+> index a76b621..90cf123 100644
+> --- a/net/bridge/br_notify.c
+> +++ b/net/bridge/br_notify.c
+> @@ -34,6 +34,7 @@ static int br_device_event(struct notifier_block *unuse=
+d,
+> unsigned long event, v
+>         struct net_device *dev =3D ptr;
+>         struct net_bridge_port *p;
+>         struct net_bridge *br;
+> +       struct in_device *in_dev;
+>         bool changed_addr;
+>         int err;
+> @@ -102,6 +103,17 @@ static int br_device_event(struct notifier_block
+> *unused, unsigned long event, v
+>         case NETDEV_PRE_TYPE_CHANGE:
+>                 /* Forbid underlaying device to change its type. */
+>                 return NOTIFY_BAD;
+> +
+> +       case NETDEV_NOTIFY_PEERS:
+> +               /* Send gratuitous arp while bond,a port of bridge, chang=
+es
+> */
+> +               if (dev->priv_flags & IFF_BONDING && dev->flags &
+> IFF_MASTER) {
+> +                       in_dev =3D __in_dev_get_rtnl(br->dev);
+> +
+> +                       ASSERT_RTNL();
+> +                       if (in_dev)
+> +                               inetdev_send_gratuitous_arp(br->dev,
+> in_dev);
+> +               }
+> +               break;
+>         }
+>         /* Events that may cause spanning tree to refresh */
+> --
+> 1.7.1
+
+Thanks for your patch.
+
+There is no reason a bridge has to have an IP address.
+This should be done in bonding device, doing it here is error prone.
+Plus there are many more layered devices than bonding.
+
+The patch also has many formatting issues.
+Your mail client mangles patches.
+Conditional expressions with & and && should have parenthesis.
 
 
--- 
-~Randy
