@@ -1,15 +1,15 @@
 Return-Path: <pneira@us.es>
-Date: Sun, 25 Feb 2018 20:04:45 +0100
+Date: Sun, 25 Feb 2018 20:08:00 +0100
 From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20180225190445.ixdsjfe6ri57nlpe@salvia>
-References: <001a1144b3d60d448f0565848646@google.com>
-	<20180219020145.30899-1-fw@strlen.de>
+Message-ID: <20180225190800.ejtbrzn6ssidi6u3@salvia>
+References: <94eb2c0efc1e07b3450565848616@google.com>
+	<20180219002415.18461-1-fw@strlen.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180219020145.30899-1-fw@strlen.de>
-Subject: Re: [Bridge] [PATCH nf] netfilter: bridge: ebt_among: add missing
- match size checks
+In-Reply-To: <20180219002415.18461-1-fw@strlen.de>
+Subject: Re: [Bridge] [PATCH nf] netfilter: ebtables: CONFIG_COMPAT: don't
+ trust userland offsets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,22 +19,18 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Florian Westphal <fw@strlen.de>
-Cc: syzkaller-bugs@googlegroups.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+Cc: syzkaller-bugs@googlegroups.com, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, netdev@vger.kernel.org
 
-On Mon, Feb 19, 2018 at 03:01:45AM +0100, Florian Westphal wrote:
-> ebt_among is special, it has a dynamic match size and is exempt
-> from the central size checks.
+On Mon, Feb 19, 2018 at 01:24:15AM +0100, Florian Westphal wrote:
+> We need to make sure the offsets are not out of range of the
+> total size.
+> Also check that they are in ascending order.
 > 
-> Therefore it must check that the size of the match structure
-> provided from userspace is sane by making sure em->match_size
-> is at least the minimum size of the expected structure.
+> The WARN_ON triggered by syzkaller (it sets panic_on_warn) is
+> changed to also bail out, no point in continuing parsing.
 > 
-> The module has such a check, but its only done after accessing
-> a structure that might be out of bounds.
-> 
-> tested with: ebtables -A INPUT ... \
-> --among-dst fe:fe:fe:fe:fe:fe
-> --among-dst fe:fe:fe:fe:fe:fe --among-src fe:fe:fe:fe:ff:f,fe:fe:fe:fe:fe:fb,fe:fe:fe:fe:fc:fd,fe:fe:fe:fe:fe:fd,fe:fe:fe:fe:fe:fe
-> --among-src fe:fe:fe:fe:ff:f,fe:fe:fe:fe:fe:fa,fe:fe:fe:fe:fe:fd,fe:fe:fe:fe:fe:fe,fe:fe:fe:fe:fe:fe
+> Briefly tested with simple ruleset of
+> -A INPUT --limit 1/s' --log
+> plus jump to custom chains using 32bit ebtables binary.
 
-Applied, thanks Florian.
+Also applied, thanks.
