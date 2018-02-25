@@ -1,15 +1,14 @@
-Return-Path: <pneira@us.es>
-Date: Sun, 25 Feb 2018 20:08:00 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20180225190800.ejtbrzn6ssidi6u3@salvia>
-References: <94eb2c0efc1e07b3450565848616@google.com>
-	<20180219002415.18461-1-fw@strlen.de>
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
+	bh=OohND7DHdYrfe52ooEBexDXN3fzi4+KvImlSFpKFJQs=;
+	b=ugxJ4yLsFST5PIPYvqfdnnmnsjmD9WjTi5dwnp6v/XQBbQgLVHDef9vyaLidGDGD4pAIZYgTMmrY9D96PlMXRMqZLoV2URmzr/cfDQIyrzknyxQ5xW4bIi76pYmHOAaDYz7pZ0U3TTRVHS57wEGEBymkSS6fLfQK9yrwwRjYDuA=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Sun, 25 Feb 2018 21:59:06 +0200
+Message-Id: <20180225195906.26399-1-idosch@mellanox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180219002415.18461-1-fw@strlen.de>
-Subject: Re: [Bridge] [PATCH nf] netfilter: ebtables: CONFIG_COMPAT: don't
- trust userland offsets
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] bridge: Fix VLAN reference count problem
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,19 +17,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>
-Cc: syzkaller-bugs@googlegroups.com, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, netdev@vger.kernel.org
+To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: Ido Schimmel <idosch@mellanox.com>, mlxsw@mellanox.com, nikolay@cumulusnetworks.com, davem@davemloft.net, elena.reshetova@intel.com
 
-On Mon, Feb 19, 2018 at 01:24:15AM +0100, Florian Westphal wrote:
-> We need to make sure the offsets are not out of range of the
-> total size.
-> Also check that they are in ascending order.
-> 
-> The WARN_ON triggered by syzkaller (it sets panic_on_warn) is
-> changed to also bail out, no point in continuing parsing.
-> 
-> Briefly tested with simple ruleset of
-> -A INPUT --limit 1/s' --log
-> plus jump to custom chains using 32bit ebtables binary.
+When a VLAN is added on a port, a reference is taken on the
+corresponding master VLAN entry. If it does not already exist, then it
+is created and a reference taken.
 
-Also applied, thanks.
+However, in the second case a reference is not really taken when
+CONFIG_REFCOUNT_FULL is enabled as refcount_inc() is replaced by
+refcount_inc_not_zero().
+
+Fix this by using refcount_set() on a newly created master VLAN entry.
+
+Fixes: 251277598596 ("net, bridge: convert net_bridge_vlan.refcnt from atomic_t to refcount_t")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+---
+ net/bridge/br_vlan.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 51935270c651..9896f4975353 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -168,6 +168,8 @@ static struct net_bridge_vlan *br_vlan_get_master(struct net_bridge *br, u16 vid
+ 		masterv = br_vlan_find(vg, vid);
+ 		if (WARN_ON(!masterv))
+ 			return NULL;
++		refcount_set(&masterv->refcnt, 1);
++		return masterv;
+ 	}
+ 	refcount_inc(&masterv->refcnt);
+ 
+-- 
+2.14.3
+
