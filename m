@@ -1,11 +1,11 @@
 Return-Path: <igor.mitsyanko.os@quantenna.com>
 From: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
-Date: Fri,  9 Mar 2018 19:03:08 -0800
-Message-Id: <20180310030308.12947-6-igor.mitsyanko.os@quantenna.com>
+Date: Fri,  9 Mar 2018 19:03:04 -0800
+Message-Id: <20180310030308.12947-2-igor.mitsyanko.os@quantenna.com>
 In-Reply-To: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
 References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
-Subject: [Bridge] [RFC PATCH net-next 5/5] bridge: verify "HW only" flags
-	can't be set without HW support
+Subject: [Bridge] [PATCH net-next 1/5] bridge: initialize port flags with
+	switchdev defaults
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,38 +17,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: bridge@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: ivecera@redhat.com, igor.mitsyanko.os@quantenna.com, jiri@resnulli.us, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
 
-Setting bridge flag BR_FLOOD_OFFLOAD only makes sense if underlying
-port hardware advertises support for it. Make sure kernel checks that
-condition before allowing to update the flag value.
+Default bridge port flags for switchdev devices can be different from
+what is used in bridging core. Get default value from switchdev itself
+on port initialization.
 
 Signed-off-by: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
 ---
- net/bridge/br_private.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/bridge/br_if.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index a6d2f2b..6d2f8b1 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -50,6 +50,9 @@ enum {
- /* Path to usermode spanning tree program */
- #define BR_STP_PROG	"/sbin/bridge-stp"
- 
-+/* Flags that can only be set if HW supports it */
-+#define BR_PORT_FLAGS_HW_ONLY	BR_FLOOD_OFFLOAD
-+
- typedef struct bridge_id bridge_id;
- typedef struct mac_addr mac_addr;
- typedef __u16 port_id;
-@@ -1150,7 +1153,7 @@ static inline int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 					     unsigned long flags,
- 					     unsigned long mask)
- {
--	return 0;
-+	return mask & BR_PORT_FLAGS_HW_ONLY ? -EOPNOTSUPP : 0;
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 9ba4ed6..d658b55 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -342,6 +342,21 @@ static int find_portno(struct net_bridge *br)
+ 	return (index >= BR_MAX_PORTS) ? -EXFULL : index;
  }
  
- static inline void
++static unsigned long nbp_flags_get_default(struct net_device *dev)
++{
++	struct switchdev_attr attr = {
++		.orig_dev = dev,
++		.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
++	};
++	int ret;
++
++	ret = switchdev_port_attr_get(dev, &attr);
++	if (ret)
++		return BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
++	else
++		return attr.u.brport_flags;
++}
++
+ /* called with RTNL but without bridge lock */
+ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 				       struct net_device *dev)
+@@ -363,7 +378,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 	p->path_cost = port_cost(dev);
+ 	p->priority = 0x8000 >> BR_PORT_BITS;
+ 	p->port_no = index;
+-	p->flags = BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
++	p->flags = nbp_flags_get_default(dev);
+ 	br_init_port(p);
+ 	br_set_state(p, BR_STATE_DISABLED);
+ 	br_stp_port_timer_init(p);
 -- 
 2.9.5
 
