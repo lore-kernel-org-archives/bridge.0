@@ -2,19 +2,19 @@ Return-Path: <andrew@lunn.ch>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
 	s=20171124; 
 	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=WOYxNfCvqJbGxkDz7+4S6+Puyrj9u/UhPD++MyD4JRk=; 
-	b=PX2VvR3b4wvVeFq4yAlId72dJIwT/O9zZfa+WyqM/5njSoDt7sa4dT25NMpPgpcYXv60i4/a0Shby8JDnHMIWMAXcjo90Vw5+esq+8FMbt9ApGdXU0CZkjuelsC+mjGwWitmzeXbwWEecNg3BZwd9jIeFGrCs2J23+8YVoVeUSw=;
-Date: Sat, 10 Mar 2018 17:55:40 +0100
+	bh=SiYprA06IMHpHx3OZqmrJ8bmMZ09KE7SoTCNnPflmNM=; 
+	b=Oys4iprBpxAfv24Fbj/1l5bWbLoT60EtcFHnxhamhQZrW6u3SHz2qbJroFZwuNxCYp83BXriFGtdz8pX3MpUqoMC/Pj6MtbusCkF2tftHKgIHrxVaG/bzHx8DgXACzcn07N5QpPjnW1rY8rq7OeOUPTWNjxnWQwYdzlUOzjSr8I=;
+Date: Sat, 10 Mar 2018 17:30:50 +0100
 From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20180310165540.GH29174@lunn.ch>
+Message-ID: <20180310163050.GF29174@lunn.ch>
 References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
-	<20180310030308.12947-4-igor.mitsyanko.os@quantenna.com>
+	<20180310030308.12947-2-igor.mitsyanko.os@quantenna.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20180310030308.12947-4-igor.mitsyanko.os@quantenna.com>
-Subject: Re: [Bridge] [RFC PATCH net-next 3/5] bridge: allow switchdev port
- to handle flooding by itself
+In-Reply-To: <20180310030308.12947-2-igor.mitsyanko.os@quantenna.com>
+Subject: Re: [Bridge] [PATCH net-next 1/5] bridge: initialize port flags
+ with switchdev defaults
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,39 +26,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
 Cc: ivecera@redhat.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
 
-On Fri, Mar 09, 2018 at 07:03:06PM -0800, Igor Mitsyanko wrote:
-> Introduce BR_FLOOD_OFFLOAD bridge port flag that can be used by
-> switchdev-capable hardware to advertize that it wants to handle all
-> flooding by itself.
-> In that case there is no need for a driver to set skb::offload_fwd_mark
-> on each offloaded packet as it is implied by BR_FLOOD_OFFLOAD bridge
-> port flag.
+On Fri, Mar 09, 2018 at 07:03:04PM -0800, Igor Mitsyanko wrote:
+> Default bridge port flags for switchdev devices can be different from
+> what is used in bridging core. Get default value from switchdev itself
+> on port initialization.
+> 
+> Signed-off-by: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
+> ---
+>  net/bridge/br_if.c | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 9ba4ed6..d658b55 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -342,6 +342,21 @@ static int find_portno(struct net_bridge *br)
+>  	return (index >= BR_MAX_PORTS) ? -EXFULL : index;
+>  }
+>  
+> +static unsigned long nbp_flags_get_default(struct net_device *dev)
+> +{
+> +	struct switchdev_attr attr = {
+> +		.orig_dev = dev,
+> +		.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
+> +	};
+> +	int ret;
+> +
+> +	ret = switchdev_port_attr_get(dev, &attr);
+> +	if (ret)
+> +		return BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
 
-Is this sufficiently granular? There are a few different use cases for
-flooding:
 
-There is no fdb entry in the software switch for the destination MAC
-address, so flood the packet out all ports of the bridge. The hardware
-switch might have an entry in its fdb to the destination switch, so it
-could unicast out the correct hardware port. If not, it should flood
-the packet.
+Hi Igor
 
-A point to remember here, the software switch and the hardware switch
-can have different forwarding data bases.
-
-A broadcast packet. Send it out all ports.
-
-A multicast packet. If the hardware switch is capable of IGMP
-snooping, it could have FDB entries indicating which ports it should
-send the frame out of, and which is should not. Otherwise it needs to
-flood.
-
-Is one flag sufficient for all of these, and any other use cases i
-might of missed?
-
-As far as DSA switches go, i don't know of any of them which could
-implement anything like this, so BR_FLOOD_OFFLOAD will never be
-set. But maybe some of the TOR switches supported by switchdev can do
-some of these, and not others....
+Please check if ret == -EOPNOTSUPP and only then use the defaults. A
+real error should be propagated, causing new_nbp to fail. You might
+also consider what to do when ENODATA is returned.
 
      Andrew
