@@ -1,18 +1,24 @@
-Return-Path: <fuji246@gmail.com>
+Return-Path: <zajec5@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:from:date:message-id:subject:to;
-	bh=/mRuDLew6GJ0LqN25DE6mbdGSzac2Y95/llQbUMdeo4=;
-	b=D9LlRyS489nnQcnQVw72IVSozyNXBWbL2HRcFFQ/WzU8ts8KqmwH9U5klXjVaw6RRE
-	pYW+hH/TRBwzVzeI/sfLhXS7Lyv39vbHrVEnwkahhlvo73TxtyNba9pYtuHFFv4No0js
-	MFkQP7vrIE4W5rGQLNIBHH6oNii6foUgE6rEgYzhG+qFbcQkptv+vS0a2MFwvt3slxu1
-	CmzIduRMwa1njMCpZEDooU6mO+VsYd2cMJ1+KBUSDqzGXROfAQqYHgxqHj3SlpHkXl5V
-	j15tM8F9pqTMljLVZIsSXDh/RvtmOg22utCQTpyVRbg9KRvwUWZIVnxC1PtuFe2IJ4bk
-	lJog==
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc:content-transfer-encoding;
+	bh=HNCNgmmZMIj99jh0O/iLbDfoRi7odciqDpNG/h9WQes=;
+	b=h0h99p3xo3qSkqEaOf28jXgLnNbiGY7qpHTHmRwDkwAQlbQYvEewfeNpw6T/3j8f24
+	CB4oAPcDbZah0LhpJSzaJ4jnJpXHep4rwb1W8nSxEmXTfDuxvoavjCP5YeE8kf7Arph0
+	Awpxo9olhJx5SghIzKeuyqq33Afnr1M26A4pOJ8uDtXM0DVOPI2kLdINjcvOhYQw9IVT
+	b00SfNhecpTGED3U54992Xb/6WCA0NFobONhZqDFeUZj/0682tBieSLDMjY/t9UHlpCN
+	V2tLpEfz6ZM1mBOT2c9mdND+HKO/3+BUN4lheQIfoNhOvEYxY8IkqXpSU/TtOKCrltEW
+	0Cgg==
 MIME-Version: 1.0
-From: Fu Jiantao <fuji246@gmail.com>
-Message-ID: <CAKmxLjUNnNF+zBj43YZ8jKG=HOyETxewr4kq=Atnd4e6SBNkAA@mail.gmail.com>
-Content-Type: multipart/alternative; boundary="0000000000000f907c056704bc10"
-Subject: [Bridge] Traffic shaping with bridge.
+In-Reply-To: <20180227090556.02a24a0d@xeon-e3>
+References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+	<20180227090556.02a24a0d@xeon-e3>
+From: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Message-ID: <CACna6rxP4ATE2f6XJi7XKDLe2L_Z43aLreEHDCfGicksYTb0xg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Problem with bridge (mcast-to-ucast + hairpin) and
+ Broadcom's 802.11f in their FullMAC fw
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,159 +27,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Sat, 10 Mar 2018 01:21:58 -0000
-To: bridge@lists.linux-foundation.org
+Date: Mon, 12 Mar 2018 09:46:47 -0000
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Arend van Spriel <arend.vanspriel@broadcom.com>, Network Development <netdev@vger.kernel.org>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, Felix Fietkau <nbd@nbd.name>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER
+	<brcm80211-dev-list.pdl@broadcom.com>, " <brcm80211-dev-list@cypress.com>, Franky Lin <franky.lin@broadcom.com>
 
---0000000000000f907c056704bc10
-Content-Type: text/plain; charset="UTF-8"
+On 27 February 2018 at 18:05, Stephen Hemminger
+<stephen@networkplumber.org> wrote:
+> On Tue, 27 Feb 2018 11:08:20 +0100
+> Rafa=C5=82 Mi=C5=82ecki <zajec5@gmail.com> wrote:
+>
+>> I've problem when using OpenWrt/LEDE on a home router with Broadcom's
+>> FullMAC WiFi chipset.
+>>
+>>
+>> First of all OpenWrt/LEDE uses bridge interface for LAN network with:
+>> 1) IFLA_BRPORT_MCAST_TO_UCAST
+>> 2) Clients isolation in hostapd
+>> 3) Hairpin mode enabled
+>>
+>> For more details please see Linus's patch description:
+>> https://patchwork.kernel.org/patch/9530669/
+>> and maybe hairpin mode patch:
+>> https://lwn.net/Articles/347344/
+>>
+>> Short version: in that setup packets received from a bridged wireless
+>> interface can be handled back to it for transmission.
+>>
+>>
+>> Now, Broadcom's firmware for their FullMAC chipsets in AP mode
+>> supports an obsoleted 802.11f AKA IAPP standard. It's a roaming
+>> standard that was replaced by 802.11r.
+>>
+>> Whenever a new station associates, firmware generates a packet like:
+>> ff ff ff ff  ff ff ec 10  7b 5f ?? ??  00 06 00 01  af 81 01 00
+>> (just masked 2 bytes of my MAC)
+>>
+>> For mode details you can see discussion in my brcmfmac patch thread:
+>> https://patchwork.kernel.org/patch/10191451/
+>>
+>>
+>> The problem is that bridge (in setup as above) handles such a packet
+>> back to the device.
+>>
+>> That makes Broadcom's FullMAC firmware believe that a given station
+>> just connected to another AP in a network (which doesn't even exist).
+>> As a result firmware immediately disassociates that station. It's
+>> simply impossible to connect to the router. Every association is
+>> followed by immediate disassociation.
+>>
+>>
+>> Can you see any solution for this problem? Is that an option to stop
+>> multicast-to-unicast from touching 802.11f packets? Some other ideas?
+>> Obviously I can't modify Broadcom's firmware and drop that obsoleted
+>> standard.
+>>
+>
+> ebtables is your friend in dealing with weird and broken devices.
 
-Hi,
+It may be weird, not sure if actually broken. Anyway I'd like to have
+some generic solution instead of telling every user to use ebtables to
+workaround the problem.
 
-  I'm having some problem to make traffic shaping work with bridge, the
-topology is below, the same script to set the delay/loss works for
-10.34.201.45 and 10.35.201.47, but not working
-for 10.35.200.2.
-
-  I use ifb device for traffic control, say for example, adding 300ms delay
-for dst 10.35.200.2, and I use tcpdump to capture ifb1, and no packets. And
-if I set the dst to 10.35.201.47 or 10.35.201.45, it works.
-
-  I tried to read the code, the "sch_handle_ingress" is before "rx_handle",
-and I can capture packets on enp2s0, but can't figure out why the filter is
-not working, 10.35.200.2 is in different subnet with 10.35.201.45, but the
-bridge works b/c it just use MAC address, even it's not the typical
-scenario to put them in different subnet.
-
-  Thanks in advance!
-
-+ tc qdisc add dev enp2s0 ingress
-
-+ tc filter add dev enp2s0 parent ffff: protocol ip prio 1 u32 match ip dst
-10.35.200.2 flowid 1:1 action mirred egress redirect dev ifb1
-
-+ tc qdisc add dev ifb1 root netem loss random 0% delay 300ms
-
-
-    +-------------+ 10.35.200.2
-    | jianfu-sx10 +------------------+
-    +-------------+                  |
-                                     |
-    +-------------+ 10.35.201.45  +--------+     +----------+
-10.35.201.10 +-------+
-    | marcel-sx80 +---------------| switch |-----| emulator
-|--------------+ Linus |
-    +-------------+               +--------+     +----------+      |
-    +-------+
-                                     |          enp3s0     enp2s0  |
-    +-------------+ 10.35.201.47     |                             |
-    | jianfu-win  +------------------+                             |
-    +-------------+                                                |
-                                                                   |
-    +-------------+ 10.22.79.106                                   |
-    | anand-sx10  +------------------------------------+-----------+
-    +-------------+                                    |
-                                                       |
-    +-------------+ 10.22.79.170                       |
-    | jianfu-ttc7 +------------------------------------+
-    +-------------+
-
---0000000000000f907c056704bc10
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi,<div><br></div><div>=C2=A0 I&#39;m having some problem =
-to make traffic shaping work with bridge, the topology is below, the same s=
-cript to set the delay/loss works for 10.34.201.45 and 10.35.201.47, but no=
-t working</div><div>for 10.35.200.2.</div><div><br></div><div>=C2=A0 I use =
-ifb=C2=A0device for traffic control, say for example, adding 300ms delay fo=
-r dst=C2=A010.35.200.2, and I use tcpdump=C2=A0to capture ifb1, and no pack=
-ets. And if I set the dst=C2=A0to 10.35.201.47 or 10.35.201.45, it works.</=
-div><div><br></div><div>=C2=A0 I tried to read the code, the &quot;sch_hand=
-le_ingress&quot; is before &quot;rx_handle&quot;, and I can capture packets=
- on enp2s0<span style=3D"color:rgb(34,34,34);font-family:arial,sans-serif;f=
-ont-size:small;font-style:normal;font-variant-ligatures:normal;font-variant=
--caps:normal;font-weight:400;letter-spacing:normal;text-align:start;text-in=
-dent:0px;text-transform:none;white-space:normal;word-spacing:0px;background=
--color:rgb(255,255,255);text-decoration-style:initial;text-decoration-color=
-:initial;float:none;display:inline">, but can&#39;t figure out why the filt=
-er is not working, 10.35.200.2 is in different subnet with 10.35.201.45, bu=
-t the bridge works b/c it just use MAC address, even it&#39;s not the typic=
-al scenario to put them in different subnet.</span></div><div><span style=
-=3D"color:rgb(34,34,34);font-family:arial,sans-serif;font-size:small;font-s=
-tyle:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-wei=
-ght:400;letter-spacing:normal;text-align:start;text-indent:0px;text-transfo=
-rm:none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,25=
-5);text-decoration-style:initial;text-decoration-color:initial;float:none;d=
-isplay:inline"><br></span></div><div><span style=3D"color:rgb(34,34,34);fon=
-t-family:arial,sans-serif;font-size:small;font-style:normal;font-variant-li=
-gatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:norm=
-al;text-align:start;text-indent:0px;text-transform:none;white-space:normal;=
-word-spacing:0px;background-color:rgb(255,255,255);text-decoration-style:in=
-itial;text-decoration-color:initial;float:none;display:inline">=C2=A0 Thank=
-s in advance!</span></div><div><br></div><div>
-
-
-
-
-<span></span>
-
-
-
-
-
-<p class=3D"gmail-p1" style=3D"margin:0px;font-style:normal;font-variant:no=
-rmal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:norm=
-al;font-family:&quot;Andale Mono&quot;;color:rgb(40,254,20);background-colo=
-r:rgba(0,0,0,0.9)"><span class=3D"gmail-s1" style=3D"font-variant-ligatures=
-:no-common-ligatures">+ tc qdisc add dev enp2s0 ingress</span></p>
-<p class=3D"gmail-p1" style=3D"margin:0px;font-style:normal;font-variant:no=
-rmal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:norm=
-al;font-family:&quot;Andale Mono&quot;;color:rgb(40,254,20);background-colo=
-r:rgba(0,0,0,0.9)"><span class=3D"gmail-s1" style=3D"font-variant-ligatures=
-:no-common-ligatures">+ tc filter add dev enp2s0 parent ffff: protocol ip p=
-rio 1 u32 match ip dst 10.35.200.2 flowid 1:1 action mirred egress redirect=
- dev ifb1</span></p>
-<p class=3D"gmail-p1" style=3D"margin:0px;font-style:normal;font-variant:no=
-rmal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:norm=
-al;font-family:&quot;Andale Mono&quot;;color:rgb(40,254,20);background-colo=
-r:rgba(0,0,0,0.9)"><span class=3D"gmail-s1" style=3D"font-variant-ligatures=
-:no-common-ligatures">+ tc qdisc add dev ifb1 root netem loss random 0% del=
-ay 300ms</span></p>
-
-
-<br></div><div><br></div><div><pre style=3D"box-sizing:border-box;font-fami=
-ly:SFMono-Regular,Consolas,&quot;Liberation Mono&quot;,Menlo,Courier,monosp=
-ace;font-size:13.6px;margin-top:0px;margin-bottom:16px;font-style:normal;fo=
-nt-variant:normal;font-weight:400;font-stretch:normal;line-height:1.45;word=
--wrap:normal;padding:16px;overflow:auto;background-color:rgb(246,248,250);b=
-order-radius:3px;color:rgb(36,41,46);letter-spacing:normal;text-align:start=
-;text-indent:0px;text-transform:none;word-spacing:0px;text-decoration-style=
-:initial;text-decoration-color:initial"><code style=3D"box-sizing:border-bo=
-x;font-family:SFMono-Regular,Consolas,&quot;Liberation Mono&quot;,Menlo,Cou=
-rier,monospace;font-size:13.6px;padding:0px;margin:0px;background:transpare=
-nt;border-radius:3px;word-break:normal;white-space:pre;border:0px;display:i=
-nline;overflow:visible;line-height:inherit;word-wrap:normal">    +---------=
-----+ 10.35.200.2
-    | jianfu-sx10 +------------------+
-    +-------------+                  |
-                                     |
-    +-------------+ 10.35.201.45  +--------+     +----------+ 10.35.201.10 =
-+-------+
-    | marcel-sx80 +---------------| switch |-----| emulator |--------------=
-+ Linus |
-    +-------------+               +--------+     +----------+      |       =
-+-------+
-                                     |          enp3s0     enp2s0  |
-    +-------------+ 10.35.201.47     |                             |
-    | jianfu-win  +------------------+                             |
-    +-------------+                                                |
-                                                                   |
-    +-------------+ 10.22.79.106                                   |
-    | anand-sx10  +------------------------------------+-----------+
-    +-------------+                                    |
-                                                       |
-    +-------------+ 10.22.79.170                       |
-    | jianfu-ttc7 +------------------------------------+
-    +-------------+</code></pre><br></div><div><br></div></div>
-
---0000000000000f907c056704bc10--
+--=20
+Rafa=C5=82
