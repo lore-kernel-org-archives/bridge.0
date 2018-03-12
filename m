@@ -1,12 +1,12 @@
 Return-Path: <igor.mitsyanko.os@quantenna.com>
 References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
 	<20180310030308.12947-2-igor.mitsyanko.os@quantenna.com>
-	<20180310163050.GF29174@lunn.ch>
+	<20180310083234.47db5f06@xeon-e3>
 From: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
-Message-ID: <5f3c4e75-b611-ffbd-1aaa-6ee41c5c513e@quantenna.com>
-Date: Mon, 12 Mar 2018 11:44:14 -0700
+Message-ID: <9eba43b1-347f-f66a-2eef-999e249b3661@quantenna.com>
+Date: Mon, 12 Mar 2018 12:03:10 -0700
 MIME-Version: 1.0
-In-Reply-To: <20180310163050.GF29174@lunn.ch>
+In-Reply-To: <20180310083234.47db5f06@xeon-e3>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -20,27 +20,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: ivecera@redhat.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
 
-On 03/10/2018 08:30 AM, Andrew Lunn wrote:
->> +
->> +     ret = switchdev_port_attr_get(dev, &attr);
->> +     if (ret)
->> +             return BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
+On 03/10/2018 08:32 AM, Stephen Hemminger wrote:
+> Yes hardware devices may come it with different default values.
+> But the user experience on Linux needs to be consistent.
 > 
+> Instead, it makes more sense to me for each device driver using switchdev
+> to program to the values that it sees in the bridge.
 > 
-> Hi Igor
-> 
-> Please check if ret == -EOPNOTSUPP and only then use the defaults. A
-> real error should be propagated, causing new_nbp to fail. You might
-> also consider what to do when ENODATA is returned.
-> 
->       Andrew
+> Please revise this.
 > 
 
-Hi Andrew,
-ok, will change it so an error is propagated.
-There is one more comment from Stephen suggesting that flags must be set 
-in switchdev, rather then queried: this approach should take care about 
-ENODATA I assume.
+Right, it does change default user view, setting flags instead of 
+querying makes more sense then.
+
+However there is a problem that switchdev may not support all flags that 
+bridge code sets by default. For example, looking at 
+spectrum_switchdev.c, it only advertises support for BR_LEARNING | 
+BR_FLOOD | BR_MCAST_FLOOD.
+Currently, I assume that even though some flags are shown as set by 
+default on a new bridge port, some of them are not actually working in 
+switchdev?
