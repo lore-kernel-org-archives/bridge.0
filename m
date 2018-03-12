@@ -1,18 +1,15 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; 
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=55NhEKjnVsHYmsxj7hLEzrgIiD+Y5E8MoR5gkY8KNzk=; 
-	b=yCEpbMn2rM0WAlpShBUBKer4H54qFmGPtjrdsKJuVhwYCSjmjen28S7o/KTcDYM8TTWaJSIx2HjU3/0DhvRMwbcoZi9Y4oLnkhIUmxPyJkrCtlLx+pxi4ikoKGKm7jw81bbDA+BpbJecUrHJBereBDM+xl7plIxs+/iMjCacDtw=;
-Date: Sat, 10 Mar 2018 23:08:50 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20180310220850.GI29174@lunn.ch>
-References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Mon, 12 Mar 2018 12:08:56 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20180312110856.GL2470@otheros>
+References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
-Subject: Re: [Bridge] [PATCH net-next 0/5] Switchdev: flooding offload option
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+Subject: Re: [Bridge] Problem with bridge (mcast-to-ucast + hairpin) and
+ Broadcom's 802.11f in their FullMAC fw
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,22 +18,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
-Cc: ivecera@redhat.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
+To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc: "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, Arend van Spriel <arend.vanspriel@broadcom.com>, Network Development <netdev@vger.kernel.org>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
 
-On Fri, Mar 09, 2018 at 07:03:03PM -0800, Igor Mitsyanko wrote:
-> Main goal of the patchset is to allow for flooding offload to switchdev
-> in scenarios when HW switchdev ports and SW ports are operating in a
-> single bridge.
-> 
-> In case a data frame that needs to be flooded is ingressed on a SW port,
->     it needs to be flooded to a single HW port of any given
->     switchdev-capable hardware only. Switchdev hardware will than take care
->     about flooding to the rest of the ports that it manages.
+On Tue, Feb 27, 2018 at 11:08:20AM +0100, Rafał Miłecki wrote:
+> I've problem when using OpenWrt/LEDE on a home router with Broadcom's
+> FullMAC WiFi chipset.
 
-Hi Igor
+Hi Rafał,
 
-You don't appear to be adding any user of this. Please also make one
-of the switchdev drivers actually use this new functionality.
+Thanks for reporting this issue!
 
-   Andrew
+> Can you see any solution for this problem? Is that an option to stop
+> multicast-to-unicast from touching 802.11f packets? Some other ideas?
+> Obviously I can't modify Broadcom's firmware and drop that obsoleted
+> standard.
+
+Just to avoid some potential confusion: This is more an issue of
+hairpinning than it is an issue of multicast-to-unicast per se,
+right?
+
+That is, if you set this to 0 manually:
+/sys/class/net/<ap-iface>/brport/multicast_to_unicast
+Then the issue still occurs, right?
+
+Regards, Linus
