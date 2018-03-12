@@ -1,16 +1,17 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Mon, 12 Mar 2018 12:48:15 +0100
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20180312114815.GN2470@otheros>
-References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
-	<20180312110856.GL2470@otheros>
+Return-Path: <igor.mitsyanko.os@quantenna.com>
+References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
+	<20180310030308.12947-2-igor.mitsyanko.os@quantenna.com>
+	<20180310163050.GF29174@lunn.ch>
+From: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
+Message-ID: <5f3c4e75-b611-ffbd-1aaa-6ee41c5c513e@quantenna.com>
+Date: Mon, 12 Mar 2018 11:44:14 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20180312110856.GL2470@otheros>
-Subject: Re: [Bridge] Problem with bridge (mcast-to-ucast + hairpin) and
- Broadcom's 802.11f in their FullMAC fw
+In-Reply-To: <20180310163050.GF29174@lunn.ch>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 1/5] bridge: initialize port flags
+ with switchdev defaults
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,34 +20,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc: "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, Arend van Spriel <arend.vanspriel@broadcom.com>, Network Development <netdev@vger.kernel.org>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: ivecera@redhat.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
 
-On Mon, Mar 12, 2018 at 12:08:56PM +0100, Linus Lüssing wrote:
-> On Tue, Feb 27, 2018 at 11:08:20AM +0100, Rafał Miłecki wrote:
-> > I've problem when using OpenWrt/LEDE on a home router with Broadcom's
-> > FullMAC WiFi chipset.
+On 03/10/2018 08:30 AM, Andrew Lunn wrote:
+>> +
+>> +     ret = switchdev_port_attr_get(dev, &attr);
+>> +     if (ret)
+>> +             return BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
 > 
-> Hi Rafał,
 > 
-> Thanks for reporting this issue!
+> Hi Igor
 > 
-> > Can you see any solution for this problem? Is that an option to stop
-> > multicast-to-unicast from touching 802.11f packets? Some other ideas?
-> > Obviously I can't modify Broadcom's firmware and drop that obsoleted
-> > standard.
+> Please check if ret == -EOPNOTSUPP and only then use the defaults. A
+> real error should be propagated, causing new_nbp to fail. You might
+> also consider what to do when ENODATA is returned.
 > 
-> Just to avoid some potential confusion: This is more an issue of
-> hairpinning than it is an issue of multicast-to-unicast per se,
-> right?
+>       Andrew
 > 
-> That is, if you set this to 0 manually:
-> /sys/class/net/<ap-iface>/brport/multicast_to_unicast
-> Then the issue still occurs, right?
 
-Btw., if in OpenWRT/LEDE you set 'option multicast_to_unicast 0'
-in /etc/config/network for the bridge (and not bridge port)
-then netifd should refrain from setting the bridge hairpinning and
-AP isolation on wireless devices, too, if I remember correctly.
-
-Can you confirm that the issue disappears for you then?
+Hi Andrew,
+ok, will change it so an error is propagated.
+There is one more comment from Stephen suggesting that flags must be set 
+in switchdev, rather then queried: this approach should take care about 
+ENODATA I assume.
