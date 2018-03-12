@@ -1,22 +1,21 @@
 Return-Path: <zajec5@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=842sQDKdlY8W6JfNiR85+7zrjqw7LEOZRwy++JvhKHo=;
-	b=aXQcyiJaDNsMYZGsmvXAhfiW/+N7bZmSczAHixNzVVnBWgaOtodavY4xMfS0Zv8N0R
-	agjw7831gwkmG+Wi5Ibh0KPYUAHolkx5C4WbLoc8Fke1oJNtr34p2e6HWR7tpSz9oL9f
-	GOS30eHIHFF4C2L62p7q+sO3Iko95kb/9777K3kqrOqf3z/fkZUQ3fs1wA6VSthhn4k3
-	yghdsMU7l3s4xcBn64o08TCgjWMz8jIqy0wq4D1+wJOxgU4s/ZBDeZOraoLAsF4DP3zu
-	b3dqoDAvL6MFlaIFISnVa2XbWwCn7fIz6yVxrmsraNKmwCNLgIaU5y+AKg6OVft0a/TV
-	ep9g==
-MIME-Version: 1.0
-In-Reply-To: <20180312114815.GN2470@otheros>
+	h=subject:to:references:cc:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-transfer-encoding;
+	bh=iTod4GqM7oRLZbyuCdudDKz0BUKWYYGK5Kbepvso5Ms=;
+	b=Zk7k1CMVMMkeaP/lYKHt7ePz7A+gi0rqmsJ8C4rS87a1sN/balcJWRP63zR7bYBYF4
+	ZI8MCGGEoE6E5ONWAyZajf1ZFBvLcvd6fx7nEavogo5dpWBP9YX9UZA3/OAk428Jec4n
+	gaZq1uFrrCEoAIKcnIVAzehuxtTdbGkxOyX/O6ESEKttcfFGLhA+SaXaAtuyxuJCH/ZU
+	uYDX7XSKtmhOT5w28wvNKMPsL6OFz1mR9lefQgbrRd8gbnkd6EJG+IQuUeTtAj/BIztR
+	CM1xKBkYuVhimqba2sPvoABv+jgbFLINuL6HvC3gUfjwW60xug9nHTvKGOBbm6C0DFmZ
+	np9Q==
 References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
-	<20180312110856.GL2470@otheros> <20180312114815.GN2470@otheros>
 From: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Message-ID: <CACna6ryTv0XOREodnERjA4irX0_XdoG95bjQVShqDC+BA3fRLQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <a7a21b04-025f-19e1-ec09-69cc355b9215@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] Problem with bridge (mcast-to-ucast + hairpin) and
  Broadcom's 802.11f in their FullMAC fw
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -27,46 +26,118 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 12 Mar 2018 21:52:17 -0000
-To: =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Cc: "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, Arend van Spriel <arend.vanspriel@broadcom.com>, Network Development <netdev@vger.kernel.org>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, Felix Fietkau <nbd@nbd.name>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER
-	<brcm80211-dev-list.pdl@broadcom.com>, " <brcm80211-dev-list@cypress.com>, Franky Lin <franky.lin@broadcom.com>
+Date: Mon, 12 Mar 2018 22:42:54 -0000
+To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Felix Fietkau <nbd@nbd.name>, Arend van Spriel <arend.vanspriel@broadcom.com>, Franky Lin <franky.lin@broadcom.com>, Hante Meuleman <hante.meuleman@broadcom.com>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, Wright Feng <wright.feng@cypress.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
+Cc: Network Development <netdev@vger.kernel.org>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, brcm80211-dev-list@cypress.com
 
-On 12 March 2018 at 12:48, Linus L=C3=BCssing <linus.luessing@c0d3.blue> wr=
-ote:
-> On Mon, Mar 12, 2018 at 12:08:56PM +0100, Linus L=C3=BCssing wrote:
->> On Tue, Feb 27, 2018 at 11:08:20AM +0100, Rafa=C5=82 Mi=C5=82ecki wrote:
->> > I've problem when using OpenWrt/LEDE on a home router with Broadcom's
->> > FullMAC WiFi chipset.
->>
->> Hi Rafa=C5=82,
->>
->> Thanks for reporting this issue!
->>
->> > Can you see any solution for this problem? Is that an option to stop
->> > multicast-to-unicast from touching 802.11f packets? Some other ideas?
->> > Obviously I can't modify Broadcom's firmware and drop that obsoleted
->> > standard.
->>
->> Just to avoid some potential confusion: This is more an issue of
->> hairpinning than it is an issue of multicast-to-unicast per se,
->> right?
->>
->> That is, if you set this to 0 manually:
->> /sys/class/net/<ap-iface>/brport/multicast_to_unicast
->> Then the issue still occurs, right?
+On 02/27/2018 11:08 AM, Rafał Miłecki wrote:
+> I've problem when using OpenWrt/LEDE on a home router with Broadcom's
+> FullMAC WiFi chipset.
 >
-> Btw., if in OpenWRT/LEDE you set 'option multicast_to_unicast 0'
-> in /etc/config/network for the bridge (and not bridge port)
-> then netifd should refrain from setting the bridge hairpinning and
-> AP isolation on wireless devices, too, if I remember correctly.
 >
-> Can you confirm that the issue disappears for you then?
+> First of all OpenWrt/LEDE uses bridge interface for LAN network with:
+> 1) IFLA_BRPORT_MCAST_TO_UCAST
+> 2) Clients isolation in hostapd
+> 3) Hairpin mode enabled
+>
+> For more details please see Linus's patch description:
+> https://patchwork.kernel.org/patch/9530669/
+> and maybe hairpin mode patch:
+> https://lwn.net/Articles/347344/
+>
+> Short version: in that setup packets received from a bridged wireless
+> interface can be handled back to it for transmission.
+>
+>
+> Now, Broadcom's firmware for their FullMAC chipsets in AP mode
+> supports an obsoleted 802.11f AKA IAPP standard. It's a roaming
+> standard that was replaced by 802.11r.
+>
+> Whenever a new station associates, firmware generates a packet like:
+> ff ff ff ff  ff ff ec 10  7b 5f ?? ??  00 06 00 01  af 81 01 00
+> (just masked 2 bytes of my MAC)
+>
+> For mode details you can see discussion in my brcmfmac patch thread:
+> https://patchwork.kernel.org/patch/10191451/
+>
+>
+> The problem is that bridge (in setup as above) handles such a packet
+> back to the device.
+>
+> That makes Broadcom's FullMAC firmware believe that a given station
+> just connected to another AP in a network (which doesn't even exist).
+> As a result firmware immediately disassociates that station. It's
+> simply impossible to connect to the router. Every association is
+> followed by immediate disassociation.
+>
+>
+> Can you see any solution for this problem? Is that an option to stop
+> multicast-to-unicast from touching 802.11f packets? Some other ideas?
+> Obviously I can't modify Broadcom's firmware and drop that obsoleted
+> standard.
 
-Yes, absolutely. This reverts OpenWrt/LEDE to the old setup (no
-mcast-to-ucast + hairpin) and it works. I was hoping we can make
-mcast-to-ucast + hairpin work with Broadcom's 802.11f however instead
-of moving OpenWrt/LEDE back to the old setup.
+I kept thinking about this for a bit more. We probably have to start
+with deciding what to blame for this problem. I see two options I'll
+describe below.
 
---=20
-Rafa=C5=82
+Please share your opinions on this.
+
+
+1) Blame brcmfmac fw for implementing 802.11f
+
+In that case we should add workaround to brcmfmac driver to drop/ignore
+802.11f packets. A slightly improved version of my
+[PATCH] brcmfmac: detect & reject faked packet generated by a firmware
+https://patchwork.kernel.org/patch/10191451/
+should work.
+
+
+2) Blame bridge + mcast-to-ucast + hairpin for 802.11f incompatibility
+
+If we agree that 802.11f support in FullMAC firmware is acceptable, then
+we have to make sure Linux's bridge doesn't break it by passing 802.11f
+(broadcast) frames back to the source interface. That would require a
+check like in below diff + proper code for handling such packets. I'm
+afraid I'm not familiar with bridge code enough to complete that.
+
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index edae702..9e5d6ea 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -126,6 +126,27 @@ static void br_do_proxy_arp(struct sk_buff *skb, struct net_bridge *br,
+  	}
+  }
+
++static bool br_skb_is_iapp_add_packet(struct sk_buff *skb)
++{
++	const u8 iapp_add_packet[6] __aligned(2) = {
++		0x00, 0x01, 0xaf, 0x81, 0x01, 0x00,
++	};
++#if !defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
++	const u16 *a = (const u16 *)skb->data;
++	const u16 *b = (const u16 *)iapp_add_packet;
++#endif
++
++	if (skb->len != 6)
++		return false;
++
++#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
++	return !(((*(const u32 *)skb->data) ^ (*(const u32 *)iapp_add_packet)) |
++	         ((*(const u16 *)(skb->data + 4)) ^ (*(const u16 *)(iapp_add_packet + 4))));
++#else
++	return !((a[0] ^ b[0]) | (a[1] ^ b[1]) | (a[2] ^ b[2]));
++#endif
++}
++
+  /* note: already called with rcu_read_lock */
+  int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
+  {
+@@ -155,6 +176,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+  	if (is_multicast_ether_addr(dest)) {
+  		/* by definition the broadcast is also a multicast address */
+  		if (is_broadcast_ether_addr(dest)) {
++			if (br_skb_is_iapp_add_packet(skb))
++				pr_warn("This packet should not be passed back to the source interface!\n");
+  			pkt_type = BR_PKT_BROADCAST;
+  			local_rcv = true;
+  		} else {
