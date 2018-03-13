@@ -1,18 +1,18 @@
 Return-Path: <nbd@nbd.name>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
 	s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-	MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+	MIME-Version:Date:Message-ID:References:Cc:To:Subject:From:Sender:Reply-To:
 	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=tJpnER37dikME+5gf+HtOgC4ugTdOvj/iccvR4+5EII=;
-	b=Dm8rdNfQoUt6ijCl0V/R6+x6qP
-	iz6uDWkPRXuOwCdQLhM1Gf1pSYTLAqAXTvDUc+DmY9KZD61xoDSdm/H5jl8lpX7QUgxU9gacnrSZi
-	Y5g1LDLpMVD+xBS5NPdAx2Mx7DaTBNABnnP+5T+zWRgdq29O3qYFGjqKjjLFC0h+SFTU=; 
-References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+	bh=hD9r69f+VTMmycNzquSMRiYwmjdl1idMzqCi+3Kb9sw=;
+	b=AdNJiKF3ocf85X59x5s+B1TSZ2
+	HJbniugJOIO3PjLAZTsdqbAYDmw9DrnmthuBaz26ASDj4PCt4lGWh+wrwcUlTSfp63GJNAjTQtwzK
+	w0d7NmWpR2DDe2IRgyT844NEbFEX7oMPdUv1XoSEOR2zXHK5MDiwNhDtM5ShoD41xs9k=; 
 From: Felix Fietkau <nbd@nbd.name>
-Message-ID: <32c9d576-70ab-5c68-b79e-cc526d2be190@nbd.name>
-Date: Tue, 13 Mar 2018 08:17:43 +0100
+References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+Message-ID: <c24304cf-7e0d-137a-94b1-d8f4e61a3b70@nbd.name>
+Date: Tue, 13 Mar 2018 08:20:01 +0100
 MIME-Version: 1.0
 In-Reply-To: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
 Content-Type: text/plain; charset="utf-8"
@@ -29,7 +29,9 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Arend van Spriel <arend.vanspriel@broadcom.com>, Franky Lin <franky.lin@broadcom.com>, Hante Meuleman <hante.meuleman@broadcom.com>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, Wright Feng <wright.feng@cypress.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
-Cc: Network Development <netdev@vger.kernel.org>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, bridge@lists.linux-foundation.org, brcm80211-dev-list@cypress.com, inux-wireless@vger.kernel.org
+Cc: Network Development <netdev@vger.kernel.org>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, brcm80211-dev-list@cypress.com
+
+[resent with fixed typo in linux-wireless address]
 
 On 2018-02-27 11:08, Rafał Miłecki wrote:
 > I've problem when using OpenWrt/LEDE on a home router with Broadcom's
