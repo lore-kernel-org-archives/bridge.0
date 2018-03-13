@@ -1,22 +1,25 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; 
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=GFrWO7A/o4hZTCyzC9qkKUzrarBHnQtXcgq/Wwuq25A=; 
-	b=OkGPnPR89AX14+PzfIvyElgXHJ9M9ejLpnIo7Bd2SX7McfmEtZBQvEY5WCLVaDl7mYtS/QWYZQqWmnSmfM4FeNdtQkzUCKLIG180rv6WhmreULZsmPyWcqmEhxsqap0nSvdGangJExITlAYbz8+/S56JHmtx++Oz9CsH0oP434M=;
-Date: Tue, 13 Mar 2018 02:11:40 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20180313011140.GA5778@lunn.ch>
-References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
-	<20180310030308.12947-4-igor.mitsyanko.os@quantenna.com>
-	<20180310165540.GH29174@lunn.ch>
-	<c22c1758-e383-2930-34c8-8c8c7b8455c1@quantenna.com>
+Return-Path: <nbd@nbd.name>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+	s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+	MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=tJpnER37dikME+5gf+HtOgC4ugTdOvj/iccvR4+5EII=;
+	b=Dm8rdNfQoUt6ijCl0V/R6+x6qP
+	iz6uDWkPRXuOwCdQLhM1Gf1pSYTLAqAXTvDUc+DmY9KZD61xoDSdm/H5jl8lpX7QUgxU9gacnrSZi
+	Y5g1LDLpMVD+xBS5NPdAx2Mx7DaTBNABnnP+5T+zWRgdq29O3qYFGjqKjjLFC0h+SFTU=; 
+References: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
+Message-ID: <32c9d576-70ab-5c68-b79e-cc526d2be190@nbd.name>
+Date: Tue, 13 Mar 2018 08:17:43 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c22c1758-e383-2930-34c8-8c8c7b8455c1@quantenna.com>
-Subject: Re: [Bridge] [RFC PATCH net-next 3/5] bridge: allow switchdev port
- to handle flooding by itself
+In-Reply-To: <CACna6rz9L09g9oeHhvt209Tg1E3gKgmhGnYF653AdkXfZf=4kw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] Problem with bridge (mcast-to-ucast + hairpin) and
+ Broadcom's 802.11f in their FullMAC fw
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,70 +28,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>
-Cc: ivecera@redhat.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
+To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Arend van Spriel <arend.vanspriel@broadcom.com>, Franky Lin <franky.lin@broadcom.com>, Hante Meuleman <hante.meuleman@broadcom.com>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, Wright Feng <wright.feng@cypress.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
+Cc: Network Development <netdev@vger.kernel.org>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, bridge@lists.linux-foundation.org, brcm80211-dev-list@cypress.com, inux-wireless@vger.kernel.org
 
-> The flag was introduced to enable hardware switch capabilities of
-> drivers/net/wireless/quantenna/qtnfmac wifi driver. It does not have any
-> switchdev functionality in upstream tree at this moment, and this patchset
-> was intended as a preparatory change.
-
-O.K. But i suggest you add basic switchdev support first. Then think
-about adding new functionality. That way you can learn more about
-switchdev, and we can learn more about your hardware.
-
-> qtnfmac driver provides several physical radios (5 GHz and 2.4 GHz), each
-> can have up to 8 virtual network interfaces. These interfaces can be bridged
-> together in various configurations, and I'm trying to figure out what is the
-> most efficient way to handle it from bridging perspective.
-
-I think the first thing to do is get this part correctly represented
-by switchdev. I don't think any of us maintainers have thought about
-how wireless and switchdev can be combined. The wifi model seems to be
-one phy device, with multiple MACs running on top of it, with each MAC
-being a single SSID.  So is it one SSID per virtual interface?  Or are
-your virtual network interfaces actually virtual phys in the wireless
-model, and you can have multiple MACs on top of each virtual phy?
-
-> My assumption was that software FDB and hardware FDB should always
-> be in sync with each other. I guess it is a safe assumption if
-> handled correctly?  Hardware should send a notification for each new
-> FDB it has learned, and switchdev driver should process FDB
-> notifications from software bridge.
-
-No, you cannot make this assumption. Take the example of DSA
-switches. They are generally connected over an MDIO bus, or an SPI
-bus. The bandwidth is small. How long do you think it takes the
-hardware to learn 8K MAC addresses with 5x 1Gbps ports receiving 64
-byte packets? DSA drivers have no way of keeping up with the
-hardware. And there is no need to. Everything works fine with the SW
-and the HW bridge having different dynamic FDB entries.
-
-I don't even think your hardware will have the hardware and software
-in sync. How fast can your hardware learn new addresses? 'Line' rate?
-Or do you prevent the hardware learning a new address until the
-software bridge has confirmed it has learnt the previous new address?
-
-> qtnfmac hardware has its own memory and maintains FWT table, so for the best
-> efficiency forwarding between virtual interfaces should be handled locally.
-> Qtnfmac can handle all the mentioned flooding by itself:
-> - unknown unicasts
-> - broadcast and unknown multicast
-> - known multicasts (does have IGMP snooping)
-> - can do multicast-to-unicast translation if required.
+On 2018-02-27 11:08, Rafał Miłecki wrote:
+> I've problem when using OpenWrt/LEDE on a home router with Broadcom's
+> FullMAC WiFi chipset.
 > 
-> The most important usecase IMO is a muticast transmission, specific example
-> being:
-> - 2.4GHz x 8 and 5GHz x 8 virtual wifi interfaces, bridged with backbone
-> ethernet interface in Linux
-> - multicast video streaming from a server behind ethernet
-> - multicast clients connected to some wifi interfaces
+> 
+> First of all OpenWrt/LEDE uses bridge interface for LAN network with:
+> 1) IFLA_BRPORT_MCAST_TO_UCAST
+> 2) Clients isolation in hostapd
+> 3) Hairpin mode enabled
+> 
+> For more details please see Linus's patch description:
+> https://patchwork.kernel.org/patch/9530669/
+> and maybe hairpin mode patch:
+> https://lwn.net/Articles/347344/
+> 
+> Short version: in that setup packets received from a bridged wireless
+> interface can be handled back to it for transmission.
+> 
+> 
+> Now, Broadcom's firmware for their FullMAC chipsets in AP mode
+> supports an obsoleted 802.11f AKA IAPP standard. It's a roaming
+> standard that was replaced by 802.11r.
+> 
+> Whenever a new station associates, firmware generates a packet like:
+> ff ff ff ff  ff ff ec 10  7b 5f ?? ??  00 06 00 01  af 81 01 00
+> (just masked 2 bytes of my MAC)
+> 
+> For mode details you can see discussion in my brcmfmac patch thread:
+> https://patchwork.kernel.org/patch/10191451/
+> 
+> 
+> The problem is that bridge (in setup as above) handles such a packet
+> back to the device.
+> 
+> That makes Broadcom's FullMAC firmware believe that a given station
+> just connected to another AP in a network (which doesn't even exist).
+> As a result firmware immediately disassociates that station. It's
+> simply impossible to connect to the router. Every association is
+> followed by immediate disassociation.
+> 
+> 
+> Can you see any solution for this problem? Is that an option to stop
+> multicast-to-unicast from touching 802.11f packets? Some other ideas?
+> Obviously I can't modify Broadcom's firmware and drop that obsoleted
+> standard.
+Let's look at it from a different angle: Since these packets are
+forwarded as normal packets by the bridge, and the Broadcom firmware
+reacts to them in this nasty way, that's basically local DoS security
+issue. In my opinion that matters a lot more than having support for an
+obsolete feature that almost nobody will ever want to use.
 
-I agree this makes sense. But we need to ensure the solution is
-generic, not something which just works for your hardware/firmware.  I
-know somebody who would love to be able to do something like this with
-DSA drivers. They would probably sacrifice IGMP snooping and just
-flood everywhere, if that is all the hardware could do. But so far,
-i've not been able to figure out a way to do this.
+I think the right approach to deal with this issue is to drop these
+garbage packets in both the receive and transmit path of brcmfmac.
 
-     Andrew
+- Felix
