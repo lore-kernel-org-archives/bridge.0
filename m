@@ -1,20 +1,29 @@
-Return-Path: <arend.vanspriel@broadcom.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=broadcom.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=RYgPMRyHKCzB8A1in2IFMY+9M0s4TgdGSaYxDkJhR88=;
-	b=XBBDbSE0w4wp0kzzafdlLbnvHkScsVgOWmCEVic8M/pe0xDDVvJve9xuuFDYp4oNJo
-	e3O3s/C8SwKR90dtWUTy6sVkIT5VdYuYeR3gBd8dWFraKj7wq9wInPsdtVLxUC1fxui9
-	MVT7ZxUE0dfuN4/T+RNhw/FuBQnwn+j2+XXso=
+Return-Path: <kvalo@codeaurora.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+	s=default; t=1521037452;
+	bh=UKkRXyZVnAO/N0k7Tg4HRiwOM60/17yd/2dSgxsnc3k=;
+	h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+	b=mVJoMv43q4e2X6gzhAeMmbcfMIhINiS5eaakDz71HG/uENK/c+CSMOx0COnw3+e1c
+	bQwxPT4S9RF8puJWkaWM8/fLcbMBuDwh2kL58RL1TVr6D4LRgp2Rxx5lJMbAHHJbCo
+	uwG7EHCcLlEVmSZdRpQz0m82XPk34uFJ2p2mSmxs=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+	s=default; t=1521037451;
+	bh=UKkRXyZVnAO/N0k7Tg4HRiwOM60/17yd/2dSgxsnc3k=;
+	h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+	b=hmsqMNTkf/YHa9xTi7S7E7oR48X9mSfrLHUyRz2Q6PciOfpUcQTOitO54BsdYgTLS
+	RKMrf+jFhTsyZGumzNT/q733S1YHP0xqf66RNwuhZKv1NYijyDoEIFK7usTemWvjHc
+	C2j8vjT6Zm+lkgzyv8ClNYmasF53ehcI8rm33rOU=
+From: Kalle Valo <kvalo@codeaurora.org>
 References: <20180314110119.13631-1-zajec5@gmail.com>
-From: Arend van Spriel <arend.vanspriel@broadcom.com>
-Message-ID: <5AA91C67.90001@broadcom.com>
+In-Reply-To: <20180314110119.13631-1-zajec5@gmail.com> (=?utf-8?Q?=22Rafa?=
+	=?utf-8?Q?=C5=82_Mi=C5=82ecki=22's?=
+	message of "Wed, 14 Mar 2018 12:01:19 +0100")
+Message-ID: <878tau7n23.fsf@codeaurora.org>
 MIME-Version: 1.0
-In-Reply-To: <20180314110119.13631-1-zajec5@gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Subject: Re: [Bridge] [PATCH] brcmfmac: drop Inter-Access Point Protocol
- packets by default
+	packets by default
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,12 +32,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Wed, 14 Mar 2018 12:58:20 -0000
-To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Kalle Valo <kvalo@codeaurora.org>
-Cc: James Hughes <james.hughes@raspberrypi.org>, brcm80211-dev-list.pdl@broadcom.com, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
+Date: Wed, 14 Mar 2018 14:24:13 -0000
+To: =?utf-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <zajec5@gmail.com>
+Cc: James Hughes <james.hughes@raspberrypi.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, brcm80211-dev-list.pdl@broadcom.com, Wright Feng <wright.feng@cypress.com>, =?utf-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
 
-On 3/14/2018 12:01 PM, Rafał Miłecki wrote:
-> From: Rafał Miłecki <rafal@milecki.pl>
+Rafa=C5=82 Mi=C5=82ecki <zajec5@gmail.com> writes:
+
+> From: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
 >
 > Testing brcmfmac with more recent firmwares resulted in AP interfaces
 > not working in some specific setups. Debugging resulted in discovering
@@ -42,29 +52,22 @@ On 3/14/2018 12:01 PM, Rafał Miłecki wrote:
 > packets. If affects:
 > 1) Rx path: driver won't be sending these unwanted packets up.
 > 2) Tx path: driver will reject packets that would trigger STA
->     disassociation perfromed by a firmware (possible local DoS attack).
+>    disassociation perfromed by a firmware (possible local DoS attack).
 >
 > It appears there are some Broadcom's clients/users who care about this
 > feature despite the drawbacks. They can switch it on by a newly added
 > Kconfig option.
-
-Thanks for taking this approach. Looks fine except for .... (see below)
-
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-> ---
->   drivers/net/wireless/broadcom/brcm80211/Kconfig    | 20 +++++++++++
->   .../wireless/broadcom/brcm80211/brcmfmac/core.c    | 39 ++++++++++++++++++++++
->   2 files changed, 59 insertions(+)
 >
-> diff --git a/drivers/net/wireless/broadcom/brcm80211/Kconfig b/drivers/net/wireless/broadcom/brcm80211/Kconfig
-> index 9d99eb42d917..876787ef991a 100644
+> Signed-off-by: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
+
+[...]
+
 > --- a/drivers/net/wireless/broadcom/brcm80211/Kconfig
 > +++ b/drivers/net/wireless/broadcom/brcm80211/Kconfig
 > @@ -68,6 +68,26 @@ config BRCMFMAC_PCIE
->   	  IEEE802.11ac embedded FullMAC WLAN driver. Say Y if you want to
->   	  use the driver for an PCIE wireless card.
->
+>  	  IEEE802.11ac embedded FullMAC WLAN driver. Say Y if you want to
+>  	  use the driver for an PCIE wireless card.
+>=20=20
 > +config BRCMFMAC_IAPP
 > +	bool "Partial support for obsoleted Inter-Access Point Protocol"
 > +	depends on BRCMFMAC
@@ -72,44 +75,56 @@ Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
 > +	  Most of Broadcom's firmwares can send 802.11f ADD frame every
 > +	  time new STA connects to the AP interface. Some recent ones
 > +	  can also disassociate STA when they receive such a frame.
+> +
+> +	  It's important to understand this behavior can lead to a local
+> +	  DoS security issue. Attacker may trigger disassociation of any
+> +	  STA by sending a proper Ethernet frame to the wireless
+> +	  interface.
+> +
+> +	  Moreover this feature may break AP interfaces in some specific
+> +	  setups. This applies e.g. to the bridge with hairpin mode
+> +	  enabled and IFLA_BRPORT_MCAST_TO_UCAST set. IAPP packet
+> +	  generated by a firmware will get passed back to the wireless
+> +	  interface and cause immediate disassociation of just-connected
+> +	  STA.
 
-I do not see any evidence that this would occur only for recent 
-firmware. That stuff is old and not touched recently.
+Sorry for jumping late, but does it really make sense to have a Kconfig
+option for this? I don't think we should add a Kconfig option for every
+strange feature, there should be stronger reasons (size savings etc)
+before adding a Kconfig option.
 
-> diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-> index 19048526b4af..db6987015fb1 100644
-> --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-> +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+And in this case the size savings can't be much. Wouldn't a module
+parameter be simpler for a functionality change like this?
 
-[...]
+> +/**
+> + * brcmf_skb_is_iapp - checks if skb is an IAPP packet
+> + *
+> + * @skb: skb to check
+> + */
+> +static bool brcmf_skb_is_iapp(struct sk_buff *skb)
+> +{
+> +	const u8 iapp_l2_update_packet[6] __aligned(2) =3D {
+> +		0x00, 0x01, 0xaf, 0x81, 0x01, 0x00,
+> +	};
 
->   static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
->   					   struct net_device *ndev)
->   {
-> @@ -250,6 +278,12 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
->   		goto done;
->   	}
->
-> +	if (!IS_ENABLED(CONFIG_BRCMFMAC_IAPP) && brcmf_skb_is_iapp(skb)) {
-> +		dev_kfree_skb(skb);
-> +		ret = -EINVAL;
-> +		goto done;
-> +	}
+static?
 
-This is not right. The function must return netdev_tx_t type. Here is 
-kerneldoc of .start_xmit():
+> +	unsigned char *eth_data =3D skb_mac_header(skb) + ETH_HLEN;
+> +#if !defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
 
-  * netdev_tx_t (*ndo_start_xmit)(struct sk_buff *skb,
-  *                               struct net_device *dev);
-  *	Called when a packet needs to be transmitted.
-  *	Returns NETDEV_TX_OK.  Can return NETDEV_TX_BUSY, but you should stop
-  *	the queue before that can happen; it's for obsolete devices and weird
-  *	corner cases, but the stack really does a non-trivial amount
-  *	of useless work if you return NETDEV_TX_BUSY.
-  *	Required; cannot be NULL.
+#ifndef?
 
-You may want to increase dropped netstat or add driver internal 
-statistic counter so there is visibility of IAPP packets being dropped.
+> +	const u16 *a =3D (const u16 *)eth_data;
+> +	const u16 *b =3D (const u16 *)iapp_l2_update_packet;
+> +#endif
+> +
+> +	if (skb->len - skb->mac_len !=3D 6 ||
+> +	    !is_multicast_ether_addr(eth_hdr(skb)->h_dest))
+> +		return false;
+> +
+> +#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
 
-Regards,
-Arend
+#ifdef?
+
+--=20
+Kalle Valo
