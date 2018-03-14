@@ -3,10 +3,11 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 From: =?UTF-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <rafal@milecki.pl>
-In-Reply-To: <878tau7n23.fsf@codeaurora.org>
+In-Reply-To: <f145e568e9033db57a436ed3e2dad2c8@milecki.pl>
 References: <20180314110119.13631-1-zajec5@gmail.com>
-	<878tau7n23.fsf@codeaurora.org>
-Message-ID: <52b1812dd3e843adb63ff67fbe95975f@milecki.pl>
+	<5AA91C67.90001@broadcom.com>
+	<f145e568e9033db57a436ed3e2dad2c8@milecki.pl>
+Message-ID: <9499f70ecb942df0df95512565a8f428@milecki.pl>
 Subject: Re: [Bridge] [PATCH] brcmfmac: drop Inter-Access Point Protocol
  packets by default
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -17,106 +18,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Wed, 14 Mar 2018 15:45:09 -0000
-To: Kalle Valo <kvalo@codeaurora.org>
-Cc: James Hughes <james.hughes@raspberrypi.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, =?UTF-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <zajec5@gmail.com>, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, brcm80211-dev-list.pdl@broadcom.com, Wright Feng <wright.feng@cypress.com>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
+Date: Wed, 14 Mar 2018 15:58:51 -0000
+To: Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc: James Hughes <james.hughes@raspberrypi.org>, brcm80211-dev-list.pdl@broadcom.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, =?UTF-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <zajec5@gmail.com>, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Kalle Valo <kvalo@codeaurora.org>, Franky Lin <franky.lin@broadcom.com>
 
-On 2018-03-14 15:24, Kalle Valo wrote:
-> Rafał Miłecki <zajec5@gmail.com> writes:
-> 
->> From: Rafał Miłecki <rafal@milecki.pl>
+On 2018-03-14 16:39, Rafał Miłecki wrote:
+> On 2018-03-14 13:58, Arend van Spriel wrote:
+>> On 3/14/2018 12:01 PM, Rafał Miłecki wrote:
+>>> From: Rafał Miłecki <rafal@milecki.pl>
+>>> 
+>>> Testing brcmfmac with more recent firmwares resulted in AP interfaces
+>>> not working in some specific setups. Debugging resulted in 
+>>> discovering
+>>> support for IAPP in Broadcom's firmwares. This is an obsoleted 
+>>> standard
+>>> and its implementation is something that:
+>>> 1) Most people don't need / want to use
+>>> 2) Can allow local DoS attacks
+>>> 3) Breaks AP interfaces in some specific bridge setups
+>>> 
+>>> To solve issues it can cause this commit modifies brcmfmac to drop 
+>>> IAPP
+>>> packets. If affects:
+>>> 1) Rx path: driver won't be sending these unwanted packets up.
+>>> 2) Tx path: driver will reject packets that would trigger STA
+>>>     disassociation perfromed by a firmware (possible local DoS 
+>>> attack).
+>>> 
+>>> It appears there are some Broadcom's clients/users who care about 
+>>> this
+>>> feature despite the drawbacks. They can switch it on by a newly added
+>>> Kconfig option.
 >> 
->> Testing brcmfmac with more recent firmwares resulted in AP interfaces
->> not working in some specific setups. Debugging resulted in discovering
->> support for IAPP in Broadcom's firmwares. This is an obsoleted 
->> standard
->> and its implementation is something that:
->> 1) Most people don't need / want to use
->> 2) Can allow local DoS attacks
->> 3) Breaks AP interfaces in some specific bridge setups
+>> Thanks for taking this approach. Looks fine except for .... (see 
+>> below)
 >> 
->> To solve issues it can cause this commit modifies brcmfmac to drop 
->> IAPP
->> packets. If affects:
->> 1) Rx path: driver won't be sending these unwanted packets up.
->> 2) Tx path: driver will reject packets that would trigger STA
->>    disassociation perfromed by a firmware (possible local DoS attack).
+>> Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+>>> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+>>> ---
+>>>   drivers/net/wireless/broadcom/brcm80211/Kconfig    | 20 +++++++++++
+>>>   .../wireless/broadcom/brcm80211/brcmfmac/core.c    | 39 
+>>> ++++++++++++++++++++++
+>>>   2 files changed, 59 insertions(+)
+>>> 
+>>> diff --git a/drivers/net/wireless/broadcom/brcm80211/Kconfig 
+>>> b/drivers/net/wireless/broadcom/brcm80211/Kconfig
+>>> index 9d99eb42d917..876787ef991a 100644
+>>> --- a/drivers/net/wireless/broadcom/brcm80211/Kconfig
+>>> +++ b/drivers/net/wireless/broadcom/brcm80211/Kconfig
+>>> @@ -68,6 +68,26 @@ config BRCMFMAC_PCIE
+>>>   	  IEEE802.11ac embedded FullMAC WLAN driver. Say Y if you want to
+>>>   	  use the driver for an PCIE wireless card.
+>>> 
+>>> +config BRCMFMAC_IAPP
+>>> +	bool "Partial support for obsoleted Inter-Access Point Protocol"
+>>> +	depends on BRCMFMAC
+>>> +	---help---
+>>> +	  Most of Broadcom's firmwares can send 802.11f ADD frame every
+>>> +	  time new STA connects to the AP interface. Some recent ones
+>>> +	  can also disassociate STA when they receive such a frame.
 >> 
->> It appears there are some Broadcom's clients/users who care about this
->> feature despite the drawbacks. They can switch it on by a newly added
->> Kconfig option.
->> 
->> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+>> I do not see any evidence that this would occur only for recent
+>> firmware. That stuff is old and not touched recently.
 > 
-> [...]
+> My evidence is comparing firmwares for 4366b1: 10.10.69.3309 (r610991)
+> vs. 10.10 (TOB) (r663589).
 > 
->> --- a/drivers/net/wireless/broadcom/brcm80211/Kconfig
->> +++ b/drivers/net/wireless/broadcom/brcm80211/Kconfig
->> @@ -68,6 +68,26 @@ config BRCMFMAC_PCIE
->>  	  IEEE802.11ac embedded FullMAC WLAN driver. Say Y if you want to
->>  	  use the driver for an PCIE wireless card.
->> 
->> +config BRCMFMAC_IAPP
->> +	bool "Partial support for obsoleted Inter-Access Point Protocol"
->> +	depends on BRCMFMAC
->> +	---help---
->> +	  Most of Broadcom's firmwares can send 802.11f ADD frame every
->> +	  time new STA connects to the AP interface. Some recent ones
->> +	  can also disassociate STA when they receive such a frame.
->> +
->> +	  It's important to understand this behavior can lead to a local
->> +	  DoS security issue. Attacker may trigger disassociation of any
->> +	  STA by sending a proper Ethernet frame to the wireless
->> +	  interface.
->> +
->> +	  Moreover this feature may break AP interfaces in some specific
->> +	  setups. This applies e.g. to the bridge with hairpin mode
->> +	  enabled and IFLA_BRPORT_MCAST_TO_UCAST set. IAPP packet
->> +	  generated by a firmware will get passed back to the wireless
->> +	  interface and cause immediate disassociation of just-connected
->> +	  STA.
+> The first one is from linux-firmware.git and it doesn't implement IAPP
+> in the TX path. The later one is what I got from you privately and it
+> implements it.
 > 
-> Sorry for jumping late, but does it really make sense to have a Kconfig
-> option for this? I don't think we should add a Kconfig option for every
-> strange feature, there should be stronger reasons (size savings etc)
-> before adding a Kconfig option.
-> 
-> And in this case the size savings can't be much. Wouldn't a module
-> parameter be simpler for a functionality change like this?
-> 
->> +/**
->> + * brcmf_skb_is_iapp - checks if skb is an IAPP packet
->> + *
->> + * @skb: skb to check
->> + */
->> +static bool brcmf_skb_is_iapp(struct sk_buff *skb)
->> +{
->> +	const u8 iapp_l2_update_packet[6] __aligned(2) = {
->> +		0x00, 0x01, 0xaf, 0x81, 0x01, 0x00,
->> +	};
-> 
-> static?
+> Also a firmware for 4366c0: 10.10.122.20 (r683106) which is relatively
+> new implements IAPP in the TX path.
 
-Sure
-
-
->> +	unsigned char *eth_data = skb_mac_header(skb) + ETH_HLEN;
->> +#if !defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
-> 
-> #ifndef?
-
-I followed what is used in the include/linux/etherdevice.h. Is that a
-good exceuse? Could it be there any some good reason for #if defined()?
-
-
->> +	const u16 *a = (const u16 *)eth_data;
->> +	const u16 *b = (const u16 *)iapp_l2_update_packet;
->> +#endif
->> +
->> +	if (skb->len - skb->mac_len != 6 ||
->> +	    !is_multicast_ether_addr(eth_hdr(skb)->h_dest))
->> +		return false;
->> +
->> +#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
-> 
-> #ifdef?
+Please also take a look at my original patch
+[PATCH] brcmfmac: detect & reject faked packet generated by a firmware
+https://patchwork.kernel.org/patch/10191451/
