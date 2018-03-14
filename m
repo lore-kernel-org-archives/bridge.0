@@ -1,24 +1,25 @@
-Return-Path: <roopa@cumulusnetworks.com>
+Return-Path: <stephen@networkplumber.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=4NtTKFVfxj4Fh67NhSze7EjqxA1MxJV6LIpUCQcotfE=;
-	b=EClsWm5rsRxdQL8GgeDH6RqnWj2wt7TxCqGJqiDrUORT2awvow3L/SSiV5lG+TY9tA
-	oD5MEtZ2ZxI3RAX6TZHhdRUFB+W07geXrxTfK0IHpEpgc4J7Qw8LLDJpHwRyVWJB6AAk
-	EWNuFqKspL+5CjZNA064jyp63u7v4HPdMtLTo=
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=0JGpt7xsjLRYxkWoFrwmh9KO3NVf0Cy+eQJm5k/e7BM=;
+	b=rTCFuWJx4Sq6Y9CeBljOnymHsTJ8XamBnfYbqyNoZVSPQEeWegOgyuUWAu1eBgy4It
+	88k+WHZWOo6lZ2AXsNy8sROCMC0kn7qcIyw1KiWllqgr4vMdnKhvpPHqcs5Pa+jGYVds
+	mgBTmMejAn86wZldqNJ9jddtpcPJmdqlQReRldITjrvOAHU0PXF4SBgnABTYjhc8ayiI
+	EdowGvcgYgQyvbwLun6IfRBUyUDpxDD9cEiGTidL2AAGGl6owBXl+gPCElwzmd9hXgQ3
+	2hFSN11vZ+izWDtsxf5RkAmcSc1yIumE3UmBhEl/tCFegrtKZmEev8Efgp2SfQNoB9cd
+	cU+A==
+Date: Wed, 14 Mar 2018 08:08:31 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20180314080831.35cac09c@xeon-e3>
+In-Reply-To: <20180314110119.13631-1-zajec5@gmail.com>
+References: <20180314110119.13631-1-zajec5@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20180313011140.GA5778@lunn.ch>
-References: <20180310030308.12947-1-igor.mitsyanko.os@quantenna.com>
-	<20180310030308.12947-4-igor.mitsyanko.os@quantenna.com>
-	<20180310165540.GH29174@lunn.ch>
-	<c22c1758-e383-2930-34c8-8c8c7b8455c1@quantenna.com>
-	<20180313011140.GA5778@lunn.ch>
-From: Roopa Prabhu <roopa@cumulusnetworks.com>
-Date: Tue, 13 Mar 2018 07:41:42 -0700
-Message-ID: <CAJieiUiQeQR9YJhowk-YuRzQ1U9JP8Gz7jhZs6rkUxmqd-3i3A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [RFC PATCH net-next 3/5] bridge: allow switchdev port
- to handle flooding by itself
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] brcmfmac: drop Inter-Access Point Protocol
+ packets by default
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,81 +28,75 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: ivecera@redhat.com, Igor Mitsyanko <igor.mitsyanko.os@quantenna.com>, =?UTF-8?B?SmnFmcOtIFDDrXJrbw==?= <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, sergey.matyukevich.os@quantenna.com, ashevchenko@quantenna.com, smaksimenko@quantenna.com, dlebed@quantenna.com
+To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc: James Hughes <james.hughes@raspberrypi.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, brcm80211-dev-list.pdl@broadcom.com, Wright Feng <wright.feng@cypress.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Kalle Valo <kvalo@codeaurora.org>, Franky Lin <franky.lin@broadcom.com>
 
-On Mon, Mar 12, 2018 at 6:11 PM, Andrew Lunn <andrew@lunn.ch> wrote:
->> The flag was introduced to enable hardware switch capabilities of
->> drivers/net/wireless/quantenna/qtnfmac wifi driver. It does not have any
->> switchdev functionality in upstream tree at this moment, and this patchset
->> was intended as a preparatory change.
->
-> O.K. But i suggest you add basic switchdev support first. Then think
-> about adding new functionality. That way you can learn more about
-> switchdev, and we can learn more about your hardware.
->
->> qtnfmac driver provides several physical radios (5 GHz and 2.4 GHz), each
->> can have up to 8 virtual network interfaces. These interfaces can be bridged
->> together in various configurations, and I'm trying to figure out what is the
->> most efficient way to handle it from bridging perspective.
->
-> I think the first thing to do is get this part correctly represented
-> by switchdev. I don't think any of us maintainers have thought about
-> how wireless and switchdev can be combined. The wifi model seems to be
-> one phy device, with multiple MACs running on top of it, with each MAC
-> being a single SSID.  So is it one SSID per virtual interface?  Or are
-> your virtual network interfaces actually virtual phys in the wireless
-> model, and you can have multiple MACs on top of each virtual phy?
->
->> My assumption was that software FDB and hardware FDB should always
->> be in sync with each other. I guess it is a safe assumption if
->> handled correctly?  Hardware should send a notification for each new
->> FDB it has learned, and switchdev driver should process FDB
->> notifications from software bridge.
->
-> No, you cannot make this assumption. Take the example of DSA
-> switches. They are generally connected over an MDIO bus, or an SPI
-> bus. The bandwidth is small. How long do you think it takes the
-> hardware to learn 8K MAC addresses with 5x 1Gbps ports receiving 64
-> byte packets? DSA drivers have no way of keeping up with the
-> hardware. And there is no need to. Everything works fine with the SW
-> and the HW bridge having different dynamic FDB entries.
->
-> I don't even think your hardware will have the hardware and software
-> in sync. How fast can your hardware learn new addresses? 'Line' rate?
-> Or do you prevent the hardware learning a new address until the
-> software bridge has confirmed it has learnt the previous new address?
->
->> qtnfmac hardware has its own memory and maintains FWT table, so for the best
->> efficiency forwarding between virtual interfaces should be handled locally.
->> Qtnfmac can handle all the mentioned flooding by itself:
->> - unknown unicasts
->> - broadcast and unknown multicast
->> - known multicasts (does have IGMP snooping)
->> - can do multicast-to-unicast translation if required.
->>
->> The most important usecase IMO is a muticast transmission, specific example
->> being:
->> - 2.4GHz x 8 and 5GHz x 8 virtual wifi interfaces, bridged with backbone
->> ethernet interface in Linux
->> - multicast video streaming from a server behind ethernet
->> - multicast clients connected to some wifi interfaces
->
-> I agree this makes sense. But we need to ensure the solution is
-> generic, not something which just works for your hardware/firmware.  I
-> know somebody who would love to be able to do something like this with
-> DSA drivers. They would probably sacrifice IGMP snooping and just
-> flood everywhere, if that is all the hardware could do. But so far,
-> i've not been able to figure out a way to do this.
->
+On Wed, 14 Mar 2018 12:01:19 +0100
+Rafa=C5=82 Mi=C5=82ecki <zajec5@gmail.com> wrote:
 
+> diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/dr=
+ivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+> index 19048526b4af..db6987015fb1 100644
+> --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+> +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+> @@ -230,6 +230,34 @@ static void brcmf_netdev_set_multicast_list(struct n=
+et_device *ndev)
+>  	schedule_work(&ifp->multicast_work);
+>  }
+> =20
+> +/**
+> + * brcmf_skb_is_iapp - checks if skb is an IAPP packet
+> + *
+> + * @skb: skb to check
+> + */
+> +static bool brcmf_skb_is_iapp(struct sk_buff *skb)
+> +{
+> +	const u8 iapp_l2_update_packet[6] __aligned(2) =3D {
+> +		0x00, 0x01, 0xaf, 0x81, 0x01, 0x00,
+> +	};
+> +	unsigned char *eth_data =3D skb_mac_header(skb) + ETH_HLEN;
+> +#if !defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
+> +	const u16 *a =3D (const u16 *)eth_data;
+> +	const u16 *b =3D (const u16 *)iapp_l2_update_packet;
+> +#endif
+> +
+> +	if (skb->len - skb->mac_len !=3D 6 ||
+> +	    !is_multicast_ether_addr(eth_hdr(skb)->h_dest))
+> +		return false;
+> +
+> +#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
+> +	return !(((*(const u32 *)eth_data) ^ (*(const u32 *)iapp_l2_update_pack=
+et)) |
+> +		 ((*(const u16 *)(eth_data + 4)) ^ (*(const u16 *)(iapp_l2_update_pack=
+et + 4))));
+> +#else
+> +	return !((a[0] ^ b[0]) | (a[1] ^ b[1]) | (a[2] ^ b[2]));
+> +#endif
+> +}
+> +
+>  static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
+>  					   struct net_device *ndev)
+>  {
+> @@ -250,6 +278,12 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk=
+_buff *skb,
+>  		goto done;
+>  	}
+> =20
+> +	if (!IS_ENABLED(CONFIG_BRCMFMAC_IAPP) && brcmf_skb_is_iapp(skb)) {
+> +		dev_kfree_skb(skb);
+> +		ret =3D -EINVAL;
+> +		goto done;
+> +	}
+> +
 
-I concur with Andrews thoughts here: We already have enough switchdev
-learning and flooding control.
-More fine tuning can be handled at the driver layer. This solution
-tries to bypass some of that and adds a new
-infrastructure to control flooding in hw. And I am also afraid that
-the use of this flag will propagate to
-more places in the bridge driver. If none of the existing mechanisms
-work, then yes, we can probably revise this
-series into something generic for other switchdev users to use as well.
+The usual way to handle config options in kernel is either inline
+stub function or #define
+
+#ifdef CONFIG_BRFMMAC_IAPP
+static bool brcmf_skb_is_app(...) {
+	real code
+}
+#else
+#define brcmf_skb_is_app  (false)
+#endif
+
