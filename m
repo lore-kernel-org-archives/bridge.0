@@ -1,20 +1,22 @@
 Return-Path: <zajec5@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding;
-	bh=K3zZ8XdMGYuIDZpIwb9deKZBfZWSE25kVUatwiDgSvc=;
-	b=NtalbmtMLpVBPMWnlTpPkOe2wpIkQu739MopSGft1IuOn8s8HAL2vqXlEQ9Y1kAYVs
-	7OdsmkxMbh88EP7xKjl0JYRS/6ykyGT3JTHBZ/4l5Sert9/g5v6UjQbiQI+mK6O4edyf
-	6dnkBglupBU0nQxg0+/B1MUhKF657t7mIZ56AjJKLLhZE6jOMieO3lhJ9X0uL414ca1H
-	oFzq0j0kml3iUwBvrZBdzd3I6YmXBUi9RF9oBef2pd3uxPb77njQQtX/YAQcNRLPz6+T
-	XiQuWHUUQgPBJXNwq6dDTSFyVchuxGTes6vqgzQZDhAPjXoaC0vQwJIKsNmJzuxSrlo/
-	dxIg==
-From: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
-Message-Id: <20180315072909.1512-1-zajec5@gmail.com>
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc:content-transfer-encoding;
+	bh=poY9vLDjLynuLqjy1/SAXOJaP9RqS/zgdG7Eqm6H2Qg=;
+	b=HExFYPRBDxuM9BRWOdWjjlVXSCFMO6R4nEElnOj0m6toBVEhau+c9No1H0dGy20V20
+	oVA9Ln+QtcjoFcIBXGUVdBNEPZ81TGVe5HRyhMARUMZ0ULVTe22yRq9D9X9uQ0LL4shA
+	hwQXCqainpV0HphOfU1uvXTqn/wS6u34VtIO1jR1h5WGE/HINMac8Yw541139uc0l3X3
+	+uI4XqEqkYjQPgwAl1OkqP2yB2jERyW0HzoXlRbrwroq1iwrLXn2GuUSwURZA7ZUgFq+
+	KCYpJZBfQJ/aW7gk7rZ7MVg4a5tN3KoKWybrf+T9n71zsTabc/XjG8scj6mueg6gzUIe
+	wJaQ==
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH V2] brcmfmac: drop Inter-Access Point Protocol
+In-Reply-To: <20180315072909.1512-1-zajec5@gmail.com>
+References: <20180315072909.1512-1-zajec5@gmail.com>
+From: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Message-ID: <CACna6ryQjhzXTbB0SBC_e_sJibhYyDjctOowhiVv_FMF6jEh3A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH V2] brcmfmac: drop Inter-Access Point Protocol
 	packets by default
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -24,165 +26,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 15 Mar 2018 07:30:27 -0000
+Date: Thu, 15 Mar 2018 07:34:38 -0000
 To: Kalle Valo <kvalo@codeaurora.org>
-Cc: James Hughes <james.hughes@raspberrypi.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, brcm80211-dev-list.pdl@broadcom.com, Wright Feng <wright.feng@cypress.com>, =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
+Cc: James Hughes <james.hughes@raspberrypi.org>, Arend van Spriel <arend.vanspriel@broadcom.com>, Network Development <netdev@vger.kernel.org>, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER" <brcm80211-dev-list.pdl@broadcom.com>, Wright Feng <wright.feng@cypress.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, "open list:BROADCOM BRCM80211 IEEE802.11n WIRELESS DRIVER
+	<brcm80211-dev-list.pdl@broadcom.com>, " <brcm80211-dev-list@cypress.com>, Franky Lin <franky.lin@broadcom.com>
 
-From: Rafał Miłecki <rafal@milecki.pl>
+On 15 March 2018 at 08:29, Rafa=C5=82 Mi=C5=82ecki <zajec5@gmail.com> wrote=
+:
+> From: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
+>
+> Testing brcmfmac with more recent firmwares resulted in AP interfaces
+> not working in some specific setups. Debugging resulted in discovering
+> support for IAPP in Broadcom's firmwares.
+>
+> Older firmwares were only generating 802.11f frames. Newer ones like:
+> 1) 10.10 (TOB) (r663589)
+> 2) 10.10.122.20 (r683106)
+> for 4366b1 and 4366c0 respectively seem to also /respect/ 802.11f frames
+> in the Tx path by performing a STA disassociation.
+>
+> This obsoleted standard and its implementation is something that:
+> 1) Most people don't need / want to use
+> 2) Can allow local DoS attacks
+> 3) Breaks AP interfaces in some specific bridge setups
+>
+> To solve issues it can cause this commit modifies brcmfmac to drop IAPP
+> packets. If affects:
+> 1) Rx path: driver won't be sending these unwanted packets up.
+> 2) Tx path: driver will reject packets that would trigger STA
+>    disassociation perfromed by a firmware (possible local DoS attack).
+>
+> It appears there are some Broadcom's clients/users who care about this
+> feature despite the drawbacks. They can switch it on using a new module
+> param.
+>
+> This change results in only two more comparisons (check for module param
+> and check for Ethernet packet length) for 99.9% of packets. Its overhead
+> should be very minimal.
+>
+> Signed-off-by: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
+> ---
 
-Testing brcmfmac with more recent firmwares resulted in AP interfaces
-not working in some specific setups. Debugging resulted in discovering
-support for IAPP in Broadcom's firmwares.
+I forgot to include the changelog, sorry.
 
-Older firmwares were only generating 802.11f frames. Newer ones like:
-1) 10.10 (TOB) (r663589)
-2) 10.10.122.20 (r683106)
-for 4366b1 and 4366c0 respectively seem to also /respect/ 802.11f frames
-in the Tx path by performing a STA disassociation.
-
-This obsoleted standard and its implementation is something that:
-1) Most people don't need / want to use
-2) Can allow local DoS attacks
-3) Breaks AP interfaces in some specific bridge setups
-
-To solve issues it can cause this commit modifies brcmfmac to drop IAPP
-packets. If affects:
-1) Rx path: driver won't be sending these unwanted packets up.
-2) Tx path: driver will reject packets that would trigger STA
-   disassociation perfromed by a firmware (possible local DoS attack).
-
-It appears there are some Broadcom's clients/users who care about this
-feature despite the drawbacks. They can switch it on using a new module
-param.
-
-This change results in only two more comparisons (check for module param
-and check for Ethernet packet length) for 99.9% of packets. Its overhead
-should be very minimal.
-
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
----
- .../wireless/broadcom/brcm80211/brcmfmac/common.c  |  5 ++
- .../wireless/broadcom/brcm80211/brcmfmac/common.h  |  1 +
- .../wireless/broadcom/brcm80211/brcmfmac/core.c    | 57 ++++++++++++++++++++++
- 3 files changed, 63 insertions(+)
-
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
-index 70ef9835b647..5532ef39439f 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
-@@ -75,6 +75,10 @@ static int brcmf_roamoff;
- module_param_named(roamoff, brcmf_roamoff, int, S_IRUSR);
- MODULE_PARM_DESC(roamoff, "Do not use internal roaming engine");
- 
-+static int brcmf_iapp_enable;
-+module_param_named(iapp, brcmf_iapp_enable, int, 0);
-+MODULE_PARM_DESC(iapp, "Enable partial support for the obsoleted Inter-Access Point Protocol");
-+
- #ifdef DEBUG
- /* always succeed brcmf_bus_started() */
- static int brcmf_ignore_probe_fail;
-@@ -438,6 +442,7 @@ struct brcmf_mp_device *brcmf_get_module_param(struct device *dev,
- 	settings->feature_disable = brcmf_feature_disable;
- 	settings->fcmode = brcmf_fcmode;
- 	settings->roamoff = !!brcmf_roamoff;
-+	settings->iapp = !!brcmf_iapp_enable;
- #ifdef DEBUG
- 	settings->ignore_probe_fail = !!brcmf_ignore_probe_fail;
- #endif
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.h
-index a62f8e70b320..ef914619e8e1 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.h
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.h
-@@ -58,6 +58,7 @@ struct brcmf_mp_device {
- 	unsigned int	feature_disable;
- 	int		fcmode;
- 	bool		roamoff;
-+	bool		iapp;
- 	bool		ignore_probe_fail;
- 	struct brcmfmac_pd_cc *country_codes;
- 	union {
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-index 19048526b4af..ca97a8b4c59f 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -230,6 +230,37 @@ static void brcmf_netdev_set_multicast_list(struct net_device *ndev)
- 	schedule_work(&ifp->multicast_work);
- }
- 
-+/**
-+ * brcmf_skb_is_iapp - checks if skb is an IAPP packet
-+ *
-+ * @skb: skb to check
-+ */
-+static bool brcmf_skb_is_iapp(struct sk_buff *skb)
-+{
-+	static const u8 iapp_l2_update_packet[6] __aligned(2) = {
-+		0x00, 0x01, 0xaf, 0x81, 0x01, 0x00,
-+	};
-+	unsigned char *eth_data;
-+#if !defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
-+	const u16 *a, *b;
-+#endif
-+
-+	if (skb->len - skb->mac_len != 6 ||
-+	    !is_multicast_ether_addr(eth_hdr(skb)->h_dest))
-+		return false;
-+
-+	eth_data = skb_mac_header(skb) + ETH_HLEN;
-+#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
-+	return !(((*(const u32 *)eth_data) ^ (*(const u32 *)iapp_l2_update_packet)) |
-+		 ((*(const u16 *)(eth_data + 4)) ^ (*(const u16 *)(iapp_l2_update_packet + 4))));
-+#else
-+	a = (const u16 *)eth_data;
-+	b = (const u16 *)iapp_l2_update_packet;
-+
-+	return !((a[0] ^ b[0]) | (a[1] ^ b[1]) | (a[2] ^ b[2]));
-+#endif
-+}
-+
- static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
- 					   struct net_device *ndev)
- {
-@@ -250,6 +281,23 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
- 		goto done;
- 	}
- 
-+	/* Some recent Broadcom's firmwares disassociate STA when they receive
-+	 * an 802.11f ADD frame. This behavior can lead to a local DoS security
-+	 * issue. Attacker may trigger disassociation of any STA by sending a
-+	 * proper Ethernet frame to the wireless interface.
-+	 *
-+	 * Moreover this feature may break AP interfaces in some specific
-+	 * setups. This applies e.g. to the bridge with hairpin mode enabled and
-+	 * IFLA_BRPORT_MCAST_TO_UCAST set. IAPP packet generated by a firmware
-+	 * will get passed back to the wireless interface and cause immediate
-+	 * disassociation of a just-connected STA.
-+	 */
-+	if (!drvr->settings->iapp && brcmf_skb_is_iapp(skb)) {
-+		dev_kfree_skb(skb);
-+		ret = -EINVAL;
-+		goto done;
-+	}
-+
- 	/* Make sure there's enough writeable headroom */
- 	if (skb_headroom(skb) < drvr->hdrlen || skb_header_cloned(skb)) {
- 		head_delta = max_t(int, drvr->hdrlen - skb_headroom(skb), 0);
-@@ -325,6 +373,15 @@ void brcmf_txflowblock_if(struct brcmf_if *ifp,
- 
- void brcmf_netif_rx(struct brcmf_if *ifp, struct sk_buff *skb)
- {
-+	/* Most of Broadcom's firmwares send 802.11f ADD frame every time a new
-+	 * STA connects to the AP interface. This is an obsoleted standard most
-+	 * users don't use, so don't pass these frames up unless requested.
-+	 */
-+	if (!ifp->drvr->settings->iapp && brcmf_skb_is_iapp(skb)) {
-+		brcmu_pkt_buf_free_skb(skb);
-+		return;
-+	}
-+
- 	if (skb->pkt_type == PACKET_MULTICAST)
- 		ifp->ndev->stats.multicast++;
- 
--- 
-2.11.0
-
+V2: Use module param to don't /abuse/ Kconfig
+    Slightly optimize brcmf_skb_is_iapp
+    Move some description from Kconfig to the code
+    Update commit description: specify affected fws & mention impact
