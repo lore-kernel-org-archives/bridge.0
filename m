@@ -1,20 +1,31 @@
-Return-Path: <arend.vanspriel@broadcom.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=broadcom.com; s=google;
-	h=subject:to:references:cc:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-transfer-encoding;
-	bh=7/lSj80AZ7Wx9+YDtI3Yw9P+JQm9uS4iU8L9RQ8qOXA=;
-	b=NABCiouhOLpESGbGc10Xi9UXGmYaoaYhifitdmNjNC2nm909UVw/bQpVneYsC1DqhY
-	DO95RjiK+ClvqcWrpDcjGSo05D/hZZSJdRF240Q+WvzQj0LtURiONopnwUKEXACmIMlh
-	dylMVv02gv98A2kN6AAG7ZYiybr2IzD3l0gqg=
-References: <20180315072909.1512-1-zajec5@gmail.com>
-From: Arend van Spriel <arend.vanspriel@broadcom.com>
-Message-ID: <5AAA308D.4090100@broadcom.com>
+Return-Path: <kvalo@codeaurora.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+	s=default; t=1521105795;
+	bh=YwYDI8cRNyVG2C1P6mgiDvI4ynE80Qge4I1Klvb+LhQ=;
+	h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+	b=gJ7vfOq78VVCVuAqNGGOJ62hSPrv+4b2WbLxDlUUjto3TVxcIXgXJF8VqJBuYzMfy
+	lCOluIuHZ2iCWyt4L/YRghxfBJA+0qo0TSVidTPGGdhXmXztvRNANqj0tRmC8UFt6N
+	hAms4KJiol3Om7m9h+GgBQc7OZ0Ufae42S6ZMCMY=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+	s=default; t=1521105793;
+	bh=YwYDI8cRNyVG2C1P6mgiDvI4ynE80Qge4I1Klvb+LhQ=;
+	h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+	b=P9a2Nto5zwAEhUMu0p/8yC884dGPaL6ycY920qK4n56VBulYhTm3yuR8slz5COa2u
+	L36PxrdTGSlMlx96tjXH1Wo83TEuXzNsT/YQDs+n5LmQ9tlXYxu/N7pvUbER61jgu6
+	+6EotWV8qScLLpmXRLfoIFbuczj+FTzu4+czX0AY=
+From: Kalle Valo <kvalo@codeaurora.org>
+References: <20180314110119.13631-1-zajec5@gmail.com>
+	<878tau7n23.fsf@codeaurora.org>
+	<52b1812dd3e843adb63ff67fbe95975f@milecki.pl>
+	<877eqe63kr.fsf@codeaurora.org> <5AA98C3B.2070406@broadcom.com>
+In-Reply-To: <5AA98C3B.2070406@broadcom.com> (Arend van Spriel's message of
+	"Wed, 14 Mar 2018 21:55:23 +0100")
+Message-ID: <87k1ud7kw4.fsf@kamboji.qca.qualcomm.com>
 MIME-Version: 1.0
-In-Reply-To: <20180315072909.1512-1-zajec5@gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH V2] brcmfmac: drop Inter-Access Point Protocol
- packets by default
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] brcmfmac: drop Inter-Access Point Protocol
+	packets by default
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,51 +34,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Thu, 15 Mar 2018 08:36:35 -0000
-To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Kalle Valo <kvalo@codeaurora.org>
-Cc: James Hughes <james.hughes@raspberrypi.org>, brcm80211-dev-list.pdl@broadcom.com, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
+Date: Thu, 15 Mar 2018 09:23:15 -0000
+To: Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc: James Hughes <james.hughes@raspberrypi.org>, brcm80211-dev-list.pdl@broadcom.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Chi-Hsien Lin <chi-hsien.lin@cypress.com>, =?utf-8?Q?Raf?= =?utf-8?Q?a=C5=82_Mi=C5=82ecki?= <zajec5@gmail.com>, linux-wireless@vger.kernel.org, Hante Meuleman <hante.meuleman@broadcom.com>, Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>, Wright Feng <wright.feng@cypress.com>, =?utf-8?Q?Rafa=C5=82_Mi=C5=82ecki?= <rafal@milecki.pl>, Felix Fietkau <nbd@nbd.name>, brcm80211-dev-list@cypress.com, Franky Lin <franky.lin@broadcom.com>
 
-On 3/15/2018 8:29 AM, Rafał Miłecki wrote:
-> From: Rafał Miłecki <rafal@milecki.pl>
->
-> Testing brcmfmac with more recent firmwares resulted in AP interfaces
-> not working in some specific setups. Debugging resulted in discovering
-> support for IAPP in Broadcom's firmwares.
->
-> Older firmwares were only generating 802.11f frames. Newer ones like:
-> 1) 10.10 (TOB) (r663589)
-> 2) 10.10.122.20 (r683106)
-> for 4366b1 and 4366c0 respectively seem to also /respect/ 802.11f frames
-> in the Tx path by performing a STA disassociation.
->
-> This obsoleted standard and its implementation is something that:
-> 1) Most people don't need / want to use
-> 2) Can allow local DoS attacks
-> 3) Breaks AP interfaces in some specific bridge setups
->
-> To solve issues it can cause this commit modifies brcmfmac to drop IAPP
-> packets. If affects:
-> 1) Rx path: driver won't be sending these unwanted packets up.
-> 2) Tx path: driver will reject packets that would trigger STA
->     disassociation perfromed by a firmware (possible local DoS attack).
->
-> It appears there are some Broadcom's clients/users who care about this
-> feature despite the drawbacks. They can switch it on using a new module
-> param.
->
-> This change results in only two more comparisons (check for module param
-> and check for Ethernet packet length) for 99.9% of packets. Its overhead
-> should be very minimal.
+Arend van Spriel <arend.vanspriel@broadcom.com> writes:
 
-Hi Rafał,
+> On 3/14/2018 5:10 PM, Kalle Valo wrote:
+>> Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl> writes:
+>>
+>>>>> +	unsigned char *eth_data =3D skb_mac_header(skb) + ETH_HLEN;
+>>>>> +#if !defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)
+>>>>
+>>>> #ifndef?
+>>>
+>>> I followed what is used in the include/linux/etherdevice.h. Is that a
+>>> good exceuse? Could it be there any some good reason for #if defined()?
+>>
+>> Don't know, maybe just a matter of taste? But it would be nice to know
+>> the background behind #ifdef vs #if defined(), never figured it out why
+>> two different forms.
+>
+> Well. In this case you could use either one, but if you have more
+> conditions #if defined() is bit more efficient:
+>
+> #ifdef A
+> #ifdef B
+> #endif
+> #endif
+>
+> vs.
+>
+> #if defined(A) && defined(B)
 
-Thanks for this patch.
+Oh yeah, here defined() definitely helps.
 
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-> ---
->   .../wireless/broadcom/brcm80211/brcmfmac/common.c  |  5 ++
->   .../wireless/broadcom/brcm80211/brcmfmac/common.h  |  1 +
->   .../wireless/broadcom/brcm80211/brcmfmac/core.c    | 57 ++++++++++++++++++++++
->   3 files changed, 63 insertions(+)
-
+--=20
+Kalle Valo
