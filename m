@@ -1,22 +1,15 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=oyu4NyqM+QfxP+NlmByVdZRLn7Uggl5qhvuzGs2uaFg=;
-	b=FAYe/siB9vZvUJK7GVtxZ/6P5bi9AzVBu+mxeJtMWkiAtsqM+MQkVBECx1pquIlBJN
-	H+p7SyuaWRuvQThrdc8VOFYyU+Y7Pv0W6x4zP2VJuc2wPhnat55A63O3b44xCNuVjwZL
-	hGQLIlq8jNsOzQjHOXHesl6GysAp9q0vg9Q5A=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 23 Mar 2018 18:27:06 +0200
-Message-Id: <1521822426-18563-1-git-send-email-nikolay@cumulusnetworks.com>
-In-Reply-To: <20180322153406.17760-1-3chas3@gmail.com>
+Return-Path: <davem@davemloft.net>
+Date: Fri, 23 Mar 2018 12:41:33 -0400 (EDT)
+Message-Id: <20180323.124133.2009910638975659955.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1521822426-18563-1-git-send-email-nikolay@cumulusnetworks.com>
 References: <20180322153406.17760-1-3chas3@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: fix direct access to bridge
-	vlan_enabled and use helper
+	<1521822426-18563-1-git-send-email-nikolay@cumulusnetworks.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-7
+Content-Transfer-Encoding: base64
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: fix direct access to
+ bridge vlan_enabled and use helper
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,42 +18,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, 3chas3@gmail.com, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, 3chas3@gmail.com
 
-We need to use br_vlan_enabled() helper otherwise we'll break builds
-without bridge vlans:
-net/bridge//br_if.c: In function ‘br_mtu’:
-net/bridge//br_if.c:458:8: error: ‘const struct net_bridge’ has no
-member named ‘vlan_enabled’
-  if (br->vlan_enabled)
-        ^
-net/bridge//br_if.c:462:1: warning: control reaches end of non-void
-function [-Wreturn-type]
- }
- ^
-scripts/Makefile.build:324: recipe for target 'net/bridge//br_if.o'
-failed
-
-Fixes: 419d14af9e07 ("bridge: Allow max MTU when multiple VLANs present")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- net/bridge/br_if.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 48dc4d2e2be3..87b2afd455c7 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -455,7 +455,7 @@ static int __br_mtu(const struct net_bridge *br, bool (compare_fn)(int, int))
- 
- int br_mtu(const struct net_bridge *br)
- {
--	if (br->vlan_enabled)
-+	if (br_vlan_enabled(br->dev))
- 		return __br_mtu(br, max_mtu);
- 	else
- 		return __br_mtu(br, min_mtu);
--- 
-2.1.4
-
+RnJvbTogTmlrb2xheSBBbGVrc2FuZHJvdiA8bmlrb2xheUBjdW11bHVzbmV0d29ya3MuY29tPg0K
+RGF0ZTogRnJpLCAyMyBNYXIgMjAxOCAxODoyNzowNiArMDIwMA0KDQo+IFdlIG5lZWQgdG8gdXNl
+IGJyX3ZsYW5fZW5hYmxlZCgpIGhlbHBlciBvdGhlcndpc2Ugd2UnbGwgYnJlYWsgYnVpbGRzDQo+
+IHdpdGhvdXQgYnJpZGdlIHZsYW5zOg0KPiBuZXQvYnJpZGdlLy9icl9pZi5jOiBJbiBmdW5jdGlv
+biChYnJfbXR1ojoNCj4gbmV0L2JyaWRnZS8vYnJfaWYuYzo0NTg6ODogZXJyb3I6IKFjb25zdCBz
+dHJ1Y3QgbmV0X2JyaWRnZaIgaGFzIG5vDQo+IG1lbWJlciBuYW1lZCChdmxhbl9lbmFibGVkog0K
+PiAgIGlmIChici0+dmxhbl9lbmFibGVkKQ0KPiAgICAgICAgIF4NCj4gbmV0L2JyaWRnZS8vYnJf
+aWYuYzo0NjI6MTogd2FybmluZzogY29udHJvbCByZWFjaGVzIGVuZCBvZiBub24tdm9pZA0KPiBm
+dW5jdGlvbiBbLVdyZXR1cm4tdHlwZV0NCj4gIH0NCj4gIF4NCj4gc2NyaXB0cy9NYWtlZmlsZS5i
+dWlsZDozMjQ6IHJlY2lwZSBmb3IgdGFyZ2V0ICduZXQvYnJpZGdlLy9icl9pZi5vJw0KPiBmYWls
+ZWQNCj4gDQo+IEZpeGVzOiA0MTlkMTRhZjllMDcgKCJicmlkZ2U6IEFsbG93IG1heCBNVFUgd2hl
+biBtdWx0aXBsZSBWTEFOcyBwcmVzZW50IikNCj4gU2lnbmVkLW9mZi1ieTogTmlrb2xheSBBbGVr
+c2FuZHJvdiA8bmlrb2xheUBjdW11bHVzbmV0d29ya3MuY29tPg0KDQpBcHBsaWVkLCB0aGFua3Mg
+Zm9yIHJlc3BvbmRpbmcgdG8gdGhpcyBpc3N1ZSBzbyBxdWlja2x5Lg0K
