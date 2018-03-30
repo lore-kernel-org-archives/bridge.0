@@ -1,14 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 26 Mar 2018 12:08:10 -0400 (EDT)
-Message-Id: <20180326.120810.1260005438500317092.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <738a74ff57f993d6b8f249425673413672d3fe70.1521845242.git.joe@perches.com>
-References: <cover.1521845235.git.joe@perches.com>
-	<738a74ff57f993d6b8f249425673413672d3fe70.1521845242.git.joe@perches.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 3/4] net: Use octal not symbolic permissions
+Return-Path: <pneira@us.es>
+Date: Fri, 30 Mar 2018 11:52:31 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20180330095231.ph5hqdh2pboblhnk@salvia>
+References: <c22b7398816c4533a65ff57aaa44629729fc7254.1521630169.git.joe@perches.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c22b7398816c4533a65ff57aaa44629729fc7254.1521630169.git.joe@perches.com>
+Subject: Re: [Bridge] [PATCH] bridge: netfilter: ebt_stp: Use generic
+ functions for comparisons
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,8 +17,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: joe@perches.com
-Cc: linux-wireless@vger.kernel.org, jlayton@kernel.org, trond.myklebust@primarydata.com, dhowells@redhat.com, linux-sctp@vger.kernel.org, linux-afs@lists.infradead.org, steffen.klassert@secunet.com, herbert@gondor.apana.org.au, sage@redhat.com, bridge@lists.linux-foundation.org, jchapman@katalix.com, coreteam@netfilter.org, kadlec@blackhole.kfki.hu, kuznet@ms2.inr.ac.ru, idryomov@gmail.com, pablo@netfilter.org, johan.hedberg@gmail.com, marcel@holtmann.org, linux-can@vger.kernel.org, mkl@pengutronix.de, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bfields@fieldses.org, linux-nfs@vger.kernel.org, linux-x25@vger.kernel.org, nhorman@tuxdriver.com, yoshfuji@linux-ipv6.org, socketcan@hartkopp.net, vyasevich@gmail.com, linux-decnet-user@lists.sourceforge.net, fw@strlen.de, linux-kernel@vger.kernel.org, ralf@linux-mips.org, afaerber@suse.de, zyan@redhat.com, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, jreuter@yaina.de, netdev@vger.kernel.org, johannes@sipsolutions.net, andrew.hendry@gmail.com, anna.schumaker@netapp.com
+To: Joe Perches <joe@perches.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S. Miller" <davem@davemloft.net>
 
+On Wed, Mar 21, 2018 at 04:03:22AM -0700, Joe Perches wrote:
+> Instead of unnecessary const declarations, use the generic functions to
+> save a little object space.
+> 
+> $ size net/bridge/netfilter/ebt_stp.o*
+>    text	   data	    bss	    dec	    hex	filename
+>    1250	    144	      0	   1394	    572	net/bridge/netfilter/ebt_stp.o.new
+>    1344	    144	      0	   1488	    5d0	net/bridge/netfilter/ebt_stp.o.old
 
-Applied.
+Applied, thanks Joe.
