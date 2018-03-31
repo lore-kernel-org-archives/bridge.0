@@ -1,20 +1,15 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; 
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=unWfdTF99Cc3d8P1xwmSPtpMgpG9Nnw6bbMKW3Vtm28=; 
-	b=0zNJ7BttYnLDvghHJVOa7Kvlt5BME063s1nCoPWXttWti0mgmsESSNUX34qmJo93KKs6xrTPu6hUA562UCtOJBO8NvAq2xu795OU8eCJmyBeDIUrvlncY2SU6Lp7UmMT8lagBJG/GHqZRcgrf3PZD3ezXTOvPpiQBuu56Uf3u3c=;
-Date: Sat, 31 Mar 2018 19:36:43 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20180331173643.GD7460@lunn.ch>
+Return-Path: <pneira@us.es>
+Date: Sat, 31 Mar 2018 20:28:10 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20180331182810.or7attmfpjxw4sfm@salvia>
 References: <cover.1522479607.git.joe@perches.com>
-	<a2d52bbcdcd36c5062bd4fa175df15acd5f8cb85.1522479607.git.joe@perches.com>
+	<df70bafdca663db034626f4f1525826ea263bf2c.1522479607.git.joe@perches.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a2d52bbcdcd36c5062bd4fa175df15acd5f8cb85.1522479607.git.joe@perches.com>
-Subject: Re: [Bridge] [PATCH 02/12] treewide/net: Rename eth_stp_addr to
-	ether_stp_addr
+In-Reply-To: <df70bafdca663db034626f4f1525826ea263bf2c.1522479607.git.joe@perches.com>
+Subject: Re: [Bridge] [PATCH 04/12] bridge: netfilter: Use the new global
+ ether_<foo>_addr arrays
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,17 +19,51 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Joe Perches <joe@perches.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Vivien Didelot <vivien.didelot@savoirfairelinux.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, "David S. Miller" <davem@davemloft.net>
 
-On Sat, Mar 31, 2018 at 12:05:17AM -0700, Joe Perches wrote:
-> --- a/net/bridge/br_device.c
-> +++ b/net/bridge/br_device.c
-> @@ -1,4 +1,4 @@
-> -/*
-> +gg/*
+Hi Joe,
 
-Hi Joe
+On Sat, Mar 31, 2018 at 12:05:19AM -0700, Joe Perches wrote:
+> Remove the local consts and use the new globals.
 
-This does not look good.
+This one is already upstream:
 
-     Andrew
+https://git.kernel.org/pub/scm/linux/kernel/git/pablo/nf-next.git/commit/?id=9124a20d8794663a396b5d6f91f66903848a042b
+
+I can see you're using is_broadcast_ether_addr(e->destmsk) in this new
+version, we would need an incremental version.
+
+Thanks.
+
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>  net/bridge/netfilter/ebt_stp.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/bridge/netfilter/ebt_stp.c b/net/bridge/netfilter/ebt_stp.c
+> index 3140eb912d7e..2b7479cc0140 100644
+> --- a/net/bridge/netfilter/ebt_stp.c
+> +++ b/net/bridge/netfilter/ebt_stp.c
+> @@ -153,8 +153,6 @@ ebt_stp_mt(const struct sk_buff *skb, struct xt_action_param *par)
+>  static int ebt_stp_mt_check(const struct xt_mtchk_param *par)
+>  {
+>  	const struct ebt_stp_info *info = par->matchinfo;
+> -	const u8 bridge_ula[6] = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x00};
+> -	const u8 msk[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+>  	const struct ebt_entry *e = par->entryinfo;
+>  
+>  	if (info->bitmask & ~EBT_STP_MASK || info->invflags & ~EBT_STP_MASK ||
+> @@ -162,8 +160,8 @@ static int ebt_stp_mt_check(const struct xt_mtchk_param *par)
+>  		return -EINVAL;
+>  	/* Make sure the match only receives stp frames */
+>  	if (!par->nft_compat &&
+> -	    (!ether_addr_equal(e->destmac, bridge_ula) ||
+> -	     !ether_addr_equal(e->destmsk, msk) ||
+> +	    (!ether_addr_equal(e->destmac, ether_stp_addr) ||
+> +	     !ether_addr_equal(e->destmsk, ether_broadcast_addr) ||
+>  	     !(e->bitmask & EBT_DESTMAC)))
+>  		return -EINVAL;
+>  
+> -- 
+> 2.15.0
+> 
