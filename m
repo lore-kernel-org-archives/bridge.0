@@ -1,13 +1,15 @@
 Return-Path: <davem@davemloft.net>
-Date: Sat, 31 Mar 2018 22:05:16 -0400 (EDT)
-Message-Id: <20180331.220516.312380228110627327.davem@davemloft.net>
+Date: Sun, 01 Apr 2018 14:07:12 -0400 (EDT)
+Message-Id: <20180401.140712.1392918167775655287.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20180330104619.31479-1-nikolay@cumulusnetworks.com>
-References: <20180330104619.31479-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <5f5dafaeacbc9e9aa2d969701e510d31ef6e97db.1522521099.git.joe@perches.com>
+References: <20180331173643.GD7460@lunn.ch>
+	<5f5dafaeacbc9e9aa2d969701e510d31ef6e97db.1522521099.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: MTU handling changes
+Subject: Re: [Bridge] [PATCH V2] treewide/net: Rename eth_stp_addr to
+	ether_stp_addr
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,27 +18,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, 3chas3@gmail.com
+To: joe@perches.com
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri, 30 Mar 2018 13:46:17 +0300
+From: Joe Perches <joe@perches.com>
+Date: Sat, 31 Mar 2018 11:34:06 -0700
 
-> As previously discussed the recent changes break some setups and could lead
-> to packet drops. Thus the first patch reverts the behaviour for the bridge
-> to follow the minimum MTU but also keeps the ability to set the MTU to the
-> maximum (out of all ports) if vlan filtering is enabled. Patch 02 is the
-> bigger change in behaviour - we've always had trouble when configuring
-> bridges and their MTU which is auto tuning on port events
-> (add/del/changemtu), which means config software needs to chase it and fix
-> it after each such event, after patch 02 we allow the user to configure any
-> MTU (ETH_MIN/MAX limited) but once that is done the bridge stops auto
-> tuning and relies on the user to keep the MTU correct.
-> This should be compatible with cases that don't touch the MTU (or set it
-> to the same value), while allowing to configure the MTU and not worry
-> about it changing afterwards.
+> eth_stp_addr is not in the same form as the other global ether_<foo>_addr
+> addresses like ether_broadcast_addr.
 > 
-> The patches are intentionally split like this, so that if they get accepted
-> and there are any complaints patch 02 can be reverted.
+> Convert it treewide.
+> 
+> Miscellanea:
+> 
+> o Add comment to the ether_stp_addr define to show it's for spanning-tree
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+> 
+> V2: Remove gg from initial comment (bad editing)
 
-Series applied, thanks.
+Joe this was part of a larger series.
+
+Please repost the entire series when you fix a patch contained
+in that series, not just the patch that is changing.
+
+Thank you.
