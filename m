@@ -1,15 +1,25 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 01 Apr 2018 14:07:12 -0400 (EDT)
-Message-Id: <20180401.140712.1392918167775655287.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <5f5dafaeacbc9e9aa2d969701e510d31ef6e97db.1522521099.git.joe@perches.com>
-References: <20180331173643.GD7460@lunn.ch>
-	<5f5dafaeacbc9e9aa2d969701e510d31ef6e97db.1522521099.git.joe@perches.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH V2] treewide/net: Rename eth_stp_addr to
-	ether_stp_addr
+Return-Path: <nbd@nbd.name>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+	s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+	MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=XzWYtJHwDwF8RgvFjr+eVf/fsj3dyq/p4S6ZAStUE0A=;
+	b=ipQD5MYuE00e0qjKylyJ+iD1A6
+	fdblbaH6JazrOSF77MT25U+u8JMLvRkadKtixKYPNOHiEmigo7aEB18xWw3nAqYFp7mIrhHnpTL5j
+	y7TuazSxC2hKXG3NktUZZ9CnjUPceQAJX8y0ReRs/5l+FgdnXAN6jJm2jg7/t3Ft8T2Q=; 
+References: <cover.1522479607.git.joe@perches.com>
+From: Felix Fietkau <nbd@nbd.name>
+Message-ID: <e0ab9616-64fa-cdbc-7a77-7e25d70c1a52@nbd.name>
+Date: Thu, 5 Apr 2018 15:27:49 +0200
+MIME-Version: 1.0
+In-Reply-To: <cover.1522479607.git.joe@perches.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH 00/12] Ethernet: Add and use ether_<type>_addr
+	globals
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,29 +28,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: joe@perches.com
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, vivien.didelot@savoirfairelinux.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Joe Perches <joe@perches.com>, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, b43-dev@lists.infradead.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org
+Cc: brcm80211-dev-list.pdl@broadcom.com, linux-kernel@vger.kernel.org, brcm80211-dev-list@cypress.com
 
-From: Joe Perches <joe@perches.com>
-Date: Sat, 31 Mar 2018 11:34:06 -0700
+On 2018-03-31 09:05, Joe Perches wrote:
+> There are many local static and non-static arrays that are used for
+> Ethernet broadcast address output or comparison.
+> 
+> Centralize the array into a single separate file and remove the local
+> arrays.
+I suspect that for many targets and configurations, the local arrays
+might actually be smaller than exporting a global. You have to factor in
+not just the .text size, but the fact that referencing an exported
+symbol needs a .reloc entry as well, which also eats up some space (at
+least when the code is being built as module).
 
-> eth_stp_addr is not in the same form as the other global ether_<foo>_addr
-> addresses like ether_broadcast_addr.
-> 
-> Convert it treewide.
-> 
-> Miscellanea:
-> 
-> o Add comment to the ether_stp_addr define to show it's for spanning-tree
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> 
-> V2: Remove gg from initial comment (bad editing)
+In my opinion, your series probably causes more bloat in common
+configurations instead of reducing it.
 
-Joe this was part of a larger series.
+You're also touching several places that could easily use
+eth_broadcast_addr and eth_zero_addr. I think making those changes would
+be more productive than what you did in this series.
 
-Please repost the entire series when you fix a patch contained
-in that series, not just the patch that is changing.
-
-Thank you.
+- Felix
