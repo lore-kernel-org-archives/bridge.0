@@ -1,15 +1,22 @@
-Return-Path: <M.Roos@f1-outsourcing.eu>
-Date: Sun, 8 Apr 2018 18:12:48 +0200
-From: "Marc Roos" <M.Roos@f1-outsourcing.eu>
-Message-ID: <"H000007100115364.1523203968.sx.f1-outsourcing.eu*"@MHS>
-In-Reply-To: <20180408092621.0c9f9f8c@xeon-e3>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=WWW3gviP2dkExZ2K5vc2selmPy/gcf1H09UbvYpi+tY=;
+	b=V6aY0s6hqmPwb7edLSt3LCFHDCnWBuGONzziLibyUeagyaMdp/YKFtms8FmSEWwDpt
+	E3PpRF92qQHOMPduOWjepOToDatFAFkxML/EAW2SOKBZM4bpXFDbu1rRcnIg6WyuFxeV
+	XI/boL429G9teUmzSvy3qJTXl1pVMfYYjhr2k=
+References: <20180408174934.GA3895@laszlth>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <3db78abd-bc13-528f-9da3-cb9a0ce0f617@cumulusnetworks.com>
+Date: Mon, 9 Apr 2018 01:25:41 +0300
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-Subject: Re: [Bridge] Bridge with 1x eth and 2x tun, adding 2nd eth,
-	hosts become unavailable
+In-Reply-To: <20180408174934.GA3895@laszlth>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net: bridge: add missing NULL checks
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,61 +25,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stephen <stephen@networkplumber.org>
-Cc: bridge <bridge@lists.linux-foundation.org>
+To: Laszlo Toth <laszlth@gmail.com>, Stephen Hemminger <stephen@networkplumber.org>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-> > In this situation I can ping a vm from br0 connected to 172.16.1.y
-> >=20
-> >=20
-> >=20
-> >                +-----------+          =20
-> >                |    BR0    |          =20
-> >    172.16.1.y  |           |      172.16.1.x
-> >        --------|ETH2   TUN1|-------          =20
-> >                |           |          =20
-> >                |           |      172.16.1.x
-> >                |       TUN2|-------          =20
-> >                |           |
-> >                +-----------+=20
-> >=20
-> > When only adding a 2nd eth adapter with 'brctl addif br0 eth1'=20
-connected=20
-> > to 10.11.12.y. The same ping is not working anymore.
-> >=20
-> >=20
-> >                +-----------+          =20
-> >                |    BR0    |          =20
-> >    172.16.1.y  |           |      172.16.1.x
-> >        --------|ETH2   TUN1|-------          =20
-> >                |           |          =20
-> >                |           |      172.16.1.x
-> >     10.11.12.y |       TUN2|-------          =20
-> >        --------|ETH1       |
-> >                +-----------+          =20
-> > 			            =20
-> > When I remove the eth1 again, the ping starts working again.
-> >=20
-> > Can someone explain me why the bridge is behaving like this? And how=20
+On 08/04/18 20:49, Laszlo Toth wrote:
+> br_port_get_rtnl() can return NULL
+> 
+> Signed-off-by: Laszlo Toth <laszlth@gmail.com>
+> ---
+>   net/bridge/br_netlink.c | 12 ++++++++++--
+>   1 file changed, 10 insertions(+), 2 deletions(-)
+> 
 
-> > this can be fixed?
-> >=20
-> > =09
-> >=20
-> > 	  =20
->=20
-> Are you creating a spanning tree loop?  Also. Bridge is a Layer 2=20
-device
-> not a Layer 3 device; therefore generally all interfaces in a bridge=20
-have same
-> subnet.
->=20
-I don=E2=80=99t think I am creating a loop, I have stp on and ebtables:=20
--i eth2 -o eth1 -j DROP , pcnt =3D 301 -- bcnt =3D 17100
--i eth1 -o eth2 -j DROP , pcnt =3D 3787 -- bcnt =3D 180148
+Nacked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+More below.
 
-I would like to achieve that what ever hosts and networks I connect on=20
-ethx on tunx, could see the other ones located on the the other ethx or=20
-tunx. Is this not possible with the bridge? Is there another technique=20
-to do this?
-=20
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 015f465c..cbec11f 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -939,14 +939,17 @@ static int br_port_slave_changelink(struct net_device *brdev,
+>   				    struct nlattr *data[],
+>   				    struct netlink_ext_ack *extack)
+>   {
+> +	struct net_bridge_port *port = br_port_get_rtnl(dev);
+>   	struct net_bridge *br = netdev_priv(brdev);
+>   	int ret;
+>   
+>   	if (!data)
+>   		return 0;
+> +	if (!port)
+> +		return -EINVAL;
+>   
+
+If we're here, it means the master device of dev is a bridge => dev is a bridge port,
+since we're running with RTNL that cannot change, so this check is unnecessary.
+
+Have you actually hit a bug with this code ?
+
+>   	spin_lock_bh(&br->lock);
+> -	ret = br_setport(br_port_get_rtnl(dev), data);
+> +	ret = br_setport(port, data);
+>   	spin_unlock_bh(&br->lock);
+>   
+>   	return ret;
+> @@ -956,7 +959,12 @@ static int br_port_fill_slave_info(struct sk_buff *skb,
+>   				   const struct net_device *brdev,
+>   				   const struct net_device *dev)
+>   {
+> -	return br_port_fill_attrs(skb, br_port_get_rtnl(dev));
+> +	struct net_bridge_port *port = br_port_get_rtnl(dev);
+> +
+> +	if (!port)
+> +		return -EINVAL;
+> +
+> +	return br_port_fill_attrs(skb, port);
+
+Same rationale here, fill_slave_info is called via a master device's ops
+under RTNL, which means dev is a bridge port and that also cannot change.
+
+If you have hit a bug with this code, can we see the trace ?
+The problem might be elsewhere.
+
+Thanks,
+  Nik
+
+>   }
+>   
+>   static size_t br_port_get_slave_size(const struct net_device *brdev,
+> 
 
