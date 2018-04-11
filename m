@@ -1,24 +1,10 @@
-Return-Path: <laszlth@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=date:from:to:cc:subject:message-id:references:mime-version
-	:content-disposition:in-reply-to:user-agent;
-	bh=T4Df+Q5HwXwiX2aivEySh7P8wcwmL5KA5/AYdIlFpOI=;
-	b=YBI5nbqgDAB7tr6Qcl+38lcOV+fPQukrms68+Z5HaXLHZIJ7S+TZRDQf/ayCHxDqJi
-	0+xUjcy0G1pjk9nRDLzAsUNH5XH5FbY59ShsJbgRvqqe4Pm5cBpHCqTdXXiaBIirhdZY
-	VZ+PIzYfjK4/jLLpVMLNMs9bMIZdS0VUYG8rs9Z5TuB6DWt8IbZZ59+44PJ+6xba5PDY
-	at6XAz+Zq+7RwYTOOfvS3py3C5wbDPxaUYbPA89gwQpIXoLq1h6Qci84fFF53IQagoGY
-	5wSMULfjckYKPTEH+Gh+NWMaPFTjdU+kaS2rZZ3wY0rpIcOGeQfF6tCci20nQHc4f91U
-	ZZ+w==
-Date: Tue, 10 Apr 2018 19:22:43 +0200
-From: Laszlo Toth <laszlth@gmail.com>
-Message-ID: <20180410172243.GA4230@laszlth>
-References: <20180408174934.GA3895@laszlth>
-	<3db78abd-bc13-528f-9da3-cb9a0ce0f617@cumulusnetworks.com>
+Return-Path: <3dybOWgkbANgMSTE4FF8L4JJC7.AIIAF8OM8L6IHN8HN.6IG@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3db78abd-bc13-528f-9da3-cb9a0ce0f617@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH] net: bridge: add missing NULL checks
+Date: Wed, 11 Apr 2018 08:15:03 -0700
+Message-ID: <001a113de2d878ade40569941a21@google.com>
+From: syzbot <syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Subject: [Bridge] WARNING: kobject bug in br_add_if
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,81 +13,104 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Laszlo Toth <laszlth@gmail.com>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+To: bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
 
-On Mon, Apr 09, 2018 at 01:25:41AM +0300, Nikolay Aleksandrov wrote:
-> On 08/04/18 20:49, Laszlo Toth wrote:
-> >br_port_get_rtnl() can return NULL
-> >
-> >Signed-off-by: Laszlo Toth <laszlth@gmail.com>
-> >---
-> >  net/bridge/br_netlink.c | 12 ++++++++++--
-> >  1 file changed, 10 insertions(+), 2 deletions(-)
-> >
-> 
-> Nacked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> More below.
-> 
-> >diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> >index 015f465c..cbec11f 100644
-> >--- a/net/bridge/br_netlink.c
-> >+++ b/net/bridge/br_netlink.c
-> >@@ -939,14 +939,17 @@ static int br_port_slave_changelink(struct net_device *brdev,
-> >  				    struct nlattr *data[],
-> >  				    struct netlink_ext_ack *extack)
-> >  {
-> >+	struct net_bridge_port *port = br_port_get_rtnl(dev);
-> >  	struct net_bridge *br = netdev_priv(brdev);
-> >  	int ret;
-> >  	if (!data)
-> >  		return 0;
-> >+	if (!port)
-> >+		return -EINVAL;
-> 
-> If we're here, it means the master device of dev is a bridge => dev is a bridge port,
-> since we're running with RTNL that cannot change, so this check is unnecessary.
-> 
-> Have you actually hit a bug with this code ?
-> 
-> >  	spin_lock_bh(&br->lock);
-> >-	ret = br_setport(br_port_get_rtnl(dev), data);
-> >+	ret = br_setport(port, data);
-> >  	spin_unlock_bh(&br->lock);
-> >  	return ret;
-> >@@ -956,7 +959,12 @@ static int br_port_fill_slave_info(struct sk_buff *skb,
-> >  				   const struct net_device *brdev,
-> >  				   const struct net_device *dev)
-> >  {
-> >-	return br_port_fill_attrs(skb, br_port_get_rtnl(dev));
-> >+	struct net_bridge_port *port = br_port_get_rtnl(dev);
-> >+
-> >+	if (!port)
-> >+		return -EINVAL;
-> >+
-> >+	return br_port_fill_attrs(skb, port);
-> 
-> Same rationale here, fill_slave_info is called via a master device's ops
-> under RTNL, which means dev is a bridge port and that also cannot change.
-> 
-> If you have hit a bug with this code, can we see the trace ?
-> The problem might be elsewhere.
+Hello,
 
-There was a NULL dereference in br_port_fill_attrs(), but on a much
-older release w/ a probably buggy and custom driver,
-so there is no real problem to trace.
-Anyway I thought I'd make a quick patch from it, but you're right,
-it's pointless to validate twice. 
+syzbot hit the following crash on upstream commit
+10b84daddbec72c6b440216a69de9a9605127f7a (Sat Mar 31 17:59:00 2018 +0000)
+Merge branch 'perf-urgent-for-linus' of  
+git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+syzbot dashboard link:  
+https://syzkaller.appspot.com/bug?extid=de73361ee4971b6e6f75
 
-Please just ignore the patch.
+So far this crash happened 4 times on net-next, upstream.
+Unfortunately, I don't have any reproducer for this crash yet.
+Raw console output:  
+https://syzkaller.appspot.com/x/log.txt?id=5007286875455488
+Kernel config:  
+https://syzkaller.appspot.com/x/.config?id=-2760467897697295172
+compiler: gcc (GCC) 7.1.1 20170620
 
-Laszlo
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com
+It will help syzbot understand when the bug is fixed. See footer for  
+details.
+If you forward the report, please keep this part and the footer.
 
-> 
-> Thanks,
->  Nik
-> 
-> >  }
-> >  static size_t br_port_get_slave_size(const struct net_device *brdev,
-> >
-> 
+R13: 0000000000000369 R14: 00000000006f7278 R15: 0000000000000006
+------------[ cut here ]------------
+binder: 23650:23651 unknown command 1078223622
+kobject_add_internal failed for brport (error: -12 parent: bond0)
+binder: 23650:23651 ioctl c0306201 2000dfd0 returned -22
+WARNING: CPU: 1 PID: 23647 at lib/kobject.c:242  
+kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
+Kernel panic - not syncing: panic_on_warn set ...
+
+CPU: 1 PID: 23647 Comm: syz-executor7 Not tainted 4.16.0-rc7+ #374
+binder: BINDER_SET_CONTEXT_MGR already set
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:17 [inline]
+  dump_stack+0x194/0x24d lib/dump_stack.c:53
+  panic+0x1e4/0x41c kernel/panic.c:183
+  __warn+0x1dc/0x200 kernel/panic.c:547
+  report_bug+0x1f4/0x2b0 lib/bug.c:186
+  fixup_bug.part.10+0x37/0x80 arch/x86/kernel/traps.c:178
+  fixup_bug arch/x86/kernel/traps.c:247 [inline]
+  do_error_trap+0x2d7/0x3e0 arch/x86/kernel/traps.c:296
+  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
+  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
+RIP: 0010:kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
+RSP: 0018:ffff8801d089f560 EFLAGS: 00010286
+RAX: dffffc0000000008 RBX: ffff8801adbee178 RCX: ffffffff815b193e
+RDX: 0000000000040000 RSI: ffffc900022aa000 RDI: 1ffff1003a113e31
+RBP: ffff8801d089f658 R08: 1ffff1003a113df3 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 1ffff1003a113eb2
+R13: 00000000fffffff4 R14: ffff8801abd88828 R15: ffff8801d75a1e00
+  kobject_add_varg lib/kobject.c:364 [inline]
+  kobject_init_and_add+0xf9/0x150 lib/kobject.c:436
+  br_add_if+0x79a/0x1a70 net/bridge/br_if.c:533
+  add_del_if+0xf4/0x140 net/bridge/br_ioctl.c:101
+  br_dev_ioctl+0xa2/0xc0 net/bridge/br_ioctl.c:396
+  dev_ifsioc+0x333/0x9b0 net/core/dev_ioctl.c:334
+  dev_ioctl+0x176/0xbe0 net/core/dev_ioctl.c:500
+  sock_do_ioctl+0x1ba/0x390 net/socket.c:981
+  sock_ioctl+0x367/0x670 net/socket.c:1081
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  do_vfs_ioctl+0x1b1/0x1520 fs/ioctl.c:686
+  SYSC_ioctl fs/ioctl.c:701 [inline]
+  SyS_ioctl+0x8f/0xc0 fs/ioctl.c:692
+  do_syscall_64+0x281/0x940 arch/x86/entry/common.c:287
+  entry_SYSCALL_64_after_hwframe+0x42/0xb7
+RIP: 0033:0x454e79
+RSP: 002b:00007eff7dab7c68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007eff7dab86d4 RCX: 0000000000454e79
+RDX: 0000000020000000 RSI: 00000000000089a2 RDI: 0000000000000014
+RBP: 000000000072bea0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000015
+R13: 0000000000000369 R14: 00000000006f7278 R15: 0000000000000006
+Dumping ftrace buffer:
+    (ftrace buffer empty)
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
+
+
+---
+This bug is generated by a dumb bot. It may contain errors.
+See https://goo.gl/tpsmEJ for details.
+Direct all questions to syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report.
+If you forgot to add the Reported-by tag, once the fix for this bug is  
+merged
+into any tree, please reply to this email with:
+#syz fix: exact-commit-title
+To mark this as a duplicate of another syzbot report, please reply with:
+#syz dup: exact-subject-of-another-report
+If it's a one-off invalid bug report, please reply with:
+#syz invalid
+Note: if the crash happens again, it will cause creation of a new bug  
+report.
+Note: all commands must start from beginning of the line in the email body.
