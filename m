@@ -1,10 +1,16 @@
-Return-Path: <3xg_gWgkbAEMx34pfqqjwfuuni.lttlqjzxjwhtsyjsy.htr@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <linyu.yuan@nokia-sbell.com>
+From: "Yuan, Linyu (NSB - CN/Shanghai)" <linyu.yuan@nokia-sbell.com>
+Date: Thu, 12 Apr 2018 00:29:40 +0000
+Message-ID: <aba0ade61a234e8cac26b137963c7cc3@nokia-sbell.com>
+References: <001a1148d244c6f6f7055cd73fcd@google.com>
+	<001a113f8036fab00405620e4d72@google.com>
+	<CACT4Y+bO2HN9Tuw2iMND9tD8578DNSOwUs7_W6Rvg-8oX5Qipw@mail.gmail.com>
+In-Reply-To: <CACT4Y+bO2HN9Tuw2iMND9tD8578DNSOwUs7_W6Rvg-8oX5Qipw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Date: Tue, 24 Apr 2018 22:19:02 -0700
-Message-ID: <000000000000ba10e2056aa5686c@google.com>
-From: syzbot <syzbot+4e42a04e0bc33cb6c087@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] KASAN: stack-out-of-bounds Write in compat_copy_entries
+Subject: Re: [Bridge] WARNING in kobject_add_internal
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,123 +19,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
+To: Dmitry Vyukov <dvyukov@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 
-Hello,
-
-syzbot hit the following crash on upstream commit
-24cac7009cb1b211f1c793ecb6a462c03dc35818 (Tue Apr 24 21:16:40 2018 +0000)
-Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net
-syzbot dashboard link:  
-https://syzkaller.appspot.com/bug?extid=4e42a04e0bc33cb6c087
-
-So far this crash happened 3 times on upstream.
-syzkaller reproducer:  
-https://syzkaller.appspot.com/x/repro.syz?id=4827027970457600
-Raw console output:  
-https://syzkaller.appspot.com/x/log.txt?id=6212733133389824
-Kernel config:  
-https://syzkaller.appspot.com/x/.config?id=7043958930931867332
-compiler: gcc (GCC) 8.0.1 20180413 (experimental)
-user-space arch: i386
-
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+4e42a04e0bc33cb6c087@syzkaller.appspotmail.com
-It will help syzbot understand when the bug is fixed. See footer for  
-details.
-If you forward the report, please keep this part and the footer.
-
-random: sshd: uninitialized urandom read (32 bytes read)
-random: sshd: uninitialized urandom read (32 bytes read)
-random: sshd: uninitialized urandom read (32 bytes read)
-IPVS: ftp: loaded support on port[0] = 21
-==================================================================
-BUG: KASAN: stack-out-of-bounds in strlcpy include/linux/string.h:300  
-[inline]
-BUG: KASAN: stack-out-of-bounds in compat_mtw_from_user  
-net/bridge/netfilter/ebtables.c:1957 [inline]
-BUG: KASAN: stack-out-of-bounds in ebt_size_mwt  
-net/bridge/netfilter/ebtables.c:2059 [inline]
-BUG: KASAN: stack-out-of-bounds in size_entry_mwt  
-net/bridge/netfilter/ebtables.c:2155 [inline]
-BUG: KASAN: stack-out-of-bounds in compat_copy_entries+0x96c/0x14a0  
-net/bridge/netfilter/ebtables.c:2194
-Write of size 33 at addr ffff8801b0abf888 by task syz-executor0/4504
-
-CPU: 0 PID: 4504 Comm: syz-executor0 Not tainted 4.17.0-rc2+ #40
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
-  print_address_description+0x6c/0x20b mm/kasan/report.c:256
-  kasan_report_error mm/kasan/report.c:354 [inline]
-  kasan_report.cold.7+0x242/0x2fe mm/kasan/report.c:412
-  check_memory_region_inline mm/kasan/kasan.c:260 [inline]
-  check_memory_region+0x13e/0x1b0 mm/kasan/kasan.c:267
-  memcpy+0x37/0x50 mm/kasan/kasan.c:303
-  strlcpy include/linux/string.h:300 [inline]
-  compat_mtw_from_user net/bridge/netfilter/ebtables.c:1957 [inline]
-  ebt_size_mwt net/bridge/netfilter/ebtables.c:2059 [inline]
-  size_entry_mwt net/bridge/netfilter/ebtables.c:2155 [inline]
-  compat_copy_entries+0x96c/0x14a0 net/bridge/netfilter/ebtables.c:2194
-  compat_do_replace+0x483/0x900 net/bridge/netfilter/ebtables.c:2285
-  compat_do_ebt_set_ctl+0x2ac/0x324 net/bridge/netfilter/ebtables.c:2367
-  compat_nf_sockopt net/netfilter/nf_sockopt.c:144 [inline]
-  compat_nf_setsockopt+0x9b/0x140 net/netfilter/nf_sockopt.c:156
-  compat_ip_setsockopt+0xff/0x140 net/ipv4/ip_sockglue.c:1279
-  inet_csk_compat_setsockopt+0x97/0x120 net/ipv4/inet_connection_sock.c:1041
-  compat_tcp_setsockopt+0x49/0x80 net/ipv4/tcp.c:2901
-  compat_sock_common_setsockopt+0xb4/0x150 net/core/sock.c:3050
-  __compat_sys_setsockopt+0x1ab/0x7c0 net/compat.c:403
-  __do_compat_sys_setsockopt net/compat.c:416 [inline]
-  __se_compat_sys_setsockopt net/compat.c:413 [inline]
-  __ia32_compat_sys_setsockopt+0xbd/0x150 net/compat.c:413
-  do_syscall_32_irqs_on arch/x86/entry/common.c:323 [inline]
-  do_fast_syscall_32+0x345/0xf9b arch/x86/entry/common.c:394
-  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-RIP: 0023:0xf7fb3cb9
-RSP: 002b:00000000fff0c26c EFLAGS: 00000282 ORIG_RAX: 000000000000016e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000000000
-RDX: 0000000000000080 RSI: 0000000020000300 RDI: 00000000000005f4
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-
-The buggy address belongs to the page:
-page:ffffea0006c2afc0 count:0 mapcount:0 mapping:0000000000000000 index:0x0
-flags: 0x2fffc0000000000()
-raw: 02fffc0000000000 0000000000000000 0000000000000000 00000000ffffffff
-raw: 0000000000000000 ffffea0006c20101 0000000000000000 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8801b0abf780: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff8801b0abf800: 00 00 00 00 00 f1 f1 f1 f1 00 00 f2 f2 f2 f2 f2
-> ffff8801b0abf880: f2 00 00 00 07 f3 f3 f3 f3 00 00 00 00 00 00 00
-                                ^
-  ffff8801b0abf900: 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00
-  ffff8801b0abf980: 00 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-
----
-This bug is generated by a dumb bot. It may contain errors.
-See https://goo.gl/tpsmEJ for details.
-Direct all questions to syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report.
-If you forgot to add the Reported-by tag, once the fix for this bug is  
-merged
-into any tree, please reply to this email with:
-#syz fix: exact-commit-title
-If you want to test a patch for this bug, please reply with:
-#syz test: git://repo/address.git branch
-and provide the patch inline or as an attachment.
-To mark this as a duplicate of another syzbot report, please reply with:
-#syz dup: exact-subject-of-another-report
-If it's a one-off invalid bug report, please reply with:
-#syz invalid
-Note: if the crash happens again, it will cause creation of a new bug  
-report.
-Note: all commands must start from beginning of the line in the email body.
+SGksDQoNCkkgaGF2ZSBhIHF1ZXN0aW9uLA0KImNhbiBzeXpib3QgYXV0byB0ZXN0IGVhY2ggdHJl
+ZSB3aXRoIG5ld2VzdCBjaGFuZ2VzZXQiID8NCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0t
+LQ0KPiBGcm9tOiBuZXRkZXYtb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bmV0ZGV2LW93
+bmVyQHZnZXIua2VybmVsLm9yZ10NCj4gT24gQmVoYWxmIE9mIERtaXRyeSBWeXVrb3YNCj4gU2Vu
+dDogV2VkbmVzZGF5LCBBcHJpbCAxMSwgMjAxOCAxMDo1OCBQTQ0KPiBUbzogc3l6Ym90DQo+IENj
+OiBicmlkZ2VAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmc7IERhdmlkIE1pbGxlcjsgR3JlZyBL
+cm9haC1IYXJ0bWFuOw0KPiBMS01MOyBuZXRkZXY7IHN0ZXBoZW4gaGVtbWluZ2VyOyBzeXprYWxs
+ZXItYnVncw0KPiBTdWJqZWN0OiBSZTogV0FSTklORyBpbiBrb2JqZWN0X2FkZF9pbnRlcm5hbA0K
+PiANCj4gT24gRnJpLCBKYW4gNSwgMjAxOCBhdCAxMDo0MSBQTSwgc3l6Ym90DQo+IDxzeXpib3Qr
+ZTIwNGNlZDgyMGVmNzM5ZDcxZWY1NDM4ZjVlMTk3NmE4NzRhYmM4ZEBzeXprYWxsZXIuYXBwc3Bv
+dG1hDQo+IGlsLmNvbT4NCj4gd3JvdGU6DQo+ID4gc3l6a2FsbGVyIGhhcyBmb3VuZCByZXByb2R1
+Y2VyIGZvciB0aGUgZm9sbG93aW5nIGNyYXNoIG9uDQo+ID4gODk4NzZmMjc1ZThkNTYyOTEyZDlj
+MjM4Y2Q4ODhiNTIwNjVjZjI1Yw0KPiA+IGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGlu
+dXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvbWFzdGVyDQo+ID4gY29tcGlsZXI6IGdj
+YyAoR0NDKSA3LjEuMSAyMDE3MDYyMA0KPiA+IC5jb25maWcgaXMgYXR0YWNoZWQNCj4gPiBSYXcg
+Y29uc29sZSBvdXRwdXQgaXMgYXR0YWNoZWQuDQo+ID4gQyByZXByb2R1Y2VyIGlzIGF0dGFjaGVk
+DQo+ID4gc3l6a2FsbGVyIHJlcHJvZHVjZXIgaXMgYXR0YWNoZWQuIFNlZSBodHRwczovL2dvby5n
+bC9rZ0d6dEoNCj4gPiBmb3IgaW5mb3JtYXRpb24gYWJvdXQgc3l6a2FsbGVyIHJlcHJvZHVjZXJz
+DQo+ID4NCj4gPg0KPiA+IElNUE9SVEFOVDogaWYgeW91IGZpeCB0aGUgYnVnLCBwbGVhc2UgYWRk
+IHRoZSBmb2xsb3dpbmcgdGFnIHRvIHRoZSBjb21taXQ6DQo+ID4gUmVwb3J0ZWQtYnk6DQo+ID4N
+Cj4gc3l6Ym90K2UyMDRjZWQ4MjBlZjczOWQ3MWVmNTQzOGY1ZTE5NzZhODc0YWJjOGRAc3l6a2Fs
+bGVyLmFwcHNwb3RtYWlsDQo+IC5jb20NCj4gPiBJdCB3aWxsIGhlbHAgc3l6Ym90IHVuZGVyc3Rh
+bmQgd2hlbiB0aGUgYnVnIGlzIGZpeGVkLg0KPiANCj4gI3N5eiBkdXA6IFdBUk5JTkc6IGtvYmpl
+Y3QgYnVnIGluIGRldmljZV9hZGQNCj4gDQo+ID4gLS0tLS0tLS0tLS0tWyBjdXQgaGVyZSBdLS0t
+LS0tLS0tLS0tDQo+ID4ga29iamVjdF9hZGRfaW50ZXJuYWwgZmFpbGVkIGZvciAgIChlcnJvcjog
+LTEyIHBhcmVudDogbmV0KQ0KPiA+IFdBUk5JTkc6IENQVTogMSBQSUQ6IDM0OTQgYXQgbGliL2tv
+YmplY3QuYzoyNDQNCj4gPiBrb2JqZWN0X2FkZF9pbnRlcm5hbCsweDNmNi8weGJjMCBsaWIva29i
+amVjdC5jOjI0Mg0KPiA+IEtlcm5lbCBwYW5pYyAtIG5vdCBzeW5jaW5nOiBwYW5pY19vbl93YXJu
+IHNldCAuLi4NCj4gPg0KPiA+IENQVTogMSBQSUQ6IDM0OTQgQ29tbTogc3l6a2FsbGVyNDI1OTk4
+IE5vdCB0YWludGVkIDQuMTUuMC1yYzYrICMyNDkNCj4gPiBIYXJkd2FyZSBuYW1lOiBHb29nbGUg
+R29vZ2xlIENvbXB1dGUgRW5naW5lL0dvb2dsZSBDb21wdXRlIEVuZ2luZSwNCj4gQklPUw0KPiA+
+IEdvb2dsZSAwMS8wMS8yMDExDQo+ID4gQ2FsbCBUcmFjZToNCj4gPiAgX19kdW1wX3N0YWNrIGxp
+Yi9kdW1wX3N0YWNrLmM6MTcgW2lubGluZV0NCj4gPiAgZHVtcF9zdGFjaysweDE5NC8weDI1NyBs
+aWIvZHVtcF9zdGFjay5jOjUzDQo+ID4gIHBhbmljKzB4MWU0LzB4NDFjIGtlcm5lbC9wYW5pYy5j
+OjE4Mw0KPiA+ICBfX3dhcm4rMHgxZGMvMHgyMDAga2VybmVsL3BhbmljLmM6NTQ3DQo+ID4gIHJl
+cG9ydF9idWcrMHgyMTEvMHgyZDAgbGliL2J1Zy5jOjE4NA0KPiA+ICBmaXh1cF9idWcucGFydC4x
+MSsweDM3LzB4ODAgYXJjaC94ODYva2VybmVsL3RyYXBzLmM6MTc4DQo+ID4gIGZpeHVwX2J1ZyBh
+cmNoL3g4Ni9rZXJuZWwvdHJhcHMuYzoyNDcgW2lubGluZV0NCj4gPiAgZG9fZXJyb3JfdHJhcCsw
+eDJkNy8weDNlMCBhcmNoL3g4Ni9rZXJuZWwvdHJhcHMuYzoyOTYNCj4gPiAgZG9faW52YWxpZF9v
+cCsweDFiLzB4MjAgYXJjaC94ODYva2VybmVsL3RyYXBzLmM6MzE1DQo+ID4gIGludmFsaWRfb3Ar
+MHgyMi8weDQwIGFyY2gveDg2L2VudHJ5L2VudHJ5XzY0LlM6MTA3OQ0KPiA+IFJJUDogMDAxMDpr
+b2JqZWN0X2FkZF9pbnRlcm5hbCsweDNmNi8weGJjMCBsaWIva29iamVjdC5jOjI0Mg0KPiA+IFJT
+UDogMDAxODpmZmZmODgwMWM1M2M3NmYwIEVGTEFHUzogMDAwMTAyODYNCj4gPiBSQVg6IGRmZmZm
+YzAwMDAwMDAwMDggUkJYOiBmZmZmODgwMWJmNWE4OGQ4IFJDWDogZmZmZmZmZmY4MTU5ZGE5ZQ0K
+PiA+IFJEWDogMDAwMDAwMDAwMDAwMDAwMCBSU0k6IDFmZmZmMTAwMzhhNzhlOTkgUkRJOiBmZmZm
+ODgwMWM1M2M3M2Y4DQo+ID4gUkJQOiBmZmZmODgwMWM1M2M3N2U4IFIwODogMWZmZmYxMDAzOGE3
+OGU1YiBSMDk6IDAwMDAwMDAwMDAwMDAwMDANCj4gPiBSMTA6IGZmZmY4ODAxYzUzYzc0YjAgUjEx
+OiAwMDAwMDAwMDAwMDAwMDAwIFIxMjogMWZmZmYxMDAzOGE3OGVlNA0KPiA+IFIxMzogMDAwMDAw
+MDBmZmZmZmZmNCBSMTQ6IGZmZmY4ODAxZDgzNTlhODAgUjE1OiBmZmZmZmZmZjg2MjAxOTgwDQo+
+ID4gIGtvYmplY3RfYWRkX3ZhcmcgbGliL2tvYmplY3QuYzozNjYgW2lubGluZV0NCj4gPiAga29i
+amVjdF9hZGQrMHgxMzIvMHgxZjAgbGliL2tvYmplY3QuYzo0MTENCj4gPiAgZGV2aWNlX2FkZCsw
+eDM1ZC8weDE2NTAgZHJpdmVycy9iYXNlL2NvcmUuYzoxNzg3DQo+ID4gIG5ldGRldl9yZWdpc3Rl
+cl9rb2JqZWN0KzB4MTgzLzB4MzYwIG5ldC9jb3JlL25ldC1zeXNmcy5jOjE2MDQNCj4gPiAgcmVn
+aXN0ZXJfbmV0ZGV2aWNlKzB4YjJiLzB4MTAxMCBuZXQvY29yZS9kZXYuYzo3Njk4DQo+ID4gIHR1
+bl9zZXRfaWZmIGRyaXZlcnMvbmV0L3R1bi5jOjIzMTkgW2lubGluZV0NCj4gPiAgX190dW5fY2hy
+X2lvY3RsKzB4MWQ4OS8weDNkZDAgZHJpdmVycy9uZXQvdHVuLmM6MjUyNA0KPiA+ICB0dW5fY2hy
+X2lvY3RsKzB4MmEvMHg0MCBkcml2ZXJzL25ldC90dW4uYzoyNzczDQo+ID4gIHZmc19pb2N0bCBm
+cy9pb2N0bC5jOjQ2IFtpbmxpbmVdDQo+ID4gIGRvX3Zmc19pb2N0bCsweDFiMS8weDE1MjAgZnMv
+aW9jdGwuYzo2ODYNCj4gPiAgU1lTQ19pb2N0bCBmcy9pb2N0bC5jOjcwMSBbaW5saW5lXQ0KPiA+
+ICBTeVNfaW9jdGwrMHg4Zi8weGMwIGZzL2lvY3RsLmM6NjkyDQo+ID4gIGVudHJ5X1NZU0NBTExf
+NjRfZmFzdHBhdGgrMHgyMy8weDlhDQo+ID4gUklQOiAwMDMzOjB4NDQ0ZmM5DQo+ID4gUlNQOiAw
+MDJiOjAwMDA3ZmZmNTMzODlkYzggRUZMQUdTOiAwMDAwMDI0NiBPUklHX1JBWDoNCj4gMDAwMDAw
+MDAwMDAwMDAxMA0KPiA+IFJBWDogZmZmZmZmZmZmZmZmZmZkYSBSQlg6IDAwMDAwMDAwMDAwMDAw
+MDEgUkNYOiAwMDAwMDAwMDAwNDQ0ZmM5DQo+ID4gUkRYOiAwMDAwMDAwMDIwNTMzMDAwIFJTSTog
+MDAwMDAwMDA0MDA0NTRjYSBSREk6IDAwMDAwMDAwMDAwMDAwMDQNCj4gPiBSQlA6IDAwMDAwMDAw
+MDAwMDAwMDUgUjA4OiAwMDAwMDAwMDAwMDAwMDAyIFIwOTogMDAwMDAwNmYwMDAwMzEzMQ0KPiA+
+IFIxMDogMDAwMDAwMDAwMDAwMDAwMCBSMTE6IDAwMDAwMDAwMDAwMDAyNDYgUjEyOiAwMDAwMDAw
+MDAwNDAyNTAwDQo+ID4gUjEzOiAwMDAwMDAwMDAwNDAyNTkwIFIxNDogMDAwMDAwMDAwMDAwMDAw
+MCBSMTU6IDAwMDAwMDAwMDAwMDAwMDANCj4gPg0KPiA+IER1bXBpbmcgZnRyYWNlIGJ1ZmZlcjoN
+Cj4gPiAgICAoZnRyYWNlIGJ1ZmZlciBlbXB0eSkNCj4gPiBLZXJuZWwgT2Zmc2V0OiBkaXNhYmxl
+ZA0KPiA+IFJlYm9vdGluZyBpbiA4NjQwMCBzZWNvbmRzLi4NCj4gPg0K
