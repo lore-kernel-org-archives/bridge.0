@@ -1,10 +1,10 @@
-Return-Path: <3dybOWgkbANgMSTE4FF8L4JJC7.AIIAF8OM8L6IHN8HN.6IG@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <35ZfdWgkbAGgYefQGRRKXGVVOJ.MUUMRKaYKXIUTZKTZ.IUS@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Date: Wed, 11 Apr 2018 08:15:03 -0700
-Message-ID: <001a113de2d878ade40569941a21@google.com>
-From: syzbot <syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com>
+Date: Mon, 23 Apr 2018 01:23:01 -0700
+Message-ID: <0000000000000734c0056a7fbf3b@google.com>
+From: syzbot <syzbot+5c06e318fc558cc27823@syzkaller.appspotmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] WARNING: kobject bug in br_add_if
+Subject: [Bridge] KMSAN: uninit-value in ebt_stp_mt_check
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,88 +13,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
+To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
 
 Hello,
 
-syzbot hit the following crash on upstream commit
-10b84daddbec72c6b440216a69de9a9605127f7a (Sat Mar 31 17:59:00 2018 +0000)
-Merge branch 'perf-urgent-for-linus' of  
-git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+syzbot hit the following crash on  
+https://github.com/google/kmsan.git/master commit
+a7f95e9c8a95e9fbb388c3999b61a17667cd3bbe (Sat Apr 21 13:50:22 2018 +0000)
+kmsan: disable assembly checksums
 syzbot dashboard link:  
-https://syzkaller.appspot.com/bug?extid=de73361ee4971b6e6f75
+https://syzkaller.appspot.com/bug?extid=5c06e318fc558cc27823
 
-So far this crash happened 4 times on net-next, upstream.
-Unfortunately, I don't have any reproducer for this crash yet.
+So far this crash happened 3 times on  
+https://github.com/google/kmsan.git/master.
+C reproducer: https://syzkaller.appspot.com/x/repro.c?id=5411555638247424
+syzkaller reproducer:  
+https://syzkaller.appspot.com/x/repro.syz?id=6309829995921408
 Raw console output:  
-https://syzkaller.appspot.com/x/log.txt?id=5007286875455488
-Kernel config:  
-https://syzkaller.appspot.com/x/.config?id=-2760467897697295172
-compiler: gcc (GCC) 7.1.1 20170620
+https://syzkaller.appspot.com/x/log.txt?id=4546610964987904
+Kernel config: https://syzkaller.appspot.com/x/.config?id=328654897048964367
+compiler: clang version 7.0.0 (trunk 329391)
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com
+Reported-by: syzbot+5c06e318fc558cc27823@syzkaller.appspotmail.com
 It will help syzbot understand when the bug is fixed. See footer for  
 details.
 If you forward the report, please keep this part and the footer.
 
-R13: 0000000000000369 R14: 00000000006f7278 R15: 0000000000000006
-------------[ cut here ]------------
-binder: 23650:23651 unknown command 1078223622
-kobject_add_internal failed for brport (error: -12 parent: bond0)
-binder: 23650:23651 ioctl c0306201 2000dfd0 returned -22
-WARNING: CPU: 1 PID: 23647 at lib/kobject.c:242  
-kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
-Kernel panic - not syncing: panic_on_warn set ...
-
-CPU: 1 PID: 23647 Comm: syz-executor7 Not tainted 4.16.0-rc7+ #374
-binder: BINDER_SET_CONTEXT_MGR already set
+==================================================================
+BUG: KMSAN: uninit-value in ebt_stp_mt_check+0x248/0x410  
+net/bridge/netfilter/ebt_stp.c:164
+CPU: 0 PID: 4520 Comm: syzkaller565841 Not tainted 4.16.0+ #85
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
 Call Trace:
   __dump_stack lib/dump_stack.c:17 [inline]
-  dump_stack+0x194/0x24d lib/dump_stack.c:53
-  panic+0x1e4/0x41c kernel/panic.c:183
-  __warn+0x1dc/0x200 kernel/panic.c:547
-  report_bug+0x1f4/0x2b0 lib/bug.c:186
-  fixup_bug.part.10+0x37/0x80 arch/x86/kernel/traps.c:178
-  fixup_bug arch/x86/kernel/traps.c:247 [inline]
-  do_error_trap+0x2d7/0x3e0 arch/x86/kernel/traps.c:296
-  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
-  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
-RIP: 0010:kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
-RSP: 0018:ffff8801d089f560 EFLAGS: 00010286
-RAX: dffffc0000000008 RBX: ffff8801adbee178 RCX: ffffffff815b193e
-RDX: 0000000000040000 RSI: ffffc900022aa000 RDI: 1ffff1003a113e31
-RBP: ffff8801d089f658 R08: 1ffff1003a113df3 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 1ffff1003a113eb2
-R13: 00000000fffffff4 R14: ffff8801abd88828 R15: ffff8801d75a1e00
-  kobject_add_varg lib/kobject.c:364 [inline]
-  kobject_init_and_add+0xf9/0x150 lib/kobject.c:436
-  br_add_if+0x79a/0x1a70 net/bridge/br_if.c:533
-  add_del_if+0xf4/0x140 net/bridge/br_ioctl.c:101
-  br_dev_ioctl+0xa2/0xc0 net/bridge/br_ioctl.c:396
-  dev_ifsioc+0x333/0x9b0 net/core/dev_ioctl.c:334
-  dev_ioctl+0x176/0xbe0 net/core/dev_ioctl.c:500
-  sock_do_ioctl+0x1ba/0x390 net/socket.c:981
-  sock_ioctl+0x367/0x670 net/socket.c:1081
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  do_vfs_ioctl+0x1b1/0x1520 fs/ioctl.c:686
-  SYSC_ioctl fs/ioctl.c:701 [inline]
-  SyS_ioctl+0x8f/0xc0 fs/ioctl.c:692
-  do_syscall_64+0x281/0x940 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x42/0xb7
-RIP: 0033:0x454e79
-RSP: 002b:00007eff7dab7c68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007eff7dab86d4 RCX: 0000000000454e79
-RDX: 0000000020000000 RSI: 00000000000089a2 RDI: 0000000000000014
-RBP: 000000000072bea0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000015
-R13: 0000000000000369 R14: 00000000006f7278 R15: 0000000000000006
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
+  dump_stack+0x185/0x1d0 lib/dump_stack.c:53
+  kmsan_report+0x142/0x240 mm/kmsan/kmsan.c:1067
+  __msan_warning_32+0x6c/0xb0 mm/kmsan/kmsan_instr.c:683
+  ebt_stp_mt_check+0x248/0x410 net/bridge/netfilter/ebt_stp.c:164
+  xt_check_match+0x1449/0x1660 net/netfilter/x_tables.c:499
+  ebt_check_match net/bridge/netfilter/ebtables.c:374 [inline]
+  ebt_check_entry net/bridge/netfilter/ebtables.c:704 [inline]
+  translate_table+0x3ffd/0x5e10 net/bridge/netfilter/ebtables.c:945
+  do_replace_finish+0x1258/0x2ea0 net/bridge/netfilter/ebtables.c:1002
+  do_replace+0x707/0x770 net/bridge/netfilter/ebtables.c:1141
+  do_ebt_set_ctl+0x2ab/0x3c0 net/bridge/netfilter/ebtables.c:1518
+  nf_sockopt net/netfilter/nf_sockopt.c:106 [inline]
+  nf_setsockopt+0x476/0x4d0 net/netfilter/nf_sockopt.c:115
+  ip_setsockopt+0x24b/0x2b0 net/ipv4/ip_sockglue.c:1261
+  dccp_setsockopt+0x1c3/0x1f0 net/dccp/proto.c:576
+  sock_common_setsockopt+0x136/0x170 net/core/sock.c:2975
+  SYSC_setsockopt+0x4b8/0x570 net/socket.c:1849
+  SyS_setsockopt+0x76/0xa0 net/socket.c:1828
+  do_syscall_64+0x309/0x430 arch/x86/entry/common.c:287
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+RIP: 0033:0x445d39
+RSP: 002b:00007efff4e14da8 EFLAGS: 00000246 ORIG_RAX: 0000000000000036
+RAX: ffffffffffffffda RBX: 00000000006dac24 RCX: 0000000000445d39
+RDX: 0000000000000080 RSI: 0000000000000000 RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000000000358 R09: 0000000000000000
+R10: 00000000200008c0 R11: 0000000000000246 R12: 00000000006dac20
+R13: 006567646972625f R14: 6f745f3168746576 R15: 0000000000000002
+
+Local variable description: ----mtpar.i@translate_table
+Variable was created at:
+  translate_table+0xb9/0x5e10 net/bridge/netfilter/ebtables.c:833
+  do_replace_finish+0x1258/0x2ea0 net/bridge/netfilter/ebtables.c:1002
+==================================================================
 
 
 ---
@@ -107,6 +93,9 @@ If you forgot to add the Reported-by tag, once the fix for this bug is
 merged
 into any tree, please reply to this email with:
 #syz fix: exact-commit-title
+If you want to test a patch for this bug, please reply with:
+#syz test: git://repo/address.git branch
+and provide the patch inline or as an attachment.
 To mark this as a duplicate of another syzbot report, please reply with:
 #syz dup: exact-subject-of-another-report
 If it's a one-off invalid bug report, please reply with:
