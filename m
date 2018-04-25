@@ -1,10 +1,10 @@
-Return-Path: <35ZfdWgkbAGgYefQGRRKXGVVOJ.MUUMRKaYKXIUTZKTZ.IUS@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <3xg_gWgkbAEMx34pfqqjwfuuni.lttlqjzxjwhtsyjsy.htr@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Date: Mon, 23 Apr 2018 01:23:01 -0700
-Message-ID: <0000000000000734c0056a7fbf3b@google.com>
-From: syzbot <syzbot+5c06e318fc558cc27823@syzkaller.appspotmail.com>
+Date: Tue, 24 Apr 2018 22:19:02 -0700
+Message-ID: <000000000000ba10e2056aa5686c@google.com>
+From: syzbot <syzbot+4e42a04e0bc33cb6c087@syzkaller.appspotmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] KMSAN: uninit-value in ebt_stp_mt_check
+Subject: [Bridge] KASAN: stack-out-of-bounds Write in compat_copy_entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,69 +17,99 @@ To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.n
 
 Hello,
 
-syzbot hit the following crash on  
-https://github.com/google/kmsan.git/master commit
-a7f95e9c8a95e9fbb388c3999b61a17667cd3bbe (Sat Apr 21 13:50:22 2018 +0000)
-kmsan: disable assembly checksums
+syzbot hit the following crash on upstream commit
+24cac7009cb1b211f1c793ecb6a462c03dc35818 (Tue Apr 24 21:16:40 2018 +0000)
+Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net
 syzbot dashboard link:  
-https://syzkaller.appspot.com/bug?extid=5c06e318fc558cc27823
+https://syzkaller.appspot.com/bug?extid=4e42a04e0bc33cb6c087
 
-So far this crash happened 3 times on  
-https://github.com/google/kmsan.git/master.
-C reproducer: https://syzkaller.appspot.com/x/repro.c?id=5411555638247424
+So far this crash happened 3 times on upstream.
 syzkaller reproducer:  
-https://syzkaller.appspot.com/x/repro.syz?id=6309829995921408
+https://syzkaller.appspot.com/x/repro.syz?id=4827027970457600
 Raw console output:  
-https://syzkaller.appspot.com/x/log.txt?id=4546610964987904
-Kernel config: https://syzkaller.appspot.com/x/.config?id=328654897048964367
-compiler: clang version 7.0.0 (trunk 329391)
+https://syzkaller.appspot.com/x/log.txt?id=6212733133389824
+Kernel config:  
+https://syzkaller.appspot.com/x/.config?id=7043958930931867332
+compiler: gcc (GCC) 8.0.1 20180413 (experimental)
+user-space arch: i386
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+5c06e318fc558cc27823@syzkaller.appspotmail.com
+Reported-by: syzbot+4e42a04e0bc33cb6c087@syzkaller.appspotmail.com
 It will help syzbot understand when the bug is fixed. See footer for  
 details.
 If you forward the report, please keep this part and the footer.
 
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+IPVS: ftp: loaded support on port[0] = 21
 ==================================================================
-BUG: KMSAN: uninit-value in ebt_stp_mt_check+0x248/0x410  
-net/bridge/netfilter/ebt_stp.c:164
-CPU: 0 PID: 4520 Comm: syzkaller565841 Not tainted 4.16.0+ #85
+BUG: KASAN: stack-out-of-bounds in strlcpy include/linux/string.h:300  
+[inline]
+BUG: KASAN: stack-out-of-bounds in compat_mtw_from_user  
+net/bridge/netfilter/ebtables.c:1957 [inline]
+BUG: KASAN: stack-out-of-bounds in ebt_size_mwt  
+net/bridge/netfilter/ebtables.c:2059 [inline]
+BUG: KASAN: stack-out-of-bounds in size_entry_mwt  
+net/bridge/netfilter/ebtables.c:2155 [inline]
+BUG: KASAN: stack-out-of-bounds in compat_copy_entries+0x96c/0x14a0  
+net/bridge/netfilter/ebtables.c:2194
+Write of size 33 at addr ffff8801b0abf888 by task syz-executor0/4504
+
+CPU: 0 PID: 4504 Comm: syz-executor0 Not tainted 4.17.0-rc2+ #40
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
 Call Trace:
-  __dump_stack lib/dump_stack.c:17 [inline]
-  dump_stack+0x185/0x1d0 lib/dump_stack.c:53
-  kmsan_report+0x142/0x240 mm/kmsan/kmsan.c:1067
-  __msan_warning_32+0x6c/0xb0 mm/kmsan/kmsan_instr.c:683
-  ebt_stp_mt_check+0x248/0x410 net/bridge/netfilter/ebt_stp.c:164
-  xt_check_match+0x1449/0x1660 net/netfilter/x_tables.c:499
-  ebt_check_match net/bridge/netfilter/ebtables.c:374 [inline]
-  ebt_check_entry net/bridge/netfilter/ebtables.c:704 [inline]
-  translate_table+0x3ffd/0x5e10 net/bridge/netfilter/ebtables.c:945
-  do_replace_finish+0x1258/0x2ea0 net/bridge/netfilter/ebtables.c:1002
-  do_replace+0x707/0x770 net/bridge/netfilter/ebtables.c:1141
-  do_ebt_set_ctl+0x2ab/0x3c0 net/bridge/netfilter/ebtables.c:1518
-  nf_sockopt net/netfilter/nf_sockopt.c:106 [inline]
-  nf_setsockopt+0x476/0x4d0 net/netfilter/nf_sockopt.c:115
-  ip_setsockopt+0x24b/0x2b0 net/ipv4/ip_sockglue.c:1261
-  dccp_setsockopt+0x1c3/0x1f0 net/dccp/proto.c:576
-  sock_common_setsockopt+0x136/0x170 net/core/sock.c:2975
-  SYSC_setsockopt+0x4b8/0x570 net/socket.c:1849
-  SyS_setsockopt+0x76/0xa0 net/socket.c:1828
-  do_syscall_64+0x309/0x430 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
-RIP: 0033:0x445d39
-RSP: 002b:00007efff4e14da8 EFLAGS: 00000246 ORIG_RAX: 0000000000000036
-RAX: ffffffffffffffda RBX: 00000000006dac24 RCX: 0000000000445d39
-RDX: 0000000000000080 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000000000358 R09: 0000000000000000
-R10: 00000000200008c0 R11: 0000000000000246 R12: 00000000006dac20
-R13: 006567646972625f R14: 6f745f3168746576 R15: 0000000000000002
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
+  print_address_description+0x6c/0x20b mm/kasan/report.c:256
+  kasan_report_error mm/kasan/report.c:354 [inline]
+  kasan_report.cold.7+0x242/0x2fe mm/kasan/report.c:412
+  check_memory_region_inline mm/kasan/kasan.c:260 [inline]
+  check_memory_region+0x13e/0x1b0 mm/kasan/kasan.c:267
+  memcpy+0x37/0x50 mm/kasan/kasan.c:303
+  strlcpy include/linux/string.h:300 [inline]
+  compat_mtw_from_user net/bridge/netfilter/ebtables.c:1957 [inline]
+  ebt_size_mwt net/bridge/netfilter/ebtables.c:2059 [inline]
+  size_entry_mwt net/bridge/netfilter/ebtables.c:2155 [inline]
+  compat_copy_entries+0x96c/0x14a0 net/bridge/netfilter/ebtables.c:2194
+  compat_do_replace+0x483/0x900 net/bridge/netfilter/ebtables.c:2285
+  compat_do_ebt_set_ctl+0x2ac/0x324 net/bridge/netfilter/ebtables.c:2367
+  compat_nf_sockopt net/netfilter/nf_sockopt.c:144 [inline]
+  compat_nf_setsockopt+0x9b/0x140 net/netfilter/nf_sockopt.c:156
+  compat_ip_setsockopt+0xff/0x140 net/ipv4/ip_sockglue.c:1279
+  inet_csk_compat_setsockopt+0x97/0x120 net/ipv4/inet_connection_sock.c:1041
+  compat_tcp_setsockopt+0x49/0x80 net/ipv4/tcp.c:2901
+  compat_sock_common_setsockopt+0xb4/0x150 net/core/sock.c:3050
+  __compat_sys_setsockopt+0x1ab/0x7c0 net/compat.c:403
+  __do_compat_sys_setsockopt net/compat.c:416 [inline]
+  __se_compat_sys_setsockopt net/compat.c:413 [inline]
+  __ia32_compat_sys_setsockopt+0xbd/0x150 net/compat.c:413
+  do_syscall_32_irqs_on arch/x86/entry/common.c:323 [inline]
+  do_fast_syscall_32+0x345/0xf9b arch/x86/entry/common.c:394
+  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
+RIP: 0023:0xf7fb3cb9
+RSP: 002b:00000000fff0c26c EFLAGS: 00000282 ORIG_RAX: 000000000000016e
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000000000
+RDX: 0000000000000080 RSI: 0000000020000300 RDI: 00000000000005f4
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
 
-Local variable description: ----mtpar.i@translate_table
-Variable was created at:
-  translate_table+0xb9/0x5e10 net/bridge/netfilter/ebtables.c:833
-  do_replace_finish+0x1258/0x2ea0 net/bridge/netfilter/ebtables.c:1002
+The buggy address belongs to the page:
+page:ffffea0006c2afc0 count:0 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0x2fffc0000000000()
+raw: 02fffc0000000000 0000000000000000 0000000000000000 00000000ffffffff
+raw: 0000000000000000 ffffea0006c20101 0000000000000000 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8801b0abf780: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff8801b0abf800: 00 00 00 00 00 f1 f1 f1 f1 00 00 f2 f2 f2 f2 f2
+> ffff8801b0abf880: f2 00 00 00 07 f3 f3 f3 f3 00 00 00 00 00 00 00
+                                ^
+  ffff8801b0abf900: 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00
+  ffff8801b0abf980: 00 f2 f2 f2 f2 f2 00 00 00 00 00 00 00 00 00 00
 ==================================================================
 
 
