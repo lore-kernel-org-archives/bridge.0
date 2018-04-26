@@ -1,20 +1,22 @@
-Return-Path: <nikolay@cumulusnetworks.com>
+Return-Path: <stephen@networkplumber.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=yPv2rhpzzDjziFVMLLuApOCSrtVCE+dprevKYftyJio=;
-	b=fPgeRGMwcODw1h9Y3ZZZ6c5TjK1vIO2ArgQuHfE9KzRmbtDgTy2M4ON66Lqdju3ubw
-	+Gc8oJUyEl7dusY4WDjeU8hR1YdMLEdiY1hjoimoYOlg7w2zpL8jPM4ondANdSDKnT+/
-	36FiKYIYaYGaXmKY44VcBSA0HSiPIauASvd+0=
-References: <20180426030705.6632-1-yuehaibing@huawei.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <426b1ae6-9fd8-a07b-790e-d01eb25a3990@cumulusnetworks.com>
-Date: Thu, 26 Apr 2018 17:44:09 +0300
-MIME-Version: 1.0
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=jOErRyHrjsWpvYa6plYl7+ZuIpTnWoZMKY6pqlG98iQ=;
+	b=IyVvZQYi9qoREf30qXu0JJHXxnYYgYUxUDgHNPBaXiAA7QkCvcl/onaN7dJ2mC/Ywv
+	CcviXXEJ+NFK1tDzNHNZHPM0BtQBXT0Cf+2smxMhcOoTLPHASXcWvdXq4kkdeOIefmqh
+	12usyS8bNL+7CTekqulfq5KVD/Qc6w29Y45VGIuQoF0fucPvQUAWHRc42uZH04UChK3x
+	W8aAn2wlRGNOdFTAw5jmMpb+2A93vtPXJYwIY+jiiQgnJBnJcOKsCX7InlJCWpuwnR32
+	99KbtbiSpwIBXjVBsI/KiorerFmWU7BQTGnc1qirO4j9tVQUMrUaCC8R90tQE87gA8ad
+	6ivw==
+Date: Thu, 26 Apr 2018 08:54:13 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20180426085413.53cad9ad@xeon-e3>
 In-Reply-To: <20180426030705.6632-1-yuehaibing@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <20180426030705.6632-1-yuehaibing@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] bridge: use hlist_entry_safe
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -25,10 +27,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: YueHaibing <yuehaibing@huawei.com>, stephen@networkplumber.org, davem@davemloft.net
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: YueHaibing <yuehaibing@huawei.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 26/04/18 06:07, YueHaibing wrote:
+On Thu, 26 Apr 2018 11:07:05 +0800
+YueHaibing <yuehaibing@huawei.com> wrote:
+
 > Use hlist_entry_safe() instead of open-coding it.
 > 
 > Signed-off-by: YueHaibing <yuehaibing@huawei.com>
@@ -49,8 +53,7 @@ On 26/04/18 06:07, YueHaibing wrote:
 > +		rport = hlist_entry_safe(rp, struct net_bridge_port, rlist);
 >  
 >  		if ((unsigned long)lport > (unsigned long)rport) {
->  			port = lport;
-> 
+>
+  			port = lport;
 
-Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-
+Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
