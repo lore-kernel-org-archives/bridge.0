@@ -1,25 +1,24 @@
-Return-Path: <ebiggers3@gmail.com>
+Return-Path: <liuhangbin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=date:from:to:cc:subject:message-id:references:mime-version
 	:content-disposition:in-reply-to:user-agent;
-	bh=8wa1MLmdKxIJHrKenTsjT4gUhhxdU2ocSlPa2PKblPY=;
-	b=U2ZurWaTEVuY9hs6VcjkooLmXuZOs+YDaj81ZcAqE4rEBKB14RRHisxMqwDr6mNAkr
-	6w8W2CSnTD32kgfFC5rDdKCrQ1m0qt16tNDsJZru1YyIBcC2FuAiwTeapv5YvQ4OOeiU
-	ZYcX2F6AaV335tVJ2C6GoHAlH4ACq6rck6bFdkxaENT/eugGi5A/Q3mSFdad9ZyQtErG
-	toNJOV0+anv0yFkdd1Sf3/btIf3uF83M/PG3Gg0IUjZz64yGQlA5qYuJ3+ke5OypVA/F
-	V44u3z/uUv9TA569p6pMJAhDCmdydy0Y3ecxIo8SuWOkgCeu08f4iROPFcXuiuD+m851
-	pdqA==
-Date: Sat, 21 Apr 2018 11:18:27 -0700
-From: Eric Biggers <ebiggers3@gmail.com>
-Message-ID: <20180421181827.GC1098@sol.localdomain>
-References: <001a113f1b64a3c4ab0566a60182@google.com>
-	<1520263080.5898.7.camel@redhat.com>
+	bh=MqKO5F9VvU/AtEuGEAuq1oM08xksqAUkA+HK8iGJ33A=;
+	b=BeseXGhBy2eq+RE7RoqFitgpIJTiWcY5qiVREL3sCgKtQbFdvhqUArICFm+Hkdcg0n
+	k8hDJDOYDbfQf89w14iAlHHgsErYUNrE5MQkMG3OuYhFACEybr80T9fJUhTKafg4j4VA
+	atPUCDuP1UDBTBMeLlKW3Su6at+z4pWilQijyFVZfB0CeRB8iWU3KDoeoIa1leQahdxD
+	VqChmk8N064QJxFoeGVmKdlwasjgb1MEZ6Y3gybu5P6OKmzyXTOhcbPJsRb8R7e/Ksab
+	g3jQVYAsPHAWmCiawhYJvlbSCAO6WIa/Ku5BwTrPg/HsSaJuYOYj5P7zHjv4Vdyp7vY0
+	0iGA==
+Date: Thu, 26 Apr 2018 14:13:15 +0800
+From: Hangbin Liu <liuhangbin@gmail.com>
+Message-ID: <20180426061314.GH20683@leo.usersys.redhat.com>
+References: <001a113de2d878ade40569941a21@google.com>
+	<CACT4Y+afuYwoWEp1PJ-Noo-YBXmKKRErntBWy2fR6iz=_xFByQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1520263080.5898.7.camel@redhat.com>
-Subject: Re: [Bridge] BUG: unable to handle kernel paging request in
- compat_copy_entries
+In-Reply-To: <CACT4Y+afuYwoWEp1PJ-Noo-YBXmKKRErntBWy2fR6iz=_xFByQ@mail.gmail.com>
+Subject: Re: [Bridge] WARNING: kobject bug in br_add_if
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,123 +27,116 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, syzbot <syzbot+5705ba91388d7bc30828@syzkaller.appspotmail.com>, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, syzkaller-bugs@googlegroups.com, davem@davemloft.net, pablo@netfilter.org
+To: Dmitry Vyukov <dvyukov@google.com>
+Cc: netdev <netdev@vger.kernel.org>, syzbot <syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Miller <davem@davemloft.net>
 
-On Mon, Mar 05, 2018 at 04:18:00PM +0100, Paolo Abeni wrote:
-> On Mon, 2018-03-05 at 00:21 -0800, syzbot wrote:
+On Wed, Apr 11, 2018 at 05:18:23PM +0200, Dmitry Vyukov wrote:
+> On Wed, Apr 11, 2018 at 5:15 PM, syzbot
+> <syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com> wrote:
 > > Hello,
-> > 
+> >
 > > syzbot hit the following crash on upstream commit
-> > 5fbdefcf685defd8bc5a8f37b17538d25c58d77a (Fri Mar 2 21:05:20 2018 +0000)
-> > Merge branch 'parisc-4.16-1' of  
-> > git://git.kernel.org/pub/scm/linux/kernel/git/deller/parisc-linux
-> > 
-> > So far this crash happened 5 times on upstream.
-> > syzkaller reproducer is attached.
-> > Raw console output is attached.
+> > 10b84daddbec72c6b440216a69de9a9605127f7a (Sat Mar 31 17:59:00 2018 +0000)
+> > Merge branch 'perf-urgent-for-linus' of
+> > git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+> > syzbot dashboard link:
+> > https://syzkaller.appspot.com/bug?extid=de73361ee4971b6e6f75
+> >
+> > So far this crash happened 4 times on net-next, upstream.
+> > Unfortunately, I don't have any reproducer for this crash yet.
+> > Raw console output:
+> > https://syzkaller.appspot.com/x/log.txt?id=5007286875455488
+> > Kernel config:
+> > https://syzkaller.appspot.com/x/.config?id=-2760467897697295172
 > > compiler: gcc (GCC) 7.1.1 20170620
-> > .config is attached.
-> > user-space arch: i386
-> > 
+> >
 > > IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> > Reported-by: syzbot+5705ba91388d7bc30828@syzkaller.appspotmail.com
-> > It will help syzbot understand when the bug is fixed. See footer for  
+> > Reported-by: syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com
+> > It will help syzbot understand when the bug is fixed. See footer for
 > > details.
 > > If you forward the report, please keep this part and the footer.
-> > 
-> > audit: type=1400 audit(1520098078.492:8): avc:  denied  { map } for   
-> > pid=4239 comm="syz-execprog" path="/root/syzkaller-shm255959590" dev="sda1"  
-> > ino=16482 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023  
-> > tcontext=unconfined_u:object_r:file_t:s0 tclass=file permissive=1
-> > IPVS: ftp: loaded support on port[0] = 21
-> > BUG: unable to handle kernel paging request at ffffc90001819e4f
-> > IP: ebt_size_mwt net/bridge/netfilter/ebtables.c:2037 [inline]
-> > IP: size_entry_mwt net/bridge/netfilter/ebtables.c:2122 [inline]
-> > IP: compat_copy_entries+0x49f/0x1050 net/bridge/netfilter/ebtables.c:2160
-> > PGD 1dad2f067 P4D 1dad2f067 PUD 1dad30067 PMD 1b2408067 PTE 0
-> > Oops: 0000 [#1] SMP KASAN
-> > Dumping ftrace buffer:
-> >     (ftrace buffer empty)
-> > Modules linked in:
-> > CPU: 1 PID: 4249 Comm: syz-executor0 Not tainted 4.16.0-rc3+ #248
-> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-> > Google 01/01/2011
-> > RIP: 0010:ebt_size_mwt net/bridge/netfilter/ebtables.c:2037 [inline]
-> > RIP: 0010:size_entry_mwt net/bridge/netfilter/ebtables.c:2122 [inline]
-> > RIP: 0010:compat_copy_entries+0x49f/0x1050  
-> > net/bridge/netfilter/ebtables.c:2160
-> > RSP: 0018:ffff8801b34bf7e8 EFLAGS: 00010246
-> > RAX: 000000000000000a RBX: ffff8801b34bf9d4 RCX: ffffc90001819e4f
-> > RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff8801b34bf9d8
-> > RBP: ffff8801b34bf968 R08: 0000000000000000 R09: 0000000000000000
-> > R10: ffffffff88613340 R11: 0000000000000001 R12: 000000000000ee5f
-> > R13: dffffc0000000000 R14: ffff8801b34bf9c8 R15: ffffc90001819e2f
-> > FS:  0000000000000000(0000) GS:ffff8801db300000(0063) knlGS:00000000085b9900
-> > CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
-> > CR2: ffffc90001819e4f CR3: 00000001b2bd7003 CR4: 00000000001606e0
-> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > Call Trace:
-> >   compat_do_replace+0x398/0x7c0 net/bridge/netfilter/ebtables.c:2249
-> >   compat_do_ebt_set_ctl+0x22a/0x2d0 net/bridge/netfilter/ebtables.c:2330
-> >   compat_nf_sockopt net/netfilter/nf_sockopt.c:144 [inline]
-> >   compat_nf_setsockopt+0x88/0x130 net/netfilter/nf_sockopt.c:156
-> >   compat_ip_setsockopt+0x8b/0xd0 net/ipv4/ip_sockglue.c:1285
-> >   inet_csk_compat_setsockopt+0x95/0x120 net/ipv4/inet_connection_sock.c:1041
-> >   compat_tcp_setsockopt+0x3d/0x70 net/ipv4/tcp.c:2916
-> >   compat_sock_common_setsockopt+0xb2/0x140 net/core/sock.c:2986
-> >   C_SYSC_setsockopt net/compat.c:403 [inline]
-> >   compat_SyS_setsockopt+0x17c/0x410 net/compat.c:386
-> >   do_syscall_32_irqs_on arch/x86/entry/common.c:330 [inline]
-> >   do_fast_syscall_32+0x3ec/0xf9f arch/x86/entry/common.c:392
-> >   entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> > RIP: 0023:0xf7fbbc99
-> > RSP: 002b:00000000ffd5ab8c EFLAGS: 00000286 ORIG_RAX: 000000000000016e
-> > RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000000000
-> > RDX: 0000000000000080 RSI: 0000000020000280 RDI: 0000000000000208
-> > RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-> > R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-> > R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-> > Code: 8d 4f 20 48 89 c8 48 89 8d c8 fe ff ff 48 c1 e8 03 42 0f b6 14 28 48  
-> > 89 c8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 b2 0a 00 00 <45> 8b 67 20  
-> > 44 39 a5 04 ff ff ff 0f 82 bd 08 00 00 e8 cb 52 56
-> > RIP: ebt_size_mwt net/bridge/netfilter/ebtables.c:2037 [inline] RSP:  
-> > ffff8801b34bf7e8
-> > RIP: size_entry_mwt net/bridge/netfilter/ebtables.c:2122 [inline] RSP:  
-> > ffff8801b34bf7e8
-> > RIP: compat_copy_entries+0x49f/0x1050 net/bridge/netfilter/ebtables.c:2160  
-> > RSP: ffff8801b34bf7e8
-> > CR2: ffffc90001819e4f
-> > ---[ end trace cf111332eb971f16 ]---
-> > 
-> > 
-> > ---
-> > This bug is generated by a dumb bot. It may contain errors.
-> > See https://goo.gl/tpsmEJ for details.
-> > Direct all questions to syzkaller@googlegroups.com.
-> > 
-> > syzbot will keep track of this bug report.
-> > If you forgot to add the Reported-by tag, once the fix for this bug is  
-> > merged
-> > into any tree, please reply to this email with:
-> > #syz fix: exact-commit-title
-> > If you want to test a patch for this bug, please reply with:
-> > #syz test: git://repo/address.git branch
-> > and provide the patch inline or as an attachment.
-> > To mark this as a duplicate of another syzbot report, please reply with:
-> > #syz dup: exact-subject-of-another-report
-> > If it's a one-off invalid bug report, please reply with:
-> > #syz invalid
-> > Note: if the crash happens again, it will cause creation of a new bug  
-> > report.
-> > Note: all commands must start from beginning of the line in the email body.
 > 
-> #syz fix: netfilter: ebtables: add CONFIG_COMPAT support
->
+> +Greg
+> 
+> The plan is to remove this WARNING from kobject_add, if there are no objections.
 
-Wrong commit title.  The fix for this actually was:
+Hi Dmitry,
 
-#syz fix: netfilter: ebtables: CONFIG_COMPAT: don't trust userland offsets
+For this bug, why should we remove the WARNING instead of adding a check in
+br_add_if()? Something like
 
-- Eric
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 82c1a6f..79dcc3d 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -518,8 +518,8 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+                return -ELOOP;
+        }
+
+-       /* Device is already being bridged */
+-       if (br_port_exists(dev))
++       /* Device still has master upper dev */
++       if (netdev_master_upper_dev_get(dev))
+                return -EBUSY;
+
+        /* No bridging devices that dislike that (e.g. wireless) */
+
+Thanks
+Hangbin
+> 
+> > ------------[ cut here ]------------
+> > binder: 23650:23651 unknown command 1078223622
+> > kobject_add_internal failed for brport (error: -12 parent: bond0)
+> > binder: 23650:23651 ioctl c0306201 2000dfd0 returned -22
+> > WARNING: CPU: 1 PID: 23647 at lib/kobject.c:242
+> > kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
+> > Kernel panic - not syncing: panic_on_warn set ...
+> >
+> > CPU: 1 PID: 23647 Comm: syz-executor7 Not tainted 4.16.0-rc7+ #374
+> > binder: BINDER_SET_CONTEXT_MGR already set
+> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> > Google 01/01/2011
+> > Call Trace:
+> >  __dump_stack lib/dump_stack.c:17 [inline]
+> >  dump_stack+0x194/0x24d lib/dump_stack.c:53
+> >  panic+0x1e4/0x41c kernel/panic.c:183
+> >  __warn+0x1dc/0x200 kernel/panic.c:547
+> >  report_bug+0x1f4/0x2b0 lib/bug.c:186
+> >  fixup_bug.part.10+0x37/0x80 arch/x86/kernel/traps.c:178
+> >  fixup_bug arch/x86/kernel/traps.c:247 [inline]
+> >  do_error_trap+0x2d7/0x3e0 arch/x86/kernel/traps.c:296
+> >  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
+> >  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
+> > RIP: 0010:kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
+> > RSP: 0018:ffff8801d089f560 EFLAGS: 00010286
+> > RAX: dffffc0000000008 RBX: ffff8801adbee178 RCX: ffffffff815b193e
+> > RDX: 0000000000040000 RSI: ffffc900022aa000 RDI: 1ffff1003a113e31
+> > RBP: ffff8801d089f658 R08: 1ffff1003a113df3 R09: 0000000000000000
+> > R10: 0000000000000000 R11: 0000000000000000 R12: 1ffff1003a113eb2
+> > R13: 00000000fffffff4 R14: ffff8801abd88828 R15: ffff8801d75a1e00
+> >  kobject_add_varg lib/kobject.c:364 [inline]
+> >  kobject_init_and_add+0xf9/0x150 lib/kobject.c:436
+> >  br_add_if+0x79a/0x1a70 net/bridge/br_if.c:533
+> >  add_del_if+0xf4/0x140 net/bridge/br_ioctl.c:101
+> >  br_dev_ioctl+0xa2/0xc0 net/bridge/br_ioctl.c:396
+> >  dev_ifsioc+0x333/0x9b0 net/core/dev_ioctl.c:334
+> >  dev_ioctl+0x176/0xbe0 net/core/dev_ioctl.c:500
+> >  sock_do_ioctl+0x1ba/0x390 net/socket.c:981
+> >  sock_ioctl+0x367/0x670 net/socket.c:1081
+> >  vfs_ioctl fs/ioctl.c:46 [inline]
+> >  do_vfs_ioctl+0x1b1/0x1520 fs/ioctl.c:686
+> >  SYSC_ioctl fs/ioctl.c:701 [inline]
+> >  SyS_ioctl+0x8f/0xc0 fs/ioctl.c:692
+> >  do_syscall_64+0x281/0x940 arch/x86/entry/common.c:287
+> >  entry_SYSCALL_64_after_hwframe+0x42/0xb7
+> > RIP: 0033:0x454e79
+> > RSP: 002b:00007eff7dab7c68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> > RAX: ffffffffffffffda RBX: 00007eff7dab86d4 RCX: 0000000000454e79
+> > RDX: 0000000020000000 RSI: 00000000000089a2 RDI: 0000000000000014
+> > RBP: 000000000072bea0 R08: 0000000000000000 R09: 0000000000000000
+> > R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000015
+> > R13: 0000000000000369 R14: 00000000006f7278 R15: 0000000000000006
+> > Dumping ftrace buffer:
+> >    (ftrace buffer empty)
+> > Kernel Offset: disabled
+> > Rebooting in 86400 seconds..
