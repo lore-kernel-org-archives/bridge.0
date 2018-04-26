@@ -1,17 +1,26 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
-	bh=BnbEFpJJWoOgMNma4jVH/9eRCDBCN4LnSqOXNpmUuMY=;
-	b=fK8oRQt581SU0SnHLzE1WJpbuu7ep7a8bcEqri+7/zSPjrevn0dt0hEYVvf7hI9yZ0LFtc419mRlP2a5yqbSjcm8a5tFbYWC4SVi9kgVxYxEJrIyNDwnNW0x+7514kSnC/xIMGnA2g3+cGN3B/pK4L/j4oiqLF2lf3bhSR3tQug=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Thu, 26 Apr 2018 12:06:37 +0300
-Message-Id: <20180426090637.25262-7-idosch@mellanox.com>
-In-Reply-To: <20180426090637.25262-1-idosch@mellanox.com>
-References: <20180426090637.25262-1-idosch@mellanox.com>
+Return-Path: <liuhangbin@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=date:from:to:cc:subject:message-id:references:mime-version
+	:content-disposition:in-reply-to:user-agent;
+	bh=ewsDL+aPyLfD5fkSnwohd0nQwbyJ74Ncf0kesK4il3w=;
+	b=fPlrQ5ARjK3PW/2OkhQ+Sxrbsd1p2D9KoH1dRkdwvm/60//Vxq9SPvXiVQc4Ykt6ne
+	j0e4ss+CZd7bYQYin+VqgbTrp/6vztuWTOVcEvkAruknUBsM3KfDwsDgY+SRQCavqqfH
+	zQAqjRxGluLLbD6pf1j85ffSfLjARTqsvy7Ve5oHIRNBGmMYX0bn7avlqdlggZYjYtxu
+	QBvGlA5kvqNCHLzsPNvfNdds8e9+basy52CcglGikoOF+zyV5bUoW5v0z/qQb00/fO8s
+	t05f4DZOwZhhUFe0rkXQlyK3mPgo6W4Toat2GmfwoumG6WHMVyfcpg7mNUEnykjrd0F+
+	9uKg==
+Date: Thu, 26 Apr 2018 18:37:03 +0800
+From: Hangbin Liu <liuhangbin@gmail.com>
+Message-ID: <20180426103702.GI20683@leo.usersys.redhat.com>
+References: <001a113de2d878ade40569941a21@google.com>
+	<CACT4Y+afuYwoWEp1PJ-Noo-YBXmKKRErntBWy2fR6iz=_xFByQ@mail.gmail.com>
+	<20180426061314.GH20683@leo.usersys.redhat.com>
+	<CACT4Y+aDko-kKP-u2S_UGBbB-uwnGw4dWTOSmXVDR3=osLJeFg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 6/6] mlxsw: spectrum_span: Allow bridge
-	for gretap mirror
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACT4Y+aDko-kKP-u2S_UGBbB-uwnGw4dWTOSmXVDR3=osLJeFg@mail.gmail.com>
+Subject: Re: [Bridge] WARNING: kobject bug in br_add_if
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,203 +29,120 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: Ido Schimmel <idosch@mellanox.com>, mlxsw@mellanox.com, nikolay@cumulusnetworks.com, jiri@mellanox.com, petrm@mellanox.com, davem@davemloft.net
+To: Dmitry Vyukov <dvyukov@google.com>
+Cc: netdev <netdev@vger.kernel.org>, syzbot <syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Miller <davem@davemloft.net>
 
-From: Petr Machata <petrm@mellanox.com>
+On Thu, Apr 26, 2018 at 10:04:16AM +0200, Dmitry Vyukov wrote:
+> On Thu, Apr 26, 2018 at 8:13 AM, Hangbin Liu <liuhangbin@gmail.com> wrote:
+> > On Wed, Apr 11, 2018 at 05:18:23PM +0200, Dmitry Vyukov wrote:
+> >> On Wed, Apr 11, 2018 at 5:15 PM, syzbot
+> >> <syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com> wrote:
+> >> > Hello,
+> >> >
+> >> > syzbot hit the following crash on upstream commit
+> >> > 10b84daddbec72c6b440216a69de9a9605127f7a (Sat Mar 31 17:59:00 2018 +0000)
+> >> > Merge branch 'perf-urgent-for-linus' of
+> >> > git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+> >> > syzbot dashboard link:
+> >> > https://syzkaller.appspot.com/bug?extid=de73361ee4971b6e6f75
+> >> >
+> >> > So far this crash happened 4 times on net-next, upstream.
+> >> > Unfortunately, I don't have any reproducer for this crash yet.
+> >> > Raw console output:
+> >> > https://syzkaller.appspot.com/x/log.txt?id=5007286875455488
+> >> > Kernel config:
+> >> > https://syzkaller.appspot.com/x/.config?id=-2760467897697295172
+> >> > compiler: gcc (GCC) 7.1.1 20170620
+> >> >
+> >> > IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> >> > Reported-by: syzbot+de73361ee4971b6e6f75@syzkaller.appspotmail.com
+> >> > It will help syzbot understand when the bug is fixed. See footer for
+> >> > details.
+> >> > If you forward the report, please keep this part and the footer.
+> >>
+> >> +Greg
+> >>
+> >> The plan is to remove this WARNING from kobject_add, if there are no objections.
+> >
+> > Hi Dmitry,
+> >
+> > For this bug, why should we remove the WARNING instead of adding a check in
+> > br_add_if()? Something like
+> 
+> 
+> Mainline because nobody wants to fix these.
+> If you think this is a real bug and you are ready to fix it, please
+> mail an official patch.
+> 
+> >> > ------------[ cut here ]------------
+> >> > binder: 23650:23651 unknown command 1078223622
+> >> > kobject_add_internal failed for brport (error: -12 parent: bond0)
 
-When handling mirroring to a gretap or ip6gretap netdevice in mlxsw, the
-underlay address (i.e. the remote address of the tunnel) may be routed
-to a bridge.
+Re-checked the error. This is a -ENOMEM. So normally we could ignore it.
 
-In that case, look up the resolved neighbor Ethernet address in that
-bridge's FDB. Then configure the offload to direct the mirrored traffic
-to that port, possibly with tagging.
+But on the other hand, although we could find out the slave iface's
+master in netdev_master_upper_dev_link(). It already go much further
+and allocate some resource and change iface state. e.g.
 
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
----
- .../net/ethernet/mellanox/mlxsw/spectrum_span.c    | 102 +++++++++++++++++++--
- .../net/ethernet/mellanox/mlxsw/spectrum_span.h    |   1 +
- 2 files changed, 97 insertions(+), 6 deletions(-)
+[54273.968516] br0: port 1(em1) entered blocking state
+[54273.973979] br0: port 1(em1) entered disabled state
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-index 65a77708ff61..92fb81839852 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-@@ -32,6 +32,7 @@
-  * POSSIBILITY OF SUCH DAMAGE.
-  */
- 
-+#include <linux/if_bridge.h>
- #include <linux/list.h>
- #include <net/arp.h>
- #include <net/gre.h>
-@@ -39,8 +40,9 @@
- #include <net/ip6_tunnel.h>
- 
- #include "spectrum.h"
--#include "spectrum_span.h"
- #include "spectrum_ipip.h"
-+#include "spectrum_span.h"
-+#include "spectrum_switchdev.h"
- 
- int mlxsw_sp_span_init(struct mlxsw_sp *mlxsw_sp)
- {
-@@ -167,6 +169,79 @@ mlxsw_sp_span_entry_unoffloadable(struct mlxsw_sp_span_parms *sparmsp)
- 	return 0;
- }
- 
-+static struct net_device *
-+mlxsw_sp_span_entry_bridge_8021q(const struct net_device *br_dev,
-+				 unsigned char *dmac,
-+				 u16 *p_vid)
-+{
-+	struct net_bridge_vlan_group *vg = br_vlan_group_rtnl(br_dev);
-+	u16 pvid = br_vlan_group_pvid(vg);
-+	struct net_device *edev = NULL;
-+	struct net_bridge_vlan *v;
-+
-+	if (pvid)
-+		edev = br_fdb_find_port_hold(br_dev, dmac, pvid);
-+	if (!edev)
-+		return NULL;
-+
-+	/* RTNL prevents edev from being removed. */
-+	dev_put(edev);
-+
-+	vg = br_port_vlan_group_rtnl(edev);
-+	v = br_vlan_find(vg, pvid);
-+	if (!v)
-+		return NULL;
-+	if (!(br_vlan_flags(v) & BRIDGE_VLAN_INFO_UNTAGGED))
-+		*p_vid = pvid;
-+	return edev;
-+}
-+
-+static struct net_device *
-+mlxsw_sp_span_entry_bridge_8021d(const struct net_device *br_dev,
-+				 unsigned char *dmac)
-+{
-+	struct net_device *edev = br_fdb_find_port_hold(br_dev, dmac, 0);
-+
-+	/* RTNL prevents edev from being removed. */
-+	dev_put(edev);
-+
-+	return edev;
-+}
-+
-+static struct net_device *
-+mlxsw_sp_span_entry_bridge(const struct net_device *br_dev,
-+			   unsigned char dmac[ETH_ALEN],
-+			   u16 *p_vid)
-+{
-+	struct mlxsw_sp_bridge_port *bridge_port;
-+	enum mlxsw_reg_spms_state spms_state;
-+	struct mlxsw_sp_port *port;
-+	struct net_device *dev;
-+	u8 stp_state;
-+
-+	if (br_vlan_enabled(br_dev))
-+		dev = mlxsw_sp_span_entry_bridge_8021q(br_dev, dmac, p_vid);
-+	else
-+		dev = mlxsw_sp_span_entry_bridge_8021d(br_dev, dmac);
-+	if (!dev)
-+		return NULL;
-+
-+	port = mlxsw_sp_port_dev_lower_find(dev);
-+	if (!port)
-+		return NULL;
-+
-+	bridge_port = mlxsw_sp_bridge_port_find(port->mlxsw_sp->bridge, dev);
-+	if (!bridge_port)
-+		return NULL;
-+
-+	stp_state = mlxsw_sp_bridge_port_stp_state(bridge_port);
-+	spms_state = mlxsw_sp_stp_spms_state(stp_state);
-+	if (spms_state != MLXSW_REG_SPMS_STATE_FORWARDING)
-+		return NULL;
-+
-+	return dev;
-+}
-+
- static __maybe_unused int
- mlxsw_sp_span_entry_tunnel_parms_common(struct net_device *l3edev,
- 					union mlxsw_sp_l3addr saddr,
-@@ -177,13 +252,22 @@ mlxsw_sp_span_entry_tunnel_parms_common(struct net_device *l3edev,
- 					struct mlxsw_sp_span_parms *sparmsp)
- {
- 	unsigned char dmac[ETH_ALEN];
-+	u16 vid = 0;
- 
- 	if (mlxsw_sp_l3addr_is_zero(gw))
- 		gw = daddr;
- 
--	if (!l3edev || !mlxsw_sp_port_dev_check(l3edev) ||
--	    mlxsw_sp_span_dmac(tbl, &gw, l3edev, dmac))
--		return mlxsw_sp_span_entry_unoffloadable(sparmsp);
-+	if (!l3edev || mlxsw_sp_span_dmac(tbl, &gw, l3edev, dmac))
-+		goto unoffloadable;
-+
-+	if (netif_is_bridge_master(l3edev)) {
-+		l3edev = mlxsw_sp_span_entry_bridge(l3edev, dmac, &vid);
-+		if (!l3edev)
-+			goto unoffloadable;
-+	}
-+
-+	if (!mlxsw_sp_port_dev_check(l3edev))
-+		goto unoffloadable;
- 
- 	sparmsp->dest_port = netdev_priv(l3edev);
- 	sparmsp->ttl = ttl;
-@@ -191,7 +275,11 @@ mlxsw_sp_span_entry_tunnel_parms_common(struct net_device *l3edev,
- 	memcpy(sparmsp->smac, l3edev->dev_addr, ETH_ALEN);
- 	sparmsp->saddr = saddr;
- 	sparmsp->daddr = daddr;
-+	sparmsp->vid = vid;
- 	return 0;
-+
-+unoffloadable:
-+	return mlxsw_sp_span_entry_unoffloadable(sparmsp);
- }
- 
- #if IS_ENABLED(CONFIG_NET_IPGRE)
-@@ -268,9 +356,10 @@ mlxsw_sp_span_entry_gretap4_configure(struct mlxsw_sp_span_entry *span_entry,
- 	/* Create a new port analayzer entry for local_port. */
- 	mlxsw_reg_mpat_pack(mpat_pl, pa_id, local_port, true,
- 			    MLXSW_REG_MPAT_SPAN_TYPE_REMOTE_ETH_L3);
-+	mlxsw_reg_mpat_eth_rspan_pack(mpat_pl, sparms.vid);
- 	mlxsw_reg_mpat_eth_rspan_l2_pack(mpat_pl,
- 				    MLXSW_REG_MPAT_ETH_RSPAN_VERSION_NO_HEADER,
--				    sparms.dmac, false);
-+				    sparms.dmac, !!sparms.vid);
- 	mlxsw_reg_mpat_eth_rspan_l3_ipv4_pack(mpat_pl,
- 					      sparms.ttl, sparms.smac,
- 					      be32_to_cpu(sparms.saddr.addr4),
-@@ -368,9 +457,10 @@ mlxsw_sp_span_entry_gretap6_configure(struct mlxsw_sp_span_entry *span_entry,
- 	/* Create a new port analayzer entry for local_port. */
- 	mlxsw_reg_mpat_pack(mpat_pl, pa_id, local_port, true,
- 			    MLXSW_REG_MPAT_SPAN_TYPE_REMOTE_ETH_L3);
-+	mlxsw_reg_mpat_eth_rspan_pack(mpat_pl, sparms.vid);
- 	mlxsw_reg_mpat_eth_rspan_l2_pack(mpat_pl,
- 				    MLXSW_REG_MPAT_ETH_RSPAN_VERSION_NO_HEADER,
--				    sparms.dmac, false);
-+				    sparms.dmac, !!sparms.vid);
- 	mlxsw_reg_mpat_eth_rspan_l3_ipv6_pack(mpat_pl, sparms.ttl, sparms.smac,
- 					      sparms.saddr.addr6,
- 					      sparms.daddr.addr6);
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
-index 4b87ec20e658..14a6de904db1 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.h
-@@ -63,6 +63,7 @@ struct mlxsw_sp_span_parms {
- 	unsigned char smac[ETH_ALEN];
- 	union mlxsw_sp_l3addr daddr;
- 	union mlxsw_sp_l3addr saddr;
-+	u16 vid;
- };
- 
- struct mlxsw_sp_span_entry_ops;
--- 
-2.14.3
+So I think we'd better return as early as possible. I will post a fix
+for this.
 
+Thanks
+Hangbin
+
+> >> > binder: 23650:23651 ioctl c0306201 2000dfd0 returned -22
+> >> > WARNING: CPU: 1 PID: 23647 at lib/kobject.c:242
+> >> > kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
+> >> > Kernel panic - not syncing: panic_on_warn set ...
+> >> >
+> >> > CPU: 1 PID: 23647 Comm: syz-executor7 Not tainted 4.16.0-rc7+ #374
+> >> > binder: BINDER_SET_CONTEXT_MGR already set
+> >> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> >> > Google 01/01/2011
+> >> > Call Trace:
+> >> >  __dump_stack lib/dump_stack.c:17 [inline]
+> >> >  dump_stack+0x194/0x24d lib/dump_stack.c:53
+> >> >  panic+0x1e4/0x41c kernel/panic.c:183
+> >> >  __warn+0x1dc/0x200 kernel/panic.c:547
+> >> >  report_bug+0x1f4/0x2b0 lib/bug.c:186
+> >> >  fixup_bug.part.10+0x37/0x80 arch/x86/kernel/traps.c:178
+> >> >  fixup_bug arch/x86/kernel/traps.c:247 [inline]
+> >> >  do_error_trap+0x2d7/0x3e0 arch/x86/kernel/traps.c:296
+> >> >  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
+> >> >  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
+> >> > RIP: 0010:kobject_add_internal+0x3f6/0xbc0 lib/kobject.c:240
+> >> > RSP: 0018:ffff8801d089f560 EFLAGS: 00010286
+> >> > RAX: dffffc0000000008 RBX: ffff8801adbee178 RCX: ffffffff815b193e
+> >> > RDX: 0000000000040000 RSI: ffffc900022aa000 RDI: 1ffff1003a113e31
+> >> > RBP: ffff8801d089f658 R08: 1ffff1003a113df3 R09: 0000000000000000
+> >> > R10: 0000000000000000 R11: 0000000000000000 R12: 1ffff1003a113eb2
+> >> > R13: 00000000fffffff4 R14: ffff8801abd88828 R15: ffff8801d75a1e00
+> >> >  kobject_add_varg lib/kobject.c:364 [inline]
+> >> >  kobject_init_and_add+0xf9/0x150 lib/kobject.c:436
+> >> >  br_add_if+0x79a/0x1a70 net/bridge/br_if.c:533
+> >> >  add_del_if+0xf4/0x140 net/bridge/br_ioctl.c:101
+> >> >  br_dev_ioctl+0xa2/0xc0 net/bridge/br_ioctl.c:396
+> >> >  dev_ifsioc+0x333/0x9b0 net/core/dev_ioctl.c:334
+> >> >  dev_ioctl+0x176/0xbe0 net/core/dev_ioctl.c:500
+> >> >  sock_do_ioctl+0x1ba/0x390 net/socket.c:981
+> >> >  sock_ioctl+0x367/0x670 net/socket.c:1081
+> >> >  vfs_ioctl fs/ioctl.c:46 [inline]
+> >> >  do_vfs_ioctl+0x1b1/0x1520 fs/ioctl.c:686
+> >> >  SYSC_ioctl fs/ioctl.c:701 [inline]
+> >> >  SyS_ioctl+0x8f/0xc0 fs/ioctl.c:692
+> >> >  do_syscall_64+0x281/0x940 arch/x86/entry/common.c:287
+> >> >  entry_SYSCALL_64_after_hwframe+0x42/0xb7
+> >> > RIP: 0033:0x454e79
+> >> > RSP: 002b:00007eff7dab7c68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> >> > RAX: ffffffffffffffda RBX: 00007eff7dab86d4 RCX: 0000000000454e79
+> >> > RDX: 0000000020000000 RSI: 00000000000089a2 RDI: 0000000000000014
+> >> > RBP: 000000000072bea0 R08: 0000000000000000 R09: 0000000000000000
+> >> > R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000015
+> >> > R13: 0000000000000369 R14: 00000000006f7278 R15: 0000000000000006
+> >> > Dumping ftrace buffer:
+> >> >    (ftrace buffer empty)
+> >> > Kernel Offset: disabled
+> >> > Rebooting in 86400 seconds..
