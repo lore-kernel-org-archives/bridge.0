@@ -1,17 +1,17 @@
 Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
-	bh=UyBfac7MG2wcwbSVm/8F2Ie7Of8BwMKua3wSFQIx7mY=;
-	b=rA09/t11hN6mivLkolgNrpRM6dKnxPTX2NKqA61uXl5Xl0Cqcq5JXZaKfErWwWJHadmSwKLWO+Xp5sEEEMluGgbwwaKGMty930Kls6FG4j4XvqtGcOyvEIctLqHhiflj3m0v+gZ2w6N8vW5tjFzPM9rweJjXUknrk1eWeE3FMug=
+	bh=JIdSg5FshTKL4hCkJ7VZvkukx+53138vxgtmYMHpEt8=;
+	b=lTYt99BqipYSGlrHroGAHP6o/l1sX2JYcZI+8pXyYAJCfVcoQHIRSq4ByS3EJa98AaNnUGTo4rdUW49pR3p6tVwOPrE/wkhbBQacflx5KToem3Igrcyp8rcO78UCAoR1TL5mpjkeKbQJIcJiwKJXfpu/iwh46z2u3loG2EJrnsA=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Thu, 26 Apr 2018 12:06:33 +0300
-Message-Id: <20180426090637.25262-3-idosch@mellanox.com>
+Date: Thu, 26 Apr 2018 12:06:34 +0300
+Message-Id: <20180426090637.25262-4-idosch@mellanox.com>
 In-Reply-To: <20180426090637.25262-1-idosch@mellanox.com>
 References: <20180426090637.25262-1-idosch@mellanox.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 2/6] mlxsw: spectrum: Extract
-	mlxsw_sp_stp_spms_state()
+Subject: [Bridge] [PATCH net-next 3/6] mlxsw: spectrum_switchdev: Publish
+	two functions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,76 +25,101 @@ Cc: Ido Schimmel <idosch@mellanox.com>, mlxsw@mellanox.com, nikolay@cumulusnetwo
 
 From: Petr Machata <petrm@mellanox.com>
 
-Instead of duplicating the decision regarding port forwarding state made
-by mlxsw_sp_port_vid_stp_set(), extract the decision-making into a new
-function and reuse.
+Publish the existing function mlxsw_sp_bridge_port_find(), and add
+another service accessor mlxsw_sp_bridge_port_stp_state(). Publish both
+in a new file spectrum_switchdev.h.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 26 +++++++++++++-------------
- drivers/net/ethernet/mellanox/mlxsw/spectrum.h |  1 +
- 2 files changed, 14 insertions(+), 13 deletions(-)
+ .../ethernet/mellanox/mlxsw/spectrum_switchdev.c   |  9 ++++-
+ .../ethernet/mellanox/mlxsw/spectrum_switchdev.h   | 43 ++++++++++++++++++++++
+ 2 files changed, 51 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.h
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index ca38a30fbe91..7317fb8079d1 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -441,29 +441,29 @@ static void mlxsw_sp_txhdr_construct(struct sk_buff *skb,
- 	mlxsw_tx_hdr_type_set(txhdr, MLXSW_TXHDR_TYPE_CONTROL);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index c11c9a635866..db4aea0f8996 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -50,6 +50,7 @@
+ #include <net/switchdev.h>
+ 
+ #include "spectrum_router.h"
++#include "spectrum_switchdev.h"
+ #include "spectrum.h"
+ #include "core.h"
+ #include "reg.h"
+@@ -239,7 +240,7 @@ __mlxsw_sp_bridge_port_find(const struct mlxsw_sp_bridge_device *bridge_device,
+ 	return NULL;
  }
  
--int mlxsw_sp_port_vid_stp_set(struct mlxsw_sp_port *mlxsw_sp_port, u16 vid,
--			      u8 state)
-+enum mlxsw_reg_spms_state mlxsw_sp_stp_spms_state(u8 state)
+-static struct mlxsw_sp_bridge_port *
++struct mlxsw_sp_bridge_port *
+ mlxsw_sp_bridge_port_find(struct mlxsw_sp_bridge *bridge,
+ 			  struct net_device *brport_dev)
  {
--	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
--	enum mlxsw_reg_spms_state spms_state;
--	char *spms_pl;
--	int err;
--
- 	switch (state) {
- 	case BR_STATE_FORWARDING:
--		spms_state = MLXSW_REG_SPMS_STATE_FORWARDING;
--		break;
-+		return MLXSW_REG_SPMS_STATE_FORWARDING;
- 	case BR_STATE_LEARNING:
--		spms_state = MLXSW_REG_SPMS_STATE_LEARNING;
--		break;
-+		return MLXSW_REG_SPMS_STATE_LEARNING;
- 	case BR_STATE_LISTENING: /* fall-through */
- 	case BR_STATE_DISABLED: /* fall-through */
- 	case BR_STATE_BLOCKING:
--		spms_state = MLXSW_REG_SPMS_STATE_DISCARDING;
--		break;
-+		return MLXSW_REG_SPMS_STATE_DISCARDING;
- 	default:
- 		BUG();
- 	}
+@@ -2297,6 +2298,12 @@ static struct notifier_block mlxsw_sp_switchdev_notifier = {
+ 	.notifier_call = mlxsw_sp_switchdev_event,
+ };
+ 
++u8
++mlxsw_sp_bridge_port_stp_state(struct mlxsw_sp_bridge_port *bridge_port)
++{
++	return bridge_port->stp_state;
 +}
 +
-+int mlxsw_sp_port_vid_stp_set(struct mlxsw_sp_port *mlxsw_sp_port, u16 vid,
-+			      u8 state)
-+{
-+	enum mlxsw_reg_spms_state spms_state = mlxsw_sp_stp_spms_state(state);
-+	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
-+	char *spms_pl;
-+	int err;
- 
- 	spms_pl = kmalloc(MLXSW_REG_SPMS_LEN, GFP_KERNEL);
- 	if (!spms_pl)
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-index 804d4d2c8031..4a519d8edec8 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-@@ -364,6 +364,7 @@ int __mlxsw_sp_port_headroom_set(struct mlxsw_sp_port *mlxsw_sp_port, int mtu,
- int mlxsw_sp_port_ets_maxrate_set(struct mlxsw_sp_port *mlxsw_sp_port,
- 				  enum mlxsw_reg_qeec_hr hr, u8 index,
- 				  u8 next_index, u32 maxrate);
-+enum mlxsw_reg_spms_state mlxsw_sp_stp_spms_state(u8 stp_state);
- int mlxsw_sp_port_vid_stp_set(struct mlxsw_sp_port *mlxsw_sp_port, u16 vid,
- 			      u8 state);
- int mlxsw_sp_port_vp_mode_set(struct mlxsw_sp_port *mlxsw_sp_port, bool enable);
+ static int mlxsw_sp_fdb_init(struct mlxsw_sp *mlxsw_sp)
+ {
+ 	struct mlxsw_sp_bridge *bridge = mlxsw_sp->bridge;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.h
+new file mode 100644
+index 000000000000..bc44d5effc28
+--- /dev/null
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++ * drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.h
++ * Copyright (c) 2018 Mellanox Technologies. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. Neither the names of the copyright holders nor the names of its
++ *    contributors may be used to endorse or promote products derived from
++ *    this software without specific prior written permission.
++ *
++ * Alternatively, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") version 2 as published by the Free
++ * Software Foundation.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <linux/netdevice.h>
++
++struct mlxsw_sp_bridge;
++struct mlxsw_sp_bridge_port;
++
++struct mlxsw_sp_bridge_port *
++mlxsw_sp_bridge_port_find(struct mlxsw_sp_bridge *bridge,
++			  struct net_device *brport_dev);
++
++u8 mlxsw_sp_bridge_port_stp_state(struct mlxsw_sp_bridge_port *bridge_port);
 -- 
 2.14.3
 
