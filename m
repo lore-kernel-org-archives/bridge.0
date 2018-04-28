@@ -1,19 +1,14 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=from:to:cc:subject:date:message-id;
-	bh=o7vRifWibcaYcAEkqNEezUTXhJ2Fp/LfDcCfhVAvztk=;
-	b=FjHofJYhxXv7oeOm13N9AY1LLIsE8d1zMrBSMsENOtkEV07FTQTsfWRBm554FNEBD4
-	zhGtY2IGY4FpN8Vful/bv89Wso+7B9Y/uA3fjhBZ/okgXX+qsqv/Jiq0SgQDtarPT/DN
-	w4LfPeYBtln2fqkKnMrUCYi5kyLPA0mR/QmpUHreyjneA0Qx9K4gSA2uprlrk0OW1T1S
-	cjUTWlOKMZtS4pw4t9kNhBEwmWyyBs7J6PUflPrmdfnX7trswUM2mVfmUoTtlRB7GHVP
-	A5DYKshN1CoZgfoOTN91U5vF73vQ1sXUNWJPFCEVA8MvjnGtA4kVxsg/9D2y67qm9cCv
-	bdnA==
-From: Stephen Hemminger <stephen@networkplumber.org>
-Date: Fri, 27 Apr 2018 11:16:09 -0700
-Message-Id: <20180427181609.3103-1-sthemmin@microsoft.com>
-Subject: [Bridge] [PATCH net] bridge: netfilter stp fix reference to
-	uninitialized data
+Return-Path: <davem@davemloft.net>
+Date: Fri, 27 Apr 2018 20:28:00 -0400 (EDT)
+Message-Id: <20180427.202800.1778798756850411051.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20180427151111.22099-1-idosch@mellanox.com>
+References: <20180427151111.22099-1-idosch@mellanox.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v2 0/6] mlxsw: SPAN: Support routes
+ pointing at bridges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,37 +17,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, davem@davemloft.net
-Cc: netdev@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+To: idosch@mellanox.com
+Cc: mlxsw@mellanox.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@mellanox.com, petrm@mellanox.com
 
-The destination mac (destmac) is only valid if EBT_DESTMAC flag
-is set. Fix by changing the order of the comparison to look for
-the flag first.
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Fri, 27 Apr 2018 18:11:05 +0300
 
-Reported-by: syzbot+5c06e318fc558cc27823@syzkaller.appspotmail.com
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
----
-Note: no fixes since this bug goes back to pre-git days.
-Should go to stable as well.
+> Changes from v1 to v2:
+> 
+> - Change the suite of bridge accessor functions to br_vlan_pvid_rtnl(),
+>   br_vlan_info_rtnl(), br_fdb_find_port_rtnl().
 
- net/bridge/netfilter/ebt_stp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Please address Stephen Hemminger's feedback, otherwise this series
+looks good to go.
 
-diff --git a/net/bridge/netfilter/ebt_stp.c b/net/bridge/netfilter/ebt_stp.c
-index 47ba98db145d..46c1fe7637ea 100644
---- a/net/bridge/netfilter/ebt_stp.c
-+++ b/net/bridge/netfilter/ebt_stp.c
-@@ -161,8 +161,8 @@ static int ebt_stp_mt_check(const struct xt_mtchk_param *par)
- 	/* Make sure the match only receives stp frames */
- 	if (!par->nft_compat &&
- 	    (!ether_addr_equal(e->destmac, eth_stp_addr) ||
--	     !is_broadcast_ether_addr(e->destmsk) ||
--	     !(e->bitmask & EBT_DESTMAC)))
-+	     !(e->bitmask & EBT_DESTMAC) ||
-+	     !is_broadcast_ether_addr(e->destmsk)))
- 		return -EINVAL;
- 
- 	return 0;
--- 
-2.17.0
-
+Thanks.
