@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:cc:references:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=lyqGKdLABwBrPcjbvAWUkkzhRLDVLJozvQ+EjxqVtuA=;
-	b=HVFWrqe25Qp5SQes1TWL+G2anWis4bGSp7CgmFTPRQ2DIpK0EwCiUQm9jXsbsq26jc
-	vbAopPO8+FGBWr99wu8IfibLd+uuHSjYYduELpamoptoXvK5wj1cQNLWJUlfdxKgVHho
-	MxycRI3/9pZTfY7ZrJEshkuD+VH9oFrhI3+Zk=
+	bh=33Gwu+0LuqHpJ3OW3A9sev3yjtwBkaEVKVwM7l1+PLY=;
+	b=FZI5EiQcU5ujE+C7rIHiSE4yeCBz+g71bJJtPV0OIjCiszeiLJC28nXsSQMDFRMjsY
+	Im+LBNyE3wGfysqccrQMrPwIknVPnpaf8OueVkNRd8HgTJVQQGJVYbXfzK6co86irv0Z
+	ZheigHcvQYR+t64aAFyMQJxaH/5C3AOChYkVw=
 References: <20180429075613.10832-1-idosch@mellanox.com>
-	<20180429075613.10832-2-idosch@mellanox.com>
+	<20180429075613.10832-7-idosch@mellanox.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <2876e03c-2e2e-ab4e-6d93-e6950c34c97f@cumulusnetworks.com>
-Date: Sun, 29 Apr 2018 11:12:22 +0300
+Message-ID: <9916a3a6-0efd-3d03-7eda-159906f406a4@cumulusnetworks.com>
+Date: Sun, 29 Apr 2018 11:20:03 +0300
 MIME-Version: 1.0
-In-Reply-To: <20180429075613.10832-2-idosch@mellanox.com>
+In-Reply-To: <20180429075613.10832-7-idosch@mellanox.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 1/6] net: bridge: Publish bridge
- accessor functions
+Subject: Re: [Bridge] [PATCH net-next v3 6/6] mlxsw: spectrum_span: Allow
+ bridge for gretap mirror
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,20 +33,21 @@ Cc: petrm@mellanox.com, jiri@mellanox.com, mlxsw@mellanox.com, davem@davemloft.n
 On 29/04/18 10:56, Ido Schimmel wrote:
 > From: Petr Machata <petrm@mellanox.com>
 > 
-> Add a couple new functions to allow querying FDB and vlan settings of a
-> bridge.
+> When handling mirroring to a gretap or ip6gretap netdevice in mlxsw, the
+> underlay address (i.e. the remote address of the tunnel) may be routed
+> to a bridge.
+> 
+> In that case, look up the resolved neighbor Ethernet address in that
+> bridge's FDB. Then configure the offload to direct the mirrored traffic
+> to that port, possibly with tagging.
 > 
 > Signed-off-by: Petr Machata <petrm@mellanox.com>
 > Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 > ---
->   include/linux/if_bridge.h | 28 ++++++++++++++++++++++++++++
->   net/bridge/br_fdb.c       | 22 ++++++++++++++++++++++
->   net/bridge/br_private.h   | 11 +++++++++++
->   net/bridge/br_vlan.c      | 39 +++++++++++++++++++++++++++++++++++++++
->   4 files changed, 100 insertions(+)
+>   .../net/ethernet/mellanox/mlxsw/spectrum_span.c    | 95 ++++++++++++++++++++--
+>   .../net/ethernet/mellanox/mlxsw/spectrum_span.h    |  1 +
+>   2 files changed, 90 insertions(+), 6 deletions(-)
 > 
 
-Looks good,
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-
+Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
