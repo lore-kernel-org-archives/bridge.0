@@ -1,18 +1,23 @@
-Return-Path: <petrm@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
-	bh=MttfFlHk8yW7phYgWpUVZq+4ZEvqWGFahu5dSt5Z0cY=;
-	b=VcU332s9VDxUJ2Zgs2cM2lNEcqtRxR3F8SGCy1EFbrsh7nClmYhItUv83U8jNgPdH02TS6peHz2QGRuRTKRWVCGruQo97t0k7z3Q8horGJgmDvjHqIfk/dOZ5oZdWUNfRlF7LopP7faoi84LUul7xR5zHhAYQ8PRWcZNflfKqi0=
-From: Petr Machata <petrm@mellanox.com>
-In-Reply-To: <20180509030312.29548-1-vivien.didelot@savoirfairelinux.com>
-	(Vivien Didelot's message of "Tue, 8 May 2018 23:03:12 -0400")
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=lX0ZLTNc2tnbfGSSy/A8sYCVBqKbZ8drIppcz8jfGYs=;
+	b=e3oxL2uBHXwsKRdm9RWqugq3MN8nvSMvxZj2I40Y/23ndcS7WCyF3K8Yn0ByGBUz63
+	nOxCcWfW8I2VOnrH6PfwR1F1Q7TA1iTjXfTS3Z/h34yI1XPlWPHn8dga4jCONSMxxze2
+	aMdZowrzAGyI6esxxRN8cwl7gV6fpVTyNluvw=
 References: <20180509030312.29548-1-vivien.didelot@savoirfairelinux.com>
-Date: Wed, 09 May 2018 11:54:06 +0300
-Message-ID: <wihmux96wgh.fsf@dev-r-vrt-156.mtr.labs.mlnx>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <0f5ebc45-544d-01df-1fd1-14975f1a84c5@cumulusnetworks.com>
+Date: Wed, 9 May 2018 14:32:36 +0300
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20180509030312.29548-1-vivien.didelot@savoirfairelinux.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] net: dsa: fix added_by_user switchdev
-	notification
+ notification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,15 +26,143 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Cc: ivecera@redhat.com, f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, kernel@savoirfairelinux.com, davem@davemloft.net
+To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, netdev@vger.kernel.org
+Cc: ivecera@redhat.com, f.fainelli@gmail.com, andrew@lunn.ch, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, kernel@savoirfairelinux.com, Petr Machata <petrm@mellanox.com>, davem@davemloft.net
 
-Vivien Didelot <vivien.didelot@savoirfairelinux.com> writes:
-
+On 09/05/18 06:03, Vivien Didelot wrote:
+> Commit 161d82de1ff8 ("net: bridge: Notify about !added_by_user FDB
+> entries") causes the below oops when bringing up a slave interface,
+> because dsa_port_fdb_add is still scheduled, but with a NULL address.
+> 
+> To fix this, keep the dsa_slave_switchdev_event function agnostic of the
+> notified info structure and handle the added_by_user flag in the
+> specific dsa_slave_switchdev_event_work function.
+> 
+>      [   75.512263] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>      [   75.519063] pgd = (ptrval)
+>      [   75.520545] [00000000] *pgd=00000000
+>      [   75.522839] Internal error: Oops: 17 [#1] ARM
+>      [   75.525898] Modules linked in:
+>      [   75.527673] CPU: 0 PID: 9 Comm: kworker/u2:1 Not tainted 4.17.0-rc2 #78
+>      [   75.532988] Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+>      [   75.538153] Workqueue: dsa_ordered dsa_slave_switchdev_event_work
+>      [   75.542970] PC is at mv88e6xxx_port_db_load_purge+0x60/0x1b0
+>      [   75.547341] LR is at mdiobus_read_nested+0x6c/0x78
+>      [   75.550833] pc : [<804cd5c0>]    lr : [<804bba84>]    psr: 60070013
+>      [   75.555796] sp : 9f54bd78  ip : 9f54bd87  fp : 9f54bddc
+>      [   75.559719] r10: 00000000  r9 : 0000000e  r8 : 9f6a6010
+>      [   75.563643] r7 : 00000000  r6 : 81203048  r5 : 9f6a6010  r4 : 9f6a601c
+>      [   75.568867] r3 : 00000000  r2 : 00000000  r1 : 0000000d  r0 : 00000000
+>      [   75.574094] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+>      [   75.579933] Control: 10c53c7d  Table: 9de20059  DAC: 00000051
+>      [   75.584384] Process kworker/u2:1 (pid: 9, stack limit = 0x(ptrval))
+>      [   75.589349] Stack: (0x9f54bd78 to 0x9f54c000)
+>      [   75.592406] bd60:                                                       00000000 00000000
+>      [   75.599295] bd80: 00000391 9f299d10 9f299d68 8014317c 9f7f0000 8120af00 00006dc2 00000000
+>      [   75.606186] bda0: 8120af00 00000000 9f54bdec 1c9f5d92 8014317c 9f6a601c 9f6a6010 00000000
+>      [   75.613076] bdc0: 00000000 00000000 9dd1141c 8125a0b4 9f54be0c 9f54bde0 804cd8a8 804cd56c
+>      [   75.619966] bde0: 0000000e 80143680 00000001 9dce9c1c 81203048 9dce9c10 00000003 00000000
+>      [   75.626858] be00: 9f54be5c 9f54be10 806abcac 804cd864 9f54be54 80143664 8014317c 80143054
+>      [   75.633748] be20: ffcaa81d 00000000 812030b0 1c9f5d92 00000000 81203048 9f54beb4 00000003
+>      [   75.640639] be40: ffffffff 00000000 9dd1141c 8125a0b4 9f54be84 9f54be60 80138e98 806abb18
+>      [   75.647529] be60: 81203048 9ddc4000 9dce9c54 9f72a300 00000000 00000000 9f54be9c 9f54be88
+>      [   75.654420] be80: 801390bc 80138e50 00000000 9dce9c54 9f54beac 9f54bea0 806a9524 801390a0
+>      [   75.661310] bea0: 9f54bedc 9f54beb0 806a9c7c 806a950c 9f54becc 00000000 00000000 00000000
+>      [   75.668201] bec0: 9f540000 1c9f5d92 805fe604 9ddffc00 9f54befc 9f54bee0 806ab228 806a9c38
+>      [   75.675092] bee0: 806ab178 9ddffc00 9f4c1900 9f40d200 9f54bf34 9f54bf00 80131e30 806ab184
+>      [   75.681983] bf00: 9f40d214 9f54a038 9f40d200 9f40d200 9f4c1918 812119a0 9f40d214 9f54a038
+>      [   75.688873] bf20: 9f40d200 9f4c1900 9f54bf7c 9f54bf38 80132124 80131d1c 9f5f2dd8 00000000
+>      [   75.695764] bf40: 812119a0 9f54a038 812119a0 81259c5b 9f5f2dd8 9f5f2dc0 9f53dbc0 00000000
+>      [   75.702655] bf60: 9f4c1900 801320b4 9f5f2dd8 9f4f7e88 9f54bfac 9f54bf80 80137ad0 801320c0
+>      [   75.709544] bf80: 9f54a000 9f53dbc0 801379a0 00000000 00000000 00000000 00000000 00000000
+>      [   75.716434] bfa0: 00000000 9f54bfb0 801010e8 801379ac 00000000 00000000 00000000 00000000
+>      [   75.723324] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+>      [   75.730206] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+>      [   75.737083] Backtrace:
+>      [   75.738252] [<804cd560>] (mv88e6xxx_port_db_load_purge) from [<804cd8a8>] (mv88e6xxx_port_fdb_add+0x50/0x68)
+>      [   75.746795]  r10:8125a0b4 r9:9dd1141c r8:00000000 r7:00000000 r6:00000000 r5:9f6a6010
+>      [   75.753323]  r4:9f6a601c
+>      [   75.754570] [<804cd858>] (mv88e6xxx_port_fdb_add) from [<806abcac>] (dsa_switch_event+0x1a0/0x660)
+>      [   75.762238]  r8:00000000 r7:00000003 r6:9dce9c10 r5:81203048 r4:9dce9c1c
+>      [   75.767655] [<806abb0c>] (dsa_switch_event) from [<80138e98>] (notifier_call_chain+0x54/0x94)
+>      [   75.774893]  r10:8125a0b4 r9:9dd1141c r8:00000000 r7:ffffffff r6:00000003 r5:9f54beb4
+>      [   75.781423]  r4:81203048
+>      [   75.782672] [<80138e44>] (notifier_call_chain) from [<801390bc>] (raw_notifier_call_chain+0x28/0x30)
+>      [   75.790514]  r9:00000000 r8:00000000 r7:9f72a300 r6:9dce9c54 r5:9ddc4000 r4:81203048
+>      [   75.796982] [<80139094>] (raw_notifier_call_chain) from [<806a9524>] (dsa_port_notify+0x24/0x38)
+>      [   75.804483] [<806a9500>] (dsa_port_notify) from [<806a9c7c>] (dsa_port_fdb_add+0x50/0x6c)
+>      [   75.811371] [<806a9c2c>] (dsa_port_fdb_add) from [<806ab228>] (dsa_slave_switchdev_event_work+0xb0/0x10c)
+>      [   75.819635]  r4:9ddffc00
+>      [   75.820885] [<806ab178>] (dsa_slave_switchdev_event_work) from [<80131e30>] (process_one_work+0x120/0x3a4)
+>      [   75.829241]  r6:9f40d200 r5:9f4c1900 r4:9ddffc00 r3:806ab178
+>      [   75.833612] [<80131d10>] (process_one_work) from [<80132124>] (worker_thread+0x70/0x574)
+>      [   75.840415]  r10:9f4c1900 r9:9f40d200 r8:9f54a038 r7:9f40d214 r6:812119a0 r5:9f4c1918
+>      [   75.846945]  r4:9f40d200
+>      [   75.848191] [<801320b4>] (worker_thread) from [<80137ad0>] (kthread+0x130/0x160)
+>      [   75.854300]  r10:9f4f7e88 r9:9f5f2dd8 r8:801320b4 r7:9f4c1900 r6:00000000 r5:9f53dbc0
+>      [   75.860830]  r4:9f5f2dc0
+>      [   75.862076] [<801379a0>] (kthread) from [<801010e8>] (ret_from_fork+0x14/0x2c)
+>      [   75.867999] Exception stack(0x9f54bfb0 to 0x9f54bff8)
+>      [   75.871753] bfa0:                                     00000000 00000000 00000000 00000000
+>      [   75.878640] bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+>      [   75.885519] bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+>      [   75.890844]  r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:801379a0
+>      [   75.897377]  r4:9f53dbc0 r3:9f54a000
+>      [   75.899663] Code: e3a02000 e3a03000 e14b26f4 e24bc055 (e5973000)
+>      [   75.904575] ---[ end trace fbca818a124dbf0d ]---
+> 
+> Fixes: 816a3bed9549 ("switchdev: Add fdb.added_by_user to switchdev notifications")
+> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+> ---
 > @petr I expect the same issue with Rocker, but I haven't tested it.
+> 
+>   net/dsa/slave.c | 12 +++++++-----
+>   1 file changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+> index c287f1ef964c..746ab428a17a 100644
+> --- a/net/dsa/slave.c
+> +++ b/net/dsa/slave.c
+> @@ -1395,6 +1395,9 @@ static void dsa_slave_switchdev_event_work(struct work_struct *work)
+>   	switch (switchdev_work->event) {
+>   	case SWITCHDEV_FDB_ADD_TO_DEVICE:
+>   		fdb_info = &switchdev_work->fdb_info;
+> +		if (!fdb_info->added_by_user)
+> +			break;
+> +
+>   		err = dsa_port_fdb_add(dp, fdb_info->addr, fdb_info->vid);
+>   		if (err) {
+>   			netdev_dbg(dev, "fdb add failed err=%d\n", err);
+> @@ -1406,6 +1409,9 @@ static void dsa_slave_switchdev_event_work(struct work_struct *work)
+>   
+>   	case SWITCHDEV_FDB_DEL_TO_DEVICE:
+>   		fdb_info = &switchdev_work->fdb_info;
+> +		if (!fdb_info->added_by_user)
+> +			break;
+> +
+>   		err = dsa_port_fdb_del(dp, fdb_info->addr, fdb_info->vid);
+>   		if (err) {
+>   			netdev_dbg(dev, "fdb del failed err=%d\n", err);
+> @@ -1441,7 +1447,6 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+>   				     unsigned long event, void *ptr)
+>   {
+>   	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
+> -	struct switchdev_notifier_fdb_info *fdb_info = ptr;
+>   	struct dsa_switchdev_event_work *switchdev_work;
+>   
+>   	if (!dsa_slave_dev_check(dev))
+> @@ -1459,10 +1464,7 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+>   	switch (event) {
+>   	case SWITCHDEV_FDB_ADD_TO_DEVICE: /* fall through */
+>   	case SWITCHDEV_FDB_DEL_TO_DEVICE:
+> -		if (!fdb_info->added_by_user)
+> -			break;
+> -		if (dsa_slave_switchdev_fdb_work_init(switchdev_work,
+> -						      fdb_info))
+> +		if (dsa_slave_switchdev_fdb_work_init(switchdev_work, ptr))
+>   			goto err_fdb_work_init;
+>   		dev_hold(dev);
+>   		break;
+> 
 
-Yeah, pretty sure. Such an obvious bug, sorry about that :-/
-I'll send a rocker patch later today.
-
-Thanks,
-Petr
+Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
