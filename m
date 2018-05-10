@@ -1,17 +1,17 @@
 Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
-	bh=KvrjkduRLngL5gLfohPTCLgpgE1zMUbzTRti8H9Z2KU=;
-	b=BNsIikWtisa4XO3Esz3zd7XwGxKptVAXaLr3H/x34i2iNLKW41cDJIxlQ4gf8zOD5Mo4dkx5EJ4xXIBhxhoEaUq0YGVgUGZK3669ceg1WLPg2EcVS5ic0o7U00x9blNGr3PAfXtRjP6C6gJ5xDHevs8cUgtbxBnjqbYr/FWISP4=
+	bh=Un7vH4RdZoZ4JMfZimiWEQPXgUTKhSm9g8Q+9+ZCIZw=;
+	b=S47LoT6QzklM33qwlEl4/kx5+OYyLDCdeepuWIKc790QGuLoULQQcU9apVmmyVUo/HWygd4W0XXcD+hgnm2tzToOmX8FGP/WYwEzmISRLfT1muTN3F5JreKayuvfuCMbS6hnvg7aBwHJQgyM853UAhH6R8ERfeIwGL+k91sb4QE=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Thu, 10 May 2018 13:13:03 +0300
-Message-Id: <20180510101306.4891-2-idosch@mellanox.com>
+Date: Thu, 10 May 2018 13:13:04 +0300
+Message-Id: <20180510101306.4891-3-idosch@mellanox.com>
 In-Reply-To: <20180510101306.4891-1-idosch@mellanox.com>
 References: <20180510101306.4891-1-idosch@mellanox.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 1/4] net: bridge: Allow bridge master in
-	br_vlan_get_info()
+Subject: [Bridge] [PATCH net-next 2/4] mlxsw: reg: Add
+	MLXSW_REG_MPAT_SPAN_TYPE_REMOTE_ETH
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,30 +25,32 @@ Cc: Ido Schimmel <idosch@mellanox.com>, mlxsw@mellanox.com, nikolay@cumulusnetwo
 
 From: Petr Machata <petrm@mellanox.com>
 
-Mirroring offload in mlxsw needs to check that a given VLAN is allowed
-to ingress the bridge device. br_vlan_get_info() is the function that is
-used for this, however currently it only supports bridge port devices.
-Extend it to support bridge masters as well.
+Add MLXSW_REG_MPAT_SPAN_TYPE_REMOTE_ETH to support VLAN-encapsulated
+port mirroring.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- net/bridge/br_vlan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/reg.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index df37a5137c25..dc832c0934c6 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1176,6 +1176,8 @@ int br_vlan_get_info(const struct net_device *dev, u16 vid,
- 	p = br_port_get_check_rtnl(dev);
- 	if (p)
- 		vg = nbp_vlan_group(p);
-+	else if (netif_is_bridge_master(dev))
-+		vg = br_vlan_group(netdev_priv(dev));
- 	else
- 		return -EINVAL;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+index 6218231e379e..3f4d7e22cece 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+@@ -6833,6 +6833,12 @@ enum mlxsw_reg_mpat_span_type {
+ 	 */
+ 	MLXSW_REG_MPAT_SPAN_TYPE_LOCAL_ETH = 0x0,
  
++	/* Remote SPAN Ethernet VLAN.
++	 * The packet is forwarded to the monitoring port on the monitoring
++	 * VLAN.
++	 */
++	MLXSW_REG_MPAT_SPAN_TYPE_REMOTE_ETH = 0x1,
++
+ 	/* Encapsulated Remote SPAN Ethernet L3 GRE.
+ 	 * The packet is encapsulated with GRE header.
+ 	 */
 -- 
 2.14.3
 
