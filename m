@@ -1,21 +1,16 @@
-Return-Path: <dvyukov@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc; bh=wS7wShf2KThMzV9rylXMie19+qIAUyS3pXuX7SCVLc0=;
-	b=pQYcz/BKXFjGvusfzADedgsGRAg+XH3HycFh6h/+NPsqwgF1vtCn4PnbtQblAZnYXi
-	S3LR/O1fAfamZQXuI8wphZ0zw/GvSM6ZCWNdTPEKF3EVQ+3DBIgXTPYqDW6MzzS1V3A+
-	z83hXdqqNiqFG2MWBx56wzyYnXsBcIBt1ymW9zJNRcMbzL5NdTShS8vSGVQOhCOxrv4X
-	j33qiJE5thQAMLAHG0dLKpDioALoIuc92cKdeWEQKOxd5CGbaeLuYWpQRAO8JVP/e+CY
-	4vjvHVB3rhmMRnTfl9YpQDzl6adjejypa/9I3J84LstaFRtBSr0xe3X/Iujn2LcE3dbP
-	HAGg==
-MIME-Version: 1.0
-In-Reply-To: <001a113dea0ef7d2620566c15bac@google.com>
-References: <001a113dea0ef7d2620566c15bac@google.com>
-From: Dmitry Vyukov <dvyukov@google.com>
-Date: Fri, 11 May 2018 16:13:10 +0200
-Message-ID: <CACT4Y+bpDiybQ7j_r3Pa-UgOTnOLRGiJxnwwZ5J=sjgo=O0__A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] WARNING in compat_copy_entries (2)
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=5sfnxoO/I+i6xmHqRnnwhK5NrDnCsShi+qwon+LNqXc=;
+	b=ZU8py4icsL5oP4Nc4GhmBb0ZPVfSRVLiA6aCwDF4GzuA0a7tIQTmDHAFJyNxtuat0x
+	GQ/HjPvqnWfvTnNjnzu5QIMqFWfa7MpkPaeqXlF2zo0xyzqHXZu0nFbPDLA0C6Thhn2u
+	rILD2UfM0crcI5+xYtvqe9oo1npMioZqhRXFI=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu, 24 May 2018 11:56:48 +0300
+Message-Id: <20180524085648.5934-1-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next] net: bridge: add support for port
+	isolation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,133 +19,168 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com>
-Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, LKML <linux-kernel@vger.kernel.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, David Miller <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Tue, Mar 6, 2018 at 5:59 PM, syzbot
-<syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com> wrote:
-> Hello,
->
-> syzbot hit the following crash on upstream commit
-> ce380619fab99036f5e745c7a865b21c59f005f6 (Tue Mar 6 04:31:14 2018 +0000)
-> Merge tag 'please-pull-ia64_misc' of
-> git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux
->
-> So far this crash happened 11 times on upstream.
-> syzkaller reproducer is attached.
-> Raw console output is attached.
-> compiler: gcc (GCC) 7.1.1 20170620
-> .config is attached.
-> user-space arch: i386
+This patch adds support for a new port flag - BR_ISOLATED. If it is set
+then isolated ports cannot communicate between each other, but they can
+still communicate with non-isolated ports. The same can be achieved via
+ACLs but they can't scale with large number of ports and also the
+complexity of the rules grows. This feature can be used to achieve
+isolated vlan functionality (similar to pvlan) as well, though currently
+it will be port-wide (for all vlans on the port). The new test in
+should_deliver uses data that is already cache hot and the new boolean
+is used to avoid an additional source port test in should_deliver.
 
-This was bisected to, well:
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ include/linux/if_bridge.h    | 1 +
+ include/uapi/linux/if_link.h | 1 +
+ net/bridge/br_forward.c      | 3 ++-
+ net/bridge/br_input.c        | 1 +
+ net/bridge/br_netlink.c      | 9 ++++++++-
+ net/bridge/br_private.h      | 9 +++++++++
+ net/bridge/br_sysfs_if.c     | 2 ++
+ 7 files changed, 24 insertions(+), 2 deletions(-)
 
-commit 9dea5dc921b5f4045a18c63eb92e84dc274d17eb
-Author: Andy Lutomirski <luto@kernel.org>
-Date:   Tue Jul 14 15:24:24 2015 -0700
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index 585d27182425..7843b98e1c6e 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -50,6 +50,7 @@ struct br_ip_list {
+ #define BR_VLAN_TUNNEL		BIT(13)
+ #define BR_BCAST_FLOOD		BIT(14)
+ #define BR_NEIGH_SUPPRESS	BIT(15)
++#define BR_ISOLATED		BIT(16)
+ 
+ #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ 
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index b85266420bfb..cf01b6824244 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -333,6 +333,7 @@ enum {
+ 	IFLA_BRPORT_BCAST_FLOOD,
+ 	IFLA_BRPORT_GROUP_FWD_MASK,
+ 	IFLA_BRPORT_NEIGH_SUPPRESS,
++	IFLA_BRPORT_ISOLATED,
+ 	__IFLA_BRPORT_MAX
+ };
+ #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 7a7fd672ccf2..9019f326fe81 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -30,7 +30,8 @@ static inline int should_deliver(const struct net_bridge_port *p,
+ 	vg = nbp_vlan_group_rcu(p);
+ 	return ((p->flags & BR_HAIRPIN_MODE) || skb->dev != p->dev) &&
+ 		br_allowed_egress(vg, skb) && p->state == BR_STATE_FORWARDING &&
+-		nbp_switchdev_allowed_egress(p, skb);
++		nbp_switchdev_allowed_egress(p, skb) &&
++		!br_skb_isolated(p, skb);
+ }
+ 
+ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 7f98a7d25866..72074276c088 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -114,6 +114,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 		goto drop;
+ 
+ 	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
++	BR_INPUT_SKB_CB(skb)->src_port_isolated = !!(p->flags & BR_ISOLATED);
+ 
+ 	if (IS_ENABLED(CONFIG_INET) &&
+ 	    (skb->protocol == htons(ETH_P_ARP) ||
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 015f465c514b..9f5eb05b0373 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -139,6 +139,7 @@ static inline size_t br_port_info_size(void)
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP_WIFI */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_VLAN_TUNNEL */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
++		+ nla_total_size(1)	/* IFLA_BRPORT_ISOLATED */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_BRIDGE_ID */
+ 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_DESIGNATED_PORT */
+@@ -213,7 +214,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+ 							BR_VLAN_TUNNEL)) ||
+ 	    nla_put_u16(skb, IFLA_BRPORT_GROUP_FWD_MASK, p->group_fwd_mask) ||
+ 	    nla_put_u8(skb, IFLA_BRPORT_NEIGH_SUPPRESS,
+-		       !!(p->flags & BR_NEIGH_SUPPRESS)))
++		       !!(p->flags & BR_NEIGH_SUPPRESS)) ||
++	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)))
+ 		return -EMSGSIZE;
+ 
+ 	timerval = br_timer_value(&p->message_age_timer);
+@@ -660,6 +662,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_VLAN_TUNNEL] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_GROUP_FWD_MASK] = { .type = NLA_U16 },
+ 	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
++	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
+ };
+ 
+ /* Change the state of the port and notify spanning tree */
+@@ -810,6 +813,10 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
+ 	if (err)
+ 		return err;
+ 
++	err = br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
++	if (err)
++		return err;
++
+ 	br_port_flags_change(p, old_flags ^ p->flags);
+ 	return 0;
+ }
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 742f40aefdaf..11520ed528b0 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -423,6 +423,7 @@ struct br_input_skb_cb {
+ #endif
+ 
+ 	bool proxyarp_replied;
++	bool src_port_isolated;
+ 
+ #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+ 	bool vlan_filtered;
+@@ -574,6 +575,14 @@ int br_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
+ void br_flood(struct net_bridge *br, struct sk_buff *skb,
+ 	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig);
+ 
++/* return true if both source port and dest port are isolated */
++static inline bool br_skb_isolated(const struct net_bridge_port *to,
++				   const struct sk_buff *skb)
++{
++	return BR_INPUT_SKB_CB(skb)->src_port_isolated &&
++	       (to->flags & BR_ISOLATED);
++}
++
+ /* br_if.c */
+ void br_port_carrier_check(struct net_bridge_port *p, bool *notified);
+ int br_add_bridge(struct net *net, const char *name);
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index fd31ad83ec7b..f99c5bf5c906 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -192,6 +192,7 @@ BRPORT_ATTR_FLAG(proxyarp_wifi, BR_PROXYARP_WIFI);
+ BRPORT_ATTR_FLAG(multicast_flood, BR_MCAST_FLOOD);
+ BRPORT_ATTR_FLAG(broadcast_flood, BR_BCAST_FLOOD);
+ BRPORT_ATTR_FLAG(neigh_suppress, BR_NEIGH_SUPPRESS);
++BRPORT_ATTR_FLAG(isolated, BR_ISOLATED);
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
+@@ -243,6 +244,7 @@ static const struct brport_attribute *brport_attrs[] = {
+ 	&brport_attr_broadcast_flood,
+ 	&brport_attr_group_fwd_mask,
+ 	&brport_attr_neigh_suppress,
++	&brport_attr_isolated,
+ 	NULL
+ };
+ 
+-- 
+2.11.0
 
-    x86/entry/syscalls: Wire up 32-bit direct socket calls
-
-https://gist.githubusercontent.com/dvyukov/acbdace00cbb2fd31fb599a009d471e6/raw/bfe6bd8f2423df7b3493c7df2e466b37a8968688/gistfile1.txt
-
-Which is kinda makes sense, but shows another limitation of automatic bisection.
-
-
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com
-> It will help syzbot understand when the bug is fixed. See footer for
-> details.
-> If you forward the report, please keep this part and the footer.
->
-> audit: type=1400 audit(1520347101.934:8): avc:  denied  { map } for
-> pid=4183 comm="syz-execprog" path="/root/syzkaller-shm886349459" dev="sda1"
-> ino=16482 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023
-> tcontext=unconfined_u:object_r:file_t:s0 tclass=file permissive=1
-> IPVS: ftp: loaded support on port[0] = 21
-> WARNING: CPU: 1 PID: 4192 at net/bridge/netfilter/ebtables.c:2063
-> ebt_size_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
-> WARNING: CPU: 1 PID: 4192 at net/bridge/netfilter/ebtables.c:2063
-> size_entry_mwt net/bridge/netfilter/ebtables.c:2140 [inline]
-> WARNING: CPU: 1 PID: 4192 at net/bridge/netfilter/ebtables.c:2063
-> compat_copy_entries+0xd92/0x1150 net/bridge/netfilter/ebtables.c:2179
-> Kernel panic - not syncing: panic_on_warn set ...
->
-> CPU: 1 PID: 4192 Comm: syz-executor0 Not tainted 4.16.0-rc4+ #253
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:17 [inline]
->  dump_stack+0x194/0x24d lib/dump_stack.c:53
->  panic+0x1e4/0x41c kernel/panic.c:183
->  __warn+0x1dc/0x200 kernel/panic.c:547
->  report_bug+0x211/0x2d0 lib/bug.c:184
->  fixup_bug.part.11+0x37/0x80 arch/x86/kernel/traps.c:178
->  fixup_bug arch/x86/kernel/traps.c:247 [inline]
->  do_error_trap+0x2d7/0x3e0 arch/x86/kernel/traps.c:296
->  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
->  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
-> RIP: 0010:ebt_size_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
-> RIP: 0010:size_entry_mwt net/bridge/netfilter/ebtables.c:2140 [inline]
-> RIP: 0010:compat_copy_entries+0xd92/0x1150
-> net/bridge/netfilter/ebtables.c:2179
-> RSP: 0018:ffff8801bb5077e8 EFLAGS: 00010293
-> RAX: ffff8801bc82a580 RBX: 0000000000000000 RCX: ffffffff851ad5c2
-> RDX: 0000000000000000 RSI: ffffc90001853180 RDI: 0000000000000000
-> RBP: ffff8801bb507968 R08: 0000000000000004 R09: 0000000000000000
-> R10: ffffffff88613380 R11: 0000000000000001 R12: 0000000000000007
-> R13: dffffc0000000000 R14: ffff8801bb5079c8 R15: 000000000000000c
->  compat_do_replace+0x398/0x7d0 net/bridge/netfilter/ebtables.c:2268
->  compat_do_ebt_set_ctl+0x22a/0x2d0 net/bridge/netfilter/ebtables.c:2350
->  compat_nf_sockopt net/netfilter/nf_sockopt.c:144 [inline]
->  compat_nf_setsockopt+0x88/0x130 net/netfilter/nf_sockopt.c:156
->  compat_ip_setsockopt+0x8b/0xd0 net/ipv4/ip_sockglue.c:1285
->  inet_csk_compat_setsockopt+0x95/0x120 net/ipv4/inet_connection_sock.c:1041
->  compat_dccp_setsockopt+0x40/0x70 net/dccp/proto.c:589
->  compat_sock_common_setsockopt+0xb2/0x140 net/core/sock.c:2986
->  C_SYSC_setsockopt net/compat.c:403 [inline]
->  compat_SyS_setsockopt+0x17c/0x410 net/compat.c:386
->  do_syscall_32_irqs_on arch/x86/entry/common.c:330 [inline]
->  do_fast_syscall_32+0x3ec/0xf9f arch/x86/entry/common.c:392
->  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> RIP: 0023:0xf7f35c99
-> RSP: 002b:00000000ff9c02cc EFLAGS: 00000282 ORIG_RAX: 000000000000016e
-> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000000000
-> RDX: 0000000000000080 RSI: 0000000020000240 RDI: 0000000000000240
-> RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-> Dumping ftrace buffer:
->    (ftrace buffer empty)
-> Kernel Offset: disabled
-> Rebooting in 86400 seconds..
->
->
-> ---
-> This bug is generated by a dumb bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for details.
-> Direct all questions to syzkaller@googlegroups.com.
->
-> syzbot will keep track of this bug report.
-> If you forgot to add the Reported-by tag, once the fix for this bug is
-> merged
-> into any tree, please reply to this email with:
-> #syz fix: exact-commit-title
-> If you want to test a patch for this bug, please reply with:
-> #syz test: git://repo/address.git branch
-> and provide the patch inline or as an attachment.
-> To mark this as a duplicate of another syzbot report, please reply with:
-> #syz dup: exact-subject-of-another-report
-> If it's a one-off invalid bug report, please reply with:
-> #syz invalid
-> Note: if the crash happens again, it will cause creation of a new bug
-> report.
-> Note: all commands must start from beginning of the line in the email body.
->
-> --
-> You received this message because you are subscribed to the Google Groups
-> "syzkaller-bugs" group.
-> To unsubscribe from this group and stop receiving emails from it, send an
-> email to syzkaller-bugs+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit
-> https://groups.google.com/d/msgid/syzkaller-bugs/001a113dea0ef7d2620566c15bac%40google.com.
-> For more options, visit https://groups.google.com/d/optout.
