@@ -2,16 +2,17 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=xSMCu4jcGT7zgp33C1n06OEbbaSa4oJadG0tJ3euVPE=;
-	b=fEsTMfRim+f1VgGjyyvi/LtrFPiTglggJaeE+wbV2rNGDVcK8XP6v0Y/KnRz0vP7/1AuAtt9HLxplS53vrRDI3mGkV7SEFZIs/ICg6sq3AD1FRw5s67ykG+zUedXpCzioRy1ouRF8oti0s4chcUDYcRykYj7v/PNwwI6eEBEnPk=
+	bh=4S70UcvTo7C+bHXkqxBW96TsehXd1p8Mt5A63GNR6Fs=;
+	b=IkWmFRwpJTjEngjqUQKYvTZKe9x8TdJ7nD9dGCm+Np+ivR36lugUA3leO2j8HIzCEqvnBqJGe9w9s/mfFT7RMNpQ8qaqRk4C04COoTRTx5t8Z/lJKPx8aW4qDlfMB4YsiskdYlThluuXGoPfb8n9BIL3gGUermA8i022eKwst2A=
 From: Petr Machata <petrm@mellanox.com>
 In-Reply-To: <cover.1527173527.git.petrm@mellanox.com>
 References: <cover.1527173527.git.petrm@mellanox.com>
-Message-Id: <b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
-Date: Thu, 24 May 2018 17:10:40 +0200
+Message-Id: <0c5c58584f95d814999f7144365b37334d1c9c9b.1527173527.git.petrm@mellanox.com>
+Date: Thu, 24 May 2018 17:10:46 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 6/7] net: bridge: Notify about bridge VLANs
+Subject: [Bridge] [PATCH net-next 7/7] mlxsw: spectrum_switchdev: Schedule
+ respin during trans prepare
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,63 +24,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
 Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
 
-A driver might need to react to changes in settings of brentry VLANs.
-Therefore send switchdev port notifications for these as well. Reuse
-SWITCHDEV_OBJ_ID_PORT_VLAN for this purpose. Listeners should use
-netif_is_bridge_master() on orig_dev to determine whether the
-notification is about a bridge port or a bridge.
+Since there's no special support for the bridge events, the driver
+returns -EOPNOTSUPP, and thus the commit never happens. Therefore
+schedule respin during the prepare stage: there's no real difference one
+way or another.
+
+This fixes the problem that mirror-to-gretap offload wouldn't adapt to
+changes in bridge vlan configuration right away and another notification
+would have to arrive for mlxsw to catch up.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
 ---
- net/bridge/br_vlan.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index a75fe930..14c1b6c 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -268,6 +268,10 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags)
- 			goto out_filt;
- 		v->brvlan = masterv;
- 		v->stats = masterv->stats;
-+	} else {
-+		err = br_switchdev_port_obj_add(dev, v->vid, flags);
-+		if (err && err != -EOPNOTSUPP)
-+			goto out;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index cbc8fab..8a15ac4 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -1697,7 +1697,7 @@ static int mlxsw_sp_port_obj_add(struct net_device *dev,
+ 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
+ 		err = mlxsw_sp_port_vlans_add(mlxsw_sp_port, vlan, trans);
  
- 	/* Add the dev mac and count the vlan only if it's usable */
-@@ -303,6 +307,8 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags)
- 			br_vlan_put_master(masterv);
- 			v->brvlan = NULL;
- 		}
-+	} else {
-+		br_switchdev_port_obj_del(dev, v->vid);
- 	}
- 
- 	goto out;
-@@ -328,6 +334,11 @@ static int __vlan_del(struct net_bridge_vlan *v)
- 		err = __vlan_vid_del(p->dev, p->br, v->vid);
- 		if (err)
- 			goto out;
-+	} else {
-+		err = br_switchdev_port_obj_del(v->br->dev, v->vid);
-+		if (err && err != -EOPNOTSUPP)
-+			goto out;
-+		err = 0;
- 	}
- 
- 	if (br_vlan_should_use(v)) {
-@@ -605,6 +616,9 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags, bool *changed)
- 			vg->num_vlans++;
- 			*changed = true;
- 		}
-+		ret = br_switchdev_port_obj_add(br->dev, vid, flags);
-+		if (ret && ret != -EOPNOTSUPP)
-+			return ret;
- 		if (__vlan_add_flags(vlan, flags))
- 			*changed = true;
- 
+-		if (switchdev_trans_ph_commit(trans)) {
++		if (switchdev_trans_ph_prepare(trans)) {
+ 			/* The event is emitted before the changes are actually
+ 			 * applied to the bridge. Therefore schedule the respin
+ 			 * call for later, so that the respin logic sees the
 -- 
 2.4.11
 
