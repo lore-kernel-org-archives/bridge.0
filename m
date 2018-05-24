@@ -2,17 +2,17 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=LPIauIq2wWD/ZNA4LBUhy5ZzqA9amBrgm9GdqZxzVXg=;
-	b=yo007zPotOyAEyPUkHmXmtDMl05BmIy4VbtA3YGwwzMzJkYRQO9F4H2kADwMv8r6dx22dJFTvjutoH4LpvhBYaoYA5wu/9o0Z/awylOpYZ32Rkx2XDnfpMMCAQW3YKttbIuTkvfskEJOnkXlE2wlu6traWJUvKyhBMi0KnJFAqc=
+	bh=yxblHswXhGYM2IcT5AhHrpXNdhvcCirzTJWyhXOYUaQ=;
+	b=NeM9rpf0N8SUjT0eYCXNCZnL4lKWHK11Ywlh0DDZlPKGn0zmtIyoribl2WBYiarQq7YTFxOwAJMDb99W+KkLSOYKKU0Lt50ZmDLYbTe7LCs6kflUmXa4iZKVzMm6eMC05hNyW+Hj3fSQPnBQRbmLwB0sFldoTdXFJ7Hx9OR82y8=
 From: Petr Machata <petrm@mellanox.com>
 In-Reply-To: <cover.1527173527.git.petrm@mellanox.com>
 References: <cover.1527173527.git.petrm@mellanox.com>
-Message-Id: <ba2006f5d0065e492a543ad8c48ddef8d43c5170.1527173527.git.petrm@mellanox.com>
-Date: Thu, 24 May 2018 17:10:12 +0200
+Message-Id: <4ad1086a1fa8dad85bcba11d186fe040511411c3.1527173527.git.petrm@mellanox.com>
+Date: Thu, 24 May 2018 17:10:22 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 2/7] mlxsw: spectrum_switchdev: Ignore
- bridge VLAN events
+Subject: [Bridge] [PATCH net-next 3/7] rocker: rocker_main: Ignore bridge
+	VLAN events
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,35 +27,34 @@ Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@li
 Ignore VLAN events where the orig_dev is the bridge device itself.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Ido Schimmel <idosch@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 6 ++++++
+ drivers/net/ethernet/rocker/rocker_main.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index 8c9cf8e..cbc8fab 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -1144,6 +1144,9 @@ static int mlxsw_sp_port_vlans_add(struct mlxsw_sp_port *mlxsw_sp_port,
- 	struct mlxsw_sp_bridge_port *bridge_port;
- 	u16 vid;
+diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
+index e73e4fe..aeafdb9 100644
+--- a/drivers/net/ethernet/rocker/rocker_main.c
++++ b/drivers/net/ethernet/rocker/rocker_main.c
+@@ -1632,6 +1632,9 @@ rocker_world_port_obj_vlan_add(struct rocker_port *rocker_port,
+ {
+ 	struct rocker_world_ops *wops = rocker_port->rocker->wops;
  
-+	if (netif_is_bridge_master(orig_dev))
++	if (netif_is_bridge_master(vlan->obj.orig_dev))
 +		return -EOPNOTSUPP;
 +
- 	if (switchdev_trans_ph_prepare(trans))
- 		return 0;
+ 	if (!wops->port_obj_vlan_add)
+ 		return -EOPNOTSUPP;
  
-@@ -1741,6 +1744,9 @@ static int mlxsw_sp_port_vlans_del(struct mlxsw_sp_port *mlxsw_sp_port,
- 	struct mlxsw_sp_bridge_port *bridge_port;
- 	u16 vid;
+@@ -1647,6 +1650,9 @@ rocker_world_port_obj_vlan_del(struct rocker_port *rocker_port,
+ {
+ 	struct rocker_world_ops *wops = rocker_port->rocker->wops;
  
-+	if (netif_is_bridge_master(orig_dev))
++	if (netif_is_bridge_master(vlan->obj.orig_dev))
 +		return -EOPNOTSUPP;
 +
- 	bridge_port = mlxsw_sp_bridge_port_find(mlxsw_sp->bridge, orig_dev);
- 	if (WARN_ON(!bridge_port))
- 		return -EINVAL;
+ 	if (!wops->port_obj_vlan_del)
+ 		return -EOPNOTSUPP;
+ 	return wops->port_obj_vlan_del(rocker_port, vlan);
 -- 
 2.4.11
 
