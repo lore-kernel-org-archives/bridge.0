@@ -1,14 +1,14 @@
 Return-Path: <vivien.didelot@savoirfairelinux.com>
 From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <56beb523d39852fa30e8e90e80638b0ec917b96a.1527173527.git.petrm@mellanox.com>
+In-Reply-To: <b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
 References: <cover.1527173527.git.petrm@mellanox.com>
-	<56beb523d39852fa30e8e90e80638b0ec917b96a.1527173527.git.petrm@mellanox.com>
-Date: Fri, 25 May 2018 12:11:58 -0400
-Message-ID: <87a7snzpdd.fsf@weeman.i-did-not-set--mail-host-address--so-tickle-me>
+	<b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
+Date: Fri, 25 May 2018 12:17:33 -0400
+Message-ID: <877enrzp42.fsf@weeman.i-did-not-set--mail-host-address--so-tickle-me>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next 4/7] dsa: port: Ignore bridge VLAN
-	events
+Subject: Re: [Bridge] [PATCH net-next 6/7] net: bridge: Notify about bridge
+	VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,9 +24,22 @@ Hi Petr,
 
 Petr Machata <petrm@mellanox.com> writes:
 
-> Ignore VLAN events where the orig_dev is the bridge device itself.
+> A driver might need to react to changes in settings of brentry VLANs.
+> Therefore send switchdev port notifications for these as well. Reuse
+> SWITCHDEV_OBJ_ID_PORT_VLAN for this purpose. Listeners should use
+> netif_is_bridge_master() on orig_dev to determine whether the
+> notification is about a bridge port or a bridge.
 >
 > Signed-off-by: Petr Machata <petrm@mellanox.com>
+
+> +	} else {
+> +		err = br_switchdev_port_obj_add(dev, v->vid, flags);
+> +		if (err && err != -EOPNOTSUPP)
+> +			goto out;
+>  	}
+
+Except that br_switchdev_port_obj_add taking vid and flags arguments
+seems confusing to me, the change looks good:
 
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 
