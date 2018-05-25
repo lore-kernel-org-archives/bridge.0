@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:cc:references:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=Ta8oz1fbvaerH5A/X0TFTtxjW5L9oeCcWqi65Orht20=;
-	b=AgbneLOHwr+ltseE91JSrh6UZVFVTzRe/ObKcZKmqIrirut8VovvSG4418gnuXXCGy
-	ElYWnmghul+08oeKp8vMlp56fMXK3BHJ4wiqnY7eKZ38dgtE5JJBjtAsVAJyBIfWBsdj
-	ZeJkOR3A5bhTNDJhPdJhnyLRzU1Tr/YQjfoiE=
+	bh=/mvnA8WRXpCsxDB3NVMkBd2dbyw5zUxqGhwxNYjwZq8=;
+	b=BbXsn/t22nGXnis2F/giEQtyDKSx/zkh60fYyAvQph9EMyO47sBvuDK9vaV57iL+fg
+	e9TAH1/iAHOShkNFD9CS6RMEFFdHkluNpvqlQDq1xoJAd1Oo2irvny9p3iMtHOltrM6d
+	1fL0u9tZTHsYGuBPobDu07Me2gWzIRPqiwstA=
 References: <cover.1527173527.git.petrm@mellanox.com>
-	<af1bed5ce2b236544edd591b8cfb8425c2cb5ca0.1527173527.git.petrm@mellanox.com>
+	<b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <d5f98461-710b-ef1b-3ae8-71ba428430da@cumulusnetworks.com>
-Date: Fri, 25 May 2018 15:04:37 +0300
+Message-ID: <5ec42d96-cd47-65b3-146c-c301bd35b691@cumulusnetworks.com>
+Date: Fri, 25 May 2018 15:08:49 +0300
 MIME-Version: 1.0
-In-Reply-To: <af1bed5ce2b236544edd591b8cfb8425c2cb5ca0.1527173527.git.petrm@mellanox.com>
+In-Reply-To: <b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 1/7] net: bridge: Extract boilerplate
- around switchdev_port_obj_*()
+Subject: Re: [Bridge] [PATCH net-next 6/7] net: bridge: Notify about bridge
+	VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,20 +31,18 @@ To: Petr Machata <petrm@mellanox.com>, netdev@vger.kernel.org, devel@driverdev.o
 Cc: f.fainelli@gmail.com, andrew@lunn.ch, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
 
 On 24/05/18 18:10, Petr Machata wrote:
-> A call to switchdev_port_obj_add() or switchdev_port_obj_del() involves
-> initializing a struct switchdev_obj_port_vlan, a piece of code that
-> repeats on each call site almost verbatim. While in the current codebase
-> there is just one duplicated add call, the follow-up patches add more of
-> both add and del calls.
-> 
-> Thus to remove the duplication, extract the repetition into named
-> functions and reuse.
+> A driver might need to react to changes in settings of brentry VLANs.
+> Therefore send switchdev port notifications for these as well. Reuse
+> SWITCHDEV_OBJ_ID_PORT_VLAN for this purpose. Listeners should use
+> netif_is_bridge_master() on orig_dev to determine whether the
+> notification is about a bridge port or a bridge.
 > 
 > Signed-off-by: Petr Machata <petrm@mellanox.com>
 > ---
->  net/bridge/br_vlan.c | 44 +++++++++++++++++++++++---------------------
->  1 file changed, 23 insertions(+), 21 deletions(-)
+>  net/bridge/br_vlan.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 > 
 
 Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+
 
