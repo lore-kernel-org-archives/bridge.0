@@ -1,24 +1,14 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=/mvnA8WRXpCsxDB3NVMkBd2dbyw5zUxqGhwxNYjwZq8=;
-	b=BbXsn/t22nGXnis2F/giEQtyDKSx/zkh60fYyAvQph9EMyO47sBvuDK9vaV57iL+fg
-	e9TAH1/iAHOShkNFD9CS6RMEFFdHkluNpvqlQDq1xoJAd1Oo2irvny9p3iMtHOltrM6d
-	1fL0u9tZTHsYGuBPobDu07Me2gWzIRPqiwstA=
+Return-Path: <vivien.didelot@savoirfairelinux.com>
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+In-Reply-To: <af1bed5ce2b236544edd591b8cfb8425c2cb5ca0.1527173527.git.petrm@mellanox.com>
 References: <cover.1527173527.git.petrm@mellanox.com>
-	<b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <5ec42d96-cd47-65b3-146c-c301bd35b691@cumulusnetworks.com>
-Date: Fri, 25 May 2018 15:08:49 +0300
+	<af1bed5ce2b236544edd591b8cfb8425c2cb5ca0.1527173527.git.petrm@mellanox.com>
+Date: Fri, 25 May 2018 12:10:57 -0400
+Message-ID: <87d0xjzpf2.fsf@weeman.i-did-not-set--mail-host-address--so-tickle-me>
 MIME-Version: 1.0
-In-Reply-To: <b0b6b46a239eb330d722cea89137ab6ec5bae6e3.1527173527.git.petrm@mellanox.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 6/7] net: bridge: Notify about bridge
-	VLANs
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next 1/7] net: bridge: Extract boilerplate
+	around switchdev_port_obj_*()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,21 +18,44 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Petr Machata <petrm@mellanox.com>, netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
-Cc: f.fainelli@gmail.com, andrew@lunn.ch, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
+Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
 
-On 24/05/18 18:10, Petr Machata wrote:
-> A driver might need to react to changes in settings of brentry VLANs.
-> Therefore send switchdev port notifications for these as well. Reuse
-> SWITCHDEV_OBJ_ID_PORT_VLAN for this purpose. Listeners should use
-> netif_is_bridge_master() on orig_dev to determine whether the
-> notification is about a bridge port or a bridge.
-> 
-> Signed-off-by: Petr Machata <petrm@mellanox.com>
-> ---
->  net/bridge/br_vlan.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
+Hi Petr,
 
-Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Petr Machata <petrm@mellanox.com> writes:
 
+> -static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
+> -			  u16 vid, u16 flags)
+> +static int br_switchdev_port_obj_add(struct net_device *dev, u16 vid, u16 flags)
+>  {
+>  	struct switchdev_obj_port_vlan v = {
+>  		.obj.orig_dev = dev,
+> @@ -89,12 +88,29 @@ static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
+>  		.vid_begin = vid,
+>  		.vid_end = vid,
+>  	};
+> -	int err;
+>  
+> +	return switchdev_port_obj_add(dev, &v.obj);
+> +}
+> +
+> +static int br_switchdev_port_obj_del(struct net_device *dev, u16 vid)
+> +{
+> +	struct switchdev_obj_port_vlan v = {
+> +		.obj.orig_dev = dev,
+> +		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
+> +		.vid_begin = vid,
+> +		.vid_end = vid,
+> +	};
+> +
+> +	return switchdev_port_obj_del(dev, &v.obj);
+> +}
 
+Shouldn't they be br_switchdev_port_vlan_add (or similar) implemented in
+net/bridge/br_switchdev.c instead, since they are VLAN specific?
+
+Other than that, the change looks good!
+
+Thanks,
+
+        Vivien
