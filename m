@@ -2,19 +2,15 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=XgxNuth0Y6EPA2OS6Oho773GNY1Eiz6rBFCbXp6LaNk=;
-	b=Qj+NgNBLgVaqIEA9vZ3PL0/ZHf62N2Xq/F5+w7dahu4NvET7ZvwZ/hrZOmPqGVYCzHeP4ugC//DXk3hoOmBCxMNMQx06KwBuNHwnBomXVkVJESgZ+h/KRmFu58Vf8J251sDO8EgGlffWT6VuPjFvRKDpsVwcTDV7SttVOcHARa4=
+	bh=oLjJSaTHBWmfi5HPkCjaLOOonwbTiFk42IIHJR2ui0U=;
+	b=fLdILX2C9gmswFth5OdwxLYFSQEuIUmaxPPBcgKj0i+CUgv+z1CLCbVsVMCT9/PyoLiIE9S6Nr/TRpihBu9fGF4OzIHMKZxIxPqlZeZBMVhp7ZpS6iIvcBycDNK+vv98MWP0zLvmORCFjIUe+F0NbLAWiIChkjv1aExewSeBT3E=
 From: Petr Machata <petrm@mellanox.com>
-References: <cover.1527503302.git.petrm@mellanox.com>
-	<40d11322cdf295d5f5b03d7acaf997486e68ed2f.1527503302.git.petrm@mellanox.com>
-Date: Mon, 28 May 2018 16:39:00 +0300
-In-Reply-To: <40d11322cdf295d5f5b03d7acaf997486e68ed2f.1527503302.git.petrm@mellanox.com>
-	(Petr Machata's message of "Mon, 28 May 2018 12:49:55 +0200")
-Message-ID: <wihk1rngarv.fsf@dev-r-vrt-156.mtr.labs.mlnx>
+Message-Id: <cover.1527519997.git.petrm@mellanox.com>
+Date: Mon, 28 May 2018 17:10:22 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next v2 1/7] net: bridge: Extract
-	boilerplate around switchdev_port_obj_*()
+Subject: [Bridge] [PATCH net-next v3 0/7] net: bridge: Notify about bridge
+	VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,26 +19,71 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: devel@driverdev.osuosl.org, f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, vivien.didelot@savoirfairelinux.com, davem@davemloft.net
+To: netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
+Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
 
-Petr Machata <petrm@mellanox.com> writes:
+In commit 946a11e7408e ("mlxsw: spectrum_span: Allow bridge for gretap
+mirror"), mlxsw got support for offloading mirror-to-gretap such that
+the underlay packet path involves a bridge. In that case, the offload is
+also influenced by PVID setting of said bridge. However, changes to VLAN
+configuration of the bridge itself do not generate switchdev
+notifications, so there's no mechanism to prod mlxsw to update the
+offload when these settings change.
 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 11520ed..33bd914 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -1178,6 +1178,9 @@ static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
->  }
->  #endif /* CONFIG_NET_SWITCHDEV */
->  
-> +int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags);
-> +int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid);
-> +
+In this patchset, the problem is resolved by distributing the switchdev
+notification SWITCHDEV_OBJ_ID_PORT_VLAN also for configuration changes
+on bridge VLANs. Since stacked devices distribute the notification to
+lower devices, such event eventually reaches the driver, which can
+determine whether it's a bridge or port VLAN by inspecting orig_dev.
 
-Nope, this actually does need to be in the ifdef block. The whole
-br_switchdev.c is built conditionally.
+To keep things consistent, the newly-distributed notifications observe
+the same protocol as the existing ones: dual prepare/commit, with
+-EOPNOTSUPP indicating lack of support, even though there's currently
+nothing to prepare for and nothing to support. Correspondingly, all
+switchdev drivers have been updated to return -EOPNOTSUPP for bridge
+VLAN notifications.
 
-I'll send v3.
+In patch #1, the code to send notifications for adding and deleting is
+factored out into two named functions.
 
-Petr
+In patches #2-#5, respectively for mlxsw, rocker, DSA and DPAA2 ethsw,
+the new notifications (which are not enabled yet) are ignored to
+maintain the current behavior.
+
+In patch #6, the notification is actually enabled.
+
+In patch #7, mlxsw is changed to update offloads of mirror-to-gre also
+for bridge-related notifications.
+
+Changes from v2 to v3:
+
+- Add a fallback definition for br_switchdev_port_obj_add() and
+  br_switchdev_port_obj_del() when !CONFIG_NET_SWITCHDEV.
+
+Changes from v1 to v2:
+
+- Rename br_switchdev_port_obj_add() and br_switchdev_port_obj_del() to
+  br_switchdev_port_vlan_add() and br_switchdev_port_vlan_del(), and
+  move from br_vlan.c to br_switchdev.c.
+
+Petr Machata (7):
+  net: bridge: Extract boilerplate around switchdev_port_obj_*()
+  mlxsw: spectrum_switchdev: Ignore bridge VLAN events
+  rocker: rocker_main: Ignore bridge VLAN events
+  dsa: port: Ignore bridge VLAN events
+  staging: fsl-dpaa2: ethsw: Ignore bridge VLAN events
+  net: bridge: Notify about bridge VLANs
+  mlxsw: spectrum_switchdev: Schedule respin during trans prepare
+
+ .../ethernet/mellanox/mlxsw/spectrum_switchdev.c   |  8 +++-
+ drivers/net/ethernet/rocker/rocker_main.c          |  6 +++
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c            |  6 +++
+ net/bridge/br_private.h                            | 13 +++++++
+ net/bridge/br_switchdev.c                          | 25 ++++++++++++
+ net/bridge/br_vlan.c                               | 45 +++++++++-------------
+ net/dsa/port.c                                     |  6 +++
+ 7 files changed, 81 insertions(+), 28 deletions(-)
+
+-- 
+2.4.11
+
