@@ -1,24 +1,10 @@
-Return-Path: <ilias.apalodimas@linaro.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
-	h=date:from:to:cc:subject:message-id:references:mime-version
-	:content-disposition:in-reply-to:user-agent;
-	bh=FfsKS1anQyrWaxz0gKHtVSfRn+O7yyZlv/GApq4l5Qk=;
-	b=GXQtPyW1BI1I0RZvdQYAA+0rREJKWms7xTFarXNyDfV4mJ/hN8p02FkfD6mQ7sd1/P
-	zVNA/4gnDkN792rTik2GqUi3Ty/IFYUoQF5yOI2I/eaD7CKGc+r3AKFRne7LzDOXF0UE
-	KtKSKr4hRuJEenRKVgIsOOX8Fix1fxgKIHnv8=
-Date: Tue, 29 May 2018 17:44:58 +0300
-From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Message-ID: <20180529144458.GA27555@apalos>
-References: <cover.1527503302.git.petrm@mellanox.com>
-	<708f594ac6cef4a63a6f6a28759098c4d7922976.1527503302.git.petrm@mellanox.com>
-	<20180529102543.GA1883@apalos>
-	<wihvab6eded.fsf@dev-r-vrt-156.mtr.labs.mlnx>
+Return-Path: <3CpAMWwkbADspvwhXiiboXmmfa.dlldibrpboZlkqbkq.Zlj@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wihvab6eded.fsf@dev-r-vrt-156.mtr.labs.mlnx>
-Subject: Re: [Bridge] [PATCH net-next v2 3/7] rocker: rocker_main: Ignore
- bridge VLAN events
+Date: Mon, 28 May 2018 16:26:02 -0700
+Message-ID: <000000000000e46d0a056d4c70ce@google.com>
+From: syzbot <syzbot+adfeaaee641dd4fdac43@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Subject: [Bridge] BUG: unable to handle kernel (3)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,47 +13,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Petr Machata <petrm@mellanox.com>
-Cc: devel@driverdev.osuosl.org, f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, davem@davemloft.net
+To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
 
-On Tue, May 29, 2018 at 05:37:30PM +0300, Petr Machata wrote:
-> Ilias Apalodimas <ilias.apalodimas@linaro.org> writes:
-> 
-> >> diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-> >> index e73e4fe..aeafdb9 100644
-> >> --- a/drivers/net/ethernet/rocker/rocker_main.c
-> >> +++ b/drivers/net/ethernet/rocker/rocker_main.c
-> >> @@ -1632,6 +1632,9 @@ rocker_world_port_obj_vlan_add(struct rocker_port *rocker_port,
-> >>  {
-> >>  	struct rocker_world_ops *wops = rocker_port->rocker->wops;
-> >>  
-> >> +	if (netif_is_bridge_master(vlan->obj.orig_dev))
-> >> +		return -EOPNOTSUPP;
-> >> +
-> > What will happen to the "bridge vlan add dev br0 vid X pvid untagged self" when
-> > the lower level (the driver) returns -EOPNOTSUPP? Will it avoid adding a vlan on
-> > the bridge ?
-> 
-> No, it will still do it. The reasons are:
-> 
-> - that's what currently happens anyway: none of the drivers has any
->   support, yet the bridge logic is done
-> 
-> - -EOPNOTSUPP is what switchdev_port_obj_*() return if switchdev is not
->   compiled in
-> 
-> In order to suppress the setting, return e.g. -EINVAL:
-> 
-> # bridge vlan add dev br vid 111 self
-> RTNETLINK answers: Invalid argument
-> # bridge vlan show dev br
-> port    vlan ids
-> br       1 PVID Egress Untagged
-> 
-> Thanks,
-> Petr
-Ok that's perfect then. As i mentioned it's really useful for a use case i am
-doing on a switch that needs it's cpu port configured individually.
+Hello,
 
-Thanks,
-Ilias
+syzbot found the following crash on:
+
+HEAD commit:    861d9dd37526 Merge tag 'kbuild-fixes-v4.17-2' of git://git..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=10bffd0f800000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=982e2df1b9e60b02
+dashboard link: https://syzkaller.appspot.com/bug?extid=adfeaaee641dd4fdac43
+compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+userspace arch: i386
+syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=1156a92f800000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+adfeaaee641dd4fdac43@syzkaller.appspotmail.com
+
+IPv6: ADDRCONF(NETDEV_CHANGE): bridge0: link becomes ready
+BUG: unable to handle kernel
+IPVS: ftp: loaded support on port[0] = 21
+paging request at ffffc90001f30003
+PGD 1da946067 P4D 1da946067 PUD 1da947067 PMD 1afa9e067 PTE 80000001b7d3e163
+Oops: 0000 [#1] SMP KASAN
+Dumping ftrace buffer:
+    (ftrace buffer empty)
+Modules linked in:
+CPU: 0 PID: 8 Comm: ksoftirqd/0 Not tainted 4.17.0-rc6+ #95
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+RIP: 0010:ebt_do_table+0x1983/0x2140 net/bridge/netfilter/ebtables.c:283
+RSP: 0018:ffff8801d9aaeb68 EFLAGS: 00010246
+RAX: ffffc90001f30003 RBX: ffffc90001f30003 RCX: ffffc90001f24000
+RDX: 0000000000000000 RSI: ffffffff86a8513c RDI: 0000000000000000
+RBP: ffff8801d9aaed38 R08: ffff8801d9a9c200 R09: ffffed003b5c46d2
+R10: ffffed003b5c46d2 R11: ffff8801dae23693 R12: ffffc90001f24000
+R13: ffffc90001f201a0 R14: ffffc90001f200d0 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8801dae00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffc90001f30003 CR3: 00000001ad782000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  ebt_broute+0x1f8/0x320 net/bridge/netfilter/ebtable_broute.c:60
+  br_handle_frame+0x6b6/0x19f0 net/bridge/br_input.c:291
+  __netif_receive_skb_core+0xc6e/0x3630 net/core/dev.c:4546
+  __netif_receive_skb+0x2c/0x1e0 net/core/dev.c:4657
+  process_backlog+0x219/0x760 net/core/dev.c:5337
+  napi_poll net/core/dev.c:5735 [inline]
+  net_rx_action+0x7b7/0x1930 net/core/dev.c:5801
+  __do_softirq+0x2e0/0xaf5 kernel/softirq.c:285
+  run_ksoftirqd+0x86/0x100 kernel/softirq.c:646
+  smpboot_thread_fn+0x417/0x870 kernel/smpboot.c:164
+  kthread+0x345/0x410 kernel/kthread.c:240
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
+Code: 6c 24 08 48 89 d8 48 89 9d d0 fe ff ff 48 c1 e8 03 42 0f b6 04 38 84  
+c0 74 08 3c 03 0f 8e 3b 06 00 00 48 8b 85 d0 fe ff ff 31 ff <8b> 18 89 de  
+e8 54 f1 d0 fa 85 db 0f 85 a0 02 00 00 e8 37 f0 d0
+RIP: ebt_do_table+0x1983/0x2140 net/bridge/netfilter/ebtables.c:283 RSP:  
+ffff8801d9aaeb68
+CR2: ffffc90001f30003
+---[ end trace d121cd1897af50a4 ]---
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
