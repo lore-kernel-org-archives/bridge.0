@@ -2,17 +2,14 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=4S70UcvTo7C+bHXkqxBW96TsehXd1p8Mt5A63GNR6Fs=;
-	b=XHZXUZ2B/Vbu1+cShFUbsKXqDrS3r+v9XrXevxi4Wb3H4eyJWZm9jPbyNIH5v6wT5RkSRJ9V+oEzHkukf6XMOVf9luZx8qRmdDoE5+xZfBxNZyzxQR3nZNwFjvi6wN/FwK9RwxBL2sAQplsomnc4huDYhkHsciYqQ2hBH+FteDc=
+	bh=FS/PSjWciJJWN5F7D03tJrOIDzD2wHCqD2aFUVtCvA8=;
+	b=W0XJBKlrkY935g1/5epekldGEDPdNvboqDPxcNWWLgKq1Ibyxg7++2MVLj6UD7tXD0Y+AoC07c+A/oi2Uo/I51ZMin+BbKzzfgu3FJiIS2c10554AQ5/IxAATnE9GSecJX9JzXsQ5FVORkHIP+bKWDcmXaXzwmkCTuSde0CvYUc=
 From: Petr Machata <petrm@mellanox.com>
-In-Reply-To: <cover.1527519997.git.petrm@mellanox.com>
-References: <cover.1527519997.git.petrm@mellanox.com>
-Message-Id: <2a209eed5c4366374bf940442d4da7c643a6682b.1527519997.git.petrm@mellanox.com>
-Date: Mon, 28 May 2018 17:11:09 +0200
+Message-Id: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
+Date: Mon, 28 May 2018 17:44:16 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 7/7] mlxsw: spectrum_switchdev:
- Schedule respin during trans prepare
+Subject: [Bridge] [PATCH net-next] net: bridge: Lock before br_fdb_find()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,37 +18,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
-Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
+To: bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: davem@davemloft.net
 
-Since there's no special support for the bridge events, the driver
-returns -EOPNOTSUPP, and thus the commit never happens. Therefore
-schedule respin during the prepare stage: there's no real difference one
-way or another.
-
-This fixes the problem that mirror-to-gretap offload wouldn't adapt to
-changes in bridge vlan configuration right away and another notification
-would have to arrive for mlxsw to catch up.
+Callers of br_fdb_find() need to hold the hash lock, which
+br_fdb_find_port() doesn't do. Add the missing lock/unlock
+pair.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Ido Schimmel <idosch@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_fdb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index cbc8fab..8a15ac4 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -1697,7 +1697,7 @@ static int mlxsw_sp_port_obj_add(struct net_device *dev,
- 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
- 		err = mlxsw_sp_port_vlans_add(mlxsw_sp_port, vlan, trans);
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index b19e310..3f5691a 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -135,9 +135,11 @@ struct net_device *br_fdb_find_port(const struct net_device *br_dev,
+ 		return NULL;
  
--		if (switchdev_trans_ph_commit(trans)) {
-+		if (switchdev_trans_ph_prepare(trans)) {
- 			/* The event is emitted before the changes are actually
- 			 * applied to the bridge. Therefore schedule the respin
- 			 * call for later, so that the respin logic sees the
+ 	br = netdev_priv(br_dev);
++	spin_lock_bh(&br->hash_lock);
+ 	f = br_fdb_find(br, addr, vid);
+ 	if (f && f->dst)
+ 		dev = f->dst->dev;
++	spin_unlock_bh(&br->hash_lock);
+ 
+ 	return dev;
+ }
 -- 
 2.4.11
 
