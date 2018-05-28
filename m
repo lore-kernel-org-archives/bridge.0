@@ -2,17 +2,19 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=4S70UcvTo7C+bHXkqxBW96TsehXd1p8Mt5A63GNR6Fs=;
-	b=WGiVNDS/yc9N+TO+LkYJuxRrqtwoRHPdcW01Xug9Ij2EvOVg8/NRkog78usjY7wsY3HU933l/aw51JxOLrP/dS6HvJ8wWpEg1GUohj3SADsljk58Gr4H0kzvnwiaq/ikoBHP15gCdD8P92tykkwt2fbsj03RrWPXar+byUr8ugw=
+	bh=XgxNuth0Y6EPA2OS6Oho773GNY1Eiz6rBFCbXp6LaNk=;
+	b=Qj+NgNBLgVaqIEA9vZ3PL0/ZHf62N2Xq/F5+w7dahu4NvET7ZvwZ/hrZOmPqGVYCzHeP4ugC//DXk3hoOmBCxMNMQx06KwBuNHwnBomXVkVJESgZ+h/KRmFu58Vf8J251sDO8EgGlffWT6VuPjFvRKDpsVwcTDV7SttVOcHARa4=
 From: Petr Machata <petrm@mellanox.com>
-In-Reply-To: <cover.1527503302.git.petrm@mellanox.com>
 References: <cover.1527503302.git.petrm@mellanox.com>
-Message-Id: <8c06238ba4335b6a276f85824209e1b6ddb11fcf.1527503302.git.petrm@mellanox.com>
-Date: Mon, 28 May 2018 12:50:36 +0200
+	<40d11322cdf295d5f5b03d7acaf997486e68ed2f.1527503302.git.petrm@mellanox.com>
+Date: Mon, 28 May 2018 16:39:00 +0300
+In-Reply-To: <40d11322cdf295d5f5b03d7acaf997486e68ed2f.1527503302.git.petrm@mellanox.com>
+	(Petr Machata's message of "Mon, 28 May 2018 12:49:55 +0200")
+Message-ID: <wihk1rngarv.fsf@dev-r-vrt-156.mtr.labs.mlnx>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v2 7/7] mlxsw: spectrum_switchdev:
- Schedule respin during trans prepare
+Subject: Re: [Bridge] [PATCH net-next v2 1/7] net: bridge: Extract
+	boilerplate around switchdev_port_obj_*()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,37 +23,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
-Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: devel@driverdev.osuosl.org, f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, vivien.didelot@savoirfairelinux.com, davem@davemloft.net
 
-Since there's no special support for the bridge events, the driver
-returns -EOPNOTSUPP, and thus the commit never happens. Therefore
-schedule respin during the prepare stage: there's no real difference one
-way or another.
+Petr Machata <petrm@mellanox.com> writes:
 
-This fixes the problem that mirror-to-gretap offload wouldn't adapt to
-changes in bridge vlan configuration right away and another notification
-would have to arrive for mlxsw to catch up.
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index 11520ed..33bd914 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -1178,6 +1178,9 @@ static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+>  }
+>  #endif /* CONFIG_NET_SWITCHDEV */
+>  
+> +int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags);
+> +int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid);
+> +
 
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Ido Schimmel <idosch@mellanox.com>
----
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Nope, this actually does need to be in the ifdef block. The whole
+br_switchdev.c is built conditionally.
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index cbc8fab..8a15ac4 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -1697,7 +1697,7 @@ static int mlxsw_sp_port_obj_add(struct net_device *dev,
- 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
- 		err = mlxsw_sp_port_vlans_add(mlxsw_sp_port, vlan, trans);
- 
--		if (switchdev_trans_ph_commit(trans)) {
-+		if (switchdev_trans_ph_prepare(trans)) {
- 			/* The event is emitted before the changes are actually
- 			 * applied to the bridge. Therefore schedule the respin
- 			 * call for later, so that the respin logic sees the
--- 
-2.4.11
+I'll send v3.
 
+Petr
