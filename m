@@ -1,24 +1,26 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=PJvydN0916C1vQLXGeOhKLyPZ966ZGl3vdgQOV8zeBw=;
-	b=gH2nQ5zsMWlXDfnc0g1lLADpsyLeQbzAUPhm8rPqsYVvOTDxNrOFBJ0ibMUSU7US9b
-	ytmCUmd9MIxH5Vdz4GXBjN000rQCslQ2+o5qkQ19UWhuZHfjU0yuZYhMFmUw9BWIR6dB
-	3ipUfYAE5L6xu9VMPXHTg4tAwMyBX7aH9FOCtyD6uIx7e3PutRuNTwKGho5BNna2cKaS
-	BtzKEZWLE1twqYdKoIhFmOV97M2T2u7JFUo0oeSrpmrqdzJy4SNDVQiXklzq2bjnwuy4
-	WoKJc9MSX1KNsBmD0KMsn6xII5cKVYwGmP3G2UkF7MZ/+7cPGlzyYC977ant4QYq5RlE
-	wrcg==
-Date: Mon, 28 May 2018 10:42:53 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20180528104253.64e10ffc@xeon-e3>
-In-Reply-To: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
-References: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
+Return-Path: <dan.carpenter@oracle.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+	h=date : from : to : cc
+	: subject : message-id : references : mime-version : content-type :
+	in-reply-to; s=corp-2017-10-26;
+	bh=gEYv6jRziNSn7hKaOCADVHAfdRK+r0p8z7glGhh0lpk=;
+	b=gMXJwfT003X6/HirAskao8ePXyESgbzdJeAvUywX2nT2U+aAiyCQ7rGpbY1QO5bJ2nHO
+	HJKfqOxg16YsXPn58lYzjvTwQPe9PR4Bc0+4thZD1cSLovHvLGkDc3Outrv9fB9sSDGU
+	/RNfGqEYqWDx58TYsqtnO37R1nC2/n768Ly0DbUzj8TtbMSItuHRu1NQh2Cu5WHxFh21
+	UZKSgrC+lYqYrRCpLicyywPMn7v6Ws96LyqUKSBSv5LmHTqYYiINbvUMlM4DXL/4rAiU
+	WLbrKg06haWO4Xtu+pH/v7iDKbQGDwkyrMGETbYmYCATbnY5K6F7n8bVtd/vNEM2IEnP
+	EQ== 
+Date: Tue, 29 May 2018 13:35:36 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Message-ID: <20180529103536.obpsftgvt3s7lle5@mwanda>
+References: <cover.1527519997.git.petrm@mellanox.com>
+	<85401f20b801fa1bae3025bf1df991a9d475fe85.1527519997.git.petrm@mellanox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: Lock before br_fdb_find()
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <85401f20b801fa1bae3025bf1df991a9d475fe85.1527519997.git.petrm@mellanox.com>
+Subject: Re: [Bridge] [PATCH net-next v3 1/7] net: bridge: Extract
+ boilerplate around switchdev_port_obj_*()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,36 +30,27 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Petr Machata <petrm@mellanox.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net
+Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, f.fainelli@gmail.com, vivien.didelot@savoirfairelinux.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, gregkh@linuxfoundation.org, davem@davemloft.net
 
-On Mon, 28 May 2018 17:44:16 +0200
-Petr Machata <petrm@mellanox.com> wrote:
+On Mon, May 28, 2018 at 05:10:28PM +0200, Petr Machata wrote:
+>  	/* Try switchdev op first. In case it is not supported, fallback to
+>  	 * 8021q add.
+>  	 */
+> -	err = switchdev_port_obj_add(dev, &v.obj);
+> +	int err = br_switchdev_port_vlan_add(dev, vid, flags);
+>  	if (err == -EOPNOTSUPP)
 
-> Callers of br_fdb_find() need to hold the hash lock, which
-> br_fdb_find_port() doesn't do. Add the missing lock/unlock
-> pair.
-> 
-> Signed-off-by: Petr Machata <petrm@mellanox.com>
-> ---
->  net/bridge/br_fdb.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index b19e310..3f5691a 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -135,9 +135,11 @@ struct net_device *br_fdb_find_port(const struct net_device *br_dev,
->  		return NULL;
->  
->  	br = netdev_priv(br_dev);
-> +	spin_lock_bh(&br->hash_lock);
->  	f = br_fdb_find(br, addr, vid);
->  	if (f && f->dst)
->  		dev = f->dst->dev;
-> +	spin_unlock_bh(&br->hash_lock);
->  
->  	return dev;
->  }
+This will introduce a checkpatch warning if you re-run with the --file
+option.  (I haven't tested).  It's sort of ugly to put function logic in
+the declaration block.  That's really just for initializing variables
+like "int start = 0; struct foo *p = parent_of_bar();"  Do it like this
+instead:
 
-Sigh. when did br_fdb_find start needing hash_lock?
-What is the point of RCU then?
+	int err;
+
+	err = br_switchdev_port_vlan_add(dev, vid, flags);
+	if (err == -EOPNOTSUPP)
+
+regards,
+dan carpenter
+
