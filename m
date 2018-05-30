@@ -1,24 +1,13 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=MIpFjC692AZoWcboMUIsmtB2DTT4BSgZi7qwdyAIZ4s=;
-	b=AnhVsAK5yUxfHr1G/yNj1gvcMjmSRL7KkWOUNj9Qaxq7ecNfvc8oABUQNNFDBY974u
-	X4Q0TAPVAV2MeJKlMiDtmlxHARqqwJo1Js54qioB3pYgXPkgV64CvM6XP6MaY6Qh0j77
-	ipMVTzLwXPbLS6voDDWGRRMoOSYfDiHWaILhc=
-References: <cover.1527641426.git.petrm@mellanox.com>
-	<583d583ad158363411fde87dbf6709024714e498.1527641426.git.petrm@mellanox.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <e87b67e1-fdaf-a748-d424-578a599b5441@cumulusnetworks.com>
-Date: Wed, 30 May 2018 18:58:13 +0300
-MIME-Version: 1.0
-In-Reply-To: <583d583ad158363411fde87dbf6709024714e498.1527641426.git.petrm@mellanox.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Return-Path: <davem@davemloft.net>
+Date: Wed, 30 May 2018 12:42:15 -0400 (EDT)
+Message-Id: <20180530.124215.898586103229215718.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
+References: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 7/8] net: bridge: Notify about
-	bridge VLANs
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: Lock before br_fdb_find()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,22 +16,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Petr Machata <petrm@mellanox.com>, netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
-Cc: f.fainelli@gmail.com, andrew@lunn.ch, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net, dan.carpenter@oracle.com
+To: petrm@mellanox.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On 30/05/18 04:00, Petr Machata wrote:
-> A driver might need to react to changes in settings of brentry VLANs.
-> Therefore send switchdev port notifications for these as well. Reuse
-> SWITCHDEV_OBJ_ID_PORT_VLAN for this purpose. Listeners should use
-> netif_is_bridge_master() on orig_dev to determine whether the
-> notification is about a bridge port or a bridge.
+From: Petr Machata <petrm@mellanox.com>
+Date: Mon, 28 May 2018 17:44:16 +0200
+
+> Callers of br_fdb_find() need to hold the hash lock, which
+> br_fdb_find_port() doesn't do. Add the missing lock/unlock
+> pair.
 > 
 > Signed-off-by: Petr Machata <petrm@mellanox.com>
-> ---
->  net/bridge/br_vlan.c | 28 +++++++++++++++++++++++++---
->  1 file changed, 25 insertions(+), 3 deletions(-)
-> 
 
-LGTM,
-Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+If all of the these uses of br_fdb_find_port() are safe, then it
+should use the RCU fdb lookup variant.
 
+So I basically agree with Stephen that this locking doesn't make any
+sense.
+
+The lock is needed when you are going to add or delete an FDB entry.
+
+Here we are doing a lookup and returning a device pointer via the FDB
+entry found in the lookup.
+
+The RTNL assertion assures that the device returned won't disappear.
+
+If the device can disappear, the spinlock added by this patch doesn't
+change that at all.
