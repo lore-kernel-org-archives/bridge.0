@@ -2,17 +2,17 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=5bI3dw3uI8xYMD39Yn7jX4l+ypVMEYb5TB7zQGSJZtk=;
-	b=uJC8Cc/eJMNgPTwr/9HHuaDgdts5dRWLYSnRPfvGQvN9O2/WFXBvVSG1iDVIjw4Zf5jHNKZIMNDeJwkMgsBPuEqmk04KhSi8e8r1AqitiSCt3xS+HlhDHDxFl+MhhfoKHeWSg8hDuihSE5sgWDA+G5LRmTHj1ZBdgGLQIvdpRp4=
+	bh=DxPC5BReKiCR1QepGuxT5RaZfSJbVgTzDGxBviBCJbM=;
+	b=o23Dimy/u9XPdn4pl/5glo1MstX8s27HnTnR09ajDBOWERv2oLpwOYFxXmx208E5pTlp4ZPkGXcDVmJIvRjlnFYU8b9fGvhDKYWK5BlMgMt90F2c88ouwe3Ac+mww6RF1wDKkAZwmPFhb43W3PbdclNURAK8+5LcYn7qXeD/9ZE=
 From: Petr Machata <petrm@mellanox.com>
 In-Reply-To: <cover.1527641426.git.petrm@mellanox.com>
 References: <cover.1527641426.git.petrm@mellanox.com>
-Message-Id: <3f7f1f0580acedf385d993304d53d370a60410c2.1527641426.git.petrm@mellanox.com>
-Date: Wed, 30 May 2018 02:56:55 +0200
+Message-Id: <146400cb6763f42d2b79377980a47a2924673c36.1527641426.git.petrm@mellanox.com>
+Date: Wed, 30 May 2018 02:57:46 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 2/8] net: bridge: Extract
-	br_vlan_add_existing()
+Subject: [Bridge] [PATCH net-next v4 3/8] mlxsw: spectrum_switchdev: Ignore
+ bridge VLAN events
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,89 +24,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
 Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net, dan.carpenter@oracle.com
 
-Extract the code that deals with adding a preexisting VLAN to bridge CPU
-port to a separate function. A follow-up patch introduces a need to roll
-back operations in this block due to an error, and this split will make
-the error-handling code clearer.
+A follow-up patch enables emitting VLAN notifications for the bridge CPU
+port in addition to the existing slave port notifications. These
+notifications have orig_dev set to the bridge in question.
+
+Because there's no specific support for these VLANs, just ignore the
+notifications to maintain the current behavior.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
 ---
- net/bridge/br_vlan.c | 55 +++++++++++++++++++++++++++++++---------------------
- 1 file changed, 33 insertions(+), 22 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index e3b14c0..602c869 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -551,6 +551,37 @@ bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
- 	return false;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 8c9cf8e..cbc8fab 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -1144,6 +1144,9 @@ static int mlxsw_sp_port_vlans_add(struct mlxsw_sp_port *mlxsw_sp_port,
+ 	struct mlxsw_sp_bridge_port *bridge_port;
+ 	u16 vid;
  
-+static int br_vlan_add_existing(struct net_bridge *br,
-+				struct net_bridge_vlan_group *vg,
-+				struct net_bridge_vlan *vlan,
-+				u16 flags, bool *changed)
-+{
-+	int err;
++	if (netif_is_bridge_master(orig_dev))
++		return -EOPNOTSUPP;
 +
-+	if (!br_vlan_is_brentry(vlan)) {
-+		/* Trying to change flags of non-existent bridge vlan */
-+		if (!(flags & BRIDGE_VLAN_INFO_BRENTRY))
-+			return -EINVAL;
-+		/* It was only kept for port vlans, now make it real */
-+		err = br_fdb_insert(br, NULL, br->dev->dev_addr,
-+				    vlan->vid);
-+		if (err) {
-+			br_err(br, "failed to insert local address into bridge forwarding table\n");
-+			return err;
-+		}
-+
-+		refcount_inc(&vlan->refcnt);
-+		vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
-+		vg->num_vlans++;
-+		*changed = true;
-+	}
-+
-+	if (__vlan_add_flags(vlan, flags))
-+		*changed = true;
-+
-+	return 0;
-+}
-+
- /* Must be protected by RTNL.
-  * Must be called with vid in range from 1 to 4094 inclusive.
-  * changed must be true only if the vlan was created or updated
-@@ -566,28 +597,8 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags, bool *changed)
- 	*changed = false;
- 	vg = br_vlan_group(br);
- 	vlan = br_vlan_find(vg, vid);
--	if (vlan) {
--		if (!br_vlan_is_brentry(vlan)) {
--			/* Trying to change flags of non-existent bridge vlan */
--			if (!(flags & BRIDGE_VLAN_INFO_BRENTRY))
--				return -EINVAL;
--			/* It was only kept for port vlans, now make it real */
--			ret = br_fdb_insert(br, NULL, br->dev->dev_addr,
--					    vlan->vid);
--			if (ret) {
--				br_err(br, "failed insert local address into bridge forwarding table\n");
--				return ret;
--			}
--			refcount_inc(&vlan->refcnt);
--			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
--			vg->num_vlans++;
--			*changed = true;
--		}
--		if (__vlan_add_flags(vlan, flags))
--			*changed = true;
--
--		return 0;
--	}
-+	if (vlan)
-+		return br_vlan_add_existing(br, vg, vlan, flags, changed);
+ 	if (switchdev_trans_ph_prepare(trans))
+ 		return 0;
  
- 	vlan = kzalloc(sizeof(*vlan), GFP_KERNEL);
- 	if (!vlan)
+@@ -1741,6 +1744,9 @@ static int mlxsw_sp_port_vlans_del(struct mlxsw_sp_port *mlxsw_sp_port,
+ 	struct mlxsw_sp_bridge_port *bridge_port;
+ 	u16 vid;
+ 
++	if (netif_is_bridge_master(orig_dev))
++		return -EOPNOTSUPP;
++
+ 	bridge_port = mlxsw_sp_bridge_port_find(mlxsw_sp->bridge, orig_dev);
+ 	if (WARN_ON(!bridge_port))
+ 		return -EINVAL;
 -- 
 2.4.11
 
