@@ -2,17 +2,17 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=bi7MvHJ3BjLdqK9vrSRt50khc079GINDJfVznbrqyEE=;
-	b=jcoGHOmF64GsHH7ipJPzGpF78YgV7CFS6gPCj9mdYhUbplMxKjX0HP2KzPAr7Mf7g/tMgiM+i/OMZmMt5/MN6XUk/7FLJvyI5+89q9bMJ8fKBW5ZvVDv+kcAu8GhzfW5bPfCUroetD4aVf9pMADLsu1cLlVBLdfeC6N3CwbXrlA=
+	bh=5bI3dw3uI8xYMD39Yn7jX4l+ypVMEYb5TB7zQGSJZtk=;
+	b=uJC8Cc/eJMNgPTwr/9HHuaDgdts5dRWLYSnRPfvGQvN9O2/WFXBvVSG1iDVIjw4Zf5jHNKZIMNDeJwkMgsBPuEqmk04KhSi8e8r1AqitiSCt3xS+HlhDHDxFl+MhhfoKHeWSg8hDuihSE5sgWDA+G5LRmTHj1ZBdgGLQIvdpRp4=
 From: Petr Machata <petrm@mellanox.com>
 In-Reply-To: <cover.1527641426.git.petrm@mellanox.com>
 References: <cover.1527641426.git.petrm@mellanox.com>
-Message-Id: <7b6f3bdc759168227bbff78173837d5fb5560528.1527641426.git.petrm@mellanox.com>
-Date: Wed, 30 May 2018 02:56:03 +0200
+Message-Id: <3f7f1f0580acedf385d993304d53d370a60410c2.1527641426.git.petrm@mellanox.com>
+Date: Wed, 30 May 2018 02:56:55 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 1/8] net: bridge: Extract boilerplate
- around switchdev_port_obj_*()
+Subject: [Bridge] [PATCH net-next v4 2/8] net: bridge: Extract
+	br_vlan_add_existing()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,155 +24,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, devel@driverdev.osuosl.org, bridge@lists.linux-foundation.org
 Cc: f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, davem@davemloft.net, dan.carpenter@oracle.com
 
-A call to switchdev_port_obj_add() or switchdev_port_obj_del() involves
-initializing a struct switchdev_obj_port_vlan, a piece of code that
-repeats on each call site almost verbatim. While in the current codebase
-there is just one duplicated add call, the follow-up patches add more of
-both add and del calls.
-
-Thus to remove the duplication, extract the repetition into named
-functions and reuse.
+Extract the code that deals with adding a preexisting VLAN to bridge CPU
+port to a separate function. A follow-up patch introduces a need to roll
+back operations in this block due to an error, and this split will make
+the error-handling code clearer.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- net/bridge/br_private.h   | 13 +++++++++++++
- net/bridge/br_switchdev.c | 25 +++++++++++++++++++++++++
- net/bridge/br_vlan.c      | 26 +++-----------------------
- 3 files changed, 41 insertions(+), 23 deletions(-)
+ net/bridge/br_vlan.c | 55 +++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 33 insertions(+), 22 deletions(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 11520ed..5216a52 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1139,6 +1139,8 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 			       unsigned long mask);
- void br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb,
- 			     int type);
-+int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags);
-+int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid);
- 
- static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
- {
-@@ -1168,6 +1170,17 @@ static inline int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 	return 0;
- }
- 
-+static inline int br_switchdev_port_vlan_add(struct net_device *dev,
-+					     u16 vid, u16 flags)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline void
- br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
- {
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 35474d4..d77f807 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -136,3 +136,28 @@ br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
- 		break;
- 	}
- }
-+
-+int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags)
-+{
-+	struct switchdev_obj_port_vlan v = {
-+		.obj.orig_dev = dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
-+		.flags = flags,
-+		.vid_begin = vid,
-+		.vid_end = vid,
-+	};
-+
-+	return switchdev_port_obj_add(dev, &v.obj);
-+}
-+
-+int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
-+{
-+	struct switchdev_obj_port_vlan v = {
-+		.obj.orig_dev = dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
-+		.vid_begin = vid,
-+		.vid_end = vid,
-+	};
-+
-+	return switchdev_port_obj_del(dev, &v.obj);
-+}
 diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index dc832c09..e3b14c0 100644
+index e3b14c0..602c869 100644
 --- a/net/bridge/br_vlan.c
 +++ b/net/bridge/br_vlan.c
-@@ -82,19 +82,12 @@ static bool __vlan_add_flags(struct net_bridge_vlan *v, u16 flags)
- static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
- 			  u16 vid, u16 flags)
- {
--	struct switchdev_obj_port_vlan v = {
--		.obj.orig_dev = dev,
--		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
--		.flags = flags,
--		.vid_begin = vid,
--		.vid_end = vid,
--	};
- 	int err;
+@@ -551,6 +551,37 @@ bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
+ 	return false;
+ }
  
- 	/* Try switchdev op first. In case it is not supported, fallback to
- 	 * 8021q add.
- 	 */
--	err = switchdev_port_obj_add(dev, &v.obj);
-+	err = br_switchdev_port_vlan_add(dev, vid, flags);
- 	if (err == -EOPNOTSUPP)
- 		return vlan_vid_add(dev, br->vlan_proto, vid);
- 	return err;
-@@ -130,18 +123,12 @@ static void __vlan_del_list(struct net_bridge_vlan *v)
- static int __vlan_vid_del(struct net_device *dev, struct net_bridge *br,
- 			  u16 vid)
- {
--	struct switchdev_obj_port_vlan v = {
--		.obj.orig_dev = dev,
--		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
--		.vid_begin = vid,
--		.vid_end = vid,
--	};
- 	int err;
++static int br_vlan_add_existing(struct net_bridge *br,
++				struct net_bridge_vlan_group *vg,
++				struct net_bridge_vlan *vlan,
++				u16 flags, bool *changed)
++{
++	int err;
++
++	if (!br_vlan_is_brentry(vlan)) {
++		/* Trying to change flags of non-existent bridge vlan */
++		if (!(flags & BRIDGE_VLAN_INFO_BRENTRY))
++			return -EINVAL;
++		/* It was only kept for port vlans, now make it real */
++		err = br_fdb_insert(br, NULL, br->dev->dev_addr,
++				    vlan->vid);
++		if (err) {
++			br_err(br, "failed to insert local address into bridge forwarding table\n");
++			return err;
++		}
++
++		refcount_inc(&vlan->refcnt);
++		vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
++		vg->num_vlans++;
++		*changed = true;
++	}
++
++	if (__vlan_add_flags(vlan, flags))
++		*changed = true;
++
++	return 0;
++}
++
+ /* Must be protected by RTNL.
+  * Must be called with vid in range from 1 to 4094 inclusive.
+  * changed must be true only if the vlan was created or updated
+@@ -566,28 +597,8 @@ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags, bool *changed)
+ 	*changed = false;
+ 	vg = br_vlan_group(br);
+ 	vlan = br_vlan_find(vg, vid);
+-	if (vlan) {
+-		if (!br_vlan_is_brentry(vlan)) {
+-			/* Trying to change flags of non-existent bridge vlan */
+-			if (!(flags & BRIDGE_VLAN_INFO_BRENTRY))
+-				return -EINVAL;
+-			/* It was only kept for port vlans, now make it real */
+-			ret = br_fdb_insert(br, NULL, br->dev->dev_addr,
+-					    vlan->vid);
+-			if (ret) {
+-				br_err(br, "failed insert local address into bridge forwarding table\n");
+-				return ret;
+-			}
+-			refcount_inc(&vlan->refcnt);
+-			vlan->flags |= BRIDGE_VLAN_INFO_BRENTRY;
+-			vg->num_vlans++;
+-			*changed = true;
+-		}
+-		if (__vlan_add_flags(vlan, flags))
+-			*changed = true;
+-
+-		return 0;
+-	}
++	if (vlan)
++		return br_vlan_add_existing(br, vg, vlan, flags, changed);
  
- 	/* Try switchdev op first. In case it is not supported, fallback to
- 	 * 8021q del.
- 	 */
--	err = switchdev_port_obj_del(dev, &v.obj);
-+	err = br_switchdev_port_vlan_del(dev, vid);
- 	if (err == -EOPNOTSUPP) {
- 		vlan_vid_del(dev, br->vlan_proto, vid);
- 		return 0;
-@@ -1053,13 +1040,6 @@ int nbp_vlan_init(struct net_bridge_port *p)
- int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags,
- 		 bool *changed)
- {
--	struct switchdev_obj_port_vlan v = {
--		.obj.orig_dev = port->dev,
--		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
--		.flags = flags,
--		.vid_begin = vid,
--		.vid_end = vid,
--	};
- 	struct net_bridge_vlan *vlan;
- 	int ret;
- 
-@@ -1069,7 +1049,7 @@ int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags,
- 	vlan = br_vlan_find(nbp_vlan_group(port), vid);
- 	if (vlan) {
- 		/* Pass the flags to the hardware bridge */
--		ret = switchdev_port_obj_add(port->dev, &v.obj);
-+		ret = br_switchdev_port_vlan_add(port->dev, vid, flags);
- 		if (ret && ret != -EOPNOTSUPP)
- 			return ret;
- 		*changed = __vlan_add_flags(vlan, flags);
+ 	vlan = kzalloc(sizeof(*vlan), GFP_KERNEL);
+ 	if (!vlan)
 -- 
 2.4.11
 
