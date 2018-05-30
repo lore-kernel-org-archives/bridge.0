@@ -2,17 +2,17 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=Pis5i6OdiacqvzzEqmv2D6aZVGvH4pU3grH2imLLk9s=;
-	b=oX5ix8xcsGXmoN5t2UzZZMyGfdbYV0NpjiRrhhVjnROzvCH53X0agTRBRBEFVjAlmwGm+ZvJkU1XCuwReuc+s5fTdYGPsUz4f4ajibruuRpXbeY2c5ciVpRbO/rb4mjcmmQHWtcjdq9PNC0QOCYW0JKGzkM63vfZIBWiwfkvp8A=
+	bh=EgIL3tQ96Ex27GdZIJ+Tmc579wbFI2mkt7cugJLQZEA=;
+	b=qT+ZLw171W3hU7Pn5CzJYx8ttJTAqJO51JSil69CQiHDdJUWloAuLYA8/GpLcazhsA0LOCtwYSZFlClG5Ebzh91cFNiunP9NeY+f0eBNYwcW51oH+RkAXLBVZtPl4484Dp8mWuTJyF5fOQuiWkGP7YkV0BXpzJrT0bXKbppjCcA=
 From: Petr Machata <petrm@mellanox.com>
 In-Reply-To: <cover.1527641426.git.petrm@mellanox.com>
 References: <cover.1527641426.git.petrm@mellanox.com>
-Message-Id: <bb051f82ac62a424327a81242e9120664838ad76.1527641426.git.petrm@mellanox.com>
-Date: Wed, 30 May 2018 02:58:36 +0200
+Message-Id: <aa04e548376becfc699273d023dff0197ed97999.1527641426.git.petrm@mellanox.com>
+Date: Wed, 30 May 2018 02:59:26 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 4/8] rocker: rocker_main: Ignore bridge
- VLAN events
+Subject: [Bridge] [PATCH net-next v4 5/8] dsa: port: Ignore bridge VLAN
+	events
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,34 +32,35 @@ Because there's no specific support for these VLANs, just ignore the
 notifications to maintain the current behavior.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/net/ethernet/rocker/rocker_main.c | 6 ++++++
+ net/dsa/port.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index e73e4fe..aeafdb9 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -1632,6 +1632,9 @@ rocker_world_port_obj_vlan_add(struct rocker_port *rocker_port,
- {
- 	struct rocker_world_ops *wops = rocker_port->rocker->wops;
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 2413beb..ed05954 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -252,6 +252,9 @@ int dsa_port_vlan_add(struct dsa_port *dp,
+ 		.vlan = vlan,
+ 	};
  
 +	if (netif_is_bridge_master(vlan->obj.orig_dev))
 +		return -EOPNOTSUPP;
 +
- 	if (!wops->port_obj_vlan_add)
- 		return -EOPNOTSUPP;
+ 	if (br_vlan_enabled(dp->bridge_dev))
+ 		return dsa_port_notify(dp, DSA_NOTIFIER_VLAN_ADD, &info);
  
-@@ -1647,6 +1650,9 @@ rocker_world_port_obj_vlan_del(struct rocker_port *rocker_port,
- {
- 	struct rocker_world_ops *wops = rocker_port->rocker->wops;
+@@ -267,6 +270,9 @@ int dsa_port_vlan_del(struct dsa_port *dp,
+ 		.vlan = vlan,
+ 	};
  
 +	if (netif_is_bridge_master(vlan->obj.orig_dev))
 +		return -EOPNOTSUPP;
 +
- 	if (!wops->port_obj_vlan_del)
- 		return -EOPNOTSUPP;
- 	return wops->port_obj_vlan_del(rocker_port, vlan);
+ 	if (br_vlan_enabled(dp->bridge_dev))
+ 		return dsa_port_notify(dp, DSA_NOTIFIER_VLAN_DEL, &info);
+ 
 -- 
 2.4.11
 
