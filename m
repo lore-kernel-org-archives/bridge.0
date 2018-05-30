@@ -1,10 +1,19 @@
-Return-Path: <3CpAMWwkbADspvwhXiiboXmmfa.dlldibrpboZlkqbkq.Zlj@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <petrm@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=fJ7ZyXPy1IM7uzU+eCeBhG+Ve/VsIicdbs5mtyTYDSY=;
+	b=d1IXxq/upaxs3WNTMrqK4AD4Kefl/pgLYk7IcBfzAwf0xsMFbXcFZKETKbAqpVGT79Xjk1vMKwVJexR4DIK1h5hSmbberY5oMlxoGdvnqezx+uQoGkb6ab6W2D2zNCc/y3T7Mkeh5vkxybjK1C+f7XTVFATfDhK68wmXdNlfXKI=
+From: Petr Machata <petrm@mellanox.com>
+References: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
+	<20180530.124215.898586103229215718.davem@davemloft.net>
+Date: Thu, 31 May 2018 01:03:05 +0300
+In-Reply-To: <20180530.124215.898586103229215718.davem@davemloft.net> (David
+	Miller's message of "Wed, 30 May 2018 12:42:15 -0400")
+Message-ID: <wih8t80er8m.fsf@dev-r-vrt-156.mtr.labs.mlnx>
 MIME-Version: 1.0
-Date: Mon, 28 May 2018 16:26:02 -0700
-Message-ID: <000000000000e46d0a056d4c70ce@google.com>
-From: syzbot <syzbot+adfeaaee641dd4fdac43@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] BUG: unable to handle kernel (3)
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: Lock before br_fdb_find()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,77 +22,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
-Hello,
+David Miller <davem@davemloft.net> writes:
 
-syzbot found the following crash on:
+> From: Petr Machata <petrm@mellanox.com>
+> Date: Mon, 28 May 2018 17:44:16 +0200
+>
+>> Callers of br_fdb_find() need to hold the hash lock, which
+>> br_fdb_find_port() doesn't do. Add the missing lock/unlock
+>> pair.
+>> 
+>> Signed-off-by: Petr Machata <petrm@mellanox.com>
+>
+> If all of the these uses of br_fdb_find_port() are safe, then it
+> should use the RCU fdb lookup variant.
+>
+> So I basically agree with Stephen that this locking doesn't make any
+> sense.
+>
+> The lock is needed when you are going to add or delete an FDB entry.
+>
+> Here we are doing a lookup and returning a device pointer via the FDB
+> entry found in the lookup.
+>
+> The RTNL assertion assures that the device returned won't disappear.
+>
+> If the device can disappear, the spinlock added by this patch doesn't
+> change that at all.
 
-HEAD commit:    861d9dd37526 Merge tag 'kbuild-fixes-v4.17-2' of git://git..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=10bffd0f800000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=982e2df1b9e60b02
-dashboard link: https://syzkaller.appspot.com/bug?extid=adfeaaee641dd4fdac43
-compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-userspace arch: i386
-syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=1156a92f800000
+OK, I'll take another look at this.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+adfeaaee641dd4fdac43@syzkaller.appspotmail.com
-
-IPv6: ADDRCONF(NETDEV_CHANGE): bridge0: link becomes ready
-BUG: unable to handle kernel
-IPVS: ftp: loaded support on port[0] = 21
-paging request at ffffc90001f30003
-PGD 1da946067 P4D 1da946067 PUD 1da947067 PMD 1afa9e067 PTE 80000001b7d3e163
-Oops: 0000 [#1] SMP KASAN
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Modules linked in:
-CPU: 0 PID: 8 Comm: ksoftirqd/0 Not tainted 4.17.0-rc6+ #95
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-RIP: 0010:ebt_do_table+0x1983/0x2140 net/bridge/netfilter/ebtables.c:283
-RSP: 0018:ffff8801d9aaeb68 EFLAGS: 00010246
-RAX: ffffc90001f30003 RBX: ffffc90001f30003 RCX: ffffc90001f24000
-RDX: 0000000000000000 RSI: ffffffff86a8513c RDI: 0000000000000000
-RBP: ffff8801d9aaed38 R08: ffff8801d9a9c200 R09: ffffed003b5c46d2
-R10: ffffed003b5c46d2 R11: ffff8801dae23693 R12: ffffc90001f24000
-R13: ffffc90001f201a0 R14: ffffc90001f200d0 R15: dffffc0000000000
-FS:  0000000000000000(0000) GS:ffff8801dae00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffc90001f30003 CR3: 00000001ad782000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  ebt_broute+0x1f8/0x320 net/bridge/netfilter/ebtable_broute.c:60
-  br_handle_frame+0x6b6/0x19f0 net/bridge/br_input.c:291
-  __netif_receive_skb_core+0xc6e/0x3630 net/core/dev.c:4546
-  __netif_receive_skb+0x2c/0x1e0 net/core/dev.c:4657
-  process_backlog+0x219/0x760 net/core/dev.c:5337
-  napi_poll net/core/dev.c:5735 [inline]
-  net_rx_action+0x7b7/0x1930 net/core/dev.c:5801
-  __do_softirq+0x2e0/0xaf5 kernel/softirq.c:285
-  run_ksoftirqd+0x86/0x100 kernel/softirq.c:646
-  smpboot_thread_fn+0x417/0x870 kernel/smpboot.c:164
-  kthread+0x345/0x410 kernel/kthread.c:240
-  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
-Code: 6c 24 08 48 89 d8 48 89 9d d0 fe ff ff 48 c1 e8 03 42 0f b6 04 38 84  
-c0 74 08 3c 03 0f 8e 3b 06 00 00 48 8b 85 d0 fe ff ff 31 ff <8b> 18 89 de  
-e8 54 f1 d0 fa 85 db 0f 85 a0 02 00 00 e8 37 f0 d0
-RIP: ebt_do_table+0x1983/0x2140 net/bridge/netfilter/ebtables.c:283 RSP:  
-ffff8801d9aaeb68
-CR2: ffffc90001f30003
----[ end trace d121cd1897af50a4 ]---
-
-
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
-syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+Thanks,
+Petr
