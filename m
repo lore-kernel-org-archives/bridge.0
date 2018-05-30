@@ -2,17 +2,17 @@ Return-Path: <petrm@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=EgIL3tQ96Ex27GdZIJ+Tmc579wbFI2mkt7cugJLQZEA=;
-	b=qT+ZLw171W3hU7Pn5CzJYx8ttJTAqJO51JSil69CQiHDdJUWloAuLYA8/GpLcazhsA0LOCtwYSZFlClG5Ebzh91cFNiunP9NeY+f0eBNYwcW51oH+RkAXLBVZtPl4484Dp8mWuTJyF5fOQuiWkGP7YkV0BXpzJrT0bXKbppjCcA=
+	bh=NyChWdRafOwc4M2+gSOnj2cHT88wd1bnNz0kBgj+NYQ=;
+	b=Nss6A2pL321KkYb7iElWuZ5wqvJ7hVppmyFFUNy25ljjhXeQUxE7UrFLf8aOMJPq6OUjx6TWqS5hgRVKtC7swlV6j09r/HWRWmilpufTe1CUZ/N/Iqeexc/Zt0sC1yzIH4zn3rxnPIchPWDbprnki/TdiSWyM9FtGeJCDkcP7r4=
 From: Petr Machata <petrm@mellanox.com>
 In-Reply-To: <cover.1527641426.git.petrm@mellanox.com>
 References: <cover.1527641426.git.petrm@mellanox.com>
-Message-Id: <aa04e548376becfc699273d023dff0197ed97999.1527641426.git.petrm@mellanox.com>
-Date: Wed, 30 May 2018 02:59:26 +0200
+Message-Id: <137041c10e506ef6f4fcdebed4297fec81b9fd6a.1527641426.git.petrm@mellanox.com>
+Date: Wed, 30 May 2018 03:00:07 +0200
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 5/8] dsa: port: Ignore bridge VLAN
-	events
+Subject: [Bridge] [PATCH net-next v4 6/8] staging: fsl-dpaa2: ethsw: Ignore
+ bridge VLAN events
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,35 +32,34 @@ Because there's no specific support for these VLANs, just ignore the
 notifications to maintain the current behavior.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- net/dsa/port.c | 6 ++++++
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/net/dsa/port.c b/net/dsa/port.c
-index 2413beb..ed05954 100644
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -252,6 +252,9 @@ int dsa_port_vlan_add(struct dsa_port *dp,
- 		.vlan = vlan,
- 	};
+diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+index c723a04..a17dd29 100644
+--- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
++++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+@@ -719,6 +719,9 @@ static int port_vlans_add(struct net_device *netdev,
+ 	struct ethsw_port_priv *port_priv = netdev_priv(netdev);
+ 	int vid, err;
  
 +	if (netif_is_bridge_master(vlan->obj.orig_dev))
 +		return -EOPNOTSUPP;
 +
- 	if (br_vlan_enabled(dp->bridge_dev))
- 		return dsa_port_notify(dp, DSA_NOTIFIER_VLAN_ADD, &info);
+ 	if (switchdev_trans_ph_prepare(trans))
+ 		return 0;
  
-@@ -267,6 +270,9 @@ int dsa_port_vlan_del(struct dsa_port *dp,
- 		.vlan = vlan,
- 	};
+@@ -873,6 +876,9 @@ static int port_vlans_del(struct net_device *netdev,
+ 	struct ethsw_port_priv *port_priv = netdev_priv(netdev);
+ 	int vid, err;
  
 +	if (netif_is_bridge_master(vlan->obj.orig_dev))
 +		return -EOPNOTSUPP;
 +
- 	if (br_vlan_enabled(dp->bridge_dev))
- 		return dsa_port_notify(dp, DSA_NOTIFIER_VLAN_DEL, &info);
- 
+ 	for (vid = vlan->vid_begin; vid <= vlan->vid_end; vid++) {
+ 		err = ethsw_port_del_vlan(port_priv, vid);
+ 		if (err)
 -- 
 2.4.11
 
