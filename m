@@ -1,19 +1,14 @@
-Return-Path: <petrm@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=fJ7ZyXPy1IM7uzU+eCeBhG+Ve/VsIicdbs5mtyTYDSY=;
-	b=d1IXxq/upaxs3WNTMrqK4AD4Kefl/pgLYk7IcBfzAwf0xsMFbXcFZKETKbAqpVGT79Xjk1vMKwVJexR4DIK1h5hSmbberY5oMlxoGdvnqezx+uQoGkb6ab6W2D2zNCc/y3T7Mkeh5vkxybjK1C+f7XTVFATfDhK68wmXdNlfXKI=
-From: Petr Machata <petrm@mellanox.com>
-References: <ff84c00d882dc646a7d69dcbdfe8417b4c0bdf91.1527522008.git.petrm@mellanox.com>
-	<20180530.124215.898586103229215718.davem@davemloft.net>
-Date: Thu, 31 May 2018 01:03:05 +0300
-In-Reply-To: <20180530.124215.898586103229215718.davem@davemloft.net> (David
-	Miller's message of "Wed, 30 May 2018 12:42:15 -0400")
-Message-ID: <wih8t80er8m.fsf@dev-r-vrt-156.mtr.labs.mlnx>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: Lock before br_fdb_find()
+Return-Path: <davem@davemloft.net>
+Date: Thu, 31 May 2018 14:14:12 -0400 (EDT)
+Message-Id: <20180531.141412.1289727831618161534.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <cover.1527641426.git.petrm@mellanox.com>
+References: <cover.1527641426.git.petrm@mellanox.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v4 0/8] net: bridge: Notify about
+	bridge VLANs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,37 +17,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+To: petrm@mellanox.com
+Cc: devel@driverdev.osuosl.org, f.fainelli@gmail.com, andrew@lunn.ch, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, razvan.stefanescu@nxp.com, gregkh@linuxfoundation.org, vivien.didelot@savoirfairelinux.com, dan.carpenter@oracle.com
 
-David Miller <davem@davemloft.net> writes:
+From: Petr Machata <petrm@mellanox.com>
+Date: Wed, 30 May 2018 02:55:34 +0200
 
-> From: Petr Machata <petrm@mellanox.com>
-> Date: Mon, 28 May 2018 17:44:16 +0200
->
->> Callers of br_fdb_find() need to hold the hash lock, which
->> br_fdb_find_port() doesn't do. Add the missing lock/unlock
->> pair.
->> 
->> Signed-off-by: Petr Machata <petrm@mellanox.com>
->
-> If all of the these uses of br_fdb_find_port() are safe, then it
-> should use the RCU fdb lookup variant.
->
-> So I basically agree with Stephen that this locking doesn't make any
-> sense.
->
-> The lock is needed when you are going to add or delete an FDB entry.
->
-> Here we are doing a lookup and returning a device pointer via the FDB
-> entry found in the lookup.
->
-> The RTNL assertion assures that the device returned won't disappear.
->
-> If the device can disappear, the spinlock added by this patch doesn't
-> change that at all.
+> In commit 946a11e7408e ("mlxsw: spectrum_span: Allow bridge for gretap
+> mirror"), mlxsw got support for offloading mirror-to-gretap such that
+> the underlay packet path involves a bridge. In that case, the offload is
+> also influenced by PVID setting of said bridge. However, changes to VLAN
+> configuration of the bridge itself do not generate switchdev
+> notifications, so there's no mechanism to prod mlxsw to update the
+> offload when these settings change.
+> 
+> In this patchset, the problem is resolved by distributing the switchdev
+> notification SWITCHDEV_OBJ_ID_PORT_VLAN also for configuration changes
+> on bridge VLANs. Since stacked devices distribute the notification to
+> lower devices, such event eventually reaches the driver, which can
+> determine whether it's a bridge or port VLAN by inspecting orig_dev.
+> 
+> To keep things consistent, the newly-distributed notifications observe
+> the same protocol as the existing ones: dual prepare/commit, with
+> -EOPNOTSUPP indicating lack of support, even though there's currently
+> nothing to prepare for and nothing to support. Correspondingly, all
+> switchdev drivers have been updated to return -EOPNOTSUPP for bridge
+> VLAN notifications.
+> 
+> In patches #1 and #2, the code base is changed to support the following
+> additions: functions br_switchdev_port_vlan_add() and
+> br_switchdev_port_vlan_del() are introduced to simplify sending
+> notifications; and br_vlan_add_existing() is introduced to later make it
+> simpler to add error-handling code for the case of configuring a
+> preexisting VLAN on bridge CPU port.
+> 
+> In patches #3-#6, respectively for mlxsw, rocker, DSA and DPAA2 ethsw,
+> the new notifications (which are not enabled yet) are ignored to
+> maintain the current behavior.
+> 
+> In patch #7, the notification is actually enabled.
+> 
+> In patch #8, mlxsw is changed to update offloads of mirror-to-gre also
+> for bridge-related notifications.
+ ...
 
-OK, I'll take another look at this.
-
-Thanks,
-Petr
+Series applied, thanks.
