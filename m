@@ -1,18 +1,24 @@
 Return-Path: <garrmcnu@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id;
-	bh=PBJi5chp3HZzw5kkLKHlKCBDe5LsJc9Lk7cWakQM+Uc=;
-	b=ddIpZeRccOMiiKGlwy/00tO4UnBlZYaBk1i7ZlgEKakiRkplbpjCC0+k+l2VrPnDIL
-	CfSF2AU4YzzHLrnZiZIhQsGMe8LxbITzbZJnqGvAppFomDXGYn5Rm9YoXtcb6Kv5DHnA
-	k+lch0MmFzOClMzqT0FmImfFxAeKiDyFeR40rMRzNau6Q5aqmdNOo0F4finASRN14bY2
-	R7B09W2VZJk8yz2I6661X8yw63+N62fhVWtoei6QV0w+YnvCY8Dv6XN9GfyCZgBpe/vQ
-	etS2lIKiUvLMQzHr1BdBFmKhUkEfNhFzT1OiaLYDCPWmeKmFCpTBrJhMOoy7KxnMoIxo
-	q78w==
+	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+	:cc; bh=nlO5I83twLO+Emceqld392FNpdsWCF7e5WpKWesagFQ=;
+	b=YUBjx3YgfZCFo5R/wNkuY8I/UlAfjJP5T+jlTsl1kcoXfSinm8NskMn2Eh7FXT6g9J
+	Bie6liy8P5GjrbLjUzTdCrOiYHGyyJyoSV9h7F9CtbNiYqDW7Ky21Jn7Yt2yGxlD/Dka
+	9mrLit35B2P44HtFi9IaJuplBJ3PCR83GV0ev57KS9s28eDZKZSHQ1u9GypNo1fDKR80
+	NWzlottRFxMGJOWCi8RE9+qtE0G5irnvGy8QWpQFc9JLG1QyD9Ia9d35j0vdZW0wHq6l
+	LSqjXHFng+u4EEg94HbD66KD640VDAZDgzrQIDdCUfAnO2wa/mcUJ5QH3AOr6EKy3y3B
+	EU+Q==
+MIME-Version: 1.0
+References: <20180621201427.4961-1-garrmcnu@gmail.com>
+	<20180622.072056.1223319763674661318.davem@davemloft.net>
+	<e4fb2883-1643-a921-a138-d1255831a9bd@cumulusnetworks.com>
+In-Reply-To: <e4fb2883-1643-a921-a138-d1255831a9bd@cumulusnetworks.com>
 From: Garry McNulty <garrmcnu@gmail.com>
-Date: Thu, 21 Jun 2018 21:14:27 +0100
-Message-Id: <20180621201427.4961-1-garrmcnu@gmail.com>
-Subject: [Bridge] [PATCH] net: bridge: fix potential null pointer
-	dereference on return from br_port_get_rtnl()
+Date: Fri, 22 Jun 2018 20:05:45 +0100
+Message-ID: <CANysgeEFOnu6DxbpV2oA3=tvz+qJnfNy=TmG=cpRndcLmCNe1Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [PATCH] net: bridge: fix potential null pointer
+ dereference on return from br_port_get_rtnl()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,54 +27,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: jiri@resnulli.us, nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Garry McNulty <garrmcnu@gmail.com>, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: =?UTF-8?B?SmnFmcOtIFDDrXJrbw==?= <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net
 
-br_port_get_rtnl() can return NULL if the network device is not a bridge
-port (IFF_BRIDGE_PORT flag not set). br_port_slave_changelink() and
-br_port_fill_slave_info() callbacks dereference this pointer without
-checking. Currently this is not a problem because slave devices always
-set this flag. Add null check in case these conditions ever change.
+On Fri, 22 Jun 2018 at 00:35, Nikolay Aleksandrov
+<nikolay@cumulusnetworks.com> wrote:
+>
+> On 06/22/2018 01:20 AM, David Miller wrote:
+> > From: Garry McNulty <garrmcnu@gmail.com>
+> > Date: Thu, 21 Jun 2018 21:14:27 +0100
+> >
+> >> br_port_get_rtnl() can return NULL if the network device is not a bridge
+> >> port (IFF_BRIDGE_PORT flag not set). br_port_slave_changelink() and
+> >> br_port_fill_slave_info() callbacks dereference this pointer without
+> >> checking. Currently this is not a problem because slave devices always
+> >> set this flag. Add null check in case these conditions ever changye.
+> >>
+> >> Detected by CoverityScan, CID 1339613 ("Dereference null return value")
+> >>
+> >> Signed-off-by: Garry McNulty <garrmcnu@gmail.com>
+> >
+> > I don't think this is reasonable.
+> >
+> > The bridge code will never, ever, install a slave that doesn't have
+> > that bit set.  It's the most fundamental aspect of how these objects
+> > are managed.
+> >
+> +1
+>
+> This keeps coming up, here's the previous one:
+> https://patchwork.ozlabs.org/patch/896046/
+>
+> Please do a more thorough check if these conditions can actually occur.
+> In this case, as Dave said, they cannot.
+>
+> To be explicit as with the patch I mentioned above:
+> Nacked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+>
+> You can find more info in my reply to the patch above.
+>
+> Thanks,
+>  Nik
 
-Detected by CoverityScan, CID 1339613 ("Dereference null return value")
+Thanks for reviewing and for the feedback.
 
-Signed-off-by: Garry McNulty <garrmcnu@gmail.com>
----
- net/bridge/br_netlink.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Regards
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 9f5eb05b0373..b3ad135b7157 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -947,13 +947,14 @@ static int br_port_slave_changelink(struct net_device *brdev,
- 				    struct netlink_ext_ack *extack)
- {
- 	struct net_bridge *br = netdev_priv(brdev);
-+	struct net_bridge_port *p = br_port_get_rtnl(dev);
- 	int ret;
- 
--	if (!data)
-+	if (!data || !p)
- 		return 0;
- 
- 	spin_lock_bh(&br->lock);
--	ret = br_setport(br_port_get_rtnl(dev), data);
-+	ret = br_setport(p, data);
- 	spin_unlock_bh(&br->lock);
- 
- 	return ret;
-@@ -963,7 +964,9 @@ static int br_port_fill_slave_info(struct sk_buff *skb,
- 				   const struct net_device *brdev,
- 				   const struct net_device *dev)
- {
--	return br_port_fill_attrs(skb, br_port_get_rtnl(dev));
-+	struct net_bridge_port *p = br_port_get_rtnl(dev);
-+
-+	return p ? br_port_fill_attrs(skb, p) : -EINVAL;
- }
- 
- static size_t br_port_get_slave_size(const struct net_device *brdev,
--- 
-2.14.4
-
+Garry
