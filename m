@@ -1,11 +1,21 @@
-Return-Path: <32uo7WwkbAH8v12ndoohudsslg.jrrjohxvhufrqwhqw.frp@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <dvyukov@google.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
+	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+	:cc; bh=Zq5O0AEuD8JpQIKNnxzltRZnaNihfpFd+BGFh8TL/6Q=;
+	b=dDARTyJkZwEsOFa/VPWeRzV021Vi+llaD7qAaHvmjOuxOIods65+ZdUU/Xhiw137mQ
+	sNA2nKKq8jnyQ1tVC2PbxsrXg1n61WZGbfJPGgOLtuVqMuGEtBF2S9R7E3QflWsu3BJB
+	8007x2MlcQBEWtjwLhwxcm6fUsTFeNAvdMkYfxV/JyD2lEyHLaEp6R/R8K+WT2kNyxfu
+	isMHiLGgR6Kw0f/64lZHAxoaclJA0hK4cD6xFBEd8tg+5/FuSJu2XjKJyceaq527wqMn
+	KRNBVYxdW6sSM7jckIGn0Vksm2Xo3XqIW33Zpao5PGWR6fnZD5wDEVWr8GxbH09zyvf4
+	qliQ==
 MIME-Version: 1.0
-Date: Tue, 03 Jul 2018 14:30:02 -0700
-In-Reply-To: <000000000000e46d0a056d4c70ce@google.com>
-Message-ID: <00000000000056285005701f0414@google.com>
-From: syzbot <syzbot+adfeaaee641dd4fdac43@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: Re: [Bridge] BUG: unable to handle kernel (3)
+In-Reply-To: <000000000000d8e31b05705e901b@google.com>
+References: <000000000000d8e31b05705e901b@google.com>
+From: Dmitry Vyukov <dvyukov@google.com>
+Date: Sat, 7 Jul 2018 09:00:13 +0200
+Message-ID: <CACT4Y+Z2OWT4mzADTFScQv9r+8xyJgd4oAk9=Gv48XQ3YLfMfQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] KASAN: stack-out-of-bounds Read in vmalloc_fault
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,137 +24,121 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: akpm@linux-foundation.org, bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, gregkh@linuxfoundation.org, hmclauchlan@fb.com, kadlec@blackhole.kfki.hu, kstewart@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, pombredanne@nexb.com, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com, tglx@linutronix.de
+To: syzbot <syzbot+7b269953d076326d7de0@syzkaller.appspotmail.com>
+Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, LKML <linux-kernel@vger.kernel.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, David Miller <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-syzbot has found a reproducer for the following crash on:
+On Sat, Jul 7, 2018 at 3:19 AM, syzbot
+<syzbot+7b269953d076326d7de0@syzkaller.appspotmail.com> wrote:
+> Hello,
+>
+> syzbot found the following crash on:
+>
+> HEAD commit:    6fcf9b1d4d6c r8169: fix runtime suspend
+> git tree:       bpf-next
+> console output: https://syzkaller.appspot.com/x/log.txt?x=174529b2400000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=d264f2b04177ca7c
+> dashboard link: https://syzkaller.appspot.com/bug?extid=7b269953d076326d7de0
+> compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+> syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=1397e2c2400000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=120e462c400000
+>
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+7b269953d076326d7de0@syzkaller.appspotmail.com
 
-HEAD commit:    4ca559bbdeaf kmsan: fix assertions in IRQ entry/exit hooks.
-git tree:       https://github.com/google/kmsan.git/master
-console output: https://syzkaller.appspot.com/x/log.txt?x=13dafb20400000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=848e40757852af3e
-dashboard link: https://syzkaller.appspot.com/bug?extid=adfeaaee641dd4fdac43
-compiler:       clang version 7.0.0 (trunk 334104)
-syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=15497384400000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=123a42a4400000
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+adfeaaee641dd4fdac43@syzkaller.appspotmail.com
+This looks like the bpf map bug which leads to random bugs on stack:
 
-RDX: 0000000020000140 RSI: 0000000020000100 RDI: 00000000200000c0
-RBP: 0000000000000000 R08: 00000000fffffffc R09: 0000000000000039
-R10: 0000000000000311 R11: 0000000000000246 R12: 00007f00bc56bd80
-R13: 00000000006dbc38 R14: 0000000000000006 R15: 0079656b5f676962
-CPU: 1 PID: 4528 Comm: syz-executor237 Not tainted 4.17.0+ #17
-BUG: unable to handle kernel
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-NULL pointer dereference at 0000000000000008
-Call Trace:
-PGD 800000019f3d5067 P4D 800000019f3d5067
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x185/0x1d0 lib/dump_stack.c:113
-PUD 19ce9d067
-  fail_dump lib/fault-inject.c:51 [inline]
-  should_fail+0x87b/0xab0 lib/fault-inject.c:149
-PMD 0
-  __should_failslab+0x278/0x2a0 mm/failslab.c:32
-Oops: 0000 [#1] SMP PTI
-  should_failslab+0x29/0x70 mm/slab_common.c:1522
-Dumping ftrace buffer:
-  slab_pre_alloc_hook mm/slab.h:423 [inline]
-  slab_alloc_node mm/slub.c:2679 [inline]
-  __kmalloc_node+0x22f/0x1200 mm/slub.c:3859
-    (ftrace buffer empty)
-Modules linked in:
-CPU: 0 PID: 4533 Comm: syz-executor237 Not tainted 4.17.0+ #17
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-RIP: 0010:map_vm_area+0x69/0x1f0 mm/vmalloc.c:1353
-RSP: 0018:ffff8801c07df8b8 EFLAGS: 00010046
-  kmalloc_node include/linux/slab.h:554 [inline]
-  alloc_vmap_area+0x1e6/0x15a0 mm/vmalloc.c:420
-RAX: ffffffff81b1e4bc RBX: 0000000000000000 RCX: ffff8801a8e58000
-RDX: 0000000000000000 RSI: 8000000000000063 RDI: 0000000000000000
-  __get_vm_area_node+0x3a6/0x810 mm/vmalloc.c:1410
-RBP: ffff8801c07df930 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffc900019fffff R11: 0000000000000000 R12: ffffffff8b58d000
-  get_vm_area_caller+0xdb/0xf0 mm/vmalloc.c:1456
-R13: 0000000000000000 R14: 0000000000000008 R15: 0000000000000000
-FS:  00007f00bc56c700(0000) GS:ffff88021fc00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000008 CR3: 000000019e7d2000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  kmsan_vmap+0x79/0x1e0 mm/kmsan/kmsan.c:875
-Call Trace:
-  vmap+0x3b2/0x4b0 mm/vmalloc.c:1661
-  kmsan_vmap+0x137/0x1e0 mm/kmsan/kmsan.c:888
-  vmap+0x3b2/0x4b0 mm/vmalloc.c:1661
-  big_key_alloc_buffer+0x638/0xa30 security/keys/big_key.c:188
-  big_key_preparse+0x20a/0xed0 security/keys/big_key.c:228
-  big_key_alloc_buffer+0x638/0xa30 security/keys/big_key.c:188
-  big_key_preparse+0x20a/0xed0 security/keys/big_key.c:228
-  key_create_or_update+0x7a6/0x1a80 security/keys/key.c:849
-  __do_sys_add_key security/keys/keyctl.c:122 [inline]
-  __se_sys_add_key+0x741/0x980 security/keys/keyctl.c:62
-  key_create_or_update+0x7a6/0x1a80 security/keys/key.c:849
-  __do_sys_add_key security/keys/keyctl.c:122 [inline]
-  __se_sys_add_key+0x741/0x980 security/keys/keyctl.c:62
-  __x64_sys_add_key+0x15d/0x1b0 security/keys/keyctl.c:62
-  __x64_sys_add_key+0x15d/0x1b0 security/keys/keyctl.c:62
-  do_syscall_64+0x15b/0x230 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x63/0xe7
-  do_syscall_64+0x15b/0x230 arch/x86/entry/common.c:287
-RIP: 0033:0x445dc9
-  entry_SYSCALL_64_after_hwframe+0x63/0xe7
-RSP: 002b:00007f00bc58cd78 EFLAGS: 00000246
-RIP: 0033:0x445dc9
-RSP: 002b:00007f00bc56bd78 EFLAGS: 00000246
-  ORIG_RAX: 00000000000000f8
-  ORIG_RAX: 00000000000000f8
-RAX: ffffffffffffffda RBX: 00000000006dbc24 RCX: 0000000000445dc9
-RAX: ffffffffffffffda RBX: 00000000006dbc3c RCX: 0000000000445dc9
-RDX: 0000000020000140 RSI: 0000000020000100 RDI: 00000000200000c0
-RDX: 0000000020000140 RSI: 0000000020000100 RDI: 00000000200000c0
-RBP: 0000000000000000 R08: 00000000fffffffc R09: 0000000000000039
-RBP: 0000000000000000 R08: 00000000fffffffc R09: 0000000000000039
-R10: 0000000000000311 R11: 0000000000000246 R12: 00007f00bc56bd80
-R13: 00000000006dbc38 R14: 0000000000000006 R15: 0079656b5f676962
-R10: 0000000000000311 R11: 0000000000000246 R12: 00007f00bc58cd80
-Code:
-R13: 00000000006dbc20 R14: 0000000000000005 R15: 0079656b5f676962
-24
-FAULT_INJECTION: forcing a failure.
-name failslab, interval 1, probability 0, space 0, times 0
-08 48 89 45 a0 41 8b 84 24 90 0c 00 00 89 45 cc 45 8b bc 24 88 0c 00 00 e8  
-54 fa b3 ff 4d 8d 75 08 48 85 db 0f 85 5b 01 00 00 <49> 8b 45 08 48 89 45
-CPU: 1 PID: 4530 Comm: syz-executor237 Not tainted 4.17.0+ #17
-a8 4c
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-89
-Call Trace:
-f7 e8
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x185/0x1d0 lib/dump_stack.c:113
-57
-  fail_dump lib/fault-inject.c:51 [inline]
-  should_fail+0x87b/0xab0 lib/fault-inject.c:149
-bd
-  __should_failslab+0x278/0x2a0 mm/failslab.c:32
-0e 00
-  should_failslab+0x29/0x70 mm/slab_common.c:1522
-4d
-  slab_pre_alloc_hook mm/slab.h:423 [inline]
-  slab_alloc_node mm/slub.c:2679 [inline]
-  __kmalloc_node+0x22f/0x1200 mm/slub.c:3859
-8d
-75 18
-48
-RIP: map_vm_area+0x69/0x1f0 mm/vmalloc.c:1353 RSP: ffff8801c07df8b8
-  kmalloc_node include/linux/slab.h:554 [inline]
-  alloc_vmap_area+0x1e6/0x15a0 mm/vmalloc.c:420
-CR2: 0000000000000008
----[ end trace 6c00f5bb0b95940c ]---
-  __get_vm_area_node+0x3a6/0x810 mm/vmalloc.c:1410
+#syz dup: KASAN: stack-out-of-bounds Read in timerqueue_add
 
+
+> IPv6: ADDRCONF(NETDEV_CHANGE): veth0: link becomes ready
+> IPv6: ADDRCONF(NETDEV_CHANGE): bond0: link becomes ready
+> IPv6: ADDRCONF(NETDEV_UP): team0: link is not ready
+> 8021q: adding VLAN 0 to HW filter on device team0
+> ==================================================================
+> BUG: KASAN: stack-out-of-bounds in pgd_val
+> arch/x86/include/asm/paravirt.h:412 [inline]
+> BUG: KASAN: stack-out-of-bounds in p4d_pfn
+> arch/x86/include/asm/pgtable.h:205 [inline]
+> BUG: KASAN: stack-out-of-bounds in vmalloc_fault+0x743/0x760
+> arch/x86/mm/fault.c:462
+> Read of size 8 at addr ffff8801a936f160 by task ksoftirqd/0/9
+>
+> CPU: 0 PID: 9 Comm: ksoftirqd/0 Not tainted 4.18.0-rc3+ #47
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> Google 01/01/2011
+> Call Trace:
+>  __dump_stack lib/dump_stack.c:77 [inline]
+>  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
+>  print_address_description+0x6c/0x20b mm/kasan/report.c:256
+>  kasan_report_error mm/kasan/report.c:354 [inline]
+>  kasan_report.cold.7+0x242/0x2fe mm/kasan/report.c:412
+>  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
+>  pgd_val arch/x86/include/asm/paravirt.h:412 [inline]
+>  p4d_pfn arch/x86/include/asm/pgtable.h:205 [inline]
+>  vmalloc_fault+0x743/0x760 arch/x86/mm/fault.c:462
+>  __do_page_fault+0x829/0xe50 arch/x86/mm/fault.c:1245
+>  do_page_fault+0xf6/0x8c0 arch/x86/mm/fault.c:1471
+>  page_fault+0x1e/0x30 arch/x86/entry/entry_64.S:1160
+> RIP: 0010:ebt_do_table+0x1a7/0x2170 net/bridge/netfilter/ebtables.c:208
+> Code: 24 04 4d 8d ac 24 80 00 00 00 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89
+> f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 8f 1e 00 00 <41> 8b 44 24 04 49
+> 8d 7c 24 38 65 8b 15 28 7f 39 79 48 c1 e0 04 48
+> RSP: 0018:ffff8801d9ab6ab8 EFLAGS: 00010246
+> RAX: 0000000000000007 RBX: 0000000000000005 RCX: ffffffff81601dff
+> RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffc90001e2c004
+> RBP: ffff8801d9ab6c88 R08: ffffed003a6f4e49 R09: ffffed003a6f4e48
+> R10: ffffed003a6f4e48 R11: ffff8801d37a7243 R12: ffffc90001e2c000
+> R13: ffffc90001e2c080 R14: ffff8801d9ab6cc0 R15: ffff8801d9394380
+>  ebt_broute+0x200/0x340 net/bridge/netfilter/ebtable_broute.c:60
+>  br_handle_frame+0x6d1/0x1a20 net/bridge/br_input.c:292
+>  __netif_receive_skb_core.constprop.140+0x142d/0x3620 net/core/dev.c:4697
+>  __netif_receive_skb_one_core+0xd0/0x200 net/core/dev.c:4766
+>  __netif_receive_skb+0x2c/0x1e0 net/core/dev.c:4873
+>  process_backlog+0x219/0x760 net/core/dev.c:5676
+>  napi_poll net/core/dev.c:6088 [inline]
+>  net_rx_action+0x7a5/0x1950 net/core/dev.c:6154
+>  __do_softirq+0x2e8/0xb17 kernel/softirq.c:288
+>  run_ksoftirqd+0x86/0x100 kernel/softirq.c:649
+>  smpboot_thread_fn+0x417/0x870 kernel/smpboot.c:164
+>  kthread+0x345/0x410 kernel/kthread.c:240
+>  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
+>
+> The buggy address belongs to the page:
+> page:ffffea0006a4dbc0 count:1 mapcount:0 mapping:0000000000000000 index:0x0
+> flags: 0x2fffc0000000000()
+> raw: 02fffc0000000000 dead000000000100 dead000000000200 0000000000000000
+> raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+> page dumped because: kasan: bad access detected
+>
+> Memory state around the buggy address:
+>  ffff8801a936f000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  ffff8801a936f080: 00 00 00 f1 f1 f1 f1 00 f2 f2 f2 f2 f2 f2 f2 00
+>>
+>> ffff8801a936f100: f2 f2 f2 f2 f2 f2 f2 00 f2 f2 f2 f2 f2 f2 f2 f8
+>
+>                                                        ^
+>  ffff8801a936f180: f2 f2 f2 f2 f2 f2 f2 00 f2 f2 f2 00 00 00 00 00
+>  ffff8801a936f200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> ==================================================================
+>
+>
+> ---
+> This bug is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+>
+> syzbot will keep track of this bug report. See:
+> https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with
+> syzbot.
+> syzbot can test patches for this bug, for details see:
+> https://goo.gl/tpsmEJ#testing-patches
+>
+> --
+> You received this message because you are subscribed to the Google Groups
+> "syzkaller-bugs" group.
+> To unsubscribe from this group and stop receiving emails from it, send an
+> email to syzkaller-bugs+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit
+> https://groups.google.com/d/msgid/syzkaller-bugs/000000000000d8e31b05705e901b%40google.com.
+> For more options, visit https://groups.google.com/d/optout.
