@@ -1,11 +1,11 @@
 Return-Path: <tyhicks@canonical.com>
 From: Tyler Hicks <tyhicks@canonical.com>
-Date: Fri, 13 Jul 2018 16:05:45 +0000
-Message-Id: <1531497949-1766-4-git-send-email-tyhicks@canonical.com>
+Date: Fri, 13 Jul 2018 16:05:46 +0000
+Message-Id: <1531497949-1766-5-git-send-email-tyhicks@canonical.com>
 In-Reply-To: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
 References: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
-Subject: [Bridge] [PATCH net-next v2 3/7] kobject: kset_create_and_add() -
-	fetch ownership info from parent
+Subject: [Bridge] [PATCH net-next v2 4/7] driver core: set up ownership of
+	class devices in sysfs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,40 +19,65 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, netdev@vger.kernel.org, Linux C
 
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This change implements get_ownership() for ksets created with
-kset_create_and_add() call by fetching ownership data from parent kobject.
-This is done mostly for benefit of "queues" attribute of net devices so
-that corresponding directory belongs to container's root instead of global
-root for network devices in a container.
+Plumb in get_ownership() callback for devices belonging to a class so that
+they can be created with uid/gid different from global root. This will
+allow network devices in a container to belong to container's root and not
+global root.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
 ---
- lib/kobject.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/base/core.c    | 9 +++++++++
+ include/linux/device.h | 5 +++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/lib/kobject.c b/lib/kobject.c
-index f2dc1f756007..389829d3a1d1 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -887,9 +887,16 @@ static void kset_release(struct kobject *kobj)
- 	kfree(kset);
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index df3e1a44707a..276c7e3f754c 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -866,10 +866,19 @@ static const void *device_namespace(struct kobject *kobj)
+ 	return ns;
  }
  
-+void kset_get_ownership(struct kobject *kobj, kuid_t *uid, kgid_t *gid)
++static void device_get_ownership(struct kobject *kobj, kuid_t *uid, kgid_t *gid)
 +{
-+	if (kobj->parent)
-+		kobject_get_ownership(kobj->parent, uid, gid);
++	struct device *dev = kobj_to_dev(kobj);
++
++	if (dev->class && dev->class->get_ownership)
++		dev->class->get_ownership(dev, uid, gid);
 +}
 +
- static struct kobj_type kset_ktype = {
- 	.sysfs_ops	= &kobj_sysfs_ops,
--	.release = kset_release,
-+	.release	= kset_release,
-+	.get_ownership	= kset_get_ownership,
+ static struct kobj_type device_ktype = {
+ 	.release	= device_release,
+ 	.sysfs_ops	= &dev_sysfs_ops,
+ 	.namespace	= device_namespace,
++	.get_ownership	= device_get_ownership,
  };
  
- /**
+ 
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 055a69dbcd18..fe6ccb6dc119 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -384,6 +384,9 @@ int subsys_virtual_register(struct bus_type *subsys,
+  * @shutdown_pre: Called at shut-down time before driver shutdown.
+  * @ns_type:	Callbacks so sysfs can detemine namespaces.
+  * @namespace:	Namespace of the device belongs to this class.
++ * @get_ownership: Allows class to specify uid/gid of the sysfs directories
++ *		for the devices belonging to the class. Usually tied to
++ *		device's namespace.
+  * @pm:		The default device power management operations of this class.
+  * @p:		The private data of the driver core, no one other than the
+  *		driver core can touch this.
+@@ -413,6 +416,8 @@ struct class {
+ 	const struct kobj_ns_type_operations *ns_type;
+ 	const void *(*namespace)(struct device *dev);
+ 
++	void (*get_ownership)(struct device *dev, kuid_t *uid, kgid_t *gid);
++
+ 	const struct dev_pm_ops *pm;
+ 
+ 	struct subsys_private *p;
 -- 
 2.7.4
 
