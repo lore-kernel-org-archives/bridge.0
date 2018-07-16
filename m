@@ -1,11 +1,14 @@
-Return-Path: <tyhicks@canonical.com>
-From: Tyler Hicks <tyhicks@canonical.com>
-Date: Fri, 13 Jul 2018 16:05:49 +0000
-Message-Id: <1531497949-1766-8-git-send-email-tyhicks@canonical.com>
+Return-Path: <davem@davemloft.net>
+Date: Mon, 16 Jul 2018 13:58:16 -0700 (PDT)
+Message-Id: <20180716.135816.2203644668997114867.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
 References: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
-Subject: [Bridge] [PATCH net-next v2 7/7] bridge: make sure objects belong
-	to container's owner
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH v2 net-next 0/7] Make /sys/class/net per net
+ namespace objects belong to container
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,93 +17,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tejun Heo <tj@kernel.org>, "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, netdev@vger.kernel.org, Linux Containers <containers@lists.linux-foundation.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+To: tyhicks@canonical.com
+Cc: bridge@lists.linux-foundation.org, gregkh@linuxfoundation.org, containers@lists.linux-foundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, ebiederm@xmission.com, netdev@vger.kernel.org, tj@kernel.org
 
-When creating various bridge objects in /sys/class/net/... make sure
-that they belong to the container's owner instead of global root (if
-they belong to a container/namespace).
+From: Tyler Hicks <tyhicks@canonical.com>
+Date: Fri, 13 Jul 2018 16:05:42 +0000
 
-Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
----
- net/bridge/br_if.c       | 9 +++++++++
- net/bridge/br_private.h  | 2 ++
- net/bridge/br_sysfs_if.c | 5 ++---
- 3 files changed, 13 insertions(+), 3 deletions(-)
+> Eric had previously provided feedback that he didn't favor these changes
+> affecting all layers of the stack and that most of the changes could
+> remain local to drivers/base/core.c. That feedback is certainly sensible
+> but I wanted to send out v2 of the patch set without making that large
+> of a change since quite a bit of time has passed and the bridge changes
+> in the last patch of this set shows that not all of the changes will be
+> local to drivers/base/core.c. I'm happy to make the changes if the
+> original request still stands.
 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 05e42d86882d..e7c8d55212aa 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -26,6 +26,7 @@
- #include <net/sock.h>
- #include <linux/if_vlan.h>
- #include <net/switchdev.h>
-+#include <net/net_namespace.h>
- 
- #include "br_private.h"
- 
-@@ -204,11 +205,19 @@ static void release_nbp(struct kobject *kobj)
- 	kfree(p);
- }
- 
-+static void brport_get_ownership(struct kobject *kobj, kuid_t *uid, kgid_t *gid)
-+{
-+	struct net_bridge_port *p = kobj_to_brport(kobj);
-+
-+	net_ns_get_ownership(dev_net(p->dev), uid, gid);
-+}
-+
- static struct kobj_type brport_ktype = {
- #ifdef CONFIG_SYSFS
- 	.sysfs_ops = &brport_sysfs_ops,
- #endif
- 	.release = release_nbp,
-+	.get_ownership = brport_get_ownership,
- };
- 
- static void destroy_nbp(struct net_bridge_port *p)
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 5216a524b537..cf0005d2a4d0 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -283,6 +283,8 @@ struct net_bridge_port {
- 	u16				group_fwd_mask;
- };
- 
-+#define kobj_to_brport(obj)	container_of(obj, struct net_bridge_port, kobj)
-+
- #define br_auto_port(p) ((p)->flags & BR_AUTO_MASK)
- #define br_promisc_port(p) ((p)->flags & BR_PROMISC)
- 
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index f99c5bf5c906..ab4c7f8adf68 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -249,13 +249,12 @@ static const struct brport_attribute *brport_attrs[] = {
- };
- 
- #define to_brport_attr(_at) container_of(_at, struct brport_attribute, attr)
--#define to_brport(obj)	container_of(obj, struct net_bridge_port, kobj)
- 
- static ssize_t brport_show(struct kobject *kobj,
- 			   struct attribute *attr, char *buf)
- {
- 	struct brport_attribute *brport_attr = to_brport_attr(attr);
--	struct net_bridge_port *p = to_brport(kobj);
-+	struct net_bridge_port *p = kobj_to_brport(kobj);
- 
- 	if (!brport_attr->show)
- 		return -EINVAL;
-@@ -268,7 +267,7 @@ static ssize_t brport_store(struct kobject *kobj,
- 			    const char *buf, size_t count)
- {
- 	struct brport_attribute *brport_attr = to_brport_attr(attr);
--	struct net_bridge_port *p = to_brport(kobj);
-+	struct net_bridge_port *p = kobj_to_brport(kobj);
- 	ssize_t ret = -EINVAL;
- 	char *endp;
- 	unsigned long val;
--- 
-2.7.4
+I'd like to give Eric an opportunity to review this and give feedback
+before applying.
 
+Thanks.
