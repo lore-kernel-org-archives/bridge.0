@@ -1,12 +1,13 @@
 Return-Path: <davem@davemloft.net>
-Date: Wed, 18 Jul 2018 13:17:34 +0900 (KST)
-Message-Id: <20180718.131734.1797450417729100374.davem@davemloft.net>
+Date: Wed, 18 Jul 2018 13:41:52 +0900 (KST)
+Message-Id: <20180718.134152.1719446664161643330.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
+In-Reply-To: <20180718.131734.1797450417729100374.davem@davemloft.net>
 References: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
+	<20180718.131734.1797450417729100374.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-7
+Content-Transfer-Encoding: base64
 Subject: Re: [Bridge] [PATCH v2 net-next 0/7] Make /sys/class/net per net
  namespace objects belong to container
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -20,34 +21,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: tyhicks@canonical.com
 Cc: bridge@lists.linux-foundation.org, gregkh@linuxfoundation.org, containers@lists.linux-foundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, ebiederm@xmission.com, netdev@vger.kernel.org, tj@kernel.org
 
-From: Tyler Hicks <tyhicks@canonical.com>
-Date: Fri, 13 Jul 2018 16:05:42 +0000
-
-> I'm reviving this patch set because we would like this feature for
-> system containers. One specific use case that we have is that libvirt is
-> unable to configure its bridge device inside of a system container due
-> to the bridge files in /sys/class/net/ being owned by init root instead
-> of container root. The last two patches in this set are patches that
-> I've added to Dmitry's original set to allow such configuration of the
-> bridge device.
-> 
-> Eric had previously provided feedback that he didn't favor these changes
-> affecting all layers of the stack and that most of the changes could
-> remain local to drivers/base/core.c. That feedback is certainly sensible
-> but I wanted to send out v2 of the patch set without making that large
-> of a change since quite a bit of time has passed and the bridge changes
-> in the last patch of this set shows that not all of the changes will be
-> local to drivers/base/core.c. I'm happy to make the changes if the
-> original request still stands.
-> 
-> I've verified that all of the bridge related files affected by patch 7
-> have proper access control checks for CAP_NET_ADMIN inside of the
-> user namespace. I have *not* yet verified that all of the network
-> device related sysfs files affected by patch 5 have proper access
-> control checks. I was working under the assumption that those code paths
-> already were verified when the first iteration of the patches were sent
-> out.
-
-Ok, I can't let this series rot forever, so I'll apply it to net-next.
-
-Thank you.
+RnJvbTogRGF2aWQgTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0Pg0KRGF0ZTogV2VkLCAxOCBK
+dWwgMjAxOCAxMzoxNzozNCArMDkwMCAoS1NUKQ0KDQo+IE9rLCBJIGNhbid0IGxldCB0aGlzIHNl
+cmllcyByb3QgZm9yZXZlciwgc28gSSdsbCBhcHBseSBpdCB0byBuZXQtbmV4dC4NCg0KVW5mb3J0
+dW5hdGVseSwgSSBoYWQgdG8gcmV2ZXJ0LCB0aGlzIGJyZWFrcyB0aGUgYnVpbGQ6DQoNCmFyY2gv
+eDg2L2tlcm5lbC9jcHUvaW50ZWxfcmR0X3JkdGdyb3VwLmM6MTUwNjo3OiBlcnJvcjogdG9vIGZl
+dyBhcmd1bWVudHMgdG8gZnVuY3Rpb24goV9fa2VybmZzX2NyZWF0ZV9maWxlog0KICBrbiA9IF9f
+a2VybmZzX2NyZWF0ZV9maWxlKHBhcmVudF9rbiwgbmFtZSwgMDQ0NCwgMCwNCg==
