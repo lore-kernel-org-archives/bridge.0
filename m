@@ -1,6 +1,6 @@
 Return-Path: <davem@davemloft.net>
-Date: Mon, 16 Jul 2018 13:58:16 -0700 (PDT)
-Message-Id: <20180716.135816.2203644668997114867.davem@davemloft.net>
+Date: Wed, 18 Jul 2018 13:17:34 +0900 (KST)
+Message-Id: <20180718.131734.1797450417729100374.davem@davemloft.net>
 From: David Miller <davem@davemloft.net>
 In-Reply-To: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
 References: <1531497949-1766-1-git-send-email-tyhicks@canonical.com>
@@ -23,6 +23,14 @@ Cc: bridge@lists.linux-foundation.org, gregkh@linuxfoundation.org, containers@li
 From: Tyler Hicks <tyhicks@canonical.com>
 Date: Fri, 13 Jul 2018 16:05:42 +0000
 
+> I'm reviving this patch set because we would like this feature for
+> system containers. One specific use case that we have is that libvirt is
+> unable to configure its bridge device inside of a system container due
+> to the bridge files in /sys/class/net/ being owned by init root instead
+> of container root. The last two patches in this set are patches that
+> I've added to Dmitry's original set to allow such configuration of the
+> bridge device.
+> 
 > Eric had previously provided feedback that he didn't favor these changes
 > affecting all layers of the stack and that most of the changes could
 > remain local to drivers/base/core.c. That feedback is certainly sensible
@@ -31,8 +39,15 @@ Date: Fri, 13 Jul 2018 16:05:42 +0000
 > in the last patch of this set shows that not all of the changes will be
 > local to drivers/base/core.c. I'm happy to make the changes if the
 > original request still stands.
+> 
+> I've verified that all of the bridge related files affected by patch 7
+> have proper access control checks for CAP_NET_ADMIN inside of the
+> user namespace. I have *not* yet verified that all of the network
+> device related sysfs files affected by patch 5 have proper access
+> control checks. I was working under the assumption that those code paths
+> already were verified when the first iteration of the patches were sent
+> out.
 
-I'd like to give Eric an opportunity to review this and give feedback
-before applying.
+Ok, I can't let this series rot forever, so I'll apply it to net-next.
 
-Thanks.
+Thank you.
