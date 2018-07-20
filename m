@@ -1,11 +1,11 @@
 Return-Path: <tyhicks@canonical.com>
 From: Tyler Hicks <tyhicks@canonical.com>
-Date: Fri, 20 Jul 2018 21:56:52 +0000
-Message-Id: <1532123814-1109-7-git-send-email-tyhicks@canonical.com>
+Date: Fri, 20 Jul 2018 21:56:53 +0000
+Message-Id: <1532123814-1109-8-git-send-email-tyhicks@canonical.com>
 In-Reply-To: <1532123814-1109-1-git-send-email-tyhicks@canonical.com>
 References: <1532123814-1109-1-git-send-email-tyhicks@canonical.com>
-Subject: [Bridge] [PATCH net-next v3 6/8] net-sysfs: make sure objects
-	belong to container's owner
+Subject: [Bridge] [PATCH net-next v3 7/8] net: create reusable function for
+	getting ownership info of sysfs inodes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,29 +17,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tejun Heo <tj@kernel.org>, "David S. Miller" <davem@davemloft.net>, Stephen Hemminger <stephen@networkplumber.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, netdev@vger.kernel.org, Linux Containers <containers@lists.linux-foundation.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Make net_ns_get_ownership() reusable by networking code outside of core.
+This is useful, for example, to allow bridge related sysfs files to be
+owned by container root.
 
-When creating various objects in /sys/class/net/... make sure that they
-belong to container's owner instead of global root (if they belong to a
-container/namespace).
+Add a function comment since this is a potentially dangerous function to
+use given the way that kobject_get_ownership() works by initializing uid
+and gid before calling .get_ownership().
 
-Co-Developed-by: Tyler Hicks <tyhicks@canonical.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
 ---
- net/core/net-sysfs.c | 47 ++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 46 insertions(+), 1 deletion(-)
+ include/net/net_namespace.h | 10 ++++++++++
+ net/core/net-sysfs.c        | 18 ------------------
+ net/core/net_namespace.c    | 28 ++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+), 18 deletions(-)
 
+diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
+index a71264d75d7f..9b5fdc50519a 100644
+--- a/include/net/net_namespace.h
++++ b/include/net/net_namespace.h
+@@ -10,6 +10,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/list.h>
+ #include <linux/sysctl.h>
++#include <linux/uidgid.h>
+ 
+ #include <net/flow.h>
+ #include <net/netns/core.h>
+@@ -170,6 +171,8 @@ extern struct net init_net;
+ struct net *copy_net_ns(unsigned long flags, struct user_namespace *user_ns,
+ 			struct net *old_net);
+ 
++void net_ns_get_ownership(const struct net *net, kuid_t *uid, kgid_t *gid);
++
+ void net_ns_barrier(void);
+ #else /* CONFIG_NET_NS */
+ #include <linux/sched.h>
+@@ -182,6 +185,13 @@ static inline struct net *copy_net_ns(unsigned long flags,
+ 	return old_net;
+ }
+ 
++static inline void net_ns_get_ownership(const struct net *net,
++					kuid_t *uid, kgid_t *gid)
++{
++	*uid = GLOBAL_ROOT_UID;
++	*gid = GLOBAL_ROOT_GID;
++}
++
+ static inline void net_ns_barrier(void) {}
+ #endif /* CONFIG_NET_NS */
+ 
 diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index 405c41ecb20b..ada065fc685e 100644
+index ada065fc685e..0a95bcf64cdc 100644
 --- a/net/core/net-sysfs.c
 +++ b/net/core/net-sysfs.c
-@@ -656,6 +656,24 @@ static const struct attribute_group wireless_group = {
+@@ -656,24 +656,6 @@ static const struct attribute_group wireless_group = {
  #define net_class_groups	NULL
  #endif /* CONFIG_SYSFS */
  
-+static void net_ns_get_ownership(const struct net *net,
-+				 kuid_t *uid, kgid_t *gid)
+-static void net_ns_get_ownership(const struct net *net,
+-				 kuid_t *uid, kgid_t *gid)
+-{
+-	if (net) {
+-		kuid_t ns_root_uid = make_kuid(net->user_ns, 0);
+-		kgid_t ns_root_gid = make_kgid(net->user_ns, 0);
+-
+-		if (uid_valid(ns_root_uid))
+-			*uid = ns_root_uid;
+-
+-		if (gid_valid(ns_root_gid))
+-			*gid = ns_root_gid;
+-	} else {
+-		*uid = GLOBAL_ROOT_UID;
+-		*gid = GLOBAL_ROOT_GID;
+-	}
+-}
+-
+ #ifdef CONFIG_SYSFS
+ #define to_rx_queue_attr(_attr) \
+ 	container_of(_attr, struct rx_queue_attribute, attr)
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index a11e03f920d3..738871af5efa 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -17,6 +17,7 @@
+ #include <linux/user_namespace.h>
+ #include <linux/net_namespace.h>
+ #include <linux/sched/task.h>
++#include <linux/uidgid.h>
+ 
+ #include <net/sock.h>
+ #include <net/netlink.h>
+@@ -448,6 +449,33 @@ struct net *copy_net_ns(unsigned long flags,
+ 	return net;
+ }
+ 
++/**
++ * net_ns_get_ownership - get sysfs ownership data for @net
++ * @net: network namespace in question (can be NULL)
++ * @uid: kernel user ID for sysfs objects
++ * @gid: kernel group ID for sysfs objects
++ *
++ * Returns the uid/gid pair of root in the user namespace associated with the
++ * given network namespace.
++ */
++void net_ns_get_ownership(const struct net *net, kuid_t *uid, kgid_t *gid)
 +{
 +	if (net) {
 +		kuid_t ns_root_uid = make_kuid(net->user_ns, 0);
@@ -55,76 +137,11 @@ index 405c41ecb20b..ada065fc685e 100644
 +		*gid = GLOBAL_ROOT_GID;
 +	}
 +}
++EXPORT_SYMBOL_GPL(net_ns_get_ownership);
 +
- #ifdef CONFIG_SYSFS
- #define to_rx_queue_attr(_attr) \
- 	container_of(_attr, struct rx_queue_attribute, attr)
-@@ -905,11 +923,20 @@ static const void *rx_queue_namespace(struct kobject *kobj)
- 	return ns;
- }
- 
-+static void rx_queue_get_ownership(struct kobject *kobj,
-+				   kuid_t *uid, kgid_t *gid)
-+{
-+	const struct net *net = rx_queue_namespace(kobj);
-+
-+	net_ns_get_ownership(net, uid, gid);
-+}
-+
- static struct kobj_type rx_queue_ktype __ro_after_init = {
- 	.sysfs_ops = &rx_queue_sysfs_ops,
- 	.release = rx_queue_release,
- 	.default_attrs = rx_queue_default_attrs,
--	.namespace = rx_queue_namespace
-+	.namespace = rx_queue_namespace,
-+	.get_ownership = rx_queue_get_ownership,
- };
- 
- static int rx_queue_add_kobject(struct net_device *dev, int index)
-@@ -1431,11 +1458,20 @@ static const void *netdev_queue_namespace(struct kobject *kobj)
- 	return ns;
- }
- 
-+static void netdev_queue_get_ownership(struct kobject *kobj,
-+				       kuid_t *uid, kgid_t *gid)
-+{
-+	const struct net *net = netdev_queue_namespace(kobj);
-+
-+	net_ns_get_ownership(net, uid, gid);
-+}
-+
- static struct kobj_type netdev_queue_ktype __ro_after_init = {
- 	.sysfs_ops = &netdev_queue_sysfs_ops,
- 	.release = netdev_queue_release,
- 	.default_attrs = netdev_queue_default_attrs,
- 	.namespace = netdev_queue_namespace,
-+	.get_ownership = netdev_queue_get_ownership,
- };
- 
- static int netdev_queue_add_kobject(struct net_device *dev, int index)
-@@ -1625,6 +1661,14 @@ static const void *net_namespace(struct device *d)
- 	return dev_net(dev);
- }
- 
-+static void net_get_ownership(struct device *d, kuid_t *uid, kgid_t *gid)
-+{
-+	struct net_device *dev = to_net_dev(d);
-+	const struct net *net = dev_net(dev);
-+
-+	net_ns_get_ownership(net, uid, gid);
-+}
-+
- static struct class net_class __ro_after_init = {
- 	.name = "net",
- 	.dev_release = netdev_release,
-@@ -1632,6 +1676,7 @@ static struct class net_class __ro_after_init = {
- 	.dev_uevent = netdev_uevent,
- 	.ns_type = &net_ns_type_operations,
- 	.namespace = net_namespace,
-+	.get_ownership = net_get_ownership,
- };
- 
- #ifdef CONFIG_OF_NET
+ static void unhash_nsid(struct net *net, struct net *last)
+ {
+ 	struct net *tmp;
 -- 
 2.7.4
 
