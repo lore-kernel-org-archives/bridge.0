@@ -1,26 +1,15 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=cmy8kJ6ct6T1SukLiCokpljPgEMbsvkU+nAeLQwTKTs=;
-	b=N+4fBd8gSmGzCK+bdYisszD2EhHivrniQUSdylDj4SDD5X8q1l5eGrtjjic4nMtTKz
-	LN9GURqFhDjbPMltb/i+e+Bs5EEhOgjxiqlvzDsE1gHm/jTHKnhqGpLk7mccubEIFjae
-	3No3fp6MHZwQafxkjl9yZMdQRxsshPkqQipxw=
-References: <20180720144826.29892-1-nikolay@cumulusnetworks.com>
-	<20180720144826.29892-3-nikolay@cumulusnetworks.com>
-	<20180720090259.751a82f4@xeon-e3>
-	<CAJieiUikHsmGLnSv5dEc0POqmC2UbKZ4YpzSXd=Bkbd-vtNgQQ@mail.gmail.com>
-	<5e2db5d0-2944-54a4-7705-49713a0602bc@lab.ntt.co.jp>
+	h=from:to:cc:subject:date:message-id;
+	bh=Ye3yd8bgdIkq+SC6Q05DOdjpk3FqlBkZBdt9NNak82A=;
+	b=PGSGbNq58cfDCBRxU6NLSQ6Psx45eMq10WvlAY4E6S5+kQ6Fo4IlCZT+FY5q6SyGYi
+	wRxUec1+7r2jPs+8rpc5rPvtP3BgbDkP7THGRBqteBZx1bk2iVZSBrO1oZZ6llfJN+E5
+	GkLBJuJNW0JnJVqHA9whAba4pjndERNW7gS2g=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <649cf32d-68c1-dc2e-74fd-4659ce3203fd@cumulusnetworks.com>
-Date: Mon, 23 Jul 2018 11:03:56 +0300
-MIME-Version: 1.0
-In-Reply-To: <5e2db5d0-2944-54a4-7705-49713a0602bc@lab.ntt.co.jp>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 2/2] net: bridge: add support for
+Date: Mon, 23 Jul 2018 11:16:57 +0300
+Message-Id: <20180723081659.21986-1-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next v3 0/2] net: bridge: add support for
 	backup port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -30,54 +19,85 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Wilson Kok <wkok@cumulusnetworks.com>, Anuradha Karuppiah <anuradhak@cumulusnetworks.com>, David Miller <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, wkok@cumulusnetworks.com, anuradhak@cumulusnetworks.com, davem@davemloft.net
 
-On 23/07/18 09:15, Toshiaki Makita wrote:
-> On 2018/07/21 1:41, Roopa Prabhu wrote:
->> On Fri, Jul 20, 2018 at 9:02 AM, Stephen Hemminger
->> <stephen@networkplumber.org> wrote:
->>> Trying to understand this.
->>>
->>> Is it the case that what you are trying to solve is the way MLAG
->>> and bridging interact on the Linux side or more a limitation of how
->>> switches operate?  Wouldn't this work?
->>
->> not a limitation. Its the way MLAG works on the switch side
->>
->>>
->>>                 br0 -- team0 -- eth1
->>>                              +- eth2
->>>
->>> The bridge would only have fdb entries for the team device.
->>> Why do eth1 and eth2 have to be master devices?  Why would eth1
->>> and eth2 need to be bridge ports.
->>
->>
->> Two switches acting in a MLAG pair are connected by the peerlink
->> interface which is a bridge port.
->>
->> the config on one of the switches looks like the below. The other
->> switch also has a similar config.
->> eth0 is connected to one port on the server. And the server is
->> connected to both switches.
->>
->>
->> br0 -- team0---eth0
->>       |
->>       -- switch-peerlink
->>
->> switch-peerlink becomes the failover/backport port when say team0 to
->> the server goes down.
-> 
-> I feel like this kind of diagram in commitlog would help us understand
-> what you/Nikolay want to do. I was also not able to get why team/bonding
-> is not an option reading commitlog. (Now I think I understand it thanks
-> to Roopa's explanation.)
-> 
+Hi,
+This set introduces a new bridge port option that allows any port to have
+any other port (in the same bridge of course) as its backup and traffic
+will be forwarded to the backup port when the primary goes down. This is
+mainly used in MLAG and EVPN setups where we have peerlink path which is
+a backup of many (or even all) ports and is a participating bridge port
+itself. There's more detailed information in patch 02. Patch 01 just
+prepares the port sysfs code for options that take raw value. The main
+issues that this set solves are scalability and fallback latency.
 
-Fair enough, I'll send v3 with Roopa's explanation and diagram added.
+We have used similar code for over 6 months now to bring the fallback
+latency of the backup peerlink down and avoid fdb notification storms.
+Also due to the nature of master devices such setup is currently not
+possible, and last but not least having tens of thousands of fdbs require
+thousands of calls to switch.
+
+I've also CCed our MLAG experts that have been using similar option.
+
+Roopa also adds:
+
+"Two switches acting in a MLAG pair are connected by the peerlink
+interface which is a bridge port.
+
+the config on one of the switches looks like the below. The other
+switch also has a similar config.
+eth0 is connected to one port on the server. And the server is
+connected to both switches.
+
+br0 -- team0---eth0
+      |
+      -- switch-peerlink
+
+switch-peerlink becomes the failover/backport port when say team0 to
+the server goes down.
+Today, when team0 goes down, control plane has to withdraw all the fdb
+entries pointing to team0
+and re-install the fdb entries pointing to switch-peerlink...and
+restore the fdb entries when team0 comes back up again.
+and  this is the problem we are trying to solve.
+
+This also becomes necessary when multihoming is implemented by a
+standard like E-VPN https://tools.ietf.org/html/rfc8365#section-8
+where the 'switch-peerlink' is an overlay vxlan port (like nikolay
+mentions in his patch commit). In these implementations, the fdb scale
+can be much larger.
+
+On why bond failover cannot be used here ?: the point that nikolay was
+alluding to is, switch-peerlink in the above example is a bridge port
+and is a failover/backport port for more than one or all ports in the
+bridge br0. And you cannot enslave switch-peerlink into a second level
+team
+with other bridge ports. Hence a multi layered team device is not an
+option (FWIW, switch-peerlink is also a teamed interface to the peer
+switch)."
+
+v3: Added Roopa's explanation and diagram
+v2: In patch 01 use kstrdup/kfree to avoid casting the const buf. In order
+to avoid using GFP_ATOMIC or always allocating I kept the spinlock inside
+each branch.
 
 Thanks,
  Nik
+
+
+Nikolay Aleksandrov (2):
+  net: bridge: add support for raw sysfs port options
+  net: bridge: add support for backup port
+
+ include/uapi/linux/if_link.h |  1 +
+ net/bridge/br_forward.c      | 16 +++++++-
+ net/bridge/br_if.c           | 53 ++++++++++++++++++++++++++
+ net/bridge/br_netlink.c      | 30 ++++++++++++++-
+ net/bridge/br_private.h      |  3 ++
+ net/bridge/br_sysfs_if.c     | 89 +++++++++++++++++++++++++++++++++++++-------
+ 6 files changed, 176 insertions(+), 16 deletions(-)
+
+-- 
+2.11.0
 
