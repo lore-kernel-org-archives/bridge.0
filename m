@@ -1,16 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=Ye3yd8bgdIkq+SC6Q05DOdjpk3FqlBkZBdt9NNak82A=;
-	b=PGSGbNq58cfDCBRxU6NLSQ6Psx45eMq10WvlAY4E6S5+kQ6Fo4IlCZT+FY5q6SyGYi
-	wRxUec1+7r2jPs+8rpc5rPvtP3BgbDkP7THGRBqteBZx1bk2iVZSBrO1oZZ6llfJN+E5
-	GkLBJuJNW0JnJVqHA9whAba4pjndERNW7gS2g=
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=Htx0LDjy6T0ZD3lMBiQy0fXAwbXbhnsbVoYgfqzok8Q=;
+	b=TMYP30jq+VepZRJxej2FYxECFs8j1u5Pst7NOxt9SDy9xG1UhwcunOGJdQY3g6363G
+	3QWnA0+x9Ztd0uafvlcdHpDhWcYHHnX6zRv9zcYyykW5GO0znt8Qwq6Gs4KYmkpv86Vx
+	HMESEL+5xib2ZCiEOt1Jl14L+FoHHQY6gbd1Y=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Mon, 23 Jul 2018 11:16:57 +0300
-Message-Id: <20180723081659.21986-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v3 0/2] net: bridge: add support for
-	backup port
+Date: Mon, 23 Jul 2018 11:16:58 +0300
+Message-Id: <20180723081659.21986-2-nikolay@cumulusnetworks.com>
+In-Reply-To: <20180723081659.21986-1-nikolay@cumulusnetworks.com>
+References: <20180723081659.21986-1-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH 1/2 net-next v3] net: bridge: add support for raw
+	sysfs port options
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,82 +24,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, wkok@cumulusnetworks.com, anuradhak@cumulusnetworks.com, davem@davemloft.net
 
-Hi,
-This set introduces a new bridge port option that allows any port to have
-any other port (in the same bridge of course) as its backup and traffic
-will be forwarded to the backup port when the primary goes down. This is
-mainly used in MLAG and EVPN setups where we have peerlink path which is
-a backup of many (or even all) ports and is a participating bridge port
-itself. There's more detailed information in patch 02. Patch 01 just
-prepares the port sysfs code for options that take raw value. The main
-issues that this set solves are scalability and fallback latency.
+This patch adds a new alternative store callback for port sysfs options
+which takes a raw value (buf) and can use it directly. It is needed for the
+backup port sysfs support since we have to pass the device by its name.
 
-We have used similar code for over 6 months now to bring the fallback
-latency of the backup peerlink down and avoid fdb notification storms.
-Also due to the nature of master devices such setup is currently not
-possible, and last but not least having tens of thousands of fdbs require
-thousands of calls to switch.
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+There are a few checkpatch warnings here because of the old code, I've
+noted them in my todo and will send separate patch for simple_strtoul
+and the function prototypes.
 
-I've also CCed our MLAG experts that have been using similar option.
-
-Roopa also adds:
-
-"Two switches acting in a MLAG pair are connected by the peerlink
-interface which is a bridge port.
-
-the config on one of the switches looks like the below. The other
-switch also has a similar config.
-eth0 is connected to one port on the server. And the server is
-connected to both switches.
-
-br0 -- team0---eth0
-      |
-      -- switch-peerlink
-
-switch-peerlink becomes the failover/backport port when say team0 to
-the server goes down.
-Today, when team0 goes down, control plane has to withdraw all the fdb
-entries pointing to team0
-and re-install the fdb entries pointing to switch-peerlink...and
-restore the fdb entries when team0 comes back up again.
-and  this is the problem we are trying to solve.
-
-This also becomes necessary when multihoming is implemented by a
-standard like E-VPN https://tools.ietf.org/html/rfc8365#section-8
-where the 'switch-peerlink' is an overlay vxlan port (like nikolay
-mentions in his patch commit). In these implementations, the fdb scale
-can be much larger.
-
-On why bond failover cannot be used here ?: the point that nikolay was
-alluding to is, switch-peerlink in the above example is a bridge port
-and is a failover/backport port for more than one or all ports in the
-bridge br0. And you cannot enslave switch-peerlink into a second level
-team
-with other bridge ports. Hence a multi layered team device is not an
-option (FWIW, switch-peerlink is also a teamed interface to the peer
-switch)."
-
-v3: Added Roopa's explanation and diagram
-v2: In patch 01 use kstrdup/kfree to avoid casting the const buf. In order
+v3: no change
+v2: Use kstrndup/kfree instead of casting the const buf. In order
 to avoid using GFP_ATOMIC or always allocating I kept the spinlock inside
 each branch.
 
-Thanks,
- Nik
+ net/bridge/br_sysfs_if.c | 56 ++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 42 insertions(+), 14 deletions(-)
 
-
-Nikolay Aleksandrov (2):
-  net: bridge: add support for raw sysfs port options
-  net: bridge: add support for backup port
-
- include/uapi/linux/if_link.h |  1 +
- net/bridge/br_forward.c      | 16 +++++++-
- net/bridge/br_if.c           | 53 ++++++++++++++++++++++++++
- net/bridge/br_netlink.c      | 30 ++++++++++++++-
- net/bridge/br_private.h      |  3 ++
- net/bridge/br_sysfs_if.c     | 89 +++++++++++++++++++++++++++++++++++++-------
- 6 files changed, 176 insertions(+), 16 deletions(-)
-
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index ab4c7f8adf68..4ac940067754 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -25,6 +25,15 @@ struct brport_attribute {
+ 	struct attribute	attr;
+ 	ssize_t (*show)(struct net_bridge_port *, char *);
+ 	int (*store)(struct net_bridge_port *, unsigned long);
++	int (*store_raw)(struct net_bridge_port *, char *);
++};
++
++#define BRPORT_ATTR_RAW(_name, _mode, _show, _store)			\
++const struct brport_attribute brport_attr_##_name = {			\
++	.attr		= {.name = __stringify(_name),			\
++			   .mode = _mode },				\
++	.show		= _show,					\
++	.store_raw	= _store,					\
+ };
+ 
+ #define BRPORT_ATTR(_name, _mode, _show, _store)		\
+@@ -269,27 +278,46 @@ static ssize_t brport_store(struct kobject *kobj,
+ 	struct brport_attribute *brport_attr = to_brport_attr(attr);
+ 	struct net_bridge_port *p = kobj_to_brport(kobj);
+ 	ssize_t ret = -EINVAL;
+-	char *endp;
+ 	unsigned long val;
++	char *endp;
+ 
+ 	if (!ns_capable(dev_net(p->dev)->user_ns, CAP_NET_ADMIN))
+ 		return -EPERM;
+ 
+-	val = simple_strtoul(buf, &endp, 0);
+-	if (endp != buf) {
+-		if (!rtnl_trylock())
+-			return restart_syscall();
+-		if (p->dev && p->br && brport_attr->store) {
+-			spin_lock_bh(&p->br->lock);
+-			ret = brport_attr->store(p, val);
+-			spin_unlock_bh(&p->br->lock);
+-			if (!ret) {
+-				br_ifinfo_notify(RTM_NEWLINK, NULL, p);
+-				ret = count;
+-			}
++	if (!rtnl_trylock())
++		return restart_syscall();
++
++	if (!p->dev || !p->br)
++		goto out_unlock;
++
++	if (brport_attr->store_raw) {
++		char *buf_copy;
++
++		buf_copy = kstrndup(buf, count, GFP_KERNEL);
++		if (!buf_copy) {
++			ret = -ENOMEM;
++			goto out_unlock;
+ 		}
+-		rtnl_unlock();
++		spin_lock_bh(&p->br->lock);
++		ret = brport_attr->store_raw(p, buf_copy);
++		spin_unlock_bh(&p->br->lock);
++		kfree(buf_copy);
++	} else if (brport_attr->store) {
++		val = simple_strtoul(buf, &endp, 0);
++		if (endp == buf)
++			goto out_unlock;
++		spin_lock_bh(&p->br->lock);
++		ret = brport_attr->store(p, val);
++		spin_unlock_bh(&p->br->lock);
+ 	}
++
++	if (!ret) {
++		br_ifinfo_notify(RTM_NEWLINK, NULL, p);
++		ret = count;
++	}
++out_unlock:
++	rtnl_unlock();
++
+ 	return ret;
+ }
+ 
 -- 
 2.11.0
 
