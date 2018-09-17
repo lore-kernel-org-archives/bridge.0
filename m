@@ -1,23 +1,23 @@
-Return-Path: <grygorii.strashko@ti.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1536621764;
-	bh=Og/1l205iPX/DZmc/JsJDPLfFgjoIJdMivIdN3qzSSw=;
-	h=Subject:To:CC:References:From:Date:In-Reply-To;
-	b=TwoS0oSDgMh07SmkeRtt1XSIp2ZmfmaE4TDEfEXh18i8b19gcXI9WlgUgo3mDOBXe
-	0lcNTAK/noERCjSbxBTYXbXwjhoby3EmxFubQVXchsd80GDtZCIFsWJQ2Cwy+e9eeM
-	FniLyqAtkQDRBK+Ce8kpBir6av7IJgUFBV7Am4oI=
-References: <20180910101601.28073-1-nikolay@cumulusnetworks.com>
-	<20180910141802.268e85c5@shemminger-XPS-13-9360>
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Message-ID: <886aea12-29f7-8722-42c9-5db2f3f34421@ti.com>
-Date: Mon, 10 Sep 2018 18:22:44 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180910141802.268e85c5@shemminger-XPS-13-9360>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: add support for sticky
-	fdb entries
+Return-Path: <mchehab@bombadil.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20170209;
+	h=Sender:Message-Id:Date:Subject:Cc:To:
+	From:Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=/cb3JVdZScPLfe5FtiUJes+H+FOyYdzKv8NGg0tmrEw=;
+	b=XXcQd0r5jZBqwtDwSptR4bHjMZ
+	PL3ywpw1mLxJfMNxSHxSOabRGbcllECL8lOWAMh08i/qZRE41QDWTORkO16sPGy9UA9uxH7M8lce6
+	Jt9MtqkePLMB11Giojl1fTmGL1mbJUJHZr5bpzlxQkUoowU/33SKxa4JPXiE/brNcKEzMMNvq0Nn7
+	GWMACUHCa4ZUjHqtpOSIZXp30hnlZSm98+eNTxyRPRjRp5my2NdhkKHvq6AOnZ5jLnrkodeTYL+TB
+	WHmVthkjWLb+0vM+i0RjXYLgagar33hcFTuWCZfV9ROaXUh+UUDrRnZ+yMT72H1kM0PWEDDGxG1k7
+	Z4JN3DTw==;
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Date: Mon, 17 Sep 2018 15:02:34 -0400
+Message-Id: <6b47bf56b898c48a0dc3cd42283c9e5c7c23367a.1537210894.git.mchehab+samsung@kernel.org>
+Sender: Mauro Carvalho Chehab <mchehab@bombadil.infradead.org>
+Subject: [Bridge] [PATCH] docs: fix some broken documentation references
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,106 +26,86 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: linux-kernel@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Jonathan Corbet <corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, netdev@vger.kernel.org, Jan Kara <jack@suse.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-ext4@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Linux Media Mailing List <linux-media@vger.kernel.org>
 
+Some documentation files received recent changes and are
+pointing to wrong places.
 
+Those references can easily fixed with the help of a
+script:
 
-On 09/10/2018 04:18 PM, Stephen Hemminger wrote:
-> On Mon, 10 Sep 2018 13:16:01 +0300
-> Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-> 
->> Add support for entries which are "sticky", i.e. will not change their port
->> if they show up from a different one. A new ndm flag is introduced for that
->> purpose - NTF_STICKY. We allow to set it only to non-local entries.
-> 
-> Is there a name for this in other network switch API's?
+	$ ./scripts/documentation-file-ref-check --fix
 
-In TI CPSW hardware we have following definition for similar FDB/ALE entries
-(AM437x TRM - 15.3.2.7.1.4 Unicast Address Table Entry):
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+---
+ Documentation/filesystems/dax.txt  | 2 +-
+ Documentation/filesystems/ext2.txt | 2 +-
+ MAINTAINERS                        | 4 ++--
+ net/bridge/Kconfig                 | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-Block (BLOCK)  – The block bit indicates that a packet with a matching source or
-destination address should be dropped (block the address).
-0 – Address is not blocked.
-1 – Drop a packet with a matching source or destination address (secure must be zero)
-    If block and secure are both set, then they no longer mean block and secure.
-When both are set, the block and secure bits indicate that the packet is 
-a unicast supervisory (super) packet and they determine the unicast forward state test criteria. 
-If both bits are set then the packet is forwarded if the receive port is in
-   the Forwarding/Blocking/Learning state.
-If both bits are not set then the packet is forwarded if the receive port is in
-   the Forwarding state.
-
-Secure (SECURE) - This bit indicates that a packet with a matching source address
-should be dropped if the received port number is not equal to the table entry port_number.
-0 – Received port number is a don’t care.
-1 – Drop the packet if the received port is not the secure port for the source
-address and do not update the address (block must be zero)
-
-Updating Process:
-if ((source address found) and (receive port number != port_number) and (secure or block))
-then do not update address
-
-"sticky" would mean SECURE+BLOCK = supervisory (super) packet
-
-> 
->>
->> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->> ---
->> I'll send the selftest for sticky with the iproute2 patch if this one is
->> accepted. We've had multiple requests to support such flag and now it's
->> also needed for some eVPN and clag setups.
->>
->>   include/uapi/linux/neighbour.h |  1 +
->>   net/bridge/br_fdb.c            | 19 ++++++++++++++++---
->>   net/bridge/br_private.h        |  1 +
->>   3 files changed, 18 insertions(+), 3 deletions(-)
->>
->> diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
->> index 904db6148476..998155444e0d 100644
->> --- a/include/uapi/linux/neighbour.h
->> +++ b/include/uapi/linux/neighbour.h
->> @@ -43,6 +43,7 @@ enum {
->>   #define NTF_PROXY	0x08	/* == ATF_PUBL */
->>   #define NTF_EXT_LEARNED	0x10
->>   #define NTF_OFFLOADED   0x20
->> +#define NTF_STICKY	0x40
->>   #define NTF_ROUTER	0x80
->>   
->>   /*
->> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
->> index 502f66349530..26569ed06a4d 100644
->> --- a/net/bridge/br_fdb.c
->> +++ b/net/bridge/br_fdb.c
->> @@ -584,7 +584,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
->>   			unsigned long now = jiffies;
->>   
->>   			/* fastpath: update of existing entry */
->> -			if (unlikely(source != fdb->dst)) {
->> +			if (unlikely(source != fdb->dst && !fdb->is_sticky)) {
->>   				fdb->dst = source;
->>   				fdb_modified = true;
->>   				/* Take over HW learned entry */
->> @@ -656,6 +656,8 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
->>   		ndm->ndm_flags |= NTF_OFFLOADED;
->>   	if (fdb->added_by_external_learn)
->>   		ndm->ndm_flags |= NTF_EXT_LEARNED;
->> +	if (fdb->is_sticky)
->> +		ndm->ndm_flags |= NTF_STICKY;
->>   
->>   	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
->>   		goto nla_put_failure;
->> @@ -772,7 +774,8 @@ int br_fdb_dump(struct sk_buff *skb,
->>   
->>   /* Update (create or replace) forwarding database entry */
->>   static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
->> -			 const __u8 *addr, __u16 state, __u16 flags, __u16 vid)
->> +			 const u8 *addr, u16 state, u16 flags, u16 vid,
->> +			 u8 is_sticky)
-> 
-> Why not change the API to take a full ndm flags, someone is sure to add more later.
-> 
-
+diff --git a/Documentation/filesystems/dax.txt b/Documentation/filesystems/dax.txt
+index 70cb68bed2e8..bc393e0a22b8 100644
+--- a/Documentation/filesystems/dax.txt
++++ b/Documentation/filesystems/dax.txt
+@@ -75,7 +75,7 @@ exposure of uninitialized data through mmap.
+ 
+ These filesystems may be used for inspiration:
+ - ext2: see Documentation/filesystems/ext2.txt
+-- ext4: see Documentation/filesystems/ext4.txt
++- ext4: see Documentation/filesystems/ext4/ext4.rst
+ - xfs:  see Documentation/filesystems/xfs.txt
+ 
+ 
+diff --git a/Documentation/filesystems/ext2.txt b/Documentation/filesystems/ext2.txt
+index 81c0becab225..a45c9fc0747b 100644
+--- a/Documentation/filesystems/ext2.txt
++++ b/Documentation/filesystems/ext2.txt
+@@ -358,7 +358,7 @@ and are copied into the filesystem.  If a transaction is incomplete at
+ the time of the crash, then there is no guarantee of consistency for
+ the blocks in that transaction so they are discarded (which means any
+ filesystem changes they represent are also lost).
+-Check Documentation/filesystems/ext4.txt if you want to read more about
++Check Documentation/filesystems/ext4/ext4.rst if you want to read more about
+ ext4 and journaling.
+ 
+ References
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9989925f658d..078a4cf6d064 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -840,7 +840,7 @@ ANALOG DEVICES INC ADGS1408 DRIVER
+ M:	Mircea Caprioru <mircea.caprioru@analog.com>
+ S:	Supported
+ F:	drivers/mux/adgs1408.c
+-F:	Documentation/devicetree/bindings/mux/adgs1408.txt
++F:	Documentation/devicetree/bindings/mux/adi,adgs1408.txt
+ 
+ ANALOG DEVICES INC ADP5061 DRIVER
+ M:	Stefan Popa <stefan.popa@analog.com>
+@@ -5515,7 +5515,7 @@ W:	http://ext4.wiki.kernel.org
+ Q:	http://patchwork.ozlabs.org/project/linux-ext4/list/
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4.git
+ S:	Maintained
+-F:	Documentation/filesystems/ext4.txt
++F:	Documentation/filesystems/ext4/ext4.rst
+ F:	fs/ext4/
+ 
+ Extended Verification Module (EVM)
+diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
+index aa0d3b2f1bb7..3625d6ade45c 100644
+--- a/net/bridge/Kconfig
++++ b/net/bridge/Kconfig
+@@ -17,7 +17,7 @@ config BRIDGE
+ 	  other third party bridge products.
+ 
+ 	  In order to use the Ethernet bridge, you'll need the bridge
+-	  configuration tools; see <file:Documentation/networking/bridge.txt>
++	  configuration tools; see <file:Documentation/networking/bridge.rst>
+ 	  for location. Please read the Bridge mini-HOWTO for more
+ 	  information.
+ 
 -- 
-regards,
--grygorii
+2.17.1
+
