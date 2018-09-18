@@ -1,7 +1,18 @@
-Return-Path: <jack@suse.cz>
-Date: Tue, 18 Sep 2018 11:17:14 +0200
-From: Jan Kara <jack@suse.cz>
-Message-ID: <20180918091714.GG10257@quack2.suse.cz>
+Return-Path: <darrick.wong@oracle.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+	h=date : from : to : cc
+	: subject : message-id : references : mime-version : content-type :
+	in-reply-to; s=corp-2018-07-02;
+	bh=3QI1fwm0IUam2fWty8yFtGtrWNDG/B4KeLJyYHHZilA=;
+	b=w/oTTN9J5rKIulsguqryxuLMhTthYi2UMPUxNpRbbHQngCdN8+QCAzSqmdfAWiXxL5hC
+	5B9MR5jOFGh8QjmGMkBHyAGx+PqHNolR6n0apFhzGJi6wgSn0J1OYU2OXmlg0oC6fue5
+	hTCY/f5UZTJK6M9rngYemjqvSqTohDRiMlEG4qAIgdgcEeDDstgqVSDOQyaAKNZfVIlp
+	Rxf6RuPerQBmud9mn//ffmFKH9I+O7cdCQN610mzMhYuY6Eyoi1oJcMuC9C1m7Q6sCzM
+	d97ztqcE84csyury7DSjVBt/ONS4T45zA0ZwnlmlrLqePU/73qNBykkoLjz/Z5jfzY9H
+	gw== 
+Date: Tue, 18 Sep 2018 07:39:31 -0700
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
+Message-ID: <20180918143931.GA4590@magnolia>
 References: <6b47bf56b898c48a0dc3cd42283c9e5c7c23367a.1537210894.git.mchehab+samsung@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -17,9 +28,9 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: bridge@lists.linux-foundation.org, Ted Tso <tytso@mit.edu>, Arnd Bergmann <arnd@arndb.de>, Jonathan Corbet <corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, netdev@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jan Kara <jack@suse.com>, Andrew Morton <akpm@linux-foundation.org>, linux-ext4@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Linux Media Mailing List <linux-media@vger.kernel.org>
+Cc: bridge@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Jonathan Corbet <corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, netdev@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jan Kara <jack@suse.com>, Andrew Morton <akpm@linux-foundation.org>, linux-ext4@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-On Mon 17-09-18 15:02:34, Mauro Carvalho Chehab wrote:
+On Mon, Sep 17, 2018 at 03:02:34PM -0400, Mauro Carvalho Chehab wrote:
 > Some documentation files received recent changes and are
 > pointing to wrong places.
 > 
@@ -30,11 +41,12 @@ On Mon 17-09-18 15:02:34, Mauro Carvalho Chehab wrote:
 > 
 > Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-Looks good to me. Thanks for fixing this up. You can add:
+Thanks for fixing up the ext4 parts!
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 
-								Honza
+--D
+
 > ---
 >  Documentation/filesystems/dax.txt  | 2 +-
 >  Documentation/filesystems/ext2.txt | 2 +-
@@ -106,7 +118,3 @@ Reviewed-by: Jan Kara <jack@suse.cz>
 > -- 
 > 2.17.1
 > 
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
