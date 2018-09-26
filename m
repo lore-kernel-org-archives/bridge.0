@@ -2,17 +2,17 @@ Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=JQWnT41+Y1vO8i/esXkUNHdNSyQwffVoftSiuLOlpuw=;
-	b=HByoewJMLSU+/wAnYNjrAlI6CKQYuXQzjOVaElVLwrKgY9rkZDB+V2FFrXfnlraF2B
-	3STv1/wc1/dkmO0cIgI3mecZaH2YnisK31Tklj9DT4S3m+m/5kGHn95WSi6F0JlJcJpa
-	e8bmotL+Bz9Jxd4nu/6ujXqm34xlhzKC8CxQw=
+	bh=LP4zsZjpgJtkTIPdEfv1ZAaA98BoG9ADatmO3o7rXrg=;
+	b=adho8IXGbf1jPHvNfyYXtaEaYNAS1rbb4/0Ou3NvZ0ZohpTGx3nLuYfPvZVOctAJI9
+	YlxNeo1gW0n6gHob8Ju2exsjelepjrM7x901uZPp4Y0WY3lokhpKsfNgt7A553xvcGQM
+	ThF5hRqJRIryfYPxUIzQqbWxXoXEMU3txCuUA=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 26 Sep 2018 17:01:01 +0300
-Message-Id: <20180926140107.10218-4-nikolay@cumulusnetworks.com>
+Date: Wed, 26 Sep 2018 17:01:02 +0300
+Message-Id: <20180926140107.10218-5-nikolay@cumulusnetworks.com>
 In-Reply-To: <20180926140107.10218-1-nikolay@cumulusnetworks.com>
 References: <20180926140107.10218-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v2 3/9] net: bridge: convert nf call
-	options to bits
+Subject: [Bridge] [PATCH net-next v2 4/9] net: bridge: convert
+	group_addr_set option to a bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,163 +24,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, idosch@idosch.org, davem@davemloft.net
 
-No functional change, convert of nf_call_[ip|ip6|arp]tables to bits.
+Convert group_addr_set internal bridge opt to a bit.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Reviewed-by: Stephen Hemminger <stephen@networkplumber.org>
 ---
- net/bridge/br_netfilter_hooks.c |  7 ++++---
- net/bridge/br_netlink.c         | 12 ++++++------
- net/bridge/br_private.h         |  6 +++---
- net/bridge/br_sysfs_br.c        | 12 ++++++------
- 4 files changed, 19 insertions(+), 18 deletions(-)
+ net/bridge/br_netlink.c  | 2 +-
+ net/bridge/br_private.h  | 2 +-
+ net/bridge/br_sysfs_br.c | 2 +-
+ net/bridge/br_vlan.c     | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 6e0dc6bcd32a..e0a3b038d052 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -487,14 +487,15 @@ static unsigned int br_nf_pre_routing(void *priv,
- 	br = p->br;
- 
- 	if (IS_IPV6(skb) || IS_VLAN_IPV6(skb) || IS_PPPOE_IPV6(skb)) {
--		if (!brnf_call_ip6tables && !br->nf_call_ip6tables)
-+		if (!brnf_call_ip6tables &&
-+		    !br_opt_get(br, BROPT_NF_CALL_IP6TABLES))
- 			return NF_ACCEPT;
- 
- 		nf_bridge_pull_encap_header_rcsum(skb);
- 		return br_nf_pre_routing_ipv6(priv, skb, state);
- 	}
- 
--	if (!brnf_call_iptables && !br->nf_call_iptables)
-+	if (!brnf_call_iptables && !br_opt_get(br, BROPT_NF_CALL_IPTABLES))
- 		return NF_ACCEPT;
- 
- 	if (!IS_IP(skb) && !IS_VLAN_IP(skb) && !IS_PPPOE_IP(skb))
-@@ -636,7 +637,7 @@ static unsigned int br_nf_forward_arp(void *priv,
- 		return NF_ACCEPT;
- 	br = p->br;
- 
--	if (!brnf_call_arptables && !br->nf_call_arptables)
-+	if (!brnf_call_arptables && !br_opt_get(br, BROPT_NF_CALL_ARPTABLES))
- 		return NF_ACCEPT;
- 
- 	if (!IS_ARP(skb)) {
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 6a53caff2d31..521893df0c2a 100644
+index 521893df0c2a..b00ccf35c35d 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -1271,19 +1271,19 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 	if (data[IFLA_BR_NF_CALL_IPTABLES]) {
- 		u8 val = nla_get_u8(data[IFLA_BR_NF_CALL_IPTABLES]);
- 
--		br->nf_call_iptables = val ? true : false;
-+		br_opt_toggle(br, BROPT_NF_CALL_IPTABLES, !!val);
+@@ -1139,7 +1139,7 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 		spin_lock_bh(&br->lock);
+ 		memcpy(br->group_addr, new_addr, sizeof(br->group_addr));
+ 		spin_unlock_bh(&br->lock);
+-		br->group_addr_set = true;
++		br_opt_toggle(br, BROPT_GROUP_ADDR_SET, true);
+ 		br_recalculate_fwd_mask(br);
  	}
- 
- 	if (data[IFLA_BR_NF_CALL_IP6TABLES]) {
- 		u8 val = nla_get_u8(data[IFLA_BR_NF_CALL_IP6TABLES]);
- 
--		br->nf_call_ip6tables = val ? true : false;
-+		br_opt_toggle(br, BROPT_NF_CALL_IP6TABLES, !!val);
- 	}
- 
- 	if (data[IFLA_BR_NF_CALL_ARPTABLES]) {
- 		u8 val = nla_get_u8(data[IFLA_BR_NF_CALL_ARPTABLES]);
- 
--		br->nf_call_arptables = val ? true : false;
-+		br_opt_toggle(br, BROPT_NF_CALL_ARPTABLES, !!val);
- 	}
- #endif
- 
-@@ -1470,11 +1470,11 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- #endif
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- 	if (nla_put_u8(skb, IFLA_BR_NF_CALL_IPTABLES,
--		       br->nf_call_iptables ? 1 : 0) ||
-+		       br_opt_get(br, BROPT_NF_CALL_IPTABLES) ? 1 : 0) ||
- 	    nla_put_u8(skb, IFLA_BR_NF_CALL_IP6TABLES,
--		       br->nf_call_ip6tables ? 1 : 0) ||
-+		       br_opt_get(br, BROPT_NF_CALL_IP6TABLES) ? 1 : 0) ||
- 	    nla_put_u8(skb, IFLA_BR_NF_CALL_ARPTABLES,
--		       br->nf_call_arptables ? 1 : 0))
-+		       br_opt_get(br, BROPT_NF_CALL_ARPTABLES) ? 1 : 0))
- 		return -EMSGSIZE;
- #endif
  
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 0abb632283ff..d8eadab09d7d 100644
+index d8eadab09d7d..dda117ce386e 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -309,6 +309,9 @@ static inline struct net_bridge_port *br_port_get_rtnl_rcu(const struct net_devi
- enum net_bridge_opts {
- 	BROPT_VLAN_ENABLED,
- 	BROPT_VLAN_STATS_ENABLED,
-+	BROPT_NF_CALL_IPTABLES,
-+	BROPT_NF_CALL_IP6TABLES,
-+	BROPT_NF_CALL_ARPTABLES,
+@@ -312,6 +312,7 @@ enum net_bridge_opts {
+ 	BROPT_NF_CALL_IPTABLES,
+ 	BROPT_NF_CALL_IP6TABLES,
+ 	BROPT_NF_CALL_ARPTABLES,
++	BROPT_GROUP_ADDR_SET,
  };
  
  struct net_bridge {
-@@ -331,9 +334,6 @@ struct net_bridge {
- 		struct rtable		fake_rtable;
- 		struct rt6_info		fake_rt6_info;
- 	};
--	bool				nf_call_iptables;
--	bool				nf_call_ip6tables;
--	bool				nf_call_arptables;
- #endif
- 	u16				group_fwd_mask;
- 	u16				group_fwd_mask_required;
+@@ -355,7 +356,6 @@ struct net_bridge {
+ 	unsigned long			bridge_ageing_time;
+ 
+ 	u8				group_addr[ETH_ALEN];
+-	bool				group_addr_set;
+ 
+ 	enum {
+ 		BR_NO_STP, 		/* no spanning tree */
 diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 9f1f3866c833..0f8545c94948 100644
+index 0f8545c94948..4c2d56354d89 100644
 --- a/net/bridge/br_sysfs_br.c
 +++ b/net/bridge/br_sysfs_br.c
-@@ -678,12 +678,12 @@ static ssize_t nf_call_iptables_show(
- 	struct device *d, struct device_attribute *attr, char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br->nf_call_iptables);
-+	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IPTABLES));
- }
+@@ -303,7 +303,7 @@ static ssize_t group_addr_store(struct device *d,
+ 	ether_addr_copy(br->group_addr, new_addr);
+ 	spin_unlock_bh(&br->lock);
  
- static int set_nf_call_iptables(struct net_bridge *br, unsigned long val)
- {
--	br->nf_call_iptables = val ? true : false;
-+	br_opt_toggle(br, BROPT_NF_CALL_IPTABLES, !!val);
- 	return 0;
- }
+-	br->group_addr_set = true;
++	br_opt_toggle(br, BROPT_GROUP_ADDR_SET, true);
+ 	br_recalculate_fwd_mask(br);
+ 	netdev_state_change(br->dev);
  
-@@ -699,12 +699,12 @@ static ssize_t nf_call_ip6tables_show(
- 	struct device *d, struct device_attribute *attr, char *buf)
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 61d698bfe2b7..5942e03dd845 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -695,7 +695,7 @@ struct net_bridge_vlan *br_vlan_find(struct net_bridge_vlan_group *vg, u16 vid)
+ /* Must be protected by RTNL. */
+ static void recalculate_group_addr(struct net_bridge *br)
  {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br->nf_call_ip6tables);
-+	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IP6TABLES));
- }
+-	if (br->group_addr_set)
++	if (br_opt_get(br, BROPT_GROUP_ADDR_SET))
+ 		return;
  
- static int set_nf_call_ip6tables(struct net_bridge *br, unsigned long val)
- {
--	br->nf_call_ip6tables = val ? true : false;
-+	br_opt_toggle(br, BROPT_NF_CALL_IP6TABLES, !!val);
- 	return 0;
- }
- 
-@@ -720,12 +720,12 @@ static ssize_t nf_call_arptables_show(
- 	struct device *d, struct device_attribute *attr, char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br->nf_call_arptables);
-+	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_ARPTABLES));
- }
- 
- static int set_nf_call_arptables(struct net_bridge *br, unsigned long val)
- {
--	br->nf_call_arptables = val ? true : false;
-+	br_opt_toggle(br, BROPT_NF_CALL_ARPTABLES, !!val);
- 	return 0;
- }
- 
+ 	spin_lock_bh(&br->lock);
 -- 
 2.11.0
 
