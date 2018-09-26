@@ -1,16 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id;
-	bh=1hP9PM1Tfasb60a4yOWXlbCio1+a97wn57Xaf2i9N4g=;
-	b=hjabEdhxfpR2jE023116z3yDIX0L37yAxP/74n5iezT2dLK+AWPZ9hgPKbrvy3aZgH
-	NBEK8J5sZHOPeRww2CxZ+QMRSZlVOTJyB6S7DAA1y3lbbqO6GnvOFhNDU7Msu/I/Uv/f
-	Us5G91TQ4lnJyTuYKWWYbdaxZM+9UA54gqRV4=
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=9NGYoaKgDdfhUjA7JVUFuRWZ/kI+74mEK4+4Awx4tMk=;
+	b=QaeIXFsNZZ/2oKubECnK4SyqzAi0xoIWbzn1HnoKa0kjNR4S4xSB7s02AsspmMKNzs
+	CRioLPVtcgtIvNllD1znQvDjzwHnrmUmpwluEGvuAMp6cpa/xxuQ0vCPAWYLsqB4JV3x
+	VMzd9mUsQYW2lcIOlxX3G1sBbgzq+AsjV/H/M=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 26 Sep 2018 15:17:53 +0300
-Message-Id: <20180926121802.27851-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next 0/9] net: bridge: convert bool options to
-	bits
+Date: Wed, 26 Sep 2018 15:17:54 +0300
+Message-Id: <20180926121802.27851-2-nikolay@cumulusnetworks.com>
+In-Reply-To: <20180926121802.27851-1-nikolay@cumulusnetworks.com>
+References: <20180926121802.27851-1-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next 1/9] net: bridge: make struct opening
+	bracket consistent
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,60 +24,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Hi,
-A lot of boolean bridge options have been added around the net_bridge
-structure resulting in holes and more importantly different cache lines
-that need to be fetched in the fast path. This set moves all of those
-to bits in a bitfield which resides in a hot cache line thus reducing
-the size of net_bridge, the number of holes and the number of cache
-lines needed for the fast path.
-The set is also sent in preparation for new boolean options to avoid
-spreading them in the structure and making new holes.
-One nice side-effect is that we avoid potential race conditions by using
-the bitops since some of the options were bits being directly set in
-parallel risking hard to debug issues (has_ipv6_addr).
+Currently we have a mix of opening brackets on new lines and on the same
+line, let's move them all on the same line.
 
-Before:
- size: 1184, holes: 8, sum holes: 30
-After:
- size: 1160, holes: 2, sum holes: 3
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_private.h | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-Patch 01 is a trivial style fix
-Patch 02 adds the new options bitfield and converts the vlan boolean
-         options to bits
-Patches 03-08 convert the rest of the boolean options to bits
-Patch 09 re-arranges a few fields in net_bridge to avoid fetching one
-         extra cache line in fast path and to further reduce size
-
-Thanks,
- Nik
-
-
-Nikolay Aleksandrov (9):
-  net: bridge: make struct opening bracket consistent
-  net: bridge: add bitfield for options and convert vlan opts
-  net: bridge: convert nf call options to bits
-  net: bridge: convert group_addr_set option to a bit
-  net: bridge: convert and rename mcast disabled
-  net: bridge: convert mcast options to bits
-  net: bridge: convert neigh_suppress_enabled option to a bit
-  net: bridge: convert mtu_set_by_user to a bit
-  net: bridge: pack net_bridge better
-
- net/bridge/br.c                 | 16 +++++++++
- net/bridge/br_arp_nd_proxy.c    | 13 +++++---
- net/bridge/br_device.c          |  6 ++--
- net/bridge/br_if.c              |  4 +--
- net/bridge/br_input.c           |  2 +-
- net/bridge/br_mdb.c             |  6 ++--
- net/bridge/br_multicast.c       | 54 +++++++++++++++---------------
- net/bridge/br_netfilter_hooks.c |  7 ++--
- net/bridge/br_netlink.c         | 31 +++++++++--------
- net/bridge/br_private.h         | 74 +++++++++++++++++++++++------------------
- net/bridge/br_sysfs_br.c        | 32 +++++++++---------
- net/bridge/br_vlan.c            | 30 +++++++++--------
- 12 files changed, 155 insertions(+), 120 deletions(-)
-
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index d21035a17f4c..522d707cc533 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -54,14 +54,12 @@ typedef struct bridge_id bridge_id;
+ typedef struct mac_addr mac_addr;
+ typedef __u16 port_id;
+ 
+-struct bridge_id
+-{
++struct bridge_id {
+ 	unsigned char	prio[2];
+ 	unsigned char	addr[ETH_ALEN];
+ };
+ 
+-struct mac_addr
+-{
++struct mac_addr {
+ 	unsigned char	addr[ETH_ALEN];
+ };
+ 
+@@ -207,8 +205,7 @@ struct net_bridge_port_group {
+ 	unsigned char			eth_addr[ETH_ALEN];
+ };
+ 
+-struct net_bridge_mdb_entry
+-{
++struct net_bridge_mdb_entry {
+ 	struct hlist_node		hlist[2];
+ 	struct net_bridge		*br;
+ 	struct net_bridge_port_group __rcu *ports;
+@@ -218,8 +215,7 @@ struct net_bridge_mdb_entry
+ 	bool				host_joined;
+ };
+ 
+-struct net_bridge_mdb_htable
+-{
++struct net_bridge_mdb_htable {
+ 	struct hlist_head		*mhash;
+ 	struct rcu_head			rcu;
+ 	struct net_bridge_mdb_htable	*old;
 -- 
 2.11.0
 
