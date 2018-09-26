@@ -2,17 +2,17 @@ Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=2ChPOyWYEpjs32VpmvSHVhLAZOTZnmRRwL5GV37pu+I=;
-	b=fnwh/zO16kmwG8ifRUGpEvv61X0QH+/cSJm2ykmY9c54YtCu99pTGI1XatGpOeUnEP
-	csXib+e/XMseaRVMnmi6ZzIDUrRTlWYRwZ7pJ6FplPVyMUl41w7B6dmaYjyrOYFs2q5z
-	+wNLQRAOHMOEa1c8UGCxZD9Qig5ZjAqQNMAqk=
+	bh=RwHVZVISEFPH4IIptj96VLcBuk9g1dHnh7P+mODqit8=;
+	b=MQSD2xD5DE1uikymq7DyaiZXH16L3980CUeqLHqDjMRs1sWNGa8l5I+/qtTLOP5Ue3
+	7Z8Gfo2RDeTWDyLgMh9XQRJWG6YpVJ98yn4RcEjgp+wJtpAI7Znk60OCmqMKuvFj8Bgr
+	QOevY3U9YiI4HgbRbAQgYTwAHXmv04x306TVo=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 26 Sep 2018 15:17:56 +0300
-Message-Id: <20180926121802.27851-4-nikolay@cumulusnetworks.com>
+Date: Wed, 26 Sep 2018 15:17:58 +0300
+Message-Id: <20180926121802.27851-6-nikolay@cumulusnetworks.com>
 In-Reply-To: <20180926121802.27851-1-nikolay@cumulusnetworks.com>
 References: <20180926121802.27851-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next 3/9] net: bridge: convert nf call options
-	to bits
+Subject: [Bridge] [PATCH net-next 5/9] net: bridge: convert and rename mcast
+	disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,162 +24,221 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-No functional change, convert of nf_call_[ip|ip6|arp]tables to bits.
+Convert mcast disabled to an option bit and while doing so convert the
+logic to check if multicast is enabled instead. That is make the logic
+follow the option value - if it's set then mcast is enabled and vice versa.
+This avoids a few confusing places where we inverted the value that's being
+set to follow the mcast_disabled logic.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_netfilter_hooks.c |  7 ++++---
- net/bridge/br_netlink.c         | 12 ++++++------
- net/bridge/br_private.h         |  6 +++---
- net/bridge/br_sysfs_br.c        | 12 ++++++------
- 4 files changed, 19 insertions(+), 18 deletions(-)
+ net/bridge/br_mdb.c       |  6 +++---
+ net/bridge/br_multicast.c | 32 +++++++++++++++++---------------
+ net/bridge/br_netlink.c   |  3 ++-
+ net/bridge/br_private.h   |  2 +-
+ net/bridge/br_sysfs_br.c  |  2 +-
+ 5 files changed, 24 insertions(+), 21 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 6e0dc6bcd32a..e0a3b038d052 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -487,14 +487,15 @@ static unsigned int br_nf_pre_routing(void *priv,
- 	br = p->br;
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 6d9f48bd374a..a4a848bf827b 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -84,7 +84,7 @@ static int br_mdb_fill_info(struct sk_buff *skb, struct netlink_callback *cb,
+ 	int i, err = 0;
+ 	int idx = 0, s_idx = cb->args[1];
  
- 	if (IS_IPV6(skb) || IS_VLAN_IPV6(skb) || IS_PPPOE_IPV6(skb)) {
--		if (!brnf_call_ip6tables && !br->nf_call_ip6tables)
-+		if (!brnf_call_ip6tables &&
-+		    !br_opt_get(br, BROPT_NF_CALL_IP6TABLES))
- 			return NF_ACCEPT;
+-	if (br->multicast_disabled)
++	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return 0;
  
- 		nf_bridge_pull_encap_header_rcsum(skb);
- 		return br_nf_pre_routing_ipv6(priv, skb, state);
+ 	mdb = rcu_dereference(br->mdb);
+@@ -598,7 +598,7 @@ static int __br_mdb_add(struct net *net, struct net_bridge *br,
+ 	struct net_bridge_port *p;
+ 	int ret;
+ 
+-	if (!netif_running(br->dev) || br->multicast_disabled)
++	if (!netif_running(br->dev) || !br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return -EINVAL;
+ 
+ 	dev = __dev_get_by_index(net, entry->ifindex);
+@@ -673,7 +673,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 	struct br_ip ip;
+ 	int err = -EINVAL;
+ 
+-	if (!netif_running(br->dev) || br->multicast_disabled)
++	if (!netif_running(br->dev) || !br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return -EINVAL;
+ 
+ 	__mdb_entry_to_br_ip(entry, &ip);
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 20ed7adcf1cc..ed6c33adc747 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -158,7 +158,7 @@ struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge *br,
+ 	struct net_bridge_mdb_htable *mdb = rcu_dereference(br->mdb);
+ 	struct br_ip ip;
+ 
+-	if (br->multicast_disabled)
++	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return NULL;
+ 
+ 	if (BR_INPUT_SKB_CB(skb)->igmp)
+@@ -628,7 +628,7 @@ static struct net_bridge_mdb_entry *br_multicast_get_group(
+ 				port ? port->dev->name : br->dev->name);
+ 			err = -E2BIG;
+ disable:
+-			br->multicast_disabled = 1;
++			br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
+ 			goto err;
+ 		}
  	}
+@@ -894,7 +894,7 @@ static void br_multicast_querier_expired(struct net_bridge *br,
+ 					 struct bridge_mcast_own_query *query)
+ {
+ 	spin_lock(&br->multicast_lock);
+-	if (!netif_running(br->dev) || br->multicast_disabled)
++	if (!netif_running(br->dev) || !br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		goto out;
  
--	if (!brnf_call_iptables && !br->nf_call_iptables)
-+	if (!brnf_call_iptables && !br_opt_get(br, BROPT_NF_CALL_IPTABLES))
- 		return NF_ACCEPT;
+ 	br_multicast_start_querier(br, query);
+@@ -965,7 +965,8 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 	struct br_ip br_group;
+ 	unsigned long time;
  
- 	if (!IS_IP(skb) && !IS_VLAN_IP(skb) && !IS_PPPOE_IP(skb))
-@@ -636,7 +637,7 @@ static unsigned int br_nf_forward_arp(void *priv,
- 		return NF_ACCEPT;
- 	br = p->br;
+-	if (!netif_running(br->dev) || br->multicast_disabled ||
++	if (!netif_running(br->dev) ||
++	    !br_opt_get(br, BROPT_MULTICAST_ENABLED) ||
+ 	    !br->multicast_querier)
+ 		return;
  
--	if (!brnf_call_arptables && !br->nf_call_arptables)
-+	if (!brnf_call_arptables && !br_opt_get(br, BROPT_NF_CALL_ARPTABLES))
- 		return NF_ACCEPT;
+@@ -1036,7 +1037,7 @@ static void br_mc_disabled_update(struct net_device *dev, bool value)
+ 		.orig_dev = dev,
+ 		.id = SWITCHDEV_ATTR_ID_BRIDGE_MC_DISABLED,
+ 		.flags = SWITCHDEV_F_DEFER,
+-		.u.mc_disabled = value,
++		.u.mc_disabled = !value,
+ 	};
  
- 	if (!IS_ARP(skb)) {
+ 	switchdev_port_attr_set(dev, &attr);
+@@ -1054,7 +1055,8 @@ int br_multicast_add_port(struct net_bridge_port *port)
+ 	timer_setup(&port->ip6_own_query.timer,
+ 		    br_ip6_multicast_port_query_expired, 0);
+ #endif
+-	br_mc_disabled_update(port->dev, port->br->multicast_disabled);
++	br_mc_disabled_update(port->dev,
++			      br_opt_get(port->br, BROPT_MULTICAST_ENABLED));
+ 
+ 	port->mcast_stats = netdev_alloc_pcpu_stats(struct bridge_mcast_stats);
+ 	if (!port->mcast_stats)
+@@ -1091,7 +1093,7 @@ static void __br_multicast_enable_port(struct net_bridge_port *port)
+ {
+ 	struct net_bridge *br = port->br;
+ 
+-	if (br->multicast_disabled || !netif_running(br->dev))
++	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED) || !netif_running(br->dev))
+ 		return;
+ 
+ 	br_multicast_enable(&port->ip4_own_query);
+@@ -1904,7 +1906,7 @@ int br_multicast_rcv(struct net_bridge *br, struct net_bridge_port *port,
+ 	BR_INPUT_SKB_CB(skb)->igmp = 0;
+ 	BR_INPUT_SKB_CB(skb)->mrouters_only = 0;
+ 
+-	if (br->multicast_disabled)
++	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return 0;
+ 
+ 	switch (skb->protocol) {
+@@ -1998,7 +2000,7 @@ static void __br_multicast_open(struct net_bridge *br,
+ {
+ 	query->startup_sent = 0;
+ 
+-	if (br->multicast_disabled)
++	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return;
+ 
+ 	mod_timer(&query->timer, jiffies);
+@@ -2173,12 +2175,12 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val)
+ 	int err = 0;
+ 
+ 	spin_lock_bh(&br->multicast_lock);
+-	if (br->multicast_disabled == !val)
++	if (!!br_opt_get(br, BROPT_MULTICAST_ENABLED) == !!val)
+ 		goto unlock;
+ 
+-	br_mc_disabled_update(br->dev, !val);
+-	br->multicast_disabled = !val;
+-	if (br->multicast_disabled)
++	br_mc_disabled_update(br->dev, val);
++	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
++	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		goto unlock;
+ 
+ 	if (!netif_running(br->dev))
+@@ -2189,7 +2191,7 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val)
+ 		if (mdb->old) {
+ 			err = -EEXIST;
+ rollback:
+-			br->multicast_disabled = !!val;
++			br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
+ 			goto unlock;
+ 		}
+ 
+@@ -2213,7 +2215,7 @@ bool br_multicast_enabled(const struct net_device *dev)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+ 
+-	return !br->multicast_disabled;
++	return !!br_opt_get(br, BROPT_MULTICAST_ENABLED);
+ }
+ EXPORT_SYMBOL_GPL(br_multicast_enabled);
+ 
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 6a53caff2d31..521893df0c2a 100644
+index b00ccf35c35d..1d276b7b27e0 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -1271,19 +1271,19 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 	if (data[IFLA_BR_NF_CALL_IPTABLES]) {
- 		u8 val = nla_get_u8(data[IFLA_BR_NF_CALL_IPTABLES]);
- 
--		br->nf_call_iptables = val ? true : false;
-+		br_opt_toggle(br, BROPT_NF_CALL_IPTABLES, !!val);
- 	}
- 
- 	if (data[IFLA_BR_NF_CALL_IP6TABLES]) {
- 		u8 val = nla_get_u8(data[IFLA_BR_NF_CALL_IP6TABLES]);
- 
--		br->nf_call_ip6tables = val ? true : false;
-+		br_opt_toggle(br, BROPT_NF_CALL_IP6TABLES, !!val);
- 	}
- 
- 	if (data[IFLA_BR_NF_CALL_ARPTABLES]) {
- 		u8 val = nla_get_u8(data[IFLA_BR_NF_CALL_ARPTABLES]);
- 
--		br->nf_call_arptables = val ? true : false;
-+		br_opt_toggle(br, BROPT_NF_CALL_ARPTABLES, !!val);
- 	}
+@@ -1422,7 +1422,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
  #endif
- 
-@@ -1470,11 +1470,11 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- #endif
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- 	if (nla_put_u8(skb, IFLA_BR_NF_CALL_IPTABLES,
--		       br->nf_call_iptables ? 1 : 0) ||
-+		       br_opt_get(br, BROPT_NF_CALL_IPTABLES) ? 1 : 0) ||
- 	    nla_put_u8(skb, IFLA_BR_NF_CALL_IP6TABLES,
--		       br->nf_call_ip6tables ? 1 : 0) ||
-+		       br_opt_get(br, BROPT_NF_CALL_IP6TABLES) ? 1 : 0) ||
- 	    nla_put_u8(skb, IFLA_BR_NF_CALL_ARPTABLES,
--		       br->nf_call_arptables ? 1 : 0))
-+		       br_opt_get(br, BROPT_NF_CALL_ARPTABLES) ? 1 : 0))
- 		return -EMSGSIZE;
- #endif
- 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	if (nla_put_u8(skb, IFLA_BR_MCAST_ROUTER, br->multicast_router) ||
+-	    nla_put_u8(skb, IFLA_BR_MCAST_SNOOPING, !br->multicast_disabled) ||
++	    nla_put_u8(skb, IFLA_BR_MCAST_SNOOPING,
++		       br_opt_get(br, BROPT_MULTICAST_ENABLED)) ||
+ 	    nla_put_u8(skb, IFLA_BR_MCAST_QUERY_USE_IFADDR,
+ 		       br->multicast_query_use_ifaddr) ||
+ 	    nla_put_u8(skb, IFLA_BR_MCAST_QUERIER, br->multicast_querier) ||
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 0abb632283ff..d8eadab09d7d 100644
+index dda117ce386e..fb1a266cdac8 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -309,6 +309,9 @@ static inline struct net_bridge_port *br_port_get_rtnl_rcu(const struct net_devi
- enum net_bridge_opts {
- 	BROPT_VLAN_ENABLED,
- 	BROPT_VLAN_STATS_ENABLED,
-+	BROPT_NF_CALL_IPTABLES,
-+	BROPT_NF_CALL_IP6TABLES,
-+	BROPT_NF_CALL_ARPTABLES,
+@@ -313,6 +313,7 @@ enum net_bridge_opts {
+ 	BROPT_NF_CALL_IP6TABLES,
+ 	BROPT_NF_CALL_ARPTABLES,
+ 	BROPT_GROUP_ADDR_SET,
++	BROPT_MULTICAST_ENABLED,
  };
  
  struct net_bridge {
-@@ -331,9 +334,6 @@ struct net_bridge {
- 		struct rtable		fake_rtable;
- 		struct rt6_info		fake_rt6_info;
- 	};
--	bool				nf_call_iptables;
--	bool				nf_call_ip6tables;
--	bool				nf_call_arptables;
- #endif
- 	u16				group_fwd_mask;
- 	u16				group_fwd_mask_required;
+@@ -366,7 +367,6 @@ struct net_bridge {
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	unsigned char			multicast_router;
+ 
+-	u8				multicast_disabled:1;
+ 	u8				multicast_querier:1;
+ 	u8				multicast_query_use_ifaddr:1;
+ 	u8				has_ipv6_addr:1;
 diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 9f1f3866c833..0f8545c94948 100644
+index 4c2d56354d89..bf6f409a83e1 100644
 --- a/net/bridge/br_sysfs_br.c
 +++ b/net/bridge/br_sysfs_br.c
-@@ -678,12 +678,12 @@ static ssize_t nf_call_iptables_show(
- 	struct device *d, struct device_attribute *attr, char *buf)
+@@ -349,7 +349,7 @@ static ssize_t multicast_snooping_show(struct device *d,
+ 				       char *buf)
  {
  	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br->nf_call_iptables);
-+	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IPTABLES));
+-	return sprintf(buf, "%d\n", !br->multicast_disabled);
++	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_MULTICAST_ENABLED));
  }
  
- static int set_nf_call_iptables(struct net_bridge *br, unsigned long val)
- {
--	br->nf_call_iptables = val ? true : false;
-+	br_opt_toggle(br, BROPT_NF_CALL_IPTABLES, !!val);
- 	return 0;
- }
- 
-@@ -699,12 +699,12 @@ static ssize_t nf_call_ip6tables_show(
- 	struct device *d, struct device_attribute *attr, char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br->nf_call_ip6tables);
-+	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IP6TABLES));
- }
- 
- static int set_nf_call_ip6tables(struct net_bridge *br, unsigned long val)
- {
--	br->nf_call_ip6tables = val ? true : false;
-+	br_opt_toggle(br, BROPT_NF_CALL_IP6TABLES, !!val);
- 	return 0;
- }
- 
-@@ -720,12 +720,12 @@ static ssize_t nf_call_arptables_show(
- 	struct device *d, struct device_attribute *attr, char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br->nf_call_arptables);
-+	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_ARPTABLES));
- }
- 
- static int set_nf_call_arptables(struct net_bridge *br, unsigned long val)
- {
--	br->nf_call_arptables = val ? true : false;
-+	br_opt_toggle(br, BROPT_NF_CALL_ARPTABLES, !!val);
- 	return 0;
- }
- 
+ static ssize_t multicast_snooping_store(struct device *d,
 -- 
 2.11.0
 
