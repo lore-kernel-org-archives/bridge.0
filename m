@@ -1,17 +1,23 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=jTGQZvEv8jF9ileMzpia+OiGB5i6bwN4n44DTWItOHQ=;
-	b=Yq3gw51oFJXUFeg4Mc4kmkfgO2OraP56mBoOM26bPSMuZ1xnqBji66O8zWPPAzCobo
-	b2OzeDD56u6Gtg7w9iLTcUdb5mrI8Iq/eAPcaNBzN/whCwqurO5VfutZGkK5h335IFKr
-	w0x6F3sBmcRSIfWdR2/fmScJnIRI4F6fDfZg8=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 26 Sep 2018 17:01:07 +0300
-Message-Id: <20180926140107.10218-10-nikolay@cumulusnetworks.com>
-In-Reply-To: <20180926140107.10218-1-nikolay@cumulusnetworks.com>
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=E/46VoLxX17d+IRpKmJKHqGKysj6VwrpW5XmNPjrqyo=;
+	b=Y+lGNe778V5fFrNT6PaYzZYQHSlGWhHf72YeGfgIMHCCeSvJua/bmq11QImz3HGPa4
+	9XitS2zdNI5hotxEHbm0VXaO8ujX42BhVRVUEmfOSM1YXClke4Ovm7XEDGyIXO9WtIBQ
+	/PoATdWMA9opfk2cwPFxakgP33skSCS4y45u0=
 References: <20180926140107.10218-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v2 9/9] net: bridge: pack net_bridge better
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <2ab2aeb3-7667-816c-a1cd-97dbe723db33@cumulusnetworks.com>
+Date: Wed, 26 Sep 2018 17:04:03 +0300
+MIME-Version: 1.0
+In-Reply-To: <20180926140107.10218-1-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v2 0/9] net: bridge: convert bool
+	options to bits
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,58 +27,43 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, idosch@idosch.org, davem@davemloft.net
+Cc: idosch@idosch.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Further reduce the size of net_bridge with 8 bytes and reduce the number of
-holes in it:
- Before: holes: 5, sum holes: 15
- After: holes: 3, sum holes: 7
+On 26/09/18 17:00, Nikolay Aleksandrov wrote:
+> Hi,
+> A lot of boolean bridge options have been added around the net_bridge
+> structure resulting in holes and more importantly different cache lines
+> that need to be fetched in the fast path. This set moves all of those
+> to bits in a bitfield which resides in a hot cache line thus reducing
+> the size of net_bridge, the number of holes and the number of cache
+> lines needed for the fast path.
+> The set is also sent in preparation for new boolean options to avoid
+> spreading them in the structure and making new holes.
+> One nice side-effect is that we avoid potential race conditions by using
+> the bitops since some of the options were bits being directly set in
+> parallel risking hard to debug issues (has_ipv6_addr).
+> 
+> Before:
+>  size: 1184, holes: 8, sum holes: 30
+> After:
+>  size: 1160, holes: 3, sum holes: 7
+> 
+> Patch 01 is a trivial style fix
+> Patch 02 adds the new options bitfield and converts the vlan boolean
+>          options to bits
+> Patches 03-08 convert the rest of the boolean options to bits
+> Patch 09 re-arranges a few fields in net_bridge to further reduce size
+> 
+> v2: patch 09: remove the comment about offload_fwd_mark in net_bridge and
+>     leave it in the last 4 bytes, thanks to Ido for spotting it
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-v2: Remove the comment about offload_fwd_mark in net_bridge and
-    leave it, the change will be for net_bridge_port instead.
-    Thanks to Ido for spotting it.
+And obviously it's not in the last 4 bytes, but that's fine. That
+must've said just: "leave it where it is now".
 
- net/bridge/br_private.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 92d08f8c7dd4..57229b9d800f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -349,7 +349,6 @@ struct net_bridge {
- 	/* STP */
- 	bridge_id			designated_root;
- 	bridge_id			bridge_id;
--	u32				root_path_cost;
- 	unsigned char			topology_change;
- 	unsigned char			topology_change_detected;
- 	u16				root_port;
-@@ -361,6 +360,7 @@ struct net_bridge {
- 	unsigned long			bridge_hello_time;
- 	unsigned long			bridge_forward_delay;
- 	unsigned long			bridge_ageing_time;
-+	u32				root_path_cost;
- 
- 	u8				group_addr[ETH_ALEN];
- 
-@@ -383,6 +383,7 @@ struct net_bridge {
- #if IS_ENABLED(CONFIG_IPV6)
- 	u8				multicast_mld_version;
- #endif
-+	spinlock_t			multicast_lock;
- 	unsigned long			multicast_last_member_interval;
- 	unsigned long			multicast_membership_interval;
- 	unsigned long			multicast_querier_interval;
-@@ -390,7 +391,6 @@ struct net_bridge {
- 	unsigned long			multicast_query_response_interval;
- 	unsigned long			multicast_startup_query_interval;
- 
--	spinlock_t			multicast_lock;
- 	struct net_bridge_mdb_htable __rcu *mdb;
- 	struct hlist_head		router_list;
- 
--- 
-2.11.0
-
+> 
+> Stephen, I've added your reviewed-by in patches 01-08, only removed it
+> from patch 09 as the patch has changed.
+> 
+> Thanks,
+>  Nik
+> 
