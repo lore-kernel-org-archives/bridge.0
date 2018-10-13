@@ -2,18 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=lgK6hcY95x4yqcKIdnmWGrZPMDRISv7KZr5D8JyrZmk=;
-	b=orxZdrQ/KeULlXJI2AvMAoOISSYVXh5FpeoqdroBrIitXrcuhhP8VvD09hy1pSSdksSZ6apxYApQXS5yB8jYbO1zd2+jGvCFSIgVIR7bqKB08pwHBpPplZpupFK4Gs5ncW0U5nwiCIhzTU38ZmiLBoEdIHxj7LoJzw8H9FsBKEA=
+	bh=KV8E6iK0s17v+ZI/KhQWJpzK4Uf/qJi/osweKRs9glg=;
+	b=i91yHPlYqbMm+u1DN39nSJi20sxuBjnzS8XpA9gsnNBVo4TLQ9awYkl3sylInG+iF7OkctOG/yAHTypD+TNiUl5x09LKiIsHRq/J0TMveLaBSGec/Ejz+45RksFrhmzy4lMX9PhQStUOYQRiEkwkoL7QLk4TuZerr2ozWtlU3h0=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Sat, 13 Oct 2018 17:18:40 +0000
-Message-ID: <20181013171725.3261-13-idosch@mellanox.com>
+Date: Sat, 13 Oct 2018 17:18:42 +0000
+Message-ID: <20181013171725.3261-14-idosch@mellanox.com>
 References: <20181013171725.3261-1-idosch@mellanox.com>
 In-Reply-To: <20181013171725.3261-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 12/18] vxlan: Add switchdev notifications
+Subject: [Bridge] [PATCH net-next 13/18] vxlan: Add vxlan_fdb_find_uc() for
+ FDB querying
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,135 +28,90 @@ Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>
 
 From: Petr Machata <petrm@mellanox.com>
 
-When offloading VXLAN devices, drivers need to know about events in
-VXLAN FDB database. Since VXLAN models a bridge, it is natural to
-distribute the VXLAN FDB notifications using the pre-existing switchdev
-notification mechanism.
-
-To that end, introduce two new notification types:
-SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE and SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE.
-Introduce a new function, vxlan_fdb_switchdev_call_notifiers() to send
-the new notifier types, and a struct switchdev_notifier_vxlan_fdb_info
-to communicate the details of the FDB entry under consideration.
-
-Invoke the new function from vxlan_fdb_notify().
+A switchdev-capable driver that is aware of VXLAN may need to query
+VXLAN FDB. In the particular case of mlxsw, this functionality is
+limited to querying UC FDBs. Those being easier to deal with than the
+general case of RDST chain traversal, introduce an interface to query
+specifically UC FDBs: vxlan_fdb_find_uc().
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- drivers/net/vxlan.c     | 46 +++++++++++++++++++++++++++++++++++++++--
- include/net/switchdev.h |  3 +++
- include/net/vxlan.h     | 11 ++++++++++
- 3 files changed, 58 insertions(+), 2 deletions(-)
+ drivers/net/vxlan.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ include/net/vxlan.h | 12 ++++++++++++
+ 2 files changed, 52 insertions(+)
 
 diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 9bfd562aa81c..f8b579648d42 100644
+index f8b579648d42..97c2218569d9 100644
 --- a/drivers/net/vxlan.c
 +++ b/drivers/net/vxlan.c
-@@ -327,8 +327,8 @@ static inline size_t vxlan_nlmsg_size(void)
- 		+ nla_total_size(sizeof(struct nda_cacheinfo));
+@@ -504,6 +504,46 @@ static struct vxlan_rdst *vxlan_fdb_find_rdst(struct v=
+xlan_fdb *f,
+ 	return NULL;
  }
 =20
--static void vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fd=
-b,
--			     struct vxlan_rdst *rd, int type)
-+static void __vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *=
-fdb,
-+			       struct vxlan_rdst *rd, int type)
- {
- 	struct net *net =3D dev_net(vxlan->dev);
- 	struct sk_buff *skb;
-@@ -353,6 +353,48 @@ static void vxlan_fdb_notify(struct vxlan_dev *vxlan, =
-struct vxlan_fdb *fdb,
- 		rtnl_set_sk_err(net, RTNLGRP_NEIGH, err);
- }
-=20
-+static void vxlan_fdb_switchdev_call_notifiers(struct vxlan_dev *vxlan,
-+					       struct vxlan_fdb *fdb,
-+					       struct vxlan_rdst *rd,
-+					       bool adding)
++int vxlan_fdb_find_uc(struct net_device *dev, const u8 *mac, __be32 vni,
++		      struct switchdev_notifier_vxlan_fdb_info *fdb_info)
 +{
-+	struct switchdev_notifier_vxlan_fdb_info info;
-+	enum switchdev_notifier_type notifier_type;
++	struct vxlan_dev *vxlan =3D netdev_priv(dev);
++	u8 eth_addr[ETH_ALEN + 2] =3D { 0 };
++	struct vxlan_rdst *rdst;
++	struct vxlan_fdb *f;
++	int rc =3D 0;
 +
-+	if (WARN_ON(!rd))
-+		return;
++	if (is_multicast_ether_addr(mac) ||
++	    is_zero_ether_addr(mac))
++		return -EINVAL;
 +
-+	notifier_type =3D adding ? SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE
-+			       : SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE;
++	ether_addr_copy(eth_addr, mac);
 +
-+	info =3D (struct switchdev_notifier_vxlan_fdb_info){
-+		.remote_ip =3D rd->remote_ip,
-+		.remote_port =3D rd->remote_port,
-+		.remote_vni =3D rd->remote_vni,
-+		.remote_ifindex =3D rd->remote_ifindex,
-+		.vni =3D fdb->vni,
-+	};
-+	memcpy(info.eth_addr, fdb->eth_addr, ETH_ALEN);
++	rcu_read_lock();
 +
-+	call_switchdev_notifiers(notifier_type, vxlan->dev,
-+				 &info.info);
-+}
-+
-+static void vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fd=
-b,
-+			     struct vxlan_rdst *rd, int type)
-+{
-+	switch (type) {
-+	case RTM_NEWNEIGH:
-+		vxlan_fdb_switchdev_call_notifiers(vxlan, fdb, rd, true);
-+		break;
-+	case RTM_DELNEIGH:
-+		vxlan_fdb_switchdev_call_notifiers(vxlan, fdb, rd, false);
-+		break;
++	f =3D __vxlan_find_mac(vxlan, eth_addr, vni);
++	if (!f) {
++		rc =3D -ENOENT;
++		goto out;
 +	}
 +
-+	__vxlan_fdb_notify(vxlan, fdb, rd, type);
++	rdst =3D first_remote_rcu(f);
++
++	memset(fdb_info, 0, sizeof(*fdb_info));
++	fdb_info->info.dev =3D dev;
++	fdb_info->remote_ip =3D rdst->remote_ip;
++	fdb_info->remote_port =3D rdst->remote_port;
++	fdb_info->remote_vni =3D rdst->remote_vni;
++	fdb_info->remote_ifindex =3D rdst->remote_ifindex;
++	fdb_info->vni =3D vni;
++	ether_addr_copy(fdb_info->eth_addr, mac);
++
++out:
++	rcu_read_unlock();
++	return rc;
 +}
++EXPORT_SYMBOL_GPL(vxlan_fdb_find_uc);
 +
- static void vxlan_ip_miss(struct net_device *dev, union vxlan_addr *ipa)
- {
- 	struct vxlan_dev *vxlan =3D netdev_priv(dev);
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index d574ce63bf22..47199a11c586 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -145,6 +145,9 @@ enum switchdev_notifier_type {
- 	SWITCHDEV_FDB_ADD_TO_DEVICE,
- 	SWITCHDEV_FDB_DEL_TO_DEVICE,
- 	SWITCHDEV_FDB_OFFLOADED,
-+
-+	SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE,
-+	SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE,
- };
-=20
- struct switchdev_notifier_info {
+ /* Replace destination of unicast mac */
+ static int vxlan_fdb_replace(struct vxlan_fdb *f,
+ 			     union vxlan_addr *ip, __be16 port, __be32 vni,
 diff --git a/include/net/vxlan.h b/include/net/vxlan.h
-index dd3d72ce64b6..a82b735decbc 100644
+index a82b735decbc..798ba5019f4e 100644
 --- a/include/net/vxlan.h
 +++ b/include/net/vxlan.h
-@@ -5,6 +5,7 @@
- #include <linux/if_vlan.h>
- #include <net/udp_tunnel.h>
- #include <net/dst_metadata.h>
-+#include <net/switchdev.h>
+@@ -413,4 +413,16 @@ struct switchdev_notifier_vxlan_fdb_info {
+ 	__be32 vni;
+ };
 =20
- /* VXLAN protocol (RFC 7348) header:
-  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-@@ -402,4 +403,14 @@ static inline bool vxlan_addr_multicast(const union vx=
-lan_addr *ipa)
-=20
- #endif /* IS_ENABLED(CONFIG_IPV6) */
-=20
-+struct switchdev_notifier_vxlan_fdb_info {
-+	struct switchdev_notifier_info info; /* must be first */
-+	union vxlan_addr remote_ip;
-+	__be16 remote_port;
-+	__be32 remote_vni;
-+	u32 remote_ifindex;
-+	u8 eth_addr[ETH_ALEN];
-+	__be32 vni;
-+};
++#if IS_ENABLED(CONFIG_VXLAN)
++int vxlan_fdb_find_uc(struct net_device *dev, const u8 *mac, __be32 vni,
++		      struct switchdev_notifier_vxlan_fdb_info *fdb_info);
++#else
++static inline int
++vxlan_fdb_find_uc(struct net_device *dev, const u8 *mac, __be32 vni,
++		  struct switchdev_notifier_vxlan_fdb_info *fdb_info)
++{
++	return -ENOENT;
++}
++#endif
 +
  #endif
 --=20
