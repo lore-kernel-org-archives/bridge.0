@@ -2,18 +2,18 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=+cAJT30s79rwrRdCawr263WbIC1EO48FBpksOa85nOM=;
-	b=WsTCn46hQD+u8ZQmsNOTsm5ccW3HqjQK/5grJ+bunI4DN9xu1R0hhNuqm0BpP6HnK6k8qwLyYbWQtujNx23TywlBaFUDY9kOHCWkmLmcUaoqaYKGBehPQ4TvNkyQJxLuUwz+0JfqoZ31wBE7XMMip93XNiMZR+CLsSeN5yh15aA=
+	bh=lgK6hcY95x4yqcKIdnmWGrZPMDRISv7KZr5D8JyrZmk=;
+	b=orxZdrQ/KeULlXJI2AvMAoOISSYVXh5FpeoqdroBrIitXrcuhhP8VvD09hy1pSSdksSZ6apxYApQXS5yB8jYbO1zd2+jGvCFSIgVIR7bqKB08pwHBpPplZpupFK4Gs5ncW0U5nwiCIhzTU38ZmiLBoEdIHxj7LoJzw8H9FsBKEA=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Sat, 13 Oct 2018 17:18:38 +0000
-Message-ID: <20181013171725.3261-12-idosch@mellanox.com>
+Date: Sat, 13 Oct 2018 17:18:40 +0000
+Message-ID: <20181013171725.3261-13-idosch@mellanox.com>
 References: <20181013171725.3261-1-idosch@mellanox.com>
 In-Reply-To: <20181013171725.3261-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 11/18] vxlan: Add netif_is_vxlan()
+Subject: [Bridge] [PATCH net-next 12/18] vxlan: Add switchdev notifications
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,77 +25,139 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, mlxsw <mlxsw@mellanox.com>, Ido Schimmel <idosch@mellanox.com>, "vivien.didelot@savoirfairelinux.com" <vivien.didelot@savoirfairelinux.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Add the ability to determine whether a netdev is a VxLAN netdev by
-calling the above mentioned function that checks the netdev's private
-flags.
+From: Petr Machata <petrm@mellanox.com>
 
-This will allow modules to identify netdev events involving a VxLAN
-netdev and act accordingly. For example, drivers capable of VxLAN
-offload will need to configure the underlying device when a VxLAN netdev
-is being enslaved to an offloaded bridge.
+When offloading VXLAN devices, drivers need to know about events in
+VXLAN FDB database. Since VXLAN models a bridge, it is natural to
+distribute the VXLAN FDB notifications using the pre-existing switchdev
+notification mechanism.
 
+To that end, introduce two new notification types:
+SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE and SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE.
+Introduce a new function, vxlan_fdb_switchdev_call_notifiers() to send
+the new notifier types, and a struct switchdev_notifier_vxlan_fdb_info
+to communicate the details of the FDB entry under consideration.
+
+Invoke the new function from vxlan_fdb_notify().
+
+Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Petr Machata <petrm@mellanox.com>
 ---
- drivers/net/vxlan.c       | 1 +
- include/linux/netdevice.h | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/net/vxlan.c     | 46 +++++++++++++++++++++++++++++++++++++++--
+ include/net/switchdev.h |  3 +++
+ include/net/vxlan.h     | 11 ++++++++++
+ 3 files changed, 58 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index a646aa8e98ff..9bfd562aa81c 100644
+index 9bfd562aa81c..f8b579648d42 100644
 --- a/drivers/net/vxlan.c
 +++ b/drivers/net/vxlan.c
-@@ -3178,6 +3178,7 @@ static int __vxlan_dev_create(struct net *net, struct=
- net_device *dev,
- 	if (err)
- 		return err;
-=20
-+	dev->priv_flags |=3D IFF_VXLAN;
- 	dev->ethtool_ops =3D &vxlan_ethtool_ops;
-=20
- 	/* create an fdb entry for a valid default destination */
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 22e4ef7bb701..290083ff285a 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1487,6 +1487,7 @@ struct net_device_ops {
-  * @IFF_NO_RX_HANDLER: device doesn't support the rx_handler hook
-  * @IFF_FAILOVER: device is a failover master device
-  * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
-+ * @IFF_VXLAN: device is a VxLAN device
-  */
- enum netdev_priv_flags {
- 	IFF_802_1Q_VLAN			=3D 1<<0,
-@@ -1518,6 +1519,7 @@ enum netdev_priv_flags {
- 	IFF_NO_RX_HANDLER		=3D 1<<26,
- 	IFF_FAILOVER			=3D 1<<27,
- 	IFF_FAILOVER_SLAVE		=3D 1<<28,
-+	IFF_VXLAN			=3D 1<<29,
- };
-=20
- #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
-@@ -1548,6 +1550,7 @@ enum netdev_priv_flags {
- #define IFF_NO_RX_HANDLER		IFF_NO_RX_HANDLER
- #define IFF_FAILOVER			IFF_FAILOVER
- #define IFF_FAILOVER_SLAVE		IFF_FAILOVER_SLAVE
-+#define IFF_VXLAN			IFF_VXLAN
-=20
- /**
-  *	struct net_device - The DEVICE structure.
-@@ -4567,6 +4570,11 @@ static inline bool netif_is_failover_slave(const str=
-uct net_device *dev)
- 	return dev->priv_flags & IFF_FAILOVER_SLAVE;
+@@ -327,8 +327,8 @@ static inline size_t vxlan_nlmsg_size(void)
+ 		+ nla_total_size(sizeof(struct nda_cacheinfo));
  }
 =20
-+static inline bool netif_is_vxlan(const struct net_device *dev)
+-static void vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fd=
+b,
+-			     struct vxlan_rdst *rd, int type)
++static void __vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *=
+fdb,
++			       struct vxlan_rdst *rd, int type)
+ {
+ 	struct net *net =3D dev_net(vxlan->dev);
+ 	struct sk_buff *skb;
+@@ -353,6 +353,48 @@ static void vxlan_fdb_notify(struct vxlan_dev *vxlan, =
+struct vxlan_fdb *fdb,
+ 		rtnl_set_sk_err(net, RTNLGRP_NEIGH, err);
+ }
+=20
++static void vxlan_fdb_switchdev_call_notifiers(struct vxlan_dev *vxlan,
++					       struct vxlan_fdb *fdb,
++					       struct vxlan_rdst *rd,
++					       bool adding)
 +{
-+	return dev->priv_flags & IFF_VXLAN;
++	struct switchdev_notifier_vxlan_fdb_info info;
++	enum switchdev_notifier_type notifier_type;
++
++	if (WARN_ON(!rd))
++		return;
++
++	notifier_type =3D adding ? SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE
++			       : SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE;
++
++	info =3D (struct switchdev_notifier_vxlan_fdb_info){
++		.remote_ip =3D rd->remote_ip,
++		.remote_port =3D rd->remote_port,
++		.remote_vni =3D rd->remote_vni,
++		.remote_ifindex =3D rd->remote_ifindex,
++		.vni =3D fdb->vni,
++	};
++	memcpy(info.eth_addr, fdb->eth_addr, ETH_ALEN);
++
++	call_switchdev_notifiers(notifier_type, vxlan->dev,
++				 &info.info);
 +}
 +
- /* This device needs to keep skb dst for qdisc enqueue or ndo_start_xmit()=
- */
- static inline void netif_keep_dst(struct net_device *dev)
++static void vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fd=
+b,
++			     struct vxlan_rdst *rd, int type)
++{
++	switch (type) {
++	case RTM_NEWNEIGH:
++		vxlan_fdb_switchdev_call_notifiers(vxlan, fdb, rd, true);
++		break;
++	case RTM_DELNEIGH:
++		vxlan_fdb_switchdev_call_notifiers(vxlan, fdb, rd, false);
++		break;
++	}
++
++	__vxlan_fdb_notify(vxlan, fdb, rd, type);
++}
++
+ static void vxlan_ip_miss(struct net_device *dev, union vxlan_addr *ipa)
  {
+ 	struct vxlan_dev *vxlan =3D netdev_priv(dev);
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index d574ce63bf22..47199a11c586 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -145,6 +145,9 @@ enum switchdev_notifier_type {
+ 	SWITCHDEV_FDB_ADD_TO_DEVICE,
+ 	SWITCHDEV_FDB_DEL_TO_DEVICE,
+ 	SWITCHDEV_FDB_OFFLOADED,
++
++	SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE,
++	SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE,
+ };
+=20
+ struct switchdev_notifier_info {
+diff --git a/include/net/vxlan.h b/include/net/vxlan.h
+index dd3d72ce64b6..a82b735decbc 100644
+--- a/include/net/vxlan.h
++++ b/include/net/vxlan.h
+@@ -5,6 +5,7 @@
+ #include <linux/if_vlan.h>
+ #include <net/udp_tunnel.h>
+ #include <net/dst_metadata.h>
++#include <net/switchdev.h>
+=20
+ /* VXLAN protocol (RFC 7348) header:
+  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+@@ -402,4 +403,14 @@ static inline bool vxlan_addr_multicast(const union vx=
+lan_addr *ipa)
+=20
+ #endif /* IS_ENABLED(CONFIG_IPV6) */
+=20
++struct switchdev_notifier_vxlan_fdb_info {
++	struct switchdev_notifier_info info; /* must be first */
++	union vxlan_addr remote_ip;
++	__be16 remote_port;
++	__be32 remote_vni;
++	u32 remote_ifindex;
++	u8 eth_addr[ETH_ALEN];
++	__be32 vni;
++};
++
+ #endif
 --=20
 2.17.2
 
