@@ -1,8 +1,22 @@
-Return-Path: <lirongqing@baidu.com>
-From: Li RongQing <lirongqing@baidu.com>
-Date: Sun, 14 Oct 2018 11:21:45 +0800
-Message-Id: <1539487305-12761-1-git-send-email-lirongqing@baidu.com>
-Subject: [Bridge] [PATCH] net: bridge: fix a memory leak in __vlan_add
+Return-Path: <roy.qing.li@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+	:cc; bh=eNyvm9ybJG4bGP25meSwbRH0zRcK+Xe/2oSjY4Ej7Fs=;
+	b=tFmjUubj8ElnIQaOj1vuSHa5A7hmMddxiZTZYPi5YL8IO+AYHMJt7s9KsK6byV1WqO
+	XuHHyKUbWHunbjODumOmJKpiV1UCUCdZIwsq4BgXew/1sxklJW6ILYpi9ggz8TS0Rvvx
+	GF46BDaddxZIIOTcFP3zxKh/u78uZJlh6KH5pQhKGw71hBR6iNruBWUOhtx/bmPLzNF7
+	hT8Aca1wlmCvci7vGTZEg441YqdlEtV1PqlLK/+dauhb8ilKxootLp+znceIL8sEpxLN
+	zIQN+SSpJW6Apmq6gKEy0gw8K0wdr1XpubGoYRaWP0/MKvE+ypRaE6iF3N+/uWOFxj7H
+	bplw==
+MIME-Version: 1.0
+References: <1539487305-12761-1-git-send-email-lirongqing@baidu.com>
+	<2badfb2b-0a50-4d18-cdb4-d894b4ef7bec@cumulusnetworks.com>
+In-Reply-To: <2badfb2b-0a50-4d18-cdb4-d894b4ef7bec@cumulusnetworks.com>
+From: Li RongQing <roy.qing.li@gmail.com>
+Date: Mon, 15 Oct 2018 16:31:05 +0800
+Message-ID: <CAJFZqHznOMCyBWPd68LiF3gVM8-Y81_iydzVXj43KxG=wEANBA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [PATCH] net: bridge: fix a memory leak in __vlan_add
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -11,35 +25,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: nikolay@cumulusnetworks.com
+Cc: netdev <netdev@vger.kernel.org>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, Li RongQing <lirongqing@baidu.com>
 
-After per-port vlan stats, vlan stats should be released
-when fail to add vlan
+> >
+>
+> Hi,
+> Good catch, but the patch doesn't fix the bug entirely. The problem is that masterv can be
+> created just for this vlan and the br_vlan_put_master() above can free it, so we can
+> check a pointer that's not really up-to-date (and thus again leak memory).
+> You should move the new code above the br_vlan_put_master() call.
+>
+> Also please tag the proper branch, this is for net-next, and CC all bridge
+> maintainers (added Roopa).
+>
 
-Fixes: 9163a0fc1f0c0 ("net: bridge: add support for per-port vlan stats")
-cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
----
- net/bridge/br_vlan.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Ok, thanks, I will send v2
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 9b707234e4ae..e08e269041dd 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -305,6 +305,10 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags)
- 		if (masterv) {
- 			br_vlan_put_master(masterv);
- 			v->brvlan = NULL;
-+
-+			if (masterv->stats != v->stats && v->stats)
-+				free_percpu(v->stats);
-+			v->stats = NULL;
- 		}
- 	} else {
- 		br_switchdev_port_vlan_del(dev, v->vid);
--- 
-2.16.2
+-RongQing
 
+
+> Thank you,
+>  Nik
