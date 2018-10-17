@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=BRFb8W+EgtjBqbaULYGJfki6BdLlUMN6Y0g3p+CHuIo=;
-	b=k6495JlcTAf2K2XxgGZrYYHGkukFT+UTclUwKEoMddUswWsma57NsTtzHuj12tFrbIaxUd6+bF4nK78fR4nHjACiIDjBnqQd1FsNJUrIYrcX0h+qTFssa7RUoN1EFFL0tD7BoUfCNyMvU1+FakwSF9DSE2iZW6blDECqBTPAzG4=
+	bh=2Nsx0lSZQMTD0O+cNixDw9AM88a77cSzfHl8kWvlios=;
+	b=EjGrTtpl04T30L+wKhNtL698reUhXBZ7nLdiagAMAF/d3Pv5mZLj8yLmnockAYzcoTtvmxW22i4vjidJeTxpNHfWlu2K/gSjUe9V8JKAFX5gNnG3mVndT2NwLgmu8zO8MjcpXPGXYjs6f5bL/eT85rMKDerIWb1gNn2ydjZIiTc=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 17 Oct 2018 08:53:08 +0000
-Message-ID: <20181017085215.26607-5-idosch@mellanox.com>
+Date: Wed, 17 Oct 2018 08:53:10 +0000
+Message-ID: <20181017085215.26607-6-idosch@mellanox.com>
 References: <20181017085215.26607-1-idosch@mellanox.com>
 In-Reply-To: <20181017085215.26607-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 04/18] mlxsw: spectrum_router: Allow
- querying VR ID based on table ID
+Subject: [Bridge] [PATCH net-next v2 05/18] vxlan: Export address checking
+	functions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,66 +26,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, Ido Schimmel <idosch@mellanox.com>, "vivien.didelot@savoirfairelinux.com" <vivien.didelot@savoirfairelinux.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Jiri Pirko <jiri@mellanox.com>, mlxsw <mlxsw@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-In the device, different VRFs (routing tables) are represented using
-different virtual routers (VRs) and thus the kernel's table IDs are
-mapped to VR IDs.
+Drivers that support VxLAN offload need to be able to sanitize the
+configuration of the VxLAN device and accept / reject its offload.
 
-Allow internal users of the IP router to query the VR ID based on a
-kernel table ID.
+For example, mlxsw requires that the local IP of the VxLAN device be set
+and that packets be flooded to unicast IP(s) and not to a multicast
+group.
 
-This is needed - for example - when configuring the underlay VR where
-VxLAN encapsulated packets will undergo an L3 lookup. In this case, the
-kernel's table ID is derived from the VxLAN device's configuration.
+Expose the functions that perform such checks.
 
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Reviewed-by: Petr Machata <petrm@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.h      |  2 ++
- .../net/ethernet/mellanox/mlxsw/spectrum_router.c   | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/net/vxlan.c | 26 --------------------------
+ include/net/vxlan.h | 32 ++++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/e=
-thernet/mellanox/mlxsw/spectrum.h
-index 739a62d024c9..d0a73935e8bb 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-@@ -438,6 +438,8 @@ int mlxsw_sp_router_nve_promote_decap(struct mlxsw_sp *=
-mlxsw_sp, u32 ul_tb_id,
- void mlxsw_sp_router_nve_demote_decap(struct mlxsw_sp *mlxsw_sp, u32 ul_tb=
-_id,
- 				      enum mlxsw_sp_l3proto ul_proto,
- 				      const union mlxsw_sp_l3addr *ul_sip);
-+int mlxsw_sp_router_tb_id_vr_id(struct mlxsw_sp *mlxsw_sp, u32 tb_id,
-+				u16 *vr_id);
-=20
- /* spectrum_kvdl.c */
- enum mlxsw_sp_kvdl_entry_type {
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/driver=
-s/net/ethernet/mellanox/mlxsw/spectrum_router.c
-index ca4289d15561..31b5491d6737 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -742,6 +742,19 @@ static struct mlxsw_sp_vr *mlxsw_sp_vr_find(struct mlx=
-sw_sp *mlxsw_sp,
- 	return NULL;
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 018406c4d944..0fc2b1d82d4c 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -103,22 +103,6 @@ bool vxlan_addr_equal(const union vxlan_addr *a, const=
+ union vxlan_addr *b)
+ 		return a->sin.sin_addr.s_addr =3D=3D b->sin.sin_addr.s_addr;
  }
 =20
-+int mlxsw_sp_router_tb_id_vr_id(struct mlxsw_sp *mlxsw_sp, u32 tb_id,
-+				u16 *vr_id)
+-static inline bool vxlan_addr_any(const union vxlan_addr *ipa)
+-{
+-	if (ipa->sa.sa_family =3D=3D AF_INET6)
+-		return ipv6_addr_any(&ipa->sin6.sin6_addr);
+-	else
+-		return ipa->sin.sin_addr.s_addr =3D=3D htonl(INADDR_ANY);
+-}
+-
+-static inline bool vxlan_addr_multicast(const union vxlan_addr *ipa)
+-{
+-	if (ipa->sa.sa_family =3D=3D AF_INET6)
+-		return ipv6_addr_is_multicast(&ipa->sin6.sin6_addr);
+-	else
+-		return IN_MULTICAST(ntohl(ipa->sin.sin_addr.s_addr));
+-}
+-
+ static int vxlan_nla_get_addr(union vxlan_addr *ip, struct nlattr *nla)
+ {
+ 	if (nla_len(nla) >=3D sizeof(struct in6_addr)) {
+@@ -151,16 +135,6 @@ bool vxlan_addr_equal(const union vxlan_addr *a, const=
+ union vxlan_addr *b)
+ 	return a->sin.sin_addr.s_addr =3D=3D b->sin.sin_addr.s_addr;
+ }
+=20
+-static inline bool vxlan_addr_any(const union vxlan_addr *ipa)
+-{
+-	return ipa->sin.sin_addr.s_addr =3D=3D htonl(INADDR_ANY);
+-}
+-
+-static inline bool vxlan_addr_multicast(const union vxlan_addr *ipa)
+-{
+-	return IN_MULTICAST(ntohl(ipa->sin.sin_addr.s_addr));
+-}
+-
+ static int vxlan_nla_get_addr(union vxlan_addr *ip, struct nlattr *nla)
+ {
+ 	if (nla_len(nla) >=3D sizeof(struct in6_addr)) {
+diff --git a/include/net/vxlan.h b/include/net/vxlan.h
+index 7ef15179f263..dd3d72ce64b6 100644
+--- a/include/net/vxlan.h
++++ b/include/net/vxlan.h
+@@ -370,4 +370,36 @@ static inline unsigned short vxlan_get_sk_family(struc=
+t vxlan_sock *vs)
+ 	return vs->sock->sk->sk_family;
+ }
+=20
++#if IS_ENABLED(CONFIG_IPV6)
++
++static inline bool vxlan_addr_any(const union vxlan_addr *ipa)
 +{
-+	struct mlxsw_sp_vr *vr;
-+
-+	vr =3D mlxsw_sp_vr_find(mlxsw_sp, tb_id);
-+	if (!vr)
-+		return -ESRCH;
-+	*vr_id =3D vr->id;
-+
-+	return 0;
++	if (ipa->sa.sa_family =3D=3D AF_INET6)
++		return ipv6_addr_any(&ipa->sin6.sin6_addr);
++	else
++		return ipa->sin.sin_addr.s_addr =3D=3D htonl(INADDR_ANY);
 +}
 +
- static struct mlxsw_sp_fib *mlxsw_sp_vr_fib(const struct mlxsw_sp_vr *vr,
- 					    enum mlxsw_sp_l3proto proto)
- {
++static inline bool vxlan_addr_multicast(const union vxlan_addr *ipa)
++{
++	if (ipa->sa.sa_family =3D=3D AF_INET6)
++		return ipv6_addr_is_multicast(&ipa->sin6.sin6_addr);
++	else
++		return IN_MULTICAST(ntohl(ipa->sin.sin_addr.s_addr));
++}
++
++#else /* !IS_ENABLED(CONFIG_IPV6) */
++
++static inline bool vxlan_addr_any(const union vxlan_addr *ipa)
++{
++	return ipa->sin.sin_addr.s_addr =3D=3D htonl(INADDR_ANY);
++}
++
++static inline bool vxlan_addr_multicast(const union vxlan_addr *ipa)
++{
++	return IN_MULTICAST(ntohl(ipa->sin.sin_addr.s_addr));
++}
++
++#endif /* IS_ENABLED(CONFIG_IPV6) */
++
+ #endif
 --=20
 2.17.2
 
