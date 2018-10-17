@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=v7DIcjsivyPNW/o35VTCR9PvcSPdlUzBVgzZAPs2JuU=;
-	b=jHUM/PlEzrj1IvXHSopb417sT0AkQ/Bq4433LZi54O0bRPDAOK4+fFIRCF+Y89Hnwvx5U1UVJ25+lcSz+33GnoptUETyRWjKOn8gadqMegg+uwvruPH/LaP/jn9fWJmNQkZMjbW+iadrac24vueN4AFNDMlie91CaFXHBcga6w4=
+	bh=BRFb8W+EgtjBqbaULYGJfki6BdLlUMN6Y0g3p+CHuIo=;
+	b=k6495JlcTAf2K2XxgGZrYYHGkukFT+UTclUwKEoMddUswWsma57NsTtzHuj12tFrbIaxUd6+bF4nK78fR4nHjACiIDjBnqQd1FsNJUrIYrcX0h+qTFssa7RUoN1EFFL0tD7BoUfCNyMvU1+FakwSF9DSE2iZW6blDECqBTPAzG4=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 17 Oct 2018 08:53:12 +0000
-Message-ID: <20181017085215.26607-7-idosch@mellanox.com>
+Date: Wed, 17 Oct 2018 08:53:08 +0000
+Message-ID: <20181017085215.26607-5-idosch@mellanox.com>
 References: <20181017085215.26607-1-idosch@mellanox.com>
 In-Reply-To: <20181017085215.26607-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 06/18] inet: Refactor
-	INET_ECN_decapsulate()
+Subject: [Bridge] [PATCH net-next v2 04/18] mlxsw: spectrum_router: Allow
+ querying VR ID based on table ID
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,66 +26,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, Ido Schimmel <idosch@mellanox.com>, "vivien.didelot@savoirfairelinux.com" <vivien.didelot@savoirfairelinux.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Jiri Pirko <jiri@mellanox.com>, mlxsw <mlxsw@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Drivers that support tunnel decapsulation (IPinIP or NVE) need to
-configure the underlying device to conform to the behavior outlined in
-RFC 6040 with respect to the ECN bits.
+In the device, different VRFs (routing tables) are represented using
+different virtual routers (VRs) and thus the kernel's table IDs are
+mapped to VR IDs.
 
-This behavior is implemented by INET_ECN_decapsulate() which requires an
-skb to be passed where the ECN CE bit can be potentially set. Since
-these drivers do not need to mark an skb, but only configure the device
-to do so, factor out the business logic to __INET_ECN_decapsulate() and
-potentially perform the marking in INET_ECN_decapsulate().
+Allow internal users of the IP router to query the VR ID based on a
+kernel table ID.
 
-This allows drivers to invoke __INET_ECN_decapsulate() and configure the
-device.
+This is needed - for example - when configuring the underlay VR where
+VxLAN encapsulated packets will undergo an L3 lookup. In this case, the
+kernel's table ID is derived from the VxLAN device's configuration.
 
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Suggested-by: Petr Machata <petrm@mellanox.com>
 Reviewed-by: Petr Machata <petrm@mellanox.com>
 ---
- include/net/inet_ecn.h | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.h      |  2 ++
+ .../net/ethernet/mellanox/mlxsw/spectrum_router.c   | 13 +++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/include/net/inet_ecn.h b/include/net/inet_ecn.h
-index 482a1b705362..c8e2bebd8d93 100644
---- a/include/net/inet_ecn.h
-+++ b/include/net/inet_ecn.h
-@@ -183,8 +183,7 @@ static inline int INET_ECN_set_ce(struct sk_buff *skb)
-  *          1 if something is broken and should be logged (!!! above)
-  *          2 if packet should be dropped
-  */
--static inline int INET_ECN_decapsulate(struct sk_buff *skb,
--				       __u8 outer, __u8 inner)
-+static inline int __INET_ECN_decapsulate(__u8 outer, __u8 inner, bool *set=
-_ce)
- {
- 	if (INET_ECN_is_not_ect(inner)) {
- 		switch (outer & INET_ECN_MASK) {
-@@ -198,10 +197,21 @@ static inline int INET_ECN_decapsulate(struct sk_buff=
- *skb,
- 		}
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/e=
+thernet/mellanox/mlxsw/spectrum.h
+index 739a62d024c9..d0a73935e8bb 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
+@@ -438,6 +438,8 @@ int mlxsw_sp_router_nve_promote_decap(struct mlxsw_sp *=
+mlxsw_sp, u32 ul_tb_id,
+ void mlxsw_sp_router_nve_demote_decap(struct mlxsw_sp *mlxsw_sp, u32 ul_tb=
+_id,
+ 				      enum mlxsw_sp_l3proto ul_proto,
+ 				      const union mlxsw_sp_l3addr *ul_sip);
++int mlxsw_sp_router_tb_id_vr_id(struct mlxsw_sp *mlxsw_sp, u32 tb_id,
++				u16 *vr_id);
 =20
--	if (INET_ECN_is_ce(outer))
-+	*set_ce =3D INET_ECN_is_ce(outer);
+ /* spectrum_kvdl.c */
+ enum mlxsw_sp_kvdl_entry_type {
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/driver=
+s/net/ethernet/mellanox/mlxsw/spectrum_router.c
+index ca4289d15561..31b5491d6737 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -742,6 +742,19 @@ static struct mlxsw_sp_vr *mlxsw_sp_vr_find(struct mlx=
+sw_sp *mlxsw_sp,
+ 	return NULL;
+ }
+=20
++int mlxsw_sp_router_tb_id_vr_id(struct mlxsw_sp *mlxsw_sp, u32 tb_id,
++				u16 *vr_id)
++{
++	struct mlxsw_sp_vr *vr;
++
++	vr =3D mlxsw_sp_vr_find(mlxsw_sp, tb_id);
++	if (!vr)
++		return -ESRCH;
++	*vr_id =3D vr->id;
++
 +	return 0;
 +}
 +
-+static inline int INET_ECN_decapsulate(struct sk_buff *skb,
-+				       __u8 outer, __u8 inner)
-+{
-+	bool set_ce =3D false;
-+	int rc;
-+
-+	rc =3D __INET_ECN_decapsulate(outer, inner, &set_ce);
-+	if (!rc && set_ce)
- 		INET_ECN_set_ce(skb);
-=20
--	return 0;
-+	return rc;
- }
-=20
- static inline int IP_ECN_decapsulate(const struct iphdr *oiph,
+ static struct mlxsw_sp_fib *mlxsw_sp_vr_fib(const struct mlxsw_sp_vr *vr,
+ 					    enum mlxsw_sp_l3proto proto)
+ {
 --=20
 2.17.2
 
