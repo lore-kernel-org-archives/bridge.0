@@ -1,14 +1,17 @@
-Return-Path: <davem@davemloft.net>
-Date: Mon, 15 Oct 2018 22:55:32 -0700 (PDT)
-Message-Id: <20181015.225532.1743728392191294083.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1539601231-32755-1-git-send-email-lirongqing@baidu.com>
-References: <1539601231-32755-1-git-send-email-lirongqing@baidu.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH][net-next][v2] net: bridge: fix a possible
- memory leak in __vlan_add
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=ZS1BFvB/c30Q8frSSnRwkshMF3vQtLlFNSLIzM4GMp8=;
+	b=Qb+4MgHsEtlMprr+UC+rUdrIg3vFq6/O3Uq2oGIuJc3J6P/YScJh3ymjG4+CLrL7YUhSHqpOQg0RyhxLEVNa6K9h5HQJrw04Ab4FmJW8QV0UshmKEEU0F3v/qQr3wMwtb3nNNclU9E+mx3DqKdmk+VhsxsXQg9ISFyyzbRcmJxg=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Wed, 17 Oct 2018 08:53:02 +0000
+Message-ID: <20181017085215.26607-1-idosch@mellanox.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net-next v2 00/18] mlxsw: Add VxLAN support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,20 +20,97 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: lirongqing@baidu.com
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, Ido Schimmel <idosch@mellanox.com>, "vivien.didelot@savoirfairelinux.com" <vivien.didelot@savoirfairelinux.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Jiri Pirko <jiri@mellanox.com>, mlxsw <mlxsw@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-From: Li RongQing <lirongqing@baidu.com>
-Date: Mon, 15 Oct 2018 19:00:31 +0800
+This patchset adds support for VxLAN offload in the mlxsw driver.
 
-> After per-port vlan stats, vlan stats should be released
-> when fail to add vlan
-> 
-> Fixes: 9163a0fc1f0c0 ("net: bridge: add support for per-port vlan stats")
-> CC: bridge@lists.linux-foundation.org
-> cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+With regards to the forwarding plane, VxLAN support is composed from two
+main parts: Encapsulation and decapsulation.
 
-Applied.
+In the device, NVE encapsulation (and VxLAN in particular) takes place
+in the bridge. A packet can be encapsulated using VxLAN either because
+it hit an FDB entry that forwards it to the router with the IP of the
+remote VTEP or because it was flooded, in which case it is sent to a
+list of remote VTEPs (in addition to local ports). In either case, the
+VNI is derived from the filtering identifier (FID) the packet was
+classified to at ingress and the underlay source IP is taken from a
+device global configuration.
+
+VxLAN decapsulation takes place in the underlay router, where packets
+that hit a local route that corresponds to the source IP of the local
+VTEP are decapsulated and injected to the bridge. The packets are
+classified to a FID based on the VNI they came with.
+
+The first six patches export the required APIs in the VxLAN and mlxsw
+drivers in order to allow for the introduction of the NVE core in the
+next two patches. The NVE core is designed to support a variety of NVE
+encapsulations (e.g., VxLAN, NVGRE) and different ASICs, but currently
+only VxLAN and Spectrum are supported. Spectrum-2 support will be added
+in the future.
+
+The last 10 patches add support for VxLAN decapsulation and
+encapsulation and include the addition of the required switchdev APIs in
+the VxLAN driver. These APIs allow capable drivers to get a notification
+about the addition / deletion of FDB entries to / from the VxLAN's FDB.
+
+Subsequent patchset will add selftests (generic and mlxsw-specific),
+data plane learning, FDB extack and vetoing and support for VLAN-aware
+bridges (one VNI per VxLAN device model).
+
+v2:
+* Implement netif_is_vxlan() using rtnl_link_ops->kind (Jakub & Stephen)
+
+Ido Schimmel (14):
+  mlxsw: spectrum_fid: Allow setting and clearing NVE properties on FID
+  mlxsw: spectrum_fid: Add APIs to lookup FID without creating it
+  mlxsw: spectrum_router: Enable local routes promotion to perform NVE
+    decap
+  mlxsw: spectrum_router: Allow querying VR ID based on table ID
+  vxlan: Export address checking functions
+  inet: Refactor INET_ECN_decapsulate()
+  mlxsw: spectrum_nve: Implement common NVE core
+  mlxsw: spectrum_nve: Implement VxLAN operations
+  mlxsw: spectrum_fid: Clear NVE configuration when destroying 802.1D
+    FIDs
+  mlxsw: spectrum_router: Configure matching local routes for NVE decap
+  net: Add netif_is_vxlan()
+  bridge: switchdev: Allow clearing FDB entry offload indication
+  mlxsw: spectrum: Enable VxLAN enslavement to bridges
+  mlxsw: spectrum_switchdev: Add support for VxLAN encapsulation
+
+Petr Machata (4):
+  vxlan: Add switchdev notifications
+  vxlan: Add vxlan_fdb_find_uc() for FDB querying
+  vxlan: Support marking RDSTs as offloaded
+  vxlan: Notify for each remote of a removed FDB entry
+
+ drivers/net/ethernet/mellanox/mlxsw/Makefile  |   3 +-
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 125 +++
+ .../net/ethernet/mellanox/mlxsw/spectrum.h    |  89 ++
+ .../ethernet/mellanox/mlxsw/spectrum_fid.c    | 225 +++-
+ .../ethernet/mellanox/mlxsw/spectrum_nve.c    | 982 ++++++++++++++++++
+ .../ethernet/mellanox/mlxsw/spectrum_nve.h    |  49 +
+ .../mellanox/mlxsw/spectrum_nve_vxlan.c       | 249 +++++
+ .../ethernet/mellanox/mlxsw/spectrum_router.c | 138 ++-
+ .../mellanox/mlxsw/spectrum_switchdev.c       | 552 +++++++++-
+ .../netronome/nfp/flower/tunnel_conf.c        |   3 +-
+ drivers/net/ethernet/rocker/rocker_main.c     |   1 +
+ drivers/net/vxlan.c                           | 176 +++-
+ include/net/inet_ecn.h                        |  18 +-
+ include/net/switchdev.h                       |   7 +-
+ include/net/vxlan.h                           |  64 ++
+ net/bridge/br.c                               |   4 +-
+ net/bridge/br_fdb.c                           |   4 +-
+ net/bridge/br_private.h                       |   2 +-
+ net/bridge/br_switchdev.c                     |   9 +-
+ net/dsa/slave.c                               |   1 +
+ 20 files changed, 2644 insertions(+), 57 deletions(-)
+ create mode 100644 drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c
+ create mode 100644 drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.h
+ create mode 100644 drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.=
+c
+
+--=20
+2.17.2
+
