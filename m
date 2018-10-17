@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=HjXqsdacpNJiCLbkIDl7eQB0BYRMd6KN27az6p8IUHI=;
-	b=c/WJ/QyBh4IAJO0GwShazaF1uI6TuCesOVA3eT5qHcDqIfMJ7cYHECX92kqEri5fHN0+AkC7ZMCeLbLbH3IsbmfSz5haGlHAO3Xcqd7ZxU+3DPNRABh70Qxg9YvoV/dtwQmAUDIEt4dZWcMppLr8tCNGwY5TFIYgI507j4TcaI4=
+	bh=g9U/5ZfOe8KYUnIBvDCF+/BXcUbZP9vuwhQhOB4bErI=;
+	b=wrzsySF4GtEOZJ1zG8WjLNRGAhZyExpLCQCeHLTggDaEqQ9NAPYr2h7V4NlTnCaUAEQZyAAQ8joWp8v0YyIaGXHaZMD+h+zIciYyN4UtQijkmZHJkq7RBT4QKfOtQyeDeBaXGnLnIeZKqdlSdaArXq0zSaqh2/xCNoHfLVUYpdc=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 17 Oct 2018 08:53:17 +0000
-Message-ID: <20181017085215.26607-10-idosch@mellanox.com>
+Date: Wed, 17 Oct 2018 08:53:19 +0000
+Message-ID: <20181017085215.26607-11-idosch@mellanox.com>
 References: <20181017085215.26607-1-idosch@mellanox.com>
 In-Reply-To: <20181017085215.26607-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 09/18] mlxsw: spectrum_fid: Clear NVE
- configuration when destroying 802.1D FIDs
+Subject: [Bridge] [PATCH net-next v2 10/18] mlxsw: spectrum_router:
+ Configure matching local routes for NVE decap
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,37 +26,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, Ido Schimmel <idosch@mellanox.com>, "vivien.didelot@savoirfairelinux.com" <vivien.didelot@savoirfairelinux.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Jiri Pirko <jiri@mellanox.com>, mlxsw <mlxsw@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-802.1D FIDs are used to represent VLAN-unaware bridges and currently
-this is the only type of FID that supports NVE configuration.
+When a local route that matches the source IP of an offloaded NVE tunnel
+is notified, the driver needs to program it to perform NVE decapsulation
+instead of merely trapping packets to the CPU.
 
-Since the NVE tunnel device does not take a reference on the FID, it is
-possible for the FID to be destroyed when it still has NVE
-configuration.
-
-Therefore, when destroying the FID make sure to disable its NVE
-configuration.
+This patch complements "mlxsw: spectrum_router: Enable local routes
+promotion to perform NVE decap" where existing local routes were
+promoted to perform NVE decapsulation.
 
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Reviewed-by: Petr Machata <petrm@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c b/drivers/n=
-et/ethernet/mellanox/mlxsw/spectrum_fid.c
-index 0ba3d90d4632..a3db033d7399 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c
-@@ -538,6 +538,8 @@ static int mlxsw_sp_fid_8021d_configure(struct mlxsw_sp=
-_fid *fid)
-=20
- static void mlxsw_sp_fid_8021d_deconfigure(struct mlxsw_sp_fid *fid)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/driver=
+s/net/ethernet/mellanox/mlxsw/spectrum_router.c
+index 31b5491d6737..9e9bb57134f2 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -4247,6 +4247,7 @@ mlxsw_sp_fib4_entry_type_set(struct mlxsw_sp *mlxsw_s=
+p,
+ 			     struct mlxsw_sp_fib_entry *fib_entry)
  {
-+	if (fid->vni_valid)
-+		mlxsw_sp_nve_fid_disable(fid->fid_family->mlxsw_sp, fid);
- 	mlxsw_sp_fid_op(fid->fid_family->mlxsw_sp, fid->fid_index, 0, false);
- }
-=20
+ 	union mlxsw_sp_l3addr dip =3D { .addr4 =3D htonl(fen_info->dst) };
++	u32 tb_id =3D mlxsw_sp_fix_tb_id(fen_info->tb_id);
+ 	struct net_device *dev =3D fen_info->fi->fib_dev;
+ 	struct mlxsw_sp_ipip_entry *ipip_entry;
+ 	struct fib_info *fi =3D fen_info->fi;
+@@ -4261,6 +4262,15 @@ mlxsw_sp_fib4_entry_type_set(struct mlxsw_sp *mlxsw_=
+sp,
+ 							     fib_entry,
+ 							     ipip_entry);
+ 		}
++		if (mlxsw_sp_nve_ipv4_route_is_decap(mlxsw_sp, tb_id,
++						     dip.addr4)) {
++			u32 t_index;
++
++			t_index =3D mlxsw_sp_nve_decap_tunnel_index_get(mlxsw_sp);
++			fib_entry->decap.tunnel_index =3D t_index;
++			fib_entry->type =3D MLXSW_SP_FIB_ENTRY_TYPE_NVE_DECAP;
++			return 0;
++		}
+ 		/* fall through */
+ 	case RTN_BROADCAST:
+ 		fib_entry->type =3D MLXSW_SP_FIB_ENTRY_TYPE_TRAP;
 --=20
 2.17.2
 
