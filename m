@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=bg2xY6P9COZ8UGafdIO44WyT+PaouP37RoEJWa+VdxE=;
-	b=Q7fmyRrOGxXgemSLp28nQddBHX6+6lu98xRE7ZQW5SuVKeG/sq6LPhxCVJn5vLRLpZKCGN5MZD3Y5/KskQphQjeLR4Q9tMK7dlxCu2DcAW2okvcvdKbcWMbSrALZJVc9qv/OY62fXZbBzmOrvunb8/Gkw6G6E8w7LwixkKfUrRw=
+	bh=7c4Jy2fpwGaqQqpbPeuwA6d0DHSPNDTG/EnTKlQNTU8=;
+	b=kPCmYbtIBdG5MtCWsVMcCRc8GqEcS4h6OVO89MDS5zZIQjNlAGWD0Bk7Q9XdMmunMJ3ohzyIy/wtiSBm5qbrfEAU+PHRsmZeXFJdjztphDtgqDpeMNXtOjlFBxi5asV4aYhvrUqjfQsnQaDgYeRorIjnS7yNCrPW815PyDFqtf4=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 17 Oct 2018 08:53:26 +0000
-Message-ID: <20181017085215.26607-15-idosch@mellanox.com>
+Date: Wed, 17 Oct 2018 08:53:27 +0000
+Message-ID: <20181017085215.26607-16-idosch@mellanox.com>
 References: <20181017085215.26607-1-idosch@mellanox.com>
 In-Reply-To: <20181017085215.26607-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 14/18] vxlan: Support marking RDSTs as
-	offloaded
+Subject: [Bridge] [PATCH net-next v2 15/18] vxlan: Notify for each remote of
+ a removed FDB entry
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,181 +28,42 @@ Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>
 
 From: Petr Machata <petrm@mellanox.com>
 
-Offloaded bridge FDB entries are marked with NTF_OFFLOADED. Implement a
-similar mechanism for VXLAN, where a given remote destination can be
-marked as offloaded.
+When notifications are sent about FDB activity, and an FDB entry with
+several remotes is removed, the notification is sent only for the first
+destination. That makes it impossible to distinguish between the case
+where only this first remote is removed, and the one where the FDB entry
+is removed as a whole.
 
-To that end, introduce a new event, SWITCHDEV_VXLAN_FDB_OFFLOADED,
-through which the marking is communicated to the vxlan driver. To
-identify which RDST should be marked as offloaded, an
-switchdev_notifier_vxlan_fdb_info is passed to the listeners. The
-"offloaded" flag in that object determines whether the offloaded mark
-should be set or cleared.
-
-When sending offloaded FDB entries over netlink, mark them with
-NTF_OFFLOADED.
+Therefore send one notification for each remote of a removed FDB entry.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- drivers/net/vxlan.c     | 59 ++++++++++++++++++++++++++++++++++++++++-
- include/net/switchdev.h |  1 +
- include/net/vxlan.h     |  2 ++
- 3 files changed, 61 insertions(+), 1 deletion(-)
+ drivers/net/vxlan.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 410eee23c50c..e98fc54379f8 100644
+index e98fc54379f8..1d74f90d6f5d 100644
 --- a/drivers/net/vxlan.c
 +++ b/drivers/net/vxlan.c
-@@ -272,6 +272,8 @@ static int vxlan_fdb_info(struct sk_buff *skb, struct v=
-xlan_dev *vxlan,
- 	ndm->ndm_state =3D fdb->state;
- 	ndm->ndm_ifindex =3D vxlan->dev->ifindex;
- 	ndm->ndm_flags =3D fdb->flags;
-+	if (rdst->offloaded)
-+		ndm->ndm_flags |=3D NTF_OFFLOADED;
- 	ndm->ndm_type =3D RTN_UNICAST;
-=20
- 	if (!net_eq(dev_net(vxlan->dev), vxlan->net) &&
-@@ -373,6 +375,7 @@ static void vxlan_fdb_switchdev_call_notifiers(struct v=
-xlan_dev *vxlan,
- 		.remote_vni =3D rd->remote_vni,
- 		.remote_ifindex =3D rd->remote_ifindex,
- 		.vni =3D fdb->vni,
-+		.offloaded =3D rd->offloaded,
- 	};
- 	memcpy(info.eth_addr, fdb->eth_addr, ETH_ALEN);
-=20
-@@ -536,6 +539,7 @@ int vxlan_fdb_find_uc(struct net_device *dev, const u8 =
-*mac, __be32 vni,
- 	fdb_info->remote_vni =3D rdst->remote_vni;
- 	fdb_info->remote_ifindex =3D rdst->remote_ifindex;
- 	fdb_info->vni =3D vni;
-+	fdb_info->offloaded =3D rdst->offloaded;
- 	ether_addr_copy(fdb_info->eth_addr, mac);
-=20
- out:
-@@ -589,6 +593,7 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
-=20
- 	rd->remote_ip =3D *ip;
- 	rd->remote_port =3D port;
-+	rd->offloaded =3D false;
- 	rd->remote_vni =3D vni;
- 	rd->remote_ifindex =3D ifindex;
-=20
-@@ -3817,6 +3822,51 @@ static struct notifier_block vxlan_notifier_block __=
-read_mostly =3D {
- 	.notifier_call =3D vxlan_netdevice_event,
- };
-=20
-+static void
-+vxlan_fdb_offloaded_set(struct net_device *dev,
-+			struct switchdev_notifier_vxlan_fdb_info *fdb_info)
-+{
-+	struct vxlan_dev *vxlan =3D netdev_priv(dev);
-+	struct vxlan_rdst *rdst;
-+	struct vxlan_fdb *f;
-+
-+	spin_lock_bh(&vxlan->hash_lock);
-+
-+	f =3D vxlan_find_mac(vxlan, fdb_info->eth_addr, fdb_info->vni);
-+	if (!f)
-+		goto out;
-+
-+	rdst =3D vxlan_fdb_find_rdst(f, &fdb_info->remote_ip,
-+				   fdb_info->remote_port,
-+				   fdb_info->remote_vni,
-+				   fdb_info->remote_ifindex);
-+	if (!rdst)
-+		goto out;
-+
-+	rdst->offloaded =3D fdb_info->offloaded;
-+
-+out:
-+	spin_unlock_bh(&vxlan->hash_lock);
-+}
-+
-+static int vxlan_switchdev_event(struct notifier_block *unused,
-+				 unsigned long event, void *ptr)
-+{
-+	struct net_device *dev =3D switchdev_notifier_info_to_dev(ptr);
-+
-+	switch (event) {
-+	case SWITCHDEV_VXLAN_FDB_OFFLOADED:
-+		vxlan_fdb_offloaded_set(dev, ptr);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct notifier_block vxlan_switchdev_notifier_block __read_mostly =
-=3D {
-+	.notifier_call =3D vxlan_switchdev_event,
-+};
-+
- static __net_init int vxlan_init_net(struct net *net)
+@@ -843,12 +843,15 @@ static void vxlan_fdb_free(struct rcu_head *head)
+ static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f=
+,
+ 			      bool do_notify)
  {
- 	struct vxlan_net *vn =3D net_generic(net, vxlan_net_id);
-@@ -3890,11 +3940,17 @@ static int __init vxlan_init_module(void)
- 	if (rc)
- 		goto out2;
-=20
--	rc =3D rtnl_link_register(&vxlan_link_ops);
-+	rc =3D register_switchdev_notifier(&vxlan_switchdev_notifier_block);
- 	if (rc)
- 		goto out3;
-=20
-+	rc =3D rtnl_link_register(&vxlan_link_ops);
-+	if (rc)
-+		goto out4;
++	struct vxlan_rdst *rd;
 +
- 	return 0;
-+out4:
-+	unregister_switchdev_notifier(&vxlan_switchdev_notifier_block);
- out3:
- 	unregister_netdevice_notifier(&vxlan_notifier_block);
- out2:
-@@ -3907,6 +3963,7 @@ late_initcall(vxlan_init_module);
- static void __exit vxlan_cleanup_module(void)
- {
- 	rtnl_link_unregister(&vxlan_link_ops);
-+	unregister_switchdev_notifier(&vxlan_switchdev_notifier_block);
- 	unregister_netdevice_notifier(&vxlan_notifier_block);
- 	unregister_pernet_subsys(&vxlan_net_ops);
- 	/* rcu_barrier() is called by netns */
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 47199a11c586..b040f82351ba 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -148,6 +148,7 @@ enum switchdev_notifier_type {
+ 	netdev_dbg(vxlan->dev,
+ 		    "delete %pM\n", f->eth_addr);
 =20
- 	SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE,
- 	SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE,
-+	SWITCHDEV_VXLAN_FDB_OFFLOADED,
- };
+ 	--vxlan->addrcnt;
+ 	if (do_notify)
+-		vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_DELNEIGH);
++		list_for_each_entry(rd, &f->remotes, list)
++			vxlan_fdb_notify(vxlan, f, rd, RTM_DELNEIGH);
 =20
- struct switchdev_notifier_info {
-diff --git a/include/net/vxlan.h b/include/net/vxlan.h
-index 1828d686ac4f..03431c148e16 100644
---- a/include/net/vxlan.h
-+++ b/include/net/vxlan.h
-@@ -192,6 +192,7 @@ union vxlan_addr {
- struct vxlan_rdst {
- 	union vxlan_addr	 remote_ip;
- 	__be16			 remote_port;
-+	u8			 offloaded:1;
- 	__be32			 remote_vni;
- 	u32			 remote_ifindex;
- 	struct list_head	 list;
-@@ -418,6 +419,7 @@ struct switchdev_notifier_vxlan_fdb_info {
- 	u32 remote_ifindex;
- 	u8 eth_addr[ETH_ALEN];
- 	__be32 vni;
-+	bool offloaded;
- };
-=20
- #if IS_ENABLED(CONFIG_VXLAN)
+ 	hlist_del_rcu(&f->hlist);
+ 	call_rcu(&f->rcu, vxlan_fdb_free);
 --=20
 2.17.2
 
