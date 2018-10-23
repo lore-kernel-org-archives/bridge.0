@@ -1,25 +1,19 @@
-Return-Path: <jakub.kicinski@netronome.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=netronome-com.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:organization:mime-version:content-transfer-encoding;
-	bh=O6Ge4yGJKWS95FYndIP08xQ5nvzJWpBTo6RIqEdMKBM=;
-	b=XNMQsEJBpeKArcFOZADv3b8Y7UqxEk6s5OHPU2aO5XdX3ZGfV36Twe9Y5CePLMkWmF
-	bOh5UtwsAPce12MIWPEKJTaQTmbupIw83qRblN9YPA4XttSDOgTUe7m8brtmIaSwyxZM
-	pV+TcTBouxjLXGuT4bv8GjBoW5w2NC0RZS917qE0XBntpSZbLUBcQWs94qeorhPjBNXO
-	yCPhfgZzljdQaFXVNygzg4pdGCFt1By6lwBwc9aaVlY5ySf1kJXi+7tYE+egjhQ7E74g
-	zEVUcdacPfhRsex7iut6Yxno4FC81iBRzWOWCd1IMaH2mT39CoOWZ8gXCtOfeLfmvzMN
-	ma9w==
-Date: Wed, 17 Oct 2018 09:58:17 -0700
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
-Message-ID: <20181017095817.6465d543@cakuba.netronome.com>
-In-Reply-To: <20181017085215.26607-12-idosch@mellanox.com>
-References: <20181017085215.26607-1-idosch@mellanox.com>
-	<20181017085215.26607-12-idosch@mellanox.com>
+Return-Path: <soohoon@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:from:date:message-id:subject:to;
+	bh=WjKsdQD8xTd+3+WJpqGwV1jnC6A/32W8nLjyKOfIDSY=;
+	b=fmx87J2iFahEZVfM88wXcEnHeRLhbspbj5b3zMgkq9Vdb+VnJcdbAIT4Au/b0m9xd7
+	PJSlqrI02ntO20Wc2j3yooAZDuh8YE1FA5L9O/yTUuvqsSPWt0jxKBq+2+TuXoszcQig
+	Qkb94f7X/b2xxHeuWYU1+Rvb6L+DZyM1KlZ6lp+XUB8+ExA4YsNdmZnITLl2LULg0VdC
+	XkVJoRc8ItVYorRP6j6feVxetN8AfxSIuFpaJSX0EZ9AoVrMYr9VqK01hm4pcvhb0iiD
+	WzmfNEGzakRGE14Ej0XfS99stP+itvvDaUHQp0ibm1dL2fI3TepQNIbg1M20LGHFyrHJ
+	qfNQ==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 11/18] net: Add netif_is_vxlan()
+From: Soohoon Lee <soohoon@gmail.com>
+Date: Tue, 23 Oct 2018 10:22:24 -0500
+Message-ID: <CABkmPjTsn31GSE7MPFzsKcQLGTYJk2KmDr_0uvK_q4+wvwtdxQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: [Bridge] !vlan_enabled but programs pvid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,24 +22,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@mellanox.com>
-Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, mlxsw <mlxsw@mellanox.com>, "vivien.didelot@savoirfairelinux.com" <vivien.didelot@savoirfairelinux.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-On Wed, 17 Oct 2018 08:53:20 +0000, Ido Schimmel wrote:
-> Add the ability to determine whether a netdev is a VxLAN netdev by
-> calling the above mentioned function that checks the netdev's
-> rtnl_link_ops.
-> 
-> This will allow modules to identify netdev events involving a VxLAN
-> netdev and act accordingly. For example, drivers capable of VxLAN
-> offload will need to configure the underlying device when a VxLAN netdev
-> is being enslaved to an offloaded bridge.
-> 
-> Convert nfp to use the newly introduced helper.
-> 
-> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-> Reviewed-by: Petr Machata <petrm@mellanox.com>
+Hi, I'm a bridge newbie.
 
-Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+I found that vlan_enabled is 0 by default but the bridge still
+programs PVID and it rejects adding interface if programming PVID
+fails.
 
-Thanks!
+I got this symptom since CentOS/RHEL 7.4 and this change is making the
+difference.
+
+br_vlan.c:
+> -           if (p && p->br->vlan_enabled)) {
+> +          if (p) {
+                      err = vlan_vid_add(dev, br->vlan_proto, vid);
+
+more details about the environment is
+
+AWS m4.xlarge with ixgbevf.
+ixgbevf failed in this function when it tries to program PVID.
+
+drivers/net/ethernet/intel/ixgbevf/vf.c:
+ static s32 ixgbevf_set_vfta_vf(struct ixgbe_hw *hw, u32 vlan, u32 vind,
+...
+        err = ixgbevf_write_msg_read_ack(hw, msgbuf, msgbuf,
+                                         sizeof(msgbuf) / sizeof(u32));
+...
+        if (msgbuf[0] != (IXGBE_VF_SET_VLAN | IXGBE_VT_MSGTYPE_ACK))
+
+the msbuf has NACK in it.
+
+What would be a good fix for this?
+
+Thanks
+Soohoon
