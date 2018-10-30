@@ -1,15 +1,22 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 28 Oct 2018 19:18:41 -0700 (PDT)
-Message-Id: <20181028.191841.1871716142000939243.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20181027090747.22104-1-nikolay@cumulusnetworks.com>
-References: <90c5f2fe-1743-6b17-2e44-eba58cdbbb35@cumulusnetworks.com>
-	<20181027090747.22104-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: remove ipv6 zero address
- check in mcast queries
+Return-Path: <dan.carpenter@oracle.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+	h=date : from : to : cc
+	: subject : message-id : mime-version : content-type; s=corp-2018-07-02;
+	bh=dD0yPmRhok8e0J2c8KMx/MVQyZPCrbH9e0tn9dfy+wk=;
+	b=OzoHBrhgPLfiOuD2UxIQSjQw4WssXlskip1HoY3T9+1egmFqDFeR3uFdszMgmWMxexcV
+	n9y5Dl22Bd+Py9/DRTSmntml5Cxx1C5Lo4IBgmJM/ypZZGXvSgKtjg427Wenbvw4gi+D
+	funef+r9ckO/kiV7Sg0feftKWPczqxfTBBpKg5Pz7XdHF+kBmigvBvsA8ttYi1aqEj9c
+	L8N3Hwz77Bd7vrlBSVRVNA5YhFBNETTTzjkvLfzKia5ShBkHamRn+xrFM9nP+tgD+evO
+	0884bYa4pLYZrWEIe1GY/IeOF8sJERTAMpbgW6rf1+adxsajsW8jOeZUkgXdhEQgRp12
+	Tg== 
+Date: Tue, 30 Oct 2018 12:18:28 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Message-ID: <20181030091828.4i5x354yigemnfmo@kili.mountain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [bug report] net: bridge: add support for raw sysfs port
+	options
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,28 +26,35 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, yinxu@redhat.com, liuhangbin@gmail.com
+Cc: bridge@lists.linux-foundation.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat, 27 Oct 2018 12:07:47 +0300
+Hello Nikolay Aleksandrov,
 
-> Recently a check was added which prevents marking of routers with zero
-> source address, but for IPv6 that cannot happen as the relevant RFCs
-> actually forbid such packets:
-> RFC 2710 (MLDv1):
-> "To be valid, the Query message MUST
->  come from a link-local IPv6 Source Address, be at least 24 octets
->  long, and have a correct MLD checksum."
-> 
-> Same goes for RFC 3810.
-> 
-> And also it can be seen as a requirement in ipv6_mc_check_mld_query()
-> which is used by the bridge to validate the message before processing
-> it. Thus any queries with :: source address won't be processed anyway.
-> So just remove the check for zero IPv6 source address from the query
-> processing function.
-> 
-> Fixes: 5a2de63fd1a5 ("bridge: do not add port to router list when receives query with source 0.0.0.0")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+This is a semi-automatic email about new static checker warnings.
 
-Applied.
+The patch a5f3ea54f3cc: "net: bridge: add support for raw sysfs port 
+options" from Jul 23, 2018, leads to the following Smatch complaint:
+
+    net/bridge/br_sysfs_if.c:323 brport_store()
+     warn: variable dereferenced before check 'p->dev' (see line 317)
+
+net/bridge/br_sysfs_if.c
+   316	
+   317		if (!ns_capable(dev_net(p->dev)->user_ns, CAP_NET_ADMIN))
+                                        ^^^^^^
+Dereferenced here.
+
+   318			return -EPERM;
+   319	
+   320		if (!rtnl_trylock())
+   321			return restart_syscall();
+   322	
+   323		if (!p->dev || !p->br)
+                    ^^^^^^^
+Hopefully this can't happen?
+
+   324			goto out_unlock;
+   325	
+
+regards,
+dan carpenter
