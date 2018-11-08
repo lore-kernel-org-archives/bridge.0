@@ -1,22 +1,22 @@
 Return-Path: <mirq-linux@rere.qmqm.pl>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-	t=1541719026; bh=Z+HNaM5fXyVuKUciR7QSnLsdYJK4FdXmDw4Sv4STP4I=;
+	t=1541719028; bh=3wDeYD4VmsoLNLbqsekb+klJ4WktHlfpxdIiUmnFndM=;
 	h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-	b=IouwOZhEURVgmCgVYXMvjKvX41KQpKfCuBLDv8+wUi7LGkRb1rO0kRGHPj4VkshZn
-	eO1OS6l9+6qUiMxhh54jPLRqCs1mdpvjDKlwe/0O2EccRABJoYKY8On+omibR2I8/H
-	0zWYokVTsV0FUps3v6GZNza/8h1HYwteulzOOVMIX8mLlHTnohbfJg8pPzU3SHh7cn
-	LHl7paCWDDbIfE7I7oCoWvnfB4cP3g4d5ycQqu4ELenfYJVHC6BZ45KZMoQ/LbrndW
-	GR3YOeOTXPeJsFtdX1EnCxlMKd/lDOLiISOZL3b5gieUdMfVQDVubUU7EEK9dn81Fe
-	k/61gM58lIi1g==
-Date: Fri, 09 Nov 2018 00:18:04 +0100
-Message-Id: <d379d69c6b5a1079b13ff69c1efb17599dbdac94.1541718583.git.mirq-linux@rere.qmqm.pl>
+	b=ReYwzfr38BuwpsfvT9Y+jXF9rErvgKxPev1TppuzV1RRcaDqiq0vyeVeSJINJY0v0
+	35Z/ZHRXy6EGiVt5Hwa9tFu2+19CAZhz3lYTzQUQHq+56txZ7B31iuSqXiFzlw7Sm7
+	+GO3PHuz9vbA9CFsP2iqt0JDuuJbOpBUXskbjGUS4rio5Iaj4OO0wuPW1amJnlrVfE
+	42YfkbHFm/Agq4mgok+Km4BrDV9RyFi0gCLAO7lLuLS/G22h4L6IsALZB3H/mOSh3n
+	HLBZceoVKMtZISQCDtWhKFvwn/dYdI1rJcNrJOpp5Nlk1nwO8ZDaP4NOLjYbxbmZ1i
+	AoCyxK59OTR2g==
+Date: Fri, 09 Nov 2018 00:18:06 +0100
+Message-Id: <c929ec8c95554502038c34fc2045b04dbe49057b.1541718583.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1541718583.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1541718583.git.mirq-linux@rere.qmqm.pl>
 From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 7/9] benet: use __vlan_hwaccel helpers
+Subject: [Bridge] [PATCH net-next 9/9] sky2: use __vlan_hwaccel helpers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,53 +30,29 @@ Cc: Ajit Khaparde <ajit.khaparde@broadcom.com>, Somnath Kotur <somnath.kotur@bro
 
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 ---
- drivers/net/ethernet/emulex/benet/be_main.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/marvell/sky2.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/emulex/benet/be_main.c b/drivers/net/ethernet/emulex/benet/be_main.c
-index c5ad7a4f4d83..80b2bd3747ce 100644
---- a/drivers/net/ethernet/emulex/benet/be_main.c
-+++ b/drivers/net/ethernet/emulex/benet/be_main.c
-@@ -1049,30 +1049,35 @@ static struct sk_buff *be_insert_vlan_in_pkt(struct be_adapter *adapter,
- 					     struct be_wrb_params
- 					     *wrb_params)
- {
-+	bool insert_vlan = false;
- 	u16 vlan_tag = 0;
+diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
+index 697d9b374f5e..c7cd0081058e 100644
+--- a/drivers/net/ethernet/marvell/sky2.c
++++ b/drivers/net/ethernet/marvell/sky2.c
+@@ -2485,13 +2485,11 @@ static struct sk_buff *receive_copy(struct sky2_port *sky2,
+ 		skb->ip_summed = re->skb->ip_summed;
+ 		skb->csum = re->skb->csum;
+ 		skb_copy_hash(skb, re->skb);
+-		skb->vlan_proto = re->skb->vlan_proto;
+-		skb->vlan_tci = re->skb->vlan_tci;
++		__vlan_hwaccel_copy_tag(skb, re->skb);
  
- 	skb = skb_share_check(skb, GFP_ATOMIC);
- 	if (unlikely(!skb))
- 		return skb;
- 
--	if (skb_vlan_tag_present(skb))
-+	if (skb_vlan_tag_present(skb)) {
- 		vlan_tag = be_get_tx_vlan_tag(adapter, skb);
-+		insert_vlan = true;
-+	}
- 
- 	if (qnq_async_evt_rcvd(adapter) && adapter->pvid) {
--		if (!vlan_tag)
-+		if (!insert_vlan) {
- 			vlan_tag = adapter->pvid;
-+			insert_vlan = true;
-+		}
- 		/* f/w workaround to set skip_hw_vlan = 1, informs the F/W to
- 		 * skip VLAN insertion
- 		 */
- 		BE_WRB_F_SET(wrb_params->features, VLAN_SKIP_HW, 1);
- 	}
- 
--	if (vlan_tag) {
-+	if (insert_vlan) {
- 		skb = vlan_insert_tag_set_proto(skb, htons(ETH_P_8021Q),
- 						vlan_tag);
- 		if (unlikely(!skb))
- 			return skb;
--		skb->vlan_tci = 0;
-+		__vlan_hwaccel_clear_tag(skb);
- 	}
- 
- 	/* Insert the outer VLAN, if any */
+ 		pci_dma_sync_single_for_device(sky2->hw->pdev, re->data_addr,
+ 					       length, PCI_DMA_FROMDEVICE);
+-		re->skb->vlan_proto = 0;
+-		re->skb->vlan_tci = 0;
++		__vlan_hwaccel_clear_tag(re->skb);
+ 		skb_clear_hash(re->skb);
+ 		re->skb->ip_summed = CHECKSUM_NONE;
+ 		skb_put(skb, length);
 -- 
 2.19.1
 
