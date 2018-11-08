@@ -1,22 +1,23 @@
 Return-Path: <mirq-linux@rere.qmqm.pl>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-	t=1541719025; bh=Qc7PnMXGc8+FfHDHzLrLqc5PfyMzVK3ZXR888xiFvgE=;
+	t=1541719024; bh=+SK+n9+g9d3vOxlKaffebdt4fu9Zy2ht+kS1MahY5MI=;
 	h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-	b=Ve3N14x6Efv9F25iyjVT9uL761sMUveOcEy78JWbvd5aj25YROZY4GZEhqdimE9Px
-	alVoUhxxY750SWqL1lFOH6t0ekzo9Ls+WrccudsZ79q8Ib2TbuIOanEE0e2R0tJR8x
-	nhtyTYlB0f0xKMrwqjsjCiSYvCKREqFUPNJMHVWbcw2x8SEqOxdkT3IWPeIqJ63gss
-	Qz+W9irOny4daCBrdBuJkYrfBvaY9f37juKQyDRugly7gs4vx/gkd0pDIC+DBIiL9D
-	hMICZRcdp+m0DCFPVpUntMzjGflA8BTQf3TQATxq4i5jnakVRcZTRa/bqWpPCilPeQ
-	Mi2fC5u8gkaXg==
-Date: Fri, 09 Nov 2018 00:18:03 +0100
-Message-Id: <e016c369084d747bdd4b1cd5956f2272261ff678.1541718583.git.mirq-linux@rere.qmqm.pl>
+	b=AtpNDFNqf5ASYuFCuT7TrQyWDpOSVZZRmBXI/PeUZx/G6iHs4T+bqc9VQ/pLHz8nQ
+	v00MpAGT+Iy2I8rTN4C4+pA4SreR+yn/Y2/4twoiZiMPq4OvO5Pj+kea5Rjk5fT+jR
+	+KlYyydZ8Qx4/dXJXscZyjKweFHUCDZYYZLItXXDi3pnS9QLumj5nxR/FvE+/3j9vz
+	wq6cmD+lWTKS2V6jSJda8qgV1evAFM0wPtaQTLVXHAhl/6YmcMLqLfYV4YDx5hgtMB
+	IE7/52i6IYujDrE0yKePhbASSNdTvWLRxHtIzNjNnBlqBZ3HlbbCU/L6z2dxLTlQaf
+	eysv8Xv55VaDQ==
+Date: Fri, 09 Nov 2018 00:18:02 +0100
+Message-Id: <af0443419646b8e53d794c7565c47f8dc9ef5d1a.1541718583.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1541718583.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1541718583.git.mirq-linux@rere.qmqm.pl>
 From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 4/9] 8021q: use __vlan_hwaccel helpers
+Subject: [Bridge] [PATCH net-next 2/9] nfnetlink/queue: use __vlan_hwaccel
+	helpers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,22 +31,25 @@ Cc: Ajit Khaparde <ajit.khaparde@broadcom.com>, Somnath Kotur <somnath.kotur@bro
 
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 ---
- net/8021q/vlan_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nfnetlink_queue.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/8021q/vlan_core.c b/net/8021q/vlan_core.c
-index 4f60e86f4b8d..dd39489c829a 100644
---- a/net/8021q/vlan_core.c
-+++ b/net/8021q/vlan_core.c
-@@ -57,7 +57,7 @@ bool vlan_do_receive(struct sk_buff **skbp)
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 43041f087eb3..1ce30efe6854 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -1148,8 +1148,9 @@ static int nfqa_parse_bridge(struct nf_queue_entry *entry,
+ 		if (!tb[NFQA_VLAN_TCI] || !tb[NFQA_VLAN_PROTO])
+ 			return -EINVAL;
+ 
+-		entry->skb->vlan_tci = ntohs(nla_get_be16(tb[NFQA_VLAN_TCI]));
+-		entry->skb->vlan_proto = nla_get_be16(tb[NFQA_VLAN_PROTO]);
++		__vlan_hwaccel_put_tag(entry->skb,
++			nla_get_be16(tb[NFQA_VLAN_PROTO]),
++			ntohs(nla_get_be16(tb[NFQA_VLAN_TCI])));
  	}
  
- 	skb->priority = vlan_get_ingress_priority(vlan_dev, skb->vlan_tci);
--	skb->vlan_tci = 0;
-+	__vlan_hwaccel_clear_tag(skb);
- 
- 	rx_stats = this_cpu_ptr(vlan_dev_priv(vlan_dev)->vlan_pcpu_stats);
- 
+ 	if (nfqa[NFQA_L2HDR]) {
 -- 
 2.19.1
 
