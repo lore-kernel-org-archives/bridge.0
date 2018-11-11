@@ -1,21 +1,11 @@
-Return-Path: <tariqt@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=vXbr6SRljPyLK/QkcrcESEUI1MjSNr9cwQVaqqphLJ8=;
-	b=dNTEBWCSestlB3QqNSle1TguLb3+q93IbHHzX3YJS87fWp+u+/qaJEdQzIZ7O7RYYQ6PVGUqL1dJu6UCzr4irSTgalty8cEd/gDnxQUTW9ETBDGsHh/tpqQ9EQ2Wot/omv+B8k0Q+mFs1GWtdfdfwPYYEk/bklgVYTXpligYgfk=
-From: Tariq Toukan <tariqt@mellanox.com>
-Date: Sun, 11 Nov 2018 15:26:29 +0000
-Message-ID: <28a275b4-4fd5-2c00-217a-c6ab69fb2ad9@mellanox.com>
-References: <cover.1541718583.git.mirq-linux@rere.qmqm.pl>
-	<20181108.204523.1353698272847299871.davem@davemloft.net>
-In-Reply-To: <20181108.204523.1353698272847299871.davem@davemloft.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="euc-kr"
-Content-ID: <06FE775F916EE14E9363E640078F0015@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 0/9] Use __vlan_hwaccel_*() helpers
+Return-Path: <paulmck@linux.vnet.ibm.com>
+From: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Date: Sun, 11 Nov 2018 11:44:02 -0800
+In-Reply-To: <20181111194104.GA4787@linux.ibm.com>
+References: <20181111194104.GA4787@linux.ibm.com>
+Message-Id: <20181111194410.6368-33-paulmck@linux.ibm.com>
+Subject: [Bridge] [PATCH tip/core/rcu 33/41] net/bridge: Replace
+	call_rcu_bh() and rcu_barrier_bh()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,57 +14,102 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>, "mirq-linux@rere.qmqm.pl" <mirq-linux@rere.qmqm.pl>
-Cc: "ajit.khaparde@broadcom.com" <ajit.khaparde@broadcom.com>, "somnath.kotur@broadcom.com" <somnath.kotur@broadcom.com>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "kadlec@blackhole.kfki.hu" <kadlec@blackhole.kfki.hu>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "pablo@netfilter.org" <pablo@netfilter.org>, "jiri@resnulli.us" <jiri@resnulli.us>, "swise@chelsio.com" <swise@chelsio.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "jhs@mojatatu.com" <jhs@mojatatu.com>, "sathya.perla@broadcom.com" <sathya.perla@broadcom.com>, "xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "mlindner@marvell.com" <mlindner@marvell.com>, "sriharsha.basavapatna@broadcom.com" <sriharsha.basavapatna@broadcom.com>, "yoshfuji@linux-ipv6.org" <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "fw@strlen.de" <fw@strlen.de>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, Tariq Toukan <tariqt@mellanox.com>
+To: linux-kernel@vger.kernel.org
+Cc: tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>, peterz@infradead.org, fweisbec@gmail.com, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, jiangshanlai@gmail.com, josh@joshtriplett.org, rostedt@goodmis.org, oleg@redhat.com, dhowells@redhat.com, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, joel@joelfernandes.org, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.ibm.com>, mingo@kernel.org
 
-DQoNCk9uIDA5LzExLzIwMTggNjo0NSBBTSwgRGF2aWQgTWlsbGVyIHdyb3RlOg0KPiBGcm9tOiBN
-aWNoYampIE1pcm9zqalhdyA8bWlycS1saW51eEByZXJlLnFtcW0ucGw+DQo+IERhdGU6IEZyaSwg
-MDkgTm92IDIwMTggMDA6MTc6NTggKzAxMDANCj4gDQo+PiBUaGlzIHNlcmllcyByZW1vdmVzIGZy
-b20gbmV0d29ya2luZyBjb3JlIGFuZCBkcml2ZXIgY29kZSBhbiBhc3N1bXB0aW9uDQo+PiBhYm91
-dCBob3cgVkxBTiB0YWcgcHJlc2VuY2UgaXMgc3RvcmVkIGluIGFuIHNrYi4gVGhpcyB3aWxsIGFs
-bG93IHRvIGZyZWUNCj4+IHVwIG92ZXJsb2FkaW5nIG9mIFZMQU4uQ0ZJIGJpdCB0byBpbmNpZGF0
-ZSB0YWcncyBwcmVzZW5jZS4NCj4gDQo+IFRoaXMgbG9va3MgZ29vZCwgc2VyaWVzIGFwcGxpZWQu
-DQo+IA0KPiBUaGFua3MuDQo+IA0KDQpIaSBNaWNoYWwsDQoNCldlIHN0YXJ0ZWQgc2VlaW5nIHRo
-ZSBjb21waWxhdGlvbiBlcnJvcnMgYmVsb3csIHRoZXkgbG9vayByZWxhdGVkIHRvIA0KdGhpcyBz
-ZXJpZXMuDQoNClRoYW5rcywNClRhcmlxDQoNCjAyOjE1OjA5IG5ldC84MDIxcS92bGFuX2NvcmUu
-YzogSW4gZnVuY3Rpb24gJ3ZsYW5fZG9fcmVjZWl2ZSc6DQowMjoxNTowOSBuZXQvODAyMXEvdmxh
-bl9jb3JlLmM6NjA6MjogZXJyb3I6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIA0KZnVuY3Rpb24g
-J19fdmxhbl9od2FjY2VsX2NsZWFyX3RhZyc7IGRpZCB5b3UgbWVhbiANCidfX3ZsYW5faHdhY2Nl
-bF9nZXRfdGFnJz8gWy1XZXJyb3I9aW1wbGljaXQtZnVuY3Rpb24tZGVjbGFyYXRpb25dDQowMjox
-NTowOSAgIF9fdmxhbl9od2FjY2VsX2NsZWFyX3RhZyhza2IpOw0KMDI6MTU6MDkgICBefn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn4NCjAyOjE1OjA5ICAgX192bGFuX2h3YWNjZWxfZ2V0X3RhZw0KMDI6
-MTU6MDkgY2MxOiBzb21lIHdhcm5pbmdzIGJlaW5nIHRyZWF0ZWQgYXMgZXJyb3JzDQowMjoxNTow
-OSBtYWtlWzRdOiAqKiogW3NjcmlwdHMvTWFrZWZpbGUuYnVpbGQ6MjkzOiANCm5ldC84MDIxcS92
-bGFuX2NvcmUub10gRXJyb3IgMQ0KMDI6MTU6MDkgbWFrZVs0XTogKioqIFdhaXRpbmcgZm9yIHVu
-ZmluaXNoZWQgam9icy4uLi4NCjAyOjE1OjExIG1ha2VbM106ICoqKiBbc2NyaXB0cy9NYWtlZmls
-ZS5idWlsZDo1MTg6IG5ldC84MDIxcV0gRXJyb3IgMg0KMDI6MTU6MTEgbWFrZVszXTogKioqIFdh
-aXRpbmcgZm9yIHVuZmluaXNoZWQgam9icy4uLi4NCjAyOjE1OjE0IG1ha2VbMl06ICoqKiBbTWFr
-ZWZpbGU6MTA2MDogbmV0XSBFcnJvciAyDQowMjoxNToxNCBtYWtlWzJdOiAqKiogV2FpdGluZyBm
-b3IgdW5maW5pc2hlZCBqb2JzLi4uLg0KMDI6MTU6MzYgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVs
-bGFub3gvbWx4NC9lbl9yeC5jOiBJbiBmdW5jdGlvbiANCidtbHg0X2VuX3Byb2Nlc3NfcnhfY3En
-Og0KMDI6MTU6MzYgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gvbWx4NC9lbl9yeC5jOjg3
-ODo0OiBlcnJvcjogDQppbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiAnX192bGFuX2h3
-YWNjZWxfY2xlYXJfdGFnJzsgZGlkIHlvdSANCm1lYW4gJ19fdmxhbl9od2FjY2VsX2dldF90YWcn
-PyBbLVdlcnJvcj1pbXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJhdGlvbl0NCjAyOjE1OjM2ICAgICBf
-X3ZsYW5faHdhY2NlbF9jbGVhcl90YWcoc2tiKTsNCjAyOjE1OjM2ICAgICBefn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn4NCjAyOjE1OjM2ICAgICBfX3ZsYW5faHdhY2NlbF9nZXRfdGFnDQowMjoxNToz
-NiBjYzE6IHNvbWUgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMNCjAyOjE1OjM3IG1h
-a2VbN106ICoqKiBbc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoyOTM6IA0KZHJpdmVycy9uZXQvZXRo
-ZXJuZXQvbWVsbGFub3gvbWx4NC9lbl9yeC5vXSBFcnJvciAxDQowMjoxNTozNyBtYWtlWzddOiAq
-KiogV2FpdGluZyBmb3IgdW5maW5pc2hlZCBqb2JzLi4uLg0KMDI6MTU6MzcgbWFrZVs2XTogKioq
-IFtzY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjUxODogDQpkcml2ZXJzL25ldC9ldGhlcm5ldC9tZWxs
-YW5veC9tbHg0XSBFcnJvciAyDQowMjoxNTozNyBtYWtlWzZdOiAqKiogV2FpdGluZyBmb3IgdW5m
-aW5pc2hlZCBqb2JzLi4uLg0KMDI6MTU6MzkgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gv
-bWx4NS9jb3JlL2VuX3N0YXRzLmM6IEluIGZ1bmN0aW9uIA0KJ21seDVlX2dycF9zd191cGRhdGVf
-c3RhdHMnOg0KMDI6MTU6MzkgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gvbWx4NS9jb3Jl
-L2VuX3N0YXRzLmM6MjE2OjE6IA0Kd2FybmluZzogdGhlIGZyYW1lIHNpemUgb2YgMTIwMCBieXRl
-cyBpcyBsYXJnZXIgdGhhbiAxMDI0IGJ5dGVzIA0KWy1XZnJhbWUtbGFyZ2VyLXRoYW49XQ0KMDI6
-MTU6MzkgIH0NCjAyOjE1OjM5ICBeDQowMjoxNTo0OSBtYWtlWzVdOiAqKiogW3NjcmlwdHMvTWFr
-ZWZpbGUuYnVpbGQ6NTE4OiANCmRyaXZlcnMvbmV0L2V0aGVybmV0L21lbGxhbm94XSBFcnJvciAy
-DQowMjoxNTo0OSBtYWtlWzRdOiAqKiogW3NjcmlwdHMvTWFrZWZpbGUuYnVpbGQ6NTE4OiBkcml2
-ZXJzL25ldC9ldGhlcm5ldF0gDQpFcnJvciAyDQowMjoxNTo0OSBtYWtlWzNdOiAqKiogW3Njcmlw
-dHMvTWFrZWZpbGUuYnVpbGQ6NTE4OiBkcml2ZXJzL25ldF0gRXJyb3IgMg0KMDI6MTU6NDkgbWFr
-ZVsyXTogKioqIFtNYWtlZmlsZToxMDYwOiBkcml2ZXJzXSBFcnJvciAyDQowMjoxNTo0OSBtYWtl
-WzFdOiAqKiogW3NjcmlwdHMvcGFja2FnZS9NYWtlZmlsZTo2MzogYmlucnBtLXBrZ10gRXJyb3Ig
-Mg0KMDI6MTU6NDkgbWFrZTogKioqIFtNYWtlZmlsZToxMzk5OiBiaW5ycG0tcGtnXSBFcnJvciAy
-DQo=
+Now that call_rcu()'s callback is not invoked until after all bh-disable
+regions of code have completed (in addition to explicitly marked
+RCU read-side critical sections), call_rcu() can be used in place
+of call_rcu_bh().  Similarly, rcu_barrier() can be used in place of
+rcu_barrier_bh().  This commit therefore makes these changes.
+
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: <bridge@lists.linux-foundation.org>
+Cc: <netdev@vger.kernel.org>
+---
+ net/bridge/br_mdb.c       |  2 +-
+ net/bridge/br_multicast.c | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index a7ea2d431714..596ec6e7df11 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -728,7 +728,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 		rcu_assign_pointer(*pp, p->next);
+ 		hlist_del_init(&p->mglist);
+ 		del_timer(&p->timer);
+-		call_rcu_bh(&p->rcu, br_multicast_free_pg);
++		call_rcu(&p->rcu, br_multicast_free_pg);
+ 		err = 0;
+ 
+ 		if (!mp->ports && !mp->host_joined &&
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 6bac0d6b7b94..0255223f2001 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -260,7 +260,7 @@ static void br_multicast_group_expired(struct timer_list *t)
+ 	hlist_del_rcu(&mp->hlist[mdb->ver]);
+ 	mdb->size--;
+ 
+-	call_rcu_bh(&mp->rcu, br_multicast_free_group);
++	call_rcu(&mp->rcu, br_multicast_free_group);
+ 
+ out:
+ 	spin_unlock(&br->multicast_lock);
+@@ -291,7 +291,7 @@ static void br_multicast_del_pg(struct net_bridge *br,
+ 		del_timer(&p->timer);
+ 		br_mdb_notify(br->dev, p->port, &pg->addr, RTM_DELMDB,
+ 			      p->flags);
+-		call_rcu_bh(&p->rcu, br_multicast_free_pg);
++		call_rcu(&p->rcu, br_multicast_free_pg);
+ 
+ 		if (!mp->ports && !mp->host_joined &&
+ 		    netif_running(br->dev))
+@@ -358,7 +358,7 @@ static int br_mdb_rehash(struct net_bridge_mdb_htable __rcu **mdbp, int max,
+ 	}
+ 
+ 	br_mdb_rehash_seq++;
+-	call_rcu_bh(&mdb->rcu, br_mdb_free);
++	call_rcu(&mdb->rcu, br_mdb_free);
+ 
+ out:
+ 	rcu_assign_pointer(*mdbp, mdb);
+@@ -1629,7 +1629,7 @@ br_multicast_leave_group(struct net_bridge *br,
+ 			rcu_assign_pointer(*pp, p->next);
+ 			hlist_del_init(&p->mglist);
+ 			del_timer(&p->timer);
+-			call_rcu_bh(&p->rcu, br_multicast_free_pg);
++			call_rcu(&p->rcu, br_multicast_free_pg);
+ 			br_mdb_notify(br->dev, port, group, RTM_DELMDB,
+ 				      p->flags);
+ 
+@@ -2051,19 +2051,19 @@ void br_multicast_dev_del(struct net_bridge *br)
+ 		hlist_for_each_entry_safe(mp, n, &mdb->mhash[i],
+ 					  hlist[ver]) {
+ 			del_timer(&mp->timer);
+-			call_rcu_bh(&mp->rcu, br_multicast_free_group);
++			call_rcu(&mp->rcu, br_multicast_free_group);
+ 		}
+ 	}
+ 
+ 	if (mdb->old) {
+ 		spin_unlock_bh(&br->multicast_lock);
+-		rcu_barrier_bh();
++		rcu_barrier();
+ 		spin_lock_bh(&br->multicast_lock);
+ 		WARN_ON(mdb->old);
+ 	}
+ 
+ 	mdb->old = mdb;
+-	call_rcu_bh(&mdb->rcu, br_mdb_free);
++	call_rcu(&mdb->rcu, br_mdb_free);
+ 
+ out:
+ 	spin_unlock_bh(&br->multicast_lock);
+-- 
+2.17.1
+
