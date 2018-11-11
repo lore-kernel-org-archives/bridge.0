@@ -1,22 +1,21 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=date:in-reply-to:references:mime-version:content-transfer-encoding
-	:subject:to:from:message-id;
-	bh=Mg6Uxk2gYngckWDv9FiWBXoTzbgw2wyHoktT47rLD04=;
-	b=F4myLj1Jy6JQ/1HTS0kg0Wr78g5lFuKERT9rzfIi7JhlAMbHxH9KaG2bQuu0B/A3O2
-	ndvNwSPjZkXeKrH34zjYhAmT8TVxGFXhgdE3HPHEKmqR3An5iM5OFAYvSs8y6PEAdqPQ
-	TsMhK/+8YSRLwqfggNcZ+ecxcVCp4ecy387Do=
-Date: Mon, 12 Nov 2018 09:32:08 +0100
-In-Reply-To: <00000000000047feb5057a714975@google.com>
-References: <00000000000047feb5057a714975@google.com>
+Return-Path: <tariqt@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=vXbr6SRljPyLK/QkcrcESEUI1MjSNr9cwQVaqqphLJ8=;
+	b=dNTEBWCSestlB3QqNSle1TguLb3+q93IbHHzX3YJS87fWp+u+/qaJEdQzIZ7O7RYYQ6PVGUqL1dJu6UCzr4irSTgalty8cEd/gDnxQUTW9ETBDGsHh/tpqQ9EQ2Wot/omv+B8k0Q+mFs1GWtdfdfwPYYEk/bklgVYTXpligYgfk=
+From: Tariq Toukan <tariqt@mellanox.com>
+Date: Sun, 11 Nov 2018 15:26:29 +0000
+Message-ID: <28a275b4-4fd5-2c00-217a-c6ab69fb2ad9@mellanox.com>
+References: <cover.1541718583.git.mirq-linux@rere.qmqm.pl>
+	<20181108.204523.1353698272847299871.davem@davemloft.net>
+In-Reply-To: <20181108.204523.1353698272847299871.davem@davemloft.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="euc-kr"
+Content-ID: <06FE775F916EE14E9363E640078F0015@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: nikolay@cumulusnetworks.com
-Message-ID: <C0C76E26-AE73-4D51-B44A-FFC0EF629A83@cumulusnetworks.com>
-Subject: Re: [Bridge] KASAN: use-after-free Read in nbp_vlan_rcu_free
+Subject: Re: [Bridge] [PATCH net-next 0/9] Use __vlan_hwaccel_*() helpers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,31 +24,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+04681da557a0e49a52e5@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
+To: David Miller <davem@davemloft.net>, "mirq-linux@rere.qmqm.pl" <mirq-linux@rere.qmqm.pl>
+Cc: "ajit.khaparde@broadcom.com" <ajit.khaparde@broadcom.com>, "somnath.kotur@broadcom.com" <somnath.kotur@broadcom.com>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "kadlec@blackhole.kfki.hu" <kadlec@blackhole.kfki.hu>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "pablo@netfilter.org" <pablo@netfilter.org>, "jiri@resnulli.us" <jiri@resnulli.us>, "swise@chelsio.com" <swise@chelsio.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "jhs@mojatatu.com" <jhs@mojatatu.com>, "sathya.perla@broadcom.com" <sathya.perla@broadcom.com>, "xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "mlindner@marvell.com" <mlindner@marvell.com>, "sriharsha.basavapatna@broadcom.com" <sriharsha.basavapatna@broadcom.com>, "yoshfuji@linux-ipv6.org" <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "fw@strlen.de" <fw@strlen.de>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, Tariq Toukan <tariqt@mellanox.com>
 
-On 12 November 2018 06:51:02 CET, syzbot <syzbot+04681da557a0e49a52e5@syzka=
-ller=2Eappspotmail=2Ecom> wrote:
->Hello,
->
->syzbot found the following crash on:
->
->HEAD commit:    e12e00e388de Merge tag 'kbuild-fixes-v4=2E20' of
->git://git=2Ek=2E=2E
->git tree:       upstream
->console output:
->https://syzkaller=2Eappspot=2Ecom/x/log=2Etxt?x=3D14cdb6f5400000
->kernel config:=20
->https://syzkaller=2Eappspot=2Ecom/x/=2Econfig?x=3D8f215f21f041a0d7
->dashboard link:
->https://syzkaller=2Eappspot=2Ecom/bug?extid=3D04681da557a0e49a52e5
->compiler:       gcc (GCC) 8=2E0=2E1 20180413 (experimental)
->
->Unfortunately, I don't have any reproducer for this crash yet=2E
->
->IMPORTANT: if you fix the bug, please add the following tag to the
->commit:
->Reported-by: syzbot+04681da557a0e49a52e5@syzkaller=2Eappspotmail=2Ecom
-
-Thanks, I'm about to fly out for LPC=2E Will take a look in a day=2E
-
-
+DQoNCk9uIDA5LzExLzIwMTggNjo0NSBBTSwgRGF2aWQgTWlsbGVyIHdyb3RlOg0KPiBGcm9tOiBN
+aWNoYampIE1pcm9zqalhdyA8bWlycS1saW51eEByZXJlLnFtcW0ucGw+DQo+IERhdGU6IEZyaSwg
+MDkgTm92IDIwMTggMDA6MTc6NTggKzAxMDANCj4gDQo+PiBUaGlzIHNlcmllcyByZW1vdmVzIGZy
+b20gbmV0d29ya2luZyBjb3JlIGFuZCBkcml2ZXIgY29kZSBhbiBhc3N1bXB0aW9uDQo+PiBhYm91
+dCBob3cgVkxBTiB0YWcgcHJlc2VuY2UgaXMgc3RvcmVkIGluIGFuIHNrYi4gVGhpcyB3aWxsIGFs
+bG93IHRvIGZyZWUNCj4+IHVwIG92ZXJsb2FkaW5nIG9mIFZMQU4uQ0ZJIGJpdCB0byBpbmNpZGF0
+ZSB0YWcncyBwcmVzZW5jZS4NCj4gDQo+IFRoaXMgbG9va3MgZ29vZCwgc2VyaWVzIGFwcGxpZWQu
+DQo+IA0KPiBUaGFua3MuDQo+IA0KDQpIaSBNaWNoYWwsDQoNCldlIHN0YXJ0ZWQgc2VlaW5nIHRo
+ZSBjb21waWxhdGlvbiBlcnJvcnMgYmVsb3csIHRoZXkgbG9vayByZWxhdGVkIHRvIA0KdGhpcyBz
+ZXJpZXMuDQoNClRoYW5rcywNClRhcmlxDQoNCjAyOjE1OjA5IG5ldC84MDIxcS92bGFuX2NvcmUu
+YzogSW4gZnVuY3Rpb24gJ3ZsYW5fZG9fcmVjZWl2ZSc6DQowMjoxNTowOSBuZXQvODAyMXEvdmxh
+bl9jb3JlLmM6NjA6MjogZXJyb3I6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIA0KZnVuY3Rpb24g
+J19fdmxhbl9od2FjY2VsX2NsZWFyX3RhZyc7IGRpZCB5b3UgbWVhbiANCidfX3ZsYW5faHdhY2Nl
+bF9nZXRfdGFnJz8gWy1XZXJyb3I9aW1wbGljaXQtZnVuY3Rpb24tZGVjbGFyYXRpb25dDQowMjox
+NTowOSAgIF9fdmxhbl9od2FjY2VsX2NsZWFyX3RhZyhza2IpOw0KMDI6MTU6MDkgICBefn5+fn5+
+fn5+fn5+fn5+fn5+fn5+fn4NCjAyOjE1OjA5ICAgX192bGFuX2h3YWNjZWxfZ2V0X3RhZw0KMDI6
+MTU6MDkgY2MxOiBzb21lIHdhcm5pbmdzIGJlaW5nIHRyZWF0ZWQgYXMgZXJyb3JzDQowMjoxNTow
+OSBtYWtlWzRdOiAqKiogW3NjcmlwdHMvTWFrZWZpbGUuYnVpbGQ6MjkzOiANCm5ldC84MDIxcS92
+bGFuX2NvcmUub10gRXJyb3IgMQ0KMDI6MTU6MDkgbWFrZVs0XTogKioqIFdhaXRpbmcgZm9yIHVu
+ZmluaXNoZWQgam9icy4uLi4NCjAyOjE1OjExIG1ha2VbM106ICoqKiBbc2NyaXB0cy9NYWtlZmls
+ZS5idWlsZDo1MTg6IG5ldC84MDIxcV0gRXJyb3IgMg0KMDI6MTU6MTEgbWFrZVszXTogKioqIFdh
+aXRpbmcgZm9yIHVuZmluaXNoZWQgam9icy4uLi4NCjAyOjE1OjE0IG1ha2VbMl06ICoqKiBbTWFr
+ZWZpbGU6MTA2MDogbmV0XSBFcnJvciAyDQowMjoxNToxNCBtYWtlWzJdOiAqKiogV2FpdGluZyBm
+b3IgdW5maW5pc2hlZCBqb2JzLi4uLg0KMDI6MTU6MzYgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVs
+bGFub3gvbWx4NC9lbl9yeC5jOiBJbiBmdW5jdGlvbiANCidtbHg0X2VuX3Byb2Nlc3NfcnhfY3En
+Og0KMDI6MTU6MzYgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gvbWx4NC9lbl9yeC5jOjg3
+ODo0OiBlcnJvcjogDQppbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiAnX192bGFuX2h3
+YWNjZWxfY2xlYXJfdGFnJzsgZGlkIHlvdSANCm1lYW4gJ19fdmxhbl9od2FjY2VsX2dldF90YWcn
+PyBbLVdlcnJvcj1pbXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJhdGlvbl0NCjAyOjE1OjM2ICAgICBf
+X3ZsYW5faHdhY2NlbF9jbGVhcl90YWcoc2tiKTsNCjAyOjE1OjM2ICAgICBefn5+fn5+fn5+fn5+
+fn5+fn5+fn5+fn4NCjAyOjE1OjM2ICAgICBfX3ZsYW5faHdhY2NlbF9nZXRfdGFnDQowMjoxNToz
+NiBjYzE6IHNvbWUgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMNCjAyOjE1OjM3IG1h
+a2VbN106ICoqKiBbc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoyOTM6IA0KZHJpdmVycy9uZXQvZXRo
+ZXJuZXQvbWVsbGFub3gvbWx4NC9lbl9yeC5vXSBFcnJvciAxDQowMjoxNTozNyBtYWtlWzddOiAq
+KiogV2FpdGluZyBmb3IgdW5maW5pc2hlZCBqb2JzLi4uLg0KMDI6MTU6MzcgbWFrZVs2XTogKioq
+IFtzY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjUxODogDQpkcml2ZXJzL25ldC9ldGhlcm5ldC9tZWxs
+YW5veC9tbHg0XSBFcnJvciAyDQowMjoxNTozNyBtYWtlWzZdOiAqKiogV2FpdGluZyBmb3IgdW5m
+aW5pc2hlZCBqb2JzLi4uLg0KMDI6MTU6MzkgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gv
+bWx4NS9jb3JlL2VuX3N0YXRzLmM6IEluIGZ1bmN0aW9uIA0KJ21seDVlX2dycF9zd191cGRhdGVf
+c3RhdHMnOg0KMDI6MTU6MzkgZHJpdmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gvbWx4NS9jb3Jl
+L2VuX3N0YXRzLmM6MjE2OjE6IA0Kd2FybmluZzogdGhlIGZyYW1lIHNpemUgb2YgMTIwMCBieXRl
+cyBpcyBsYXJnZXIgdGhhbiAxMDI0IGJ5dGVzIA0KWy1XZnJhbWUtbGFyZ2VyLXRoYW49XQ0KMDI6
+MTU6MzkgIH0NCjAyOjE1OjM5ICBeDQowMjoxNTo0OSBtYWtlWzVdOiAqKiogW3NjcmlwdHMvTWFr
+ZWZpbGUuYnVpbGQ6NTE4OiANCmRyaXZlcnMvbmV0L2V0aGVybmV0L21lbGxhbm94XSBFcnJvciAy
+DQowMjoxNTo0OSBtYWtlWzRdOiAqKiogW3NjcmlwdHMvTWFrZWZpbGUuYnVpbGQ6NTE4OiBkcml2
+ZXJzL25ldC9ldGhlcm5ldF0gDQpFcnJvciAyDQowMjoxNTo0OSBtYWtlWzNdOiAqKiogW3Njcmlw
+dHMvTWFrZWZpbGUuYnVpbGQ6NTE4OiBkcml2ZXJzL25ldF0gRXJyb3IgMg0KMDI6MTU6NDkgbWFr
+ZVsyXTogKioqIFtNYWtlZmlsZToxMDYwOiBkcml2ZXJzXSBFcnJvciAyDQowMjoxNTo0OSBtYWtl
+WzFdOiAqKiogW3NjcmlwdHMvcGFja2FnZS9NYWtlZmlsZTo2MzogYmlucnBtLXBrZ10gRXJyb3Ig
+Mg0KMDI6MTU6NDkgbWFrZTogKioqIFtNYWtlZmlsZToxMzk5OiBiaW5ycG0tcGtnXSBFcnJvciAy
+DQo=
