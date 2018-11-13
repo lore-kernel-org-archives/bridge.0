@@ -1,24 +1,18 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=hhXPboyK2v72FwSZ0+xAP/i5XUCZDW7UBvYMvKOCkg8=;
-	b=K9ULkexxXSpbUNJ/eON+hnJ6Wk6gP2/N9AIvirgJqPSGaP7BeDH4P4bAVUkSsedAaR
-	IDTXzqa6XziA2/2aJHhaFy/Hcsod649eprq9B4JWPyOzilFMTKsDiDzsAz4TS0/b8SaP
-	riyZSm1Lh+XEfg726/kglsJCb884CDak52DwI=
-References: <20181111194104.GA4787@linux.ibm.com>
-	<20181111194410.6368-33-paulmck@linux.ibm.com>
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=YfjFlUwITeVzGutE9n0KFrCLgc8zdR2v1pTNUYk5gpA=;
+	b=GIr3yEZ6kJgLluMM8gAMUawKCSOJ2F+O99TjED2audA3obzFlj3QmJq6IqVD3r8GL5
+	i0fHhAtPtNuGZeyvXm2fI/uidE1Rzt1W0z9m6SEgfu3I8fOv7lvyCrCbitF0JgO//1nH
+	8xc6/OcWCkZy9skQAkCGt/6CBFEs99c7BiCTI=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <58d41678-edc9-9212-718c-a922ab151eda@cumulusnetworks.com>
-Date: Tue, 13 Nov 2018 02:29:00 +0200
-MIME-Version: 1.0
-In-Reply-To: <20181111194410.6368-33-paulmck@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH tip/core/rcu 33/41] net/bridge: Replace
- call_rcu_bh() and rcu_barrier_bh()
+Date: Tue, 13 Nov 2018 03:01:54 +0200
+Message-Id: <20181113010154.13935-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <00000000000047feb5057a714975@google.com>
+References: <00000000000047feb5057a714975@google.com>
+Subject: [Bridge] [PATCH net] net: bridge: fix per-port vlan stats
+	use-after-free on destruction
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,29 +21,88 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Paul E. McKenney" <paulmck@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>, peterz@infradead.org, fweisbec@gmail.com, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, jiangshanlai@gmail.com, josh@joshtriplett.org, rostedt@goodmis.org, oleg@redhat.com, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, joel@joelfernandes.org, akpm@linux-foundation.org, mingo@kernel.org
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, davem@davemloft.net
 
-On 11/11/18 9:44 PM, Paul E. McKenney wrote:
-> Now that call_rcu()'s callback is not invoked until after all bh-disable
-> regions of code have completed (in addition to explicitly marked
-> RCU read-side critical sections), call_rcu() can be used in place
-> of call_rcu_bh().  Similarly, rcu_barrier() can be used in place of
-> rcu_barrier_bh().  This commit therefore makes these changes.
-> 
-> Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
-> Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: <bridge@lists.linux-foundation.org>
-> Cc: <netdev@vger.kernel.org>
-> ---
->  net/bridge/br_mdb.c       |  2 +-
->  net/bridge/br_multicast.c | 14 +++++++-------
->  2 files changed, 8 insertions(+), 8 deletions(-)
-> 
+Syzbot reported a use-after-free of the global vlan context on port vlan
+destruction. When I added per-port vlan stats I missed the fact that the
+global vlan context can be freed before the per-port vlan rcu callback.
+There're a few different ways to deal with this, I've chosen to add a
+new private flag that is set only when per-port stats are allocated so
+we can directly check it on destruction without dereferencing the global
+context at all. The flag is internally controlled by the kernel and
+user-space isn't allowed to set it.
 
-Really like this change, makes life simpler.
+Fixes: 9163a0fc1f0c ("net: bridge: add support for per-port vlan stats")
+Reported-by: syzbot+04681da557a0e49a52e5@syzkaller.appspotmail.com
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ include/uapi/linux/if_bridge.h | 3 +++
+ net/bridge/br_netlink.c        | 7 ++++++-
+ net/bridge/br_vlan.c           | 3 ++-
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index e41eda3c71f1..fa1f72276712 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -130,6 +130,9 @@ enum {
+ #define BRIDGE_VLAN_INFO_RANGE_BEGIN	(1<<3) /* VLAN is start of vlan range */
+ #define BRIDGE_VLAN_INFO_RANGE_END	(1<<4) /* VLAN is end of vlan range */
+ #define BRIDGE_VLAN_INFO_BRENTRY	(1<<5) /* Global bridge VLAN entry */
++#define BRIDGE_VLAN_INFO_PORT_STATS	(1<<6) /* Per-port VLAN stats */
++
++#define BRIDGE_VLAN_INFO_PRIVATE_FLAGS BRIDGE_VLAN_INFO_PORT_STATS
+ 
+ struct bridge_vlan_info {
+ 	__u16 flags;
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 3345f1984542..c600fedcfb76 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -527,8 +527,12 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ static int br_vlan_info(struct net_bridge *br, struct net_bridge_port *p,
+ 			int cmd, struct bridge_vlan_info *vinfo, bool *changed)
+ {
++	int err = -EINVAL;
+ 	bool curr_change;
+-	int err = 0;
++
++	/* don't allow user-space control over private flags */
++	if (vinfo->flags & BRIDGE_VLAN_INFO_PRIVATE_FLAGS)
++		return err;
+ 
+ 	switch (cmd) {
+ 	case RTM_SETLINK:
+@@ -548,6 +552,7 @@ static int br_vlan_info(struct net_bridge *br, struct net_bridge_port *p,
+ 		break;
+ 
+ 	case RTM_DELLINK:
++		err = 0;
+ 		if (p) {
+ 			if (!nbp_vlan_delete(p, vinfo->vid))
+ 				*changed = true;
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 8c9297a01947..004e1f8c5040 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -197,7 +197,7 @@ static void nbp_vlan_rcu_free(struct rcu_head *rcu)
+ 	v = container_of(rcu, struct net_bridge_vlan, rcu);
+ 	WARN_ON(br_vlan_is_master(v));
+ 	/* if we had per-port stats configured then free them here */
+-	if (v->brvlan->stats != v->stats)
++	if (v->flags & BRIDGE_VLAN_INFO_PORT_STATS)
+ 		free_percpu(v->stats);
+ 	v->stats = NULL;
+ 	kfree(v);
+@@ -264,6 +264,7 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags)
+ 				err = -ENOMEM;
+ 				goto out_filt;
+ 			}
++			v->flags |= BRIDGE_VLAN_INFO_PORT_STATS;
+ 		} else {
+ 			v->stats = masterv->stats;
+ 		}
+-- 
+2.17.2
 
