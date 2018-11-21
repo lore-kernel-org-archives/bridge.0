@@ -2,16 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=APRJhmcntCx0BJ1QhffNXkyCTTjgKnRAipBo5VeDzG0=;
-	b=Wx6HIN4ieONuHSgbNtAaJX6cDnvYbiRzuOHq0Hn07TVPLdW1Zx31Fwhuxt1fWjxp5R0tfgembryGxpE/MMaDRXmhhsGbKd3j9CY5gOIqxJaqKVlZX+EFayby62W/ied5U1jTWGWkIKPs9Oz/CZ1ZGzXjcjC3OyGsI9FVgASukyk=
+	bh=jpqLJoWOIcaOjv57b4ceGBMFodF6qwSYvdUhkkF1VfI=;
+	b=fj7wBSbV8gHGhdXcXbGgvJkbwdI7yOkLYzS6DiaS6iQMQFgKoXuSsm1DeQbYHfd8bSZ25Uo7sAgpV4nNZIImGZZ0cIONfyDwCn2sd5dB12AukccObx4/F+sW49srEGHwepClMaZfCEmZ7OZmvQkn52sueBOYtxru6tB1wnFI8II=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 21 Nov 2018 08:02:32 +0000
-Message-ID: <20181121080141.16676-1-idosch@mellanox.com>
+Date: Wed, 21 Nov 2018 08:02:34 +0000
+Message-ID: <20181121080141.16676-2-idosch@mellanox.com>
+References: <20181121080141.16676-1-idosch@mellanox.com>
+In-Reply-To: <20181121080141.16676-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 00/16] mlxsw: Add VxLAN learning support
+Subject: [Bridge] [PATCH net-next 01/16] vxlan: __vxlan_fdb_delete(): Drop
+ unused argument vid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,69 +26,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, Ido Schimmel <idosch@mellanox.com>, mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-This patchset adds VxLAN learning support in the mlxsw driver.
+From: Petr Machata <petrm@mellanox.com>
 
-The first five patches from Petr add the required switchdev APIs which
-allow device drivers to notify the VxLAN driver about learned / aged-out
-FDB entries.
+This argument is necessary for vxlan_fdb_delete(), the API of which is
+prescribed by ndo_fdb_del, but __vxlan_fdb_delete() doesn't need it.
+Therefore drop it.
 
-First in patch #1, an unnecessary argument is dropped from
-__vxlan_fdb_delete().
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+---
+ drivers/net/vxlan.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-In patches #2-#4, the VxLAN FDB handling code is extended to make
-sending the switchdev events configurable; to mark user-added entries as
-such; and to make sure HW-learned FDB entries do not take over
-user-added ones.
-
-Finally in patch #5, the necessary switchdev notifications are added and
-handled by VxLAN, similarly to how this is handled in the bridge driver.
-
-Patch #6 allows changing of the VxLAN's device ageing time since it is
-useful for the selftest in the last patch.
-
-Patch #7 adds support for querying bridge port flags of a given
-netdevice, as a new entry should not be learned and notified to the
-bridge driver in case learning is disabled on the bridge port.
-
-Next patches gradually add learning support in mlxsw.
-
-The last patch adds a new test case for VxLAN learning.
-
-Ido Schimmel (11):
-  vxlan: Allow changing ageing time
-  bridge: Allow querying bridge port flags
-  mlxsw: reg: Add definition of unicast tunnel record for SFN register
-  mlxsw: spectrum_fid: Store ifindex of NVE device in FID
-  mlxsw: spectrum_fid: Allow FID lookup by its index
-  mlxsw: spectrum_nve: Add API to resolve learned IP addresses
-  mlxsw: spectrum_switchdev: Process learned VxLAN FDB entries
-  mlxsw: spectrum_switchdev: Allow deletion of learned FDB entries
-  mlxsw: spectrum_nve: Allow VxLAN learning
-  selftests: mlxsw: Consider VxLAN learning enabled as valid
-  selftests: forwarding: vxlan_bridge_1d: Add learning test
-
-Petr Machata (5):
-  vxlan: __vxlan_fdb_delete(): Drop unused argument vid
-  vxlan: vxlan_fdb_notify(): Make switchdev notification configurable
-  vxlan: Mark user-added FDB entries
-  vxlan: Don't override user-added entries with ext-learned ones
-  vxlan: Add hardware FDB learning
-
- drivers/net/ethernet/mellanox/mlxsw/reg.h     |  64 ++++++
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |   8 +-
- .../ethernet/mellanox/mlxsw/spectrum_fid.c    |  56 ++++-
- .../ethernet/mellanox/mlxsw/spectrum_nve.c    |  16 +-
- .../mellanox/mlxsw/spectrum_nve_vxlan.c       |   8 +-
- .../mellanox/mlxsw/spectrum_switchdev.c       | 206 ++++++++++++++++--
- drivers/net/vxlan.c                           | 192 ++++++++++++----
- include/linux/if_bridge.h                     |   6 +
- include/net/switchdev.h                       |   2 +
- include/net/vxlan.h                           |   1 +
- net/bridge/br_if.c                            |  12 +
- .../selftests/drivers/net/mlxsw/vxlan.sh      |   2 +-
- .../net/forwarding/vxlan_bridge_1d.sh         | 108 +++++++++
- 13 files changed, 606 insertions(+), 75 deletions(-)
-
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index c3e65e78f015..99ab7844476f 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -977,7 +977,7 @@ static int vxlan_fdb_add(struct ndmsg *ndm, struct nlat=
+tr *tb[],
+ static int __vxlan_fdb_delete(struct vxlan_dev *vxlan,
+ 			      const unsigned char *addr, union vxlan_addr ip,
+ 			      __be16 port, __be32 src_vni, __be32 vni,
+-			      u32 ifindex, u16 vid)
++			      u32 ifindex)
+ {
+ 	struct vxlan_fdb *f;
+ 	struct vxlan_rdst *rd =3D NULL;
+@@ -1024,8 +1024,7 @@ static int vxlan_fdb_delete(struct ndmsg *ndm, struct=
+ nlattr *tb[],
+ 		return err;
+=20
+ 	spin_lock_bh(&vxlan->hash_lock);
+-	err =3D __vxlan_fdb_delete(vxlan, addr, ip, port, src_vni, vni, ifindex,
+-				 vid);
++	err =3D __vxlan_fdb_delete(vxlan, addr, ip, port, src_vni, vni, ifindex);
+ 	spin_unlock_bh(&vxlan->hash_lock);
+=20
+ 	return err;
+@@ -3611,7 +3610,7 @@ static int vxlan_changelink(struct net_device *dev, s=
+truct nlattr *tb[],
+ 					   vxlan->cfg.dst_port,
+ 					   old_dst.remote_vni,
+ 					   old_dst.remote_vni,
+-					   old_dst.remote_ifindex, 0);
++					   old_dst.remote_ifindex);
+=20
+ 		if (!vxlan_addr_any(&dst->remote_ip)) {
+ 			err =3D vxlan_fdb_create(vxlan, all_zeros_mac,
 --=20
 2.19.1
 
