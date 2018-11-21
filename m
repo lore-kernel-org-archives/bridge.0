@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=B7O6yH/PBteyo+A5f96VEkj/XlXckAhH3H1CY/pyh6o=;
-	b=Xj8HFpL08BU1nn/uf/teF+4Ys+ToBiLDF3sdaKwFFGo5MBYQ8czzG4t6A1skNhb4HsTDn6Jn2obMFnynoLDR+wot/sIvd4oMHbrgN+CUfNGQ6eVaxnkLErBNLfL/IRvNBih369Mcj98uYT8dk6hYasNA+nKPXY1Adzo2SfCCQlQ=
+	bh=oUCYSkhCOy+ddysJEQ16zKbvIVoVHp4VAlqXCpVCylk=;
+	b=EOgo79qQbSYLe7y43j2c7IvSHTHE8W09v2YWxSSqcti1C+QCR3D20ZWhb2WvXSwJhaReAfXyBZwZ6V2LtuA9JkDBfKzD8c6qFWAtaqHsMfjATdWQJ3RHNfKPSQvintV+cP5A4sS7zhUB+h6pPszOusnI9fDw7cBITGYrI7eNNOw=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 21 Nov 2018 08:02:48 +0000
-Message-ID: <20181121080141.16676-14-idosch@mellanox.com>
+Date: Wed, 21 Nov 2018 08:02:50 +0000
+Message-ID: <20181121080141.16676-15-idosch@mellanox.com>
 References: <20181121080141.16676-1-idosch@mellanox.com>
 In-Reply-To: <20181121080141.16676-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 13/16] mlxsw: spectrum_switchdev: Allow
- deletion of learned FDB entries
+Subject: [Bridge] [PATCH net-next 14/16] mlxsw: spectrum_nve: Allow VxLAN
+	learning
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,31 +26,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, Ido Schimmel <idosch@mellanox.com>, mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Allow users to delete learned FDB entries from the bridge's FDB before
-enabling VxLAN learning.
+Up until now the driver returned an error when learning was enabled on a
+VxLAN device enslaved to an offloaded bridge.
+
+Previous patches added VxLAN learning support, so remove the check.
 
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Reviewed-by: Petr Machata <petrm@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/dri=
-vers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index d3d1c1d00d98..b32a5ee57fb9 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -2770,7 +2770,8 @@ mlxsw_sp_switchdev_bridge_nve_fdb_event(struct mlxsw_=
-sp_switchdev_event_work *
- 	    switchdev_work->event !=3D SWITCHDEV_FDB_DEL_TO_DEVICE)
- 		return;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c b/dri=
+vers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c
+index d21c7be5b1c9..4e9cc00a88fd 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c
+@@ -17,7 +17,8 @@
+ #define MLXSW_SP_NVE_VXLAN_PARSING_DEPTH 128
+ #define MLXSW_SP_NVE_DEFAULT_PARSING_DEPTH 96
 =20
--	if (!switchdev_work->fdb_info.added_by_user)
-+	if (switchdev_work->event =3D=3D SWITCHDEV_FDB_ADD_TO_DEVICE &&
-+	    !switchdev_work->fdb_info.added_by_user)
- 		return;
+-#define MLXSW_SP_NVE_VXLAN_SUPPORTED_FLAGS	VXLAN_F_UDP_ZERO_CSUM_TX
++#define MLXSW_SP_NVE_VXLAN_SUPPORTED_FLAGS	(VXLAN_F_UDP_ZERO_CSUM_TX | \
++						 VXLAN_F_LEARN)
 =20
- 	if (!netif_running(dev))
+ static bool mlxsw_sp1_nve_vxlan_can_offload(const struct mlxsw_sp_nve *nve=
+,
+ 					    const struct net_device *dev,
+@@ -61,11 +62,6 @@ static bool mlxsw_sp1_nve_vxlan_can_offload(const struct=
+ mlxsw_sp_nve *nve,
+ 		return false;
+ 	}
+=20
+-	if (cfg->flags & VXLAN_F_LEARN) {
+-		NL_SET_ERR_MSG_MOD(extack, "VxLAN: Learning is not supported");
+-		return false;
+-	}
+-
+ 	if (!(cfg->flags & VXLAN_F_UDP_ZERO_CSUM_TX)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "VxLAN: UDP checksum is not supported");
+ 		return false;
 --=20
 2.19.1
 
