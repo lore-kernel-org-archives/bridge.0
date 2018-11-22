@@ -1,18 +1,20 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=BPXOkZ0JV/Q+w6Sg5kbtEDOtggJHQiPc7K2+eBclq6Q=;
-	b=Himydgvr7zodOMgnbpmYXILCMTfdj5k7mPRx6feZRb3MTeSuIiV4kc5VqafXLDGeTJ
-	aZfWj5Qm9PJCWt+Cec8l391i8F4puxvIxKzFeNTBjvyaVQYE5XywtWhtsxfrM/dCwWrT
-	FMYw5v2SiGelJAqZ7TbMiu0V8Z2XG24x+cDiQ=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Thu, 22 Nov 2018 06:29:25 +0200
-Message-Id: <20181122042925.8878-3-nikolay@cumulusnetworks.com>
-In-Reply-To: <20181122042925.8878-1-nikolay@cumulusnetworks.com>
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; 
+	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
+	bh=y2FhISjTs22znD6XNSVtxHHfByXLwjW+To87XQzg1gI=; 
+	b=mDNxDm1FLLtqn7uBR0uC2sM1HpeE9jT/IY1d0PMmY2e5qvrEP8X3syOUlgJrC6A7F6AyptScFCWHSogAjOjANXX0sJVCbRUm9Inymdf4iWkSkRTJgx0U1Zoayl10W4Gh+GYqR7ZQ7bbJxaftEj+ORLMjElqxBgyPWyqFQ6S+pso=;
+Date: Thu, 22 Nov 2018 16:35:00 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20181122153500.GF15403@lunn.ch>
 References: <20181122042925.8878-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next 2/2] net: bridge: add no_linklocal_learn
-	bool option
+	<20181122042925.8878-2-nikolay@cumulusnetworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181122042925.8878-2-nikolay@cumulusnetworks.com>
+Subject: Re: [Bridge] [PATCH net-next 1/2] net: bridge: add support for
+ user-controlled bool options
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,141 +23,96 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, andrew@lunn.ch, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Use the new boolopt API to add an option which disables learning from
-link-local packets. The default is kept as before and learning is
-enabled. This is a simple map from a boolopt bit to a bridge private
-flag that is tested before learning.
+On Thu, Nov 22, 2018 at 06:29:24AM +0200, Nikolay Aleksandrov wrote:
+> We have been adding many new bridge options, a big number of which are
+> boolean but still take up netlink attribute ids and waste space in the skb.
+> Recently we discussed learning from link-local packets[1] and decided
+> yet another new boolean option will be needed, thus introducing this API
+> to save some bridge nl space.
+> The API supports changing the value of multiple boolean options at once
+> via the br_boolopt_multi struct which has an optmask (which options to
+> set, bit per opt) and optval (options' new values). Future boolean
+> options will only be added to the br_boolopt_id enum and then will have
+> to be handled in br_boolopt_toggle/get. The API will automatically
+> add the ability to change and export them via netlink, sysfs can use the
+> single boolopt function versions to do the same. The behaviour with
+> failing/succeeding is the same as with normal netlink option changing.
+> 
+> If an option requires mapping to internal kernel flag or needs special
+> configuration to be enabled then it should be handled in
+> br_boolopt_toggle. It should also be able to retrieve an option's current
+> state via br_boolopt_get.
+> 
+> [1] https://www.spinics.net/lists/netdev/msg532698.html
+> 
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> ---
+>  include/uapi/linux/if_bridge.h | 18 +++++++++
+>  include/uapi/linux/if_link.h   |  1 +
+>  net/bridge/br.c                | 68 ++++++++++++++++++++++++++++++++++
+>  net/bridge/br_netlink.c        | 17 ++++++++-
+>  net/bridge/br_private.h        |  6 +++
+>  net/core/rtnetlink.c           |  2 +-
+>  6 files changed, 110 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+> index e41eda3c71f1..6dc02c03bdf8 100644
+> --- a/include/uapi/linux/if_bridge.h
+> +++ b/include/uapi/linux/if_bridge.h
+> @@ -292,4 +292,22 @@ struct br_mcast_stats {
+>  	__u64 mcast_bytes[BR_MCAST_DIR_SIZE];
+>  	__u64 mcast_packets[BR_MCAST_DIR_SIZE];
+>  };
+> +
+> +/* bridge boolean options
+> + * IMPORTANT: if adding a new option do not forget to handle
+> + *            it in br_boolopt_toggle/get and bridge sysfs
+> + */
+> +enum br_boolopt_id {
+> +	BR_BOOLOPT_MAX
+> +};
+> +
+> +/* struct br_boolopt_multi - change multiple bridge boolean options
+> + *
+> + * @optval: new option values (bit per option)
+> + * @optmask: options to change (bit per option)
+> + */
+> +struct br_boolopt_multi {
+> +	__u32 optval;
+> +	__u32 optmask;
+> +};
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- include/uapi/linux/if_bridge.h |  3 +++
- net/bridge/br.c                | 10 +++++++---
- net/bridge/br_input.c          |  4 +++-
- net/bridge/br_private.h        |  1 +
- net/bridge/br_sysfs_br.c       | 22 ++++++++++++++++++++++
- 5 files changed, 36 insertions(+), 4 deletions(-)
+Hi Nikolay
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 6dc02c03bdf8..773e476a8e54 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -294,10 +294,13 @@ struct br_mcast_stats {
- };
- 
- /* bridge boolean options
-+ * BR_BOOLOPT_NO_LL_LEARN - disable learning from link-local packets
-+ *
-  * IMPORTANT: if adding a new option do not forget to handle
-  *            it in br_boolopt_toggle/get and bridge sysfs
-  */
- enum br_boolopt_id {
-+	BR_BOOLOPT_NO_LL_LEARN,
- 	BR_BOOLOPT_MAX
- };
- 
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index 290b0adbf6d6..5b78a6385bd6 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -189,6 +189,10 @@ int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on)
- 	int err = -ENOENT;
- 
- 	switch (opt) {
-+	case BR_BOOLOPT_NO_LL_LEARN:
-+		err = 0;
-+		br_opt_toggle(br, BROPT_NO_LL_LEARN, on);
-+		break;
- 	default:
- 		break;
- 	}
-@@ -198,14 +202,14 @@ int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on)
- 
- int br_boolopt_get(const struct net_bridge *br, enum br_boolopt_id opt)
- {
--	int optval = 0;
--
- 	switch (opt) {
-+	case BR_BOOLOPT_NO_LL_LEARN:
-+		return br_opt_get(br, BROPT_NO_LL_LEARN);
- 	default:
- 		break;
- 	}
- 
--	return optval;
-+	return 0;
- }
- 
- int br_boolopt_multi_toggle(struct net_bridge *br,
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 3ddca11f44c2..5ea7e56119c1 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -188,7 +188,9 @@ static void __br_handle_local_finish(struct sk_buff *skb)
- 	u16 vid = 0;
- 
- 	/* check if vlan is allowed, to avoid spoofing */
--	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
-+	if ((p->flags & BR_LEARNING) &&
-+	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
-+	    br_should_learn(p, skb, &vid))
- 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
- }
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 0f051730ed4f..390848acff08 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -328,6 +328,7 @@ enum net_bridge_opts {
- 	BROPT_NEIGH_SUPPRESS_ENABLED,
- 	BROPT_MTU_SET_BY_USER,
- 	BROPT_VLAN_STATS_PER_PORT,
-+	BROPT_NO_LL_LEARN,
- };
- 
- struct net_bridge {
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 60182bef6341..5a03033ccd27 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -328,6 +328,27 @@ static ssize_t flush_store(struct device *d,
- }
- static DEVICE_ATTR_WO(flush);
- 
-+static ssize_t no_linklocal_learn_show(struct device *d,
-+				       struct device_attribute *attr,
-+				       char *buf)
-+{
-+	struct net_bridge *br = to_bridge(d);
-+	return sprintf(buf, "%d\n", br_boolopt_get(br, BR_BOOLOPT_NO_LL_LEARN));
-+}
-+
-+static int set_no_linklocal_learn(struct net_bridge *br, unsigned long val)
-+{
-+	return br_boolopt_toggle(br, BR_BOOLOPT_NO_LL_LEARN, !!val);
-+}
-+
-+static ssize_t no_linklocal_learn_store(struct device *d,
-+					struct device_attribute *attr,
-+					const char *buf, size_t len)
-+{
-+	return store_bridge_parm(d, buf, len, set_no_linklocal_learn);
-+}
-+static DEVICE_ATTR_RW(no_linklocal_learn);
-+
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- static ssize_t multicast_router_show(struct device *d,
- 				     struct device_attribute *attr, char *buf)
-@@ -841,6 +862,7 @@ static struct attribute *bridge_attrs[] = {
- 	&dev_attr_gc_timer.attr,
- 	&dev_attr_group_addr.attr,
- 	&dev_attr_flush.attr,
-+	&dev_attr_no_linklocal_learn.attr,
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	&dev_attr_multicast_router.attr,
- 	&dev_attr_multicast_snooping.attr,
--- 
-2.17.2
+Thanks for handling this.
 
+How many boolean options do we already have? What it the likelihood a
+u32 is going to be too small, in a couple of years time?
+
+I recently went through the pain of converting the u32 for
+representing link modes in the phylib API to a linux bitmap.  I'm just
+wondering if in the long run, using a linux bitmap right from the
+beginning would be better?
+
+> +int br_boolopt_multi_toggle(struct net_bridge *br,
+> +			    struct br_boolopt_multi *bm)
+> +{
+> +	unsigned long bitmap = bm->optmask;
+> +	int err = 0;
+> +	int opt_id;
+> +
+> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
+> +		bool on = !!(bm->optval & BIT(opt_id));
+> +
+> +		err = br_boolopt_toggle(br, opt_id, on);
+> +		if (err) {
+> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
+> +				 opt_id, br_boolopt_get(br, opt_id), on, err);
+
+Would it be possible to return that to userspace using the extended
+error infrastructure?
+
+      Andrew
