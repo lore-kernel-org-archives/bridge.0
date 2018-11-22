@@ -2,11 +2,11 @@ Return-Path: <andrew@lunn.ch>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
 	s=20171124; 
 	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=jE+kGk0laC86CivlLAA6SHpPEeGEvAJg8rpOscHKXGI=; 
-	b=ljKzDFku/lm8zPdaqrhTRa/maBbIu5k08u7QPr+Km6GnvkHDIE01cM8MtX1rK7IM7sV98D4DglVYJOOfkFT60LsD+069GHYI6clngpu3UXo0q/QwqGj0RqLNuknd1caLCa3K1AP7NWJV4XcAQpPdpUPEJri33zTBIgSFDclvHP0=;
-Date: Thu, 22 Nov 2018 16:49:51 +0100
+	bh=Z7C12GWm1JCiY+N72LQmwfnxl3+Dmtdt5Dk9OoD7GO8=; 
+	b=1ZHRtlk95vHGJFQH4aTjUe3Iy88bFDn6zNKHKAlBMzj+gSNLhZswXsqmcpnZQ4whyVTYi2VEyrCX1aRPEiuhGUnlnvxjv/rK/edeUzyg54E8cW0wmPGCdDUT/2exgv4LNXUcy2rl/qyFv0jxD82Ga+lGf/bQwajNTrwSVWiPunI=;
+Date: Thu, 22 Nov 2018 16:52:56 +0100
 From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20181122154951.GG15403@lunn.ch>
+Message-ID: <20181122155256.GH15403@lunn.ch>
 References: <20181122042925.8878-1-nikolay@cumulusnetworks.com>
 	<20181122042925.8878-2-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
@@ -26,52 +26,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-> +/* br_boolopt_toggle - change user-controlled boolean option
-> + *
-> + * @br: bridge device
-> + * @opt: id of the option to change
-> + * @on: new option value
-> + *
-> + * Changes the value of the respective boolean option to @on taking care of
-> + * any internal option value mapping and configuration.
-> + */
-> +int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on)
+> +void br_boolopt_multi_get(const struct net_bridge *br,
+> +			  struct br_boolopt_multi *bm)
 > +{
-> +	int err = -ENOENT;
-> +
-> +	switch (opt) {
-> +	default:
-> +		break;
-> +	}
-> +
-> +	return err;
-> +}
-> +
-
-
-> +int br_boolopt_multi_toggle(struct net_bridge *br,
-> +			    struct br_boolopt_multi *bm)
-> +{
-> +	unsigned long bitmap = bm->optmask;
-> +	int err = 0;
+> +	u32 optval = 0;
 > +	int opt_id;
 > +
-> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
-> +		bool on = !!(bm->optval & BIT(opt_id));
+> +	for (opt_id = 0; opt_id < BR_BOOLOPT_MAX; opt_id++)
+> +		optval |= (br_boolopt_get(br, opt_id) << opt_id);
 > +
-> +		err = br_boolopt_toggle(br, opt_id, on);
-> +		if (err) {
-> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
-> +				 opt_id, br_boolopt_get(br, opt_id), on, err);
-> +			break;
-> +		}
+> +	bm->optval = optval;
+> +	bm->optmask = 0;
 
-An old kernel with a new iproute2 might partially succeed in toggling
-some low bits, but then silently ignore a high bit that is not
-supported by the kernel. As a user, i want to know the kernel does not
-support an option i'm trying to toggle.
+Maybe set optmask to indicate which bits this kernel supports?
 
-Can you walk all the bits in the u32 from the MSB to the LSB? That
-should avoid this problem.
-
-	Andrew
+      Andrew
