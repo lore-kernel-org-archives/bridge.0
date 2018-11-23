@@ -1,25 +1,23 @@
-Return-Path: <stephen@networkplumber.org>
+Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
-	h=date:from:to:cc:subject:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=6/3aDn/NzPWOWN7NHfqgkjGzvcpg9OLP54S7+u7dqaU=;
-	b=coQxMorDLWPEWcBKPvap1OuLxs6LcNy7FOqTadeV9sN6Aj1nfxhsZsXb6AmHy9Y0kT
-	TodDTLgVEw1s+nTdMELZLqR5MsNkUoqQYo0mt/xo13SgQVwpzvKMDkn1p3rmmqtiaiJi
-	NZAfHsbGbqHynZLq2E8ux2xXZ9GJGpUEoiFEixkFomnGlSaKdUJWeiQ7AkeG8pzZOtiV
-	aFJ+rpcNUxXNurrQSWYNbFYgeVNZ6A8ygRObg9JA4BXIuDgS1/BdCISQJ0/YxIVi+5sh
-	sS/q9n8gmoSwXIjS6P+hOqhSOumYWhk8zlGSTSmJ3VQPFGjriuwZMTFUFmUy7uYYmj5t
-	yUug==
-Date: Thu, 22 Nov 2018 11:37:17 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20181122113717.5c88bdb4@xeon-e3>
-In-Reply-To: <e2d49e09-ab36-7daa-9e88-178025bedcc7@cumulusnetworks.com>
+	d=cumulusnetworks.com; s=google;
+	h=subject:from:to:cc:references:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=fx/WlrxRb8snjid6GZpOFZ/c6mgvS5r11mneWWbDT0o=;
+	b=ClTPAUHWfjhXytoyw7L7vJ+D1Zyl2CERzYEn2onvDvDMyRmSZXmHGiZBBj6w6HC9OQ
+	9/Bx3uUkmrS9jn0h3Ppied3+JWCca0W20L5CFJlJ6whV2YjQgSfjWAjKDdXff8sjJ7Js
+	TcystNHtlgw+QZAnO4q9ooyF8B9oyVgucAy6k=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 References: <20181122042925.8878-1-nikolay@cumulusnetworks.com>
 	<20181122042925.8878-2-nikolay@cumulusnetworks.com>
-	<20181122153500.GF15403@lunn.ch>
-	<e2d49e09-ab36-7daa-9e88-178025bedcc7@cumulusnetworks.com>
+	<20181122154951.GG15403@lunn.ch>
+	<47484385-f944-e8bf-c358-e3436dfd776d@cumulusnetworks.com>
+Message-ID: <c5d16533-8a53-a418-08df-499fa82bb6f9@cumulusnetworks.com>
+Date: Fri, 23 Nov 2018 03:55:24 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <47484385-f944-e8bf-c358-e3436dfd776d@cumulusnetworks.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next 1/2] net: bridge: add support for
  user-controlled bool options
@@ -31,112 +29,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, netdev@vger.kernel.org
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On Thu, 22 Nov 2018 18:01:29 +0200
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
-
-> On 22/11/2018 17:35, Andrew Lunn wrote:
-> > On Thu, Nov 22, 2018 at 06:29:24AM +0200, Nikolay Aleksandrov wrote:  
-> >> We have been adding many new bridge options, a big number of which are
-> >> boolean but still take up netlink attribute ids and waste space in the skb.
-> >> Recently we discussed learning from link-local packets[1] and decided
-> >> yet another new boolean option will be needed, thus introducing this API
-> >> to save some bridge nl space.
-> >> The API supports changing the value of multiple boolean options at once
-> >> via the br_boolopt_multi struct which has an optmask (which options to
-> >> set, bit per opt) and optval (options' new values). Future boolean
-> >> options will only be added to the br_boolopt_id enum and then will have
-> >> to be handled in br_boolopt_toggle/get. The API will automatically
-> >> add the ability to change and export them via netlink, sysfs can use the
-> >> single boolopt function versions to do the same. The behaviour with
-> >> failing/succeeding is the same as with normal netlink option changing.
-> >>
-> >> If an option requires mapping to internal kernel flag or needs special
-> >> configuration to be enabled then it should be handled in
-> >> br_boolopt_toggle. It should also be able to retrieve an option's current
-> >> state via br_boolopt_get.
-> >>
-> >> [1] https://www.spinics.net/lists/netdev/msg532698.html
-> >>
-> >> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> >> ---
-> >>  include/uapi/linux/if_bridge.h | 18 +++++++++
-> >>  include/uapi/linux/if_link.h   |  1 +
-> >>  net/bridge/br.c                | 68 ++++++++++++++++++++++++++++++++++
-> >>  net/bridge/br_netlink.c        | 17 ++++++++-
-> >>  net/bridge/br_private.h        |  6 +++
-> >>  net/core/rtnetlink.c           |  2 +-
-> >>  6 files changed, 110 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-> >> index e41eda3c71f1..6dc02c03bdf8 100644
-> >> --- a/include/uapi/linux/if_bridge.h
-> >> +++ b/include/uapi/linux/if_bridge.h
-> >> @@ -292,4 +292,22 @@ struct br_mcast_stats {
-> >>  	__u64 mcast_bytes[BR_MCAST_DIR_SIZE];
-> >>  	__u64 mcast_packets[BR_MCAST_DIR_SIZE];
-> >>  };
-> >> +
-> >> +/* bridge boolean options
-> >> + * IMPORTANT: if adding a new option do not forget to handle
-> >> + *            it in br_boolopt_toggle/get and bridge sysfs
-> >> + */
-> >> +enum br_boolopt_id {
-> >> +	BR_BOOLOPT_MAX
-> >> +};
-> >> +
-> >> +/* struct br_boolopt_multi - change multiple bridge boolean options
-> >> + *
-> >> + * @optval: new option values (bit per option)
-> >> + * @optmask: options to change (bit per option)
-> >> + */
-> >> +struct br_boolopt_multi {
-> >> +	__u32 optval;
-> >> +	__u32 optmask;
-> >> +};  
-> > 
-> > Hi Nikolay
-> > 
-> > Thanks for handling this.
-> > 
-> > How many boolean options do we already have? What it the likelihood a
-> > u32 is going to be too small, in a couple of years time?
-> >   
+On 22/11/2018 18:13, Nikolay Aleksandrov wrote:
+<snip>
+>>> +int br_boolopt_multi_toggle(struct net_bridge *br,
+>>> +			    struct br_boolopt_multi *bm)
+>>> +{
+>>> +	unsigned long bitmap = bm->optmask;
+>>> +	int err = 0;
+>>> +	int opt_id;
+>>> +
+>>> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
+>>> +		bool on = !!(bm->optval & BIT(opt_id));
+>>> +
+>>> +		err = br_boolopt_toggle(br, opt_id, on);
+>>> +		if (err) {
+>>> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
+>>> +				 opt_id, br_boolopt_get(br, opt_id), on, err);
+>>> +			break;
+>>> +		}
+>>
+>> An old kernel with a new iproute2 might partially succeed in toggling
+>> some low bits, but then silently ignore a high bit that is not
+>> supported by the kernel. As a user, i want to know the kernel does not
+>> support an option i'm trying to toggle.
+>>
 > 
-> It would mean doubling the number of current options and this is only for
-> boolean options so I think we're safe.
+> That is already how netlink option setting works, if the option isn't supported
+> it is silently ignored. I tried to stay as close to the current behaviour as possible.
+> It also applies to partial option changes, some options will be changed until an error
+> is encountered.
 > 
-> > I recently went through the pain of converting the u32 for
-> > representing link modes in the phylib API to a linux bitmap.  I'm just
-> > wondering if in the long run, using a linux bitmap right from the
-> > beginning would be better?
-> >   
-> >> +int br_boolopt_multi_toggle(struct net_bridge *br,
-> >> +			    struct br_boolopt_multi *bm)
-> >> +{
-> >> +	unsigned long bitmap = bm->optmask;
-> >> +	int err = 0;
-> >> +	int opt_id;
-> >> +
-> >> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
-> >> +		bool on = !!(bm->optval & BIT(opt_id));
-> >> +
-> >> +		err = br_boolopt_toggle(br, opt_id, on);
-> >> +		if (err) {
-> >> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
-> >> +				 opt_id, br_boolopt_get(br, opt_id), on, err);  
-> > 
-> > Would it be possible to return that to userspace using the extended
-> > error infrastructure?
-> >   
+>> Can you walk all the bits in the u32 from the MSB to the LSB? That
+>> should avoid this problem.
+>>
 > 
-> No, it doesn't support dynamic messages AFAIK.
-> 
-> >       Andrew
-> >   
+> I did wonder about this and left it as netlink option behaviour but
+> I can leave the walk as is and just check if the highest order set bit >= BR_BOOLOPT_MAX
+> and err out with ENOTSUPP for example. Will reconsider for v2.
 > 
 
-My concern is about backwards compatibility. What about old userspace and new userspace tools with old kernels.
-Having multiple bits does allow handling cases where certain combos won't work.
+Actually this doesn't improve user experience, after testing a little the problem is
+that we can't return to the user the exact option that failed in any understandable manner.
+The options are:
+ - exact error message: (no bit/option value) so pretty much just say "Failed bool option"
+ - pr_err: this has 2 issues, first it can't be retrieved by the caller (will be in the logs)
+           and more importantly the best we can do is print the option bit that we don't support
+           which really doesn't help the user at all
+
+So the example is having newer iproute2 on older kernel and trying to set non-existing option
+mixed with existing ones - the user has no way of determining which one failed even if we print
+the bit, so this is really frustrating. The current way of ignoring the missing options seems
+a bit more user-friendly and also with the change that we return the supported bit options
+in optmask (thanks for the suggestion), the user-space tool (iproute2) can determine if an
+option is not supported and at least give an indication when dumping it.
+All of this does align with how netlink currently handles options and people are used to it.
+
+
+
