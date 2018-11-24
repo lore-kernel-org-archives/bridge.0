@@ -2,19 +2,19 @@ Return-Path: <andrew@lunn.ch>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
 	s=20171124; 
 	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=d+cMLZ8Si3lJWATSwbd5LXqVkRDqcmlD4acDbAFO3Co=; 
-	b=0PPaO47BV6tTFo56bvkU1WksmqAdnrm18CCD8Hxkg6Z5QyGi+pD75y7nEW7DSdbUM1fRegHG4K1YUI+l0fVozk1XYie+kWPe91rWDn0mbl/FAwJrj/KtCi460OupBbf8DhHx0rWmkOate0rQdSHIw0oSWsZeiLdwzqkAbcJEXYk=;
-Date: Sat, 24 Nov 2018 17:10:41 +0100
+	bh=gzrb2/9ZuAh2gS4Zj6soeFaHj7GumICUWiOJWraUBqA=; 
+	b=Hr9U1Lw/A2eViUBLmjoGTuc09Fmw/PRZNrRlrBz2o0/95PelEfvx/bLY8hz9KmZ/5id7HPnw6hONUV8rV/ICfQl7vBVE/DJH6K9rWI4RvNB9tXNEEfkYlRJAHAhAnsoQQtVlaYpT/rUy7rqsGbxlu8aOSlOagdDoFcvxfXMbdw0=;
+Date: Sat, 24 Nov 2018 17:16:47 +0100
 From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20181124161041.GA24681@lunn.ch>
+Message-ID: <20181124161647.GB24681@lunn.ch>
 References: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
-	<20181124023422.13908-2-nikolay@cumulusnetworks.com>
+	<20181124023422.13908-4-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181124023422.13908-2-nikolay@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH net-next v2 1/3] net: bridge: add support for
- user-controlled bool options
+In-Reply-To: <20181124023422.13908-4-nikolay@cumulusnetworks.com>
+Subject: Re: [Bridge] [PATCH net-next v2 3/3] net: bridge: export supported
+	boolopts
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,61 +26,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-> +int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
-> +		      struct netlink_ext_ack *extack)
-> +{
-> +	switch (opt) {
-> +	default:
-> +		/* shouldn't be called with unsupported options */
-> +		WARN_ON(1);
-> +		break;
+On Sat, Nov 24, 2018 at 04:34:22AM +0200, Nikolay Aleksandrov wrote:
+> Now that we have at least one bool option, we can export all of the
+> supported bool options via optmask when dumping them.
+> 
+Hi Nik
 
-So you return 0 here, meaning the br_debug() lower down will not
-happen. Maybe return -EOPNOTSUPP?
+That answers my question then...
 
-> +	}
-> +
-> +	return 0;
-> +}
-> +
+I'm assuming this means there is no easy way to generate a bitmask of
+0? So you waited until there was at least one bit.
 
-> +int br_boolopt_multi_toggle(struct net_bridge *br,
-> +			    struct br_boolopt_multi *bm,
-> +			    struct netlink_ext_ack *extack)
-> +{
-> +	unsigned long bitmap = bm->optmask;
-> +	int err = 0;
-> +	int opt_id;
-> +
-> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
-> +		bool on = !!(bm->optval & BIT(opt_id));
-> +
-> +		err = br_boolopt_toggle(br, opt_id, on, extack);
-> +		if (err) {
-> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
-> +				 opt_id, br_boolopt_get(br, opt_id), on, err);
-> +			break;
-> +		}
-> +	}
+(1 << 2) - 1 = 3
+(1 << 1) - 1 = 1
+(1 << 0) - 1 = 0
 
-Does the semantics of extack allow you to return something even when
-there is no error? If there are bits > BR_BOOLOPT_MAX you could return
-0, but also add a warning in extack that some bits where not supported
-by this kernel.
+So does 
 
-> +void br_boolopt_multi_get(const struct net_bridge *br,
-> +			  struct br_boolopt_multi *bm)
-> +{
-> +	u32 optval = 0;
-> +	int opt_id;
-> +
-> +	for (opt_id = 0; opt_id < BR_BOOLOPT_MAX; opt_id++)
-> +		optval |= (br_boolopt_get(br, opt_id) << opt_id);
-> +
-> +	bm->optval = optval;
-> +	bm->optmask = 0;
+GENMASK((BR_BOOLOPT_MAX - 1), 0);
 
-You liked the idea of setting optmask to indicate which bits this
-kernel supports. Did you change your mind?
+really not do the right thing when BR_BOOLOPT_MAX = 1?
 
        Andrew
