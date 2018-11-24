@@ -2,17 +2,17 @@ Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=xz2pBI6g5Sg2ON2qQxnt7pXbijtmL+5Q3eKGCSd6PXI=;
-	b=FY3tU+jtSDp+su3ebxlCR+JuhY576d/6n82+TJZVCHPi8qD49jpmrH52xU9PwfHF1V
-	AH4XU4xEtYkwSpObHfSGuEYav+jCbLdLKt3BPflD1QVfXMmfDxHdsVtxNMuvE6g618/w
-	7F9icumgZwxcKBDM+MsG+DAmOfX6UJF7C+5es=
+	bh=wOvBAbQmOydGTWz2nQHoGpiUOmzFWaiDgBN0be537SI=;
+	b=NHUjtEDT4VBBDH1HhuFk1SUYOIcpQweAGyNxdt+7dERyX1HChbsAAllJZXQxjqVrbr
+	XUCY0rODqip8t4N/cnjypmFPYIyrvlEZ62Ka2wV/k5YS1pDHUUnZbl/9ZeFrnZBlMxmt
+	yMAMWbuMas75ClkMYeJnyesq4ZlrO8cXJBf+A=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat, 24 Nov 2018 04:34:20 +0200
-Message-Id: <20181124023422.13908-2-nikolay@cumulusnetworks.com>
+Date: Sat, 24 Nov 2018 04:34:21 +0200
+Message-Id: <20181124023422.13908-3-nikolay@cumulusnetworks.com>
 In-Reply-To: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
 References: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v2 1/3] net: bridge: add support for
-	user-controlled bool options
+Subject: [Bridge] [PATCH net-next v2 2/3] net: bridge: add
+	no_linklocal_learn bool option
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,258 +24,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, andrew@lunn.ch, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-We have been adding many new bridge options, a big number of which are
-boolean but still take up netlink attribute ids and waste space in the skb.
-Recently we discussed learning from link-local packets[1] and decided
-yet another new boolean option will be needed, thus introducing this API
-to save some bridge nl space.
-The API supports changing the value of multiple boolean options at once
-via the br_boolopt_multi struct which has an optmask (which options to
-set, bit per opt) and optval (options' new values). Future boolean
-options will only be added to the br_boolopt_id enum and then will have
-to be handled in br_boolopt_toggle/get. The API will automatically
-add the ability to change and export them via netlink, sysfs can use the
-single boolopt function versions to do the same. The behaviour with
-failing/succeeding is the same as with normal netlink option changing.
+Use the new boolopt API to add an option which disables learning from
+link-local packets. The default is kept as before and learning is
+enabled. This is a simple map from a boolopt bit to a bridge private
+flag that is tested before learning.
 
-If an option requires mapping to internal kernel flag or needs special
-configuration to be enabled then it should be handled in
-br_boolopt_toggle. It should also be able to retrieve an option's current
-state via br_boolopt_get.
-
-v2: WARN_ON() on unsupported option as that shouldn't be possible and
-    also will help catch people who add new options without handling
-    them for both set and get. Pass down extack so if an option desires
-    it could set it on error and be more user-friendly.
-
-[1] https://www.spinics.net/lists/netdev/msg532698.html
+v2: pass NULL for extack via sysfs
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- include/uapi/linux/if_bridge.h | 18 +++++++++
- include/uapi/linux/if_link.h   |  1 +
- net/bridge/br.c                | 71 ++++++++++++++++++++++++++++++++++
- net/bridge/br_netlink.c        | 17 +++++++-
- net/bridge/br_private.h        |  8 ++++
- net/core/rtnetlink.c           |  2 +-
- 6 files changed, 115 insertions(+), 2 deletions(-)
+ include/uapi/linux/if_bridge.h |  3 +++
+ net/bridge/br.c                |  5 +++++
+ net/bridge/br_input.c          |  4 +++-
+ net/bridge/br_private.h        |  1 +
+ net/bridge/br_sysfs_br.c       | 22 ++++++++++++++++++++++
+ 5 files changed, 34 insertions(+), 1 deletion(-)
 
 diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index e41eda3c71f1..6dc02c03bdf8 100644
+index 6dc02c03bdf8..773e476a8e54 100644
 --- a/include/uapi/linux/if_bridge.h
 +++ b/include/uapi/linux/if_bridge.h
-@@ -292,4 +292,22 @@ struct br_mcast_stats {
- 	__u64 mcast_bytes[BR_MCAST_DIR_SIZE];
- 	__u64 mcast_packets[BR_MCAST_DIR_SIZE];
+@@ -294,10 +294,13 @@ struct br_mcast_stats {
  };
-+
-+/* bridge boolean options
-+ * IMPORTANT: if adding a new option do not forget to handle
-+ *            it in br_boolopt_toggle/get and bridge sysfs
-+ */
-+enum br_boolopt_id {
-+	BR_BOOLOPT_MAX
-+};
-+
-+/* struct br_boolopt_multi - change multiple bridge boolean options
+ 
+ /* bridge boolean options
++ * BR_BOOLOPT_NO_LL_LEARN - disable learning from link-local packets
 + *
-+ * @optval: new option values (bit per option)
-+ * @optmask: options to change (bit per option)
-+ */
-+struct br_boolopt_multi {
-+	__u32 optval;
-+	__u32 optmask;
-+};
- #endif /* _UAPI_LINUX_IF_BRIDGE_H */
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index f42c069d81db..d6533828123a 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -288,6 +288,7 @@ enum {
- 	IFLA_BR_MCAST_IGMP_VERSION,
- 	IFLA_BR_MCAST_MLD_VERSION,
- 	IFLA_BR_VLAN_STATS_PER_PORT,
-+	IFLA_BR_MULTI_BOOLOPT,
- 	__IFLA_BR_MAX,
+  * IMPORTANT: if adding a new option do not forget to handle
+  *            it in br_boolopt_toggle/get and bridge sysfs
+  */
+ enum br_boolopt_id {
++	BR_BOOLOPT_NO_LL_LEARN,
+ 	BR_BOOLOPT_MAX
  };
  
 diff --git a/net/bridge/br.c b/net/bridge/br.c
-index 360ad66c21e9..c527160c1975 100644
+index c527160c1975..b4a51a053586 100644
 --- a/net/bridge/br.c
 +++ b/net/bridge/br.c
-@@ -175,6 +175,77 @@ static struct notifier_block br_switchdev_notifier = {
- 	.notifier_call = br_switchdev_event,
- };
- 
-+/* br_boolopt_toggle - change user-controlled boolean option
-+ *
-+ * @br: bridge device
-+ * @opt: id of the option to change
-+ * @on: new option value
-+ * @extack: extack for error messages
-+ *
-+ * Changes the value of the respective boolean option to @on taking care of
-+ * any internal option value mapping and configuration.
-+ */
-+int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
-+		      struct netlink_ext_ack *extack)
-+{
-+	switch (opt) {
-+	default:
-+		/* shouldn't be called with unsupported options */
-+		WARN_ON(1);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+int br_boolopt_get(const struct net_bridge *br, enum br_boolopt_id opt)
-+{
-+	switch (opt) {
-+	default:
-+		/* shouldn't be called with unsupported options */
-+		WARN_ON(1);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+int br_boolopt_multi_toggle(struct net_bridge *br,
-+			    struct br_boolopt_multi *bm,
-+			    struct netlink_ext_ack *extack)
-+{
-+	unsigned long bitmap = bm->optmask;
-+	int err = 0;
-+	int opt_id;
-+
-+	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
-+		bool on = !!(bm->optval & BIT(opt_id));
-+
-+		err = br_boolopt_toggle(br, opt_id, on, extack);
-+		if (err) {
-+			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
-+				 opt_id, br_boolopt_get(br, opt_id), on, err);
-+			break;
-+		}
-+	}
-+
-+	return err;
-+}
-+
-+void br_boolopt_multi_get(const struct net_bridge *br,
-+			  struct br_boolopt_multi *bm)
-+{
-+	u32 optval = 0;
-+	int opt_id;
-+
-+	for (opt_id = 0; opt_id < BR_BOOLOPT_MAX; opt_id++)
-+		optval |= (br_boolopt_get(br, opt_id) << opt_id);
-+
-+	bm->optval = optval;
-+	bm->optmask = 0;
-+}
-+
-+/* private bridge options, controlled by the kernel */
- void br_opt_toggle(struct net_bridge *br, enum net_bridge_opts opt, bool on)
+@@ -189,6 +189,9 @@ int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
+ 		      struct netlink_ext_ack *extack)
  {
- 	bool cur = !!br_opt_get(br, opt);
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 3345f1984542..13cd50326af2 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1035,6 +1035,8 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
- 	[IFLA_BR_MCAST_IGMP_VERSION] = { .type = NLA_U8 },
- 	[IFLA_BR_MCAST_MLD_VERSION] = { .type = NLA_U8 },
- 	[IFLA_BR_VLAN_STATS_PER_PORT] = { .type = NLA_U8 },
-+	[IFLA_BR_MULTI_BOOLOPT] = { .type = NLA_EXACT_LEN,
-+				    .len = sizeof(struct br_boolopt_multi) },
- };
+ 	switch (opt) {
++	case BR_BOOLOPT_NO_LL_LEARN:
++		br_opt_toggle(br, BROPT_NO_LL_LEARN, on);
++		break;
+ 	default:
+ 		/* shouldn't be called with unsupported options */
+ 		WARN_ON(1);
+@@ -201,6 +204,8 @@ int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
+ int br_boolopt_get(const struct net_bridge *br, enum br_boolopt_id opt)
+ {
+ 	switch (opt) {
++	case BR_BOOLOPT_NO_LL_LEARN:
++		return br_opt_get(br, BROPT_NO_LL_LEARN);
+ 	default:
+ 		/* shouldn't be called with unsupported options */
+ 		WARN_ON(1);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 3ddca11f44c2..5ea7e56119c1 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -188,7 +188,9 @@ static void __br_handle_local_finish(struct sk_buff *skb)
+ 	u16 vid = 0;
  
- static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
-@@ -1296,6 +1298,15 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 	}
- #endif
- 
-+	if (data[IFLA_BR_MULTI_BOOLOPT]) {
-+		struct br_boolopt_multi *bm;
-+
-+		bm = nla_data(data[IFLA_BR_MULTI_BOOLOPT]);
-+		err = br_boolopt_multi_toggle(br, bm, extack);
-+		if (err)
-+			return err;
-+	}
-+
- 	return 0;
+ 	/* check if vlan is allowed, to avoid spoofing */
+-	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
++	if ((p->flags & BR_LEARNING) &&
++	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
++	    br_should_learn(p, skb, &vid))
+ 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
  }
  
-@@ -1374,6 +1385,7 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_NF_CALL_IP6TABLES */
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_NF_CALL_ARPTABLES */
- #endif
-+	       nla_total_size(sizeof(struct br_boolopt_multi)) + /* IFLA_BR_MULTI_BOOLOPT */
- 	       0;
- }
- 
-@@ -1387,6 +1399,7 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	u32 stp_enabled = br->stp_enabled;
- 	u16 priority = (br->bridge_id.prio[0] << 8) | br->bridge_id.prio[1];
- 	u8 vlan_enabled = br_vlan_enabled(br->dev);
-+	struct br_boolopt_multi bm;
- 	u64 clockval;
- 
- 	clockval = br_timer_value(&br->hello_timer);
-@@ -1403,6 +1416,7 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	if (nla_put_u64_64bit(skb, IFLA_BR_GC_TIMER, clockval, IFLA_BR_PAD))
- 		return -EMSGSIZE;
- 
-+	br_boolopt_multi_get(br, &bm);
- 	if (nla_put_u32(skb, IFLA_BR_FORWARD_DELAY, forward_delay) ||
- 	    nla_put_u32(skb, IFLA_BR_HELLO_TIME, hello_time) ||
- 	    nla_put_u32(skb, IFLA_BR_MAX_AGE, age_time) ||
-@@ -1420,7 +1434,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	    nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE, br->topology_change) ||
- 	    nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
- 		       br->topology_change_detected) ||
--	    nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr))
-+	    nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr) ||
-+	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm))
- 		return -EMSGSIZE;
- 
- #ifdef CONFIG_BRIDGE_VLAN_FILTERING
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index bc2653738fc3..6d4c208fbf08 100644
+index 6d4c208fbf08..d29f837cd7a2 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -507,6 +507,14 @@ static inline int br_opt_get(const struct net_bridge *br,
- 	return test_bit(opt, &br->options);
+@@ -328,6 +328,7 @@ enum net_bridge_opts {
+ 	BROPT_NEIGH_SUPPRESS_ENABLED,
+ 	BROPT_MTU_SET_BY_USER,
+ 	BROPT_VLAN_STATS_PER_PORT,
++	BROPT_NO_LL_LEARN,
+ };
+ 
+ struct net_bridge {
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 60182bef6341..6a378a7e16ea 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -328,6 +328,27 @@ static ssize_t flush_store(struct device *d,
  }
+ static DEVICE_ATTR_WO(flush);
  
-+int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
-+		      struct netlink_ext_ack *extack);
-+int br_boolopt_get(const struct net_bridge *br, enum br_boolopt_id opt);
-+int br_boolopt_multi_toggle(struct net_bridge *br,
-+			    struct br_boolopt_multi *bm,
-+			    struct netlink_ext_ack *extack);
-+void br_boolopt_multi_get(const struct net_bridge *br,
-+			  struct br_boolopt_multi *bm);
- void br_opt_toggle(struct net_bridge *br, enum net_bridge_opts opt, bool on);
- 
- /* br_device.c */
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 86f2d9cbdae3..a498bb41c9aa 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -59,7 +59,7 @@
- #include <net/rtnetlink.h>
- #include <net/net_namespace.h>
- 
--#define RTNL_MAX_TYPE		49
-+#define RTNL_MAX_TYPE		50
- #define RTNL_SLAVE_MAX_TYPE	36
- 
- struct rtnl_link {
++static ssize_t no_linklocal_learn_show(struct device *d,
++				       struct device_attribute *attr,
++				       char *buf)
++{
++	struct net_bridge *br = to_bridge(d);
++	return sprintf(buf, "%d\n", br_boolopt_get(br, BR_BOOLOPT_NO_LL_LEARN));
++}
++
++static int set_no_linklocal_learn(struct net_bridge *br, unsigned long val)
++{
++	return br_boolopt_toggle(br, BR_BOOLOPT_NO_LL_LEARN, !!val, NULL);
++}
++
++static ssize_t no_linklocal_learn_store(struct device *d,
++					struct device_attribute *attr,
++					const char *buf, size_t len)
++{
++	return store_bridge_parm(d, buf, len, set_no_linklocal_learn);
++}
++static DEVICE_ATTR_RW(no_linklocal_learn);
++
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ static ssize_t multicast_router_show(struct device *d,
+ 				     struct device_attribute *attr, char *buf)
+@@ -841,6 +862,7 @@ static struct attribute *bridge_attrs[] = {
+ 	&dev_attr_gc_timer.attr,
+ 	&dev_attr_group_addr.attr,
+ 	&dev_attr_flush.attr,
++	&dev_attr_no_linklocal_learn.attr,
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	&dev_attr_multicast_router.attr,
+ 	&dev_attr_multicast_snooping.attr,
 -- 
 2.17.2
 
