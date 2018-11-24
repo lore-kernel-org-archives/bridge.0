@@ -1,23 +1,20 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=N2E7Pc0zVRLDUB1guUe+9JXVVdfIHz7GBFvgDy5DPmU=;
-	b=Li6zqp3rQrkyICn3wxg8DJFy9wU2sWBHQrdJMyB6Kd0MqrfT2LE1ucZKXrxrePHQsh
-	FAH29GyELydROpt+zt006J6ZrtBE3A5qauLfXwgsh+tjnfbkXJ1+vaf02cRiQUhh6En6
-	uzAoBaXeUzVKn5+n6QOnsw5kgp4a/i5X+duGs=
-References: <20181124121551.6942-1-colin.king@canonical.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <85963d6a-3411-9461-67aa-42e1fd02e663@cumulusnetworks.com>
-Date: Sat, 24 Nov 2018 14:21:07 +0200
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; 
+	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
+	bh=d+cMLZ8Si3lJWATSwbd5LXqVkRDqcmlD4acDbAFO3Co=; 
+	b=0PPaO47BV6tTFo56bvkU1WksmqAdnrm18CCD8Hxkg6Z5QyGi+pD75y7nEW7DSdbUM1fRegHG4K1YUI+l0fVozk1XYie+kWPe91rWDn0mbl/FAwJrj/KtCi460OupBbf8DhHx0rWmkOate0rQdSHIw0oSWsZeiLdwzqkAbcJEXYk=;
+Date: Sat, 24 Nov 2018 17:10:41 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20181124161041.GA24681@lunn.ch>
+References: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
+	<20181124023422.13908-2-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-In-Reply-To: <20181124121551.6942-1-colin.king@canonical.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net: bridge: check for a null p->dev before
- dereferencing it
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181124023422.13908-2-nikolay@cumulusnetworks.com>
+Subject: Re: [Bridge] [PATCH net-next v2 1/3] net: bridge: add support for
+ user-controlled bool options
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,73 +23,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Colin King <colin.king@canonical.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, "David S . Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 24/11/2018 14:15, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> A recent change added a null check on p->dev after p->dev was being
-> dereferenced by the ns_capable check on p->dev.  Fix this by performing
-> the p->dev sanity check before it is dereferenced.
-> 
-> Detected by CoverityScan, CID#751490 ("Dereference before null check")
-> 
-> Fixes: a5f3ea54f3cc ("net: bridge: add support for raw sysfs port options")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  net/bridge/br_sysfs_if.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-> index 7c87a2fe5248..aab8aa17cccf 100644
-> --- a/net/bridge/br_sysfs_if.c
-> +++ b/net/bridge/br_sysfs_if.c
-> @@ -314,15 +314,15 @@ static ssize_t brport_store(struct kobject *kobj,
->  	unsigned long val;
->  	char *endp;
->  
-> +	if (!p->dev || !p->br)
-> +		return -EINVAL;
+> +int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
+> +		      struct netlink_ext_ack *extack)
+> +{
+> +	switch (opt) {
+> +	default:
+> +		/* shouldn't be called with unsupported options */
+> +		WARN_ON(1);
+> +		break;
+
+So you return 0 here, meaning the br_debug() lower down will not
+happen. Maybe return -EOPNOTSUPP?
+
+> +	}
 > +
->  	if (!ns_capable(dev_net(p->dev)->user_ns, CAP_NET_ADMIN))
->  		return -EPERM;
->  
->  	if (!rtnl_trylock())
->  		return restart_syscall();
->  
-> -	if (!p->dev || !p->br)
-> -		goto out_unlock;
-> -
->  	if (brport_attr->store_raw) {
->  		char *buf_copy;
->  
-> 
+> +	return 0;
+> +}
+> +
 
-Hi,
-I was contacted recently about this privately and this was my reply:
-"Checking new_nbp() and del_nbp() it should not be possible to reach that code
-with p->dev or p->br as NULL. The cap check code has always been there, I just
-shuffled the rest of the function to obtain rtnl lock and kept it as close to
-the original as possible, thus the checks remained.
-In order to avoid future reports like this I'll send a cleanup once net-next
-opens up.
+> +int br_boolopt_multi_toggle(struct net_bridge *br,
+> +			    struct br_boolopt_multi *bm,
+> +			    struct netlink_ext_ack *extack)
+> +{
+> +	unsigned long bitmap = bm->optmask;
+> +	int err = 0;
+> +	int opt_id;
+> +
+> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
+> +		bool on = !!(bm->optval & BIT(opt_id));
+> +
+> +		err = br_boolopt_toggle(br, opt_id, on, extack);
+> +		if (err) {
+> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
+> +				 opt_id, br_boolopt_get(br, opt_id), on, err);
+> +			break;
+> +		}
+> +	}
 
-My reasoning of why it shouldn't be possible:
-- On port add new_nbp() sets both p->dev and p->br before creating kobj/sysfs
+Does the semantics of extack allow you to return something even when
+there is no error? If there are bits > BR_BOOLOPT_MAX you could return
+0, but also add a warning in extack that some bits where not supported
+by this kernel.
 
-- On port del (trickier) del_nbp() calls kobject_del() before call_rcu() to destroy
-  the port which in turn calls sysfs_remove_dir() which uses kernfs_remove() which
-  deactivates (shouldn't be able to open new files) and calls kernfs_drain() to drain
-  current open/mmaped files in the respective dir before continuing, thus making it
-  impossible to open a bridge port sysfs file with p->dev and p->br equal to NULL.
-"
+> +void br_boolopt_multi_get(const struct net_bridge *br,
+> +			  struct br_boolopt_multi *bm)
+> +{
+> +	u32 optval = 0;
+> +	int opt_id;
+> +
+> +	for (opt_id = 0; opt_id < BR_BOOLOPT_MAX; opt_id++)
+> +		optval |= (br_boolopt_get(br, opt_id) << opt_id);
+> +
+> +	bm->optval = optval;
+> +	bm->optmask = 0;
 
-So I think it's safe to remove those checks altogether. It'd be nice to get a second
-look over my reasoning as I might be missing something in sysfs/kernfs call path.
+You liked the idea of setting optmask to indicate which bits this
+kernel supports. Did you change your mind?
 
-Thanks,
- Nik
-
-
-
+       Andrew
