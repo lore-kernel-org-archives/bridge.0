@@ -1,18 +1,12 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=6SfiZ9t8kzSwu7i4PiCxLQ7TJZV1rVza5+2e+BFzRc4=;
-	b=bP8kUatJNVw+o3Vw2J+6BKUFEu51d6Mcjrfps3vrO5vzZZFjmLHgwU8pU+MPskPgCi
-	N80idVEzBtBDKqoMldmDxzWDW2fk9isUlMkuB1gnPAZa7wifsl7mynkvdPby2B0fK2kE
-	Po+dGWhMzj+k9Diom0u2YuoMEUm5YOzj6/zmQ=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat, 24 Nov 2018 04:34:22 +0200
-Message-Id: <20181124023422.13908-4-nikolay@cumulusnetworks.com>
-In-Reply-To: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
-References: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
-Subject: [Bridge] [PATCH net-next v2 3/3] net: bridge: export supported
-	boolopts
+Return-Path: <colin.king@canonical.com>
+From: Colin King <colin.king@canonical.com>
+Date: Sat, 24 Nov 2018 12:15:51 +0000
+Message-Id: <20181124121551.6942-1-colin.king@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] net: bridge: check for a null p->dev before
+	dereferencing it
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,32 +15,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, andrew@lunn.ch, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "David S . Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Now that we have at least one bool option, we can export all of the
-supported bool options via optmask when dumping them.
+From: Colin Ian King <colin.king@canonical.com>
 
-v2: new patch
+A recent change added a null check on p->dev after p->dev was being
+dereferenced by the ns_capable check on p->dev.  Fix this by performing
+the p->dev sanity check before it is dereferenced.
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Detected by CoverityScan, CID#751490 ("Dereference before null check")
+
+Fixes: a5f3ea54f3cc ("net: bridge: add support for raw sysfs port options")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- net/bridge/br.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_sysfs_if.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index b4a51a053586..4e7cd993ce94 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -247,7 +247,7 @@ void br_boolopt_multi_get(const struct net_bridge *br,
- 		optval |= (br_boolopt_get(br, opt_id) << opt_id);
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 7c87a2fe5248..aab8aa17cccf 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -314,15 +314,15 @@ static ssize_t brport_store(struct kobject *kobj,
+ 	unsigned long val;
+ 	char *endp;
  
- 	bm->optval = optval;
--	bm->optmask = 0;
-+	bm->optmask = GENMASK((BR_BOOLOPT_MAX - 1), 0);
- }
++	if (!p->dev || !p->br)
++		return -EINVAL;
++
+ 	if (!ns_capable(dev_net(p->dev)->user_ns, CAP_NET_ADMIN))
+ 		return -EPERM;
  
- /* private bridge options, controlled by the kernel */
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+ 
+-	if (!p->dev || !p->br)
+-		goto out_unlock;
+-
+ 	if (brport_attr->store_raw) {
+ 		char *buf_copy;
+ 
 -- 
-2.17.2
+2.19.1
 
