@@ -1,26 +1,16 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:from:to:cc:references:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=fx/WlrxRb8snjid6GZpOFZ/c6mgvS5r11mneWWbDT0o=;
-	b=ClTPAUHWfjhXytoyw7L7vJ+D1Zyl2CERzYEn2onvDvDMyRmSZXmHGiZBBj6w6HC9OQ
-	9/Bx3uUkmrS9jn0h3Ppied3+JWCca0W20L5CFJlJ6whV2YjQgSfjWAjKDdXff8sjJ7Js
-	TcystNHtlgw+QZAnO4q9ooyF8B9oyVgucAy6k=
+	h=from:to:cc:subject:date:message-id;
+	bh=DzDDNKN8IuHmPRJypL0Tv0WC6D1ZNDNiE0slHPszO0A=;
+	b=TVtt9AkHeeK5+9GJPlpW3JeGHkozxuw3hA7/rn9+mellCZGvmv/MmL2/DT9rayBQGT
+	pNYK6+gfd6tFlAlKcwzn23W+F/mDZ6G2WcFoam0ZW0E1uFz9RYzJ0uCKscJAxF64kdW5
+	5td0RQdFuWru7wvIPMLxnDWCgQ9M3cXgxq1ZU=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-References: <20181122042925.8878-1-nikolay@cumulusnetworks.com>
-	<20181122042925.8878-2-nikolay@cumulusnetworks.com>
-	<20181122154951.GG15403@lunn.ch>
-	<47484385-f944-e8bf-c358-e3436dfd776d@cumulusnetworks.com>
-Message-ID: <c5d16533-8a53-a418-08df-499fa82bb6f9@cumulusnetworks.com>
-Date: Fri, 23 Nov 2018 03:55:24 +0200
-MIME-Version: 1.0
-In-Reply-To: <47484385-f944-e8bf-c358-e3436dfd776d@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 1/2] net: bridge: add support for
- user-controlled bool options
+Date: Sat, 24 Nov 2018 04:34:19 +0200
+Message-Id: <20181124023422.13908-1-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH net-next v2 0/3] net: bridge: add an option to
+	disabe linklocal learning
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,63 +19,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, andrew@lunn.ch, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 22/11/2018 18:13, Nikolay Aleksandrov wrote:
-<snip>
->>> +int br_boolopt_multi_toggle(struct net_bridge *br,
->>> +			    struct br_boolopt_multi *bm)
->>> +{
->>> +	unsigned long bitmap = bm->optmask;
->>> +	int err = 0;
->>> +	int opt_id;
->>> +
->>> +	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
->>> +		bool on = !!(bm->optval & BIT(opt_id));
->>> +
->>> +		err = br_boolopt_toggle(br, opt_id, on);
->>> +		if (err) {
->>> +			br_debug(br, "boolopt multi-toggle error: option: %d current: %d new: %d error: %d\n",
->>> +				 opt_id, br_boolopt_get(br, opt_id), on, err);
->>> +			break;
->>> +		}
->>
->> An old kernel with a new iproute2 might partially succeed in toggling
->> some low bits, but then silently ignore a high bit that is not
->> supported by the kernel. As a user, i want to know the kernel does not
->> support an option i'm trying to toggle.
->>
-> 
-> That is already how netlink option setting works, if the option isn't supported
-> it is silently ignored. I tried to stay as close to the current behaviour as possible.
-> It also applies to partial option changes, some options will be changed until an error
-> is encountered.
-> 
->> Can you walk all the bits in the u32 from the MSB to the LSB? That
->> should avoid this problem.
->>
-> 
-> I did wonder about this and left it as netlink option behaviour but
-> I can leave the walk as is and just check if the highest order set bit >= BR_BOOLOPT_MAX
-> and err out with ENOTSUPP for example. Will reconsider for v2.
-> 
+Hi,
+This set adds a new bridge option which can control learning from
+link-local packets, by default learning is on to be consistent and avoid
+breaking users expectations. If the new no_linklocal_learn option is
+enabled then the bridge will stop learning from link-local packets.
 
-Actually this doesn't improve user experience, after testing a little the problem is
-that we can't return to the user the exact option that failed in any understandable manner.
-The options are:
- - exact error message: (no bit/option value) so pretty much just say "Failed bool option"
- - pr_err: this has 2 issues, first it can't be retrieved by the caller (will be in the logs)
-           and more importantly the best we can do is print the option bit that we don't support
-           which really doesn't help the user at all
+In order to save space for future boolean options, patch 01 adds a new
+bool option API that uses a bitmask to control boolean options. The
+bridge is by far the largest netlink attr user and we keep adding simple
+boolean options which waste nl attr ids and space. We're not directly
+mapping these to the in-kernel bridge flags because some might require
+more complex configuration changes (e.g. if we were to add the per port
+vlan stats now, it'd require multiple checks before changing value).
+Any new bool option needs to be handled by both br_boolopt_toggle and get
+in order to be able to retrieve its state later. All such options are
+automatically exported via netlink. The behaviour of setting such
+options is consistent with netlink option handling when a missing
+option is being set (silently ignored), e.g. when a newer iproute2 is used
+on older kernel. All supported options are exported via bm's optmask
+when dumping the new attribute.
 
-So the example is having newer iproute2 on older kernel and trying to set non-existing option
-mixed with existing ones - the user has no way of determining which one failed even if we print
-the bit, so this is really frustrating. The current way of ignoring the missing options seems
-a bit more user-friendly and also with the change that we return the supported bit options
-in optmask (thanks for the suggestion), the user-space tool (iproute2) can determine if an
-option is not supported and at least give an indication when dumping it.
-All of this does align with how netlink currently handles options and people are used to it.
+v2: address Andrew Lunn's comments, squash a minor change into patch 01,
+    export all supported options via optmask when dumping, add patch 03,
+    pass down extack so options can return meaningful errors, add
+    WARN_ON on unsupported options (should not happen)
 
+Thanks,
+ Nik
 
+Nikolay Aleksandrov (3):
+  net: bridge: add support for user-controlled bool options
+  net: bridge: add no_linklocal_learn bool option
+  net: bridge: export supported boolopts
+
+ include/uapi/linux/if_bridge.h | 21 ++++++++++
+ include/uapi/linux/if_link.h   |  1 +
+ net/bridge/br.c                | 76 ++++++++++++++++++++++++++++++++++
+ net/bridge/br_input.c          |  4 +-
+ net/bridge/br_netlink.c        | 17 +++++++-
+ net/bridge/br_private.h        |  9 ++++
+ net/bridge/br_sysfs_br.c       | 22 ++++++++++
+ net/core/rtnetlink.c           |  2 +-
+ 8 files changed, 149 insertions(+), 3 deletions(-)
+
+-- 
+2.17.2
 
