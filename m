@@ -1,20 +1,11 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=HbDMpepYnesllhsIW//oNX57QiUUur6Q/GuACT7KuHA=;
-	b=CnVjt8Ce15YkrVwm81j7Ek1cZ+uvXLNCY+NdPLlWNsFOSxN+lGfhkgXurYXZje4yZN
-	CiLEj1sFTNkWWTAaAQDjqUz89PYXeoilYSsanr0RT58ygYWIptx2nrnGMH/Vx1gPHey8
-	/EsWiKK1QeTL4cIc9sVyZriq2hE9+RVYAThu8=
-References: <20181125160851.6919-1-colin.king@canonical.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <074d65f8-d6e8-078e-9365-a2d8f74b0c5e@cumulusnetworks.com>
-Date: Sun, 25 Nov 2018 19:06:40 +0200
-MIME-Version: 1.0
+Return-Path: <davem@davemloft.net>
+Date: Sun, 25 Nov 2018 10:26:07 -0800 (PST)
+Message-Id: <20181125.102607.771941500171801961.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20181125160851.6919-1-colin.king@canonical.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <20181125160851.6919-1-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH][V2] net: bridge: remove redundant checks for
  null p->dev and p->br
@@ -26,10 +17,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Colin King <colin.king@canonical.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, "David S . Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: colin.king@canonical.com
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 25/11/2018 18:08, Colin King wrote:
+From: Colin King <colin.king@canonical.com>
+Date: Sun, 25 Nov 2018 16:08:51 +0000
+
 > From: Colin Ian King <colin.king@canonical.com>
 > 
 > A recent change added a null check on p->dev after p->dev was being
@@ -61,31 +54,5 @@ On 25/11/2018 18:08, Colin King wrote:
 > 
 > Fixes: a5f3ea54f3cc ("net: bridge: add support for raw sysfs port options")
 > Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> 
-> ---
-> 
-> V2: remove checks instead of moving them before the dereference of
-> p->dev.
-> ---
->  net/bridge/br_sysfs_if.c | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-> index 7c87a2fe5248..88715edb119a 100644
-> --- a/net/bridge/br_sysfs_if.c
-> +++ b/net/bridge/br_sysfs_if.c
-> @@ -320,9 +320,6 @@ static ssize_t brport_store(struct kobject *kobj,
->  	if (!rtnl_trylock())
->  		return restart_syscall();
->  
-> -	if (!p->dev || !p->br)
-> -		goto out_unlock;
-> -
->  	if (brport_attr->store_raw) {
->  		char *buf_copy;
->  
-> 
 
-Thanks,
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-
+Applied.
