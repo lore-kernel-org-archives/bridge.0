@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=MYsGvFT2niyUFeHQRrv0J+g9I7S5mm/nmvhpiZNi0tI=;
-	b=LUIbZkrWvWoVu6X0dp7g0A10cIc9rMgPtLQ8bNrgWWqBT+me8bamR+5ZR46ZfR/aOJknvKpYv3kMsQ6y40yu6EB/yZgADNzo7Fb+JyFtCm25rW/+S4m8XXx6L6YF2gi1qpozG0aQfRES7bN6GW93MD3HhqJSUEkIA2enUbSm6A8=
+	bh=ZFYK64vUQYS4LfghMBlim68Pl73H3VAka8yb3+siYhw=;
+	b=nrti8YFbrB9v1xgoQPhm04J1IWdFti3gO4mlCncBU4d/2U5aE1KGNwjaaHzlBUXihphUodnM5akzID3iO9JblYFlj3HZEQr2ih+Gp1P9TfMjlXys405na9C6lLvhNHE8lRybbNh+EdenRAzs2P+H0PkJWS4tPzwFVvVAzApHcL8=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 28 Nov 2018 20:07:06 +0000
-Message-ID: <20181128200558.31343-8-idosch@mellanox.com>
+Date: Wed, 28 Nov 2018 20:07:08 +0000
+Message-ID: <20181128200558.31343-9-idosch@mellanox.com>
 References: <20181128200558.31343-1-idosch@mellanox.com>
 In-Reply-To: <20181128200558.31343-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 7/8] selftests: mlxsw: Add a test for
- VxLAN configuration with a VLAN-aware bridge
+Subject: [Bridge] [PATCH net-next 8/8] selftests: forwarding: Add VxLAN test
+ with a VLAN-aware bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,240 +26,913 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Extend the existing VLAN-unaware tests with their VLAN-aware
-counterparts. This includes sanitization of invalid configuration and
-offload indication on the local route performing decapsulation and the
-FDB entries perform encapsulation.
+The test is very similar to its VLAN-unaware counterpart
+(vxlan_bridge_1d.sh), but instead of using multiple VLAN-unaware
+bridges, a single VLAN-aware bridge is used with multiple VLANs.
 
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Reviewed-by: Petr Machata <petrm@mellanox.com>
 ---
- .../selftests/drivers/net/mlxsw/vxlan.sh      | 204 +++++++++++++++++-
- 1 file changed, 203 insertions(+), 1 deletion(-)
+ .../net/forwarding/vxlan_bridge_1q.sh         | 790 ++++++++++++++++++
+ .../forwarding/vxlan_bridge_1q_port_8472.sh   |  10 +
+ 2 files changed, 800 insertions(+)
+ create mode 100755 tools/testing/selftests/net/forwarding/vxlan_bridge_1q.=
+sh
+ create mode 100755 tools/testing/selftests/net/forwarding/vxlan_bridge_1q_=
+port_8472.sh
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh b/tools/tes=
-ting/selftests/drivers/net/mlxsw/vxlan.sh
-index d00d4665c807..90b4998a3b70 100755
---- a/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh
-@@ -6,7 +6,8 @@
-=20
- lib_dir=3D$(dirname $0)/../../../net/forwarding
-=20
--ALL_TESTS=3D"sanitization_test offload_indication_test"
-+ALL_TESTS=3D"sanitization_test offload_indication_test \
-+	sanitization_vlan_aware_test offload_indication_vlan_aware_test"
- NUM_NETIFS=3D2
- source $lib_dir/lib.sh
-=20
-@@ -654,6 +655,207 @@ offload_indication_test()
- 	offload_indication_setup_destroy
- }
-=20
-+sanitization_vlan_aware_test()
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh b/to=
+ols/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
+new file mode 100755
+index 000000000000..bac2e568d22c
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
+@@ -0,0 +1,790 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# +-----------------------+                          +--------------------=
+----+
++# | H1 (vrf)              |                          | H2 (vrf)           =
+    |
++# |  + $h1.10             |                          |  + $h2.10          =
+    |
++# |  | 192.0.2.1/28       |                          |  | 192.0.2.2/28    =
+    |
++# |  |                    |                          |  |                 =
+    |
++# |  | + $h1.20           |                          |  | + $h2.20        =
+    |
++# |  \ | 198.51.100.1/24  |                          |  \ | 198.51.100.2/2=
+4   |
++# |   \|                  |                          |   \|               =
+    |
++# |    + $h1              |                          |    + $h2           =
+    |
++# +----|------------------+                          +----|---------------=
+----+
++#      |                                                  |
++# +----|--------------------------------------------------|---------------=
+----+
++# | SW |                                                  |               =
+    |
++# | +--|--------------------------------------------------|---------------=
+--+ |
++# | |  + $swp1                   BR1 (802.1q)             + $swp2         =
+  | |
++# | |     vid 10                                             vid 10       =
+  | |
++# | |     vid 20                                             vid 20       =
+  | |
++# | |                                                                     =
+  | |
++# | |  + vx10 (vxlan)                        + vx20 (vxlan)               =
+  | |
++# | |    local 192.0.2.17                      local 192.0.2.17           =
+  | |
++# | |    remote 192.0.2.34 192.0.2.50          remote 192.0.2.34 192.0.2.5=
+0 | |
++# | |    id 1000 dstport $VXPORT               id 2000 dstport $VXPORT    =
+  | |
++# | |    vid 10 pvid untagged                  vid 20 pvid untagged       =
+  | |
++# | +---------------------------------------------------------------------=
+--+ |
++# |                                                                       =
+    |
++# |  192.0.2.32/28 via 192.0.2.18                                         =
+    |
++# |  192.0.2.48/28 via 192.0.2.18                                         =
+    |
++# |                                                                       =
+    |
++# |    + $rp1                                                             =
+    |
++# |    | 192.0.2.17/28                                                    =
+    |
++# +----|------------------------------------------------------------------=
+----+
++#      |
++# +----|--------------------------------------------------------+
++# |    |                                             VRP2 (vrf) |
++# |    + $rp2                                                   |
++# |      192.0.2.18/28                                          |
++# |                                                             |   (maybe=
+) HW
++# =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D
++# |                                                             |  (likely=
+) SW
++# |    + v1 (veth)                             + v3 (veth)      |
++# |    | 192.0.2.33/28                         | 192.0.2.49/28  |
++# +----|---------------------------------------|----------------+
++#      |                                       |
++# +----|------------------------------+   +----|--------------------------=
+----+
++# |    + v2 (veth)        NS1 (netns) |   |    + v4 (veth)        NS2 (net=
+ns) |
++# |      192.0.2.34/28                |   |      192.0.2.50/28            =
+    |
++# |                                   |   |                               =
+    |
++# |   192.0.2.16/28 via 192.0.2.33    |   |   192.0.2.16/28 via 192.0.2.49=
+    |
++# |   192.0.2.50/32 via 192.0.2.33    |   |   192.0.2.34/32 via 192.0.2.49=
+    |
++# |                                   |   |                               =
+    |
++# | +-------------------------------+ |   | +-----------------------------=
+--+ |
++# | |                  BR2 (802.1q) | |   | |                  BR2 (802.1q=
+) | |
++# | |  + vx10 (vxlan)               | |   | |  + vx10 (vxlan)             =
+  | |
++# | |    local 192.0.2.34           | |   | |    local 192.0.2.50         =
+  | |
++# | |    remote 192.0.2.17          | |   | |    remote 192.0.2.17        =
+  | |
++# | |    remote 192.0.2.50          | |   | |    remote 192.0.2.34        =
+  | |
++# | |    id 1000 dstport $VXPORT    | |   | |    id 1000 dstport $VXPORT  =
+  | |
++# | |    vid 10 pvid untagged       | |   | |    vid 10 pvid untagged     =
+  | |
++# | |                               | |   | |                             =
+  | |
++# | |  + vx20 (vxlan)               | |   | |  + vx20 (vxlan)             =
+  | |
++# | |    local 192.0.2.34           | |   | |    local 192.0.2.50         =
+  | |
++# | |    remote 192.0.2.17          | |   | |    remote 192.0.2.17        =
+  | |
++# | |    remote 192.0.2.50          | |   | |    remote 192.0.2.34        =
+  | |
++# | |    id 2000 dstport $VXPORT    | |   | |    id 2000 dstport $VXPORT  =
+  | |
++# | |    vid 20 pvid untagged       | |   | |    vid 20 pvid untagged     =
+  | |
++# | |                               | |   | |                             =
+  | |
++# | |  + w1 (veth)                  | |   | |  + w1 (veth)                =
+  | |
++# | |  | vid 10                     | |   | |  | vid 10                   =
+  | |
++# | |  | vid 20                     | |   | |  | vid 20                   =
+  | |
++# | +--|----------------------------+ |   | +--|--------------------------=
+--+ |
++# |    |                              |   |    |                          =
+    |
++# | +--|----------------------------+ |   | +--|--------------------------=
+--+ |
++# | |  + w2 (veth)        VW2 (vrf) | |   | |  + w2 (veth)        VW2 (vrf=
+) | |
++# | |  |\                           | |   | |  |\                         =
+  | |
++# | |  | + w2.10                    | |   | |  | + w2.10                  =
+  | |
++# | |  |   192.0.2.3/28             | |   | |  |   192.0.2.4/28           =
+  | |
++# | |  |                            | |   | |  |                          =
+  | |
++# | |  + w2.20                      | |   | |  + w2.20                    =
+  | |
++# | |    198.51.100.3/24            | |   | |    198.51.100.4/24          =
+  | |
++# | +-------------------------------+ |   | +-----------------------------=
+--+ |
++# +-----------------------------------+   +-------------------------------=
+----+
++
++: ${VXPORT:=3D4789}
++export VXPORT
++
++: ${ALL_TESTS:=3D"
++	ping_ipv4
++	test_flood
++	test_unicast
++	reapply_config
++	ping_ipv4
++	test_flood
++	test_unicast
++	test_learning
++    "}
++
++NUM_NETIFS=3D6
++source lib.sh
++
++h1_create()
 +{
-+	RET=3D0
-+
-+	ip link add dev br0 type bridge mcast_snooping 0 vlan_filtering 1
-+
-+	ip link add name vxlan10 up master br0 type vxlan id 10 nolearning \
-+		noudpcsum ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+
-+	ip link add name vxlan20 up master br0 type vxlan id 20 nolearning \
-+		noudpcsum ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+
-+	# Test that when each VNI is mapped to a different VLAN we can enslave
-+	# a port to the bridge
-+	bridge vlan add vid 10 dev vxlan10 pvid untagged
-+	bridge vlan add vid 20 dev vxlan20 pvid untagged
-+
-+	ip link set dev $swp1 master br0
-+	check_err $?
-+
-+	log_test "vlan-aware - enslavement to vlan-aware bridge"
-+
-+	# Try to map both VNIs to the same VLAN and make sure configuration
-+	# fails
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vxlan20 pvid untagged &> /dev/null
-+	check_fail $?
-+
-+	log_test "vlan-aware - two vnis mapped to the same vlan"
-+
-+	# Test that enslavement of a port to a bridge fails when two VNIs
-+	# are mapped to the same VLAN
-+	RET=3D0
-+
-+	ip link set dev $swp1 nomaster
-+
-+	bridge vlan del vid 20 dev vxlan20 pvid untagged
-+	bridge vlan add vid 10 dev vxlan20 pvid untagged
-+
-+	ip link set dev $swp1 master br0 &> /dev/null
-+	check_fail $?
-+
-+	log_test "vlan-aware - failed enslavement to vlan-aware bridge"
-+
-+	ip link del dev vxlan20
-+	ip link del dev vxlan10
-+	ip link del dev br0
++	simple_if_init $h1
++	tc qdisc add dev $h1 clsact
++	vlan_create $h1 10 v$h1 192.0.2.1/28
++	vlan_create $h1 20 v$h1 198.51.100.1/24
 +}
 +
-+offload_indication_vlan_aware_setup_create()
++h1_destroy()
 +{
-+	# Create a simple setup with two VxLAN devices and a single VLAN-aware
-+	# bridge
-+	ip link add name br0 up type bridge mcast_snooping 0 vlan_filtering 1 \
-+		vlan_default_pvid 0
++	vlan_destroy $h1 20
++	vlan_destroy $h1 10
++	tc qdisc del dev $h1 clsact
++	simple_if_fini $h1
++}
 +
-+	ip link set dev $swp1 master br0
++h2_create()
++{
++	simple_if_init $h2
++	tc qdisc add dev $h2 clsact
++	vlan_create $h2 10 v$h2 192.0.2.2/28
++	vlan_create $h2 20 v$h2 198.51.100.2/24
++}
 +
++h2_destroy()
++{
++	vlan_destroy $h2 20
++	vlan_destroy $h2 10
++	tc qdisc del dev $h2 clsact
++	simple_if_fini $h2
++}
++
++rp1_set_addr()
++{
++	ip address add dev $rp1 192.0.2.17/28
++
++	ip route add 192.0.2.32/28 nexthop via 192.0.2.18
++	ip route add 192.0.2.48/28 nexthop via 192.0.2.18
++}
++
++rp1_unset_addr()
++{
++	ip route del 192.0.2.48/28 nexthop via 192.0.2.18
++	ip route del 192.0.2.32/28 nexthop via 192.0.2.18
++
++	ip address del dev $rp1 192.0.2.17/28
++}
++
++switch_create()
++{
++	ip link add name br1 type bridge vlan_filtering 1 vlan_default_pvid 0 \
++		mcast_snooping 0
++	# Make sure the bridge uses the MAC address of the local port and not
++	# that of the VxLAN's device.
++	ip link set dev br1 address $(mac_get $swp1)
++	ip link set dev br1 up
++
++	ip link set dev $rp1 up
++	rp1_set_addr
++
++	ip link add name vx10 type vxlan id 1000	\
++		local 192.0.2.17 dstport "$VXPORT"	\
++		nolearning noudpcsum tos inherit ttl 100
++	ip link set dev vx10 up
++
++	ip link set dev vx10 master br1
++	bridge vlan add vid 10 dev vx10 pvid untagged
++
++	ip link add name vx20 type vxlan id 2000	\
++		local 192.0.2.17 dstport "$VXPORT"	\
++		nolearning noudpcsum tos inherit ttl 100
++	ip link set dev vx20 up
++
++	ip link set dev vx20 master br1
++	bridge vlan add vid 20 dev vx20 pvid untagged
++
++	ip link set dev $swp1 master br1
++	ip link set dev $swp1 up
 +	bridge vlan add vid 10 dev $swp1
 +	bridge vlan add vid 20 dev $swp1
 +
-+	ip address add 198.51.100.1/32 dev lo
++	ip link set dev $swp2 master br1
++	ip link set dev $swp2 up
++	bridge vlan add vid 10 dev $swp2
++	bridge vlan add vid 20 dev $swp2
 +
-+	ip link add name vxlan10 up master br0 type vxlan id 10 nolearning \
-+		noudpcsum ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+	ip link add name vxlan20 up master br0 type vxlan id 20 nolearning \
-+		noudpcsum ttl 20 tos inherit local 198.51.100.1 dstport 4789
++	bridge fdb append dev vx10 00:00:00:00:00:00 dst 192.0.2.34 self
++	bridge fdb append dev vx10 00:00:00:00:00:00 dst 192.0.2.50 self
 +
-+	bridge vlan add vid 10 dev vxlan10 pvid untagged
-+	bridge vlan add vid 20 dev vxlan20 pvid untagged
++	bridge fdb append dev vx20 00:00:00:00:00:00 dst 192.0.2.34 self
++	bridge fdb append dev vx20 00:00:00:00:00:00 dst 192.0.2.50 self
 +}
 +
-+offload_indication_vlan_aware_setup_destroy()
++switch_destroy()
 +{
-+	bridge vlan del vid 20 dev vxlan20
-+	bridge vlan del vid 10 dev vxlan10
++	bridge fdb del dev vx20 00:00:00:00:00:00 dst 192.0.2.50 self
++	bridge fdb del dev vx20 00:00:00:00:00:00 dst 192.0.2.34 self
 +
-+	ip link del dev vxlan20
-+	ip link del dev vxlan10
++	bridge fdb del dev vx10 00:00:00:00:00:00 dst 192.0.2.50 self
++	bridge fdb del dev vx10 00:00:00:00:00:00 dst 192.0.2.34 self
 +
-+	ip address del 198.51.100.1/32 dev lo
++	bridge vlan del vid 20 dev $swp2
++	bridge vlan del vid 10 dev $swp2
++	ip link set dev $swp2 down
++	ip link set dev $swp2 nomaster
 +
 +	bridge vlan del vid 20 dev $swp1
 +	bridge vlan del vid 10 dev $swp1
-+
++	ip link set dev $swp1 down
 +	ip link set dev $swp1 nomaster
 +
-+	ip link del dev br0
++	bridge vlan del vid 20 dev vx20
++	ip link set dev vx20 nomaster
++
++	ip link set dev vx20 down
++	ip link del dev vx20
++
++	bridge vlan del vid 10 dev vx10
++	ip link set dev vx10 nomaster
++
++	ip link set dev vx10 down
++	ip link del dev vx10
++
++	rp1_unset_addr
++	ip link set dev $rp1 down
++
++	ip link set dev br1 down
++	ip link del dev br1
 +}
 +
-+offload_indication_vlan_aware_fdb_test()
++vrp2_create()
 +{
++	simple_if_init $rp2 192.0.2.18/28
++	__simple_if_init v1 v$rp2 192.0.2.33/28
++	__simple_if_init v3 v$rp2 192.0.2.49/28
++	tc qdisc add dev v1 clsact
++}
++
++vrp2_destroy()
++{
++	tc qdisc del dev v1 clsact
++	__simple_if_fini v3 192.0.2.49/28
++	__simple_if_fini v1 192.0.2.33/28
++	simple_if_fini $rp2 192.0.2.18/28
++}
++
++ns_init_common()
++{
++	local in_if=3D$1; shift
++	local in_addr=3D$1; shift
++	local other_in_addr=3D$1; shift
++	local nh_addr=3D$1; shift
++	local host_addr1=3D$1; shift
++	local host_addr2=3D$1; shift
++
++	ip link set dev $in_if up
++	ip address add dev $in_if $in_addr/28
++	tc qdisc add dev $in_if clsact
++
++	ip link add name br2 type bridge vlan_filtering 1 vlan_default_pvid 0
++	ip link set dev br2 up
++
++	ip link add name w1 type veth peer name w2
++
++	ip link set dev w1 master br2
++	ip link set dev w1 up
++
++	bridge vlan add vid 10 dev w1
++	bridge vlan add vid 20 dev w1
++
++	ip link add name vx10 type vxlan id 1000 local $in_addr \
++		dstport "$VXPORT"
++	ip link set dev vx10 up
++	bridge fdb append dev vx10 00:00:00:00:00:00 dst 192.0.2.17 self
++	bridge fdb append dev vx10 00:00:00:00:00:00 dst $other_in_addr self
++
++	ip link set dev vx10 master br2
++	tc qdisc add dev vx10 clsact
++
++	bridge vlan add vid 10 dev vx10 pvid untagged
++
++	ip link add name vx20 type vxlan id 2000 local $in_addr \
++		dstport "$VXPORT"
++	ip link set dev vx20 up
++	bridge fdb append dev vx20 00:00:00:00:00:00 dst 192.0.2.17 self
++	bridge fdb append dev vx20 00:00:00:00:00:00 dst $other_in_addr self
++
++	ip link set dev vx20 master br2
++	tc qdisc add dev vx20 clsact
++
++	bridge vlan add vid 20 dev vx20 pvid untagged
++
++	simple_if_init w2
++        vlan_create w2 10 vw2 $host_addr1/28
++        vlan_create w2 20 vw2 $host_addr2/24
++
++	ip route add 192.0.2.16/28 nexthop via $nh_addr
++	ip route add $other_in_addr/32 nexthop via $nh_addr
++}
++export -f ns_init_common
++
++ns1_create()
++{
++	ip netns add ns1
++	ip link set dev v2 netns ns1
++	in_ns ns1 \
++	      ns_init_common v2 192.0.2.34 192.0.2.50 192.0.2.33 192.0.2.3 \
++	      198.51.100.3
++}
++
++ns1_destroy()
++{
++	ip netns exec ns1 ip link set dev v2 netns 1
++	ip netns del ns1
++}
++
++ns2_create()
++{
++	ip netns add ns2
++	ip link set dev v4 netns ns2
++	in_ns ns2 \
++	      ns_init_common v4 192.0.2.50 192.0.2.34 192.0.2.49 192.0.2.4 \
++	      198.51.100.4
++}
++
++ns2_destroy()
++{
++	ip netns exec ns2 ip link set dev v4 netns 1
++	ip netns del ns2
++}
++
++setup_prepare()
++{
++	h1=3D${NETIFS[p1]}
++	swp1=3D${NETIFS[p2]}
++
++	swp2=3D${NETIFS[p3]}
++	h2=3D${NETIFS[p4]}
++
++	rp1=3D${NETIFS[p5]}
++	rp2=3D${NETIFS[p6]}
++
++	vrf_prepare
++	forwarding_enable
++
++	h1_create
++	h2_create
++	switch_create
++
++	ip link add name v1 type veth peer name v2
++	ip link add name v3 type veth peer name v4
++	vrp2_create
++	ns1_create
++	ns2_create
++
++	r1_mac=3D$(in_ns ns1 mac_get w2)
++	r2_mac=3D$(in_ns ns2 mac_get w2)
++	h2_mac=3D$(mac_get $h2)
++}
++
++cleanup()
++{
++	pre_cleanup
++
++	ns2_destroy
++	ns1_destroy
++	vrp2_destroy
++	ip link del dev v3
++	ip link del dev v1
++
++	switch_destroy
++	h2_destroy
++	h1_destroy
++
++	forwarding_restore
++	vrf_cleanup
++}
++
++# For the first round of tests, vx10 and vx20 were the first devices to ge=
+t
++# attached to the bridge, and that at the point that the local IP is alrea=
+dy
++# configured. Try the other scenario of attaching these devices to a bridg=
+e
++# that already has local ports members, and only then assign the local IP.
++reapply_config()
++{
++	log_info "Reapplying configuration"
++
++	bridge fdb del dev vx20 00:00:00:00:00:00 dst 192.0.2.50 self
++	bridge fdb del dev vx20 00:00:00:00:00:00 dst 192.0.2.34 self
++
++	bridge fdb del dev vx10 00:00:00:00:00:00 dst 192.0.2.50 self
++	bridge fdb del dev vx10 00:00:00:00:00:00 dst 192.0.2.34 self
++
++	ip link set dev vx20 nomaster
++	ip link set dev vx10 nomaster
++
++	rp1_unset_addr
++	sleep 5
++
++	ip link set dev vx10 master br1
++	bridge vlan add vid 10 dev vx10 pvid untagged
++
++	ip link set dev vx20 master br1
++	bridge vlan add vid 20 dev vx20 pvid untagged
++
++	bridge fdb append dev vx10 00:00:00:00:00:00 dst 192.0.2.34 self
++	bridge fdb append dev vx10 00:00:00:00:00:00 dst 192.0.2.50 self
++
++	bridge fdb append dev vx20 00:00:00:00:00:00 dst 192.0.2.34 self
++	bridge fdb append dev vx20 00:00:00:00:00:00 dst 192.0.2.50 self
++
++	rp1_set_addr
++	sleep 5
++}
++
++ping_ipv4()
++{
++	ping_test $h1.10 192.0.2.2 ": local->local vid 10"
++	ping_test $h1.20 198.51.100.2 ": local->local vid 20"
++	ping_test $h1.10 192.0.2.3 ": local->remote 1 vid 10"
++	ping_test $h1.10 192.0.2.4 ": local->remote 2 vid 10"
++	ping_test $h1.20 198.51.100.3 ": local->remote 1 vid 20"
++	ping_test $h1.20 198.51.100.4 ": local->remote 2 vid 20"
++}
++
++maybe_in_ns()
++{
++	echo ${1:+in_ns} $1
++}
++
++__flood_counter_add_del()
++{
++	local add_del=3D$1; shift
++	local dev=3D$1; shift
++	local ns=3D$1; shift
++
++	# Putting the ICMP capture both to HW and to SW will end up
++	# double-counting the packets that are trapped to slow path, such as for
++	# the unicast test. Adding either skip_hw or skip_sw fixes this problem,
++	# but with skip_hw, the flooded packets are not counted at all, because
++	# those are dropped due to MAC address mismatch; and skip_sw is a no-go
++	# for veth-based topologies.
++	#
++	# So try to install with skip_sw and fall back to skip_sw if that fails.
++
++	$(maybe_in_ns $ns) __icmp_capture_add_del          \
++			   $add_del 100 "" $dev skip_sw 2>/dev/null || \
++	$(maybe_in_ns $ns) __icmp_capture_add_del          \
++			   $add_del 100 "" $dev skip_hw
++}
++
++flood_counter_install()
++{
++	__flood_counter_add_del add "$@"
++}
++
++flood_counter_uninstall()
++{
++	__flood_counter_add_del del "$@"
++}
++
++flood_fetch_stat()
++{
++	local dev=3D$1; shift
++	local ns=3D$1; shift
++
++	$(maybe_in_ns $ns) tc_rule_stats_get $dev 100 ingress
++}
++
++flood_fetch_stats()
++{
++	local counters=3D("${@}")
++	local counter
++
++	for counter in "${counters[@]}"; do
++		flood_fetch_stat $counter
++	done
++}
++
++vxlan_flood_test()
++{
++	local mac=3D$1; shift
++	local dst=3D$1; shift
++	local vid=3D$1; shift
++	local -a expects=3D("${@}")
++
++	local -a counters=3D($h2 "vx10 ns1" "vx20 ns1" "vx10 ns2" "vx20 ns2")
++	local counter
++	local key
++
++	# Packets reach the local host tagged whereas they reach the VxLAN
++	# devices untagged. In order to be able to use the same filter for
++	# all counters, make sure the packets also reach the local host
++	# untagged
++	bridge vlan add vid $vid dev $swp2 untagged
++	for counter in "${counters[@]}"; do
++		flood_counter_install $counter
++	done
++
++	local -a t0s=3D($(flood_fetch_stats "${counters[@]}"))
++	$MZ $h1 -Q $vid -c 10 -d 100msec -p 64 -b $mac -B $dst -t icmp -q
++	sleep 1
++	local -a t1s=3D($(flood_fetch_stats "${counters[@]}"))
++
++	for key in ${!t0s[@]}; do
++		local delta=3D$((t1s[$key] - t0s[$key]))
++		local expect=3D${expects[$key]}
++
++		((expect =3D=3D delta))
++		check_err $? "${counters[$key]}: Expected to capture $expect packets, go=
+t $delta."
++	done
++
++	for counter in "${counters[@]}"; do
++		flood_counter_uninstall $counter
++	done
++	bridge vlan add vid $vid dev $swp2
++}
++
++__test_flood()
++{
++	local mac=3D$1; shift
++	local dst=3D$1; shift
++	local vid=3D$1; shift
++	local what=3D$1; shift
++	local -a expects=3D("${@}")
++
 +	RET=3D0
 +
-+	log_info "vxlan entry offload indication - vlan-aware"
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
 +
-+	bridge fdb add de:ad:be:ef:13:37 dev vxlan10 self master static \
-+		dst 198.51.100.2 vlan 10
++	log_test "VXLAN: $what"
++}
 +
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep self \
-+		| grep -q offload
-+	check_err $?
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep -v self \
-+		| grep -q offload
-+	check_err $?
++test_flood()
++{
++	__test_flood de:ad:be:ef:13:37 192.0.2.100 10 "flood vlan 10" \
++		10 10 0 10 0
++	__test_flood ca:fe:be:ef:13:37 198.51.100.100 20 "flood vlan 20" \
++		10 0 10 0 10
++}
 +
-+	log_test "vxlan entry offload indication - initial state"
++vxlan_fdb_add_del()
++{
++	local add_del=3D$1; shift
++	local vid=3D$1; shift
++	local mac=3D$1; shift
++	local dev=3D$1; shift
++	local dst=3D$1; shift
 +
-+	# Remove FDB entry from the bridge driver and check that corresponding
-+	# entry in the VxLAN driver is not marked as offloaded
++	bridge fdb $add_del dev $dev $mac self static permanent \
++		${dst:+dst} $dst 2>/dev/null
++	bridge fdb $add_del dev $dev $mac master static vlan $vid 2>/dev/null
++}
++
++__test_unicast()
++{
++	local mac=3D$1; shift
++	local dst=3D$1; shift
++	local hit_idx=3D$1; shift
++	local vid=3D$1; shift
++	local what=3D$1; shift
++
 +	RET=3D0
 +
-+	bridge fdb del de:ad:be:ef:13:37 dev vxlan10 master vlan 10
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep self \
-+		| grep -q offload
++	local -a expects=3D(0 0 0 0 0)
++	expects[$hit_idx]=3D10
++
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: $what"
++}
++
++test_unicast()
++{
++	local -a targets=3D("$h2_mac $h2"
++			  "$r1_mac vx10 192.0.2.34"
++			  "$r2_mac vx10 192.0.2.50")
++	local target
++
++	log_info "unicast vlan 10"
++
++	for target in "${targets[@]}"; do
++		vxlan_fdb_add_del add 10 $target
++	done
++
++	__test_unicast $h2_mac 192.0.2.2 0 10 "local MAC unicast"
++	__test_unicast $r1_mac 192.0.2.3 1 10 "remote MAC 1 unicast"
++	__test_unicast $r2_mac 192.0.2.4 3 10 "remote MAC 2 unicast"
++
++	for target in "${targets[@]}"; do
++		vxlan_fdb_add_del del 10 $target
++	done
++
++	log_info "unicast vlan 20"
++
++	targets=3D("$h2_mac $h2" "$r1_mac vx20 192.0.2.34" \
++		 "$r2_mac vx20 192.0.2.50")
++
++	for target in "${targets[@]}"; do
++		vxlan_fdb_add_del add 20 $target
++	done
++
++	__test_unicast $h2_mac 198.51.100.2 0 20 "local MAC unicast"
++	__test_unicast $r1_mac 198.51.100.3 2 20 "remote MAC 1 unicast"
++	__test_unicast $r2_mac 198.51.100.4 4 20 "remote MAC 2 unicast"
++
++	for target in "${targets[@]}"; do
++		vxlan_fdb_add_del del 20 $target
++	done
++}
++
++vxlan_ping_test()
++{
++	local ping_dev=3D$1; shift
++	local ping_dip=3D$1; shift
++	local ping_args=3D$1; shift
++	local capture_dev=3D$1; shift
++	local capture_dir=3D$1; shift
++	local capture_pref=3D$1; shift
++	local expect=3D$1; shift
++
++	local t0=3D$(tc_rule_stats_get $capture_dev $capture_pref $capture_dir)
++	ping_do $ping_dev $ping_dip "$ping_args"
++	local t1=3D$(tc_rule_stats_get $capture_dev $capture_pref $capture_dir)
++	local delta=3D$((t1 - t0))
++
++	# Tolerate a couple stray extra packets.
++	((expect <=3D delta && delta <=3D expect + 2))
++	check_err $? "$capture_dev: Expected to capture $expect packets, got $del=
+ta."
++}
++
++__test_learning()
++{
++	local -a expects=3D(0 0 0 0 0)
++	local mac=3D$1; shift
++	local dst=3D$1; shift
++	local vid=3D$1; shift
++	local idx1=3D$1; shift
++	local idx2=3D$1; shift
++	local vx=3Dvx$vid
++
++	# Check that flooding works
++	RET=3D0
++
++	expects[0]=3D10; expects[$idx1]=3D10; expects[$idx2]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: flood before learning"
++
++	# Send a packet with source mac set to $mac from host w2 and check that
++	# a corresponding entry is created in the VxLAN device
++	RET=3D0
++
++	in_ns ns1 $MZ w2 -Q $vid -c 1 -p 64 -a $mac -b ff:ff:ff:ff:ff:ff \
++		-B $dst -t icmp -q
++	sleep 1
++
++	bridge fdb show brport $vx | grep $mac | grep -q self
++	check_err $?
++	bridge fdb show brport $vx | grep $mac | grep "vlan $vid" \
++		| grep -q -v self
++	check_err $?
++
++	log_test "VXLAN: show learned FDB entry"
++
++	# Repeat first test and check that packets only reach host w2 in ns1
++	RET=3D0
++
++	expects[0]=3D0; expects[$idx1]=3D10; expects[$idx2]=3D0
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: learned FDB entry"
++
++	# Delete the learned FDB entry from the VxLAN and bridge devices and
++	# check that packets are flooded
++	RET=3D0
++
++	bridge fdb del dev $vx $mac master self vlan $vid
++	sleep 1
++
++	expects[0]=3D10; expects[$idx1]=3D10; expects[$idx2]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: deletion of learned FDB entry"
++
++	# Re-learn the first FDB entry and check that it is correctly aged-out
++	RET=3D0
++
++	in_ns ns1 $MZ w2 -Q $vid -c 1 -p 64 -a $mac -b ff:ff:ff:ff:ff:ff \
++		-B $dst -t icmp -q
++	sleep 1
++
++	bridge fdb show brport $vx | grep $mac | grep -q self
++	check_err $?
++	bridge fdb show brport $vx | grep $mac | grep "vlan $vid" \
++		| grep -q -v self
++	check_err $?
++
++	expects[0]=3D0; expects[$idx1]=3D10; expects[$idx2]=3D0
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	sleep 20
++
++	bridge fdb show brport $vx | grep $mac | grep -q self
++	check_fail $?
++	bridge fdb show brport $vx | grep $mac | grep "vlan $vid" \
++		| grep -q -v self
 +	check_fail $?
 +
-+	log_test "vxlan entry offload indication - after removal from bridge"
++	expects[0]=3D10; expects[$idx1]=3D10; expects[$idx2]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
 +
-+	# Add the FDB entry back to the bridge driver and make sure it is
-+	# marked as offloaded in both drivers
++	log_test "VXLAN: Ageing of learned FDB entry"
++
++	# Toggle learning on the bridge port and check that the bridge's FDB
++	# is populated only when it should
 +	RET=3D0
 +
-+	bridge fdb add de:ad:be:ef:13:37 dev vxlan10 master static vlan 10
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep self \
-+		| grep -q offload
-+	check_err $?
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep -v self \
-+		| grep -q offload
-+	check_err $?
++	ip link set dev $vx type bridge_slave learning off
 +
-+	log_test "vxlan entry offload indication - after re-add to bridge"
++	in_ns ns1 $MZ w2 -Q $vid -c 1 -p 64 -a $mac -b ff:ff:ff:ff:ff:ff \
++		-B $dst -t icmp -q
++	sleep 1
 +
-+	# Remove FDB entry from the VxLAN driver and check that corresponding
-+	# entry in the bridge driver is not marked as offloaded
-+	RET=3D0
-+
-+	bridge fdb del de:ad:be:ef:13:37 dev vxlan10 self
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep -v self \
-+		| grep -q offload
++	bridge fdb show brport $vx | grep $mac | grep "vlan $vid" \
++		| grep -q -v self
 +	check_fail $?
 +
-+	log_test "vxlan entry offload indication - after removal from vxlan"
++	ip link set dev $vx type bridge_slave learning on
 +
-+	# Add the FDB entry back to the VxLAN driver and make sure it is
-+	# marked as offloaded in both drivers
-+	RET=3D0
++	in_ns ns1 $MZ w2 -Q $vid -c 1 -p 64 -a $mac -b ff:ff:ff:ff:ff:ff \
++		-B $dst -t icmp -q
++	sleep 1
 +
-+	bridge fdb add de:ad:be:ef:13:37 dev vxlan10 self dst 198.51.100.2
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep self \
-+		| grep -q offload
-+	check_err $?
-+	bridge fdb show brport vxlan10 | grep de:ad:be:ef:13:37 | grep -v self \
-+		| grep -q offload
++	bridge fdb show brport $vx | grep $mac | grep "vlan $vid" \
++		| grep -q -v self
 +	check_err $?
 +
-+	log_test "vxlan entry offload indication - after re-add to vxlan"
-+
-+	bridge fdb del de:ad:be:ef:13:37 dev vxlan10 self master vlan 10
++	log_test "VXLAN: learning toggling on bridge port"
 +}
 +
-+offload_indication_vlan_aware_decap_route_test()
++test_learning()
 +{
-+	RET=3D0
++	local mac=3Dde:ad:be:ef:13:37
++	local dst=3D192.0.2.100
++	local vid=3D10
 +
-+	ip route show table local | grep 198.51.100.1 | grep -q offload
-+	check_err $?
++	# Enable learning on the VxLAN devices and set ageing time to 10 seconds
++	ip link set dev br1 type bridge ageing_time 1000
++	ip link set dev vx10 type vxlan ageing 10
++	ip link set dev vx10 type vxlan learning
++	ip link set dev vx20 type vxlan ageing 10
++	ip link set dev vx20 type vxlan learning
++	reapply_config
 +
-+	# Toggle PVID flag on one VxLAN device and make sure route is still
-+	# marked as offloaded
-+	bridge vlan add vid 10 dev vxlan10 untagged
++	log_info "learning vlan 10"
 +
-+	ip route show table local | grep 198.51.100.1 | grep -q offload
-+	check_err $?
++	__test_learning $mac $dst $vid 1 3
 +
-+	# Toggle PVID flag on second VxLAN device and make sure route is no
-+	# longer marked as offloaded
-+	bridge vlan add vid 20 dev vxlan20 untagged
++	log_info "learning vlan 20"
 +
-+	ip route show table local | grep 198.51.100.1 | grep -q offload
-+	check_fail $?
++	mac=3Dca:fe:be:ef:13:37
++	dst=3D198.51.100.100
++	vid=3D20
 +
-+	# Toggle PVID flag back and make sure route is marked as offloaded
-+	bridge vlan add vid 10 dev vxlan10 pvid untagged
-+	bridge vlan add vid 20 dev vxlan20 pvid untagged
++	__test_learning $mac $dst $vid 2 4
 +
-+	ip route show table local | grep 198.51.100.1 | grep -q offload
-+	check_err $?
-+
-+	log_test "vxlan decap route - vni map/unmap"
++	# Restore previous settings
++	ip link set dev vx20 type vxlan nolearning
++	ip link set dev vx20 type vxlan ageing 300
++	ip link set dev vx10 type vxlan nolearning
++	ip link set dev vx10 type vxlan ageing 300
++	ip link set dev br1 type bridge ageing_time 30000
++	reapply_config
 +}
 +
-+offload_indication_vlan_aware_test()
++test_all()
 +{
-+	offload_indication_vlan_aware_setup_create
-+	offload_indication_vlan_aware_fdb_test
-+	offload_indication_vlan_aware_decap_route_test
-+	offload_indication_vlan_aware_setup_destroy
++	log_info "Running tests with UDP port $VXPORT"
++	tests_run
 +}
 +
- trap cleanup EXIT
-=20
- setup_prepare
++trap cleanup EXIT
++
++setup_prepare
++setup_wait
++test_all
++
++exit $EXIT_STATUS
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q_port_84=
+72.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1q_port_8472.sh
+new file mode 100755
+index 000000000000..b1b2d1a3164f
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1q_port_8472.sh
+@@ -0,0 +1,10 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# A wrapper to run VXLAN tests with an unusual port number.
++
++VXPORT=3D8472
++ALL_TESTS=3D"
++	ping_ipv4
++"
++source vxlan_bridge_1q.sh
 --=20
 2.19.1
 
