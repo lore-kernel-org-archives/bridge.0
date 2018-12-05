@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=stu69xwlUQeB+rBDDBzPrW0+gqEWHFvfU6eEO09qIf0=;
-	b=JIutPuNZFI4EmwiNxbDMgjMFxfdNzmijRafpbLqQDjrhW+cftG9unpwGjzWiZPQv98i1uXsnBDqjJbiRJjP//HmWkpP3v63yhsc8pv9eBcLSq8XW0mABkvbVuXSqw5+uxgC5mJU9Fd8SR+xn609R5r/S63O/eR11neC40HEvTKU=
+	bh=i72mpvj6nl7/nOM+1tWLZUUVGG1e8/l2+OoHhK0nhUw=;
+	b=eot4KanDwnXkqbPe6kujdlRtnpoduwASpQm3YiopBxCKPmL3qg+fYcP6nSED+8pRduGPKRNramQfD6mcOiJhWMcaYyG0Uw9IJVIG7FZDTowZ7stShE7HxdLrr+9BK5bOxDooSET+opteguIQd+3wZgf+h+O5Hc/tV0hRzO0zIdI=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 5 Dec 2018 15:50:37 +0000
-Message-ID: <20181205154958.20262-11-idosch@mellanox.com>
+Date: Wed, 5 Dec 2018 15:50:39 +0000
+Message-ID: <20181205154958.20262-12-idosch@mellanox.com>
 References: <20181205154958.20262-1-idosch@mellanox.com>
 In-Reply-To: <20181205154958.20262-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 10/12] mlxsw: spectrum_nve: Un/offload FDB
- on nve_fid_disable/enable
+Subject: [Bridge] [PATCH net-next 11/12] selftests: mlxsw: vxlan: Test FDB
+ un/marking on VXLAN join/leave
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,98 +28,231 @@ Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusne
 
 From: Petr Machata <petrm@mellanox.com>
 
-Any existing NVE FDB entries need to be offloaded when NVE is enabled
-for a given FID. Recent patches have added fdb_replay op for this, so
-just invoke it from mlxsw_sp_nve_fid_enable().
+When a VXLAN device is attached to an offloaded bridge, or when a
+front-panel port is attached to a bridge that already has a VXLAN
+device, mlxsw should offload the existing offloadable FDB entries.
+Similarly when VXLAN device is downed, the FDB entries are unoffloaded,
+and the marks thus need to be cleared. Similarly when a front-panel port
+device is attached to a bridge with a VXLAN device, or when VLAN flags
+are tweaked on a VXLAN port attached to a VLAN-aware bridge.
 
-When NVE is disabled on a FID, any existing FDB offloaded marks need to
-be cleared on NVE device as well as on its bridge master. An op to
-handle this, fdb_clear_offload, has been added to FID ops and NVE ops in
-previous patches. Add code to resolve the NVE device, NVE type, and
-dispatch to both fdb_clear_offload ops.
+Test that the replaying / clearing logic works by observing transitions
+in presence of offload marks under different scenarios.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- .../ethernet/mellanox/mlxsw/spectrum_nve.c    | 41 +++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ .../selftests/drivers/net/mlxsw/vxlan.sh      | 177 ++++++++++++++++++
+ 1 file changed, 177 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c b/drivers/n=
-et/ethernet/mellanox/mlxsw/spectrum_nve.c
-index e8e4cb6dfd38..9a86a7cde3b9 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.c
-@@ -789,6 +789,21 @@ static void mlxsw_sp_nve_fdb_flush_by_fid(struct mlxsw=
-_sp *mlxsw_sp,
- 	mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(sfdf), sfdf_pl);
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh b/tools/tes=
+ting/selftests/drivers/net/mlxsw/vxlan.sh
+index 90b4998a3b70..ea11535f5a6e 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh
+@@ -647,12 +647,159 @@ offload_indication_decap_route_test()
+ 		noudpcsum ttl 20 tos inherit local 198.51.100.1 dstport 4789
  }
 =20
-+static void mlxsw_sp_nve_fdb_clear_offload(struct mlxsw_sp *mlxsw_sp,
-+					   const struct mlxsw_sp_fid *fid,
-+					   const struct net_device *nve_dev,
-+					   __be32 vni)
++check_fdb_offloaded()
 +{
-+	const struct mlxsw_sp_nve_ops *ops;
-+	enum mlxsw_sp_nve_type type;
++	local mac=3D00:11:22:33:44:55
++	local zmac=3D00:00:00:00:00:00
 +
-+	if (WARN_ON(mlxsw_sp_fid_nve_type(fid, &type)))
-+		return;
++	bridge fdb show dev vxlan0 | grep $mac | grep self | grep -q offload
++	check_err $?
++	bridge fdb show dev vxlan0 | grep $mac | grep master | grep -q offload
++	check_err $?
 +
-+	ops =3D mlxsw_sp->nve->nve_ops_arr[type];
-+	ops->fdb_clear_offload(nve_dev, vni);
++	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
++	check_err $?
 +}
 +
- int mlxsw_sp_nve_fid_enable(struct mlxsw_sp *mlxsw_sp, struct mlxsw_sp_fid=
- *fid,
- 			    struct mlxsw_sp_nve_params *params,
- 			    struct netlink_ext_ack *extack)
-@@ -826,8 +841,16 @@ int mlxsw_sp_nve_fid_enable(struct mlxsw_sp *mlxsw_sp,=
- struct mlxsw_sp_fid *fid,
-=20
- 	nve->config =3D config;
-=20
-+	err =3D ops->fdb_replay(params->dev, params->vni);
-+	if (err) {
-+		NL_SET_ERR_MSG_MOD(extack, "Failed to offload the FDB");
-+		goto err_fdb_replay;
-+	}
++check_vxlan_fdb_not_offloaded()
++{
++	local mac=3D00:11:22:33:44:55
++	local zmac=3D00:00:00:00:00:00
 +
- 	return 0;
-=20
-+err_fdb_replay:
-+	mlxsw_sp_fid_vni_clear(fid);
- err_fid_vni_set:
- 	mlxsw_sp_nve_tunnel_fini(mlxsw_sp);
- 	return err;
-@@ -837,9 +860,27 @@ void mlxsw_sp_nve_fid_disable(struct mlxsw_sp *mlxsw_s=
-p,
- 			      struct mlxsw_sp_fid *fid)
++	bridge fdb show dev vxlan0 | grep $mac | grep -q self
++	check_err $?
++	bridge fdb show dev vxlan0 | grep $mac | grep self | grep -q offload
++	check_fail $?
++
++	bridge fdb show dev vxlan0 | grep $zmac | grep -q self
++	check_err $?
++	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
++	check_fail $?
++}
++
++check_bridge_fdb_not_offloaded()
++{
++	local mac=3D00:11:22:33:44:55
++	local zmac=3D00:00:00:00:00:00
++
++	bridge fdb show dev vxlan0 | grep $mac | grep -q master
++	check_err $?
++	bridge fdb show dev vxlan0 | grep $mac | grep master | grep -q offload
++	check_fail $?
++}
++
++__offload_indication_join_vxlan_first()
++{
++	local vid=3D$1; shift
++
++	local mac=3D00:11:22:33:44:55
++	local zmac=3D00:00:00:00:00:00
++
++	bridge fdb append $zmac dev vxlan0 self dst 198.51.100.2
++
++	ip link set dev vxlan0 master br0
++	bridge fdb add dev vxlan0 $mac self master static dst 198.51.100.2
++
++	RET=3D0
++	check_vxlan_fdb_not_offloaded
++	ip link set dev $swp1 master br0
++	sleep .1
++	check_fdb_offloaded
++	log_test "offload indication - attach vxlan first"
++
++	RET=3D0
++	ip link set dev vxlan0 down
++	check_vxlan_fdb_not_offloaded
++	check_bridge_fdb_not_offloaded
++	log_test "offload indication - set vxlan down"
++
++	RET=3D0
++	ip link set dev vxlan0 up
++	sleep .1
++	check_fdb_offloaded
++	log_test "offload indication - set vxlan up"
++
++	if [[ ! -z $vid ]]; then
++		RET=3D0
++		bridge vlan del dev vxlan0 vid $vid
++		check_vxlan_fdb_not_offloaded
++		check_bridge_fdb_not_offloaded
++		log_test "offload indication - delete VLAN"
++
++		RET=3D0
++		bridge vlan add dev vxlan0 vid $vid
++		check_vxlan_fdb_not_offloaded
++		check_bridge_fdb_not_offloaded
++		log_test "offload indication - add tagged VLAN"
++
++		RET=3D0
++		bridge vlan add dev vxlan0 vid $vid pvid untagged
++		sleep .1
++		check_fdb_offloaded
++		log_test "offload indication - add pvid/untagged VLAN"
++	fi
++
++	RET=3D0
++	ip link set dev $swp1 nomaster
++	check_vxlan_fdb_not_offloaded
++	log_test "offload indication - detach port"
++}
++
++offload_indication_join_vxlan_first()
++{
++	ip link add dev br0 up type bridge mcast_snooping 0
++	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
++		ttl 20 tos inherit local 198.51.100.1 dstport 4789
++
++	__offload_indication_join_vxlan_first
++
++	ip link del dev vxlan0
++	ip link del dev br0
++}
++
++__offload_indication_join_vxlan_last()
++{
++	local zmac=3D00:00:00:00:00:00
++
++	RET=3D0
++
++	bridge fdb append $zmac dev vxlan0 self dst 198.51.100.2
++
++	ip link set dev $swp1 master br0
++
++	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
++	check_fail $?
++
++	ip link set dev vxlan0 master br0
++
++	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
++	check_err $?
++
++	log_test "offload indication - attach vxlan last"
++}
++
++offload_indication_join_vxlan_last()
++{
++	ip link add dev br0 up type bridge mcast_snooping 0
++	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
++		ttl 20 tos inherit local 198.51.100.1 dstport 4789
++
++	__offload_indication_join_vxlan_last
++
++	ip link del dev vxlan0
++	ip link del dev br0
++}
++
+ offload_indication_test()
  {
- 	u16 fid_index =3D mlxsw_sp_fid_index(fid);
-+	struct net_device *nve_dev;
-+	int nve_ifindex;
-+	__be32 vni;
-=20
- 	mlxsw_sp_nve_flood_ip_flush(mlxsw_sp, fid);
- 	mlxsw_sp_nve_fdb_flush_by_fid(mlxsw_sp, fid_index);
+ 	offload_indication_setup_create
+ 	offload_indication_fdb_test
+ 	offload_indication_decap_route_test
+ 	offload_indication_setup_destroy
 +
-+	if (WARN_ON(mlxsw_sp_fid_nve_ifindex(fid, &nve_ifindex) ||
-+		    mlxsw_sp_fid_vni(fid, &vni)))
-+		goto out;
-+
-+	nve_dev =3D dev_get_by_index(&init_net, nve_ifindex);
-+	if (!nve_dev)
-+		goto out;
-+
-+	mlxsw_sp_nve_fdb_clear_offload(mlxsw_sp, fid, nve_dev, vni);
-+	mlxsw_sp_fid_fdb_clear_offload(fid, nve_dev);
-+
-+	dev_put(nve_dev);
-+
-+out:
- 	mlxsw_sp_fid_vni_clear(fid);
- 	mlxsw_sp_nve_tunnel_fini(mlxsw_sp);
++	log_info "offload indication - replay & cleanup"
++	offload_indication_join_vxlan_first
++	offload_indication_join_vxlan_last
  }
+=20
+ sanitization_vlan_aware_test()
+@@ -848,12 +995,42 @@ offload_indication_vlan_aware_decap_route_test()
+ 	log_test "vxlan decap route - vni map/unmap"
+ }
+=20
++offload_indication_vlan_aware_join_vxlan_first()
++{
++	ip link add dev br0 up type bridge mcast_snooping 0 \
++		vlan_filtering 1 vlan_default_pvid 1
++	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
++		ttl 20 tos inherit local 198.51.100.1 dstport 4789
++
++	__offload_indication_join_vxlan_first 1
++
++	ip link del dev vxlan0
++	ip link del dev br0
++}
++
++offload_indication_vlan_aware_join_vxlan_last()
++{
++	ip link add dev br0 up type bridge mcast_snooping 0 \
++		vlan_filtering 1 vlan_default_pvid 1
++	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
++		ttl 20 tos inherit local 198.51.100.1 dstport 4789
++
++	__offload_indication_join_vxlan_last
++
++	ip link del dev vxlan0
++	ip link del dev br0
++}
++
+ offload_indication_vlan_aware_test()
+ {
+ 	offload_indication_vlan_aware_setup_create
+ 	offload_indication_vlan_aware_fdb_test
+ 	offload_indication_vlan_aware_decap_route_test
+ 	offload_indication_vlan_aware_setup_destroy
++
++	log_info "offload indication - replay & cleanup - vlan aware"
++	offload_indication_vlan_aware_join_vxlan_first
++	offload_indication_vlan_aware_join_vxlan_last
+ }
+=20
+ trap cleanup EXIT
 --=20
 2.19.1
 
