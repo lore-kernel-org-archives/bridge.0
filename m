@@ -2,19 +2,18 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=ipNM8usYtPKPSrgFKUKVzxSVDOyt3wRmexas6crwHDw=;
-	b=H9gA6/iHyln363ruIyFsmHnRIFMW8kW1sZ7JtM9oS8XOdrZJ4D6wKYTvXt6rZyT84qi8ohwsyeP0eEtzpRnKf9kQf6ZAByEjPtdofPCic9Iw5CCFvCJohuISIO05W+mrH/wqXTqJVNcPFFcPIHSrf28O02rjou3yKmkXwqKvA2I=
+	bh=PtNhkKG6WCUAxU8wGMgAMzunatst6nYFbs+UOwG4lMs=;
+	b=kbyKOoVc6QJyA6EOjbMDLnAT4+6Ex2kgnTM9l8pCdaPKR5uV2coIbNQNOFU1g655Fb+vTr3JUtGECkoEpxDRfMAZq6mO87/EAydmMS9nw9BXj5g8kibdIDBEjjgZ9P2L7bs3ySa1BUtTJt7KSV+W9h01vjeHa25mvOLwjLzoj2M=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 5 Dec 2018 15:50:32 +0000
-Message-ID: <20181205154958.20262-8-idosch@mellanox.com>
+Date: Wed, 5 Dec 2018 15:50:25 +0000
+Message-ID: <20181205154958.20262-3-idosch@mellanox.com>
 References: <20181205154958.20262-1-idosch@mellanox.com>
 In-Reply-To: <20181205154958.20262-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 07/12] mlxsw: spectrum_nve: Add
- mlxsw_sp_nve_ops.fdb_replay
+Subject: [Bridge] [PATCH net-next 02/12] vxlan: Add vxlan_fdb_replay()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,70 +27,108 @@ Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusne
 
 From: Petr Machata <petrm@mellanox.com>
 
-A replay of FDB needs to be performed so that the FDB entries existing
-at the NVE device are offloaded. How the replay is done depends on NVE
-device type, and therefore add a per-NVE-type operation.
+When a VXLAN device becomes relevant to a driver (such as when it is
+attached to an offloaded bridge), the driver will generally need to walk
+the existing FDB entries and offload them.
 
-Implement the operation for the sole NVE device type currently supported
-by mlxsw, VXLAN.
+Add a function vxlan_fdb_replay() to call a given notifier block for
+each FDB entry with a given VNI.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.h     |  1 +
- .../net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c   | 10 ++++++++++
- 2 files changed, 11 insertions(+)
+ drivers/net/vxlan.c | 47 +++++++++++++++++++++++++++++++++++++++++++++
+ include/net/vxlan.h |  9 +++++++++
+ 2 files changed, 56 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.h b/drivers/n=
-et/ethernet/mellanox/mlxsw/spectrum_nve.h
-index 4cc3297e13d6..e2f945543433 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve.h
-@@ -41,6 +41,7 @@ struct mlxsw_sp_nve_ops {
- 	int (*init)(struct mlxsw_sp_nve *nve,
- 		    const struct mlxsw_sp_nve_config *config);
- 	void (*fini)(struct mlxsw_sp_nve *nve);
-+	int (*fdb_replay)(const struct net_device *nve_dev, __be32 vni);
- };
-=20
- extern const struct mlxsw_sp_nve_ops mlxsw_sp1_nve_vxlan_ops;
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c b/dri=
-vers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c
-index 4e9cc00a88fd..1651c912ef77 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_nve_vxlan.c
-@@ -211,12 +211,21 @@ static void mlxsw_sp1_nve_vxlan_fini(struct mlxsw_sp_=
-nve *nve)
- 				 config->udp_dport);
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index fe5cd22e4b4d..3e44a358f7ea 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -556,6 +556,53 @@ int vxlan_fdb_find_uc(struct net_device *dev, const u8=
+ *mac, __be32 vni,
  }
+ EXPORT_SYMBOL_GPL(vxlan_fdb_find_uc);
 =20
-+static int
-+mlxsw_sp_nve_vxlan_fdb_replay(const struct net_device *nve_dev, __be32 vni=
-)
++static int vxlan_fdb_notify_one(struct notifier_block *nb,
++				const struct vxlan_dev *vxlan,
++				const struct vxlan_fdb *f,
++				const struct vxlan_rdst *rdst)
 +{
-+	if (WARN_ON(!netif_is_vxlan(nve_dev)))
-+		return -EINVAL;
-+	return vxlan_fdb_replay(nve_dev, vni, &mlxsw_sp_switchdev_notifier);
++	struct switchdev_notifier_vxlan_fdb_info fdb_info;
++	int rc;
++
++	fdb_info =3D vxlan_fdb_switchdev_notifier_info(vxlan, f, rdst);
++	rc =3D nb->notifier_call(nb, SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE,
++			       &fdb_info);
++	return notifier_to_errno(rc);
 +}
 +
- const struct mlxsw_sp_nve_ops mlxsw_sp1_nve_vxlan_ops =3D {
- 	.type		=3D MLXSW_SP_NVE_TYPE_VXLAN,
- 	.can_offload	=3D mlxsw_sp1_nve_vxlan_can_offload,
- 	.nve_config	=3D mlxsw_sp_nve_vxlan_config,
- 	.init		=3D mlxsw_sp1_nve_vxlan_init,
- 	.fini		=3D mlxsw_sp1_nve_vxlan_fini,
-+	.fdb_replay	=3D mlxsw_sp_nve_vxlan_fdb_replay,
- };
++int vxlan_fdb_replay(const struct net_device *dev, __be32 vni,
++		     struct notifier_block *nb)
++{
++	struct vxlan_dev *vxlan;
++	struct vxlan_rdst *rdst;
++	struct vxlan_fdb *f;
++	unsigned int h;
++	int rc =3D 0;
++
++	if (!netif_is_vxlan(dev))
++		return -EINVAL;
++	vxlan =3D netdev_priv(dev);
++
++	spin_lock_bh(&vxlan->hash_lock);
++	for (h =3D 0; h < FDB_HASH_SIZE; ++h) {
++		hlist_for_each_entry(f, &vxlan->fdb_head[h], hlist) {
++			if (f->vni =3D=3D vni) {
++				list_for_each_entry(rdst, &f->remotes, list) {
++					rc =3D vxlan_fdb_notify_one(nb, vxlan,
++								  f, rdst);
++					if (rc)
++						goto out;
++				}
++			}
++		}
++	}
++
++out:
++	spin_unlock_bh(&vxlan->hash_lock);
++	return rc;
++}
++EXPORT_SYMBOL_GPL(vxlan_fdb_replay);
++
+ /* Replace destination of unicast mac */
+ static int vxlan_fdb_replace(struct vxlan_fdb *f,
+ 			     union vxlan_addr *ip, __be16 port, __be32 vni,
+diff --git a/include/net/vxlan.h b/include/net/vxlan.h
+index b73c670df184..f49aa9afe598 100644
+--- a/include/net/vxlan.h
++++ b/include/net/vxlan.h
+@@ -427,6 +427,9 @@ struct switchdev_notifier_vxlan_fdb_info {
+ #if IS_ENABLED(CONFIG_VXLAN)
+ int vxlan_fdb_find_uc(struct net_device *dev, const u8 *mac, __be32 vni,
+ 		      struct switchdev_notifier_vxlan_fdb_info *fdb_info);
++int vxlan_fdb_replay(const struct net_device *dev, __be32 vni,
++		     struct notifier_block *nb);
++
+ #else
+ static inline int
+ vxlan_fdb_find_uc(struct net_device *dev, const u8 *mac, __be32 vni,
+@@ -434,6 +437,12 @@ vxlan_fdb_find_uc(struct net_device *dev, const u8 *ma=
+c, __be32 vni,
+ {
+ 	return -ENOENT;
+ }
++
++static inline int vxlan_fdb_replay(const struct net_device *dev, __be32 vn=
+i,
++				   struct notifier_block *nb)
++{
++	return -EOPNOTSUPP;
++}
+ #endif
 =20
- static bool mlxsw_sp2_nve_vxlan_can_offload(const struct mlxsw_sp_nve *nve=
-,
-@@ -242,4 +251,5 @@ const struct mlxsw_sp_nve_ops mlxsw_sp2_nve_vxlan_ops =
-=3D {
- 	.nve_config	=3D mlxsw_sp_nve_vxlan_config,
- 	.init		=3D mlxsw_sp2_nve_vxlan_init,
- 	.fini		=3D mlxsw_sp2_nve_vxlan_fini,
-+	.fdb_replay	=3D mlxsw_sp_nve_vxlan_fdb_replay,
- };
+ #endif
 --=20
 2.19.1
 
