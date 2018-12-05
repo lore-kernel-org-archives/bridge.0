@@ -2,19 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=i72mpvj6nl7/nOM+1tWLZUUVGG1e8/l2+OoHhK0nhUw=;
-	b=eot4KanDwnXkqbPe6kujdlRtnpoduwASpQm3YiopBxCKPmL3qg+fYcP6nSED+8pRduGPKRNramQfD6mcOiJhWMcaYyG0Uw9IJVIG7FZDTowZ7stShE7HxdLrr+9BK5bOxDooSET+opteguIQd+3wZgf+h+O5Hc/tV0hRzO0zIdI=
+	bh=ky86EgLmvhenxdQ7iHJz5xb2+X40q96KOP30CWdhIoA=;
+	b=Q+0V4kL2PKHi7I7r5meEHKi9iTh6Uvy1X+hSpDtEmweMUptbXSNcYvejoy/GBCML5shHC1Rt5FfhZW9Ynk3Y+SI1btZ1EHbgvf8L2UK6pWyxkM14kt8NOdGKB8Adi2sJ07fx6+y3wNyotIH49j8Fw/0vU20t0u1Bz3r7XH5Kh3o=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 5 Dec 2018 15:50:39 +0000
-Message-ID: <20181205154958.20262-12-idosch@mellanox.com>
+Date: Wed, 5 Dec 2018 15:50:54 +0000
+Message-ID: <20181205154958.20262-13-idosch@mellanox.com>
 References: <20181205154958.20262-1-idosch@mellanox.com>
 In-Reply-To: <20181205154958.20262-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 11/12] selftests: mlxsw: vxlan: Test FDB
- un/marking on VXLAN join/leave
+Subject: [Bridge] [PATCH net-next 12/12] selftests: forwarding: Add PVID
+ test case for VXLAN with VLAN-aware bridges
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,233 +26,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-From: Petr Machata <petrm@mellanox.com>
+When using VLAN-aware bridges with VXLAN, the VLAN that is mapped to the
+VNI of the VXLAN device is that which is configured as "pvid untagged"
+on the corresponding bridge port.
 
-When a VXLAN device is attached to an offloaded bridge, or when a
-front-panel port is attached to a bridge that already has a VXLAN
-device, mlxsw should offload the existing offloadable FDB entries.
-Similarly when VXLAN device is downed, the FDB entries are unoffloaded,
-and the marks thus need to be cleared. Similarly when a front-panel port
-device is attached to a bridge with a VXLAN device, or when VLAN flags
-are tweaked on a VXLAN port attached to a VLAN-aware bridge.
+When these flags are toggled or when the VLAN is deleted entirely,
+remote hosts should not be able to receive packets from the VTEP.
 
-Test that the replaying / clearing logic works by observing transitions
-in presence of offload marks under different scenarios.
+Add a test case for above mentioned scenarios.
 
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 ---
- .../selftests/drivers/net/mlxsw/vxlan.sh      | 177 ++++++++++++++++++
- 1 file changed, 177 insertions(+)
+ .../net/forwarding/vxlan_bridge_1q.sh         | 70 +++++++++++++++++++
+ 1 file changed, 70 insertions(+)
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh b/tools/tes=
-ting/selftests/drivers/net/mlxsw/vxlan.sh
-index 90b4998a3b70..ea11535f5a6e 100755
---- a/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/vxlan.sh
-@@ -647,12 +647,159 @@ offload_indication_decap_route_test()
- 		noudpcsum ttl 20 tos inherit local 198.51.100.1 dstport 4789
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh b/to=
+ols/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
+index bac2e568d22c..a5789721ba92 100755
+--- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
+@@ -95,6 +95,7 @@ export VXPORT
+ 	test_flood
+ 	test_unicast
+ 	test_learning
++	test_pvid
+     "}
+=20
+ NUM_NETIFS=3D6
+@@ -610,6 +611,75 @@ test_unicast()
+ 	done
  }
 =20
-+check_fdb_offloaded()
++test_pvid()
 +{
-+	local mac=3D00:11:22:33:44:55
-+	local zmac=3D00:00:00:00:00:00
++	local -a expects=3D(0 0 0 0 0)
++	local mac=3Dde:ad:be:ef:13:37
++	local dst=3D192.0.2.100
++	local vid=3D10
 +
-+	bridge fdb show dev vxlan0 | grep $mac | grep self | grep -q offload
-+	check_err $?
-+	bridge fdb show dev vxlan0 | grep $mac | grep master | grep -q offload
-+	check_err $?
-+
-+	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
-+	check_err $?
-+}
-+
-+check_vxlan_fdb_not_offloaded()
-+{
-+	local mac=3D00:11:22:33:44:55
-+	local zmac=3D00:00:00:00:00:00
-+
-+	bridge fdb show dev vxlan0 | grep $mac | grep -q self
-+	check_err $?
-+	bridge fdb show dev vxlan0 | grep $mac | grep self | grep -q offload
-+	check_fail $?
-+
-+	bridge fdb show dev vxlan0 | grep $zmac | grep -q self
-+	check_err $?
-+	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
-+	check_fail $?
-+}
-+
-+check_bridge_fdb_not_offloaded()
-+{
-+	local mac=3D00:11:22:33:44:55
-+	local zmac=3D00:00:00:00:00:00
-+
-+	bridge fdb show dev vxlan0 | grep $mac | grep -q master
-+	check_err $?
-+	bridge fdb show dev vxlan0 | grep $mac | grep master | grep -q offload
-+	check_fail $?
-+}
-+
-+__offload_indication_join_vxlan_first()
-+{
-+	local vid=3D$1; shift
-+
-+	local mac=3D00:11:22:33:44:55
-+	local zmac=3D00:00:00:00:00:00
-+
-+	bridge fdb append $zmac dev vxlan0 self dst 198.51.100.2
-+
-+	ip link set dev vxlan0 master br0
-+	bridge fdb add dev vxlan0 $mac self master static dst 198.51.100.2
-+
-+	RET=3D0
-+	check_vxlan_fdb_not_offloaded
-+	ip link set dev $swp1 master br0
-+	sleep .1
-+	check_fdb_offloaded
-+	log_test "offload indication - attach vxlan first"
-+
-+	RET=3D0
-+	ip link set dev vxlan0 down
-+	check_vxlan_fdb_not_offloaded
-+	check_bridge_fdb_not_offloaded
-+	log_test "offload indication - set vxlan down"
-+
-+	RET=3D0
-+	ip link set dev vxlan0 up
-+	sleep .1
-+	check_fdb_offloaded
-+	log_test "offload indication - set vxlan up"
-+
-+	if [[ ! -z $vid ]]; then
-+		RET=3D0
-+		bridge vlan del dev vxlan0 vid $vid
-+		check_vxlan_fdb_not_offloaded
-+		check_bridge_fdb_not_offloaded
-+		log_test "offload indication - delete VLAN"
-+
-+		RET=3D0
-+		bridge vlan add dev vxlan0 vid $vid
-+		check_vxlan_fdb_not_offloaded
-+		check_bridge_fdb_not_offloaded
-+		log_test "offload indication - add tagged VLAN"
-+
-+		RET=3D0
-+		bridge vlan add dev vxlan0 vid $vid pvid untagged
-+		sleep .1
-+		check_fdb_offloaded
-+		log_test "offload indication - add pvid/untagged VLAN"
-+	fi
-+
-+	RET=3D0
-+	ip link set dev $swp1 nomaster
-+	check_vxlan_fdb_not_offloaded
-+	log_test "offload indication - detach port"
-+}
-+
-+offload_indication_join_vxlan_first()
-+{
-+	ip link add dev br0 up type bridge mcast_snooping 0
-+	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
-+		ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+
-+	__offload_indication_join_vxlan_first
-+
-+	ip link del dev vxlan0
-+	ip link del dev br0
-+}
-+
-+__offload_indication_join_vxlan_last()
-+{
-+	local zmac=3D00:00:00:00:00:00
-+
++	# Check that flooding works
 +	RET=3D0
 +
-+	bridge fdb append $zmac dev vxlan0 self dst 198.51.100.2
++	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
 +
-+	ip link set dev $swp1 master br0
++	log_test "VXLAN: flood before pvid off"
 +
-+	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
-+	check_fail $?
++	# Toggle PVID off and test that flood to remote hosts does not work
++	RET=3D0
 +
-+	ip link set dev vxlan0 master br0
++	bridge vlan add vid 10 dev vx10
 +
-+	bridge fdb show dev vxlan0 | grep $zmac | grep self | grep -q offload
-+	check_err $?
++	expects[0]=3D10; expects[1]=3D0; expects[3]=3D0
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
 +
-+	log_test "offload indication - attach vxlan last"
++	log_test "VXLAN: flood after pvid off"
++
++	# Toggle PVID on and test that flood to remote hosts does work
++	RET=3D0
++
++	bridge vlan add vid 10 dev vx10 pvid untagged
++
++	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: flood after pvid on"
++
++	# Add a new VLAN and test that it does not affect flooding
++	RET=3D0
++
++	bridge vlan add vid 30 dev vx10
++
++	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	bridge vlan del vid 30 dev vx10
++
++	log_test "VXLAN: flood after vlan add"
++
++	# Remove currently mapped VLAN and test that flood to remote hosts does
++	# not work
++	RET=3D0
++
++	bridge vlan del vid 10 dev vx10
++
++	expects[0]=3D10; expects[1]=3D0; expects[3]=3D0
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: flood after vlan delete"
++
++	# Re-add the VLAN and test that flood to remote hosts does work
++	RET=3D0
++
++	bridge vlan add vid 10 dev vx10 pvid untagged
++
++	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
++	vxlan_flood_test $mac $dst $vid "${expects[@]}"
++
++	log_test "VXLAN: flood after vlan re-add"
 +}
 +
-+offload_indication_join_vxlan_last()
-+{
-+	ip link add dev br0 up type bridge mcast_snooping 0
-+	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
-+		ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+
-+	__offload_indication_join_vxlan_last
-+
-+	ip link del dev vxlan0
-+	ip link del dev br0
-+}
-+
- offload_indication_test()
+ vxlan_ping_test()
  {
- 	offload_indication_setup_create
- 	offload_indication_fdb_test
- 	offload_indication_decap_route_test
- 	offload_indication_setup_destroy
-+
-+	log_info "offload indication - replay & cleanup"
-+	offload_indication_join_vxlan_first
-+	offload_indication_join_vxlan_last
- }
-=20
- sanitization_vlan_aware_test()
-@@ -848,12 +995,42 @@ offload_indication_vlan_aware_decap_route_test()
- 	log_test "vxlan decap route - vni map/unmap"
- }
-=20
-+offload_indication_vlan_aware_join_vxlan_first()
-+{
-+	ip link add dev br0 up type bridge mcast_snooping 0 \
-+		vlan_filtering 1 vlan_default_pvid 1
-+	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
-+		ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+
-+	__offload_indication_join_vxlan_first 1
-+
-+	ip link del dev vxlan0
-+	ip link del dev br0
-+}
-+
-+offload_indication_vlan_aware_join_vxlan_last()
-+{
-+	ip link add dev br0 up type bridge mcast_snooping 0 \
-+		vlan_filtering 1 vlan_default_pvid 1
-+	ip link add name vxlan0 up type vxlan id 10 nolearning noudpcsum \
-+		ttl 20 tos inherit local 198.51.100.1 dstport 4789
-+
-+	__offload_indication_join_vxlan_last
-+
-+	ip link del dev vxlan0
-+	ip link del dev br0
-+}
-+
- offload_indication_vlan_aware_test()
- {
- 	offload_indication_vlan_aware_setup_create
- 	offload_indication_vlan_aware_fdb_test
- 	offload_indication_vlan_aware_decap_route_test
- 	offload_indication_vlan_aware_setup_destroy
-+
-+	log_info "offload indication - replay & cleanup - vlan aware"
-+	offload_indication_vlan_aware_join_vxlan_first
-+	offload_indication_vlan_aware_join_vxlan_last
- }
-=20
- trap cleanup EXIT
+ 	local ping_dev=3D$1; shift
 --=20
 2.19.1
 
