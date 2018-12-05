@@ -2,17 +2,18 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=C3vxM2WOw820h/gD8f7okAhQ2nFKlfc6WyKwYAn5njM=;
-	b=J/OGlFRLr6HtSob/0DWVpwC/Wk3tr3TIcP5I8nQ1Lb7zB9J36yNCG3P8N1G4tdx7RlUDCzR0rGJ1Z+UasQ6L/0yItgA8tVdIAHB5Y3D03Kl+fUFCmoQHtPrWRdVuHpRADtFi7vWG+KRl12nUmbq4KQHXKMZCQFPLn4+JPUzFQj0=
+	bh=qVzcq0M6IFy6m/xH/ByZhlg7Ol0xOPa5BcekV+vSOGc=;
+	b=GEec2+a78Tf9uknELsJRauXXcgrkv4ZWESOSsvlnn977gSV9slsbqDwiGthR4Cm48nvjigqkE4ItqvnESuhUh5sM9yfQhCO97J0DMX3tsd7eraIIbbV4VagZDkdvOgLRYVpvRP8EW/Nmds6Dm2X85WagfFF1R6EujfURamiLLAI=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 5 Dec 2018 15:50:22 +0000
-Message-ID: <20181205154958.20262-1-idosch@mellanox.com>
+Date: Wed, 5 Dec 2018 15:50:27 +0000
+Message-ID: <20181205154958.20262-5-idosch@mellanox.com>
+References: <20181205154958.20262-1-idosch@mellanox.com>
+In-Reply-To: <20181205154958.20262-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 00/12] mlxsw: Un/offload FDB on NVE
-	detach/attach
+Subject: [Bridge] [PATCH net-next 04/12] bridge: Add br_fdb_clear_offload()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,71 +25,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Petr says:
+From: Petr Machata <petrm@mellanox.com>
 
-When a VXLAN device is attached to a bridge of a driver capable of
-offloading such, or upped, the FDB entries already present at the device
-need to be offloaded. Similarly when an offloaded VXLAN device ceases
-being interesting (it is downed, or detached, or a front-panel port
-netdevice is detached from the bridge that the VXLAN device is attached
-to), any offloaded FDB entries need to be unoffloaded and unmarked. This
-attach / detach processing is implemented in this patchset.
+When a driver unoffloads all FDB entries en bloc, it's inefficient to
+send the switchdev notification one by one. Add a helper that unsets the
+offload flag on FDB entries on a given bridge port and VLAN.
 
-In patch #1, a code pattern is extracted into a named function for
-easier reuse.
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+---
+ include/linux/if_bridge.h |  6 ++++++
+ net/bridge/br_fdb.c       | 20 ++++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
-In patch #2, vxlan_fdb_replay() is added to send
-SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE for each FDB entry with a given VNI.
-The intention is that the offloading driver will interpret these events
-like any other and thus offload the FDB entries that existed prior to
-VXLAN attach.
-
-In patches #3 and #4, the functions vxlan_fdb_clear_offload() resp.
-br_fdb_clear_offload() are added. These clear the offloaded flag at
-matching FDB entries.
-
-In patches #5-#9, we introduce FID-type-specific and NVE-type-specific
-ops necessary to properly abstract invocations of the replay/clear
-functions.
-
-Finally patch #10 implements the FDB management.
-
-In patch #11, the mlxsw-specific test case is extended to check that the
-management of offload marks under the newly-supported situations is
-correct. Patch #12, from Ido, exercises the new code paths in actual
-functional test.
-
-Ido Schimmel (1):
-  selftests: forwarding: Add PVID test case for VXLAN with VLAN-aware
-    bridges
-
-Petr Machata (11):
-  vxlan: Add a function to init switchdev_notifier_vxlan_fdb_info
-  vxlan: Add vxlan_fdb_replay()
-  vxlan: Add vxlan_fdb_clear_offload()
-  bridge: Add br_fdb_clear_offload()
-  mlxsw: spectrum: Track NVE type at FIDs
-  mlxsw: spectrum_switchdev: Publish mlxsw_sp_switchdev_notifier
-  mlxsw: spectrum_nve: Add mlxsw_sp_nve_ops.fdb_replay
-  mlxsw: spectrum_nve: Add mlxsw_sp_nve_ops.fdb_clear_offload
-  mlxsw: spectrum: Add mlxsw_sp_fid_ops.fdb_clear_offload
-  mlxsw: spectrum_nve: Un/offload FDB on nve_fid_disable/enable
-  selftests: mlxsw: vxlan: Test FDB un/marking on VXLAN join/leave
-
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |  16 +-
- .../ethernet/mellanox/mlxsw/spectrum_fid.c    |  44 ++++-
- .../ethernet/mellanox/mlxsw/spectrum_nve.c    |  44 ++++-
- .../ethernet/mellanox/mlxsw/spectrum_nve.h    |   2 +
- .../mellanox/mlxsw/spectrum_nve_vxlan.c       |  20 ++
- .../mellanox/mlxsw/spectrum_switchdev.c       |   2 +-
- drivers/net/vxlan.c                           | 114 ++++++++---
- include/linux/if_bridge.h                     |   6 +
- include/net/vxlan.h                           |  15 ++
- net/bridge/br_fdb.c                           |  20 ++
- .../selftests/drivers/net/mlxsw/vxlan.sh      | 177 ++++++++++++++++++
- .../net/forwarding/vxlan_bridge_1q.sh         |  70 +++++++
- 12 files changed, 499 insertions(+), 31 deletions(-)
-
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index ef7c3d376b21..627b788ba0ff 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -119,6 +119,7 @@ static inline int br_vlan_get_info(const struct net_dev=
+ice *dev, u16 vid,
+ struct net_device *br_fdb_find_port(const struct net_device *br_dev,
+ 				    const unsigned char *addr,
+ 				    __u16 vid);
++void br_fdb_clear_offload(const struct net_device *dev, u16 vid);
+ bool br_port_flag_is_set(const struct net_device *dev, unsigned long flag)=
+;
+ #else
+ static inline struct net_device *
+@@ -128,6 +129,11 @@ br_fdb_find_port(const struct net_device *br_dev,
+ {
+ 	return NULL;
+ }
++
++static inline void br_fdb_clear_offload(const struct net_device *dev, u16 =
+vid)
++{
++}
++
+ static inline bool
+ br_port_flag_is_set(const struct net_device *dev, unsigned long flag)
+ {
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index e56ba3912a90..38b1d0dd0529 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1164,3 +1164,23 @@ void br_fdb_offloaded_set(struct net_bridge *br, str=
+uct net_bridge_port *p,
+=20
+ 	spin_unlock_bh(&br->hash_lock);
+ }
++
++void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
++{
++	struct net_bridge_fdb_entry *f;
++	struct net_bridge_port *p;
++
++	ASSERT_RTNL();
++
++	p =3D br_port_get_rtnl(dev);
++	if (!p)
++		return;
++
++	spin_lock_bh(&p->br->hash_lock);
++	hlist_for_each_entry(f, &p->br->fdb_list, fdb_node) {
++		if (f->dst =3D=3D p && f->key.vlan_id =3D=3D vid)
++			f->offloaded =3D 0;
++	}
++	spin_unlock_bh(&p->br->hash_lock);
++}
++EXPORT_SYMBOL_GPL(br_fdb_clear_offload);
 --=20
 2.19.1
 
