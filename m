@@ -1,20 +1,24 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=ky86EgLmvhenxdQ7iHJz5xb2+X40q96KOP30CWdhIoA=;
-	b=Q+0V4kL2PKHi7I7r5meEHKi9iTh6Uvy1X+hSpDtEmweMUptbXSNcYvejoy/GBCML5shHC1Rt5FfhZW9Ynk3Y+SI1btZ1EHbgvf8L2UK6pWyxkM14kt8NOdGKB8Adi2sJ07fx6+y3wNyotIH49j8Fw/0vU20t0u1Bz3r7XH5Kh3o=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 5 Dec 2018 15:50:54 +0000
-Message-ID: <20181205154958.20262-13-idosch@mellanox.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=Skan/9haOw1yp4ZL7g1+wuX0wpwF9bHwir6Z+uEd3kQ=;
+	b=VGfZSWc7ccMp+Web2EIRe2IXmVsy1P+1TNhm3c0OubUhBvyXgOieuPAK+aDmmU/xCM
+	+KzRT4bpJ/voJQ7zm0LjYuD07swLFYTGajjcS/YKS/rjRD60+knIHPX0IwUgZRnMVmFx
+	JkbMiTWUxIAerPlj+aYOUux7cbmPVxqVHjzRw=
 References: <20181205154958.20262-1-idosch@mellanox.com>
-In-Reply-To: <20181205154958.20262-1-idosch@mellanox.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	<20181205154958.20262-5-idosch@mellanox.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <f7b854f6-265b-2a1e-cbc7-e577344df2d7@cumulusnetworks.com>
+Date: Wed, 5 Dec 2018 18:00:16 +0200
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 12/12] selftests: forwarding: Add PVID
- test case for VXLAN with VLAN-aware bridges
+In-Reply-To: <20181205154958.20262-5-idosch@mellanox.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 04/12] bridge: Add
+	br_fdb_clear_offload()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,113 +27,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
-Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Ido Schimmel <idosch@mellanox.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+Cc: mlxsw <mlxsw@mellanox.com>, Petr Machata <petrm@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-When using VLAN-aware bridges with VXLAN, the VLAN that is mapped to the
-VNI of the VXLAN device is that which is configured as "pvid untagged"
-on the corresponding bridge port.
+On 05/12/2018 17:50, Ido Schimmel wrote:
+> From: Petr Machata <petrm@mellanox.com>
+> 
+> When a driver unoffloads all FDB entries en bloc, it's inefficient to
+> send the switchdev notification one by one. Add a helper that unsets the
+> offload flag on FDB entries on a given bridge port and VLAN.
+> 
+> Signed-off-by: Petr Machata <petrm@mellanox.com>
+> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+> ---
+>  include/linux/if_bridge.h |  6 ++++++
+>  net/bridge/br_fdb.c       | 20 ++++++++++++++++++++
+>  2 files changed, 26 insertions(+)
+> 
+> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+> index ef7c3d376b21..627b788ba0ff 100644
+> --- a/include/linux/if_bridge.h
+> +++ b/include/linux/if_bridge.h
+> @@ -119,6 +119,7 @@ static inline int br_vlan_get_info(const struct net_device *dev, u16 vid,
+>  struct net_device *br_fdb_find_port(const struct net_device *br_dev,
+>  				    const unsigned char *addr,
+>  				    __u16 vid);
+> +void br_fdb_clear_offload(const struct net_device *dev, u16 vid);
+>  bool br_port_flag_is_set(const struct net_device *dev, unsigned long flag);
+>  #else
+>  static inline struct net_device *
+> @@ -128,6 +129,11 @@ br_fdb_find_port(const struct net_device *br_dev,
+>  {
+>  	return NULL;
+>  }
+> +
+> +static inline void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
+> +{
+> +}
+> +
+>  static inline bool
+>  br_port_flag_is_set(const struct net_device *dev, unsigned long flag)
+>  {
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index e56ba3912a90..38b1d0dd0529 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -1164,3 +1164,23 @@ void br_fdb_offloaded_set(struct net_bridge *br, struct net_bridge_port *p,
+>  
+>  	spin_unlock_bh(&br->hash_lock);
+>  }
+> +
+> +void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
+> +{
+> +	struct net_bridge_fdb_entry *f;
+> +	struct net_bridge_port *p;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	p = br_port_get_rtnl(dev);
+> +	if (!p)
+> +		return;
+> +
+> +	spin_lock_bh(&p->br->hash_lock);
+> +	hlist_for_each_entry(f, &p->br->fdb_list, fdb_node) {
+> +		if (f->dst == p && f->key.vlan_id == vid)
+> +			f->offloaded = 0;
+> +	}
+> +	spin_unlock_bh(&p->br->hash_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(br_fdb_clear_offload);
+> 
 
-When these flags are toggled or when the VLAN is deleted entirely,
-remote hosts should not be able to receive packets from the VTEP.
+Looks good.
 
-Add a test case for above mentioned scenarios.
-
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
----
- .../net/forwarding/vxlan_bridge_1q.sh         | 70 +++++++++++++++++++
- 1 file changed, 70 insertions(+)
-
-diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh b/to=
-ols/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
-index bac2e568d22c..a5789721ba92 100755
---- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
-+++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
-@@ -95,6 +95,7 @@ export VXPORT
- 	test_flood
- 	test_unicast
- 	test_learning
-+	test_pvid
-     "}
-=20
- NUM_NETIFS=3D6
-@@ -610,6 +611,75 @@ test_unicast()
- 	done
- }
-=20
-+test_pvid()
-+{
-+	local -a expects=3D(0 0 0 0 0)
-+	local mac=3Dde:ad:be:ef:13:37
-+	local dst=3D192.0.2.100
-+	local vid=3D10
-+
-+	# Check that flooding works
-+	RET=3D0
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood before pvid off"
-+
-+	# Toggle PVID off and test that flood to remote hosts does not work
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vx10
-+
-+	expects[0]=3D10; expects[1]=3D0; expects[3]=3D0
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after pvid off"
-+
-+	# Toggle PVID on and test that flood to remote hosts does work
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vx10 pvid untagged
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after pvid on"
-+
-+	# Add a new VLAN and test that it does not affect flooding
-+	RET=3D0
-+
-+	bridge vlan add vid 30 dev vx10
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	bridge vlan del vid 30 dev vx10
-+
-+	log_test "VXLAN: flood after vlan add"
-+
-+	# Remove currently mapped VLAN and test that flood to remote hosts does
-+	# not work
-+	RET=3D0
-+
-+	bridge vlan del vid 10 dev vx10
-+
-+	expects[0]=3D10; expects[1]=3D0; expects[3]=3D0
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after vlan delete"
-+
-+	# Re-add the VLAN and test that flood to remote hosts does work
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vx10 pvid untagged
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after vlan re-add"
-+}
-+
- vxlan_ping_test()
- {
- 	local ping_dev=3D$1; shift
---=20
-2.19.1
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
