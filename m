@@ -1,20 +1,14 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=ky86EgLmvhenxdQ7iHJz5xb2+X40q96KOP30CWdhIoA=;
-	b=d938g39mdMgSELY7c0dOvUQqkC2xsaIR5DnxRu2AeJk7YfO2SWI4N9UYM7If+mlZPwMZkxv1sJgb1JAAnArZOcL1+Pf+NYeGjr3yNiVO1i39n3V97MiETtU14jySS660V95idDol+qGl5lqZ7cpAOB0T462QW8qvgdf5WPtQMls=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Fri, 7 Dec 2018 19:55:20 +0000
-Message-ID: <20181207195433.22540-13-idosch@mellanox.com>
-References: <20181207195433.22540-1-idosch@mellanox.com>
+Return-Path: <davem@davemloft.net>
+Date: Fri, 07 Dec 2018 13:05:54 -0800 (PST)
+Message-Id: <20181207.130554.518420400722936900.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20181207195433.22540-1-idosch@mellanox.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 12/12] selftests: forwarding: Add PVID
- test case for VXLAN with VLAN-aware bridges
+References: <20181207195433.22540-1-idosch@mellanox.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v2 00/12] mlxsw: Un/offload FDB on NVE
+ detach/attach
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,113 +17,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
-Cc: "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: idosch@mellanox.com
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, jiri@mellanox.com, petrm@mellanox.com
 
-When using VLAN-aware bridges with VXLAN, the VLAN that is mapped to the
-VNI of the VXLAN device is that which is configured as "pvid untagged"
-on the corresponding bridge port.
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Fri, 7 Dec 2018 19:55:01 +0000
 
-When these flags are toggled or when the VLAN is deleted entirely,
-remote hosts should not be able to receive packets from the VTEP.
+> Petr says:
+> 
+> When a VXLAN device is attached to a bridge of a driver capable of
+> offloading such, or upped, the FDB entries already present at the device
+> need to be offloaded. Similarly when an offloaded VXLAN device ceases
+> being interesting (it is downed, or detached, or a front-panel port
+> netdevice is detached from the bridge that the VXLAN device is attached
+> to), any offloaded FDB entries need to be unoffloaded and unmarked. This
+> attach / detach processing is implemented in this patchset.
+> 
+> In patch #1, a code pattern is extracted into a named function for
+> easier reuse.
+> 
+> In patch #2, vxlan_fdb_replay() is added to send
+> SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE for each FDB entry with a given VNI.
+> The intention is that the offloading driver will interpret these events
+> like any other and thus offload the FDB entries that existed prior to
+> VXLAN attach.
+> 
+> In patches #3 and #4, the functions vxlan_fdb_clear_offload() resp.
+> br_fdb_clear_offload() are added. These clear the offloaded flag at
+> matching FDB entries.
+> 
+> In patches #5-#9, we introduce FID-type-specific and NVE-type-specific
+> ops necessary to properly abstract invocations of the replay/clear
+> functions.
+> 
+> Finally patch #10 implements the FDB management.
+> 
+> In patch #11, the mlxsw-specific test case is extended to check that the
+> management of offload marks under the newly-supported situations is
+> correct. Patch #12, from Ido, exercises the new code paths in actual
+> functional test.
+ ...
 
-Add a test case for above mentioned scenarios.
-
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
----
- .../net/forwarding/vxlan_bridge_1q.sh         | 70 +++++++++++++++++++
- 1 file changed, 70 insertions(+)
-
-diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh b/to=
-ols/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
-index bac2e568d22c..a5789721ba92 100755
---- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
-+++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1q.sh
-@@ -95,6 +95,7 @@ export VXPORT
- 	test_flood
- 	test_unicast
- 	test_learning
-+	test_pvid
-     "}
-=20
- NUM_NETIFS=3D6
-@@ -610,6 +611,75 @@ test_unicast()
- 	done
- }
-=20
-+test_pvid()
-+{
-+	local -a expects=3D(0 0 0 0 0)
-+	local mac=3Dde:ad:be:ef:13:37
-+	local dst=3D192.0.2.100
-+	local vid=3D10
-+
-+	# Check that flooding works
-+	RET=3D0
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood before pvid off"
-+
-+	# Toggle PVID off and test that flood to remote hosts does not work
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vx10
-+
-+	expects[0]=3D10; expects[1]=3D0; expects[3]=3D0
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after pvid off"
-+
-+	# Toggle PVID on and test that flood to remote hosts does work
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vx10 pvid untagged
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after pvid on"
-+
-+	# Add a new VLAN and test that it does not affect flooding
-+	RET=3D0
-+
-+	bridge vlan add vid 30 dev vx10
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	bridge vlan del vid 30 dev vx10
-+
-+	log_test "VXLAN: flood after vlan add"
-+
-+	# Remove currently mapped VLAN and test that flood to remote hosts does
-+	# not work
-+	RET=3D0
-+
-+	bridge vlan del vid 10 dev vx10
-+
-+	expects[0]=3D10; expects[1]=3D0; expects[3]=3D0
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after vlan delete"
-+
-+	# Re-add the VLAN and test that flood to remote hosts does work
-+	RET=3D0
-+
-+	bridge vlan add vid 10 dev vx10 pvid untagged
-+
-+	expects[0]=3D10; expects[1]=3D10; expects[3]=3D10
-+	vxlan_flood_test $mac $dst $vid "${expects[@]}"
-+
-+	log_test "VXLAN: flood after vlan re-add"
-+}
-+
- vxlan_ping_test()
- {
- 	local ping_dev=3D$1; shift
---=20
-2.19.1
-
+Series applied, thanks.
