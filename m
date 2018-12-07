@@ -2,17 +2,19 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=TuJHTdqKTMkFc4iDik+sbrgO6RH4W15uczhJS5wWfCc=;
-	b=fJ8pw3VAmyw/TT2t6oouUXc1eBXuZVb/lu1k6WFEe6+rn10YpyshTEHf7kphINOPmZwAOuXBcZabl7xPyLqVjvMJeLPqJib2+3p8iEMjwadQwduaNOMVd1YUaTqhUeX2f91O89PmDj43ZRk9xV49b8CeMJRUAdguKJBUemOhBcM=
+	bh=+kpoAPA2SgypkRiA4ECMXu1P8Eg0621HBkHYUDp7hME=;
+	b=bYsb6X+mAU9jSeIFNCKpcZRSQasgHbeXUTcpON31dmhD3isIcvX/wAdCLimM0vbWhwymJgN2IRXTEu+U1bCrKatIDpoYL9flDELRycoQjVDoL5Vu1/hRYSq3Adn8jGpm6aPH0mfomq/WdhoZF+l3lP4XlPk2s7Nbc36RKT5Bsys=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Fri, 7 Dec 2018 19:55:01 +0000
-Message-ID: <20181207195433.22540-1-idosch@mellanox.com>
+Date: Fri, 7 Dec 2018 19:55:03 +0000
+Message-ID: <20181207195433.22540-2-idosch@mellanox.com>
+References: <20181207195433.22540-1-idosch@mellanox.com>
+In-Reply-To: <20181207195433.22540-1-idosch@mellanox.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 00/12] mlxsw: Un/offload FDB on NVE
-	detach/attach
+Subject: [Bridge] [PATCH net-next v2 01/12] vxlan: Add a function to init
+ switchdev_notifier_vxlan_fdb_info
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,79 +26,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 Cc: "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Petr Machata <petrm@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Petr says:
+From: Petr Machata <petrm@mellanox.com>
 
-When a VXLAN device is attached to a bridge of a driver capable of
-offloading such, or upped, the FDB entries already present at the device
-need to be offloaded. Similarly when an offloaded VXLAN device ceases
-being interesting (it is downed, or detached, or a front-panel port
-netdevice is detached from the bridge that the VXLAN device is attached
-to), any offloaded FDB entries need to be unoffloaded and unmarked. This
-attach / detach processing is implemented in this patchset.
+There are currently two places that need to initialize the notifier info
+structure, and one more is coming next when vxlan_fdb_replay() is
+introduced. These three instances have / will have very similar code
+that is easy to abstract away into a named function.
 
-In patch #1, a code pattern is extracted into a named function for
-easier reuse.
+Add such function, vxlan_fdb_switchdev_notifier_info(), and call it from
+vxlan_fdb_switchdev_call_notifiers() and vxlan_fdb_find_uc().
 
-In patch #2, vxlan_fdb_replay() is added to send
-SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE for each FDB entry with a given VNI.
-The intention is that the offloading driver will interpret these events
-like any other and thus offload the FDB entries that existed prior to
-VXLAN attach.
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+---
+ drivers/net/vxlan.c | 41 ++++++++++++++++++-----------------------
+ 1 file changed, 18 insertions(+), 23 deletions(-)
 
-In patches #3 and #4, the functions vxlan_fdb_clear_offload() resp.
-br_fdb_clear_offload() are added. These clear the offloaded flag at
-matching FDB entries.
-
-In patches #5-#9, we introduce FID-type-specific and NVE-type-specific
-ops necessary to properly abstract invocations of the replay/clear
-functions.
-
-Finally patch #10 implements the FDB management.
-
-In patch #11, the mlxsw-specific test case is extended to check that the
-management of offload marks under the newly-supported situations is
-correct. Patch #12, from Ido, exercises the new code paths in actual
-functional test.
-
-v2:
-- Patch #1:
-    - Modify vxlan_fdb_switchdev_notifier_info() to initialize the
-      structure through a passed-in pointer argument, instead of returning
-      it as a value.
-- Patch #2:
-    - Adapt to API change in vxlan_fdb_switchdev_notifier_info()
-
-Ido Schimmel (1):
-  selftests: forwarding: Add PVID test case for VXLAN with VLAN-aware
-    bridges
-
-Petr Machata (11):
-  vxlan: Add a function to init switchdev_notifier_vxlan_fdb_info
-  vxlan: Add vxlan_fdb_replay()
-  vxlan: Add vxlan_fdb_clear_offload()
-  bridge: Add br_fdb_clear_offload()
-  mlxsw: spectrum: Track NVE type at FIDs
-  mlxsw: spectrum_switchdev: Publish mlxsw_sp_switchdev_notifier
-  mlxsw: spectrum_nve: Add mlxsw_sp_nve_ops.fdb_replay
-  mlxsw: spectrum_nve: Add mlxsw_sp_nve_ops.fdb_clear_offload
-  mlxsw: spectrum: Add mlxsw_sp_fid_ops.fdb_clear_offload
-  mlxsw: spectrum_nve: Un/offload FDB on nve_fid_disable/enable
-  selftests: mlxsw: vxlan: Test FDB un/marking on VXLAN join/leave
-
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |  16 +-
- .../ethernet/mellanox/mlxsw/spectrum_fid.c    |  44 ++++-
- .../ethernet/mellanox/mlxsw/spectrum_nve.c    |  44 ++++-
- .../ethernet/mellanox/mlxsw/spectrum_nve.h    |   2 +
- .../mellanox/mlxsw/spectrum_nve_vxlan.c       |  20 ++
- .../mellanox/mlxsw/spectrum_switchdev.c       |   2 +-
- drivers/net/vxlan.c                           | 110 ++++++++---
- include/linux/if_bridge.h                     |   6 +
- include/net/vxlan.h                           |  15 ++
- net/bridge/br_fdb.c                           |  20 ++
- .../selftests/drivers/net/mlxsw/vxlan.sh      | 177 ++++++++++++++++++
- .../net/forwarding/vxlan_bridge_1q.sh         |  70 +++++++
- 12 files changed, 495 insertions(+), 31 deletions(-)
-
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 901eef428280..d3db0313c97e 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -358,6 +358,22 @@ static void __vxlan_fdb_notify(struct vxlan_dev *vxlan=
+, struct vxlan_fdb *fdb,
+ 		rtnl_set_sk_err(net, RTNLGRP_NEIGH, err);
+ }
+=20
++static void vxlan_fdb_switchdev_notifier_info(const struct vxlan_dev *vxla=
+n,
++			    const struct vxlan_fdb *fdb,
++			    const struct vxlan_rdst *rd,
++			    struct switchdev_notifier_vxlan_fdb_info *fdb_info)
++{
++	fdb_info->info.dev =3D vxlan->dev;
++	fdb_info->remote_ip =3D rd->remote_ip;
++	fdb_info->remote_port =3D rd->remote_port;
++	fdb_info->remote_vni =3D rd->remote_vni;
++	fdb_info->remote_ifindex =3D rd->remote_ifindex;
++	memcpy(fdb_info->eth_addr, fdb->eth_addr, ETH_ALEN);
++	fdb_info->vni =3D fdb->vni;
++	fdb_info->offloaded =3D rd->offloaded;
++	fdb_info->added_by_user =3D fdb->flags & NTF_VXLAN_ADDED_BY_USER;
++}
++
+ static void vxlan_fdb_switchdev_call_notifiers(struct vxlan_dev *vxlan,
+ 					       struct vxlan_fdb *fdb,
+ 					       struct vxlan_rdst *rd,
+@@ -371,18 +387,7 @@ static void vxlan_fdb_switchdev_call_notifiers(struct =
+vxlan_dev *vxlan,
+=20
+ 	notifier_type =3D adding ? SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE
+ 			       : SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE;
+-
+-	info =3D (struct switchdev_notifier_vxlan_fdb_info){
+-		.remote_ip =3D rd->remote_ip,
+-		.remote_port =3D rd->remote_port,
+-		.remote_vni =3D rd->remote_vni,
+-		.remote_ifindex =3D rd->remote_ifindex,
+-		.vni =3D fdb->vni,
+-		.offloaded =3D rd->offloaded,
+-		.added_by_user =3D fdb->flags & NTF_VXLAN_ADDED_BY_USER,
+-	};
+-	memcpy(info.eth_addr, fdb->eth_addr, ETH_ALEN);
+-
++	vxlan_fdb_switchdev_notifier_info(vxlan, fdb, rd, &info);
+ 	call_switchdev_notifiers(notifier_type, vxlan->dev,
+ 				 &info.info);
+ }
+@@ -539,17 +544,7 @@ int vxlan_fdb_find_uc(struct net_device *dev, const u8=
+ *mac, __be32 vni,
+ 	}
+=20
+ 	rdst =3D first_remote_rcu(f);
+-
+-	memset(fdb_info, 0, sizeof(*fdb_info));
+-	fdb_info->info.dev =3D dev;
+-	fdb_info->remote_ip =3D rdst->remote_ip;
+-	fdb_info->remote_port =3D rdst->remote_port;
+-	fdb_info->remote_vni =3D rdst->remote_vni;
+-	fdb_info->remote_ifindex =3D rdst->remote_ifindex;
+-	fdb_info->vni =3D vni;
+-	fdb_info->offloaded =3D rdst->offloaded;
+-	fdb_info->added_by_user =3D f->flags & NTF_VXLAN_ADDED_BY_USER;
+-	ether_addr_copy(fdb_info->eth_addr, mac);
++	vxlan_fdb_switchdev_notifier_info(vxlan, f, rdst, fdb_info);
+=20
+ out:
+ 	rcu_read_unlock();
 --=20
 2.19.1
 
