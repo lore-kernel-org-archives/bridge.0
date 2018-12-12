@@ -1,27 +1,18 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
-	:user-agent:mime-version:in-reply-to:content-language
-	:content-transfer-encoding;
-	bh=PIm/qQpNuIutBZy16cn4+80hHzDV0yp9+4e7IWCrKKw=;
-	b=FQxEI+pYGO2xWp8ExAAQwzdscJ10Fxt1MCoSy0JRNjgKgUz9vWrdZ6fPUyUATegtva
-	+ESJaHMP0Icz+6JngfY7s2G8a5oM/IICXKz3Kh+YWK6owA76awjBFSgGEzn9OiOJqaBX
-	PYuJFLI0sOSwwKdk+oJmzHL4dToA8gOO0i0XUtAFpRz58ee8N+Ung7PyqCf1zedKezAj
-	cjUuzF822uop3rRUMSAgFZdCbT0znR4OvUXnz6qXseDXZUvkLz+3z10Ton+oxU+4V+qU
-	PNuUFPg0+GzcA4jQYNdW6g5/XIcf9kqE6touBZgRlmLfn+y3J0jUHW1Bs+43MswOE5ie
-	b5vQ==
-References: <61ecaa9f-f1ba-f79e-1d8b-4ec2eba5dc11@gmail.com>
-	<20181212090238.GA1725@splinter.mtl.com>
+	h=from:to:cc:subject:date:message-id;
+	bh=GlBafHCRiiYh+VZ9K7i0ryh+KhlSGThQQj4TRpIed2M=;
+	b=ptKrI7jHBIx/Wg9eWW0zAL0jwfaj4/vut6GIso+XwUMEleLkdKl9z8wkVruogU+NLx
+	Y/RfjBcoScfXm9/JaTbOdpOSfSWbX81Y4dSRuDDHAZrMFmHLWUxrCFCSANiPjXVD0kMd
+	VdZBFdJmV+CXolqB9FqSHQHC/utu7/4s++LL2UXOhFXkC4FiOogQV4Mvc4XflaCqGfvQ
+	t7nzkuhMMvrHXrC5RZkBys+1fF4+aeD/MSPuVTfaVFPTnUNF8QkqJFEQYjzVNmDZzW/h
+	+xS72ZVLqlrcQXRm0tszTNn9cah5/9/GbF5S/eRe1cCclgg+hkBM/pyCaUrOjwOolX1l
+	t9FA==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <5023d7cd-e5dc-88c9-4fc9-d40d8918c837@gmail.com>
-Date: Wed, 12 Dec 2018 11:52:08 -0800
-MIME-Version: 1.0
-In-Reply-To: <20181212090238.GA1725@splinter.mtl.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] Correct PVID behavior with bridge's VLAN filtering
-	on/off?
+Date: Wed, 12 Dec 2018 15:09:43 -0800
+Message-Id: <20181212230943.757-1-f.fainelli@gmail.com>
+Subject: [Bridge] [PATCH net-next] Documentation: networking: Clarify
+	switchdev devices behavior
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,137 +21,119 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: andrew@lunn.ch, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
+To: netdev@vger.kernel.org
+Cc: andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@mellanox.com, jiri@mellanox.com, davem@davemloft.net
 
-On 12/12/18 1:02 AM, Ido Schimmel wrote:
-> On Tue, Dec 11, 2018 at 11:48:21AM -0800, Florian Fainelli wrote:
->> Hi Nikolay, Roopa, Jiri, Ido,
->>
->> When a bridge has vlan_filtering=0 and notifies a switch driver through
->> HOST_OBJ_MDB about MC addresses that the CPU/management port is
->> interested in getting MC traffic for, I am seeing that the mdb->vid is
->> set to 0 because br_allowed_ingress() checks for BROPT_VLAN_ENABLED
->> which is now disabled and so we never populated *vid to anything but 0
->> because the caller: br_handle_frame_finish() zeroed it out.
-> 
-> s/br_handle_frame_finish()/br_dev_xmit()/ ? Since you're talking about
-> HOST_OBJ_MDB
+This patch provides details on the expected behavior of switchdev
+enabled network devices when operating in a "stand alone" mode, as well
+as when being bridge members. This clarifies a number of things that
+recently came up during a bug fixing session on the b53 DSA switch
+driver.
 
-This affects the bridge ingress path as well, since I use HOST_OBJ_MDB
-to indicate whether the CPU port wants to receive multicast,
-transmitting multicast from the CPU port is almost never a problem. Is
-that a correct use of HOST_OBJ_MDB?
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+Hi all,
 
-> 
->> This creates a problem with the b53 DSA switch driver because in order
->> to match the bridge's default_pvid, we did program the switch's "default
->> tag" to be 1, which gets used for all untagged frames that ingress the
->> switch (which AFAICT is correct behavior for PVID).
-> 
-> Not sure I'm following. If bridge is not VLAN-aware, then where do you
-> see 'default_pvid' being used?
+Please review carefully, and let me know if you think some of the
+behaviors described below do not make any sense. Thanks!
 
-A key detail I missed is that this is done with 4.9 (for now, in the
-process of forward porting fixes to net-next right now) which does not
-have this commit from Andrew:
+ Documentation/networking/switchdev.txt | 86 ++++++++++++++++++++++++++
+ 1 file changed, 86 insertions(+)
 
-2ea7a679ca2abd251c1ec03f20508619707e1749 ("net: dsa: Don't add vlans
-when vlan filtering is disabled")
-
-so the switch is actually VLAN aware, just it does not do strict VID
-violation enforcement policy, I like that behavior, but Jiri corrected
-me that this is not quite how it is defined.m.
-
-> 
->> Despite having turned off VLAN filtering in the switch such that it does
->> allow ingress of packets with a VID that is not present in the VLAN
->> table (violation), Multicast addresses do behave differently and we
->> really must be strictly matching the programmed PVID in order for MC
->> frames to ingress the switch even with VLAN filtering turned off.
->>
->> So with all that being written, should the bridge still be sending MDB
->> notifications and use the bridge's default_pvid even with
->> vlan_filtering=0? And if we did that, what use case could we be possibly
->> breaking?
->>
->> Let me know if this is not clear so I can provide mode details.
-> 
-> I think you need to provide more details about the device you're working
-> with. I can explain what we're doing in mlxsw for reference.
-> 
-> When you use a VLAN-unaware bridge w/o VLAN devices, we make sure all
-> untagged packets get tagged with some arbitrary VLAN (now 1, soon 4095).
-> You never see this VLAN on the wire, since we remove it before sending
-> the packets. It is only used because all packets in the ASIC must be
-> tagged.
-> 
-> After we have a VLAN we classify the packet to a FID (bridge) and it
-> does {FID,DMAC} lookup in the FDB (MDB).
-> 
-> IIUC, your problem is that you also need to tag all the packets (you
-> used '1', can be something else), but then you program the MDB entry
-> according to the VLAN passed in the notification ('0') and not use
-> ('1'). We completely ignore the VID in this case and use the FID which
-> we lookup based on the ifindex of the bridge.
-> 
-
-We do not have a concept of a FID with Broadcom switches, so we can
-either use a reserved VLAN ID to emulate that behavior and do individual
-MAC address learning which hashes into VID,MAC.
-
-The switch has a "default 802.1Q tag" which gets used for untagged
-packets. Internally the switch normalizes all incoming frames (when
-802.1Q is enabled) to have a double VLAN tag, and untagged frames get
-mapped to that "default 802.1Q/PVID tag" in the processing pipeline, and
-then when they ingress the destination switch port, they can get
-untagged again using the ingress port's "default 802.1Q/PVID tag" again.
-
-The CPU port remains in the "default 802.1Q tag" set to 0, because that
-is also the configuration for non-bridge ports, and I need that to
-continue getting non-bridge ports to function normally and not be
-subjected to vlan_filtering = 1 being applied on the bridge (I will send
-a documentation patch that hopefully clarifies what the correct port
-behavior is and request feedback on that).
-
-So here are essentially 3 things that could be fixed/tackled more or
-less independently:
-
-- because vlan_filtering = 0, we have the HOST_OBJ_MDB request coming
-with mdb->vid = 0, which is expected with the current bridge code
-
-- because the switch is made 802.1Q/VLAN aware, we have the ports that
-are bridge member configured with PVID = default_pvid (old kernel
-behavior, prior to Andrew's change), such that untagged frames show up
-untagged correctly at the network device level
-
-- CPU/management port's default untagged VID is 0 which matches
-mdb->vid, but the bridged port, which is the ingress port for MC traffic
-is in VID 1 and where MC ingress filter checking is done. So there is a
-VID mismatch, and despite filtering being turned off, MC traffic does
-not evade that restriction (could be a misconfiguration on my side,
-could not find something that would allow it to just pass through).
-
-With this one liner change both vlan_filtering states now work correctly
-with respect to MC:
-
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index b6de4f457161..fe446e971456 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -482,6 +482,7 @@ bool br_allowed_ingress(const struct net_bridge *br,
-         */
-        if (!br->vlan_enabled) {
-                BR_INPUT_SKB_CB(skb)->vlan_filtered = false;
-+               *vid = br->default_pvid;
-                return true;
-        }
-
-Or I suppose that I could just backport Andrew's patch and that would
-remove all VLAN awareness in the bridge, which would likely solve the
-problem as well, and/or find a way to make sure that MC flows do bypass
-VLAN filtering after all when vlan_filtering = 0.
-
-Thanks for your patience.
+diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
+index 82236a17b5e6..8c83174b477b 100644
+--- a/Documentation/networking/switchdev.txt
++++ b/Documentation/networking/switchdev.txt
+@@ -392,3 +392,89 @@ switchdev_trans_item_dequeue()
+ 
+ If a transaction is aborted during "prepare" phase, switchdev code will handle
+ cleanup of the queued-up objects.
++
++Switchdev enabled network device expected behavior
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++Below is a set of defined behavior that switchdev enabled network device must be
++adhering to.
++
++Configuration less state
++------------------------
++
++Upon driver bring up, the network devices must be fully operational, and the
++backing driver must be configuring the network device such that it is possible
++to send and receive to this network device such that it is properly separate
++from other network devices/ports (e.g: as is frequenty with a switch ASIC). How
++this is achieved is heavily hardware dependent, but a simple solution can be to
++use per-port VLAN identifiers.
++
++The network device must be capable of running a full IP protocol stack must be
++working, including multicast, DHCP, IPv4/6, etc. If necessary, it should be
++programming the appropriate filters for VLAN, multicast, unicast etc. The
++underlying device driver must effectively be configured in a similar fashion to
++what it would do when IGMP snooping is enabled for IP multicast over these
++switchdev network devices and unsollicited multicast must be filtered as early
++as possible into the hardware.
++
++When configuring VLANs on top of the network device, all VLANs must be working,
++irrespective of the state of other network devices (e.g: other ports being part
++of a VLAN aware bridge doing ingress VID checking). See below for details.
++
++Bridged network devices
++-----------------------
++
++When a switchdev enabled network device is added as a bridge member, it should
++not be disrupting any functionality of non-bridged network devices and they
++should continue to behave as normal network devices. Depending on the bridge
++configuration knobs below, the expected behavior is documented.
++
++VLAN filtering
++~~~~~~~~~~~~~~
++
++The Linux bridge allows the configuration of a VLAN filtering mode (compile and
++run time) which must be observed by the underlying switchdev network
++device/hardware:
++
++- with VLAN filtering turned off: frames ingressing the device with a VID that
++  is not programmed into the bridge/switch's VLAN table must be forwarded.
++
++- with VLAN filtering turned on: frames ingressing the device with a VID that is
++  not programmed into the bridges/switch's VLAN table must be dropped.
++
++Non-bridged network ports of the same switch fabric must not be disturbed in any
++way, shape or form by the enabling of VLAN filtering.
++
++VLAN devices configured on top of a switchdev network device (e.g: sw0p1.100)
++which is a bridge port member must also observe the following behavior:
++
++- with VLAN filtering turned off, these VLAN devices must be fully functional
++  since the hardware is allowed VID frames
++
++- with VLAN filtering turned on, these VLAN devices are not going to be
++  functional unless the bridge's VLAN database is also configured to have that
++  VID enabled for the underlying network device/port
++  (e.g: bridge vlan add vid 100 dev sw0p1)
++
++Because VLAN filtering can be turned on/off at runtime, the switchdev driver
++must be able to re-configure the underlying hardware on the fly to honor the
++toggling of that option and behave appropriately.
++
++IGMP snooping
++~~~~~~~~~~~~~
++
++The Linux bridge allows the configuration of IGMP snooping (compile and run
++time) which must be observed by the underlying switchdev network device/hardware
++in the following way:
++
++- when IGMP snooping is turned off, multicast traffic must be flooded to all
++  switch ports within the same broadcast domain, including the CPU/management
++  port of the switch (if handled separately).
++
++- when IGMP snooping is turned on, multicast traffic must be selectively flowing
++  to the appropriate network ports and not flood the entire switch, that must
++  include the CPU/management port.
++
++Because IGMP snooping can be turned on/off at runtime, the switchdev driver must
++be able to re-configure the underlying hardware on the fly to honor the toggling
++of that option and behave appropriately.
 -- 
-Florian
+2.17.1
+
