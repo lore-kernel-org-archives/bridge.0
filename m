@@ -1,19 +1,28 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; 
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date;
-	bh=HeLzfWZPx9BM4oAuoBLgLcdsIdjkgue4mT68Hl/YfnI=; 
-	b=NoOrbUnqogY+Y03d+yVBasdc2JnRtvaZkGwqfJ22yjCzZZ+h40fcgrfBbr5rOAlPJMdXDkw9XvI8Dz5/Ci0QjPx0Mlda/0bU9EjIsn6i6nyxWa86qFkaLxUsVmum6+cBZMowoW/OS1mwR627tYwC2VDZ+nCcnOiUHTbsHt0tmVE=;
-Date: Thu, 13 Dec 2018 10:26:30 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20181213092630.GD1605@lunn.ch>
-References: <20181212230943.757-1-f.fainelli@gmail.com>
+Return-Path: <christian@brauner.io>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=brauner.io; s=google;
+	h=date:from:to:cc:subject:message-id:references:mime-version
+	:content-disposition:in-reply-to:user-agent;
+	bh=qtsedI8FBgcuUwNusiVxliHjJjL3XLLHyByPD/7zUrc=;
+	b=H92LCtHDVfokvBSbcJJY2B1OIlxm7N9zPU5K9/FTHFXpzMwI3C36xg6+xoE5jJT3xQ
+	0RQBjH76oJNlJ3oHz2NXotDwrFfTFfXlHbcbkO3CnxRU84k4Zf7bjSAN2XNSJ07QDAJY
+	myINCwSe15Sx5BCDJfCS2CBc43R3cf1ZKUSTVnokh0q35Qv/eMeg77Dt03ASkq66oafD
+	5/sHpOrszaJ6Yb53PZfaPPVXiGSo4+v0WeSZOPAFn698VLF/0EkSWR4L+nNJHTebCBf+
+	x2oh23u/kb5lOUkyVHElGFRmMZilXMLxI3638jFMZHviPkqRKzpmt0ruIceJKvzTJ9fC
+	2TmQ==
+Date: Thu, 13 Dec 2018 12:43:39 +0100
+From: Christian Brauner <christian@brauner.io>
+Message-ID: <20181213114338.j3thzzu7cvrpz72e@brauner.io>
+References: <20181107134859.19896-1-christian@brauner.io>
+	<20181107134859.19896-2-christian@brauner.io>
+	<20181127002047.7jzpfy32oupsthtj@salvia>
+	<20181127022043.mzpqxlknqxcl6fmg@brauner.io>
+	<20181127082349.ummq2perajt6olhh@salvia>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20181212230943.757-1-f.fainelli@gmail.com>
-Subject: Re: [Bridge] [PATCH net-next] Documentation: networking: Clarify
- switchdev devices behavior
+In-Reply-To: <20181127082349.ummq2perajt6olhh@salvia>
+Subject: Re: [Bridge] [PATCH net-next 1/2] br_netfilter: add struct
+	netns_brnf
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,34 +31,102 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@mellanox.com, jiri@mellanox.com, davem@davemloft.net
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, tyhicks@canonical.com, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
 
-> +VLAN filtering
-> +~~~~~~~~~~~~~~
-> +
-> +The Linux bridge allows the configuration of a VLAN filtering mode (compile and
-> +run time) which must be observed by the underlying switchdev network
-> +device/hardware:
-> +
-> +- with VLAN filtering turned off: frames ingressing the device with a VID that
-> +  is not programmed into the bridge/switch's VLAN table must be forwarded.
-> +
-> +- with VLAN filtering turned on: frames ingressing the device with a VID that is
-> +  not programmed into the bridges/switch's VLAN table must be dropped.
+On Tue, Nov 27, 2018 at 09:23:49AM +0100, Pablo Neira Ayuso wrote:
+> On Tue, Nov 27, 2018 at 03:20:45AM +0100, Christian Brauner wrote:
+> > On Tue, Nov 27, 2018 at 01:20:47AM +0100, Pablo Neira Ayuso wrote:
+> > > Hi,
+> > > 
+> > > On Wed, Nov 07, 2018 at 02:48:58PM +0100, Christian Brauner wrote:
+> > > [...]
+> > > > diff --git a/include/net/netns/netfilter.h b/include/net/netns/netfilter.h
+> > > > index ca043342c0eb..eedbd1ac940e 100644
+> > > > --- a/include/net/netns/netfilter.h
+> > > > +++ b/include/net/netns/netfilter.h
+> > > > @@ -35,4 +35,20 @@ struct netns_nf {
+> > > >  	bool			defrag_ipv6;
+> > > >  #endif
+> > > >  };
+> > > > +
+> > > > +struct netns_brnf {
+> > > > +#ifdef CONFIG_SYSCTL
+> > > > +	struct ctl_table_header *ctl_hdr;
+> > > > +#endif
+> > > > +
+> > > > +	/* default value is 1 */
+> > > > +	int call_iptables;
+> > > > +	int call_ip6tables;
+> > > > +	int call_arptables;
+> > > > +
+> > > > +	/* default value is 0 */
+> > > > +	int filter_vlan_tagged;
+> > > > +	int filter_pppoe_tagged;
+> > > > +	int pass_vlan_indev;
+> > > > +};
+> > > 
+> > > I have spun on this several times, wondering if there's a way to avoid
+> > > scratching these many bytes per netns to expose these sysctl entries
+> > > that are plain on/off toggles... You said this:
+> > > 
+> > > >Currently, the /proc/sys/net/bridge folder is only created in the
+> > > >initial network namespace
+> > > 
+> > > I think we can add one single sysctl to expose these as flags from net
+> > > namespaces. Idea is to keep the existing (legacy) sysctl entries for
+> > > init_net only, and add a new single new one that exposes these as flags
+> > > (should be also available for consistency in init_net I'd suggest).
+> > > Flags could be map in this way, eg.
+> > > 
+> > >         0x1     call_iptables
+> > >         0x2     call_ip6tables
+> > >         0x4     call_arptables
+> > >         0x8     filter_vlan_tagged
+> > >         ...
+> > > 
+> > > Also documentation would be good to have for this.
+> > > 
+> > > Would this idea fly for you? Thanks.
+> > 
+> > My suggestion is to keep these files per network namespace but have a
+> > single flag argument in struct netns_brnf:
+> > +struct netns_brnf {
+> > +#ifdef CONFIG_SYSCTL
+> > +        struct ctl_table_header *ctl_hdr;
+> > +#endif
+> > +
+> > +       /* default value is 1 */
+> > +       unsigned int filter_flags;
+> > +};
+> > 
+> > #define BRNF_CALL_IPTABLES    0x1
+> > #define BRNF_CALL_IP6TABLES   0x2
+> > #define BRNF_CALL_ARPTABLES   0x4
+> > #define BRNF_CALL_VLAN_TAGGED 0x8
+> > 
+> > a write to the corresponding file would then cause the flag to be set or
+> > unset in filter_flags.
+> > This way we are a) space-efficient internally not bloating struct net
+> > while b) not breaking running tools in non-initial network namespaces
+> > that expect the files to be there. b) is really the important bit here. :)
+> 
+> OK, please, go explore this space-efficient approach. Thanks.
 
-Hi Florian
+Sorry for the wait. Other patches came up. :)
+So, I looked into this approach and it is annoying to do:
+- the sysctl proc parsing infrastructure is not equipped to deal with
+  flags at all and expanding it to it would be a lot of code
+- we would need either an atomic type or locking for filter_flags in the
+  netns_brnf struct if multiple proc sysctl handlers try to raise or
+  lower bits in filter_flags via different files at the same time
 
-i forget the details, but there are some difference between VLAN
-filtering being disabled at compile time, and disabled at runtime. I
-think the expected behaviour is the same, but the switchdev API usage
-is slightly different.
+So I feel that this is not a feasible solution. We could make netns_brnf
+a pointer in struct net and allocate it on new network namespace
+creation if we care about space but then we take the performance hit of
+k*alloc().
+What I stressed before: for userspace it's important that we don't
+change the semantics how br netfilter is configured in a non-initial
+network namespace to not break existing tools in such environments.
 
-> +- when IGMP snooping is turned on, multicast traffic must be selectively flowing
-> +  to the appropriate network ports and not flood the entire switch, that must
-> +  include the CPU/management port.
-
-224.0.0.X/32 should always be flooded, IGMP is optional for those
-groups in the local subnet.
-
-	Andrew
+Christian
