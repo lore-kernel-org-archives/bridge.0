@@ -1,28 +1,21 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-transfer-encoding:content-type
-	:date:from:in-reply-to:message-id:mime-version:references
-	:subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-	:x-sasl-enc; s=fm1; bh=WSrJkd4DB3BQ8dRcbpjNR0M/jBee+HAtnpPgUocdS
-	wc=; b=IBL53NkRL4wFtWUJ+wz82GQSfnmGZHflKjBx85iVFOJ4zwXOriqg9GoQU
-	KoEvy5MV/j8IBrDUml51qUInPjI/j0oPGGIxfjm8SriTBD2LN9qA9m0eznxcan3o
-	BjM4JXoN6unq4Z7zxO98uFgXiiKhyQ2IagjwhxCQf7HG/Ps48+cKmpH1wKk1vRNo
-	zZq6iI5Nd7hSFqfkFcXA7tLhNaTceSi1aifIPoRTZlBLoJ3cQNsE83VvOsUFgQmF
-	exT9ozJjNJz/Jd+fGc5eaBlWzMtRUlCXkR8rkXK83V2Wxa+5pbNc1nS6FgdNKcV2
-	KH0pJYeRAFmV3YN5yAB8i5xLSaS7A==
-Date: Sun, 16 Dec 2018 09:55:35 +0200
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <20181216075535.GB27582@splinter>
-References: <61ecaa9f-f1ba-f79e-1d8b-4ec2eba5dc11@gmail.com>
-	<20181212090238.GA1725@splinter.mtl.com>
-	<22f9700b-8cc0-b9ae-1c0d-f55ff8c8c2a0@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=KpS3oYsdp/nEyVbG/IqAhpgXUv6vwhxPx9gkQfugG28=;
+	b=tZti7ePNPNSlMnfkwBiWprRUhql4oIpyyeNGj8jEOHsa8SW+J7pXuFH7bVLuTqMlKl+Xc8d5YFlpaXDMxO9LI0fanfaEIYzk55A0GTmG43RrW5idtrPG8GcB1jrYsiQoUryumXNuAHhnAk183pOfClb+lDz46yQ9gQgLW5DCVvk=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Sun, 16 Dec 2018 08:25:19 +0000
+Message-ID: <20181216082517.GA31098@splinter>
+References: <20181212230943.757-1-f.fainelli@gmail.com>
+In-Reply-To: <20181212230943.757-1-f.fainelli@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <4CD1B11964D72546A7B1CB7F0148D14F@eurprd05.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <22f9700b-8cc0-b9ae-1c0d-f55ff8c8c2a0@gmail.com>
-Subject: Re: [Bridge] Correct PVID behavior with bridge's VLAN filtering
-	on/off?
+MIME-Version: 1.0
+Subject: Re: [Bridge] [PATCH net-next] Documentation: networking: Clarify
+ switchdev devices behavior
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,124 +25,146 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: andrew@lunn.ch, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
+Cc: "andrew@lunn.ch" <andrew@lunn.ch>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-On Sat, Dec 15, 2018 at 10:10:32AM -0800, Florian Fainelli wrote:
-> Le 12/12/18 =E0 1:02 AM, Ido Schimmel a =E9crit=A0:
-> > On Tue, Dec 11, 2018 at 11:48:21AM -0800, Florian Fainelli wrote:
-> >> Hi Nikolay, Roopa, Jiri, Ido,
-> >>
-> >> When a bridge has vlan_filtering=3D0 and notifies a switch driver thro=
-ugh
-> >> HOST_OBJ_MDB about MC addresses that the CPU/management port is
-> >> interested in getting MC traffic for, I am seeing that the mdb->vid is
-> >> set to 0 because br_allowed_ingress() checks for BROPT_VLAN_ENABLED
-> >> which is now disabled and so we never populated *vid to anything but 0
-> >> because the caller: br_handle_frame_finish() zeroed it out.
-> >=20
-> > s/br_handle_frame_finish()/br_dev_xmit()/ ? Since you're talking about
-> > HOST_OBJ_MDB
-> >=20
-> >> This creates a problem with the b53 DSA switch driver because in order
-> >> to match the bridge's default_pvid, we did program the switch's "defau=
-lt
-> >> tag" to be 1, which gets used for all untagged frames that ingress the
-> >> switch (which AFAICT is correct behavior for PVID).
-> >=20
-> > Not sure I'm following. If bridge is not VLAN-aware, then where do you
-> > see 'default_pvid' being used?
-> >=20
-> >> Despite having turned off VLAN filtering in the switch such that it do=
-es
-> >> allow ingress of packets with a VID that is not present in the VLAN
-> >> table (violation), Multicast addresses do behave differently and we
-> >> really must be strictly matching the programmed PVID in order for MC
-> >> frames to ingress the switch even with VLAN filtering turned off.
-> >>
-> >> So with all that being written, should the bridge still be sending MDB
-> >> notifications and use the bridge's default_pvid even with
-> >> vlan_filtering=3D0? And if we did that, what use case could we be poss=
-ibly
-> >> breaking?
-> >>
-> >> Let me know if this is not clear so I can provide mode details.
-> >=20
-> > I think you need to provide more details about the device you're working
-> > with. I can explain what we're doing in mlxsw for reference.
-> >=20
-> > When you use a VLAN-unaware bridge w/o VLAN devices, we make sure all
-> > untagged packets get tagged with some arbitrary VLAN (now 1, soon 4095).
-> > You never see this VLAN on the wire, since we remove it before sending
-> > the packets. It is only used because all packets in the ASIC must be
-> > tagged.
-> >=20
-> > After we have a VLAN we classify the packet to a FID (bridge) and it
-> > does {FID,DMAC} lookup in the FDB (MDB).
-> >=20
-> > IIUC, your problem is that you also need to tag all the packets (you
-> > used '1', can be something else), but then you program the MDB entry
-> > according to the VLAN passed in the notification ('0') and not use
-> > ('1'). We completely ignore the VID in this case and use the FID which
-> > we lookup based on the ifindex of the bridge.
-> >=20
+On Wed, Dec 12, 2018 at 03:09:43PM -0800, Florian Fainelli wrote:
+> This patch provides details on the expected behavior of switchdev
+> enabled network devices when operating in a "stand alone" mode, as well
+> as when being bridge members. This clarifies a number of things that
+> recently came up during a bug fixing session on the b53 DSA switch
+> driver.
 >=20
-> Another thing that seems inconsistent or rather possibly problematic to
-> deal with is the following:
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> ---
+> Hi all,
 >=20
-> - create the bridge with VLAN filtering set, this leads to programming
-> VLAN entries into the switch through switchdev notifications, that is
-> expected and working
+> Please review carefully, and let me know if you think some of the
+> behaviors described below do not make any sense. Thanks!
 >=20
-> - turn off VLAN filtering on that bridge, this trickles down through
-> attributes notification to the switch driver which now disables ingress
-> VID checking (egress directed in Broadcom B53 is not easily
-> enforceable), we still have VLAN entries programmed into the switch, in
-> particular, the port's default VLAN/PVID, which is contributing to my
-> problem mentioned above
+>  Documentation/networking/switchdev.txt | 86 ++++++++++++++++++++++++++
+>  1 file changed, 86 insertions(+)
 >=20
-> - bridge is now requesting MDB programming to be done with VID=3D0 since
-> the bridge is now VLAN-unaware
->=20
-> One might expect that when turning off VLAN filtering, the bridge layer
-> should also remove any programmed VLAN entries?
+> diff --git a/Documentation/networking/switchdev.txt b/Documentation/netwo=
+rking/switchdev.txt
+> index 82236a17b5e6..8c83174b477b 100644
+> --- a/Documentation/networking/switchdev.txt
+> +++ b/Documentation/networking/switchdev.txt
+> @@ -392,3 +392,89 @@ switchdev_trans_item_dequeue()
+> =20
+>  If a transaction is aborted during "prepare" phase, switchdev code will =
+handle
+>  cleanup of the queued-up objects.
+> +
+> +Switchdev enabled network device expected behavior
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +Below is a set of defined behavior that switchdev enabled network device=
+ must be
+> +adhering to.
+> +
+> +Configuration less state
+> +------------------------
+> +
+> +Upon driver bring up, the network devices must be fully operational, and=
+ the
+> +backing driver must be configuring the network device such that it is po=
+ssible
+> +to send and receive to this network device such that it is properly sepa=
+rate
+> +from other network devices/ports (e.g: as is frequenty with a switch ASI=
+C). How
+> +this is achieved is heavily hardware dependent, but a simple solution ca=
+n be to
+> +use per-port VLAN identifiers.
+> +
+> +The network device must be capable of running a full IP protocol stack m=
+ust be
+> +working, including multicast, DHCP, IPv4/6, etc. If necessary, it should=
+ be
+> +programming the appropriate filters for VLAN, multicast, unicast etc. Th=
+e
+> +underlying device driver must effectively be configured in a similar fas=
+hion to
+> +what it would do when IGMP snooping is enabled for IP multicast over the=
+se
+> +switchdev network devices and unsollicited multicast must be filtered as=
+ early
+> +as possible into the hardware.
+> +
+> +When configuring VLANs on top of the network device, all VLANs must be w=
+orking,
+> +irrespective of the state of other network devices (e.g: other ports bei=
+ng part
+> +of a VLAN aware bridge doing ingress VID checking). See below for detail=
+s.
+> +
+> +Bridged network devices
+> +-----------------------
+> +
+> +When a switchdev enabled network device is added as a bridge member, it =
+should
+> +not be disrupting any functionality of non-bridged network devices and t=
+hey
+> +should continue to behave as normal network devices. Depending on the br=
+idge
+> +configuration knobs below, the expected behavior is documented.
+> +
+> +VLAN filtering
+> +~~~~~~~~~~~~~~
+> +
+> +The Linux bridge allows the configuration of a VLAN filtering mode (comp=
+ile and
+> +run time) which must be observed by the underlying switchdev network
+> +device/hardware:
+> +
+> +- with VLAN filtering turned off: frames ingressing the device with a VI=
+D that
+> +  is not programmed into the bridge/switch's VLAN table must be forwarde=
+d.
 
-That ship has sailed :)
+mlxsw doesn't support it. These bridges are mainly used with VLAN
+devices where the packets ingress the bridge untagged. When configured
+over physical ports, we only allow untagged packets into such a bridge.
 
->=20
-> In spectrum_switchdev.c an error is issued to indicate that changing
-> VLAN filtering is not possible once the bridge has been created with
-> VLAN filtering on initially.
->=20
-> This is not necessarily something I want to restrict within B53, because
-> we ought to support dynamically turning on/off VLAN filtering on the
-> switch device and driver. I am not aware of an use case for that expect
-> my own tests so far, but clearly we can support it, so why not.
+> +
+> +- with VLAN filtering turned on: frames ingressing the device with a VID=
+ that is
+> +  not programmed into the bridges/switch's VLAN table must be dropped.
 
-This is really problematic to support in mlxsw. Plus, as you said, there
-is no actual use case for this, so we forbid it.
+ack
 
-> Instead of the patch I copied in my previous response where I would
-> change br_allowed_ingress(), I am considering modifying the port's
-> default PVID to match whatever the default VLAN is when not using a
-> bridge (0 in my case) when the currently configured PVID is not that
-> default PVID, conversely when re-enabling VLAN filtering, putting the
-> port back on the bridge's default_pvid.
->=20
-> Ido, does that make sense to you or would you advocate not to bother at
-> all with that use case and do what spectrum_switchdev.c does?
+> +
+> +Non-bridged network ports of the same switch fabric must not be disturbe=
+d in any
+> +way, shape or form by the enabling of VLAN filtering.
+> +
+> +VLAN devices configured on top of a switchdev network device (e.g: sw0p1=
+.100)
+> +which is a bridge port member must also observe the following behavior:
+> +
+> +- with VLAN filtering turned off, these VLAN devices must be fully funct=
+ional
+> +  since the hardware is allowed VID frames
+> +
+> +- with VLAN filtering turned on, these VLAN devices are not going to be
+> +  functional unless the bridge's VLAN database is also configured to hav=
+e that
+> +  VID enabled for the underlying network device/port
+> +  (e.g: bridge vlan add vid 100 dev sw0p1)
 
-That's up to you. We have been forbidding this for a long time and I
-have yet to receive any complaints. But I do agree that any changes that
-allow your device to work as expected belong in the device driver and
-not in the bridge code.
+mlxsw forbids the enslavement of VLAN devices to VLAN-aware bridges. It
+doesn't really make sense to enable VLAN filtering when all the packets
+are untagged.
 
->=20
-> I would also appreciate if you could take a look at this patch since it
-> would answer a lot of my questions, thank you very much!
->=20
-> http://patchwork.ozlabs.org/patch/1012404/
+But I disagree with the comment about the underlying port. When you
+configured the VLAN device, it should have enabled the VLAN filters on
+the real device via ndo_vlan_rx_add_vid().
 
-I will check it now.
+> +
+> +Because VLAN filtering can be turned on/off at runtime, the switchdev dr=
+iver
+> +must be able to re-configure the underlying hardware on the fly to honor=
+ the
+> +toggling of that option and behave appropriately.
 
-> --=20
-> Florian
+Please mention that switchdev drivers can refuse the operation.
