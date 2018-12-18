@@ -1,31 +1,23 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Mon, 17 Dec 2018 14:15:50 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c0d3.blue; s=2018;
-	t=1545052553; h=from:from:sender:reply-to:subject:subject:date:date:
-	message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	content-type:content-type:
-	content-transfer-encoding:content-transfer-encoding:
-	in-reply-to:in-reply-to:references:references;
-	bh=mJGarG4tMUacjbnlXsm9zVEtrABr67AJTeSTyGx+0k0=;
-	b=IAuV1Q2tDI/rHkHwkBwnBUHfPMXFaQT2AnWc0ycGVepNBMTYii6LJSYmq39WH5hBLDG6b3
-	ynklp2Uwg30mX+05i6Q/YkPb29nEZAzr9u/NOzajSEXon0E/zq2Gch3S1Xp1KYN+/LUoVv
-	mI2SGggXEUWFfs56FuaeCLBUkDNUUdsdvhClCQd/oCCAFI8gTPCLTnaNJ4AFpAKYM4ndWy
-	pxG6lhTBo+yD0JXa6XqEV7CyFHbsIW8cCPLPJHKJ+3n50Myw8wLvHD0X7NVEyYPDPCVG0j
-	GUcXwU6DLC+wXkNq60QeQrcbSxEihVLfz3WX2T6kPv1gzbimcftWjoXOxJyxfg==
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20181217131550.GP1713@otheros>
-References: <90c5f2fe-1743-6b17-2e44-eba58cdbbb35@cumulusnetworks.com>
-	<20181027090747.22104-1-nikolay@cumulusnetworks.com>
-	<20181029013316.GK24677@leo.usersys.redhat.com>
-	<20181213161027.GC1713@otheros>
-	<CALRz_Py6ogxQsnR-5w-92At1z51M76bgMAeO9A9xqhCFy1pApA@mail.gmail.com>
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=lFPm2vwi0oSAEeJaVmqrGCzLbzby+W/TUoG5R2504Xw=;
+	b=QDwSbpK6Ga1trY8xmQLbevIO65fPtLsclBrGQhFK7SuFxs2ACxUpscZ3dqUq0rwlFoDGl9Q9ulFjywNIyM2xie78LHxFsLXP2S/Zq/RrfJ3PeH8EAjig3DuRvxM1vFYtJFXZZY/MDl/W090RAcVckCfmC6EE5NUqBwFHvwwH56o=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Tue, 18 Dec 2018 07:01:36 +0000
+Message-ID: <20181218070134.GA19817@splinter>
+References: <20181212230943.757-1-f.fainelli@gmail.com>
+	<20181216082517.GA31098@splinter>
+	<af53dd72-aac6-4b35-933a-17b27d3398ef@gmail.com>
+In-Reply-To: <af53dd72-aac6-4b35-933a-17b27d3398ef@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-ID: <CA68C28986584B4FB651FEEEF8A3A390@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CALRz_Py6ogxQsnR-5w-92At1z51M76bgMAeO9A9xqhCFy1pApA@mail.gmail.com>
-Subject: Re: [Bridge] [PATCH net] net: bridge: remove ipv6 zero address
- check in mcast queries
+Subject: Re: [Bridge] [PATCH net-next] Documentation: networking: Clarify
+ switchdev devices behavior
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,54 +26,86 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ying Xu <yinxu@redhat.com>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, liuhangbin@gmail.com, davem@davemloft.net
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: "andrew@lunn.ch" <andrew@lunn.ch>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Hi and thanks for your reply!
+On Sun, Dec 16, 2018 at 09:14:09AM -0800, Florian Fainelli wrote:
+> Le 12/16/18 =E0 12:25 AM, Ido Schimmel a =E9crit=A0:
+> > On Wed, Dec 12, 2018 at 03:09:43PM -0800, Florian Fainelli wrote:
+> >> +Non-bridged network ports of the same switch fabric must not be distu=
+rbed in any
+> >> +way, shape or form by the enabling of VLAN filtering.
+> >> +
+> >> +VLAN devices configured on top of a switchdev network device (e.g: sw=
+0p1.100)
+> >> +which is a bridge port member must also observe the following behavio=
+r:
+> >> +
+> >> +- with VLAN filtering turned off, these VLAN devices must be fully fu=
+nctional
+> >> +  since the hardware is allowed VID frames
+> >> +
+> >> +- with VLAN filtering turned on, these VLAN devices are not going to =
+be
+> >> +  functional unless the bridge's VLAN database is also configured to =
+have that
+> >> +  VID enabled for the underlying network device/port
+> >> +  (e.g: bridge vlan add vid 100 dev sw0p1)
+> >=20
+> > mlxsw forbids the enslavement of VLAN devices to VLAN-aware bridges. It
+> > doesn't really make sense to enable VLAN filtering when all the packets
+> > are untagged.
+>=20
+> Did you mean VLAN-unaware here, otherwise that would contradict the
+> statement that VLAN-aware bridges mean everything untagged, or am I
+> incorrectly understanding things here?
 
-On Fri, Dec 14, 2018 at 10:32:16AM +0800, Ying Xu wrote:
->  I think the scenario mentioned above is abnormal.
+I meant VLAN-aware... In a VLAN-unaware bridge the VLAN is meaningless.
+For example, there is no filtering based on VLAN at ingress/egress and
+FDB entries are only searched based on MAC (VLAN is always 0). This is
+in contrast to a VLAN-aware bridge.
 
-Can we agree, that this scenario, if switch A and B were using the
-current bridge code, has issues right now which it did
-not have before that patch?
+When you enslave VLAN netdevs to a bridge, the bridge sees untagged
+packets. The VLAN tag is pulled from the packet in Rx path and then the
+packet is injected to the bridge via the Rx handler configured on the
+VLAN netdev. Therefore, there is point in enslaving these device to a
+VLAN-aware bridge.
 
-I also do not quite understand what you mean with "abnormal". Do
-you think that it is unlikely to have two snooping switches and
-general queries with a 0.0.0.0 source?
+Also, mlxsw only supports a single VLAN-aware bridge. You can however,
+configure 1K VLAN-unaware bridges.
 
-Note that with the current bridge code and according to RFC3376
-and RFC2236, as soon as a query with a 0.0.0.0 source is sent somewhere
-in the broadcast domain, it will become the selected querier [*].
+> > But I disagree with the comment about the underlying port. When you
+> > configured the VLAN device, it should have enabled the VLAN filters on
+> > the real device via ndo_vlan_rx_add_vid().
+>=20
+> That is really why I submitted this patch, because right now I have a
+> patch (yet to be submitted) which adds ndo_vlan_rx_{add,kill}_vid() and
+> if the underlying device is enslaved into a bridge, I just do nothing
+> and let the bridge control the VLAN membership, hence my comment and
+> example here.
+>=20
+> What you are saying is that we should have these two cases:
+>=20
+> 1) VLAN devices on top of VLAN unaware bridge: allow the VLAN device and
+> program VLAN filter on the underlying switch port to permit VLAN tagging
 
+When you say "on top" you mean enslaved to?
 
-> The source of query indicats that is a real router or only a switch.(0.0.0.0
-> means switch,non-zero means router).
-> In the scenario above,the switch A was selected to be a querier that means A
-> performs as a router,
-> so switch A should config its query source address to non-zero,and then Host A
-> can recieve the traffic from B.
+> 2) VLAN devices on top of a VLAN aware bridge: deny the VLAN device
+> creation and let the bridge, which is VLAN aware manage the port VLAN
+> membership
 
-Even if in the described scenario switch A were configured to use a a non-zero source
-address to become a router, so that switch B would mark the port
-to switch A as a multicast router port, switch A would still loose
-in the querier election right now, as 0.0.0.0 is lower (RFC3376, RFC2236). So switch
-B would then become the selected querier with its 0.0.0.0 source
-and switch A would become silent even though it had a non-zero
-source address.
+mlxsw does not forbid the creation of the VLAN device. It only forbids
+its enslavement to a VLAN-aware bridge.
 
-And then we would have the same issue again, only swapped between
-host+switch A and host+switch B.
+> In case 1) or 2) if the desire is to have a VLAN aware network device
+> this can be either done through a VLAN device on top of the switch port,
+> or through a VLAN device on top of the bridge master itself, and in
+> either case, this amounts to doing about the same thing.
+>=20
+> Did I get this right?
 
-Would you agree, does that make sense?
-
-Regards, Linus
-
-
-[*]: Looking at br_ip4_multicast_select_querier():
-
-If previously selected querier were 0.0.0.0, it would accept any
-source as a new querier ("!br->ip4_querier.addr.u.ip4"). However,
-if the previously selected querier were non-zero, a query with
-0.0.0.0 would win, too
-("ntohl(saddr) <= ntohl(br->ip4_querier.addr.u.ip4)").
+I'm saying that a VLAN-aware bridge with VIDs 10-100 (for example) is
+equivalent to VLAN devices with VIDs 10-100 enslaved to br10-br100,
+respectively. It is up to you if you want to / can support both modes.
+We support both, but most / all users use the VLAN-aware bridge.
