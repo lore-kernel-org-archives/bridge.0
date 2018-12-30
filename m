@@ -1,22 +1,21 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
-	h=subject:to:references:from:message-id:date:user-agent:mime-version
-	:in-reply-to:content-language:content-transfer-encoding;
-	bh=c9KG5owWNPdBn7AYfRPUjZUIbVn9OuA4tUdeEItY8O0=;
-	b=cwV7lJh+uu+lBmMsGzTiHe8Dua3oPYrf8GrPFCzERh0uYKWKGLGxaN0+VoXreglmac
-	GKAQu+O74pE/JfAgrDp9Swxb9wZsBKNlQmWsbGx82cmqas9WnRoFtc22gzyH4jJ95HUg
-	eQEaZ2dJ7GX//QTdp3ZcwVz38xdLm/uRonC00=
-References: <0000000000004e8a91057e355803@google.com>
+	h=from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=KISU59S6Jwk96Vv5F0HE6moYC8ByOnQ/kZMSyIcAkPw=;
+	b=cujpwfDBeMBwlKZHu3RN3jBIsCN2+huX0KIGZGSG+/3/DcowfSbMHY6/F89E2JITGZ
+	Hl3SfoNRp6sAALCwaFVkg1/MbFz7FlS98R68SetyPoNl49PE4h9/uDXDTr8wSlmavvKF
+	taNv0Ig3w/cMwBl2VzITIfETeJD09psSnp4Zc=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <663bc6d0-f6ec-796d-54bb-b9afa3c0bce1@cumulusnetworks.com>
-Date: Sun, 30 Dec 2018 13:34:34 +0200
+Date: Sun, 30 Dec 2018 14:33:20 +0200
+Message-Id: <20181230123320.32484-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <663bc6d0-f6ec-796d-54bb-b9afa3c0bce1@cumulusnetworks.com>
+References: <663bc6d0-f6ec-796d-54bb-b9afa3c0bce1@cumulusnetworks.com>
 MIME-Version: 1.0
-In-Reply-To: <0000000000004e8a91057e355803@google.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] general protection fault in fdb_find_rcu
+Subject: [Bridge] [PATCH net] net: rtnetlink: address is mandatory for
+	rtnl_fdb_get
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,29 +24,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+017b1f61c82a1c3e7efd@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Ahern <dsa@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 30/12/2018 06:01, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    90cadbbf341d Merge git://git.kernel.org/pub/scm/linux/kern..
-> git tree:       net-next
-> console output: https://syzkaller.appspot.com/x/log.txt?x=1745c69b400000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=9d41c8529d7e7362
-> dashboard link: https://syzkaller.appspot.com/bug?extid=017b1f61c82a1c3e7efd
-> compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15babaab400000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=14c6142d400000
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+017b1f61c82a1c3e7efd@syzkaller.appspotmail.com
-> 
+We must have an address to lookup otherwise we'll derefence a null
+pointer in the ndo_fdb_get callbacks.
 
-Ah yes, good catch. We've missed this obvious bug during the review.
-A patch is on its way, just need to run a few tests.
+CC: Roopa Prabhu <roopa@cumulusnetworks.com>
+CC: David Ahern <dsa@cumulusnetworks.com>
+Reported-by: syzbot+017b1f61c82a1c3e7efd@syzkaller.appspotmail.com
+Fixes: 5b2f94b27622 ("net: rtnetlink: support for fdb get")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/core/rtnetlink.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Cheers,
- Nik
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 48f61885fd6f..5ea1bed08ede 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4104,6 +4104,11 @@ static int rtnl_fdb_get(struct sk_buff *in_skb, struct nlmsghdr *nlh,
+ 	if (err < 0)
+ 		return err;
+ 
++	if (!addr) {
++		NL_SET_ERR_MSG(extack, "Missing lookup address for fdb get request");
++		return -EINVAL;
++	}
++
+ 	if (brport_idx) {
+ 		dev = __dev_get_by_index(net, brport_idx);
+ 		if (!dev) {
+-- 
+2.19.2
 
