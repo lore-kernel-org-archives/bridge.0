@@ -1,20 +1,19 @@
-Return-Path: <mhocko@kernel.org>
-Date: Mon, 31 Dec 2018 11:11:58 +0100
-From: Michal Hocko <mhocko@kernel.org>
-Message-ID: <20181231101158.GC22445@dhcp22.suse.cz>
-References: <20181229015524.222741-1-shakeelb@google.com>
-	<20181229073325.GZ16738@dhcp22.suse.cz>
-	<20181229095215.nbcijqacw5b6aho7@breakpoint.cc>
-	<20181229100615.GB16738@dhcp22.suse.cz>
-	<CALvZod7v-CC1XipLAerFj1Zp_M=qXZq6MzDL4pubJMTRCsMFNw@mail.gmail.com>
-	<20181230074513.GA22445@dhcp22.suse.cz>
-	<20181230080028.GB22445@dhcp22.suse.cz>
-	<CALvZod6Ty30uQjJF8KZf=RS5djULaLVggYv_1WFrKJWaYa6EHw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALvZod6Ty30uQjJF8KZf=RS5djULaLVggYv_1WFrKJWaYa6EHw@mail.gmail.com>
-Subject: Re: [Bridge] [PATCH] netfilter: account ebt_table_info to kmemcg
+Return-Path: <3H34tXAgKBrgqfYiccjZemmejc.amkZpgbecjgqrq.jglsv-dmslbYrgml.mpe@flex--shakeelb.bounces.google.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
+	h=date:message-id:mime-version:subject:from:to:cc;
+	bh=LBYMDCbBA3NW41N7ApDqhkDWIbRHpdiaiS5pDRmTU0c=;
+	b=iTqiOAwEtmzx3502zPCqdPgvcXLNwz4HTbRKYhwJsFyOnPRo/g6n0AILOfliy/qjuL
+	3tVx78BpK4nsjlTIuxF54IsHOSC2grti05o7bDgSCF6IsjYm5La1e5Aa/vf4/YLGbQN7
+	O9OJsYhIQk2iLMgpyW/GKEOMLdNyOs0lRpjAwNQ1yLwDOtCyRyMk3XMLPjWg6zPu1rdE
+	RzlLyI1Vh+bwuVKcEwKMNvQ5XuPQ6t18pzC5zTcH2NEAbR/voOiAIYcB/Kd/VYsMd919
+	5I98cCRTXQivucvkT9l7n6EHg8j8iB2+S2Cx3BQOV7xk5ACuqsp9je0gJP0jNNiPWdMc
+	X4mA==
+Date: Wed,  2 Jan 2019 19:14:31 -0800
+Message-Id: <20190103031431.247970-1-shakeelb@google.com>
+Mime-Version: 1.0
+From: Shakeel Butt <shakeelb@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: [Bridge] [PATCH v2] netfilter: account ebt_table_info to kmemcg
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,71 +22,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Shakeel Butt <shakeelb@google.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, syzbot+7713f3aa67be76b1552c@syzkaller.appspotmail.com, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Andrew Morton <akpm@linux-foundation.org>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Florian Westphal <fw@strlen.de>, Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, coreteam@netfilter.org, Shakeel Butt <shakeelb@google.com>, syzbot+7713f3aa67be76b1552c@syzkaller.appspotmail.com, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, netfilter-devel@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Sun 30-12-18 19:59:53, Shakeel Butt wrote:
-> On Sun, Dec 30, 2018 at 12:00 AM Michal Hocko <mhocko@kernel.org> wrote:
-> >
-> > On Sun 30-12-18 08:45:13, Michal Hocko wrote:
-> > > On Sat 29-12-18 11:34:29, Shakeel Butt wrote:
-> > > > On Sat, Dec 29, 2018 at 2:06 AM Michal Hocko <mhocko@kernel.org> wrote:
-> > > > >
-> > > > > On Sat 29-12-18 10:52:15, Florian Westphal wrote:
-> > > > > > Michal Hocko <mhocko@kernel.org> wrote:
-> > > > > > > On Fri 28-12-18 17:55:24, Shakeel Butt wrote:
-> > > > > > > > The [ip,ip6,arp]_tables use x_tables_info internally and the underlying
-> > > > > > > > memory is already accounted to kmemcg. Do the same for ebtables. The
-> > > > > > > > syzbot, by using setsockopt(EBT_SO_SET_ENTRIES), was able to OOM the
-> > > > > > > > whole system from a restricted memcg, a potential DoS.
-> > > > > > >
-> > > > > > > What is the lifetime of these objects? Are they bound to any process?
-> > > > > >
-> > > > > > No, they are not.
-> > > > > > They are free'd only when userspace requests it or the netns is
-> > > > > > destroyed.
-> > > > >
-> > > > > Then this is problematic, because the oom killer is not able to
-> > > > > guarantee the hard limit and so the excessive memory consumption cannot
-> > > > > be really contained. As a result the memcg will be basically useless
-> > > > > until somebody tears down the charged objects by other means. The memcg
-> > > > > oom killer will surely kill all the existing tasks in the cgroup and
-> > > > > this could somehow reduce the problem. Maybe this is sufficient for
-> > > > > some usecases but that should be properly analyzed and described in the
-> > > > > changelog.
-> > > > >
-> > > >
-> > > > Can you explain why you think the memcg hard limit will not be
-> > > > enforced? From what I understand, the memcg oom-killer will kill the
-> > > > allocating processes as you have mentioned. We do force charging for
-> > > > very limited conditions but here the memcg oom-killer will take care
-> > > > of
-> > >
-> > > I was talking about the force charge part. Depending on a specific
-> > > allocation and its life time this can gradually get us over hard limit
-> > > without any bound theoretically.
-> >
-> > Forgot to mention. Since b8c8a338f75e ("Revert "vmalloc: back off when
-> > the current task is killed"") there is no way to bail out from the
-> > vmalloc allocation loop so if the request is really large then the memcg
-> > oom will not help. Is that a problem here?
-> >
-> 
-> Yes, I think it will be an issue here.
-> 
-> > Maybe it is time to revisit fatal_signal_pending check.
-> 
-> Yes, we will need something to handle the memcg OOM. I will think more
-> on that front or if you have any ideas, please do propose.
+The [ip,ip6,arp]_tables use x_tables_info internally and the underlying
+memory is already accounted to kmemcg. Do the same for ebtables. The
+syzbot, by using setsockopt(EBT_SO_SET_ENTRIES), was able to OOM the
+whole system from a restricted memcg, a potential DoS.
 
-I can see three options here:
-	- do not force charge on memcg oom or introduce a limited charge
-	  overflow (reserves basically).
-	- revert the revert and reintroduce the fatal_signal_pending
-	  check into vmalloc
-	- be more specific and check tsk_is_oom_victim in vmalloc and
-	  fail
+By accounting the ebt_table_info, the memory used for ebt_table_info can
+be contained within the memcg of the allocating process. However the
+lifetime of ebt_table_info is independent of the allocating process and
+is tied to the network namespace. So, the oom-killer will not be able to
+relieve the memory pressure due to ebt_table_info memory. The memory for
+ebt_table_info is allocated through vmalloc. Currently vmalloc does not
+handle the oom-killed allocating process correctly and one large
+allocation can bypass memcg limit enforcement. So, with this patch,
+at least the small allocations will be contained. For large allocations,
+we need to fix vmalloc.
 
+Reported-by: syzbot+7713f3aa67be76b1552c@syzkaller.appspotmail.com
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linux MM <linux-mm@kvack.org>
+Cc: netfilter-devel@vger.kernel.org
+Cc: coreteam@netfilter.org
+Cc: bridge@lists.linux-foundation.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+---
+Changelog since v1:
+- More descriptive commit message.
+
+ net/bridge/netfilter/ebtables.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 491828713e0b..5e55cef0cec3 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1137,14 +1137,16 @@ static int do_replace(struct net *net, const void __user *user,
+ 	tmp.name[sizeof(tmp.name) - 1] = 0;
+ 
+ 	countersize = COUNTER_OFFSET(tmp.nentries) * nr_cpu_ids;
+-	newinfo = vmalloc(sizeof(*newinfo) + countersize);
++	newinfo = __vmalloc(sizeof(*newinfo) + countersize, GFP_KERNEL_ACCOUNT,
++			    PAGE_KERNEL);
+ 	if (!newinfo)
+ 		return -ENOMEM;
+ 
+ 	if (countersize)
+ 		memset(newinfo->counters, 0, countersize);
+ 
+-	newinfo->entries = vmalloc(tmp.entries_size);
++	newinfo->entries = __vmalloc(tmp.entries_size, GFP_KERNEL_ACCOUNT,
++				     PAGE_KERNEL);
+ 	if (!newinfo->entries) {
+ 		ret = -ENOMEM;
+ 		goto free_newinfo;
 -- 
-Michal Hocko
-SUSE Labs
+2.20.1.415.g653613c723-goog
+
