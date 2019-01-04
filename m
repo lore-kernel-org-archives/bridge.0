@@ -1,29 +1,22 @@
-Return-Path: <rdunlap@infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=merlin.20170209;
-	h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=kfRZFnoXmHrbp8JngvdZc+LIcpyFE/0aaMKXtO0m14k=;
-	b=P3SQsMZwVgIA3Bo1QrALv/NQmk
-	6no9zsGmStTdYvgdXA1E2+aevDwPBnJCKkD5kCibLDDT5gLSxSSYeB4ZFV70g8BAvm/K5tt6KpbnE
-	i7EHtuWdWNHl8ZBVq2sbMsqAfAvbNQY3ZYGsUFgNvMgbyNT9TIn8E0N7wTRKU/mtfe6toCPT9pYfl
-	d7egusMLZpiufUEu1kEJ/3Xa//nL82yJF1KY3JF8D8/fet6VsRXhvb9Is9p/zQv76PDcN6Cl/l02C
-	j8KAJ+A3mNMND1YdUollp3ATBS5TwGJJvTMZ3cMOZwYy1ntbvNhIAVHqndaZGlIjJ9kEVOf3TFmTQ
-	FwveUJ4g==;
-References: <20190103224702.21541-1-f.fainelli@gmail.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <7ad992a7-1265-ed86-7679-9e750cac156d@infradead.org>
-Date: Thu, 3 Jan 2019 15:26:03 -0800
+Return-Path: <mhocko@kernel.org>
+Date: Fri, 4 Jan 2019 14:21:58 +0100
+From: Michal Hocko <mhocko@kernel.org>
+Message-ID: <20190104132158.GP31793@dhcp22.suse.cz>
+References: <20181229015524.222741-1-shakeelb@google.com>
+	<20181229073325.GZ16738@dhcp22.suse.cz>
+	<20181229095215.nbcijqacw5b6aho7@breakpoint.cc>
+	<20181229100615.GB16738@dhcp22.suse.cz>
+	<CALvZod7v-CC1XipLAerFj1Zp_M=qXZq6MzDL4pubJMTRCsMFNw@mail.gmail.com>
+	<20181230074513.GA22445@dhcp22.suse.cz>
+	<20181230080028.GB22445@dhcp22.suse.cz>
+	<CALvZod6Ty30uQjJF8KZf=RS5djULaLVggYv_1WFrKJWaYa6EHw@mail.gmail.com>
+	<20181231101158.GC22445@dhcp22.suse.cz>
+	<CALvZod4sQ7ZEwfEefoNUeso2Va255x0jNgwOVZSU-b7+CevQuQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20190103224702.21541-1-f.fainelli@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2] Documentation: networking: Clarify
- switchdev devices behavior
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALvZod4sQ7ZEwfEefoNUeso2Va255x0jNgwOVZSU-b7+CevQuQ@mail.gmail.com>
+Subject: Re: [Bridge] [PATCH] netfilter: account ebt_table_info to kmemcg
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,177 +25,87 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org
-Cc: andrew@lunn.ch, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@mellanox.com, jiri@mellanox.com, davem@davemloft.net
+To: Shakeel Butt <shakeelb@google.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, syzbot+7713f3aa67be76b1552c@syzkaller.appspotmail.com, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Andrew Morton <akpm@linux-foundation.org>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-Hi,
-
-Comments below.
-
-
-On 1/3/19 2:47 PM, Florian Fainelli wrote:
-> This patch provides details on the expected behavior of switchdev
-> enabled network devices when operating in a "stand alone" mode, as well
-> as when being bridge members. This clarifies a number of things that
-> recently came up during a bug fixing session on the b53 DSA switch
-> driver.
+On Thu 03-01-19 12:52:54, Shakeel Butt wrote:
+> On Mon, Dec 31, 2018 at 2:12 AM Michal Hocko <mhocko@kernel.org> wrote:
+> >
+> > On Sun 30-12-18 19:59:53, Shakeel Butt wrote:
+> > > On Sun, Dec 30, 2018 at 12:00 AM Michal Hocko <mhocko@kernel.org> wrote:
+> > > >
+> > > > On Sun 30-12-18 08:45:13, Michal Hocko wrote:
+> > > > > On Sat 29-12-18 11:34:29, Shakeel Butt wrote:
+> > > > > > On Sat, Dec 29, 2018 at 2:06 AM Michal Hocko <mhocko@kernel.org> wrote:
+> > > > > > >
+> > > > > > > On Sat 29-12-18 10:52:15, Florian Westphal wrote:
+> > > > > > > > Michal Hocko <mhocko@kernel.org> wrote:
+> > > > > > > > > On Fri 28-12-18 17:55:24, Shakeel Butt wrote:
+> > > > > > > > > > The [ip,ip6,arp]_tables use x_tables_info internally and the underlying
+> > > > > > > > > > memory is already accounted to kmemcg. Do the same for ebtables. The
+> > > > > > > > > > syzbot, by using setsockopt(EBT_SO_SET_ENTRIES), was able to OOM the
+> > > > > > > > > > whole system from a restricted memcg, a potential DoS.
+> > > > > > > > >
+> > > > > > > > > What is the lifetime of these objects? Are they bound to any process?
+> > > > > > > >
+> > > > > > > > No, they are not.
+> > > > > > > > They are free'd only when userspace requests it or the netns is
+> > > > > > > > destroyed.
+> > > > > > >
+> > > > > > > Then this is problematic, because the oom killer is not able to
+> > > > > > > guarantee the hard limit and so the excessive memory consumption cannot
+> > > > > > > be really contained. As a result the memcg will be basically useless
+> > > > > > > until somebody tears down the charged objects by other means. The memcg
+> > > > > > > oom killer will surely kill all the existing tasks in the cgroup and
+> > > > > > > this could somehow reduce the problem. Maybe this is sufficient for
+> > > > > > > some usecases but that should be properly analyzed and described in the
+> > > > > > > changelog.
+> > > > > > >
+> > > > > >
+> > > > > > Can you explain why you think the memcg hard limit will not be
+> > > > > > enforced? From what I understand, the memcg oom-killer will kill the
+> > > > > > allocating processes as you have mentioned. We do force charging for
+> > > > > > very limited conditions but here the memcg oom-killer will take care
+> > > > > > of
+> > > > >
+> > > > > I was talking about the force charge part. Depending on a specific
+> > > > > allocation and its life time this can gradually get us over hard limit
+> > > > > without any bound theoretically.
+> > > >
+> > > > Forgot to mention. Since b8c8a338f75e ("Revert "vmalloc: back off when
+> > > > the current task is killed"") there is no way to bail out from the
+> > > > vmalloc allocation loop so if the request is really large then the memcg
+> > > > oom will not help. Is that a problem here?
+> > > >
+> > >
+> > > Yes, I think it will be an issue here.
+> > >
+> > > > Maybe it is time to revisit fatal_signal_pending check.
+> > >
+> > > Yes, we will need something to handle the memcg OOM. I will think more
+> > > on that front or if you have any ideas, please do propose.
+> >
+> > I can see three options here:
+> >         - do not force charge on memcg oom or introduce a limited charge
+> >           overflow (reserves basically).
+> >         - revert the revert and reintroduce the fatal_signal_pending
+> >           check into vmalloc
+> >         - be more specific and check tsk_is_oom_victim in vmalloc and
+> >           fail
+> >
 > 
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
-> Changes in v2:
-> 
-> - clarified a few parts about VLAN devices wrt. VLAN filtering and their
->   behavior during enslaving.
-> 
-> Ido, hopefully this captures correctly what we just talked about this
-> morning. Thanks!
-> 
->  Documentation/networking/switchdev.txt | 95 ++++++++++++++++++++++++++
->  1 file changed, 95 insertions(+)
-> 
-> diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
-> index 82236a17b5e6..c0218746a783 100644
-> --- a/Documentation/networking/switchdev.txt
-> +++ b/Documentation/networking/switchdev.txt
-> @@ -392,3 +392,98 @@ switchdev_trans_item_dequeue()
->  
->  If a transaction is aborted during "prepare" phase, switchdev code will handle
->  cleanup of the queued-up objects.
-> +
-> +Switchdev enabled network device expected behavior
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +Below is a set of defined behavior that switchdev enabled network device must be
+> I think for the long term solution we might need something similar to
+> memcg oom reserves (1) but for quick fix I think we can do the
+> combination of (2) and (3).
 
-                                                                     devices must
+Johannes argued that fatal_signal_pending is too general check for
+vmalloc. I would argue that we already break out of some operations on
+fatal signals. tsk_is_oom_victim is more subtle but much more targeted
+on the other hand.
 
-> +adhering to.
-
-   adhere to.
-
-> +
-> +Configuration less state
-> +------------------------
-> +
-> +Upon driver bring up, the network devices must be fully operational, and the
-> +backing driver must be configuring the network device such that it is possible
-
-                  must configure the
-
-> +to send and receive to this network device such that it is properly separate
-> +from other network devices/ports (e.g: as is frequently with a switch ASIC).
-
-                                    (e.g.:
-
-> +How this is achieved is heavily hardware dependent, but a simple solution can
-> +be to use per-port VLAN identifiers unless a better mechanism is available
-> +(proprietary metadata for each network ports for instance).
-
-                                          port
-
-> +
-> +The network device must be capable of running a full IP protocol stack must be
-> +working, including multicast, DHCP, IPv4/6, etc. If necessary, it should be
-
-garbled?  too many verb phrases.
-
-> +programming the appropriate filters for VLAN, multicast, unicast etc. The
-> +underlying device driver must effectively be configured in a similar fashion to
-> +what it would do when IGMP snooping is enabled for IP multicast over these
-> +switchdev network devices and unsollicited multicast must be filtered as early
-
-                                 unsolicited
-
-> +as possible into the hardware.
-> +
-> +When configuring VLANs on top of the network device, all VLANs must be working,
-> +irrespective of the state of other network devices (e.g: other ports being part
-
-                                                      (e.g.:
-
-> +of a VLAN aware bridge doing ingress VID checking). See below for details.
-> +
-> +Bridged network devices
-> +-----------------------
-> +
-> +When a switchdev enabled network device is added as a bridge member, it should
-> +not be disrupting any functionality of non-bridged network devices and they
-
-   not disrupt any
-
-> +should continue to behave as normal network devices. Depending on the bridge
-> +configuration knobs below, the expected behavior is documented.
-> +
-> +VLAN filtering
-> +~~~~~~~~~~~~~~
-> +
-> +The Linux bridge allows the configuration of a VLAN filtering mode (compile and
-> +run time) which must be observed by the underlying switchdev network
-> +device/hardware:
-> +
-> +- with VLAN filtering turned off: frames ingressing the device with a VID that
-> +  is not programmed into the bridge/switch's VLAN table must be forwarded.
-> +
-> +- with VLAN filtering turned on: frames ingressing the device with a VID that is
-> +  not programmed into the bridges/switch's VLAN table must be dropped.
-> +
-> +Non-bridged network ports of the same switch fabric must not be disturbed in any
-> +way, shape or form by the enabling of VLAN filtering.
-> +
-> +VLAN devices configured on top of a switchdev network device (e.g: sw0p1.100)
-> +which is a bridge port member must also observe the following behavior:
-> +
-> +- with VLAN filtering turned off, these VLAN devices must be fully functional
-> +  since the hardware is allowed VID frames. Enslaving VLAN devices into the
-> +  bridge might be allowed provided that there is sufficient separatation using
-
-                                                               separation
-
-> +  e.g: a reserved VLAN ID (4095 for instance) for untagged traffic.
-
-     e.g.:
-
-> +
-> +- with VLAN filtering turned on, these VLAN devices should not be allowed to
-> +  be created because they duplicate functionality/use case with the bridge's
-> +  VLAN functionality.
-> +
-> +Because VLAN filtering can be turned on/off at runtime, the switchdev driver
-> +must be able to re-configure the underlying hardware on the fly to honor the
-> +toggling of that option and behave appropriately.
-> +
-> +A switchdev driver can also refuse to support dynamic toggling of the VLAN
-> +filtering knob at runtime and require a destruction of the bridge device(s) and
-> +a creation of new bridge device(s) with a different VLAN filtering value to
-> +ensure VLAN awareness is pushed down to the HW.
-> +
-> +IGMP snooping
-> +~~~~~~~~~~~~~
-> +
-> +The Linux bridge allows the configuration of IGMP snooping (compile and run
-> +time) which must be observed by the underlying switchdev network device/hardware
-> +in the following way:
-> +
-> +- when IGMP snooping is turned off, multicast traffic must be flooded to all
-> +  switch ports within the same broadcast domain, including the CPU/management
-> +  port of the switch (if handled separately).
-> +
-> +- when IGMP snooping is turned on, multicast traffic must be selectively flowing
-
-                                                        must selectively flow
-
-> +  to the appropriate network ports and not flood the entire switch, that must
-> +  include the CPU/management port.
-> +
-> +Because IGMP snooping can be turned on/off at runtime, the switchdev driver must
-> +be able to re-configure the underlying hardware on the fly to honor the toggling
-> +of that option and behave appropriately.
-> +
-> +Similarly to VLAN filtering, if dynamic toggling of the IGMP snooping
-> 
-
-missing something here??
-
-thanks.
+I do not have any strong preference to be honest but I agree that some
+limited reserves would be the best solution long term. I just do not
+have any idea how to scale those reserves to be meaningful.
 -- 
-~Randy
+Michal Hocko
+SUSE Labs
