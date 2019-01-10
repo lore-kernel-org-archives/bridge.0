@@ -1,28 +1,13 @@
-Return-Path: <rdunlap@infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
-	Subject:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=bbzG2uCqpzG60z1+68YdnYZvjbfb6M2B9tL+G5rBL28=;
-	b=IEgROaVUamw0IHreK3NgKWgjs
-	HVR97CpinUHrGuZ28Mo+FtW5/p2FftnJnTwDiJy5JVU0LVkL0Q2pA3CUeTw0Fd22gwJ0XefOshbsJ
-	Wb4JEYxGrUjzRnKdyes79KSig7jMImtrQ08OEDxfSlFQMlImCUTzQDyiQdRn2+3JiHErtanBz3U+c
-	makiX9XGv3t8EJImLA4ajZcvMYhmUamVJE5wkfeyKSk/PICdEn+yBwmGwtiXO3YJIIO2InU/bxV50
-	lAFC9fsS6Be95T50Jg1pMVabFjFuezEf7uaLny/Gv7a9Ep3h1kb+d1LSduBGFjAapTKp5VFxyHfjE
-	BWseP0ghQ==;
-References: <20190109043930.8534-1-f.fainelli@gmail.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <9256a289-4944-c760-b383-d5beacd374ce@infradead.org>
-Date: Wed, 9 Jan 2019 11:25:40 -0800
+Return-Path: <pablo@netfilter.org>
+Date: Thu, 10 Jan 2019 01:44:26 +0100
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20190110004426.p4n4lrpnnvv4czir@salvia>
+References: <20190103031431.247970-1-shakeelb@google.com>
 MIME-Version: 1.0
-In-Reply-To: <20190109043930.8534-1-f.fainelli@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3] Documentation: networking: Clarify
- switchdev devices behavior
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190103031431.247970-1-shakeelb@google.com>
+Subject: Re: [Bridge] [PATCH v2] netfilter: account ebt_table_info to kmemcg
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,161 +16,75 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org
-Cc: andrew@lunn.ch, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@mellanox.com, jiri@mellanox.com, davem@davemloft.net
+To: Shakeel Butt <shakeelb@google.com>
+Cc: coreteam@netfilter.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Kirill Tkhai <ktkhai@virtuozzo.com>, netfilter-devel@vger.kernel.org, syzbot+7713f3aa67be76b1552c@syzkaller.appspotmail.com, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Andrew Morton <akpm@linux-foundation.org>
 
-Hi Florian,
-
-Just a few more comments...
-
-
-On 1/8/19 8:39 PM, Florian Fainelli wrote:
-> This patch provides details on the expected behavior of switchdev
-> enabled network devices when operating in a "stand alone" mode, as well
-> as when being bridge members. This clarifies a number of things that
-> recently came up during a bug fixing session on the b53 DSA switch
-> driver.
+On Wed, Jan 02, 2019 at 07:14:31PM -0800, Shakeel Butt wrote:
+> The [ip,ip6,arp]_tables use x_tables_info internally and the underlying
+> memory is already accounted to kmemcg. Do the same for ebtables. The
+> syzbot, by using setsockopt(EBT_SO_SET_ENTRIES), was able to OOM the
+> whole system from a restricted memcg, a potential DoS.
 > 
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> By accounting the ebt_table_info, the memory used for ebt_table_info can
+> be contained within the memcg of the allocating process. However the
+> lifetime of ebt_table_info is independent of the allocating process and
+> is tied to the network namespace. So, the oom-killer will not be able to
+> relieve the memory pressure due to ebt_table_info memory. The memory for
+> ebt_table_info is allocated through vmalloc. Currently vmalloc does not
+> handle the oom-killed allocating process correctly and one large
+> allocation can bypass memcg limit enforcement. So, with this patch,
+> at least the small allocations will be contained. For large allocations,
+> we need to fix vmalloc.
+
+Fine with this -mm?
+
+If no objections, I'll apply this to the netfilter tree. Thanks.
+
+> Reported-by: syzbot+7713f3aa67be76b1552c@syzkaller.appspotmail.com
+> Signed-off-by: Shakeel Butt <shakeelb@google.com>
+> Cc: Florian Westphal <fw@strlen.de>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+> Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+> Cc: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+> Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Linux MM <linux-mm@kvack.org>
+> Cc: netfilter-devel@vger.kernel.org
+> Cc: coreteam@netfilter.org
+> Cc: bridge@lists.linux-foundation.org
+> Cc: LKML <linux-kernel@vger.kernel.org>
 > ---
-> Changes in v3:
+> Changelog since v1:
+> - More descriptive commit message.
 > 
-> - spell checks, past vs. present use (Randy)
-> - clarified some behaviors a bit more regarding multicast flooding
-> - added some missing sentence about multicast snopping knob being
->   dynamically turned on/off
+>  net/bridge/netfilter/ebtables.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> Changes in v2:
-> 
-> - clarified a few parts about VLAN devices wrt. VLAN filtering and their
->   behavior during enslaving.
-> 
->  Documentation/networking/switchdev.txt | 104 +++++++++++++++++++++++++
->  1 file changed, 104 insertions(+)
-> 
-> diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
-> index 82236a17b5e6..36049f997517 100644
-> --- a/Documentation/networking/switchdev.txt
-> +++ b/Documentation/networking/switchdev.txt
-> @@ -392,3 +392,107 @@ switchdev_trans_item_dequeue()
+> diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+> index 491828713e0b..5e55cef0cec3 100644
+> --- a/net/bridge/netfilter/ebtables.c
+> +++ b/net/bridge/netfilter/ebtables.c
+> @@ -1137,14 +1137,16 @@ static int do_replace(struct net *net, const void __user *user,
+>  	tmp.name[sizeof(tmp.name) - 1] = 0;
 >  
->  If a transaction is aborted during "prepare" phase, switchdev code will handle
->  cleanup of the queued-up objects.
-> +
-> +Switchdev enabled network device expected behavior
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +Below is a set of defined behavior that switchdev enabled network devices must
-> +adhere to.
-> +
-> +Configuration less state
-> +------------------------
-> +
-> +Upon driver bring up, the network devices must be fully operational, and the
-> +backing driver must configure the network device such that it is possible to
-> +send and receive to this network device such that it is properly separate from
-> +other network devices/ports (e.g.: as is frequently with a switch ASIC). How
-> +this is achieved is heavily hardware dependent, but a simple solution can be to
-> +use per-port VLAN identifiers unless a better mechanism is available
-> +(proprietary metadata for each network port for instance).
-> +
-> +The network device must be capable of running a full IP protocol including
-> +multicast, DHCP, IPv4/6, etc. If necessary, it should be programming the
-
-                                               it should program the
-
-> +appropriate filters for VLAN, multicast, unicast etc. The underlying device
-> +driver must effectively be configured in a similar fashion to what it would do
-> +when IGMP snooping is enabled for IP multicast over these switchdev network
-> +devices and unsolicited multicast must be filtered as early as possible into
-> +the hardware.
-> +
-> +When configuring VLANs on top of the network device, all VLANs must be working,
-> +irrespective of the state of other network devices (e.g.: other ports being part
-> +of a VLAN aware bridge doing ingress VID checking). See below for details.
-> +
-> +Bridged network devices
-> +-----------------------
-> +
-> +When a switchdev enabled network device is added as a bridge member, it should
-> +not disrupt any functionality of non-bridged network devices and they
-> +should continue to behave as normal network devices. Depending on the bridge
-> +configuration knobs below, the expected behavior is documented.
-> +
-> +VLAN filtering
-> +~~~~~~~~~~~~~~
-> +
-> +The Linux bridge allows the configuration of a VLAN filtering mode (compile and
-> +run time) which must be observed by the underlying switchdev network
-> +device/hardware:
-> +
-> +- with VLAN filtering turned off: frames ingressing the device with a VID that
-> +  is not programmed into the bridge/switch's VLAN table must be forwarded.
-> +
-> +- with VLAN filtering turned on: frames ingressing the device with a VID that is
-> +  not programmed into the bridges/switch's VLAN table must be dropped.
-> +
-> +Non-bridged network ports of the same switch fabric must not be disturbed in any
-> +way, shape or form by the enabling of VLAN filtering.
-> +
-> +VLAN devices configured on top of a switchdev network device (e.g: sw0p1.100)
-> +which is a bridge port member must also observe the following behavior:
-> +
-> +- with VLAN filtering turned off, these VLAN devices must be fully functional
-> +  since the hardware is allowed VID frames. Enslaving VLAN devices into the
-> +  bridge might be allowed provided that there is sufficient separation using
-> +  e.g.: a reserved VLAN ID (4095 for instance) for untagged traffic.
-> +
-> +- with VLAN filtering turned on, these VLAN devices should not be allowed to
-> +  be created because they duplicate functionality/use case with the bridge's
-> +  VLAN functionality.
-> +
-> +Because VLAN filtering can be turned on/off at runtime, the switchdev driver
-> +must be able to re-configure the underlying hardware on the fly to honor the
-> +toggling of that option and behave appropriately.
-> +
-> +A switchdev driver can also refuse to support dynamic toggling of the VLAN
-> +filtering knob at runtime and require a destruction of the bridge device(s) and
-> +a creation of new bridge device(s) with a different VLAN filtering value to
-
-preferably drop the first "a", so just
-   creation of
-
-> +ensure VLAN awareness is pushed down to the HW.
-> +
-> +IGMP snooping
-> +~~~~~~~~~~~~~
-> +
-> +The Linux bridge allows the configuration of IGMP snooping (compile and run
-> +time) which must be observed by the underlying switchdev network device/hardware
-> +in the following way:
-> +
-> +- when IGMP snooping is turned off, multicast traffic must be flooded to all
-> +  switch ports within the same broadcast domain. The CPU/management port
-> +  should ideally not be flooded and continue to learn multicast traffic through
-> +  the network stack notifications. If the hardware is not capable of doing that
-> +  then the CPU/management port must also be flooded and multicast filtering
-> +  happens in software.
-> +
-> +- when IGMP snooping is turned on, multicast traffic must selectively flow
-> +  to the appropriate network ports (including CPU/management port) and not flood
-> +  the switch.
-> +
-> +Note: reserved multicast addresses (e.g.: BPDUs) as well as Local Network
-> +Control block (224.0.0.0 - 224.0.0.255) do not require IGMP and should always
-> +be flooded.
-> +
-> +Because IGMP snooping can be turned on/off at runtime, the switchdev driver must
-> +be able to re-configure the underlying hardware on the fly to honor the toggling
-> +of that option and behave appropriately.
-> +
-> +A switchdev driver can also refuse to support dynamic toggling of the multicast
-> +snooping knob at runtime and require a destruction of the bridge device(s) and
-> +a creation of a new bridge device(s) with a different multicast snooping value.
-
-   creation of
-
-
-thanks.
--- 
-~Randy
+>  	countersize = COUNTER_OFFSET(tmp.nentries) * nr_cpu_ids;
+> -	newinfo = vmalloc(sizeof(*newinfo) + countersize);
+> +	newinfo = __vmalloc(sizeof(*newinfo) + countersize, GFP_KERNEL_ACCOUNT,
+> +			    PAGE_KERNEL);
+>  	if (!newinfo)
+>  		return -ENOMEM;
+>  
+>  	if (countersize)
+>  		memset(newinfo->counters, 0, countersize);
+>  
+> -	newinfo->entries = vmalloc(tmp.entries_size);
+> +	newinfo->entries = __vmalloc(tmp.entries_size, GFP_KERNEL_ACCOUNT,
+> +				     PAGE_KERNEL);
+>  	if (!newinfo->entries) {
+>  		ret = -ENOMEM;
+>  		goto free_newinfo;
+> -- 
+> 2.20.1.415.g653613c723-goog
+> 
