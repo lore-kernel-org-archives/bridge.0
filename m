@@ -1,23 +1,22 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=+mtxU4kPaFVXLTg7SEgmeFMg0p7UMWatGkhCYMXP18E=;
-	b=rHzG2smaK1Wz7NWiFnh1tRR59CnuzsVUusuZZGWGpZS3MWRrKicC2mbL8bENuG+k5KHoqVNEU8MonIV1iD6r7S2Q4V8bD2Uq9i2pgqu+MaA4Xbpp0cEqXcGgC/kyc6oKRlL2a2hZhEPe6VOBCW0YmkI56f0XI2JhUjrUO+susOo=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Fri, 11 Jan 2019 19:20:59 +0000
-Message-ID: <20190111192056.GA13325@splinter.mtl.com>
-References: <20190110193206.9872-1-f.fainelli@gmail.com>
-	<20190111150637.GA897@splinter.mtl.com>
-	<232e03c9-e2c8-9ad1-0a60-183dcbac72a5@gmail.com>
-In-Reply-To: <232e03c9-e2c8-9ad1-0a60-183dcbac72a5@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <C4666E0DC6BD5845999D29C36479869C@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=iUa0nG7RILOszUbC/Ce74QitnOCb+1UdyVX3GAwcC9o=;
+	b=W5f40diHRQhvPjYFvAomlMvp+6rGSoy/kdk0BPs/SbjYibWxtXajpvYFZxCxjE/v5+
+	/NmEU2bJmmVSfIpP1i/MV2L8X6HZGj72/vonNkJz2+mYF3eILWYJ/hnzi312xBq38g0m
+	xqs/HlSZRi4kpj8GZ9/vwPdLhDZD9NwttZNv4=
+References: <20190113135939.8970-1-zahari.doychev@linux.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <62e4c62c-39c0-71d7-99d0-3e51878e2ddc@cumulusnetworks.com>
+Date: Mon, 14 Jan 2019 13:46:09 +0200
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next v4] Documentation: networking: Clarify
- switchdev devices behavior
+In-Reply-To: <20190113135939.8970-1-zahari.doychev@linux.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 0/2] net: bridge: fix tc added QinQ forwarding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,187 +25,82 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: "andrew@lunn.ch" <andrew@lunn.ch>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "ivan.khoronzhuk@linaro.org" <ivan.khoronzhuk@linaro.org>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "ilias.apalodimas@linaro.org" <ilias.apalodimas@linaro.org>, "davem@davemloft.net" <davem@davemloft.net>
+To: Zahari Doychev <zahari.doychev@linux.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, roopa@cumulusnetworks.com
+Cc: johannes@sipsolutions.net, jhs@mojatatu.com
 
-On Fri, Jan 11, 2019 at 10:34:01AM -0800, Florian Fainelli wrote:
-> On 1/11/19 7:06 AM, Ido Schimmel wrote:
-> > On Thu, Jan 10, 2019 at 11:32:06AM -0800, Florian Fainelli wrote:
-> >> +- with VLAN filtering turned on: frames ingressing the device with a =
-VID that is
-> >> +  not programmed into the bridges/switch's VLAN table must be dropped=
-.
-> >> +
-> >> +Non-bridged network ports of the same switch fabric must not be distu=
-rbed in any
-> >> +way, shape or form by the enabling of VLAN filtering.
-> >=20
-> > "shape or form" ?
->=20
-> It's just an expression, I can remove it :)
+On 13/01/2019 15:59, Zahari Doychev wrote:
+> The Linux bridge seems to not correctly forward double vlan tagged packets
+> added using the tc vlan action. I am using a bridge with two netdevs and on one
+> of them a have the clsact qdisc with tc flower rule adding two vlan
+> tags.
+> 
+> ip link add name br0 type bridge vlan_filtering 1
+> ip link set dev br0 up
+> 
+> ip link set dev net0 up
+> ip link set dev net0 master br0
+> 
+> ip link set dev net1 up
+> ip link set dev net1 master br0
+> 
+> bridge vlan add dev net0 vid 100 master
+> bridge vlan add dev br0 vid 100 self
+> bridge vlan add dev net1 vid 100 master
+> 
+> tc qdisc add dev net0 handle ffff: clsact
+> tc qdisc add dev net1 handle ffff: clsact
+> 
+> tc filter add dev net0 ingress pref 1 protocol all flower \
+> 		  action vlan push id 10 pipe action vlan push id 100
+> 
+> tc filter add dev net0 egress pref 1 protocol 802.1q flower \
+> 		  vlan_id 100 vlan_ethtype 802.1q cvlan_id 10 \
+> 		  action vlan pop pipe action vlan pop
+> 
+> When using the setup above the packets coming on net0 get double tagged but
+> the MAC headers gets corrupted when the packets go out of net1. It seems that
+> the second vlan header is not considered in br_dev_queue_push_xmit. The skb
+> data pointer is decremented only by the ethernet header length. This later
+> causes the function validate_xmit_vlan to insert the outer vlan tag behind
+> the inner vlan tag. The inner vlan becomes also part of the source mac address.
+> 
+> The first patch fixes the problem described above. The second one fixes
+> similar problem when the tpids of the bridge and the inserted vlan don't match.
+> It fixes again incorrect insertion of the skb vlan into the payload. The two
+> patches seem to fix the problem but I am not sure if this the right way to fix
+> this and if there is any other impact.
+> 
+> Zahari Doychev (2):
+>   net: bridge: fix tc added QinQ forwarding
+>   net: bridge: fix tc added vlan insert as payload
+> 
+>  net/bridge/br_forward.c | 2 +-
+>  net/bridge/br_vlan.c    | 3 ++-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
 
-Yes, please. I think it is weird to use it in this context.
+How well was this set tested ? It breaks connectivity between bridge and
+members when vlans are used. The host generated packets going out of the bridge
+have mac_len = 0.
 
-> >> +VLAN devices configured on top of a switchdev network device (e.g: sw=
-0p1.100)
-> >> +which is a bridge port member must also observe the following behavio=
-r:
-> >=20
-> > It is not clear where VLAN filtering is on / off. On the bridge the VLA=
-N
-> > device is enslaved to I believe? Not the bridge the physical port is
-> > enslaved to.
->=20
-> Actually the later, at least in the hardware that I have access to, VLAN
-> filtering is global to the entire switch, whether the physical switch
-> ports are enslaved in a bridge or not.
->=20
-> Once you add support for ndo_rx_vlan_{add,kill}_vid(), which ends up
-> programming VLAN objects down the physical port, this is not a concern
-> anymore because you can seamlessly support the following cases:
->=20
-> - 1 or more physical ports enslaved into a VLAN aware bridge, 1 or more
-> physical ports not enslaved at all with, or without VLAN devices on top
-> of these non-bridged physical ports
->=20
-> - all ports enslaved into a VLAN aware bridge, or multiple bridges, that
-> all have the same VLAN filtering attributes (specific to my case here,
-> obviously)
->=20
-> Does that make sense? Some switches like mv88e6xxx do support a per-port
-> VLAN filtering/secure/unsecure option.
->=20
-> >=20
-> >> +
-> >> +- with VLAN filtering turned off, these VLAN devices must be fully fu=
-nctional
-> >> +  since the hardware is allowed VID frames. Enslaving VLAN devices in=
-to the
-> >=20
-> > "the hardware is allowed VID frames" ?
->=20
-> I meant to write that the hardware is not doing any ingress VID
-> checking, therefore, it allows any VID frame to ingress the physical
-> switch port.
->=20
-> >=20
-> >> +  bridge might be allowed provided that there is sufficient separatio=
-n using
-> >> +  e.g.: a reserved VLAN ID (4095 for instance) for untagged traffic.
-> >> +
-> >> +- with VLAN filtering turned on, these VLAN devices should not be all=
-owed to
-> >> +  be created because they duplicate functionality/use case with the b=
-ridge's
-> >> +  VLAN functionality.
-> >=20
-> > We always allow VLAN devices to be created. It is just that we don't
-> > allow their *enslavement* to VLAN-aware bridges.
->=20
-> If you have a bridge that is VLAN aware (br0), and you have a physical
-> port enslaved in that bridge (sw0p0) and you create a VLAN device:
-> sw0p0.100, it is equivalent to doing:
->=20
-> bridge vlan add vid 100 dev sw0p0
-> bridge vlan add vid 100 dev br0 self
-> ip link add name br0.100 link eth0 type vlan id 100
->=20
-> and use a VLAN device (br0.100) on top of the bridge, because if you do
-> either of these two things, it means that you want the host to utilize
-> those network interfaces.
->=20
-> Would you disagree? The difference is basically in the data path
-> handling of the VLAN (sort of).
+E.g.:
+# tcpdump -e -n -i vnet2
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on vnet2, link-type EN10MB (Ethernet), capture size 262144 bytes
+17:47:08.824208 00:01:52:54:00:04 > 00:01:08:00:06:04, ethertype 802.1Q (0x8100), length 32: vlan 25, p 0, ethertype 0x5eba, 
+	0x0000:  c0a8 6401 0000 0000 0000 c0a8 6402       ..d.........d.
+17:47:09.848492 00:01:52:54:00:04 > 00:01:08:00:06:04, ethertype 802.1Q (0x8100), length 32: vlan 25, p 0, ethertype 0x5eba, 
+	0x0000:  c0a8 6401 0000 0000 0000 c0a8 6402       ..d.........d.
 
-If sw0p0.100 is not present, then a packet with VID 100 received through
-sw0p0 will be picked up by the bridge's Rx handler. The bridge will then
-forward it.
+Headers are messed up. This is br0 with pvid 25 and vnet2 with vlan 25 tagged.
+You'll probably have to reset mac_len in bridge's xmit function.
 
-If sw0p0.100 is present, then the same packet will not be forwarded by
-the bridge. The VLAN device will untag it and inject it back into the Rx
-path as if it was received by the VLAN device that does not have the
-bridge's Rx handler set.
+The potentially affected cases will need to be carefully considered, as you've noted,
+since this change is dangerous. Please also run all bridge selftests and make sure
+they all pass. Giving more details about which cases you've considered and how
+this set was tested in the commit log would be very helpful.
 
->=20
-> >=20
-> >> +
-> >> +Because VLAN filtering can be turned on/off at runtime, the switchdev=
- driver
-> >> +must be able to re-configure the underlying hardware on the fly to ho=
-nor the
-> >> +toggling of that option and behave appropriately.
-> >> +
-> >> +A switchdev driver can also refuse to support dynamic toggling of the=
- VLAN
-> >> +filtering knob at runtime and require a destruction of the bridge dev=
-ice(s) and
-> >> +creation of new bridge device(s) with a different VLAN filtering valu=
-e to
-> >> +ensure VLAN awareness is pushed down to the HW.
-> >> +
-> >> +IGMP snooping
-> >> +~~~~~~~~~~~~~
-> >> +
-> >> +The Linux bridge allows the configuration of IGMP snooping (compile a=
-nd run
-> >> +time) which must be observed by the underlying switchdev network devi=
-ce/hardware
-> >> +in the following way:
-> >> +
-> >> +- when IGMP snooping is turned off, multicast traffic must be flooded=
- to all
-> >> +  switch ports within the same broadcast domain. The CPU/management p=
-ort
-> >> +  should ideally not be flooded and continue to learn multicast traff=
-ic through
-> >> +  the network stack notifications. If the hardware is not capable of =
-doing that
-> >> +  then the CPU/management port must also be flooded and multicast fil=
-tering
-> >> +  happens in software.
-> >> +
-> >> +- when IGMP snooping is turned on, multicast traffic must selectively=
- flow
-> >> +  to the appropriate network ports (including CPU/management port) an=
-d not flood
-> >> +  the switch.
-> >> +
-> >> +Note: reserved multicast addresses (e.g.: BPDUs) as well as Local Net=
-work
-> >> +Control block (224.0.0.0 - 224.0.0.255) do not require IGMP and shoul=
-d always
-> >> +be flooded.
-> >=20
-> > I'm not sure that these paragraphs are actually needed. You're basicall=
-y
-> > describing RFC 4541 on which the IGMP snooping functionality in the
-> > Linux bridge is based on.
-> >=20
-> >> +
-> >> +Because IGMP snooping can be turned on/off at runtime, the switchdev =
-driver must
-> >> +be able to re-configure the underlying hardware on the fly to honor t=
-he toggling
-> >> +of that option and behave appropriately.
-> >> +
-> >> +A switchdev driver can also refuse to support dynamic toggling of the=
- multicast
-> >> +snooping knob at runtime and require the destruction of the bridge de=
-vice(s)
-> >> +and creation of a new bridge device(s) with a different multicast sno=
-oping
-> >> +value.
-> >=20
-> > You should probably get the patch that allows this vetoing merged befor=
-e
-> > sending this documentation patch.
->=20
-> Well, technically the switchdev attribute allows returning an error, it
-> is just that we do not act (yet) on it in the bridge code, I can take
-> that part out fo correctness for now and submit a patch to that
-> documentation file once I submit the change to the bridge layer.
+Thanks,
+ Nik
 
-+1
 
-> --=20
-> Florian
