@@ -1,14 +1,11 @@
-Return-Path: <zax@zaxnet.org>
-Date: Mon, 14 Jan 2019 20:47:55 +0100
-From: Zahari Doychev <zax@zaxnet.org>
-Message-ID: <20190114194755.GC9540@mail>
-References: <20190113135939.8970-1-zahari.doychev@linux.com>
-	<62e4c62c-39c0-71d7-99d0-3e51878e2ddc@cumulusnetworks.com>
+Return-Path: <wangyunjian@huawei.com>
+From: wangyunjian <wangyunjian@huawei.com>
+Date: Tue, 15 Jan 2019 11:12:39 +0800
+Message-ID: <1547521959-3736-1-git-send-email-wangyunjian@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <62e4c62c-39c0-71d7-99d0-3e51878e2ddc@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH 0/2] net: bridge: fix tc added QinQ forwarding
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net v2] net: bridge: Fix ethernet header pointer
+	before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,48 +14,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, Zahari Doychev <zahari.doychev@linux.com>, jhs@mojatatu.com, johannes@sipsolutions.net
+To: netdev@vger.kernel.org
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@cumulusnetworks.com>, Yunjian Wang <wangyunjian@huawei.com>, xudingke@huawei.com
 
-On Mon, Jan 14, 2019 at 01:46:09PM +0200, Nikolay Aleksandrov wrote:
-> On 13/01/2019 15:59, Zahari Doychev wrote:
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-[...]
+The skb header should be set to ethernet header before using
+is_skb_forwardable. Because the ethernet header length has been
+considered in is_skb_forwardable(including dev->hard_header_len
+length).
 
-> 
-> How well was this set tested ? It breaks connectivity between bridge and
-> members when vlans are used. The host generated packets going out of the bridge
-> have mac_len = 0.
-> 
-> E.g.:
-> # tcpdump -e -n -i vnet2
-> tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-> listening on vnet2, link-type EN10MB (Ethernet), capture size 262144 bytes
-> 17:47:08.824208 00:01:52:54:00:04 > 00:01:08:00:06:04, ethertype 802.1Q (0x8100), length 32: vlan 25, p 0, ethertype 0x5eba, 
-> 	0x0000:  c0a8 6401 0000 0000 0000 c0a8 6402       ..d.........d.
-> 17:47:09.848492 00:01:52:54:00:04 > 00:01:08:00:06:04, ethertype 802.1Q (0x8100), length 32: vlan 25, p 0, ethertype 0x5eba, 
-> 	0x0000:  c0a8 6401 0000 0000 0000 c0a8 6402       ..d.........d.
-> 
-> Headers are messed up. This is br0 with pvid 25 and vnet2 with vlan 25 tagged.
-> You'll probably have to reset mac_len in bridge's xmit function.
-> 
+To reproduce the issue:
+1, add 2 ports on linux bridge br using following commands:
+$ brctl addbr br
+$ brctl addif br eth0
+$ brctl addif br eth1
+2, the mtu of eth0 and eth1 is 1500
+3, send a 1504 packet from eth0 to eth1
 
-Thanks I will look into this. I have done most of tests with PC with two nics
-and two other hosts conntected to each of the interfaces.
+So the expect result is packet larger than 1500 cannot pass through
+eth0 and eth1. But currently, the packet passes through success, it
+means eth1's mtu limit donen't take effect.
 
-> The potentially affected cases will need to be carefully considered, as you've noted,
-> since this change is dangerous. Please also run all bridge selftests and make sure
-> they all pass. Giving more details about which cases you've considered and how
-> this set was tested in the commit log would be very helpful.
-> 
+Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
+Cc: bridge@lists.linux-foundation.org
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+---
+v2:
+ -fix commit log and cc the bridge maintainers with fixes tags
+---
+ net/bridge/br_forward.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks for pointing to the selftests. I will run them. These are the tests part
-of the kselftest correct?
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 5372e20..74b688b 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -36,10 +36,10 @@ static inline int should_deliver(const struct net_bridge_port *p,
+ 
+ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
++	skb_push(skb, ETH_HLEN);
+ 	if (!is_skb_forwardable(skb->dev, skb))
+ 		goto drop;
+ 
+-	skb_push(skb, ETH_HLEN);
+ 	br_drop_fake_rtable(skb);
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+@@ -97,10 +97,10 @@ static void __br_forward(const struct net_bridge_port *to,
+ 		net = dev_net(indev);
+ 	} else {
+ 		if (unlikely(netpoll_tx_running(to->br->dev))) {
++			skb_push(skb, ETH_HLEN);
+ 			if (!is_skb_forwardable(skb->dev, skb)) {
+ 				kfree_skb(skb);
+ 			} else {
+-				skb_push(skb, ETH_HLEN);
+ 				br_netpoll_send_skb(to, skb);
+ 			}
+ 			return;
+-- 
+1.8.3.1
 
-Regards,
-Zahari
 
-> Thanks,
->  Nik
-> 
-> 
