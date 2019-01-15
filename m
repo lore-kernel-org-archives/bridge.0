@@ -1,15 +1,15 @@
 Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-References: <20190113135939.8970-1-zahari.doychev@linux.com>
-	<20190113135939.8970-2-zahari.doychev@linux.com>
+References: <1547521959-3736-1-git-send-email-wangyunjian@huawei.com>
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <7dee9e67-bad5-84eb-9ff1-fa0d0aef8be0@lab.ntt.co.jp>
-Date: Tue, 15 Jan 2019 15:11:28 +0900
+Message-ID: <fec59e13-bf9b-9bce-c662-3e044ade6c33@lab.ntt.co.jp>
+Date: Tue, 15 Jan 2019 16:49:56 +0900
 MIME-Version: 1.0
-In-Reply-To: <20190113135939.8970-2-zahari.doychev@linux.com>
+In-Reply-To: <1547521959-3736-1-git-send-email-wangyunjian@huawei.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 1/2] net: bridge: fix tc added QinQ forwarding
+Subject: Re: [Bridge] [PATCH net v2] net: bridge: Fix ethernet header
+ pointer before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,43 +18,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Zahari Doychev <zahari.doychev@linux.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com
-Cc: johannes@sipsolutions.net, jhs@mojatatu.com
+To: wangyunjian <wangyunjian@huawei.com>
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, xudingke@huawei.com
 
-On 2019/01/13 22:59, Zahari Doychev wrote:
-> Use the skb->mac_len instead of using the ETH_HLEN when pushing the skb
-> data pointer. This fixes sending incorrect packets when more than one
-> vlan tags are pushed by tc-vlan and the mac header length is bigger than
-> ETH_HLEN. In this way the vlan tagged contained in the skb is inserted at
-> right offset in the packet payload before sending the packet.
+On 2019/01/15 12:12, wangyunjian wrote:
+> From: Yunjian Wang <wangyunjian@huawei.com>
 > 
-> Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
-> ---
->  net/bridge/br_forward.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> The skb header should be set to ethernet header before using
+> is_skb_forwardable. Because the ethernet header length has been
+> considered in is_skb_forwardable(including dev->hard_header_len
+> length).
 > 
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index 5372e2042adf..55f928043f77 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -39,7 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
->  	if (!is_skb_forwardable(skb->dev, skb))
->  		goto drop;
->  
-> -	skb_push(skb, ETH_HLEN);
-> +	skb_push(skb, skb->mac_len);
->  	br_drop_fake_rtable(skb);
->  
->  	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+> To reproduce the issue:
+> 1, add 2 ports on linux bridge br using following commands:
+> $ brctl addbr br
+> $ brctl addif br eth0
+> $ brctl addif br eth1
+> 2, the mtu of eth0 and eth1 is 1500
+> 3, send a 1504 packet from eth0 to eth1
 > 
+> So the expect result is packet larger than 1500 cannot pass through
+> eth0 and eth1. But currently, the packet passes through success, it
+> means eth1's mtu limit donen't take effect.
 
-I guess you mean skb->data points to mac_header + ETH_HLEN + VLAN_HLEN
-when bridge receives skbs in br_handle_frame()?
-If so, the behavior of act_vlan is odd. Normal double tagged skbs from
-hardware devices should have skb->data pointing to mac_header + ETH_HLEN
-because they just call eth_type_trans() before entering
-netif_receive_skb()...
-I think act_vlan needs some fix.
+I agree with the change but this test does not look appropriate.
+In the first place is_skb_forwardable() accepts 4 bytes extra size (for
+VLAN header). Doesn't your test case fail even after the change?
 
 -- 
 Toshiaki Makita
