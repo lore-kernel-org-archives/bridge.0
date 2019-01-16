@@ -1,11 +1,25 @@
-Return-Path: <wangyunjian@huawei.com>
-From: wangyunjian <wangyunjian@huawei.com>
-Date: Wed, 16 Jan 2019 21:04:21 +0800
-Message-ID: <1547643861-15340-1-git-send-email-wangyunjian@huawei.com>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=D9Sb8SoKPOW5akR4jp6n2W1CGTPyKL+a3blZ/G6iKQk=;
+	b=f+v+qgkzjqya+5HcnopwscvhxHzmEU0LaVSw2hTuEWkpJc1D5eeRSWQISTQLL4ymPL
+	gU5ZJt0y/nuhSTOyccgDlywwibbAft40muoYGnqBtBE/zAi2umAGild1w/i90ffqpQnd
+	5BvHhkkzkGbhTcTWU1gm+uRhGD7fnrX5lQ31kCU+8WXk3RI64b3GYPsLidNffkg2sx3x
+	lMNcnBHsK98T0IKWU5Gd8tLfhFeNvQBd+UaSkmSDPUbR9OtkrUG8apLxwiQm3UmajToQ
+	qC4T1ZuEysHOFiO+t/IVRIcTsZBieWpZ29xtofN9cLMVNqEYEjbpMLmz6fIsPrS7xlQ+
+	xG4g==
+Date: Wed, 16 Jan 2019 09:33:12 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20190116093312.5274776e@shemminger-XPS-13-9360>
+In-Reply-To: <1547643861-15340-1-git-send-email-wangyunjian@huawei.com>
+References: <1547643861-15340-1-git-send-email-wangyunjian@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net v3] net: bridge: Fix ethernet header pointer
-	before check skb forwardable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net v3] net: bridge: Fix ethernet header
+ pointer before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,72 +28,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@cumulusnetworks.com>, Yunjian Wang <wangyunjian@huawei.com>, xudingke@huawei.com
+To: wangyunjian <wangyunjian@huawei.com>
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, xudingke@huawei.com
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+On Wed, 16 Jan 2019 21:04:21 +0800
+wangyunjian <wangyunjian@huawei.com> wrote:
 
-The skb header should be set to ethernet header before using
-is_skb_forwardable. Because the ethernet header length has been
-considered in is_skb_forwardable(including dev->hard_header_len
-length).
+>  		if (unlikely(netpoll_tx_running(to->br->dev))) {
+> +			skb_push(skb, ETH_HLEN);
+>  			if (!is_skb_forwardable(skb->dev, skb)) {
+>  				kfree_skb(skb);
+>  			} else {
+> -				skb_push(skb, ETH_HLEN);
+>  				br_netpoll_send_skb(to, skb);
+>  			}
+>  			return;
 
-To reproduce the issue:
-1, add 2 ports on linux bridge br using following commands:
-$ brctl addbr br
-$ brctl addif br eth0
-$ brctl addif br eth1
-2, the MTU of eth0 and eth1 is 1500
-3, send a packet(Data 1480, UDP 8, IP 20, Ethernet 14, VLAN 4)
-from eth0 to eth1
+The patch looks correct.
 
-So the expect result is packet larger than 1500 cannot pass through
-eth0 and eth1. But currently, the packet passes through success, it
-means eth1's MTU limit doesn't take effect.
-
-Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
-Cc: bridge@lists.linux-foundation.org
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
----
-v2:
- -fix commit log and cc the bridge maintainers with fixes tags
-v3:
- -add detailed description of packet len and construction
----
- net/bridge/br_forward.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 5372e20..74b688b 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -36,10 +36,10 @@ static inline int should_deliver(const struct net_bridge_port *p,
- 
- int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
-+	skb_push(skb, ETH_HLEN);
- 	if (!is_skb_forwardable(skb->dev, skb))
- 		goto drop;
- 
--	skb_push(skb, ETH_HLEN);
- 	br_drop_fake_rtable(skb);
- 
- 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-@@ -97,10 +97,10 @@ static void __br_forward(const struct net_bridge_port *to,
- 		net = dev_net(indev);
- 	} else {
- 		if (unlikely(netpoll_tx_running(to->br->dev))) {
-+			skb_push(skb, ETH_HLEN);
- 			if (!is_skb_forwardable(skb->dev, skb)) {
- 				kfree_skb(skb);
- 			} else {
--				skb_push(skb, ETH_HLEN);
- 				br_netpoll_send_skb(to, skb);
- 			}
- 			return;
--- 
-1.8.3.1
-
+On minor style issue is that after moving skb_push out of the if statement,
+both branches of the statement now contain a single line and therefore
+the brackets are no longer necessary.  Suprised that checkpatch did
+not complain about this.
 
