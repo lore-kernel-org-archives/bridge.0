@@ -1,11 +1,16 @@
 Return-Path: <wangyunjian@huawei.com>
 From: wangyunjian <wangyunjian@huawei.com>
-Date: Tue, 15 Jan 2019 11:12:39 +0800
-Message-ID: <1547521959-3736-1-git-send-email-wangyunjian@huawei.com>
+Date: Wed, 16 Jan 2019 09:09:43 +0000
+Message-ID: <34EFBCA9F01B0748BEB6B629CE643AE60C9DC699@DGGEMM533-MBX.china.huawei.com>
+References: <1547521959-3736-1-git-send-email-wangyunjian@huawei.com>
+	<2a04e21b-c24a-cd7c-258f-6a09b0f09df2@cogentembedded.com>
+In-Reply-To: <2a04e21b-c24a-cd7c-258f-6a09b0f09df2@cogentembedded.com>
+Content-Language: zh-CN
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net v2] net: bridge: Fix ethernet header pointer
-	before check skb forwardable
+Subject: Re: [Bridge] [PATCH net v2] net: bridge: Fix ethernet header
+ pointer before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,69 +19,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@cumulusnetworks.com>, Yunjian Wang <wangyunjian@huawei.com>, xudingke@huawei.com
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, xudingke <xudingke@huawei.com>
 
-From: Yunjian Wang <wangyunjian@huawei.com>
-
-The skb header should be set to ethernet header before using
-is_skb_forwardable. Because the ethernet header length has been
-considered in is_skb_forwardable(including dev->hard_header_len
-length).
-
-To reproduce the issue:
-1, add 2 ports on linux bridge br using following commands:
-$ brctl addbr br
-$ brctl addif br eth0
-$ brctl addif br eth1
-2, the mtu of eth0 and eth1 is 1500
-3, send a 1504 packet from eth0 to eth1
-
-So the expect result is packet larger than 1500 cannot pass through
-eth0 and eth1. But currently, the packet passes through success, it
-means eth1's mtu limit donen't take effect.
-
-Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
-Cc: bridge@lists.linux-foundation.org
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
----
-v2:
- -fix commit log and cc the bridge maintainers with fixes tags
----
- net/bridge/br_forward.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 5372e20..74b688b 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -36,10 +36,10 @@ static inline int should_deliver(const struct net_bridge_port *p,
- 
- int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
-+	skb_push(skb, ETH_HLEN);
- 	if (!is_skb_forwardable(skb->dev, skb))
- 		goto drop;
- 
--	skb_push(skb, ETH_HLEN);
- 	br_drop_fake_rtable(skb);
- 
- 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-@@ -97,10 +97,10 @@ static void __br_forward(const struct net_bridge_port *to,
- 		net = dev_net(indev);
- 	} else {
- 		if (unlikely(netpoll_tx_running(to->br->dev))) {
-+			skb_push(skb, ETH_HLEN);
- 			if (!is_skb_forwardable(skb->dev, skb)) {
- 				kfree_skb(skb);
- 			} else {
--				skb_push(skb, ETH_HLEN);
- 				br_netpoll_send_skb(to, skb);
- 			}
- 			return;
--- 
-1.8.3.1
-
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2VyZ2VpIFNodHlseW92
+IFttYWlsdG86c2VyZ2VpLnNodHlseW92QGNvZ2VudGVtYmVkZGVkLmNvbV0NCj4gU2VudDogVHVl
+c2RheSwgSmFudWFyeSAxNSwgMjAxOSA1OjIyIFBNDQo+IFRvOiB3YW5neXVuamlhbiA8d2FuZ3l1
+bmppYW5AaHVhd2VpLmNvbT47IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IHh1ZGluZ2tl
+IDx4dWRpbmdrZUBodWF3ZWkuY29tPjsgYnJpZGdlQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Ow0KPiBOa29sYXkgQWxla3NhbmRyb3YgPG5pa29sYXlAY3VtdWx1c25ldHdvcmtzLmNvbT47IFJv
+b3BhIFByYWJodQ0KPiA8cm9vcGFAY3VtdWx1c25ldHdvcmtzLmNvbT4NCj4gU3ViamVjdDogUmU6
+IFtQQVRDSCBuZXQgdjJdIG5ldDogYnJpZGdlOiBGaXggZXRoZXJuZXQgaGVhZGVyIHBvaW50ZXIg
+YmVmb3JlDQo+IGNoZWNrIHNrYiBmb3J3YXJkYWJsZQ0KPiANCj4gT24gMTUuMDEuMjAxOSA2OjEy
+LCB3YW5neXVuamlhbiB3cm90ZToNCj4gDQo+ID4gRnJvbTogWXVuamlhbiBXYW5nIDx3YW5neXVu
+amlhbkBodWF3ZWkuY29tPg0KPiA+DQo+ID4gVGhlIHNrYiBoZWFkZXIgc2hvdWxkIGJlIHNldCB0
+byBldGhlcm5ldCBoZWFkZXIgYmVmb3JlIHVzaW5nDQo+ID4gaXNfc2tiX2ZvcndhcmRhYmxlLiBC
+ZWNhdXNlIHRoZSBldGhlcm5ldCBoZWFkZXIgbGVuZ3RoIGhhcyBiZWVuDQo+ID4gY29uc2lkZXJl
+ZCBpbiBpc19za2JfZm9yd2FyZGFibGUoaW5jbHVkaW5nIGRldi0+aGFyZF9oZWFkZXJfbGVuDQo+
+ID4gbGVuZ3RoKS4NCj4gPg0KPiA+IFRvIHJlcHJvZHVjZSB0aGUgaXNzdWU6DQo+ID4gMSwgYWRk
+IDIgcG9ydHMgb24gbGludXggYnJpZGdlIGJyIHVzaW5nIGZvbGxvd2luZyBjb21tYW5kczoNCj4g
+PiAkIGJyY3RsIGFkZGJyIGJyDQo+ID4gJCBicmN0bCBhZGRpZiBiciBldGgwDQo+ID4gJCBicmN0
+bCBhZGRpZiBiciBldGgxDQo+ID4gMiwgdGhlIG10dSBvZiBldGgwIGFuZCBldGgxIGlzIDE1MDAN
+Cj4gPiAzLCBzZW5kIGEgMTUwNCBwYWNrZXQgZnJvbSBldGgwIHRvIGV0aDENCj4gPg0KPiA+IFNv
+IHRoZSBleHBlY3QgcmVzdWx0IGlzIHBhY2tldCBsYXJnZXIgdGhhbiAxNTAwIGNhbm5vdCBwYXNz
+IHRocm91Z2gNCj4gPiBldGgwIGFuZCBldGgxLiBCdXQgY3VycmVudGx5LCB0aGUgcGFja2V0IHBh
+c3NlcyB0aHJvdWdoIHN1Y2Nlc3MsIGl0DQo+ID4gbWVhbnMgZXRoMSdzIG10dSBsaW1pdCBkb25l
+bid0IHRha2UgZWZmZWN0Lg0KPiANCj4gICAgIERvZXNuJ3QuIEFuZCBNVFUuDQoNClRoYW5rcywg
+SSB3aWxsIGZpeCB0aGVtIGFuZCBzZW5kIGEgbmV3IHBhdGNoIGxhdGVyLg0KDQpCZXN0IHJlZ2Fy
+ZHMsDQoJWXVuamlhbg0KPiANCj4gPiBGaXhlczogZjYzNjdiNDY2MGRkICgiYnJpZGdlOiB1c2Ug
+aXNfc2tiX2ZvcndhcmRhYmxlIGluIGZvcndhcmQgcGF0aCIpDQo+ID4gQ2M6IGJyaWRnZUBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZw0KPiA+IENjOiBOa29sYXkgQWxla3NhbmRyb3YgPG5pa29s
+YXlAY3VtdWx1c25ldHdvcmtzLmNvbT4NCj4gPiBDYzogUm9vcGEgUHJhYmh1IDxyb29wYUBjdW11
+bHVzbmV0d29ya3MuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IFl1bmppYW4gV2FuZyA8d2FuZ3l1
+bmppYW5AaHVhd2VpLmNvbT4NCj4gWy4uLl0NCj4gDQo+IE1CUiwgU2VyZ2VpDQo=
