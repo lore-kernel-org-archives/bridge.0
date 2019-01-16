@@ -1,16 +1,11 @@
 Return-Path: <wangyunjian@huawei.com>
 From: wangyunjian <wangyunjian@huawei.com>
-Date: Wed, 16 Jan 2019 12:44:16 +0000
-Message-ID: <34EFBCA9F01B0748BEB6B629CE643AE60C9DC941@DGGEMM533-MBX.china.huawei.com>
-References: <1547521959-3736-1-git-send-email-wangyunjian@huawei.com>
-	<fec59e13-bf9b-9bce-c662-3e044ade6c33@lab.ntt.co.jp>
-In-Reply-To: <fec59e13-bf9b-9bce-c662-3e044ade6c33@lab.ntt.co.jp>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Date: Wed, 16 Jan 2019 21:04:21 +0800
+Message-ID: <1547643861-15340-1-git-send-email-wangyunjian@huawei.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net v2] net: bridge: Fix ethernet header
- pointer before check skb forwardable
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net v3] net: bridge: Fix ethernet header pointer
+	before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,39 +14,72 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, xudingke <xudingke@huawei.com>
+To: netdev@vger.kernel.org
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@cumulusnetworks.com>, Yunjian Wang <wangyunjian@huawei.com>, xudingke@huawei.com
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBUb3NoaWFraSBNYWtpdGEgW21h
-aWx0bzptYWtpdGEudG9zaGlha2lAbGFiLm50dC5jby5qcF0NCj4gU2VudDogVHVlc2RheSwgSmFu
-dWFyeSAxNSwgMjAxOSAzOjUwIFBNDQo+IFRvOiB3YW5neXVuamlhbiA8d2FuZ3l1bmppYW5AaHVh
-d2VpLmNvbT4NCj4gQ2M6IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7IHh1ZGluZ2tlIDx4dWRpbmdr
-ZUBodWF3ZWkuY29tPjsNCj4gYnJpZGdlQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnOyBOa29s
-YXkgQWxla3NhbmRyb3YNCj4gPG5pa29sYXlAY3VtdWx1c25ldHdvcmtzLmNvbT47IFJvb3BhIFBy
-YWJodQ0KPiA8cm9vcGFAY3VtdWx1c25ldHdvcmtzLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRD
-SCBuZXQgdjJdIG5ldDogYnJpZGdlOiBGaXggZXRoZXJuZXQgaGVhZGVyIHBvaW50ZXIgYmVmb3Jl
-DQo+IGNoZWNrIHNrYiBmb3J3YXJkYWJsZQ0KPiANCj4gT24gMjAxOS8wMS8xNSAxMjoxMiwgd2Fu
-Z3l1bmppYW4gd3JvdGU6DQo+ID4gRnJvbTogWXVuamlhbiBXYW5nIDx3YW5neXVuamlhbkBodWF3
-ZWkuY29tPg0KPiA+DQo+ID4gVGhlIHNrYiBoZWFkZXIgc2hvdWxkIGJlIHNldCB0byBldGhlcm5l
-dCBoZWFkZXIgYmVmb3JlIHVzaW5nDQo+ID4gaXNfc2tiX2ZvcndhcmRhYmxlLiBCZWNhdXNlIHRo
-ZSBldGhlcm5ldCBoZWFkZXIgbGVuZ3RoIGhhcyBiZWVuDQo+ID4gY29uc2lkZXJlZCBpbiBpc19z
-a2JfZm9yd2FyZGFibGUoaW5jbHVkaW5nIGRldi0+aGFyZF9oZWFkZXJfbGVuDQo+ID4gbGVuZ3Ro
-KS4NCj4gPg0KPiA+IFRvIHJlcHJvZHVjZSB0aGUgaXNzdWU6DQo+ID4gMSwgYWRkIDIgcG9ydHMg
-b24gbGludXggYnJpZGdlIGJyIHVzaW5nIGZvbGxvd2luZyBjb21tYW5kczoNCj4gPiAkIGJyY3Rs
-IGFkZGJyIGJyDQo+ID4gJCBicmN0bCBhZGRpZiBiciBldGgwDQo+ID4gJCBicmN0bCBhZGRpZiBi
-ciBldGgxDQo+ID4gMiwgdGhlIG10dSBvZiBldGgwIGFuZCBldGgxIGlzIDE1MDANCj4gPiAzLCBz
-ZW5kIGEgMTUwNCBwYWNrZXQgZnJvbSBldGgwIHRvIGV0aDENCj4gPg0KPiA+IFNvIHRoZSBleHBl
-Y3QgcmVzdWx0IGlzIHBhY2tldCBsYXJnZXIgdGhhbiAxNTAwIGNhbm5vdCBwYXNzIHRocm91Z2gN
-Cj4gPiBldGgwIGFuZCBldGgxLiBCdXQgY3VycmVudGx5LCB0aGUgcGFja2V0IHBhc3NlcyB0aHJv
-dWdoIHN1Y2Nlc3MsIGl0DQo+ID4gbWVhbnMgZXRoMSdzIG10dSBsaW1pdCBkb25lbid0IHRha2Ug
-ZWZmZWN0Lg0KPiANCj4gSSBhZ3JlZSB3aXRoIHRoZSBjaGFuZ2UgYnV0IHRoaXMgdGVzdCBkb2Vz
-IG5vdCBsb29rIGFwcHJvcHJpYXRlLg0KPiBJbiB0aGUgZmlyc3QgcGxhY2UgaXNfc2tiX2Zvcndh
-cmRhYmxlKCkgYWNjZXB0cyA0IGJ5dGVzIGV4dHJhIHNpemUgKGZvciBWTEFODQo+IGhlYWRlciku
-IERvZXNuJ3QgeW91ciB0ZXN0IGNhc2UgZmFpbCBldmVuIGFmdGVyIHRoZSBjaGFuZ2U/DQo+IA0K
-PiAtLQ0KPiBUb3NoaWFraSBNYWtpdGENCg0KQmVmb3JlIGV4ZWN1dGluZyB0aGUgZnVuY3Rpb25z
-IGlzX3NrYl9mb3J3YXJkYWJsZSgpIGFuZCBza2JfcHVzaCgpLCB0aGUgYWN0dWFsDQpwYWNrZXQg
-Y29uc2lzdCBvZiB0aGUgZm9sbHdpbmcgcGFydHMsIERhdGEgMTQ4MCwgVURQIDgsIElQIDIwLCBF
-dGhlcm5ldCAxNCwgVkxBTiA0Lg0KQW5kIHRoZSB2YWx1ZSBvZiB2YXJpYWJsZXMgYXJlIGRldi0+
-bXR1PTE1MDAsIGRldi0+aGFyZF9oZWFkZXJfbGVuPTE0IGFuZA0Kc2tiLT5sZW49MTUwOC4gVGhl
-IHBhY2tldCBjYW5ub3QgcGFzcyB0aHJvdWdoLg0KDQpJIHdpbGwgZml4IHRoZSBwcmV2aW91cyBk
-ZXNjcmlwdGlvbiBvZiBwYWNrZXQgbGVuLg0KDQpUaGFua3MsDQoJWXVuamlhbg0KDQoNCg0KDQo=
+From: Yunjian Wang <wangyunjian@huawei.com>
+
+The skb header should be set to ethernet header before using
+is_skb_forwardable. Because the ethernet header length has been
+considered in is_skb_forwardable(including dev->hard_header_len
+length).
+
+To reproduce the issue:
+1, add 2 ports on linux bridge br using following commands:
+$ brctl addbr br
+$ brctl addif br eth0
+$ brctl addif br eth1
+2, the MTU of eth0 and eth1 is 1500
+3, send a packet(Data 1480, UDP 8, IP 20, Ethernet 14, VLAN 4)
+from eth0 to eth1
+
+So the expect result is packet larger than 1500 cannot pass through
+eth0 and eth1. But currently, the packet passes through success, it
+means eth1's MTU limit doesn't take effect.
+
+Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
+Cc: bridge@lists.linux-foundation.org
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+---
+v2:
+ -fix commit log and cc the bridge maintainers with fixes tags
+v3:
+ -add detailed description of packet len and construction
+---
+ net/bridge/br_forward.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 5372e20..74b688b 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -36,10 +36,10 @@ static inline int should_deliver(const struct net_bridge_port *p,
+ 
+ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
++	skb_push(skb, ETH_HLEN);
+ 	if (!is_skb_forwardable(skb->dev, skb))
+ 		goto drop;
+ 
+-	skb_push(skb, ETH_HLEN);
+ 	br_drop_fake_rtable(skb);
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+@@ -97,10 +97,10 @@ static void __br_forward(const struct net_bridge_port *to,
+ 		net = dev_net(indev);
+ 	} else {
+ 		if (unlikely(netpoll_tx_running(to->br->dev))) {
++			skb_push(skb, ETH_HLEN);
+ 			if (!is_skb_forwardable(skb->dev, skb)) {
+ 				kfree_skb(skb);
+ 			} else {
+-				skb_push(skb, ETH_HLEN);
+ 				br_netpoll_send_skb(to, skb);
+ 			}
+ 			return;
+-- 
+1.8.3.1
+
+
