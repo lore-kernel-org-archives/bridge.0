@@ -1,14 +1,20 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 17 Jan 2019 21:55:57 -0800 (PST)
-Message-Id: <20190117.215557.221214487674861038.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1547689601-21876-1-git-send-email-wangyunjian@huawei.com>
-References: <1547689601-21876-1-git-send-email-wangyunjian@huawei.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net v4] net: bridge: Fix ethernet header
- pointer before check skb forwardable
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=PlpRXaOWEXwcAymcf+Y5YrE93is1Hpea2xnnnNyhB2E=;
+	b=MJnUClCYu7SeNBzz1CkgHr84/OxFadZAMlBrR/FnfFfDYqZUacWnmgV7hpHmpZZaLI3dd0JVHmQ9b5+HsmoC079Oybv12Au6EIXKmLEYoCanEY53INZjM+6DM5AdTEaYEegeiEyebmnhH2iLzUVmms2SRaFBvBADhG6/HRJDEW4=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Fri, 18 Jan 2019 15:58:00 +0000
+Message-ID: <20190118155719.14827-6-idosch@mellanox.com>
+References: <20190118155719.14827-1-idosch@mellanox.com>
+In-Reply-To: <20190118155719.14827-1-idosch@mellanox.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net 5/8] net: bridge: Mark FDB entries that were
+ added by user as such
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,37 +23,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: wangyunjian@huawei.com
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, xudingke@huawei.com
+To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: mlxsw <mlxsw@mellanox.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Alexander Petrovskiy <alexpe@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-From: wangyunjian <wangyunjian@huawei.com>
-Date: Thu, 17 Jan 2019 09:46:41 +0800
+Externally learned entries can be added by a user or by a switch driver
+that is notifying the bridge driver about entries that were learned in
+hardware.
 
-> From: Yunjian Wang <wangyunjian@huawei.com>
-> 
-> The skb header should be set to ethernet header before using
-> is_skb_forwardable. Because the ethernet header length has been
-> considered in is_skb_forwardable(including dev->hard_header_len
-> length).
-> 
-> To reproduce the issue:
-> 1, add 2 ports on linux bridge br using following commands:
-> $ brctl addbr br
-> $ brctl addif br eth0
-> $ brctl addif br eth1
-> 2, the MTU of eth0 and eth1 is 1500
-> 3, send a packet(Data 1480, UDP 8, IP 20, Ethernet 14, VLAN 4)
-> from eth0 to eth1
-> 
-> So the expect result is packet larger than 1500 cannot pass through
-> eth0 and eth1. But currently, the packet passes through success, it
-> means eth1's MTU limit doesn't take effect.
-> 
-> Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
-> Cc: bridge@lists.linux-foundation.org
-> Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Cc: Stephen Hemminger <stephen@networkplumber.org>
-> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+In the first case, the entries are not marked with the 'added_by_user'
+flag, which causes switch drivers to ignore them and not offload them.
 
-Applied and queued up for -stable.
+The 'added_by_user' flag can be set on externally learned FDB entries
+based on the 'swdev_notify' parameter in br_fdb_external_learn_add(),
+which effectively means if the created / updated FDB entry was added by
+a user or not.
+
+Fixes: 816a3bed9549 ("switchdev: Add fdb.added_by_user to switchdev notific=
+ations")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alexander Petrovskiy <alexpe@mellanox.com>
+Reviewed-by: Petr Machata <petrm@mellanox.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: bridge@lists.linux-foundation.org
+---
+ net/bridge/br_fdb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index fe3c758791ca..9e14767500ea 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1128,6 +1128,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, =
+struct net_bridge_port *p,
+ 			err =3D -ENOMEM;
+ 			goto err_unlock;
+ 		}
++		if (swdev_notify)
++			fdb->added_by_user =3D 1;
+ 		fdb->added_by_external_learn =3D 1;
+ 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	} else {
+@@ -1147,6 +1149,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, =
+struct net_bridge_port *p,
+ 			modified =3D true;
+ 		}
+=20
++		if (swdev_notify)
++			fdb->added_by_user =3D 1;
++
+ 		if (modified)
+ 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	}
+--=20
+2.20.1
+
