@@ -1,24 +1,18 @@
-Return-Path: <xiyou.wangcong@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc; bh=k8AyURSUfvvtyBHOiqahblpUETXFjsE8hPj0kDiMMUc=;
-	b=RvT/tQQgVQ72HJPZL5dTo8f1fd4+wkpo66BCsalxVL5ESX5WTYM3yjHGdSrdMtvC5a
-	QNIdRwa6HgMOo7x8xxURd9NlPPfjoam43p1v/0M5Ef2zTopaaztq3YhdGeigCdXEDTii
-	NFLHYZNgSfWwFAuA2s7JFJZT3gAu4HhJAlII4h7SQ3N1j1i5zDu9b+vYUGqiEDrtuJOm
-	r5IA3dXWvIt7HT6npWvichOxDSC5K2fSQk7dn3Fgl++IXKEQ7O3LLfD7+G8CW4nDZU6D
-	Z81gDeyIJ402nlZxZcVOFHwLNaIEED5z0iw6sBU2fwhXUqlfP+XUoVea6luVyqMvnMcd
-	n7vA==
-MIME-Version: 1.0
+Return-Path: <makita.toshiaki@lab.ntt.co.jp>
 References: <20190113135939.8970-1-zahari.doychev@linux.com>
 	<20190113135939.8970-2-zahari.doychev@linux.com>
 	<7dee9e67-bad5-84eb-9ff1-fa0d0aef8be0@lab.ntt.co.jp>
 	<20190117081707.GA13853@riot>
 	<28ee9bc4-ab7e-285f-50c4-685dd2468cf5@lab.ntt.co.jp>
-In-Reply-To: <28ee9bc4-ab7e-285f-50c4-685dd2468cf5@lab.ntt.co.jp>
-From: Cong Wang <xiyou.wangcong@gmail.com>
-Date: Thu, 17 Jan 2019 11:19:14 -0800
-Message-ID: <CAM_iQpU9NvN8+SG3zTd8QzkD46Way2HppoVAKcLRejZP_fkLhQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+	<CAM_iQpU9NvN8+SG3zTd8QzkD46Way2HppoVAKcLRejZP_fkLhQ@mail.gmail.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Message-ID: <1aae290d-2408-2bd0-cf8a-4dcc9ae6fbd8@lab.ntt.co.jp>
+Date: Fri, 18 Jan 2019 11:29:52 +0900
+MIME-Version: 1.0
+In-Reply-To: <CAM_iQpU9NvN8+SG3zTd8QzkD46Way2HppoVAKcLRejZP_fkLhQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH 1/2] net: bridge: fix tc added QinQ forwarding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -28,72 +22,85 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+To: Cong Wang <xiyou.wangcong@gmail.com>
 Cc: Jiri Pirko <jiri@resnulli.us>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Linux Kernel Network Developers <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Zahari Doychev <zahari.doychev@linux.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Johannes Berg <johannes@sipsolutions.net>
 
-On Thu, Jan 17, 2019 at 12:59 AM Toshiaki Makita
-<makita.toshiaki@lab.ntt.co.jp> wrote:
->
-> On 2019/01/17 17:17, Zahari Doychev wrote:
-> > On Tue, Jan 15, 2019 at 03:11:28PM +0900, Toshiaki Makita wrote:
-> >> On 2019/01/13 22:59, Zahari Doychev wrote:
-> >>> Use the skb->mac_len instead of using the ETH_HLEN when pushing the skb
-> >>> data pointer. This fixes sending incorrect packets when more than one
-> >>> vlan tags are pushed by tc-vlan and the mac header length is bigger than
-> >>> ETH_HLEN. In this way the vlan tagged contained in the skb is inserted at
-> >>> right offset in the packet payload before sending the packet.
-> >>>
-> >>> Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
-> >>> ---
-> >>>  net/bridge/br_forward.c | 2 +-
-> >>>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> >>> index 5372e2042adf..55f928043f77 100644
-> >>> --- a/net/bridge/br_forward.c
-> >>> +++ b/net/bridge/br_forward.c
-> >>> @@ -39,7 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
-> >>>     if (!is_skb_forwardable(skb->dev, skb))
-> >>>             goto drop;
-> >>>
-> >>> -   skb_push(skb, ETH_HLEN);
-> >>> +   skb_push(skb, skb->mac_len);
-> >>>     br_drop_fake_rtable(skb);
-> >>>
-> >>>     if (skb->ip_summed == CHECKSUM_PARTIAL &&
-> >>>
-> >>
-> >> I guess you mean skb->data points to mac_header + ETH_HLEN + VLAN_HLEN
-> >> when bridge receives skbs in br_handle_frame()?
-> >
-> > yes, this is what I see.
-> >
-> >> If so, the behavior of act_vlan is odd. Normal double tagged skbs from
-> >> hardware devices should have skb->data pointing to mac_header + ETH_HLEN
-> >> because they just call eth_type_trans() before entering
-> >> netif_receive_skb()...
-> >> I think act_vlan needs some fix.
-> >
-> > The act_valn is using the skb_vlan_push(...) to add the vlan tags and in this
-> > way increasing the skb->data and mac_len. So I think I can add a fix there to
-> > set the skb->data to point to mac_header + ETH_HLEN when more tags are added.
->
-> As skb->data always points to mac_header after calling skb_vlan_push(),
-> we probably need to remember mac_len before invocation of it?
->
-> The problem should be this part in tcf_vlan_act():
->
-> > out:
-> >       if (skb_at_tc_ingress(skb))
-> >               skb_pull_rcsum(skb, skb->mac_len);
->
-> skb->mac_len should not be used here.
+On 2019/01/18 4:19, Cong Wang wrote:
+> On Thu, Jan 17, 2019 at 12:59 AM Toshiaki Makita
+> <makita.toshiaki@lab.ntt.co.jp> wrote:
+>> On 2019/01/17 17:17, Zahari Doychev wrote:
+>>> On Tue, Jan 15, 2019 at 03:11:28PM +0900, Toshiaki Makita wrote:
+>>>> On 2019/01/13 22:59, Zahari Doychev wrote:
+>>>>> Use the skb->mac_len instead of using the ETH_HLEN when pushing the skb
+>>>>> data pointer. This fixes sending incorrect packets when more than one
+>>>>> vlan tags are pushed by tc-vlan and the mac header length is bigger than
+>>>>> ETH_HLEN. In this way the vlan tagged contained in the skb is inserted at
+>>>>> right offset in the packet payload before sending the packet.
+>>>>>
+>>>>> Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
+>>>>> ---
+>>>>>  net/bridge/br_forward.c | 2 +-
+>>>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+>>>>> index 5372e2042adf..55f928043f77 100644
+>>>>> --- a/net/bridge/br_forward.c
+>>>>> +++ b/net/bridge/br_forward.c
+>>>>> @@ -39,7 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
+>>>>>     if (!is_skb_forwardable(skb->dev, skb))
+>>>>>             goto drop;
+>>>>>
+>>>>> -   skb_push(skb, ETH_HLEN);
+>>>>> +   skb_push(skb, skb->mac_len);
+>>>>>     br_drop_fake_rtable(skb);
+>>>>>
+>>>>>     if (skb->ip_summed == CHECKSUM_PARTIAL &&
+>>>>>
+>>>>
+>>>> I guess you mean skb->data points to mac_header + ETH_HLEN + VLAN_HLEN
+>>>> when bridge receives skbs in br_handle_frame()?
+>>>
+>>> yes, this is what I see.
+>>>
+>>>> If so, the behavior of act_vlan is odd. Normal double tagged skbs from
+>>>> hardware devices should have skb->data pointing to mac_header + ETH_HLEN
+>>>> because they just call eth_type_trans() before entering
+>>>> netif_receive_skb()...
+>>>> I think act_vlan needs some fix.
+>>>
+>>> The act_valn is using the skb_vlan_push(...) to add the vlan tags and in this
+>>> way increasing the skb->data and mac_len. So I think I can add a fix there to
+>>> set the skb->data to point to mac_header + ETH_HLEN when more tags are added.
+>>
+>> As skb->data always points to mac_header after calling skb_vlan_push(),
+>> we probably need to remember mac_len before invocation of it?
+>>
+>> The problem should be this part in tcf_vlan_act():
+>>
+>>> out:
+>>>       if (skb_at_tc_ingress(skb))
+>>>               skb_pull_rcsum(skb, skb->mac_len);
+>>
+>> skb->mac_len should not be used here.
+> 
+> I am confused. This code is to push skb->data back to network header.
+> If skb_vlan_push() pushes skb->data to mac header, then this code
+> is correct for pulling it back to network header, as skb->mac_len is
+> updated accordingly inside skb_vlan_push() too.
+> 
+> What goes wrong here? skb->mac_len isn't correct for double tagging?
 
-I am confused. This code is to push skb->data back to network header.
-If skb_vlan_push() pushes skb->data to mac header, then this code
-is correct for pulling it back to network header, as skb->mac_len is
-updated accordingly inside skb_vlan_push() too.
+Bridge and VLAN code (skb_vlan_untag in __netif_receive_skb_core)
+expects skb->data to point to the start of VLAN header, not the next
+(network) header. After calling tcf_vlan_act() on ingress filter,
+skb->data points to the next of VLAN header (network header), while
+non-hwaccel VLAN packets (including double tagged ones) from NIC drivers
+have skb->data pointing to the start of VLAN header as expected.
 
-What goes wrong here? skb->mac_len isn't correct for double tagging?
+I'm not sure if mac_len should or should not be updated in
+skb_vlan_push(). Anyway IIRC skb_vlan_untag() and bridge code do not
+rely on mac_len so mac_len should not cause problems there.
 
-Thanks.
+-- 
+Toshiaki Makita
+
