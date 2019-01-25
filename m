@@ -1,11 +1,14 @@
-Return-Path: <yuehaibing@huawei.com>
-From: YueHaibing <yuehaibing@huawei.com>
-Date: Fri, 25 Jan 2019 10:59:09 +0800
-Message-ID: <20190125025909.11924-1-yuehaibing@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next] bridge: remove duplicated include from
-	br_multicast.c
+Return-Path: <davem@davemloft.net>
+Date: Thu, 24 Jan 2019 22:52:07 -0800 (PST)
+Message-Id: <20190124.225207.1726248252355452025.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20190125025909.11924-1-yuehaibing@huawei.com>
+References: <20190125025909.11924-1-yuehaibing@huawei.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: remove duplicated include
+ from br_multicast.c
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,29 +17,14 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org
+To: yuehaibing@huawei.com
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Remove duplicated include.
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Fri, 25 Jan 2019 10:59:09 +0800
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
----
- net/bridge/br_multicast.c | 1 -
- 1 file changed, 1 deletion(-)
+> Remove duplicated include.
+> 
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 2c46c7a..780757b 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -35,7 +35,6 @@
- #include <net/mld.h>
- #include <net/ip6_checksum.h>
- #include <net/addrconf.h>
--#include <net/ipv6.h>
- #endif
- 
- #include "br_private.h"
--- 
-2.7.0
-
-
+Applied.
