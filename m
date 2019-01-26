@@ -1,19 +1,19 @@
 Return-Path: <SRS0=QhAl=QC=linuxfoundation.org=gregkh@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548496316;
-	bh=XMzXXUAiSie2sqD0GC9ASnxbtesO+iyoUsX4yl5uOWk=;
+	s=default; t=1548497229;
+	bh=LgJ/bYWCjUpqyU6vFlRfzyUjgg0X9jzznLflOFkoyy4=;
 	h=Subject:To:Cc:From:Date:From;
-	b=vaHblS267Qlb3ZRfNrSfySEMfUKNhxvXmBZPBl6d2nCjl1ZY7Oc2B02CB4BrFyHWq
-	aQcD9cuRPu23F+0+k5b52S5TKPdCSVc4jVSl4Cb6Y3W/40Tth7g9jWbHUK68ACqUMu
-	5aDcNt1i2aRWcyIum570TMOxKM7e9sz+3NICEtCo=
+	b=CwRkelBpp0JlXNSedWMG3H5hPhT8k5Wl92n0JANV6piaCqNqGF20WJ9ekgE0Zcl4+
+	iAx/EEccotmq4zGjGb1Qxi1JIB7lac78v0BXs99i9hEg8nM8S5uszWMwlDy9DnY4vN
+	e+SGNgwh8U66BKG6BdL8kDN4UunLETaHppU1ZsAA=
 From: <gregkh@linuxfoundation.org>
-Date: Sat, 26 Jan 2019 10:51:26 +0100
-Message-ID: <1548496286102101@kroah.com>
+Date: Sat, 26 Jan 2019 11:07:06 +0100
+Message-ID: <154849722649213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Subject: [Bridge] Patch "net: bridge: Fix ethernet header pointer before
-	check skb forwardable" has been added to the 4.14-stable tree
+	check skb forwardable" has been added to the 4.9-stable tree
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,18 +30,18 @@ This is a note to let you know that I've just added the patch titled
 
     net: bridge: Fix ethernet header pointer before check skb forwardable
 
-to the 4.14-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      net-bridge-fix-ethernet-header-pointer-before-check-skb-forwardable.patch
-and it can be found in the queue-4.14 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From foo@baz Sat Jan 26 10:34:35 CET 2019
+From foo@baz Sat Jan 26 10:53:10 CET 2019
 From: Yunjian Wang <wangyunjian@huawei.com>
 Date: Thu, 17 Jan 2019 09:46:41 +0800
 Subject: net: bridge: Fix ethernet header pointer before check skb forwardable
@@ -114,4 +114,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from wangyunjian@huawei.com are
 
-queue-4.14/net-bridge-fix-ethernet-header-pointer-before-check-skb-forwardable.patch
+queue-4.9/net-bridge-fix-ethernet-header-pointer-before-check-skb-forwardable.patch
