@@ -1,10 +1,10 @@
-Return-Path: <32xNOXAkbACQSYZKALLERAPPID.GOOGLEUSERCONTENT.COM@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <3P1RPXAkbAA46CDyozzs5o33wr.u22uzs86s5q217s17.q20@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Date: Sun, 27 Jan 2019 12:26:03 -0800
-Message-ID: <000000000000862b160580765e94@google.com>
-From: syzbot <syzbot+bc5ab0af2dbf3b0ae897@syzkaller.appspotmail.com>
+Date: Mon, 28 Jan 2019 11:13:03 -0800
+Message-ID: <00000000000047d84e058089773f@google.com>
+From: syzbot <syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] KASAN: use-after-free Read in br_mdb_ip_get
+Subject: [Bridge] KMSAN: uninit-value in br_mdb_ip_get
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,235 +13,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
+To: bridge@lists.linux-foundation.org, davem@davemloft.net, glider@google.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
 
 Hello,
 
 syzbot found the following crash on:
 
-HEAD commit:    ba6069759381 Merge tag 'mmc-v5.0-rc2' of git://git.kernel...
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=17b342c4c00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=505743eba4e4f68
-dashboard link: https://syzkaller.appspot.com/bug?extid=bc5ab0af2dbf3b0ae897
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+HEAD commit:    02f2d5aea531 kmsan: (presumably) fix dma_map_page_attrs()
+git tree:       kmsan
+console output: https://syzkaller.appspot.com/x/log.txt?x=173a7310c00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=52c9737ec5618f82
+dashboard link: https://syzkaller.appspot.com/bug?extid=8dfe5ee27aa6d2e396c2
+compiler:       clang version 8.0.0 (trunk 350509)
 
 Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+bc5ab0af2dbf3b0ae897@syzkaller.appspotmail.com
+Reported-by: syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com
 
-bridge0: port 2(bridge_slave_1) entered blocking state
-bridge0: port 2(bridge_slave_1) entered forwarding state
-bridge0: port 1(bridge_slave_0) entered blocking state
-bridge0: port 1(bridge_slave_0) entered forwarding state
 ==================================================================
-BUG: KASAN: use-after-free in memcmp+0xb3/0xc0 lib/string.c:862
-Read of size 1 at addr ffff88809f1efe70 by task syz-executor1/8111
-
-CPU: 0 PID: 8111 Comm: syz-executor1 Not tainted 5.0.0-rc3+ #43
+BUG: KMSAN: uninit-value in __rhashtable_lookup  
+include/linux/rhashtable.h:505 [inline]
+BUG: KMSAN: uninit-value in rhashtable_lookup  
+include/linux/rhashtable.h:534 [inline]
+BUG: KMSAN: uninit-value in br_mdb_ip_get+0x52b/0x740  
+net/bridge/br_multicast.c:97
+CPU: 0 PID: 11379 Comm: udevd Not tainted 5.0.0-rc1+ #7
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
 Call Trace:
   <IRQ>
   __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x1db/0x2d0 lib/dump_stack.c:113
-  print_address_description.cold+0x7c/0x20d mm/kasan/report.c:187
-IPv6: ADDRCONF(NETDEV_UP): bond0: link is not ready
-  kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
-8021q: adding VLAN 0 to HW filter on device bond0
-  __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
-  memcmp+0xb3/0xc0 lib/string.c:862
-  memcmp include/linux/string.h:393 [inline]
-  rhashtable_compare include/linux/rhashtable.h:473 [inline]
-  __rhashtable_lookup include/linux/rhashtable.h:498 [inline]
+  dump_stack+0x173/0x1d0 lib/dump_stack.c:113
+  kmsan_report+0x12e/0x2a0 mm/kmsan/kmsan.c:600
+  __msan_warning+0x82/0xf0 mm/kmsan/kmsan_instr.c:313
+  __rhashtable_lookup include/linux/rhashtable.h:505 [inline]
   rhashtable_lookup include/linux/rhashtable.h:534 [inline]
-  br_mdb_ip_get+0x694/0xe30 net/bridge/br_multicast.c:97
-IPv6: ADDRCONF(NETDEV_UP): veth0: link is not ready
-  br_multicast_new_group+0x77/0x200 net/bridge/br_multicast.c:467
-IPv6: ADDRCONF(NETDEV_UP): team0: link is not ready
-8021q: adding VLAN 0 to HW filter on device team0
-  br_multicast_add_group+0x4ce/0x7d0 net/bridge/br_multicast.c:552
-  br_ip6_multicast_add_group net/bridge/br_multicast.c:626 [inline]
-  br_ip6_multicast_mld2_report net/bridge/br_multicast.c:1043 [inline]
-  br_multicast_ipv6_rcv net/bridge/br_multicast.c:1667 [inline]
-  br_multicast_rcv+0x24aa/0x4270 net/bridge/br_multicast.c:1705
-IPv6: ADDRCONF(NETDEV_UP): hsr0: link is not ready
-IPv6: ADDRCONF(NETDEV_CHANGE): hsr0: link becomes ready
-IPv6: ADDRCONF(NETDEV_UP): vxcan1: link is not ready
-  br_dev_xmit+0x7f4/0x1780 net/bridge/br_device.c:93
-8021q: adding VLAN 0 to HW filter on device batadv0
+  br_mdb_ip_get+0x52b/0x740 net/bridge/br_multicast.c:97
+  br_multicast_new_group+0xa7/0x1640 net/bridge/br_multicast.c:467
+  br_multicast_add_group+0x242/0xf00 net/bridge/br_multicast.c:552
+  br_ip4_multicast_add_group net/bridge/br_multicast.c:606 [inline]
+  br_ip4_multicast_igmp3_report net/bridge/br_multicast.c:972 [inline]
+  br_multicast_ipv4_rcv net/bridge/br_multicast.c:1615 [inline]
+  br_multicast_rcv+0x3a88/0x6560 net/bridge/br_multicast.c:1701
+  br_dev_xmit+0xbc5/0x16a0 net/bridge/br_device.c:93
   __netdev_start_xmit include/linux/netdevice.h:4382 [inline]
   netdev_start_xmit include/linux/netdevice.h:4391 [inline]
   xmit_one net/core/dev.c:3278 [inline]
-  dev_hard_start_xmit+0x261/0xc70 net/core/dev.c:3294
-  __dev_queue_xmit+0x2f8a/0x3a60 net/core/dev.c:3864
-  dev_queue_xmit+0x18/0x20 net/core/dev.c:3897
+  dev_hard_start_xmit+0x604/0xc40 net/core/dev.c:3294
+  __dev_queue_xmit+0x2e48/0x3b80 net/core/dev.c:3864
+  dev_queue_xmit+0x4b/0x60 net/core/dev.c:3897
   neigh_hh_output include/net/neighbour.h:498 [inline]
   neigh_output include/net/neighbour.h:506 [inline]
-  ip6_finish_output2+0x141a/0x28e0 net/ipv6/ip6_output.c:120
-  ip6_finish_output+0x577/0xc30 net/ipv6/ip6_output.c:154
+  ip_finish_output2+0x156d/0x1820 net/ipv4/ip_output.c:229
+  ip_finish_output+0xd2b/0xfd0 net/ipv4/ip_output.c:317
   NF_HOOK_COND include/linux/netfilter.h:278 [inline]
-  ip6_output+0x23c/0xa00 net/ipv6/ip6_output.c:171
+  ip_output+0x53f/0x610 net/ipv4/ip_output.c:405
   dst_output include/net/dst.h:444 [inline]
-  NF_HOOK include/linux/netfilter.h:289 [inline]
-  NF_HOOK include/linux/netfilter.h:283 [inline]
-  mld_sendpack+0xa44/0xfd0 net/ipv6/mcast.c:1683
-  mld_send_cr net/ipv6/mcast.c:1979 [inline]
-  mld_ifc_timer_expire+0x449/0x8a0 net/ipv6/mcast.c:2478
-  call_timer_fn+0x254/0x900 kernel/time/timer.c:1325
+  ip_local_out+0x164/0x1d0 net/ipv4/ip_output.c:124
+  igmpv3_sendpack net/ipv4/igmp.c:417 [inline]
+  igmpv3_send_cr net/ipv4/igmp.c:705 [inline]
+  igmp_ifc_timer_expire+0x12cb/0x1aa0 net/ipv4/igmp.c:793
+  call_timer_fn+0x285/0x600 kernel/time/timer.c:1325
   expire_timers kernel/time/timer.c:1362 [inline]
-  __run_timers+0x6fc/0xd50 kernel/time/timer.c:1681
-  run_timer_softirq+0x52/0xb0 kernel/time/timer.c:1694
-  __do_softirq+0x30b/0xb11 kernel/softirq.c:292
-  invoke_softirq kernel/softirq.c:373 [inline]
-  irq_exit+0x180/0x1d0 kernel/softirq.c:413
-  exiting_irq arch/x86/include/asm/apic.h:536 [inline]
-  smp_apic_timer_interrupt+0x1b7/0x760 arch/x86/kernel/apic/apic.c:1062
-  apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:807
+  __run_timers+0xdb4/0x11d0 kernel/time/timer.c:1681
+  run_timer_softirq+0x2e/0x50 kernel/time/timer.c:1694
+  __do_softirq+0x53f/0x93a kernel/softirq.c:293
+  invoke_softirq kernel/softirq.c:375 [inline]
+  irq_exit+0x214/0x250 kernel/softirq.c:416
+  exiting_irq+0xe/0x10 arch/x86/include/asm/apic.h:536
+  smp_apic_timer_interrupt+0x48/0x70 arch/x86/kernel/apic/apic.c:1064
+  apic_timer_interrupt+0x2e/0x40 arch/x86/entry/entry_64.S:814
   </IRQ>
-RIP: 0010:kasan_check_read+0x0/0x20 mm/kasan/common.c:99
-Code: ef e9 14 eb ff ff 48 8b 73 58 89 c2 48 c7 c7 f0 c2 3c 89 f7 da e8 54  
-69 a2 ff e9 c4 f5 ff ff 90 90 90 90 90 90 90 90 90 90 90 <55> 89 f6 31 d2  
-48 89 e5 48 8b 4d 08 e8 ff 23 00 00 5d c3 0f 1f 00
-IPVS: ftp: loaded support on port[0] = 21
-RSP: 0018:ffff88809e937428 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
-RAX: 0000000000000000 RBX: ffffffff8a318400 RCX: ffffffff8162f642
-RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff8a318400
-RBP: ffff88809e937530 R08: 1ffffffff1463080 R09: fffffbfff1463081
-R10: fffffbfff1463080 R11: ffffffff8a318407 R12: ffff88809ac4c600
-R13: ffff88809e937508 R14: dffffc0000000000 R15: ffffed1013d26e91
-  mutex_optimistic_spin kernel/locking/mutex.c:646 [inline]
-  __mutex_lock_common kernel/locking/mutex.c:928 [inline]
-  __mutex_lock+0x377/0x1670 kernel/locking/mutex.c:1072
-IPVS: ftp: loaded support on port[0] = 21
-  mutex_lock_nested+0x16/0x20 kernel/locking/mutex.c:1087
-  rtnl_lock net/core/rtnetlink.c:77 [inline]
-  rtnetlink_rcv_msg+0x425/0xc30 net/core/rtnetlink.c:5127
-  netlink_rcv_skb+0x17d/0x410 net/netlink/af_netlink.c:2477
-  rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5148
-  netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
-  netlink_unicast+0x574/0x770 net/netlink/af_netlink.c:1336
-  netlink_sendmsg+0xa05/0xf90 net/netlink/af_netlink.c:1917
-  sock_sendmsg_nosec net/socket.c:621 [inline]
-  sock_sendmsg+0xdd/0x130 net/socket.c:631
-  __sys_sendto+0x387/0x5f0 net/socket.c:1788
-  __do_sys_sendto net/socket.c:1800 [inline]
-  __se_sys_sendto net/socket.c:1796 [inline]
-  __x64_sys_sendto+0xe1/0x1a0 net/socket.c:1796
-  do_syscall_64+0x1a3/0x800 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x411fc3
-Code: ff 0f 83 40 18 00 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00  
-83 3d cd 42 64 00 00 75 17 49 89 ca b8 2c 00 00 00 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 11 18 00 00 c3 48 83 ec 08 e8 87 fa ff ff
-RSP: 002b:0000000000a4fb28 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000411fc3
-RDX: 000000000000006c RSI: 0000000000a50070 RDI: 0000000000000003
-RBP: 0000000000000003 R08: 0000000000a4fb30 R09: 000000000000000c
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000a4fef0
-R13: 0000000000a4fbb8 R14: 0000000000a4fc80 R15: 00000000004bcf8a
+RIP: 0010:__msan_chain_origin+0x93/0xe0 mm/kmsan/kmsan_instr.c:201
+Code: 89 f7 e8 f0 e0 ff ff 89 c3 65 ff 0c 25 04 90 03 00 65 8b 04 25 04 90  
+03 00 85 c0 75 30 e8 f5 a2 3f ff 4c 89 7d d0 ff 75 d0 9d <65> 48 8b 04 25  
+28 00 00 00 48 3b 45 e0 75 0d 89 d8 48 83 c4 18 5b
+RSP: 0018:ffff8880a53cf6f0 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000000000 RBX: 00000000a06000af RCX: c7641d3373f0d000
+RDX: 0000000000000003 RSI: 0000000000480020 RDI: 0000000085c0000c
+RBP: ffff8880a53cf720 R08: 0000000000000003 R09: ffff8880a53cf4ac
+R10: ffffffff8ae01788 R11: 0000000000000000 R12: ffff8880a53cfcd0
+R13: ffff8880a53cfcc8 R14: 0000000085c0000c R15: 0000000000000246
+  step_into+0x70c/0x1b90 fs/namei.c:1778
+  walk_component+0x1d0/0xba0 fs/namei.c:1829
+  link_path_walk+0xa9e/0x2160 fs/namei.c:2135
+  path_openat+0x30e/0x6b90 fs/namei.c:3533
+  do_filp_open+0x2b8/0x710 fs/namei.c:3564
+  do_sys_open+0x642/0xa30 fs/open.c:1063
+  __do_sys_open fs/open.c:1081 [inline]
+  __se_sys_open+0xad/0xc0 fs/open.c:1076
+  __x64_sys_open+0x4a/0x70 fs/open.c:1076
+  do_syscall_64+0xbc/0xf0 arch/x86/entry/common.c:291
+  entry_SYSCALL_64_after_hwframe+0x63/0xe7
+RIP: 0033:0x7f4526cc5120
+Code: 48 8b 15 1b 4d 2b 00 f7 d8 64 89 02 83 c8 ff c3 90 90 90 90 90 90 90  
+90 90 90 83 3d d5 a4 2b 00 00 75 10 b8 02 00 00 00 0f 05 <48> 3d 01 f0 ff  
+ff 73 31 c3 48 83 ec 08 e8 5e 8c 01 00 48 89 04 24
+RSP: 002b:00007ffdb010be48 EFLAGS: 00000246 ORIG_RAX: 0000000000000002
+RAX: ffffffffffffffda RBX: 0000000000ee2fd0 RCX: 00007f4526cc5120
+RDX: 00000000000001b6 RSI: 0000000000080000 RDI: 00007ffdb010bf20
+RBP: 00007ffdb010bec0 R08: 0000000000000008 R09: 0000000000000001
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000008
+R13: 000000000041f57a R14: 0000000000ed3250 R15: 000000000000000b
 
-Allocated by task 8111:
-  save_stack+0x45/0xd0 mm/kasan/common.c:73
-  set_track mm/kasan/common.c:85 [inline]
-  __kasan_kmalloc mm/kasan/common.c:496 [inline]
-  __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:469
-  kasan_kmalloc+0x9/0x10 mm/kasan/common.c:504
-  kmem_cache_alloc_trace+0x151/0x760 mm/slab.c:3609
-  kmalloc include/linux/slab.h:545 [inline]
-  kzalloc include/linux/slab.h:740 [inline]
-  br_multicast_new_group.part.0+0xdc/0x1a40 net/bridge/br_multicast.c:476
-  br_multicast_new_group+0x19d/0x200 net/bridge/br_multicast.c:471
-  br_multicast_add_group+0x4ce/0x7d0 net/bridge/br_multicast.c:552
-  br_ip6_multicast_add_group net/bridge/br_multicast.c:626 [inline]
-  br_ip6_multicast_mld2_report net/bridge/br_multicast.c:1043 [inline]
-  br_multicast_ipv6_rcv net/bridge/br_multicast.c:1667 [inline]
-  br_multicast_rcv+0x24aa/0x4270 net/bridge/br_multicast.c:1705
-  br_dev_xmit+0x7f4/0x1780 net/bridge/br_device.c:93
-  __netdev_start_xmit include/linux/netdevice.h:4382 [inline]
-  netdev_start_xmit include/linux/netdevice.h:4391 [inline]
-  xmit_one net/core/dev.c:3278 [inline]
-  dev_hard_start_xmit+0x261/0xc70 net/core/dev.c:3294
-  __dev_queue_xmit+0x2f8a/0x3a60 net/core/dev.c:3864
-  dev_queue_xmit+0x18/0x20 net/core/dev.c:3897
-  neigh_resolve_output net/core/neighbour.c:1476 [inline]
-  neigh_resolve_output+0x6a0/0xb30 net/core/neighbour.c:1456
-  neigh_output include/net/neighbour.h:508 [inline]
-  ip6_finish_output2+0xc56/0x28e0 net/ipv6/ip6_output.c:120
-  ip6_finish_output+0x577/0xc30 net/ipv6/ip6_output.c:154
-  NF_HOOK_COND include/linux/netfilter.h:278 [inline]
-  ip6_output+0x23c/0xa00 net/ipv6/ip6_output.c:171
-  dst_output include/net/dst.h:444 [inline]
-  NF_HOOK include/linux/netfilter.h:289 [inline]
-  NF_HOOK include/linux/netfilter.h:283 [inline]
-  mld_sendpack+0xa44/0xfd0 net/ipv6/mcast.c:1683
-  mld_send_cr net/ipv6/mcast.c:1979 [inline]
-  mld_ifc_timer_expire+0x449/0x8a0 net/ipv6/mcast.c:2478
-  call_timer_fn+0x254/0x900 kernel/time/timer.c:1325
-  expire_timers kernel/time/timer.c:1362 [inline]
-  __run_timers+0x6fc/0xd50 kernel/time/timer.c:1681
-  run_timer_softirq+0x52/0xb0 kernel/time/timer.c:1694
-  __do_softirq+0x30b/0xb11 kernel/softirq.c:292
-
-Freed by task 8111:
-  save_stack+0x45/0xd0 mm/kasan/common.c:73
-  set_track mm/kasan/common.c:85 [inline]
-  __kasan_slab_free+0x102/0x150 mm/kasan/common.c:458
-  kasan_slab_free+0xe/0x10 mm/kasan/common.c:466
-  __cache_free mm/slab.c:3487 [inline]
-  kfree+0xcf/0x230 mm/slab.c:3806
-  br_multicast_new_group.part.0+0x1489/0x1a40 net/bridge/br_multicast.c:486
-  br_multicast_new_group+0x19d/0x200 net/bridge/br_multicast.c:471
-  br_multicast_add_group+0x4ce/0x7d0 net/bridge/br_multicast.c:552
-  br_ip6_multicast_add_group net/bridge/br_multicast.c:626 [inline]
-  br_ip6_multicast_mld2_report net/bridge/br_multicast.c:1043 [inline]
-  br_multicast_ipv6_rcv net/bridge/br_multicast.c:1667 [inline]
-  br_multicast_rcv+0x24aa/0x4270 net/bridge/br_multicast.c:1705
-  br_dev_xmit+0x7f4/0x1780 net/bridge/br_device.c:93
-  __netdev_start_xmit include/linux/netdevice.h:4382 [inline]
-  netdev_start_xmit include/linux/netdevice.h:4391 [inline]
-  xmit_one net/core/dev.c:3278 [inline]
-  dev_hard_start_xmit+0x261/0xc70 net/core/dev.c:3294
-  __dev_queue_xmit+0x2f8a/0x3a60 net/core/dev.c:3864
-  dev_queue_xmit+0x18/0x20 net/core/dev.c:3897
-  neigh_resolve_output net/core/neighbour.c:1476 [inline]
-  neigh_resolve_output+0x6a0/0xb30 net/core/neighbour.c:1456
-  neigh_output include/net/neighbour.h:508 [inline]
-  ip6_finish_output2+0xc56/0x28e0 net/ipv6/ip6_output.c:120
-  ip6_finish_output+0x577/0xc30 net/ipv6/ip6_output.c:154
-  NF_HOOK_COND include/linux/netfilter.h:278 [inline]
-  ip6_output+0x23c/0xa00 net/ipv6/ip6_output.c:171
-  dst_output include/net/dst.h:444 [inline]
-  NF_HOOK include/linux/netfilter.h:289 [inline]
-  NF_HOOK include/linux/netfilter.h:283 [inline]
-  mld_sendpack+0xa44/0xfd0 net/ipv6/mcast.c:1683
-  mld_send_cr net/ipv6/mcast.c:1979 [inline]
-  mld_ifc_timer_expire+0x449/0x8a0 net/ipv6/mcast.c:2478
-  call_timer_fn+0x254/0x900 kernel/time/timer.c:1325
-  expire_timers kernel/time/timer.c:1362 [inline]
-  __run_timers+0x6fc/0xd50 kernel/time/timer.c:1681
-  run_timer_softirq+0x52/0xb0 kernel/time/timer.c:1694
-  __do_softirq+0x30b/0xb11 kernel/softirq.c:292
-
-The buggy address belongs to the object at ffff88809f1efe00
-  which belongs to the cache kmalloc-192 of size 192
-The buggy address is located 112 bytes inside of
-  192-byte region [ffff88809f1efe00, ffff88809f1efec0)
-The buggy address belongs to the page:
-page:ffffea00027c7bc0 count:1 mapcount:0 mapping:ffff88812c3f0040 index:0x0
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea00027df108 ffffea00027c7c48 ffff88812c3f0040
-raw: 0000000000000000 ffff88809f1ef000 0000000100000010 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff88809f1efd00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff88809f1efd80: 00 00 fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> ffff88809f1efe00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                                              ^
-  ffff88809f1efe80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-  ffff88809f1eff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Local variable description: ----br_group.i.i@br_multicast_rcv
+Variable was created at:
+  br_multicast_rcv+0x1e7/0x6560 net/bridge/br_multicast.c:1690
+  br_dev_xmit+0xbc5/0x16a0 net/bridge/br_device.c:93
 ==================================================================
 
 
