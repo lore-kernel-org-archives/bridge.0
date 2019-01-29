@@ -1,21 +1,21 @@
 Return-Path: <SRS0=Yq8B=QF=linuxfoundation.org=gregkh@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548762480;
-	bh=jgNwobwcjuBaBKgm/XiNIytbEiXvDmy8fmeVvY7bxz8=;
+	s=default; t=1548762644;
+	bh=AFyzQwdmwwoIk+2NzayeE0HLrbyAZ6pqw3LqqChiMRE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=orOMEhiYZW3g3SMAdY+U3nK2paWGsj++/A0HEEoiJ/wzxZvn6+3bUIutez631udc9
-	uovKRDwtE8nAO6U+VRZcxFZhcuLzW/m+urZEeVFq+5p7au6AB+X92KjQsx3hbr24G/
-	OkGg3tkFiHurT2A1XV937K1kLdOlD9jJcoJo8Wmg=
+	b=j+L7sV9hJjIqziDyKlqjJvfzxHOQv9+bDq7k8JTgHW007gL35LXJQg+J5Ttdqt9Ng
+	mgtSYchw97ErSvhoJ/j67s8SenZaOHdnVNimd5unnc7A3gLEvbtRfCfykGeds6i/Ds
+	A1vZ6VRXbOc0vn6kK8lrRrNIVVDQMyxSQM0PPr5o=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Tue, 29 Jan 2019 12:35:24 +0100
-Message-Id: <20190129113131.910742749@linuxfoundation.org>
-In-Reply-To: <20190129113131.751891514@linuxfoundation.org>
-References: <20190129113131.751891514@linuxfoundation.org>
+Date: Tue, 29 Jan 2019 12:35:56 +0100
+Message-Id: <20190129113140.009177508@linuxfoundation.org>
+In-Reply-To: <20190129113139.826927690@linuxfoundation.org>
+References: <20190129113139.826927690@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.14 02/68] net: bridge: Fix ethernet header
-	pointer before check skb forwardable
+Subject: [Bridge] [PATCH 4.9 01/44] net: bridge: Fix ethernet header pointer
+	before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,7 +27,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org
 Cc: Yunjian Wang <wangyunjian@huawei.com>, Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-4.14-stable review patch.  If anyone has any objections, please let me know.
+4.9-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
