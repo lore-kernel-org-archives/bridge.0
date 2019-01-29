@@ -1,20 +1,20 @@
 Return-Path: <SRS0=Yq8B=QF=linuxfoundation.org=gregkh@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548762183;
-	bh=9upuF7YskzAF/N+K6UAu+yo2Z05r7ZlR3kKQqjFGeQM=;
+	s=default; t=1548762480;
+	bh=jgNwobwcjuBaBKgm/XiNIytbEiXvDmy8fmeVvY7bxz8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=P1Oqx1lOofCTQmogV9dZRWJK0MAwoDiLM6qwRZo8BGIe2l1jUwqyGH4B8hQmzJ+F8
-	Sdo+eSC0SN24Kw+IUsGBx2ze9DU8nUZLTk113uKpxYG8wuAO6NbZE+24ASwPylxmlQ
-	Z+XPeOKgnVKAvyX2rCcJ+R9nY0nBo/qcy22wXess=
+	b=orOMEhiYZW3g3SMAdY+U3nK2paWGsj++/A0HEEoiJ/wzxZvn6+3bUIutez631udc9
+	uovKRDwtE8nAO6U+VRZcxFZhcuLzW/m+urZEeVFq+5p7au6AB+X92KjQsx3hbr24G/
+	OkGg3tkFiHurT2A1XV937K1kLdOlD9jJcoJo8Wmg=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Tue, 29 Jan 2019 12:34:39 +0100
-Message-Id: <20190129113159.708370663@linuxfoundation.org>
-In-Reply-To: <20190129113159.567154026@linuxfoundation.org>
-References: <20190129113159.567154026@linuxfoundation.org>
+Date: Tue, 29 Jan 2019 12:35:24 +0100
+Message-Id: <20190129113131.910742749@linuxfoundation.org>
+In-Reply-To: <20190129113131.751891514@linuxfoundation.org>
+References: <20190129113131.751891514@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.19 002/103] net: bridge: Fix ethernet header
+Subject: [Bridge] [PATCH 4.14 02/68] net: bridge: Fix ethernet header
 	pointer before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -27,7 +27,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org
 Cc: Yunjian Wang <wangyunjian@huawei.com>, Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-4.19-stable review patch.  If anyone has any objections, please let me know.
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -67,7 +67,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
-@@ -36,10 +36,10 @@ static inline int should_deliver(const s
+@@ -35,10 +35,10 @@ static inline int should_deliver(const s
  
  int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
  {
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	br_drop_fake_rtable(skb);
  
  	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-@@ -98,12 +98,11 @@ static void __br_forward(const struct ne
+@@ -96,12 +96,11 @@ static void __br_forward(const struct ne
  		net = dev_net(indev);
  	} else {
  		if (unlikely(netpoll_tx_running(to->br->dev))) {
