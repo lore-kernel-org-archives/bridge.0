@@ -1,20 +1,20 @@
 Return-Path: <SRS0=Yq8B=QF=linuxfoundation.org=gregkh@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1548761842;
-	bh=2DmXRyYUIeMjxBiT4vb6bVZGsyAqiJROZFItrW7ii/Y=;
+	s=default; t=1548762183;
+	bh=9upuF7YskzAF/N+K6UAu+yo2Z05r7ZlR3kKQqjFGeQM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Nq9fPzCOoRO+gBP0a5Qiv40EJHtSeyS/6G0uFq13yNTOSS3E4okJBt8HYDq7uPoB6
-	Acp9W8baVAXTTwZSnxy0YCLe7krJj+KuWMeOnxSuuiKoItXtBIxTrtSIzn16ztsCdS
-	KCAo0H+dAVoi3JSg059NoEkoUWgenoOjVX6jAADk=
+	b=P1Oqx1lOofCTQmogV9dZRWJK0MAwoDiLM6qwRZo8BGIe2l1jUwqyGH4B8hQmzJ+F8
+	Sdo+eSC0SN24Kw+IUsGBx2ze9DU8nUZLTk113uKpxYG8wuAO6NbZE+24ASwPylxmlQ
+	Z+XPeOKgnVKAvyX2rCcJ+R9nY0nBo/qcy22wXess=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Tue, 29 Jan 2019 12:34:13 +0100
-Message-Id: <20190129113207.620772545@linuxfoundation.org>
-In-Reply-To: <20190129113207.477505932@linuxfoundation.org>
-References: <20190129113207.477505932@linuxfoundation.org>
+Date: Tue, 29 Jan 2019 12:34:39 +0100
+Message-Id: <20190129113159.708370663@linuxfoundation.org>
+In-Reply-To: <20190129113159.567154026@linuxfoundation.org>
+References: <20190129113159.567154026@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.20 002/117] net: bridge: Fix ethernet header
+Subject: [Bridge] [PATCH 4.19 002/103] net: bridge: Fix ethernet header
 	pointer before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -27,7 +27,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org
 Cc: Yunjian Wang <wangyunjian@huawei.com>, Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-4.20-stable review patch.  If anyone has any objections, please let me know.
+4.19-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
