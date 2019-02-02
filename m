@@ -1,10 +1,21 @@
-Return-Path: <3P1RPXAkbAA46CDyozzs5o33wr.u22uzs86s5q217s17.q20@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding;
+	bh=o+wUJUeSoCHA36NBRl+IpmDJMFkYg49RawpkDbb6XaM=;
+	b=WIFyF9EkzeZDrCH+OxgBqb06++6YLZsEYxMV/Ne+ArW4OWZfJ2ZxpkqJahHHZrhNg7
+	hrOGBQ3O0D81Ha660nKXYzN8kN+ED85P1jxC3iBvMgdcZbjODnjl4CaDwlzKdC807HHN
+	s8XYGYewlS0SrojoIzJ4trPoL5vj/4KaPqDJJgR92NgUUtl994Zp6gwJONqRyDw9sgKX
+	21WoFdCPSwYvrNA9vYZ51GoU59Q+u5ta8Wl3cCBOD5kAuXN1SEGzIIzv/JnC7xDRmxZF
+	nYwxo6BiPvy2iOeq9Z71/4TKTTyS+G0xPdVYgXTtPoBAhdhb+itNeIMXyw225EwCcV03
+	dzfw==
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Fri,  1 Feb 2019 20:20:52 -0800
+Message-Id: <20190202042055.27202-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
-Date: Mon, 28 Jan 2019 11:13:03 -0800
-Message-ID: <00000000000047d84e058089773f@google.com>
-From: syzbot <syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] KMSAN: uninit-value in br_mdb_ip_get
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next] net: Fix ip_mc_{dec,
+	inc}_group allocation context
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,122 +24,233 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, davem@davemloft.net, glider@google.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
+To: netdev@vger.kernel.org
+Cc: andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, Stefano Brivio <sbrivio@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Hangbin Liu <liuhangbin@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "David S. Miller" <davem@davemloft.net>
 
-Hello,
+After 4effd28c1245 ("bridge: join all-snoopers multicast address"), I
+started seeing the following sleep in atomic warnings:
 
-syzbot found the following crash on:
+[   26.763893] BUG: sleeping function called from invalid context at mm/slab.h:421
+[   26.771425] in_atomic(): 1, irqs_disabled(): 0, pid: 1658, name: sh
+[   26.777855] INFO: lockdep is turned off.
+[   26.781916] CPU: 0 PID: 1658 Comm: sh Not tainted 5.0.0-rc4 #20
+[   26.787943] Hardware name: BCM97278SV (DT)
+[   26.792118] Call trace:
+[   26.794645]  dump_backtrace+0x0/0x170
+[   26.798391]  show_stack+0x24/0x30
+[   26.801787]  dump_stack+0xa4/0xe4
+[   26.805182]  ___might_sleep+0x208/0x218
+[   26.809102]  __might_sleep+0x78/0x88
+[   26.812762]  kmem_cache_alloc_trace+0x64/0x28c
+[   26.817301]  igmp_group_dropped+0x150/0x230
+[   26.821573]  ip_mc_dec_group+0x1b0/0x1f8
+[   26.825585]  br_ip4_multicast_leave_snoopers.isra.11+0x174/0x190
+[   26.831704]  br_multicast_toggle+0x78/0xcc
+[   26.835887]  store_bridge_parm+0xc4/0xfc
+[   26.839894]  multicast_snooping_store+0x3c/0x4c
+[   26.844517]  dev_attr_store+0x44/0x5c
+[   26.848262]  sysfs_kf_write+0x50/0x68
+[   26.852006]  kernfs_fop_write+0x14c/0x1b4
+[   26.856102]  __vfs_write+0x60/0x190
+[   26.859668]  vfs_write+0xc8/0x168
+[   26.863059]  ksys_write+0x70/0xc8
+[   26.866449]  __arm64_sys_write+0x24/0x30
+[   26.870458]  el0_svc_common+0xa0/0x11c
+[   26.874291]  el0_svc_handler+0x38/0x70
+[   26.878120]  el0_svc+0x8/0xc
 
-HEAD commit:    02f2d5aea531 kmsan: (presumably) fix dma_map_page_attrs()
-git tree:       kmsan
-console output: https://syzkaller.appspot.com/x/log.txt?x=173a7310c00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=52c9737ec5618f82
-dashboard link: https://syzkaller.appspot.com/bug?extid=8dfe5ee27aa6d2e396c2
-compiler:       clang version 8.0.0 (trunk 350509)
+while toggling the bridge's multicast_snooping attribute dynamically.
 
-Unfortunately, I don't have any reproducer for this crash yet.
+Pass a gfp_t down to igmpv3_add_delrec(), introduce
+__igmp_group_dropped() and introduce __ip_mc_dec_group() to take a gfp_t
+argument.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com
+Similarly introduce ____ip_mc_inc_group() and __ip_mc_inc_group() to
+allow caller to specify gfp_t.
 
-==================================================================
-BUG: KMSAN: uninit-value in __rhashtable_lookup  
-include/linux/rhashtable.h:505 [inline]
-BUG: KMSAN: uninit-value in rhashtable_lookup  
-include/linux/rhashtable.h:534 [inline]
-BUG: KMSAN: uninit-value in br_mdb_ip_get+0x52b/0x740  
-net/bridge/br_multicast.c:97
-CPU: 0 PID: 11379 Comm: udevd Not tainted 5.0.0-rc1+ #7
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  <IRQ>
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x173/0x1d0 lib/dump_stack.c:113
-  kmsan_report+0x12e/0x2a0 mm/kmsan/kmsan.c:600
-  __msan_warning+0x82/0xf0 mm/kmsan/kmsan_instr.c:313
-  __rhashtable_lookup include/linux/rhashtable.h:505 [inline]
-  rhashtable_lookup include/linux/rhashtable.h:534 [inline]
-  br_mdb_ip_get+0x52b/0x740 net/bridge/br_multicast.c:97
-  br_multicast_new_group+0xa7/0x1640 net/bridge/br_multicast.c:467
-  br_multicast_add_group+0x242/0xf00 net/bridge/br_multicast.c:552
-  br_ip4_multicast_add_group net/bridge/br_multicast.c:606 [inline]
-  br_ip4_multicast_igmp3_report net/bridge/br_multicast.c:972 [inline]
-  br_multicast_ipv4_rcv net/bridge/br_multicast.c:1615 [inline]
-  br_multicast_rcv+0x3a88/0x6560 net/bridge/br_multicast.c:1701
-  br_dev_xmit+0xbc5/0x16a0 net/bridge/br_device.c:93
-  __netdev_start_xmit include/linux/netdevice.h:4382 [inline]
-  netdev_start_xmit include/linux/netdevice.h:4391 [inline]
-  xmit_one net/core/dev.c:3278 [inline]
-  dev_hard_start_xmit+0x604/0xc40 net/core/dev.c:3294
-  __dev_queue_xmit+0x2e48/0x3b80 net/core/dev.c:3864
-  dev_queue_xmit+0x4b/0x60 net/core/dev.c:3897
-  neigh_hh_output include/net/neighbour.h:498 [inline]
-  neigh_output include/net/neighbour.h:506 [inline]
-  ip_finish_output2+0x156d/0x1820 net/ipv4/ip_output.c:229
-  ip_finish_output+0xd2b/0xfd0 net/ipv4/ip_output.c:317
-  NF_HOOK_COND include/linux/netfilter.h:278 [inline]
-  ip_output+0x53f/0x610 net/ipv4/ip_output.c:405
-  dst_output include/net/dst.h:444 [inline]
-  ip_local_out+0x164/0x1d0 net/ipv4/ip_output.c:124
-  igmpv3_sendpack net/ipv4/igmp.c:417 [inline]
-  igmpv3_send_cr net/ipv4/igmp.c:705 [inline]
-  igmp_ifc_timer_expire+0x12cb/0x1aa0 net/ipv4/igmp.c:793
-  call_timer_fn+0x285/0x600 kernel/time/timer.c:1325
-  expire_timers kernel/time/timer.c:1362 [inline]
-  __run_timers+0xdb4/0x11d0 kernel/time/timer.c:1681
-  run_timer_softirq+0x2e/0x50 kernel/time/timer.c:1694
-  __do_softirq+0x53f/0x93a kernel/softirq.c:293
-  invoke_softirq kernel/softirq.c:375 [inline]
-  irq_exit+0x214/0x250 kernel/softirq.c:416
-  exiting_irq+0xe/0x10 arch/x86/include/asm/apic.h:536
-  smp_apic_timer_interrupt+0x48/0x70 arch/x86/kernel/apic/apic.c:1064
-  apic_timer_interrupt+0x2e/0x40 arch/x86/entry/entry_64.S:814
-  </IRQ>
-RIP: 0010:__msan_chain_origin+0x93/0xe0 mm/kmsan/kmsan_instr.c:201
-Code: 89 f7 e8 f0 e0 ff ff 89 c3 65 ff 0c 25 04 90 03 00 65 8b 04 25 04 90  
-03 00 85 c0 75 30 e8 f5 a2 3f ff 4c 89 7d d0 ff 75 d0 9d <65> 48 8b 04 25  
-28 00 00 00 48 3b 45 e0 75 0d 89 d8 48 83 c4 18 5b
-RSP: 0018:ffff8880a53cf6f0 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
-RAX: 0000000000000000 RBX: 00000000a06000af RCX: c7641d3373f0d000
-RDX: 0000000000000003 RSI: 0000000000480020 RDI: 0000000085c0000c
-RBP: ffff8880a53cf720 R08: 0000000000000003 R09: ffff8880a53cf4ac
-R10: ffffffff8ae01788 R11: 0000000000000000 R12: ffff8880a53cfcd0
-R13: ffff8880a53cfcc8 R14: 0000000085c0000c R15: 0000000000000246
-  step_into+0x70c/0x1b90 fs/namei.c:1778
-  walk_component+0x1d0/0xba0 fs/namei.c:1829
-  link_path_walk+0xa9e/0x2160 fs/namei.c:2135
-  path_openat+0x30e/0x6b90 fs/namei.c:3533
-  do_filp_open+0x2b8/0x710 fs/namei.c:3564
-  do_sys_open+0x642/0xa30 fs/open.c:1063
-  __do_sys_open fs/open.c:1081 [inline]
-  __se_sys_open+0xad/0xc0 fs/open.c:1076
-  __x64_sys_open+0x4a/0x70 fs/open.c:1076
-  do_syscall_64+0xbc/0xf0 arch/x86/entry/common.c:291
-  entry_SYSCALL_64_after_hwframe+0x63/0xe7
-RIP: 0033:0x7f4526cc5120
-Code: 48 8b 15 1b 4d 2b 00 f7 d8 64 89 02 83 c8 ff c3 90 90 90 90 90 90 90  
-90 90 90 83 3d d5 a4 2b 00 00 75 10 b8 02 00 00 00 0f 05 <48> 3d 01 f0 ff  
-ff 73 31 c3 48 83 ec 08 e8 5e 8c 01 00 48 89 04 24
-RSP: 002b:00007ffdb010be48 EFLAGS: 00000246 ORIG_RAX: 0000000000000002
-RAX: ffffffffffffffda RBX: 0000000000ee2fd0 RCX: 00007f4526cc5120
-RDX: 00000000000001b6 RSI: 0000000000080000 RDI: 00007ffdb010bf20
-RBP: 00007ffdb010bec0 R08: 0000000000000008 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000008
-R13: 000000000041f57a R14: 0000000000ed3250 R15: 000000000000000b
+IPv6 part of the patch appears fine.
 
-Local variable description: ----br_group.i.i@br_multicast_rcv
-Variable was created at:
-  br_multicast_rcv+0x1e7/0x6560 net/bridge/br_multicast.c:1690
-  br_dev_xmit+0xbc5/0x16a0 net/bridge/br_device.c:93
-==================================================================
-
-
+Fixes: 4effd28c1245 ("bridge: join all-snoopers multicast address")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Reproducer:
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
-syzbot.
+brctl addbr br0
+brctl addif br0 eth0
+ip link set dev br0 up
+ip link set dev eth0 up
+ip ro add 226.94.1.1/32 dev br0
+echo 0 > /sys/class/net/br0/bridge/multicast_snooping
+echo 1 > /sys/class/net/br0/bridge/multicast_snooping
+
+ include/linux/igmp.h      |  8 +++++++-
+ net/bridge/br_multicast.c |  4 ++--
+ net/ipv4/igmp.c           | 35 ++++++++++++++++++++++++-----------
+ 3 files changed, 33 insertions(+), 14 deletions(-)
+
+diff --git a/include/linux/igmp.h b/include/linux/igmp.h
+index 8b4348f69bc5..cc85f4524dbf 100644
+--- a/include/linux/igmp.h
++++ b/include/linux/igmp.h
+@@ -137,7 +137,13 @@ extern void ip_mc_up(struct in_device *);
+ extern void ip_mc_down(struct in_device *);
+ extern void ip_mc_unmap(struct in_device *);
+ extern void ip_mc_remap(struct in_device *);
+-extern void ip_mc_dec_group(struct in_device *in_dev, __be32 addr);
++extern void __ip_mc_dec_group(struct in_device *in_dev, __be32 addr, gfp_t gfp);
++static inline void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
++{
++	return __ip_mc_dec_group(in_dev, addr, GFP_KERNEL);
++}
++extern void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
++			      gfp_t gfp);
+ extern void ip_mc_inc_group(struct in_device *in_dev, __be32 addr);
+ int ip_mc_check_igmp(struct sk_buff *skb);
+ 
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 780757b7a82f..1fb885a33c66 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1841,7 +1841,7 @@ static void br_ip4_multicast_join_snoopers(struct net_bridge *br)
+ 	if (!in_dev)
+ 		return;
+ 
+-	ip_mc_inc_group(in_dev, htonl(INADDR_ALLSNOOPERS_GROUP));
++	__ip_mc_inc_group(in_dev, htonl(INADDR_ALLSNOOPERS_GROUP), GFP_ATOMIC);
+ 	in_dev_put(in_dev);
+ }
+ 
+@@ -1872,7 +1872,7 @@ static void br_ip4_multicast_leave_snoopers(struct net_bridge *br)
+ 	if (WARN_ON(!in_dev))
+ 		return;
+ 
+-	ip_mc_dec_group(in_dev, htonl(INADDR_ALLSNOOPERS_GROUP));
++	__ip_mc_dec_group(in_dev, htonl(INADDR_ALLSNOOPERS_GROUP), GFP_ATOMIC);
+ 	in_dev_put(in_dev);
+ }
+ 
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index a40e48ded10d..b448cf32296c 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -159,7 +159,8 @@ static int unsolicited_report_interval(struct in_device *in_dev)
+ 	return interval_jiffies;
+ }
+ 
+-static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im);
++static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im,
++			      gfp_t gfp);
+ static void igmpv3_del_delrec(struct in_device *in_dev, struct ip_mc_list *im);
+ static void igmpv3_clear_delrec(struct in_device *in_dev);
+ static int sf_setstate(struct ip_mc_list *pmc);
+@@ -1145,7 +1146,8 @@ static void ip_mc_filter_del(struct in_device *in_dev, __be32 addr)
+ /*
+  * deleted ip_mc_list manipulation
+  */
+-static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im)
++static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im,
++			      gfp_t gfp)
+ {
+ 	struct ip_mc_list *pmc;
+ 	struct net *net = dev_net(in_dev->dev);
+@@ -1156,7 +1158,7 @@ static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im)
+ 	 * for deleted items allows change reports to use common code with
+ 	 * non-deleted or query-response MCA's.
+ 	 */
+-	pmc = kzalloc(sizeof(*pmc), GFP_KERNEL);
++	pmc = kzalloc(sizeof(*pmc), gfp);
+ 	if (!pmc)
+ 		return;
+ 	spin_lock_init(&pmc->lock);
+@@ -1261,7 +1263,7 @@ static void igmpv3_clear_delrec(struct in_device *in_dev)
+ }
+ #endif
+ 
+-static void igmp_group_dropped(struct ip_mc_list *im)
++static void __igmp_group_dropped(struct ip_mc_list *im, gfp_t gfp)
+ {
+ 	struct in_device *in_dev = im->interface;
+ #ifdef CONFIG_IP_MULTICAST
+@@ -1292,13 +1294,18 @@ static void igmp_group_dropped(struct ip_mc_list *im)
+ 			return;
+ 		}
+ 		/* IGMPv3 */
+-		igmpv3_add_delrec(in_dev, im);
++		igmpv3_add_delrec(in_dev, im, gfp);
+ 
+ 		igmp_ifc_event(in_dev);
+ 	}
+ #endif
+ }
+ 
++static void igmp_group_dropped(struct ip_mc_list *im)
++{
++	__igmp_group_dropped(im, GFP_KERNEL);
++}
++
+ static void igmp_group_added(struct ip_mc_list *im)
+ {
+ 	struct in_device *in_dev = im->interface;
+@@ -1400,8 +1407,8 @@ static void ip_mc_hash_remove(struct in_device *in_dev,
+ /*
+  *	A socket has joined a multicast group on device dev.
+  */
+-static void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
+-			      unsigned int mode)
++static void ____ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
++				unsigned int mode, gfp_t gfp)
+ {
+ 	struct ip_mc_list *im;
+ 
+@@ -1415,7 +1422,7 @@ static void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
+ 		}
+ 	}
+ 
+-	im = kzalloc(sizeof(*im), GFP_KERNEL);
++	im = kzalloc(sizeof(*im), gfp);
+ 	if (!im)
+ 		goto out;
+ 
+@@ -1448,6 +1455,12 @@ static void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
+ 	return;
+ }
+ 
++void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr, gfp_t gfp)
++{
++	____ip_mc_inc_group(in_dev, addr, MCAST_EXCLUDE, gfp);
++}
++EXPORT_SYMBOL(__ip_mc_inc_group);
++
+ void ip_mc_inc_group(struct in_device *in_dev, __be32 addr)
+ {
+ 	__ip_mc_inc_group(in_dev, addr, MCAST_EXCLUDE);
+@@ -1634,7 +1647,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
+  *	A socket has left a multicast group on device dev
+  */
+ 
+-void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
++void __ip_mc_dec_group(struct in_device *in_dev, __be32 addr, gfp_t gfp)
+ {
+ 	struct ip_mc_list *i;
+ 	struct ip_mc_list __rcu **ip;
+@@ -1649,7 +1662,7 @@ void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
+ 				ip_mc_hash_remove(in_dev, i);
+ 				*ip = i->next_rcu;
+ 				in_dev->mc_count--;
+-				igmp_group_dropped(i);
++				__igmp_group_dropped(i, gfp);
+ 				ip_mc_clear_src(i);
+ 
+ 				if (!in_dev->dead)
+@@ -1662,7 +1675,7 @@ void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
+ 		}
+ 	}
+ }
+-EXPORT_SYMBOL(ip_mc_dec_group);
++EXPORT_SYMBOL(__ip_mc_dec_group);
+ 
+ /* Device changing type */
+ 
+-- 
+2.19.1
+
