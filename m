@@ -1,19 +1,19 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=rYdUgC9RVTBKqyMV2Vx83GDkk76D76+ciM07QaCb+88=;
-	b=mir71blE017ZsSA3Uc7/KzC1wcYkoFEBY0IcsPwjtHwLIJ92WQFsvoBqtZjsAxN1xw
-	UdWX+8WmwaIbMb3SmkznHoKCP3Oltz+X1KxI8o2H7RlG2u25zCcASNx5+teTxaRqRY45
-	HzvotFrI3L48PJFPPPHH8J37B/QqtD0vIUvCvUYjlySGU4fMT9Peywn2pX9LHN8S9jIL
-	LugwDkAi8Lz68xwUJBux3VcMNZN8IZ7VcFiKltrs+cXZOn4bgAshLnh6szkURh5x/gFr
-	zVpLvqwjMwA6DN0FzDxhCoV7a+v6i11BirW0dKpYzUdtoJyqe5UBmWyrNPi4L9xdOOjL
-	Z8+w==
+	bh=I7rRGkpXq7CkNzOX7vahMr99VKUy5W50XI5Z7ov8fk4=;
+	b=uXvAX9f8MXyVBj4il+aU680EQYfn682FYCpvlogcZjqFlWSro7hHZIaDdisvKKR7CZ
+	gC0yhdu/mPz0MJ/fvh177zcu5hx77Fi38g+0+GAAq+rBV9pKGaYw/DBrGESG4J/8mu1V
+	z63eoBYqJ18dLxnXG1sw3pyfc/URj5NnQ/FSIYE3/p6HjyesQRxAuW1ai1IThLxLjHkI
+	Pb7paN9/VqSUIK+8b0zuMcZ+Jy3gS/0JTcRjX9dJc2ai7UB7W1RdIlXe8idGR4djv+OS
+	p1W2FmIHuwcq6YUbOBkqjR0X1CJvlQVCzXKvNkXn2lap3O9cRKD3GrtCG6rWvoSd8cj/
+	TRpQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Mon,  4 Feb 2019 15:36:28 -0800
-Message-Id: <20190204233633.20421-8-f.fainelli@gmail.com>
+Date: Mon,  4 Feb 2019 15:36:29 -0800
+Message-Id: <20190204233633.20421-9-f.fainelli@gmail.com>
 In-Reply-To: <20190204233633.20421-1-f.fainelli@gmail.com>
 References: <20190204233633.20421-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH 07/12] nfp: Implement ndo_get_port_parent_id()
+Subject: [Bridge] [PATCH 08/12] rocker: Implement ndo_get_port_parent_id()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,150 +25,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, John Hurley <john.hurley@netronome.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, Eric Dumazet <edumazet@google.com>, Ioana Ciornei <ioana.ciornei@nxp.com>, Tyler Hicks <tyhicks@canonical.com>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Ioana Radulescu <ruxandra.radulescu@nxp.com>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Amritha Nambiar <amritha.nambiar@intel.com>, Saeed Mahameed <saeedm@mellanox.com>, Dirk van der Merwe <dirk.vandermerwe@netronome.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Vivien Didelot <vivien.didelot@gmail.com>, Alexander Duyck <alexander.h.duyck@intel.com>, "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Simon Horman <simon.horman@netronome.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Satanand Burla <sburla@marvell.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Kirill Tkhai <ktkhai@virtuozzo.com>, Edwin Peer <edwin.peer@netronome.com>, Michael Chan <michael.chan@broadcom.com>, Christian Brauner <christian@brauner.io>, Felix Manlunas <fmanlunas@marvell.com>, Leon Romanovsky <leon@kernel.org>, Nic Viljoen <nick.viljoen@netronome.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, open list <linux-kernel@vger.kernel.org>, Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>, David Ahern <dsahern@gmail.com>, Joe Perches <joe@perches.com>, Derek Chickles <dchickles@marvell.com>, "David S. Miller" <davem@davemloft.net>
 
-NFP only supports SWITCHDEV_ATTR_ID_PORT_PARENT_ID, which makes it a
-great candidate to be converted to use the ndo_get_port_parent_id() NDO
-instead of implementing switchdev_port_attr_get().
+mlxsw implements SWITCHDEV_ATTR_ID_PORT_PARENT_ID and we want to get rid
+of switchdev_ops eventually, ease that migration by implementing a
+ndo_get_port_parent_id() function which returns what
+switchdev_port_attr_get() would do.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- .../ethernet/netronome/nfp/nfp_net_common.c   |  4 +---
- .../net/ethernet/netronome/nfp/nfp_net_repr.c |  4 +---
- drivers/net/ethernet/netronome/nfp/nfp_port.c | 23 +++++--------------
- drivers/net/ethernet/netronome/nfp/nfp_port.h |  4 +++-
- 4 files changed, 11 insertions(+), 24 deletions(-)
+ drivers/net/ethernet/rocker/rocker_main.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-index 7d2d4241498f..776f6c07701b 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-@@ -36,7 +36,6 @@
- #include <linux/vmalloc.h>
- #include <linux/ktime.h>
- 
--#include <net/switchdev.h>
- #include <net/vxlan.h>
- 
- #include "nfpcore/nfp_nsp.h"
-@@ -3531,6 +3530,7 @@ const struct net_device_ops nfp_net_netdev_ops = {
- 	.ndo_udp_tunnel_add	= nfp_net_add_vxlan_port,
- 	.ndo_udp_tunnel_del	= nfp_net_del_vxlan_port,
- 	.ndo_bpf		= nfp_net_xdp,
-+	.ndo_get_port_parent_id	= nfp_port_get_port_parent_id,
- };
- 
- /**
-@@ -3815,8 +3815,6 @@ static void nfp_net_netdev_init(struct nfp_net *nn)
- 	netdev->netdev_ops = &nfp_net_netdev_ops;
- 	netdev->watchdog_timeo = msecs_to_jiffies(5 * 1000);
- 
--	SWITCHDEV_SET_OPS(netdev, &nfp_port_switchdev_ops);
--
- 	/* MTU range: 68 - hw-specific max */
- 	netdev->min_mtu = ETH_MIN_MTU;
- 	netdev->max_mtu = nn->max_mtu;
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_repr.c b/drivers/net/ethernet/netronome/nfp/nfp_net_repr.c
-index 69d7aebda09b..62839807e21e 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_repr.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_repr.c
-@@ -5,7 +5,6 @@
- #include <linux/io-64-nonatomic-hi-lo.h>
- #include <linux/lockdep.h>
- #include <net/dst_metadata.h>
--#include <net/switchdev.h>
- 
- #include "nfpcore/nfp_cpp.h"
- #include "nfpcore/nfp_nsp.h"
-@@ -273,6 +272,7 @@ const struct net_device_ops nfp_repr_netdev_ops = {
- 	.ndo_fix_features	= nfp_repr_fix_features,
- 	.ndo_set_features	= nfp_port_set_features,
- 	.ndo_set_mac_address    = eth_mac_addr,
-+	.ndo_get_port_parent_id	= nfp_port_get_port_parent_id,
- };
- 
- void
-@@ -336,8 +336,6 @@ int nfp_repr_init(struct nfp_app *app, struct net_device *netdev,
- 
- 	netdev->max_mtu = pf_netdev->max_mtu;
- 
--	SWITCHDEV_SET_OPS(netdev, &nfp_port_switchdev_ops);
--
- 	/* Set features the lower device can support with representors */
- 	if (repr_cap & NFP_NET_CFG_CTRL_LIVE_ADDR)
- 		netdev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_port.c b/drivers/net/ethernet/netronome/nfp/nfp_port.c
-index 86bc149ca231..b9aa7eb99067 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_port.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_port.c
-@@ -31,34 +31,23 @@ struct nfp_port *nfp_port_from_netdev(struct net_device *netdev)
- 	return NULL;
+diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
+index 62a205eba9f7..596f44dbfae1 100644
+--- a/drivers/net/ethernet/rocker/rocker_main.c
++++ b/drivers/net/ethernet/rocker/rocker_main.c
+@@ -2026,6 +2026,18 @@ static void rocker_port_neigh_destroy(struct net_device *dev,
+ 			    err);
  }
  
--static int
--nfp_port_attr_get(struct net_device *netdev, struct switchdev_attr *attr)
-+int nfp_port_get_port_parent_id(struct net_device *netdev,
-+				struct netdev_phys_item_id *ppid)
- {
- 	struct nfp_port *port;
-+	const u8 *serial;
++static int rocker_port_get_port_parent_id(struct net_device *dev,
++					  struct netdev_phys_item_id *ppid)
++{
++	const struct rocker_port *rocker_port = netdev_priv(dev);
++	const struct rocker *rocker = rocker_port->rocker;
++
++	ppid->id_len = sizeof(rocker->hw.id);
++	memcpy(&ppid->id, &rocker->hw.id, ppid->id_len);
++
++	return 0;
++}
++
+ static const struct net_device_ops rocker_port_netdev_ops = {
+ 	.ndo_open			= rocker_port_open,
+ 	.ndo_stop			= rocker_port_stop,
+@@ -2035,6 +2047,7 @@ static const struct net_device_ops rocker_port_netdev_ops = {
+ 	.ndo_get_phys_port_name		= rocker_port_get_phys_port_name,
+ 	.ndo_change_proto_down		= rocker_port_change_proto_down,
+ 	.ndo_neigh_destroy		= rocker_port_neigh_destroy,
++	.ndo_get_port_parent_id		= rocker_port_get_port_parent_id,
+ };
  
- 	port = nfp_port_from_netdev(netdev);
- 	if (!port)
- 		return -EOPNOTSUPP;
+ /********************
+@@ -2049,10 +2062,6 @@ static int rocker_port_attr_get(struct net_device *dev,
+ 	int err = 0;
  
--	switch (attr->id) {
--	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID: {
--		const u8 *serial;
--		/* N.B: attr->u.ppid.id is binary data */
--		attr->u.ppid.id_len = nfp_cpp_serial(port->app->cpp, &serial);
--		memcpy(&attr->u.ppid.id, serial, attr->u.ppid.id_len);
+ 	switch (attr->id) {
+-	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
+-		attr->u.ppid.id_len = sizeof(rocker->hw.id);
+-		memcpy(&attr->u.ppid.id, &rocker->hw.id, attr->u.ppid.id_len);
 -		break;
--	}
--	default:
--		return -EOPNOTSUPP;
--	}
-+	/* N.B: attr->u.ppid.id is binary data */
-+	ppid->id_len = nfp_cpp_serial(port->app->cpp, &serial);
-+	memcpy(&ppid->id, serial, ppid->id_len);
- 
- 	return 0;
- }
- 
--const struct switchdev_ops nfp_port_switchdev_ops = {
--	.switchdev_port_attr_get	= nfp_port_attr_get,
--};
--
- int nfp_port_setup_tc(struct net_device *netdev, enum tc_setup_type type,
- 		      void *type_data)
- {
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_port.h b/drivers/net/ethernet/netronome/nfp/nfp_port.h
-index b2479a2a49e5..90ae053f5c07 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_port.h
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_port.h
-@@ -7,6 +7,7 @@
- #include <net/devlink.h>
- 
- struct net_device;
-+struct netdev_phys_item_id;
- struct nfp_app;
- struct nfp_pf;
- struct nfp_port;
-@@ -90,7 +91,6 @@ struct nfp_port {
- };
- 
- extern const struct ethtool_ops nfp_port_ethtool_ops;
--extern const struct switchdev_ops nfp_port_switchdev_ops;
- 
- __printf(2, 3) u8 *nfp_pr_et(u8 *data, const char *fmt, ...);
- 
-@@ -106,6 +106,8 @@ int
- nfp_port_set_features(struct net_device *netdev, netdev_features_t features);
- 
- struct nfp_port *nfp_port_from_netdev(struct net_device *netdev);
-+int nfp_port_get_port_parent_id(struct net_device *netdev,
-+				struct netdev_phys_item_id *ppid);
- struct nfp_port *
- nfp_port_from_id(struct nfp_pf *pf, enum nfp_port_type type, unsigned int id);
- struct nfp_eth_table_port *__nfp_port_get_eth_port(struct nfp_port *port);
+ 	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
+ 		err = rocker_world_port_attr_bridge_flags_get(rocker_port,
+ 							      &attr->u.brport_flags);
 -- 
 2.17.1
 
