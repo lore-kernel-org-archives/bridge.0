@@ -1,21 +1,17 @@
-Return-Path: <SRS0=8pH2=QL=linuxfoundation.org=gregkh@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1549276809;
-	bh=20ymTtmY//YfJe8bCukmbRfQOq0OKsy/5HXrG4YdXyw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=goDfRTyecaIz6jGvWCOrQGOYJrWu2VjG6VE0neZ2YEU83/fuHq2wiEvjo5Kq4TkAf
-	0Ed2y5PILup8CaJnco3PjiDTjxMNTkEYnwzi4aSXvIF51kLwKcMLnpjNElvgmVpxzl
-	cyg9aRC+q9I6WlrKwK5v52Vfe4EbObpNwdZPBxjA=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon,  4 Feb 2019 11:35:58 +0100
-Message-Id: <20190204103611.451902141@linuxfoundation.org>
-In-Reply-To: <20190204103610.583715954@linuxfoundation.org>
-References: <20190204103610.583715954@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.4 05/65] net: bridge: Fix ethernet header pointer
-	before check skb forwardable
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=from:to:cc:subject:date:message-id;
+	bh=JKaAtY0moZ2DYOu4EJF0uawv0g+P3IWtcBgji5g00hA=;
+	b=JEsoGTDkngsbUPkmyGIQVFcw59hMabXF7uVWCkkpIL2+Crx6RzUWF7ASANq6ZUJyZN
+	zdfeNLFcr1cGMTco8DY/thYpX1cwJHm7D7BEuY7jTXmusrM6WTU20XajQc50gUCuoeKK
+	HkCKuXd7FbT3Euh6LoSiATsOsyhFKymnbFoDWS78VOtJXDI3v9sJJRDSlyABlFC4CihU
+	WBYknvWPirdUxXLJnLiGtHY5T6OctLqGkwteDpiwuIow7IZ3ih/HH7A9nAvUNqBQjxkx
+	I9Zz3BV2qh+1JPA81KLHlCzoNJUzLI8kLb2f92ea24IIY559pdAFnvbC+rjm8h3eURGG
+	FeBA==
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Mon,  4 Feb 2019 15:36:21 -0800
+Message-Id: <20190204233633.20421-1-f.fainelli@gmail.com>
+Subject: [Bridge] [PATCH 00/12] net: Introduce ndo_get_port_parent_id()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,75 +20,75 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Yunjian Wang <wangyunjian@huawei.com>, Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, John Hurley <john.hurley@netronome.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, Eric Dumazet <edumazet@google.com>, Ioana Ciornei <ioana.ciornei@nxp.com>, Tyler Hicks <tyhicks@canonical.com>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Ioana Radulescu <ruxandra.radulescu@nxp.com>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Amritha Nambiar <amritha.nambiar@intel.com>, Saeed Mahameed <saeedm@mellanox.com>, Dirk van der Merwe <dirk.vandermerwe@netronome.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Vivien Didelot <vivien.didelot@gmail.com>, Alexander Duyck <alexander.h.duyck@intel.com>, "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Simon Horman <simon.horman@netronome.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Satanand Burla <sburla@marvell.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, Kirill Tkhai <ktkhai@virtuozzo.com>, Edwin Peer <edwin.peer@netronome.com>, Michael Chan <michael.chan@broadcom.com>, Christian Brauner <christian@brauner.io>, Felix Manlunas <fmanlunas@marvell.com>, Leon Romanovsky <leon@kernel.org>, Nic Viljoen <nick.viljoen@netronome.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, open list <linux-kernel@vger.kernel.org>, Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>, David Ahern <dsahern@gmail.com>, Joe Perches <joe@perches.com>, Derek Chickles <dchickles@marvell.com>, "David S. Miller" <davem@davemloft.net>
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
+Hi all,
 
-------------------
+Based on discussion with Ido and feedback from Jakub there are clearly
+two classes of users that implement SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+- PF/VF drivers which typically only implement return the port's parent
+  ID, yet have to implement switchdev_port_attr_get() just for that
 
-[ Upstream commit 28c1382fa28f2e2d9d0d6f25ae879b5af2ecbd03 ]
+- Ethernet switch drivers: mlxsw, ocelot, DSA, etc. which implement more
+  attributes which we want to be able to eventually veto in the context
+  of the caller, thus making them candidates for using a blocking notifier
+  chain
 
-The skb header should be set to ethernet header before using
-is_skb_forwardable. Because the ethernet header length has been
-considered in is_skb_forwardable(including dev->hard_header_len
-length).
+Changes from RFC:
 
-To reproduce the issue:
-1, add 2 ports on linux bridge br using following commands:
-$ brctl addbr br
-$ brctl addif br eth0
-$ brctl addif br eth1
-2, the MTU of eth0 and eth1 is 1500
-3, send a packet(Data 1480, UDP 8, IP 20, Ethernet 14, VLAN 4)
-from eth0 to eth1
+- introduce a ndo_get_port_parent_id() and convert all relevant drivers
+  to use it
 
-So the expect result is packet larger than 1500 cannot pass through
-eth0 and eth1. But currently, the packet passes through success, it
-means eth1's MTU limit doesn't take effect.
+- get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID
 
-Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
-Cc: bridge@lists.linux-foundation.org
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/bridge/br_forward.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+A subsequent set of patches will convert switchdev_port_attr_set() to
+use a blocking notifier call, and still get rid of
+switchdev_port_attr_get() altogether.
 
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -39,10 +39,10 @@ static inline int should_deliver(const s
- 
- int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
-+	skb_push(skb, ETH_HLEN);
- 	if (!is_skb_forwardable(skb->dev, skb))
- 		goto drop;
- 
--	skb_push(skb, ETH_HLEN);
- 	br_drop_fake_rtable(skb);
- 	skb_sender_cpu_clear(skb);
- 
-@@ -88,12 +88,11 @@ static void __br_deliver(const struct ne
- 	skb->dev = to->dev;
- 
- 	if (unlikely(netpoll_tx_running(to->br->dev))) {
-+		skb_push(skb, ETH_HLEN);
- 		if (!is_skb_forwardable(skb->dev, skb))
- 			kfree_skb(skb);
--		else {
--			skb_push(skb, ETH_HLEN);
-+		else
- 			br_netpoll_send_skb(to, skb);
--		}
- 		return;
- 	}
- 
+Florian Fainelli (12):
+  net: Introduce ndo_get_port_parent_id()
+  bnxt: Implement ndo_get_port_parent_id()
+  liquidio: Implement ndo_get_port_parent_id()
+  net/mlx5e: Implement ndo_get_port_parent_id()
+  mlxsw: Implement ndo_get_port_parent_id()
+  mscc: ocelot: Implement ndo_get_port_parent_id()
+  nfp: Implement ndo_get_port_parent_id()
+  rocker: Implement ndo_get_port_parent_id()
+  netdevsim: Implement ndo_get_port_parent_id()
+  staging: fsl-dpaa2: ethsw: Implement ndo_get_port_parent_id()
+  net: dsa: Implement ndo_get_port_parent_id()
+  net: Get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID
 
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 28 +++++----------
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h     |  4 +--
+ drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c  |  1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_vfr.c | 12 +++----
+ .../net/ethernet/cavium/liquidio/lio_main.c   | 22 +++---------
+ .../net/ethernet/cavium/liquidio/lio_vf_rep.c | 25 ++++---------
+ .../net/ethernet/mellanox/mlx5/core/en_rep.c  | 31 ++++++----------
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 13 +++++++
+ .../mellanox/mlxsw/spectrum_switchdev.c       |  5 ---
+ .../net/ethernet/mellanox/mlxsw/switchx2.c    | 36 +++++++------------
+ drivers/net/ethernet/mscc/ocelot.c            | 33 +++++++----------
+ .../ethernet/netronome/nfp/nfp_net_common.c   |  4 +--
+ .../net/ethernet/netronome/nfp/nfp_net_repr.c |  4 +--
+ drivers/net/ethernet/netronome/nfp/nfp_port.c | 23 ++++--------
+ drivers/net/ethernet/netronome/nfp/nfp_port.h |  4 ++-
+ drivers/net/ethernet/rocker/rocker_main.c     | 17 ++++++---
+ drivers/net/netdevsim/netdev.c                | 22 ++++--------
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c       | 17 ++++++---
+ include/linux/netdevice.h                     |  6 ++++
+ include/net/switchdev.h                       |  2 --
+ net/bridge/br_switchdev.c                     | 11 +++---
+ net/core/net-sysfs.c                          | 14 +++-----
+ net/core/rtnetlink.c                          | 16 ++++-----
+ net/dsa/slave.c                               | 18 ++++++----
+ net/ipv4/ipmr.c                               | 14 ++++----
+ net/switchdev/switchdev.c                     | 20 +++++------
+ 26 files changed, 169 insertions(+), 233 deletions(-)
+
+-- 
+2.17.1
 
