@@ -1,19 +1,19 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=FM7UbF1Ks8MhuNGG6C9onaIpALxRUEhyUABssROXJgE=;
-	b=RWmt3k+HaV8gBQttQiXCGVJ2B0pEXVONrxNw39ZHUih4myfvMWFuDUhu28WJb3IEmG
-	ILkcmWyg2hbdgLZLzHW6/rI72+SEmfubOMgBfn+UQyEbA6SBO6P9bpPNEH25BiU0yQZN
-	VO0D7ElXxAX4873z3moYWyDPgRUmswuZR7B1T/QSAZMNP2Vou9TD1y7l4kHx1CscBN/7
-	vbN7COdZl/kYl4x0TBKrsFOz9+7+0/v1Njb7q4kROLsWRPmbyeSwIkFqeA7VWwUTRs1P
-	MOZ3yJeC4XFZKFuRulC35rrzAWBOZ56oIm2OVOuek4O849v9C3BPt/pnMnvUPNjvWfTI
-	T+IA==
+	bh=RNI+XdPhvdY1OjXcP7pgSSgHAFM8lKWzobqUPPNGsDM=;
+	b=XxKsW2tYBDWt1KqZFOfr9sxzCsiU2/h83p8XGxW2ixfxvP+GywHk6XCDwLV55DOecK
+	XsFp2f2dl+hNMLrpXtkE5TTr9Az8KoId/ujtO6Hj+IejX6WBh7fnQOmPiRsku++TY/Kz
+	S6xfnipw83IGvodd3ht/jFzbEaKd3rxgrQixKrlsrA55k0V9VmQdakICWem+zjXRoEJt
+	iOVxrbDCgZzoe0Akd/kD3rMfsSDhuk9xYhVnaJ/UTTXrhQoeqchK+ziDvBv6TIV+s5/A
+	gI+9q6FS1+ddQa45UI3D/I9hPf9kUEl/WMH2k1I3tVIR5R1jrsZX4jN29xqHbzQ4L6+G
+	HLxA==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Tue,  5 Feb 2019 15:53:19 -0800
-Message-Id: <20190205235326.14600-6-f.fainelli@gmail.com>
+Date: Tue,  5 Feb 2019 15:53:20 -0800
+Message-Id: <20190205235326.14600-7-f.fainelli@gmail.com>
 In-Reply-To: <20190205235326.14600-1-f.fainelli@gmail.com>
 References: <20190205235326.14600-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v3 05/12] mlxsw: Implement
+Subject: [Bridge] [PATCH net-next v3 06/12] mscc: ocelot: Implement
 	ndo_get_port_parent_id()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -26,110 +26,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, Florian Fainelli <f.fainelli@gmail.com>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@mellanox.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, "David S. Miller" <davem@davemloft.net>
 
-mlxsw implements SWITCHDEV_ATTR_ID_PORT_PARENT_ID and we want to get rid
-of switchdev_ops eventually, ease that migration by implementing a
-ndo_get_port_parent_id() function which returns what
-switchdev_port_attr_get() would do.
+Ocelot only supports SWITCHDEV_ATTR_ID_PORT_PARENT_ID as a valid
+switchdev attribute getter, convert it to use ndo_get_port_parent_id()
+and get rid of the switchdev_ops::switchdev_port_attr_get altogether.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 13 +++++++
- .../mellanox/mlxsw/spectrum_switchdev.c       |  5 ---
- .../net/ethernet/mellanox/mlxsw/switchx2.c    | 36 +++++++------------
- 3 files changed, 26 insertions(+), 28 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c | 33 ++++++++++++------------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index a88169738b4a..8dd808b7f931 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -1700,6 +1700,18 @@ static int mlxsw_sp_set_features(struct net_device *dev,
- 				       mlxsw_sp_feature_hw_tc);
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index c6a575eb0ff5..195306d05bcd 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -916,6 +916,18 @@ static int ocelot_set_features(struct net_device *dev,
+ 	return 0;
  }
  
-+static int mlxsw_sp_port_get_port_parent_id(struct net_device *dev,
-+					    struct netdev_phys_item_id *ppid)
++static int ocelot_get_port_parent_id(struct net_device *dev,
++				     struct netdev_phys_item_id *ppid)
 +{
-+	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
-+	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
++	struct ocelot_port *ocelot_port = netdev_priv(dev);
++	struct ocelot *ocelot = ocelot_port->ocelot;
 +
-+	ppid->id_len = sizeof(mlxsw_sp->base_mac);
-+	memcpy(&ppid->id, &mlxsw_sp->base_mac, ppid->id_len);
++	ppid->id_len = sizeof(ocelot->base_mac);
++	memcpy(&ppid->id, &ocelot->base_mac, ppid->id_len);
 +
 +	return 0;
 +}
 +
- static const struct net_device_ops mlxsw_sp_port_netdev_ops = {
- 	.ndo_open		= mlxsw_sp_port_open,
- 	.ndo_stop		= mlxsw_sp_port_stop,
-@@ -1715,6 +1727,7 @@ static const struct net_device_ops mlxsw_sp_port_netdev_ops = {
- 	.ndo_vlan_rx_kill_vid	= mlxsw_sp_port_kill_vid,
- 	.ndo_get_phys_port_name	= mlxsw_sp_port_get_phys_port_name,
- 	.ndo_set_features	= mlxsw_sp_set_features,
-+	.ndo_get_port_parent_id	= mlxsw_sp_port_get_port_parent_id,
+ static const struct net_device_ops ocelot_port_netdev_ops = {
+ 	.ndo_open			= ocelot_port_open,
+ 	.ndo_stop			= ocelot_port_stop,
+@@ -930,6 +942,7 @@ static const struct net_device_ops ocelot_port_netdev_ops = {
+ 	.ndo_vlan_rx_add_vid		= ocelot_vlan_rx_add_vid,
+ 	.ndo_vlan_rx_kill_vid		= ocelot_vlan_rx_kill_vid,
+ 	.ndo_set_features		= ocelot_set_features,
++	.ndo_get_port_parent_id		= ocelot_get_port_parent_id,
  };
  
- static void mlxsw_sp_port_get_drvinfo(struct net_device *dev,
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index a4a9fe992193..95e37de3e48f 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -451,11 +451,6 @@ static int mlxsw_sp_port_attr_get(struct net_device *dev,
- 	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
- 
- 	switch (attr->id) {
--	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
--		attr->u.ppid.id_len = sizeof(mlxsw_sp->base_mac);
--		memcpy(&attr->u.ppid.id, &mlxsw_sp->base_mac,
--		       attr->u.ppid.id_len);
--		break;
- 	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
- 		mlxsw_sp_port_bridge_flags_get(mlxsw_sp->bridge, attr->orig_dev,
- 					       &attr->u.brport_flags);
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/switchx2.c b/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
-index 2d4f213e154d..3814ba8af517 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
-@@ -390,6 +390,18 @@ static int mlxsw_sx_port_get_phys_port_name(struct net_device *dev, char *name,
- 						  name, len);
- }
- 
-+static int mlxsw_sx_port_get_port_parent_id(struct net_device *dev,
-+					    struct netdev_phys_item_id *ppid)
-+{
-+	struct mlxsw_sx_port *mlxsw_sx_port = netdev_priv(dev);
-+	struct mlxsw_sx *mlxsw_sx = mlxsw_sx_port->mlxsw_sx;
-+
-+	ppid->id_len = sizeof(mlxsw_sx->hw_id);
-+	memcpy(&ppid->id, &mlxsw_sx->hw_id, ppid->id_len);
-+
-+	return 0;
-+}
-+
- static const struct net_device_ops mlxsw_sx_port_netdev_ops = {
- 	.ndo_open		= mlxsw_sx_port_open,
- 	.ndo_stop		= mlxsw_sx_port_stop,
-@@ -397,6 +409,7 @@ static const struct net_device_ops mlxsw_sx_port_netdev_ops = {
- 	.ndo_change_mtu		= mlxsw_sx_port_change_mtu,
- 	.ndo_get_stats64	= mlxsw_sx_port_get_stats64,
- 	.ndo_get_phys_port_name = mlxsw_sx_port_get_phys_port_name,
-+	.ndo_get_port_parent_id	= mlxsw_sx_port_get_port_parent_id,
+ static void ocelot_get_strings(struct net_device *netdev, u32 sset, u8 *data)
+@@ -1013,25 +1026,6 @@ static const struct ethtool_ops ocelot_ethtool_ops = {
+ 	.set_link_ksettings	= phy_ethtool_set_link_ksettings,
  };
  
- static void mlxsw_sx_port_get_drvinfo(struct net_device *dev,
-@@ -901,28 +914,6 @@ static const struct ethtool_ops mlxsw_sx_port_ethtool_ops = {
- 	.set_link_ksettings	= mlxsw_sx_port_set_link_ksettings,
- };
- 
--static int mlxsw_sx_port_attr_get(struct net_device *dev,
--				  struct switchdev_attr *attr)
+-static int ocelot_port_attr_get(struct net_device *dev,
+-				struct switchdev_attr *attr)
 -{
--	struct mlxsw_sx_port *mlxsw_sx_port = netdev_priv(dev);
--	struct mlxsw_sx *mlxsw_sx = mlxsw_sx_port->mlxsw_sx;
+-	struct ocelot_port *ocelot_port = netdev_priv(dev);
+-	struct ocelot *ocelot = ocelot_port->ocelot;
 -
 -	switch (attr->id) {
 -	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
--		attr->u.ppid.id_len = sizeof(mlxsw_sx->hw_id);
--		memcpy(&attr->u.ppid.id, &mlxsw_sx->hw_id, attr->u.ppid.id_len);
+-		attr->u.ppid.id_len = sizeof(ocelot->base_mac);
+-		memcpy(&attr->u.ppid.id, &ocelot->base_mac,
+-		       attr->u.ppid.id_len);
 -		break;
 -	default:
 -		return -EOPNOTSUPP;
@@ -138,21 +89,17 @@ index 2d4f213e154d..3814ba8af517 100644
 -	return 0;
 -}
 -
--static const struct switchdev_ops mlxsw_sx_port_switchdev_ops = {
--	.switchdev_port_attr_get	= mlxsw_sx_port_attr_get,
--};
--
- static int mlxsw_sx_hw_id_get(struct mlxsw_sx *mlxsw_sx)
- {
- 	char spad_pl[MLXSW_REG_SPAD_LEN] = {0};
-@@ -1034,7 +1025,6 @@ static int __mlxsw_sx_port_eth_create(struct mlxsw_sx *mlxsw_sx, u8 local_port,
+ static int ocelot_port_attr_stp_state_set(struct ocelot_port *ocelot_port,
+ 					  struct switchdev_trans *trans,
+ 					  u8 state)
+@@ -1331,7 +1325,6 @@ static int ocelot_port_obj_del(struct net_device *dev,
+ }
  
- 	dev->netdev_ops = &mlxsw_sx_port_netdev_ops;
- 	dev->ethtool_ops = &mlxsw_sx_port_ethtool_ops;
--	dev->switchdev_ops = &mlxsw_sx_port_switchdev_ops;
+ static const struct switchdev_ops ocelot_port_switchdev_ops = {
+-	.switchdev_port_attr_get	= ocelot_port_attr_get,
+ 	.switchdev_port_attr_set	= ocelot_port_attr_set,
+ };
  
- 	err = mlxsw_sx_port_dev_addr_get(mlxsw_sx_port);
- 	if (err) {
 -- 
 2.17.1
 
