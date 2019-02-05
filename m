@@ -1,27 +1,18 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
-	:user-agent:mime-version:in-reply-to:content-language
-	:content-transfer-encoding;
-	bh=ISjGueC4Bcor3RsrLG9HVCIaVkDQGy5UfhMO1aFtVKI=;
-	b=E8p5+Z5aO1Cbb0ZInfI7to5kLL285Yw3lx/qq5N7ozZHMk9Rl0xj1csLT3QFeFZbxF
-	Sd6PPtq2bsfFyUhRgau7Xa3iJLUZMQH1yBEPk5nRZvJOcHDQT6yEk09FA/x11WKgFCWk
-	hFwJqsBULNGMZ4mAlgrStLTYAojWuCKV70AkAv1anPfw0s4aOnS0xXmXz4g6SkI/n4Ut
-	2bdys8v8haSe9vdWHqYY6EXaTn95sc6rVCvT6arDnieLN9zd7up38lPePvzF2DbrPeIb
-	9usuRkHZilKcDpDDMAP+jWtmVzX19Af09z3VIMdCrCZVL+bkt3bSfpBFQaUxpkrmA1lk
-	evOw==
-References: <20190205221311.18476-1-f.fainelli@gmail.com>
-	<20190205221311.18476-11-f.fainelli@gmail.com>
+	h=from:to:cc:subject:date:message-id;
+	bh=aI1v+H23/ZvIO3gX4umuhDThsa6Tzq1oIj/V7Nd0TRA=;
+	b=KF9BGUIUvBhG4+MCAUAkUcjGX5AI1auHdzoMuhuy6vBH4Jwid48D62T6lrz7rmuTsg
+	uInQxUimrCTwn5svY9xjCGUj1ECEzd/lZZ/izR/WT+XKVn2DZ2siJb4R2CTVUvyMLMg9
+	RmkfOJRHNKI9XPlKEdg+/5qdP1R5Bz5B5puvL607Bs66FepWf3h1tY2/0RGRr9AkoMJS
+	5Ed4sC/cmIsUeQoHg18+2S+rogIJgDKzn7q1PHcT0QsgV9VEuIYlFuvA8R72bkwL7o4L
+	vNEFep+k2lrqmkqtKqrMP7tyXD3DurpKUWqJzVgxgVwfnPxgtCoN51u5Dzb2nTGuJ5/a
+	s42A==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <32de3be2-7e6a-f34e-9e04-3e3d39989317@gmail.com>
-Date: Tue, 5 Feb 2019 14:18:03 -0800
-MIME-Version: 1.0
-In-Reply-To: <20190205221311.18476-11-f.fainelli@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 10/12] staging: fsl-dpaa2: ethsw:
- Implement ndo_get_port_parent_id()
+Date: Tue,  5 Feb 2019 15:53:14 -0800
+Message-Id: <20190205235326.14600-1-f.fainelli@gmail.com>
+Subject: [Bridge] [PATCH net-next v3 00/12] net: Introduce
+	ndo_get_port_parent_id()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,67 +22,91 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@mellanox.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, "David S. Miller" <davem@davemloft.net>
+Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, Florian Fainelli <f.fainelli@gmail.com>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@mellanox.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, "David S. Miller" <davem@davemloft.net>
 
-On 2/5/19 2:13 PM, Florian Fainelli wrote:
-> ethsw implements SWITCHDEV_ATTR_ID_PORT_PARENT_ID and we want to get rid
-> of switchdev_ops eventually, ease that migration by implementing a
-> ndo_get_port_parent_id() function which returns what
-> switchdev_port_attr_get() would do.
-> 
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  drivers/staging/fsl-dpaa2/ethsw/ethsw.c | 17 ++++++++++++-----
->  1 file changed, 12 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-> index daabaceeea52..622f32377b91 100644
-> --- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-> +++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-> @@ -505,6 +505,17 @@ static netdev_tx_t port_dropframe(struct sk_buff *skb,
->  	return NETDEV_TX_OK;
->  }
->  
-> +static int swdev_get_port_parent_id(struct net_device *dev,
-> +				    struct netdev_phys_item_id *ppid)
-> +{
-> +	struct ethsw_port_priv *port_priv = netdev_priv(dev);
-> +
-> +	ppid->id_len = 1;
-> +	ppid->id[0] = port_priv->ethsw_data->dev_id;
-> +
-> +	return 0;
-> +}
-> +
->  static const struct net_device_ops ethsw_port_ops = {
->  	.ndo_open		= port_open,
->  	.ndo_stop		= port_stop,
-> @@ -515,6 +526,7 @@ static const struct net_device_ops ethsw_port_ops = {
->  	.ndo_get_offload_stats	= port_get_offload_stats,
->  
->  	.ndo_start_xmit		= port_dropframe,
-> +	.ndo_get_port_parent_id	= swdev_get_port_parent_id,
->  };
->  
->  static void ethsw_links_state_update(struct ethsw_core *ethsw)
-> @@ -634,10 +646,6 @@ static int swdev_port_attr_get(struct net_device *netdev,
->  	struct ethsw_port_priv *port_priv = netdev_priv(netdev);
->  
->  	switch (attr->id) {
-> -	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
-> -		attr->u.ppid.id_len = 1;
-> -		attr->u.ppid.id[0] = port_priv->ethsw_data->dev_id;
-> -		break;
->  	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
->  		attr->u.brport_flags =
->  			(port_priv->ethsw_data->learning ? BR_LEARNING : 0) |
-> @@ -1434,7 +1442,6 @@ static int ethsw_probe_port(struct ethsw_core *ethsw, u16 port_idx)
->  	SET_NETDEV_DEV(port_netdev, dev);
->  	port_netdev->netdev_ops = &ethsw_port_ops;
->  	port_netdev->ethtool_ops = &ethsw_port_ethtool_ops;
-> -	port_netdev->switchdev_ops = &ethsw_port_switchdev_ops;
+Hi all,
 
-This hunk should not be removed, I will respin a new version after
-getting feedback.
+Based on discussion with Ido and feedback from Jakub there are clearly
+two classes of users that implement SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
+
+- PF/VF drivers which typically only implement return the port's parent
+  ID, yet have to implement switchdev_port_attr_get() just for that
+
+- Ethernet switch drivers: mlxsw, ocelot, DSA, etc. which implement more
+  attributes which we want to be able to eventually veto in the context
+  of the caller, thus making them candidates for using a blocking notifier
+  chain
+
+Changes in v3:
+
+- keep ethsw's switchdev_ops assignment
+- remove inclusion of net/switchdev.h in netdevsim which is no longer
+  necesary
+
+Changes in v2:
+
+- resolved build failures spotted by kbuild test robot
+- added helpers functions into the core network device layer:
+  dev_get_port_parent_id() and netdev_port_same_parent_id();
+- added support for recursion to lower devices
+
+Changes from RFC:
+
+- introduce a ndo_get_port_parent_id() and convert all relevant drivers
+  to use it
+
+- get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID
+
+A subsequent set of patches will convert switchdev_port_attr_set() to
+use a blocking notifier call, and still get rid of
+switchdev_port_attr_get() altogether.
+
+Florian Fainelli (12):
+  net: Introduce ndo_get_port_parent_id()
+  bnxt: Implement ndo_get_port_parent_id()
+  liquidio: Implement ndo_get_port_parent_id()
+  net/mlx5e: Implement ndo_get_port_parent_id()
+  mlxsw: Implement ndo_get_port_parent_id()
+  mscc: ocelot: Implement ndo_get_port_parent_id()
+  nfp: Implement ndo_get_port_parent_id()
+  rocker: Implement ndo_get_port_parent_id()
+  netdevsim: Implement ndo_get_port_parent_id()
+  staging: fsl-dpaa2: ethsw: Implement ndo_get_port_parent_id()
+  net: dsa: Implement ndo_get_port_parent_id()
+  net: Get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID
+
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 28 +++------
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h     |  4 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c  |  3 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_vfr.c | 12 ++--
+ .../net/ethernet/cavium/liquidio/lio_main.c   | 22 ++-----
+ .../net/ethernet/cavium/liquidio/lio_vf_rep.c | 25 +++-----
+ .../ethernet/mellanox/mlx5/core/en/tc_tun.c   |  2 +-
+ .../net/ethernet/mellanox/mlx5/core/en_rep.c  | 31 ++++------
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   |  5 +-
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 13 +++++
+ .../mellanox/mlxsw/spectrum_switchdev.c       |  5 --
+ .../net/ethernet/mellanox/mlxsw/switchx2.c    | 36 +++++-------
+ drivers/net/ethernet/mscc/ocelot.c            | 33 +++++------
+ .../ethernet/netronome/nfp/flower/action.c    |  3 +-
+ .../ethernet/netronome/nfp/nfp_net_common.c   |  4 +-
+ .../net/ethernet/netronome/nfp/nfp_net_repr.c |  4 +-
+ drivers/net/ethernet/netronome/nfp/nfp_port.c | 23 ++------
+ drivers/net/ethernet/netronome/nfp/nfp_port.h |  4 +-
+ drivers/net/ethernet/rocker/rocker_main.c     | 17 ++++--
+ drivers/net/netdevsim/netdev.c                | 23 ++------
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c       | 16 ++++--
+ include/linux/netdevice.h                     |  9 +++
+ include/net/switchdev.h                       | 11 ----
+ net/bridge/br_switchdev.c                     | 11 ++--
+ net/core/dev.c                                | 57 +++++++++++++++++++
+ net/core/net-sysfs.c                          | 12 +---
+ net/core/rtnetlink.c                          | 14 ++---
+ net/dsa/slave.c                               | 18 ++++--
+ net/ipv4/ipmr.c                               | 14 ++---
+ net/switchdev/switchdev.c                     | 20 -------
+ 30 files changed, 219 insertions(+), 260 deletions(-)
+
 -- 
-Florian
+2.17.1
+
