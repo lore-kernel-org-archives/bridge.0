@@ -1,19 +1,19 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=G7Ci0rv3hQtOueYt0rcl1mxa1iU3dwEVnAYBxfPFBHI=;
-	b=mgMPgsW6nken4TlNO/Pv+4E7a+Sr8yIJ1qZyl9cBSzFTR9S5UnQVZ12g91qVCvRrHm
-	4x6foaJPEDs/7+XCIIykP7cQUArZ1Q/hn8EyXfQkleWO8dRiZ6pOLqK+n8JUkUfE3PDB
-	mP/1CfiT0q4eCL3R5Rl/Bwe3AYEFmcBpBPNqG50HMd7GNNNRZlipeSa0tajlrPzHRR7u
-	7hT52Bj6Xs250hrgy5zxc+Tda/zbHJHpzSBH/XKAsU4ox/L3xk19W+G3LPnLv4g1LJuu
-	OxnBTS6c8L39otzvyDRkrlq/xB4M9clouvqREV2l1r5lZnrlQgx4yl0HGa+appnbyy7U
-	5wMQ==
+	bh=mhwNk0tBSM8DL50RUnTC1M175vtFlNe1q6p5eJedKWI=;
+	b=sHOVUExv8Hukilb9ZMpYmglLI3HMzxN3F0tOJESwrK/Mvs0vB48FWLEuSZ+6MH0uGq
+	z75JS2esZnS4YoAPMezaZyXw5GbGKM3s2l+akUxd6oKpCp+34Jk/Yf+AoaE2spqsaX7+
+	QeAzxWCFk9qAPMA+GRAyxAgNmJMx6Yn/OfQInkdNJkZc1YLExXhXupKinxLRk3bOL/XK
+	PkzUe+eKS4jfNSOte1amE+v0kXXtc35qVADBOTTdwKWcIDBzID+N+aQQb+PhvhdaAK0/
+	XS9EK7jkDyQ2W8VP19Vd4OZ7vrUJJTUAD+uyDyAN46k7aXiJcXT5S7c+yksvA9ZQAfKr
+	/b4Q==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed,  6 Feb 2019 09:45:37 -0800
-Message-Id: <20190206174546.23597-4-f.fainelli@gmail.com>
+Date: Wed,  6 Feb 2019 09:45:38 -0800
+Message-Id: <20190206174546.23597-5-f.fainelli@gmail.com>
 In-Reply-To: <20190206174546.23597-1-f.fainelli@gmail.com>
 References: <20190206174546.23597-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v4 03/12] liquidio: Implement
+Subject: [Bridge] [PATCH net-next v4 04/12] net/mlx5e: Implement
 	ndo_get_port_parent_id()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -26,155 +26,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, Florian Fainelli <f.fainelli@gmail.com>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@mellanox.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, "David S. Miller" <davem@davemloft.net>
 
-Liquidio only supports SWITCHDEV_ATTR_ID_PORT_PARENT_ID, which makes it
-a great candidate to be converted to use the ndo_get_port_parent_id()
-NDO instead of implementing switchdev_port_attr_get().
+mlx5e only supports SWITCHDEV_ATTR_ID_PORT_PARENT_ID, which makes it a
+great candidate to be converted to use the ndo_get_port_parent_id() NDO
+instead of implementing switchdev_port_attr_get().
+
+Since mlx5e makes use of switchdev_port_parent_id() convert it to use
+netdev_port_same_parent_id().
 
 Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- .../net/ethernet/cavium/liquidio/lio_main.c   | 22 ++++------------
- .../net/ethernet/cavium/liquidio/lio_vf_rep.c | 25 ++++++-------------
- 2 files changed, 12 insertions(+), 35 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en/tc_tun.c   |  2 +-
+ .../net/ethernet/mellanox/mlx5/core/en_rep.c  | 31 +++++++------------
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   |  5 ++-
+ 3 files changed, 14 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index 3d24133e5e49..e97e6754ee09 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -21,7 +21,6 @@
- #include <linux/firmware.h>
- #include <net/vxlan.h>
- #include <linux/kthread.h>
--#include <net/switchdev.h>
- #include "liquidio_common.h"
- #include "octeon_droq.h"
- #include "octeon_iq.h"
-@@ -3184,7 +3183,8 @@ static const struct devlink_ops liquidio_devlink_ops = {
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
+index 046948ead152..19dc4a963b90 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
+@@ -25,7 +25,7 @@ static int get_route_and_out_devs(struct mlx5e_priv *priv,
+ 	/* if the egress device isn't on the same HW e-switch or
+ 	 * it's a LAG device, use the uplink
+ 	 */
+-	if (!switchdev_port_same_parent_id(priv->netdev, dev) ||
++	if (!netdev_port_same_parent_id(priv->netdev, dev) ||
+ 	    dst_is_lag_dev) {
+ 		*route_dev = uplink_dev;
+ 		*out_dev = *route_dev;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+index 5d2e0c2f6624..0b1988b330f3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -381,7 +381,8 @@ static const struct ethtool_ops mlx5e_uplink_rep_ethtool_ops = {
+ 	.set_pauseparam    = mlx5e_uplink_rep_set_pauseparam,
  };
  
- static int
--lio_pf_switchdev_attr_get(struct net_device *dev, struct switchdev_attr *attr)
-+liquidio_get_port_parent_id(struct net_device *dev,
-+			    struct netdev_phys_item_id *ppid)
+-static int mlx5e_attr_get(struct net_device *dev, struct switchdev_attr *attr)
++static int mlx5e_rep_get_port_parent_id(struct net_device *dev,
++					struct netdev_phys_item_id *ppid)
  {
- 	struct lio *lio = GET_LIO(dev);
- 	struct octeon_device *oct = lio->oct_dev;
-@@ -3192,24 +3192,12 @@ lio_pf_switchdev_attr_get(struct net_device *dev, struct switchdev_attr *attr)
- 	if (oct->eswitch_mode != DEVLINK_ESWITCH_MODE_SWITCHDEV)
- 		return -EOPNOTSUPP;
+ 	struct mlx5e_priv *priv = netdev_priv(dev);
+ 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+@@ -398,20 +399,14 @@ static int mlx5e_attr_get(struct net_device *dev, struct switchdev_attr *attr)
+ 		uplink_priv = netdev_priv(uplink_dev);
+ 	}
  
 -	switch (attr->id) {
 -	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
 -		attr->u.ppid.id_len = ETH_ALEN;
--		ether_addr_copy(attr->u.ppid.id,
--				(void *)&lio->linfo.hw_addr + 2);
+-		if (uplink_upper && mlx5_lag_is_sriov(uplink_priv->mdev)) {
+-			ether_addr_copy(attr->u.ppid.id, uplink_upper->dev_addr);
+-		} else {
+-			struct mlx5e_rep_priv *rpriv = priv->ppriv;
+-			struct mlx5_eswitch_rep *rep = rpriv->rep;
++	ppid->id_len = ETH_ALEN;
++	if (uplink_upper && mlx5_lag_is_sriov(uplink_priv->mdev)) {
++		ether_addr_copy(ppid->id, uplink_upper->dev_addr);
++	} else {
++		struct mlx5e_rep_priv *rpriv = priv->ppriv;
++		struct mlx5_eswitch_rep *rep = rpriv->rep;
+ 
+-			ether_addr_copy(attr->u.ppid.id, rep->hw_id);
+-		}
 -		break;
--
 -	default:
 -		return -EOPNOTSUPP;
--	}
-+	ppid->id_len = ETH_ALEN;
-+	ether_addr_copy(ppid->id, (void *)&lio->linfo.hw_addr + 2);
++		ether_addr_copy(ppid->id, rep->hw_id);
+ 	}
  
+ 	return 0;
+@@ -1284,10 +1279,6 @@ static int mlx5e_uplink_rep_set_vf_vlan(struct net_device *dev, int vf, u16 vlan
  	return 0;
  }
  
--static const struct switchdev_ops lio_pf_switchdev_ops = {
--	.switchdev_port_attr_get = lio_pf_switchdev_attr_get,
+-static const struct switchdev_ops mlx5e_rep_switchdev_ops = {
+-	.switchdev_port_attr_get	= mlx5e_attr_get,
 -};
 -
- static int liquidio_get_vf_stats(struct net_device *netdev, int vfidx,
- 				 struct ifla_vf_stats *vf_stats)
- {
-@@ -3259,6 +3247,7 @@ static const struct net_device_ops lionetdevops = {
- 	.ndo_set_vf_trust	= liquidio_set_vf_trust,
- 	.ndo_set_vf_link_state  = liquidio_set_vf_link_state,
- 	.ndo_get_vf_stats	= liquidio_get_vf_stats,
-+	.ndo_get_port_parent_id	= liquidio_get_port_parent_id,
+ static const struct net_device_ops mlx5e_netdev_ops_vf_rep = {
+ 	.ndo_open                = mlx5e_vf_rep_open,
+ 	.ndo_stop                = mlx5e_vf_rep_close,
+@@ -1298,6 +1289,7 @@ static const struct net_device_ops mlx5e_netdev_ops_vf_rep = {
+ 	.ndo_has_offload_stats	 = mlx5e_rep_has_offload_stats,
+ 	.ndo_get_offload_stats	 = mlx5e_rep_get_offload_stats,
+ 	.ndo_change_mtu          = mlx5e_vf_rep_change_mtu,
++	.ndo_get_port_parent_id	 = mlx5e_rep_get_port_parent_id,
  };
  
- /** \brief Entry point for the liquidio module
-@@ -3534,7 +3523,6 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
- 		 * netdev tasks.
- 		 */
- 		netdev->netdev_ops = &lionetdevops;
--		SWITCHDEV_SET_OPS(netdev, &lio_pf_switchdev_ops);
+ static const struct net_device_ops mlx5e_netdev_ops_uplink_rep = {
+@@ -1319,6 +1311,7 @@ static const struct net_device_ops mlx5e_netdev_ops_uplink_rep = {
+ 	.ndo_get_vf_config       = mlx5e_get_vf_config,
+ 	.ndo_get_vf_stats        = mlx5e_get_vf_stats,
+ 	.ndo_set_vf_vlan         = mlx5e_uplink_rep_set_vf_vlan,
++	.ndo_get_port_parent_id	 = mlx5e_rep_get_port_parent_id,
+ };
  
- 		retval = netif_set_real_num_rx_queues(netdev, num_oqueues);
- 		if (retval) {
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c b/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c
-index de61060721c4..f3f2e71431ac 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c
-@@ -25,7 +25,6 @@
- #include "octeon_nic.h"
- #include "octeon_main.h"
- #include "octeon_network.h"
+ bool mlx5e_eswitch_rep(struct net_device *netdev)
+@@ -1393,8 +1386,6 @@ static void mlx5e_build_rep_netdev(struct net_device *netdev)
+ 	netdev->watchdog_timeo    = 15 * HZ;
+ 
+ 
+-	netdev->switchdev_ops = &mlx5e_rep_switchdev_ops;
+-
+ 	netdev->features	 |= NETIF_F_HW_TC | NETIF_F_NETNS_LOCAL;
+ 	netdev->hw_features      |= NETIF_F_HW_TC;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 74159d39dd66..098b28feba0c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -38,7 +38,6 @@
+ #include <linux/mlx5/fs.h>
+ #include <linux/mlx5/device.h>
+ #include <linux/rhashtable.h>
 -#include <net/switchdev.h>
- #include "lio_vf_rep.h"
+ #include <net/tc_act/tc_mirred.h>
+ #include <net/tc_act/tc_vlan.h>
+ #include <net/tc_act/tc_tunnel_key.h>
+@@ -2569,8 +2568,8 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv, struct tcf_exts *exts,
  
- static int lio_vf_rep_open(struct net_device *ndev);
-@@ -38,6 +37,8 @@ static int lio_vf_rep_phys_port_name(struct net_device *dev,
- static void lio_vf_rep_get_stats64(struct net_device *dev,
- 				   struct rtnl_link_stats64 *stats64);
- static int lio_vf_rep_change_mtu(struct net_device *ndev, int new_mtu);
-+static int lio_vf_get_port_parent_id(struct net_device *dev,
-+				     struct netdev_phys_item_id *ppid);
- 
- static const struct net_device_ops lio_vf_rep_ndev_ops = {
- 	.ndo_open = lio_vf_rep_open,
-@@ -47,6 +48,7 @@ static const struct net_device_ops lio_vf_rep_ndev_ops = {
- 	.ndo_get_phys_port_name = lio_vf_rep_phys_port_name,
- 	.ndo_get_stats64 = lio_vf_rep_get_stats64,
- 	.ndo_change_mtu = lio_vf_rep_change_mtu,
-+	.ndo_get_port_parent_id = lio_vf_get_port_parent_id,
- };
- 
- static int
-@@ -443,31 +445,19 @@ lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	return NETDEV_TX_OK;
- }
- 
--static int
--lio_vf_rep_attr_get(struct net_device *dev, struct switchdev_attr *attr)
-+static int lio_vf_get_port_parent_id(struct net_device *dev,
-+				     struct netdev_phys_item_id *ppid)
- {
- 	struct lio_vf_rep_desc *vf_rep = netdev_priv(dev);
- 	struct net_device *parent_ndev = vf_rep->parent_ndev;
- 	struct lio *lio = GET_LIO(parent_ndev);
- 
--	switch (attr->id) {
--	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
--		attr->u.ppid.id_len = ETH_ALEN;
--		ether_addr_copy(attr->u.ppid.id,
--				(void *)&lio->linfo.hw_addr + 2);
--		break;
--
--	default:
--		return -EOPNOTSUPP;
--	}
-+	ppid->id_len = ETH_ALEN;
-+	ether_addr_copy(ppid->id, (void *)&lio->linfo.hw_addr + 2);
- 
- 	return 0;
- }
- 
--static const struct switchdev_ops lio_vf_rep_switchdev_ops = {
--	.switchdev_port_attr_get        = lio_vf_rep_attr_get,
--};
--
- static void
- lio_vf_rep_fetch_stats(struct work_struct *work)
- {
-@@ -524,7 +514,6 @@ lio_vf_rep_create(struct octeon_device *oct)
- 		ndev->min_mtu = LIO_MIN_MTU_SIZE;
- 		ndev->max_mtu = LIO_MAX_MTU_SIZE;
- 		ndev->netdev_ops = &lio_vf_rep_ndev_ops;
--		SWITCHDEV_SET_OPS(ndev, &lio_vf_rep_switchdev_ops);
- 
- 		vf_rep = netdev_priv(ndev);
- 		memset(vf_rep, 0, sizeof(*vf_rep));
+ 			action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST |
+ 				  MLX5_FLOW_CONTEXT_ACTION_COUNT;
+-			if (switchdev_port_same_parent_id(priv->netdev,
+-							  out_dev) ||
++			if (netdev_port_same_parent_id(priv->netdev,
++						       out_dev) ||
+ 			    is_merged_eswitch_dev(priv, out_dev)) {
+ 				struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+ 				struct net_device *uplink_dev = mlx5_eswitch_uplink_get_proto_dev(esw, REP_ETH);
 -- 
 2.17.1
 
