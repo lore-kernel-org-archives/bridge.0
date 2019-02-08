@@ -1,26 +1,11 @@
-Return-Path: <vivien.didelot@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=date:message-id:from:to:cc:subject:in-reply-to:references
-	:mime-version:content-disposition:content-transfer-encoding;
-	bh=sJY6SozMeweLkOESTHv5iTZYjJjXNBDdJF8oG18/R1U=;
-	b=X57ZZSFwiaJVl+HqDuB3rf6KN3lt+A8nQfl+l+FH+iMoMBFB0G3WKCwUvrY1iCC0e1
-	ASQL0F86v22n1YoTAZfE4QsEQAdCpffTeEWxWv2QFs2iDGLRC2NUfmMIWjB+lO2nnwVp
-	m/DeJS0jAkhZCFLplthhzVkfJg8PKAFn42aaCmaKB007YWAVk9cogIMwxUurFuJXJ4tV
-	ME8nJDNOHv109sL1lX9lLcc1OvrbpnN+FPobuQUDAGJTvheV9zd2uVO6K1zcl9F4eGUZ
-	4bq3/hRl5DIw0yPZi+HQ4Rlnmiz/qQ9DnZo1Xyjan7cU+KHCy7McAluxHZ5lN4o5UH7B
-	r/sA==
-Date: Wed, 6 Feb 2019 13:21:18 -0500
-Message-ID: <20190206132118.GD9278@t480s.localdomain>
-From: Vivien Didelot <vivien.didelot@gmail.com>
-In-Reply-To: <20190205235326.14600-12-f.fainelli@gmail.com>
-References: <20190205235326.14600-1-f.fainelli@gmail.com>
-	<20190205235326.14600-12-f.fainelli@gmail.com>
+Return-Path: <gustavo@embeddedor.com>
+Date: Thu, 7 Feb 2019 18:58:56 -0600
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Message-ID: <20190208005856.GA16642@embeddedor>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v3 11/12] net: dsa: Implement
- ndo_get_port_parent_id()
+Subject: [Bridge] [PATCH net-next] bridge: use struct_size() helper
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,46 +14,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, Florian Fainelli <f.fainelli@gmail.com>, "open list:MELLANOX MLX5 core VPI driver" <linux-rdma@vger.kernel.org>, netdev@vger.kernel.org, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@mellanox.com>, "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@netronome.com>, "David S. Miller" <davem@davemloft.net>
+To: Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-Hi Florian,
+One of the more common cases of allocation size calculations is finding
+the size of a structure that has a zero-sized array at the end, along
+with memory for some number of elements for that array. For example:
 
-On Tue,  5 Feb 2019 15:53:25 -0800, Florian Fainelli <f.fainelli@gmail.com> wrote:
-> DSA implements SWITCHDEV_ATTR_ID_PORT_PARENT_ID and we want to get rid
-> of switchdev_ops eventually, ease that migration by implementing a
-> ndo_get_port_parent_id() function which returns what
-> switchdev_port_attr_get() would do.
-> 
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  net/dsa/slave.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
-> 
-> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-> index 91de3a663226..70395a0ae52e 100644
-> --- a/net/dsa/slave.c
-> +++ b/net/dsa/slave.c
-> @@ -362,18 +362,23 @@ static int dsa_slave_port_obj_del(struct net_device *dev,
->  	return err;
->  }
->  
-> -static int dsa_slave_port_attr_get(struct net_device *dev,
-> -				   struct switchdev_attr *attr)
-> +static int dsa_slave_get_port_parent_id(struct net_device *dev,
-> +					struct netdev_phys_item_id *ppid)
->  {
->  	struct dsa_port *dp = dsa_slave_to_port(dev);
->  	struct dsa_switch *ds = dp->ds;
->  	struct dsa_switch_tree *dst = ds->dst;
->  
-> +	ppid->id_len = sizeof(dst->index);
-> +	memcpy(&ppid->id, &dst->index, ppid->id_len);
-> +
-> +	return 0;
-> +}
+struct foo {
+    int stuff;
+    struct boo entry[];
+};
 
-Finally this will give us a way to distinguish two ports with the same switch
-and port IDs on a system with two disjoint switch trees, thanks!
+size = sizeof(struct foo) + count * sizeof(struct boo);
+instance = alloc(size, GFP_KERNEL)
 
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Instead of leaving these open-coded and prone to type mistakes, we can
+now use the new struct_size() helper:
+
+size = struct_size(instance, entry, count);
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ net/bridge/br_multicast.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 1fb885a33c66..4a048fd1cbea 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1018,8 +1018,7 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
+ 		if (!nsrcs)
+ 			return -EINVAL;
+ 
+-		grec_len = sizeof(*grec) +
+-			   sizeof(struct in6_addr) * ntohs(*nsrcs);
++		grec_len = struct_size(grec, grec_src, ntohs(*nsrcs));
+ 
+ 		if (!ipv6_mc_may_pull(skb, len + grec_len))
+ 			return -EINVAL;
+-- 
+2.20.1
+
