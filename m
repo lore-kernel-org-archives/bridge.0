@@ -1,20 +1,23 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding;
-	bh=9j78vu7ptfWqRyUO8h/FcNUzTEZkGd60eZJnk+28JkI=;
-	b=LFhjxPHt8r/+VF7jvkLf35nXy0MpozaT0bKd630pgNvgmQ9OmbAfSPM3rEfWvNkFCA
-	P2a/42B0bJ/Hg8X5iNvKFwr/A5cc0Nb04gm5l1RgSSyT1IWjGq7aCGJMrt6BYeur3x9G
-	WMzx3rpBzxVstQtdSNydYlxGWdfSZDOtVBGAV3rkqxaacCz2wgMCqzDfsTyYNq8XU8uT
-	ErqvAEmsdPMD4+tbcGKCk9yThrkUFcxRzEF/ABj0m/LWVdq0w47Os9vhWZ94nmI/o9Cd
-	merPd1QjVAo+96PcNzRRNiQAmPtNHCEbZuU13+fcxHiMC/Y5VSqpD7qbr6WAfqBn0Kan
-	hauw==
+	h=from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=7L0xTa6HUjap5hvS5D6PfDYA/2qTJS8vMeAX54+U6P8=;
+	b=AVfJJ2Z3BJxohhvaJosGHfmuHpolN4+mn5xeHpQxDwgH3+SrEUl98/yXAbSXa6HrrI
+	4JvrRQVv7UzDD9bz2MhL4WnF+YaOqQNAFun0jH3RrPQinnlWTyhDy86oazrKG/TLUpwN
+	PwvUIgLrxVT4L4harlpMJVk2jgKcAEkmM/k+JkSvW1ESuJ6L/Bu3/L3JczIwvKGnEQhH
+	ZXBhOpqk4zcQBJ6zfETqsl/Jt3lo8zzqiss7oc01+1xpY8Hzs9Y1U6ehGcw4SeVkgoKi
+	5TEuayykwBgMfDShRSR+BIdrNZV53/w5T++btSZtuRGJVQYGaxm3Qdm7MAQtLtBHY+tD
+	Mp4A==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Sun, 10 Feb 2019 09:50:49 -0800
-Message-Id: <20190210175105.31629-1-f.fainelli@gmail.com>
+Date: Sun, 10 Feb 2019 09:50:50 -0800
+Message-Id: <20190210175105.31629-2-f.fainelli@gmail.com>
+In-Reply-To: <20190210175105.31629-1-f.fainelli@gmail.com>
+References: <20190210175105.31629-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 00/16] net: Remove switchdev_ops
+Subject: [Bridge] [PATCH net-next v2 01/16] Documentation: networking:
+	switchdev: Update port parent ID section
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,64 +29,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
 
-Hi all,
+Update the section about switchdev drivers having to implement a
+switchdev_port_attr_get() function to return
+SWITCHDEV_ATTR_ID_PORT_PARENT_ID since that is no longer valid after
+commit bccb30254a4a ("net: Get rid of
+SWITCHDEV_ATTR_ID_PORT_PARENT_ID").
 
-This patch series finishes by the removal of switchdev_ops. To get there
-we need to do a few things:
+Fixes: bccb30254a4a ("net: Get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID")
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+ Documentation/networking/switchdev.txt | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-- get rid of the one and only call to switchdev_port_attr_get() which is
-  used to fetch the device's bridge port flags capabilities, instead we
-  can just check what flags are being programmed during the prepare
-  phase
-
-- once we get rid of getting switchdev port attributes we convert the
-  setting of such attributes using a blocking notifier
-
-And then remove switchdev_ops completely.
-
-Please review and let me know what you think!
-
-Changes in v2:
-- fixed bisectability issues in patch #15
-- added Acked-by from Jiri where necessary
-- fixed a few minor issues according to Jiri's feedback:
-	- rename port_attr_event -> port_attr_set_event
-	- moved SWITCHDEV_PORT_ATTR_SET closer to other blocking events
-
-Florian Fainelli (16):
-  Documentation: networking: switchdev: Update port parent ID section
-  mlxsw: spectrum: Check bridge flags during prepare phase
-  staging: fsl-dpaa2: ethsw: Check bridge port flags during set
-  net: dsa: Add setter for SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
-  rocker: Check bridge flags during prepare phase
-  net: bridge: Stop calling switchdev_port_attr_get()
-  net: Remove SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT
-  net: Get rid of switchdev_port_attr_get()
-  switchdev: Add SWITCHDEV_PORT_ATTR_SET
-  rocker: Handle SWITCHDEV_PORT_ATTR_SET
-  net: dsa: Handle SWITCHDEV_PORT_ATTR_SET
-  mlxsw: spectrum_switchdev: Handle SWITCHDEV_PORT_ATTR_SET
-  net: mscc: ocelot: Handle SWITCHDEV_PORT_ATTR_SET
-  staging: fsl-dpaa2: ethsw: Handle SWITCHDEV_PORT_ATTR_SET
-  net: switchdev: Replace port attr set SDO with a notification
-  net: Remove switchdev_ops
-
- Documentation/networking/switchdev.txt        | 15 ++-
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 12 ---
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |  2 -
- .../mellanox/mlxsw/spectrum_switchdev.c       | 69 ++++----------
- drivers/net/ethernet/mscc/ocelot.c            | 21 +++-
- drivers/net/ethernet/rocker/rocker_main.c     | 95 ++++++++-----------
- drivers/staging/fsl-dpaa2/ethsw/ethsw.c       | 48 ++++------
- include/linux/netdevice.h                     |  3 -
- include/net/switchdev.h                       | 36 ++-----
- net/bridge/br_switchdev.c                     | 20 +---
- net/dsa/dsa_priv.h                            |  3 +
- net/dsa/port.c                                | 10 ++
- net/dsa/slave.c                               | 40 ++++----
- net/switchdev/switchdev.c                     | 92 +++++-------------
- 14 files changed, 170 insertions(+), 296 deletions(-)
-
+diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
+index f3244d87512a..ea90243340a9 100644
+--- a/Documentation/networking/switchdev.txt
++++ b/Documentation/networking/switchdev.txt
+@@ -92,11 +92,11 @@ device.
+ Switch ID
+ ^^^^^^^^^
+ 
+-The switchdev driver must implement the switchdev op switchdev_port_attr_get
+-for SWITCHDEV_ATTR_ID_PORT_PARENT_ID for each port netdev, returning the same
+-physical ID for each port of a switch.  The ID must be unique between switches
+-on the same system.  The ID does not need to be unique between switches on
+-different systems.
++The switchdev driver must implement the net_device operation
++ndo_get_port_parent_id for each port netdev, returning the same physical ID for
++each port of a switch. The ID must be unique between switches on the same
++system. The ID does not need to be unique between switches on different
++systems.
+ 
+ The switch ID is used to locate ports on a switch and to know if aggregated
+ ports belong to the same switch.
 -- 
 2.19.1
 
