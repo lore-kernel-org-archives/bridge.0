@@ -1,20 +1,26 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=IVaqKF5ruEJqcImjKYCUmLUHS3vhDUqSkvF6Yr3HUWM=;
-	b=EJyGyNsZtsZ97N68/gbWz1oQ2CAKmK/wWvKrg4pBjEMhGSZr1mgO4hbSvzoIR2TtYJ/mq/nnRF5TzCRXMpEJOZOxrVPrX9XXmbOqsxnT9blXyX0ftXWm0DuiK84jJliBqVGcHT1woDpe2e+6UFNOsuLIhnrLAb4tCxfJnjEp10M=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Sun, 10 Feb 2019 19:05:04 +0000
-Message-ID: <20190210190501.GA26726@splinter>
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
+	:user-agent:mime-version:in-reply-to:content-language
+	:content-transfer-encoding;
+	bh=KNY5zECgExW4ILR3xsKh1LqdbsCQIgK+wkOcJfKWtQU=;
+	b=I1JWArZZLEAeyX7uRJnrOmzKAWB0MP5w+lS1hRJdvZApoIXzBSH1D3uJZF1xfhjT0B
+	I8YTfAOX58SZC1SAMU//jDMPNXHV1jeIoXOkHSs2mvE7OCflpb4HkOoRU6NVdMuZlaG1
+	LMuIEf24jj0FETNSImb2shGX9bG+QByboxFpqKc/8ZV+/mL+BU2Dj3yt5BrhXon7vuh3
+	vnpP/chK1zmxBNzKQHbxwvZJnw+UUGrmbheJmq51rjB7ttEnqDx47UDFEkIynmZDK6z5
+	cs1sclqTfV0u1x5WVrItSft7caX0KCi3xG7knhB40YVACP09RUC+7zkpKOkZUL1FOPuV
+	lcNg==
 References: <20190210175105.31629-1-f.fainelli@gmail.com>
 	<20190210175105.31629-7-f.fainelli@gmail.com>
-In-Reply-To: <20190210175105.31629-7-f.fainelli@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <C8504F4294E37B45B2118EBF49BE8AEB@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+	<20190210190501.GA26726@splinter>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <73a10fbb-7689-74a7-3fbf-076f8dc9d76f@gmail.com>
+Date: Sun, 10 Feb 2019 11:34:14 -0800
 MIME-Version: 1.0
+In-Reply-To: <20190210190501.GA26726@splinter>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH net-next v2 06/16] net: bridge: Stop calling
  switchdev_port_attr_get()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -25,64 +31,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
+To: Ido Schimmel <idosch@mellanox.com>
 Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Pirko <jiri@mellanox.com>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>
 
-On Sun, Feb 10, 2019 at 09:50:55AM -0800, Florian Fainelli wrote:
-> Now that all switchdev drivers have been converted to checking the
-> bridge port flags during the prepare phase of the
-> switchdev_port_attr_set(), we can move straight to trying to set the
-> desired flag through SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS.
->=20
-> Acked-by: Jiri Pirko <jiri@mellanox.com>
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  net/bridge/br_switchdev.c | 20 +++-----------------
->  1 file changed, 3 insertions(+), 17 deletions(-)
->=20
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index db9e8ab96d48..939f300522c5 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -64,29 +64,15 @@ int br_switchdev_set_port_flag(struct net_bridge_port=
- *p,
->  {
->  	struct switchdev_attr attr =3D {
->  		.orig_dev =3D p->dev,
-> -		.id =3D SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
-> +		.id =3D SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
-> +		.flags =3D SWITCHDEV_F_DEFER,
+Le 2/10/19 à 11:05 AM, Ido Schimmel a écrit :
+> On Sun, Feb 10, 2019 at 09:50:55AM -0800, Florian Fainelli wrote:
+>> Now that all switchdev drivers have been converted to checking the
+>> bridge port flags during the prepare phase of the
+>> switchdev_port_attr_set(), we can move straight to trying to set the
+>> desired flag through SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS.
+>>
+>> Acked-by: Jiri Pirko <jiri@mellanox.com>
+>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+>> ---
+>>  net/bridge/br_switchdev.c | 20 +++-----------------
+>>  1 file changed, 3 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+>> index db9e8ab96d48..939f300522c5 100644
+>> --- a/net/bridge/br_switchdev.c
+>> +++ b/net/bridge/br_switchdev.c
+>> @@ -64,29 +64,15 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+>>  {
+>>  	struct switchdev_attr attr = {
+>>  		.orig_dev = p->dev,
+>> -		.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
+>> +		.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
+>> +		.flags = SWITCHDEV_F_DEFER,
+> 
+> How does this work? You defer the operation, so the driver cannot veto
+> it. This is why we have SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT
+> which is not deferred.
 
-How does this work? You defer the operation, so the driver cannot veto
-it. This is why we have SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT
-which is not deferred.
+I missed that indeed, how would you feel about splitting the attribute
+setting into different phases:
 
-> +		.u.brport_flags =3D flags,
->  	};
->  	int err;
-> =20
->  	if (mask & ~BR_PORT_FLAGS_HW_OFFLOAD)
->  		return 0;
-> =20
-> -	err =3D switchdev_port_attr_get(p->dev, &attr);
-> -	if (err =3D=3D -EOPNOTSUPP)
-> -		return 0;
-> -	if (err)
-> -		return err;
-> -
-> -	/* Check if specific bridge flag attribute offload is supported */
-> -	if (!(attr.u.brport_flags_support & mask)) {
-> -		br_warn(p->br, "bridge flag offload is not supported %u(%s)\n",
-> -			(unsigned int)p->port_no, p->dev->name);
-> -		return -EOPNOTSUPP;
-> -	}
-> -
-> -	attr.id =3D SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS;
-> -	attr.flags =3D SWITCHDEV_F_DEFER;
-> -	attr.u.brport_flags =3D flags;
->  	err =3D switchdev_port_attr_set(p->dev, &attr);
->  	if (err) {
->  		br_warn(p->br, "error setting offload flag on port %u(%s)\n",
-> --=20
-> 2.19.1
->=20
+- checking that the attribute setting is supported (caller context, so
+possibly atomic)
+- allocating and committing resources (deferred context)
+
+For pretty much any DSA driver, we will have to be in sleepable context
+anyway because of MDIO, SPI, I2C, whatever transport layer.
+
+Not sure how to best approach this now...
+-- 
+Florian
