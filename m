@@ -2,21 +2,21 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=81DjCgz+iyCtT5UWtxC0sunQeOYy1ppR2RSyv4AVzCg=;
-	b=CNJJyBLB2tLVddFJ2LsHHczCUzrZYJe/u6ZVOeym6EOWO1QRjP5hyihNVBivQ1uhSR
-	8knwLaI67D+lt3XKeg5r/JTvmLzUPf/u9RFutmQbgYG4YU3QqO1vNA752Oh0GAy1Ye+v
-	eiuSrpkdK66kPRe4DfZYKrnWjthWxulQ4/hehAQZpQgKBaFgHXoA30cd2ohrJ8GxhOYo
-	TzM0gAjPOwO/CROxdjsxhsJ1fimeWoQunp0Flkbl3kdSYDfhzVsZkiQ1uJbVm2t6HpIs
-	gikhmHG5EIRAhiBpkAoFGtptYr/sXsSxlL+6RjRUSYKD+lUNW4srNIECQIND8JNFSoNo
-	Uu4A==
+	bh=mdbv4CO8BhE6pqFGehWefPsAVhnmG6B4RY3j765Q16s=;
+	b=tOXyWENMOp400xQqmuZyKf+MB3GpNHvhdbkFAX2zGy4g8bh0TWEkIYy3T+nkt8jao/
+	l8+ofIUKfYYEj73BxcyeIyR5dMsKLnnROi1QwRsEEy3HcCQU57ijZVl1IriMc7Wfc3mo
+	FPEXAgRxJz3mQdvfa02ChFSxRnroK7aM8g3c7qMQ0XfNUsGlkwaOdLKYzNUhYoy4E5at
+	qiJrc4j3eY7kdTrfK9ZjGMiAUUai9Etg7aA5PBEDZ/PjkhlTroGSfKh3DlLu+uMBOLzu
+	8SCVftbaX4IW+bVk3k6AoTOuSYP4mGjZPKoVdMvQPSi7lTMg5qBrdIrNdJ68e9XmTCmO
+	AprQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Sun, 10 Feb 2019 09:50:58 -0800
-Message-Id: <20190210175105.31629-10-f.fainelli@gmail.com>
+Date: Sun, 10 Feb 2019 09:50:59 -0800
+Message-Id: <20190210175105.31629-11-f.fainelli@gmail.com>
 In-Reply-To: <20190210175105.31629-1-f.fainelli@gmail.com>
 References: <20190210175105.31629-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 09/16] switchdev: Add
+Subject: [Bridge] [PATCH net-next v2 10/16] rocker: Handle
 	SWITCHDEV_PORT_ATTR_SET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -29,43 +29,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
 
-In preparation for allowing switchdev enabled drivers to veto specific
-attribute settings from within the context of the caller, introduce a
-new switchdev notifier type for port attributes.
+Following patches will change the way we communicate getting or setting
+a port's attribute and use a blocking notifier to perform those tasks.
 
-Suggested-by: Ido Schimmel <idosch@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
+Prepare rocker to support receiving notifier events targeting
+SWITCHDEV_PORT_ATTR_SET and simply translate that into the existing
+rocker_port_attr_set call.
+
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- include/net/switchdev.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/rocker/rocker_main.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 96cd3e795f7f..7bc6a004d32a 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -135,6 +135,7 @@ enum switchdev_notifier_type {
+diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
+index ff3f14504f4f..b94f940dc7b5 100644
+--- a/drivers/net/ethernet/rocker/rocker_main.c
++++ b/drivers/net/ethernet/rocker/rocker_main.c
+@@ -2811,6 +2811,20 @@ rocker_switchdev_port_obj_event(unsigned long event, struct net_device *netdev,
+ 	return notifier_from_errno(err);
+ }
  
- 	SWITCHDEV_PORT_OBJ_ADD, /* Blocking. */
- 	SWITCHDEV_PORT_OBJ_DEL, /* Blocking. */
-+	SWITCHDEV_PORT_ATTR_SET, /* Blocking. */
- 
- 	SWITCHDEV_VXLAN_FDB_ADD_TO_BRIDGE,
- 	SWITCHDEV_VXLAN_FDB_DEL_TO_BRIDGE,
-@@ -163,6 +164,13 @@ struct switchdev_notifier_port_obj_info {
- 	bool handled;
- };
- 
-+struct switchdev_notifier_port_attr_info {
-+	struct switchdev_notifier_info info; /* must be first */
-+	const struct switchdev_attr *attr;
-+	struct switchdev_trans *trans;
-+	bool handled;
-+};
++static int
++rocker_switchdev_port_attr_set_event(unsigned long event, struct net_device *netdev,
++				     struct switchdev_notifier_port_attr_info
++				     *port_attr_info)
++{
++	int err;
 +
- static inline struct net_device *
- switchdev_notifier_info_to_dev(const struct switchdev_notifier_info *info)
++	err = rocker_port_attr_set(netdev, port_attr_info->attr,
++				   port_attr_info->trans);
++
++	port_attr_info->handled = true;
++	return notifier_from_errno(err);
++}
++
+ static int rocker_switchdev_blocking_event(struct notifier_block *unused,
+ 					   unsigned long event, void *ptr)
  {
+@@ -2823,6 +2837,8 @@ static int rocker_switchdev_blocking_event(struct notifier_block *unused,
+ 	case SWITCHDEV_PORT_OBJ_ADD:
+ 	case SWITCHDEV_PORT_OBJ_DEL:
+ 		return rocker_switchdev_port_obj_event(event, dev, ptr);
++	case SWITCHDEV_PORT_ATTR_SET:
++		return rocker_switchdev_port_attr_set_event(event, dev, ptr);
+ 	}
+ 
+ 	return NOTIFY_DONE;
 -- 
 2.19.1
 
