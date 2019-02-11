@@ -1,19 +1,19 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=bcLXrvybRxvEpRiDWi/DGfWF7hfDDl3K/0VgbGIyK88=;
-	b=OUA1fDbKWOlIw6c+sWhOFHCM49ft0PxF5Fh7j/6krgbsrXP2V5Bi0pkEfrE8OBSkbB
-	UpMWf+GXGgm6DBnt73I7sX4cpb28DRCmRUoqiT9b4Jk879+3mWJCEMg1jgToaAracHOJ
-	0KQfVQ/nhHpqsStdlQiPFvwJ1A4OgE7V6Xu0wmc2RuEomd78io3O4Ha608P3pR8DfeGj
-	VaBu1hXJ9LVf95/ClrRbDE+3iqq//vBFyleOIy07uxpTEGKAi2MW7H+25SNXb5SYYLuf
-	0rtx1JUPUHMM0/mGmCJzBa0b6f8GnzkuSo2zfJJKpxn7RzlzaPDMo8IWkS5lp1b9JFZ9
-	5Lmg==
+	bh=KF6AlsLZoN04sGHp2NFAD11lVXn/Fy4kJgdzP9H47YA=;
+	b=uVqy4Nkvmt3Zd+BDUCRaRjJyPd3UW3yj9gXDuzghFhNImFuBE6egjrdFsKy87mlK2F
+	kwpYWQM++R81qfhI/4V0qq5Pa3YbZduQr6WQE8dm5pCfTwetPj6a+hhUNqsfukLjC1pQ
+	u7/V8AsYn4VxnD8BsnzWjP8C9bfH8Tm+JsIAnsIHpMkPcpGhsgrcFhFCd98Udov6Gm9Q
+	EHkcWRRe0Chx0ZUsujD+UkWORgMJmzIHRWLgMdRAvzgsbTW4vWSOm/Cbk2wohPIU9NAr
+	hIssQAGhcSEAsZ6rL39eVeiwGuKUIV6ELb6cJuHKQnKENVqiNZspJhEPKPkg6Nhf2/V7
+	tjSg==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Mon, 11 Feb 2019 11:09:55 -0800
-Message-Id: <20190211191001.8623-4-f.fainelli@gmail.com>
+Date: Mon, 11 Feb 2019 11:09:56 -0800
+Message-Id: <20190211191001.8623-5-f.fainelli@gmail.com>
 In-Reply-To: <20190211191001.8623-1-f.fainelli@gmail.com>
 References: <20190211191001.8623-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v4 3/9] rocker: Handle
+Subject: [Bridge] [PATCH net-next v4 4/9] mlxsw: spectrum_switchdev: Handle
 	SWITCHDEV_PORT_ATTR_GET/SET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -29,38 +29,37 @@ Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, 
 Following patches will change the way we communicate getting or setting
 a port's attribute and use a blocking notifier to perform those tasks.
 
-Prepare rocker to support receiving notifier events targeting
+Prepare mlxsw to support receiving notifier events targeting
 SWITCHDEV_PORT_ATTR_GET/SET and simply translate that into the existing
-rocker_port_attr_{set,get} calls.
+mlxsw_sp_port_attr_{set,get} calls.
 
 Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/net/ethernet/rocker/rocker_main.c | 24 +++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ .../mellanox/mlxsw/spectrum_switchdev.c       | 23 +++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 66f72f8c46e5..9a8fe49e32b6 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -2835,6 +2835,27 @@ rocker_switchdev_port_obj_event(unsigned long event, struct net_device *netdev,
- 	return notifier_from_errno(err);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 95e37de3e48f..88d4994309a7 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -3443,6 +3443,26 @@ mlxsw_sp_switchdev_handle_vxlan_obj_del(struct net_device *vxlan_dev,
+ 	}
  }
  
 +static int
-+rocker_switchdev_port_attr_event(unsigned long event, struct net_device *netdev,
-+				 struct switchdev_notifier_port_attr_info
-+				 *port_attr_info)
++mlxsw_sp_switchdev_port_attr_event(unsigned long event, struct net_device *dev,
++		struct switchdev_notifier_port_attr_info *port_attr_info)
 +{
 +	int err = -EOPNOTSUPP;
 +
 +	switch (event) {
 +	case SWITCHDEV_PORT_ATTR_SET:
-+		err = rocker_port_attr_set(netdev, port_attr_info->attr,
-+					   port_attr_info->trans);
++		err = mlxsw_sp_port_attr_set(dev, port_attr_info->attr,
++					     port_attr_info->trans);
 +		break;
 +	case SWITCHDEV_PORT_ATTR_GET:
-+		err = rocker_port_attr_get(netdev, port_attr_info->attr);
++		err = mlxsw_sp_port_attr_get(dev, port_attr_info->attr);
 +		break;
 +	}
 +
@@ -68,16 +67,16 @@ index 66f72f8c46e5..9a8fe49e32b6 100644
 +	return notifier_from_errno(err);
 +}
 +
- static int rocker_switchdev_blocking_event(struct notifier_block *unused,
- 					   unsigned long event, void *ptr)
+ static int mlxsw_sp_switchdev_blocking_event(struct notifier_block *unused,
+ 					     unsigned long event, void *ptr)
  {
-@@ -2847,6 +2868,9 @@ static int rocker_switchdev_blocking_event(struct notifier_block *unused,
- 	case SWITCHDEV_PORT_OBJ_ADD:
- 	case SWITCHDEV_PORT_OBJ_DEL:
- 		return rocker_switchdev_port_obj_event(event, dev, ptr);
+@@ -3466,6 +3486,9 @@ static int mlxsw_sp_switchdev_blocking_event(struct notifier_block *unused,
+ 							mlxsw_sp_port_dev_check,
+ 							mlxsw_sp_port_obj_del);
+ 		return notifier_from_errno(err);
 +	case SWITCHDEV_PORT_ATTR_SET: /* fall through */
 +	case SWITCHDEV_PORT_ATTR_GET:
-+		return rocker_switchdev_port_attr_event(event, dev, ptr);
++		return mlxsw_sp_switchdev_port_attr_event(event, dev, ptr);
  	}
  
  	return NOTIFY_DONE;
