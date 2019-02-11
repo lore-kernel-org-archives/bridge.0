@@ -1,20 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=QPgFt5j6UGQb+YmlyjgIvSlCGoFlyBm2NR9++YJ/iss=;
-	b=t8yCDwGfisKuIVMD1tXN+vqj45cMlPM2XmC78pl355j/537+oBFV3mapZqnNmlg+k0
-	NoQUOCWfKGYPJch0bYxXfo+Hz5T3OVDjUs2iddTX7edc76wz/hicWpluIMn6uawBRSak
-	EQuAcpqirdfhYdYb5oNPA/UGHWlEtp0DJbdMuI7v2K7uQTMWoB+Sm68latHf5turkcFg
-	lc8i5Bkaa53IUazdHwY0vsMTqr7bnj8xGVtnwfC9OTtL50ilvBaudJ+Xg8gTKarKtGT1
-	eota6GzH3QYlXbdcpLi1M3zZSKNX0Cy/s6jJG7HWiTgQMnJ2/IcOaV8SjvnTUu0zE2tY
-	WdGA==
+	bh=v/u+Kp7GgYlDbKFbh6YAwMSm2Elg7F9P+dQ3wMoaKCw=;
+	b=blyiAXcEzoAiAtY/XQPfKGkZIrnOlkb8ifQ0jwBIbvvfYB5VkNIeaeq7HUgA5tR70u
+	seLRGL98vrh88Z1yHu9EAnnXw5uVNZgZDwP8olBqXT+JIKtT5ROdaarj9fAjLZrhkkDS
+	UfSGI+XHx4h8qUbCdEd/+38zFc5uQaWj6lhgYIua1P2/c6tejO7UNpoBU1gYxU0ZPMtt
+	EdwIQBCNtb8+FQSoOUYtaQFqFIED13BJWkjHHVKFfGWMNI2m0vDzgTxc8JPWAA+Z2yRK
+	s+qobnnwW9SKAjJXZn5W9v9hwVWO68K4AwOgUDswNiwisa5bjbwTXj1Hrh1qdeTWle5F
+	v9YQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Mon, 11 Feb 2019 11:09:59 -0800
-Message-Id: <20190211191001.8623-8-f.fainelli@gmail.com>
+Date: Mon, 11 Feb 2019 11:10:00 -0800
+Message-Id: <20190211191001.8623-9-f.fainelli@gmail.com>
 In-Reply-To: <20190211191001.8623-1-f.fainelli@gmail.com>
 References: <20190211191001.8623-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v4 7/9] net: dsa: Handle
-	SWITCHDEV_PORT_ATTR_GET/SET
+Subject: [Bridge] [PATCH net-next v4 8/9] net: switchdev: Replace port attr
+	get/set SDO with a notification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,61 +26,169 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-Following patches will change the way we communicate getting or setting
-a port's attribute and use a blocking notifier to perform those tasks.
+Drop switchdev_ops.switchdev_port_attr_get and _set. Drop the uses of
+this field from all clients, which were migrated to use switchdev
+notification in the previous patches.
 
-Prepare DSA to support receiving notifier events targeting
-SWITCHDEV_PORT_ATTR_GET/SET and simply translate that into the existing
-dsa_slave_port_attr_{set,get} calls.
+Add a new function switchdev_port_attr_notify() that sends the switchdev
+notifications SWITCHDEV_PORT_ATTR_GET and _SET.
+
+Update switchdev_port_attr_get() to dispatch to this new function. Drop
+__switchdev_port_attr_set() and update switchdev_port_attr_set()
+likewise.
 
 Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- net/dsa/slave.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ net/switchdev/switchdev.c | 107 +++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 70 deletions(-)
 
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 2e5e7c04821b..66c6c353f4f7 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -1558,6 +1558,27 @@ dsa_slave_switchdev_port_obj_event(unsigned long event,
- 	return notifier_from_errno(err);
+diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
+index 7e1357db33d7..8fc3db2179f5 100644
+--- a/net/switchdev/switchdev.c
++++ b/net/switchdev/switchdev.c
+@@ -174,81 +174,31 @@ static int switchdev_deferred_enqueue(struct net_device *dev,
+ 	return 0;
  }
  
-+static int
-+dsa_slave_switchdev_port_attr_event(unsigned long event,
-+		struct net_device *netdev,
-+		struct switchdev_notifier_port_attr_info *port_attr_info)
-+{
-+	int err = -EOPNOTSUPP;
-+
-+	switch (event) {
-+	case SWITCHDEV_PORT_ATTR_SET:
-+		err = dsa_slave_port_attr_set(netdev, port_attr_info->attr,
-+					      port_attr_info->trans);
-+		break;
-+	case SWITCHDEV_PORT_ATTR_GET:
-+		err = dsa_slave_port_attr_get(netdev, port_attr_info->attr);
-+		break;
-+	}
-+
-+	port_attr_info->handled = true;
-+	return notifier_from_errno(err);
-+}
-+
- static int dsa_slave_switchdev_blocking_event(struct notifier_block *unused,
- 					      unsigned long event, void *ptr)
+-/**
+- *	switchdev_port_attr_get - Get port attribute
+- *
+- *	@dev: port device
+- *	@attr: attribute to get
+- */
+-int switchdev_port_attr_get(struct net_device *dev, struct switchdev_attr *attr)
++static int switchdev_port_attr_notify(enum switchdev_notifier_type nt,
++				      struct net_device *dev,
++				      struct switchdev_attr *attr,
++				      struct switchdev_trans *trans)
  {
-@@ -1570,6 +1591,9 @@ static int dsa_slave_switchdev_blocking_event(struct notifier_block *unused,
- 	case SWITCHDEV_PORT_OBJ_ADD: /* fall through */
- 	case SWITCHDEV_PORT_OBJ_DEL:
- 		return dsa_slave_switchdev_port_obj_event(event, dev, ptr);
-+	case SWITCHDEV_PORT_ATTR_SET: /* fall through */
-+	case SWITCHDEV_PORT_ATTR_GET:
-+		return dsa_slave_switchdev_port_attr_event(event, dev, ptr);
+-	const struct switchdev_ops *ops = dev->switchdev_ops;
+-	struct net_device *lower_dev;
+-	struct list_head *iter;
+-	struct switchdev_attr first = {
+-		.id = SWITCHDEV_ATTR_ID_UNDEFINED
+-	};
+-	int err = -EOPNOTSUPP;
++	int err;
++	int rc;
+ 
+-	if (ops && ops->switchdev_port_attr_get)
+-		return ops->switchdev_port_attr_get(dev, attr);
++	struct switchdev_notifier_port_attr_info attr_info = {
++		.attr = attr,
++		.trans = trans,
++		.handled = false,
++	};
+ 
+-	if (attr->flags & SWITCHDEV_F_NO_RECURSE)
++	rc = call_switchdev_blocking_notifiers(nt, dev, &attr_info.info, NULL);
++	err = notifier_to_errno(rc);
++	if (err) {
++		WARN_ON(!attr_info.handled);
+ 		return err;
+-
+-	/* Switch device port(s) may be stacked under
+-	 * bond/team/vlan dev, so recurse down to get attr on
+-	 * each port.  Return -ENODATA if attr values don't
+-	 * compare across ports.
+-	 */
+-
+-	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+-		err = switchdev_port_attr_get(lower_dev, attr);
+-		if (err)
+-			break;
+-		if (first.id == SWITCHDEV_ATTR_ID_UNDEFINED)
+-			first = *attr;
+-		else if (memcmp(&first, attr, sizeof(*attr)))
+-			return -ENODATA;
+-	}
+-
+-	return err;
+-}
+-EXPORT_SYMBOL_GPL(switchdev_port_attr_get);
+-
+-static int __switchdev_port_attr_set(struct net_device *dev,
+-				     const struct switchdev_attr *attr,
+-				     struct switchdev_trans *trans)
+-{
+-	const struct switchdev_ops *ops = dev->switchdev_ops;
+-	struct net_device *lower_dev;
+-	struct list_head *iter;
+-	int err = -EOPNOTSUPP;
+-
+-	if (ops && ops->switchdev_port_attr_set) {
+-		err = ops->switchdev_port_attr_set(dev, attr, trans);
+-		goto done;
+-	}
+-
+-	if (attr->flags & SWITCHDEV_F_NO_RECURSE)
+-		goto done;
+-
+-	/* Switch device port(s) may be stacked under
+-	 * bond/team/vlan dev, so recurse down to set attr on
+-	 * each port.
+-	 */
+-
+-	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+-		err = __switchdev_port_attr_set(lower_dev, attr, trans);
+-		if (err)
+-			break;
  	}
  
- 	return NOTIFY_DONE;
+-done:
+-	if (err == -EOPNOTSUPP && attr->flags & SWITCHDEV_F_SKIP_EOPNOTSUPP)
+-		err = 0;
++	if (!attr_info.handled)
++		return -EOPNOTSUPP;
+ 
+-	return err;
++	return 0;
+ }
+ 
+ static int switchdev_port_attr_set_now(struct net_device *dev,
+@@ -267,7 +217,9 @@ static int switchdev_port_attr_set_now(struct net_device *dev,
+ 	 */
+ 
+ 	trans.ph_prepare = true;
+-	err = __switchdev_port_attr_set(dev, attr, &trans);
++	err = switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET,
++					 dev, (struct switchdev_attr *)attr,
++					 &trans);
+ 	if (err) {
+ 		/* Prepare phase failed: abort the transaction.  Any
+ 		 * resources reserved in the prepare phase are
+@@ -286,7 +238,9 @@ static int switchdev_port_attr_set_now(struct net_device *dev,
+ 	 */
+ 
+ 	trans.ph_prepare = false;
+-	err = __switchdev_port_attr_set(dev, attr, &trans);
++	err = switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET,
++					 dev, (struct switchdev_attr *)attr,
++					 &trans);
+ 	WARN(err, "%s: Commit of attribute (id=%d) failed.\n",
+ 	     dev->name, attr->id);
+ 	switchdev_trans_items_warn_destroy(dev, &trans);
+@@ -338,6 +292,19 @@ int switchdev_port_attr_set(struct net_device *dev,
+ }
+ EXPORT_SYMBOL_GPL(switchdev_port_attr_set);
+ 
++/**
++ *	switchdev_port_attr_get - Get port attribute
++ *
++ *	@dev: port device
++ *	@attr: attribute to get
++ */
++int switchdev_port_attr_get(struct net_device *dev, struct switchdev_attr *attr)
++{
++	return switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_GET, dev,
++					  attr, NULL);
++}
++EXPORT_SYMBOL_GPL(switchdev_port_attr_get);
++
+ static size_t switchdev_obj_size(const struct switchdev_obj *obj)
+ {
+ 	switch (obj->id) {
 -- 
 2.17.1
 
