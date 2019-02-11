@@ -1,22 +1,25 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=QW8JcZ/TMANYKU0mM+jgd96HI5ojM+/g32zST3rPVL4=;
-	b=EraP5YAK8h5d/2pqXeQRW96x6XRzWXmnS+h5AX/5bVHSdU6xiim9L7xfII7i2T0FHX
-	mI+XeoHF70C70L67B40uICkXpQNyZPkrFBF1b4rDaJsL8FK7/3CMGWg6iph/6oj1ZCcg
-	+hGpXTmcTJ6mernsjwrjxC+TgZTk8KVZyF/XCQSPiOLCvnNbMG4CU0WXp0Lmzjy0bXRl
-	WW6PpLAnruZj9jznRgoZVDkqvp6MTexC3PAUxQsR+H1h7bHIZOJPbDCpytan850v1HsW
-	1neoTwrG3m5IMJzr5jwz1aMYkrp2nuC5A8v0RKri/xqo+kmehFpgQAH2AF0/k06o8YII
-	UKuw==
-From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Sun, 10 Feb 2019 15:40:07 -0800
-Message-Id: <20190210234007.16173-10-f.fainelli@gmail.com>
-In-Reply-To: <20190210234007.16173-1-f.fainelli@gmail.com>
+	h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
+	:user-agent:mime-version:in-reply-to:content-language
+	:content-transfer-encoding;
+	bh=8dewQ+QRBsLUTDs5tTnXH6nYs5k+9GPCW5qSagw6W4c=;
+	b=f+GjWDaeQePi8+Ib9pOjOFVd6dnByWNZtyICJm/t2xhcZCWfy++gjfEvnsX5QxuD6C
+	ISBaCa63kgPwKcV2POh5AfLWQ3LagbKNz8woAHUMMjmhY3wK0FfTtmSezhsDTj3ZDDaj
+	CkurwgdY9m9HluJDyVoxPrqDnCN9i6Wp6XHNvtYoPF0vGNuIYujRO8B96KOUQufxtjwF
+	Wn1pvasdDTk1YZKma4UG0wGAPsRmUrCpR7mays6XIPmP9O7BGMBCHcmgxQJs3vT7AWFK
+	Kd4VxnaTq4DsUnQtz3CV2hPrG8yoNv2YPMrs2dMdR8IVOCkJckNZtL08DRyHUHl6o6AE
+	JekA==
 References: <20190210234007.16173-1-f.fainelli@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <7ece5de8-1bab-0f0e-e7db-ffeef12ba1d7@gmail.com>
+Date: Mon, 11 Feb 2019 09:31:42 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 9/9] net: Remove switchdev_ops
+In-Reply-To: <20190210234007.16173-1-f.fainelli@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v3 0/9] net: Remove switchdev_ops
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,277 +29,71 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
+Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
 
-Now that we have converted all possible callers to using a switchdev
-notifier for attributes we do not have a need for implementing
-switchdev_ops anymore, and this can be removed from all drivers the
-net_device structure.
+On 2/10/19 3:39 PM, Florian Fainelli wrote:
+> Hi all,
+> 
+> This patch series finishes by the removal of switchdev_ops. To get there
+> we need to do a few things:
+> 
+> - get rid of the one and only call to switchdev_port_attr_get() which is
+>   used to fetch the device's bridge port flags capabilities, instead we
+>   can just check what flags are being programmed during the prepare
+>   phase
+> 
+> - once we get rid of getting switchdev port attributes we convert the
+>   setting of such attributes using a blocking notifier
+> 
+> And then remove switchdev_ops completely.
+> 
+> Please review and let me know what you think!
+> 
+> David, I would like to get Ido's feedback on this to make sure I did not
+> miss something, thank you!
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 12 ------------
- drivers/net/ethernet/mellanox/mlxsw/spectrum.h |  2 --
- .../mellanox/mlxsw/spectrum_switchdev.c        | 13 -------------
- drivers/net/ethernet/mscc/ocelot.c             |  5 -----
- drivers/net/ethernet/rocker/rocker_main.c      |  6 ------
- drivers/staging/fsl-dpaa2/ethsw/ethsw.c        |  6 ------
- include/linux/netdevice.h                      |  3 ---
- include/net/switchdev.h                        | 18 ------------------
- net/dsa/slave.c                                |  6 ------
- 9 files changed, 71 deletions(-)
+David, I will be reposting a v4 with Jiri's Acked-by as well as adding
+fallthrough switch/case annotations so we don't regress on that front.
+Thank you.
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 7c9745cecbbd..619965abab43 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -3220,7 +3220,6 @@ static int mlxsw_sp_port_create(struct mlxsw_sp *mlxsw_sp, u8 local_port,
- 	}
- 	mlxsw_sp_port->default_vlan = mlxsw_sp_port_vlan;
- 
--	mlxsw_sp_port_switchdev_init(mlxsw_sp_port);
- 	mlxsw_sp->ports[local_port] = mlxsw_sp_port;
- 	err = register_netdev(dev);
- 	if (err) {
-@@ -3237,7 +3236,6 @@ static int mlxsw_sp_port_create(struct mlxsw_sp *mlxsw_sp, u8 local_port,
- 
- err_register_netdev:
- 	mlxsw_sp->ports[local_port] = NULL;
--	mlxsw_sp_port_switchdev_fini(mlxsw_sp_port);
- 	mlxsw_sp_port_vlan_destroy(mlxsw_sp_port_vlan);
- err_port_vlan_create:
- err_port_pvid_set:
-@@ -3280,7 +3278,6 @@ static void mlxsw_sp_port_remove(struct mlxsw_sp *mlxsw_sp, u8 local_port)
- 	mlxsw_core_port_clear(mlxsw_sp->core, local_port, mlxsw_sp);
- 	unregister_netdev(mlxsw_sp_port->dev); /* This calls ndo_stop */
- 	mlxsw_sp->ports[local_port] = NULL;
--	mlxsw_sp_port_switchdev_fini(mlxsw_sp_port);
- 	mlxsw_sp_port_vlan_flush(mlxsw_sp_port, true);
- 	mlxsw_sp_port_nve_fini(mlxsw_sp_port);
- 	mlxsw_sp_tc_qdisc_fini(mlxsw_sp_port);
-@@ -4001,12 +3998,6 @@ static int mlxsw_sp_init(struct mlxsw_core *mlxsw_core,
- 		goto err_span_init;
- 	}
- 
--	err = mlxsw_sp_switchdev_init(mlxsw_sp);
--	if (err) {
--		dev_err(mlxsw_sp->bus_info->dev, "Failed to initialize switchdev\n");
--		goto err_switchdev_init;
--	}
--
- 	err = mlxsw_sp_counter_pool_init(mlxsw_sp);
- 	if (err) {
- 		dev_err(mlxsw_sp->bus_info->dev, "Failed to init counter pool\n");
-@@ -4077,8 +4068,6 @@ static int mlxsw_sp_init(struct mlxsw_core *mlxsw_core,
- err_afa_init:
- 	mlxsw_sp_counter_pool_fini(mlxsw_sp);
- err_counter_pool_init:
--	mlxsw_sp_switchdev_fini(mlxsw_sp);
--err_switchdev_init:
- 	mlxsw_sp_span_fini(mlxsw_sp);
- err_span_init:
- 	mlxsw_sp_lag_fini(mlxsw_sp);
-@@ -4141,7 +4130,6 @@ static void mlxsw_sp_fini(struct mlxsw_core *mlxsw_core)
- 	mlxsw_sp_nve_fini(mlxsw_sp);
- 	mlxsw_sp_afa_fini(mlxsw_sp);
- 	mlxsw_sp_counter_pool_fini(mlxsw_sp);
--	mlxsw_sp_switchdev_fini(mlxsw_sp);
- 	mlxsw_sp_span_fini(mlxsw_sp);
- 	mlxsw_sp_lag_fini(mlxsw_sp);
- 	mlxsw_sp_buffers_fini(mlxsw_sp);
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-index ceebc91f4f1d..82e3e6dc81a1 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-@@ -375,8 +375,6 @@ u32 mlxsw_sp_bytes_cells(const struct mlxsw_sp *mlxsw_sp, u32 bytes);
- /* spectrum_switchdev.c */
- int mlxsw_sp_switchdev_init(struct mlxsw_sp *mlxsw_sp);
- void mlxsw_sp_switchdev_fini(struct mlxsw_sp *mlxsw_sp);
--void mlxsw_sp_port_switchdev_init(struct mlxsw_sp_port *mlxsw_sp_port);
--void mlxsw_sp_port_switchdev_fini(struct mlxsw_sp_port *mlxsw_sp_port);
- int mlxsw_sp_rif_fdb_op(struct mlxsw_sp *mlxsw_sp, const char *mac, u16 fid,
- 			bool adding);
- void
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index c6d7bb70e8f2..fafd582c2fdc 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -1957,11 +1957,6 @@ static struct mlxsw_sp_port *mlxsw_sp_lag_rep_port(struct mlxsw_sp *mlxsw_sp,
- 	return NULL;
- }
- 
--static const struct switchdev_ops mlxsw_sp_port_switchdev_ops = {
--	.switchdev_port_attr_get	= mlxsw_sp_port_attr_get,
--	.switchdev_port_attr_set	= mlxsw_sp_port_attr_set,
--};
--
- static int
- mlxsw_sp_bridge_8021q_port_join(struct mlxsw_sp_bridge_device *bridge_device,
- 				struct mlxsw_sp_bridge_port *bridge_port,
-@@ -3576,11 +3571,3 @@ void mlxsw_sp_switchdev_fini(struct mlxsw_sp *mlxsw_sp)
- 	kfree(mlxsw_sp->bridge);
- }
- 
--void mlxsw_sp_port_switchdev_init(struct mlxsw_sp_port *mlxsw_sp_port)
--{
--	mlxsw_sp_port->dev->switchdev_ops = &mlxsw_sp_port_switchdev_ops;
--}
--
--void mlxsw_sp_port_switchdev_fini(struct mlxsw_sp_port *mlxsw_sp_port)
--{
--}
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index 850a49033a30..21c73a0355d4 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -1324,10 +1324,6 @@ static int ocelot_port_obj_del(struct net_device *dev,
- 	return ret;
- }
- 
--static const struct switchdev_ops ocelot_port_switchdev_ops = {
--	.switchdev_port_attr_set	= ocelot_port_attr_set,
--};
--
- static int ocelot_port_bridge_join(struct ocelot_port *ocelot_port,
- 				   struct net_device *bridge)
- {
-@@ -1654,7 +1650,6 @@ int ocelot_probe_port(struct ocelot *ocelot, u8 port,
- 
- 	dev->netdev_ops = &ocelot_port_netdev_ops;
- 	dev->ethtool_ops = &ocelot_ethtool_ops;
--	dev->switchdev_ops = &ocelot_port_switchdev_ops;
- 
- 	dev->hw_features |= NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_RXFCS;
- 	dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER;
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 591008c8fa74..16f045b06c55 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -2147,11 +2147,6 @@ static int rocker_port_obj_del(struct net_device *dev,
- 	return err;
- }
- 
--static const struct switchdev_ops rocker_port_switchdev_ops = {
--	.switchdev_port_attr_get	= rocker_port_attr_get,
--	.switchdev_port_attr_set	= rocker_port_attr_set,
--};
--
- struct rocker_fib_event_work {
- 	struct work_struct work;
- 	union {
-@@ -2605,7 +2600,6 @@ static int rocker_probe_port(struct rocker *rocker, unsigned int port_number)
- 	rocker_port_dev_addr_init(rocker_port);
- 	dev->netdev_ops = &rocker_port_netdev_ops;
- 	dev->ethtool_ops = &rocker_port_ethtool_ops;
--	dev->switchdev_ops = &rocker_port_switchdev_ops;
- 	netif_tx_napi_add(dev, &rocker_port->napi_tx, rocker_port_poll_tx,
- 			  NAPI_POLL_WEIGHT);
- 	netif_napi_add(dev, &rocker_port->napi_rx, rocker_port_poll_rx,
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-index bc9e7de07200..44831990239c 100644
---- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-+++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-@@ -932,11 +932,6 @@ static int swdev_port_obj_del(struct net_device *netdev,
- 	return err;
- }
- 
--static const struct switchdev_ops ethsw_port_switchdev_ops = {
--	.switchdev_port_attr_get	= swdev_port_attr_get,
--	.switchdev_port_attr_set	= swdev_port_attr_set,
--};
--
- /* For the moment, only flood setting needs to be updated */
- static int port_bridge_join(struct net_device *netdev,
- 			    struct net_device *upper_dev)
-@@ -1466,7 +1461,6 @@ static int ethsw_probe_port(struct ethsw_core *ethsw, u16 port_idx)
- 	SET_NETDEV_DEV(port_netdev, dev);
- 	port_netdev->netdev_ops = &ethsw_port_ops;
- 	port_netdev->ethtool_ops = &ethsw_port_ethtool_ops;
--	port_netdev->switchdev_ops = &ethsw_port_switchdev_ops;
- 
- 	/* Set MTU limits */
- 	port_netdev->min_mtu = ETH_MIN_MTU;
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 1fb733f38a47..a747456b9d23 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1836,9 +1836,6 @@ struct net_device {
- #endif
- 	const struct net_device_ops *netdev_ops;
- 	const struct ethtool_ops *ethtool_ops;
--#ifdef CONFIG_NET_SWITCHDEV
--	const struct switchdev_ops *switchdev_ops;
--#endif
- #ifdef CONFIG_NET_L3_MASTER_DEV
- 	const struct l3mdev_ops	*l3mdev_ops;
- #endif
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index b8becabbef38..e9aa920aba57 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -113,21 +113,6 @@ void *switchdev_trans_item_dequeue(struct switchdev_trans *trans);
- 
- typedef int switchdev_obj_dump_cb_t(struct switchdev_obj *obj);
- 
--/**
-- * struct switchdev_ops - switchdev operations
-- *
-- * @switchdev_port_attr_get: Get a port attribute (see switchdev_attr).
-- *
-- * @switchdev_port_attr_set: Set a port attribute (see switchdev_attr).
-- */
--struct switchdev_ops {
--	int	(*switchdev_port_attr_get)(struct net_device *dev,
--					   struct switchdev_attr *attr);
--	int	(*switchdev_port_attr_set)(struct net_device *dev,
--					   const struct switchdev_attr *attr,
--					   struct switchdev_trans *trans);
--};
--
- enum switchdev_notifier_type {
- 	SWITCHDEV_FDB_ADD_TO_BRIDGE = 1,
- 	SWITCHDEV_FDB_DEL_TO_BRIDGE,
-@@ -229,7 +214,6 @@ int switchdev_handle_port_obj_del(struct net_device *dev,
- 			int (*del_cb)(struct net_device *dev,
- 				      const struct switchdev_obj *obj));
- 
--#define SWITCHDEV_SET_OPS(netdev, ops) ((netdev)->switchdev_ops = (ops))
- #else
- 
- static inline void switchdev_deferred_process(void)
-@@ -322,8 +306,6 @@ switchdev_handle_port_obj_del(struct net_device *dev,
- 	return 0;
- }
- 
--#define SWITCHDEV_SET_OPS(netdev, ops) do {} while (0)
--
- #endif
- 
- #endif /* _LINUX_SWITCHDEV_H_ */
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 2a14a38f5f93..236b6a72dba3 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -1057,11 +1057,6 @@ static const struct net_device_ops dsa_slave_netdev_ops = {
- 	.ndo_get_port_parent_id	= dsa_slave_get_port_parent_id,
- };
- 
--static const struct switchdev_ops dsa_slave_switchdev_ops = {
--	.switchdev_port_attr_get	= dsa_slave_port_attr_get,
--	.switchdev_port_attr_set	= dsa_slave_port_attr_set,
--};
--
- static struct device_type dsa_type = {
- 	.name	= "dsa",
- };
-@@ -1321,7 +1316,6 @@ int dsa_slave_create(struct dsa_port *port)
- 	eth_hw_addr_inherit(slave_dev, master);
- 	slave_dev->priv_flags |= IFF_NO_QUEUE;
- 	slave_dev->netdev_ops = &dsa_slave_netdev_ops;
--	slave_dev->switchdev_ops = &dsa_slave_switchdev_ops;
- 	slave_dev->min_mtu = 0;
- 	slave_dev->max_mtu = ETH_MAX_MTU;
- 	SET_NETDEV_DEVTYPE(slave_dev, &dsa_type);
+> 
+> Changes in v3:
+> - dropped patches removing te need to get the attribute since we
+>   still need that in order to support different sleeping vs.
+>   non-sleeping contexts
+> 
+> Changes in v2:
+> - fixed bisectability issues in patch #15
+> - added Acked-by from Jiri where necessary
+> - fixed a few minor issues according to Jiri's feedback:
+> 	- rename port_attr_event -> port_attr_set_event
+> 	- moved SWITCHDEV_PORT_ATTR_SET closer to other blocking events
+> 
+> Florian Fainelli (9):
+>   Documentation: networking: switchdev: Update port parent ID section
+>   switchdev: Add SWITCHDEV_PORT_ATTR_SET, SWITCHDEV_PORT_ATTR_GET
+>   rocker: Handle SWITCHDEV_PORT_ATTR_GET/SET
+>   mlxsw: spectrum_switchdev: Handle SWITCHDEV_PORT_ATTR_GET/SET
+>   net: mscc: ocelot: Handle SWITCHDEV_PORT_ATTR_GET/SET
+>   staging: fsl-dpaa2: ethsw: Handle SWITCHDEV_PORT_ATTR_GET/SET
+>   net: dsa: Handle SWITCHDEV_PORT_ATTR_GET/SET
+>   net: switchdev: Replace port attr get/set SDO with a notification
+>   net: Remove switchdev_ops
+> 
+>  Documentation/networking/switchdev.txt        |  10 +-
+>  .../net/ethernet/mellanox/mlxsw/spectrum.c    |  12 --
+>  .../net/ethernet/mellanox/mlxsw/spectrum.h    |   2 -
+>  .../mellanox/mlxsw/spectrum_switchdev.c       |  36 +++---
+>  drivers/net/ethernet/mscc/ocelot.c            |  26 ++++-
+>  drivers/net/ethernet/rocker/rocker_main.c     |  30 ++++-
+>  drivers/staging/fsl-dpaa2/ethsw/ethsw.c       |  30 ++++-
+>  include/linux/netdevice.h                     |   3 -
+>  include/net/switchdev.h                       |  28 ++---
+>  net/dsa/slave.c                               |  30 ++++-
+>  net/switchdev/switchdev.c                     | 107 ++++++------------
+>  11 files changed, 168 insertions(+), 146 deletions(-)
+> 
+
+
 -- 
-2.19.1
-
+Florian
