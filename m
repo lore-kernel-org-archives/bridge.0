@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1550025391;
-	bh=oTMGjszo6I0HjGUIDuK/cz8GozeNGBd4cUT4fhbWEco=;
+	s=default; t=1550025574;
+	bh=rhUvPPBNANly9SLzat6WICnDg7ZlhnGAs2h+tLtIBiQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=N8AoJ6azeFnqg1vUkYIQ/sdaDzRV9vgPs/ynS/tK01tMv4qwl9ulTCMQkWxCPxTvt
-	Ph92LglLtbfgREAsf7vwLzTROU7FQKa+oSR26maCRd9wKtfBZj1P2A0bjiNXy3L+S0
-	RLkaA7lkt2/h9OpPBDHKEsFE5UYZBH4MA9WNaOXU=
+	b=ijD1KiaWVlhqFtaulhGoTZgjJNvTUTPfAeSj0clRP/x0ghLCDsTJJ3hY/grGAj4kI
+	1rYTUe9c97edLG/yWiJ8RAQo2zZ6Ao6NdL9Td9Gv8bDByDPpeP/OnvS+X2kLw4DUC/
+	cIpnbxhRDg3GS7w9l4LqcdiygQYT7nT5KdPpb2qo=
 From: Sasha Levin <sashal@kernel.org>
-Date: Tue, 12 Feb 2019 21:33:30 -0500
-Message-Id: <20190213023336.19019-99-sashal@kernel.org>
-In-Reply-To: <20190213023336.19019-1-sashal@kernel.org>
-References: <20190213023336.19019-1-sashal@kernel.org>
+Date: Tue, 12 Feb 2019 21:36:57 -0500
+Message-Id: <20190213023701.20286-79-sashal@kernel.org>
+In-Reply-To: <20190213023701.20286-1-sashal@kernel.org>
+References: <20190213023701.20286-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.20 099/105] net: bridge: Mark FDB entries
+Subject: [Bridge] [PATCH AUTOSEL 4.19 79/83] net: bridge: Mark FDB entries
 	that were added by user as such
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -56,10 +56,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index e56ba3912a90..8b8abf88befb 100644
+index 502f66349530..4d4b9b5ea1c1 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -1102,6 +1102,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+@@ -1088,6 +1088,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
  			err = -ENOMEM;
  			goto err_unlock;
  		}
@@ -68,7 +68,7 @@ index e56ba3912a90..8b8abf88befb 100644
  		fdb->added_by_external_learn = 1;
  		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
  	} else {
-@@ -1121,6 +1123,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+@@ -1107,6 +1109,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
  			modified = true;
  		}
  
