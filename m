@@ -1,20 +1,22 @@
-Return-Path: <sashal@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1550025574;
-	bh=rhUvPPBNANly9SLzat6WICnDg7ZlhnGAs2h+tLtIBiQ=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ijD1KiaWVlhqFtaulhGoTZgjJNvTUTPfAeSj0clRP/x0ghLCDsTJJ3hY/grGAj4kI
-	1rYTUe9c97edLG/yWiJ8RAQo2zZ6Ao6NdL9Td9Gv8bDByDPpeP/OnvS+X2kLw4DUC/
-	cIpnbxhRDg3GS7w9l4LqcdiygQYT7nT5KdPpb2qo=
-From: Sasha Levin <sashal@kernel.org>
-Date: Tue, 12 Feb 2019 21:36:57 -0500
-Message-Id: <20190213023701.20286-79-sashal@kernel.org>
-In-Reply-To: <20190213023701.20286-1-sashal@kernel.org>
-References: <20190213023701.20286-1-sashal@kernel.org>
+Return-Path: <zahari.doychev@googlemail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=googlemail.com; s=20161025;
+	h=sender:from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding;
+	bh=dp8fY7I/cUA9YKTm7Z0PYvdeVxhrHcb6x1m2fe9cmWU=;
+	b=kMIieJdZas8PCq8eulzcYfD0E/uIyfFy2JEisZ0dwhXMrCxHdWRLN87IzEETAOmyA/
+	kit3xFHWHVeQGjPQHvR4OKl3jN2Kx0jHiJmRa2qofUhlpVVpskyAtHcpzOrAzmZ9+WhO
+	1PPXMXVImJNuUqmDP72fEDNQh7Ks1qwUlQVKSgw5xPPIvVu8aKIEvlWafT7lphYIjLIx
+	AlzRjNGEhNwqlXwp+XD23ssJX1Va6YMetD9P+IznMjETUXfYuSH94QLwKS1cUGEhIUpE
+	8qwFJYTjxwpdglvsKzp2UrWvg86w2hN8BfvpDPAH+QQIyxjSbNHB/2IcPMRtjiUYTOBk
+	DBhg==
+Sender: Zahari Doychev <zahari.doychev@googlemail.com>
+From: Zahari Doychev <zahari.doychev@linux.com>
+Date: Wed, 13 Feb 2019 20:51:02 +0100
+Message-Id: <20190213195102.1917-1-zahari.doychev@linux.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.19 79/83] net: bridge: Mark FDB entries
-	that were added by user as such
+Subject: [Bridge] [RFC PATCH] net act_vlan: use correct len in skb_pull
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,61 +25,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@mellanox.com>, "David S . Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, makita.toshiaki@lab.ntt.co.jp, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, jhs@mojatatu.com, jiri@resnulli.us, xiyou.wangcong@gmail.com
+Cc: johannes@sipsolutions.net, zahari.doychev@linux.com
 
-From: Ido Schimmel <idosch@mellanox.com>
+The bridge and VLAN code expects that skb->data points to the start of the
+VLAN header instead of the next (network) header. Currently after
+tcf_vlan_act() on ingress filter skb->data points to the next network
+header. In this case the Linux bridge does not forward correctly double
+tagged VLAN packets added using tc vlan action as the outer vlan tag from
+the skb is inserted at the wrong offset after the vlan tag in the payload.
+Making skb->data to point to the VLAN header in tcf_vlan_act() by using
+ETH_HLEN in skb_pull_rcsum() fixes the problem.
 
-[ Upstream commit 710ae72877378e7cde611efd30fe90502a6e5b30 ]
+The following commands were used for testing:
 
-Externally learned entries can be added by a user or by a switch driver
-that is notifying the bridge driver about entries that were learned in
-hardware.
+ip link add name br0 type bridge vlan_filtering 1
+ip link set dev br0 up
 
-In the first case, the entries are not marked with the 'added_by_user'
-flag, which causes switch drivers to ignore them and not offload them.
+ip link set dev net0 up
+ip link set dev net0 master br0
 
-The 'added_by_user' flag can be set on externally learned FDB entries
-based on the 'swdev_notify' parameter in br_fdb_external_learn_add(),
-which effectively means if the created / updated FDB entry was added by
-a user or not.
+ip link set dev net1 up
+ip link set dev net1 master br0
 
-Fixes: 816a3bed9549 ("switchdev: Add fdb.added_by_user to switchdev notifications")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reported-by: Alexander Petrovskiy <alexpe@mellanox.com>
-Reviewed-by: Petr Machata <petrm@mellanox.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: bridge@lists.linux-foundation.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+bridge vlan add dev net0 vid 100 master
+bridge vlan add dev br0 vid 100 self
+bridge vlan add dev net1 vid 100 master
+
+tc qdisc add dev net0 handle ffff: clsact
+tc qdisc add dev net1 handle ffff: clsact
+
+tc filter add dev net0 ingress pref 1 protocol all flower \
+                  action vlan push id 10 pipe action vlan push id 100
+
+tc filter add dev net0 egress pref 1 protocol 802.1q flower \
+                  vlan_id 100 vlan_ethtype 802.1q cvlan_id 10 \
+                  action vlan pop pipe action vlan pop
+
+Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
 ---
- net/bridge/br_fdb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/sched/act_vlan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 502f66349530..4d4b9b5ea1c1 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -1088,6 +1088,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 			err = -ENOMEM;
- 			goto err_unlock;
- 		}
-+		if (swdev_notify)
-+			fdb->added_by_user = 1;
- 		fdb->added_by_external_learn = 1;
- 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
- 	} else {
-@@ -1107,6 +1109,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 			modified = true;
- 		}
+diff --git a/net/sched/act_vlan.c b/net/sched/act_vlan.c
+index 93fdaf707313..308d7d89f925 100644
+--- a/net/sched/act_vlan.c
++++ b/net/sched/act_vlan.c
+@@ -86,7 +86,7 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
  
-+		if (swdev_notify)
-+			fdb->added_by_user = 1;
-+
- 		if (modified)
- 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
- 	}
+ out:
+ 	if (skb_at_tc_ingress(skb))
+-		skb_pull_rcsum(skb, skb->mac_len);
++		skb_pull_rcsum(skb, ETH_HLEN);
+ 
+ 	return action;
+ 
 -- 
-2.19.1
+2.20.1
 
