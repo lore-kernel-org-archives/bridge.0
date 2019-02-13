@@ -1,22 +1,18 @@
-Return-Path: <zahari.doychev@googlemail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=googlemail.com; s=20161025;
-	h=sender:from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding;
-	bh=dp8fY7I/cUA9YKTm7Z0PYvdeVxhrHcb6x1m2fe9cmWU=;
-	b=kMIieJdZas8PCq8eulzcYfD0E/uIyfFy2JEisZ0dwhXMrCxHdWRLN87IzEETAOmyA/
-	kit3xFHWHVeQGjPQHvR4OKl3jN2Kx0jHiJmRa2qofUhlpVVpskyAtHcpzOrAzmZ9+WhO
-	1PPXMXVImJNuUqmDP72fEDNQh7Ks1qwUlQVKSgw5xPPIvVu8aKIEvlWafT7lphYIjLIx
-	AlzRjNGEhNwqlXwp+XD23ssJX1Va6YMetD9P+IznMjETUXfYuSH94QLwKS1cUGEhIUpE
-	8qwFJYTjxwpdglvsKzp2UrWvg86w2hN8BfvpDPAH+QQIyxjSbNHB/2IcPMRtjiUYTOBk
-	DBhg==
-Sender: Zahari Doychev <zahari.doychev@googlemail.com>
-From: Zahari Doychev <zahari.doychev@linux.com>
-Date: Wed, 13 Feb 2019 20:51:02 +0100
-Message-Id: <20190213195102.1917-1-zahari.doychev@linux.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC PATCH] net act_vlan: use correct len in skb_pull
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=from:to:cc:subject:date:message-id;
+	bh=yH0+HAx5nlwub69336QwKNCKOG2nZFkQBO4sLZZiCxQ=;
+	b=DAMYPy44Dh8jB5zXG7Vw6j3qR/lSAeS1xx+A74NqsGs98Os0bCd+SFSmc6prkHZpWy
+	g4Kh5cPkLSde4mc4L4iX5GVlWps2mjyh7LPidLNtzAU3l9j/L6gt3AFdYmg6LDRk+hRL
+	PChCcKaewiwYkPglASE+h+hIsGFfIjudGjtquvDZlpSu6Weg4gBW5cotwLXKt1G0T3hw
+	mUr1i7+qNeaXStCFGUfCPK8mAufmzN/bklcifhcO/7NTYmCpT13dbeQdEUK8hWpWVskj
+	R8NVbEnbwPCa/a/BtoESHXExviQ4lmkKPbl0OUCIn2BvAKIDPIoj/O+vUTRiaSWPU7Ys
+	JKdQ==
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Wed, 13 Feb 2019 14:06:29 -0800
+Message-Id: <20190213220638.1552-1-f.fainelli@gmail.com>
+Subject: [Bridge] [PATCH net-next 0/9] net: Get rid of
+	switchdev_port_attr_get()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,61 +21,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, makita.toshiaki@lab.ntt.co.jp, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, jhs@mojatatu.com, jiri@resnulli.us, xiyou.wangcong@gmail.com
-Cc: johannes@sipsolutions.net, zahari.doychev@linux.com
+To: netdev@vger.kernel.org
+Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-The bridge and VLAN code expects that skb->data points to the start of the
-VLAN header instead of the next (network) header. Currently after
-tcf_vlan_act() on ingress filter skb->data points to the next network
-header. In this case the Linux bridge does not forward correctly double
-tagged VLAN packets added using tc vlan action as the outer vlan tag from
-the skb is inserted at the wrong offset after the vlan tag in the payload.
-Making skb->data to point to the VLAN header in tcf_vlan_act() by using
-ETH_HLEN in skb_pull_rcsum() fixes the problem.
+Hi all,
 
-The following commands were used for testing:
+This patch series splits the removal of the switchdev_ops that was
+proposed a few times before and first tackles the easy part which is the
+removal of the single call to switchdev_port_attr_get() within the
+bridge code.
 
-ip link add name br0 type bridge vlan_filtering 1
-ip link set dev br0 up
+As suggestd by Ido, this patch series adds a
+SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS which is used in the same
+context as the caller of switchdev_port_attr_set(), so not deferred, and
+then the operation is carried out in deferred context with setting a
+support bridge port flag.
 
-ip link set dev net0 up
-ip link set dev net0 master br0
+Follow-up patches will do the switchdev_ops removal after introducing
+the proper helpers for the switchdev blocking notifier to work across
+stacked devices (unlike the previous submissions).
 
-ip link set dev net1 up
-ip link set dev net1 master br0
+Florian Fainelli (9):
+  Documentation: networking: switchdev: Update port parent ID section
+  net: switchdev: Add PORT_PRE_BRIDGE_FLAGS
+  mlxsw: spectrum: Check bridge flags during prepare phase
+  staging: fsl-dpaa2: ethsw: Check bridge port flags during prepare
+  net: dsa: Add setter for SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
+  rocker: Check bridge flags during prepare phase
+  net: bridge: Stop calling switchdev_port_attr_get()
+  net: Remove SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT
+  net: Get rid of switchdev_port_attr_get()
 
-bridge vlan add dev net0 vid 100 master
-bridge vlan add dev br0 vid 100 self
-bridge vlan add dev net1 vid 100 master
+ Documentation/networking/switchdev.txt        | 15 ++---
+ .../mellanox/mlxsw/spectrum_switchdev.c       | 30 +++------
+ drivers/net/ethernet/rocker/rocker_main.c     | 67 +++++++++----------
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c       | 27 +++-----
+ include/net/switchdev.h                       | 13 +---
+ net/bridge/br_switchdev.c                     | 16 ++---
+ net/dsa/dsa_priv.h                            |  3 +
+ net/dsa/port.c                                | 11 +++
+ net/dsa/slave.c                               | 22 ++----
+ 9 files changed, 88 insertions(+), 116 deletions(-)
 
-tc qdisc add dev net0 handle ffff: clsact
-tc qdisc add dev net1 handle ffff: clsact
-
-tc filter add dev net0 ingress pref 1 protocol all flower \
-                  action vlan push id 10 pipe action vlan push id 100
-
-tc filter add dev net0 egress pref 1 protocol 802.1q flower \
-                  vlan_id 100 vlan_ethtype 802.1q cvlan_id 10 \
-                  action vlan pop pipe action vlan pop
-
-Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
----
- net/sched/act_vlan.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/sched/act_vlan.c b/net/sched/act_vlan.c
-index 93fdaf707313..308d7d89f925 100644
---- a/net/sched/act_vlan.c
-+++ b/net/sched/act_vlan.c
-@@ -86,7 +86,7 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
- 
- out:
- 	if (skb_at_tc_ingress(skb))
--		skb_pull_rcsum(skb, skb->mac_len);
-+		skb_pull_rcsum(skb, ETH_HLEN);
- 
- 	return action;
- 
 -- 
-2.20.1
+2.17.1
 
