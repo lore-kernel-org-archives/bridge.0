@@ -1,20 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=Iyaq3yEjkUqCdNXty1gzLutDNHaIKj6egyv5O/wPqPk=;
-	b=lHWeIXstmVjHTmd88m1ivg4nObLl4jTdKn3KpN8aMDAshZHsgkPsGNbUDERKeb7BhI
-	9TNquCTl+ssi4E4t0fu2NfGPToDkT8YCsdZIUQLXGryqcnBVLP2RGFi7SFetrCqPJdMA
-	S9kE2MEHwHB4Xd/Djxn6/OguEWiCYOhkcQRPZRTrC6vdmxwEsNx4l2JbKMokQaVR/vRb
-	mQRWbyZd4KdKTG2DhEHTIMMAMc1NejJIk2eYm5a/QqwaBGdrIeVtvnvDFS3ggnLx4pDM
-	VCcn8kC20sOXRbEZRoi4IMMRlKHNSMopsdROE8ez4oVx+JvehykHujJT0jpY4j/XrGIZ
-	cDKg==
+	bh=/FNSaCPkNb/ATQEB/CndFveaqB+F4uCmwJCbnMmSO6Y=;
+	b=GEvgGTcZLNMZ5vvQeqU/k8nRu5G+1FWJyGtVUNNs73ELZjVy1d4zrlIHNw6Nnnesup
+	rq00QhhI5fbhL3Y60R4eJjPe/fYHn0DlBi5jyYTXfWXw58NHOF2Y9g7xmlmStNJ5EX7E
+	TKVk2Of6QjynIJblOeoQTgGiDFEQwHJgiSYN7L5FDUMg4qVOQZrRnOzNcJbW8Affnv5d
+	893XIuI+5unQ/6y1+XodepjRdfhGNkT+qb/lb9kktI/PZ72zzEFrmtgZ2lvlVv4HtZMY
+	RAqGhO/tRCH1wr/GSFWpHxuJ7rRLdvoWFJIBW0TeRbAsvzmvzeQ5kEU85/z56/YZd/fF
+	GxoQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 13 Feb 2019 14:06:35 -0800
-Message-Id: <20190213220638.1552-7-f.fainelli@gmail.com>
+Date: Wed, 13 Feb 2019 14:06:36 -0800
+Message-Id: <20190213220638.1552-8-f.fainelli@gmail.com>
 In-Reply-To: <20190213220638.1552-1-f.fainelli@gmail.com>
 References: <20190213220638.1552-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next 6/9] rocker: Check bridge flags during
-	prepare phase
+Subject: [Bridge] [PATCH net-next 7/9] net: bridge: Stop calling
+	switchdev_port_attr_get()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,106 +26,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-In preparation for getting rid of switchdev_port_attr_get(), have rocker
-check for the bridge flags being set through switchdev_port_attr_set()
-with the SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS attribute identifier.
+Now that all switchdev drivers have been converted to checking the
+bridge port flags during the prepare phase of the
+switchdev_port_attr_set() when the process
+SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS, we can avoid calling
+switchdev_port_attr_get() with
+SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/net/ethernet/rocker/rocker_main.c | 48 +++++++++++++++--------
- 1 file changed, 31 insertions(+), 17 deletions(-)
+ net/bridge/br_switchdev.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 5ce8d5aba603..863a8b32e6e9 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -1565,37 +1565,48 @@ static int rocker_world_port_attr_stp_state_set(struct rocker_port *rocker_port,
- 	return wops->port_attr_stp_state_set(rocker_port, state);
- }
- 
-+static int
-+rocker_world_port_attr_bridge_flags_support_get(const struct rocker_port *
-+						rocker_port,
-+						unsigned long *
-+						p_brport_flags_support)
-+{
-+	struct rocker_world_ops *wops = rocker_port->rocker->wops;
-+
-+	if (!wops->port_attr_bridge_flags_support_get)
-+		return -EOPNOTSUPP;
-+	return wops->port_attr_bridge_flags_support_get(rocker_port,
-+							p_brport_flags_support);
-+}
-+
- static int
- rocker_world_port_attr_bridge_flags_set(struct rocker_port *rocker_port,
- 					unsigned long brport_flags,
--					struct switchdev_trans *trans)
-+					struct switchdev_trans *trans,
-+					bool pre_set)
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index db9e8ab96d48..8f88f8a1a7fa 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -64,29 +64,27 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
  {
- 	struct rocker_world_ops *wops = rocker_port->rocker->wops;
-+	unsigned long brport_flags_s;
-+	int err;
+ 	struct switchdev_attr attr = {
+ 		.orig_dev = p->dev,
+-		.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
++		.id = SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS,
++		.u.brport_flags = flags,
+ 	};
+ 	int err;
  
- 	if (!wops->port_attr_bridge_flags_set)
- 		return -EOPNOTSUPP;
- 
--	if (switchdev_trans_ph_prepare(trans))
-+	if (switchdev_trans_ph_prepare(trans) && pre_set) {
-+		err = rocker_world_port_attr_bridge_flags_support_get(rocker_port,
-+							      &brport_flags_s);
-+		if (err)
-+			return err;
-+
-+		if (brport_flags & ~brport_flags_s)
-+			return -EOPNOTSUPP;
+ 	if (mask & ~BR_PORT_FLAGS_HW_OFFLOAD)
  		return 0;
-+	}
  
- 	return wops->port_attr_bridge_flags_set(rocker_port, brport_flags,
- 						trans);
- }
+-	err = switchdev_port_attr_get(p->dev, &attr);
+-	if (err == -EOPNOTSUPP)
+-		return 0;
+-	if (err)
++	err = switchdev_port_attr_set(p->dev, &attr);
++	if (err && err != -EOPNOTSUPP)
+ 		return err;
  
--static int
--rocker_world_port_attr_bridge_flags_support_get(const struct rocker_port *
--						rocker_port,
--						unsigned long *
--						p_brport_flags_support)
--{
--	struct rocker_world_ops *wops = rocker_port->rocker->wops;
--
--	if (!wops->port_attr_bridge_flags_support_get)
+-	/* Check if specific bridge flag attribute offload is supported */
+-	if (!(attr.u.brport_flags_support & mask)) {
++	if (err == -EOPNOTSUPP) {
+ 		br_warn(p->br, "bridge flag offload is not supported %u(%s)\n",
+ 			(unsigned int)p->port_no, p->dev->name);
 -		return -EOPNOTSUPP;
--	return wops->port_attr_bridge_flags_support_get(rocker_port,
--							p_brport_flags_support);
--}
--
- static int
- rocker_world_port_attr_bridge_ageing_time_set(struct rocker_port *rocker_port,
- 					      u32 ageing_time,
-@@ -2066,6 +2077,7 @@ static int rocker_port_attr_set(struct net_device *dev,
- 				struct switchdev_trans *trans)
- {
- 	struct rocker_port *rocker_port = netdev_priv(dev);
-+	bool pre_set = false;
- 	int err = 0;
++		return err;
+ 	}
  
- 	switch (attr->id) {
-@@ -2074,10 +2086,12 @@ static int rocker_port_attr_set(struct net_device *dev,
- 							   attr->u.stp_state,
- 							   trans);
- 		break;
-+	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
-+		pre_set = true; /* fall through */
- 	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
- 		err = rocker_world_port_attr_bridge_flags_set(rocker_port,
- 							      attr->u.brport_flags,
--							      trans);
-+							      trans, pre_set);
- 		break;
- 	case SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME:
- 		err = rocker_world_port_attr_bridge_ageing_time_set(rocker_port,
+ 	attr.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS;
+ 	attr.flags = SWITCHDEV_F_DEFER;
+-	attr.u.brport_flags = flags;
++
+ 	err = switchdev_port_attr_set(p->dev, &attr);
+ 	if (err) {
+ 		br_warn(p->br, "error setting offload flag on port %u(%s)\n",
 -- 
 2.17.1
 
