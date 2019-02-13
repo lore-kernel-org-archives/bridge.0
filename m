@@ -1,28 +1,20 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:from:to:cc:references:openpgp:autocrypt:message-id:date
-	:user-agent:mime-version:in-reply-to:content-language
-	:content-transfer-encoding;
-	bh=JmkLVMbRADHCFGoxeIs/xrYSG/wZbOh0NhN16DEfSy8=;
-	b=K7pTYh/TRjArsLcxyUTw2696HyELcxWN0RupP+snl46nRgGPyYeFY5uysbhh61QJuH
-	1pPT9azavv0PzbxE7zO6+Cp4r13xQgSm7mii04aheuodknbgj26nFVJ/dTqFua9wIdR3
-	ncts978sJHAE1KKPHHrY4KN0g9H6wn8qkg4GmI58oE7jTdXAO7RgHG5KOZX/EGuDUvSm
-	jNbkRmSjr1NUlaTjWLC+1xhPpAmEOZoqxw+Mc8MRVTz8LGQqM3C/3+qU6h89V5Fqhh6D
-	opy7GHwVHyTZ/TsaASxBjkfrbomRPlQG1bKK/cN9b1VgnrSo3pA+Il5zCY7y3NHz6tXP
-	JuTg==
-From: Florian Fainelli <f.fainelli@gmail.com>
-References: <20190211211749.19847-1-f.fainelli@gmail.com>
-	<20190212.095030.1445077555795164973.davem@davemloft.net>
-	<6ff1b9c2-1206-f568-8556-28efe852dd08@gmail.com>
-Message-ID: <2c1af87e-5721-c51d-b7f7-6f5c0ef2566d@gmail.com>
-Date: Tue, 12 Feb 2019 13:35:37 -0800
+Return-Path: <sashal@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1550025391;
+	bh=oTMGjszo6I0HjGUIDuK/cz8GozeNGBd4cUT4fhbWEco=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=N8AoJ6azeFnqg1vUkYIQ/sdaDzRV9vgPs/ynS/tK01tMv4qwl9ulTCMQkWxCPxTvt
+	Ph92LglLtbfgREAsf7vwLzTROU7FQKa+oSR26maCRd9wKtfBZj1P2A0bjiNXy3L+S0
+	RLkaA7lkt2/h9OpPBDHKEsFE5UYZBH4MA9WNaOXU=
+From: Sasha Levin <sashal@kernel.org>
+Date: Tue, 12 Feb 2019 21:33:30 -0500
+Message-Id: <20190213023336.19019-99-sashal@kernel.org>
+In-Reply-To: <20190213023336.19019-1-sashal@kernel.org>
+References: <20190213023336.19019-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <6ff1b9c2-1206-f568-8556-28efe852dd08@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/3] Remove getting
- SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH AUTOSEL 4.20 099/105] net: bridge: Mark FDB entries
+	that were added by user as such
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,34 +23,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@mellanox.com>, "David S . Miller" <davem@davemloft.net>
 
-On 2/12/19 9:54 AM, Florian Fainelli wrote:
-> On 2/12/19 9:50 AM, David Miller wrote:
->> From: Florian Fainelli <f.fainelli@gmail.com>
->> Date: Mon, 11 Feb 2019 13:17:46 -0800
->>
->>> AFAICT there is no code that attempts to get the value of the attribute
->>> SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS while it is used with
->>> switchdev_port_attr_set().
->>>
->>> This is effectively no doing anything and it can slow down future work
->>> that tries to make modifications in these areas so remove that.
->>
->> Series applied.
->>
->>> David, there should be no dependency with previous patch series, but
->>> again, feedback from Ido and Jiri would be welcome in case this was
->>> added for a reason.
->>
->> Ok, is there going to be another respin of that switchdev_ops removal
->> series?
-> 
-> Yes, I will be working on a v5 which addresses Ido's feedback in the
-> next hours.
+From: Ido Schimmel <idosch@mellanox.com>
 
-David, looks like I managed to introduce a build failure with
-rocker_ofdpa.c, sorry about that, I will send a follow-up immediately.
+[ Upstream commit 710ae72877378e7cde611efd30fe90502a6e5b30 ]
+
+Externally learned entries can be added by a user or by a switch driver
+that is notifying the bridge driver about entries that were learned in
+hardware.
+
+In the first case, the entries are not marked with the 'added_by_user'
+flag, which causes switch drivers to ignore them and not offload them.
+
+The 'added_by_user' flag can be set on externally learned FDB entries
+based on the 'swdev_notify' parameter in br_fdb_external_learn_add(),
+which effectively means if the created / updated FDB entry was added by
+a user or not.
+
+Fixes: 816a3bed9549 ("switchdev: Add fdb.added_by_user to switchdev notifications")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alexander Petrovskiy <alexpe@mellanox.com>
+Reviewed-by: Petr Machata <petrm@mellanox.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: bridge@lists.linux-foundation.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/bridge/br_fdb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index e56ba3912a90..8b8abf88befb 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1102,6 +1102,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 			err = -ENOMEM;
+ 			goto err_unlock;
+ 		}
++		if (swdev_notify)
++			fdb->added_by_user = 1;
+ 		fdb->added_by_external_learn = 1;
+ 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	} else {
+@@ -1121,6 +1123,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 			modified = true;
+ 		}
+ 
++		if (swdev_notify)
++			fdb->added_by_user = 1;
++
+ 		if (modified)
+ 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	}
 -- 
-Florian
+2.19.1
+
