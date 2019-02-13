@@ -1,20 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=qZ+w6NypwLrquHGLlezSrUoHQgjHNXwdwbbQGveSU5M=;
-	b=mVIcX+aOP2dXPVez3n/ZZW6k16rZKOaqvLt7Rpzw1XjvbENUrmfMgfxEciVgSTuJ2M
-	6RkbLtichTY8i4nT8P1FR0oMCwoW+8bpBc2ms+ieIwIhqBJ+BNYU2Y9qMJaHb9JOCJJd
-	haFfArtACWjVioO+fQRgoJ3pxa3WxkCzOkhvdwCf+yp9Q5tDFlHP0IiVxi7i7VxMEmiS
-	4j1iGV4sq4kYvjEF31gUTbWPvZoutFzCYG/gktqDDA6CyEBSEb8PQcqmJKzGL5IYoJhc
-	fg+qYJz0n9ORtM901zbN9LMv92A7Vgy13gpN3qNoiYQ1pnx98ETWCC96VBKTLqELtaZ6
-	rbSQ==
+	bh=a873itx+S/T6yC+oMc+1M1LiImcgfFyeED4oExKC26w=;
+	b=mKaPj6sm8tggLzNs698hl1jZiyYmcNwQSzZ1b7TwTtX6DapyetiOaR4Azzlo9/pDDy
+	yZDQ9nhhHJGcDxDqj3/f5G+EJZI4a+/2CMm+Wr+xo+6o7xvxJ0BIhjWYiXxtgvWULLXm
+	HXo/x3VR04o90sr171OmGBP4/s0LyFrO0DgBYkFNdeOHLrqycgzDTGTmcUD41+OJTGYq
+	uuKq2QZJQHAK9fj3spFs4fgBOxJsF8o1rim92padBvg4S7qnci7boN9mGJF/IASIv8QC
+	DHmund0/LVFNKI3uOYI5V/ffOFLXykVjllaOfikCTuME3qgMdl5VbiELKNWwOpy1j3+l
+	TUBQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 13 Feb 2019 14:06:32 -0800
-Message-Id: <20190213220638.1552-4-f.fainelli@gmail.com>
+Date: Wed, 13 Feb 2019 14:06:33 -0800
+Message-Id: <20190213220638.1552-5-f.fainelli@gmail.com>
 In-Reply-To: <20190213220638.1552-1-f.fainelli@gmail.com>
 References: <20190213220638.1552-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next 3/9] mlxsw: spectrum: Check bridge flags
-	during prepare phase
+Subject: [Bridge] [PATCH net-next 4/9] staging: fsl-dpaa2: ethsw: Check
+	bridge port flags during prepare
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,63 +26,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-In preparation for getting rid of switchdev_port_attr_get(), have mlxsw
-check for the bridge flags being set through switchdev_port_attr_set()
-when the SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS attribute identifier is
-used.
+In preparation for removing SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
+have ethsw check that the bridge port flags that are being set are
+supported when SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS is specified.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- .../ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index 1f492b7dbea8..7616eab50035 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -598,13 +598,17 @@ mlxsw_sp_bridge_port_learning_set(struct mlxsw_sp_port *mlxsw_sp_port,
- static int mlxsw_sp_port_attr_br_flags_set(struct mlxsw_sp_port *mlxsw_sp_port,
- 					   struct switchdev_trans *trans,
- 					   struct net_device *orig_dev,
--					   unsigned long brport_flags)
-+					   unsigned long brport_flags,
-+					   bool pre_set)
+diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+index 1b3943b71254..f788a9458b89 100644
+--- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
++++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+@@ -668,13 +668,16 @@ static int port_attr_stp_state_set(struct net_device *netdev,
+ 
+ static int port_attr_br_flags_set(struct net_device *netdev,
+ 				  struct switchdev_trans *trans,
+-				  unsigned long flags)
++				  unsigned long flags, bool pre_set)
  {
- 	struct mlxsw_sp_bridge_port *bridge_port;
- 	int err;
+ 	struct ethsw_port_priv *port_priv = netdev_priv(netdev);
+ 	int err = 0;
  
 -	if (switchdev_trans_ph_prepare(trans))
 +	if (switchdev_trans_ph_prepare(trans) && pre_set) {
-+		if (brport_flags & ~(BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD))
++		if (flags & ~(BR_LEARNING | BR_FLOOD))
 +			return -EOPNOTSUPP;
  		return 0;
 +	}
  
- 	bridge_port = mlxsw_sp_bridge_port_find(mlxsw_sp_port->mlxsw_sp->bridge,
- 						orig_dev);
-@@ -833,6 +837,7 @@ static int mlxsw_sp_port_attr_set(struct net_device *dev,
- 				  struct switchdev_trans *trans)
+ 	/* Learning is enabled per switch */
+ 	err = ethsw_set_learning(port_priv->ethsw_data, flags & BR_LEARNING);
+@@ -691,6 +694,7 @@ static int swdev_port_attr_set(struct net_device *netdev,
+ 			       const struct switchdev_attr *attr,
+ 			       struct switchdev_trans *trans)
  {
- 	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
 +	bool pre_set = false;
- 	int err;
+ 	int err = 0;
  
  	switch (attr->id) {
-@@ -841,10 +846,13 @@ static int mlxsw_sp_port_attr_set(struct net_device *dev,
- 						       attr->orig_dev,
- 						       attr->u.stp_state);
+@@ -698,9 +702,11 @@ static int swdev_port_attr_set(struct net_device *netdev,
+ 		err = port_attr_stp_state_set(netdev, trans,
+ 					      attr->u.stp_state);
  		break;
 +	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
-+		pre_set = true;	/* fall through */
++		pre_set = true; /* fall through */
  	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
- 		err = mlxsw_sp_port_attr_br_flags_set(mlxsw_sp_port, trans,
- 						      attr->orig_dev,
--						      attr->u.brport_flags);
-+						      attr->u.brport_flags,
-+						      pre_set);
+ 		err = port_attr_br_flags_set(netdev, trans,
+-					     attr->u.brport_flags);
++					     attr->u.brport_flags, pre_set);
  		break;
- 	case SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME:
- 		err = mlxsw_sp_port_attr_br_ageing_set(mlxsw_sp_port, trans,
+ 	case SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING:
+ 		/* VLANs are supported by default  */
 -- 
 2.17.1
 
