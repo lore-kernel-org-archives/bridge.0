@@ -1,14 +1,22 @@
-Return-Path: <makita.toshiaki@lab.ntt.co.jp>
-References: <20190213195102.1917-1-zahari.doychev@linux.com>
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Message-ID: <19f5bdf9-c83b-c9ec-83c3-1e9a88763b30@lab.ntt.co.jp>
-Date: Thu, 14 Feb 2019 18:16:12 +0900
-MIME-Version: 1.0
-In-Reply-To: <20190213195102.1917-1-zahari.doychev@linux.com>
-Content-Type: text/plain; charset=utf-8
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=dLTIyUEjqCv52rT0cLC0y8mSKIdm1H8zAxPeuHxp5SM=;
+	b=PUgJQkRLYOcP71dD9W9zSmXLO9EZ+0zj4l1o4kL30IJ5RGXfBGObBUXkUMYtuL5IkNdXDMfHWLasBWdvXCHt9y1yTju+cmEll009Rp+/JYYSb2G7pFFkVkFADEz6+OP3KTOdYZ5PwQedL/auL18EcadEQSNi23VVL/hPiTl8xbk=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Thu, 14 Feb 2019 10:58:14 +0000
+Message-ID: <20190214105811.GA8066@splinter>
+References: <20190213220638.1552-1-f.fainelli@gmail.com>
+	<20190213220638.1552-2-f.fainelli@gmail.com>
+In-Reply-To: <20190213220638.1552-2-f.fainelli@gmail.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH] net act_vlan: use correct len in skb_pull
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <7BED6534E47F51428BF58087B290D845@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Subject: Re: [Bridge] [PATCH net-next 1/9] Documentation: networking:
+ switchdev: Update port parent ID section
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,70 +25,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Zahari Doychev <zahari.doychev@linux.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, jhs@mojatatu.com, jiri@resnulli.us, xiyou.wangcong@gmail.com
-Cc: johannes@sipsolutions.net
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "moderated
+	list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "David S. Miller" <davem@davemloft.net>
 
-On 2019/02/14 4:51, Zahari Doychev wrote:
-> The bridge and VLAN code expects that skb->data points to the start of the
-> VLAN header instead of the next (network) header. Currently after
-> tcf_vlan_act() on ingress filter skb->data points to the next network
-> header. In this case the Linux bridge does not forward correctly double
-> tagged VLAN packets added using tc vlan action as the outer vlan tag from
-> the skb is inserted at the wrong offset after the vlan tag in the payload.
-> Making skb->data to point to the VLAN header in tcf_vlan_act() by using
-> ETH_HLEN in skb_pull_rcsum() fixes the problem.
-> 
-> The following commands were used for testing:
-> 
-> ip link add name br0 type bridge vlan_filtering 1
-> ip link set dev br0 up
-> 
-> ip link set dev net0 up
-> ip link set dev net0 master br0
-> 
-> ip link set dev net1 up
-> ip link set dev net1 master br0
-> 
-> bridge vlan add dev net0 vid 100 master
-> bridge vlan add dev br0 vid 100 self
-> bridge vlan add dev net1 vid 100 master
-> 
-> tc qdisc add dev net0 handle ffff: clsact
-> tc qdisc add dev net1 handle ffff: clsact
-> 
-> tc filter add dev net0 ingress pref 1 protocol all flower \
->                   action vlan push id 10 pipe action vlan push id 100
-> 
-> tc filter add dev net0 egress pref 1 protocol 802.1q flower \
->                   vlan_id 100 vlan_ethtype 802.1q cvlan_id 10 \
->                   action vlan pop pipe action vlan pop
-> 
-> Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
-> ---
->  net/sched/act_vlan.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/sched/act_vlan.c b/net/sched/act_vlan.c
-> index 93fdaf707313..308d7d89f925 100644
-> --- a/net/sched/act_vlan.c
-> +++ b/net/sched/act_vlan.c
-> @@ -86,7 +86,7 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
->  
->  out:
->  	if (skb_at_tc_ingress(skb))
-> -		skb_pull_rcsum(skb, skb->mac_len);
-> +		skb_pull_rcsum(skb, ETH_HLEN);
+On Wed, Feb 13, 2019 at 02:06:30PM -0800, Florian Fainelli wrote:
+> Update the section about switchdev drivers having to implement a
+> switchdev_port_attr_get() function to return
+> SWITCHDEV_ATTR_ID_PORT_PARENT_ID since that is no longer valid after
+> commit bccb30254a4a ("net: Get rid of
+> SWITCHDEV_ATTR_ID_PORT_PARENT_ID").
+>=20
+> Fixes: bccb30254a4a ("net: Get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID")
+> Acked-by: Jiri Pirko <jiri@mellanox.com>
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 
-As I said before, it would be safer to remember mac_len and use it later.
-
-	__u16 mac_len = skb->mac_len;
-...
-	err = skb_vlan_push(...)
-...
-	if (skb_at_tc_ingress(skb))
-		skb_pull_rcsum(skb, mac_len);
-
-
--- 
-Toshiaki Makita
-
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
