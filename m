@@ -1,22 +1,16 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=wAY+bonFh6ivtbjOPXMXkuk9C2B287LoDQOniKarWDc=;
-	b=Ga6d2gkQyCRVVGcVe5Qt9xzX1iGxo+InUynduIGAWft9XjshKx9aI0ZNIU5LtrmldPMlEf6/JzIc+6ebR4tO4rdHG7QTKEt0VqYP61CWt3l2FZtUDE11wA+bG1htfJFv7CEEUsZ7mGlP84sAauMkyKwHri5SKKaxq25huDhCerY=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Thu, 14 Feb 2019 13:11:46 +0000
-Message-ID: <20190214131143.GA12064@splinter>
-References: <20190213220638.1552-1-f.fainelli@gmail.com>
-	<20190213220638.1552-4-f.fainelli@gmail.com>
-In-Reply-To: <20190213220638.1552-4-f.fainelli@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <BB8CC15313445A4F83537A62675CD75F@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 3/9] mlxsw: spectrum: Check bridge
- flags during prepare phase
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id;
+	bh=2PGOmZQoppAoM8aUEK9njBBuEgqiggiAWZ3r9SgXpBk=;
+	b=a2lQdc2I5dtOhxZJ2dbtkGdaxwACZv5WYs/6K8UnzGUgy5WoVIlPz6yj3V2tr7870C
+	FIxxkJwpb4EuNbZEnLpUS/ZDIY81TBgwH3IeihIudIJoSjNFqZkpX00zAZRxoJGvGcb4
+	hAfs0fJ/s9KfwA1S5FOlNdpGW3Oetv/oR2ZvI=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 15 Feb 2019 15:04:27 +0200
+Message-Id: <20190215130427.29824-1-nikolay@cumulusnetworks.com>
+Subject: [Bridge] [PATCH RFC] net: bridge: don't flood known multicast
+	traffic when snooping is enabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,85 +19,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "moderated
-	list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, wkok@cumulusnetworks.com, anuradhak@cumulusnetworks.com, davem@davemloft.net
 
-On Wed, Feb 13, 2019 at 02:06:32PM -0800, Florian Fainelli wrote:
-> In preparation for getting rid of switchdev_port_attr_get(), have mlxsw
-> check for the bridge flags being set through switchdev_port_attr_set()
-> when the SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS attribute identifier is
-> used.
->=20
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  .../ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/d=
-rivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-> index 1f492b7dbea8..7616eab50035 100644
-> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-> @@ -598,13 +598,17 @@ mlxsw_sp_bridge_port_learning_set(struct mlxsw_sp_p=
-ort *mlxsw_sp_port,
->  static int mlxsw_sp_port_attr_br_flags_set(struct mlxsw_sp_port *mlxsw_s=
-p_port,
->  					   struct switchdev_trans *trans,
->  					   struct net_device *orig_dev,
-> -					   unsigned long brport_flags)
-> +					   unsigned long brport_flags,
-> +					   bool pre_set)
->  {
->  	struct mlxsw_sp_bridge_port *bridge_port;
->  	int err;
-> =20
-> -	if (switchdev_trans_ph_prepare(trans))
-> +	if (switchdev_trans_ph_prepare(trans) && pre_set) {
-> +		if (brport_flags & ~(BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD))
-> +			return -EOPNOTSUPP;
->  		return 0;
-> +	}
+The behaviour since b00589af3b04 ("bridge: disable snooping if there is
+no querier") is wrong, we shouldn't be flooding multicast traffic when
+there is an mdb entry and we know where it should be forwarded to when
+multicast snooping is enabled. This patch changes the behaviour to not
+flood known unicast traffic. I'll give two obviously broken cases:
+ - most obvious: static mdb created by the user with snooping enabled
+ - user-space daemon controlling the mdb table (e.g. MLAG)
 
-When we get SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS we only want to
-perform a check. With this code in case it's not prepare phase, then we
-continue to set the flags. Better do:
+Every user would expect to have traffic forwarded only to the configured
+mdb destination when snooping is enabled, instead now to get that one
+needs to enable both snooping and querier. Enabling querier on all
+switches could be problematic and is not a good solution, for example
+as summarized by our multicast experts:
+"every switch would send an IGMP query for any random multicast traffic it
+received across the entire domain and it would send it forever as long as a
+host exists wanting that stream even if it has no downstream/directly
+connected receivers"
 
-if (pre_set) {
-	if (switchdev_trans_ph_commit(trans))
-		return 0;
-	// perform check here
-}
+Sending as an RFC to get the discussion going, but I'm strongly for
+removing this behaviour and would like to send this patch officially.
 
-> =20
->  	bridge_port =3D mlxsw_sp_bridge_port_find(mlxsw_sp_port->mlxsw_sp->brid=
-ge,
->  						orig_dev);
-> @@ -833,6 +837,7 @@ static int mlxsw_sp_port_attr_set(struct net_device *=
-dev,
->  				  struct switchdev_trans *trans)
->  {
->  	struct mlxsw_sp_port *mlxsw_sp_port =3D netdev_priv(dev);
-> +	bool pre_set =3D false;
->  	int err;
-> =20
->  	switch (attr->id) {
-> @@ -841,10 +846,13 @@ static int mlxsw_sp_port_attr_set(struct net_device=
- *dev,
->  						       attr->orig_dev,
->  						       attr->u.stp_state);
->  		break;
-> +	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
-> +		pre_set =3D true;	/* fall through */
->  	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
->  		err =3D mlxsw_sp_port_attr_br_flags_set(mlxsw_sp_port, trans,
->  						      attr->orig_dev,
-> -						      attr->u.brport_flags);
-> +						      attr->u.brport_flags,
-> +						      pre_set);
->  		break;
->  	case SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME:
->  		err =3D mlxsw_sp_port_attr_br_ageing_set(mlxsw_sp_port, trans,
-> --=20
-> 2.17.1
->=20
+We could make this behaviour possible via a knob if necessary, but
+it really should not be the default.
+
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_device.c | 3 +--
+ net/bridge/br_input.c  | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 013323b6dbe4..2aa8a6509924 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -96,8 +96,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		}
+ 
+ 		mdst = br_mdb_get(br, skb, vid);
+-		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+-		    br_multicast_querier_exists(br, eth_hdr(skb)))
++		if (mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb))
+ 			br_multicast_flood(mdst, skb, false, true);
+ 		else
+ 			br_flood(br, skb, BR_PKT_MULTICAST, false, true);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 5ea7e56119c1..aae78095cf67 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -136,8 +136,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	switch (pkt_type) {
+ 	case BR_PKT_MULTICAST:
+ 		mdst = br_mdb_get(br, skb, vid);
+-		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+-		    br_multicast_querier_exists(br, eth_hdr(skb))) {
++		if (mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) {
+ 			if ((mdst && mdst->host_joined) ||
+ 			    br_multicast_is_router(br)) {
+ 				local_rcv = true;
+-- 
+2.17.2
+
