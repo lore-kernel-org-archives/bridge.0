@@ -1,26 +1,24 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
-	:user-agent:mime-version:in-reply-to:content-language
-	:content-transfer-encoding;
-	bh=h50wuIkgPy/qyFGSaZxSTYNZJN7wATVvm0UweSkAxxc=;
-	b=RC1/aUTcVkkn96aP43fi1L6JH8LFFZGpK5qk7i1h2cC6BZTudzXnBI/je4g3ydqZJg
-	GB95wJ3wCMS18xlKjn2PvuIXg0T8rG9OHKH2HVF+np6kUhPYOlVnpuSvdsF0CAwVxje0
-	8LA6YQ7GHA470Xx/aX1mS357fQhZTOapmgW/T3Kd8LDTfr8FAwC+sdTW7pmYSW5gSQFg
-	a61/6L8etNfi6fQKQzsp/cMFVmn3rJqN3fo7HKuCOWSvpJVGZCkM2cVQd+1ZxvYdCl7V
-	60oRwJyOVF1nBewQWDpiDFH017yPdr4cVB1O1CubqscOXIfMRcwKmQMPrEdUXl89tPod
-	QDLw==
-References: <20190216045556.3514-1-f.fainelli@gmail.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <3ee70578-e2d7-d890-fb36-9ac11dde96d1@gmail.com>
-Date: Fri, 15 Feb 2019 21:00:18 -0800
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=VAblOlCOw8x6xkW4kb5Hq3Ac1SfbMU7uJgu37caTqB8=;
+	b=JXGc2PpgE+itgk+0y9ZYbUFj1mupkPIouuwLYtQyVIk1eT84lnL6wEh4rLY9vbG60L
+	NYYeFokG9scKbefhGhRdLa5ZCUJGlcAni0KODZjiHbYWN2mBtp7/sxR7hMqSulLzKdm/
+	SdbTr1F8Q6JQB4c3/vr4cD7YHZ5ZOffG4q8pI=
+References: <20190215130427.29824-1-nikolay@cumulusnetworks.com>
+	<20190215171332.GA1472@otheros>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <479a1acf-c7f3-4e6f-4246-e1583e98d356@cumulusnetworks.com>
+Date: Sat, 16 Feb 2019 10:05:40 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190216045556.3514-1-f.fainelli@gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20190215171332.GA1472@otheros>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 0/9] net: Get rid of
-	switchdev_port_attr_get()
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH RFC] net: bridge: don't flood known multicast
+ traffic when snooping is enabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,31 +27,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, David Miller <davem@davemloft.net>
-Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
+To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, wkok@cumulusnetworks.com, anuradhak@cumulusnetworks.com, davem@davemloft.net
 
-
-
-On 2/15/2019 8:55 PM, Florian Fainelli wrote:
-> Hi all,
+On 15/02/2019 19:13, Linus Lüssing wrote:
+> On Fri, Feb 15, 2019 at 03:04:27PM +0200, Nikolay Aleksandrov wrote:
+>> Every user would expect to have traffic forwarded only to the configured
+>> mdb destination when snooping is enabled, instead now to get that one
+>> needs to enable both snooping and querier. Enabling querier on all
+>> switches could be problematic and is not a good solution,
 > 
-> This patch series splits the removal of the switchdev_ops that was
-> proposed a few times before and first tackles the easy part which is the
-> removal of the single call to switchdev_port_attr_get() within the
-> bridge code.
+> There is no need to set the querier on all snooping switches.
+> br_multicast_querier_exists() checks if a querier exists on the
+> link in general, not if this particular host/bridge is a querier.
 > 
-> As suggestd by Ido, this patch series adds a
-> SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS which is used in the same
-> context as the caller of switchdev_port_attr_set(), so not deferred, and
-> then the operation is carried out in deferred context with setting a
-> support bridge port flag.
-> 
-> Follow-up patches will do the switchdev_ops removal after introducing
-> the proper helpers for the switchdev blocking notifier to work across
-> stacked devices (unlike the previous submissions).
 
-OK, I really need to use the long weekend break here and stop sending
-stale patches series apologies everyone, work will resume when I have
-put my head, hands and keyboard back together.
--- 
-Florian
+We need a generic solution for the case of existing mdst and no querier.
+More below.
+
+> 
+>> for example as summarized by our multicast experts:
+>> "every switch would send an IGMP query
+> 
+> What? RFC3810, section 7.1 says:
+> 
+> "If it is the case, a querier election mechanism (described in
+>  section 7.6.2) is used to elect a single multicast router to be
+>  in Querier state. [...] Nevertheless, it is only the [elected] Querier
+>  that sends periodical or triggered query messages on the subnet."
+> >> for any random multicast traffic it
+>> received across the entire domain and it would send it forever as long as a
+>> host exists wanting that stream even if it has no downstream/directly
+>> connected receivers"
+> 
+
+This was taken out of context and it's my bad, I think everyone is aware
+of the election process, please nevermind the above statement.
+
+[snip]> 
+> 
+> Have you done some tests with this change yet, Nikolay?
+> 
+
+You've raised good questions, IPv6 indeed needs more work - we'll have to flood
+link-local packets etc. but I wanted to have a discussion about no querier/existing mdst.
+To simplify we can modify the patch and have traffic forwarded to the proper ports when an
+mdst exists and there is no querier for both unsolicited report and user-added entry.
+We can keep the current behaviour for unknown traffic with and without querier.
+This would align it closer to what other vendors currently do as well IIRC.
+What do you think ?
+
+Thanks,
+ Nik
