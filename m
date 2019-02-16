@@ -2,22 +2,22 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=uGQEeKs0wF3WsHP8KjXvQrPiN22+b85NexF3bnAlxpE=;
-	b=XxpCmzVLVsxBd3x3MTABjyCfOsgnHW8mxlpLQxxw+cj4fNt3Zg6/qoRk9965QW5gXd
-	xfkSRccVcJTxtkkc9jd26H0K89M8QetBORO90/EvlM6Esmk22DdiXlAMisy6Zh4PCnDP
-	TvgqAYJHEyVRHzWSr/ztgEOZ8c/X40UGFDGMhsr3FLh9AOPlvyD0pQoD0MQpZkURP8qY
-	XLR/8qhi0c0WDC4QgFIAA7RjOuIoS+nC8q/c/gthRkVvCO9dW+CZvGnWCClP0KHTiYX0
-	cw5SlLoZimUy2wImNtE7WFkZuTCgNY6jiq1JHbN5IPMqOoWcSVA8Gj49oeOszCRyb8Uq
-	u7Vg==
+	bh=hWVdHii8ckcvI1Css/ppCdD5B7yTXb8aPWmds2fbqAc=;
+	b=BCMNWxM5zaaINeR/+8ZVcbNv5XBD/+MqdBwzZC6Y+Y3j7uPrNsnlA7xqY2YbsizSpT
+	5x/onSuYPJhbCdfs7Voc+XmulP4h3GkduZngv9lxoLFQ68fYVw/6N19J/DE+Mq+aYl1y
+	M96TaWEwa9qrRJv5pSRfsuZD/fuaC1NSUPGVvSuXKpJbADC1H4e4rfncGKfL2S8Douy4
+	iKTwNBipSujejKAfq3Zq/x2+u7ee/RrZUjLkdODVE7nztfZCE2trkFxFcWyGdQzEVFOY
+	fwxIeHqNdAqi7BQ+588q4fI2Y5BW16KWrCFjLrMS/60pGSQPtKGkqYX0h8+5GhQsFdlZ
+	k04Q==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Fri, 15 Feb 2019 20:55:48 -0800
-Message-Id: <20190216045556.3514-2-f.fainelli@gmail.com>
+Date: Fri, 15 Feb 2019 20:55:49 -0800
+Message-Id: <20190216045556.3514-3-f.fainelli@gmail.com>
 In-Reply-To: <20190216045556.3514-1-f.fainelli@gmail.com>
 References: <20190216045556.3514-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 1/9] Documentation: networking:
-	switchdev: Update port parent ID section
+Subject: [Bridge] [PATCH net-next v3 2/9] switchdev: Add
+	SWITCHDEV_PORT_ATTR_SET, SWITCHDEV_PORT_ATTR_GET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,39 +29,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
 
-Update the section about switchdev drivers having to implement a
-switchdev_port_attr_get() function to return
-SWITCHDEV_ATTR_ID_PORT_PARENT_ID since that is no longer valid after
-commit bccb30254a4a ("net: Get rid of
-SWITCHDEV_ATTR_ID_PORT_PARENT_ID").
+In preparation for allowing switchdev enabled drivers to veto specific
+attribute settings from within the context of the caller, introduce a
+new switchdev notifier type for port attributes.
 
-Fixes: bccb30254a4a ("net: Get rid of SWITCHDEV_ATTR_ID_PORT_PARENT_ID")
+Suggested-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- Documentation/networking/switchdev.txt | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/net/switchdev.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
-index f3244d87512a..2842f63ad47b 100644
---- a/Documentation/networking/switchdev.txt
-+++ b/Documentation/networking/switchdev.txt
-@@ -92,11 +92,11 @@ device.
- Switch ID
- ^^^^^^^^^
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index 5e87b54c5dc5..b8becabbef38 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -143,6 +143,9 @@ enum switchdev_notifier_type {
+ 	SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE,
+ 	SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE,
+ 	SWITCHDEV_VXLAN_FDB_OFFLOADED,
++
++	SWITCHDEV_PORT_ATTR_SET, /* Blocking. */
++	SWITCHDEV_PORT_ATTR_GET, /* Blocking. */
+ };
  
--The switchdev driver must implement the switchdev op switchdev_port_attr_get
--for SWITCHDEV_ATTR_ID_PORT_PARENT_ID for each port netdev, returning the same
--physical ID for each port of a switch.  The ID must be unique between switches
--on the same system.  The ID does not need to be unique between switches on
--different systems.
-+The switchdev driver must implement the net_device operation
-+ndo_get_port_parent_id for each port netdev,  returning the same physical ID
-+for each port of a switch. The ID must be unique between switches on the same
-+system. The ID does not need to be unique between switches on different
-+systems.
+ struct switchdev_notifier_info {
+@@ -165,6 +168,13 @@ struct switchdev_notifier_port_obj_info {
+ 	bool handled;
+ };
  
- The switch ID is used to locate ports on a switch and to know if aggregated
- ports belong to the same switch.
++struct switchdev_notifier_port_attr_info {
++	struct switchdev_notifier_info info; /* must be first */
++	struct switchdev_attr *attr;
++	struct switchdev_trans *trans;
++	bool handled;
++};
++
+ static inline struct net_device *
+ switchdev_notifier_info_to_dev(const struct switchdev_notifier_info *info)
+ {
 -- 
 2.19.1
 
