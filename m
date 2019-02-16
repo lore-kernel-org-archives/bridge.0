@@ -2,21 +2,21 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=mF0clASfsS+m8euYRGx6YKoVXE9ceDzoQVGxi2l5BWo=;
-	b=YFGn89vUvVsfPxvmLts9a6/QqTx599AR0R9V2aeo45jm/odT2FJDqDfbGzJtWIBqwP
-	2xcuPkRlwuiisCfrKgRcrHX1EDJw3LZ1rZb4K0t65gtZwp0Ks+ssFRkcOyX5+kQaDSTX
-	QUXSGUBRa2483elu9SBGwQHNxlXBIqUhmgg7ATQjOe6nGdrbCQkf8/uaHb7l9pJNED2V
-	dt/S7olxRGSeL5qnSqUGPiP3dCgYodTx9APORX62qkf6zdWcTu855jj3CXkt8S+YkzZx
-	Ru1adCgBJxkNsUKJL4m3ZKVz9iV/PP+roGxXEAgNPDx5q2IwdZQSCnEfQFOdW53DP5lz
-	oNeA==
+	bh=9fkZ8Pbunho/ROChBNcoRtJbkTRL9WKmA1WtJKIo9O4=;
+	b=ahoaNyqhdWq5zT6UXmmAu7audKOPLLdh29zLeLuaCPcvb92C213qlB9ba0nR9FOQZm
+	oabUHCgWTb9FHDdsn1U7Mj+QHRCr8ujGF9sM7iinBJvmQD4lQqQ3ywuEdbX+UgjQeiEx
+	2DMflfz360cqvF1F18DDXkzErMF8QblEKDEhE8BvfVEKuiWoJA4RPvzA9ZZ7WE9pAx3y
+	qzqKnnThLvw0s2rz7IfN9X/z9n/xxK1Ye0ZM9DGSHS7rDoTOvo0qC0pNpMYdpninX4nb
+	SGZbnxvmrKrCdbiFG+/W88rhWID8hmgjYZB2JhOLJDMDPQkWuiRQrBj6E7Ez7TyD5NiR
+	nmAw==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Fri, 15 Feb 2019 20:55:52 -0800
-Message-Id: <20190216045556.3514-6-f.fainelli@gmail.com>
+Date: Fri, 15 Feb 2019 20:55:53 -0800
+Message-Id: <20190216045556.3514-7-f.fainelli@gmail.com>
 In-Reply-To: <20190216045556.3514-1-f.fainelli@gmail.com>
 References: <20190216045556.3514-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 5/9] net: mscc: ocelot: Handle
+Subject: [Bridge] [PATCH net-next v3 6/9] staging: fsl-dpaa2: ethsw: Handle
 	SWITCHDEV_PORT_ATTR_GET/SET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -32,25 +32,25 @@ Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, Florian Fainelli <f.fainelli@gma
 Following patches will change the way we communicate getting or setting
 a port's attribute and use a blocking notifier to perform those tasks.
 
-Prepare ocelot to support receiving notifier events targeting
+Prepare ethsw to support receiving notifier events targeting
 SWITCHDEV_PORT_ATTR_GET/SET and simply translate that into the existing
-ocelot_port_attr_{set,get} calls.
+swdev_port_attr_{set,get} calls.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index 195306d05bcd..850a49033a30 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -1582,6 +1582,24 @@ struct notifier_block ocelot_netdevice_nb __read_mostly = {
- };
- EXPORT_SYMBOL(ocelot_netdevice_nb);
+diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+index e559f4c25cf7..bc9e7de07200 100644
+--- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
++++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+@@ -1111,6 +1111,27 @@ ethsw_switchdev_port_obj_event(unsigned long event, struct net_device *netdev,
+ 	return notifier_from_errno(err);
+ }
  
 +static int
-+ocelot_switchdev_port_attr_event(unsigned long event,
++ethsw_switchdev_port_attr_event(unsigned long event,
 +		struct net_device *netdev,
 +		struct switchdev_notifier_port_attr_info *port_attr_info)
 +{
@@ -58,8 +58,11 @@ index 195306d05bcd..850a49033a30 100644
 +
 +	switch (event) {
 +	case SWITCHDEV_PORT_ATTR_SET:
-+		err = ocelot_port_attr_set(netdev, port_attr_info->attr,
-+					   port_attr_info->trans);
++		err = swdev_port_attr_set(netdev, port_attr_info->attr,
++					  port_attr_info->trans);
++		break;
++	case SWITCHDEV_PORT_ATTR_GET:
++		err = swdev_port_attr_get(netdev, port_attr_info->attr);
 +		break;
 +	}
 +
@@ -67,16 +70,16 @@ index 195306d05bcd..850a49033a30 100644
 +	return notifier_from_errno(err);
 +}
 +
- static int ocelot_switchdev_blocking_event(struct notifier_block *unused,
- 					   unsigned long event, void *ptr)
+ static int port_switchdev_blocking_event(struct notifier_block *unused,
+ 					 unsigned long event, void *ptr)
  {
-@@ -1600,6 +1618,9 @@ static int ocelot_switchdev_blocking_event(struct notifier_block *unused,
- 						    ocelot_netdevice_dev_check,
- 						    ocelot_port_obj_del);
- 		return notifier_from_errno(err);
+@@ -1123,6 +1144,9 @@ static int port_switchdev_blocking_event(struct notifier_block *unused,
+ 	case SWITCHDEV_PORT_OBJ_ADD: /* fall through */
+ 	case SWITCHDEV_PORT_OBJ_DEL:
+ 		return ethsw_switchdev_port_obj_event(event, dev, ptr);
 +	case SWITCHDEV_PORT_ATTR_SET:
-+	case SWITCHDEV_PORT_ATTR_GET: /* fallthrough */
-+		return ocelot_switchdev_port_attr_event(event, dev, ptr);
++	case SWITCHDEV_PORT_ATTR_GET:
++		return ethsw_switchdev_port_attr_event(event, dev, ptr);
  	}
  
  	return NOTIFY_DONE;
