@@ -1,18 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id;
-	bh=qeGucNcR1Ixrosfg05/ynjm177ucrRZgoNcvbGuBl8E=;
-	b=XXHYChJdUNonKzSSzYTv6hz00p34+KRTpCyczG7MuFTArT7PqyJcGifbGGPFOBzEMp
-	tcnLKpqKoRyoSGaBltOIxQ28HQydVAgTOzwV4LSKaBg97OI0HR2p/1qiXYEW1B7aByGd
-	2Mqp3aOJlSqpH399kBhqbPMrIk30SGyw8tChmrYFaVEyf9WG93l8/wEn43Fpi6ui6Gvj
-	zdQlmreDRJKP42uZJ9K88GHOVcZ/elfJNXMZFGP7wJYNo4g1FeNd6+Q0dHHMCuHMTUMe
-	Ees9BTraoc8YxW0NBC0hO4ufW2eBJ2pkpblLARcNuvjVrtOgEGy9Y/KOhFeMiIudQR6/
-	RP3g==
+	h=from:to:cc:subject:date:message-id:in-reply-to:references;
+	bh=Y8cTug1MK//k9Db5o5+0BQipNr3buFiSVSYrdmVTLt0=;
+	b=eF+5qWDN7kVWTIqY7Wm2yb4JW+NNHnca8Tl6RbzAdWBMFFFnfkUsk8cGJo/Rm9qfJx
+	tnnNQMBwkdH8OvkYK4hlfdGr0ylWAP3bWGG/lDIA3DDuLqNzGQ1wk+rf7AwK+hFHpOZL
+	p0nVPP6X70eGnkWVPrtxjotKGgS49lMf2WfHACuK3trl2bpJ4W7m+Ee5gvlm2Y+WcpqT
+	6TK7l6kwQXJr1igkG1rkaZEIa4LfoxPtSOC1iMspIIiQzUvRgqcWnpPgrtGh9KSZ8Lnb
+	bzbGtCIcpO3VaRdEc7/JYrJsbXeH9GlkOaj+UXCem2ZP/Vcu4Gd0GRfPayZ3t+OjS8kS
+	gxHg==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 20 Feb 2019 16:58:18 -0800
-Message-Id: <20190221005826.26317-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v3 0/8] net: Get rid of
-	switchdev_port_attr_get()
+Date: Wed, 20 Feb 2019 16:58:19 -0800
+Message-Id: <20190221005826.26317-2-f.fainelli@gmail.com>
+In-Reply-To: <20190221005826.26317-1-f.fainelli@gmail.com>
+References: <20190221005826.26317-1-f.fainelli@gmail.com>
+Subject: [Bridge] [PATCH net-next v3 1/8] net: switchdev: Add
+	PORT_PRE_BRIDGE_FLAGS
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,67 +26,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-Hi all,
+In preparation for removing switchdev_port_attr_get(), introduce
+PORT_PRE_BRIDGE_FLAGS which will be called through
+switchdev_port_attr_set(), in the caller's context (possibly atomic) and
+which must be checked by the switchdev driver in order to return whether
+the operation is supported or not.
 
-This patch series splits the removal of the switchdev_ops that was
-proposed a few times before and first tackles the easy part which is the
-removal of the single call to switchdev_port_attr_get() within the
-bridge code.
+This is entirely analoguous to how the BRIDGE_FLAGS_SUPPORT works,
+except it goes through a set() instead of get().
 
-As suggestd by Ido, this patch series adds a
-SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS which is used in the same
-context as the caller of switchdev_port_attr_set(), so not deferred, and
-then the operation is carried out in deferred context with setting a
-support bridge port flag.
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+ include/net/switchdev.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Follow-up patches will do the switchdev_ops removal after introducing
-the proper helpers for the switchdev blocking notifier to work across
-stacked devices (unlike the previous submissions).
-
-David this does depend on Russell's "[PATCH net-next v5 0/3] net: dsa:
-mv88e6xxx: fix IPv6".
-
-Changes in v3:
-
-- rebased against net-next/master after Russell's IPv6 changes to DSA
-- ignore prepare/commit phase for PRE_BRIDGE_FLAGS since we don't
-  want to trigger the WARN() in net/switchdev/switchdev.c in the commit
-  phase
-
-Changes in v2:
-
-- differentiate callers not supporting switchdev_port_attr_set() from
-  the driver not being able to support specific bridge flags
-
-- pass "mask" instead of "flags" for the PRE_BRIDGE_FLAGS check
-
-- skip prepare phase for PRE_BRIDGE_FLAGS
-
-- corrected documentation a bit more
-
-- tested bridge_vlan_aware.sh with veth/VRF
-
-Florian Fainelli (8):
-  net: switchdev: Add PORT_PRE_BRIDGE_FLAGS
-  mlxsw: spectrum: Handle PORT_PRE_BRIDGE_FLAGS
-  staging: fsl-dpaa2: ethsw: Handle PORT_PRE_BRIDGE_FLAGS
-  net: dsa: Add setter for SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
-  rocker: Check Handle PORT_PRE_BRIDGE_FLAGS
-  net: bridge: Stop calling switchdev_port_attr_get()
-  net: Remove SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT
-  net: Get rid of switchdev_port_attr_get()
-
- Documentation/networking/switchdev.txt        |  6 +-
- .../mellanox/mlxsw/spectrum_switchdev.c       | 32 ++++----
- drivers/net/ethernet/rocker/rocker_main.c     | 74 ++++++++++---------
- drivers/staging/fsl-dpaa2/ethsw/ethsw.c       | 29 ++++----
- include/net/switchdev.h                       | 13 +---
- net/bridge/br_switchdev.c                     | 11 ++-
- net/dsa/dsa_priv.h                            |  2 +
- net/dsa/port.c                                | 12 +++
- net/dsa/slave.c                               | 25 +------
- 9 files changed, 98 insertions(+), 106 deletions(-)
-
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index 5e87b54c5dc5..de72b0a3867f 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -46,6 +46,7 @@ enum switchdev_attr_id {
+ 	SWITCHDEV_ATTR_ID_PORT_STP_STATE,
+ 	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
+ 	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
++	SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS,
+ 	SWITCHDEV_ATTR_ID_PORT_MROUTER,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING,
+@@ -61,7 +62,7 @@ struct switchdev_attr {
+ 	void (*complete)(struct net_device *dev, int err, void *priv);
+ 	union {
+ 		u8 stp_state;				/* PORT_STP_STATE */
+-		unsigned long brport_flags;		/* PORT_BRIDGE_FLAGS */
++		unsigned long brport_flags;		/* PORT_{PRE}_BRIDGE_FLAGS */
+ 		unsigned long brport_flags_support;	/* PORT_BRIDGE_FLAGS_SUPPORT */
+ 		bool mrouter;				/* PORT_MROUTER */
+ 		clock_t ageing_time;			/* BRIDGE_AGEING_TIME */
 -- 
 2.17.1
 
