@@ -1,21 +1,27 @@
-Return-Path: <dvyukov@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc; bh=NSQcP5US8A887onOsy12dRyyybG0996qtwuUBRGtJYc=;
-	b=Is1pvlbNjZ7OyrnYK6nIfXlqc1Oy2rHEt68Sb76F2YXDI3BbX4vzjd5CSxzNBbocWt
-	fZ62FhBrEXCZwMZu70QW4ijXVC0vRJQNB9QzP0bEaurNfRF+dVtYuZvna3MZqaLJ0afL
-	Ibi0oVhkYgl0PPfo4Zlsd8lrifemxRavD/CWR3d0D5pFX7BzGrISdqrXCbGym8LRp0po
-	yRLgwKv+q5PfPf62cDiA6bwQ+OIK7fQ9vVaNc/pyhe93GGoPPIYMFGLzT5BAE5j4l73X
-	Zseg7G80AKDXy0QuZrmNGJ3PQpjeVhVKOzMxLeyK7GfatOx5IRoC64gAYorCc3M+RMYI
-	pzxg==
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=is3hGaVUQKrESltgHJnW0XYbhG0VQoHdqB8ny0QRCEI=;
+	b=aNdXgHpzAohmDpgiNjf8FkJ1WeYq7X9AnmHe5WTPOvazh5T3OSBpZOneuWJVYqYLt1
+	HySGl5GXxMZnFSATpXZva8qcOGB+akJoKXeMgdRBsJzGi2KZJGzD1bHvoS2EPmZp4Axl
+	t539UVZuivDZw5y7fb1iN89woOUQriHNm0ycI=
+References: <90c5f2fe-1743-6b17-2e44-eba58cdbbb35@cumulusnetworks.com>
+	<20181027090747.22104-1-nikolay@cumulusnetworks.com>
+	<20181029013316.GK24677@leo.usersys.redhat.com>
+	<20181213161027.GC1713@otheros>
+	<20190221080114.GL10051@dhcp-12-139.nay.redhat.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <9db055dd-6486-1d6e-7dce-edc511650af9@cumulusnetworks.com>
+Date: Thu, 21 Feb 2019 15:20:14 +0200
 MIME-Version: 1.0
-References: <00000000000047d84e058089773f@google.com>
-In-Reply-To: <00000000000047d84e058089773f@google.com>
-From: Dmitry Vyukov <dvyukov@google.com>
-Date: Thu, 21 Feb 2019 11:56:09 +0100
-Message-ID: <CACT4Y+aKFM2Gi4mGVCSMZNv_20SAP2KhjnSZYmNr18va_bXv_Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] KMSAN: uninit-value in br_mdb_ip_get
+In-Reply-To: <20190221080114.GL10051@dhcp-12-139.nay.redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] net: bridge: remove ipv6 zero address
+ check in mcast queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,138 +30,194 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, Alexander Potapenko <glider@google.com>, David Miller <davem@davemloft.net>
+To: Hangbin Liu <liuhangbin@gmail.com>, =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, yinxu@redhat.com, Sebastian Gottschall <s.gottschall@newmedia-net.de>, davem@davemloft.net
 
-On Mon, Jan 28, 2019 at 8:13 PM syzbot
-<syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com> wrote:
->
-> Hello,
->
-> syzbot found the following crash on:
->
-> HEAD commit:    02f2d5aea531 kmsan: (presumably) fix dma_map_page_attrs()
-> git tree:       kmsan
-> console output: https://syzkaller.appspot.com/x/log.txt?x=173a7310c00000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=52c9737ec5618f82
-> dashboard link: https://syzkaller.appspot.com/bug?extid=8dfe5ee27aa6d2e396c2
-> compiler:       clang version 8.0.0 (trunk 350509)
->
-> Unfortunately, I don't have any reproducer for this crash yet.
->
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+8dfe5ee27aa6d2e396c2@syzkaller.appspotmail.com
+On 21/02/2019 10:01, Hangbin Liu wrote:
+> Hi Linus,
+> 
+> Sorry, my mail client somehow droped your message and I didn't see your reply.
+> I find this mail after Nikolay pointed out yesterday.
+> 
+>> Hi and thanks for your reply!
+>>
+>> On Fri, Dec 14, 2018 at 10:32:16AM +0800, Ying Xu wrote:
+>>>  I think the scenario mentioned above is abnormal.
+>>
+>> Can we agree, that this scenario, if switch A and B were using the
+>> current bridge code, has issues right now which it did
+>> not have before that patch?
+> 
+> Yes, I agree. But this "regression" could be fixed by setting up correct
+> switch configuration. See more explains below.
+> 
 
+That is irrelevant, if the setup once worked we should not break it unless
+it's in RFC requirement violation and RFC 4541 is only suggestive, not required.
 
-There is also a use-after-free reported at around the same stack:
-https://groups.google.com/forum/#!topic/syzkaller-bugs/8V7VqxxTEzc
-The question is: can these reports be related? One is root cause of another?
+>>
+>> I also do not quite understand what you mean with "abnormal". Do
+>> you think that it is unlikely to have two snooping switches and
+>> general queries with a 0.0.0.0 source?
+> 
+> The "abnormal" means we shouldn't use this kind of configuration on
+> snooping switch.
+> 
+> We could have general queries with a 0.0.0.0 source, but these queries
+> are only from proxy Querier, not from real Querier.
+> 
+> Based on RFC 4541,
+> 2.1.1.  IGMP Forwarding Rules
+>       b) The arrival port for IGMP Queries (sent by multicast routers)
+>          where the source address is not 0.0.0.0.
+> 
+>          The 0.0.0.0 address represents a special case where the switch
+>          is proxying IGMP Queries for faster network convergence, but is
+>          not itself the Querier.  The switch does not use its own IP
+>          address (even if it has one), because this would cause the
+>          Queries to be seen as coming from a newly elected Querier.  The
+>          0.0.0.0 address is used to indicate that the Query packets are
+>          NOT from a multicast router.
+> 
+> This paragraph specified "0.0.0.0" is only for switch proxying queries.
+> It should not be used as a IGMP Querier.
+> 
+> "because this would cause the Queries to be seen as coming from a newly
+>  elected Querier" means other address could be elected as a Querier but
+> "0.0.0.0" should not.
+> 
 
+But this change hasn't been incorporated, has it ? A 0.0.0.0 address currently
+will always win the election and silence all of the rest. Current bridge state
+is simply broken for some cases because of that.
 
-> ==================================================================
-> BUG: KMSAN: uninit-value in __rhashtable_lookup
-> include/linux/rhashtable.h:505 [inline]
-> BUG: KMSAN: uninit-value in rhashtable_lookup
-> include/linux/rhashtable.h:534 [inline]
-> BUG: KMSAN: uninit-value in br_mdb_ip_get+0x52b/0x740
-> net/bridge/br_multicast.c:97
-> CPU: 0 PID: 11379 Comm: udevd Not tainted 5.0.0-rc1+ #7
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 01/01/2011
-> Call Trace:
->   <IRQ>
->   __dump_stack lib/dump_stack.c:77 [inline]
->   dump_stack+0x173/0x1d0 lib/dump_stack.c:113
->   kmsan_report+0x12e/0x2a0 mm/kmsan/kmsan.c:600
->   __msan_warning+0x82/0xf0 mm/kmsan/kmsan_instr.c:313
->   __rhashtable_lookup include/linux/rhashtable.h:505 [inline]
->   rhashtable_lookup include/linux/rhashtable.h:534 [inline]
->   br_mdb_ip_get+0x52b/0x740 net/bridge/br_multicast.c:97
->   br_multicast_new_group+0xa7/0x1640 net/bridge/br_multicast.c:467
->   br_multicast_add_group+0x242/0xf00 net/bridge/br_multicast.c:552
->   br_ip4_multicast_add_group net/bridge/br_multicast.c:606 [inline]
->   br_ip4_multicast_igmp3_report net/bridge/br_multicast.c:972 [inline]
->   br_multicast_ipv4_rcv net/bridge/br_multicast.c:1615 [inline]
->   br_multicast_rcv+0x3a88/0x6560 net/bridge/br_multicast.c:1701
->   br_dev_xmit+0xbc5/0x16a0 net/bridge/br_device.c:93
->   __netdev_start_xmit include/linux/netdevice.h:4382 [inline]
->   netdev_start_xmit include/linux/netdevice.h:4391 [inline]
->   xmit_one net/core/dev.c:3278 [inline]
->   dev_hard_start_xmit+0x604/0xc40 net/core/dev.c:3294
->   __dev_queue_xmit+0x2e48/0x3b80 net/core/dev.c:3864
->   dev_queue_xmit+0x4b/0x60 net/core/dev.c:3897
->   neigh_hh_output include/net/neighbour.h:498 [inline]
->   neigh_output include/net/neighbour.h:506 [inline]
->   ip_finish_output2+0x156d/0x1820 net/ipv4/ip_output.c:229
->   ip_finish_output+0xd2b/0xfd0 net/ipv4/ip_output.c:317
->   NF_HOOK_COND include/linux/netfilter.h:278 [inline]
->   ip_output+0x53f/0x610 net/ipv4/ip_output.c:405
->   dst_output include/net/dst.h:444 [inline]
->   ip_local_out+0x164/0x1d0 net/ipv4/ip_output.c:124
->   igmpv3_sendpack net/ipv4/igmp.c:417 [inline]
->   igmpv3_send_cr net/ipv4/igmp.c:705 [inline]
->   igmp_ifc_timer_expire+0x12cb/0x1aa0 net/ipv4/igmp.c:793
->   call_timer_fn+0x285/0x600 kernel/time/timer.c:1325
->   expire_timers kernel/time/timer.c:1362 [inline]
->   __run_timers+0xdb4/0x11d0 kernel/time/timer.c:1681
->   run_timer_softirq+0x2e/0x50 kernel/time/timer.c:1694
->   __do_softirq+0x53f/0x93a kernel/softirq.c:293
->   invoke_softirq kernel/softirq.c:375 [inline]
->   irq_exit+0x214/0x250 kernel/softirq.c:416
->   exiting_irq+0xe/0x10 arch/x86/include/asm/apic.h:536
->   smp_apic_timer_interrupt+0x48/0x70 arch/x86/kernel/apic/apic.c:1064
->   apic_timer_interrupt+0x2e/0x40 arch/x86/entry/entry_64.S:814
->   </IRQ>
-> RIP: 0010:__msan_chain_origin+0x93/0xe0 mm/kmsan/kmsan_instr.c:201
-> Code: 89 f7 e8 f0 e0 ff ff 89 c3 65 ff 0c 25 04 90 03 00 65 8b 04 25 04 90
-> 03 00 85 c0 75 30 e8 f5 a2 3f ff 4c 89 7d d0 ff 75 d0 9d <65> 48 8b 04 25
-> 28 00 00 00 48 3b 45 e0 75 0d 89 d8 48 83 c4 18 5b
-> RSP: 0018:ffff8880a53cf6f0 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
-> RAX: 0000000000000000 RBX: 00000000a06000af RCX: c7641d3373f0d000
-> RDX: 0000000000000003 RSI: 0000000000480020 RDI: 0000000085c0000c
-> RBP: ffff8880a53cf720 R08: 0000000000000003 R09: ffff8880a53cf4ac
-> R10: ffffffff8ae01788 R11: 0000000000000000 R12: ffff8880a53cfcd0
-> R13: ffff8880a53cfcc8 R14: 0000000085c0000c R15: 0000000000000246
->   step_into+0x70c/0x1b90 fs/namei.c:1778
->   walk_component+0x1d0/0xba0 fs/namei.c:1829
->   link_path_walk+0xa9e/0x2160 fs/namei.c:2135
->   path_openat+0x30e/0x6b90 fs/namei.c:3533
->   do_filp_open+0x2b8/0x710 fs/namei.c:3564
->   do_sys_open+0x642/0xa30 fs/open.c:1063
->   __do_sys_open fs/open.c:1081 [inline]
->   __se_sys_open+0xad/0xc0 fs/open.c:1076
->   __x64_sys_open+0x4a/0x70 fs/open.c:1076
->   do_syscall_64+0xbc/0xf0 arch/x86/entry/common.c:291
->   entry_SYSCALL_64_after_hwframe+0x63/0xe7
-> RIP: 0033:0x7f4526cc5120
-> Code: 48 8b 15 1b 4d 2b 00 f7 d8 64 89 02 83 c8 ff c3 90 90 90 90 90 90 90
-> 90 90 90 83 3d d5 a4 2b 00 00 75 10 b8 02 00 00 00 0f 05 <48> 3d 01 f0 ff
-> ff 73 31 c3 48 83 ec 08 e8 5e 8c 01 00 48 89 04 24
-> RSP: 002b:00007ffdb010be48 EFLAGS: 00000246 ORIG_RAX: 0000000000000002
-> RAX: ffffffffffffffda RBX: 0000000000ee2fd0 RCX: 00007f4526cc5120
-> RDX: 00000000000001b6 RSI: 0000000000080000 RDI: 00007ffdb010bf20
-> RBP: 00007ffdb010bec0 R08: 0000000000000008 R09: 0000000000000001
-> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000008
-> R13: 000000000041f57a R14: 0000000000ed3250 R15: 000000000000000b
->
-> Local variable description: ----br_group.i.i@br_multicast_rcv
-> Variable was created at:
->   br_multicast_rcv+0x1e7/0x6560 net/bridge/br_multicast.c:1690
->   br_dev_xmit+0xbc5/0x16a0 net/bridge/br_device.c:93
-> ==================================================================
->
->
-> ---
-> This bug is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
->
-> syzbot will keep track of this bug report. See:
-> https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with
-> syzbot.
->
-> --
-> You received this message because you are subscribed to the Google Groups "syzkaller-bugs" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to syzkaller-bugs+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/syzkaller-bugs/00000000000047d84e058089773f%40google.com.
-> For more options, visit https://groups.google.com/d/optout.
+> AFAIK, most verdors(Cisco, HW, etc. expect H3C) use none-zero address
+> as default address on proxying switches. But H3C also respect the
+> b) section.
+> 
+>>
+>> Note that with the current bridge code and according to RFC3376
+>> and RFC2236, as soon as a query with a 0.0.0.0 source is sent somewhere
+>> in the broadcast domain, it will become the selected querier [*].
+> 
+> Yes, In RFC 3376
+> 
+> 6.6.2. Querier Election
+> 
+>    IGMPv3 elects a single querier per subnet using the same querier
+>    election mechanism as IGMPv2, namely by IP address.  When a router
+>    receives a query with a lower IP address, it sets the Other-Querier-
+>    Present timer to Other Querier Present Interval and ceases to send
+>    queries on the network if it was the previously elected querier.
+>    After its Other-Querier Present timer expires, it should begin
+>    sending General Queries.
+> 
+> It only said we should select lower IP address as Querier, but didn't specify
+> the "0.0.0.0" address.
+> 
+> While in the later RFC 4541
+> 
+> Abstract
+>    This memo describes the recommendations for Internet Group Management
+>    Protocol (IGMP) and Multicast Listener Discovery (MLD) snooping
+>    switches.  These are based on best current practices for IGMPv2, with
+>    further considerations for IGMPv3- and MLDv2-snooping.
+> 
+> And section 2.1.1.  IGMP Forwarding Rules(I just pasted above). It did
+> specify the "0.0.0.0" address issue.
+> 
+> I think we should respect the later and accurater standard, shouldn't we?
+> 
+
+No if it is breaking valid setups, RFC 4541 is only a suggestion and in this case
+the bridge has worked like that for a long time. The current situation is broken
+because a 0.0.0.0 querier will win the election always and will silence the rest.
+
+If it's not involved in the election then we'll have snooping effectively disabled
+unless a non-zero querier shows up which again sounds wrong and was already pointed
+out by Linus. I think the best course of action is to revert this change.
+
+>>
+>>
+>>> The source of query indicats that is a real router or only a switch.(0.0.0.0
+>>> means switch,non-zero means router).
+>>> In the scenario above,the switch A was selected to be a querier that means A
+>>> performs as a router,
+>>> so switch A should config its query source address to non-zero,and then Host A
+>>> can recieve the traffic from B.
+>>
+>> Even if in the described scenario switch A were configured to use a a non-zero
+>> source address to become a router, so that switch B would mark the port
+>> to switch A as a multicast router port, switch A would still loose
+>> in the querier election right now, as 0.0.0.0 is lower (RFC3376, RFC2236). So
+>> switch B would then become the selected querier with its 0.0.0.0 source
+>> and switch A would become silent even though it had a non-zero
+>> source address.
+>>
+>> And then we would have the same issue again, only swapped between
+>> host+switch A and host+switch B.
+>>
+>> Would you agree, does that make sense?
+>>
+> 
+> Yes, that's why Ying Xu said the topology is "abnormal", or illegal. Because
+> in a correct configured topology, there should has a Querier with none-zero
+> IP address.
+> 
+
+Certainly not illegal.
+
+>> Regards, Linus
+>>
+>>
+>> [*]: Looking at br_ip4_multicast_select_querier():
+>>
+>> If previously selected querier were 0.0.0.0, it would accept any
+>> source as a new querier ("!br->ip4_querier.addr.u.ip4"). However,
+>> if the previously selected querier were non-zero, a query with
+>> 0.0.0.0 would win, too
+>> ("ntohl(saddr) <= ntohl(br->ip4_querier.addr.u.ip4)").
+> 
+> In RFC 3810
+> 
+> 7.6.2.  Querier Election
+>    When a router starts operating on a subnet, by default it
+>    considers itself as being the Querier.
+> 
+>    When a router receives a query with a lower IPv6 address than its
+>    own, it sets the Other Querier Present timer to Other Querier Present
+>    Timeout; if it was previously in Querier state, it switches to Non-
+>    Querier state and ceases to send queries on the link.
+> 
+>    All MLDv2 queries MUST be sent with the FE80::/64 link-local source
+>    address prefix.
+> 
+> MLDv2 also sepcified the default Querier is itself and electe a lower adddress
+> as new Querier. And the source address should be link-loacl source address
+> instead of 0("::"). This is another evidence that we should not use "0.0.0.0"
+> as a Querier. So I think we should fix the IPv4 election in function
+> br_ip4_multicast_select_querier().
+> 
+> This looks like a little extreme and may have "regression", but the "regression"
+> should be fixed by setting up correct router/switch configuration.
+> 
+> What do you think?
+> 
+
+Removing 0.0.0.0 from the election will effectively disable snooping even if there's
+a configured bridge unless it has an address. You can see that this will end up in
+people having suddenly their multicast flooded with current setups, right ?
+Any big behaviour change like that should be optional, but I don't think we need 
+another option as this is not so big of a deal because we're not breaking any
+required behaviour.
+In case you decide to follow the option path, please use the new boolopt api to avoid
+adding new fields to the bridge, this should be an on/off thing. I still vote for a
+revert though.
+
+> Regards
+> Hangbin
+> 
+
+Thanks,
+ Nik
+
