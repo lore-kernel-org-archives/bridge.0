@@ -1,20 +1,27 @@
-Return-Path: <f.fainelli@gmail.com>
+Return-Path: <liuhangbin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=6QC5/F+Bhjh0KmzSrlZ+HZJwrQWKGEwgIVPrdI/j5Fk=;
-	b=q+iYOTUFVVNCE/YjQlv9P+/4efhkqAwqst44r8uQC6fs9tMVi6OZD7R39iLBP3FEx5
-	3f0mlCUyOE1gyTasSbQXTdACuXOetL1uOG7n6V8ebZjJK1qg4QFx7qxXYRTSj2FUEgw1
-	L6BnUMvvIhJ5V1tT/5GYrzdv5YRrAqzk92PLSCTpiz+yz67QpKtTVHixfUZ+mho+9q6E
-	VjH0BwCAXbQ66Om3+XfoHuogSEQ4OzQngejlF+bGCnPxoLtX5cu3LlWVph89KLuTHnRS
-	Zk85UqaTP7IWjWMQA0fcXUyLkeVXEZrsgOaus5Zb9uSvCYOuFtN0t684sa8V/kglcoLa
-	9+DQ==
-From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 20 Feb 2019 16:58:26 -0800
-Message-Id: <20190221005826.26317-9-f.fainelli@gmail.com>
-In-Reply-To: <20190221005826.26317-1-f.fainelli@gmail.com>
-References: <20190221005826.26317-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v3 8/8] net: Get rid of
-	switchdev_port_attr_get()
+	h=date:from:to:cc:subject:message-id:references:mime-version
+	:content-disposition:in-reply-to:user-agent;
+	bh=FcjVK+RcK9TAEzM4RBPkwMiTGBAh+JGbZg6A9vUVwLE=;
+	b=pP++ZoTltyb9FeDrwBPywtRrHy5KkQgBnV6Nobc740Mk1+l43Y69vKLICFHViyRsVj
+	TFvR/GyR5pzd09pap9+XzbJsD5Xuic3FH6BW7gRAeCM31slQq99hFJK+z8jXmHkD1huR
+	qEc44QuwzRtQ4opKL2bKruGpq6ttfscFGfX3FU1xSinRBR4O0ZLz0bNcyrie6ykyxt/5
+	O/xb4x1/FIEd3grvzpJyqMyZZE/vfhuux/UIqJp4U3KhdRp+IQ9HUlIHiX62sA6qffOE
+	sLJXJDWpdIJyDWw0aO9inrqo+49w/c47e/5IVgTn2EqiWtLMw7ivPC/AstIk3XmZ3o4T
+	Oo8g==
+Date: Thu, 21 Feb 2019 16:01:14 +0800
+From: Hangbin Liu <liuhangbin@gmail.com>
+Message-ID: <20190221080114.GL10051@dhcp-12-139.nay.redhat.com>
+References: <90c5f2fe-1743-6b17-2e44-eba58cdbbb35@cumulusnetworks.com>
+	<20181027090747.22104-1-nikolay@cumulusnetworks.com>
+	<20181029013316.GK24677@leo.usersys.redhat.com>
+	<20181213161027.GC1713@otheros>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181213161027.GC1713@otheros>
+Subject: Re: [Bridge] [PATCH net] net: bridge: remove ipv6 zero address
+ check in mcast queries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,165 +30,156 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
+To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, yinxu@redhat.com, Sebastian Gottschall <s.gottschall@newmedia-net.de>, davem@davemloft.net
 
-With the bridge no longer calling switchdev_port_attr_get() to obtain
-the supported bridge port flags from a driver but instead trying to set
-the bridge port flags directly and relying on driver to reject
-unsupported configurations, we can effectively get rid of
-switchdev_port_attr_get() entirely since this was the only place where
-it was called.
+Hi Linus,
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- Documentation/networking/switchdev.txt                   | 2 +-
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 7 -------
- drivers/net/ethernet/rocker/rocker_main.c                | 7 -------
- drivers/staging/fsl-dpaa2/ethsw/ethsw.c                  | 7 -------
- include/net/switchdev.h                                  | 8 --------
- net/dsa/slave.c                                          | 7 -------
- 6 files changed, 1 insertion(+), 37 deletions(-)
+Sorry, my mail client somehow droped your message and I didn't see your reply.
+I find this mail after Nikolay pointed out yesterday.
 
-diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
-index 79c8b0f16aee..413abbae952f 100644
---- a/Documentation/networking/switchdev.txt
-+++ b/Documentation/networking/switchdev.txt
-@@ -233,7 +233,7 @@ the bridge's FDB.  It's possible, but not optimal, to enable learning on the
- device port and on the bridge port, and disable learning_sync.
- 
- To support learning, the driver implements switchdev op
--switchdev_port_attr_get/set for SWITCHDEV_ATTR_PORT_ID_BRIDGE_FLAGS.
-+switchdev_port_attr_set for SWITCHDEV_ATTR_PORT_ID_{PRE}_BRIDGE_FLAGS.
- 
- FDB Ageing
- ^^^^^^^^^^
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index bbb5a406232e..766f5b5f1cf5 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -431,12 +431,6 @@ static void mlxsw_sp_bridge_vlan_put(struct mlxsw_sp_bridge_vlan *bridge_vlan)
- 		mlxsw_sp_bridge_vlan_destroy(bridge_vlan);
- }
- 
--static int mlxsw_sp_port_attr_get(struct net_device *dev,
--				  struct switchdev_attr *attr)
--{
--	return -EOPNOTSUPP;
--}
--
- static int
- mlxsw_sp_port_bridge_vlan_stp_set(struct mlxsw_sp_port *mlxsw_sp_port,
- 				  struct mlxsw_sp_bridge_vlan *bridge_vlan,
-@@ -1945,7 +1939,6 @@ static struct mlxsw_sp_port *mlxsw_sp_lag_rep_port(struct mlxsw_sp *mlxsw_sp,
- }
- 
- static const struct switchdev_ops mlxsw_sp_port_switchdev_ops = {
--	.switchdev_port_attr_get	= mlxsw_sp_port_attr_get,
- 	.switchdev_port_attr_set	= mlxsw_sp_port_attr_set,
- };
- 
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 6b8273e2057d..8200fbf91306 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -2066,12 +2066,6 @@ static const struct net_device_ops rocker_port_netdev_ops = {
-  * swdev interface
-  ********************/
- 
--static int rocker_port_attr_get(struct net_device *dev,
--				struct switchdev_attr *attr)
--{
--	return -EOPNOTSUPP;
--}
--
- static int rocker_port_attr_set(struct net_device *dev,
- 				const struct switchdev_attr *attr,
- 				struct switchdev_trans *trans)
-@@ -2148,7 +2142,6 @@ static int rocker_port_obj_del(struct net_device *dev,
- }
- 
- static const struct switchdev_ops rocker_port_switchdev_ops = {
--	.switchdev_port_attr_get	= rocker_port_attr_get,
- 	.switchdev_port_attr_set	= rocker_port_attr_set,
- };
- 
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-index de4dcabbc29a..018399ee8731 100644
---- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-+++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-@@ -640,12 +640,6 @@ static void ethsw_teardown_irqs(struct fsl_mc_device *sw_dev)
- 	fsl_mc_free_irqs(sw_dev);
- }
- 
--static int swdev_port_attr_get(struct net_device *netdev,
--			       struct switchdev_attr *attr)
--{
--	return -EOPNOTSUPP;
--}
--
- static int port_attr_stp_state_set(struct net_device *netdev,
- 				   struct switchdev_trans *trans,
- 				   u8 state)
-@@ -932,7 +926,6 @@ static int swdev_port_obj_del(struct net_device *netdev,
- }
- 
- static const struct switchdev_ops ethsw_port_switchdev_ops = {
--	.switchdev_port_attr_get	= swdev_port_attr_get,
- 	.switchdev_port_attr_set	= swdev_port_attr_set,
- };
- 
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 0f352019ef99..45310ddf2d7e 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -179,8 +179,6 @@ switchdev_notifier_info_to_extack(const struct switchdev_notifier_info *info)
- #ifdef CONFIG_NET_SWITCHDEV
- 
- void switchdev_deferred_process(void);
--int switchdev_port_attr_get(struct net_device *dev,
--			    struct switchdev_attr *attr);
- int switchdev_port_attr_set(struct net_device *dev,
- 			    const struct switchdev_attr *attr);
- int switchdev_port_obj_add(struct net_device *dev,
-@@ -225,12 +223,6 @@ static inline void switchdev_deferred_process(void)
- {
- }
- 
--static inline int switchdev_port_attr_get(struct net_device *dev,
--					  struct switchdev_attr *attr)
--{
--	return -EOPNOTSUPP;
--}
--
- static inline int switchdev_port_attr_set(struct net_device *dev,
- 					  const struct switchdev_attr *attr)
- {
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index db0a2651070f..a78b2bba0332 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -385,12 +385,6 @@ static int dsa_slave_get_port_parent_id(struct net_device *dev,
- 	return 0;
- }
- 
--static int dsa_slave_port_attr_get(struct net_device *dev,
--				   struct switchdev_attr *attr)
--{
--	return -EOPNOTSUPP;
--}
--
- static inline netdev_tx_t dsa_slave_netpoll_send_skb(struct net_device *dev,
- 						     struct sk_buff *skb)
- {
-@@ -1057,7 +1051,6 @@ static const struct net_device_ops dsa_slave_netdev_ops = {
- };
- 
- static const struct switchdev_ops dsa_slave_switchdev_ops = {
--	.switchdev_port_attr_get	= dsa_slave_port_attr_get,
- 	.switchdev_port_attr_set	= dsa_slave_port_attr_set,
- };
- 
--- 
-2.17.1
+> Hi and thanks for your reply!
+> 
+> On Fri, Dec 14, 2018 at 10:32:16AM +0800, Ying Xu wrote:
+> >  I think the scenario mentioned above is abnormal.
+> 
+> Can we agree, that this scenario, if switch A and B were using the
+> current bridge code, has issues right now which it did
+> not have before that patch?
 
+Yes, I agree. But this "regression" could be fixed by setting up correct
+switch configuration. See more explains below.
+
+> 
+> I also do not quite understand what you mean with "abnormal". Do
+> you think that it is unlikely to have two snooping switches and
+> general queries with a 0.0.0.0 source?
+
+The "abnormal" means we shouldn't use this kind of configuration on
+snooping switch.
+
+We could have general queries with a 0.0.0.0 source, but these queries
+are only from proxy Querier, not from real Querier.
+
+Based on RFC 4541,
+2.1.1.  IGMP Forwarding Rules
+      b) The arrival port for IGMP Queries (sent by multicast routers)
+         where the source address is not 0.0.0.0.
+
+         The 0.0.0.0 address represents a special case where the switch
+         is proxying IGMP Queries for faster network convergence, but is
+         not itself the Querier.  The switch does not use its own IP
+         address (even if it has one), because this would cause the
+         Queries to be seen as coming from a newly elected Querier.  The
+         0.0.0.0 address is used to indicate that the Query packets are
+         NOT from a multicast router.
+
+This paragraph specified "0.0.0.0" is only for switch proxying queries.
+It should not be used as a IGMP Querier.
+
+"because this would cause the Queries to be seen as coming from a newly
+ elected Querier" means other address could be elected as a Querier but
+"0.0.0.0" should not.
+
+AFAIK, most verdors(Cisco, HW, etc. expect H3C) use none-zero address
+as default address on proxying switches. But H3C also respect the
+b) section.
+
+>
+> Note that with the current bridge code and according to RFC3376
+> and RFC2236, as soon as a query with a 0.0.0.0 source is sent somewhere
+> in the broadcast domain, it will become the selected querier [*].
+
+Yes, In RFC 3376
+
+6.6.2. Querier Election
+
+   IGMPv3 elects a single querier per subnet using the same querier
+   election mechanism as IGMPv2, namely by IP address.  When a router
+   receives a query with a lower IP address, it sets the Other-Querier-
+   Present timer to Other Querier Present Interval and ceases to send
+   queries on the network if it was the previously elected querier.
+   After its Other-Querier Present timer expires, it should begin
+   sending General Queries.
+
+It only said we should select lower IP address as Querier, but didn't specify
+the "0.0.0.0" address.
+
+While in the later RFC 4541
+
+Abstract
+   This memo describes the recommendations for Internet Group Management
+   Protocol (IGMP) and Multicast Listener Discovery (MLD) snooping
+   switches.  These are based on best current practices for IGMPv2, with
+   further considerations for IGMPv3- and MLDv2-snooping.
+
+And section 2.1.1.  IGMP Forwarding Rules(I just pasted above). It did
+specify the "0.0.0.0" address issue.
+
+I think we should respect the later and accurater standard, shouldn't we?
+
+>
+>
+> > The source of query indicats that is a real router or only a switch.(0.0.0.0
+> > means switch,non-zero means router).
+> > In the scenario above,the switch A was selected to be a querier that means A
+> > performs as a router,
+> > so switch A should config its query source address to non-zero,and then Host A
+> > can recieve the traffic from B.
+>
+> Even if in the described scenario switch A were configured to use a a non-zero
+> source address to become a router, so that switch B would mark the port
+> to switch A as a multicast router port, switch A would still loose
+> in the querier election right now, as 0.0.0.0 is lower (RFC3376, RFC2236). So
+> switch B would then become the selected querier with its 0.0.0.0 source
+> and switch A would become silent even though it had a non-zero
+> source address.
+>
+> And then we would have the same issue again, only swapped between
+> host+switch A and host+switch B.
+>
+> Would you agree, does that make sense?
+>
+
+Yes, that's why Ying Xu said the topology is "abnormal", or illegal. Because
+in a correct configured topology, there should has a Querier with none-zero
+IP address.
+
+> Regards, Linus
+>
+>
+> [*]: Looking at br_ip4_multicast_select_querier():
+>
+> If previously selected querier were 0.0.0.0, it would accept any
+> source as a new querier ("!br->ip4_querier.addr.u.ip4"). However,
+> if the previously selected querier were non-zero, a query with
+> 0.0.0.0 would win, too
+> ("ntohl(saddr) <= ntohl(br->ip4_querier.addr.u.ip4)").
+
+In RFC 3810
+
+7.6.2.  Querier Election
+   When a router starts operating on a subnet, by default it
+   considers itself as being the Querier.
+
+   When a router receives a query with a lower IPv6 address than its
+   own, it sets the Other Querier Present timer to Other Querier Present
+   Timeout; if it was previously in Querier state, it switches to Non-
+   Querier state and ceases to send queries on the link.
+
+   All MLDv2 queries MUST be sent with the FE80::/64 link-local source
+   address prefix.
+
+MLDv2 also sepcified the default Querier is itself and electe a lower adddress
+as new Querier. And the source address should be link-loacl source address
+instead of 0("::"). This is another evidence that we should not use "0.0.0.0"
+as a Querier. So I think we should fix the IPv4 election in function
+br_ip4_multicast_select_querier().
+
+This looks like a little extreme and may have "regression", but the "regression"
+should be fixed by setting up correct router/switch configuration.
+
+What do you think?
+
+Regards
+Hangbin
