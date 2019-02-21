@@ -1,20 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=l46VvHT7eqrMkE6E40frKPiWzb4eR8K705HCwYquJCU=;
-	b=txh9ImLwOaMk2Pj6TsIYFuyxEpUJqVwgwNymksKWtPWisIJo2EiDoRKdrew+nKzHNe
-	PTAz+ddwdXucDqiIBxUrJ0sc70xW6LOifRCyznfbhJGZeQ2mo4zGhbrQSkZPNHdip7WN
-	l5uHQT+VJGmWm/gUwO8v7jRroVFoe6C1t4m5IP4AUqqocUPP+cW4EmpadcUIvS8/6AQ7
-	t99n36Yvjx8Zbh8yIIkWBKvcgFkiK09KpgbH/iF5KlD/Ndac++AIG2wQCCEo8NjoyUag
-	/rXTlITaLmSZrnaXrahsWpLrwdn5Whhop+Pv80iZ/6jWN2ujAnXh88N84GRlid2jSZxU
-	Mu5Q==
+	bh=W+nJHmG+9hiq4brdQCqTxoE3ycs0fIkJUj7NUG7o0HU=;
+	b=QYUtFonqywo7KcH1v56MiPBz5tAqAbpz56KEAOlkecwpIRjPKyNOuTetF3YMntXmie
+	AzPA8nJRCIpMlaI9O1QPbvM4uF5MuWuyKWQ9jgvNuQvEM6StyeHMyHKdjlDQwgwRsFri
+	I/XQhcZjI/pxJVOSgQSl5tVnTDTv2VklVKPa9z4WfIOnv8Smr2Q1ZQixt8gbUBb/gzuP
+	HCoW+PqaZ95MELa03CHE8TTnGt4EAsDzKMMNkKKTa6V8uSekGZV7iH8kJeeAv2jN8FkS
+	2xsRd3lkZi0udBRKzrSSUov8RTgPT3OhKkIWKiU8vcd/S4BnxNSrJKHOaOTpunqY4yrx
+	AhXQ==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 20 Feb 2019 16:58:24 -0800
-Message-Id: <20190221005826.26317-7-f.fainelli@gmail.com>
+Date: Wed, 20 Feb 2019 16:58:25 -0800
+Message-Id: <20190221005826.26317-8-f.fainelli@gmail.com>
 In-Reply-To: <20190221005826.26317-1-f.fainelli@gmail.com>
 References: <20190221005826.26317-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v3 6/8] net: bridge: Stop calling
-	switchdev_port_attr_get()
+Subject: [Bridge] [PATCH net-next v3 7/8] net: Remove
+	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,54 +26,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-Now that all switchdev drivers have been converted to check the
-SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS flags and report flags that they
-do not support accordingly, we can migrate the bridge code to try to set
-that attribute first, check the results and then do the actual setting.
+Now that we have converted the bridge code and the drivers to check for
+bridge port(s) flags at the time we try to set them, there is no need
+for a get() -> set() sequence anymore and
+SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT therefore becomes unused.
 
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- net/bridge/br_switchdev.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ Documentation/networking/switchdev.txt           |  6 ++----
+ .../ethernet/mellanox/mlxsw/spectrum_switchdev.c | 11 +----------
+ drivers/net/ethernet/rocker/rocker_main.c        | 14 +-------------
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c          | 10 +---------
+ include/net/switchdev.h                          |  2 --
+ net/dsa/slave.c                                  | 16 +---------------
+ 6 files changed, 6 insertions(+), 53 deletions(-)
 
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index db9e8ab96d48..af57c4a2b78a 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -64,21 +64,19 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+diff --git a/Documentation/networking/switchdev.txt b/Documentation/networking/switchdev.txt
+index f3244d87512a..79c8b0f16aee 100644
+--- a/Documentation/networking/switchdev.txt
++++ b/Documentation/networking/switchdev.txt
+@@ -232,10 +232,8 @@ Learning_sync attribute enables syncing of the learned/forgotten FDB entry to
+ the bridge's FDB.  It's possible, but not optimal, to enable learning on the
+ device port and on the bridge port, and disable learning_sync.
+ 
+-To support learning and learning_sync port attributes, the driver implements
+-switchdev op switchdev_port_attr_get/set for
+-SWITCHDEV_ATTR_PORT_ID_BRIDGE_FLAGS. The driver should initialize the attributes
+-to the hardware defaults.
++To support learning, the driver implements switchdev op
++switchdev_port_attr_get/set for SWITCHDEV_ATTR_PORT_ID_BRIDGE_FLAGS.
+ 
+ FDB Ageing
+ ^^^^^^^^^^
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 9a8798f74d2b..bbb5a406232e 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -434,16 +434,7 @@ static void mlxsw_sp_bridge_vlan_put(struct mlxsw_sp_bridge_vlan *bridge_vlan)
+ static int mlxsw_sp_port_attr_get(struct net_device *dev,
+ 				  struct switchdev_attr *attr)
  {
- 	struct switchdev_attr attr = {
- 		.orig_dev = p->dev,
--		.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
-+		.id = SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS,
-+		.u.brport_flags = mask,
- 	};
- 	int err;
+-	switch (attr->id) {
+-	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT:
+-		attr->u.brport_flags_support = BR_LEARNING | BR_FLOOD |
+-					       BR_MCAST_FLOOD;
+-		break;
+-	default:
+-		return -EOPNOTSUPP;
+-	}
+-
+-	return 0;
++	return -EOPNOTSUPP;
+ }
  
- 	if (mask & ~BR_PORT_FLAGS_HW_OFFLOAD)
- 		return 0;
+ static int
+diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
+index 25129f7b5583..6b8273e2057d 100644
+--- a/drivers/net/ethernet/rocker/rocker_main.c
++++ b/drivers/net/ethernet/rocker/rocker_main.c
+@@ -2069,19 +2069,7 @@ static const struct net_device_ops rocker_port_netdev_ops = {
+ static int rocker_port_attr_get(struct net_device *dev,
+ 				struct switchdev_attr *attr)
+ {
+-	const struct rocker_port *rocker_port = netdev_priv(dev);
+-	int err = 0;
+-
+-	switch (attr->id) {
+-	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT:
+-		err = rocker_world_port_attr_bridge_flags_support_get(rocker_port,
+-								      &attr->u.brport_flags_support);
+-		break;
+-	default:
+-		return -EOPNOTSUPP;
+-	}
+-
+-	return err;
++	return -EOPNOTSUPP;
+ }
  
--	err = switchdev_port_attr_get(p->dev, &attr);
-+	err = switchdev_port_attr_set(p->dev, &attr);
- 	if (err == -EOPNOTSUPP)
- 		return 0;
--	if (err)
--		return err;
+ static int rocker_port_attr_set(struct net_device *dev,
+diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+index 331625137717..de4dcabbc29a 100644
+--- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
++++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+@@ -643,15 +643,7 @@ static void ethsw_teardown_irqs(struct fsl_mc_device *sw_dev)
+ static int swdev_port_attr_get(struct net_device *netdev,
+ 			       struct switchdev_attr *attr)
+ {
+-	switch (attr->id) {
+-	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT:
+-		attr->u.brport_flags_support = BR_LEARNING | BR_FLOOD;
+-		break;
+-	default:
+-		return -EOPNOTSUPP;
+-	}
+-
+-	return 0;
++	return -EOPNOTSUPP;
+ }
  
--	/* Check if specific bridge flag attribute offload is supported */
--	if (!(attr.u.brport_flags_support & mask)) {
-+	if (err) {
- 		br_warn(p->br, "bridge flag offload is not supported %u(%s)\n",
- 			(unsigned int)p->port_no, p->dev->name);
- 		return -EOPNOTSUPP;
-@@ -87,6 +85,7 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 	attr.id = SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS;
- 	attr.flags = SWITCHDEV_F_DEFER;
- 	attr.u.brport_flags = flags;
-+
- 	err = switchdev_port_attr_set(p->dev, &attr);
- 	if (err) {
- 		br_warn(p->br, "error setting offload flag on port %u(%s)\n",
+ static int port_attr_stp_state_set(struct net_device *netdev,
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index de72b0a3867f..0f352019ef99 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -45,7 +45,6 @@ enum switchdev_attr_id {
+ 	SWITCHDEV_ATTR_ID_UNDEFINED,
+ 	SWITCHDEV_ATTR_ID_PORT_STP_STATE,
+ 	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
+-	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT,
+ 	SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS,
+ 	SWITCHDEV_ATTR_ID_PORT_MROUTER,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
+@@ -63,7 +62,6 @@ struct switchdev_attr {
+ 	union {
+ 		u8 stp_state;				/* PORT_STP_STATE */
+ 		unsigned long brport_flags;		/* PORT_{PRE}_BRIDGE_FLAGS */
+-		unsigned long brport_flags_support;	/* PORT_BRIDGE_FLAGS_SUPPORT */
+ 		bool mrouter;				/* PORT_MROUTER */
+ 		clock_t ageing_time;			/* BRIDGE_AGEING_TIME */
+ 		bool vlan_filtering;			/* BRIDGE_VLAN_FILTERING */
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 44cc4e50dd5a..db0a2651070f 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -388,21 +388,7 @@ static int dsa_slave_get_port_parent_id(struct net_device *dev,
+ static int dsa_slave_port_attr_get(struct net_device *dev,
+ 				   struct switchdev_attr *attr)
+ {
+-	struct dsa_port *dp = dsa_slave_to_port(dev);
+-	struct dsa_switch *ds = dp->ds;
+-
+-	switch (attr->id) {
+-	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS_SUPPORT:
+-		attr->u.brport_flags_support = 0;
+-		if (ds->ops->port_egress_floods)
+-			attr->u.brport_flags_support |= BR_FLOOD |
+-							BR_MCAST_FLOOD;
+-		break;
+-	default:
+-		return -EOPNOTSUPP;
+-	}
+-
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline netdev_tx_t dsa_slave_netpoll_send_skb(struct net_device *dev,
 -- 
 2.17.1
 
