@@ -1,31 +1,22 @@
 Return-Path: <liuhangbin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=date:from:to:cc:subject:message-id:references:mime-version
-	:content-disposition:in-reply-to:user-agent;
-	bh=5gLp8zNrQenZmkQOHDe23IakIFO7pYZ3fcPW0z5/sqs=;
-	b=cp4suVLVK722LaZ5k18RAqHnohgkrdPG698TH2yJ2zTuMnat3OdwZULefiEglX4ayK
-	8G81BWMwwSmXD/3CrgiQBOmOupJsR1pWEn2EOrjqn5OjG1XskUwBaFwM+Buoor14Ij8R
-	+ADu3qDBsxhCJNc2Wop7qzWnSQRP3UYGEmTSwBjDO5hF6u6F4s5bKW5TNXMGEM0OLdnl
-	55aMl4hXE575daqClVRmWziCB6/9B7YUS7QfiJlEDOHkcJyjzkXoJZ6OZqukyqBAA281
-	iVH+PY5u/dSJKhZMWkixdgxkqHs2KMzT7DzsIeIU11iX6+HQXm7vPiSaLzy4EQlfUhGD
-	xeRw==
-Date: Fri, 22 Feb 2019 20:49:04 +0800
+	h=from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding;
+	bh=r4Yx9fRpmv7GzZ3sYiiGHfYdV5cj2xhoIMtaPA3H4eo=;
+	b=J/9JuPiZN+NwyOtJU5Ru5t2/RmnHpRiRuO3wMVlamNIQmILZZ+gF3ohGPO/R9zqdE9
+	QNUdaEaBnSD2/DpuZrCxPOx3+Y/EcC6cF4ZTicX0h7fNb7K/xvzXQgra01fhm49/RH2t
+	waVVyVdq7NscNQt+tDhSUT05FF33F/UN8zzPK7PiDE+CKaaIGasUzCR0erUF+92s03FM
+	IZg7RR8U06C3M9x5VPKgRCW0gE2QRgyT/tOz48S9XjfCxFJt/HNQVa6rpDGwVSWAiPtq
+	zXsIDSYNh1Xf9yQ9ZZU0qQ0GXYz/wdWRj1JS4a8O/SD3h1gbnUy6W1Ei1LCRES8f1dyg
+	swsA==
 From: Hangbin Liu <liuhangbin@gmail.com>
-Message-ID: <20190222124904.GO10051@dhcp-12-139.nay.redhat.com>
-References: <90c5f2fe-1743-6b17-2e44-eba58cdbbb35@cumulusnetworks.com>
-	<20181027090747.22104-1-nikolay@cumulusnetworks.com>
-	<20181029013316.GK24677@leo.usersys.redhat.com>
-	<20181213161027.GC1713@otheros>
-	<20190221080114.GL10051@dhcp-12-139.nay.redhat.com>
-	<9db055dd-6486-1d6e-7dce-edc511650af9@cumulusnetworks.com>
-	<20190222075705.GN10051@dhcp-12-139.nay.redhat.com>
-	<2f60dc0a-f6ee-06ad-f60c-15e035574a75@cumulusnetworks.com>
+Date: Fri, 22 Feb 2019 21:22:32 +0800
+Message-Id: <20190222132232.24123-1-liuhangbin@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2f60dc0a-f6ee-06ad-f60c-15e035574a75@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH net] net: bridge: remove ipv6 zero address
- check in mcast queries
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] Revert "bridge: do not add port to router list
+	when receives query with source 0.0.0.0"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,31 +25,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, yinxu@redhat.com, Sebastian Gottschall <s.gottschall@newmedia-net.de>, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, stable@vger.kernel.org, yinxu@redhat.com, Hangbin Liu <liuhangbin@gmail.com>, Sebastian Gottschall <s.gottschall@newmedia-net.de>, davem@davemloft.net
 
-On Fri, Feb 22, 2019 at 01:16:53PM +0200, Nikolay Aleksandrov wrote:
-> > 
-> > For consistency with other vendors and rfc, I would prefer to remove zero address election.
-> > For compatibility with previous users, I'm also OK to revert it.
-> > > Regards
-> > Hangbin
-> > 
-> 
-> Hi,
-> In this case I'd suggest the following course of action:
->  - For -net/-stable revert the change since backporting new options is a
->    no-go and we need to restore the bridge state
->  - After -net is merged in net-next, for net-next if you'd like add it
->    as an option and also exclude it from elections when the option is
->    enabled (for example something like multicast_nonzero_src_querier).
->    Just please use the boolopt api and don't add new fields/attr ids.
->    Obviously by default this option will be off to be backwards
->    compatible and avoid surprise mcast flood.
-> 
-> Or just leave it reverted. :)
+This reverts commit 5a2de63fd1a5 ("bridge: do not add port to router list
+when receives query with source 0.0.0.0") and commit 0fe5119e267f ("net:
+bridge: remove ipv6 zero address check in mcast queries")
 
-This makes sense to me. Thanks for your suggestions.
+The reason is RFC 4541 is not a standard but suggestive. Currently we
+will elect 0.0.0.0 as Querier if there is no ip address configured on
+bridge. If we do not add the port which recives query with source
+0.0.0.0 to router list, the IGMP reports will not be about to forward
+to Querier, IGMP data will also not be able to forward to dest.
 
-Regards
-Hangbin
+As Nikolay suggested, revert this change first and add a boolopt api
+to disable none-zero election in future if needed.
+
+Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Reported-by: Sebastian Gottschall <s.gottschall@newmedia-net.de>
+Fixes: 5a2de63fd1a5 ("bridge: do not add port to router list when receives query with source 0.0.0.0")
+Fixes: 0fe5119e267f ("net: bridge: remove ipv6 zero address check in mcast queries")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+---
+ net/bridge/br_multicast.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 3aeff0895669..ac92b2eb32b1 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1204,14 +1204,7 @@ static void br_multicast_query_received(struct net_bridge *br,
+ 		return;
+ 
+ 	br_multicast_update_query_timer(br, query, max_delay);
+-
+-	/* Based on RFC4541, section 2.1.1 IGMP Forwarding Rules,
+-	 * the arrival port for IGMP Queries where the source address
+-	 * is 0.0.0.0 should not be added to router port list.
+-	 */
+-	if ((saddr->proto == htons(ETH_P_IP) && saddr->u.ip4) ||
+-	    saddr->proto == htons(ETH_P_IPV6))
+-		br_multicast_mark_router(br, port);
++	br_multicast_mark_router(br, port);
+ }
+ 
+ static void br_ip4_multicast_query(struct net_bridge *br,
+-- 
+2.19.2
+
