@@ -1,22 +1,9 @@
-Return-Path: <liuhangbin@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding;
-	bh=r4Yx9fRpmv7GzZ3sYiiGHfYdV5cj2xhoIMtaPA3H4eo=;
-	b=J/9JuPiZN+NwyOtJU5Ru5t2/RmnHpRiRuO3wMVlamNIQmILZZ+gF3ohGPO/R9zqdE9
-	QNUdaEaBnSD2/DpuZrCxPOx3+Y/EcC6cF4ZTicX0h7fNb7K/xvzXQgra01fhm49/RH2t
-	waVVyVdq7NscNQt+tDhSUT05FF33F/UN8zzPK7PiDE+CKaaIGasUzCR0erUF+92s03FM
-	IZg7RR8U06C3M9x5VPKgRCW0gE2QRgyT/tOz48S9XjfCxFJt/HNQVa6rpDGwVSWAiPtq
-	zXsIDSYNh1Xf9yQ9ZZU0qQ0GXYz/wdWRj1JS4a8O/SD3h1gbnUy6W1Ei1LCRES8f1dyg
-	swsA==
-From: Hangbin Liu <liuhangbin@gmail.com>
-Date: Fri, 22 Feb 2019 21:22:32 +0800
-Message-Id: <20190222132232.24123-1-liuhangbin@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] Revert "bridge: do not add port to router list
-	when receives query with source 0.0.0.0"
+Return-Path: <lirongqing@baidu.com>
+From: Li RongQing <lirongqing@baidu.com>
+Date: Fri, 22 Feb 2019 21:45:52 +0800
+Message-Id: <1550843152-1772-1-git-send-email-lirongqing@baidu.com>
+Subject: [Bridge] [PATCH][nf-next][v2] netfilter: convert the proto argument
+	from u8 to u16
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,51 +12,97 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, stable@vger.kernel.org, yinxu@redhat.com, Hangbin Liu <liuhangbin@gmail.com>, Sebastian Gottschall <s.gottschall@newmedia-net.de>, davem@davemloft.net
+To: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org
 
-This reverts commit 5a2de63fd1a5 ("bridge: do not add port to router list
-when receives query with source 0.0.0.0") and commit 0fe5119e267f ("net:
-bridge: remove ipv6 zero address check in mcast queries")
+The proto in struct xt_match and struct xt_target is u16, when
+calling xt_check_target/match, their proto argument is u8,
+and will cause truncation, it is harmless to ip packet, since
+ip proto is u8
 
-The reason is RFC 4541 is not a standard but suggestive. Currently we
-will elect 0.0.0.0 as Querier if there is no ip address configured on
-bridge. If we do not add the port which recives query with source
-0.0.0.0 to router list, the IGMP reports will not be about to forward
-to Querier, IGMP data will also not be able to forward to dest.
+if a etable's match/target has proto that is u16, will cause
+the check failure.
 
-As Nikolay suggested, revert this change first and add a boolopt api
-to disable none-zero election in future if needed.
+and convert be16 to short in bridge/netfilter/ebtables.c
 
-Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Reported-by: Sebastian Gottschall <s.gottschall@newmedia-net.de>
-Fixes: 5a2de63fd1a5 ("bridge: do not add port to router list when receives query with source 0.0.0.0")
-Fixes: 0fe5119e267f ("net: bridge: remove ipv6 zero address check in mcast queries")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
 ---
- net/bridge/br_multicast.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+v2: change type from u_int16_t to u16
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 3aeff0895669..ac92b2eb32b1 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1204,14 +1204,7 @@ static void br_multicast_query_received(struct net_bridge *br,
- 		return;
+ include/linux/netfilter/x_tables.h | 4 ++--
+ net/bridge/netfilter/ebtables.c    | 6 +++---
+ net/netfilter/x_tables.c           | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index 9077b3ebea08..8ba6a6227542 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -289,9 +289,9 @@ bool xt_find_jump_offset(const unsigned int *offsets,
  
- 	br_multicast_update_query_timer(br, query, max_delay);
--
--	/* Based on RFC4541, section 2.1.1 IGMP Forwarding Rules,
--	 * the arrival port for IGMP Queries where the source address
--	 * is 0.0.0.0 should not be added to router port list.
--	 */
--	if ((saddr->proto == htons(ETH_P_IP) && saddr->u.ip4) ||
--	    saddr->proto == htons(ETH_P_IPV6))
--		br_multicast_mark_router(br, port);
-+	br_multicast_mark_router(br, port);
- }
+ int xt_check_proc_name(const char *name, unsigned int size);
  
- static void br_ip4_multicast_query(struct net_bridge *br,
+-int xt_check_match(struct xt_mtchk_param *, unsigned int size, u_int8_t proto,
++int xt_check_match(struct xt_mtchk_param *, unsigned int size, u16 proto,
+ 		   bool inv_proto);
+-int xt_check_target(struct xt_tgchk_param *, unsigned int size, u_int8_t proto,
++int xt_check_target(struct xt_tgchk_param *, unsigned int size, u16 proto,
+ 		    bool inv_proto);
+ 
+ int xt_match_to_user(const struct xt_entry_match *m,
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 6693e209efe8..7bbb9b189752 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -385,7 +385,7 @@ ebt_check_match(struct ebt_entry_match *m, struct xt_mtchk_param *par,
+ 	par->match     = match;
+ 	par->matchinfo = m->data;
+ 	ret = xt_check_match(par, m->match_size,
+-	      e->ethproto, e->invflags & EBT_IPROTO);
++	      ntohs(e->ethproto), e->invflags & EBT_IPROTO);
+ 	if (ret < 0) {
+ 		module_put(match->me);
+ 		return ret;
+@@ -422,7 +422,7 @@ ebt_check_watcher(struct ebt_entry_watcher *w, struct xt_tgchk_param *par,
+ 	par->target   = watcher;
+ 	par->targinfo = w->data;
+ 	ret = xt_check_target(par, w->watcher_size,
+-	      e->ethproto, e->invflags & EBT_IPROTO);
++	      ntohs(e->ethproto), e->invflags & EBT_IPROTO);
+ 	if (ret < 0) {
+ 		module_put(watcher->me);
+ 		return ret;
+@@ -767,7 +767,7 @@ ebt_check_entry(struct ebt_entry *e, struct net *net,
+ 	tgpar.target   = target;
+ 	tgpar.targinfo = t->data;
+ 	ret = xt_check_target(&tgpar, t->target_size,
+-	      e->ethproto, e->invflags & EBT_IPROTO);
++	      ntohs(e->ethproto), e->invflags & EBT_IPROTO);
+ 	if (ret < 0) {
+ 		module_put(target->me);
+ 		goto cleanup_watchers;
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 13e1ac333fa4..5b61146443ad 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -461,7 +461,7 @@ int xt_check_proc_name(const char *name, unsigned int size)
+ EXPORT_SYMBOL(xt_check_proc_name);
+ 
+ int xt_check_match(struct xt_mtchk_param *par,
+-		   unsigned int size, u_int8_t proto, bool inv_proto)
++		   unsigned int size, u16 proto, bool inv_proto)
+ {
+ 	int ret;
+ 
+@@ -984,7 +984,7 @@ bool xt_find_jump_offset(const unsigned int *offsets,
+ EXPORT_SYMBOL(xt_find_jump_offset);
+ 
+ int xt_check_target(struct xt_tgchk_param *par,
+-		    unsigned int size, u_int8_t proto, bool inv_proto)
++		    unsigned int size, u16 proto, bool inv_proto)
+ {
+ 	int ret;
+ 
 -- 
-2.19.2
+2.16.2
 
