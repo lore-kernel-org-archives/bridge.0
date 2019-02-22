@@ -1,9 +1,16 @@
 Return-Path: <lirongqing@baidu.com>
-From: Li RongQing <lirongqing@baidu.com>
-Date: Fri, 22 Feb 2019 21:45:52 +0800
-Message-Id: <1550843152-1772-1-git-send-email-lirongqing@baidu.com>
-Subject: [Bridge] [PATCH][nf-next][v2] netfilter: convert the proto argument
-	from u8 to u16
+From: "Li,Rongqing" <lirongqing@baidu.com>
+Date: Fri, 22 Feb 2019 13:32:33 +0000
+Message-ID: <3ab70af040e545d581151cb8877f26e4@baidu.com>
+References: <1550825471-32071-1-git-send-email-lirongqing@baidu.com>,
+	<20190222115227.mrqds7cawazelabn@breakpoint.cc>
+In-Reply-To: <20190222115227.mrqds7cawazelabn@breakpoint.cc>
+Content-Language: zh-CN
+Content-Type: multipart/alternative;
+	boundary="_000_3ab70af040e545d581151cb8877f26e4baiducom_"
+MIME-Version: 1.0
+Subject: [Bridge] =?gb2312?b?tPC4tDogW1BBVENIXVtuZi1uZXh0XSBuZXRmaWx0ZXI6?=
+ =?gb2312?b?IGNvbnZlcnQgdGhlIHByb3RvIGFyZ3VtZW50IGZyb20gdTggdG8gdTE2?=
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -12,97 +19,90 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org
+To: Florian Westphal <fw@strlen.de>
+Cc: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>
 
-The proto in struct xt_match and struct xt_target is u16, when
-calling xt_check_target/match, their proto argument is u8,
-and will cause truncation, it is harmless to ip packet, since
-ip proto is u8
+--_000_3ab70af040e545d581151cb8877f26e4baiducom_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 
-if a etable's match/target has proto that is u16, will cause
-the check failure.
+DQoNCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCreivP7IyzogRmxvcmlhbiBX
+ZXN0cGhhbCA8ZndAc3RybGVuLmRlPg0Kt6LLzcqxvOQ6IDIwMTnE6jLUwjIyyNUgMTk6NTINCsrV
+vP7IyzogTGksUm9uZ3FpbmcNCrOty806IG5ldGZpbHRlci1kZXZlbEB2Z2VyLmtlcm5lbC5vcmc7
+IGNvcmV0ZWFtQG5ldGZpbHRlci5vcmc7IGJyaWRnZUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+Zw0K1vfM4jogUmU6IFtQQVRDSF1bbmYtbmV4dF0gbmV0ZmlsdGVyOiBjb252ZXJ0IHRoZSBwcm90
+byBhcmd1bWVudCBmcm9tIHU4IHRvIHUxNg0KDQoNCg0KDQo+T3RoZXJ3aXNlLCBjb3VsZCB5b3Ug
+YWRkIGFuIGV4YW1wbGUgd2hlcmUgd2UgaGl0IGEgY2hlY2tlbnRyeSBmYWlsdXJlIGluDQplcnJv
+cj8NCg0KdHJ1ZSwgY3VycmVudCBrZXJuZWwgaGFzIG5vdCB0aGlzIGNhc2UuDQoNCj4+ICtpbnQg
+eHRfY2hlY2tfbWF0Y2goc3RydWN0IHh0X210Y2hrX3BhcmFtICosIHVuc2lnbmVkIGludCBzaXpl
+LCB1X2ludDE2X3QgcHJvdG8sDQo+PiAgICAgICAgICAgICAgICAgICBib29sIGludl9wcm90byk7
+DQoNCj5JIHRoaW5rIHlvdSBjYW4gdXNlIHUxNiBpbnN0ZWFkIG9mIHRoZSBvbGQgdV9pbnQxNl90
+Lg0KDQo+T3RoZXIgdGhhbiB0aGF0LCB0aGlzIGxvb2tzIGdvb2QgdG8gbWUsIHRoYW5rcy4NCg0K
+dGhhbmtzLCBJIHdpbGwgc2VuZCB2Mg0KDQotUm9uZ1FpbmcNCg==
 
-and convert be16 to short in bridge/netfilter/ebtables.c
+--_000_3ab70af040e545d581151cb8877f26e4baiducom_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
----
-v2: change type from u_int16_t to u16
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dgb2312">
+<style type=3D"text/css" style=3D"display:none;"><!-- P {margin-top:0;margi=
+n-bottom:0;} --></style>
+</head>
+<body dir=3D"ltr">
+<div id=3D"divtagdefaultwrapper" style=3D"color: rgb(0, 0, 0); font-family:=
+ Calibri,Helvetica,sans-serif,'EmojiFont','Apple Color Emoji', 'Segoe UI Em=
+oji', NotoColorEmoji, 'Segoe UI Symbol', 'Android Emoji', EmojiSymbols; fon=
+t-size: 12pt;" dir=3D"ltr">
+<p><br>
+</p>
+<br>
+<br>
+<div style=3D"color: rgb(0, 0, 0);">
+<div>
+<hr tabindex=3D"-1" style=3D"width: 98%; display: inline-block;">
+<div id=3D"x_divRplyFwdMsg" dir=3D"ltr"><font color=3D"#000000" face=3D"Cal=
+ibri, sans-serif" style=3D"font-size: 11pt;"><b>=B7=A2=BC=FE=C8=CB:</b> Flo=
+rian Westphal &lt;fw@strlen.de&gt;<br>
+<b>=B7=A2=CB=CD=CA=B1=BC=E4:</b> 2019=C4=EA2=D4=C222=C8=D5 19:52<br>
+<b>=CA=D5=BC=FE=C8=CB:</b> Li,Rongqing<br>
+<b>=B3=AD=CB=CD:</b> netfilter-devel@vger.kernel.org; coreteam@netfilter.or=
+g; bridge@lists.linux-foundation.org<br>
+<b>=D6=F7=CC=E2:</b> Re: [PATCH][nf-next] netfilter: convert the proto argu=
+ment from u8 to u16</font>
+<div>&nbsp;</div>
+</div>
+</div>
+<font size=3D"2"><span style=3D"font-size: 10pt;">
+<div class=3D"PlainText"><br>
+<br>
+<br>
+&gt;Otherwise, could you add an example where we hit a checkentry failure i=
+n<br>
+error?</div>
+<div class=3D"PlainText"><br>
+</div>
+<div class=3D"PlainText">true, current kernel has not this case.<br>
+<br>
+&gt;&gt; &#43;int xt_check_match(struct xt_mtchk_param *, unsigned int size=
+, u_int16_t proto,<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool inv_proto);<br>
+<br>
+&gt;I think you can use u16 instead of the old u_int16_t.<br>
+<br>
+&gt;Other than that, this looks good to me, thanks.</div>
+<div class=3D"PlainText"><br>
+</div>
+<div class=3D"PlainText">thanks, I will send v2</div>
+<div class=3D"PlainText"><br>
+</div>
+<div class=3D"PlainText">-RongQing<br>
+</div>
+</span></font></div>
+</div>
+</body>
+</html>
 
- include/linux/netfilter/x_tables.h | 4 ++--
- net/bridge/netfilter/ebtables.c    | 6 +++---
- net/netfilter/x_tables.c           | 4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index 9077b3ebea08..8ba6a6227542 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -289,9 +289,9 @@ bool xt_find_jump_offset(const unsigned int *offsets,
- 
- int xt_check_proc_name(const char *name, unsigned int size);
- 
--int xt_check_match(struct xt_mtchk_param *, unsigned int size, u_int8_t proto,
-+int xt_check_match(struct xt_mtchk_param *, unsigned int size, u16 proto,
- 		   bool inv_proto);
--int xt_check_target(struct xt_tgchk_param *, unsigned int size, u_int8_t proto,
-+int xt_check_target(struct xt_tgchk_param *, unsigned int size, u16 proto,
- 		    bool inv_proto);
- 
- int xt_match_to_user(const struct xt_entry_match *m,
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 6693e209efe8..7bbb9b189752 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -385,7 +385,7 @@ ebt_check_match(struct ebt_entry_match *m, struct xt_mtchk_param *par,
- 	par->match     = match;
- 	par->matchinfo = m->data;
- 	ret = xt_check_match(par, m->match_size,
--	      e->ethproto, e->invflags & EBT_IPROTO);
-+	      ntohs(e->ethproto), e->invflags & EBT_IPROTO);
- 	if (ret < 0) {
- 		module_put(match->me);
- 		return ret;
-@@ -422,7 +422,7 @@ ebt_check_watcher(struct ebt_entry_watcher *w, struct xt_tgchk_param *par,
- 	par->target   = watcher;
- 	par->targinfo = w->data;
- 	ret = xt_check_target(par, w->watcher_size,
--	      e->ethproto, e->invflags & EBT_IPROTO);
-+	      ntohs(e->ethproto), e->invflags & EBT_IPROTO);
- 	if (ret < 0) {
- 		module_put(watcher->me);
- 		return ret;
-@@ -767,7 +767,7 @@ ebt_check_entry(struct ebt_entry *e, struct net *net,
- 	tgpar.target   = target;
- 	tgpar.targinfo = t->data;
- 	ret = xt_check_target(&tgpar, t->target_size,
--	      e->ethproto, e->invflags & EBT_IPROTO);
-+	      ntohs(e->ethproto), e->invflags & EBT_IPROTO);
- 	if (ret < 0) {
- 		module_put(target->me);
- 		goto cleanup_watchers;
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 13e1ac333fa4..5b61146443ad 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -461,7 +461,7 @@ int xt_check_proc_name(const char *name, unsigned int size)
- EXPORT_SYMBOL(xt_check_proc_name);
- 
- int xt_check_match(struct xt_mtchk_param *par,
--		   unsigned int size, u_int8_t proto, bool inv_proto)
-+		   unsigned int size, u16 proto, bool inv_proto)
- {
- 	int ret;
- 
-@@ -984,7 +984,7 @@ bool xt_find_jump_offset(const unsigned int *offsets,
- EXPORT_SYMBOL(xt_find_jump_offset);
- 
- int xt_check_target(struct xt_tgchk_param *par,
--		    unsigned int size, u_int8_t proto, bool inv_proto)
-+		    unsigned int size, u16 proto, bool inv_proto)
- {
- 	int ret;
- 
--- 
-2.16.2
-
+--_000_3ab70af040e545d581151cb8877f26e4baiducom_--
