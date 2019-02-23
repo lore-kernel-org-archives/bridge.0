@@ -2,21 +2,21 @@ Return-Path: <idosch@mellanox.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
 	s=selector1;
 	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=Wx4BRCoQbKMbn1t9YHRuEytsxONyc7BqQmViBsLuiho=;
-	b=Gdj4Hs6Io8qDf4fGJVpzIYR2byvZGz1Ch6PkLNJwi0e/VoLqr7mAc29uZbjzBcNV7AmoJxgjCEYm9ZvQZVrxzLaGciKEH10FyhW+UNz7+igjWvIetI6G2DrtaN4BCUu2oa1FkVXvnlFl5mVKVwaEEhPy/0npXZpP4q8SVIpmfZg=
+	bh=LJdUX5TVkw2YUqFe6Nabrlkt7RTF8zxyqMMO3IV+3H8=;
+	b=uIiUuimyAKCDSQb+kEFdn4QUjkw0d7md9nlTH1qwHCMAKVQLHrNxjmH7wzyGMMaWzX+KqwPXQd7NHAyf5TOes39znUXhO5Zbn37uAOCZUqmiUgyslwQkOaBp3/+jFN/KthHgtHhM0a2UPgef3TlGLGQv2Doq7A6sK6Se1shfIDo=
 From: Ido Schimmel <idosch@mellanox.com>
-Date: Sat, 23 Feb 2019 10:32:11 +0000
-Message-ID: <20190223103207.GA13070@splinter>
+Date: Sat, 23 Feb 2019 10:33:48 +0000
+Message-ID: <20190223103330.GB13070@splinter>
 References: <20190222235927.10295-1-f.fainelli@gmail.com>
-	<20190222235927.10295-8-f.fainelli@gmail.com>
-In-Reply-To: <20190222235927.10295-8-f.fainelli@gmail.com>
+	<20190222235927.10295-2-f.fainelli@gmail.com>
+In-Reply-To: <20190222235927.10295-2-f.fainelli@gmail.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <88304ED7E217AD4B8CDCB26BFD99FEC1@eurprd05.prod.outlook.com>
+Content-ID: <E2D13F15B9E02A449ED35A1516F3DD1D@eurprd05.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 7/8] net: switchdev: Replace port attr
- set SDO with a notification
+Subject: Re: [Bridge] [PATCH net-next 1/8] switchdev: Add
+	SWITCHDEV_PORT_ATTR_SET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,170 +29,147 @@ To: Florian Fainelli <f.fainelli@gmail.com>
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "moderated
 	list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "David S. Miller" <davem@davemloft.net>
 
-On Fri, Feb 22, 2019 at 03:59:25PM -0800, Florian Fainelli wrote:
-> Drop switchdev_ops.switchdev_port_attr_set. Drop the uses of this field
-> from all clients, which were migrated to use switchdev notification in
-> the previous patches.
+On Fri, Feb 22, 2019 at 03:59:19PM -0800, Florian Fainelli wrote:
+> In preparation for allowing switchdev enabled drivers to veto specific
+> attribute settings from within the context of the caller, introduce a
+> new switchdev notifier type for port attributes.
 >=20
-> Add a new function switchdev_port_attr_notify() that sends the switchdev
-> notifications SWITCHDEV_PORT_ATTR_SET and takes care, depending on
-> SWITCHDEV_F_DEFER to call the blocking (process) or non-blocking
-> (atomic) notifier chain accordingly.
->=20
-> Drop __switchdev_port_attr_set() and update switchdev_port_attr_set()
-> likewise.
->=20
+> Suggested-by: Ido Schimmel <idosch@mellanox.com>
 > Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 > ---
->  net/switchdev/switchdev.c | 96 +++++++++++----------------------------
->  1 file changed, 26 insertions(+), 70 deletions(-)
+>  include/net/switchdev.h   | 27 +++++++++++++++++++++
+>  net/switchdev/switchdev.c | 51 +++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 78 insertions(+)
 >=20
-> diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
-> index 94400f5b8e07..a1f16836ef89 100644
-> --- a/net/switchdev/switchdev.c
-> +++ b/net/switchdev/switchdev.c
-> @@ -174,81 +174,35 @@ static int switchdev_deferred_enqueue(struct net_de=
-vice *dev,
+> diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+> index 45310ddf2d7e..ca56b7487540 100644
+> --- a/include/net/switchdev.h
+> +++ b/include/net/switchdev.h
+> @@ -136,6 +136,7 @@ enum switchdev_notifier_type {
+> =20
+>  	SWITCHDEV_PORT_OBJ_ADD, /* Blocking. */
+>  	SWITCHDEV_PORT_OBJ_DEL, /* Blocking. */
+> +	SWITCHDEV_PORT_ATTR_SET, /* May be blocking . */
+
+See my comment on 7/8. IIUC, this is always blocking, so comment needs to
+be changed.
+
+> =20
+>  	SWITCHDEV_VXLAN_FDB_ADD_TO_BRIDGE,
+>  	SWITCHDEV_VXLAN_FDB_DEL_TO_BRIDGE,
+> @@ -164,6 +165,13 @@ struct switchdev_notifier_port_obj_info {
+>  	bool handled;
+>  };
+> =20
+> +struct switchdev_notifier_port_attr_info {
+> +	struct switchdev_notifier_info info; /* must be first */
+> +	const struct switchdev_attr *attr;
+> +	struct switchdev_trans *trans;
+> +	bool handled;
+> +};
+> +
+>  static inline struct net_device *
+>  switchdev_notifier_info_to_dev(const struct switchdev_notifier_info *inf=
+o)
+>  {
+> @@ -216,7 +224,15 @@ int switchdev_handle_port_obj_del(struct net_device =
+*dev,
+>  			int (*del_cb)(struct net_device *dev,
+>  				      const struct switchdev_obj *obj));
+> =20
+> +int switchdev_handle_port_attr_set(struct net_device *dev,
+> +			struct switchdev_notifier_port_attr_info *port_attr_info,
+> +			bool (*check_cb)(const struct net_device *dev),
+> +			int (*set_cb)(struct net_device *dev,
+> +				      const struct switchdev_attr *attr,
+> +				      struct switchdev_trans *trans));
+> +
+>  #define SWITCHDEV_SET_OPS(netdev, ops) ((netdev)->switchdev_ops =3D (ops=
+))
+> +
+>  #else
+> =20
+>  static inline void switchdev_deferred_process(void)
+> @@ -303,6 +319,17 @@ switchdev_handle_port_obj_del(struct net_device *dev=
+,
 >  	return 0;
 >  }
 > =20
-> -/**
-> - *	switchdev_port_attr_get - Get port attribute
-
-Hmm, why do you remove it here? Can't you remove it in a separate patch?
-I thought we already got rid of it :p
-
-> - *
-> - *	@dev: port device
-> - *	@attr: attribute to get
-> - */
-> -int switchdev_port_attr_get(struct net_device *dev, struct switchdev_att=
-r *attr)
-> +static int switchdev_port_attr_notify(enum switchdev_notifier_type nt,
-> +				      struct net_device *dev,
+> +static inline int
+> +switchdev_handle_port_attr_set(struct net_device *dev,
+> +			struct switchdev_notifier_port_attr_info *port_attr_info,
+> +			bool (*check_cb)(const struct net_device *dev),
+> +			int (*set_cb)(struct net_device *dev,
 > +				      const struct switchdev_attr *attr,
-> +				      struct switchdev_trans *trans)
->  {
-> -	const struct switchdev_ops *ops =3D dev->switchdev_ops;
-> -	struct net_device *lower_dev;
-> -	struct list_head *iter;
-> -	struct switchdev_attr first =3D {
-> -		.id =3D SWITCHDEV_ATTR_ID_UNDEFINED
-> -	};
-> -	int err =3D -EOPNOTSUPP;
-> +	int err;
-> +	int rc;
-> =20
-> -	if (ops && ops->switchdev_port_attr_get)
-> -		return ops->switchdev_port_attr_get(dev, attr);
-> +	struct switchdev_notifier_port_attr_info attr_info =3D {
-> +		.attr =3D attr,
-> +		.trans =3D trans,
-> +		.handled =3D false,
-> +	};
-> =20
-> -	if (attr->flags & SWITCHDEV_F_NO_RECURSE)
-> +	if (attr & SWITCHDEV_F_DEFER)
-> +		rc =3D call_switchdev_blocking_notifiers(nt, dev,
-> +						       &attr_info.info, NULL);
-> +	else
-> +		rc =3D call_switchdev_notifiers(nt, dev, &attr_info.info, NULL);
-
-I don't believe this is needed. You're calling this function from
-switchdev_port_attr_set_now() which is always called from process
-context. switchdev_port_attr_set() takes care of that. Similar to
-switchdev_port_obj_add().
-
-The event `SWITCHDEV_PORT_ATTR_SET` is therefore always blocking and
-drivers only need to take care of it from their blocking notifier.
-
-> +	err =3D notifier_to_errno(rc);
-> +	if (err) {
-> +		WARN_ON(!attr_info.handled);
->  		return err;
-> -
-> -	/* Switch device port(s) may be stacked under
-> -	 * bond/team/vlan dev, so recurse down to get attr on
-> -	 * each port.  Return -ENODATA if attr values don't
-> -	 * compare across ports.
-> -	 */
-> -
-> -	netdev_for_each_lower_dev(dev, lower_dev, iter) {
-> -		err =3D switchdev_port_attr_get(lower_dev, attr);
-> -		if (err)
-> -			break;
-> -		if (first.id =3D=3D SWITCHDEV_ATTR_ID_UNDEFINED)
-> -			first =3D *attr;
-> -		else if (memcmp(&first, attr, sizeof(*attr)))
-> -			return -ENODATA;
->  	}
-> =20
-> -	return err;
-> -}
-> -EXPORT_SYMBOL_GPL(switchdev_port_attr_get);
-> -
-> -static int __switchdev_port_attr_set(struct net_device *dev,
-> -				     const struct switchdev_attr *attr,
-> -				     struct switchdev_trans *trans)
-> -{
-> -	const struct switchdev_ops *ops =3D dev->switchdev_ops;
-> -	struct net_device *lower_dev;
-> -	struct list_head *iter;
-> -	int err =3D -EOPNOTSUPP;
-> -
-> -	if (ops && ops->switchdev_port_attr_set) {
-> -		err =3D ops->switchdev_port_attr_set(dev, attr, trans);
-> -		goto done;
-> -	}
-> -
-> -	if (attr->flags & SWITCHDEV_F_NO_RECURSE)
-> -		goto done;
-> -
-> -	/* Switch device port(s) may be stacked under
-> -	 * bond/team/vlan dev, so recurse down to set attr on
-> -	 * each port.
-> -	 */
-> -
-> -	netdev_for_each_lower_dev(dev, lower_dev, iter) {
-> -		err =3D __switchdev_port_attr_set(lower_dev, attr, trans);
-> -		if (err)
-> -			break;
-> -	}
-> -
-> -done:
-> -	if (err =3D=3D -EOPNOTSUPP && attr->flags & SWITCHDEV_F_SKIP_EOPNOTSUPP=
-)
-> -		err =3D 0;
-> +	if (!attr_info.handled)
-> +		return -EOPNOTSUPP;
-> =20
-> -	return err;
+> +				      struct switchdev_trans *trans))
+> +{
 > +	return 0;
+> +}
+> +
+>  #define SWITCHDEV_SET_OPS(netdev, ops) do {} while (0)
+> =20
+>  #endif
+> diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
+> index 7e1357db33d7..94400f5b8e07 100644
+> --- a/net/switchdev/switchdev.c
+> +++ b/net/switchdev/switchdev.c
+> @@ -697,3 +697,54 @@ int switchdev_handle_port_obj_del(struct net_device =
+*dev,
+>  	return err;
 >  }
-> =20
->  static int switchdev_port_attr_set_now(struct net_device *dev,
-> @@ -267,7 +221,8 @@ static int switchdev_port_attr_set_now(struct net_dev=
-ice *dev,
->  	 */
-> =20
->  	trans.ph_prepare =3D true;
-> -	err =3D __switchdev_port_attr_set(dev, attr, &trans);
-> +	err =3D switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET, dev, attr,
-> +					 &trans);
->  	if (err) {
->  		/* Prepare phase failed: abort the transaction.  Any
->  		 * resources reserved in the prepare phase are
-> @@ -286,7 +241,8 @@ static int switchdev_port_attr_set_now(struct net_dev=
-ice *dev,
->  	 */
-> =20
->  	trans.ph_prepare =3D false;
-> -	err =3D __switchdev_port_attr_set(dev, attr, &trans);
-> +	err =3D switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET, dev, attr,
-> +					 &trans);
->  	WARN(err, "%s: Commit of attribute (id=3D%d) failed.\n",
->  	     dev->name, attr->id);
->  	switchdev_trans_items_warn_destroy(dev, &trans);
+>  EXPORT_SYMBOL_GPL(switchdev_handle_port_obj_del);
+> +
+> +static int __switchdev_handle_port_attr_set(struct net_device *dev,
+> +			struct switchdev_notifier_port_attr_info *port_attr_info,
+> +			bool (*check_cb)(const struct net_device *dev),
+> +			int (*set_cb)(struct net_device *dev,
+> +				      const struct switchdev_attr *attr,
+> +				      struct switchdev_trans *trans))
+> +{
+> +	struct net_device *lower_dev;
+> +	struct list_head *iter;
+> +	int err =3D -EOPNOTSUPP;
+> +
+> +	if (check_cb(dev)) {
+> +		port_attr_info->handled =3D true;
+> +		return set_cb(dev, port_attr_info->attr,
+> +			      port_attr_info->trans);
+> +	}
+> +
+> +	/* Switch ports might be stacked under e.g. a LAG. Ignore the
+> +	 * unsupported devices, another driver might be able to handle them. Bu=
+t
+> +	 * propagate to the callers any hard errors.
+> +	 *
+> +	 * If the driver does its own bookkeeping of stacked ports, it's not
+> +	 * necessary to go through this helper.
+> +	 */
+> +	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+> +		err =3D __switchdev_handle_port_attr_set(lower_dev, port_attr_info,
+> +						       check_cb, set_cb);
+> +		if (err && err !=3D -EOPNOTSUPP)
+> +			return err;
+> +	}
+> +
+> +	return err;
+> +}
+> +
+> +int switchdev_handle_port_attr_set(struct net_device *dev,
+> +			struct switchdev_notifier_port_attr_info *port_attr_info,
+> +			bool (*check_cb)(const struct net_device *dev),
+> +			int (*set_cb)(struct net_device *dev,
+> +				      const struct switchdev_attr *attr,
+> +				      struct switchdev_trans *trans))
+> +{
+> +	int err;
+> +
+> +	err =3D __switchdev_handle_port_attr_set(dev, port_attr_info, check_cb,
+> +					       set_cb);
+> +	if (err =3D=3D -EOPNOTSUPP)
+> +		err =3D 0;
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(switchdev_handle_port_attr_set);
 > --=20
 > 2.17.1
 >=20
