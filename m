@@ -1,22 +1,14 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=o9lqsyiDsNGH2ZD3Do7ufAfzCq+bh/RR2twbrnzslow=;
-	b=pmVW5+Lo0SjkM75k8txsjhQPAHLKL0QTn+SdXR6RTvGuY8dT75XM+FPOgtu0YFcMRqK1Nvhy89rEKeT/8YHLcBxxef8Z3m7qgknQmFa2bUUXKuFVpLOutYUrYyZUPXyZbLo+LUusXVdSqJCJG3Bs3BIZJU+df1Ii7H0GUfwB6ls=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Sat, 23 Feb 2019 10:36:54 +0000
-Message-ID: <20190223103651.GC13070@splinter>
-References: <20190222235927.10295-1-f.fainelli@gmail.com>
-	<20190222235927.10295-5-f.fainelli@gmail.com>
-In-Reply-To: <20190222235927.10295-5-f.fainelli@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <E20568B61978194FB1D0123B536834A2@eurprd05.prod.outlook.com>
+Return-Path: <davem@davemloft.net>
+Date: Sat, 23 Feb 2019 18:36:51 -0800 (PST)
+Message-Id: <20190223.183651.798454146886527920.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20190222132232.24123-1-liuhangbin@gmail.com>
+References: <20190222132232.24123-1-liuhangbin@gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 4/8] mlxsw: spectrum_switchdev: Handle
- SWITCHDEV_PORT_ATTR_SET
+Subject: Re: [Bridge] [PATCH net] Revert "bridge: do not add port to router
+ list when receives query with source 0.0.0.0"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,61 +17,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "moderated
-	list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "David S. Miller" <davem@davemloft.net>
+To: liuhangbin@gmail.com
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, stable@vger.kernel.org, yinxu@redhat.com, gregkh@linuxfoundation.org, s.gottschall@newmedia-net.de
 
-On Fri, Feb 22, 2019 at 03:59:22PM -0800, Florian Fainelli wrote:
-> Following patches will change the way we communicate setting a port's
-> attribute and use a notifier to perform those tasks.
->=20
-> Prepare mlxsw to support receiving notifier events targeting
-> SWITCHDEV_PORT_ATTR_SET and utilize the switchdev_handle_port_attr_set()
-> to handle stacking of devices.
->=20
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  .../net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
->=20
-> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/d=
-rivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-> index 766f5b5f1cf5..c1aedfea3a31 100644
-> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-> @@ -3123,6 +3123,13 @@ static int mlxsw_sp_switchdev_event(struct notifie=
-r_block *unused,
->  	struct net_device *br_dev;
->  	int err;
-> =20
-> +	if (event =3D=3D SWITCHDEV_PORT_ATTR_SET) {
-> +		err =3D switchdev_handle_port_attr_set(dev, ptr,
-> +						     mlxsw_sp_port_dev_check,
-> +						     mlxsw_sp_port_attr_set);
-> +		return notifier_from_errno(err);
+From: Hangbin Liu <liuhangbin@gmail.com>
+Date: Fri, 22 Feb 2019 21:22:32 +0800
 
-I don't think this code is ever executed. And if it was executed, we
-would have problems because switchdev_handle_port_attr_set() might
-block.
+> This reverts commit 5a2de63fd1a5 ("bridge: do not add port to router =
+list
+> when receives query with source 0.0.0.0") and commit 0fe5119e267f ("n=
+et:
+> bridge: remove ipv6 zero address check in mcast queries")
+> =
 
-> +	}
-> +
->  	/* Tunnel devices are not our uppers, so check their master instead */
->  	br_dev =3D netdev_master_upper_dev_get_rcu(dev);
->  	if (!br_dev)
-> @@ -3446,6 +3453,11 @@ static int mlxsw_sp_switchdev_blocking_event(struc=
-t notifier_block *unused,
->  							mlxsw_sp_port_dev_check,
->  							mlxsw_sp_port_obj_del);
->  		return notifier_from_errno(err);
-> +	case SWITCHDEV_PORT_ATTR_SET:
-> +		err =3D switchdev_handle_port_attr_set(dev, ptr,
-> +						     mlxsw_sp_port_dev_check,
-> +						     mlxsw_sp_port_attr_set);
-> +		return notifier_from_errno(err);
->  	}
-> =20
->  	return NOTIFY_DONE;
-> --=20
-> 2.17.1
->=20
+> The reason is RFC 4541 is not a standard but suggestive. Currently we=
+
+> will elect 0.0.0.0 as Querier if there is no ip address configured on=
+
+> bridge. If we do not add the port which recives query with source
+> 0.0.0.0 to router list, the IGMP reports will not be about to forward=
+
+> to Querier, IGMP data will also not be able to forward to dest.
+> =
+
+> As Nikolay suggested, revert this change first and add a boolopt api
+> to disable none-zero election in future if needed.
+> =
+
+> Reported-by: Linus L=FCssing <linus.luessing@c0d3.blue>
+> Reported-by: Sebastian Gottschall <s.gottschall@newmedia-net.de>
+> Fixes: 5a2de63fd1a5 ("bridge: do not add port to router list when rec=
+eives query with source 0.0.0.0")
+> Fixes: 0fe5119e267f ("net: bridge: remove ipv6 zero address check in =
+mcast queries")
+> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+
+Applied and queued up for -stable, thanks.
