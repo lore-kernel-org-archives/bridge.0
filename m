@@ -1,20 +1,20 @@
 Return-Path: <SRS0=mF0B=RA=linuxfoundation.org=gregkh@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1551129872;
-	bh=hP5RtbfjETltqk98CE6uPWsYXM+yd0Tou+3q+APPHOQ=;
+	s=default; t=1551130419;
+	bh=vudtx12oHcq2Bp0tQq5lxNFVflGs+C9/eCjyPrrrM/g=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ibivU80M4QtHD6R+a7hpIR8bfKiTHacs02TGzIqFTTQ2aV1ST/5XoP44cmrg4gUQ7
-	ntyjTqTXDlWJso3X9lLisPvH3Vz76BmEb5MdgcxDppM5XtnrTmCXRwXDcwcFLa9Bwx
-	7399v9719hpx6kJ9btl8itsaZDQmQ8Q//989wzvA=
+	b=AoAvFro0mi1OhX7y0p3RmlE8pBYx00qfvw9TH9PyH4SODBiVX/RV9E4gkmTnYvtpD
+	6h35S4AsAQSXemVSWn+sSgyS5yfIJIEVovhChV9dmVYiM+Epgg6KSHHqCeKL9oA7xK
+	WCy5HjiL21kGKXRTxYGWutzOy4zaS29CP+mlYFKI=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 25 Feb 2019 22:11:25 +0100
-Message-Id: <20190225195049.406356133@linuxfoundation.org>
-In-Reply-To: <20190225195043.645958524@linuxfoundation.org>
-References: <20190225195043.645958524@linuxfoundation.org>
+Date: Mon, 25 Feb 2019 22:11:29 +0100
+Message-Id: <20190225195114.133478058@linuxfoundation.org>
+In-Reply-To: <20190225195054.748060397@linuxfoundation.org>
+References: <20190225195054.748060397@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.19 093/152] net: bridge: Mark FDB entries that
+Subject: [Bridge] [PATCH 4.20 116/183] net: bridge: Mark FDB entries that
 	were added by user as such
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -27,7 +27,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>, Alexander Petrovskiy <alexpe@mellanox.com>, "David S. Miller" <davem@davemloft.net>
 
-4.19-stable review patch.  If anyone has any objections, please let me know.
+4.20-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 502f663495308..4d4b9b5ea1c17 100644
+index e56ba3912a905..8b8abf88befbd 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -1088,6 +1088,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+@@ -1102,6 +1102,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
  			err = -ENOMEM;
  			goto err_unlock;
  		}
@@ -71,7 +71,7 @@ index 502f663495308..4d4b9b5ea1c17 100644
  		fdb->added_by_external_learn = 1;
  		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
  	} else {
-@@ -1107,6 +1109,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+@@ -1121,6 +1123,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
  			modified = true;
  		}
  
