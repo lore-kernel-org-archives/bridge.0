@@ -1,30 +1,21 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=subject:to:cc:references:from:openpgp:autocrypt:message-id:date
-	:user-agent:mime-version:in-reply-to:content-language
-	:content-transfer-encoding;
-	bh=qQHMEF0T6nFBZ3uL8DF15gBELDockbIZxCoHf6XLRTE=;
-	b=Srg7xlOdRt9mvSZDC1Ycc8YOz+j1syhSbgQR1k7hhX3zKTBr2zZqRk4PhZTNzOEmfn
-	Z/U9pLcGANDchX7qU+MiUYq9t2mgGy0vvADBZJ+0S5JPsqG3eGL3esM+iVIx11jg+57e
-	NEwtE2KytxDuC0xdNE7pEmdgViowpdLXoGeT1osAQhlIq/EYxJbtLeuN3pgSZ4LUUCyz
-	6gkSSiWIz3b5OIkm99vkIrsAtkC0ilOhu9455cfQ89vxYh15Tyg/VX3wO+HL3VD22Kff
-	rCjLV6hDw5yctXqzuDRpIlJKLGECeG7/ENSMT7kDRJca1+r0IzoFpehamjsIiKuTMbq6
-	8y3g==
-References: <20190222235927.10295-1-f.fainelli@gmail.com>
-	<20190222235927.10295-8-f.fainelli@gmail.com>
-	<20190223103207.GA13070@splinter>
-	<daaa3bb6-78b1-7c19-e2fd-6ec03d56201d@gmail.com>
-	<20190225094940.GA15128@splinter>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <2e91b708-a092-3839-4979-2712145a9951@gmail.com>
-Date: Mon, 25 Feb 2019 11:47:12 -0800
+Return-Path: <SRS0=mF0B=RA=linuxfoundation.org=gregkh@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1551129872;
+	bh=hP5RtbfjETltqk98CE6uPWsYXM+yd0Tou+3q+APPHOQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=ibivU80M4QtHD6R+a7hpIR8bfKiTHacs02TGzIqFTTQ2aV1ST/5XoP44cmrg4gUQ7
+	ntyjTqTXDlWJso3X9lLisPvH3Vz76BmEb5MdgcxDppM5XtnrTmCXRwXDcwcFLa9Bwx
+	7399v9719hpx6kJ9btl8itsaZDQmQ8Q//989wzvA=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Mon, 25 Feb 2019 22:11:25 +0100
+Message-Id: <20190225195049.406356133@linuxfoundation.org>
+In-Reply-To: <20190225195043.645958524@linuxfoundation.org>
+References: <20190225195043.645958524@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20190225094940.GA15128@splinter>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next 7/8] net: switchdev: Replace port attr
- set SDO with a notification
+Subject: [Bridge] [PATCH 4.19 093/152] net: bridge: Mark FDB entries that
+	were added by user as such
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,38 +24,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@mellanox.com>
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>, Alexander Petrovskiy <alexpe@mellanox.com>, "David S. Miller" <davem@davemloft.net>
 
-On 2/25/19 1:49 AM, Ido Schimmel wrote:
-> On Sun, Feb 24, 2019 at 08:47:27AM -0800, Florian Fainelli wrote:
->> Le 2/23/19 à 2:32 AM, Ido Schimmel a écrit :
->>> On Fri, Feb 22, 2019 at 03:59:25PM -0800, Florian Fainelli wrote:
->>>> -	if (attr->flags & SWITCHDEV_F_NO_RECURSE)
->>>> +	if (attr & SWITCHDEV_F_DEFER)
->>>> +		rc = call_switchdev_blocking_notifiers(nt, dev,
->>>> +						       &attr_info.info, NULL);
->>>> +	else
->>>> +		rc = call_switchdev_notifiers(nt, dev, &attr_info.info, NULL);
->>>
->>> I don't believe this is needed. You're calling this function from
->>> switchdev_port_attr_set_now() which is always called from process
->>> context. switchdev_port_attr_set() takes care of that. Similar to
->>> switchdev_port_obj_add().
->>
->> Except for net/bridge/br_switchdev.c when we check the bridge port's
->> flags support with PRE_BRIDGE_FLAGS. In that case we are executing from
->> the caller (atomic) context and we can't defer otherwise that trumps the
->> whole idea of being able to do a quick check and return that to the
->> caller that we cannot support specific flags. How would you recommend
->> approaching that?
-> 
-> In this case you can invoke call_switchdev_notifiers() directly from
-> br_switchdev_set_port_flag(). Eventually switchdev_port_attr_set() will
-> be gone and bridge code will invoke the notifiers directly.
+4.19-stable review patch.  If anyone has any objections, please let me know.
 
-That can be done, but it still requires the target driver (mlxsw,
-ocelot, dsa, etc.) to support attribute notification from blocking and
-non-blocking context. Are you fine with that?
+------------------
+
+[ Upstream commit 710ae72877378e7cde611efd30fe90502a6e5b30 ]
+
+Externally learned entries can be added by a user or by a switch driver
+that is notifying the bridge driver about entries that were learned in
+hardware.
+
+In the first case, the entries are not marked with the 'added_by_user'
+flag, which causes switch drivers to ignore them and not offload them.
+
+The 'added_by_user' flag can be set on externally learned FDB entries
+based on the 'swdev_notify' parameter in br_fdb_external_learn_add(),
+which effectively means if the created / updated FDB entry was added by
+a user or not.
+
+Fixes: 816a3bed9549 ("switchdev: Add fdb.added_by_user to switchdev notifications")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alexander Petrovskiy <alexpe@mellanox.com>
+Reviewed-by: Petr Machata <petrm@mellanox.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: bridge@lists.linux-foundation.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/bridge/br_fdb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 502f663495308..4d4b9b5ea1c17 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1088,6 +1088,8 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 			err = -ENOMEM;
+ 			goto err_unlock;
+ 		}
++		if (swdev_notify)
++			fdb->added_by_user = 1;
+ 		fdb->added_by_external_learn = 1;
+ 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	} else {
+@@ -1107,6 +1109,9 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+ 			modified = true;
+ 		}
+ 
++		if (swdev_notify)
++			fdb->added_by_user = 1;
++
+ 		if (modified)
+ 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+ 	}
 -- 
-Florian
+2.19.1
+
+
+
