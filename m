@@ -1,20 +1,20 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=LyKdp20X8t4ovPHYE9CH/9hVrvQZYs4Dq33a5OBgkXM=;
-	b=IKo+tzDYXiJOFmVxguVT0RQ6ERPwraLN3v6sMZ+GmJPw2HBfhSNKY5Y7wckZAEuUSA
-	nWOBYCOmKK6VfkVg4iN9i3e6YVr3bHGOWgvI9qJwaSui1uhTcVquwNbz2XTL2SGi7NOr
-	vNh1j20yyeoE1QL8XjWlgEEvPt3fmXZoxaNMA0hgvIkCfPqJZbDX+rrCJYajTpiBkaMN
-	iLshKNTvrF6oaytkZtpvpB3wXwY4b6uUl8Bo1WRqTz5SRwB0HF7qxo2fI7ObnT05QuLw
-	zzg0CEQXmWPPkDa3kyAwE1Ja1uxSteqFIOEKr/9QC3P+iNRq/CGVIBs152kSBleNNVr9
-	/Nzw==
+	bh=G2kn9V7ShGWUd8iHWxgRcRX7WVTJEqZ9g7Azsttn428=;
+	b=hKYS5XLi2T8MEWy1epSAPd2hxWSDk1jAHYGHB1nKIZ8GN/NhminwTr8wCtwedr8UGB
+	RqsvBpzAKdRRg4DNWHoeYpKuwKWPP2kjoDbB4DPFAsF7LUA4E7ThOezxR9jdwjvl0Ain
+	gJBwcGbEIytew2qwGE7OfJTNoSsEe3riC1dJWibJSo1OekYcgjJdpowAUhWmCDupUdBY
+	IV3EWIpSihH7UYBVHnZQY8Swr5UPIA44qG/U/vpLfgRsAJ/4nh0oeUTr7BX5mBZx5T/Y
+	pNHvnVHImchk+nzlCzezFPtcYDue7yJi/cVkMmOknCb6WnWoqd9Ap86zkxcZ8mmEWsNe
+	v5wA==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 27 Feb 2019 11:44:30 -0800
-Message-Id: <20190227194432.725-7-f.fainelli@gmail.com>
+Date: Wed, 27 Feb 2019 11:44:31 -0800
+Message-Id: <20190227194432.725-8-f.fainelli@gmail.com>
 In-Reply-To: <20190227194432.725-1-f.fainelli@gmail.com>
 References: <20190227194432.725-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v3 6/8] staging: fsl-dpaa2: ethsw: Handle
-	SWITCHDEV_PORT_ATTR_SET
+Subject: [Bridge] [PATCH net-next v3 7/8] net: switchdev: Replace port attr
+	set SDO with a notification
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,64 +26,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
-Following patches will change the way we communicate setting a port's
-attribute and use a blocking notifier to perform those tasks.
+Drop switchdev_ops.switchdev_port_attr_set. Drop the uses of this field
+from all clients, which were migrated to use switchdev notification in
+the previous patches.
 
-Prepare ethsw to support receiving notifier events targeting
-SWITCHDEV_PORT_ATTR_SET and simply translate that into the existing
-swdev_port_attr_set() call.
+Add a new function switchdev_port_attr_notify() that sends the switchdev
+notifications SWITCHDEV_PORT_ATTR_SET and calls the blocking (process)
+notifier chain.
+
+We have one odd case within net/bridge/br_switchdev.c with the
+SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS attribute identifier that
+requires executing from atomic context, we deal with that one
+specifically.
+
+Drop __switchdev_port_attr_set() and update switchdev_port_attr_set()
+likewise.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/staging/fsl-dpaa2/ethsw/ethsw.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ net/bridge/br_switchdev.c |  8 +++++-
+ net/switchdev/switchdev.c | 53 ++++++++++++++++++---------------------
+ 2 files changed, 31 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-index 018399ee8731..b0d2d9bf2532 100644
---- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-+++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-@@ -929,6 +929,19 @@ static const struct switchdev_ops ethsw_port_switchdev_ops = {
- 	.switchdev_port_attr_set	= swdev_port_attr_set,
- };
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index af57c4a2b78a..921310d3cbae 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -67,12 +67,18 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 		.id = SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS,
+ 		.u.brport_flags = mask,
+ 	};
++	struct switchdev_notifier_port_attr_info info = {
++		.attr = &attr,
++	};
+ 	int err;
  
-+static int
-+ethsw_switchdev_port_attr_set_event(struct net_device *netdev,
-+		struct switchdev_notifier_port_attr_info *port_attr_info)
-+{
+ 	if (mask & ~BR_PORT_FLAGS_HW_OFFLOAD)
+ 		return 0;
+ 
+-	err = switchdev_port_attr_set(p->dev, &attr);
++	/* We run from atomic context here */
++	err = call_switchdev_notifiers(SWITCHDEV_PORT_ATTR_SET, p->dev,
++				       &info.info, NULL);
++	err = notifier_to_errno(err);
+ 	if (err == -EOPNOTSUPP)
+ 		return 0;
+ 
+diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
+index 3560c19aa7e2..d81cfcee9ad9 100644
+--- a/net/switchdev/switchdev.c
++++ b/net/switchdev/switchdev.c
+@@ -174,39 +174,32 @@ static int switchdev_deferred_enqueue(struct net_device *dev,
+ 	return 0;
+ }
+ 
+-static int __switchdev_port_attr_set(struct net_device *dev,
+-				     const struct switchdev_attr *attr,
+-				     struct switchdev_trans *trans)
++static int switchdev_port_attr_notify(enum switchdev_notifier_type nt,
++				      struct net_device *dev,
++				      const struct switchdev_attr *attr,
++				      struct switchdev_trans *trans)
+ {
+-	const struct switchdev_ops *ops = dev->switchdev_ops;
+-	struct net_device *lower_dev;
+-	struct list_head *iter;
+-	int err = -EOPNOTSUPP;
+-
+-	if (ops && ops->switchdev_port_attr_set) {
+-		err = ops->switchdev_port_attr_set(dev, attr, trans);
+-		goto done;
+-	}
+-
+-	if (attr->flags & SWITCHDEV_F_NO_RECURSE)
+-		goto done;
 +	int err;
-+
-+	err = swdev_port_attr_set(netdev, port_attr_info->attr,
-+				  port_attr_info->trans);
-+
-+	port_attr_info->handled = true;
-+	return notifier_from_errno(err);
-+}
-+
- /* For the moment, only flood setting needs to be updated */
- static int port_bridge_join(struct net_device *netdev,
- 			    struct net_device *upper_dev)
-@@ -1047,6 +1060,12 @@ static int port_switchdev_event(struct notifier_block *unused,
- 	struct ethsw_switchdev_event_work *switchdev_work;
- 	struct switchdev_notifier_fdb_info *fdb_info = ptr;
++	int rc;
  
-+	if (!ethsw_port_dev_check(dev))
-+		return NOTIFY_DONE;
-+
-+	if (event == SWITCHDEV_PORT_ATTR_SET)
-+		return ethsw_switchdev_port_attr_set_event(dev, ptr);
-+
- 	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
- 	if (!switchdev_work)
- 		return NOTIFY_BAD;
-@@ -1115,6 +1134,8 @@ static int port_switchdev_blocking_event(struct notifier_block *unused,
- 	case SWITCHDEV_PORT_OBJ_ADD: /* fall through */
- 	case SWITCHDEV_PORT_OBJ_DEL:
- 		return ethsw_switchdev_port_obj_event(event, dev, ptr);
-+	case SWITCHDEV_PORT_ATTR_SET:
-+		return ethsw_switchdev_port_attr_set_event(dev, ptr);
+-	/* Switch device port(s) may be stacked under
+-	 * bond/team/vlan dev, so recurse down to set attr on
+-	 * each port.
+-	 */
++	struct switchdev_notifier_port_attr_info attr_info = {
++		.attr = attr,
++		.trans = trans,
++		.handled = false,
++	};
+ 
+-	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+-		err = __switchdev_port_attr_set(lower_dev, attr, trans);
+-		if (err)
+-			break;
++	rc = call_switchdev_blocking_notifiers(nt, dev,
++					       &attr_info.info, NULL);
++	err = notifier_to_errno(rc);
++	if (err) {
++		WARN_ON(!attr_info.handled);
++		return err;
  	}
  
- 	return NOTIFY_DONE;
+-done:
+-	if (err == -EOPNOTSUPP && attr->flags & SWITCHDEV_F_SKIP_EOPNOTSUPP)
+-		err = 0;
++	if (!attr_info.handled)
++		return -EOPNOTSUPP;
+ 
+-	return err;
++	return 0;
+ }
+ 
+ static int switchdev_port_attr_set_now(struct net_device *dev,
+@@ -225,7 +218,8 @@ static int switchdev_port_attr_set_now(struct net_device *dev,
+ 	 */
+ 
+ 	trans.ph_prepare = true;
+-	err = __switchdev_port_attr_set(dev, attr, &trans);
++	err = switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET, dev, attr,
++					 &trans);
+ 	if (err) {
+ 		/* Prepare phase failed: abort the transaction.  Any
+ 		 * resources reserved in the prepare phase are
+@@ -244,7 +238,8 @@ static int switchdev_port_attr_set_now(struct net_device *dev,
+ 	 */
+ 
+ 	trans.ph_prepare = false;
+-	err = __switchdev_port_attr_set(dev, attr, &trans);
++	err = switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET, dev, attr,
++					 &trans);
+ 	WARN(err, "%s: Commit of attribute (id=%d) failed.\n",
+ 	     dev->name, attr->id);
+ 	switchdev_trans_items_warn_destroy(dev, &trans);
 -- 
 2.17.1
 
