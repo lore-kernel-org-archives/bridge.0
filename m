@@ -1,19 +1,12 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=oV7+2Us5MX0jWcHBUmnmyOktFkmTrCCo80oKhp9NNxU=;
-	b=v26y3mWmNFUlQM7cQD4LfRUiHlgjDN5On3xrZ5/WqEU6rqxf+VqDJNQRdpAq1lW/sFxGnNfbCxs2lbuqEyfD6yNeaMeHuwxDuBPNm3KLylT02vSLqeViqst3Q7QKuaMW7jk0wad5329sFhAjaImPLheWHp9QfcFDkUvgY24XDgk=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Wed, 27 Feb 2019 20:18:37 +0000
-Message-ID: <20190227201834.GC7022@splinter>
-References: <20190227194432.725-1-f.fainelli@gmail.com>
+Return-Path: <davem@davemloft.net>
+Date: Wed, 27 Feb 2019 12:40:19 -0800 (PST)
+Message-Id: <20190227.124019.281722845670775310.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20190227194432.725-1-f.fainelli@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <79D9B29DFDC8E74EB688890A300AC9A3@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+References: <20190227194432.725-1-f.fainelli@gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next v3 0/8] net: Remove switchdev_ops
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -23,18 +16,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, "andrew@lunn.ch" <andrew@lunn.ch>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "moderated
-	list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, Jiri Pirko <jiri@mellanox.com>, "David S. Miller" <davem@davemloft.net>
+To: f.fainelli@gmail.com
+Cc: devel@driverdev.osuosl.org, andrew@lunn.ch, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@mellanox.com, jiri@mellanox.com, vivien.didelot@gmail.com
 
-On Wed, Feb 27, 2019 at 11:44:24AM -0800, Florian Fainelli wrote:
-> Hi all,
->=20
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Wed, 27 Feb 2019 11:44:24 -0800
+
 > This patch series completes the removal of the switchdev_ops by
 > converting switchdev_port_attr_set() to use either the blocking
 > (process) or non-blocking (atomic) notifier since we typically need to
 > deal with both depending on where in the bridge code we get called from.
->=20
+> 
 > This was tested with the forwarding selftests and DSA hardware.
+> 
+> Ido, hopefully this captures your comments done on v1, if not, can you
+> illustrate with some pseudo-code what you had in mind if that's okay?
+> 
+> Changes in v3:
+> 
+> - added Reviewed-by tags from Ido where relevant
+> - added missing notifier_to_errno() in net/bridge/br_switchdev.c when
+>   calling the atomic notifier for PRE_BRIDGE_FLAGS
+> - kept mlxsw_sp_switchdev_init() in mlxsw/
+> 
+> Changes in v2:
+> 
+> - do not check for SWITCHDEV_F_DEFER when calling the blocking notifier
+>   and instead directly call the atomic notifier from the single location
+>   where this is required
 
-I ran some basic tests and nothing exploded :) Thanks, Florian!
+Series applied, thanks Florian.
+
+I'll push this out after my build tests complete.
