@@ -1,19 +1,19 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=Gq/qAOtWNvcuwUtUaSW2EYY4Z4jqPnX1n6JjQenVLBM=;
-	b=g4+NDr7r61K9ERC3quk5u63rKL/N4u3wkUo2s/Ez3fiOkzAyRQFgZvxxyxR6NpqaRM
-	/Y6aGQsAS5AC5maDmuQ1fd6ah/WZUQhSGPS6/v8AE0ROwx7YwcQYMyYE2taCRdeQl5f7
-	yPnV/xVbYZVOnjV/AuDDF9+9ZJuFq0ezRBXrwsF7cejTgNxJs6KwEKDT71keOJCSCPvP
-	PE4xT02oQDO7/wbE7nSBhzP5MrHMtNgc32j2a7+lAZKz1WaH04MkTz2I8ErUEpgujTmf
-	XMjRAQ8Qfa+dzGKsb95rDbsBn2ZIbQRtAbsl/ffFqs0XncQzwyPVKaxZEtieb1ZjMyP4
-	rh1g==
+	bh=PQg9HVQIYqiPsBwNT6JyGAohQPDs6z9iGbY5s51mdrw=;
+	b=ZwS5j/uZEMcNgCdr8yv+ssv1acxc44jSUPbaB6Q91l1WV9isJ9z5InSfE3H+wLUA41
+	j5s3vsO4dpBviOR+nqGoDneWW5nrrZDXjv/psPVGfeM9V3pLLeAPzEb+gs7Pzga/+ZUj
+	8xKNsKElta/VzPA1L2wp45Gp+LdElW7aRYeK6S1jJbd2XWyJRzlA22aSroU4w1y+NfLp
+	xa6keB/3cr1cTxnRCUSKxPEIuYbMiyez+c8ynjXdqbJyzoRXdCkf4DU+aJbiaEnm9owq
+	iHUxyigI1HfVBLZeYd5kQrMjZRhbA44YoUme2C1J/74rpCAknfeEBTDrnr4DbAfQL+qg
+	drCg==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Tue, 26 Feb 2019 17:14:22 -0800
-Message-Id: <20190227011427.16487-4-f.fainelli@gmail.com>
+Date: Tue, 26 Feb 2019 17:14:23 -0800
+Message-Id: <20190227011427.16487-5-f.fainelli@gmail.com>
 In-Reply-To: <20190227011427.16487-1-f.fainelli@gmail.com>
 References: <20190227011427.16487-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v2 3/8] net: dsa: Handle
+Subject: [Bridge] [PATCH net-next v2 4/8] mlxsw: spectrum_switchdev: Handle
 	SWITCHDEV_PORT_ATTR_SET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -27,58 +27,44 @@ To: netdev@vger.kernel.org
 Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, vivien.didelot@gmail.com, Ido Schimmel <idosch@mellanox.com>, jiri@mellanox.com, "David S. Miller" <davem@davemloft.net>
 
 Following patches will change the way we communicate setting a port's
-attribute and use notifiers towards that goal.
+attribute and use a notifier to perform those tasks.
 
-Prepare DSA to support receiving notifier events targeting
-SWITCHDEV_PORT_ATTR_SET from both atomic and process context and use a
-small helper to translate the event notifier into something that
-dsa_slave_port_attr_set() can process.
+Prepare mlxsw to support receiving notifier events targeting
+SWITCHDEV_PORT_ATTR_SET and utilize the switchdev_handle_port_attr_set()
+to handle stacking of devices.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- net/dsa/slave.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ .../net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 7274499293c9..b089b43120e1 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -1524,6 +1524,19 @@ static int dsa_slave_netdevice_event(struct notifier_block *nb,
- 	return NOTIFY_DONE;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 766f5b5f1cf5..c1aedfea3a31 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -3123,6 +3123,13 @@ static int mlxsw_sp_switchdev_event(struct notifier_block *unused,
+ 	struct net_device *br_dev;
+ 	int err;
  
-+static int
-+dsa_slave_switchdev_port_attr_set_event(struct net_device *netdev,
-+		struct switchdev_notifier_port_attr_info *port_attr_info)
-+{
-+	int err;
++	if (event == SWITCHDEV_PORT_ATTR_SET) {
++		err = switchdev_handle_port_attr_set(dev, ptr,
++						     mlxsw_sp_port_dev_check,
++						     mlxsw_sp_port_attr_set);
++		return notifier_from_errno(err);
++	}
 +
-+	err = dsa_slave_port_attr_set(netdev, port_attr_info->attr,
-+				      port_attr_info->trans);
-+
-+	port_attr_info->handled = true;
-+	return notifier_from_errno(err);
-+}
-+
- struct dsa_switchdev_event_work {
- 	struct work_struct work;
- 	struct switchdev_notifier_fdb_info fdb_info;
-@@ -1602,6 +1615,9 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
- 	if (!dsa_slave_dev_check(dev))
- 		return NOTIFY_DONE;
- 
-+	if (event == SWITCHDEV_PORT_ATTR_SET)
-+		return dsa_slave_switchdev_port_attr_set_event(dev, ptr);
-+
- 	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
- 	if (!switchdev_work)
- 		return NOTIFY_BAD;
-@@ -1664,6 +1680,8 @@ static int dsa_slave_switchdev_blocking_event(struct notifier_block *unused,
- 	case SWITCHDEV_PORT_OBJ_ADD: /* fall through */
- 	case SWITCHDEV_PORT_OBJ_DEL:
- 		return dsa_slave_switchdev_port_obj_event(event, dev, ptr);
+ 	/* Tunnel devices are not our uppers, so check their master instead */
+ 	br_dev = netdev_master_upper_dev_get_rcu(dev);
+ 	if (!br_dev)
+@@ -3446,6 +3453,11 @@ static int mlxsw_sp_switchdev_blocking_event(struct notifier_block *unused,
+ 							mlxsw_sp_port_dev_check,
+ 							mlxsw_sp_port_obj_del);
+ 		return notifier_from_errno(err);
 +	case SWITCHDEV_PORT_ATTR_SET:
-+		return dsa_slave_switchdev_port_attr_set_event(dev, ptr);
++		err = switchdev_handle_port_attr_set(dev, ptr,
++						     mlxsw_sp_port_dev_check,
++						     mlxsw_sp_port_attr_set);
++		return notifier_from_errno(err);
  	}
  
  	return NOTIFY_DONE;
