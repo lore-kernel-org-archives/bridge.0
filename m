@@ -1,19 +1,19 @@
 Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references;
-	bh=3n08U17XQLLrwYLiDWOdzsQAwXWMIAMlVMMr8OAosZo=;
-	b=j021yYeipzReB/VJeFej4t7hA3KZ2emfPOD04doaq64ceTFd72OyfNErGSy5xy80Y/
-	VZbgcEnB8si8F+3PBCgTgzi1jAl20SaFd8OJIoSK8DdiGp47qjxRkVIk96WSHINOGM+W
-	1RdDb4Sp3RYuf/WitgTgK0ny4lwpFh5SnnTNITwxjtm4k73gJ+qZ4Atwq9dRBIQnrghI
-	qf26YiVum6Q4Q2YpJ7HRPVY5lVMdaCLb5GTTabcW1NtArLv2AYHTLinQuRkj8y8mnSXA
-	UWCWbailpAQdLU0bRmDFoc8/KJGnoD9IQK1l9nJzwRf2/9sgUq5XZtbkxo1SFRT+wO8V
-	BUAQ==
+	bh=Gq/qAOtWNvcuwUtUaSW2EYY4Z4jqPnX1n6JjQenVLBM=;
+	b=mYDWLZYQ1P9K2YrLg86WXa1TaoOWvcXq0t3hRPlJ66U/RDjehvNJBqsU/L7AYbp3t7
+	mKH6T4aT0M/4LIa6jN6WokijtoJCiVEvMavKX+G//txl8BoTSbaAeMw15a4B3ntRwZe1
+	dG5VL7heK5IXIJnTH51tWw/f9SrHS6VFXistx3SOlVNveeM/rvWX6RtECQwuQVTat89T
+	JvkZyMSmC5I5HZTzx2LryAx6Jt25E9n+dZh5B6YDWJpxQog7Yk4hI9RaAahe0DvBPdGQ
+	g7RN4n4/l0/OQHA0NuWoIdXE/NAh0UemJKbNzrKN7FwcwBiDofmcf0K4cr9Yo+JBCIq3
+	8kYw==
 From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Wed, 27 Feb 2019 11:44:26 -0800
-Message-Id: <20190227194432.725-3-f.fainelli@gmail.com>
+Date: Wed, 27 Feb 2019 11:44:27 -0800
+Message-Id: <20190227194432.725-4-f.fainelli@gmail.com>
 In-Reply-To: <20190227194432.725-1-f.fainelli@gmail.com>
 References: <20190227194432.725-1-f.fainelli@gmail.com>
-Subject: [Bridge] [PATCH net-next v3 2/8] rocker: Handle
+Subject: [Bridge] [PATCH net-next v3 3/8] net: dsa: Handle
 	SWITCHDEV_PORT_ATTR_SET
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -29,56 +29,56 @@ Cc: "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>, andrew@lunn.ch, 
 Following patches will change the way we communicate setting a port's
 attribute and use notifiers towards that goal.
 
-Prepare rocker to support receiving notifier events targeting
+Prepare DSA to support receiving notifier events targeting
 SWITCHDEV_PORT_ATTR_SET from both atomic and process context and use a
 small helper to translate the event notifier into something that
-rocker_port_attr_set() can process.
+dsa_slave_port_attr_set() can process.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/net/ethernet/rocker/rocker_main.c | 18 ++++++++++++++++++
+ net/dsa/slave.c | 18 ++++++++++++++++++
  1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 309a6bf9130c..fc772cf079cc 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -2710,6 +2710,19 @@ static bool rocker_port_dev_check(const struct net_device *dev)
- 	return dev->netdev_ops == &rocker_port_netdev_ops;
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 7274499293c9..b089b43120e1 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -1524,6 +1524,19 @@ static int dsa_slave_netdevice_event(struct notifier_block *nb,
+ 	return NOTIFY_DONE;
  }
  
 +static int
-+rocker_switchdev_port_attr_set_event(struct net_device *netdev,
++dsa_slave_switchdev_port_attr_set_event(struct net_device *netdev,
 +		struct switchdev_notifier_port_attr_info *port_attr_info)
 +{
 +	int err;
 +
-+	err = rocker_port_attr_set(netdev, port_attr_info->attr,
-+				   port_attr_info->trans);
++	err = dsa_slave_port_attr_set(netdev, port_attr_info->attr,
++				      port_attr_info->trans);
 +
 +	port_attr_info->handled = true;
 +	return notifier_from_errno(err);
 +}
 +
- struct rocker_switchdev_event_work {
+ struct dsa_switchdev_event_work {
  	struct work_struct work;
  	struct switchdev_notifier_fdb_info fdb_info;
-@@ -2779,6 +2792,9 @@ static int rocker_switchdev_event(struct notifier_block *unused,
- 	if (!rocker_port_dev_check(dev))
+@@ -1602,6 +1615,9 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+ 	if (!dsa_slave_dev_check(dev))
  		return NOTIFY_DONE;
  
 +	if (event == SWITCHDEV_PORT_ATTR_SET)
-+		return rocker_switchdev_port_attr_set_event(dev, ptr);
++		return dsa_slave_switchdev_port_attr_set_event(dev, ptr);
 +
- 	rocker_port = netdev_priv(dev);
  	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
- 	if (WARN_ON(!switchdev_work))
-@@ -2841,6 +2857,8 @@ static int rocker_switchdev_blocking_event(struct notifier_block *unused,
- 	case SWITCHDEV_PORT_OBJ_ADD:
+ 	if (!switchdev_work)
+ 		return NOTIFY_BAD;
+@@ -1664,6 +1680,8 @@ static int dsa_slave_switchdev_blocking_event(struct notifier_block *unused,
+ 	case SWITCHDEV_PORT_OBJ_ADD: /* fall through */
  	case SWITCHDEV_PORT_OBJ_DEL:
- 		return rocker_switchdev_port_obj_event(event, dev, ptr);
+ 		return dsa_slave_switchdev_port_obj_event(event, dev, ptr);
 +	case SWITCHDEV_PORT_ATTR_SET:
-+		return rocker_switchdev_port_attr_set_event(dev, ptr);
++		return dsa_slave_switchdev_port_attr_set_event(dev, ptr);
  	}
  
  	return NOTIFY_DONE;
