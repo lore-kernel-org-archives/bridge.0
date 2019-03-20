@@ -1,14 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Wed, 20 Mar 2019 11:05:01 -0700 (PDT)
-Message-Id: <20190320.110501.903028894297149241.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20190320020657.31423-1-maowenan@huawei.com>
-References: <20190320020657.31423-1-maowenan@huawei.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: use eth_broadcast_addr()
- to assign broadcast address
+Return-Path: <maowenan@huawei.com>
+From: Mao Wenan <maowenan@huawei.com>
+Date: Wed, 20 Mar 2019 10:06:57 +0800
+Message-ID: <20190320020657.31423-1-maowenan@huawei.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next] net: bridge: use eth_broadcast_addr() to
+	assign broadcast address
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,15 +15,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: maowenan@huawei.com
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com
 
-From: Mao Wenan <maowenan@huawei.com>
-Date: Wed, 20 Mar 2019 10:06:57 +0800
+This patch is to use eth_broadcast_addr() to assign broadcast address
+insetad of memset().
 
-> This patch is to use eth_broadcast_addr() to assign broadcast address
-> insetad of memset().
-> 
-> Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+---
+ net/bridge/br_multicast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Applied.
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index a0e369179f6d..b257342c0860 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -517,7 +517,7 @@ struct net_bridge_port_group *br_multicast_new_port_group(
+ 	if (src)
+ 		memcpy(p->eth_addr, src, ETH_ALEN);
+ 	else
+-		memset(p->eth_addr, 0xff, ETH_ALEN);
++		eth_broadcast_addr(p->eth_addr);
+ 
+ 	return p;
+ }
+-- 
+2.20.1
+
