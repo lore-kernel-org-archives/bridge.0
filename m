@@ -1,11 +1,19 @@
-Return-Path: <3FLyWXAkbANEFLM7x881ExCC50.3BB381HF1EzBAG1AG.zB9@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding;
+	bh=cviNhN8lipMp7LA1QicaaUzhIeFP5ky1Hv7DQgVZe3M=;
+	b=epSTUULSAYR3wHhhHpipyjhNonHEEn6YZgcFeECj3CnrZqmC0xnKfHQniRaKvAQNHZ
+	O4AXf17swl3EdkiriFDvB5PMQVvJnjqW5/PBkXcNyj6o2+43YBhtxHK0Wf9YwkoNhNQ6
+	kPrzxDcIvtqkGil8K3qgNkfzCeSgJKQVDUeXM=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Wed,  3 Apr 2019 13:49:24 +0300
+Message-Id: <20190403104924.32695-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-Date: Sat, 23 Mar 2019 16:07:00 -0700
-In-Reply-To: <00000000000081994205827ea9a0@google.com>
-Message-ID: <000000000000674a950584cb07a0@google.com>
-From: syzbot <syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: Re: [Bridge] WARNING in xt_compat_add_offset
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next] net: bridge: optimize backup_port fdb
+	convergence
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,29 +22,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nikolay@cumulusnetworks.com, pablo@netfilter.org, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
-syzbot has bisected this bug to:
+We can optimize the fdb convergence when a backup_port is present by not
+immediately flushing the entries of the stopped port since traffic for
+those entries will flow towards the backup_port.
 
-commit 2035f3ff8eaa29cfb5c8e2160b0f6e85eeb21a95
-Author: Florian Westphal <fw@strlen.de>
-Date:   Mon Jan 21 20:54:36 2019 +0000
+There are 2 cases specifically that benefit most:
+- when the stopped port comes up before the entries expire by themselves
+- when there's an external entry refresh and they're kept while the
+  backup_port is operating (e.g. mlag)
 
-     netfilter: ebtables: compat: un-break 32bit setsockopt when no rules  
-are present
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+We have been running with this change for over an year, it has been
+extensively tested.
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1462834d200000
-start commit:   8a61716f Merge tag 'ceph-for-5.0-rc8' of git://github.com/..
-git tree:       upstream
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=1662834d200000
-console output: https://syzkaller.appspot.com/x/log.txt?x=1262834d200000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7132344728e7ec3f
-dashboard link: https://syzkaller.appspot.com/bug?extid=276ddebab3382bbf72db
-userspace arch: i386
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=140c0914c00000
+ net/bridge/br_stp_if.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Reported-by: syzbot+276ddebab3382bbf72db@syzkaller.appspotmail.com
-Fixes: 2035f3ff8eaa ("netfilter: ebtables: compat: un-break 32bit  
-setsockopt when no rules are present")
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 808e2b914015..8d65ae5210e0 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -117,7 +117,8 @@ void br_stp_disable_port(struct net_bridge_port *p)
+ 	del_timer(&p->forward_delay_timer);
+ 	del_timer(&p->hold_timer);
+ 
+-	br_fdb_delete_by_port(br, p, 0, 0);
++	if (!rcu_access_pointer(p->backup_port))
++		br_fdb_delete_by_port(br, p, 0, 0);
+ 	br_multicast_disable_port(p);
+ 
+ 	br_configuration_update(br);
+-- 
+2.20.1
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
