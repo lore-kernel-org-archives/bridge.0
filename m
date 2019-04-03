@@ -1,19 +1,14 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding;
-	bh=cviNhN8lipMp7LA1QicaaUzhIeFP5ky1Hv7DQgVZe3M=;
-	b=epSTUULSAYR3wHhhHpipyjhNonHEEn6YZgcFeECj3CnrZqmC0xnKfHQniRaKvAQNHZ
-	O4AXf17swl3EdkiriFDvB5PMQVvJnjqW5/PBkXcNyj6o2+43YBhtxHK0Wf9YwkoNhNQ6
-	kPrzxDcIvtqkGil8K3qgNkfzCeSgJKQVDUeXM=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed,  3 Apr 2019 13:49:24 +0300
-Message-Id: <20190403104924.32695-1-nikolay@cumulusnetworks.com>
+Return-Path: <pablo@gnumonks.org>
+Date: Wed, 3 Apr 2019 19:44:41 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20190403174441.2l7xyk5o2hftrdm3@salvia>
+References: <20190402125609.30313-1-rdong.ge@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: optimize backup_port fdb
-	convergence
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190402125609.30313-1-rdong.ge@gmail.com>
+Subject: Re: [Bridge] [PATCH] netfilter:bridge: Hold bridge dev for
+ fake_rtable to avoid the dangling pointer
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,40 +17,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: Rundong Ge <rdong.ge@gmail.com>
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
 
-We can optimize the fdb convergence when a backup_port is present by not
-immediately flushing the entries of the stopped port since traffic for
-those entries will flow towards the backup_port.
+On Tue, Apr 02, 2019 at 12:56:09PM +0000, Rundong Ge wrote:
+> Problem:
+> When bridge-nf-call-iptables is enabled, skb_dst(skb) of packets that
+> in the nfqueue may be a dangling pointer if user delete the bridge.
+> Because packets go through the br_nf_pre_routing_finish will set the dst
+> pointer to the br->fake_rtable. But the br struct will be freed
+> without the reference check for these skbs.
+> 
+> User impact:
+> Kernel panic may happen when user delete the bridge if there are
+> continuous traffics go through the nfqueue.
+> Here is a panic in my device which using kernel v3.10.
 
-There are 2 cases specifically that benefit most:
-- when the stopped port comes up before the entries expire by themselves
-- when there's an external entry refresh and they're kept while the
-  backup_port is operating (e.g. mlag)
+This kernel is _very old_.
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-We have been running with this change for over an year, it has been
-extensively tested.
+Could you provide the steps to reproduce this issue?
 
- net/bridge/br_stp_if.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Holding the device doesn't seem the way to go to me, we have a of
+netdevice_notifier that is dropping packets for an interface that is
+gone in nfnetlink_queue. We also drop packets whenever a hook in gone.
 
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 808e2b914015..8d65ae5210e0 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -117,7 +117,8 @@ void br_stp_disable_port(struct net_bridge_port *p)
- 	del_timer(&p->forward_delay_timer);
- 	del_timer(&p->hold_timer);
- 
--	br_fdb_delete_by_port(br, p, 0, 0);
-+	if (!rcu_access_pointer(p->backup_port))
-+		br_fdb_delete_by_port(br, p, 0, 0);
- 	br_multicast_disable_port(p);
- 
- 	br_configuration_update(br);
--- 
-2.20.1
-
+So I wonder if this is still a problem in mainline kernels.
