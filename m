@@ -1,25 +1,18 @@
-Return-Path: <rdong.ge@gmail.com>
+Return-Path: <huangruippp@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=NyGZLuY21oSC+JaRuB0mfx28bYiC0HLCEIG2dSvO3Ek=;
-	b=EUYktPXjheGlgZ8CRsXW3ipjOXvlGZ3SPf4aJ+pT9YQ7QVuewt6Wd7P7mqHk68eYPv
-	fQbkY6QqFxAOkEKSNUDpIjf13SLzX4zo/IojWPC5FqqqKFlNJa8R1YTILT2gTO9mgN5P
-	Gk2+kgAZzdxBVh2N9YH8AQfre1NZ84NukgMBDyCnmwtAPKMyyVi2Fb+S6ua7OAhNTCbB
-	YAOF0ivStQFktm54yviq6ElX1VZ/jTN6RuzqKMby+ceUGLM0jS3Fu7pLJYDP4Xovh1Rs
-	oV+LIURz5061t1haX+Zb6PlwaNp89GhcOIkhwSMd+iPd+tr4hDw0LyVQcaDeRD4vtAkc
-	nIzQ==
-MIME-Version: 1.0
-References: <20190402125609.30313-1-rdong.ge@gmail.com>
-	<20190403174441.2l7xyk5o2hftrdm3@salvia>
-In-Reply-To: <20190403174441.2l7xyk5o2hftrdm3@salvia>
-From: Rundong Ge <rdong.ge@gmail.com>
-Date: Tue, 9 Apr 2019 14:33:28 +0800
-Message-ID: <CAN1Lvyov_GOjg=1zrgWsV0_ptBGoFfLBsQKU7RswgmzZEjFkmw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] netfilter:bridge: Hold bridge dev for
- fake_rtable to avoid the dangling pointer
+	h=from:to:cc:subject:date:message-id;
+	bh=DSm60fsRvigZ9rO9v9GaStHi5ZcMD+nYH04YGyKBRU0=;
+	b=fjESDrfL/POOG9UqFWuFRcxAKL0/LNLBZjmpbvCmJaBFkiRaJQuFHi/WWdPIBaUCBp
+	oqBobw8ztH7yVJZw8kKSc7f8otXSgM7xKMVvvVKBLgcfshZHPzCJhkvQdTAFDFWREV/Q
+	ToQOSvl+QbC//HEf2cj+u+Y3sk/KHJnc/mYYFVRrVtgX4n3B9Ox3RcnJWozk7nuIRKv4
+	PDSpX5SGQco+nZhdUaKo3UprRRoV+2O/fYO+uaEjIwaOUf52BgNsD6keJEquyTrOuelJ
+	Uhl3r/3/n1MAk+p3uRja4ztVajwqKiqUH1a/+BrXb+VK8M6ruWlEwZH7XQL5Zt7lZRJC
+	EHMQ==
+From: Huang Rui <huangruippp@gmail.com>
+Date: Wed, 10 Apr 2019 02:32:08 +0000
+Message-Id: <20190410023208.25435-1-huangruiPPP@gmail.com>
+Subject: [Bridge] [PATCH] net:bridge:always disable auto-tuning when the
+	user specified MTU
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,99 +21,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
+To: davem@davemloft.net
+Cc: songliubraving@fb.com, jakub.kicinski@netronome.com, ast@kernel.org, ecree@solarflare.com, xdp-newbies@vger.kernel.org, daniel@iogearbox.net, bridge@lists.linux-foundation.org, john.fastabend@gmail.com, lirongqing@baidu.com, huangruiPPP@gmail.com, yhs@fb.com, alexander.h.duyck@intel.com, hawk@kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, idosch@mellanox.com, jiri@mellanox.com, amritha.nambiar@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, kafai@fb.com
 
-Hi Pablo
+For example.
+My purpose is to create a bridge br0 and join eth0 into br0.
+if we use this following way, the auto-tuning flag will not be disabled.
 
-I've tested on mainline v5.0. The dangling pointer access of fake_rtable
-still exists.
+If eth0's mtu is 1200
+step 1.brctl addbr br0
+step 2.brctl addif br0 eth0
+step 3.ifconfig br0 mtu 1200
+step 4.ifconfig eth0 mtu 1500
 
-My env is like this: client0--box--client1.
-The box runs ubuntu with v5.0 kernel, br_netfilter and nfnetlink_queue
-are inserted.
+Result:
+br0's MTU: 1500, eth0's MTU: 1500
 
-Reproduce steps:
-1.Create a bridge on the box.
-2.echo 1 >/proc/sys/net/bridge/bridge-nf-call-iptables
-3.Add a netfilter hook function to queue the packets to nfqueuenum 0.
-  The hook point must between <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF> and
-  <NF_BR_FORWARD,NF_BR_PRI_BRNF - 1>.
-4.Add a userspace process "nfqueue_rcv" to continuously read and
-  set_verdict "NF_ACCEPT" to packets from queue 0.
-5.Continuosly ping client1 from client0
-6.Send "Ctrl + Z" to pause the "nfqueue_rcv" to simulate the queue
-  congestion.
-7.Using "ifconfig br0 down&&brctl delbr br0" to delete the bridge.
-8.At this time the _skb_refdst of skbs in the nfqueue become dangling
-  pointer. If we send "fg" to resume the "nfqueue_rcv", the kernel
-  may try to access the freed memory.
+Expected:
+br0's MTU: 1200, eth0's MTU: 1500
 
-Debug log:
-Here I add debug logs in "netdev_freemem" and "dst_release" to prove
-the freed memory access. As the log shows, the "dst_release" accessed
-bridge's fake_rtable after the bridge was freed.
+I have specified br0's MTU,  but auto-min policy works. So the MTU is
+not the result what we expected.
+As expected, if i have specified bridge's MTU, it will set the flag:
+BROPT_MTU_SET_BY_USER in net_bridge_opts disabled and auto-min/max
+policy will not work.But in this case, because the dev_set_mtu return
+early, the BROPT_MTU_SET_BY_USER flag will not be disabled and
+auto-min/max policy will still work.
 
-Apr  8 22:25:14 raydon kernel: [62139.005062] netdev_freemem name:br0,
-fake_rtable:000000009d76cef0
-Apr  8 22:25:21 raydon kernel: [62145.967133] dst_release
-dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
-Apr  8 22:25:21 raydon kernel: [62145.967154] dst_release
-dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
-Apr  8 22:25:21 raydon kernel: [62145.967180] dst_release
-dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
-Apr  8 22:25:21 raydon kernel: [62145.967197] dst_release
-dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
+Signed-off-by: Huang Rui <huangruiPPP@gmail.com>
+---
+ net/core/dev.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 2b67f2aa59dd..ba410d76bb49 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7670,8 +7670,12 @@ int dev_set_mtu_ext(struct net_device *dev, int new_mtu,
+ {
+ 	int err, orig_mtu;
+ 
+-	if (new_mtu == dev->mtu)
+-		return 0;
++	if (new_mtu == dev->mtu) {
++		if (dev->priv_flags & IFF_EBRIDGE)
++			return __dev_set_mtu(dev, new_mtu);
++		else
++			return 0;
++	}
+ 
+ 	/* MTU must be positive, and in range */
+ 	if (new_mtu < 0 || new_mtu < dev->min_mtu) {
+-- 
+2.11.0
 
-
-The reason why the hook point should be after <NF_BR_PRE_ROUTING,
-NF_BR_PRI_BRNF> is skbs reference bridge's fake_rtable in
-"br_nf_pre_routing_finish" hooked at <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF>.
-
-And the reason why the hook point should be before <NF_BR_FORWARD,
-NF_BR_PRI_BRNF - 1> is "br_nf_forward_ip" will set the state.out to
-bridge dev. After this hook point, the "nfqnl_dev_drop" triggered by
-the bridge's NETDEV_DOWN event can flush the queued skbs before
-bridge's memory is freed, because the state.out now matches the
-bridge's dev.
-
-So the root cause is "nfqnl_dev_drop" didn't flush the skbs properly
-queued between <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF> and <NF_BR_FORWARD,
-NF_BR_PRI_BRNF - 1>.
-
-As you mentioned, hold the bridge dev for these skbs is not a proper
-solution. I will send another patch to let "nfqnl_dev_drop" can flush
-these skbs.
-
-Thanks
-Rundong
-
-
-Pablo Neira Ayuso <pablo@netfilter.org> =E4=BA=8E2019=E5=B9=B44=E6=9C=884=
-=E6=97=A5=E5=91=A8=E5=9B=9B =E4=B8=8A=E5=8D=881:44=E5=86=99=E9=81=93=EF=BC=
-=9A
->
-> On Tue, Apr 02, 2019 at 12:56:09PM +0000, Rundong Ge wrote:
-> > Problem:
-> > When bridge-nf-call-iptables is enabled, skb_dst(skb) of packets that
-> > in the nfqueue may be a dangling pointer if user delete the bridge.
-> > Because packets go through the br_nf_pre_routing_finish will set the ds=
-t
-> > pointer to the br->fake_rtable. But the br struct will be freed
-> > without the reference check for these skbs.
-> >
-> > User impact:
-> > Kernel panic may happen when user delete the bridge if there are
-> > continuous traffics go through the nfqueue.
-> > Here is a panic in my device which using kernel v3.10.
->
-> This kernel is _very old_.
->
-> Could you provide the steps to reproduce this issue?
->
-> Holding the device doesn't seem the way to go to me, we have a of
-> netdevice_notifier that is dropping packets for an interface that is
-> gone in nfnetlink_queue. We also drop packets whenever a hook in gone.
->
-> So I wonder if this is still a problem in mainline kernels.
