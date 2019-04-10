@@ -1,19 +1,23 @@
-Return-Path: <petrm@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=ThJ01jct1k9iNxpf6TgizWCfHx7DsY3NoNQvIxw8a40=;
-	b=mmEcHVE3ur+cDxDPjtIvrUUVDek1cc+YhyiMHR6Y4IMGjhSTQ9G1PmniSw3ZBVBffENeU5JQXeA9NTxRURPUYiwwrHiPBdFwi6cil7vP0x126cmyCo83+0IR2YespKOjybkXAnzUxPYey28Y/DQMjELYcdWA41mqhYHQETl2sQE=
-From: Petr Machata <petrm@mellanox.com>
-Date: Wed, 10 Apr 2019 10:34:17 +0000
-Message-ID: <87y34ijgil.fsf@mellanox.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=+8uym5YTxmXDxvr9aoMRb008j/lgiba16WO9Tbk5kOk=;
+	b=MEjPdGlBUxAKmXLDT2rtov/06U5SEHTqC6bhDHLPrI/Rc/m2fWWjvxXoQLCh+ehZFH
+	OAKszfC8svdAeBfxBIhCT7je/2sh9ttshRCz27CKREAa215Go5txUlvSyErtU/5QKoqG
+	fuQL3jbfNRzwlfoadEImaFxs3roIfHwObajxU=
 References: <20190410023208.25435-1-huangruiPPP@gmail.com>
 	<20190409193911.2d68a64d@shemminger-XPS-13-9360>
-In-Reply-To: <20190409193911.2d68a64d@shemminger-XPS-13-9360>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	<87y34ijgil.fsf@mellanox.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <b8c233dd-2ade-2305-47c6-731396a6f591@cumulusnetworks.com>
+Date: Wed, 10 Apr 2019 14:05:19 +0300
 MIME-Version: 1.0
+In-Reply-To: <87y34ijgil.fsf@mellanox.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH] net:bridge:always disable auto-tuning when the
  user specified MTU
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -24,33 +28,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "songliubraving@fb.com" <songliubraving@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "ast@kernel.org" <ast@kernel.org>, "ecree@solarflare.com" <ecree@solarflare.com>, "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, Li Rongqing <lirongqing@baidu.com>, Huang Rui <huangruippp@gmail.com>, "yhs@fb.com" <yhs@fb.com>, "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>, "hawk@kernel.org" <hawk@kernel.org>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, "amritha.nambiar@intel.com" <amritha.nambiar@intel.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "kafai@fb.com" <kafai@fb.com>
+To: Petr Machata <petrm@mellanox.com>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: "songliubraving@fb.com" <songliubraving@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "ast@kernel.org" <ast@kernel.org>, "ecree@solarflare.com" <ecree@solarflare.com>, "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, Li Rongqing <lirongqing@baidu.com>, Huang Rui <huangruippp@gmail.com>, "yhs@fb.com" <yhs@fb.com>, "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>, "hawk@kernel.org" <hawk@kernel.org>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, "amritha.nambiar@intel.com" <amritha.nambiar@intel.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "kafai@fb.com" <kafai@fb.com>
 
-DQpTdGVwaGVuIEhlbW1pbmdlciA8c3RlcGhlbkBuZXR3b3JrcGx1bWJlci5vcmc+IHdyaXRlczoN
-Cg0KPiBPbiBXZWQsIDEwIEFwciAyMDE5IDAyOjMyOjA4ICswMDAwDQo+IEh1YW5nIFJ1aSA8aHVh
-bmdydWlwcHBAZ21haWwuY29tPiB3cm90ZToNCj4NCj4+IEZvciBleGFtcGxlLg0KPj4gTXkgcHVy
-cG9zZSBpcyB0byBjcmVhdGUgYSBicmlkZ2UgYnIwIGFuZCBqb2luIGV0aDAgaW50byBicjAuDQo+
-PiBpZiB3ZSB1c2UgdGhpcyBmb2xsb3dpbmcgd2F5LCB0aGUgYXV0by10dW5pbmcgZmxhZyB3aWxs
-IG5vdCBiZSBkaXNhYmxlZC4NCj4+DQo+PiBJZiBldGgwJ3MgbXR1IGlzIDEyMDANCj4+IHN0ZXAg
-MS5icmN0bCBhZGRiciBicjANCj4+IHN0ZXAgMi5icmN0bCBhZGRpZiBicjAgZXRoMA0KPj4gc3Rl
-cCAzLmlmY29uZmlnIGJyMCBtdHUgMTIwMA0KPj4gc3RlcCA0LmlmY29uZmlnIGV0aDAgbXR1IDE1
-MDANCj4+DQo+PiBSZXN1bHQ6DQo+PiBicjAncyBNVFU6IDE1MDAsIGV0aDAncyBNVFU6IDE1MDAN
-Cj4+DQo+PiBFeHBlY3RlZDoNCj4+IGJyMCdzIE1UVTogMTIwMCwgZXRoMCdzIE1UVTogMTUwMA0K
-Pj4NCj4+IEkgaGF2ZSBzcGVjaWZpZWQgYnIwJ3MgTVRVLCAgYnV0IGF1dG8tbWluIHBvbGljeSB3
-b3Jrcy4gU28gdGhlIE1UVSBpcw0KPj4gbm90IHRoZSByZXN1bHQgd2hhdCB3ZSBleHBlY3RlZC4N
-Cj4+IEFzIGV4cGVjdGVkLCBpZiBpIGhhdmUgc3BlY2lmaWVkIGJyaWRnZSdzIE1UVSwgaXQgd2ls
-bCBzZXQgdGhlIGZsYWc6DQo+PiBCUk9QVF9NVFVfU0VUX0JZX1VTRVIgaW4gbmV0X2JyaWRnZV9v
-cHRzIGRpc2FibGVkIGFuZCBhdXRvLW1pbi9tYXgNCj4+IHBvbGljeSB3aWxsIG5vdCB3b3JrLkJ1
-dCBpbiB0aGlzIGNhc2UsIGJlY2F1c2UgdGhlIGRldl9zZXRfbXR1IHJldHVybg0KPj4gZWFybHks
-IHRoZSBCUk9QVF9NVFVfU0VUX0JZX1VTRVIgZmxhZyB3aWxsIG5vdCBiZSBkaXNhYmxlZCBhbmQN
-Cj4+IGF1dG8tbWluL21heCBwb2xpY3kgd2lsbCBzdGlsbCB3b3JrLg0KPj4NCj4+IFNpZ25lZC1v
-ZmYtYnk6IEh1YW5nIFJ1aSA8aHVhbmdydWlQUFBAZ21haWwuY29tPg0KPg0KPiBBIGJyaWRnZSBs
-aWtlIHRoaXMgZ29pbmcgdG8gZHJvcCBmcmFtZXMuDQo+IEEgZnJhbWUgcmVjZWl2ZWQgd2l0aCBN
-VFUgb2YgMTIwMCB3aWxsIGdldCBkcm9wcGVkLg0KDQpUaGF0J3MgdHJ1ZSBldmVuIGlmIGFib3Zl
-IHlvdSBzZXQgYnIwJ3MgTVRVIHRvIDEyMDEsIGJ1dCB0aGVuIHRoZQ0KYXV0by10dW5pbmcgaXMg
-ZGlzYWJsZWQgYXMgZXhwZWN0ZWQuIFRoZSBwcm9ibGVtIGlzIHRoYXQgc2V0dGluZyBNVFUgdG8N
-CjEyMDAgaXMgcGVyY2VpdmVkIGFzIGEgbm9uLWNoYW5nZSwgd2hlcmVhcyBpdCBzaG91bGQgaW5z
-dGVhZCBiZQ0KcGVyY2VpdmVkIGFzIGEgc2lnbmFsIHRoYXQgdGhlIHVzZXIgdGFrZXMgb3ZlciB0
-aGUgTVRVIG1hbmFnZW1lbnQuDQoNCj4gVGhlIHByb3BlciB3YXkgdG8gZG8gdGhpcyBpcyB0byBj
-aGFuZ2UgTVRVIG9mIGJvdGggaW50ZXJmYWNlcyB0byBtYXRjaC4NCg==
+On 10/04/2019 13:34, Petr Machata wrote:
+> 
+> Stephen Hemminger <stephen@networkplumber.org> writes:
+> 
+>> On Wed, 10 Apr 2019 02:32:08 +0000
+>> Huang Rui <huangruippp@gmail.com> wrote:
+>>
+>>> For example.
+>>> My purpose is to create a bridge br0 and join eth0 into br0.
+>>> if we use this following way, the auto-tuning flag will not be disabled.
+>>>
+>>> If eth0's mtu is 1200
+>>> step 1.brctl addbr br0
+>>> step 2.brctl addif br0 eth0
+>>> step 3.ifconfig br0 mtu 1200
+>>> step 4.ifconfig eth0 mtu 1500
+>>>
+>>> Result:
+>>> br0's MTU: 1500, eth0's MTU: 1500
+>>>
+>>> Expected:
+>>> br0's MTU: 1200, eth0's MTU: 1500
+>>>
+>>> I have specified br0's MTU,  but auto-min policy works. So the MTU is
+>>> not the result what we expected.
+>>> As expected, if i have specified bridge's MTU, it will set the flag:
+>>> BROPT_MTU_SET_BY_USER in net_bridge_opts disabled and auto-min/max
+>>> policy will not work.But in this case, because the dev_set_mtu return
+>>> early, the BROPT_MTU_SET_BY_USER flag will not be disabled and
+>>> auto-min/max policy will still work.
+>>>
+>>> Signed-off-by: Huang Rui <huangruiPPP@gmail.com>
+>>
+>> A bridge like this going to drop frames.
+>> A frame received with MTU of 1200 will get dropped.
+> 
+> That's true even if above you set br0's MTU to 1201, but then the
+> auto-tuning is disabled as expected. The problem is that setting MTU to
+> 1200 is perceived as a non-change, whereas it should instead be
+> perceived as a signal that the user takes over the MTU management.
+> 
+>> The proper way to do this is to change MTU of both interfaces to match.
+
+The only problem is a lot of the network configuration software these days
+sets the MTU by default and that would lead to disabling auto-tune by default.
+And since you haven't received a notification it means nothing has changed,
+but in this case state has changed for the bridge quietly. It could break setups
+which rely on the auto-tune and it would do it quietly which won't be easy to debug.
+
+Also as I said in my previously, I really don't like adding bridge-specific
+code in there. Another more ambitious approach would be to maybe always pass the
+value to the drivers and let them deal with it, that would require going through all
+ndo_change_mtu users and also would still not solve the problem of not sending
+a notification when there has been a state change (the bridge no longer auto-tunes).
+Thus the bridge will probably have to emit *some* notification by itself.
+
+Perhaps this should've been a bridge option from the start instead of automatic
+decision but it's late for that now.
+
+Thanks,
+ Nik
