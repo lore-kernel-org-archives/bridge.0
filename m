@@ -1,14 +1,11 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 16 Apr 2019 21:41:35 -0700 (PDT)
-Message-Id: <20190416.214135.101870252438058205.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20190416131556.27109-1-nikolay@cumulusnetworks.com>
-References: <20190416131556.27109-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: fix netlink export of
- vlan_stats_per_port option
+Return-Path: <34YezXAkbAKocijUKVVObKZZSN.QYYQVOecObMYXdOXd.MYW@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+MIME-Version: 1.0
+Date: Sun, 14 Apr 2019 12:20:01 -0700
+In-Reply-To: <001a113dea0ef7d2620566c15bac@google.com>
+Message-ID: <00000000000019eb000586826c2a@google.com>
+From: syzbot <syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Subject: Re: [Bridge] WARNING in compat_copy_entries (2)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,18 +14,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: alexl@redhat.com, bridge@lists.linux-foundation.org, coreteam@netfilter.org, cosimo@endlessm.com, davem@davemloft.net, dvyukov@google.com, fw@strlen.de, kadlec@blackhole.kfki.hu, libc-alpha@sourceware.org, linux-kernel@vger.kernel.org, luto@amacapital.net, luto@kernel.org, mingo@kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nicholson@endlessm.com, pablo@netfilter.org, peterz@infradead.org, raji@linux.vnet.ibm.com, stephen@networkplumber.org, syzkaller-bugs@googlegroups.com, tglx@linutronix.de, torvalds@linux-foundation.org, tuliom@linux.vnet.ibm.com
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 16 Apr 2019 16:15:56 +0300
+syzbot has bisected this bug to:
 
-> Since the introduction of the vlan_stats_per_port option the netlink
-> export of it has been broken since I made a typo and used the ifla
-> attribute instead of the bridge option to retrieve its state.
-> Sysfs export is fine, only netlink export has been affected.
-> 
-> Fixes: 9163a0fc1f0c0 ("net: bridge: add support for per-port vlan stats")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+commit 9dea5dc921b5f4045a18c63eb92e84dc274d17eb
+Author: Andy Lutomirski <luto@kernel.org>
+Date:   Tue Jul 14 22:24:24 2015 +0000
 
-Applied and queued up for -stable.
+     x86/entry/syscalls: Wire up 32-bit direct socket calls
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1736919f200000
+start commit:   ce380619 Merge tag 'please-pull-ia64_misc' of git://git.ke..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=10b6919f200000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=36fbc8c97ef985d3
+dashboard link: https://syzkaller.appspot.com/bug?extid=659574e7bcc7f7eb4df7
+userspace arch: i386
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=179b4d8b800000
+
+Reported-by: syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com
+Fixes: 9dea5dc921b5 ("x86/entry/syscalls: Wire up 32-bit direct socket  
+calls")
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
