@@ -1,25 +1,26 @@
-Return-Path: <luto@amacapital.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=amacapital-net.20150623.gappssmtp.com; s=20150623;
-	h=mime-version:subject:from:in-reply-to:date:cc
-	:content-transfer-encoding:message-id:references:to;
-	bh=APE1+5Wvf+xwt+gAjLgAiPB8zAu3NBFsDQCMn4otx0w=;
-	b=hNTJTAJ2tkSO2jsnr2m80fzaBiOmdbfaPsIcE0EHbZby0KMa+1zY3IsmEMGsd4T6fy
-	UO26mMe4ADsd+iVe4YNUzwq4WITSs6lF6iiaOGK+KdhCXZu1uFHgvzHXSrVr6eeRhQhP
-	maf+oNQLMKAFkUbwSCmQ5JB20Pds032OHVkvy/7at2dGrguGu+cSoqRLsY/ksY4Hb0Bt
-	jFxnwuYgnVcB6rwzP34/IylEQQH0gF/jHc0U6HbwGR+sjRJur5qKrcjEcORKM2F81WCX
-	TQA/b1thezdRQxoxrtzYNIGnPfepbShEn5++VelOHAtmyjWlfOQuvAMfaz5QgS057LOH
-	TVYQ==
-Content-Type: text/plain;
-	charset=us-ascii
-Mime-Version: 1.0 (1.0)
-From: Andy Lutomirski <luto@amacapital.net>
-In-Reply-To: <00000000000019eb000586826c2a@google.com>
-Date: Sun, 14 Apr 2019 13:08:09 -0700
+Return-Path: <rdong.ge@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+	:cc:content-transfer-encoding;
+	bh=0hn2Wjh784brf5WxXi3weFw+L8yk+6mLW77kQr3FuEY=;
+	b=C/c5Y/nDS23q3ZGi5jvlrWrHemrAPXLLcY8iEhiFSckZ9OT62f513w8c0PzfQBdfFS
+	+3jcC1yhigr3Em4AEUa855/f+8hWGb4ZR4T67tAPvBoqjXENnrg9ZopE075aJlqsUVw7
+	66511MjdorTs1oYQa+/i+xxyOsjyQe4zoSNR54F9E4jieiP0JbCWKTRTVibkh4g8rLjD
+	aPjhO1al5F/4ph1jr14J2is3t/I7+Hu/a6zCih6QJ0Mqnf+Ya9Jvd28T0t3N4gz0qZl+
+	XXiQqXi7NhfoWVoXYL9gML7zIZknk9Gcat4C1EnAtlZOP/dwQgJ7CBDXItFvLtVUgnZK
+	MNUg==
+MIME-Version: 1.0
+References: <20190402125609.30313-1-rdong.ge@gmail.com>
+	<20190403174441.2l7xyk5o2hftrdm3@salvia>
+	<CAN1Lvyov_GOjg=1zrgWsV0_ptBGoFfLBsQKU7RswgmzZEjFkmw@mail.gmail.com>
+In-Reply-To: <CAN1Lvyov_GOjg=1zrgWsV0_ptBGoFfLBsQKU7RswgmzZEjFkmw@mail.gmail.com>
+From: Rundong Ge <rdong.ge@gmail.com>
+Date: Thu, 18 Apr 2019 17:58:19 +0800
+Message-ID: <CAN1Lvyq7U1fWaGY4j6DTRPXrv_Wm7-K6Vh0fgeHjbOSizm7fGg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <0E15851D-59E4-455D-985E-65F066E7A85A@amacapital.net>
-References: <00000000000019eb000586826c2a@google.com>
-Subject: Re: [Bridge] WARNING in compat_copy_entries (2)
+Subject: Re: [Bridge] [PATCH] netfilter:bridge: Hold bridge dev for
+ fake_rtable to avoid the dangling pointer
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,44 +29,104 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com>
-Cc: peterz@infradead.org, mingo@kernel.org, nicholson@endlessm.com, cosimo@endlessm.com, bridge@lists.linux-foundation.org, raji@linux.vnet.ibm.com, coreteam@netfilter.org, kadlec@blackhole.kfki.hu, pablo@netfilter.org, syzkaller-bugs@googlegroups.com, alexl@redhat.com, luto@kernel.org, tglx@linutronix.de, dvyukov@google.com, libc-alpha@sourceware.org, netdev@vger.kernel.org, tuliom@linux.vnet.ibm.com, fw@strlen.de, linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, torvalds@linux-foundation.org, davem@davemloft.net
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
 
-This is likely a confused bisection.  I bet that reverting this patch breaks=
- your test but has nothing to do with the bug. Try reproducing with socketca=
-ll() to bisect farther.
+friendly ping
 
---Andy
-
-> On Apr 14, 2019, at 12:20 PM, syzbot <syzbot+659574e7bcc7f7eb4df7@syzkalle=
-r.appspotmail.com> wrote:
->=20
-> syzbot has bisected this bug to:
->=20
-> commit 9dea5dc921b5f4045a18c63eb92e84dc274d17eb
-> Author: Andy Lutomirski <luto@kernel.org>
-> Date:   Tue Jul 14 22:24:24 2015 +0000
->=20
->    x86/entry/syscalls: Wire up 32-bit direct socket calls
->=20
-> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=3D1736919f200=
-000
-> start commit:   ce380619 Merge tag 'please-pull-ia64_misc' of git://git.ke=
-..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=3D10b6919f200000=
-
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=3D36fbc8c97ef985=
-d3
-> dashboard link: https://syzkaller.appspot.com/bug?extid=3D659574e7bcc7f7eb=
-4df7
-> userspace arch: i386
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=3D179b4d8b8000=
-00
->=20
-> Reported-by: syzbot+659574e7bcc7f7eb4df7@syzkaller.appspotmail.com
-> Fixes: 9dea5dc921b5 ("x86/entry/syscalls: Wire up 32-bit direct socket cal=
-ls")
->=20
-> For information about bisection process see: https://goo.gl/tpsmEJ#bisecti=
-on
+Rundong Ge <rdong.ge@gmail.com> =E4=BA=8E2019=E5=B9=B44=E6=9C=889=E6=97=A5=
+=E5=91=A8=E4=BA=8C =E4=B8=8B=E5=8D=882:33=E5=86=99=E9=81=93=EF=BC=9A
+>
+> Hi Pablo
+>
+> I've tested on mainline v5.0. The dangling pointer access of fake_rtable
+> still exists.
+>
+> My env is like this: client0--box--client1.
+> The box runs ubuntu with v5.0 kernel, br_netfilter and nfnetlink_queue
+> are inserted.
+>
+> Reproduce steps:
+> 1.Create a bridge on the box.
+> 2.echo 1 >/proc/sys/net/bridge/bridge-nf-call-iptables
+> 3.Add a netfilter hook function to queue the packets to nfqueuenum 0.
+>   The hook point must between <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF> and
+>   <NF_BR_FORWARD,NF_BR_PRI_BRNF - 1>.
+> 4.Add a userspace process "nfqueue_rcv" to continuously read and
+>   set_verdict "NF_ACCEPT" to packets from queue 0.
+> 5.Continuosly ping client1 from client0
+> 6.Send "Ctrl + Z" to pause the "nfqueue_rcv" to simulate the queue
+>   congestion.
+> 7.Using "ifconfig br0 down&&brctl delbr br0" to delete the bridge.
+> 8.At this time the _skb_refdst of skbs in the nfqueue become dangling
+>   pointer. If we send "fg" to resume the "nfqueue_rcv", the kernel
+>   may try to access the freed memory.
+>
+> Debug log:
+> Here I add debug logs in "netdev_freemem" and "dst_release" to prove
+> the freed memory access. As the log shows, the "dst_release" accessed
+> bridge's fake_rtable after the bridge was freed.
+>
+> Apr  8 22:25:14 raydon kernel: [62139.005062] netdev_freemem name:br0,
+> fake_rtable:000000009d76cef0
+> Apr  8 22:25:21 raydon kernel: [62145.967133] dst_release
+> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
+> Apr  8 22:25:21 raydon kernel: [62145.967154] dst_release
+> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
+> Apr  8 22:25:21 raydon kernel: [62145.967180] dst_release
+> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
+> Apr  8 22:25:21 raydon kernel: [62145.967197] dst_release
+> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
+>
+>
+>
+> The reason why the hook point should be after <NF_BR_PRE_ROUTING,
+> NF_BR_PRI_BRNF> is skbs reference bridge's fake_rtable in
+> "br_nf_pre_routing_finish" hooked at <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF>.
+>
+> And the reason why the hook point should be before <NF_BR_FORWARD,
+> NF_BR_PRI_BRNF - 1> is "br_nf_forward_ip" will set the state.out to
+> bridge dev. After this hook point, the "nfqnl_dev_drop" triggered by
+> the bridge's NETDEV_DOWN event can flush the queued skbs before
+> bridge's memory is freed, because the state.out now matches the
+> bridge's dev.
+>
+> So the root cause is "nfqnl_dev_drop" didn't flush the skbs properly
+> queued between <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF> and <NF_BR_FORWARD,
+> NF_BR_PRI_BRNF - 1>.
+>
+> As you mentioned, hold the bridge dev for these skbs is not a proper
+> solution. I will send another patch to let "nfqnl_dev_drop" can flush
+> these skbs.
+>
+> Thanks
+> Rundong
+>
+>
+> Pablo Neira Ayuso <pablo@netfilter.org> =E4=BA=8E2019=E5=B9=B44=E6=9C=884=
+=E6=97=A5=E5=91=A8=E5=9B=9B =E4=B8=8A=E5=8D=881:44=E5=86=99=E9=81=93=EF=BC=
+=9A
+> >
+> > On Tue, Apr 02, 2019 at 12:56:09PM +0000, Rundong Ge wrote:
+> > > Problem:
+> > > When bridge-nf-call-iptables is enabled, skb_dst(skb) of packets that
+> > > in the nfqueue may be a dangling pointer if user delete the bridge.
+> > > Because packets go through the br_nf_pre_routing_finish will set the =
+dst
+> > > pointer to the br->fake_rtable. But the br struct will be freed
+> > > without the reference check for these skbs.
+> > >
+> > > User impact:
+> > > Kernel panic may happen when user delete the bridge if there are
+> > > continuous traffics go through the nfqueue.
+> > > Here is a panic in my device which using kernel v3.10.
+> >
+> > This kernel is _very old_.
+> >
+> > Could you provide the steps to reproduce this issue?
+> >
+> > Holding the device doesn't seem the way to go to me, we have a of
+> > netdevice_notifier that is dropping packets for an interface that is
+> > gone in nfnetlink_queue. We also drop packets whenever a hook in gone.
+> >
+> > So I wonder if this is still a problem in mainline kernels.
