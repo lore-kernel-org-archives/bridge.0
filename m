@@ -1,26 +1,18 @@
-Return-Path: <rdong.ge@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=0hn2Wjh784brf5WxXi3weFw+L8yk+6mLW77kQr3FuEY=;
-	b=C/c5Y/nDS23q3ZGi5jvlrWrHemrAPXLLcY8iEhiFSckZ9OT62f513w8c0PzfQBdfFS
-	+3jcC1yhigr3Em4AEUa855/f+8hWGb4ZR4T67tAPvBoqjXENnrg9ZopE075aJlqsUVw7
-	66511MjdorTs1oYQa+/i+xxyOsjyQe4zoSNR54F9E4jieiP0JbCWKTRTVibkh4g8rLjD
-	aPjhO1al5F/4ph1jr14J2is3t/I7+Hu/a6zCih6QJ0Mqnf+Ya9Jvd28T0t3N4gz0qZl+
-	XXiQqXi7NhfoWVoXYL9gML7zIZknk9Gcat4C1EnAtlZOP/dwQgJ7CBDXItFvLtVUgnZK
-	MNUg==
+Return-Path: <idosch@mellanox.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+	s=selector1;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+	bh=FOYNTia1nIGWQFw9x47Mzla5PhW8NgsI43hvkBduaVM=;
+	b=Yw64hMZg2z7Wt/xTNKvvJ1RVVIZFAz9/i8HDMD+3+NC0Sc6jCNbb3C3K99aQ8e7QSiW36ae1g3KEmELEoRdRy7r+EIvznlTqx6UXSyG+Q+8/SyP+r5HchXpwCvopo7fWuu0tnK9uWyNQhu9TGvO3lyq71JBLlgX+MrIFp/x0RDY=
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Mon, 22 Apr 2019 09:33:19 +0000
+Message-ID: <20190422093307.10206-1-idosch@mellanox.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20190402125609.30313-1-rdong.ge@gmail.com>
-	<20190403174441.2l7xyk5o2hftrdm3@salvia>
-	<CAN1Lvyov_GOjg=1zrgWsV0_ptBGoFfLBsQKU7RswgmzZEjFkmw@mail.gmail.com>
-In-Reply-To: <CAN1Lvyov_GOjg=1zrgWsV0_ptBGoFfLBsQKU7RswgmzZEjFkmw@mail.gmail.com>
-From: Rundong Ge <rdong.ge@gmail.com>
-Date: Thu, 18 Apr 2019 17:58:19 +0800
-Message-ID: <CAN1Lvyq7U1fWaGY4j6DTRPXrv_Wm7-K6Vh0fgeHjbOSizm7fGg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] netfilter:bridge: Hold bridge dev for
- fake_rtable to avoid the dangling pointer
+Subject: [Bridge] [PATCH net-next] bridge: Fix possible use-after-free when
+ deleting bridge port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,104 +21,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kadlec@blackhole.kfki.hu, davem@davemloft.net
+To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Mike Manning <mmanning@vyatta.att-mail.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-friendly ping
-
-Rundong Ge <rdong.ge@gmail.com> =E4=BA=8E2019=E5=B9=B44=E6=9C=889=E6=97=A5=
-=E5=91=A8=E4=BA=8C =E4=B8=8B=E5=8D=882:33=E5=86=99=E9=81=93=EF=BC=9A
->
-> Hi Pablo
->
-> I've tested on mainline v5.0. The dangling pointer access of fake_rtable
-> still exists.
->
-> My env is like this: client0--box--client1.
-> The box runs ubuntu with v5.0 kernel, br_netfilter and nfnetlink_queue
-> are inserted.
->
-> Reproduce steps:
-> 1.Create a bridge on the box.
-> 2.echo 1 >/proc/sys/net/bridge/bridge-nf-call-iptables
-> 3.Add a netfilter hook function to queue the packets to nfqueuenum 0.
->   The hook point must between <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF> and
->   <NF_BR_FORWARD,NF_BR_PRI_BRNF - 1>.
-> 4.Add a userspace process "nfqueue_rcv" to continuously read and
->   set_verdict "NF_ACCEPT" to packets from queue 0.
-> 5.Continuosly ping client1 from client0
-> 6.Send "Ctrl + Z" to pause the "nfqueue_rcv" to simulate the queue
->   congestion.
-> 7.Using "ifconfig br0 down&&brctl delbr br0" to delete the bridge.
-> 8.At this time the _skb_refdst of skbs in the nfqueue become dangling
->   pointer. If we send "fg" to resume the "nfqueue_rcv", the kernel
->   may try to access the freed memory.
->
-> Debug log:
-> Here I add debug logs in "netdev_freemem" and "dst_release" to prove
-> the freed memory access. As the log shows, the "dst_release" accessed
-> bridge's fake_rtable after the bridge was freed.
->
-> Apr  8 22:25:14 raydon kernel: [62139.005062] netdev_freemem name:br0,
-> fake_rtable:000000009d76cef0
-> Apr  8 22:25:21 raydon kernel: [62145.967133] dst_release
-> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
-> Apr  8 22:25:21 raydon kernel: [62145.967154] dst_release
-> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
-> Apr  8 22:25:21 raydon kernel: [62145.967180] dst_release
-> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
-> Apr  8 22:25:21 raydon kernel: [62145.967197] dst_release
-> dst:000000009d76cef0 dst->dev->name: =C5=99KU=C2=A1TH
->
->
->
-> The reason why the hook point should be after <NF_BR_PRE_ROUTING,
-> NF_BR_PRI_BRNF> is skbs reference bridge's fake_rtable in
-> "br_nf_pre_routing_finish" hooked at <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF>.
->
-> And the reason why the hook point should be before <NF_BR_FORWARD,
-> NF_BR_PRI_BRNF - 1> is "br_nf_forward_ip" will set the state.out to
-> bridge dev. After this hook point, the "nfqnl_dev_drop" triggered by
-> the bridge's NETDEV_DOWN event can flush the queued skbs before
-> bridge's memory is freed, because the state.out now matches the
-> bridge's dev.
->
-> So the root cause is "nfqnl_dev_drop" didn't flush the skbs properly
-> queued between <NF_BR_PRE_ROUTING,NF_BR_PRI_BRNF> and <NF_BR_FORWARD,
-> NF_BR_PRI_BRNF - 1>.
->
-> As you mentioned, hold the bridge dev for these skbs is not a proper
-> solution. I will send another patch to let "nfqnl_dev_drop" can flush
-> these skbs.
->
-> Thanks
-> Rundong
->
->
-> Pablo Neira Ayuso <pablo@netfilter.org> =E4=BA=8E2019=E5=B9=B44=E6=9C=884=
-=E6=97=A5=E5=91=A8=E5=9B=9B =E4=B8=8A=E5=8D=881:44=E5=86=99=E9=81=93=EF=BC=
-=9A
-> >
-> > On Tue, Apr 02, 2019 at 12:56:09PM +0000, Rundong Ge wrote:
-> > > Problem:
-> > > When bridge-nf-call-iptables is enabled, skb_dst(skb) of packets that
-> > > in the nfqueue may be a dangling pointer if user delete the bridge.
-> > > Because packets go through the br_nf_pre_routing_finish will set the =
-dst
-> > > pointer to the br->fake_rtable. But the br struct will be freed
-> > > without the reference check for these skbs.
-> > >
-> > > User impact:
-> > > Kernel panic may happen when user delete the bridge if there are
-> > > continuous traffics go through the nfqueue.
-> > > Here is a panic in my device which using kernel v3.10.
-> >
-> > This kernel is _very old_.
-> >
-> > Could you provide the steps to reproduce this issue?
-> >
-> > Holding the device doesn't seem the way to go to me, we have a of
-> > netdevice_notifier that is dropping packets for an interface that is
-> > gone in nfnetlink_queue. We also drop packets whenever a hook in gone.
-> >
-> > So I wonder if this is still a problem in mainline kernels.
+V2hlbiBhIGJyaWRnZSBwb3J0IGlzIGJlaW5nIGRlbGV0ZWQsIGRvIG5vdCBkZXJlZmVyZW5jZSBp
+dCBsYXRlciBpbg0KYnJfdmxhbl9wb3J0X2V2ZW50KCkgYXMgaXQgY2FuIHJlc3VsdCBpbiBhIHVz
+ZS1hZnRlci1mcmVlIFsxXSBpZiB0aGUgUkNVDQpjYWxsYmFjayB3YXMgZXhlY3V0ZWQgYmVmb3Jl
+IGludm9raW5nIHRoZSBmdW5jdGlvbi4NCg0KWzFdDQpbICAxMjkuNjM4NTUxXSA9PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0N
+ClsgIDEyOS42NDY5MDRdIEJVRzogS0FTQU46IHVzZS1hZnRlci1mcmVlIGluIGJyX3ZsYW5fcG9y
+dF9ldmVudCsweDUzYy8weDVmZA0KWyAgMTI5LjY1NDQwNl0gUmVhZCBvZiBzaXplIDggYXQgYWRk
+ciBmZmZmODg4MWU0YWExYWU4IGJ5IHRhc2sgaXAvNDgzDQpbICAxMjkuNjYzMDA4XSBDUFU6IDAg
+UElEOiA0ODMgQ29tbTogaXAgTm90IHRhaW50ZWQgNS4xLjAtcmM1LWN1c3RvbS0wMjI2NS1nYTk0
+NmJkNzNkYWFjICMxMzgzDQpbICAxMjkuNjcyMzU5XSBIYXJkd2FyZSBuYW1lOiBNZWxsYW5veCBU
+ZWNobm9sb2dpZXMgTHRkLiBNU04yMTAwLUNCMkZPL1NBMDAxMDE3LCBCSU9TIDUuNi41IDA2LzA3
+LzIwMTYNClsgIDEyOS42ODI0ODRdIENhbGwgVHJhY2U6DQpbICAxMjkuNjg1MjQyXSAgZHVtcF9z
+dGFjaysweGE5LzB4MTBlDQpbICAxMjkuNjg5MDY4XSAgcHJpbnRfYWRkcmVzc19kZXNjcmlwdGlv
+bi5jb2xkLjIrMHg5LzB4MjVlDQpbICAxMjkuNjk0OTMwXSAga2FzYW5fcmVwb3J0LmNvbGQuMysw
+eDc4LzB4OWQNClsgIDEyOS43MDQ0MjBdICBicl92bGFuX3BvcnRfZXZlbnQrMHg1M2MvMHg1ZmQN
+ClsgIDEyOS43MjgzMDBdICBicl9kZXZpY2VfZXZlbnQrMHgyYzcvMHg3YTANClsgIDEyOS43NDE1
+MDVdICBub3RpZmllcl9jYWxsX2NoYWluKzB4YjUvMHgxYzANClsgIDEyOS43NDYyMDJdICByb2xs
+YmFja19yZWdpc3RlcmVkX21hbnkrMHg4OTUvMHhlOTANClsgIDEyOS43OTMxMTldICB1bnJlZ2lz
+dGVyX25ldGRldmljZV9tYW55KzB4NDgvMHgyMTANClsgIDEyOS44MDMzODRdICBydG5sX2RlbGV0
+ZV9saW5rKzB4ZTEvMHgxNDANClsgIDEyOS44MTU5MDZdICBydG5sX2RlbGxpbmsrMHgyYTMvMHg4
+MjANClsgIDEyOS44NDQxNjZdICBydG5ldGxpbmtfcmN2X21zZysweDM5Ny8weDkxMA0KWyAgMTI5
+Ljg2ODUxN10gIG5ldGxpbmtfcmN2X3NrYisweDEzNy8weDNhMA0KWyAgMTI5Ljg4MjAxM10gIG5l
+dGxpbmtfdW5pY2FzdCsweDQ5Yi8weDY2MA0KWyAgMTI5LjkwMDAxOV0gIG5ldGxpbmtfc2VuZG1z
+ZysweDc1NS8weGM5MA0KWyAgMTI5LjkxNTc1OF0gIF9fX3N5c19zZW5kbXNnKzB4NzYxLzB4OGUw
+DQpbICAxMjkuOTY2MzE1XSAgX19zeXNfc2VuZG1zZysweGYwLzB4MWMwDQpbICAxMjkuOTg4OTE4
+XSAgZG9fc3lzY2FsbF82NCsweGE0LzB4NDcwDQpbICAxMjkuOTkzMDMyXSAgZW50cnlfU1lTQ0FM
+TF82NF9hZnRlcl9od2ZyYW1lKzB4NDkvMHhiZQ0KWyAgMTI5Ljk5ODY5Nl0gUklQOiAwMDMzOjB4
+N2ZmNTc4MTA0YjU4DQouLi4NClsgIDEzMC4wNzM4MTFdIEFsbG9jYXRlZCBieSB0YXNrIDQ3OToN
+ClsgIDEzMC4wNzc2MzNdICBfX2thc2FuX2ttYWxsb2MuY29uc3Rwcm9wLjUrMHhjMS8weGQwDQpb
+ICAxMzAuMDgzMDA4XSAga21lbV9jYWNoZV9hbGxvY190cmFjZSsweDE1Mi8weDMyMA0KWyAgMTMw
+LjA4ODA5MF0gIGJyX2FkZF9pZisweDM5Yy8weDE1ODANClsgIDEzMC4wOTIwMDVdICBkb19zZXRf
+bWFzdGVyKzB4MWFhLzB4MjEwDQpbICAxMzAuMDk2MjExXSAgZG9fc2V0bGluaysweDk4NS8weDMx
+MDANClsgIDEzMC4xMDAyMjRdICBfX3J0bmxfbmV3bGluaysweGM1Mi8weDEzODANClsgIDEzMC4x
+MDQ2MjVdICBydG5sX25ld2xpbmsrMHg2Yi8weGEwDQpbICAxMzAuMTA4NTQxXSAgcnRuZXRsaW5r
+X3Jjdl9tc2crMHgzOTcvMHg5MTANClsgIDEzMC4xMTMxMzZdICBuZXRsaW5rX3Jjdl9za2IrMHgx
+MzcvMHgzYTANClsgIDEzMC4xMTc1MzhdICBuZXRsaW5rX3VuaWNhc3QrMHg0OWIvMHg2NjANClsg
+IDEzMC4xMjE5MzldICBuZXRsaW5rX3NlbmRtc2crMHg3NTUvMHhjOTANClsgIDEzMC4xMjYzNDBd
+ICBfX19zeXNfc2VuZG1zZysweDc2MS8weDhlMA0KWyAgMTMwLjEzMDY0NV0gIF9fc3lzX3NlbmRt
+c2crMHhmMC8weDFjMA0KWyAgMTMwLjEzNDc1M10gIGRvX3N5c2NhbGxfNjQrMHhhNC8weDQ3MA0K
+WyAgMTMwLjEzODg2NF0gIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZSsweDQ5LzB4YmUN
+Cg0KWyAgMTMwLjE0NjE5NV0gRnJlZWQgYnkgdGFzayAwOg0KWyAgMTMwLjE0OTQyMV0gIF9fa2Fz
+YW5fc2xhYl9mcmVlKzB4MTI1LzB4MTcwDQpbICAxMzAuMTU0MDE2XSAga2ZyZWUrMHhmMy8weDMx
+MA0KWyAgMTMwLjE1NzM0OV0gIGtvYmplY3RfcHV0KzB4MWE4LzB4NGMwDQpbICAxMzAuMTYxMzYz
+XSAgcmN1X2NvcmUrMHg4NTkvMHgxOWIwDQpbICAxMzAuMTY1MTc1XSAgX19kb19zb2Z0aXJxKzB4
+MjUwLzB4YTI2DQpbICAxMzAuMTcwOTU2XSBUaGUgYnVnZ3kgYWRkcmVzcyBiZWxvbmdzIHRvIHRo
+ZSBvYmplY3QgYXQgZmZmZjg4ODFlNGFhMWFlOA0KICAgICAgICAgICAgICAgIHdoaWNoIGJlbG9u
+Z3MgdG8gdGhlIGNhY2hlIGttYWxsb2MtMWsgb2Ygc2l6ZSAxMDI0DQpbICAxMzAuMTg0OTcyXSBU
+aGUgYnVnZ3kgYWRkcmVzcyBpcyBsb2NhdGVkIDAgYnl0ZXMgaW5zaWRlIG9mDQogICAgICAgICAg
+ICAgICAgMTAyNC1ieXRlIHJlZ2lvbiBbZmZmZjg4ODFlNGFhMWFlOCwgZmZmZjg4ODFlNGFhMWVl
+OCkNCg0KRml4ZXM6IDljMGVjMmU3MTgyYSAoImJyaWRnZTogc3VwcG9ydCBiaW5kaW5nIHZsYW4g
+ZGV2IGxpbmsgc3RhdGUgdG8gdmxhbiBtZW1iZXIgYnJpZGdlIHBvcnRzIikNClNpZ25lZC1vZmYt
+Ynk6IElkbyBTY2hpbW1lbCA8aWRvc2NoQG1lbGxhbm94LmNvbT4NCkNjOiBNaWtlIE1hbm5pbmcg
+PG1tYW5uaW5nQHZ5YXR0YS5hdHQtbWFpbC5jb20+DQotLS0NCiBuZXQvYnJpZGdlL2JyLmMgfCAz
+ICsrLQ0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCg0K
+ZGlmZiAtLWdpdCBhL25ldC9icmlkZ2UvYnIuYyBiL25ldC9icmlkZ2UvYnIuYw0KaW5kZXggZTY5
+ZmM4N2ExM2UwLi4zYzhlNGIzOGYwNTQgMTAwNjQ0DQotLS0gYS9uZXQvYnJpZGdlL2JyLmMNCisr
+KyBiL25ldC9icmlkZ2UvYnIuYw0KQEAgLTEyOSw3ICsxMjksOCBAQCBzdGF0aWMgaW50IGJyX2Rl
+dmljZV9ldmVudChzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgKnVudXNlZCwgdW5zaWduZWQgbG9uZyBl
+dmVudCwgdg0KIAkJYnJlYWs7DQogCX0NCiANCi0JYnJfdmxhbl9wb3J0X2V2ZW50KHAsIGV2ZW50
+KTsNCisJaWYgKGV2ZW50ICE9IE5FVERFVl9VTlJFR0lTVEVSKQ0KKwkJYnJfdmxhbl9wb3J0X2V2
+ZW50KHAsIGV2ZW50KTsNCiANCiAJLyogRXZlbnRzIHRoYXQgbWF5IGNhdXNlIHNwYW5uaW5nIHRy
+ZWUgdG8gcmVmcmVzaCAqLw0KIAlpZiAoIW5vdGlmaWVkICYmIChldmVudCA9PSBORVRERVZfQ0hB
+TkdFQUREUiB8fCBldmVudCA9PSBORVRERVZfVVAgfHwNCi0tIA0KMi4yMC4xDQoNCg==
