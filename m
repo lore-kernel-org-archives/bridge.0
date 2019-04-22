@@ -1,18 +1,23 @@
-Return-Path: <idosch@mellanox.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
-	s=selector1;
-	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
-	bh=FOYNTia1nIGWQFw9x47Mzla5PhW8NgsI43hvkBduaVM=;
-	b=Yw64hMZg2z7Wt/xTNKvvJ1RVVIZFAz9/i8HDMD+3+NC0Sc6jCNbb3C3K99aQ8e7QSiW36ae1g3KEmELEoRdRy7r+EIvznlTqx6UXSyG+Q+8/SyP+r5HchXpwCvopo7fWuu0tnK9uWyNQhu9TGvO3lyq71JBLlgX+MrIFp/x0RDY=
-From: Ido Schimmel <idosch@mellanox.com>
-Date: Mon, 22 Apr 2019 09:33:19 +0000
-Message-ID: <20190422093307.10206-1-idosch@mellanox.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=Rp8OEeibBF1obYRq61nBpeu0SesLAEcmWBZ4Uxz4qfU=;
+	b=EmlyN5tkovTZZAnST1dtiQdhLO7dOHLVkrySkJ1mOBTBFIrb54l0GbT5FAu87neEWQ
+	p5IKmZgVaBU8ARhKa8C0AqfZPc+c5u6iLZ2A1RuYW1MpdVwgQ1Ze+JdKhzNdNbo0pDF+
+	xPN5iWi9Jg8lV/6g2na7cdWD8bGelfMLnUEiM=
+References: <20190422093307.10206-1-idosch@mellanox.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <335b31d0-9a65-0a2d-2b6c-339e42eddad1@cumulusnetworks.com>
+Date: Mon, 22 Apr 2019 12:44:00 +0300
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next] bridge: Fix possible use-after-free when
- deleting bridge port
+In-Reply-To: <20190422093307.10206-1-idosch@mellanox.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: Fix possible use-after-free
+ when deleting bridge port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,69 +26,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
-Cc: mlxsw <mlxsw@mellanox.com>, "nikolay@cumulusnetworks.com" <nikolay@cumulusnetworks.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, Mike Manning <mmanning@vyatta.att-mail.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Ido Schimmel <idosch@mellanox.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+Cc: Mike Manning <mmanning@vyatta.att-mail.com>, "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, mlxsw <mlxsw@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-V2hlbiBhIGJyaWRnZSBwb3J0IGlzIGJlaW5nIGRlbGV0ZWQsIGRvIG5vdCBkZXJlZmVyZW5jZSBp
-dCBsYXRlciBpbg0KYnJfdmxhbl9wb3J0X2V2ZW50KCkgYXMgaXQgY2FuIHJlc3VsdCBpbiBhIHVz
-ZS1hZnRlci1mcmVlIFsxXSBpZiB0aGUgUkNVDQpjYWxsYmFjayB3YXMgZXhlY3V0ZWQgYmVmb3Jl
-IGludm9raW5nIHRoZSBmdW5jdGlvbi4NCg0KWzFdDQpbICAxMjkuNjM4NTUxXSA9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0N
-ClsgIDEyOS42NDY5MDRdIEJVRzogS0FTQU46IHVzZS1hZnRlci1mcmVlIGluIGJyX3ZsYW5fcG9y
-dF9ldmVudCsweDUzYy8weDVmZA0KWyAgMTI5LjY1NDQwNl0gUmVhZCBvZiBzaXplIDggYXQgYWRk
-ciBmZmZmODg4MWU0YWExYWU4IGJ5IHRhc2sgaXAvNDgzDQpbICAxMjkuNjYzMDA4XSBDUFU6IDAg
-UElEOiA0ODMgQ29tbTogaXAgTm90IHRhaW50ZWQgNS4xLjAtcmM1LWN1c3RvbS0wMjI2NS1nYTk0
-NmJkNzNkYWFjICMxMzgzDQpbICAxMjkuNjcyMzU5XSBIYXJkd2FyZSBuYW1lOiBNZWxsYW5veCBU
-ZWNobm9sb2dpZXMgTHRkLiBNU04yMTAwLUNCMkZPL1NBMDAxMDE3LCBCSU9TIDUuNi41IDA2LzA3
-LzIwMTYNClsgIDEyOS42ODI0ODRdIENhbGwgVHJhY2U6DQpbICAxMjkuNjg1MjQyXSAgZHVtcF9z
-dGFjaysweGE5LzB4MTBlDQpbICAxMjkuNjg5MDY4XSAgcHJpbnRfYWRkcmVzc19kZXNjcmlwdGlv
-bi5jb2xkLjIrMHg5LzB4MjVlDQpbICAxMjkuNjk0OTMwXSAga2FzYW5fcmVwb3J0LmNvbGQuMysw
-eDc4LzB4OWQNClsgIDEyOS43MDQ0MjBdICBicl92bGFuX3BvcnRfZXZlbnQrMHg1M2MvMHg1ZmQN
-ClsgIDEyOS43MjgzMDBdICBicl9kZXZpY2VfZXZlbnQrMHgyYzcvMHg3YTANClsgIDEyOS43NDE1
-MDVdICBub3RpZmllcl9jYWxsX2NoYWluKzB4YjUvMHgxYzANClsgIDEyOS43NDYyMDJdICByb2xs
-YmFja19yZWdpc3RlcmVkX21hbnkrMHg4OTUvMHhlOTANClsgIDEyOS43OTMxMTldICB1bnJlZ2lz
-dGVyX25ldGRldmljZV9tYW55KzB4NDgvMHgyMTANClsgIDEyOS44MDMzODRdICBydG5sX2RlbGV0
-ZV9saW5rKzB4ZTEvMHgxNDANClsgIDEyOS44MTU5MDZdICBydG5sX2RlbGxpbmsrMHgyYTMvMHg4
-MjANClsgIDEyOS44NDQxNjZdICBydG5ldGxpbmtfcmN2X21zZysweDM5Ny8weDkxMA0KWyAgMTI5
-Ljg2ODUxN10gIG5ldGxpbmtfcmN2X3NrYisweDEzNy8weDNhMA0KWyAgMTI5Ljg4MjAxM10gIG5l
-dGxpbmtfdW5pY2FzdCsweDQ5Yi8weDY2MA0KWyAgMTI5LjkwMDAxOV0gIG5ldGxpbmtfc2VuZG1z
-ZysweDc1NS8weGM5MA0KWyAgMTI5LjkxNTc1OF0gIF9fX3N5c19zZW5kbXNnKzB4NzYxLzB4OGUw
-DQpbICAxMjkuOTY2MzE1XSAgX19zeXNfc2VuZG1zZysweGYwLzB4MWMwDQpbICAxMjkuOTg4OTE4
-XSAgZG9fc3lzY2FsbF82NCsweGE0LzB4NDcwDQpbICAxMjkuOTkzMDMyXSAgZW50cnlfU1lTQ0FM
-TF82NF9hZnRlcl9od2ZyYW1lKzB4NDkvMHhiZQ0KWyAgMTI5Ljk5ODY5Nl0gUklQOiAwMDMzOjB4
-N2ZmNTc4MTA0YjU4DQouLi4NClsgIDEzMC4wNzM4MTFdIEFsbG9jYXRlZCBieSB0YXNrIDQ3OToN
-ClsgIDEzMC4wNzc2MzNdICBfX2thc2FuX2ttYWxsb2MuY29uc3Rwcm9wLjUrMHhjMS8weGQwDQpb
-ICAxMzAuMDgzMDA4XSAga21lbV9jYWNoZV9hbGxvY190cmFjZSsweDE1Mi8weDMyMA0KWyAgMTMw
-LjA4ODA5MF0gIGJyX2FkZF9pZisweDM5Yy8weDE1ODANClsgIDEzMC4wOTIwMDVdICBkb19zZXRf
-bWFzdGVyKzB4MWFhLzB4MjEwDQpbICAxMzAuMDk2MjExXSAgZG9fc2V0bGluaysweDk4NS8weDMx
-MDANClsgIDEzMC4xMDAyMjRdICBfX3J0bmxfbmV3bGluaysweGM1Mi8weDEzODANClsgIDEzMC4x
-MDQ2MjVdICBydG5sX25ld2xpbmsrMHg2Yi8weGEwDQpbICAxMzAuMTA4NTQxXSAgcnRuZXRsaW5r
-X3Jjdl9tc2crMHgzOTcvMHg5MTANClsgIDEzMC4xMTMxMzZdICBuZXRsaW5rX3Jjdl9za2IrMHgx
-MzcvMHgzYTANClsgIDEzMC4xMTc1MzhdICBuZXRsaW5rX3VuaWNhc3QrMHg0OWIvMHg2NjANClsg
-IDEzMC4xMjE5MzldICBuZXRsaW5rX3NlbmRtc2crMHg3NTUvMHhjOTANClsgIDEzMC4xMjYzNDBd
-ICBfX19zeXNfc2VuZG1zZysweDc2MS8weDhlMA0KWyAgMTMwLjEzMDY0NV0gIF9fc3lzX3NlbmRt
-c2crMHhmMC8weDFjMA0KWyAgMTMwLjEzNDc1M10gIGRvX3N5c2NhbGxfNjQrMHhhNC8weDQ3MA0K
-WyAgMTMwLjEzODg2NF0gIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZSsweDQ5LzB4YmUN
-Cg0KWyAgMTMwLjE0NjE5NV0gRnJlZWQgYnkgdGFzayAwOg0KWyAgMTMwLjE0OTQyMV0gIF9fa2Fz
-YW5fc2xhYl9mcmVlKzB4MTI1LzB4MTcwDQpbICAxMzAuMTU0MDE2XSAga2ZyZWUrMHhmMy8weDMx
-MA0KWyAgMTMwLjE1NzM0OV0gIGtvYmplY3RfcHV0KzB4MWE4LzB4NGMwDQpbICAxMzAuMTYxMzYz
-XSAgcmN1X2NvcmUrMHg4NTkvMHgxOWIwDQpbICAxMzAuMTY1MTc1XSAgX19kb19zb2Z0aXJxKzB4
-MjUwLzB4YTI2DQpbICAxMzAuMTcwOTU2XSBUaGUgYnVnZ3kgYWRkcmVzcyBiZWxvbmdzIHRvIHRo
-ZSBvYmplY3QgYXQgZmZmZjg4ODFlNGFhMWFlOA0KICAgICAgICAgICAgICAgIHdoaWNoIGJlbG9u
-Z3MgdG8gdGhlIGNhY2hlIGttYWxsb2MtMWsgb2Ygc2l6ZSAxMDI0DQpbICAxMzAuMTg0OTcyXSBU
-aGUgYnVnZ3kgYWRkcmVzcyBpcyBsb2NhdGVkIDAgYnl0ZXMgaW5zaWRlIG9mDQogICAgICAgICAg
-ICAgICAgMTAyNC1ieXRlIHJlZ2lvbiBbZmZmZjg4ODFlNGFhMWFlOCwgZmZmZjg4ODFlNGFhMWVl
-OCkNCg0KRml4ZXM6IDljMGVjMmU3MTgyYSAoImJyaWRnZTogc3VwcG9ydCBiaW5kaW5nIHZsYW4g
-ZGV2IGxpbmsgc3RhdGUgdG8gdmxhbiBtZW1iZXIgYnJpZGdlIHBvcnRzIikNClNpZ25lZC1vZmYt
-Ynk6IElkbyBTY2hpbW1lbCA8aWRvc2NoQG1lbGxhbm94LmNvbT4NCkNjOiBNaWtlIE1hbm5pbmcg
-PG1tYW5uaW5nQHZ5YXR0YS5hdHQtbWFpbC5jb20+DQotLS0NCiBuZXQvYnJpZGdlL2JyLmMgfCAz
-ICsrLQ0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCg0K
-ZGlmZiAtLWdpdCBhL25ldC9icmlkZ2UvYnIuYyBiL25ldC9icmlkZ2UvYnIuYw0KaW5kZXggZTY5
-ZmM4N2ExM2UwLi4zYzhlNGIzOGYwNTQgMTAwNjQ0DQotLS0gYS9uZXQvYnJpZGdlL2JyLmMNCisr
-KyBiL25ldC9icmlkZ2UvYnIuYw0KQEAgLTEyOSw3ICsxMjksOCBAQCBzdGF0aWMgaW50IGJyX2Rl
-dmljZV9ldmVudChzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgKnVudXNlZCwgdW5zaWduZWQgbG9uZyBl
-dmVudCwgdg0KIAkJYnJlYWs7DQogCX0NCiANCi0JYnJfdmxhbl9wb3J0X2V2ZW50KHAsIGV2ZW50
-KTsNCisJaWYgKGV2ZW50ICE9IE5FVERFVl9VTlJFR0lTVEVSKQ0KKwkJYnJfdmxhbl9wb3J0X2V2
-ZW50KHAsIGV2ZW50KTsNCiANCiAJLyogRXZlbnRzIHRoYXQgbWF5IGNhdXNlIHNwYW5uaW5nIHRy
-ZWUgdG8gcmVmcmVzaCAqLw0KIAlpZiAoIW5vdGlmaWVkICYmIChldmVudCA9PSBORVRERVZfQ0hB
-TkdFQUREUiB8fCBldmVudCA9PSBORVRERVZfVVAgfHwNCi0tIA0KMi4yMC4xDQoNCg==
+On 22/04/2019 12:33, Ido Schimmel wrote:
+> When a bridge port is being deleted, do not dereference it later in
+> br_vlan_port_event() as it can result in a use-after-free [1] if the RCU
+> callback was executed before invoking the function.
+> 
+[snip]
+> 
+> Fixes: 9c0ec2e7182a ("bridge: support binding vlan dev link state to vlan member bridge ports")
+> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+> Cc: Mike Manning <mmanning@vyatta.att-mail.com>
+> ---
+>  net/bridge/br.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br.c b/net/bridge/br.c
+> index e69fc87a13e0..3c8e4b38f054 100644
+> --- a/net/bridge/br.c
+> +++ b/net/bridge/br.c
+> @@ -129,7 +129,8 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
+>  		break;
+>  	}
+>  
+> -	br_vlan_port_event(p, event);
+> +	if (event != NETDEV_UNREGISTER)
+> +		br_vlan_port_event(p, event);
+>  
+>  	/* Events that may cause spanning tree to refresh */
+>  	if (!notified && (event == NETDEV_CHANGEADDR || event == NETDEV_UP ||
+> 
+
+Right, the br_del_if is just above. :)
+
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
