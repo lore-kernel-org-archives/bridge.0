@@ -1,17 +1,14 @@
-Return-Path: <mmanning@vyatta.att-mail.com>
-Reply-To: mmanning@vyatta.att-mail.com
-References: <20190422093307.10206-1-idosch@mellanox.com>
-	<335b31d0-9a65-0a2d-2b6c-339e42eddad1@cumulusnetworks.com>
-From: Mike Manning <mmanning@vyatta.att-mail.com>
-Message-ID: <aecd4008-5795-0392-3e81-4bf5726cbbc0@vyatta.att-mail.com>
-Date: Mon, 22 Apr 2019 18:24:23 +0100
+Return-Path: <ben@decadent.org.uk>
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-In-Reply-To: <335b31d0-9a65-0a2d-2b6c-339e42eddad1@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-Subject: Re: [Bridge] [PATCH net-next] bridge: Fix possible use-after-free
- when deleting bridge port
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Sat, 27 Apr 2019 16:13:09 +0100
+Message-ID: <lsq.1556377989.710221079@decadent.org.uk>
+In-Reply-To: <lsq.1556377988.384060557@decadent.org.uk>
+Subject: [Bridge] [PATCH 3.16 052/202] net: bridge: Fix ethernet header
+ pointer before check skb forwardable
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,44 +17,93 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Ido Schimmel <idosch@mellanox.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
-Cc: "roopa@cumulusnetworks.com" <roopa@cumulusnetworks.com>, mlxsw <mlxsw@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Yunjian Wang <wangyunjian@huawei.com>, Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>
 
-On 22/04/2019 10:44, Nikolay Aleksandrov wrote:
-> On 22/04/2019 12:33, Ido Schimmel wrote:
->> When a bridge port is being deleted, do not dereference it later in
->> br_vlan_port_event() as it can result in a use-after-free [1] if the RCU
->> callback was executed before invoking the function.
->>
-> [snip]
->> Fixes: 9c0ec2e7182a ("bridge: support binding vlan dev link state to vlan member bridge ports")
->> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
->> Cc: Mike Manning <mmanning@vyatta.att-mail.com>
->> ---
->>  net/bridge/br.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/net/bridge/br.c b/net/bridge/br.c
->> index e69fc87a13e0..3c8e4b38f054 100644
->> --- a/net/bridge/br.c
->> +++ b/net/bridge/br.c
->> @@ -129,7 +129,8 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
->>  		break;
->>  	}
->>  
->> -	br_vlan_port_event(p, event);
->> +	if (event != NETDEV_UNREGISTER)
->> +		br_vlan_port_event(p, event);
->>  
->>  	/* Events that may cause spanning tree to refresh */
->>  	if (!notified && (event == NETDEV_CHANGEADDR || event == NETDEV_UP ||
->>
-> Right, the br_del_if is just above. :)
->
-> Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+3.16.66-rc1 review patch.  If anyone has any objections, please let me know.
 
-Thanks for the fix, to avoid this I should have placed the check for the
-br opt under the case handling in br_vlan_port_event().
+------------------
 
-Acked-by: Mike Manning <mmanning@vyatta.att-mail.com>
+From: Yunjian Wang <wangyunjian@huawei.com>
+
+commit 28c1382fa28f2e2d9d0d6f25ae879b5af2ecbd03 upstream.
+
+The skb header should be set to ethernet header before using
+is_skb_forwardable. Because the ethernet header length has been
+considered in is_skb_forwardable(including dev->hard_header_len
+length).
+
+To reproduce the issue:
+1, add 2 ports on linux bridge br using following commands:
+$ brctl addbr br
+$ brctl addif br eth0
+$ brctl addif br eth1
+2, the MTU of eth0 and eth1 is 1500
+3, send a packet(Data 1480, UDP 8, IP 20, Ethernet 14, VLAN 4)
+from eth0 to eth1
+
+So the expect result is packet larger than 1500 cannot pass through
+eth0 and eth1. But currently, the packet passes through success, it
+means eth1's MTU limit doesn't take effect.
+
+Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
+Cc: bridge@lists.linux-foundation.org
+Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16:
+ - br_dev_queue_push_xmit() has to call nf_bridge_maybe_copy_header()
+   before pushing the Ethernet header
+ - adjust context, indentation]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -38,16 +38,21 @@ static inline int should_deliver(const s
+ int br_dev_queue_push_xmit(struct sk_buff *skb)
+ {
+ 	/* ip_fragment doesn't copy the MAC header */
+-	if (nf_bridge_maybe_copy_header(skb) ||
+-	    !is_skb_forwardable(skb->dev, skb)) {
+-		kfree_skb(skb);
+-	} else {
+-		skb_push(skb, ETH_HLEN);
+-		br_drop_fake_rtable(skb);
+-		dev_queue_xmit(skb);
+-	}
++	if (nf_bridge_maybe_copy_header(skb))
++		goto drop;
++
++	skb_push(skb, ETH_HLEN);
++	if (!is_skb_forwardable(skb->dev, skb))
++		goto drop;
++
++	br_drop_fake_rtable(skb);
++	dev_queue_xmit(skb);
+ 
+ 	return 0;
++
++drop:
++	kfree_skb(skb);
++	return 0;
+ }
+ 
+ int br_forward_finish(struct sk_buff *skb)
+@@ -66,12 +71,11 @@ static void __br_deliver(const struct ne
+ 	skb->dev = to->dev;
+ 
+ 	if (unlikely(netpoll_tx_running(to->br->dev))) {
++		skb_push(skb, ETH_HLEN);
+ 		if (!is_skb_forwardable(skb->dev, skb))
+ 			kfree_skb(skb);
+-		else {
+-			skb_push(skb, ETH_HLEN);
++		else
+ 			br_netpoll_send_skb(to, skb);
+-		}
+ 		return;
+ 	}
+ 
 
