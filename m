@@ -1,14 +1,26 @@
-Return-Path: <ben@decadent.org.uk>
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=XPpYtJgHXSQwbz+WHen0CqKIs5Q0YuIxYrIfRoFSBCA=;
+	b=wCHiv/RClUDDN4oNm5RNz+SvY1loFX6IVul0ucFnke/hBZ8Ew0MtC8kstILy3DvV7X
+	oUai/lYQ3yb2nqW5fs7t3mKjWf61fIP/mpwdFa4zL+bmzwUi5Ef/PQ6jW4wt+O6kyRXP
+	7jbJYi3XVyaojPlSUGU5pnyZ4fiYXG4QNcMSoQaJ7OVsADh2AFBK4Z5kXE1bpjpzEFP9
+	EH37gtTqTkaj8JoThRlvY6unglTIBVmYbfINEOhSy+/fXNj+45ZioT5/3z0eEr41WHdK
+	65o8TBSV+3Kn/vhwuKtUQdIwiRdVhKHdw8uhXVt0CsyHPK6WxuSpLH73ozIDDLFZZJTP
+	v1cQ==
+Date: Thu, 9 May 2019 20:35:01 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20190509203501.310a477c@hermes.lan>
+In-Reply-To: <20190510025702.GA10709@eros.localdomain>
+References: <20190510025212.10109-1-tobin@kernel.org>
+	<20190510025702.GA10709@eros.localdomain>
 MIME-Version: 1.0
-From: Ben Hutchings <ben@decadent.org.uk>
-Date: Sat, 27 Apr 2019 16:13:09 +0100
-Message-ID: <lsq.1556377989.710221079@decadent.org.uk>
-In-Reply-To: <lsq.1556377988.384060557@decadent.org.uk>
-Subject: [Bridge] [PATCH 3.16 052/202] net: bridge: Fix ethernet header
- pointer before check skb forwardable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH v2] bridge: Fix error path for
+	kobject_init_and_add()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,93 +29,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Yunjian Wang <wangyunjian@huawei.com>, Nkolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>
+To: "Tobin C. Harding" <tobin@kernel.org>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Tyler Hicks <tyhicks@canonical.com>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-3.16.66-rc1 review patch.  If anyone has any objections, please let me know.
+On Fri, 10 May 2019 12:57:02 +1000
+"Tobin C. Harding" <tobin@kernel.org> wrote:
 
-------------------
+> On Fri, May 10, 2019 at 12:52:12PM +1000, Tobin C. Harding wrote:
+> 
+> Please ignore - I forgot about netdev procedure and the merge window.
+> My bad.
+> 
+> Will re-send when you are open.
+> 
+> thanks,
+> Tobin.
 
-From: Yunjian Wang <wangyunjian@huawei.com>
-
-commit 28c1382fa28f2e2d9d0d6f25ae879b5af2ecbd03 upstream.
-
-The skb header should be set to ethernet header before using
-is_skb_forwardable. Because the ethernet header length has been
-considered in is_skb_forwardable(including dev->hard_header_len
-length).
-
-To reproduce the issue:
-1, add 2 ports on linux bridge br using following commands:
-$ brctl addbr br
-$ brctl addif br eth0
-$ brctl addif br eth1
-2, the MTU of eth0 and eth1 is 1500
-3, send a packet(Data 1480, UDP 8, IP 20, Ethernet 14, VLAN 4)
-from eth0 to eth1
-
-So the expect result is packet larger than 1500 cannot pass through
-eth0 and eth1. But currently, the packet passes through success, it
-means eth1's MTU limit doesn't take effect.
-
-Fixes: f6367b4660dd ("bridge: use is_skb_forwardable in forward path")
-Cc: bridge@lists.linux-foundation.org
-Cc: Nkolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16:
- - br_dev_queue_push_xmit() has to call nf_bridge_maybe_copy_header()
-   before pushing the Ethernet header
- - adjust context, indentation]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -38,16 +38,21 @@ static inline int should_deliver(const s
- int br_dev_queue_push_xmit(struct sk_buff *skb)
- {
- 	/* ip_fragment doesn't copy the MAC header */
--	if (nf_bridge_maybe_copy_header(skb) ||
--	    !is_skb_forwardable(skb->dev, skb)) {
--		kfree_skb(skb);
--	} else {
--		skb_push(skb, ETH_HLEN);
--		br_drop_fake_rtable(skb);
--		dev_queue_xmit(skb);
--	}
-+	if (nf_bridge_maybe_copy_header(skb))
-+		goto drop;
-+
-+	skb_push(skb, ETH_HLEN);
-+	if (!is_skb_forwardable(skb->dev, skb))
-+		goto drop;
-+
-+	br_drop_fake_rtable(skb);
-+	dev_queue_xmit(skb);
- 
- 	return 0;
-+
-+drop:
-+	kfree_skb(skb);
-+	return 0;
- }
- 
- int br_forward_finish(struct sk_buff *skb)
-@@ -66,12 +71,11 @@ static void __br_deliver(const struct ne
- 	skb->dev = to->dev;
- 
- 	if (unlikely(netpoll_tx_running(to->br->dev))) {
-+		skb_push(skb, ETH_HLEN);
- 		if (!is_skb_forwardable(skb->dev, skb))
- 			kfree_skb(skb);
--		else {
--			skb_push(skb, ETH_HLEN);
-+		else
- 			br_netpoll_send_skb(to, skb);
--		}
- 		return;
- 	}
- 
-
+That only applies to new features,  bug fixes are allowed all the time.
+Also please dont send networking stuff to the greater linux-kernel mailing list.
