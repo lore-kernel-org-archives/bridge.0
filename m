@@ -1,10 +1,10 @@
-Return-Path: <3-1gKXQkbAMQ289ukvvo1kzzsn.qyyqvo42o1myx3ox3.myw@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <3THsQXQkbAHMjpqbRccViRggZU.XffXcVljViTfekVek.Tfd@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Date: Wed, 19 Jun 2019 08:47:07 -0700
-Message-ID: <0000000000004a8875058baf24f7@google.com>
-From: syzbot <syzbot+43a3fa52c0d9c5c94f41@syzkaller.appspotmail.com>
+Date: Mon, 24 Jun 2019 00:27:08 -0700
+Message-ID: <0000000000005e6124058c0cbdbe@google.com>
+From: syzbot <syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: [Bridge] KASAN: use-after-free Read in brnf_exit_net
+Subject: [Bridge] memory leak in fdb_create
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,122 +13,94 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: a.hajda@samsung.com, airlied@linux.ie, airlied@redhat.com, alexander.deucher@amd.com, bridge@lists.linux-foundation.org, christian.koenig@amd.com, coreteam@netfilter.org, daniel@ffwll.ch, davem@davemloft.net, dri-devel@lists.freedesktop.org, enric.balletbo@collabora.com, fw@strlen.de, harry.wentland@amd.com, heiko@sntech.de, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, jerry.zhang@amd.com, jonas@kwiboo.se, joonas.lahtinen@linux.intel.com, kadlec@netfilter.org, laurent.pinchart@ideasonboard.com, linux-kernel@vger.kernel.org, maarten.lankhorst@linux.intel.com, marc.zyngier@arm.com, maxime.ripard@bootlin.com, narmstrong@baylibre.com, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nikolay@cumulusnetworks.com, pablo@netfilter.org, patrik.r.jakobsson@gmail.com, rodrigo.vivi@intel.com, roopa@cumulusnetworks.com, sam@ravnborg.org, sean@poorly.run, sfr@canb.auug.org.au, syzkaller-bugs@googlegroups.com
+To: bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
 
 Hello,
 
 syzbot found the following crash on:
 
-HEAD commit:    1c6b4050 Add linux-next specific files for 20190618
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=10126209a00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=3c614278993de456
-dashboard link: https://syzkaller.appspot.com/bug?extid=43a3fa52c0d9c5c94f41
+HEAD commit:    abf02e29 Merge tag 'pm-5.2-rc6' of git://git.kernel.org/pu..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=12970eb2a00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=56f1da14935c3cce
+dashboard link: https://syzkaller.appspot.com/bug?extid=88533dc8b582309bf3ee
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16291176a00000
-
-The bug was bisected to:
-
-commit b38d37a08ec4b19a9b9ec3a1ff5566781fcae1f1
-Author: Stephen Rothwell <sfr@canb.auug.org.au>
-Date:   Tue Jun 18 04:19:55 2019 +0000
-
-     Merge remote-tracking branch 'drm/drm-next'
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=146f914ea00000
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=166f914ea00000
-console output: https://syzkaller.appspot.com/x/log.txt?x=126f914ea00000
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16de5c06a00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10546026a00000
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+43a3fa52c0d9c5c94f41@syzkaller.appspotmail.com
-Fixes: b38d37a08ec4 ("Merge remote-tracking branch 'drm/drm-next'")
+Reported-by: syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com
 
-==================================================================
-BUG: KASAN: use-after-free in br_netfilter_sysctl_exit_net  
-net/bridge/br_netfilter_hooks.c:1121 [inline]
-BUG: KASAN: use-after-free in brnf_exit_net+0x38c/0x3a0  
-net/bridge/br_netfilter_hooks.c:1141
-Read of size 8 at addr ffff8880a4078d60 by task kworker/u4:4/8749
+ffffffffda RBX: 0000000000000000 RCX: 0000000000441519
+BUG: memory leak
+unreferenced object 0xffff888123886800 (size 128):
+   comm "softirq", pid 0, jiffies 4294945699 (age 13.160s)
+   hex dump (first 32 bytes):
+     81 89 f8 20 81 88 ff ff 00 00 00 00 00 00 00 00  ... ............
+     32 f9 fc b7 11 e2 01 00 00 00 00 00 00 00 00 00  2...............
+   backtrace:
+     [<00000000ca2421fa>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<00000000ca2421fa>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<00000000ca2421fa>] slab_alloc mm/slab.c:3326 [inline]
+     [<00000000ca2421fa>] kmem_cache_alloc+0x134/0x270 mm/slab.c:3488
+     [<000000007faade68>] fdb_create+0x49/0x5a0 net/bridge/br_fdb.c:492
+     [<00000000772dfc36>] fdb_insert+0xb7/0x100 net/bridge/br_fdb.c:536
+     [<00000000ded35dd0>] br_fdb_insert+0x3b/0x60 net/bridge/br_fdb.c:552
+     [<00000000758ae277>] __vlan_add+0x617/0xdf0 net/bridge/br_vlan.c:284
+     [<0000000054c3b165>] br_vlan_add+0x26f/0x480 net/bridge/br_vlan.c:678
+     [<00000000ed895462>] br_vlan_init+0xe9/0x130 net/bridge/br_vlan.c:1061
+     [<00000000f916c753>] br_dev_init+0xa6/0x170 net/bridge/br_device.c:137
+     [<00000000a4e1a1ea>] register_netdevice+0xbf/0x600 net/core/dev.c:8663
+     [<00000000bdcf4ebd>] register_netdev+0x24/0x40 net/core/dev.c:8851
+     [<0000000042e6c0c4>] br_add_bridge+0x5e/0xa0 net/bridge/br_if.c:456
+     [<0000000036402409>] br_ioctl_deviceless_stub+0x30c/0x350  
+net/bridge/br_ioctl.c:374
+     [<00000000e57c9a76>] sock_ioctl+0x287/0x480 net/socket.c:1141
+     [<00000000109b8329>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000109b8329>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000109b8329>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<00000000d8eb5a5e>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000cd162915>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000cd162915>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000cd162915>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
 
-CPU: 0 PID: 8749 Comm: kworker/u4:4 Not tainted 5.2.0-rc5-next-20190618 #17
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Workqueue: netns cleanup_net
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
-  print_address_description.cold+0xd4/0x306 mm/kasan/report.c:351
-  __kasan_report.cold+0x1b/0x36 mm/kasan/report.c:482
-  kasan_report+0x12/0x20 mm/kasan/common.c:614
-  __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:132
-  br_netfilter_sysctl_exit_net net/bridge/br_netfilter_hooks.c:1121 [inline]
-  brnf_exit_net+0x38c/0x3a0 net/bridge/br_netfilter_hooks.c:1141
-  ops_exit_list.isra.0+0xaa/0x150 net/core/net_namespace.c:154
-  cleanup_net+0x3fb/0x960 net/core/net_namespace.c:553
-  process_one_work+0x989/0x1790 kernel/workqueue.c:2269
-  worker_thread+0x98/0xe40 kernel/workqueue.c:2415
-  kthread+0x354/0x420 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+BUG: memory leak
+unreferenced object 0xffff88811ced2de0 (size 32):
+   comm "syz-executor140", pid 6998, jiffies 4294945699 (age 13.160s)
+   hex dump (first 32 bytes):
+     d3 d2 f1 a7 6c 83 5b 30 30 15 a1 6f 77 3f 00 00  ....l.[00..ow?..
+     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+   backtrace:
+     [<00000000d53fdc1e>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<00000000d53fdc1e>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<00000000d53fdc1e>] slab_alloc mm/slab.c:3326 [inline]
+     [<00000000d53fdc1e>] __do_kmalloc mm/slab.c:3658 [inline]
+     [<00000000d53fdc1e>] __kmalloc_track_caller+0x15d/0x2c0 mm/slab.c:3675
+     [<00000000c742d29c>] kstrdup+0x3a/0x70 mm/util.c:52
+     [<00000000d3df5d2b>] kstrdup_const+0x48/0x60 mm/util.c:74
+     [<00000000d75a8fa8>] kvasprintf_const+0x7e/0xe0 lib/kasprintf.c:48
+     [<00000000ebee37a0>] kobject_set_name_vargs+0x40/0xe0 lib/kobject.c:289
+     [<00000000c23c056a>] dev_set_name+0x63/0x90 drivers/base/core.c:1915
+     [<000000004c47b6d3>] netdev_register_kobject+0x5a/0x1b0  
+net/core/net-sysfs.c:1727
+     [<000000005fb074af>] register_netdevice+0x397/0x600 net/core/dev.c:8733
+     [<00000000bdcf4ebd>] register_netdev+0x24/0x40 net/core/dev.c:8851
+     [<0000000042e6c0c4>] br_add_bridge+0x5e/0xa0 net/bridge/br_if.c:456
+     [<0000000036402409>] br_ioctl_deviceless_stub+0x30c/0x350  
+net/bridge/br_ioctl.c:374
+     [<00000000e57c9a76>] sock_ioctl+0x287/0x480 net/socket.c:1141
+     [<00000000109b8329>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000109b8329>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000109b8329>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<00000000d8eb5a5e>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000cd162915>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000cd162915>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000cd162915>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<0000000069b4ac36>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
 
-Allocated by task 11374:
-  save_stack+0x23/0x90 mm/kasan/common.c:71
-  set_track mm/kasan/common.c:79 [inline]
-  __kasan_kmalloc mm/kasan/common.c:489 [inline]
-  __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:462
-  kasan_kmalloc+0x9/0x10 mm/kasan/common.c:503
-  __do_kmalloc mm/slab.c:3645 [inline]
-  __kmalloc+0x15c/0x740 mm/slab.c:3654
-  kmalloc include/linux/slab.h:552 [inline]
-  kzalloc include/linux/slab.h:743 [inline]
-  __register_sysctl_table+0xc7/0xef0 fs/proc/proc_sysctl.c:1327
-  register_net_sysctl+0x29/0x30 net/sysctl_net.c:121
-  br_netfilter_sysctl_init_net net/bridge/br_netfilter_hooks.c:1105 [inline]
-  brnf_init_net+0x379/0x6a0 net/bridge/br_netfilter_hooks.c:1126
-  ops_init+0xb3/0x410 net/core/net_namespace.c:130
-  setup_net+0x2d3/0x740 net/core/net_namespace.c:316
-  copy_net_ns+0x1df/0x340 net/core/net_namespace.c:439
-  create_new_namespaces+0x400/0x7b0 kernel/nsproxy.c:103
-  unshare_nsproxy_namespaces+0xc2/0x200 kernel/nsproxy.c:202
-  ksys_unshare+0x444/0x980 kernel/fork.c:2822
-  __do_sys_unshare kernel/fork.c:2890 [inline]
-  __se_sys_unshare kernel/fork.c:2888 [inline]
-  __x64_sys_unshare+0x31/0x40 kernel/fork.c:2888
-  do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 9:
-  save_stack+0x23/0x90 mm/kasan/common.c:71
-  set_track mm/kasan/common.c:79 [inline]
-  __kasan_slab_free+0x102/0x150 mm/kasan/common.c:451
-  kasan_slab_free+0xe/0x10 mm/kasan/common.c:459
-  __cache_free mm/slab.c:3417 [inline]
-  kfree+0x10a/0x2c0 mm/slab.c:3746
-  __rcu_reclaim kernel/rcu/rcu.h:215 [inline]
-  rcu_do_batch kernel/rcu/tree.c:2092 [inline]
-  invoke_rcu_callbacks kernel/rcu/tree.c:2310 [inline]
-  rcu_core+0xcc7/0x1500 kernel/rcu/tree.c:2291
-  __do_softirq+0x25c/0x94c kernel/softirq.c:292
-
-The buggy address belongs to the object at ffff8880a4078d40
-  which belongs to the cache kmalloc-512 of size 512
-The buggy address is located 32 bytes inside of
-  512-byte region [ffff8880a4078d40, ffff8880a4078f40)
-The buggy address belongs to the page:
-page:ffffea0002901e00 refcount:1 mapcount:0 mapping:ffff8880aa400a80  
-index:0xffff8880a40785c0
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea0001d636c8 ffffea0001b07308 ffff8880aa400a80
-raw: ffff8880a40785c0 ffff8880a40780c0 0000000100000004 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8880a4078c00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8880a4078c80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-> ffff8880a4078d00: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-                                                        ^
-  ffff8880a4078d80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8880a4078e00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
 
 
 ---
@@ -138,6 +110,5 @@ syzbot engineers can be reached at syzkaller@googlegroups.com.
 
 syzbot will keep track of this bug report. See:
 https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
 syzbot can test patches for this bug, for details see:
 https://goo.gl/tpsmEJ#testing-patches
