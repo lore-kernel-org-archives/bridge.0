@@ -1,18 +1,22 @@
-Return-Path: <johannes@sipsolutions.net>
-Message-ID: <411e7717a68243fc775910ee01fa110c45ce0630.camel@sipsolutions.net>
-From: Johannes Berg <johannes@sipsolutions.net>
-Date: Fri, 28 Jun 2019 13:02:22 +0200
-In-Reply-To: <828a23fe-8466-ae65-7829-620f32aacead@gmail.com>
-	(sfid-20190617_131539_212442_3AC98020)
-References: <68c99662210c8e9e37f198ddf8cb00bccf301c4b.camel@sipsolutions.net>
-	<20190615151913.cgrfyflwwnhym4u2@ast-mbp.dhcp.thefacebook.com>
-	<e487656b854ca999d14eb8072e5553eb2676a9f4.camel@sipsolutions.net>
-	<828a23fe-8466-ae65-7829-620f32aacead@gmail.com>
-	(sfid-20190617_131539_212442_3AC98020)
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] VLAN tags in mac_len
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=date:in-reply-to:references:mime-version:content-transfer-encoding
+	:subject:to:cc:from:message-id;
+	bh=HERAyb2nBKp/WDqxby03QYSAsCRvMKQF94fo9I4Jhww=;
+	b=Lg2HLxJq7vfZbJ8AdYoSv/sk3q80EG1c38JPuTQVXGm9Yc2LXuSvIPqcvXMY4lWiYM
+	dAAEtNCfIj1OGK9g7mGugPKdwar0pFC+SyVqWjRdBxh+K2/xM+OVfVyg83h+rVyKih/a
+	DX4JGQBFGD4LnZ3kdNWB3Ovbecl1sSPF0JjnM=
+Date: Sat, 29 Jun 2019 16:11:13 +0300
+In-Reply-To: <41ac3aa3-cbf7-1b7b-d847-1fb308334931@linuxlounge.net>
+References: <41ac3aa3-cbf7-1b7b-d847-1fb308334931@linuxlounge.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: nikolay@cumulusnetworks.com
+Message-ID: <E0170D52-C181-4F0F-B5F8-F1801C2A8F5A@cumulusnetworks.com>
+Subject: Re: [Bridge] Use-after-free in br_multicast_rcv
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,136 +25,120 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <toshiaki.makita1@gmail.com>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: David Ahern <dsahern@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, Zahari Doychev <zahari.doychev@linux.com>, jhs@mojatatu.com, Jiri Pirko <jiri@mellanox.com>, Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Cong Wang <xiyou.wangcong@gmail.com>, Simon Horman <simon.horman@netronome.com>
+To: Martin Weinelt <martin@linuxlounge.net>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
+Cc: netdev@vger.kernel.or
 
-On Mon, 2019-06-17 at 20:15 +0900, Toshiaki Makita wrote:
+On 29 June 2019 14:54:44 EEST, Martin Weinelt <martin@linuxlounge=2Enet> wr=
+ote:
+>Hello,
+>
+>we've recently been experiencing memory leaks on our Linux-based
+>routers,
+>at least as far back as v4=2E19=2E16=2E
+>
+>After rebuilding with KASAN it found a use-after-free in=20
+>br_multicast_rcv which I could reproduce on v5=2E2=2E0-rc6=2E=20
+>
+>Please find the KASAN report below, I'm anot sure what else to provide
+>so
+>feel free to ask=2E
+>
+>Best,
+>  Martin
+>
+>
 
-> I'll try to explain the problem I see, which cannot be fixed by option 1...
-> The bug is in tcf_vlan_act(), and mainly in skb->data, not in mac_len.
-> 
-> Consider about vlan packets from NIC, but non-hw-accelerated, where
-> vlan devices are configured to receive them.
-> 
-> When __netif_receive_skb_core() is called, skb is like this.
-> 
-> +-----+------+--------
-> > eth | vlan | TCP/IP
-> 
-> +-----+------+--------
->        ^
->       data
-> 
-> skb->data is at the beginning of the vlan header.
+Hi Martin,=20
+I'll look into this, are there any specific steps to reproduce it?=20
 
-Right.
+Thanks,=20
+   Nik
 
-> This is reasonable because we did not process the vlan tag at this point.
+>=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>BUG: KASAN: use-after-free in br_multicast_rcv+0x480c/0x4ad0 [bridge]
+>Read of size 2 at addr ffff8880421302b4 by task ksoftirqd/1/16
+>
+>CPU: 1 PID: 16 Comm: ksoftirqd/1 Tainted: G           OE     5=2E2=2E0-rc=
+6+
+>#1
+>Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1=2E10=2E2-1
+>04/01/2014
+>Call Trace:
+> dump_stack+0x71/0xab
+> print_address_description+0x6a/0x280
+> ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
+> __kasan_report+0x152/0x1aa
+> ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
+> ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
+> kasan_report+0xe/0x20
+> br_multicast_rcv+0x480c/0x4ad0 [bridge]
+> ? br_multicast_disable_port+0x150/0x150 [bridge]
+> ? ktime_get_with_offset+0xb4/0x150
+> ? __kasan_kmalloc=2Econstprop=2E6+0xa6/0xf0
+> ? __netif_receive_skb+0x1b0/0x1b0
+> ? br_fdb_update+0x10e/0x6e0 [bridge]
+> ? br_handle_frame_finish+0x3c6/0x11d0 [bridge]
+> br_handle_frame_finish+0x3c6/0x11d0 [bridge]
+> ? br_pass_frame_up+0x3a0/0x3a0 [bridge]
+> ? virtnet_probe+0x1c80/0x1c80 [virtio_net]
+> br_handle_frame+0x731/0xd90 [bridge]
+> ? select_idle_sibling+0x25/0x7d0
+> ? br_handle_frame_finish+0x11d0/0x11d0 [bridge]
+> __netif_receive_skb_core+0xced/0x2d70
+> ? virtqueue_get_buf_ctx+0x230/0x1130 [virtio_ring]
+> ? do_xdp_generic+0x20/0x20
+> ? virtqueue_napi_complete+0x39/0x70 [virtio_net]
+> ? virtnet_poll+0x94d/0xc78 [virtio_net]
+> ? receive_buf+0x5120/0x5120 [virtio_net]
+> ? __netif_receive_skb_one_core+0x97/0x1d0
+> __netif_receive_skb_one_core+0x97/0x1d0
+> ? __netif_receive_skb_core+0x2d70/0x2d70
+> ? _raw_write_trylock+0x100/0x100
+> ? __queue_work+0x41e/0xbe0
+> process_backlog+0x19c/0x650
+> ? _raw_read_lock_irq+0x40/0x40
+> net_rx_action+0x71e/0xbc0
+> ? __switch_to_asm+0x40/0x70
+> ? napi_complete_done+0x360/0x360
+> ? __switch_to_asm+0x34/0x70
+> ? __switch_to_asm+0x40/0x70
+> ? __schedule+0x85e/0x14d0
+> __do_softirq+0x1db/0x5f9
+> ? takeover_tasklets+0x5f0/0x5f0
+> run_ksoftirqd+0x26/0x40
+> smpboot_thread_fn+0x443/0x680
+> ? sort_range+0x20/0x20
+> ? schedule+0x94/0x210
+> ? __kthread_parkme+0x78/0xf0
+> ? sort_range+0x20/0x20
+> kthread+0x2ae/0x3a0
+> ? kthread_create_worker_on_cpu+0xc0/0xc0
+> ret_from_fork+0x35/0x40
+>
+>The buggy address belongs to the page:
+>page:ffffea0001084c00 refcount:0 mapcount:-128 mapping:0000000000000000
+>index:0x0
+>flags: 0xffffc000000000()
+>raw: 00ffffc000000000 ffffea0000cfca08 ffffea0001098608
+>0000000000000000
+>raw: 0000000000000000 0000000000000003 00000000ffffff7f
+>0000000000000000
+>page dumped because: kasan: bad access detected
+>
+>Memory state around the buggy address:
+> ffff888042130180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+> ffff888042130200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>>ffff888042130280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>                                     ^
+> ffff888042130300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+> ffff888042130380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>Disabling lock debugging due to kernel taint
 
-I think with this simple sentence you just threw a whole new semantic
-issue into the mix, one that I at least hadn't considered.
 
-However, it's not clear to me whether we should consider a tag as
-processed or not when we push it.
-
-In a sense, this means we should have two different VLAN tag push
-options - considering it processed or unprocessed. Or maybe it should
-always be considered unprocessed, but that's not what we do today.
-
-> Then after vlan_do_receive() (receive the skb on a vlan device), the skb is like this.
-> 
-> +-----+--------
-> > eth | TCP/IP
-> 
-> +-----+--------
->        ^
->       data
-> 
-> Or if reorder_hdr is off (which does not remove vlan tags when receiving on vlan devices),
-> 
-> +-----+------+--------
-> > eth | vlan | TCP/IP
-> 
-> +-----+------+--------
->               ^
->              data
-> 
-> Relying on this mechanism, we are currently able to handle multiple vlan tags.
-> 
-> For example if we have 2 tags,
-> 
-> - On __netif_receive_skb_core() invocation
-> 
-> +-----+------+------+--------
-> > eth | vlan | vlan | TCP/IP
-> 
-> +-----+------+------+--------
->        ^
->       data
-> 
-> - After first vlan_do_receive()
-> 
-> +-----+------+--------
-> > eth | vlan | TCP/IP
-> 
-> +-----+------+--------
->        ^
->       data
-> 
-> Or if reorder_hdr is off,
-> 
-> +-----+------+------+--------
-> > eth | vlan | vlan | TCP/IP
-> 
-> +-----+------+------+--------
->               ^
->              data
-> 
-> When we process one tag, the data goes forward by one tag.
-
-Right, that's a very good point.
-
-> Now looking at TC vlan case...
-> 
-> After it inserts two tags, the skb looks like:
-> 
-> (The first tag is in vlan_tci)
-> +-----+------+--------
-> > eth | vlan | TCP/IP
-> 
-> +-----+------+--------
->               ^
->              data
-> 
-> The data pointer went forward before we process it.
-> This is apparently wrong. I think we don't want to (or cannot?) handle cases like this
-> after tcf_vlan_act(). This is why I said we should remember mac_len there.
-
-Right, makes a lot of sense.
-
-If you consider a tc VLAN pop, you'd argue that it should pop the next
-unprocessed tag I guess, since if it was processed then it doesn't
-really exist any more (semantically, you still see it if reorder_hdr is
-off), right?
-
-> So, my opinion is:
-> On ingress, data pointer can be at the end of vlan header and mac_len probably should
-> include vlan tag length, but only after the vlan tag is processed.
-
-You're basically arguing for option (3), I think, making VLAN push/pop
-not manipulate mac_len since they can just push/pop *unprocessed* tags,
-right?
-
-I fear this will cause all kinds of trouble in other code. Perhaps we
-need to make this processed/unprocessed state more explicit.
-
-> Bridge may need to handle mac_len that is not equal to ETH_HLEN but to me it's a
-> different problem.
-
-Yes. Like I just said to Daniel, I think we should make bridge handle
-mac_len so that we can just exclude it from this whole discussion.
-Regardless of the mac_len and processed/unprocessed tags, it would just
-work as expected.
-
-johannes
-
+--=20
+Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
