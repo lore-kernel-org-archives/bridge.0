@@ -1,24 +1,30 @@
-Return-Path: <martin@linuxlounge.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxlounge.net;
-	s=mail; t=1561814635;
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Sun, 30 Jun 2019 18:56:01 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c0d3.blue; s=2018;
+	t=1561913769;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	to:to:cc:cc:content-type:content-type:
-	content-transfer-encoding:content-transfer-encoding:
-	in-reply-to:in-reply-to:references:references:openpgp:openpgp:autocrypt:autocrypt;
-	bh=QqTXtzyg2EecwjVnslryBBJzQRwdzLS4pErgFFoAMAg=;
-	b=H6WVbpcHJEI0fzQGaxalF5fhQ/9tWoJel0KPY3E+PjOFsVnWhb1f2SRb1WKccCG/qqGe9U
-	u2uXOB2h3UKm9LlXyESlPJpWWFZmh1bHS5amazjMieLF8h8FopNkGDXSVWm59rlxsZeQcw
-	nUXKWvEwzbbiW6BylfMU6658VKr0XQw=
-References: <41ac3aa3-cbf7-1b7b-d847-1fb308334931@linuxlounge.net>
-	<E0170D52-C181-4F0F-B5F8-F1801C2A8F5A@cumulusnetworks.com>
-From: Martin Weinelt <martin@linuxlounge.net>
-Message-ID: <18347ad7-a671-582d-3c6e-db148de685c1@linuxlounge.net>
-Date: Sat, 29 Jun 2019 15:23:54 +0200
-In-Reply-To: <E0170D52-C181-4F0F-B5F8-F1801C2A8F5A@cumulusnetworks.com>
+	to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	in-reply-to:in-reply-to:references:references;
+	bh=9nZ5bd9iTq8RpWHvycQewtEibB8Vs6Ksz9SsR8axNpk=;
+	b=SjbnyvSc0ajFOTxwOiKUkhrFU+IUsDibQAmSQ2HdYNNuKFGix8F6SXPlZRM+PJlm2RZetV
+	lJNW6GJQpVIkjXsHN0gJihlDzVfXyDAis1XTevoCZRmf11B6Xey9VjvmGhA/VUaUbWC7QE
+	1TU/9kaf74lTF97kCWkdZIE7MGub/XJYsu6GXYgY4jrUZzufDQXV1AHwyIecXeDCE+U8i4
+	wcvcWu0k/g4gmeq27SDAEMoNr0WDktO6jSncQ5mBgKlvAn8x1qKk2QALroJBiJlyCc2dvP
+	1eZdtOYL92se5qLHbmIwUAtgtHcjaXZ/4mH7Yyx33wx5RfzUgOnGZokQY4LU3A==
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20190630165601.GC2500@otheros>
+References: <20190620235639.24102-1-vivien.didelot@gmail.com>
+	<5d653a4d-3270-8e53-a5e0-88ea5e7a4d3f@gmail.com>
+	<20190621172952.GB9284@t480s.localdomain>
+	<20190623070949.GB13466@splinter>
+	<20190623072605.2xqb56tjydqz2jkx@shell.armlinux.org.uk>
+	<20190623074427.GA21875@splinter> <20190629162945.GB17143@splinter>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] Use-after-free in br_multicast_rcv
+Content-Disposition: inline
+In-Reply-To: <20190629162945.GB17143@splinter>
+Subject: Re: [Bridge] [RFC net-next] net: dsa: add support for MC_DISABLED
+	attribute
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,124 +33,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
+To: Ido Schimmel <idosch@idosch.org>
+Cc: "andrew@lunn.ch" <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, b.a.t.m.a.n@lists.open-mesh.org, nikolay@cumulusnetworks.com, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Russell King - ARM Linux admin <linux@armlinux.org.uk>, "davem@davemloft.net" <davem@davemloft.net>, Ido Schimmel <idosch@mellanox.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On 6/29/19 3:11 PM, nikolay@cumulusnetworks.com wrote:
-> On 29 June 2019 14:54:44 EEST, Martin Weinelt <martin@linuxlounge.net> wrote:
->> Hello,
->>
->> we've recently been experiencing memory leaks on our Linux-based
->> routers,
->> at least as far back as v4.19.16.
->>
->> After rebuilding with KASAN it found a use-after-free in 
->> br_multicast_rcv which I could reproduce on v5.2.0-rc6. 
->>
->> Please find the KASAN report below, I'm anot sure what else to provide
->> so
->> feel free to ask.
->>
->> Best,
->>  Martin
->>
->>
-> 
-> Hi Martin, 
-> I'll look into this, are there any specific steps to reproduce it? 
-> 
-> Thanks, 
->    Nik
+On Sat, Jun 29, 2019 at 07:29:45PM +0300, Ido Schimmel wrote:
+> I would like to avoid having drivers take the querier state into account
+> as it will only complicate things further.
 
-Hi Nik,
-
-thanks for taking an interest. The setup is a public L2 mesh network
-based on the batman-adv kmod. The bridges see 100 Mbps+ of traffic most
-of the day and I unfortunately do not yet know what triggers this.
+I absolutely share your pain. Initially in the early prototypes of
+multicast awareness in batman-adv we did not consider the querier state.
+And doing so later did indeed complicate the code a good bit in batman-adv
+(together with the IGMP/MLD suppression issues). I would have loved to
+avoid that.
 
 
-Best,
-  Martin
+> Is there anything we can do about it? Enable the bridge querier if no
+> other querier was detected? Commit c5c23260594c ("bridge: Add
+> multicast_querier toggle and disable queries by default") disabled
+> queries by default, but I'm only suggesting to turn them on if no other
+> querier was detected on the link. Do you think it's still a problem?
 
-> 
->> ==================================================================
->> BUG: KASAN: use-after-free in br_multicast_rcv+0x480c/0x4ad0 [bridge]
->> Read of size 2 at addr ffff8880421302b4 by task ksoftirqd/1/16
->>
->> CPU: 1 PID: 16 Comm: ksoftirqd/1 Tainted: G           OE     5.2.0-rc6+
->> #1
->> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1
->> 04/01/2014
->> Call Trace:
->> dump_stack+0x71/0xab
->> print_address_description+0x6a/0x280
->> ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
->> __kasan_report+0x152/0x1aa
->> ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
->> ? br_multicast_rcv+0x480c/0x4ad0 [bridge]
->> kasan_report+0xe/0x20
->> br_multicast_rcv+0x480c/0x4ad0 [bridge]
->> ? br_multicast_disable_port+0x150/0x150 [bridge]
->> ? ktime_get_with_offset+0xb4/0x150
->> ? __kasan_kmalloc.constprop.6+0xa6/0xf0
->> ? __netif_receive_skb+0x1b0/0x1b0
->> ? br_fdb_update+0x10e/0x6e0 [bridge]
->> ? br_handle_frame_finish+0x3c6/0x11d0 [bridge]
->> br_handle_frame_finish+0x3c6/0x11d0 [bridge]
->> ? br_pass_frame_up+0x3a0/0x3a0 [bridge]
->> ? virtnet_probe+0x1c80/0x1c80 [virtio_net]
->> br_handle_frame+0x731/0xd90 [bridge]
->> ? select_idle_sibling+0x25/0x7d0
->> ? br_handle_frame_finish+0x11d0/0x11d0 [bridge]
->> __netif_receive_skb_core+0xced/0x2d70
->> ? virtqueue_get_buf_ctx+0x230/0x1130 [virtio_ring]
->> ? do_xdp_generic+0x20/0x20
->> ? virtqueue_napi_complete+0x39/0x70 [virtio_net]
->> ? virtnet_poll+0x94d/0xc78 [virtio_net]
->> ? receive_buf+0x5120/0x5120 [virtio_net]
->> ? __netif_receive_skb_one_core+0x97/0x1d0
->> __netif_receive_skb_one_core+0x97/0x1d0
->> ? __netif_receive_skb_core+0x2d70/0x2d70
->> ? _raw_write_trylock+0x100/0x100
->> ? __queue_work+0x41e/0xbe0
->> process_backlog+0x19c/0x650
->> ? _raw_read_lock_irq+0x40/0x40
->> net_rx_action+0x71e/0xbc0
->> ? __switch_to_asm+0x40/0x70
->> ? napi_complete_done+0x360/0x360
->> ? __switch_to_asm+0x34/0x70
->> ? __switch_to_asm+0x40/0x70
->> ? __schedule+0x85e/0x14d0
->> __do_softirq+0x1db/0x5f9
->> ? takeover_tasklets+0x5f0/0x5f0
->> run_ksoftirqd+0x26/0x40
->> smpboot_thread_fn+0x443/0x680
->> ? sort_range+0x20/0x20
->> ? schedule+0x94/0x210
->> ? __kthread_parkme+0x78/0xf0
->> ? sort_range+0x20/0x20
->> kthread+0x2ae/0x3a0
->> ? kthread_create_worker_on_cpu+0xc0/0xc0
->> ret_from_fork+0x35/0x40
->>
->> The buggy address belongs to the page:
->> page:ffffea0001084c00 refcount:0 mapcount:-128 mapping:0000000000000000
->> index:0x0
->> flags: 0xffffc000000000()
->> raw: 00ffffc000000000 ffffea0000cfca08 ffffea0001098608
->> 0000000000000000
->> raw: 0000000000000000 0000000000000003 00000000ffffff7f
->> 0000000000000000
->> page dumped because: kasan: bad access detected
->>
->> Memory state around the buggy address:
->> ffff888042130180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> ffff888042130200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->>> ffff888042130280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->>                                     ^
->> ffff888042130300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> ffff888042130380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->> ==================================================================
->> Disabling lock debugging due to kernel taint
-> 
-> 
+As soon as you start becoming the querier, you will not be able to reliably
+detect anymore whether you are the only querier candidate.
+
+If any random Linux host using a bridge device were potentially becoming
+a querier, that would cause quite some trouble when this host is
+behind some bad, bottleneck connection. This host will receive
+all multicast traffic, not just IGMP/MLD reports. And with a
+congested connection and then unreliable IGMP/MLD, multicast would
+become unreliable overall in this domain. So it's important that
+your querier is not running in the "dark, remote, dusty closet" of
+your network (topologically speaking).
+
+> On Sun, Jun 23, 2019 at 10:44:27AM +0300, Ido Schimmel wrote:
+> > See commit b00589af3b04 ("bridge: disable snooping if there is no
+> > querier"). I think that's unfortunate behavior that we need because
+> > multicast snooping is enabled by default. If it weren't enabled by
+> > default, then anyone enabling it would also make sure there's a querier
+> > in the network.
+
+I do not quite understand that point. In a way, that's what we
+have right now, isn't it? By default it's disabled, because by
+default there is no querier on the link. So anyone wanting to use
+multicast snooping will need to make sure there's a querier in the
+network.
+
+
+Overall I think the querier (election) mechanism in the standards could
+need an update. While the lowest-address first might have
+worked well back then, in uniform, fully wired networks where the
+position of the querier did not matter, this is not a good
+solution anymore in networks involving wireless, dynamic connections.
+Especially in wireless mesh networks this is a bit of an issue for
+us. Ideally, the querier mechanism were dismissed in favour of simply
+unsolicited, periodic IGMP/MLD reports...
+
+But of course, updating IETF standards is no solution for now. 
+
+While more complicated, it would not be impossible to consider the
+querier state, would it? I mean you probably already need to
+consider the case of a user disabling multicast snooping during
+runtime, right? So similarly, you could react to appearing or
+disappearing queriers?
+
+Cheers, Linus
