@@ -1,14 +1,22 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 02 Jul 2019 11:54:07 -0700 (PDT)
-Message-Id: <20190702.115407.589130187506465260.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20190702120021.13096-1-nikolay@cumulusnetworks.com>
-References: <20190702120021.13096-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net 0/4] net: bridge: fix possible stale skb
-	pointers
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124;
+	h=Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-Transfer-Encoding:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=r02h9MTl0BX08PCqISfFd+97NJJEJLJZHaEFTSLVzmQ=;
+	b=cz3FRZpIXEdBacZ9X8yxYsqKdd
+	3TwMjwPk+OiCunEKlvtvOfTpo6KkvmAV9eMTXyWqDvXf0no9JJEeu7mj5DmuY5uiquynQG+OGpTBH
+	9uutB4Lht+UCDAUOwmbgVhpE6NQzm4En/OSanGKvCRVKwVgA87AOB4HRR/zYvQNtgiCk=; 
+Date: Tue, 2 Jul 2019 22:47:05 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20190702204705.GC28471@lunn.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Validation of forward_delay seems wrong...
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,19 +25,48 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: martin@linuxlounge.net, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, yoshfuji@linux-ipv6.org
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue,  2 Jul 2019 15:00:17 +0300
+Hi Nikolay
 
-> In the bridge driver we have a couple of places which call pskb_may_pull
-> but we've cached skb pointers before that and use them after which can
-> lead to out-of-bounds/stale pointer use. I've had these in my "to fix"
-> list for some time and now we got a report (patch 01) so here they are.
-> Patches 02-04 are fixes based on code inspection. Also patch 01 was
-> tested by Martin Weinelt, Martin if you don't mind please add your
-> tested-by tag to it by replying with Tested-by: name <email>.
-> I've also briefly tested the set by trying to exercise those code paths.
+The man page says that the bridge forward_delay is in units of
+seconds, and should be between 2 and 30.
 
-Series applied, thanks.
+I've tested on a couple of different kernel versions, and this appears
+to be not working correctly:
+
+ip link set br0 type bridge forward_delay 2
+RTNETLINK answers: Numerical result out of range
+
+ip link set br0 type bridge forward_delay 199
+RTNETLINK answers: Numerical result out of range
+
+ip link set br0 type bridge forward_delay 200
+# 
+
+ip link set br0 type bridge forward_delay 3000
+#
+
+ip link set br0 type bridge forward_delay 3001
+RTNETLINK answers: Numerical result out of range
+
+I've not checked what delay is actually being used here, but clearly
+something is mixed up.
+
+grep HZ .config 
+CONFIG_HZ_PERIODIC=y
+# CONFIG_NO_HZ_IDLE is not set
+# CONFIG_NO_HZ_FULL is not set
+# CONFIG_NO_HZ is not set
+CONFIG_HZ_FIXED=0
+CONFIG_HZ_100=y
+# CONFIG_HZ_200 is not set
+# CONFIG_HZ_250 is not set
+# CONFIG_HZ_300 is not set
+# CONFIG_HZ_500 is not set
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=100
+
+Thanks
+	Andrew
