@@ -1,30 +1,28 @@
-Return-Path: <martin@linuxlounge.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxlounge.net;
-	s=mail; t=1562057182;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	to:to:cc:cc:content-type:content-type:
-	content-transfer-encoding:content-transfer-encoding:
-	in-reply-to:in-reply-to:references:references:openpgp:openpgp:autocrypt:autocrypt;
-	bh=HcrU3xHf2es9K1eWmG8nbhDoxCTyXkGXB9fNsN37JPM=;
-	b=cpOxtmSaP4trU3ozqBS66YZqBZWhUwjWDFuCuUs9XDb55dKzLjizVEO9O2JeTgOhFskerw
-	IinNen6G4pMYKhk0XtE6GbHHBvu2IBjIMPTPZLmOUfLO8qc7svfe4VJhoL6uiyxZc4Aa3u
-	EOuyYNmZ3JRSgRJrPNuAVkqg4TXOJUo=
-References: <41ac3aa3-cbf7-1b7b-d847-1fb308334931@linuxlounge.net>
-	<E0170D52-C181-4F0F-B5F8-F1801C2A8F5A@cumulusnetworks.com>
-	<21ab085f-0f7f-88bc-b661-af74dd9eeea2@linuxlounge.net>
-	<cc232ed3-9e02-ebb4-4901-9d617013abb8@cumulusnetworks.com>
-	<3fcf8b05-e1ad-ac97-10bf-bd2b6354424c@linuxlounge.net>
-	<908e9e90-70cc-7bbe-f83f-0810c9ef3925@cumulusnetworks.com>
-	<5e43ba82-de32-e419-efc3-5dfca8291973@linuxlounge.net>
-	<6dc6e89b-8b40-7dac-ec69-f4223d5dc147@cumulusnetworks.com>
-From: Martin Weinelt <martin@linuxlounge.net>
-Message-ID: <c66cd547-6cbe-40bf-e42c-d307956644fa@linuxlounge.net>
-Date: Tue, 2 Jul 2019 10:46:22 +0200
-In-Reply-To: <6dc6e89b-8b40-7dac-ec69-f4223d5dc147@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
+Return-Path: <toshiaki.makita1@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=gcpSo2zN747jEWG2nxHZ/JI8q6vz3s3mmrB7ZXpv6Yk=;
+	b=tnnYOTAsHjg/CzlLK41jHssHNTw8jR8fAS8dnA1kdv1dxEbqXyZFnnufaL5sy+j9wC
+	Oi5aJuy5YnuS6ECUBQaDmKv2Iw3/tL/VDBpti4U12/8UiTiaR/oYL4f4KQzUeWTpEhQo
+	TlMlh+qT0/XhCpENdCD2M1ZDNPnfoe6WIEgI7x11v/eSJDjWf7qihJ7eSkf67kIU2ZyB
+	mRRXKHywna0apP/IUvISB1tnhzviZa0FBhUlv/kSprxTrgr5PfFspQS6ECuLD5FSnkdF
+	z2gxXwU6yOZNL88rGAiSB3SY2ahlRdFhPA0pUGfQJJJOqHbsZYvi6ott+Fsqjdku+JBE
+	5ZGQ==
+References: <68c99662210c8e9e37f198ddf8cb00bccf301c4b.camel@sipsolutions.net>
+	<20190615151913.cgrfyflwwnhym4u2@ast-mbp.dhcp.thefacebook.com>
+	<e487656b854ca999d14eb8072e5553eb2676a9f4.camel@sipsolutions.net>
+	<828a23fe-8466-ae65-7829-620f32aacead@gmail.com>
+	<411e7717a68243fc775910ee01fa110c45ce0630.camel@sipsolutions.net>
+From: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Message-ID: <0860e598-b270-aee5-4e94-4193e4271356@gmail.com>
+Date: Tue, 2 Jul 2019 19:00:48 +0900
+MIME-Version: 1.0
+In-Reply-To: <411e7717a68243fc775910ee01fa110c45ce0630.camel@sipsolutions.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] Use-after-free in br_multicast_rcv
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] VLAN tags in mac_len
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,43 +31,160 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: David Ahern <dsahern@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, Zahari Doychev <zahari.doychev@linux.com>, jhs@mojatatu.com, Simon Horman <simon.horman@netronome.com>, Jiri Pirko <jiri@mellanox.com>, Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Cong Wang <xiyou.wangcong@gmail.com>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
 
-Hi Nik,
-
-On 7/2/19 12:37 AM, Nikolay Aleksandrov wrote:
-> On 7/2/19 1:17 AM, Martin Weinelt wrote:
->> Hi again,
+On 2019/06/28 20:02, Johannes Berg wrote:
+> On Mon, 2019-06-17 at 20:15 +0900, Toshiaki Makita wrote:
+>> I'll try to explain the problem I see, which cannot be fixed by option 1...
+>> The bug is in tcf_vlan_act(), and mainly in skb->data, not in mac_len.
 >>
->> On 7/1/19 7:37 PM, Nikolay Aleksandrov wrote:
->>> I see, thanks for clarifying this. So on the KASAN could you please try the attached patch ?
->>> Also could you please run the br_multicast_rcv+xxx addresses through
->>> linux/scripts/faddr2line for your kernel/bridge:
->>> usage: faddr2line [--list] <object file> <func+offset> <func+offset>...
->>>
->>> Thanks,
->>>  Nik
->>>
+>> Consider about vlan packets from NIC, but non-hw-accelerated, where
+>> vlan devices are configured to receive them.
 >>
->> back with a new report. This is 5.2.0-rc7 + your patch.
+>> When __netif_receive_skb_core() is called, skb is like this.
 >>
->> Best,
->>   Martin
+>> +-----+------+--------
+>>> eth | vlan | TCP/IP
 >>
+>> +-----+------+--------
+>>         ^
+>>        data
+>>
+>> skb->data is at the beginning of the vlan header.
 > 
-> Thanks! Aaargh.. I made a stupid mistake hurrying to send the patch, apologies.
-> Here's the fixed version, please give it a go. This report is because
-> of my change, not because of the previous bug that should've been fixed.
+> Right.
 > 
+>> This is reasonable because we did not process the vlan tag at this point.
+> 
+> I think with this simple sentence you just threw a whole new semantic
+> issue into the mix, one that I at least hadn't considered.
+>
+> However, it's not clear to me whether we should consider a tag as
+> processed or not when we push it.
 
-I applied your latest patch against 5.2.0-rc7 and it seems to have fixed the issue as,
-after 6 hours of uptime, the KASAN report isn't coming up anymore.
+It's clear that we always insert a tag as unprocessed in a single tag case.
+The tag is inserted as hw-offloaded one, and hw-offloaded one is treated
+as an unprocessed tag in __netif_receive_skb_core().
+The single tag is the most common usage I think, so unprocessed should be
+the expected behavior.
 
-Also there are currently no kmemleak results coming up on 5.2.0-rc7, so I'll be
-looking at the v4.19.x series next.
+Also, tc vlan act was originally introduced to replace OVS vlan action.
+It's in fact used as HW offload path of ovs-vswitchd, and should behave the same as
+OVS push_vlan action. And push_vlan action inserts a tag as unprocessed one.
 
-Thank you!
+> In a sense, this means we should have two different VLAN tag push
+> options - considering it processed or unprocessed. Or maybe it should
+> always be considered unprocessed, but that's not what we do today.
+>
+>> Then after vlan_do_receive() (receive the skb on a vlan device), the skb is like this.
+>>
+>> +-----+--------
+>>> eth | TCP/IP
+>>
+>> +-----+--------
+>>         ^
+>>        data
+>>
+>> Or if reorder_hdr is off (which does not remove vlan tags when receiving on vlan devices),
+>>
+>> +-----+------+--------
+>>> eth | vlan | TCP/IP
+>>
+>> +-----+------+--------
+>>                ^
+>>               data
+>>
+>> Relying on this mechanism, we are currently able to handle multiple vlan tags.
+>>
+>> For example if we have 2 tags,
+>>
+>> - On __netif_receive_skb_core() invocation
+>>
+>> +-----+------+------+--------
+>>> eth | vlan | vlan | TCP/IP
+>>
+>> +-----+------+------+--------
+>>         ^
+>>        data
+>>
+>> - After first vlan_do_receive()
+>>
+>> +-----+------+--------
+>>> eth | vlan | TCP/IP
+>>
+>> +-----+------+--------
+>>         ^
+>>        data
+>>
+>> Or if reorder_hdr is off,
+>>
+>> +-----+------+------+--------
+>>> eth | vlan | vlan | TCP/IP
+>>
+>> +-----+------+------+--------
+>>                ^
+>>               data
+>>
+>> When we process one tag, the data goes forward by one tag.
+> 
+> Right, that's a very good point.
+> 
+>> Now looking at TC vlan case...
+>>
+>> After it inserts two tags, the skb looks like:
+>>
+>> (The first tag is in vlan_tci)
+>> +-----+------+--------
+>>> eth | vlan | TCP/IP
+>>
+>> +-----+------+--------
+>>                ^
+>>               data
+>>
+>> The data pointer went forward before we process it.
+>> This is apparently wrong. I think we don't want to (or cannot?) handle cases like this
+>> after tcf_vlan_act(). This is why I said we should remember mac_len there.
+> 
+> Right, makes a lot of sense.
+> 
+> If you consider a tc VLAN pop, you'd argue that it should pop the next
+> unprocessed tag I guess, since if it was processed then it doesn't
+> really exist any more (semantically, you still see it if reorder_hdr is
+> off), right?
 
-Best
-  Martin
+Right.
+
+>> So, my opinion is:
+>> On ingress, data pointer can be at the end of vlan header and mac_len probably should
+>> include vlan tag length, but only after the vlan tag is processed.
+> 
+> You're basically arguing for option (3), I think, making VLAN push/pop
+> not manipulate mac_len since they can just push/pop *unprocessed* tags,
+> right?
+
+Ah, true, on the second thought (2b) is not an appropriate fix but (3) is.
+(3) more correctly emulates already tagged packets from wire so it should
+cause least confusion.
+
+> I fear this will cause all kinds of trouble in other code. Perhaps we
+> need to make this processed/unprocessed state more explicit.
+
+But (3) makes mac_len the same as the already tagged packets from NICs.
+If other code cannot handle the packets correctly, they need to be fixed anyway.
+
+As you explained OVS MPLS seems to rely on mac_len adjustment by skb_vlan_push(), but
+it means the OVS MPLS code cannot correctly handle double-tagged packets from NICs,
+so it needs a fix anyway (use __vlan_get_protocol() to get the real mac_len?).
+
+>> Bridge may need to handle mac_len that is not equal to ETH_HLEN but to me it's a
+>> different problem.
+> 
+> Yes. Like I just said to Daniel, I think we should make bridge handle
+> mac_len so that we can just exclude it from this whole discussion.
+> Regardless of the mac_len and processed/unprocessed tags, it would just
+> work as expected.
+
+That's OK, it should help packets from vlan devices with reorder_hdr off.
+
+Toshiaki Makita
