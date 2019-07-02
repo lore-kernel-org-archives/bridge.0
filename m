@@ -1,24 +1,29 @@
-Return-Path: <martin@linuxlounge.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxlounge.net;
-	s=mail; t=1562071051;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	to:to:cc:cc:content-type:content-type:in-reply-to:in-reply-to:
-	references:references:openpgp:openpgp:autocrypt:autocrypt;
-	bh=QwFRkItdW1M7k4agnxTsrRvmLb/4bS9WjKKcKoKQ+Xw=;
-	b=uFMFM7iuNjrk0oV+0w6ldYsORzv+QTLui1LftPBTockPtiRVI6V08jpc3Yo8JsglcDk021
-	FhOAajzg2HXVA5kzsOaoN4lf/j2ETGs5DbepGfi7BQI7wVrG8OST/Jej7z4M/b7dtpZxR5
-	8NtBWKQe2JRBIZM3SQzOQljIl3buy9Q=
-References: <20190702120021.13096-1-nikolay@cumulusnetworks.com>
-	<20190702120021.13096-3-nikolay@cumulusnetworks.com>
-From: Martin Weinelt <martin@linuxlounge.net>
-Message-ID: <fdd4c5d2-1872-bac5-3aa9-107e2081b18f@linuxlounge.net>
-Date: Tue, 2 Jul 2019 14:37:28 +0200
-In-Reply-To: <20190702120021.13096-3-nikolay@cumulusnetworks.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature";
-	boundary="aUTpxe2HGk2DC1XXzq6MoiRXZ0eHKSzRs"
-Subject: Re: [Bridge] [PATCH net 2/4] net: bridge: mcast: fix stale ipv6 hdr
- pointer when handling v6 query
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=EvUD0G7ZLwM85um29w40yj3BLaLrf8+fkprze7AgXNg=;
+	b=DrpE3UpNbWUGjDYvTqLX3fvgMdTrRLaxHJLpNBeQZU7wzjche41R79xGFkswL8KoPY
+	zVSzzUZv5rfcljAXNiFx7suJ7R/xmVM/zaPGOLwYNMyUPF1s0Q1+R1vGLKZDaA2o8PCt
+	IPh7RBd7m4PGlp5POrk1oLrfn5CJOSBQgIjgg=
+References: <20190620235639.24102-1-vivien.didelot@gmail.com>
+	<5d653a4d-3270-8e53-a5e0-88ea5e7a4d3f@gmail.com>
+	<20190621172952.GB9284@t480s.localdomain>
+	<20190623070949.GB13466@splinter>
+	<20190623072605.2xqb56tjydqz2jkx@shell.armlinux.org.uk>
+	<20190623074427.GA21875@splinter> <20190629162945.GB17143@splinter>
+	<20190630165601.GC2500@otheros>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <da75f439-87fb-6e77-4042-a95953f92f75@cumulusnetworks.com>
+Date: Tue, 2 Jul 2019 17:27:29 +0300
+MIME-Version: 1.0
+In-Reply-To: <20190630165601.GC2500@otheros>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [RFC net-next] net: dsa: add support for MC_DISABLED
+	attribute
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,86 +32,81 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
-Cc: yoshfuji@linux-ipv6.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Ido Schimmel <idosch@idosch.org>
+Cc: "andrew@lunn.ch" <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, b.a.t.m.a.n@lists.open-mesh.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Russell King - ARM Linux admin <linux@armlinux.org.uk>, "davem@davemloft.net" <davem@davemloft.net>, Ido Schimmel <idosch@mellanox.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---aUTpxe2HGk2DC1XXzq6MoiRXZ0eHKSzRs
-Content-Type: multipart/mixed; boundary="NfWoGR4PvcfAR9f75qVkkbowdPSqBgO69";
- protected-headers="v1"
-From: Martin Weinelt <martin@linuxlounge.net>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
-Cc: roopa@cumulusnetworks.com, davem@davemloft.net,
- bridge@lists.linux-foundation.org, yoshfuji@linux-ipv6.org
-Message-ID: <fdd4c5d2-1872-bac5-3aa9-107e2081b18f@linuxlounge.net>
-Subject: Re: [PATCH net 2/4] net: bridge: mcast: fix stale ipv6 hdr pointer
- when handling v6 query
-References: <20190702120021.13096-1-nikolay@cumulusnetworks.com>
- <20190702120021.13096-3-nikolay@cumulusnetworks.com>
-In-Reply-To: <20190702120021.13096-3-nikolay@cumulusnetworks.com>
+On 30/06/2019 19:56, Linus Lüssing wrote:
+> On Sat, Jun 29, 2019 at 07:29:45PM +0300, Ido Schimmel wrote:
+>> I would like to avoid having drivers take the querier state into account
+>> as it will only complicate things further.
+> 
+> I absolutely share your pain. Initially in the early prototypes of
+> multicast awareness in batman-adv we did not consider the querier state.
+> And doing so later did indeed complicate the code a good bit in batman-adv
+> (together with the IGMP/MLD suppression issues). I would have loved to
+> avoid that.
+> 
+> 
+>> Is there anything we can do about it? Enable the bridge querier if no
+>> other querier was detected? Commit c5c23260594c ("bridge: Add
+>> multicast_querier toggle and disable queries by default") disabled
+>> queries by default, but I'm only suggesting to turn them on if no other
+>> querier was detected on the link. Do you think it's still a problem?
+> 
+> As soon as you start becoming the querier, you will not be able to reliably
+> detect anymore whether you are the only querier candidate.
+> 
+> If any random Linux host using a bridge device were potentially becoming
+> a querier, that would cause quite some trouble when this host is
+> behind some bad, bottleneck connection. This host will receive
+> all multicast traffic, not just IGMP/MLD reports. And with a
+> congested connection and then unreliable IGMP/MLD, multicast would
+> become unreliable overall in this domain. So it's important that
+> your querier is not running in the "dark, remote, dusty closet" of
+> your network (topologically speaking).
+> 
 
---NfWoGR4PvcfAR9f75qVkkbowdPSqBgO69
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
++1
+We definitely don't want random hosts becoming queriers
 
-Tested-by: Martin Weinelt <martin@linuxlounge.net>
+>> On Sun, Jun 23, 2019 at 10:44:27AM +0300, Ido Schimmel wrote:
+>>> See commit b00589af3b04 ("bridge: disable snooping if there is no
+>>> querier"). I think that's unfortunate behavior that we need because
+>>> multicast snooping is enabled by default. If it weren't enabled by
+>>> default, then anyone enabling it would also make sure there's a querier
+>>> in the network.
+> 
+> I do not quite understand that point. In a way, that's what we
+> have right now, isn't it? By default it's disabled, because by
+> default there is no querier on the link. So anyone wanting to use
+> multicast snooping will need to make sure there's a querier in the
+> network.
+> 
 
-On 7/2/19 2:00 PM, Nikolay Aleksandrov wrote:
-> We get a pointer to the ipv6 hdr in br_ip6_multicast_query but we may
-> call pskb_may_pull afterwards and end up using a stale pointer.
-> So use the header directly, it's just 1 place where it's needed.
->=20
-> Fixes: 08b202b67264 ("bridge br_multicast: IPv6 MLD support.")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> ---
->  net/bridge/br_multicast.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->=20
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index f37897e7b97b..3d8deac2353d 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -1279,7 +1279,6 @@ static int br_ip6_multicast_query(struct net_brid=
-ge *br,
->  				  u16 vid)
->  {
->  	unsigned int transport_len =3D ipv6_transport_len(skb);
-> -	const struct ipv6hdr *ip6h =3D ipv6_hdr(skb);
->  	struct mld_msg *mld;
->  	struct net_bridge_mdb_entry *mp;
->  	struct mld2_query *mld2q;
-> @@ -1323,7 +1322,7 @@ static int br_ip6_multicast_query(struct net_brid=
-ge *br,
-> =20
->  	if (is_general_query) {
->  		saddr.proto =3D htons(ETH_P_IPV6);
-> -		saddr.u.ip6 =3D ip6h->saddr;
-> +		saddr.u.ip6 =3D ipv6_hdr(skb)->saddr;
-> =20
->  		br_multicast_query_received(br, port, &br->ip6_other_query,
->  					    &saddr, max_delay);
->=20
+Indeed, also you could create the bridge with explicit mcast parameters if you need
+different behaviour on start. Unfortunately I think you'll have to handle
+the querier state.
 
+> 
+> Overall I think the querier (election) mechanism in the standards could
+> need an update. While the lowest-address first might have
+> worked well back then, in uniform, fully wired networks where the
+> position of the querier did not matter, this is not a good
+> solution anymore in networks involving wireless, dynamic connections.
+> Especially in wireless mesh networks this is a bit of an issue for
+> us. Ideally, the querier mechanism were dismissed in favour of simply
+> unsolicited, periodic IGMP/MLD reports...
+> 
+> But of course, updating IETF standards is no solution for now. 
+> 
+> While more complicated, it would not be impossible to consider the
+> querier state, would it? I mean you probably already need to
+> consider the case of a user disabling multicast snooping during
+> runtime, right? So similarly, you could react to appearing or
+> disappearing queriers?
+> 
+> Cheers, Linus
+> 
 
-
---NfWoGR4PvcfAR9f75qVkkbowdPSqBgO69--
-
---aUTpxe2HGk2DC1XXzq6MoiRXZ0eHKSzRs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEE7tAWAry9GWw4vJofvUqgUo9j8X4FAl0bUAgACgkQvUqgUo9j
-8X5fcAf/cxwx2Jd5RMEWJU3S5Mc06qa6MpH+ssC31UKha2emhkwE4wZxkknT7viv
-CRTcMcWJRPk4qkrYHFYpWuy5z7G+fjS9PlhwzHrIbtF8Qv+zausK+MTFqeI6QtsC
-z3xrUPvb6oO0l1cqAAuwezXH+1HBmN97tTNXZrBQe2fjaYC5fZ+qUD8PsxpxT5QA
-37WJvkb7BVQhkXPZLCNFZpO/0R6dtNlx0c/iHX4LyaSGuXOd5Z3ZppvAiQL9UGtp
-lw7CjWuLhLhWU2s4yrXTc1gOEMJnRZDU/rO39Xck0Zf4K3pMsWxQx82B1LqrExfB
-LsxsDRwFEjjO7gQdld64Qj/XnH2rsw==
-=74Je
------END PGP SIGNATURE-----
-
---aUTpxe2HGk2DC1XXzq6MoiRXZ0eHKSzRs--
+Thanks,
+ Nik
