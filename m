@@ -1,31 +1,14 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Wed, 3 Jul 2019 01:13:08 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c0d3.blue; s=2018;
-	t=1562109193;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	in-reply-to:in-reply-to:references:references;
-	bh=LoksQgMuk2Kt4j2B5li4KJCxEkwEChyK4NytrrYLJM0=;
-	b=Iqv5pj9XwiKR2p5lOawMUFRwc1opH1IlECd+4FMHaJFhM5WSe3XO4/94//FDQFKNLXhxHP
-	8ax+nnciW8IOALXXh6gy9RdPB9qZDKumLnbd86RF4QAPhFmxr2rKQOuo2J4ZBEHCLgyw4L
-	dlg7J5ddPmdXEfQV1PQF13JFBboIsMa1N1AwVg35Jzzh7kIs1oZNb2UqWXM6rrrfTHtJ+D
-	sTNalTQO+ncEaaIpSDpJmQAX+vkuAUMAHIq1IuTK4u0FUqDgWR7CRiQHC98BlmciwPaqVm
-	2uVf6aLxnjLqigUypqCBzyKOhdu30SO/6PSw5+CCk0+dRoj8SjmA8OnU/W3/nw==
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20190702231308.GA2414@otheros>
-References: <20190620235639.24102-1-vivien.didelot@gmail.com>
-	<5d653a4d-3270-8e53-a5e0-88ea5e7a4d3f@gmail.com>
-	<20190621172952.GB9284@t480s.localdomain>
-	<20190623070949.GB13466@splinter>
-	<20190623072605.2xqb56tjydqz2jkx@shell.armlinux.org.uk>
-	<20190623074427.GA21875@splinter> <20190629162945.GB17143@splinter>
-	<20190630165601.GC2500@otheros> <20190702171158.GA7182@splinter>
+Return-Path: <wenxu@ucloud.cn>
+References: <20190703124040.19279-1-pablo@netfilter.org>
+From: wenxu <wenxu@ucloud.cn>
+Message-ID: <ecb6d9e8-7923-07ba-8940-c69fc251f4c3@ucloud.cn>
+Date: Wed, 3 Jul 2019 21:53:41 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20190702171158.GA7182@splinter>
-Subject: Re: [Bridge] [RFC net-next] net: dsa: add support for MC_DISABLED
-	attribute
+In-Reply-To: <20190703124040.19279-1-pablo@netfilter.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH] netfilter: nft_meta: fix bridge port vlan ID
+	selector
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,65 +17,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, b.a.t.m.a.n@lists.open-mesh.org, nikolay@cumulusnetworks.com, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Russell King - ARM Linux admin <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@mellanox.com>, "davem@davemloft.net" <davem@davemloft.net>
-
-Hi Ido,
-
-> Do you differentiate between IPv4 and IPv6 in batman-adv?
-
-For most things, yes: The querier state is kept separately for
-IPv4 and IPv6. And we do have something like a "router node"
-flag to signalize that a node needs all multicast traffic, which
-is split into IPv4 and IPv6.
-
-The "MDB" equivalent in batman-adv (multicast entries in our "TT",
-translation table) are on MAC address base right now, not on an IP
-address base yet, so that sounds similar to what you do in mlxsw?
-
-Regarding querier state, we periodically ask the
-bridge via "br_multicast_has_querier_anywhere(dev, ETH_P_IP)"
-and "br_multicast_has_querier_anywhere(dev, ETH_P_IPV6)".
-
-(Something more event based with handler functions would probably
-be nicer, but this was the easier thing to start with.)
+To: Pablo Neira Ayuso <pablo@netfilter.org>, netfilter-devel@vger.kernel.org
+Cc: nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
 
-> 1. All the IPv6 MDB entries need to be removed from the device. At least
-> in mlxsw, we do not have a way to ignore only IPv6 entries. From the
-> device's perspective, an MDB entry is just a multicast DMAC with a
-> bitmap of ports packets should be replicated to.
-
-Ah, I see, yes. We had a similar "issue". Initially we just always
-added any multicast entry into our translation table offered by
-the IP stack or bridge, no matter what a querier state or "router
-node" state said. Which would have led to a node receiving two
-copies of a multicast packet if it were both a querier or router
-and were also having a listener announced via IGMP/MLD.
-
-So there we also just recently changed that, to filter out
-IPv6 multicast TT entries if this node were also announcing itself as
-an MLD querier or IPv6 router. And same, independently for
-IPv4/IGMP.
-
-> 2. We need to split the flood tables used for IPv4 and IPv6 unregistered
-> multicast packets. For IPv4, packets should only be flooded to mrouter
-> ports whereas for IPv6 packets should be flooded to all the member
-> ports.
-
-This one I do not fully understand yet. Why don't you apply the
-"flood to all ports" (in the no IGMP querier present case)
-for IPv4, too?
-
-Sure, for IPv4 nothing "essential" will break, as IPv4 unicast
-does not rely on multicast (contrary to IPv6, due to NDP, as you
-mentioned). But still there would be potential multicast packet loss
-for a 239.x.x.x listener on the local link, for instance, wouldn't
-there?
-
-
-If I'm not mistaken, we do not apply differing behaviour for IPv4
-vs. IPv6 in the bridge either and would flood on all ports for IPv4
-with no querier present, too.
-
-Regards, Linus
+在 2019/7/3 20:40, Pablo Neira Ayuso 写道:
+> Use br_vlan_enabled() and br_vlan_get_pvid() helpers as Nikolay
+> suggests.
+>
+> Rename NFT_META_BRI_PVID to NFT_META_BRI_IIFPVID before this patch hits
+> the 5.3 release cycle, to leave room for matching for the output bridge
+> port in the future.
+>
+> Reported-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Fixes: da4f10a4265b ("netfilter: nft_meta: add NFT_META_BRI_PVID support")
+> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+> ---
+>  include/uapi/linux/netfilter/nf_tables.h |  4 ++--
+>  net/netfilter/nft_meta.c                 | 17 ++++++++++-------
+>  2 files changed, 12 insertions(+), 9 deletions(-)
+>
+> diff --git a/include/uapi/linux/netfilter/nf_tables.h b/include/uapi/linux/netfilter/nf_tables.h
+> index 8859535031e2..8a1bd0b1ec8c 100644
+> --- a/include/uapi/linux/netfilter/nf_tables.h
+> +++ b/include/uapi/linux/netfilter/nf_tables.h
+> @@ -795,7 +795,7 @@ enum nft_exthdr_attributes {
+>   * @NFT_META_SECPATH: boolean, secpath_exists (!!skb->sp)
+>   * @NFT_META_IIFKIND: packet input interface kind name (dev->rtnl_link_ops->kind)
+>   * @NFT_META_OIFKIND: packet output interface kind name (dev->rtnl_link_ops->kind)
+> - * @NFT_META_BRI_PVID: packet input bridge port pvid
+> + * @NFT_META_BRI_IIFPVID: packet input bridge port pvid
+>   */
+>  enum nft_meta_keys {
+>  	NFT_META_LEN,
+> @@ -826,7 +826,7 @@ enum nft_meta_keys {
+>  	NFT_META_SECPATH,
+>  	NFT_META_IIFKIND,
+>  	NFT_META_OIFKIND,
+> -	NFT_META_BRI_PVID,
+> +	NFT_META_BRI_IIFPVID,
+>  };
+>  
+>  /**
+> diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+> index 4f8116de70f8..b8d8adc0852e 100644
+> --- a/net/netfilter/nft_meta.c
+> +++ b/net/netfilter/nft_meta.c
+> @@ -240,14 +240,17 @@ void nft_meta_get_eval(const struct nft_expr *expr,
+>  			goto err;
+>  		strncpy((char *)dest, p->br->dev->name, IFNAMSIZ);
+>  		return;
+> -	case NFT_META_BRI_PVID:
+> +	case NFT_META_BRI_IIFPVID: {
+> +		u16 p_pvid;
+> +
+>  		if (in == NULL || (p = br_port_get_rtnl_rcu(in)) == NULL)
+>  			goto err;
+> -		if (br_opt_get(p->br, BROPT_VLAN_ENABLED)) {
+> -			nft_reg_store16(dest, br_get_pvid(nbp_vlan_group_rcu(p)));
+> -			return;
+> -		}
+> -		goto err;
+> +		if (!br_vlan_enabled(in))
+> +			goto err;
+> +		br_vlan_get_pvid(in, &p_pvid);
+I find the function br_vlan_get_pvid is ASSERT_RTNL();. But in this senario is under packet path.
+> +		nft_reg_store16(dest, p_pvid);
+> +		return;
+> +	}
+>  #endif
+>  	case NFT_META_IIFKIND:
+>  		if (in == NULL || in->rtnl_link_ops == NULL)
+> @@ -375,7 +378,7 @@ static int nft_meta_get_init(const struct nft_ctx *ctx,
+>  			return -EOPNOTSUPP;
+>  		len = IFNAMSIZ;
+>  		break;
+> -	case NFT_META_BRI_PVID:
+> +	case NFT_META_BRI_IIFPVID:
+>  		if (ctx->family != NFPROTO_BRIDGE)
+>  			return -EOPNOTSUPP;
+>  		len = sizeof(u16);
