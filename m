@@ -1,8 +1,22 @@
-Return-Path: <pablo@netfilter.org>
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Date: Wed,  3 Jul 2019 14:40:40 +0200
-Message-Id: <20190703124040.19279-1-pablo@netfilter.org>
-Subject: [Bridge] [PATCH] netfilter: nft_meta: fix bridge port vlan ID
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=73Z6yaJsbbbf40V41AoK++cX14SZrBNYZG3bmClY4Bw=;
+	b=d6A9vpWiEVL4F9MfpBZtNmambPX5TD74hHk4/m94ZZJ32OR7y41As3AoBuhMqn5Fvm
+	A60sXgnHhItyvcr8+f/b44l0kevZgPqUq1QkZzuMsE+QgE6yvmA3HuVrLc/ptgrIoQHq
+	OTweLldz3cbbKaDZ/aXxE+LMdTJNFhA9EQBmc=
+References: <20190703124040.19279-1-pablo@netfilter.org>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <f7763540-dd87-9ba6-3d18-451427eaeb0d@cumulusnetworks.com>
+Date: Wed, 3 Jul 2019 15:42:28 +0300
+MIME-Version: 1.0
+In-Reply-To: <20190703124040.19279-1-pablo@netfilter.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] netfilter: nft_meta: fix bridge port vlan ID
 	selector
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -12,83 +26,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netfilter-devel@vger.kernel.org
-Cc: nikolay@cumulusnetworks.com, wenxu@ucloud.cn, bridge@lists.linux-foundation.org
+To: Pablo Neira Ayuso <pablo@netfilter.org>, netfilter-devel@vger.kernel.org
+Cc: wenxu@ucloud.cn, bridge@lists.linux-foundation.org
 
-Use br_vlan_enabled() and br_vlan_get_pvid() helpers as Nikolay
-suggests.
+On 03/07/2019 15:40, Pablo Neira Ayuso wrote:
+> Use br_vlan_enabled() and br_vlan_get_pvid() helpers as Nikolay
+> suggests.
+> 
+> Rename NFT_META_BRI_PVID to NFT_META_BRI_IIFPVID before this patch hits
+> the 5.3 release cycle, to leave room for matching for the output bridge
+> port in the future.
+> 
+> Reported-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Fixes: da4f10a4265b ("netfilter: nft_meta: add NFT_META_BRI_PVID support")
+> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+> ---
+>  include/uapi/linux/netfilter/nf_tables.h |  4 ++--
+>  net/netfilter/nft_meta.c                 | 17 ++++++++++-------
+>  2 files changed, 12 insertions(+), 9 deletions(-)
+> 
 
-Rename NFT_META_BRI_PVID to NFT_META_BRI_IIFPVID before this patch hits
-the 5.3 release cycle, to leave room for matching for the output bridge
-port in the future.
-
-Reported-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Fixes: da4f10a4265b ("netfilter: nft_meta: add NFT_META_BRI_PVID support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
----
- include/uapi/linux/netfilter/nf_tables.h |  4 ++--
- net/netfilter/nft_meta.c                 | 17 ++++++++++-------
- 2 files changed, 12 insertions(+), 9 deletions(-)
-
-diff --git a/include/uapi/linux/netfilter/nf_tables.h b/include/uapi/linux/netfilter/nf_tables.h
-index 8859535031e2..8a1bd0b1ec8c 100644
---- a/include/uapi/linux/netfilter/nf_tables.h
-+++ b/include/uapi/linux/netfilter/nf_tables.h
-@@ -795,7 +795,7 @@ enum nft_exthdr_attributes {
-  * @NFT_META_SECPATH: boolean, secpath_exists (!!skb->sp)
-  * @NFT_META_IIFKIND: packet input interface kind name (dev->rtnl_link_ops->kind)
-  * @NFT_META_OIFKIND: packet output interface kind name (dev->rtnl_link_ops->kind)
-- * @NFT_META_BRI_PVID: packet input bridge port pvid
-+ * @NFT_META_BRI_IIFPVID: packet input bridge port pvid
-  */
- enum nft_meta_keys {
- 	NFT_META_LEN,
-@@ -826,7 +826,7 @@ enum nft_meta_keys {
- 	NFT_META_SECPATH,
- 	NFT_META_IIFKIND,
- 	NFT_META_OIFKIND,
--	NFT_META_BRI_PVID,
-+	NFT_META_BRI_IIFPVID,
- };
- 
- /**
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index 4f8116de70f8..b8d8adc0852e 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -240,14 +240,17 @@ void nft_meta_get_eval(const struct nft_expr *expr,
- 			goto err;
- 		strncpy((char *)dest, p->br->dev->name, IFNAMSIZ);
- 		return;
--	case NFT_META_BRI_PVID:
-+	case NFT_META_BRI_IIFPVID: {
-+		u16 p_pvid;
-+
- 		if (in == NULL || (p = br_port_get_rtnl_rcu(in)) == NULL)
- 			goto err;
--		if (br_opt_get(p->br, BROPT_VLAN_ENABLED)) {
--			nft_reg_store16(dest, br_get_pvid(nbp_vlan_group_rcu(p)));
--			return;
--		}
--		goto err;
-+		if (!br_vlan_enabled(in))
-+			goto err;
-+		br_vlan_get_pvid(in, &p_pvid);
-+		nft_reg_store16(dest, p_pvid);
-+		return;
-+	}
- #endif
- 	case NFT_META_IIFKIND:
- 		if (in == NULL || in->rtnl_link_ops == NULL)
-@@ -375,7 +378,7 @@ static int nft_meta_get_init(const struct nft_ctx *ctx,
- 			return -EOPNOTSUPP;
- 		len = IFNAMSIZ;
- 		break;
--	case NFT_META_BRI_PVID:
-+	case NFT_META_BRI_IIFPVID:
- 		if (ctx->family != NFPROTO_BRIDGE)
- 			return -EOPNOTSUPP;
- 		len = sizeof(u16);
--- 
-2.11.0
+Awesome, thanks!
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
