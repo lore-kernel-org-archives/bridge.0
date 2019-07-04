@@ -1,10 +1,11 @@
 Return-Path: <wenxu@ucloud.cn>
 From: wenxu@ucloud.cn
-Date: Thu,  4 Jul 2019 15:22:31 +0800
-Message-Id: <1562224955-3979-3-git-send-email-wenxu@ucloud.cn>
+Date: Thu,  4 Jul 2019 15:22:32 +0800
+Message-Id: <1562224955-3979-4-git-send-email-wenxu@ucloud.cn>
 In-Reply-To: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
 References: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
-Subject: [Bridge] [PATCH 3/7 nf-next] bridge: add br_vlan_get_pvid_rcu()
+Subject: [Bridge] [PATCH 4/7 nf-next] netfilter: nft_meta_bridge: add
+	NFT_META_BRI_IIFPVID support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,80 +19,84 @@ Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
 From: wenxu <wenxu@ucloud.cn>
 
-This new function allows you to fetch bridge pvid from packet path.
+nft add table bridge firewall
+nft add chain bridge firewall zones { type filter hook prerouting priority - 300 \; }
+nft add rule bridge firewall zones counter ct zone set vlan id map { 100 : 1, 200 : 2 }
+
+As above set the bridge port with pvid, the received packet don't contain
+the vlan tag which means the packet should belong to vlan 200 through pvid.
+With this pacth user can get the pvid of bridge ports.
+
+So add the following rule for as the first rule in the chain of zones.
+
+nft add rule bridge firewall zones counter meta vlan set meta briifpvid
 
 Signed-off-by: wenxu <wenxu@ucloud.cn>
 ---
- include/linux/if_bridge.h |  6 ++++++
- net/bridge/br_vlan.c      | 19 +++++++++++++++----
- 2 files changed, 21 insertions(+), 4 deletions(-)
+ include/uapi/linux/netfilter/nf_tables.h |  2 ++
+ net/bridge/netfilter/nft_meta_bridge.c   | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index f3fab5d..950db1d 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -88,6 +88,7 @@ static inline bool br_multicast_router(const struct net_device *dev)
- #if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_VLAN_FILTERING)
- bool br_vlan_enabled(const struct net_device *dev);
- int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid);
-+int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid);
- int br_vlan_get_info(const struct net_device *dev, u16 vid,
- 		     struct bridge_vlan_info *p_vinfo);
- #else
-@@ -101,6 +102,11 @@ static inline int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
- 	return -EINVAL;
- }
+diff --git a/include/uapi/linux/netfilter/nf_tables.h b/include/uapi/linux/netfilter/nf_tables.h
+index c6c8ec5..8a1bd0b 100644
+--- a/include/uapi/linux/netfilter/nf_tables.h
++++ b/include/uapi/linux/netfilter/nf_tables.h
+@@ -795,6 +795,7 @@ enum nft_exthdr_attributes {
+  * @NFT_META_SECPATH: boolean, secpath_exists (!!skb->sp)
+  * @NFT_META_IIFKIND: packet input interface kind name (dev->rtnl_link_ops->kind)
+  * @NFT_META_OIFKIND: packet output interface kind name (dev->rtnl_link_ops->kind)
++ * @NFT_META_BRI_IIFPVID: packet input bridge port pvid
+  */
+ enum nft_meta_keys {
+ 	NFT_META_LEN,
+@@ -825,6 +826,7 @@ enum nft_meta_keys {
+ 	NFT_META_SECPATH,
+ 	NFT_META_IIFKIND,
+ 	NFT_META_OIFKIND,
++	NFT_META_BRI_IIFPVID,
+ };
  
-+static inline int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
-+{
-+	return -EINVAL;
-+}
+ /**
+diff --git a/net/bridge/netfilter/nft_meta_bridge.c b/net/bridge/netfilter/nft_meta_bridge.c
+index 2ea8acb..9487d42 100644
+--- a/net/bridge/netfilter/nft_meta_bridge.c
++++ b/net/bridge/netfilter/nft_meta_bridge.c
+@@ -7,6 +7,7 @@
+ #include <linux/netfilter/nf_tables.h>
+ #include <net/netfilter/nf_tables.h>
+ #include <net/netfilter/nft_meta.h>
++#include <linux/if_bridge.h>
+ 
+ static const struct net_device *
+ nft_meta_get_bridge(const struct net_device *dev)
+@@ -37,6 +38,17 @@ static void nft_meta_bridge_get_eval(const struct nft_expr *expr,
+ 		if (!br_dev)
+ 			goto err;
+ 		break;
++	case NFT_META_BRI_IIFPVID: {
++		u16 p_pvid;
 +
- static inline int br_vlan_get_info(const struct net_device *dev, u16 vid,
- 				   struct bridge_vlan_info *p_vinfo)
- {
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index f47f526..8d97b91 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1227,13 +1227,11 @@ void br_vlan_get_stats(const struct net_bridge_vlan *v,
++		br_dev = nft_meta_get_bridge(in);
++		if (!br_dev || !br_vlan_enabled(br_dev))
++			goto err;
++
++		br_vlan_get_pvid_rcu(in, &p_pvid);
++		nft_reg_store16(dest, p_pvid);
++		return;
++	}
+ 	default:
+ 		goto out;
  	}
- }
- 
--int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
-+static int __br_vlan_get_pvid(const struct net_device *dev,
-+			      struct net_bridge_port *p, u16 *p_pvid)
- {
- 	struct net_bridge_vlan_group *vg;
--	struct net_bridge_port *p;
- 
--	ASSERT_RTNL();
--	p = br_port_get_check_rtnl(dev);
- 	if (p)
- 		vg = nbp_vlan_group(p);
- 	else if (netif_is_bridge_master(dev))
-@@ -1244,8 +1242,21 @@ int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
- 	*p_pvid = br_get_pvid(vg);
- 	return 0;
- }
-+
-+int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
-+{
-+	ASSERT_RTNL();
-+
-+	return __br_vlan_get_pvid(dev, br_port_get_check_rtnl(dev), p_pvid);
-+}
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid);
- 
-+int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
-+{
-+	return __br_vlan_get_pvid(dev, br_port_get_check_rcu(dev), p_pvid);
-+}
-+EXPORT_SYMBOL_GPL(br_vlan_get_pvid_rcu);
-+
- int br_vlan_get_info(const struct net_device *dev, u16 vid,
- 		     struct bridge_vlan_info *p_vinfo)
- {
+@@ -62,6 +74,9 @@ static int nft_meta_bridge_get_init(const struct nft_ctx *ctx,
+ 	case NFT_META_BRI_OIFNAME:
+ 		len = IFNAMSIZ;
+ 		break;
++	case NFT_META_BRI_IIFPVID:
++		len = sizeof(u16);
++		break;
+ 	default:
+ 		return nft_meta_get_init(ctx, expr, tb);
+ 	}
 -- 
 1.8.3.1
 
