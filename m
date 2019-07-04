@@ -1,11 +1,10 @@
 Return-Path: <wenxu@ucloud.cn>
 From: wenxu@ucloud.cn
-Date: Thu,  4 Jul 2019 15:22:30 +0800
-Message-Id: <1562224955-3979-2-git-send-email-wenxu@ucloud.cn>
+Date: Thu,  4 Jul 2019 15:22:31 +0800
+Message-Id: <1562224955-3979-3-git-send-email-wenxu@ucloud.cn>
 In-Reply-To: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
 References: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
-Subject: [Bridge] [PATCH 2/7 nf-next] netfilter: nft_meta_bridge: Remove the
-	br_private.h header
+Subject: [Bridge] [PATCH 3/7 nf-next] bridge: add br_vlan_get_pvid_rcu()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,63 +18,80 @@ Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
 From: wenxu <wenxu@ucloud.cn>
 
-Mkae the nft_bridge_meta can't direct access the bridge
-internal API.
+This new function allows you to fetch bridge pvid from packet path.
 
 Signed-off-by: wenxu <wenxu@ucloud.cn>
 ---
- net/bridge/netfilter/nft_meta_bridge.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ include/linux/if_bridge.h |  6 ++++++
+ net/bridge/br_vlan.c      | 19 +++++++++++++++----
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/net/bridge/netfilter/nft_meta_bridge.c b/net/bridge/netfilter/nft_meta_bridge.c
-index dde8651..2ea8acb 100644
---- a/net/bridge/netfilter/nft_meta_bridge.c
-+++ b/net/bridge/netfilter/nft_meta_bridge.c
-@@ -8,7 +8,14 @@
- #include <net/netfilter/nf_tables.h>
- #include <net/netfilter/nft_meta.h>
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index f3fab5d..950db1d 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -88,6 +88,7 @@ static inline bool br_multicast_router(const struct net_device *dev)
+ #if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_VLAN_FILTERING)
+ bool br_vlan_enabled(const struct net_device *dev);
+ int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid);
++int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid);
+ int br_vlan_get_info(const struct net_device *dev, u16 vid,
+ 		     struct bridge_vlan_info *p_vinfo);
+ #else
+@@ -101,6 +102,11 @@ static inline int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
+ 	return -EINVAL;
+ }
  
--#include "../br_private.h"
-+static const struct net_device *
-+nft_meta_get_bridge(const struct net_device *dev)
++static inline int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
 +{
-+	if (dev && netif_is_bridge_port(dev))
-+		return netdev_master_upper_dev_get_rcu((struct net_device *)dev);
-+
-+	return NULL;
++	return -EINVAL;
 +}
- 
- static void nft_meta_bridge_get_eval(const struct nft_expr *expr,
- 				     struct nft_regs *regs,
-@@ -17,22 +24,24 @@ static void nft_meta_bridge_get_eval(const struct nft_expr *expr,
- 	const struct nft_meta *priv = nft_expr_priv(expr);
- 	const struct net_device *in = nft_in(pkt), *out = nft_out(pkt);
- 	u32 *dest = &regs->data[priv->dreg];
--	const struct net_bridge_port *p;
-+	const struct net_device *br_dev;
- 
- 	switch (priv->key) {
- 	case NFT_META_BRI_IIFNAME:
--		if (in == NULL || (p = br_port_get_rcu(in)) == NULL)
-+		br_dev = nft_meta_get_bridge(in);
-+		if (!br_dev)
- 			goto err;
- 		break;
- 	case NFT_META_BRI_OIFNAME:
--		if (out == NULL || (p = br_port_get_rcu(out)) == NULL)
-+		br_dev = nft_meta_get_bridge(out);
-+		if (!br_dev)
- 			goto err;
- 		break;
- 	default:
- 		goto out;
++
+ static inline int br_vlan_get_info(const struct net_device *dev, u16 vid,
+ 				   struct bridge_vlan_info *p_vinfo)
+ {
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index f47f526..8d97b91 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1227,13 +1227,11 @@ void br_vlan_get_stats(const struct net_bridge_vlan *v,
  	}
+ }
  
--	strncpy((char *)dest, p->br->dev->name, IFNAMSIZ);
-+	strncpy((char *)dest, br_dev->name, IFNAMSIZ);
- 	return;
- out:
- 	return nft_meta_get_eval(expr, regs, pkt);
+-int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
++static int __br_vlan_get_pvid(const struct net_device *dev,
++			      struct net_bridge_port *p, u16 *p_pvid)
+ {
+ 	struct net_bridge_vlan_group *vg;
+-	struct net_bridge_port *p;
+ 
+-	ASSERT_RTNL();
+-	p = br_port_get_check_rtnl(dev);
+ 	if (p)
+ 		vg = nbp_vlan_group(p);
+ 	else if (netif_is_bridge_master(dev))
+@@ -1244,8 +1242,21 @@ int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
+ 	*p_pvid = br_get_pvid(vg);
+ 	return 0;
+ }
++
++int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
++{
++	ASSERT_RTNL();
++
++	return __br_vlan_get_pvid(dev, br_port_get_check_rtnl(dev), p_pvid);
++}
+ EXPORT_SYMBOL_GPL(br_vlan_get_pvid);
+ 
++int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
++{
++	return __br_vlan_get_pvid(dev, br_port_get_check_rcu(dev), p_pvid);
++}
++EXPORT_SYMBOL_GPL(br_vlan_get_pvid_rcu);
++
+ int br_vlan_get_info(const struct net_device *dev, u16 vid,
+ 		     struct bridge_vlan_info *p_vinfo)
+ {
 -- 
 1.8.3.1
 
