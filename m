@@ -1,10 +1,15 @@
-Return-Path: <yuehaibing@huawei.com>
-From: YueHaibing <yuehaibing@huawei.com>
-Date: Tue, 9 Jul 2019 15:01:26 +0800
-Message-ID: <20190709070126.29972-1-yuehaibing@huawei.com>
+Return-Path: <pablo@netfilter.org>
+Date: Fri, 5 Jul 2019 22:45:06 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20190705204506.o2wkg7m3lepqjgzg@salvia>
+References: <1562332598-17415-1-git-send-email-wenxu@ucloud.cn>
+	<1562332598-17415-2-git-send-email-wenxu@ucloud.cn>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next] netfilter: nft_meta: Fix build error
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1562332598-17415-2-git-send-email-wenxu@ucloud.cn>
+Subject: Re: [Bridge] [PATCH 2/7 nf-next v2] netfilter: nft_meta_bridge:
+ Remove the br_private.h header
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,35 +18,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, pablo@netfilter.org, kadlec@netfilter.org, fw@strlen.de, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, wenxu@ucloud.cn
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
+To: wenxu@ucloud.cn
+Cc: nikolay@cumulusnetworks.com, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
-If NFT_BRIDGE_META is y and NF_TABLES is m, building fails:
+On Fri, Jul 05, 2019 at 09:16:33PM +0800, wenxu@ucloud.cn wrote:
+> From: wenxu <wenxu@ucloud.cn>
+> 
+> Mkae the nft_bridge_meta can't direct access the bridge
+> internal API.
 
-net/bridge/netfilter/nft_meta_bridge.o: In function `nft_meta_bridge_get_init':
-nft_meta_bridge.c:(.text+0xd0): undefined reference to `nft_parse_register'
-nft_meta_bridge.c:(.text+0xec): undefined reference to `nft_validate_register_store'
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 30e103fe24de ("netfilter: nft_meta: move bridge meta keys into nft_meta_bridge")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
----
- net/bridge/netfilter/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
-index fbc7085..ca3214f 100644
---- a/net/bridge/netfilter/Kconfig
-+++ b/net/bridge/netfilter/Kconfig
-@@ -12,6 +12,7 @@ if NF_TABLES_BRIDGE
- 
- config NFT_BRIDGE_META
- 	tristate "Netfilter nf_table bridge meta support"
-+	depends on NF_TABLES
- 	help
- 	  Add support for bridge dedicated meta key.
- 
--- 
-2.7.4
-
-
+Applied, thanks.
