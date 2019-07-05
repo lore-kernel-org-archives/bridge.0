@@ -3,22 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:cc:references:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=xNaeeNQ+DrT/MDlwiypulX86a/vhe/+Mo0zzZKV7q8c=;
-	b=JehHPgs6sR8BLe7UByCaHBk14ZJNP0GNmUXJbLqc1ZTfXPb8PUTWfJ2nZ6RLnGFo1L
-	J1k+aGLyEvR5cwemuYJ5jXbTdE/3GDchqRdGac05YNIAXbxIgzJrDjUoZF2bZCIs0LHd
-	8UsvftCyyEzzFDGFryG44SKvKD2/6OgSjMYQU=
+	bh=SuddDTHB7Z8B8sUF248QER9k0T7rIWuLc0Ru7WUYpI8=;
+	b=CQlzpE/JiVprrt8EiTO+bozfQKK8Y/Yo4zm31B3qCHkUQTMk8a4+Eff4PLY6l6cRyr
+	XkE8646Rw53crfH57uOjDtBSPOHBctswexkDT5385oZ2EEvLoQp6byYLMUSxF9OhTX/b
+	y3qQhK7+weZ8ks4JNowADfs+sFpy6s6/6kQgw=
 References: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
-	<1562224955-3979-2-git-send-email-wenxu@ucloud.cn>
+	<1562224955-3979-3-git-send-email-wenxu@ucloud.cn>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <ccca906e-eb4f-efa0-abc5-664be9d8044b@cumulusnetworks.com>
-Date: Fri, 5 Jul 2019 11:18:49 +0300
+Message-ID: <df83723a-4dd5-7c38-4240-9ef47fde55cf@cumulusnetworks.com>
+Date: Fri, 5 Jul 2019 11:23:12 +0300
 MIME-Version: 1.0
-In-Reply-To: <1562224955-3979-2-git-send-email-wenxu@ucloud.cn>
+In-Reply-To: <1562224955-3979-3-git-send-email-wenxu@ucloud.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 2/7 nf-next] netfilter: nft_meta_bridge: Remove
- the br_private.h header
+Subject: Re: [Bridge] [PATCH 3/7 nf-next] bridge: add br_vlan_get_pvid_rcu()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,16 +32,17 @@ Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 On 04/07/2019 10:22, wenxu@ucloud.cn wrote:
 > From: wenxu <wenxu@ucloud.cn>
 > 
-> Mkae the nft_bridge_meta can't direct access the bridge
-> internal API.
+> This new function allows you to fetch bridge pvid from packet path.
 > 
 > Signed-off-by: wenxu <wenxu@ucloud.cn>
 > ---
->  net/bridge/netfilter/nft_meta_bridge.c | 19 ++++++++++++++-----
->  1 file changed, 14 insertions(+), 5 deletions(-)
+>  include/linux/if_bridge.h |  6 ++++++
+>  net/bridge/br_vlan.c      | 19 +++++++++++++++----
+>  2 files changed, 21 insertions(+), 4 deletions(-)
 > 
 
-Nice, thanks!
-Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+While the patch looks fine, you've taken authorship of Pablo's patch.
+From technical POV:
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
 
