@@ -1,25 +1,11 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:from:to:cc:references:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=JLR/Lo8oM3BGWjcNGLQ9Sv+FuFEpfIvfW3yAygJC22Y=;
-	b=U6HmjTmW1JLskdq9vemGvrOC0mnLlNQTTJ/IeFbDaVROdtUh9oUFEGtcvl/eT484/B
-	hLZnpbcPgN1tnmu2+n/xjIjz0qS/aV3bnkD2FL7fp75G4U9wfyxyybUZPbS5eLznFahM
-	SLClB74uvAXI6jeuDrXrsvtxLaa1E7CkZPk3U=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-References: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
-	<1562224955-3979-7-git-send-email-wenxu@ucloud.cn>
-	<fb62760f-aa41-111a-c2a6-e66e099533c0@cumulusnetworks.com>
-Message-ID: <2121ebca-2bb1-2a5d-8770-531c25ca4e17@cumulusnetworks.com>
-Date: Fri, 5 Jul 2019 11:59:05 +0300
-MIME-Version: 1.0
-In-Reply-To: <fb62760f-aa41-111a-c2a6-e66e099533c0@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 7/7 nf-next] netfilter:nft_meta: add
-	NFT_META_VLAN support
+Return-Path: <wenxu@ucloud.cn>
+From: wenxu@ucloud.cn
+Date: Fri,  5 Jul 2019 21:16:33 +0800
+Message-Id: <1562332598-17415-2-git-send-email-wenxu@ucloud.cn>
+In-Reply-To: <1562332598-17415-1-git-send-email-wenxu@ucloud.cn>
+References: <1562332598-17415-1-git-send-email-wenxu@ucloud.cn>
+Subject: [Bridge] [PATCH 2/7 nf-next v2] netfilter: nft_meta_bridge: Remove
+	the br_private.h header
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,142 +14,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: wenxu@ucloud.cn, pablo@netfilter.org
+To: nikolay@cumulusnetworks.com, pablo@netfilter.org
 Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 
-On 05/07/2019 11:34, Nikolay Aleksandrov wrote:
-> On 04/07/2019 10:22, wenxu@ucloud.cn wrote:
->> From: wenxu <wenxu@ucloud.cn>
->>
->> This patch provide a meta vlan to set the vlan tag of the packet.
->>
->> for q-in-q outer vlan id 20:
->> meta vlan set 0x88a8:20
->>
->> set the default 0x8100 vlan type with vlan id 20
->> meta vlan set 20
->>
->> Signed-off-by: wenxu <wenxu@ucloud.cn>
->> ---
->>  include/net/netfilter/nft_meta.h         |  5 ++++-
->>  include/uapi/linux/netfilter/nf_tables.h |  4 ++++
->>  net/netfilter/nft_meta.c                 | 22 ++++++++++++++++++++++
->>  3 files changed, 30 insertions(+), 1 deletion(-)
->>
->> diff --git a/include/net/netfilter/nft_meta.h b/include/net/netfilter/nft_meta.h
->> index 5c69e9b..cb0f1e8 100644
->> --- a/include/net/netfilter/nft_meta.h
->> +++ b/include/net/netfilter/nft_meta.h
->> @@ -6,7 +6,10 @@ struct nft_meta {
->>  	enum nft_meta_keys	key:8;
->>  	union {
->>  		enum nft_registers	dreg:8;
->> -		enum nft_registers	sreg:8;
->> +		struct {
->> +			enum nft_registers	sreg:8;
->> +			enum nft_registers	sreg2:8;
->> +		};
->>  	};
->>  };
->>  
->> diff --git a/include/uapi/linux/netfilter/nf_tables.h b/include/uapi/linux/netfilter/nf_tables.h
->> index a0d1dbd..699524a 100644
->> --- a/include/uapi/linux/netfilter/nf_tables.h
->> +++ b/include/uapi/linux/netfilter/nf_tables.h
->> @@ -797,6 +797,7 @@ enum nft_exthdr_attributes {
->>   * @NFT_META_OIFKIND: packet output interface kind name (dev->rtnl_link_ops->kind)
->>   * @NFT_META_BRI_IIFPVID: packet input bridge port pvid
->>   * @NFT_META_BRI_IIFVPROTO: packet input bridge vlan proto
->> + * @NFT_META_VLAN: packet vlan metadata
->>   */
->>  enum nft_meta_keys {
->>  	NFT_META_LEN,
->> @@ -829,6 +830,7 @@ enum nft_meta_keys {
->>  	NFT_META_OIFKIND,
->>  	NFT_META_BRI_IIFPVID,
->>  	NFT_META_BRI_IIFVPROTO,
->> +	NFT_META_VLAN,
->>  };
->>  
->>  /**
->> @@ -895,12 +897,14 @@ enum nft_hash_attributes {
->>   * @NFTA_META_DREG: destination register (NLA_U32)
->>   * @NFTA_META_KEY: meta data item to load (NLA_U32: nft_meta_keys)
->>   * @NFTA_META_SREG: source register (NLA_U32)
->> + * @NFTA_META_SREG2: source register (NLA_U32)
->>   */
->>  enum nft_meta_attributes {
->>  	NFTA_META_UNSPEC,
->>  	NFTA_META_DREG,
->>  	NFTA_META_KEY,
->>  	NFTA_META_SREG,
->> +	NFTA_META_SREG2,
->>  	__NFTA_META_MAX
->>  };
->>  #define NFTA_META_MAX		(__NFTA_META_MAX - 1)
->> diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
->> index 18a848b..9303de3 100644
->> --- a/net/netfilter/nft_meta.c
->> +++ b/net/netfilter/nft_meta.c
->> @@ -271,6 +271,17 @@ void nft_meta_set_eval(const struct nft_expr *expr,
->>  		skb->secmark = value;
->>  		break;
->>  #endif
->> +	case NFT_META_VLAN: {
->> +		u32 *sreg2 = &regs->data[meta->sreg2];
->> +		__be16 vlan_proto;
->> +		u16 vlan_tci;
->> +
->> +		vlan_tci = nft_reg_load16(sreg);
->> +		vlan_proto = nft_reg_load16(sreg2);
-> 
-> Is there supposed to be any validation of these values below
-> when they're being added by the user ?
+From: wenxu <wenxu@ucloud.cn>
 
-Actually even here, they can be dynamically loaded, no?
-At the very least the tci should be masked.
+Mkae the nft_bridge_meta can't direct access the bridge
+internal API.
 
-> Otherwise you could add any tag here, even invalid one.
-> 
->> +
->> +		__vlan_hwaccel_put_tag(skb, vlan_proto, vlan_tci);
->> +		break;
->> +	}
->>  	default:
->>  		WARN_ON(1);
->>  	}
->> @@ -281,6 +292,7 @@ void nft_meta_set_eval(const struct nft_expr *expr,
->>  	[NFTA_META_DREG]	= { .type = NLA_U32 },
->>  	[NFTA_META_KEY]		= { .type = NLA_U32 },
->>  	[NFTA_META_SREG]	= { .type = NLA_U32 },
->> +	[NFTA_META_SREG2]	= { .type = NLA_U32 },
->>  };
->>  EXPORT_SYMBOL_GPL(nft_meta_policy);
->>  
->> @@ -432,6 +444,13 @@ int nft_meta_set_init(const struct nft_ctx *ctx,
->>  	case NFT_META_PKTTYPE:
->>  		len = sizeof(u8);
->>  		break;
->> +	case NFT_META_VLAN:
->> +		len = sizeof(u16);
->> +		priv->sreg2 = nft_parse_register(tb[NFTA_META_SREG2]);
->> +		err = nft_validate_register_load(priv->sreg2, len);
->> +		if (err < 0)
->> +			return err;
->> +		break;
->>  	default:
->>  		return -EOPNOTSUPP;
->>  	}
->> @@ -457,6 +476,9 @@ int nft_meta_get_dump(struct sk_buff *skb,
->>  		goto nla_put_failure;
->>  	if (nft_dump_register(skb, NFTA_META_DREG, priv->dreg))
->>  		goto nla_put_failure;
->> +	if (priv->key == NFT_META_VLAN &&
->> +	    nft_dump_register(skb, NFTA_META_SREG2, priv->sreg2))
->> +		goto nla_put_failure;
->>  	return 0;
->>  
->>  nla_put_failure:
->>
-> 
+Signed-off-by: wenxu <wenxu@ucloud.cn>
+Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/netfilter/nft_meta_bridge.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/net/bridge/netfilter/nft_meta_bridge.c b/net/bridge/netfilter/nft_meta_bridge.c
+index dde8651..2ea8acb 100644
+--- a/net/bridge/netfilter/nft_meta_bridge.c
++++ b/net/bridge/netfilter/nft_meta_bridge.c
+@@ -8,7 +8,14 @@
+ #include <net/netfilter/nf_tables.h>
+ #include <net/netfilter/nft_meta.h>
+ 
+-#include "../br_private.h"
++static const struct net_device *
++nft_meta_get_bridge(const struct net_device *dev)
++{
++	if (dev && netif_is_bridge_port(dev))
++		return netdev_master_upper_dev_get_rcu((struct net_device *)dev);
++
++	return NULL;
++}
+ 
+ static void nft_meta_bridge_get_eval(const struct nft_expr *expr,
+ 				     struct nft_regs *regs,
+@@ -17,22 +24,24 @@ static void nft_meta_bridge_get_eval(const struct nft_expr *expr,
+ 	const struct nft_meta *priv = nft_expr_priv(expr);
+ 	const struct net_device *in = nft_in(pkt), *out = nft_out(pkt);
+ 	u32 *dest = &regs->data[priv->dreg];
+-	const struct net_bridge_port *p;
++	const struct net_device *br_dev;
+ 
+ 	switch (priv->key) {
+ 	case NFT_META_BRI_IIFNAME:
+-		if (in == NULL || (p = br_port_get_rcu(in)) == NULL)
++		br_dev = nft_meta_get_bridge(in);
++		if (!br_dev)
+ 			goto err;
+ 		break;
+ 	case NFT_META_BRI_OIFNAME:
+-		if (out == NULL || (p = br_port_get_rcu(out)) == NULL)
++		br_dev = nft_meta_get_bridge(out);
++		if (!br_dev)
+ 			goto err;
+ 		break;
+ 	default:
+ 		goto out;
+ 	}
+ 
+-	strncpy((char *)dest, p->br->dev->name, IFNAMSIZ);
++	strncpy((char *)dest, br_dev->name, IFNAMSIZ);
+ 	return;
+ out:
+ 	return nft_meta_get_eval(expr, regs, pkt);
+-- 
+1.8.3.1
 
