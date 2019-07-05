@@ -3,21 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:cc:references:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=4peepLiWhCkWmJMx6sNyd4wCIbHYDrXG09wLZE8Lxtc=;
-	b=WuvrBzJuIaPhIsJY2lVj5+75oQzyfNhGBKNHDIEFWqo92/jIr+1VspbpsiPsDzJSQA
-	Q1SYdbnJR4rOGf9zfl/Uaz+WEE0tjO2eB6FvPoYbGj/xsNch+8A+Z7gawDLtDz/ShT9B
-	8tosHgNaNTU7sGjt7pRvrVdA5DNSXMbGbM4VA=
+	bh=xNaeeNQ+DrT/MDlwiypulX86a/vhe/+Mo0zzZKV7q8c=;
+	b=JehHPgs6sR8BLe7UByCaHBk14ZJNP0GNmUXJbLqc1ZTfXPb8PUTWfJ2nZ6RLnGFo1L
+	J1k+aGLyEvR5cwemuYJ5jXbTdE/3GDchqRdGac05YNIAXbxIgzJrDjUoZF2bZCIs0LHd
+	8UsvftCyyEzzFDGFryG44SKvKD2/6OgSjMYQU=
 References: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
+	<1562224955-3979-2-git-send-email-wenxu@ucloud.cn>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <2b5f91c9-c564-ea90-89c9-85443cae4bd7@cumulusnetworks.com>
-Date: Fri, 5 Jul 2019 11:16:12 +0300
+Message-ID: <ccca906e-eb4f-efa0-abc5-664be9d8044b@cumulusnetworks.com>
+Date: Fri, 5 Jul 2019 11:18:49 +0300
 MIME-Version: 1.0
-In-Reply-To: <1562224955-3979-1-git-send-email-wenxu@ucloud.cn>
+In-Reply-To: <1562224955-3979-2-git-send-email-wenxu@ucloud.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 1/7 nf-next] netfilter: separate bridge meta
- key from nft_meta into meta_bridge
+Subject: Re: [Bridge] [PATCH 2/7 nf-next] netfilter: nft_meta_bridge: Remove
+ the br_private.h header
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,23 +33,16 @@ Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
 On 04/07/2019 10:22, wenxu@ucloud.cn wrote:
 > From: wenxu <wenxu@ucloud.cn>
 > 
-> Separate bridge meta key from nft_meta to meta_bridge for other key
-> support. So there is n dependency between nft_meta and the bridge
-> module
+> Mkae the nft_bridge_meta can't direct access the bridge
+> internal API.
 > 
 > Signed-off-by: wenxu <wenxu@ucloud.cn>
 > ---
->  include/net/netfilter/nft_meta.h       |  44 ++++++++++++
->  net/bridge/netfilter/Kconfig           |   6 ++
->  net/bridge/netfilter/Makefile          |   1 +
->  net/bridge/netfilter/nft_meta_bridge.c | 127 +++++++++++++++++++++++++++++++++
->  net/netfilter/nf_tables_core.c         |   1 +
->  net/netfilter/nft_meta.c               |  81 ++++++++-------------
->  6 files changed, 207 insertions(+), 53 deletions(-)
->  create mode 100644 include/net/netfilter/nft_meta.h
->  create mode 100644 net/bridge/netfilter/nft_meta_bridge.c
+>  net/bridge/netfilter/nft_meta_bridge.c | 19 ++++++++++++++-----
+>  1 file changed, 14 insertions(+), 5 deletions(-)
 > 
 
+Nice, thanks!
 Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
 
