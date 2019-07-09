@@ -1,24 +1,10 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=KXHWxa+UIM+ThdVUlxz38rZf4jSw8EKB5eFGTypm9Ag=;
-	b=QgKXGMFsdVMywqzdKUqCAG91YW26BFQYhEKmHy4VVOZ7lDfZLlNlRY5fmPtcGMQ/4C
-	HjsPCdjYcv1i4fG4t8vt1ZV8HbOZN6jbENOWCbdRgFhdT/bD7/CiDpCF/6Ev5LmfAej1
-	Nuamn/hJfbUyQW1JlNKs7Ifz4XlY7dVmQ3mPg=
-References: <1562422552-26065-1-git-send-email-wenxu@ucloud.cn>
-	<1562422552-26065-3-git-send-email-wenxu@ucloud.cn>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <970ad7dd-60bd-c731-287f-9ebc12ee0427@cumulusnetworks.com>
-Date: Sun, 7 Jul 2019 13:18:37 +0300
+Return-Path: <yuehaibing@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Tue, 9 Jul 2019 15:01:26 +0800
+Message-ID: <20190709070126.29972-1-yuehaibing@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <1562422552-26065-3-git-send-email-wenxu@ucloud.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 3/5 nf-next v4] bridge: add
-	br_vlan_get_info_rcu()
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next] netfilter: nft_meta: Fix build error
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,22 +13,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: wenxu@ucloud.cn, pablo@netfilter.org, fw@strlen.de
-Cc: bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org
+To: davem@davemloft.net, pablo@netfilter.org, kadlec@netfilter.org, fw@strlen.de, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, wenxu@ucloud.cn
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
 
-On 06/07/2019 17:15, wenxu@ucloud.cn wrote:
-> From: wenxu <wenxu@ucloud.cn>
-> 
-> This new function allows you to fetch vlan info from packet path.
-> 
-> Signed-off-by: wenxu <wenxu@ucloud.cn>
-> ---
->  include/linux/if_bridge.h |  7 +++++++
->  net/bridge/br_vlan.c      | 25 +++++++++++++++++++++++++
->  2 files changed, 32 insertions(+)
-> 
+If NFT_BRIDGE_META is y and NF_TABLES is m, building fails:
 
-Looks good, thanks!
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+net/bridge/netfilter/nft_meta_bridge.o: In function `nft_meta_bridge_get_init':
+nft_meta_bridge.c:(.text+0xd0): undefined reference to `nft_parse_register'
+nft_meta_bridge.c:(.text+0xec): undefined reference to `nft_validate_register_store'
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 30e103fe24de ("netfilter: nft_meta: move bridge meta keys into nft_meta_bridge")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+ net/bridge/netfilter/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
+index fbc7085..ca3214f 100644
+--- a/net/bridge/netfilter/Kconfig
++++ b/net/bridge/netfilter/Kconfig
+@@ -12,6 +12,7 @@ if NF_TABLES_BRIDGE
+ 
+ config NFT_BRIDGE_META
+ 	tristate "Netfilter nf_table bridge meta support"
++	depends on NF_TABLES
+ 	help
+ 	  Add support for bridge dedicated meta key.
+ 
+-- 
+2.7.4
 
 
