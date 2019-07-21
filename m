@@ -1,7 +1,7 @@
-Return-Path: <fw@strlen.de>
-Date: Sun, 21 Jul 2019 02:26:23 +0200
-From: Florian Westphal <fw@strlen.de>
-Message-ID: <20190721002623.27wac36rkwa5v5lg@breakpoint.cc>
+Return-Path: <pablo@netfilter.org>
+Date: Sun, 21 Jul 2019 20:59:45 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20190721185945.76vsrm6ruge64das@salvia>
 References: <1563625366-3602-1-git-send-email-wang6495@umn.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,9 +18,9 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Wenwen Wang <wang6495@umn.edu>
-Cc: Wenwen Wang <wenwen@cs.uga.edu>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Florian Westphal <fw@strlen.de>, open list <linux-kernel@vger.kernel.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, "open list:NETFILTER" <coreteam@netfilter.org>, "open list:NETFILTER" <netfilter-devel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Wenwen Wang <wenwen@cs.uga.edu>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Florian Westphal <fw@strlen.de>, open list <linux-kernel@vger.kernel.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, "open list:NETFILTER" <coreteam@netfilter.org>, "open list:NETFILTER" <netfilter-devel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-Wenwen Wang <wang6495@umn.edu> wrote:
+On Sat, Jul 20, 2019 at 07:22:45AM -0500, Wenwen Wang wrote:
 > From: Wenwen Wang <wenwen@cs.uga.edu>
 > 
 > In compat_do_replace(), a temporary buffer is allocated through vmalloc()
@@ -32,7 +32,5 @@ Wenwen Wang <wang6495@umn.edu> wrote:
 > buffer is not freed on this path, leading to a memory leak.
 > 
 > To fix the bug, free the buffer before returning from compat_do_replace().
-> 
-> Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 
-Reviewed-by: Florian Westphal <fw@strlen.de>
+Applied, thanks.
