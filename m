@@ -1,14 +1,23 @@
-Return-Path: <wenwen@cs.uga.edu>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=6VcnojKIbtzJpkTGh7+taUptRhWCxNbM28ufXgjHO8Y=;
+	b=RH9S6noB1vvpjAeNSbPRoxIRiPWap+AY7DIyq8HlA7WpIVBAXfssyLflGxrBYznvmV
+	aLhvMFz/4eNG+XCDP0JgkdeVQ7CikA1IN8feem7vM5zS/3B6OMVG92tY5vHiBNDw1tL2
+	7T+QE4MP9irbPiWYe4LR7r5VTc71xqfQPJfBg=
+References: <908e9e90-70cc-7bbe-f83f-0810c9ef3925@cumulusnetworks.com>
+	<20190723225458.GA3376@lkp-kbuild04>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <5c5eaeee-dfaa-d75e-8ece-a72c7ff467ec@cumulusnetworks.com>
+Date: Wed, 24 Jul 2019 02:21:12 +0300
 MIME-Version: 1.0
-References: <1563625366-3602-1-git-send-email-wang6495@umn.edu>
-	<20190722123204.rvsqlqgynfgjcif7@oracle.com>
-In-Reply-To: <20190722123204.rvsqlqgynfgjcif7@oracle.com>
-From: Wenwen Wang <wenwen@cs.uga.edu>
-Date: Mon, 22 Jul 2019 07:53:59 -0500
-Message-ID: <CAAa=b7cwJ-2wPNtH_j6saHiUWRj7zSwzZ8sGPWfgG9AyxWrOPg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH] netfilter: ebtables: compat: fix a memory leak
-	bug
+In-Reply-To: <20190723225458.GA3376@lkp-kbuild04>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] fix noderef.cocci warnings
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,52 +26,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>
-Cc: Wenwen Wang <wenwen@cs.uga.edu>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Florian Westphal <fw@strlen.de>, open list <linux-kernel@vger.kernel.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, "open list:NETFILTER" <coreteam@netfilter.org>, "open list:NETFILTER" <netfilter-devel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: kbuild test robot <lkp@intel.com>
+Cc: Martin Weinelt <martin@linuxlounge.net>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, kbuild-all@01.org
 
-On Mon, Jul 22, 2019 at 7:34 AM Liam R. Howlett <Liam.Howlett@oracle.com> wrote:
->
-> Nice catch.  The code that exists is confusing due to newinfo->entries
-> being overwritten and then freed in the existing code path as you state
-> in your commit log.
->
-> * Wenwen Wang <wang6495@umn.edu> [190720 08:23]:
-> > From: Wenwen Wang <wenwen@cs.uga.edu>
-> >
-> > In compat_do_replace(), a temporary buffer is allocated through vmalloc()
-> > to hold entries copied from the user space. The buffer address is firstly
-> > saved to 'newinfo->entries', and later on assigned to 'entries_tmp'. Then
-> > the entries in this temporary buffer is copied to the internal kernel
-> > structure through compat_copy_entries(). If this copy process fails,
-> > compat_do_replace() should be terminated. However, the allocated temporary
-> > buffer is not freed on this path, leading to a memory leak.
-> >
-> > To fix the bug, free the buffer before returning from compat_do_replace().
-> >
-> > Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-> > ---
-> >  net/bridge/netfilter/ebtables.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-> > index 963dfdc..fd84b48e 100644
-> > --- a/net/bridge/netfilter/ebtables.c
-> > +++ b/net/bridge/netfilter/ebtables.c
-> > @@ -2261,8 +2261,10 @@ static int compat_do_replace(struct net *net, void __user *user,
-> >       state.buf_kern_len = size64;
-> >
-> >       ret = compat_copy_entries(entries_tmp, tmp.entries_size, &state);
-> > -     if (WARN_ON(ret < 0))
-> > +     if (WARN_ON(ret < 0)) {
-> > +             vfree(entries_tmp);
-> >               goto out_unlock;
-> > +     }
->
->
-> Would it be worth adding a new goto label above out_unlock and free this
-> entries_tmp?  It could then be used in previous failure path as well.
+On 7/24/19 1:54 AM, kbuild test robot wrote:
+> From: kbuild test robot <lkp@intel.com>
+> 
+> net/bridge/br_multicast.c:999:8-14: ERROR: application of sizeof to pointer
+> 
+>  sizeof when applied to a pointer typed expression gives the size of
+>  the pointer
+> 
+> Generated by: scripts/coccinelle/misc/noderef.cocci
+> 
+> Fixes: 17c91348ed8b ("Use-after-free in br_multicast_rcv")
+> CC: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Signed-off-by: kbuild test robot <lkp@intel.com>
+> ---
+> 
+> url:    https://github.com/0day-ci/linux/commits/Nikolay-Aleksandrov/net-bridge-mcast-fix-possible-uses-of-stale-pointers/20190702-083354
+> 
+>  br_multicast.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -996,7 +996,7 @@ static int br_ip6_multicast_mld2_report(
+>  			return -EINVAL;
+>  
+>  		_nsrcs = skb_header_pointer(skb, nsrcs_offset,
+> -					   sizeof(_nsrcs), &__nsrcs);
+> +					   sizeof(*_nsrcs), &__nsrcs);
+>  		if (!_nsrcs)
+>  			return -EINVAL;
+>  
+> 
 
-Yes, that would make the code much clearer and easier to understand.
+This must be quite old, I already sent a proper patch without this error.
+This one was sent just for testing, hence the TEST in $subject.
 
-Thanks!
-Wenwen
+ [PATCH TEST] net: bridge: mcast: fix possible uses of stale pointers
+
+Thanks,
+ Nik
+
