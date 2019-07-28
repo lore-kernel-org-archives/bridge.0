@@ -1,11 +1,23 @@
-Return-Path: <3EK89XQkbAFUFLM7x881ExCC50.3BB381HF1EzBAG1AG.zB9@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <Allan.Nielsen@microchip.com>
+Date: Sun, 28 Jul 2019 21:15:59 +0200
+From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
+Message-ID: <20190728191558.zuopgfqza2iz5d5b@lx-anielsen.microsemi.net>
+References: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
+	<7e7a7015-6072-d884-b2ba-0a51177245ab@cumulusnetworks.com>
+	<eef063fe-fd3a-7e02-89c2-e40728a17578@cumulusnetworks.com>
+	<20190725142101.65tusauc6fzxb2yp@soft-dev3.microsemi.net>
+	<b9ce433a-3ef7-fe15-642a-659c5715d992@cumulusnetworks.com>
+	<e6ad982f-4706-46f9-b8f0-1337b09de350@cumulusnetworks.com>
+	<20190726120214.c26oj5vks7g5ntwu@soft-dev3.microsemi.net>
+	<20190726134613.GD18223@lunn.ch>
+	<20190726195010.7x75rr74v7ph3m6m@lx-anielsen.microsemi.net>
+	<20190727030223.GA29731@lunn.ch>
 MIME-Version: 1.0
-Date: Sun, 28 Jul 2019 07:20:00 -0700
-In-Reply-To: <0000000000005e6124058c0cbdbe@google.com>
-Message-ID: <0000000000008be1b2058ebe7805@google.com>
-From: syzbot <syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: Re: [Bridge] memory leak in fdb_create
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+In-Reply-To: <20190727030223.GA29731@lunn.ch>
+Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
+	groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,27 +26,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, bsingharora@gmail.com, coreteam@netfilter.org, davem@davemloft.net, duwe@suse.de, kaber@trash.net, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, mingo@redhat.com, mpe@ellerman.id.au, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nikolay@cumulusnetworks.com, pablo@netfilter.org, roopa@cumulusnetworks.com, rostedt@goodmis.org, syzkaller-bugs@googlegroups.com
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-syzbot has bisected this bug to:
+The 07/27/2019 05:02, Andrew Lunn wrote:
+> > As you properly guessed, this model is quite different from what we are used to.
+> 
+> Yes, it takes a while to get the idea that the hardware is just an
+> accelerator for what the Linux stack can already do. And if the switch
+> cannot do some feature, pass the frame to Linux so it can handle it.
+This is understood, and not that different from what we are used to.
 
-commit 04cf31a759ef575f750a63777cee95500e410994
-Author: Michael Ellerman <mpe@ellerman.id.au>
-Date:   Thu Mar 24 11:04:01 2016 +0000
+The surprise was to make all multicast traffic to go to the CPU.
 
-     ftrace: Make ftrace_location_range() global
+> You need to keep in mind that there could be other ports in the bridge
+> than switch ports, and those ports might be interested in the
+> multicast traffic. Hence the CPU needs to see the traffic.
+This is a good argument, but I was under the impression that not all HW/drivers
+supports foreign interfaces (see ocelot_netdevice_dev_check and
+mlxsw_sp_port_dev_check).
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1538c778600000
-start commit:   abf02e29 Merge tag 'pm-5.2-rc6' of git://git.kernel.org/pu..
-git tree:       upstream
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=1738c778600000
-console output: https://syzkaller.appspot.com/x/log.txt?x=1338c778600000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=56f1da14935c3cce
-dashboard link: https://syzkaller.appspot.com/bug?extid=88533dc8b582309bf3ee
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16de5c06a00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10546026a00000
+> But IGMP snooping can be used to optimise this.
+Yes, IGMP snooping can limit the multicast storm of multicast IP traffic, but
+not for L2 non-IP multicast traffic.
 
-Reported-by: syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com
-Fixes: 04cf31a759ef ("ftrace: Make ftrace_location_range() global")
+We could really use something similar for non-IP multicast MAC addresses.
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+Trying to get back to the original problem:
+
+We have a network which implements the ODVA/DLR ring protocol. This protocol
+sends out a beacon frame as often as every 3 us (as far as I recall, default I
+believe is 400 us) to this MAC address: 01:21:6C:00:00:01.
+
+Try take a quick look at slide 10 in [1].
+
+If we assume that the SwitchDev driver implemented such that all multicast
+traffic goes to the CPU, then we should really have a way to install a HW
+offload path in the silicon, such that these packets does not go to the CPU (as
+they are known not to be use full, and a frame every 3 us is a significant load
+on small DMA connections and CPU resources).
+
+If we assume that the SwitchDev driver implemented such that only "needed"
+multicast packets goes to the CPU, then we need a way to get these packets in
+case we want to implement the DLR protocol.
+
+I'm sure that both models can work, and I do not think that this is the main
+issue here.
+
+Our initial attempt was to allow install static L2-MAC entries and append
+multiple ports to such an entry in the MAC table. This was rejected, for several
+good reasons it seems. But I'm not sure it was clear what we wanted to achieve,
+and why we find it to be important. Hopefully this is clear with a real world
+use-case.
+
+Any hints or ideas on what would be a better way to solve this problems will be
+much appreciated.
+
+/Allan
+
+[1] https://www.odva.org/Portals/0/Library/Conference/2017-ODVA-Conference_Woods_High%20Availability_Guidelines%20for%20Use%20of%20DLR%20in%20EtherNetIP%20Networks_FINAL%20PPT.pdf
