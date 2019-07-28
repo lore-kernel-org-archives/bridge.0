@@ -1,33 +1,22 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=tN/4dk4E58XistgDJ6zOTKtSRYqHTx/a1QOwwGKZMmk=;
-	b=eUp19m/y/Qg1oORIbOZgd/lgOH
-	dU1x4yAORlsvB70utYGcZLTwWnbrpNdkE7MYvHycUmKDhdJNay1C1zWz9TrPxN3INRKVF9XHSSupf
-	aBX961lzv4uzmUhvzpmGFQZqpRpzlpaSNm7sKFvaywt+8zVZA/E+URoyEHPR5rlto02w=; 
-Date: Sat, 27 Jul 2019 05:02:23 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20190727030223.GA29731@lunn.ch>
-References: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
-	<7e7a7015-6072-d884-b2ba-0a51177245ab@cumulusnetworks.com>
-	<eef063fe-fd3a-7e02-89c2-e40728a17578@cumulusnetworks.com>
-	<20190725142101.65tusauc6fzxb2yp@soft-dev3.microsemi.net>
-	<b9ce433a-3ef7-fe15-642a-659c5715d992@cumulusnetworks.com>
-	<e6ad982f-4706-46f9-b8f0-1337b09de350@cumulusnetworks.com>
-	<20190726120214.c26oj5vks7g5ntwu@soft-dev3.microsemi.net>
-	<20190726134613.GD18223@lunn.ch>
-	<20190726195010.7x75rr74v7ph3m6m@lx-anielsen.microsemi.net>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:references:from:message-id:date:user-agent:mime-version
+	:in-reply-to:content-language:content-transfer-encoding;
+	bh=5K+SuxpGvXfQ///N9XK1+tF5GqeC/HVgCK0aC6WVZtU=;
+	b=OfC8vdkx64xyhbGpo8KCxYo+Lm9vikgIF+jEkc9Nv6Yxn4gP0DjP/kIQg51vfl7xGC
+	jV8WoJ2HAmWTP3kg4XrVF4jk+AGlMOm8gSNklsPETgCIJkZwo7ReZmIX238PnP9Qyin9
+	yd0vAmYMJBw9QIB5VddDz14pj4cZtz7R9nCvg=
+References: <0000000000008be1b2058ebe7805@google.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <d16a3297-d651-0a32-e803-774a9c8c61bf@cumulusnetworks.com>
+Date: Sun, 28 Jul 2019 19:51:03 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190726195010.7x75rr74v7ph3m6m@lx-anielsen.microsemi.net>
-Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
-	groups
+In-Reply-To: <0000000000008be1b2058ebe7805@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] memory leak in fdb_create
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -36,21 +25,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: syzbot <syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, bsingharora@gmail.com, coreteam@netfilter.org, davem@davemloft.net, duwe@suse.de, kaber@trash.net, kadlec@blackhole.kfki.hu, linux-kernel@vger.kernel.org, mingo@redhat.com, mpe@ellerman.id.au, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pablo@netfilter.org, roopa@cumulusnetworks.com, rostedt@goodmis.org, syzkaller-bugs@googlegroups.com
 
-> As you properly guessed, this model is quite different from what we are used to.
+On 28/07/2019 17:20, syzbot wrote:
+> syzbot has bisected this bug to:
+> 
+> commit 04cf31a759ef575f750a63777cee95500e410994
+> Author: Michael Ellerman <mpe@ellerman.id.au>
+> Date:   Thu Mar 24 11:04:01 2016 +0000
+> 
+>     ftrace: Make ftrace_location_range() global
+> 
+> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1538c778600000
+> start commit:   abf02e29 Merge tag 'pm-5.2-rc6' of git://git.kernel.org/pu..
+> git tree:       upstream
+> final crash:    https://syzkaller.appspot.com/x/report.txt?x=1738c778600000
+> console output: https://syzkaller.appspot.com/x/log.txt?x=1338c778600000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=56f1da14935c3cce
+> dashboard link: https://syzkaller.appspot.com/bug?extid=88533dc8b582309bf3ee
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16de5c06a00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10546026a00000
+> 
+> Reported-by: syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com
+> Fixes: 04cf31a759ef ("ftrace: Make ftrace_location_range() global")
+> 
+> For information about bisection process see: https://goo.gl/tpsmEJ#bisection
 
-Yes, it takes a while to get the idea that the hardware is just an
-accelerator for what the Linux stack can already do. And if the switch
-cannot do some feature, pass the frame to Linux so it can handle it.
+I see the problem, it'd happen if the multicast stats memory allocation fails on bridge
+init then the fdb added due to the default vlan would remain and the bridge kmem cache
+would be destroyed while not empty (you can even trigger a BUG because of that).
+I'll post a patch shortly after running a few tests.
 
-You need to keep in mind that there could be other ports in the bridge
-than switch ports, and those ports might be interested in the
-multicast traffic. Hence the CPU needs to see the traffic. But IGMP
-snooping can be used to optimise this. But you still need to be
-careful, eg. IPv6 Neighbour discovery has often been broken on
-mv88e6xxx because we have been too aggressive with filtering
-multicast.
+Thanks,
+ Nik
 
-	Andrew
