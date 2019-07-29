@@ -1,34 +1,21 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to:x-me-proxy
-	:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=/SBTOk
-	cbxtFVR/CQbarJXCkuOQOjrMyBPaPW6M0UaOY=; b=tU5hGH3MbArrHjbFBCxnyN
-	sLwoXsz5UlH8fSkija53SDNKpwKyPmwLL7Q77iRj6oep4VVras9IhIY7B1Lh2Q9v
-	Xlxr19rUz3fWZxt2yb+gj9YAib0kv06C6KrIDKQmwkCJTO39eMNIUGMJ+O1yHjFX
-	TKFan5XnAtpVvarDGVGGLYjS3SDbe45WOPY0UFaIDVMT+cIClG3XbqqpFYgivyvR
-	3wI90SEMVIWAD9WcWtzmYmGXhHTlOy0cAamegbz7XLhK29Epy0o4mjayLrSMIFvD
-	AwhdDJkiGyAGCK46262UZXarz/0kS3EBU+ls0ITFWz5mkajFWbGKd6GYrG9FRBrg
-	==
-Date: Mon, 29 Jul 2019 09:09:23 +0300
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <20190729060923.GA16938@splinter>
-References: <7e7a7015-6072-d884-b2ba-0a51177245ab@cumulusnetworks.com>
-	<eef063fe-fd3a-7e02-89c2-e40728a17578@cumulusnetworks.com>
-	<20190725142101.65tusauc6fzxb2yp@soft-dev3.microsemi.net>
-	<b9ce433a-3ef7-fe15-642a-659c5715d992@cumulusnetworks.com>
-	<e6ad982f-4706-46f9-b8f0-1337b09de350@cumulusnetworks.com>
-	<20190726120214.c26oj5vks7g5ntwu@soft-dev3.microsemi.net>
-	<20190726134613.GD18223@lunn.ch>
-	<20190726195010.7x75rr74v7ph3m6m@lx-anielsen.microsemi.net>
-	<20190727030223.GA29731@lunn.ch>
-	<20190728191558.zuopgfqza2iz5d5b@lx-anielsen.microsemi.net>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=BwkbToRnvkPkaAeAvQMV1LEHyGv3X3yvIxFI1T/d490=;
+	b=gkQJGCLEBtZ12CHhRHiZL6+DgUKHZMIlh1b0TuXIeqbIuKHSdQ8o3Q8a4xh/WQ9kIG
+	2slVscevycmtN2jsWuLGi8hh1P6+ON6h4h3b0LhbCrJIz0UM0FVaClNqAh9GfA0A4qFv
+	1N7qFKp/wj6t1QiZV8qbD22VqrmjDLSIzdY8k=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Mon, 29 Jul 2019 12:28:41 +0300
+Message-Id: <20190729092841.4260-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <20190728182230.28818-1-nikolay@cumulusnetworks.com>
+References: <20190728182230.28818-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190728191558.zuopgfqza2iz5d5b@lx-anielsen.microsemi.net>
-Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
-	groups
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net v2] net: bridge: delete local fdb on device
+	init failure
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,45 +24,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com
 
-On Sun, Jul 28, 2019 at 09:15:59PM +0200, Allan W. Nielsen wrote:
-> If we assume that the SwitchDev driver implemented such that all multicast
-> traffic goes to the CPU, then we should really have a way to install a HW
-> offload path in the silicon, such that these packets does not go to the CPU (as
-> they are known not to be use full, and a frame every 3 us is a significant load
-> on small DMA connections and CPU resources).
-> 
-> If we assume that the SwitchDev driver implemented such that only "needed"
-> multicast packets goes to the CPU, then we need a way to get these packets in
-> case we want to implement the DLR protocol.
+On initialization failure we have to delete the local fdb which was
+inserted due to the default pvid creation. This problem has been present
+since the inception of default_pvid. Note that currently there are 2 cases:
+1) in br_dev_init() when br_multicast_init() fails
+2) if register_netdevice() fails after calling ndo_init()
 
-I'm not familiar with the HW you're working with, so the below might not
-be relevant.
+This patch takes care of both since br_vlan_flush() is called on both
+occasions. Also the new fdb delete would be a no-op on normal bridge
+device destruction since the local fdb would've been already flushed by
+br_dev_delete(). This is not an issue for ports since nbp_vlan_init() is
+called last when adding a port thus nothing can fail after it.
 
-In case you don't want to send all multicast traffic to the CPU (I'll
-refer to it later), you can install an ingress tc filter that traps to
-the CPU the packets you do want to receive. Something like:
+Reported-by: syzbot+88533dc8b582309bf3ee@syzkaller.appspotmail.com
+Fixes: 5be5a2df40f0 ("bridge: Add filtering support for default_pvid")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+v2: reworded the commit message and comment so they're not plural, we're
+    talking about a single bridge local fdb added on the init vlan creation
+    of the default pvid
 
-# tc qdisc add dev swp1 clsact
-# tc filter add dev swp1 pref 1 ingress flower skip_sw dst_mac \
-	01:21:6C:00:00:01 action trap
+Tested with the provided reproducer and can no longer trigger the leak.
+Also tested the br_multicast_init() failure manually by making it always
+return an error.
 
-If your HW supports sharing the same filter among multiple ports, then
-you can install your filter in a tc shared block and bind multiple ports
-to it.
+ net/bridge/br_vlan.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Another option is to always send a *copy* of multicast packets to the
-CPU, but make sure the HW uses a policer that prevents the CPU from
-being overwhelmed. To avoid packets being forwarded twice (by HW and
-SW), you will need to mark such packets in your driver with
-'skb->offload_fwd_mark = 1'.
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 021cc9f66804..3e6a702e4c21 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -715,6 +715,11 @@ void br_vlan_flush(struct net_bridge *br)
+ 
+ 	ASSERT_RTNL();
+ 
++	/* delete auto-added default pvid local fdb before flushing vlans
++	 * otherwise it will be leaked on bridge device init failure
++	 */
++	br_fdb_delete_by_port(br, NULL, 0, 1);
++
+ 	vg = br_vlan_group(br);
+ 	__vlan_flush(vg);
+ 	RCU_INIT_POINTER(br->vlgrp, NULL);
+-- 
+2.21.0
 
-Now, in case user wants to allow the CPU to receive certain packets at a
-higher rate, a tc filter can be used. It will be identical to the filter
-I mentioned earlier, but with a 'police' action chained before 'trap'.
-
-I don't think this is currently supported by any driver, but I believe
-it's the right way to go: By default the CPU receives all the traffic it
-should receive and user can fine-tune it using ACLs.
