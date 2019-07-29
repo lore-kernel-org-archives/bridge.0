@@ -1,7 +1,7 @@
 Return-Path: <Allan.Nielsen@microchip.com>
-Date: Sun, 28 Jul 2019 21:15:59 +0200
+Date: Mon, 29 Jul 2019 14:14:10 +0200
 From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Message-ID: <20190728191558.zuopgfqza2iz5d5b@lx-anielsen.microsemi.net>
+Message-ID: <20190729121409.wa47uelw5f6l4vs4@lx-anielsen.microsemi.net>
 References: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
 	<7e7a7015-6072-d884-b2ba-0a51177245ab@cumulusnetworks.com>
 	<eef063fe-fd3a-7e02-89c2-e40728a17578@cumulusnetworks.com>
@@ -9,13 +9,11 @@ References: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
 	<b9ce433a-3ef7-fe15-642a-659c5715d992@cumulusnetworks.com>
 	<e6ad982f-4706-46f9-b8f0-1337b09de350@cumulusnetworks.com>
 	<20190726120214.c26oj5vks7g5ntwu@soft-dev3.microsemi.net>
-	<20190726134613.GD18223@lunn.ch>
-	<20190726195010.7x75rr74v7ph3m6m@lx-anielsen.microsemi.net>
-	<20190727030223.GA29731@lunn.ch>
+	<b755f613-e6d8-a2e6-16cd-6f13ec0a6ddc@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20190727030223.GA29731@lunn.ch>
+In-Reply-To: <b755f613-e6d8-a2e6-16cd-6f13ec0a6ddc@cumulusnetworks.com>
 Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
 	groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -26,62 +24,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-The 07/27/2019 05:02, Andrew Lunn wrote:
-> > As you properly guessed, this model is quite different from what we are used to.
-> 
-> Yes, it takes a while to get the idea that the hardware is just an
-> accelerator for what the Linux stack can already do. And if the switch
-> cannot do some feature, pass the frame to Linux so it can handle it.
-This is understood, and not that different from what we are used to.
+Hi Nikolay,
 
-The surprise was to make all multicast traffic to go to the CPU.
+First of all, as mentioned further down in this thread, I realized that our
+implementation of the multicast floodmasks does not align with the existing SW
+implementation. We will change this, such that all multicast packets goes to the
+SW bridge.
 
-> You need to keep in mind that there could be other ports in the bridge
-> than switch ports, and those ports might be interested in the
-> multicast traffic. Hence the CPU needs to see the traffic.
-This is a good argument, but I was under the impression that not all HW/drivers
-supports foreign interfaces (see ocelot_netdevice_dev_check and
-mlxsw_sp_port_dev_check).
+This changes things a bit, not that much.
 
-> But IGMP snooping can be used to optimise this.
-Yes, IGMP snooping can limit the multicast storm of multicast IP traffic, but
-not for L2 non-IP multicast traffic.
+I actually think you summarized the issue we have (after changing to multicast
+flood-masks) right here:
 
-We could really use something similar for non-IP multicast MAC addresses.
+The 07/26/2019 12:26, Nikolay Aleksandrov wrote:
+> >> Actually you mentioned non-IP traffic, so the querier stuff is not a problem. This
+> >> traffic will always be flooded by the bridge (and also a copy will be locally sent up).
+> >> Thus only the flooding may need to be controlled.
 
-Trying to get back to the original problem:
+This seems to be exactly what we need.
 
-We have a network which implements the ODVA/DLR ring protocol. This protocol
-sends out a beacon frame as often as every 3 us (as far as I recall, default I
-believe is 400 us) to this MAC address: 01:21:6C:00:00:01.
+Assuming we have a SW bridge (br0) with 4 slave interfaces (eth0-3). We use this
+on a network where we want to limit the flooding of frames with dmac
+01:21:6C:00:00:01 (which is non IP traffic) to eth0 and eth1.
 
-Try take a quick look at slide 10 in [1].
+One way of doing this could potentially be to support the following command:
 
-If we assume that the SwitchDev driver implemented such that all multicast
-traffic goes to the CPU, then we should really have a way to install a HW
-offload path in the silicon, such that these packets does not go to the CPU (as
-they are known not to be use full, and a frame every 3 us is a significant load
-on small DMA connections and CPU resources).
+bridge fdb add    01:21:6C:00:00:01 port eth0
+bridge fdb append 01:21:6C:00:00:01 port eth1
 
-If we assume that the SwitchDev driver implemented such that only "needed"
-multicast packets goes to the CPU, then we need a way to get these packets in
-case we want to implement the DLR protocol.
+On 25/07/2019 16:06, Nikolay Aleksandrov wrote:
+> >>>>>>  In general NLM_F_APPEND is only used in vxlan, the bridge does not
+> >>>>>>  handle that flag at all.  FDB is only for *unicast*, nothing is joined
+> >>>>>>  and no multicast should be used with fdbs. MDB is used for multicast
+> >>>>>>  handling, but both of these are used for forwarding.
+This is true, and this should have been addressed in the patch, we were too
+focused on setting up the offload patch in the driver, and forgot to do the SW
+implementation.
 
-I'm sure that both models can work, and I do not think that this is the main
-issue here.
-
-Our initial attempt was to allow install static L2-MAC entries and append
-multiple ports to such an entry in the MAC table. This was rejected, for several
-good reasons it seems. But I'm not sure it was clear what we wanted to achieve,
-and why we find it to be important. Hopefully this is clear with a real world
-use-case.
-
-Any hints or ideas on what would be a better way to solve this problems will be
-much appreciated.
+Do you see any issues in supporting this flag, and updating the SW
+forwarding in br_handle_frame_finish such that it can support/allow a FDB entry
+to be a multicast?
 
 /Allan
 
-[1] https://www.odva.org/Portals/0/Library/Conference/2017-ODVA-Conference_Woods_High%20Availability_Guidelines%20for%20Use%20of%20DLR%20in%20EtherNetIP%20Networks_FINAL%20PPT.pdf
