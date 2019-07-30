@@ -1,19 +1,17 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding;
-	bh=TlNchQ/vtVIj+X/dPogW/VhRCNvW7uKobaOaSR9wIVw=;
-	b=XztUXeM97JDaihnB0HagW5xvRBMhRYAr79vQdfBG04yIqoZYcKub3kXOUsu9ULFsjm
-	BIzlEU01i72gcZwbffxBob+Ml856DF5tWt2iinloyTic4HrdjAPmJmjuHsJ1aFytONGB
-	EsMVjzQJwTbx1vE/QlYDqe3xTgtpoPu9BXczg=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 30 Jul 2019 15:20:41 +0300
-Message-Id: <20190730122041.14647-1-nikolay@cumulusnetworks.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: mcast: add delete due to
-	fast-leave mdb flag
+Return-Path: <rdong.ge@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=from:to:cc:subject:date:message-id;
+	bh=s5yWI2xfBi7yZUvh5vbuUYKfiAIOr2+n9/J+pTBAvvA=;
+	b=oNRi4RrqZcCHcv3ihpvxRh05FVUCJujtgcfihPqzEIhibrVSyvLxH6ou+KPX3QcJW1
+	8odyqmb9Xy6OZW3Akl4mhb8QXyeta1TByczNxiawqeZqlsAEQgeNH4zWnRQNZjNaanng
+	0uyuZIy+8zTVFFxa0Ya/KrP2BWiVnBI9uP6oyFln1SImZYqFXKVsPFuT21tgQZ7JxlFX
+	Fs+CbA/+uEvCQ0ZUgz9IPY356ERlad9t/WiFeJ2j53Gucbi1JlQ9yIBQgH0c0Te24k7b
+	EffDwc1jhPKoAalhRJA+XcovRIjMe2TsRZptfp0V8HA2/1B5SE8WZ8hszhzXBdu/7690
+	DokQ==
+From: Rundong Ge <rdong.ge@gmail.com>
+Date: Tue, 30 Jul 2019 12:25:34 +0000
+Message-Id: <20190730122534.30687-1-rdong.ge@gmail.com>
+Subject: [Bridge] [PATCH] bridge:fragmented packets dropped by bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,75 +20,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: davem@davemloft.net
+Cc: rdong.ge@gmail.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, kadlec@netfilter.org, nikolay@cumulusnetworks.com, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kuznet@ms2.inr.ac.ru, pablo@netfilter.org
 
-In user-space there's no way to distinguish why an mdb entry was deleted
-and that is a problem for daemons which would like to keep the mdb in
-sync with remote ends (e.g. mlag) but would also like to converge faster.
-In almost all cases we'd like to age-out the remote entry for performance
-and convergence reasons except when fast-leave is enabled. In that case we
-want explicit immediate remote delete, thus add mdb flag which is set only
-when the entry is being deleted due to fast-leave.
+Given following setup:
+-modprobe br_netfilter
+-echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+-brctl addbr br0
+-brctl addif br0 enp2s0
+-brctl addif br0 enp3s0
+-brctl addif br0 enp6s0
+-ifconfig enp2s0 mtu 1300
+-ifconfig enp3s0 mtu 1500
+-ifconfig enp6s0 mtu 1500
+-ifconfig br0 up
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+                 multi-port
+mtu1500 - mtu1500|bridge|1500 - mtu1500
+  A                  |            B
+                   mtu1300
+
+With netfilter defragmentation/conntrack enabled, fragmented
+packets from A will be defragmented in prerouting, and refragmented
+at postrouting.
+But in this scenario the bridge found the frag_max_size(1500) is
+larger than the dst mtu stored in the fake_rtable whitch is
+always equal to the bridge's mtu 1300, then packets will be dopped.
+
+This modifies ip_skb_dst_mtu to use the out dev's mtu instead
+of bridge's mtu in bridge refragment.
+
+Signed-off-by: Rundong Ge <rdong.ge@gmail.com>
 ---
- include/uapi/linux/if_bridge.h | 1 +
- net/bridge/br_mdb.c            | 2 ++
- net/bridge/br_multicast.c      | 2 +-
- net/bridge/br_private.h        | 1 +
- 4 files changed, 5 insertions(+), 1 deletion(-)
+ include/net/ip.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 773e476a8e54..1b3c2b643a02 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -237,6 +237,7 @@ struct br_mdb_entry {
- #define MDB_PERMANENT 1
- 	__u8 state;
- #define MDB_FLAGS_OFFLOAD	(1 << 0)
-+#define MDB_FLAGS_FAST_LEAVE	(1 << 1)
- 	__u8 flags;
- 	__u16 vid;
- 	struct {
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index bf6acd34234d..428af1abf8cc 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -60,6 +60,8 @@ static void __mdb_entry_fill_flags(struct br_mdb_entry *e, unsigned char flags)
- 	e->flags = 0;
- 	if (flags & MDB_PG_FLAGS_OFFLOAD)
- 		e->flags |= MDB_FLAGS_OFFLOAD;
-+	if (flags & MDB_PG_FLAGS_FAST_LEAVE)
-+		e->flags |= MDB_FLAGS_FAST_LEAVE;
- }
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 29d89de..0512de3 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -450,6 +450,8 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
+ static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
+ 					  const struct sk_buff *skb)
+ {
++	if ((skb_dst(skb)->flags & DST_FAKE_RTABLE) && skb->dev)
++		return min(skb->dev->mtu, IP_MAX_MTU);
+ 	if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
+ 		bool forwarding = IPCB(skb)->flags & IPSKB_FORWARDED;
  
- static void __mdb_entry_to_br_ip(struct br_mdb_entry *entry, struct br_ip *ip)
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 3d8deac2353d..3d4b2817687f 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1393,7 +1393,7 @@ br_multicast_leave_group(struct net_bridge *br,
- 			del_timer(&p->timer);
- 			kfree_rcu(p, rcu);
- 			br_mdb_notify(br->dev, port, group, RTM_DELMDB,
--				      p->flags);
-+				      p->flags | MDB_PG_FLAGS_FAST_LEAVE);
- 
- 			if (!mp->ports && !mp->host_joined &&
- 			    netif_running(br->dev))
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index e8cf03b43b7d..c4fd307fbfdc 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -199,6 +199,7 @@ struct net_bridge_fdb_entry {
- 
- #define MDB_PG_FLAGS_PERMANENT	BIT(0)
- #define MDB_PG_FLAGS_OFFLOAD	BIT(1)
-+#define MDB_PG_FLAGS_FAST_LEAVE	BIT(2)
- 
- struct net_bridge_port_group {
- 	struct net_bridge_port		*port;
 -- 
-2.21.0
+1.8.3.1
 
