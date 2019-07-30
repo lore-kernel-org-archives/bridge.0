@@ -3,17 +3,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=subject:to:cc:references:from:message-id:date:user-agent
 	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=OVJbTjwxJ2V7gEJ1EnH0FtfbT8cNqFpXv0RRwvyIbGo=;
-	b=D6/voHBS9dUFEITrTHGgDCMTH2ke7EsEqVZdZ93v1yLAuANCfSibdGPFfAsIbGPp+m
-	sO5PeIFsg7mBpdo65ea6RQDnw4TQ81wITBTUcjvYDA3TYMFMCji79v3FlEXWy5VqcOyc
-	JPGqK/l6Nrv4WsZzkV3FeOWuK8l9u/jLlvwRc=
+	bh=vx1WPFQR/0ekdOh6+wil39Vg2uqg8SMm9gVCms4QGi8=;
+	b=AD0pl6LeGMES8GvenbHna78EY5+8C1caKBtiTYGFJn1Wc0eFBT1R2CbopiNSmh9yp/
+	hhVEDXlV5Hw9oQ0FhBruqUUPgcC6aX18ALSYWeD2steFRwiHsyC5RV57CnwaGVknfOj1
+	YSJUbW6H/5ix2A039F6WcZh49aSvNYO/GO8mw=
 References: <20190730112100.18156-1-nikolay@cumulusnetworks.com>
-	<4511701d-88c4-a937-2fbc-b557033a24ed@gmail.com>
+	<20190730.101811.1836331521043535108.davem@davemloft.net>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <1b6cd3cf-0e01-2730-b8ad-d26e2355ce84@cumulusnetworks.com>
-Date: Tue, 30 Jul 2019 17:00:27 +0300
+Message-ID: <a3de94a3-5976-9035-69bf-2aee6454b45e@cumulusnetworks.com>
+Date: Tue, 30 Jul 2019 20:21:06 +0300
 MIME-Version: 1.0
-In-Reply-To: <4511701d-88c4-a937-2fbc-b557033a24ed@gmail.com>
+In-Reply-To: <20190730.101811.1836331521043535108.davem@davemloft.net>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -27,11 +27,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Ahern <dsahern@gmail.com>, netdev@vger.kernel.org
-Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
-On 30/07/2019 16:58, David Ahern wrote:
-> On 7/30/19 5:21 AM, Nikolay Aleksandrov wrote:
+On 30/07/2019 20:18, David Miller wrote:
+> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Date: Tue, 30 Jul 2019 14:21:00 +0300
+> 
 >> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
 >> index 3d8deac2353d..f8cac3702712 100644
 >> --- a/net/bridge/br_multicast.c
@@ -43,14 +45,14 @@ On 30/07/2019 16:58, David Ahern wrote:
 >> +			if (p->flags & MDB_PG_FLAGS_PERMANENT)
 >> +				break;
 >> +
->>  			rcu_assign_pointer(*pp, p->next);
->>  			hlist_del_init(&p->mglist);
->>  			del_timer(&p->timer);
 > 
-> Why 'break' and not 'continue' like you have with
-> 	if (!br_port_group_equal(p, port, src))
+> Like David, I also don't understand why this can be a break.  Is it because
+> permanent entries are always the last on the list?  Why will there be no
+> other entries that might need to be processed on the list?
 > 
 
-Because we'll hit the goto out after this hunk always, no point in continuing
-if we matched a group and it's permanent, the break might as well be a goto out.
+The reason is that only one port can match. See the first clause of br_port_group_equal,
+that port can participate only once. We could easily add a break statement in the end
+when a match is found and it will be correct. Even in the presence of MULTICAST_TO_UNICAST
+flag, the port must match and can be added only once.
 
