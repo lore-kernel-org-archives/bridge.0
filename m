@@ -1,24 +1,25 @@
-Return-Path: <rdong.ge@gmail.com>
+Return-Path: <dsahern@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=4+QxDKECEbt2nsi9n15vlp6tEfk79Z3ydNqFgvycDug=;
-	b=lbbXElZcWDWcO7idRfKRT150JkbaE34ZAm5/7WQDWq5VmH58byLnlTttxLjULzGnHi
-	juIjzfAjttSH+39RkV37/FitX0rPvUZjgqNlP8vrm00v0kNql78LyEheKW1AkIAmz4Hr
-	etUy5fge2yzDyv/fLs3IIaWr4M7LBfGOQVr8BtCESNX+Do6SoDJ2tS0KgeYravub+ozp
-	yHOS4INVM3CYGw8okECC5dy8I41Sk1AAsWaLM2PXz3FctBuH69ARB5Ddof1scefU7Gy3
-	TODHQ18+YhCJHQC2eSWwGl8MvutnGGuJaIIW9IOdwVbIQkc2oZQz5ap0aAEhFV5qTgRj
-	CuAg==
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=8nB6UOzgonvSgIT4y+9poBDn/jzEnMha8n1NPzW/YvQ=;
+	b=fENZINM7Mxpu4pmIjemj1Ft671AiOSHGKCfYHIezbR7BRrcad7Kt63UyhqN4bHOD/0
+	SGtxFM+ZGjcOq6pqFc5CSnnrQ22j1NUyviL7ZCnIeKqAYNlFx9tq5K5eLzYwvKepVzdJ
+	dlolAynjEXybnLijnok1Nh0b7P2cl9nnTUfLwL4zjezR99zkDtPbtyV0bzYCdXshj3QY
+	TH6BHAvy5283v2TTfrmMKc7bwbObtMq3vWdgU1OGKIWFzI12RrMueopRo42llVlF3gN1
+	VaMKjSD7etp/RcVLPV9RB35IAAhLT1FJofVLG5l1T8FQy11QI7aT/ACvSfXfTlVNNPQC
+	Mlkg==
+References: <20190730112100.18156-1-nikolay@cumulusnetworks.com>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <4511701d-88c4-a937-2fbc-b557033a24ed@gmail.com>
+Date: Tue, 30 Jul 2019 07:58:03 -0600
 MIME-Version: 1.0
-References: <20190730122534.30687-1-rdong.ge@gmail.com>
-	<20190730123542.zrsrfvcy7t2n3d4g@breakpoint.cc>
-In-Reply-To: <20190730123542.zrsrfvcy7t2n3d4g@breakpoint.cc>
-From: Rundong Ge <rdong.ge@gmail.com>
-Date: Tue, 30 Jul 2019 21:50:05 +0800
-Message-ID: <CAN1LvyqtbzycEggoCXaBu3Zf_jebTWLBXm3js6+r60274a61Tg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] bridge:fragmented packets dropped by bridge
+In-Reply-To: <20190730112100.18156-1-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: don't delete permanent
+ entries when fast leave is enabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,55 +28,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Westphal <fw@strlen.de>
-Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kadlec@netfilter.org, nikolay@cumulusnetworks.com, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kuznet@ms2.inr.ac.ru, davem@davemloft.net, Pablo Neira Ayuso <pablo@netfilter.org>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org
+Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-> How can a bridge forward a frame from A/B to mtu1300?
-It is free for user to set different MTU for bridge ports. In our case
-only tcp traffic between A/B and mtu 1300, and mss negotiation can
-make packets less than 1300.
+On 7/30/19 5:21 AM, Nikolay Aleksandrov wrote:
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 3d8deac2353d..f8cac3702712 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -1388,6 +1388,9 @@ br_multicast_leave_group(struct net_bridge *br,
+>  			if (!br_port_group_equal(p, port, src))
+>  				continue;
+>  
+> +			if (p->flags & MDB_PG_FLAGS_PERMANENT)
+> +				break;
+> +
+>  			rcu_assign_pointer(*pp, p->next);
+>  			hlist_del_init(&p->mglist);
+>  			del_timer(&p->timer);
 
-> What happens without netfilter or non-fragmented packets?
-Without br_netfilter it works fine, there is no defragmentation and
-refragmentation, fragmented packets will egress directly.
-
-Florian Westphal <fw@strlen.de> =E4=BA=8E2019=E5=B9=B47=E6=9C=8830=E6=97=A5=
-=E5=91=A8=E4=BA=8C =E4=B8=8B=E5=8D=888:35=E5=86=99=E9=81=93=EF=BC=9A
->
-> Rundong Ge <rdong.ge@gmail.com> wrote:
-> > Given following setup:
-> > -modprobe br_netfilter
-> > -echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
-> > -brctl addbr br0
-> > -brctl addif br0 enp2s0
-> > -brctl addif br0 enp3s0
-> > -brctl addif br0 enp6s0
-> > -ifconfig enp2s0 mtu 1300
-> > -ifconfig enp3s0 mtu 1500
-> > -ifconfig enp6s0 mtu 1500
-> > -ifconfig br0 up
-> >
-> >                  multi-port
-> > mtu1500 - mtu1500|bridge|1500 - mtu1500
-> >   A                  |            B
-> >                    mtu1300
->
-> How can a bridge forward a frame from A/B to mtu1300?
->
-> > With netfilter defragmentation/conntrack enabled, fragmented
-> > packets from A will be defragmented in prerouting, and refragmented
-> > at postrouting.
->
-> Yes, but I don't see how that relates to the problem at hand.
->
-> > But in this scenario the bridge found the frag_max_size(1500) is
-> > larger than the dst mtu stored in the fake_rtable whitch is
-> > always equal to the bridge's mtu 1300, then packets will be dopped.
->
-> What happens without netfilter or non-fragmented packets?
->
-> > This modifies ip_skb_dst_mtu to use the out dev's mtu instead
-> > of bridge's mtu in bridge refragment.
->
-> It seems quite a hack?  The above setup should use a router, not a bridge=
-.
+Why 'break' and not 'continue' like you have with
+	if (!br_port_group_equal(p, port, src))
