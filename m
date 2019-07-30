@@ -1,24 +1,24 @@
-Return-Path: <rdong.ge@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=2wlNZmUcgZRDidSciC7cz76BeVYG+FEQ83Cs9K4SOBA=;
-	b=FVeBtdDES/SHbdFJWLmUniCv+rCwtOZUL4YRXj7VyvmKOq//WfcJeyfInMj9zBCDoD
-	WMzpWqLNXzZgQsK4ns4FtLPl3HrWc+aoiDWa+gcN+Zw/rYsK6NZQm459qg+OPOagPjRv
-	7oCvZAoRAGsxJ0YOP+VGZHhL3G3ERgjvzy4GAqIqpYnJpnugu78kXSURDYUgRC7olx7o
-	nIv4HtmDcioFY16WmuHQXFmxswX2HFfh0WNWoI6x7nqosv74bfuGGY9ktCuXI7Hy5AaU
-	rt8gzdpem/y9jtpgeH1T2Zv0zpwsTMhj5itHFjUJsIEW9c+DNuJFo6RpupZufSJK2S34
-	+dwg==
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:cc:references:from:message-id:date:user-agent
+	:mime-version:in-reply-to:content-language:content-transfer-encoding;
+	bh=OVJbTjwxJ2V7gEJ1EnH0FtfbT8cNqFpXv0RRwvyIbGo=;
+	b=D6/voHBS9dUFEITrTHGgDCMTH2ke7EsEqVZdZ93v1yLAuANCfSibdGPFfAsIbGPp+m
+	sO5PeIFsg7mBpdo65ea6RQDnw4TQ81wITBTUcjvYDA3TYMFMCji79v3FlEXWy5VqcOyc
+	JPGqK/l6Nrv4WsZzkV3FeOWuK8l9u/jLlvwRc=
+References: <20190730112100.18156-1-nikolay@cumulusnetworks.com>
+	<4511701d-88c4-a937-2fbc-b557033a24ed@gmail.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <1b6cd3cf-0e01-2730-b8ad-d26e2355ce84@cumulusnetworks.com>
+Date: Tue, 30 Jul 2019 17:00:27 +0300
 MIME-Version: 1.0
-References: <20190730122534.30687-1-rdong.ge@gmail.com>
-	<1dc87e69-628b-fd04-619a-8dbe5bdfa108@cumulusnetworks.com>
-In-Reply-To: <1dc87e69-628b-fd04-619a-8dbe5bdfa108@cumulusnetworks.com>
-From: Rundong Ge <rdong.ge@gmail.com>
-Date: Tue, 30 Jul 2019 21:58:29 +0800
-Message-ID: <CAN1Lvyr5UcBrNJ8RLMgjT77sDjic7aXNeRmRex=BvzB02He9aQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH] bridge:fragmented packets dropped by bridge
+In-Reply-To: <4511701d-88c4-a937-2fbc-b557033a24ed@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: don't delete permanent
+ entries when fast leave is enabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,80 +27,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, kadlec@netfilter.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kuznet@ms2.inr.ac.ru, davem@davemloft.net, Pablo Neira Ayuso <pablo@netfilter.org>
+To: David Ahern <dsahern@gmail.com>, netdev@vger.kernel.org
+Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Yes it is about the frag_size check in br_nf_ip_fragment(). As i said
-without br_netfilter the packets forwarding is fine.
-And I feel it is weird that br_nf_dev_queue_xmit() use out dev's mtu
-to decide whether to do the fragmentation, but
-then br_nf_ip_fragment() use bridge's mtu to do the actual fragmentation.
+On 30/07/2019 16:58, David Ahern wrote:
+> On 7/30/19 5:21 AM, Nikolay Aleksandrov wrote:
+>> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+>> index 3d8deac2353d..f8cac3702712 100644
+>> --- a/net/bridge/br_multicast.c
+>> +++ b/net/bridge/br_multicast.c
+>> @@ -1388,6 +1388,9 @@ br_multicast_leave_group(struct net_bridge *br,
+>>  			if (!br_port_group_equal(p, port, src))
+>>  				continue;
+>>  
+>> +			if (p->flags & MDB_PG_FLAGS_PERMANENT)
+>> +				break;
+>> +
+>>  			rcu_assign_pointer(*pp, p->next);
+>>  			hlist_del_init(&p->mglist);
+>>  			del_timer(&p->timer);
+> 
+> Why 'break' and not 'continue' like you have with
+> 	if (!br_port_group_equal(p, port, src))
+> 
 
-And in this case fragmented packets fit the out dev mtu but were
-dropped, I think it is not right.
+Because we'll hit the goto out after this hunk always, no point in continuing
+if we matched a group and it's permanent, the break might as well be a goto out.
 
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com> =E4=BA=8E2019=E5=B9=B47=
-=E6=9C=8830=E6=97=A5=E5=91=A8=E4=BA=8C =E4=B8=8B=E5=8D=888:41=E5=86=99=E9=
-=81=93=EF=BC=9A
->
-> On 30/07/2019 15:25, Rundong Ge wrote:
-> > Given following setup:
-> > -modprobe br_netfilter
-> > -echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
-> > -brctl addbr br0
-> > -brctl addif br0 enp2s0
-> > -brctl addif br0 enp3s0
-> > -brctl addif br0 enp6s0
-> > -ifconfig enp2s0 mtu 1300
-> > -ifconfig enp3s0 mtu 1500
-> > -ifconfig enp6s0 mtu 1500
-> > -ifconfig br0 up
-> >
-> >                  multi-port
-> > mtu1500 - mtu1500|bridge|1500 - mtu1500
-> >   A                  |            B
-> >                    mtu1300
-> >
-> > With netfilter defragmentation/conntrack enabled, fragmented
-> > packets from A will be defragmented in prerouting, and refragmented
-> > at postrouting.
-> > But in this scenario the bridge found the frag_max_size(1500) is
-> > larger than the dst mtu stored in the fake_rtable whitch is
-> > always equal to the bridge's mtu 1300, then packets will be dopped.
-> >
-> > This modifies ip_skb_dst_mtu to use the out dev's mtu instead
-> > of bridge's mtu in bridge refragment.
-> >
-> > Signed-off-by: Rundong Ge <rdong.ge@gmail.com>
-> > ---
-> >  include/net/ip.h | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/include/net/ip.h b/include/net/ip.h
-> > index 29d89de..0512de3 100644
-> > --- a/include/net/ip.h
-> > +++ b/include/net/ip.h
-> > @@ -450,6 +450,8 @@ static inline unsigned int ip_dst_mtu_maybe_forward=
-(const struct dst_entry *dst,
-> >  static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
-> >                                         const struct sk_buff *skb)
-> >  {
-> > +     if ((skb_dst(skb)->flags & DST_FAKE_RTABLE) && skb->dev)
-> > +             return min(skb->dev->mtu, IP_MAX_MTU);
-> >       if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
-> >               bool forwarding =3D IPCB(skb)->flags & IPSKB_FORWARDED;
-> >
-> >
->
-> I don't think this is correct, there's a reason why the bridge chooses th=
-e smallest
-> possible MTU out of its members and this is simply a hack to circumvent i=
-t.
-> If you really like to do so just set the bridge MTU manually, we've added=
- support
-> so it won't change automatically to the smallest, but then how do you pas=
-s packets
-> 1500 -> 1300 in this setup ?
->
-> You're talking about the frag_size check in br_nf_ip_fragment(), right ?
->
