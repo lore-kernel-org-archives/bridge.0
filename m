@@ -1,19 +1,23 @@
-Return-Path: <nikolay@cumulusnetworks.com>
+Return-Path: <stephen@networkplumber.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:mime-version
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:mime-version
 	:content-transfer-encoding;
-	bh=jvbPu4YBYO12LCpE//3PfLYjJ0yC3CUYvT15uCxwmXA=;
-	b=O8kU7Qu9qVR758Jz8QyNZCragqjTNCly5T/5LOi68NsNIfKMKldX0XQQG/FeIDAz7S
-	xsGy2BbNE73i9/bDJ8odymQUkhLiuBwTew0dW21QKBqwa7Yq44lfAUD/FkzxXOvdGdaJ
-	rpnv2BJHlAF0Pvd7FKY7nlGImGMhVkzZNSeWM=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed, 31 Jul 2019 21:36:23 +0300
-Message-Id: <20190731183623.20127-1-nikolay@cumulusnetworks.com>
+	bh=VO6YXLOMHjQGfFcRyys07Abf0MQLk8xl6yG90pRHabI=;
+	b=aQ936oooQnAEDHD0Pw5AKNOJN7j/DwsHJKB1L/1/kmkBvArc/BuUfQksHaZJABlKiu
+	KIzvBYIAIN62tPSNB9tX+LkQte5kde21V+q7kbv8ETP0W25RVyUoP8wlCE2OeO9MvLcJ
+	ZZvbS/WAsP7r4vp7rn+J12hfA5IcWnBXqXog2DeCvAFtprE3NJ0rBVnvg8l/ZdxFqWiB
+	zINB54aitCFOEsI1gdNXq+9QxjiYyR8Hfw1mtpmPHratWrrTR0327Mp4Yk5/d9zAJrIg
+	et6kjdxkc5LWonB2x4pX15Rnax4GD+copytrF5qLKIOFG5/RRBBZtTtmdiR4d+/wdbI4
+	QGIg==
+Date: Wed, 31 Jul 2019 06:45:31 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20190731064531.246f27cb@hermes.lan>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] net: bridge: move vlan init/deinit to
-	NETDEV_REGISTER/UNREGISTER
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] Fw: [Bug 204389] New: bridge: AF_BRIDGE NEWNEIGH netlink
+ message with ifidx is zero
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,246 +26,98 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, michael-dev <michael-dev@fami-braun.de>
+To: roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com
+Cc: bridge@lists.linux-foundation.org
 
-Most of the bridge device's vlan init bugs come from the fact that it's
-done in the wrong place, way too early in ndo_init() before the device is
-even assigned an ifindex. That makes error handling harder, especially for
-older kernels which don't have bridge ndo_uninit callback. It also
-introduces another bug when the bridge's dev_addr is added as fdb in the
-the initial default pvid on vlan initialization, the fdb notification has
-ifindex/NDA_MASTER both equal to 0 (see example below) which really
-makes no sense for user-space[0]. Usually user-space software would ignore
-such entries, but they are actually valid and will eventually have all
-necessary attributes. I chose to change the order because this can be
-backported to all kernels even pre-ndo_uninit ones without many changes
-and it keeps init/deinit symmetric. As a bonus this allows us to keep
-the vlan init/deinit entirely in br_vlan.c and remove those exports.
-It makes much more sense to send a notification *after* the device has
-registered and has a proper ifindex allocated rather than before when
-there's a chance that the registration might still fail.
 
-For the demonstration below a small change to iproute2 for printing all fdb
-notifications is added, because it contained a workaround not to show
-entries with ifindex == 0.
-Command executed while monitoring: $ ip l add br0 type bridge
-Before (both ifindex and master == 0):
-$ bridge monitor fdb
-36:7e:8a:b3:56:ba dev * vlan 1 master * permanent
 
-After (proper br0 ifindex):
-$ bridge monitor fdb
-e6:2a:ae:7a:b7:48 dev br0 vlan 1 master br0 permanent
+Begin forwarded message:
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=204389
+Date: Wed, 31 Jul 2019 09:32:20 +0000
+From: bugzilla-daemon@bugzilla.kernel.org
+To: stephen@networkplumber.org
+Subject: [Bug 204389] New: bridge: AF_BRIDGE NEWNEIGH netlink message with ifidx is zero
 
-Reported-by: michael-dev <michael-dev@fami-braun.de>
-Fixes: 5be5a2df40f0 ("bridge: Add filtering support for default_pvid")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
-I tried a few different approaches to resolve this but they were all
-unsuitable for some kernels, this approach can go to stables easily
-and IMO is the way this had to be done from the start. Alternatively
-we could move only the br_vlan_add and pair it with a br_vlan_del of
-default_pvid on the same events, but I don't think it hurts to move
-the whole init/deinit there as it'd help older stable releases as well.
 
-I also tested the br_vlan_init error handling after the move by always
-returning errors from all over it. Since errors at NETDEV_REGISTER cause
-NETDEV_UNREGISTER we can deinit vlans properly for all cases regardless
-why it happened (e.g. device destruction or init error).
+https://bugzilla.kernel.org/show_bug.cgi?id=204389
 
- net/bridge/br.c         |  5 ++++-
- net/bridge/br_device.c  | 10 ----------
- net/bridge/br_private.h | 19 ++++---------------
- net/bridge/br_vlan.c    | 23 ++++++++++++++++-------
- 4 files changed, 24 insertions(+), 33 deletions(-)
+            Bug ID: 204389
+           Summary: bridge: AF_BRIDGE NEWNEIGH netlink message with ifidx
+                    is zero
+           Product: Networking
+           Version: 2.5
+    Kernel Version: 4.19
+          Hardware: All
+                OS: Linux
+              Tree: Mainline
+            Status: NEW
+          Severity: normal
+          Priority: P1
+         Component: Other
+          Assignee: stephen@networkplumber.org
+          Reporter: michael-dev@fami-braun.de
+        Regression: No
 
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index d164f63a4345..8a8f9e5f264f 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -37,12 +37,15 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
- 	int err;
- 
- 	if (dev->priv_flags & IFF_EBRIDGE) {
-+		err = br_vlan_bridge_event(dev, event, ptr);
-+		if (err)
-+			return notifier_from_errno(err);
-+
- 		if (event == NETDEV_REGISTER) {
- 			/* register of bridge completed, add sysfs entries */
- 			br_sysfs_addbr(dev);
- 			return NOTIFY_DONE;
- 		}
--		br_vlan_bridge_event(dev, event, ptr);
- 	}
- 
- 	/* not a port of a bridge */
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 681b72862c16..b3e3de2ecf95 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -135,18 +135,9 @@ static int br_dev_init(struct net_device *dev)
- 		return err;
- 	}
- 
--	err = br_vlan_init(br);
--	if (err) {
--		free_percpu(br->stats);
--		br_mdb_hash_fini(br);
--		br_fdb_hash_fini(br);
--		return err;
--	}
--
- 	err = br_multicast_init_stats(br);
- 	if (err) {
- 		free_percpu(br->stats);
--		br_vlan_flush(br);
- 		br_mdb_hash_fini(br);
- 		br_fdb_hash_fini(br);
- 	}
-@@ -161,7 +152,6 @@ static void br_dev_uninit(struct net_device *dev)
- 
- 	br_multicast_dev_del(br);
- 	br_multicast_uninit_stats(br);
--	br_vlan_flush(br);
- 	br_mdb_hash_fini(br);
- 	br_fdb_hash_fini(br);
- 	free_percpu(br->stats);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index e8cf03b43b7d..96dd1c68d73f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -872,7 +872,6 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
- int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags,
- 		bool *changed, struct netlink_ext_ack *extack);
- int br_vlan_delete(struct net_bridge *br, u16 vid);
--void br_vlan_flush(struct net_bridge *br);
- struct net_bridge_vlan *br_vlan_find(struct net_bridge_vlan_group *vg, u16 vid);
- void br_recalculate_fwd_mask(struct net_bridge *br);
- int __br_vlan_filter_toggle(struct net_bridge *br, unsigned long val);
-@@ -881,7 +880,6 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto);
- int br_vlan_set_proto(struct net_bridge *br, unsigned long val);
- int br_vlan_set_stats(struct net_bridge *br, unsigned long val);
- int br_vlan_set_stats_per_port(struct net_bridge *br, unsigned long val);
--int br_vlan_init(struct net_bridge *br);
- int br_vlan_set_default_pvid(struct net_bridge *br, unsigned long val);
- int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid,
- 			       struct netlink_ext_ack *extack);
-@@ -894,8 +892,8 @@ int nbp_get_num_vlan_infos(struct net_bridge_port *p, u32 filter_mask);
- void br_vlan_get_stats(const struct net_bridge_vlan *v,
- 		       struct br_vlan_stats *stats);
- void br_vlan_port_event(struct net_bridge_port *p, unsigned long event);
--void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
--			  void *ptr);
-+int br_vlan_bridge_event(struct net_device *dev, unsigned long event,
-+			 void *ptr);
- 
- static inline struct net_bridge_vlan_group *br_vlan_group(
- 					const struct net_bridge *br)
-@@ -988,19 +986,10 @@ static inline int br_vlan_delete(struct net_bridge *br, u16 vid)
- 	return -EOPNOTSUPP;
- }
- 
--static inline void br_vlan_flush(struct net_bridge *br)
--{
--}
--
- static inline void br_recalculate_fwd_mask(struct net_bridge *br)
- {
- }
- 
--static inline int br_vlan_init(struct net_bridge *br)
--{
--	return 0;
--}
--
- static inline int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags,
- 			       bool *changed, struct netlink_ext_ack *extack)
- {
-@@ -1085,8 +1074,8 @@ static inline void br_vlan_port_event(struct net_bridge_port *p,
- {
- }
- 
--static inline void br_vlan_bridge_event(struct net_device *dev,
--					unsigned long event, void *ptr)
-+static inline int br_vlan_bridge_event(struct net_device *dev,
-+				       unsigned long event, void *ptr)
- {
- }
- #endif
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index a544e161c7fa..266c1214b9f9 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -709,7 +709,7 @@ int br_vlan_delete(struct net_bridge *br, u16 vid)
- 	return __vlan_del(v);
- }
- 
--void br_vlan_flush(struct net_bridge *br)
-+static void br_vlan_flush(struct net_bridge *br)
- {
- 	struct net_bridge_vlan_group *vg;
- 
-@@ -721,6 +721,8 @@ void br_vlan_flush(struct net_bridge *br)
- 	br_fdb_delete_by_port(br, NULL, 0, 1);
- 
- 	vg = br_vlan_group(br);
-+	if (!vg)
-+		return;
- 	__vlan_flush(vg);
- 	RCU_INIT_POINTER(br->vlgrp, NULL);
- 	synchronize_rcu();
-@@ -1054,7 +1056,7 @@ int br_vlan_set_default_pvid(struct net_bridge *br, unsigned long val)
- 	return err;
- }
- 
--int br_vlan_init(struct net_bridge *br)
-+static int br_vlan_init(struct net_bridge *br)
- {
- 	struct net_bridge_vlan_group *vg;
- 	int ret = -ENOMEM;
-@@ -1469,13 +1471,19 @@ static void nbp_vlan_set_vlan_dev_state(struct net_bridge_port *p, u16 vid)
- }
- 
- /* Must be protected by RTNL. */
--void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
--			  void *ptr)
-+int br_vlan_bridge_event(struct net_device *dev, unsigned long event, void *ptr)
- {
- 	struct netdev_notifier_changeupper_info *info;
--	struct net_bridge *br;
-+	struct net_bridge *br = netdev_priv(dev);
-+	int ret = 0;
- 
- 	switch (event) {
-+	case NETDEV_REGISTER:
-+		ret = br_vlan_init(br);
-+		break;
-+	case NETDEV_UNREGISTER:
-+		br_vlan_flush(br);
-+		break;
- 	case NETDEV_CHANGEUPPER:
- 		info = ptr;
- 		br_vlan_upper_change(dev, info->upper_dev, info->linking);
-@@ -1483,12 +1491,13 @@ void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
- 
- 	case NETDEV_CHANGE:
- 	case NETDEV_UP:
--		br = netdev_priv(dev);
- 		if (!br_opt_get(br, BROPT_VLAN_BRIDGE_BINDING))
--			return;
-+			break;
- 		br_vlan_link_state_change(dev, br);
- 		break;
- 	}
-+
-+	return ret;
- }
- 
- /* Must be protected by RTNL. */
+My application is receiving the following netlink messages from kernel:
+
+-------------------------- BEGIN NETLINK
+MESSAGE ---------------------------
+ [NETLINK HEADER] 16 octets
+ .nlmsg_len = 76
+ .type = 28 <route/neigh::new>
+ .flags = 0 <>
+ .seq = 0
+ .port = 0
+ [PAYLOAD] 12 octets
+ 07 00 00 00 00 00 00 00 00 80 00 00 ............
+ [ATTR 02] 6 octets
+ 4e db c4 30 92 f4 N..0..
+ [PADDING] 2 octets
+ 00 00 ..
+ .flags = 0 <>
+ .seq = 0
+ .port = 0
+ [PAYLOAD] 12 octets
+ 07 00 00 00 00 00 00 00 00 80 00 00 ............
+ [ATTR 02] 6 octets
+ 4e db c4 30 92 f4 N..0..
+ [PADDING] 2 octets
+ 00 00 ..
+ [ATTR 09] 4 octets
+ 00 00 00 00 ....
+ [ATTR 03] 16 octets
+ 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ [ATTR 05] 2 octets
+ 00 01 ..
+ [PADDING] 2 octets
+ 00 00 ..
+--------------------------- END NETLINK MESSAGE ---------------------------
+
+Clearly, ifidex is zero here, so the application cannot correlate this NEWNEIGH
+message to  any interface.
+
+Adding a WARN_ON (ifidx=0) to fdb_fill_info gives the following backtrace:
+
+[ 43.071801] [efb47c10] [c0510580] fdb_fill_info+0x180/0x22c (unreliable)
+[ 43.071829] [efb47c50] [c0510684] fdb_notify.isra.22+0x58/0xd8
+[ 43.071849] [efb47c70] [c0511b44] fdb_insert+0xa4/0x108
+[ 43.071870] [efb47c90] [c051254c] br_fdb_insert+0x40/0x64
+[ 43.071891] [efb47cb0] [c052b640] __vlan_add+0xe50/0xf24
+[ 43.071911] [efb47d20] [c052a77c] br_vlan_add+0x528/0x59c
+[ 43.071931] [efb47d70] [c052c38c] br_vlan_init+0x90/0xd4
+[ 43.071951] [efb47da0] [c050f96c] br_dev_init+0xc8/0x170
+[ 43.071983] [efb47de0] [c03cff8c] register_netdevice+0x148/0x6e8
+[ 43.072003] [efb47e20] [c03d0554] register_netdev+0x28/0x50
+[ 43.072026] [efb47e30] [c05154f4] br_add_bridge+0x44/0x78
+[ 43.072047] [efb47e40] [c0517ce8] br_ioctl_deviceless_stub+0x2c4/0x2f0
+[ 43.072069] [efb47e80] [c03a372c] sock_ioctl+0x17c/0x3d8
+[ 43.072091] [efb47ed0] [c017655c] do_vfs_ioctl+0x7ac/0x894
+[ 43.072111] [efb47f20] [c0176684] ksys_ioctl+0x40/0x74
+[ 43.072140] [efb47f40] [c0011288] ret_from_syscall+0x0/0x3c
+
+So clearly br_vlan_init triggers a NEWNEIGH message before bridge creation has
+been completed and an ifindex assigned.
+
 -- 
-2.21.0
-
+You are receiving this mail because:
+You are the assignee for the bug.
