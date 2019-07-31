@@ -6,27 +6,27 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=rgynBm9hctybZUQVcP0RXwQdxJdI0dv3Bh59KGp9aWo=;
-	b=CEzzNg0Xm/Z5ZBhcLdThuFymBA
-	3m2WnPrllV0f9OJX4NEWnjuV4tuMKPsDcGlKkETaNLhGbKx6cDsNYO6hMT/yS8pLPcX3D9foSF9cp
-	KNe4aEAtQeNKWIaIXvwStAnRykxDdlJRAfnYWuaj3vdzxMx4Jb6cbcZz9Q6Pbx4HEtAk=; 
-Date: Mon, 29 Jul 2019 01:07:41 +0200
+	bh=0NRC7saKJ5HD00qHeigJW3alj6gmWgBSOf4VkoLAoSc=;
+	b=JXw0y2cy74zcZYlRJQaphKCSHw
+	0oZnZBNXiVaoB6HTz9u0KwJXN5xEHvXFcU1G0VabJIHCUqc7nci3IjPL4++JUn0jM8pqvNBscQj7h
+	mSV0WKdYJst1outT/rtXeKlB29RzaIcQppVkxiPpwPlA3g3JqD7JfeykpDJG9oKteFsE=; 
+Date: Wed, 31 Jul 2019 15:45:50 +0200
 From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20190728230741.GF23125@lunn.ch>
-References: <7e7a7015-6072-d884-b2ba-0a51177245ab@cumulusnetworks.com>
-	<eef063fe-fd3a-7e02-89c2-e40728a17578@cumulusnetworks.com>
-	<20190725142101.65tusauc6fzxb2yp@soft-dev3.microsemi.net>
-	<b9ce433a-3ef7-fe15-642a-659c5715d992@cumulusnetworks.com>
-	<e6ad982f-4706-46f9-b8f0-1337b09de350@cumulusnetworks.com>
-	<20190726120214.c26oj5vks7g5ntwu@soft-dev3.microsemi.net>
-	<20190726134613.GD18223@lunn.ch>
-	<20190726195010.7x75rr74v7ph3m6m@lx-anielsen.microsemi.net>
-	<20190727030223.GA29731@lunn.ch>
-	<20190728191558.zuopgfqza2iz5d5b@lx-anielsen.microsemi.net>
+Message-ID: <20190731134550.GA23028@lunn.ch>
+References: <3cc69103-d194-2eca-e7dd-e2fa6a730223@cumulusnetworks.com>
+	<20190729135205.oiuthcyesal4b4ct@lx-anielsen.microsemi.net>
+	<e4cd0db9-695a-82a7-7dc0-623ded66a4e5@cumulusnetworks.com>
+	<20190729143508.tcyebbvleppa242d@lx-anielsen.microsemi.net>
+	<20190729175136.GA28572@splinter>
+	<20190730062721.p4vrxo5sxbtulkrx@lx-anielsen.microsemi.net>
+	<20190730143400.GO28552@lunn.ch>
+	<20190730190000.diacyjw6owqkf7uf@lx-anielsen.microsemi.net>
+	<20190731033156.GE9523@lunn.ch>
+	<20190731080149.oyqcrw42utxjizsx@lx-anielsen.microsemi.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190728191558.zuopgfqza2iz5d5b@lx-anielsen.microsemi.net>
+In-Reply-To: <20190731080149.oyqcrw42utxjizsx@lx-anielsen.microsemi.net>
 Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
 	groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -38,46 +38,66 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Ido Schimmel <idosch@idosch.org>, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-> Trying to get back to the original problem:
+> > 2) The interface is part of a bridge. There are a few sub-cases
+> > 
+> > a) IGMP snooping is being performed. We can block multicast where
+> > there is no interest in the group. But this is limited to IP
+> > multicast.
+> Agree. And this is done today by installing an explicit offload rule to limit
+> the flooding of a specific group.
 > 
-> We have a network which implements the ODVA/DLR ring protocol. This protocol
-> sends out a beacon frame as often as every 3 us (as far as I recall, default I
-> believe is 400 us) to this MAC address: 01:21:6C:00:00:01.
+> > b) IGMP snooping is not being used and all interfaces in the bridge
+> > are ports of the switch. IP Multicast can be blocked to the CPU.
+> Does it matter if IGMP snooping is used or not? A more general statement could
+> be:
 > 
-> Try take a quick look at slide 10 in [1].
-> 
-> If we assume that the SwitchDev driver implemented such that all multicast
-> traffic goes to the CPU, then we should really have a way to install a HW
-> offload path in the silicon, such that these packets does not go to the CPU (as
-> they are known not to be use full, and a frame every 3 us is a significant load
-> on small DMA connections and CPU resources).
-> 
-> If we assume that the SwitchDev driver implemented such that only "needed"
-> multicast packets goes to the CPU, then we need a way to get these packets in
-> case we want to implement the DLR protocol.
-> 
-> I'm sure that both models can work, and I do not think that this is the main
-> issue here.
-> 
-> Our initial attempt was to allow install static L2-MAC entries and append
-> multiple ports to such an entry in the MAC table. This was rejected, for several
-> good reasons it seems. But I'm not sure it was clear what we wanted to achieve,
-> and why we find it to be important. Hopefully this is clear with a real world
-> use-case.
-> 
-> Any hints or ideas on what would be a better way to solve this problems will be
-> much appreciated.
+> - "All interfaces in the bridge are ports of the switch. IP Multicast can be
+>   blocked to the CPU."
 
-I always try to think about how this would work if i had a bunch of
-discrete network interfaces, not a switch. What APIs are involved in
-configuring such a system? How does the Linux network stack perform
-software DLR? How is the reception and blocking of the multicast group
-performed?
+We have seen IPv6 neighbour discovery break in conditions like this. I
+don't know the exact details.
 
-Once you understand how it works in the software implement, it should
-then be more obvious which switchdev hooks should be used to
-accelerate this using hardware.
+You also need to watch out for 224.0.0.0/24. This is the link local
+multicast range. There is no need to join MC addresses in that
+range. It is assumed they will always be received. So even if IGMP is
+enabled, you still need to pass some multicast traffic to the CPU.
 
-	   Andrew
+> > So one possibility here is to teach the SW bridge about non-IP
+> > multicast addresses. Initially the switch should forward all MAC
+> > multicast frames to the CPU. If the frame is not an IPv4 or IPv6
+> > frame, and there has not been a call to set_rx_mode() for the MAC
+> > address on the br0 interface, and the bridge only contains switch
+> > ports, switchdev could be used to block the multicast to the CPU
+> > frame, but forward it out all other ports of the bridge.
+> Close, but not exactly (due to the arguments above).
+> 
+> Here is how I see it:
+> 
+> Teach the SW bridge about non-IP multicast addresses. Initially the switch
+> should forward all MAC multicast frames to the CPU. Today MDB rules can be
+> installed (either static or dynamic by IGMP), which limit the flooding of IPv4/6
+> multicast streams. In the same way, we should have a way to install a rule
+> (FDM/ or MDB) to limit the flooding of L2 multicast frames.
+> 
+> If foreign interfaces (or br0 it self) is part of the destination list, then
+> traffic also needs to go to the CPU.
+> 
+> By doing this, we can for explicitly configured dst mac address:
+> - limit the flooding on the on the SW bridge interfaces
+> - limit the flooding on the on the HW bridge interfaces
+> - prevent them to go to the CPU if they are not needed
+
+This is all very complex because of all the different corner cases. So
+i don't think we want a user API to do the CPU part, we want the
+network stack to do it. Otherwise the user is going to get is wrong,
+break their network, and then come running to the list for help.
+
+This also fits with how we do things in DSA. There is deliberately no
+user space concept for configuring the DSA CPU port. To user space,
+the switch is just a bunch of Linux interfaces. Everything to do with
+the CPU port is hidden away in the DSA core layer, the DSA drivers,
+and a little bit in the bridge.
+
+       Andrew
