@@ -1,34 +1,19 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=0NRC7saKJ5HD00qHeigJW3alj6gmWgBSOf4VkoLAoSc=;
-	b=JXw0y2cy74zcZYlRJQaphKCSHw
-	0oZnZBNXiVaoB6HTz9u0KwJXN5xEHvXFcU1G0VabJIHCUqc7nci3IjPL4++JUn0jM8pqvNBscQj7h
-	mSV0WKdYJst1outT/rtXeKlB29RzaIcQppVkxiPpwPlA3g3JqD7JfeykpDJG9oKteFsE=; 
-Date: Wed, 31 Jul 2019 15:45:50 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20190731134550.GA23028@lunn.ch>
-References: <3cc69103-d194-2eca-e7dd-e2fa6a730223@cumulusnetworks.com>
-	<20190729135205.oiuthcyesal4b4ct@lx-anielsen.microsemi.net>
-	<e4cd0db9-695a-82a7-7dc0-623ded66a4e5@cumulusnetworks.com>
-	<20190729143508.tcyebbvleppa242d@lx-anielsen.microsemi.net>
-	<20190729175136.GA28572@splinter>
-	<20190730062721.p4vrxo5sxbtulkrx@lx-anielsen.microsemi.net>
-	<20190730143400.GO28552@lunn.ch>
-	<20190730190000.diacyjw6owqkf7uf@lx-anielsen.microsemi.net>
-	<20190731033156.GE9523@lunn.ch>
-	<20190731080149.oyqcrw42utxjizsx@lx-anielsen.microsemi.net>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding;
+	bh=jvbPu4YBYO12LCpE//3PfLYjJ0yC3CUYvT15uCxwmXA=;
+	b=O8kU7Qu9qVR758Jz8QyNZCragqjTNCly5T/5LOi68NsNIfKMKldX0XQQG/FeIDAz7S
+	xsGy2BbNE73i9/bDJ8odymQUkhLiuBwTew0dW21QKBqwa7Yq44lfAUD/FkzxXOvdGdaJ
+	rpnv2BJHlAF0Pvd7FKY7nlGImGMhVkzZNSeWM=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Wed, 31 Jul 2019 21:36:23 +0300
+Message-Id: <20190731183623.20127-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731080149.oyqcrw42utxjizsx@lx-anielsen.microsemi.net>
-Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
-	groups
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] net: bridge: move vlan init/deinit to
+	NETDEV_REGISTER/UNREGISTER
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,67 +22,246 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Ido Schimmel <idosch@idosch.org>, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, michael-dev <michael-dev@fami-braun.de>
 
-> > 2) The interface is part of a bridge. There are a few sub-cases
-> > 
-> > a) IGMP snooping is being performed. We can block multicast where
-> > there is no interest in the group. But this is limited to IP
-> > multicast.
-> Agree. And this is done today by installing an explicit offload rule to limit
-> the flooding of a specific group.
-> 
-> > b) IGMP snooping is not being used and all interfaces in the bridge
-> > are ports of the switch. IP Multicast can be blocked to the CPU.
-> Does it matter if IGMP snooping is used or not? A more general statement could
-> be:
-> 
-> - "All interfaces in the bridge are ports of the switch. IP Multicast can be
->   blocked to the CPU."
+Most of the bridge device's vlan init bugs come from the fact that it's
+done in the wrong place, way too early in ndo_init() before the device is
+even assigned an ifindex. That makes error handling harder, especially for
+older kernels which don't have bridge ndo_uninit callback. It also
+introduces another bug when the bridge's dev_addr is added as fdb in the
+the initial default pvid on vlan initialization, the fdb notification has
+ifindex/NDA_MASTER both equal to 0 (see example below) which really
+makes no sense for user-space[0]. Usually user-space software would ignore
+such entries, but they are actually valid and will eventually have all
+necessary attributes. I chose to change the order because this can be
+backported to all kernels even pre-ndo_uninit ones without many changes
+and it keeps init/deinit symmetric. As a bonus this allows us to keep
+the vlan init/deinit entirely in br_vlan.c and remove those exports.
+It makes much more sense to send a notification *after* the device has
+registered and has a proper ifindex allocated rather than before when
+there's a chance that the registration might still fail.
 
-We have seen IPv6 neighbour discovery break in conditions like this. I
-don't know the exact details.
+For the demonstration below a small change to iproute2 for printing all fdb
+notifications is added, because it contained a workaround not to show
+entries with ifindex == 0.
+Command executed while monitoring: $ ip l add br0 type bridge
+Before (both ifindex and master == 0):
+$ bridge monitor fdb
+36:7e:8a:b3:56:ba dev * vlan 1 master * permanent
 
-You also need to watch out for 224.0.0.0/24. This is the link local
-multicast range. There is no need to join MC addresses in that
-range. It is assumed they will always be received. So even if IGMP is
-enabled, you still need to pass some multicast traffic to the CPU.
+After (proper br0 ifindex):
+$ bridge monitor fdb
+e6:2a:ae:7a:b7:48 dev br0 vlan 1 master br0 permanent
 
-> > So one possibility here is to teach the SW bridge about non-IP
-> > multicast addresses. Initially the switch should forward all MAC
-> > multicast frames to the CPU. If the frame is not an IPv4 or IPv6
-> > frame, and there has not been a call to set_rx_mode() for the MAC
-> > address on the br0 interface, and the bridge only contains switch
-> > ports, switchdev could be used to block the multicast to the CPU
-> > frame, but forward it out all other ports of the bridge.
-> Close, but not exactly (due to the arguments above).
-> 
-> Here is how I see it:
-> 
-> Teach the SW bridge about non-IP multicast addresses. Initially the switch
-> should forward all MAC multicast frames to the CPU. Today MDB rules can be
-> installed (either static or dynamic by IGMP), which limit the flooding of IPv4/6
-> multicast streams. In the same way, we should have a way to install a rule
-> (FDM/ or MDB) to limit the flooding of L2 multicast frames.
-> 
-> If foreign interfaces (or br0 it self) is part of the destination list, then
-> traffic also needs to go to the CPU.
-> 
-> By doing this, we can for explicitly configured dst mac address:
-> - limit the flooding on the on the SW bridge interfaces
-> - limit the flooding on the on the HW bridge interfaces
-> - prevent them to go to the CPU if they are not needed
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=204389
 
-This is all very complex because of all the different corner cases. So
-i don't think we want a user API to do the CPU part, we want the
-network stack to do it. Otherwise the user is going to get is wrong,
-break their network, and then come running to the list for help.
+Reported-by: michael-dev <michael-dev@fami-braun.de>
+Fixes: 5be5a2df40f0 ("bridge: Add filtering support for default_pvid")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+I tried a few different approaches to resolve this but they were all
+unsuitable for some kernels, this approach can go to stables easily
+and IMO is the way this had to be done from the start. Alternatively
+we could move only the br_vlan_add and pair it with a br_vlan_del of
+default_pvid on the same events, but I don't think it hurts to move
+the whole init/deinit there as it'd help older stable releases as well.
 
-This also fits with how we do things in DSA. There is deliberately no
-user space concept for configuring the DSA CPU port. To user space,
-the switch is just a bunch of Linux interfaces. Everything to do with
-the CPU port is hidden away in the DSA core layer, the DSA drivers,
-and a little bit in the bridge.
+I also tested the br_vlan_init error handling after the move by always
+returning errors from all over it. Since errors at NETDEV_REGISTER cause
+NETDEV_UNREGISTER we can deinit vlans properly for all cases regardless
+why it happened (e.g. device destruction or init error).
 
-       Andrew
+ net/bridge/br.c         |  5 ++++-
+ net/bridge/br_device.c  | 10 ----------
+ net/bridge/br_private.h | 19 ++++---------------
+ net/bridge/br_vlan.c    | 23 ++++++++++++++++-------
+ 4 files changed, 24 insertions(+), 33 deletions(-)
+
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index d164f63a4345..8a8f9e5f264f 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -37,12 +37,15 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
+ 	int err;
+ 
+ 	if (dev->priv_flags & IFF_EBRIDGE) {
++		err = br_vlan_bridge_event(dev, event, ptr);
++		if (err)
++			return notifier_from_errno(err);
++
+ 		if (event == NETDEV_REGISTER) {
+ 			/* register of bridge completed, add sysfs entries */
+ 			br_sysfs_addbr(dev);
+ 			return NOTIFY_DONE;
+ 		}
+-		br_vlan_bridge_event(dev, event, ptr);
+ 	}
+ 
+ 	/* not a port of a bridge */
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 681b72862c16..b3e3de2ecf95 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -135,18 +135,9 @@ static int br_dev_init(struct net_device *dev)
+ 		return err;
+ 	}
+ 
+-	err = br_vlan_init(br);
+-	if (err) {
+-		free_percpu(br->stats);
+-		br_mdb_hash_fini(br);
+-		br_fdb_hash_fini(br);
+-		return err;
+-	}
+-
+ 	err = br_multicast_init_stats(br);
+ 	if (err) {
+ 		free_percpu(br->stats);
+-		br_vlan_flush(br);
+ 		br_mdb_hash_fini(br);
+ 		br_fdb_hash_fini(br);
+ 	}
+@@ -161,7 +152,6 @@ static void br_dev_uninit(struct net_device *dev)
+ 
+ 	br_multicast_dev_del(br);
+ 	br_multicast_uninit_stats(br);
+-	br_vlan_flush(br);
+ 	br_mdb_hash_fini(br);
+ 	br_fdb_hash_fini(br);
+ 	free_percpu(br->stats);
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index e8cf03b43b7d..96dd1c68d73f 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -872,7 +872,6 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
+ int br_vlan_add(struct net_bridge *br, u16 vid, u16 flags,
+ 		bool *changed, struct netlink_ext_ack *extack);
+ int br_vlan_delete(struct net_bridge *br, u16 vid);
+-void br_vlan_flush(struct net_bridge *br);
+ struct net_bridge_vlan *br_vlan_find(struct net_bridge_vlan_group *vg, u16 vid);
+ void br_recalculate_fwd_mask(struct net_bridge *br);
+ int __br_vlan_filter_toggle(struct net_bridge *br, unsigned long val);
+@@ -881,7 +880,6 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto);
+ int br_vlan_set_proto(struct net_bridge *br, unsigned long val);
+ int br_vlan_set_stats(struct net_bridge *br, unsigned long val);
+ int br_vlan_set_stats_per_port(struct net_bridge *br, unsigned long val);
+-int br_vlan_init(struct net_bridge *br);
+ int br_vlan_set_default_pvid(struct net_bridge *br, unsigned long val);
+ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid,
+ 			       struct netlink_ext_ack *extack);
+@@ -894,8 +892,8 @@ int nbp_get_num_vlan_infos(struct net_bridge_port *p, u32 filter_mask);
+ void br_vlan_get_stats(const struct net_bridge_vlan *v,
+ 		       struct br_vlan_stats *stats);
+ void br_vlan_port_event(struct net_bridge_port *p, unsigned long event);
+-void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
+-			  void *ptr);
++int br_vlan_bridge_event(struct net_device *dev, unsigned long event,
++			 void *ptr);
+ 
+ static inline struct net_bridge_vlan_group *br_vlan_group(
+ 					const struct net_bridge *br)
+@@ -988,19 +986,10 @@ static inline int br_vlan_delete(struct net_bridge *br, u16 vid)
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline void br_vlan_flush(struct net_bridge *br)
+-{
+-}
+-
+ static inline void br_recalculate_fwd_mask(struct net_bridge *br)
+ {
+ }
+ 
+-static inline int br_vlan_init(struct net_bridge *br)
+-{
+-	return 0;
+-}
+-
+ static inline int nbp_vlan_add(struct net_bridge_port *port, u16 vid, u16 flags,
+ 			       bool *changed, struct netlink_ext_ack *extack)
+ {
+@@ -1085,8 +1074,8 @@ static inline void br_vlan_port_event(struct net_bridge_port *p,
+ {
+ }
+ 
+-static inline void br_vlan_bridge_event(struct net_device *dev,
+-					unsigned long event, void *ptr)
++static inline int br_vlan_bridge_event(struct net_device *dev,
++				       unsigned long event, void *ptr)
+ {
+ }
+ #endif
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index a544e161c7fa..266c1214b9f9 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -709,7 +709,7 @@ int br_vlan_delete(struct net_bridge *br, u16 vid)
+ 	return __vlan_del(v);
+ }
+ 
+-void br_vlan_flush(struct net_bridge *br)
++static void br_vlan_flush(struct net_bridge *br)
+ {
+ 	struct net_bridge_vlan_group *vg;
+ 
+@@ -721,6 +721,8 @@ void br_vlan_flush(struct net_bridge *br)
+ 	br_fdb_delete_by_port(br, NULL, 0, 1);
+ 
+ 	vg = br_vlan_group(br);
++	if (!vg)
++		return;
+ 	__vlan_flush(vg);
+ 	RCU_INIT_POINTER(br->vlgrp, NULL);
+ 	synchronize_rcu();
+@@ -1054,7 +1056,7 @@ int br_vlan_set_default_pvid(struct net_bridge *br, unsigned long val)
+ 	return err;
+ }
+ 
+-int br_vlan_init(struct net_bridge *br)
++static int br_vlan_init(struct net_bridge *br)
+ {
+ 	struct net_bridge_vlan_group *vg;
+ 	int ret = -ENOMEM;
+@@ -1469,13 +1471,19 @@ static void nbp_vlan_set_vlan_dev_state(struct net_bridge_port *p, u16 vid)
+ }
+ 
+ /* Must be protected by RTNL. */
+-void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
+-			  void *ptr)
++int br_vlan_bridge_event(struct net_device *dev, unsigned long event, void *ptr)
+ {
+ 	struct netdev_notifier_changeupper_info *info;
+-	struct net_bridge *br;
++	struct net_bridge *br = netdev_priv(dev);
++	int ret = 0;
+ 
+ 	switch (event) {
++	case NETDEV_REGISTER:
++		ret = br_vlan_init(br);
++		break;
++	case NETDEV_UNREGISTER:
++		br_vlan_flush(br);
++		break;
+ 	case NETDEV_CHANGEUPPER:
+ 		info = ptr;
+ 		br_vlan_upper_change(dev, info->upper_dev, info->linking);
+@@ -1483,12 +1491,13 @@ void br_vlan_bridge_event(struct net_device *dev, unsigned long event,
+ 
+ 	case NETDEV_CHANGE:
+ 	case NETDEV_UP:
+-		br = netdev_priv(dev);
+ 		if (!br_opt_get(br, BROPT_VLAN_BRIDGE_BINDING))
+-			return;
++			break;
+ 		br_vlan_link_state_change(dev, br);
+ 		break;
+ 	}
++
++	return ret;
+ }
+ 
+ /* Must be protected by RTNL. */
+-- 
+2.21.0
+
