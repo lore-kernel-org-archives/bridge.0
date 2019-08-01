@@ -1,26 +1,25 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:from:to:cc:references:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=jN+visfm/JVvW47OK9SNg6KFhK5M3NjJ7kMqd0bwt2o=;
-	b=fa0Lc6jlYXBAImlnDD+gQdo7H8iu30h/vkDH/jchBKD/To6phuNW85Nnx1MH4OZ5EF
-	tc9BBWieW+q5W+OaQsY+eINTsnfq45tXIXAJh+BvVR/NNA9lIjipS4YkZXSEZBfc6RYv
-	t48Ypi5u10WLWwBYN9iF7hWa+X0af2mTGuzqo=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-References: <1564663840-27721-1-git-send-email-horatiu.vultur@microchip.com>
-	<f758fdbf-4e0a-57b3-f13d-23e893ba7458@cumulusnetworks.com>
-	<1db865a6-9deb-fbd2-dee6-83609fcc2d95@cumulusnetworks.com>
-	<696c9bcc-f7e3-3d22-69c4-cdf4f37280a9@cumulusnetworks.com>
-Message-ID: <10768371-da37-7829-a427-8c65a0929138@cumulusnetworks.com>
-Date: Thu, 1 Aug 2019 18:25:19 +0300
+Return-Path: <vivien.didelot@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=date:message-id:from:to:cc:subject:in-reply-to:references
+	:mime-version:content-disposition:content-transfer-encoding;
+	bh=sRRiRudfVesVn/6GMaai5lXBbVTh+LZyVmU+cspSzXM=;
+	b=oP/qcp7e7SDYkq4SklR2U463DOEjUG4XH1YJwo0VEXBwicGboi5pGMn9abgg1uE6Xj
+	fRhU7NN5gxmDrnvq2yP/Cbd18TjvIpe+oVr0tv0H3Z/bRc04MMMeIGxtdBimifVARFAZ
+	16UNH5EY/Ds7R3HDg4JY0C3nKuulhZ9fBhGkpfLNMn+krDlZQ5YhexVczp+M/AxYX457
+	Z+nWS9w5zyF2p3XiT6fipxcUJixAslkf0NJ5+aZ77DkOGS2/zawWMKVM3E6zIplMZe3O
+	FqSqbOuiacf4qjJngTBhzjbXTm4PxSioxliQWYbDhyJsosAp2WaV9vvKcon/rOTdCY+l
+	Aaqg==
+Date: Thu, 1 Aug 2019 15:17:39 -0400
+Message-ID: <20190801151739.GB32290@t480s.localdomain>
+From: Vivien Didelot <vivien.didelot@gmail.com>
+In-Reply-To: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
+References: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-In-Reply-To: <696c9bcc-f7e3-3d22-69c4-cdf4f37280a9@cumulusnetworks.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [net-next,
-	rfc] net: bridge: mdb: Extend with multicast LLADDR
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
+	groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,69 +28,122 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>, idosch@mellanox.com, andrew@lunn.ch, allan.nielsen@microchip.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, tglx@linutronix.de, davem@davemloft.net
+To: Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Horatiu Vultur <horatiu.vultur@microchip.com>, allan.nielsen@microchip.com, davem@davemloft.net
 
-On 01/08/2019 17:15, Nikolay Aleksandrov wrote:
-> On 01/08/2019 17:11, Nikolay Aleksandrov wrote:
->> On 01/08/2019 17:07, Nikolay Aleksandrov wrote:
->>> Hi Horatiu,
->>> Overall I think MDB is the right way, we'd like to contain the multicast code.
->>> A few comments below.
->>>
->>> On 01/08/2019 15:50, Horatiu Vultur wrote:
->> [snip]
->>>>
->>>> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
->>>> Co-developed-by: Allan W. Nielsen <allan.nielsen@microchip.com>
->>>> Signed-off-by: Allan W. Nielsen <allan.nielsen@microchip.com>
->>>> ---
->>>>  include/linux/if_bridge.h      |  1 +
->>>>  include/uapi/linux/if_bridge.h |  1 +
->>>>  net/bridge/br_device.c         |  7 +++++--
->>>>  net/bridge/br_forward.c        |  3 ++-
->>>>  net/bridge/br_input.c          | 13 ++++++++++--
->>>>  net/bridge/br_mdb.c            | 47 +++++++++++++++++++++++++++++++++++-------
->>>>  net/bridge/br_multicast.c      |  4 +++-
->>>>  net/bridge/br_private.h        |  3 ++-
->>>>  8 files changed, 64 insertions(+), 15 deletions(-)
->>>>
->>>
->>> Overall I don't think we need this BR_PKT_MULTICAST_L2, we could do the below much
->>> easier and without the checks if you use a per-mdb flag that says it's to be treated
->>> as a MULTICAST_L2 entry. Then you remove all of the BR_PKT_MULTICAST_L2 code (see the
->>> attached patch based on this one for example). and continue processing it as it is processed today.
->>> We'll keep the fast-path with minimal number of new conditionals.
->>>
->>> Something like the patch I've attached to this reply, note that it is not complete
->>> just to show the intent, you'll have to re-work br_mdb_notify() to make it proper
->>> and there're most probably other details I've missed. If you find even better/less
->>> complex way to do it then please do.
->>>
->>> Cheers,
->>>  Nik
->>
->> Oops, I sent back your original patch. Here's the actually changed version
->> I was talking about.
->>
->> Thanks,
->>  Nik
->>
->>
->>
+Hi Horatiu,
+
+On Thu, 25 Jul 2019 13:44:04 +0200, Horatiu Vultur <horatiu.vultur@microchip.com> wrote:
+> There is no way to configure the bridge, to receive only specific link
+> layer multicast addresses. From the description of the command 'bridge
+> fdb append' is supposed to do that, but there was no way to notify the
+> network driver that the bridge joined a group, because LLADDR was added
+> to the unicast netdev_hw_addr_list.
 > 
-> The querier exists change is a hack just to get the point, I'd prefer
-> to re-write that portion in a better way which makes more sense, i.e.
-> get that check out of there since it doesn't mean that an actual querier
-> exists. :)
+> Therefore update fdb_add_entry to check if the NLM_F_APPEND flag is set
+> and if the source is NULL, which represent the bridge itself. Then add
+> address to multicast netdev_hw_addr_list for each bridge interfaces.
+> And then the .ndo_set_rx_mode function on the driver is called. To notify
+> the driver that the list of multicast mac addresses changed.
+> 
+> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+> ---
+>  net/bridge/br_fdb.c | 49 ++++++++++++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 46 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index b1d3248..d93746d 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -175,6 +175,29 @@ static void fdb_add_hw_addr(struct net_bridge *br, const unsigned char *addr)
+>  	}
+>  }
+>  
+> +static void fdb_add_hw_maddr(struct net_bridge *br, const unsigned char *addr)
+> +{
+> +	int err;
+> +	struct net_bridge_port *p;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	list_for_each_entry(p, &br->port_list, list) {
+> +		if (!br_promisc_port(p)) {
+> +			err = dev_mc_add(p->dev, addr);
+> +			if (err)
+> +				goto undo;
+> +		}
+> +	}
+> +
+> +	return;
+> +undo:
+> +	list_for_each_entry_continue_reverse(p, &br->port_list, list) {
+> +		if (!br_promisc_port(p))
+> +			dev_mc_del(p->dev, addr);
+> +	}
+> +}
+> +
+>  /* When a static FDB entry is deleted, the HW address from that entry is
+>   * also removed from the bridge private HW address list and updates all
+>   * the ports with needed information.
+> @@ -192,13 +215,27 @@ static void fdb_del_hw_addr(struct net_bridge *br, const unsigned char *addr)
+>  	}
+>  }
+>  
+> +static void fdb_del_hw_maddr(struct net_bridge *br, const unsigned char *addr)
+> +{
+> +	struct net_bridge_port *p;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	list_for_each_entry(p, &br->port_list, list) {
+> +		if (!br_promisc_port(p))
+> +			dev_mc_del(p->dev, addr);
+> +	}
+> +}
+> +
+>  static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
+>  		       bool swdev_notify)
+>  {
+>  	trace_fdb_delete(br, f);
+>  
+> -	if (f->is_static)
+> +	if (f->is_static) {
+>  		fdb_del_hw_addr(br, f->key.addr.addr);
+> +		fdb_del_hw_maddr(br, f->key.addr.addr);
+> +	}
+>  
+>  	hlist_del_init_rcu(&f->fdb_node);
+>  	rhashtable_remove_fast(&br->fdb_hash_tbl, &f->rhnode,
+> @@ -843,13 +880,19 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+>  			fdb->is_local = 1;
+>  			if (!fdb->is_static) {
+>  				fdb->is_static = 1;
+> -				fdb_add_hw_addr(br, addr);
+> +				if (flags & NLM_F_APPEND && !source)
+> +					fdb_add_hw_maddr(br, addr);
+> +				else
+> +					fdb_add_hw_addr(br, addr);
+>  			}
+>  		} else if (state & NUD_NOARP) {
+>  			fdb->is_local = 0;
+>  			if (!fdb->is_static) {
+>  				fdb->is_static = 1;
+> -				fdb_add_hw_addr(br, addr);
+> +				if (flags & NLM_F_APPEND && !source)
+> +					fdb_add_hw_maddr(br, addr);
+> +				else
+> +					fdb_add_hw_addr(br, addr);
+>  			}
+>  		} else {
+>  			fdb->is_local = 0;
+> -- 
+> 2.7.4
 > 
 
-TBH, I'm inclined to just use proto == 0 *internally* as this even though it's reserved,
-we're not putting it on the wire or using it to construct packets, it's just internal
-use which can change into a flag if some day that value needs to be used. Obviously
-to user-space we need it to be a flag, we can't expose or configure it as a proto value
-without making it permanent uapi. I haven't looked into detail how feasible this is,
-just a thought that might make it simpler.
+I'm a bit late in the conversation. Isn't this what you want?
+
+    ip address add <multicast IPv4 address> dev br0 autojoin
 
 
-
+Thanks,
+Vivien
