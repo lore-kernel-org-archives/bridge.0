@@ -1,21 +1,15 @@
 Return-Path: <Allan.Nielsen@microchip.com>
-Date: Thu, 1 Aug 2019 16:22:53 +0200
+Date: Fri, 2 Aug 2019 16:07:45 +0200
 From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Message-ID: <20190801142252.pdzd6knl2ytuty7h@lx-anielsen.microsemi.net>
-References: <1564055044-27593-1-git-send-email-horatiu.vultur@microchip.com>
-	<7e7a7015-6072-d884-b2ba-0a51177245ab@cumulusnetworks.com>
-	<eef063fe-fd3a-7e02-89c2-e40728a17578@cumulusnetworks.com>
-	<20190725142101.65tusauc6fzxb2yp@soft-dev3.microsemi.net>
-	<b9ce433a-3ef7-fe15-642a-659c5715d992@cumulusnetworks.com>
-	<e6ad982f-4706-46f9-b8f0-1337b09de350@cumulusnetworks.com>
-	<20190726120214.c26oj5vks7g5ntwu@soft-dev3.microsemi.net>
-	<b755f613-e6d8-a2e6-16cd-6f13ec0a6ddc@cumulusnetworks.com>
+Message-ID: <20190802140655.ngbok2ubprhivlhy@lx-anielsen.microsemi.net>
+References: <1564663840-27721-1-git-send-email-horatiu.vultur@microchip.com>
+	<f758fdbf-4e0a-57b3-f13d-23e893ba7458@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <b755f613-e6d8-a2e6-16cd-6f13ec0a6ddc@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH] net: bridge: Allow bridge to joing multicast
-	groups
+In-Reply-To: <f758fdbf-4e0a-57b3-f13d-23e893ba7458@cumulusnetworks.com>
+Subject: Re: [Bridge] [net-next,
+	rfc] net: bridge: mdb: Extend with multicast LLADDR
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,32 +19,90 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: andrew@lunn.ch, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, davem@davemloft.net, idosch@mellanox.com, tglx@linutronix.de, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-The 07/26/2019 15:31, Nikolay Aleksandrov wrote:
-...
+The 08/01/2019 17:07, Nikolay Aleksandrov wrote:
+> > To create a group for two of the front ports the following entries can
+> > be added:
+> > bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
+> > bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
+> > 
+> > Now the entries will be display as following:
+> > dev br0 port eth0 grp 01:00:00:00:00:04 permanent offload vid 1
+> > dev br0 port eth1 grp 01:00:00:00:00:04 permanent offload vid 1
+> > 
+> > This requires changes to iproute2 as well, see the follogin patch for that.
+> > 
+> > Now if frame with dmac '01:00:00:00:00:04' will arrive at one of the front
+> > ports. If we have HW offload support, then the frame will be forwarded by
+> > the switch, and need not to go to the CPU. In a pure SW world, the frame is
+> > forwarded by the SW bridge, which will flooded it only the ports which are
+> > part of the group.
+> > 
+> > So far so good. This is an important part of the problem we wanted to solve.
+> > 
+> > But, there is one drawback of this approach. If you want to add two of the
+> > front ports and br0 to receive the frame then I can't see a way of doing it
+> > with the bridge mdb command. To do that it requireds many more changes to
+> > the existing code.
+> > 
+> > Example:
+> > bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
+> > bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
+> > bridge mdb add dev br0 port br0 grp 01:00:00:00:00:04 permanent vid 1 // This looks wrong.
+> > 
+> > We believe we come a long way by re-using the facilities in MDB (thanks for
+> > convincing us in doing this), but we are still not completely happy with
+> > the result.
+> Just add self argument for the bridge mdb command, no need to specify it twice.
+Like this:
+bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid self
 
-> You know that in order to not run in promisc mode you'll have to disable
-> port flooding and port learning, right ? Otherwise they're always put in promisc.
-Yes, we have spend some time looking at nbp_update_port_count and trying to
-understand the reasoning behind it.
+Then if I want to remove br0 rom the group, should I then have a no-self, and
+then it becomes even more strange what to write in the port.
 
-Our understanding is that this is to make it work with a pure SW bridge
-implementation, and this is actually an optimization to allow disable promisc
-mode if all forwarding is static (no flooding and no learning).
+bridge mdb add dev br0 port ?? grp 01:00:00:00:00:04 permanent vid no-self
+                            ^^
+And, what if it is a group with only br0 (the traffic should go to br0 and
+not any of the slave interfaces)?
 
-We also noticed that the Ocelot and the Rocker drivers avoids this "issue" by
-not implementing promisc mode.
+Also, the 'self' keyword has different meanings in the 'bridge vlan' and the
+'bridge fdb' commands where it refres to if the offload rule should be install
+in HW - or only in the SW bridge.
 
-But promisc mode is a really nice feature for debugging, and we would actually
-like to have it, and when HW that can do learning/flooding it does not seem to
-be necessary.
+The proposed does not look pretty bad, but at least it will be possible to
+configured the different scenarios:
 
-I tried to understand how this is handled in the Mellanox drivers, but gave up.
-Too big, and we lack the insight in their design.
+bridge mdb add dev br0 port br0 grp 01:00:00:00:00:04 permanent vid 1
+bridge mdb del dev br0 port br0 grp 01:00:00:00:00:04 permanent vid 1
 
-Do you know if there are better ways to prevent switchdev-offloaded-slave
-interfaces to go to promisc mode?
+The more I look at the "bridge mdb { add | del } dev DEV port PORT" command, the
+less I understand why do we have both 'dev' and 'port'? The implementation will
+only allow this if 'port' has become enslaved to the switch represented by
+'dev'. Anyway, what is done is done, and we need to stay backwards compatible,
+but we could make it optional, and then it looks a bit less strange to allow the
+port to specify a br0.
+
+Like this:
+
+bridge mdb { add | del } [dev DEV] port PORT grp GROUP [ permanent | temp ] [ vid VID ]
+
+bridge mdb add port eth0 grp 01:00:00:00:00:04 permanent vid 1
+bridge mdb add port eth1 grp 01:00:00:00:00:04 permanent vid 1
+bridge mdb add port br0  grp 01:00:00:00:00:04 permanent vid 1 // Add br0 to the gruop
+bridge mdb del port br0  grp 01:00:00:00:00:04 permanent vid 1 // Delete it again
+
+Alternative we could also make the port optional:
+
+bridge mdb { add | del } dev DEV [port PORT] grp GROUP [ permanent | temp ] [ vid VID ]
+
+bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
+bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
+bridge mdb add dev br0           grp 01:00:00:00:00:04 permanent vid 1 // Add br0 to the gruop
+bridge mdb del dev br0           grp 01:00:00:00:00:04 permanent vid 1 // Delete it again
+
+Any preferences?
 
 /Allan
+
 
