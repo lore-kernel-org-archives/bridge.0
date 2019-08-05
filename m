@@ -1,17 +1,25 @@
-Return-Path: <Allan.Nielsen@microchip.com>
-Date: Fri, 2 Aug 2019 16:21:16 +0200
-From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Message-ID: <20190802142115.ablwtxfpv2jmnuex@lx-anielsen.microsemi.net>
-References: <1564663840-27721-1-git-send-email-horatiu.vultur@microchip.com>
-	<f758fdbf-4e0a-57b3-f13d-23e893ba7458@cumulusnetworks.com>
-	<20190802140655.ngbok2ubprhivlhy@lx-anielsen.microsemi.net>
-	<fcb0e526-778f-5451-9934-e6c2421e4eb3@cumulusnetworks.com>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+	h=date:from:to:cc:subject:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=IRwF9LcUlQWxUq9PPqblhb72po/0PsaeK9IhbHvtKSw=;
+	b=J8VTnqEcl+q++gkO5ZCmeaPUmNOK6ILcZdiBSqJo0A9e8dNBhIqrJRW3YuA+D3kpdr
+	QL37mz/OkJbx7yhpVmEW57PnEBXqHFhWwBjxv7Kpte2ZKkWpVxv2Is4q+nxnOy+rFul3
+	vOfaER055skqSa2Np5QydqprkANU+AVb5PkyygjQIPSvkw2kqpQ2MhzeCtLDJ/LfcBj6
+	h/4sFHIz71DZDzREXbUe2eGY9i3YpA9gYaafanN3ftHbEE678/wIAty8K9jsA3kImMJc
+	cgvyiEdeOsmXYoD99q/VjXaH0XKKdxPjntGsUq4PuqG52/WCexF6LqJxp5wghg9j8XMf
+	hkJw==
+Date: Mon, 5 Aug 2019 08:32:32 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20190805083232.202d0d47@hermes.lan>
+In-Reply-To: <A23F6E83-0634-4BFA-AE82-DA947D3544CF@aim.com>
+References: <A23F6E83-0634-4BFA-AE82-DA947D3544CF@aim.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-In-Reply-To: <fcb0e526-778f-5451-9934-e6c2421e4eb3@cumulusnetworks.com>
-Subject: Re: [Bridge] [net-next,
-	rfc] net: bridge: mdb: Extend with multicast LLADDR
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] Split path for packets,
+ and bridge configuration problem.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,125 +28,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: andrew@lunn.ch, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, fw@strlen.de, linux-kernel@vger.kernel.org, davem@davemloft.net, idosch@mellanox.com, tglx@linutronix.de, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: John Clark via Bridge <bridge@lists.linux-foundation.org>
+Cc: John Clark <jeclark2006@aim.com>
 
-The 08/02/2019 17:16, Nikolay Aleksandrov wrote:
-> On 02/08/2019 17:07, Allan W. Nielsen wrote:
-> > The 08/01/2019 17:07, Nikolay Aleksandrov wrote:
-> >>> To create a group for two of the front ports the following entries can
-> >>> be added:
-> >>> bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
-> >>> bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
-> >>>
-> >>> Now the entries will be display as following:
-> >>> dev br0 port eth0 grp 01:00:00:00:00:04 permanent offload vid 1
-> >>> dev br0 port eth1 grp 01:00:00:00:00:04 permanent offload vid 1
-> >>>
-> >>> This requires changes to iproute2 as well, see the follogin patch for that.
-> >>>
-> >>> Now if frame with dmac '01:00:00:00:00:04' will arrive at one of the front
-> >>> ports. If we have HW offload support, then the frame will be forwarded by
-> >>> the switch, and need not to go to the CPU. In a pure SW world, the frame is
-> >>> forwarded by the SW bridge, which will flooded it only the ports which are
-> >>> part of the group.
-> >>>
-> >>> So far so good. This is an important part of the problem we wanted to solve.
-> >>>
-> >>> But, there is one drawback of this approach. If you want to add two of the
-> >>> front ports and br0 to receive the frame then I can't see a way of doing it
-> >>> with the bridge mdb command. To do that it requireds many more changes to
-> >>> the existing code.
-> >>>
-> >>> Example:
-> >>> bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
-> >>> bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
-> >>> bridge mdb add dev br0 port br0 grp 01:00:00:00:00:04 permanent vid 1 // This looks wrong.
-> >>>
-> >>> We believe we come a long way by re-using the facilities in MDB (thanks for
-> >>> convincing us in doing this), but we are still not completely happy with
-> >>> the result.
-> >> Just add self argument for the bridge mdb command, no need to specify it twice.
-> > Like this:
-> > bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid self
-> 
-> What ?! No, that is not what I meant.
-> bridge mdb add dev br0 grp 01:00:00:00:00:04 permanent vid self
-> bridge mdb del dev br0 grp 01:00:00:00:00:04 permanent vid self
-> 
-> Similar to fdb. You don't need no-self..
-> I don't mind a different approach, this was just a suggestion. But please
-> without "no-self" :)
+On Wed, 31 Jul 2019 11:55:37 -0700
+John Clark via Bridge <bridge@lists.linux-foundation.org> wrote:
 
-Good, then we are in sync on that one :-D
+> I=E2=80=99m trying to configure a Linux system to bridge an ethernet link=
+ for packet ingress from a local network and combine that with a radio link=
+ for the reply packet egress.
+>=20
+> I vaguely recall something like this use to be used for Satellite links, =
+where the incoming packets from the outside world were via the Sat link, bu=
+t outgoing packets were via a terrestrial link, phone modem or DSL, dependi=
+ng.
+>=20
+> What I have working is the packet entering the bridge on the ethernet lin=
+k, then I see the MAC address of the node from the in the =E2=80=98bridge s=
+how=E2=80=99 output, but even if I assign the MAC address to the =E2=80=98r=
+adio=E2=80=99 tap interface, I see both the =E2=80=98ethernet=E2=80=99 port=
+ as =E2=80=98master=E2=80=99, and the tap device as =E2=80=98self=E2=80=99,=
+ but no packets are sent to the tap device.
+>=20
+> In the past I=E2=80=99ve just written user apps that basically implement =
+tunnels and using collection of such apps and taps, gotten packets to where=
+ I need them to be.
+>=20
+> I was trying to use more standard tools, and not write more custom code.
+>=20
+> Thanks for any assistance.
+> John Clark.
+>=20
 
-> > 
-> > Then if I want to remove br0 rom the group, should I then have a no-self, and
-> > then it becomes even more strange what to write in the port.
-> > 
-> > bridge mdb add dev br0 port ?? grp 01:00:00:00:00:04 permanent vid no-self
-> >                             ^^
-> > And, what if it is a group with only br0 (the traffic should go to br0 and
-> > not any of the slave interfaces)?
-> > 
-> > Also, the 'self' keyword has different meanings in the 'bridge vlan' and the
-> > 'bridge fdb' commands where it refres to if the offload rule should be install
-> > in HW - or only in the SW bridge.
-> 
-> No, it shouldn't. Self means act on the device, in this case act on the bridge,
-> otherwise master is assumed.
-> 
-> > 
-> > The proposed does not look pretty bad, but at least it will be possible to
-> > configured the different scenarios:
-> > 
-> > bridge mdb add dev br0 port br0 grp 01:00:00:00:00:04 permanent vid 1
-> > bridge mdb del dev br0 port br0 grp 01:00:00:00:00:04 permanent vid 1
-> > 
-> 
-> That works too, but the "port" part is redundant.
-> 
-> > The more I look at the "bridge mdb { add | del } dev DEV port PORT" command, the
-> > less I understand why do we have both 'dev' and 'port'? The implementation will
-> > only allow this if 'port' has become enslaved to the switch represented by
-> > 'dev'. Anyway, what is done is done, and we need to stay backwards compatible,
-> > but we could make it optional, and then it looks a bit less strange to allow the
-> > port to specify a br0.
-> > 
-> > Like this:
-> > 
-> > bridge mdb { add | del } [dev DEV] port PORT grp GROUP [ permanent | temp ] [ vid VID ]
-> > 
-> > bridge mdb add port eth0 grp 01:00:00:00:00:04 permanent vid 1
-> > bridge mdb add port eth1 grp 01:00:00:00:00:04 permanent vid 1
-> > bridge mdb add port br0  grp 01:00:00:00:00:04 permanent vid 1 // Add br0 to the gruop
-> > bridge mdb del port br0  grp 01:00:00:00:00:04 permanent vid 1 // Delete it again
-> > 
-> 
-> br0 is not a port, thus the "self" or just dev or whatever you choose..
-Ahh, now I understand what you meant.
-
-> > Alternative we could also make the port optional:
-> > 
-> > bridge mdb { add | del } dev DEV [port PORT] grp GROUP [ permanent | temp ] [ vid VID ]
-> > 
-> > bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
-> > bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
-> > bridge mdb add dev br0           grp 01:00:00:00:00:04 permanent vid 1 // Add br0 to the gruop
-> > bridge mdb del dev br0           grp 01:00:00:00:00:04 permanent vid 1 // Delete it again
-> > 
-> 
-> Right. I read this one later. :)
-> 
-> > Any preferences?
-> Not really, up to you. Any of the above seem fine to me.
-Perfect, I like this one the most:
-
-bridge mdb { add | del } dev DEV [ port PORT ] grp GROUP [ permanent | temp ] [ vid VID ]
-
-bridge mdb add dev br0 port eth0 grp 01:00:00:00:00:04 permanent vid 1
-bridge mdb add dev br0 port eth1 grp 01:00:00:00:00:04 permanent vid 1
-bridge mdb add dev br0           grp 01:00:00:00:00:04 permanent vid 1 // Add br0 to the gruop
-bridge mdb del dev br0           grp 01:00:00:00:00:04 permanent vid 1 // Delete it again
-
-/Allan
+Hacks like this are best done with netfilter.
