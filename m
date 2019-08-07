@@ -1,24 +1,28 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=subject:to:cc:references:from:message-id:date:user-agent
-	:mime-version:in-reply-to:content-language:content-transfer-encoding;
-	bh=ZOJ3m4Ry20VstsHukU72J8WJYbmScpUYXkrCupC2rvU=;
-	b=EH1OvnV5GEL8T3NTswtjyOTgIIz9A2HUNsAgcmkKUG03FvgOHz5AXiq46cGfxost43
-	wIFBrhAOMTmqHhT5Y4k7Gv3dGOaCs+ZyviBNVuqO6CXK2JWXJ2vDCd2w+z0MoEitswLa
-	juJSFRglmFCUi9+tUM5XVEM5472a2B0vX1UF0=
-References: <20190805153740.29627-1-zahari.doychev@linux.com>
-	<20190805153740.29627-2-zahari.doychev@linux.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <48058179-9690-54e2-f60c-c372446bfde9@cumulusnetworks.com>
-Date: Wed, 7 Aug 2019 12:17:43 +0300
+Return-Path: <rdunlap@infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+	Subject:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=oTLsonCa2JJCZquZIr02tCIa6cKQIoCJzf/6u+G0eLM=;
+	b=VpMFLl0A1PNebanbYxVShplQ6
+	owR9HSB6WQhXM7FtQ1KBgyZTkRk+yHQ86qtMqsWD7hr1P1GIddyL7uHdtmbhh9J/rne41GOgTIuXb
+	QNcLmNfEz83irO95WBGPJwNxEL7VeTbBmn8rB2gok7N3zhLJpu93XP3shL9iRYPuvF7r8XEQhdYyT
+	UIVMdSeS457+iMuygc27wzDX/39tdKnOExx0nSZcn+NNwbkkzcKUHC5Huh98ImRDvsOxLsyuqkLd9
+	YhcgjlmrsTueF3dyb9g/ryQnaf9HSD4mYJu4PpPdV5c+JZX5myz+xgOkjcpg8KV0NVPnHQIdrXq4K
+	oqNJkdL/g==;
+References: <20190807183606.372ca1a4@canb.auug.org.au>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <f54391d9-6259-d08b-8b5f-c844093071d8@infradead.org>
+Date: Wed, 7 Aug 2019 08:29:44 -0700
 MIME-Version: 1.0
-In-Reply-To: <20190805153740.29627-2-zahari.doychev@linux.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20190807183606.372ca1a4@canb.auug.org.au>
+Content-Type: text/plain; charset="windows-1252"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v2 1/1] net: bridge: use mac_len in bridge
-	forwarding
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] linux-next: Tree for Aug 7
+ (net/bridge/netfilter/nf_conntrack_bridge.c)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,95 +31,97 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Zahari Doychev <zahari.doychev@linux.com>, netdev@vger.kernel.org
-Cc: dsahern@gmail.com, jiri@resnulli.us, simon.horman@netronome.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, jhs@mojatatu.com, makita.toshiaki@lab.ntt.co.jp, xiyou.wangcong@gmail.com, johannes@sipsolutions.net, ast@plumgrid.com
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Hi Zahari,
-On 05/08/2019 18:37, Zahari Doychev wrote:
-> The bridge code cannot forward packets from various paths that set up the
-> SKBs in different ways. Some of these packets get corrupted during the
-> forwarding as not always is just ETH_HLEN pulled at the front. This happens
-> e.g. when VLAN tags are pushed bu using tc act_vlan on ingress.
-Overall the patch looks good, I think it shouldn't introduce any regressions
-at least from the codepaths I was able to inspect, but please include more
-details in here from the cover letter, in fact you don't need it just add all of
-the details here so we have them, especially the test setup. Also please provide
-some details how this patch was tested. It'd be great if you could provide a
-selftest for it so we can make sure it's considered when doing future changes.
+On 8/7/19 1:36 AM, Stephen Rothwell wrote:
+> Hi all,
+>=20
+> Changes since 20190806:
+>=20
 
-Thank you,
- Nik
+on i386:
+when CONFIG_NF_TABLES is not set/enabled:
 
-> 
-> The problem is fixed by using skb->mac_len instead of ETH_HLEN, which makes
-> sure that the skb headers are correctly restored. This usually does not
-> change anything, execpt the local bridge transmits which now need to set
-> the skb->mac_len correctly in br_dev_xmit, as well as the broken case noted
-> above.
-> 
-> Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
-> ---
->  net/bridge/br_device.c  | 3 ++-
->  net/bridge/br_forward.c | 4 ++--
->  net/bridge/br_vlan.c    | 3 ++-
->  3 files changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-> index 681b72862c16..aeb77ff60311 100644
-> --- a/net/bridge/br_device.c
-> +++ b/net/bridge/br_device.c
-> @@ -55,8 +55,9 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
->  	BR_INPUT_SKB_CB(skb)->frag_max_size = 0;
->  
->  	skb_reset_mac_header(skb);
-> +	skb_reset_mac_len(skb);
->  	eth = eth_hdr(skb);
-> -	skb_pull(skb, ETH_HLEN);
-> +	skb_pull(skb, skb->mac_len);
->  
->  	if (!br_allowed_ingress(br, br_vlan_group_rcu(br), skb, &vid))
->  		goto out;
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index 86637000f275..edb4f3533f05 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -32,7 +32,7 @@ static inline int should_deliver(const struct net_bridge_port *p,
->  
->  int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
->  {
-> -	skb_push(skb, ETH_HLEN);
-> +	skb_push(skb, skb->mac_len);
->  	if (!is_skb_forwardable(skb->dev, skb))
->  		goto drop;
->  
-> @@ -94,7 +94,7 @@ static void __br_forward(const struct net_bridge_port *to,
->  		net = dev_net(indev);
->  	} else {
->  		if (unlikely(netpoll_tx_running(to->br->dev))) {
-> -			skb_push(skb, ETH_HLEN);
-> +			skb_push(skb, skb->mac_len);
->  			if (!is_skb_forwardable(skb->dev, skb))
->  				kfree_skb(skb);
->  			else
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 021cc9f66804..88244c9cc653 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -466,13 +466,14 @@ static bool __allowed_ingress(const struct net_bridge *br,
->  		/* Tagged frame */
->  		if (skb->vlan_proto != br->vlan_proto) {
->  			/* Protocol-mismatch, empty out vlan_tci for new tag */
-> -			skb_push(skb, ETH_HLEN);
-> +			skb_push(skb, skb->mac_len);
->  			skb = vlan_insert_tag_set_proto(skb, skb->vlan_proto,
->  							skb_vlan_tag_get(skb));
->  			if (unlikely(!skb))
->  				return false;
->  
->  			skb_pull(skb, ETH_HLEN);
-> +			skb_reset_network_header(skb);
->  			skb_reset_mac_len(skb);
->  			*vid = 0;
->  			tagged = false;
-> 
+  CC      net/bridge/netfilter/nf_conntrack_bridge.o
+In file included from ../net/bridge/netfilter/nf_conntrack_bridge.c:21:0:
+../include/net/netfilter/nf_tables.h: In function =91nft_gencursor_next=92:
+../include/net/netfilter/nf_tables.h:1224:14: error: =91const struct net=92=
+ has no member named =91nft=92; did you mean =91nf=92?
+  return net->nft.gencursor + 1 =3D=3D 1 ? 1 : 0;
+              ^~~
+              nf
+In file included from ../include/linux/export.h:45:0,
+                 from ../include/linux/linkage.h:7,
+                 from ../include/linux/kernel.h:8,
+                 from ../include/linux/skbuff.h:13,
+                 from ../include/linux/ip.h:16,
+                 from ../net/bridge/netfilter/nf_conntrack_bridge.c:3:
+../include/net/netfilter/nf_tables.h: In function =91nft_genmask_cur=92:
+../include/net/netfilter/nf_tables.h:1235:29: error: =91const struct net=92=
+ has no member named =91nft=92; did you mean =91nf=92?
+  return 1 << READ_ONCE(net->nft.gencursor);
+                             ^
+../include/linux/compiler.h:261:17: note: in definition of macro =91__READ_=
+ONCE=92
+  union { typeof(x) __val; char __c[1]; } __u;   \
+                 ^
+../include/net/netfilter/nf_tables.h:1235:14: note: in expansion of macro =
+=91READ_ONCE=92
+  return 1 << READ_ONCE(net->nft.gencursor);
+              ^~~~~~~~~
+../include/net/netfilter/nf_tables.h:1235:29: error: =91const struct net=92=
+ has no member named =91nft=92; did you mean =91nf=92?
+  return 1 << READ_ONCE(net->nft.gencursor);
+                             ^
+../include/linux/compiler.h:263:22: note: in definition of macro =91__READ_=
+ONCE=92
+   __read_once_size(&(x), __u.__c, sizeof(x));  \
+                      ^
+../include/net/netfilter/nf_tables.h:1235:14: note: in expansion of macro =
+=91READ_ONCE=92
+  return 1 << READ_ONCE(net->nft.gencursor);
+              ^~~~~~~~~
+../include/net/netfilter/nf_tables.h:1235:29: error: =91const struct net=92=
+ has no member named =91nft=92; did you mean =91nf=92?
+  return 1 << READ_ONCE(net->nft.gencursor);
+                             ^
+../include/linux/compiler.h:263:42: note: in definition of macro =91__READ_=
+ONCE=92
+   __read_once_size(&(x), __u.__c, sizeof(x));  \
+                                          ^
+../include/net/netfilter/nf_tables.h:1235:14: note: in expansion of macro =
+=91READ_ONCE=92
+  return 1 << READ_ONCE(net->nft.gencursor);
+              ^~~~~~~~~
+../include/net/netfilter/nf_tables.h:1235:29: error: =91const struct net=92=
+ has no member named =91nft=92; did you mean =91nf=92?
+  return 1 << READ_ONCE(net->nft.gencursor);
+                             ^
+../include/linux/compiler.h:265:30: note: in definition of macro =91__READ_=
+ONCE=92
+   __read_once_size_nocheck(&(x), __u.__c, sizeof(x)); \
+                              ^
+../include/net/netfilter/nf_tables.h:1235:14: note: in expansion of macro =
+=91READ_ONCE=92
+  return 1 << READ_ONCE(net->nft.gencursor);
+              ^~~~~~~~~
+../include/net/netfilter/nf_tables.h:1235:29: error: =91const struct net=92=
+ has no member named =91nft=92; did you mean =91nf=92?
+  return 1 << READ_ONCE(net->nft.gencursor);
+                             ^
+../include/linux/compiler.h:265:50: note: in definition of macro =91__READ_=
+ONCE=92
+   __read_once_size_nocheck(&(x), __u.__c, sizeof(x)); \
+                                                  ^
+../include/net/netfilter/nf_tables.h:1235:14: note: in expansion of macro =
+=91READ_ONCE=92
+  return 1 << READ_ONCE(net->nft.gencursor);
+              ^~~~~~~~~
+make[4]: *** [../scripts/Makefile.build:273: net/bridge/netfilter/nf_conntr=
+ack_bridge.o] Error 1
 
+
+
+--=20
+~Randy
