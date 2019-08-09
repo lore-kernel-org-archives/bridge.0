@@ -1,30 +1,20 @@
-Return-Path: <jeremy@azazel.net>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=azazel.net; 
-	s=20190108;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=v5zVIloYXrAgjzSglM/vYJIXdGlyZQkKT85Lzw7jskk=;
-	b=KK39k6djGX0PZNYj8lRq7rCIWa
-	6sYT/EdCjjUXAkQTf+iMG6NLkopiXONA+PGpF6WwKo4rAz28ghhEis4nH8aise5TYz8XNDLwnXExX
-	fCd3/dXMfjVLdRQzTRMiJHPrCNJZW6UAaUaJtj2WAz5RBN2Xo3uVRGGIf7Rdfu34f92DwSmQCFZ+b
-	2PAAOD2KFEUU1nlXOGyFjke5whhqfV6NgtTWFDTvMGCUJL1+CVKM3YD3chrovrPnwhMnAJQliII+i
-	+hVWTQGFwlaagh9GKVeqtw/DbbVfGNbVkNXgftVJkpiysGVGlhgfBVXMRYuMOQGTHZTcTxaf0o0YO
-	2oukRRXQ==;
-Date: Wed, 7 Aug 2019 16:57:39 +0100
-From: Jeremy Sowden <jeremy@azazel.net>
-Message-ID: <20190807155738.GA9394@azazel.net>
-References: <20190807183606.372ca1a4@canb.auug.org.au>
-	<f54391d9-6259-d08b-8b5f-c844093071d8@infradead.org>
+Return-Path: <veedubya66@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:from:date:message-id:subject:to:cc;
+	bh=otaaZcKr0K+X/shnSWPSypBKiv91Ry69tb+L2grQdKU=;
+	b=PM0R3G4OuDZ1RzKyGdwGFiNP/cRP/D9Qa07ZRKtqoCpdcaICo/9uPrWiNNEum6P8vr
+	fRXww1K5LNVbzkY0I9t0Qzn8r5Sn8EyPT6Mg669ETH6lywR25M0+Hh3sSj0F5wGAzXiN
+	TsigdSk0HPSmr189aMTJjIs8Tj44HWa4+qFayHuZztNN4poYEiF+sFADqCyuRhsjIDvQ
+	CqQV5DCVhjlcR4wLbblWnOJaG6kZ5nzPFOk1pVMULoWFpwMwlSKmcGw/1QmNiFZru2g+
+	V0x+IdEHyYwScPm+KbJC0lMmL3hHKlJ5sgUa02YF/xslRiSJehJN/QPnzEvuOzLC0YFg
+	yD0w==
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-In-Reply-To: <f54391d9-6259-d08b-8b5f-c844093071d8@infradead.org>
-Subject: Re: [Bridge] linux-next: Tree for Aug 7
- (net/bridge/netfilter/nf_conntrack_bridge.c)
+From: Ben Shaw <veedubya66@gmail.com>
+Date: Fri, 9 Aug 2019 15:56:36 +1000
+Message-ID: <CAFUip_6JpHiFcn1X_pGZZzHaXjhp6DseX4DYABdokFgHTnzpuw@mail.gmail.com>
+Content-Type: multipart/alternative; boundary="000000000000f87689058fa8d607"
+Subject: [Bridge] linux bridge does not forward arp reply back packets in a
+	vmware vm
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,61 +23,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: bridge@lists.linux-foundation.org, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: bridge@lists.linux-foundation.org
 
+--000000000000f87689058fa8d607
+Content-Type: text/plain; charset="UTF-8"
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Hi,
+
+there was a post on here with the same title in 2017 which seemed to
+discuss the same issue I was seeing today on my ESXi environment with a
+bridged Ubuntu VM. A host would not receive ARP replies because the Ubunut
+VM between it and the ARP responder would drop the replies.
+
+My issues seemed to reflect the previous poster's issue identically and
+after some testing I can see that what is happening is that the ARP request
+was being forwarded by the Ubuntu VM and then by the ESXi vswitch out one
+of the two physical uplinks it had to the physical switched environment.
+Because ESXi vswitches don't participate in STP hence do not block ports
+that ARP request would be switched back to the same vSwitch via the second
+uplink port and be forwarded back to the Ubuntu bridged VM.
+
+This would cause the Ubuntu VM to see the host sending the ARP request to
+be off the other interface so when the ARP reply was received the Ubuntu
+host would drop the reply and not forward out the interface on the bridge
+the intended recipient was actually on. This could be see in the brctl
+showmacs output with the MAC address in question appearing on the wrong
+bridge member port as shown below where the first entry should actually be
+off port 2.
+
+LAB-SOH01:~$ brctl showmacs br0 | grep no
+port no mac addr                is local?       ageing timer
+  1     00:0c:29:e7:e4:37       no                12.58
+  1     00:a0:c9:0f:02:01       no                 2.00
+LAB-SOH01:~$
+
+A work around so far is to disable one of the physical uplinks to the
+physical network. I will have to think if there is a better solution which
+maintains redundancy. Hopefully this may be of help to some others who see
+the same issue.
+
+Thanks
+
+--000000000000f87689058fa8d607
+Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On 2019-08-07, at 08:29:44 -0700, Randy Dunlap wrote:
-> On 8/7/19 1:36 AM, Stephen Rothwell wrote:
-> > Hi all,
-> >
-> > Changes since 20190806:
->
-> on i386:
-> when CONFIG_NF_TABLES is not set/enabled:
->
->   CC      net/bridge/netfilter/nf_conntrack_bridge.o
-> In file included from
-> ../net/bridge/netfilter/nf_conntrack_bridge.c:21:0:
-> ../include/net/netfilter/nf_tables.h: In function
-> =E2=80=98nft_gencursor_next=E2=80=99:
-> ../include/net/netfilter/nf_tables.h:1224:14: error: =E2=80=98const struct
-> net=E2=80=99 has no member named =E2=80=98nft=E2=80=99; did you mean =E2=
-=80=98nf=E2=80=99?
->   return net->nft.gencursor + 1 =3D=3D 1 ? 1 : 0;
->               ^~~
+<div dir=3D"ltr"><div>Hi,</div><div><br></div><div>there was a post on here=
+ with the same title in 2017 which seemed to discuss the same issue I was s=
+eeing today on my ESXi environment with a bridged Ubuntu VM. A host would n=
+ot receive ARP replies because the Ubunut VM between it and the ARP respond=
+er would drop the replies.</div><div><br></div><div>My issues seemed to ref=
+lect the previous poster&#39;s issue identically and after some testing I c=
+an see that what is happening is that the ARP request was being forwarded b=
+y the Ubuntu VM and then by the ESXi vswitch out one of the two physical up=
+links it had to the physical switched environment. Because ESXi vswitches d=
+on&#39;t participate in STP hence do not block ports that ARP request would=
+ be switched back to the same vSwitch via the second uplink port and be for=
+warded back to the Ubuntu bridged VM.</div><div><br></div><div>This would c=
+ause the Ubuntu VM to see the host sending the ARP request to be off the ot=
+her interface so when the ARP reply was received the Ubuntu host would drop=
+ the reply and not forward out the interface on the bridge the intended rec=
+ipient was actually on. This could be see in the brctl showmacs output with=
+ the MAC address in question appearing on the wrong bridge member port as s=
+hown below where the first entry should actually be off port 2.<br></div><d=
+iv><br></div><div>LAB-SOH01:~$ brctl showmacs br0 | grep no<br>port no mac =
+addr =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0is local? =C2=
+=A0 =C2=A0 =C2=A0 ageing timer<br>=C2=A0 1 =C2=A0 =C2=A0 00:0c:29:e7:e4:37 =
+=C2=A0 =C2=A0 =C2=A0 no =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A012.58<br>=C2=A0 1 =C2=A0 =C2=A0 00:a0:c9:0f:02:01 =C2=A0 =C2=A0 =C2=
+=A0 no =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 2.00<br>LAB-=
+SOH01:~$</div><div><br></div><div>A work around so far is to disable one of=
+ the physical uplinks to the physical network. I will have to think if ther=
+e is a better solution which maintains redundancy. Hopefully this may be of=
+ help to some others who see the same issue.</div><div><br></div><div>Thank=
+s<br></div></div>
 
-I've just posted a series of fixes for netfilter header compilation
-failures, and I think it includes the fix for that:
-
-  https://lore.kernel.org/netdev/20190807141705.4864-5-jeremy@azazel.net/T/=
-#u
-
-J.
-
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEZ8d+2N/NBLDbUxIF0Z7UzfnX9sMFAl1K9OYACgkQ0Z7UzfnX
-9sMfsg//XRqj8xhFqboo6HARjrVj8WIdxbhTsv5BqjVA2tLdQfADQDY1TxLk6OPP
-lSE8F09tdfs0Et7m6CcJzNq0+KSRDVs4ozz0CKUCX+GOKHZZKPGo2poT0cp6rC2Z
-xboTw3Txvarvq6rYa59h0lcZN0vApZeSgfRIOBWCubanlcdiD2ypT+ktlNXHanzd
-PhmXQytY1XAarTWFfXrcvx5xMuIVXe/eLhpC7SfyPRf5ITB8v6jNGBDvNvLwYeB7
-o3QaKqCe/9ta2euYDBMtlgjXPZOWmT8mddlP5vnnN1KYgB0b2dabzxGUI/NEultQ
-qFfZl/uI6LnNC+Ld4VdoPG2qlYolhd+yh8BqwhDUNyvhtsCFQ1gBxJK9YK2ZzzSh
-J9RKoTOSP520S2eCFPXr+Tock0zM2vezW8adf9Uko3VcezfYPXs8QN7fbt920+7B
-Di38eJbgOLe2tTHxPrPYVmN7YBQ1faG8gqIc8+og1ZMPVni+h4Q0SkL7mLXWWhxI
-V9DcC+NKDz+8YbhNy6Yl5RriOUXzJ0UMYTwmpgN4jGTwjPMxSskPvr5k+iG/Q1aN
-4cevcvKGwXo2cg1VOrCY9utNI0imA7S9R7HOfyq66K2aRUiw5JToVL27CqKY1xdy
-3RWpW4DvQgI72sJsvo+JgzfnoonExfnD3K+yi/dEbV16hGI5ph0=
-=b1Me
------END PGP SIGNATURE-----
-
---k+w/mQv8wyuph6w0--
+--000000000000f87689058fa8d607--
