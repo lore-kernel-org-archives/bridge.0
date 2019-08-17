@@ -1,15 +1,22 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 16 Aug 2019 13:04:17 -0700 (PDT)
-Message-Id: <20190816.130417.1610388599335442981.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20190814170501.1808-1-nikolay@cumulusnetworks.com>
-References: <81258876-5f03-002c-5aa8-2d6d00e6d99e@cumulusnetworks.com>
-	<20190814170501.1808-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-7
-Content-Transfer-Encoding: base64
-Subject: Re: [Bridge] [PATCH net-next v2 0/4] net: bridge: mdb: allow
- dump/add/del of host-joined entries
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding;
+	bh=zLOU89kM0wwKVTB1UPD2cV0f8y3hOpOztYSgdhvell4=;
+	b=TXmcamN8IcT8ZBgKXUN3NLesuIAUUL7x46HjkvMIMfGewwwHulzc77+29EH8KrHU7Y
+	B3yzwPOG3qloRH3y3cK992aC/jSfzZRPVcpEktcAEDdHJcaNYhiuk3aYFunnL0r9zuvm
+	8W8wfnSj1z8jwudBnjPFvLL+TUlqWcHjS3toY=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Sat, 17 Aug 2019 14:22:10 +0300
+Message-Id: <20190817112213.27097-2-nikolay@cumulusnetworks.com>
+In-Reply-To: <20190817112213.27097-1-nikolay@cumulusnetworks.com>
+References: <20190816.130417.1610388599335442981.davem@davemloft.net>
+	<20190817112213.27097-1-nikolay@cumulusnetworks.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next v3 1/4] net: bridge: mdb: move vlan
+	comments
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,21 +25,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-RnJvbTogTmlrb2xheSBBbGVrc2FuZHJvdiA8bmlrb2xheUBjdW11bHVzbmV0d29ya3MuY29tPg0K
-RGF0ZTogV2VkLCAxNCBBdWcgMjAxOSAyMDowNDo1NyArMDMwMA0KDQo+IFRoaXMgc2V0IG1ha2Vz
-IHRoZSBicmlkZ2UgZHVtcCBob3N0LWpvaW5lZCBtZGIgZW50cmllcywgdGhleSBzaG91bGQgYmUN
-Cj4gdHJlYXRlZCBhcyBub3JtYWwgZW50cmllcyBzaW5jZSB0aGV5IHRha2UgYSBzbG90IGFuZCBh
-cmUgYWdpbmcgb3V0Lg0KIC4uLg0KDQpQbGVhc2UgcmVzcGluIHdpdGggdGhpcyB3YXJuaW5nIGZp
-eGVkOg0KDQpuZXQvYnJpZGdlL2JyX21kYi5jOiBJbiBmdW5jdGlvbiChYnJfbWRiX2FkZKI6DQpu
-ZXQvYnJpZGdlL2JyX21kYi5jOjcyNTo0OiB3YXJuaW5nOiChcKIgbWF5IGJlIHVzZWQgdW5pbml0
-aWFsaXplZCBpbiB0aGlzIGZ1bmN0aW9uIFstV21heWJlLXVuaW5pdGlhbGl6ZWRdDQogICAgX19i
-cl9tZGJfbm90aWZ5KGRldiwgcCwgZW50cnksIFJUTV9ORVdNREIpOw0KICAgIF5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fg0KDQpbZGF2ZW1AbG9jYWxob3N0IG5ldC1u
-ZXh0XSQgZ2NjIC0tdmVyc2lvbg0KZ2NjIChHQ0MpIDguMy4xIDIwMTkwMjIzIChSZWQgSGF0IDgu
-My4xLTIpDQpDb3B5cmlnaHQgKEMpIDIwMTggRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBJbmMu
-DQpUaGlzIGlzIGZyZWUgc29mdHdhcmU7IHNlZSB0aGUgc291cmNlIGZvciBjb3B5aW5nIGNvbmRp
-dGlvbnMuICBUaGVyZSBpcyBOTw0Kd2FycmFudHk7IG5vdCBldmVuIGZvciBNRVJDSEFOVEFCSUxJ
-VFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuDQo=
+Trivial patch to move the vlan comments in their proper places above the
+vid 0 checks.
+
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_mdb.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 428af1abf8cc..ee6208c6d946 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -653,9 +653,6 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ 	br = netdev_priv(dev);
+ 
+-	/* If vlan filtering is enabled and VLAN is not specified
+-	 * install mdb entry on all vlans configured on the port.
+-	 */
+ 	pdev = __dev_get_by_index(net, entry->ifindex);
+ 	if (!pdev)
+ 		return -ENODEV;
+@@ -665,6 +662,9 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		return -EINVAL;
+ 
+ 	vg = nbp_vlan_group(p);
++	/* If vlan filtering is enabled and VLAN is not specified
++	 * install mdb entry on all vlans configured on the port.
++	 */
+ 	if (br_vlan_enabled(br->dev) && vg && entry->vid == 0) {
+ 		list_for_each_entry(v, &vg->vlan_list, vlist) {
+ 			entry->vid = v->vid;
+@@ -745,9 +745,6 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ 	br = netdev_priv(dev);
+ 
+-	/* If vlan filtering is enabled and VLAN is not specified
+-	 * delete mdb entry on all vlans configured on the port.
+-	 */
+ 	pdev = __dev_get_by_index(net, entry->ifindex);
+ 	if (!pdev)
+ 		return -ENODEV;
+@@ -757,6 +754,9 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		return -EINVAL;
+ 
+ 	vg = nbp_vlan_group(p);
++	/* If vlan filtering is enabled and VLAN is not specified
++	 * delete mdb entry on all vlans configured on the port.
++	 */
+ 	if (br_vlan_enabled(br->dev) && vg && entry->vid == 0) {
+ 		list_for_each_entry(v, &vg->vlan_list, vlist) {
+ 			entry->vid = v->vid;
+-- 
+2.21.0
+
