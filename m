@@ -3,20 +3,19 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=zLOU89kM0wwKVTB1UPD2cV0f8y3hOpOztYSgdhvell4=;
-	b=TXmcamN8IcT8ZBgKXUN3NLesuIAUUL7x46HjkvMIMfGewwwHulzc77+29EH8KrHU7Y
-	B3yzwPOG3qloRH3y3cK992aC/jSfzZRPVcpEktcAEDdHJcaNYhiuk3aYFunnL0r9zuvm
-	8W8wfnSj1z8jwudBnjPFvLL+TUlqWcHjS3toY=
+	bh=uGqrtStYIQ/gG4009jwt9tOaQZGkVkkXlx2NS4SiirU=;
+	b=ZtM9408P+KgDletkOKWAlAdeR4QyapJg85TBbsvBLmOlmikx7HU4TLtj8fWPtGO5pb
+	wGMfntiiKHX6RnFeLHAYEQ+BpM40BftYYtJVu8xKz6M6252kQAlCSjOIxZyTvPCES3fU
+	5Az6CwpXff6ksO92Mc5WM8UdDiWlhJHqzbvKo=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat, 17 Aug 2019 14:22:10 +0300
-Message-Id: <20190817112213.27097-2-nikolay@cumulusnetworks.com>
-In-Reply-To: <20190817112213.27097-1-nikolay@cumulusnetworks.com>
+Date: Sat, 17 Aug 2019 14:22:09 +0300
+Message-Id: <20190817112213.27097-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <20190816.130417.1610388599335442981.davem@davemloft.net>
 References: <20190816.130417.1610388599335442981.davem@davemloft.net>
-	<20190817112213.27097-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 1/4] net: bridge: mdb: move vlan
-	comments
+Subject: [Bridge] [PATCH net-next v3 0/4] net: bridge: mdb: allow
+	dump/add/del of host-joined entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,58 +27,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Trivial patch to move the vlan comments in their proper places above the
-vid 0 checks.
+Hi,
+This set makes the bridge dump host-joined mdb entries, they should be
+treated as normal entries since they take a slot and are aging out.
+We already have notifications for them but we couldn't dump them until
+now so they remained hidden. We dump them similar to how they're
+notified, in order to keep user-space compatibility with the dumped
+objects (e.g. iproute2 dumps mdbs in a format which can be fed into
+add/del commands) we allow host-joined groups also to be added/deleted via
+mdb commands. That can later be used for L2 mcast MAC manipulation as
+was recently discussed. Note that iproute2 changes are not necessary,
+this set will work with the current user-space mdb code.
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- net/bridge/br_mdb.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Patch 01 - a trivial comment move
+Patch 02 - factors out the mdb filling code so it can be
+           re-used for the host-joined entries
+Patch 03 - dumps host-joined entries
+Patch 04 - allows manipulation of host-joined entries via standard mdb
+           calls
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 428af1abf8cc..ee6208c6d946 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -653,9 +653,6 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	br = netdev_priv(dev);
- 
--	/* If vlan filtering is enabled and VLAN is not specified
--	 * install mdb entry on all vlans configured on the port.
--	 */
- 	pdev = __dev_get_by_index(net, entry->ifindex);
- 	if (!pdev)
- 		return -ENODEV;
-@@ -665,6 +662,9 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		return -EINVAL;
- 
- 	vg = nbp_vlan_group(p);
-+	/* If vlan filtering is enabled and VLAN is not specified
-+	 * install mdb entry on all vlans configured on the port.
-+	 */
- 	if (br_vlan_enabled(br->dev) && vg && entry->vid == 0) {
- 		list_for_each_entry(v, &vg->vlan_list, vlist) {
- 			entry->vid = v->vid;
-@@ -745,9 +745,6 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	br = netdev_priv(dev);
- 
--	/* If vlan filtering is enabled and VLAN is not specified
--	 * delete mdb entry on all vlans configured on the port.
--	 */
- 	pdev = __dev_get_by_index(net, entry->ifindex);
- 	if (!pdev)
- 		return -ENODEV;
-@@ -757,6 +754,9 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		return -EINVAL;
- 
- 	vg = nbp_vlan_group(p);
-+	/* If vlan filtering is enabled and VLAN is not specified
-+	 * delete mdb entry on all vlans configured on the port.
-+	 */
- 	if (br_vlan_enabled(br->dev) && vg && entry->vid == 0) {
- 		list_for_each_entry(v, &vg->vlan_list, vlist) {
- 			entry->vid = v->vid;
+v3: fix compiler warning in patch 04 (DaveM)
+v2: change patch 04 to avoid double notification and improve host group
+    manual removal if no ports are present in the group
+
+Thanks,
+ Nik
+
+
+Nikolay Aleksandrov (4):
+  net: bridge: mdb: move vlan comments
+  net: bridge: mdb: factor out mdb filling
+  net: bridge: mdb: dump host-joined entries as well
+  net: bridge: mdb: allow add/delete for host-joined groups
+
+ net/bridge/br_mdb.c       | 175 +++++++++++++++++++++++++-------------
+ net/bridge/br_multicast.c |  30 +++++--
+ net/bridge/br_private.h   |   2 +
+ 3 files changed, 142 insertions(+), 65 deletions(-)
+
 -- 
 2.21.0
 
