@@ -1,25 +1,22 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=Ouh1hyA4cnUUtU66BbaszA14lgEbgI+hW7TPxZskfjA=;
-	b=2YBLfaiSJjF9YvxwEJ63tFNfLf
-	NgaAM1cajy0G+MKXV0ek0VyWAA2A2jdYFKagzeAznZj+f1uhGOamR9xPHUmjNRKRI4NEn774Y6oog
-	pQlCVkQA/uY9HkHC7rtBXUbBi13ZDESxVdM4S/9OOKhAMjzpFLWZeDaaKqoJ3UxH5oH4=; 
-Date: Thu, 22 Aug 2019 22:08:17 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20190822200817.GD21295@lunn.ch>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=subject:to:references:from:message-id:date:user-agent:mime-version
+	:in-reply-to:content-language:content-transfer-encoding;
+	bh=M+oIdnD3jm/q0FEoEMnIGzoD27Ik3dMH4NYQUO8iSBo=;
+	b=ZI42VLIf3XR0ok5i+0x5WISOnHyGwIZxT87RAf5JOkT72TxGxOM5SLOZYlrOMK2Lz0
+	/pMXLKJ9Bp6o+JdDPyTNehpyrMiXLKq/THe45t1S8Y9iG0NX2rg/tiUPjo6oBHCdZUgS
+	H9MYSXYdU+sMDcOmye0Qxn0PQG2F3X8yS+ekQ=
 References: <1566500850-6247-1-git-send-email-horatiu.vultur@microchip.com>
-	<1566500850-6247-2-git-send-email-horatiu.vultur@microchip.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <1e16da88-08c5-abd5-0a3e-b8e6c3db134a@cumulusnetworks.com>
+Date: Fri, 23 Aug 2019 01:09:50 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1566500850-6247-2-git-send-email-horatiu.vultur@microchip.com>
-Subject: Re: [Bridge] [PATCH 1/3] net: Add HW_BRIDGE offload feature
+In-Reply-To: <1566500850-6247-1-git-send-email-horatiu.vultur@microchip.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 0/3] Add NETIF_F_HW_BRIDGE feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,22 +25,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: alexandre.belloni@bootlin.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, allan.nielsen@microchip.com, davem@davemloft.net
+To: Horatiu Vultur <horatiu.vultur@microchip.com>, roopa@cumulusnetworks.com, davem@davemloft.net, UNGLinuxDriver@microchip.com, alexandre.belloni@bootlin.com, allan.nielsen@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
-> +/* Determin if the SW bridge can be offloaded to HW. Return true if all
-> + * the interfaces of the bridge have the feature NETIF_F_HW_SWITCHDEV set
-> + * and have the same netdev_ops.
-> + */
+On 22/08/2019 22:07, Horatiu Vultur wrote:
+> Current implementation of the SW bridge is setting the interfaces in
+> promisc mode when they are added to bridge if learning of the frames is
+> enabled.
+> In case of Ocelot which has HW capabilities to switch frames, it is not
+> needed to set the ports in promisc mode because the HW already capable of
+> doing that. Therefore add NETIF_F_HW_BRIDGE feature to indicate that the
+> HW has bridge capabilities. Therefore the SW bridge doesn't need to set
+> the ports in promisc mode to do the switching.
+> This optimization takes places only if all the interfaces that are part
+> of the bridge have this flag and have the same network driver.
+> 
+> If the bridge interfaces is added in promisc mode then also the ports part
+> of the bridge are set in promisc mode.
+> 
+> Horatiu Vultur (3):
+>   net: Add HW_BRIDGE offload feature
+>   net: mscc: Use NETIF_F_HW_BRIDGE
+>   net: mscc: Implement promisc mode.
+> 
+>  drivers/net/ethernet/mscc/ocelot.c | 26 ++++++++++++++++++++++++--
+>  include/linux/netdev_features.h    |  3 +++
+>  net/bridge/br_if.c                 | 29 ++++++++++++++++++++++++++++-
+>  net/core/ethtool.c                 |  1 +
+>  4 files changed, 56 insertions(+), 3 deletions(-)
+> 
 
-Hi Horatiu
+IMO the name is misleading.
+Why do the devices have to be from the same driver ? This is too specific targeting some
+devices. The bridge should not care what's the port device, it should be the other way
+around, so adding device-specific code to the bridge is not ok. Isn't there a solution
+where you can use NETDEV_JOIN and handle it all from your driver ?
+Would all HW-learned entries be hidden from user-space in this case ?
 
-Why do you need these restrictions. The HW bridge should be able to
-learn that a destination MAC address can be reached via the SW
-bridge. The software bridge can then forward it out the correct
-interface.
 
-Or are you saying your hardware cannot learn from frames which come
-from the CPU?
 
-	Andrew
