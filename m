@@ -1,17 +1,15 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
-Date: Sun, 25 Aug 2019 12:44:15 +0200
+Date: Sun, 25 Aug 2019 18:30:25 +0200
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20190825104413.ftnarx46hhym632w@soft-dev3.microsemi.net>
+Message-ID: <20190825163023.hkc23lv7b5vvphdb@soft-dev3.microsemi.net>
 References: <1566500850-6247-1-git-send-email-horatiu.vultur@microchip.com>
-	<1566500850-6247-2-git-send-email-horatiu.vultur@microchip.com>
-	<20190822200817.GD21295@lunn.ch>
-	<20190823123929.ta4ikozz7jwkwbo2@soft-dev3.microsemi.net>
-	<afde1b82-2e4c-5b93-ff31-83cb80a0f7bd@gmail.com>
+	<e47a318c-6446-71cd-660c-8592037d8166@gmail.com>
+	<20190824074204.GA15041@nanopsycho.orion>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <afde1b82-2e4c-5b93-ff31-83cb80a0f7bd@gmail.com>
-Subject: Re: [Bridge] [PATCH 1/3] net: Add HW_BRIDGE offload feature
+In-Reply-To: <20190824074204.GA15041@nanopsycho.orion>
+Subject: Re: [Bridge] [PATCH 0/3] Add NETIF_F_HW_BRIDGE feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,65 +18,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, alexandre.belloni@bootlin.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, allan.nielsen@microchip.com, davem@davemloft.net
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexandre.belloni@bootlin.com, Florian Fainelli <f.fainelli@gmail.com>, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, allan.nielsen@microchip.com, davem@davemloft.net
 
-The 08/23/2019 16:30, Florian Fainelli wrote:
+The 08/24/2019 09:42, Jiri Pirko wrote:
 > External E-Mail
 > 
 > 
-> On 8/23/19 5:39 AM, Horatiu Vultur wrote:
-> > The 08/22/2019 22:08, Andrew Lunn wrote:
-> >> External E-Mail
-> >>
-> >>
-> >>> +/* Determin if the SW bridge can be offloaded to HW. Return true if all
-> >>> + * the interfaces of the bridge have the feature NETIF_F_HW_SWITCHDEV set
-> >>> + * and have the same netdev_ops.
-> >>> + */
-> >>
-> >> Hi Horatiu
-> >>
-> >> Why do you need these restrictions. The HW bridge should be able to
-> >> learn that a destination MAC address can be reached via the SW
-> >> bridge. The software bridge can then forward it out the correct
-> >> interface.
-> >>
-> >> Or are you saying your hardware cannot learn from frames which come
-> >> from the CPU?
-> >>
-> >> 	Andrew
-> >>
-> > Hi Andrew,
-> > 
-> > I do not believe that our HW can learn from frames which comes from the
-> > CPU, at least not in the way they are injected today. But in case of Ocelot
-> > (and the next chip we are working on), we have other issues in mixing with
-> > foreign interfaces which is why we have the check in
-> > ocelot_netdevice_dev_check.
-> > 
-> > More important, as we responded to Nikolay, we properly introduced this
-> > restriction for the wrong reasons.
-> > 
-> > In SW bridge I will remove all these restrictions and only set ports in
-> > promisc mode only if NETIF_F_HW_BRIDGE is not set.
-> > Then in the network driver I can see if a foreign interface is added to
-> > the bridge, and when that happens I can set the port in promisc mode.
-> > Then the frames will be flooded to the SW bridge which eventually will
-> > send to the foreign interface.
-> 
-> Is that really necessary?
-From what I see, it seems to be necessary.
+> Sat, Aug 24, 2019 at 01:25:02AM CEST, f.fainelli@gmail.com wrote:
+> >On 8/22/19 12:07 PM, Horatiu Vultur wrote:
+> >> Current implementation of the SW bridge is setting the interfaces in
+> >> promisc mode when they are added to bridge if learning of the frames is
+> >> enabled.
+> >> In case of Ocelot which has HW capabilities to switch frames, it is not
+> >> needed to set the ports in promisc mode because the HW already capable of
+> >> doing that. Therefore add NETIF_F_HW_BRIDGE feature to indicate that the
+> >> HW has bridge capabilities. Therefore the SW bridge doesn't need to set
+> >> the ports in promisc mode to do the switching.
+> >
+> >Then do not do anything when the ndo_set_rx_mode() for the ocelot
+> >network device is called and indicates that IFF_PROMISC is set and that
+> >your network port is a bridge port member. That is what mlxsw does AFAICT.
 
-> Is not the skb->fwd_offload_mark as well as
-> the phys_switch_id supposed to tell that information to the bridge already?
-Yes, the bridge is using the fwd_offload_mark to know that it should or
-should not forward the frame. But in case that the network driver knows
-that the SW bridge will not do anything with the frame, then there is no
-point to send the frame to SW bridge just to use CPU cycles for dropping
-the frame.
-> -- 
-> Florian
+Yes, but then if you want to monitor all the traffic on a bridge port
+you will not be able to do that. And this seems to be a limitation.
+This is the case for mlxsw and ocelot(it doesn't implement at all
+promisc mode) and might be others.
+
+> 
+> Correct.
+> 
+> >
+> >As other pointed out, the Linux bridge implements a software bridge by
+> >default, and because it needs to operate on a wide variety of network
+> >devices, all with different capabilities, the easiest way to make sure
+> >that all management (IGMP, BPDU, etc. ) as well as non-management
+> >traffic can make it to the bridge ports, is to put the network devices
+> >in promiscuous mode.
+
+What if the HW can copy all the management traffic to the SW bridge and
+HW knows to learn and flood frames. Then there is no point to set a
+network port in promisc mode just because it is a bridge port member.
+> >If this is suboptimal for you, you can take
+> >shortcuts in your driver that do not hinder the overall functionality.
+
+If I add this check, I don't see how any other network drivers will be
+affected by this. If a network driver will start to use this then it
+needs to know that the HW should be configure to include CPU in the
+flood mask and to know which addresses can be reached through SW bridge.
+
+> >
+> >> This optimization takes places only if all the interfaces that are part
+> >> of the bridge have this flag and have the same network driver.
+> >> 
+> >> If the bridge interfaces is added in promisc mode then also the ports part
+> >> of the bridge are set in promisc mode.
+> >> 
+> >> Horatiu Vultur (3):
+> >>   net: Add HW_BRIDGE offload feature
+> >>   net: mscc: Use NETIF_F_HW_BRIDGE
+> >>   net: mscc: Implement promisc mode.
+> >> 
+> >>  drivers/net/ethernet/mscc/ocelot.c | 26 ++++++++++++++++++++++++--
+> >>  include/linux/netdev_features.h    |  3 +++
+> >>  net/bridge/br_if.c                 | 29 ++++++++++++++++++++++++++++-
+> >>  net/core/ethtool.c                 |  1 +
+> >>  4 files changed, 56 insertions(+), 3 deletions(-)
+> >> 
+> >
+> >
+> >-- 
+> >Florian
+> 
 
 -- 
 /Horatiu
