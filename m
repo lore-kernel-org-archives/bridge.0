@@ -1,12 +1,12 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Mon, 26 Aug 2019 10:11:14 +0200
-Message-ID: <1566807075-775-3-git-send-email-horatiu.vultur@microchip.com>
+Date: Mon, 26 Aug 2019 10:11:15 +0200
+Message-ID: <1566807075-775-4-git-send-email-horatiu.vultur@microchip.com>
 In-Reply-To: <1566807075-775-1-git-send-email-horatiu.vultur@microchip.com>
 References: <1566807075-775-1-git-send-email-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH v2 2/3] net: mscc: Use NETIF_F_HW_BR_CAP
+Subject: [Bridge] [PATCH v2 3/3] net: mscc: Implement promisc mode.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,32 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, davem@davemloft.net, UNGLinuxDriver@microchip.com, alexandre.belloni@bootlin.com, allan.nielsen@microchip.com, andrew@lunn.ch, f.fainelli@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Enable NETIF_F_HW_BR_CAP feature for ocelot.
-Because the HW can learn and flood the frames, so there is no need for SW
-bridge to do this.
+Before when a port was added to a bridge then the port was added in
+promisc mode. But because of the patches:
+commit e6300374f3be6 ("net: Add NETIF_HW_BR_CAP feature")
+commit 764866d46cc81 ("net: mscc: Use NETIF_F_HW_BR_CAP")'
+
+The port is not needed to be in promisc mode to be part of the bridge.
+So it is possible to togle the promisc mode of the port even if it is or
+not part of the bridge.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index 4d1bce4..7d7c94b 100644
+index 7d7c94b..8a18eef 100644
 --- a/drivers/net/ethernet/mscc/ocelot.c
 +++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -2017,8 +2017,10 @@ int ocelot_probe_port(struct ocelot *ocelot, u8 port,
- 	dev->ethtool_ops = &ocelot_ethtool_ops;
+@@ -691,6 +691,25 @@ static void ocelot_set_rx_mode(struct net_device *dev)
+ 	__dev_mc_sync(dev, ocelot_mc_sync, ocelot_mc_unsync);
+ }
  
- 	dev->hw_features |= NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_RXFCS |
--		NETIF_F_HW_TC;
--	dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_TC;
-+		NETIF_F_HW_TC | NETIF_F_HW_BR_CAP;
-+	dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_TC |
-+		NETIF_F_HW_BR_CAP;
-+	dev->priv_flags |= IFF_UNICAST_FLT;
- 
- 	memcpy(dev->dev_addr, ocelot->base_mac, ETH_ALEN);
- 	dev->dev_addr[ETH_ALEN - 1] += port;
++static void ocelot_change_rx_flags(struct net_device *dev, int flags)
++{
++	struct ocelot_port *port = netdev_priv(dev);
++	struct ocelot *ocelot = port->ocelot;
++	u32 val;
++
++	if (!(flags & IFF_PROMISC))
++		return;
++
++	val = ocelot_read_gix(ocelot, ANA_PORT_CPU_FWD_CFG,
++			      port->chip_port);
++	if (dev->flags & IFF_PROMISC)
++		val |= ANA_PORT_CPU_FWD_CFG_CPU_SRC_COPY_ENA;
++	else
++		val &= ~(ANA_PORT_CPU_FWD_CFG_CPU_SRC_COPY_ENA);
++
++	ocelot_write_gix(ocelot, val, ANA_PORT_CPU_FWD_CFG, port->chip_port);
++}
++
+ static int ocelot_port_get_phys_port_name(struct net_device *dev,
+ 					  char *buf, size_t len)
+ {
+@@ -1070,6 +1089,7 @@ static const struct net_device_ops ocelot_port_netdev_ops = {
+ 	.ndo_stop			= ocelot_port_stop,
+ 	.ndo_start_xmit			= ocelot_port_xmit,
+ 	.ndo_set_rx_mode		= ocelot_set_rx_mode,
++	.ndo_change_rx_flags		= ocelot_change_rx_flags,
+ 	.ndo_get_phys_port_name		= ocelot_port_get_phys_port_name,
+ 	.ndo_set_mac_address		= ocelot_port_set_mac_address,
+ 	.ndo_get_stats64		= ocelot_get_stats64,
 -- 
 2.7.4
 
