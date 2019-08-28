@@ -1,26 +1,25 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=opy2LGo8EiMuXbwuiWz62GkRvsGmq1zFVRcUmTfeyis=;
-	b=0iYNetQTXrlSwCH6KOhIteuxSo
-	0oCJj5MunUT7NBQ86QHygqqF96PeA5dubjKssDfukyNYPVpVaRmDvFLX8Inb1WYoIPFkjgYrxxJzE
-	BB9eqt3xUPUl8Ir4eG/E56qc8ABNjp6sd9Txv9vDv0EjArWwgGRdn1iQtj4sP/2Etf/0=; 
-Date: Tue, 27 Aug 2019 15:18:24 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20190827131824.GC11471@lunn.ch>
-References: <1566807075-775-1-git-send-email-horatiu.vultur@microchip.com>
-	<20190826123811.GA13411@lunn.ch>
-	<20190827101033.g2cb6j2j4kuyzh2a@soft-dev3.microsemi.net>
+Return-Path: <rdong.ge@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+	:cc:content-transfer-encoding;
+	bh=zeW2EB44SqLEQGsY2YylFGSCLe2d8d3xyY+7YXzj+uQ=;
+	b=hlrwu8/VWPKnAzvYARwUQCB8VjdMpH9Lspg7iRQW8aFjCIvAIhUAvszDuBzJfhC2td
+	1vvgpOYxY7+z67ftLvVtHmTU0T0Y0Q3WqpOcRmhSlJ8p7MBH38IvmuT2/7HCWx11Eigy
+	x8h7b7SJFQS9XgiSdL4ZuVq300g7MoG3DbKBFr7XIJQTbh2IlOyZBrLmF7r7YvA+WdWu
+	BxQPqe36ZMIlSsf7NvWYw30y1K58nrMCX+Gp+sMkrDGYpW5iczkVMllyF05r3K/xSYNW
+	x/5wZ4TUtg6+tUp5wj4hF+SR09RkhRjYgufcZ7+c6+0EJ0RKIkGwQHaUTmCxTbNY1FL0
+	nIkA==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190827101033.g2cb6j2j4kuyzh2a@soft-dev3.microsemi.net>
-Subject: Re: [Bridge] [PATCH v2 0/3] Add NETIF_F_HW_BR_CAP feature
+References: <20190730122534.30687-1-rdong.ge@gmail.com>
+	<20190730123542.zrsrfvcy7t2n3d4g@breakpoint.cc>
+	<nycvar.YFH.7.76.1908260955400.22383@n3.vanv.qr>
+In-Reply-To: <nycvar.YFH.7.76.1908260955400.22383@n3.vanv.qr>
+From: Rundong Ge <rdong.ge@gmail.com>
+Date: Wed, 28 Aug 2019 17:21:46 +0800
+Message-ID: <CAN1Lvyp=pmu4KYbwb9sHcPyc0WXjOfb-JZspizDn1S=Uiu3rbQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH] bridge:fragmented packets dropped by bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,33 +28,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: alexandre.belloni@bootlin.com, f.fainelli@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, allan.nielsen@microchip.com, davem@davemloft.net
+To: Jan Engelhardt <jengelh@inai.de>
+Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, kadlec@netfilter.org, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, kuznet@ms2.inr.ac.ru, davem@davemloft.net, Pablo Neira Ayuso <pablo@netfilter.org>
 
-> That sounds like a great idea. I was expecting to add this logic in the
-> set_rx_mode function of the driver. But unfortunetly, I got the calls to
-> this function before the dev->promiscuity is updated or not to get the
-> call at all. For example in case the port is member of a bridge and I try
-> to enable the promisc mode.
+Jan Engelhardt <jengelh@inai.de> =E4=BA=8E2019=E5=B9=B48=E6=9C=8826=E6=97=
+=A5=E5=91=A8=E4=B8=80 =E4=B8=8B=E5=8D=883:59=E5=86=99=E9=81=93=EF=BC=9A
+>
+>
+> On Tuesday 2019-07-30 14:35, Florian Westphal wrote:
+> >Rundong Ge <rdong.ge@gmail.com> wrote:
+> >> Given following setup:
+> >> -modprobe br_netfilter
+> >> -echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+> >> -brctl addbr br0
+> >> -brctl addif br0 enp2s0
+> >> -brctl addif br0 enp3s0
+> >> -brctl addif br0 enp6s0
+> >> -ifconfig enp2s0 mtu 1300
+> >> -ifconfig enp3s0 mtu 1500
+> >> -ifconfig enp6s0 mtu 1500
+> >> -ifconfig br0 up
+> >>
+> >>                  multi-port
+> >> mtu1500 - mtu1500|bridge|1500 - mtu1500
+> >>   A                  |            B
+> >>                    mtu1300
+> >
+> >How can a bridge forward a frame from A/B to mtu1300?
+>
+> There might be a misunderstanding here judging from the shortness of this
+> thread.
+>
+> I understood it such that the bridge ports (eth0,eth1) have MTU 1500, yet=
+ br0
+> (in essence the third bridge port if you so wish) itself has MTU 1300.
+>
+> Therefore, frame forwarding from eth0 to eth1 should succeed, since the
+> 1300-byte MTU is only relevant if the bridge decides the packet needs to =
+be
+> locally delivered.
 
-Hi Horatiu
-
-What about the notifier? Is it called in all the conditions you need
-to know about?
-
-Or, you could consider adding a new switchdev call to pass this
-information to any switchdev driver which is interested in the
-information.
-
-At the moment, the DSA driver core does not pass onto the driver it
-should put a port into promisc mode. So pcap etc, will only see
-traffic directed to the CPU, not all the traffic ingressing the
-interface. If you put the needed core infrastructure into place, we
-could plumb it down from the DSA core to DSA drivers.
-
-Having said that, i don't actually know if the Marvell switches
-support this. Forward using the ATU and send a copy to the CPU?  What
-switches tend to support is port mirroring, sending all the traffic
-out another port. A couple of DSA drivers support that, via TC.
-
-	Andrew
+Under this setup when I do "ping B -l 2000" from A, the fragmented
+packets will be dropped by bridge.
+When the "/proc/sys/net/bridge/bridge-nf-call-iptables" is on, bridge
+will do defragment at PREROUTING and re-fragment at POSTROUTING. At
+the re-fragment bridge will check if the max frag size is larger than
+the bridge's MTU in  br_nf_ip_fragment(), if it is true packets will
+be dropped.
+And this patch use the outdev's MTU instead of the bridge's MTU to do
+the br_nf_ip_fragment.
