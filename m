@@ -1,24 +1,11 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-	:cc; bh=J28up6uPKD34qaYuEApixR8UwpIcwgN+tKjvn/kdwk8=;
-	b=pMVrBsv09u5KWA+6vj2Cr0qR0GSZe6r8BMU1JSA+mY2m8bDJ+IdYJXV+hJDfmP273h
-	03KsR0CTQqVWzTM8EllBHW37q99IulCpwRlLntm1wh7QpBeheqcUWjdGcF92vEjKdwGe
-	JWg1stYWqsmHKwaAOkhxXnI4at6LB104kKnM4BFKCBSqOUYTlJLleTaPM+cWFcES1i88
-	zXTO9JvkAZyanLSswiDgGLU/w5Lg9OUsu2V4nZRlg9a47CKLJgik6d2SfwFNb8UzzLdP
-	TduGiWMz2vDnqLl/Tjwin5PPv0YyzSGJtEK4Qh0lsI17GPFMi0jTeoxn4o37yhTPsYs/
-	Yajw==
+Return-Path: <leonardo@linux.ibm.com>
+From: Leonardo Bras <leonardo@linux.ibm.com>
+Date: Fri, 30 Aug 2019 15:13:52 -0300
+Message-Id: <20190830181354.26279-1-leonardo@linux.ibm.com>
 MIME-Version: 1.0
-References: <1566807075-775-1-git-send-email-horatiu.vultur@microchip.com>
-	<20190826123811.GA13411@lunn.ch>
-	<20190827101033.g2cb6j2j4kuyzh2a@soft-dev3.microsemi.net>
-	<20190827131824.GC11471@lunn.ch>
-In-Reply-To: <20190827131824.GC11471@lunn.ch>
-From: Vladimir Oltean <olteanv@gmail.com>
-Date: Tue, 27 Aug 2019 17:55:00 +0300
-Message-ID: <CA+h21hrRafYQm8eOcXjNVwudDbu-2=miWD6nCUJdh0jAGE319w@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH v2 0/3] Add NETIF_F_HW_BR_CAP feature
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v4 0/2] Drop IPV6 packets if IPv6 is disabled on
+	boot
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,42 +14,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, nikolay@cumulusnetworks.com, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, lkml <linux-kernel@vger.kernel.org>, UNGLinuxDriver@microchip.com, "Allan W. Nielsen" <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, Florian Westphal <fw@strlen.de>, Jozsef Kadlecsik <kadlec@netfilter.org>, Leonardo Bras <leonardo@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Tue, 27 Aug 2019 at 16:20, Andrew Lunn <andrew@lunn.ch> wrote:
->
-> > That sounds like a great idea. I was expecting to add this logic in the
-> > set_rx_mode function of the driver. But unfortunetly, I got the calls to
-> > this function before the dev->promiscuity is updated or not to get the
-> > call at all. For example in case the port is member of a bridge and I try
-> > to enable the promisc mode.
->
-> Hi Horatiu
->
-> What about the notifier? Is it called in all the conditions you need
-> to know about?
->
-> Or, you could consider adding a new switchdev call to pass this
-> information to any switchdev driver which is interested in the
-> information.
->
-> At the moment, the DSA driver core does not pass onto the driver it
-> should put a port into promisc mode. So pcap etc, will only see
-> traffic directed to the CPU, not all the traffic ingressing the
-> interface. If you put the needed core infrastructure into place, we
-> could plumb it down from the DSA core to DSA drivers.
->
-> Having said that, i don't actually know if the Marvell switches
-> support this. Forward using the ATU and send a copy to the CPU?  What
-> switches tend to support is port mirroring, sending all the traffic
-> out another port. A couple of DSA drivers support that, via TC.
->
+This patchset was prevously a single patch named:
+- netfilter: nf_tables: fib: Drop IPV6 packets if IPv6 is disabled on boot
 
-But the CPU port is not a valid destination for port mirroring in DSA,
-I might add.
+It fixes a bug where a host, with IPv6 disabled on boot, has to deal with
+guest IPv6 packets, that comes from a bridge interface.
+When these packets reach the host ip6tables they cause a kernel panic.
 
->         Andrew
+---
+Changes from v3:
+- Move drop logic from nft_fib6_eval{,_type} to nft_fib_netdev_eval
+- Add another patch to drop ipv6 packets from bridge when ipv6 disabled  
 
-Regards,
--Vladimir
+Changes from v2:
+- Replace veredict.code from NF_DROP to NFT_BREAK
+- Updated commit message (s/package/packet)
+
+Changes from v1:
+- Move drop logic from nft_fib_inet_eval() to nft_fib6_eval{,_type}
+so it can affect other usages of these functions.
+
+Leonardo Bras (2):
+  netfilter: Terminate rule eval if protocol=IPv6 and ipv6 module is
+    disabled
+  net: br_netfiler_hooks: Drops IPv6 packets if IPv6 module is not
+    loaded
+
+ net/bridge/br_netfilter_hooks.c | 2 ++
+ net/netfilter/nft_fib_netdev.c  | 3 +++
+ 2 files changed, 5 insertions(+)
+
+-- 
+2.20.1
+
