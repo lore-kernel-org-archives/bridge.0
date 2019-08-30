@@ -1,16 +1,15 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-Date: Wed, 28 Aug 2019 23:53:04 +0200
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20190828215302.6i5mezmtnv57m2vy@soft-dev3.microsemi.net>
-References: <1566807075-775-1-git-send-email-horatiu.vultur@microchip.com>
-	<20190826123811.GA13411@lunn.ch>
-	<20190827101033.g2cb6j2j4kuyzh2a@soft-dev3.microsemi.net>
-	<20190827131824.GC11471@lunn.ch>
+Return-Path: <fw@strlen.de>
+Date: Fri, 30 Aug 2019 22:55:41 +0200
+From: Florian Westphal <fw@strlen.de>
+Message-ID: <20190830205541.GR20113@breakpoint.cc>
+References: <20190830181354.26279-1-leonardo@linux.ibm.com>
+	<20190830181354.26279-3-leonardo@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190827131824.GC11471@lunn.ch>
-Subject: Re: [Bridge] [PATCH v2 0/3] Add NETIF_F_HW_BR_CAP feature
+In-Reply-To: <20190830181354.26279-3-leonardo@linux.ibm.com>
+Subject: Re: [Bridge] [PATCH v4 2/2] net: br_netfiler_hooks: Drops IPv6
+ packets if IPv6 module is not loaded
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,53 +18,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: alexandre.belloni@bootlin.com, f.fainelli@gmail.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, allan.nielsen@microchip.com, davem@davemloft.net
+To: Leonardo Bras <leonardo@linux.ibm.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-The 08/27/2019 15:18, Andrew Lunn wrote:
-> External E-Mail
+Leonardo Bras <leonardo@linux.ibm.com> wrote:
+> A kernel panic can happen if a host has disabled IPv6 on boot and have to
+> process guest packets (coming from a bridge) using it's ip6tables.
 > 
+> IPv6 packets need to be dropped if the IPv6 module is not loaded.
 > 
-> > That sounds like a great idea. I was expecting to add this logic in the
-> > set_rx_mode function of the driver. But unfortunetly, I got the calls to
-> > this function before the dev->promiscuity is updated or not to get the
-> > call at all. For example in case the port is member of a bridge and I try
-> > to enable the promisc mode.
+> Signed-off-by: Leonardo Bras <leonardo@linux.ibm.com>
+> ---
+>  net/bridge/br_netfilter_hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> Hi Horatiu
+> diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+> index d3f9592f4ff8..5e8693730df1 100644
+> --- a/net/bridge/br_netfilter_hooks.c
+> +++ b/net/bridge/br_netfilter_hooks.c
+> @@ -493,6 +493,8 @@ static unsigned int br_nf_pre_routing(void *priv,
+>  	brnet = net_generic(state->net, brnf_net_id);
+>  	if (IS_IPV6(skb) || is_vlan_ipv6(skb, state->net) ||
+>  	    is_pppoe_ipv6(skb, state->net)) {
+> +		if (!ipv6_mod_enabled())
+> +			return NF_DROP;
+>  		if (!brnet->call_ip6tables &&
+>  		    !br_opt_get(br, BROPT_NF_CALL_IP6TABLES))
+>  			return NF_ACCEPT;
 
-Hi Andrew,
-> 
-> What about the notifier? Is it called in all the conditions you need
-> to know about?
+No, thats too aggressive and turns the bridge into an ipv6 blackhole.
 
-I had a look also over this but without any luck. I can get good
-information from this, like knowing when a port is added or removed from
-the bridge(NETDEV_CHANGEUPPER). But not in case the promisc is change by
-an application(eg. tcpdump). In this case if port is part of the bridge
-and then promisc is enable, then there is no callback to the driver or
-any notifications.
-> 
-> Or, you could consider adding a new switchdev call to pass this
-> information to any switchdev driver which is interested in the
-> information.
+There are two solutions:
+1. The above patch, but use NF_ACCEPT instead
+2. keep the DROP, but move it below the call_ip6tables test,
+   so that users can tweak call-ip6tables to accept packets.
 
-Having this new switchdev call and listening for NETDEV_CHANGEUPPER
-seems to be enough to know when a port needs to go in promisc mode.
-> 
-> At the moment, the DSA driver core does not pass onto the driver it
-> should put a port into promisc mode. So pcap etc, will only see
-> traffic directed to the CPU, not all the traffic ingressing the
-> interface. If you put the needed core infrastructure into place, we
-> could plumb it down from the DSA core to DSA drivers.
-> 
-> Having said that, i don't actually know if the Marvell switches
-> support this. Forward using the ATU and send a copy to the CPU?  What
-> switches tend to support is port mirroring, sending all the traffic
-> out another port. A couple of DSA drivers support that, via TC.
-> 
-> 	Andrew
-> 
+Perhaps it would be good to also add a pr_warn_once() that
+tells that ipv6 was disabled on command line and
+call-ip6tables isn't supported in this configuration.
 
--- 
-/Horatiu
+I would go with option two.
