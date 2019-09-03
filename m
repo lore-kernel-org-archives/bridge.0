@@ -1,27 +1,16 @@
-Return-Path: <zahari.doychev@googlemail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=googlemail.com; s=20161025;
-	h=sender:date:from:to:cc:subject:message-id:references:mime-version
-	:content-disposition:in-reply-to:user-agent;
-	bh=XXWSbLsKaHg5I5JkLpivESPwDR8ogw0XgJNZimWH3ok=;
-	b=Teo2ZSWsXJgYtI6aGJ8QIQR+ijFjruZMSiEKuPtDDv0rMWQA0JmLG8nCCISOKQnYOy
-	NetFt3DFd8uyAB6021HDj4DFccgfSM4sBbIlxeI1rKOwg3QzraEgEh+ThJcOSdrv5d55
-	uExIHOud/g8s4F0JPk7gKA21BRQPPzEtOtip2/XRe+lhkE11tZ4PWNIMOWN5QJZqWTtK
-	Fdb1GR/CCAVhWDIN7dqtnJ8cf1VY4BVaHTBaPKv3H8hPnsdvKauzoulc4sl9lfsh9RoR
-	ZfIpNv+vVinopMauyptxX2ecDAnDzLuhRMkyoBI06LnO1RCjRYVURbwuBH0N63JG858w
-	Z6xA==
-Sender: Zahari Doychev <zahari.doychev@googlemail.com>
-Date: Tue, 3 Sep 2019 15:36:36 +0200
-From: Zahari Doychev <zahari.doychev@linux.com>
-Message-ID: <20190903133635.siw6xcaqwk7m5a5a@tycho>
-References: <20190902181000.25638-1-zahari.doychev@linux.com>
-	<76b7723b-68dd-0efc-9a93-0597e9d9b827@gmail.com>
+Return-Path: <leonardo@linux.ibm.com>
+Message-ID: <99e3ef9c5ead1c95df697d49ab9cc83a95b0ac7c.camel@linux.ibm.com>
+From: Leonardo Bras <leonardo@linux.ibm.com>
+Date: Tue, 03 Sep 2019 13:46:50 -0300
+In-Reply-To: <20190830205802.GS20113@breakpoint.cc>
+References: <20190830181354.26279-1-leonardo@linux.ibm.com>
+	<20190830181354.26279-2-leonardo@linux.ibm.com>
+	<20190830205802.GS20113@breakpoint.cc>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+	protocol="application/pgp-signature"; boundary="=-rrgSbHLI/0xPSTHf0NdV"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <76b7723b-68dd-0efc-9a93-0597e9d9b827@gmail.com>
-Subject: Re: [Bridge] [PATCH v3 1/2] net: bridge: use mac_len in bridge
- forwarding
+Subject: Re: [Bridge] [PATCH v4 1/2] netfilter: Terminate rule eval if
+ protocol=IPv6 and ipv6 module is disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,76 +19,71 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Cc: bridge@lists.linux-foundation.org, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, makita.toshiaki@lab.ntt.co.jp, jhs@mojatatu.com, alexei.starovoitov@gmail.com, simon.horman@netronome.com, xiyou.wangcong@gmail.com, johannes@sipsolutions.net, dsahern@gmail.com
-
-On Tue, Sep 03, 2019 at 08:37:36PM +0900, Toshiaki Makita wrote:
-> Hi Zahari,
-> 
-> Sorry for reviewing this late.
-> 
-> On 2019/09/03 3:09, Zahari Doychev wrote:
-> ...
-> > @@ -466,13 +466,14 @@ static bool __allowed_ingress(const struct net_bridge *br,
-> >   		/* Tagged frame */
-> >   		if (skb->vlan_proto != br->vlan_proto) {
-> >   			/* Protocol-mismatch, empty out vlan_tci for new tag */
-> > -			skb_push(skb, ETH_HLEN);
-> > +			skb_push(skb, skb->mac_len);
-> >   			skb = vlan_insert_tag_set_proto(skb, skb->vlan_proto,
-> >   							skb_vlan_tag_get(skb));
-> 
-> I think we should insert vlan at skb->data, i.e. mac_header + mac_len, while this
-> function inserts the tag at mac_header + ETH_HLEN which is not always the correct
-> offset.
-
-Maybe I am misunderstanding the concern here but this should make sure that
-the VLAN tag from the skb is move back in the payload as the outer most tag.
-So it should follow the ethernet header. It looks like this e.g.,:
-
-VLAN1 in skb:
-+------+------+-------+
-| DMAC | SMAC | ETYPE |
-+------+------+-------+
-
-VLAN1 moved to payload:
-+------+------+-------+-------+
-| DMAC | SMAC | VLAN1 | ETYPE |
-+------+------+-------+-------+
-
-VLAN2 in skb:
-+------+------+-------+-------+
-| DMAC | SMAC | VLAN1 | ETYPE |
-+------+------+-------+-------+
-
-VLAN2 moved to payload:
-
-+------+------+-------+-------+
-| DMAC | SMAC | VLAN2 | VLAN1 | ....
-+------+------+-------+-------+
-
-Doing the skb push with mac_len makes sure that VLAN tag is inserted in the
-correct offset. For mac_len == ETH_HLEN this does not change the current
-behaviour.
-
-> 
-> >   			if (unlikely(!skb))
-> >   				return false;
-> >   			skb_pull(skb, ETH_HLEN);
-> 
-> Now skb->data is mac_header + ETH_HLEN which would be broken when mac_len is not
-> ETH_HLEN?
-
-I thought it would be better to point in this case to the outer tag as otherwise
-if mac_len is used the skb->data will point to the next tag which I find somehow
-inconsistent or do you see some case where this can cause problems?
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, FlorianWestphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
 
-> 
-> > +			skb_reset_network_header(skb);
-> >   			skb_reset_mac_len(skb);
-> >   			*vid = 0;
-> >   			tagged = false;
-> > 
-> 
-> Toshiaki Makita
+--=-rrgSbHLI/0xPSTHf0NdV
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2019-08-30 at 22:58 +0200, Florian Westphal wrote:
+> Leonardo Bras <leonardo@linux.ibm.com> wrote:
+> > If IPv6 is disabled on boot (ipv6.disable=3D1), but nft_fib_inet ends u=
+p
+> > dealing with a IPv6 packet, it causes a kernel panic in
+> > fib6_node_lookup_1(), crashing in bad_page_fault.
+> >=20
+> > The panic is caused by trying to deference a very low address (0x38
+> > in ppc64le), due to ipv6.fib6_main_tbl =3D NULL.
+> > BUG: Kernel NULL pointer dereference at 0x00000038
+> >=20
+> > The kernel panic was reproduced in a host that disabled IPv6 on boot an=
+d
+> > have to process guest packets (coming from a bridge) using it's ip6tabl=
+es.
+> >=20
+> > Terminate rule evaluation when packet protocol is IPv6 but the ipv6 mod=
+ule
+> > is not loaded.
+> >=20
+> > Signed-off-by: Leonardo Bras <leonardo@linux.ibm.com>
+>=20
+> Acked-by: Florian Westphal <fw@strlen.de>
+>=20
+
+Hello Pablo,
+
+Any trouble with this patch?=20
+I could see the other* one got applied, but not this one.
+*(The other did not get acked, so i released it alone as v5)
+
+Is there any fix I need to do in this one?
+
+Best regards,
+Leonardo Bras
+
+--=-rrgSbHLI/0xPSTHf0NdV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEMdeUgIzgjf6YmUyOlQYWtz9SttQFAl1umPoACgkQlQYWtz9S
+ttTiuA//eKqD59zYaIAIlPAbMVWkpOfquO4lDm1Xeh+YuLGxUkxsydD1UoScNzBr
++TWn4e6Lb3ky6T51kawUC3oZOgz8Czxzx/Rmcs7SYVVzQpj+eTnAlRROcMg4oFr2
+t6d8Bm2MRJeFd6nAw5KUsdFIgF7zng6qAq6NNBJprF90lM9l88w7D5vwGhUs6rOx
+aGNG98+5JUM7D19OcfPuCNAf3mk5eWlYMouBHroAe5DMy93xLtacFMmUxtUrwz14
+SooMEazcmg3TejHyYBE81lqU2J81CJhXBF0IkmzivMG7BCI47piq4+DF0tjg2Zqx
+C+SxMJVW7szxurSiyAsLktbY8/fS4c0gtTneqHM5dDezY5YIRLKQGiDV5BUQ0+UK
+zMB0UY4dlYbeBSqlmtfIuSnQakz0bBzNd1YVxfzo7rSMab3AAOqrkjPdi2HBRAw5
+Q+9G3S2gF1CTLHZx0ybMBvFw79tWsBcUINx82nWJcUqEPaGNW4bhByxaG+CLQ8+s
+5jQkDUrfgi75TrE2EBGJBOU94XAh5j1AHMrGLYu3Dq6wdNW4B527T1y51V2+zrBB
+6vLlhpUuQz/g+YLgV8sc9UqRmpq1zi4kASkDI4lMN7ku4f+jvkpau0nT+QDGkL1/
+zzA1mzWsg1sMbMDIPQ60FSv5a6n6pcyoQRqj5Y50wqpiW2pYW3M=
+=8B6P
+-----END PGP SIGNATURE-----
+
+--=-rrgSbHLI/0xPSTHf0NdV--
+
