@@ -1,7 +1,7 @@
-Return-Path: <fw@strlen.de>
-Date: Tue, 3 Sep 2019 22:35:31 +0200
-From: Florian Westphal <fw@strlen.de>
-Message-ID: <20190903203531.GF13660@breakpoint.cc>
+Return-Path: <pablo@netfilter.org>
+Date: Tue, 3 Sep 2019 22:55:09 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20190903205509.y6bus5gw4jdw5d7l@salvia>
 References: <20190830181354.26279-1-leonardo@linux.ibm.com>
 	<20190830181354.26279-2-leonardo@linux.ibm.com>
 	<20190830205802.GS20113@breakpoint.cc>
@@ -11,10 +11,11 @@ References: <20190830181354.26279-1-leonardo@linux.ibm.com>
 	<20190903193155.v74ws47zcn6zrwpr@salvia>
 	<20190903194809.GD13660@breakpoint.cc>
 	<20190903201904.npna6dt25ug5gwvd@salvia>
+	<20190903203531.GF13660@breakpoint.cc>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190903201904.npna6dt25ug5gwvd@salvia>
+In-Reply-To: <20190903203531.GF13660@breakpoint.cc>
 Subject: Re: [Bridge] [PATCH v4 1/2] netfilter: Terminate rule eval if
  protocol=IPv6 and ipv6 module is disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -25,23 +26,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Leonardo Bras <leonardo@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>
+To: Florian Westphal <fw@strlen.de>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Leonardo Bras <leonardo@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>
 
-Pablo Neira Ayuso <pablo@netfilter.org> wrote:
-> On Tue, Sep 03, 2019 at 09:48:09PM +0200, Florian Westphal wrote:
-> > We could do that from nft_do_chain_netdev().
+On Tue, Sep 03, 2019 at 10:35:31PM +0200, Florian Westphal wrote:
+> Pablo Neira Ayuso <pablo@netfilter.org> wrote:
+> > On Tue, Sep 03, 2019 at 09:48:09PM +0200, Florian Westphal wrote:
+> > > We could do that from nft_do_chain_netdev().
+> > 
+> > Indeed, this is all about the netdev case.
+> > 
+> > Probably add something similar to nf_ip6_route() to deal with
+> > ip6_route_lookup() case? This is the one trigering the problem, right?
 > 
-> Indeed, this is all about the netdev case.
+> Yes, this particular problem is caused by ipv6 fib not being
+> initialized due to ipv6.disable=1.  I don't know if there are cases
+> other than FIB.
 > 
-> Probably add something similar to nf_ip6_route() to deal with
-> ip6_route_lookup() case? This is the one trigering the problem, right?
+> > BTW, how does nft_fib_ipv6 module kicks in if ipv6 module is not
+> > loaded? The symbol dependency would pull in the IPv6 module anyway.
+> 
+> ipv6.disabled=1 does load the ipv6 module, but its non-functional.
 
-Yes, this particular problem is caused by ipv6 fib not being
-initialized due to ipv6.disable=1.  I don't know if there are cases
-other than FIB.
-
-> BTW, how does nft_fib_ipv6 module kicks in if ipv6 module is not
-> loaded? The symbol dependency would pull in the IPv6 module anyway.
-
-ipv6.disabled=1 does load the ipv6 module, but its non-functional.
+I see, thanks for explaining.
