@@ -1,26 +1,22 @@
-Return-Path: <ikalvachev@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-	:cc:content-transfer-encoding;
-	bh=rs2RJDT5CsHbbEtk6Tq8OPTXVr0+QPsaOdJbfaooK0s=;
-	b=aj0n9SYvFIYCRxpn20Jz+FRTJT0KI+N5uVRMrxxEpuhyjLbdEoS1G9UzMTavhqTMWL
-	1LCe2i8i2ERqrH2v8e+Br3FQO+eO6jERm2FkKcW6wPK0ChFI2+XTooznTacB4rvoJzbJ
-	EwL2dOAquvmqhdDCmqLqSIMqII9gJxgpCwt4zV/JvI+xFOKzoT9d2Gxer0x6aoxYbYFw
-	PfcImqKzbV6AYykpbw9rwmP+G5tfi1N5t8tyx5ueI1CdVQ14TsY2lS6yEO5k5j41/Gpy
-	JPpOQXcdiOsRx8HloPeT68q5AHuowfy7lgwJaRyrfeF0Jdy0vCjpTW0WM1crdjdZ7sIC
-	OJgQ==
-MIME-Version: 1.0
-In-Reply-To: <20190807155738.GA9394@azazel.net>
-References: <20190807183606.372ca1a4@canb.auug.org.au>
-	<f54391d9-6259-d08b-8b5f-c844093071d8@infradead.org>
-	<20190807155738.GA9394@azazel.net>
-From: Ivan Kalvachev <ikalvachev@gmail.com>
-Date: Tue, 24 Sep 2019 01:26:22 +0300
-Message-ID: <CABA=pqeES0C2+7GpAOYuCOqd5DrbZhjS1Tkrxn4kGxXQJkrAfg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <andreas.triller@ledlenser.com>
+From: Andreas Triller <andreas.triller@ledlenser.com>
+Date: Wed, 2 Oct 2019 12:00:46 +0000
+Message-ID: <ce505dbeaf6345049e43b3ff2a3bf260@ex13.zweibrueder.com>
+Content-Language: de-DE
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] linux-next: Tree for Aug 7
-	(net/bridge/netfilter/nf_conntrack_bridge.c)
+MIME-Version: 1.0
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; d=ledlenser.com;
+	s=ledlenser.com_19; c=relaxed/relaxed; 
+	h=from:to:subject:date:message-id:content-type:mime-version;
+	bh=E2m385NOBg54L8KTHwA5prBk0f5tcPCFzfd5bDjkeVs=;
+	b=N+u4+kcONJeM6+CQZ21WQHcvhms1lXR6Ti4O7PrA3OaIiE9miIap2RHecMGClD62uIMuKgi3X8H9
+	3Ppk41RRnRmGDinNHPsVtvc7MVsfGTsZPvaqDhUcysBOssD8aW1DISMfqWPJu0frzlmCTeSNlJkA
+	H9EldSLqbtYSj+jR5qiZTlr9saUnIaH3jsfZ9PKV4gFlAWYGm6sVlfOStatFvOKhxqRcJHHutcA0
+	r9YdZQkMZmfFF276OE2vjUiHXlvLFBgdHcNyqnNAuITeYhDbiqU7cU24wLfhpfp6iGNtJ3PyIQMy
+	d0WNM8BEBNTlrs8CPmD2DP+GHaT+zxEmBN8N5A==
+Subject: Re: [Bridge] linux bridge does not forward arp reply back packets
+ in a vmware vm
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,38 +25,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jeremy Sowden <jeremy@azazel.net>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Randy Dunlap <rdunlap@infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Next Mailing List <linux-next@vger.kernel.org>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "adrian27oradea@gmail.com" <adrian27oradea@gmail.com>
 
-On 8/7/19, Jeremy Sowden <jeremy@azazel.net> wrote:
-> On 2019-08-07, at 08:29:44 -0700, Randy Dunlap wrote:
->> On 8/7/19 1:36 AM, Stephen Rothwell wrote:
->> > Hi all,
->> >
->> > Changes since 20190806:
->>
->> on i386:
->> when CONFIG_NF_TABLES is not set/enabled:
->>
->>   CC      net/bridge/netfilter/nf_conntrack_bridge.o
->> In file included from
->> ../net/bridge/netfilter/nf_conntrack_bridge.c:21:0:
->> ../include/net/netfilter/nf_tables.h: In function
->> =E2=80=98nft_gencursor_next=E2=80=99:
->> ../include/net/netfilter/nf_tables.h:1224:14: error: =E2=80=98const stru=
-ct
->> net=E2=80=99 has no member named =E2=80=98nft=E2=80=99; did you mean =E2=
-=80=98nf=E2=80=99?
->>   return net->nft.gencursor + 1 =3D=3D 1 ? 1 : 0;
->>               ^~~
->
-> I've just posted a series of fixes for netfilter header compilation
-> failures, and I think it includes the fix for that:
->
->
-> https://lore.kernel.org/netdev/20190807141705.4864-5-jeremy@azazel.net/T/=
-#u
+Dear Adrian,
 
-Have these patches been committed?
+Thanks a lot for posting this to the mailing list. I had almost the exact s=
+ame setup and hit the same problem. Your post lead me to the solution.
+In my case I use 2 Linux bridges connected with a VxLAN tunnel which then g=
+oes through an IPSec VPN over the internet. (Meant to stretch some VLANs on=
+ Layer 2 over a standard ISP line.)
 
-I just hit the same bug in linux-5.3.1 release.
+[ESXi with productive servers and Linux bridge]--[VxLAN<->IPSec]--(Internet=
+)--[IPSec<->VxLAN]--[Linux Bridge]--[Physical switch in remote office]
+
+I also saw the ARP request 3 times in a capture, which as you wrote explain=
+s why the bridge fails in standard mode. I could also make it work by setti=
+ng the setageing parameter to 0.
+In the end I am quite sure I know what caused the multiplied ARP requests, =
+in case you did not find out yourself.
+My Linux bridges are VMs inside 2 different ESXi hosts. The tap device of t=
+he bridge was connected to a portgroup on a vswitch which allowed promiscuo=
+us mode and had VLAN 4095 assigned, which means "all VLANs".
+I was quite surprised when I sniffed the traffic coming out of the far side=
+ bridge, since it contained complete IP conversations between other VMs liv=
+ing on the same ESXi host as the near end bridge! Not only broadcasts where=
+ transmitted, but everything the vswitch handled.
+To mitigate, I moved the tap device of the Linux bridges to a new vswitch w=
+ith only one port group (also VLAN 4095), connected to the physical switch =
+by a dedicated uplink. This lets the physical switch filter all traffic tha=
+t is not meant to enter the tunnel. This also stopped the multiplied ARP re=
+quests, so I could revert the bridges back to the normal mode with MAC agei=
+ng. I guess the reason for the multiplied ARP requests was the existence of=
+ the other port groups in the same vswitch as the tap device, maybe in comb=
+ination with promiscuous mode.
+
+Thanks a lot again for your input, you stopped me scratching my head.
+
+Best regards
+
+Andreas Triller
+
+On Mon, Dec 18, 2017 at 10:05 AM, Adrian Pascalau
+<https://lists.linuxfoundation.org/mailman/listinfo/bridge> wrote:
+> On Mon, Dec 18, 2017 at 4:54 AM, Toshiaki Makita
+> <https://lists.linuxfoundation.org/mailman/listinfo/bridge> wrote:
+>> On 2017/12/17 5:01, Adrian P wrote:
+>> ...
+>>> Further investigation reveals something strange: when the
+>>> communication starts with an arp request (which happens almost all the
+>>> time), the bridge wrongly assigns the eth0 mac address to port 1,
+>>> instead of port 3.
+>>>
+>>> Flow again:
+>>>
+>>> default gw --- vmware --- [ ens160 bridge tap ] --- eth0
+>>>
+>>> On my bridge, ens160 is port 1, and the tap interface is port 3. Eth0
+>>> mac address is fa:16:3e:9a:04:95
+>>>
+>>> What I have found is that in the forwarding table, the bridge wrongly
+>>> assigns the eth0 mac address to the port 1, which is ens160 interface,
+>>> instead of assigning it to the port 3, which is the tap interface.
+>>> This happens only if the arp table in the cirros VM instance does not
+>>> contain the mac address of the destination I am pinging (default gw in
+>>> this case), so the cirros VM sends an arp request. See below the eth0
+>>> mac address wrongly  assigned in the forwarding table to the port 1:
+>>>
+>>> # brctl showmacs brq025a9a94-58 | grep fa:16:3e:9a:04:95
+>>>   1     fa:16:3e:9a:04:95       no                 0.67
+>>>
+>>> However, if I manually add the mac address of the destination IP I am
+>>> pining into the cirros VM instance arp table, and there is no arp
+>>> request sent, just icmp packets going out, then the bridge correctly
+>>> assigns the eth0 mac address to the port 3, which is the tap
+>>> interface, and everything starts working fine. See below the eth0 mac
+>>> address correctly assigned in the forwarding table to the port 3:
+
