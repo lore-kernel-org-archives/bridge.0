@@ -1,19 +1,22 @@
-Return-Path: <richard.weinberger@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
-	h=mime-version:from:date:message-id:subject:to:cc;
-	bh=RL+qRYT6Goj58mWMl95r8FGMxjYOCcO4sf1iNuaKh9U=;
-	b=dMpX4osW+Gizh9wuXThIULR+SMojXNXSVsVvoWi5OvVzxXiLGj195gyZ0EdA3ugmnf
-	pNJa9ZRwkxgN96umOkiqmG22sEeEnHfHxbwOCABF932ETOIQozeKKpwV4kOYVqDZdYpg
-	HCazf1SLvF8mNO3JApRICKFlRopM9A0+MQ9KKpJvlyBDThEZ2i3z8fb3COic55OAQtJM
-	8uPRQDu4QUAbItWuMpA1YNQofcuzZx5hpVW/0/UlNHEzP8FGK2ePDh9KDJ/pasgRXdbd
-	qmhX6qiIJmhColRpPsyAtExuKOWc9pX84aDJFFd9WvWi3x/EZikS4XryeAB1saHR+0vu
-	jghQ==
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=cumulusnetworks.com; s=google;
+	h=date:in-reply-to:references:mime-version:content-transfer-encoding
+	:subject:to:cc:from:message-id;
+	bh=vb+V5G1fB6s4se4aNOPSNT85ySMUe6CSa81Te8JBoRE=;
+	b=Ws9ob7nauEn+3EsJY6I5+GXnH49DvTwHXX/MxLUJ3LY8uxK868wT+FZpNOmdrNlOgT
+	xkdZCWfJ6AiUBpIoNJm5/bjk09IK4XLr+8YirI5DC0dOgbs//TjihQtEVMK8ymCVAWQ6
+	v1pEcVGEFGd+XsMDjbejhcZ+W0iUpyWyU/DtQ=
+Date: Tue, 15 Oct 2019 12:48:58 +0200
+In-Reply-To: <CAFLxGvwnOi6dSq5yLM78XskweQOY6aPbRt==G9wv5qS+dfj8bw@mail.gmail.com>
+References: <CAFLxGvwnOi6dSq5yLM78XskweQOY6aPbRt==G9wv5qS+dfj8bw@mail.gmail.com>
 MIME-Version: 1.0
-From: Richard Weinberger <richard.weinberger@gmail.com>
-Date: Mon, 14 Oct 2019 22:33:22 +0200
-Message-ID: <CAFLxGvwnOi6dSq5yLM78XskweQOY6aPbRt==G9wv5qS+dfj8bw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: [Bridge] Bridge port userspace events broken?
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: nikolay@cumulusnetworks.com
+Message-ID: <3A7BDEE0-7C07-4F23-BA01-F32AD41451BB@cumulusnetworks.com>
+Subject: Re: [Bridge] Bridge port userspace events broken?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,36 +25,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: nikolay@cumulusnetworks.com, Greg KH <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
+To: Richard Weinberger <richard.weinberger@gmail.com>, netdev@vger.kernel.org
+Cc: Greg KH <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
 
-Hi!
+On 14 October 2019 22:33:22 CEST, Richard Weinberger <richard=2Eweinberger@=
+gmail=2Ecom> wrote:
+>Hi!
+>
+>My userspace needs /sys/class/net/eth0/brport/group_fwd_mask, so I set
+>up udev rules
+>to wait for the sysfs file=2E
+>Without luck=2E
+>Also "udevadm monitor" does not show any event related to
+>/sys/class/net/eth0/brport when I assign eth0 to a bridge=2E
+>
+>First I thought that the bridge code just misses to emit some events
+>but
+>br_add_if() calls kobject_uevent() which is good=2E
+>
+>Greg gave me the hint that the bridge code might not use the kobject
+>model
+>correctly=2E
+>
+>Enabling kobjekt debugging shows that all events are dropped:
+>[   36=2E904602] device eth0 entered promiscuous mode
+>[   36=2E904786] kobject: 'brport' (0000000028a47e33): kobject_uevent_env
+>[   36=2E904789] kobject: 'brport' (0000000028a47e33):
+>kobject_uevent_env: filter function caused the event to drop!
+>
+>If I understood Greg correctly this is because the bridge code uses
+>plain kobjects which
+>have a parent object=2E Therefore all events are dropped=2E
+>
+>Shouldn't brport be a kset just like net_device->queues_kset?
 
-My userspace needs /sys/class/net/eth0/brport/group_fwd_mask, so I set
-up udev rules
-to wait for the sysfs file.
-Without luck.
-Also "udevadm monitor" does not show any event related to
-/sys/class/net/eth0/brport when I assign eth0 to a bridge.
 
-First I thought that the bridge code just misses to emit some events but
-br_add_if() calls kobject_uevent() which is good.
+Hi Richard,=20
+I'm currently traveling and will be out of reach until mid-next week when =
+I'll be
+able to take a closer look, but one thing which comes to mind is that on
+any bridge/port option change there should also be a netlink notification =
+which
+you could use=2E I'll look into this and will probably cook a fix, if anyo=
+ne hasn't
+beaten me to it by then=2E :)=20
 
-Greg gave me the hint that the bridge code might not use the kobject model
-correctly.
-
-Enabling kobjekt debugging shows that all events are dropped:
-[   36.904602] device eth0 entered promiscuous mode
-[   36.904786] kobject: 'brport' (0000000028a47e33): kobject_uevent_env
-[   36.904789] kobject: 'brport' (0000000028a47e33):
-kobject_uevent_env: filter function caused the event to drop!
-
-If I understood Greg correctly this is because the bridge code uses
-plain kobjects which
-have a parent object. Therefore all events are dropped.
-
-Shouldn't brport be a kset just like net_device->queues_kset?
-
--- 
-Thanks,
-//richard
+Cheers,
+  Nik
