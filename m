@@ -1,14 +1,12 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 29 Oct 2019 18:13:06 -0700 (PDT)
-Message-Id: <20191029.181306.2176110994019095777.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20191029114559.28653-1-nikolay@cumulusnetworks.com>
-References: <20191029114559.28653-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 0/7] net: bridge: convert fdbs to use
-	bitops
+Return-Path: <3CcS3XQkbAGQUabMCNNGTCRRKF.IQQINGWUGTEQPVGPV.EQO@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+MIME-Version: 1.0
+Date: Mon, 28 Oct 2019 21:46:01 -0700
+In-Reply-To: <000000000000fc25a1059602460a@google.com>
+Message-ID: <0000000000000987900596054b0f@google.com>
+From: syzbot <syzbot+0d083911ab18b710da71@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Subject: Re: [Bridge] INFO: trying to register non-static key in
+	bond_3ad_update_lacp_rate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +15,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
+To: a@unstable.cc, alex.aring@gmail.com, allison@lohutok.net, andrew@lunn.ch, andy@greyhouse.net, ap420073@gmail.com, aroulin@cumulusnetworks.com, ast@domdv.de, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, cleech@redhat.com, daniel@iogearbox.net, davem@davemloft.net, dcaratti@redhat.com, dsa@cumulusnetworks.com, edumazet@google.com, f.fainelli@gmail.com, fw@strlen.de, gregkh@linuxfoundation.org, gustavo@embeddedor.com, gvaradar@cisco.com, haiyangz@microsoft.com, idosch@mellanox.com, info@metux.net, ivan.khoronzhuk@linaro.org, j.vosburgh@gmail.com, j@w1.fi, jakub.kicinski@netronome.com, jhs@mojatatu.com, jiri@mellanox.com, jiri@resnulli.us, johan.hedberg@gmail.com, johannes.berg@intel.com, john.hurley@netronome.com, jwi@linux.ibm.com, kstewart@linuxfoundation.org, kvalo@codeaurora.org, kys@microsoft.com, lariel@mellanox.com, linmiaohe@huawei.com, linux-bluetooth@vger.kernel.org, linux-hams@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org, linux-wireless@vger.kernel.org, linux-wpan@vger.kernel.org, liuhangbin@gmail.com, marcel@holtmann.org, mareklindner@neomailbox.ch
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 29 Oct 2019 13:45:52 +0200
+syzbot has bisected this bug to:
 
-> We'd like to have a well-defined behaviour when changing fdb flags. The
-> problem is that we've added new fields which are changed from all
-> contexts without any locking. We are aware of the bit test/change races
-> and these are fine (we can remove them later), but it is considered
-> undefined behaviour to change bitfields from multiple threads and also
-> on some architectures that can result in unexpected results,
-> specifically when all fields between the changed ones are also
-> bitfields. The conversion to bitops shows the intent clearly and
-> makes them use functions with well-defined behaviour in such cases.
-> There is no overhead for the fast-path, the bit changing functions are
-> used only in special cases when learning and in the slow path.
-> In addition this conversion allows us to simplify fdb flag handling and
-> avoid bugs for future bits (e.g. a forgetting to clear the new bit when
-> allocating a new fdb). All bridge selftests passed, also tried all of the
-> converted bits manually in a VM.
+commit ab92d68fc22f9afab480153bd82a20f6e2533769
+Author: Taehee Yoo <ap420073@gmail.com>
+Date:   Mon Oct 21 18:47:51 2019 +0000
 
-Series applied, thanks.
+     net: core: add generic lockdep keys
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1467f674e00000
+start commit:   60c1769a Add linux-next specific files for 20191028
+git tree:       linux-next
+final crash:    https://syzkaller.appspot.com/x/report.txt?x=1667f674e00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=1267f674e00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=cb86688f30db053d
+dashboard link: https://syzkaller.appspot.com/bug?extid=0d083911ab18b710da71
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15381ee0e00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11571570e00000
+
+Reported-by: syzbot+0d083911ab18b710da71@syzkaller.appspotmail.com
+Fixes: ab92d68fc22f ("net: core: add generic lockdep keys")
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
