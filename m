@@ -3,19 +3,19 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=I8hGSuiDX0siuyCstsxGZV1KLBVAGFihygZ3ZtImzPE=;
-	b=bTPrn29DM4oxQdTG9g2LPl94YKLIXY4Q+Mt5OJFj9hTIE8Rcc+KdHCoxhdonjxjFOO
-	a+WM8zrbbykyb6weBLkEtrbqqJSCx5JShRTlmDb4mvwAyhxNIdO8S/qmN24e8wqQdg81
-	rFRwvcZe8JN25EIs4EQNf2+rhglkfRwfaf8AI=
+	bh=JRmAVX0LKzbwaoPbTw2s+8QG+vaakhy1/lXDson76Zo=;
+	b=Xrh7EMh8ZzcIz9hX2sDR0DJOKVDQoj4Nu3vjKEi+eq+VzrrV/x2n3lmXMHPT7Chosq
+	t8UTBs3G1A30iC2xGNLOjpvsCkHi5wxwWbAhHtxbcIERSyVSDdxYvuYj/xc6iA55+6Zg
+	dCdJ75Vkt65BxiPjxakhEq/v/8FobnlaDtqjo=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri,  1 Nov 2019 14:38:43 +0200
-Message-Id: <20191101123844.17518-4-nikolay@cumulusnetworks.com>
+Date: Fri,  1 Nov 2019 14:38:44 +0200
+Message-Id: <20191101123844.17518-5-nikolay@cumulusnetworks.com>
 In-Reply-To: <20191101123844.17518-1-nikolay@cumulusnetworks.com>
 References: <20191101123844.17518-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 2/3] net: bridge: fdb: avoid two atomic
-	bitops in br_fdb_external_learn_add()
+Subject: [Bridge] [PATCH net-next 3/3] net: bridge: fdb: restore unlikely()
+	when taking over externally added entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,38 +27,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-If we setup the fdb flags prior to calling fdb_create() we can avoid
-two atomic bitops when learning a new entry.
+Taking over hw-learned entries is not a likely scenario so restore the
+unlikely() use for the case of SW taking over externally learned
+entries.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_fdb.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ net/bridge/br_fdb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index b37e0f4c1b2b..7500c84fc675 100644
+index 7500c84fc675..284b3662d234 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -1113,14 +1113,15 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 
- 	fdb = br_fdb_find(br, addr, vid);
- 	if (!fdb) {
--		fdb = fdb_create(br, p, addr, vid, 0);
-+		unsigned long flags = BIT(BR_FDB_ADDED_BY_EXT_LEARN);
-+
-+		if (swdev_notify)
-+			flags |= BIT(BR_FDB_ADDED_BY_USER);
-+		fdb = fdb_create(br, p, addr, vid, flags);
- 		if (!fdb) {
- 			err = -ENOMEM;
- 			goto err_unlock;
- 		}
--		if (swdev_notify)
--			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
--		set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags);
- 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
- 	} else {
- 		fdb->updated = jiffies;
+@@ -587,8 +587,10 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 				fdb->dst = source;
+ 				fdb_modified = true;
+ 				/* Take over HW learned entry */
+-				test_and_clear_bit(BR_FDB_ADDED_BY_EXT_LEARN,
+-						   &fdb->flags);
++				if (unlikely(test_bit(BR_FDB_ADDED_BY_EXT_LEARN,
++						      &fdb->flags)))
++					clear_bit(BR_FDB_ADDED_BY_EXT_LEARN,
++						  &fdb->flags);
+ 			}
+ 			if (now != fdb->updated)
+ 				fdb->updated = now;
 -- 
 2.21.0
 
