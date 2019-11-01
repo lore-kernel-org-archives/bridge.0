@@ -3,19 +3,19 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=cumulusnetworks.com; s=google;
 	h=from:to:cc:subject:date:message-id:in-reply-to:references
 	:mime-version:content-transfer-encoding;
-	bh=x9TuCdX9GEGxaXl3QkkV+t/xdFViqljG9o/T16XlMAI=;
-	b=e/T53YKK5rhC6nUDx55dHE/D1PSESCCFoqzKlZf8IXub9dqfOGutKAWCc5yHvhRMcH
-	PHfiK2QteJnkXG8DGl1kVF9kw153uTtUl48CqBoKqwNycSFMMDk8f2kBtJDT8sVu27cu
-	g6iIlQFVouTGs9fI/qLuHqF9UJnIa/xUwJt38=
+	bh=juMaa8T+acHWGuY6rT694YoPoU3OVi+9bgYU3p25Mrw=;
+	b=CdxHlu83H3t/gtHF/riMFi+m6lNx5ThrruSpaoo+VUnK8msYMR6ciuo+wnC1b1jSqT
+	4I/Swi5lf5czdE/VjgaSq39bszkg3jtp+P3eL8JSiV0ud1VVUFeX5iAWqppQK3ZNNzIf
+	+apLsBDr7x1hBH3cIBLU9KTLjJQ/NYSFuUZxo=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri,  1 Nov 2019 14:38:41 +0200
-Message-Id: <20191101123844.17518-2-nikolay@cumulusnetworks.com>
+Date: Fri,  1 Nov 2019 14:38:42 +0200
+Message-Id: <20191101123844.17518-3-nikolay@cumulusnetworks.com>
 In-Reply-To: <20191101123844.17518-1-nikolay@cumulusnetworks.com>
 References: <20191101123844.17518-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 1/3] net: bridge: fdb: br_fdb_update can
-	take flags directly
+Subject: [Bridge] [PATCH net-next 2/3] net: bridge: fdb: avoid one atomic
+	bitop in br_fdb_external_learn_add()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,145 +27,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-If we modify br_fdb_update() to take flags directly we can get rid of
-one test and one atomic bitop in the learning path.
+If we pass the BR_FDB_ADDED_BY_EXT_LEARN flag directly to fdb_create()
+we can avoid one unconditional atomic bitop when learning a new entry.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- The trace line was over 80 chars before, now it's very close and doesn't
- look good IMO when split.
+ net/bridge/br_fdb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- include/trace/events/bridge.h | 12 ++++++------
- net/bridge/br_fdb.c           | 15 ++++++---------
- net/bridge/br_input.c         |  4 ++--
- net/bridge/br_private.h       |  2 +-
- 4 files changed, 15 insertions(+), 18 deletions(-)
-
-diff --git a/include/trace/events/bridge.h b/include/trace/events/bridge.h
-index 8ea966448b58..6b200059c2c5 100644
---- a/include/trace/events/bridge.h
-+++ b/include/trace/events/bridge.h
-@@ -95,16 +95,16 @@ TRACE_EVENT(fdb_delete,
- TRACE_EVENT(br_fdb_update,
- 
- 	TP_PROTO(struct net_bridge *br, struct net_bridge_port *source,
--		 const unsigned char *addr, u16 vid, bool added_by_user),
-+		 const unsigned char *addr, u16 vid, unsigned long flags),
- 
--	TP_ARGS(br, source, addr, vid, added_by_user),
-+	TP_ARGS(br, source, addr, vid, flags),
- 
- 	TP_STRUCT__entry(
- 		__string(br_dev, br->dev->name)
- 		__string(dev, source->dev->name)
- 		__array(unsigned char, addr, ETH_ALEN)
- 		__field(u16, vid)
--		__field(bool, added_by_user)
-+		__field(unsigned long, flags)
- 	),
- 
- 	TP_fast_assign(
-@@ -112,14 +112,14 @@ TRACE_EVENT(br_fdb_update,
- 		__assign_str(dev, source->dev->name);
- 		memcpy(__entry->addr, addr, ETH_ALEN);
- 		__entry->vid = vid;
--		__entry->added_by_user = added_by_user;
-+		__entry->flags = flags;
- 	),
- 
--	TP_printk("br_dev %s source %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u added_by_user %d",
-+	TP_printk("br_dev %s source %s addr %02x:%02x:%02x:%02x:%02x:%02x vid %u flags 0x%lx",
- 		  __get_str(br_dev), __get_str(dev), __entry->addr[0],
- 		  __entry->addr[1], __entry->addr[2], __entry->addr[3],
- 		  __entry->addr[4], __entry->addr[5], __entry->vid,
--		  __entry->added_by_user)
-+		  __entry->flags)
- );
- 
- 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index f244f2ac7156..b37e0f4c1b2b 100644
+index b37e0f4c1b2b..7db09410679b 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -557,7 +557,7 @@ int br_fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
- }
+@@ -1113,14 +1113,14 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
  
- void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
--		   const unsigned char *addr, u16 vid, bool added_by_user)
-+		   const unsigned char *addr, u16 vid, unsigned long flags)
- {
- 	struct net_bridge_fdb_entry *fdb;
- 	bool fdb_modified = false;
-@@ -592,21 +592,18 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 			}
- 			if (now != fdb->updated)
- 				fdb->updated = now;
--			if (unlikely(added_by_user))
-+			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags)))
- 				set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
- 			if (unlikely(fdb_modified)) {
--				trace_br_fdb_update(br, source, addr, vid, added_by_user);
-+				trace_br_fdb_update(br, source, addr, vid, flags);
- 				fdb_notify(br, fdb, RTM_NEWNEIGH, true);
- 			}
+ 	fdb = br_fdb_find(br, addr, vid);
+ 	if (!fdb) {
+-		fdb = fdb_create(br, p, addr, vid, 0);
++		fdb = fdb_create(br, p, addr, vid,
++				 BIT(BR_FDB_ADDED_BY_EXT_LEARN));
+ 		if (!fdb) {
+ 			err = -ENOMEM;
+ 			goto err_unlock;
  		}
+ 		if (swdev_notify)
+ 			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+-		set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags);
+ 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
  	} else {
- 		spin_lock(&br->hash_lock);
--		fdb = fdb_create(br, source, addr, vid, 0);
-+		fdb = fdb_create(br, source, addr, vid, flags);
- 		if (fdb) {
--			if (unlikely(added_by_user))
--				set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
--			trace_br_fdb_update(br, source, addr, vid,
--					    added_by_user);
-+			trace_br_fdb_update(br, source, addr, vid, flags);
- 			fdb_notify(br, fdb, RTM_NEWNEIGH, true);
- 		}
- 		/* else  we lose race and someone else inserts
-@@ -889,7 +886,7 @@ static int __br_fdb_add(struct ndmsg *ndm, struct net_bridge *br,
- 		}
- 		local_bh_disable();
- 		rcu_read_lock();
--		br_fdb_update(br, p, addr, vid, true);
-+		br_fdb_update(br, p, addr, vid, BIT(BR_FDB_ADDED_BY_USER));
- 		rcu_read_unlock();
- 		local_bh_enable();
- 	} else if (ndm->ndm_flags & NTF_EXT_LEARNED) {
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 7f5f646dba6e..f37b05090f45 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -88,7 +88,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 	/* insert into forwarding database after filtering to avoid spoofing */
- 	br = p->br;
- 	if (p->flags & BR_LEARNING)
--		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, false);
-+		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, 0);
- 
- 	local_rcv = !!(br->dev->flags & IFF_PROMISC);
- 	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest)) {
-@@ -184,7 +184,7 @@ static void __br_handle_local_finish(struct sk_buff *skb)
- 	if ((p->flags & BR_LEARNING) &&
- 	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
- 	    br_should_learn(p, skb, &vid))
--		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
-+		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, 0);
- }
- 
- /* note: already called with rcu_read_lock */
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index f4754bf7f4bd..08742bff9bf0 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -571,7 +571,7 @@ int br_fdb_fillbuf(struct net_bridge *br, void *buf, unsigned long count,
- int br_fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
- 		  const unsigned char *addr, u16 vid);
- void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
--		   const unsigned char *addr, u16 vid, bool added_by_user);
-+		   const unsigned char *addr, u16 vid, unsigned long flags);
- 
- int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
- 		  struct net_device *dev, const unsigned char *addr, u16 vid);
+ 		fdb->updated = jiffies;
 -- 
 2.21.0
 
