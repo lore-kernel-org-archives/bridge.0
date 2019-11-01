@@ -1,21 +1,14 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cumulusnetworks.com; s=google;
-	h=from:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding;
-	bh=I8hGSuiDX0siuyCstsxGZV1KLBVAGFihygZ3ZtImzPE=;
-	b=bzd/2xI1RryF7VA9zFz0u7IFLWG16bHddSXDANDFM8IQWZfVXJiUJnaLhUqfBJLHpH
-	VOZ1u3pRxiWiG0CF5AJYxY0K2+SDt79omLm4XOk2I9mjaBzAKdrnJ+FPsCG3Gg2tZkt6
-	xhNPcLx18j1clo/WBJV0PA42sDifp8loxqUjc=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Fri,  1 Nov 2019 14:46:38 +0200
-Message-Id: <20191101124639.32140-3-nikolay@cumulusnetworks.com>
+Return-Path: <davem@davemloft.net>
+Date: Fri, 01 Nov 2019 10:33:02 -0700 (PDT)
+Message-Id: <20191101.103302.244767657227182634.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20191101124639.32140-1-nikolay@cumulusnetworks.com>
 References: <20191101124639.32140-1-nikolay@cumulusnetworks.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 2/3] net: bridge: fdb: avoid two atomic
-	bitops in br_fdb_external_learn_add()
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v2 0/3] net: bridge: minor followup
+ optimizations
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
 	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,41 +17,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: nikolay@cumulusnetworks.com
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org
 
-If we setup the fdb flags prior to calling fdb_create() we can avoid
-two atomic bitops when learning a new entry.
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri,  1 Nov 2019 14:46:36 +0200
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- net/bridge/br_fdb.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+> After the converted flags to bitops we can take advantage of the flags
+> assignment and remove one test and three atomic bitops from the learning
+> paths (patch 01 and patch 02), patch 03 restores the unlikely() when taking
+> over HW learned entries.
+> 
+> v2: a clean export of the latest set version
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index b37e0f4c1b2b..7500c84fc675 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -1113,14 +1113,15 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 
- 	fdb = br_fdb_find(br, addr, vid);
- 	if (!fdb) {
--		fdb = fdb_create(br, p, addr, vid, 0);
-+		unsigned long flags = BIT(BR_FDB_ADDED_BY_EXT_LEARN);
-+
-+		if (swdev_notify)
-+			flags |= BIT(BR_FDB_ADDED_BY_USER);
-+		fdb = fdb_create(br, p, addr, vid, flags);
- 		if (!fdb) {
- 			err = -ENOMEM;
- 			goto err_unlock;
- 		}
--		if (swdev_notify)
--			set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
--		set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags);
- 		fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
- 	} else {
- 		fdb->updated = jiffies;
--- 
-2.21.0
-
+Series applied, thanks Nikolay.
