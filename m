@@ -1,12 +1,10 @@
-Return-Path: <35Y3kXQkbAIg4ABwmxxq3m11up.s00sxq64q3o0z5qz5.o0y@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <3R0TlXQkbAFoKQRC2DD6J2HHA5.8GG8D6MK6J4GFL6FL.4GE@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Date: Sun, 01 Dec 2019 20:07:01 -0800
-In-Reply-To: <000000000000c280ba05988b6242@google.com>
-Message-ID: <000000000000293e9f0598b0b69d@google.com>
-From: syzbot <syzbot+4925d60532bf4c399608@syzkaller.appspotmail.com>
+Date: Mon, 02 Dec 2019 09:05:11 -0800
+Message-ID: <0000000000001821bf0598bb955c@google.com>
+From: syzbot <syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: Re: [Bridge] BUG: sleeping function called from invalid context in
-	__alloc_pages_nodemask
+Subject: [Bridge] memory leak in fdb_create (2)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,27 +13,81 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: a@unstable.cc, akpm@linux-foundation.org, alex.aring@gmail.com, allison@lohutok.net, andrew@lunn.ch, andy@greyhouse.net, ap420073@gmail.com, aryabinin@virtuozzo.com, ast@domdv.de, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, christophe.leroy@c-s.fr, cleech@redhat.com, daniel@iogearbox.net, davem@davemloft.net, dja@axtens.net, dsa@cumulusnetworks.com, dvyukov@google.com, edumazet@google.com, f.fainelli@gmail.com, fw@strlen.de, glider@google.com, gor@linux.ibm.com, gregkh@linuxfoundation.org, gustavo@embeddedor.com, gvaradar@cisco.com, haiyangz@microsoft.com, hdanton@sina.com, idosch@mellanox.com, info@metux.net, j.vosburgh@gmail.com, j@w1.fi, jakub.kicinski@netronome.com, jhs@mojatatu.com, jiri@resnulli.us, johan.hedberg@gmail.com, johannes.berg@intel.com, jwi@linux.ibm.com, kasan-dev@googlegroups.com, kstewart@linuxfoundation.org, kvalo@codeaurora.org, kys@microsoft.com, lariel@mellanox.com, linmiaohe@huawei.com, linux-bluetooth@vger.kernel.org, linux-hams@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-ppp@vger.kernel.org
+To: bridge@lists.linux-foundation.org, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
 
-syzbot has bisected this bug to:
+Hello,
 
-commit ab92d68fc22f9afab480153bd82a20f6e2533769
-Author: Taehee Yoo <ap420073@gmail.com>
-Date:   Mon Oct 21 18:47:51 2019 +0000
+syzbot found the following crash on:
 
-     net: core: add generic lockdep keys
+HEAD commit:    ceb30747 Merge tag 'y2038-cleanups-5.5' of git://git.kerne..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=142b3e7ee00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=26f873e40f2b4134
+dashboard link: https://syzkaller.appspot.com/bug?extid=2add91c08eb181fea1bf
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12976feee00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10604feee00000
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=15769712e00000
-start commit:   419593da Add linux-next specific files for 20191129
-git tree:       linux-next
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=17769712e00000
-console output: https://syzkaller.appspot.com/x/log.txt?x=13769712e00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7c04b0959e75c206
-dashboard link: https://syzkaller.appspot.com/bug?extid=4925d60532bf4c399608
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16148e9ce00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=12a1f786e00000
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
 
-Reported-by: syzbot+4925d60532bf4c399608@syzkaller.appspotmail.com
-Fixes: ab92d68fc22f ("net: core: add generic lockdep keys")
+BUG: memory leak
+unreferenced object 0xffff888124fa7080 (size 128):
+   comm "syz-executor163", pid 7170, jiffies 4294954254 (age 12.500s)
+   hex dump (first 32 bytes):
+     d1 16 b6 1f 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+     aa aa aa aa aa 0c 00 00 00 00 00 00 00 00 00 00  ................
+   backtrace:
+     [<000000001bbce457>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000001bbce457>] slab_post_alloc_hook mm/slab.h:586 [inline]
+     [<000000001bbce457>] slab_alloc mm/slab.c:3319 [inline]
+     [<000000001bbce457>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
+     [<000000005e78ed69>] fdb_create+0x37/0x530 net/bridge/br_fdb.c:498
+     [<000000009cc867aa>] fdb_insert+0xb2/0xf0 net/bridge/br_fdb.c:537
+     [<00000000a443c9ff>] br_fdb_change_mac_address+0x80/0x1f0  
+net/bridge/br_fdb.c:316
+     [<00000000370e41a8>] br_stp_change_bridge_id+0x4c/0x190  
+net/bridge/br_stp_if.c:223
+     [<00000000db15c550>] br_set_mac_address+0xa2/0xb0  
+net/bridge/br_device.c:251
+     [<00000000547a827c>] dev_set_mac_address+0xdd/0x150 net/core/dev.c:8350
+     [<0000000068a207bd>] __bond_release_one.cold+0x319/0x4ac  
+drivers/net/bonding/bond_main.c:2055
+     [<00000000189411c7>] bond_slave_netdev_event  
+drivers/net/bonding/bond_main.c:3169 [inline]
+     [<00000000189411c7>] bond_netdev_event+0x2ac/0x2c0  
+drivers/net/bonding/bond_main.c:3280
+     [<000000002bd5677b>] notifier_call_chain+0x66/0xb0 kernel/notifier.c:95
+     [<0000000044f0058c>] __raw_notifier_call_chain kernel/notifier.c:396  
+[inline]
+     [<0000000044f0058c>] raw_notifier_call_chain+0x2e/0x40  
+kernel/notifier.c:403
+     [<000000009782bbd6>] call_netdevice_notifiers_info net/core/dev.c:1893  
+[inline]
+     [<000000009782bbd6>] call_netdevice_notifiers_info+0x60/0xb0  
+net/core/dev.c:1878
+     [<000000005904fef6>] call_netdevice_notifiers_extack  
+net/core/dev.c:1905 [inline]
+     [<000000005904fef6>] call_netdevice_notifiers net/core/dev.c:1919  
+[inline]
+     [<000000005904fef6>] rollback_registered_many+0x373/0x640  
+net/core/dev.c:8743
+     [<00000000806944eb>] unregister_netdevice_many.part.0+0x17/0x90  
+net/core/dev.c:9906
+     [<00000000c0997ee2>] unregister_netdevice_many+0x24/0x30  
+net/core/dev.c:9905
+     [<0000000042445981>] rtnl_delete_link+0x63/0xa0  
+net/core/rtnetlink.c:2926
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
