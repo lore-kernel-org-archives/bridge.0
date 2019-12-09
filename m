@@ -1,14 +1,20 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 03 Dec 2019 11:22:45 -0800 (PST)
-Message-Id: <20191203.112245.4269861704222403.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20191203144806.10468-1-nikolay@cumulusnetworks.com>
-References: <20191203144806.10468-1-nikolay@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: deny dev_set_mac_address()
- when unregistering
+Return-Path: <vivien.didelot@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=lgqPv0K2Xn5itSPSBjrTChpwTD1HHRyxz08XfPrZ6E0=;
+ b=WFBLNOf//G4qmT7LqCgUcqv7bDJvLQ2ouO9u05KRNSkTiBr6cY31ZeZA/vbjioZ7L3
+ w4GKLIPRrzIpOpaFI9Ft1KmDGmPqhScSc/TSxxM8dMG4GmQevqysXAj4DvGzN7ZVCHry
+ wMbykeaGA3SZO1Rwjnbcset3vybEJZaif3v4LTPqjRDTYM28qhSKh86gVlkbLZpEBJ0j
+ Z0Pt4AL7XN8NlJlxZLcjSjF6lbJ/IecpIPDzmC9ME+qLW7NobtQ00xWuodDSrUzWZgWe
+ RHv8WiURKBI8uK1GK9KCt/NXPOrnRmdlSiI0UGklS5/oGUivzD80SNGe8mAoErfVFi7V
+ RtfA==
+From: Vivien Didelot <vivien.didelot@gmail.com>
+Date: Mon,  9 Dec 2019 16:18:40 -0500
+Message-Id: <20191209211841.1239497-1-vivien.didelot@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next] net: bridge: add STP xstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,38 +23,272 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Vivien Didelot <vivien.didelot@gmail.com>
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue,  3 Dec 2019 16:48:06 +0200
+This adds rx_bpdu, tx_bpdu, rx_tcn, tx_tcn, transition_blk,
+transition_fwd xstats counters to the bridge ports copied over via
+netlink, providing useful information for STP.
 
-> We have an interesting memory leak in the bridge when it is being
-> unregistered and is a slave to a master device which would change the
-> mac of its slaves on unregister (e.g. bond, team). This is a very
-> unusual setup but we do end up leaking 1 fdb entry because
-> dev_set_mac_address() would cause the bridge to insert the new mac address
-> into its table after all fdbs are flushed, i.e. after dellink() on the
-> bridge has finished and we call NETDEV_UNREGISTER the bond/team would
-> release it and will call dev_set_mac_address() to restore its original
-> address and that in turn will add an fdb in the bridge.
-> One fix is to check for the bridge dev's reg_state in its
-> ndo_set_mac_address callback and return an error if the bridge is not in
-> NETREG_REGISTERED.
-> 
-> Easy steps to reproduce:
->  1. add bond in mode != A/B
->  2. add any slave to the bond
->  3. add bridge dev as a slave to the bond
->  4. destroy the bridge device
-> 
-> Trace:
->  unreferenced object 0xffff888035c4d080 (size 128):
- ...
-> Fixes: 43598813386f ("bridge: add local MAC address to forwarding table (v2)")
-> Reported-by: syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
+---
+ include/uapi/linux/if_bridge.h | 10 ++++++++++
+ net/bridge/br_if.c             |  8 ++++++++
+ net/bridge/br_netlink.c        |  9 +++++++++
+ net/bridge/br_private.h        |  9 +++++++++
+ net/bridge/br_stp.c            | 25 +++++++++++++++++++++++++
+ net/bridge/br_stp_bpdu.c       | 12 ++++++++++++
+ net/bridge/br_stp_if.c         | 27 +++++++++++++++++++++++++++
+ 7 files changed, 100 insertions(+)
 
-Looks good, applied and queued up for -stable.
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 1b3c2b643a02..e7f2bb782006 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -156,6 +156,15 @@ struct bridge_vlan_xstats {
+ 	__u32 pad2;
+ };
+ 
++struct bridge_stp_xstats {
++	__u64 transition_blk;
++	__u64 transition_fwd;
++	__u64 rx_bpdu;
++	__u64 tx_bpdu;
++	__u64 rx_tcn;
++	__u64 tx_tcn;
++};
++
+ /* Bridge multicast database attributes
+  * [MDBA_MDB] = {
+  *     [MDBA_MDB_ENTRY] = {
+@@ -261,6 +270,7 @@ enum {
+ 	BRIDGE_XSTATS_UNSPEC,
+ 	BRIDGE_XSTATS_VLAN,
+ 	BRIDGE_XSTATS_MCAST,
++	BRIDGE_XSTATS_STP,
+ 	BRIDGE_XSTATS_PAD,
+ 	__BRIDGE_XSTATS_MAX
+ };
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 4fe30b182ee7..3eb214ef9763 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -250,6 +250,7 @@ static void release_nbp(struct kobject *kobj)
+ {
+ 	struct net_bridge_port *p
+ 		= container_of(kobj, struct net_bridge_port, kobj);
++	free_percpu(p->stp_stats);
+ 	kfree(p);
+ }
+ 
+@@ -419,6 +420,12 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 	if (p == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	p->stp_stats = netdev_alloc_pcpu_stats(struct br_stp_stats);
++	if (!p->stp_stats) {
++		kfree(p);
++		return ERR_PTR(-ENOMEM);
++	}
++
+ 	p->br = br;
+ 	dev_hold(dev);
+ 	p->dev = dev;
+@@ -432,6 +439,7 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 	err = br_multicast_add_port(p);
+ 	if (err) {
+ 		dev_put(dev);
++		free_percpu(p->stp_stats);
+ 		kfree(p);
+ 		p = ERR_PTR(err);
+ 	}
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index a0a54482aabc..03aced1f862b 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1597,6 +1597,15 @@ static int br_fill_linkxstats(struct sk_buff *skb,
+ 		}
+ 	}
+ 
++	if (p) {
++		struct bridge_stp_xstats xstats;
++
++		br_stp_get_xstats(p, &xstats);
++
++		if (nla_put(skb, BRIDGE_XSTATS_STP, sizeof(xstats), &xstats))
++			goto nla_put_failure;
++	}
++
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	if (++vl_idx >= *prividx) {
+ 		nla = nla_reserve_64bit(skb, BRIDGE_XSTATS_MCAST,
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 36b0367ca1e0..af5f28f0f2ef 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -95,6 +95,11 @@ struct br_vlan_stats {
+ 	struct u64_stats_sync syncp;
+ };
+ 
++struct br_stp_stats {
++	struct bridge_stp_xstats xstats;
++	struct u64_stats_sync syncp;
++};
++
+ struct br_tunnel_info {
+ 	__be64			tunnel_id;
+ 	struct metadata_dst	*tunnel_dst;
+@@ -283,6 +288,8 @@ struct net_bridge_port {
+ #endif
+ 	u16				group_fwd_mask;
+ 	u16				backup_redirected_cnt;
++
++	struct br_stp_stats		__percpu *stp_stats;
+ };
+ 
+ #define kobj_to_brport(obj)	container_of(obj, struct net_bridge_port, kobj)
+@@ -1146,6 +1153,8 @@ void br_stp_change_bridge_id(struct net_bridge *br, const unsigned char *a);
+ void br_stp_set_bridge_priority(struct net_bridge *br, u16 newprio);
+ int br_stp_set_port_priority(struct net_bridge_port *p, unsigned long newprio);
+ int br_stp_set_path_cost(struct net_bridge_port *p, unsigned long path_cost);
++void br_stp_get_xstats(const struct net_bridge_port *p,
++		       struct bridge_stp_xstats *xstats);
+ ssize_t br_show_bridge_id(char *buf, const struct bridge_id *id);
+ 
+ /* br_stp_bpdu.c */
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index 1f1410f8d312..8bcdab29442d 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -45,6 +45,18 @@ void br_set_state(struct net_bridge_port *p, unsigned int state)
+ 		br_info(p->br, "port %u(%s) entered %s state\n",
+ 				(unsigned int) p->port_no, p->dev->name,
+ 				br_port_state_names[p->state]);
++
++	if (p->br->stp_enabled == BR_KERNEL_STP) {
++		struct br_stp_stats *stats;
++
++		stats = this_cpu_ptr(p->stp_stats);
++		u64_stats_update_begin(&stats->syncp);
++		if (p->state == BR_STATE_BLOCKING)
++			stats->xstats.transition_blk++;
++		else if (p->state == BR_STATE_FORWARDING)
++			stats->xstats.transition_fwd++;
++		u64_stats_update_end(&stats->syncp);
++	}
+ }
+ 
+ /* called under bridge lock */
+@@ -481,9 +493,15 @@ static void br_topology_change_acknowledge(struct net_bridge_port *p)
+ void br_received_config_bpdu(struct net_bridge_port *p,
+ 			     const struct br_config_bpdu *bpdu)
+ {
++	struct br_stp_stats *stats;
+ 	struct net_bridge *br;
+ 	int was_root;
+ 
++	stats = this_cpu_ptr(p->stp_stats);
++	u64_stats_update_begin(&stats->syncp);
++	stats->xstats.rx_bpdu++;
++	u64_stats_update_end(&stats->syncp);
++
+ 	br = p->br;
+ 	was_root = br_is_root_bridge(br);
+ 
+@@ -517,6 +535,13 @@ void br_received_config_bpdu(struct net_bridge_port *p,
+ /* called under bridge lock */
+ void br_received_tcn_bpdu(struct net_bridge_port *p)
+ {
++	struct br_stp_stats *stats;
++
++	stats = this_cpu_ptr(p->stp_stats);
++	u64_stats_update_begin(&stats->syncp);
++	stats->xstats.rx_tcn++;
++	u64_stats_update_end(&stats->syncp);
++
+ 	if (br_is_designated_port(p)) {
+ 		br_info(p->br, "port %u(%s) received tcn bpdu\n",
+ 			(unsigned int) p->port_no, p->dev->name);
+diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
+index 7796dd9d42d7..2dbd11e21f2a 100644
+--- a/net/bridge/br_stp_bpdu.c
++++ b/net/bridge/br_stp_bpdu.c
+@@ -78,6 +78,7 @@ static inline int br_get_ticks(const unsigned char *src)
+ /* called under bridge lock */
+ void br_send_config_bpdu(struct net_bridge_port *p, struct br_config_bpdu *bpdu)
+ {
++	struct br_stp_stats *stats;
+ 	unsigned char buf[35];
+ 
+ 	if (p->br->stp_enabled != BR_KERNEL_STP)
+@@ -118,11 +119,17 @@ void br_send_config_bpdu(struct net_bridge_port *p, struct br_config_bpdu *bpdu)
+ 	br_set_ticks(buf+33, bpdu->forward_delay);
+ 
+ 	br_send_bpdu(p, buf, 35);
++
++	stats = this_cpu_ptr(p->stp_stats);
++	u64_stats_update_begin(&stats->syncp);
++	stats->xstats.tx_bpdu++;
++	u64_stats_update_end(&stats->syncp);
+ }
+ 
+ /* called under bridge lock */
+ void br_send_tcn_bpdu(struct net_bridge_port *p)
+ {
++	struct br_stp_stats *stats;
+ 	unsigned char buf[4];
+ 
+ 	if (p->br->stp_enabled != BR_KERNEL_STP)
+@@ -133,6 +140,11 @@ void br_send_tcn_bpdu(struct net_bridge_port *p)
+ 	buf[2] = 0;
+ 	buf[3] = BPDU_TYPE_TCN;
+ 	br_send_bpdu(p, buf, 4);
++
++	stats = this_cpu_ptr(p->stp_stats);
++	u64_stats_update_begin(&stats->syncp);
++	stats->xstats.tx_tcn++;
++	u64_stats_update_end(&stats->syncp);
+ }
+ 
+ /*
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index d174d3a566aa..cbce7d0e40b9 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -333,6 +333,33 @@ int br_stp_set_path_cost(struct net_bridge_port *p, unsigned long path_cost)
+ 	return 0;
+ }
+ 
++void br_stp_get_xstats(const struct net_bridge_port *p,
++		       struct bridge_stp_xstats *xstats)
++{
++	int i;
++
++	memset(xstats, 0, sizeof(*xstats));
++
++	for_each_possible_cpu(i) {
++		struct bridge_stp_xstats cpu_xstats;
++		struct br_stp_stats *stats;
++		unsigned int start;
++
++		stats = per_cpu_ptr(p->stp_stats, i);
++		do {
++			start = u64_stats_fetch_begin_irq(&stats->syncp);
++			memcpy(&cpu_xstats, &stats->xstats, sizeof(cpu_xstats));
++		} while (u64_stats_fetch_retry_irq(&stats->syncp, start));
++
++		xstats->transition_blk += cpu_xstats.transition_blk;
++		xstats->transition_fwd += cpu_xstats.transition_fwd;
++		xstats->rx_bpdu += cpu_xstats.rx_bpdu;
++		xstats->tx_bpdu += cpu_xstats.tx_bpdu;
++		xstats->rx_tcn += cpu_xstats.rx_tcn;
++		xstats->tx_tcn += cpu_xstats.tx_tcn;
++	}
++}
++
+ ssize_t br_show_bridge_id(char *buf, const struct bridge_id *id)
+ {
+ 	return sprintf(buf, "%.2x%.2x.%.2x%.2x%.2x%.2x%.2x%.2x\n",
+-- 
+2.24.0
 
-Thanks.
