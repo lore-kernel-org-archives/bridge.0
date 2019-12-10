@@ -1,20 +1,22 @@
 Return-Path: <vivien.didelot@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=AtJD3PdB/FMNuFQ+XD+4vKTZusrVALZiKrSm4mB8WGQ=;
- b=qUvKb9sWV3oNEU77nkCt78CD3Br0Xrn/vOCD7Rovg6S7KICfMPf6CJ6ZqTH6+IrGoj
- Is0Yx8djY8XjxPX/+3H6z3yuFVclSCUbqyCNAql8egtg70z7RhQu1dShhH5wEFmnoY5e
- mUHl1EkiNf4lu1P0zhvCk3UoIN0AdyIvNBegJiYnI1NcjcMmMlRdj8bH6c67vf7pclIb
- Wu0QuSR7OMdK65pMDEm6yrU6+QEe/qVJ3YUi+xivclmsQM02UJHP6a51Q8owIo0wlRr6
- +AdP3AjiBZUIO5uU3D0tedbbW4waanQqFp5cJv418F8zudxD+/CCg42NH/ilEDYb0Nrg
- u6kQ==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=HALsy1SsRzqboEILgEkyfVYlqeD8DKr+cao6rYYBxRU=;
+ b=h8KmEzd6aYcu5L1jPwn+xhW3YL9g1YfC2E/rrg7Ni3VVQsOVCcSTsVBjPmW+tbRFjj
+ 0XLKbxozgAfBZPNBwOPq3f3RPGKoo08owZ3SMJwbHusB7MDQYbgMBBLgCXeIzgectv0l
+ 2m/MrWurpPhSvFsluQVjrbyXTPadOlkXN5WE1df2hzYgQKbfa54M/9nxB/BEc2q9/LSp
+ fNeOj25nnv54dr4iqjAlroP13Oor8zRLr1S8CzUdi+iLy+P7CVhXe8dRHlTU1FWbuZtN
+ luGwK3gjwgukY/FgzLfJ+gxXGsDH6UGsfTHIipae58yxrWa0A804cxLerG2i8vjcOUcz
+ DdCA==
 From: Vivien Didelot <vivien.didelot@gmail.com>
-Date: Tue, 10 Dec 2019 16:20:49 -0500
-Message-Id: <20191210212050.1470909-1-vivien.didelot@gmail.com>
+Date: Tue, 10 Dec 2019 16:20:50 -0500
+Message-Id: <20191210212050.1470909-2-vivien.didelot@gmail.com>
+In-Reply-To: <20191210212050.1470909-1-vivien.didelot@gmail.com>
+References: <20191210212050.1470909-1-vivien.didelot@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2] net: bridge: add STP xstats
+Subject: [Bridge] [PATCH iproute2 v3] iplink: add support for STP xstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,21 +28,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Vivien Didelot <vivien.didelot@gmail.com>
 
-This adds rx_bpdu, tx_bpdu, rx_tcn, tx_tcn, transition_blk,
-transition_fwd xstats counters to the bridge ports copied over via
-netlink, providing useful information for STP.
+Add support for the BRIDGE_XSTATS_STP xstats, as follow:
+
+    # ip link xstats type bridge_slave dev lan4 stp
+    lan4
+                        STP BPDU:  RX: 0 TX: 61
+                        STP TCN:   RX: 0 TX: 0
+                        STP Transitions: Blocked: 2 Forwarding: 1
+
+Or below as JSON:
+
+    # ip -j -p link xstats type bridge_slave dev lan0 stp
+    [ {
+            "ifname": "lan0",
+            "stp": {
+                "rx_bpdu": 0,
+                "tx_bpdu": 500,
+                "rx_tcn": 0,
+                "tx_tcn": 0,
+                "transition_blk": 0,
+                "transition_fwd": 0
+            }
+        } ]
 
 Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
 ---
  include/uapi/linux/if_bridge.h | 10 ++++++++++
- net/bridge/br_netlink.c        | 10 ++++++++++
- net/bridge/br_private.h        |  2 ++
- net/bridge/br_stp.c            | 15 +++++++++++++++
- net/bridge/br_stp_bpdu.c       |  4 ++++
- 5 files changed, 41 insertions(+)
+ ip/iplink_bridge.c             | 26 ++++++++++++++++++++++++++
+ 2 files changed, 36 insertions(+)
 
 diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 1b3c2b643a02..e7f2bb782006 100644
+index 31fc51bd..42f76697 100644
 --- a/include/uapi/linux/if_bridge.h
 +++ b/include/uapi/linux/if_bridge.h
 @@ -156,6 +156,15 @@ struct bridge_vlan_xstats {
@@ -67,102 +85,57 @@ index 1b3c2b643a02..e7f2bb782006 100644
  	BRIDGE_XSTATS_PAD,
  	__BRIDGE_XSTATS_MAX
  };
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index a0a54482aabc..d339cc314357 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1597,6 +1597,16 @@ static int br_fill_linkxstats(struct sk_buff *skb,
+diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
+index 06f736d4..bbd6f3a8 100644
+--- a/ip/iplink_bridge.c
++++ b/ip/iplink_bridge.c
+@@ -688,6 +688,7 @@ static void bridge_print_xstats_help(struct link_util *lu, FILE *f)
+ static void bridge_print_stats_attr(struct rtattr *attr, int ifindex)
+ {
+ 	struct rtattr *brtb[LINK_XSTATS_TYPE_MAX+1];
++	struct bridge_stp_xstats *sstats;
+ 	struct br_mcast_stats *mstats;
+ 	struct rtattr *i, *list;
+ 	const char *ifname = "";
+@@ -807,6 +808,29 @@ static void bridge_print_stats_attr(struct rtattr *attr, int ifindex)
+ 				  mstats->mld_parse_errors);
+ 			close_json_object();
+ 			break;
++		case BRIDGE_XSTATS_STP:
++			sstats = RTA_DATA(i);
++			open_json_object("stp");
++			print_string(PRINT_FP, NULL,
++				     "%-16s    STP BPDU:  ", "");
++			print_u64(PRINT_ANY, "rx_bpdu", "RX: %llu ",
++				  sstats->rx_bpdu);
++			print_u64(PRINT_ANY, "tx_bpdu", "TX: %llu\n",
++				  sstats->tx_bpdu);
++			print_string(PRINT_FP, NULL,
++				     "%-16s    STP TCN:   ", "");
++			print_u64(PRINT_ANY, "rx_tcn", "RX: %llu ",
++				  sstats->rx_tcn);
++			print_u64(PRINT_ANY, "tx_tcn", "TX: %llu\n",
++				  sstats->tx_tcn);
++			print_string(PRINT_FP, NULL,
++				     "%-16s    STP Transitions: ", "");
++			print_u64(PRINT_ANY, "transition_blk", "Blocked: %llu ",
++				  sstats->transition_blk);
++			print_u64(PRINT_ANY, "transition_fwd", "Forwarding: %llu\n",
++				  sstats->transition_fwd);
++			close_json_object();
++			break;
  		}
  	}
- 
-+	if (p) {
-+		nla = nla_reserve_64bit(skb, BRIDGE_XSTATS_STP,
-+					sizeof(p->stp_xstats),
-+					BRIDGE_XSTATS_PAD);
-+		if (!nla)
-+			goto nla_put_failure;
-+
-+		memcpy(nla_data(nla), &p->stp_xstats, sizeof(p->stp_xstats));
-+	}
-+
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	if (++vl_idx >= *prividx) {
- 		nla = nla_reserve_64bit(skb, BRIDGE_XSTATS_MCAST,
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 36b0367ca1e0..f540f3bdf294 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -283,6 +283,8 @@ struct net_bridge_port {
- #endif
- 	u16				group_fwd_mask;
- 	u16				backup_redirected_cnt;
-+
-+	struct bridge_stp_xstats	stp_xstats;
- };
- 
- #define kobj_to_brport(obj)	container_of(obj, struct net_bridge_port, kobj)
-diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
-index 1f1410f8d312..6856a6d9282b 100644
---- a/net/bridge/br_stp.c
-+++ b/net/bridge/br_stp.c
-@@ -45,6 +45,17 @@ void br_set_state(struct net_bridge_port *p, unsigned int state)
- 		br_info(p->br, "port %u(%s) entered %s state\n",
- 				(unsigned int) p->port_no, p->dev->name,
- 				br_port_state_names[p->state]);
-+
-+	if (p->br->stp_enabled == BR_KERNEL_STP) {
-+		switch (p->state) {
-+		case BR_STATE_BLOCKING:
-+			p->stp_xstats.transition_blk++;
-+			break;
-+		case BR_STATE_FORWARDING:
-+			p->stp_xstats.transition_fwd++;
-+			break;
-+		}
-+	}
- }
- 
- /* called under bridge lock */
-@@ -484,6 +495,8 @@ void br_received_config_bpdu(struct net_bridge_port *p,
- 	struct net_bridge *br;
- 	int was_root;
- 
-+	p->stp_xstats.rx_bpdu++;
-+
- 	br = p->br;
- 	was_root = br_is_root_bridge(br);
- 
-@@ -517,6 +530,8 @@ void br_received_config_bpdu(struct net_bridge_port *p,
- /* called under bridge lock */
- void br_received_tcn_bpdu(struct net_bridge_port *p)
- {
-+	p->stp_xstats.rx_tcn++;
-+
- 	if (br_is_designated_port(p)) {
- 		br_info(p->br, "port %u(%s) received tcn bpdu\n",
- 			(unsigned int) p->port_no, p->dev->name);
-diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
-index 7796dd9d42d7..0e4572f31330 100644
---- a/net/bridge/br_stp_bpdu.c
-+++ b/net/bridge/br_stp_bpdu.c
-@@ -118,6 +118,8 @@ void br_send_config_bpdu(struct net_bridge_port *p, struct br_config_bpdu *bpdu)
- 	br_set_ticks(buf+33, bpdu->forward_delay);
- 
- 	br_send_bpdu(p, buf, 35);
-+
-+	p->stp_xstats.tx_bpdu++;
- }
- 
- /* called under bridge lock */
-@@ -133,6 +135,8 @@ void br_send_tcn_bpdu(struct net_bridge_port *p)
- 	buf[2] = 0;
- 	buf[3] = BPDU_TYPE_TCN;
- 	br_send_bpdu(p, buf, 4);
-+
-+	p->stp_xstats.tx_tcn++;
- }
- 
- /*
+ 	close_json_object();
+@@ -843,6 +867,8 @@ int bridge_parse_xstats(struct link_util *lu, int argc, char **argv)
+ 	while (argc > 0) {
+ 		if (strcmp(*argv, "igmp") == 0 || strcmp(*argv, "mcast") == 0) {
+ 			xstats_print_attr = BRIDGE_XSTATS_MCAST;
++		} else if (strcmp(*argv, "stp") == 0) {
++			xstats_print_attr = BRIDGE_XSTATS_STP;
+ 		} else if (strcmp(*argv, "dev") == 0) {
+ 			NEXT_ARG();
+ 			filter_index = ll_name_to_index(*argv);
 -- 
 2.24.0
 
