@@ -1,20 +1,20 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
+Return-Path: <dsahern@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=VEiTqs3AdcOOADsYpDlYWqADQJ1OE+9BmLTpHWgdwWA=;
- b=GhxoZKc5XN75PQaqV66FqdkPlEFs9NHr8vay7vPpK0Gv0Z4gZO1JVarSAkNVUdqq1y
- QEWyzyKj+hk2Qp2pcqlZrcZyOuFMz/eXRj3m7X+mIpseNgHSFSy/0EBoPEH/xqswnpmR
- 2iAtAb1XVFSqUfQqJzTM9ogWBjvBWefgWMkeY=
+ bh=G8NpVJHV6XTeInBWMRdwvp9yp0ay3o9iHO0+lBUDJ/k=;
+ b=HGTsLQm4pbK0efQSfWDR/Ipv150Dfu4DvyKt9PYcCWambCrVXtT+xRx9LT2VBy+wCw
+ wi5vixOPh4rqvWZ8RtFMAu2vw3bW5BnNG3AFsIT4d74u1A3yqpKfsTQO7MAAnw0W9z4A
+ okDV6abRz9G5U0glsOth4Fr3qAiLDUkaUSF37KzOIScH4sl02ItMEJKYfqiexdgYv6YK
+ ZyxvJoOzvK8C3SW1tsbdsS/DcrBqU6SmqtAqEpl8ytJ0i1fPGSqmn94z0IDzx5sd5kpc
+ pZzwYrtWXwFLmU095Y7qIyPXcqgRKYY6nU+u9gjz01F4PbOGQTdrU4ZwjLJT6CHKpKug
+ X6rQ==
 References: <20191210212050.1470909-1-vivien.didelot@gmail.com>
- <30e93cfb-cc2c-c484-a743-479cce19d8a9@cumulusnetworks.com>
- <20191210210203.GB1480973@t480s.localdomain>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <498b31ea-bafc-1f44-d4bd-354f30a71972@cumulusnetworks.com>
-Date: Wed, 11 Dec 2019 11:40:31 +0200
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <0e45fd22-c31b-a9c2-bf87-22c16a60aeb4@gmail.com>
+Date: Wed, 11 Dec 2019 08:38:17 -0700
 MIME-Version: 1.0
-In-Reply-To: <20191210210203.GB1480973@t480s.localdomain>
+In-Reply-To: <20191210212050.1470909-1-vivien.didelot@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -27,40 +27,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vivien Didelot <vivien.didelot@gmail.com>
-Cc: netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Vivien Didelot <vivien.didelot@gmail.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org
 
-On 11/12/2019 04:02, Vivien Didelot wrote:
-> Hi Nikolay,
-> 
-> On Tue, 10 Dec 2019 23:45:13 +0200, Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
->>> +	if (p) {
->>> +		nla = nla_reserve_64bit(skb, BRIDGE_XSTATS_STP,
->>> +					sizeof(p->stp_xstats),
->>> +					BRIDGE_XSTATS_PAD);
->>> +		if (!nla)
->>> +			goto nla_put_failure;
->>> +
->>> +		memcpy(nla_data(nla), &p->stp_xstats, sizeof(p->stp_xstats));
->>
->> You need to take the STP lock here to get a proper snapshot of the values.
-> 
-> Good catch! I see a br->multicast_lock but no br->stp_lock. Is this what
-> you expect?
-> 
->     spin_lock_bh(&br->lock);
->     memcpy(nla_data(nla), &p->stp_xstats, sizeof(p->stp_xstats));
->     spin_unlock_bh(&br->lock);
-> 
+On 12/10/19 2:20 PM, Vivien Didelot wrote:
+> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+> index 1b3c2b643a02..e7f2bb782006 100644
+> --- a/include/uapi/linux/if_bridge.h
+> +++ b/include/uapi/linux/if_bridge.h
+> @@ -156,6 +156,15 @@ struct bridge_vlan_xstats {
+>  	__u32 pad2;
+>  };
+>  
+> +struct bridge_stp_xstats {
+> +	__u64 transition_blk;
+> +	__u64 transition_fwd;
+> +	__u64 rx_bpdu;
+> +	__u64 tx_bpdu;
+> +	__u64 rx_tcn;
+> +	__u64 tx_tcn;
+> +};
+> +
+>  /* Bridge multicast database attributes
+>   * [MDBA_MDB] = {
+>   *     [MDBA_MDB_ENTRY] = {
+> @@ -261,6 +270,7 @@ enum {
+>  	BRIDGE_XSTATS_UNSPEC,
+>  	BRIDGE_XSTATS_VLAN,
+>  	BRIDGE_XSTATS_MCAST,
+> +	BRIDGE_XSTATS_STP,
+>  	BRIDGE_XSTATS_PAD,
+>  	__BRIDGE_XSTATS_MAX
+>  };
 
-Yeah, this is a very old lock (pre-git) which needs some attention. :)
-That is the lock and the above looks good to me.
+Shouldn't the new entry be appended to the end - after BRIDGE_XSTATS_PAD
 
-> 
-> Thanks,
-> 
-> 	Vivien
-> 
-
-Cheers,
- Nik
