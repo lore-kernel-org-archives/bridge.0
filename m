@@ -1,22 +1,22 @@
-Return-Path: <vivien.didelot@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=JcT5JaZ2ztlm9nVh3YJKAXgItNSZXXVSU78tCu2kIzQ=;
- b=tXiX5OtDHGhiywhmijDgyEx1NrbU4p93GnhnMF24bLBymtMFCimd4dBAq8qCMqsTlt
- xJmZioMRds/bSuhPZ7cO4ugVtbPQBAznxa6bT1Rq/11TFqWXS50gLBAuENcJULBOLZAQ
- 4YM+bw+9S45jPdv/cNwcqYDZTnO7fPvtwVgwX3VL+Q01oFR7V3UiZinS7e01O8aJ59dR
- eRhTi2KuN8F1cNgp+4/fPiDZkC3+q77zp1YzK9TcRNYQwVq9T5qj9+OiCbQvrWTQZGeD
- 8Fc2V8/CjbHFE9qLg6dl9pVs9L1pfo333+igJRuc6m7lR3LPXmyB2OPKunJINDf7WR1d
- D1fw==
-From: Vivien Didelot <vivien.didelot@gmail.com>
-Date: Wed, 11 Dec 2019 20:07:11 -0500
-Message-Id: <20191212010711.1664000-2-vivien.didelot@gmail.com>
-In-Reply-To: <20191212010711.1664000-1-vivien.didelot@gmail.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cumulusnetworks.com; s=google;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=ag166LO41mmIdH93hcAzJxPUu6DQ+iUSSg9O8F3Mz+8=;
+ b=bOiADHgew3Ea4mYbibX0J/zHUQu24msSSDM1WwGDDvtHFiRtPwzVvTlAznwc5T8Usd
+ /0NaheD+OFNIMT07YicGgnBkfBcqlnixQYJ8SUcl2sFpDaZ98qChoqfsIpUnD8dW3fSt
+ FXg1lZcDeIK4fBamc7bQ3xx+ZdnAasH906KQM=
 References: <20191212010711.1664000-1-vivien.didelot@gmail.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <15115a6a-b95f-8de0-12ac-c3c98301ae25@cumulusnetworks.com>
+Date: Thu, 12 Dec 2019 08:55:30 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH iproute2 v4] iplink: add support for STP xstats
+In-Reply-To: <20191212010711.1664000-1-vivien.didelot@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v3] net: bridge: add STP xstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,117 +25,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Vivien Didelot <vivien.didelot@gmail.com>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>
 
-Add support for the BRIDGE_XSTATS_STP xstats, as follow:
+On 12/12/2019 03:07, Vivien Didelot wrote:
+> This adds rx_bpdu, tx_bpdu, rx_tcn, tx_tcn, transition_blk,
+> transition_fwd xstats counters to the bridge ports copied over via
+> netlink, providing useful information for STP.
+> 
+> Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
+> ---
+>  include/uapi/linux/if_bridge.h | 10 ++++++++++
+>  net/bridge/br_netlink.c        | 13 +++++++++++++
+>  net/bridge/br_private.h        |  2 ++
+>  net/bridge/br_stp.c            | 15 +++++++++++++++
+>  net/bridge/br_stp_bpdu.c       |  4 ++++
+>  5 files changed, 44 insertions(+)
+> 
 
-    # ip link xstats type bridge_slave dev lan4 stp
-    lan4
-                        STP BPDU:  RX: 0 TX: 61
-                        STP TCN:   RX: 0 TX: 0
-                        STP Transitions: Blocked: 2 Forwarding: 1
+Looks good to me, thanks!
 
-Or below as JSON:
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-    # ip -j -p link xstats type bridge_slave dev lan0 stp
-    [ {
-            "ifname": "lan0",
-            "stp": {
-                "rx_bpdu": 0,
-                "tx_bpdu": 500,
-                "rx_tcn": 0,
-                "tx_tcn": 0,
-                "transition_blk": 0,
-                "transition_fwd": 0
-            }
-        } ]
-
-Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
----
- include/uapi/linux/if_bridge.h | 10 ++++++++++
- ip/iplink_bridge.c             | 26 ++++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
-
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 31fc51bd..9fefc7f3 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -156,6 +156,15 @@ struct bridge_vlan_xstats {
- 	__u32 pad2;
- };
- 
-+struct bridge_stp_xstats {
-+	__u64 transition_blk;
-+	__u64 transition_fwd;
-+	__u64 rx_bpdu;
-+	__u64 tx_bpdu;
-+	__u64 rx_tcn;
-+	__u64 tx_tcn;
-+};
-+
- /* Bridge multicast database attributes
-  * [MDBA_MDB] = {
-  *     [MDBA_MDB_ENTRY] = {
-@@ -262,6 +271,7 @@ enum {
- 	BRIDGE_XSTATS_VLAN,
- 	BRIDGE_XSTATS_MCAST,
- 	BRIDGE_XSTATS_PAD,
-+	BRIDGE_XSTATS_STP,
- 	__BRIDGE_XSTATS_MAX
- };
- #define BRIDGE_XSTATS_MAX (__BRIDGE_XSTATS_MAX - 1)
-diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
-index 06f736d4..bbd6f3a8 100644
---- a/ip/iplink_bridge.c
-+++ b/ip/iplink_bridge.c
-@@ -688,6 +688,7 @@ static void bridge_print_xstats_help(struct link_util *lu, FILE *f)
- static void bridge_print_stats_attr(struct rtattr *attr, int ifindex)
- {
- 	struct rtattr *brtb[LINK_XSTATS_TYPE_MAX+1];
-+	struct bridge_stp_xstats *sstats;
- 	struct br_mcast_stats *mstats;
- 	struct rtattr *i, *list;
- 	const char *ifname = "";
-@@ -807,6 +808,29 @@ static void bridge_print_stats_attr(struct rtattr *attr, int ifindex)
- 				  mstats->mld_parse_errors);
- 			close_json_object();
- 			break;
-+		case BRIDGE_XSTATS_STP:
-+			sstats = RTA_DATA(i);
-+			open_json_object("stp");
-+			print_string(PRINT_FP, NULL,
-+				     "%-16s    STP BPDU:  ", "");
-+			print_u64(PRINT_ANY, "rx_bpdu", "RX: %llu ",
-+				  sstats->rx_bpdu);
-+			print_u64(PRINT_ANY, "tx_bpdu", "TX: %llu\n",
-+				  sstats->tx_bpdu);
-+			print_string(PRINT_FP, NULL,
-+				     "%-16s    STP TCN:   ", "");
-+			print_u64(PRINT_ANY, "rx_tcn", "RX: %llu ",
-+				  sstats->rx_tcn);
-+			print_u64(PRINT_ANY, "tx_tcn", "TX: %llu\n",
-+				  sstats->tx_tcn);
-+			print_string(PRINT_FP, NULL,
-+				     "%-16s    STP Transitions: ", "");
-+			print_u64(PRINT_ANY, "transition_blk", "Blocked: %llu ",
-+				  sstats->transition_blk);
-+			print_u64(PRINT_ANY, "transition_fwd", "Forwarding: %llu\n",
-+				  sstats->transition_fwd);
-+			close_json_object();
-+			break;
- 		}
- 	}
- 	close_json_object();
-@@ -843,6 +867,8 @@ int bridge_parse_xstats(struct link_util *lu, int argc, char **argv)
- 	while (argc > 0) {
- 		if (strcmp(*argv, "igmp") == 0 || strcmp(*argv, "mcast") == 0) {
- 			xstats_print_attr = BRIDGE_XSTATS_MCAST;
-+		} else if (strcmp(*argv, "stp") == 0) {
-+			xstats_print_attr = BRIDGE_XSTATS_STP;
- 		} else if (strcmp(*argv, "dev") == 0) {
- 			NEXT_ARG();
- 			filter_index = ll_name_to_index(*argv);
--- 
-2.24.0
 
