@@ -1,20 +1,20 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1577468505;
- bh=QqJno5wkD79YdW2aWjhjalkDVoSW8IX3cUj8I0dPFKY=;
+ s=default; t=1577468661;
+ bh=61QqtsM7heF3ZrrF9P/X7IR582ifXhr/shcSYIh1waI=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=09dWvhGQyuxpZm7Z/wYgseFIr54Oe6QBzhgSO/RFjYU+AVIbTt7pPOPqUpIxk0UJS
- SCorezGRkC6yGkCF7YcM4J8i8HYnHBG72DsUoFkR/1VlUoM+mOVNFaY1i9OKz3/KVc
- gJIyS6fqhMsZ3c+ldI+y0Xaz1ClfoVhgodP+yCug=
+ b=Jx0qRi+C3d9E4g3rj3RUwW6lLxOkjmWGp1sAGP/75W2nZpZnqnOvTCnuqfVSlS5y9
+ OJcZBuaXB0v3VzpI9eqbJF2O2WJuPcrGH1Ioyl5jOA3fjq8ex9G9jY/Hg1G3802OpK
+ C9jcNadAOVULrjMH+bo6vgzBLLImqFm1tVyVzBr8=
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri, 27 Dec 2019 12:38:26 -0500
-Message-Id: <20191227174055.4923-38-sashal@kernel.org>
-In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
-References: <20191227174055.4923-1-sashal@kernel.org>
+Date: Fri, 27 Dec 2019 12:42:50 -0500
+Message-Id: <20191227174352.6264-22-sashal@kernel.org>
+In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
+References: <20191227174352.6264-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.4 038/187] netfilter: bridge: make sure
-	to pull arp header in br_nf_forward_arp()
+Subject: [Bridge] [PATCH AUTOSEL 4.19 22/84] netfilter: bridge: make sure to
+	pull arp header in br_nf_forward_arp()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -119,10 +119,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index af7800103e51..59980ecfc962 100644
+index 212c184c1eee..ccab290c14d4 100644
 --- a/net/bridge/br_netfilter_hooks.c
 +++ b/net/bridge/br_netfilter_hooks.c
-@@ -662,6 +662,9 @@ static unsigned int br_nf_forward_arp(void *priv,
+@@ -646,6 +646,9 @@ static unsigned int br_nf_forward_arp(void *priv,
  		nf_bridge_pull_encap_header(skb);
  	}
  
@@ -130,7 +130,7 @@ index af7800103e51..59980ecfc962 100644
 +		return NF_DROP;
 +
  	if (arp_hdr(skb)->ar_pln != 4) {
- 		if (is_vlan_arp(skb, state->net))
+ 		if (IS_VLAN_ARP(skb))
  			nf_bridge_push_encap_header(skb);
 -- 
 2.20.1
