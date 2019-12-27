@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1577469761;
- bh=e5Ov5cgaM9/3H+Bt/42hA27Z5Z0HZUsHp8mZ2ybRNGo=;
+ s=default; t=1577470488;
+ bh=FmaInrew0sKFeSw4seaz0ESMPv4bTwoUzTEoDSRYoRg=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=LIe+IdXj/IhH5UwqA9DfUJHASeRDBaEU5O1vnbH3DY+SNjlp+1SI9MTEv5khYm7g1
- jWaCNPF+8dq41QWoy8zliruSz5I7IDZC6siEI79sbmA/8C188mO5wh2tNeLBR+EjHP
- WW3BPI1F5iaiY9fwHB26qxDBoAXhmvIdc5InV9aw=
+ b=W4nub29lKpmy5tWWDYqWbQ4I/wBqJ8qbvdAwLCPNzt/wWVaKckhM6Eqhjw614+jl6
+ zs0W5fD7jFjWCPvXzhsHiuLBuKTm13Q+doCJ5Z9YPXzObGldm8p56h+jf29r+aq14v
+ keToCD9CfPl9DLCmbn/8yRYv4koxIBBJKcoGNTjk=
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri, 27 Dec 2019 13:01:39 -0500
-Message-Id: <20191227180222.7076-14-sashal@kernel.org>
-In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
-References: <20191227180222.7076-1-sashal@kernel.org>
+Date: Fri, 27 Dec 2019 13:14:06 -0500
+Message-Id: <20191227181435.7644-9-sashal@kernel.org>
+In-Reply-To: <20191227181435.7644-1-sashal@kernel.org>
+References: <20191227181435.7644-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.14 14/57] netfilter: bridge: make sure to
+Subject: [Bridge] [PATCH AUTOSEL 4.9 09/38] netfilter: bridge: make sure to
 	pull arp header in br_nf_forward_arp()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -119,7 +119,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 89936e0d55c9..6feab2279143 100644
+index 0c96773d1829..62e045c9d452 100644
 --- a/net/bridge/br_netfilter_hooks.c
 +++ b/net/bridge/br_netfilter_hooks.c
 @@ -643,6 +643,9 @@ static unsigned int br_nf_forward_arp(void *priv,
