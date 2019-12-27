@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1577470488;
- bh=FmaInrew0sKFeSw4seaz0ESMPv4bTwoUzTEoDSRYoRg=;
+ s=default; t=1577470556;
+ bh=FCm+us8w6TXnxhI67/6SEs7nx3lqvWAohjyATBHgCNU=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=W4nub29lKpmy5tWWDYqWbQ4I/wBqJ8qbvdAwLCPNzt/wWVaKckhM6Eqhjw614+jl6
- zs0W5fD7jFjWCPvXzhsHiuLBuKTm13Q+doCJ5Z9YPXzObGldm8p56h+jf29r+aq14v
- keToCD9CfPl9DLCmbn/8yRYv4koxIBBJKcoGNTjk=
+ b=T+RPxNP6aQqU8Y/42IpEsMfyORQsImceUdNIrnzS0ZAw6oxbF1jRbcY6WQKwJoHRR
+ VkDlb6AffCZ56VSowMl770AKd/Ywh0xB28vhsYrnVHI5ALrUh8O93SDDjkfc3NWW1K
+ jlkP/pfDq7Pntp7tT4UG1doVCHSOEEFZJuG+oLEI=
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri, 27 Dec 2019 13:14:06 -0500
-Message-Id: <20191227181435.7644-9-sashal@kernel.org>
-In-Reply-To: <20191227181435.7644-1-sashal@kernel.org>
-References: <20191227181435.7644-1-sashal@kernel.org>
+Date: Fri, 27 Dec 2019 13:15:29 -0500
+Message-Id: <20191227181549.8040-5-sashal@kernel.org>
+In-Reply-To: <20191227181549.8040-1-sashal@kernel.org>
+References: <20191227181549.8040-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.9 09/38] netfilter: bridge: make sure to
+Subject: [Bridge] [PATCH AUTOSEL 4.4 05/25] netfilter: bridge: make sure to
 	pull arp header in br_nf_forward_arp()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -119,10 +119,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 0c96773d1829..62e045c9d452 100644
+index 2ae0451fd634..6c84c9b8d60b 100644
 --- a/net/bridge/br_netfilter_hooks.c
 +++ b/net/bridge/br_netfilter_hooks.c
-@@ -643,6 +643,9 @@ static unsigned int br_nf_forward_arp(void *priv,
+@@ -638,6 +638,9 @@ static unsigned int br_nf_forward_arp(void *priv,
  		nf_bridge_pull_encap_header(skb);
  	}
  
