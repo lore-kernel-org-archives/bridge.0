@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1577468661;
- bh=61QqtsM7heF3ZrrF9P/X7IR582ifXhr/shcSYIh1waI=;
+ s=default; t=1577469761;
+ bh=e5Ov5cgaM9/3H+Bt/42hA27Z5Z0HZUsHp8mZ2ybRNGo=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Jx0qRi+C3d9E4g3rj3RUwW6lLxOkjmWGp1sAGP/75W2nZpZnqnOvTCnuqfVSlS5y9
- OJcZBuaXB0v3VzpI9eqbJF2O2WJuPcrGH1Ioyl5jOA3fjq8ex9G9jY/Hg1G3802OpK
- C9jcNadAOVULrjMH+bo6vgzBLLImqFm1tVyVzBr8=
+ b=LIe+IdXj/IhH5UwqA9DfUJHASeRDBaEU5O1vnbH3DY+SNjlp+1SI9MTEv5khYm7g1
+ jWaCNPF+8dq41QWoy8zliruSz5I7IDZC6siEI79sbmA/8C188mO5wh2tNeLBR+EjHP
+ WW3BPI1F5iaiY9fwHB26qxDBoAXhmvIdc5InV9aw=
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri, 27 Dec 2019 12:42:50 -0500
-Message-Id: <20191227174352.6264-22-sashal@kernel.org>
-In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
-References: <20191227174352.6264-1-sashal@kernel.org>
+Date: Fri, 27 Dec 2019 13:01:39 -0500
+Message-Id: <20191227180222.7076-14-sashal@kernel.org>
+In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
+References: <20191227180222.7076-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.19 22/84] netfilter: bridge: make sure to
+Subject: [Bridge] [PATCH AUTOSEL 4.14 14/57] netfilter: bridge: make sure to
 	pull arp header in br_nf_forward_arp()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -119,10 +119,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 212c184c1eee..ccab290c14d4 100644
+index 89936e0d55c9..6feab2279143 100644
 --- a/net/bridge/br_netfilter_hooks.c
 +++ b/net/bridge/br_netfilter_hooks.c
-@@ -646,6 +646,9 @@ static unsigned int br_nf_forward_arp(void *priv,
+@@ -643,6 +643,9 @@ static unsigned int br_nf_forward_arp(void *priv,
  		nf_bridge_pull_encap_header(skb);
  	}
  
