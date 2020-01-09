@@ -1,13 +1,10 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Thu, 9 Jan 2020 16:06:40 +0100
-Message-ID: <20200109150640.532-4-horatiu.vultur@microchip.com>
-In-Reply-To: <20200109150640.532-1-horatiu.vultur@microchip.com>
-References: <20200109150640.532-1-horatiu.vultur@microchip.com>
+Date: Thu, 9 Jan 2020 16:31:32 +0100
+Message-ID: <20200109153132.12256-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [RFC net-next Patch 3/3] net: bridge: mrp: Add netlink
-	support to configure MRP
+Subject: [Bridge] [RFC iproute2] bridge: Add suppport to configure MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -55,24 +52,340 @@ ring_state: depends on the ring_role. If mrp_ring_role is 1(MRC) then the values
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- include/uapi/linux/if_bridge.h |  27 ++++
+ bridge/Makefile                |   2 +-
+ bridge/br_common.h             |   1 +
+ bridge/bridge.c                |   3 +-
+ bridge/mrp.c                   | 252 +++++++++++++++++++++++++++++++++
+ include/libnetlink.h           |   2 +
+ include/uapi/linux/if_bridge.h |  25 ++++
  include/uapi/linux/rtnetlink.h |   7 +
- net/bridge/br_mrp.c            | 281 +++++++++++++++++++++++++++++++++
- net/bridge/br_netlink.c        |   9 ++
- net/bridge/br_private.h        |   2 +
- net/bridge/br_private_mrp.h    |   9 ++
- security/selinux/nlmsgtab.c    |   5 +-
- 7 files changed, 339 insertions(+), 1 deletion(-)
+ lib/libnetlink.c               |  16 +++
+ 8 files changed, 306 insertions(+), 2 deletions(-)
+ create mode 100644 bridge/mrp.c
 
+diff --git a/bridge/Makefile b/bridge/Makefile
+index c6b7d08d..330b5a8c 100644
+--- a/bridge/Makefile
++++ b/bridge/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-BROBJ = bridge.o fdb.o monitor.o link.o mdb.o vlan.o
++BROBJ = bridge.o fdb.o monitor.o link.o mdb.o vlan.o mrp.o
+ 
+ include ../config.mk
+ 
+diff --git a/bridge/br_common.h b/bridge/br_common.h
+index b5798da3..b2639d18 100644
+--- a/bridge/br_common.h
++++ b/bridge/br_common.h
+@@ -13,6 +13,7 @@ int print_fdb(struct nlmsghdr *n, void *arg);
+ 
+ int do_fdb(int argc, char **argv);
+ int do_mdb(int argc, char **argv);
++int do_mrp(int argc, char **argv);
+ int do_monitor(int argc, char **argv);
+ int do_vlan(int argc, char **argv);
+ int do_link(int argc, char **argv);
+diff --git a/bridge/bridge.c b/bridge/bridge.c
+index a50d9d59..ebbee013 100644
+--- a/bridge/bridge.c
++++ b/bridge/bridge.c
+@@ -37,7 +37,7 @@ static void usage(void)
+ 	fprintf(stderr,
+ "Usage: bridge [ OPTIONS ] OBJECT { COMMAND | help }\n"
+ "       bridge [ -force ] -batch filename\n"
+-"where	OBJECT := { link | fdb | mdb | vlan | monitor }\n"
++"where	OBJECT := { link | fdb | mdb | mrp | vlan | monitor }\n"
+ "	OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
+ "		     -o[neline] | -t[imestamp] | -n[etns] name |\n"
+ "		     -c[ompressvlans] -color -p[retty] -j[son] }\n");
+@@ -57,6 +57,7 @@ static const struct cmd {
+ 	{ "link",	do_link },
+ 	{ "fdb",	do_fdb },
+ 	{ "mdb",	do_mdb },
++	{ "mrp",	do_mrp },
+ 	{ "vlan",	do_vlan },
+ 	{ "monitor",	do_monitor },
+ 	{ "help",	do_help },
+diff --git a/bridge/mrp.c b/bridge/mrp.c
+new file mode 100644
+index 00000000..8f6df19a
+--- /dev/null
++++ b/bridge/mrp.c
+@@ -0,0 +1,252 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Get mrp table with netlink
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <sys/socket.h>
++#include <net/if.h>
++#include <netinet/in.h>
++#include <linux/if_bridge.h>
++#include <linux/if_ether.h>
++#include <string.h>
++#include <arpa/inet.h>
++
++#include "libnetlink.h"
++#include "br_common.h"
++#include "rt_names.h"
++#include "utils.h"
++#include "json_print.h"
++
++#ifndef MRPA_RTA
++#define MRPA_RTA(r) \
++	((struct rtattr *)(((char *)(r)) + NLMSG_ALIGN(sizeof(struct br_port_msg))))
++#endif
++
++static void usage(void)
++{
++	fprintf(stderr,
++		"Usage: bridge mrp { add | del } dev DEV p_port PORT s_port PORT ring_role ROLE ring_nr ID\n"
++		"       bridge mpr {show}\n");
++	exit(-1);
++}
++
++static void print_mrp_entry(FILE *f, int ifindex,
++			    struct nlmsghdr *n, struct rtattr **tb)
++{
++	const char *dev;
++
++	open_json_object(NULL);
++
++	dev = ll_index_to_name(ifindex);
++	print_color_string(PRINT_ANY, COLOR_IFNAME, "dev", "dev %s", dev);
++
++	if (tb[MRP_ATTR_P_IFINDEX]) {
++		dev = ll_index_to_name(rta_getattr_u32(tb[MRP_ATTR_P_IFINDEX]));
++		print_color_string(PRINT_ANY, COLOR_IFNAME, "p_port",
++				   " p_port %s", dev);
++	} else {
++		print_color_string(PRINT_ANY, COLOR_IFNAME, "p_port",
++				   " p_port %s", "*");
++	}
++
++	if (tb[MRP_ATTR_S_IFINDEX]) {
++		dev = ll_index_to_name(rta_getattr_u32(tb[MRP_ATTR_S_IFINDEX]));
++		print_color_string(PRINT_ANY, COLOR_IFNAME, "s_port",
++				   " s_port %s", dev);
++	} else {
++		print_color_string(PRINT_ANY, COLOR_IFNAME, "s_port",
++				   " s_port %s", "*");
++	}
++
++	if (tb[MRP_ATTR_RING_NR])
++		print_uint(PRINT_ANY, "ring_id", " ring_id %u",
++			   rta_getattr_u32(tb[MRP_ATTR_RING_NR]));
++	if (tb[MRP_ATTR_RING_ROLE])
++		print_uint(PRINT_ANY, "ring_role", " ring_role %u",
++			   rta_getattr_u32(tb[MRP_ATTR_RING_ROLE]));
++	if (tb[MRP_ATTR_RING_STATE])
++		print_uint(PRINT_ANY, "ring_state", " ring_state %u",
++			   rta_getattr_u32(tb[MRP_ATTR_RING_STATE]));
++
++	print_nl();
++	close_json_object();
++}
++
++static void print_mrp_entries(FILE *fp, struct nlmsghdr *n,
++			      int ifindex,  struct rtattr *attr)
++{
++	struct rtattr *etb[MRP_ATTR_MAX + 1];
++	int rem = RTA_PAYLOAD(attr);
++	struct rtattr *i;
++
++	for (i = RTA_DATA(attr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
++		parse_rtattr(etb, MRP_ATTR_MAX, RTA_DATA(i), rem - 4);
++		print_mrp_entry(fp, ifindex, n, etb);
++	}
++}
++
++static int __parse_mrp_nlmsg(struct nlmsghdr *n, struct rtattr **tb)
++{
++	struct br_port_msg *r = NLMSG_DATA(n);
++	int len = n->nlmsg_len;
++
++	if (n->nlmsg_type != RTM_GETMRP &&
++	    n->nlmsg_type != RTM_NEWMRP &&
++	    n->nlmsg_type != RTM_DELMRP) {
++		fprintf(stderr,
++			"Not RTM_GETMRP, RTM_NEWMRP or RTM_DELMRP: %08x %08x %08x\n",
++			n->nlmsg_len, n->nlmsg_type, n->nlmsg_flags);
++
++		return 0;
++	}
++
++	len -= NLMSG_LENGTH(sizeof(*r));
++	if (len < 0) {
++		fprintf(stderr, "BUG: wrong nlmsg len %d\n", len);
++		return -1;
++	}
++
++	parse_rtattr(tb, MRPA_MAX, MRPA_RTA(r),
++		     n->nlmsg_len - NLMSG_LENGTH(sizeof(*r)));
++
++	return 1;
++}
++
++static int print_mrps(struct nlmsghdr *n, void *arg)
++{
++	struct br_port_msg *r = NLMSG_DATA(n);
++	struct rtattr *tb[MRPA_MAX+1];
++	FILE *fp = arg;
++	int ret;
++
++	ret = __parse_mrp_nlmsg(n, tb);
++	if (ret != 1)
++		return ret;
++
++	if (tb[MRPA_MRP])
++		print_mrp_entries(fp, n, r->ifindex, tb[MRPA_MRP]);
++
++	return 0;
++}
++
++static int mrp_show(int argc, char **argv)
++{
++	new_json_obj(json);
++	open_json_object(NULL);
++
++	/* get mrp entries */
++	if (rtnl_mrpdump_req(&rth, PF_BRIDGE) < 0) {
++		perror("Cannot send dump request");
++		return -1;
++	}
++
++	open_json_array(PRINT_JSON, "mrp");
++	if (rtnl_dump_filter(&rth, print_mrps, stdout) < 0) {
++		fprintf(stderr, "Dump terminated\n");
++		return -1;
++	}
++	close_json_array(PRINT_JSON, NULL);
++
++	close_json_object();
++	delete_json_obj();
++	fflush(stdout);
++
++	return 0;
++	return 0;
++}
++
++static int mrp_modify(int cmd, int flags, int argc, char **argv)
++{
++	struct {
++		struct nlmsghdr	n;
++		struct br_port_msg	bpm;
++		char			buf[1024];
++	} req = {
++		.n.nlmsg_len = NLMSG_LENGTH(sizeof(struct br_port_msg)),
++		.n.nlmsg_flags = NLM_F_REQUEST | flags,
++		.n.nlmsg_type = cmd,
++		.bpm.family = PF_BRIDGE,
++	};
++	char *dev = NULL, *p_port = NULL, *s_port = NULL;
++	uint8_t ring_role = 0;
++	uint32_t ring_id = 0, p_ifindex = 0, s_ifindex = 0;
++
++	while (argc > 0) {
++		if (strcmp(*argv, "dev") == 0) {
++			NEXT_ARG();
++			dev = *argv;
++		} else if (strcmp(*argv, "p_port") == 0) {
++			NEXT_ARG();
++			p_port = *argv;
++		} else if (strcmp(*argv, "s_port") == 0) {
++			NEXT_ARG();
++			s_port = *argv;
++		} else if (strcmp(*argv, "ring_role") == 0) {
++			NEXT_ARG();
++			ring_role = atoi(*argv);
++		} else if (strcmp(*argv, "ring_id") == 0) {
++			NEXT_ARG();
++			ring_id = atoi(*argv);
++		} else {
++			if (matches(*argv, "help") == 0)
++				usage();
++		}
++		argc--; argv++;
++	}
++
++	if (cmd == RTM_DELMRP && (dev == NULL || ring_id == 0)) {
++		fprintf(stderr, "Device and ring_id are required arguments for del. \n");
++		return -1;
++	}
++	if (cmd == RTM_NEWMRP &&
++	    (dev == NULL || p_port == NULL || s_port == NULL || ring_role == 0 || ring_id == 0)) {
++		fprintf(stderr, "Device, p_port, s_port, ring_role and ring_id are required arguments for add.\n");
++		return -1;
++	}
++
++	req.bpm.ifindex = ll_name_to_index(dev);
++	if (!req.bpm.ifindex)
++		return nodev(dev);
++
++	p_ifindex = ll_name_to_index(p_port);
++	if (!p_ifindex && cmd == RTM_NEWMRP)
++		return nodev(p_port);
++
++	s_ifindex = ll_name_to_index(s_port);
++	if (!s_ifindex && cmd == RTM_NEWMRP)
++		return nodev(p_port);
++
++	addattr32(&req.n, sizeof(req), MRP_ATTR_P_IFINDEX, p_ifindex);
++	addattr32(&req.n, sizeof(req), MRP_ATTR_S_IFINDEX, s_ifindex);
++	addattr8(&req.n, sizeof(req), MRP_ATTR_RING_ROLE, ring_role);
++	addattr32(&req.n, sizeof(req), MRP_ATTR_RING_NR, ring_id);
++
++	if (rtnl_talk(&rth, &req.n, NULL) < 0)
++		return -1;
++
++	return 0;
++}
++
++int do_mrp(int argc, char **argv)
++{
++	ll_init_map(&rth);
++
++	if (argc > 0) {
++		if (matches(*argv, "add") == 0)
++			return mrp_modify(RTM_NEWMRP, NLM_F_CREATE|NLM_F_EXCL, argc-1, argv+1);
++		if (matches(*argv, "delete") == 0)
++			return mrp_modify(RTM_DELMRP, 0, argc-1, argv+1);
++		if (matches(*argv, "show") == 0)
++			return mrp_show(argc-1, argv+1);
++		if (matches(*argv, "help") == 0)
++			usage();
++	} else
++		return mrp_show(0, NULL);
++
++	fprintf(stderr, "Command \"%s\" is unknown, try \"bridge mrp help\".\n", *argv);
++	exit(-1);
++}
+diff --git a/include/libnetlink.h b/include/libnetlink.h
+index 8ebdc6d3..4e065164 100644
+--- a/include/libnetlink.h
++++ b/include/libnetlink.h
+@@ -69,6 +69,8 @@ int rtnl_neightbldump_req(struct rtnl_handle *rth, int family)
+ 	__attribute__((warn_unused_result));
+ int rtnl_mdbdump_req(struct rtnl_handle *rth, int family)
+ 	__attribute__((warn_unused_result));
++int rtnl_mrpdump_req(struct rtnl_handle *rth, int family)
++	__attribute__((warn_unused_result));
+ int rtnl_netconfdump_req(struct rtnl_handle *rth, int family)
+ 	__attribute__((warn_unused_result));
+ 
 diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 4a58e3d7de46..00f4f465d62a 100644
+index 31fc51bd..0220fe5f 100644
 --- a/include/uapi/linux/if_bridge.h
 +++ b/include/uapi/linux/if_bridge.h
-@@ -265,6 +265,33 @@ enum {
+@@ -256,6 +256,31 @@ enum {
  };
  #define MDBA_SET_ENTRY_MAX (__MDBA_SET_ENTRY_MAX - 1)
  
-+#ifdef CONFIG_BRIDGE_MRP
 +enum {
 +	MRPA_UNSPEC,
 +	MRPA_MRP,
@@ -97,13 +410,12 @@ index 4a58e3d7de46..00f4f465d62a 100644
 +	__MRP_ATTR_MAX,
 +};
 +#define MRP_ATTR_MAX (__MRP_ATTR_MAX - 1)
-+#endif
 +
  /* Embedded inside LINK_XSTATS_TYPE_BRIDGE */
  enum {
  	BRIDGE_XSTATS_UNSPEC,
 diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
-index 1418a8362bb7..b1d72a5309cd 100644
+index 4b93791c..8335360f 100644
 --- a/include/uapi/linux/rtnetlink.h
 +++ b/include/uapi/linux/rtnetlink.h
 @@ -171,6 +171,13 @@ enum {
@@ -120,384 +432,33 @@ index 1418a8362bb7..b1d72a5309cd 100644
  	__RTM_MAX,
  #define RTM_MAX		(((__RTM_MAX + 3) & ~3) - 1)
  };
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index a84aab3f7114..4173021d3bfa 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -1234,3 +1234,284 @@ void br_mrp_port_uninit(struct net_bridge_port *port)
- 
- 	mutex_unlock(&mrp->lock);
- }
-+
-+/* Do sanity checks and obtain device and the ring */
-+static int br_mrp_parse(struct sk_buff *skb, struct nlmsghdr *nlh,
-+			struct net_device **pdev, struct br_mrp_config *conf)
-+{
-+	struct nlattr *tb[MRP_ATTR_MAX + 1];
-+	struct net *net = sock_net(skb->sk);
-+	struct br_port_msg *bpm;
-+	struct net_device *dev;
-+	int err;
-+
-+	err = nlmsg_parse_deprecated(nlh, sizeof(*bpm), tb,
-+				     MRP_ATTR_MAX, NULL, NULL);
-+	if (err < 0)
-+		return err;
-+
-+	bpm = nlmsg_data(nlh);
-+	if (bpm->ifindex == 0) {
-+		pr_info("PF_BRIDGE: %s with invalid ifindex\n", __func__);
-+		return -EINVAL;
-+	}
-+
-+	dev = __dev_get_by_index(net, bpm->ifindex);
-+	if (!dev) {
-+		pr_info("PF_BRIDGE: %s with unknown ifindex\n", __func__);
-+		return -ENODEV;
-+	}
-+
-+	if (!(dev->priv_flags & IFF_EBRIDGE)) {
-+		pr_info("PF_BRIDGE: %s with non-bridge\n", __func__);
-+		return -EOPNOTSUPP;
-+	}
-+
-+	*pdev = dev;
-+
-+	if (tb[MRP_ATTR_P_IFINDEX])
-+		conf->p_ifindex = nla_get_u32(tb[MRP_ATTR_P_IFINDEX]);
-+	if (tb[MRP_ATTR_S_IFINDEX])
-+		conf->s_ifindex = nla_get_u32(tb[MRP_ATTR_S_IFINDEX]);
-+	if (tb[MRP_ATTR_RING_ROLE])
-+		conf->ring_role = nla_get_u8(tb[MRP_ATTR_RING_ROLE]);
-+	if (tb[MRP_ATTR_RING_NR])
-+		conf->ring_nr = nla_get_u8(tb[MRP_ATTR_RING_NR]);
-+
-+	return 0;
-+}
-+
-+static int br_mrp_fill_entry(struct sk_buff *skb, struct netlink_callback *cb,
-+			     struct net_device *dev)
-+{
-+	int idx = 0, s_idx = cb->args[1], err = 0;
-+	struct net_bridge *br = netdev_priv(dev);
-+	struct br_mrp *mrp;
-+	struct nlattr *nest, *nest2;
-+
-+	nest = nla_nest_start_noflag(skb, MRPA_MRP);
-+	if (!nest)
-+		return -EMSGSIZE;
-+
-+	list_for_each_entry_rcu(mrp, &br->mrp_list, list) {
-+		if (idx < s_idx)
-+			goto skip;
-+
-+		nest2 = nla_nest_start_noflag(skb, MRPA_MRP_ENTRY);
-+		if (!nest2) {
-+			err = -EMSGSIZE;
-+			mutex_unlock(&mrp->lock);
-+			break;
-+		}
-+
-+		mutex_lock(&mrp->lock);
-+
-+		if (mrp->p_port)
-+			nla_put_u32(skb, MRP_ATTR_P_IFINDEX,
-+				    mrp->p_port->dev->ifindex);
-+		if (mrp->s_port)
-+			nla_put_u32(skb, MRP_ATTR_S_IFINDEX,
-+				    mrp->s_port->dev->ifindex);
-+
-+		nla_put_u32(skb, MRP_ATTR_RING_NR, mrp->ring_nr);
-+		nla_put_u32(skb, MRP_ATTR_RING_ROLE, mrp->ring_role);
-+
-+		if (mrp->ring_role == BR_MRP_RING_ROLE_MRM)
-+			nla_put_u32(skb, MRP_ATTR_RING_STATE, mrp->mrm_state);
-+		if (mrp->ring_role == BR_MRP_RING_ROLE_MRC)
-+			nla_put_u32(skb, MRP_ATTR_RING_STATE, mrp->mrc_state);
-+
-+		mutex_unlock(&mrp->lock);
-+
-+		nla_nest_end(skb, nest2);
-+skip:
-+		idx++;
-+	}
-+
-+	cb->args[1] = idx;
-+	nla_nest_end(skb, nest);
-+	return err;
-+}
-+
-+static int br_mrp_dump(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	struct net *net = sock_net(skb->sk);
-+	struct nlmsghdr *nlh = NULL;
-+	struct net_device *dev;
-+	int idx = 0, s_idx;
-+
-+	s_idx = cb->args[0];
-+
-+	rcu_read_lock();
-+
-+	cb->seq = net->dev_base_seq;
-+
-+	for_each_netdev_rcu(net, dev) {
-+		if (dev->priv_flags & IFF_EBRIDGE) {
-+			struct br_port_msg *bpm;
-+
-+			if (idx < s_idx)
-+				goto skip;
-+
-+			nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid,
-+					cb->nlh->nlmsg_seq, RTM_GETMRP,
-+					sizeof(*bpm), NLM_F_MULTI);
-+			if (!nlh)
-+				break;
-+
-+			bpm = nlmsg_data(nlh);
-+			memset(bpm, 0, sizeof(*bpm));
-+			bpm->ifindex = dev->ifindex;
-+			if (br_mrp_fill_entry(skb, cb, dev) < 0)
-+				goto out;
-+
-+			cb->args[1] = 0;
-+			nlmsg_end(skb, nlh);
-+skip:
-+			idx++;
-+		}
-+	}
-+
-+out:
-+	if (nlh)
-+		nlmsg_end(skb, nlh);
-+	rcu_read_unlock();
-+	cb->args[0] = idx;
-+	return skb->len;
-+}
-+
-+static int br_mrp_add(struct sk_buff *skb, struct nlmsghdr *nlh,
-+		      struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_port *p_port, *s_port;
-+	struct net *net = sock_net(skb->sk);
-+	enum br_mrp_ring_role_type role;
-+	struct br_mrp_config conf;
-+	struct net_device *dev;
-+	struct net_bridge *br;
-+	struct br_mrp *mrp;
-+	u32 ring_nr;
-+	int err;
-+
-+	err = br_mrp_parse(skb, nlh, &dev, &conf);
-+	if (err < 0)
-+		return err;
-+
-+	br = netdev_priv(dev);
-+
-+	/* Get priority and secondary ports */
-+	dev = __dev_get_by_index(net, conf.p_ifindex);
-+	if (!dev)
-+		return -ENODEV;
-+
-+	p_port = br_port_get_rtnl(dev);
-+	if (!p_port || p_port->br != br)
-+		return -EINVAL;
-+
-+	dev = __dev_get_by_index(net, conf.s_ifindex);
-+	if (!dev)
-+		return -ENODEV;
-+
-+	s_port = br_port_get_rtnl(dev);
-+	if (!s_port || s_port->br != br)
-+		return -EINVAL;
-+
-+	/* Get role */
-+	role = conf.ring_role;
-+
-+	/* Get ring number */
-+	ring_nr = conf.ring_nr;
-+
-+	/* It is not possible to have MRP instances with the same ID */
-+	mrp = br_mrp_find(br, ring_nr);
-+	if (mrp)
-+		return -EINVAL;
-+
-+	/* Create the mrp instance */
-+	err = br_mrp_create(br, ring_nr);
-+	if (err < 0)
-+		return err;
-+
-+	mrp = br_mrp_find(br, ring_nr);
-+
-+	mutex_lock(&mrp->lock);
-+
-+	/* Initialize the ports */
-+	err = br_mrp_port_init(p_port, mrp, BR_MRP_PORT_ROLE_PRIMARY);
-+	if (err < 0) {
-+		mutex_unlock(&mrp->lock);
-+		goto delete_mrp;
-+	}
-+
-+	err = br_mrp_port_init(s_port, mrp, BR_MRP_PORT_ROLE_SECONDARY);
-+	if (err < 0) {
-+		mutex_unlock(&mrp->lock);
-+		goto delete_port;
-+	}
-+
-+	if (role == BR_MRP_RING_ROLE_MRM)
-+		br_mrp_set_mrm_role(mrp);
-+	if (role == BR_MRP_RING_ROLE_MRC)
-+		br_mrp_set_mrc_role(mrp);
-+
-+	mutex_unlock(&mrp->lock);
-+
-+	return 0;
-+
-+delete_port:
-+	br_mrp_port_uninit(p_port);
-+
-+delete_mrp:
-+	br_mrp_destroy(br, ring_nr);
-+	return err;
-+}
-+
-+static int br_mrp_del(struct sk_buff *skb, struct nlmsghdr *nlh,
-+		      struct netlink_ext_ack *extack)
-+{
-+	struct br_mrp_config conf;
-+	struct net_device *dev;
-+	struct net_bridge *br;
-+	struct br_mrp *mrp;
-+	u32 ring_nr;
-+	int err;
-+
-+	err = br_mrp_parse(skb, nlh, &dev, &conf);
-+	if (err < 0)
-+		return err;
-+
-+	br = netdev_priv(dev);
-+
-+	/* Get ring number */
-+	ring_nr = conf.ring_nr;
-+
-+	mrp = br_mrp_find(br, ring_nr);
-+	if (!mrp) {
-+		pr_info("PF_BRIDGE: %s with invalid ring_nr\n", __func__);
-+		return -EINVAL;
-+	}
-+
-+	br_mrp_port_uninit(mrp->p_port);
-+	br_mrp_port_uninit(mrp->s_port);
-+
-+	br_mrp_destroy(br, ring_nr);
-+
-+	return 0;
-+}
-+
-+void br_mrp_netlink_init(void)
-+{
-+	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_GETMRP, NULL,
-+			     br_mrp_dump, 0);
-+	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_NEWMRP, br_mrp_add,
-+			     NULL, 0);
-+	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_DELMRP, br_mrp_del,
-+			     NULL, 0);
-+}
-+
-+void br_mrp_netlink_uninit(void)
-+{
-+	rtnl_unregister(PF_BRIDGE, RTM_GETMRP);
-+	rtnl_unregister(PF_BRIDGE, RTM_NEWMRP);
-+	rtnl_unregister(PF_BRIDGE, RTM_DELMRP);
-+}
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 60136575aea4..6d8f84ed8b0d 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1664,6 +1664,9 @@ int __init br_netlink_init(void)
- 	int err;
- 
- 	br_mdb_init();
-+#ifdef CONFIG_BRIDGE_MRP
-+	br_mrp_netlink_init();
-+#endif
- 	rtnl_af_register(&br_af_ops);
- 
- 	err = rtnl_link_register(&br_link_ops);
-@@ -1674,12 +1677,18 @@ int __init br_netlink_init(void)
- 
- out_af:
- 	rtnl_af_unregister(&br_af_ops);
-+#ifdef CONFIG_BRIDGE_MRP
-+	br_mrp_netlink_uninit();
-+#endif
- 	br_mdb_uninit();
- 	return err;
+diff --git a/lib/libnetlink.c b/lib/libnetlink.c
+index e02d6294..f1f84733 100644
+--- a/lib/libnetlink.c
++++ b/lib/libnetlink.c
+@@ -421,6 +421,22 @@ int rtnl_mdbdump_req(struct rtnl_handle *rth, int family)
+ 	return send(rth->fd, &req, sizeof(req), 0);
  }
  
- void br_netlink_fini(void)
++int rtnl_mrpdump_req(struct rtnl_handle *rth, int family)
++{
++	struct {
++		struct nlmsghdr nlh;
++		struct br_port_msg bpm;
++	} req = {
++		.nlh.nlmsg_len = NLMSG_LENGTH(sizeof(struct br_port_msg)),
++		.nlh.nlmsg_type = RTM_GETMRP,
++		.nlh.nlmsg_flags = NLM_F_DUMP | NLM_F_REQUEST,
++		.nlh.nlmsg_seq = rth->dump = ++rth->seq,
++		.bpm.family = family,
++	};
++
++	return send(rth->fd, &req, sizeof(req), 0);
++}
++
+ int rtnl_netconfdump_req(struct rtnl_handle *rth, int family)
  {
-+#ifdef CONFIG_BRIDGE_MRP
-+	br_mrp_netlink_uninit();
-+#endif
- 	br_mdb_uninit();
- 	rtnl_af_unregister(&br_af_ops);
- 	rtnl_link_unregister(&br_link_ops);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 0c008b3d24cc..9a060c3c7713 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1169,6 +1169,8 @@ unsigned long br_timer_value(const struct timer_list *timer);
- 
- #if IS_ENABLED(CONFIG_BRIDGE_MRP)
- /* br_mrp.c */
-+void br_mrp_netlink_init(void);
-+void br_mrp_netlink_uninit(void);
- void br_mrp_uninit(struct net_bridge *br);
- void br_mrp_port_uninit(struct net_bridge_port *p);
- void br_mrp_port_link_change(struct net_bridge_port *br, bool up);
-diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
-index 00ee20582ac9..13fd2330ccfc 100644
---- a/net/bridge/br_private_mrp.h
-+++ b/net/bridge/br_private_mrp.h
-@@ -174,6 +174,15 @@ struct br_mrp {
- 	u16				react_on_link_change;
- };
- 
-+/* Represents the configuration of the MRP instance */
-+struct br_mrp_config {
-+	u32 p_ifindex;
-+	u32 s_ifindex;
-+	u32 ring_role;
-+	u32 ring_nr;
-+	u32 ring_state;
-+};
-+
- /* br_mrp.c */
- void br_mrp_ring_test_req(struct br_mrp *mrp, u32 interval);
- void br_mrp_ring_topo_req(struct br_mrp *mrp, u32 interval);
-diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index c97fdae8f71b..7c110fdb9e1e 100644
---- a/security/selinux/nlmsgtab.c
-+++ b/security/selinux/nlmsgtab.c
-@@ -85,6 +85,9 @@ static const struct nlmsg_perm nlmsg_route_perms[] =
- 	{ RTM_GETNEXTHOP,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
- 	{ RTM_NEWLINKPROP,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_DELLINKPROP,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-+	{ RTM_NEWMRP,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-+	{ RTM_DELMRP,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-+	{ RTM_GETMRP,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
- };
- 
- static const struct nlmsg_perm nlmsg_tcpdiag_perms[] =
-@@ -168,7 +171,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 		 * structures at the top of this file with the new mappings
- 		 * before updating the BUILD_BUG_ON() macro!
- 		 */
--		BUILD_BUG_ON(RTM_MAX != (RTM_NEWLINKPROP + 3));
-+		BUILD_BUG_ON(RTM_MAX != (RTM_DELMRP + 3));
- 		err = nlmsg_perm(nlmsg_type, perm, nlmsg_route_perms,
- 				 sizeof(nlmsg_route_perms));
- 		break;
+ 	struct {
 -- 
 2.17.1
 
