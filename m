@@ -1,22 +1,13 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=subject:from:to:cc:references:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=y1QB9R6bh9eDoK3rwoTzgbhXWkTdUGimAWJVMTqnIFk=;
- b=O4rt//V4xdikyG8ZAsffheasvFdkAN+OAh9IvXJOvUhXcggzuN+zpjmfBQtfOVsxbx
- hx/QFFQhmy5ItXBMzARVi8iCfMH550Qq3698afJqO8Bwhos1Zb322LougYzTBnm0bHSB
- ZE+4vk+pBQYHHcIzYf3BCh0di6krGdaZjEG60=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Return-Path: <Horatiu.Vultur@microchip.com>
+Date: Fri, 10 Jan 2020 17:04:56 +0100
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Message-ID: <20200110160456.enzomhfsce7bptu3@soft-dev3.microsemi.net>
 References: <20200109150640.532-1-horatiu.vultur@microchip.com>
  <6f1936e9-97e5-9502-f062-f2925c9652c9@cumulusnetworks.com>
-Message-ID: <14d0ef5f-4605-4c28-7029-8f60e79f18f7@cumulusnetworks.com>
-Date: Fri, 10 Jan 2020 17:38:55 +0200
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 In-Reply-To: <6f1936e9-97e5-9502-f062-f2925c9652c9@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [RFC net-next Patch 0/3] net: bridge: mrp: Add support
  for Media Redundancy Protocol(MRP)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -27,110 +18,11 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: andrew@lunn.ch, jakub.kicinski@netronome.com, roopa@cumulusnetworks.com, jiri@mellanox.com, vivien.didelot@gmail.com, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, dsahern@gmail.com, olteanv@gmail.com, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: andrew@lunn.ch, jakub.kicinski@netronome.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, vivien.didelot@gmail.com, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jiri@mellanox.com, jeffrey.t.kirsher@intel.com, dsahern@gmail.com, olteanv@gmail.com, davem@davemloft.net
 
-On 10/01/2020 16:13, Nikolay Aleksandrov wrote:
-> On 09/01/2020 17:06, Horatiu Vultur wrote:
->> Media Redundancy Protocol is a data network protocol standardized by
->> International Electrotechnical Commission as IEC 62439-2. It allows rings of
->> Ethernet switches to overcome any single failure with recovery time faster than
->> STP. It is primarily used in Industrial Ethernet applications.
->>
->> This is the first proposal of implementing a subset of the standard. It supports
->> only 2 roles of an MRP node. It supports only Media Redundancy Manager(MRM) and
->> Media Redundancy Client(MRC). In a MRP ring, each node needs to support MRP and
->> in a ring can be only one MRM and multiple MRC. It is possible to have multiple
->> instances of MRP on a single node. But a port can be part of only one MRP
->> instance.
->>
->> The MRM is responsible for detecting when there is a loop in the ring. It is
->> sending the frame MRP_Test to detect the loops. It would send MRP_Test on both
->> ports in the ring and if the frame is received at the other end, then the ring
->> is closed. Meaning that there is a loop. In this case it sets the port state to
->> BLOCKED, not allowing traffic to pass through except MRP frames. In case it
->> stops receiving MRP_Test frames from itself then the MRM will detect that the
->> ring is open, therefor it would notify the other nodes of this change and will
->> set the state of the port to be FORWARDING.
->>
->> The MRC is responsible for forwarding MRP_Test frames between the ring ports
->> (and not to flood on other ports) and to listen when there is a change in the
->> network to clear the FDB.
->>
->> Similar with STP, MRP is implemented on top of the bridge and they can't be
->> enable at the same time. While STP runs on all ports of the bridge, MRP needs to
->> run only on 2 ports.
->>
->> The bridge needs to:
->> - notify when the link of one of the ports goes down or up, because MRP instance
->>   needs to react to link changes by sending MRP_LinkChange frames.
->> - notify when one of the ports are removed from the bridge or when the bridge
->>   is destroyed, because if the port is part of the MRP ring then MRP state
->>   machine should be stopped.
->> - add a handler to allow MRP instance to process MRP frames, if MRP is enabled.
->>   This is similar with STP design.
->> - add logic for MRP frames inside the bridge. The bridge will just detect MRP
->>   frames and it would forward them to the upper layer to allow to process it.
->> - update the logic to update non-MRP frames. If MRP is enabled, then look also
->>   at the state of the port to decide to forward or not.
->>
->> To create a MRP instance on the bridge:
->> $ bridge mrp add dev br0 p_port eth0 s_port eth1 ring_role 2 ring_id 1
->>
->> Where:
->> p_port, s_port: can be any port under the bridge
->> ring_role: can have the value 1(MRC - Media Redundancy Client) or
->>            2(MRM - Media Redundancy Manager). In a ring can be only one MRM.
->> ring_id: unique id for each MRP instance.
->>
->> It is possible to create multiple instances. Each instance has to have it's own
->> ring_id and a port can't be part of multiple instances:
->> $ bridge mrp add dev br0 p_port eth2 s_port eth3 ring_role 1 ring_id 2
->>
->> To see current MRP instances and their status:
->> $ bridge mrp show
->> dev br0 p_port eth2 s_port eth3 ring_role 1 ring_id 2 ring_state 3
->> dev br0 p_port eth0 s_port eth1 ring_role 2 ring_id 1 ring_state 4
->>
->> If this patch series is well received, the in the future it could be extended
->> with the following:
->> - add support for Media Redundancy Automanager. This role allows a node to
->>   detect if needs to behave as a MRM or MRC. The advantage of this role is that
->>   the user doesn't need to configure the nodes each time they are added/removed
->>   from a ring and it adds redundancy to the manager.
->> - add support for Interconnect rings. This allow to connect multiple rings.
->> - add HW offloading. The standard defines 4 recovery times (500, 200, 30 and 10
->>   ms). To be able to achieve 30 and 10 it is required by the HW to generate the
->>   MRP_Test frames and detect when the ring is open/closed.
->>
->> Horatiu Vultur (3):
->>   net: bridge: mrp: Add support for Media Redundancy Protocol
->>   net: bridge: mrp: Integrate MRP into the bridge
->>   net: bridge: mrp: Add netlink support to configure MRP
->>
->>  include/uapi/linux/if_bridge.h |   27 +
->>  include/uapi/linux/if_ether.h  |    1 +
->>  include/uapi/linux/rtnetlink.h |    7 +
->>  net/bridge/Kconfig             |   12 +
->>  net/bridge/Makefile            |    2 +
->>  net/bridge/br.c                |   19 +
->>  net/bridge/br_device.c         |    3 +
->>  net/bridge/br_forward.c        |    1 +
->>  net/bridge/br_if.c             |   10 +
->>  net/bridge/br_input.c          |   22 +
->>  net/bridge/br_mrp.c            | 1517 ++++++++++++++++++++++++++++++++
->>  net/bridge/br_mrp_timer.c      |  227 +++++
->>  net/bridge/br_netlink.c        |    9 +
->>  net/bridge/br_private.h        |   30 +
->>  net/bridge/br_private_mrp.h    |  208 +++++
->>  security/selinux/nlmsgtab.c    |    5 +-
->>  16 files changed, 2099 insertions(+), 1 deletion(-)
->>  create mode 100644 net/bridge/br_mrp.c
->>  create mode 100644 net/bridge/br_mrp_timer.c
->>  create mode 100644 net/bridge/br_private_mrp.h
->>
-> 
-> Hi all,
+Hi Nik,
+
 > I agree with Stephen here, IMO you have to take note of how STP has progressed
 > and that bringing it in the kernel was a mistake, these days mstpd has an active
 > community and much better support which is being extended. This looks best implemented
@@ -140,24 +32,69 @@ On 10/01/2020 16:13, Nikolay Aleksandrov wrote:
 > you present a good argument for needing a new netlink socket for these packets - then
 > sure, ok.
 
-nevermind the last sentence (about packet/netlink), I misread your earlier reply :)
+We are aware of the STP story, and in case of STP I do agree, it is much
+better to have this in user-space. But while MRP has much in common with
+STP, it also differs in some important areas.
+
+Most importantly, MRP requires sending and receiving thousands of frames
+per second. To achieve the 10ms recovery time, the tx period per
+interface is 500us, on two interfaces, adding up to 4000 frames per
+second to RX and 4000 to TX(if the ring is closed). And this is per
+ring...
+
+The CPU systems in the kind of switches we are working on can not handle
+this load, and it was not meant to handle this. Instead the switch core
+can do the periodic injection of frames and automatic terminate them.
+
+In patch posted, we have not added this HW offload (we have this in our
+internal repos, where we also have implemented the remaining part of the
+protocol). The reason for this is that we wanted to do a proper SW
+implementation and then HW offload it.
+
+Looking back, I can see that what we have presented here could be done
+equally good in user-space (roughly), but that is because the HW offload
+is not part of this patch.
+
+The problem in putting it in user-space is that we do not have a nice a
+clean API where it is just putting a port in forwarding/blocking state
+(like we have with STP). To do an abstraction that actually allow us to
+utilize the HW to offload a protocol like MRP will very easy become too
+specific for our SoC and rejected with that argument.
 
 > 
 > If you do decide to continue with the kernel version (which I would again discourage)
 > a few general points (from a quick scan):
 >  - the single 1.6+k line patch is just hard to review, please break it into more digestable
 >    and logical pieces
->  - the locking is wrong, also there're a few use-after-free bugs 
+We will work in this.
+
+>  - the locking is wrong, also there're a few use-after-free bugs
+Oops, that is not good - happy that you caught it. A hint on where,
+would be great.
+
 >  - please re-work the bridge integration code, it can be simplified and tests can be eliminated
+We will have a second look at that.
+
 >  - your netlink helpers usage is generally wrong and needs more work
+Ok - some hints on what we did wrong would be great.
+
 >  - use the already existing port states instead of adding new ones and you can avoid some tests in fast-path
+I assume you want us to re-use the STP concept of forwarding/blocking
+and relay on the checks it already has.
+
 >  - perhaps look into using br_afspec() for configuration/retrieval initially ? I don't think you need the new rtm messages yet.
+Is that a good example on how to do the netlink interface, and you want
+us to use that as a reference?
+
 >  - I'm sure I can go on, but I really think all of this should be put in user-space -
 >    in-kernel STP is a great example of how _not_ to do it. :) As a bonus you'll avoid 90% of the
 >    problems above just by making your own abstractions and using them for it.
-> 
-> 
-> Thanks,
->  Nik
-> 
+Please continue.
 
+We do not see any good paths for getting user-space based solutions
+which actually does use the HW offloading accepted upstream. If this
+path exists then we would like to understand it and evaluate it
+properly.
+
+-- 
+/Horatiu
