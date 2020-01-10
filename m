@@ -1,15 +1,25 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-Date: Fri, 10 Jan 2020 18:25:36 +0100
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20200110172536.42rdfwdc6eiwsw7m@soft-dev3.microsemi.net>
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+ s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+ Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+ Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+ :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+ List-Post:List-Owner:List-Archive;
+ bh=tFD8L80AsAe/peAMgmqdDb1tPStURhWLKJa2Uvdi4vU=; b=fKvuaQLtH4HcOSF5kILzhiKsch
+ 57abGmvJNwtg/YVurNp6yl/6XsT3LGnrARvgVUqWlEjJGpwf9xo3oOcTHHUEhs44h6EniGwDjWW0A
+ rJ7T6A014uAM1f0nQmq/+6uaoOseT07TreQx/MJIeis6pjwZTmb8jtflRl2vVr1RNxyw=;
+Date: Fri, 10 Jan 2020 18:56:08 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20200110175608.GK19739@lunn.ch>
 References: <20200109150640.532-1-horatiu.vultur@microchip.com>
  <6f1936e9-97e5-9502-f062-f2925c9652c9@cumulusnetworks.com>
  <20200110160456.enzomhfsce7bptu3@soft-dev3.microsemi.net>
  <CA+h21hrq7U4EdqSgpYQRjK8rkcJdvD5jXCSOH_peA-R4xCocTg@mail.gmail.com>
+ <20200110172536.42rdfwdc6eiwsw7m@soft-dev3.microsemi.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+h21hrq7U4EdqSgpYQRjK8rkcJdvD5jXCSOH_peA-R4xCocTg@mail.gmail.com>
+In-Reply-To: <20200110172536.42rdfwdc6eiwsw7m@soft-dev3.microsemi.net>
 Subject: Re: [Bridge] [RFC net-next Patch 0/3] net: bridge: mrp: Add support
  for Media Redundancy Protocol(MRP)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -20,79 +30,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <jakub.kicinski@netronome.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, lkml <linux-kernel@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, anirudh.venkataramanan@intel.com, Jiri Pirko <jiri@mellanox.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, David Ahern <dsahern@gmail.com>, Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>, "David S. Miller" <davem@davemloft.net>
+To: Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, lkml <linux-kernel@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>, anirudh.venkataramanan@intel.com, Jiri Pirko <jiri@mellanox.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, David Ahern <dsahern@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>
 
+> > Horatiu, could you also give some references to the frames that need
+> > to be sent. I've no idea what information they need to contain, if the
+> > contents is dynamic, or static, etc.
+> It is dynamic - but trivial...
 
-Hi Valdimir and Andrew
+If it is trivial, i don't see why you are so worried about abstracting
+it?
 
-The 01/10/2020 18:21, Vladimir Oltean wrote:
-> I think it would help your case if you explained a bit more about the
-> hw offload primitives you have implemented internally. I believe you
-> are talking about the frame generation engine in the Ocelot switch
-> which has 1024 frame slots that are periodically sent based on one of
-> 8 timers. For receive, I believe that the functionality is to offload
-> the consumption of these periodic frames, and just raise an interrupt
-> if frames were expected but not received.
-Yes something like this. But it is worth mention that it is not just about
-injecting frames, sequence number needs to be incremented (by HW) etc.
+> Here is a dump from WireShark with
+> annotation on what our HW can update:
+> 
+> Ethernet II, Src: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1), Dst: Iec_00:00:01 (01:15:4e:00:00:01)
+>     Destination: Iec_00:00:01 (01:15:4e:00:00:01)
+>     Source: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1)
+>     Type: MRP (0x88e3)
+> PROFINET MRP MRP_Test, MRP_Common, MRP_End
+>     MRP_Version: 1
+>     MRP_TLVHeader.Type: MRP_Test (0x02)
+>         MRP_TLVHeader.Type: MRP_Test (0x02)
+>         MRP_TLVHeader.Length: 18
+>         MRP_Prio: 0x1f40 High priorities
+>         MRP_SA: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1)
+>         MRP_PortRole: Primary ring port (0x0000)
+>         MRP_RingState: Ring closed (0x0001)
+>         MRP_Transition: 0x0001
+>         MRP_TimeStamp [ms]: 0x000cf574             <---------- Updated automatic
+>     MRP_TLVHeader.Type: MRP_Common (0x01)
+>         MRP_TLVHeader.Type: MRP_Common (0x01)
+>         MRP_TLVHeader.Length: 18
+>         MRP_SequenceID: 0x00e9                     <---------- Updated automatic
+>         MRP_DomainUUID: ffffffff-ffff-ffff-ffff-ffffffffffff
+>     MRP_TLVHeader.Type: MRP_End (0x00)
+>         MRP_TLVHeader.Type: MRP_End (0x00)
+>         MRP_TLVHeader.Length: 0
+> 
+> But all the fields can change, but to change the other fields we need to
+> interact with the HW. Other SoC may have other capabilities in their
+> offload. As an example, if the ring becomes open then the fields
+> MRP_RingState and MRP_Transition need to change and in our case this
+> requires SW interference.
 
-> For your use case of MRP, it makes perfect sense to have this. I am
-> just not sure (and not knowledgeable enough in Linux) what this engine
-> is offloading from the operating system's perspective.
-We will try to make that more clear.
+Isn't SW always required? You need to tell your state machine that the
+state has changed.
 
-> Your justification for implementing MRP in the kernel seems to be that
-> it's better to make MRP part of the kernel uapi than a configuration
-> interface for your periodic engine, which in principle I agree with.
-> I'm just not sure if the offload that you propose will have a trivial
-> path into the kernel either, so it would make sense for reviewers to
-> see everything put together first.
-You are right. The decision of start by publishing a pure SW implementation with
-no HW offload was not the best.
+> Would you like a PCAP file as an example? Or do you want a better
+> description of the frame format.
 
-I can do a new RFC that does including the HW offload hooks, and
-describe what configurations we do when these hooks are called. The
-actual HW which implements these hooks is still not released (and the
-SwitchDev driver for this device is still not submitted).
+I was hoping for a link to an RFC, or some standards document.
 
-> Horatiu, could you also give some references to the frames that need
-> to be sent. I've no idea what information they need to contain, if the
-> contents is dynamic, or static, etc.
-It is dynamic - but trivial... Here is a dump from WireShark with
-annotation on what our HW can update:
-
-Ethernet II, Src: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1), Dst: Iec_00:00:01 (01:15:4e:00:00:01)
-    Destination: Iec_00:00:01 (01:15:4e:00:00:01)
-    Source: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1)
-    Type: MRP (0x88e3)
-PROFINET MRP MRP_Test, MRP_Common, MRP_End
-    MRP_Version: 1
-    MRP_TLVHeader.Type: MRP_Test (0x02)
-        MRP_TLVHeader.Type: MRP_Test (0x02)
-        MRP_TLVHeader.Length: 18
-        MRP_Prio: 0x1f40 High priorities
-        MRP_SA: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1)
-        MRP_PortRole: Primary ring port (0x0000)
-        MRP_RingState: Ring closed (0x0001)
-        MRP_Transition: 0x0001
-        MRP_TimeStamp [ms]: 0x000cf574             <---------- Updated automatic
-    MRP_TLVHeader.Type: MRP_Common (0x01)
-        MRP_TLVHeader.Type: MRP_Common (0x01)
-        MRP_TLVHeader.Length: 18
-        MRP_SequenceID: 0x00e9                     <---------- Updated automatic
-        MRP_DomainUUID: ffffffff-ffff-ffff-ffff-ffffffffffff
-    MRP_TLVHeader.Type: MRP_End (0x00)
-        MRP_TLVHeader.Type: MRP_End (0x00)
-        MRP_TLVHeader.Length: 0
-
-But all the fields can change, but to change the other fields we need to
-interact with the HW. Other SoC may have other capabilities in their
-offload. As an example, if the ring becomes open then the fields
-MRP_RingState and MRP_Transition need to change and in our case this
-requires SW interference.
-
-Would you like a PCAP file as an example? Or do you want a better
-description of the frame format.
-
-/Horatiu
+  Andrew
