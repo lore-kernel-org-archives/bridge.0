@@ -1,25 +1,13 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
- s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
- Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=tFD8L80AsAe/peAMgmqdDb1tPStURhWLKJa2Uvdi4vU=; b=fKvuaQLtH4HcOSF5kILzhiKsch
- 57abGmvJNwtg/YVurNp6yl/6XsT3LGnrARvgVUqWlEjJGpwf9xo3oOcTHHUEhs44h6EniGwDjWW0A
- rJ7T6A014uAM1f0nQmq/+6uaoOseT07TreQx/MJIeis6pjwZTmb8jtflRl2vVr1RNxyw=;
-Date: Fri, 10 Jan 2020 18:56:08 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20200110175608.GK19739@lunn.ch>
+Return-Path: <davem@davemloft.net>
+Date: Fri, 10 Jan 2020 11:27:36 -0800 (PST)
+Message-Id: <20200110.112736.1849382588448237535.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <6f1936e9-97e5-9502-f062-f2925c9652c9@cumulusnetworks.com>
 References: <20200109150640.532-1-horatiu.vultur@microchip.com>
  <6f1936e9-97e5-9502-f062-f2925c9652c9@cumulusnetworks.com>
- <20200110160456.enzomhfsce7bptu3@soft-dev3.microsemi.net>
- <CA+h21hrq7U4EdqSgpYQRjK8rkcJdvD5jXCSOH_peA-R4xCocTg@mail.gmail.com>
- <20200110172536.42rdfwdc6eiwsw7m@soft-dev3.microsemi.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200110172536.42rdfwdc6eiwsw7m@soft-dev3.microsemi.net>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [RFC net-next Patch 0/3] net: bridge: mrp: Add support
  for Media Redundancy Protocol(MRP)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,56 +18,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, lkml <linux-kernel@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>, anirudh.venkataramanan@intel.com, Jiri Pirko <jiri@mellanox.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, David Ahern <dsahern@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>
+To: nikolay@cumulusnetworks.com
+Cc: andrew@lunn.ch, jakub.kicinski@netronome.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, vivien.didelot@gmail.com, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jiri@mellanox.com, jeffrey.t.kirsher@intel.com, dsahern@gmail.com, olteanv@gmail.com, horatiu.vultur@microchip.com
 
-> > Horatiu, could you also give some references to the frames that need
-> > to be sent. I've no idea what information they need to contain, if the
-> > contents is dynamic, or static, etc.
-> It is dynamic - but trivial...
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Fri, 10 Jan 2020 16:13:36 +0200
 
-If it is trivial, i don't see why you are so worried about abstracting
-it?
+> I agree with Stephen here, IMO you have to take note of how STP has progressed
+> and that bringing it in the kernel was a mistake, these days mstpd has an active
+> community and much better support which is being extended. This looks best implemented
+> in user-space in my opinion with minimal kernel changes to support it. You could simply
+> open a packet socket with a filter and work through that, you don't need new netlink
+> sockets. I'm not familiar with the protocol so can't really be the judge of that, if
+> you present a good argument for needing a new netlink socket for these packets - then
+> sure, ok.
 
-> Here is a dump from WireShark with
-> annotation on what our HW can update:
-> 
-> Ethernet II, Src: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1), Dst: Iec_00:00:01 (01:15:4e:00:00:01)
->     Destination: Iec_00:00:01 (01:15:4e:00:00:01)
->     Source: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1)
->     Type: MRP (0x88e3)
-> PROFINET MRP MRP_Test, MRP_Common, MRP_End
->     MRP_Version: 1
->     MRP_TLVHeader.Type: MRP_Test (0x02)
->         MRP_TLVHeader.Type: MRP_Test (0x02)
->         MRP_TLVHeader.Length: 18
->         MRP_Prio: 0x1f40 High priorities
->         MRP_SA: 7a:8b:b1:35:96:e1 (7a:8b:b1:35:96:e1)
->         MRP_PortRole: Primary ring port (0x0000)
->         MRP_RingState: Ring closed (0x0001)
->         MRP_Transition: 0x0001
->         MRP_TimeStamp [ms]: 0x000cf574             <---------- Updated automatic
->     MRP_TLVHeader.Type: MRP_Common (0x01)
->         MRP_TLVHeader.Type: MRP_Common (0x01)
->         MRP_TLVHeader.Length: 18
->         MRP_SequenceID: 0x00e9                     <---------- Updated automatic
->         MRP_DomainUUID: ffffffff-ffff-ffff-ffff-ffffffffffff
->     MRP_TLVHeader.Type: MRP_End (0x00)
->         MRP_TLVHeader.Type: MRP_End (0x00)
->         MRP_TLVHeader.Length: 0
-> 
-> But all the fields can change, but to change the other fields we need to
-> interact with the HW. Other SoC may have other capabilities in their
-> offload. As an example, if the ring becomes open then the fields
-> MRP_RingState and MRP_Transition need to change and in our case this
-> requires SW interference.
-
-Isn't SW always required? You need to tell your state machine that the
-state has changed.
-
-> Would you like a PCAP file as an example? Or do you want a better
-> description of the frame format.
-
-I was hoping for a link to an RFC, or some standards document.
-
-  Andrew
+With a userland implementation, what approach do you suggest for DSA/switchdev offload
+of this stuff?
