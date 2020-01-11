@@ -1,29 +1,21 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
- s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
- Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=u3jxCHUDd5Pm/Y2q0b/qKxrWWseDBaS/hK6okC7Pk38=; b=YHFcu8ccMp5yFy9YS4lh6wzLz/
- 8fCAAtavMf+JJh9EqEP0ZkXV6mLtbmco+6Jx7JSgW3DgH0KSS+gmK9gMPsupNwqNRy56wsbsSNszi
- uYcm8f/wSwIdznLSiE+eT8ROc96UUbliZxKnHfakYQO2WZo+4U4euwJOt0NPElAigykE=;
-Date: Fri, 10 Jan 2020 21:33:41 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20200110203341.GU19739@lunn.ch>
-References: <20200109150640.532-1-horatiu.vultur@microchip.com>
- <6f1936e9-97e5-9502-f062-f2925c9652c9@cumulusnetworks.com>
- <20200110160456.enzomhfsce7bptu3@soft-dev3.microsemi.net>
- <CA+h21hrq7U4EdqSgpYQRjK8rkcJdvD5jXCSOH_peA-R4xCocTg@mail.gmail.com>
- <20200110172536.42rdfwdc6eiwsw7m@soft-dev3.microsemi.net>
- <20200110175608.GK19739@lunn.ch>
- <20200110201248.tletol7glyr4soqz@soft-dev3.microsemi.net>
+Return-Path: <xiyou.wangcong@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=c7HFrOGQ3phE12eoMeyUfOtwv87GN61OlvlGebweSPE=;
+ b=CUzzXi3uv6xXm/4UnggMbWvrrN2Up+aCdXgbjG6cA1RSh2Hsl7MaJGyUzdoMoTmd4R
+ ZrHmzvSIQzS9GFymrJPYSFUJoVbzF0PJ/iecYAh4HGcrfH/zwmd4F6x9nsoOeailYobC
+ MujffRFXqGvkpsurYLOjgR9qmZoZeeEk+kwuIIysdTEHyy0eM0MPpC10Mh0InyVmHn1v
+ 5FsP+pOKLqj3MpjEbbWZWOZEilHIuIlxKrmee02exZm69I3xF9XolTxJTNhKMd4CPNUr
+ 7TK8yRsQode2rHqJa9VpU78VxSiyf+Oi7TyRFsjn5WlXmrtjazYZe5Wjb+yrJwuo7Mdn
+ THlQ==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200110201248.tletol7glyr4soqz@soft-dev3.microsemi.net>
-Subject: Re: [Bridge] [RFC net-next Patch 0/3] net: bridge: mrp: Add support
- for Media Redundancy Protocol(MRP)
+References: <000000000000a06985059be4002e@google.com>
+In-Reply-To: <000000000000a06985059be4002e@google.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
+Date: Sat, 11 Jan 2020 15:38:19 -0800
+Message-ID: <CAM_iQpWN-SKjjrG_7EQ-x+7UMiu6foaNWMJuwQuwN0BGmayB+A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] WARNING: bad unlock balance in __dev_queue_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,43 +24,7 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, lkml <linux-kernel@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>, anirudh.venkataramanan@intel.com, Jiri Pirko <jiri@mellanox.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, David Ahern <dsahern@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>
+To: syzbot <syzbot+ad4ea1dd5d26131a58a6@syzkaller.appspotmail.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, andrew@lunn.ch, Alexander Aring <alex.aring@gmail.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, ast@domdv.de, linmiaohe@huawei.com, gustavo@embeddedor.com, oss-drivers@netronome.com, linux-wireless <linux-wireless@vger.kernel.org>, a@unstable.cc, linux-hyperv@vger.kernel.org, Linux Kernel Network Developers <netdev@vger.kernel.org>, Paul Mackerras <paulus@samba.org>, linux-hams <linux-hams@vger.kernel.org>, kys@microsoft.com, Marek Lindner <mareklindner@neomailbox.ch>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, jwi@linux.ibm.com, linux-wpan@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Paolo Abeni <pabeni@redhat.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Marcel Holtmann <marcel@holtmann.org>, Michal Kubecek <mkubecek@suse.cz>, Jiri Pirko <jiri@resnulli.us>, Johan Hedberg <johan.hedberg@gmail.com>, Johannes Berg <johannes.berg@intel.com>, j@w1.fi, Jay Vosburgh <j.vosburgh@gmail.com>, haiyangz@microsoft.com, Jamal Hadi Salim <jhs@mojatatu.com>, John Hurley <john.hurley@netronome.com>, Hangbin Liu <liuhangbin@gmail.com>, David Ahern <dsa@cumulusnetworks.com>, allison@lohutok.net, cleech@redhat.com, Greg KH <gregkh@linuxfoundation.org>, b.a.t.m.a.n@lists.open-mesh.org, Florian Westphal <fw@strlen.de>, LKML <linux-kernel@vger.kernel.org>, linux-bluetooth <linux-bluetooth@vger.kernel.org>, mmanning@vyatta.att-mail.com, linux-ppp@vger.kernel.org, info@metux.net, David Miller <davem@davemloft.net>, Taehee Yoo <ap420073@gmail.com>
 
-On Fri, Jan 10, 2020 at 09:12:48PM +0100, Horatiu Vultur wrote:
-> The 01/10/2020 18:56, Andrew Lunn wrote:
-> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> > 
-> > > > Horatiu, could you also give some references to the frames that need
-> > > > to be sent. I've no idea what information they need to contain, if the
-> > > > contents is dynamic, or static, etc.
-> > > It is dynamic - but trivial...
-> > 
-> > If it is trivial, i don't see why you are so worried about abstracting
-> > it?
-> Maybe we misunderstood each other. When you asked if it is dynamic or
-> static, I thought you meant if it is the same frame being send repeated
-> or if it needs to be changed. It needs to be changed but the changes are
-> trivial, but it means that a non-MRP aware frame generator can't
-> properly offload this.
-
-The only frame generator i've ever seen are for generating test
-packets. They generally have random content, random length, maybe the
-option to send invalid CRC etc. These are never going to work for MRP.
-So we should limit our thinking to hardware specifically designed for
-MRP offload.
-
-What we need to think about is an abstract model for MRP offload. What
-must such a bit of hardware do? What parameters do we need to pass to
-it? When should it interrupt us because some event has happened?
-
-Once we have an abstract model, we can define netlink messages, or
-devlink messages. And you can implement driver code which takes this
-abstract model and implements it for your real hardware. And if you
-have the abstract model correct, other vendors should also be able to
-implement drivers as well.
-
-Since this is a closed standard, there is not much the rest of us can
-do. You need to define this abstract model. We can then review it.
-
-    Andrew
+#syz dup: WARNING: bad unlock balance in sch_direct_xmit
