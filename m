@@ -3,18 +3,18 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=GqMStuk0JvHvzED0KA0S3hdX9UaNP460NhlyDnEu1VA=;
- b=PCM5PXoVjOPOlb0K13e3hqwHsFQeCrmKxDyPRhIxo/3ZvwAS9XmPB62iOfbYgcVImW
- 07dnIiVl1gJvi1L+TI8GifVRHZusqVyevtc9Qe3SznlPdyjmSayWeYORs+ni+tzql2eK
- ImfTcqwxyBvQvLbwbu3Jfjo0Xl7UO5qv1EnBQ=
+ bh=mr/2MNCOIx0U4K+Pv+vAm/4J6d5/EukzrdHaRzf8ia0=;
+ b=Vu8D4RL6/Waqf9k5QySzdYA8kN/YYdxNE6u5TyyBc96Hjee7hyf456xV2xTRY9m22Y
+ wfz0bVNsBE1FQ8o3LN8L+cpKDvGjCsA5xQBT9qt3s0ZxZq6N0Z8rW0KnR9s7/5Jvqn+T
+ au4rW07YhX9WcRcX9CXKtj7KbrNrcHs2Wh6Zk=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 14 Jan 2020 19:56:10 +0200
-Message-Id: <20200114175614.17543-5-nikolay@cumulusnetworks.com>
+Date: Tue, 14 Jan 2020 19:56:11 +0200
+Message-Id: <20200114175614.17543-6-nikolay@cumulusnetworks.com>
 In-Reply-To: <20200114175614.17543-1-nikolay@cumulusnetworks.com>
 References: <20200114175614.17543-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 4/8] net: bridge: vlan: add new rtm
+Subject: [Bridge] [PATCH net-next v2 5/8] net: bridge: vlan: add del rtm
 	message support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -27,190 +27,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, dsahern@gmail.com, kuba@kernel.org, davem@davemloft.net
 
-Add initial RTM_NEWVLAN support which can only create vlans, operating
-similar to the current br_afspec(). We will use it later to also change
-per-vlan options. Old-style (flag-based) vlan ranges are not allowed
-when using RTM messages, we will introduce vlan ranges later via a new
-nested attribute which would allow us to have all the information about a
-range encapsulated into a single nl attribute.
+Adding RTM_DELVLAN support similar to RTM_NEWVLAN is simple, just need to
+map DELVLAN to DELLINK and register the handler.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
-v2: use nlmsg_parse() for stricter message validation
+ net/bridge/br_vlan.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
- net/bridge/br_netlink.c |  12 ++---
- net/bridge/br_private.h |   6 +++
- net/bridge/br_vlan.c    | 111 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 123 insertions(+), 6 deletions(-)
-
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 75a7ecf95d7f..b3da4f46dc64 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -561,12 +561,12 @@ static int br_vlan_info(struct net_bridge *br, struct net_bridge_port *p,
- 	return err;
- }
- 
--static int br_process_vlan_info(struct net_bridge *br,
--				struct net_bridge_port *p, int cmd,
--				struct bridge_vlan_info *vinfo_curr,
--				struct bridge_vlan_info **vinfo_last,
--				bool *changed,
--				struct netlink_ext_ack *extack)
-+int br_process_vlan_info(struct net_bridge *br,
-+			 struct net_bridge_port *p, int cmd,
-+			 struct bridge_vlan_info *vinfo_curr,
-+			 struct bridge_vlan_info **vinfo_last,
-+			 bool *changed,
-+			 struct netlink_ext_ack *extack)
- {
- 	if (!br_vlan_valid_id(vinfo_curr->vid, extack))
- 		return -EINVAL;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1c00411ae938..ee3871dea68f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1237,6 +1237,12 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlmsg, u16 flags,
- int br_dellink(struct net_device *dev, struct nlmsghdr *nlmsg, u16 flags);
- int br_getlink(struct sk_buff *skb, u32 pid, u32 seq, struct net_device *dev,
- 	       u32 filter_mask, int nlflags);
-+int br_process_vlan_info(struct net_bridge *br,
-+			 struct net_bridge_port *p, int cmd,
-+			 struct bridge_vlan_info *vinfo_curr,
-+			 struct bridge_vlan_info **vinfo_last,
-+			 bool *changed,
-+			 struct netlink_ext_ack *extack);
- 
- #ifdef CONFIG_SYSFS
- /* br_sysfs_if.c */
 diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 5f2ac4f244f5..6da0210b01eb 100644
+index 6da0210b01eb..89d5fa75c575 100644
 --- a/net/bridge/br_vlan.c
 +++ b/net/bridge/br_vlan.c
-@@ -1643,13 +1643,124 @@ static int br_vlan_rtm_dump(struct sk_buff *skb, struct netlink_callback *cb)
- 	return err;
- }
- 
-+static const struct nla_policy br_vlan_db_policy[BRIDGE_VLANDB_ENTRY_MAX + 1] = {
-+	[BRIDGE_VLANDB_ENTRY_INFO]	= { .type = NLA_EXACT_LEN,
-+					    .len = sizeof(struct bridge_vlan_info) },
-+};
-+
-+static int br_vlan_rtm_process_one(struct net_device *dev,
-+				   const struct nlattr *attr,
-+				   int cmd, struct netlink_ext_ack *extack)
-+{
-+	struct bridge_vlan_info *vinfo, *vinfo_last = NULL;
-+	struct nlattr *tb[BRIDGE_VLANDB_ENTRY_MAX + 1];
-+	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_port *p = NULL;
-+	int err = 0, cmdmap = 0;
-+	struct net_bridge *br;
-+	bool changed = false;
-+
-+	if (netif_is_bridge_master(dev)) {
-+		br = netdev_priv(dev);
-+		vg = br_vlan_group(br);
-+	} else {
-+		p = br_port_get_rtnl(dev);
-+		if (WARN_ON(!p))
-+			return -ENODEV;
-+		br = p->br;
-+		vg = nbp_vlan_group(p);
-+	}
-+
-+	if (WARN_ON(!vg))
-+		return -ENODEV;
-+
-+	err = nla_parse_nested(tb, BRIDGE_VLANDB_ENTRY_MAX, attr,
-+			       br_vlan_db_policy, extack);
-+	if (err)
-+		return err;
-+
-+	if (!tb[BRIDGE_VLANDB_ENTRY_INFO]) {
-+		NL_SET_ERR_MSG_MOD(extack, "Missing vlan entry info");
-+		return -EINVAL;
-+	}
-+
-+	vinfo = nla_data(tb[BRIDGE_VLANDB_ENTRY_INFO]);
-+	if (vinfo->flags & (BRIDGE_VLAN_INFO_RANGE_BEGIN |
-+			    BRIDGE_VLAN_INFO_RANGE_END)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Old-style vlan ranges are not allowed when using RTM vlan calls");
-+		return -EINVAL;
-+	}
-+	if (!br_vlan_valid_id(vinfo->vid, extack))
-+		return -EINVAL;
-+
-+	switch (cmd) {
-+	case RTM_NEWVLAN:
-+		cmdmap = RTM_SETLINK;
+@@ -1697,6 +1697,9 @@ static int br_vlan_rtm_process_one(struct net_device *dev,
+ 	case RTM_NEWVLAN:
+ 		cmdmap = RTM_SETLINK;
+ 		break;
++	case RTM_DELVLAN:
++		cmdmap = RTM_DELLINK;
 +		break;
-+	}
-+
-+	err = br_process_vlan_info(br, p, cmdmap, vinfo, &vinfo_last, &changed,
-+				   extack);
-+	if (changed)
-+		br_ifinfo_notify(cmdmap, br, p);
-+
-+	return err;
-+}
-+
-+static int br_vlan_rtm_process(struct sk_buff *skb, struct nlmsghdr *nlh,
-+			       struct netlink_ext_ack *extack)
-+{
-+	struct net *net = sock_net(skb->sk);
-+	struct br_vlan_msg *bvm;
-+	struct net_device *dev;
-+	struct nlattr *attr;
-+	int err, vlans = 0;
-+	int rem;
-+
-+	/* this should validate the header and check for remaining bytes */
-+	err = nlmsg_parse(nlh, sizeof(*bvm), NULL, BRIDGE_VLANDB_MAX, NULL,
-+			  extack);
-+	if (err < 0)
-+		return err;
-+
-+	bvm = nlmsg_data(nlh);
-+	dev = __dev_get_by_index(net, bvm->ifindex);
-+	if (!dev)
-+		return -ENODEV;
-+
-+	if (!netif_is_bridge_master(dev) && !netif_is_bridge_port(dev)) {
-+		NL_SET_ERR_MSG_MOD(extack, "The device is not a valid bridge or bridge port");
-+		return -EINVAL;
-+	}
-+
-+	nlmsg_for_each_attr(attr, nlh, sizeof(*bvm), rem) {
-+		if (nla_type(attr) != BRIDGE_VLANDB_ENTRY)
-+			continue;
-+
-+		vlans++;
-+		err = br_vlan_rtm_process_one(dev, attr, nlh->nlmsg_type,
-+					      extack);
-+		if (err)
-+			break;
-+	}
-+	if (!vlans) {
-+		NL_SET_ERR_MSG_MOD(extack, "No vlans found to process");
-+		err = -EINVAL;
-+	}
-+
-+	return err;
-+}
-+
- void br_vlan_rtnl_init(void)
- {
- 	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_GETVLAN, NULL,
+ 	}
+ 
+ 	err = br_process_vlan_info(br, p, cmdmap, vinfo, &vinfo_last, &changed,
+@@ -1757,10 +1760,13 @@ void br_vlan_rtnl_init(void)
  			     br_vlan_rtm_dump, 0);
-+	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_NEWVLAN,
+ 	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_NEWVLAN,
+ 			     br_vlan_rtm_process, NULL, 0);
++	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_DELVLAN,
 +			     br_vlan_rtm_process, NULL, 0);
  }
  
  void br_vlan_rtnl_uninit(void)
  {
  	rtnl_unregister(PF_BRIDGE, RTM_GETVLAN);
-+	rtnl_unregister(PF_BRIDGE, RTM_NEWVLAN);
+ 	rtnl_unregister(PF_BRIDGE, RTM_NEWVLAN);
++	rtnl_unregister(PF_BRIDGE, RTM_DELVLAN);
  }
 -- 
 2.21.0
