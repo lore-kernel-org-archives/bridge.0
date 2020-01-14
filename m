@@ -1,12 +1,14 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
+Return-Path: <dsahern@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=kXgipRMkTlu0Gbfl9KY1bZYr2HsM+sHNWhsLriinPy0=;
- b=P+SSveyNmfeHKKX8h7KBwiom6Wrbq5dXDBDWvB10zz8+l8971zyKx5sbprEdssCVxS
- ZKKVUnumhd567wWjorJhDR+V0iOdSFw8Pf2X0CZ/h4rbWyPIEv6t4zRyGl7vYcPwaPAl
- lzLaEA18x+E221l6dVomI3Cn3Pl0CYyB4+XnE=
+ bh=f8ZdMZ1BS3aK0eDev5KldCmx7KcdNZN/UQ+7XtW/aqA=;
+ b=PUzelXAoI5TjMVnykFB4tdf0SzFYY08HScf9jPX4dI6ofPUxy6MFhNInrqQTFoMQ9x
+ JXZ2r+afDsrdLUPHMqOcWONPjxiKx05dTPgRPJdQyH7avOnBoUJWvam/6dWFDjX7L/J0
+ B/pdsz/UirHJAgv3AqEYcVkkpb/OIo+PV2iucJBDZEN5HhquzE7vN1IdB7gUL21Za9ag
+ uc3IlQTxklGtKmU0kw//wBZJYQgXmzRx9VXyorxyMtjA9KXqtS4PQpnIf6Owf9UpKLlg
+ uXNLZF4Ygrj9OvIf/J72+hriWk3+YpidsAZjJVKosvGAc37UYxKXcmGwPAcj2MvfuuX2
+ aVJg==
 References: <20200113155233.20771-1-nikolay@cumulusnetworks.com>
  <20200113155233.20771-4-nikolay@cumulusnetworks.com>
  <20200114055544.77a7806f@cakuba.hsd1.ca.comcast.net>
@@ -14,11 +16,12 @@ References: <20200113155233.20771-1-nikolay@cumulusnetworks.com>
  <00c4bc6b-2b31-338e-a9ad-b4ea28fc731c@cumulusnetworks.com>
  <344f496a-5d34-4292-b663-97353f6cfa94@cumulusnetworks.com>
  <d5291717-2ce5-97e0-6204-3ff0d27583c5@gmail.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <aa9878d2-22d7-3bcd-deae-cf9bccd4226e@cumulusnetworks.com>
-Date: Tue, 14 Jan 2020 18:50:41 +0200
+ <aa9878d2-22d7-3bcd-deae-cf9bccd4226e@cumulusnetworks.com>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <473cb0a5-f6ad-ccd3-9186-02713f9cb92f@gmail.com>
+Date: Tue, 14 Jan 2020 09:53:39 -0700
 MIME-Version: 1.0
-In-Reply-To: <d5291717-2ce5-97e0-6204-3ff0d27583c5@gmail.com>
+In-Reply-To: <aa9878d2-22d7-3bcd-deae-cf9bccd4226e@cumulusnetworks.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -32,65 +35,11 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Jakub Kicinski <kuba@kernel.org>
 Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 14/01/2020 18:49, David Ahern wrote:
-> On 1/14/20 9:45 AM, Nikolay Aleksandrov wrote:
->> On 14/01/2020 18:36, Nikolay Aleksandrov wrote:
->>> On 14/01/2020 17:34, David Ahern wrote:
->>>> On 1/14/20 6:55 AM, Jakub Kicinski wrote:
->>>>> On Mon, 13 Jan 2020 17:52:28 +0200, Nikolay Aleksandrov wrote:
->>>>>> +static int br_vlan_rtm_dump(struct sk_buff *skb, struct netlink_callback *cb)
->>>>>> +{
->>>>>> +	int idx = 0, err = 0, s_idx = cb->args[0];
->>>>>> +	struct net *net = sock_net(skb->sk);
->>>>>> +	struct br_vlan_msg *bvm;
->>>>>> +	struct net_device *dev;
->>>>>> +
->>>>>> +	if (cb->nlh->nlmsg_len < nlmsg_msg_size(sizeof(*bvm))) {
->>>>>
->>>>> I wonder if it'd be useful to make this a strict != check? At least
->>>>> when strict validation is on? Perhaps we'll one day want to extend 
->>>>> the request?
->>>>>
->>>>
->>>> +1. All new code should be using the strict checks.
->>>>
->>>
->>> IIRC, I did it to be able to add filter attributes later, but it should just use nlmsg_parse()
->>> instead and all will be taken care of.
->>> I'll respin v2 with that change.
->>>
->>> Thanks,
->>>  Nik
->>>
->>
->> Actually nlmsg_parse() uses the same "<" check for the size before parsing. :)
->> If I change to it and with no attributes to parse would be essentially equal to the
->> current situation, but if I make it strict "!=" then we won't be able to add
->> filter attributes later as we won't be backwards compatible. I'll continue looking
->> into it, but IMO we should leave it as it is in order to be able to add the filtering later.
->>
->> Thoughts ?
->>
->>
->>
->>
-> 
-> If the header is > sizeof(*bvm) I expect this part of
-> __nla_validate_parse() to kick in:
-> 
->         if (unlikely(rem > 0)) {
->                 pr_warn_ratelimited("netlink: %d bytes leftover after
-> parsing attributes in process `%s'.\n",
->                                     rem, current->comm);
->                 NL_SET_ERR_MSG(extack, "bytes leftover after parsing
-> attributes");
->                 if (validate & NL_VALIDATE_TRAILING)
->                         return -EINVAL;
->         }
-> 
+On 1/14/20 9:50 AM, Nikolay Aleksandrov wrote:
+> Ah fair enough, so nlmsg_parse() would be better even without attrs.
 
-Ah fair enough, so nlmsg_parse() would be better even without attrs.
-
+that was the intention. It would be a good verification of the theory if
+you could run a test with a larger ancillary header.
