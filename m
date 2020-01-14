@@ -3,19 +3,19 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=M7dGQIqTzWEMkio4akH4cg6mHCfmnNJAqzweWg3IPew=;
- b=KOyrYoPDKO/L6xfHagAIPLVBllOIvBf02OrQ4SsgBrEjWAf7oiimfkex4sixNWEiBV
- +6nt2FT4ON+JFNG6S/hfsbMQyP9M4qIzxecg0KgnJn0H4YELqwLf9ErKC7a8gETYz79I
- o2BJAH0YfjbeerHgdfsH8XybtDzGes0Rrkx/4=
+ bh=OEK3+d3CKz1mIylcZTyAVylsHfHcJSc3xiPKTSlMW5U=;
+ b=L1I1cGq/VpF7rqeu4/9JOaVMNqaD7c6cok3OLJOPl574ZH9zu4R3FyH+Ma0EExTcEw
+ wLgcDPu17VJMrRImy3c5TAxGreQuchKtD9lgYnhTJw3ZWLtYXv3B5hkPWcyK6f8PgTKl
+ eW6lKELnIuzYn3DSD4a4sKoVnWhzghrHj36Bs=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 14 Jan 2020 19:56:07 +0200
-Message-Id: <20200114175614.17543-2-nikolay@cumulusnetworks.com>
+Date: Tue, 14 Jan 2020 19:56:08 +0200
+Message-Id: <20200114175614.17543-3-nikolay@cumulusnetworks.com>
 In-Reply-To: <20200114175614.17543-1-nikolay@cumulusnetworks.com>
 References: <20200114175614.17543-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 1/8] net: bridge: vlan: add helpers to
-	check for vlan id/range validity
+Subject: [Bridge] [PATCH net-next v2 2/8] net: bridge: netlink: add extack
+	error messages when processing vlans
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,93 +27,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, dsahern@gmail.com, kuba@kernel.org, davem@davemloft.net
 
-Add helpers to check if a vlan id or range are valid. The range helper
-must be called when range start or end are detected.
+Add extack messages on vlan processing errors. We need to move the flags
+missing check after the "last" check since we may have "last" set but
+lack a range end flag in the next entry.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_netlink.c | 13 +++----------
- net/bridge/br_private.h | 31 +++++++++++++++++++++++++++++++
- 2 files changed, 34 insertions(+), 10 deletions(-)
+ net/bridge/br_netlink.c |  6 +++---
+ net/bridge/br_private.h | 38 +++++++++++++++++++++++++++-----------
+ 2 files changed, 30 insertions(+), 14 deletions(-)
 
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 60136575aea4..14100e8653e6 100644
+index 14100e8653e6..40942cece51a 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -568,17 +568,13 @@ static int br_process_vlan_info(struct net_bridge *br,
+@@ -568,11 +568,11 @@ static int br_process_vlan_info(struct net_bridge *br,
  				bool *changed,
  				struct netlink_ext_ack *extack)
  {
--	if (!vinfo_curr->vid || vinfo_curr->vid >= VLAN_VID_MASK)
-+	if (!br_vlan_valid_id(vinfo_curr->vid))
+-	if (!br_vlan_valid_id(vinfo_curr->vid))
++	if (!br_vlan_valid_id(vinfo_curr->vid, extack))
  		return -EINVAL;
  
  	if (vinfo_curr->flags & BRIDGE_VLAN_INFO_RANGE_BEGIN) {
--		/* check if we are already processing a range */
--		if (*vinfo_last)
-+		if (!br_vlan_valid_range(vinfo_curr, *vinfo_last))
+-		if (!br_vlan_valid_range(vinfo_curr, *vinfo_last))
++		if (!br_vlan_valid_range(vinfo_curr, *vinfo_last, extack))
  			return -EINVAL;
  		*vinfo_last = vinfo_curr;
--		/* don't allow range of pvids */
--		if ((*vinfo_last)->flags & BRIDGE_VLAN_INFO_PVID)
--			return -EINVAL;
  		return 0;
- 	}
- 
-@@ -586,10 +582,7 @@ static int br_process_vlan_info(struct net_bridge *br,
+@@ -582,7 +582,7 @@ static int br_process_vlan_info(struct net_bridge *br,
  		struct bridge_vlan_info tmp_vinfo;
  		int v, err;
  
--		if (!(vinfo_curr->flags & BRIDGE_VLAN_INFO_RANGE_END))
--			return -EINVAL;
--
--		if (vinfo_curr->vid <= (*vinfo_last)->vid)
-+		if (!br_vlan_valid_range(vinfo_curr, *vinfo_last))
+-		if (!br_vlan_valid_range(vinfo_curr, *vinfo_last))
++		if (!br_vlan_valid_range(vinfo_curr, *vinfo_last, extack))
  			return -EINVAL;
  
  		memcpy(&tmp_vinfo, *vinfo_last,
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index f540f3bdf294..dbc0089e2c1a 100644
+index dbc0089e2c1a..a7dddc5d7790 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -507,6 +507,37 @@ static inline bool nbp_state_should_learn(const struct net_bridge_port *p)
+@@ -507,32 +507,48 @@ static inline bool nbp_state_should_learn(const struct net_bridge_port *p)
  	return p->state == BR_STATE_LEARNING || p->state == BR_STATE_FORWARDING;
  }
  
-+static inline bool br_vlan_valid_id(u16 vid)
-+{
-+	return vid > 0 && vid < VLAN_VID_MASK;
-+}
+-static inline bool br_vlan_valid_id(u16 vid)
++static inline bool br_vlan_valid_id(u16 vid, struct netlink_ext_ack *extack)
+ {
+-	return vid > 0 && vid < VLAN_VID_MASK;
++	bool ret = vid > 0 && vid < VLAN_VID_MASK;
 +
-+static inline bool br_vlan_valid_range(const struct bridge_vlan_info *cur,
-+				       const struct bridge_vlan_info *last)
-+{
-+	/* pvid flag is not allowed in ranges */
-+	if (cur->flags & BRIDGE_VLAN_INFO_PVID)
-+		return false;
++	if (!ret)
++		NL_SET_ERR_MSG_MOD(extack, "Vlan id is invalid");
++
++	return ret;
+ }
+ 
+ static inline bool br_vlan_valid_range(const struct bridge_vlan_info *cur,
+-				       const struct bridge_vlan_info *last)
++				       const struct bridge_vlan_info *last,
++				       struct netlink_ext_ack *extack)
+ {
+ 	/* pvid flag is not allowed in ranges */
+-	if (cur->flags & BRIDGE_VLAN_INFO_PVID)
+-		return false;
+-
+-	/* check for required range flags */
+-	if (!(cur->flags & (BRIDGE_VLAN_INFO_RANGE_BEGIN |
+-			    BRIDGE_VLAN_INFO_RANGE_END)))
++	if (cur->flags & BRIDGE_VLAN_INFO_PVID) {
++		NL_SET_ERR_MSG_MOD(extack, "Pvid isn't allowed in a range");
+ 		return false;
++	}
+ 
+ 	/* when cur is the range end, check if:
+ 	 *  - it has range start flag
+ 	 *  - range ids are invalid (end is equal to or before start)
+ 	 */
+ 	if (last) {
+-		if (cur->flags & BRIDGE_VLAN_INFO_RANGE_BEGIN)
++		if (cur->flags & BRIDGE_VLAN_INFO_RANGE_BEGIN) {
++			NL_SET_ERR_MSG_MOD(extack, "Found a new vlan range start while processing one");
+ 			return false;
+-		else if (cur->vid <= last->vid)
++		} else if (!(cur->flags & BRIDGE_VLAN_INFO_RANGE_END)) {
++			NL_SET_ERR_MSG_MOD(extack, "Vlan range end flag is missing");
+ 			return false;
++		} else if (cur->vid <= last->vid) {
++			NL_SET_ERR_MSG_MOD(extack, "End vlan id is less than or equal to start vlan id");
++			return false;
++		}
++	}
 +
 +	/* check for required range flags */
 +	if (!(cur->flags & (BRIDGE_VLAN_INFO_RANGE_BEGIN |
-+			    BRIDGE_VLAN_INFO_RANGE_END)))
++			    BRIDGE_VLAN_INFO_RANGE_END))) {
++		NL_SET_ERR_MSG_MOD(extack, "Both vlan range flags are missing");
 +		return false;
-+
-+	/* when cur is the range end, check if:
-+	 *  - it has range start flag
-+	 *  - range ids are invalid (end is equal to or before start)
-+	 */
-+	if (last) {
-+		if (cur->flags & BRIDGE_VLAN_INFO_RANGE_BEGIN)
-+			return false;
-+		else if (cur->vid <= last->vid)
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
- static inline int br_opt_get(const struct net_bridge *br,
- 			     enum net_bridge_opts opt)
- {
+ 	}
+ 
+ 	return true;
 -- 
 2.21.0
 
