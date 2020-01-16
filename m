@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1579196340;
- bh=DpDwZjT5JL55OrFqatMzY1JDV7bYkHQBMDOrDiPxQqg=;
+ s=default; t=1579196695;
+ bh=DafYjLE3n3Q5W7KxpsvOtRj2irNzGbmQnj8g8RiiOkU=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=aMCFlnoH6TobdxhxmbUA+/AZAs0CiDnM4sHLEHdmqnapDVdDtI3rhh6I3s7Hybix9
- I5xIUfW4QLJSOz8pyrN5ghhz2BFFQ9DH5SgC+3HYSbe6PpLLrjhNHcjcTZqHR6xmnZ
- JKO29sVnRI6tUq6TbTsyt/co/6PUJSR7CpPuUQfM=
+ b=YnVwU/svH2+E12PSz2+MhkFVKcARMZSlYq88QzWj8qLT88nNcTGi+d59qxqupYb5B
+ Cg1x22HZZwkZ1m5G71OdZ0IOkr43gH7b30ndx7+yfsJhbWSCRCtjaPbK1loLw+fwui
+ M7mRr+P2GwnqrwCmmUCyu0L44+dK0KU4tt2D0u2E=
 From: Sasha Levin <sashal@kernel.org>
-Date: Thu, 16 Jan 2020 12:34:46 -0500
-Message-Id: <20200116173641.22137-97-sashal@kernel.org>
-In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
-References: <20200116173641.22137-1-sashal@kernel.org>
+Date: Thu, 16 Jan 2020 12:41:26 -0500
+Message-Id: <20200116174251.24326-89-sashal@kernel.org>
+In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
+References: <20200116174251.24326-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.9 137/251] netfilter: ebtables:
+Subject: [Bridge] [PATCH AUTOSEL 4.4 089/174] netfilter: ebtables:
 	CONFIG_COMPAT: reject trailing data after last rule
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -47,10 +47,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 56b7197f0373..1d850edecd72 100644
+index fd1af7cb960d..e7c170949b21 100644
 --- a/net/bridge/netfilter/ebtables.c
 +++ b/net/bridge/netfilter/ebtables.c
-@@ -2182,7 +2182,9 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
+@@ -2174,7 +2174,9 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
  	if (ret < 0)
  		return ret;
  
