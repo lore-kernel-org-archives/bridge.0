@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1579194434;
- bh=FyBl76UQeAz82dh9GowjxKLn307tVpqGB2q7gUGV/V8=;
+ s=default; t=1579195628;
+ bh=SCZav1MnsOnCjFEQd3NWCg1EJOw2VKjn4gRXGwkDEDs=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=GjUaKCH/h3m/sQYDgR+rPSJNxEhwsug5b4BVQA4LdmFof7/wgqa6GqdrsW2q4/+ry
- DQh9psbfAgO4WWujpb4hX2IPf/oqvw5xC7IMhcCWGB9F9cqjC4itCGakgsY4f5Xya+
- I2P+67swvzDYgMD12YdeS0ev0fXi5IBPUP42X25U=
+ b=ROP3Jt0F4x0Qqfuck0dK5r5PN9n7uUE8b/6CZW1DhJ05o2S4nuLGdzoIqTfo1QFo8
+ vOLcGKXtVqplz24xf4AIc4JVvB0UiNqoZwWfo3DZroRi1OCN7VfwHuC50oqPU0zKXc
+ RHAHYUT4CUvq14/YmQyybQdSTv+yTXDlWZ6Cbonc=
 From: Sasha Levin <sashal@kernel.org>
-Date: Thu, 16 Jan 2020 11:59:47 -0500
-Message-Id: <20200116170509.12787-86-sashal@kernel.org>
-In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
-References: <20200116170509.12787-1-sashal@kernel.org>
+Date: Thu, 16 Jan 2020 12:21:09 -0500
+Message-Id: <20200116172403.18149-140-sashal@kernel.org>
+In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
+References: <20200116172403.18149-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.19 349/671] netfilter: ebtables:
+Subject: [Bridge] [PATCH AUTOSEL 4.14 197/371] netfilter: ebtables:
 	CONFIG_COMPAT: reject trailing data after last rule
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -47,10 +47,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 785e19afd6aa..f59230e4fc29 100644
+index 35a670ec9077..a1834ad7422c 100644
 --- a/net/bridge/netfilter/ebtables.c
 +++ b/net/bridge/netfilter/ebtables.c
-@@ -2165,7 +2165,9 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
+@@ -2164,7 +2164,9 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
  	if (ret < 0)
  		return ret;
  
