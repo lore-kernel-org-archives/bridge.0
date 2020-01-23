@@ -1,11 +1,18 @@
-Return-Path: <3LLokXgkbACsZfgRHSSLYHWWPK.NVVNSLbZLYJVUaLUa.JVT@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cumulusnetworks.com; s=google;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=lW472399iAATdZUH6brslOgK+ubydfGqN4ZbFSeA9SE=;
+ b=LYDkLAitkc8jMhqsrjA/I9/1TucWGtQXhpZVkc+yfh8sywXR9dU9JnFjDA9RW82LSN
+ 9xtQ3jsSaLQ4UN/a7ho6Gtj8kitQIA6bdfmQHaFbXxj2DiMZgOcz9v69Oa0azfHKVO4B
+ nyDB8+0P81BIZROb5p8Lcy34i/JcAH52mdnZI=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Thu, 23 Jan 2020 15:28:03 +0200
+Message-Id: <20200123132807.613-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-Date: Sun, 19 Jan 2020 12:21:00 -0800
-In-Reply-To: <0000000000006d7b1e059c7db653@google.com>
-Message-ID: <000000000000cbfd34059c83e917@google.com>
-From: syzbot <syzbot+b554d01b6c7870b17da2@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] KASAN: use-after-free Read in bitmap_ip_ext_cleanup
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 0/4] net: bridge: add per-vlan state option
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,27 +21,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: a@unstable.cc, b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, florent.fourcot@wifirst.fr, fw@strlen.de, jeremy@azazel.net, johannes.berg@intel.com, kadlec@netfilter.org, linux-kernel@vger.kernel.org, mareklindner@neomailbox.ch, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nikolay@cumulusnetworks.com, pablo@netfilter.org, roopa@cumulusnetworks.com, sw@simonwunderlich.de, syzkaller-bugs@googlegroups.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-syzbot has bisected this bug to:
+Hi,
+This set adds the first per-vlan option - state, which uses the new vlan
+infrastructure that was recently added. It gives us forwarding control on
+per-vlan basis. The first 3 patches prepare the vlan code to support option
+dumping and modification. We still compress vlan ranges which have equal
+options, each new option will have to add its own equality check to
+br_vlan_opts_eq(). The vlans are created in forwarding state by default to
+be backwards compatible and vlan state is considered only when the port
+state is forwarding (more info in patch 4).
+I'll send the selftest for the vlan state with the iproute2 patch-set.
 
-commit 3d26eb8ad1e9b906433903ce05f775cf038e747f
-Author: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date:   Tue Jul 2 12:00:20 2019 +0000
+Thanks,
+ Nik
 
-    net: bridge: don't cache ether dest pointer on input
+Nikolay Aleksandrov (4):
+  net: bridge: check port state before br_allowed_egress
+  net: bridge: vlan: add basic option dumping support
+  net: bridge: vlan: add basic option setting support
+  net: bridge: vlan: add per-vlan state
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=17bb1cc9e00000
-start commit:   9aaa2949 Merge branch '1GbE' of git://git.kernel.org/pub/s..
-git tree:       net-next
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=147b1cc9e00000
-console output: https://syzkaller.appspot.com/x/log.txt?x=107b1cc9e00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=66d8660c57ff3c98
-dashboard link: https://syzkaller.appspot.com/bug?extid=b554d01b6c7870b17da2
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15db12a5e00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15316faee00000
+ include/uapi/linux/if_bridge.h |   2 +
+ net/bridge/Makefile            |   2 +-
+ net/bridge/br_device.c         |   3 +-
+ net/bridge/br_forward.c        |   2 +-
+ net/bridge/br_input.c          |   7 +-
+ net/bridge/br_private.h        |  58 +++++++++++++-
+ net/bridge/br_vlan.c           |  99 ++++++++++++++++++-----
+ net/bridge/br_vlan_options.c   | 142 +++++++++++++++++++++++++++++++++
+ 8 files changed, 287 insertions(+), 28 deletions(-)
+ create mode 100644 net/bridge/br_vlan_options.c
 
-Reported-by: syzbot+b554d01b6c7870b17da2@syzkaller.appspotmail.com
-Fixes: 3d26eb8ad1e9 ("net: bridge: don't cache ether dest pointer on input")
+-- 
+2.21.0
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
