@@ -1,25 +1,23 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
- h=date:in-reply-to:references:mime-version:content-transfer-encoding
- :subject:to:cc:from:message-id;
- bh=9PZb53gn3HlYV30IW/3Iin0xPniNCS5s4n7brqy6NFs=;
- b=cv/awR2y1PRHqf6zaD9Uia66fk7WiFyzcNZ3UBvU4btFuYJlOUEwQ0F9cG89sWoVC+
- /CujA9UE+XK+DhVYW7fU8SKZVIcVIYvSGcUQco44WeSfyacHnHD+omZ5rOhZ+LjYiZxw
- YML6rS+jM7HfWvQQCvV09Dh/SQ1E3KsVNnJKk=
-Date: Thu, 23 Jan 2020 19:58:35 +0200
-In-Reply-To: <20200123082542.06ed0a53@hermes.lan>
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=/tAMaiitw1PyxFIS0OriuIYG+lTM5de1QiU8nvpGZ4U=;
+ b=S9nQS5M8GRxqDnKBmZCpo/gItUgfZy/2LR/PUWL3LW9ZHOl1HDQm9yQNydKZsdTly4
+ H+O6N6OoL0hGioUxzz76ffE6NdEh+tpUSXyHYFYrOVRBTkC22Ump2rR2NUFp2LVsWmvs
+ qtPaUH9edp7gfYpGKBmQwWcwSoBph6tZ9c3/o=
 References: <20200123132807.613-1-nikolay@cumulusnetworks.com>
- <20200123132807.613-2-nikolay@cumulusnetworks.com>
- <20200123082542.06ed0a53@hermes.lan>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <f67c2960-89ff-a6e6-14eb-27f6e4996a4a@cumulusnetworks.com>
+Date: Thu, 23 Jan 2020 23:10:12 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: nikolay@cumulusnetworks.com
-Message-ID: <B878D56B-BA6C-49A9-877D-5590BC4DC314@cumulusnetworks.com>
-Subject: Re: [Bridge] [PATCH net-next 1/4] net: bridge: check port state
-	before br_allowed_egress
+In-Reply-To: <20200123132807.613-1-nikolay@cumulusnetworks.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 0/4] net: bridge: add per-vlan state
+	option
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,26 +26,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 23 January 2020 18:25:42 EET, Stephen Hemminger <stephen@networkplumber=
-=2Eorg> wrote:
->On Thu, 23 Jan 2020 15:28:04 +0200
->Nikolay Aleksandrov <nikolay@cumulusnetworks=2Ecom> wrote:
->
->>  	return ((p->flags & BR_HAIRPIN_MODE) || skb->dev !=3D p->dev) &&
->> -		br_allowed_egress(vg, skb) && p->state =3D=3D BR_STATE_FORWARDING &&
->> +		p->state =3D=3D BR_STATE_FORWARDING && br_allowed_egress(vg, skb) &&
->>  		nbp_switchdev_allowed_egress(p, skb) &&
->>  		!br_skb_isolated(p, skb);
->>  }
->
->Maybe break this complex return for readability?
+On 1/23/20 3:28 PM, Nikolay Aleksandrov wrote:
+> Hi,
+> This set adds the first per-vlan option - state, which uses the new vlan
+> infrastructure that was recently added. It gives us forwarding control on
+> per-vlan basis. The first 3 patches prepare the vlan code to support option
+> dumping and modification. We still compress vlan ranges which have equal
+> options, each new option will have to add its own equality check to
+> br_vlan_opts_eq(). The vlans are created in forwarding state by default to
+> be backwards compatible and vlan state is considered only when the port
+> state is forwarding (more info in patch 4).
+> I'll send the selftest for the vlan state with the iproute2 patch-set.
+> 
+> Thanks,
+>   Nik
+> 
+> Nikolay Aleksandrov (4):
+>    net: bridge: check port state before br_allowed_egress
+>    net: bridge: vlan: add basic option dumping support
+>    net: bridge: vlan: add basic option setting support
+>    net: bridge: vlan: add per-vlan state
+> 
+>   include/uapi/linux/if_bridge.h |   2 +
+>   net/bridge/Makefile            |   2 +-
+>   net/bridge/br_device.c         |   3 +-
+>   net/bridge/br_forward.c        |   2 +-
+>   net/bridge/br_input.c          |   7 +-
+>   net/bridge/br_private.h        |  58 +++++++++++++-
+>   net/bridge/br_vlan.c           |  99 ++++++++++++++++++-----
+>   net/bridge/br_vlan_options.c   | 142 +++++++++++++++++++++++++++++++++
+>   8 files changed, 287 insertions(+), 28 deletions(-)
+>   create mode 100644 net/bridge/br_vlan_options.c
+> 
 
-Sure, sounds good, but is not the point of this commit=2E=20
-I'll prepare a separate cleanup patch for that=2E=20
+Hm, actually I just noticed that we send port notifications even if only changing options
+which should be avoided since now we have per-vlan notifications. We should be sending
+only those when changing options without create/delete.
+I'll make that change and send v2 after some tests tomorrow.
 
-Thanks,=20
+Cheers,
   Nik
-
