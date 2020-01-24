@@ -1,13 +1,13 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Fri, 24 Jan 2020 17:18:25 +0100
-Message-ID: <20200124161828.12206-8-horatiu.vultur@microchip.com>
+Date: Fri, 24 Jan 2020 17:18:26 +0100
+Message-ID: <20200124161828.12206-9-horatiu.vultur@microchip.com>
 In-Reply-To: <20200124161828.12206-1-horatiu.vultur@microchip.com>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [RFC net-next v3 07/10] net: bridge: mrp: switchdev:
-	Implement MRP API for switchdev
+Subject: [Bridge] [RFC net-next v3 08/10] net: bridge: mrp: Connect MRP api
+	with the switchev API
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,167 +19,213 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, anirudh.venkataramanan@intel.com, olteanv@gmail.com, andrew@lunn.ch, jeffrey.t.kirsher@intel.com, UNGLinuxDriver@microchip.com
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Implement the MRP api for switchdev.
-These functions will just eventually call the switchdev functions:
-switchdev_port_obj_add/del and switchdev_port_attr_set.
+Implement the MRP api.
+The functions are just a wrapper over the switchdev API with extra checks
+regarding the MRP instances and ports.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- net/bridge/br_mrp_switchdev.c | 147 ++++++++++++++++++++++++++++++++++
- 1 file changed, 147 insertions(+)
- create mode 100644 net/bridge/br_mrp_switchdev.c
+ net/bridge/br_mrp.c | 193 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 193 insertions(+)
+ create mode 100644 net/bridge/br_mrp.c
 
-diff --git a/net/bridge/br_mrp_switchdev.c b/net/bridge/br_mrp_switchdev.c
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
 new file mode 100644
-index 000000000000..2226d98806de
+index 000000000000..69e1a3e526d5
 --- /dev/null
-+++ b/net/bridge/br_mrp_switchdev.c
-@@ -0,0 +1,147 @@
++++ b/net/bridge/br_mrp.c
+@@ -0,0 +1,193 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
-+
-+#include <net/switchdev.h>
 +
 +#include "br_private_mrp.h"
 +
-+int br_mrp_port_switchdev_add(struct net_bridge_port *p, u32 ring_nr)
++static struct br_mrp *br_mrp_find_id(struct net_bridge *br, u32 ring_nr)
 +{
-+	struct net_bridge *br = p->br;
-+	struct switchdev_obj_port_mrp mrp = {
-+		.obj.orig_dev = br->dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_PORT_MRP,
-+		.port = p->dev,
-+		.ring_nr = ring_nr,
-+	};
-+	int err = 0;
++	struct br_mrp *mrp;
 +
-+	err = switchdev_port_obj_add(br->dev, &mrp.obj, NULL);
++	list_for_each_entry(mrp, &br->mrp_list, list) {
++		if (mrp->ring_nr == ring_nr)
++			return mrp;
++	}
 +
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
++	return NULL;
++}
++
++static struct br_mrp *br_mrp_find_port(struct net_bridge *br,
++				       struct net_bridge_port *p)
++{
++	struct br_mrp *mrp;
++
++	list_for_each_entry(mrp, &br->mrp_list, list) {
++		if (mrp->p_port == p || mrp->s_port == p)
++			return mrp;
++	}
++
++	return NULL;
++}
++
++int br_mrp_add(struct net_bridge *br, u32 ring_nr)
++{
++	struct br_mrp *mrp;
++
++	/* If the ring exists, it is not possible to create another one with the
++	 * same ring_nr
++	 */
++	mrp = br_mrp_find_id(br, ring_nr);
++	if (mrp)
++		return -EINVAL;
++
++	mrp = devm_kzalloc(&br->dev->dev, sizeof(struct br_mrp), GFP_KERNEL);
++	if (!mrp)
++		return -ENOMEM;
++
++	mrp->br = br;
++	mrp->p_port = NULL;
++	mrp->s_port = NULL;
++	mrp->ring_nr = ring_nr;
++
++	list_add_tail(&mrp->list, &br->mrp_list);
 +
 +	return 0;
 +}
 +
-+int br_mrp_switchdev_set_ring_role(struct br_mrp *mrp,
-+				   enum br_mrp_ring_role_type role)
++int br_mrp_add_port(struct net_bridge *br, u32 ring_nr,
++		    struct net_bridge_port *p)
 +{
-+	struct switchdev_obj_ring_role_mrp mrp_role = {
-+		.obj.orig_dev = mrp->br->dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_RING_ROLE_MRP,
-+		.ring_role = role,
-+		.ring_nr = mrp->ring_nr,
-+	};
-+	int err = 0;
++	struct br_mrp *mrp = br_mrp_find_id(br, ring_nr);
 +
-+	pr_info("%s role: %d\n", __func__, role);
++	if (!mrp)
++		return -EINVAL;
 +
-+	if (role == BR_MRP_RING_ROLE_DISABLED)
-+		err = switchdev_port_obj_del(mrp->br->dev, &mrp_role.obj);
++	p->state = BR_STATE_FORWARDING;
++	p->mrp_aware = true;
++
++	br_mrp_port_switchdev_add(p, mrp->ring_nr);
++
++	return 0;
++}
++
++int br_mrp_del(struct net_bridge *br, u32 ring_nr)
++{
++	struct br_mrp *mrp = br_mrp_find_id(br, ring_nr);
++
++	if (!mrp)
++		return -EINVAL;
++
++	/* Stop sending MRP_Test frames */
++	br_mrp_switchdev_send_ring_test(mrp, 0, 0);
++
++	/* Destroy the ring */
++	mrp->br = NULL;
++	mrp->p_port = NULL;
++	mrp->s_port = NULL;
++
++	list_del(&mrp->list);
++	devm_kfree(&br->dev->dev, mrp);
++
++	return 0;
++}
++
++int br_mrp_del_port(struct net_bridge_port *p)
++{
++	struct net_bridge *br;
++	struct br_mrp *mrp;
++
++	br = p->br;
++	mrp = br_mrp_find_port(br, p);
++	if (!mrp)
++		return 0;
++
++	/* Stop sending MRP_Test frames */
++	br_mrp_switchdev_send_ring_test(mrp, 0, 0);
++
++	p->state = BR_STATE_FORWARDING;
++	p->mrp_aware = false;
++	if (p == mrp->p_port)
++		mrp->p_port = NULL;
++	if (p == mrp->s_port)
++		mrp->s_port = NULL;
++
++	br_mrp_port_switchdev_del(p, mrp->ring_nr);
++
++	return 0;
++}
++
++int br_mrp_set_port_state(struct net_bridge_port *p,
++			  enum br_mrp_port_state_type state)
++{
++	struct net_bridge *br;
++
++	br = p->br;
++	if (state == BR_MRP_PORT_STATE_FORWARDING)
++		p->state = BR_STATE_FORWARDING;
 +	else
-+		err = switchdev_port_obj_add(mrp->br->dev, &mrp_role.obj, NULL);
++		p->state = BR_STATE_BLOCKING;
 +
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
-+
-+	return 0;
-+}
-+
-+int br_mrp_switchdev_send_ring_test(struct br_mrp *mrp, u32 interval,
-+				    u8 max_miss)
-+{
-+	struct switchdev_obj_ring_test_mrp test = {
-+		.obj.orig_dev = mrp->br->dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_RING_TEST_MRP,
-+		.interval = interval,
-+		.max_miss = max_miss,
-+		.ring_nr = mrp->ring_nr,
-+	};
-+	int err = 0;
-+
-+	if (interval == 0)
-+		err = switchdev_port_obj_del(mrp->br->dev, &test.obj);
-+	else
-+		err = switchdev_port_obj_add(mrp->br->dev, &test.obj, NULL);
-+
-+	return err;
-+}
-+
-+int br_mrp_port_switchdev_del(struct net_bridge_port *p, u32 ring_nr)
-+{
-+	struct net_bridge *br = p->br;
-+	struct switchdev_obj_port_mrp mrp = {
-+		.obj.orig_dev = br->dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_PORT_MRP,
-+		.port = p->dev,
-+		.ring_nr = ring_nr,
-+	};
-+	int err = 0;
-+
-+	err = switchdev_port_obj_del(br->dev, &mrp.obj);
-+
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
++	br_mrp_port_switchdev_set_state(p, state);
 +
 +	return 0;
 +}
 +
-+int br_mrp_port_switchdev_set_state(struct net_bridge_port *p,
-+				    enum br_mrp_port_state_type state)
++int br_mrp_set_port_role(struct net_bridge_port *p, u32 ring_nr,
++			 enum br_mrp_port_role_type role)
 +{
-+	struct switchdev_attr attr = {
-+		.orig_dev = p->dev,
-+		.id = SWITCHDEV_ATTR_ID_MRP_PORT_STATE,
-+		.u.mrp_port_state = state,
-+	};
-+	int err = 0;
++	struct br_mrp *mrp = br_mrp_find_id(p->br, ring_nr);
 +
-+	pr_info("%s port: %s, state: %d\n", __func__, p->dev->name, state);
++	if (!mrp)
++		return -EINVAL;
 +
-+	err = switchdev_port_attr_set(p->dev, &attr);
-+	if (err && err != -EOPNOTSUPP)
-+		br_warn(p->br, "error setting offload MRP state on port %u(%s)\n",
-+			(unsigned int)p->port_no, p->dev->name);
++	if (role == BR_MRP_PORT_ROLE_PRIMARY)
++		mrp->p_port = p;
++	if (role == BR_MRP_PORT_ROLE_SECONDARY)
++		mrp->s_port = p;
 +
-+	return err;
-+}
-+
-+int br_mrp_port_switchdev_set_role(struct net_bridge_port *p,
-+				   enum br_mrp_port_role_type role)
-+{
-+	struct switchdev_attr attr = {
-+		.orig_dev = p->dev,
-+		.id = SWITCHDEV_ATTR_ID_MRP_PORT_ROLE,
-+		.u.mrp_port_role = role,
-+	};
-+	int err;
-+
-+	err = switchdev_port_attr_set(p->dev, &attr);
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
++	br_mrp_port_switchdev_set_role(p, role);
 +
 +	return 0;
 +}
 +
-+int br_mrp_switchdev_set_ring_state(struct br_mrp *mrp,
-+				    enum br_mrp_ring_state_type state)
++int br_mrp_set_ring_state(struct net_bridge *br, u32 ring_nr,
++			  enum br_mrp_ring_state_type state)
 +{
-+	struct switchdev_attr attr = {
-+		.id = SWITCHDEV_ATTR_ID_MRP_RING_STATE,
-+		.u.mrp_ring_state = state,
-+	};
-+	int err = 0;
++	struct br_mrp *mrp = br_mrp_find_id(br, ring_nr);
 +
-+	attr.orig_dev = mrp->p_port->dev,
-+	err = switchdev_port_attr_set(mrp->p_port->dev, &attr);
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
++	if (!mrp)
++		return -EINVAL;
 +
-+	attr.orig_dev = mrp->s_port->dev;
-+	err = switchdev_port_attr_set(mrp->s_port->dev, &attr);
-+	if (err && err != -EOPNOTSUPP)
-+		return err;
++	br_mrp_switchdev_set_ring_state(mrp, state);
 +
-+	return err;
++	return 0;
++}
++
++int br_mrp_set_ring_role(struct net_bridge *br, u32 ring_nr,
++			 enum br_mrp_ring_role_type role)
++{
++	struct br_mrp *mrp = br_mrp_find_id(br, ring_nr);
++
++	if (!mrp)
++		return -EINVAL;
++
++	br_mrp_switchdev_set_ring_role(mrp, role);
++
++	return 0;
++}
++
++int br_mrp_start_test(struct net_bridge *br, u32 ring_nr, u32 interval,
++		      u8 max_miss)
++{
++	struct br_mrp *mrp = br_mrp_find_id(br, ring_nr);
++
++	if (!mrp)
++		return -EINVAL;
++
++	return br_mrp_switchdev_send_ring_test(mrp, interval, max_miss);
++}
++
++int br_mrp_flush(struct net_bridge *br, u32 ring_nr)
++{
++	br_fdb_flush(br);
++	return 0;
 +}
 +
 -- 
