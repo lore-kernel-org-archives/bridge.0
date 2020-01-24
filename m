@@ -1,13 +1,24 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Fri, 24 Jan 2020 17:18:28 +0100
-Message-ID: <20200124161828.12206-11-horatiu.vultur@microchip.com>
-In-Reply-To: <20200124161828.12206-1-horatiu.vultur@microchip.com>
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+ s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+ Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+ Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+ :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+ List-Post:List-Owner:List-Archive;
+ bh=G86FZTcHn/oMBBx6RFTrYjvwIujQU9r6hS03SoZfBwo=; b=M5Y0a9FlG3s9A65UDLSA37oMrU
+ 5OSxplA+d5tB2I9cPTXxf/H2YGVTlo57j7O0zrEwh4TO895FvN0iap+f+SzG4//k6a5/ja0C+SOCp
+ bhIsBgBE/uEtql9FTUEgbedwsEv02gYoNPr/yYmt+GspdMF59mfpAmOKtLJijIPUq7tQ=;
+Date: Fri, 24 Jan 2020 18:37:18 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20200124173718.GB13647@lunn.ch>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
+ <20200124161828.12206-3-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [RFC net-next v3 10/10] net: bridge: mrp: Update Kconfig
-	and Makefile
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200124161828.12206-3-horatiu.vultur@microchip.com>
+Subject: Re: [Bridge] [RFC net-next v3 02/10] net: bridge: mrp: Expose
+ function br_mrp_port_open
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,48 +27,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, anirudh.venkataramanan@intel.com, olteanv@gmail.com, andrew@lunn.ch, jeffrey.t.kirsher@intel.com, UNGLinuxDriver@microchip.com
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, davem@davemloft.net
 
-Add the option BRIDGE_MRP to allow to build in or not MRP support.
-The default value is N.
+On Fri, Jan 24, 2020 at 05:18:20PM +0100, Horatiu Vultur wrote:
+> In case the HW is capable to detect when the MRP ring is open or closed. It is
+> expected that the network driver will notify the bridge that the ring is open or
+> closed.
+> 
+> The function br_mrp_port_open is used to notify the kernel that one of the ports
+> stopped receiving MRP_Test frames. The argument 'loc' has a value of '1' when
+> the port stopped receiving MRP_Test and '0' when it started to receive MRP_Test.
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
----
- net/bridge/Kconfig  | 12 ++++++++++++
- net/bridge/Makefile |  2 ++
- 2 files changed, 14 insertions(+)
+Hi Horatiu
 
-diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
-index e4fb050e2078..51a6414145d2 100644
---- a/net/bridge/Kconfig
-+++ b/net/bridge/Kconfig
-@@ -61,3 +61,15 @@ config BRIDGE_VLAN_FILTERING
- 	  Say N to exclude this support and reduce the binary size.
- 
- 	  If unsure, say Y.
-+
-+config BRIDGE_MRP
-+	bool "MRP protocol"
-+	depends on BRIDGE
-+	default n
-+	help
-+	  If you say Y here, then the Ethernet bridge will be able to run MRP
-+	  protocol to detect loops
-+
-+	  Say N to exclude this support and reduce the binary size.
-+
-+	  If unsure, say N.
-diff --git a/net/bridge/Makefile b/net/bridge/Makefile
-index ac9ef337f0fa..b2e11b819af5 100644
---- a/net/bridge/Makefile
-+++ b/net/bridge/Makefile
-@@ -25,3 +25,5 @@ bridge-$(CONFIG_BRIDGE_VLAN_FILTERING) += br_vlan.o br_vlan_tunnel.o
- bridge-$(CONFIG_NET_SWITCHDEV) += br_switchdev.o
- 
- obj-$(CONFIG_NETFILTER) += netfilter/
-+
-+bridge-$(CONFIG_BRIDGE_MRP)	+= br_mrp.o br_mrp_netlink.o br_mrp_switchdev.o
--- 
-2.17.1
+Given the name of the function, br_mrp_port_open(), how about replacing
+loc with a bool with the name open?
 
+    Andrew
