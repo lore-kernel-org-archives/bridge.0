@@ -5,20 +5,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
  Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
  :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
  List-Post:List-Owner:List-Archive;
- bh=GIFd6ldOKuKN0YVghH/yGsAo5WnGw/L9zQieq8ttDrM=; b=1Oo4aMLVL4WOPNGNDBrnGbMuoK
- tOgjZF5dIlA65CSCX1fIDj2OjTpaTZpUJHzukaHXhhvMO+ktwOLkSk3iXzrRoQZCyPIsJ4xv7HtuP
- OCkPowh7h34IKzLSZlUaaKRdRNyZvFZgvC7XRXavUEa6LIfwkqBMteDgU8gam3ZkkcQM=;
-Date: Sat, 25 Jan 2020 16:42:48 +0100
+ bh=X8UUPTOUNfFXETSXGA8mkvkgEObCurF5t9bY3s9/WBw=; b=CvGoJahVgWmRUJ6lVkXuQ1M419
+ Q/XFzshlEk7MPbOCKU20WMXVtIIDV0QUzNt5sL/uGSCuRSjz+XfKMwWrmYDSPMCPKwzhQJWZUAzkq
+ 5ZiKCStAZ3mi7aNle7UBR6BcdetgqEEMQOrrF2viYG9DfzS202kGxeEcyR/ihrfTlBTM=;
+Date: Sat, 25 Jan 2020 16:20:23 +0100
 From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20200125154248.GC18311@lunn.ch>
+Message-ID: <20200125152023.GA18311@lunn.ch>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
- <20200124161828.12206-10-horatiu.vultur@microchip.com>
+ <20200124161828.12206-4-horatiu.vultur@microchip.com>
+ <20200124174315.GC13647@lunn.ch>
+ <20200125113726.ousbmm4n3ab4xnqt@soft-dev3.microsemi.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200124161828.12206-10-horatiu.vultur@microchip.com>
-Subject: Re: [Bridge] [RFC net-next v3 09/10] net: bridge: mrp: Integrate
- MRP into the bridge
+In-Reply-To: <20200125113726.ousbmm4n3ab4xnqt@soft-dev3.microsemi.net>
+Subject: Re: [Bridge] [RFC net-next v3 03/10] net: bridge: mrp: Add MRP
+ interface used by netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,60 +32,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Horatiu Vultur <horatiu.vultur@microchip.com>
 Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, davem@davemloft.net
 
-On Fri, Jan 24, 2020 at 05:18:27PM +0100, Horatiu Vultur wrote:
-> To integrate MRP into the bridge, the bridge needs to do the following:
-> - initialized and destroy the generic netlink used by MRP
-> - detect if the MRP frame was received on a port that is part of a MRP ring. In
->   case it was not, then forward the frame as usual, otherwise redirect the frame
->   to the upper layer.
+On Sat, Jan 25, 2020 at 12:37:26PM +0100, Horatiu Vultur wrote:
+> The 01/24/2020 18:43, Andrew Lunn wrote:
+> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+> > 
+> > > br_mrp_flush - will flush the FDB.
+> > 
+> > How does this differ from a normal bridge flush? I assume there is a
+> > way for user space to flush the bridge FDB.
 > 
-> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> ---
->  net/bridge/br.c         | 11 +++++++++++
->  net/bridge/br_device.c  |  3 +++
->  net/bridge/br_if.c      |  6 ++++++
->  net/bridge/br_input.c   | 14 ++++++++++++++
->  net/bridge/br_private.h | 14 ++++++++++++++
->  5 files changed, 48 insertions(+)
+> Hi,
 > 
-> diff --git a/net/bridge/br.c b/net/bridge/br.c
-> index b6fe30e3768f..d5e556eed4ba 100644
-> --- a/net/bridge/br.c
-> +++ b/net/bridge/br.c
-> @@ -344,6 +344,12 @@ static int __init br_init(void)
->  	if (err)
->  		goto err_out5;
->  
-> +#ifdef CONFIG_BRIDGE_MRP
-> +	err = br_mrp_netlink_init();
-> +	if (err)
-> +		goto err_out6;
-> +#endif
+> If I seen corectly the normal bridge flush will clear the entire FDB for
+> all the ports of the bridge. In this case it is require to clear FDB
+> entries only for the ring ports.
 
-Please try to avoid #ifdef's like this in C code. Add a stub function
-to br_private_mrp.h.
-
-If you really cannot avoid #ifdef, please use #if IS_ENABLED(CONFIG_BRIDGE_MRP).
-That expands to
-
-	if (0) {
-
-        }
-
-So the compiler will compile it and then optimize it out. That gives
-us added benefit of build testing, we don't suddenly find the code no
-longer compiles when we enable the option.
-
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -21,6 +21,9 @@
->  #include <linux/rculist.h>
->  #include "br_private.h"
->  #include "br_private_tunnel.h"
-> +#ifdef CONFIG_BRIDGE_MRP
-> +#include "br_private_mrp.h"
-> +#endif
-
-It should always be safe to include a header file.
+Maybe it would be better to extend the current bridge netlink call to
+be able to pass an optional interface to be flushed?  I'm not sure it
+is a good idea to have two APIs doing very similar things.
 
    Andrew
