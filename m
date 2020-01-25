@@ -1,18 +1,16 @@
 Return-Path: <Allan.Nielsen@microchip.com>
-Date: Sat, 25 Jan 2020 20:16:12 +0100
+Date: Sat, 25 Jan 2020 20:28:54 +0100
 From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Message-ID: <20200125191612.5dlzlvb7g2bucqna@lx-anielsen.microsemi.net>
+Message-ID: <20200125192854.yi544iu2atvbbwey@lx-anielsen.microsemi.net>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
- <20200124161828.12206-4-horatiu.vultur@microchip.com>
- <20200124174315.GC13647@lunn.ch>
- <20200125113726.ousbmm4n3ab4xnqt@soft-dev3.microsemi.net>
- <20200125152023.GA18311@lunn.ch>
+ <20200124161828.12206-5-horatiu.vultur@microchip.com>
+ <20200125153403.GB18311@lunn.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200125152023.GA18311@lunn.ch>
-Subject: Re: [Bridge] [RFC net-next v3 03/10] net: bridge: mrp: Add MRP
- interface used by netlink
+In-Reply-To: <20200125153403.GB18311@lunn.ch>
+Subject: Re: [Bridge] [RFC net-next v3 04/10] net: bridge: mrp: Add generic
+ netlink interface to configure MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,32 +22,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Andrew Lunn <andrew@lunn.ch>
 Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On 25.01.2020 16:20, Andrew Lunn wrote:
+On 25.01.2020 16:34, Andrew Lunn wrote:
 >EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
 >
->On Sat, Jan 25, 2020 at 12:37:26PM +0100, Horatiu Vultur wrote:
->> The 01/24/2020 18:43, Andrew Lunn wrote:
->> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
->> >
->> > > br_mrp_flush - will flush the FDB.
->> >
->> > How does this differ from a normal bridge flush? I assume there is a
->> > way for user space to flush the bridge FDB.
->>
->> Hi,
->>
->> If I seen corectly the normal bridge flush will clear the entire FDB for
->> all the ports of the bridge. In this case it is require to clear FDB
->> entries only for the ring ports.
+>On Fri, Jan 24, 2020 at 05:18:22PM +0100, Horatiu Vultur wrote:
+>> Implement the generic netlink interface to configure MRP. The implementation
+>> will do sanity checks over the attributes and then eventually call the MRP
+>> interface which eventually will call the switchdev API.
+>What was your thinking between adding a new generic netlink interface,
+>and extending the current one?
 >
->Maybe it would be better to extend the current bridge netlink call to
->be able to pass an optional interface to be flushed?  I'm not sure it
->is a good idea to have two APIs doing very similar things.
-I agree.
+>I've not looked at your user space code yet, but i assume it has to
+>make use of both? It needs to create the bridge and add the
+>interfaces. And then it needs to control the MRP state.
+>
+>Allan mentioned you might get around to implementing 802.1CB? Would
+>that be another generic netlink interface, or would you extend the MRP
+>interface?
+Horatiu, if you have given this any thoughts, then please share them.
 
-And when looking at this again, I start to think that we should have
-extended the existing netlink interface with new commands, instead of
-adding a generic netlink.
+Here are my thoughts on 802.1CB: If we look at this with the traditional
+NIC/host POW, then it would be natural to look at the HSR interface as
+Vinicius suggested, and expose it as a new interface (HSR0). But when
+looking at how 802.1CB say a bridge should act, and also what the
+capabilities of the HW are, then it seem more natural to extend the TC
+system. In HW it is a TCAM classifying the traffic, and it has some
+actions to either replicate the matched frames, or eliminate the
+additional copies.
+
+The HW also supports CFM (see [1]), which we need (partly) to complete
+the MRP implementation with MIM/MIC roles. This is also useful for none
+MRP users (like ERPS).
+
+This seems like an argument for moving this to the existing netlink
+interfaces instead of having it as a generic netlink.
+
+[1] https://en.wikipedia.org/wiki/IEEE_802.1ag
 
 /Allan
-
