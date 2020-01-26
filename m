@@ -1,14 +1,14 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
-Date: Sun, 26 Jan 2020 13:49:11 +0100
+Date: Sun, 26 Jan 2020 14:01:11 +0100
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20200126124911.z5zh44agxbe6lwhh@soft-dev3.microsemi.net>
+Message-ID: <20200126130111.o75gskwe2fmfd4g5@soft-dev3.microsemi.net>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
  <20200124161828.12206-10-horatiu.vultur@microchip.com>
- <20200125154248.GC18311@lunn.ch>
+ <20200125161615.GD18311@lunn.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20200125154248.GC18311@lunn.ch>
+In-Reply-To: <20200125161615.GD18311@lunn.ch>
 Subject: Re: [Bridge] [RFC net-next v3 09/10] net: bridge: mrp: Integrate
  MRP into the bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -22,69 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Andrew Lunn <andrew@lunn.ch>
 Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, davem@davemloft.net
 
-The 01/25/2020 16:42, Andrew Lunn wrote:
+The 01/25/2020 17:16, Andrew Lunn wrote:
 > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
 > 
-> On Fri, Jan 24, 2020 at 05:18:27PM +0100, Horatiu Vultur wrote:
-> > To integrate MRP into the bridge, the bridge needs to do the following:
-> > - initialized and destroy the generic netlink used by MRP
-> > - detect if the MRP frame was received on a port that is part of a MRP ring. In
-> >   case it was not, then forward the frame as usual, otherwise redirect the frame
-> >   to the upper layer.
-> >
-> > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> > ---
-> >  net/bridge/br.c         | 11 +++++++++++
-> >  net/bridge/br_device.c  |  3 +++
-> >  net/bridge/br_if.c      |  6 ++++++
-> >  net/bridge/br_input.c   | 14 ++++++++++++++
-> >  net/bridge/br_private.h | 14 ++++++++++++++
-> >  5 files changed, 48 insertions(+)
-> >
-> > diff --git a/net/bridge/br.c b/net/bridge/br.c
-> > index b6fe30e3768f..d5e556eed4ba 100644
-> > --- a/net/bridge/br.c
-> > +++ b/net/bridge/br.c
-> > @@ -344,6 +344,12 @@ static int __init br_init(void)
-> >       if (err)
-> >               goto err_out5;
-> >
+> >  br_netif_receive_skb(struct net *net, struct sock *sk, struct sk_buff *skb)
+> > @@ -338,6 +341,17 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+> >                       return RX_HANDLER_CONSUMED;
+> >               }
+> >       }
 > > +#ifdef CONFIG_BRIDGE_MRP
-> > +     err = br_mrp_netlink_init();
-> > +     if (err)
-> > +             goto err_out6;
-> > +#endif
+> > +     /* If there is no MRP instance do normal forwarding */
+> > +     if (!p->mrp_aware)
+> > +             goto forward;
+> > +
+> > +     if (skb->protocol == htons(ETH_P_MRP))
+> > +             return RX_HANDLER_PASS;
 > 
-> Please try to avoid #ifdef's like this in C code. Add a stub function
-> to br_private_mrp.h.
-> 
-> If you really cannot avoid #ifdef, please use #if IS_ENABLED(CONFIG_BRIDGE_MRP).
-> That expands to
-> 
->         if (0) {
-> 
->         }
-> 
-> So the compiler will compile it and then optimize it out. That gives
-> us added benefit of build testing, we don't suddenly find the code no
-> longer compiles when we enable the option.
-> 
-> > --- a/net/bridge/br_input.c
-> > +++ b/net/bridge/br_input.c
-> > @@ -21,6 +21,9 @@
-> >  #include <linux/rculist.h>
-> >  #include "br_private.h"
-> >  #include "br_private_tunnel.h"
-> > +#ifdef CONFIG_BRIDGE_MRP
-> > +#include "br_private_mrp.h"
-> > +#endif
-> 
-> It should always be safe to include a header file.
-> 
->    Andrew
+> What MAC address is used for these MRP frames? It would make sense to
+> use a L2 link local destination address, since i assume they are not
+> supposed to be forwarded by the bridge. If so, you could extend the
+> if (unlikely(is_link_local_ether_addr(dest))) condition.
 
-Thanks for pointing out these mistakes. I will try to avoid all these
-#ifdef's in the next patch series.
+The MAC addresses used by MRP frames are:
+0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 - used by MRP_Test frames
+0x1, 0x15, 0x4e, 0x0, 0x0, 0x2 - used by the rest of MRP frames.
+
+If we will add support also for MIM/MIC. These requires 2 more MAC
+addresses:
+0x1, 0x15, 0x4e, 0x0, 0x0, 0x3 - used by MRP_InTest frames.
+0x1, 0x15, 0x4e, 0x0, 0x0, 0x4 - used by the other MRP interconnect
+frames.
+
+Then maybe I shoukd change the check to be something like:
+if (unlikely(skb->protocol == htons(ETH_P_MRP)))
+
+> 
+> > +
+> > +     if (p->state == BR_STATE_BLOCKING)
+> > +             goto drop;
+> > +#endif
+> 
+> Is this needed? The next block of code is a switch statement on
+> p->state. The default case, which BR_STATE_BLOCKING should hit, is
+> drop.
+
+Yes you are rigth, it is not needed anymore.
+
+> 
+> This function is on the hot path. So we should try to optimize it as
+> much as possible.
+> 
+>      Andrew
 
 -- 
 /Horatiu
