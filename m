@@ -1,16 +1,19 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
-Date: Sun, 26 Jan 2020 14:22:13 +0100
+Date: Sun, 26 Jan 2020 14:28:43 +0100
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20200126132213.fmxl5mgol5qauwym@soft-dev3.microsemi.net>
+Message-ID: <20200126132843.k4rzn7vfti7lqvos@soft-dev3.microsemi.net>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
- <20200124161828.12206-7-horatiu.vultur@microchip.com>
- <20200125163504.GF18311@lunn.ch>
+ <20200124161828.12206-4-horatiu.vultur@microchip.com>
+ <20200124174315.GC13647@lunn.ch>
+ <20200125113726.ousbmm4n3ab4xnqt@soft-dev3.microsemi.net>
+ <20200125152023.GA18311@lunn.ch>
+ <20200125191612.5dlzlvb7g2bucqna@lx-anielsen.microsemi.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20200125163504.GF18311@lunn.ch>
-Subject: Re: [Bridge] [RFC net-next v3 06/10] net: bridge: mrp: switchdev:
- Extend switchdev API to offload MRP
+In-Reply-To: <20200125191612.5dlzlvb7g2bucqna@lx-anielsen.microsemi.net>
+Subject: Re: [Bridge] [RFC net-next v3 03/10] net: bridge: mrp: Add MRP
+ interface used by netlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,33 +22,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, davem@davemloft.net
+To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
+Cc: ivecera@redhat.com, Andrew Lunn <andrew@lunn.ch>, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, davem@davemloft.net
 
-The 01/25/2020 17:35, Andrew Lunn wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> > SWITCHDEV_OBJ_ID_RING_TEST_MRP: This is used when to start/stop sending
-> >   MRP_Test frames on the mrp ring ports. This is called only on nodes that have
-> >   the role Media Redundancy Manager.
-> 
-> How do you handle the 'headless chicken' scenario? User space tells
-> the port to start sending MRP_Test frames. It then dies. The hardware
-> continues sending these messages, and the neighbours thinks everything
-> is O.K, but in reality the state machine is dead, and when the ring
-> breaks, the daemon is not there to fix it?
-> 
-> And it is not just the daemon that could die. The kernel could opps or
-> deadlock, etc.
-> 
-> For a robust design, it seems like SWITCHDEV_OBJ_ID_RING_TEST_MRP
-> should mean: start sending MRP_Test frames for the next X seconds, and
-> then stop. And the request is repeated every X-1 seconds.
+The 01/25/2020 20:16, Allan W. Nielsen wrote:
+> On 25.01.2020 16:20, Andrew Lunn wrote:
+> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+> > 
+> > On Sat, Jan 25, 2020 at 12:37:26PM +0100, Horatiu Vultur wrote:
+> > > The 01/24/2020 18:43, Andrew Lunn wrote:
+> > > > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+> > > >
+> > > > > br_mrp_flush - will flush the FDB.
+> > > >
+> > > > How does this differ from a normal bridge flush? I assume there is a
+> > > > way for user space to flush the bridge FDB.
+> > > 
+> > > Hi,
+> > > 
+> > > If I seen corectly the normal bridge flush will clear the entire FDB for
+> > > all the ports of the bridge. In this case it is require to clear FDB
+> > > entries only for the ring ports.
+> > 
+> > Maybe it would be better to extend the current bridge netlink call to
+> > be able to pass an optional interface to be flushed?  I'm not sure it
+> > is a good idea to have two APIs doing very similar things.
+> I agree.
+I would look over this.
 
-I totally missed this case, I will update this as you suggest.
+> 
+> And when looking at this again, I start to think that we should have
+> extended the existing netlink interface with new commands, instead of
+> adding a generic netlink.
+We could do also that. The main reason why I have added a new generic
+netlink was that I thought it would be clearer what commands are for MRP
+configuration. But if you think that we should go forward by extending
+existing netlink interface, that is perfectly fine for me.
 
 > 
->      Andrew
+> /Allan
+> 
 
 -- 
 /Horatiu
