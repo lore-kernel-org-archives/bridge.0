@@ -1,7 +1,16 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-Date: Mon, 27 Jan 2020 14:02:24 +0100
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20200127130224.sifzmujk5b4wfcgn@soft-dev3.microsemi.net>
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+ s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+ Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+ Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+ :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+ List-Post:List-Owner:List-Archive;
+ bh=8DUWXRMC6eXB4R1lEtwnYFrFoKL0TP4Nq+V+t/GeupA=; b=1dSLpR/pv47pAlbfZR7XfSgjcn
+ o1+O18PuM6jZyW8W70pnXZ7d8qP+e5nKqaOxI6rZcvcnidYS9FgnYPoLr9dM2LDMgEPmXAM+EmFBP
+ nba/A+PJcIE++cUEpoBRogAjJUQ9U6KVEug3A78kZCFgJvxlCA6CAjzqARbazKQCrbNc=;
+Date: Mon, 27 Jan 2020 14:40:53 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <20200127134053.GG12816@lunn.ch>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
  <20200124161828.12206-10-horatiu.vultur@microchip.com>
  <20200125161615.GD18311@lunn.ch>
@@ -9,7 +18,7 @@ References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
  <20200126171251.GK18311@lunn.ch>
  <20200127105746.i2txggfnql4povje@lx-anielsen.microsemi.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20200127105746.i2txggfnql4povje@lx-anielsen.microsemi.net>
 Subject: Re: [Bridge] [RFC net-next v3 09/10] net: bridge: mrp: Integrate
@@ -23,54 +32,8 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: ivecera@redhat.com, Andrew Lunn <andrew@lunn.ch>, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, davem@davemloft.net
+Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-The 01/27/2020 11:57, Allan W. Nielsen wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> On 26.01.2020 18:12, Andrew Lunn wrote:
-> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> > 
-> > On Sun, Jan 26, 2020 at 02:01:11PM +0100, Horatiu Vultur wrote:
-> > > The 01/25/2020 17:16, Andrew Lunn wrote:
-> > > > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> > > >
-> > > > >  br_netif_receive_skb(struct net *net, struct sock *sk, struct sk_buff *skb)
-> > > > > @@ -338,6 +341,17 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
-> > > > >                       return RX_HANDLER_CONSUMED;
-> > > > >               }
-> > > > >       }
-> > > > > +#ifdef CONFIG_BRIDGE_MRP
-> > > > > +     /* If there is no MRP instance do normal forwarding */
-> > > > > +     if (!p->mrp_aware)
-> > > > > +             goto forward;
-> > > > > +
-> > > > > +     if (skb->protocol == htons(ETH_P_MRP))
-> > > > > +             return RX_HANDLER_PASS;
-> > > >
-> > > > What MAC address is used for these MRP frames? It would make sense to
-> > > > use a L2 link local destination address, since i assume they are not
-> > > > supposed to be forwarded by the bridge. If so, you could extend the
-> > > > if (unlikely(is_link_local_ether_addr(dest))) condition.
-> > >
-> > > The MAC addresses used by MRP frames are:
-> > > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 - used by MRP_Test frames
-> > > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x2 - used by the rest of MRP frames.
-> > >
-> > > If we will add support also for MIM/MIC. These requires 2 more MAC
-> > > addresses:
-> > > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x3 - used by MRP_InTest frames.
-> > > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x4 - used by the other MRP interconnect
-> > > frames.
-> > 
-> > Hi Horatiu
-> > 
-> > I made the wrong guess about how this protocol worked when i said L2
-> > link local. These MAC addresses are L2 multicast.
-> > 
-> > And you are using a raw socket to receive them into userspace when
-> > needed.
-> > 
 > > 'Thinking allowed' here.
 > > 
 > >     +------------------------------------------+
@@ -87,128 +50,54 @@ The 01/27/2020 11:57, Allan W. Nielsen wrote:
 > > 1) Pure software solution
 > > You need the software bridge in the client to forward these frames
 > > from the left side to the right side.
+
 > As far as I understand it is not the bridge which forward these frames -
 > it is the user-space tool. This was to put as much functionality in
 > user-space and only use the kernel to configure the HW. We can (and
 > should) discuss if this is the right decision.
-> 
-> > (Does the standard give these two ports names)?
-> Horatiu?
 
-They don't have a specific name, the standard names them as "ring
-ports". And to differentiate between them, they have roles: primary or
-secondary. These roles are used to know which port needs to be
-blocked(the secondary) and which needs to forward the frames. One
-observation, these roles are not fix for the entire time. The ring ports
-can interchange their roles. For example if eth0 is the primary port and
-eth1 is the secondary port and then the eth0 link goes down then eth0
-will have the secondary role and eth1 will become primary port.
+So i need to flip the point around. How does the software switch know
+not to forward the frames? Are you adding an MDB?
 
-> 
-> > In the master, the left port is blocked, so the bridge drops them
-> > anyway. You have a RAW socket open on both eth0 and eth1, so you get
-> > to see the frames, even if the bridge drops them.
-> Yes, in the current patch-set such frames are forwarded by the
-> user-space daemon.
-> 
 > We would properly have better performance if we do this in kernel-space.
-> 
-> 
-> > 2) Hardware offload to an MRP unaware switch.
-> > 
-> > I'm thinking about a plain switch supported by DSA, Marvell, Broadcom,
-> > etc. It has no special knowledge of MRP.
-> We have implemented this on Ocelot - which is not MRP aware at all. Not
-> sure what facilities Marvell and Broadcom has, but it is not a lot which
-> is needed.
 
-Here is a small confusion. The implementation that we have done on
-Ocelot doesn't have at all HW offload(I have hacked the network driver
-to remove this support, so basically is just 4 NICs). Therefor all the
-non-MRP frames switching were done by the SW bridge and forwarding of
-MRP frames were done in the userspace.
+Yes, that is what i think. And if you can do it without any additional
+code, using the forwarding tables, so much the better.
 
-> 
-> > Ideally, you want the switch to forward MRP_Test frames left to right
-> > for a client.
-> Yes. If we have only 1 ring, then we can do that with a MAC table entry.
-> If we have more than 1 ring, then we will need a TCAM rule of some kind.
-> 
-> In the what we have today on Ocelot, we do not do this is HW, we do the
-> forwarding in SW.
-> 
 > BTW: It is not only from left to right, it is also from right to left.
-> The MRM will inject packets on both ring ports, and monitor both. This
-> is to detect asymmetrical link down or similar. The two ports are
-> treated the same. But you can set a priority (the primary/secondary) to
-> state your preference on what port to use if both are up and the ring is
-> closed.
+> The MRM will inject packets on both ring ports, and monitor both.
 
-A small observation, the primary/secondary are defined in the standard
-as roles and not priority. And yes it uses this role(primary/secondary)
-to decide which port to block.
+Using the same MAC address in both directions? I need to think what
+that implies for MDB entries. It probably just works, since you never
+flood back out the ingress port.
 
-> 
-> > In a master, i think you have a problem, since the port
-> > is blocked. The hardware is unlikely to recognise these frames as
-> > special, since they are not in the 01-80-C2-XX-XX-XX block, and let
-> > them through. So your raw socket is never going to see them, and you
-> > cannot detect open/closed ring.
 > Again, I do not know how other HW is designed, but all the SOC's we are
 > working with, does allow us to add a TCAM rule which can redirect these
 > frames to the CPU even on a blocked port.
-> 
-> > I don't know how realistic it is to support MRP in this case, and i
-> > also don't think you can fall back to a pure software solution,
-> > because the software bridge is going to offload the basic bridge
-> > operation to the hardware. It would be nice if you could detect this,
-> > and return -EOPNOTSUPP.
-> We do want to support this on Ocelot, but you are right, if the current
-> running bridge, cannot block a port, and still get the MRP frames on
-> that port, then it cannot support MRM. And this we need to detect in
-> some way.
-> 
-> > 3) Hardware offload to an MRP aware switch.
-> > 
-> > For a client, you tell it which port is left, which is right, and
-> > assume it forwards the frames. For a master, you again tell it which
-> > is left, which is right, and ask it send MRP_Test frames out right,
-> > and report changes in open/closed on the right port. You don't need
-> > the CPU to see the MRP_Test frames, so the switch has no need to
-> > forward them to the CPU.
-> > 
-> > We should think about the general case of a bridge with many ports,
-> > and many pairs of ports using MRP. This makes the forwarding of these
-> > frames interesting. Given that they are multicast, the default action
-> > of the software bridge is that it will flood them. Does the protocol
-> > handle seeing MRP_Test from some other loop? Do we need to avoid this?
-> Yes, we need to avoid. We cannot "just" do normal flooding.
-> 
+
+It is not in scope for what you are doing, but i wonder how we
+describe this in a generic Linux way? And then how we push it down to
+the hardware?
+
+For the Marvell Switches, it might be possible to do this without the
+TCAM. You can add forwarding DB entries marked as Management. It is
+unclear if this overrides the blocked state, but it would be a bit odd
+if it did not.
+
 > > You could avoid this by adding MDB entries to the bridge. However,
 > > this does not scale to more then one ring.
 > I would prefer a solution where the individual drivers can do what is
 > best on the given HW.
-> 
-> - If we have a 2 ported switch, then flooding seems like a perfect valid
->   approach. There will be only 1 ring.
-> - If we have a many ported switch, then we could use MAC-table entry -
->   if the user only configure 1 ring.
->   - When adding more rings, it either needs to return error, or use
->     other HW facilities.
-> 
-> > I don't think an MDB is associated to an ingress port. So you cannot
-> > say
-> Agree.
-> 
-> > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 ingress port1 egress port2
-> > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 ingress port3 egress port4
-> > 
-> > The best you can say is
-> > 
-> > 0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 egress port2, port4
-> > 
-> > I'm sure there are other issues i'm missing, but it is interesting to
-> > think about all this.
+
+The nice thing about adding MDB is that it is making use of the
+software bridge facilities. In general, the software bridge and
+hardware bridges are pretty similar. If you can solve the problem
+using generic software bridge features, not additional special cases
+in code, you have good chance of being able to offload it to a
+hardware bridge which is not MRP aware. The switchdev API for MRP
+specific features should then allow you to make use of any additional
+features the hardware might have.
+
 > Yes, the solution Horatiu has chosen, is not to forward MRP frames,
 > received in MRP ring ports at all. This is done by the user-space tool.
 > 
@@ -219,8 +108,9 @@ to decide which port to block.
 > frames when it is a MRC. The user-space tool then never needs to do
 > this, it know that the kernel will take care of this part (either in SW
 > or in HW).
-> 
-> /Allan
 
--- 
-/Horatiu
+I think that should be considered. I'm not saying it is the best way,
+just that some thought should be put into it to figure out what it
+actually implies.
+
+	 Andrew
