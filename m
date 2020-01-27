@@ -2,19 +2,18 @@ Return-Path: <J.Lambrecht@TELEVIC.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=televic.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Qqy/EXa1/yyKcS+GeKRA5O51ZBMd/tcvxlCjxOQKYjg=;
- b=po8BIu2oh/cOD4SyDifFi4fknlpltacGCmjpN4+ILrRiMXHBUnkrPfLkFAfbTL4L7E4bvVIwF8agDQtxZ0Nip+qXexjt2gcV2GUUvWpJwZmvtCpXSdTgX8zyE13Gl7zKb0mUKqan7CaVosYpGI0HBxEth8E5AZMI8JFFPuC3Wss=
+ bh=uz9E4BnLE1LViKBc5cRkLR5qPkf7ZyUPc+9hQi8yhS0=;
+ b=CroxyoyCfSGcJ5n3d00CfSYNGAWGap8mxVFqTzEGniX5k9DduGCtZvjZxfpAuB9gfhJi2FluUZh295qd8RKTmU/IK/n52rSkF60DaYQHA3iurB748ZOaPNuuFS1o5tqpByEcrIrUfsrQzgFbCz9LmbFJSpgBi37OuWXoI2UjcZU=
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
  <20200124161828.12206-7-horatiu.vultur@microchip.com>
  <20200125163504.GF18311@lunn.ch>
  <20200126132213.fmxl5mgol5qauwym@soft-dev3.microsemi.net>
  <20200126155911.GJ18311@lunn.ch>
- <13ac391c-61f5-cb77-69a0-416b0390f50d@televic.com>
- <20200127122752.g4eanjl2naazyfh3@lx-anielsen.microsemi.net>
+ <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
 From: =?UTF-8?Q?J=c3=bcrgen_Lambrecht?= <j.lambrecht@televic.com>
-Message-ID: <8561814d-bfae-5e23-b0e8-a0e3adf800b4@televic.com>
-Date: Mon, 27 Jan 2020 15:39:05 +0100
-In-Reply-To: <20200127122752.g4eanjl2naazyfh3@lx-anielsen.microsemi.net>
+Message-ID: <879c5144-183f-51d3-21e3-51c20d1d02b4@televic.com>
+Date: Mon, 27 Jan 2020 15:41:13 +0100
+In-Reply-To: <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
@@ -29,77 +28,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: ivecera@redhat.com, Andrew Lunn <andrew@lunn.ch>, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: "Allan W. Nielsen" <allan.nielsen@microchip.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On 1/27/20 1:27 PM, Allan W. Nielsen wrote:
+On 1/27/20 12:04 PM, Allan W. Nielsen wrote:
 > CAUTION: This Email originated from outside Televic. Do not click links or open attachments unless you recognize the sender and know the content is safe.
 >
 >
-> Hi Jürgen,
->
-> On 27.01.2020 12:29, Jürgen Lambrecht wrote:
+> On 26.01.2020 16:59, Andrew Lunn wrote:
 >> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
 >>
->> On 1/26/20 4:59 PM, Andrew Lunn wrote:
->>> Given the design of the protocol, if the hardware decides the OS etc
->>> is dead, it should stop sending MRP_TEST frames and unblock the ports.
->>> If then becomes a 'dumb switch', and for a short time there will be a
->>> broadcast storm. Hopefully one of the other nodes will then take over
->>> the role and block a port.
-This can probably be a configuration option in the hardware, how to fall-back.
+>> On Sun, Jan 26, 2020 at 02:22:13PM +0100, Horatiu Vultur wrote:
+>>> The 01/25/2020 17:35, Andrew Lunn wrote:
+>>> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+>>> >
+>>> > > SWITCHDEV_OBJ_ID_RING_TEST_MRP: This is used when to start/stop sending
+>>> > >   MRP_Test frames on the mrp ring ports. This is called only on nodes that have
+>>> > >   the role Media Redundancy Manager.
+>>> >
+>>> > How do you handle the 'headless chicken' scenario? User space tells
+>>> > the port to start sending MRP_Test frames. It then dies. The hardware
+>>> > continues sending these messages, and the neighbours thinks everything
+>>> > is O.K, but in reality the state machine is dead, and when the ring
+>>> > breaks, the daemon is not there to fix it?
+> I agree, we need to find a solution to this issue.
 >
->> In my experience a closed loop should never happen. It can make
->> software crash and give other problems.  An other node should first
->> take over before unblocking the ring ports. (If this is possible - I
->> only follow this discussion halfly)
+>>> > And it is not just the daemon that could die. The kernel could opps or
+>>> > deadlock, etc.
+>>> >
+>>> > For a robust design, it seems like SWITCHDEV_OBJ_ID_RING_TEST_MRP
+>>> > should mean: start sending MRP_Test frames for the next X seconds, and
+>>> > then stop. And the request is repeated every X-1 seconds.
+> Sounds like a good idea to me.
+
+Indeed, and it should then do the same as mentioned below and "... come a 'dumb switch' ", except that I propose to make it configurable how to fallback: with auto-recovery ('dumb switch') or safe mode that keeps the ports blocked, and then some higher layer protocol should fix it.
+
+>
+>>> I totally missed this case, I will update this as you suggest.
 >>
->> What is your opinion?
-> Having loops in the network is never a good thing - but to be honest, I
-> think it is more important that we ensure the design can survive and
-> recover from loops.
-Indeed
->
-> With the current design, it will be really hard to void loops when the
-> network boot. MRP will actually start with the ports blocked, but they
-> will be unblocked in the period from when the bridge is created and
-> until MRP is enabled. If we want to change this (which I'm not too keen
-> on), then we need to be able to block the ports while the bridge is
-> down.
-Our ring network is part of a bigger network. Loops are really not allowed.
->
-> And even if we do this, then we can not guarantee to avoid loops. Lets
-> assume we have a small ring with just 2 nodes: a MRM and a MRC. Lets
-> assume the MRM boots first. It will unblock both ports as the ring is
-> open. Now the MRC boots, and make the ring closed, and create a loop.
-> This will take some time (milliseconds) before the MRM notice this and
-> block one of the ports.
+>> What does your hardware actually provide?
+>>
+>> Given the design of the protocol, if the hardware decides the OS etc
+>> is dead, it should stop sending MRP_TEST frames and unblock the ports.
+>> If then becomes a 'dumb switch', and for a short time there will be a
+>> broadcast storm. Hopefully one of the other nodes will then take over
+>> the role and block a port.
+> As far as I know, the only feature HW has to prevent this is a
+> watch-dog timer. Which will reset the entire system (not a bad idea if
+> the kernel has dead-locked).
+Indeed. Our designs always have a watchdog.
 
-In my view there is a bring-up and tear-down module needed. I don't know if it should be part of MRP or not? Probably not, so something on top of the mrp daemon.
+And then I again propose to have 2 bootup options.
 
->
-> But while we are at this topic, we need to add some functionality to
-> the user-space application such that it can set the priority of the MRP
-> frames. We will get that fixed.
-
-Indeed! In my old design I had to give high priority, else the loop was wrongly closed at high network load.
-
-I guess you mean the priority in the VLAN header?
-I think to remember one talked about the bride code being VLAN-agnostic.
-
->
->> (FYI: I made that mistake once doing a proof-of-concept ring design:
->> during testing, when a "broken" Ethernet cable was "fixed" I had for a
->> short time a loop, and then it happened often that that port of the
->> (Marvell 88E6063) switch was blocked.  (To unblock, only solution was
->> to bring that port down and up again, and then all "lost" packets came
->> out in a burst.) That problem was caused by flow control (with pause
->> frames), and disabling flow control fixed it, but flow-control is
->> default on as far as I know.)
-> I see. It could be fun to see if what we have proposed so far will with
-> with such a switch.
-
-Depending on the projects I could work on it later this year (or only next year or not..)
+I refer here also to my answer on Allan's answer on my email of 12:29PM.
 
 Kind regards,
 
