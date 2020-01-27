@@ -1,21 +1,25 @@
-Return-Path: <Allan.Nielsen@microchip.com>
-Date: Tue, 28 Jan 2020 11:17:04 +0100
-From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Message-ID: <20200128101704.kjqok4lvpgo73pzz@lx-anielsen.microsemi.net>
+Return-Path: <J.Lambrecht@TELEVIC.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=televic.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=G7VvLbHC2nwsB4duJU40o5aHmVes7C5pZsBQBExB3wk=;
+ b=f1gbO7pJnkZMoURVGjslF/qV31b7hyTbzT9t2ZpOkPtSjzYvwl9VD/MoU/9K1lSdJZOrfzqYE0zT7+fbEeynKILrwWjSUk5BjHMOGmP220+YFfP3t1DFby1tYhn9kX+UM7AxpRr/DL36k7UrY1ZHjX0tub2umhX1Cz7Q8aNbHVk=
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
- <20200124161828.12206-10-horatiu.vultur@microchip.com>
- <20200125161615.GD18311@lunn.ch>
- <20200126130111.o75gskwe2fmfd4g5@soft-dev3.microsemi.net>
- <20200126171251.GK18311@lunn.ch>
- <20200127105746.i2txggfnql4povje@lx-anielsen.microsemi.net>
- <20200127134053.GG12816@lunn.ch>
+ <20200124161828.12206-7-horatiu.vultur@microchip.com>
+ <20200125163504.GF18311@lunn.ch>
+ <20200126132213.fmxl5mgol5qauwym@soft-dev3.microsemi.net>
+ <20200126155911.GJ18311@lunn.ch>
+ <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
+From: =?UTF-8?Q?J=c3=bcrgen_Lambrecht?= <j.lambrecht@televic.com>
+Message-ID: <c5733ddb-a837-b866-54bf-c631baf36c54@televic.com>
+Date: Mon, 27 Jan 2020 15:26:38 +0100
+In-Reply-To: <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
+Content-Type: multipart/alternative;
+ boundary="------------0A2AA567E0ABCCC585BD4A57"
+Content-Language: en-US
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200127134053.GG12816@lunn.ch>
-Subject: Re: [Bridge] [RFC net-next v3 09/10] net: bridge: mrp: Integrate
- MRP into the bridge
+Subject: Re: [Bridge] [RFC net-next v3 06/10] net: bridge: mrp: switchdev:
+ Extend switchdev API to offload MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,105 +29,82 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Andrew Lunn <andrew@lunn.ch>
-Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, "Allan W. Nielsen" <allan.nielsen@microchip.com>, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On 27.01.2020 14:40, Andrew Lunn wrote:
->EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+--------------0A2AA567E0ABCCC585BD4A57
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+On 1/27/20 12:04 PM, Allan W. Nielsen wrote:
+>>> > How do you handle the 'headless chicken' scenario? User space tells
+>>> > the port to start sending MRP_Test frames. It then dies. The hardware
+
+Andrew, I am a bit confused here - maybe I missed an email-thread, I'm sorry then.
+
+In previous emails you and others talked about hardware support to send packets (inside the switch). But somebody also talked about data-plane and control-plane (about STP in-kernel being a bad idea), and that data-plane is in-kernel, and control plane is a mrp-daemon (in user space).
+And in my mind, the "hardware" you mention is a frame-injector and can be both real hardware and a driver in the kernel.
+
+Do I see it right?
+
+>>> > continues sending these messages, and the neighbours thinks everything
+>>> > is O.K, but in reality the state machine is dead, and when the ring
+>>> > breaks, the daemon is not there to fix it?
+> I agree, we need to find a solution to this issue.
 >
->> > 'Thinking allowed' here.
->> >
->> >     +------------------------------------------+
->> >     |                                          |
->> >     +-->|H1|<---------->|H2|<---------->|H3|<--+
->> >     eth0    eth1    eth0    eth1    eth0    eth1
->> >      ^
->> >      |
->> >   Blocked
->> >
->> >
->> > There are three major classes of user case here:
->> >
->> > 1) Pure software solution
->> > You need the software bridge in the client to forward these frames
->> > from the left side to the right side.
->
->> As far as I understand it is not the bridge which forward these frames -
->> it is the user-space tool. This was to put as much functionality in
->> user-space and only use the kernel to configure the HW. We can (and
->> should) discuss if this is the right decision.
->
->So i need to flip the point around. How does the software switch know
->not to forward the frames? Are you adding an MDB?
-In the current implementation (patch v3) this is done here:
-https://github.com/microchip-ung/mrp/blob/patch-v3/kernel-patches/v3-0009-net-bridge-mrp-Integrate-MRP-into-the-bridge.patch#L112
 
-We simply ask the bridge not to forward any MRP frames, on MRP enabled
-ports, and let "someone" else do that.
 
->> We would properly have better performance if we do this in kernel-space.
->
->Yes, that is what i think. And if you can do it without any additional
->code, using the forwarding tables, so much the better.
-I understand the motivation of using the existing forwarding mechanism,
-but I do not think we have all the hooks needed. But we can certainly
-limit the impact on the existing code as much as possible.
+--------------0A2AA567E0ABCCC585BD4A57
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
->> BTW: It is not only from left to right, it is also from right to left.
->> The MRM will inject packets on both ring ports, and monitor both.
->
->Using the same MAC address in both directions? I need to think what
->that implies for MDB entries. It probably just works, since you never
->flood back out the ingress port.
-Seems to work fine :-D
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <div class="moz-cite-prefix">On 1/27/20 12:04 PM, Allan W. Nielsen
+      wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net">
+      <blockquote type="cite" style="color: #000000;">
+        <blockquote type="cite" style="color: #000000;">&gt; How do you
+          handle the 'headless chicken' scenario? User space tells
+          <br>
+          &gt; the port to start sending MRP_Test frames. It then dies.
+          The hardware
+          <br>
+        </blockquote>
+      </blockquote>
+    </blockquote>
+    <p>Andrew, I am a bit confused here - maybe I missed an
+      email-thread, I'm sorry then.</p>
+    <p>In previous emails you and others talked about hardware support
+      to send packets (inside the switch). But somebody also talked
+      about data-plane and control-plane (about STP in-kernel being a
+      bad idea), and that data-plane is in-kernel, and control plane is
+      a mrp-daemon (in user space).<br>
+      And in my mind, the &quot;hardware&quot; you mention is a frame-injector and
+      can be both real hardware and a driver in the kernel.</p>
+    <p>Do I see it right?<br>
+    </p>
+    <blockquote type="cite" cite="mid:20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net">
+      <blockquote type="cite" style="color: #000000;">
+        <blockquote type="cite" style="color: #000000;">&gt; continues
+          sending these messages, and the neighbours thinks everything
+          <br>
+          &gt; is O.K, but in reality the state machine is dead, and
+          when the ring
+          <br>
+          &gt; breaks, the daemon is not there to fix it?
+          <br>
+        </blockquote>
+      </blockquote>
+      I agree, we need to find a solution to this issue.
+      <br>
+      <br>
+    </blockquote>
+    <p><br>
+    </p>
+  </body>
+</html>
 
->> Again, I do not know how other HW is designed, but all the SOC's we are
->> working with, does allow us to add a TCAM rule which can redirect these
->> frames to the CPU even on a blocked port.
->
->It is not in scope for what you are doing, but i wonder how we
->describe this in a generic Linux way? And then how we push it down to
->the hardware?
->
->For the Marvell Switches, it might be possible to do this without the
->TCAM. You can add forwarding DB entries marked as Management. It is
->unclear if this overrides the blocked state, but it would be a bit odd
->if it did not.
-Based on this, and also on the input from Jürgen, I think there is a
-good chnage we can make this work for existing silicon from several
-vendors.
-
->> > You could avoid this by adding MDB entries to the bridge. However,
->> > this does not scale to more then one ring.
->> I would prefer a solution where the individual drivers can do what is
->> best on the given HW.
->The nice thing about adding MDB is that it is making use of the
->software bridge facilities. In general, the software bridge and
->hardware bridges are pretty similar. If you can solve the problem
->using generic software bridge features, not additional special cases
->in code, you have good chance of being able to offload it to a
->hardware bridge which is not MRP aware. The switchdev API for MRP
->specific features should then allow you to make use of any additional
->features the hardware might have.
-Yes, but the issues in using the MDB API for this is that it does not
-allow to look at source ports, and it does not allow to update the
-priority of the frames.
-
->> Yes, the solution Horatiu has chosen, is not to forward MRP frames,
->> received in MRP ring ports at all. This is done by the user-space tool.
->>
->> Again, not sure if this is the right way to do it, but it is what patch
->> v3 does.
->>
->> The alternative to this would be to learn the bridge how to forward MRP
->> frames when it is a MRC. The user-space tool then never needs to do
->> this, it know that the kernel will take care of this part (either in SW
->> or in HW).
->I think that should be considered. I'm not saying it is the best way,
->just that some thought should be put into it to figure out what it
->actually implies.
-Sounds good - I will try to explain and illustrate this a bit better,
-such that we all have the same understanding of the problem we need to
-solve.
-
-/Allan
-
+--------------0A2AA567E0ABCCC585BD4A57--
