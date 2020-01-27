@@ -2,20 +2,21 @@ Return-Path: <J.Lambrecht@TELEVIC.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=televic.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G7VvLbHC2nwsB4duJU40o5aHmVes7C5pZsBQBExB3wk=;
- b=f1gbO7pJnkZMoURVGjslF/qV31b7hyTbzT9t2ZpOkPtSjzYvwl9VD/MoU/9K1lSdJZOrfzqYE0zT7+fbEeynKILrwWjSUk5BjHMOGmP220+YFfP3t1DFby1tYhn9kX+UM7AxpRr/DL36k7UrY1ZHjX0tub2umhX1Cz7Q8aNbHVk=
+ bh=Qqy/EXa1/yyKcS+GeKRA5O51ZBMd/tcvxlCjxOQKYjg=;
+ b=po8BIu2oh/cOD4SyDifFi4fknlpltacGCmjpN4+ILrRiMXHBUnkrPfLkFAfbTL4L7E4bvVIwF8agDQtxZ0Nip+qXexjt2gcV2GUUvWpJwZmvtCpXSdTgX8zyE13Gl7zKb0mUKqan7CaVosYpGI0HBxEth8E5AZMI8JFFPuC3Wss=
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
  <20200124161828.12206-7-horatiu.vultur@microchip.com>
  <20200125163504.GF18311@lunn.ch>
  <20200126132213.fmxl5mgol5qauwym@soft-dev3.microsemi.net>
  <20200126155911.GJ18311@lunn.ch>
- <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
+ <13ac391c-61f5-cb77-69a0-416b0390f50d@televic.com>
+ <20200127122752.g4eanjl2naazyfh3@lx-anielsen.microsemi.net>
 From: =?UTF-8?Q?J=c3=bcrgen_Lambrecht?= <j.lambrecht@televic.com>
-Message-ID: <c5733ddb-a837-b866-54bf-c631baf36c54@televic.com>
-Date: Mon, 27 Jan 2020 15:26:38 +0100
-In-Reply-To: <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
-Content-Type: multipart/alternative;
- boundary="------------0A2AA567E0ABCCC585BD4A57"
+Message-ID: <8561814d-bfae-5e23-b0e8-a0e3adf800b4@televic.com>
+Date: Mon, 27 Jan 2020 15:39:05 +0100
+In-Reply-To: <20200127122752.g4eanjl2naazyfh3@lx-anielsen.microsemi.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
 MIME-Version: 1.0
 Subject: Re: [Bridge] [RFC net-next v3 06/10] net: bridge: mrp: switchdev:
@@ -28,83 +29,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, "Allan W. Nielsen" <allan.nielsen@microchip.com>, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: "Allan W. Nielsen" <allan.nielsen@microchip.com>
+Cc: ivecera@redhat.com, Andrew Lunn <andrew@lunn.ch>, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
 
---------------0A2AA567E0ABCCC585BD4A57
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+On 1/27/20 1:27 PM, Allan W. Nielsen wrote:
+> CAUTION: This Email originated from outside Televic. Do not click links or open attachments unless you recognize the sender and know the content is safe.
+>
+>
+> Hi Jürgen,
+>
+> On 27.01.2020 12:29, Jürgen Lambrecht wrote:
+>> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+>>
+>> On 1/26/20 4:59 PM, Andrew Lunn wrote:
+>>> Given the design of the protocol, if the hardware decides the OS etc
+>>> is dead, it should stop sending MRP_TEST frames and unblock the ports.
+>>> If then becomes a 'dumb switch', and for a short time there will be a
+>>> broadcast storm. Hopefully one of the other nodes will then take over
+>>> the role and block a port.
+This can probably be a configuration option in the hardware, how to fall-back.
+>
+>> In my experience a closed loop should never happen. It can make
+>> software crash and give other problems.  An other node should first
+>> take over before unblocking the ring ports. (If this is possible - I
+>> only follow this discussion halfly)
+>>
+>> What is your opinion?
+> Having loops in the network is never a good thing - but to be honest, I
+> think it is more important that we ensure the design can survive and
+> recover from loops.
+Indeed
+>
+> With the current design, it will be really hard to void loops when the
+> network boot. MRP will actually start with the ports blocked, but they
+> will be unblocked in the period from when the bridge is created and
+> until MRP is enabled. If we want to change this (which I'm not too keen
+> on), then we need to be able to block the ports while the bridge is
+> down.
+Our ring network is part of a bigger network. Loops are really not allowed.
+>
+> And even if we do this, then we can not guarantee to avoid loops. Lets
+> assume we have a small ring with just 2 nodes: a MRM and a MRC. Lets
+> assume the MRM boots first. It will unblock both ports as the ring is
+> open. Now the MRC boots, and make the ring closed, and create a loop.
+> This will take some time (milliseconds) before the MRM notice this and
+> block one of the ports.
 
-On 1/27/20 12:04 PM, Allan W. Nielsen wrote:
->>> > How do you handle the 'headless chicken' scenario? User space tells
->>> > the port to start sending MRP_Test frames. It then dies. The hardware
+In my view there is a bring-up and tear-down module needed. I don't know if it should be part of MRP or not? Probably not, so something on top of the mrp daemon.
 
-Andrew, I am a bit confused here - maybe I missed an email-thread, I'm sorry then.
+>
+> But while we are at this topic, we need to add some functionality to
+> the user-space application such that it can set the priority of the MRP
+> frames. We will get that fixed.
 
-In previous emails you and others talked about hardware support to send packets (inside the switch). But somebody also talked about data-plane and control-plane (about STP in-kernel being a bad idea), and that data-plane is in-kernel, and control plane is a mrp-daemon (in user space).
-And in my mind, the "hardware" you mention is a frame-injector and can be both real hardware and a driver in the kernel.
+Indeed! In my old design I had to give high priority, else the loop was wrongly closed at high network load.
 
-Do I see it right?
+I guess you mean the priority in the VLAN header?
+I think to remember one talked about the bride code being VLAN-agnostic.
 
->>> > continues sending these messages, and the neighbours thinks everything
->>> > is O.K, but in reality the state machine is dead, and when the ring
->>> > breaks, the daemon is not there to fix it?
-> I agree, we need to find a solution to this issue.
+>
+>> (FYI: I made that mistake once doing a proof-of-concept ring design:
+>> during testing, when a "broken" Ethernet cable was "fixed" I had for a
+>> short time a loop, and then it happened often that that port of the
+>> (Marvell 88E6063) switch was blocked.  (To unblock, only solution was
+>> to bring that port down and up again, and then all "lost" packets came
+>> out in a burst.) That problem was caused by flow control (with pause
+>> frames), and disabling flow control fixed it, but flow-control is
+>> default on as far as I know.)
+> I see. It could be fun to see if what we have proposed so far will with
+> with such a switch.
+
+Depending on the projects I could work on it later this year (or only next year or not..)
+
+Kind regards,
+
+Jürgen
+
+>
+> /Allan
 >
 
-
---------------0A2AA567E0ABCCC585BD4A57
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-<html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head>
-  <body>
-    <div class="moz-cite-prefix">On 1/27/20 12:04 PM, Allan W. Nielsen
-      wrote:<br>
-    </div>
-    <blockquote type="cite" cite="mid:20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net">
-      <blockquote type="cite" style="color: #000000;">
-        <blockquote type="cite" style="color: #000000;">&gt; How do you
-          handle the 'headless chicken' scenario? User space tells
-          <br>
-          &gt; the port to start sending MRP_Test frames. It then dies.
-          The hardware
-          <br>
-        </blockquote>
-      </blockquote>
-    </blockquote>
-    <p>Andrew, I am a bit confused here - maybe I missed an
-      email-thread, I'm sorry then.</p>
-    <p>In previous emails you and others talked about hardware support
-      to send packets (inside the switch). But somebody also talked
-      about data-plane and control-plane (about STP in-kernel being a
-      bad idea), and that data-plane is in-kernel, and control plane is
-      a mrp-daemon (in user space).<br>
-      And in my mind, the &quot;hardware&quot; you mention is a frame-injector and
-      can be both real hardware and a driver in the kernel.</p>
-    <p>Do I see it right?<br>
-    </p>
-    <blockquote type="cite" cite="mid:20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net">
-      <blockquote type="cite" style="color: #000000;">
-        <blockquote type="cite" style="color: #000000;">&gt; continues
-          sending these messages, and the neighbours thinks everything
-          <br>
-          &gt; is O.K, but in reality the state machine is dead, and
-          when the ring
-          <br>
-          &gt; breaks, the daemon is not there to fix it?
-          <br>
-        </blockquote>
-      </blockquote>
-      I agree, we need to find a solution to this issue.
-      <br>
-      <br>
-    </blockquote>
-    <p><br>
-    </p>
-  </body>
-</html>
-
---------------0A2AA567E0ABCCC585BD4A57--
