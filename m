@@ -1,28 +1,20 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
- s=20171124; h=In-Reply-To:Content-Transfer-Encoding:Content-Type:MIME-Version
- :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=UvjYKQEomZljxw4yYS7NWvcMI7QwuePD0j2Ascrs53Y=; b=GIKMIgnLTgQ6+2t0UsJvhu9LRx
- hcRC1D95EQQ57+wINFyAWDsh9TjVnvFCYFKRqA7OgMyqB8DEh4htckxj9f6XHcCAmS8dHCFN6kRmF
- bQLaPtkJ0jLTiY+3jvakB3nTsoIK7QdxttYyzBKoYCiRShtCUwicd7gHRkCi5+smM0ek=;
-Date: Mon, 27 Jan 2020 16:06:14 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20200127150614.GF13647@lunn.ch>
+Return-Path: <Allan.Nielsen@microchip.com>
+Date: Tue, 28 Jan 2020 10:58:23 +0100
+From: "Allan W. Nielsen" <allan.nielsen@microchip.com>
+Message-ID: <20200128095823.limui36nes7e2hqh@lx-anielsen.microsemi.net>
 References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
  <20200124161828.12206-7-horatiu.vultur@microchip.com>
  <20200125163504.GF18311@lunn.ch>
  <20200126132213.fmxl5mgol5qauwym@soft-dev3.microsemi.net>
  <20200126155911.GJ18311@lunn.ch>
- <20200127110418.f7443ecls6ih2fwt@lx-anielsen.microsemi.net>
- <c5733ddb-a837-b866-54bf-c631baf36c54@televic.com>
+ <13ac391c-61f5-cb77-69a0-416b0390f50d@televic.com>
+ <20200127122752.g4eanjl2naazyfh3@lx-anielsen.microsemi.net>
+ <8561814d-bfae-5e23-b0e8-a0e3adf800b4@televic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <c5733ddb-a837-b866-54bf-c631baf36c54@televic.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8561814d-bfae-5e23-b0e8-a0e3adf800b4@televic.com>
 Subject: Re: [Bridge] [RFC net-next v3 06/10] net: bridge: mrp: switchdev:
  Extend switchdev API to offload MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -33,46 +25,88 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?iso-8859-1?Q?J=FCrgen?= Lambrecht <j.lambrecht@televic.com>
-Cc: ivecera@redhat.com, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, "Allan W. Nielsen" <allan.nielsen@microchip.com>, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: =?utf-8?Q?J=C3=BCrgen?= Lambrecht <j.lambrecht@televic.com>
+Cc: ivecera@redhat.com, Andrew Lunn <andrew@lunn.ch>, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On Mon, Jan 27, 2020 at 03:26:38PM +0100, J=FCrgen Lambrecht wrote:
-> On 1/27/20 12:04 PM, Allan W. Nielsen wrote:
->=20
->             > How do you handle the 'headless chicken' scenario? User spa=
-ce
->             tells
->             > the port to start sending MRP_Test frames. It then dies. The
->             hardware
->=20
-> Andrew, I am a bit confused here - maybe I missed an email-thread, I'm so=
-rry
-> then.
->=20
-> In previous emails you and others talked about hardware support to send p=
-ackets
-> (inside the switch). But somebody also talked about data-plane and
-> control-plane (about STP in-kernel being a bad idea), and that data-plane=
- is
-> in-kernel, and control plane is a mrp-daemon (in user space).
-> And in my mind, the "hardware" you mention is a frame-injector and can be=
- both
-> real hardware and a driver in the kernel.
->=20
-> Do I see it right?
+On 27.01.2020 15:39, Jürgen Lambrecht wrote:
+>EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+>
+>On 1/27/20 1:27 PM, Allan W. Nielsen wrote:
+>> Hi Jürgen,
+>>
+>> On 27.01.2020 12:29, Jürgen Lambrecht wrote:
+>>> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+>>>
+>>> On 1/26/20 4:59 PM, Andrew Lunn wrote:
+>>>> Given the design of the protocol, if the hardware decides the OS etc
+>>>> is dead, it should stop sending MRP_TEST frames and unblock the ports.
+>>>> If then becomes a 'dumb switch', and for a short time there will be a
+>>>> broadcast storm. Hopefully one of the other nodes will then take over
+>>>> the role and block a port.
+>This can probably be a configuration option in the hardware, how to fall-back.
+>>
+>>> In my experience a closed loop should never happen. It can make
+>>> software crash and give other problems.  An other node should first
+>>> take over before unblocking the ring ports. (If this is possible - I
+>>> only follow this discussion halfly)
+>>>
+>>> What is your opinion?
+>> Having loops in the network is never a good thing - but to be honest, I
+>> think it is more important that we ensure the design can survive and
+>> recover from loops.
+>Indeed
+>>
+>> With the current design, it will be really hard to void loops when the
+>> network boot. MRP will actually start with the ports blocked, but they
+>> will be unblocked in the period from when the bridge is created and
+>> until MRP is enabled. If we want to change this (which I'm not too keen
+>> on), then we need to be able to block the ports while the bridge is
+>> down.
+>Our ring network is part of a bigger network. Loops are really not allowed.
+That is understood, and should be avoided. But I assume that switches
+which crashes is not allowed either ;-)
 
-Hi J=FCrgen
+We will consider if we somehow can block the ports before/after a
+user-space protocol kicks in. I can not promise anything, but we will
+see what can be done.
 
-It i still unclear where the MRP_Test frames should be generated,
-forward and consumed, either in kernel, or in user space.
+>> And even if we do this, then we can not guarantee to avoid loops. Lets
+>> assume we have a small ring with just 2 nodes: a MRM and a MRC. Lets
+>> assume the MRM boots first. It will unblock both ports as the ring is
+>> open. Now the MRC boots, and make the ring closed, and create a loop.
+>> This will take some time (milliseconds) before the MRM notice this and
+>> block one of the ports.
+>In my view there is a bring-up and tear-down module needed. I don't
+>know if it should be part of MRP or not? Probably not, so something on
+>top of the mrp daemon.
+If we need this kind of policies, then I agree it should be on top of or
+out-side the user-space MRP daemon.
 
-The userspace RSTP daemon generates and consumes all the BPDUs in
-userspace. But BPDUs are never forwarded. However MRP_Test frames are
-forwarded by client nodes. Are the MRP_Test frames then part of the
-data plane in a client?
+>> But while we are at this topic, we need to add some functionality to
+>> the user-space application such that it can set the priority of the MRP
+>> frames. We will get that fixed.
+>Indeed! In my old design I had to give high priority, else the loop was
+>wrongly closed at high network load.
+Yes, I'm not surprised to hear that.
 
-What i think is clear is that the state machine is in user space.
+>I guess you mean the priority in the VLAN header?
+>I think to remember one talked about the bride code being VLAN-agnostic.
+Yes, if it has a VLAN header (which is optional). But even without the
+VLAN header these frames needs to be classified to a high priority
+queue.
 
-For the rest, we are still exploring possibilities.
+>>> (FYI: I made that mistake once doing a proof-of-concept ring design:
+>>> during testing, when a "broken" Ethernet cable was "fixed" I had for a
+>>> short time a loop, and then it happened often that that port of the
+>>> (Marvell 88E6063) switch was blocked.  (To unblock, only solution was
+>>> to bring that port down and up again, and then all "lost" packets came
+>>> out in a burst.) That problem was caused by flow control (with pause
+>>> frames), and disabling flow control fixed it, but flow-control is
+>>> default on as far as I know.)
+>> I see. It could be fun to see if what we have proposed so far will with
+>> with such a switch.
+>
+>Depending on the projects I could work on it later this year (or only next year or not..)
+Sounds good - no hurry.
 
-    Andrew
+/Allan
