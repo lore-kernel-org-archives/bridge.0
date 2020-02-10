@@ -1,24 +1,12 @@
-Return-Path: <J.Lambrecht@TELEVIC.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=televic.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0hP7bh6/USdKlEIf1iYj5wl/My/uWSKPZYQVGiy6lOU=;
- b=EKbvIpKwRFnrquktAaU/1L6PolaVrC4vJJmOsGoZ2GfwZyRCRkPH8cdckjBH3zOuDfwe6l0lNsC3WECSHE15uxx/T9GZQ3N4KwyWgGwoc0I2DKTC2Q9cbcor0sLdzkbHm6PRr0BzUa8X4uvm+OFW6XmbsHR9hOoYXmJjhUaZ7PY=
-References: <20200124161828.12206-1-horatiu.vultur@microchip.com>
- <20200124203406.2ci7w3w6zzj6yibz@lx-anielsen.microsemi.net>
- <87zhecimza.fsf@linux.intel.com>
- <20200125094441.kgbw7rdkuleqn23a@lx-anielsen.microsemi.net>
- <87imkz1bhq.fsf@intel.com>
-From: =?UTF-8?Q?J=c3=bcrgen_Lambrecht?= <j.lambrecht@televic.com>
-Message-ID: <83f98a49-d5b6-c5d8-9ca3-4c5eea8fb312@televic.com>
-Date: Tue, 28 Jan 2020 11:35:34 +0100
-In-Reply-To: <87imkz1bhq.fsf@intel.com>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
+Return-Path: <marcel.waldvogel@uni-konstanz.de>
+Message-ID: <bce2e3fb5e6061a926250b942a958f992b0d85bc.camel@uni-konstanz.de>
+From: Marcel Waldvogel <marcel.waldvogel@uni-konstanz.de>
+Date: Mon, 10 Feb 2020 16:00:49 +0100
+Content-Type: multipart/signed; micalg="sha-256";
+ protocol="application/pkcs7-signature"; 
+ boundary="=-azVBy5hFr493HO3LGIVb"
 MIME-Version: 1.0
-Subject: Re: [Bridge] [RFC net-next v3 00/10] net: bridge: mrp: Add support
- for Media Redundancy Protocol (MRP)
+Subject: [Bridge] Support for long interface names
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,73 +15,176 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vinicius Costa Gomes <vinicius.gomes@intel.com>, "Allan W. Nielsen" <allan.nielsen@microchip.com>
-Cc: ivecera@redhat.com, andrew@lunn.ch, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, UNGLinuxDriver@microchip.com, anirudh.venkataramanan@intel.com, jeffrey.t.kirsher@intel.com, olteanv@gmail.com, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: bridge@lists.linux-foundation.org
 
-On 1/25/20 10:18 PM, Vinicius Costa Gomes wrote:
-> CAUTION: This Email originated from outside Televic. Do not click links o=
-r open attachments unless you recognize the sender and know the content is =
-safe.
->
->
-> Hi,
->
-> "Allan W. Nielsen" <allan.nielsen@microchip.com> writes:
->
->> Hi Vinicius,
->>
->> On 24.01.2020 13:05, Vinicius Costa Gomes wrote:
->>> I have one idea and one question.
->> Let me answer the question before dicussing the idea.
->>
->>> The question that I have is: what's the relation of IEC 62439-2 to IEEE
->>> 802.1CB?
->> HSR and 802.1CB (often called FRER - Frame Replication and Elimination
->> for Reliability) shares a lot of functionallity. It is a while since I
->> read the 802.1CB standard, and I have only skimmed the HSR standard, but
->> as far as I understand 802.1CB is a super set of HSR. Also, I have not
->> studdied the HSR implementation.
->> Both HSR and 802.1CB replicate the frame and eliminate the additional
->> copies. If just 1 of the replicated fraems arrives, then higher layer
->> applications will not see any traffic lose.
->>
->> MRP is different, it is a ring protocol, much more like ERPS defined in
->> G.8032 by ITU. Also, MRP only make sense in switches, it does not make
->> sense in a host (like HSR does).
->>
->> [snip MPR explanation]
->>
->> Sorry for the long explanation, but it is important to understand this
->> when discussion the design.
-> Not at all, thanks a lot. Now it's clear to me that MRP and 802.1CB are
-> really different beasts, with different use cases/limitations:
->
->  - MRP: now that we have a ring, let's break the loop, and use the
->    redudancy provided by the ring to detect the problem and "repair" the
->    network if something bad happens;
-indeed. MRP is IEC 62439-2
->
->  - 802.1CB: now that we have a ring, let's send packets through
->    two different paths, and find a way to discard duplicated ones, so
->    even if something bad happens the packet will reach its destination;
 
-Not exactly, 802.1CB is independent of the network layout, according to the=
- abstract on https://ieeexplore.ieee.org/document/8091139.
+--=-azVBy5hFr493HO3LGIVb
+Content-Type: multipart/alternative; boundary="=-CMJkvL+MJGbs24OVz8Wf"
 
-The IEC 62439-3 standard mentions 2 network layouts: 2 parallel paths and a=
- ring:
 
-- IEC 62439-3.4 Parallel Redundancy Protocol (PRP): this runs on 2 separate=
-d parallel paths in the network
+--=-CMJkvL+MJGbs24OVz8Wf
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-- IEC 62439-3.5 HSR (High availability seamless redundancy): this runs on a=
- ring: each host sends all data in 2 directions, and when it receives its o=
-wn data back, it discards it (to avoid a loop).
+Hi,
+I've added support for long bridge interface names (such as"br-
+0081a64f416f") to "brctl show" (long physical interface names arenot a
+problem there).
+Please find a branch with the commit at=20
+https://github.com/MarcelWaldvogel/bridge-utils/tree/long-ifnames
 
-(and it is better to implement IEEE, because the standard costs only 151$, =
-and the IEC ones cost 2x410$)
+-Marcel
+--=20
+Beste Gr=C3=BC=C3=9Fe,
 
-Kind regards,
+-Marcel Waldvogel
+University of Konstanz
+Distributed Systems Laboratory
+Efficient Secure and Private Collaboration
 
-J=FCrgen
+--=-CMJkvL+MJGbs24OVz8Wf
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html dir=3D"ltr"><head></head><body style=3D"text-align:left; direction:lt=
+r;"><pre>Hi,</pre><pre><br></pre><pre>I've added support for long bridge in=
+terface names (such as</pre><pre>"br-0081a64f416f") to "brctl show" (long p=
+hysical interface names are</pre><pre>not a problem there).</pre><pre><br><=
+/pre><pre>Please find a branch with the commit at </pre><a href=3D"https://=
+github.com/MarcelWaldvogel/bridge-utils/tree/long-ifnames"><pre>https://git=
+hub.com/MarcelWaldvogel/bridge-utils/tree/long-ifnames</pre></a><pre><br></=
+pre><pre><br></pre><pre>-Marcel</pre><div><span><pre>-- <br></pre><div>Best=
+e Gr=C3=BC=C3=9Fe,</div><div><br></div><div><a href=3D"https://me.uni.kn/ma=
+rcel.waldvogel">-Marcel Waldvogel</a></div><div>University of Konstanz</div=
+><div>Distributed Systems Laboratory</div><div>Efficient Secure and Private=
+ Collaboration</div></span></div></body></html>
+
+--=-CMJkvL+MJGbs24OVz8Wf--
+
+--=-azVBy5hFr493HO3LGIVb
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCFjww
+ggUSMIID+qADAgECAgkA4wvV+K8l2YEwDQYJKoZIhvcNAQELBQAwgYIxCzAJBgNVBAYTAkRFMSsw
+KQYDVQQKDCJULVN5c3RlbXMgRW50ZXJwcmlzZSBTZXJ2aWNlcyBHbWJIMR8wHQYDVQQLDBZULVN5
+c3RlbXMgVHJ1c3QgQ2VudGVyMSUwIwYDVQQDDBxULVRlbGVTZWMgR2xvYmFsUm9vdCBDbGFzcyAy
+MB4XDTE2MDIyMjEzMzgyMloXDTMxMDIyMjIzNTk1OVowgZUxCzAJBgNVBAYTAkRFMUUwQwYDVQQK
+EzxWZXJlaW4genVyIEZvZXJkZXJ1bmcgZWluZXMgRGV1dHNjaGVuIEZvcnNjaHVuZ3NuZXR6ZXMg
+ZS4gVi4xEDAOBgNVBAsTB0RGTi1QS0kxLTArBgNVBAMTJERGTi1WZXJlaW4gQ2VydGlmaWNhdGlv
+biBBdXRob3JpdHkgMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMtg1/9moUHN0vqH
+l4pzq5lN6mc5WqFggEcVToyVsuXPztNXS43O+FZsFVV2B+pG/cgDRWM+cNSrVICxI5y+NyipCf8F
+XRgPxJiZN7Mg9mZ4F4fCnQ7MSjLnFp2uDo0peQcAIFTcFV9Kltd4tjTTwXS1nem/wHdN6r1ZB+Ba
+L2w8pQDcNb1lDY9/Mm3yWmpLYgHurDg0WUU2SQXaeMpqbVvAgWsRzNI8qIv4cRrKO+KA3Ra0Z3qL
+NupOkSk9s1FcragMvp0049ENF4N1xDkesJQLEvHVaY4l9Lg9K7/AjsMeO6W/VRCrKq4Xl14zzsjz
+9AkH4wKGMUZrAcUQDBHHWekCAwEAAaOCAXQwggFwMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU
+k+PYMiba1fFKpZFK4OpL4qIMz+EwHwYDVR0jBBgwFoAUv1kgNgB5oKAia4zV8mHSuCzLgkowEgYD
+VR0TAQH/BAgwBgEB/wIBAjAzBgNVHSAELDAqMA8GDSsGAQQBga0hgiwBAQQwDQYLKwYBBAGBrSGC
+LB4wCAYGZ4EMAQICMEwGA1UdHwRFMEMwQaA/oD2GO2h0dHA6Ly9wa2kwMzM2LnRlbGVzZWMuZGUv
+cmwvVGVsZVNlY19HbG9iYWxSb290X0NsYXNzXzIuY3JsMIGGBggrBgEFBQcBAQR6MHgwLAYIKwYB
+BQUHMAGGIGh0dHA6Ly9vY3NwMDMzNi50ZWxlc2VjLmRlL29jc3ByMEgGCCsGAQUFBzAChjxodHRw
+Oi8vcGtpMDMzNi50ZWxlc2VjLmRlL2NydC9UZWxlU2VjX0dsb2JhbFJvb3RfQ2xhc3NfMi5jZXIw
+DQYJKoZIhvcNAQELBQADggEBAIcL/z4Cm2XIVi3WO5qYi3FP2ropqiH5Ri71sqQPrhE4eTizDnS6
+dl2e6BiClmLbTDPo3flq3zK9LExHYFV/53RrtCyD2HlrtrdNUAtmB7Xts5et6u5/MOaZ/SLick0+
+hFvu+c+Z6n/XUjkurJgARH5pO7917tALOxrN5fcPImxHhPalR6D90Bo0fa3SPXez7vTXTf/D6OWS
+T1k+kEcQSrCFWMBvf/iu7QhCnh7U3xQuTY+8npTD5+32GPg8SecmqKc22CzeIs2LgtjZeOJVEqM7
+h0S2EQvVDFKvaYwPBt/QolOLV5h7z/0HJPT8vcP9SpIClxvyt7bPZYoaorVyGTkwggWsMIIElKAD
+AgECAgcbY7rQHiw9MA0GCSqGSIb3DQEBCwUAMIGVMQswCQYDVQQGEwJERTFFMEMGA1UEChM8VmVy
+ZWluIHp1ciBGb2VyZGVydW5nIGVpbmVzIERldXRzY2hlbiBGb3JzY2h1bmdzbmV0emVzIGUuIFYu
+MRAwDgYDVQQLEwdERk4tUEtJMS0wKwYDVQQDEyRERk4tVmVyZWluIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5IDIwHhcNMTYwNTI0MTEzODQwWhcNMzEwMjIyMjM1OTU5WjCBjTELMAkGA1UEBhMCREUx
+RTBDBgNVBAoMPFZlcmVpbiB6dXIgRm9lcmRlcnVuZyBlaW5lcyBEZXV0c2NoZW4gRm9yc2NodW5n
+c25ldHplcyBlLiBWLjEQMA4GA1UECwwHREZOLVBLSTElMCMGA1UEAwwcREZOLVZlcmVpbiBHbG9i
+YWwgSXNzdWluZyBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJ07eRxH3h+Gy8Zp
+1xCeOdfZojDbchwFfylfS2jxrRnWTOFrG7ELf6Gr4HuLi9gtzm6IOhDuV+UefwRRNuu6cG1joL6W
+LkDh0YNMZj0cZGnlm6Stcq5oOVGHecwX064vXWNxSzl660Knl5BpBb+Q/6RAcL0D57+eGIgfn5mI
+TQ5HjUhfZZkQ0tkqSe3BuS0dnxLLFdM/fx5ULzquk1enfnjK1UriGuXtQX1TX8izKvWKMKztFwUk
+P7agCwf9TRqaA1KgNpzeJIdl5Of6x5ZzJBTN0OgbaJ4YWa52fvfRCng8h0uwN89Tyjo4EPPLR22M
+ZD08WkVKusqAfLjz56dMTM0CAwEAAaOCAgUwggIBMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYDVR0P
+AQH/BAQDAgEGMCkGA1UdIAQiMCAwDQYLKwYBBAGBrSGCLB4wDwYNKwYBBAGBrSGCLAEBBDAdBgNV
+HQ4EFgQUazqYi/nyU4na4K2yMh4JH+iqO3QwHwYDVR0jBBgwFoAUk+PYMiba1fFKpZFK4OpL4qIM
+z+EwgY8GA1UdHwSBhzCBhDBAoD6gPIY6aHR0cDovL2NkcDEucGNhLmRmbi5kZS9nbG9iYWwtcm9v
+dC1nMi1jYS9wdWIvY3JsL2NhY3JsLmNybDBAoD6gPIY6aHR0cDovL2NkcDIucGNhLmRmbi5kZS9n
+bG9iYWwtcm9vdC1nMi1jYS9wdWIvY3JsL2NhY3JsLmNybDCB3QYIKwYBBQUHAQEEgdAwgc0wMwYI
+KwYBBQUHMAGGJ2h0dHA6Ly9vY3NwLnBjYS5kZm4uZGUvT0NTUC1TZXJ2ZXIvT0NTUDBKBggrBgEF
+BQcwAoY+aHR0cDovL2NkcDEucGNhLmRmbi5kZS9nbG9iYWwtcm9vdC1nMi1jYS9wdWIvY2FjZXJ0
+L2NhY2VydC5jcnQwSgYIKwYBBQUHMAKGPmh0dHA6Ly9jZHAyLnBjYS5kZm4uZGUvZ2xvYmFsLXJv
+b3QtZzItY2EvcHViL2NhY2VydC9jYWNlcnQuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQCBeEWkTqR/
+DlXwCbFqPnjMaDWpHPOVnj/z+N9rOHeJLI21rT7H8pTNoAauusyosa0zCLYkhmI2THhuUPDVbmCN
+T1IxQ5dGdfBi5G5mUcFCMWdQ5UnnOR7Ln8qGSN4IFP8VSytmm6A4nwDO/afr0X9XLchMX9wQEZc+
+lgQCXISoKTlslPwQkgZ7nu7YRrQbtQMMONncsKk/cQYLsgMHM8KNSGMlJTx6e1du94oFOO+4oK4v
+9NsH1VuEGMGpuEvObJAaguS5Pfp38dIfMwK/U+d2+dwmJUFvL6Yb+qQTkPp8ftkLYF3sv8pBoGH7
+EUkp2KgtdRXYShjqFu9VNCIaE40GMIIFtzCCBJ+gAwIBAgIMIU5ml8OE5LpKo0v7MA0GCSqGSIb3
+DQEBCwUAMIGNMQswCQYDVQQGEwJERTFFMEMGA1UECgw8VmVyZWluIHp1ciBGb2VyZGVydW5nIGVp
+bmVzIERldXRzY2hlbiBGb3JzY2h1bmdzbmV0emVzIGUuIFYuMRAwDgYDVQQLDAdERk4tUEtJMSUw
+IwYDVQQDDBxERk4tVmVyZWluIEdsb2JhbCBJc3N1aW5nIENBMB4XDTE5MDcxNzA5MjMyM1oXDTIy
+MDcxNjA5MjMyM1owSDELMAkGA1UEBhMCREUxHjAcBgNVBAoMFVVuaXZlcnNpdGFldCBLb25zdGFu
+ejEZMBcGA1UEAwwQTWFyY2VsIFdhbGR2b2dlbDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
+ggEBALf0FYcKDQOVTTFvJAoCo/eUoBICcKRP714JbUfSdhPadbnX/x9M6vJdJ2WP/c7vEujC79GO
+VxvodhJERTExWqciMagIzS+bBY9bPFV8V8InOr+0gUJ2Qe9RMSjWREhctBKW//9AlEj0ZTzOyaUw
+4lpKMrIMyKLtnLT9eAML1bU4XCACOKjA7uwXHwVbjJZV1KlEA6kmJzeGrzjx17JRV8ORVVIfgmU3
++Y/MX7PbefvzBLg3nGS96zvbsdxWATHorYZVYFWLvMfTBg+crn6uXYQQ3EeLRZek8HefR8TVS4Ho
+f3akKgyuXhmxTK/9O7fx0C83diPENgcjJg+8Km/8yH0CAwEAAaOCAlkwggJVMD4GA1UdIAQ3MDUw
+DwYNKwYBBAGBrSGCLAEBBDAQBg4rBgEEAYGtIYIsAQEEBDAQBg4rBgEEAYGtIYIsAgEEBDAJBgNV
+HRMEAjAAMA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwHQYD
+VR0OBBYEFFO09z+YW7pEDNs2o5LvKaY7LcPDMB8GA1UdIwQYMBaAFGs6mIv58lOJ2uCtsjIeCR/o
+qjt0MCsGA1UdEQQkMCKBIG1hcmNlbC53YWxkdm9nZWxAdW5pLWtvbnN0YW56LmRlMIGNBgNVHR8E
+gYUwgYIwP6A9oDuGOWh0dHA6Ly9jZHAxLnBjYS5kZm4uZGUvZGZuLWNhLWdsb2JhbC1nMi9wdWIv
+Y3JsL2NhY3JsLmNybDA/oD2gO4Y5aHR0cDovL2NkcDIucGNhLmRmbi5kZS9kZm4tY2EtZ2xvYmFs
+LWcyL3B1Yi9jcmwvY2FjcmwuY3JsMIHbBggrBgEFBQcBAQSBzjCByzAzBggrBgEFBQcwAYYnaHR0
+cDovL29jc3AucGNhLmRmbi5kZS9PQ1NQLVNlcnZlci9PQ1NQMEkGCCsGAQUFBzAChj1odHRwOi8v
+Y2RwMS5wY2EuZGZuLmRlL2Rmbi1jYS1nbG9iYWwtZzIvcHViL2NhY2VydC9jYWNlcnQuY3J0MEkG
+CCsGAQUFBzAChj1odHRwOi8vY2RwMi5wY2EuZGZuLmRlL2Rmbi1jYS1nbG9iYWwtZzIvcHViL2Nh
+Y2VydC9jYWNlcnQuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBE7F48ds9um3qAAuWD+dgjEh7ibi6a
+wjBTgCnmOEzRvfBbYr7blR+vsaaNF7SuJF1O1R/00jXOXCiU+KE+2fK9NFLYoddx0PLHzWF1Xfx8
+jbzHt8AtGnhXGB6rpH1YFB6cu9h8VYANk6WNsTq26gXA9HMduh0iVD/JL6sDQU6tCQM7fTY0dD0J
+LmbCY1MkUq2m/7tqCUNxAL6F3MbqNk0yWAE8GUhTO4PbBLLJqhghMiE3rQKFMkWgsa7dGkUY08Y9
+aKQCXlhEZSgjIsLRxFlcIJwnPBm3l+/gmoNOpyFNJ+4tvSLkF8Oj2SJaCjKe7pVz5uv8uuD+nfAC
+dqRm+yafMIIFtzCCBJ+gAwIBAgIMIU5ml8OE5LpKo0v7MA0GCSqGSIb3DQEBCwUAMIGNMQswCQYD
+VQQGEwJERTFFMEMGA1UECgw8VmVyZWluIHp1ciBGb2VyZGVydW5nIGVpbmVzIERldXRzY2hlbiBG
+b3JzY2h1bmdzbmV0emVzIGUuIFYuMRAwDgYDVQQLDAdERk4tUEtJMSUwIwYDVQQDDBxERk4tVmVy
+ZWluIEdsb2JhbCBJc3N1aW5nIENBMB4XDTE5MDcxNzA5MjMyM1oXDTIyMDcxNjA5MjMyM1owSDEL
+MAkGA1UEBhMCREUxHjAcBgNVBAoMFVVuaXZlcnNpdGFldCBLb25zdGFuejEZMBcGA1UEAwwQTWFy
+Y2VsIFdhbGR2b2dlbDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALf0FYcKDQOVTTFv
+JAoCo/eUoBICcKRP714JbUfSdhPadbnX/x9M6vJdJ2WP/c7vEujC79GOVxvodhJERTExWqciMagI
+zS+bBY9bPFV8V8InOr+0gUJ2Qe9RMSjWREhctBKW//9AlEj0ZTzOyaUw4lpKMrIMyKLtnLT9eAML
+1bU4XCACOKjA7uwXHwVbjJZV1KlEA6kmJzeGrzjx17JRV8ORVVIfgmU3+Y/MX7PbefvzBLg3nGS9
+6zvbsdxWATHorYZVYFWLvMfTBg+crn6uXYQQ3EeLRZek8HefR8TVS4Hof3akKgyuXhmxTK/9O7fx
+0C83diPENgcjJg+8Km/8yH0CAwEAAaOCAlkwggJVMD4GA1UdIAQ3MDUwDwYNKwYBBAGBrSGCLAEB
+BDAQBg4rBgEEAYGtIYIsAQEEBDAQBg4rBgEEAYGtIYIsAgEEBDAJBgNVHRMEAjAAMA4GA1UdDwEB
+/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwHQYDVR0OBBYEFFO09z+YW7pE
+DNs2o5LvKaY7LcPDMB8GA1UdIwQYMBaAFGs6mIv58lOJ2uCtsjIeCR/oqjt0MCsGA1UdEQQkMCKB
+IG1hcmNlbC53YWxkdm9nZWxAdW5pLWtvbnN0YW56LmRlMIGNBgNVHR8EgYUwgYIwP6A9oDuGOWh0
+dHA6Ly9jZHAxLnBjYS5kZm4uZGUvZGZuLWNhLWdsb2JhbC1nMi9wdWIvY3JsL2NhY3JsLmNybDA/
+oD2gO4Y5aHR0cDovL2NkcDIucGNhLmRmbi5kZS9kZm4tY2EtZ2xvYmFsLWcyL3B1Yi9jcmwvY2Fj
+cmwuY3JsMIHbBggrBgEFBQcBAQSBzjCByzAzBggrBgEFBQcwAYYnaHR0cDovL29jc3AucGNhLmRm
+bi5kZS9PQ1NQLVNlcnZlci9PQ1NQMEkGCCsGAQUFBzAChj1odHRwOi8vY2RwMS5wY2EuZGZuLmRl
+L2Rmbi1jYS1nbG9iYWwtZzIvcHViL2NhY2VydC9jYWNlcnQuY3J0MEkGCCsGAQUFBzAChj1odHRw
+Oi8vY2RwMi5wY2EuZGZuLmRlL2Rmbi1jYS1nbG9iYWwtZzIvcHViL2NhY2VydC9jYWNlcnQuY3J0
+MA0GCSqGSIb3DQEBCwUAA4IBAQBE7F48ds9um3qAAuWD+dgjEh7ibi6awjBTgCnmOEzRvfBbYr7b
+lR+vsaaNF7SuJF1O1R/00jXOXCiU+KE+2fK9NFLYoddx0PLHzWF1Xfx8jbzHt8AtGnhXGB6rpH1Y
+FB6cu9h8VYANk6WNsTq26gXA9HMduh0iVD/JL6sDQU6tCQM7fTY0dD0JLmbCY1MkUq2m/7tqCUNx
+AL6F3MbqNk0yWAE8GUhTO4PbBLLJqhghMiE3rQKFMkWgsa7dGkUY08Y9aKQCXlhEZSgjIsLRxFlc
+IJwnPBm3l+/gmoNOpyFNJ+4tvSLkF8Oj2SJaCjKe7pVz5uv8uuD+nfACdqRm+yafMYIDnTCCA5kC
+AQEwgZ4wgY0xCzAJBgNVBAYTAkRFMUUwQwYDVQQKDDxWZXJlaW4genVyIEZvZXJkZXJ1bmcgZWlu
+ZXMgRGV1dHNjaGVuIEZvcnNjaHVuZ3NuZXR6ZXMgZS4gVi4xEDAOBgNVBAsMB0RGTi1QS0kxJTAj
+BgNVBAMMHERGTi1WZXJlaW4gR2xvYmFsIElzc3VpbmcgQ0ECDCFOZpfDhOS6SqNL+zANBglghkgB
+ZQMEAgEFAKCCAc8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjAw
+MjEwMTUwMDQ5WjAvBgkqhkiG9w0BCQQxIgQgiyNrkr6sB8uaPhzJyNgd/Cg+03HKkem+dBxGMwIt
+jIIwga8GCSsGAQQBgjcQBDGBoTCBnjCBjTELMAkGA1UEBhMCREUxRTBDBgNVBAoMPFZlcmVpbiB6
+dXIgRm9lcmRlcnVuZyBlaW5lcyBEZXV0c2NoZW4gRm9yc2NodW5nc25ldHplcyBlLiBWLjEQMA4G
+A1UECwwHREZOLVBLSTElMCMGA1UEAwwcREZOLVZlcmVpbiBHbG9iYWwgSXNzdWluZyBDQQIMIU5m
+l8OE5LpKo0v7MIGxBgsqhkiG9w0BCRACCzGBoaCBnjCBjTELMAkGA1UEBhMCREUxRTBDBgNVBAoM
+PFZlcmVpbiB6dXIgRm9lcmRlcnVuZyBlaW5lcyBEZXV0c2NoZW4gRm9yc2NodW5nc25ldHplcyBl
+LiBWLjEQMA4GA1UECwwHREZOLVBLSTElMCMGA1UEAwwcREZOLVZlcmVpbiBHbG9iYWwgSXNzdWlu
+ZyBDQQIMIU5ml8OE5LpKo0v7MA0GCSqGSIb3DQEBAQUABIIBAI63UIekg/e9tsQr/yvRUhtYS0Wn
+crQlNFQfVGAes+lpV3Q0WGxZOuROfYvpQ7hhGhWna9BwfhltIz/KmGcwswrrJfJUC1CkXIjgMIQr
+jyINjFzCUZMFk/rOh1MtAPHYTgD9fRsgPwimZHP3hI9hdXjjzPSpWK1jUAOPSZ680bjnQiNVY0OX
+j62bqRO3iAPg4WijYFPgePCvhN4Kwo7W9aZUbm6Egdna+YTrpdW8QiA0VYhc/MKCLkl46J3N/9W9
+L37mVBU1Fu01qGv4ZuMpMyyJNXqBKjQeZWf1afMyG425do9YckOpkskYQ8ac5f+D8c9wMaMlysSm
+VfI+0FiAN3wAAAAAAAA=
+
+
+--=-azVBy5hFr493HO3LGIVb--
 
