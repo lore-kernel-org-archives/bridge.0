@@ -1,24 +1,24 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
- h=date:from:to:cc:subject:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=LyKSxUlVMA95fPCFzLoOEQ63e1Qi+u1GuBh6ef/TJGg=;
- b=K5Txdhbci90g/30K8mIH4x9gZRVVcsRJlHL0y4BjYQ8X2UsnU8afyZtFaX07h4fK1T
- rJQhNVqjUIj9vgbee/PXGzr45P50YE8B3p+8B6pbzHv50ya7dkGDVik+6GVT581GBuJg
- VRLUsVMvhbwDhueWSWC50kLnCz3Pbd/46ZZuW1gf2uWEx1Gg1JYcoBxqFIt3vu7RRzjn
- vf+fiTh2BHdRksElcIdRfDbwS9doGE3utA1mJ3HRMwFsTnulZCaV34MAlpi6A02P08vA
- QiUGKpRZqMukH5ZFcZRwbMzmKIhQnbcJc9zMVkYvi4ssJl97SSm8/G4FLOQj76aViAHy
- IFow==
-Date: Sun, 16 Feb 2020 09:47:07 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20200216094707.165f85bc@hermes.lan>
-In-Reply-To: <bce2e3fb5e6061a926250b942a958f992b0d85bc.camel@uni-konstanz.de>
-References: <bce2e3fb5e6061a926250b942a958f992b0d85bc.camel@uni-konstanz.de>
+Return-Path: <gustavo@embeddedor.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=embeddedor.com; s=default; h=Content-Type:MIME-Version:Message-ID:Subject:
+ Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+ Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+ :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+ List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=8exBLdInKXUzJxq+ZuAOxKExTTscVDb1+bUsC6sGG8g=; b=HgN+9rsp3fFCj0fJUhjufn2/l7
+ VUbRynRSy0CAxMQY1KjfA6V0LtIYanqWDAcf8yWC0eCA4k6KrY0nHZXuU/xZc13RL7fkTFbpblB9Z
+ oaw0tEO4v2iCjRJSKPg7FVGlJmBpyn54igDPdhEvFipu6bdIypiYf2GXKs6TVHrC6ONCP579pTBsD
+ k6d1SyEurDwqrzaiQ1aIEJb6Ekg+EqhR2woGKuNkFF0iOLmuHVv8PsANnufrSfgeIw47Z2AM++650
+ z398+1TN/CWW5k09Ld5ZremaZw19BRvbwk+wOE0VJUTDklJDkNpaX6tXERWgdq/NvwlKLQ1s2lOvv
+ y6pqb2rA==;
+Date: Mon, 17 Feb 2020 15:44:23 -0600
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Message-ID: <20200217214423.GA15008@embeddedor>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] Support for long interface names
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [PATCH][next] netfilter: ebtables: Replace zero-length
+ array with flexible-array member
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,21 +27,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Marcel Waldvogel <marcel.waldvogel@uni-konstanz.de>
-Cc: bridge@lists.linux-foundation.org
+To: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
 
-On Mon, 10 Feb 2020 16:00:49 +0100
-Marcel Waldvogel <marcel.waldvogel@uni-konstanz.de> wrote:
+The current codebase makes use of the zero-length array language
+extension to the C90 standard, but the preferred mechanism to declare
+variable-length types such as these ones is a flexible array member[1][2],
+introduced in C99:
 
-> Hi,
-> I've added support for long bridge interface names (such as"br-
-> 0081a64f416f") to "brctl show" (long physical interface names arenot a
-> problem there).
-> Please find a branch with the commit at 
-> https://github.com/MarcelWaldvogel/bridge-utils/tree/long-ifnames
-> 
-> -Marcel
+struct foo {
+        int stuff;
+        struct boo array[];
+};
 
-Thanks but I have no plans to add any new features to bridge-utils.
-Just like ifconfig, users should migrate to the new bridge command
-in iproute2.
+By making use of the mechanism above, we will get a compiler warning
+in case the flexible array does not occur last in the structure, which
+will help us prevent some kind of undefined behavior bugs from being
+inadvertently introduced[3] to the codebase from now on.
+
+Also, notice that, dynamic memory allocations won't be affected by
+this change:
+
+"Flexible array members have incomplete type, and so the sizeof operator
+may not be applied. As a quirk of the original implementation of
+zero-length arrays, sizeof evaluates to zero."[1]
+
+This issue was found with the help of Coccinelle.
+
+[1] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+[2] https://github.com/KSPP/linux/issues/21
+[3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ net/bridge/netfilter/ebtables.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index e1256e03a9a8..78db58c7aec2 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1561,7 +1561,7 @@ struct compat_ebt_entry_mwt {
+ 		compat_uptr_t ptr;
+ 	} u;
+ 	compat_uint_t match_size;
+-	compat_uint_t data[0] __attribute__ ((aligned (__alignof__(struct compat_ebt_replace))));
++	compat_uint_t data[] __aligned(__alignof__(struct compat_ebt_replace));
+ };
+ 
+ /* account for possible padding between match_size and ->data */
+-- 
+2.25.0
+
