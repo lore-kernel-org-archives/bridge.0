@@ -1,24 +1,22 @@
-Return-Path: <gustavo@embeddedor.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=embeddedor.com; s=default; h=Content-Type:MIME-Version:Message-ID:Subject:
- Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
- List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=zirK+o5UZsICfm9BVZ/hLqxb/7cDvusmuTE5ygvv03w=; b=ShzsgYc+wwKB7dRasTtC5KyS5o
- x+UEVMoNOP+0nroTV9ZhmB1M3E1G8MvgpHNi0OqRVMy5mwKKs6xZp1qbKI1Fq5bE0o05Z33l1HgK8
- WzuSuV/v/RINM0gwEhS1WH5x8/pkdXucc8uE//ZBdHAMLd3itDWGJTmyrVPEq4kABse7+99/JN9Y8
- ErKCmxHXtMhbvvX+J+aRnTg3yZPW+rnG7RPEL5X1MK9DP2q66/M49vZmzq5lDXc031wFQX/ycL2dr
- lP6rVN63Nclmt+wNbTUEI34HooYG5YLIeC/BfPLBM/T/pD91ZfgtaYwumEKSrm4S/V/UqUdkXDqdm
- kEaMMGFg==;
-Date: Thu, 20 Feb 2020 07:59:14 -0600
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Message-ID: <20200220135914.GA14062@embeddedor>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cumulusnetworks.com; s=google;
+ h=subject:to:references:from:message-id:date:user-agent:mime-version
+ :in-reply-to:content-language:content-transfer-encoding;
+ bh=KLWEf14fFkiQAjlDedJDYa2UcfNURB0g7krL0meTUbY=;
+ b=gzMC2BejdKHUp/THkOy7ecLea/x9cfiIXv2cuEQWQIWQbwdJhV7X1cV4xV1XVRjjg9
+ VPsfUx2x8QmS5H2g4Xwfi9mkzOuGZrfGDqgAQ5bN6JFztLjlVkP4beFFNJ+sLoRocbf5
+ 2iR3NwWkZPMFKVb+6KiEf/FYhpGQH9j3q8sbU=
+References: <000000000000c0910e059f4e4a82@google.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <08a2e28b-fcf5-b26c-da75-97df67f51c7c@cumulusnetworks.com>
+Date: Mon, 24 Feb 2020 10:51:02 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [PATCH][next] netfilter: Replace zero-length array with
- flexible-array member
+In-Reply-To: <000000000000c0910e059f4e4a82@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] KMSAN: uninit-value in br_dev_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,443 +25,109 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
+To: syzbot <syzbot+18c8b623c66fc198c493@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, glider@google.com, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
 
-The current codebase makes use of the zero-length array language
-extension to the C90 standard, but the preferred mechanism to declare
-variable-length types such as these ones is a flexible array member[1][2],
-introduced in C99:
+On 24/02/2020 10:38, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following crash on:
+> 
+> HEAD commit:    8bbbc5cf kmsan: don't compile memmove
+> git tree:       https://github.com/google/kmsan.git master
+> console output: https://syzkaller.appspot.com/x/log.txt?x=14d9a3d9e00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=cd0e9a6b0e555cc3
+> dashboard link: https://syzkaller.appspot.com/bug?extid=18c8b623c66fc198c493
+> compiler:       clang version 10.0.0 (https://github.com/llvm/llvm-project/ c2443155a0fb245c8f17f2c1c72b6ea391e86e81)
+> userspace arch: i386
+> 
+> Unfortunately, I don't have any reproducer for this crash yet.
+> 
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+18c8b623c66fc198c493@syzkaller.appspotmail.com
+> 
 
-struct foo {
-        int stuff;
-        struct boo array[];
-};
+br_allowed_ingress() can call skb_vlan_untag() which does pskb_may_pull() and so
+the cached eth header can become invalid.
+I'll prepare a fix.
 
-By making use of the mechanism above, we will get a compiler warning
-in case the flexible array does not occur last in the structure, which
-will help us prevent some kind of undefined behavior bugs from being
-inadvertently introduced[3] to the codebase from now on.
+Cheers,
+ Nik
 
-Also, notice that, dynamic memory allocations won't be affected by
-this change:
-
-"Flexible array members have incomplete type, and so the sizeof operator
-may not be applied. As a quirk of the original implementation of
-zero-length arrays, sizeof evaluates to zero."[1]
-
-Lastly, fix checkpatch.pl warning
-WARNING: __aligned(size) is preferred over __attribute__((aligned(size)))
-in net/bridge/netfilter/ebtables.c
-
-This issue was found with the help of Coccinelle.
-
-[1] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
-[2] https://github.com/KSPP/linux/issues/21
-[3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- include/linux/netfilter/ipset/ip_set.h          | 2 +-
- include/linux/netfilter/x_tables.h              | 8 ++++----
- include/linux/netfilter_arp/arp_tables.h        | 2 +-
- include/linux/netfilter_bridge/ebtables.h       | 2 +-
- include/linux/netfilter_ipv4/ip_tables.h        | 2 +-
- include/linux/netfilter_ipv6/ip6_tables.h       | 2 +-
- include/net/netfilter/nf_conntrack_extend.h     | 2 +-
- include/net/netfilter/nf_conntrack_timeout.h    | 2 +-
- include/net/netfilter/nf_tables.h               | 6 +++---
- include/uapi/linux/netfilter_bridge/ebt_among.h | 2 +-
- net/bridge/netfilter/ebtables.c                 | 2 +-
- net/ipv4/netfilter/arp_tables.c                 | 4 ++--
- net/ipv4/netfilter/ip_tables.c                  | 4 ++--
- net/ipv6/netfilter/ip6_tables.c                 | 4 ++--
- net/netfilter/ipset/ip_set_bitmap_ip.c          | 2 +-
- net/netfilter/ipset/ip_set_bitmap_ipmac.c       | 2 +-
- net/netfilter/ipset/ip_set_bitmap_port.c        | 2 +-
- net/netfilter/ipset/ip_set_hash_gen.h           | 4 ++--
- net/netfilter/nfnetlink_acct.c                  | 2 +-
- net/netfilter/nft_set_pipapo.c                  | 2 +-
- net/netfilter/xt_hashlimit.c                    | 2 +-
- net/netfilter/xt_recent.c                       | 4 ++--
- 22 files changed, 32 insertions(+), 32 deletions(-)
-
-diff --git a/include/linux/netfilter/ipset/ip_set.h b/include/linux/netfilter/ipset/ip_set.h
-index 908d38dbcb91..155eca0ed68d 100644
---- a/include/linux/netfilter/ipset/ip_set.h
-+++ b/include/linux/netfilter/ipset/ip_set.h
-@@ -98,7 +98,7 @@ struct ip_set_counter {
- 
- struct ip_set_comment_rcu {
- 	struct rcu_head rcu;
--	char str[0];
-+	char str[];
- };
- 
- struct ip_set_comment {
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index 1b261c51b3a3..5da88451853b 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -264,7 +264,7 @@ struct xt_table_info {
- 	unsigned int stacksize;
- 	void ***jumpstack;
- 
--	unsigned char entries[0] __aligned(8);
-+	unsigned char entries[] __aligned(8);
- };
- 
- int xt_register_target(struct xt_target *target);
-@@ -464,7 +464,7 @@ struct compat_xt_entry_match {
- 		} kernel;
- 		u_int16_t match_size;
- 	} u;
--	unsigned char data[0];
-+	unsigned char data[];
- };
- 
- struct compat_xt_entry_target {
-@@ -480,7 +480,7 @@ struct compat_xt_entry_target {
- 		} kernel;
- 		u_int16_t target_size;
- 	} u;
--	unsigned char data[0];
-+	unsigned char data[];
- };
- 
- /* FIXME: this works only on 32 bit tasks
-@@ -494,7 +494,7 @@ struct compat_xt_counters {
- struct compat_xt_counters_info {
- 	char name[XT_TABLE_MAXNAMELEN];
- 	compat_uint_t num_counters;
--	struct compat_xt_counters counters[0];
-+	struct compat_xt_counters counters[];
- };
- 
- struct _compat_xt_align {
-diff --git a/include/linux/netfilter_arp/arp_tables.h b/include/linux/netfilter_arp/arp_tables.h
-index e98028f00e47..7d3537c40ec9 100644
---- a/include/linux/netfilter_arp/arp_tables.h
-+++ b/include/linux/netfilter_arp/arp_tables.h
-@@ -67,7 +67,7 @@ struct compat_arpt_entry {
- 	__u16 next_offset;
- 	compat_uint_t comefrom;
- 	struct compat_xt_counters counters;
--	unsigned char elems[0];
-+	unsigned char elems[];
- };
- 
- static inline struct xt_entry_target *
-diff --git a/include/linux/netfilter_bridge/ebtables.h b/include/linux/netfilter_bridge/ebtables.h
-index 162f59d0d17a..2f5c4e6ecd8a 100644
---- a/include/linux/netfilter_bridge/ebtables.h
-+++ b/include/linux/netfilter_bridge/ebtables.h
-@@ -85,7 +85,7 @@ struct ebt_table_info {
- 	/* room to maintain the stack used for jumping from and into udc */
- 	struct ebt_chainstack **chainstack;
- 	char *entries;
--	struct ebt_counter counters[0] ____cacheline_aligned;
-+	struct ebt_counter counters[] ____cacheline_aligned;
- };
- 
- struct ebt_table {
-diff --git a/include/linux/netfilter_ipv4/ip_tables.h b/include/linux/netfilter_ipv4/ip_tables.h
-index e9e1ed74cdf1..b394bd4f68a3 100644
---- a/include/linux/netfilter_ipv4/ip_tables.h
-+++ b/include/linux/netfilter_ipv4/ip_tables.h
-@@ -76,7 +76,7 @@ struct compat_ipt_entry {
- 	__u16 next_offset;
- 	compat_uint_t comefrom;
- 	struct compat_xt_counters counters;
--	unsigned char elems[0];
-+	unsigned char elems[];
- };
- 
- /* Helper functions */
-diff --git a/include/linux/netfilter_ipv6/ip6_tables.h b/include/linux/netfilter_ipv6/ip6_tables.h
-index 78ab959c4575..8225f7821a29 100644
---- a/include/linux/netfilter_ipv6/ip6_tables.h
-+++ b/include/linux/netfilter_ipv6/ip6_tables.h
-@@ -43,7 +43,7 @@ struct compat_ip6t_entry {
- 	__u16 next_offset;
- 	compat_uint_t comefrom;
- 	struct compat_xt_counters counters;
--	unsigned char elems[0];
-+	unsigned char elems[];
- };
- 
- static inline struct xt_entry_target *
-diff --git a/include/net/netfilter/nf_conntrack_extend.h b/include/net/netfilter/nf_conntrack_extend.h
-index 5ae5295aa46d..e1e588387103 100644
---- a/include/net/netfilter/nf_conntrack_extend.h
-+++ b/include/net/netfilter/nf_conntrack_extend.h
-@@ -45,7 +45,7 @@ enum nf_ct_ext_id {
- struct nf_ct_ext {
- 	u8 offset[NF_CT_EXT_NUM];
- 	u8 len;
--	char data[0];
-+	char data[];
- };
- 
- static inline bool __nf_ct_ext_exist(const struct nf_ct_ext *ext, u8 id)
-diff --git a/include/net/netfilter/nf_conntrack_timeout.h b/include/net/netfilter/nf_conntrack_timeout.h
-index 6dd72396f534..659b0ea25b4d 100644
---- a/include/net/netfilter/nf_conntrack_timeout.h
-+++ b/include/net/netfilter/nf_conntrack_timeout.h
-@@ -14,7 +14,7 @@
- struct nf_ct_timeout {
- 	__u16			l3num;
- 	const struct nf_conntrack_l4proto *l4proto;
--	char			data[0];
-+	char			data[];
- };
- 
- struct ctnl_timeout {
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index 4170c033d461..abcb4c89b0f9 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -224,7 +224,7 @@ int nft_validate_register_store(const struct nft_ctx *ctx,
-  */
- struct nft_userdata {
- 	u8			len;
--	unsigned char		data[0];
-+	unsigned char		data[];
- };
- 
- /**
-@@ -572,7 +572,7 @@ struct nft_set_ext_tmpl {
- struct nft_set_ext {
- 	u8	genmask;
- 	u8	offset[NFT_SET_EXT_NUM];
--	char	data[0];
-+	char	data[];
- };
- 
- static inline void nft_set_ext_prepare(struct nft_set_ext_tmpl *tmpl)
-@@ -1385,7 +1385,7 @@ struct nft_trans {
- 	int				msg_type;
- 	bool				put_net;
- 	struct nft_ctx			ctx;
--	char				data[0];
-+	char				data[];
- };
- 
- struct nft_trans_rule {
-diff --git a/include/uapi/linux/netfilter_bridge/ebt_among.h b/include/uapi/linux/netfilter_bridge/ebt_among.h
-index 9acf757bc1f7..73b26a280c4f 100644
---- a/include/uapi/linux/netfilter_bridge/ebt_among.h
-+++ b/include/uapi/linux/netfilter_bridge/ebt_among.h
-@@ -40,7 +40,7 @@ struct ebt_mac_wormhash_tuple {
- struct ebt_mac_wormhash {
- 	int table[257];
- 	int poolsize;
--	struct ebt_mac_wormhash_tuple pool[0];
-+	struct ebt_mac_wormhash_tuple pool[];
- };
- 
- #define ebt_mac_wormhash_size(x) ((x) ? sizeof(struct ebt_mac_wormhash) \
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index e1256e03a9a8..78db58c7aec2 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1561,7 +1561,7 @@ struct compat_ebt_entry_mwt {
- 		compat_uptr_t ptr;
- 	} u;
- 	compat_uint_t match_size;
--	compat_uint_t data[0] __attribute__ ((aligned (__alignof__(struct compat_ebt_replace))));
-+	compat_uint_t data[] __aligned(__alignof__(struct compat_ebt_replace));
- };
- 
- /* account for possible padding between match_size and ->data */
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index f1f78a742b36..b167f4a5b684 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -1057,7 +1057,7 @@ struct compat_arpt_replace {
- 	u32				underflow[NF_ARP_NUMHOOKS];
- 	u32				num_counters;
- 	compat_uptr_t			counters;
--	struct compat_arpt_entry	entries[0];
-+	struct compat_arpt_entry	entries[];
- };
- 
- static inline void compat_release_entry(struct compat_arpt_entry *e)
-@@ -1383,7 +1383,7 @@ static int compat_copy_entries_to_user(unsigned int total_size,
- struct compat_arpt_get_entries {
- 	char name[XT_TABLE_MAXNAMELEN];
- 	compat_uint_t size;
--	struct compat_arpt_entry entrytable[0];
-+	struct compat_arpt_entry entrytable[];
- };
- 
- static int compat_get_entries(struct net *net,
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index 10b91ebdf213..c2670eaa74e6 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -1211,7 +1211,7 @@ struct compat_ipt_replace {
- 	u32			underflow[NF_INET_NUMHOOKS];
- 	u32			num_counters;
- 	compat_uptr_t		counters;	/* struct xt_counters * */
--	struct compat_ipt_entry	entries[0];
-+	struct compat_ipt_entry	entries[];
- };
- 
- static int
-@@ -1562,7 +1562,7 @@ compat_do_ipt_set_ctl(struct sock *sk,	int cmd, void __user *user,
- struct compat_ipt_get_entries {
- 	char name[XT_TABLE_MAXNAMELEN];
- 	compat_uint_t size;
--	struct compat_ipt_entry entrytable[0];
-+	struct compat_ipt_entry entrytable[];
- };
- 
- static int
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index c973ace208c5..e27393498ecb 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -1227,7 +1227,7 @@ struct compat_ip6t_replace {
- 	u32			underflow[NF_INET_NUMHOOKS];
- 	u32			num_counters;
- 	compat_uptr_t		counters;	/* struct xt_counters * */
--	struct compat_ip6t_entry entries[0];
-+	struct compat_ip6t_entry entries[];
- };
- 
- static int
-@@ -1571,7 +1571,7 @@ compat_do_ip6t_set_ctl(struct sock *sk, int cmd, void __user *user,
- struct compat_ip6t_get_entries {
- 	char name[XT_TABLE_MAXNAMELEN];
- 	compat_uint_t size;
--	struct compat_ip6t_entry entrytable[0];
-+	struct compat_ip6t_entry entrytable[];
- };
- 
- static int
-diff --git a/net/netfilter/ipset/ip_set_bitmap_ip.c b/net/netfilter/ipset/ip_set_bitmap_ip.c
-index 0a2196f59106..486959f70cf3 100644
---- a/net/netfilter/ipset/ip_set_bitmap_ip.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
-@@ -46,7 +46,7 @@ struct bitmap_ip {
- 	u8 netmask;		/* subnet netmask */
- 	struct timer_list gc;	/* garbage collection */
- 	struct ip_set *set;	/* attached to this ip_set */
--	unsigned char extensions[0]	/* data extensions */
-+	unsigned char extensions[]	/* data extensions */
- 		__aligned(__alignof__(u64));
- };
- 
-diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-index 739e343efaf6..2310a316e0af 100644
---- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-@@ -49,7 +49,7 @@ struct bitmap_ipmac {
- 	size_t memsize;		/* members size */
- 	struct timer_list gc;	/* garbage collector */
- 	struct ip_set *set;	/* attached to this ip_set */
--	unsigned char extensions[0]	/* MAC + data extensions */
-+	unsigned char extensions[]	/* MAC + data extensions */
- 		__aligned(__alignof__(u64));
- };
- 
-diff --git a/net/netfilter/ipset/ip_set_bitmap_port.c b/net/netfilter/ipset/ip_set_bitmap_port.c
-index b49978dd810d..e56ced66f202 100644
---- a/net/netfilter/ipset/ip_set_bitmap_port.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_port.c
-@@ -37,7 +37,7 @@ struct bitmap_port {
- 	size_t memsize;		/* members size */
- 	struct timer_list gc;	/* garbage collection */
- 	struct ip_set *set;	/* attached to this ip_set */
--	unsigned char extensions[0]	/* data extensions */
-+	unsigned char extensions[]	/* data extensions */
- 		__aligned(__alignof__(u64));
- };
- 
-diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index 7480ce55b5c8..f1edc5b9b4ce 100644
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -68,7 +68,7 @@ struct hbucket {
- 	DECLARE_BITMAP(used, AHASH_MAX_TUNED);
- 	u8 size;		/* size of the array */
- 	u8 pos;			/* position of the first free entry */
--	unsigned char value[0]	/* the array of the values */
-+	unsigned char value[]	/* the array of the values */
- 		__aligned(__alignof__(u64));
- };
- 
-@@ -77,7 +77,7 @@ struct htable {
- 	atomic_t ref;		/* References for resizing */
- 	atomic_t uref;		/* References for dumping */
- 	u8 htable_bits;		/* size of hash table == 2^htable_bits */
--	struct hbucket __rcu *bucket[0]; /* hashtable buckets */
-+	struct hbucket __rcu *bucket[]; /* hashtable buckets */
- };
- 
- #define hbucket(h, i)		((h)->bucket[i])
-diff --git a/net/netfilter/nfnetlink_acct.c b/net/netfilter/nfnetlink_acct.c
-index 2481470dec36..5827117f2635 100644
---- a/net/netfilter/nfnetlink_acct.c
-+++ b/net/netfilter/nfnetlink_acct.c
-@@ -33,7 +33,7 @@ struct nf_acct {
- 	refcount_t		refcnt;
- 	char			name[NFACCT_NAME_MAX];
- 	struct rcu_head		rcu_head;
--	char			data[0];
-+	char			data[];
- };
- 
- struct nfacct_filter {
-diff --git a/net/netfilter/nft_set_pipapo.c b/net/netfilter/nft_set_pipapo.c
-index feac8553f6d9..141cea0c5da2 100644
---- a/net/netfilter/nft_set_pipapo.c
-+++ b/net/netfilter/nft_set_pipapo.c
-@@ -433,7 +433,7 @@ struct nft_pipapo_match {
- 	unsigned long * __percpu *scratch;
- 	size_t bsize_max;
- 	struct rcu_head rcu;
--	struct nft_pipapo_field f[0];
-+	struct nft_pipapo_field f[];
- };
- 
- /* Current working bitmap index, toggled between field matches */
-diff --git a/net/netfilter/xt_hashlimit.c b/net/netfilter/xt_hashlimit.c
-index 7a2c4b8408c4..c687509d882e 100644
---- a/net/netfilter/xt_hashlimit.c
-+++ b/net/netfilter/xt_hashlimit.c
-@@ -132,7 +132,7 @@ struct xt_hashlimit_htable {
- 	const char *name;
- 	struct net *net;
- 
--	struct hlist_head hash[0];	/* hashtable itself */
-+	struct hlist_head hash[];	/* hashtable itself */
- };
- 
- static int
-diff --git a/net/netfilter/xt_recent.c b/net/netfilter/xt_recent.c
-index 0a9708004e20..6e6bc5b91199 100644
---- a/net/netfilter/xt_recent.c
-+++ b/net/netfilter/xt_recent.c
-@@ -71,7 +71,7 @@ struct recent_entry {
- 	u_int8_t		ttl;
- 	u_int8_t		index;
- 	u_int16_t		nstamps;
--	unsigned long		stamps[0];
-+	unsigned long		stamps[];
- };
- 
- struct recent_table {
-@@ -82,7 +82,7 @@ struct recent_table {
- 	unsigned int		entries;
- 	u8			nstamps_max_mask;
- 	struct list_head	lru_list;
--	struct list_head	iphash[0];
-+	struct list_head	iphash[];
- };
- 
- struct recent_net {
--- 
-2.25.0
+> =====================================================
+> BUG: KMSAN: uninit-value in br_dev_xmit+0x99a/0x1730 net/bridge/br_device.c:64
+> CPU: 0 PID: 14704 Comm: syz-executor.1 Not tainted 5.6.0-rc2-syzkaller #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> Call Trace:
+>  __dump_stack lib/dump_stack.c:77 [inline]
+>  dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+>  kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+>  __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+>  br_dev_xmit+0x99a/0x1730 net/bridge/br_device.c:64
+>  __netdev_start_xmit include/linux/netdevice.h:4524 [inline]
+>  netdev_start_xmit include/linux/netdevice.h:4538 [inline]
+>  xmit_one net/core/dev.c:3470 [inline]
+>  dev_hard_start_xmit+0x531/0xab0 net/core/dev.c:3486
+>  __dev_queue_xmit+0x37de/0x4220 net/core/dev.c:4063
+>  dev_queue_xmit+0x4b/0x60 net/core/dev.c:4096
+>  __bpf_tx_skb net/core/filter.c:2061 [inline]
+>  __bpf_redirect_common net/core/filter.c:2100 [inline]
+>  __bpf_redirect+0x11d5/0x1440 net/core/filter.c:2107
+>  ____bpf_clone_redirect net/core/filter.c:2140 [inline]
+>  bpf_clone_redirect+0x466/0x620 net/core/filter.c:2112
+>  bpf_prog_a481c1313990ee2c+0x5e0/0x1000
+>  bpf_dispatcher_nopfunc include/linux/bpf.h:521 [inline]
+>  bpf_test_run+0x60c/0xe50 net/bpf/test_run.c:48
+>  bpf_prog_test_run_skb+0xcab/0x24a0 net/bpf/test_run.c:388
+>  bpf_prog_test_run kernel/bpf/syscall.c:2572 [inline]
+>  __do_sys_bpf+0xa684/0x13510 kernel/bpf/syscall.c:3414
+>  __se_sys_bpf kernel/bpf/syscall.c:3355 [inline]
+>  __ia32_sys_bpf+0xdb/0x120 kernel/bpf/syscall.c:3355
+>  do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
+>  do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
+>  entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
+> RIP: 0023:0xf7f79d99
+> Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+> RSP: 002b:00000000f5d740cc EFLAGS: 00000296 ORIG_RAX: 0000000000000165
+> RAX: ffffffffffffffda RBX: 000000000000000a RCX: 0000000020000140
+> RDX: 0000000000000040 RSI: 0000000000000000 RDI: 0000000000000000
+> RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+> 
+> Uninit was created at:
+>  kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
+>  kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
+>  kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
+>  slab_alloc_node mm/slub.c:2793 [inline]
+>  __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
+>  __kmalloc_reserve net/core/skbuff.c:142 [inline]
+>  pskb_expand_head+0x20b/0x1b00 net/core/skbuff.c:1629
+>  skb_ensure_writable+0x3ea/0x490 net/core/skbuff.c:5453
+>  __bpf_try_make_writable net/core/filter.c:1635 [inline]
+>  bpf_try_make_writable net/core/filter.c:1641 [inline]
+>  bpf_try_make_head_writable net/core/filter.c:1649 [inline]
+>  ____bpf_clone_redirect net/core/filter.c:2134 [inline]
+>  bpf_clone_redirect+0x251/0x620 net/core/filter.c:2112
+>  bpf_prog_a481c1313990ee2c+0x5e0/0x1000
+>  bpf_dispatcher_nopfunc include/linux/bpf.h:521 [inline]
+>  bpf_test_run+0x60c/0xe50 net/bpf/test_run.c:48
+>  bpf_prog_test_run_skb+0xcab/0x24a0 net/bpf/test_run.c:388
+>  bpf_prog_test_run kernel/bpf/syscall.c:2572 [inline]
+>  __do_sys_bpf+0xa684/0x13510 kernel/bpf/syscall.c:3414
+>  __se_sys_bpf kernel/bpf/syscall.c:3355 [inline]
+>  __ia32_sys_bpf+0xdb/0x120 kernel/bpf/syscall.c:3355
+>  do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
+>  do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
+>  entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
+> =====================================================
+> 
+> 
+> ---
+> This bug is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+> 
+> syzbot will keep track of this bug report. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> 
 
