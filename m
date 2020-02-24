@@ -1,22 +1,21 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
- h=subject:to:references:from:message-id:date:user-agent:mime-version
- :in-reply-to:content-language:content-transfer-encoding;
- bh=KLWEf14fFkiQAjlDedJDYa2UcfNURB0g7krL0meTUbY=;
- b=gzMC2BejdKHUp/THkOy7ecLea/x9cfiIXv2cuEQWQIWQbwdJhV7X1cV4xV1XVRjjg9
- VPsfUx2x8QmS5H2g4Xwfi9mkzOuGZrfGDqgAQ5bN6JFztLjlVkP4beFFNJ+sLoRocbf5
- 2iR3NwWkZPMFKVb+6KiEf/FYhpGQH9j3q8sbU=
-References: <000000000000c0910e059f4e4a82@google.com>
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=mChaMVvWNoAtZi1nGZc55W0b1jW6bAc+WtjlbD6LhY0=;
+ b=TR5eC0USeU6oHi0apikX1wcNfk3mz1J8HDHbv0m2R5/3V7m8B7lB6BstgHCOw80Lhb
+ v/wWZiuDFlyTWepMzzkvYTroUVlKIkhBky8nmVDqmUWQ0s963F45OgFicE7/TmqCh5KE
+ fg9r761XKu3hAa/jWqyJ7vHmnEnc4uNjexd+A=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <08a2e28b-fcf5-b26c-da75-97df67f51c7c@cumulusnetworks.com>
-Date: Mon, 24 Feb 2020 10:51:02 +0200
+Date: Mon, 24 Feb 2020 15:07:15 +0200
+Message-Id: <20200224130715.1446935-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <08a2e28b-fcf5-b26c-da75-97df67f51c7c@cumulusnetworks.com>
+References: <08a2e28b-fcf5-b26c-da75-97df67f51c7c@cumulusnetworks.com>
 MIME-Version: 1.0
-In-Reply-To: <000000000000c0910e059f4e4a82@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] KMSAN: uninit-value in br_dev_xmit
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] net: bridge: fix stale eth hdr pointer in
+	br_dev_xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,109 +24,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+18c8b623c66fc198c493@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, glider@google.com, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roopa@cumulusnetworks.com, syzkaller-bugs@googlegroups.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, syzbot+18c8b623c66fc198c493@syzkaller.appspotmail.com, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-On 24/02/2020 10:38, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    8bbbc5cf kmsan: don't compile memmove
-> git tree:       https://github.com/google/kmsan.git master
-> console output: https://syzkaller.appspot.com/x/log.txt?x=14d9a3d9e00000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=cd0e9a6b0e555cc3
-> dashboard link: https://syzkaller.appspot.com/bug?extid=18c8b623c66fc198c493
-> compiler:       clang version 10.0.0 (https://github.com/llvm/llvm-project/ c2443155a0fb245c8f17f2c1c72b6ea391e86e81)
-> userspace arch: i386
-> 
-> Unfortunately, I don't have any reproducer for this crash yet.
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+18c8b623c66fc198c493@syzkaller.appspotmail.com
-> 
+In br_dev_xmit() we perform vlan filtering in br_allowed_ingress() but
+if the packet has the vlan header inside (e.g. bridge with disabled
+tx-vlan-offload) then the vlan filtering code will use skb_vlan_untag()
+to extract the vid before filtering which in turn calls pskb_may_pull()
+and we may end up with a stale eth pointer. Moreover the cached eth header
+pointer will generally be wrong after that operation. Remove the eth header
+caching and just use eth_hdr() directly, the compiler does the right thing
+and calculates it only once so we don't lose anything.
 
-br_allowed_ingress() can call skb_vlan_untag() which does pskb_may_pull() and so
-the cached eth header can become invalid.
-I'll prepare a fix.
+Reported-by: syzbot+18c8b623c66fc198c493@syzkaller.appspotmail.com
+Fixes: 057658cb33fb ("bridge: suppress arp pkts on BR_NEIGH_SUPPRESS ports")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_device.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Cheers,
- Nik
-
-> =====================================================
-> BUG: KMSAN: uninit-value in br_dev_xmit+0x99a/0x1730 net/bridge/br_device.c:64
-> CPU: 0 PID: 14704 Comm: syz-executor.1 Not tainted 5.6.0-rc2-syzkaller #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:77 [inline]
->  dump_stack+0x1c9/0x220 lib/dump_stack.c:118
->  kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
->  __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
->  br_dev_xmit+0x99a/0x1730 net/bridge/br_device.c:64
->  __netdev_start_xmit include/linux/netdevice.h:4524 [inline]
->  netdev_start_xmit include/linux/netdevice.h:4538 [inline]
->  xmit_one net/core/dev.c:3470 [inline]
->  dev_hard_start_xmit+0x531/0xab0 net/core/dev.c:3486
->  __dev_queue_xmit+0x37de/0x4220 net/core/dev.c:4063
->  dev_queue_xmit+0x4b/0x60 net/core/dev.c:4096
->  __bpf_tx_skb net/core/filter.c:2061 [inline]
->  __bpf_redirect_common net/core/filter.c:2100 [inline]
->  __bpf_redirect+0x11d5/0x1440 net/core/filter.c:2107
->  ____bpf_clone_redirect net/core/filter.c:2140 [inline]
->  bpf_clone_redirect+0x466/0x620 net/core/filter.c:2112
->  bpf_prog_a481c1313990ee2c+0x5e0/0x1000
->  bpf_dispatcher_nopfunc include/linux/bpf.h:521 [inline]
->  bpf_test_run+0x60c/0xe50 net/bpf/test_run.c:48
->  bpf_prog_test_run_skb+0xcab/0x24a0 net/bpf/test_run.c:388
->  bpf_prog_test_run kernel/bpf/syscall.c:2572 [inline]
->  __do_sys_bpf+0xa684/0x13510 kernel/bpf/syscall.c:3414
->  __se_sys_bpf kernel/bpf/syscall.c:3355 [inline]
->  __ia32_sys_bpf+0xdb/0x120 kernel/bpf/syscall.c:3355
->  do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
->  do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
->  entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-> RIP: 0023:0xf7f79d99
-> Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-> RSP: 002b:00000000f5d740cc EFLAGS: 00000296 ORIG_RAX: 0000000000000165
-> RAX: ffffffffffffffda RBX: 000000000000000a RCX: 0000000020000140
-> RDX: 0000000000000040 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-> 
-> Uninit was created at:
->  kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
->  kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
->  kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
->  slab_alloc_node mm/slub.c:2793 [inline]
->  __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
->  __kmalloc_reserve net/core/skbuff.c:142 [inline]
->  pskb_expand_head+0x20b/0x1b00 net/core/skbuff.c:1629
->  skb_ensure_writable+0x3ea/0x490 net/core/skbuff.c:5453
->  __bpf_try_make_writable net/core/filter.c:1635 [inline]
->  bpf_try_make_writable net/core/filter.c:1641 [inline]
->  bpf_try_make_head_writable net/core/filter.c:1649 [inline]
->  ____bpf_clone_redirect net/core/filter.c:2134 [inline]
->  bpf_clone_redirect+0x251/0x620 net/core/filter.c:2112
->  bpf_prog_a481c1313990ee2c+0x5e0/0x1000
->  bpf_dispatcher_nopfunc include/linux/bpf.h:521 [inline]
->  bpf_test_run+0x60c/0xe50 net/bpf/test_run.c:48
->  bpf_prog_test_run_skb+0xcab/0x24a0 net/bpf/test_run.c:388
->  bpf_prog_test_run kernel/bpf/syscall.c:2572 [inline]
->  __do_sys_bpf+0xa684/0x13510 kernel/bpf/syscall.c:3414
->  __se_sys_bpf kernel/bpf/syscall.c:3355 [inline]
->  __ia32_sys_bpf+0xdb/0x120 kernel/bpf/syscall.c:3355
->  do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
->  do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
->  entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-> =====================================================
-> 
-> 
-> ---
-> This bug is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this bug report. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> 
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index dc3d2c1dd9d5..0e3dbc5f3c34 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -34,7 +34,6 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	const struct nf_br_ops *nf_ops;
+ 	u8 state = BR_STATE_FORWARDING;
+ 	const unsigned char *dest;
+-	struct ethhdr *eth;
+ 	u16 vid = 0;
+ 
+ 	rcu_read_lock();
+@@ -54,15 +53,14 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	BR_INPUT_SKB_CB(skb)->frag_max_size = 0;
+ 
+ 	skb_reset_mac_header(skb);
+-	eth = eth_hdr(skb);
+ 	skb_pull(skb, ETH_HLEN);
+ 
+ 	if (!br_allowed_ingress(br, br_vlan_group_rcu(br), skb, &vid, &state))
+ 		goto out;
+ 
+ 	if (IS_ENABLED(CONFIG_INET) &&
+-	    (eth->h_proto == htons(ETH_P_ARP) ||
+-	     eth->h_proto == htons(ETH_P_RARP)) &&
++	    (eth_hdr(skb)->h_proto == htons(ETH_P_ARP) ||
++	     eth_hdr(skb)->h_proto == htons(ETH_P_RARP)) &&
+ 	    br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
+ 		br_do_proxy_suppress_arp(skb, br, vid, NULL);
+ 	} else if (IS_ENABLED(CONFIG_IPV6) &&
+-- 
+2.24.1
 
