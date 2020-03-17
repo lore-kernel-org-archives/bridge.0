@@ -3,19 +3,19 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=YBMtaydtMsUyjN0wuzRBrD9zMyV40susRIgvtFGzgDM=;
- b=HtCfsHD2ip/yn9NfToMIjSXno04bPTqe0tHzIMe1I+8ZseVbkmq7NMZ7MMKR+qICQE
- 9MIR1cYE9FGSPWqpA2O2N5fgjtg2RXT8y3rkfnpK2mYh2xvQo6+OFjnXd4xAft3pw55/
- /TOdDRNeALlxrZ9hJfLJEh6pEpA9P+QTFBpG8=
+ bh=eeD82qOajPkDz6E23LoC90WY8WmZQtkNFWFfYrdcWyg=;
+ b=U0VZhaoO8vyQWXV2M+LEhymvQTWqhoEi7/G1NfvFgQWs0XyEq+J/70fPbtE2582qhV
+ xylhEpLKf2e7Q0ZImBsxeXre3tnLUb13xwjrUG42HCtywHzVhj84AUoB1uNBEtIOvzwP
+ RSKrDFsQYL5GSFoSzdIY5LtJ24JNuDgz8uHeo=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 17 Mar 2020 14:08:34 +0200
-Message-Id: <20200317120836.1765164-3-nikolay@cumulusnetworks.com>
+Date: Tue, 17 Mar 2020 14:08:36 +0200
+Message-Id: <20200317120836.1765164-5-nikolay@cumulusnetworks.com>
 In-Reply-To: <20200317120836.1765164-1-nikolay@cumulusnetworks.com>
 References: <20200317120836.1765164-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 2/4] net: bridge: vlan tunnel: constify
-	bridge and port arguments
+Subject: [Bridge] [PATCH net-next 4/4] net: bridge: vlan options: add
+	support for tunnel mapping set/del
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,107 +27,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-The vlan tunnel code changes vlan options, it shouldn't touch port or
-bridge options so we can constify the port argument. This would later help
-us to re-use these functions from the vlan options code.
+This patch adds support for manipulating vlan/tunnel mappings. The
+tunnel ids are globally unique and are one per-vlan. There were two
+trickier issues - first in order to support vlan ranges we have to
+compute the current tunnel id in the following way:
+ - base tunnel id (attr) + current vlan id - starting vlan id
+This is in line how the old API does vlan/tunnel mapping with ranges. We
+already have the vlan range present, so it's redundant to add another
+attribute for the tunnel range end. It's simply base tunnel id + vlan
+range. And second to support removing mappings we need an out-of-band way
+to tell the option manipulating function because there are no
+special/reserved tunnel id values, so we use a vlan flag to denote the
+operation is tunnel mapping removal.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_netlink_tunnel.c |  6 +++---
- net/bridge/br_private_tunnel.h | 13 +++++++------
- net/bridge/br_vlan_tunnel.c    |  5 +++--
- 3 files changed, 13 insertions(+), 11 deletions(-)
+ include/uapi/linux/if_bridge.h |  1 +
+ net/bridge/br_netlink_tunnel.c |  4 ++--
+ net/bridge/br_private_tunnel.h |  2 ++
+ net/bridge/br_vlan.c           |  1 +
+ net/bridge/br_vlan_options.c   | 39 ++++++++++++++++++++++++++++++++++
+ 5 files changed, 45 insertions(+), 2 deletions(-)
 
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 36760ff69711..54010b49c093 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -131,6 +131,7 @@ enum {
+ #define BRIDGE_VLAN_INFO_RANGE_END	(1<<4) /* VLAN is end of vlan range */
+ #define BRIDGE_VLAN_INFO_BRENTRY	(1<<5) /* Global bridge VLAN entry */
+ #define BRIDGE_VLAN_INFO_ONLY_OPTS	(1<<6) /* Skip create/delete/flags */
++#define BRIDGE_VLAN_INFO_REMOVE_TUN	(1<<7) /* Remove tunnel mapping */
+ 
+ struct bridge_vlan_info {
+ 	__u16 flags;
 diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
-index afee292fb004..beea08b8c422 100644
+index 996a77620814..162998e2f039 100644
 --- a/net/bridge/br_netlink_tunnel.c
 +++ b/net/bridge/br_netlink_tunnel.c
-@@ -193,7 +193,7 @@ static const struct nla_policy vlan_tunnel_policy[IFLA_BRIDGE_VLAN_TUNNEL_MAX +
+@@ -193,8 +193,8 @@ static const struct nla_policy vlan_tunnel_policy[IFLA_BRIDGE_VLAN_TUNNEL_MAX +
  	[IFLA_BRIDGE_VLAN_TUNNEL_FLAGS] = { .type = NLA_U16 },
  };
  
--static int br_vlan_tunnel_info(struct net_bridge_port *p, int cmd,
-+static int br_vlan_tunnel_info(const struct net_bridge_port *p, int cmd,
- 			       u16 vid, u32 tun_id, bool *changed)
+-static int br_vlan_tunnel_info(const struct net_bridge_port *p, int cmd,
+-			       u16 vid, u32 tun_id, bool *changed)
++int br_vlan_tunnel_info(const struct net_bridge_port *p, int cmd,
++			u16 vid, u32 tun_id, bool *changed)
  {
  	int err = 0;
-@@ -250,8 +250,8 @@ int br_parse_vlan_tunnel_info(struct nlattr *attr,
- 	return 0;
- }
  
--int br_process_vlan_tunnel_info(struct net_bridge *br,
--				struct net_bridge_port *p, int cmd,
-+int br_process_vlan_tunnel_info(const struct net_bridge *br,
-+				const struct net_bridge_port *p, int cmd,
- 				struct vtunnel_info *tinfo_curr,
- 				struct vtunnel_info *tinfo_last,
- 				bool *changed)
 diff --git a/net/bridge/br_private_tunnel.h b/net/bridge/br_private_tunnel.h
-index 2bdef2ea3420..a9b818fc8b6c 100644
+index b27a0c0371f2..c54cc26211d7 100644
 --- a/net/bridge/br_private_tunnel.h
 +++ b/net/bridge/br_private_tunnel.h
-@@ -18,8 +18,8 @@ struct vtunnel_info {
- /* br_netlink_tunnel.c */
- int br_parse_vlan_tunnel_info(struct nlattr *attr,
- 			      struct vtunnel_info *tinfo);
--int br_process_vlan_tunnel_info(struct net_bridge *br,
--				struct net_bridge_port *p,
-+int br_process_vlan_tunnel_info(const struct net_bridge *br,
-+				const struct net_bridge_port *p,
- 				int cmd,
- 				struct vtunnel_info *tinfo_curr,
- 				struct vtunnel_info *tinfo_last,
-@@ -32,8 +32,9 @@ int br_fill_vlan_tunnel_info(struct sk_buff *skb,
- /* br_vlan_tunnel.c */
- int vlan_tunnel_init(struct net_bridge_vlan_group *vg);
- void vlan_tunnel_deinit(struct net_bridge_vlan_group *vg);
--int nbp_vlan_tunnel_info_delete(struct net_bridge_port *port, u16 vid);
--int nbp_vlan_tunnel_info_add(struct net_bridge_port *port, u16 vid, u32 tun_id);
-+int nbp_vlan_tunnel_info_delete(const struct net_bridge_port *port, u16 vid);
-+int nbp_vlan_tunnel_info_add(const struct net_bridge_port *port, u16 vid,
-+			     u32 tun_id);
- void nbp_vlan_tunnel_info_flush(struct net_bridge_port *port);
- void vlan_tunnel_info_del(struct net_bridge_vlan_group *vg,
- 			  struct net_bridge_vlan *vlan);
-@@ -48,13 +49,13 @@ static inline int vlan_tunnel_init(struct net_bridge_vlan_group *vg)
+@@ -45,6 +45,8 @@ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 				 struct net_bridge_vlan *vlan);
+ bool vlan_tunid_inrange(const struct net_bridge_vlan *v_curr,
+ 			const struct net_bridge_vlan *v_last);
++int br_vlan_tunnel_info(const struct net_bridge_port *p, int cmd,
++			u16 vid, u32 tun_id, bool *changed);
+ #else
+ static inline int vlan_tunnel_init(struct net_bridge_vlan_group *vg)
+ {
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 09bfda47fbbf..24f524536be4 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1839,6 +1839,7 @@ static const struct nla_policy br_vlan_db_policy[BRIDGE_VLANDB_ENTRY_MAX + 1] =
+ 					    .len = sizeof(struct bridge_vlan_info) },
+ 	[BRIDGE_VLANDB_ENTRY_RANGE]	= { .type = NLA_U16 },
+ 	[BRIDGE_VLANDB_ENTRY_STATE]	= { .type = NLA_U8 },
++	[BRIDGE_VLANDB_ENTRY_TUNNEL_ID] = { .type = NLA_U32 },
+ };
+ 
+ static int br_vlan_rtm_process_one(struct net_device *dev,
+diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
+index d3618da32b8e..138e180cf4d8 100644
+--- a/net/bridge/br_vlan_options.c
++++ b/net/bridge/br_vlan_options.c
+@@ -85,6 +85,40 @@ static int br_vlan_modify_state(struct net_bridge_vlan_group *vg,
  	return 0;
  }
  
--static inline int nbp_vlan_tunnel_info_delete(struct net_bridge_port *port,
-+static inline int nbp_vlan_tunnel_info_delete(const struct net_bridge_port *port,
- 					      u16 vid)
- {
++static int br_vlan_modify_tunnel(const struct net_bridge_port *p,
++				 struct net_bridge_vlan *v,
++				 struct nlattr **tb,
++				 bool *changed,
++				 struct netlink_ext_ack *extack)
++{
++	struct bridge_vlan_info *vinfo;
++	int cmdmap;
++	u32 tun_id;
++
++	if (!p) {
++		NL_SET_ERR_MSG_MOD(extack, "Can't modify tunnel mapping of non-port vlans");
++		return -EINVAL;
++	}
++	if (!(p->flags & BR_VLAN_TUNNEL)) {
++		NL_SET_ERR_MSG_MOD(extack, "Port doesn't have tunnel flag set");
++		return -EINVAL;
++	}
++
++	/* vlan info attribute is guaranteed by br_vlan_rtm_process_one */
++	vinfo = nla_data(tb[BRIDGE_VLANDB_ENTRY_INFO]);
++	cmdmap = vinfo->flags & BRIDGE_VLAN_INFO_REMOVE_TUN ? RTM_DELLINK :
++							      RTM_SETLINK;
++	/* when working on vlan ranges this represents the starting tunnel id */
++	tun_id = nla_get_u32(tb[BRIDGE_VLANDB_ENTRY_TUNNEL_ID]);
++	/* tunnel ids are mapped to each vlan in increasing order,
++	 * the starting vlan is in BRIDGE_VLANDB_ENTRY_INFO and v is the
++	 * current vlan, so we compute: tun_id + v - vinfo->vid
++	 */
++	tun_id += v->vid - vinfo->vid;
++
++	return br_vlan_tunnel_info(p, cmdmap, v->vid, tun_id, changed);
++}
++
+ static int br_vlan_process_one_opts(const struct net_bridge *br,
+ 				    const struct net_bridge_port *p,
+ 				    struct net_bridge_vlan_group *vg,
+@@ -103,6 +137,11 @@ static int br_vlan_process_one_opts(const struct net_bridge *br,
+ 		if (err)
+ 			return err;
+ 	}
++	if (tb[BRIDGE_VLANDB_ENTRY_TUNNEL_ID]) {
++		err = br_vlan_modify_tunnel(p, v, tb, changed, extack);
++		if (err)
++			return err;
++	}
+ 
  	return 0;
  }
- 
--static inline int nbp_vlan_tunnel_info_add(struct net_bridge_port *port,
-+static inline int nbp_vlan_tunnel_info_add(const struct net_bridge_port *port,
- 					   u16 vid, u32 tun_id)
- {
- 	return 0;
-diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
-index d13d2080f527..169e005fbda2 100644
---- a/net/bridge/br_vlan_tunnel.c
-+++ b/net/bridge/br_vlan_tunnel.c
-@@ -89,7 +89,8 @@ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
- /* Must be protected by RTNL.
-  * Must be called with vid in range from 1 to 4094 inclusive.
-  */
--int nbp_vlan_tunnel_info_add(struct net_bridge_port *port, u16 vid, u32 tun_id)
-+int nbp_vlan_tunnel_info_add(const struct net_bridge_port *port, u16 vid,
-+			     u32 tun_id)
- {
- 	struct net_bridge_vlan_group *vg;
- 	struct net_bridge_vlan *vlan;
-@@ -107,7 +108,7 @@ int nbp_vlan_tunnel_info_add(struct net_bridge_port *port, u16 vid, u32 tun_id)
- /* Must be protected by RTNL.
-  * Must be called with vid in range from 1 to 4094 inclusive.
-  */
--int nbp_vlan_tunnel_info_delete(struct net_bridge_port *port, u16 vid)
-+int nbp_vlan_tunnel_info_delete(const struct net_bridge_port *port, u16 vid)
- {
- 	struct net_bridge_vlan_group *vg;
- 	struct net_bridge_vlan *v;
 -- 
 2.24.1
 
