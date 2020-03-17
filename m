@@ -1,19 +1,21 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=CdpI6plcLqffgBOnjrXIKu3Uafpf4rcXyJ3pN99AXIc=;
- b=ShQsp79LXm5GC7td8lqoA5hp/BSeNQvRiooz2UKFzmJRaAOzkgZjn7b41Fvhmuu49M
- ZOSLn29Uj5nZ3XIkCxxwHGn2zMBaz3HEqE6LtEqOfAjivToFZCCTvMvo7J5GAXaE/lgb
- PGCme0lxaWYhE70YuoIlNnCe0UdQsRuMBaFmI=
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=GmTVCUwzP2sd2RegUgToB05hVf+yztMs1t67J5XMm00=;
+ b=eKcVYTc9qQYhkE1Vi/Z417hbDiE3GtdPrKO4Cc7c/JdRPco1QtbXeyKIXljk94UweA
+ LTetgFdKrdZOFkrN7hdUXTWpNrqcvY5Pz4QRsrPOcGKC9x8gSPMQrBTChuqmK/PLJHmh
+ vBSF/AmONyIBLVQh/KL85aHRRSZ45u20es0rk=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 17 Mar 2020 14:08:32 +0200
-Message-Id: <20200317120836.1765164-1-nikolay@cumulusnetworks.com>
+Date: Tue, 17 Mar 2020 14:08:33 +0200
+Message-Id: <20200317120836.1765164-2-nikolay@cumulusnetworks.com>
+In-Reply-To: <20200317120836.1765164-1-nikolay@cumulusnetworks.com>
+References: <20200317120836.1765164-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 0/4] net: bridge: vlan options: add
-	support for tunnel mapping
+Subject: [Bridge] [PATCH net-next 1/4] net: bridge: vlan options: rename
+	br_vlan_opts_eq to br_vlan_opts_eq_range
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,51 +27,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
 
-Hi,
-In order to bring the new vlan API on par with the old one and be able
-to completely migrate to the new one we need to support vlan tunnel mapping
-and statistics. This patch-set takes care of the former by making it a
-vlan option. There are two notable issues to deal with:
- - vlan range to tunnel range mapping
-   * The tunnel ids are globally unique for the vlan code and a vlan can
-     be mapped to one tunnel, so the old API took care of ranges by
-     taking the starting tunnel id value and incrementally mapping
-     vlan id(i) -> tunnel id(i). This set takes the same approach and
-     uses one new attribute - BRIDGE_VLANDB_ENTRY_TUNNEL_ID. If used
-     with a vlan range then it's the starting tunnel id to map.
+It is more appropriate name as it shows the intent of why we need to
+check the options' state. It also allows us to give meaning to the two
+arguments of the function: the first is the current vlan (v_curr) being
+checked if it could enter the range ending in the second one (range_end).
 
- - tunnel mapping removal
-   * Since there are no reserved/special tunnel ids defined, we can't
-     encode mapping removal within the new attribute, in order to be
-     able to remove a mapping we add a vlan flag which makes the new
-     tunnel option remove the mapping
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_private.h      | 4 ++--
+ net/bridge/br_vlan.c         | 2 +-
+ net/bridge/br_vlan_options.c | 8 ++++----
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-The rest is pretty straight-forward, in fact we directly re-use the old
-code for manipulating tunnels by just mapping the command (set/del). In
-order to be able to keep detecting vlan ranges we check that the current
-vlan has a tunnel and it's extending the current vlan range end's tunnel
-id.
-
-Thanks,
- Nik
-
-
-Nikolay Aleksandrov (4):
-  net: bridge: vlan options: rename br_vlan_opts_eq to
-    br_vlan_opts_eq_range
-  net: bridge: vlan tunnel: constify bridge and port arguments
-  net: bridge: vlan options: add support for tunnel id dumping
-  net: bridge: vlan options: add support for tunnel mapping set/del
-
- include/uapi/linux/if_bridge.h |  2 +
- net/bridge/br_netlink_tunnel.c | 12 +++---
- net/bridge/br_private.h        |  4 +-
- net/bridge/br_private_tunnel.h | 17 +++++---
- net/bridge/br_vlan.c           |  3 +-
- net/bridge/br_vlan_options.c   | 74 +++++++++++++++++++++++++++++++---
- net/bridge/br_vlan_tunnel.c    |  5 ++-
- 7 files changed, 94 insertions(+), 23 deletions(-)
-
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 5153ffe79a01..1f97703a52ff 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1199,8 +1199,8 @@ static inline void br_vlan_notify(const struct net_bridge *br,
+ 
+ /* br_vlan_options.c */
+ #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+-bool br_vlan_opts_eq(const struct net_bridge_vlan *v1,
+-		     const struct net_bridge_vlan *v2);
++bool br_vlan_opts_eq_range(const struct net_bridge_vlan *v_curr,
++			   const struct net_bridge_vlan *range_end);
+ bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v);
+ size_t br_vlan_opts_nl_size(void);
+ int br_vlan_process_options(const struct net_bridge *br,
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 6b5deca08b89..09bfda47fbbf 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1694,7 +1694,7 @@ bool br_vlan_can_enter_range(const struct net_bridge_vlan *v_curr,
+ {
+ 	return v_curr->vid - range_end->vid == 1 &&
+ 	       range_end->flags == v_curr->flags &&
+-	       br_vlan_opts_eq(v_curr, range_end);
++	       br_vlan_opts_eq_range(v_curr, range_end);
+ }
+ 
+ static int br_vlan_dump_dev(const struct net_device *dev,
+diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
+index cd2eb194eb98..24cf2a621df9 100644
+--- a/net/bridge/br_vlan_options.c
++++ b/net/bridge/br_vlan_options.c
+@@ -7,11 +7,11 @@
+ 
+ #include "br_private.h"
+ 
+-/* check if the options between two vlans are equal */
+-bool br_vlan_opts_eq(const struct net_bridge_vlan *v1,
+-		     const struct net_bridge_vlan *v2)
++/* check if the options' state of v_curr allow it to enter the range */
++bool br_vlan_opts_eq_range(const struct net_bridge_vlan *v_curr,
++			   const struct net_bridge_vlan *range_end)
+ {
+-	return v1->state == v2->state;
++	return v_curr->state == range_end->state;
+ }
+ 
+ bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v)
 -- 
 2.24.1
 
