@@ -1,13 +1,13 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Fri, 27 Mar 2020 10:21:25 +0100
-Message-ID: <20200327092126.15407-9-horatiu.vultur@microchip.com>
+Date: Fri, 27 Mar 2020 10:21:26 +0100
+Message-ID: <20200327092126.15407-10-horatiu.vultur@microchip.com>
 In-Reply-To: <20200327092126.15407-1-horatiu.vultur@microchip.com>
 References: <20200327092126.15407-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [RFC net-next v4 8/9] bridge: mrp: Integrate MRP into the
-	bridge
+Subject: [Bridge] [RFC net-next v4 9/9] bridge: mrp: Update Kconfig and
+	Makefile
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,142 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-To integrate MRP into the bridge, the bridge needs to do the following:
-- add new flag(BR_MPP_AWARE) to the net bridge ports, this bit will be set when
-  the port is added to an MRP instance. In this way it knows if the frame was
-  received on MRP ring port
-- detect if the MRP frame was received on MRP ring port in that case it would be
-  processed otherwise just forward it as usual.
-- enable parsing of MRP
-- before whenever the bridge was set up, it would set all the ports in
-  forwarding state. Add an extra check to not set ports in forwarding state if
-  the port is an MRP ring port. The reason of this change is that if the MRP
-  instance initially sets the port in blocked state by setting the bridge up it
-  would overwrite this setting.
+Add the option BRIDGE_MRP to allow to build in or not MRP support.
+The default value is N.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- include/linux/if_bridge.h |  1 +
- net/bridge/br_device.c    |  3 +++
- net/bridge/br_input.c     |  3 +++
- net/bridge/br_netlink.c   |  5 +++++
- net/bridge/br_private.h   | 22 ++++++++++++++++++++++
- net/bridge/br_stp.c       |  6 ++++++
- 6 files changed, 40 insertions(+)
+ net/bridge/Kconfig  | 12 ++++++++++++
+ net/bridge/Makefile |  2 ++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 9e57c4411734..10baa9efdae8 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -47,6 +47,7 @@ struct br_ip_list {
- #define BR_BCAST_FLOOD		BIT(14)
- #define BR_NEIGH_SUPPRESS	BIT(15)
- #define BR_ISOLATED		BIT(16)
-+#define BR_MRP_AWARE		BIT(17)
+diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
+index e4fb050e2078..51a6414145d2 100644
+--- a/net/bridge/Kconfig
++++ b/net/bridge/Kconfig
+@@ -61,3 +61,15 @@ config BRIDGE_VLAN_FILTERING
+ 	  Say N to exclude this support and reduce the binary size.
  
- #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
- 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 0e3dbc5f3c34..8ec1362588af 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -463,6 +463,9 @@ void br_dev_setup(struct net_device *dev)
- 	spin_lock_init(&br->lock);
- 	INIT_LIST_HEAD(&br->port_list);
- 	INIT_HLIST_HEAD(&br->fdb_list);
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+	INIT_LIST_HEAD(&br->mrp_list);
-+#endif
- 	spin_lock_init(&br->hash_lock);
- 
- 	br->bridge_id.prio[0] = 0x80;
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index fcc260840028..d5c34f36f0f4 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -342,6 +342,9 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 		}
- 	}
- 
-+	if (unlikely(br_mrp_process(p, skb)))
-+		return RX_HANDLER_PASS;
+ 	  If unsure, say Y.
 +
- forward:
- 	switch (p->state) {
- 	case BR_STATE_FORWARDING:
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 43dab4066f91..77bc96745be6 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -669,6 +669,11 @@ static int br_afspec(struct net_bridge *br,
- 			if (err)
- 				return err;
- 			break;
-+		case IFLA_BRIDGE_MRP:
-+			err = br_mrp_parse(br, p, attr, cmd);
-+			if (err)
-+				return err;
-+			break;
- 		}
- 	}
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1f97703a52ff..38894f2cf98f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -428,6 +428,10 @@ struct net_bridge {
- 	int offload_fwd_mark;
- #endif
- 	struct hlist_head		fdb_list;
++config BRIDGE_MRP
++	bool "MRP protocol"
++	depends on BRIDGE
++	default n
++	help
++	  If you say Y here, then the Ethernet bridge will be able to run MRP
++	  protocol to detect loops
 +
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+	struct list_head		__rcu mrp_list;
-+#endif
- };
- 
- struct br_input_skb_cb {
-@@ -1304,6 +1308,24 @@ unsigned long br_timer_value(const struct timer_list *timer);
- extern int (*br_fdb_test_addr_hook)(struct net_device *dev, unsigned char *addr);
- #endif
- 
-+/* br_mrp.c */
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
-+		 struct nlattr *attr, int cmd);
-+int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb);
-+#else
-+static inline int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
-+			       struct nlattr *attr, int cmd)
-+{
-+	return -1;
-+}
++	  Say N to exclude this support and reduce the binary size.
 +
-+static inline int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
-+{
-+	return -1;
-+}
-+#endif
-+
- /* br_netlink.c */
- extern struct rtnl_link_ops br_link_ops;
- int br_netlink_init(void);
-diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
-index 1f14b8455345..3e88be7aa269 100644
---- a/net/bridge/br_stp.c
-+++ b/net/bridge/br_stp.c
-@@ -36,6 +36,12 @@ void br_set_state(struct net_bridge_port *p, unsigned int state)
- 	};
- 	int err;
++	  If unsure, say N.
+diff --git a/net/bridge/Makefile b/net/bridge/Makefile
+index 49da7ae6f077..9bf3e1be3328 100644
+--- a/net/bridge/Makefile
++++ b/net/bridge/Makefile
+@@ -25,3 +25,5 @@ bridge-$(CONFIG_BRIDGE_VLAN_FILTERING) += br_vlan.o br_vlan_tunnel.o br_vlan_opt
+ bridge-$(CONFIG_NET_SWITCHDEV) += br_switchdev.o
  
-+	/* Don't change the state of the ports if they are driven by a different
-+	 * protocol.
-+	 */
-+	if (p->flags & BR_MRP_AWARE)
-+		return;
+ obj-$(CONFIG_NETFILTER) += netfilter/
 +
- 	p->state = state;
- 	err = switchdev_port_attr_set(p->dev, &attr);
- 	if (err && err != -EOPNOTSUPP)
++bridge-$(CONFIG_BRIDGE_MRP)	+= br_mrp.o br_mrp_netlink.o br_mrp_switchdev.o
 -- 
 2.17.1
 
