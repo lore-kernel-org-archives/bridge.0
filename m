@@ -1,23 +1,20 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=lJmhJmuG1IWJED6rmkx8pwPYj9TB5d9M3E2doIVmkRs=;
- b=fASOuBt8zE/+5tGQ1qY43ZGmu7xs3H/w9z3Pm/vJuvfUa2asOH8b4HVp+BzFYW2gq9
- k/vAAX9bsEroUhXniLEqBNheSAyqquWOoBWhfRRhPTtM6BNPU/YY6wRnpLXIHX5op9zn
- oX5+7hg/ULQ559d9tT1q7s9x1uq1m04Av3I1A=
-References: <20200430193845.4087868-1-idosch@idosch.org>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <ab70b93d-c296-402e-865f-c96be764e7a3@cumulusnetworks.com>
-Date: Thu, 30 Apr 2020 23:25:40 +0300
+Return-Path: <dqfext@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=YG+p9bpPBHqyI4mCiMrVfo4BojUmW4QV1jvJ5YQRhnY=;
+ b=hHE1PNZgAIGvBQTOD3CUD4s+7VggJSeq6TnzxrF3uubC7quWhfgn7tRKDYFs+xlAbc
+ +KV+tqw1PUHAsh3qRxT4zw1Y+8hjoONwZcGjRqvtZZoW4t1v94x40FvDL1nlhxqRXqAL
+ Qf/bXUUtZ2viScyRqbtwtkz56JfAiDIugkeD1/z1zfdbn2SiSE+e6lcpc1D9kZu34hc4
+ g+rA+fY8YIDld6yxHeMuNeiqye20nk88NVxb83OUaGxzGlJ4Du7fltMj1KSJgyqgnJUU
+ YY1rxThk5EH5azh1q9ox8+CfG5TiveZ9dXo6hFTa2gxKRARs7+h7Vd9Dth/YL4FxQIQf
+ YNgQ==
+From: DENG Qingfang <dqfext@gmail.com>
+Message-Id: <20200419161946.19984-1-dqfext@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200430193845.4087868-1-idosch@idosch.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: vlan: Add a schedule point
- during VLAN processing
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [RFC PATCH net-next] net: bridge: fix client roaming from
+	DSA user port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,46 +23,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: mlxsw@mellanox.com, s.priebe@profihost.ag, roopa@cumulusnetworks.com, Ido Schimmel <idosch@mellanox.com>, kuba@kernel.org, davem@davemloft.net
+Date: Sun, 19 Apr 2020 16:19:53 -0000
+To: netdev@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On 30/04/2020 22:38, Ido Schimmel wrote:
-> From: Ido Schimmel <idosch@mellanox.com>
-> 
-> User space can request to delete a range of VLANs from a bridge slave in
-> one netlink request. For each deleted VLAN the FDB needs to be traversed
-> in order to flush all the affected entries.
-> 
-> If a large range of VLANs is deleted and the number of FDB entries is
-> large or the FDB lock is contented, it is possible for the kernel to
-> loop through the deleted VLANs for a long time. In case preemption is
-> disabled, this can result in a soft lockup.
-> 
-> Fix this by adding a schedule point after each VLAN is deleted to yield
-> the CPU, if needed. This is safe because the VLANs are traversed in
-> process context.
-> 
-> Fixes: bdced7ef7838 ("bridge: support for multiple vlans and vlan ranges in setlink and dellink requests")
-> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-> Reported-by: Stefan Priebe - Profihost AG <s.priebe@profihost.ag>
-> Tested-by: Stefan Priebe - Profihost AG <s.priebe@profihost.ag>
-> ---
->  net/bridge/br_netlink.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 43dab4066f91..a0f5dbee8f9c 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -612,6 +612,7 @@ int br_process_vlan_info(struct net_bridge *br,
->  					       v - 1, rtm_cmd);
->  				v_change_start = 0;
->  			}
-> +			cond_resched();
->  		}
->  		/* v_change_start is set only if the last/whole range changed */
->  		if (v_change_start)
-> 
+When a client roams from a DSA user port to a soft-bridged port (such as WiFi
+interface), the left-over MAC entry in the switch HW is not deleted, causing
+inconsistency between Linux fdb and the switch MAC table. As a result, the
+client cannot talk to other hosts which are on that DSA user port until the
+MAC entry expires.
 
-Looks good, thanks!
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Solve this by notifying switchdev fdb to delete the leftover entry when an
+entry is updated. Remove the added_by_user check in DSA
+
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+---
+I tried this on mt7530 and mv88e6xxx, but only mt7530 works.
+In previous discussion[1], Andrew Lunn said "try playing with auto learning
+for the CPU port" but it didn't work on mv88e6xxx either
+
+I think commit 7e26bf45e4cb ("net: bridge: allow SW learn to take over HW fdb
+entries") already tried to fix this issue..
+
+[1] https://lore.kernel.org/netdev/20200405150915.GD161768@lunn.ch/
+
+ net/bridge/br_fdb.c | 3 +++
+ net/dsa/slave.c     | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 4877a0db16c6..46003e78f2ac 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -579,6 +579,9 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 			/* fastpath: update of existing entry */
+ 			if (unlikely(source != fdb->dst &&
+ 				     !test_bit(BR_FDB_STICKY, &fdb->flags))) {
++				/* Remove the entry in HW */
++				br_switchdev_fdb_notify(fdb, RTM_DELNEIGH);
++
+ 				fdb->dst = source;
+ 				fdb_modified = true;
+ 				/* Take over HW learned entry */
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index e94eb1aac602..6133a1be1a74 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -1932,8 +1932,6 @@ static void dsa_slave_switchdev_event_work(struct work_struct *work)
+ 
+ 	case SWITCHDEV_FDB_DEL_TO_DEVICE:
+ 		fdb_info = &switchdev_work->fdb_info;
+-		if (!fdb_info->added_by_user)
+-			break;
+ 
+ 		err = dsa_port_fdb_del(dp, fdb_info->addr, fdb_info->vid);
+ 		if (err) {
+-- 
+2.26.0
+
