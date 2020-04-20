@@ -1,25 +1,22 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
- s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
- Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=bTtcioAVktBgcUTfi+bs1vdsWqSYfUDLbtTIZdRCNz8=; b=C7umDL1g3lTk+Vwd6Q6R0TWE8u
- q7btrSM81MUhI7cA63GDWG6lBHEUvpaDoh5aKxalnyyfYBVroMKB0Jz+Xt1OLMaCdTaevIGn4k8GH
- wz8y9FMWVXo4VBUod7x34sn1aIm9rZklz06PbBUXAraOLvFVIah0Y70QY21SQ0Mv3x3Y=;
-Date: Mon, 20 Apr 2020 15:31:11 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20200420133111.GL785713@lunn.ch>
-References: <20200419161946.19984-1-dqfext@gmail.com>
- <20200419164251.GM836632@lunn.ch>
- <CALW65jYmcZJoP_i5=bgeWpcibzOmEPne3mHyBngE5bTiOZreDw@mail.gmail.com>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1587395500; x=1618931500;
+ h=from:to:cc:subject:date:message-id:mime-version;
+ bh=s3zQXyGmklidFX59symdn4Qk7S18R1EzO24cUdDxYl0=;
+ b=qpYH9t9yvf8FrIeX7VwOtBhLm/dzg8GfVxTdSOLPolvMQL1Nl8x7Kcai
+ Qv92P6jCBCmRRXV5c6g5+OoyggNkeUi+cKrwzmJLLfFlUapBJ7aT6c7JS
+ YDz5pj66zK+uI+Y3zd1FFWV+rzm5/agiIgdGmX6iyRZhxPR1JcKGLWpDv
+ UOpdCy2o+gVivXCwVbg2BVrvuLfHbO1S9/1bkNlBCDG8VbWvqvTBki+vo
+ u6NIS60WKiOOwOPUalTFZl3kL4E3JsDBuVXmpgjILIGarHCwAQeM5PaAe
+ zPRdWoiLr+mRrQXucYeD89bPKNX6rvOtTPSLlApqMUrlIAM+HipVu6zSh Q==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Mon, 20 Apr 2020 17:09:34 +0200
+Message-ID: <20200420150947.30974-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALW65jYmcZJoP_i5=bgeWpcibzOmEPne3mHyBngE5bTiOZreDw@mail.gmail.com>
-Subject: Re: [Bridge] [RFC PATCH net-next] net: bridge: fix client roaming
- from DSA user port
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next 00/13] net: bridge: mrp: Add support for
+	Media Redundancy Protocol(MRP)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,23 +25,147 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: DENG Qingfang <dqfext@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, =?iso-8859-1?Q?Ren=E9?= van Dorst <opensource@vdorst.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+To: nikolay@cumulusnetworks.com, davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-> When a client moves from a hardware port (e.g. sw0p1) to a software port (wlan0)
-> or another hardware port that belongs to a different switch (sw1p1),
-> that MAC entry
-> in sw0's MAC table should be deleted, or replaced with the CPU port as
-> destination,
-> by DSA. Otherwise the client is unable to talk to other hosts on sw0 because sw0
-> still thinks the client is on sw0p1.
+Media Redundancy Protocol is a data network protocol standardized by
+International Electrotechnical Commission as IEC 62439-2. It allows rings of
+Ethernet switches to overcome any single failure with recovery time faster than
+STP. It is primarily used in Industrial Ethernet applications.
 
-The MAC address needs to move, no argument there. But what are the
-mechanisms which cause this. Is learning sufficient, or does DSA need
-to take an active role?
+Based on the previous RFC[1][2][3][4][5], the MRP state machine and all the
+timers were moved to userspace, except for the timers used to generate MRP Test
+frames.  In this way the userspace doesn't know and should not know if the HW or
+the kernel will generate the MRP Test frames. The following changes were added
+to the bridge to support the MRP:
+- the existing netlink interface was extended with MRP support,
+- allow to detect when a MRP frame was received on a MRP ring port
+- allow MRP instance to forward/terminate MRP frames
+- generate MRP Test frames in case the HW doesn't have support for this
 
-Forget about DSA for the moment. How does this work for two normal
-bridges? Is the flow of unicast packets sufficient? Does it requires a
-broadcast packet from the device after it moves?
+To be able to offload MRP support to HW, the switchdev API  was extend.
 
-	  Andrew
+With these changes the userspace doesn't do the following because already the
+kernel/HW will do:
+- doesn't need to forward/terminate MRP frames
+- doesn't need to generate MRP Test frames
+- doesn't need to detect when the ring is open/closed.
+
+The userspace application that is using the new netlink can be found here[6].
+
+The current implementation both in kernel and userspace supports only 2 roles:
+  MRM - this one is responsible to send MRP_Test and MRP_Topo frames on both
+  ring ports. It needs to process MRP_Test to know if the ring is open or
+  closed. This operation is desired to be offloaded to the HW because it
+  requires to generate and process up to 4000 frames per second. Whenever it
+  detects that the ring is open it sends MRP_Topo frames to notify all MRC about
+  changes in the topology. MRM needs also to process MRP_LinkChange frames,
+  these frames are generated by the MRC. When the ring is open then the state
+  of both ports is to forward frames and when the ring is closed then the
+  secondary port is blocked.
+
+  MRC - this one is responsible to forward MRP frames between the ring ports.
+  In case one of the ring ports gets a link down or up, then MRC will generate
+  a MRP_LinkChange frames. This node should also process MRP_Topo frames and to
+  clear its FDB when it receives this frame.
+
+ Userspace
+               Deamon +----------+ Client
+                +
+                |
+ +--------------|-----------------------------------------+
+  Kernel        |
+                + Netlink
+
+                |                              + Interrupt
+                |                              |
+ +--------------|------------------------------|----------+
+  HW            | Switchdev                    |
+                +                              |
+
+The user interacts using the client (called 'mrp'), the client talks to the
+deamon (called 'mrp_server'), which talks with the kernel using netlink. The
+kernel will try to offload the requests to the HW via switchdev API.
+
+If this will be accepted then in the future the netlink interface can be
+expended with multiple attributes which are required by different roles of the
+MRP. Like Media Redundancy Automanager(MRA), Media Interconnect Manager(MIM) and
+Media Interconnect Client(MIC).
+
+[1] https://www.spinics.net/lists/netdev/msg623647.html
+[2] https://www.spinics.net/lists/netdev/msg624378.html
+[3] https://www.spinics.net/lists/netdev/msg627500.html
+[4] https://www.spinics.net/lists/netdev/msg641005.html
+[5] https://www.spinics.net/lists/netdev/msg643991.html
+[6] https://github.com/microchip-ung/mrp/tree/patch-v6
+
+-v1:
+  - fix bisectability issues
+  - in case of errors use extack
+
+-RFC v5:
+  - use nla_parse_nested
+  - rework the usage of the rcu in br_mrp
+  - reorder patches
+  - few other small issues raised by Nikolay
+
+-RFC v4:
+  - extend existing netlink interface to add mrp support
+  - use rcu locks
+
+-RFC v3:
+  - move MRP state machine in userspace
+  - create generic netlink interface for configuring the HW using switchdev API
+
+-RFC v2:
+  - extend switchdev API to offload to HW
+
+Horatiu Vultur (13):
+  bridge: uapi: mrp: Add mrp attributes.
+  net: bridge: Add port attribute IFLA_BRPORT_MRP_RING_OPEN
+  bridge: mrp: Update Kconfig
+  bridge: mrp: Expose function br_mrp_port_open
+  bridge: mrp: Add MRP interface.
+  bridge: mrp: Extend bridge interface
+  switchdev: mrp: Extend switchdev API to offload MRP
+  bridge: switchdev: mrp: Implement MRP API for switchdev
+  bridge: mrp: Connect MRP API with the switchev API
+  bridge: mrp: Implement netlink interface to configure MRP
+  bridge: mrp: Update Makefile
+  bridge: mrp: Integrate MRP into the bridge
+  net: bridge: Add checks for enabling the STP.
+
+ include/linux/if_bridge.h          |   1 +
+ include/linux/mrp_bridge.h         |  27 ++
+ include/net/switchdev.h            |  62 ++++
+ include/uapi/linux/if_bridge.h     |  42 +++
+ include/uapi/linux/if_ether.h      |   1 +
+ include/uapi/linux/if_link.h       |   1 +
+ include/uapi/linux/mrp_bridge.h    |  84 +++++
+ net/bridge/Kconfig                 |  12 +
+ net/bridge/Makefile                |   2 +
+ net/bridge/br_device.c             |   3 +
+ net/bridge/br_if.c                 |   2 +
+ net/bridge/br_input.c              |   3 +
+ net/bridge/br_ioctl.c              |   3 +-
+ net/bridge/br_mrp.c                | 551 +++++++++++++++++++++++++++++
+ net/bridge/br_mrp_netlink.c        | 117 ++++++
+ net/bridge/br_mrp_switchdev.c      | 141 ++++++++
+ net/bridge/br_netlink.c            |  15 +-
+ net/bridge/br_private.h            |  42 ++-
+ net/bridge/br_private_mrp.h        |  60 ++++
+ net/bridge/br_stp.c                |   6 +
+ net/bridge/br_stp_if.c             |  11 +-
+ net/bridge/br_sysfs_br.c           |   4 +-
+ tools/include/uapi/linux/if_link.h |   1 +
+ 23 files changed, 1183 insertions(+), 8 deletions(-)
+ create mode 100644 include/linux/mrp_bridge.h
+ create mode 100644 include/uapi/linux/mrp_bridge.h
+ create mode 100644 net/bridge/br_mrp.c
+ create mode 100644 net/bridge/br_mrp_netlink.c
+ create mode 100644 net/bridge/br_mrp_switchdev.c
+ create mode 100644 net/bridge/br_private_mrp.h
+
+-- 
+2.17.1
+
