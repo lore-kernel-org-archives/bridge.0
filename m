@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=subject:to:references:from:message-id:date:user-agent:mime-version
  :in-reply-to:content-language:content-transfer-encoding;
- bh=Sd8E77foj1OUgsaWFd9h8ikuxOeJShnx246PjzjsMdU=;
- b=P83+///79KUkjs8GzdyrNR6bxDjqliRkmJtvTNgYl6VXFoxCRH1sOMGQhR9jq5i1FN
- 8XWAkZh/7UWBbTWMn5Jf+IIONxmCljSviNanlUDzeefOeE5OaIYtiVsBaNwo6b7uLja6
- FFXjFuy2hvquUy58sW0rcV1kiTa0dhP8R/fdg=
+ bh=1wjTQ8kSFEtHQTXiFNn5xmo0XMmmUMj65r7WNBjKJEs=;
+ b=NXWy+rZceFxcX4Q1BJl0H6GFSnc8ZUNALstxT4T+qvd8/wDRTj6ZJJvxrBNPnQNrqv
+ yxCIbphz2+7r3DPHzNv2pmmsU3LBsO8/U8o4rR5OyMC7a/0ye+6Wx/LpBfCxCrhkLoYC
+ qjxGOvLw3i7MDYFX+YK+9yRHVnuKJWeB0zWeU=
 References: <20200420150947.30974-1-horatiu.vultur@microchip.com>
- <20200420150947.30974-11-horatiu.vultur@microchip.com>
+ <20200420150947.30974-5-horatiu.vultur@microchip.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <066720c4-ddc4-ce71-734f-932b6a342e01@cumulusnetworks.com>
-Date: Mon, 20 Apr 2020 20:18:31 +0300
+Message-ID: <cc388b70-701c-4600-791b-8170683a7666@cumulusnetworks.com>
+Date: Mon, 20 Apr 2020 20:30:34 +0300
 MIME-Version: 1.0
-In-Reply-To: <20200420150947.30974-11-horatiu.vultur@microchip.com>
+In-Reply-To: <20200420150947.30974-5-horatiu.vultur@microchip.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 10/13] bridge: mrp: Implement netlink
- interface to configure MRP
+Subject: Re: [Bridge] [PATCH net-next 04/13] bridge: mrp: Expose function
+ br_mrp_port_open
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,140 +30,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
 On 20/04/2020 18:09, Horatiu Vultur wrote:
-> Implement netlink interface to configure MRP. The implementation
-> will do sanity checks over the attributes and then eventually call the MRP
-> interface.
+> In case the HW is capable to detect when the MRP ring is open or closed. It is
+> expected that the network driver will notify the SW that the ring is open or
+> closed.
+> 
+> The function br_mrp_port_open is used to notify the kernel that one of the ports
+> stopped receiving MRP_Test frames. The argument 'loc' has a value of '1' when
+> the port stopped receiving MRP_Test and '0' when it started to receive MRP_Test.
 > 
 > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 > ---
->  net/bridge/br_mrp_netlink.c | 117 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 117 insertions(+)
->  create mode 100644 net/bridge/br_mrp_netlink.c
+>  include/linux/mrp_bridge.h | 27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>  create mode 100644 include/linux/mrp_bridge.h
 > 
-> diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
+> diff --git a/include/linux/mrp_bridge.h b/include/linux/mrp_bridge.h
 > new file mode 100644
-> index 000000000000..0ff42e7c7f57
+> index 000000000000..61c1f0d395c7
 > --- /dev/null
-> +++ b/net/bridge/br_mrp_netlink.c
-> @@ -0,0 +1,117 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +++ b/include/linux/mrp_bridge.h
+> @@ -0,0 +1,27 @@
+> +/* SPDX-License-Identifier: GPL-2.0-or-later */
 > +
-> +#include <net/genetlink.h>
+> +#ifndef _LINUX_MRP_BRIDGE_H
+> +#define _LINUX_MRO_BRIDGE_H
 > +
-> +#include <uapi/linux/mrp_bridge.h>
-> +#include "br_private.h"
-> +#include "br_private_mrp.h"
+> +#include <linux/netdevice.h>
 > +
-> +static const struct nla_policy br_mrp_policy[IFLA_BRIDGE_MRP_MAX + 1] = {
-> +	[IFLA_BRIDGE_MRP_UNSPEC]	= { .type = NLA_REJECT },
-> +	[IFLA_BRIDGE_MRP_INSTANCE]	= { .type = NLA_EXACT_LEN,
-> +					    .len = sizeof(struct br_mrp_instance)},
-> +	[IFLA_BRIDGE_MRP_PORT_STATE]	= { .type = NLA_U32 },
-> +	[IFLA_BRIDGE_MRP_PORT_ROLE]	= { .type = NLA_EXACT_LEN,
-> +					    .len = sizeof(struct br_mrp_port_role)},
-> +	[IFLA_BRIDGE_MRP_RING_STATE]	= { .type = NLA_EXACT_LEN,
-> +					    .len = sizeof(struct br_mrp_ring_state)},
-> +	[IFLA_BRIDGE_MRP_RING_ROLE]	= { .type = NLA_EXACT_LEN,
-> +					    .len = sizeof(struct br_mrp_ring_role)},
-> +	[IFLA_BRIDGE_MRP_START_TEST]	= { .type = NLA_EXACT_LEN,
-> +					    .len = sizeof(struct br_mrp_start_test)},
-> +};
+> +/* The drivers are responsible to call this function when it detects that the
+> + * MRP port stopped receiving MRP_Test frames or it started to receive MRP_Test.
+> + * The argument dev represents the port and loc(Lost of Continuity) has a value
+> + * of 1 when it stopped receiving MRP_Test frames and a value of 0 when it
+> + * started to receive frames.
+> + * Needs to be called with rcu_read_lock().
+> + *
+> + * This eventually notify the userspace which is required to react on these
+> + * changes.
+> + */
 > +
-> +int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
-> +		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack)
+> +#if IS_ENABLED(CONFIG_BRIDGE_MRP)
+> +int br_mrp_port_open(struct net_device *dev, u8 loc);
+> +#else
+> +static inline int br_mrp_port_open(struct net_device *dev, u8 loc)
 > +{
-> +	struct nlattr *tb[IFLA_BRIDGE_MRP_MAX + 1];
-> +	int err;
-> +
-> +	if (br->stp_enabled != BR_NO_STP) {
-> +		NL_SET_ERR_MSG_MOD(extack, "MRP can't be enabled if STP is already enabled\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	err = nla_parse_nested(tb, IFLA_BRIDGE_MRP_MAX, attr,
-> +			       NULL, extack);
-> +	if (err)
-> +		return err;
-> +
-> +	if (tb[IFLA_BRIDGE_MRP_INSTANCE]) {
-> +		struct br_mrp_instance *instance =
-> +			nla_data(tb[IFLA_BRIDGE_MRP_INSTANCE]);
-> +
-> +		if (cmd == RTM_SETLINK)
-> +			err = br_mrp_add(br, instance);
-> +		else
-> +			err = br_mrp_del(br, instance);
-> +		if (err)
-> +			return err;
-> +	}
-> +
-> +	if (tb[IFLA_BRIDGE_MRP_PORT_STATE]) {
-> +		enum br_mrp_port_state_type state =
-> +			nla_get_u32(tb[IFLA_BRIDGE_MRP_PORT_STATE]);
-> +
-> +		err = br_mrp_set_port_state(p, state);
-> +		if (err)
-> +			return err;
-> +	}
-> +
-> +	if (tb[IFLA_BRIDGE_MRP_PORT_ROLE]) {
-> +		struct br_mrp_port_role *role =
-> +			nla_data(tb[IFLA_BRIDGE_MRP_PORT_ROLE]);
-> +
-> +		err = br_mrp_set_port_role(p, role);
-> +		if (err)
-> +			return err;
-> +	}
-> +
-> +	if (tb[IFLA_BRIDGE_MRP_RING_STATE]) {
-> +		struct br_mrp_ring_state *state =
-> +			nla_data(tb[IFLA_BRIDGE_MRP_RING_STATE]);
-> +
-> +		err = br_mrp_set_ring_state(br, state);
-> +		if (err)
-> +			return err;
-> +	}
-> +
-> +	if (tb[IFLA_BRIDGE_MRP_RING_ROLE]) {
-> +		struct br_mrp_ring_role *role =
-> +			nla_data(tb[IFLA_BRIDGE_MRP_RING_ROLE]);
-> +
-> +		err = br_mrp_set_ring_role(br, role);
-> +		if (err)
-> +			return err;
-> +	}
-> +
-> +	if (tb[IFLA_BRIDGE_MRP_START_TEST]) {
-> +		struct br_mrp_start_test *test =
-> +			nla_data(tb[IFLA_BRIDGE_MRP_START_TEST]);
-> +
-> +		err = br_mrp_start_test(br, test);
-> +		if (err)
-> +			return err;
-> +	}
-> +
-> +	return 0;
 > +}
+> +#endif
 > +
-> +int br_mrp_port_open(struct net_device *dev, u8 loc)
-> +{
-> +	struct net_bridge_port *p;
-> +	int err = 0;
-> +
-> +	p = br_port_get_rcu(dev);
-> +	if (!p) {
-> +		err = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	p->loc = loc;
-> +	br_ifinfo_notify(RTM_NEWLINK, NULL, p);
-> +
-> +out:
-> +	return err;
-> +}
-> +EXPORT_SYMBOL(br_mrp_port_open);
+> +#endif
 > 
 
-I just noticed the EXPORT_SYMBOL() here, why do you need it?
+I see that in order to pass this "loc" to br_ifinfo_notify() you add a new port variable,
+but it's a boolean, so you can just use the port flags for it which will simplify things a lot
+and remove some ifdefs along the way. And please rename it to something longer (so it's easier
+to get what it does).
 
+One question - now that it's always sent to user-space as IFLA_BRPORT_MRP_RING_OPEN attribute
+wouldn't it be a problem, or is it read as a current state?
+I mean you'll receive that attribute about a port even if you get a completely unrelated to MRP
+notification (e.g. about a vlan change).
+
+Thanks,
+ Nik
