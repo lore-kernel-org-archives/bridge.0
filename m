@@ -1,22 +1,25 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1587395500; x=1618931500;
- h=from:to:cc:subject:date:message-id:mime-version;
- bh=s3zQXyGmklidFX59symdn4Qk7S18R1EzO24cUdDxYl0=;
- b=qpYH9t9yvf8FrIeX7VwOtBhLm/dzg8GfVxTdSOLPolvMQL1Nl8x7Kcai
- Qv92P6jCBCmRRXV5c6g5+OoyggNkeUi+cKrwzmJLLfFlUapBJ7aT6c7JS
- YDz5pj66zK+uI+Y3zd1FFWV+rzm5/agiIgdGmX6iyRZhxPR1JcKGLWpDv
- UOpdCy2o+gVivXCwVbg2BVrvuLfHbO1S9/1bkNlBCDG8VbWvqvTBki+vo
- u6NIS60WKiOOwOPUalTFZl3kL4E3JsDBuVXmpgjILIGarHCwAQeM5PaAe
- zPRdWoiLr+mRrQXucYeD89bPKNX6rvOtTPSLlApqMUrlIAM+HipVu6zSh Q==;
+ t=1587395503; x=1618931503;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version;
+ bh=EVrsHnpOE3AZe4JWL68hdRpJtAseA7A0xWunJ0r9P4o=;
+ b=zfmlvttERl5IteHClJsJdTdCF2dtpmgxFFJfeFU3YQSP0V3+v+twe9wU
+ vLoxnVsyccxMf75hWaFSdp/NJF4RQNLzc/T9/vsrXY5VpzBCCP15MScxt
+ m5fEWmy8JLjfalok5orBN2wmIn+tQs3rzk771A6PALEGLQi+il24a503X
+ KCFA3ly+vwroRuax+hd9T4LPGfJozYEFRjkr40hiuFWk0gm23Kfn9QxXS
+ Vh4bKwt0NQV/iw3040+eRW5KVUdr9w0iI7YknPoX3QBXMBXsjHWlsQoIy
+ yby/yoEeg6bnRdMIXgGaZga+jp8UcUAcFQUMFKUOnnOWdRmekYy4OfBl8 A==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Mon, 20 Apr 2020 17:09:34 +0200
-Message-ID: <20200420150947.30974-1-horatiu.vultur@microchip.com>
+Date: Mon, 20 Apr 2020 17:09:35 +0200
+Message-ID: <20200420150947.30974-2-horatiu.vultur@microchip.com>
+In-Reply-To: <20200420150947.30974-1-horatiu.vultur@microchip.com>
+References: <20200420150947.30974-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 00/13] net: bridge: mrp: Add support for
-	Media Redundancy Protocol(MRP)
+Subject: [Bridge] [PATCH net-next 01/13] bridge: uapi: mrp: Add mrp
+	attributes.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,144 +31,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Media Redundancy Protocol is a data network protocol standardized by
-International Electrotechnical Commission as IEC 62439-2. It allows rings of
-Ethernet switches to overcome any single failure with recovery time faster than
-STP. It is primarily used in Industrial Ethernet applications.
+Add new nested netlink attribute to configure the MRP. These attributes are used
+by the userspace to add/delete/configure MRP instances and by the kernel to
+notify the userspace when the MRP ring gets open/closed. MRP nested attribute
+has the following attributes:
 
-Based on the previous RFC[1][2][3][4][5], the MRP state machine and all the
-timers were moved to userspace, except for the timers used to generate MRP Test
-frames.  In this way the userspace doesn't know and should not know if the HW or
-the kernel will generate the MRP Test frames. The following changes were added
-to the bridge to support the MRP:
-- the existing netlink interface was extended with MRP support,
-- allow to detect when a MRP frame was received on a MRP ring port
-- allow MRP instance to forward/terminate MRP frames
-- generate MRP Test frames in case the HW doesn't have support for this
+IFLA_BRIDGE_MRP_INSTANCE - the parameter type is br_mrp_instance which contains
+  the instance id, and the ifindex of the two ports. The ports can't be part of
+  multiple instances. This is used to create/delete MRP instances.
 
-To be able to offload MRP support to HW, the switchdev API  was extend.
+IFLA_BRIDGE_MRP_PORT_STATE - the parameter type is u32. Which can be forwarding,
+  blocking or disabled.
 
-With these changes the userspace doesn't do the following because already the
-kernel/HW will do:
-- doesn't need to forward/terminate MRP frames
-- doesn't need to generate MRP Test frames
-- doesn't need to detect when the ring is open/closed.
+IFLA_BRIDGE_MRP_PORT_ROLE - the parameter type is br_mrp_port_role which
+  contains the instance id and the role. The role can be primary or secondary.
 
-The userspace application that is using the new netlink can be found here[6].
+IFLA_BRIDGE_MRP_RING_STATE - the parameter type is br_mrp_ring_state which
+  contains the instance id and the state. The state can be open or closed.
 
-The current implementation both in kernel and userspace supports only 2 roles:
-  MRM - this one is responsible to send MRP_Test and MRP_Topo frames on both
-  ring ports. It needs to process MRP_Test to know if the ring is open or
-  closed. This operation is desired to be offloaded to the HW because it
-  requires to generate and process up to 4000 frames per second. Whenever it
-  detects that the ring is open it sends MRP_Topo frames to notify all MRC about
-  changes in the topology. MRM needs also to process MRP_LinkChange frames,
-  these frames are generated by the MRC. When the ring is open then the state
-  of both ports is to forward frames and when the ring is closed then the
-  secondary port is blocked.
+IFLA_BRIDGE_MRP_RING_ROLE - the parameter type is br_mrp_ring_role which
+  contains the instance id and the ring role. The role can be MRM or MRC.
 
-  MRC - this one is responsible to forward MRP frames between the ring ports.
-  In case one of the ring ports gets a link down or up, then MRC will generate
-  a MRP_LinkChange frames. This node should also process MRP_Topo frames and to
-  clear its FDB when it receives this frame.
+IFLA_BRIDGE_MRP_START_TEST - the parameter type is br_mrp_start_test which
+  contains the instance id, the interval at which to send the MRP_Test frames,
+  how many test frames can be missed before declaring the ring open and the
+  period which represent for how long to send the test frames.
 
- Userspace
-               Deamon +----------+ Client
-                +
-                |
- +--------------|-----------------------------------------+
-  Kernel        |
-                + Netlink
+Also add the file include/uapi/linux/mrp_bridge.h which defines all the types
+used by MRP that are also needed by the userpace.
 
-                |                              + Interrupt
-                |                              |
- +--------------|------------------------------|----------+
-  HW            | Switchdev                    |
-                +                              |
-
-The user interacts using the client (called 'mrp'), the client talks to the
-deamon (called 'mrp_server'), which talks with the kernel using netlink. The
-kernel will try to offload the requests to the HW via switchdev API.
-
-If this will be accepted then in the future the netlink interface can be
-expended with multiple attributes which are required by different roles of the
-MRP. Like Media Redundancy Automanager(MRA), Media Interconnect Manager(MIM) and
-Media Interconnect Client(MIC).
-
-[1] https://www.spinics.net/lists/netdev/msg623647.html
-[2] https://www.spinics.net/lists/netdev/msg624378.html
-[3] https://www.spinics.net/lists/netdev/msg627500.html
-[4] https://www.spinics.net/lists/netdev/msg641005.html
-[5] https://www.spinics.net/lists/netdev/msg643991.html
-[6] https://github.com/microchip-ung/mrp/tree/patch-v6
-
--v1:
-  - fix bisectability issues
-  - in case of errors use extack
-
--RFC v5:
-  - use nla_parse_nested
-  - rework the usage of the rcu in br_mrp
-  - reorder patches
-  - few other small issues raised by Nikolay
-
--RFC v4:
-  - extend existing netlink interface to add mrp support
-  - use rcu locks
-
--RFC v3:
-  - move MRP state machine in userspace
-  - create generic netlink interface for configuring the HW using switchdev API
-
--RFC v2:
-  - extend switchdev API to offload to HW
-
-Horatiu Vultur (13):
-  bridge: uapi: mrp: Add mrp attributes.
-  net: bridge: Add port attribute IFLA_BRPORT_MRP_RING_OPEN
-  bridge: mrp: Update Kconfig
-  bridge: mrp: Expose function br_mrp_port_open
-  bridge: mrp: Add MRP interface.
-  bridge: mrp: Extend bridge interface
-  switchdev: mrp: Extend switchdev API to offload MRP
-  bridge: switchdev: mrp: Implement MRP API for switchdev
-  bridge: mrp: Connect MRP API with the switchev API
-  bridge: mrp: Implement netlink interface to configure MRP
-  bridge: mrp: Update Makefile
-  bridge: mrp: Integrate MRP into the bridge
-  net: bridge: Add checks for enabling the STP.
-
- include/linux/if_bridge.h          |   1 +
- include/linux/mrp_bridge.h         |  27 ++
- include/net/switchdev.h            |  62 ++++
- include/uapi/linux/if_bridge.h     |  42 +++
- include/uapi/linux/if_ether.h      |   1 +
- include/uapi/linux/if_link.h       |   1 +
- include/uapi/linux/mrp_bridge.h    |  84 +++++
- net/bridge/Kconfig                 |  12 +
- net/bridge/Makefile                |   2 +
- net/bridge/br_device.c             |   3 +
- net/bridge/br_if.c                 |   2 +
- net/bridge/br_input.c              |   3 +
- net/bridge/br_ioctl.c              |   3 +-
- net/bridge/br_mrp.c                | 551 +++++++++++++++++++++++++++++
- net/bridge/br_mrp_netlink.c        | 117 ++++++
- net/bridge/br_mrp_switchdev.c      | 141 ++++++++
- net/bridge/br_netlink.c            |  15 +-
- net/bridge/br_private.h            |  42 ++-
- net/bridge/br_private_mrp.h        |  60 ++++
- net/bridge/br_stp.c                |   6 +
- net/bridge/br_stp_if.c             |  11 +-
- net/bridge/br_sysfs_br.c           |   4 +-
- tools/include/uapi/linux/if_link.h |   1 +
- 23 files changed, 1183 insertions(+), 8 deletions(-)
- create mode 100644 include/linux/mrp_bridge.h
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ include/uapi/linux/if_bridge.h  | 42 +++++++++++++++++
+ include/uapi/linux/if_ether.h   |  1 +
+ include/uapi/linux/mrp_bridge.h | 84 +++++++++++++++++++++++++++++++++
+ 3 files changed, 127 insertions(+)
  create mode 100644 include/uapi/linux/mrp_bridge.h
- create mode 100644 net/bridge/br_mrp.c
- create mode 100644 net/bridge/br_mrp_netlink.c
- create mode 100644 net/bridge/br_mrp_switchdev.c
- create mode 100644 net/bridge/br_private_mrp.h
 
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index bfe621ea51b3..bd8c95488f16 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -120,6 +120,7 @@ enum {
+ 	IFLA_BRIDGE_MODE,
+ 	IFLA_BRIDGE_VLAN_INFO,
+ 	IFLA_BRIDGE_VLAN_TUNNEL_INFO,
++	IFLA_BRIDGE_MRP,
+ 	__IFLA_BRIDGE_MAX,
+ };
+ #define IFLA_BRIDGE_MAX (__IFLA_BRIDGE_MAX - 1)
+@@ -157,6 +158,47 @@ struct bridge_vlan_xstats {
+ 	__u32 pad2;
+ };
+ 
++enum {
++	IFLA_BRIDGE_MRP_UNSPEC,
++	IFLA_BRIDGE_MRP_INSTANCE,
++	IFLA_BRIDGE_MRP_PORT_STATE,
++	IFLA_BRIDGE_MRP_PORT_ROLE,
++	IFLA_BRIDGE_MRP_RING_STATE,
++	IFLA_BRIDGE_MRP_RING_ROLE,
++	IFLA_BRIDGE_MRP_START_TEST,
++	__IFLA_BRIDGE_MRP_MAX,
++};
++
++struct br_mrp_instance {
++	__u32 ring_id;
++	__u32 p_ifindex;
++	__u32 s_ifindex;
++};
++
++struct br_mrp_port_role {
++	__u32 ring_id;
++	__u32 role;
++};
++
++struct br_mrp_ring_state {
++	__u32 ring_id;
++	__u32 ring_state;
++};
++
++struct br_mrp_ring_role {
++	__u32 ring_id;
++	__u32 ring_role;
++};
++
++struct br_mrp_start_test {
++	__u32 ring_id;
++	__u32 interval;
++	__u32 max_miss;
++	__u32 period;
++};
++
++#define IFLA_BRIDGE_MRP_MAX (__IFLA_BRIDGE_MRP_MAX - 1)
++
+ struct bridge_stp_xstats {
+ 	__u64 transition_blk;
+ 	__u64 transition_fwd;
+diff --git a/include/uapi/linux/if_ether.h b/include/uapi/linux/if_ether.h
+index f6ceb2e63d1e..d6de2b167448 100644
+--- a/include/uapi/linux/if_ether.h
++++ b/include/uapi/linux/if_ether.h
+@@ -92,6 +92,7 @@
+ #define ETH_P_PREAUTH	0x88C7		/* 802.11 Preauthentication */
+ #define ETH_P_TIPC	0x88CA		/* TIPC 			*/
+ #define ETH_P_LLDP	0x88CC		/* Link Layer Discovery Protocol */
++#define ETH_P_MRP	0x88E3		/* Media Redundancy Protocol	*/
+ #define ETH_P_MACSEC	0x88E5		/* 802.1ae MACsec */
+ #define ETH_P_8021AH	0x88E7          /* 802.1ah Backbone Service Tag */
+ #define ETH_P_MVRP	0x88F5          /* 802.1Q MVRP                  */
+diff --git a/include/uapi/linux/mrp_bridge.h b/include/uapi/linux/mrp_bridge.h
+new file mode 100644
+index 000000000000..2600cdf5a284
+--- /dev/null
++++ b/include/uapi/linux/mrp_bridge.h
+@@ -0,0 +1,84 @@
++/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
++
++#ifndef _UAPI_LINUX_MRP_BRIDGE_H_
++#define _UAPI_LINUX_MRP_BRIDGE_H_
++
++#include <linux/types.h>
++#include <linux/if_ether.h>
++
++#define MRP_MAX_FRAME_LENGTH		200
++#define MRP_DEFAULT_PRIO		0x8000
++#define MRP_DOMAIN_UUID_LENGTH		16
++#define MRP_VERSION			1
++#define MRP_FRAME_PRIO			7
++
++enum br_mrp_ring_role_type {
++	BR_MRP_RING_ROLE_DISABLED,
++	BR_MRP_RING_ROLE_MRC,
++	BR_MRP_RING_ROLE_MRM,
++};
++
++enum br_mrp_ring_state_type {
++	BR_MRP_RING_STATE_OPEN,
++	BR_MRP_RING_STATE_CLOSED,
++};
++
++enum br_mrp_port_state_type {
++	BR_MRP_PORT_STATE_DISABLED,
++	BR_MRP_PORT_STATE_BLOCKED,
++	BR_MRP_PORT_STATE_FORWARDING,
++	BR_MRP_PORT_STATE_NOT_CONNECTED,
++};
++
++enum br_mrp_port_role_type {
++	BR_MRP_PORT_ROLE_PRIMARY,
++	BR_MRP_PORT_ROLE_SECONDARY,
++	BR_MRP_PORT_ROLE_NONE,
++};
++
++enum br_mrp_tlv_header_type {
++	BR_MRP_TLV_HEADER_END = 0x0,
++	BR_MRP_TLV_HEADER_COMMON = 0x1,
++	BR_MRP_TLV_HEADER_RING_TEST = 0x2,
++	BR_MRP_TLV_HEADER_RING_TOPO = 0x3,
++	BR_MRP_TLV_HEADER_RING_LINK_DOWN = 0x4,
++	BR_MRP_TLV_HEADER_RING_LINK_UP = 0x5,
++};
++
++struct br_mrp_tlv_hdr {
++	__u8 type;
++	__u8 length;
++};
++
++struct br_mrp_end_hdr {
++	struct br_mrp_tlv_hdr hdr;
++};
++
++struct br_mrp_common_hdr {
++	__u16 seq_id;
++	__u8 domain[MRP_DOMAIN_UUID_LENGTH];
++};
++
++struct br_mrp_ring_test_hdr {
++	__u16 prio;
++	__u8 sa[ETH_ALEN];
++	__u16 port_role;
++	__u16 state;
++	__u16 transitions;
++	__u32 timestamp;
++};
++
++struct br_mrp_ring_topo_hdr {
++	__u16 prio;
++	__u8 sa[ETH_ALEN];
++	__u16 interval;
++};
++
++struct br_mrp_ring_link_hdr {
++	__u8 sa[ETH_ALEN];
++	__u16 port_role;
++	__u16 interval;
++	__u16 blocked;
++};
++
++#endif
 -- 
 2.17.1
 
