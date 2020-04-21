@@ -1,24 +1,25 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1587480165; x=1619016165;
+ t=1587480168; x=1619016168;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version;
- bh=xoMFGgH5DELLbtoeobiA873J6IsfnJEOZCpVd+LRec0=;
- b=WOSuVKIV33vm/UttnJYZpB0KT/O5/Nhh4PMn4h7TkqyVOL1QqRnUFuHd
- V9FJJSX2nA08Oj9WfVwHa05gAcpPCc5tJ6OHvcKf8wD1IVkfIWrZ5QQ5T
- TtYvSNXNHCTt8dUPpV6OCOaT0gHppdU/Fa6fvY5L/TBnwMqPpum0QwR3y
- odf9+KkDufliAg1amOJmu0SyNGbQKbDLPENDrwAZsKRxbnpcCD8jBaB9r
- VGH6mLbmXG5P05kyNhuAvQHS46Qo76iY4yVMkFzCgPhnPAr3CSAMgqbhd
- Xh9l7QBMRbczXX2t8n7dPy3tGK9Q4yKSUQbgWEt8CfzsdwCWY9aOHtYld w==;
+ bh=PD8IUS1EdZAMiLoRRlRU8vrEN2R88F6dLZkoxx8iJGI=;
+ b=X8AgOT0bhukJadnQuFc2RzGlrSPhC1C+rnpi+obwY4mRj8abHFQWjrGF
+ HqGmycdL33/F+f6LA9yBkZExLPuYHNVaHTX6XhvmiRH4fAzK5ahmsMkNg
+ gHnexguPFI2KHjKOGTzco8fwsunQJDqempRem5R8ITmlOIOB4G9Wj3tDX
+ 2WFNoReRshWFGenAQWBEHFmzW6PsshAxz/nmknbgkCH3gwJ+qQ43qF7jm
+ a9mPd0meRJ32eXUZyEh5GwmjB6imKsCDMrbJaHB1/GKb9GQsv5kq00WFs
+ acV/cf/gkrqIlmn+iZzx75ZNQepjCiFdJQrOk2AfdP0zEJrONT24yGTv7 g==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 21 Apr 2020 16:37:43 +0200
-Message-ID: <20200421143752.2248-3-horatiu.vultur@microchip.com>
+Date: Tue, 21 Apr 2020 16:37:44 +0200
+Message-ID: <20200421143752.2248-4-horatiu.vultur@microchip.com>
 In-Reply-To: <20200421143752.2248-1-horatiu.vultur@microchip.com>
 References: <20200421143752.2248-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v2 02/11] bridge: mrp: Update Kconfig
+Subject: [Bridge] [PATCH net-next v2 03/11] bridge: mrp: Extend bridge
+	interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,34 +31,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Add the option BRIDGE_MRP to allow to build in or not MRP support.
-The default value is N.
+To integrate MRP into the bridge, first the bridge needs to be aware of ports
+that are part of an MRP ring and which rings are on the bridge.
+Therefore extend bridge interface with the following:
+- add new flag(BR_MPP_AWARE) to the net bridge ports, this bit will be
+  set when the port is added to an MRP instance. In this way it knows if
+  the frame was received on MRP ring port
+- add new flag(BR_MRP_LOST_CONT) to the net bridge ports, this bit will be set
+  when the port lost the continuity of MRP Test frames.
+- add a list of MRP instances
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- net/bridge/Kconfig | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/linux/if_bridge.h | 2 ++
+ net/bridge/br_private.h   | 4 ++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
-index e4fb050e2078..51a6414145d2 100644
---- a/net/bridge/Kconfig
-+++ b/net/bridge/Kconfig
-@@ -61,3 +61,15 @@ config BRIDGE_VLAN_FILTERING
- 	  Say N to exclude this support and reduce the binary size.
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index 9e57c4411734..b3a8d3054af0 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -47,6 +47,8 @@ struct br_ip_list {
+ #define BR_BCAST_FLOOD		BIT(14)
+ #define BR_NEIGH_SUPPRESS	BIT(15)
+ #define BR_ISOLATED		BIT(16)
++#define BR_MRP_AWARE		BIT(17)
++#define BR_MRP_LOST_CONT	BIT(18)
  
- 	  If unsure, say Y.
+ #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 1f97703a52ff..835a70f8d3ea 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -428,6 +428,10 @@ struct net_bridge {
+ 	int offload_fwd_mark;
+ #endif
+ 	struct hlist_head		fdb_list;
 +
-+config BRIDGE_MRP
-+	bool "MRP protocol"
-+	depends on BRIDGE
-+	default n
-+	help
-+	  If you say Y here, then the Ethernet bridge will be able to run MRP
-+	  protocol to detect loops
-+
-+	  Say N to exclude this support and reduce the binary size.
-+
-+	  If unsure, say N.
++#if IS_ENABLED(CONFIG_BRIDGE_MRP)
++	struct list_head		__rcu mrp_list;
++#endif
+ };
+ 
+ struct br_input_skb_cb {
 -- 
 2.17.1
 
