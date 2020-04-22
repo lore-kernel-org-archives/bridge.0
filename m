@@ -1,19 +1,21 @@
-Return-Path: <dqfext@gmail.com>
+Return-Path: <gch981213@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=4yoSRAAq6ByLw23273SotPtzJ6Q/E4R2A/SjkRQDriw=;
- b=YXPZyWlH9RSSgnW5j4iBJYF58R50FLIv94XzPhsCL6y80GnIplmbo8VNoGUnNVX1Go
- q/RLTVUCtpjzdgWr8DqtYQXjJqiPUZKMk5EH11tX4xMI0VUtBICfyyWP7XoQfjzlWF1x
- MUSMdiYcJwUcGTW58A0DeGjHS6bbV16Z3Bvd/Xmr7O6ZqkIsgX+PEdjnwUAMeQSa33FV
- QcvCAKO550XbIg5IuuSpIrjH2CGQcHtR8QJlHR8l8UthPCOIM9xr82JA2t1b2UARa/NG
- RxNOCms/KgmbjQAnvWmhEQxJP9qeHQ13fnJkk5XxCF9nX1URKTmNnjQ1/xNK3AfTSfTZ
- eOYg==
+ :cc; bh=B4X6Wl2vhyTh+fWJF2DvDT914oag6V4/v305cxg0mr4=;
+ b=t1oyVd+RPlx7TXHksyQOzbeuw9x7wi//Ygm83/UevyITpYW3G8N0JCat0TQUYbhi9c
+ oL5Q0HsGGQLBkaGG4Rdi/uUpg6zfnRuRdlpVgN0aAqC3PH7iBsE4OKuLtUFIib7fK4eU
+ I7tCduulbvFXljrn/6DuAGSJfgckQcbY88WNlR4T0g+XXZvNh77SkjeHG0ldtiuvF+eK
+ +3a/f6nKCgCP2qqemkGxJ400cDYsv+WxUtozcZcPp5X+UFNYr9cp8hNBowVg9BxPtgyK
+ WKCWCaczNLsF1vXXHpuYRD3XF7g4ysGpgBnlDc2uDS7xyrmYTDfWi76lfZW4W8ZbRZ0q
+ mUTQ==
 MIME-Version: 1.0
 References: <20200419161946.19984-1-dqfext@gmail.com>
  <20200419164251.GM836632@lunn.ch>
-In-Reply-To: <20200419164251.GM836632@lunn.ch>
-From: DENG Qingfang <dqfext@gmail.com>
-Message-ID: <CALW65jYmcZJoP_i5=bgeWpcibzOmEPne3mHyBngE5bTiOZreDw@mail.gmail.com>
+ <CALW65jYmcZJoP_i5=bgeWpcibzOmEPne3mHyBngE5bTiOZreDw@mail.gmail.com>
+ <20200420133111.GL785713@lunn.ch>
+In-Reply-To: <20200420133111.GL785713@lunn.ch>
+From: Chuanhong Guo <gch981213@gmail.com>
+Message-ID: <CAJsYDVLZQ=ci1wp1_P0RcwsV8z27zMn4CPHHpueDF7OZ-X9aEg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [Bridge] [RFC PATCH net-next] net: bridge: fix client roaming
  from DSA user port
@@ -25,50 +27,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Mon, 20 Apr 2020 04:03:29 -0000
+Date: Wed, 22 Apr 2020 06:01:42 -0000
 To: Andrew Lunn <andrew@lunn.ch>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, =?UTF-8?Q?Ren=C3=A9_van_Dorst?= <opensource@vdorst.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, =?UTF-8?Q?Ren=C3=A9_van_Dorst?= <opensource@vdorst.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, DENG Qingfang <dqfext@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Mon, Apr 20, 2020 at 12:42 AM Andrew Lunn <andrew@lunn.ch> wrote:
->
-> On Mon, Apr 20, 2020 at 12:19:46AM +0800, DENG Qingfang wrote:
-> > When a client roams from a DSA user port to a soft-bridged port (such as WiFi
-> > interface), the left-over MAC entry in the switch HW is not deleted, causing
-> > inconsistency between Linux fdb and the switch MAC table. As a result, the
-> > client cannot talk to other hosts which are on that DSA user port until the
-> > MAC entry expires.
-> >
-> > Solve this by notifying switchdev fdb to delete the leftover entry when an
-> > entry is updated. Remove the added_by_user check in DSA
-> >
-> > Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-> > ---
-> > I tried this on mt7530 and mv88e6xxx, but only mt7530 works.
-> > In previous discussion[1], Andrew Lunn said "try playing with auto learning
-> > for the CPU port" but it didn't work on mv88e6xxx either
->
-> Hi Deng
->
-> We should probably first define how we expect moving MAC to work. Then
-> we can make any core fixes, and driver fixes.
->
-> For DSA, we have assumed that the software bridge and the hardware
-> bridge are independent, each performs its own learning. Only static
-> entries are kept in sync.
->
-> How should this separate learning work for a MAC address which moves?
+Hi!
 
-When a client moves from a hardware port (e.g. sw0p1) to a software port (wlan0)
-or another hardware port that belongs to a different switch (sw1p1),
-that MAC entry
-in sw0's MAC table should be deleted, or replaced with the CPU port as
-destination,
-by DSA. Otherwise the client is unable to talk to other hosts on sw0 because sw0
-still thinks the client is on sw0p1.
+On Tue, Apr 21, 2020 at 12:36 AM Andrew Lunn <andrew@lunn.ch> wrote:
+>
+> The MAC address needs to move, no argument there. But what are the
+> mechanisms which cause this. Is learning sufficient, or does DSA need
+> to take an active role?
 
-Discussion in OpenWrt GitHub:
-https://github.com/openwrt/openwrt/pull/2798#issuecomment-602221971
+cpu port learning will break switch operation if for whatever reason
+we want to disable bridge offloading (e.g. ebtables?). In this case
+a packet received from cpu port need to be sent back through
+cpu port to another switch port, and the switch will learn from this
+packet incorrectly.
 
+If we want cpu port learning to kick in, we need to make sure that:
+1. When bridge offload is enabled, the switch takes care of packet
+    flooding on switch ports itself, instead of flooding with software
+    bridge.
+2. Software bridge shouldn't forward any packet between ports
+    on the same switch.
+3. cpu port learning should only be enabled when bridge
+    offloading is used.
+
+Otherwise we need to manually sync fdb between software bridge
+and switch, specifically we need to take over fdb management
+on cpu port and tell the switch what devices are on the software
+bridge port side.
+
+I haven't read kernel bridge code thoroughly and have no idea
+which one is better/easier.
+
+Some switches (e.g. mt753x) have an option to forward packets
+with unknown destination port to cpu port only, instead of flooding.
+For this type of switch, the solution proposed in this patch is fine,
+because removing fdb entries has the same effect as telling switch
+that a device is on cpu port. If there's a switch without this feature,
+(which I have no idea if it exists) there will be issues on packet
+flooding behavior.
 
 >
->     Andrew
+> Forget about DSA for the moment. How does this work for two normal
+> bridges? Is the flow of unicast packets sufficient? Does it requires a
+> broadcast packet from the device after it moves?
+
+It doesn't have to be a broadcast packet but it needs a packet to go
+through both bridges.
+
+Say we have bridge A and bridge B, port A1 and B1 are connected
+together and a device is on port A2 first:
+Bridge A knows that this device is on port A2 and will forward traffic
+through A1 to B1 if needed. Bridge B sees these packets and knows
+device is on port B1.
+When the device move from A2 to B2, B updates its fdb and if a
+packet reaches A, A will update its fdb too.
+
+The problem addressed in this patch is that switch doesn't update
+its fdb when a device moves from switch to software bridge, because
+cpu port learning is disabled.
+
+-- 
+Regards,
+Chuanhong Guo
