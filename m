@@ -1,27 +1,26 @@
-Return-Path: <andrew@lunn.ch>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
- s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
- Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=72UdNNtLattjMgSevGnzfPSXBZkjf27I30kkugB1DmQ=; b=RmofJN+fTjCmM2rwrw/KEjNZLZ
- CcbKjOFmi+/gf/a1raNbrZKZy2OaX1ivorkrY3i3KW7dizDQARSR/wODe68yEKLIZM7znPxYL1MbI
- 28kc8FSDgS84dPAIbNBopHgrQBwxbWrqNgcz/3GyfRwKA4RY6lZhPtWSsPRBVKNGAgA4=;
-Date: Thu, 23 Apr 2020 23:36:43 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20200423213643.GC1054188@lunn.ch>
-References: <20200419161946.19984-1-dqfext@gmail.com>
- <20200419164251.GM836632@lunn.ch>
- <CALW65jYmcZJoP_i5=bgeWpcibzOmEPne3mHyBngE5bTiOZreDw@mail.gmail.com>
- <20200420133111.GL785713@lunn.ch>
- <CAJsYDVLZQ=ci1wp1_P0RcwsV8z27zMn4CPHHpueDF7OZ-X9aEg@mail.gmail.com>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+ h=date:from:to:cc:subject:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=XHt+FuftJsPGeqKy6heDhwHg5C+HSjbnEYws52bz+vg=;
+ b=iG8USReCJE1ztEZykLXV7uL9Fy8/axncNlw+Bv/Q61VZ+IWsyngZOqRASZ6M5x44qB
+ EOc/OWaB1foWWTqyCLHFzJ2IbhUf5EHueFzU/+vf+LfTksaTHNeDgyFmlDchIRFueVTe
+ np46R07CrQETTvX4PrfvpwGVhAVyKLgACyXr/dlmyRyyp+dUSjXyebwne0nL3dnozeJN
+ pbCwj8I0fPluDjjOSpFm4ET1T+7T9gi0aziJORIw6u1CzwHNYsKMF8v00hsR8CXu5+Zo
+ cepx7pvgqE1XLOdDhd4EkZr+g6uvrlvPoGUApreJ2DCccoX2k2ZVr1UjbxH3Bn/I6v7v
+ 3iQg==
+Date: Thu, 23 Apr 2020 17:05:21 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20200423170521.65a3bc59@hermes.lan>
+In-Reply-To: <20181116165001.30896-1-nikolay@cumulusnetworks.com>
+References: <20181114172703.5795-1-nikolay@cumulusnetworks.com>
+ <20181116165001.30896-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJsYDVLZQ=ci1wp1_P0RcwsV8z27zMn4CPHHpueDF7OZ-X9aEg@mail.gmail.com>
-Subject: Re: [Bridge] [RFC PATCH net-next] net: bridge: fix client roaming
- from DSA user port
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net v3] net: bridge: fix vlan stats
+ use-after-free on destruction
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,61 +29,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Chuanhong Guo <gch981213@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, =?iso-8859-1?Q?Ren=E9?= van Dorst <opensource@vdorst.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, DENG Qingfang <dqfext@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, davem@davemloft.net
 
-On Wed, Apr 22, 2020 at 02:01:28PM +0800, Chuanhong Guo wrote:
-> Hi!
+On Fri, 16 Nov 2018 18:50:01 +0200
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
+
+> Syzbot reported a use-after-free of the global vlan context on port vlan
+> destruction. When I added per-port vlan stats I missed the fact that the
+> global vlan context can be freed before the per-port vlan rcu callback.
+> There're a few different ways to deal with this, I've chosen to add a
+> new private flag that is set only when per-port stats are allocated so
+> we can directly check it on destruction without dereferencing the global
+> context at all. The new field in net_bridge_vlan uses a hole.
 > 
-> On Tue, Apr 21, 2020 at 12:36 AM Andrew Lunn <andrew@lunn.ch> wrote:
-> >
-> > The MAC address needs to move, no argument there. But what are the
-> > mechanisms which cause this. Is learning sufficient, or does DSA need
-> > to take an active role?
+> v2: cosmetic change, move the check to br_process_vlan_info where the
+>     other checks are done
+> v3: add change log in the patch, add private (in-kernel only) flags in a
+>     hole in net_bridge_vlan struct and use that instead of mixing
+>     user-space flags with private flags
 > 
-> cpu port learning will break switch operation if for whatever reason
-> we want to disable bridge offloading (e.g. ebtables?). In this case
-> a packet received from cpu port need to be sent back through
-> cpu port to another switch port, and the switch will learn from this
-> packet incorrectly.
-> 
-> If we want cpu port learning to kick in, we need to make sure that:
-> 1. When bridge offload is enabled, the switch takes care of packet
->     flooding on switch ports itself, instead of flooding with software
->     bridge.
+> Fixes: 9163a0fc1f0c ("net: bridge: add support for per-port vlan stats")
+> Reported-by: syzbot+04681da557a0e49a52e5@syzkaller.appspotmail.com
+> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Hi Chuanhong
-
-This is what the skb->offload_fwd_mark is all about. If this is set to
-1, it means the switch has done all the forwarding needed for ports in
-that switch. Most of the tag drivers set this unconditionally true.
-
-> 2. Software bridge shouldn't forward any packet between ports
->     on the same switch.
-
-If skb->offload_fwd_mark is true, it won't.
-
-> 3. cpu port learning should only be enabled when bridge
->     offloading is used.
-
-So it should be safe for most switch drivers. And the ones which don't
-set offload_fwd_mark are probably relying of software bridging, or are
-broken and replicating frames.
-
-> It doesn't have to be a broadcast packet but it needs a packet to go
-> through both bridges.
-> 
-> Say we have bridge A and bridge B, port A1 and B1 are connected
-> together and a device is on port A2 first:
-> Bridge A knows that this device is on port A2 and will forward traffic
-> through A1 to B1 if needed. Bridge B sees these packets and knows
-> device is on port B1.
-> When the device move from A2 to B2, B updates its fdb and if a
-> packet reaches A, A will update its fdb too.
-
-The issue here is 'if a packet reaches A'. B might have no reason to
-send a unicast packet to A, if none of the destinations the device is
-talking to is reached via A. Which is why i think a
-broadcast/multicast packet is more likely to be involved.
-
-		    Andrew
+Why not just use v->stats itself as the flag.
+Since free of NULL is a nop it would be cleaner?
