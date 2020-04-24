@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=subject:to:references:from:message-id:date:user-agent:mime-version
  :in-reply-to:content-language:content-transfer-encoding;
- bh=9BcUMuWu+VNLqROvvMiYmkUjwNZj8mEI6zOXCjGTZxo=;
- b=PWNcKVYqHTwiMFgcLh7n20tJrrsK/zpNBWaw3Rp0qZdPq2BLfukmh0GIkMVeAuctcY
- Xf9shxjyJXpfiY73Myty+VBxZpg1XpMip0sdhaHc2N+y+1gc7bW53Ua8/P0TFX3RAoAn
- /c6jPNWF57LlMgvDF93pNokpLg5oR44Nsw8eY=
+ bh=RGGRDHQXBK1Kdt01wMsi8QUeYk6tmntpaLA8lOBA4Cc=;
+ b=AFGvXf/LbemwYbd/hy+qejDSTYCV2URKhbr5e0DiAh1ZiILkYDSFqTBcT5tJYz5/Y8
+ tVlneqaJEGCJNVIFOPLB8vA3SkGLzyn26pgKO0KsuH0iVCHuPT9JOGtJ1za0TLc0mXdm
+ MG9J4Ep6CknCQScPkd7eE+E+7hCYPtYZzwxPE=
 References: <20200422161833.1123-1-horatiu.vultur@microchip.com>
- <20200422161833.1123-4-horatiu.vultur@microchip.com>
+ <20200422161833.1123-5-horatiu.vultur@microchip.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <620390de-6f5a-d3a8-e48c-42089355eefa@cumulusnetworks.com>
-Date: Fri, 24 Apr 2020 16:11:58 +0300
+Message-ID: <1f2767bf-8ca4-781f-b35a-1ed5a169c206@cumulusnetworks.com>
+Date: Fri, 24 Apr 2020 16:12:36 +0300
 MIME-Version: 1.0
-In-Reply-To: <20200422161833.1123-4-horatiu.vultur@microchip.com>
+In-Reply-To: <20200422161833.1123-5-horatiu.vultur@microchip.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 03/11] bridge: mrp: Extend bridge
-	interface
+Subject: Re: [Bridge] [PATCH net-next v3 04/11] net: bridge: Add port
+ attribute IFLA_BRPORT_MRP_RING_OPEN
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,50 +30,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 
 On 22/04/2020 19:18, Horatiu Vultur wrote:
-> To integrate MRP into the bridge, first the bridge needs to be aware of ports
-> that are part of an MRP ring and which rings are on the bridge.
-> Therefore extend bridge interface with the following:
-> - add new flag(BR_MPP_AWARE) to the net bridge ports, this bit will be
->   set when the port is added to an MRP instance. In this way it knows if
->   the frame was received on MRP ring port
-> - add new flag(BR_MRP_LOST_CONT) to the net bridge ports, this bit will be set
->   when the port lost the continuity of MRP Test frames.
-> - add a list of MRP instances
+> This patch adds a new port attribute, IFLA_BRPORT_MRP_RING_OPEN, which allows
+> to notify the userspace when the port lost the continuite of MRP frames.
+> 
+> This attribute is set by kernel whenever the SW or HW detects that the ring is
+> being open or closed.
 > 
 > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 > ---
->  include/linux/if_bridge.h | 2 ++
->  net/bridge/br_private.h   | 4 ++++
->  2 files changed, 6 insertions(+)
+>  include/uapi/linux/if_link.h       | 1 +
+>  net/bridge/br_netlink.c            | 3 +++
+>  tools/include/uapi/linux/if_link.h | 1 +
+>  3 files changed, 5 insertions(+)
 > 
-> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-> index 9e57c4411734..b3a8d3054af0 100644
-> --- a/include/linux/if_bridge.h
-> +++ b/include/linux/if_bridge.h
-> @@ -47,6 +47,8 @@ struct br_ip_list {
->  #define BR_BCAST_FLOOD		BIT(14)
->  #define BR_NEIGH_SUPPRESS	BIT(15)
->  #define BR_ISOLATED		BIT(16)
-> +#define BR_MRP_AWARE		BIT(17)
-> +#define BR_MRP_LOST_CONT	BIT(18)
->  
->  #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
->  
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 1f97703a52ff..835a70f8d3ea 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -428,6 +428,10 @@ struct net_bridge {
->  	int offload_fwd_mark;
->  #endif
->  	struct hlist_head		fdb_list;
-> +
-> +#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-> +	struct list_head		__rcu mrp_list;
-> +#endif
+> diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> index 61e0801c82df..4a295deb933b 100644
+> --- a/include/uapi/linux/if_link.h
+> +++ b/include/uapi/linux/if_link.h
+> @@ -343,6 +343,7 @@ enum {
+>  	IFLA_BRPORT_NEIGH_SUPPRESS,
+>  	IFLA_BRPORT_ISOLATED,
+>  	IFLA_BRPORT_BACKUP_PORT,
+> +	IFLA_BRPORT_MRP_RING_OPEN,
+>  	__IFLA_BRPORT_MAX
 >  };
+>  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 43dab4066f91..4084f1ef8641 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -151,6 +151,7 @@ static inline size_t br_port_info_size(void)
+>  		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MULTICAST_ROUTER */
+>  #endif
+>  		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_GROUP_FWD_MASK */
+> +		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MRP_RING_OPEN */
+>  		+ 0;
+>  }
 >  
->  struct br_input_skb_cb {
+> @@ -213,6 +214,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+>  	    nla_put_u16(skb, IFLA_BRPORT_GROUP_FWD_MASK, p->group_fwd_mask) ||
+>  	    nla_put_u8(skb, IFLA_BRPORT_NEIGH_SUPPRESS,
+>  		       !!(p->flags & BR_NEIGH_SUPPRESS)) ||
+> +	    nla_put_u8(skb, IFLA_BRPORT_MRP_RING_OPEN, !!(p->flags &
+> +							  BR_MRP_LOST_CONT)) ||
+>  	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)))
+>  		return -EMSGSIZE;
+>  
+> diff --git a/tools/include/uapi/linux/if_link.h b/tools/include/uapi/linux/if_link.h
+> index 024af2d1d0af..70dae9ba16f4 100644
+> --- a/tools/include/uapi/linux/if_link.h
+> +++ b/tools/include/uapi/linux/if_link.h
+> @@ -343,6 +343,7 @@ enum {
+>  	IFLA_BRPORT_NEIGH_SUPPRESS,
+>  	IFLA_BRPORT_ISOLATED,
+>  	IFLA_BRPORT_BACKUP_PORT,
+> +	IFLA_BRPORT_MRP_RING_OPEN,
+>  	__IFLA_BRPORT_MAX
+>  };
+>  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
 > 
 
 Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
