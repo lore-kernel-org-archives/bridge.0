@@ -1,25 +1,25 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1587907454; x=1619443454;
+ t=1587907457; x=1619443457;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version;
- bh=k9KaHh1wytDLB+WV3B+kEFHBoC4RQFglGkDtd8z1bsE=;
- b=ioF489zMgabxii8daW5KkIV/elR/MQiDIGMdtfWuCwjBs8EJPIWsCOZV
- j2xErebWTIIKbC75r9GL/Qi8vbm7ORdAKrYaUtlty6j4IX6fgWsRlnCld
- Ts8OY5eikR0W1kjJ0kyxilBhM7N5GKitsmqurZahGT3RNmWVjxR177K90
- JtY/4PKuIqn2d/TSex/xWgiCLf8eiXG/xP/kyqtFSWQczQV5TVm04ZLBa
- 45KH23YOlMcGGl7lyXiNaNUzOXt85HlpZhL/PnMXUEOXa/6ia4GcyFVfe
- 3xD5R6JSNJQQSLPa9YRZ9FF2y2a6Ryg2WAXRTbQDqAQ6kpprwt0jcEec3 A==;
+ bh=NrvwqP3FokjZmNw4C4XLRV/01OvK9XJKFgcTLvtia/4=;
+ b=FWXyXq61ztvLgHZEAALW+3xclfkS4E324UafZAOklijsq5c4yCshfT0s
+ OqG1gmvVtaY1mwEKJn3t9xqS7qzAUcKV/L1ummh0ADyGQKFshnp5lCTx5
+ 9E7ylAIK+CD3p5y6eD3m+c0W+0Gt6ZwNTFCjL1YUylU2KI9L4Mv8KRFGB
+ NaC9QgmivtlIDJIMAKMyBlVBa1D3anYSYzA6otoaWEzwxSZymVy7OJyP+
+ p5VD80M6koUJgX+gMo2OEledRq0J0afbOpyzAbSGCrKBu5e9NtNWol/Xq
+ U0YRERsYlU7S0D2BlfM0GrxuSCjKt05ecUWKPC25ylOjtTW+CKrYY4sG+ Q==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Sun, 26 Apr 2020 15:22:06 +0200
-Message-ID: <20200426132208.3232-10-horatiu.vultur@microchip.com>
+Date: Sun, 26 Apr 2020 15:22:07 +0200
+Message-ID: <20200426132208.3232-11-horatiu.vultur@microchip.com>
 In-Reply-To: <20200426132208.3232-1-horatiu.vultur@microchip.com>
 References: <20200426132208.3232-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 09/11] bridge: mrp: Implement netlink
-	interface to configure MRP
+Subject: [Bridge] [PATCH net-next v4 10/11] bridge: mrp: Integrate MRP into
+	the bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,117 +31,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, davem@davemloft.net, jiri@resnulli.us, ivecera@redhat.com, kuba@kernel.org, roopa@cumulusnetworks.com, olteanv@gmail.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Implement netlink interface to configure MRP. The implementation
-will do sanity checks over the attributes and then eventually call the MRP
-interface.
+To integrate MRP into the bridge, the bridge needs to do the following:
+- detect if the MRP frame was received on MRP ring port in that case it would be
+  processed otherwise just forward it as usual.
+- enable parsing of MRP
+- before whenever the bridge was set up, it would set all the ports in
+  forwarding state. Add an extra check to not set ports in forwarding state if
+  the port is an MRP ring port. The reason of this change is that if the MRP
+  instance initially sets the port in blocked state by setting the bridge up it
+  would overwrite this setting.
 
+Reviewed-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- net/bridge/br_mrp_netlink.c | 91 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 91 insertions(+)
+ net/bridge/br_device.c  |  3 +++
+ net/bridge/br_if.c      |  2 ++
+ net/bridge/br_input.c   |  3 +++
+ net/bridge/br_netlink.c |  5 +++++
+ net/bridge/br_private.h | 31 +++++++++++++++++++++++++++++++
+ 5 files changed, 44 insertions(+)
 
-diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
-index b982db14bbf4..503896638be0 100644
---- a/net/bridge/br_mrp_netlink.c
-+++ b/net/bridge/br_mrp_netlink.c
-@@ -6,6 +6,97 @@
- #include "br_private.h"
- #include "br_private_mrp.h"
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 0e3dbc5f3c34..8ec1362588af 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -463,6 +463,9 @@ void br_dev_setup(struct net_device *dev)
+ 	spin_lock_init(&br->lock);
+ 	INIT_LIST_HEAD(&br->port_list);
+ 	INIT_HLIST_HEAD(&br->fdb_list);
++#if IS_ENABLED(CONFIG_BRIDGE_MRP)
++	INIT_LIST_HEAD(&br->mrp_list);
++#endif
+ 	spin_lock_init(&br->hash_lock);
  
-+static const struct nla_policy br_mrp_policy[IFLA_BRIDGE_MRP_MAX + 1] = {
-+	[IFLA_BRIDGE_MRP_UNSPEC]	= { .type = NLA_REJECT },
-+	[IFLA_BRIDGE_MRP_INSTANCE]	= { .type = NLA_EXACT_LEN,
-+				    .len = sizeof(struct br_mrp_instance)},
-+	[IFLA_BRIDGE_MRP_PORT_STATE]	= { .type = NLA_U32 },
-+	[IFLA_BRIDGE_MRP_PORT_ROLE]	= { .type = NLA_EXACT_LEN,
-+				    .len = sizeof(struct br_mrp_port_role)},
-+	[IFLA_BRIDGE_MRP_RING_STATE]	= { .type = NLA_EXACT_LEN,
-+				    .len = sizeof(struct br_mrp_ring_state)},
-+	[IFLA_BRIDGE_MRP_RING_ROLE]	= { .type = NLA_EXACT_LEN,
-+				    .len = sizeof(struct br_mrp_ring_role)},
-+	[IFLA_BRIDGE_MRP_START_TEST]	= { .type = NLA_EXACT_LEN,
-+				    .len = sizeof(struct br_mrp_start_test)},
-+};
+ 	br->bridge_id.prio[0] = 0x80;
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 4fe30b182ee7..ca685c0cdf95 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -333,6 +333,8 @@ static void del_nbp(struct net_bridge_port *p)
+ 	br_stp_disable_port(p);
+ 	spin_unlock_bh(&br->lock);
+ 
++	br_mrp_port_del(br, p);
 +
+ 	br_ifinfo_notify(RTM_DELLINK, NULL, p);
+ 
+ 	list_del_rcu(&p->list);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index fcc260840028..d5c34f36f0f4 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -342,6 +342,9 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+ 		}
+ 	}
+ 
++	if (unlikely(br_mrp_process(p, skb)))
++		return RX_HANDLER_PASS;
++
+ forward:
+ 	switch (p->state) {
+ 	case BR_STATE_FORWARDING:
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 4084f1ef8641..1a5e681a626a 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -672,6 +672,11 @@ static int br_afspec(struct net_bridge *br,
+ 			if (err)
+ 				return err;
+ 			break;
++		case IFLA_BRIDGE_MRP:
++			err = br_mrp_parse(br, p, attr, cmd, extack);
++			if (err)
++				return err;
++			break;
+ 		}
+ 	}
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 835a70f8d3ea..5835828320b6 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1308,6 +1308,37 @@ unsigned long br_timer_value(const struct timer_list *timer);
+ extern int (*br_fdb_test_addr_hook)(struct net_device *dev, unsigned char *addr);
+ #endif
+ 
++/* br_mrp.c */
++#if IS_ENABLED(CONFIG_BRIDGE_MRP)
 +int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
-+		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack)
++		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack);
++int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb);
++bool br_mrp_enabled(struct net_bridge *br);
++void br_mrp_port_del(struct net_bridge *br, struct net_bridge_port *p);
++#else
++static inline int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
++			       struct nlattr *attr, int cmd,
++			       struct netlink_ext_ack *extack)
 +{
-+	struct nlattr *tb[IFLA_BRIDGE_MRP_MAX + 1];
-+	int err;
++	return -EOPNOTSUPP;
++}
 +
-+	if (br->stp_enabled != BR_NO_STP) {
-+		NL_SET_ERR_MSG_MOD(extack, "MRP can't be enabled if STP is already enabled\n");
-+		return -EINVAL;
-+	}
-+
-+	err = nla_parse_nested(tb, IFLA_BRIDGE_MRP_MAX, attr,
-+			       br_mrp_policy, extack);
-+	if (err)
-+		return err;
-+
-+	if (tb[IFLA_BRIDGE_MRP_INSTANCE]) {
-+		struct br_mrp_instance *instance =
-+			nla_data(tb[IFLA_BRIDGE_MRP_INSTANCE]);
-+
-+		if (cmd == RTM_SETLINK)
-+			err = br_mrp_add(br, instance);
-+		else
-+			err = br_mrp_del(br, instance);
-+		if (err)
-+			return err;
-+	}
-+
-+	if (tb[IFLA_BRIDGE_MRP_PORT_STATE]) {
-+		enum br_mrp_port_state_type state =
-+			nla_get_u32(tb[IFLA_BRIDGE_MRP_PORT_STATE]);
-+
-+		err = br_mrp_set_port_state(p, state);
-+		if (err)
-+			return err;
-+	}
-+
-+	if (tb[IFLA_BRIDGE_MRP_PORT_ROLE]) {
-+		struct br_mrp_port_role *role =
-+			nla_data(tb[IFLA_BRIDGE_MRP_PORT_ROLE]);
-+
-+		err = br_mrp_set_port_role(p, role);
-+		if (err)
-+			return err;
-+	}
-+
-+	if (tb[IFLA_BRIDGE_MRP_RING_STATE]) {
-+		struct br_mrp_ring_state *state =
-+			nla_data(tb[IFLA_BRIDGE_MRP_RING_STATE]);
-+
-+		err = br_mrp_set_ring_state(br, state);
-+		if (err)
-+			return err;
-+	}
-+
-+	if (tb[IFLA_BRIDGE_MRP_RING_ROLE]) {
-+		struct br_mrp_ring_role *role =
-+			nla_data(tb[IFLA_BRIDGE_MRP_RING_ROLE]);
-+
-+		err = br_mrp_set_ring_role(br, role);
-+		if (err)
-+			return err;
-+	}
-+
-+	if (tb[IFLA_BRIDGE_MRP_START_TEST]) {
-+		struct br_mrp_start_test *test =
-+			nla_data(tb[IFLA_BRIDGE_MRP_START_TEST]);
-+
-+		err = br_mrp_start_test(br, test);
-+		if (err)
-+			return err;
-+	}
-+
++static inline int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
++{
 +	return 0;
 +}
 +
- int br_mrp_port_open(struct net_device *dev, u8 loc)
- {
- 	struct net_bridge_port *p;
++static inline bool br_mrp_enabled(struct net_bridge *br)
++{
++	return 0;
++}
++
++static inline void br_mrp_port_del(struct net_bridge *br,
++				   struct net_bridge_port *p)
++{
++}
++#endif
++
+ /* br_netlink.c */
+ extern struct rtnl_link_ops br_link_ops;
+ int br_netlink_init(void);
 -- 
 2.17.1
 
