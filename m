@@ -1,19 +1,21 @@
 Return-Path: <gregkh@linuxfoundation.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588869591;
- bh=wq2CHy58Cr6P3g53lcN3y4RE88fxN0x54WdnN8sOIko=;
- h=Subject:To:Cc:From:Date:From;
- b=k99ZnXN1Xe9/36qor8EMQZQYeE1HFIs0avbfPwlKKED5WjDC4Qc+GskEPSvkNAVyT
- 4F841Q2Q0eycKHg/x1MH/bPE6+kTK/5ldQDkUIXWTbBvmIogA2du6VxgMbkgCfulgq
- p7K8+LWZvcGaEjPtVouRvO5YOeYtYyCJQVrlXcXc=
-From: <gregkh@linuxfoundation.org>
-Date: Thu, 07 May 2020 18:39:13 +0200
-Message-ID: <1588869553183206@kroah.com>
+ s=default; t=1588942059;
+ bh=lAWvsf08nZvSQrfzMExadqGz3aL2prjAHcmVRlzYXZg=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=JGNdz8lZwZ3kZY97w3pSEMAvvhh7dn4Stde5hNe0kNCdKG7FNjmuBGtWkcJt4v8+K
+ rMLwlOiuDGZH0tvB6/W9/cZz4C2Q0ShogXGUC2AR+We+GQwWrcF9SAf94gAxwSJRAy
+ 96BL/d5htW9ok+xfgeuasAKfTQ/DeFpJslUCpcR0=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri,  8 May 2020 14:34:32 +0200
+Message-Id: <20200508123144.177646487@linuxfoundation.org>
+In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
+References: <20200508123124.574959822@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] Patch "net: bridge: don't increment tx_dropped in
-	br_do_proxy_arp" has been added to the 4.4-stable tree
+Subject: [Bridge] [PATCH 4.4 281/312] net: bridge: dont increment tx_dropped
+	in br_do_proxy_arp
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,29 +24,8 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, davem@davemloft.net, gregkh@linuxfoundation.org, kyeyoonp@codeaurora.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, stephen@networkplumber.org
-Cc: stable-commits@vger.kernel.org
-
-
-This is a note to let you know that I've just added the patch titled
-
-    net: bridge: don't increment tx_dropped in br_do_proxy_arp
-
-to the 4.4-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     net-bridge-don-t-increment-tx_dropped-in-br_do_proxy_arp.patch
-and it can be found in the queue-4.4 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From 85a3d4a9356b595d5440c3f1bf07ee7cecca1567 Mon Sep 17 00:00:00 2001
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Tue, 30 Aug 2016 17:44:29 +0200
-Subject: net: bridge: don't increment tx_dropped in br_do_proxy_arp
+To: linux-kernel@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, Kyeyoon Park <kyeyoonp@codeaurora.org>, "David S. Miller" <davem@davemloft.net>
 
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
@@ -87,7 +68,3 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (parp->ar_pro != htons(ETH_P_IP) ||
 
 
-Patches currently in stable-queue which might be from nikolay@cumulusnetworks.com are
-
-queue-4.4/bonding-prevent-out-of-bound-accesses.patch
-queue-4.4/net-bridge-don-t-increment-tx_dropped-in-br_do_proxy_arp.patch
