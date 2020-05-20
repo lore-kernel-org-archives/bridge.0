@@ -1,21 +1,23 @@
-Return-Path: <gregkh@linuxfoundation.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588942059;
- bh=lAWvsf08nZvSQrfzMExadqGz3aL2prjAHcmVRlzYXZg=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=JGNdz8lZwZ3kZY97w3pSEMAvvhh7dn4Stde5hNe0kNCdKG7FNjmuBGtWkcJt4v8+K
- rMLwlOiuDGZH0tvB6/W9/cZz4C2Q0ShogXGUC2AR+We+GQwWrcF9SAf94gAxwSJRAy
- 96BL/d5htW9ok+xfgeuasAKfTQ/DeFpJslUCpcR0=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Fri,  8 May 2020 14:34:32 +0200
-Message-Id: <20200508123144.177646487@linuxfoundation.org>
-In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
-References: <20200508123124.574959822@linuxfoundation.org>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1589973078; x=1621509078;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=JsYCUzXlsDfKtKNFoYWxhgyWbE9JFx+fChYZvOyLb/8=;
+ b=SUYQ1pucnAgYEwtQuj2gjBGZwjgXq454vsILk42bKqWu5a8oNbqXd6J6
+ PZlBny0nuZciH4T2iTdqjARlNajgkMi6iZom5p9xgDlmpl5pAA3PsgtbX
+ v/poxcSekk8fig4KObsS1toDVxctS0Mdb3EbPFW0kWCzrR3LS8+xzx/Nb
+ dTmcS7MP3yB95pc+u7ngDp8rLjVXPGP5rKrnyViBt8J+8v+Tida0esDiN
+ NNBFojgowf53pZfBoPoHo0KiKlUoqS0iJ+3FekcTTHOUtJEGp7zEfc30/
+ sfARI+jno19elgLCtzckg9GwBM/9+JNNP7bqiSAxysfoPrSouuPuZ+EQ4 A==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Wed, 20 May 2020 13:09:20 +0000
+Message-ID: <20200520130923.3196432-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.4 281/312] net: bridge: dont increment tx_dropped
-	in br_do_proxy_arp
+Content-Type: text/plain
+Subject: [Bridge] [PATCH 0/3] net: bridge: mrp: Add small fixes to MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,47 +26,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, stable@vger.kernel.org, Kyeyoon Park <kyeyoonp@codeaurora.org>, "David S. Miller" <davem@davemloft.net>
+To: jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, kuba@kernel.org, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+This patch series adds small fixes to MRP implementation.
+The following are fixed in this patch series:
+- now is not allow to add the same port to multiple MRP rings
+- remove unused variable
+- restore the port state according to the bridge state when the MRP instance
+  is deleted
 
-commit 85a3d4a9356b595d5440c3f1bf07ee7cecca1567 upstream.
+Horatiu Vultur (3):
+  bridge: mrp: Add br_mrp_unique_ifindex function
+  switchdev: mrp: Remove the variable mrp_ring_state
+  bridge: mrp: Restore port state when deleting MRP instance
 
-pskb_may_pull may fail due to various reasons (e.g. alloc failure), but the
-skb isn't changed/dropped and processing continues so we shouldn't
-increment tx_dropped.
+ include/net/switchdev.h |  1 -
+ net/bridge/br_mrp.c     | 44 +++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 40 insertions(+), 5 deletions(-)
 
-CC: Kyeyoon Park <kyeyoonp@codeaurora.org>
-CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-CC: Stephen Hemminger <stephen@networkplumber.org>
-CC: bridge@lists.linux-foundation.org
-Fixes: 958501163ddd ("bridge: Add support for IEEE 802.11 Proxy ARP")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- net/bridge/br_input.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -78,13 +78,10 @@ static void br_do_proxy_arp(struct sk_bu
- 
- 	BR_INPUT_SKB_CB(skb)->proxyarp_replied = false;
- 
--	if (dev->flags & IFF_NOARP)
-+	if ((dev->flags & IFF_NOARP) ||
-+	    !pskb_may_pull(skb, arp_hdr_len(dev)))
- 		return;
- 
--	if (!pskb_may_pull(skb, arp_hdr_len(dev))) {
--		dev->stats.tx_dropped++;
--		return;
--	}
- 	parp = arp_hdr(skb);
- 
- 	if (parp->ar_pro != htons(ETH_P_IP) ||
-
+-- 
+2.26.2
 
