@@ -1,26 +1,26 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1589973085; x=1621509085;
- h=from:to:cc:subject:date:message-id:in-reply-to:
- references:mime-version:content-transfer-encoding;
- bh=WV0s6syDCFCLZ7SWuRmHom6k1uwxvsH4yqT1PpZ4Ge4=;
- b=iryf6IwZgwKZH2Ik4k+rjS8+ypExZ8mdzy+vj6mV+VBH6TD5BKdgSp+C
- IxocxXTLhUyggKpxxFYvJBs3+cCCjFSuabLLFM1eORB6JI+5VxQQxkmYg
- Oyd6WTax/8FybwQvQs72L1P9ak671ScMxFHPxLVG5whGjVbRjn7+zLxnx
- CY+Iw/pSDwelJynpx5K64ngSdOOAbG0tjBS9AjOy8mJsDpxyLty/vlVNH
- sSygmz0ukfFdZZq/KKuvlDY/a2mLra0iJE5iZrW91ed9I+6WDEppRw5SP
- iXU8aNbpiGs1JUi3YMl3Fi9t438cNSvkxrA3MAR/BigP5XURqbiwWJ/2r Q==;
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Wed, 20 May 2020 13:09:23 +0000
-Message-ID: <20200520130923.3196432-4-horatiu.vultur@microchip.com>
-In-Reply-To: <20200520130923.3196432-1-horatiu.vultur@microchip.com>
-References: <20200520130923.3196432-1-horatiu.vultur@microchip.com>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+ h=date:from:to:cc:subject:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=PGt5BLdFYxU6z1cqTJIqi+js4tZYCy5XiqwrbJue7TA=;
+ b=VBDVFrk6oKnVNDIw8raagKq5a8eJuK45dEaNEJhAanbz91rxFKnrQTllLBUsf1VmYC
+ NoqgnZ2zzAHzxt/ftq82ycjy2pqQDQCGwnNPuNsAedzasPPDynnRSobblUVi2uAjP81x
+ dloti4nJ8TCEoIefrSsNa+yBd5be88qsolNL9eu+S30O7URyhU7bdMrCvhOIgp/x2nh8
+ VaJJHi5duJo24MpKRBmNnqCLc/OoeNEceeU7MEBsNfXTkm9fRGgI4MpAQZUCvNZfpOjZ
+ aj/YNjC383Z9TeAONWCxS25M+59WYmG0oUtYGird2unKBRZuTIzj3PUiAQJTAtNiMlh/
+ rSTQ==
+Date: Wed, 20 May 2020 08:50:54 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20200520085054.2031ad8a@hermes.lan>
+In-Reply-To: <20181116165001.30896-1-nikolay@cumulusnetworks.com>
+References: <20181114172703.5795-1-nikolay@cumulusnetworks.com>
+ <20181116165001.30896-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH 3/3] bridge: mrp: Restore port state when deleting
-	MRP instance
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net v3] net: bridge: fix vlan stats
+ use-after-free on destruction
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,60 +29,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, kuba@kernel.org, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, davem@davemloft.net
 
-When a MRP instance is deleted, then restore the port according to the
-bridge state. If the bridge is up then the ports will be in forwarding
-state otherwise will be in disabled state.
+On Fri, 16 Nov 2018 18:50:01 +0200
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com> wrote:
 
-Fixes: 9a9f26e8f7ea ("bridge: mrp: Connect MRP API with the switchdev API")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
----
- net/bridge/br_mrp.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+> +	if (v->priv_flags & BR_VLFLAG_PER_PORT_STATS)
+>  		free_percpu(v->stats);
 
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index a5a3fa59c078a..bdd8920c15053 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -229,6 +229,7 @@ static void br_mrp_test_work_expired(struct work_struct *work)
- static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
- {
- 	struct net_bridge_port *p;
-+	u8 state;
- 
- 	/* Stop sending MRP_Test frames */
- 	cancel_delayed_work_sync(&mrp->test_work);
-@@ -240,20 +241,24 @@ static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
- 	p = rtnl_dereference(mrp->p_port);
- 	if (p) {
- 		spin_lock_bh(&br->lock);
--		p->state = BR_STATE_FORWARDING;
-+		state = netif_running(br->dev) ?
-+				BR_STATE_FORWARDING : BR_STATE_DISABLED;
-+		p->state = state;
- 		p->flags &= ~BR_MRP_AWARE;
- 		spin_unlock_bh(&br->lock);
--		br_mrp_port_switchdev_set_state(p, BR_STATE_FORWARDING);
-+		br_mrp_port_switchdev_set_state(p, state);
- 		rcu_assign_pointer(mrp->p_port, NULL);
- 	}
- 
- 	p = rtnl_dereference(mrp->s_port);
- 	if (p) {
- 		spin_lock_bh(&br->lock);
--		p->state = BR_STATE_FORWARDING;
-+		state = netif_running(br->dev) ?
-+				BR_STATE_FORWARDING : BR_STATE_DISABLED;
-+		p->state = state;
- 		p->flags &= ~BR_MRP_AWARE;
- 		spin_unlock_bh(&br->lock);
--		br_mrp_port_switchdev_set_state(p, BR_STATE_FORWARDING);
-+		br_mrp_port_switchdev_set_state(p, state);
- 		rcu_assign_pointer(mrp->s_port, NULL);
- 	}
- 
--- 
-2.26.2
+Why not not v->stats == NULL as a flag instead?
 
+Then the fact that free_percpu(NULL) is a Nop would mean less code
+in the bridge driver.
