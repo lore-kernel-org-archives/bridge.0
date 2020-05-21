@@ -1,24 +1,23 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=subject:to:references:from:message-id:date:user-agent:mime-version
- :in-reply-to:content-language:content-transfer-encoding;
- bh=bqOLOWJcEnmegQMbnR/7WAD5Ory2NkimcCLFj6PkXT4=;
- b=MNKVdqYIQu1sZpEEWrjFHTTAgUy+R5a9ibTbTktvHRxg5WU3UwsT+DYDhAfDTZ1ZVN
- WUkF2IPbZmlF4VcwHRt2g+0rwVYfAWsxUMpNDxOZKs9mfmROSBdrBuvxcGKRLC1byQ50
- gtHo3VrT/HT9vEGVkBYTSpJJxyNB1z1PPj1jQ=
-References: <20200520130923.3196432-1-horatiu.vultur@microchip.com>
- <20200520130923.3196432-4-horatiu.vultur@microchip.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <05ddf496-9f6d-ae23-1bdb-40f0fe0e3b3c@cumulusnetworks.com>
-Date: Thu, 21 May 2020 11:18:20 +0300
+Return-Path: <dan.carpenter@oracle.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=VtH50d3j8PGL5fadgDPMpo+HStraNOmQY5K9l3SYH/Q=;
+ b=cQK/u6IjxwwVLLC8pb1aAgmXTz3H7PM+14OySJ+Q+U9tTUVXD93HaHbcmmu7QTATP1kF
+ AI15s21aN/QSHDEfTHep6UG5rA6yVmNE925zWrvYC9Rou652Czt7fz/unTGETkPCzuOi
+ 2utO3KjH+DGPhIBR4mqkwV98RmIyIiYFZyapOSM0OCGCgYzDbalsEfXNQzJd4PDphPYc
+ RbH/mFKhqog5utSj40D3ddZ81RSrYB6V8pFLZ9ucxDlKgDT+jjvAhY/zrr6hdwomVuMD
+ iLkDxlOUG1u9T+q2gyMhZP1kquuO2Mvke3AE6NR8dp9GSUwd/+SSP6zsmRlAseB5yRj3 Qg== 
+Date: Thu, 21 May 2020 17:08:03 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Message-ID: <20200521140803.GI30374@kadam>
+References: <0000000000007b211005a6187dc9@google.com>
 MIME-Version: 1.0
-In-Reply-To: <20200520130923.3196432-4-horatiu.vultur@microchip.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 3/3] bridge: mrp: Restore port state when
- deleting MRP instance
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0000000000007b211005a6187dc9@google.com>
+Subject: Re: [Bridge] KASAN: slab-out-of-bounds Read in br_mrp_parse
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,62 +26,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>, jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, kuba@kernel.org, roopa@cumulusnetworks.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
+To: syzbot <syzbot+9c6f0f1f8e32223df9a4@syzkaller.appspotmail.com>
+Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, horatiu.vultur@microchip.com, kuba@kernel.org, davem@davemloft.net
 
-On 20/05/2020 16:09, Horatiu Vultur wrote:
-> When a MRP instance is deleted, then restore the port according to the
-> bridge state. If the bridge is up then the ports will be in forwarding
-> state otherwise will be in disabled state.
+On Wed, May 20, 2020 at 11:23:18AM -0700, syzbot wrote:
+> Hello,
 > 
-> Fixes: 9a9f26e8f7ea ("bridge: mrp: Connect MRP API with the switchdev API")
-> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> ---
->  net/bridge/br_mrp.c | 13 +++++++++----
->  1 file changed, 9 insertions(+), 4 deletions(-)
+> syzbot found the following crash on:
+> 
+> HEAD commit:    dda18a5c selftests/bpf: Convert bpf_iter_test_kern{3, 4}.c..
+> git tree:       bpf-next
+                  ^^^^^^^^
+
+I can figure out what this is from reading Next/Trees but it would be
+more useful if it were easier to script.
+
+> console output: https://syzkaller.appspot.com/x/log.txt?x=10c4e63c100000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=668983fd3dd1087e
+> dashboard link: https://syzkaller.appspot.com/bug?extid=9c6f0f1f8e32223df9a4
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17eaba3c100000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=128598f6100000
 > 
 
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+regards,
+dan carpenter
 
-> diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-> index a5a3fa59c078a..bdd8920c15053 100644
-> --- a/net/bridge/br_mrp.c
-> +++ b/net/bridge/br_mrp.c
-> @@ -229,6 +229,7 @@ static void br_mrp_test_work_expired(struct work_struct *work)
->  static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
->  {
->  	struct net_bridge_port *p;
-> +	u8 state;
->  
->  	/* Stop sending MRP_Test frames */
->  	cancel_delayed_work_sync(&mrp->test_work);
-> @@ -240,20 +241,24 @@ static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
->  	p = rtnl_dereference(mrp->p_port);
->  	if (p) {
->  		spin_lock_bh(&br->lock);
-> -		p->state = BR_STATE_FORWARDING;
-> +		state = netif_running(br->dev) ?
-> +				BR_STATE_FORWARDING : BR_STATE_DISABLED;
-> +		p->state = state;
->  		p->flags &= ~BR_MRP_AWARE;
->  		spin_unlock_bh(&br->lock);
-> -		br_mrp_port_switchdev_set_state(p, BR_STATE_FORWARDING);
-> +		br_mrp_port_switchdev_set_state(p, state);
->  		rcu_assign_pointer(mrp->p_port, NULL);
->  	}
->  
->  	p = rtnl_dereference(mrp->s_port);
->  	if (p) {
->  		spin_lock_bh(&br->lock);
-> -		p->state = BR_STATE_FORWARDING;
-> +		state = netif_running(br->dev) ?
-> +				BR_STATE_FORWARDING : BR_STATE_DISABLED;
-> +		p->state = state;
->  		p->flags &= ~BR_MRP_AWARE;
->  		spin_unlock_bh(&br->lock);
-> -		br_mrp_port_switchdev_set_state(p, BR_STATE_FORWARDING);
-> +		br_mrp_port_switchdev_set_state(p, state);
->  		rcu_assign_pointer(mrp->s_port, NULL);
->  	}
->  
-> 
 
