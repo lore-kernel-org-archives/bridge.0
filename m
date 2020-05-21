@@ -1,25 +1,28 @@
-Return-Path: <dan.carpenter@oracle.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=zAw1u07pbRDu+xvWXDwgv7P7rAeqqEG3qCROxNYz4Qw=;
- b=WcR2EviD0S8hW4M2rvwjYzJmQw4FXWXPBUrrFqEw1sUnEyiMbxupFvOgeiaqsO35y4jQ
- CPzN4RPWZ6CN7vjd6wBYwrtQUBjUMj9m0EAj6CSAN7hZzaajn1ZSnKnNebi9STjS87+w
- JKL62APs7QzHF9pg28671gwh0ONBuSPHok4+1ywoLlXr3HhK4IfhyKSbOVhikEcTfkxF
- 9stgAB1nQtebaQ/IRHWLcG1ceA7kwj4KhpyGXBYsO9ItnyKUCR3Cg7SuHMkRyzT2Y+Ua
- jnI2GFQJ+lm1iENMft9tc6tPnnqNuUZR+w0R92TuT1D5sfFSWNj5/xpNnLmioaAkH55q Bw== 
-Date: Thu, 21 May 2020 17:59:21 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Message-ID: <20200521145921.GJ30374@kadam>
-References: <0000000000007b211005a6187dc9@google.com>
- <20200521140803.GI30374@kadam>
- <CACT4Y+bzz-h5vNGH0rDMUiuGZVX01oXawXAPbjtnNHb1KVWSvg@mail.gmail.com>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1590079779; x=1621615779;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=T3JHfJfiSK4U+yHgb+bI6WL0oOg800aRny6cXvnK9L4=;
+ b=IkzRrxDSeXCXmfOv1Ntz9138MnlYN0HwNJe2xQCcyEOSdjvOwxKPFo/E
+ 4OZCzqNLPgzWPw6k9teZ0zAcY25nEsCQEtu/uelMgv8q1RWbeVzGD7PoT
+ Y8a4VjEektgXcle0eAFtvzdkci8ajhmbSsIH/f8KRX2PyGfjxwZkti7BW
+ sxFn5HpYhQ946DNs+zE20VpT43XepzdwYSIRXJE9yBgwXxJAYnn4krCUS
+ jsGhO33ydTwLin3i2drdmFOZbfA0fZC5uUVm0YfAK2sSF0bcL9vNk2MyR
+ FUbHIJZhSizme4TJuHsCOjnkZavHd7ESOQrNeTHT23ngIsAoCwrRwmgqM Q==;
+Date: Thu, 21 May 2020 18:49:18 +0000
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Message-ID: <20200521181337.ory6lxyswatqhoej@soft-dev3.localdomain>
+References: <20200520130923.3196432-1-horatiu.vultur@microchip.com>
+ <20200520130923.3196432-2-horatiu.vultur@microchip.com>
+ <cecbdbf0-bb49-1e3c-c163-8e7412c6fcec@cumulusnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <CACT4Y+bzz-h5vNGH0rDMUiuGZVX01oXawXAPbjtnNHb1KVWSvg@mail.gmail.com>
-Subject: Re: [Bridge] KASAN: slab-out-of-bounds Read in br_mrp_parse
+In-Reply-To: <cecbdbf0-bb49-1e3c-c163-8e7412c6fcec@cumulusnetworks.com>
+Subject: Re: [Bridge] [PATCH 1/3] bridge: mrp: Add br_mrp_unique_ifindex
+	function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,36 +31,85 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dmitry Vyukov <dvyukov@google.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, horatiu.vultur@microchip.com, syzbot <syzbot+9c6f0f1f8e32223df9a4@syzkaller.appspotmail.com>, syzkaller <syzkaller@googlegroups.com>, kuba@kernel.org, David Miller <davem@davemloft.net>
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: ivecera@redhat.com, andrew@lunn.ch, jiri@resnulli.us, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, kuba@kernel.org, davem@davemloft.net
 
-On Thu, May 21, 2020 at 04:28:05PM +0200, 'Dmitry Vyukov' via syzkaller-bugs wrote:
-> On Thu, May 21, 2020 at 4:08 PM Dan Carpenter <dan.carpenter@oracle.com> wrote:
+The 05/21/2020 11:16, Nikolay Aleksandrov wrote:
+> On 20/05/2020 16:09, Horatiu Vultur wrote:
+> > It is not allow to have the same net bridge port part of multiple MRP
+> > rings. Therefore add a check if the port is used already in a different
+> > MRP. In that case return failure.
 > >
-> > On Wed, May 20, 2020 at 11:23:18AM -0700, syzbot wrote:
-> > > Hello,
-> > >
-> > > syzbot found the following crash on:
-> > >
-> > > HEAD commit:    dda18a5c selftests/bpf: Convert bpf_iter_test_kern{3, 4}.c..
-> > > git tree:       bpf-next
-> >                   ^^^^^^^^
+> > Fixes: 9a9f26e8f7ea ("bridge: mrp: Connect MRP API with the switchdev API")
+> > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+> > ---
+> >  net/bridge/br_mrp.c | 31 +++++++++++++++++++++++++++++++
+> >  1 file changed, 31 insertions(+)
 > >
-> > I can figure out what this is from reading Next/Trees but it would be
-> > more useful if it were easier to script.
+> > diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+> > index d7bc09de4c139..a5a3fa59c078a 100644
+> > --- a/net/bridge/br_mrp.c
+> > +++ b/net/bridge/br_mrp.c
+> > @@ -37,6 +37,32 @@ static struct br_mrp *br_mrp_find_id(struct net_bridge *br, u32 ring_id)
+> >       return res;
+> >  }
+> >
+> > +static bool br_mrp_unique_ifindex(struct net_bridge *br, u32 ifindex)
+> > +{
+> > +     struct br_mrp *mrp;
+> > +     bool res = true;
+> > +
+> > +     rcu_read_lock();
 > 
-> Hi Dan,
+> Why do you need the rcu_read_lock() here when lockdep_rtnl_is_held() is used?
+> You should be able to just do rtnl_dereference() below as this is used only
+> under rtnl.
+
+Hi Nik,
+
+Also initially I thought that is not needed, but when I enabled all the
+RCU debug configs to see if I use correctly the RCU, I got a warning
+regarding suspicious RCU usage.
+And that is the reason why I have put it.
+
 > 
-> Is there a canonical way to refer to a particular branch of a particular tree?
-> >From what I observed on mailing lists people seem to say "linux-next"
-> or "upstream tree" and that seems to mean specific things that
-> everybody understands.
+> > +     list_for_each_entry_rcu(mrp, &br->mrp_list, list,
+> > +                             lockdep_rtnl_is_held()) {
+> > +             struct net_bridge_port *p;
+> > +
+> > +             p = rcu_dereference(mrp->p_port);
+> > +             if (p && p->dev->ifindex == ifindex) {
+> > +                     res = false;
+> > +                     break;
+> > +             }
+> > +
+> > +             p = rcu_dereference(mrp->s_port);
+> > +             if (p && p->dev->ifindex == ifindex) {
+> > +                     res = false;
+> > +                     break;
+> > +             }
+> > +     }
+> > +     rcu_read_unlock();
+> > +     return res;
+> > +}
+> > +
+> >  static struct br_mrp *br_mrp_find_port(struct net_bridge *br,
+> >                                      struct net_bridge_port *p)
+> >  {
+> > @@ -255,6 +281,11 @@ int br_mrp_add(struct net_bridge *br, struct br_mrp_instance *instance)
+> >           !br_mrp_get_port(br, instance->s_ifindex))
+> >               return -EINVAL;
+> >
+> > +     /* It is not possible to have the same port part of multiple rings */
+> > +     if (!br_mrp_unique_ifindex(br, instance->p_ifindex) ||
+> > +         !br_mrp_unique_ifindex(br, instance->s_ifindex))
+> > +             return -EINVAL;
+> > +
+> >       mrp = kzalloc(sizeof(*mrp), GFP_KERNEL);
+> >       if (!mrp)
+> >               return -ENOMEM;
+> >
+> 
 
-git://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git#master
-
-I kind of hate that format because you have to replace the # with a
-space, but it's what everyone uses.
-
-regards,
-dan carpenter
-
+-- 
+/Horatiu
