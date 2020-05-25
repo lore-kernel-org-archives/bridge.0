@@ -1,23 +1,22 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=xsaSOL3nxn5UWojYLGHf0GidZv1f0eBsy1Kan4mSPis=;
- b=WiBv6JwgwoGFabLxJtlkNV2QTT18NNEhPH3iMNUS8TNvE4V38+UFSMP4ahMe76Z26m
- 3WZNnG0LPNH7VrsaC39jgTQrROurGyfDpKw9DM/HRotlOw/dSjLuFAmFmcccTchAX/FM
- JBqeHfDHPNhynj+Szb4t+GSyQIGsQ902ccVIA=
-References: <20200525095541.46673-1-horatiu.vultur@microchip.com>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <a44f412e-dbde-93e9-be72-78515fa5b9d4@cumulusnetworks.com>
-Date: Mon, 25 May 2020 11:34:17 +0300
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1590398934; x=1621934934;
+ h=date:from:to:subject:message-id:mime-version;
+ bh=uIfaX+EQPpYkQ3H7bVFuEEKfX/tCjxDONoYFIwtAJpk=;
+ b=XuIA6QPiFQzLre4Y9H84tU7z24o6fQGtPDOx0cURrP6TEua5/0uanO3+
+ QMNPvXtplHCFvTutj+W9N0V3mtmKW25yqyExZbM0BsuSpCUE1IFOWsZ8r
+ Q34DOYwCwE/YsUHSmYQZkxTF4hVg+h9X2KSxkdPeutjpSghJ/XQKYbVEM
+ vDE+4QuHbYJls/czTpMKWkk+gJ72Wnik8yIzjqYlQybwg3gV4GhGT1YVv
+ TZBSO4MpwphYUXsyZJb0nGFq0Iuuq8g5334wvL8CUqEoW6/ALuwpl/ClS
+ 55owo4jA2qhZGqpCjMcSTfWJxWlDawFqfyNGNXHg67L4H87oDjNFKXfAi w==;
+Date: Mon, 25 May 2020 11:28:27 +0000
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Message-ID: <20200525112827.t4nf4lamz6g4g2c5@soft-dev3.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <20200525095541.46673-1-horatiu.vultur@microchip.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: mrp: Fix out-of-bounds read in
-	br_mrp_parse
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Subject: [Bridge] MRP netlink interface
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,43 +25,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, andrew@lunn.ch, UNGLinuxDriver@microchip.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: syzbot+9c6f0f1f8e32223df9a4@syzkaller.appspotmail.com
+To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, andrew@lunn.ch, UNGLinuxDriver@microchip.com, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 25/05/2020 12:55, Horatiu Vultur wrote:
-> The issue was reported by syzbot. When the function br_mrp_parse was
-> called with a valid net_bridge_port, the net_bridge was an invalid
-> pointer. Therefore the check br->stp_enabled could pass/fail
-> depending where it was pointing in memory.
-> The fix consists of setting the net_bridge pointer if the port is a
-> valid pointer.
-> 
-> Reported-by: syzbot+9c6f0f1f8e32223df9a4@syzkaller.appspotmail.com
-> Fixes: 6536993371fa ("bridge: mrp: Integrate MRP into the bridge")
-> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> ---
->  net/bridge/br_mrp_netlink.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
-> index 397e7f710772a..4a08a99519b04 100644
-> --- a/net/bridge/br_mrp_netlink.c
-> +++ b/net/bridge/br_mrp_netlink.c
-> @@ -27,6 +27,12 @@ int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
->  	struct nlattr *tb[IFLA_BRIDGE_MRP_MAX + 1];
->  	int err;
->  
-> +	/* When this function is called for a port then the br pointer is
-> +	 * invalid, therefor set the br to point correctly
-> +	 */
-> +	if (p)
-> +		br = p->br;
-> +
->  	if (br->stp_enabled != BR_NO_STP) {
->  		NL_SET_ERR_MSG_MOD(extack, "MRP can't be enabled if STP is already enabled");
->  		return -EINVAL;
-> 
+Hi,
 
-You should tag the fix for net-next when it's intended for it.
+While I was working on adding support for MRA role to MRP, I noticed that I
+might have some issues with the netlink interface, so it would be great if you
+can give me an advice on how to continue.
 
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+First a node with MRA role can behave as a MRM(Manager) or as a
+MRC(Client). The behaviour is decided by the priority of each node. So
+to have this functionality I have to extend the MRP netlink interface
+and this brings me to my issues.
+
+My first approach was to extend the 'struct br_mrp_instance' with a field that
+contains the priority of the node. But this breaks the backwards compatibility,
+and then every time when I need to change something, I will break the backwards
+compatibility. Is this a way to go forward?
+
+Another approach is to restructure MRP netlink interface. What I was thinking to
+keep the current attributes (IFLA_BRIDGE_MRP_INSTANCE,
+IFLA_BRIDGE_MRP_PORT_STATE,...) but they will be nested attributes and each of
+this attribute to contain the fields of the structures they represents.
+For example:
+[IFLA_AF_SPEC] = {
+    [IFLA_BRIDGE_FLAGS]
+    [IFLA_BRIDGE_MRP]
+        [IFLA_BRIDGE_MRP_INSTANCE]
+            [IFLA_BRIDGE_MRP_INSTANCE_RING_ID]
+            [IFLA_BRIDGE_MRP_INSTANCE_P_IFINDEX]
+            [IFLA_BRIDGE_MRP_INSTANCE_S_IFINDEX]
+        [IFLA_BRIDGE_MRP_RING_ROLE]
+            [IFLA_BRIDGE_MRP_RING_ROLE_RING_ID]
+            [IFLA_BRIDGE_MRP_RING_ROLE_ROLE]
+        ...
+}
+And then I can parse each field separately and then fill up the structure
+(br_mrp_instance, br_mrp_port_role, ...) which will be used forward.
+Then when this needs to be extended with the priority it would have the
+following format:
+[IFLA_AF_SPEC] = {
+    [IFLA_BRIDGE_FLAGS]
+    [IFLA_BRIDGE_MRP]
+        [IFLA_BRIDGE_MRP_INSTANCE]
+            [IFLA_BRIDGE_MRP_INSTANCE_RING_ID]
+            [IFLA_BRIDGE_MRP_INSTANCE_P_IFINDEX]
+            [IFLA_BRIDGE_MRP_INSTANCE_S_IFINDEX]
+            [IFLA_BRIDGE_MRP_INSTANCE_PRIO]
+        [IFLA_BRIDGE_MRP_RING_ROLE]
+            [IFLA_BRIDGE_MRP_RING_ROLE_RING_ID]
+            [IFLA_BRIDGE_MRP_RING_ROLE_ROLE]
+        ...
+}
+And also the br_mrp_instance will have a field called prio.
+So now, if the userspace is not updated to have support for setting the prio
+then the kernel will use a default value. Then if the userspace contains a field
+that the kernel doesn't know about, then it would just ignore it.
+So in this way every time when the netlink interface will be extended it would
+be backwards compatible.
+
+If it is not possible to break the compatibility then the safest way is to
+just add more attributes under IFLA_BRIDGE_MRP but this would just complicate
+the kernel and the userspace and it would make it much harder to be extended in
+the future.
+
+My personal choice would be the second approach, even if it breaks the backwards
+compatibility. Because it is the easier to go forward and there are only 3
+people who cloned the userspace application
+(https://github.com/microchip-ung/mrp/graphs/traffic). And two of
+these unique cloners is me and Allan.
+
+So if you have any advice on how to go forward it would be great.
+
+-- 
+/Horatiu
