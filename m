@@ -1,24 +1,25 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1590855075; x=1622391075;
- h=from:to:cc:subject:date:message-id:mime-version:
- content-transfer-encoding;
- bh=LsWUZ3Vo3pgKdES5u3EIGHNrOLkQ2RbU+615OKxy1SI=;
- b=vaTAzZmhNRFplA8xDKp4xzwCiCFUGvTH8L32zYWxHtjnh8KRD84V4Jm9
- MLyb4RcQhNuLC80KWDgZzt0lJ+N24NIzMjaIv74pllLyaNLo+y16negwU
- gKjCJc56DIFbapfhbRpeb9FDibGwrdUMI6h2+y0aKP3eq7NjaWc/qsnt9
- IsqNv504Neqhf3YLcfl07vIbLhZVc64HTMqJyUUbp5QVEefS0WrPyk803
- RR3MBxyPf5bVkriBvMSIjVc33xqG4zJfzuaYCMUeDg7BEt9HpSOarv2wo
- REGmewiL1JQ/fb3BdqLnRP+FbhqlcggCAobNAIhNFDkIc6tgLd4i/b/yM Q==;
+ t=1590855077; x=1622391077;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version:content-transfer-encoding;
+ bh=tPH1x0kmwkLhsh44hhxU/ZfYVRSXnJ4NnEaEZr8D7fA=;
+ b=IaX0C7Kq7xJrAmk9L8lhyQyoMk2Mawo7IYXuNZz8squcctIh1y/ChFol
+ /u9S9W6tTasvcxLveOm65k26jmZikoDJqOnOmEWtQTSBJh0D6snld+LV3
+ 9DIJWX9ia0FnSRF0qKQvm47311Z7PkwB/uPlhZGKRhl4NS9+xg3Aq9jVK
+ hXC+lbD/i5gzdSXiTnJQT0k6KCrEC95Qm25RLNOUyElHSy+HiuSW1iqXq
+ ryyBSow1SFfR4L8bf02NaJW+jjajWqnE79zpwf+4uDz/QbksK5c4OiYUE
+ WHTP/RzDJjaVfn+UHvBzFbt1qgYpJRgzS6yIxswLDnd4IRfNWu3lqj+C5 w==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Sat, 30 May 2020 18:09:45 +0000
-Message-ID: <20200530180948.1194569-1-horatiu.vultur@microchip.com>
+Date: Sat, 30 May 2020 18:09:46 +0000
+Message-ID: <20200530180948.1194569-2-horatiu.vultur@microchip.com>
+In-Reply-To: <20200530180948.1194569-1-horatiu.vultur@microchip.com>
+References: <20200530180948.1194569-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v2 0/3] bridge: mrp: Add support for MRA
-	role
+Subject: [Bridge] [PATCH net-next v2 1/3] bridge: mrp: Update MRP frame type
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,33 +31,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, kuba@kernel.org, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-This patch series extends the MRP with the MRA role.
-A node that has the MRA role can behave as a MRM or as a MRC. In case there are
-multiple nodes in the topology that has the MRA role then only one node can
-behave as MRM and all the others need to be have as MRC. The node that has the
-higher priority(lower value) will behave as MRM.
-A node that has the MRA role and behaves as MRC, it just needs to forward the
-MRP_Test frames between the ring ports but also it needs to detect in case it
-stops receiving MRP_Test frames. In that case it would try to behave as MRM.
+Replace u16/u32 with be16/be32 in the MRP frame types.
+This fixes sparse warnings like:
+warning: cast to restricted __be16
 
-v2:
- - add new patch that fixes sparse warnings
- - fix parsing of prio attribute
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ include/uapi/linux/mrp_bridge.h | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-Horatiu Vultur (3):
-  bridge: mrp: Update MRP frame type
-  bridge: mrp: Set the priority of MRP instance
-  bridge: mrp: Add support for role MRA
-
- include/net/switchdev.h         |   2 +
- include/uapi/linux/if_bridge.h  |   4 +
- include/uapi/linux/mrp_bridge.h |  60 ++++++++++++---
- net/bridge/br_mrp.c             | 128 +++++++++++++++++++++++++++-----
- net/bridge/br_mrp_netlink.c     |  11 +++
- net/bridge/br_mrp_switchdev.c   |   5 +-
- net/bridge/br_private_mrp.h     |   5 +-
- 7 files changed, 182 insertions(+), 33 deletions(-)
-
+diff --git a/include/uapi/linux/mrp_bridge.h b/include/uapi/linux/mrp_bridge.h
+index 2600cdf5a2848..bcad42128d625 100644
+--- a/include/uapi/linux/mrp_bridge.h
++++ b/include/uapi/linux/mrp_bridge.h
+@@ -55,30 +55,30 @@ struct br_mrp_end_hdr {
+ };
+ 
+ struct br_mrp_common_hdr {
+-	__u16 seq_id;
++	__be16 seq_id;
+ 	__u8 domain[MRP_DOMAIN_UUID_LENGTH];
+ };
+ 
+ struct br_mrp_ring_test_hdr {
+-	__u16 prio;
++	__be16 prio;
+ 	__u8 sa[ETH_ALEN];
+-	__u16 port_role;
+-	__u16 state;
+-	__u16 transitions;
+-	__u32 timestamp;
++	__be16 port_role;
++	__be16 state;
++	__be16 transitions;
++	__be32 timestamp;
+ };
+ 
+ struct br_mrp_ring_topo_hdr {
+-	__u16 prio;
++	__be16 prio;
+ 	__u8 sa[ETH_ALEN];
+-	__u16 interval;
++	__be16 interval;
+ };
+ 
+ struct br_mrp_ring_link_hdr {
+ 	__u8 sa[ETH_ALEN];
+-	__u16 port_role;
+-	__u16 interval;
+-	__u16 blocked;
++	__be16 port_role;
++	__be16 interval;
++	__be16 blocked;
+ };
+ 
+ #endif
 -- 
 2.26.2
 
