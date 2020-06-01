@@ -3,21 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
  messagingengine.com; h=cc:content-transfer-encoding:date:from
  :in-reply-to:message-id:mime-version:references:subject:to
  :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
- fm2; bh=TtufirPfAlwtsi/lMsOIpkLe1a0WGgVE+djF/ZRXPqs=; b=wppzBLTp
- VX0l2POvdP+5PTua0389W4ZWQpiLFs33Z8/ypxscfEKYt08UyAVVTyPlDYN4Yq4V
- t4eSFauHFJb5CFAGQk5pxxQH8yd1mokMcToi/RCVoDuHNud/ksKbVdlPh0cbWReB
- zx7/RS+0QLaX12FWTrDAgSILT1D+pBez7Mn5NyyHyJCwdcfqLLVIryza6Uy7kEio
- VREEGBDq+0XFXKBlngREKDp7dsyA/lweFiOoYVOuB8XoVm318wRofCcZZM2uBDN0
- p7k2DDbCzCBS8wm5simBTyBCaJYz/q19Hv1INUaaHxpjmtlWDAO1VtQG+xWQqKrM
- 66weqNrrYClDxA==
+ fm2; bh=E0wceg3xkmnmO0owKD+Ur3r9Ne13G1p5ItMUZ5WVi/g=; b=XFIma2hN
+ 1X76BLHIwxM2l+ebuv19KRWJz2Kh3J3V4+1HvD+tJpXOleuEdbpRc9hNVlHFetn/
+ jXVKIr/TwDdbUR9AdL4CFLCWMRez16MIRCVUyZ7eTEdqedl1ho1FR4FW0txIIgB5
+ qOQT90jyES/eIJtAQeNgEeg42ACauHA7x6K/1MdLTbLDQjsi4uD6pr1se3Mih4BU
+ UmaZWuIpRRkUY606QqdFLsNgng/owCwIbKry49iRQhcu3EB/+sJVolmkjebfzpMa
+ lihuye/NtDLF8R1E+btqrfbVAH8GD2jTZ46sfdI5yLTfdHIli1JhoIeJfExVTEUT
+ 9JDrVkdnMnbK9g==
 From: Ido Schimmel <idosch@idosch.org>
-Date: Mon,  1 Jun 2020 15:58:54 +0300
-Message-Id: <20200601125855.1751343-2-idosch@idosch.org>
+Date: Mon,  1 Jun 2020 15:58:55 +0300
+Message-Id: <20200601125855.1751343-3-idosch@idosch.org>
 In-Reply-To: <20200601125855.1751343-1-idosch@idosch.org>
 References: <20200601125855.1751343-1-idosch@idosch.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net 1/2] bridge: Avoid infinite loop when
+Subject: [Bridge] [PATCH net 2/2] vxlan: Avoid infinite loop when
 	suppressing NS messages with invalid options
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -32,11 +32,11 @@ Cc: mlxsw@mellanox.com, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, 
 
 From: Ido Schimmel <idosch@mellanox.com>
 
-When neighbor suppression is enabled the bridge device might reply to
-Neighbor Solicitation (NS) messages on behalf of remote hosts.
+When proxy mode is enabled the vxlan device might reply to Neighbor
+Solicitation (NS) messages on behalf of remote hosts.
 
 In case the NS message includes the "Source link-layer address" option
-[1], the bridge device will use the specified address as the link-layer
+[1], the vxlan device will use the specified address as the link-layer
 destination address in its reply.
 
 To avoid an infinite loop, break out of the options parsing loop when
@@ -49,25 +49,23 @@ with length zero" [2].
 [1] https://tools.ietf.org/html/rfc4861#section-4.3
 [2] https://tools.ietf.org/html/rfc4861#section-4.6
 
-Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Fixes: 4b29dba9c085 ("vxlan: fix nonfunctional neigh_reduce()")
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reported-by: Alla Segal <allas@mellanox.com>
-Tested-by: Alla Segal <allas@mellanox.com>
 ---
- net/bridge/br_arp_nd_proxy.c | 4 ++++
+ drivers/net/vxlan.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 37908561a64b..b18cdf03edb3 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -276,6 +276,10 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 	ns_olen = request->len - (skb_network_offset(request) +
- 				  sizeof(struct ipv6hdr)) - sizeof(*ns);
- 	for (i = 0; i < ns_olen - 1; i += (ns->opt[i + 1] << 3)) {
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index a5b415fed11e..779e56c43d27 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -1924,6 +1924,10 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
+ 	ns_olen = request->len - skb_network_offset(request) -
+ 		sizeof(struct ipv6hdr) - sizeof(*ns);
+ 	for (i = 0; i < ns_olen-1; i += (ns->opt[i+1]<<3)) {
 +		if (!ns->opt[i + 1]) {
 +			kfree_skb(reply);
-+			return;
++			return NULL;
 +		}
  		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
  			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
