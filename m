@@ -1,12 +1,12 @@
 Return-Path: <mcgrof@gmail.com>
 From: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Message-Id: <20200610154923.27510-2-mcgrof@kernel.org>
+Message-Id: <20200610154923.27510-4-mcgrof@kernel.org>
 In-Reply-To: <20200610154923.27510-1-mcgrof@kernel.org>
 References: <20200610154923.27510-1-mcgrof@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 1/5] selftests: kmod: Use variable NAME in
-	kmod_test_0001()
+Subject: [Bridge] [PATCH 3/5] test_kmod: Avoid potential double free in
+	trigger_config_run_type()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,37 +21,31 @@ Cc: linux-nfs@vger.kernel.org, chainsaw@gentoo.org, ravenexp@gmail.com, linux-ke
 
 From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-Use the variable NAME instead of "\000" directly in kmod_test_0001().
+Reset the member "test_fs" of the test configuration after a call
+of the function "kfree_const" to a null pointer so that a double
+memory release will not be performed.
 
+Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
 Acked-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 ---
- tools/testing/selftests/kmod/kmod.sh | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/test_kmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kmod/kmod.sh b/tools/testing/selftests/kmod/kmod.sh
-index 3702dbcc90a7..da60c3bd4f23 100755
---- a/tools/testing/selftests/kmod/kmod.sh
-+++ b/tools/testing/selftests/kmod/kmod.sh
-@@ -341,7 +341,7 @@ kmod_test_0001_driver()
- 
- 	kmod_defaults_driver
- 	config_num_threads 1
--	printf '\000' >"$DIR"/config_test_driver
-+	printf $NAME >"$DIR"/config_test_driver
- 	config_trigger ${FUNCNAME[0]}
- 	config_expect_result ${FUNCNAME[0]} MODULE_NOT_FOUND
- }
-@@ -352,7 +352,7 @@ kmod_test_0001_fs()
- 
- 	kmod_defaults_fs
- 	config_num_threads 1
--	printf '\000' >"$DIR"/config_test_fs
-+	printf $NAME >"$DIR"/config_test_fs
- 	config_trigger ${FUNCNAME[0]}
- 	config_expect_result ${FUNCNAME[0]} -EINVAL
- }
+diff --git a/lib/test_kmod.c b/lib/test_kmod.c
+index e651c37d56db..eab52770070d 100644
+--- a/lib/test_kmod.c
++++ b/lib/test_kmod.c
+@@ -745,7 +745,7 @@ static int trigger_config_run_type(struct kmod_test_device *test_dev,
+ 		break;
+ 	case TEST_KMOD_FS_TYPE:
+ 		kfree_const(config->test_fs);
+-		config->test_driver = NULL;
++		config->test_fs = NULL;
+ 		copied = config_copy_test_fs(config, test_str,
+ 					     strlen(test_str));
+ 		break;
 -- 
 2.26.2
 
