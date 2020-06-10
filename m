@@ -1,27 +1,12 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1593542712; x=1625078712;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=gVXFKwkoilJ+WRsAX2ilDSQvX1wsECjHxbakjfFTTiA=;
- b=tGZFtzXvjzO9lbqNel/0gcYL4b4H+zhgg3c4Dnt4UZCgiT2VgKFm448F
- RGSERHcKSG9aisUbyRWvhi6+ZI468HnjmvF3E1JgyUnRKbnINzecotvNV
- EOBBooR4ItH4rowB2QvtgbYMkz1bcCy7xLMV0rO9Dwx6bqajdQKMh+b2L
- XGqHl395ojo/leeoyk+9XOuQBtD9lSMsnJ6YUvx5asBl4v5OEnytjF3Ly
- /K1wxhHF5Nwuo718zhvP0Sd9NUDSUzlw8FgyRuXM6Yzu76Txs66COEgHO
- VOiE17X4BZkO/zmJrQmigt+KPJi1tfg+JJ9Rnk76+rs/yeSjqd6Ey8mcd Q==;
-Date: Tue, 30 Jun 2020 20:45:09 +0200
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20200630184509.oliwf3ui4gxno756@soft-dev3.localdomain>
-References: <20200630134424.4114086-1-horatiu.vultur@microchip.com>
- <20200630134424.4114086-3-horatiu.vultur@microchip.com>
- <20200630091243.124869e2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Return-Path: <mcgrof@gmail.com>
+From: "Luis R. Rodriguez" <mcgrof@kernel.org>
+Message-Id: <20200610154923.27510-2-mcgrof@kernel.org>
+In-Reply-To: <20200610154923.27510-1-mcgrof@kernel.org>
+References: <20200610154923.27510-1-mcgrof@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-In-Reply-To: <20200630091243.124869e2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Subject: Re: [Bridge] [PATCH net-next 2/3] bridge: mrp: Add br_mrp_fill_info
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH 1/5] selftests: kmod: Use variable NAME in
+	kmod_test_0001()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,28 +15,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, jiri@mellanox.com, davem@davemloft.net
+Date: Wed, 10 Jun 2020 15:49:28 -0000
+To: gregkh@linuxfoundation.org, viro@zeniv.linux.org.uk, philipp.reisner@linbit.com, lars.ellenberg@linbit.com, axboe@kernel.dk, bfields@fieldses.org, chuck.lever@oracle.com, roopa@cumulusnetworks.com, nikolay@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, dhowells@redhat.com, jarkko.sakkinen@linux.intel.com, jmorris@namei.org, serge@hallyn.com, christian.brauner@ubuntu.com
+Cc: linux-nfs@vger.kernel.org, chainsaw@gentoo.org, ravenexp@gmail.com, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, josh@joshtriplett.org, slyfox@gentoo.org, ast@kernel.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>, linux-fsdevel@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>, keescook@chromium.org
 
-The 06/30/2020 09:12, Jakub Kicinski wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> On Tue, 30 Jun 2020 15:44:23 +0200 Horatiu Vultur wrote:
-> > Add the function br_mrp_fill_info which populates the MRP attributes
-> > regarding the status of each MRP instance.
-> >
-> > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> 
-> This adds warnings when built with W=1 C=1:
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-The warnings at line 316 will be fixed once net will be merged into
-net-next. But I need to fix the others.
+Use the variable NAME instead of "\000" directly in kmod_test_0001().
 
-> 
-> net/bridge/br_mrp_netlink.c:316:9: warning: dereference of noderef expression
-> net/bridge/br_mrp_netlink.c:325:36: warning: dereference of noderef expression
-> net/bridge/br_mrp_netlink.c:328:36: warning: dereference of noderef expression
-> net/bridge/br_mrp_netlink.c:316:9: warning: dereference of noderef expression
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+---
+ tools/testing/selftests/kmod/kmod.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/tools/testing/selftests/kmod/kmod.sh b/tools/testing/selftests/kmod/kmod.sh
+index 3702dbcc90a7..da60c3bd4f23 100755
+--- a/tools/testing/selftests/kmod/kmod.sh
++++ b/tools/testing/selftests/kmod/kmod.sh
+@@ -341,7 +341,7 @@ kmod_test_0001_driver()
+ 
+ 	kmod_defaults_driver
+ 	config_num_threads 1
+-	printf '\000' >"$DIR"/config_test_driver
++	printf $NAME >"$DIR"/config_test_driver
+ 	config_trigger ${FUNCNAME[0]}
+ 	config_expect_result ${FUNCNAME[0]} MODULE_NOT_FOUND
+ }
+@@ -352,7 +352,7 @@ kmod_test_0001_fs()
+ 
+ 	kmod_defaults_fs
+ 	config_num_threads 1
+-	printf '\000' >"$DIR"/config_test_fs
++	printf $NAME >"$DIR"/config_test_fs
+ 	config_trigger ${FUNCNAME[0]}
+ 	config_expect_result ${FUNCNAME[0]} -EINVAL
+ }
 -- 
-/Horatiu
+2.26.2
+
