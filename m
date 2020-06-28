@@ -1,27 +1,24 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1593349167; x=1624885167;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=C7iLwWRBNIiE1Z5P3HM5arpORAu2RBCVGY2pNOudQek=;
- b=k9Faz/ErcmjkWIq9v7i35L4QF4TE/pat3vEvFPU0j93pNcX0RJbl652a
- P1Qsfy3p4Kuv+itKIlgIvJxBojOpSx4WURFvbRYDPU4R/1qVIHOtQP3Qz
- 40ZvYwvGqDjs+bCQLHkSBF6EtH+wplBuJe5Km9/gCeJC9t2wzrutaXq9W
- JCw1oIAm/BzHStW0ISP19g7HqyVTEor4/m8bwsl9UzT2OAJMXmIg2wgc0
- b2uPoU6eJPQMQN4s4j/dDlomHZQak9QV6kranV6N2d3IUM9DljmGh9BTw
- kKdOfwunQ/XGZF+fQMnmHAf6PwY/LBArDk5pRLWw+IcEKGKKkfBmpJAcz w==;
-Date: Sun, 28 Jun 2020 14:59:25 +0200
+ t=1593351940; x=1624887940;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=7RgpyIwXfH1tGTnb6OuRYjHUr8PyMUze0ylIcWVy050=;
+ b=i+JaPpFGggPnUv1M3ON9wTRpEm/BHIabVb97cFMfP5VQT4XblHWWla1c
+ 5TK3LQgS/GrOyjz7DtKlbBVHfsJM66Nsp8KZWKq0oNdyzpcuYCi72Cj1r
+ i9UwTgebe8gj2UxjxiKRvSkGyRdgYMOMTsdU4FJ3HNov+JECrgzEnRnBU
+ jwJwKrCbpNhifqY6FITEaVvi95OK3Z/OdyyebE+FVhnd0rwjs9Un+NpZx
+ 03amz3YgdnP2sLT1ndI0ss0BmQYKy+lZU21HOSav6mTWZPJPWGEtzZ/qA
+ v1DE03udjff3xedUSxVP4jF5eEE2l8+UmKS9FVD/sYncNaGPQKbnxTGIV A==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20200628125925.gmc6ct34lnv6nrzu@soft-dev3.localdomain>
-References: <20200626073349.3495526-1-horatiu.vultur@microchip.com>
- <20200626.130029.89317239393030387.davem@davemloft.net>
+Date: Sun, 28 Jun 2020 15:45:16 +0200
+Message-ID: <20200628134516.3767607-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-In-Reply-To: <20200626.130029.89317239393030387.davem@davemloft.net>
-Subject: Re: [Bridge] [PATCH net-next v3 0/2] bridge: mrp: Extend MRP
- netlink interface with IFLA_BRIDGE_MRP_CLEAR
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] bridge: mrp: Fix endian conversion and some
+	other warnings
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,61 +27,76 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kuba@kernel.org
+To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>, kernel test robot <lkp@intel.com>
 
-The 06/26/2020 13:00, David Miller wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> From: Horatiu Vultur <horatiu.vultur@microchip.com>
-> Date: Fri, 26 Jun 2020 09:33:47 +0200
-> 
-> > This patch series extends MRP netlink interface with IFLA_BRIDGE_MRP_CLEAR.
-> > To allow the userspace to clear all MRP instances when is started. The
-> > second patch in the series fix different sparse warnings.
-> >
-> > v3:
-> >   - add the second patch to fix sparse warnings
+The following sparse warnings are fixed:
+net/bridge/br_mrp.c:106:18: warning: incorrect type in assignment (different base types)
+net/bridge/br_mrp.c:106:18:    expected unsigned short [usertype]
+net/bridge/br_mrp.c:106:18:    got restricted __be16 [usertype]
+net/bridge/br_mrp.c:281:23: warning: incorrect type in argument 1 (different modifiers)
+net/bridge/br_mrp.c:281:23:    expected struct list_head *entry
+net/bridge/br_mrp.c:281:23:    got struct list_head [noderef] *
+net/bridge/br_mrp.c:332:28: warning: incorrect type in argument 1 (different modifiers)
+net/bridge/br_mrp.c:332:28:    expected struct list_head *new
+net/bridge/br_mrp.c:332:28:    got struct list_head [noderef] *
+net/bridge/br_mrp.c:332:40: warning: incorrect type in argument 2 (different modifiers)
+net/bridge/br_mrp.c:332:40:    expected struct list_head *head
+net/bridge/br_mrp.c:332:40:    got struct list_head [noderef] *
+net/bridge/br_mrp.c:682:29: warning: incorrect type in argument 1 (different modifiers)
+net/bridge/br_mrp.c:682:29:    expected struct list_head const *head
+net/bridge/br_mrp.c:682:29:    got struct list_head [noderef] *
 
-Hi,
-> 
-> These changes are completely unrelated.
-> 
-> The sparse stuff should probably be submitted to 'net'.
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 2f1a11ae11d222 ("bridge: mrp: Add MRP interface.")
+Fixes: 4b8d7d4c599182 ("bridge: mrp: Extend bridge interface")
+Fixes: 9a9f26e8f7ea30 ("bridge: mrp: Connect MRP API with the switchdev API")
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ net/bridge/br_mrp.c         | 2 +-
+ net/bridge/br_private.h     | 2 +-
+ net/bridge/br_private_mrp.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-I will send a patch for this to 'net'.
-
-> 
-> And I have to ask why you really need a clear operation. 
-
-Because we didn't have any way for the userspace to know what ports are
-part of the MRP ring. I thought the easiest way would be for the daemon
-to clear everything when is started.
-
-> Routing
-> daemons come up and see what routes are installed, and update their
-> internal SW tables to match.  This not only allows efficient restart
-> after a crash, but it also allows multiple daemons to work
-> cooperatively as an agent for the same forwarding/routing table.
-
-I think it would be possible to have something similar for the MRP
-daemon. But I still have problems to see how to have multiple MRP
-daemons running at the same time. Because each deamon implements MRP
-state machine. So for example if the link of one of the MRP ports is
-changing then each daemon is notified about this change so then each
-daemon will send some frames, and that would mean that we have duplicate
-frames in the network.
-
-> 
-> Your usage model limits one daemon to manage the table and that
-> limitation is completely unnecessary.
-> 
-> Furthermore, even in a one-daemon scenerio, it's wasteful to throw
-> away all the work the previous daemon did to load the MRP entries into
-> the bridge.
-> 
-> Thanks.
-> 
-
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index 779e1eb754430..90592af9db619 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -86,7 +86,7 @@ static struct sk_buff *br_mrp_skb_alloc(struct net_bridge_port *p,
+ {
+ 	struct ethhdr *eth_hdr;
+ 	struct sk_buff *skb;
+-	u16 *version;
++	__be16 *version;
+ 
+ 	skb = dev_alloc_skb(MRP_MAX_FRAME_LENGTH);
+ 	if (!skb)
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 2130fe0194e64..e0ea6dbbc97ed 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -430,7 +430,7 @@ struct net_bridge {
+ 	struct hlist_head		fdb_list;
+ 
+ #if IS_ENABLED(CONFIG_BRIDGE_MRP)
+-	struct list_head		__rcu mrp_list;
++	struct list_head		mrp_list;
+ #endif
+ };
+ 
+diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
+index 33b255e38ffec..315eb37d89f0f 100644
+--- a/net/bridge/br_private_mrp.h
++++ b/net/bridge/br_private_mrp.h
+@@ -8,7 +8,7 @@
+ 
+ struct br_mrp {
+ 	/* list of mrp instances */
+-	struct list_head		__rcu list;
++	struct list_head		list;
+ 
+ 	struct net_bridge_port __rcu	*p_port;
+ 	struct net_bridge_port __rcu	*s_port;
 -- 
-/Horatiu
+2.26.2
+
