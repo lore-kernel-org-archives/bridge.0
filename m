@@ -1,24 +1,26 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1593524740; x=1625060740;
- h=from:to:cc:subject:date:message-id:mime-version:
- content-transfer-encoding;
- bh=DT8RPyRP9mmuQ6a31TkFhh6MXoc72CoyHoSonfX6oCE=;
- b=xrZ0sg8i0PhCsg11vxAhZLUQE9CdRAp8Yt/9/fM+tvQ4ob32GhzdefqY
- amfZK9Xi22mS4OpcyVoBl9dcvfcbuP8qlosrItIg/8mXdUZZZqb1iSF3U
- 4zGUoLv3eGixV4p3bvdYdGiuLRnmW6PGsMIxzPWrkbYkvNc89IGGibYSS
- EY1gDtZoOLT1bHBaVoBGD4Swg3ZzDXmpYW6hKAA+k/F0nJNjnlyYi8zY0
- Cqh8T+CHRtl+xgcGw/foLKHRQolGfJPOJzW0HmfkyW7NkrisIoPTA6f1d
- Iss23yQMNuJsTVaZYIngOL4EfuDnfh5lam8GQXarztX+MqEo5gMOAhPmQ Q==;
+ t=1593524743; x=1625060743;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version:content-transfer-encoding;
+ bh=CBHDKe17OWh23IN1qsZyil4P/7Q7BPKQEEmOkyRy9rQ=;
+ b=lA8CbRVN6iu5tG/DdE4/+Kz2bsCgh3RapnIoDNvPSZUDXdWIHt3PzK2c
+ imHL83mVAuncASXXgaVfG8L+ydJoKiLcJIJKyeHvs8qns2VAAmops5zYp
+ soBum6kvSsrpPoxCgiB21soIznBFXBEAZkgbav3oTD93YXrjqkVJsj+dC
+ No2ShAhCZ5D/hPn8govMBsaPRvt0OPnsxRqDUqBL78KaBtJV7RIxkEBE/
+ n3xJwAekDMxTEqE1ecde8QvoJCwsVqgz/ho+EdvFDfZnfhpMj34huIEKY
+ FMyWhuQrXEvLDYV9N8/juRfd7zRemwJTLLjSXBXNfgyTaiXdREjRW/1mH A==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 30 Jun 2020 15:44:21 +0200
-Message-ID: <20200630134424.4114086-1-horatiu.vultur@microchip.com>
+Date: Tue, 30 Jun 2020 15:44:22 +0200
+Message-ID: <20200630134424.4114086-2-horatiu.vultur@microchip.com>
+In-Reply-To: <20200630134424.4114086-1-horatiu.vultur@microchip.com>
+References: <20200630134424.4114086-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 0/3] bridge: mrp: Add support for getting
-	the status
+Subject: [Bridge] [PATCH net-next 1/3] bridge: uapi: mrp: Extend MRP
+	attributes to get the status
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,21 +32,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@mellanox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-This patch series extends the MRP netlink interface to allow the userspace
-daemon to get the status of the MRP instances in the kernel.
+Add MRP attribute IFLA_BRIDGE_MRP_INFO to allow the userspace to get the
+current state of the MRP instances. This is a nested attribute that
+contains other attributes like, ring id, index of primary and secondary
+port, priority, ring state, ring role.
 
-Horatiu Vultur (3):
-  bridge: uapi: mrp: Extend MRP attributes to get the status
-  bridge: mrp: Add br_mrp_fill_info
-  bridge: Extend br_fill_ifinfo to return MPR status
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ include/uapi/linux/if_bridge.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
- include/uapi/linux/if_bridge.h | 17 ++++++++++
- include/uapi/linux/rtnetlink.h |  1 +
- net/bridge/br_mrp_netlink.c    | 57 ++++++++++++++++++++++++++++++++++
- net/bridge/br_netlink.c        | 29 ++++++++++++++++-
- net/bridge/br_private.h        |  7 +++++
- 5 files changed, 110 insertions(+), 1 deletion(-)
-
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index caa6914a3e53a..c114c1c2bd533 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -166,6 +166,7 @@ enum {
+ 	IFLA_BRIDGE_MRP_RING_STATE,
+ 	IFLA_BRIDGE_MRP_RING_ROLE,
+ 	IFLA_BRIDGE_MRP_START_TEST,
++	IFLA_BRIDGE_MRP_INFO,
+ 	__IFLA_BRIDGE_MRP_MAX,
+ };
+ 
+@@ -228,6 +229,22 @@ enum {
+ 
+ #define IFLA_BRIDGE_MRP_START_TEST_MAX (__IFLA_BRIDGE_MRP_START_TEST_MAX - 1)
+ 
++enum {
++	IFLA_BRIDGE_MRP_INFO_UNSPEC,
++	IFLA_BRIDGE_MRP_INFO_RING_ID,
++	IFLA_BRIDGE_MRP_INFO_P_IFINDEX,
++	IFLA_BRIDGE_MRP_INFO_S_IFINDEX,
++	IFLA_BRIDGE_MRP_INFO_PRIO,
++	IFLA_BRIDGE_MRP_INFO_RING_STATE,
++	IFLA_BRIDGE_MRP_INFO_RING_ROLE,
++	IFLA_BRIDGE_MRP_INFO_TEST_INTERVAL,
++	IFLA_BRIDGE_MRP_INFO_TEST_MAX_MISS,
++	IFLA_BRIDGE_MRP_INFO_TEST_MONITOR,
++	__IFLA_BRIDGE_MRP_INFO_MAX,
++};
++
++#define IFLA_BRIDGE_MRP_INFO_MAX (__IFLA_BRIDGE_MRP_INFO_MAX - 1)
++
+ struct br_mrp_instance {
+ 	__u32 ring_id;
+ 	__u32 p_ifindex;
 -- 
 2.27.0
 
