@@ -1,14 +1,24 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 28 Jun 2020 20:44:36 -0700 (PDT)
-Message-Id: <20200628.204436.799047852779320132.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200628134516.3767607-1-horatiu.vultur@microchip.com>
-References: <20200628134516.3767607-1-horatiu.vultur@microchip.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] bridge: mrp: Fix endian conversion and
- some other warnings
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1593524740; x=1625060740;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=DT8RPyRP9mmuQ6a31TkFhh6MXoc72CoyHoSonfX6oCE=;
+ b=xrZ0sg8i0PhCsg11vxAhZLUQE9CdRAp8Yt/9/fM+tvQ4ob32GhzdefqY
+ amfZK9Xi22mS4OpcyVoBl9dcvfcbuP8qlosrItIg/8mXdUZZZqb1iSF3U
+ 4zGUoLv3eGixV4p3bvdYdGiuLRnmW6PGsMIxzPWrkbYkvNc89IGGibYSS
+ EY1gDtZoOLT1bHBaVoBGD4Swg3ZzDXmpYW6hKAA+k/F0nJNjnlyYi8zY0
+ Cqh8T+CHRtl+xgcGw/foLKHRQolGfJPOJzW0HmfkyW7NkrisIoPTA6f1d
+ Iss23yQMNuJsTVaZYIngOL4EfuDnfh5lam8GQXarztX+MqEo5gMOAhPmQ Q==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Tue, 30 Jun 2020 15:44:21 +0200
+Message-ID: <20200630134424.4114086-1-horatiu.vultur@microchip.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next 0/3] bridge: mrp: Add support for getting
+	the status
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,33 +27,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: horatiu.vultur@microchip.com
-Cc: lkp@intel.com, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, kuba@kernel.org
+To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@mellanox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Sun, 28 Jun 2020 15:45:16 +0200
+This patch series extends the MRP netlink interface to allow the userspace
+daemon to get the status of the MRP instances in the kernel.
 
-> The following sparse warnings are fixed:
-> net/bridge/br_mrp.c:106:18: warning: incorrect type in assignment (different base types)
-> net/bridge/br_mrp.c:106:18:    expected unsigned short [usertype]
-> net/bridge/br_mrp.c:106:18:    got restricted __be16 [usertype]
-> net/bridge/br_mrp.c:281:23: warning: incorrect type in argument 1 (different modifiers)
-> net/bridge/br_mrp.c:281:23:    expected struct list_head *entry
-> net/bridge/br_mrp.c:281:23:    got struct list_head [noderef] *
-> net/bridge/br_mrp.c:332:28: warning: incorrect type in argument 1 (different modifiers)
-> net/bridge/br_mrp.c:332:28:    expected struct list_head *new
-> net/bridge/br_mrp.c:332:28:    got struct list_head [noderef] *
-> net/bridge/br_mrp.c:332:40: warning: incorrect type in argument 2 (different modifiers)
-> net/bridge/br_mrp.c:332:40:    expected struct list_head *head
-> net/bridge/br_mrp.c:332:40:    got struct list_head [noderef] *
-> net/bridge/br_mrp.c:682:29: warning: incorrect type in argument 1 (different modifiers)
-> net/bridge/br_mrp.c:682:29:    expected struct list_head const *head
-> net/bridge/br_mrp.c:682:29:    got struct list_head [noderef] *
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: 2f1a11ae11d222 ("bridge: mrp: Add MRP interface.")
-> Fixes: 4b8d7d4c599182 ("bridge: mrp: Extend bridge interface")
-> Fixes: 9a9f26e8f7ea30 ("bridge: mrp: Connect MRP API with the switchdev API")
-> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Horatiu Vultur (3):
+  bridge: uapi: mrp: Extend MRP attributes to get the status
+  bridge: mrp: Add br_mrp_fill_info
+  bridge: Extend br_fill_ifinfo to return MPR status
 
-Applied, thank you.
+ include/uapi/linux/if_bridge.h | 17 ++++++++++
+ include/uapi/linux/rtnetlink.h |  1 +
+ net/bridge/br_mrp_netlink.c    | 57 ++++++++++++++++++++++++++++++++++
+ net/bridge/br_netlink.c        | 29 ++++++++++++++++-
+ net/bridge/br_private.h        |  7 +++++
+ 5 files changed, 110 insertions(+), 1 deletion(-)
+
+-- 
+2.27.0
+
