@@ -1,26 +1,26 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1593677605; x=1625213605;
+ t=1593677608; x=1625213608;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=PdW1XZ3MHRJsroDmSJ1DwasAvadWD6be00JFedG1d2Y=;
- b=nsBR7n1GUBTAOxNGU+77aWuJUuHTDrXU5Q1sTl21BeeCqTmv6Pb150jE
- BzI1BP3aDuf2gXe07QBoa86IyMijVMoVxvvX1vZP/sVev2K6SOrtseug2
- KLBcaTVkXjCxWKXyYaANV1GTqC7bJ3rzgHmLX6JosxBTHIS+JunrTaB5h
- G8ebdaI6Iz4Wid5422w0gD9dz3JG8Fr9hWtGDQJB/MmJ43kTO1hiryhJb
- iEu6tpKBcXgAkT4lB7FaAeiV8ecAJPFSwj1IVaPC+/ZzYEQDY/mJf47hU
- 2DcmQkv/rPCWWK6U5hDmPUFOCiQ+RYDruKt1TBWMycHxJYhqDljddXaPH g==;
+ bh=CBHDKe17OWh23IN1qsZyil4P/7Q7BPKQEEmOkyRy9rQ=;
+ b=FZ0xVg+pvG2T/Nq/eWd2htBFT8q1kjk7/vetd0Qgfk2sD/RuOZN/Jjme
+ pZqK7QM0gWtxDf/iaFndrN5MjW/Qiz9Se1XoI8xG4AKWL6OwovocLEDgy
+ jE5/piaGEJPab1DpC4hNb6Go/Qx+CjYpiYPbB0Mrhv9JI0ErNMSnHvETy
+ bz33nM5RiiybgK6e2jw/ohAbMmGEIji5+4VlJxY8i5sfq7nQYaVLFnK1d
+ PM7VHWe/VBroB7V486YHnnbpmi47me3gXxlhuvUuP9q7B3ssVqG3+kngj
+ MxM1O32eJCg1jmK9u18fIDIn4UX9zemBH/12PI7aCOfGKvCJBzOWCjK5U A==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Thu, 2 Jul 2020 10:13:07 +0200
-Message-ID: <20200702081307.933471-4-horatiu.vultur@microchip.com>
+Date: Thu, 2 Jul 2020 10:13:05 +0200
+Message-ID: <20200702081307.933471-2-horatiu.vultur@microchip.com>
 In-Reply-To: <20200702081307.933471-1-horatiu.vultur@microchip.com>
 References: <20200702081307.933471-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 3/3] bridge: Extend br_fill_ifinfo to
-	return MPR status
+Subject: [Bridge] [PATCH net-next v3 1/3] bridge: uapi: mrp: Extend MRP
+	attributes to get the status
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,73 +32,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@mellanox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-This patch extends the function br_fill_ifinfo to return also the MRP
-status for each instance on a bridge. It also adds a new filter
-RTEXT_FILTER_MRP to return the MRP status only when this is set, not to
-interfer with the vlans. The MRP status is return only on the bridge
-interfaces.
+Add MRP attribute IFLA_BRIDGE_MRP_INFO to allow the userspace to get the
+current state of the MRP instances. This is a nested attribute that
+contains other attributes like, ring id, index of primary and secondary
+port, priority, ring state, ring role.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- include/uapi/linux/rtnetlink.h |  1 +
- net/bridge/br_netlink.c        | 25 ++++++++++++++++++++++++-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ include/uapi/linux/if_bridge.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
-index 879e64950a0a2..9b814c92de123 100644
---- a/include/uapi/linux/rtnetlink.h
-+++ b/include/uapi/linux/rtnetlink.h
-@@ -778,6 +778,7 @@ enum {
- #define RTEXT_FILTER_BRVLAN	(1 << 1)
- #define RTEXT_FILTER_BRVLAN_COMPRESSED	(1 << 2)
- #define	RTEXT_FILTER_SKIP_STATS	(1 << 3)
-+#define RTEXT_FILTER_MRP	(1 << 4)
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index caa6914a3e53a..c114c1c2bd533 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -166,6 +166,7 @@ enum {
+ 	IFLA_BRIDGE_MRP_RING_STATE,
+ 	IFLA_BRIDGE_MRP_RING_ROLE,
+ 	IFLA_BRIDGE_MRP_START_TEST,
++	IFLA_BRIDGE_MRP_INFO,
+ 	__IFLA_BRIDGE_MRP_MAX,
+ };
  
- /* End of information exported to user level */
+@@ -228,6 +229,22 @@ enum {
  
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 240e260e3461c..c532fa65c9834 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -453,6 +453,28 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 		rcu_read_unlock();
- 		if (err)
- 			goto nla_put_failure;
-+
-+		nla_nest_end(skb, af);
-+	}
-+
-+	if (filter_mask & RTEXT_FILTER_MRP) {
-+		struct nlattr *af;
-+		int err;
-+
-+		if (!br_mrp_enabled(br) || port)
-+			goto done;
-+
-+		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
-+		if (!af)
-+			goto nla_put_failure;
-+
-+		rcu_read_lock();
-+		err = br_mrp_fill_info(skb, br);
-+		rcu_read_unlock();
-+
-+		if (err)
-+			goto nla_put_failure;
-+
- 		nla_nest_end(skb, af);
- 	}
+ #define IFLA_BRIDGE_MRP_START_TEST_MAX (__IFLA_BRIDGE_MRP_START_TEST_MAX - 1)
  
-@@ -516,7 +538,8 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
- 	struct net_bridge_port *port = br_port_get_rtnl(dev);
- 
- 	if (!port && !(filter_mask & RTEXT_FILTER_BRVLAN) &&
--	    !(filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED))
-+	    !(filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED) &&
-+	    !(filter_mask & RTEXT_FILTER_MRP))
- 		return 0;
- 
- 	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
++enum {
++	IFLA_BRIDGE_MRP_INFO_UNSPEC,
++	IFLA_BRIDGE_MRP_INFO_RING_ID,
++	IFLA_BRIDGE_MRP_INFO_P_IFINDEX,
++	IFLA_BRIDGE_MRP_INFO_S_IFINDEX,
++	IFLA_BRIDGE_MRP_INFO_PRIO,
++	IFLA_BRIDGE_MRP_INFO_RING_STATE,
++	IFLA_BRIDGE_MRP_INFO_RING_ROLE,
++	IFLA_BRIDGE_MRP_INFO_TEST_INTERVAL,
++	IFLA_BRIDGE_MRP_INFO_TEST_MAX_MISS,
++	IFLA_BRIDGE_MRP_INFO_TEST_MONITOR,
++	__IFLA_BRIDGE_MRP_INFO_MAX,
++};
++
++#define IFLA_BRIDGE_MRP_INFO_MAX (__IFLA_BRIDGE_MRP_INFO_MAX - 1)
++
+ struct br_mrp_instance {
+ 	__u32 ring_id;
+ 	__u32 p_ifindex;
 -- 
 2.27.0
 
