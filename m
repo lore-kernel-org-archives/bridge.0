@@ -1,14 +1,25 @@
-Return-Path: <davem@davemloft.net>
-Date: Thu, 02 Jul 2020 14:19:31 -0700 (PDT)
-Message-Id: <20200702.141931.1713593201879768648.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200702081307.933471-1-horatiu.vultur@microchip.com>
-References: <20200702081307.933471-1-horatiu.vultur@microchip.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: <penguin-kernel@i-love.sakura.ne.jp>
+References: <4d8fbcea-a892-3453-091f-d57c03f9aa90@de.ibm.com>
+ <1263e370-7cee-24d8-b98c-117bf7c90a83@de.ibm.com>
+ <20200626025410.GJ4332@42.do-not-panic.com>
+ <20200630175704.GO13911@42.do-not-panic.com>
+ <b24d8dae-1872-ba2c-acd4-ed46c0781317@de.ibm.com>
+ <a6792135-3285-0861-014e-3db85ea251dc@i-love.sakura.ne.jp>
+ <20200701135324.GS4332@42.do-not-panic.com>
+ <8d714a23-bac4-7631-e5fc-f97c20a46083@i-love.sakura.ne.jp>
+ <20200701153859.GT4332@42.do-not-panic.com>
+ <e3f3e501-2cb7-b683-4b85-2002b7603244@i-love.sakura.ne.jp>
+ <20200702194656.GV4332@42.do-not-panic.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Message-ID: <d8a74a06-de97-54ae-de03-0d955e82f62b@i-love.sakura.ne.jp>
+Date: Fri, 3 Jul 2020 09:52:01 +0900
+MIME-Version: 1.0
+In-Reply-To: <20200702194656.GV4332@42.do-not-panic.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 0/3] bridge: mrp: Add support for
- getting the status
+Subject: Re: [Bridge] linux-next: umh: fix processed error when
+ UMH_WAIT_PROC is used seems to break linux bridge on s390x (bisected)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,20 +28,80 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: horatiu.vultur@microchip.com
-Cc: nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, jiri@mellanox.com, kuba@kernel.org
+To: Luis Chamberlain <mcgrof@kernel.org>
+Cc: ast@kernel.org, jarkko.sakkinen@linux.intel.com, philipp.reisner@linbit.com, David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org, christian.brauner@ubuntu.com, yangtiezhu@loongson.cn, linux-s390 <linux-s390@vger.kernel.org>, bridge@lists.linux-foundation.org, jmorris@namei.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, kuba@kernel.org, serge@hallyn.com, keescook@chromium.org, nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, josh@joshtriplett.org, slyfox@gentoo.org, viro@zeniv.linux.org.uk, axboe@kernel.dk, bfields@fieldses.org, linux-nfs@vger.kernel.org, chainsaw@gentoo.org, ravenexp@gmail.com, gregkh@linuxfoundation.org, markward@linux.ibm.com, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, chuck.lever@oracle.com, "Eric W. Biederman" <ebiederm@xmission.com>, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, lars.ellenberg@linbit.com, davem@davemloft.net
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Thu, 2 Jul 2020 10:13:04 +0200
-
-> This patch series extends the MRP netlink interface to allow the userspace
-> daemon to get the status of the MRP instances in the kernel.
+On 2020/07/03 4:46, Luis Chamberlain wrote:
+> On Thu, Jul 02, 2020 at 01:26:53PM +0900, Tetsuo Handa wrote:
+>> On 2020/07/02 0:38, Luis Chamberlain wrote:
+>>> @@ -156,6 +156,18 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
+>>>  		 */
+>>>  		if (KWIFEXITED(ret))
+>>>  			sub_info->retval = KWEXITSTATUS(ret);
+>>> +		/*
+>>> +		 * Do we really want to be passing the signal, or do we pass
+>>> +		 * a single error code for all cases?
+>>> +		 */
+>>> +		else if (KWIFSIGNALED(ret))
+>>> +			sub_info->retval = KWTERMSIG(ret);
+>>
+>> No, this is bad. Caller of usermode helper is unable to distinguish exit(9)
+>> and e.g. SIGKILL'ed by the OOM-killer.
 > 
-> v3:
->   - remove misleading comment
->   - fix to use correctly the RCU
-> 
-> v2:
->   - fix sparse warnings
+> Right, the question is: do we care?
 
-Series applied, thank you.
+Yes, we have to care.
+
+> And the umh patch "umh: fix processed error when UMH_WAIT_PROC is used"
+> changed this to:
+> 
+> -       if (ret >= 0) {
+> +       if (ret != 0) {
+> 
+> Prior to the patch negative return values from userspace were still
+> being captured, and likewise signals, but the error value was not
+> raw, not the actual value. After the patch, since we check for ret != 0
+> we still upkeep the sanity check for any error, correct the error value,
+> but as you noted signals were ignored as I made the wrong assumption
+> we would ignore them. The umh sub_info->retval is set after my original
+> patch only if KWIFSIGNALED(ret)), and ignored signals, and so that
+> would be now capitured with the additional KWIFSIGNALED(ret)) check.
+
+"call_usermodehelper_keys() == 0" (i.e. usermode helper was successfully
+started and successfully terminated via exit(0)) is different from "there is
+nothing to do". call_sbin_request_key() == 0 case still has to check for
+possibility of -ENOKEY case.
+
+> 
+> The question still stands:
+> 
+> Do we want to open code all these checks or simply wrap them up in
+> the umh. If we do the later, as you note exit(9) and a SIGKILL will
+> be the same to the inspector in the kernel. But do we care?
+
+Yes, we do care.
+
+> 
+> Do we really want umh callers differntiatin between signals and exit values?
+
+Yes, we do.
+
+> 
+> The alternative to making a compromise is using generic wrappers for
+> things which make sense and letting the callers use those.
+
+I suggest just introducing KWIFEXITED()/KWEXITSTATUS()/KWIFSIGNALED()/KWTERMSIG()
+macros and fixing the callers, for some callers are not aware of possibility of
+KWIFSIGNALED() case.
+
+For example, conn_try_outdate_peer() in drivers/block/drbd/drbd_nl.c misbehaves if
+drbd_usermode_helper process was terminated by a signal, for the switch() statement
+after returning from conn_helper() is assuming that the return value of conn_helper()
+is a KWEXITSTATUS() value if drbd_usermode_helper process was successfully started.
+If drbd_usermode_helper process was terminated by SIGQUIT (which is 3),
+conn_try_outdate_peer() will by error hit "case P_INCONSISTENT:" (which is 3);
+conn_try_outdate_peer() should hit "default: /* The script is broken ... */"
+unless KWIFEXITED() == true.
+
+Your patch is trying to obnubilate the return code.
+
