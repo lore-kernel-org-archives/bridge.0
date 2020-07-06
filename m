@@ -1,27 +1,24 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=uRhTWDkA5o7/NySYW2wL1hIHkuOz93fuM88SRvT6oPE=;
- b=VhN89pSLxTo5PCNoa5b0ZAYAN3W1VGnbgQFtp1/0Qub7yTB/xDgxOX4EHwgSu4DEjR
- 3oDNyOo+7FQtZ2sNWL0hYu89xk0VX6MrTNhdx3pETU0uat88BijXNfrm/ZEzRlTfdG3+
- 0TL23lZlx2ivaGM67hvR8wLnkK8pNxQaiHDvo=
-References: <20200705182234.10257-1-linus.luessing@c0d3.blue>
- <093beb97-87e8-e112-78ad-b3e4fe230cdb@cumulusnetworks.com>
- <20200705190851.GC2648@otheros>
- <4728ef5e-0036-7de6-8b6f-f29885d76473@cumulusnetworks.com>
- <20200705194915.GD2648@otheros>
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <15375380-b7ad-985c-6ad3-c86ece996cd0@cumulusnetworks.com>
-Date: Sun, 5 Jul 2020 23:18:36 +0300
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1594027240; x=1625563240;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=geAAVdtwO9Bz84BCA+quZKFfwpYizDUN5bzgDqOE4NM=;
+ b=1AKPGoBlxBDES05s/4m52Msn700vKW+JNLzm3nIPpGIeNp+bBa/wpqlS
+ msdeI5rUgSRK37X9w7LpZ9NuQd70Ub/oKUhq7FZFbTotZXeofyRgp1G27
+ T6L8xZwdjXbKgdSAMDo2Z5boU5ohyEHRk2kUFppA7iz6R0FBjDtUGqY16
+ oxu4CRskNUgc43eGgvL7vB9gOY7EZgwgvr8yerzfncNIKH1YPe04ouU2P
+ 26OL8j5HxZvskqh2M3iyonZJEsbxsnUHWDMgT+682ij78uoEPE/SJxIVz
+ i7HBhbdgHVubwo+GZ/G0MdQ9ARE1Ha5Qo7Kenk2F7opGqAG3MjqnrkVxO g==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Mon, 6 Jul 2020 11:18:30 +0200
+Message-ID: <20200706091842.3324565-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-In-Reply-To: <20200705194915.GD2648@otheros>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net] bridge: mcast: Fix MLD2 Report IPv6
- payload length check
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next 00/12] bridge: mrp: Add support for
+	interconnect ring
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,57 +27,97 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>
-Cc: Martin Weinelt <martin@linuxlounge.net>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
+To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On 7/5/20 10:49 PM, Linus Lüssing wrote:
-> On Sun, Jul 05, 2020 at 10:11:39PM +0300, Nikolay Aleksandrov wrote:
->> On 7/5/20 10:08 PM, Linus Lüssing wrote:
->>> On Sun, Jul 05, 2020 at 09:33:13PM +0300, Nikolay Aleksandrov wrote:
->>>> On 05/07/2020 21:22, Linus Lüssing wrote:
->>>>> Commit e57f61858b7c ("net: bridge: mcast: fix stale nsrcs pointer in
->>>>> igmp3/mld2 report handling") introduced a small bug which would potentially
->>>>> lead to accepting an MLD2 Report with a broken IPv6 header payload length
->>>>> field.
->>>>>
->>>>> The check needs to take into account the 2 bytes for the "Number of
->>>>> Sources" field in the "Multicast Address Record" before reading it.
->>>>> And not the size of a pointer to this field.
->>>>>
->>>>> Fixes: e57f61858b7c ("net: bridge: mcast: fix stale nsrcs pointer in igmp3/mld2 report handling")
->>>>> Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
->>>>> ---
->>>>>    net/bridge/br_multicast.c | 2 +-
->>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>
->>>>
->>>> I'd rather be more concerned with it rejecting a valid report due to wrong size. The ptr
->>>> size would always be bigger. :)
->>>>
->>>> Thanks!
->>>> Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>>
->>> Aiy, you're right, it's the other way round. I'll update the
->>> commit message and send a v2 in a minute, with your Acked-by
->>> included.
->>>
->>
->> By the way, I can't verify at the moment, but I think we can drop that whole
->> hunk altogether since skb_header_pointer() is used and it will simply return
->> an error if there isn't enough data for nsrcs.
->>
-> 
-> Hm, while unlikely, the IPv6 packet / header payload length might be
-> shorter than the frame / skb size.
-> 
-> And even though it wouldn't crash reading over the IPv6 packet
-> length, especially as skb_header_pointer() is used, I think we should
-> still avoid reading over the size indicated by the IPv6 header payload
-> length field, to stay protocol compliant.
-> 
-> Does that make sense?
-> 
+This patch series extends existing MRP to add support for interconnect ring.  An
+interconnect ring is a ring that connects 2 rings. In this way is possible to
+connect multiple rings. Each interconnect ring is form of 4 nodes, in which 3
+have the role MIC(Media Redundancy Interconnect Client) and one has the role
+MIM(Media Redundancy Interconnect Manager). All these nodes need to have the
+same ID and the ID needs to be unique between multiple interconnect rings. And 2
+nodes needs to be part of one ring and the other 2 nodes needs to be part of the
+other ring that is connected.
 
-Sure, I just thought the ipv6_mc_may_pull() call after that includes those 2 bytes as well, so
-we're covered. That is, it seems to be doing the same check with the full grec size included.
+                 +---------+
+                 |         |
+      +----------|   MRM   |---------------+
+      |          |         |               |
+      |          +---------+               |
+      |                                    |
+      |                                    |
+      |                                    |
++--------------+                  +-----------------+
+|              |                  |                 |
+|  MRC/MIC     |------------------|    MRC/MIM      |
+|              |                  |                 |
++--------------+                  +-----------------+
+      |                                     |
+      |Interconnect port                    |Interconnect port
+      |                                     |
+      |                                     |
++--------------+                  +-----------------+
+|              |                  |                 |
+|  MRC/MIC     |----------------- |   MRC/MIC       |
+|              |                  |                 |
++--------------+                  +-----------------+
+      |                                     |
+      |                                     |
+      |          +---------+                |
+      |          |         |                |
+      +----------|  MRM    |----------------+
+                 |         |
+                 +---------+
+
+Each node in a ring needs to have one of the following ring roles, MRM or MRC.
+And it can also have an interconnect role like MIM or MIC if it is part of an
+interconnect ring. In the figure above the MRM doesn't have any interconnect
+role but the MRC from the top ring have the interconnect roles MIC respectively
+MIM. Therefore it is not possible for a node to have only an interconnect role.
+
+There are 2 ways for interconnect ring to detect when is open or closed:
+1. To use CCM frames on the interconnect port to detect when the interconnect
+   link goes down/up. This mode is called LC-mode.
+2. To send InTest frames on all 3 ports(2 ring ports and 1 interconnect port)
+   and detect when these frames are received back. This mode is called RC-mode.
+
+This patch series adds support only for RC-mode. Where MIM sends InTest frames
+on all 3 ports and detects when it receives back the InTest. When it receives
+the InTest it means that the ring is closed so it would set the interconnect
+port in blocking state. If it stops receiving the InTest frames then it would
+set the port in forwarding state and it would send InTopo frames. These InTopo
+frames will be received by MRM nodes and process them. And then the MRM will
+send Topo frames in the rings so each client will clear its FDB.
+
+Horatiu Vultur (12):
+  switchdev: mrp: Extend switchdev API for MRP Interconnect
+  bridge: uapi: mrp: Extend MRP attributes for MRP interconnect
+  bridge: mrp: Extend bridge interface
+  bridge: mrp: Extend br_mrp for MRP interconnect
+  bridge: mrp: Rename br_mrp_port_open to br_mrp_ring_port_open
+  bridge: mrp: Add br_mrp_in_port_open function
+  bridge: switchdev: mrp: Extend MRP API for switchdev for MRP
+    Interconnect
+  bridge: mrp: Implement the MRP Interconnect API
+  bridge: mrp: Extend MRP netlink interface for configuring MRP
+    interconnect
+  bridge: uapi: mrp: Extend MRP_INFO attributes for interconnect status
+  bridge: mrp: Extend br_mrp_fill_info
+  net: bridge: Add port attribute IFLA_BRPORT_MRP_IN_OPEN
+
+ include/linux/if_bridge.h          |   1 +
+ include/net/switchdev.h            |  38 +++
+ include/uapi/linux/if_bridge.h     |  58 ++++
+ include/uapi/linux/if_link.h       |   1 +
+ include/uapi/linux/mrp_bridge.h    |  38 +++
+ net/bridge/br_mrp.c                | 531 +++++++++++++++++++++++++++--
+ net/bridge/br_mrp_netlink.c        | 182 +++++++++-
+ net/bridge/br_mrp_switchdev.c      |  62 ++++
+ net/bridge/br_netlink.c            |   3 +
+ net/bridge/br_private_mrp.h        |  27 +-
+ tools/include/uapi/linux/if_link.h |   1 +
+ 11 files changed, 906 insertions(+), 36 deletions(-)
+
+-- 
+2.27.0
 
