@@ -1,19 +1,24 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=3RZP+kRoNIsT3FziqMqySvsKme/wXQTMMb6By92Wljw=;
- b=g3tfppG019TKLAramyd/bDEFL6hxOQIHnsdNOtBYcM1S2/eqTeGBxQoWb48DCNMqJn
- H/PHB56Ye8QR2nwKqx21FM0DkCu/A0f25zXJhc4ezI/AGLtcYXxiOygqaTSCojLeXM3F
- JAbiHVKWrh/bK+mJpvo6dTcsjxNu6YIqA2rkc=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat, 11 Jul 2020 18:05:04 +0300
-Message-Id: <20200711150504.885831-1-nikolay@cumulusnetworks.com>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1594562962; x=1626098962;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=jKQWssojGNpf3v9/XhCwIGPfiBR7HMKOrKVBM5flxbg=;
+ b=zoqZyODDoigjPbgtXLIKvBaqz7SWRIyZP863uujyw9BroiGFaa8f0JIt
+ cIVN7jpimtDx66Ovgtc7mOU0Lsx+lWTB9lmUvzO7BnUtpb39ApSf3ihgh
+ P/bUb7P8cieLr3usPWWne9AX9f/foPa/EzgT5jOQA/SNboxIDlTZZsHgr
+ mX4uabvOmbn8Q+/R9f42SgzDcjtWU0ad5FdqKg3tygvVi1kcA/UGkaR2+
+ Lo4elHqoqi7cCu9FFDg5AbdDrR3ZM2QFA/uh6rlss2CWYv4C6NYrcFeLU
+ erHqov7STVtlQBM8wrD4gBCh5FtGejfN+L0Y+oNMtZYgTgOy4OkLZwqz8 A==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Sun, 12 Jul 2020 16:05:44 +0200
+Message-ID: <20200712140556.1758725-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: notify on vlan tunnel
-	changes done via the old api
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next v3 00/12] bridge: mrp: Add support for
+	interconnect ring
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,114 +27,107 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-If someone uses the old vlan API to configure tunnel mappings we'll only
-generate the old-style full port notification. That would be a problem
-if we are monitoring the new vlan notifications for changes. The patch
-resolves the issue by adding vlan notifications to the old tunnel netlink
-code. As usual we try to compress the notifications for as many vlans
-in a range as possible, thus a vlan tunnel change is considered able
-to enter the "current" vlan notification range if:
- 1. vlan exists
- 2. it has actually changed (curr_change == true)
- 3. it passes all standard vlan notification range checks done by
-    br_vlan_can_enter_range() such as option equality, id continuity etc
+This patch series extends existing MRP to add support for interconnect ring.  An
+interconnect ring is a ring that connects 2 rings. In this way is possible to
+connect multiple rings. Each interconnect ring is form of 4 nodes, in which 3
+have the role MIC(Media Redundancy Interconnect Client) and one has the role
+MIM(Media Redundancy Interconnect Manager). All these nodes need to have the
+same ID and the ID needs to be unique between multiple interconnect rings. And 2
+nodes needs to be part of one ring and the other 2 nodes needs to be part of the
+other ring that is connected.
 
-Note that vlan tunnel changes (add/del) are considered a part of vlan
-options so only RTM_NEWVLAN notification is generated with the relevant
-information inside.
+                 +---------+
+                 |         |
+      +----------|   MRM   |---------------+
+      |          |         |               |
+      |          +---------+               |
+      |                                    |
+      |                                    |
+      |                                    |
++--------------+                  +-----------------+
+|              |                  |                 |
+|  MRC/MIC     |------------------|    MRC/MIM      |
+|              |                  |                 |
++--------------+                  +-----------------+
+      |                                     |
+      |Interconnect port                    |Interconnect port
+      |                                     |
+      |                                     |
++--------------+                  +-----------------+
+|              |                  |                 |
+|  MRC/MIC     |----------------- |   MRC/MIC       |
+|              |                  |                 |
++--------------+                  +-----------------+
+      |                                     |
+      |                                     |
+      |          +---------+                |
+      |          |         |                |
+      +----------|  MRM    |----------------+
+                 |         |
+                 +---------+
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- net/bridge/br_netlink_tunnel.c | 49 ++++++++++++++++++++++++++++++++--
- 1 file changed, 47 insertions(+), 2 deletions(-)
+Each node in a ring needs to have one of the following ring roles, MRM or MRC.
+And it can also have an interconnect role like MIM or MIC if it is part of an
+interconnect ring. In the figure above the MRM doesn't have any interconnect
+role but the MRC from the top ring have the interconnect roles MIC respectively
+MIM. Therefore it is not possible for a node to have only an interconnect role.
 
-diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
-index 162998e2f039..8914290c75d4 100644
---- a/net/bridge/br_netlink_tunnel.c
-+++ b/net/bridge/br_netlink_tunnel.c
-@@ -250,6 +250,36 @@ int br_parse_vlan_tunnel_info(struct nlattr *attr,
- 	return 0;
- }
- 
-+/* send a notification if v_curr can't enter the range and start a new one */
-+static void __vlan_tunnel_handle_range(const struct net_bridge_port *p,
-+				       struct net_bridge_vlan **v_start,
-+				       struct net_bridge_vlan **v_end,
-+				       int v_curr, bool curr_change)
-+{
-+	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_vlan *v;
-+
-+	vg = nbp_vlan_group(p);
-+	if (!vg)
-+		return;
-+
-+	v = br_vlan_find(vg, v_curr);
-+
-+	if (!*v_start)
-+		goto out_init;
-+
-+	if (v && curr_change && br_vlan_can_enter_range(v, *v_end)) {
-+		*v_end = v;
-+		return;
-+	}
-+
-+	br_vlan_notify(p->br, p, (*v_start)->vid, (*v_end)->vid, RTM_NEWVLAN);
-+out_init:
-+	/* we start a range only if there are any changes to notify about */
-+	*v_start = curr_change ? v : NULL;
-+	*v_end = *v_start;
-+}
-+
- int br_process_vlan_tunnel_info(const struct net_bridge *br,
- 				const struct net_bridge_port *p, int cmd,
- 				struct vtunnel_info *tinfo_curr,
-@@ -263,6 +293,7 @@ int br_process_vlan_tunnel_info(const struct net_bridge *br,
- 			return -EINVAL;
- 		memcpy(tinfo_last, tinfo_curr, sizeof(struct vtunnel_info));
- 	} else if (tinfo_curr->flags & BRIDGE_VLAN_INFO_RANGE_END) {
-+		struct net_bridge_vlan *v_start = NULL, *v_end = NULL;
- 		int t, v;
- 
- 		if (!(tinfo_last->flags & BRIDGE_VLAN_INFO_RANGE_BEGIN))
-@@ -272,11 +303,24 @@ int br_process_vlan_tunnel_info(const struct net_bridge *br,
- 			return -EINVAL;
- 		t = tinfo_last->tunid;
- 		for (v = tinfo_last->vid; v <= tinfo_curr->vid; v++) {
--			err = br_vlan_tunnel_info(p, cmd, v, t, changed);
-+			bool curr_change = false;
-+
-+			err = br_vlan_tunnel_info(p, cmd, v, t, &curr_change);
- 			if (err)
--				return err;
-+				break;
- 			t++;
-+
-+			if (curr_change)
-+				*changed = curr_change;
-+			 __vlan_tunnel_handle_range(p, &v_start, &v_end, v,
-+						    curr_change);
- 		}
-+		if (v_start && v_end)
-+			br_vlan_notify(br, p, v_start->vid, v_end->vid,
-+				       RTM_NEWVLAN);
-+		if (err)
-+			return err;
-+
- 		memset(tinfo_last, 0, sizeof(struct vtunnel_info));
- 		memset(tinfo_curr, 0, sizeof(struct vtunnel_info));
- 	} else {
-@@ -286,6 +330,7 @@ int br_process_vlan_tunnel_info(const struct net_bridge *br,
- 					  tinfo_curr->tunid, changed);
- 		if (err)
- 			return err;
-+		br_vlan_notify(br, p, tinfo_curr->vid, 0, RTM_NEWVLAN);
- 		memset(tinfo_last, 0, sizeof(struct vtunnel_info));
- 		memset(tinfo_curr, 0, sizeof(struct vtunnel_info));
- 	}
+There are 2 ways for interconnect ring to detect when is open or closed:
+1. To use CCM frames on the interconnect port to detect when the interconnect
+   link goes down/up. This mode is called LC-mode.
+2. To send InTest frames on all 3 ports(2 ring ports and 1 interconnect port)
+   and detect when these frames are received back. This mode is called RC-mode.
+
+This patch series adds support only for RC-mode. Where MIM sends InTest frames
+on all 3 ports and detects when it receives back the InTest. When it receives
+the InTest it means that the ring is closed so it would set the interconnect
+port in blocking state. If it stops receiving the InTest frames then it would
+set the port in forwarding state and it would send InTopo frames. These InTopo
+frames will be received by MRM nodes and process them. And then the MRM will
+send Topo frames in the rings so each client will clear its FDB.
+
+v3:
+  - update 'br_mrp_set_in_role' to stop sending test if the role is disabled
+    and don't allow to set a different interconnect port if there is already
+    one.
+
+v2:
+  - rearrange structures not to contain holes
+  - stop sending MRP_InTest frames when the MRP instance is deleted
+
+
+Horatiu Vultur (12):
+  switchdev: mrp: Extend switchdev API for MRP Interconnect
+  bridge: uapi: mrp: Extend MRP attributes for MRP interconnect
+  bridge: mrp: Extend bridge interface
+  bridge: mrp: Extend br_mrp for MRP interconnect
+  bridge: mrp: Rename br_mrp_port_open to br_mrp_ring_port_open
+  bridge: mrp: Add br_mrp_in_port_open function
+  bridge: switchdev: mrp: Extend MRP API for switchdev for MRP
+    Interconnect
+  bridge: mrp: Implement the MRP Interconnect API
+  bridge: mrp: Extend MRP netlink interface for configuring MRP
+    interconnect
+  bridge: uapi: mrp: Extend MRP_INFO attributes for interconnect status
+  bridge: mrp: Extend br_mrp_fill_info
+  net: bridge: Add port attribute IFLA_BRPORT_MRP_IN_OPEN
+
+ include/linux/if_bridge.h          |   1 +
+ include/net/switchdev.h            |  38 ++
+ include/uapi/linux/if_bridge.h     |  58 +++
+ include/uapi/linux/if_link.h       |   1 +
+ include/uapi/linux/mrp_bridge.h    |  38 ++
+ net/bridge/br_mrp.c                | 576 +++++++++++++++++++++++++++--
+ net/bridge/br_mrp_netlink.c        | 182 ++++++++-
+ net/bridge/br_mrp_switchdev.c      |  62 ++++
+ net/bridge/br_netlink.c            |   3 +
+ net/bridge/br_private_mrp.h        |  27 +-
+ tools/include/uapi/linux/if_link.h |   1 +
+ 11 files changed, 951 insertions(+), 36 deletions(-)
+
 -- 
-2.25.4
+2.27.0
 
