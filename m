@@ -1,26 +1,24 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1594712375; x=1626248375;
- h=from:to:cc:subject:date:message-id:in-reply-to:
- references:mime-version:content-transfer-encoding;
- bh=BPXYksHE/6skyxwfmW3layVz9HGsj0QnR14maadzSj4=;
- b=yI1DNvr3vwFmAoP6K1zLHmblXuUVriM8TsMKRYHkqBjp2UXo0FLZEqEN
- 6q7+8Yj2dRt9qfja5Go9Ijvvt/1cToMEspdkUmdT6fdbCP2+iOUuCFHno
- sEF6omAg2f9aTqbWa25wKElS7W2uhqAfLwBGMSvnwSZ9ZSkyY+O7nZgXi
- TQsLxgOa4ZP1fTjls2hB/2TiDxAg2QDk5uJSq8txP8VPP9dbZf7hwvo75
- YND0Ai9/gtIpB/7+hyQHRYFud8gwDi3nWZ0kBywpd+oXc+mSRV+IO3zd+
- H9PdFULi4odSHaB+xEWNf3LjOwyCV9pUw1yrctDJJDL9bsChO9ee0yPwW g==;
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 14 Jul 2020 09:34:58 +0200
-Message-ID: <20200714073458.1939574-13-horatiu.vultur@microchip.com>
-In-Reply-To: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cumulusnetworks.com; s=google;
+ h=subject:to:references:from:message-id:date:user-agent:mime-version
+ :in-reply-to:content-language:content-transfer-encoding;
+ bh=FxJqrHhg0G0ncHUrHEuIRffmrZYQGuHLCnGks1j1bQM=;
+ b=TqSa14w7dWnNYezldSLiuWoHhgo2zcjASexkPXEh+2iGpB2nAcR54Vdz6cuj8Oz9B0
+ atzp+jjuGO56jmDKvCcRCNrZPIRHALoy+bV3oqGvUCCyB/SO9HPvF1qSUL8iyjwiM2ZN
+ r950qHEUsa//TUKVU5SBVVDe1V/hqHRyghU+A=
 References: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
+ <20200714073458.1939574-6-horatiu.vultur@microchip.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Message-ID: <622d77e3-6ea0-9a5e-2745-4231dd40b1e8@cumulusnetworks.com>
+Date: Tue, 14 Jul 2020 16:15:47 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 12/12] net: bridge: Add port attribute
-	IFLA_BRPORT_MRP_IN_OPEN
+In-Reply-To: <20200714073458.1939574-6-horatiu.vultur@microchip.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v4 05/12] bridge: mrp: Rename
+ br_mrp_port_open to br_mrp_ring_port_open
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,65 +27,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Horatiu Vultur <horatiu.vultur@microchip.com>, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
-This patch adds a new port attribute, IFLA_BRPORT_MRP_IN_OPEN, which
-allows to notify the userspace when the node lost the contiuity of
-MRP_InTest frames.
+On 14/07/2020 10:34, Horatiu Vultur wrote:
+> This patch renames the function br_mrp_port_open to
+> br_mrp_ring_port_open. In this way is more clear that a ring port lost
+> the continuity because there will be also a br_mrp_in_port_open.
+> 
+> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+> ---
+>  net/bridge/br_mrp.c         | 6 +++---
+>  net/bridge/br_mrp_netlink.c | 2 +-
+>  net/bridge/br_private_mrp.h | 2 +-
+>  3 files changed, 5 insertions(+), 5 deletions(-)
+> 
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
----
- include/uapi/linux/if_link.h       | 1 +
- net/bridge/br_netlink.c            | 3 +++
- tools/include/uapi/linux/if_link.h | 1 +
- 3 files changed, 5 insertions(+)
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index cc185a007ade8..26842ffd0501d 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -344,6 +344,7 @@ enum {
- 	IFLA_BRPORT_ISOLATED,
- 	IFLA_BRPORT_BACKUP_PORT,
- 	IFLA_BRPORT_MRP_RING_OPEN,
-+	IFLA_BRPORT_MRP_IN_OPEN,
- 	__IFLA_BRPORT_MAX
- };
- #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index c532fa65c9834..147d52596e174 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -152,6 +152,7 @@ static inline size_t br_port_info_size(void)
- #endif
- 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_GROUP_FWD_MASK */
- 		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MRP_RING_OPEN */
-+		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MRP_IN_OPEN */
- 		+ 0;
- }
- 
-@@ -216,6 +217,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
- 		       !!(p->flags & BR_NEIGH_SUPPRESS)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_MRP_RING_OPEN, !!(p->flags &
- 							  BR_MRP_LOST_CONT)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_MRP_IN_OPEN,
-+		       !!(p->flags & BR_MRP_LOST_IN_CONT)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)))
- 		return -EMSGSIZE;
- 
-diff --git a/tools/include/uapi/linux/if_link.h b/tools/include/uapi/linux/if_link.h
-index cafedbbfefbe9..781e482dc499f 100644
---- a/tools/include/uapi/linux/if_link.h
-+++ b/tools/include/uapi/linux/if_link.h
-@@ -344,6 +344,7 @@ enum {
- 	IFLA_BRPORT_ISOLATED,
- 	IFLA_BRPORT_BACKUP_PORT,
- 	IFLA_BRPORT_MRP_RING_OPEN,
-+	IFLA_BRPORT_MRP_IN_OPEN,
- 	__IFLA_BRPORT_MAX
- };
- #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
--- 
-2.27.0
+> diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+> index 90592af9db619..fe7cf1446b58a 100644
+> --- a/net/bridge/br_mrp.c
+> +++ b/net/bridge/br_mrp.c
+> @@ -213,7 +213,7 @@ static void br_mrp_test_work_expired(struct work_struct *work)
+>  		}
+>  
+>  		if (notify_open && !mrp->ring_role_offloaded)
+> -			br_mrp_port_open(p->dev, true);
+> +			br_mrp_ring_port_open(p->dev, true);
+>  	}
+>  
+>  	p = rcu_dereference(mrp->s_port);
+> @@ -229,7 +229,7 @@ static void br_mrp_test_work_expired(struct work_struct *work)
+>  		}
+>  
+>  		if (notify_open && !mrp->ring_role_offloaded)
+> -			br_mrp_port_open(p->dev, true);
+> +			br_mrp_ring_port_open(p->dev, true);
+>  	}
+>  
+>  out:
+> @@ -537,7 +537,7 @@ static void br_mrp_mrm_process(struct br_mrp *mrp, struct net_bridge_port *port,
+>  	 * not closed
+>  	 */
+>  	if (mrp->ring_state != BR_MRP_RING_STATE_CLOSED)
+> -		br_mrp_port_open(port->dev, false);
+> +		br_mrp_ring_port_open(port->dev, false);
+>  }
+>  
+>  /* Determin if the test hdr has a better priority than the node */
+> diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
+> index c4f5c356811f3..acce300c0cc29 100644
+> --- a/net/bridge/br_mrp_netlink.c
+> +++ b/net/bridge/br_mrp_netlink.c
+> @@ -368,7 +368,7 @@ int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br)
+>  	return -EMSGSIZE;
+>  }
+>  
+> -int br_mrp_port_open(struct net_device *dev, u8 loc)
+> +int br_mrp_ring_port_open(struct net_device *dev, u8 loc)
+>  {
+>  	struct net_bridge_port *p;
+>  	int err = 0;
+> diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
+> index 8841ba847fb29..e93c8f9d4df58 100644
+> --- a/net/bridge/br_private_mrp.h
+> +++ b/net/bridge/br_private_mrp.h
+> @@ -74,6 +74,6 @@ int br_mrp_port_switchdev_set_role(struct net_bridge_port *p,
+>  				   enum br_mrp_port_role_type role);
+>  
+>  /* br_mrp_netlink.c  */
+> -int br_mrp_port_open(struct net_device *dev, u8 loc);
+> +int br_mrp_ring_port_open(struct net_device *dev, u8 loc);
+>  
+>  #endif /* _BR_PRIVATE_MRP_H */
+> 
 
