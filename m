@@ -1,26 +1,26 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1594712369; x=1626248369;
+ t=1594712371; x=1626248371;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=bDsPDcBsqLSCU8wYG3pcNrGvWrN5XQXdrnUKLu6IKAM=;
- b=YXrayljMJLZHRpluzAJOXzM6GZf6KAj6EJbcPEFm0pW7vheRvhnBedVB
- BxMcIjrkavv9CdrFKia8UT4Wpy5DNf6K6PTOEw8ATAMthGpNFVxtlQT8H
- IcRGHU1OaZO8SXNkss4t8TBDI5aQtmE9WuSTtQrspKftcurAMr8cJbJaz
- Z32D3gy9au6Qvw9z2LvZtumZaXsd3xmUqr71ICuLBMAW4FCrXJWy8h9No
- eHFfHEG/kd1RI6EJzTRZ74ZRh3mp092Mb7IUSKbzb9Q06nMdhohHwcpIF
- Fkf2QoS0ipm00FJTK9zUG48Ou4yO1WDt5eVZvnfut5bIwIfQa/gJ7yw9J w==;
+ bh=HVKMV+YoS0rvNMp387sg/5WAHdCOziofqNB5E+Ov/pE=;
+ b=l0koWf7EMGdP4qg9ME0sVIbai5wqeoyX7iYa6bN6tF043viSthTj7if7
+ TEgHlTK/Yafa8xiXXWyowykzZjoNLhkNAtoZMjbJSA//fXzcycN1ac812
+ Ymp+uImS01o5w3siX3CgzQR4/JSww3mXR3AgpeGe0sIuADuw0xVFug5gd
+ YvU4X9dh8HQPa2qTIKtcaDbGZzFI87jojnSQ3d0tbyri2cmuxT8un5yd4
+ fRBvTO6RPHkySMbktHruWnsLQzUHdIP+4gEkSDJo5HhbpYp03wAhn1rkw
+ DGfrnQ2+gIth9VSCkgmgBYUJZdResx0+iI8QswyErYXZt4wfk2VpKkzaR g==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 14 Jul 2020 09:34:56 +0200
-Message-ID: <20200714073458.1939574-11-horatiu.vultur@microchip.com>
+Date: Tue, 14 Jul 2020 09:34:57 +0200
+Message-ID: <20200714073458.1939574-12-horatiu.vultur@microchip.com>
 In-Reply-To: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
 References: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 10/12] bridge: uapi: mrp: Extend
-	MRP_INFO attributes for interconnect status
+Subject: [Bridge] [PATCH net-next v4 11/12] bridge: mrp: Extend
+	br_mrp_fill_info
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,31 +32,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Extend the existing MRP_INFO to return status of MRP interconnect. In
-case there is no MRP interconnect on the node then the role will be
-disabled so the other attributes can be ignored.
+This patch extends the function br_mrp_fill_info to return also the
+status for the interconnect ring.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- include/uapi/linux/if_bridge.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/bridge/br_mrp_netlink.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index d840a3e37a37c..c1227aecd38fd 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -243,6 +243,11 @@ enum {
- 	IFLA_BRIDGE_MRP_INFO_TEST_INTERVAL,
- 	IFLA_BRIDGE_MRP_INFO_TEST_MAX_MISS,
- 	IFLA_BRIDGE_MRP_INFO_TEST_MONITOR,
-+	IFLA_BRIDGE_MRP_INFO_I_IFINDEX,
-+	IFLA_BRIDGE_MRP_INFO_IN_STATE,
-+	IFLA_BRIDGE_MRP_INFO_IN_ROLE,
-+	IFLA_BRIDGE_MRP_INFO_IN_TEST_INTERVAL,
-+	IFLA_BRIDGE_MRP_INFO_IN_TEST_MAX_MISS,
- 	__IFLA_BRIDGE_MRP_INFO_MAX,
- };
+diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
+index a006e0771e8d3..2a2fdf3500c5b 100644
+--- a/net/bridge/br_mrp_netlink.c
++++ b/net/bridge/br_mrp_netlink.c
+@@ -474,6 +474,11 @@ int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br)
+ 				     p->dev->ifindex))
+ 			goto nla_put_failure;
  
++		p = rcu_dereference(mrp->i_port);
++		if (p && nla_put_u32(skb, IFLA_BRIDGE_MRP_INFO_I_IFINDEX,
++				     p->dev->ifindex))
++			goto nla_put_failure;
++
+ 		if (nla_put_u16(skb, IFLA_BRIDGE_MRP_INFO_PRIO,
+ 				mrp->prio))
+ 			goto nla_put_failure;
+@@ -493,6 +498,19 @@ int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br)
+ 				mrp->test_monitor))
+ 			goto nla_put_failure;
+ 
++		if (nla_put_u32(skb, IFLA_BRIDGE_MRP_INFO_IN_STATE,
++				mrp->in_state))
++			goto nla_put_failure;
++		if (nla_put_u32(skb, IFLA_BRIDGE_MRP_INFO_IN_ROLE,
++				mrp->in_role))
++			goto nla_put_failure;
++		if (nla_put_u32(skb, IFLA_BRIDGE_MRP_INFO_IN_TEST_INTERVAL,
++				mrp->in_test_interval))
++			goto nla_put_failure;
++		if (nla_put_u32(skb, IFLA_BRIDGE_MRP_INFO_IN_TEST_MAX_MISS,
++				mrp->in_test_max_miss))
++			goto nla_put_failure;
++
+ 		nla_nest_end(skb, tb);
+ 	}
+ 	nla_nest_end(skb, mrp_tb);
 -- 
 2.27.0
 
