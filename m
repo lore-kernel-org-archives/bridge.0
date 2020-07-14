@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=subject:to:references:from:message-id:date:user-agent:mime-version
  :in-reply-to:content-language:content-transfer-encoding;
- bh=g2EyQlAqpHZO5s5qqHKlAo11WIHmOqc0rUAshNEUl2M=;
- b=borORmurH5EPJJNnd7Lhs3GNt3l3WCLMftWORGj+zrxXvkT3GSAjiw6lXlF54+CB7A
- W1bX0hSTU76d2ShMudHT/6fsfXkzmfailabgVc3MOvvjv5zJX+ncFsfpxvejGZW84o8z
- 3er9h9m7CAECayAUE5SjM+MucvuPrewYpQU2c=
+ bh=l79f/bqNc9BYIqpkKbR40Mk7GQtal76rQ4QXD+nfL2Y=;
+ b=XXQ7p8KyYKTbDMF3l/69Sv27LRV0Ka6JXcMwCu9L4rgoDD1xZOj0g6Sa/pTdCJ6hgg
+ q0CobtyfA2V3NqePGjZVUF/K76bRgnbmwqSaS/qVPmy9Ii1Esh3OGkkgd7QKJr3IWX4b
+ BU1EUdRloq0XZPEWE7ZjyUym1DIEBgzqp89No=
 References: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
- <20200714073458.1939574-4-horatiu.vultur@microchip.com>
+ <20200714073458.1939574-7-horatiu.vultur@microchip.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <e877ca40-8e84-ed05-f455-369ca43a179d@cumulusnetworks.com>
-Date: Tue, 14 Jul 2020 16:14:43 +0300
+Message-ID: <24df99ce-f81b-03f1-f235-e2c0ce5016f0@cumulusnetworks.com>
+Date: Tue, 14 Jul 2020 16:16:03 +0300
 MIME-Version: 1.0
-In-Reply-To: <20200714073458.1939574-4-horatiu.vultur@microchip.com>
+In-Reply-To: <20200714073458.1939574-7-horatiu.vultur@microchip.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 03/12] bridge: mrp: Extend bridge
-	interface
+Subject: Re: [Bridge] [PATCH net-next v4 06/12] bridge: mrp: Add
+ br_mrp_in_port_open function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,29 +30,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Horatiu Vultur <horatiu.vultur@microchip.com>, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
 On 14/07/2020 10:34, Horatiu Vultur wrote:
-> This patch adds a new flag(BR_MRP_LOST_IN_CONT) to the net bridge
-> ports. This bit will be set when the port lost the continuity of
-> MRP_InTest frames.
+> This function notifies the userspace when the node lost the continuity
+> of MRP_InTest frames.
 > 
 > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 > ---
->  include/linux/if_bridge.h | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-> index b3a8d3054af0f..6479a38e52fa9 100644
-> --- a/include/linux/if_bridge.h
-> +++ b/include/linux/if_bridge.h
-> @@ -49,6 +49,7 @@ struct br_ip_list {
->  #define BR_ISOLATED		BIT(16)
->  #define BR_MRP_AWARE		BIT(17)
->  #define BR_MRP_LOST_CONT	BIT(18)
-> +#define BR_MRP_LOST_IN_CONT	BIT(19)
->  
->  #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
->  
+>  net/bridge/br_mrp_netlink.c | 22 ++++++++++++++++++++++
+>  net/bridge/br_private_mrp.h |  1 +
+>  2 files changed, 23 insertions(+)
 > 
 
 Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
+> diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
+> index acce300c0cc29..4bf7aaeb29152 100644
+> --- a/net/bridge/br_mrp_netlink.c
+> +++ b/net/bridge/br_mrp_netlink.c
+> @@ -389,3 +389,25 @@ int br_mrp_ring_port_open(struct net_device *dev, u8 loc)
+>  out:
+>  	return err;
+>  }
+> +
+> +int br_mrp_in_port_open(struct net_device *dev, u8 loc)
+> +{
+> +	struct net_bridge_port *p;
+> +	int err = 0;
+> +
+> +	p = br_port_get_rcu(dev);
+> +	if (!p) {
+> +		err = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	if (loc)
+> +		p->flags |= BR_MRP_LOST_IN_CONT;
+> +	else
+> +		p->flags &= ~BR_MRP_LOST_IN_CONT;
+> +
+> +	br_ifinfo_notify(RTM_NEWLINK, NULL, p);
+> +
+> +out:
+> +	return err;
+> +}
+> diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
+> index e93c8f9d4df58..23da2f956ad0e 100644
+> --- a/net/bridge/br_private_mrp.h
+> +++ b/net/bridge/br_private_mrp.h
+> @@ -75,5 +75,6 @@ int br_mrp_port_switchdev_set_role(struct net_bridge_port *p,
+>  
+>  /* br_mrp_netlink.c  */
+>  int br_mrp_ring_port_open(struct net_device *dev, u8 loc);
+> +int br_mrp_in_port_open(struct net_device *dev, u8 loc);
+>  
+>  #endif /* _BR_PRIVATE_MRP_H */
+> 
 
