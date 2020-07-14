@@ -1,26 +1,26 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1594712349; x=1626248349;
+ t=1594712353; x=1626248353;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=rT+zkN+mJUyB0ZWqxtGVHHzSd7amrOhD/J3nYFKzHLU=;
- b=JxwlPnROO58/6tiag1X7+FgYJlMgutV5hmr5/83/N8fVXL6dXLbKDrQ/
- 62CEyQS0c4Fn2nUinKDATS3a605riYo34lq/HcuR+w9BGd0ni0jRxqn+4
- +DTJAh7OUt+5fQWFl1yuL9c5qzoNVYoKk12gNIr22o3pXJTe6JqmrOF7l
- 3lagI9KWbF6+z3J6KzpTYXNQJjH7SHpdJBLkc6hybrfyM0BTkQ0ilLMDW
- BMI0CjKVfT2J8xlf0/Pz+SOSHDQrvWdJkok/QNwNTdM53Y6VAmAClIPsS
- hz/6G8gNnOAB1OXNeq0YND8HpK0A5ZPOMyae1CiRD/HAoDK5/vDUC2QV3 Q==;
+ bh=KjQ2iHRIZX7SIVan+FkPjPmVkFfe4NagZdbP3cThDGA=;
+ b=0FuaKqBg2IGfUaAdf8ZSlhP8VPOjz/uQVSAGqK/ZffaUzb22EtuQtLHF
+ Dl07m7N7I3Vmng6lX0yuvsniiB70rNULQVrEfhN+784+QFXcsXCBdlncM
+ bPvjlQyuGs3g3pVFdRe9kcvDctOEblV+WQ9WzRj0rtMDcsO0n4QGt2Yxh
+ aZBGTBRLQjk6dEY+OkjJRx/NjZ/OQ+mj7n/NYIW5TEeq3mvzaPPm2uYC6
+ O6oZnw0X+GyXL2ah7VuYPVwmZI6PLttd5XBHDfd5dUsekv0zwo82H/V8/
+ ZwzneN8lOVEBBCWEl3Nh3wjlc30hWO4FGf+zPXMa77Frp3DTegJqgzwH8 w==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 14 Jul 2020 09:34:49 +0200
-Message-ID: <20200714073458.1939574-4-horatiu.vultur@microchip.com>
+Date: Tue, 14 Jul 2020 09:34:50 +0200
+Message-ID: <20200714073458.1939574-5-horatiu.vultur@microchip.com>
 In-Reply-To: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
 References: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 03/12] bridge: mrp: Extend bridge
-	interface
+Subject: [Bridge] [PATCH net-next v4 04/12] bridge: mrp: Extend br_mrp for
+	MRP interconnect
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,27 +32,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-This patch adds a new flag(BR_MRP_LOST_IN_CONT) to the net bridge
-ports. This bit will be set when the port lost the continuity of
-MRP_InTest frames.
+This patch extends the 'struct br_mrp' to contain information regarding
+the MRP interconnect. It contains the following:
+- the interconnect port 'i_port', which is NULL if the node doesn't have
+  a interconnect role
+- the interconnect id, which is similar with the ring id, but this field
+  is also part of the MRP_InTest frames.
+- the interconnect role, which can be MIM or MIC.
+- the interconnect state, which can be open or closed.
+- the interconnect delayed_work for sending MRP_InTest frames and check
+  for lost of continuity.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- include/linux/if_bridge.h | 1 +
- 1 file changed, 1 insertion(+)
+ net/bridge/br_private_mrp.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index b3a8d3054af0f..6479a38e52fa9 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -49,6 +49,7 @@ struct br_ip_list {
- #define BR_ISOLATED		BIT(16)
- #define BR_MRP_AWARE		BIT(17)
- #define BR_MRP_LOST_CONT	BIT(18)
-+#define BR_MRP_LOST_IN_CONT	BIT(19)
+diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
+index 315eb37d89f0f..8841ba847fb29 100644
+--- a/net/bridge/br_private_mrp.h
++++ b/net/bridge/br_private_mrp.h
+@@ -12,8 +12,10 @@ struct br_mrp {
  
- #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ 	struct net_bridge_port __rcu	*p_port;
+ 	struct net_bridge_port __rcu	*s_port;
++	struct net_bridge_port __rcu	*i_port;
  
+ 	u32				ring_id;
++	u16				in_id;
+ 	u16				prio;
+ 
+ 	enum br_mrp_ring_role_type	ring_role;
+@@ -21,6 +23,11 @@ struct br_mrp {
+ 	enum br_mrp_ring_state_type	ring_state;
+ 	u32				ring_transitions;
+ 
++	enum br_mrp_in_role_type	in_role;
++	u8				in_role_offloaded;
++	enum br_mrp_in_state_type	in_state;
++	u32				in_transitions;
++
+ 	struct delayed_work		test_work;
+ 	u32				test_interval;
+ 	unsigned long			test_end;
+@@ -28,6 +35,12 @@ struct br_mrp {
+ 	u32				test_max_miss;
+ 	bool				test_monitor;
+ 
++	struct delayed_work		in_test_work;
++	u32				in_test_interval;
++	unsigned long			in_test_end;
++	u32				in_test_count_miss;
++	u32				in_test_max_miss;
++
+ 	u32				seq_id;
+ 
+ 	struct rcu_head			rcu;
 -- 
 2.27.0
 
