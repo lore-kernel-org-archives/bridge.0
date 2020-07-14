@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=subject:to:references:from:message-id:date:user-agent:mime-version
  :in-reply-to:content-language:content-transfer-encoding;
- bh=FxJqrHhg0G0ncHUrHEuIRffmrZYQGuHLCnGks1j1bQM=;
- b=TqSa14w7dWnNYezldSLiuWoHhgo2zcjASexkPXEh+2iGpB2nAcR54Vdz6cuj8Oz9B0
- atzp+jjuGO56jmDKvCcRCNrZPIRHALoy+bV3oqGvUCCyB/SO9HPvF1qSUL8iyjwiM2ZN
- r950qHEUsa//TUKVU5SBVVDe1V/hqHRyghU+A=
+ bh=PCjcGLeWxMEylzBxwOcSQmoCFLwBY4GeEPrQDHmN/hY=;
+ b=geA+GGrTz3JLPWFWmv855lCH2TrzOQtleq9xQCcvZYkx8Pcwg47lgdJNzni68Cp64p
+ Wla75b8GIDQiTGQtNmilmCu/SWFZa58Tacicf6TlInFN+RkF1bCcln+Tdt+bu3SDMlMW
+ LESiqBsNlzgULNDuM3ANCXWzxQMUvBJh35yOg=
 References: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
- <20200714073458.1939574-6-horatiu.vultur@microchip.com>
+ <20200714073458.1939574-5-horatiu.vultur@microchip.com>
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <622d77e3-6ea0-9a5e-2745-4231dd40b1e8@cumulusnetworks.com>
-Date: Tue, 14 Jul 2020 16:15:47 +0300
+Message-ID: <6267e42e-4f40-db44-e132-98fb29889830@cumulusnetworks.com>
+Date: Tue, 14 Jul 2020 16:15:20 +0300
 MIME-Version: 1.0
-In-Reply-To: <20200714073458.1939574-6-horatiu.vultur@microchip.com>
+In-Reply-To: <20200714073458.1939574-5-horatiu.vultur@microchip.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 05/12] bridge: mrp: Rename
- br_mrp_port_open to br_mrp_ring_port_open
+Subject: Re: [Bridge] [PATCH net-next v4 04/12] bridge: mrp: Extend br_mrp
+ for MRP interconnect
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,75 +30,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Horatiu Vultur <horatiu.vultur@microchip.com>, roopa@cumulusnetworks.com, davem@davemloft.net, kuba@kernel.org, jiri@resnulli.us, ivecera@redhat.com, andrew@lunn.ch, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
 On 14/07/2020 10:34, Horatiu Vultur wrote:
-> This patch renames the function br_mrp_port_open to
-> br_mrp_ring_port_open. In this way is more clear that a ring port lost
-> the continuity because there will be also a br_mrp_in_port_open.
+> This patch extends the 'struct br_mrp' to contain information regarding
+> the MRP interconnect. It contains the following:
+> - the interconnect port 'i_port', which is NULL if the node doesn't have
+>   a interconnect role
+> - the interconnect id, which is similar with the ring id, but this field
+>   is also part of the MRP_InTest frames.
+> - the interconnect role, which can be MIM or MIC.
+> - the interconnect state, which can be open or closed.
+> - the interconnect delayed_work for sending MRP_InTest frames and check
+>   for lost of continuity.
 > 
 > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 > ---
->  net/bridge/br_mrp.c         | 6 +++---
->  net/bridge/br_mrp_netlink.c | 2 +-
->  net/bridge/br_private_mrp.h | 2 +-
->  3 files changed, 5 insertions(+), 5 deletions(-)
+>  net/bridge/br_private_mrp.h | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
 > 
 
 Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-> diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-> index 90592af9db619..fe7cf1446b58a 100644
-> --- a/net/bridge/br_mrp.c
-> +++ b/net/bridge/br_mrp.c
-> @@ -213,7 +213,7 @@ static void br_mrp_test_work_expired(struct work_struct *work)
->  		}
->  
->  		if (notify_open && !mrp->ring_role_offloaded)
-> -			br_mrp_port_open(p->dev, true);
-> +			br_mrp_ring_port_open(p->dev, true);
->  	}
->  
->  	p = rcu_dereference(mrp->s_port);
-> @@ -229,7 +229,7 @@ static void br_mrp_test_work_expired(struct work_struct *work)
->  		}
->  
->  		if (notify_open && !mrp->ring_role_offloaded)
-> -			br_mrp_port_open(p->dev, true);
-> +			br_mrp_ring_port_open(p->dev, true);
->  	}
->  
->  out:
-> @@ -537,7 +537,7 @@ static void br_mrp_mrm_process(struct br_mrp *mrp, struct net_bridge_port *port,
->  	 * not closed
->  	 */
->  	if (mrp->ring_state != BR_MRP_RING_STATE_CLOSED)
-> -		br_mrp_port_open(port->dev, false);
-> +		br_mrp_ring_port_open(port->dev, false);
->  }
->  
->  /* Determin if the test hdr has a better priority than the node */
-> diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
-> index c4f5c356811f3..acce300c0cc29 100644
-> --- a/net/bridge/br_mrp_netlink.c
-> +++ b/net/bridge/br_mrp_netlink.c
-> @@ -368,7 +368,7 @@ int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br)
->  	return -EMSGSIZE;
->  }
->  
-> -int br_mrp_port_open(struct net_device *dev, u8 loc)
-> +int br_mrp_ring_port_open(struct net_device *dev, u8 loc)
->  {
->  	struct net_bridge_port *p;
->  	int err = 0;
 > diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
-> index 8841ba847fb29..e93c8f9d4df58 100644
+> index 315eb37d89f0f..8841ba847fb29 100644
 > --- a/net/bridge/br_private_mrp.h
 > +++ b/net/bridge/br_private_mrp.h
-> @@ -74,6 +74,6 @@ int br_mrp_port_switchdev_set_role(struct net_bridge_port *p,
->  				   enum br_mrp_port_role_type role);
+> @@ -12,8 +12,10 @@ struct br_mrp {
 >  
->  /* br_mrp_netlink.c  */
-> -int br_mrp_port_open(struct net_device *dev, u8 loc);
-> +int br_mrp_ring_port_open(struct net_device *dev, u8 loc);
+>  	struct net_bridge_port __rcu	*p_port;
+>  	struct net_bridge_port __rcu	*s_port;
+> +	struct net_bridge_port __rcu	*i_port;
 >  
->  #endif /* _BR_PRIVATE_MRP_H */
+>  	u32				ring_id;
+> +	u16				in_id;
+>  	u16				prio;
+>  
+>  	enum br_mrp_ring_role_type	ring_role;
+> @@ -21,6 +23,11 @@ struct br_mrp {
+>  	enum br_mrp_ring_state_type	ring_state;
+>  	u32				ring_transitions;
+>  
+> +	enum br_mrp_in_role_type	in_role;
+> +	u8				in_role_offloaded;
+> +	enum br_mrp_in_state_type	in_state;
+> +	u32				in_transitions;
+> +
+>  	struct delayed_work		test_work;
+>  	u32				test_interval;
+>  	unsigned long			test_end;
+> @@ -28,6 +35,12 @@ struct br_mrp {
+>  	u32				test_max_miss;
+>  	bool				test_monitor;
+>  
+> +	struct delayed_work		in_test_work;
+> +	u32				in_test_interval;
+> +	unsigned long			in_test_end;
+> +	u32				in_test_count_miss;
+> +	u32				in_test_max_miss;
+> +
+>  	u32				seq_id;
+>  
+>  	struct rcu_head			rcu;
 > 
 
