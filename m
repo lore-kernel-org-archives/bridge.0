@@ -1,14 +1,14 @@
-Return-Path: <davem@davemloft.net>
-Date: Tue, 14 Jul 2020 13:47:00 -0700 (PDT)
-Message-Id: <20200714.134700.1165829004344819671.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
-References: <20200714073458.1939574-1-horatiu.vultur@microchip.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 00/12] bridge: mrp: Add support for
- interconnect ring
+Return-Path: <pablo@netfilter.org>
+Date: Wed, 15 Jul 2020 20:53:11 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Message-ID: <20200715185311.GA19462@salvia>
+References: <20200708200939.GA32508@embeddedor>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200708200939.GA32508@embeddedor>
+Subject: Re: [Bridge] [PATCH v2][next] netfilter: Use fallthrough
+	pseudo-keyword
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,14 +17,12 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: horatiu.vultur@microchip.com
-Cc: ivecera@redhat.com, andrew@lunn.ch, jiri@resnulli.us, nikolay@cumulusnetworks.com, netdev@vger.kernel.org, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, kuba@kernel.org
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 14 Jul 2020 09:34:46 +0200
+On Wed, Jul 08, 2020 at 03:09:39PM -0500, Gustavo A. R. Silva wrote:
+> Replace the existing /* fall through */ comments and its variants with
+> the new pseudo-keyword macro fallthrough[1]. Also, remove unnecessary
+> fall-through markings when it is the case.
 
-> This patch series extends existing MRP to add support for interconnect ring.
- ...
-
-Series applied, thank you.
-
+Applied, thanks.
