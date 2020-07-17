@@ -3,20 +3,20 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=/E3yYoXC157551h6xowHq2pNR018OFBhJ9Arvav070Y=; b=o6zhOep28KSjcnYm3J9aHcpkgm
- O2Fcz0+9OvZMn6mbYHPBFH/fhpi9DoauQT0ncpn5viSfaoFF6bLsJITCRXjgfdyqFLmf4LW5Djzbq
- mVD4a9wW/2LPyab9lB73mzm+FvayvQ+EgI8+vOBPzlrpsBjPVCB3G88FaBPOFgmA9Mu2nVuQYxlZH
- 5LqOFVBqwVr859Q4epbLvsmne1egzV1tTu7+l4QNJED3wUW/yW3Y/QVQJEeAZPJymdlnG4fe6WTAC
- BSzIX9qF0b7Pb8owGsYurQp2qXY/WMlbn+gcpCALS7U1mCseHNtxJKPafipfiMwCKx140COitXOWS
- xalq63Mw==;
+ bh=f8sxF6lqgSOtJgTg8maQxOEGY1f8ZNeToFNAXuRekpY=; b=ZEqOtR7YleQvC92xGmKC91Kk8L
+ WTEXAQTf/mF9q9Sr6E1umt3uL5isI+jl33iT6B+NTWGjBQCHmj5vR2cqc1gH3RLw87ZBI2KJCyK4j
+ OsS524C9XTPJYGNJrzCJ0VEVOeyFwAvP/JchrRtBr8ED8bo6wbJFPIQWRaekV0RZYb5LDDC0UrqeR
+ Kus4x/xm2hTJTg5FJATe/2UhIbHHDHlA3jUWlAv1s3QZx4Q0PEQpxDBuCxzrE9R/3L9T6dPjNnTit
+ /CDWgXJrbMMzBa/1e6cziI38mK/P6j9Kyif5s6YoYnAzkO1g0wtsXDHyWgAfdl3/mbxZnLS51qNWF
+ JN+mKrIg==;
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 17 Jul 2020 08:23:12 +0200
-Message-Id: <20200717062331.691152-4-hch@lst.de>
+Date: Fri, 17 Jul 2020 08:23:11 +0200
+Message-Id: <20200717062331.691152-3-hch@lst.de>
 In-Reply-To: <20200717062331.691152-1-hch@lst.de>
 References: <20200717062331.691152-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 03/22] net: streamline __sys_getsockopt
+Subject: [Bridge] [PATCH 02/22] net: streamline __sys_setsockopt
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,52 +33,80 @@ indentation for most of the function body.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/socket.c | 31 ++++++++++++++-----------------
- 1 file changed, 14 insertions(+), 17 deletions(-)
+ net/socket.c | 57 +++++++++++++++++++++++++---------------------------
+ 1 file changed, 27 insertions(+), 30 deletions(-)
 
 diff --git a/net/socket.c b/net/socket.c
-index 49a6daf0293b83..b79376b17b45b7 100644
+index 770503c4ca76c9..49a6daf0293b83 100644
 --- a/net/socket.c
 +++ b/net/socket.c
-@@ -2163,28 +2163,25 @@ static int __sys_getsockopt(int fd, int level, int optname,
- 	int max_optlen;
+@@ -2107,43 +2107,40 @@ static int __sys_setsockopt(int fd, int level, int optname,
+ 		return -EINVAL;
  
  	sock = sockfd_lookup_light(fd, &err, &fput_needed);
 -	if (sock != NULL) {
--		err = security_socket_getsockopt(sock, level, optname);
+-		err = security_socket_setsockopt(sock, level, optname);
 -		if (err)
 -			goto out_put;
 +	if (!sock)
 +		return err;
  
--		max_optlen = BPF_CGROUP_GETSOCKOPT_MAX_OPTLEN(optlen);
-+	err = security_socket_getsockopt(sock, level, optname);
+-		err = BPF_CGROUP_RUN_PROG_SETSOCKOPT(sock->sk, &level,
+-						     &optname, optval, &optlen,
+-						     &kernel_optval);
++	err = security_socket_setsockopt(sock, level, optname);
 +	if (err)
 +		goto out_put;
  
--		if (level == SOL_SOCKET)
+-		if (err < 0) {
+-			goto out_put;
+-		} else if (err > 0) {
+-			err = 0;
+-			goto out_put;
+-		}
++	err = BPF_CGROUP_RUN_PROG_SETSOCKOPT(sock->sk, &level, &optname,
++					     optval, &optlen, &kernel_optval);
++	if (err < 0)
++		goto out_put;
++	if (err > 0) {
++		err = 0;
++		goto out_put;
++	}
+ 
+-		if (kernel_optval) {
+-			set_fs(KERNEL_DS);
+-			optval = (char __user __force *)kernel_optval;
+-		}
++	if (kernel_optval) {
++		set_fs(KERNEL_DS);
++		optval = (char __user __force *)kernel_optval;
++	}
+ 
+-		if (level == SOL_SOCKET && !sock_use_custom_sol_socket(sock))
 -			err =
--			    sock_getsockopt(sock, level, optname, optval,
-+	max_optlen = BPF_CGROUP_GETSOCKOPT_MAX_OPTLEN(optlen);
-+
-+	if (level == SOL_SOCKET)
-+		err = sock_getsockopt(sock, level, optname, optval, optlen);
+-			    sock_setsockopt(sock, level, optname, optval,
++	if (level == SOL_SOCKET && !sock_use_custom_sol_socket(sock))
++		err = sock_setsockopt(sock, level, optname, optval, optlen);
 +	else
-+		err = sock->ops->getsockopt(sock, level, optname, optval,
++		err = sock->ops->setsockopt(sock, level, optname, optval,
  					    optlen);
 -		else
 -			err =
--			    sock->ops->getsockopt(sock, level, optname, optval,
+-			    sock->ops->setsockopt(sock, level, optname, optval,
 -						  optlen);
  
--		err = BPF_CGROUP_RUN_PROG_GETSOCKOPT(sock->sk, level, optname,
--						     optval, optlen,
--						     max_optlen, err);
-+	err = BPF_CGROUP_RUN_PROG_GETSOCKOPT(sock->sk, level, optname, optval,
-+					     optlen, max_optlen, err);
- out_put:
+-		if (kernel_optval) {
+-			set_fs(oldfs);
+-			kfree(kernel_optval);
+-		}
+-out_put:
 -		fput_light(sock->file, fput_needed);
--	}
++	if (kernel_optval) {
++		set_fs(oldfs);
++		kfree(kernel_optval);
+ 	}
++
++out_put:
 +	fput_light(sock->file, fput_needed);
  	return err;
  }
