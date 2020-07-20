@@ -1,13 +1,23 @@
-Return-Path: <davem@davemloft.net>
-Date: Sun, 19 Jul 2020 18:16:59 -0700 (PDT)
-Message-Id: <20200719.181659.1807927650741641565.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200717062331.691152-1-hch@lst.de>
-References: <20200717062331.691152-1-hch@lst.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] sockopt cleanups
+Return-Path: <alexei.starovoitov@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=W3gFxb9MTLvTnCe3A+iabUWXBAu7mA9HyhZHWgTOkUw=;
+ b=OGmrrLECo+9bEWcObjspsB7mZd1Knz6TplGXozOrISTfqD7/NX21SXnbWcSkV3fL4v
+ rTtVk5lWAA2Zu7uZ6u1mrfxhancqzyg3QAj3aPjlEycGVWZJlozkhUGEvXA8Lh3Zhd9y
+ MI2pFWCUVAw0qhoczi2fzDR5o+9jsXf0u50JS+cFIfuTYX6fdThXqy7BkTGCK/dg3wkY
+ mbds6x2z1GfwvAA0D5GwOBd9MLDFeCqWgb4tYptazoXAosQDHX7Ytsgw6xoiVQCij+q6
+ LhYcFToAHR8FWmsf1prWh4sudrDF50FXVoAgPYMNb7eWHKWg9zXFnQitJW8+uw6BZBn8
+ 8EhQ==
+Date: Mon, 20 Jul 2020 13:47:56 -0700
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Message-ID: <20200720204756.iengwcguikj2yrxt@ast-mbp.dhcp.thefacebook.com>
+References: <20200720124737.118617-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+Subject: Re: [Bridge] get rid of the address_space override in setsockopt
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,14 +26,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: hch@lst.de
-Cc: linux-arch@vger.kernel.org, daniel@iogearbox.net, dccp@vger.kernel.org, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, fw@strlen.de, ast@kernel.org, kadlec@netfilter.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, netfilter-devel@vger.kernel.org, mptcp@lists.01.org, 3chas3@gmail.com, netdev@vger.kernel.org, kuznet@ms2.inr.ac.ru, bpf@vger.kernel.org, linux-can@vger.kernel.org, linux-wpan@vger.kernel.org, pablo@netfilter.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Alexei Starovoitov <ast@kernel.org>, linux-sctp@vger.kernel.org, linux-afs@lists.infradead.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Daniel Borkmann <daniel@iogearbox.net>, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, mptcp@lists.01.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-can@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 17 Jul 2020 08:23:09 +0200
+On Mon, Jul 20, 2020 at 02:47:13PM +0200, Christoph Hellwig wrote:
+> Hi Dave,
+> 
+> setsockopt is the last place in architecture-independ code that still
+> uses set_fs to force the uaccess routines to operate on kernel pointers.
+> 
+> This series adds a new sockptr_t type that can contained either a kernel
+> or user pointer, and which has accessors that do the right thing, and
+> then uses it for setsockopt, starting by refactoring some low-level
+> helpers and moving them over to it before finally doing the main
+> setsockopt method.
+> 
+> Note that I could not get the eBPF selftests to work, so this has been
+> tested with a testing patch that always copies the data first and passes
+> a kernel pointer.  This is something that works for most common sockopts
+> (and is something that the ePBF support relies on), but unfortunately
+> in various corner cases we either don't use the passed in length, or in
+> one case actually copy data back from setsockopt, so we unfortunately
+> can't just always do the copy in the highlevel code, which would have
+> been much nicer.
 
-> this series cleans up various lose ends in the sockopt code, most
-> importantly removing the compat_{get,set}sockopt infrastructure in favor
-> of just using in_compat_syscall() in the few places that care.
+could you rebase on bpf-next tree and we can route it this way then?
+we'll also test the whole thing before applying.
 
-Series applied to net-next, thanks.
+sounds like v2 is needed anyway to address Eric's addr space concern?
