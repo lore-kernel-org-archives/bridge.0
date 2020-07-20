@@ -3,20 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=NOaRlO8PH56EoeQ6wPKZ+NHx4xWBn4wtfdyd3UU7j5Q=; b=r3wFqS6HvDtdd0R6F6qyrxhLxQ
- 0UmwqQvsG/ORHCNVtcyBkrRyN8Jl7NMUK+kN9rgMr7dJqvgRbNpsmGad7MyMT0Cslsg7ne9Zs1UlE
- /RwPyLdiHDpNgBjCzw/HmZWsORXbrednhTKLDHU0qAnYKNBOOFKeNoZ82aOb0D1SeYW1aLzwzDOBP
- heWVXUEQRk3EcbcAs4HVrc9bFRGjDJl3iUtWA6BGC9ZrXLSjvOE0L6VJHRbQKC45uIe6QuMjN7Gk/
- O53gfIacoSmqnhrDUA7vy0qZZc0gL1aupHUgKPNVJamV2BJZVG7ttr+EMAYA95puN7nmqMY+irCXk
- KTg4Ltzw==;
+ bh=AjKHhDGZLqL4OuQUXI3ghPRn4d0K9eK+41+WmsKDw4s=; b=k3y37M70YtZbLcMSJtaJ6aJfv6
+ FlaYELE99elj9mqWglDhPbGX298hMSKaT4Og2bZ6lhxjbZk+9qi4Owp8eOZHyph4qQLu0xwBjeTn4
+ Q9/6GCGjLDko3UtPSm3rwhrlgfgvxnhol02maJcxiVXjr09qiFP9lNDTpGTa5JKa2H/PtWuT/lUkc
+ R228K4JItBb6gJYS2iIl7C3DtS2UviGLWdNTDJZjCzmn6FlLtFDTsXWMTry+Y6N3gMP8nx+JIg1mr
+ RY/0Hk8eX971yd+wZ8qOKs80pvDVJHmFQ2tMTbzxy4eJ0V9IYGZmkfVXZt1h7xwKh0OLb2gXX5NdS
+ CSgGubQw==;
 From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 20 Jul 2020 14:47:18 +0200
-Message-Id: <20200720124737.118617-6-hch@lst.de>
+Date: Mon, 20 Jul 2020 14:47:22 +0200
+Message-Id: <20200720124737.118617-10-hch@lst.de>
 In-Reply-To: <20200720124737.118617-1-hch@lst.de>
 References: <20200720124737.118617-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 05/24] net: switch sock_setbindtodevice to sockptr_t
+Subject: [Bridge] [PATCH 09/24] netfilter: remove the unused user argument
+	to do_update_counters
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,46 +29,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
 Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-decnet-user@lists.sourceforge.net, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-can@vger.kernel.org, lvs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, linux-afs@lists.infradead.org, mptcp@lists.01.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
-
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/core/sock.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/bridge/netfilter/ebtables.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 91224709869389..bd20fc5cce0850 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -608,8 +608,7 @@ int sock_bindtoindex(struct sock *sk, int ifindex, bool lock_sk)
- }
- EXPORT_SYMBOL(sock_bindtoindex);
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index fe13108af1f542..12f8929667bf43 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1242,9 +1242,8 @@ void ebt_unregister_table(struct net *net, struct ebt_table *table,
  
--static int sock_setbindtodevice(struct sock *sk, char __user *optval,
--				int optlen)
-+static int sock_setbindtodevice(struct sock *sk, sockptr_t optval, int optlen)
+ /* userspace just supplied us with counters */
+ static int do_update_counters(struct net *net, const char *name,
+-				struct ebt_counter __user *counters,
+-				unsigned int num_counters,
+-				const void __user *user, unsigned int len)
++			      struct ebt_counter __user *counters,
++			      unsigned int num_counters, unsigned int len)
  {
- 	int ret = -ENOPROTOOPT;
- #ifdef CONFIG_NETDEVICES
-@@ -631,7 +630,7 @@ static int sock_setbindtodevice(struct sock *sk, char __user *optval,
- 	memset(devname, 0, sizeof(devname));
- 
- 	ret = -EFAULT;
--	if (copy_from_user(devname, optval, optlen))
-+	if (copy_from_sockptr(devname, optval, optlen))
- 		goto out;
- 
- 	index = 0;
-@@ -839,7 +838,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	 */
- 
- 	if (optname == SO_BINDTODEVICE)
--		return sock_setbindtodevice(sk, optval, optlen);
-+		return sock_setbindtodevice(sk, USER_SOCKPTR(optval), optlen);
- 
- 	if (optlen < sizeof(int))
+ 	int i, ret;
+ 	struct ebt_counter *tmp;
+@@ -1299,7 +1298,7 @@ static int update_counters(struct net *net, const void __user *user,
  		return -EINVAL;
+ 
+ 	return do_update_counters(net, hlp.name, hlp.counters,
+-				hlp.num_counters, user, len);
++				  hlp.num_counters, len);
+ }
+ 
+ static inline int ebt_obj_to_user(char __user *um, const char *_name,
+@@ -2231,7 +2230,7 @@ static int compat_update_counters(struct net *net, void __user *user,
+ 		return update_counters(net, user, len);
+ 
+ 	return do_update_counters(net, hlp.name, compat_ptr(hlp.counters),
+-					hlp.num_counters, user, len);
++				  hlp.num_counters, len);
+ }
+ 
+ static int compat_do_ebt_get_ctl(struct sock *sk, int cmd,
 -- 
 2.27.0
 
