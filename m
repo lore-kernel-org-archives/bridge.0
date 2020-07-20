@@ -1,14 +1,13 @@
-Return-Path: <pablo@netfilter.org>
-Date: Wed, 15 Jul 2020 20:53:11 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Message-ID: <20200715185311.GA19462@salvia>
-References: <20200708200939.GA32508@embeddedor>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200708200939.GA32508@embeddedor>
-Subject: Re: [Bridge] [PATCH v2][next] netfilter: Use fallthrough
-	pseudo-keyword
+Return-Path: <davem@davemloft.net>
+Date: Sun, 19 Jul 2020 18:16:59 -0700 (PDT)
+Message-Id: <20200719.181659.1807927650741641565.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200717062331.691152-1-hch@lst.de>
+References: <20200717062331.691152-1-hch@lst.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] sockopt cleanups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,12 +16,14 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: hch@lst.de
+Cc: linux-arch@vger.kernel.org, daniel@iogearbox.net, dccp@vger.kernel.org, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, fw@strlen.de, ast@kernel.org, kadlec@netfilter.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, netfilter-devel@vger.kernel.org, mptcp@lists.01.org, 3chas3@gmail.com, netdev@vger.kernel.org, kuznet@ms2.inr.ac.ru, bpf@vger.kernel.org, linux-can@vger.kernel.org, linux-wpan@vger.kernel.org, pablo@netfilter.org
 
-On Wed, Jul 08, 2020 at 03:09:39PM -0500, Gustavo A. R. Silva wrote:
-> Replace the existing /* fall through */ comments and its variants with
-> the new pseudo-keyword macro fallthrough[1]. Also, remove unnecessary
-> fall-through markings when it is the case.
+From: Christoph Hellwig <hch@lst.de>
+Date: Fri, 17 Jul 2020 08:23:09 +0200
 
-Applied, thanks.
+> this series cleans up various lose ends in the sockopt code, most
+> importantly removing the compat_{get,set}sockopt infrastructure in favor
+> of just using in_compat_syscall() in the few places that care.
+
+Series applied to net-next, thanks.
