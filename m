@@ -1,15 +1,14 @@
 Return-Path: <david.laight@aculab.com>
 From: David Laight <David.Laight@ACULAB.COM>
-Date: Tue, 21 Jul 2020 10:14:20 +0000
-Message-ID: <6727969f2f6e467fa2d43f9773cefa27@AcuMS.aculab.com>
+Date: Tue, 21 Jul 2020 10:26:58 +0000
+Message-ID: <ae6a743aaea3406596dbc89e332b6b3e@AcuMS.aculab.com>
 References: <20200720124737.118617-1-hch@lst.de>
- <20200720124737.118617-4-hch@lst.de>
-In-Reply-To: <20200720124737.118617-4-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
 Content-Language: en-US
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 03/24] net: add a new sockptr_t type
+Subject: Re: [Bridge] get rid of the address_space override in setsockopt
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,45 +23,24 @@ Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.or
 From: Christoph Hellwig
 > Sent: 20 July 2020 13:47
 >=20
-> Add a uptr_t type that can hold a pointer to either a user or kernel
-> memory region, and simply helpers to copy to and from it.  For
-> architectures like x86 that have non-overlapping user and kernel
-> address space it just is a union and uses a TASK_SIZE check to
-> select the proper copy routine.  For architectures with overlapping
-> address spaces a flag to indicate the address space is used instead.
+> setsockopt is the last place in architecture-independ code that still
+> uses set_fs to force the uaccess routines to operate on kernel pointers.
 >=20
-...
-> +#else /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
-> +typedef struct {
-> +=09union {
-> +=09=09void=09=09*kernel;
-> +=09=09void __user=09*user;
-> +=09};
-> +=09bool=09=09is_kernel : 1;
-> +} sockptr_t;
+> This series adds a new sockptr_t type that can contained either a kernel
+> or user pointer, and which has accessors that do the right thing, and
+> then uses it for setsockopt, starting by refactoring some low-level
+> helpers and moving them over to it before finally doing the main
+> setsockopt method.
 
-If you need to do that you might as well make it a struct
-where either the kernel or user address is defined.
-Far safer for all architectures.
+Another 'gotcha' ...
 
-Indeed you could add the length (to save passing an
-extra parameter through the layers).
-
-The system call code could even copy the code into a
-kernel buffer (setting both pointers).
-So that code that didn't need to access beyond the end
-of the implied buffer (most of it) could just access the
-kernel buffer.
-
-For getsockopt() you'd need some way of supressing the
-'default' copy back of the user buffer.
-
-This would also allow some of the sctp getsockopt to
-read (usually 4 bytes) from the 'user' buffer without
-the wrapper code always having to read in the entire
-user buffer.
+On an least some architectures (possibly only m68k) IIRC all structures
+are actually passed by reference.
+(This used to be true for sparc - but it may have changed in the
+last 30 years.)
 
 =09David
+=20
 
 -
 Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
