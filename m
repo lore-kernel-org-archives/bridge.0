@@ -1,16 +1,14 @@
 Return-Path: <david.laight@aculab.com>
 From: David Laight <David.Laight@ACULAB.COM>
-Date: Tue, 21 Jul 2020 08:36:57 +0000
-Message-ID: <f9493b4c514441b4b51bc7e4e75e8c40@AcuMS.aculab.com>
+Date: Tue, 21 Jul 2020 09:38:23 +0000
+Message-ID: <60c52e31e9f240718fcda0dd5c2faeca@AcuMS.aculab.com>
 References: <20200720124737.118617-1-hch@lst.de>
- <20200720124737.118617-13-hch@lst.de>
-In-Reply-To: <20200720124737.118617-13-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
 Content-Language: en-US
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 12/24] bpfilter: switch bpfilter_ip_set_sockopt
- to sockptr_t
+Subject: Re: [Bridge] get rid of the address_space override in setsockopt
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,10 +22,18 @@ Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.or
 
 From: Christoph Hellwig
 > Sent: 20 July 2020 13:47
+>
+> setsockopt is the last place in architecture-independ code that still
+> uses set_fs to force the uaccess routines to operate on kernel pointers.
 >=20
-> This is mostly to prepare for cleaning up the callers, as bpfilter by
-> design can't handle kernel pointers.
-                      ^^^ user ??
+> This series adds a new sockptr_t type that can contained either a kernel
+> or user pointer, and which has accessors that do the right thing, and
+> then uses it for setsockopt, starting by refactoring some low-level
+> helpers and moving them over to it before finally doing the main
+> setsockopt method.
+
+Are you planning to make the equivalent change to getsockopt()?
+Having mismatched interfaces would be very strange.
 
 =09David
 
