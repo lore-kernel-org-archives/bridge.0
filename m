@@ -1,15 +1,22 @@
-Return-Path: <hch@lst.de>
-Date: Thu, 23 Jul 2020 16:44:55 +0200
-From: 'Christoph Hellwig' <hch@lst.de>
-Message-ID: <20200723144455.GA12280@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
- <20200723060908.50081-4-hch@lst.de>
- <c3dc5b4d84e64230bb6ca8df7bb70705@AcuMS.aculab.com>
+Return-Path: <edumazet@google.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=gMZVcJy5uwQT4vGlr1ERHcQqosY3c4kI9divmT2Lqpo=;
+ b=gwjAdDF942fvpXcwvyR0uuIMKC72vX+1xaZmY+P/HlmQuhIFDMmqtrrmpEAYoODFls
+ 2whE4wMib2QcLaOVE4J+SdVBQ6P2JsY+v8YTFDd3JbEzache4FI5T4xBht2IkLXzQ/Sy
+ 1WIGux4f/lVv0pdf+puWJ2nV8J8wAU2lYqlJCRbXSl2WNeWZR9h1y1lVklRZc/KIqgKe
+ Aj/ehWw+f2o0CsdkKfDY/zbJ5hlw20DhQPkwOJEN7mcdPxjJE6/p+eukZAHUXZngVbCf
+ sdt5+ZH+ulKqsBPsP5u7/dtuM4Y4W/S7rVtNSNPkcxfWu5kl7dPPev0Qj6brKbcngU4o
+ aoNg==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c3dc5b4d84e64230bb6ca8df7bb70705@AcuMS.aculab.com>
-Subject: Re: [Bridge] [PATCH 03/26] bpfilter: reject kernel addresses
+References: <20200723060908.50081-1-hch@lst.de>
+ <20200723060908.50081-5-hch@lst.de>
+In-Reply-To: <20200723060908.50081-5-hch@lst.de>
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 23 Jul 2020 09:40:27 -0700
+Message-ID: <CANn89iJ3LKth-iWwh0+P3D3RqtDNv4AyXkkzhXr0oSEvE_JoRQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [PATCH 04/26] net: add a new sockptr_t type
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,25 +25,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Laight <David.Laight@ACULAB.COM>
-Cc: Alexei Starovoitov <ast@kernel.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, 'Christoph Hellwig' <hch@lst.de>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>, Daniel Borkmann <daniel@iogearbox.net>, "dccp@vger.kernel.org" <dccp@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>, "lvs-devel@vger.kernel.org" <lvs-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "mptcp@lists.01.org" <mptcp@lists.01.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "tipc-discussion@lists.sourceforge.net" <tipc-discussion@lists.sourceforge.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "linux-wpan@vger.kernel.org" <linux-wpan@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Alexei Starovoitov <ast@kernel.org>, linux-sctp@vger.kernel.org, linux-afs@lists.infradead.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Daniel Borkmann <daniel@iogearbox.net>, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, mptcp@lists.01.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-can@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev <netdev@vger.kernel.org>, linux-decnet-user@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, bpf <bpf@vger.kernel.org>, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-On Thu, Jul 23, 2020 at 02:42:11PM +0000, David Laight wrote:
-> From: Christoph Hellwig
-> > Sent: 23 July 2020 07:09
-> > 
-> > The bpfilter user mode helper processes the optval address using
-> > process_vm_readv.  Don't send it kernel addresses fed under
-> > set_fs(KERNEL_DS) as that won't work.
-> 
-> What sort of operations is the bpf filter doing on the sockopt buffers?
-> 
-> Any attempts to reject some requests can be thwarted by a second
-> application thread modifying the buffer after the bpf filter has
-> checked that it allowed.
-> 
-> You can't do security by reading a user buffer twice.
+On Wed, Jul 22, 2020 at 11:09 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Add a uptr_t type that can hold a pointer to either a user or kernel
+> memory region, and simply helpers to copy to and from it.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  include/linux/sockptr.h | 104 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 104 insertions(+)
+>  create mode 100644 include/linux/sockptr.h
+>
+> diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
+> new file mode 100644
+> index 00000000000000..700856e13ea0c4
+> --- /dev/null
+> +++ b/include/linux/sockptr.h
+> @@ -0,0 +1,104 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Copyright (c) 2020 Christoph Hellwig.
+> + *
+> + * Support for "universal" pointers that can point to either kernel or userspace
+> + * memory.
+> + */
+> +#ifndef _LINUX_SOCKPTR_H
+> +#define _LINUX_SOCKPTR_H
+> +
+> +#include <linux/slab.h>
+> +#include <linux/uaccess.h>
+> +
+> +typedef struct {
+> +       union {
+> +               void            *kernel;
+> +               void __user     *user;
+> +       };
+> +       bool            is_kernel : 1;
+> +} sockptr_t;
+>
 
-I'm not saying that I approve of the design, but the current bpfilter
-design uses process_vm_readv to access the buffer, which obviously does
-not work with kernel buffers.
+I am not sure why you chose sockptr_t   for something that really seems generic.
+
+Or is it really meant to be exclusive to setsockopt() and/or getsockopt() ?
+
+If the first user of this had been futex code, we would have used
+futexptr_t, I guess.
