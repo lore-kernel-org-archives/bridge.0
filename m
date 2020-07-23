@@ -1,16 +1,15 @@
 Return-Path: <david.laight@aculab.com>
 From: David Laight <David.Laight@ACULAB.COM>
-Date: Thu, 23 Jul 2020 11:16:16 +0000
-Message-ID: <621e193e4af74d8198ed87d6a9ce8260@AcuMS.aculab.com>
+Date: Thu, 23 Jul 2020 14:42:11 +0000
+Message-ID: <c3dc5b4d84e64230bb6ca8df7bb70705@AcuMS.aculab.com>
 References: <20200723060908.50081-1-hch@lst.de>
- <20200723060908.50081-14-hch@lst.de>
-In-Reply-To: <20200723060908.50081-14-hch@lst.de>
+ <20200723060908.50081-4-hch@lst.de>
+In-Reply-To: <20200723060908.50081-4-hch@lst.de>
 Content-Language: en-US
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 13/26] bpfilter: switch bpfilter_ip_set_sockopt
- to sockptr_t
+Subject: Re: [Bridge] [PATCH 03/26] bpfilter: reject kernel addresses
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,10 +24,17 @@ Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.or
 From: Christoph Hellwig
 > Sent: 23 July 2020 07:09
 >=20
-> This is mostly to prepare for cleaning up the callers, as bpfilter by
-> design can't handle kernel pointers.
+> The bpfilter user mode helper processes the optval address using
+> process_vm_readv.  Don't send it kernel addresses fed under
+> set_fs(KERNEL_DS) as that won't work.
 
-You've failed to fix the sense of the above...
+What sort of operations is the bpf filter doing on the sockopt buffers?
+
+Any attempts to reject some requests can be thwarted by a second
+application thread modifying the buffer after the bpf filter has
+checked that it allowed.
+
+You can't do security by reading a user buffer twice.
 
 =09David
 
