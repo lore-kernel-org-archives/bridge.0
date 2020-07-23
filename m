@@ -3,21 +3,20 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=oT1TzeBCiE7PYsKY3KaZ4zyLReXEZMRen8bFjdM9v/g=; b=V0YG7V4rx5A1qxxjwpwI1a6uuM
- HduyTdraT6ektr3EgWlWMGz0vGlHlbYPwfQQDUrhGndXtCF7Ushl0XM427AsckNecE4SZY8H6Gj6t
- 1J6QRv06PoKrwom/lYsLRBb+Zxhi9iAvOJ6uF7iqbAWuHkbaBJHUaC+w9atEfs3y7AiQuNIo8FcW8
- Vxh2iQacihv7RJDO2nzPMS3hCbItupEWN4AWE/eDraKBNott6suYIUDVqeV8CB8hxS1xFsCHEc2nX
- S0MGXj1LmMc/GCEyFvGL0MRc0Hp7dLKkAwEkA4lbfPNdLiXxLHfp06GwUz+10rsGW1yVMIDkvb7SW
- EsRGr+aA==;
+ bh=F+BrwTbjEUImolj5beS1BIuUXc5PZLOrZP3HablW5rQ=; b=NzYZw+FjLfFD0JRnn0zvrsEGla
+ OpCplG7VAlrQMRrrAptI8HlY36sdp/bQUwvI85NfsYGTWTrzqd0OtBgyHoxTz2+6W4uOK8qfoaK9G
+ AabbZVEw0A3ckIbqpAejosSfpzclsHm09SqSs1MfIJjEQmvsARHc9VrCnCp93k6HJsEBs752xvDTq
+ MEkESJuAraQOrq+EuuSuMQcP8Zlgr0/Cs8uO9VzXB8m9ITyZkg+I7JTS0fyfLD0tWYXg7MBduKZDx
+ wLxCjFvBpb2yPtqLFfWnpDKDISyiVskkGGIO0oTHM7QMde4I1Zb4SAKuo6nf88HRBbYNA3r33TDOq
+ x96KWjLg==;
 From: Christoph Hellwig <hch@lst.de>
-Date: Thu, 23 Jul 2020 08:08:47 +0200
-Message-Id: <20200723060908.50081-6-hch@lst.de>
+Date: Thu, 23 Jul 2020 08:08:43 +0200
+Message-Id: <20200723060908.50081-2-hch@lst.de>
 In-Reply-To: <20200723060908.50081-1-hch@lst.de>
 References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 05/26] net: switch copy_bpf_fprog_from_user to
-	sockptr_t
+Subject: [Bridge] [PATCH 01/26] bpfilter: fix up a sparse annotation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,114 +28,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
 Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-decnet-user@lists.sourceforge.net, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-can@vger.kernel.org, lvs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, linux-afs@lists.infradead.org, mptcp@lists.01.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+The __user doesn't make sense when casting to an integer type, just
+switch to a uintptr_t cast which also removes the need for the __force.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/filter.h | 3 ++-
- net/core/filter.c      | 6 +++---
- net/core/sock.c        | 6 ++++--
- net/packet/af_packet.c | 4 ++--
- 4 files changed, 11 insertions(+), 8 deletions(-)
+ net/bpfilter/bpfilter_kern.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 1c6b6d982bf498..d07a6e973a7d6f 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -20,6 +20,7 @@
- #include <linux/kallsyms.h>
- #include <linux/if_vlan.h>
- #include <linux/vmalloc.h>
-+#include <linux/sockptr.h>
- #include <crypto/sha.h>
- 
- #include <net/sch_generic.h>
-@@ -1276,7 +1277,7 @@ struct bpf_sockopt_kern {
- 	s32		retval;
- };
- 
--int copy_bpf_fprog_from_user(struct sock_fprog *dst, void __user *src, int len);
-+int copy_bpf_fprog_from_user(struct sock_fprog *dst, sockptr_t src, int len);
- 
- struct bpf_sk_lookup_kern {
- 	u16		family;
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 3fa16b8c0d616a..29e3455122f772 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -77,14 +77,14 @@
- #include <net/transp_v6.h>
- #include <linux/btf_ids.h>
- 
--int copy_bpf_fprog_from_user(struct sock_fprog *dst, void __user *src, int len)
-+int copy_bpf_fprog_from_user(struct sock_fprog *dst, sockptr_t src, int len)
- {
- 	if (in_compat_syscall()) {
- 		struct compat_sock_fprog f32;
- 
- 		if (len != sizeof(f32))
- 			return -EINVAL;
--		if (copy_from_user(&f32, src, sizeof(f32)))
-+		if (copy_from_sockptr(&f32, src, sizeof(f32)))
- 			return -EFAULT;
- 		memset(dst, 0, sizeof(*dst));
- 		dst->len = f32.len;
-@@ -92,7 +92,7 @@ int copy_bpf_fprog_from_user(struct sock_fprog *dst, void __user *src, int len)
- 	} else {
- 		if (len != sizeof(*dst))
- 			return -EINVAL;
--		if (copy_from_user(dst, src, sizeof(*dst)))
-+		if (copy_from_sockptr(dst, src, sizeof(*dst)))
- 			return -EFAULT;
- 	}
- 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 6da54eac2b3456..71fc7e4ddd0648 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1063,7 +1063,8 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	case SO_ATTACH_FILTER: {
- 		struct sock_fprog fprog;
- 
--		ret = copy_bpf_fprog_from_user(&fprog, optval, optlen);
-+		ret = copy_bpf_fprog_from_user(&fprog, USER_SOCKPTR(optval),
-+					       optlen);
- 		if (!ret)
- 			ret = sk_attach_filter(&fprog, sk);
- 		break;
-@@ -1084,7 +1085,8 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	case SO_ATTACH_REUSEPORT_CBPF: {
- 		struct sock_fprog fprog;
- 
--		ret = copy_bpf_fprog_from_user(&fprog, optval, optlen);
-+		ret = copy_bpf_fprog_from_user(&fprog, USER_SOCKPTR(optval),
-+					       optlen);
- 		if (!ret)
- 			ret = sk_reuseport_attach_filter(&fprog, sk);
- 		break;
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index c240fb5de3f014..d8d4f78f78e451 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1536,7 +1536,7 @@ static void __fanout_set_data_bpf(struct packet_fanout *f, struct bpf_prog *new)
- 	}
- }
- 
--static int fanout_set_data_cbpf(struct packet_sock *po, char __user *data,
-+static int fanout_set_data_cbpf(struct packet_sock *po, sockptr_t data,
- 				unsigned int len)
- {
- 	struct bpf_prog *new;
-@@ -1584,7 +1584,7 @@ static int fanout_set_data(struct packet_sock *po, char __user *data,
- {
- 	switch (po->fanout->type) {
- 	case PACKET_FANOUT_CBPF:
--		return fanout_set_data_cbpf(po, data, len);
-+		return fanout_set_data_cbpf(po, USER_SOCKPTR(data), len);
- 	case PACKET_FANOUT_EBPF:
- 		return fanout_set_data_ebpf(po, data, len);
- 	default:
+diff --git a/net/bpfilter/bpfilter_kern.c b/net/bpfilter/bpfilter_kern.c
+index 2c31e82cb953af..3bac5820062af1 100644
+--- a/net/bpfilter/bpfilter_kern.c
++++ b/net/bpfilter/bpfilter_kern.c
+@@ -44,7 +44,7 @@ static int __bpfilter_process_sockopt(struct sock *sk, int optname,
+ 	req.is_set = is_set;
+ 	req.pid = current->pid;
+ 	req.cmd = optname;
+-	req.addr = (long __force __user)optval;
++	req.addr = (uintptr_t)optval;
+ 	req.len = optlen;
+ 	if (!bpfilter_ops.info.tgid)
+ 		goto out;
 -- 
 2.27.0
 
