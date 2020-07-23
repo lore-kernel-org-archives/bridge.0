@@ -1,23 +1,20 @@
 Return-Path: <BATV+7f5d9d19594706390c49+6178+infradead.org+hch@casper.srs.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
- References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
- Content-Type:Content-ID:Content-Description;
- bh=3imfOAwuDTlb5YTszhgUXl+QpResNZl5INQAts7FDyw=; b=M7RnAinpaLM4eSKoNueJTZaeo9
- xQz5y9wsoeHOdq2TGheKnDq0/6j8YL+ThgZWZpFDvyGYOkWCB0h5HGD6ni1PC6mIBRGAGDJyz7udz
- GcPGu7/cKpowyaVML6P2o9lpoLifRNA0nWhM96SVzw5voPGm6ChHpSFSnBOGT+G5Zg6ddxEJo4ypU
- 94WtHfJf6WMX09KAbnlynr7Z/ayxufNzzrQPhg3hXArQOLiRg5CU1zA6Dwx75j4CbEkE/71dkns9Q
- gjzgU9orKnM45m/Hgh5b9gybV+nWbR3539y8h8wZGG4igNXNXLNJxdnmlJlDeWDJ7mOA/8XktKPuv
- qTOIHZHQ==;
+ Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+ Content-Description:In-Reply-To:References;
+ bh=gIo3u97zH0JSQ3GhoDfa3dDtIgYeQtsIRo6GTGYyy+8=; b=mnzygY2xIJOplQLdTA5DuEH0ik
+ I+dSofdIWj5h6Q6sJXrxRQQH9lr8q8RznRktaWQgsjSk6tKhswT8dDrOuAKoDyVoNvpwziRMDygs5
+ V4f5W2mIHJSUYcOuW1p5Ir6U67Prk8VRUBRy8hjQ53gk5FH2pKOrOAD/RP/H1dTADr2OmbTj+6npM
+ 7vG9oWid8LWVlZMGnM3G1KLxrq+C33rTvftxBYoCfkRRZmUpij+cYvZefhDKfixG8mJiKhqsX7AnE
+ al8lhKCsReWSNohktTvtZM7aCBVtmd7q9BjtTavU2c+SGMWI34+tsLChaRrBdfoinRvNTW8QTALA1
+ h8FbOCKA==;
 From: Christoph Hellwig <hch@lst.de>
-Date: Thu, 23 Jul 2020 08:08:56 +0200
-Message-Id: <20200723060908.50081-15-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Date: Thu, 23 Jul 2020 08:08:42 +0200
+Message-Id: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 14/26] net/ipv4: switch ip_mroute_setsockopt to
-	sockptr_t
+Subject: [Bridge] get rid of the address_space override in setsockopt v2
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,127 +26,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
 Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-decnet-user@lists.sourceforge.net, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-can@vger.kernel.org, lvs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, linux-afs@lists.infradead.org, mptcp@lists.01.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+Hi Dave,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/mroute.h |  5 +++--
- net/ipv4/ip_sockglue.c |  3 ++-
- net/ipv4/ipmr.c        | 14 +++++++-------
- 3 files changed, 12 insertions(+), 10 deletions(-)
+setsockopt is the last place in architecture-independ code that still
+uses set_fs to force the uaccess routines to operate on kernel pointers.
 
-diff --git a/include/linux/mroute.h b/include/linux/mroute.h
-index 9a36fad9e068f6..6cbbfe94348cee 100644
---- a/include/linux/mroute.h
-+++ b/include/linux/mroute.h
-@@ -8,6 +8,7 @@
- #include <net/fib_notifier.h>
- #include <uapi/linux/mroute.h>
- #include <linux/mroute_base.h>
-+#include <linux/sockptr.h>
- 
- #ifdef CONFIG_IP_MROUTE
- static inline int ip_mroute_opt(int opt)
-@@ -15,7 +16,7 @@ static inline int ip_mroute_opt(int opt)
- 	return opt >= MRT_BASE && opt <= MRT_MAX;
- }
- 
--int ip_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
-+int ip_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
- int ip_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
- int ipmr_ioctl(struct sock *sk, int cmd, void __user *arg);
- int ipmr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg);
-@@ -23,7 +24,7 @@ int ip_mr_init(void);
- bool ipmr_rule_default(const struct fib_rule *rule);
- #else
- static inline int ip_mroute_setsockopt(struct sock *sock, int optname,
--				       char __user *optval, unsigned int optlen)
-+				       sockptr_t optval, unsigned int optlen)
- {
- 	return -ENOPROTOOPT;
- }
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index 36f746e01741f6..ac495b0cff8ffb 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -925,7 +925,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
- 	if (optname == IP_ROUTER_ALERT)
- 		return ip_ra_control(sk, val ? 1 : 0, NULL);
- 	if (ip_mroute_opt(optname))
--		return ip_mroute_setsockopt(sk, optname, optval, optlen);
-+		return ip_mroute_setsockopt(sk, optname, USER_SOCKPTR(optval),
-+					    optlen);
- 
- 	err = 0;
- 	if (needs_rtnl)
-diff --git a/net/ipv4/ipmr.c b/net/ipv4/ipmr.c
-index 678639c01e4882..cdf3a40f9ff5fc 100644
---- a/net/ipv4/ipmr.c
-+++ b/net/ipv4/ipmr.c
-@@ -1341,7 +1341,7 @@ static void mrtsock_destruct(struct sock *sk)
-  * MOSPF/PIM router set up we can clean this up.
-  */
- 
--int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
-+int ip_mroute_setsockopt(struct sock *sk, int optname, sockptr_t optval,
- 			 unsigned int optlen)
- {
- 	struct net *net = sock_net(sk);
-@@ -1413,7 +1413,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (copy_from_user(&vif, optval, sizeof(vif))) {
-+		if (copy_from_sockptr(&vif, optval, sizeof(vif))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1441,7 +1441,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (copy_from_user(&mfc, optval, sizeof(mfc))) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1459,7 +1459,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1471,7 +1471,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1486,7 +1486,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1508,7 +1508,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(uval, (u32 __user *)optval)) {
-+		if (copy_from_sockptr(&uval, optval, sizeof(uval))) {
- 			ret = -EFAULT;
- 			break;
- 		}
--- 
-2.27.0
+This series adds a new sockptr_t type that can contained either a kernel
+or user pointer, and which has accessors that do the right thing, and
+then uses it for setsockopt, starting by refactoring some low-level
+helpers and moving them over to it before finally doing the main
+setsockopt method.
 
+Note that apparently the eBPF selftests do not even cover this path, so
+the series has been tested with a testing patch that always copies the
+data first and passes a kernel pointer.  This is something that works for
+most common sockopts (and is something that the ePBF support relies on),
+but unfortunately in various corner cases we either don't use the passed
+in length, or in one case actually copy data back from setsockopt, or in
+case of bpfilter straight out do not work with kernel pointers at all.
+
+Against net-next/master.
+
+Changes since v1:
+ - check that users don't pass in kernel addresses
+ - more bpfilter cleanups
+ - cosmetic mptcp tweak
+
+Diffstat:
+ crypto/af_alg.c                           |    7 
+ drivers/crypto/chelsio/chtls/chtls_main.c |   18 -
+ drivers/isdn/mISDN/socket.c               |    4 
+ include/linux/bpfilter.h                  |    6 
+ include/linux/filter.h                    |    3 
+ include/linux/mroute.h                    |    5 
+ include/linux/mroute6.h                   |    8 
+ include/linux/net.h                       |    4 
+ include/linux/netfilter.h                 |    6 
+ include/linux/netfilter/x_tables.h        |    4 
+ include/linux/sockptr.h                   |  132 ++++++++++++
+ include/net/inet_connection_sock.h        |    3 
+ include/net/ip.h                          |    7 
+ include/net/ipv6.h                        |    6 
+ include/net/sctp/structs.h                |    2 
+ include/net/sock.h                        |    7 
+ include/net/tcp.h                         |    6 
+ include/net/udp.h                         |    2 
+ include/net/xfrm.h                        |    8 
+ net/atm/common.c                          |    6 
+ net/atm/common.h                          |    2 
+ net/atm/pvc.c                             |    2 
+ net/atm/svc.c                             |    6 
+ net/ax25/af_ax25.c                        |    6 
+ net/bluetooth/hci_sock.c                  |    8 
+ net/bluetooth/l2cap_sock.c                |   22 +-
+ net/bluetooth/rfcomm/sock.c               |   12 -
+ net/bluetooth/sco.c                       |    6 
+ net/bpfilter/bpfilter_kern.c              |   55 ++---
+ net/bridge/netfilter/ebtables.c           |   46 +---
+ net/caif/caif_socket.c                    |    8 
+ net/can/j1939/socket.c                    |   12 -
+ net/can/raw.c                             |   16 -
+ net/core/filter.c                         |    6 
+ net/core/sock.c                           |   36 +--
+ net/dccp/dccp.h                           |    2 
+ net/dccp/proto.c                          |   20 -
+ net/decnet/af_decnet.c                    |   13 -
+ net/ieee802154/socket.c                   |    6 
+ net/ipv4/bpfilter/sockopt.c               |   16 -
+ net/ipv4/ip_options.c                     |   43 +---
+ net/ipv4/ip_sockglue.c                    |   66 +++---
+ net/ipv4/ipmr.c                           |   14 -
+ net/ipv4/netfilter/arp_tables.c           |   33 +--
+ net/ipv4/netfilter/ip_tables.c            |   29 +-
+ net/ipv4/raw.c                            |    8 
+ net/ipv4/tcp.c                            |   30 +-
+ net/ipv4/tcp_ipv4.c                       |    4 
+ net/ipv4/udp.c                            |   11 -
+ net/ipv4/udp_impl.h                       |    4 
+ net/ipv6/ip6_flowlabel.c                  |  317 ++++++++++++++++--------------
+ net/ipv6/ip6mr.c                          |   17 -
+ net/ipv6/ipv6_sockglue.c                  |  203 +++++++++----------
+ net/ipv6/netfilter/ip6_tables.c           |   28 +-
+ net/ipv6/raw.c                            |   10 
+ net/ipv6/tcp_ipv6.c                       |    4 
+ net/ipv6/udp.c                            |    7 
+ net/ipv6/udp_impl.h                       |    4 
+ net/iucv/af_iucv.c                        |    4 
+ net/kcm/kcmsock.c                         |    6 
+ net/l2tp/l2tp_ppp.c                       |    4 
+ net/llc/af_llc.c                          |    4 
+ net/mptcp/protocol.c                      |    6 
+ net/netfilter/ipvs/ip_vs_ctl.c            |    4 
+ net/netfilter/nf_sockopt.c                |    2 
+ net/netfilter/x_tables.c                  |   20 -
+ net/netlink/af_netlink.c                  |    4 
+ net/netrom/af_netrom.c                    |    4 
+ net/nfc/llcp_sock.c                       |    6 
+ net/packet/af_packet.c                    |   39 +--
+ net/phonet/pep.c                          |    4 
+ net/rds/af_rds.c                          |   30 +-
+ net/rds/rdma.c                            |   14 -
+ net/rds/rds.h                             |    6 
+ net/rose/af_rose.c                        |    4 
+ net/rxrpc/af_rxrpc.c                      |    8 
+ net/rxrpc/ar-internal.h                   |    4 
+ net/rxrpc/key.c                           |    9 
+ net/sctp/socket.c                         |    4 
+ net/smc/af_smc.c                          |    4 
+ net/socket.c                              |   24 --
+ net/tipc/socket.c                         |    8 
+ net/tls/tls_main.c                        |   17 -
+ net/vmw_vsock/af_vsock.c                  |    4 
+ net/x25/af_x25.c                          |    4 
+ net/xdp/xsk.c                             |    8 
+ net/xfrm/xfrm_state.c                     |    6 
+ 87 files changed, 894 insertions(+), 743 deletions(-)
