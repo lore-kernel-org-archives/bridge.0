@@ -3,21 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=UdgYuJlmWZokLcAOPnfw8PlZRvn7vjQf/6iOObq/cjM=; b=aIaMhclEEnD1ULwrKvn78xfvE4
- 8LhP29U8BKD5dCx/PZ4xzwjJk056rLJlvUegZOy3Vu6Yef9on/jdjTYZDrYzfTZl8bVQbbTop0UWR
- M8Yx1TSJ9NA/9mJk31ud6h2bSkcvPf+C2+x6wKPLcYNdkFZ6us0Lb3ds14cqloxiLsw3vi7XqwMx5
- hpYczsqWiGeLGvsYypY38x3+nsPb17XruzF454E+faRyBokX2ig/VaOf+Jyic1oOFiasUFAxiY5zh
- h3Y5fDzIOIWdfMwKL7ZrXjv5DnfDd7AZWh3ZQ4AiSNMLsHjYpJvbeUT3B/4GZ+BqlGh21EpzBzSK+
- 4fcp8kXw==;
+ bh=WZEyzaS1ykzyi+yQ2LS2wMvQkwL8k8wAtqvtWngMf9k=; b=GkQOrco1ZkuQcjMqhyS87SJRGD
+ de3B5cw7G5yO9PMtzI5w0X5s2yopJqUiVbmSr+As98wWMXn6Xl8y79CmwAlaI3j3ebpY9UAteT4Cn
+ 4frKKigvk1Di9ljBzfXFKftGwds+aPPL5GLXVJjbCp6Lfwgns5RMwKcigxjHrK7cICgV+R/NKR37U
+ SMOd4Y2ouS0ew7sS3pWavsl7KIbbei8X3CRKa1fmzw0vOVSoAqB/W9Ie3NBqoKgOKk97nUpIMcDP1
+ iQ+w1wBnm6LrsYc5mEgaq6c5MgkmC+YhQvxGnziaBnG3fCFxlBnwCMxWkRXbiG0+qq3YlYZUO7b8q
+ DOf9lBbQ==;
 From: Christoph Hellwig <hch@lst.de>
-Date: Thu, 23 Jul 2020 08:09:06 +0200
-Message-Id: <20200723060908.50081-25-hch@lst.de>
+Date: Thu, 23 Jul 2020 08:09:08 +0200
+Message-Id: <20200723060908.50081-27-hch@lst.de>
 In-Reply-To: <20200723060908.50081-1-hch@lst.de>
 References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 24/26] net/tcp: switch do_tcp_setsockopt to
-	sockptr_t
+Subject: [Bridge] [PATCH 26/26] net: optimize the sockptr_t for unified
+	kernel/user address spaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,136 +29,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
 Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-decnet-user@lists.sourceforge.net, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-can@vger.kernel.org, lvs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, linux-afs@lists.infradead.org, mptcp@lists.01.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+For architectures like x86 and arm64 we don't need the separate bit to
+indicate that a pointer is a kernel pointer as the address spaces are
+unified.  That way the sockptr_t can be reduced to a union of two
+pointers, which leads to nicer calling conventions.
+
+The only caveat is that we need to check that users don't pass in kernel
+address and thus gain access to kernel memory.  Thus the USER_SOCKPTR
+helper is replaced with a init_user_sockptr function that does this check
+and returns an error if it fails.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/ipv4/tcp.c | 34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ include/linux/sockptr.h     | 32 ++++++++++++++++++++++++++++++--
+ net/ipv4/bpfilter/sockopt.c | 14 ++++++++------
+ net/socket.c                |  6 +++++-
+ 3 files changed, 43 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 49bf15c27deac7..71cbc61c335f71 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2764,7 +2764,7 @@ static inline bool tcp_can_repair_sock(const struct sock *sk)
- 		(sk->sk_state != TCP_LISTEN);
+diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
+index 700856e13ea0c4..7d5cdb2b30b5f0 100644
+--- a/include/linux/sockptr.h
++++ b/include/linux/sockptr.h
+@@ -8,9 +8,34 @@
+ #ifndef _LINUX_SOCKPTR_H
+ #define _LINUX_SOCKPTR_H
+ 
++#include <linux/compiler.h>
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ 
++#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
++typedef union {
++	void		*kernel;
++	void __user	*user;
++} sockptr_t;
++
++static inline bool sockptr_is_kernel(sockptr_t sockptr)
++{
++	return (unsigned long)sockptr.kernel >= TASK_SIZE;
++}
++
++static inline sockptr_t KERNEL_SOCKPTR(void *p)
++{
++	return (sockptr_t) { .kernel = p };
++}
++
++static inline int __must_check init_user_sockptr(sockptr_t *sp, void __user *p)
++{
++	if ((unsigned long)p >= TASK_SIZE)
++		return -EFAULT;
++	sp->user = p;
++	return 0;
++}
++#else /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
+ typedef struct {
+ 	union {
+ 		void		*kernel;
+@@ -29,10 +54,13 @@ static inline sockptr_t KERNEL_SOCKPTR(void *p)
+ 	return (sockptr_t) { .kernel = p, .is_kernel = true };
  }
  
--static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int len)
-+static int tcp_repair_set_window(struct tcp_sock *tp, sockptr_t optbuf, int len)
+-static inline sockptr_t USER_SOCKPTR(void __user *p)
++static inline int __must_check init_user_sockptr(sockptr_t *sp, void __user *p)
  {
- 	struct tcp_repair_window opt;
+-	return (sockptr_t) { .user = p };
++	sp->user = p;
++	sp->is_kernel = false;
++	return 0;
+ }
++#endif /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
  
-@@ -2774,7 +2774,7 @@ static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int l
- 	if (len != sizeof(opt))
+ static inline bool sockptr_is_null(sockptr_t sockptr)
+ {
+diff --git a/net/ipv4/bpfilter/sockopt.c b/net/ipv4/bpfilter/sockopt.c
+index 1b34cb9a7708ec..94f18d2352d007 100644
+--- a/net/ipv4/bpfilter/sockopt.c
++++ b/net/ipv4/bpfilter/sockopt.c
+@@ -57,16 +57,18 @@ int bpfilter_ip_set_sockopt(struct sock *sk, int optname, sockptr_t optval,
+ 	return bpfilter_mbox_request(sk, optname, optval, optlen, true);
+ }
+ 
+-int bpfilter_ip_get_sockopt(struct sock *sk, int optname, char __user *optval,
+-			    int __user *optlen)
++int bpfilter_ip_get_sockopt(struct sock *sk, int optname,
++			    char __user *user_optval, int __user *optlen)
+ {
+-	int len;
++	sockptr_t optval;
++	int err, len;
+ 
+ 	if (get_user(len, optlen))
+ 		return -EFAULT;
+-
+-	return bpfilter_mbox_request(sk, optname, USER_SOCKPTR(optval), len,
+-				     false);
++	err = init_user_sockptr(&optval, user_optval);
++	if (err)
++		return err;
++	return bpfilter_mbox_request(sk, optname, optval, len, false);
+ }
+ 
+ static int __init bpfilter_sockopt_init(void)
+diff --git a/net/socket.c b/net/socket.c
+index e44b8ac47f6f46..94ca4547cd7c53 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2097,7 +2097,7 @@ static bool sock_use_custom_sol_socket(const struct socket *sock)
+ int __sys_setsockopt(int fd, int level, int optname, char __user *user_optval,
+ 		int optlen)
+ {
+-	sockptr_t optval = USER_SOCKPTR(user_optval);
++	sockptr_t optval;
+ 	char *kernel_optval = NULL;
+ 	int err, fput_needed;
+ 	struct socket *sock;
+@@ -2105,6 +2105,10 @@ int __sys_setsockopt(int fd, int level, int optname, char __user *user_optval,
+ 	if (optlen < 0)
  		return -EINVAL;
  
--	if (copy_from_user(&opt, optbuf, sizeof(opt)))
-+	if (copy_from_sockptr(&opt, optbuf, sizeof(opt)))
- 		return -EFAULT;
- 
- 	if (opt.max_window < opt.snd_wnd)
-@@ -2796,17 +2796,17 @@ static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int l
- 	return 0;
- }
- 
--static int tcp_repair_options_est(struct sock *sk,
--		struct tcp_repair_opt __user *optbuf, unsigned int len)
-+static int tcp_repair_options_est(struct sock *sk, sockptr_t optbuf,
-+		unsigned int len)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct tcp_repair_opt opt;
- 
- 	while (len >= sizeof(opt)) {
--		if (copy_from_user(&opt, optbuf, sizeof(opt)))
-+		if (copy_from_sockptr(&opt, optbuf, sizeof(opt)))
- 			return -EFAULT;
- 
--		optbuf++;
-+		sockptr_advance(optbuf, sizeof(opt));
- 		len -= sizeof(opt);
- 
- 		switch (opt.opt_code) {
-@@ -3020,8 +3020,8 @@ EXPORT_SYMBOL(tcp_sock_set_keepcnt);
- /*
-  *	Socket option code for TCP.
-  */
--static int do_tcp_setsockopt(struct sock *sk, int level,
--		int optname, char __user *optval, unsigned int optlen)
-+static int do_tcp_setsockopt(struct sock *sk, int level, int optname,
-+		sockptr_t optval, unsigned int optlen)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct inet_connection_sock *icsk = inet_csk(sk);
-@@ -3037,7 +3037,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
- 		if (optlen < 1)
- 			return -EINVAL;
- 
--		val = strncpy_from_user(name, optval,
-+		val = strncpy_from_sockptr(name, optval,
- 					min_t(long, TCP_CA_NAME_MAX-1, optlen));
- 		if (val < 0)
- 			return -EFAULT;
-@@ -3056,7 +3056,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
- 		if (optlen < 1)
- 			return -EINVAL;
- 
--		val = strncpy_from_user(name, optval,
-+		val = strncpy_from_sockptr(name, optval,
- 					min_t(long, TCP_ULP_NAME_MAX - 1,
- 					      optlen));
- 		if (val < 0)
-@@ -3079,7 +3079,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
- 		    optlen != TCP_FASTOPEN_KEY_BUF_LENGTH)
- 			return -EINVAL;
- 
--		if (copy_from_user(key, optval, optlen))
-+		if (copy_from_sockptr(key, optval, optlen))
- 			return -EFAULT;
- 
- 		if (optlen == TCP_FASTOPEN_KEY_BUF_LENGTH)
-@@ -3095,7 +3095,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
- 
--	if (get_user(val, (int __user *)optval))
-+	if (copy_from_sockptr(&val, optval, sizeof(val)))
- 		return -EFAULT;
- 
- 	lock_sock(sk);
-@@ -3174,9 +3174,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
- 		if (!tp->repair)
- 			err = -EINVAL;
- 		else if (sk->sk_state == TCP_ESTABLISHED)
--			err = tcp_repair_options_est(sk,
--					(struct tcp_repair_opt __user *)optval,
--					optlen);
-+			err = tcp_repair_options_est(sk, optval, optlen);
- 		else
- 			err = -EPERM;
- 		break;
-@@ -3249,8 +3247,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
- #ifdef CONFIG_TCP_MD5SIG
- 	case TCP_MD5SIG:
- 	case TCP_MD5SIG_EXT:
--		err = tp->af_specific->md5_parse(sk, optname,
--						 USER_SOCKPTR(optval), optlen);
-+		err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
- 		break;
- #endif
- 	case TCP_USER_TIMEOUT:
-@@ -3334,7 +3331,8 @@ int tcp_setsockopt(struct sock *sk, int level, int optname, char __user *optval,
- 	if (level != SOL_TCP)
- 		return icsk->icsk_af_ops->setsockopt(sk, level, optname,
- 						     optval, optlen);
--	return do_tcp_setsockopt(sk, level, optname, optval, optlen);
-+	return do_tcp_setsockopt(sk, level, optname, USER_SOCKPTR(optval),
-+				 optlen);
- }
- EXPORT_SYMBOL(tcp_setsockopt);
- 
++	err = init_user_sockptr(&optval, user_optval);
++	if (err)
++		return err;
++
+ 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+ 	if (!sock)
+ 		return err;
 -- 
 2.27.0
 
