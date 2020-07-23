@@ -1,17 +1,13 @@
-Return-Path: <david.laight@aculab.com>
-From: David Laight <David.Laight@ACULAB.COM>
-Date: Thu, 23 Jul 2020 14:56:33 +0000
-Message-ID: <5fc6b1716f1b4534bda95bab49512754@AcuMS.aculab.com>
+Return-Path: <jengelh@inai.de>
+Date: Thu, 23 Jul 2020 17:40:49 +0200 (CEST)
+From: Jan Engelhardt <jengelh@inai.de>
+In-Reply-To: <20200723060908.50081-5-hch@lst.de>
+Message-ID: <nycvar.YFH.7.77.849.2007231725090.11202@n3.vanv.qr>
 References: <20200723060908.50081-1-hch@lst.de>
- <20200723060908.50081-4-hch@lst.de>
- <c3dc5b4d84e64230bb6ca8df7bb70705@AcuMS.aculab.com>
- <20200723144455.GA12280@lst.de>
-In-Reply-To: <20200723144455.GA12280@lst.de>
-Content-Language: en-US
+ <20200723060908.50081-5-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH 03/26] bpfilter: reject kernel addresses
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [Bridge] [PATCH 04/26] net: add a new sockptr_t type
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,50 +16,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'Christoph Hellwig' <hch@lst.de>
-Cc: Alexei Starovoitov <ast@kernel.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>, Daniel Borkmann <daniel@iogearbox.net>, "dccp@vger.kernel.org" <dccp@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "lvs-devel@vger.kernel.org" <lvs-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "mptcp@lists.01.org" <mptcp@lists.01.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "tipc-discussion@lists.sourceforge.net" <tipc-discussion@lists.sourceforge.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "linux-wpan@vger.kernel.org" <linux-wpan@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Alexei Starovoitov <ast@kernel.org>, linux-sctp@vger.kernel.org, linux-afs@lists.infradead.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Daniel Borkmann <daniel@iogearbox.net>, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, mptcp@lists.01.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-can@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, Netfilter Developer Mailing List <netfilter-devel@vger.kernel.org>, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-From: 'Christoph Hellwig'
-> Sent: 23 July 2020 15:45
->=20
-> On Thu, Jul 23, 2020 at 02:42:11PM +0000, David Laight wrote:
-> > From: Christoph Hellwig
-> > > Sent: 23 July 2020 07:09
-> > >
-> > > The bpfilter user mode helper processes the optval address using
-> > > process_vm_readv.  Don't send it kernel addresses fed under
-> > > set_fs(KERNEL_DS) as that won't work.
-> >
-> > What sort of operations is the bpf filter doing on the sockopt buffers?
-> >
-> > Any attempts to reject some requests can be thwarted by a second
-> > application thread modifying the buffer after the bpf filter has
-> > checked that it allowed.
-> >
-> > You can't do security by reading a user buffer twice.
->=20
-> I'm not saying that I approve of the design, but the current bpfilter
-> design uses process_vm_readv to access the buffer, which obviously does
-> not work with kernel buffers.
 
-Is this a different bit of bpf that that which used to directly
-intercept setsockopt() requests and pass them down from a kernel buffer?
+On Thursday 2020-07-23 08:08, Christoph Hellwig wrote:
+>+typedef struct {
+>+	union {
+>+		void		*kernel;
+>+		void __user	*user;
+>+	};
+>+	bool		is_kernel : 1;
+>+} sockptr_t;
+>+
+>+static inline bool sockptr_is_null(sockptr_t sockptr)
+>+{
+>+	return !sockptr.user && !sockptr.kernel;
+>+}
 
-I can't held feeling that bpf is getting 'too big for its boots' and
-will have a local-user privilege escalation hiding in it somewhere.
+"""If the member used to access the contents of a union is not the same as the
+member last used to store a value, the object representation of the value that
+was stored is reinterpreted as an object representation of the new type (this
+is known as type punning). If the size of the new type is larger than the size
+of the last-written type, the contents of the excess bytes are unspecified (and
+may be a trap representation)"""
 
-I've had to fix my 'out of tree' driver to remove the [sg]etsockopt()
-calls. Some of the replacements will go badly wrong if I've accidentally
-lost track of the socket type.
-I do have a daemon process sleeping in the driver - so I can wake it up
-and make the requests from it with a user buffer.
-I may have to implement that to get the negotiated number of 'ostreams'
-to an SCTP connection.
+As I am not too versed with the consequences of trap representations, I will
+just point out that a future revision of the C standard may introduce (proposal
+N2362) stronger C++-like requirements; as for union, that would imply a simple:
 
-=09David
+"""It's undefined behavior to read from the member of the union that wasn't
+most recently written.""" [cppreference.com]
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
-PT, UK
-Registration No: 1397386 (Wales)
+
+So, in the spirit of copy_from/to_sockptr, the is_null function should read
+
+{
+	return sockptr.is_kernel ? !sockptr.user : !sockptr.kernel;
+}
 
