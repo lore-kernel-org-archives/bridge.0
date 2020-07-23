@@ -3,21 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=AjKHhDGZLqL4OuQUXI3ghPRn4d0K9eK+41+WmsKDw4s=; b=CNu8wX7/4AaScPiP+yKasX/Nuq
- 00LHKTXAD3IquBRcEMSnRF8bNgMD1cvHh+U+oC9aYlopzyBcHDT20XOh1UxeZFqfjZgeBbGvE1wB6
- /V6nQUH0PdaU2g+5JOnd1u9l8C/s6uwbv4KhpIhdxBK8oLO0ZwY+sqyTh4ne0vagAIgh4N5VQBGx0
- JHE6q8bbDMTkx2eOaxshkvfo9rjtP0ncEN/z4VwN6Hb6/0xYri2cf1nNOzgptOsfvtMuA7wmNkOac
- QLJGCjm4BB8DbTIK1mpqQYiSCZNmMlsC+Vd1KrBSfphtSKPM32mRgHArgFrIC0MlfCF8txHO3F2DP
- u7/I0W5g==;
+ bh=AgSxP7iVdXVEFS4IDrHx6ue4s0yWgQSmSEoUvewskkk=; b=UubGJx5UZwlfDZKlY0aminCkgD
+ TkOTjy6IQbG5S2CEEDBygCyqeSmFkmj050BgX/zCO7ZQhoijKBeefKdIYxudTh+C8mO8wrlBjkkdc
+ CNAQqLasagTDFNnE8YJX420qR8hR+zVHIihD5njNfOM1haYOm78uiHJZCD2fJk/pHLXt8cJwzck2G
+ d9T/mnVxBvuzPP+bsp721z5n9lnXCWiykSYhCnIy/x6+dGK6dwI9GOXv9d05ZojqKq522p8klLoU/
+ qzRiBLYFytH94kjENFy3YjMg30MfbSZRFnPejzFB/dvpRHoO2rOz932v79OqbUsmd5ii7pjIoA9EI
+ TL3hATzg==;
 From: Christoph Hellwig <hch@lst.de>
-Date: Thu, 23 Jul 2020 08:08:52 +0200
-Message-Id: <20200723060908.50081-11-hch@lst.de>
+Date: Thu, 23 Jul 2020 08:08:57 +0200
+Message-Id: <20200723060908.50081-16-hch@lst.de>
 In-Reply-To: <20200723060908.50081-1-hch@lst.de>
 References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 10/26] netfilter: remove the unused user argument
-	to do_update_counters
+Subject: [Bridge] [PATCH 15/26] net/ipv4: merge ip_options_get and
+	ip_options_get_from_user
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,45 +29,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
 Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-decnet-user@lists.sourceforge.net, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-can@vger.kernel.org, lvs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-sctp@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, linux-afs@lists.infradead.org, mptcp@lists.01.org
 
+Use the sockptr_t type to merge the versions.
+
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/bridge/netfilter/ebtables.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ include/net/ip.h       |  5 ++---
+ net/ipv4/ip_options.c  | 43 +++++++++++-------------------------------
+ net/ipv4/ip_sockglue.c |  7 ++++---
+ 3 files changed, 17 insertions(+), 38 deletions(-)
 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index fe13108af1f542..12f8929667bf43 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1242,9 +1242,8 @@ void ebt_unregister_table(struct net *net, struct ebt_table *table,
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 3d34acc95ca825..d66ad3a9522081 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -23,6 +23,7 @@
+ #include <linux/in.h>
+ #include <linux/skbuff.h>
+ #include <linux/jhash.h>
++#include <linux/sockptr.h>
  
- /* userspace just supplied us with counters */
- static int do_update_counters(struct net *net, const char *name,
--				struct ebt_counter __user *counters,
--				unsigned int num_counters,
--				const void __user *user, unsigned int len)
-+			      struct ebt_counter __user *counters,
-+			      unsigned int num_counters, unsigned int len)
+ #include <net/inet_sock.h>
+ #include <net/route.h>
+@@ -707,9 +708,7 @@ int __ip_options_compile(struct net *net, struct ip_options *opt,
+ int ip_options_compile(struct net *net, struct ip_options *opt,
+ 		       struct sk_buff *skb);
+ int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+-		   unsigned char *data, int optlen);
+-int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
+-			     unsigned char __user *data, int optlen);
++		   sockptr_t data, int optlen);
+ void ip_options_undo(struct ip_options *opt);
+ void ip_forward_options(struct sk_buff *skb);
+ int ip_options_rcv_srr(struct sk_buff *skb, struct net_device *dev);
+diff --git a/net/ipv4/ip_options.c b/net/ipv4/ip_options.c
+index ddaa01ec2bce82..948747aac4e2d0 100644
+--- a/net/ipv4/ip_options.c
++++ b/net/ipv4/ip_options.c
+@@ -519,15 +519,20 @@ void ip_options_undo(struct ip_options *opt)
+ 	}
+ }
+ 
+-static struct ip_options_rcu *ip_options_get_alloc(const int optlen)
++int ip_options_get(struct net *net, struct ip_options_rcu **optp,
++		   sockptr_t data, int optlen)
  {
- 	int i, ret;
- 	struct ebt_counter *tmp;
-@@ -1299,7 +1298,7 @@ static int update_counters(struct net *net, const void __user *user,
- 		return -EINVAL;
+-	return kzalloc(sizeof(struct ip_options_rcu) + ((optlen + 3) & ~3),
++	struct ip_options_rcu *opt;
++
++	opt = kzalloc(sizeof(struct ip_options_rcu) + ((optlen + 3) & ~3),
+ 		       GFP_KERNEL);
+-}
++	if (!opt)
++		return -ENOMEM;
++	if (optlen && copy_from_sockptr(opt->opt.__data, data, optlen)) {
++		kfree(opt);
++		return -EFAULT;
++	}
  
- 	return do_update_counters(net, hlp.name, hlp.counters,
--				hlp.num_counters, user, len);
-+				  hlp.num_counters, len);
+-static int ip_options_get_finish(struct net *net, struct ip_options_rcu **optp,
+-				 struct ip_options_rcu *opt, int optlen)
+-{
+ 	while (optlen & 3)
+ 		opt->opt.__data[optlen++] = IPOPT_END;
+ 	opt->opt.optlen = optlen;
+@@ -540,32 +545,6 @@ static int ip_options_get_finish(struct net *net, struct ip_options_rcu **optp,
+ 	return 0;
  }
  
- static inline int ebt_obj_to_user(char __user *um, const char *_name,
-@@ -2231,7 +2230,7 @@ static int compat_update_counters(struct net *net, void __user *user,
- 		return update_counters(net, user, len);
+-int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
+-			     unsigned char __user *data, int optlen)
+-{
+-	struct ip_options_rcu *opt = ip_options_get_alloc(optlen);
+-
+-	if (!opt)
+-		return -ENOMEM;
+-	if (optlen && copy_from_user(opt->opt.__data, data, optlen)) {
+-		kfree(opt);
+-		return -EFAULT;
+-	}
+-	return ip_options_get_finish(net, optp, opt, optlen);
+-}
+-
+-int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+-		   unsigned char *data, int optlen)
+-{
+-	struct ip_options_rcu *opt = ip_options_get_alloc(optlen);
+-
+-	if (!opt)
+-		return -ENOMEM;
+-	if (optlen)
+-		memcpy(opt->opt.__data, data, optlen);
+-	return ip_options_get_finish(net, optp, opt, optlen);
+-}
+-
+ void ip_forward_options(struct sk_buff *skb)
+ {
+ 	struct   ip_options *opt	= &(IPCB(skb)->opt);
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index ac495b0cff8ffb..b12f39b52008a3 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -280,7 +280,8 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
+ 			err = cmsg->cmsg_len - sizeof(struct cmsghdr);
  
- 	return do_update_counters(net, hlp.name, compat_ptr(hlp.counters),
--					hlp.num_counters, user, len);
-+				  hlp.num_counters, len);
- }
+ 			/* Our caller is responsible for freeing ipc->opt */
+-			err = ip_options_get(net, &ipc->opt, CMSG_DATA(cmsg),
++			err = ip_options_get(net, &ipc->opt,
++					     KERNEL_SOCKPTR(CMSG_DATA(cmsg)),
+ 					     err < 40 ? err : 40);
+ 			if (err)
+ 				return err;
+@@ -940,8 +941,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
  
- static int compat_do_ebt_get_ctl(struct sock *sk, int cmd,
+ 		if (optlen > 40)
+ 			goto e_inval;
+-		err = ip_options_get_from_user(sock_net(sk), &opt,
+-					       optval, optlen);
++		err = ip_options_get(sock_net(sk), &opt, USER_SOCKPTR(optval),
++					      optlen);
+ 		if (err)
+ 			break;
+ 		old = rcu_dereference_protected(inet->inet_opt,
 -- 
 2.27.0
 
