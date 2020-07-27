@@ -1,17 +1,15 @@
-Return-Path: <david.laight@aculab.com>
-From: David Laight <David.Laight@ACULAB.COM>
-Date: Mon, 27 Jul 2020 14:09:09 +0000
-Message-ID: <5d958e937db54849b4ef9046e7e12277@AcuMS.aculab.com>
+Return-Path: <hch@lst.de>
+Date: Mon, 27 Jul 2020 17:06:01 +0200
+From: Christoph Hellwig <hch@lst.de>
+Message-ID: <20200727150601.GA3447@lst.de>
 References: <20200723060908.50081-1-hch@lst.de>
- <20200724.154342.1433271593505001306.davem@davemloft.net>
- <8ae792c27f144d4bb5cbea0c1cce4eed@AcuMS.aculab.com>
- <20200727134814.GD794331@ZenIV.linux.org.uk>
-In-Reply-To: <20200727134814.GD794331@ZenIV.linux.org.uk>
-Content-Language: en-US
+ <20200723060908.50081-13-hch@lst.de> <20200727150310.GA1632472@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] get rid of the address_space override in setsockopt v2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200727150310.GA1632472@zx2c4.com>
+Subject: Re: [Bridge] [PATCH 12/26] netfilter: switch nf_setsockopt to
+	sockptr_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,52 +18,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'Al Viro' <viro@zeniv.linux.org.uk>
-Cc: "ast@kernel.org" <ast@kernel.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "hch@lst.de" <hch@lst.de>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "dccp@vger.kernel.org" <dccp@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>, "lvs-devel@vger.kernel.org" <lvs-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "mptcp@lists.01.org" <mptcp@lists.01.org>, "kuznet@ms2.inr.ac.ru" <kuznet@ms2.inr.ac.ru>, "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, "kuba@kernel.org" <kuba@kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "tipc-discussion@lists.sourceforge.net" <tipc-discussion@lists.sourceforge.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, "edumazet@google.com" <edumazet@google.com>, "yoshfuji@linux-ipv6.org" <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "linux-wpan@vger.kernel.org" <linux-wpan@vger.kernel.org>, 'David Miller' <davem@davemloft.net>
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Alexei Starovoitov <ast@kernel.org>, linux-sctp@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Daniel Borkmann <daniel@iogearbox.net>, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, linux-afs@lists.infradead.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, mptcp@lists.01.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-can@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-From: Al Viro
-> Sent: 27 July 2020 14:48
->=20
-> On Mon, Jul 27, 2020 at 09:51:45AM +0000, David Laight wrote:
->=20
-> > I'm sure there is code that processes options in chunks.
-> > This probably means it is possible to put a chunk boundary
-> > at the end of userspace and continue processing the very start
-> > of kernel memory.
-> >
-> > At best this faults on the kernel copy code and crashes the system.
->=20
-> Really?  Care to provide some details, or is it another of your "I can't
-> be possibly arsed to check what I'm saying, but it stands for reason
-> that..." specials?
+On Mon, Jul 27, 2020 at 05:03:10PM +0200, Jason A. Donenfeld wrote:
+> Hi Christoph,
+> 
+> On Thu, Jul 23, 2020 at 08:08:54AM +0200, Christoph Hellwig wrote:
+> > diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+> > index da933f99b5d517..42befbf12846c0 100644
+> > --- a/net/ipv4/ip_sockglue.c
+> > +++ b/net/ipv4/ip_sockglue.c
+> > @@ -1422,7 +1422,8 @@ int ip_setsockopt(struct sock *sk, int level,
+> >  			optname != IP_IPSEC_POLICY &&
+> >  			optname != IP_XFRM_POLICY &&
+> >  			!ip_mroute_opt(optname))
+> > -		err = nf_setsockopt(sk, PF_INET, optname, optval, optlen);
+> > +		err = nf_setsockopt(sk, PF_INET, optname, USER_SOCKPTR(optval),
+> > +				    optlen);
+> >  #endif
+> >  	return err;
+> >  }
+> > diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+> > index 4697d09c98dc3e..f2a9680303d8c0 100644
+> > --- a/net/ipv4/netfilter/ip_tables.c
+> > +++ b/net/ipv4/netfilter/ip_tables.c
+> > @@ -1102,7 +1102,7 @@ __do_replace(struct net *net, const char *name, unsigned int valid_hooks,
+> >  }
+> >  
+> >  static int
+> > -do_replace(struct net *net, const void __user *user, unsigned int len)
+> > +do_replace(struct net *net, sockptr_t arg, unsigned int len)
+> >  {
+> >  	int ret;
+> >  	struct ipt_replace tmp;
+> > @@ -1110,7 +1110,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
+> >  	void *loc_cpu_entry;
+> >  	struct ipt_entry *iter;
+> >  
+> > -	if (copy_from_user(&tmp, user, sizeof(tmp)) != 0)
+> > +	if (copy_from_sockptr(&tmp, arg, sizeof(tmp)) != 0)
+> >  		return -EFAULT;
+> >  
+> >  	/* overflow check */
+> > @@ -1126,8 +1126,8 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
+> >  		return -ENOMEM;
+> >  
+> >  	loc_cpu_entry = newinfo->entries;
+> > -	if (copy_from_user(loc_cpu_entry, user + sizeof(tmp),
+> > -			   tmp.size) != 0) {
+> > +	sockptr_advance(arg, sizeof(tmp));
+> > +	if (copy_from_sockptr(loc_cpu_entry, arg, tmp.size) != 0) {
+> >  		ret = -EFAULT;
+> >  		goto free_newinfo;
+> >  	}
+> 
+> Something along this path seems to have broken with this patch. An
+> invocation of `iptables -A INPUT -m length --length 1360 -j DROP` now
+> fails, with
+> 
+> nf_setsockopt->do_replace->translate_table->check_entry_size_and_hooks:
+>   (unsigned char *)e + e->next_offset > limit  ==>  TRUE
+> 
+> resulting in the whole call chain returning -EINVAL. It bisects back to
+> this commit. This is on net-next.
 
-I did more 'homework' than sometimes :-)
-Slightly difficult without a searchable net-next tree.
-However, as has been pointed out is a different thread
-this code is used to update IPv6 flow labels:
-
-> > -=09=09if (copy_from_user(fl->opt+1, optval+CMSG_ALIGN(sizeof(*freq)), =
-olen))
-> > +=09=09sockptr_advance(optval, CMSG_ALIGN(sizeof(*freq)));
-> > +=09=09if (copy_from_sockptr(fl->opt + 1, optval, olen))
-> >  =09=09=09goto done;
-
-and doesn't work because the advances are no longer cumulative.
-
-Now access_ok() has to take the base address and length to stop
-'running into' kernel space, but the code above can advance from
-a valid user pointer (which won't fault) to a kernel address.
-
-If there were always an unmapped 'guard' page in the user address
-space the access_ok() check prior to copy_to/from_user() wouldn't
-need the length.
-So I surmise that no such guard page exists and so the above
-can advance from user addresses into kernel ones.
-
-=09David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
-PT, UK
-Registration No: 1397386 (Wales)
-
+This is another use o sockptr_advance that Ido already found a problem
+in.  I'm looking into this at the moment..
