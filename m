@@ -1,15 +1,14 @@
 Return-Path: <hch@lst.de>
-Date: Mon, 27 Jul 2020 18:15:55 +0200
+Date: Mon, 27 Jul 2020 18:16:15 +0200
 From: Christoph Hellwig <hch@lst.de>
-Message-ID: <20200727161555.GA7817@lst.de>
+Message-ID: <20200727161615.GB7817@lst.de>
 References: <20200723060908.50081-1-hch@lst.de>
- <20200723060908.50081-20-hch@lst.de> <20200727121505.GA1804864@shredder>
- <20200727130029.GA26393@lst.de> <20200727133331.GA1851348@shredder>
+ <20200723060908.50081-13-hch@lst.de> <20200727150310.GA1632472@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200727133331.GA1851348@shredder>
-Subject: Re: [Bridge] [PATCH 19/26] net/ipv6: switch ipv6_flowlabel_opt to
+In-Reply-To: <20200727150310.GA1632472@zx2c4.com>
+Subject: Re: [Bridge] [PATCH 12/26] netfilter: switch nf_setsockopt to
 	sockptr_t
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -19,13 +18,10 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Cc: Alexei Starovoitov <ast@kernel.org>, linux-sctp@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Daniel Borkmann <daniel@iogearbox.net>, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, linux-afs@lists.infradead.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, mptcp@lists.01.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-can@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-I have to admit I didn't spot the difference between the good and the
-bad output even after trying hard..
-
-But can you try the patch below?
+Can you try the patch below?
 
 ---
 From cce2d2e1b43ecee5f4af7cf116808b74b330080f Mon Sep 17 00:00:00 2001
