@@ -1,27 +1,22 @@
-Return-Path: <Jason@zx2c4.com>
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
- :references:in-reply-to:from:date:message-id:subject:to:cc
- :content-type; s=mail; bh=K4YAt33ilBR3hd1+7JojCPxtvSA=; b=nEjdWp
- cUQVj0KWRd87puFx0fk1HADPVt/5ckkL0vcSiVAoyePGSTncp+KafcroE0itJJAR
- hvCKOHIgNqwby+4I13HG5z9ibnxBmqHfVx+jKtrPfvHTnJrmPNg1WsagEKVyYT8s
- 0wLLBcv/NIyWIJ2xwHqa/F7Ekuot/H5qUld6hDSAXP06OIRI6q+V7cdk8Ye2E95N
- oE2iYHJELOZGqN2H10I58K4qjsUNSGzPFklfgHdPIOfnKUBe2eF7SiuhT2DW4gmx
- Zlh/4Lwi80eH4MYYZz1R0kvQtczs/XnszWGNGZW6geww/y9D6tsJ0FqJg7QkrUqh
- r9lHeJJo9aIu1+DA==
+Return-Path: <komachi.yoshiki@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=0m2yM6Cpg0UMGl3JBQ2zB0c8Tu//2IzjG9Zoo6ooaqY=;
+ b=hhzBOePGn+ma9oANopuKPFKyVnWTCROJvTFIWKIg+Xqaq5kTw1qad0OqKUKO0yEBSA
+ XZtE3/VK2wQHKXopvsveJfyJMOmkUhUJHZ8rooShHKA3F9ArTAWFBJGQ1DZdI6j5V1Di
+ Vjt9QY7XhAXpFW67bTCgoR+SUQJ/ikmjbsN3pweNd3qEO+Xjm9IFyo9Lwl+63bMKbw3L
+ cSfs4kU+IifQyXiPn0C2XgvPqF2VTmco5iyGcfR8EOWetXpUYze9fuTzsVq1tM9iJNJv
+ Lv+pC9TKLh4/uJkCHXTDyWGmF72NLPsK2Er4s8Kc4+V7wi0WxOPulBF1EYC3O5U/UbxU
+ gjEw==
+From: Yoshiki Komachi <komachi.yoshiki@gmail.com>
+Date: Fri, 31 Jul 2020 13:44:17 +0900
+Message-Id: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
 MIME-Version: 1.0
-References: <20200723060908.50081-1-hch@lst.de>
- <20200723060908.50081-13-hch@lst.de>
- <20200727150310.GA1632472@zx2c4.com> <20200727150601.GA3447@lst.de>
- <CAHmME9ric=chLJayn7Erve7WBa+qCKn-+Gjri=zqydoY6623aA@mail.gmail.com>
- <20200727162357.GA8022@lst.de>
- <908ed73081cc42d58a5b01e0c97dbe47@AcuMS.aculab.com>
-In-Reply-To: <908ed73081cc42d58a5b01e0c97dbe47@AcuMS.aculab.com>
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 28 Jul 2020 10:17:28 +0200
-Message-ID: <CAHmME9pUbRmJq1Qcj10eENt15cuQHkiXJNKrUDmmC18n2mLKDA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH 12/26] netfilter: switch nf_setsockopt to
-	sockptr_t
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [RFC PATCH bpf-next 0/3] Add a new bpf helper for FDB
+	lookup
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,44 +25,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Laight <David.Laight@aculab.com>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>, Alexei Starovoitov <ast@kernel.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>, Daniel Borkmann <daniel@iogearbox.net>, "dccp@vger.kernel.org" <dccp@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>, "lvs-devel@vger.kernel.org" <lvs-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "mptcp@lists.01.org" <mptcp@lists.01.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "tipc-discussion@lists.sourceforge.net" <tipc-discussion@lists.sourceforge.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>, Eric Dumazet <edumazet@google.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Netdev <netdev@vger.kernel.org>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, LKML <linux-kernel@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "linux-wpan@vger.kernel.org" <linux-wpan@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: "David S. Miller" <davem@davemloft.net>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, KP Singh <kpsingh@chromium.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Ahern <dsahern@kernel.org>
+Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, bridge@lists.linux-foundation.org, Yoshiki Komachi <komachi.yoshiki@gmail.com>
 
-On Tue, Jul 28, 2020 at 10:07 AM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Christoph Hellwig
-> > Sent: 27 July 2020 17:24
-> >
-> > On Mon, Jul 27, 2020 at 06:16:32PM +0200, Jason A. Donenfeld wrote:
-> > > Maybe sockptr_advance should have some safety checks and sometimes
-> > > return -EFAULT? Or you should always use the implementation where
-> > > being a kernel address is an explicit bit of sockptr_t, rather than
-> > > being implicit?
-> >
-> > I already have a patch to use access_ok to check the whole range in
-> > init_user_sockptr.
->
-> That doesn't make (much) difference to the code paths that ignore
-> the user-supplied length.
-> OTOH doing the user/kernel check on the base address (not an
-> incremented one) means that the correct copy function is always
-> selected.
+This series adds a new bpf helper for doing FDB lookup in the kernel
+tables from XDP programs. This helps users to accelerate Linux bridge
+with XDP.
 
-Right, I had the same reaction in reading this, but actually, his code
-gets rid of the sockptr_advance stuff entirely and never mutates, so
-even though my point about attacking those pointers was missed, the
-code does the better thing now -- checking the base address and never
-mutating the pointer. So I think we're good.
+In the past, XDP generally required users to reimplement their own
+networking functionalities with specific manners of BPF programming
+by themselves, hindering its potential uses. IMO, bpf helpers to
+access networking stacks in kernel help to mitigate the programming
+costs because users reuse mature Linux networking feature more easily.
 
->
-> Perhaps the functions should all be passed a 'const sockptr_t'.
-> The typedef could be made 'const' - requiring non-const items
-> explicitly use the union/struct itself.
+The previous commit 87f5fc7e48dd ("bpf: Provide helper to do forwarding
+lookups in kernel FIB table") have already added a bpf helper for access
+FIB in the kernel tables from XDP programs. As a next step, this series
+introduces the API for FDB lookup. In the future, other bpf helpers for
+learning and VLAN filtering will also be required in order to realize
+fast XDP-based bridge although these are not included in this series.
 
-I was thinking the same, but just by making the pointers inside the
-struct const. However, making the whole struct const via the typedef
-is a much better idea. That'd probably require changing the signature
-of init_user_sockptr a bit, which would be fine, but indeed I think
-this would be a very positive change.
+Patch 1 adds new function for access FDB in the kernel tables via the
+new bpf helper.
 
-Jason
+Patch 2 adds the bpf helper and 3 adds a sample program.
+
+Yoshiki Komachi (3):
+  net/bridge: Add new function to access FDB from XDP programs
+  bpf: Add helper to do forwarding lookups in kernel FDB table
+  samples/bpf: Add a simple bridge example accelerated with XDP
+
+ include/linux/if_bridge.h      |  11 ++
+ include/uapi/linux/bpf.h       |  28 ++++
+ net/bridge/br_fdb.c            |  25 ++++
+ net/core/filter.c              |  45 +++++++
+ samples/bpf/Makefile           |   3 +
+ samples/bpf/xdp_bridge_kern.c  | 129 ++++++++++++++++++
+ samples/bpf/xdp_bridge_user.c  | 239 +++++++++++++++++++++++++++++++++
+ scripts/bpf_helpers_doc.py     |   1 +
+ tools/include/uapi/linux/bpf.h |  28 ++++
+ 9 files changed, 509 insertions(+)
+ create mode 100644 samples/bpf/xdp_bridge_kern.c
+ create mode 100644 samples/bpf/xdp_bridge_user.c
+
+-- 
+2.20.1 (Apple Git-117)
+
