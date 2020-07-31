@@ -1,23 +1,25 @@
-Return-Path: <andrii.nakryiko@gmail.com>
+Return-Path: <john.fastabend@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=7yuTOXkhnjtQaEm9idGZaO/zfXegMB7ywvDDyNQyj/I=;
- b=Ia2KG8Dg+BQsHF7ZvXuqhVIIBXIEfPHODcfnL2p5ZboFoSn9gTATt5RC0apvua39Hk
- HdaIBqspB9J4V0exyzKhHQoo5hJcRMKO3jb99ftPqkLACSyTaBO+vU3hGwvRVG0Mkg3O
- XNcFh05JPS/txkOomOZQ0DqaK6erwgFsy2e5T1w2p562foq96lFZPfZ9oPSgHasLEuaS
- wAJLELm7a5mQXCzR4L68bqSRsxxXFcnI8mDwBw+9vth3cnfOu27NHeT8vn775fzCw3ku
- VajG0UgaXUiv0ntVgRB656n01g3b6EkUexByh7gvYQ6yz6rSP48rqTABWFwTKrPk0fBg
- waoA==
-MIME-Version: 1.0
+ h=date:from:to:cc:message-id:in-reply-to:references:subject
+ :mime-version:content-transfer-encoding;
+ bh=u0WnrEEbki1i/hcaafYSzslvQ7FMlY7zypF99r+3B/o=;
+ b=c/MJnMa7iFlRBOG02m0T54NzFYPRsxOii1CeQ16KYQkd4QKokIa0N/RND9PSnQzmJx
+ he9XFY1jf5LZkpWxNbD2SAbwnXGmTsUf+VIG9o6VK8HcaUB6LUdwqB6beOhniK9hlW00
+ Ey4PLP49xYvfKkd8cAiURWATEuBPmZvqdnM2gDOnRfJUjd5FHSivmvmcYbazmgN6gE4B
+ ApzN7hy16Bcmn9cYtU1venxzbdUkcaoGF0JmfArVDW++ro0Vr2c7RbREEBR3VlyEcYn9
+ JKWbYSAeva3koTpN+9Jun6O6QJ+r3yZn4oqqeVj8ldWj70afnW8AmqVF/7rG5JjcSKuM
+ OYSg==
+Date: Fri, 31 Jul 2020 14:52:46 -0700
+From: John Fastabend <john.fastabend@gmail.com>
+Message-ID: <5f2492aedba05_54fa2b1d9fe285b42d@john-XPS-13-9370.notmuch>
+In-Reply-To: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
 References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
- <1596170660-5582-4-git-send-email-komachi.yoshiki@gmail.com>
-In-Reply-To: <1596170660-5582-4-git-send-email-komachi.yoshiki@gmail.com>
-From: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date: Fri, 31 Jul 2020 10:48:18 -0700
-Message-ID: <CAEf4BzaRKhJqFmXJEQy5LOjKx9nkPgAKHa3cesvywy2qqg93YA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [RFC PATCH bpf-next 3/3] samples/bpf: Add a simple
- bridge example accelerated with XDP
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [RFC PATCH bpf-next 0/3] Add a new bpf helper for FDB
+	lookup
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,51 +28,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Networking <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf <bpf@vger.kernel.org>, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
+To: Yoshiki Komachi <komachi.yoshiki@gmail.com>, "David S. Miller" <davem@davemloft.net>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, KP Singh <kpsingh@chromium.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Ahern <dsahern@kernel.org>
+Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, bridge@lists.linux-foundation.org, Yoshiki Komachi <komachi.yoshiki@gmail.com>
 
-On Thu, Jul 30, 2020 at 9:45 PM Yoshiki Komachi
-<komachi.yoshiki@gmail.com> wrote:
->
-> This patch adds a simple example of XDP-based bridge with the new
-> bpf_fdb_lookup helper. This program simply forwards packets based
-> on the destination port given by FDB in the kernel. Note that both
-> vlan filtering and learning features are currently unsupported in
-> this example.
->
-> There is another plan to recreate a userspace application
-> (xdp_bridge_user.c) as a daemon process, which helps to automate
-> not only detection of status changes in bridge port but also
-> handling vlan protocol updates.
->
-> Note: David Ahern suggested a new bpf helper [1] to get master
-> vlan/bonding devices in XDP programs attached to their slaves
-> when the master vlan/bonding devices are bridge ports. If this
-> idea is accepted and the helper is introduced in the future, we
-> can handle interfaces slaved to vlan/bonding devices in this
-> sample by calling the suggested bpf helper (I guess it can get
-> vlan/bonding ifindex from their slave ifindex). Notice that we
-> don't need to change bpf_fdb_lookup() API to use such a feature,
-> but we just need to modify bpf programs like this sample.
->
-> [1]: http://vger.kernel.org/lpc-networking2018.html#session-1
->
-> Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-> ---
+Yoshiki Komachi wrote:
+> This series adds a new bpf helper for doing FDB lookup in the kernel
+> tables from XDP programs. This helps users to accelerate Linux bridge
+> with XDP.
+> =
 
-Have you tried using a BPF skeleton for this? It could have saved a
-bunch of mechanical code for your example. Also libbpf supports map
-pinning out of the box now, I wonder if it would just work in your
-case. Also it would be nice if you tried using BPF link-based approach
-for this example, to show how it can be used. Thanks!
+> In the past, XDP generally required users to reimplement their own
+> networking functionalities with specific manners of BPF programming
+> by themselves, hindering=C2=A0its=C2=A0potential=C2=A0uses. IMO, bpf he=
+lpers to
+> access networking stacks in kernel help to mitigate the programming
+> costs because users reuse mature Linux networking feature more easily.
+> =
 
+> The previous commit 87f5fc7e48dd ("bpf: Provide helper to do forwarding=
 
->  samples/bpf/Makefile          |   3 +
->  samples/bpf/xdp_bridge_kern.c | 129 ++++++++++++++++++
->  samples/bpf/xdp_bridge_user.c | 239 ++++++++++++++++++++++++++++++++++
->  3 files changed, 371 insertions(+)
->  create mode 100644 samples/bpf/xdp_bridge_kern.c
->  create mode 100644 samples/bpf/xdp_bridge_user.c
->
+> lookups in kernel FIB table") have already added a bpf helper for acces=
+s
+> FIB in the kernel tables from XDP programs. As a next step, this series=
 
-[...]
+> introduces the API for FDB lookup. In the future, other bpf helpers for=
+
+> learning and VLAN filtering will also be required in order to realize
+> fast XDP-based bridge although these are not included in this series.
+
+Just to clarify for myself. I expect that with just the helpers here
+we should only expect static configurations to work, e.g. any learning
+and/or aging is not likely to work if we do redirects in the XDP path.
+
+Then next to get a learning/filtering/aging we would need to have a
+set of bridge helpers to get that functionality as well? I believe
+I'm just repeating what you are saying above, but wanted to check.
+
+Then my next question is can we see some performance numbers? These
+things are always trade-off between performance and ease of
+use, but would be good to know roughly what we are looking at vs
+a native XDP bridge functionality.
+
+Do you have a use case for a static bridge setup? Nothing wrong to
+stage things IMO if the 'real' use case needs learning and filtering.
+
+I guess to get STP working you would minimally need learning and
+aging?
+
+Thanks,
+John=
