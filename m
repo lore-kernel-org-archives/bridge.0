@@ -3,16 +3,16 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=subject:from:to:cc:references:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=EVbdnM3VWE8j0IwvbJMEc4diNGnNb/B1uyEmvQtSeCE=;
- b=Hnj4coJ1kihuonOox3v5ubtJyIKCGYcpnUSMN34Prm+Zx/o6YUVk+HXGTaTaU1h2Bf
- 0FyLpWhWQWOxGp3ML7sD1vIHO1ELDM8iC2r07cSKN+NZSQKUrbATt1QiNhbeegDW6eiT
- Ltbc/MskAF960te2RlFIxEnLrVoWRx2mYvaOk=
+ bh=6vpglymf7RZEUEiG4RD7M2kj01Hx6dnOmn6sHKExOCE=;
+ b=Fx4nuKm+HCsA2lOlyRmagx4942dMIaJA4RwSCJ8TSnPYEV1b7b+yU13MDO7NsLWcbO
+ 8ic5yHzO9Qeq7rAMyjW2kOO04tD+8GN2B3mNsBEKYrUFaI+9kpozJXESAUxPBOQ6He/A
+ 17apuv/dj4BiOpAZ16vVzo8NarMR10kiXxzFc=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 References: <20200731162616.345380-1-nikolay@cumulusnetworks.com>
  <07823615-29a8-9553-d56b-1beef55a07bc@gmail.com>
  <181931fb-dc60-7db6-60ac-b8ff1402efec@cumulusnetworks.com>
-Message-ID: <968147d8-616d-364f-cf03-55bb7b08a518@cumulusnetworks.com>
-Date: Fri, 31 Jul 2020 20:38:33 +0300
+Message-ID: <2bdc90a2-834f-941d-fea7-04e3c8924f7b@cumulusnetworks.com>
+Date: Fri, 31 Jul 2020 20:51:25 +0300
 MIME-Version: 1.0
 In-Reply-To: <181931fb-dc60-7db6-60ac-b8ff1402efec@cumulusnetworks.com>
 Content-Type: text/plain; charset=utf-8
@@ -71,14 +71,17 @@ On 31/07/2020 20:37, Nikolay Aleksandrov wrote:
 > 
 > Virtually non-existent, we had a patch that turned that field into a 16 byte
 > field so that is really 2 8 byte stores. It is already cache hot, we could
-
-err, s/field/struct/
-
 > initialize each individual field separately as br_input does.
 > 
 > I don't want to waste flags on such thing, this makes it future-proof 
 > and I'll remove the individual field zeroing later which will alleviate
 > the cost further.
 > 
-> 
+
+Also note that we already do this on input for each packet since the
+struct was reduced to 16 bytes. It's the safest way since every different
+sub-part of the bridge uses some set of these private variables and
+we've had many similar bugs where they were used stale or unintentionally
+were not initialized for some path.
+
 
