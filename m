@@ -1,20 +1,20 @@
 Return-Path: <komachi.yoshiki@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references;
- bh=WD31emG5AAw62cTFIzmY9OBwp6Qx1m67HwbYW6jOzgE=;
- b=Fwn4fVpIuOoiY6zQvbpgMCZzaLl4zm5qe1vcnKdKkipMxP8rnrEnNmarXXW2F4251W
- OuOcoCTWnnG7RJOBGbpCpl7VFICmd6rktak1eV2hL+YKaPj74PK2wemOGPCAIpWTAlsD
- s9pCQcj2W5ErTSrqlp6pkn2Tzj8EbAA5QIxVNYiew5xpGC2iH87AsfRkSRYAkKoz74cz
- JfZOIXzscNbFvLquroOiEG8zS9VfZiMt3bywjxx9RcoHr1rwb1k7fw9KDT7x1iR39X7j
- AFejoRKZvZy90KeIVo/YIjcWN1qGox6/8MUj6yxY+4Lc03xXyALCyh763BLEt+XKYnEO
- IQEg==
+ bh=r2Yg1heF9fxl++ije5V+tZ46UP8ORkDq+IRAfwbTvxk=;
+ b=U3GTlWMCMbnB0a1a4nUTMWYWJEA32XbAALwB1tetqYaCWUPV85CJH9AqgkuB4OBKep
+ WpOzzoXUc5MIukEcFMO3EkYy0pxv6Mg9nICkhOvBeFgg8LawSReCJw2VwYmIFG4dH25y
+ d8BWAdluMZlCiU7fVwOkFbiS3Wvy0SYyGpaGAy6qvtc1+7WZFVqXvPN5pbkzxcvujvLh
+ tjkdBC5kLtZ+ZxIEJ3spLamUORNU/mLyWd0LHDWTDN3EeqdbP3SkI5Hn0XQI5RQ9IALS
+ gOf4QVsYRpb0n3jLtx0/LdF6sJWf/nWkGS2KM8fu/vy2x40SKFBzls8dOdsyXKeNh808
+ oeCQ==
 From: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-Date: Fri, 31 Jul 2020 13:44:18 +0900
-Message-Id: <1596170660-5582-2-git-send-email-komachi.yoshiki@gmail.com>
+Date: Fri, 31 Jul 2020 13:44:19 +0900
+Message-Id: <1596170660-5582-3-git-send-email-komachi.yoshiki@gmail.com>
 In-Reply-To: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
 References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
-Subject: [Bridge] [RFC PATCH bpf-next 1/3] net/bridge: Add new function to
-	access FDB from XDP programs
+Subject: [Bridge] [RFC PATCH bpf-next 2/3] bpf: Add helper to do forwarding
+	lookups in kernel FDB table
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,89 +26,215 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, KP Singh <kpsingh@chromium.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Ahern <dsahern@kernel.org>
 Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, bridge@lists.linux-foundation.org, Yoshiki Komachi <komachi.yoshiki@gmail.com>
 
-This patch adds a function to find the destination port from the
-FDB in the kernel tables, which mainly helps XDP programs to access
-FDB in the kernel via bpf helper. Note that, unlike the existing
-br_fdb_find_port(), this function takes an ingress device as an
-argument.
+This patch adds a new bpf helper to access FDB in the kernel tables
+from XDP programs. The helper enables us to find the destination port
+of master bridge in XDP layer with high speed. If an entry in the
+tables is successfully found, egress device index will be returned.
 
-The br_fdb_find_port() also enables us to access FDB in the kernel,
-and rcu_read_lock()/rcu_read_unlock() must be called in the function.
-But, these are unnecessary in that cases because XDP programs have
-to call APIs with rcu_read_lock()/rcu_read_unlock(). Thus, proposed
-function could be used without these locks in the function.
+In cases of failure, packets will be dropped or forwarded to upper
+networking stack in the kernel by XDP programs. Multicast and broadcast
+packets are currently not supported. Thus, these will need to be
+passed to upper layer on the basis of XDP_PASS action.
+
+The API uses destination MAC and VLAN ID as keys, so XDP programs
+need to extract these from forwarded packets.
 
 Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
 ---
- include/linux/if_bridge.h | 11 +++++++++++
- net/bridge/br_fdb.c       | 25 +++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
+ include/uapi/linux/bpf.h       | 28 +++++++++++++++++++++
+ net/core/filter.c              | 45 ++++++++++++++++++++++++++++++++++
+ scripts/bpf_helpers_doc.py     |  1 +
+ tools/include/uapi/linux/bpf.h | 28 +++++++++++++++++++++
+ 4 files changed, 102 insertions(+)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 6479a38e52fa..24d72d115d0b 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -127,6 +127,9 @@ static inline int br_vlan_get_info(const struct net_device *dev, u16 vid,
- struct net_device *br_fdb_find_port(const struct net_device *br_dev,
- 				    const unsigned char *addr,
- 				    __u16 vid);
-+struct net_device *br_fdb_find_port_xdp(const struct net_device *dev,
-+				    const unsigned char *addr,
-+				    __u16 vid);
- void br_fdb_clear_offload(const struct net_device *dev, u16 vid);
- bool br_port_flag_is_set(const struct net_device *dev, unsigned long flag);
- #else
-@@ -138,6 +141,14 @@ br_fdb_find_port(const struct net_device *br_dev,
- 	return NULL;
- }
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index 54d0c886e3ba..f2e729dd1721 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -2149,6 +2149,22 @@ union bpf_attr {
+  *		* > 0 one of **BPF_FIB_LKUP_RET_** codes explaining why the
+  *		  packet is not forwarded or needs assist from full stack
+  *
++ * long bpf_fdb_lookup(void *ctx, struct bpf_fdb_lookup *params, int plen, u32 flags)
++ *	Description
++ *		Do FDB lookup in kernel tables using parameters in *params*.
++ *		If lookup is successful (ie., FDB lookup finds a destination entry),
++ *		ifindex is set to the egress device index from the FDB lookup.
++ *		Both multicast and broadcast packets are currently unsupported
++ *		in XDP layer.
++ *
++ *		*plen* argument is the size of the passed **struct bpf_fdb_lookup**.
++ *		*ctx* is only **struct xdp_md** for XDP programs.
++ *
++ *     Return
++ *		* < 0 if any input argument is invalid
++ *		*   0 on success (destination port is found)
++ *		* > 0 on failure (there is no entry)
++ *
+  * long bpf_sock_hash_update(struct bpf_sock_ops *skops, struct bpf_map *map, void *key, u64 flags)
+  *	Description
+  *		Add an entry to, or update a sockhash *map* referencing sockets.
+@@ -3449,6 +3465,7 @@ union bpf_attr {
+ 	FN(get_stack),			\
+ 	FN(skb_load_bytes_relative),	\
+ 	FN(fib_lookup),			\
++	FN(fdb_lookup),			\
+ 	FN(sock_hash_update),		\
+ 	FN(msg_redirect_hash),		\
+ 	FN(sk_redirect_hash),		\
+@@ -4328,6 +4345,17 @@ struct bpf_fib_lookup {
+ 	__u8	dmac[6];     /* ETH_ALEN */
+ };
  
-+static inline struct net_device *
-+br_fdb_find_port_xdp(const struct net_device *dev,
-+				    const unsigned char *addr,
-+				    __u16 vid);
++enum {
++	BPF_FDB_LKUP_RET_SUCCESS,      /* lookup successful */
++	BPF_FDB_LKUP_RET_NOENT,        /* entry is not found */
++};
++
++struct bpf_fdb_lookup {
++	unsigned char addr[6];     /* ETH_ALEN */
++	__u16 vlan_id;
++	__u32 ifindex;
++};
++
+ enum bpf_task_fd_type {
+ 	BPF_FD_TYPE_RAW_TRACEPOINT,	/* tp name */
+ 	BPF_FD_TYPE_TRACEPOINT,		/* tp name */
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 654c346b7d91..68800d1b8cd5 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -45,6 +45,7 @@
+ #include <linux/filter.h>
+ #include <linux/ratelimit.h>
+ #include <linux/seccomp.h>
++#include <linux/if_bridge.h>
+ #include <linux/if_vlan.h>
+ #include <linux/bpf.h>
+ #include <linux/btf.h>
+@@ -5084,6 +5085,46 @@ static const struct bpf_func_proto bpf_skb_fib_lookup_proto = {
+ 	.arg4_type	= ARG_ANYTHING,
+ };
+ 
++#if IS_ENABLED(CONFIG_BRIDGE)
++BPF_CALL_4(bpf_xdp_fdb_lookup, struct xdp_buff *, ctx,
++	   struct bpf_fdb_lookup *, params, int, plen, u32, flags)
 +{
-+	return NULL;
++	struct net_device *src, *dst;
++	struct net *net;
++
++	if (plen < sizeof(*params))
++		return -EINVAL;
++
++	net = dev_net(ctx->rxq->dev);
++
++	if (is_multicast_ether_addr(params->addr) ||
++	    is_broadcast_ether_addr(params->addr))
++		return BPF_FDB_LKUP_RET_NOENT;
++
++	src = dev_get_by_index_rcu(net, params->ifindex);
++	if (unlikely(!src))
++		return -ENODEV;
++
++	dst = br_fdb_find_port_xdp(src, params->addr, params->vlan_id);
++	if (dst) {
++		params->ifindex = dst->ifindex;
++		return BPF_FDB_LKUP_RET_SUCCESS;
++	}
++
++	return BPF_FDB_LKUP_RET_NOENT;
 +}
 +
- static inline void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
++static const struct bpf_func_proto bpf_xdp_fdb_lookup_proto = {
++	.func		= bpf_xdp_fdb_lookup,
++	.gpl_only	= true,
++	.ret_type	= RET_INTEGER,
++	.arg1_type      = ARG_PTR_TO_CTX,
++	.arg2_type      = ARG_PTR_TO_MEM,
++	.arg3_type      = ARG_CONST_SIZE,
++	.arg4_type	= ARG_ANYTHING,
++};
++#endif
++
+ #if IS_ENABLED(CONFIG_IPV6_SEG6_BPF)
+ static int bpf_push_seg6_encap(struct sk_buff *skb, u32 type, void *hdr, u32 len)
  {
- }
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 9db504baa094..79bc3c2da668 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -141,6 +141,31 @@ struct net_device *br_fdb_find_port(const struct net_device *br_dev,
- }
- EXPORT_SYMBOL_GPL(br_fdb_find_port);
+@@ -6477,6 +6518,10 @@ xdp_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+ 		return &bpf_xdp_adjust_tail_proto;
+ 	case BPF_FUNC_fib_lookup:
+ 		return &bpf_xdp_fib_lookup_proto;
++#if IS_ENABLED(CONFIG_BRIDGE)
++	case BPF_FUNC_fdb_lookup:
++		return &bpf_xdp_fdb_lookup_proto;
++#endif
+ #ifdef CONFIG_INET
+ 	case BPF_FUNC_sk_lookup_udp:
+ 		return &bpf_xdp_sk_lookup_udp_proto;
+diff --git a/scripts/bpf_helpers_doc.py b/scripts/bpf_helpers_doc.py
+index 5bfa448b4704..49ebd2273614 100755
+--- a/scripts/bpf_helpers_doc.py
++++ b/scripts/bpf_helpers_doc.py
+@@ -448,6 +448,7 @@ class PrinterHelpers(Printer):
+             '__wsum',
  
-+struct net_device *br_fdb_find_port_xdp(const struct net_device *dev,
-+				    const unsigned char *addr,
-+				    __u16 vid)
-+{
-+	struct net_bridge_fdb_entry *f;
-+	struct net_device *dst = NULL;
-+	struct net_bridge *br = NULL;
-+	struct net_bridge_port *p;
+             'struct bpf_fib_lookup',
++            'struct bpf_fdb_lookup',
+             'struct bpf_perf_event_data',
+             'struct bpf_perf_event_value',
+             'struct bpf_pidns_info',
+diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
+index 54d0c886e3ba..f2e729dd1721 100644
+--- a/tools/include/uapi/linux/bpf.h
++++ b/tools/include/uapi/linux/bpf.h
+@@ -2149,6 +2149,22 @@ union bpf_attr {
+  *		* > 0 one of **BPF_FIB_LKUP_RET_** codes explaining why the
+  *		  packet is not forwarded or needs assist from full stack
+  *
++ * long bpf_fdb_lookup(void *ctx, struct bpf_fdb_lookup *params, int plen, u32 flags)
++ *	Description
++ *		Do FDB lookup in kernel tables using parameters in *params*.
++ *		If lookup is successful (ie., FDB lookup finds a destination entry),
++ *		ifindex is set to the egress device index from the FDB lookup.
++ *		Both multicast and broadcast packets are currently unsupported
++ *		in XDP layer.
++ *
++ *		*plen* argument is the size of the passed **struct bpf_fdb_lookup**.
++ *		*ctx* is only **struct xdp_md** for XDP programs.
++ *
++ *     Return
++ *		* < 0 if any input argument is invalid
++ *		*   0 on success (destination port is found)
++ *		* > 0 on failure (there is no entry)
++ *
+  * long bpf_sock_hash_update(struct bpf_sock_ops *skops, struct bpf_map *map, void *key, u64 flags)
+  *	Description
+  *		Add an entry to, or update a sockhash *map* referencing sockets.
+@@ -3449,6 +3465,7 @@ union bpf_attr {
+ 	FN(get_stack),			\
+ 	FN(skb_load_bytes_relative),	\
+ 	FN(fib_lookup),			\
++	FN(fdb_lookup),			\
+ 	FN(sock_hash_update),		\
+ 	FN(msg_redirect_hash),		\
+ 	FN(sk_redirect_hash),		\
+@@ -4328,6 +4345,17 @@ struct bpf_fib_lookup {
+ 	__u8	dmac[6];     /* ETH_ALEN */
+ };
+ 
++enum {
++	BPF_FDB_LKUP_RET_SUCCESS,      /* lookup successful */
++	BPF_FDB_LKUP_RET_NOENT,        /* entry is not found */
++};
 +
-+	p = br_port_get_check_rcu(dev);
-+	if (!p)
-+		return NULL;
++struct bpf_fdb_lookup {
++	unsigned char addr[6];     /* ETH_ALEN */
++	__u16 vlan_id;
++	__u32 ifindex;
++};
 +
-+	br = p->br;
-+	if (!br)
-+		return NULL;
-+
-+	f = br_fdb_find_rcu(br, addr, vid);
-+	if (f && f->dst)
-+		dst = f->dst->dev;
-+
-+	return dst;
-+}
-+EXPORT_SYMBOL_GPL(br_fdb_find_port_xdp);
-+
- struct net_bridge_fdb_entry *br_fdb_find_rcu(struct net_bridge *br,
- 					     const unsigned char *addr,
- 					     __u16 vid)
+ enum bpf_task_fd_type {
+ 	BPF_FD_TYPE_RAW_TRACEPOINT,	/* tp name */
+ 	BPF_FD_TYPE_TRACEPOINT,		/* tp name */
 -- 
 2.20.1 (Apple Git-117)
 
