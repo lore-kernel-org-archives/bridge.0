@@ -1,26 +1,16 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=subject:from:to:cc:references:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=ZG9+n5eeTXjDw0TEthtVnssj2KNpNT9BdmTxnsWf0Uk=;
- b=Nx+HweGFlG/thbNm1CofpaFrKo+JQhvr4NKAgHMtXKq0gkg9t7JrtGbPojNABwv3HQ
- pRxBA8+t4B5AyE7BQAxazr/Gls0ogQ81iZfGTn0luvtdbbr0y02bKr6fdkS1yINrfpLc
- mO4xFqDT3docA1KRCagNFG+WhoW7E4OOKKad4=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-References: <20200731162616.345380-1-nikolay@cumulusnetworks.com>
- <07823615-29a8-9553-d56b-1beef55a07bc@gmail.com>
- <181931fb-dc60-7db6-60ac-b8ff1402efec@cumulusnetworks.com>
- <2bdc90a2-834f-941d-fea7-04e3c8924f7b@cumulusnetworks.com>
-Message-ID: <39736ed8-8565-ab64-5163-da6f2acba68a@cumulusnetworks.com>
-Date: Fri, 31 Jul 2020 21:10:09 +0300
+Return-Path: <daniel@iogearbox.net>
+References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
+ <1596170660-5582-3-git-send-email-komachi.yoshiki@gmail.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <9420fbc2-3139-f23e-fb6b-e3d28b9bee5f@iogearbox.net>
+Date: Fri, 31 Jul 2020 23:12:27 +0200
 MIME-Version: 1.0
-In-Reply-To: <2bdc90a2-834f-941d-fea7-04e3c8924f7b@cumulusnetworks.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1596170660-5582-3-git-send-email-komachi.yoshiki@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: clear bridge's private skb
-	space on xmit
+Subject: Re: [Bridge] [RFC PATCH bpf-next 2/3] bpf: Add helper to do
+ forwarding lookups in kernel FDB table
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,66 +19,168 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Ahern <dsahern@gmail.com>, netdev@vger.kernel.org
-Cc: roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net
+To: Yoshiki Komachi <komachi.yoshiki@gmail.com>, "David S. Miller" <davem@davemloft.net>, Alexei Starovoitov <ast@kernel.org>, Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, KP Singh <kpsingh@chromium.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Ahern <dsahern@kernel.org>
+Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, bridge@lists.linux-foundation.org
 
-On 31/07/2020 20:51, Nikolay Aleksandrov wrote:
-> On 31/07/2020 20:37, Nikolay Aleksandrov wrote:
->> On 31/07/2020 20:27, David Ahern wrote:
->>> On 7/31/20 10:26 AM, Nikolay Aleksandrov wrote:
->>>> We need to clear all of the bridge private skb variables as they can be
->>>> stale due to the packet being recirculated through the stack and then
->>>> transmitted through the bridge device. Similar memset is already done on
->>>> bridge's input. We've seen cases where proxyarp_replied was 1 on routed
->>>> multicast packets transmitted through the bridge to ports with neigh
->>>> suppress which were getting dropped. Same thing can in theory happen with
->>>> the port isolation bit as well.
->>>>
->>>> Fixes: 821f1b21cabb ("bridge: add new BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood")
->>>> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
->>>> ---
->>>>  net/bridge/br_device.c | 2 ++
->>>>  1 file changed, 2 insertions(+)
->>>>
->>>> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
->>>> index 8c7b78f8bc23..9a2fb4aa1a10 100644
->>>> --- a/net/bridge/br_device.c
->>>> +++ b/net/bridge/br_device.c
->>>> @@ -36,6 +36,8 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
->>>>  	const unsigned char *dest;
->>>>  	u16 vid = 0;
->>>>  
->>>> +	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
->>>> +
->>>>  	rcu_read_lock();
->>>>  	nf_ops = rcu_dereference(nf_br_ops);
->>>>  	if (nf_ops && nf_ops->br_dev_xmit_hook(skb)) {
->>>>
->>>
->>> What's the performance hit of doing this on every packet?
->>>
->>> Can you just set a flag that tells the code to reset on recirculation?
->>> Seems like br_input_skb_cb has space for that.
->>>
->>
->> Virtually non-existent, we had a patch that turned that field into a 16 byte
->> field so that is really 2 8 byte stores. It is already cache hot, we could
->> initialize each individual field separately as br_input does.
->>
->> I don't want to waste flags on such thing, this makes it future-proof 
->> and I'll remove the individual field zeroing later which will alleviate
->> the cost further.
->>
+On 7/31/20 6:44 AM, Yoshiki Komachi wrote:
+> This patch adds a new bpf helper to access FDB in the kernel tables
+> from XDP programs. The helper enables us to find the destination port
+> of master bridge in XDP layer with high speed. If an entry in the
+> tables is successfully found, egress device index will be returned.
 > 
-> Also note that we already do this on input for each packet since the
-> struct was reduced to 16 bytes. It's the safest way since every different
-> sub-part of the bridge uses some set of these private variables and
-> we've had many similar bugs where they were used stale or unintentionally
-> were not initialized for some path.
+> In cases of failure, packets will be dropped or forwarded to upper
+> networking stack in the kernel by XDP programs. Multicast and broadcast
+> packets are currently not supported. Thus, these will need to be
+> passed to upper layer on the basis of XDP_PASS action.
 > 
+> The API uses destination MAC and VLAN ID as keys, so XDP programs
+> need to extract these from forwarded packets.
+> 
+> Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
 
-In addition this doesn't need to be a recirculation, in theory it could happen
-by a routed packet to svi on the bridge which got its skb->cb initialized before
-hitting the bridge's xmit function. So a flag can't catch all possible cases.
+Few initial comments below:
 
+> ---
+>   include/uapi/linux/bpf.h       | 28 +++++++++++++++++++++
+>   net/core/filter.c              | 45 ++++++++++++++++++++++++++++++++++
+>   scripts/bpf_helpers_doc.py     |  1 +
+>   tools/include/uapi/linux/bpf.h | 28 +++++++++++++++++++++
+>   4 files changed, 102 insertions(+)
+> 
+> diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+> index 54d0c886e3ba..f2e729dd1721 100644
+> --- a/include/uapi/linux/bpf.h
+> +++ b/include/uapi/linux/bpf.h
+> @@ -2149,6 +2149,22 @@ union bpf_attr {
+>    *		* > 0 one of **BPF_FIB_LKUP_RET_** codes explaining why the
+>    *		  packet is not forwarded or needs assist from full stack
+>    *
+> + * long bpf_fdb_lookup(void *ctx, struct bpf_fdb_lookup *params, int plen, u32 flags)
+> + *	Description
+> + *		Do FDB lookup in kernel tables using parameters in *params*.
+> + *		If lookup is successful (ie., FDB lookup finds a destination entry),
+> + *		ifindex is set to the egress device index from the FDB lookup.
+> + *		Both multicast and broadcast packets are currently unsupported
+> + *		in XDP layer.
+> + *
+> + *		*plen* argument is the size of the passed **struct bpf_fdb_lookup**.
+> + *		*ctx* is only **struct xdp_md** for XDP programs.
+> + *
+> + *     Return
+> + *		* < 0 if any input argument is invalid
+> + *		*   0 on success (destination port is found)
+> + *		* > 0 on failure (there is no entry)
+> + *
+>    * long bpf_sock_hash_update(struct bpf_sock_ops *skops, struct bpf_map *map, void *key, u64 flags)
+>    *	Description
+>    *		Add an entry to, or update a sockhash *map* referencing sockets.
+> @@ -3449,6 +3465,7 @@ union bpf_attr {
+>   	FN(get_stack),			\
+>   	FN(skb_load_bytes_relative),	\
+>   	FN(fib_lookup),			\
+> +	FN(fdb_lookup),			\
 
+This breaks UAPI. Needs to be added to the very end of the list.
+
+>   	FN(sock_hash_update),		\
+>   	FN(msg_redirect_hash),		\
+>   	FN(sk_redirect_hash),		\
+> @@ -4328,6 +4345,17 @@ struct bpf_fib_lookup {
+>   	__u8	dmac[6];     /* ETH_ALEN */
+>   };
+>   
+> +enum {
+> +	BPF_FDB_LKUP_RET_SUCCESS,      /* lookup successful */
+> +	BPF_FDB_LKUP_RET_NOENT,        /* entry is not found */
+> +};
+> +
+> +struct bpf_fdb_lookup {
+> +	unsigned char addr[6];     /* ETH_ALEN */
+> +	__u16 vlan_id;
+> +	__u32 ifindex;
+> +};
+> +
+>   enum bpf_task_fd_type {
+>   	BPF_FD_TYPE_RAW_TRACEPOINT,	/* tp name */
+>   	BPF_FD_TYPE_TRACEPOINT,		/* tp name */
+> diff --git a/net/core/filter.c b/net/core/filter.c
+> index 654c346b7d91..68800d1b8cd5 100644
+> --- a/net/core/filter.c
+> +++ b/net/core/filter.c
+> @@ -45,6 +45,7 @@
+>   #include <linux/filter.h>
+>   #include <linux/ratelimit.h>
+>   #include <linux/seccomp.h>
+> +#include <linux/if_bridge.h>
+>   #include <linux/if_vlan.h>
+>   #include <linux/bpf.h>
+>   #include <linux/btf.h>
+> @@ -5084,6 +5085,46 @@ static const struct bpf_func_proto bpf_skb_fib_lookup_proto = {
+>   	.arg4_type	= ARG_ANYTHING,
+>   };
+>   
+> +#if IS_ENABLED(CONFIG_BRIDGE)
+> +BPF_CALL_4(bpf_xdp_fdb_lookup, struct xdp_buff *, ctx,
+> +	   struct bpf_fdb_lookup *, params, int, plen, u32, flags)
+> +{
+> +	struct net_device *src, *dst;
+> +	struct net *net;
+> +
+> +	if (plen < sizeof(*params))
+> +		return -EINVAL;
+
+Given flags are not used, this needs to reject anything invalid otherwise
+you're not able to extend it in future.
+
+> +	net = dev_net(ctx->rxq->dev);
+> +
+> +	if (is_multicast_ether_addr(params->addr) ||
+> +	    is_broadcast_ether_addr(params->addr))
+> +		return BPF_FDB_LKUP_RET_NOENT;
+> +
+> +	src = dev_get_by_index_rcu(net, params->ifindex);
+> +	if (unlikely(!src))
+> +		return -ENODEV;
+> +
+> +	dst = br_fdb_find_port_xdp(src, params->addr, params->vlan_id);
+> +	if (dst) {
+> +		params->ifindex = dst->ifindex;
+> +		return BPF_FDB_LKUP_RET_SUCCESS;
+> +	}
+
+Currently the helper description says nothing that this is /only/ limited to
+bridges. I think it would be better to also name the helper bpf_br_fdb_lookup()
+as well if so to avoid any confusion.
+
+> +	return BPF_FDB_LKUP_RET_NOENT;
+> +}
+> +
+> +static const struct bpf_func_proto bpf_xdp_fdb_lookup_proto = {
+> +	.func		= bpf_xdp_fdb_lookup,
+> +	.gpl_only	= true,
+> +	.ret_type	= RET_INTEGER,
+> +	.arg1_type      = ARG_PTR_TO_CTX,
+> +	.arg2_type      = ARG_PTR_TO_MEM,
+> +	.arg3_type      = ARG_CONST_SIZE,
+> +	.arg4_type	= ARG_ANYTHING,
+> +};
+> +#endif
+
+This should also have a tc pendant (similar as done in routing lookup helper)
+in case native XDP is not available. This will be useful for those that have
+the same code compilable for both tc/XDP.
+
+>   #if IS_ENABLED(CONFIG_IPV6_SEG6_BPF)
+>   static int bpf_push_seg6_encap(struct sk_buff *skb, u32 type, void *hdr, u32 len)
+>   {
+> @@ -6477,6 +6518,10 @@ xdp_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+>   		return &bpf_xdp_adjust_tail_proto;
+>   	case BPF_FUNC_fib_lookup:
+>   		return &bpf_xdp_fib_lookup_proto;
+> +#if IS_ENABLED(CONFIG_BRIDGE)
+> +	case BPF_FUNC_fdb_lookup:
+> +		return &bpf_xdp_fdb_lookup_proto;
+> +#endif
+>   #ifdef CONFIG_INET
+>   	case BPF_FUNC_sk_lookup_udp:
+>   		return &bpf_xdp_sk_lookup_udp_proto;
