@@ -1,25 +1,21 @@
-Return-Path: <john.fastabend@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:message-id:in-reply-to:references:subject
+Return-Path: <nikolay@cumulusnetworks.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cumulusnetworks.com; s=google;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=u0WnrEEbki1i/hcaafYSzslvQ7FMlY7zypF99r+3B/o=;
- b=c/MJnMa7iFlRBOG02m0T54NzFYPRsxOii1CeQ16KYQkd4QKokIa0N/RND9PSnQzmJx
- he9XFY1jf5LZkpWxNbD2SAbwnXGmTsUf+VIG9o6VK8HcaUB6LUdwqB6beOhniK9hlW00
- Ey4PLP49xYvfKkd8cAiURWATEuBPmZvqdnM2gDOnRfJUjd5FHSivmvmcYbazmgN6gE4B
- ApzN7hy16Bcmn9cYtU1venxzbdUkcaoGF0JmfArVDW++ro0Vr2c7RbREEBR3VlyEcYn9
- JKWbYSAeva3koTpN+9Jun6O6QJ+r3yZn4oqqeVj8ldWj70afnW8AmqVF/7rG5JjcSKuM
- OYSg==
-Date: Fri, 31 Jul 2020 14:52:46 -0700
-From: John Fastabend <john.fastabend@gmail.com>
-Message-ID: <5f2492aedba05_54fa2b1d9fe285b42d@john-XPS-13-9370.notmuch>
-In-Reply-To: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
-References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [RFC PATCH bpf-next 0/3] Add a new bpf helper for FDB
-	lookup
+ bh=x10urBDzl/1yXhZ8GCaxKLSPxTgXwMHg2Y0MjkjC5Qs=;
+ b=eb6qJ9msfsxDPfqxmJe+ctSp7WX2cpWSq5V+Vim2tYDvkRtrfpibqTlwyk7YXW7KUF
+ fxHPJ3UtznwDuY7xShHVE3BaqDw8yqWyrUoseoN7FqMXrglt12ruFKfvm/Pc9vrutITQ
+ wN240TJGQZ6bBxGMPdxgkKICikQEieaqses2U=
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Date: Sun,  2 Aug 2020 15:50:39 +0300
+Message-Id: <20200802125039.648571-1-nikolay@cumulusnetworks.com>
+In-Reply-To: <39736ed8-8565-ab64-5163-da6f2acba68a@cumulusnetworks.com>
+References: <39736ed8-8565-ab64-5163-da6f2acba68a@cumulusnetworks.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net v2] net: bridge: clear skb private space on
+	bridge dev xmit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,52 +24,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yoshiki Komachi <komachi.yoshiki@gmail.com>, "David S. Miller" <davem@davemloft.net>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, KP Singh <kpsingh@chromium.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, David Ahern <dsahern@kernel.org>
-Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, bridge@lists.linux-foundation.org, Yoshiki Komachi <komachi.yoshiki@gmail.com>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, roopa@cumulusnetworks.com, bridge@lists.linux-foundation.org, davem@davemloft.net, dsahern@gmail.com
 
-Yoshiki Komachi wrote:
-> This series adds a new bpf helper for doing FDB lookup in the kernel
-> tables from XDP programs. This helps users to accelerate Linux bridge
-> with XDP.
-> =
+We need to clear all of the bridge private skb variables as they can be
+stale due to the packet having skb->cb initialized earlier and then
+transmitted through the bridge device. Similar memset is already done on
+bridge's input. We've seen cases where proxyarp_replied was 1 on routed
+multicast packets transmitted through the bridge to ports with neigh
+suppress and were getting dropped. Same thing can in theory happen with the
+port isolation bit as well. We clear only the struct part after the bridge
+pointer (currently 8 bytes) since the pointer is always set later.
+We can now remove the redundant zeroing of frag_max_size.
+Also add a BUILD_BUG_ON to make sure we catch any movement of the bridge
+dev pointer.
 
-> In the past, XDP generally required users to reimplement their own
-> networking functionalities with specific manners of BPF programming
-> by themselves, hindering=C2=A0its=C2=A0potential=C2=A0uses. IMO, bpf he=
-lpers to
-> access networking stacks in kernel help to mitigate the programming
-> costs because users reuse mature Linux networking feature more easily.
-> =
+Fixes: 821f1b21cabb ("bridge: add new BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+v2: clear only the second half of the struct which contains the
+fields that are used in various bridge parts, this replaced the rep stos
+instruction with a single movq on my x86 and in general reduces
+the clear area to 8 bytes, and in addition we can remove the now
+redundant zeroing of frag_max_size as it will be already cleared,
+add a build_bug_on to make sure we catch any movement of the bridge
+dev pointer
 
-> The previous commit 87f5fc7e48dd ("bpf: Provide helper to do forwarding=
+ net/bridge/br_device.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> lookups in kernel FIB table") have already added a bpf helper for acces=
-s
-> FIB in the kernel tables from XDP programs. As a next step, this series=
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 8c7b78f8bc23..4f7880c99d3c 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -36,6 +36,12 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	const unsigned char *dest;
+ 	u16 vid = 0;
+ 
++	/* clear all private fields after the bridge dev pointer */
++	BUILD_BUG_ON(offsetof(struct br_input_skb_cb, brdev) > 0);
++	memset(skb->cb + sizeof(struct net_device *),
++	       0,
++	       sizeof(struct br_input_skb_cb) - sizeof(struct net_device *));
++
+ 	rcu_read_lock();
+ 	nf_ops = rcu_dereference(nf_br_ops);
+ 	if (nf_ops && nf_ops->br_dev_xmit_hook(skb)) {
+@@ -50,7 +56,6 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	br_switchdev_frame_unmark(skb);
+ 	BR_INPUT_SKB_CB(skb)->brdev = dev;
+-	BR_INPUT_SKB_CB(skb)->frag_max_size = 0;
+ 
+ 	skb_reset_mac_header(skb);
+ 	skb_pull(skb, ETH_HLEN);
+-- 
+2.25.4
 
-> introduces the API for FDB lookup. In the future, other bpf helpers for=
-
-> learning and VLAN filtering will also be required in order to realize
-> fast XDP-based bridge although these are not included in this series.
-
-Just to clarify for myself. I expect that with just the helpers here
-we should only expect static configurations to work, e.g. any learning
-and/or aging is not likely to work if we do redirects in the XDP path.
-
-Then next to get a learning/filtering/aging we would need to have a
-set of bridge helpers to get that functionality as well? I believe
-I'm just repeating what you are saying above, but wanted to check.
-
-Then my next question is can we see some performance numbers? These
-things are always trade-off between performance and ease of
-use, but would be good to know roughly what we are looking at vs
-a native XDP bridge functionality.
-
-Do you have a use case for a static bridge setup? Nothing wrong to
-stage things IMO if the 'real' use case needs learning and filtering.
-
-I guess to get STP working you would minimally need learning and
-aging?
-
-Thanks,
-John=
