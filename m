@@ -2,24 +2,24 @@ Return-Path: <komachi.yoshiki@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:subject:from:in-reply-to:date:cc
  :content-transfer-encoding:message-id:references:to;
- bh=ZS1hdM2dLsIlb7yqUlnhLDroUWcG6WpXbsGcaYexh7c=;
- b=qjND6vjWd4BjFopiGLmQ0HNSG0b/WKi8TcjTqCA8sTXu2ZwLUnAgG5h3Qi+MKckJFh
- O0pUM7YeiazFfT72a4FFL6WV+E0nejo0g8Z6ZqFWho5zV1WnALO1IkfZ3+DiY+gy9eyk
- vSPm4vxaX+xkJOFyUGnnNhJOnKF5/ZkPN873PS4tDAb0rs9ayOrTy3SXntA9yY6haLnS
- hEnmVAHdnRE4g5mU1DuUBfqkbFIlu4AMYrFkXK6XlHtyFlO28/PNX8ueUOz/rpnm7BqE
- s6KjH04ReAw1hp9n+7Beh8pbQe0qz+hlEv2Pvc4+xnuE5IbYnhee3/h8ko0ILSpfFgBF
- 7R0Q==
+ bh=2ca/QrowQ6tGL3YlTY/zRzYbbmOdjci7HQ5UaZxrd7U=;
+ b=uhLd9SNImtAJuG345pumkWc7FFAQzZbxGRfbrVJwZOpFi4CFPdRWTGdoq2H3T0vOIf
+ MaMUXqtaXYbapCXrNGKUHCPvOvPbH48p3S+Lh/MiWYGV70NumnYN01whEEXCcC74VfSJ
+ O+pReSH2YR+ZeXiNNx+NYXjlSQwbhY19LtlSyzYFXKPo4O7Om7yX5vj574VhSms6uEu6
+ ijHHACvc1QRuoqvMh/oNutsSd8CJAsXocXVTOQRMMuGbtKpzTcsUbMKndywIf6YmdZV8
+ cDsbV5FXHNaBwFpLZF9sHJ8u/+LIDFjL7JU4YIg25KyMSCRnpW5U24qhJfGEVDtRBOpV
+ 0oBg==
 Content-Type: text/plain;
 	charset=utf-8
 Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.15\))
 From: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-In-Reply-To: <20200731161519.5f413f82@carbon>
-Date: Tue, 4 Aug 2020 19:08:59 +0900
+In-Reply-To: <CAEf4BzaRKhJqFmXJEQy5LOjKx9nkPgAKHa3cesvywy2qqg93YA@mail.gmail.com>
+Date: Tue, 4 Aug 2020 19:35:08 +0900
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <46CD5E66-D554-473A-BE9A-9AC2EF8D16B1@gmail.com>
+Message-Id: <1BA4E035-5045-4D62-BA39-F3990CA4EF1E@gmail.com>
 References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
  <1596170660-5582-4-git-send-email-komachi.yoshiki@gmail.com>
- <20200731161519.5f413f82@carbon>
+ <CAEf4BzaRKhJqFmXJEQy5LOjKx9nkPgAKHa3cesvywy2qqg93YA@mail.gmail.com>
 Subject: Re: [Bridge] [RFC PATCH bpf-next 3/3] samples/bpf: Add a simple
  bridge example accelerated with XDP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,216 +30,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
+To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Networking <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf <bpf@vger.kernel.org>, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
 
 
-> 2020/07/31 23:15=E3=80=81Jesper Dangaard Brouer =
-<brouer@redhat.com>=E3=81=AE=E3=83=A1=E3=83=BC=E3=83=AB:
+> 2020/08/01 2:48=E3=80=81Andrii Nakryiko =
+<andrii.nakryiko@gmail.com>=E3=81=AE=E3=83=A1=E3=83=BC=E3=83=AB:
 >=20
+> On Thu, Jul 30, 2020 at 9:45 PM Yoshiki Komachi
+> <komachi.yoshiki@gmail.com> wrote:
+>>=20
+>> This patch adds a simple example of XDP-based bridge with the new
+>> bpf_fdb_lookup helper. This program simply forwards packets based
+>> on the destination port given by FDB in the kernel. Note that both
+>> vlan filtering and learning features are currently unsupported in
+>> this example.
+>>=20
+>> There is another plan to recreate a userspace application
+>> (xdp_bridge_user.c) as a daemon process, which helps to automate
+>> not only detection of status changes in bridge port but also
+>> handling vlan protocol updates.
+>>=20
+>> Note: David Ahern suggested a new bpf helper [1] to get master
+>> vlan/bonding devices in XDP programs attached to their slaves
+>> when the master vlan/bonding devices are bridge ports. If this
+>> idea is accepted and the helper is introduced in the future, we
+>> can handle interfaces slaved to vlan/bonding devices in this
+>> sample by calling the suggested bpf helper (I guess it can get
+>> vlan/bonding ifindex from their slave ifindex). Notice that we
+>> don't need to change bpf_fdb_lookup() API to use such a feature,
+>> but we just need to modify bpf programs like this sample.
+>>=20
+>> [1]: http://vger.kernel.org/lpc-networking2018.html#session-1
+>>=20
+>> Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
+>> ---
 >=20
-> I really appreciate that you are working on adding this helper.
-> Some comments below.
-
-Thanks! Find my response below, please.
-
-> On Fri, 31 Jul 2020 13:44:20 +0900
-> Yoshiki Komachi <komachi.yoshiki@gmail.com> wrote:
+> Have you tried using a BPF skeleton for this? It could have saved a
+> bunch of mechanical code for your example. Also libbpf supports map
+> pinning out of the box now, I wonder if it would just work in your
+> case. Also it would be nice if you tried using BPF link-based approach
+> for this example, to show how it can be used. Thanks!
 >=20
->> diff --git a/samples/bpf/xdp_bridge_kern.c =
-b/samples/bpf/xdp_bridge_kern.c
->> new file mode 100644
->> index 000000000000..00f802503199
->> --- /dev/null
->> +++ b/samples/bpf/xdp_bridge_kern.c
->> @@ -0,0 +1,129 @@
->> +// SPDX-License-Identifier: GPL-2.0
->> +/* Copyright (c) 2020 NTT Corp. All Rights Reserved.
->> + *
+
+It is still under consideration, but these features seems to be useful =
+for
+this example.
+
+I would try to apply them in the next version.
+
+Thank you for giving me good advice.
+
+Best regards,
+
+>=20
+>> samples/bpf/Makefile          |   3 +
+>> samples/bpf/xdp_bridge_kern.c | 129 ++++++++++++++++++
+>> samples/bpf/xdp_bridge_user.c | 239 =
+++++++++++++++++++++++++++++++++++
+>> 3 files changed, 371 insertions(+)
+>> create mode 100644 samples/bpf/xdp_bridge_kern.c
+>> create mode 100644 samples/bpf/xdp_bridge_user.c
+>>=20
+>=20
 > [...]
->> +
->> +struct {
->> +	__uint(type, BPF_MAP_TYPE_DEVMAP_HASH);
->> +	__uint(key_size, sizeof(int));
->> +	__uint(value_size, sizeof(int));
->> +	__uint(max_entries, 64);
->> +} xdp_tx_ports SEC(".maps");
->> +
->> +static __always_inline int xdp_bridge_proto(struct xdp_md *ctx, u16 =
-br_vlan_proto)
->> +{
->> +	void *data_end =3D (void *)(long)ctx->data_end;
->> +	void *data =3D (void *)(long)ctx->data;
->> +	struct bpf_fdb_lookup fdb_lookup_params;
->> +	struct vlan_hdr *vlan_hdr =3D NULL;
->> +	struct ethhdr *eth =3D data;
->> +	u16 h_proto;
->> +	u64 nh_off;
->> +	int rc;
->> +
->> +	nh_off =3D sizeof(*eth);
->> +	if (data + nh_off > data_end)
->> +		return XDP_DROP;
->> +
->> +	__builtin_memset(&fdb_lookup_params, 0, =
-sizeof(fdb_lookup_params));
->> +
->> +	h_proto =3D eth->h_proto;
->> +
->> +	if (unlikely(ntohs(h_proto) < ETH_P_802_3_MIN))
->> +		return XDP_PASS;
->> +
->> +	/* Handle VLAN tagged packet */
->> +	if (h_proto =3D=3D br_vlan_proto) {
->> +		vlan_hdr =3D (void *)eth + nh_off;
->> +		nh_off +=3D sizeof(*vlan_hdr);
->> +		if ((void *)eth + nh_off > data_end)
->> +			return XDP_PASS;
->> +
->> +		fdb_lookup_params.vlan_id =3D =
-ntohs(vlan_hdr->h_vlan_TCI) &
->> +					VLAN_VID_MASK;
->> +	}
->> +
->> +	/* FIXME: Although Linux bridge provides us with vlan filtering =
-(contains
->> +	 * PVID) at ingress, the feature is currently unsupported in =
-this XDP program.
->> +	 *
->> +	 * Two ideas to realize the vlan filtering are below:
->> +	 *   1. usespace daemon monitors bridge vlan events and notifies =
-XDP programs
->                   ^^
-> Typo: usespace -> userspace
-
-I will fix this in the next version.
-
->> +	 *      of them through BPF maps
->> +	 *   2. introduce another bpf helper to retrieve bridge vlan =
-information
->=20
-> The comment appears two times time this file.
-
-I was aiming to show future implementation of the vlan filtering at =
-ingress (not egress) to
-be required here by the above comment.
-
->> +	 *
->> +	 *
->> +	 * FIXME: After the vlan filtering, learning feature is required =
-here, but
->> +	 * it is currently unsupported as well. If another bpf helper =
-for learning
->> +	 * is accepted, the processing could be implemented in the =
-future.
->> +	 */
->> +
->> +	memcpy(&fdb_lookup_params.addr, eth->h_dest, ETH_ALEN);
->> +
->> +	/* Note: This program definitely takes ifindex of ingress =
-interface as
->> +	 * a bridge port. Linux networking devices can be stacked and =
-physical
->> +	 * interfaces are not necessarily slaves of bridges (e.g., =
-bonding or
->> +	 * vlan devices can be slaves of bridges), but stacked bridge =
-ports are
->> +	 * currently unsupported in this program. In such cases, XDP =
-programs
->> +	 * should be attached to a lower device in order to process =
-packets with
->> +	 * higher speed. Then, a new bpf helper to find upper devices =
-will be
->> +	 * required here in the future because they will be registered =
-on FDB
->> +	 * in the kernel.
->> +	 */
->> +	fdb_lookup_params.ifindex =3D ctx->ingress_ifindex;
->> +
->> +	rc =3D bpf_fdb_lookup(ctx, &fdb_lookup_params, =
-sizeof(fdb_lookup_params), 0);
->> +	if (rc !=3D BPF_FDB_LKUP_RET_SUCCESS) {
->> +		/* In cases of flooding, XDP_PASS will be returned here =
-*/
->> +		return XDP_PASS;
->> +	}
->> +
->> +	/* FIXME: Although Linux bridge provides us with vlan filtering =
-(contains
->> +	 * untagged policy) at egress as well, the feature is currently =
-unsupported
->> +	 * in this XDP program.
->> +	 *
->> +	 * Two ideas to realize the vlan filtering are below:
->> +	 *   1. usespace daemon monitors bridge vlan events and notifies =
-XDP programs
->> +	 *      of them through BPF maps
->> +	 *   2. introduce another bpf helper to retrieve bridge vlan =
-information
->> +	 */
->=20
-> (2nd time the comment appears)
-
-The 2nd one is marking for future implementation of the egress =
-filtering.
-
-Sorry for confusing you. I will try to remove the redundancy and =
-confusion.
-
->> +
->=20
-> A comment about below bpf_redirect_map() would be good.  Explaining
-> that we depend on fallback behavior, to let normal bridge code handle
-> other cases (e.g. flood/broadcast). And also that if lookup fails,
-> XDP_PASS/fallback also happens.
-
-In this example, flooded packets will be transferred to the upper normal =
-bridge by not the
-bpf_redirect_map() call but the XDP_PASS action as below:
-
-+	rc =3D bpf_fdb_lookup(ctx, &fdb_lookup_params, =
-sizeof(fdb_lookup_params), 0);
-+	if (rc !=3D BPF_FDB_LKUP_RET_SUCCESS) {
-+		/* In cases of flooding, XDP_PASS will be returned here =
-*/
-+		return XDP_PASS;
-+	}
-
-Thus, such a comment should be described as above, IMO.
-
-Thanks & Best regards,
-
->> +	return bpf_redirect_map(&xdp_tx_ports, =
-fdb_lookup_params.ifindex, XDP_PASS);
->> +}
->> +
->> +SEC("xdp_bridge")
->> +int xdp_bridge_prog(struct xdp_md *ctx)
->> +{
->> +	return xdp_bridge_proto(ctx, 0);
->> +}
->> +
->> +SEC("xdp_8021q_bridge")
->> +int xdp_8021q_bridge_prog(struct xdp_md *ctx)
->> +{
->> +	return xdp_bridge_proto(ctx, htons(ETH_P_8021Q));
->> +}
->> +
->> +SEC("xdp_8021ad_bridge")
->> +int xdp_8021ad_bridge_prog(struct xdp_md *ctx)
->> +{
->> +	return xdp_bridge_proto(ctx, htons(ETH_P_8021AD));
->> +}
->> +
->> +char _license[] SEC("license") =3D "GPL";
->=20
->=20
-> --=20
-> Best regards,
->  Jesper Dangaard Brouer
->  MSc.CS, Principal Kernel Engineer at Red Hat
->  LinkedIn: http://www.linkedin.com/in/brouer
->=20
 
 =E2=80=94
 Yoshiki Komachi
