@@ -2,26 +2,26 @@ Return-Path: <komachi.yoshiki@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:subject:from:in-reply-to:date:cc
  :content-transfer-encoding:message-id:references:to;
- bh=2ca/QrowQ6tGL3YlTY/zRzYbbmOdjci7HQ5UaZxrd7U=;
- b=uhLd9SNImtAJuG345pumkWc7FFAQzZbxGRfbrVJwZOpFi4CFPdRWTGdoq2H3T0vOIf
- MaMUXqtaXYbapCXrNGKUHCPvOvPbH48p3S+Lh/MiWYGV70NumnYN01whEEXCcC74VfSJ
- O+pReSH2YR+ZeXiNNx+NYXjlSQwbhY19LtlSyzYFXKPo4O7Om7yX5vj574VhSms6uEu6
- ijHHACvc1QRuoqvMh/oNutsSd8CJAsXocXVTOQRMMuGbtKpzTcsUbMKndywIf6YmdZV8
- cDsbV5FXHNaBwFpLZF9sHJ8u/+LIDFjL7JU4YIg25KyMSCRnpW5U24qhJfGEVDtRBOpV
- 0oBg==
+ bh=XtwssimjTTniuQl7LijmcNMg2apAbM55NqsMay8jLHo=;
+ b=A9fr5HFU3lf8zSg+CMCJqO5u+Rhus37sWFZBf/pso+4kMD9Fv+1sdUpvwYClICy0zM
+ /rfOHlQ7Y+7inApqU6w6O+j3zte0QSP7uQIdg6ZHeooAVfgStadr/Ntiza7mYYTmKCWo
+ S4MwxfjfeD9U5bmSvg51VEw+aIKInU9YwTNnK8VrKbKCBF2xrqiJFvaviOoSPorKtxr3
+ IcKc/BRbvVxzdS8u7KPEEBDS23ecJKXSG9/nlpw0uTU5iK0spuTOn2Y0HL+tx4j2hmqB
+ 4a1XHahqhwx9a2DXP4/u6RS1d9rkOrdIixjgYntLANqgwWWHFSq0T+ZpYhTW/ppGp5GW
+ 6IUw==
 Content-Type: text/plain;
 	charset=utf-8
 Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.15\))
 From: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-In-Reply-To: <CAEf4BzaRKhJqFmXJEQy5LOjKx9nkPgAKHa3cesvywy2qqg93YA@mail.gmail.com>
-Date: Tue, 4 Aug 2020 19:35:08 +0900
+In-Reply-To: <5970d82b-3bb9-c78f-c53a-8a1c95a1fad7@gmail.com>
+Date: Tue, 4 Aug 2020 20:27:47 +0900
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <1BA4E035-5045-4D62-BA39-F3990CA4EF1E@gmail.com>
+Message-Id: <F99B20F3-4F88-4AFC-9DF8-B32EFD417785@gmail.com>
 References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
- <1596170660-5582-4-git-send-email-komachi.yoshiki@gmail.com>
- <CAEf4BzaRKhJqFmXJEQy5LOjKx9nkPgAKHa3cesvywy2qqg93YA@mail.gmail.com>
-Subject: Re: [Bridge] [RFC PATCH bpf-next 3/3] samples/bpf: Add a simple
- bridge example accelerated with XDP
+ <1596170660-5582-3-git-send-email-komachi.yoshiki@gmail.com>
+ <5970d82b-3bb9-c78f-c53a-8a1c95a1fad7@gmail.com>
+Subject: Re: [Bridge] [RFC PATCH bpf-next 2/3] bpf: Add helper to do
+ forwarding lookups in kernel FDB table
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,70 +30,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Networking <netdev@vger.kernel.org>, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf <bpf@vger.kernel.org>, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
+To: David Ahern <dsahern@gmail.com>
+Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
 
 
-> 2020/08/01 2:48=E3=80=81Andrii Nakryiko =
-<andrii.nakryiko@gmail.com>=E3=81=AE=E3=83=A1=E3=83=BC=E3=83=AB:
+> 2020/08/01 2:15=E3=80=81David Ahern <dsahern@gmail.com>=E3=81=AE=E3=83=A1=
+=E3=83=BC=E3=83=AB:
 >=20
-> On Thu, Jul 30, 2020 at 9:45 PM Yoshiki Komachi
-> <komachi.yoshiki@gmail.com> wrote:
+> On 7/30/20 10:44 PM, Yoshiki Komachi wrote:
+>> diff --git a/net/core/filter.c b/net/core/filter.c
+>> index 654c346b7d91..68800d1b8cd5 100644
+>> --- a/net/core/filter.c
+>> +++ b/net/core/filter.c
+>> @@ -5084,6 +5085,46 @@ static const struct bpf_func_proto =
+bpf_skb_fib_lookup_proto =3D {
+>> 	.arg4_type	=3D ARG_ANYTHING,
+>> };
 >>=20
->> This patch adds a simple example of XDP-based bridge with the new
->> bpf_fdb_lookup helper. This program simply forwards packets based
->> on the destination port given by FDB in the kernel. Note that both
->> vlan filtering and learning features are currently unsupported in
->> this example.
->>=20
->> There is another plan to recreate a userspace application
->> (xdp_bridge_user.c) as a daemon process, which helps to automate
->> not only detection of status changes in bridge port but also
->> handling vlan protocol updates.
->>=20
->> Note: David Ahern suggested a new bpf helper [1] to get master
->> vlan/bonding devices in XDP programs attached to their slaves
->> when the master vlan/bonding devices are bridge ports. If this
->> idea is accepted and the helper is introduced in the future, we
->> can handle interfaces slaved to vlan/bonding devices in this
->> sample by calling the suggested bpf helper (I guess it can get
->> vlan/bonding ifindex from their slave ifindex). Notice that we
->> don't need to change bpf_fdb_lookup() API to use such a feature,
->> but we just need to modify bpf programs like this sample.
->>=20
->> [1]: http://vger.kernel.org/lpc-networking2018.html#session-1
->>=20
->> Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
->> ---
+>> +#if IS_ENABLED(CONFIG_BRIDGE)
+>> +BPF_CALL_4(bpf_xdp_fdb_lookup, struct xdp_buff *, ctx,
+>> +	   struct bpf_fdb_lookup *, params, int, plen, u32, flags)
+>> +{
+>> +	struct net_device *src, *dst;
+>> +	struct net *net;
+>> +
+>> +	if (plen < sizeof(*params))
+>> +		return -EINVAL;
 >=20
-> Have you tried using a BPF skeleton for this? It could have saved a
-> bunch of mechanical code for your example. Also libbpf supports map
-> pinning out of the box now, I wonder if it would just work in your
-> case. Also it would be nice if you tried using BPF link-based approach
-> for this example, to show how it can be used. Thanks!
+> I need to look at the details more closely, but on first reading 2
+> things caught me eye:
+> 1. you need to make sure flags is 0 since there are no supported flags
+> at the moment, and
+
+Thanks for your initial comments!
+
+I will make sure whether this flag is required or not.
+
+>> +
+>> +	net =3D dev_net(ctx->rxq->dev);
+>> +
+>> +	if (is_multicast_ether_addr(params->addr) ||
+>> +	    is_broadcast_ether_addr(params->addr))
+>> +		return BPF_FDB_LKUP_RET_NOENT;
+>> +
+>> +	src =3D dev_get_by_index_rcu(net, params->ifindex);
+>> +	if (unlikely(!src))
+>> +		return -ENODEV;
+>> +
+>> +	dst =3D br_fdb_find_port_xdp(src, params->addr, =
+params->vlan_id);
 >=20
+> 2. this needs to be done via netdev ops to avoid referencing bridge =
+code
+> which can be compiled as a module. I suspect the build robots will id
+> this part soon.
 
-It is still under consideration, but these features seems to be useful =
-for
-this example.
+I guess that no build errors will occur because the API is allowed when
+CONFIG_BRIDGE is enabled.
 
-I would try to apply them in the next version.
+I successfully build my kernel applying this patch, and I don=E2=80=99t =
+receive any
+messages from build robots for now.
 
-Thank you for giving me good advice.
+Thanks & Best regards,
 
-Best regards,
-
->=20
->> samples/bpf/Makefile          |   3 +
->> samples/bpf/xdp_bridge_kern.c | 129 ++++++++++++++++++
->> samples/bpf/xdp_bridge_user.c | 239 =
-++++++++++++++++++++++++++++++++++
->> 3 files changed, 371 insertions(+)
->> create mode 100644 samples/bpf/xdp_bridge_kern.c
->> create mode 100644 samples/bpf/xdp_bridge_user.c
->>=20
->=20
-> [...]
 
 =E2=80=94
 Yoshiki Komachi
