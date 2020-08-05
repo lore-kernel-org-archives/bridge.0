@@ -2,26 +2,27 @@ Return-Path: <dsahern@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=g8oBzmcJiwGUXDvGcXm/0jru3TFpb5KAGIgwrDHVYC8=;
- b=KBWDn9ItSVNc/Jo8C2TLo2d2SEBDpW+HtxikoK/wOOY/mZh9tUYIYjj/uswXH6qy5w
- 8nYeqNNVOoQZQyqnWEKsi6y1jLlwl6N8V4Kk5dMr8lGik9Yev4DbnpaYOqRuJg+Logxv
- eaVWwobIifXbVWAI0sxtrwc0CLJRsswu3/ZdeeZ04bD1FMXgqtG4ALd4f7WEJY+0bsa8
- 1GqfxQyatbsNL0hjud1ZZlRCIe59Jtnkn2Eccfbgyg4G4pWNS0OWG8BKfy+PGbWSbHz4
- J+Wd0i+hyS9MDfNNFUc+u1u8EtIllN2jVoU8Ap1Qgl43YSFTBJzs3DVrJzbbyfFpgs8N
- H9Kw==
+ bh=OWOcCu/RdgXsCBIctAyPQWwmqwK81xNeRORnBnjCneQ=;
+ b=tW1knKDE62tuWn5yeakMwnGIfDvIy8Nk4xLrt9d+xlZ0YyDTp0hfdO9t95joJp7vvZ
+ Rr+5fj2ioRVHlNbtjNL9uFziyTfkS9m6bSrOaXsRADXi8VDgAZphegvBa9lTyhmpC/BW
+ 3brEgbOSY0tWjPyGmMovwukn4TBmQXaupVQCUTorMzToFKmuldYaJEJRmJ6fIqatSImu
+ nrmyVVaeqG9e2xCRnc7TEKtNfrYGHD5YPJTs5cC4OyePzM+7V5j2mI+sMDtN7CvRgPe7
+ 0G+RF71204I3OsNCTMT6/vujlrH+z8AiuY8nIiy3121EPJta/NA+nf0LmKffr5fAn3+f
+ oCOg==
 References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
- <5f2492aedba05_54fa2b1d9fe285b42d@john-XPS-13-9370.notmuch>
- <E2A7CC68-9235-4E97-9532-66D61A6B8965@gmail.com>
+ <1596170660-5582-3-git-send-email-komachi.yoshiki@gmail.com>
+ <5970d82b-3bb9-c78f-c53a-8a1c95a1fad7@gmail.com>
+ <F99B20F3-4F88-4AFC-9DF8-B32EFD417785@gmail.com>
 From: David Ahern <dsahern@gmail.com>
-Message-ID: <8eda2f23-f526-bd56-b6ac-0d7ae82444b5@gmail.com>
-Date: Wed, 5 Aug 2020 10:36:58 -0600
+Message-ID: <e92455ce-3a3f-7c52-1388-da40e8ceefd0@gmail.com>
+Date: Wed, 5 Aug 2020 10:38:10 -0600
 MIME-Version: 1.0
-In-Reply-To: <E2A7CC68-9235-4E97-9532-66D61A6B8965@gmail.com>
+In-Reply-To: <F99B20F3-4F88-4AFC-9DF8-B32EFD417785@gmail.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [RFC PATCH bpf-next 0/3] Add a new bpf helper for FDB
-	lookup
+Subject: Re: [Bridge] [RFC PATCH bpf-next 2/3] bpf: Add helper to do
+ forwarding lookups in kernel FDB table
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,22 +31,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yoshiki Komachi <komachi.yoshiki@gmail.com>, John Fastabend <john.fastabend@gmail.com>
-Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, Alexei Starovoitov <ast@kernel.org>, "David S. Miller" <davem@davemloft.net>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>, Martin KaFai Lau <kafai@fb.com>
+To: Yoshiki Komachi <komachi.yoshiki@gmail.com>
+Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
 
-On 8/5/20 4:26 AM, Yoshiki Komachi wrote:
->>
->> Just to clarify for myself. I expect that with just the helpers here
->> we should only expect static configurations to work, e.g. any learning
->> and/or aging is not likely to work if we do redirects in the XDP path.
+On 8/4/20 5:27 AM, Yoshiki Komachi wrote:
 > 
-> As you described above, learning and aging don’t work at this point. 
+> I guess that no build errors will occur because the API is allowed when
+> CONFIG_BRIDGE is enabled.
 > 
-> IMO, another helper for learning will be required to fill the requirements.
-> I guess that the helper will enable us to use the aging feature as well
-> because the aging is the functionality of bridge fdb.
+> I successfully build my kernel applying this patch, and I don’t receive any
+> messages from build robots for now.
 
-One option is to have a flag that bumps the ageing on successful lookup
-and do that in 1 call. You will already have access to the fdb entry.
-
-
+If CONFIG_BRIDGE is a module, build should fail: filter.c is built-in
+trying to access a symbol from module.
