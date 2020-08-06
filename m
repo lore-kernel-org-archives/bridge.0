@@ -1,28 +1,25 @@
-Return-Path: <dsahern@gmail.com>
+Return-Path: <eric.dumazet@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=OWOcCu/RdgXsCBIctAyPQWwmqwK81xNeRORnBnjCneQ=;
- b=tW1knKDE62tuWn5yeakMwnGIfDvIy8Nk4xLrt9d+xlZ0YyDTp0hfdO9t95joJp7vvZ
- Rr+5fj2ioRVHlNbtjNL9uFziyTfkS9m6bSrOaXsRADXi8VDgAZphegvBa9lTyhmpC/BW
- 3brEgbOSY0tWjPyGmMovwukn4TBmQXaupVQCUTorMzToFKmuldYaJEJRmJ6fIqatSImu
- nrmyVVaeqG9e2xCRnc7TEKtNfrYGHD5YPJTs5cC4OyePzM+7V5j2mI+sMDtN7CvRgPe7
- 0G+RF71204I3OsNCTMT6/vujlrH+z8AiuY8nIiy3121EPJta/NA+nf0LmKffr5fAn3+f
- oCOg==
-References: <1596170660-5582-1-git-send-email-komachi.yoshiki@gmail.com>
- <1596170660-5582-3-git-send-email-komachi.yoshiki@gmail.com>
- <5970d82b-3bb9-c78f-c53a-8a1c95a1fad7@gmail.com>
- <F99B20F3-4F88-4AFC-9DF8-B32EFD417785@gmail.com>
-From: David Ahern <dsahern@gmail.com>
-Message-ID: <e92455ce-3a3f-7c52-1388-da40e8ceefd0@gmail.com>
-Date: Wed, 5 Aug 2020 10:38:10 -0600
+ bh=t1TN4T3jQ2jrlk3a/d7SaKfk2DJyftZUv6bXnlt6NPQ=;
+ b=GyumodkGmYKsGSwVnzxjXGz3Hc6dDp/7EX3r4spkycDyPVNN0ciFP2qEtF0XPhrBf4
+ +cCI0OWrH6x101NHuYUTOaXPwuCecyhxfEvjJRna72hDnNI+bib+8AzwceW3eJdE75Gn
+ SeIJKEi14my/hEJw+qU/KCE5RSHazXH9KHIfKLNltLm7ADcruE5/tGFOBJjd/g0Mnrl5
+ TD9+5yjblEpGaVz4M1LHrXLmcdWRpP5c2NV1JaW3i6df06bY03MlPUl3EghFXAFM5iLk
+ Ox9KU5vu5QYQH83zkF+ICm8Q2r+16LLLSd84hY8z6dVmhZCgoIg7vDd5Gd8rg9nvzxvN
+ 9EXA==
+References: <20200723060908.50081-1-hch@lst.de>
+ <20200723060908.50081-26-hch@lst.de>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <6357942b-0b6e-1901-7dce-e308c9fac347@gmail.com>
+Date: Thu, 6 Aug 2020 15:21:25 -0700
 MIME-Version: 1.0
-In-Reply-To: <F99B20F3-4F88-4AFC-9DF8-B32EFD417785@gmail.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20200723060908.50081-26-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [RFC PATCH bpf-next 2/3] bpf: Add helper to do
- forwarding lookups in kernel FDB table
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH 25/26] net: pass a sockptr_t into ->setsockopt
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,16 +28,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-Cc: Song Liu <songliubraving@fb.com>, Jesper Dangaard Brouer <hawk@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Martin KaFai Lau <kafai@fb.com>, David Ahern <dsahern@kernel.org>, Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@chromium.org>, Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>, "David S. Miller" <davem@davemloft.net>
+To: Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-sctp@vger.kernel.org, linux-afs@lists.infradead.org, Stefan Schmidt <stefan@datenfreihafen.org>, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-x25@vger.kernel.org, dccp@vger.kernel.org, bridge@lists.linux-foundation.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, mptcp@lists.01.org, netfilter-devel@vger.kernel.org, linux-can@vger.kernel.org, linux-hams@vger.kernel.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org
 
-On 8/4/20 5:27 AM, Yoshiki Komachi wrote:
-> 
-> I guess that no build errors will occur because the API is allowed when
-> CONFIG_BRIDGE is enabled.
-> 
-> I successfully build my kernel applying this patch, and I don’t receive any
-> messages from build robots for now.
 
-If CONFIG_BRIDGE is a module, build should fail: filter.c is built-in
-trying to access a symbol from module.
+
+On 7/22/20 11:09 PM, Christoph Hellwig wrote:
+> Rework the remaining setsockopt code to pass a sockptr_t instead of a
+> plain user pointer.  This removes the last remaining set_fs(KERNEL_DS)
+> outside of architecture specific code.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Stefan Schmidt <stefan@datenfreihafen.org> [ieee802154]
+> ---
+
+
+...
+
+> diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
+> index 594e01ad670aa6..874f01cd7aec42 100644
+> --- a/net/ipv6/raw.c
+> +++ b/net/ipv6/raw.c
+> @@ -972,13 +972,13 @@ static int rawv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+>  }
+>  
+
+...
+
+>  static int do_rawv6_setsockopt(struct sock *sk, int level, int optname,
+> -			    char __user *optval, unsigned int optlen)
+> +			       sockptr_t optval, unsigned int optlen)
+>  {
+>  	struct raw6_sock *rp = raw6_sk(sk);
+>  	int val;
+>  
+> -	if (get_user(val, (int __user *)optval))
+> +	if (copy_from_sockptr(&val, optval, sizeof(val)))
+>  		return -EFAULT;
+>  
+
+converting get_user(...)   to  copy_from_sockptr(...) really assumed the optlen
+has been validated to be >= sizeof(int) earlier.
+
+Which is not always the case, for example here.
+
+User application can fool us passing optlen=0, and a user pointer of exactly TASK_SIZE-1
+
+
