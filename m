@@ -1,16 +1,30 @@
-Return-Path: <daniel@makrotopia.org>
-Date: Mon, 17 Aug 2020 15:24:38 +0100
-From: Daniel Golle <daniel@makrotopia.org>
-Message-ID: <20200817142438.GB1299@makrotopia.org>
-References: <20200816202424.3526-1-linus.luessing@c0d3.blue>
- <87zh6t650b.fsf@miraculix.mork.no> <1830568.o5y0iYavLQ@sven-edge>
+Return-Path: <kurt@linutronix.de>
+From: Kurt Kanzenbach <kurt@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1597921073;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=YIkdj2DyvYAhQ7RBBwnYw5GJ1OBharqxpJPUklg5BVY=;
+ b=sQO1KRzu+ln6rYasVnJrj+dGujnRJIpdNi4SZQtH+HfrsqdMiTtzuNUcWd+pR2CoNW0rCB
+ QvrGeuIQTuBdDAri4DtyW05dShPyZxpGqXYOmdWOgyqTlOXsiQ4PfFMzlHg2b37lWXVyIs
+ OapnL0xcMSIt0iVPgXP2Tar+YU4CDjW+NqCgAtB+5mal2kxMNyCaWYNhOI2IdL5V7zEklv
+ sJHnoBnVnMUWxSXhSM4+KIt1vvM6hqgabUWoqTR0AaWapyjHuiOXFDCBhNNRzikKGcFG48
+ Xgwe7xDdmWD1SLEm7eDXKKN24d1L0Rqw4HCpQCz4PnEavoNCViZ0uXWguW7FsQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1597921073;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=YIkdj2DyvYAhQ7RBBwnYw5GJ1OBharqxpJPUklg5BVY=;
+ b=GLQ1GQMkBs9itAqx6i75aleyoPHKCFjC143w8bmpAZT8W4yQ72xQ2NT1XNirW4bEmSUexd
+ ea6Ua9vT7ucZ+ZDA==
+Date: Thu, 20 Aug 2020 12:57:37 +0200
+Message-Id: <20200820105737.5089-1-kurt@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <1830568.o5y0iYavLQ@sven-edge>
-Subject: Re: [Bridge] [gluon] Re: [RFC PATCH net-next] bridge: Implement MLD
- Querier wake-up calls / Android bug workaround
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [RFC PATCH] net: bridge: Don't reset time stamps on
+	SO_TXTIME enabled sockets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,60 +33,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sven Eckelmann <sven@narfation.org>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, gluon@luebeck.freifunk.net, openwrt-devel@lists.openwrt.org, "David S . Miller" <davem@davemloft.net>, =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
+To: Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Kurt Kanzenbach <kurt@linutronix.de>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 03:17:37PM +0200, Sven Eckelmann wrote:
-> On Monday, 17 August 2020 10:39:00 CEST Bj=F8rn Mork wrote:
-> > Linus L=FCssing <linus.luessing@c0d3.blue> writes:
-> [...]
-> > This is not a bug.  They are deliberately breaking IPv6 because they
-> > consider this a feature.  You should not try to work around such issues.
-> > It is a fight you cannot win.  Any workaround will only encourage them
-> > to come up with new ways to break IPv6.
->=20
-> Who are "they" and where is this information coming from? And what do the=
-y=20
-> gain from breaking IPv6? Wouldn't it be easier for them just to disable I=
-Pv6=20
-> than adding random looking bugs?
+When using the ETF Qdisc in combination with a bridge and DSA, then all packets
+gets dropped due to invalid time stamps. The setup looks like this:
 
-They are Google and they want IPv6 to be used in a way which exposes
-as much user data as possible to their servers (that's my guess).
-Every additional identifying bit is like gold for them (that's their
-business model).
-Hence they like SLAAC and addressing schemes which reflect the network
-topology and are enforcing that direction beyond good reason (that
-should be obvious[1] to everyone[2] by now[3], no matter what the
-reasons for that are).
-You may say, hey, SLAAC also allows me to use Privary Extension and I'm
-sure your browser will make use of that. But does the DNS resolver?
-And what about all those Google services running in background? I'm not
-sure all of them instruct the kernel to open every single socket using
-a privacy source address...
-Simply, when relying on SLAAC + Privary Extensions it's up to the
-(mobile) client to avoid being very easily tracked.
-When using DHCPv6 the situation is like it was for v4 (ok, it's still
-a bit worse because you can distinguish clients much better).
+Transmit path:
 
-As a work-around, I've been limiting source EUI-64 addresses from
-leaving my local network -- but that's surely not what everyone would
-want to make sure their local devices MAC addresses aren't leaked and
-also just breaking v6 in yet another way.
-I don't consider NAT66 an option and would like to avoid even
-connection-tracking on v6 as it was promissed :). Tethering should
-work using DHCPv6 prefix delegation imho rather than ND-proxy or
-NAT66 which are both quite a burden for the battery-powered device
-offering the tethering gateway (ie. each forwarded packet then needs
-CPU intervention, I can't see anything great about that).
+Application -> bridge (br0) -> DSA slave ports (lan0, lan1) -> ETF Qdisc
+            -> ethernet (eth0)
 
+The user space application uses SO_TXTIME to attach a sending time stamp for
+each packet using the corresponding interface. That time stamp is then attached
+to the skb in the kernel. The first network device involved in the chain is the
+bridge device. However, in br_forward_finish() the time stamp is reset to zero
+unconditionally. Meaning when the skb arrives at the ETF Qdisc, it's dropped as
+invalid because the time stamp is zero.
 
+The reset of the time stamp in the bridge code is there for a good reason. See
+commit 41d1c8839e5f ("net: clear skb->tstamp in bridge forwarding path")
+Therefore, add a conditional for SO_TXTIME enabled sockets.
 
-[1]: https://www.nullzero.co.uk/android-does-not-support-dhcpv6-and-google-=
-wont-fix-that/
+Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
+---
+ net/bridge/br_forward.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-[2]: https://www.techrepublic.com/article/androids-lack-of-dhcpv6-support-f=
-rustrates-enterprise-network-admins/
+RFC, because I don't know if that's the correct way to solve that issue.
 
-[3]: https://lostintransit.se/2020/05/22/its-2020-and-androids-ipv6-is-stil=
-l-broken/
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 7629b63f6f30..e5f7e49ed91d 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -15,6 +15,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/if_vlan.h>
+ #include <linux/netfilter_bridge.h>
++#include <net/sock.h>
+ #include "br_private.h"
+ 
+ /* Don't forward packets to originating port or forwarding disabled */
+@@ -61,7 +62,15 @@ EXPORT_SYMBOL_GPL(br_dev_queue_push_xmit);
+ 
+ int br_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
++	/* When applications provide time stamps for packets via SO_TXTIME
++	 * socket option, then don't reset it.
++	 */
++	if (skb->sk && sock_flag(skb->sk, SOCK_TXTIME))
++		goto finish;
++
+ 	skb->tstamp = 0;
++
++finish:
+ 	return NF_HOOK(NFPROTO_BRIDGE, NF_BR_POST_ROUTING,
+ 		       net, sk, skb, NULL, skb->dev,
+ 		       br_dev_queue_push_xmit);
+-- 
+2.20.1
+
