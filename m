@@ -1,29 +1,33 @@
 Return-Path: <kurt@linutronix.de>
 From: Kurt Kanzenbach <kurt@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1597921073;
+ s=2020; t=1597996046;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=YIkdj2DyvYAhQ7RBBwnYw5GJ1OBharqxpJPUklg5BVY=;
- b=sQO1KRzu+ln6rYasVnJrj+dGujnRJIpdNi4SZQtH+HfrsqdMiTtzuNUcWd+pR2CoNW0rCB
- QvrGeuIQTuBdDAri4DtyW05dShPyZxpGqXYOmdWOgyqTlOXsiQ4PfFMzlHg2b37lWXVyIs
- OapnL0xcMSIt0iVPgXP2Tar+YU4CDjW+NqCgAtB+5mal2kxMNyCaWYNhOI2IdL5V7zEklv
- sJHnoBnVnMUWxSXhSM4+KIt1vvM6hqgabUWoqTR0AaWapyjHuiOXFDCBhNNRzikKGcFG48
- Xgwe7xDdmWD1SLEm7eDXKKN24d1L0Rqw4HCpQCz4PnEavoNCViZ0uXWguW7FsQ==
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=QYrfH5qNal9t0t0APe2l5SVZJtFbnfRRUDVhsTelToo=;
+ b=r4ziFvu5Vua5RWt9RS6TyJ5FZrQA5+Y2S9lyVMTaNfgowWdFrSXCvOPB5uxQb34QROkIWt
+ 9RYA/fmbYFNvqiwo1LQ9y7eSlrK5yO2mxxNyKcLQaiD4XPcmJSFZbVkhfBo1gQEwuDyQ8f
+ XgdPUIyRuGtUWXQIlsXqz+7BVvuZ0MVSOyLH7hDEVRxDRMFxM1UJk43jNtQ8oIGfBay9p2
+ /1Sawlax/0f3Dbfi4XneyztBd0DwN1l8GSjWnYXSq/boVAYV2Cpm9ZNt02nNnuaSAicRL0
+ 6RFy8DlPCWq9HAjx4HcbvmY8OdmABXAaQr8zgdHUSPh1Arbazq3c5rXQeA3rCQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1597921073;
+ s=2020e; t=1597996046;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=YIkdj2DyvYAhQ7RBBwnYw5GJ1OBharqxpJPUklg5BVY=;
- b=GLQ1GQMkBs9itAqx6i75aleyoPHKCFjC143w8bmpAZT8W4yQ72xQ2NT1XNirW4bEmSUexd
- ea6Ua9vT7ucZ+ZDA==
-Date: Thu, 20 Aug 2020 12:57:37 +0200
-Message-Id: <20200820105737.5089-1-kurt@linutronix.de>
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=QYrfH5qNal9t0t0APe2l5SVZJtFbnfRRUDVhsTelToo=;
+ b=w/7+d0Tny9TyRZEVmtObOKW02dRTXpJAS3imgLh6EBGfYkg5b+3BfbTaKNMKIATS3i1eMT
+ IbNQxdWek8IwM3Bw==
+In-Reply-To: <5affe98d-bb16-0744-5266-db708fb9dc16@cumulusnetworks.com>
+References: <20200820105737.5089-1-kurt@linutronix.de>
+ <5affe98d-bb16-0744-5266-db708fb9dc16@cumulusnetworks.com>
+Date: Fri, 21 Aug 2020 09:47:25 +0200
+Message-ID: <87mu2oe8z6.fsf@kurt>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC PATCH] net: bridge: Don't reset time stamps on
+Content-Type: multipart/signed; boundary="=-=-=";
+ micalg=pgp-sha512; protocol="application/pgp-signature"
+Subject: Re: [Bridge] [RFC PATCH] net: bridge: Don't reset time stamps on
 	SO_TXTIME enabled sockets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -33,63 +37,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@cumulusnetworks.com>, Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Kurt Kanzenbach <kurt@linutronix.de>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+To: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
 
-When using the ETF Qdisc in combination with a bridge and DSA, then all packets
-gets dropped due to invalid time stamps. The setup looks like this:
+--=-=-=
+Content-Type: text/plain
 
-Transmit path:
+On Thu Aug 20 2020, Nikolay Aleksandrov wrote:
+> The new conditionals will be for all forwarded packets, not only the
+> ones that are transmitted through the bridge master device.
 
-Application -> bridge (br0) -> DSA slave ports (lan0, lan1) -> ETF Qdisc
-            -> ethernet (eth0)
+I see makes sense.
 
-The user space application uses SO_TXTIME to attach a sending time stamp for
-each packet using the corresponding interface. That time stamp is then attached
-to the skb in the kernel. The first network device involved in the chain is the
-bridge device. However, in br_forward_finish() the time stamp is reset to zero
-unconditionally. Meaning when the skb arrives at the ETF Qdisc, it's dropped as
-invalid because the time stamp is zero.
+> If you'd like to do this please limit it to the bridge dev transmit.
 
-The reset of the time stamp in the bridge code is there for a good reason. See
-commit 41d1c8839e5f ("net: clear skb->tstamp in bridge forwarding path")
-Therefore, add a conditional for SO_TXTIME enabled sockets.
+I'm wondering how to do that. The problem is that the time stamp is
+reset to zero unconditionally in br_forward_finish(). This function is
+also called in the transmit path.
 
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
----
- net/bridge/br_forward.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Thanks,
+Kurt
 
-RFC, because I don't know if that's the correct way to solve that issue.
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 7629b63f6f30..e5f7e49ed91d 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -15,6 +15,7 @@
- #include <linux/skbuff.h>
- #include <linux/if_vlan.h>
- #include <linux/netfilter_bridge.h>
-+#include <net/sock.h>
- #include "br_private.h"
- 
- /* Don't forward packets to originating port or forwarding disabled */
-@@ -61,7 +62,15 @@ EXPORT_SYMBOL_GPL(br_dev_queue_push_xmit);
- 
- int br_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
-+	/* When applications provide time stamps for packets via SO_TXTIME
-+	 * socket option, then don't reset it.
-+	 */
-+	if (skb->sk && sock_flag(skb->sk, SOCK_TXTIME))
-+		goto finish;
-+
- 	skb->tstamp = 0;
-+
-+finish:
- 	return NF_HOOK(NFPROTO_BRIDGE, NF_BR_POST_ROUTING,
- 		       net, sk, skb, NULL, skb->dev,
- 		       br_dev_queue_push_xmit);
--- 
-2.20.1
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAEBCgAdFiEEooWgvezyxHPhdEojeSpbgcuY8KYFAl8/fA0ACgkQeSpbgcuY
+8KYR+BAAiaaCs1BIj0Ogf9yXoq5Krdd1Wi27yOkqGGkP081+wuLYUwsFDtxXRxJ8
+d4Eh/M6TxWWKHovkzEc0HXtBhWNkbt+SYXiJ6tNTv4OkaNNJl/PmPPOG5CWpUr3j
+scFu9xwYR0EeOir79QaTpsNR3dpxbLkrjZFQBAyqVO6UrdZ+Ra8iWT9/iNY/rDXH
+Fjabd6QkWO1hIprWdrC+pMKAtre38xHdO+GjCWUQi8GY09X44FcpZwoHJsC9u7AD
+ClAHLHGQWMqqqui1QQGN9pXN5iiwwNefSUOCr1VMxg1s0dNE8G5PLYegteDwyDAi
+to6sXj7bGa28M1uxkjtxxL4SXhGiCTjeRDImTZGjMCrP8KSyxDiZNI1VbDCqd6+3
+QKLiS65/W9vLVY/BSd7/nk5+7aG8KwxtPubKLQ/EN3z24HDtUUajw1UKtuP7XdQa
++DGX0KbJDNGKsQW9yAznM0RBRj9w6bH19tsABbyaA2QUBAJz/VNOO2sHPOjC9hCr
+7FsVL7MPhKBf9FuuEQdbq0xB+XpXOZSjKYnAQrqW0J7x+IJKRbrhdVLLfU3OVuH8
+QBOSGkBhY9S8wW/LjPCFbCs1ziez0wIHjdbz8l+1QJLVe/XFjZiFY6X+/HgJv4Ap
+TDAhSvn2Hqk5ezYbzJCLuEGTeEPhGQgyjHYJK8XEYwOQwgyvNgM=
+=enjn
+-----END PGP SIGNATURE-----
+--=-=-=--
