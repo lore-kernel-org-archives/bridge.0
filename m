@@ -1,19 +1,19 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1598287025;
+ s=default; t=1598287096;
  bh=AJ5GY7sStFFpN4d2wp55vrmNmGGsqU3GnYKHqvcwtPA=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=mrUy5o8QBQZPLyA+LAz1WgIBD0MJHqFNm15B88n1GOc+79qlURWRWe9AnegbeP+CI
- ntjSlEoqKaS1cbIs6XakTovcSm+Sw2DIvUBdem2LS95HLiJy7ZmV7uuTpSqT5mrLDy
- XLs5/slftwviV2Nqfm9eCAbL2Qgkbo4OmNahYq9I=
+ b=2NcTrTsiYfvGpMlRCWhEfukPMsIP/Z3L5oO1AGkAlWbBI0mdxRdkZg/1xMSzI5vot
+ xo08f3suUM5NeU9AhuGwhmUm6NW1LN1jgS/INHzTigC2Yw/nIeXFD+h0AYaAYfFkou
+ NzalKI5dq/MTKq+YQNa11uvrX0Y8vI7y5bLEU5zI=
 From: Sasha Levin <sashal@kernel.org>
-Date: Mon, 24 Aug 2020 12:36:01 -0400
-Message-Id: <20200824163634.606093-22-sashal@kernel.org>
-In-Reply-To: <20200824163634.606093-1-sashal@kernel.org>
-References: <20200824163634.606093-1-sashal@kernel.org>
+Date: Mon, 24 Aug 2020 12:37:30 -0400
+Message-Id: <20200824163751.606577-18-sashal@kernel.org>
+In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
+References: <20200824163751.606577-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.7 22/54] netfilter: avoid ipv6 ->
+Subject: [Bridge] [PATCH AUTOSEL 5.4 18/38] netfilter: avoid ipv6 ->
 	nf_defrag_ipv6 module dependency
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
