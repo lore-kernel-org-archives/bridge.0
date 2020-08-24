@@ -1,25 +1,20 @@
-Return-Path: <nbd@nbd.name>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
- s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
- MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
- Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
- Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
- List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=2t7zT74dnx+dmnDDZa8p5RsVN04dddFieKKXDkDW0cc=; b=KrGPvdwi6r065sWBtoN4EQkYEs
- VQowH1kCzRBpcuhjevklP03m6RYV/I186RiNyM4qxOzqoirLw7vh3hTMJtdnv29g26NBUF0kON0bQ
- 83I3ZmnbM6kMd4OkZLrMmFX4RJ9/Q+nW7MXv9n2YZGSnR3yNX1JFHek/T+LnRIwsH0Gk=;
-References: <20200816202424.3526-1-linus.luessing@c0d3.blue>
- <20200816150813.0b998607@hermes.lan> <20200823154239.GA2302@otheros>
-From: Felix Fietkau <nbd@nbd.name>
-Message-ID: <a622b789-ab29-989a-e337-0407c5f0c494@nbd.name>
-Date: Sun, 23 Aug 2020 21:49:46 +0200
+Return-Path: <sashal@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1598286935;
+ bh=AJ5GY7sStFFpN4d2wp55vrmNmGGsqU3GnYKHqvcwtPA=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=sKpni1Ml9ixnep3vr3QKbZ1Y7SBV5GvVJMKcX3qNAFh0ytnCt2YdAuSsiCcZGcB/V
+ lDKlRaT4qwG1aOpnGcZkTCro7JmM77q1iJZs3xzBP5gRMm4cVC3Xzuqggwd72Xc7gT
+ NpCa3x9Blddk6bwHKEJb9H0liSwFXf7cpahCWpP0=
+From: Sasha Levin <sashal@kernel.org>
+Date: Mon, 24 Aug 2020 12:34:23 -0400
+Message-Id: <20200824163504.605538-23-sashal@kernel.org>
+In-Reply-To: <20200824163504.605538-1-sashal@kernel.org>
+References: <20200824163504.605538-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200823154239.GA2302@otheros>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [RFC PATCH net-next] bridge: Implement MLD Querier
- wake-up calls / Android bug workaround
+Subject: [Bridge] [PATCH AUTOSEL 5.8 23/63] netfilter: avoid ipv6 ->
+	nf_defrag_ipv6 module dependency
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,30 +23,120 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@cumulusnetworks.com>, bridge@lists.linux-foundation.org, gluon@luebeck.freifunk.net, openwrt-devel@lists.openwrt.org, "David S . Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On 2020-08-23 17:42, Linus Lüssing wrote:
-> On Sun, Aug 16, 2020 at 03:08:13PM -0700, Stephen Hemminger wrote:
->> Rather than adding yet another feature to the bridge, could this hack be done by
->> having a BPF hook? or netfilter module?
-> 
-> Hi Stephen,
-> 
-> Thanks for the constructive feedback and suggestions!
-> 
-> The netfilter approach sounds tempting. However as far as I know
-> OpenWrt's firewall has no easy layer 2 netfilter integration yet.
-> So it has default layer 3 netfilter rules, but not for layer 2.
-> 
-> Ideally I'd want to work towards a solution where things "just
-> work as expected" when a user enables "IGMP Snooping" in the UI.
-> I could hack the netfilter rules into netifd, the OpenWrt network
-> manager, when it configures the bridge. But not sure if the
-> OpenWrt maintainers would like that...
-> 
-> Any preferences from the OpenWrt maintainers side?
-Enabling bridge netfilter comes with a very significant performance
-cost, so it's not something that should be done in a default configuration.
+From: Florian Westphal <fw@strlen.de>
 
-- Felix
+[ Upstream commit 2404b73c3f1a5f15726c6ecd226b56f6f992767f ]
+
+nf_ct_frag6_gather is part of nf_defrag_ipv6.ko, not ipv6 core.
+
+The current use of the netfilter ipv6 stub indirections  causes a module
+dependency between ipv6 and nf_defrag_ipv6.
+
+This prevents nf_defrag_ipv6 module from being removed because ipv6 can't
+be unloaded.
+
+Remove the indirection and always use a direct call.  This creates a
+depency from nf_conntrack_bridge to nf_defrag_ipv6 instead:
+
+modinfo nf_conntrack
+depends:        nf_conntrack,nf_defrag_ipv6,bridge
+
+.. and nf_conntrack already depends on nf_defrag_ipv6 anyway.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/linux/netfilter_ipv6.h             | 18 ------------------
+ net/bridge/netfilter/nf_conntrack_bridge.c |  8 ++++++--
+ net/ipv6/netfilter.c                       |  3 ---
+ 3 files changed, 6 insertions(+), 23 deletions(-)
+
+diff --git a/include/linux/netfilter_ipv6.h b/include/linux/netfilter_ipv6.h
+index aac42c28fe62d..9b67394471e1c 100644
+--- a/include/linux/netfilter_ipv6.h
++++ b/include/linux/netfilter_ipv6.h
+@@ -58,7 +58,6 @@ struct nf_ipv6_ops {
+ 			int (*output)(struct net *, struct sock *, struct sk_buff *));
+ 	int (*reroute)(struct sk_buff *skb, const struct nf_queue_entry *entry);
+ #if IS_MODULE(CONFIG_IPV6)
+-	int (*br_defrag)(struct net *net, struct sk_buff *skb, u32 user);
+ 	int (*br_fragment)(struct net *net, struct sock *sk,
+ 			   struct sk_buff *skb,
+ 			   struct nf_bridge_frag_data *data,
+@@ -117,23 +116,6 @@ static inline int nf_ip6_route(struct net *net, struct dst_entry **dst,
+ 
+ #include <net/netfilter/ipv6/nf_defrag_ipv6.h>
+ 
+-static inline int nf_ipv6_br_defrag(struct net *net, struct sk_buff *skb,
+-				    u32 user)
+-{
+-#if IS_MODULE(CONFIG_IPV6)
+-	const struct nf_ipv6_ops *v6_ops = nf_get_ipv6_ops();
+-
+-	if (!v6_ops)
+-		return 1;
+-
+-	return v6_ops->br_defrag(net, skb, user);
+-#elif IS_BUILTIN(CONFIG_IPV6)
+-	return nf_ct_frag6_gather(net, skb, user);
+-#else
+-	return 1;
+-#endif
+-}
+-
+ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 		    struct nf_bridge_frag_data *data,
+ 		    int (*output)(struct net *, struct sock *sk,
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index 8096732223828..8d033a75a766e 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -168,6 +168,7 @@ static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
+ static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
+ 				     const struct nf_hook_state *state)
+ {
++#if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+ 	u16 zone_id = NF_CT_DEFAULT_ZONE_ID;
+ 	enum ip_conntrack_info ctinfo;
+ 	struct br_input_skb_cb cb;
+@@ -180,14 +181,17 @@ static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
+ 
+ 	br_skb_cb_save(skb, &cb, sizeof(struct inet6_skb_parm));
+ 
+-	err = nf_ipv6_br_defrag(state->net, skb,
+-				IP_DEFRAG_CONNTRACK_BRIDGE_IN + zone_id);
++	err = nf_ct_frag6_gather(state->net, skb,
++				 IP_DEFRAG_CONNTRACK_BRIDGE_IN + zone_id);
+ 	/* queued */
+ 	if (err == -EINPROGRESS)
+ 		return NF_STOLEN;
+ 
+ 	br_skb_cb_restore(skb, &cb, IP6CB(skb)->frag_max_size);
+ 	return err == 0 ? NF_ACCEPT : NF_DROP;
++#else
++	return NF_ACCEPT;
++#endif
+ }
+ 
+ static int nf_ct_br_ip_check(const struct sk_buff *skb)
+diff --git a/net/ipv6/netfilter.c b/net/ipv6/netfilter.c
+index 409e79b84a830..6d0e942d082d4 100644
+--- a/net/ipv6/netfilter.c
++++ b/net/ipv6/netfilter.c
+@@ -245,9 +245,6 @@ static const struct nf_ipv6_ops ipv6ops = {
+ 	.route_input		= ip6_route_input,
+ 	.fragment		= ip6_fragment,
+ 	.reroute		= nf_ip6_reroute,
+-#if IS_MODULE(CONFIG_IPV6) && IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+-	.br_defrag		= nf_ct_frag6_gather,
+-#endif
+ #if IS_MODULE(CONFIG_IPV6)
+ 	.br_fragment		= br_ip6_fragment,
+ #endif
+-- 
+2.25.1
+
