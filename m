@@ -1,19 +1,21 @@
 Return-Path: <nikolay@cumulusnetworks.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=9HJnLy8uo6++sx6Gwyqe9/p3d2QWIpPUEzDVAme086g=;
- b=EBvyNynsZNV9hWw7Qrg66swMTCGi+OhQRmfoy3/6+kce/J55tRsfjyQabyRDPHHWn+
- 7FPX0we1fJiW1PKkAnnRXsMlI/aRP1UDDxDmZWdnAtj8Y91/mxsDGTgM6bK8qaNa4pKU
- mHnNUBt8uRkNKNq5Yxc73XIhLnRG9FOvigJMU=
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=nDPaNY6uULGl6w+zVk/xRhftdiMNqXaciWDwCjq2kwk=;
+ b=Gu53H7KUgfZBNNpa4067GYBOmGvciq/0MwHhdQww5zmdtIRjqRUV5GKBOMB4icFePH
+ fQOO/dxkUznueovCd9bc4fTGkCK9wyLhJgKXozG5uosU7znnWMcHJ47IUkpNsd22CB8f
+ J0JNlUMm04xwqlzfEGrmkl6Ci/2UlTvcjgkKw=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed,  2 Sep 2020 14:25:14 +0300
-Message-Id: <20200902112529.1570040-1-nikolay@cumulusnetworks.com>
+Date: Wed,  2 Sep 2020 14:25:15 +0300
+Message-Id: <20200902112529.1570040-2-nikolay@cumulusnetworks.com>
+In-Reply-To: <20200902112529.1570040-1-nikolay@cumulusnetworks.com>
+References: <20200902112529.1570040-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 00/15] net: bridge: mcast: initial
-	IGMPv3 support (part 1)
+Subject: [Bridge] [PATCH net-next v2 01/15] net: bridge: mdb: arrange
+	internal structs so fast-path fields are close
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,89 +27,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-Hi all,
-This patch-set implements the control plane for initial IGMPv3 support
-which takes care of include/exclude sets and state transitions based on
-the different report types.
-Patch 01 arranges the structure better by moving the frequently used
-fields together, patches 02 and 03 add support for source lists and group
-modes per port group which are dumped. Patch 04 adds support for
-group-and-source specific queries required for IGMPv3. Patch 05 factors
-out the port group deletion code which is used in a few places, then
-patch 06 adds support for group and group-and-source query
-retransmissions via a new rexmit timer. Patches 07 and 08 make use of
-the already present mdb fill functions when sending notifications so we
-can have the full mdb entries' state filled in (with sources, mode etc).
-Patch 09 takes care of port group expiration, it switches the group mode
-to include and deletes it if there are no sources with active timers.
-Patches 10-13 are the core changes which add support for IGMPv3 reports
-and handle the source list set operations as per RFC 3376, all IGMPv3
-report types with their transitions should be supported after these
-patches. I've used RFC 3376 and FRR as a reference implementation. The
-source lists are capped at 32 entries, we can remove that limitation at
-a later point which would require a better data structure to hold them.
-IGMPv3 processing is hidden behind the bridge's multicast_igmp_version
-option which must be set to 3 in order to enable it.
-Patch 14 improves other querier processing a bit (more about this below).
-And finally patch 15 transform the src gc so it can be used with all mcast
-objects since now we have multiple timers that can be running and we
-need to make sure they have all finished before freeing the objects.
-This is part 1, it only adds control plane support and doesn't change
-the fast path. A following patch-set will take care of that.
+Before this patch we'd need 2 cache lines for fast-path, now all used
+fields are in the first cache line.
 
-Here're the sets that will come next (in order):
- - Fast path patch-set which adds support for (S, G) mdb entries needed
-   for IGMPv3 forwarding, entry add source (kernel, user-space etc)
-   needed for IGMPv3 entry management, entry block mode needed for
-   IGMPv3 exclude mode. This set will also add iproute2 support for
-   manipulating and showing all the new state.
- - Selftests patch-set which will verify all IGMPv3 state transitions
-   and forwarding
- - Explicit host tracking patch-set, needed for proper fast leave and
-   with it fast leave will be enabled for IGMPv3
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+---
+ net/bridge/br_private.h | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-Not implemented yet:
- - Host IGMPv3 support (currently we handle only join/leave as before)
- - Proper other querier source timer and value updates
- - IGMPv3/v2 compat (I have a few rough patches for this one)
-
-v2:
- patches 02-03: make src lists RCU friendly so they can be traversed
-                when dumping, reduce limit to a more conservative 32
-                src group entries for a start
- patches 11-13: remove helper and directly do bitops
- patch      15: force mcast gc on bridge port del to make sure port
-                group timers have finished before freeing the port
-
-Thanks,
- Nik
-
-
-Nikolay Aleksandrov (15):
-  net: bridge: mdb: arrange internal structs so fast-path fields are
-    close
-  net: bridge: mcast: add support for group source list
-  net: bridge: mcast: add support for src list and filter mode dumping
-  net: bridge: mcast: add support for group-and-source specific queries
-  net: bridge: mcast: factor out port group del
-  net: bridge: mcast: add support for group query retransmit
-  net: bridge: mdb: push notifications in __br_mdb_add/del
-  net: bridge: mdb: use mdb and port entries in notifications
-  net: bridge: mcast: delete expired port groups without srcs
-  net: bridge: mcast: support for IGMPv3 IGMPV3_ALLOW_NEW_SOURCES report
-  net: bridge: mcast: support for IGMPV3_MODE_IS_INCLUDE/EXCLUDE report
-  net: bridge: mcast: support for IGMPV3_CHANGE_TO_INCLUDE/EXCLUDE
-    report
-  net: bridge: mcast: support for IGMPV3_BLOCK_OLD_SOURCES report
-  net: bridge: mcast: improve v3 query processing
-  net: bridge: mcast: destroy all entries via gc
-
- include/uapi/linux/if_bridge.h |   21 +
- net/bridge/br_mdb.c            |  223 ++++---
- net/bridge/br_multicast.c      | 1040 +++++++++++++++++++++++++++++---
- net/bridge/br_private.h        |   67 +-
- 4 files changed, 1170 insertions(+), 181 deletions(-)
-
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index baa1500f384f..357b6905ecef 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -217,23 +217,27 @@ struct net_bridge_fdb_entry {
+ struct net_bridge_port_group {
+ 	struct net_bridge_port		*port;
+ 	struct net_bridge_port_group __rcu *next;
+-	struct hlist_node		mglist;
+-	struct rcu_head			rcu;
+-	struct timer_list		timer;
+ 	struct br_ip			addr;
+ 	unsigned char			eth_addr[ETH_ALEN] __aligned(2);
+ 	unsigned char			flags;
++
++	struct timer_list		timer;
++	struct hlist_node		mglist;
++
++	struct rcu_head			rcu;
+ };
+ 
+ struct net_bridge_mdb_entry {
+ 	struct rhash_head		rhnode;
+ 	struct net_bridge		*br;
+ 	struct net_bridge_port_group __rcu *ports;
+-	struct rcu_head			rcu;
+-	struct timer_list		timer;
+ 	struct br_ip			addr;
+ 	bool				host_joined;
++
++	struct timer_list		timer;
+ 	struct hlist_node		mdb_node;
++
++	struct rcu_head			rcu;
+ };
+ 
+ struct net_bridge_port {
 -- 
 2.25.4
 
