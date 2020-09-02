@@ -3,19 +3,19 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=cumulusnetworks.com; s=google;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=WQVx57lpxhwPFsPNQAezt/1bPQj12DWcBPV6SR3gQ/k=;
- b=WXO6Aitb6qbbLzLHlic8rETcl8AstqmpqHPyudTpfEGpjpV4Fi5Md4ZCmHs6yrt8cz
- wPhvXdbfGnCc5rY7Id7Hc6tKVds33+nheokk9grQA+Mssh8C+PVbVSo3jxS8Ul2r+cjx
- QDTAqWc8crQxNaSRWRtpiUE7gzlXe75TucPM4=
+ bh=CBvvkGoY63ume+BxSWZf+l7R9g82AVslqqYoUts1Shc=;
+ b=O5Z9tyxp6OnjDBLSi9g3fiKfHZ7PW632yiPWLi51OWRKsvw/R+JfnDekiC1upI8Ytr
+ rATDVwXd3kF4pz8Ak1yZwMOrYYo1UWgwSj2ZUBPizujRmHRJDJzRLxLYfeVJiwj+dBmi
+ IezWTA5xiRTOUDBE7m9fsHOOzgGHIDv47eP8A=
 From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Wed,  2 Sep 2020 14:25:24 +0300
-Message-Id: <20200902112529.1570040-11-nikolay@cumulusnetworks.com>
+Date: Wed,  2 Sep 2020 14:25:25 +0300
+Message-Id: <20200902112529.1570040-12-nikolay@cumulusnetworks.com>
 In-Reply-To: <20200902112529.1570040-1-nikolay@cumulusnetworks.com>
 References: <20200902112529.1570040-1-nikolay@cumulusnetworks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 10/15] net: bridge: mcast: support for
-	IGMPv3 IGMPV3_ALLOW_NEW_SOURCES report
+Subject: [Bridge] [PATCH net-next v2 11/15] net: bridge: mcast: support for
+	IGMPV3_MODE_IS_INCLUDE/EXCLUDE report
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,83 +27,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-This patch adds handling for the IGMPV3_ALLOW_NEW_SOURCES IGMPv3 report
-type and limits it only when multicast_igmp_version == 3. Now that
-IGMPv3 handling functions will be managing timers we need to delay their
-activation, thus a new argument is added which controls if the timer
-should be updated. We also disable host IGMPv3 handling as it's not yet
-implemented and could cause inconsistent group state, the host can only
-join a group as EXCLUDE {} or leave it.
+In order to process IGMPV3_MODE_IS_INCLUDE/EXCLUDE report types we need
+some new helpers which allow us to set/clear flags for all current entries
+and later delete marked entries after the report sources have been
+processed.
+
+v2: drop flag helpers and directly do flag bit operations
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 ---
- net/bridge/br_multicast.c | 113 ++++++++++++++++++++++++++++++++------
- net/bridge/br_private.h   |   7 +++
- 2 files changed, 103 insertions(+), 17 deletions(-)
+ net/bridge/br_multicast.c | 114 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 114 insertions(+)
 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index aabb1fcc7fa1..93771309f59f 100644
+index 93771309f59f..9e0c8a462343 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -721,7 +721,8 @@ void br_multicast_host_leave(struct net_bridge_mdb_entry *mp, bool notify)
- static int br_multicast_add_group(struct net_bridge *br,
- 				  struct net_bridge_port *port,
- 				  struct br_ip *group,
--				  const unsigned char *src)
-+				  const unsigned char *src,
-+				  bool update_timer)
- {
- 	struct net_bridge_port_group __rcu **pp;
- 	struct net_bridge_port_group *p;
-@@ -760,7 +761,8 @@ static int br_multicast_add_group(struct net_bridge *br,
- 	br_mdb_notify(br->dev, mp, p, RTM_NEWMDB);
- 
- found:
--	mod_timer(&p->timer, now + br->multicast_membership_interval);
-+	if (update_timer)
-+		mod_timer(&p->timer, now + br->multicast_membership_interval);
- 
- out:
- 	err = 0;
-@@ -774,7 +776,8 @@ static int br_ip4_multicast_add_group(struct net_bridge *br,
- 				      struct net_bridge_port *port,
- 				      __be32 group,
- 				      __u16 vid,
--				      const unsigned char *src)
-+				      const unsigned char *src,
-+				      bool update_timer)
- {
- 	struct br_ip br_group;
- 
-@@ -786,7 +789,7 @@ static int br_ip4_multicast_add_group(struct net_bridge *br,
- 	br_group.proto = htons(ETH_P_IP);
- 	br_group.vid = vid;
- 
--	return br_multicast_add_group(br, port, &br_group, src);
-+	return br_multicast_add_group(br, port, &br_group, src, update_timer);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -806,7 +809,7 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
- 	br_group.proto = htons(ETH_P_IPV6);
- 	br_group.vid = vid;
- 
--	return br_multicast_add_group(br, port, &br_group, src);
-+	return br_multicast_add_group(br, port, &br_group, src, true);
- }
- #endif
- 
-@@ -1153,20 +1156,71 @@ void br_multicast_disable_port(struct net_bridge_port *port)
+@@ -1156,6 +1156,21 @@ void br_multicast_disable_port(struct net_bridge_port *port)
  	spin_unlock(&br->multicast_lock);
  }
  
++static int __grp_src_delete_marked(struct net_bridge_port_group *pg)
++{
++	struct net_bridge_group_src *ent;
++	struct hlist_node *tmp;
++	int deleted = 0;
++
++	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node)
++		if (ent->flags & BR_SGRP_F_DELETE) {
++			br_multicast_del_group_src(ent);
++			deleted++;
++		}
++
++	return deleted;
++}
++
+ /* State          Msg type      New state                Actions
+  * INCLUDE (A)    IS_IN (B)     INCLUDE (A+B)            (B)=GMI
+  * INCLUDE (A)    ALLOW (B)     INCLUDE (A+B)            (B)=GMI
+@@ -1189,6 +1204,99 @@ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
+ 	return changed;
+ }
+ 
 +/* State          Msg type      New state                Actions
-+ * INCLUDE (A)    IS_IN (B)     INCLUDE (A+B)            (B)=GMI
-+ * INCLUDE (A)    ALLOW (B)     INCLUDE (A+B)            (B)=GMI
-+ * EXCLUDE (X,Y)  ALLOW (A)     EXCLUDE (X+A,Y-A)        (A)=GMI
++ * INCLUDE (A)    IS_EX (B)     EXCLUDE (A*B,B-A)        (B-A)=0
++ *                                                       Delete (A-B)
++ *                                                       Group Timer=GMI
 + */
-+static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
-+				     __be32 *srcs, u32 nsrcs)
++static void __grp_src_isexc_incl(struct net_bridge_port_group *pg,
++				 __be32 *srcs, u32 nsrcs)
++{
++	struct net_bridge_group_src *ent;
++	struct br_ip src_ip;
++	u32 src_idx;
++
++	hlist_for_each_entry(ent, &pg->src_list, node)
++		ent->flags |= BR_SGRP_F_DELETE;
++
++	memset(&src_ip, 0, sizeof(src_ip));
++	src_ip.proto = htons(ETH_P_IP);
++	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
++		src_ip.u.ip4 = srcs[src_idx];
++		ent = br_multicast_find_group_src(pg, &src_ip);
++		if (ent)
++			ent->flags &= ~BR_SGRP_F_DELETE;
++		else
++			br_multicast_new_group_src(pg, &src_ip);
++	}
++
++	__grp_src_delete_marked(pg);
++}
++
++/* State          Msg type      New state                Actions
++ * EXCLUDE (X,Y)  IS_EX (A)     EXCLUDE (A-Y,Y*A)        (A-X-Y)=GMI
++ *                                                       Delete (X-A)
++ *                                                       Delete (Y-A)
++ *                                                       Group Timer=GMI
++ */
++static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg,
++				 __be32 *srcs, u32 nsrcs)
 +{
 +	struct net_bridge *br = pg->port->br;
 +	struct net_bridge_group_src *ent;
@@ -112,147 +114,70 @@ index aabb1fcc7fa1..93771309f59f 100644
 +	struct br_ip src_ip;
 +	u32 src_idx;
 +
++	hlist_for_each_entry(ent, &pg->src_list, node)
++		ent->flags |= BR_SGRP_F_DELETE;
++
 +	memset(&src_ip, 0, sizeof(src_ip));
 +	src_ip.proto = htons(ETH_P_IP);
 +	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
 +		src_ip.u.ip4 = srcs[src_idx];
 +		ent = br_multicast_find_group_src(pg, &src_ip);
-+		if (!ent) {
++		if (ent) {
++			ent->flags &= ~BR_SGRP_F_DELETE;
++		} else {
 +			ent = br_multicast_new_group_src(pg, &src_ip);
-+			if (ent)
++			if (ent) {
++				mod_timer(&ent->timer,
++					  now + br_multicast_gmi(br));
 +				changed = true;
++			}
 +		}
-+
-+		if (ent)
-+			mod_timer(&ent->timer, now + br_multicast_gmi(br));
 +	}
++
++	if (__grp_src_delete_marked(pg))
++		changed = true;
 +
 +	return changed;
 +}
 +
-+static struct net_bridge_port_group *
-+br_multicast_find_port(struct net_bridge_mdb_entry *mp,
-+		       struct net_bridge_port *p,
-+		       const unsigned char *src)
++static bool br_multicast_isexc(struct net_bridge_port_group *pg,
++			       __be32 *srcs, u32 nsrcs)
 +{
-+	struct net_bridge_port_group *pg;
-+	struct net_bridge *br = mp->br;
++	struct net_bridge *br = pg->port->br;
++	bool changed = false;
 +
-+	for (pg = mlock_dereference(mp->ports, br);
-+	     pg;
-+	     pg = mlock_dereference(pg->next, br))
-+		if (br_port_group_equal(pg, p, src))
-+			return pg;
++	switch (pg->filter_mode) {
++	case MCAST_INCLUDE:
++		__grp_src_isexc_incl(pg, srcs, nsrcs);
++		changed = true;
++		break;
++	case MCAST_EXCLUDE:
++		changed = __grp_src_isexc_excl(pg, srcs, nsrcs);
++		break;
++	}
 +
-+	return NULL;
++	pg->filter_mode = MCAST_EXCLUDE;
++	mod_timer(&pg->timer, jiffies + br_multicast_gmi(br));
++
++	return changed;
 +}
 +
- static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
- 					 struct net_bridge_port *port,
- 					 struct sk_buff *skb,
- 					 u16 vid)
- {
-+	bool igmpv2 = br->multicast_igmp_version == 2;
-+	struct net_bridge_mdb_entry *mdst;
-+	struct net_bridge_port_group *pg;
- 	const unsigned char *src;
- 	struct igmpv3_report *ih;
- 	struct igmpv3_grec *grec;
--	int i;
--	int len;
--	int num;
--	int type;
--	int err = 0;
-+	int i, len, num, type;
-+	bool changed = false;
- 	__be32 group;
-+	int err = 0;
- 	u16 nsrcs;
- 
- 	ih = igmpv3_report_hdr(skb);
-@@ -1187,7 +1241,6 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
- 		if (!ip_mc_may_pull(skb, len))
- 			return -EINVAL;
- 
--		/* We treat this as an IGMPv2 report for now. */
- 		switch (type) {
- 		case IGMPV3_MODE_IS_INCLUDE:
- 		case IGMPV3_MODE_IS_EXCLUDE:
-@@ -1202,16 +1255,41 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
- 		}
- 
- 		src = eth_hdr(skb)->h_source;
--		if ((type == IGMPV3_CHANGE_TO_INCLUDE ||
--		     type == IGMPV3_MODE_IS_INCLUDE) &&
--		    nsrcs == 0) {
--			br_ip4_multicast_leave_group(br, port, group, vid, src);
-+		if (nsrcs == 0 &&
-+		    (type == IGMPV3_CHANGE_TO_INCLUDE ||
-+		     type == IGMPV3_MODE_IS_INCLUDE)) {
-+			if (igmpv2 || !port) {
-+				br_ip4_multicast_leave_group(br, port, group, vid, src);
-+				continue;
-+			}
- 		} else {
- 			err = br_ip4_multicast_add_group(br, port, group, vid,
--							 src);
-+							 src, igmpv2);
- 			if (err)
- 				break;
- 		}
-+
-+		if (!port || igmpv2)
-+			continue;
-+
-+		spin_lock_bh(&br->multicast_lock);
-+		mdst = br_mdb_ip4_get(br, group, vid);
-+		if (!mdst)
-+			goto unlock_continue;
-+		pg = br_multicast_find_port(mdst, port, src);
-+		if (!pg || (pg->flags & MDB_PG_FLAGS_PERMANENT))
-+			goto unlock_continue;
-+		/* reload grec */
-+		grec = (void *)(skb->data + len - sizeof(*grec) - (nsrcs * 4));
-+		switch (type) {
-+		case IGMPV3_ALLOW_NEW_SOURCES:
+ static struct net_bridge_port_group *
+ br_multicast_find_port(struct net_bridge_mdb_entry *mp,
+ 		       struct net_bridge_port *p,
+@@ -1285,6 +1393,12 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
+ 		case IGMPV3_ALLOW_NEW_SOURCES:
+ 			changed = br_multicast_isinc_allow(pg, grec->grec_src, nsrcs);
+ 			break;
++		case IGMPV3_MODE_IS_INCLUDE:
 +			changed = br_multicast_isinc_allow(pg, grec->grec_src, nsrcs);
 +			break;
-+		}
-+		if (changed)
-+			br_mdb_notify(br->dev, mdst, pg, RTM_NEWMDB);
-+unlock_continue:
-+		spin_unlock_bh(&br->multicast_lock);
- 	}
- 
- 	return err;
-@@ -1859,7 +1937,8 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
- 	case IGMP_HOST_MEMBERSHIP_REPORT:
- 	case IGMPV2_HOST_MEMBERSHIP_REPORT:
- 		BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
--		err = br_ip4_multicast_add_group(br, port, ih->group, vid, src);
-+		err = br_ip4_multicast_add_group(br, port, ih->group, vid, src,
-+						 true);
- 		break;
- 	case IGMPV3_HOST_MEMBERSHIP_REPORT:
- 		err = br_ip4_multicast_igmp3_report(br, port, skb, vid);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 78822d3a3b7c..a18bd67dab34 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -875,6 +875,13 @@ static inline unsigned long br_multicast_lmqt(const struct net_bridge *br)
- 	return br->multicast_last_member_interval *
- 	       br->multicast_last_member_count;
- }
-+
-+static inline unsigned long br_multicast_gmi(const struct net_bridge *br)
-+{
-+	/* use the RFC default of 2 for QRV */
-+	return 2 * br->multicast_query_interval +
-+	       br->multicast_query_response_interval;
-+}
- #else
- static inline int br_multicast_rcv(struct net_bridge *br,
- 				   struct net_bridge_port *port,
++		case IGMPV3_MODE_IS_EXCLUDE:
++			changed = br_multicast_isexc(pg, grec->grec_src, nsrcs);
++			break;
+ 		}
+ 		if (changed)
+ 			br_mdb_notify(br->dev, mdst, pg, RTM_NEWMDB);
 -- 
 2.25.4
 
