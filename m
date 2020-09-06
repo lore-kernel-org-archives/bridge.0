@@ -1,21 +1,28 @@
-Return-Path: <nikolay@cumulusnetworks.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cumulusnetworks.com; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=uU4ahpsqS1/2WymyTJLgD5T818jXMumS6JkhngtubRM=;
- b=B1l1hkHt1ys+sbGzqFEuReWa6xDE6QExmBBOJ+pM7qih9XX/AzcrnT959377YgjJt2
- /F1QEtjT7+YL7D/LKCKTYp3a2lEp5kQJG999mQDIttJ4USdMRfqqPoE2K/eIw+eCHyUi
- hDelPh8jQvLWH7NU5ejKHuY3/3j6hes7o7+xQ=
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Date: Sat,  5 Sep 2020 11:24:06 +0300
-Message-Id: <20200905082410.2230253-12-nikolay@cumulusnetworks.com>
-In-Reply-To: <20200905082410.2230253-1-nikolay@cumulusnetworks.com>
-References: <20200905082410.2230253-1-nikolay@cumulusnetworks.com>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1599416507; x=1630952507;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:content-transfer-encoding:in-reply-to;
+ bh=M0+5ySaNOa6fJkTInvb+kM8plRJBi4hcjUiWXFlmZnM=;
+ b=QJOFPLql077vcPPWmIbrBgG7IpfjYm6QUw9jRUGxss/Iy64J6IW7kahI
+ el0gBQBsD3ssV7nlzfqLLTFo5l0P1swwmVTnjzH8EJ1lQfBCldj3EZQwY
+ 4MQnyG0qFx5Pe3fGFRfLkJ3EvD0Cg06o0VN3RJcXxrqJzZDmr6O9Ib6Px
+ v9uSt7AX4xaIhnFoU1FkyEtZprsYvsY0Ocv6Z39ZiD+t1i+lJyzOocVv/
+ GMswZNxJNnsWHV8s02HWSoUREelnlhTYtqzYCZpaqMyK2vft8cMa7Iqlo
+ ZIUERalVC5BsW5Ni/iFrQWUePpubZ1qhTY7bdbnf+meUK9urYiLC7oyQr w==;
+Date: Sun, 6 Sep 2020 20:21:29 +0200
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Message-ID: <20200906182129.274fimjyo7l52puj@soft-dev3.localdomain>
+References: <20200904091527.669109-1-henrik.bjoernlund@microchip.com>
+ <20200904154406.4fe55b9d@hermes.lan>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 11/15] net: bridge: mcast: support for
-	IGMPV3/MLDv2 MODE_IS_INCLUDE/EXCLUDE report
+In-Reply-To: <20200904154406.4fe55b9d@hermes.lan>
+Subject: Re: [Bridge] [PATCH RFC 0/7] net: bridge: cfm: Add support for
+ Connectivity Fault Management(CFM)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,180 +31,89 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, jiri@mellanox.com, linux-kernel@vger.kernel.org, idosch@mellanox.com, Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, UNGLinuxDriver@microchip.com, davem@davemloft.net
 
-In order to process IGMPV3/MLDv2_MODE_IS_INCLUDE/EXCLUDE report types we
-need some new helpers which allow us to set/clear flags for all current
-entries and later delete marked entries after the report sources have been
-processed.
+The 09/04/2020 15:44, Stephen Hemminger wrote:
+> 
+> On Fri, 4 Sep 2020 09:15:20 +0000
+> Henrik Bjoernlund <henrik.bjoernlund@microchip.com> wrote:
+> 
+> > Connectivity Fault Management (CFM) is defined in 802.1Q section 12.14.
+> >
+> > Connectivity Fault Management (CFM) comprises capabilities for
+> > detecting, verifying, and isolating connectivity failures in
+> > Virtual Bridged Networks. These capabilities can be used in
+> > networks operated by multiple independent organizations, each
+> > with restricted management access to each other’s equipment.
+> >
+> > CFM functions are partitioned as follows:
+> >     — Path discovery
+> >     — Fault detection
+> >     — Fault verification and isolation
+> >     — Fault notification
+> >     — Fault recovery
+> >
+> > The primary CFM protocol shims are called Maintenance Points (MPs).
+> > A MP can be either a MEP or a MHF.
+> > The MEP:
+> >     -It is the Maintenance association End Point
+> >      described in 802.1Q section 19.2.
+> >     -It is created on a specific level (1-7) and is assuring
+> >      that no CFM frames are passing through this MEP on lower levels.
+> >     -It initiates and terminates/validates CFM frames on its level.
+> >     -It can only exist on a port that is related to a bridge.
+> > The MHF:
+> >     -It is the Maintenance Domain Intermediate Point
+> >      (MIP) Half Function (MHF) described in 802.1Q section 19.3.
+> >     -It is created on a specific level (1-7).
+> >     -It is extracting/injecting certain CFM frame on this level.
+> >     -It can only exist on a port that is related to a bridge.
+> >     -Currently not supported.
+> >
+> > There are defined the following CFM protocol functions:
+> >     -Continuity Check
+> >     -Loopback. Currently not supported.
+> >     -Linktrace. Currently not supported.
+> >
+> > This CFM component supports create/delete of MEP instances and
+> > configuration of the different CFM protocols. Also status information
+> > can be fetched and delivered through notification due to defect status
+> > change.
+> >
+> > The user interacts with CFM using the 'cfm' user space client program, the
+> > client talks with the kernel using netlink. The kernel will try to offload
+> > the requests to the HW via switchdev API (not implemented yet).
+> >
+> > Any notification emitted by CFM from the kernel can be monitored in user
+> > space by starting 'cfm_server' program.
+> >
+> > Currently this 'cfm' and 'cfm_server' programs are standalone placed in a
+> > cfm repository https://github.com/microchip-ung/cfm but it is considered
+> > to integrate this into 'iproute2'.
+> >
+> > Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
+> > Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
 
-v3: add IPv6/MLDv2 support
-v2: drop flag helpers and directly do flag bit operations
+Hi Stephen,
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
----
- net/bridge/br_multicast.c | 126 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 126 insertions(+)
+> 
+> Could this be done in userspace? It is a control plane protocol.
+> Could it be done by using eBPF?
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index da9f36a75473..a9f6abf5e680 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1231,6 +1231,21 @@ void br_multicast_disable_port(struct net_bridge_port *port)
- 	spin_unlock(&br->multicast_lock);
- }
- 
-+static int __grp_src_delete_marked(struct net_bridge_port_group *pg)
-+{
-+	struct net_bridge_group_src *ent;
-+	struct hlist_node *tmp;
-+	int deleted = 0;
-+
-+	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node)
-+		if (ent->flags & BR_SGRP_F_DELETE) {
-+			br_multicast_del_group_src(ent);
-+			deleted++;
-+		}
-+
-+	return deleted;
-+}
-+
- /* State          Msg type      New state                Actions
-  * INCLUDE (A)    IS_IN (B)     INCLUDE (A+B)            (B)=GMI
-  * INCLUDE (A)    ALLOW (B)     INCLUDE (A+B)            (B)=GMI
-@@ -1265,6 +1280,101 @@ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
- 	return changed;
- }
- 
-+/* State          Msg type      New state                Actions
-+ * INCLUDE (A)    IS_EX (B)     EXCLUDE (A*B,B-A)        (B-A)=0
-+ *                                                       Delete (A-B)
-+ *                                                       Group Timer=GMI
-+ */
-+static void __grp_src_isexc_incl(struct net_bridge_port_group *pg,
-+				 void *srcs, u32 nsrcs, size_t src_size)
-+{
-+	struct net_bridge_group_src *ent;
-+	struct br_ip src_ip;
-+	u32 src_idx;
-+
-+	hlist_for_each_entry(ent, &pg->src_list, node)
-+		ent->flags |= BR_SGRP_F_DELETE;
-+
-+	memset(&src_ip, 0, sizeof(src_ip));
-+	src_ip.proto = pg->addr.proto;
-+	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
-+		memcpy(&src_ip.u, srcs, src_size);
-+		ent = br_multicast_find_group_src(pg, &src_ip);
-+		if (ent)
-+			ent->flags &= ~BR_SGRP_F_DELETE;
-+		else
-+			br_multicast_new_group_src(pg, &src_ip);
-+		srcs += src_size;
-+	}
-+
-+	__grp_src_delete_marked(pg);
-+}
-+
-+/* State          Msg type      New state                Actions
-+ * EXCLUDE (X,Y)  IS_EX (A)     EXCLUDE (A-Y,Y*A)        (A-X-Y)=GMI
-+ *                                                       Delete (X-A)
-+ *                                                       Delete (Y-A)
-+ *                                                       Group Timer=GMI
-+ */
-+static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg,
-+				 void *srcs, u32 nsrcs, size_t src_size)
-+{
-+	struct net_bridge *br = pg->port->br;
-+	struct net_bridge_group_src *ent;
-+	unsigned long now = jiffies;
-+	bool changed = false;
-+	struct br_ip src_ip;
-+	u32 src_idx;
-+
-+	hlist_for_each_entry(ent, &pg->src_list, node)
-+		ent->flags |= BR_SGRP_F_DELETE;
-+
-+	memset(&src_ip, 0, sizeof(src_ip));
-+	src_ip.proto = pg->addr.proto;
-+	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
-+		memcpy(&src_ip.u, srcs, src_size);
-+		ent = br_multicast_find_group_src(pg, &src_ip);
-+		if (ent) {
-+			ent->flags &= ~BR_SGRP_F_DELETE;
-+		} else {
-+			ent = br_multicast_new_group_src(pg, &src_ip);
-+			if (ent) {
-+				mod_timer(&ent->timer,
-+					  now + br_multicast_gmi(br));
-+				changed = true;
-+			}
-+		}
-+		srcs += src_size;
-+	}
-+
-+	if (__grp_src_delete_marked(pg))
-+		changed = true;
-+
-+	return changed;
-+}
-+
-+static bool br_multicast_isexc(struct net_bridge_port_group *pg,
-+			       void *srcs, u32 nsrcs, size_t src_size)
-+{
-+	struct net_bridge *br = pg->port->br;
-+	bool changed = false;
-+
-+	switch (pg->filter_mode) {
-+	case MCAST_INCLUDE:
-+		__grp_src_isexc_incl(pg, srcs, nsrcs, src_size);
-+		changed = true;
-+		break;
-+	case MCAST_EXCLUDE:
-+		changed = __grp_src_isexc_excl(pg, srcs, nsrcs, src_size);
-+		break;
-+	}
-+
-+	pg->filter_mode = MCAST_EXCLUDE;
-+	mod_timer(&pg->timer, jiffies + br_multicast_gmi(br));
-+
-+	return changed;
-+}
-+
- static struct net_bridge_port_group *
- br_multicast_find_port(struct net_bridge_mdb_entry *mp,
- 		       struct net_bridge_port *p,
-@@ -1362,6 +1472,14 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
- 			changed = br_multicast_isinc_allow(pg, grec->grec_src,
- 							   nsrcs, sizeof(__be32));
- 			break;
-+		case IGMPV3_MODE_IS_INCLUDE:
-+			changed = br_multicast_isinc_allow(pg, grec->grec_src, nsrcs,
-+							   sizeof(__be32));
-+			break;
-+		case IGMPV3_MODE_IS_EXCLUDE:
-+			changed = br_multicast_isexc(pg, grec->grec_src, nsrcs,
-+						     sizeof(__be32));
-+			break;
- 		}
- 		if (changed)
- 			br_mdb_notify(br->dev, mdst, pg, RTM_NEWMDB);
-@@ -1468,6 +1586,14 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
- 							   nsrcs,
- 							   sizeof(struct in6_addr));
- 			break;
-+		case MLD2_MODE_IS_INCLUDE:
-+			changed = br_multicast_isinc_allow(pg, grec->grec_src, nsrcs,
-+							   sizeof(struct in6_addr));
-+			break;
-+		case MLD2_MODE_IS_EXCLUDE:
-+			changed = br_multicast_isexc(pg, grec->grec_src, nsrcs,
-+						     sizeof(struct in6_addr));
-+			break;
- 		}
- 		if (changed)
- 			br_mdb_notify(br->dev, mdst, pg, RTM_NEWMDB);
+I might be able to answer this. We have not considered this approach of
+using eBPF. Because we want actually to push this in HW extending
+switchdev API. I know that this series doesn't cover the switchdev part
+but we posted like this because we wanted to get some feedback from
+community. We had a similar approach for MRP, where we extended the
+bridge and switchdev API, so we tought that is the way to go forward.
+
+Regarding eBPF, I can't say that it would work or not because I lack
+knowledge in this.
+
+> 
+> Adding more code in bridge impacts a large number of users of Linux distros.
+> It creates bloat and potential security vulnerabilities.
+
 -- 
-2.25.4
-
+/Horatiu
