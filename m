@@ -1,11 +1,36 @@
-Return-Path: <wanghai38@huawei.com>
-From: Wang Hai <wanghai38@huawei.com>
-Date: Fri, 4 Sep 2020 20:56:53 +0800
-Message-ID: <20200904125653.15170-1-wanghai38@huawei.com>
+Return-Path: <Henrik.Bjoernlund@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1599563086; x=1631099086;
+ h=from:to:cc:subject:date:message-id:references:
+ in-reply-to:content-transfer-encoding:mime-version;
+ bh=Z2LtoIveOxeBFkcaR6hm2VkPlfDoX0tBmp4QNgHK/F0=;
+ b=sX85b6WvK1gJQacoMqYC3xpOtTWKfkGRVe2p7dWtBMYMSYq0TS5T27Cn
+ Sw1ceP7WvwykovZg1u39UAU1hPAvDdbdCiXZvGOcop3xGcU9mjK7dVJtb
+ CXsTuGAMOhPIhCpjIIcVf/Sbu8Lw/+Ln12MaXz6jjbDDlL1dqSdnIOIuZ
+ Lf54CUeT/+nve7pCfPvCoNQincum++3GeCJqz3oymctmtvFD3BxDTI5Zc
+ uWTdqSEhBs6Uy+wvYwjz6LOEbhh5WnLWkcqZt9/MkHXbwMpRnAhiRLWRF
+ vWt3EkFdDs79tIWA8GR5eSgo7b0sxCTlvNLmbKMGOydkeMK9nWy8MdSfI Q==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=microchiptechnology.onmicrosoft.com;
+ s=selector2-microchiptechnology-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Z2LtoIveOxeBFkcaR6hm2VkPlfDoX0tBmp4QNgHK/F0=;
+ b=jqoxBrNFmFWkRcMGXz7BCP67fU9eSjOkyMmP4eWYpBbqq3ModJ5v7TXbK3m7LWeGGEg5DfrzMhsywNlnyuZuY4gikWmydlzGh5HtKQb0KXCt8uH7jR6lMjVr8gIq3UajgB+ZwKml15Cfs8boikhnlmcVPSCgUdNAJFLpaQsR1mM=
+From: <Henrik.Bjoernlund@microchip.com>
+Date: Tue, 8 Sep 2020 11:04:40 +0000
+Message-ID: <BY5PR11MB3928DF9AC75B8AEC2FBD2256ED290@BY5PR11MB3928.namprd11.prod.outlook.com>
+References: <20200904091527.669109-1-henrik.bjoernlund@microchip.com>
+ <20200904154406.4fe55b9d@hermes.lan>
+ <20200906182129.274fimjyo7l52puj@soft-dev3.localdomain>
+ <b36a32dbf3b4b315fc4cbfdf06084b75a7c58729.camel@nvidia.com>
+In-Reply-To: <b36a32dbf3b4b315fc4cbfdf06084b75a7c58729.camel@nvidia.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next] netfilter: ebt_stp: Remove unused macro
-	BPDU_TYPE_TCN
+Subject: Re: [Bridge] [PATCH RFC 0/7] net: bridge: cfm: Add support for
+ Connectivity Fault Management(CFM)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,30 +39,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: pablo@netfilter.org, kadlec@netfilter.org, fw@strlen.de, roopa@nvidia.com, nikolay@nvidia.com, davem@davemloft.net, kuba@kernel.org
-Cc: bridge@lists.linux-foundation.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+To: nikolay@nvidia.com, stephen@networkplumber.org, Horatiu.Vultur@microchip.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, idosch@mellanox.com, jiri@mellanox.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-BPDU_TYPE_TCN is never used after it was introduced.
-So better to remove it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
----
- net/bridge/netfilter/ebt_stp.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/net/bridge/netfilter/ebt_stp.c b/net/bridge/netfilter/ebt_stp.c
-index 0d6d20c9105e..8f68afda5f81 100644
---- a/net/bridge/netfilter/ebt_stp.c
-+++ b/net/bridge/netfilter/ebt_stp.c
-@@ -15,7 +15,6 @@
- #include <linux/netfilter_bridge/ebt_stp.h>
- 
- #define BPDU_TYPE_CONFIG 0
--#define BPDU_TYPE_TCN 0x80
- 
- struct stp_header {
- 	u8 dsap;
--- 
-2.17.1
-
+SGkgTmlrLA0KDQpUaGFua3MgYSBsb3QgZm9yIHJldmlld2luZy4NCg0KLS0tLS1PcmlnaW5hbCBN
+ZXNzYWdlLS0tLS0NCkZyb206IE5pa29sYXkgQWxla3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNv
+bT4gDQpTZW50OiA3LiBzZXB0ZW1iZXIgMjAyMCAxNTo1Ng0KVG86IHN0ZXBoZW5AbmV0d29ya3Bs
+dW1iZXIub3JnOyBIb3JhdGl1IFZ1bHR1ciAtIE0zMTgzNiA8SG9yYXRpdS5WdWx0dXJAbWljcm9j
+aGlwLmNvbT4NCkNjOiBicmlkZ2VAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmc7IEhlbnJpayBC
+am9lcm5sdW5kIC0gTTMxNjc5IDxIZW5yaWsuQmpvZXJubHVuZEBtaWNyb2NoaXAuY29tPjsgZGF2
+ZW1AZGF2ZW1sb2Z0Lm5ldDsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgamlyaUBtZWxs
+YW5veC5jb207IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7IFJvb3BhIFByYWJodSA8cm9vcGFAbnZp
+ZGlhLmNvbT47IGlkb3NjaEBtZWxsYW5veC5jb207IGt1YmFAa2VybmVsLm9yZzsgVU5HTGludXhE
+cml2ZXIgPFVOR0xpbnV4RHJpdmVyQG1pY3JvY2hpcC5jb20+DQpTdWJqZWN0OiBSZTogW1BBVENI
+IFJGQyAwLzddIG5ldDogYnJpZGdlOiBjZm06IEFkZCBzdXBwb3J0IGZvciBDb25uZWN0aXZpdHkg
+RmF1bHQgTWFuYWdlbWVudChDRk0pDQoNCkVYVEVSTkFMIEVNQUlMOiBEbyBub3QgY2xpY2sgbGlu
+a3Mgb3Igb3BlbiBhdHRhY2htZW50cyB1bmxlc3MgeW91IGtub3cgdGhlIGNvbnRlbnQgaXMgc2Fm
+ZQ0KDQo+T24gU3VuLCAyMDIwLTA5LTA2IGF0IDIwOjIxICswMjAwLCBIb3JhdGl1IFZ1bHR1ciB3
+cm90ZToNCj4+IFRoZSAwOS8wNC8yMDIwIDE1OjQ0LCBTdGVwaGVuIEhlbW1pbmdlciB3cm90ZToN
+Cj4+ID4gT24gRnJpLCA0IFNlcCAyMDIwIDA5OjE1OjIwICswMDAwDQo+PiA+IEhlbnJpayBCam9l
+cm5sdW5kIDxoZW5yaWsuYmpvZXJubHVuZEBtaWNyb2NoaXAuY29tPiB3cm90ZToNCj4+ID4NCj4+
+ID4gPiBDb25uZWN0aXZpdHkgRmF1bHQgTWFuYWdlbWVudCAoQ0ZNKSBpcyBkZWZpbmVkIGluIDgw
+Mi4xUSBzZWN0aW9uIDEyLjE0Lg0KPj4gPiA+DQo+PiA+ID4NCj5bc25pcF0NCj4+ID4gPiBDdXJy
+ZW50bHkgdGhpcyAnY2ZtJyBhbmQgJ2NmbV9zZXJ2ZXInIHByb2dyYW1zIGFyZSBzdGFuZGFsb25l
+IA0KPj4gPiA+IHBsYWNlZCBpbiBhIGNmbSByZXBvc2l0b3J5IGh0dHBzOi8vZ2l0aHViLmNvbS9t
+aWNyb2NoaXAtdW5nL2NmbSANCj4+ID4gPiBidXQgaXQgaXMgY29uc2lkZXJlZCB0byBpbnRlZ3Jh
+dGUgdGhpcyBpbnRvICdpcHJvdXRlMicuDQo+PiA+ID4NCj4+ID4gPiBSZXZpZXdlZC1ieTogSG9y
+YXRpdSBWdWx0dXIgIDxob3JhdGl1LnZ1bHR1ckBtaWNyb2NoaXAuY29tPg0KPj4gPiA+IFNpZ25l
+ZC1vZmYtYnk6IEhlbnJpayBCam9lcm5sdW5kICANCj4+ID4gPiA8aGVucmlrLmJqb2Vybmx1bmRA
+bWljcm9jaGlwLmNvbT4NCj4+DQo+PiBIaSBTdGVwaGVuLA0KPj4NCj4+ID4gQ291bGQgdGhpcyBi
+ZSBkb25lIGluIHVzZXJzcGFjZT8gSXQgaXMgYSBjb250cm9sIHBsYW5lIHByb3RvY29sLg0KPj4g
+PiBDb3VsZCBpdCBiZSBkb25lIGJ5IHVzaW5nIGVCUEY/DQo+Pg0KPj4gSSBtaWdodCBiZSBhYmxl
+IHRvIGFuc3dlciB0aGlzLiBXZSBoYXZlIG5vdCBjb25zaWRlcmVkIHRoaXMgYXBwcm9hY2ggDQo+
+PiBvZiB1c2luZyBlQlBGLiBCZWNhdXNlIHdlIHdhbnQgYWN0dWFsbHkgdG8gcHVzaCB0aGlzIGlu
+IEhXIGV4dGVuZGluZyANCj4+IHN3aXRjaGRldiBBUEkuIEkga25vdyB0aGF0IHRoaXMgc2VyaWVz
+IGRvZXNuJ3QgY292ZXIgdGhlIHN3aXRjaGRldiANCj4+IHBhcnQgYnV0IHdlIHBvc3RlZCBsaWtl
+IHRoaXMgYmVjYXVzZSB3ZSB3YW50ZWQgdG8gZ2V0IHNvbWUgZmVlZGJhY2sgDQo+PiBmcm9tIGNv
+bW11bml0eS4gV2UgaGFkIGEgc2ltaWxhciBhcHByb2FjaCBmb3IgTVJQLCB3aGVyZSB3ZSBleHRl
+bmRlZCANCj4+IHRoZSBicmlkZ2UgYW5kIHN3aXRjaGRldiBBUEksIHNvIHdlIHRvdWdodCB0aGF0
+IGlzIHRoZSB3YXkgdG8gZ28gZm9yd2FyZC4NCj4+DQo+PiBSZWdhcmRpbmcgZUJQRiwgSSBjYW4n
+dCBzYXkgdGhhdCBpdCB3b3VsZCB3b3JrIG9yIG5vdCBiZWNhdXNlIEkgbGFjayANCj4+IGtub3ds
+ZWRnZSBpbiB0aGlzLg0KPj4NCj4+ID4gQWRkaW5nIG1vcmUgY29kZSBpbiBicmlkZ2UgaW1wYWN0
+cyBhIGxhcmdlIG51bWJlciBvZiB1c2VycyBvZiBMaW51eCBkaXN0cm9zLg0KPj4gPiBJdCBjcmVh
+dGVzIGJsb2F0IGFuZCBwb3RlbnRpYWwgc2VjdXJpdHkgdnVsbmVyYWJpbGl0aWVzLg0KPg0KPkhp
+LA0KPkkgYWxzbyBoYWQgdGhlIHNhbWUgaW5pdGlhbCB0aG91Z2h0IC0gdGhpcyByZWFsbHkgZG9l
+c24ndCBzZWVtIHRvIGFmZmVjdCB0aGUgYnJpZGdlIGluIGFueSB3YXksIGl0J3Mgb25seSBjb2xs
+ZWN0aW5nIGFuZCB0cmFuc21pdHRpbmcgaW5mb3JtYXRpb24uIEkgZ2V0IHRoYXQgeW91J2QgbGlr
+ZSB0byB1c2UgdGhlIGJyaWRnZSBhcyBhIHBhc3N0aHJvdWdoIGRldmljZSB0byBzd2l0Y2hkZXYg
+dG8gcHJvZ3JhbSB5b3VyIGh3LCBjb3VsZCB5b3Ugc2hhcmUgd2hhdCB3b3VsZCBiZSBvZmZsb2Fk
+ZWQgbW9yZSBzcGVjaWZpY2FsbHkgPw0KPg0KDQpZZXMuDQoNClRoZSBIVyB3aWxsIG9mZmxvYWQg
+dGhlIHBlcmlvZGljIHNlbmRpbmcgb2YgQ0NNIGZyYW1lcywgYW5kIHRoZSByZWNlcHRpb24uDQoN
+CklmIENDTSBmcmFtZXMgYXJlIG5vdCByZWNlaXZlZCBhcyBleHBlY3RlZCwgaXQgd2lsbCByYWlz
+ZSBhbiBpbnRlcnJ1cHQuDQoNClRoaXMgbWVhbnMgdGhhdCBhbGwgdGhlIGZ1bmN0aW9uYWxpdHkg
+cHJvdmlkZWQgaW4gdGhpcyBzZXJpZXMgd2lsbCBiZSBvZmZsb2FkZWQgdG8gSFcuDQoNClRoZSBv
+ZmZsb2FkaW5nIGlzIHZlcnkgaW1wb3J0YW50IG9uIG91ciBIVyB3aGVyZSB3ZSBoYXZlIGEgc21h
+bGwgQ1BVLCBzZXJ2aW5nIG1hbnkgcG9ydHMsIHdpdGggYSBoaWdoIGZyZXF1ZW5jeSBvZiBDRk0g
+ZnJhbWVzLg0KDQpUaGUgSFcgYWxzbyBzdXBwb3J0IExpbmstVHJhY2UgYW5kIExvb3AtYmFjaywg
+d2hpY2ggd2UgbWF5IGNvbWUgYmFjayB0byBsYXRlci4NCg0KPkFsbCB5b3UgZG8gLSBzbm9vcGlu
+ZyBhbmQgYmxvY2tpbmcgdGhlc2UgcGFja2V0cyBjYW4gZWFzaWx5IGJlIGRvbmUgZnJvbSB1c2Vy
+LSBzcGFjZSB3aXRoIHRoZSBoZWxwIG9mIGVidGFibGVzLCBidXQgc2luY2Ugd2UgbmVlZCB0byBo
+YXZlIGEgc29mdHdhcmUgaW1wbGVtZW50YXRpb24vZmFsbGJhY2sgb2YgYW55dGhpbmcgYmVpbmcg
+b2ZmbG9hZGVkIHZpYSBzd2l0Y2hkZXYgd2UgbWlnaHQgbmVlZCB0aGlzIGFmdGVyIGFsbCwgSSdk
+IGp1c3QgcHJlZmVyIHRvIHB1c2ggYXMgbXVjaCBhcyBwb3NzaWJsZSB0byB1c2VyLXNwYWNlLg0K
+Pg0KPkkgcGxhbiB0byByZXZpZXcgdGhlIGluZGl2aWR1YWwgcGF0Y2hlcyB0b21vcnJvdy4NCj4N
+Cj5UaGFua3MsDQo+IE5paw0K
