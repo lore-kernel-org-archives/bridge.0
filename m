@@ -1,13 +1,16 @@
-Return-Path: <davem@davemloft.net>
-Date: Fri, 11 Sep 2020 14:50:25 -0700 (PDT)
-Message-Id: <20200911.145025.2133088801719324101.davem@davemloft.net>
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200911132447.3158141-1-idosch@idosch.org>
-References: <20200911132447.3158141-1-idosch@idosch.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] bridge: mcast: Fix incomplete MDB dump
+Return-Path: <geert.uytterhoeven@gmail.com>
+MIME-Version: 1.0
+References: <CAMuHMdUd4VtpOGr26KAmF22N32obNqQzq3tbcPxLJ7mxUtSyrg@mail.gmail.com>
+ <20200911.174400.306709791543819081.davem@davemloft.net>
+ <CAMuHMdW0agywTHr4bDO9f_xbQibCxDykdkcAmuRJQO90=E6-Zw@mail.gmail.com>
+ <20200912.183437.1205152743307947529.davem@davemloft.net>
+In-Reply-To: <20200912.183437.1205152743307947529.davem@davemloft.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 14 Sep 2020 09:40:12 +0200
+Message-ID: <CAMuHMdXGmKYKWtkFCV0WmYnY4Gn--Bbz-iSX76oc-UNNrzCMuw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [PATCH] Revert "net: linkwatch: add check for
+ netdevice being present to linkwatch_do_dev"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +19,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: idosch@idosch.org
-Cc: netdev@vger.kernel.org, idosch@nvidia.com, bridge@lists.linux-foundation.org, nikolay@nvidia.com, jiri@nvidia.com, roopa@nvidia.com, kuba@kernel.org, mlxsw@nvidia.com
+To: David Miller <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, netdev <netdev@vger.kernel.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, bridge@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Gaku Inami <gaku.inami.xh@renesas.com>, Heiner Kallweit <hkallweit1@gmail.com>
 
-From: Ido Schimmel <idosch@idosch.org>
-Date: Fri, 11 Sep 2020 16:24:47 +0300
+Hi David,
 
-> From: Ido Schimmel <idosch@nvidia.com>
-> 
-> Each MDB entry is encoded in a nested netlink attribute called
-> 'MDBA_MDB_ENTRY'. In turn, this attribute contains another nested
-> attributed called 'MDBA_MDB_ENTRY_INFO', which encodes a single port
-> group entry within the MDB entry.
-> 
-> The cited commit added the ability to restart a dump from a specific
-> port group entry. However, on failure to add a port group entry to the
-> dump the entire MDB entry (stored in 'nest2') is removed, resulting in
-> missing port group entries.
-> 
-> Fix this by finalizing the MDB entry with the partial list of already
-> encoded port group entries.
-> 
-> Fixes: 5205e919c9f0 ("net: bridge: mcast: add support for src list and filter mode dumping")
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+CC bridge
 
-Applied, thank you.
+On Sun, Sep 13, 2020 at 3:34 AM David Miller <davem@davemloft.net> wrote:
+> From: Geert Uytterhoeven <geert@linux-m68k.org>
+> Date: Sat, 12 Sep 2020 14:33:59 +0200
+>
+> > "dev" is not the bridge device, but the physical Ethernet interface, which
+> > may already be suspended during s2ram.
+>
+> Hmmm, ok.
+>
+> Looking more deeply NETDEV_CHANGE causes br_port_carrier_check() to run which
+> exits early if netif_running() is false, which is going to be true if
+> netif_device_present() is false:
+>
+>         *notified = false;
+>         if (!netif_running(br->dev))
+>                 return;
+>
+> The only other work the bridge notifier does is:
+>
+>         if (event != NETDEV_UNREGISTER)
+>                 br_vlan_port_event(p, event);
+>
+> and:
+>
+>         /* Events that may cause spanning tree to refresh */
+>         if (!notified && (event == NETDEV_CHANGEADDR || event == NETDEV_UP ||
+>                           event == NETDEV_CHANGE || event == NETDEV_DOWN))
+>                 br_ifinfo_notify(RTM_NEWLINK, NULL, p);
+>
+> So some vlan stuff, and emitting a netlink message to any available
+> listeners.
+>
+> Should we really do all of this for a device which is not even
+> present?
+>
+> This whole situation seems completely illogical.  The device is
+> useless, it logically has no link or other state that can be managed
+> or used, while it is not present.
+>
+> So all of these bridge operations should only happen when the device
+> transitions back to present again.
+
+Thanks for your analysis!
+I'd like to defer this to the bridge people (CC).
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
