@@ -1,48 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Fri, 18 Sep 2020 12:35:02 +0000
-Message-ID: <9ab2973de2c0fb32de7fbc4ae823a820cd48a769.camel@nvidia.com>
-References: <CAMuHMdUd4VtpOGr26KAmF22N32obNqQzq3tbcPxLJ7mxUtSyrg@mail.gmail.com>
- <20200911.174400.306709791543819081.davem@davemloft.net>
- <CAMuHMdW0agywTHr4bDO9f_xbQibCxDykdkcAmuRJQO90=E6-Zw@mail.gmail.com>
- <20200912.183437.1205152743307947529.davem@davemloft.net>
- <CAMuHMdXGmKYKWtkFCV0WmYnY4Gn--Bbz-iSX76oc-UNNrzCMuw@mail.gmail.com>
-In-Reply-To: <CAMuHMdXGmKYKWtkFCV0WmYnY4Gn--Bbz-iSX76oc-UNNrzCMuw@mail.gmail.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <CDB2C3060B5F194BAC4EBCCF6887BA0B@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=ynxvS52GFgVISxCrLMAhqxHP2Rg1ErDlZ6rvqJHD3LY=;
+ b=wynHXAYxsNjuoEi/JC8ohwBBCrHAgzwxZEjioK0s7AYUgb3Z1tDN+RXmyGS+ie70hk
+ h6WhOhzcno56py0sUdEduLmAyGLO6j8/y18vKKsbvhtWhBNK9vGf1SiZ/o204QmLau3q
+ Nil5G81dGq1Hoj1yevlALDLblog4E5fZjPgsT6U4Adg2kDDiGscJsJTQqR4LKu71hesH
+ mOmNFJBeGbwh/WqTPQoN8Fxr8CqjeePwqIoWlm9KuWyD/WYP1EL5myt8rqhOga+/CN09
+ c1Mc7pFZiJIjABkERJfeEnC79+NQU32ve/i6rpXMEWlz0kMVFeYzxglqevHjIKBMV7r1
+ z9pQ==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Mon, 21 Sep 2020 13:55:16 +0300
+Message-Id: <20200921105526.1056983-7-razor@blackwall.org>
+In-Reply-To: <20200921105526.1056983-1-razor@blackwall.org>
+References: <20200921105526.1056983-1-razor@blackwall.org>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1600432460; bh=h/jBSanyBxK7bWX+OVxK3fSFXORvSxaNGGv7E5spujQ=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=hVMFh6DHP3wQLOMdt+RxyWfUrzhB8uVhYJcUa/wb1Hp6vX+38mVLJhm7jFo2Utlo+
- pEebdoEv/YhiRfdrtM27eTkiiMO7C2KdjWFN6wHZN+tZTn0lv30Q8WxmyLW84CDevA
- ad7dnAynbxC40k2ZhXfSC4a4/xKNu5H/nemRbnRUxjC5jUc5+LL5kcF/gc2WEj9D4Z
- GjTkf2YUUl7BFFeGNtihP3ybBnIERouXBMi8jtSr+jvy7D3nc7L78BdmSMfqk+P0io
- ppReEwb/K9bRl/GXkvWCLVLQrUjRQhOinIB31SN0qOnpZ1YC5k6CDYv+JZKLVGLb1Y
- hQhdly5Z9ToGw==
-Subject: Re: [Bridge] [PATCH] Revert "net: linkwatch: add check for
- netdevice being present to linkwatch_do_dev"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 06/16] net: bridge: mcast: rename br_ip's
+	u member to dst
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -51,50 +27,246 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "davem@davemloft.net" <davem@davemloft.net>, "geert@linux-m68k.org" <geert@linux-m68k.org>
-Cc: "andrew@lunn.ch" <andrew@lunn.ch>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "yoshihiro.shimoda.uh@renesas.com" <yoshihiro.shimoda.uh@renesas.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "gaku.inami.xh@renesas.com" <gaku.inami.xh@renesas.com>, "hkallweit1@gmail.com" <hkallweit1@gmail.com>
+To: netdev@vger.kernel.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org, Marek Lindner <mareklindner@neomailbox.ch>, Simon Wunderlich <sw@simonwunderlich.de>, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com, davem@davemloft.net, Sven Eckelmann <sven@narfation.org>
 
-T24gTW9uLCAyMDIwLTA5LTE0IGF0IDA5OjQwICswMjAwLCBHZWVydCBVeXR0ZXJob2V2ZW4gd3Jv
-dGU6DQo+IEhpIERhdmlkLA0KPiANCj4gQ0MgYnJpZGdlDQo+IA0KPiBPbiBTdW4sIFNlcCAxMywg
-MjAyMCBhdCAzOjM0IEFNIERhdmlkIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4gd3JvdGU6
-DQo+ID4gRnJvbTogR2VlcnQgVXl0dGVyaG9ldmVuIDxnZWVydEBsaW51eC1tNjhrLm9yZz4NCj4g
-PiBEYXRlOiBTYXQsIDEyIFNlcCAyMDIwIDE0OjMzOjU5ICswMjAwDQo+ID4gDQo+ID4gPiAiZGV2
-IiBpcyBub3QgdGhlIGJyaWRnZSBkZXZpY2UsIGJ1dCB0aGUgcGh5c2ljYWwgRXRoZXJuZXQgaW50
-ZXJmYWNlLCB3aGljaA0KPiA+ID4gbWF5IGFscmVhZHkgYmUgc3VzcGVuZGVkIGR1cmluZyBzMnJh
-bS4NCj4gPiANCj4gPiBIbW1tLCBvay4NCj4gPiANCj4gPiBMb29raW5nIG1vcmUgZGVlcGx5IE5F
-VERFVl9DSEFOR0UgY2F1c2VzIGJyX3BvcnRfY2Fycmllcl9jaGVjaygpIHRvIHJ1biB3aGljaA0K
-PiA+IGV4aXRzIGVhcmx5IGlmIG5ldGlmX3J1bm5pbmcoKSBpcyBmYWxzZSwgd2hpY2ggaXMgZ29p
-bmcgdG8gYmUgdHJ1ZSBpZg0KPiA+IG5ldGlmX2RldmljZV9wcmVzZW50KCkgaXMgZmFsc2U6DQo+
-ID4gDQo+ID4gICAgICAgICAqbm90aWZpZWQgPSBmYWxzZTsNCj4gPiAgICAgICAgIGlmICghbmV0
-aWZfcnVubmluZyhici0+ZGV2KSkNCj4gPiAgICAgICAgICAgICAgICAgcmV0dXJuOw0KPiA+IA0K
-PiA+IFRoZSBvbmx5IG90aGVyIHdvcmsgdGhlIGJyaWRnZSBub3RpZmllciBkb2VzIGlzOg0KPiA+
-IA0KPiA+ICAgICAgICAgaWYgKGV2ZW50ICE9IE5FVERFVl9VTlJFR0lTVEVSKQ0KPiA+ICAgICAg
-ICAgICAgICAgICBicl92bGFuX3BvcnRfZXZlbnQocCwgZXZlbnQpOw0KPiA+IA0KPiA+IGFuZDoN
-Cj4gPiANCj4gPiAgICAgICAgIC8qIEV2ZW50cyB0aGF0IG1heSBjYXVzZSBzcGFubmluZyB0cmVl
-IHRvIHJlZnJlc2ggKi8NCj4gPiAgICAgICAgIGlmICghbm90aWZpZWQgJiYgKGV2ZW50ID09IE5F
-VERFVl9DSEFOR0VBRERSIHx8IGV2ZW50ID09IE5FVERFVl9VUCB8fA0KPiA+ICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgZXZlbnQgPT0gTkVUREVWX0NIQU5HRSB8fCBldmVudCA9PSBORVRERVZf
-RE9XTikpDQo+ID4gICAgICAgICAgICAgICAgIGJyX2lmaW5mb19ub3RpZnkoUlRNX05FV0xJTkss
-IE5VTEwsIHApOw0KPiA+IA0KPiA+IFNvIHNvbWUgdmxhbiBzdHVmZiwgYW5kIGVtaXR0aW5nIGEg
-bmV0bGluayBtZXNzYWdlIHRvIGFueSBhdmFpbGFibGUNCj4gPiBsaXN0ZW5lcnMuDQo+ID4gDQo+
-ID4gU2hvdWxkIHdlIHJlYWxseSBkbyBhbGwgb2YgdGhpcyBmb3IgYSBkZXZpY2Ugd2hpY2ggaXMg
-bm90IGV2ZW4NCj4gPiBwcmVzZW50Pw0KPiA+IA0KPiA+IFRoaXMgd2hvbGUgc2l0dWF0aW9uIHNl
-ZW1zIGNvbXBsZXRlbHkgaWxsb2dpY2FsLiAgVGhlIGRldmljZSBpcw0KPiA+IHVzZWxlc3MsIGl0
-IGxvZ2ljYWxseSBoYXMgbm8gbGluayBvciBvdGhlciBzdGF0ZSB0aGF0IGNhbiBiZSBtYW5hZ2Vk
-DQo+ID4gb3IgdXNlZCwgd2hpbGUgaXQgaXMgbm90IHByZXNlbnQuDQo+ID4gDQo+ID4gU28gYWxs
-IG9mIHRoZXNlIGJyaWRnZSBvcGVyYXRpb25zIHNob3VsZCBvbmx5IGhhcHBlbiB3aGVuIHRoZSBk
-ZXZpY2UNCj4gPiB0cmFuc2l0aW9ucyBiYWNrIHRvIHByZXNlbnQgYWdhaW4uDQo+IA0KPiBUaGFu
-a3MgZm9yIHlvdXIgYW5hbHlzaXMhDQo+IEknZCBsaWtlIHRvIGRlZmVyIHRoaXMgdG8gdGhlIGJy
-aWRnZSBwZW9wbGUgKENDKS4NCj4gDQo+IEdye29ldGplLGVldGluZ31zLA0KPiANCj4gICAgICAg
-ICAgICAgICAgICAgICAgICAgR2VlcnQNCj4gDQoNCkhpLA0KU29ycnkgZm9yIHRoZSBkZWxheS4g
-SW50ZXJlc3RpbmcgcHJvYmxlbS4gOikNClRoYW5rcyBmb3IgdGhlIGFuYWx5c2lzLCBJIGRvbid0
-IHNlZSBhbnkgaXNzdWVzIHdpdGggY2hlY2tpbmcgaWYgdGhlIGRldmljZQ0KaXNuJ3QgcHJlc2Vu
-dC4gSXQgd2lsbCBoYXZlIHRvIGdvIHRocm91Z2ggc29tZSB0ZXN0aW5nLCBidXQgbm8gb2J2aW91
-cw0Kb2JqZWN0aW9ucy9pc3N1ZXMuIEhhdmUgeW91IHRyaWVkIGlmIGl0IGZpeGVzIHlvdXIgY2Fz
-ZT8NCkkgaGF2ZSBicmllZmx5IGdvbmUgb3ZlciBkcml2ZXJzJyB1c2Ugb2YgbmV0X2RldmljZV9k
-ZXRhY2goKSwgbW9zdGx5IGl0J3MgdXNlZA0KZm9yIHN1c3BlbmRzLCBidXQgdGhlcmUgYXJlIGEg
-ZmV3IGNhc2VzIHdoaWNoIHVzZSBpdCBvbiBJTyBlcnJvciBvciB3aGVuIGENCmRldmljZSBpcyBh
-Y3R1YWxseSBkZXRhY2hpbmcgKFZGIGRldGFjaCkuIFRoZSB2bGFuIHBvcnQgZXZlbnQgaXMgZm9y
-IHZsYW4NCmRldmljZXMgb24gdG9wIG9mIHRoZSBicmlkZ2Ugd2hlbiBCUk9QVF9WTEFOX0JSSURH
-RV9CSU5ESU5HIGlzIGVuYWJsZWQgYW5kIHRoZWlyDQpjYXJyaWVyIGlzIGNoYW5nZWQgYmFzZWQg
-b24gdmxhbiBwYXJ0aWNpcGF0aW5nIHBvcnRzJyBzdGF0ZS4NCg0KVGhhbmtzLA0KIE5paw0KDQo=
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+
+Since now we have src in br_ip, u no longer makes sense so rename
+it to dst. No functional changes.
+
+CC: Marek Lindner <mareklindner@neomailbox.ch>
+CC: Simon Wunderlich <sw@simonwunderlich.de>
+CC: Antonio Quartulli <a@unstable.cc
+CC: Sven Eckelmann <sven@narfation.org>
+CC: b.a.t.m.a.n@lists.open-mesh.org
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ include/linux/if_bridge.h  |  2 +-
+ net/batman-adv/multicast.c | 10 +++++-----
+ net/bridge/br_mdb.c        | 16 ++++++++--------
+ net/bridge/br_multicast.c  | 26 +++++++++++++-------------
+ 4 files changed, 27 insertions(+), 27 deletions(-)
+
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index 4fb9c4954f3a..556caed00258 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -25,7 +25,7 @@ struct br_ip {
+ #if IS_ENABLED(CONFIG_IPV6)
+ 		struct in6_addr ip6;
+ #endif
+-	} u;
++	} dst;
+ 	__be16		proto;
+ 	__u16           vid;
+ };
+diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
+index 1622c3f5898f..2317c0d69b58 100644
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -220,7 +220,7 @@ static u8 batadv_mcast_mla_rtr_flags_bridge_get(struct batadv_priv *bat_priv,
+ 		 * address here, only IPv6 ones
+ 		 */
+ 		if (br_ip_entry->addr.proto == htons(ETH_P_IPV6) &&
+-		    ipv6_addr_is_ll_all_routers(&br_ip_entry->addr.u.ip6))
++		    ipv6_addr_is_ll_all_routers(&br_ip_entry->addr.dst.ip6))
+ 			flags &= ~BATADV_MCAST_WANT_NO_RTR6;
+ 
+ 		list_del(&br_ip_entry->list);
+@@ -608,11 +608,11 @@ static int batadv_mcast_mla_bridge_get(struct net_device *dev,
+ 				continue;
+ 
+ 			if (tvlv_flags & BATADV_MCAST_WANT_ALL_UNSNOOPABLES &&
+-			    ipv4_is_local_multicast(br_ip_entry->addr.u.ip4))
++			    ipv4_is_local_multicast(br_ip_entry->addr.dst.ip4))
+ 				continue;
+ 
+ 			if (!(tvlv_flags & BATADV_MCAST_WANT_NO_RTR4) &&
+-			    !ipv4_is_local_multicast(br_ip_entry->addr.u.ip4))
++			    !ipv4_is_local_multicast(br_ip_entry->addr.dst.ip4))
+ 				continue;
+ 		}
+ 
+@@ -622,11 +622,11 @@ static int batadv_mcast_mla_bridge_get(struct net_device *dev,
+ 				continue;
+ 
+ 			if (tvlv_flags & BATADV_MCAST_WANT_ALL_UNSNOOPABLES &&
+-			    ipv6_addr_is_ll_all_nodes(&br_ip_entry->addr.u.ip6))
++			    ipv6_addr_is_ll_all_nodes(&br_ip_entry->addr.dst.ip6))
+ 				continue;
+ 
+ 			if (!(tvlv_flags & BATADV_MCAST_WANT_NO_RTR6) &&
+-			    IPV6_ADDR_MC_SCOPE(&br_ip_entry->addr.u.ip6) >
++			    IPV6_ADDR_MC_SCOPE(&br_ip_entry->addr.dst.ip6) >
+ 			    IPV6_ADDR_SCOPE_LINKLOCAL)
+ 				continue;
+ 		}
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 269ffd2e549b..a1ff0a372185 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -70,10 +70,10 @@ static void __mdb_entry_to_br_ip(struct br_mdb_entry *entry, struct br_ip *ip)
+ 	ip->vid = entry->vid;
+ 	ip->proto = entry->addr.proto;
+ 	if (ip->proto == htons(ETH_P_IP))
+-		ip->u.ip4 = entry->addr.u.ip4;
++		ip->dst.ip4 = entry->addr.u.ip4;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	else
+-		ip->u.ip6 = entry->addr.u.ip6;
++		ip->dst.ip6 = entry->addr.u.ip6;
+ #endif
+ }
+ 
+@@ -158,10 +158,10 @@ static int __mdb_fill_info(struct sk_buff *skb,
+ 	e.ifindex = ifindex;
+ 	e.vid = mp->addr.vid;
+ 	if (mp->addr.proto == htons(ETH_P_IP))
+-		e.addr.u.ip4 = mp->addr.u.ip4;
++		e.addr.u.ip4 = mp->addr.dst.ip4;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	if (mp->addr.proto == htons(ETH_P_IPV6))
+-		e.addr.u.ip6 = mp->addr.u.ip6;
++		e.addr.u.ip6 = mp->addr.dst.ip6;
+ #endif
+ 	e.addr.proto = mp->addr.proto;
+ 	nest_ent = nla_nest_start_noflag(skb,
+@@ -474,10 +474,10 @@ static void br_mdb_switchdev_host_port(struct net_device *dev,
+ 	};
+ 
+ 	if (mp->addr.proto == htons(ETH_P_IP))
+-		ip_eth_mc_map(mp->addr.u.ip4, mdb.addr);
++		ip_eth_mc_map(mp->addr.dst.ip4, mdb.addr);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	else
+-		ipv6_eth_mc_map(&mp->addr.u.ip6, mdb.addr);
++		ipv6_eth_mc_map(&mp->addr.dst.ip6, mdb.addr);
+ #endif
+ 
+ 	mdb.obj.orig_dev = dev;
+@@ -520,10 +520,10 @@ void br_mdb_notify(struct net_device *dev,
+ 
+ 	if (pg) {
+ 		if (mp->addr.proto == htons(ETH_P_IP))
+-			ip_eth_mc_map(mp->addr.u.ip4, mdb.addr);
++			ip_eth_mc_map(mp->addr.dst.ip4, mdb.addr);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 		else
+-			ipv6_eth_mc_map(&mp->addr.u.ip6, mdb.addr);
++			ipv6_eth_mc_map(&mp->addr.dst.ip6, mdb.addr);
+ #endif
+ 		mdb.obj.orig_dev = pg->port->dev;
+ 		switch (type) {
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index a899c22c8f57..e1fb822b9ddb 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -86,7 +86,7 @@ static struct net_bridge_mdb_entry *br_mdb_ip4_get(struct net_bridge *br,
+ 	struct br_ip br_dst;
+ 
+ 	memset(&br_dst, 0, sizeof(br_dst));
+-	br_dst.u.ip4 = dst;
++	br_dst.dst.ip4 = dst;
+ 	br_dst.proto = htons(ETH_P_IP);
+ 	br_dst.vid = vid;
+ 
+@@ -101,7 +101,7 @@ static struct net_bridge_mdb_entry *br_mdb_ip6_get(struct net_bridge *br,
+ 	struct br_ip br_dst;
+ 
+ 	memset(&br_dst, 0, sizeof(br_dst));
+-	br_dst.u.ip6 = *dst;
++	br_dst.dst.ip6 = *dst;
+ 	br_dst.proto = htons(ETH_P_IPV6);
+ 	br_dst.vid = vid;
+ 
+@@ -126,11 +126,11 @@ struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge *br,
+ 
+ 	switch (skb->protocol) {
+ 	case htons(ETH_P_IP):
+-		ip.u.ip4 = ip_hdr(skb)->daddr;
++		ip.dst.ip4 = ip_hdr(skb)->daddr;
+ 		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	case htons(ETH_P_IPV6):
+-		ip.u.ip6 = ipv6_hdr(skb)->daddr;
++		ip.dst.ip6 = ipv6_hdr(skb)->daddr;
+ 		break;
+ #endif
+ 	default:
+@@ -625,9 +625,9 @@ static struct sk_buff *br_multicast_alloc_query(struct net_bridge *br,
+ 
+ 	switch (group->proto) {
+ 	case htons(ETH_P_IP):
+-		ip4_dst = ip_dst ? ip_dst->u.ip4 : htonl(INADDR_ALLHOSTS_GROUP);
++		ip4_dst = ip_dst ? ip_dst->dst.ip4 : htonl(INADDR_ALLHOSTS_GROUP);
+ 		return br_ip4_multicast_alloc_query(br, pg,
+-						    ip4_dst, group->u.ip4,
++						    ip4_dst, group->dst.ip4,
+ 						    with_srcs, over_lmqt,
+ 						    sflag, igmp_type,
+ 						    need_rexmit);
+@@ -636,13 +636,13 @@ static struct sk_buff *br_multicast_alloc_query(struct net_bridge *br,
+ 		struct in6_addr ip6_dst;
+ 
+ 		if (ip_dst)
+-			ip6_dst = ip_dst->u.ip6;
++			ip6_dst = ip_dst->dst.ip6;
+ 		else
+ 			ipv6_addr_set(&ip6_dst, htonl(0xff020000), 0, 0,
+ 				      htonl(1));
+ 
+ 		return br_ip6_multicast_alloc_query(br, pg,
+-						    &ip6_dst, &group->u.ip6,
++						    &ip6_dst, &group->dst.ip6,
+ 						    with_srcs, over_lmqt,
+ 						    sflag, igmp_type,
+ 						    need_rexmit);
+@@ -906,7 +906,7 @@ static int br_ip4_multicast_add_group(struct net_bridge *br,
+ 		return 0;
+ 
+ 	memset(&br_group, 0, sizeof(br_group));
+-	br_group.u.ip4 = group;
++	br_group.dst.ip4 = group;
+ 	br_group.proto = htons(ETH_P_IP);
+ 	br_group.vid = vid;
+ 	filter_mode = igmpv2 ? MCAST_EXCLUDE : MCAST_INCLUDE;
+@@ -930,7 +930,7 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
+ 		return 0;
+ 
+ 	memset(&br_group, 0, sizeof(br_group));
+-	br_group.u.ip6 = *group;
++	br_group.dst.ip6 = *group;
+ 	br_group.proto = htons(ETH_P_IPV6);
+ 	br_group.vid = vid;
+ 	filter_mode = mldv1 ? MCAST_EXCLUDE : MCAST_INCLUDE;
+@@ -1079,7 +1079,7 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 	    !br_opt_get(br, BROPT_MULTICAST_QUERIER))
+ 		return;
+ 
+-	memset(&br_group.u, 0, sizeof(br_group.u));
++	memset(&br_group.dst, 0, sizeof(br_group.dst));
+ 
+ 	if (port ? (own_query == &port->ip4_own_query) :
+ 		   (own_query == &br->ip4_own_query)) {
+@@ -2506,7 +2506,7 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
+ 	own_query = port ? &port->ip4_own_query : &br->ip4_own_query;
+ 
+ 	memset(&br_group, 0, sizeof(br_group));
+-	br_group.u.ip4 = group;
++	br_group.dst.ip4 = group;
+ 	br_group.proto = htons(ETH_P_IP);
+ 	br_group.vid = vid;
+ 
+@@ -2530,7 +2530,7 @@ static void br_ip6_multicast_leave_group(struct net_bridge *br,
+ 	own_query = port ? &port->ip6_own_query : &br->ip6_own_query;
+ 
+ 	memset(&br_group, 0, sizeof(br_group));
+-	br_group.u.ip6 = *group;
++	br_group.dst.ip6 = *group;
+ 	br_group.proto = htons(ETH_P_IPV6);
+ 	br_group.vid = vid;
+ 
+-- 
+2.25.4
+
