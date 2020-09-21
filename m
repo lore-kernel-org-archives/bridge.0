@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=sbHsP3+rb6n8HpEyq3TxWopOvaJM25/6iBadHf2ysoI=;
- b=N8IjIoTywGIim4Unc1pfDYz0Ob4JCW9eLhw35iR4ubQqGwJ99pIAcAjfzCe2Xj4x6J
- Qq7KWCHxlTgAaVrCrHtX+rCodIG2PTZJOpyOynUSuWnvc6Sl2cTlEWDRfRnB+yAOZbK+
- klMrfjec2Z3k1yNvGd1+4aofXKFanscWjx9A4OG0WMD9jZEHJfLgLskJuUa42pBLry/5
- M29GGE9xbaWYfWzPy9XpZAgFUuOxFoLSOpZ4bGP5a8jjPbwoooPU7vYzWmeXbGsiDfI4
- iJvighYF+JPk3/hC1bM8Xr5QmXMvUJBepEiS4+/kkSd0VfRs1801k+Z2rUvIvj4xTliR
- KKPw==
+ bh=l5JzLPMeSD4caZ4wHfPPZr4JygseWiJe8yzApZMnhOA=;
+ b=IO/2p5RcCNDAhlli9hKfGjfbtZuFnkT8KgLMs3Zi0sBS+7izwyFFKIaVLhXo2jDavO
+ aoEEYw2QyNqWDGe/x7OPnD/9QBJfvvPFiXxf15E+zuXwDFWJwE4lrtDVWOkguhbDLiUd
+ BuRkNDq2SCnQME1WJ59jlFoFsljjh3mNyRkNr5g5GduGropZaZJgTC56+NQgLt/8mnw8
+ RohYNHKi6oyrwG3iTpwxSDTnd3gE9+zyyHWqIKjkp1ihPvqglXAxQgvTziuzRVW56YRf
+ JsDt3q5DNNijbMoCDXAGy5/W/cwfA7Hyhw9R2zXd/rkefuyZ/BHP3vIN8yCXBNqixoiF
+ OEbA==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 21 Sep 2020 13:55:13 +0300
-Message-Id: <20200921105526.1056983-4-razor@blackwall.org>
+Date: Mon, 21 Sep 2020 13:55:19 +0300
+Message-Id: <20200921105526.1056983-10-razor@blackwall.org>
 In-Reply-To: <20200921105526.1056983-1-razor@blackwall.org>
 References: <20200921105526.1056983-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 03/16] net: bridge: mdb: use extack in
-	br_mdb_add() and br_mdb_add_group()
+Subject: [Bridge] [PATCH net-next 09/16] net: bridge: mcast: when
+	igmpv3/mldv2 are enabled lookup (S, G) first, then (*, G)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,142 +32,47 @@ Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, bridge@lists.linux-foundation.org,
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Pass and use extack all the way down to br_mdb_add_group().
+If (S,G) entries are enabled (igmpv3/mldv2) then look them up first. If
+there isn't a present (S,G) entry then try to find (*,G).
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- net/bridge/br_mdb.c | 54 +++++++++++++++++++++++++++++++++++----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
+ net/bridge/br_multicast.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 92ab7369fee0..1df62d887953 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -723,7 +723,8 @@ static int br_mdb_parse(struct sk_buff *skb, struct nlmsghdr *nlh,
- }
- 
- static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
--			    struct br_ip *group, struct br_mdb_entry *entry)
-+			    struct br_ip *group, struct br_mdb_entry *entry,
-+			    struct netlink_ext_ack *extack)
- {
- 	struct net_bridge_mdb_entry *mp;
- 	struct net_bridge_port_group *p;
-@@ -742,10 +743,14 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	/* host join */
- 	if (!port) {
- 		/* don't allow any flags for host-joined groups */
--		if (entry->state)
-+		if (entry->state) {
-+			NL_SET_ERR_MSG_MOD(extack, "Flags are not allowed for host groups");
- 			return -EINVAL;
--		if (mp->host_joined)
-+		}
-+		if (mp->host_joined) {
-+			NL_SET_ERR_MSG_MOD(extack, "Group is already joined by host");
- 			return -EEXIST;
-+		}
- 
- 		br_multicast_host_join(mp, false);
- 		br_mdb_notify(br->dev, mp, NULL, RTM_NEWMDB);
-@@ -756,16 +761,20 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	for (pp = &mp->ports;
- 	     (p = mlock_dereference(*pp, br)) != NULL;
- 	     pp = &p->next) {
--		if (p->port == port)
-+		if (p->port == port) {
-+			NL_SET_ERR_MSG_MOD(extack, "Group is already joined by port");
- 			return -EEXIST;
-+		}
- 		if ((unsigned long)p->port < (unsigned long)port)
- 			break;
- 	}
- 
- 	p = br_multicast_new_port_group(port, group, *pp, entry->state, NULL,
- 					MCAST_EXCLUDE);
--	if (unlikely(!p))
-+	if (unlikely(!p)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new port group");
- 		return -ENOMEM;
-+	}
- 	rcu_assign_pointer(*pp, p);
- 	if (entry->state == MDB_TEMPORARY)
- 		mod_timer(&p->timer, now + br->multicast_membership_interval);
-@@ -776,7 +785,8 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 
- static int __br_mdb_add(struct net *net, struct net_bridge *br,
- 			struct net_bridge_port *p,
--			struct br_mdb_entry *entry)
-+			struct br_mdb_entry *entry,
-+			struct netlink_ext_ack *extack)
- {
- 	struct br_ip ip;
- 	int ret;
-@@ -784,7 +794,7 @@ static int __br_mdb_add(struct net *net, struct net_bridge *br,
- 	__mdb_entry_to_br_ip(entry, &ip);
- 
- 	spin_lock_bh(&br->multicast_lock);
--	ret = br_mdb_add_group(br, p, &ip, entry);
-+	ret = br_mdb_add_group(br, p, &ip, entry, extack);
- 	spin_unlock_bh(&br->multicast_lock);
- 
- 	return ret;
-@@ -808,17 +818,37 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	br = netdev_priv(dev);
- 
--	if (!netif_running(br->dev) || !br_opt_get(br, BROPT_MULTICAST_ENABLED))
-+	if (!netif_running(br->dev)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Bridge device is not running");
- 		return -EINVAL;
-+	}
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index e1fb822b9ddb..4fd690bc848f 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -127,10 +127,28 @@ struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge *br,
+ 	switch (skb->protocol) {
+ 	case htons(ETH_P_IP):
+ 		ip.dst.ip4 = ip_hdr(skb)->daddr;
++		if (br->multicast_igmp_version == 3) {
++			struct net_bridge_mdb_entry *mdb;
 +
-+	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Bridge's multicast processing is disabled");
-+		return -EINVAL;
-+	}
- 
- 	if (entry->ifindex != br->dev->ifindex) {
- 		pdev = __dev_get_by_index(net, entry->ifindex);
--		if (!pdev)
-+		if (!pdev) {
-+			NL_SET_ERR_MSG_MOD(extack, "Port net device doesn't exist");
- 			return -ENODEV;
++			ip.src.ip4 = ip_hdr(skb)->saddr;
++			mdb = br_mdb_ip_get_rcu(br, &ip);
++			if (mdb)
++				return mdb;
++			ip.src.ip4 = 0;
 +		}
- 
- 		p = br_port_get_rtnl(pdev);
--		if (!p || p->br != br || p->state == BR_STATE_DISABLED)
-+		if (!p) {
-+			NL_SET_ERR_MSG_MOD(extack, "Net device is not a bridge port");
- 			return -EINVAL;
-+		}
+ 		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	case htons(ETH_P_IPV6):
+ 		ip.dst.ip6 = ipv6_hdr(skb)->daddr;
++		if (br->multicast_mld_version == 2) {
++			struct net_bridge_mdb_entry *mdb;
 +
-+		if (p->br != br) {
-+			NL_SET_ERR_MSG_MOD(extack, "Port belongs to a different bridge device");
-+			return -EINVAL;
++			ip.src.ip6 = ipv6_hdr(skb)->saddr;
++			mdb = br_mdb_ip_get_rcu(br, &ip);
++			if (mdb)
++				return mdb;
++			memset(&ip.src.ip6, 0, sizeof(ip.src.ip6));
 +		}
-+		if (p->state == BR_STATE_DISABLED) {
-+			NL_SET_ERR_MSG_MOD(extack, "Port is in disabled state");
-+			return -EINVAL;
-+		}
- 		vg = nbp_vlan_group(p);
- 	} else {
- 		vg = br_vlan_group(br);
-@@ -830,12 +860,12 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (br_vlan_enabled(br->dev) && vg && entry->vid == 0) {
- 		list_for_each_entry(v, &vg->vlan_list, vlist) {
- 			entry->vid = v->vid;
--			err = __br_mdb_add(net, br, p, entry);
-+			err = __br_mdb_add(net, br, p, entry, extack);
- 			if (err)
- 				break;
- 		}
- 	} else {
--		err = __br_mdb_add(net, br, p, entry);
-+		err = __br_mdb_add(net, br, p, entry, extack);
- 	}
- 
- 	return err;
+ 		break;
+ #endif
+ 	default:
 -- 
 2.25.4
 
