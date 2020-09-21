@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=hUlbZThuj5etaf+babxSJzhQjwbLaOi/wOfX/kpZKzg=;
- b=BCyDPsx3dv59RiP//P0F/K4Z9uEUPYTyJz9Fge98iEUiErkepQvrWZIiGQ6kmpy2nO
- f4zfy0ehHPXDSXfxLlAit/IqpZNwPjDXEnhTvImduTH+7ZH4yqcY3CEgrDc8vfg6wQfG
- qLcTcx4R2wdvfDuP44zQFZDEUli/PoWHcylU+RRJxQE+YwNfp0BECCsgMM223dIhJ/Zv
- kOkb5WWt4Ldm915z/+35Eg4v0mnFvS7lFREL2WJgC0ca2fMz2ql7/KSclZm+pXiE6P8N
- XM3cBUtUP+BSLpI8UmKr+wcLnr5HDe/cLPfvHxiHtHbGr414ve+MKRZj3+aJm39sl6Ui
- 27mw==
+ bh=W1k28u9m4opk3xAHXu3X6yCLygcG5WtwBqkfTVt8j0k=;
+ b=xyGBhkOGELPKn//wEelqXKR2capv+rcr01F4odCptjBa5YW1aMl9K9f6t/0AE/wp2F
+ H8mU9/tvQ/ES2Gn5EstZdkbKciKhK/oKiGIWUjX3LtKCma9GaXbvw+gfcBg+t5W49o1A
+ JHjfV7vzht0dYR7MYq/zmlq1IYz/NJMcNp441j3HZy23AMNTTznaX74gHX3SCSMwFNrx
+ Vaey+fwS46Ycelax5JgnPTb3YsMBtq1X2N9kPwkPkyiSHD7sLTOx++j4LpbTQLHkUFkn
+ DB/tET4zDJ1tQGLh3sW/wGCKCaipL+70mXN5PY4rRkJKirCxLDGDKUw4OOZ6ERVM6Z6T
+ X7yA==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 21 Sep 2020 13:55:11 +0300
-Message-Id: <20200921105526.1056983-2-razor@blackwall.org>
+Date: Mon, 21 Sep 2020 13:55:26 +0300
+Message-Id: <20200921105526.1056983-17-razor@blackwall.org>
 In-Reply-To: <20200921105526.1056983-1-razor@blackwall.org>
 References: <20200921105526.1056983-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 01/16] net: bridge: mdb: use extack in
-	br_mdb_parse()
+Subject: [Bridge] [PATCH net-next 16/16] net: bridge: mcast: when forwarding
+	handle filter mode and blocked flag
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,144 +32,50 @@ Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, bridge@lists.linux-foundation.org,
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-We can drop the pr_info() calls and just use extack to return a
-meaningful error to user-space when br_mdb_parse() fails.
+We need to avoid forwarding to ports in MCAST_INCLUDE filter mode when the
+mdst entry is a *,G or when the port has the blocked flag.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- net/bridge/br_mdb.c | 60 +++++++++++++++++++++++++++++----------------
- 1 file changed, 39 insertions(+), 21 deletions(-)
+ net/bridge/br_forward.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 00f1651a6aba..d4031f5554f7 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -629,33 +629,50 @@ void br_rtr_notify(struct net_device *dev, struct net_bridge_port *port,
- 	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
- }
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 4d12999e4576..e28ffadd1371 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -274,10 +274,19 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 	struct net_bridge *br = netdev_priv(dev);
+ 	struct net_bridge_port *prev = NULL;
+ 	struct net_bridge_port_group *p;
++	bool allow_mode_include = true;
+ 	struct hlist_node *rp;
  
--static bool is_valid_mdb_entry(struct br_mdb_entry *entry)
-+static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
-+			       struct netlink_ext_ack *extack)
- {
--	if (entry->ifindex == 0)
-+	if (entry->ifindex == 0) {
-+		NL_SET_ERR_MSG_MOD(extack, "Zero entry ifindex is not allowed");
- 		return false;
-+	}
- 
- 	if (entry->addr.proto == htons(ETH_P_IP)) {
--		if (!ipv4_is_multicast(entry->addr.u.ip4))
-+		if (!ipv4_is_multicast(entry->addr.u.ip4)) {
-+			NL_SET_ERR_MSG_MOD(extack, "IPv4 entry group address is not multicast");
- 			return false;
--		if (ipv4_is_local_multicast(entry->addr.u.ip4))
-+		}
-+		if (ipv4_is_local_multicast(entry->addr.u.ip4)) {
-+			NL_SET_ERR_MSG_MOD(extack, "IPv4 entry group address is local multicast");
- 			return false;
-+		}
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else if (entry->addr.proto == htons(ETH_P_IPV6)) {
--		if (ipv6_addr_is_ll_all_nodes(&entry->addr.u.ip6))
-+		if (ipv6_addr_is_ll_all_nodes(&entry->addr.u.ip6)) {
-+			NL_SET_ERR_MSG_MOD(extack, "IPv6 entry group address is link-local all nodes");
- 			return false;
-+		}
- #endif
--	} else
+ 	rp = rcu_dereference(hlist_first_rcu(&br->router_list));
+-	p = mdst ? rcu_dereference(mdst->ports) : NULL;
++	if (mdst) {
++		p = rcu_dereference(mdst->ports);
++		if (br_multicast_should_handle_mode(br, mdst->addr.proto) &&
++		    br_multicast_is_star_g(&mdst->addr))
++			allow_mode_include = false;
 +	} else {
-+		NL_SET_ERR_MSG_MOD(extack, "Unknown entry protocol");
- 		return false;
--	if (entry->state != MDB_PERMANENT && entry->state != MDB_TEMPORARY)
++		p = NULL;
 +	}
 +
-+	if (entry->state != MDB_PERMANENT && entry->state != MDB_TEMPORARY) {
-+		NL_SET_ERR_MSG_MOD(extack, "Unknown entry state");
- 		return false;
--	if (entry->vid >= VLAN_VID_MASK)
-+	}
-+	if (entry->vid >= VLAN_VID_MASK) {
-+		NL_SET_ERR_MSG_MOD(extack, "Invalid entry VLAN id");
- 		return false;
-+	}
+ 	while (p || rp) {
+ 		struct net_bridge_port *port, *lport, *rport;
  
- 	return true;
- }
- 
- static int br_mdb_parse(struct sk_buff *skb, struct nlmsghdr *nlh,
--			struct net_device **pdev, struct br_mdb_entry **pentry)
-+			struct net_device **pdev, struct br_mdb_entry **pentry,
-+			struct netlink_ext_ack *extack)
- {
- 	struct net *net = sock_net(skb->sk);
- 	struct br_mdb_entry *entry;
-@@ -671,36 +688,37 @@ static int br_mdb_parse(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	bpm = nlmsg_data(nlh);
- 	if (bpm->ifindex == 0) {
--		pr_info("PF_BRIDGE: br_mdb_parse() with invalid ifindex\n");
-+		NL_SET_ERR_MSG_MOD(extack, "Invalid bridge ifindex");
- 		return -EINVAL;
- 	}
- 
- 	dev = __dev_get_by_index(net, bpm->ifindex);
- 	if (dev == NULL) {
--		pr_info("PF_BRIDGE: br_mdb_parse() with unknown ifindex\n");
-+		NL_SET_ERR_MSG_MOD(extack, "Bridge device doesn't exist");
- 		return -ENODEV;
- 	}
- 
- 	if (!(dev->priv_flags & IFF_EBRIDGE)) {
--		pr_info("PF_BRIDGE: br_mdb_parse() with non-bridge\n");
-+		NL_SET_ERR_MSG_MOD(extack, "Device is not a bridge");
- 		return -EOPNOTSUPP;
- 	}
- 
- 	*pdev = dev;
- 
--	if (!tb[MDBA_SET_ENTRY] ||
--	    nla_len(tb[MDBA_SET_ENTRY]) != sizeof(struct br_mdb_entry)) {
--		pr_info("PF_BRIDGE: br_mdb_parse() with invalid attr\n");
-+	if (!tb[MDBA_SET_ENTRY]) {
-+		NL_SET_ERR_MSG_MOD(extack, "Missing MDBA_SET_ENTRY attribute");
- 		return -EINVAL;
- 	}
--
--	entry = nla_data(tb[MDBA_SET_ENTRY]);
--	if (!is_valid_mdb_entry(entry)) {
--		pr_info("PF_BRIDGE: br_mdb_parse() with invalid entry\n");
-+	if (nla_len(tb[MDBA_SET_ENTRY]) != sizeof(struct br_mdb_entry)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Invalid MDBA_SET_ENTRY attribute length");
- 		return -EINVAL;
- 	}
- 
-+	entry = nla_data(tb[MDBA_SET_ENTRY]);
-+	if (!is_valid_mdb_entry(entry, extack))
-+		return -EINVAL;
- 	*pentry = entry;
-+
- 	return 0;
- }
- 
-@@ -797,7 +815,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	struct net_bridge *br;
- 	int err;
- 
--	err = br_mdb_parse(skb, nlh, &dev, &entry);
-+	err = br_mdb_parse(skb, nlh, &dev, &entry, extack);
- 	if (err < 0)
- 		return err;
- 
-@@ -892,7 +910,7 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	struct net_bridge *br;
- 	int err;
- 
--	err = br_mdb_parse(skb, nlh, &dev, &entry);
-+	err = br_mdb_parse(skb, nlh, &dev, &entry, extack);
- 	if (err < 0)
- 		return err;
- 
+@@ -292,6 +301,10 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 						   local_orig);
+ 				goto delivered;
+ 			}
++			if ((!allow_mode_include &&
++			     p->filter_mode == MCAST_INCLUDE) ||
++			    (p->flags & MDB_PG_FLAGS_BLOCKED))
++				goto delivered;
+ 		} else {
+ 			port = rport;
+ 		}
 -- 
 2.25.4
 
