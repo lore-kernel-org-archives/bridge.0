@@ -1,25 +1,44 @@
-Return-Path: <Henrik.Bjoernlund@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1601996165; x=1633532165;
- h=from:to:cc:subject:date:message-id:in-reply-to:
- references:mime-version:content-transfer-encoding;
- bh=v0/BOEk8FwPkuHSCL3bWhHvT/r5H6A4X4lw4kAN4c/4=;
- b=EUxzYgX8AD899m4FSKS+7Nd5KCldl9hPXhkZXWvKss01m/7lGYiF1epr
- HAwUvAZSiRHIlKxCRNUsDGEcblq3KOZmHDMWcM481RjmN14xDz2PJM9FY
- kf9mLRPixHesgXVbDta/LIBc628gLDY5DjICvZlgZGT92faGRvglIZTQi
- WulVQNPbL+shBxLNVn14C6gWscKYNsWtc72nOB0mDqcVYxPEVIVmq1Uav
- dt3ULXQTHmEEq4Mq7sg2A3bEpiZothnBzcm5V9LTJZjupZPBw7VGW3ygz
- zI+oLM/UiAoXKjwvF10iiH2hzNa2qS5Gf/f5qoDRUg/ZXmzEx6VuOKYJ9 Q==;
-From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Date: Tue, 6 Oct 2020 14:53:38 +0000
-Message-ID: <20201006145338.1956886-10-henrik.bjoernlund@microchip.com>
-In-Reply-To: <20201006145338.1956886-1-henrik.bjoernlund@microchip.com>
+Return-Path: <nikolay@nvidia.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Date: Tue, 6 Oct 2020 15:00:05 +0000
+Message-ID: <0e6cc78ebf37fcb4e2455cd331d250091e4c9ecc.camel@nvidia.com>
 References: <20201006145338.1956886-1-henrik.bjoernlund@microchip.com>
+In-Reply-To: <20201006145338.1956886-1-henrik.bjoernlund@microchip.com>
+Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <D6432D25BADF6A428E763BFC89CF3E78@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [net-next v3 9/9] bridge: cfm: Bridge port remove.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1601996408; bh=jLqZ8UerVJu0vybRt9nuCySI6hVkYw1WUdSY9EVoyKA=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
+ Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+ In-Reply-To:Reply-To:Accept-Language:Content-Language:
+ X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
+ authentication-results:x-originating-ip:x-ms-publictraffictype:
+ x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
+ x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
+ x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
+ x-microsoft-antispam:x-microsoft-antispam-message-info:
+ x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
+ Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-originalarrivaltime:
+ X-MS-Exchange-CrossTenant-fromentityheader:
+ X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+ X-MS-Exchange-CrossTenant-userprincipalname:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=nleTyEerJLHcDPYW8TxgqzEeZROKc7oTW6WMYSCmXMQewxjDSsySGh2hKUErBc96J
+ pVf4bZ7pTHe7tJlALyuxPSLfERsdTTO+YLc7Cy/KjLjR2+wdXkSoQpXzuD0rqbxcR0
+ vpLWXkeqAhC6DI/lqgFRIG/NxjCJTsFYKPVE5xyihmlViTuzvyGKh+QIK2lQ9aQeR3
+ Xs0PmzdRLylIFBzjJEoiOTYbKiecynAPsWFeq/pSVSfCHrb+wuhi7h7S/bIwegdMEF
+ GiHWWK661BSxH1EOyMSwSckP+RPIzOilSH82z+G+v0Eootg6oMj38bB0bzB1Lw77X/
+ eI/Jzdso8457w==
+Subject: Re: [Bridge] [net-next v3 0/9] net: bridge: cfm: Add support for
+ Connectivity Fault Management(CFM)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,78 +47,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, jiri@resnulli.us, idosch@mellanox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
-Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "jiri@resnulli.us" <jiri@resnulli.us>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "kuba@kernel.org" <kuba@kernel.org>
 
-This is addition of CFM functionality to delete MEP instances
-on a port that is removed from the bridge.
-A MEP can only exist on a port that is related to a bridge.
-
-Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>m
-Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
----
- net/bridge/br_cfm.c     | 13 +++++++++++++
- net/bridge/br_if.c      |  1 +
- net/bridge/br_private.h |  6 ++++++
- 3 files changed, 20 insertions(+)
-
-diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-index 6fbfef44c235..fc8268cb76c1 100644
---- a/net/bridge/br_cfm.c
-+++ b/net/bridge/br_cfm.c
-@@ -867,3 +867,16 @@ bool br_cfm_created(struct net_bridge *br)
- {
- 	return !hlist_empty(&br->mep_list);
- }
-+
-+/* Deletes the CFM instances on a specific bridge port
-+ */
-+void br_cfm_port_del(struct net_bridge *br, struct net_bridge_port *port)
-+{
-+	struct br_cfm_mep *mep;
-+
-+	ASSERT_RTNL();
-+
-+	hlist_for_each_entry(mep, &br->mep_list, head)
-+		if (mep->create.ifindex == port->dev->ifindex)
-+			mep_delete_implementation(br, mep);
-+}
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index a0e9a7937412..f7d2f472ae24 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -334,6 +334,7 @@ static void del_nbp(struct net_bridge_port *p)
- 	spin_unlock_bh(&br->lock);
- 
- 	br_mrp_port_del(br, p);
-+	br_cfm_port_del(br, p);
- 
- 	br_ifinfo_notify(RTM_DELLINK, NULL, p);
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index c36a0e3e29f2..6c79b10dad82 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1465,6 +1465,7 @@ static inline int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br)
- int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
- 		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack);
- bool br_cfm_created(struct net_bridge *br);
-+void br_cfm_port_del(struct net_bridge *br, struct net_bridge_port *p);
- int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br);
- int br_cfm_status_fill_info(struct sk_buff *skb,
- 			    struct net_bridge *br,
-@@ -1484,6 +1485,11 @@ static inline bool br_cfm_created(struct net_bridge *br)
- 	return false;
- }
- 
-+static inline void br_cfm_port_del(struct net_bridge *br,
-+				   struct net_bridge_port *p)
-+{
-+}
-+
- static inline int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br)
- {
- 	return -EOPNOTSUPP;
--- 
-2.28.0
-
+T24gVHVlLCAyMDIwLTEwLTA2IGF0IDE0OjUzICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
+ZToNCj4gQ29ubmVjdGl2aXR5IEZhdWx0IE1hbmFnZW1lbnQgKENGTSkgaXMgZGVmaW5lZCBpbiA4
+MDIuMVEgc2VjdGlvbiAxMi4xNC4NCj4gDQo+IENvbm5lY3Rpdml0eSBGYXVsdCBNYW5hZ2VtZW50
+IChDRk0pIGNvbXByaXNlcyBjYXBhYmlsaXRpZXMgZm9yIGRldGVjdGluZywgdmVyaWZ5aW5nLA0K
+PiBhbmQgaXNvbGF0aW5nIGNvbm5lY3Rpdml0eSBmYWlsdXJlcyBpbiBWaXJ0dWFsIEJyaWRnZWQg
+TmV0d29ya3MuDQo+IFRoZXNlIGNhcGFiaWxpdGllcyBjYW4gYmUgdXNlZCBpbiBuZXR3b3JrcyBv
+cGVyYXRlZCBieSBtdWx0aXBsZSBpbmRlcGVuZGVudCBvcmdhbml6YXRpb25zLA0KPiBlYWNoIHdp
+dGggcmVzdHJpY3RlZCBtYW5hZ2VtZW50IGFjY2VzcyB0byBlYWNoIG90aGVy4oCZcyBlcXVpcG1l
+bnQuDQo+IA0KPiBDRk0gZnVuY3Rpb25zIGFyZSBwYXJ0aXRpb25lZCBhcyBmb2xsb3dzOg0KPiAg
+ICAg4oCUIFBhdGggZGlzY292ZXJ5DQo+ICAgICDigJQgRmF1bHQgZGV0ZWN0aW9uDQo+ICAgICDi
+gJQgRmF1bHQgdmVyaWZpY2F0aW9uIGFuZCBpc29sYXRpb24NCj4gICAgIOKAlCBGYXVsdCBub3Rp
+ZmljYXRpb24NCj4gICAgIOKAlCBGYXVsdCByZWNvdmVyeQ0KPiANCj4gVGhlIHByaW1hcnkgQ0ZN
+IHByb3RvY29sIHNoaW1zIGFyZSBjYWxsZWQgTWFpbnRlbmFuY2UgUG9pbnRzIChNUHMpLg0KPiBB
+IE1QIGNhbiBiZSBlaXRoZXIgYSBNRVAgb3IgYSBNSEYuDQo+IFRoZSBNRVA6DQo+ICAgICAtSXQg
+aXMgdGhlIE1haW50ZW5hbmNlIGFzc29jaWF0aW9uIEVuZCBQb2ludA0KPiAgICAgIGRlc2NyaWJl
+ZCBpbiA4MDIuMVEgc2VjdGlvbiAxOS4yLg0KPiAgICAgLUl0IGlzIGNyZWF0ZWQgb24gYSBzcGVj
+aWZpYyBsZXZlbCAoMS03KSBhbmQgaXMgYXNzdXJpbmcNCj4gICAgICB0aGF0IG5vIENGTSBmcmFt
+ZXMgYXJlIHBhc3NpbmcgdGhyb3VnaCB0aGlzIE1FUCBvbiBsb3dlciBsZXZlbHMuDQo+ICAgICAt
+SXQgaW5pdGlhdGVzIGFuZCB0ZXJtaW5hdGVzL3ZhbGlkYXRlcyBDRk0gZnJhbWVzIG9uIGl0cyBs
+ZXZlbC4NCj4gICAgIC1JdCBjYW4gb25seSBleGlzdCBvbiBhIHBvcnQgdGhhdCBpcyByZWxhdGVk
+IHRvIGEgYnJpZGdlLg0KPiBUaGUgTUhGOg0KPiAgICAgLUl0IGlzIHRoZSBNYWludGVuYW5jZSBE
+b21haW4gSW50ZXJtZWRpYXRlIFBvaW50DQo+ICAgICAgKE1JUCkgSGFsZiBGdW5jdGlvbiAoTUhG
+KSBkZXNjcmliZWQgaW4gODAyLjFRIHNlY3Rpb24gMTkuMy4NCj4gICAgIC1JdCBpcyBjcmVhdGVk
+IG9uIGEgc3BlY2lmaWMgbGV2ZWwgKDEtNykuDQo+ICAgICAtSXQgaXMgZXh0cmFjdGluZy9pbmpl
+Y3RpbmcgY2VydGFpbiBDRk0gZnJhbWUgb24gdGhpcyBsZXZlbC4NCj4gICAgIC1JdCBjYW4gb25s
+eSBleGlzdCBvbiBhIHBvcnQgdGhhdCBpcyByZWxhdGVkIHRvIGEgYnJpZGdlLg0KPiAgICAgLUN1
+cnJlbnRseSBub3Qgc3VwcG9ydGVkLg0KPiANCj4gVGhlcmUgYXJlIGRlZmluZWQgdGhlIGZvbGxv
+d2luZyBDRk0gcHJvdG9jb2wgZnVuY3Rpb25zOg0KPiAgICAgLUNvbnRpbnVpdHkgQ2hlY2sNCj4g
+ICAgIC1Mb29wYmFjay4gQ3VycmVudGx5IG5vdCBzdXBwb3J0ZWQuDQo+ICAgICAtTGlua3RyYWNl
+LiBDdXJyZW50bHkgbm90IHN1cHBvcnRlZC4NCj4gDQo+IFRoaXMgQ0ZNIGNvbXBvbmVudCBzdXBw
+b3J0cyBjcmVhdGUvZGVsZXRlIG9mIE1FUCBpbnN0YW5jZXMgYW5kIGNvbmZpZ3VyYXRpb24gb2YN
+Cj4gdGhlIGRpZmZlcmVudCBDRk0gcHJvdG9jb2xzLiBBbHNvIHN0YXR1cyBpbmZvcm1hdGlvbiBj
+YW4gYmUgZmV0Y2hlZCBhbmQgZGVsaXZlcmVkDQo+IHRocm91Z2ggbm90aWZpY2F0aW9uIGR1ZSB0
+byBkZWZlY3Qgc3RhdHVzIGNoYW5nZS4NCj4gDQo+IFRoZSB1c2VyIGludGVyYWN0cyB3aXRoIENG
+TSB1c2luZyB0aGUgJ2NmbScgdXNlciBzcGFjZSBjbGllbnQgcHJvZ3JhbSwNCj4gdGhlIGNsaWVu
+dCB0YWxrcyB3aXRoIHRoZSBrZXJuZWwgdXNpbmcgbmV0bGluay4NCj4gDQo+IEFueSBub3RpZmlj
+YXRpb24gZW1pdHRlZCBieSBDRk0gZnJvbSB0aGUga2VybmVsIGNhbiBiZSBtb25pdG9yZWQgaW4g
+dXNlciBzcGFjZQ0KPiBieSBzdGFydGluZyAnY2ZtX3NlcnZlcicgcHJvZ3JhbS4NCj4gDQo+IEN1
+cnJlbnRseSB0aGlzICdjZm0nIGFuZCAnY2ZtX3NlcnZlcicgcHJvZ3JhbXMgYXJlIHN0YW5kYWxv
+bmUgcGxhY2VkIGluIGEgY2ZtDQo+IHJlcG9zaXRvcnkgaHR0cHM6Ly9naXRodWIuY29tL21pY3Jv
+Y2hpcC11bmcvY2ZtIGJ1dCBpdCBpcyBjb25zaWRlcmVkIHRvIGludGVncmF0ZQ0KPiB0aGlzIGlu
+dG8gJ2lwcm91dGUyJy4NCj4gDQo+IHYyIC0+IHYzDQo+ICAgICBUaGUgc3dpdGNoZGV2IGRlZmlu
+aXRpb24gYW5kIHV0aWxpemF0aW9uIGhhcyBiZWVuIHJlbW92ZWQgYXMgdGhlcmUgd2FzIG5vDQo+
+ICAgICBzd2l0Y2hkZXYgaW1wbGVtZW50YXRpb24uDQo+ICAgICBTb21lIGNvbXBpbGluZyBpc3N1
+ZXMgYXJlIGZpeGVkIGFzIFJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2JvdCA8bGtwQGludGVs
+LmNvbT4uDQo+IA0KDQpXZWxsLCBmdW5ueSB0aW1pbmcuIDopIEkganVzdCBmaW5pc2hlZCByZXZp
+ZXdpbmcgdjIgaGFsZiBhbiBob3VyIGFnby4gQWxsIG9mIG15DQpjb21tZW50cyBmb3IgdjIgYXBw
+bHkgZm9yIHRoaXMgdjMgc2V0LCBzb3JyeSBidXQgeW91J2xsIGhhdmUgdG8gZml4IGEgZmV3IG1v
+cmUNCmlzc3Vlcy4NCg0KVGhhbmtzLA0KIE5paw0KDQo=
