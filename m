@@ -1,44 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Tue, 6 Oct 2020 14:53:00 +0000
-Message-ID: <e1ee6179d667fee17e2f6d9582a85669d6792cf7.camel@nvidia.com>
-References: <20201001103019.1342470-1-henrik.bjoernlund@microchip.com>
- <20201001103019.1342470-10-henrik.bjoernlund@microchip.com>
-In-Reply-To: <20201001103019.1342470-10-henrik.bjoernlund@microchip.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <7A04CE34C6F2D549A27F6791FB556628@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <Henrik.Bjoernlund@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1601996141; x=1633532141;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=ulyTQ6bu3wsgxeeSKBEqHp81k8dRGB+5UE8Ne+fj9Pg=;
+ b=XMDQebbDqxsVCA/KQivzhlNHdQXS4zgc6YzwcNcL6ItckVgI/Z2v4EAo
+ nn1gttYxpKcX0hhGZ0QtZvjUhUU7kfIFAYFForEHFsmXViNlN4SnYRvF/
+ Cm8womp0NbQBl9MQ3e67WIg/vSqCePJs+OinbPpnfMdaLBt1PdBkqIVJx
+ FB94cgUWNcmCw4MC591PdVcmaygdvahVuGTq6ahzC2smysdjAPzq7EL4Y
+ ZOXlLyWLeZ1At0PknS8UnjbUGkdD02POHXZ1zVwkk8zJswToDAvzISEBh
+ D0D8dEJSqFbeZBvvI2qBuBMP1yDi1Gx//5MwRdUc5peN1I/d0iPBuSpnC A==;
+From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Date: Tue, 6 Oct 2020 14:53:29 +0000
+Message-ID: <20201006145338.1956886-1-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1601995984; bh=N7Rgl0kfFqjFsbInGe7wqL9JXxvpY8RtAOtYcTdUzb0=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=WofO17WVN0CxHjpR1DnHwu5uvZGvtNe4zaYaFlB70MCYFONRgflid/udpd2p1xHmU
- UWO6mGDSvaFcZ4cvn0p5oyglvpCrN1TgQ1/BRaW6LmxEBI5jsBQD6axuhH5fLCJDz6
- +IqZiUxau11g2eRvLvB+66LyKrrcArg5nA/5XDNPLbBpdKyEle489hCpUNGrsr11h4
- E6anwexoXCx39e9Q8eElGt6evDvmNiDEvEcSt/rCxUmaZnQOVn/UdzKfyUD1FdFEft
- zhsWSsCPDQhzTFHKbFPuwmxCFHWpSMx17Lpk4wYDUsSvEUqE/JEUij5J66wWnqOsTe
- hQR1Y0QC0meqg==
-Subject: Re: [Bridge] [net-next v2 09/11] bridge: cfm: Bridge port remove.
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [net-next v3 0/9] net: bridge: cfm: Add support for
+	Connectivity Fault Management(CFM)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -47,58 +27,96 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@mellanox.com" <jiri@mellanox.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "kuba@kernel.org" <kuba@kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>
-Cc: "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>
+To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, jiri@resnulli.us, idosch@mellanox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
+Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
 
-T24gVGh1LCAyMDIwLTEwLTAxIGF0IDEwOjMwICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
-ZToNCj4gVGhpcyBpcyBhZGRpdGlvbiBvZiBDRk0gZnVuY3Rpb25hbGl0eSB0byBkZWxldGUgTUVQ
-IGluc3RhbmNlcw0KPiBvbiBhIHBvcnQgdGhhdCBpcyByZW1vdmVkIGZyb20gdGhlIGJyaWRnZS4N
-Cj4gQSBNRVAgY2FuIG9ubHkgZXhpc3Qgb24gYSBwb3J0IHRoYXQgaXMgcmVsYXRlZCB0byBhIGJy
-aWRnZS4NCj4gDQo+IFJldmlld2VkLWJ5OiBIb3JhdGl1IFZ1bHR1ciAgPGhvcmF0aXUudnVsdHVy
-QG1pY3JvY2hpcC5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IEhlbnJpayBCam9lcm5sdW5kICA8aGVu
-cmlrLmJqb2Vybmx1bmRAbWljcm9jaGlwLmNvbT5tDQo+IC0tLQ0KPiAgbmV0L2JyaWRnZS9icl9j
-Zm0uYyAgICAgfCAxMyArKysrKysrKysrKysrDQo+ICBuZXQvYnJpZGdlL2JyX2lmLmMgICAgICB8
-ICAxICsNCj4gIG5ldC9icmlkZ2UvYnJfcHJpdmF0ZS5oIHwgIDYgKysrKysrDQo+ICAzIGZpbGVz
-IGNoYW5nZWQsIDIwIGluc2VydGlvbnMoKykNCj4gDQoNClRoaXMgcGF0Y2ggc2hvdWxkIGJlIGEg
-cGFydCBvZiB0aGUgb25lIHdoaWNoIGFkZHMgdGhlIGFiaWxpdHkgdG8gYXR0YWNoIE1FUHMgdG8N
-CnBvcnRzIHNvIHRoZXkgd2lsbCBnZXQgY2xlYW5lZCB1cCBwcm9wZXJseSBvbiBwb3J0IGRlbCBp
-biB0aGUgc2FtZSBwYXRjaC4NCklzIHRoZXJlIGEgcmVhc29uIGZvciBpdCB0byBiZSBhIHNlcGFy
-YXRlIHBhdGNoPw0KDQpPbmUgbW9yZSBjb21tZW50IGJlbG93Lg0KDQpUaGFua3MsDQogTmlrDQoN
-Cj4gZGlmZiAtLWdpdCBhL25ldC9icmlkZ2UvYnJfY2ZtLmMgYi9uZXQvYnJpZGdlL2JyX2NmbS5j
-DQo+IGluZGV4IDZmYmZlZjQ0YzIzNS4uZmM4MjY4Y2I3NmMxIDEwMDY0NA0KPiAtLS0gYS9uZXQv
-YnJpZGdlL2JyX2NmbS5jDQo+ICsrKyBiL25ldC9icmlkZ2UvYnJfY2ZtLmMNCj4gQEAgLTg2Nywz
-ICs4NjcsMTYgQEAgYm9vbCBicl9jZm1fY3JlYXRlZChzdHJ1Y3QgbmV0X2JyaWRnZSAqYnIpDQo+
-ICB7DQo+ICAJcmV0dXJuICFobGlzdF9lbXB0eSgmYnItPm1lcF9saXN0KTsNCj4gIH0NCj4gKw0K
-PiArLyogRGVsZXRlcyB0aGUgQ0ZNIGluc3RhbmNlcyBvbiBhIHNwZWNpZmljIGJyaWRnZSBwb3J0
-DQo+ICsgKi8NCj4gK3ZvaWQgYnJfY2ZtX3BvcnRfZGVsKHN0cnVjdCBuZXRfYnJpZGdlICpiciwg
-c3RydWN0IG5ldF9icmlkZ2VfcG9ydCAqcG9ydCkNCj4gK3sNCj4gKwlzdHJ1Y3QgYnJfY2ZtX21l
-cCAqbWVwOw0KPiArDQo+ICsJQVNTRVJUX1JUTkwoKTsNCj4gKw0KPiArCWhsaXN0X2Zvcl9lYWNo
-X2VudHJ5KG1lcCwgJmJyLT5tZXBfbGlzdCwgaGVhZCkNCg0KaGxpc3RfZm9yX2VhY2hfZW50cnlf
-c2FmZSgpDQoNCj4gKwkJaWYgKG1lcC0+Y3JlYXRlLmlmaW5kZXggPT0gcG9ydC0+ZGV2LT5pZmlu
-ZGV4KQ0KPiArCQkJbWVwX2RlbGV0ZV9pbXBsZW1lbnRhdGlvbihiciwgbWVwKTsNCj4gK30NCj4g
-ZGlmZiAtLWdpdCBhL25ldC9icmlkZ2UvYnJfaWYuYyBiL25ldC9icmlkZ2UvYnJfaWYuYw0KPiBp
-bmRleCBhMGU5YTc5Mzc0MTIuLmY3ZDJmNDcyYWUyNCAxMDA2NDQNCj4gLS0tIGEvbmV0L2JyaWRn
-ZS9icl9pZi5jDQo+ICsrKyBiL25ldC9icmlkZ2UvYnJfaWYuYw0KPiBAQCAtMzM0LDYgKzMzNCw3
-IEBAIHN0YXRpYyB2b2lkIGRlbF9uYnAoc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAqcCkNCj4gIAlz
-cGluX3VubG9ja19iaCgmYnItPmxvY2spOw0KPiAgDQo+ICAJYnJfbXJwX3BvcnRfZGVsKGJyLCBw
-KTsNCj4gKwlicl9jZm1fcG9ydF9kZWwoYnIsIHApOw0KPiAgDQo+ICAJYnJfaWZpbmZvX25vdGlm
-eShSVE1fREVMTElOSywgTlVMTCwgcCk7DQo+ICANCj4gZGlmZiAtLWdpdCBhL25ldC9icmlkZ2Uv
-YnJfcHJpdmF0ZS5oIGIvbmV0L2JyaWRnZS9icl9wcml2YXRlLmgNCj4gaW5kZXggNTk1NGVlNDVh
-ZjgwLi43MzVkZDAwMjhiNDAgMTAwNjQ0DQo+IC0tLSBhL25ldC9icmlkZ2UvYnJfcHJpdmF0ZS5o
-DQo+ICsrKyBiL25ldC9icmlkZ2UvYnJfcHJpdmF0ZS5oDQo+IEBAIC0xNDY1LDYgKzE0NjUsNyBA
-QCBzdGF0aWMgaW5saW5lIGludCBicl9tcnBfZmlsbF9pbmZvKHN0cnVjdCBza19idWZmICpza2Is
-IHN0cnVjdCBuZXRfYnJpZGdlICpicikNCj4gIGludCBicl9jZm1fcGFyc2Uoc3RydWN0IG5ldF9i
-cmlkZ2UgKmJyLCBzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpwLA0KPiAgCQkgc3RydWN0IG5sYXR0
-ciAqYXR0ciwgaW50IGNtZCwgc3RydWN0IG5ldGxpbmtfZXh0X2FjayAqZXh0YWNrKTsNCj4gIGJv
-b2wgYnJfY2ZtX2NyZWF0ZWQoc3RydWN0IG5ldF9icmlkZ2UgKmJyKTsNCj4gK3ZvaWQgYnJfY2Zt
-X3BvcnRfZGVsKHN0cnVjdCBuZXRfYnJpZGdlICpiciwgc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAq
-cCk7DQo+ICBpbnQgYnJfY2ZtX2NvbmZpZ19maWxsX2luZm8oc3RydWN0IHNrX2J1ZmYgKnNrYiwg
-c3RydWN0IG5ldF9icmlkZ2UgKmJyKTsNCj4gIGludCBicl9jZm1fc3RhdHVzX2ZpbGxfaW5mbyhz
-dHJ1Y3Qgc2tfYnVmZiAqc2tiLA0KPiAgCQkJICAgIHN0cnVjdCBuZXRfYnJpZGdlICpiciwNCj4g
-QEAgLTE0ODQsNiArMTQ4NSwxMSBAQCBzdGF0aWMgaW5saW5lIGJvb2wgYnJfY2ZtX2NyZWF0ZWQo
-c3RydWN0IG5ldF9icmlkZ2UgKmJyKQ0KPiAgCXJldHVybiBmYWxzZTsNCj4gIH0NCj4gIA0KPiAr
-c3RhdGljIGlubGluZSB2b2lkIGJyX2NmbV9wb3J0X2RlbChzdHJ1Y3QgbmV0X2JyaWRnZSAqYnIs
-DQo+ICsJCQkJICAgc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAqcCkNCj4gK3sNCj4gK30NCj4gKw0K
-PiAgc3RhdGljIGlubGluZSBpbnQgYnJfY2ZtX2NvbmZpZ19maWxsX2luZm8oc3RydWN0IHNrX2J1
-ZmYgKnNrYiwgc3RydWN0IG5ldF9icmlkZ2UgKmJyKQ0KPiAgew0KPiAgCXJldHVybiAtRU9QTk9U
-U1VQUDsNCg0K
+Connectivity Fault Management (CFM) is defined in 802.1Q section 12.14.
+
+Connectivity Fault Management (CFM) comprises capabilities for detecting, verifying,
+and isolating connectivity failures in Virtual Bridged Networks.
+These capabilities can be used in networks operated by multiple independent organizations,
+each with restricted management access to each other’s equipment.
+
+CFM functions are partitioned as follows:
+    — Path discovery
+    — Fault detection
+    — Fault verification and isolation
+    — Fault notification
+    — Fault recovery
+
+The primary CFM protocol shims are called Maintenance Points (MPs).
+A MP can be either a MEP or a MHF.
+The MEP:
+    -It is the Maintenance association End Point
+     described in 802.1Q section 19.2.
+    -It is created on a specific level (1-7) and is assuring
+     that no CFM frames are passing through this MEP on lower levels.
+    -It initiates and terminates/validates CFM frames on its level.
+    -It can only exist on a port that is related to a bridge.
+The MHF:
+    -It is the Maintenance Domain Intermediate Point
+     (MIP) Half Function (MHF) described in 802.1Q section 19.3.
+    -It is created on a specific level (1-7).
+    -It is extracting/injecting certain CFM frame on this level.
+    -It can only exist on a port that is related to a bridge.
+    -Currently not supported.
+
+There are defined the following CFM protocol functions:
+    -Continuity Check
+    -Loopback. Currently not supported.
+    -Linktrace. Currently not supported.
+
+This CFM component supports create/delete of MEP instances and configuration of
+the different CFM protocols. Also status information can be fetched and delivered
+through notification due to defect status change.
+
+The user interacts with CFM using the 'cfm' user space client program,
+the client talks with the kernel using netlink.
+
+Any notification emitted by CFM from the kernel can be monitored in user space
+by starting 'cfm_server' program.
+
+Currently this 'cfm' and 'cfm_server' programs are standalone placed in a cfm
+repository https://github.com/microchip-ung/cfm but it is considered to integrate
+this into 'iproute2'.
+
+v2 -> v3
+    The switchdev definition and utilization has been removed as there was no
+    switchdev implementation.
+    Some compiling issues are fixed as Reported-by: kernel test robot <lkp@intel.com>.
+
+Henrik Bjoernlund (9):
+  net: bridge: extend the process of special frames
+  bridge: cfm: Add BRIDGE_CFM to Kconfig.
+  bridge: uapi: cfm: Added EtherType used by the CFM protocol.
+  bridge: cfm: Kernel space implementation of CFM.
+  bridge: cfm: Kernel space implementation of CFM.
+  bridge: cfm: Kernel space implementation of CFM.
+  bridge: cfm: Netlink Interface.
+  bridge: cfm: Netlink Notifications.
+  bridge: cfm: Bridge port remove.
+
+ include/uapi/linux/cfm_bridge.h |  70 +++
+ include/uapi/linux/if_bridge.h  | 125 +++++
+ include/uapi/linux/if_ether.h   |   1 +
+ include/uapi/linux/rtnetlink.h  |   2 +
+ net/bridge/Kconfig              |  11 +
+ net/bridge/Makefile             |   2 +
+ net/bridge/br_cfm.c             | 882 ++++++++++++++++++++++++++++++++
+ net/bridge/br_cfm_netlink.c     | 731 ++++++++++++++++++++++++++
+ net/bridge/br_device.c          |   4 +
+ net/bridge/br_if.c              |   1 +
+ net/bridge/br_input.c           |  31 +-
+ net/bridge/br_mrp.c             |  19 +-
+ net/bridge/br_netlink.c         | 138 ++++-
+ net/bridge/br_private.h         |  76 ++-
+ net/bridge/br_private_cfm.h     | 147 ++++++
+ 15 files changed, 2205 insertions(+), 35 deletions(-)
+ create mode 100644 include/uapi/linux/cfm_bridge.h
+ create mode 100644 net/bridge/br_cfm.c
+ create mode 100644 net/bridge/br_cfm_netlink.c
+ create mode 100644 net/bridge/br_private_cfm.h
+
+-- 
+2.28.0
+
