@@ -1,44 +1,23 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Tue, 6 Oct 2020 15:00:05 +0000
-Message-ID: <0e6cc78ebf37fcb4e2455cd331d250091e4c9ecc.camel@nvidia.com>
-References: <20201006145338.1956886-1-henrik.bjoernlund@microchip.com>
-In-Reply-To: <20201006145338.1956886-1-henrik.bjoernlund@microchip.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <D6432D25BADF6A428E763BFC89CF3E78@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <Henrik.Bjoernlund@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1602072540; x=1633608540;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=A71AhQGOkyGRAStPfAC/MBymcrQUUaFkVYzBRt+XfEQ=;
+ b=kTU7lhXA3LOq3XVwjI40xKX70G+yx4xIEdewrNMe8MftvT+i5JPu3Uq1
+ Hi0v7cw4MqQYSVQgUorfSXh6gCDKjFPXP11hwny7XaSDFh73c9B2NTLnA
+ uFZHhjKltHQs4RmgM4HQtJedLEnEyZCBUmev+34iZQ/WAYYn7RTihhdDf
+ wgUZsrG9m0Hu32N+4i87YSjPBCTqewobzuKI4zIYCi8qmHUyusfX6GK1f
+ p48sz500t8dMy0Kmd14kdRxaDKrX0WGwduIzJAlA+wR7zdN5hooJ+U5tW
+ 9u426z5VF13VBv/eC4C1XClxzS8EyK+l4iRfjPws1sokKX2rsuHeAGkwR w==;
+From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Date: Wed, 7 Oct 2020 12:07:00 +0000
+Message-ID: <20201007120700.2152699-1-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1601996408; bh=jLqZ8UerVJu0vybRt9nuCySI6hVkYw1WUdSY9EVoyKA=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=nleTyEerJLHcDPYW8TxgqzEeZROKc7oTW6WMYSCmXMQewxjDSsySGh2hKUErBc96J
- pVf4bZ7pTHe7tJlALyuxPSLfERsdTTO+YLc7Cy/KjLjR2+wdXkSoQpXzuD0rqbxcR0
- vpLWXkeqAhC6DI/lqgFRIG/NxjCJTsFYKPVE5xyihmlViTuzvyGKh+QIK2lQ9aQeR3
- Xs0PmzdRLylIFBzjJEoiOTYbKiecynAPsWFeq/pSVSfCHrb+wuhi7h7S/bIwegdMEF
- GiHWWK661BSxH1EOyMSwSckP+RPIzOilSH82z+G+v0Eootg6oMj38bB0bzB1Lw77X/
- eI/Jzdso8457w==
-Subject: Re: [Bridge] [net-next v3 0/9] net: bridge: cfm: Add support for
- Connectivity Fault Management(CFM)
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] bridge: Netlink interface fix.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -47,54 +26,101 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "jiri@resnulli.us" <jiri@resnulli.us>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "kuba@kernel.org" <kuba@kernel.org>
+To: davem@davemloft.net, roopa@nvidia.com, nikolay@nvidia.com, kuba@kernel.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com
+Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-T24gVHVlLCAyMDIwLTEwLTA2IGF0IDE0OjUzICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
-ZToNCj4gQ29ubmVjdGl2aXR5IEZhdWx0IE1hbmFnZW1lbnQgKENGTSkgaXMgZGVmaW5lZCBpbiA4
-MDIuMVEgc2VjdGlvbiAxMi4xNC4NCj4gDQo+IENvbm5lY3Rpdml0eSBGYXVsdCBNYW5hZ2VtZW50
-IChDRk0pIGNvbXByaXNlcyBjYXBhYmlsaXRpZXMgZm9yIGRldGVjdGluZywgdmVyaWZ5aW5nLA0K
-PiBhbmQgaXNvbGF0aW5nIGNvbm5lY3Rpdml0eSBmYWlsdXJlcyBpbiBWaXJ0dWFsIEJyaWRnZWQg
-TmV0d29ya3MuDQo+IFRoZXNlIGNhcGFiaWxpdGllcyBjYW4gYmUgdXNlZCBpbiBuZXR3b3JrcyBv
-cGVyYXRlZCBieSBtdWx0aXBsZSBpbmRlcGVuZGVudCBvcmdhbml6YXRpb25zLA0KPiBlYWNoIHdp
-dGggcmVzdHJpY3RlZCBtYW5hZ2VtZW50IGFjY2VzcyB0byBlYWNoIG90aGVy4oCZcyBlcXVpcG1l
-bnQuDQo+IA0KPiBDRk0gZnVuY3Rpb25zIGFyZSBwYXJ0aXRpb25lZCBhcyBmb2xsb3dzOg0KPiAg
-ICAg4oCUIFBhdGggZGlzY292ZXJ5DQo+ICAgICDigJQgRmF1bHQgZGV0ZWN0aW9uDQo+ICAgICDi
-gJQgRmF1bHQgdmVyaWZpY2F0aW9uIGFuZCBpc29sYXRpb24NCj4gICAgIOKAlCBGYXVsdCBub3Rp
-ZmljYXRpb24NCj4gICAgIOKAlCBGYXVsdCByZWNvdmVyeQ0KPiANCj4gVGhlIHByaW1hcnkgQ0ZN
-IHByb3RvY29sIHNoaW1zIGFyZSBjYWxsZWQgTWFpbnRlbmFuY2UgUG9pbnRzIChNUHMpLg0KPiBB
-IE1QIGNhbiBiZSBlaXRoZXIgYSBNRVAgb3IgYSBNSEYuDQo+IFRoZSBNRVA6DQo+ICAgICAtSXQg
-aXMgdGhlIE1haW50ZW5hbmNlIGFzc29jaWF0aW9uIEVuZCBQb2ludA0KPiAgICAgIGRlc2NyaWJl
-ZCBpbiA4MDIuMVEgc2VjdGlvbiAxOS4yLg0KPiAgICAgLUl0IGlzIGNyZWF0ZWQgb24gYSBzcGVj
-aWZpYyBsZXZlbCAoMS03KSBhbmQgaXMgYXNzdXJpbmcNCj4gICAgICB0aGF0IG5vIENGTSBmcmFt
-ZXMgYXJlIHBhc3NpbmcgdGhyb3VnaCB0aGlzIE1FUCBvbiBsb3dlciBsZXZlbHMuDQo+ICAgICAt
-SXQgaW5pdGlhdGVzIGFuZCB0ZXJtaW5hdGVzL3ZhbGlkYXRlcyBDRk0gZnJhbWVzIG9uIGl0cyBs
-ZXZlbC4NCj4gICAgIC1JdCBjYW4gb25seSBleGlzdCBvbiBhIHBvcnQgdGhhdCBpcyByZWxhdGVk
-IHRvIGEgYnJpZGdlLg0KPiBUaGUgTUhGOg0KPiAgICAgLUl0IGlzIHRoZSBNYWludGVuYW5jZSBE
-b21haW4gSW50ZXJtZWRpYXRlIFBvaW50DQo+ICAgICAgKE1JUCkgSGFsZiBGdW5jdGlvbiAoTUhG
-KSBkZXNjcmliZWQgaW4gODAyLjFRIHNlY3Rpb24gMTkuMy4NCj4gICAgIC1JdCBpcyBjcmVhdGVk
-IG9uIGEgc3BlY2lmaWMgbGV2ZWwgKDEtNykuDQo+ICAgICAtSXQgaXMgZXh0cmFjdGluZy9pbmpl
-Y3RpbmcgY2VydGFpbiBDRk0gZnJhbWUgb24gdGhpcyBsZXZlbC4NCj4gICAgIC1JdCBjYW4gb25s
-eSBleGlzdCBvbiBhIHBvcnQgdGhhdCBpcyByZWxhdGVkIHRvIGEgYnJpZGdlLg0KPiAgICAgLUN1
-cnJlbnRseSBub3Qgc3VwcG9ydGVkLg0KPiANCj4gVGhlcmUgYXJlIGRlZmluZWQgdGhlIGZvbGxv
-d2luZyBDRk0gcHJvdG9jb2wgZnVuY3Rpb25zOg0KPiAgICAgLUNvbnRpbnVpdHkgQ2hlY2sNCj4g
-ICAgIC1Mb29wYmFjay4gQ3VycmVudGx5IG5vdCBzdXBwb3J0ZWQuDQo+ICAgICAtTGlua3RyYWNl
-LiBDdXJyZW50bHkgbm90IHN1cHBvcnRlZC4NCj4gDQo+IFRoaXMgQ0ZNIGNvbXBvbmVudCBzdXBw
-b3J0cyBjcmVhdGUvZGVsZXRlIG9mIE1FUCBpbnN0YW5jZXMgYW5kIGNvbmZpZ3VyYXRpb24gb2YN
-Cj4gdGhlIGRpZmZlcmVudCBDRk0gcHJvdG9jb2xzLiBBbHNvIHN0YXR1cyBpbmZvcm1hdGlvbiBj
-YW4gYmUgZmV0Y2hlZCBhbmQgZGVsaXZlcmVkDQo+IHRocm91Z2ggbm90aWZpY2F0aW9uIGR1ZSB0
-byBkZWZlY3Qgc3RhdHVzIGNoYW5nZS4NCj4gDQo+IFRoZSB1c2VyIGludGVyYWN0cyB3aXRoIENG
-TSB1c2luZyB0aGUgJ2NmbScgdXNlciBzcGFjZSBjbGllbnQgcHJvZ3JhbSwNCj4gdGhlIGNsaWVu
-dCB0YWxrcyB3aXRoIHRoZSBrZXJuZWwgdXNpbmcgbmV0bGluay4NCj4gDQo+IEFueSBub3RpZmlj
-YXRpb24gZW1pdHRlZCBieSBDRk0gZnJvbSB0aGUga2VybmVsIGNhbiBiZSBtb25pdG9yZWQgaW4g
-dXNlciBzcGFjZQ0KPiBieSBzdGFydGluZyAnY2ZtX3NlcnZlcicgcHJvZ3JhbS4NCj4gDQo+IEN1
-cnJlbnRseSB0aGlzICdjZm0nIGFuZCAnY2ZtX3NlcnZlcicgcHJvZ3JhbXMgYXJlIHN0YW5kYWxv
-bmUgcGxhY2VkIGluIGEgY2ZtDQo+IHJlcG9zaXRvcnkgaHR0cHM6Ly9naXRodWIuY29tL21pY3Jv
-Y2hpcC11bmcvY2ZtIGJ1dCBpdCBpcyBjb25zaWRlcmVkIHRvIGludGVncmF0ZQ0KPiB0aGlzIGlu
-dG8gJ2lwcm91dGUyJy4NCj4gDQo+IHYyIC0+IHYzDQo+ICAgICBUaGUgc3dpdGNoZGV2IGRlZmlu
-aXRpb24gYW5kIHV0aWxpemF0aW9uIGhhcyBiZWVuIHJlbW92ZWQgYXMgdGhlcmUgd2FzIG5vDQo+
-ICAgICBzd2l0Y2hkZXYgaW1wbGVtZW50YXRpb24uDQo+ICAgICBTb21lIGNvbXBpbGluZyBpc3N1
-ZXMgYXJlIGZpeGVkIGFzIFJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2JvdCA8bGtwQGludGVs
-LmNvbT4uDQo+IA0KDQpXZWxsLCBmdW5ueSB0aW1pbmcuIDopIEkganVzdCBmaW5pc2hlZCByZXZp
-ZXdpbmcgdjIgaGFsZiBhbiBob3VyIGFnby4gQWxsIG9mIG15DQpjb21tZW50cyBmb3IgdjIgYXBw
-bHkgZm9yIHRoaXMgdjMgc2V0LCBzb3JyeSBidXQgeW91J2xsIGhhdmUgdG8gZml4IGEgZmV3IG1v
-cmUNCmlzc3Vlcy4NCg0KVGhhbmtzLA0KIE5paw0KDQo=
+This commit is correcting NETLINK br_fill_ifinfo() to be able to
+handle 'filter_mask' with multiple flags asserted.
+
+Fixes: 36a8e8e265420 ("bridge: Extend br_fill_ifinfo to return MPR status")
+
+Signed-off-by: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Tested-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ net/bridge/br_netlink.c | 26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 8a71c60fa357..92d64abffa87 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -380,6 +380,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 			  u32 filter_mask, const struct net_device *dev)
+ {
+ 	u8 operstate = netif_running(dev) ? dev->operstate : IF_OPER_DOWN;
++	struct nlattr *af = NULL;
+ 	struct net_bridge *br;
+ 	struct ifinfomsg *hdr;
+ 	struct nlmsghdr *nlh;
+@@ -423,11 +424,18 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 		nla_nest_end(skb, nest);
+ 	}
+ 
++	if (filter_mask & (RTEXT_FILTER_BRVLAN |
++			   RTEXT_FILTER_BRVLAN_COMPRESSED |
++			   RTEXT_FILTER_MRP)) {
++		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
++		if (!af)
++			goto nla_put_failure;
++	}
++
+ 	/* Check if  the VID information is requested */
+ 	if ((filter_mask & RTEXT_FILTER_BRVLAN) ||
+ 	    (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)) {
+ 		struct net_bridge_vlan_group *vg;
+-		struct nlattr *af;
+ 		int err;
+ 
+ 		/* RCU needed because of the VLAN locking rules (rcu || rtnl) */
+@@ -441,11 +449,6 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 			rcu_read_unlock();
+ 			goto done;
+ 		}
+-		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
+-		if (!af) {
+-			rcu_read_unlock();
+-			goto nla_put_failure;
+-		}
+ 		if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
+ 			err = br_fill_ifvlaninfo_compressed(skb, vg);
+ 		else
+@@ -456,32 +459,25 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 		rcu_read_unlock();
+ 		if (err)
+ 			goto nla_put_failure;
+-
+-		nla_nest_end(skb, af);
+ 	}
+ 
+ 	if (filter_mask & RTEXT_FILTER_MRP) {
+-		struct nlattr *af;
+ 		int err;
+ 
+ 		if (!br_mrp_enabled(br) || port)
+ 			goto done;
+ 
+-		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
+-		if (!af)
+-			goto nla_put_failure;
+-
+ 		rcu_read_lock();
+ 		err = br_mrp_fill_info(skb, br);
+ 		rcu_read_unlock();
+ 
+ 		if (err)
+ 			goto nla_put_failure;
+-
+-		nla_nest_end(skb, af);
+ 	}
+ 
+ done:
++	if (af)
++		nla_nest_end(skb, af);
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
+ 
+-- 
+2.28.0
+
