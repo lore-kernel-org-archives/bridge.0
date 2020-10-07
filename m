@@ -1,23 +1,43 @@
-Return-Path: <Henrik.Bjoernlund@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1602072540; x=1633608540;
- h=from:to:cc:subject:date:message-id:mime-version:
- content-transfer-encoding;
- bh=A71AhQGOkyGRAStPfAC/MBymcrQUUaFkVYzBRt+XfEQ=;
- b=kTU7lhXA3LOq3XVwjI40xKX70G+yx4xIEdewrNMe8MftvT+i5JPu3Uq1
- Hi0v7cw4MqQYSVQgUorfSXh6gCDKjFPXP11hwny7XaSDFh73c9B2NTLnA
- uFZHhjKltHQs4RmgM4HQtJedLEnEyZCBUmev+34iZQ/WAYYn7RTihhdDf
- wgUZsrG9m0Hu32N+4i87YSjPBCTqewobzuKI4zIYCi8qmHUyusfX6GK1f
- p48sz500t8dMy0Kmd14kdRxaDKrX0WGwduIzJAlA+wR7zdN5hooJ+U5tW
- 9u426z5VF13VBv/eC4C1XClxzS8EyK+l4iRfjPws1sokKX2rsuHeAGkwR w==;
-From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Date: Wed, 7 Oct 2020 12:07:00 +0000
-Message-ID: <20201007120700.2152699-1-henrik.bjoernlund@microchip.com>
+Return-Path: <nikolay@nvidia.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Date: Wed, 7 Oct 2020 14:49:17 +0000
+Message-ID: <32183f25a3d7ee8c148db42fbed9dd2a6e0a1f92.camel@nvidia.com>
+References: <20201007120700.2152699-1-henrik.bjoernlund@microchip.com>
+In-Reply-To: <20201007120700.2152699-1-henrik.bjoernlund@microchip.com>
+Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <54A55BAAEF11184F834429296B94FC63@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net] bridge: Netlink interface fix.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1602082147; bh=3Jc9d6oKhSlWFgXQPSyR4MIJKx1eafTynQ0vc7DYmec=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
+ CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+ In-Reply-To:Reply-To:Accept-Language:Content-Language:
+ X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
+ authentication-results:x-originating-ip:x-ms-publictraffictype:
+ x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
+ x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
+ x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
+ x-microsoft-antispam:x-microsoft-antispam-message-info:
+ x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
+ Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-originalarrivaltime:
+ X-MS-Exchange-CrossTenant-fromentityheader:
+ X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+ X-MS-Exchange-CrossTenant-userprincipalname:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=LKdt3A/8P3dWCjD7skfoQ+HQ+cODP6DrpLiu+7pAg2yTupN/8DcmJHGuQzgoHyWZB
+ wpwjDqKc+vASc802588Zo8s1FC08K4+ytCpAQXeuA/J3L5xzWenzKgbAU/DVXl9PUA
+ Kgt2B05cCVKFI5WtHRcgeVFTEuhFYCNIlsBJtB+4wANrUPC3Tp69om5+mIhZ1muU9Y
+ iyEFUE8wgn8vG1unamhmr+u5f+NkkBMfOuNy0gcVNZN8htBAgbelivavRHXTKiQfMQ
+ m/DqBk85Axm/vu/Rtg28JRNVphtSB2RM+Bi3y8uqXl+LI6hZxDPxydscGEjtdRhsA4
+ dxSDYwLCpCcTg==
+Subject: Re: [Bridge] [PATCH net] bridge: Netlink interface fix.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,101 +46,21 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, roopa@nvidia.com, nikolay@nvidia.com, kuba@kernel.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com
-Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kuba@kernel.org" <kuba@kernel.org>, Roopa
+ Prabhu <roopa@nvidia.com>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>
 
-This commit is correcting NETLINK br_fill_ifinfo() to be able to
-handle 'filter_mask' with multiple flags asserted.
-
-Fixes: 36a8e8e265420 ("bridge: Extend br_fill_ifinfo to return MPR status")
-
-Signed-off-by: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Tested-by: Horatiu Vultur <horatiu.vultur@microchip.com>
----
- net/bridge/br_netlink.c | 26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
-
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 8a71c60fa357..92d64abffa87 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -380,6 +380,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 			  u32 filter_mask, const struct net_device *dev)
- {
- 	u8 operstate = netif_running(dev) ? dev->operstate : IF_OPER_DOWN;
-+	struct nlattr *af = NULL;
- 	struct net_bridge *br;
- 	struct ifinfomsg *hdr;
- 	struct nlmsghdr *nlh;
-@@ -423,11 +424,18 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 		nla_nest_end(skb, nest);
- 	}
- 
-+	if (filter_mask & (RTEXT_FILTER_BRVLAN |
-+			   RTEXT_FILTER_BRVLAN_COMPRESSED |
-+			   RTEXT_FILTER_MRP)) {
-+		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
-+		if (!af)
-+			goto nla_put_failure;
-+	}
-+
- 	/* Check if  the VID information is requested */
- 	if ((filter_mask & RTEXT_FILTER_BRVLAN) ||
- 	    (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)) {
- 		struct net_bridge_vlan_group *vg;
--		struct nlattr *af;
- 		int err;
- 
- 		/* RCU needed because of the VLAN locking rules (rcu || rtnl) */
-@@ -441,11 +449,6 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 			rcu_read_unlock();
- 			goto done;
- 		}
--		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
--		if (!af) {
--			rcu_read_unlock();
--			goto nla_put_failure;
--		}
- 		if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
- 			err = br_fill_ifvlaninfo_compressed(skb, vg);
- 		else
-@@ -456,32 +459,25 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 		rcu_read_unlock();
- 		if (err)
- 			goto nla_put_failure;
--
--		nla_nest_end(skb, af);
- 	}
- 
- 	if (filter_mask & RTEXT_FILTER_MRP) {
--		struct nlattr *af;
- 		int err;
- 
- 		if (!br_mrp_enabled(br) || port)
- 			goto done;
- 
--		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
--		if (!af)
--			goto nla_put_failure;
--
- 		rcu_read_lock();
- 		err = br_mrp_fill_info(skb, br);
- 		rcu_read_unlock();
- 
- 		if (err)
- 			goto nla_put_failure;
--
--		nla_nest_end(skb, af);
- 	}
- 
- done:
-+	if (af)
-+		nla_nest_end(skb, af);
- 	nlmsg_end(skb, nlh);
- 	return 0;
- 
--- 
-2.28.0
-
+T24gV2VkLCAyMDIwLTEwLTA3IGF0IDEyOjA3ICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
+ZToNCj4gVGhpcyBjb21taXQgaXMgY29ycmVjdGluZyBORVRMSU5LIGJyX2ZpbGxfaWZpbmZvKCkg
+dG8gYmUgYWJsZSB0bw0KPiBoYW5kbGUgJ2ZpbHRlcl9tYXNrJyB3aXRoIG11bHRpcGxlIGZsYWdz
+IGFzc2VydGVkLg0KPiANCj4gRml4ZXM6IDM2YThlOGUyNjU0MjAgKCJicmlkZ2U6IEV4dGVuZCBi
+cl9maWxsX2lmaW5mbyB0byByZXR1cm4gTVBSIHN0YXR1cyIpDQo+IA0KPiBTaWduZWQtb2ZmLWJ5
+OiBIZW5yaWsgQmpvZXJubHVuZCA8aGVucmlrLmJqb2Vybmx1bmRAbWljcm9jaGlwLmNvbT4NCj4g
+UmV2aWV3ZWQtYnk6IEhvcmF0aXUgVnVsdHVyIDxob3JhdGl1LnZ1bHR1ckBtaWNyb2NoaXAuY29t
+Pg0KPiBTdWdnZXN0ZWQtYnk6IE5pa29sYXkgQWxla3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNv
+bT4NCj4gVGVzdGVkLWJ5OiBIb3JhdGl1IFZ1bHR1ciA8aG9yYXRpdS52dWx0dXJAbWljcm9jaGlw
+LmNvbT4NCj4gLS0tDQo+ICBuZXQvYnJpZGdlL2JyX25ldGxpbmsuYyB8IDI2ICsrKysrKysrKysr
+LS0tLS0tLS0tLS0tLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKSwgMTUg
+ZGVsZXRpb25zKC0pDQo+IA0KDQpUaGUgcGF0Y2ggbG9va3MgZ29vZCwgcGxlYXNlIGRvbid0IHNl
+cGFyYXRlIHRoZSBGaXhlcyB0YWcgZnJvbSB0aGUgb3RoZXJzLg0KQWNrZWQtYnk6IE5pa29sYXkg
+QWxla3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNvbT4NCg0K
