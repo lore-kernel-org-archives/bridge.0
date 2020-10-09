@@ -1,18 +1,18 @@
 Return-Path: <nikolay@nvidia.com>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Fri, 9 Oct 2020 21:49:51 +0000
-Message-ID: <a091e766d38c00ef4d70b3bc003e16dc3747789b.camel@nvidia.com>
+Date: Fri, 9 Oct 2020 21:52:32 +0000
+Message-ID: <2ec76c98813c8190ced9e34b70b46d2dad94d714.camel@nvidia.com>
 References: <20201009143530.2438738-1-henrik.bjoernlund@microchip.com>
- <20201009143530.2438738-6-henrik.bjoernlund@microchip.com>
-In-Reply-To: <20201009143530.2438738-6-henrik.bjoernlund@microchip.com>
+ <20201009143530.2438738-7-henrik.bjoernlund@microchip.com>
+In-Reply-To: <20201009143530.2438738-7-henrik.bjoernlund@microchip.com>
 Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Content-ID: <FD7F611A7F75EC4E95D32E5F0D2A9E96@namprd12.prod.outlook.com>
+Content-ID: <4868D7FDBE19674CA5711868EF963C64@namprd12.prod.outlook.com>
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1602280198; bh=jE3mpOQs7xCk0hccpDGeWls6q+9ixAr7njjTGhz+ZnM=;
+ t=1602280341; bh=I09VDzVoZh5+iTBqSAwOOIkD+EDlxCvrdK8PCBQVTjc=;
  h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
  CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
  In-Reply-To:Reply-To:Accept-Language:Content-Language:
@@ -32,14 +32,14 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
  X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
  X-MS-Exchange-CrossTenant-userprincipalname:
  X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=XobY/NaflLq0OLBq1GUooNgR6KkrunQ5OHiUTdpsXJ/rQhs1EcS9igyHdS8Hx+4RW
- ZHzCAEtuu0wchQ0AOkBtAHzCyfN3aBc/LjeUvkxtqgrmnA7LLMkgrtW3+HF4CzOq7s
- ij+4e9lTzKKBe+MD01QHAkqwMTOnXAfUzI2iIpbI/DEufQoTxjGZCFKY2hGB9r3XhH
- 9Nq2hndeDOxEPOtnV0R/nQSJ0jtvqk1GWLdP33/g6K80a9tAinZ2vHz1akRO/OTFjJ
- FcvroYKVhHa5pvIXkl17DYye5fx10K3s2WiU1ttNM/p1A6mD23hsj0LwC2rtZjikwf
- c3oYF7jLeAmFw==
-Subject: Re: [Bridge] [PATCH net-next v4 05/10] bridge: cfm: Kernel space
- implementation of CFM. CCM frame TX added.
+ b=BwzKBPedMbEJ1XP7QvpYfw4WfW9Nptve7Ymd0rpwrI5LqCFBwGqrsDZkvWb9YAB+k
+ 8NmQSyygvLRXZxPIKviL2MkIXGpJsvvzh9CmfILr1EBvKN3wWZQZqcq1po+cYo4sIp
+ sczXHrkxXE6MUViJ5CyQuNhargi4nFLU+U8vJ/+xcbbGmd3j5L81A0jjYS/Hm9vwp6
+ muOHTENORlyp/ApIggL+D+Rt2xXUZr5eG1deMEWHbXWBX12I2D+t8xkQRAUJr4K44I
+ pNc4p4mFh8lq4pL0QZwGF/Szr0/yUDY+7DpgNv9Vu0pdOupMY6ODs4aD12fiOg7XEd
+ dZdURKnJ0CtVQ==
+Subject: Re: [Bridge] [PATCH net-next v4 06/10] bridge: cfm: Kernel space
+ implementation of CFM. CCM frame RX added.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -52,25 +52,17 @@ To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "he
 Cc: "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>
 
 T24gRnJpLCAyMDIwLTEwLTA5IGF0IDE0OjM1ICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
-ZToNCj4gVGhpcyBpcyB0aGUgc2Vjb25kIGNvbW1pdCBvZiB0aGUgaW1wbGVtZW50YXRpb24gb2Yg
-dGhlIENGTSBwcm90b2NvbA0KPiBhY2NvcmRpbmcgdG8gODAyLjFRIHNlY3Rpb24gMTIuMTQuDQo+
-IA0KPiBGdW5jdGlvbmFsaXR5IGlzIGV4dGVuZGVkIHdpdGggQ0NNIGZyYW1lIHRyYW5zbWlzc2lv
-bi4NCj4gDQo+IEludGVyZmFjZSBpcyBleHRlbmRlZCB3aXRoIHRoZXNlIGZ1bmN0aW9uczoNCj4g
-YnJfY2ZtX2NjX3JkaV9zZXQoKQ0KPiBicl9jZm1fY2NfY2NtX3R4KCkNCj4gYnJfY2ZtX2NjX2Nv
-bmZpZ19zZXQoKQ0KPiANCj4gQSBNRVAgQ29udGludWl0eSBDaGVjayBmZWF0dXJlIGNhbiBiZSBj
-b25maWd1cmVkIGJ5DQo+IGJyX2NmbV9jY19jb25maWdfc2V0KCkNCj4gICAgIFRoZSBDb250aW51
-aXR5IENoZWNrIHBhcmFtZXRlcnMgY2FuIGJlIGNvbmZpZ3VyZWQgdG8gYmUgdXNlZCB3aGVuDQo+
-ICAgICB0cmFuc21pdHRpbmcgQ0NNLg0KPiANCj4gQSBNRVAgY2FuIGJlIGNvbmZpZ3VyZWQgdG8g
-c3RhcnQgb3Igc3RvcCB0cmFuc21pc3Npb24gb2YgQ0NNIGZyYW1lcyBieQ0KPiBicl9jZm1fY2Nf
-Y2NtX3R4KCkNCj4gICAgIFRoZSBDQ00gd2lsbCBiZSB0cmFuc21pdHRlZCBmb3IgYSBzZWxlY3Rl
-ZCBwZXJpb2QgaW4gc2Vjb25kcy4NCj4gICAgIE11c3QgY2FsbCB0aGlzIGZ1bmN0aW9uIGJlZm9y
-ZSB0aW1lb3V0IHRvIGtlZXAgdHJhbnNtaXNzaW9uIGFsaXZlLg0KPiANCj4gQSBNRVAgdHJhbnNt
-aXR0aW5nIENDTSBjYW4gYmUgY29uZmlndXJlZCB3aXRoIGluc2VydGVkIFJESSBpbiBQRFUgYnkN
-Cj4gYnJfY2ZtX2NjX3JkaV9zZXQoKQ0KPiANCj4gU2lnbmVkLW9mZi1ieTogSGVucmlrIEJqb2Vy
-bmx1bmQgIDxoZW5yaWsuYmpvZXJubHVuZEBtaWNyb2NoaXAuY29tPg0KPiBSZXZpZXdlZC1ieTog
-SG9yYXRpdSBWdWx0dXIgIDxob3JhdGl1LnZ1bHR1ckBtaWNyb2NoaXAuY29tPg0KPiAtLS0NCj4g
-IGluY2x1ZGUvdWFwaS9saW51eC9jZm1fYnJpZGdlLmggfCAgMzkgKysrKy0NCj4gIG5ldC9icmlk
-Z2UvYnJfY2ZtLmMgICAgICAgICAgICAgfCAyODQgKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysNCj4gIG5ldC9icmlkZ2UvYnJfcHJpdmF0ZV9jZm0uaCAgICAgfCAgNTQgKysrKysrDQo+
-ICAzIGZpbGVzIGNoYW5nZWQsIDM3NiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQo+IA0K
-DQpBY2tlZC1ieTogTmlrb2xheSBBbGVrc2FuZHJvdiA8bmlrb2xheUBudmlkaWEuY29tPg0KDQo=
+ZToNCj4gVGhpcyBpcyB0aGUgdGhpcmQgY29tbWl0IG9mIHRoZSBpbXBsZW1lbnRhdGlvbiBvZiB0
+aGUgQ0ZNIHByb3RvY29sDQo+IGFjY29yZGluZyB0byA4MDIuMVEgc2VjdGlvbiAxMi4xNC4NCj4g
+DQo+IEZ1bmN0aW9uYWxpdHkgaXMgZXh0ZW5kZWQgd2l0aCBDQ00gZnJhbWUgcmVjZXB0aW9uLg0K
+PiBUaGUgTUVQIGluc3RhbmNlIG5vdyBjb250YWlucyBDQ00gYmFzZWQgc3RhdHVzIGluZm9ybWF0
+aW9uLg0KPiBNb3N0IGltcG9ydGFudCBpcyB0aGUgQ0NNIGRlZmVjdCBzdGF0dXMgaW5kaWNhdGlu
+ZyBpZiBjb3JyZWN0DQo+IENDTSBmcmFtZXMgYXJlIHJlY2VpdmVkIHdpdGggdGhlIGV4cGVjdGVk
+IGludGVydmFsLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogSGVucmlrIEJqb2Vybmx1bmQgIDxoZW5y
+aWsuYmpvZXJubHVuZEBtaWNyb2NoaXAuY29tPg0KPiBSZXZpZXdlZC1ieTogSG9yYXRpdSBWdWx0
+dXIgIDxob3JhdGl1LnZ1bHR1ckBtaWNyb2NoaXAuY29tPg0KPiAtLS0NCj4gIGluY2x1ZGUvdWFw
+aS9saW51eC9jZm1fYnJpZGdlLmggfCAgMTAgKysNCj4gIG5ldC9icmlkZ2UvYnJfY2ZtLmMgICAg
+ICAgICAgICAgfCAyNjkgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gIG5ldC9i
+cmlkZ2UvYnJfcHJpdmF0ZV9jZm0uaCAgICAgfCAgMzIgKysrKw0KPiAgMyBmaWxlcyBjaGFuZ2Vk
+LCAzMTEgaW5zZXJ0aW9ucygrKQ0KPiANCg0KQWNrZWQtYnk6IE5pa29sYXkgQWxla3NhbmRyb3Yg
+PG5pa29sYXlAbnZpZGlhLmNvbT4NCg0KDQo=
