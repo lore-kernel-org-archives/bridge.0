@@ -1,45 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Fri, 9 Oct 2020 22:03:04 +0000
-Message-ID: <4adba273e44e0c4dbce4a32d07f79a05d3c66601.camel@nvidia.com>
+Return-Path: <kuba@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1602294358;
+ bh=iTtWEPs7R3iiq6VK1b1OfrjyVJP0Uism8CyeDJiP+1A=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=i3/UCdo4sP3wFVvX/GsyGPxSv+NwjzRumeuYLzX3/3SJCoMs2bq/S9SartvMqeZoV
+ 1SX+uZiRywSiMnwT0mk9trEnqyUeXfqOr5S87gAFtHsBvy+29SeRG8OiO0D0lwo1cX
+ sHjtwGtujakQCWBgra+Xjitb8AkkTyt2bGyKVatA=
+Date: Fri, 9 Oct 2020 18:45:56 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20201009184556.6cfe6fbc@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201009143530.2438738-8-henrik.bjoernlund@microchip.com>
 References: <20201009143530.2438738-1-henrik.bjoernlund@microchip.com>
- <20201009143530.2438738-11-henrik.bjoernlund@microchip.com>
-In-Reply-To: <20201009143530.2438738-11-henrik.bjoernlund@microchip.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <A3FEC92AACA203428E0E0B15D7263133@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <20201009143530.2438738-8-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1602280987; bh=AGXJ+LTQoiD5c4S0yl/em0VEkTNkD9ydxLfXiSDNQyE=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=e0VbWM+V65ck7YTFtN8Hu7PDNTw2pIHMqG+nVkA6qWB0hyhui508noLm8m7juo9NJ
- W9/c+ItBd9pNhuUHVLU/tyUkZIL1/e2IRCI0vB4XrWhs2wyGAiZiQcIWhgiNQlIfhj
- P3uGKp0e6GF+rxSj4ktVVlqcE1BEg4TLiaWBdlCd8UFFKCABstICzyoCFeKWKTNrJF
- 3w7YM9EAuF5RE31QX/p43Rgi9Q2mCLBoCQq1NO0jiQnGGpUEvKUMlC3HSagIL6USm9
- GjbiPOWnnhxBebD7faoEUz8SDdiHRVtghSpJEP3j65TvgZpnqL8h/6jX7+g5Ex8A49
- ZHDHfkJIYtxiQ==
-Subject: Re: [Bridge] [PATCH net-next v4 10/10] bridge: cfm: Netlink
-	Notifications.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v4 07/10] bridge: cfm: Netlink SET
+ configuration Interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -48,65 +25,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@mellanox.com" <jiri@mellanox.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "kuba@kernel.org" <kuba@kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>
-Cc: "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>
+To: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, idosch@mellanox.com, jiri@mellanox.com, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net
 
-T24gRnJpLCAyMDIwLTEwLTA5IGF0IDE0OjM1ICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
-ZToNCj4gVGhpcyBpcyB0aGUgaW1wbGVtZW50YXRpb24gb2YgTmV0bGluayBub3RpZmljYXRpb25z
-IG91dCBvZiBDRk0uDQo+IA0KPiBOb3RpZmljYXRpb25zIGFyZSBpbml0aWF0ZWQgd2hlbmV2ZXIg
-YSBzdGF0ZSBjaGFuZ2UgaGFwcGVucyBpbiBDRk0uDQo+IA0KPiBJRkxBX0JSSURHRV9DRk06DQo+
-ICAgICBQb2ludHMgdG8gdGhlIENGTSBpbmZvcm1hdGlvbi4NCj4gDQo+IElGTEFfQlJJREdFX0NG
-TV9NRVBfU1RBVFVTX0lORk86DQo+ICAgICBUaGlzIGluZGljYXRlIHRoYXQgdGhlIE1FUCBpbnN0
-YW5jZSBzdGF0dXMgYXJlIGZvbGxvd2luZy4NCj4gSUZMQV9CUklER0VfQ0ZNX0NDX1BFRVJfU1RB
-VFVTX0lORk86DQo+ICAgICBUaGlzIGluZGljYXRlIHRoYXQgdGhlIHBlZXIgTUVQIHN0YXR1cyBh
-cmUgZm9sbG93aW5nLg0KPiANCj4gQ0ZNIG5lc3RlZCBhdHRyaWJ1dGUgaGFzIHRoZSBmb2xsb3dp
-bmcgYXR0cmlidXRlcyBpbiBuZXh0IGxldmVsLg0KPiANCj4gSUZMQV9CUklER0VfQ0ZNX01FUF9T
-VEFUVVNfSU5TVEFOQ0U6DQo+ICAgICBUaGUgTUVQIGluc3RhbmNlIG51bWJlciBvZiB0aGUgZGVs
-aXZlcmVkIHN0YXR1cy4NCj4gICAgIFRoZSB0eXBlIGlzIE5MQV9VMzIuDQo+IElGTEFfQlJJREdF
-X0NGTV9NRVBfU1RBVFVTX09QQ09ERV9VTkVYUF9TRUVOOg0KPiAgICAgVGhlIE1FUCBpbnN0YW5j
-ZSByZWNlaXZlZCBDRk0gUERVIHdpdGggdW5leHBlY3RlZCBPcGNvZGUuDQo+ICAgICBUaGUgdHlw
-ZSBpcyBOTEFfVTMyIChib29sKS4NCj4gSUZMQV9CUklER0VfQ0ZNX01FUF9TVEFUVVNfVkVSU0lP
-Tl9VTkVYUF9TRUVOOg0KPiAgICAgVGhlIE1FUCBpbnN0YW5jZSByZWNlaXZlZCBDRk0gUERVIHdp
-dGggdW5leHBlY3RlZCB2ZXJzaW9uLg0KPiAgICAgVGhlIHR5cGUgaXMgTkxBX1UzMiAoYm9vbCku
-DQo+IElGTEFfQlJJREdFX0NGTV9NRVBfU1RBVFVTX1JYX0xFVkVMX0xPV19TRUVOOg0KPiAgICAg
-VGhlIE1FUCBpbnN0YW5jZSByZWNlaXZlZCBDQ00gUERVIHdpdGggTUQgbGV2ZWwgbG93ZXIgdGhh
-bg0KPiAgICAgY29uZmlndXJlZCBsZXZlbC4gVGhpcyBmcmFtZSBpcyBkaXNjYXJkZWQuDQo+ICAg
-ICBUaGUgdHlwZSBpcyBOTEFfVTMyIChib29sKS4NCj4gDQo+IElGTEFfQlJJREdFX0NGTV9DQ19Q
-RUVSX1NUQVRVU19JTlNUQU5DRToNCj4gICAgIFRoZSBNRVAgaW5zdGFuY2UgbnVtYmVyIG9mIHRo
-ZSBkZWxpdmVyZWQgc3RhdHVzLg0KPiAgICAgVGhlIHR5cGUgaXMgTkxBX1UzMi4NCj4gSUZMQV9C
-UklER0VfQ0ZNX0NDX1BFRVJfU1RBVFVTX1BFRVJfTUVQSUQ6DQo+ICAgICBUaGUgYWRkZWQgUGVl
-ciBNRVAgSUQgb2YgdGhlIGRlbGl2ZXJlZCBzdGF0dXMuDQo+ICAgICBUaGUgdHlwZSBpcyBOTEFf
-VTMyLg0KPiBJRkxBX0JSSURHRV9DRk1fQ0NfUEVFUl9TVEFUVVNfQ0NNX0RFRkVDVDoNCj4gICAg
-IFRoZSBDQ00gZGVmZWN0IHN0YXR1cy4NCj4gICAgIFRoZSB0eXBlIGlzIE5MQV9VMzIgKGJvb2wp
-Lg0KPiAgICAgVHJ1ZSBtZWFucyBubyBDQ00gZnJhbWUgaXMgcmVjZWl2ZWQgZm9yIDMuMjUgaW50
-ZXJ2YWxzLg0KPiAgICAgSUZMQV9CUklER0VfQ0ZNX0NDX0NPTkZJR19FWFBfSU5URVJWQUwuDQo+
-IElGTEFfQlJJREdFX0NGTV9DQ19QRUVSX1NUQVRVU19SREk6DQo+ICAgICBUaGUgbGFzdCByZWNl
-aXZlZCBDQ00gUERVIFJESS4NCj4gICAgIFRoZSB0eXBlIGlzIE5MQV9VMzIgKGJvb2wpLg0KPiBJ
-RkxBX0JSSURHRV9DRk1fQ0NfUEVFUl9TVEFUVVNfUE9SVF9UTFZfVkFMVUU6DQo+ICAgICBUaGUg
-bGFzdCByZWNlaXZlZCBDQ00gUERVIFBvcnQgU3RhdHVzIFRMViB2YWx1ZSBmaWVsZC4NCj4gICAg
-IFRoZSB0eXBlIGlzIE5MQV9VOC4NCj4gSUZMQV9CUklER0VfQ0ZNX0NDX1BFRVJfU1RBVFVTX0lG
-X1RMVl9WQUxVRToNCj4gICAgIFRoZSBsYXN0IHJlY2VpdmVkIENDTSBQRFUgSW50ZXJmYWNlIFN0
-YXR1cyBUTFYgdmFsdWUgZmllbGQuDQo+ICAgICBUaGUgdHlwZSBpcyBOTEFfVTguDQo+IElGTEFf
-QlJJREdFX0NGTV9DQ19QRUVSX1NUQVRVU19TRUVOOg0KPiAgICAgQSBDQ00gZnJhbWUgaGFzIGJl
-ZW4gcmVjZWl2ZWQgZnJvbSBQZWVyIE1FUC4NCj4gICAgIFRoZSB0eXBlIGlzIE5MQV9VMzIgKGJv
-b2wpLg0KPiAgICAgVGhpcyBpcyBjbGVhcmVkIGFmdGVyIEdFVExJTksgSUZMQV9CUklER0VfQ0ZN
-X0NDX1BFRVJfU1RBVFVTX0lORk8uDQo+IElGTEFfQlJJREdFX0NGTV9DQ19QRUVSX1NUQVRVU19U
-TFZfU0VFTjoNCj4gICAgIEEgQ0NNIGZyYW1lIHdpdGggVExWIGhhcyBiZWVuIHJlY2VpdmVkIGZy
-b20gUGVlciBNRVAuDQo+ICAgICBUaGUgdHlwZSBpcyBOTEFfVTMyIChib29sKS4NCj4gICAgIFRo
-aXMgaXMgY2xlYXJlZCBhZnRlciBHRVRMSU5LIElGTEFfQlJJREdFX0NGTV9DQ19QRUVSX1NUQVRV
-U19JTkZPLg0KPiBJRkxBX0JSSURHRV9DRk1fQ0NfUEVFUl9TVEFUVVNfU0VRX1VORVhQX1NFRU46
-DQo+ICAgICBBIENDTSBmcmFtZSB3aXRoIHVuZXhwZWN0ZWQgc2VxdWVuY2UgbnVtYmVyIGhhcyBi
-ZWVuIHJlY2VpdmVkDQo+ICAgICBmcm9tIFBlZXIgTUVQLg0KPiAgICAgVGhlIHR5cGUgaXMgTkxB
-X1UzMiAoYm9vbCkuDQo+ICAgICBXaGVuIGEgc2VxdWVuY2UgbnVtYmVyIGlzIG5vdCBvbmUgaGln
-aGVyIHRoYW4gcHJldmlvdXNseSByZWNlaXZlZA0KPiAgICAgdGhlbiBpdCBpcyB1bmV4cGVjdGVk
-Lg0KPiAgICAgVGhpcyBpcyBjbGVhcmVkIGFmdGVyIEdFVExJTksgSUZMQV9CUklER0VfQ0ZNX0ND
-X1BFRVJfU1RBVFVTX0lORk8uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBIZW5yaWsgQmpvZXJubHVu
-ZCAgPGhlbnJpay5iam9lcm5sdW5kQG1pY3JvY2hpcC5jb20+DQo+IFJldmlld2VkLWJ5OiBIb3Jh
-dGl1IFZ1bHR1ciAgPGhvcmF0aXUudnVsdHVyQG1pY3JvY2hpcC5jb20+DQo+IC0tLQ0KPiAgbmV0
-L2JyaWRnZS9icl9jZm0uYyAgICAgICAgIHwgNDggKysrKysrKysrKysrKysrKysrKysrKysrDQo+
-ICBuZXQvYnJpZGdlL2JyX2NmbV9uZXRsaW5rLmMgfCAyNSArKysrKysrKy0tLS0tDQo+ICBuZXQv
-YnJpZGdlL2JyX25ldGxpbmsuYyAgICAgfCA3MyArKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKy0tLS0tDQo+ICBuZXQvYnJpZGdlL2JyX3ByaXZhdGUuaCAgICAgfCAyMiArKysrKysrKysr
-LQ0KPiAgNCBmaWxlcyBjaGFuZ2VkLCAxNDcgaW5zZXJ0aW9ucygrKSwgMjEgZGVsZXRpb25zKC0p
-DQo+IA0KDQpBY2tlZC1ieTogTmlrb2xheSBBbGVrc2FuZHJvdiA8bmlrb2xheUBudmlkaWEuY29t
-Pg0KDQo=
+On Fri, 9 Oct 2020 14:35:27 +0000 Henrik Bjoernlund wrote:
+> +static inline struct mac_addr nla_get_mac(const struct nlattr *nla)
+
+static inlines are generally not needed in C sources and just hide
+unused code. Please drop the inline annotation.
+
+> +{
+> +	struct mac_addr mac;
+> +
+> +	nla_memcpy(&mac.addr, nla, sizeof(mac.addr));
+> +
+> +	return mac;
+> +}
+> +
+> +static inline struct br_cfm_maid nla_get_maid(const struct nlattr *nla)
+
+ditto
+
+> +{
+> +	struct br_cfm_maid maid;
+> +
+> +	nla_memcpy(&maid.data, nla, sizeof(maid.data));
+
+returning a 48B struct from a helper is a little strange, but I guess
+it's not too bad when compiler inlines the thing?
+
+> +	return maid;
+> +}
+> +
+> +static const struct nla_policy
+> +br_cfm_policy[IFLA_BRIDGE_CFM_MAX + 1] = {
+> +	[IFLA_BRIDGE_CFM_UNSPEC]		= { .type = NLA_REJECT },
+
+Not needed, REJECT is treated the same as 0 / uninit, right?
+
+> +	[IFLA_BRIDGE_CFM_MEP_CREATE]		= { .type = NLA_NESTED },
+
+Consider using NLA_POLICY_NESTED() to link up the next layers.
+
+> +	[IFLA_BRIDGE_CFM_MEP_DELETE]		= { .type = NLA_NESTED },
+> +	[IFLA_BRIDGE_CFM_MEP_CONFIG]		= { .type = NLA_NESTED },
+> +	[IFLA_BRIDGE_CFM_CC_CONFIG]		= { .type = NLA_NESTED },
+> +	[IFLA_BRIDGE_CFM_CC_PEER_MEP_ADD]	= { .type = NLA_NESTED },
+> +	[IFLA_BRIDGE_CFM_CC_PEER_MEP_REMOVE]	= { .type = NLA_NESTED },
+> +	[IFLA_BRIDGE_CFM_CC_RDI]		= { .type = NLA_NESTED },
+> +	[IFLA_BRIDGE_CFM_CC_CCM_TX]		= { .type = NLA_NESTED },
+> +};
