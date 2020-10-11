@@ -1,22 +1,25 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602294358;
- bh=iTtWEPs7R3iiq6VK1b1OfrjyVJP0Uism8CyeDJiP+1A=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=i3/UCdo4sP3wFVvX/GsyGPxSv+NwjzRumeuYLzX3/3SJCoMs2bq/S9SartvMqeZoV
- 1SX+uZiRywSiMnwT0mk9trEnqyUeXfqOr5S87gAFtHsBvy+29SeRG8OiO0D0lwo1cX
- sHjtwGtujakQCWBgra+Xjitb8AkkTyt2bGyKVatA=
-Date: Fri, 9 Oct 2020 18:45:56 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201009184556.6cfe6fbc@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201009143530.2438738-8-henrik.bjoernlund@microchip.com>
-References: <20201009143530.2438738-1-henrik.bjoernlund@microchip.com>
- <20201009143530.2438738-8-henrik.bjoernlund@microchip.com>
+Return-Path: <olteanv@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=fxGXbZ4rR3KKATBoIOvT5Bak7Llr7/4+tSdJ99Kd1/I=;
+ b=vR2tB5CJHdjucZ7zY+9a/U7vQTK4GmhNLfBcXmfL2y1AUPIM6P/Ym55FGeMknQLLl4
+ L4ksW3b5iTYcU/1P7j9HhnYtY1JNZjw2ve7gwkxRakdciGIibwq+hCJeglHVAevgYvt9
+ mMB7ZRNDGU1VQS4DNzx1qgWgGKh1MJpGRFsT2U4HY7bvfe0XW0wC+ZZ4AOBakX2SwbJy
+ 1GKeS1ngNe8F1pka0ROx60/QpLrQpsl0SVSlL/8txvDVzChEj4NDMLyCyqF3RNaF/U7o
+ 11pNNeHoMuI0SiGKBiH9183giapE7dUdewbP1kN0il2Yszl0B3I4Oktz/cN2+INnvkyk
+ Zobw==
+Date: Sun, 11 Oct 2020 23:15:34 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20201011201534.ybeb4foumck4bpmw@skbuf>
+References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
+ <4c7b9a8d-caa2-52dd-8973-10f4e2892dd6@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 07/10] bridge: cfm: Netlink SET
- configuration Interface.
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4c7b9a8d-caa2-52dd-8973-10f4e2892dd6@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next 08/12] net: dsa: use new function
+ dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,53 +28,13 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, idosch@mellanox.com, jiri@mellanox.com, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Linux USB Mailing List <linux-usb@vger.kernel.org>, Steffen Klassert <steffen.klassert@secunet.com>, Florian Fainelli <f.fainelli@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, Sergey Matyukevich <geomatsi@gmail.com>, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, Pravin B Shelar <pshelar@ovn.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Kalle Valo <kvalo@codeaurora.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Oliver Neukum <oneukum@suse.com>, linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, David Miller <davem@davemloft.net>, =?utf-8?B?QmrDuHJu?= Mork <bjorn@mork.no>
 
-On Fri, 9 Oct 2020 14:35:27 +0000 Henrik Bjoernlund wrote:
-> +static inline struct mac_addr nla_get_mac(const struct nlattr *nla)
+On Sun, Oct 11, 2020 at 09:41:27PM +0200, Heiner Kallweit wrote:
+> Simplify the code by using new function dev_fetch_sw_netstats().
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
 
-static inlines are generally not needed in C sources and just hide
-unused code. Please drop the inline annotation.
-
-> +{
-> +	struct mac_addr mac;
-> +
-> +	nla_memcpy(&mac.addr, nla, sizeof(mac.addr));
-> +
-> +	return mac;
-> +}
-> +
-> +static inline struct br_cfm_maid nla_get_maid(const struct nlattr *nla)
-
-ditto
-
-> +{
-> +	struct br_cfm_maid maid;
-> +
-> +	nla_memcpy(&maid.data, nla, sizeof(maid.data));
-
-returning a 48B struct from a helper is a little strange, but I guess
-it's not too bad when compiler inlines the thing?
-
-> +	return maid;
-> +}
-> +
-> +static const struct nla_policy
-> +br_cfm_policy[IFLA_BRIDGE_CFM_MAX + 1] = {
-> +	[IFLA_BRIDGE_CFM_UNSPEC]		= { .type = NLA_REJECT },
-
-Not needed, REJECT is treated the same as 0 / uninit, right?
-
-> +	[IFLA_BRIDGE_CFM_MEP_CREATE]		= { .type = NLA_NESTED },
-
-Consider using NLA_POLICY_NESTED() to link up the next layers.
-
-> +	[IFLA_BRIDGE_CFM_MEP_DELETE]		= { .type = NLA_NESTED },
-> +	[IFLA_BRIDGE_CFM_MEP_CONFIG]		= { .type = NLA_NESTED },
-> +	[IFLA_BRIDGE_CFM_CC_CONFIG]		= { .type = NLA_NESTED },
-> +	[IFLA_BRIDGE_CFM_CC_PEER_MEP_ADD]	= { .type = NLA_NESTED },
-> +	[IFLA_BRIDGE_CFM_CC_PEER_MEP_REMOVE]	= { .type = NLA_NESTED },
-> +	[IFLA_BRIDGE_CFM_CC_RDI]		= { .type = NLA_NESTED },
-> +	[IFLA_BRIDGE_CFM_CC_CCM_TX]		= { .type = NLA_NESTED },
-> +};
+Tested-by: Vladimir Oltean <olteanv@gmail.com>
