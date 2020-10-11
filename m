@@ -1,16 +1,18 @@
 Return-Path: <kuba@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602454232;
- bh=s5SNqVq+ZBe6hjQiLpkfiBRZRF78JD0zHMy8UuCWRiY=;
+ s=default; t=1602456113;
+ bh=KjfGjYsSnfWIwHrASEVqiRbvBtfZz9AkJ6pI70LmAbY=;
  h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=HbAJpZ6018DBKV/l48njs8OL9/FllGvxUgDG8y1p32816ZlZ7gOIkkLIjU7IAfzDF
- 2QUcmqA/zF3j9ITlIHLZgFmJWBb6yjdP6LrUeZwu5dy8T8okZRM99so5ko9gjewUvK
- /fH4L6+ICSrkoy+rKqzIM+M5ZF3AZwfiDBhd8oLU=
-Date: Sun, 11 Oct 2020 15:10:30 -0700
+ b=DXXI2vnw0yJuPJ+UvqE/MJmockTPIdo7j2X4VD6cjbrAv9qt0TDpFCu4E2diTbvCa
+ shuUVYDttC88i8EshqLCBbS7Pgnjatcg9oMtKR2Gt/ZosE3SnuV5Kkmq5YtSR7y6jw
+ Db1nukMbgdyTCNrBWKddb4xAZNlStmyMTtVuHomM=
+Date: Sun, 11 Oct 2020 15:41:50 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201011151030.05ad88dd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
+Message-ID: <20201011154150.6cad3758@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <1f1dceab-bab0-ff9e-dae6-ed35be504a9c@gmail.com>
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
+ <20201011151030.05ad88dd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <1f1dceab-bab0-ff9e-dae6-ed35be504a9c@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -27,11 +29,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Heiner Kallweit <hkallweit1@gmail.com>
 Cc: Andrew Lunn <andrew@lunn.ch>, Linux USB Mailing List <linux-usb@vger.kernel.org>, Steffen Klassert <steffen.klassert@secunet.com>, Florian Fainelli <f.fainelli@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, Sergey Matyukevich <geomatsi@gmail.com>, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, Pravin B Shelar <pshelar@ovn.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Vivien Didelot <vivien.didelot@gmail.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Kalle Valo <kvalo@codeaurora.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Oliver Neukum <oneukum@suse.com>, linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, Vladimir Oltean <olteanv@gmail.com>, David Miller <davem@davemloft.net>, =?UTF-8?B?QmrDuHJu?= Mork <bjorn@mork.no>
 
-On Sun, 11 Oct 2020 21:34:58 +0200 Heiner Kallweit wrote:
-> In several places the same code is used to populate rtnl_link_stats64
-> fields with data from pcpu_sw_netstats. Therefore factor out this code
-> to a new function dev_fetch_sw_netstats().
+On Mon, 12 Oct 2020 00:29:52 +0200 Heiner Kallweit wrote:
+> On 12.10.2020 00:10, Jakub Kicinski wrote:
+> > On Sun, 11 Oct 2020 21:34:58 +0200 Heiner Kallweit wrote:  
+> >> In several places the same code is used to populate rtnl_link_stats64
+> >> fields with data from pcpu_sw_netstats. Therefore factor out this code
+> >> to a new function dev_fetch_sw_netstats().  
+> > 
+> > FWIW probably fine to convert nfp_repr_get_host_stats64() as well, just
+> > take out the drop counter and make it a separate atomic. If you're up
+> > for that.
+> >   
+> Looking at nfp_repr_get_host_stats64() I'm not sure why the authors
+> decided to add a 64bit tx drop counter, struct net_device_stats has
+> an unsigned long tx_dropped counter already. And that the number of
+> dropped tx packets exceeds 32bit (on 32bit systems) seems not very
+> likely.
 
-FWIW probably fine to convert nfp_repr_get_host_stats64() as well, just
-take out the drop counter and make it a separate atomic. If you're up
-for that.
+struct net_device::stats? That's not per-cpu.
+Or do you mean struct net_device::tx_dropped? That'd work nicely.
