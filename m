@@ -1,25 +1,27 @@
 Return-Path: <hkallweit1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=subject:from:to:cc:references:message-id:date:user-agent
+ h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=t6mBah8f7Cbtv+XC/jNYzc0qx0/PRMeIzqK4sBdTEL4=;
- b=rPx+oLh0oDeejrIAjThcqiU01bY+NR/k9Ak/q2AE42r8Gg7pRz3M+Uy3dqcWg/5a0y
- sU6Fu8p8hMgV+DxLdyXWUXNi/WlICSn/J74p/bkR5B8QMpgSNJ7i78VvvbKZTvTWUmUO
- ssIM5hWV8fer6aBzRCJ3ILF+cF6tNEy173XU7jOQnTqZ7TmIGacbgP1mzVWthRP4ZkfF
- n6sU8bfkOVjw3SuQlW30E4i4blnq1TTgch31KKRt16pVpCDmYF4xhrum7E1h5HVGQl0k
- YF6X/p8B3lKJqZLDYJYVza3bSDkW/GBL26emjt3oHzNjoXOna1w3iNOSMd0OYAoxPq2H
- jTiA==
-From: Heiner Kallweit <hkallweit1@gmail.com>
+ bh=v4MsclsAjBQ07tS6Y2k6AL+A2oNnHE0z2Kb1St2ZEIk=;
+ b=neCttq4/0J3+3NTrhanFCgR56+zz6hfDnAOzM1dINwDLIuAqA3tMADIrgI6aUb+zAi
+ +eW84mbUHzG1mA5KER0AFuvgMSlGeNFlSeYUrjL3m0dJOszx4WBDI7kWKXISNlENJhPD
+ 050WWxG7qW9dQuQpk2PmuXO+528K82e7K89uJXuvnEVnilQvnYJVi757k2QQYxh4CVa5
+ Ed4GZZNn1vn+kv1i5dFESGPhlygVY4oDvkiD0PyxkFWDbCeb3YrRkppBbbm0d5WR0fxd
+ tkkajfw+0ba0e9Nb5KjCCcTqY9wUM/LHdfNPLudLcRYIk6kS1/Eq5VLz1CoqDWXm0BU7
+ Hy7Q==
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
-Message-ID: <b0edee7e-4594-e3b3-ea75-68b4f33509df@gmail.com>
-Date: Sun, 11 Oct 2020 21:44:02 +0200
+ <5bb71143-0dac-c413-7e97-50eed8a57862@gmail.com>
+ <20201011125412.3719926a@hermes.local>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Message-ID: <0a127353-4358-9664-6784-dec2c48e9b9d@gmail.com>
+Date: Sun, 11 Oct 2020 22:18:58 +0200
 MIME-Version: 1.0
-In-Reply-To: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
+In-Reply-To: <20201011125412.3719926a@hermes.local>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next 12/12] xfrm: use new function
-	dev_fetch_sw_netstats
+Subject: Re: [Bridge] [PATCH net-next 01/12] net: core: add function
+ dev_fetch_sw_netstats for fetching pcpu_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,50 +30,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, =?UTF-8?Q?Bj=c3=b8rn_Mork?= <bjorn@mork.no>, Oliver Neukum <oneukum@suse.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Sergey Matyukevich <geomatsi@gmail.com>, Kalle Valo <kvalo@codeaurora.org>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Vivien Didelot <vivien.didelot@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Johannes Berg <johannes@sipsolutions.net>, Pravin B Shelar <pshelar@ovn.org>, Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-rdma@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linux USB Mailing List <linux-usb@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, bridge@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Linux USB Mailing List <linux-usb@vger.kernel.org>, Steffen Klassert <steffen.klassert@secunet.com>, Florian Fainelli <f.fainelli@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, Sergey Matyukevich <geomatsi@gmail.com>, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, Pravin B Shelar <pshelar@ovn.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Kalle Valo <kvalo@codeaurora.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Oliver Neukum <oneukum@suse.com>, linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, Vladimir Oltean <olteanv@gmail.com>, David Miller <davem@davemloft.net>, =?UTF-8?Q?Bj=c3=b8rn_Mork?= <bjorn@mork.no>
 
-Simplify the code by using new function dev_fetch_sw_netstats().
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- net/xfrm/xfrm_interface.c | 22 +---------------------
- 1 file changed, 1 insertion(+), 21 deletions(-)
-
-diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
-index 5b120936d..aa4cdcf69 100644
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -541,27 +541,7 @@ static int xfrmi_update(struct xfrm_if *xi, struct xfrm_if_parms *p)
- static void xfrmi_get_stats64(struct net_device *dev,
- 			       struct rtnl_link_stats64 *s)
- {
--	int cpu;
--
--	for_each_possible_cpu(cpu) {
--		struct pcpu_sw_netstats *stats;
--		struct pcpu_sw_netstats tmp;
--		int start;
--
--		stats = per_cpu_ptr(dev->tstats, cpu);
--		do {
--			start = u64_stats_fetch_begin_irq(&stats->syncp);
--			tmp.rx_packets = stats->rx_packets;
--			tmp.rx_bytes   = stats->rx_bytes;
--			tmp.tx_packets = stats->tx_packets;
--			tmp.tx_bytes   = stats->tx_bytes;
--		} while (u64_stats_fetch_retry_irq(&stats->syncp, start));
--
--		s->rx_packets += tmp.rx_packets;
--		s->rx_bytes   += tmp.rx_bytes;
--		s->tx_packets += tmp.tx_packets;
--		s->tx_bytes   += tmp.tx_bytes;
--	}
-+	dev_fetch_sw_netstats(s, dev->tstats);
- 
- 	s->rx_dropped = dev->stats.rx_dropped;
- 	s->tx_dropped = dev->stats.tx_dropped;
--- 
-2.28.0
-
-
+On 11.10.2020 21:54, Stephen Hemminger wrote:
+> On Sun, 11 Oct 2020 21:36:43 +0200
+> Heiner Kallweit <hkallweit1@gmail.com> wrote:
+> 
+>> +void dev_fetch_sw_netstats(struct rtnl_link_stats64 *s,
+>> +			   struct pcpu_sw_netstats __percpu *netstats)
+> 
+> netstats is unmodified, should it be const?
+> 
+>> +{
+>> +	int cpu;
+>> +
+>> +	if (IS_ERR_OR_NULL(netstats))
+>> +		return;
+> 
+> Any code calling this with a null pointer is broken/buggy, please don't
+> ignore that.
+> 
+Thanks, I'll consider both points in a v2.
