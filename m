@@ -2,23 +2,23 @@ Return-Path: <hkallweit1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:from:to:cc:references:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=HcgZso4dlrbNJuP0fFxlU7lkmi2zmfh379PdA4iECrc=;
- b=QY4mcdUm4pOsXKuF8fPkL2a9wiqaVDmyjAXCWkd343lchJ1AGlmk23Ku3QohtqXRSY
- gYveZNpvVXpGKsy9mIhgSIssPBHZz8bN3VkKwEVEkFMyH2q2UXxISQgZVCL7TgWLhS4Y
- 5SSoaAuPWUpibQT10V8O6530abeLX72cFOf1hYrs7jG+3bwYkJFvUXdSZ7DlPaJ6iQUk
- 2JvYjgIhOzxl82dwwTIqTqSkfluHOoAwz/+d2jDYQ2YnplEmZVUhkXixCn68btqAx4lE
- P3SfPjXNfEFLWyohoaU0E7FNHggtTNHhqlLMd4anSnZzIIb9pNutyLyAKpTbahH+rn1Z
- 8aHA==
+ bh=K5p6PQe9PHlb+DeFu3qCLN+dyNKfD6AR/iCNZWeTJCc=;
+ b=HbRt6adGAkstImkM+FvDPUdRIwYLplfIyHr6lQj8N62eXViV/hea+3jch0P7j1QSAB
+ XH0QnWYdoc68vK6BV4c2a/MGZmQhESAuaiw3nH6jaKZRtxReSo7CS4db24I/dCvBpJgx
+ oZlNuBNZ2nX9TCEHVyKXJ9X9aB05foRI21NPRbCNHx6TqX7JIcFFDRlwbdkxHn4/hjGD
+ npHaKOYfY4UL/Z0mRqf4t4/RPQ0n/iSlqNOx8vAXXwj8WPWYA8hK8o9AmRlXbHEVnL2l
+ 3QmDQzkyFXpVlEMSLnXneAVyxrUcvFdZJG4gNH/1j/i31cFkBdsNYAUwx5CGGew38com
+ vupA==
 From: Heiner Kallweit <hkallweit1@gmail.com>
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
-Message-ID: <a4fa20e9-23bc-4f2f-cbe9-16d801ce3b20@gmail.com>
-Date: Sun, 11 Oct 2020 21:40:10 +0200
+Message-ID: <ce91ffd8-f17f-613b-5d25-955348cfd9a1@gmail.com>
+Date: Sun, 11 Oct 2020 21:40:50 +0200
 MIME-Version: 1.0
 In-Reply-To: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next 06/12] qtnfmac: use new function
+Subject: [Bridge] [PATCH net-next 07/12] net: bridge: use new function
  dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -35,49 +35,42 @@ Simplify the code by using new function dev_fetch_sw_netstats().
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- drivers/net/wireless/quantenna/qtnfmac/core.c | 27 +------------------
- 1 file changed, 1 insertion(+), 26 deletions(-)
+ net/bridge/br_device.c | 21 +--------------------
+ 1 file changed, 1 insertion(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/core.c b/drivers/net/wireless/quantenna/qtnfmac/core.c
-index 374074dc7..7f66cf608 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/core.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/core.c
-@@ -139,34 +139,9 @@ static void qtnf_netdev_get_stats64(struct net_device *ndev,
- 				    struct rtnl_link_stats64 *stats)
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 9a2fb4aa1..6f742fee8 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -206,27 +206,8 @@ static void br_get_stats64(struct net_device *dev,
+ 			   struct rtnl_link_stats64 *stats)
  {
- 	struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
--	unsigned int start;
--	int cpu;
- 
- 	netdev_stats_to_stats64(stats, &ndev->stats);
--
--	if (!vif->stats64)
--		return;
+ 	struct net_bridge *br = netdev_priv(dev);
+-	struct pcpu_sw_netstats tmp, sum = { 0 };
+-	unsigned int cpu;
 -
 -	for_each_possible_cpu(cpu) {
--		struct pcpu_sw_netstats *stats64;
--		u64 rx_packets, rx_bytes;
--		u64 tx_packets, tx_bytes;
--
--		stats64 = per_cpu_ptr(vif->stats64, cpu);
--
+-		unsigned int start;
+-		const struct pcpu_sw_netstats *bstats
+-			= per_cpu_ptr(br->stats, cpu);
 -		do {
--			start = u64_stats_fetch_begin_irq(&stats64->syncp);
--			rx_packets = stats64->rx_packets;
--			rx_bytes = stats64->rx_bytes;
--			tx_packets = stats64->tx_packets;
--			tx_bytes = stats64->tx_bytes;
--		} while (u64_stats_fetch_retry_irq(&stats64->syncp, start));
--
--		stats->rx_packets += rx_packets;
--		stats->rx_bytes += rx_bytes;
--		stats->tx_packets += tx_packets;
--		stats->tx_bytes += tx_bytes;
+-			start = u64_stats_fetch_begin_irq(&bstats->syncp);
+-			memcpy(&tmp, bstats, sizeof(tmp));
+-		} while (u64_stats_fetch_retry_irq(&bstats->syncp, start));
+-		sum.tx_bytes   += tmp.tx_bytes;
+-		sum.tx_packets += tmp.tx_packets;
+-		sum.rx_bytes   += tmp.rx_bytes;
+-		sum.rx_packets += tmp.rx_packets;
 -	}
-+	dev_fetch_sw_netstats(stats, vif->stats64);
+ 
+-	stats->tx_bytes   = sum.tx_bytes;
+-	stats->tx_packets = sum.tx_packets;
+-	stats->rx_bytes   = sum.rx_bytes;
+-	stats->rx_packets = sum.rx_packets;
++	dev_fetch_sw_netstats(stats, br->stats);
  }
  
- /* Netdev handler for transmission timeout.
+ static int br_change_mtu(struct net_device *dev, int new_mtu)
 -- 
 2.28.0
 
