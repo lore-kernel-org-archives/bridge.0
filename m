@@ -2,23 +2,23 @@ Return-Path: <hkallweit1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:from:to:cc:references:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=WQbLDoFSeSltH3nftOw/NOzLE5EP1LZ6y+xL/a85h+w=;
- b=GRfTQACPyYtR9pqybfVbLmIpJpuRl0C7wsrFoWXj0QX2wcH42Nf5udem/k1aVfah6x
- 5vyHB7w2Bv/AM6CamTx3zwA3DYcGCYNGJArU2vV3132pEcwY9490f1rV9XqSsKjP2P6P
- uxm6ihfKy1Z0s9suALkvOACSWG9AS0rfoXB5Ev8q5jjvCRxdzC5SialMoEui+aiDT2OO
- Nav4/AveRUsUVI91sXydnB/YWzuq6GtOeFMFMELGgiFo2RLcSvAabyKUnJK34V7pMJII
- op63g+Mx29KT9idfNKqGYQ0Z3lXoirpktiUjywSNtNwi0K3Dd9JCFhi2raiJVTREJtBZ
- jn4w==
+ bh=/FTD4WRUg6u2eGbYzuvRNRJ/sh1gmUaaKBFsN/NH+4I=;
+ b=PyzuGbgQ/T5WAYNOiE7/Fc7mim7ijDf/I6hDizxzEYTF8/HfbbmzP42R+dk/Tf7t3L
+ r3rTgfmciTFkPugJUIfFan4lA3UxjLBGZrSeWGa98iK7WgUsSZZMK6jaqsVusLDc7OKt
+ ducIl5gXoe3bagOoU/aBG55E0qjsy2CDzRWixI5g8O4pMkDRMn10OM/pJEYXJUbxUdg8
+ wEvIdZn0WeXfx8o6AOtjUbp/WHumX4LdXSa/3HL4Zw5+KaHHYXBaDEvDAy4vYOU/JTen
+ aN8KJ1n70tBEf2n56k0U7kdOle+7frjcbMwxo8f8NSK4m1RYQZEu24MxYsLGh4P3It+e
+ TvFw==
 From: Heiner Kallweit <hkallweit1@gmail.com>
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
-Message-ID: <4c7b9a8d-caa2-52dd-8973-10f4e2892dd6@gmail.com>
-Date: Sun, 11 Oct 2020 21:41:27 +0200
+Message-ID: <3b1116c4-4cc4-2aac-fd66-7ffd2d3705bc@gmail.com>
+Date: Sun, 11 Oct 2020 21:42:04 +0200
 MIME-Version: 1.0
 In-Reply-To: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next 08/12] net: dsa: use new function
+Subject: [Bridge] [PATCH net-next 09/12] iptunnel: use new function
  dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -35,43 +35,44 @@ Simplify the code by using new function dev_fetch_sw_netstats().
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- net/dsa/slave.c | 21 +--------------------
- 1 file changed, 1 insertion(+), 20 deletions(-)
+ net/ipv4/ip_tunnel_core.c | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
 
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index e7c1d62fd..3bc5ca40c 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -1221,28 +1221,9 @@ static void dsa_slave_get_stats64(struct net_device *dev,
- 				  struct rtnl_link_stats64 *stats)
+diff --git a/net/ipv4/ip_tunnel_core.c b/net/ipv4/ip_tunnel_core.c
+index b2ea1a8c5..25f1caf5a 100644
+--- a/net/ipv4/ip_tunnel_core.c
++++ b/net/ipv4/ip_tunnel_core.c
+@@ -433,29 +433,8 @@ EXPORT_SYMBOL(skb_tunnel_check_pmtu);
+ void ip_tunnel_get_stats64(struct net_device *dev,
+ 			   struct rtnl_link_stats64 *tot)
  {
- 	struct dsa_slave_priv *p = netdev_priv(dev);
--	struct pcpu_sw_netstats *s;
--	unsigned int start;
 -	int i;
- 
- 	netdev_stats_to_stats64(stats, &dev->stats);
+-
+ 	netdev_stats_to_stats64(tot, &dev->stats);
+-
 -	for_each_possible_cpu(i) {
--		u64 tx_packets, tx_bytes, rx_packets, rx_bytes;
+-		const struct pcpu_sw_netstats *tstats =
+-						   per_cpu_ptr(dev->tstats, i);
+-		u64 rx_packets, rx_bytes, tx_packets, tx_bytes;
+-		unsigned int start;
 -
--		s = per_cpu_ptr(p->stats64, i);
 -		do {
--			start = u64_stats_fetch_begin_irq(&s->syncp);
--			tx_packets = s->tx_packets;
--			tx_bytes = s->tx_bytes;
--			rx_packets = s->rx_packets;
--			rx_bytes = s->rx_bytes;
--		} while (u64_stats_fetch_retry_irq(&s->syncp, start));
+-			start = u64_stats_fetch_begin_irq(&tstats->syncp);
+-			rx_packets = tstats->rx_packets;
+-			tx_packets = tstats->tx_packets;
+-			rx_bytes = tstats->rx_bytes;
+-			tx_bytes = tstats->tx_bytes;
+-		} while (u64_stats_fetch_retry_irq(&tstats->syncp, start));
 -
--		stats->tx_packets += tx_packets;
--		stats->tx_bytes += tx_bytes;
--		stats->rx_packets += rx_packets;
--		stats->rx_bytes += rx_bytes;
+-		tot->rx_packets += rx_packets;
+-		tot->tx_packets += tx_packets;
+-		tot->rx_bytes   += rx_bytes;
+-		tot->tx_bytes   += tx_bytes;
 -	}
-+	dev_fetch_sw_netstats(stats, p->stats64);
++	dev_fetch_sw_netstats(tot, dev->tstats);
  }
+ EXPORT_SYMBOL_GPL(ip_tunnel_get_stats64);
  
- static int dsa_slave_get_rxnfc(struct net_device *dev,
 -- 
 2.28.0
 
