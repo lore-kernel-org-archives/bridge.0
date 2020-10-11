@@ -1,45 +1,23 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Mon, 12 Oct 2020 09:12:29 +0000
-Message-ID: <3fc314a2074001f7b39bada2c50529eb2aefd077.camel@nvidia.com>
-References: <20201009143530.2438738-1-henrik.bjoernlund@microchip.com>
- <20201009143530.2438738-2-henrik.bjoernlund@microchip.com>
-In-Reply-To: <20201009143530.2438738-2-henrik.bjoernlund@microchip.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5297160F08544143804D56C2968F8D58@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <hkallweit1@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:subject:to:cc:message-id:date:user-agent:mime-version
+ :content-language:content-transfer-encoding;
+ bh=K8aM+wsuH+b5e/V3iFm/UCWXbcrACCoUfMzBFSDIIjs=;
+ b=OGKP0cnrBvlbfHqjtgQ++A7bU89/HXGWVwoiLiIwjNoiSWZn7j8YDzKW+WyqhBCQAy
+ 59ENx6/8OuM1/S9qpbMITd2j1UORS7BdCvX1OtGEE0ZcVyhyvXLJ2mu/OE/oxSrYraP6
+ p9KXtbnTRgxqFqRZILQr+TsSa2DiLph2aaBfa7XO1vPzme1evZh9JwhMvyepRPbmIoCS
+ xtDQ90Mu1Hbx/oieGYQT1OMM1D8D9lOfAHIVhNc6cABc4PGjM6LP5qKlIcYeMJureXus
+ Jv8zEGwRQNqNVjDuqiuDsMjLZOyfuhm5VP4SIGfrkGtOaqNwZ/EK2WBscLO42wbjSSup
+ acjA==
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Message-ID: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
+Date: Sun, 11 Oct 2020 21:34:58 +0200
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1602493952; bh=lPlgaN9ep5uGClRRUbvOY9ROxTDlf1/hBq0aCZKZqvs=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=MsIvs5rE6/r3jP+lK7+Ac+gJJAfIErxdT0VJQytEfyuNzk+bWjCTiMBGnxaBM4iQ1
- TWEV804t4YQ2b4RzACLQBGGasrl/+W3+U8t6sx7ovkl3njPoNdjg6p/VRpkUAMmi92
- Snq5X3HpB/RoDOKg55B8yeXhR8Nzz2GxDKyxVbjI2obu9Il4c3qn6KwvSsyD9UYLpM
- pY8RNpzkaVH9YABfr9KGfdPB2hDHx5LbjaHPFUfK313nwldEjEliw/mcRJMEdVsNW1
- 5TGQBYgmchM92zJqQtveABLTGorZkJtnl2RPudCfvQztcrXVaCcyIi43wKvVv7oJXs
- ajdspdjtpJ5Mg==
-Subject: Re: [Bridge] [PATCH net-next v4 01/10] net: bridge: extend the
- process of special frames
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] [PATCH net-next 00/12] net: add and use function
+ dev_fetch_sw_netstats for fetching pcpu_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -48,68 +26,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@mellanox.com" <jiri@mellanox.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "kuba@kernel.org" <kuba@kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>
-Cc: "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, =?UTF-8?Q?Bj=c3=b8rn_Mork?= <bjorn@mork.no>, Oliver Neukum <oneukum@suse.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Sergey Matyukevich <geomatsi@gmail.com>, Kalle Valo <kvalo@codeaurora.org>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Vivien Didelot <vivien.didelot@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Johannes Berg <johannes@sipsolutions.net>, Pravin B Shelar <pshelar@ovn.org>, Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-rdma@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linux USB Mailing List <linux-usb@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-T24gRnJpLCAyMDIwLTEwLTA5IGF0IDE0OjM1ICswMDAwLCBIZW5yaWsgQmpvZXJubHVuZCB3cm90
-ZToNCj4gVGhpcyBwYXRjaCBleHRlbmRzIHRoZSBwcm9jZXNzaW5nIG9mIGZyYW1lcyBpbiB0aGUg
-YnJpZGdlLiBDdXJyZW50bHkgTVJQDQo+IGZyYW1lcyBuZWVkcyBzcGVjaWFsIHByb2Nlc3Npbmcg
-YW5kIHRoZSBjdXJyZW50IGltcGxlbWVudGF0aW9uIGRvZXNuJ3QNCj4gYWxsb3cgYSBuaWNlIHdh
-eSB0byBwcm9jZXNzIGRpZmZlcmVudCBmcmFtZSB0eXBlcy4gVGhlcmVmb3JlIHRyeSB0bw0KPiBp
-bXByb3ZlIHRoaXMgYnkgYWRkaW5nIGEgbGlzdCB0aGF0IGNvbnRhaW5zIGZyYW1lIHR5cGVzIHRo
-YXQgbmVlZA0KPiBzcGVjaWFsIHByb2Nlc3NpbmcuIFRoaXMgbGlzdCBpcyBpdGVyYXRlZCBmb3Ig
-ZWFjaCBpbnB1dCBmcmFtZSBhbmQgaWYNCj4gdGhlcmUgaXMgYSBtYXRjaCBiYXNlZCBvbiBmcmFt
-ZSB0eXBlIHRoZW4gdGhlc2UgZnVuY3Rpb25zIHdpbGwgYmUgY2FsbGVkDQo+IGFuZCBkZWNpZGUg
-d2hhdCB0byBkbyB3aXRoIHRoZSBmcmFtZS4gSXQgY2FuIHByb2Nlc3MgdGhlIGZyYW1lIHRoZW4g
-dGhlDQo+IGJyaWRnZSBkb2Vzbid0IG5lZWQgdG8gZG8gYW55dGhpbmcgb3IgZG9uJ3QgcHJvY2Vz
-cyBzbyB0aGVuIHRoZSBicmlkZ2UNCj4gd2lsbCBkbyBub3JtYWwgZm9yd2FyZGluZy4NCj4gDQo+
-IFNpZ25lZC1vZmYtYnk6IEhlbnJpayBCam9lcm5sdW5kICA8aGVucmlrLmJqb2Vybmx1bmRAbWlj
-cm9jaGlwLmNvbT4NCj4gUmV2aWV3ZWQtYnk6IEhvcmF0aXUgVnVsdHVyICA8aG9yYXRpdS52dWx0
-dXJAbWljcm9jaGlwLmNvbT4NCj4gLS0tDQo+ICBuZXQvYnJpZGdlL2JyX2RldmljZS5jICB8ICAx
-ICsNCj4gIG5ldC9icmlkZ2UvYnJfaW5wdXQuYyAgIHwgMzMgKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKystDQo+ICBuZXQvYnJpZGdlL2JyX21ycC5jICAgICB8IDE5ICsrKysrKysrKysr
-KysrKy0tLS0NCj4gIG5ldC9icmlkZ2UvYnJfcHJpdmF0ZS5oIHwgMTggKysrKysrKysrKysrLS0t
-LS0tDQo+ICA0IGZpbGVzIGNoYW5nZWQsIDYwIGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygt
-KQ0KPiANCltzbmlwXQ0KPiBkaWZmIC0tZ2l0IGEvbmV0L2JyaWRnZS9icl9wcml2YXRlLmggYi9u
-ZXQvYnJpZGdlL2JyX3ByaXZhdGUuaA0KPiBpbmRleCAzNDUxMThlMzVjNDIuLjNlNjJjZTJlZjhh
-NSAxMDA2NDQNCj4gLS0tIGEvbmV0L2JyaWRnZS9icl9wcml2YXRlLmgNCj4gKysrIGIvbmV0L2Jy
-aWRnZS9icl9wcml2YXRlLmgNCj4gQEAgLTQ4MCw2ICs0ODAsOCBAQCBzdHJ1Y3QgbmV0X2JyaWRn
-ZSB7DQo+ICAjZW5kaWYNCj4gIAlzdHJ1Y3QgaGxpc3RfaGVhZAkJZmRiX2xpc3Q7DQo+ICANCj4g
-KwlzdHJ1Y3QgaGxpc3RfaGVhZAkJZnJhbWVfdHlwZV9saXN0Ow0KDQpTaW5jZSB0aGVyZSB3aWxs
-IGJlIGEgdjUsIEknZCBzdWdnZXN0IHRvIG1vdmUgdGhpcyBzdHJ1Y3QgbWVtYmVyIGluIHRoZSBm
-aXJzdA0KY2FjaGUgbGluZSBhcyBpdCB3aWxsIGJlIGFsd2F5cyB1c2VkIGluIHRoZSBicmlkZ2Ug
-ZmFzdC1wYXRoIGZvciBhbGwgY2FzZXMuDQpJbiBvcmRlciB0byBtYWtlIHJvb20gZm9yIGl0IHRo
-ZXJlIHlvdSBjYW4gbW92ZSBwb3J0X2xpc3QgYWZ0ZXIgZmRiX2hhc2hfdGJsIGFuZA0KYWRkIHRo
-aXMgaW4gaXRzIHBsYWNlLCBwb3J0X2xpc3QgaXMgY3VycmVudGx5IHVzZWQgb25seSB3aGVuIGZs
-b29kaW5nIGFuZCBzb29uDQpJJ2xsIGV2ZW4gY2hhbmdlIHRoYXQuDQoNClRoYW5rcywNCiBOaWsN
-Cg0KPiArDQo+ICAjaWYgSVNfRU5BQkxFRChDT05GSUdfQlJJREdFX01SUCkNCj4gIAlzdHJ1Y3Qg
-bGlzdF9oZWFkCQltcnBfbGlzdDsNCj4gICNlbmRpZg0KPiBAQCAtNzU1LDYgKzc1NywxNiBAQCBp
-bnQgbmJwX2JhY2t1cF9jaGFuZ2Uoc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAqcCwgc3RydWN0IG5l
-dF9kZXZpY2UgKmJhY2t1cF9kZXYpOw0KPiAgaW50IGJyX2hhbmRsZV9mcmFtZV9maW5pc2goc3Ry
-dWN0IG5ldCAqbmV0LCBzdHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBza19idWZmICpza2IpOw0KPiAg
-cnhfaGFuZGxlcl9mdW5jX3QgKmJyX2dldF9yeF9oYW5kbGVyKGNvbnN0IHN0cnVjdCBuZXRfZGV2
-aWNlICpkZXYpOw0KPiAgDQo+ICtzdHJ1Y3QgYnJfZnJhbWVfdHlwZSB7DQo+ICsJX19iZTE2CQkJ
-dHlwZTsNCj4gKwlpbnQJCQkoKmZyYW1lX2hhbmRsZXIpKHN0cnVjdCBuZXRfYnJpZGdlX3BvcnQg
-KnBvcnQsDQo+ICsJCQkJCQkgc3RydWN0IHNrX2J1ZmYgKnNrYik7DQo+ICsJc3RydWN0IGhsaXN0
-X25vZGUJbGlzdDsNCj4gK307DQo+ICsNCj4gK3ZvaWQgYnJfYWRkX2ZyYW1lKHN0cnVjdCBuZXRf
-YnJpZGdlICpiciwgc3RydWN0IGJyX2ZyYW1lX3R5cGUgKmZ0KTsNCj4gK3ZvaWQgYnJfZGVsX2Zy
-YW1lKHN0cnVjdCBuZXRfYnJpZGdlICpiciwgc3RydWN0IGJyX2ZyYW1lX3R5cGUgKmZ0KTsNCj4g
-Kw0KPiAgc3RhdGljIGlubGluZSBib29sIGJyX3J4X2hhbmRsZXJfY2hlY2tfcmN1KGNvbnN0IHN0
-cnVjdCBuZXRfZGV2aWNlICpkZXYpDQo+ICB7DQo+ICAJcmV0dXJuIHJjdV9kZXJlZmVyZW5jZShk
-ZXYtPnJ4X2hhbmRsZXIpID09IGJyX2dldF9yeF9oYW5kbGVyKGRldik7DQo+IEBAIC0xNDE3LDcg
-KzE0MjksNiBAQCBleHRlcm4gaW50ICgqYnJfZmRiX3Rlc3RfYWRkcl9ob29rKShzdHJ1Y3QgbmV0
-X2RldmljZSAqZGV2LCB1bnNpZ25lZCBjaGFyICphZGRyKQ0KPiAgI2lmIElTX0VOQUJMRUQoQ09O
-RklHX0JSSURHRV9NUlApDQo+ICBpbnQgYnJfbXJwX3BhcnNlKHN0cnVjdCBuZXRfYnJpZGdlICpi
-ciwgc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAqcCwNCj4gIAkJIHN0cnVjdCBubGF0dHIgKmF0dHIs
-IGludCBjbWQsIHN0cnVjdCBuZXRsaW5rX2V4dF9hY2sgKmV4dGFjayk7DQo+IC1pbnQgYnJfbXJw
-X3Byb2Nlc3Moc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAqcCwgc3RydWN0IHNrX2J1ZmYgKnNrYik7
-DQo+ICBib29sIGJyX21ycF9lbmFibGVkKHN0cnVjdCBuZXRfYnJpZGdlICpicik7DQo+ICB2b2lk
-IGJyX21ycF9wb3J0X2RlbChzdHJ1Y3QgbmV0X2JyaWRnZSAqYnIsIHN0cnVjdCBuZXRfYnJpZGdl
-X3BvcnQgKnApOw0KPiAgaW50IGJyX21ycF9maWxsX2luZm8oc3RydWN0IHNrX2J1ZmYgKnNrYiwg
-c3RydWN0IG5ldF9icmlkZ2UgKmJyKTsNCj4gQEAgLTE0MjksMTEgKzE0NDAsNiBAQCBzdGF0aWMg
-aW5saW5lIGludCBicl9tcnBfcGFyc2Uoc3RydWN0IG5ldF9icmlkZ2UgKmJyLCBzdHJ1Y3QgbmV0
-X2JyaWRnZV9wb3J0ICpwLA0KPiAgCXJldHVybiAtRU9QTk9UU1VQUDsNCj4gIH0NCj4gIA0KPiAt
-c3RhdGljIGlubGluZSBpbnQgYnJfbXJwX3Byb2Nlc3Moc3RydWN0IG5ldF9icmlkZ2VfcG9ydCAq
-cCwgc3RydWN0IHNrX2J1ZmYgKnNrYikNCj4gLXsNCj4gLQlyZXR1cm4gMDsNCj4gLX0NCj4gLQ0K
-PiAgc3RhdGljIGlubGluZSBib29sIGJyX21ycF9lbmFibGVkKHN0cnVjdCBuZXRfYnJpZGdlICpi
-cikNCj4gIHsNCj4gIAlyZXR1cm4gZmFsc2U7DQoNCg==
+In several places the same code is used to populate rtnl_link_stats64
+fields with data from pcpu_sw_netstats. Therefore factor out this code
+to a new function dev_fetch_sw_netstats().
+
+Heiner Kallweit (12):
+  net: core: add function dev_fetch_sw_netstats for fetching
+    pcpu_sw_netstats
+  IB/hfi1: use new function dev_fetch_sw_netstats
+  net: macsec: use new function dev_fetch_sw_netstats
+  net: usb: qmi_wwan: use new function dev_fetch_sw_netstats
+  net: usbnet: use new function dev_fetch_sw_netstats
+  qtnfmac: use new function dev_fetch_sw_netstats
+  net: bridge: use new function dev_fetch_sw_netstats
+  net: dsa: use new function dev_fetch_sw_netstats
+  iptunnel: use new function dev_fetch_sw_netstats
+  mac80211: use new function dev_fetch_sw_netstats
+  net: openvswitch: use new function dev_fetch_sw_netstats
+  xfrm: use new function dev_fetch_sw_netstats
+
+ drivers/infiniband/hw/hfi1/ipoib_main.c       | 34 +-----------------
+ drivers/net/macsec.c                          | 25 +------------
+ drivers/net/usb/qmi_wwan.c                    | 24 +------------
+ drivers/net/usb/usbnet.c                      | 24 +------------
+ drivers/net/wireless/quantenna/qtnfmac/core.c | 27 +-------------
+ include/linux/netdevice.h                     |  2 ++
+ net/bridge/br_device.c                        | 21 +----------
+ net/core/dev.c                                | 36 +++++++++++++++++++
+ net/dsa/slave.c                               | 21 +----------
+ net/ipv4/ip_tunnel_core.c                     | 23 +-----------
+ net/mac80211/iface.c                          | 23 +-----------
+ net/openvswitch/vport-internal_dev.c          | 20 +----------
+ net/xfrm/xfrm_interface.c                     | 22 +-----------
+ 13 files changed, 49 insertions(+), 253 deletions(-)
+
+-- 
+2.28.0
+
