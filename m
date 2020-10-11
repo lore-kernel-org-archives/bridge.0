@@ -2,23 +2,23 @@ Return-Path: <hkallweit1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:from:to:cc:references:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=m4bUmyI+LcL2kRpVckxE5LM+etyYjhNnBeXZhGHIk4E=;
- b=JUFyhhlZn+ptpsepXb1APxQLXmKc+A0UsqSaItDHceRBS1uFfQtykf8t35FDOfwehx
- BjY3ka/KZKHhmzb3hJq4RTqP9Vf7yO1TZtFwKQJZOp5365c7oUF9WlXHLeLPsyeWW1Y1
- Il2+Koe5lEP4rCOvaECTtv7h1u2kkfEaong9M1gEfRlHvDeNQ6fFbuG2jN6t0SmAm1iY
- MZtLjBE3JtV6R6gckMWLqd4awrHduTa63Nvyy3I1zvyEIsQYxghczsg8OkUKJ/wHv1+Z
- PzNWuc0OB7oUfG7q7TILqqsQVaXhCtVC/dEbI3JyGy+Wj2kM0dS3BhArtpvOxozdV45q
- OgTA==
+ bh=gfr3ALYPLKmxZda8jB3ld1N0hpEXjoqgwocV8/nd3X0=;
+ b=UbL1GtjqXIjEGis5eM/8DwyMsHni206CGfZbq8bJ4Cq/dPqLWTpDUaxfFfzUN/NQ0R
+ WNmYW3qdxh0pnWXQaoDe1nChSTIh6UTJ1SUMKcaQwRu7tQHbnHMJYc9b60vNWy4nh2aR
+ 39ZLS52ZJ30L2HF+21PL5XB8xlAqyxKt0lsCWZO9rcVudZySuROSZS34XHNWL3VL6POI
+ W9VRr+t4S9PS8gPdJ6DjdYR+h3OE9rx1F5wr5xgIPwYgalHlaXejI9sL//flzgCHykQy
+ G2u1erqZ9fsK4FIHDpNBHaAuHIFP5hkKTLCqnvVJlEoUoVZHPXw9YfD1SP1dRKmk2vw8
+ oFFw==
 From: Heiner Kallweit <hkallweit1@gmail.com>
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
-Message-ID: <3b4e5d1f-16b3-dfa9-2f43-7061edbf9b1e@gmail.com>
-Date: Sun, 11 Oct 2020 21:42:43 +0200
+Message-ID: <7debf7e5-ea7f-6fec-4f58-7dd6c8f28b7b@gmail.com>
+Date: Sun, 11 Oct 2020 21:43:18 +0200
 MIME-Version: 1.0
 In-Reply-To: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next 10/12] mac80211: use new function
+Subject: [Bridge] [PATCH net-next 11/12] net: openvswitch: use new function
  dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -35,43 +35,46 @@ Simplify the code by using new function dev_fetch_sw_netstats().
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- net/mac80211/iface.c | 23 +----------------------
- 1 file changed, 1 insertion(+), 22 deletions(-)
+ net/openvswitch/vport-internal_dev.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index 240862a74..1be775979 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -709,28 +709,7 @@ static u16 ieee80211_netdev_select_queue(struct net_device *dev,
+diff --git a/net/openvswitch/vport-internal_dev.c b/net/openvswitch/vport-internal_dev.c
+index d8fe66eea..1e30d8df3 100644
+--- a/net/openvswitch/vport-internal_dev.c
++++ b/net/openvswitch/vport-internal_dev.c
+@@ -86,31 +86,13 @@ static void internal_dev_destructor(struct net_device *dev)
  static void
- ieee80211_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
+ internal_get_stats(struct net_device *dev, struct rtnl_link_stats64 *stats)
  {
 -	int i;
 -
+ 	memset(stats, 0, sizeof(*stats));
+ 	stats->rx_errors  = dev->stats.rx_errors;
+ 	stats->tx_errors  = dev->stats.tx_errors;
+ 	stats->tx_dropped = dev->stats.tx_dropped;
+ 	stats->rx_dropped = dev->stats.rx_dropped;
+ 
 -	for_each_possible_cpu(i) {
--		const struct pcpu_sw_netstats *tstats;
--		u64 rx_packets, rx_bytes, tx_packets, tx_bytes;
+-		const struct pcpu_sw_netstats *percpu_stats;
+-		struct pcpu_sw_netstats local_stats;
 -		unsigned int start;
 -
--		tstats = per_cpu_ptr(dev->tstats, i);
+-		percpu_stats = per_cpu_ptr(dev->tstats, i);
 -
 -		do {
--			start = u64_stats_fetch_begin_irq(&tstats->syncp);
--			rx_packets = tstats->rx_packets;
--			tx_packets = tstats->tx_packets;
--			rx_bytes = tstats->rx_bytes;
--			tx_bytes = tstats->tx_bytes;
--		} while (u64_stats_fetch_retry_irq(&tstats->syncp, start));
+-			start = u64_stats_fetch_begin_irq(&percpu_stats->syncp);
+-			local_stats = *percpu_stats;
+-		} while (u64_stats_fetch_retry_irq(&percpu_stats->syncp, start));
 -
--		stats->rx_packets += rx_packets;
--		stats->tx_packets += tx_packets;
--		stats->rx_bytes   += rx_bytes;
--		stats->tx_bytes   += tx_bytes;
+-		stats->rx_bytes         += local_stats.rx_bytes;
+-		stats->rx_packets       += local_stats.rx_packets;
+-		stats->tx_bytes         += local_stats.tx_bytes;
+-		stats->tx_packets       += local_stats.tx_packets;
 -	}
 +	dev_fetch_sw_netstats(stats, dev->tstats);
  }
  
- static const struct net_device_ops ieee80211_dataif_ops = {
+ static const struct net_device_ops internal_dev_netdev_ops = {
 -- 
 2.28.0
 
