@@ -2,23 +2,23 @@ Return-Path: <hkallweit1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:from:to:cc:references:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=/FTD4WRUg6u2eGbYzuvRNRJ/sh1gmUaaKBFsN/NH+4I=;
- b=PyzuGbgQ/T5WAYNOiE7/Fc7mim7ijDf/I6hDizxzEYTF8/HfbbmzP42R+dk/Tf7t3L
- r3rTgfmciTFkPugJUIfFan4lA3UxjLBGZrSeWGa98iK7WgUsSZZMK6jaqsVusLDc7OKt
- ducIl5gXoe3bagOoU/aBG55E0qjsy2CDzRWixI5g8O4pMkDRMn10OM/pJEYXJUbxUdg8
- wEvIdZn0WeXfx8o6AOtjUbp/WHumX4LdXSa/3HL4Zw5+KaHHYXBaDEvDAy4vYOU/JTen
- aN8KJ1n70tBEf2n56k0U7kdOle+7frjcbMwxo8f8NSK4m1RYQZEu24MxYsLGh4P3It+e
- TvFw==
+ bh=m4bUmyI+LcL2kRpVckxE5LM+etyYjhNnBeXZhGHIk4E=;
+ b=JUFyhhlZn+ptpsepXb1APxQLXmKc+A0UsqSaItDHceRBS1uFfQtykf8t35FDOfwehx
+ BjY3ka/KZKHhmzb3hJq4RTqP9Vf7yO1TZtFwKQJZOp5365c7oUF9WlXHLeLPsyeWW1Y1
+ Il2+Koe5lEP4rCOvaECTtv7h1u2kkfEaong9M1gEfRlHvDeNQ6fFbuG2jN6t0SmAm1iY
+ MZtLjBE3JtV6R6gckMWLqd4awrHduTa63Nvyy3I1zvyEIsQYxghczsg8OkUKJ/wHv1+Z
+ PzNWuc0OB7oUfG7q7TILqqsQVaXhCtVC/dEbI3JyGy+Wj2kM0dS3BhArtpvOxozdV45q
+ OgTA==
 From: Heiner Kallweit <hkallweit1@gmail.com>
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
-Message-ID: <3b1116c4-4cc4-2aac-fd66-7ffd2d3705bc@gmail.com>
-Date: Sun, 11 Oct 2020 21:42:04 +0200
+Message-ID: <3b4e5d1f-16b3-dfa9-2f43-7061edbf9b1e@gmail.com>
+Date: Sun, 11 Oct 2020 21:42:43 +0200
 MIME-Version: 1.0
 In-Reply-To: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next 09/12] iptunnel: use new function
+Subject: [Bridge] [PATCH net-next 10/12] mac80211: use new function
  dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -35,26 +35,25 @@ Simplify the code by using new function dev_fetch_sw_netstats().
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- net/ipv4/ip_tunnel_core.c | 23 +----------------------
+ net/mac80211/iface.c | 23 +----------------------
  1 file changed, 1 insertion(+), 22 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel_core.c b/net/ipv4/ip_tunnel_core.c
-index b2ea1a8c5..25f1caf5a 100644
---- a/net/ipv4/ip_tunnel_core.c
-+++ b/net/ipv4/ip_tunnel_core.c
-@@ -433,29 +433,8 @@ EXPORT_SYMBOL(skb_tunnel_check_pmtu);
- void ip_tunnel_get_stats64(struct net_device *dev,
- 			   struct rtnl_link_stats64 *tot)
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index 240862a74..1be775979 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -709,28 +709,7 @@ static u16 ieee80211_netdev_select_queue(struct net_device *dev,
+ static void
+ ieee80211_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
  {
 -	int i;
 -
- 	netdev_stats_to_stats64(tot, &dev->stats);
--
 -	for_each_possible_cpu(i) {
--		const struct pcpu_sw_netstats *tstats =
--						   per_cpu_ptr(dev->tstats, i);
+-		const struct pcpu_sw_netstats *tstats;
 -		u64 rx_packets, rx_bytes, tx_packets, tx_bytes;
 -		unsigned int start;
+-
+-		tstats = per_cpu_ptr(dev->tstats, i);
 -
 -		do {
 -			start = u64_stats_fetch_begin_irq(&tstats->syncp);
@@ -64,15 +63,15 @@ index b2ea1a8c5..25f1caf5a 100644
 -			tx_bytes = tstats->tx_bytes;
 -		} while (u64_stats_fetch_retry_irq(&tstats->syncp, start));
 -
--		tot->rx_packets += rx_packets;
--		tot->tx_packets += tx_packets;
--		tot->rx_bytes   += rx_bytes;
--		tot->tx_bytes   += tx_bytes;
+-		stats->rx_packets += rx_packets;
+-		stats->tx_packets += tx_packets;
+-		stats->rx_bytes   += rx_bytes;
+-		stats->tx_bytes   += tx_bytes;
 -	}
-+	dev_fetch_sw_netstats(tot, dev->tstats);
++	dev_fetch_sw_netstats(stats, dev->tstats);
  }
- EXPORT_SYMBOL_GPL(ip_tunnel_get_stats64);
  
+ static const struct net_device_ops ieee80211_dataif_ops = {
 -- 
 2.28.0
 
