@@ -1,26 +1,26 @@
 Return-Path: <Henrik.Bjoernlund@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1602511607; x=1634047607;
+ t=1602511606; x=1634047606;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=VKxwr4NlEdUKM+raaIoybU4fTvA/IgUNXYamCppVHXQ=;
- b=CjT/dKnnd23jsbKBPb7GnCgI9XcOqJmyOyKgy+sHw4I35ZafaON0vqZM
- Qb0NVbnmXuNjysE85Bpszj0+ezGe+V4EZd2sJ2tBfsjvQ7f9Rd+KIhuzG
- Tlp3+BYYYUSWhE4udYoR/GE0JyNQBY7SA3QgkLgCVA5WWYLJUf26c95L7
- ICvAMspbEVR35ZlVf42rQSYOaMI1G3EyfDIdVqO19i4Htt+hTt5BHenio
- IJ6FtbOaEs8IcvUPiHLLlbfEWw6cZS3vDzsjAAHwYvZPIrgUch2xefThe
- yxX2GdHmsYmSmd2iTnq5p9TDV/ARG4jaGE89v70TthSSTba6ZiTZkX4MW A==;
+ bh=swxnyDJbR9Lmsf2pqMyYByYpt/CwvNw6HUNn0q4/Jm4=;
+ b=s4l66OGaI1I8YYSixfJzQB5GRZfU19KoMgP+bi6+GH9olbxJq6HZHc9R
+ Y9D3dN0f38DEA5DSm6KucI5HGZy1nkJVRNWqHsktCOVbEOILIIsDn+oN1
+ KAEs5BR1YrF4DVQCjabvkVuyDHI2F7H90DQfz79+U99I7akCrOQCHrtYk
+ vH7dhTGANXaQunOudLXwijTmveeo1J+h7ZpFvzVtT/aJHxonJWJcjgv3z
+ Wys5z1mt1AICSkwn9Tpk82UkDdj6IS9C4kmtiXy+U6u2MLIT3tjoT/6F/
+ bv83cIdRdk5qIfbjXT1i7oqWZMKMydPb28Ak/q0b0R7zqKpcwD/yEiO0Z w==;
 From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Date: Mon, 12 Oct 2020 14:04:19 +0000
-Message-ID: <20201012140428.2549163-2-henrik.bjoernlund@microchip.com>
+Date: Mon, 12 Oct 2020 14:04:27 +0000
+Message-ID: <20201012140428.2549163-10-henrik.bjoernlund@microchip.com>
 In-Reply-To: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
 References: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v5 01/10] net: bridge: extend the process
-	of special frames
+Subject: [Bridge] [PATCH net-next v5 09/10] bridge: cfm: Netlink GET status
+	Interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,206 +32,331 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, jiri@mellanox.com, idosch@mellanox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
 Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-This patch extends the processing of frames in the bridge. Currently MRP
-frames needs special processing and the current implementation doesn't
-allow a nice way to process different frame types. Therefore try to
-improve this by adding a list that contains frame types that need
-special processing. This list is iterated for each input frame and if
-there is a match based on frame type then these functions will be called
-and decide what to do with the frame. It can process the frame then the
-bridge doesn't need to do anything or don't process so then the bridge
-will do normal forwarding.
+This is the implementation of CFM netlink status
+get information interface.
+
+Add new nested netlink attributes. These attributes are used by the
+user space to get status information.
+
+GETLINK:
+    Request filter RTEXT_FILTER_CFM_STATUS:
+    Indicating that CFM status information must be delivered.
+
+    IFLA_BRIDGE_CFM:
+        Points to the CFM information.
+
+    IFLA_BRIDGE_CFM_MEP_STATUS_INFO:
+        This indicate that the MEP instance status are following.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO:
+        This indicate that the peer MEP status are following.
+
+CFM nested attribute has the following attributes in next level.
+
+GETLINK RTEXT_FILTER_CFM_STATUS:
+    IFLA_BRIDGE_CFM_MEP_STATUS_INSTANCE:
+        The MEP instance number of the delivered status.
+        The type is u32.
+    IFLA_BRIDGE_CFM_MEP_STATUS_OPCODE_UNEXP_SEEN:
+        The MEP instance received CFM PDU with unexpected Opcode.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_MEP_STATUS_VERSION_UNEXP_SEEN:
+        The MEP instance received CFM PDU with unexpected version.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_MEP_STATUS_RX_LEVEL_LOW_SEEN:
+        The MEP instance received CCM PDU with MD level lower than
+        configured level. This frame is discarded.
+        The type is u32 (bool).
+
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_INSTANCE:
+        The MEP instance number of the delivered status.
+        The type is u32.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_PEER_MEPID:
+        The added Peer MEP ID of the delivered status.
+        The type is u32.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_CCM_DEFECT:
+        The CCM defect status.
+        The type is u32 (bool).
+        True means no CCM frame is received for 3.25 intervals.
+        IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_RDI:
+        The last received CCM PDU RDI.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_PORT_TLV_VALUE:
+        The last received CCM PDU Port Status TLV value field.
+        The type is u8.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_IF_TLV_VALUE:
+        The last received CCM PDU Interface Status TLV value field.
+        The type is u8.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEEN:
+        A CCM frame has been received from Peer MEP.
+        The type is u32 (bool).
+        This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_TLV_SEEN:
+        A CCM frame with TLV has been received from Peer MEP.
+        The type is u32 (bool).
+        This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
+    IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEQ_UNEXP_SEEN:
+        A CCM frame with unexpected sequence number has been received
+        from Peer MEP.
+        The type is u32 (bool).
+        When a sequence number is not one higher than previously received
+        then it is unexpected.
+        This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
 
 Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
 Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
 ---
- net/bridge/br_device.c  |  1 +
- net/bridge/br_input.c   | 33 ++++++++++++++++++++++++++++++++-
- net/bridge/br_mrp.c     | 19 +++++++++++++++----
- net/bridge/br_private.h | 19 ++++++++++++-------
- 4 files changed, 60 insertions(+), 12 deletions(-)
+ include/uapi/linux/if_bridge.h |  29 +++++++++
+ include/uapi/linux/rtnetlink.h |   1 +
+ net/bridge/br_cfm_netlink.c    | 105 +++++++++++++++++++++++++++++++++
+ net/bridge/br_netlink.c        |  16 ++++-
+ net/bridge/br_private.h        |   6 ++
+ 5 files changed, 154 insertions(+), 3 deletions(-)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 9a2fb4aa1a10..206c4ba51cd2 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -473,6 +473,7 @@ void br_dev_setup(struct net_device *dev)
- 	spin_lock_init(&br->lock);
- 	INIT_LIST_HEAD(&br->port_list);
- 	INIT_HLIST_HEAD(&br->fdb_list);
-+	INIT_HLIST_HEAD(&br->frame_type_list);
- #if IS_ENABLED(CONFIG_BRIDGE_MRP)
- 	INIT_LIST_HEAD(&br->mrp_list);
- #endif
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 59a318b9f646..bece03bf83c4 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -254,6 +254,21 @@ static int nf_hook_bridge_pre(struct sk_buff *skb, struct sk_buff **pskb)
- 	return RX_HANDLER_CONSUMED;
- }
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index b8b4491922d9..d975e1223884 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -345,6 +345,8 @@ enum {
+ 	IFLA_BRIDGE_CFM_CC_RDI_INFO,
+ 	IFLA_BRIDGE_CFM_CC_CCM_TX_INFO,
+ 	IFLA_BRIDGE_CFM_CC_PEER_MEP_INFO,
++	IFLA_BRIDGE_CFM_MEP_STATUS_INFO,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO,
+ 	__IFLA_BRIDGE_CFM_MAX,
+ };
  
-+/* Return 0 if the frame was not processed otherwise 1
-+ * note: already called with rcu_read_lock
-+ */
-+static int br_process_frame_type(struct net_bridge_port *p,
-+				 struct sk_buff *skb)
-+{
-+	struct br_frame_type *tmp;
+@@ -424,6 +426,33 @@ enum {
+ 
+ #define IFLA_BRIDGE_CFM_CC_CCM_TX_MAX (__IFLA_BRIDGE_CFM_CC_CCM_TX_MAX - 1)
+ 
++enum {
++	IFLA_BRIDGE_CFM_MEP_STATUS_UNSPEC,
++	IFLA_BRIDGE_CFM_MEP_STATUS_INSTANCE,
++	IFLA_BRIDGE_CFM_MEP_STATUS_OPCODE_UNEXP_SEEN,
++	IFLA_BRIDGE_CFM_MEP_STATUS_VERSION_UNEXP_SEEN,
++	IFLA_BRIDGE_CFM_MEP_STATUS_RX_LEVEL_LOW_SEEN,
++	__IFLA_BRIDGE_CFM_MEP_STATUS_MAX,
++};
 +
-+	hlist_for_each_entry_rcu(tmp, &p->br->frame_type_list, list)
-+		if (unlikely(tmp->type == skb->protocol))
-+			return tmp->frame_handler(p, skb);
++#define IFLA_BRIDGE_CFM_MEP_STATUS_MAX (__IFLA_BRIDGE_CFM_MEP_STATUS_MAX - 1)
++
++enum {
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_UNSPEC,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_INSTANCE,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_PEER_MEPID,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_CCM_DEFECT,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_RDI,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_PORT_TLV_VALUE,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_IF_TLV_VALUE,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEEN,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_TLV_SEEN,
++	IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEQ_UNEXP_SEEN,
++	__IFLA_BRIDGE_CFM_CC_PEER_STATUS_MAX,
++};
++
++#define IFLA_BRIDGE_CFM_CC_PEER_STATUS_MAX (__IFLA_BRIDGE_CFM_CC_PEER_STATUS_MAX - 1)
++
+ struct bridge_stp_xstats {
+ 	__u64 transition_blk;
+ 	__u64 transition_fwd;
+diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
+index ffc9ca1f2bdb..fdd408f6a5d2 100644
+--- a/include/uapi/linux/rtnetlink.h
++++ b/include/uapi/linux/rtnetlink.h
+@@ -780,6 +780,7 @@ enum {
+ #define	RTEXT_FILTER_SKIP_STATS	(1 << 3)
+ #define RTEXT_FILTER_MRP	(1 << 4)
+ #define RTEXT_FILTER_CFM_CONFIG	(1 << 5)
++#define RTEXT_FILTER_CFM_STATUS	(1 << 6)
+ 
+ /* End of information exported to user level */
+ 
+diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
+index e7bfb8e003e8..506e352cc763 100644
+--- a/net/bridge/br_cfm_netlink.c
++++ b/net/bridge/br_cfm_netlink.c
+@@ -612,3 +612,108 @@ int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br)
+ nla_info_failure:
+ 	return -EMSGSIZE;
+ }
++
++int br_cfm_status_fill_info(struct sk_buff *skb, struct net_bridge *br)
++{
++	struct br_cfm_peer_mep *peer_mep;
++	struct br_cfm_mep *mep;
++	struct nlattr *tb;
++
++	hlist_for_each_entry_rcu(mep, &br->mep_list, head) {
++		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INFO);
++		if (!tb)
++			goto nla_info_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INSTANCE,
++				mep->instance))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb,
++				IFLA_BRIDGE_CFM_MEP_STATUS_OPCODE_UNEXP_SEEN,
++				mep->status.opcode_unexp_seen))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb,
++				IFLA_BRIDGE_CFM_MEP_STATUS_VERSION_UNEXP_SEEN,
++				mep->status.version_unexp_seen))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb,
++				IFLA_BRIDGE_CFM_MEP_STATUS_RX_LEVEL_LOW_SEEN,
++				mep->status.rx_level_low_seen))
++			goto nla_put_failure;
++
++		/* Clear all 'seen' indications */
++		mep->status.opcode_unexp_seen = false;
++		mep->status.version_unexp_seen = false;
++		mep->status.rx_level_low_seen = false;
++
++		nla_nest_end(skb, tb);
++
++		hlist_for_each_entry_rcu(peer_mep, &mep->peer_mep_list, head) {
++			tb = nla_nest_start(skb,
++					    IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO);
++			if (!tb)
++				goto nla_info_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_STATUS_INSTANCE,
++					mep->instance))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_STATUS_PEER_MEPID,
++					peer_mep->mepid))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_STATUS_CCM_DEFECT,
++					peer_mep->cc_status.ccm_defect))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_PEER_STATUS_RDI,
++					peer_mep->cc_status.rdi))
++				goto nla_put_failure;
++
++			if (nla_put_u8(skb,
++				       IFLA_BRIDGE_CFM_CC_PEER_STATUS_PORT_TLV_VALUE,
++				       peer_mep->cc_status.port_tlv_value))
++				goto nla_put_failure;
++
++			if (nla_put_u8(skb,
++				       IFLA_BRIDGE_CFM_CC_PEER_STATUS_IF_TLV_VALUE,
++				       peer_mep->cc_status.if_tlv_value))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEEN,
++					peer_mep->cc_status.seen))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_STATUS_TLV_SEEN,
++					peer_mep->cc_status.tlv_seen))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEQ_UNEXP_SEEN,
++					peer_mep->cc_status.seq_unexp_seen))
++				goto nla_put_failure;
++
++			/* Clear all 'seen' indications */
++			peer_mep->cc_status.seen = false;
++			peer_mep->cc_status.tlv_seen = false;
++			peer_mep->cc_status.seq_unexp_seen = false;
++
++			nla_nest_end(skb, tb);
++		}
++	}
 +
 +	return 0;
-+}
 +
- /*
-  * Return NULL if skb is handled
-  * note: already called with rcu_read_lock
-@@ -343,7 +358,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 		}
++nla_put_failure:
++	nla_nest_cancel(skb, tb);
++
++nla_info_failure:
++	return -EMSGSIZE;
++}
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 69bfe165ff7f..68c2ed87e26b 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -428,7 +428,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 	if (filter_mask & (RTEXT_FILTER_BRVLAN |
+ 			   RTEXT_FILTER_BRVLAN_COMPRESSED |
+ 			   RTEXT_FILTER_MRP |
+-			   RTEXT_FILTER_CFM_CONFIG)) {
++			   RTEXT_FILTER_CFM_CONFIG |
++			   RTEXT_FILTER_CFM_STATUS)) {
+ 		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
+ 		if (!af)
+ 			goto nla_put_failure;
+@@ -477,7 +478,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 			goto nla_put_failure;
  	}
  
--	if (unlikely(br_mrp_process(p, skb)))
-+	if (unlikely(br_process_frame_type(p, skb)))
- 		return RX_HANDLER_PASS;
+-	if (filter_mask & RTEXT_FILTER_CFM_CONFIG) {
++	if (filter_mask & (RTEXT_FILTER_CFM_CONFIG | RTEXT_FILTER_CFM_STATUS)) {
+ 		struct nlattr *cfm_nest = NULL;
+ 		int err;
  
- forward:
-@@ -380,3 +395,19 @@ rx_handler_func_t *br_get_rx_handler(const struct net_device *dev)
+@@ -496,6 +497,14 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 				goto nla_put_failure;
+ 		}
  
- 	return br_handle_frame;
- }
-+
-+void br_add_frame(struct net_bridge *br, struct br_frame_type *ft)
-+{
-+	hlist_add_head_rcu(&ft->list, &br->frame_type_list);
-+}
-+
-+void br_del_frame(struct net_bridge *br, struct br_frame_type *ft)
-+{
-+	struct br_frame_type *tmp;
-+
-+	hlist_for_each_entry(tmp, &br->frame_type_list, list)
-+		if (ft == tmp) {
-+			hlist_del_rcu(&ft->list);
-+			return;
++		if (filter_mask & RTEXT_FILTER_CFM_STATUS) {
++			rcu_read_lock();
++			err = br_cfm_status_fill_info(skb, br);
++			rcu_read_unlock();
++			if (err)
++				goto nla_put_failure;
 +		}
-+}
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index b36689e6e7cb..f94d72bb7c32 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -6,6 +6,13 @@
- static const u8 mrp_test_dmac[ETH_ALEN] = { 0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 };
- static const u8 mrp_in_test_dmac[ETH_ALEN] = { 0x1, 0x15, 0x4e, 0x0, 0x0, 0x3 };
- 
-+static int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb);
 +
-+static struct br_frame_type mrp_frame_type __read_mostly = {
-+	.type = cpu_to_be16(ETH_P_MRP),
-+	.frame_handler = br_mrp_process,
-+};
-+
- static bool br_mrp_is_ring_port(struct net_bridge_port *p_port,
- 				struct net_bridge_port *s_port,
- 				struct net_bridge_port *port)
-@@ -445,6 +452,9 @@ static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
+ 		nla_nest_end(skb, cfm_nest);
+ 	}
  
- 	list_del_rcu(&mrp->list);
- 	kfree_rcu(mrp, rcu);
-+
-+	if (list_empty(&br->mrp_list))
-+		br_del_frame(br, &mrp_frame_type);
- }
+@@ -563,7 +572,8 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 	if (!port && !(filter_mask & RTEXT_FILTER_BRVLAN) &&
+ 	    !(filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED) &&
+ 	    !(filter_mask & RTEXT_FILTER_MRP) &&
+-	    !(filter_mask & RTEXT_FILTER_CFM_CONFIG))
++	    !(filter_mask & RTEXT_FILTER_CFM_CONFIG) &&
++	    !(filter_mask & RTEXT_FILTER_CFM_STATUS))
+ 		return 0;
  
- /* Adds a new MRP instance.
-@@ -493,6 +503,9 @@ int br_mrp_add(struct net_bridge *br, struct br_mrp_instance *instance)
- 	spin_unlock_bh(&br->lock);
- 	rcu_assign_pointer(mrp->s_port, p);
- 
-+	if (list_empty(&br->mrp_list))
-+		br_add_frame(br, &mrp_frame_type);
-+
- 	INIT_DELAYED_WORK(&mrp->test_work, br_mrp_test_work_expired);
- 	INIT_DELAYED_WORK(&mrp->in_test_work, br_mrp_in_test_work_expired);
- 	list_add_tail_rcu(&mrp->list, &br->mrp_list);
-@@ -1172,15 +1185,13 @@ static int br_mrp_rcv(struct net_bridge_port *p,
-  * normal forwarding.
-  * note: already called with rcu_read_lock
-  */
--int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
-+static int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
- {
- 	/* If there is no MRP instance do normal forwarding */
- 	if (likely(!(p->flags & BR_MRP_AWARE)))
- 		goto out;
- 
--	if (unlikely(skb->protocol == htons(ETH_P_MRP)))
--		return br_mrp_rcv(p, skb, p->dev);
--
-+	return br_mrp_rcv(p, skb, p->dev);
- out:
- 	return 0;
- }
+ 	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 345118e35c42..2fe8b88d090e 100644
+index f571bdeb5d83..228635b350a2 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -383,7 +383,7 @@ enum net_bridge_opts {
- struct net_bridge {
- 	spinlock_t			lock;
- 	spinlock_t			hash_lock;
--	struct list_head		port_list;
-+	struct hlist_head		frame_type_list;
- 	struct net_device		*dev;
- 	struct pcpu_sw_netstats		__percpu *stats;
- 	unsigned long			options;
-@@ -395,6 +395,7 @@ struct net_bridge {
- #endif
- 
- 	struct rhashtable		fdb_hash_tbl;
-+	struct list_head		port_list;
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- 	union {
- 		struct rtable		fake_rtable;
-@@ -755,6 +756,16 @@ int nbp_backup_change(struct net_bridge_port *p, struct net_device *backup_dev);
- int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
- rx_handler_func_t *br_get_rx_handler(const struct net_device *dev);
- 
-+struct br_frame_type {
-+	__be16			type;
-+	int			(*frame_handler)(struct net_bridge_port *port,
-+						 struct sk_buff *skb);
-+	struct hlist_node	list;
-+};
-+
-+void br_add_frame(struct net_bridge *br, struct br_frame_type *ft);
-+void br_del_frame(struct net_bridge *br, struct br_frame_type *ft);
-+
- static inline bool br_rx_handler_check_rcu(const struct net_device *dev)
+@@ -1466,6 +1466,7 @@ int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
+ bool br_cfm_created(struct net_bridge *br);
+ void br_cfm_port_del(struct net_bridge *br, struct net_bridge_port *p);
+ int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br);
++int br_cfm_status_fill_info(struct sk_buff *skb, struct net_bridge *br);
+ #else
+ static inline int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
+ 			       struct nlattr *attr, int cmd,
+@@ -1488,6 +1489,11 @@ static inline int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge
  {
- 	return rcu_dereference(dev->rx_handler) == br_get_rx_handler(dev);
-@@ -1417,7 +1428,6 @@ extern int (*br_fdb_test_addr_hook)(struct net_device *dev, unsigned char *addr)
- #if IS_ENABLED(CONFIG_BRIDGE_MRP)
- int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
- 		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack);
--int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb);
- bool br_mrp_enabled(struct net_bridge *br);
- void br_mrp_port_del(struct net_bridge *br, struct net_bridge_port *p);
- int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br);
-@@ -1429,11 +1439,6 @@ static inline int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
  	return -EOPNOTSUPP;
  }
++
++static inline int br_cfm_status_fill_info(struct sk_buff *skb, struct net_bridge *br)
++{
++	return -EOPNOTSUPP;
++}
+ #endif
  
--static inline int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
--{
--	return 0;
--}
--
- static inline bool br_mrp_enabled(struct net_bridge *br)
- {
- 	return false;
+ /* br_netlink.c */
 -- 
 2.28.0
 
