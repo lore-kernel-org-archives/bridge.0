@@ -1,28 +1,28 @@
 Return-Path: <Henrik.Bjoernlund@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1602508146; x=1634044146;
+ t=1602508192; x=1634044192;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=c6Ivqf4OspDRp407mzox5L4R7nJcJEmFcZbBbxEq/VM=;
- b=WxwUZiHFKDEUUXMZtdrVxirOgbbE2yVuDGujngU9EF+ISrTXh9rfsF22
- l2M/wqD9Yx0CP65HkSYU3T5UPwMx/uhaNDOjfppTuwwK+InKze16cLxhH
- L0KOttGsbenqStXvkjoRu6M0wnI/X/Al36qnpzBwhjqPXVZ4843j/9kj4
- 6wtMtjrN1GsQ9q9GZIKyQrzudUjVnPm/CMHwWWmAZtnsj1NdRaEugvS2j
- e5U05eGFkQ1Lq51cRINTA2ymykrY5G24K6RwxlClg69ZD1PNvmx/Q4Qio
- Etmr8c8ajEJ1cwzwfpgoCPbuZGNOeqZ/tdOgKAiojVZxqmkSLoCiALTcV g==;
-Date: Mon, 12 Oct 2020 13:07:19 +0000
+ bh=VNDSt+zhhFrY3NFQ8ynshBXGxKGZD0F6mYKc9VJJ1Sg=;
+ b=TSVkowlt3ylKHv3Dh8zDrCr7wx/wJx7cbuVGDTqBgNb/BpYpdXj9eMMu
+ 1fRanYE0qTAOP+LWOcvijZ+LWN+XTrTVVSzbpuamqDTF1iOehkwKOe9HN
+ MMykx+Iex/9Ti32bTyKXpQKMGxvjU8VmY0UnS3YijU9+aJwcvvEoJ1w/7
+ TymSKkd3t4XaBNdr35ExC4aoVeq8m7/qmKF4p+Lnm85yobPc3wbiC9Dvx
+ yVz8VwLEr/vikaiEC1x3aMcrnWRu8/gJc9Pnip+iptXCQfILDSGC57Xa1
+ y7zUh1wy4Zl8bQ01+tPReEF+WNgAj3X2uU7whCSMn4jw4K2Diaj8YvH4Z w==;
+Date: Mon, 12 Oct 2020 13:08:06 +0000
 From: "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>
-Message-ID: <20201012130719.f33smgwclykfnwed@soft-test08>
+Message-ID: <20201012130806.sye6tl4amkuqbbgh@soft-test08>
 References: <20201009143530.2438738-1-henrik.bjoernlund@microchip.com>
- <20201009143530.2438738-8-henrik.bjoernlund@microchip.com>
- <7b6678065b33aea63ab5e802852e738035b94719.camel@nvidia.com>
+ <20201009143530.2438738-11-henrik.bjoernlund@microchip.com>
+ <4adba273e44e0c4dbce4a32d07f79a05d3c66601.camel@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <7b6678065b33aea63ab5e802852e738035b94719.camel@nvidia.com>
-Subject: Re: [Bridge] [PATCH net-next v4 07/10] bridge: cfm: Netlink SET
- configuration Interface.
+In-Reply-To: <4adba273e44e0c4dbce4a32d07f79a05d3c66601.camel@nvidia.com>
+Subject: Re: [Bridge] [PATCH net-next v4 10/10] bridge: cfm: Netlink
+	Notifications.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,164 +34,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Nikolay Aleksandrov <nikolay@nvidia.com>
 Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "jiri@mellanox.com" <jiri@mellanox.com>, Roopa Prabhu <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-The 10/09/2020 21:53, Nikolay Aleksandrov wrote:
+The 10/09/2020 22:03, Nikolay Aleksandrov wrote:
 > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
 > 
 > On Fri, 2020-10-09 at 14:35 +0000, Henrik Bjoernlund wrote:
-> > This is the implementation of CFM netlink configuration
-> > set information interface.
+> > This is the implementation of Netlink notifications out of CFM.
 > >
-> > Add new nested netlink attributes. These attributes are used by the
-> > user space to create/delete/configure CFM instances.
+> > Notifications are initiated whenever a state change happens in CFM.
 > >
-> > SETLINK:
-> >     IFLA_BRIDGE_CFM:
-> >         Indicate that the following attributes are CFM.
+> > IFLA_BRIDGE_CFM:
+> >     Points to the CFM information.
 > >
-> >     IFLA_BRIDGE_CFM_MEP_CREATE:
-> >         This indicate that a MEP instance must be created.
-> >     IFLA_BRIDGE_CFM_MEP_DELETE:
-> >         This indicate that a MEP instance must be deleted.
-> >     IFLA_BRIDGE_CFM_MEP_CONFIG:
-> >         This indicate that a MEP instance must be configured.
-> >     IFLA_BRIDGE_CFM_CC_CONFIG:
-> >         This indicate that a MEP instance Continuity Check (CC)
-> >         functionality must be configured.
-> >     IFLA_BRIDGE_CFM_CC_PEER_MEP_ADD:
-> >         This indicate that a CC Peer MEP must be added.
-> >     IFLA_BRIDGE_CFM_CC_PEER_MEP_REMOVE:
-> >         This indicate that a CC Peer MEP must be removed.
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX:
-> >         This indicate that the CC transmitted CCM PDU must be configured.
-> >     IFLA_BRIDGE_CFM_CC_RDI:
-> >         This indicate that the CC transmitted CCM PDU RDI must be
-> >         configured.
+> > IFLA_BRIDGE_CFM_MEP_STATUS_INFO:
+> >     This indicate that the MEP instance status are following.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO:
+> >     This indicate that the peer MEP status are following.
 > >
 > > CFM nested attribute has the following attributes in next level.
 > >
-> > SETLINK RTEXT_FILTER_CFM_CONFIG:
-> >     IFLA_BRIDGE_CFM_MEP_CREATE_INSTANCE:
-> >         The created MEP instance number.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_MEP_CREATE_DOMAIN:
-> >         The created MEP domain.
-> >         The type is u32 (br_cfm_domain).
-> >         It must be BR_CFM_PORT.
-> >         This means that CFM frames are transmitted and received
-> >         directly on the port - untagged. Not in a VLAN.
-> >     IFLA_BRIDGE_CFM_MEP_CREATE_DIRECTION:
-> >         The created MEP direction.
-> >         The type is u32 (br_cfm_mep_direction).
-> >         It must be BR_CFM_MEP_DIRECTION_DOWN.
-> >         This means that CFM frames are transmitted and received on
-> >         the port. Not in the bridge.
-> >     IFLA_BRIDGE_CFM_MEP_CREATE_IFINDEX:
-> >         The created MEP residence port ifindex.
-> >         The type is u32 (ifindex).
+> > IFLA_BRIDGE_CFM_MEP_STATUS_INSTANCE:
+> >     The MEP instance number of the delivered status.
+> >     The type is NLA_U32.
+> > IFLA_BRIDGE_CFM_MEP_STATUS_OPCODE_UNEXP_SEEN:
+> >     The MEP instance received CFM PDU with unexpected Opcode.
+> >     The type is NLA_U32 (bool).
+> > IFLA_BRIDGE_CFM_MEP_STATUS_VERSION_UNEXP_SEEN:
+> >     The MEP instance received CFM PDU with unexpected version.
+> >     The type is NLA_U32 (bool).
+> > IFLA_BRIDGE_CFM_MEP_STATUS_RX_LEVEL_LOW_SEEN:
+> >     The MEP instance received CCM PDU with MD level lower than
+> >     configured level. This frame is discarded.
+> >     The type is NLA_U32 (bool).
 > >
-> >     IFLA_BRIDGE_CFM_MEP_DELETE_INSTANCE:
-> >         The deleted MEP instance number.
-> >         The type is u32.
-> >
-> >     IFLA_BRIDGE_CFM_MEP_CONFIG_INSTANCE:
-> >         The configured MEP instance number.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_MEP_CONFIG_UNICAST_MAC:
-> >         The configured MEP unicast MAC address.
-> >         The type is 6*u8 (array).
-> >         This is used as SMAC in all transmitted CFM frames.
-> >     IFLA_BRIDGE_CFM_MEP_CONFIG_MDLEVEL:
-> >         The configured MEP unicast MD level.
-> >         The type is u32.
-> >         It must be in the range 1-7.
-> >         No CFM frames are passing through this MEP on lower levels.
-> >     IFLA_BRIDGE_CFM_MEP_CONFIG_MEPID:
-> >         The configured MEP ID.
-> >         The type is u32.
-> >         It must be in the range 0-0x1FFF.
-> >         This MEP ID is inserted in any transmitted CCM frame.
-> >
-> >     IFLA_BRIDGE_CFM_CC_CONFIG_INSTANCE:
-> >         The configured MEP instance number.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_CC_CONFIG_ENABLE:
-> >         The Continuity Check (CC) functionality is enabled or disabled.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL:
-> >         The CC expected receive interval of CCM frames.
-> >         The type is u32 (br_cfm_ccm_interval).
-> >         This is also the transmission interval of CCM frames when enabled.
-> >     IFLA_BRIDGE_CFM_CC_CONFIG_EXP_MAID:
-> >         The CC expected receive MAID in CCM frames.
-> >         The type is CFM_MAID_LENGTH*u8.
-> >         This is MAID is also inserted in transmitted CCM frames.
-> >
-> >     IFLA_BRIDGE_CFM_CC_PEER_MEP_INSTANCE:
-> >         The configured MEP instance number.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_CC_PEER_MEPID:
-> >         The CC Peer MEP ID added.
-> >         The type is u32.
-> >         When a Peer MEP ID is added and CC is enabled it is expected to
-> >         receive CCM frames from that Peer MEP.
-> >
-> >     IFLA_BRIDGE_CFM_CC_RDI_INSTANCE:
-> >         The configured MEP instance number.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_CC_RDI_RDI:
-> >         The RDI that is inserted in transmitted CCM PDU.
-> >         The type is u32 (bool).
-> >
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE:
-> >         The configured MEP instance number.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_DMAC:
-> >         The transmitted CCM frame destination MAC address.
-> >         The type is 6*u8 (array).
-> >         This is used as DMAC in all transmitted CFM frames.
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_SEQ_NO_UPDATE:
-> >         The transmitted CCM frame update (increment) of sequence
-> >         number is enabled or disabled.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_PERIOD:
-> >         The period of time where CCM frame are transmitted.
-> >         The type is u32.
-> >         The time is given in seconds. SETLINK IFLA_BRIDGE_CFM_CC_CCM_TX
-> >         must be done before timeout to keep transmission alive.
-> >         When period is zero any ongoing CCM frame transmission
-> >         will be stopped.
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV:
-> >         The transmitted CCM frame update with Interface Status TLV
-> >         is enabled or disabled.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV_VALUE:
-> >         The transmitted Interface Status TLV value field.
-> >         The type is u8.
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV:
-> >         The transmitted CCM frame update with Port Status TLV is enabled
-> >         or disabled.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV_VALUE:
-> >         The transmitted Port Status TLV value field.
-> >         The type is u8.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_INSTANCE:
+> >     The MEP instance number of the delivered status.
+> >     The type is NLA_U32.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_PEER_MEPID:
+> >     The added Peer MEP ID of the delivered status.
+> >     The type is NLA_U32.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_CCM_DEFECT:
+> >     The CCM defect status.
+> >     The type is NLA_U32 (bool).
+> >     True means no CCM frame is received for 3.25 intervals.
+> >     IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_RDI:
+> >     The last received CCM PDU RDI.
+> >     The type is NLA_U32 (bool).
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_PORT_TLV_VALUE:
+> >     The last received CCM PDU Port Status TLV value field.
+> >     The type is NLA_U8.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_IF_TLV_VALUE:
+> >     The last received CCM PDU Interface Status TLV value field.
+> >     The type is NLA_U8.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEEN:
+> >     A CCM frame has been received from Peer MEP.
+> >     The type is NLA_U32 (bool).
+> >     This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_TLV_SEEN:
+> >     A CCM frame with TLV has been received from Peer MEP.
+> >     The type is NLA_U32 (bool).
+> >     This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
+> > IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEQ_UNEXP_SEEN:
+> >     A CCM frame with unexpected sequence number has been received
+> >     from Peer MEP.
+> >     The type is NLA_U32 (bool).
+> >     When a sequence number is not one higher than previously received
+> >     then it is unexpected.
+> >     This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
 > >
 > > Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
 > > Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
 > > ---
-> >  include/uapi/linux/if_bridge.h |  90 +++++++
-> >  include/uapi/linux/rtnetlink.h |   1 +
-> >  net/bridge/Makefile            |   2 +-
-> >  net/bridge/br_cfm.c            |   5 +
-> >  net/bridge/br_cfm_netlink.c    | 458 +++++++++++++++++++++++++++++++++
-> >  net/bridge/br_netlink.c        |   5 +
-> >  net/bridge/br_private.h        |  17 +-
-> >  7 files changed, 576 insertions(+), 2 deletions(-)
-> >  create mode 100644 net/bridge/br_cfm_netlink.c
+> >  net/bridge/br_cfm.c         | 48 ++++++++++++++++++++++++
+> >  net/bridge/br_cfm_netlink.c | 25 ++++++++-----
+> >  net/bridge/br_netlink.c     | 73 ++++++++++++++++++++++++++++++++-----
+> >  net/bridge/br_private.h     | 22 ++++++++++-
+> >  4 files changed, 147 insertions(+), 21 deletions(-)
 > >
 > 
 > Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 > 
-
 Thanks for the review.
 
 -- 
