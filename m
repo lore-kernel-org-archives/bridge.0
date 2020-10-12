@@ -1,44 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Fri, 16 Oct 2020 13:43:06 +0000
-Message-ID: <ed19387091755aee165c074983776f37f2b87892.camel@nvidia.com>
-References: <20201015173355.564934-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20201015173355.564934-1-vladimir.oltean@nxp.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
+Return-Path: <atenart@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1602509859;
+ bh=mvGEPH4UmSON2svJ1yiU7FBCC0Sgo3PEgLHn7hbXVBA=;
+ h=In-Reply-To:References:Subject:Cc:To:From:Date:From;
+ b=g1QxIh3VbJlOes9tKz95+xFrXF2XlCTXSAE7mkAFtJGXMJ0jWyq2TUiG6xGcP3I2p
+ 9EyHU8Q1RaunZXaJZqguVXrqSpEt0h3CVRlJ+3vgxn96Oa9on7L3ATCLIiPkoSVTSC
+ pkvlJocmhwy0YDPAMqz49epWC5gkR/hYpw4iEicE=
 Content-Type: text/plain; charset="utf-8"
-Content-ID: <8B04B081B9C6CB4BBF9AED9869594F99@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1602855795; bh=QcGz7pqCGhYOeo3kKEDhFS79p7nvYXJjFNTFIl1Nva4=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=gN2joZc1617mdmduSk9r4vc9BLf1GQvoVa1jc8amoidxyX8Lpubz82fNdPd0sGvVB
- 6PMQDUVyFDp4VbraDAX4aAJHvE/8i3W/V9rWHzdBSAgkWrbhvTCy3OMWqNFzmM6RTL
- jHGn/9VDQHxKkuQDPpH9uV0ymQ/qPhHrn/UT5ousUmHDx67wE6jAbvnZswR+7R+zl9
- I7MHa35ddVwseuTv2SNzwZV9k1pxO6AFpllb0TArofkhjxxxzHFjhRyZSsDychMeDY
- clxGKPetWbN42CuuhhIFBGi2sD5irYgYqYf7exDB4NTvp8jAK0UQ4D1qr45kfbV8r4
- bTvVoZr1JjRaw==
-Subject: Re: [Bridge] [RFC PATCH] net: bridge: call br_multicast_del_port
- before the port leaves
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <0d81e0f7-7784-42df-8e10-d0b77ca5b7ee@gmail.com>
+References: <d77b65de-1793-f808-66b5-aaa4e7c8a8f0@gmail.com>
+ <0d81e0f7-7784-42df-8e10-d0b77ca5b7ee@gmail.com>
+From: Antoine Tenart <atenart@kernel.org>
+Message-ID: <160250985474.6233.14282398170315752864@surface>
+Date: Mon, 12 Oct 2020 15:37:34 +0200
+Subject: Re: [Bridge] [PATCH net-next v2 03/12] net: macsec: use new
+	function dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -47,67 +25,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "davem@davemloft.net" <davem@davemloft.net>, "vladimir.oltean@nxp.com" <vladimir.oltean@nxp.com>, "kuba@kernel.org" <kuba@kernel.org>
+To: bjorn@mork.no, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Lunn <andrew@lunn.ch>, David Miller <davem@davemloft.net>, Florian Fainelli <f.fainelli@gmail.com>, Heiner Kallweit <hkallweit1@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Igor Mitsyanko <imitsyanko@quantenna.com>, Jakub Kicinski <kuba@kernel.org>, Johannes Berg <johannes@sipsolutions.net>, Kalle Valo <kvalo@codeaurora.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Oliver Neukum <oneukum@suse.com>, Pravin B Shelar <pshelar@ovn.org>, Roopa Prabhu <roopa@nvidia.com>, Sergey Matyukevich <geomatsi@gmail.com>, Steffen Klassert <steffen.klassert@secunet.com>, Vivien Didelot <vivien.didelot@gmail.com>, Vladimir Oltean <olteanv@gmail.com>
+Cc: linux-rdma@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linux USB Mailing List <linux-usb@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-T24gVGh1LCAyMDIwLTEwLTE1IGF0IDIwOjMzICswMzAwLCBWbGFkaW1pciBPbHRlYW4gd3JvdGU6
-DQo+IFN3aXRjaGRldiBkcml2ZXJzIG9mdGVuIGhhdmUgZGlmZmVyZW50IFZMQU4gc2VtYW50aWNz
-IHRoYW4gdGhlIGJyaWRnZS4NCj4gRm9yIGV4YW1wbGUsIGNvbnNpZGVyIHRoaXM6DQo+IA0KPiBp
-cCBsaW5rIGFkZCBicjAgdHlwZSBicmlkZ2UNCj4gaXAgbGluayBzZXQgc3dwMCBtYXN0ZXIgYnIw
-DQo+IGJyaWRnZSBtZGIgYWRkIGRldiBicjAgcG9ydCBzd3AwIGdycCAwMTowMjowMzowNDowNTow
-NiBwZXJtYW5lbnQNCj4gaXAgbGluayBkZWwgYnIwDQo+IFsgICAyNi4wODU4MTZdIG1zY2NfZmVs
-aXggMDAwMDowMDowMC41IHN3cDA6IGZhaWxlZCAoZXJyPS0yKSB0byBkZWwgb2JqZWN0IChpZD0y
-KQ0KPiANCj4gVGhpcyBpcyBiZWNhdXNlIHRoZSBtc2NjX29jZWxvdCBkcml2ZXIsIHdoZW4gVkxB
-TiBhd2FyZW5lc3MgaXMgZGlzYWJsZWQsDQo+IGNsYXNzaWZpZXMgYWxsIHRyYWZmaWMgdG8gdGhl
-IHBvcnQtYmFzZWQgVkxBTiAocHZpZCkuIFRoZSBwdmlkIGlzIDAgd2hlbg0KPiB0aGUgcG9ydCBp
-cyBzdGFuZGFsb25lLCBhbmQgaXQgaXMgaW5oZXJpdGVkIGZyb20gdGhlIGJyaWRnZSBkZWZhdWx0
-IHB2aWQNCj4gKHdoaWNoIGlzIDEgYnkgZGVmYXVsdCwgYnV0IGl0IG1heSB0YWtlIG90aGVyIHZh
-bHVlcykgd2hlbiBpdCBqb2lucyB0aGUNCj4gVkxBTi11bmF3YXJlIGJyaWRnZSwgYW5kIHRoZW4g
-dGhlIHB2aWQgcmVzZXRzIHRvIDAgd2hlbiB0aGUgcG9ydCBsZWF2ZXMNCj4gdGhlIGJyaWRnZSBh
-Z2Fpbi4NCj4gDQo+IE5vdyBiZWNhdXNlIHRoZSBtc2NjX29jZWxvdCBzd2l0Y2ggY2xhc3NpZmll
-cyBhbGwgdHJhZmZpYyB0byBpdHMgcHJpdmF0ZQ0KPiBwdmlkLCBpdCBuZWVkcyB0byB0cmFuc2xh
-dGUgYmV0d2VlbiB0aGUgdmlkIHRoYXQgdGhlIG1kYiBjb21lcyB3aXRoLCBhbmQNCj4gdGhlIHZp
-ZCB0aGF0IHdpbGwgYWN0dWFsbHkgYmUgcHJvZ3JhbW1lZCBpbnRvIGhhcmR3YXJlLiBUaGUgYnJp
-ZGdlIHVzZXMNCj4gdGhlIHZpZCBvZiAwIGluIFZMQU4tdW5hd2FyZSBtb2RlLCB3aGlsZSB0aGUg
-aGFyZHdhcmUgdXNlcyB0aGUgcHZpZA0KPiBpbmhlcml0ZWQgZnJvbSB0aGUgYnJpZGdlLCB0aGF0
-J3MgdGhlIGRpZmZlcmVuY2UuDQo+IA0KPiBTbyB3aGF0IHdpbGwgaGFwcGVuIGlzOg0KPiANCj4g
-U3RlcCAxIChhZGRpdGlvbik6DQo+IGJyX21kYl9ub3RpZnkoUlRNX05FV01EQikNCj4gLT4gb2Nl
-bG90X3BvcnRfbWRiX2FkZChtZGItPmFkZHI9MDE6MDI6MDM6MDQ6MDU6MDYsIG1kYi0+dmlkPTAp
-DQo+ICAgIC0+IG1kYi0+dmlkIGlzIHJlbWFwcGVkIGZyb20gMCB0byAxIGFuZCBpbnN0YWxsZWQg
-aW50byBvY2Vsb3QtPm11bHRpY2FzdA0KPiANCj4gU3RlcCAyIChyZW1vdmFsKToNCj4gZGVsX25i
-cA0KPiAtPiBuZXRkZXZfdXBwZXJfZGV2X3VubGluayhkZXYsIGJyLT5kZXYpDQo+ICAgIC0+IG9j
-ZWxvdF9wb3J0X2JyaWRnZV9sZWF2ZQ0KPiAgICAgICAtPiBvY2Vsb3RfcG9ydF9zZXRfcHZpZChv
-Y2Vsb3QsIHBvcnQsIDApDQo+IC0+IGJyX211bHRpY2FzdF9kZWxfcG9ydCBpcyBjYWxsZWQgYW5k
-IHRoZSBzd2l0Y2hkZXYgbm90aWZpZXIgaXMNCj4gICAgZGVmZXJyZWQgZm9yIHNvbWUgdGltZSBs
-YXRlcg0KPiAgICAtPiBvY2Vsb3RfcG9ydF9tZGJfZGVsKG1kYi0+YWRkcj0wMTowMjowMzowNDow
-NTowNiwgbWRiLT52aWQ9MCkNCj4gICAgICAgLT4gbWRiLT52aWQgaXMgcmVtYXBwZWQgZnJvbSAw
-IHRvIDAsIHRoZSBwb3J0IHB2aWQgKCEhISkNCj4gICAgICAgLT4gdGhlIHJlbWFwcGVkIG1kYiAo
-YWRkcj0wMTowMjowMzowNDowNTowNiwgdmlkPTApIGlzIG5vdCBmb3VuZA0KPiAgICAgICAgICBp
-bnNpZGUgdGhlIG9jZWxvdC0+bXVsdGljYXN0IGxpc3QsIGFuZCAtRU5PRU5UIGlzIHJldHVybmVk
-DQo+IA0KPiBTbyB0aGUgcHJvYmxlbSBpcyB0aGF0IG1zY2Nfb2NlbG90IGFzc3VtZXMgdGhhdCB0
-aGUgcG9ydCBpcyByZW1vdmVkDQo+IF9hZnRlcl8gdGhlIG11bHRpY2FzdCBlbnRyaWVzIGhhdmUg
-YmVlbiBkZWxldGVkLiBBbmQgdGhpcyBpcyBub3QgYW4NCj4gdW5yZWFzb25hYmxlIGFzc3VtcHRp
-b24sIHByZXN1bWFibHkgaXQgaXNuJ3QgdGhlIG9ubHkgc3dpdGNoZGV2IHRoYXQNCj4gbmVlZHMg
-dG8gcmVtYXAgdGhlIHZpZC4gU28gd2UgY2FuIHJlb3JkZXIgdGhlIHRlYXJkb3duIHBhdGggaW4g
-b3JkZXINCj4gZm9yIHRoYXQgYXNzdW1wdGlvbiB0byBob2xkIHRydWUuDQo+IA0KPiBTaW5jZSBi
-cl9tZGJfbm90aWZ5KCkgaXNzdWVzIGEgU1dJVENIREVWX0ZfREVGRVIgb3BlcmF0aW9uLCB3ZSBt
-dXN0IG1vdmUNCj4gdGhlIGNhbGwgbm90IG9ubHkgYmVmb3JlIG5ldGRldl91cHBlcl9kZXZfdW5s
-aW5rKCksIGJ1dCBpbiBmYWN0IGJlZm9yZQ0KPiBzd2l0Y2hkZXZfZGVmZXJyZWRfcHJvY2Vzcygp
-Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogVmxhZGltaXIgT2x0ZWFuIDx2bGFkaW1pci5vbHRlYW5A
-bnhwLmNvbT4NCj4gLS0tDQo+ICBuZXQvYnJpZGdlL2JyX2lmLmMgfCAzICstLQ0KPiAgMSBmaWxl
-IGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAyIGRlbGV0aW9ucygtKQ0KPiANCg0KSXQgY2FuIHBv
-dGVudGlhbGx5IHVzZSBhZnRlciBmcmVlLCBtdWx0aWNhc3QgcmVzb3VyY2VzIChwZXItY3B1IHN0
-YXRzKSBhcmUgZnJlZWQNCmluIGJyX211bHRpY2FzdF9kZWxfcG9ydCgpIGFuZCBjYW4gYmUgdXNl
-ZCBkdWUgdG8gYSByYWNlIHdpdGggcG9ydCBzdGF0ZQ0Kc3luYyBvbiBvdGhlciBDUFVzIHNpbmNl
-IHRoZSBoYW5kbGVyIGNhbiBzdGlsbCBwcm9jZXNzIHBhY2tldHMuIFRoYXQgaGFzIGENCmNoYW5j
-ZSBvZiBoYXBwZW5pbmcgaWYgdmxhbnMgYXJlIG5vdCB1c2VkLg0KDQpJbnRlcmVzdGluZyB0aGF0
-IGJyX3N0cF9kaXNhYmxlX3BvcnQoKSBjYWxscyBicl9tdWx0aWNhc3RfZGlzYWJsZV9wb3J0KCkg
-d2hpY2gNCmZsdXNoZXMgYWxsIG5vbi1wZXJtYW5lbnQgbWRiIGVudHJpZXMsIHNvIEknbSBndWVz
-c2luZyB5b3UgaGF2ZSBwcm9ibGVtIG9ubHkNCndpdGggcGVybWFuZW50IG9uZXM/IFBlcmhhcHMg
-d2UgY2FuIGZsdXNoIHRoZW0gYWxsIGJlZm9yZS4gRWl0aGVyIGJ5IHBhc3NpbmcgYW4NCmFyZ3Vt
-ZW50IHRvIGJyX3N0cF9kaXNhYmxlX3BvcnQoKSB0aGF0IHdlJ3JlIGRlbGV0aW5nIHRoZSBwb3J0
-IHdoaWNoIHdpbGwgYmUNCnBhc3NlZCBkb3duIHRvIGJyX211bHRpY2FzdF9kaXNhYmxlX3BvcnQo
-KSBvciBieSBjYWxsaW5nIGFuIGFkZGl0aW9uYWwgaGVscGVyIHRvDQpmbHVzaCBhbGwgd2hpY2gg
-Y2FuIGJlIHJlLXVzZWQgYnkgYm90aCBkaXNhYmxlX3BvcnQoKSBhbmQgc3RvcF9tdWx0aWNhc3Qo
-KQ0KY2FsbHMuIEFkZGluZyBhbiBhcmd1bWVudCB0byBicl9zdHBfZGlzYWJsZV9wb3J0KCkgdG8g
-YmUgcGFzc2VkIGRvd24gc291bmRzDQpjbGVhbmVyIHRvIG1lLiBXaGF0IGRvIHlvdSB0aGluaz8N
-Cg0KQ2hlZXJzLA0KIE5paw0KDQo=
+Hello,
+
+Quoting Heiner Kallweit (2020-10-12 10:04:11)
+> Simplify the code by using new function dev_fetch_sw_netstats().
+>=20
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+
+Thanks!
+Antoine
+
+> ---
+>  drivers/net/macsec.c | 22 +---------------------
+>  1 file changed, 1 insertion(+), 21 deletions(-)
+>=20
+> diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+> index 2b0c8f01d..11ca5fa90 100644
+> --- a/drivers/net/macsec.c
+> +++ b/drivers/net/macsec.c
+> @@ -3647,30 +3647,10 @@ static int macsec_change_mtu(struct net_device *d=
+ev, int new_mtu)
+>  static void macsec_get_stats64(struct net_device *dev,
+>                                struct rtnl_link_stats64 *s)
+>  {
+> -       int cpu;
+> -
+>         if (!dev->tstats)
+>                 return;
+> =20
+> -       for_each_possible_cpu(cpu) {
+> -               struct pcpu_sw_netstats *stats;
+> -               struct pcpu_sw_netstats tmp;
+> -               int start;
+> -
+> -               stats =3D per_cpu_ptr(dev->tstats, cpu);
+> -               do {
+> -                       start =3D u64_stats_fetch_begin_irq(&stats->syncp=
+);
+> -                       tmp.rx_packets =3D stats->rx_packets;
+> -                       tmp.rx_bytes   =3D stats->rx_bytes;
+> -                       tmp.tx_packets =3D stats->tx_packets;
+> -                       tmp.tx_bytes   =3D stats->tx_bytes;
+> -               } while (u64_stats_fetch_retry_irq(&stats->syncp, start));
+> -
+> -               s->rx_packets +=3D tmp.rx_packets;
+> -               s->rx_bytes   +=3D tmp.rx_bytes;
+> -               s->tx_packets +=3D tmp.tx_packets;
+> -               s->tx_bytes   +=3D tmp.tx_bytes;
+> -       }
+> +       dev_fetch_sw_netstats(s, dev->tstats);
+> =20
+>         s->rx_dropped =3D dev->stats.rx_dropped;
+>         s->tx_dropped =3D dev->stats.tx_dropped;
+> --=20
+> 2.28.0
+>=20
+>=20
