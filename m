@@ -1,23 +1,26 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602456113;
- bh=KjfGjYsSnfWIwHrASEVqiRbvBtfZz9AkJ6pI70LmAbY=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=DXXI2vnw0yJuPJ+UvqE/MJmockTPIdo7j2X4VD6cjbrAv9qt0TDpFCu4E2diTbvCa
- shuUVYDttC88i8EshqLCBbS7Pgnjatcg9oMtKR2Gt/ZosE3SnuV5Kkmq5YtSR7y6jw
- Db1nukMbgdyTCNrBWKddb4xAZNlStmyMTtVuHomM=
-Date: Sun, 11 Oct 2020 15:41:50 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201011154150.6cad3758@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <1f1dceab-bab0-ff9e-dae6-ed35be504a9c@gmail.com>
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=rIbb0/SViFEAq3N3skmCoQu+YzgDQ+YxSiq/Tk6Jyjs=;
+ b=YatStj6JeisBAbir+YmU7Y5u3EZpGBGxbKaXAmw1CVHxTUc6NcIKpPqjbiRhurBwTi
+ 9+/cysSBOniaSGTCjhfXMLOFLQ1wQHQuw0bdIqd4Z92Hmkv4PL0lszVvOvrbEK8jdOkM
+ sA5idgF+CcK58S1mlBzS4oJwDDX/f16/4ock0VZbnFal3wyWoA5qrRNDCgtEhlIsPcBD
+ fksa9vLGqLi7PndXJtXuZSSbdTIf92YYTPLiTcG0/O/6uOE+/2R7TEDcX6qaOK7xBobz
+ /I2Q4ZfZKhD18n2wf2Qb8rrn+HxwwIF7YwWylf6De1dZ0XhJo6DjT1h2S1IhR99CK/au
+ cOpQ==
 References: <a46f539e-a54d-7e92-0372-cd96bb280729@gmail.com>
- <20201011151030.05ad88dd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <1f1dceab-bab0-ff9e-dae6-ed35be504a9c@gmail.com>
+ <4c7b9a8d-caa2-52dd-8973-10f4e2892dd6@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <44356f33-2191-c5a6-4c38-50c2934d16b0@gmail.com>
+Date: Sun, 11 Oct 2020 18:49:17 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <4c7b9a8d-caa2-52dd-8973-10f4e2892dd6@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 00/12] net: add and use function
- dev_fetch_sw_netstats for fetching pcpu_sw_netstats
+Subject: Re: [Bridge] [PATCH net-next 08/12] net: dsa: use new function
+ dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,25 +29,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Linux USB Mailing List <linux-usb@vger.kernel.org>, Steffen Klassert <steffen.klassert@secunet.com>, Florian Fainelli <f.fainelli@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, Sergey Matyukevich <geomatsi@gmail.com>, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, Pravin B Shelar <pshelar@ovn.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Vivien Didelot <vivien.didelot@gmail.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Kalle Valo <kvalo@codeaurora.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Oliver Neukum <oneukum@suse.com>, linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, Vladimir Oltean <olteanv@gmail.com>, David Miller <davem@davemloft.net>, =?UTF-8?B?QmrDuHJu?= Mork <bjorn@mork.no>
+To: Heiner Kallweit <hkallweit1@gmail.com>, David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, =?UTF-8?Q?Bj=c3=b8rn_Mork?= <bjorn@mork.no>, Oliver Neukum <oneukum@suse.com>, Igor Mitsyanko <imitsyanko@quantenna.com>, Sergey Matyukevich <geomatsi@gmail.com>, Kalle Valo <kvalo@codeaurora.org>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Vivien Didelot <vivien.didelot@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Johannes Berg <johannes@sipsolutions.net>, Pravin B Shelar <pshelar@ovn.org>, Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-rdma@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linux USB Mailing List <linux-usb@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, bridge@lists.linux-foundation.org
 
-On Mon, 12 Oct 2020 00:29:52 +0200 Heiner Kallweit wrote:
-> On 12.10.2020 00:10, Jakub Kicinski wrote:
-> > On Sun, 11 Oct 2020 21:34:58 +0200 Heiner Kallweit wrote:  
-> >> In several places the same code is used to populate rtnl_link_stats64
-> >> fields with data from pcpu_sw_netstats. Therefore factor out this code
-> >> to a new function dev_fetch_sw_netstats().  
-> > 
-> > FWIW probably fine to convert nfp_repr_get_host_stats64() as well, just
-> > take out the drop counter and make it a separate atomic. If you're up
-> > for that.
-> >   
-> Looking at nfp_repr_get_host_stats64() I'm not sure why the authors
-> decided to add a 64bit tx drop counter, struct net_device_stats has
-> an unsigned long tx_dropped counter already. And that the number of
-> dropped tx packets exceeds 32bit (on 32bit systems) seems not very
-> likely.
 
-struct net_device::stats? That's not per-cpu.
-Or do you mean struct net_device::tx_dropped? That'd work nicely.
+
+On 10/11/2020 12:41 PM, Heiner Kallweit wrote:
+> Simplify the code by using new function dev_fetch_sw_netstats().
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
