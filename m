@@ -2,23 +2,23 @@ Return-Path: <hkallweit1@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:from:to:cc:references:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=/FTD4WRUg6u2eGbYzuvRNRJ/sh1gmUaaKBFsN/NH+4I=;
- b=C3113bStM70NZuGM7RyowckACfab14LKWg7wWfVF/LN3gVgq92KWQoexxkqcaYsQXm
- S9+IQrNBQJWcncQPRDFnK9QzobnWFz6/JtU8SocMw+7dSpE6I4f0nVub/xf9cfsowJaT
- lE7n6ZQ9/gd82nLWmrQ3oIVm6iIFDGr3OMzdAgFx1XMuMONCdTGsKH53SxyEiTGbgnl5
- krmJtopY25J74lQSe8f4R3ihHlk5EuspuSF+G0TSkKhlCCRf8804X1ysZI4h47N94G5q
- vi6K7T1jrBWYfgWxCeNxF9ui1SbrovpET6KJdVeSH4Sb0Dyj3pF8LO/mrTrIKzKbH/cb
- S6jQ==
+ bh=QgEFAZvIGUs9d79dSBvM16GKW6VzPnxLl+Fxh+U3V5E=;
+ b=smMjqkLUc83TdlNXcDcI3M3/ULwnTf55iu2dvwq3DZB3ijaghGEg1QucVM48Q59Xei
+ PhCJRKNkGb6mEr/MRzSqyVNV4fflsAxkglH2EZ7WsMPP0qYCAMMKkJfrlb0Te3v932Kj
+ u04qGb9yhQ1k2CE2QwduucTZPxyUTXc6f7vZLCvLmEUzn/FDxBGxmAIpH705hS2LrQ/+
+ +SOYOqNpqZrunAzwqopXYlPOD0/GDk4BgwqEYxQYMykZ+qxKMd/llLUBmr2yahu1s5mQ
+ T/ll3jwrsNZlgaP76L6IGirBg7GpdPamcuyboxa4oE4J03+nQ3j2KUDK6SR2oN8ZurC5
+ kFvA==
 From: Heiner Kallweit <hkallweit1@gmail.com>
 References: <d77b65de-1793-f808-66b5-aaa4e7c8a8f0@gmail.com>
-Message-ID: <050f9a83-b195-a3d6-edbd-91a59040be21@gmail.com>
-Date: Mon, 12 Oct 2020 10:17:07 +0200
+Message-ID: <166259f2-084c-45d7-e610-2de2a0bdae06@gmail.com>
+Date: Mon, 12 Oct 2020 10:14:08 +0200
 MIME-Version: 1.0
 In-Reply-To: <d77b65de-1793-f808-66b5-aaa4e7c8a8f0@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: [Bridge] [PATCH net-next v2 09/12] iptunnel: use new function
+Subject: [Bridge] [PATCH net-next v2 06/12] qtnfmac: use new function
  dev_fetch_sw_netstats
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -34,45 +34,51 @@ Cc: linux-rdma@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org
 Simplify the code by using new function dev_fetch_sw_netstats().
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Acked-by: Kalle Valo <kvalo@codeaurora.org>
 ---
- net/ipv4/ip_tunnel_core.c | 23 +----------------------
+ drivers/net/wireless/quantenna/qtnfmac/core.c | 23 +------------------
  1 file changed, 1 insertion(+), 22 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel_core.c b/net/ipv4/ip_tunnel_core.c
-index b2ea1a8c5..25f1caf5a 100644
---- a/net/ipv4/ip_tunnel_core.c
-+++ b/net/ipv4/ip_tunnel_core.c
-@@ -433,29 +433,8 @@ EXPORT_SYMBOL(skb_tunnel_check_pmtu);
- void ip_tunnel_get_stats64(struct net_device *dev,
- 			   struct rtnl_link_stats64 *tot)
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/core.c b/drivers/net/wireless/quantenna/qtnfmac/core.c
+index 374074dc7..bf6dbeb61 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/core.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/core.c
+@@ -139,34 +139,13 @@ static void qtnf_netdev_get_stats64(struct net_device *ndev,
+ 				    struct rtnl_link_stats64 *stats)
  {
--	int i;
+ 	struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
+-	unsigned int start;
+-	int cpu;
+ 
+ 	netdev_stats_to_stats64(stats, &ndev->stats);
+ 
+ 	if (!vif->stats64)
+ 		return;
+ 
+-	for_each_possible_cpu(cpu) {
+-		struct pcpu_sw_netstats *stats64;
+-		u64 rx_packets, rx_bytes;
+-		u64 tx_packets, tx_bytes;
 -
- 	netdev_stats_to_stats64(tot, &dev->stats);
--
--	for_each_possible_cpu(i) {
--		const struct pcpu_sw_netstats *tstats =
--						   per_cpu_ptr(dev->tstats, i);
--		u64 rx_packets, rx_bytes, tx_packets, tx_bytes;
--		unsigned int start;
+-		stats64 = per_cpu_ptr(vif->stats64, cpu);
 -
 -		do {
--			start = u64_stats_fetch_begin_irq(&tstats->syncp);
--			rx_packets = tstats->rx_packets;
--			tx_packets = tstats->tx_packets;
--			rx_bytes = tstats->rx_bytes;
--			tx_bytes = tstats->tx_bytes;
--		} while (u64_stats_fetch_retry_irq(&tstats->syncp, start));
+-			start = u64_stats_fetch_begin_irq(&stats64->syncp);
+-			rx_packets = stats64->rx_packets;
+-			rx_bytes = stats64->rx_bytes;
+-			tx_packets = stats64->tx_packets;
+-			tx_bytes = stats64->tx_bytes;
+-		} while (u64_stats_fetch_retry_irq(&stats64->syncp, start));
 -
--		tot->rx_packets += rx_packets;
--		tot->tx_packets += tx_packets;
--		tot->rx_bytes   += rx_bytes;
--		tot->tx_bytes   += tx_bytes;
+-		stats->rx_packets += rx_packets;
+-		stats->rx_bytes += rx_bytes;
+-		stats->tx_packets += tx_packets;
+-		stats->tx_bytes += tx_bytes;
 -	}
-+	dev_fetch_sw_netstats(tot, dev->tstats);
++	dev_fetch_sw_netstats(stats, vif->stats64);
  }
- EXPORT_SYMBOL_GPL(ip_tunnel_get_stats64);
  
+ /* Netdev handler for transmission timeout.
 -- 
 2.28.0
 
