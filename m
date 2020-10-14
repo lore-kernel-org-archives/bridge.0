@@ -1,22 +1,22 @@
 Return-Path: <kuba@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602718220;
- bh=vyv1Lw21EZsvgtDr0IaKBBfPkAhRje6PnLiOpTq5E5o=;
+ s=default; t=1602718430;
+ bh=fJuaBZAYZB2ASZnOsQGXjvE2pynwdjPBgfBtVj+H8F4=;
  h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=f9mHYFDstQRP7bqIKfSnesVOKCUWUPIUOuPPlhYlDUkXX0Xvu8NNd4GIgqQTAh1B6
- cbMiV3FE1FovKuPzzmIqLwQKKV5wvUAjhrGm6lfxBj8Xgd/6S+U0dv0LcIGvzgq5Zy
- thgbgr+xtvbqaRPR4J+ibbFJ2O1gUfSk4r0fgrtE=
-Date: Wed, 14 Oct 2020 16:30:18 -0700
+ b=c/Mwj5CLJFeg5vBNDeMaxa33nHbmDZun8T/4ILG736efYFWqfucNlCWD/mIFyIp0U
+ EbkSPN2poPGBQpgEfedIaBV4grIdHVZ/SciOKy6ZsdQv2lRhMDJIo1dCmFQiNAj1mh
+ NUAIvlAl5JzBpAH2m/B0/JqLfxXctsj8mei7fBTM=
+Date: Wed, 14 Oct 2020 16:33:48 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201014163018.0c2a4fc7@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <20201012140428.2549163-5-henrik.bjoernlund@microchip.com>
+Message-ID: <20201014163348.2f99e349@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <20201012140428.2549163-9-henrik.bjoernlund@microchip.com>
 References: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
- <20201012140428.2549163-5-henrik.bjoernlund@microchip.com>
+ <20201012140428.2549163-9-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v5 04/10] bridge: cfm: Kernel space
- implementation of CFM. MEP create/delete.
+Subject: Re: [Bridge] [PATCH net-next v5 08/10] bridge: cfm: Netlink GET
+ configuration Interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,19 +28,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, idosch@mellanox.com, jiri@mellanox.com, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net
 
-On Mon, 12 Oct 2020 14:04:22 +0000 Henrik Bjoernlund wrote:
-> +	if (config->mdlevel > 7) {
-> +		NL_SET_ERR_MSG_MOD(extack,
-> +				   "MD level is invalid");
-> +		return -EINVAL;
-> +	}
-> +	/* The MEP-ID is a 13 bit field in the CCM PDU identifying the MEP */
-> +	if (config->mepid > 0x1FFF) {
-> +		NL_SET_ERR_MSG_MOD(extack,
-> +				   "MEP-ID is invalid");
-> +		return -EINVAL;
-> +	}
+On Mon, 12 Oct 2020 14:04:26 +0000 Henrik Bjoernlund wrote:
+> +		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_SEQ_NO_UPDATE,
+> +				mep->cc_ccm_tx_info.seq_no_update))
+> +			goto nla_put_failure;
+> +
+> +		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PERIOD,
+> +				mep->cc_ccm_tx_info.period))
+> +			goto nla_put_failure;
+> +
+> +		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV,
+> +				mep->cc_ccm_tx_info.if_tlv))
+> +			goto nla_put_failure;
+> +
+> +		if (nla_put_u8(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV_VALUE,
+> +			       mep->cc_ccm_tx_info.if_tlv_value))
+> +			goto nla_put_failure;
+> +
+> +		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV,
+> +				mep->cc_ccm_tx_info.port_tlv))
+> +			goto nla_put_failure;
+> +
+> +		if (nla_put_u8(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV_VALUE,
+> +			       mep->cc_ccm_tx_info.port_tlv_value))
+> +			goto nla_put_failure;
 
-If I'm reading patch 7 correctly these parameters come from netlink,
-right? In that case please use the netlink policies to check things
-like ranges or correct values.
+Consider collapsing writing related attrs in a nest into a single
+if statement:
+
+	if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_SEQ_NO_UPDATE,
+			mep->cc_ccm_tx_info.seq_no_update) ||
+	    nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PERIOD,
+			mep->cc_ccm_tx_info.period) ||
+		...
