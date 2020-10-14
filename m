@@ -1,14 +1,14 @@
 Return-Path: <kuba@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602717372;
- bh=2d5aAUYPl3e685Wtq1LeFikIS8MayVnNbjd2tNE9i9Y=;
+ s=default; t=1602718017;
+ bh=aJtLUT5CUqccTM2pkrFn/NwRFqdAj1DcJprXwjRRsh0=;
  h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=Iz0fyNozvpie0bXmK4hoQHzraMjPyvp0QW3mT+3Ti1faJvaOcW4gPqXzwNQDry8H9
- 1jEo7vI+K2S5eYyq7wsBzWOMzYPR4JlNlRupwiohEtd7jWV93etZ2WSyn/G390H6ys
- sf5oPSzHY+NMmEr2hFe3iQ/iPJMKNpVoAYaQsoAI=
-Date: Wed, 14 Oct 2020 16:16:10 -0700
+ b=cwbBqOsazetMElUlWGrNzzYcUBOpha8aLsVcHn5DAX4zgDpW8YjqLw9ZlOU8et3We
+ 2d6oRpe5obXv64sp0VcDx6QjOmCRsd0Emc9M+qSNHq54K1RtYNGivqabiWxiUg+v7y
+ dHcbommzec42eZbBZU0pFf56yHMa0MiByTuTfkBc=
+Date: Wed, 14 Oct 2020 16:26:55 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201014161610.46dd5785@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+Message-ID: <20201014162655.3cbc8664@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
 In-Reply-To: <20201012140428.2549163-7-henrik.bjoernlund@microchip.com>
 References: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
  <20201012140428.2549163-7-henrik.bjoernlund@microchip.com>
@@ -29,11 +29,22 @@ To: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, idosch@mellanox.com, jiri@mellanox.com, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net
 
 On Mon, 12 Oct 2020 14:04:24 +0000 Henrik Bjoernlund wrote:
-> +struct br_cfm_status_tlv {
-> +	__u8 type;
-> +	__be16 length;
-> +	__u8 value;
-> +};
+> +	/* This CCM related status is based on the latest received CCM PDU. */
+> +	u8 port_tlv_value; /* Port Status TLV value */
+> +	u8 if_tlv_value; /* Interface Status TLV value */
+> +
+> +	/* CCM has not been received for 3.25 intervals */
+> +	bool ccm_defect;
+> +
+> +	/* (RDI == 1) for last received CCM PDU */
+> +	bool rdi;
+> +
+> +	/* Indications that a CCM PDU has been seen. */
+> +	bool seen; /* CCM PDU received */
+> +	bool tlv_seen; /* CCM PDU with TLV received */
+> +	/* CCM PDU with unexpected sequence number received */
+> +	bool seq_unexp_seen;
 
-This structure is unused (and likely not what you want, since it will
-have 2 1 byte while unless you mark length as __packed).
+Please consider using a u8 bitfield rather than a bunch of bools,
+if any of this structures are expected to have many instances. 
+That'd save space.
