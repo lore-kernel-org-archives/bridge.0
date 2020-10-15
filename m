@@ -1,28 +1,28 @@
 Return-Path: <Henrik.Bjoernlund@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1602761403; x=1634297403;
+ t=1602761435; x=1634297435;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=KQhsyXAMn7AN17uLkcxZ/87dpZXLNz6fwDSYmoiJKHY=;
- b=BxYqeTlg9l0jyp7RBGwaDf+9OoAIfJFlClWJ1Wg2cmfyvKxv8m17HG7Z
- xUv1Ewg7QYALNiVyRJKAayh1glqShxTjgGYV1/9CeXsQOII++FTUcysNF
- LiJgQLZmpaU5jjTsJh1K3dShMiBJSr0i2vUtXgHxZWxDdrbsDwoLCi5n/
- siK4RJ+tR7W2u2Irjp5OI16PLH8Fg2pvBHbyAp+xrEH9d1A6wn8h+wx3D
- sGQuYERSDbcIaeCON8Jd4wLMitBDe+YExDSU1VD9ShzMcHfRLP+91pWg7
- R/YYQXX+L4dr5pMNIn1U1RYmezaNeCzAWKK6hLchN+q5RiaNrNJxvHkg1 g==;
-Date: Thu, 15 Oct 2020 11:28:22 +0000
+ bh=cA6QBKhjqXc9apBjlCYNPW0rtpxCtWcB+v3escExznM=;
+ b=W80LQkKQS1FbutAapBEIh3gzKQsSz87eQAqyXkvmIU3ctGM4UnLsyxeN
+ Qo9Vk3LDCxe8kXLXQ8NKfh0QADLrd47y9TPX7v+lP1eJ2rXiQgqXBk/J1
+ 1Wgx4/BMJZDcVj8h24lDAkiTtKkADvI1sWtJ2fXsARjwDOHonJSgCd5L8
+ 8zwqC6vH0oeQlgAl2owzz+Oyx5rAFc8ZaB0LVEfsGypsqZ5MQ+x9TgKpy
+ b67MWi0tBSfw3YCt1H6NWMwCRerLH2rCEIJNPlyFllfDe9gVZeVMMtZ1b
+ BTpIW9t3LXOqVQWDlY1MotnUVmPZhfZc7mps/vokPiHe1ZwwHZFbTQwjC g==;
+Date: Thu, 15 Oct 2020 11:28:53 +0000
 From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Message-ID: <20201015112822.adfl5kpgffgzi3wg@soft-test08>
+Message-ID: <20201015112853.42vcj4bjbg7syoyd@soft-test08>
 References: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
- <20201012140428.2549163-7-henrik.bjoernlund@microchip.com>
- <20201014161610.46dd5785@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <20201012140428.2549163-6-henrik.bjoernlund@microchip.com>
+ <20201014155958.12e38308@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20201014161610.46dd5785@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-Subject: Re: [Bridge] [PATCH net-next v5 06/10] bridge: cfm: Kernel space
- implementation of CFM. CCM frame RX added.
+In-Reply-To: <20201014155958.12e38308@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+Subject: Re: [Bridge] [PATCH net-next v5 05/10] bridge: cfm: Kernel space
+ implementation of CFM. CCM frame TX added.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -38,18 +38,23 @@ Thanks for your review. Comments below.
 Regards
 Henrik
 
-The 10/14/2020 16:16, Jakub Kicinski wrote:
+The 10/14/2020 15:59, Jakub Kicinski wrote:
 > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
 > 
-> On Mon, 12 Oct 2020 14:04:24 +0000 Henrik Bjoernlund wrote:
-> > +struct br_cfm_status_tlv {
-> > +     __u8 type;
-> > +     __be16 length;
-> > +     __u8 value;
-> > +};
+> On Mon, 12 Oct 2020 14:04:23 +0000 Henrik Bjoernlund wrote:
+> > +     skb = dev_alloc_skb(CFM_CCM_MAX_FRAME_LENGTH);
+> > +     if (!skb)
+> > +             return NULL;
+> > +
+> > +     rcu_read_lock();
+> > +     b_port = rcu_dereference(mep->b_port);
+> > +     if (!b_port) {
+> > +             rcu_read_unlock();
+> > +             return NULL;
+> > +     }
 > 
-> This structure is unused (and likely not what you want, since it will
-> have 2 1 byte while unless you mark length as __packed).
+> At a quick scan I noticed you appear to be leaking the skb here.
+> So let me point out some more nit picks.
 
 I have changed as requested.
 
