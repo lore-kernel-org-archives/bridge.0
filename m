@@ -1,28 +1,24 @@
 Return-Path: <Henrik.Bjoernlund@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1602761714; x=1634297714;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=zmVfAZBQrTe6Fi17zOJ8O3GgbRp9oajUPFq1mfmh16w=;
- b=PrECu/k+7GIhTAXOQT5bcSsOkk740TxQHCmM/LjuSQb/SbacqqdBkhoS
- cVxnP8ABRNuMr/I1+/R+nLfU3cOIVyy1+d+eAYLKiu7TqR1YDIR7S8+zw
- jTKQxf9mRz1xSZuLW8VPTMMagol6C7z+XR0ORm1C51R+L3zr1+XLNouEs
- Pb8Xpf5DojjZiXilvFEuKr0LZclq3RhrFECmDFIUZBNEGNbYEBS52JAeh
- 7AIOtbvNDNfuFujYrpbk+bIArVMoVnNfEWVxY3W1sgNOKD9umz2pIyXc0
- 0wcZDRUPlwQGMPGydgSW46H5hD4JpAjd7BUUrwPK/aB90h2Wm3Ts1pU0p A==;
-Date: Thu, 15 Oct 2020 11:33:33 +0000
-From: "henrik.bjoernlund@microchip.com" <henrik.bjoernlund@microchip.com>
-Message-ID: <20201015113333.6pbjvrib7kl7gczp@soft-test08>
-References: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
- <20201012140428.2549163-10-henrik.bjoernlund@microchip.com>
- <1253ca825551235c5fd45300f401a161f2bdd3f2.camel@nvidia.com>
+ t=1602762964; x=1634298964;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=z9B4ynlqBunEaGTtMGeSZ5D5YwyByHfo5NQOJ23TnsA=;
+ b=RAW5Mtcf/w7nLcEhAv7tXA9tuj8wnJfyII7nmyGF79lrCNH8a82/nHPj
+ jBs5OMzFf+Iw0d9fG72IEacxsG9vULMy2cE7Uru8b+sFcrhh/bOBYg/hT
+ g2Iaff8R1b4hmciL+bgDfYSRm4GlmMxStjxcv9F68/mwA1CQyMwD32h75
+ EzxdNDKFll1lp1s+rjExTD12L/URS9cGYs1U3k0goxaLfB0uoYQkq7VFV
+ HEHyFKrx1MIlHlMdE8vQvNDbbnQTq7IVX9jZg23zkKv0IxcMVpIlsUsGJ
+ BkNz1xAm2fRDBXrQYMMWm6P7WrTmnDA6gcnNE72o2tpgmGBwdjs7oPPsR g==;
+From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Date: Thu, 15 Oct 2020 11:54:08 +0000
+Message-ID: <20201015115418.2711454-1-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-In-Reply-To: <1253ca825551235c5fd45300f401a161f2bdd3f2.camel@nvidia.com>
-Subject: Re: [Bridge] [PATCH net-next v5 09/10] bridge: cfm: Netlink GET
- status Interface.
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next v5 00/10] net: bridge: cfm: Add support
+	for Connectivity Fault Management(CFM)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,103 +27,146 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "idosch@mellanox.com" <idosch@mellanox.com>, "jiri@mellanox.com" <jiri@mellanox.com>, Roopa Prabhu <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "horatiu.vultur@microchip.com" <horatiu.vultur@microchip.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, jiri@mellanox.com, idosch@mellanox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
+Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Thanks for your review.
-Regards
-Henrik
+Connectivity Fault Management (CFM) is defined in 802.1Q
+section 12.14.
 
-The 10/14/2020 11:24, Nikolay Aleksandrov wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> On Mon, 2020-10-12 at 14:04 +0000, Henrik Bjoernlund wrote:
-> > This is the implementation of CFM netlink status
-> > get information interface.
-> >
-> > Add new nested netlink attributes. These attributes are used by the
-> > user space to get status information.
-> >
-> > GETLINK:
-> >     Request filter RTEXT_FILTER_CFM_STATUS:
-> >     Indicating that CFM status information must be delivered.
-> >
-> >     IFLA_BRIDGE_CFM:
-> >         Points to the CFM information.
-> >
-> >     IFLA_BRIDGE_CFM_MEP_STATUS_INFO:
-> >         This indicate that the MEP instance status are following.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO:
-> >         This indicate that the peer MEP status are following.
-> >
-> > CFM nested attribute has the following attributes in next level.
-> >
-> > GETLINK RTEXT_FILTER_CFM_STATUS:
-> >     IFLA_BRIDGE_CFM_MEP_STATUS_INSTANCE:
-> >         The MEP instance number of the delivered status.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_MEP_STATUS_OPCODE_UNEXP_SEEN:
-> >         The MEP instance received CFM PDU with unexpected Opcode.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_MEP_STATUS_VERSION_UNEXP_SEEN:
-> >         The MEP instance received CFM PDU with unexpected version.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_MEP_STATUS_RX_LEVEL_LOW_SEEN:
-> >         The MEP instance received CCM PDU with MD level lower than
-> >         configured level. This frame is discarded.
-> >         The type is u32 (bool).
-> >
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_INSTANCE:
-> >         The MEP instance number of the delivered status.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_PEER_MEPID:
-> >         The added Peer MEP ID of the delivered status.
-> >         The type is u32.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_CCM_DEFECT:
-> >         The CCM defect status.
-> >         The type is u32 (bool).
-> >         True means no CCM frame is received for 3.25 intervals.
-> >         IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_RDI:
-> >         The last received CCM PDU RDI.
-> >         The type is u32 (bool).
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_PORT_TLV_VALUE:
-> >         The last received CCM PDU Port Status TLV value field.
-> >         The type is u8.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_IF_TLV_VALUE:
-> >         The last received CCM PDU Interface Status TLV value field.
-> >         The type is u8.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEEN:
-> >         A CCM frame has been received from Peer MEP.
-> >         The type is u32 (bool).
-> >         This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_TLV_SEEN:
-> >         A CCM frame with TLV has been received from Peer MEP.
-> >         The type is u32 (bool).
-> >         This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
-> >     IFLA_BRIDGE_CFM_CC_PEER_STATUS_SEQ_UNEXP_SEEN:
-> >         A CCM frame with unexpected sequence number has been received
-> >         from Peer MEP.
-> >         The type is u32 (bool).
-> >         When a sequence number is not one higher than previously received
-> >         then it is unexpected.
-> >         This is cleared after GETLINK IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO.
-> >
-> > Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
-> > Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
-> > ---
-> >  include/uapi/linux/if_bridge.h |  29 +++++++++
-> >  include/uapi/linux/rtnetlink.h |   1 +
-> >  net/bridge/br_cfm_netlink.c    | 105 +++++++++++++++++++++++++++++++++
-> >  net/bridge/br_netlink.c        |  16 ++++-
-> >  net/bridge/br_private.h        |   6 ++
-> >  5 files changed, 154 insertions(+), 3 deletions(-)
-> >
-> >
-> 
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> 
-> 
+Connectivity Fault Management (CFM) comprises capabilities for
+detecting, verifying, and isolating connectivity failures in Virtual
+Bridged Networks. These capabilities can be used in networks
+operated by multiple independent organizations, each with restricted
+management access to each other’s equipment.
+
+CFM functions are partitioned as follows:
+    — Path discovery
+    — Fault detection
+    — Fault verification and isolation
+    — Fault notification
+    — Fault recovery
+
+The primary CFM protocol shims are called Maintenance Points (MPs).
+A MP can be either a MEP or a MHF.
+The MEP:
+    -It is the Maintenance association End Point
+     described in 802.1Q section 19.2.
+    -It is created on a specific level (1-7) and is assuring
+     that no CFM frames are passing through this MEP on lower levels.
+    -It initiates and terminates/validates CFM frames on its level.
+    -It can only exist on a port that is related to a bridge.
+The MHF:
+    -It is the Maintenance Domain Intermediate Point
+     (MIP) Half Function (MHF) described in 802.1Q section 19.3.
+    -It is created on a specific level (1-7).
+    -It is extracting/injecting certain CFM frame on this level.
+    -It can only exist on a port that is related to a bridge.
+    -Currently not supported.
+
+There are defined the following CFM protocol functions:
+    -Continuity Check
+    -Loopback. Currently not supported.
+    -Linktrace. Currently not supported.
+
+This CFM component supports create/delete of MEP instances and
+configuration of the different CFM protocols. Also status information
+can be fetched and delivered through notification due to defect
+status change.
+
+The user interacts with CFM using the 'cfm' user space client
+program, the client talks with the kernel using netlink.
+
+Any notification emitted by CFM from the kernel can be monitored in
+user space by starting 'cfm_server' program.
+
+Currently this 'cfm' and 'cfm_server' programs are standalone placed
+in a cfm repository https://github.com/microchip-ung/cfm but it is
+considered to integrate this into 'iproute2'.
+
+v1 -> v2
+    Added the CFM switchdev interface and also added utilization by
+    calling the interface from the kernel CFM implementation trying
+    to offload CFM functionality to HW. This offload (CFM driver) is
+    currently not implemented.
+    
+    Corrections based on RCF comments:
+        -The single CFM kernel implementation Patch is broken up into
+         three patches.
+        -Changed the list of MEP instances from list_head to
+         hlist_head.
+        -Removed unnecessary RCU list traversing.
+        -Solved RCU unlocking problem.
+        -Removed unnecessary comments.
+        -Added ASSERT_RTNL() where required.
+        -Shaping up on error messages.
+        -Correction NETLINK br_fill_ifinfo() to be able to handle
+         'filter_mask' with multiple flags asserted.
+
+v2 -> v3
+    -The switchdev definition and utilization has been removed as
+     there was no switchdev implementation.
+    -Some compiling issues are fixed as Reported-by:
+     kernel test robot <lkp@intel.com>.
+
+v3 -> v4
+    -Fixed potential crash during hlist walk where elements are
+     removed.
+    -Giving all commits unique titles.
+    -NETLINK implementation split into three commits.
+    -Commit "bridge: cfm: Bridge port remove" is merged with
+     commit "bridge: cfm: Kernel space implementation of CFM. MEP
+     create/delete."
+
+v4 -> v5
+    -Reordered members in struct net_bridge to bring member
+     frame_type_list to the first cache line.
+    -Helper functions nla_get_mac() and nla_get_maid() are removed.
+    -The NLA_POLICY_NESTED() macro is used to initialize the
+     br_cfm_policy array.
+    -Fixed reverse xmas tree.
+
+v5 -> v6
+    -Fixed that the SKB buffer was not freed during error handling return.
+    -Removed unused struct definition.
+    -Changed bool to u8 bitfields for space save.
+    -Utilizing the NETLINK policy validation feature.
+
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Signed-off-by: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+
+Henrik Bjoernlund (10):
+  net: bridge: extend the process of special frames
+  bridge: cfm: Add BRIDGE_CFM to Kconfig.
+  bridge: uapi: cfm: Added EtherType used by the CFM protocol.
+  bridge: cfm: Kernel space implementation of CFM. MEP create/delete.
+  bridge: cfm: Kernel space implementation of CFM. CCM frame TX added.
+  bridge: cfm: Kernel space implementation of CFM. CCM frame RX added.
+  bridge: cfm: Netlink SET configuration Interface.
+  bridge: cfm: Netlink GET configuration Interface.
+  bridge: cfm: Netlink GET status Interface.
+  bridge: cfm: Netlink Notifications.
+
+ include/uapi/linux/cfm_bridge.h |  64 +++
+ include/uapi/linux/if_bridge.h  | 125 +++++
+ include/uapi/linux/if_ether.h   |   1 +
+ include/uapi/linux/rtnetlink.h  |   2 +
+ net/bridge/Kconfig              |  11 +
+ net/bridge/Makefile             |   2 +
+ net/bridge/br_cfm.c             | 867 ++++++++++++++++++++++++++++++++
+ net/bridge/br_cfm_netlink.c     | 729 +++++++++++++++++++++++++++
+ net/bridge/br_device.c          |   4 +
+ net/bridge/br_if.c              |   1 +
+ net/bridge/br_input.c           |  33 +-
+ net/bridge/br_mrp.c             |  19 +-
+ net/bridge/br_netlink.c         | 115 ++++-
+ net/bridge/br_private.h         |  77 ++-
+ net/bridge/br_private_cfm.h     | 147 ++++++
+ 15 files changed, 2174 insertions(+), 23 deletions(-)
+ create mode 100644 include/uapi/linux/cfm_bridge.h
+ create mode 100644 net/bridge/br_cfm.c
+ create mode 100644 net/bridge/br_cfm_netlink.c
+ create mode 100644 net/bridge/br_private_cfm.h
 
 -- 
-/Henrik
+2.28.0
+
