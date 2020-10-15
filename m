@@ -1,28 +1,28 @@
 Return-Path: <Henrik.Bjoernlund@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1602761435; x=1634297435;
+ t=1602761658; x=1634297658;
  h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=cA6QBKhjqXc9apBjlCYNPW0rtpxCtWcB+v3escExznM=;
- b=W80LQkKQS1FbutAapBEIh3gzKQsSz87eQAqyXkvmIU3ctGM4UnLsyxeN
- Qo9Vk3LDCxe8kXLXQ8NKfh0QADLrd47y9TPX7v+lP1eJ2rXiQgqXBk/J1
- 1Wgx4/BMJZDcVj8h24lDAkiTtKkADvI1sWtJ2fXsARjwDOHonJSgCd5L8
- 8zwqC6vH0oeQlgAl2owzz+Oyx5rAFc8ZaB0LVEfsGypsqZ5MQ+x9TgKpy
- b67MWi0tBSfw3YCt1H6NWMwCRerLH2rCEIJNPlyFllfDe9gVZeVMMtZ1b
- BTpIW9t3LXOqVQWDlY1MotnUVmPZhfZc7mps/vokPiHe1ZwwHZFbTQwjC g==;
-Date: Thu, 15 Oct 2020 11:28:53 +0000
+ mime-version:content-transfer-encoding:in-reply-to;
+ bh=K5125LgfPLC5YBwpxAqbylzaGWeeFwuMFZBxHzf/rTw=;
+ b=wkbhup4g577GBy+0njTbZ8q3fUUi6A2O8CVaXcFBhXpaqDVQcxsX5lCd
+ RMIefncKby14pW+aA5sXLGOcWW3FsNO6nGmpefn4aDnrjbGS+bhsQve5b
+ 4Ppo4Mr/vXi7cKQrnQn25NqyZrj88yiibTWv42cMo1G41Hbls2Z5hc9OX
+ I7Zil2JSgfghSnfbCvTIj5tyY/LSjnuBoIRJM2mC36l3zLQP9FnH+Ndd4
+ TojOd9hjiVblU4o/b9KmiuOx8rBa4o0YZGL6DQ5LAMvb7qMj8Cf/euxFP
+ W7ZYGJPqJrPKl2P9peUaKdVpFGjbtDaNSrlqPGWy5CSVc3ZUEhu+paTps A==;
+Date: Thu, 15 Oct 2020 11:32:36 +0000
 From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Message-ID: <20201015112853.42vcj4bjbg7syoyd@soft-test08>
+Message-ID: <20201015113236.iubkh5brahbkttio@soft-test08>
 References: <20201012140428.2549163-1-henrik.bjoernlund@microchip.com>
- <20201012140428.2549163-6-henrik.bjoernlund@microchip.com>
- <20201014155958.12e38308@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <20201014155847.2eb150f5@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20201014155958.12e38308@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-Subject: Re: [Bridge] [PATCH net-next v5 05/10] bridge: cfm: Kernel space
- implementation of CFM. CCM frame TX added.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201014155847.2eb150f5@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+Subject: Re: [Bridge] [PATCH net-next v5 00/10] net: bridge: cfm: Add
+ support for Connectivity Fault Management(CFM)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -38,25 +38,26 @@ Thanks for your review. Comments below.
 Regards
 Henrik
 
-The 10/14/2020 15:59, Jakub Kicinski wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+The 10/14/2020 15:58, Jakub Kicinski wrote:> 
+> On Mon, 12 Oct 2020 14:04:18 +0000 Henrik Bjoernlund wrote:
+> > Connectivity Fault Management (CFM) is defined in 802.1Q section 12.14.
+> >
+> > Connectivity Fault Management (CFM) comprises capabilities for detecting, verifying,
+> > and isolating connectivity failures in Virtual Bridged Networks.
+> > These capabilities can be used in networks operated by multiple independent organizations,
+> > each with restricted management access to each other’s equipment.
 > 
-> On Mon, 12 Oct 2020 14:04:23 +0000 Henrik Bjoernlund wrote:
-> > +     skb = dev_alloc_skb(CFM_CCM_MAX_FRAME_LENGTH);
-> > +     if (!skb)
-> > +             return NULL;
-> > +
-> > +     rcu_read_lock();
-> > +     b_port = rcu_dereference(mep->b_port);
-> > +     if (!b_port) {
-> > +             rcu_read_unlock();
-> > +             return NULL;
-> > +     }
+> Please wrap the cover letter and commit messages to 70 chars.
 > 
-> At a quick scan I noticed you appear to be leaking the skb here.
-> So let me point out some more nit picks.
 
-I have changed as requested.
+I will do that,
+
+> > Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
+> > Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
+> 
+> You have two spaces after the name in many tags.
+
+I will change as requested.
 
 -- 
 /Henrik
