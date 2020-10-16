@@ -1,16 +1,21 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SLOrV6s97Ry0iwdu3RpTJSfKFrcfcJmqEfZC/VKfwFk=;
- b=dlq6wYn855QwR8iGdp04H45PmM5H6c5BGsFxDQaf/0O34zOjL0O1sE3aPozO5M60jct+67G0jmVOGHMgEsRnwD5DzVcoE35GRlEOjNVSs211kiG1pVF0Oh83KwUC7Jc7bk+/gV1zhPBbBxnSbZmoPuevM+cUUxQoRSnHDzlnXoA=
+ bh=jiFr4UXVWRFb/6C8p7jnlDkwt3rG7oVdtJXfRKbpS0M=;
+ b=p0tvaTV/X0+RNgHLJ9m/n9RT+blHeMGQ+HP0Zoqro62XuDIEja/9hJ5bZQyj+6CuxtM+bqOPAJ8x+KqnxUhAGZdtJCGTaJce/SzpKYSKC4YiA2Bz+hMLwdHG9JHQbGz7c7Pd0bRBLCSnGsxjsEkbQ67OhssT8Z2Nh6k4BG3r6kw=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Thu, 15 Oct 2020 20:33:55 +0300
-Message-Id: <20201015173355.564934-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Date: Fri, 16 Oct 2020 16:50:22 +0000
+Message-ID: <20201016165021.fjrxiwofwfqespei@skbuf>
+References: <20201015173355.564934-1-vladimir.oltean@nxp.com>
+ <ed19387091755aee165c074983776f37f2b87892.camel@nvidia.com>
+In-Reply-To: <ed19387091755aee165c074983776f37f2b87892.camel@nvidia.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <01BB5C912E1F944C867A03D3C92DBCC5@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH] net: bridge: call br_multicast_del_port before
-	the port leaves
+Subject: Re: [Bridge] [RFC PATCH] net: bridge: call br_multicast_del_port
+ before the port leaves
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,85 +24,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>
 
-Switchdev drivers often have different VLAN semantics than the bridge.
-For example, consider this:
+On Fri, Oct 16, 2020 at 01:43:06PM +0000, Nikolay Aleksandrov wrote:
+> It can potentially use after free, multicast resources (per-cpu stats) ar=
+e freed
+> in br_multicast_del_port() and can be used due to a race with port state
+> sync on other CPUs since the handler can still process packets. That has =
+a
+> chance of happening if vlans are not used.
 
-ip link add br0 type bridge
-ip link set swp0 master br0
-bridge mdb add dev br0 port swp0 grp 01:02:03:04:05:06 permanent
-ip link del br0
-[   26.085816] mscc_felix 0000:00:00.5 swp0: failed (err=-2) to del object (id=2)
+Interesting, thanks for pointing this out, I haven't observed
+use-after-free in my limited testing of this patch.
 
-This is because the mscc_ocelot driver, when VLAN awareness is disabled,
-classifies all traffic to the port-based VLAN (pvid). The pvid is 0 when
-the port is standalone, and it is inherited from the bridge default pvid
-(which is 1 by default, but it may take other values) when it joins the
-VLAN-unaware bridge, and then the pvid resets to 0 when the port leaves
-the bridge again.
+> Interesting that br_stp_disable_port() calls br_multicast_disable_port() =
+which
+> flushes all non-permanent mdb entries, so I'm guessing you have problem o=
+nly
+> with permanent ones?
 
-Now because the mscc_ocelot switch classifies all traffic to its private
-pvid, it needs to translate between the vid that the mdb comes with, and
-the vid that will actually be programmed into hardware. The bridge uses
-the vid of 0 in VLAN-unaware mode, while the hardware uses the pvid
-inherited from the bridge, that's the difference.
+Indeed, I'm testing out your L2 multicast patch.
 
-So what will happen is:
+> Perhaps we can flush them all before. Either by passing an argument to
+> br_stp_disable_port() that we're deleting the port which will be
+> passed down to br_multicast_disable_port() or by calling an additional
+> helper to flush all which can be re-used by both disable_port() and
+> stop_multicast() calls. Adding an argument to br_stp_disable_port() to
+> be passed down sounds cleaner to me. What do you think?
 
-Step 1 (addition):
-br_mdb_notify(RTM_NEWMDB)
--> ocelot_port_mdb_add(mdb->addr=01:02:03:04:05:06, mdb->vid=0)
-   -> mdb->vid is remapped from 0 to 1 and installed into ocelot->multicast
-
-Step 2 (removal):
-del_nbp
--> netdev_upper_dev_unlink(dev, br->dev)
-   -> ocelot_port_bridge_leave
-      -> ocelot_port_set_pvid(ocelot, port, 0)
--> br_multicast_del_port is called and the switchdev notifier is
-   deferred for some time later
-   -> ocelot_port_mdb_del(mdb->addr=01:02:03:04:05:06, mdb->vid=0)
-      -> mdb->vid is remapped from 0 to 0, the port pvid (!!!)
-      -> the remapped mdb (addr=01:02:03:04:05:06, vid=0) is not found
-         inside the ocelot->multicast list, and -ENOENT is returned
-
-So the problem is that mscc_ocelot assumes that the port is removed
-_after_ the multicast entries have been deleted. And this is not an
-unreasonable assumption, presumably it isn't the only switchdev that
-needs to remap the vid. So we can reorder the teardown path in order
-for that assumption to hold true.
-
-Since br_mdb_notify() issues a SWITCHDEV_F_DEFER operation, we must move
-the call not only before netdev_upper_dev_unlink(), but in fact before
-switchdev_deferred_process().
-
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- net/bridge/br_if.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index a0e9a7937412..cdbeaf203b0b 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -344,6 +344,7 @@ static void del_nbp(struct net_bridge_port *p)
- 
- 	nbp_vlan_flush(p);
- 	br_fdb_delete_by_port(br, p, 0, 1);
-+	br_multicast_del_port(p);
- 	switchdev_deferred_process();
- 	nbp_backup_clear(p);
- 
-@@ -355,8 +356,6 @@ static void del_nbp(struct net_bridge_port *p)
- 
- 	netdev_rx_handler_unregister(dev);
- 
--	br_multicast_del_port(p);
--
- 	kobject_uevent(&p->kobj, KOBJ_REMOVE);
- 	kobject_del(&p->kobj);
- 
--- 
-2.25.1
-
+That sounds a bit complicated, to be honest.
+In fact, the reason why I submitted this as RFC only is because it isn't
+solving all my problems. You know that saying "- it hurts when I do that
+- then don't do that"? I think I can just change the ocelot driver to
+stop remapping the untagged MDB entries to its pvid, and then I can drop
+all my charges to the bridge driver.=
