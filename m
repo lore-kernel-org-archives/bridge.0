@@ -1,16 +1,28 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uphQ8c1bpQF8v9/MA3eAA9rKY6e/8TWw6lk6SPdpqqk=;
- b=W+QZkQ+B3jxPquIauH3yiag4ItlihTn6WxdsVOBqysZLCqmMzwKMxDi7WtvcTuyfrjri5Zrx8/YVU+kRKOKaghwKad7f7QxbUHK/uZMMXoZxQP68nUJjYAgsq/j3TxVgXORsLpbCIVL/YICfyjjWuH+EgpstnAb6xkdD7x5UWmA=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Sat, 17 Oct 2020 21:45:26 +0300
-Message-Id: <20201017184526.2333840-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <Henrik.Bjoernlund@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1603097558; x=1634633558;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=tJ/a1JvUOjBjoPtEuJeWoMkuf2rsk+6hMQF3y1Sz3mw=;
+ b=qMeEnYvdXeZAw3yedp76hOAh+rTbpXp+oJIsZnoDFSWkwqF4xEGevHO3
+ 87cxwYnGZ2CD69MSj0SZEJaaW0JMiLh/NXhjltZrZK3jl6VCrEJrHYfr9
+ 73RkfI9FyWY/IWdwSyxZuBJtZ2B5vrq3WpOBwxJ3M8yr2tWpY6dmKqbJf
+ 3OmIgJnE1YDFczeB4XjcgkjPrB6ohVUWYGv2G/E55gDi7qkaB32/jdMWV
+ 5g77R7WZLeX81wpsENGe6Tr60uTNUpQj5P4JmMM/ZwJU68pX0TZqVqE4P
+ S05IP+8RvDYgUVPbNZU1OdIZ6OyHAlFVvPKreRff7BHqRG9B9p8sSaQcj Q==;
+Date: Mon, 19 Oct 2020 08:51:04 +0000
+From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Message-ID: <20201019085104.2hkz2za2o2juliab@soft-test08>
+References: <20201015115418.2711454-1-henrik.bjoernlund@microchip.com>
+ <20201015115418.2711454-8-henrik.bjoernlund@microchip.com>
+ <20201015103431.25d66c8b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH iproute2] bridge: add support for L2 multicast
-	groups
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+In-Reply-To: <20201015103431.25d66c8b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Subject: Re: [Bridge] [PATCH net-next v6 07/10] bridge: cfm: Netlink SET
+ configuration Interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,131 +31,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: andrew@lunn.ch, jiri@mellanox.com, f.fainelli@gmail.com, vivien.didelot@gmail.com, idosch@idosch.org
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, idosch@mellanox.com, jiri@mellanox.com, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net
 
-Extend the 'bridge mdb' command for the following syntax:
-bridge mdb add dev br0 port swp0 grp 01:02:03:04:05:06 permanent
+Thank you for the review. Comments below.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- bridge/mdb.c                   | 54 ++++++++++++++++++++++++++--------
- include/uapi/linux/if_bridge.h |  2 ++
- 2 files changed, 43 insertions(+), 13 deletions(-)
+The 10/15/2020 10:34, Jakub Kicinski wrote:
+> 
+> On Thu, 15 Oct 2020 11:54:15 +0000 Henrik Bjoernlund wrote:
+> > +     [IFLA_BRIDGE_CFM_MEP_CONFIG_MDLEVEL]     = {
+> > +     .type = NLA_U32, .validation_type = NLA_VALIDATE_MAX, .max = 7 },
+> 
+>         NLA_POLICY_MAX(NLA_U32, 7)
 
-diff --git a/bridge/mdb.c b/bridge/mdb.c
-index 4cd7ca762b78..af160250928e 100644
---- a/bridge/mdb.c
-+++ b/bridge/mdb.c
-@@ -149,6 +149,7 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
- 			    struct nlmsghdr *n, struct rtattr **tb)
- {
- 	const void *grp, *src;
-+	const char *addr;
- 	SPRINT_BUF(abuf);
- 	const char *dev;
- 	int af;
-@@ -156,9 +157,16 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
- 	if (filter_vlan && e->vid != filter_vlan)
- 		return;
- 
--	af = e->addr.proto == htons(ETH_P_IP) ? AF_INET : AF_INET6;
--	grp = af == AF_INET ? (const void *)&e->addr.u.ip4 :
--			      (const void *)&e->addr.u.ip6;
-+	if (!e->addr.proto) {
-+		af = AF_PACKET;
-+		grp = (const void *)&e->addr.u.mac_addr;
-+	} else if (e->addr.proto == htons(ETH_P_IP)) {
-+		af = AF_INET;
-+		grp = (const void *)&e->addr.u.ip4;
-+	} else {
-+		af = AF_INET6;
-+		grp = (const void *)&e->addr.u.ip6;
-+	}
- 	dev = ll_index_to_name(ifindex);
- 
- 	open_json_object(NULL);
-@@ -168,9 +176,14 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
- 	print_string(PRINT_ANY, "port", " port %s",
- 		     ll_index_to_name(e->ifindex));
- 
-+	if (!e->addr.proto)
-+		addr = ll_addr_n2a(grp, ETH_ALEN, 0, abuf, sizeof(abuf));
-+	else
-+		addr = inet_ntop(af, grp, abuf, sizeof(abuf));
-+
- 	print_color_string(PRINT_ANY, ifa_family_color(af),
--			    "grp", " grp %s",
--			    inet_ntop(af, grp, abuf, sizeof(abuf)));
-+			    "grp", " grp %s", addr);
-+
- 	if (tb && tb[MDBA_MDB_EATTR_SOURCE]) {
- 		src = (const void *)RTA_DATA(tb[MDBA_MDB_EATTR_SOURCE]);
- 		print_color_string(PRINT_ANY, ifa_family_color(af),
-@@ -440,6 +453,25 @@ static int mdb_show(int argc, char **argv)
- 	return 0;
- }
- 
-+static int mdb_parse_grp(const char *grp, struct br_mdb_entry *e)
-+{
-+	if (inet_pton(AF_INET, grp, &e->addr.u.ip4)) {
-+		e->addr.proto = htons(ETH_P_IP);
-+		return 0;
-+	}
-+	if (inet_pton(AF_INET6, grp, &e->addr.u.ip6)) {
-+		e->addr.proto = htons(ETH_P_IPV6);
-+		return 0;
-+	}
-+	if (ll_addr_a2n((char *)e->addr.u.mac_addr, sizeof(e->addr.u.mac_addr),
-+			grp) == ETH_ALEN) {
-+		e->flags |= MDB_FLAGS_L2;
-+		return 0;
-+	}
-+
-+	return -1;
-+}
-+
- static int mdb_modify(int cmd, int flags, int argc, char **argv)
- {
- 	struct {
-@@ -497,14 +529,10 @@ static int mdb_modify(int cmd, int flags, int argc, char **argv)
- 	if (!entry.ifindex)
- 		return nodev(p);
- 
--	if (!inet_pton(AF_INET, grp, &entry.addr.u.ip4)) {
--		if (!inet_pton(AF_INET6, grp, &entry.addr.u.ip6)) {
--			fprintf(stderr, "Invalid address \"%s\"\n", grp);
--			return -1;
--		} else
--			entry.addr.proto = htons(ETH_P_IPV6);
--	} else
--		entry.addr.proto = htons(ETH_P_IP);
-+	if (mdb_parse_grp(grp, &entry)) {
-+		fprintf(stderr, "Invalid address \"%s\"\n", grp);
-+		return -1;
-+	}
- 
- 	entry.vid = vid;
- 	addattr_l(&req.n, sizeof(req), MDBA_SET_ENTRY, &entry, sizeof(entry));
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 69b99901fc5a..0a45ae978a55 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -520,12 +520,14 @@ struct br_mdb_entry {
- #define MDB_FLAGS_FAST_LEAVE	(1 << 1)
- #define MDB_FLAGS_STAR_EXCL	(1 << 2)
- #define MDB_FLAGS_BLOCKED	(1 << 3)
-+#define MDB_FLAGS_L2		(1 << 5)
- 	__u8 flags;
- 	__u16 vid;
- 	struct {
- 		union {
- 			__be32	ip4;
- 			struct in6_addr ip6;
-+			unsigned char mac_addr[ETH_ALEN];
- 		} u;
- 		__be16		proto;
- 	} addr;
+I will change as requested.
+
+> 
+> Also why did you keep the validation in the code in patch 4?
+
+In patch 4 there is no CFM NETLINK so I desided to keep the validation in the
+code until NETLINK was added that is now doing the check.
+I this a problem?
+
 -- 
-2.25.1
-
+/Henrik
