@@ -1,26 +1,26 @@
 Return-Path: <Henrik.Bjoernlund@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1603793076; x=1635329076;
+ t=1603793077; x=1635329077;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=QpPrly7HN5hBASE8/DBOQIsRoPbhEMNhmD0EyA12UfM=;
- b=DWxh87AbkmrXcrkjPWEeQgW4a1vBbM0cyCCndUEk5okehdj+vBv1f+WA
- 1HeQoq21PcZSH20DO21RHYqOECL4aUG33y7HW1Ynz6AhNj7eO/kwK3RY/
- p/9zNyp3D9HiqIO5gEgTsCubGeTJ/gWQXaB4ce4OipfX4LtzrZPawVccC
- zLUfwol7ab3bZAFX+uSY/goD0riDyY2HdT4I2RcDE935XcPClrxtdabNm
- vzF5EOxk52IcsWUP56yngd/t4Zpk8spSeo1w6jylu+sE5rkiyJyro1x6H
- 8UCB2D2GalxVKbjeAhviTX9xQwkF7OKpJKGx/nbqLgNQc7oqzfFN55/iu w==;
+ bh=mDA/aFmLE01t/n1+FJc5/rhcOEo6X5vziN7zpxhXi28=;
+ b=FXReNsGxwOOmU/rCkxFSr7vXJnqHve8V1Iwz+TrZSqMQdfRIc33WcaRC
+ 2USUVs24nqu/TOVPySf3GraSBjs5L603Z5dai1iQOu5do3rnjM3SF4RxK
+ 8B84dZZOgkhxeqNExeU3mabxpa/PkCGSHctK5AawtNgF85zj5KdRiuxi0
+ EpdcwL2p0NYXYqVAKrROpxfRWt2Vpah3MltccwVWoHLYVgLHEnuFurlJ/
+ WSc6OBJntB/gjrYiupScGhkLpkDdfvSbbKgEPGMFOCZjLTWgABQ82zY//
+ 2dssQVf0WLq795uYWxfAMwB8uIyh4lNKNLc3X/uyQyJvR2pUxZUmcdsr6 g==;
 From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-Date: Tue, 27 Oct 2020 10:02:47 +0000
-Message-ID: <20201027100251.3241719-7-henrik.bjoernlund@microchip.com>
+Date: Tue, 27 Oct 2020 10:02:49 +0000
+Message-ID: <20201027100251.3241719-9-henrik.bjoernlund@microchip.com>
 In-Reply-To: <20201027100251.3241719-1-henrik.bjoernlund@microchip.com>
 References: <20201027100251.3241719-1-henrik.bjoernlund@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v7 06/10] bridge: cfm: Kernel space
-	implementation of CFM. CCM frame RX added.
+Subject: [Bridge] [PATCH net-next v7 08/10] bridge: cfm: Netlink GET
+	configuration Interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,440 +32,424 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, jiri@mellanox.com, idosch@mellanox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
 Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-This is the third commit of the implementation of the CFM protocol
-according to 802.1Q section 12.14.
+This is the implementation of CFM netlink configuration
+get information interface.
 
-Functionality is extended with CCM frame reception.
-The MEP instance now contains CCM based status information.
-Most important is the CCM defect status indicating if correct
-CCM frames are received with the expected interval.
+Add new nested netlink attributes. These attributes are used by the
+user space to get configuration information.
+
+GETLINK:
+    Request filter RTEXT_FILTER_CFM_CONFIG:
+    Indicating that CFM configuration information must be delivered.
+
+    IFLA_BRIDGE_CFM:
+        Points to the CFM information.
+
+    IFLA_BRIDGE_CFM_MEP_CREATE_INFO:
+        This indicate that MEP instance create parameters are following.
+    IFLA_BRIDGE_CFM_MEP_CONFIG_INFO:
+        This indicate that MEP instance config parameters are following.
+    IFLA_BRIDGE_CFM_CC_CONFIG_INFO:
+        This indicate that MEP instance CC functionality
+        parameters are following.
+    IFLA_BRIDGE_CFM_CC_RDI_INFO:
+        This indicate that CC transmitted CCM PDU RDI
+        parameters are following.
+    IFLA_BRIDGE_CFM_CC_CCM_TX_INFO:
+        This indicate that CC transmitted CCM PDU parameters are
+        following.
+    IFLA_BRIDGE_CFM_CC_PEER_MEP_INFO:
+        This indicate that the added peer MEP IDs are following.
+
+CFM nested attribute has the following attributes in next level.
+
+GETLINK RTEXT_FILTER_CFM_CONFIG:
+    IFLA_BRIDGE_CFM_MEP_CREATE_INSTANCE:
+        The created MEP instance number.
+        The type is u32.
+    IFLA_BRIDGE_CFM_MEP_CREATE_DOMAIN:
+        The created MEP domain.
+        The type is u32 (br_cfm_domain).
+        It must be BR_CFM_PORT.
+        This means that CFM frames are transmitted and received
+        directly on the port - untagged. Not in a VLAN.
+    IFLA_BRIDGE_CFM_MEP_CREATE_DIRECTION:
+        The created MEP direction.
+        The type is u32 (br_cfm_mep_direction).
+        It must be BR_CFM_MEP_DIRECTION_DOWN.
+        This means that CFM frames are transmitted and received on
+        the port. Not in the bridge.
+    IFLA_BRIDGE_CFM_MEP_CREATE_IFINDEX:
+        The created MEP residence port ifindex.
+        The type is u32 (ifindex).
+
+    IFLA_BRIDGE_CFM_MEP_DELETE_INSTANCE:
+        The deleted MEP instance number.
+        The type is u32.
+
+    IFLA_BRIDGE_CFM_MEP_CONFIG_INSTANCE:
+        The configured MEP instance number.
+        The type is u32.
+    IFLA_BRIDGE_CFM_MEP_CONFIG_UNICAST_MAC:
+        The configured MEP unicast MAC address.
+        The type is 6*u8 (array).
+        This is used as SMAC in all transmitted CFM frames.
+    IFLA_BRIDGE_CFM_MEP_CONFIG_MDLEVEL:
+        The configured MEP unicast MD level.
+        The type is u32.
+        It must be in the range 1-7.
+        No CFM frames are passing through this MEP on lower levels.
+    IFLA_BRIDGE_CFM_MEP_CONFIG_MEPID:
+        The configured MEP ID.
+        The type is u32.
+        It must be in the range 0-0x1FFF.
+        This MEP ID is inserted in any transmitted CCM frame.
+
+    IFLA_BRIDGE_CFM_CC_CONFIG_INSTANCE:
+        The configured MEP instance number.
+        The type is u32.
+    IFLA_BRIDGE_CFM_CC_CONFIG_ENABLE:
+        The Continuity Check (CC) functionality is enabled or disabled.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL:
+        The CC expected receive interval of CCM frames.
+        The type is u32 (br_cfm_ccm_interval).
+        This is also the transmission interval of CCM frames when enabled.
+    IFLA_BRIDGE_CFM_CC_CONFIG_EXP_MAID:
+        The CC expected receive MAID in CCM frames.
+        The type is CFM_MAID_LENGTH*u8.
+        This is MAID is also inserted in transmitted CCM frames.
+
+    IFLA_BRIDGE_CFM_CC_PEER_MEP_INSTANCE:
+        The configured MEP instance number.
+        The type is u32.
+    IFLA_BRIDGE_CFM_CC_PEER_MEPID:
+        The CC Peer MEP ID added.
+        The type is u32.
+        When a Peer MEP ID is added and CC is enabled it is expected to
+        receive CCM frames from that Peer MEP.
+
+    IFLA_BRIDGE_CFM_CC_RDI_INSTANCE:
+        The configured MEP instance number.
+        The type is u32.
+    IFLA_BRIDGE_CFM_CC_RDI_RDI:
+        The RDI that is inserted in transmitted CCM PDU.
+        The type is u32 (bool).
+
+    IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE:
+        The configured MEP instance number.
+        The type is u32.
+    IFLA_BRIDGE_CFM_CC_CCM_TX_DMAC:
+        The transmitted CCM frame destination MAC address.
+        The type is 6*u8 (array).
+        This is used as DMAC in all transmitted CFM frames.
+    IFLA_BRIDGE_CFM_CC_CCM_TX_SEQ_NO_UPDATE:
+        The transmitted CCM frame update (increment) of sequence
+        number is enabled or disabled.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_CC_CCM_TX_PERIOD:
+        The period of time where CCM frame are transmitted.
+        The type is u32.
+        The time is given in seconds. SETLINK IFLA_BRIDGE_CFM_CC_CCM_TX
+        must be done before timeout to keep transmission alive.
+        When period is zero any ongoing CCM frame transmission
+        will be stopped.
+    IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV:
+        The transmitted CCM frame update with Interface Status TLV
+        is enabled or disabled.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV_VALUE:
+        The transmitted Interface Status TLV value field.
+        The type is u8.
+    IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV:
+        The transmitted CCM frame update with Port Status TLV is enabled
+        or disabled.
+        The type is u32 (bool).
+    IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV_VALUE:
+        The transmitted Port Status TLV value field.
+        The type is u8.
 
 Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
 Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
 Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- include/uapi/linux/cfm_bridge.h |   4 +
- net/bridge/br_cfm.c             | 269 ++++++++++++++++++++++++++++++++
- net/bridge/br_private_cfm.h     |  32 ++++
- 3 files changed, 305 insertions(+)
+ include/uapi/linux/if_bridge.h |   6 ++
+ net/bridge/br_cfm_netlink.c    | 161 +++++++++++++++++++++++++++++++++
+ net/bridge/br_netlink.c        |  29 +++++-
+ net/bridge/br_private.h        |   6 ++
+ 4 files changed, 200 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/cfm_bridge.h b/include/uapi/linux/cfm_bridge.h
-index 84a3817da90b..3c1cbd1db2f5 100644
---- a/include/uapi/linux/cfm_bridge.h
-+++ b/include/uapi/linux/cfm_bridge.h
-@@ -20,6 +20,10 @@
- 					 CFM_IF_STATUS_TLV_LENGTH)
- #define CFM_FRAME_PRIO			7
- #define CFM_CCM_TLV_OFFSET		70
-+#define CFM_CCM_PDU_MAID_OFFSET		10
-+#define CFM_CCM_PDU_MEPID_OFFSET	8
-+#define CFM_CCM_PDU_SEQNR_OFFSET	4
-+#define CFM_CCM_PDU_TLV_OFFSET		74
- #define CFM_CCM_ITU_RESERVED_SIZE	16
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 94cc9444d749..b8b4491922d9 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -339,6 +339,12 @@ enum {
+ 	IFLA_BRIDGE_CFM_CC_PEER_MEP_REMOVE,
+ 	IFLA_BRIDGE_CFM_CC_RDI,
+ 	IFLA_BRIDGE_CFM_CC_CCM_TX,
++	IFLA_BRIDGE_CFM_MEP_CREATE_INFO,
++	IFLA_BRIDGE_CFM_MEP_CONFIG_INFO,
++	IFLA_BRIDGE_CFM_CC_CONFIG_INFO,
++	IFLA_BRIDGE_CFM_CC_RDI_INFO,
++	IFLA_BRIDGE_CFM_CC_CCM_TX_INFO,
++	IFLA_BRIDGE_CFM_CC_PEER_MEP_INFO,
+ 	__IFLA_BRIDGE_CFM_MAX,
+ };
  
- struct br_cfm_common_hdr {
-diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-index 382e003f5b92..6331f731024f 100644
---- a/net/bridge/br_cfm.c
-+++ b/net/bridge/br_cfm.c
-@@ -101,6 +101,56 @@ static u32 interval_to_pdu(enum br_cfm_ccm_interval interval)
+diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
+index c75f4c788eac..dee1e0dea39e 100644
+--- a/net/bridge/br_cfm_netlink.c
++++ b/net/bridge/br_cfm_netlink.c
+@@ -451,3 +451,164 @@ int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
+ 
  	return 0;
  }
- 
-+/* Convert the CCM PDU value to interval on interface. */
-+static u32 pdu_to_interval(u32 value)
-+{
-+	switch (value) {
-+	case 0:
-+		return BR_CFM_CCM_INTERVAL_NONE;
-+	case 1:
-+		return BR_CFM_CCM_INTERVAL_3_3_MS;
-+	case 2:
-+		return BR_CFM_CCM_INTERVAL_10_MS;
-+	case 3:
-+		return BR_CFM_CCM_INTERVAL_100_MS;
-+	case 4:
-+		return BR_CFM_CCM_INTERVAL_1_SEC;
-+	case 5:
-+		return BR_CFM_CCM_INTERVAL_10_SEC;
-+	case 6:
-+		return BR_CFM_CCM_INTERVAL_1_MIN;
-+	case 7:
-+		return BR_CFM_CCM_INTERVAL_10_MIN;
-+	}
-+	return BR_CFM_CCM_INTERVAL_NONE;
-+}
 +
-+static void ccm_rx_timer_start(struct br_cfm_peer_mep *peer_mep)
-+{
-+	u32 interval_us;
-+
-+	interval_us = interval_to_us(peer_mep->mep->cc_config.exp_interval);
-+	/* Function ccm_rx_dwork must be called with 1/4
-+	 * of the configured CC 'expected_interval'
-+	 * in order to detect CCM defect after 3.25 interval.
-+	 */
-+	queue_delayed_work(system_wq, &peer_mep->ccm_rx_dwork,
-+			   usecs_to_jiffies(interval_us / 4));
-+}
-+
-+static void cc_peer_enable(struct br_cfm_peer_mep *peer_mep)
-+{
-+	memset(&peer_mep->cc_status, 0, sizeof(peer_mep->cc_status));
-+	peer_mep->ccm_rx_count_miss = 0;
-+
-+	ccm_rx_timer_start(peer_mep);
-+}
-+
-+static void cc_peer_disable(struct br_cfm_peer_mep *peer_mep)
-+{
-+	cancel_delayed_work_sync(&peer_mep->ccm_rx_dwork);
-+}
-+
- static struct sk_buff *ccm_frame_build(struct br_cfm_mep *mep,
- 				       const struct br_cfm_cc_ccm_tx_info *const tx_info)
- 
-@@ -232,6 +282,200 @@ static void ccm_tx_work_expired(struct work_struct *work)
- 			   usecs_to_jiffies(interval_us));
- }
- 
-+/* This function is called with 1/4 of the configured CC 'expected_interval'
-+ * in order to detect CCM defect after 3.25 interval.
-+ */
-+static void ccm_rx_work_expired(struct work_struct *work)
++int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br)
 +{
 +	struct br_cfm_peer_mep *peer_mep;
-+	struct delayed_work *del_work;
-+
-+	del_work = to_delayed_work(work);
-+	peer_mep = container_of(del_work, struct br_cfm_peer_mep, ccm_rx_dwork);
-+
-+	/* After 13 counts (4 * 3,25) then 3.25 intervals are expired */
-+	if (peer_mep->ccm_rx_count_miss < 13) {
-+		/* 3.25 intervals are NOT expired without CCM reception */
-+		peer_mep->ccm_rx_count_miss++;
-+
-+		/* Start timer again */
-+		ccm_rx_timer_start(peer_mep);
-+	} else {
-+		/* 3.25 intervals are expired without CCM reception.
-+		 * CCM defect detected
-+		 */
-+		peer_mep->cc_status.ccm_defect = true;
-+	}
-+}
-+
-+static u32 ccm_tlv_extract(struct sk_buff *skb, u32 index,
-+			   struct br_cfm_peer_mep *peer_mep)
-+{
-+	__be32 *s_tlv;
-+	__be32 _s_tlv;
-+	u32 h_s_tlv;
-+	u8 *e_tlv;
-+	u8 _e_tlv;
-+
-+	e_tlv = skb_header_pointer(skb, index, sizeof(_e_tlv), &_e_tlv);
-+	if (!e_tlv)
-+		return 0;
-+
-+	/* TLV is present - get the status TLV */
-+	s_tlv = skb_header_pointer(skb,
-+				   index,
-+				   sizeof(_s_tlv), &_s_tlv);
-+	if (!s_tlv)
-+		return 0;
-+
-+	h_s_tlv = ntohl(*s_tlv);
-+	if ((h_s_tlv >> 24) == CFM_IF_STATUS_TLV_TYPE) {
-+		/* Interface status TLV */
-+		peer_mep->cc_status.tlv_seen = true;
-+		peer_mep->cc_status.if_tlv_value = (h_s_tlv & 0xFF);
-+	}
-+
-+	if ((h_s_tlv >> 24) == CFM_PORT_STATUS_TLV_TYPE) {
-+		/* Port status TLV */
-+		peer_mep->cc_status.tlv_seen = true;
-+		peer_mep->cc_status.port_tlv_value = (h_s_tlv & 0xFF);
-+	}
-+
-+	/* The Sender ID TLV is not handled */
-+	/* The Organization-Specific TLV is not handled */
-+
-+	/* Return the length of this tlv.
-+	 * This is the length of the value field plus 3 bytes for size of type
-+	 * field and length field
-+	 */
-+	return ((h_s_tlv >> 8) & 0xFFFF) + 3;
-+}
-+
-+/* note: already called with rcu_read_lock */
-+static int br_cfm_frame_rx(struct net_bridge_port *port, struct sk_buff *skb)
-+{
-+	u32 mdlevel, interval, size, index, max;
-+	const struct br_cfm_common_hdr *hdr;
-+	struct br_cfm_peer_mep *peer_mep;
-+	const struct br_cfm_maid *maid;
-+	struct br_cfm_common_hdr _hdr;
-+	struct br_cfm_maid _maid;
 +	struct br_cfm_mep *mep;
-+	struct net_bridge *br;
-+	__be32 *snumber;
-+	__be32 _snumber;
-+	__be16 *mepid;
-+	__be16 _mepid;
++	struct nlattr *tb;
 +
-+	if (port->state == BR_STATE_DISABLED)
-+		return 0;
++	hlist_for_each_entry_rcu(mep, &br->mep_list, head) {
++		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_CREATE_INFO);
++		if (!tb)
++			goto nla_info_failure;
 +
-+	hdr = skb_header_pointer(skb, 0, sizeof(_hdr), &_hdr);
-+	if (!hdr)
-+		return 1;
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CREATE_INSTANCE,
++				mep->instance))
++			goto nla_put_failure;
 +
-+	br = port->br;
-+	mep = br_mep_find_ifindex(br, port->dev->ifindex);
-+	if (unlikely(!mep))
-+		/* No MEP on this port - must be forwarded */
-+		return 0;
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CREATE_DOMAIN,
++				mep->create.domain))
++			goto nla_put_failure;
 +
-+	mdlevel = hdr->mdlevel_version >> 5;
-+	if (mdlevel > mep->config.mdlevel)
-+		/* The level is above this MEP level - must be forwarded */
-+		return 0;
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CREATE_DIRECTION,
++				mep->create.direction))
++			goto nla_put_failure;
 +
-+	if ((hdr->mdlevel_version & 0x1F) != 0) {
-+		/* Invalid version */
-+		mep->status.version_unexp_seen = true;
-+		return 1;
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CREATE_IFINDEX,
++				mep->create.ifindex))
++			goto nla_put_failure;
++
++		nla_nest_end(skb, tb);
++
++		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_CONFIG_INFO);
++
++		if (!tb)
++			goto nla_info_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CONFIG_INSTANCE,
++				mep->instance))
++			goto nla_put_failure;
++
++		if (nla_put(skb, IFLA_BRIDGE_CFM_MEP_CONFIG_UNICAST_MAC,
++			    sizeof(mep->config.unicast_mac.addr),
++			    mep->config.unicast_mac.addr))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CONFIG_MDLEVEL,
++				mep->config.mdlevel))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_MEP_CONFIG_MEPID,
++				mep->config.mepid))
++			goto nla_put_failure;
++
++		nla_nest_end(skb, tb);
++
++		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_CC_CONFIG_INFO);
++
++		if (!tb)
++			goto nla_info_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CONFIG_INSTANCE,
++				mep->instance))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CONFIG_ENABLE,
++				mep->cc_config.enable))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL,
++				mep->cc_config.exp_interval))
++			goto nla_put_failure;
++
++		if (nla_put(skb, IFLA_BRIDGE_CFM_CC_CONFIG_EXP_MAID,
++			    sizeof(mep->cc_config.exp_maid.data),
++			    mep->cc_config.exp_maid.data))
++			goto nla_put_failure;
++
++		nla_nest_end(skb, tb);
++
++		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_CC_RDI_INFO);
++
++		if (!tb)
++			goto nla_info_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_RDI_INSTANCE,
++				mep->instance))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_RDI_RDI,
++				mep->rdi))
++			goto nla_put_failure;
++
++		nla_nest_end(skb, tb);
++
++		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_INFO);
++
++		if (!tb)
++			goto nla_info_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE,
++				mep->instance))
++			goto nla_put_failure;
++
++		if (nla_put(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_DMAC,
++			    sizeof(mep->cc_ccm_tx_info.dmac),
++			    mep->cc_ccm_tx_info.dmac.addr))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_SEQ_NO_UPDATE,
++				mep->cc_ccm_tx_info.seq_no_update))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PERIOD,
++				mep->cc_ccm_tx_info.period))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV,
++				mep->cc_ccm_tx_info.if_tlv))
++			goto nla_put_failure;
++
++		if (nla_put_u8(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_IF_TLV_VALUE,
++			       mep->cc_ccm_tx_info.if_tlv_value))
++			goto nla_put_failure;
++
++		if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV,
++				mep->cc_ccm_tx_info.port_tlv))
++			goto nla_put_failure;
++
++		if (nla_put_u8(skb, IFLA_BRIDGE_CFM_CC_CCM_TX_PORT_TLV_VALUE,
++			       mep->cc_ccm_tx_info.port_tlv_value))
++			goto nla_put_failure;
++
++		nla_nest_end(skb, tb);
++
++		hlist_for_each_entry_rcu(peer_mep, &mep->peer_mep_list, head) {
++			tb = nla_nest_start(skb,
++					    IFLA_BRIDGE_CFM_CC_PEER_MEP_INFO);
++
++			if (!tb)
++				goto nla_info_failure;
++
++			if (nla_put_u32(skb,
++					IFLA_BRIDGE_CFM_CC_PEER_MEP_INSTANCE,
++					mep->instance))
++				goto nla_put_failure;
++
++			if (nla_put_u32(skb, IFLA_BRIDGE_CFM_CC_PEER_MEPID,
++					peer_mep->mepid))
++				goto nla_put_failure;
++
++			nla_nest_end(skb, tb);
++		}
 +	}
 +
-+	if (mdlevel < mep->config.mdlevel) {
-+		/* The level is below this MEP level */
-+		mep->status.rx_level_low_seen = true;
-+		return 1;
-+	}
++	return 0;
 +
-+	if (hdr->opcode == BR_CFM_OPCODE_CCM) {
-+		/* CCM PDU received. */
-+		/* MA ID is after common header + sequence number + MEP ID */
-+		maid = skb_header_pointer(skb,
-+					  CFM_CCM_PDU_MAID_OFFSET,
-+					  sizeof(_maid), &_maid);
-+		if (!maid)
-+			return 1;
-+		if (memcmp(maid->data, mep->cc_config.exp_maid.data,
-+			   sizeof(maid->data)))
-+			/* MA ID not as expected */
-+			return 1;
++nla_put_failure:
++	nla_nest_cancel(skb, tb);
 +
-+		/* MEP ID is after common header + sequence number */
-+		mepid = skb_header_pointer(skb,
-+					   CFM_CCM_PDU_MEPID_OFFSET,
-+					   sizeof(_mepid), &_mepid);
-+		if (!mepid)
-+			return 1;
-+		peer_mep = br_peer_mep_find(mep, (u32)ntohs(*mepid));
-+		if (!peer_mep)
-+			return 1;
++nla_info_failure:
++	return -EMSGSIZE;
++}
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 431ee2b06dc1..69bfe165ff7f 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -16,6 +16,7 @@
+ 
+ #include "br_private.h"
+ #include "br_private_stp.h"
++#include "br_private_cfm.h"
+ #include "br_private_tunnel.h"
+ 
+ static int __get_num_vlan_infos(struct net_bridge_vlan_group *vg,
+@@ -426,7 +427,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 
+ 	if (filter_mask & (RTEXT_FILTER_BRVLAN |
+ 			   RTEXT_FILTER_BRVLAN_COMPRESSED |
+-			   RTEXT_FILTER_MRP)) {
++			   RTEXT_FILTER_MRP |
++			   RTEXT_FILTER_CFM_CONFIG)) {
+ 		af = nla_nest_start_noflag(skb, IFLA_AF_SPEC);
+ 		if (!af)
+ 			goto nla_put_failure;
+@@ -475,6 +477,28 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 			goto nla_put_failure;
+ 	}
+ 
++	if (filter_mask & RTEXT_FILTER_CFM_CONFIG) {
++		struct nlattr *cfm_nest = NULL;
++		int err;
 +
-+		/* Interval is in common header flags */
-+		interval = hdr->flags & 0x07;
-+		if (mep->cc_config.exp_interval != pdu_to_interval(interval))
-+			/* Interval not as expected */
-+			return 1;
++		if (!br_cfm_created(br) || port)
++			goto done;
 +
-+		/* A valid CCM frame is received */
-+		if (peer_mep->cc_status.ccm_defect) {
-+			peer_mep->cc_status.ccm_defect = false;
++		cfm_nest = nla_nest_start(skb, IFLA_BRIDGE_CFM);
++		if (!cfm_nest)
++			goto nla_put_failure;
 +
-+			/* Start CCM RX timer */
-+			ccm_rx_timer_start(peer_mep);
++		if (filter_mask & RTEXT_FILTER_CFM_CONFIG) {
++			rcu_read_lock();
++			err = br_cfm_config_fill_info(skb, br);
++			rcu_read_unlock();
++			if (err)
++				goto nla_put_failure;
 +		}
 +
-+		peer_mep->cc_status.seen = true;
-+		peer_mep->ccm_rx_count_miss = 0;
-+
-+		/* RDI is in common header flags */
-+		peer_mep->cc_status.rdi = (hdr->flags & 0x80) ? true : false;
-+
-+		/* Sequence number is after common header */
-+		snumber = skb_header_pointer(skb,
-+					     CFM_CCM_PDU_SEQNR_OFFSET,
-+					     sizeof(_snumber), &_snumber);
-+		if (!snumber)
-+			return 1;
-+		if (ntohl(*snumber) != (mep->ccm_rx_snumber + 1))
-+			/* Unexpected sequence number */
-+			peer_mep->cc_status.seq_unexp_seen = true;
-+
-+		mep->ccm_rx_snumber = ntohl(*snumber);
-+
-+		/* TLV end is after common header + sequence number + MEP ID +
-+		 * MA ID + ITU reserved
-+		 */
-+		index = CFM_CCM_PDU_TLV_OFFSET;
-+		max = 0;
-+		do { /* Handle all TLVs */
-+			size = ccm_tlv_extract(skb, index, peer_mep);
-+			index += size;
-+			max += 1;
-+		} while (size != 0 && max < 4); /* Max four TLVs possible */
-+
-+		return 1;
++		nla_nest_end(skb, cfm_nest);
 +	}
 +
-+	mep->status.opcode_unexp_seen = true;
-+
-+	return 1;
-+}
-+
-+static struct br_frame_type cfm_frame_type __read_mostly = {
-+	.type = cpu_to_be16(ETH_P_CFM),
-+	.frame_handler = br_cfm_frame_rx,
-+};
-+
- int br_cfm_mep_create(struct net_bridge *br,
- 		      const u32 instance,
- 		      struct br_cfm_mep_create *const create,
-@@ -296,6 +540,9 @@ int br_cfm_mep_create(struct net_bridge *br,
- 	INIT_HLIST_HEAD(&mep->peer_mep_list);
- 	INIT_DELAYED_WORK(&mep->ccm_tx_dwork, ccm_tx_work_expired);
+ done:
+ 	if (af)
+ 		nla_nest_end(skb, af);
+@@ -538,7 +562,8 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
  
-+	if (hlist_empty(&br->mep_list))
-+		br_add_frame(br, &cfm_frame_type);
-+
- 	hlist_add_tail_rcu(&mep->head, &br->mep_list);
- 
- 	return 0;
-@@ -311,6 +558,7 @@ static void mep_delete_implementation(struct net_bridge *br,
- 
- 	/* Empty and free peer MEP list */
- 	hlist_for_each_entry_safe(peer_mep, n_store, &mep->peer_mep_list, head) {
-+		cancel_delayed_work_sync(&peer_mep->ccm_rx_dwork);
- 		hlist_del_rcu(&peer_mep->head);
- 		kfree_rcu(peer_mep, rcu);
- 	}
-@@ -320,6 +568,9 @@ static void mep_delete_implementation(struct net_bridge *br,
- 	RCU_INIT_POINTER(mep->b_port, NULL);
- 	hlist_del_rcu(&mep->head);
- 	kfree_rcu(mep, rcu);
-+
-+	if (hlist_empty(&br->mep_list))
-+		br_del_frame(br, &cfm_frame_type);
- }
- 
- int br_cfm_mep_delete(struct net_bridge *br,
-@@ -368,6 +619,7 @@ int br_cfm_cc_config_set(struct net_bridge *br,
- 			 const struct br_cfm_cc_config *const config,
- 			 struct netlink_ext_ack *extack)
- {
-+	struct br_cfm_peer_mep *peer_mep;
- 	struct br_cfm_mep *mep;
- 
- 	ASSERT_RTNL();
-@@ -383,7 +635,18 @@ int br_cfm_cc_config_set(struct net_bridge *br,
- 	if (memcmp(config, &mep->cc_config, sizeof(*config)) == 0)
+ 	if (!port && !(filter_mask & RTEXT_FILTER_BRVLAN) &&
+ 	    !(filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED) &&
+-	    !(filter_mask & RTEXT_FILTER_MRP))
++	    !(filter_mask & RTEXT_FILTER_MRP) &&
++	    !(filter_mask & RTEXT_FILTER_CFM_CONFIG))
  		return 0;
  
-+	if (config->enable && !mep->cc_config.enable)
-+		/* CC is enabled */
-+		hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
-+			cc_peer_enable(peer_mep);
+ 	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 6a5db0553f19..f571bdeb5d83 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1465,6 +1465,7 @@ int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
+ 		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack);
+ bool br_cfm_created(struct net_bridge *br);
+ void br_cfm_port_del(struct net_bridge *br, struct net_bridge_port *p);
++int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br);
+ #else
+ static inline int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
+ 			       struct nlattr *attr, int cmd,
+@@ -1482,6 +1483,11 @@ static inline void br_cfm_port_del(struct net_bridge *br,
+ 				   struct net_bridge_port *p)
+ {
+ }
 +
-+	if (!config->enable && mep->cc_config.enable)
-+		/* CC is disabled */
-+		hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
-+			cc_peer_disable(peer_mep);
-+
- 	mep->cc_config = *config;
-+	mep->ccm_rx_snumber = 0;
- 	mep->ccm_tx_snumber = 1;
++static inline int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br)
++{
++	return -EOPNOTSUPP;
++}
+ #endif
  
- 	return 0;
-@@ -418,6 +681,10 @@ int br_cfm_cc_peer_mep_add(struct net_bridge *br, const u32 instance,
- 
- 	peer_mep->mepid = mepid;
- 	peer_mep->mep = mep;
-+	INIT_DELAYED_WORK(&peer_mep->ccm_rx_dwork, ccm_rx_work_expired);
-+
-+	if (mep->cc_config.enable)
-+		cc_peer_enable(peer_mep);
- 
- 	hlist_add_tail_rcu(&peer_mep->head, &mep->peer_mep_list);
- 
-@@ -447,6 +714,8 @@ int br_cfm_cc_peer_mep_remove(struct net_bridge *br, const u32 instance,
- 		return -ENOENT;
- 	}
- 
-+	cc_peer_disable(peer_mep);
-+
- 	hlist_del_rcu(&peer_mep->head);
- 	kfree_rcu(peer_mep, rcu);
- 
-diff --git a/net/bridge/br_private_cfm.h b/net/bridge/br_private_cfm.h
-index 8d1b449acfbf..a43a5e7fa2c3 100644
---- a/net/bridge/br_private_cfm.h
-+++ b/net/bridge/br_private_cfm.h
-@@ -43,6 +43,8 @@ struct br_cfm_cc_config {
- 	/* Expected received CCM PDU interval. */
- 	/* Transmitting CCM PDU interval when CCM tx is enabled. */
- 	enum br_cfm_ccm_interval exp_interval;
-+
-+	bool enable; /* Enable/disable CCM PDU handling */
- };
- 
- int br_cfm_cc_config_set(struct net_bridge *br,
-@@ -87,6 +89,31 @@ int br_cfm_cc_ccm_tx(struct net_bridge *br, const u32 instance,
- 		     const struct br_cfm_cc_ccm_tx_info *const tx_info,
- 		     struct netlink_ext_ack *extack);
- 
-+struct br_cfm_mep_status {
-+	/* Indications that an OAM PDU has been seen. */
-+	bool opcode_unexp_seen; /* RX of OAM PDU with unexpected opcode */
-+	bool version_unexp_seen; /* RX of OAM PDU with unexpected version */
-+	bool rx_level_low_seen; /* Rx of OAM PDU with level low */
-+};
-+
-+struct br_cfm_cc_peer_status {
-+	/* This CCM related status is based on the latest received CCM PDU. */
-+	u8 port_tlv_value; /* Port Status TLV value */
-+	u8 if_tlv_value; /* Interface Status TLV value */
-+
-+	/* CCM has not been received for 3.25 intervals */
-+	u8 ccm_defect:1;
-+
-+	/* (RDI == 1) for last received CCM PDU */
-+	u8 rdi:1;
-+
-+	/* Indications that a CCM PDU has been seen. */
-+	u8 seen:1; /* CCM PDU received */
-+	u8 tlv_seen:1; /* CCM PDU with TLV received */
-+	/* CCM PDU with unexpected sequence number received */
-+	u8 seq_unexp_seen:1;
-+};
-+
- struct br_cfm_mep {
- 	/* list header of MEP instances */
- 	struct hlist_node		head;
-@@ -101,6 +128,8 @@ struct br_cfm_mep {
- 	unsigned long			ccm_tx_end;
- 	struct delayed_work		ccm_tx_dwork;
- 	u32				ccm_tx_snumber;
-+	u32				ccm_rx_snumber;
-+	struct br_cfm_mep_status	status;
- 	bool				rdi;
- 	struct rcu_head			rcu;
- };
-@@ -108,7 +137,10 @@ struct br_cfm_mep {
- struct br_cfm_peer_mep {
- 	struct hlist_node		head;
- 	struct br_cfm_mep		*mep;
-+	struct delayed_work		ccm_rx_dwork;
- 	u32				mepid;
-+	struct br_cfm_cc_peer_status	cc_status;
-+	u32				ccm_rx_count_miss;
- 	struct rcu_head			rcu;
- };
- 
+ /* br_netlink.c */
 -- 
 2.28.0
 
