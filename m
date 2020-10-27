@@ -1,16 +1,26 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Y+fC4edRLLRbIiNwYjowNEAn+8A0dpMTRAxaGo9UI+A=;
- b=dJearkqrv1aSg9qf7KOOjUN3tMmp8vqnyDo5Fcwgh/TWoGW84FeATxXnjF414XMSuwIueTWhTiTa7+NxZK3v4i5fzeuVjXtGjxZGwXEpjWomswHDt5KnqBjmcUhRheWpuPOmRiG1fZH6akA1Dseh2OrlQo+/rWAIOBc4uzJeK/U=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Sun, 25 Oct 2020 19:20:54 +0200
-Message-Id: <20201025172054.1158018-1-vladimir.oltean@nxp.com>
+Return-Path: <Henrik.Bjoernlund@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1603793058; x=1635329058;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version:content-transfer-encoding;
+ bh=AX5ILQYqJRWeHAR7oYK44Hjs5w5Q2DJ98accN2OCBmQ=;
+ b=naxXQjKOvASvRoO/L7oyBgul0dpTnzw6sB+TtWd1ROTa9r9qR836GA2F
+ ngsa20P6yOZPrF3hq7a7cUJZExujEISixLMMGPY75qYAI+mvz1nr0QE96
+ TsvSkjxiNQPXqzdoi5eoeP+1n3xtpyHcT04QE+m+EzbEAJuVT/sfGJMWo
+ 6D7rhZGGyOrZVYKjfOzpycN6RLtpaA9OGpBWW4jdZ94KW6QG/bfb2YlHu
+ +gnzulfIn8rzO3RfP2/zs+jd2g1gvQNbBQW08pdMbCUJOn3lnY0SwfUvT
+ XG0sN2XwB9gRHnn4utXKlRDRaRuOlC3NxjjVx+I6JdsJCUOtCLtkpraoM g==;
+From: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Date: Tue, 27 Oct 2020 10:02:42 +0000
+Message-ID: <20201027100251.3241719-2-henrik.bjoernlund@microchip.com>
+In-Reply-To: <20201027100251.3241719-1-henrik.bjoernlund@microchip.com>
+References: <20201027100251.3241719-1-henrik.bjoernlund@microchip.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH v2] net: bridge: mcast: add support for raw L2
-	multicast groups
+Subject: [Bridge] [PATCH net-next v7 01/10] net: bridge: extend the process
+	of special frames
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,250 +29,210 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: andrew@lunn.ch, jiri@mellanox.com, f.fainelli@gmail.com, vivien.didelot@gmail.com, idosch@idosch.org
+To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, jiri@mellanox.com, idosch@mellanox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, UNGLinuxDriver@microchip.com
+Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+This patch extends the processing of frames in the bridge. Currently MRP
+frames needs special processing and the current implementation doesn't
+allow a nice way to process different frame types. Therefore try to
+improve this by adding a list that contains frame types that need
+special processing. This list is iterated for each input frame and if
+there is a match based on frame type then these functions will be called
+and decide what to do with the frame. It can process the frame then the
+bridge doesn't need to do anything or don't process so then the bridge
+will do normal forwarding.
 
-Extend the bridge multicast control and data path to configure routes
-for L2 (non-IP) multicast groups.
-
-The uapi struct br_mdb_entry union u is extended with another variant,
-mac_addr, which does not change the structure size, and which is valid
-when the proto field is zero.
-
-To be compatible with the forwarding code that is already in place,
-which acts as an IGMP/MLD snooping bridge with querier capabilities, we
-need to declare that for L2 MDB entries (for which there exists no such
-thing as IGMP/MLD snooping/querying), that there is always a querier.
-Otherwise, these entries would be flooded to all bridge ports and not
-just to those that are members of the L2 multicast group.
-
-Needless to say, only permanent L2 multicast groups can be installed on
-a bridge port.
-
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Henrik Bjoernlund  <henrik.bjoernlund@microchip.com>
+Reviewed-by: Horatiu Vultur  <horatiu.vultur@microchip.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
-Changes in v2:
-- Removed redundant MDB_FLAGS_L2 (we are simply signalling an L2 entry
-  through proto == 0)
-- Moved mac_addr inside union dst of struct br_ip.
-- Validation that L2 multicast address is indeed multicast
+ net/bridge/br_device.c  |  1 +
+ net/bridge/br_input.c   | 33 ++++++++++++++++++++++++++++++++-
+ net/bridge/br_mrp.c     | 19 +++++++++++++++----
+ net/bridge/br_private.h | 19 ++++++++++++-------
+ 4 files changed, 60 insertions(+), 12 deletions(-)
 
- include/linux/if_bridge.h      |  1 +
- include/uapi/linux/if_bridge.h |  1 +
- net/bridge/br_device.c         |  2 +-
- net/bridge/br_input.c          |  2 +-
- net/bridge/br_mdb.c            | 24 ++++++++++++++++++++++--
- net/bridge/br_multicast.c      | 13 +++++++++----
- net/bridge/br_private.h        | 10 ++++++++--
- 7 files changed, 43 insertions(+), 10 deletions(-)
-
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 556caed00258..b979005ea39c 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -25,6 +25,7 @@ struct br_ip {
- #if IS_ENABLED(CONFIG_IPV6)
- 		struct in6_addr ip6;
- #endif
-+		unsigned char	mac_addr[ETH_ALEN];
- 	} dst;
- 	__be16		proto;
- 	__u16           vid;
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 4c687686aa8f..281777477616 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -526,6 +526,7 @@ struct br_mdb_entry {
- 		union {
- 			__be32	ip4;
- 			struct in6_addr ip6;
-+			unsigned char mac_addr[ETH_ALEN];
- 		} u;
- 		__be16		proto;
- 	} addr;
 diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 6f742fee874a..06c28753b911 100644
+index 6f742fee874a..15c6445fa998 100644
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -93,7 +93,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 		mdst = br_mdb_get(br, skb, vid);
- 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
--		    br_multicast_querier_exists(br, eth_hdr(skb)))
-+		    br_multicast_querier_exists(br, eth_hdr(skb), mdst))
- 			br_multicast_flood(mdst, skb, false, true);
- 		else
- 			br_flood(br, skb, BR_PKT_MULTICAST, false, true);
+@@ -454,6 +454,7 @@ void br_dev_setup(struct net_device *dev)
+ 	spin_lock_init(&br->lock);
+ 	INIT_LIST_HEAD(&br->port_list);
+ 	INIT_HLIST_HEAD(&br->fdb_list);
++	INIT_HLIST_HEAD(&br->frame_type_list);
+ #if IS_ENABLED(CONFIG_BRIDGE_MRP)
+ 	INIT_LIST_HEAD(&br->mrp_list);
+ #endif
 diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 59a318b9f646..d31b5c18c6a1 100644
+index 59a318b9f646..bece03bf83c4 100644
 --- a/net/bridge/br_input.c
 +++ b/net/bridge/br_input.c
-@@ -134,7 +134,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 	case BR_PKT_MULTICAST:
- 		mdst = br_mdb_get(br, skb, vid);
- 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
--		    br_multicast_querier_exists(br, eth_hdr(skb))) {
-+		    br_multicast_querier_exists(br, eth_hdr(skb), mdst)) {
- 			if ((mdst && mdst->host_joined) ||
- 			    br_multicast_is_router(br)) {
- 				local_rcv = true;
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index e15bab19a012..f4fe0d96769d 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -87,6 +87,8 @@ static void __mdb_entry_to_br_ip(struct br_mdb_entry *entry, struct br_ip *ip,
- 			ip->src.ip6 = nla_get_in6_addr(mdb_attrs[MDBE_ATTR_SOURCE]);
- 		break;
- #endif
-+	default:
-+		ether_addr_copy(ip->dst.mac_addr, entry->addr.u.mac_addr);
- 	}
- 
- }
-@@ -174,9 +176,11 @@ static int __mdb_fill_info(struct sk_buff *skb,
- 	if (mp->addr.proto == htons(ETH_P_IP))
- 		e.addr.u.ip4 = mp->addr.dst.ip4;
- #if IS_ENABLED(CONFIG_IPV6)
--	if (mp->addr.proto == htons(ETH_P_IPV6))
-+	else if (mp->addr.proto == htons(ETH_P_IPV6))
- 		e.addr.u.ip6 = mp->addr.dst.ip6;
- #endif
-+	else
-+		ether_addr_copy(e.addr.u.mac_addr, mp->addr.dst.mac_addr);
- 	e.addr.proto = mp->addr.proto;
- 	nest_ent = nla_nest_start_noflag(skb,
- 					 MDBA_MDB_ENTRY_INFO);
-@@ -210,6 +214,8 @@ static int __mdb_fill_info(struct sk_buff *skb,
- 		}
- 		break;
- #endif
-+	default:
-+		ether_addr_copy(e.addr.u.mac_addr, mp->addr.dst.mac_addr);
- 	}
- 	if (p) {
- 		if (nla_put_u8(skb, MDBA_MDB_EATTR_RTPROT, p->rt_protocol))
-@@ -562,9 +568,12 @@ void br_mdb_notify(struct net_device *dev,
- 		if (mp->addr.proto == htons(ETH_P_IP))
- 			ip_eth_mc_map(mp->addr.dst.ip4, mdb.addr);
- #if IS_ENABLED(CONFIG_IPV6)
--		else
-+		else if (mp->addr.proto == htons(ETH_P_IPV6))
- 			ipv6_eth_mc_map(&mp->addr.dst.ip6, mdb.addr);
- #endif
-+		else
-+			ether_addr_copy(mdb.addr, mp->addr.dst.mac_addr);
-+
- 		mdb.obj.orig_dev = pg->key.port->dev;
- 		switch (type) {
- 		case RTM_NEWMDB:
-@@ -693,6 +702,12 @@ static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
- 			return false;
- 		}
- #endif
-+	} else if (entry->addr.proto == 0) {
-+		/* L2 mdb */
-+		if (!is_multicast_ether_addr(entry->addr.u.mac_addr)) {
-+			NL_SET_ERR_MSG_MOD(extack, "L2 entry group is not multicast");
-+			return false;
-+		}
- 	} else {
- 		NL_SET_ERR_MSG_MOD(extack, "Unknown entry protocol");
- 		return false;
-@@ -857,6 +872,11 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 			return err;
- 	}
- 
-+	if (entry->state != MDB_PERMANENT && br_group_is_l2(&mp->addr)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
-+		return -EINVAL;
-+	}
-+
- 	/* host join */
- 	if (!port) {
- 		if (mp->host_joined) {
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index eae898c3cff7..484820c223a3 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -179,7 +179,8 @@ struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge *br,
- 		break;
- #endif
- 	default:
--		return NULL;
-+		ip.proto = 0;
-+		ether_addr_copy(ip.dst.mac_addr, eth_hdr(skb)->h_dest);
- 	}
- 
- 	return br_mdb_ip_get_rcu(br, &ip);
-@@ -1203,6 +1204,10 @@ void br_multicast_host_join(struct net_bridge_mdb_entry *mp, bool notify)
- 		if (notify)
- 			br_mdb_notify(mp->br->dev, mp, NULL, RTM_NEWMDB);
- 	}
-+
-+	if (br_group_is_l2(&mp->addr))
-+		return;
-+
- 	mod_timer(&mp->timer, jiffies + mp->br->multicast_membership_interval);
+@@ -254,6 +254,21 @@ static int nf_hook_bridge_pre(struct sk_buff *skb, struct sk_buff **pskb)
+ 	return RX_HANDLER_CONSUMED;
  }
  
-@@ -1254,8 +1259,8 @@ __br_multicast_add_group(struct net_bridge *br,
- 			break;
- 	}
- 
--	p = br_multicast_new_port_group(port, group, *pp, 0, src, filter_mode,
--					RTPROT_KERNEL);
-+	p = br_multicast_new_port_group(port, group, *pp, 0, src,
-+					filter_mode, RTPROT_KERNEL);
- 	if (unlikely(!p)) {
- 		p = ERR_PTR(-ENOMEM);
- 		goto out;
-@@ -3690,7 +3695,7 @@ bool br_multicast_has_querier_anywhere(struct net_device *dev, int proto)
- 	memset(&eth, 0, sizeof(eth));
- 	eth.h_proto = htons(proto);
- 
--	ret = br_multicast_querier_exists(br, &eth);
-+	ret = br_multicast_querier_exists(br, &eth, NULL);
- 
- unlock:
- 	rcu_read_unlock();
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 345118e35c42..ea06e0d74815 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -840,6 +840,11 @@ void br_multicast_star_g_handle_mode(struct net_bridge_port_group *pg,
- void br_multicast_sg_add_exclude_ports(struct net_bridge_mdb_entry *star_mp,
- 				       struct net_bridge_port_group *sg);
- 
-+static inline bool br_group_is_l2(const struct br_ip *group)
++/* Return 0 if the frame was not processed otherwise 1
++ * note: already called with rcu_read_lock
++ */
++static int br_process_frame_type(struct net_bridge_port *p,
++				 struct sk_buff *skb)
 +{
-+	return group->proto == 0;
++	struct br_frame_type *tmp;
++
++	hlist_for_each_entry_rcu(tmp, &p->br->frame_type_list, list)
++		if (unlikely(tmp->type == skb->protocol))
++			return tmp->frame_handler(p, skb);
++
++	return 0;
 +}
 +
- #define mlock_dereference(X, br) \
- 	rcu_dereference_protected(X, lockdep_is_held(&br->multicast_lock))
- 
-@@ -871,7 +876,8 @@ __br_multicast_querier_exists(struct net_bridge *br,
- }
- 
- static inline bool br_multicast_querier_exists(struct net_bridge *br,
--					       struct ethhdr *eth)
-+					       struct ethhdr *eth,
-+					       const struct net_bridge_mdb_entry *mdb)
- {
- 	switch (eth->h_proto) {
- 	case (htons(ETH_P_IP)):
-@@ -883,7 +889,7 @@ static inline bool br_multicast_querier_exists(struct net_bridge *br,
- 			&br->ip6_other_query, true);
- #endif
- 	default:
--		return false;
-+		return !!mdb && br_group_is_l2(&mdb->addr);
+ /*
+  * Return NULL if skb is handled
+  * note: already called with rcu_read_lock
+@@ -343,7 +358,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+ 		}
  	}
+ 
+-	if (unlikely(br_mrp_process(p, skb)))
++	if (unlikely(br_process_frame_type(p, skb)))
+ 		return RX_HANDLER_PASS;
+ 
+ forward:
+@@ -380,3 +395,19 @@ rx_handler_func_t *br_get_rx_handler(const struct net_device *dev)
+ 
+ 	return br_handle_frame;
+ }
++
++void br_add_frame(struct net_bridge *br, struct br_frame_type *ft)
++{
++	hlist_add_head_rcu(&ft->list, &br->frame_type_list);
++}
++
++void br_del_frame(struct net_bridge *br, struct br_frame_type *ft)
++{
++	struct br_frame_type *tmp;
++
++	hlist_for_each_entry(tmp, &br->frame_type_list, list)
++		if (ft == tmp) {
++			hlist_del_rcu(&ft->list);
++			return;
++		}
++}
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index b36689e6e7cb..f94d72bb7c32 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -6,6 +6,13 @@
+ static const u8 mrp_test_dmac[ETH_ALEN] = { 0x1, 0x15, 0x4e, 0x0, 0x0, 0x1 };
+ static const u8 mrp_in_test_dmac[ETH_ALEN] = { 0x1, 0x15, 0x4e, 0x0, 0x0, 0x3 };
+ 
++static int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb);
++
++static struct br_frame_type mrp_frame_type __read_mostly = {
++	.type = cpu_to_be16(ETH_P_MRP),
++	.frame_handler = br_mrp_process,
++};
++
+ static bool br_mrp_is_ring_port(struct net_bridge_port *p_port,
+ 				struct net_bridge_port *s_port,
+ 				struct net_bridge_port *port)
+@@ -445,6 +452,9 @@ static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
+ 
+ 	list_del_rcu(&mrp->list);
+ 	kfree_rcu(mrp, rcu);
++
++	if (list_empty(&br->mrp_list))
++		br_del_frame(br, &mrp_frame_type);
  }
  
+ /* Adds a new MRP instance.
+@@ -493,6 +503,9 @@ int br_mrp_add(struct net_bridge *br, struct br_mrp_instance *instance)
+ 	spin_unlock_bh(&br->lock);
+ 	rcu_assign_pointer(mrp->s_port, p);
+ 
++	if (list_empty(&br->mrp_list))
++		br_add_frame(br, &mrp_frame_type);
++
+ 	INIT_DELAYED_WORK(&mrp->test_work, br_mrp_test_work_expired);
+ 	INIT_DELAYED_WORK(&mrp->in_test_work, br_mrp_in_test_work_expired);
+ 	list_add_tail_rcu(&mrp->list, &br->mrp_list);
+@@ -1172,15 +1185,13 @@ static int br_mrp_rcv(struct net_bridge_port *p,
+  * normal forwarding.
+  * note: already called with rcu_read_lock
+  */
+-int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
++static int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
+ {
+ 	/* If there is no MRP instance do normal forwarding */
+ 	if (likely(!(p->flags & BR_MRP_AWARE)))
+ 		goto out;
+ 
+-	if (unlikely(skb->protocol == htons(ETH_P_MRP)))
+-		return br_mrp_rcv(p, skb, p->dev);
+-
++	return br_mrp_rcv(p, skb, p->dev);
+ out:
+ 	return 0;
+ }
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 345118e35c42..2fe8b88d090e 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -383,7 +383,7 @@ enum net_bridge_opts {
+ struct net_bridge {
+ 	spinlock_t			lock;
+ 	spinlock_t			hash_lock;
+-	struct list_head		port_list;
++	struct hlist_head		frame_type_list;
+ 	struct net_device		*dev;
+ 	struct pcpu_sw_netstats		__percpu *stats;
+ 	unsigned long			options;
+@@ -395,6 +395,7 @@ struct net_bridge {
+ #endif
+ 
+ 	struct rhashtable		fdb_hash_tbl;
++	struct list_head		port_list;
+ #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+ 	union {
+ 		struct rtable		fake_rtable;
+@@ -755,6 +756,16 @@ int nbp_backup_change(struct net_bridge_port *p, struct net_device *backup_dev);
+ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
+ rx_handler_func_t *br_get_rx_handler(const struct net_device *dev);
+ 
++struct br_frame_type {
++	__be16			type;
++	int			(*frame_handler)(struct net_bridge_port *port,
++						 struct sk_buff *skb);
++	struct hlist_node	list;
++};
++
++void br_add_frame(struct net_bridge *br, struct br_frame_type *ft);
++void br_del_frame(struct net_bridge *br, struct br_frame_type *ft);
++
+ static inline bool br_rx_handler_check_rcu(const struct net_device *dev)
+ {
+ 	return rcu_dereference(dev->rx_handler) == br_get_rx_handler(dev);
+@@ -1417,7 +1428,6 @@ extern int (*br_fdb_test_addr_hook)(struct net_device *dev, unsigned char *addr)
+ #if IS_ENABLED(CONFIG_BRIDGE_MRP)
+ int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
+ 		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack);
+-int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb);
+ bool br_mrp_enabled(struct net_bridge *br);
+ void br_mrp_port_del(struct net_bridge *br, struct net_bridge_port *p);
+ int br_mrp_fill_info(struct sk_buff *skb, struct net_bridge *br);
+@@ -1429,11 +1439,6 @@ static inline int br_mrp_parse(struct net_bridge *br, struct net_bridge_port *p,
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int br_mrp_process(struct net_bridge_port *p, struct sk_buff *skb)
+-{
+-	return 0;
+-}
+-
+ static inline bool br_mrp_enabled(struct net_bridge *br)
+ {
+ 	return false;
 -- 
-2.25.1
+2.28.0
 
