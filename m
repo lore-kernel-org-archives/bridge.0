@@ -1,44 +1,16 @@
-Return-Path: <nikolay@nvidia.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Wed, 28 Oct 2020 21:52:09 +0000
-Message-ID: <76449de5bd88a9c00b75821c570dabbebef7675b.camel@nvidia.com>
-References: <20201028105412.371741-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20201028105412.371741-1-vladimir.oltean@nxp.com>
-Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <F21A8D6F1C375247928FA1EF6CAA60BF@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kq9gweTp7WIVGQXVtTj5MBcqZ9A9FPIrRwsOGnrPKZY=;
+ b=emmQbmXFtosq8IkVmUd/E8VNZHP3Jfcd7MF4G2hNqSLh/Rr1e3vcePnTlsfEvBK1UoBPEKXtfnSmXVzIk1S6oqJCU8sJsaVAYMkEpUlkv83SDSAwSa4MRvb7/c1F1RC2cFr27phqFb1g8Qi/aeOvmNUxVTXWBizoIodcafElrhk=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Thu, 29 Oct 2020 01:48:15 +0200
+Message-Id: <20201028234815.613226-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1603921913; bh=6MzPcLrLSnLGHEzoeKiOINM5/Y1j364bOBbSSg/mnLs=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Reply-To:Accept-Language:Content-Language:
- X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
- authentication-results:x-originating-ip:x-ms-publictraffictype:
- x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
- x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
- x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
- x-microsoft-antispam:x-microsoft-antispam-message-info:
- x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
- Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=KSLEm4tvP01MGnHQ2af6QoNpVUt6KFClGUr6/YSRr9aAoLWThFzk98UI88iaZNOxq
- Rx+v6q/AMgKBma6lSAOJYlt9O6ilm/4Lf3QfDSLlGTEimE+TdzVH0DGcCXyb/BaWrC
- R5wCEtszNIZrv7xO/k4ZW/fe5AETHmMMikny5bAIB/dmKkD4RlTCKaTx1G3mRyxWLR
- NVXHwVwXfto/rrrOJ/SdOpmWJNqiR19uZFlHpWpMFrwl8rtlGuEnu+/QtFpkhv8XSB
- CTwYAIHJjFH6sDNYOFKQnH2hK8d53ucVYv8qEx2Vd+AerKGqTNdPCdSP32qMjbGhCM
- gCHtdbYfSJqoQ==
-Subject: Re: [Bridge] [PATCH v3 net-next] net: bridge: mcast: add support
- for raw L2 multicast groups
+Subject: [Bridge] [PATCH net-next] net: bridge: explicitly convert between
+	mdb entry state and port group flags
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -47,54 +19,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "davem@davemloft.net" <davem@davemloft.net>, "vladimir.oltean@nxp.com" <vladimir.oltean@nxp.com>, "kuba@kernel.org" <kuba@kernel.org>
-Cc: "idosch@idosch.org" <idosch@idosch.org>, "jiri@mellanox.com" <jiri@mellanox.com>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, "andrew@lunn.ch" <andrew@lunn.ch>
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gV2VkLCAyMDIwLTEwLTI4IGF0IDEyOjU0ICswMjAwLCBWbGFkaW1pciBPbHRlYW4gd3JvdGU6
-DQo+IEZyb206IE5pa29sYXkgQWxla3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNvbT4NCj4gDQo+
-IEV4dGVuZCB0aGUgYnJpZGdlIG11bHRpY2FzdCBjb250cm9sIGFuZCBkYXRhIHBhdGggdG8gY29u
-ZmlndXJlIHJvdXRlcw0KPiBmb3IgTDIgKG5vbi1JUCkgbXVsdGljYXN0IGdyb3Vwcy4NCj4gDQo+
-IFRoZSB1YXBpIHN0cnVjdCBicl9tZGJfZW50cnkgdW5pb24gdSBpcyBleHRlbmRlZCB3aXRoIGFu
-b3RoZXIgdmFyaWFudCwNCj4gbWFjX2FkZHIsIHdoaWNoIGRvZXMgbm90IGNoYW5nZSB0aGUgc3Ry
-dWN0dXJlIHNpemUsIGFuZCB3aGljaCBpcyB2YWxpZA0KPiB3aGVuIHRoZSBwcm90byBmaWVsZCBp
-cyB6ZXJvLg0KPiANCj4gVG8gYmUgY29tcGF0aWJsZSB3aXRoIHRoZSBmb3J3YXJkaW5nIGNvZGUg
-dGhhdCBpcyBhbHJlYWR5IGluIHBsYWNlLA0KPiB3aGljaCBhY3RzIGFzIGFuIElHTVAvTUxEIHNu
-b29waW5nIGJyaWRnZSB3aXRoIHF1ZXJpZXIgY2FwYWJpbGl0aWVzLCB3ZQ0KPiBuZWVkIHRvIGRl
-Y2xhcmUgdGhhdCBmb3IgTDIgTURCIGVudHJpZXMgKGZvciB3aGljaCB0aGVyZSBleGlzdHMgbm8g
-c3VjaA0KPiB0aGluZyBhcyBJR01QL01MRCBzbm9vcGluZy9xdWVyeWluZyksIHRoYXQgdGhlcmUg
-aXMgYWx3YXlzIGEgcXVlcmllci4NCj4gT3RoZXJ3aXNlLCB0aGVzZSBlbnRyaWVzIHdvdWxkIGJl
-IGZsb29kZWQgdG8gYWxsIGJyaWRnZSBwb3J0cyBhbmQgbm90DQo+IGp1c3QgdG8gdGhvc2UgdGhh
-dCBhcmUgbWVtYmVycyBvZiB0aGUgTDIgbXVsdGljYXN0IGdyb3VwLg0KPiANCj4gTmVlZGxlc3Mg
-dG8gc2F5LCBvbmx5IHBlcm1hbmVudCBMMiBtdWx0aWNhc3QgZ3JvdXBzIGNhbiBiZSBpbnN0YWxs
-ZWQgb24NCj4gYSBicmlkZ2UgcG9ydC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IE5pa29sYXkgQWxl
-a3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogVmxhZGltaXIg
-T2x0ZWFuIDx2bGFkaW1pci5vbHRlYW5AbnhwLmNvbT4NCj4gLS0tDQo+IENoYW5nZXMgaW4gdjM6
-DQo+IC0gUmVtb3ZlZCBzb21lIG5vaXNlIGluIHRoZSBkaWZmLg0KPiANCj4gQ2hhbmdlcyBpbiB2
-MjoNCj4gLSBSZW1vdmVkIHJlZHVuZGFudCBNREJfRkxBR1NfTDIgKHdlIGFyZSBzaW1wbHkgc2ln
-bmFsbGluZyBhbiBMMiBlbnRyeQ0KPiAgIHRocm91Z2ggcHJvdG8gPT0gMCkNCj4gLSBNb3ZlZCBt
-YWNfYWRkciBpbnNpZGUgdW5pb24gZHN0IG9mIHN0cnVjdCBicl9pcC4NCj4gLSBWYWxpZGF0aW9u
-IHRoYXQgTDIgbXVsdGljYXN0IGFkZHJlc3MgaXMgaW5kZWVkIG11bHRpY2FzdA0KPiANCj4gIGlu
-Y2x1ZGUvbGludXgvaWZfYnJpZGdlLmggICAgICB8ICAxICsNCj4gIGluY2x1ZGUvdWFwaS9saW51
-eC9pZl9icmlkZ2UuaCB8ICAxICsNCj4gIG5ldC9icmlkZ2UvYnJfZGV2aWNlLmMgICAgICAgICB8
-ICAyICstDQo+ICBuZXQvYnJpZGdlL2JyX2lucHV0LmMgICAgICAgICAgfCAgMiArLQ0KPiAgbmV0
-L2JyaWRnZS9icl9tZGIuYyAgICAgICAgICAgIHwgMjQgKysrKysrKysrKysrKysrKysrKysrKy0t
-DQo+ICBuZXQvYnJpZGdlL2JyX211bHRpY2FzdC5jICAgICAgfCAgOSArKysrKysrLS0NCj4gIG5l
-dC9icmlkZ2UvYnJfcHJpdmF0ZS5oICAgICAgICB8IDEwICsrKysrKysrLS0NCj4gIDcgZmlsZXMg
-Y2hhbmdlZCwgNDEgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkNCj4NCltzbmlwXQ0KPiBA
-QCAtODU3LDYgKzg3MiwxMSBAQCBzdGF0aWMgaW50IGJyX21kYl9hZGRfZ3JvdXAoc3RydWN0IG5l
-dF9icmlkZ2UgKmJyLCBzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpwb3J0LA0KPiAgCQkJcmV0dXJu
-IGVycjsNCj4gIAl9DQo+ICANCj4gKwlpZiAoZW50cnktPnN0YXRlICE9IE1EQl9QRVJNQU5FTlQg
-JiYgYnJfZ3JvdXBfaXNfbDIoJm1wLT5hZGRyKSkgew0KPiArCQlOTF9TRVRfRVJSX01TR19NT0Qo
-ZXh0YWNrLCAiT25seSBwZXJtYW5lbnQgTDIgZW50cmllcyBhbGxvd2VkIik7DQo+ICsJCXJldHVy
-biAtRUlOVkFMOw0KPiArCX0NCj4gKw0KDQpTb3JyeSwgYnV0IEkgZGlkbid0IG5vdGljZSB0aGlz
-IGVhcmxpZXIuIFdlIG5lZWQgdG8gY2hlY2sgZm9yIHRoaXMgZXJyb3IgYmVmb3JlDQpjcmVhdGlu
-ZyB0aGUgbWRiIGdyb3VwIG90aGVyd2lzZSB3ZSBjYW4gZW5kIHVwIHdpdGggZW1wdHkgZ3JvdXBz
-IHRoYXQgY2FuJ3QgYmUNCmRlbGV0ZWQgZHVlIHRvIGVycm9ycy4gSS5lLiBpdCBtdXN0IGJlIGJl
-Zm9yZSB0aGUgYnJfbXVsdGljYXN0X25ld19ncm91cCgpIGNhbGwuDQoNClRoZSByZXN0IGxvb2tz
-IGdvb2QgdG8gbWUsIHRoYW5rcyENCg0KPiAgCS8qIGhvc3Qgam9pbiAqLw0KPiAgCWlmICghcG9y
-dCkgew0KPiAgCQlpZiAobXAtPmhvc3Rfam9pbmVkKSB7DQo+IGRpZmYgLS1naXQgYS9uZXQvYnJp
-ZGdlL2JyX211bHRpY2FzdC5jIGIvbmV0L2JyaWRnZS9icl9tdWx0aWNhc3QuYw0KPiBpbmRleCBl
-YWU4OThjM2NmZjcuLjk4ZGUwYWNiMDMwNyAxMDA2NDQNCj4gLS0tIGEvbmV0L2JyaWRnZS9icl9t
-dWx0aWNhc3QuYw0KPiArKysgYi9uZXQvYnJpZGdlL2JyX211bHRpY2FzdC5jDQo+IEBAIC0xNzks
-NyArMTc5LDggQEAgc3RydWN0IG5ldF9icmlkZ2VfbWRiX2VudHJ5ICpicl9tZGJfZ2V0KHN0cnVj
-dCBuZXRfYnJpZGdlICpiciwNCg0K
+When creating a new multicast port group, there is implicit conversion
+between the __u8 state member of struct br_mdb_entry and the unsigned
+char flags member of struct net_bridge_port_group. This implicit
+conversion relies on the fact that MDB_PERMANENT is equal to
+MDB_PG_FLAGS_PERMANENT.
+
+Let's be more explicit and convert the state to flags manually.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/bridge/br_mdb.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index 3c8863418d0b..8846c5bcd075 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -846,6 +846,7 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	struct net_bridge_port_group __rcu **pp;
+ 	struct br_ip group, star_group;
+ 	unsigned long now = jiffies;
++	unsigned char flags = 0;
+ 	u8 filter_mode;
+ 	int err;
+ 
+@@ -904,7 +905,10 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	filter_mode = br_multicast_is_star_g(&group) ? MCAST_EXCLUDE :
+ 						       MCAST_INCLUDE;
+ 
+-	p = br_multicast_new_port_group(port, &group, *pp, entry->state, NULL,
++	if (entry->state == MDB_PERMANENT)
++		flags |= MDB_PG_FLAGS_PERMANENT;
++
++	p = br_multicast_new_port_group(port, &group, *pp, flags, NULL,
+ 					filter_mode, RTPROT_STATIC);
+ 	if (unlikely(!p)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new port group");
+-- 
+2.25.1
+
