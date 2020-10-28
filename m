@@ -1,16 +1,44 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xRi8k4m0A0qOj3eJWE1FHQ1hJgeYRPaXC6NVGmuucgw=;
- b=JvlZQvE34P23XBckPoY2YiCHnb5Ao76bQP819q8rG52WO9RWSAyMTlviLvkIr90EdtZ6MIneO4qY41X+Muw6cHlEui2OrvYHqG85PVDgLPxD/PK+05HiaX//ZyICc/86Gt4FEuZEqd79Kuv96eNmtXyiN1DkylMBQ5y7RYAzD0A=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Wed, 28 Oct 2020 12:54:12 +0200
-Message-Id: <20201028105412.371741-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <nikolay@nvidia.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Date: Wed, 28 Oct 2020 21:52:09 +0000
+Message-ID: <76449de5bd88a9c00b75821c570dabbebef7675b.camel@nvidia.com>
+References: <20201028105412.371741-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20201028105412.371741-1-vladimir.oltean@nxp.com>
+Reply-To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <F21A8D6F1C375247928FA1EF6CAA60BF@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v3 net-next] net: bridge: mcast: add support for
-	raw L2 multicast groups
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1603921913; bh=6MzPcLrLSnLGHEzoeKiOINM5/Y1j364bOBbSSg/mnLs=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
+ CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+ In-Reply-To:Reply-To:Accept-Language:Content-Language:
+ X-MS-Has-Attach:X-MS-TNEF-Correlator:user-agent:
+ authentication-results:x-originating-ip:x-ms-publictraffictype:
+ x-ms-office365-filtering-correlation-id:x-ms-traffictypediagnostic:
+ x-ms-exchange-transport-forked:x-microsoft-antispam-prvs:
+ x-ms-oob-tlc-oobclassifiers:x-ms-exchange-senderadcheck:
+ x-microsoft-antispam:x-microsoft-antispam-message-info:
+ x-forefront-antispam-report:x-ms-exchange-antispam-messagedata:
+ Content-Type:Content-ID:Content-Transfer-Encoding:MIME-Version:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-originalarrivaltime:
+ X-MS-Exchange-CrossTenant-fromentityheader:
+ X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+ X-MS-Exchange-CrossTenant-userprincipalname:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=KSLEm4tvP01MGnHQ2af6QoNpVUt6KFClGUr6/YSRr9aAoLWThFzk98UI88iaZNOxq
+ Rx+v6q/AMgKBma6lSAOJYlt9O6ilm/4Lf3QfDSLlGTEimE+TdzVH0DGcCXyb/BaWrC
+ R5wCEtszNIZrv7xO/k4ZW/fe5AETHmMMikny5bAIB/dmKkD4RlTCKaTx1G3mRyxWLR
+ NVXHwVwXfto/rrrOJ/SdOpmWJNqiR19uZFlHpWpMFrwl8rtlGuEnu+/QtFpkhv8XSB
+ CTwYAIHJjFH6sDNYOFKQnH2hK8d53ucVYv8qEx2Vd+AerKGqTNdPCdSP32qMjbGhCM
+ gCHtdbYfSJqoQ==
+Subject: Re: [Bridge] [PATCH v3 net-next] net: bridge: mcast: add support
+ for raw L2 multicast groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,242 +47,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: andrew@lunn.ch, jiri@mellanox.com, f.fainelli@gmail.com, vivien.didelot@gmail.com, idosch@idosch.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "davem@davemloft.net" <davem@davemloft.net>, "vladimir.oltean@nxp.com" <vladimir.oltean@nxp.com>, "kuba@kernel.org" <kuba@kernel.org>
+Cc: "idosch@idosch.org" <idosch@idosch.org>, "jiri@mellanox.com" <jiri@mellanox.com>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, "andrew@lunn.ch" <andrew@lunn.ch>
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-
-Extend the bridge multicast control and data path to configure routes
-for L2 (non-IP) multicast groups.
-
-The uapi struct br_mdb_entry union u is extended with another variant,
-mac_addr, which does not change the structure size, and which is valid
-when the proto field is zero.
-
-To be compatible with the forwarding code that is already in place,
-which acts as an IGMP/MLD snooping bridge with querier capabilities, we
-need to declare that for L2 MDB entries (for which there exists no such
-thing as IGMP/MLD snooping/querying), that there is always a querier.
-Otherwise, these entries would be flooded to all bridge ports and not
-just to those that are members of the L2 multicast group.
-
-Needless to say, only permanent L2 multicast groups can be installed on
-a bridge port.
-
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
-Changes in v3:
-- Removed some noise in the diff.
-
-Changes in v2:
-- Removed redundant MDB_FLAGS_L2 (we are simply signalling an L2 entry
-  through proto == 0)
-- Moved mac_addr inside union dst of struct br_ip.
-- Validation that L2 multicast address is indeed multicast
-
- include/linux/if_bridge.h      |  1 +
- include/uapi/linux/if_bridge.h |  1 +
- net/bridge/br_device.c         |  2 +-
- net/bridge/br_input.c          |  2 +-
- net/bridge/br_mdb.c            | 24 ++++++++++++++++++++++--
- net/bridge/br_multicast.c      |  9 +++++++--
- net/bridge/br_private.h        | 10 ++++++++--
- 7 files changed, 41 insertions(+), 8 deletions(-)
-
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 556caed00258..b979005ea39c 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -25,6 +25,7 @@ struct br_ip {
- #if IS_ENABLED(CONFIG_IPV6)
- 		struct in6_addr ip6;
- #endif
-+		unsigned char	mac_addr[ETH_ALEN];
- 	} dst;
- 	__be16		proto;
- 	__u16           vid;
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 4c687686aa8f..281777477616 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -526,6 +526,7 @@ struct br_mdb_entry {
- 		union {
- 			__be32	ip4;
- 			struct in6_addr ip6;
-+			unsigned char mac_addr[ETH_ALEN];
- 		} u;
- 		__be16		proto;
- 	} addr;
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 6f742fee874a..06c28753b911 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -93,7 +93,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 		mdst = br_mdb_get(br, skb, vid);
- 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
--		    br_multicast_querier_exists(br, eth_hdr(skb)))
-+		    br_multicast_querier_exists(br, eth_hdr(skb), mdst))
- 			br_multicast_flood(mdst, skb, false, true);
- 		else
- 			br_flood(br, skb, BR_PKT_MULTICAST, false, true);
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 59a318b9f646..d31b5c18c6a1 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -134,7 +134,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 	case BR_PKT_MULTICAST:
- 		mdst = br_mdb_get(br, skb, vid);
- 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
--		    br_multicast_querier_exists(br, eth_hdr(skb))) {
-+		    br_multicast_querier_exists(br, eth_hdr(skb), mdst)) {
- 			if ((mdst && mdst->host_joined) ||
- 			    br_multicast_is_router(br)) {
- 				local_rcv = true;
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index e15bab19a012..f4fe0d96769d 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -87,6 +87,8 @@ static void __mdb_entry_to_br_ip(struct br_mdb_entry *entry, struct br_ip *ip,
- 			ip->src.ip6 = nla_get_in6_addr(mdb_attrs[MDBE_ATTR_SOURCE]);
- 		break;
- #endif
-+	default:
-+		ether_addr_copy(ip->dst.mac_addr, entry->addr.u.mac_addr);
- 	}
- 
- }
-@@ -174,9 +176,11 @@ static int __mdb_fill_info(struct sk_buff *skb,
- 	if (mp->addr.proto == htons(ETH_P_IP))
- 		e.addr.u.ip4 = mp->addr.dst.ip4;
- #if IS_ENABLED(CONFIG_IPV6)
--	if (mp->addr.proto == htons(ETH_P_IPV6))
-+	else if (mp->addr.proto == htons(ETH_P_IPV6))
- 		e.addr.u.ip6 = mp->addr.dst.ip6;
- #endif
-+	else
-+		ether_addr_copy(e.addr.u.mac_addr, mp->addr.dst.mac_addr);
- 	e.addr.proto = mp->addr.proto;
- 	nest_ent = nla_nest_start_noflag(skb,
- 					 MDBA_MDB_ENTRY_INFO);
-@@ -210,6 +214,8 @@ static int __mdb_fill_info(struct sk_buff *skb,
- 		}
- 		break;
- #endif
-+	default:
-+		ether_addr_copy(e.addr.u.mac_addr, mp->addr.dst.mac_addr);
- 	}
- 	if (p) {
- 		if (nla_put_u8(skb, MDBA_MDB_EATTR_RTPROT, p->rt_protocol))
-@@ -562,9 +568,12 @@ void br_mdb_notify(struct net_device *dev,
- 		if (mp->addr.proto == htons(ETH_P_IP))
- 			ip_eth_mc_map(mp->addr.dst.ip4, mdb.addr);
- #if IS_ENABLED(CONFIG_IPV6)
--		else
-+		else if (mp->addr.proto == htons(ETH_P_IPV6))
- 			ipv6_eth_mc_map(&mp->addr.dst.ip6, mdb.addr);
- #endif
-+		else
-+			ether_addr_copy(mdb.addr, mp->addr.dst.mac_addr);
-+
- 		mdb.obj.orig_dev = pg->key.port->dev;
- 		switch (type) {
- 		case RTM_NEWMDB:
-@@ -693,6 +702,12 @@ static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
- 			return false;
- 		}
- #endif
-+	} else if (entry->addr.proto == 0) {
-+		/* L2 mdb */
-+		if (!is_multicast_ether_addr(entry->addr.u.mac_addr)) {
-+			NL_SET_ERR_MSG_MOD(extack, "L2 entry group is not multicast");
-+			return false;
-+		}
- 	} else {
- 		NL_SET_ERR_MSG_MOD(extack, "Unknown entry protocol");
- 		return false;
-@@ -857,6 +872,11 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 			return err;
- 	}
- 
-+	if (entry->state != MDB_PERMANENT && br_group_is_l2(&mp->addr)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
-+		return -EINVAL;
-+	}
-+
- 	/* host join */
- 	if (!port) {
- 		if (mp->host_joined) {
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index eae898c3cff7..98de0acb0307 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -179,7 +179,8 @@ struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge *br,
- 		break;
- #endif
- 	default:
--		return NULL;
-+		ip.proto = 0;
-+		ether_addr_copy(ip.dst.mac_addr, eth_hdr(skb)->h_dest);
- 	}
- 
- 	return br_mdb_ip_get_rcu(br, &ip);
-@@ -1203,6 +1204,10 @@ void br_multicast_host_join(struct net_bridge_mdb_entry *mp, bool notify)
- 		if (notify)
- 			br_mdb_notify(mp->br->dev, mp, NULL, RTM_NEWMDB);
- 	}
-+
-+	if (br_group_is_l2(&mp->addr))
-+		return;
-+
- 	mod_timer(&mp->timer, jiffies + mp->br->multicast_membership_interval);
- }
- 
-@@ -3690,7 +3695,7 @@ bool br_multicast_has_querier_anywhere(struct net_device *dev, int proto)
- 	memset(&eth, 0, sizeof(eth));
- 	eth.h_proto = htons(proto);
- 
--	ret = br_multicast_querier_exists(br, &eth);
-+	ret = br_multicast_querier_exists(br, &eth, NULL);
- 
- unlock:
- 	rcu_read_unlock();
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 345118e35c42..ea06e0d74815 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -840,6 +840,11 @@ void br_multicast_star_g_handle_mode(struct net_bridge_port_group *pg,
- void br_multicast_sg_add_exclude_ports(struct net_bridge_mdb_entry *star_mp,
- 				       struct net_bridge_port_group *sg);
- 
-+static inline bool br_group_is_l2(const struct br_ip *group)
-+{
-+	return group->proto == 0;
-+}
-+
- #define mlock_dereference(X, br) \
- 	rcu_dereference_protected(X, lockdep_is_held(&br->multicast_lock))
- 
-@@ -871,7 +876,8 @@ __br_multicast_querier_exists(struct net_bridge *br,
- }
- 
- static inline bool br_multicast_querier_exists(struct net_bridge *br,
--					       struct ethhdr *eth)
-+					       struct ethhdr *eth,
-+					       const struct net_bridge_mdb_entry *mdb)
- {
- 	switch (eth->h_proto) {
- 	case (htons(ETH_P_IP)):
-@@ -883,7 +889,7 @@ static inline bool br_multicast_querier_exists(struct net_bridge *br,
- 			&br->ip6_other_query, true);
- #endif
- 	default:
--		return false;
-+		return !!mdb && br_group_is_l2(&mdb->addr);
- 	}
- }
- 
--- 
-2.25.1
-
+T24gV2VkLCAyMDIwLTEwLTI4IGF0IDEyOjU0ICswMjAwLCBWbGFkaW1pciBPbHRlYW4gd3JvdGU6
+DQo+IEZyb206IE5pa29sYXkgQWxla3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNvbT4NCj4gDQo+
+IEV4dGVuZCB0aGUgYnJpZGdlIG11bHRpY2FzdCBjb250cm9sIGFuZCBkYXRhIHBhdGggdG8gY29u
+ZmlndXJlIHJvdXRlcw0KPiBmb3IgTDIgKG5vbi1JUCkgbXVsdGljYXN0IGdyb3Vwcy4NCj4gDQo+
+IFRoZSB1YXBpIHN0cnVjdCBicl9tZGJfZW50cnkgdW5pb24gdSBpcyBleHRlbmRlZCB3aXRoIGFu
+b3RoZXIgdmFyaWFudCwNCj4gbWFjX2FkZHIsIHdoaWNoIGRvZXMgbm90IGNoYW5nZSB0aGUgc3Ry
+dWN0dXJlIHNpemUsIGFuZCB3aGljaCBpcyB2YWxpZA0KPiB3aGVuIHRoZSBwcm90byBmaWVsZCBp
+cyB6ZXJvLg0KPiANCj4gVG8gYmUgY29tcGF0aWJsZSB3aXRoIHRoZSBmb3J3YXJkaW5nIGNvZGUg
+dGhhdCBpcyBhbHJlYWR5IGluIHBsYWNlLA0KPiB3aGljaCBhY3RzIGFzIGFuIElHTVAvTUxEIHNu
+b29waW5nIGJyaWRnZSB3aXRoIHF1ZXJpZXIgY2FwYWJpbGl0aWVzLCB3ZQ0KPiBuZWVkIHRvIGRl
+Y2xhcmUgdGhhdCBmb3IgTDIgTURCIGVudHJpZXMgKGZvciB3aGljaCB0aGVyZSBleGlzdHMgbm8g
+c3VjaA0KPiB0aGluZyBhcyBJR01QL01MRCBzbm9vcGluZy9xdWVyeWluZyksIHRoYXQgdGhlcmUg
+aXMgYWx3YXlzIGEgcXVlcmllci4NCj4gT3RoZXJ3aXNlLCB0aGVzZSBlbnRyaWVzIHdvdWxkIGJl
+IGZsb29kZWQgdG8gYWxsIGJyaWRnZSBwb3J0cyBhbmQgbm90DQo+IGp1c3QgdG8gdGhvc2UgdGhh
+dCBhcmUgbWVtYmVycyBvZiB0aGUgTDIgbXVsdGljYXN0IGdyb3VwLg0KPiANCj4gTmVlZGxlc3Mg
+dG8gc2F5LCBvbmx5IHBlcm1hbmVudCBMMiBtdWx0aWNhc3QgZ3JvdXBzIGNhbiBiZSBpbnN0YWxs
+ZWQgb24NCj4gYSBicmlkZ2UgcG9ydC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IE5pa29sYXkgQWxl
+a3NhbmRyb3YgPG5pa29sYXlAbnZpZGlhLmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogVmxhZGltaXIg
+T2x0ZWFuIDx2bGFkaW1pci5vbHRlYW5AbnhwLmNvbT4NCj4gLS0tDQo+IENoYW5nZXMgaW4gdjM6
+DQo+IC0gUmVtb3ZlZCBzb21lIG5vaXNlIGluIHRoZSBkaWZmLg0KPiANCj4gQ2hhbmdlcyBpbiB2
+MjoNCj4gLSBSZW1vdmVkIHJlZHVuZGFudCBNREJfRkxBR1NfTDIgKHdlIGFyZSBzaW1wbHkgc2ln
+bmFsbGluZyBhbiBMMiBlbnRyeQ0KPiAgIHRocm91Z2ggcHJvdG8gPT0gMCkNCj4gLSBNb3ZlZCBt
+YWNfYWRkciBpbnNpZGUgdW5pb24gZHN0IG9mIHN0cnVjdCBicl9pcC4NCj4gLSBWYWxpZGF0aW9u
+IHRoYXQgTDIgbXVsdGljYXN0IGFkZHJlc3MgaXMgaW5kZWVkIG11bHRpY2FzdA0KPiANCj4gIGlu
+Y2x1ZGUvbGludXgvaWZfYnJpZGdlLmggICAgICB8ICAxICsNCj4gIGluY2x1ZGUvdWFwaS9saW51
+eC9pZl9icmlkZ2UuaCB8ICAxICsNCj4gIG5ldC9icmlkZ2UvYnJfZGV2aWNlLmMgICAgICAgICB8
+ICAyICstDQo+ICBuZXQvYnJpZGdlL2JyX2lucHV0LmMgICAgICAgICAgfCAgMiArLQ0KPiAgbmV0
+L2JyaWRnZS9icl9tZGIuYyAgICAgICAgICAgIHwgMjQgKysrKysrKysrKysrKysrKysrKysrKy0t
+DQo+ICBuZXQvYnJpZGdlL2JyX211bHRpY2FzdC5jICAgICAgfCAgOSArKysrKysrLS0NCj4gIG5l
+dC9icmlkZ2UvYnJfcHJpdmF0ZS5oICAgICAgICB8IDEwICsrKysrKysrLS0NCj4gIDcgZmlsZXMg
+Y2hhbmdlZCwgNDEgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkNCj4NCltzbmlwXQ0KPiBA
+QCAtODU3LDYgKzg3MiwxMSBAQCBzdGF0aWMgaW50IGJyX21kYl9hZGRfZ3JvdXAoc3RydWN0IG5l
+dF9icmlkZ2UgKmJyLCBzdHJ1Y3QgbmV0X2JyaWRnZV9wb3J0ICpwb3J0LA0KPiAgCQkJcmV0dXJu
+IGVycjsNCj4gIAl9DQo+ICANCj4gKwlpZiAoZW50cnktPnN0YXRlICE9IE1EQl9QRVJNQU5FTlQg
+JiYgYnJfZ3JvdXBfaXNfbDIoJm1wLT5hZGRyKSkgew0KPiArCQlOTF9TRVRfRVJSX01TR19NT0Qo
+ZXh0YWNrLCAiT25seSBwZXJtYW5lbnQgTDIgZW50cmllcyBhbGxvd2VkIik7DQo+ICsJCXJldHVy
+biAtRUlOVkFMOw0KPiArCX0NCj4gKw0KDQpTb3JyeSwgYnV0IEkgZGlkbid0IG5vdGljZSB0aGlz
+IGVhcmxpZXIuIFdlIG5lZWQgdG8gY2hlY2sgZm9yIHRoaXMgZXJyb3IgYmVmb3JlDQpjcmVhdGlu
+ZyB0aGUgbWRiIGdyb3VwIG90aGVyd2lzZSB3ZSBjYW4gZW5kIHVwIHdpdGggZW1wdHkgZ3JvdXBz
+IHRoYXQgY2FuJ3QgYmUNCmRlbGV0ZWQgZHVlIHRvIGVycm9ycy4gSS5lLiBpdCBtdXN0IGJlIGJl
+Zm9yZSB0aGUgYnJfbXVsdGljYXN0X25ld19ncm91cCgpIGNhbGwuDQoNClRoZSByZXN0IGxvb2tz
+IGdvb2QgdG8gbWUsIHRoYW5rcyENCg0KPiAgCS8qIGhvc3Qgam9pbiAqLw0KPiAgCWlmICghcG9y
+dCkgew0KPiAgCQlpZiAobXAtPmhvc3Rfam9pbmVkKSB7DQo+IGRpZmYgLS1naXQgYS9uZXQvYnJp
+ZGdlL2JyX211bHRpY2FzdC5jIGIvbmV0L2JyaWRnZS9icl9tdWx0aWNhc3QuYw0KPiBpbmRleCBl
+YWU4OThjM2NmZjcuLjk4ZGUwYWNiMDMwNyAxMDA2NDQNCj4gLS0tIGEvbmV0L2JyaWRnZS9icl9t
+dWx0aWNhc3QuYw0KPiArKysgYi9uZXQvYnJpZGdlL2JyX211bHRpY2FzdC5jDQo+IEBAIC0xNzks
+NyArMTc5LDggQEAgc3RydWN0IG5ldF9icmlkZ2VfbWRiX2VudHJ5ICpicl9tZGJfZ2V0KHN0cnVj
+dCBuZXRfYnJpZGdlICpiciwNCg0K
