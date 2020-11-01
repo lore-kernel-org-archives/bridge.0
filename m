@@ -1,21 +1,16 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604105967;
- bh=cVlkYBQn4AVUKpo9IrkEihc7Z9GmAo1XSN3I3NkOHfU=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=W/hL/Fpon9IaclV9nSVJhHw0iiobWpti0PMBQihqHSX3+X7/iD2bkD3UGNzyQ2A93
- NFLbxqRMAW87SHo6rR1eMtEaHHvsXeUB3c0fNXpFZQh6lLeeXXOwr/zTCqBYOjOT1z
- BWHoWIbbT5XzigepQJ2RRgCQ3dBgWVnTvqZbryV0=
-Date: Fri, 30 Oct 2020 17:59:26 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201030175926.5e30a1e6@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <20201028234815.613226-1-vladimir.oltean@nxp.com>
-References: <20201028234815.613226-1-vladimir.oltean@nxp.com>
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Dl7XzK3Eivke6MpoUHcV1M5dV+lmRkhJvQM3A0MzpJY=;
+ b=QqLKKRsVZnyn6F4utnUErUlsZLrYSzJw85tqdFzeYy7aS0g7sgByKiFki3R0JnaRFDP37qUhicxmAuiPqXlh+E9Hs7Hg1wD/xVTZPQSe+Ed+srsGdlVgPYDsnbLu16hZdZZpwfqV5Lcpoc6FZ0LBJhAc763oeGHfW9g8rAbxQbA=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Sun,  1 Nov 2020 02:08:45 +0200
+Message-Id: <20201101000845.190009-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: explicitly convert
- between mdb entry state and port group flags
+Subject: [Bridge] [PATCH net-next] net: bridge: mcast: fix stub definition
+	of br_multicast_querier_exists
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,18 +19,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: kernel test robot <lkp@intel.com>
 
-On Thu, 29 Oct 2020 01:48:15 +0200 Vladimir Oltean wrote:
-> When creating a new multicast port group, there is implicit conversion
-> between the __u8 state member of struct br_mdb_entry and the unsigned
-> char flags member of struct net_bridge_port_group. This implicit
-> conversion relies on the fact that MDB_PERMANENT is equal to
-> MDB_PG_FLAGS_PERMANENT.
-> 
-> Let's be more explicit and convert the state to flags manually.
-> 
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+The commit cited below has changed only the functional prototype of
+br_multicast_querier_exists, but forgot to do that for the stub
+prototype (the one where CONFIG_BRIDGE_IGMP_SNOOPING is disabled).
 
-Applied, thanks!
+Fixes: 955062b03fa6 ("net: bridge: mcast: add support for raw L2 multicast groups")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/bridge/br_private.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 4c691c371884..891f3b05ffa4 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1013,7 +1013,8 @@ static inline bool br_multicast_is_router(struct net_bridge *br)
+ }
+ 
+ static inline bool br_multicast_querier_exists(struct net_bridge *br,
+-					       struct ethhdr *eth)
++					       struct ethhdr *eth,
++					       const struct net_bridge_mdb_entry *mdb)
+ {
+ 	return false;
+ }
+-- 
+2.25.1
+
