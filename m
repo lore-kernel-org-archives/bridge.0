@@ -1,24 +1,20 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=gJvu8f2jgbnJqs1NY6YsP4oxwkKYOvAd3eazDvKS0GI=;
- b=g+69WtLfjhgsl+7v0a3curceaiZQaK+hNEG0UuCK88gnmq2yKLMI9heFnt7ZKzGER2
- Krxonchdb+j3nEXNS0BRqY2EaTllTf7rOwW+4up+hQ8B+OGtVmmoRnvw7HVjgY2Nkjgv
- magldk+KL2ncKXmYUK7YkFEYKcdfWrYzRjvAtYiqoDSjgKO/I3fMhfWecpefFk9yt6IL
- ixzvd6YWlVHWH4oEVmQ0iWY6oxqc3i45CSp72DJ/Q+gUmAl6VCJECo6z1WdpOMWtMzTF
- lPIazRPIzkQtePTpdEnEE9kdGG7axZtUHDsCaShXU9Q+5EWXLwsKnf3jEeXc2uRxwj+X
- xDHA==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue,  3 Nov 2020 19:24:12 +0200
-Message-Id: <20201103172412.1044840-17-razor@blackwall.org>
-In-Reply-To: <20201103172412.1044840-1-razor@blackwall.org>
-References: <20201103172412.1044840-1-razor@blackwall.org>
+Return-Path: <menglong8.dong@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=2sn9IlsAf/o9PWSnZUDacWvGJDMDAyE7jKOu80Z9/XQ=;
+ b=NQ/gal9zzj2UqO3cAXsmHskedL493eGjFym6fPXH9qBstkQNuhYGfz/cumaLHhEwy5
+ Q0lRD9kCA7ftBWsukFlgcPDc+FqT8IMRZSZO1/5f0lcStW8e8U+Y3l7EGiSzns7Aej0k
+ IEz3QV61BRuLkPW+698vYxNtt3okkp/W2imR6Cjkr0flzsQg7WmhohibsRE5ebqGx2/2
+ swHHF4uixV6q2Qu2iJSDAhp+Ucnskdcl/SFc9cmiPnNb6hdHPf74yxNcWgTllh+Q2In/
+ njKUbFGis5ARnc2axQpcS1TyWxxZ7fZf/etN+/m1URj5yE54tbrL1S3OGxjZcPivRPST
+ qGkA==
+From: Menglong Dong <menglong8.dong@gmail.com>
+Date: Mon,  2 Nov 2020 22:38:28 +0800
+Message-Id: <20201102143828.5286-1-menglong8.dong@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 16/16] selftests: net: bridge: add test
-	for mldv2 *, g auto-add
+Subject: [Bridge] [PATCH] net: bridge: disable multicast while delete bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,69 +23,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: kuba@kernel.org, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
+To: roopa@nvidia.com
+Cc: Menglong Dong <dong.menglong@zte.com.cn>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
-When we have *,G ports in exclude mode and a new S,G,port is added
-the kernel has to automatically create an S,G entry for each exclude
-port to get proper forwarding.
+This commit seems make no sense, as bridge is destroyed when
+br_multicast_dev_del is called.
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+In commit b1b9d366028f
+("bridge: move bridge multicast cleanup to ndo_uninit"), Xin Long
+fixed the use-after-free panic in br_multicast_group_expired by
+moving br_multicast_dev_del to ndo_uninit. However, that patch is
+not applied to 4.4.X, and the bug exists.
+
+Fix that bug by disabling multicast in br_multicast_dev_del for
+4.4.X, and there is no harm for other branches.
+
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
 ---
- .../selftests/net/forwarding/bridge_mld.sh    | 31 ++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ net/bridge/br_multicast.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/bridge_mld.sh b/tools/testing/selftests/net/forwarding/bridge_mld.sh
-index b34cf4c6ceba..ffdcfa87ca2b 100755
---- a/tools/testing/selftests/net/forwarding/bridge_mld.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_mld.sh
-@@ -4,7 +4,7 @@
- ALL_TESTS="mldv2include_test mldv2inc_allow_test mldv2inc_is_include_test mldv2inc_is_exclude_test \
- 	   mldv2inc_to_exclude_test mldv2exc_allow_test mldv2exc_is_include_test \
- 	   mldv2exc_is_exclude_test mldv2exc_to_exclude_test mldv2inc_block_test \
--	   mldv2exc_block_test mldv2exc_timeout_test"
-+	   mldv2exc_block_test mldv2exc_timeout_test mldv2star_ex_auto_add_test"
- NUM_NETIFS=4
- CHECK_TC="yes"
- TEST_GROUP="ff02::cc"
-@@ -519,6 +519,35 @@ mldv2exc_timeout_test()
- 	mldv2cleanup $swp1
- }
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index eae898c3cff7..9992fdff2951 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -3369,6 +3369,7 @@ void br_multicast_dev_del(struct net_bridge *br)
+ 	hlist_for_each_entry_safe(mp, tmp, &br->mdb_list, mdb_node)
+ 		br_multicast_del_mdb_entry(mp);
+ 	hlist_move_list(&br->mcast_gc_list, &deleted_head);
++	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
+ 	spin_unlock_bh(&br->multicast_lock);
  
-+mldv2star_ex_auto_add_test()
-+{
-+	RET=0
-+
-+	mldv2exclude_prepare $h1
-+
-+	$MZ $h2 -c 1 $MZPKT_IS_INC -q
-+	sleep 1
-+	bridge -j -d -s mdb show dev br0 \
-+		| jq -e ".[].mdb[] | \
-+			 select(.grp == \"$TEST_GROUP\" and .src == \"2001:db8:1::3\" and \
-+				.port == \"$swp1\")" &>/dev/null
-+	check_err $? "S,G entry for *,G port doesn't exist"
-+
-+	bridge -j -d -s mdb show dev br0 \
-+		| jq -e ".[].mdb[] | \
-+			 select(.grp == \"$TEST_GROUP\" and .src == \"2001:db8:1::3\" and \
-+				.port == \"$swp1\" and \
-+				.flags[] == \"added_by_star_ex\")" &>/dev/null
-+	check_err $? "Auto-added S,G entry doesn't have added_by_star_ex flag"
-+
-+	brmcast_check_sg_fwding 1 2001:db8:1::3
-+
-+	log_test "MLDv2 S,G port entry automatic add to a *,G port"
-+
-+	mldv2cleanup $swp1
-+	mldv2cleanup $swp2
-+}
-+
- trap cleanup EXIT
- 
- setup_prepare
+ 	br_multicast_gc(&deleted_head);
 -- 
-2.25.4
+2.25.1
 
