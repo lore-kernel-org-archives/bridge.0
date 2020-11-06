@@ -1,21 +1,25 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604537917;
- bh=OvKVeunpCGu7hkS0Lk0dXb/miDXw7CVsk1xe7Gi6Qiw=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=SjK+bbDxrfWtLRGXpSlGTTFnkBRgQDjTO0H7YSr7f3VKI2D0Y5vEreIHsUM9haPap
- yFIorjlP3NsAwMbEh+2BLIA4MiGS9O5rRLSnC1GbFmslkuODVNZGP/eSswlXjpPUub
- n2/C3ZYUt9KpjBgdlBwa0RTPIVW2wDtRfO4kvqmg=
-Date: Wed, 4 Nov 2020 16:58:36 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201104165836.4f0f721d@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201103172412.1044840-1-razor@blackwall.org>
-References: <20201103172412.1044840-1-razor@blackwall.org>
+Return-Path: <dsahern@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=wFLtKUwT5ZvmDcv5zrEJNSopht3kHGBwLH6MG+aoAb8=;
+ b=Vg5nKxDZu895ttIHrDM477LtUq2tTMuNvYBCp/tR8Xl2m2lIeak6kqji6iOpxtSjmb
+ KU+29HSyzpytGLDR2uJVWBSnhoeLDlYTUaoiNnRn5xm2PN0uP6DqN0ixhKt2vtzFjyeE
+ 8XW7IDHpaKvXbEt701jGTvOdmPV9XPpkcXO9Mf8rqKlDB9/mVgff8oK17QXddT80Zm0Z
+ PAqj8LqYsRNzh+iJ1Go36LS+ou5dbAtAqEx+jwIwA+QvuEtVpXL5Yo5uv/99RUZ/Skgd
+ vo+s9Jk8zg+VJOEToB4bUnjRjt9v2kedXGY0n8hSQnHegamgwRMZY4O5FgzvN6TqatV0
+ 8tkQ==
+References: <20201029222828.2149980-1-olteanv@gmail.com>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <2f127ed7-a816-bb13-0be2-68b19eef78fb@gmail.com>
+Date: Fri, 6 Nov 2020 09:40:12 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20201029222828.2149980-1-olteanv@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 00/16] selftests: net: bridge: add
- tests for MLDv2
+Subject: Re: [Bridge] [PATCH v2 iproute2-next] bridge: add support for L2
+ multicast groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,35 +28,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
+To: Vladimir Oltean <olteanv@gmail.com>, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, idosch@idosch.org, jiri@mellanox.com, vivien.didelot@gmail.com
 
-On Tue,  3 Nov 2020 19:23:56 +0200 Nikolay Aleksandrov wrote:
-> This is the second selftests patch-set for the new multicast functionality
-> which adds tests for the bridge's MLDv2 support. The tests use full
-> precooked packets which are sent via mausezahn and the resulting state
-> after each test is checked for proper X,Y sets, (*,G) source list, source
-> list entry timers, (S,G) existence and flags, packet forwarding and
-> blocking, exclude group expiration and (*,G) auto-add. The first 3 patches
-> factor out common functions which are used by IGMPv3 tests in lib.sh and
-> add support for IPv6 test UDP packet, then patch 4 adds the first test with
-> the initial MLDv2 setup.
-> The following new tests are added:
->  - base case: MLDv2 report ff02::cc is_include
->  - include -> allow report
->  - include -> is_include report
->  - include -> is_exclude report
->  - include -> to_exclude report
->  - exclude -> allow report
->  - exclude -> is_include report
->  - exclude -> is_exclude report
->  - exclude -> to_exclude report
->  - include -> block report
->  - exclude -> block report
->  - exclude timeout (move to include + entry deletion)
->  - S,G port entry automatic add to a *,G,exclude port
-> 
-> The variable names and set notation are the same as per RFC 3810,
-> for more information check RFC 3810 sections 2.3 and 7.
+On 10/29/20 4:28 PM, Vladimir Oltean wrote:
+> @@ -168,9 +176,14 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
+>  	print_string(PRINT_ANY, "port", " port %s",
+>  		     ll_index_to_name(e->ifindex));
+>  
+> +	if (af == AF_INET || af == AF_INET6)
+> +		addr = inet_ntop(af, grp, abuf, sizeof(abuf));
+> +	else
+> +		addr = ll_addr_n2a(grp, ETH_ALEN, 0, abuf, sizeof(abuf));
+> +
 
-Applied, thank you!
+The above can be replaced with a single call to rt_addr_n2a_r.
+
+>  	print_color_string(PRINT_ANY, ifa_family_color(af),
+> -			    "grp", " grp %s",
+> -			    inet_ntop(af, grp, abuf, sizeof(abuf)));
+> +			    "grp", " grp %s", addr);
+> +
+>  	if (tb && tb[MDBA_MDB_EATTR_SOURCE]) {
+>  		src = (const void *)RTA_DATA(tb[MDBA_MDB_EATTR_SOURCE]);
+>  		print_color_string(PRINT_ANY, ifa_family_color(af),
+
+I think the rest is ok.
