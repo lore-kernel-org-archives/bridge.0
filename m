@@ -1,19 +1,19 @@
 Return-Path: <arnd@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604701097;
- bh=ejrB3sfP8Vhn5+VAUXi+L6LpDodKnVmFjv0rU9L8csY=;
+ s=default; t=1604701100;
+ bh=dgbf9vMJhf45lAdZILBXIwZQ1xaRMCOPTURp9X2yDDE=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=o/hvgIT92Bk0M83Xab3GbNkl+xpVG4NHaBN01+8U6H+Er1kiG4YsX3i4m4ZP00e2y
- 2mkHLMu1fUhv43aUCI7R9In7ltd2PSh6WT6PJ7Fex8Xg8/YNd0P6InD5wUyOKpnuDY
- Utxsq02pbsuZJdJjZeYJsUConVTbwpD/SQvJysOI=
+ b=iyQOyLpk77BiXIfUbf/MZngHQV2t7HAqDoucsEDONs2ivJnNsBHZLhh8GVl2Ce9t+
+ hYgqArAgeX54SUCfK9szto3dnRNCXcFI0X1WboLlOEJbM/wVz4MzbZcUhvqnPk2Rw7
+ a8PrKC9y8FFaZyy2QZd/g7jol6rC+v4GQkH/T5Pg=
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Fri,  6 Nov 2020 23:17:23 +0100
-Message-Id: <20201106221743.3271965-9-arnd@kernel.org>
+Date: Fri,  6 Nov 2020 23:17:24 +0100
+Message-Id: <20201106221743.3271965-10-arnd@kernel.org>
 In-Reply-To: <20201106221743.3271965-1-arnd@kernel.org>
 References: <20201106221743.3271965-1-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC net-next 08/28] tulip: use ndo_siocdevprivate
+Subject: [Bridge] [RFC net-next 09/28] bonding: use siocdevprivate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,64 +27,99 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, bridge@lists.li
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The tulip driver has a debugging method over ioctl built-in, but it
-does not actually check the command type, which may end up leading
-to random behavior when trying to run other ioctls on it.
+The bonding driver supports two command codes for each operation: one
+in the SIOCDEVPRIVATE range and another one with the same definition
+but a unique command code.
 
-Change the driver to use ndo_siocdevprivate and limit the execution
-further to the first private command code. If anyone still has tools
-to run these debugging commands, they might have to be patched for
-it if they pass different ioctl command.
+Only the second set currently works in compat mode, as the ifr_data
+expansion overwrites part of the ifr_slave field.
 
-The function has existed in this form since the driver was merged in
-Linux-1.1.86.
+Move the private ones into ndo_siocdevprivate and change the
+implementation to call the other function.  This makes both version
+work correctly.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/net/ethernet/dec/tulip/de4x5.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_main.c | 29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index 683e328b5461..59a85f5b35fb 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -902,7 +902,7 @@ static int     de4x5_close(struct net_device *dev);
- static struct  net_device_stats *de4x5_get_stats(struct net_device *dev);
- static void    de4x5_local_stats(struct net_device *dev, char *buf, int pkt_len);
- static void    set_multicast_list(struct net_device *dev);
--static int     de4x5_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
-+static int     de4x5_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 84ecbc6fa0ff..5a2956fec025 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3781,7 +3781,6 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
+ 		}
  
- /*
- ** Private functions
-@@ -1084,7 +1084,7 @@ static const struct net_device_ops de4x5_netdev_ops = {
-     .ndo_start_xmit	= de4x5_queue_pkt,
-     .ndo_get_stats	= de4x5_get_stats,
-     .ndo_set_rx_mode	= set_multicast_list,
--    .ndo_do_ioctl	= de4x5_ioctl,
-+    .ndo_siocdevprivate	= de4x5_siocdevprivate,
-     .ndo_set_mac_address= eth_mac_addr,
-     .ndo_validate_addr	= eth_validate_addr,
- };
-@@ -5357,7 +5357,7 @@ de4x5_dbg_rx(struct sk_buff *skb, int len)
- ** this function is only used for my testing.
- */
- static int
--de4x5_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+de4x5_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
- {
-     struct de4x5_private *lp = netdev_priv(dev);
-     struct de4x5_ioctl *ioc = (struct de4x5_ioctl *) &rq->ifr_ifru;
-@@ -5371,6 +5371,9 @@ de4x5_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-     } tmp;
-     u_long flags = 0;
+ 		return 0;
+-	case BOND_INFO_QUERY_OLD:
+ 	case SIOCBONDINFOQUERY:
+ 		u_binfo = (struct ifbond __user *)ifr->ifr_data;
  
-+    if (cmd != SIOCDEVPRIVATE || in_compat_syscall())
-+	    return -EOPNOTSUPP;
+@@ -3793,7 +3792,6 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
+ 			return -EFAULT;
+ 
+ 		return 0;
+-	case BOND_SLAVE_INFO_QUERY_OLD:
+ 	case SIOCBONDSLAVEINFOQUERY:
+ 		u_sinfo = (struct ifslave __user *)ifr->ifr_data;
+ 
+@@ -3823,19 +3821,15 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
+ 		return -ENODEV;
+ 
+ 	switch (cmd) {
+-	case BOND_ENSLAVE_OLD:
+ 	case SIOCBONDENSLAVE:
+ 		res = bond_enslave(bond_dev, slave_dev, NULL);
+ 		break;
+-	case BOND_RELEASE_OLD:
+ 	case SIOCBONDRELEASE:
+ 		res = bond_release(bond_dev, slave_dev);
+ 		break;
+-	case BOND_SETHWADDR_OLD:
+ 	case SIOCBONDSETHWADDR:
+ 		res = bond_set_dev_addr(bond_dev, slave_dev);
+ 		break;
+-	case BOND_CHANGE_ACTIVE_OLD:
+ 	case SIOCBONDCHANGEACTIVE:
+ 		bond_opt_initstr(&newval, slave_dev->name);
+ 		res = __bond_opt_set_notify(bond, BOND_OPT_ACTIVE_SLAVE,
+@@ -3848,6 +3842,28 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
+ 	return res;
+ }
+ 
++static int bond_siocdevprivate(struct net_device *bond_dev, struct ifreq *ifr,
++			       void __user *data, int cmd)
++{
++	struct ifreq ifrdata = { .ifr_data = data };
++	switch (cmd) {
++	case BOND_INFO_QUERY_OLD:
++		return bond_do_ioctl(bond_dev, &ifrdata, SIOCBONDINFOQUERY);
++	case BOND_SLAVE_INFO_QUERY_OLD:
++		return bond_do_ioctl(bond_dev, &ifrdata, SIOCBONDSLAVEINFOQUERY);
++	case BOND_ENSLAVE_OLD:
++		return bond_do_ioctl(bond_dev, ifr, SIOCBONDENSLAVE);
++	case BOND_RELEASE_OLD:
++		return bond_do_ioctl(bond_dev, ifr, SIOCBONDRELEASE);
++	case BOND_SETHWADDR_OLD:
++		return bond_do_ioctl(bond_dev, ifr, SIOCBONDSETHWADDR);
++	case BOND_CHANGE_ACTIVE_OLD:
++		return bond_do_ioctl(bond_dev, ifr, SIOCBONDCHANGEACTIVE);
++	}
 +
-     switch(ioc->cmd) {
-     case DE4X5_GET_HWADDR:           /* Get the hardware address */
- 	ioc->len = ETH_ALEN;
++	return -EOPNOTSUPP;
++}
++
+ static void bond_change_rx_flags(struct net_device *bond_dev, int change)
+ {
+ 	struct bonding *bond = netdev_priv(bond_dev);
+@@ -4642,6 +4658,7 @@ static const struct net_device_ops bond_netdev_ops = {
+ 	.ndo_select_queue	= bond_select_queue,
+ 	.ndo_get_stats64	= bond_get_stats,
+ 	.ndo_do_ioctl		= bond_do_ioctl,
++	.ndo_siocdevprivate	= bond_siocdevprivate,
+ 	.ndo_change_rx_flags	= bond_change_rx_flags,
+ 	.ndo_set_rx_mode	= bond_set_rx_mode,
+ 	.ndo_change_mtu		= bond_change_mtu,
 -- 
 2.27.0
 
