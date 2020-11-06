@@ -1,19 +1,19 @@
 Return-Path: <arnd@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604701123;
- bh=ThvhNKOFOFHaosgCVt+39Sx4lXYGht1uFMD73kyaQRw=;
+ s=default; t=1604701125;
+ bh=quYL6FmY9NRqROBT7gD89RdIR4mWBVj5mvB8k4ghwsg=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=tOpWDXH+Q4KDyV6w6IsyuUCJZc32wNUWOBB5dV0/RF2bumxz7FCAS61KdEn3vv6c9
- uTdaPXXMZpVpamKG8qDdM5nAn3bsGbuv50ORc0NJX0ZBSyFEJIvWwimdvvzp2nH/UO
- hOQyMJXMJzIiQm7Pnckg1zl6/nSOujSrtWGsXAdA=
+ b=uVkT2rV+ZZT8ggUQJXoUIn5wGJbOSDXoR0riPdF5VpQNgUs0rm8nAK2xhnjcj2+Jh
+ 89cGeNC9su/aAcdfEYlzDhyIFeeYoAwgYme3lMgV7MGsw2axEx44564aq2qTQDGbv4
+ tM3+v8w0ekwBHLWs19yiX2m9XdxkpWf7ku35ctsQ=
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Fri,  6 Nov 2020 23:17:32 +0100
-Message-Id: <20201106221743.3271965-18-arnd@kernel.org>
+Date: Fri,  6 Nov 2020 23:17:33 +0100
+Message-Id: <20201106221743.3271965-19-arnd@kernel.org>
 In-Reply-To: <20201106221743.3271965-1-arnd@kernel.org>
 References: <20201106221743.3271965-1-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC net-next 17/28] qeth: use ndo_siocdevprivate
+Subject: [Bridge] [RFC net-next 18/28] cxgb3: use ndo_siocdevprivate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,126 +27,57 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, bridge@lists.li
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-qeth has both standard MII ioctls and custom SIOCDEVPRIVATE ones,
-all of which work correctly with compat user space.
-
-Move the private ones over to the new ndo_siocdevprivate callback.
+cxgb3 has a private multiplexor that works correctly in compat
+mode, split out the siocdevprivate callback from do_ioctl for
+simplification.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/s390/net/qeth_core.h      |  2 ++
- drivers/s390/net/qeth_core_main.c | 35 ++++++++++++++++++++++---------
- drivers/s390/net/qeth_l3_main.c   |  6 +++---
- 3 files changed, 30 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index f73b4756ed5e..67da90dea919 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1118,6 +1118,8 @@ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
- 			unsigned int offset, unsigned int hd_len,
- 			int elements_needed);
- int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
-+int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq,
-+			void __user *data, int cmd);
- void qeth_dbf_longtext(debug_info_t *id, int level, char *text, ...);
- int qeth_configure_cq(struct qeth_card *, enum qeth_cq);
- int qeth_hw_trap(struct qeth_card *, enum qeth_diags_trap_action);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 93c9b30ab17a..7d785ddffcc0 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6474,21 +6474,42 @@ struct qeth_card *qeth_get_card_by_busid(char *bus_id)
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+index 84ad7261e243..c79a70d370bd 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+@@ -2135,13 +2135,18 @@ static int in_range(int val, int lo, int hi)
+ 	return val < 0 || (val <= hi && val >= lo);
  }
- EXPORT_SYMBOL_GPL(qeth_get_card_by_busid);
  
--int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
+-static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
++static int cxgb_siocdevprivate(struct net_device *dev,
++			       struct ifreq *ifreq,
++			       void __user *useraddr,
++			       int cmd)
  {
- 	struct qeth_card *card = dev->ml_priv;
--	struct mii_ioctl_data *mii_data;
- 	int rc = 0;
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+-	u32 cmd;
+ 	int ret;
  
- 	switch (cmd) {
- 	case SIOC_QETH_ADP_SET_SNMP_CONTROL:
--		rc = qeth_snmp_command(card, rq->ifr_ifru.ifru_data);
-+		rc = qeth_snmp_command(card, data);
- 		break;
- 	case SIOC_QETH_GET_CARD_TYPE:
- 		if ((IS_OSD(card) || IS_OSM(card) || IS_OSX(card)) &&
- 		    !IS_VM_NIC(card))
- 			return 1;
- 		return 0;
-+	case SIOC_QETH_QUERY_OAT:
-+		rc = qeth_query_oat_command(card, data);
-+		break;
-+	default:
-+		if (card->discipline->do_ioctl)
-+			rc = card->discipline->do_ioctl(dev, data, cmd);
-+		else
-+			rc = -EOPNOTSUPP;
-+	}
-+	if (rc)
-+		QETH_CARD_TEXT_(card, 2, "ioce%x", rc);
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(qeth_siocdevprivate);
-+
-+int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+{
-+	struct qeth_card *card = dev->ml_priv;
-+	struct mii_ioctl_data *mii_data;
-+	int rc = 0;
-+
-+	switch (cmd) {
- 	case SIOCGMIIPHY:
- 		mii_data = if_mii(rq);
- 		mii_data->phy_id = 0;
-@@ -6501,14 +6522,8 @@ int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- 			mii_data->val_out = qeth_mdio_read(dev,
- 				mii_data->phy_id, mii_data->reg_num);
- 		break;
--	case SIOC_QETH_QUERY_OAT:
--		rc = qeth_query_oat_command(card, rq->ifr_ifru.ifru_data);
--		break;
- 	default:
--		if (card->discipline->do_ioctl)
--			rc = card->discipline->do_ioctl(dev, rq, cmd);
--		else
--			rc = -EOPNOTSUPP;
++	if (cmd != SIOCCHIOCTL)
 +		return -EOPNOTSUPP;
++
+ 	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
+ 		return -EFAULT;
+ 
+@@ -2546,8 +2551,6 @@ static int cxgb_ioctl(struct net_device *dev, struct ifreq *req, int cmd)
+ 		fallthrough;
+ 	case SIOCGMIIPHY:
+ 		return mdio_mii_ioctl(&pi->phy.mdio, data, cmd);
+-	case SIOCCHIOCTL:
+-		return cxgb_extension_ioctl(dev, req->ifr_data);
+ 	default:
+ 		return -EOPNOTSUPP;
  	}
- 	if (rc)
- 		QETH_CARD_TEXT_(card, 2, "ioce%x", rc);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index b1c1d2510d55..546bebd264f2 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1532,7 +1532,7 @@ static int qeth_l3_arp_flush_cache(struct qeth_card *card)
- 	return rc;
- }
- 
--static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
- {
- 	struct qeth_card *card = dev->ml_priv;
- 	struct qeth_arp_cache_entry arp_entry;
-@@ -1552,13 +1552,13 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- 			rc = -EPERM;
- 			break;
- 		}
--		rc = qeth_l3_arp_query(card, rq->ifr_ifru.ifru_data);
-+		rc = qeth_l3_arp_query(card, data);
- 		break;
- 	case SIOC_QETH_ARP_ADD_ENTRY:
- 	case SIOC_QETH_ARP_REMOVE_ENTRY:
- 		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
--		if (copy_from_user(&arp_entry, rq->ifr_data, sizeof(arp_entry)))
-+		if (copy_from_user(&arp_entry, data, sizeof(arp_entry)))
- 			return -EFAULT;
- 
- 		arp_cmd = (cmd == SIOC_QETH_ARP_ADD_ENTRY) ?
+@@ -3181,6 +3184,7 @@ static const struct net_device_ops cxgb_netdev_ops = {
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_rx_mode	= cxgb_set_rxmode,
+ 	.ndo_do_ioctl		= cxgb_ioctl,
++	.ndo_siocdevprivate	= cxgb_siocdevprivate,
+ 	.ndo_change_mtu		= cxgb_change_mtu,
+ 	.ndo_set_mac_address	= cxgb_set_mac_addr,
+ 	.ndo_fix_features	= cxgb_fix_features,
 -- 
 2.27.0
 
