@@ -1,19 +1,19 @@
 Return-Path: <arnd@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604701148;
- bh=pEjO8MOIRZIJ7Ooiru/CipOAPrgkHN/unK+fIxgV7T0=;
+ s=default; t=1604701151;
+ bh=HjouUAoEbv0fMI8xUTp5LuywhWHtVz/DrEjJeJXaZ4I=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=dRtd5q1iL4QqZGn3xToh9+nA8yInKonADzu22FwHKwMf7SgG/l4MRxe5OVhPDXH33
- EIJJrFiBhB8Ax7YONIBF6yaX9ZLbUZTLYg5xjtv33W/Pz+jMLZzbck6NsF9OIpIH5e
- JyVaEvLkDAn7MPbmbxnyQ9w5KkXmSN8v9DvbPWvQ=
+ b=l61PuB19EoIDJZjY/OHKZxkG09zPGFkevmFhYWsFiBqosQE0ecG7xL6atVeYECwMo
+ DxMtxYUguIBvP4yLPd+c8cS0A3QN8z3HxXeTwnPuPiLb2SRN67oZltz0EcMBaHMB3K
+ iR+t+muAhkns1/PKithlvzGD6M/1YHQcLqsvxXxE=
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Fri,  6 Nov 2020 23:17:41 +0100
-Message-Id: <20201106221743.3271965-27-arnd@kernel.org>
+Date: Fri,  6 Nov 2020 23:17:42 +0100
+Message-Id: <20201106221743.3271965-28-arnd@kernel.org>
 In-Reply-To: <20201106221743.3271965-1-arnd@kernel.org>
 References: <20201106221743.3271965-1-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC net-next 26/28] sb1000: use ndo_siocdevprivate
+Subject: [Bridge] [RFC net-next 27/28] ppp: use ndo_siocdevprivate
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,98 +27,43 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, bridge@lists.li
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The private sb1000 ioctl commands all work correctly in
-compat mode. Change the to ndo_siocdevprivate as a cleanup.
+ppp has a custom statistics interface using SIOCDEVPRIVATE
+ioctl commands that works correctly in compat mode.
+
+Convert it to use ndo_siocdevprivate as a cleanup.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/net/sb1000.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ppp/ppp_generic.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/sb1000.c b/drivers/net/sb1000.c
-index e88af978f63c..9b14087be900 100644
---- a/drivers/net/sb1000.c
-+++ b/drivers/net/sb1000.c
-@@ -78,7 +78,8 @@ struct sb1000_private {
- /* prototypes for Linux interface */
- extern int sb1000_probe(struct net_device *dev);
- static int sb1000_open(struct net_device *dev);
--static int sb1000_dev_ioctl (struct net_device *dev, struct ifreq *ifr, int cmd);
-+static int sb1000_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
-+				 void __user *data, int cmd);
- static netdev_tx_t sb1000_start_xmit(struct sk_buff *skb,
- 				     struct net_device *dev);
- static irqreturn_t sb1000_interrupt(int irq, void *dev_id);
-@@ -135,7 +136,7 @@ MODULE_DEVICE_TABLE(pnp, sb1000_pnp_ids);
- static const struct net_device_ops sb1000_netdev_ops = {
- 	.ndo_open		= sb1000_open,
- 	.ndo_start_xmit		= sb1000_start_xmit,
--	.ndo_do_ioctl		= sb1000_dev_ioctl,
-+	.ndo_siocdevprivate	= sb1000_siocdevprivate,
- 	.ndo_stop		= sb1000_close,
- 	.ndo_set_mac_address 	= eth_mac_addr,
- 	.ndo_validate_addr	= eth_validate_addr,
-@@ -987,7 +988,8 @@ sb1000_open(struct net_device *dev)
- 	return 0;					/* Always succeed */
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index 7d005896a0f9..c39ba3d27283 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -1342,11 +1342,11 @@ ppp_start_xmit(struct sk_buff *skb, struct net_device *dev)
  }
  
--static int sb1000_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
-+static int sb1000_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
-+				 void __user *data, int cmd)
+ static int
+-ppp_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
++ppp_net_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
++		       void __user *addr, int cmd)
  {
- 	char* name;
- 	unsigned char version[2];
-@@ -1011,7 +1013,7 @@ static int sb1000_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- 		stats[2] = dev->stats.rx_packets;
- 		stats[3] = dev->stats.rx_errors;
- 		stats[4] = dev->stats.rx_dropped;
--		if(copy_to_user(ifr->ifr_data, stats, sizeof(stats)))
-+		if(copy_to_user(data, stats, sizeof(stats)))
- 			return -EFAULT;
- 		status = 0;
- 		break;
-@@ -1019,21 +1021,21 @@ static int sb1000_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- 	case SIOCGCMFIRMWARE:		/* get firmware version */
- 		if ((status = sb1000_get_firmware_version(ioaddr, name, version, 1)))
- 			return status;
--		if(copy_to_user(ifr->ifr_data, version, sizeof(version)))
-+		if(copy_to_user(data, version, sizeof(version)))
- 			return -EFAULT;
- 		break;
+ 	struct ppp *ppp = netdev_priv(dev);
+ 	int err = -EFAULT;
+-	void __user *addr = (void __user *) ifr->ifr_ifru.ifru_data;
+ 	struct ppp_stats stats;
+ 	struct ppp_comp_stats cstats;
+ 	char *vers;
+@@ -1454,7 +1454,7 @@ static const struct net_device_ops ppp_netdev_ops = {
+ 	.ndo_init	 = ppp_dev_init,
+ 	.ndo_uninit      = ppp_dev_uninit,
+ 	.ndo_start_xmit  = ppp_start_xmit,
+-	.ndo_do_ioctl    = ppp_net_ioctl,
++	.ndo_siocdevprivate = ppp_net_siocdevprivate,
+ 	.ndo_get_stats64 = ppp_get_stats64,
+ };
  
- 	case SIOCGCMFREQUENCY:		/* get frequency */
- 		if ((status = sb1000_get_frequency(ioaddr, name, &frequency)))
- 			return status;
--		if(put_user(frequency, (int __user *) ifr->ifr_data))
-+		if(put_user(frequency, (int __user *) data))
- 			return -EFAULT;
- 		break;
- 
- 	case SIOCSCMFREQUENCY:		/* set frequency */
- 		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
--		if(get_user(frequency, (int __user *) ifr->ifr_data))
-+		if(get_user(frequency, (int __user *) data))
- 			return -EFAULT;
- 		if ((status = sb1000_set_frequency(ioaddr, name, frequency)))
- 			return status;
-@@ -1042,14 +1044,14 @@ static int sb1000_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- 	case SIOCGCMPIDS:			/* get PIDs */
- 		if ((status = sb1000_get_PIDs(ioaddr, name, PID)))
- 			return status;
--		if(copy_to_user(ifr->ifr_data, PID, sizeof(PID)))
-+		if(copy_to_user(data, PID, sizeof(PID)))
- 			return -EFAULT;
- 		break;
- 
- 	case SIOCSCMPIDS:			/* set PIDs */
- 		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
--		if(copy_from_user(PID, ifr->ifr_data, sizeof(PID)))
-+		if(copy_from_user(PID, data, sizeof(PID)))
- 			return -EFAULT;
- 		if ((status = sb1000_set_PIDs(ioaddr, name, PID)))
- 			return status;
 -- 
 2.27.0
 
