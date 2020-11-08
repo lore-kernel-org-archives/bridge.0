@@ -1,20 +1,20 @@
 Return-Path: <arnd@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604701154;
- bh=OjKky2mcuT3PPhvnL2N1n9WJjuGKW1fEUioqpsDSDNw=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=piTqh36/Ayd8rKuc3zcxxLUXwu8coawnGzadmDxmNVwyht5LsFJxbKKpvbei6ZwB5
- i4Xivr2LHHwHyaH25bXiALK3Cu/8c5VDnYA8drwte5C9rzrbOpBOhdg19zecSP7Ss6
- iishXpi6LYmi5ZVVAqz5r5CZz+uIbP+0EafwU9MI=
-From: Arnd Bergmann <arnd@kernel.org>
-Date: Fri,  6 Nov 2020 23:17:43 +0100
-Message-Id: <20201106221743.3271965-29-arnd@kernel.org>
-In-Reply-To: <20201106221743.3271965-1-arnd@kernel.org>
-References: <20201106221743.3271965-1-arnd@kernel.org>
+ s=default; t=1604824049;
+ bh=T9rK7jzM4Uo8lISDVLvutAoFUbM+bhC60Dfzze4KpJ0=;
+ h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+ b=HjG6ii8k7TFQjX7JNqHv2lOviskc+54D1iF0wnjynFrjUOv74BY09q9iKn9AiZ298
+ OVL3Hn7g6gEiqpY3r32Y3Tf/SG+Z/yEIilaYUVAqwNSzoK28HX/cx5Yl23vSoreGLF
+ ix9qGQ+vvFIMcSktEa4OIhiHn2alhbh3rIC5R02E=
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC net-next 28/28] net: socket: return changed ifreq
-	from SIOCDEVPRIVATE
+References: <20201106221743.3271965-1-arnd@kernel.org>
+ <20201107160612.2909063a@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201107160612.2909063a@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From: Arnd Bergmann <arnd@kernel.org>
+Date: Sun, 8 Nov 2020 09:27:12 +0100
+Message-ID: <CAK8P3a3ROYs1FADZw8he0sZwfuM=XCvkOpzK=GHO+URf4opeDQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [RFC net-next 00/28] ndo_ioctl rework
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,55 +23,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>, Christoph Hellwig <hch@lst.de>, Heiner Kallweit <hkallweit1@gmail.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Networking <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-hams@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>, Christoph Hellwig <hch@lst.de>, Heiner Kallweit <hkallweit1@gmail.com>
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Sun, Nov 8, 2020 at 1:06 AM Jakub Kicinski <kuba@kernel.org> wrote:
+>
+> On Fri,  6 Nov 2020 23:17:15 +0100 Arnd Bergmann wrote:
+> > Any suggestions on how to proceed? I think the ndo_siocdevprivate
+> > change is the most interesting here, and I would like to get
+> > that merged.
+>
+> Splitting out / eliminating ioctl pass-thry in general seems like
+> a nice clean up. How did you get the ndo_eth_ioctl patch done, was
+> it manual work?
 
-Some drivers that use SIOCDEVPRIVATE ioctl commands modify
-the ifreq structure and expect it to be passed back to user
-space, which has never really happened for compat mode
-because the calling these drivers through ndo_do_ioctl
-requires overwriting the ifr_data pointer.
+I had done a fairly detailed manual search through all drivers
+with a .ndo_do_ioctl function to find the SIOCDEVPRIVATE users,
+based on a simple shell script. After I had converted all of those,
+I realized that 80% of the remaining ndo_do_ioctl users were
+in drivers/net/ethernet, implementing the same five commands,
+so I did a 'git grep -wl ndo_do_ioctl drivers/net/ethernet/ |
+sed -i "s:ndo_do_ioctl:ndo_eth_ioctl"' and converted the rest
+by hand.
 
-Now that all drivers are converted to ndo_siocdevprivate,
-change it to handle this correctly in both compat and
-native mode.
+FWIW, this is what remains afterwards:
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- net/core/dev_ioctl.c | 4 +---
- net/socket.c         | 2 +-
- 2 files changed, 2 insertions(+), 4 deletions(-)
+$ git grep -w ndo_do_ioctl
+Documentation/networking/netdevices.rst:ndo_do_ioctl:
+drivers/char/pcmcia/synclink_cs.c:      .ndo_do_ioctl   = hdlcdev_ioctl,
+drivers/net/appletalk/cops.c:        .ndo_do_ioctl           = cops_ioctl,
+drivers/net/appletalk/ltpc.c:   .ndo_do_ioctl           = ltpc_ioctl,
+drivers/net/bonding/bond_main.c:        .ndo_do_ioctl           = bond_do_ioctl,
+drivers/net/wan/c101.c: .ndo_do_ioctl   = c101_ioctl,
+drivers/net/wan/cosa.c: .ndo_do_ioctl   = cosa_net_ioctl,
+drivers/net/wan/farsync.c:      .ndo_do_ioctl   = fst_ioctl,
+drivers/net/wan/fsl_ucc_hdlc.c: .ndo_do_ioctl   = uhdlc_ioctl,
+drivers/net/wan/hdlc_fr.c:      .ndo_do_ioctl   = pvc_ioctl,
+drivers/net/wan/hostess_sv11.c: .ndo_do_ioctl   = hostess_ioctl,
+drivers/net/wan/ixp4xx_hss.c:   .ndo_do_ioctl   = hss_hdlc_ioctl,
+drivers/net/wan/lmc/lmc_main.c: .ndo_do_ioctl   = lmc_ioctl,
+drivers/net/wan/n2.c:   .ndo_do_ioctl   = n2_ioctl,
+drivers/net/wan/pc300too.c:     .ndo_do_ioctl   = pc300_ioctl,
+drivers/net/wan/pci200syn.c:    .ndo_do_ioctl   = pci200_ioctl,
+drivers/net/wan/sealevel.c:     .ndo_do_ioctl   = sealevel_ioctl,
+drivers/net/wan/wanxl.c:        .ndo_do_ioctl   = wanxl_ioctl,
+drivers/tty/synclink.c: .ndo_do_ioctl   = hdlcdev_ioctl,
+drivers/tty/synclink_gt.c:      .ndo_do_ioctl   = hdlcdev_ioctl,
+drivers/tty/synclinkmp.c:       .ndo_do_ioctl   = hdlcdev_ioctl,
+include/linux/netdevice.h: * int (*ndo_do_ioctl)(struct net_device
+*dev, struct ifreq *ifr, int cmd);
+include/linux/netdevice.h:      int
+(*ndo_do_ioctl)(struct net_device *dev,
+net/appletalk/aarp.c:   if (!(ops->ndo_do_ioctl(iface->dev, &atreq,
+SIOCSIFADDR))) {
+net/appletalk/aarp.c:           ops->ndo_do_ioctl(iface->dev, &atreq,
+SIOCGIFADDR);
+net/bridge/br_device.c: .ndo_do_ioctl            = br_dev_ioctl,
+net/core/dev_ioctl.c:   if (ops->ndo_do_ioctl) {
+net/core/dev_ioctl.c:                   return ops->ndo_do_ioctl(dev, ifr, cmd);
+net/ieee802154/socket.c:        if (dev->type == ARPHRD_IEEE802154 &&
+dev->netdev_ops->ndo_do_ioctl)
+net/ieee802154/socket.c:                ret =
+dev->netdev_ops->ndo_do_ioctl(dev, &ifr, cmd);
+net/mac802154/iface.c:  .ndo_do_ioctl           = mac802154_wpan_ioctl,
 
-diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
-index 99efe8e2e0ce..0c058c3dc89a 100644
---- a/net/core/dev_ioctl.c
-+++ b/net/core/dev_ioctl.c
-@@ -296,9 +296,7 @@ static int dev_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
- 			return -ENODEV;
- 	}
- 
--	/* fall back to do_ioctl for drivers not yet converted */
--	ifr->ifr_data = data;
--	return dev_do_ioctl(dev, ifr, cmd);
-+	return -EOPNOTSUPP;
- }
- 
- /*
-diff --git a/net/socket.c b/net/socket.c
-index 1e077182d0fd..6edf3f4d9dca 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -3206,7 +3206,7 @@ static int compat_sock_ioctl_trans(struct file *file, struct socket *sock,
- 	struct net *net = sock_net(sk);
- 
- 	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15))
--		return compat_ifr_data_ioctl(net, cmd, argp);
-+		return sock_ioctl(file, cmd, (unsigned long)argp);
- 
- 	switch (cmd) {
- 	case SIOCSIFBR:
--- 
-2.27.0
+> > For the wireless drivers, removing the old drivers
+> > instead of just the dead code might be an alternative, depending
+> > on whether anyone thinks there might still be users.
+>
+> Dunno if you want to dig into removal with a series like this,
+> anything using ioctls will be pretty old (with the exception
+> of what you separated into ndo_eth_ioctl). You may get bogged
+> down.
 
+Ok
+
+      Arnd
