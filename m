@@ -1,26 +1,30 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1606134694; x=1637670694;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=OLdDCWuWqpqn05lwFSC/SLaom41YK6TRggAoCaO8jHE=;
- b=J4s6z1RxZu/QoKnwPuDlrtQCL/MMM85GTk/aVSyQGZo90hEjcmXiYtb/
- EyjLAQb1hjbOaVzLuCd73eXNHRRmCvueDiOaElHSr5jWT9st73DQ4/J4C
- AWzqFLRIuze1uKukEiVWyVjeRQq8V2Yl2l7307iTBqLYRepw+rh1kJ3fb
- 2P+hTfeocXFoej8+3UAvcZWX2Z2/HKBhjBCIk1UOuqzG9QgZ3m9ZAM6FR
- C+Mh8qjNQS5eo6s3SAT5ejotqAS4fPC0ktSqICZJeFl9pAgZ/hJ3v8Jhn
- n0C1heOqbGhDR/YbPs+/C0lcfoAtlAbEieWtuXJ0pTN80Wex9aIvQHDmh Q==;
-Date: Mon, 23 Nov 2020 13:31:32 +0100
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20201123123132.uxvec6uwuegioc25@soft-dev3.localdomain>
-References: <20201123111401.136952-1-horatiu.vultur@microchip.com>
- <5ffa6f9f-d1f3-adc7-ddb8-e8107ea78da5@nvidia.com>
+Return-Path: <gustavoars@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1606136621;
+ bh=J/TET3MqSRKQBkZDLmw3offBuTNq8xblR6VPj5c7KTQ=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=huMDpxd34lY8zl81VJt6WrkzA8VbZ3WZKfCc+01YUsnQkEm+dvBfrNL343ZTscxgS
+ 4cn7RRAIuR/6lyK6TO0qxACy3TNrSBuTodAx+s4Q2YpvApK9inZpqsbsSdtJmbV9Zx
+ YwwBYqtSxUH9kHvWkiEz2t98c4vnYVnAJ6qqQTEg=
+Date: Mon, 23 Nov 2020 07:03:48 -0600
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Message-ID: <20201123130348.GA3119@embeddedor>
+References: <cover.1605896059.git.gustavoars@kernel.org>
+ <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011201129.B13FDB3C@keescook>
+ <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011220816.8B6591A@keescook>
+ <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
+ <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
+ <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
+ <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
+ <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5ffa6f9f-d1f3-adc7-ddb8-e8107ea78da5@nvidia.com>
-Subject: Re: [Bridge] [PATCH net-next] bridge: mrp: Implement LC mode for MRP
+In-Reply-To: <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
+Subject: Re: [Bridge] [Intel-wired-lan] [PATCH 000/141] Fix fall-through
+ warnings for Clang
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,129 +33,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: alsa-devel@alsa-project.org, bridge@lists.linux-foundation.org, target-devel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-iio@vger.kernel.org, linux-wireless@vger.kernel.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org, linux-acpi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, linux-atm-general@lists.sourceforge.net, ceph-devel@vger.kernel.org, amd-gfx@lists.freedesktop.org, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, usb-storage@lists.one-eyed-alien.net, linux-mmc@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>, linux-ext4@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-sctp@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-can@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, linux-watchdog@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, linux-mm@kvack.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, samba-technical@lists.samba.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-crypto@vger.kernel.org, patches@opensource.cirrus.com, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, linux-nfs@vger.kernel.org, x86@kernel.org, linux-hardening@vger.kernel.org
 
-The 11/23/2020 14:13, Nikolay Aleksandrov wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+On Sun, Nov 22, 2020 at 11:53:55AM -0800, James Bottomley wrote:
+> On Sun, 2020-11-22 at 11:22 -0800, Joe Perches wrote:
+> > On Sun, 2020-11-22 at 11:12 -0800, James Bottomley wrote:
+> > > On Sun, 2020-11-22 at 10:25 -0800, Joe Perches wrote:
+> > > > On Sun, 2020-11-22 at 10:21 -0800, James Bottomley wrote:
+> > > > > Please tell me our reward for all this effort isn't a single
+> > > > > missing error print.
+> > > > 
+> > > > There were quite literally dozens of logical defects found
+> > > > by the fallthrough additions.  Very few were logging only.
+> > > 
+> > > So can you give us the best examples (or indeed all of them if
+> > > someone is keeping score)?  hopefully this isn't a US election
+> > > situation ...
+> > 
+> > Gustavo?  Are you running for congress now?
+> > 
+> > https://lwn.net/Articles/794944/
 > 
-> On 23/11/2020 13:14, Horatiu Vultur wrote:
-> > Extend MRP to support LC mode(link check) for the interconnect port.
-> > This applies only to the interconnect ring.
-> >
-> > Opposite to RC mode(ring check) the LC mode is using CFM frames to
-> > detect when the link goes up or down and based on that the userspace
-> > will need to react.
-> > One advantage of the LC mode over RC mode is that there will be fewer
-> > frames in the normal rings. Because RC mode generates InTest on all
-> > ports while LC mode sends CFM frame only on the interconnect port.
-> >
-> > All 4 nodes part of the interconnect ring needs to have the same mode.
-> > And it is not possible to have running LC and RC mode at the same time
-> > on a node.
-> >
-> > Whenever the MIM starts it needs to detect the status of the other 3
-> > nodes in the interconnect ring so it would send a frame called
-> > InLinkStatus, on which the clients needs to reply with their link
-> > status.
-> >
-> > This patch adds the frame header for the frame InLinkStatus and
-> > extends existing rules on how to forward this frame.
-> >
-> > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> > ---
-> >  include/uapi/linux/mrp_bridge.h |  7 +++++++
-> >  net/bridge/br_mrp.c             | 18 +++++++++++++++---
-> >  2 files changed, 22 insertions(+), 3 deletions(-)
-> >
-> 
-> Hi Horatiu,
-> The patch looks good overall, just one question below.
+> That's 21 reported fixes of which about 50% seem to produce no change
+> in code behaviour at all, a quarter seem to have no user visible effect
+> with the remaining quarter producing unexpected errors on obscure
+> configuration parameters, which is why no-one really noticed them
+> before.
 
-Hi Nik,
+The really important point here is the number of bugs this has prevented
+and will prevent in the future. See an example of this, below:
 
-Thanks for taking time to review the patch.
+https://lore.kernel.org/linux-iio/20190813135802.GB27392@kroah.com/
 
-> 
-> > diff --git a/include/uapi/linux/mrp_bridge.h b/include/uapi/linux/mrp_bridge.h
-> > index 6aeb13ef0b1e..450f6941a5a1 100644
-> > --- a/include/uapi/linux/mrp_bridge.h
-> > +++ b/include/uapi/linux/mrp_bridge.h
-> > @@ -61,6 +61,7 @@ enum br_mrp_tlv_header_type {
-> >       BR_MRP_TLV_HEADER_IN_TOPO = 0x7,
-> >       BR_MRP_TLV_HEADER_IN_LINK_DOWN = 0x8,
-> >       BR_MRP_TLV_HEADER_IN_LINK_UP = 0x9,
-> > +     BR_MRP_TLV_HEADER_IN_LINK_STATUS = 0xa,
-> >       BR_MRP_TLV_HEADER_OPTION = 0x7f,
-> >  };
-> >
-> > @@ -156,4 +157,10 @@ struct br_mrp_in_link_hdr {
-> >       __be16 interval;
-> >  };
-> >
-> > +struct br_mrp_in_link_status_hdr {
-> > +     __u8 sa[ETH_ALEN];
-> > +     __be16 port_role;
-> > +     __be16 id;
-> > +};
-> > +
-> 
-> I didn't see this struct used anywhere, am I missing anything?
+This work is still relevant, even if the total number of issues/bugs
+we find in the process is zero (which is not the case).
 
-Yes, you are right, the struct is not used any. But I put it there as I
-put the other frame types for MRP.
+"The sucky thing about doing hard work to deploy hardening is that the
+result is totally invisible by definition (things not happening) [..]"
+- Dmitry Vyukov
 
-> 
-> Cheers,
->  Nik
-> 
-> >  #endif
-> > diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-> > index bb12fbf9aaf2..cec2c4e4561d 100644
-> > --- a/net/bridge/br_mrp.c
-> > +++ b/net/bridge/br_mrp.c
-> > @@ -858,7 +858,8 @@ static bool br_mrp_in_frame(struct sk_buff *skb)
-> >       if (hdr->type == BR_MRP_TLV_HEADER_IN_TEST ||
-> >           hdr->type == BR_MRP_TLV_HEADER_IN_TOPO ||
-> >           hdr->type == BR_MRP_TLV_HEADER_IN_LINK_DOWN ||
-> > -         hdr->type == BR_MRP_TLV_HEADER_IN_LINK_UP)
-> > +         hdr->type == BR_MRP_TLV_HEADER_IN_LINK_UP ||
-> > +         hdr->type == BR_MRP_TLV_HEADER_IN_LINK_STATUS)
-> >               return true;
-> >
-> >       return false;
-> > @@ -1126,9 +1127,9 @@ static int br_mrp_rcv(struct net_bridge_port *p,
-> >                                               goto no_forward;
-> >                               }
-> >                       } else {
-> > -                             /* MIM should forward IntLinkChange and
-> > +                             /* MIM should forward IntLinkChange/Status and
-> >                                * IntTopoChange between ring ports but MIM
-> > -                              * should not forward IntLinkChange and
-> > +                              * should not forward IntLinkChange/Status and
-> >                                * IntTopoChange if the frame was received at
-> >                                * the interconnect port
-> >                                */
-> > @@ -1155,6 +1156,17 @@ static int br_mrp_rcv(struct net_bridge_port *p,
-> >                            in_type == BR_MRP_TLV_HEADER_IN_LINK_DOWN))
-> >                               goto forward;
-> >
-> > +                     /* MIC should forward IntLinkStatus frames only to
-> > +                      * interconnect port if it was received on a ring port.
-> > +                      * If it is received on interconnect port then, it
-> > +                      * should be forward on both ring ports
-> > +                      */
-> > +                     if (br_mrp_is_ring_port(p_port, s_port, p) &&
-> > +                         in_type == BR_MRP_TLV_HEADER_IN_LINK_STATUS) {
-> > +                             p_dst = NULL;
-> > +                             s_dst = NULL;
-> > +                     }
-> > +
-> >                       /* Should forward the InTopo frames only between the
-> >                        * ring ports
-> >                        */
-> >
-> 
+Thanks
+--
+Gustavo
 
--- 
-/Horatiu
+
+
+
+
