@@ -1,20 +1,23 @@
-Return-Path: <broonie@kernel.org>
+Return-Path: <kuba@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1606163949;
- bh=yRAHEf2PhY/y2Dh2MAdFhvkDqubov55OW1N5tnXfZe4=;
- h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
- b=FiLdvTxoD+lskszIoEcw+md7nnzpJ9Qwnm7S+zf9xluf6HIP4KdKJMa/iI51GOLPa
- ocIpWS0bRSQTTJ9UPSA0Pii8sDUj6STFNq6fGaeW8Th6MZvHRpJVwUjeV8ITteERK3
- KOz9alGiWxV3bdZuK85EGWI5gtevmyqI/dT1XmmI=
-Date: Mon, 23 Nov 2020 20:38:46 +0000
-From: Mark Brown <broonie@kernel.org>
-In-Reply-To: <cover.1605896059.git.gustavoars@kernel.org>
-References: <cover.1605896059.git.gustavoars@kernel.org>
-Message-Id: <160616392671.21180.16517492185091399884.b4-ty@kernel.org>
+ s=default; t=1606169120;
+ bh=WdAxvkzx3t0CR8g6BMeEUxhmD6sgdPUz0+QX03a2Fl4=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=ZVr0+wb/mr6gTAKd84U8e3HJXUPbm0tdqka1eTDALkPvs+S2Vpidd/dunKIU9jpAq
+ brm+GQgx5K9I1SBNCKACcxieD2Em+yaJZcenE2haam1+zXFIwqwaN7M5bALd8IU4si
+ Pr4oEaIOovj7yTAje9r1uYX5z4bqfet3+Z6nov+s=
+Date: Mon, 23 Nov 2020 14:05:19 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20201123140519.3bb3db16@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <13cef7c2-cacc-2c24-c0d5-e462b0e3b4df@nvidia.com>
+References: <20201123111401.136952-1-horatiu.vultur@microchip.com>
+ <5ffa6f9f-d1f3-adc7-ddb8-e8107ea78da5@nvidia.com>
+ <20201123123132.uxvec6uwuegioc25@soft-dev3.localdomain>
+ <13cef7c2-cacc-2c24-c0d5-e462b0e3b4df@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH 000/141] Fix fall-through warnings for Clang
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next] bridge: mrp: Implement LC mode for MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,43 +26,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net, usb-storage@lists.one-eyed-alien.net, Nick Desaulniers <ndesaulniers@google.com>, rnel.org@osuosl.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-sctp@vger.kernel.org, target-devel@vger.kernel.org, linux-mtd@lists.infradead.org, linux-hardening@vger.kernel.org, op-tee@lists.trustedfirmwar, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org, linux-acpi@vger.kernel.org, linux-rdma@vger.kernel.org, bridge@lists.linux-foundation.org, ceph-devel@vger.kernel.org, amd-gfx@lists.freedesktop.org, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, oss-drivers@netronome.com, linux-mmc@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, linux-media@vger.kernel.org, l@osuosl.org, Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, linux-mediatek@lists.infradead.org, samba-technical@lists.samba.org, linux-fbdev@vger.kernel.org, inux-ide@vger.kernel.org, nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-can@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, x86@kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, e.org@osuosl.org, netfilter-devel@vger.ke, linux-decnet-user@lists.sourceforge.net, patches@opensource.cirrus.com, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, dm-devel@redhat.com, linux-iio@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, GR-everest-linux-l2@marvell.com
+To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Horatiu Vultur <horatiu.vultur@microchip.com>, roopa@nvidia.com, davem@davemloft.net
 
-On Fri, 20 Nov 2020 12:21:39 -0600, Gustavo A. R. Silva wrote:
-> This series aims to fix almost all remaining fall-through warnings in
-> order to enable -Wimplicit-fallthrough for Clang.
+On Mon, 23 Nov 2020 16:25:53 +0200 Nikolay Aleksandrov wrote:
+> >>> @@ -156,4 +157,10 @@ struct br_mrp_in_link_hdr {
+> >>>       __be16 interval;
+> >>>  };
+> >>>
+> >>> +struct br_mrp_in_link_status_hdr {
+> >>> +     __u8 sa[ETH_ALEN];
+> >>> +     __be16 port_role;
+> >>> +     __be16 id;
+> >>> +};
+> >>> +  
+> >>
+> >> I didn't see this struct used anywhere, am I missing anything?  
+> > 
+> > Yes, you are right, the struct is not used any. But I put it there as I
+> > put the other frame types for MRP.
+> >   
 > 
-> In preparation to enable -Wimplicit-fallthrough for Clang, explicitly
-> add multiple break/goto/return/fallthrough statements instead of just
-> letting the code fall through to the next case.
+> I see, we don't usually add unused code. The patch is fine as-is and since
+> this is already the case for other MRP parts I'm not strictly against it, so:
 > 
-> [...]
+> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> If Jakub decides to adhere to that rule you can keep my acked-by and just remove
+> the struct for v2.
 
-Applied to
+Yes, good catch, let's drop it, we don't want to make too much of 
+a precedent for using kernel uAPI headers as a place to provide
+protocol-related structs if the kernel doesn't need them.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
-
-Thanks!
-
-[1/1] regulator: as3722: Fix fall-through warnings for Clang
-      commit: b52b417ccac4fae5b1f2ec4f1d46eb91e4493dc5
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
+The existing structs are only present in net-next as well, so if you
+don't mind Horatiu it'd be good to follow up and remove the unused ones
+and move the ones (if any) which are only used by the kernel but not by
+the user space <-> kernel API communication out of include/uapi.
