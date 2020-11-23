@@ -1,18 +1,23 @@
-Return-Path: <joe@perches.com>
-Message-ID: <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
-From: Joe Perches <joe@perches.com>
-Date: Sun, 22 Nov 2020 10:25:37 -0800
-In-Reply-To: <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1606130073; x=1637666073;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=knfos+BqzH4dlo+fODl7yedIW3k3ViBBu3PBL+ng7bw=;
+ b=icvnS7hDhYJpHyv068QBwcQlFzNvZlQy8TLtVKiyfeV2de0i3lhIk0Bx
+ j3kL9UM8Q5rQjVtR0eQJR/xwqHxMzOtl92kLcRPyj/qoK7+n8riEHjY5f
+ 90jDVmF+Mm7eLEz8LVlYBxXCp3lE8G5fMgmoGJ7Q+cHtD/OhfNBIxmGiQ
+ GQ2LXgTVvZw/E+vAIW4peFtfD96ZdW2fPJDfRSfMxqjFAqG/yofvw8QaP
+ lQdh36iaSKSo+R2xc/NBAPYvxjbYq7ZlHeG3oRf1uII1tux65uQc382yW
+ 3Xr7FHDQF7Yt+mhEhY1XVD3CBdzUI6TsE3m9/ntm+rZTZNrZbHXo1ZN+7 w==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Mon, 23 Nov 2020 12:14:01 +0100
+Message-ID: <20201123111401.136952-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 000/141] Fix fall-through warnings for Clang
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next] bridge: mrp: Implement LC mode for MRP
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,15 +26,104 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>, Kees Cook <keescook@chromium.org>, Jakub Kicinski <kuba@kernel.org>
-Cc: alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net, reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org, linux-wireless@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, samba-technical@lists.samba.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, Nick Desaulniers <ndesaulniers@google.com>, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, bridge@lists.linux-foundation.org, linux-security-module@vger.kernel.org, amd-gfx@lists.freedesktop.org, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-geode@lists.infradead.org, linux-can@vger.kernel.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, x86@kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, linux-mm@kvack.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>, linux-renesas-soc@vger.kernel.org, linux-sctp@vger.kernel.org, linux-usb@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, patches@opensource.cirrus.com, linux-integrity@vger.kernel.org, target-devel@vger.kernel.org, linux-hardening@vger.kernel.org
+To: nikolay@nvidia.com, roopa@nvidia.com, davem@davemloft.net, kuba@kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On Sun, 2020-11-22 at 10:21 -0800, James Bottomley wrote:
-> Please tell me
-> our reward for all this effort isn't a single missing error print.
+Extend MRP to support LC mode(link check) for the interconnect port.
+This applies only to the interconnect ring.
 
-There were quite literally dozens of logical defects found
-by the fallthrough additions.  Very few were logging only.
+Opposite to RC mode(ring check) the LC mode is using CFM frames to
+detect when the link goes up or down and based on that the userspace
+will need to react.
+One advantage of the LC mode over RC mode is that there will be fewer
+frames in the normal rings. Because RC mode generates InTest on all
+ports while LC mode sends CFM frame only on the interconnect port.
 
+All 4 nodes part of the interconnect ring needs to have the same mode.
+And it is not possible to have running LC and RC mode at the same time
+on a node.
 
+Whenever the MIM starts it needs to detect the status of the other 3
+nodes in the interconnect ring so it would send a frame called
+InLinkStatus, on which the clients needs to reply with their link
+status.
+
+This patch adds the frame header for the frame InLinkStatus and
+extends existing rules on how to forward this frame.
+
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ include/uapi/linux/mrp_bridge.h |  7 +++++++
+ net/bridge/br_mrp.c             | 18 +++++++++++++++---
+ 2 files changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/include/uapi/linux/mrp_bridge.h b/include/uapi/linux/mrp_bridge.h
+index 6aeb13ef0b1e..450f6941a5a1 100644
+--- a/include/uapi/linux/mrp_bridge.h
++++ b/include/uapi/linux/mrp_bridge.h
+@@ -61,6 +61,7 @@ enum br_mrp_tlv_header_type {
+ 	BR_MRP_TLV_HEADER_IN_TOPO = 0x7,
+ 	BR_MRP_TLV_HEADER_IN_LINK_DOWN = 0x8,
+ 	BR_MRP_TLV_HEADER_IN_LINK_UP = 0x9,
++	BR_MRP_TLV_HEADER_IN_LINK_STATUS = 0xa,
+ 	BR_MRP_TLV_HEADER_OPTION = 0x7f,
+ };
+ 
+@@ -156,4 +157,10 @@ struct br_mrp_in_link_hdr {
+ 	__be16 interval;
+ };
+ 
++struct br_mrp_in_link_status_hdr {
++	__u8 sa[ETH_ALEN];
++	__be16 port_role;
++	__be16 id;
++};
++
+ #endif
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index bb12fbf9aaf2..cec2c4e4561d 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -858,7 +858,8 @@ static bool br_mrp_in_frame(struct sk_buff *skb)
+ 	if (hdr->type == BR_MRP_TLV_HEADER_IN_TEST ||
+ 	    hdr->type == BR_MRP_TLV_HEADER_IN_TOPO ||
+ 	    hdr->type == BR_MRP_TLV_HEADER_IN_LINK_DOWN ||
+-	    hdr->type == BR_MRP_TLV_HEADER_IN_LINK_UP)
++	    hdr->type == BR_MRP_TLV_HEADER_IN_LINK_UP ||
++	    hdr->type == BR_MRP_TLV_HEADER_IN_LINK_STATUS)
+ 		return true;
+ 
+ 	return false;
+@@ -1126,9 +1127,9 @@ static int br_mrp_rcv(struct net_bridge_port *p,
+ 						goto no_forward;
+ 				}
+ 			} else {
+-				/* MIM should forward IntLinkChange and
++				/* MIM should forward IntLinkChange/Status and
+ 				 * IntTopoChange between ring ports but MIM
+-				 * should not forward IntLinkChange and
++				 * should not forward IntLinkChange/Status and
+ 				 * IntTopoChange if the frame was received at
+ 				 * the interconnect port
+ 				 */
+@@ -1155,6 +1156,17 @@ static int br_mrp_rcv(struct net_bridge_port *p,
+ 			     in_type == BR_MRP_TLV_HEADER_IN_LINK_DOWN))
+ 				goto forward;
+ 
++			/* MIC should forward IntLinkStatus frames only to
++			 * interconnect port if it was received on a ring port.
++			 * If it is received on interconnect port then, it
++			 * should be forward on both ring ports
++			 */
++			if (br_mrp_is_ring_port(p_port, s_port, p) &&
++			    in_type == BR_MRP_TLV_HEADER_IN_LINK_STATUS) {
++				p_dst = NULL;
++				s_dst = NULL;
++			}
++
+ 			/* Should forward the InTopo frames only between the
+ 			 * ring ports
+ 			 */
+-- 
+2.27.0
 
