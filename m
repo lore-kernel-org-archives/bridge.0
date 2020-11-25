@@ -1,33 +1,16 @@
-Return-Path: <ndesaulniers@google.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=9IH0l2L/ELs04A0W/6GC4nhC0e+RvRGWJ1bAzD1+dFc=;
- b=GyrkIL7rJc/Wrkz9wtYqXZYvGBry6qXFkQono0nmrBFDlUCiGmbX9ByD1wUhih87ZW
- XCd/8etF0h65aGuVNHVvGVnSoIRV2cIFxWeuMsMEKDZ+SIKsK6eM3KIHPaY2Au+pxfCB
- jFmSmO0a8jtSnIjbAi/709gkMW9hnqxggrhUNIGI/2GrlejcLn7tyz9MFlSEpE31y19Z
- 9ARaZhNBbaKZzII6ioDoEFmbbi01XI+4/fF65wWR3SGfZuCMoV2cgGUJ8Osa8sFeqdbz
- KLllcyBsC3gtRPDbq4Yc+z3inKaZT7D05cYTb7CBHNDdR/afLH0A7E5JHrBWilMAefn4
- uS6g==
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZEYeE04XSSyB8Pa/l5qZbweShqnDyFelr/81qnQIwuo=;
+ b=Rz1s6bx6WwEYmDv6sodZRRt7wsdJ4KKg/31JhE7wx6PanAr8xeP6mGFMT5f8CXPo9NDfuuSUZAO9KRmbJrWJyFyVvzlOVUErg43RJLYVINLCKYE3X3YTqNIbWffdm+tUz9sZosbc0I8OFWfEEfOGdOB0/5hpiVK4AafgzEgIBrM=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Wed, 25 Nov 2020 16:36:39 +0200
+Message-Id: <20201125143639.3587854-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-References: <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
- <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
- <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
- <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
- <20201123130348.GA3119@embeddedor>
- <8f5611bb015e044fa1c0a48147293923c2d904e4.camel@HansenPartnership.com>
- <202011241327.BB28F12F6@keescook>
- <a841536fe65bb33f1c72ce2455a6eb47a0107565.camel@HansenPartnership.com>
-In-Reply-To: <a841536fe65bb33f1c72ce2455a6eb47a0107565.camel@HansenPartnership.com>
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Wed, 25 Nov 2020 04:24:27 -0800
-Message-ID: <CAKwvOdkGBn7nuWTAqrORMeN1G+w3YwBfCqqaRD2nwvoAXKi=Aw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [Intel-wired-lan] [PATCH 000/141] Fix fall-through
-	warnings for Clang
+Subject: [Bridge] [PATCH v3 iproute2] bridge: add support for L2 multicast
+	groups
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -36,122 +19,163 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc: alsa-devel@alsa-project.org, bridge@lists.linux-foundation.org, target-devel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-iio@vger.kernel.org, samba-technical@lists.samba.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-fbdev@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org, linux-acpi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, linux-atm-general@lists.sourceforge.net, ceph-devel@vger.kernel.org, amd-gfx list <amd-gfx@lists.freedesktop.org>, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, usb-storage@lists.one-eyed-alien.net, linux-mmc@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>, linux-ext4@vger.kernel.org, virtualization@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, intel-gfx@lists.freedesktop.org, linux-sctp@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-can@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, linux-watchdog@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, Linux Memory Management List <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>, linux-decnet-user@lists.sourceforge.net, linux-wireless <linux-wireless@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org, tipc-discussion@lists.sourceforge.net, "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, patches@opensource.cirrus.com, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org
+To: David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, idosch@idosch.org, Jakub Kicinski <kuba@kernel.org>, vivien.didelot@gmail.com
 
-On Tue, Nov 24, 2020 at 11:05 PM James Bottomley
-<James.Bottomley@hansenpartnership.com> wrote:
->
-> On Tue, 2020-11-24 at 13:32 -0800, Kees Cook wrote:
-> > We already enable -Wimplicit-fallthrough globally, so that's not the
-> > discussion. The issue is that Clang is (correctly) even more strict
-> > than GCC for this, so these are the remaining ones to fix for full
-> > Clang coverage too.
-> >
-> > People have spent more time debating this already than it would have
-> > taken to apply the patches. :)
->
-> You mean we've already spent 90% of the effort to come this far so we
-> might as well go the remaining 10% because then at least we get some
-> return? It's certainly a clinching argument in defence procurement ...
+Extend the 'bridge mdb' command for the following syntax:
+bridge mdb add dev br0 port swp0 grp 01:02:03:04:05:06 permanent
 
-So developers and distributions using Clang can't have
--Wimplicit-fallthrough enabled because GCC is less strict (which has
-been shown in this thread to lead to bugs)?  We'd like to have nice
-things too, you know.
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+Changes in v3:
+- Using rt_addr_n2a_r instead of inet_ntop/ll_addr_n2a directly.
+- Updated the bridge manpage.
 
-I even agree that most of the churn comes from
+Changes in v2:
+- Removed the const void casts.
+- Removed MDB_FLAGS_L2 from the UAPI to be in sync with the latest
+  kernel patch:
+  https://patchwork.ozlabs.org/project/netdev/patch/20201028233831.610076-1-vladimir.oltean@nxp.com/
 
-case 0:
-  ++x;
-default:
-  break;
+ bridge/mdb.c                   | 54 ++++++++++++++++++++++++++--------
+ include/uapi/linux/if_bridge.h |  1 +
+ man/man8/bridge.8              |  8 ++---
+ 3 files changed, 46 insertions(+), 17 deletions(-)
 
-which I have a patch for: https://reviews.llvm.org/D91895.  I agree
-that can never lead to bugs.  But that's not the sole case of this
-series, just most of them.
-
-Though, note how the reviewer (C++ spec editor and clang front end
-owner) in https://reviews.llvm.org/D91895 even asks in that review how
-maybe a new flag would be more appropriate for a watered
-down/stylistic variant of the existing behavior.  And if the current
-wording of Documentation/process/deprecated.rst around "fallthrough"
-is a straightforward rule of thumb, I kind of agree with him.
-
->
-> > This is about robustness and language wrangling. It's a big code-
-> > base, and this is the price of our managing technical debt for
-> > permanent robustness improvements. (The numbers I ran from Gustavo's
-> > earlier patches were that about 10% of the places adjusted were
-> > identified as legitimate bugs being fixed. This final series may be
-> > lower, but there are still bugs being found from it -- we need to
-> > finish this and shut the door on it for good.)
->
-> I got my six patches by analyzing the lwn.net report of the fixes that
-> was cited which had 21 of which 50% didn't actually change the emitted
-> code, and 25% didn't have a user visible effect.
->
-> But the broader point I'm making is just because the compiler people
-> come up with a shiny new warning doesn't necessarily mean the problem
-
-That's not what this is though; you're attacking a strawman.  I'd
-encourage you to bring that up when that actually occurs, unlike this
-case since it's actively hindering getting -Wimplicit-fallthrough
-enabled for Clang.  This is not a shiny new warning; it's already on
-for GCC and has existed in both compilers for multiple releases.
-
-And I'll also note that warnings are warnings and not errors because
-they cannot be proven to be bugs in 100% of cases, but they have led
-to bugs in the past.  They require a human to review their intent and
-remove ambiguities.  If 97% of cases would end in a break ("Expert C
-Programming: Deep C Secrets" - Peter van der Linden), then it starts
-to look to me like a language defect; certainly an incorrectly chosen
-default.  But the compiler can't know those 3% were intentional,
-unless you're explicit for those exceptional cases.
-
-> it's detecting is one that causes us actual problems in the code base.
-> I'd really be happier if we had a theory about what classes of CVE or
-> bug we could eliminate before we embrace the next new warning.
-
-We don't generally file CVEs and waiting for them to occur might be
-too reactive, but I agree that pointing to some additional
-documentation in commit messages about how a warning could lead to a
-bug would make it clearer to reviewers why being able to enable it
-treewide, even if there's no bug in their particular subsystem, is in
-the general interest of the commons.
-
-On Mon, Nov 23, 2020 at 7:58 AM James Bottomley
-<James.Bottomley@hansenpartnership.com> wrote:
->
-> We're also complaining about the inability to recruit maintainers:
->
-> https://www.theregister.com/2020/06/30/hard_to_find_linux_maintainers_says_torvalds/
->
-> And burn out:
->
-> http://antirez.com/news/129
->
-> The whole crux of your argument seems to be maintainers' time isn't
-> important so we should accept all trivial patches ... I'm pushing back
-> on that assumption in two places, firstly the valulessness of the time
-> and secondly that all trivial patches are valuable.
-
-It's critical to the longevity of any open source project that there
-are not single points of failure.  If someone is not expendable or
-replaceable (or claims to be) then that's a risk to the project and a
-bottleneck.  Not having a replacement in training or some form of
-redundancy is short sighted.
-
-If trivial patches are adding too much to your workload, consider
-training a co-maintainer or asking for help from one of your reviewers
-whom you trust.  I don't doubt it's hard to find maintainers, but
-existing maintainers should go out of their way to entrust
-co-maintainers especially when they find their workload becomes too
-high.  And reviewing/picking up trivial patches is probably a great
-way to get started.  If we allow too much knowledge of any one
-subsystem to collect with one maintainer, what happens when that
-maintainer leaves the community (which, given a finite lifespan, is an
-inevitability)?
+diff --git a/bridge/mdb.c b/bridge/mdb.c
+index 4cd7ca762b78..ef89258bc5c3 100644
+--- a/bridge/mdb.c
++++ b/bridge/mdb.c
+@@ -149,6 +149,7 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
+ 			    struct nlmsghdr *n, struct rtattr **tb)
+ {
+ 	const void *grp, *src;
++	const char *addr;
+ 	SPRINT_BUF(abuf);
+ 	const char *dev;
+ 	int af;
+@@ -156,9 +157,16 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
+ 	if (filter_vlan && e->vid != filter_vlan)
+ 		return;
+ 
+-	af = e->addr.proto == htons(ETH_P_IP) ? AF_INET : AF_INET6;
+-	grp = af == AF_INET ? (const void *)&e->addr.u.ip4 :
+-			      (const void *)&e->addr.u.ip6;
++	if (!e->addr.proto) {
++		af = AF_PACKET;
++		grp = &e->addr.u.mac_addr;
++	} else if (e->addr.proto == htons(ETH_P_IP)) {
++		af = AF_INET;
++		grp = &e->addr.u.ip4;
++	} else {
++		af = AF_INET6;
++		grp = &e->addr.u.ip6;
++	}
+ 	dev = ll_index_to_name(ifindex);
+ 
+ 	open_json_object(NULL);
+@@ -168,9 +176,14 @@ static void print_mdb_entry(FILE *f, int ifindex, const struct br_mdb_entry *e,
+ 	print_string(PRINT_ANY, "port", " port %s",
+ 		     ll_index_to_name(e->ifindex));
+ 
++	/* The ETH_ALEN argument is ignored for all cases but AF_PACKET */
++	addr = rt_addr_n2a_r(af, ETH_ALEN, grp, abuf, sizeof(abuf));
++	if (!addr)
++		return;
++
+ 	print_color_string(PRINT_ANY, ifa_family_color(af),
+-			    "grp", " grp %s",
+-			    inet_ntop(af, grp, abuf, sizeof(abuf)));
++			    "grp", " grp %s", addr);
++
+ 	if (tb && tb[MDBA_MDB_EATTR_SOURCE]) {
+ 		src = (const void *)RTA_DATA(tb[MDBA_MDB_EATTR_SOURCE]);
+ 		print_color_string(PRINT_ANY, ifa_family_color(af),
+@@ -440,6 +453,25 @@ static int mdb_show(int argc, char **argv)
+ 	return 0;
+ }
+ 
++static int mdb_parse_grp(const char *grp, struct br_mdb_entry *e)
++{
++	if (inet_pton(AF_INET, grp, &e->addr.u.ip4)) {
++		e->addr.proto = htons(ETH_P_IP);
++		return 0;
++	}
++	if (inet_pton(AF_INET6, grp, &e->addr.u.ip6)) {
++		e->addr.proto = htons(ETH_P_IPV6);
++		return 0;
++	}
++	if (ll_addr_a2n((char *)e->addr.u.mac_addr, sizeof(e->addr.u.mac_addr),
++			grp) == ETH_ALEN) {
++		e->addr.proto = 0;
++		return 0;
++	}
++
++	return -1;
++}
++
+ static int mdb_modify(int cmd, int flags, int argc, char **argv)
+ {
+ 	struct {
+@@ -497,14 +529,10 @@ static int mdb_modify(int cmd, int flags, int argc, char **argv)
+ 	if (!entry.ifindex)
+ 		return nodev(p);
+ 
+-	if (!inet_pton(AF_INET, grp, &entry.addr.u.ip4)) {
+-		if (!inet_pton(AF_INET6, grp, &entry.addr.u.ip6)) {
+-			fprintf(stderr, "Invalid address \"%s\"\n", grp);
+-			return -1;
+-		} else
+-			entry.addr.proto = htons(ETH_P_IPV6);
+-	} else
+-		entry.addr.proto = htons(ETH_P_IP);
++	if (mdb_parse_grp(grp, &entry)) {
++		fprintf(stderr, "Invalid address \"%s\"\n", grp);
++		return -1;
++	}
+ 
+ 	entry.vid = vid;
+ 	addattr_l(&req.n, sizeof(req), MDBA_SET_ENTRY, &entry, sizeof(entry));
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 69b99901fc5a..db41a5ff34af 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -526,6 +526,7 @@ struct br_mdb_entry {
+ 		union {
+ 			__be32	ip4;
+ 			struct in6_addr ip6;
++			unsigned char mac_addr[ETH_ALEN];
+ 		} u;
+ 		__be16		proto;
+ 	} addr;
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 84b9b70c7dea..b3414ae31faf 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -665,7 +665,7 @@ the bridge to which this address is associated.
+ .SH bridge mdb - multicast group database management
+ 
+ .B mdb
+-objects contain known IP multicast group addresses on a link.
++objects contain known IP or L2 multicast group addresses on a link.
+ 
+ .P
+ The corresponding commands display mdb entries, add new entries,
+@@ -685,11 +685,11 @@ the port whose link is known to have members of this multicast group.
+ 
+ .TP
+ .BI grp " GROUP"
+-the IP multicast group address whose members reside on the link connected to
+-the port.
++the multicast group address (IPv4, IPv6 or L2 multicast) whose members reside
++on the link connected to the port.
+ 
+ .B permanent
+-- the mdb entry is permanent
++- the mdb entry is permanent. Optional for IPv4 and IPv6, mandatory for L2.
+ .sp
+ 
+ .B temp
 -- 
-Thanks,
-~Nick Desaulniers
+2.25.1
+
