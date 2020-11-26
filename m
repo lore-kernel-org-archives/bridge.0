@@ -1,27 +1,24 @@
-Return-Path: <fthain@telegraphics.com.au>
-Date: Thu, 26 Nov 2020 11:30:36 +1100 (AEDT)
-From: Finn Thain <fthain@telegraphics.com.au>
-In-Reply-To: <CAKwvOdna5Zj_O=sB7Q0jHZX0BJSaakX=ZyftwQ_3=L3-ZB54XQ@mail.gmail.com>
-Message-ID: <alpine.LNX.2.23.453.2011261031290.6@nippy.intranet>
-References: <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
- <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
- <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
- <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
- <20201123130348.GA3119@embeddedor>
- <8f5611bb015e044fa1c0a48147293923c2d904e4.camel@HansenPartnership.com>
- <202011241327.BB28F12F6@keescook>
- <a841536fe65bb33f1c72ce2455a6eb47a0107565.camel@HansenPartnership.com>
- <CAKwvOdkGBn7nuWTAqrORMeN1G+w3YwBfCqqaRD2nwvoAXKi=Aw@mail.gmail.com>
- <alpine.LNX.2.23.453.2011260750300.6@nippy.intranet>
- <CAKwvOdna5Zj_O=sB7Q0jHZX0BJSaakX=ZyftwQ_3=L3-ZB54XQ@mail.gmail.com>
+Return-Path: <sven@narfation.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
+ s=20121; t=1606378925;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=2/Ccyeyjwu9fU4cIT93gVE0sNF6DivFcl1DKMQ5D4Kk=;
+ b=nAr2JftJh8YWBCToJ8DbRGf0wBj6eggGkhpfIb11SvnlVEscATRhARLd4JJ2Dp4RKPHt6o
+ QuTGoMYXx7Cw5BYLg0elOz/qw11ca3HKCEEMD6qQc+ahYulI3a98UoYk1OXWo5/I4Lt1Qv
+ ufzt8jx0gZc7G1HMfBBlRqMQV1wzJXE=
+From: Sven Eckelmann <sven@narfation.org>
+Date: Thu, 26 Nov 2020 09:21:58 +0100
+Message-ID: <5658440.UjTJXf6HLC@sven-edge>
+In-Reply-To: <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
+References: <20201125122438.955972-1-sven@narfation.org>
+ <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [Bridge] [Intel-wired-lan] [PATCH 000/141] Fix fall-through
- warnings for Clang
+Content-Type: multipart/signed; boundary="nextPart9679158.0AQdONaE2F";
+ micalg="pgp-sha512"; protocol="application/pgp-signature"
+Subject: Re: [Bridge] [RFC PATCH] batman-adv: Reserve needed_headroom for
+	fragments
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,54 +27,128 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: alsa-devel@alsa-project.org, bridge@lists.linux-foundation.org, target-devel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-iio@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-fbdev@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org, linux-acpi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, linux-atm-general@lists.sourceforge.net, ceph-devel@vger.kernel.org, amd-gfx list <amd-gfx@lists.freedesktop.org>, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, usb-storage@lists.one-eyed-alien.net, linux-mmc@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>, linux-ext4@vger.kernel.org, virtualization@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, intel-gfx@lists.freedesktop.org, linux-sctp@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-can@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, linux-watchdog@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, Linux Memory Management List <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>, linux-decnet-user@lists.sourceforge.net, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org, tipc-discussion@lists.sourceforge.net, "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, patches@opensource.cirrus.com, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org
+To: "b.a.t.m.a.n@lists.open-mesh.org" <b.a.t.m.a.n@lists.open-mesh.org>, Annika Wickert <annika.wickert@exaring.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, dev@openvswitch.org
 
+--nextPart9679158.0AQdONaE2F
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"; protected-headers="v1"
+From: Sven Eckelmann <sven@narfation.org>
+To: "b.a.t.m.a.n@lists.open-mesh.org" <b.a.t.m.a.n@lists.open-mesh.org>, Annika Wickert <annika.wickert@exaring.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, dev@openvswitch.org
+Subject: Re: [RFC PATCH] batman-adv: Reserve needed_headroom for fragments
+Date: Thu, 26 Nov 2020 09:21:58 +0100
+Message-ID: <5658440.UjTJXf6HLC@sven-edge>
+In-Reply-To: <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
+References: <20201125122438.955972-1-sven@narfation.org> <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
 
+Hi,
 
-On Wed, 25 Nov 2020, Nick Desaulniers wrote:
+I find your output slightly confusing. Maybe you can change your printk stuff 
+to something more like:
 
-> On Wed, Nov 25, 2020 at 1:33 PM Finn Thain <fthain@telegraphics.com.au> wrote:
-> >
-> > Or do you think that a codebase can somehow satisfy multiple checkers 
-> > and their divergent interpretations of the language spec?
+  printk("%s %s:%u max_headroom %u\n", __FILE__, __func__, __LINE__, max_headroom);
+
+On Thursday, 26 November 2020 00:14:35 CET Annika Wickert wrote:
+> This is what I get from the bridge when bat0 is enslaved with the vxlan interface as member of batman ( https://elixir.bootlin.com/linux/latest/source/net/bridge/br_if.c#L311 )
+> [   36.959547] Bridge firewalling registered
+> [  522.221767] SKB Bridge br_if.c: max_headroom 0
+> [  522.221781] SKB Bridge br_if.c: new_hr 0
+> [  627.186129] SKB Bridge br_if.c: max_headroom 0
+> [  627.186139] SKB Bridge br_if.c: new_hr 0
+> [  627.616650] SKB Bridge br_if.c: new_hr 102
+
+When is this shown? Does the batadv interface already have its hardif (slave) 
+interfaces attached at that point? And did the vxlan report the correct 
+needed_headroom to batadv before you've tried to attach the batadv interface 
+to the bridge?
+
+Because the bridge can also only change its needed_headroom on interface add 
+or delete.
+
+> Also BATMAN reports itself when initialized and seems not to propagate stuff up the stack on change?: (https://github.com/open-mesh-mirror/batman-adv/blob/master/net/batman-adv/hard-interface.c#L555  )
+> [ 3350.212094] SKB hard-interface.h: soft_iface->needed_tailroom) 0
+> [3350.212105] SKB hard-interface.h: soft_iface->needed_headroom) 358
+> [ 3350.212116] SKB hard-interface.h: lower_headroom 70
+> [ 3350.212126] SKB hard-interface.h: needed_headroom 102
+
+Afaik, it is "propagating" its stuff by adjusting its own needed_headroom/
+tailroom at this point. But there is no way to notify that the headroom/
+tailroom was changed and the upper layers should recalculate it.
+
+If you need something like this then we might to have a new 
+NETDEV_RESERVED_SPACE_CHANGE (or a better name OR maybe use a netdev_cmd with 
+a similar meaning). And then call this whenever the needed_headroom/
+tailroom/... of an interface changes during its lifetime. And bridge/batman-
+adv/ovs/... have to check the headroom in their notifier_call again when they 
+receive this event.
+
+> Also added some debugging to Fragmentation.c in BATMAN after the patch: 
+> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: ll_reserved 96
+> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: skb->len 762
+> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: header_size 20
+> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: fragment_size 762
+> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: ll_reserved 96
 > 
-> Have we found any cases yet that are divergent? I don't think so. 
+> At the same time the VXLAN interface which is transported over Wireguard reports this (https://elixir.bootlin.com/linux/latest/source/drivers/net/vxlan.c#L2352 )
+> [  567.515778] SKB VXLAN vxlan.c: min_headroom 200
+> [  567.515792] SKB VXLAN vxlan.c: dst->header_len 0
+> [  567.515805] SKB VXLAN vxlan.c: VXLAN_HLEN 16
+> [  567.515819] SKB VXLAN vxlan.c: LL_RESERVED_SPACE(dst->dev) 144
+> [  567.515831] SKB VXLAN vxlan.c: iphdr_len 40
+> 
+> So in my opinion the needed headroom reported by batman is wrong by maybe 200 ? As the min_headroom of vxlan seems to be 200 but BATMAN reports 102 up the stack to the bridge.
 
-You mean, aside from -Wimplicit-fallthrough? I'm glad you asked. How about 
--Wincompatible-pointer-types and -Wframe-larger-than?
+Could it be that the vxlan didn't had the correct needed_headroom when you've 
+added it to you batadv interface? Or that the vxlan interface didn't set the 
+correct needed_headroom for its lower_dev (see vxlan_config_apply)?
 
-All of the following files have been affected by divergent diagnostics 
-produced by clang and gcc.
 
-arch/arm64/include/asm/neon-intrinsics.h
-arch/powerpc/xmon/Makefile
-drivers/gpu/drm/i915/Makefile
-drivers/gpu/drm/i915/i915_utils.h
-drivers/staging/media/atomisp/pci/atomisp_subdev.c
-fs/ext4/super.c
-include/trace/events/qla.h
-net/mac80211/rate.c
-tools/lib/string.c
-tools/perf/util/setup.py
-tools/scripts/Makefile.include
 
-And if I searched for 'smatch' or 'coverity' instead of 'clang' I'd 
-probably find more divergence.
+If you have the "slow" setup, can you please do following steps:
 
-Here are some of the relevant commits.
+* keep vxlan as is (I hope you specify a fixed lowerdev)
 
-0738c8b5915c7eaf1e6007b441008e8f3b460443
-9c87156cce5a63735d1218f0096a65c50a7a32aa
-babaab2f473817f173a2d08e410c25abf5ed0f6b
-065e5e559555e2f100bc95792a8ef1b609bbe130
-93f56de259376d7e4fff2b2d104082e1fa66e237
-6c4798d3f08b81c2c52936b10e0fa872590c96ae
-b7a313d84e853049062011d78cb04b6decd12f5c
-093b75ef5995ea35d7f6bdb6c7b32a42a1999813
+  - but try to print the needed headroom in vxlan_config_apply and compare it 
+    to the ones from vxlan_build_skb
 
-And before you object, "but -Wconstant-logical-operand is a clang-only 
-warning! it can't be divergent with gcc!", consider that the special cases 
-added to deal with clang-only warnings have to be removed when gcc catches 
-up, which is more churn. Now multiply that by the number of checkers you 
-care about.
+* remove the vxlan from your batadv interface
+* add your vxlan again from the batadv interface
+
+  - check if the headroom numbers are now looking better in 
+    batadv_hardif_recalc_extra_skbroom
+
+* remove batadv interface from the bridge
+* add your batadv interface again to the bridge
+
+  - is update_headroom() now using the correct headroom information?
+
+> If you need any more input we are happy to help. Because the actual performance with running batman over vxlan is really bad. 
+> We have some figures here: https://gist.github.com/fadenb/9705059cf17eddf60e744e95bf926f05
+
+Kind regards,
+	Sven
+--nextPart9679158.0AQdONaE2F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEF10rh2Elc9zjMuACXYcKB8Eme0YFAl+/ZaYACgkQXYcKB8Em
+e0ZCnA//XWJA3QCdgwqhSzUZdyV5m8ZeVBLCGbjhPkJNV7DaPPvmDl7umBDE59jy
+aLFw3Di++IckRXDm+u5BQ7JIcaka1P4F7DuE5kt2TAXlP257uknaIkIAvjcCXQ0t
+9so5u2MHfMuGFB3bsT7mwFe+ZICNTvfKT59XbsHuGKK+tQULZtHa1w7xiAn7rF+l
+7BkO4ONm9ebtQeWlj7tBnMdGFyKVHqH6sSOQJ4ZAMQx1Si8XZWL2C37ZeCLvMaGW
+tb/ll78bELi2x1FJuhiju6taWrJbp51VBYoMZlaCrADm0ut4+tFz1oy8Oiy8WZGj
+NfJMp1U6HmyfJeb9Tg0ccdiNch/v0pS9LIW4h3YOhek6ncAuJq81EzSUjZYj2Hnr
+vx7RMl6vkqHZjiYH8XKs872Y7hl70kSSDP5zVDdv0Onb55OxQElRu5SnKtSESRQG
+cp5zehHgyReGbOLTvZMJKR0opu9HGbioT9VazLMTHYX6ppfdgel/eJ7+vDRwTHEU
+uqC3tWIaHRMsJC9giZFNW81WlQVzObf1+oe18xWyTSjhAQJr2u2zuwgtQfSbbozz
+h4hzPigHnCEPptNaiHlbTqlk5bpDFoZKQnalnWPzcERyPEUWJ0nXADpY42Gkb4eE
+Qa+CUPlae2lh9Qw7s68g4HcrNLDGucg7dI9gTnFLTZ4zyepCoSQ=
+=mBS8
+-----END PGP SIGNATURE-----
+
+--nextPart9679158.0AQdONaE2F--
+
+
+
