@@ -1,24 +1,36 @@
-Return-Path: <sven@narfation.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
- s=20121; t=1606378925;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=2/Ccyeyjwu9fU4cIT93gVE0sNF6DivFcl1DKMQ5D4Kk=;
- b=nAr2JftJh8YWBCToJ8DbRGf0wBj6eggGkhpfIb11SvnlVEscATRhARLd4JJ2Dp4RKPHt6o
- QuTGoMYXx7Cw5BYLg0elOz/qw11ca3HKCEEMD6qQc+ahYulI3a98UoYk1OXWo5/I4Lt1Qv
- ufzt8jx0gZc7G1HMfBBlRqMQV1wzJXE=
-From: Sven Eckelmann <sven@narfation.org>
-Date: Thu, 26 Nov 2020 09:21:58 +0100
-Message-ID: <5658440.UjTJXf6HLC@sven-edge>
-In-Reply-To: <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
-References: <20201125122438.955972-1-sven@narfation.org>
- <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
+Return-Path: <miguel.ojeda.sandonis@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc:content-transfer-encoding;
+ bh=DTotsfb8u+PB0eT0g4gTrA/vgT4HfiDZTYQ/geteWC4=;
+ b=QWuS1TBfImi/m9J+5lB37414TjwoB+kfRyX/7ohuLNDuEazbBA4fEE506RPmuhzrQT
+ KCYao+uRLv4Su9SW/eKLjGfymcNDAcVP9irkT5MfO/ys+N1YXqwwODp/at6Hjf5mbn7y
+ sEjBq+fitA5RwLT9szzutyPemHxF/3vzz+qMkDnIA1HF+rIjtAU7PcoRO+GQ0ANzP2/3
+ 4RgPAdoGGim7svP8Zrp9IWC0s7kVtrSQn/PXobh5aGfJoVk3uyVZYliED/q0Nk6tCoA8
+ W9fyUHPup50QVVdVd9NqYx0m2pkDUcyuxLwwV68mOS3NFLJOgvtFKpngAgg7rBEfKLyO
+ Kn5Q==
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart9679158.0AQdONaE2F";
- micalg="pgp-sha512"; protocol="application/pgp-signature"
-Subject: Re: [Bridge] [RFC PATCH] batman-adv: Reserve needed_headroom for
-	fragments
+References: <cover.1605896059.git.gustavoars@kernel.org>
+ <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011201129.B13FDB3C@keescook>
+ <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011220816.8B6591A@keescook>
+ <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
+ <CANiq72nZrHWTA4_Msg6MP9snTyenC6-eGfD27CyfNSu7QoVZbw@mail.gmail.com>
+ <1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com>
+ <CANiq72m22Jb5_+62NnwX8xds2iUdWDMAqD8PZw9cuxdHd95W0A@mail.gmail.com>
+ <fc45750b6d0277c401015b7aa11e16cd15f32ab2.camel@HansenPartnership.com>
+ <CANiq72k5tpDoDPmJ0ZWc1DGqm+81Gi-uEENAtvEs9v3SZcx6_Q@mail.gmail.com>
+ <4993259d01a0064f8bb22770503490f9252f3659.camel@HansenPartnership.com>
+ <CANiq72kqO=bYMJnFS2uYRpgWATJ=uXxZuNUsTXT+3aLtrpnzvQ@mail.gmail.com>
+ <44005bde-f6d4-5eaa-39b8-1a5efeedb2d3@gmail.com>
+In-Reply-To: <44005bde-f6d4-5eaa-39b8-1a5efeedb2d3@gmail.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Thu, 26 Nov 2020 15:53:27 +0100
+Message-ID: <CANiq72nobq=ptWK-qWxU91JHqkKhMcRtJNnw2XJd5-vSJWZd8Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH 000/141] Fix fall-through warnings for Clang
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,128 +39,96 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "b.a.t.m.a.n@lists.open-mesh.org" <b.a.t.m.a.n@lists.open-mesh.org>, Annika Wickert <annika.wickert@exaring.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, dev@openvswitch.org
+To: Edward Cree <ecree.xilinx@gmail.com>
+Cc: alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net, reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>, linux-fbdev@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, samba-technical@lists.samba.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, Nick Desaulniers <ndesaulniers@google.com>, linux-scsi@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, bridge@lists.linux-foundation.org, linux-security-module@vger.kernel.org, amd-gfx list <amd-gfx@lists.freedesktop.org>, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input <linux-input@vger.kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Ext4 Developers List <linux-ext4@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, intel-gfx@lists.freedesktop.org, linux-geode@lists.infradead.org, linux-can@vger.kernel.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, tipc-discussion@lists.sourceforge.net, Linux-MM <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>, linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-sctp@vger.kernel.org, linux-usb@vger.kernel.org, netfilter-devel@vger.kernel.org, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, patches@opensource.cirrus.com, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, target-devel@vger.kernel.org, linux-hardening@vger.kernel.org
 
---nextPart9679158.0AQdONaE2F
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"; protected-headers="v1"
-From: Sven Eckelmann <sven@narfation.org>
-To: "b.a.t.m.a.n@lists.open-mesh.org" <b.a.t.m.a.n@lists.open-mesh.org>, Annika Wickert <annika.wickert@exaring.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, dev@openvswitch.org
-Subject: Re: [RFC PATCH] batman-adv: Reserve needed_headroom for fragments
-Date: Thu, 26 Nov 2020 09:21:58 +0100
-Message-ID: <5658440.UjTJXf6HLC@sven-edge>
-In-Reply-To: <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
-References: <20201125122438.955972-1-sven@narfation.org> <16FAA2FE-92FA-421E-9134-27AECE426F55@exaring.de>
+On Wed, Nov 25, 2020 at 11:44 PM Edward Cree <ecree.xilinx@gmail.com> wrote=
+:
+>
+> To make the intent clear, you have to first be certain that you
+>  understand the intent; otherwise by adding either a break or a
+>  fallthrough to suppress the warning you are just destroying the
+>  information that "the intent of this code is unknown".
 
-Hi,
+If you don't know what the intent of your own code is, then you
+*already* have a problem in your hands.
 
-I find your output slightly confusing. Maybe you can change your printk stuff 
-to something more like:
+> Figuring out the intent of a piece of unfamiliar code takes more
+>  than 1 minute; just because
+>     case foo:
+>         thing;
+>     case bar:
+>         break;
+>  produces identical code to
+>     case foo:
+>         thing;
+>         break;
+>     case bar:
+>         break;
+>  doesn't mean that *either* is correct =E2=80=94 maybe the author meant
 
-  printk("%s %s:%u max_headroom %u\n", __FILE__, __func__, __LINE__, max_headroom);
+What takes 1 minute is adding it *mechanically* by the author, i.e. so
+that you later compare whether codegen is the same.
 
-On Thursday, 26 November 2020 00:14:35 CET Annika Wickert wrote:
-> This is what I get from the bridge when bat0 is enslaved with the vxlan interface as member of batman ( https://elixir.bootlin.com/linux/latest/source/net/bridge/br_if.c#L311 )
-> [   36.959547] Bridge firewalling registered
-> [  522.221767] SKB Bridge br_if.c: max_headroom 0
-> [  522.221781] SKB Bridge br_if.c: new_hr 0
-> [  627.186129] SKB Bridge br_if.c: max_headroom 0
-> [  627.186139] SKB Bridge br_if.c: new_hr 0
-> [  627.616650] SKB Bridge br_if.c: new_hr 102
+>  to write
+>     case foo:
+>         return thing;
+>     case bar:
+>         break;
+>  and by inserting that break you've destroyed the marker that
+>  would direct someone who knew what the code was about to look
+>  at that point in the code and spot the problem.
 
-When is this shown? Does the batadv interface already have its hardif (slave) 
-interfaces attached at that point? And did the vxlan report the correct 
-needed_headroom to batadv before you've tried to attach the batadv interface 
-to the bridge?
+Then it means you already have a bug. This patchset gives the
+maintainer a chance to notice it, which is a good thing. The "you've
+destroyed the market" claim is bogus, because:
+  1. you were not looking into it
+  2. you didn't notice the bug so far
+  3. is implicit -- harder to spot
+  4. is only useful if you explicitly take a look at this kind of bug.
+So why don't you do it now?
 
-Because the bridge can also only change its needed_headroom on interface add 
-or delete.
+> Thus, you *always* have to look at more than just the immediate
+>  mechanical context of the code, to make a proper judgement that
+>  yes, this was the intent.
 
-> Also BATMAN reports itself when initialized and seems not to propagate stuff up the stack on change?: (https://github.com/open-mesh-mirror/batman-adv/blob/master/net/batman-adv/hard-interface.c#L555  )
-> [ 3350.212094] SKB hard-interface.h: soft_iface->needed_tailroom) 0
-> [3350.212105] SKB hard-interface.h: soft_iface->needed_headroom) 358
-> [ 3350.212116] SKB hard-interface.h: lower_headroom 70
-> [ 3350.212126] SKB hard-interface.h: needed_headroom 102
+I find that is the responsibility of the maintainers and reviewers for
+tree-wide patches like this, assuming they want. They can also keep
+the behavior (and the bugs) without spending time. Their choice.
 
-Afaik, it is "propagating" its stuff by adjusting its own needed_headroom/
-tailroom at this point. But there is no way to notify that the headroom/
-tailroom was changed and the upper layers should recalculate it.
+> If you think that that sort of thing
+>  can be done in an *average* time of one minute, then I hope you
+>  stay away from code I'm responsible for!
 
-If you need something like this then we might to have a new 
-NETDEV_RESERVED_SPACE_CHANGE (or a better name OR maybe use a netdev_cmd with 
-a similar meaning). And then call this whenever the needed_headroom/
-tailroom/... of an interface changes during its lifetime. And bridge/batman-
-adv/ovs/... have to check the headroom in their notifier_call again when they 
-receive this event.
+Please don't accuse others of recklessness or incompetence, especially
+if you didn't understand what they said.
 
-> Also added some debugging to Fragmentation.c in BATMAN after the patch: 
-> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: ll_reserved 96
-> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: skb->len 762
-> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: header_size 20
-> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: fragment_size 762
-> Nov 25 17:48:26 raspi-1gb.awlnx.space kernel: SKB Fragmentation.c: ll_reserved 96
-> 
-> At the same time the VXLAN interface which is transported over Wireguard reports this (https://elixir.bootlin.com/linux/latest/source/drivers/net/vxlan.c#L2352 )
-> [  567.515778] SKB VXLAN vxlan.c: min_headroom 200
-> [  567.515792] SKB VXLAN vxlan.c: dst->header_len 0
-> [  567.515805] SKB VXLAN vxlan.c: VXLAN_HLEN 16
-> [  567.515819] SKB VXLAN vxlan.c: LL_RESERVED_SPACE(dst->dev) 144
-> [  567.515831] SKB VXLAN vxlan.c: iphdr_len 40
-> 
-> So in my opinion the needed headroom reported by batman is wrong by maybe 200 ? As the min_headroom of vxlan seems to be 200 but BATMAN reports 102 up the stack to the bridge.
+> A warning is only useful because it makes you *think* about the
+>  code.  If you suppress the warning without doing that thinking,
+>  then you made the warning useless; and if the warning made you
+>  think about code that didn't *need* it, then the warning was
+>  useless from the start.
 
-Could it be that the vxlan didn't had the correct needed_headroom when you've 
-added it to you batadv interface? Or that the vxlan interface didn't set the 
-correct needed_headroom for its lower_dev (see vxlan_config_apply)?
+We are not suppressing the warning. Quite the opposite, in fact.
 
+> So make your mind up: does Clang's stricter -Wimplicit-fallthrough
+>  flag up code that needs thought (in which case the fixes take
+>  effort both to author and to review)
 
+As I said several times already, it does take time to review if the
+maintainer wants to take the chance to see if they had a bug to begin
+with, but it does not require thought for the author if they just go
+for equivalent codegen.
 
-If you have the "slow" setup, can you please do following steps:
+> or does it flag up code
+>  that can be mindlessly "fixed" (in which case the warning is
+>  worthless)?  Proponents in this thread seem to be trying to
+>  have it both ways.
 
-* keep vxlan as is (I hope you specify a fixed lowerdev)
+A warning is not worthless just because you can mindlessly fix it.
+There are many counterexamples, e.g. many
+checkpatch/lint/lang-format/indentation warnings, functional ones like
+the `if (a =3D b)` warning...
 
-  - but try to print the needed headroom in vxlan_config_apply and compare it 
-    to the ones from vxlan_build_skb
-
-* remove the vxlan from your batadv interface
-* add your vxlan again from the batadv interface
-
-  - check if the headroom numbers are now looking better in 
-    batadv_hardif_recalc_extra_skbroom
-
-* remove batadv interface from the bridge
-* add your batadv interface again to the bridge
-
-  - is update_headroom() now using the correct headroom information?
-
-> If you need any more input we are happy to help. Because the actual performance with running batman over vxlan is really bad. 
-> We have some figures here: https://gist.github.com/fadenb/9705059cf17eddf60e744e95bf926f05
-
-Kind regards,
-	Sven
---nextPart9679158.0AQdONaE2F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEF10rh2Elc9zjMuACXYcKB8Eme0YFAl+/ZaYACgkQXYcKB8Em
-e0ZCnA//XWJA3QCdgwqhSzUZdyV5m8ZeVBLCGbjhPkJNV7DaPPvmDl7umBDE59jy
-aLFw3Di++IckRXDm+u5BQ7JIcaka1P4F7DuE5kt2TAXlP257uknaIkIAvjcCXQ0t
-9so5u2MHfMuGFB3bsT7mwFe+ZICNTvfKT59XbsHuGKK+tQULZtHa1w7xiAn7rF+l
-7BkO4ONm9ebtQeWlj7tBnMdGFyKVHqH6sSOQJ4ZAMQx1Si8XZWL2C37ZeCLvMaGW
-tb/ll78bELi2x1FJuhiju6taWrJbp51VBYoMZlaCrADm0ut4+tFz1oy8Oiy8WZGj
-NfJMp1U6HmyfJeb9Tg0ccdiNch/v0pS9LIW4h3YOhek6ncAuJq81EzSUjZYj2Hnr
-vx7RMl6vkqHZjiYH8XKs872Y7hl70kSSDP5zVDdv0Onb55OxQElRu5SnKtSESRQG
-cp5zehHgyReGbOLTvZMJKR0opu9HGbioT9VazLMTHYX6ppfdgel/eJ7+vDRwTHEU
-uqC3tWIaHRMsJC9giZFNW81WlQVzObf1+oe18xWyTSjhAQJr2u2zuwgtQfSbbozz
-h4hzPigHnCEPptNaiHlbTqlk5bpDFoZKQnalnWPzcERyPEUWJ0nXADpY42Gkb4eE
-Qa+CUPlae2lh9Qw7s68g4HcrNLDGucg7dI9gTnFLTZ4zyepCoSQ=
-=mBS8
------END PGP SIGNATURE-----
-
---nextPart9679158.0AQdONaE2F--
-
-
-
+Cheers,
+Miguel
