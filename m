@@ -1,24 +1,21 @@
 Return-Path: <idosch@idosch.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
  messagingengine.com; h=cc:content-transfer-encoding:date:from
- :in-reply-to:message-id:mime-version:references:subject:to
- :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
- fm1; bh=2W1zOzV8vwqD5mcj0ElSCJx7G8UJmzHzIMBQBmZcUfw=; b=qpg92gUd
- j5geiy9Hcg2E+t+82w/aap+8H8H8vtZIBlAany6QcjQ29uyL4eoKCifiC1Hr0D5T
- tQpCr+bgc77Jg5kGzBwC7kZHurKU0KwM19IvTrQm88bpoXwQdT578v9rpWv99uD+
- n/tlhegJ4XCx90t58J/5fBSL/wtMjon78uDsHH18nn/FKxiD5HyDcZ1sIQvUd7/B
- gQEn3KDErkIqhgNafYG+9fopagF5gSQw/45Eb+E4SW8EZ7rEI3uPVpHtfQ36w2X7
- /+gEppPdYyAMMiU4D6dQMYNVha0YfRDyIyMQ+ZhLII9hOABC4IA8x6fVPFwZXCIS
- Mdy7EorM3AtetQ==
+ :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+ :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JWvE4wkdTHgXND6Y4
+ bjPsbiWmIMG3ggvyGEu9Fq8aWI=; b=mi1BAUBb2QpKhInOgWPOSFHzvFCiJqYGC
+ qbJMVarRepEk5V9ansX6hKbMXL1PsT2qtJI69kiPrfKf2K4HeAO6f/F+ulhvAyJ4
+ EeHFYttDKYEr2rQVxjYXR14/nYB7ybcyLavALnAyA3Sw/ra0MqJQO7yLbEX6VIli
+ HjMhdO0+mAZDnfgEg3L07pLBoCXzBI8oa79ISmv2MCBbaJdCzzH7KACooBxzz/tR
+ UppIAECK7BBzmpdFZxWoVEFlOdL6PEtiY3ZokiECl3EeBRejRgHVsKyh4c7ItnqG
+ J9Zlw/tGrngbC8VHbPBegWpfnrggGdOGRxJ6t++DnAAwsmaO6jjcg==
 From: Ido Schimmel <idosch@idosch.org>
-Date: Sun, 29 Nov 2020 14:54:00 +0200
-Message-Id: <20201129125407.1391557-3-idosch@idosch.org>
-In-Reply-To: <20201129125407.1391557-1-idosch@idosch.org>
-References: <20201129125407.1391557-1-idosch@idosch.org>
+Date: Sun, 29 Nov 2020 14:53:58 +0200
+Message-Id: <20201129125407.1391557-1-idosch@idosch.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 2/9] mlxsw: reg: Add et_vlan field to
-	SPVID register
+Subject: [Bridge] [PATCH net-next 0/9] mlxsw: Add support for 802.1ad
+	bridging
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,43 +27,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: ivecera@redhat.com, petrm@nvidia.com, amcohen@nvidia.com, danieller@nvidia.com, mlxsw@nvidia.com, Ido Schimmel <idosch@nvidia.com>, jiri@nvidia.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-From: Amit Cohen <amcohen@nvidia.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-et_vlan field is used to configure which EtherType is used when VLAN is
-pushed at ingress (for untagged packets or for QinQ push mode).
+802.1ad, also known as QinQ, is an extension to the 802.1q standard,
+which is concerned with passing possibly 802.1q-tagged packets through
+another VLAN-like tunnel. The format of 802.1ad tag is the same as
+802.1q, except it uses the EtherType of 0x88a8, unlike 802.1q's 0x8100.
 
-It will be used to configure tagging with ether_type1 (i.e., 0x88A8) for
-QinQ mode.
+Currently, mlxsw supports bridging with VLAN-unaware (802.1d) bridges
+and with VLAN-aware bridges whose VLAN protocol is 802.1q. This set adds
+support for VLAN-aware bridges whose VLAN protocol is 802.1ad.
 
-Signed-off-by: Amit Cohen <amcohen@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
----
- drivers/net/ethernet/mellanox/mlxsw/reg.h | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+From mlxsw perspective, 802.1ad support entails two main changes:
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-index 5248532c3999..bea919b92f76 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-@@ -834,6 +834,17 @@ MLXSW_ITEM32(reg, spvid, local_port, 0x00, 16, 8);
-  */
- MLXSW_ITEM32(reg, spvid, sub_port, 0x00, 8, 8);
- 
-+/* reg_spvid_et_vlan
-+ * EtherType used for when VLAN is pushed at ingress (for untagged
-+ * packets or for QinQ push mode).
-+ * 0: ether_type0 - (default)
-+ * 1: ether_type1
-+ * 2: ether_type2 - Reserved when Spectrum-1, supported by Spectrum-2
-+ * Ethertype IDs are configured by SVER.
-+ * Access: RW
-+ */
-+MLXSW_ITEM32(reg, spvid, et_vlan, 0x04, 16, 2);
-+
- /* reg_spvid_pvid
-  * Port default VID
-  * Access: RW
+1. Ports member in an 802.1ad bridge need to be configured to classify
+802.1ad packets as tagged and all other packets as untagged
+
+2. When pushing a VLAN at ingress (PVID), its EtherType needs to be
+0x88a8 instead of 802.1q's 0x8100
+
+The rest stays the same as with 802.1q bridges.
+
+A follow-up patch set will add support for QinQ with VXLAN, also known
+as QinVNI. Currently, linking of a VXLAN netdev to an 802.1ad bridge is
+vetoed and an error is returned to user space.
+
+Patch set overview:
+
+Patches #1-#2 add the registers required to configure the two changes
+described above.
+
+Patch #3 changes the device to only treat 802.1q packets as tagged by
+default, as opposed to both 802.1q and 802.1ad packets. This is more
+inline with the behavior supported by the driver.
+
+Patch #4 adds the ability to configure the EtherType when pushing a PVID
+at ingress.
+
+Patch #5 performs small refactoring to allow for code re-use in the next
+patch.
+
+Patch #6 adds support for 802.1ad bridging and allows mlxsw ports and
+their uppers to join such a bridge.
+
+Patch #7 changes the bridge driver to notify about changes to its VLAN
+protocol, so that these could be vetoed by mlxsw in the next patch.
+
+Patches #8-#9 teach mlxsw to veto unsupported 802.1ad configurations and
+add a corresponding selftest to make sure such configurations are indeed
+vetoed.
+
+Amit Cohen (6):
+  mlxsw: reg: Add Switch Port VLAN Classification Register
+  mlxsw: reg: Add et_vlan field to SPVID register
+  mlxsw: spectrum: Only treat 802.1q packets as tagged packets
+  mlxsw: Make EtherType configurable when pushing VLAN at ingress
+  mlxsw: spectrum_switchdev: Create common functions for VLAN-aware
+    bridge
+  mlxsw: spectrum_switchdev: Add support of QinQ traffic
+
+Danielle Ratson (3):
+  bridge: switchdev: Notify about VLAN protocol changes
+  mlxsw: Add QinQ configuration vetoes
+  selftests: forwarding: Add QinQ veto testing
+
+ drivers/net/ethernet/mellanox/mlxsw/reg.h     | 114 ++++++-
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 111 ++++++-
+ .../net/ethernet/mellanox/mlxsw/spectrum.h    |   7 +-
+ .../ethernet/mellanox/mlxsw/spectrum_router.c |   9 +
+ .../mellanox/mlxsw/spectrum_switchdev.c       | 123 +++++++-
+ include/net/switchdev.h                       |   2 +
+ net/bridge/br_vlan.c                          |  16 +-
+ .../drivers/net/mlxsw/q_in_q_veto.sh          | 296 ++++++++++++++++++
+ 8 files changed, 657 insertions(+), 21 deletions(-)
+ create mode 100755 tools/testing/selftests/drivers/net/mlxsw/q_in_q_veto.sh
+
 -- 
 2.28.0
 
