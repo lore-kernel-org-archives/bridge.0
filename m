@@ -1,21 +1,24 @@
 Return-Path: <idosch@idosch.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
  messagingengine.com; h=cc:content-transfer-encoding:date:from
- :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
- :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JWvE4wkdTHgXND6Y4
- bjPsbiWmIMG3ggvyGEu9Fq8aWI=; b=mi1BAUBb2QpKhInOgWPOSFHzvFCiJqYGC
- qbJMVarRepEk5V9ansX6hKbMXL1PsT2qtJI69kiPrfKf2K4HeAO6f/F+ulhvAyJ4
- EeHFYttDKYEr2rQVxjYXR14/nYB7ybcyLavALnAyA3Sw/ra0MqJQO7yLbEX6VIli
- HjMhdO0+mAZDnfgEg3L07pLBoCXzBI8oa79ISmv2MCBbaJdCzzH7KACooBxzz/tR
- UppIAECK7BBzmpdFZxWoVEFlOdL6PEtiY3ZokiECl3EeBRejRgHVsKyh4c7ItnqG
- J9Zlw/tGrngbC8VHbPBegWpfnrggGdOGRxJ6t++DnAAwsmaO6jjcg==
+ :in-reply-to:message-id:mime-version:references:subject:to
+ :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+ fm1; bh=iWTDhUIR4ugGXK7WcUprQ8CylzWjyKf/EccpaE0QNXU=; b=aOJcJysB
+ Jr0FQ+USbbYun2NZfGWT3Rve3gFGDL9KLQm9Crwt0jxHtws0NCU+ZuAfPswYayZS
+ sY9d4RhTjm0HrV+FkknLVbPkSvHwNv9ARJQaljfgWlpjrO6l9Vudqrq3l6u1/Foz
+ uncZU/xFvTqk92VQT4sbosTFYCVRHsPCJvwVWkE+rSkOP8cCMuPVW4xWJdectBJI
+ x+FUu6zI8xO1Fn0hUUB2y4ea9RdqXOpTnfwWcaeYTnzL2fBrhcN1tz4TUNePk0cb
+ 4BZavA10ImfOgwkMSPollAwQmTarxZ4tyaNHg/++0kCvVXsdyd6/ZTf7jmxWRQrM
+ Yg2EA7nEVEvAbA==
 From: Ido Schimmel <idosch@idosch.org>
-Date: Sun, 29 Nov 2020 14:53:58 +0200
-Message-Id: <20201129125407.1391557-1-idosch@idosch.org>
+Date: Sun, 29 Nov 2020 14:54:05 +0200
+Message-Id: <20201129125407.1391557-8-idosch@idosch.org>
+In-Reply-To: <20201129125407.1391557-1-idosch@idosch.org>
+References: <20201129125407.1391557-1-idosch@idosch.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 0/9] mlxsw: Add support for 802.1ad
-	bridging
+Subject: [Bridge] [PATCH net-next 7/9] bridge: switchdev: Notify about VLAN
+	protocol changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,81 +30,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: ivecera@redhat.com, petrm@nvidia.com, amcohen@nvidia.com, danieller@nvidia.com, mlxsw@nvidia.com, Ido Schimmel <idosch@nvidia.com>, jiri@nvidia.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Danielle Ratson <danieller@nvidia.com>
 
-802.1ad, also known as QinQ, is an extension to the 802.1q standard,
-which is concerned with passing possibly 802.1q-tagged packets through
-another VLAN-like tunnel. The format of 802.1ad tag is the same as
-802.1q, except it uses the EtherType of 0x88a8, unlike 802.1q's 0x8100.
+Drivers that support bridge offload need to be notified about changes to
+the bridge's VLAN protocol so that they could react accordingly and
+potentially veto the change.
 
-Currently, mlxsw supports bridging with VLAN-unaware (802.1d) bridges
-and with VLAN-aware bridges whose VLAN protocol is 802.1q. This set adds
-support for VLAN-aware bridges whose VLAN protocol is 802.1ad.
+Add a new switchdev attribute to communicate the change to drivers.
 
-From mlxsw perspective, 802.1ad support entails two main changes:
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
+ include/net/switchdev.h |  2 ++
+ net/bridge/br_vlan.c    | 16 ++++++++++++++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-1. Ports member in an 802.1ad bridge need to be configured to classify
-802.1ad packets as tagged and all other packets as untagged
-
-2. When pushing a VLAN at ingress (PVID), its EtherType needs to be
-0x88a8 instead of 802.1q's 0x8100
-
-The rest stays the same as with 802.1q bridges.
-
-A follow-up patch set will add support for QinQ with VXLAN, also known
-as QinVNI. Currently, linking of a VXLAN netdev to an 802.1ad bridge is
-vetoed and an error is returned to user space.
-
-Patch set overview:
-
-Patches #1-#2 add the registers required to configure the two changes
-described above.
-
-Patch #3 changes the device to only treat 802.1q packets as tagged by
-default, as opposed to both 802.1q and 802.1ad packets. This is more
-inline with the behavior supported by the driver.
-
-Patch #4 adds the ability to configure the EtherType when pushing a PVID
-at ingress.
-
-Patch #5 performs small refactoring to allow for code re-use in the next
-patch.
-
-Patch #6 adds support for 802.1ad bridging and allows mlxsw ports and
-their uppers to join such a bridge.
-
-Patch #7 changes the bridge driver to notify about changes to its VLAN
-protocol, so that these could be vetoed by mlxsw in the next patch.
-
-Patches #8-#9 teach mlxsw to veto unsupported 802.1ad configurations and
-add a corresponding selftest to make sure such configurations are indeed
-vetoed.
-
-Amit Cohen (6):
-  mlxsw: reg: Add Switch Port VLAN Classification Register
-  mlxsw: reg: Add et_vlan field to SPVID register
-  mlxsw: spectrum: Only treat 802.1q packets as tagged packets
-  mlxsw: Make EtherType configurable when pushing VLAN at ingress
-  mlxsw: spectrum_switchdev: Create common functions for VLAN-aware
-    bridge
-  mlxsw: spectrum_switchdev: Add support of QinQ traffic
-
-Danielle Ratson (3):
-  bridge: switchdev: Notify about VLAN protocol changes
-  mlxsw: Add QinQ configuration vetoes
-  selftests: forwarding: Add QinQ veto testing
-
- drivers/net/ethernet/mellanox/mlxsw/reg.h     | 114 ++++++-
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 111 ++++++-
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |   7 +-
- .../ethernet/mellanox/mlxsw/spectrum_router.c |   9 +
- .../mellanox/mlxsw/spectrum_switchdev.c       | 123 +++++++-
- include/net/switchdev.h                       |   2 +
- net/bridge/br_vlan.c                          |  16 +-
- .../drivers/net/mlxsw/q_in_q_veto.sh          | 296 ++++++++++++++++++
- 8 files changed, 657 insertions(+), 21 deletions(-)
- create mode 100755 tools/testing/selftests/drivers/net/mlxsw/q_in_q_veto.sh
-
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index 53e8b4994296..99cd538d6519 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -38,6 +38,7 @@ enum switchdev_attr_id {
+ 	SWITCHDEV_ATTR_ID_PORT_MROUTER,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING,
++	SWITCHDEV_ATTR_ID_BRIDGE_VLAN_PROTOCOL,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_MC_DISABLED,
+ 	SWITCHDEV_ATTR_ID_BRIDGE_MROUTER,
+ #if IS_ENABLED(CONFIG_BRIDGE_MRP)
+@@ -58,6 +59,7 @@ struct switchdev_attr {
+ 		bool mrouter;				/* PORT_MROUTER */
+ 		clock_t ageing_time;			/* BRIDGE_AGEING_TIME */
+ 		bool vlan_filtering;			/* BRIDGE_VLAN_FILTERING */
++		u16 vlan_protocol;			/* BRIDGE_VLAN_PROTOCOL */
+ 		bool mc_disabled;			/* MC_DISABLED */
+ #if IS_ENABLED(CONFIG_BRIDGE_MRP)
+ 		u8 mrp_port_state;			/* MRP_PORT_STATE */
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 11f54a7c0d1d..d07008678d32 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -854,15 +854,25 @@ EXPORT_SYMBOL_GPL(br_vlan_get_proto);
+ 
+ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ {
++	struct switchdev_attr attr = {
++		.orig_dev = br->dev,
++		.id = SWITCHDEV_ATTR_ID_BRIDGE_VLAN_PROTOCOL,
++		.flags = SWITCHDEV_F_SKIP_EOPNOTSUPP,
++		.u.vlan_protocol = ntohs(proto),
++	};
+ 	int err = 0;
+ 	struct net_bridge_port *p;
+ 	struct net_bridge_vlan *vlan;
+ 	struct net_bridge_vlan_group *vg;
+-	__be16 oldproto;
++	__be16 oldproto = br->vlan_proto;
+ 
+ 	if (br->vlan_proto == proto)
+ 		return 0;
+ 
++	err = switchdev_port_attr_set(br->dev, &attr);
++	if (err && err != -EOPNOTSUPP)
++		return err;
++
+ 	/* Add VLANs for the new proto to the device filter. */
+ 	list_for_each_entry(p, &br->port_list, list) {
+ 		vg = nbp_vlan_group(p);
+@@ -873,7 +883,6 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ 		}
+ 	}
+ 
+-	oldproto = br->vlan_proto;
+ 	br->vlan_proto = proto;
+ 
+ 	recalculate_group_addr(br);
+@@ -889,6 +898,9 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ 	return 0;
+ 
+ err_filt:
++	attr.u.vlan_protocol = ntohs(oldproto);
++	switchdev_port_attr_set(br->dev, &attr);
++
+ 	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist)
+ 		vlan_vid_del(p->dev, proto, vlan->vid);
+ 
 -- 
 2.28.0
 
