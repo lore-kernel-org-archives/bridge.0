@@ -1,36 +1,24 @@
-Return-Path: <kherbst@redhat.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606407515;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=IL7sPB68gF1YeWIUFuBJ//YIBDjI3bDL6qHHKubt/Z0=;
- b=R8KqzDp6KWKLBbg2Z/g5MYTGPZpASAZJUdFfIuTcqGoawHZgFEb6dpTDkluGkjpbJreiWU
- vvScJ9EtJZHyeykKAa13Ejr6vjnw38ENjHUtStINvbCXsoIo6bNCk7Gshdd4mwYKDLNLTV
- SwBW+2Vg6iMZuMX5tqYmm9AgVsVuK3I=
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:content-transfer-encoding:date:from
+ :in-reply-to:message-id:mime-version:references:subject:to
+ :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+ fm1; bh=A4TCvot9x2vVuOlxx97oS3i6vnCWoeACnkRn1Gnvyuo=; b=X109YinQ
+ ir3pNNcTE6YsHdNVGHzQiiRY/4QsDxLdt6NItTJ0xkqei6HNX1bdafm32Itco7P8
+ ULD4Jaiqkf185w8QgbPK1j2ef96haoADHnssE0KPALBUTn1NObWkdPplnpjLZubR
+ VIDZW1y9QCKTcpgfseK/xYZjPUd4Kht0gy7vKoqEnNDONN6hnwFMw9Tb7ZQrAcyz
+ 9fPw4bYApQnMnpdAEKxyPyWK5+gnK4AmtpNs8F6s2K9Nh8pgpC34mAH1pGplFC+A
+ YPPXom1eydh91Co/Brv47uhEY+zRGOXy80G+YWM7KUBSNdPrZvjwmRo45iLz6vIA
+ qICj5xu3cYxCcw==
+From: Ido Schimmel <idosch@idosch.org>
+Date: Sun, 29 Nov 2020 14:54:01 +0200
+Message-Id: <20201129125407.1391557-4-idosch@idosch.org>
+In-Reply-To: <20201129125407.1391557-1-idosch@idosch.org>
+References: <20201129125407.1391557-1-idosch@idosch.org>
 MIME-Version: 1.0
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <CANiq72nZrHWTA4_Msg6MP9snTyenC6-eGfD27CyfNSu7QoVZbw@mail.gmail.com>
- <1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com>
- <CANiq72m22Jb5_+62NnwX8xds2iUdWDMAqD8PZw9cuxdHd95W0A@mail.gmail.com>
- <fc45750b6d0277c401015b7aa11e16cd15f32ab2.camel@HansenPartnership.com>
- <CANiq72k5tpDoDPmJ0ZWc1DGqm+81Gi-uEENAtvEs9v3SZcx6_Q@mail.gmail.com>
- <4993259d01a0064f8bb22770503490f9252f3659.camel@HansenPartnership.com>
- <CANiq72kqO=bYMJnFS2uYRpgWATJ=uXxZuNUsTXT+3aLtrpnzvQ@mail.gmail.com>
- <44005bde-f6d4-5eaa-39b8-1a5efeedb2d3@gmail.com>
- <CANiq72nobq=ptWK-qWxU91JHqkKhMcRtJNnw2XJd5-vSJWZd8Q@mail.gmail.com>
- <CAMuHMdV5kOakvZJMWLxbpigFPS+Xuw6DVYsWCWZy7wGsv3idcw@mail.gmail.com>
-In-Reply-To: <CAMuHMdV5kOakvZJMWLxbpigFPS+Xuw6DVYsWCWZy7wGsv3idcw@mail.gmail.com>
-From: Karol Herbst <kherbst@redhat.com>
-Date: Thu, 26 Nov 2020 17:18:13 +0100
-Message-ID: <CACO55tsBj3gLECoMWtViDitd7fVTnW+Cp0LVmqYkR=QFBJkEmQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH 000/141] Fix fall-through warnings for Clang
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 3/9] mlxsw: spectrum: Only treat 802.1q
+	packets as tagged packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -39,64 +27,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: ALSA Development Mailing List <alsa-devel@alsa-project.org>, linux-atm-general@lists.sourceforge.net, linux-iio@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-ide@vger.kernel.org, dm-devel@redhat.com, target-devel <target-devel@vger.kernel.org>, MTD Maling List <linux-mtd@lists.infradead.org>, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, "open list:NFS, SUNRPC, AND..." <linux-nfs@vger.kernel.org>, linux-afs@lists.infradead.org, usb-storage@lists.one-eyed-alien.net, Lars Ellenberg <drbd-dev@lists.linbit.com>, driverdevel <devel@driverdev.osuosl.org>, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, scsi <linux-scsi@vger.kernel.org>, Edward Cree <ecree.xilinx@gmail.com>, linux-rdma <linux-rdma@vger.kernel.org>, oss-drivers@netronome.com, bridge@lists.linux-foundation.org, amd-gfx list <amd-gfx@lists.freedesktop.org>, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>, linux-input <linux-input@vger.kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Ext4 Developers List <linux-ext4@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, samba-technical@lists.samba.org, xen-devel@lists.xenproject.org, Nouveau Dev <nouveau@lists.freedesktop.org>, linux-hams@vger.kernel.org, ceph-devel <ceph-devel@vger.kernel.org>, linux-can@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, GR-Linux-NIC-Dev@marvell.com, tipc-discussion@lists.sourceforge.net, Linux-MM <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>, linux-decnet-user@lists.sourceforge.net, Linux MMC List <linux-mmc@vger.kernel.org>, linux-sctp@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Nathan Chancellor <natechancellor@gmail.com>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, linux-security-module <linux-security-module@vger.kernel.org>, keyrings@vger.kernel.org, NetFilter <netfilter-devel@vger.kernel.org>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, patches@opensource.cirrus.com, Joe Perches <joe@perches.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-integrity <linux-integrity@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, linux-hardening@vger.kernel.org
+To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: ivecera@redhat.com, petrm@nvidia.com, amcohen@nvidia.com, danieller@nvidia.com, mlxsw@nvidia.com, Ido Schimmel <idosch@nvidia.com>, jiri@nvidia.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Thu, Nov 26, 2020 at 4:28 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->
-> Hi Miguel,
->
-> On Thu, Nov 26, 2020 at 3:54 PM Miguel Ojeda
-> <miguel.ojeda.sandonis@gmail.com> wrote:
-> > On Wed, Nov 25, 2020 at 11:44 PM Edward Cree <ecree.xilinx@gmail.com> wrote:
-> > > To make the intent clear, you have to first be certain that you
-> > >  understand the intent; otherwise by adding either a break or a
-> > >  fallthrough to suppress the warning you are just destroying the
-> > >  information that "the intent of this code is unknown".
-> >
-> > If you don't know what the intent of your own code is, then you
-> > *already* have a problem in your hands.
->
-> The maintainer is not necessarily the owner/author of the code, and
-> thus may not know the intent of the code.
->
-> > > or does it flag up code
-> > >  that can be mindlessly "fixed" (in which case the warning is
-> > >  worthless)?  Proponents in this thread seem to be trying to
-> > >  have it both ways.
-> >
-> > A warning is not worthless just because you can mindlessly fix it.
-> > There are many counterexamples, e.g. many
-> > checkpatch/lint/lang-format/indentation warnings, functional ones like
-> > the `if (a = b)` warning...
->
-> BTW, you cannot mindlessly fix the latter, as you cannot know if
-> "(a == b)" or "((a = b))" was intended, without understanding the code
-> (and the (possibly unavailable) data sheet, and the hardware, ...).
->
+From: Amit Cohen <amcohen@nvidia.com>
 
-to allow assignments in if statements was clearly a mistake and if you
-need outside information to understand the code, your code is the
-issue already.
+By default, the device considers both 802.1ad and 802.1q packets as tagged,
+but this is not supported by the driver. It only supports VLAN and bridge
+devices that use 802.1q protocol.
 
-> P.S. So far I've stayed out of this thread, as I like it if the compiler
->      flags possible mistakes.  After all I was the one fixing new
->      "may be used uninitialized" warnings thrown up by gcc-4.1, until
->      (a bit later than) support for that compiler was removed...
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
->
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->
+Instead, configure the device to only treat 802.1q packets as tagged
+packets.
+
+Signed-off-by: Amit Cohen <amcohen@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 26 +++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index b08853f71b2b..ee0c4d098c78 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -1386,6 +1386,19 @@ static int mlxsw_sp_port_overheat_init_val_set(struct mlxsw_sp_port *mlxsw_sp_po
+ 	return 0;
+ }
+ 
++static int
++mlxsw_sp_port_vlan_classification_set(struct mlxsw_sp_port *mlxsw_sp_port,
++				      bool is_8021ad_tagged,
++				      bool is_8021q_tagged)
++{
++	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
++	char spvc_pl[MLXSW_REG_SPVC_LEN];
++
++	mlxsw_reg_spvc_pack(spvc_pl, mlxsw_sp_port->local_port,
++			    is_8021ad_tagged, is_8021q_tagged);
++	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(spvc), spvc_pl);
++}
++
+ static int mlxsw_sp_port_create(struct mlxsw_sp *mlxsw_sp, u8 local_port,
+ 				u8 split_base_local_port,
+ 				struct mlxsw_sp_port_mapping *port_mapping)
+@@ -1592,6 +1605,16 @@ static int mlxsw_sp_port_create(struct mlxsw_sp *mlxsw_sp, u8 local_port,
+ 	}
+ 	mlxsw_sp_port->default_vlan = mlxsw_sp_port_vlan;
+ 
++	/* Set SPVC.et0=true and SPVC.et1=false to make the local port to treat
++	 * only packets with 802.1q header as tagged packets.
++	 */
++	err = mlxsw_sp_port_vlan_classification_set(mlxsw_sp_port, false, true);
++	if (err) {
++		dev_err(mlxsw_sp->bus_info->dev, "Port %d: Failed to set default VLAN classification\n",
++			local_port);
++		goto err_port_vlan_classification_set;
++	}
++
+ 	INIT_DELAYED_WORK(&mlxsw_sp_port->ptp.shaper_dw,
+ 			  mlxsw_sp->ptp_ops->shaper_work);
+ 
+@@ -1618,6 +1641,8 @@ static int mlxsw_sp_port_create(struct mlxsw_sp *mlxsw_sp, u8 local_port,
+ 
+ err_register_netdev:
+ err_port_overheat_init_val_set:
++	mlxsw_sp_port_vlan_classification_set(mlxsw_sp_port, true, true);
++err_port_vlan_classification_set:
+ 	mlxsw_sp->ports[local_port] = NULL;
+ 	mlxsw_sp_port_vlan_destroy(mlxsw_sp_port_vlan);
+ err_port_vlan_create:
+@@ -1664,6 +1689,7 @@ static void mlxsw_sp_port_remove(struct mlxsw_sp *mlxsw_sp, u8 local_port)
+ 	mlxsw_sp_port_ptp_clear(mlxsw_sp_port);
+ 	mlxsw_core_port_clear(mlxsw_sp->core, local_port, mlxsw_sp);
+ 	unregister_netdev(mlxsw_sp_port->dev); /* This calls ndo_stop */
++	mlxsw_sp_port_vlan_classification_set(mlxsw_sp_port, true, true);
+ 	mlxsw_sp->ports[local_port] = NULL;
+ 	mlxsw_sp_port_vlan_flush(mlxsw_sp_port, true);
+ 	mlxsw_sp_port_nve_fini(mlxsw_sp_port);
+-- 
+2.28.0
 
