@@ -1,21 +1,11 @@
-Return-Path: <gustavoars@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1606810884;
- bh=xHTFstOj6O/KMLPWIJ9livXkeh5E3cNJZoMEX1ICbl0=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=0ugfFVtmDEFz3qweRxNJGIbdlhHbJEbe+SPrGbc9I44gM+O6I2rVgrcZagGiPQlJe
- qDa/e9cJY/n7rREFFqWQI6CYR7sTmaWJfiub5J4ReXH3L76qQfPF0XWoTZ+/KCqBa1
- 43uSa/AsDxhQJOFTJrlenu8ULt+S2HlexiyIiZjk=
-Date: Tue, 1 Dec 2020 02:20:47 -0600
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Message-ID: <20201201082047.GA11832@embeddedor>
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <yq1h7p6gjkk.fsf@ca-mkp.ca.oracle.com>
+Return-Path: <wanghai38@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
+Date: Tue, 1 Dec 2020 22:01:14 +0800
+Message-ID: <20201201140114.67455-1-wanghai38@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq1h7p6gjkk.fsf@ca-mkp.ca.oracle.com>
-Subject: Re: [Bridge] [PATCH 000/141] Fix fall-through warnings for Clang
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] net: bridge: Fix a warning when del bridge
+	sysfs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,20 +14,60 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net, reiserfs-devel@vger.kernel.org, nouveau@lists.freedesktop.org, linux-iio@vger.kernel.org, linux-wireless@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Nathan Chancellor <natechancellor@gmail.com>, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org, samba-technical@lists.samba.org, linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org, usb-storage@lists.one-eyed-alien.net, target-devel@vger.kernel.org, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, Nick Desaulniers <ndesaulniers@google.com>, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, bridge@lists.linux-foundation.org, linux-security-module@vger.kernel.org, amd-gfx@lists.freedesktop.org, linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-geode@lists.infradead.org, linux-can@vger.kernel.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org, drbd-dev@tron.linbit.com, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, x86@kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, Kees Cook <keescook@chromium.org>, linux-mm@kvack.org, netdev@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-sctp@vger.kernel.org, linux-usb@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, patches@opensource.cirrus.com, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, linux-hardening@vger.kernel.org
+To: roopa@nvidia.com, nikolay@nvidia.com, davem@davemloft.net, kuba@kernel.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 01, 2020 at 12:52:27AM -0500, Martin K. Petersen wrote:
-> 
-> Gustavo,
-> 
-> > This series aims to fix almost all remaining fall-through warnings in
-> > order to enable -Wimplicit-fallthrough for Clang.
-> 
-> Applied 20-22,54,120-124 to 5.11/scsi-staging, thanks.
+If adding bridge sysfs fails, br->ifobj will be NULL, there is no
+need to delete its non-existent sysfs when deleting the bridge device,
+otherwise, it will cause a warning. So, when br->ifobj == NULL,
+directly return can fix this bug.
 
-Awesome! :)
+br_sysfs_addbr: can't create group bridge4/bridge
+------------[ cut here ]------------
+sysfs group 'bridge' not found for kobject 'bridge4'
+WARNING: CPU: 2 PID: 9004 at fs/sysfs/group.c:279 sysfs_remove_group fs/sysfs/group.c:279 [inline]
+WARNING: CPU: 2 PID: 9004 at fs/sysfs/group.c:279 sysfs_remove_group+0x153/0x1b0 fs/sysfs/group.c:270
+Modules linked in: iptable_nat
+...
+Call Trace:
+  br_dev_delete+0x112/0x190 net/bridge/br_if.c:384
+  br_dev_newlink net/bridge/br_netlink.c:1381 [inline]
+  br_dev_newlink+0xdb/0x100 net/bridge/br_netlink.c:1362
+  __rtnl_newlink+0xe11/0x13f0 net/core/rtnetlink.c:3441
+  rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3500
+  rtnetlink_rcv_msg+0x385/0x980 net/core/rtnetlink.c:5562
+  netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2494
+  netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+  netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1330
+  netlink_sendmsg+0x793/0xc80 net/netlink/af_netlink.c:1919
+  sock_sendmsg_nosec net/socket.c:651 [inline]
+  sock_sendmsg+0x139/0x170 net/socket.c:671
+  ____sys_sendmsg+0x658/0x7d0 net/socket.c:2353
+  ___sys_sendmsg+0xf8/0x170 net/socket.c:2407
+  __sys_sendmsg+0xd3/0x190 net/socket.c:2440
+  do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Thanks, Martin.
---
-Gustavo
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+---
+ net/bridge/br_sysfs_br.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 7db06e3f642a..1e9cbf31d904 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -991,6 +991,9 @@ void br_sysfs_delbr(struct net_device *dev)
+ 	struct kobject *kobj = &dev->dev.kobj;
+ 	struct net_bridge *br = netdev_priv(dev);
+ 
++	if (!br->ifobj)
++		return;
++
+ 	kobject_put(br->ifobj);
+ 	sysfs_remove_bin_file(kobj, &bridge_forward);
+ 	sysfs_remove_group(kobj, &bridge_group);
+-- 
+2.17.1
+
