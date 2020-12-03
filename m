@@ -1,14 +1,24 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <kuba@kernel.org>
+Date: Wed, 2 Dec 2020 17:03:59 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1606957440;
+ bh=e27nxQB6v2bR4jfkrSYiga7jg2DKJygkFb9Kd8AZ4A8=;
+ h=From:To:Cc:Subject:In-Reply-To:References:From;
+ b=ZBnOAi9moSb5Q48aM5+oabBxGmMJk1G6PX/ufjfMOskIVpIF7i7XT6c6ZVFfc9IM+
+ /DhBdmUOnwVWskBIbnP+UMgOimZ7VchF6mgvTlZ8W0l8CfvdiBkpB/m/3dQhLv82KJ
+ w2GNUw0On5aoTaoP+0KrnwLE0+cyrBmejs6jbnt5QVLqMNGevgfoujRuv7H+O7euBz
+ MTyFGy8PL1RIc5FQMaf3ghHmHDvFT+7BUSEKbvKi6vsY+NA4f7mB2aEdZlArGZfTsl
+ uw4c8mVvmT05e0CYutlnGtZIwsfEsJ+q7RfYrEWrgTKBPlKmdcUnNqa0jBuSCE4Ae2
+ Q5z+lF3Ph5RSg==
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20201202170359.19330bda@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
+In-Reply-To: <20201201140114.67455-1-wanghai38@huawei.com>
+References: <20201201140114.67455-1-wanghai38@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <160686600727.2300.3935564994527670490.git-patchwork-notify@kernel.org>
-Date: Tue, 01 Dec 2020 23:40:07 +0000
-References: <20201129125407.1391557-1-idosch@idosch.org>
-In-Reply-To: <20201129125407.1391557-1-idosch@idosch.org>
-Subject: Re: [Bridge] [PATCH net-next 0/9] mlxsw: Add support for 802.1ad
-	bridging
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net] net: bridge: Fix a warning when del bridge
+	sysfs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,46 +27,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: ivecera@redhat.com, petrm@nvidia.com, amcohen@nvidia.com, danieller@nvidia.com, netdev@vger.kernel.org, idosch@nvidia.com, bridge@lists.linux-foundation.org, roopa@nvidia.com, mlxsw@nvidia.com, nikolay@nvidia.com, jiri@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Wang Hai <wanghai38@huawei.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, davem@davemloft.net
 
-Hello:
-
-This series was applied to netdev/net-next.git (refs/heads/master):
-
-On Sun, 29 Nov 2020 14:53:58 +0200 you wrote:
-> From: Ido Schimmel <idosch@nvidia.com>
+On Tue, 1 Dec 2020 22:01:14 +0800 Wang Hai wrote:
+> If adding bridge sysfs fails, br->ifobj will be NULL, there is no
+> need to delete its non-existent sysfs when deleting the bridge device,
+> otherwise, it will cause a warning. So, when br->ifobj == NULL,
+> directly return can fix this bug.
 > 
-> 802.1ad, also known as QinQ, is an extension to the 802.1q standard,
-> which is concerned with passing possibly 802.1q-tagged packets through
-> another VLAN-like tunnel. The format of 802.1ad tag is the same as
-> 802.1q, except it uses the EtherType of 0x88a8, unlike 802.1q's 0x8100.
+> br_sysfs_addbr: can't create group bridge4/bridge
+> ------------[ cut here ]------------
+> sysfs group 'bridge' not found for kobject 'bridge4'
+> WARNING: CPU: 2 PID: 9004 at fs/sysfs/group.c:279 sysfs_remove_group fs/sysfs/group.c:279 [inline]
+> WARNING: CPU: 2 PID: 9004 at fs/sysfs/group.c:279 sysfs_remove_group+0x153/0x1b0 fs/sysfs/group.c:270
+> Modules linked in: iptable_nat
+> ...
+> Call Trace:
+>   br_dev_delete+0x112/0x190 net/bridge/br_if.c:384
+>   br_dev_newlink net/bridge/br_netlink.c:1381 [inline]
+>   br_dev_newlink+0xdb/0x100 net/bridge/br_netlink.c:1362
+>   __rtnl_newlink+0xe11/0x13f0 net/core/rtnetlink.c:3441
+>   rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3500
+>   rtnetlink_rcv_msg+0x385/0x980 net/core/rtnetlink.c:5562
+>   netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2494
+>   netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+>   netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1330
+>   netlink_sendmsg+0x793/0xc80 net/netlink/af_netlink.c:1919
+>   sock_sendmsg_nosec net/socket.c:651 [inline]
+>   sock_sendmsg+0x139/0x170 net/socket.c:671
+>   ____sys_sendmsg+0x658/0x7d0 net/socket.c:2353
+>   ___sys_sendmsg+0xf8/0x170 net/socket.c:2407
+>   __sys_sendmsg+0xd3/0x190 net/socket.c:2440
+>   do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
+>   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 > 
-> [...]
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Wang Hai <wanghai38@huawei.com>
 
-Here is the summary with links:
-  - [net-next,1/9] mlxsw: reg: Add Switch Port VLAN Classification Register
-    https://git.kernel.org/netdev/net-next/c/7e9a6620d5c3
-  - [net-next,2/9] mlxsw: reg: Add et_vlan field to SPVID register
-    https://git.kernel.org/netdev/net-next/c/2a5a290d6d94
-  - [net-next,3/9] mlxsw: spectrum: Only treat 802.1q packets as tagged packets
-    https://git.kernel.org/netdev/net-next/c/a2ef3ae15834
-  - [net-next,4/9] mlxsw: Make EtherType configurable when pushing VLAN at ingress
-    https://git.kernel.org/netdev/net-next/c/3ae7a65b6424
-  - [net-next,5/9] mlxsw: spectrum_switchdev: Create common functions for VLAN-aware bridge
-    https://git.kernel.org/netdev/net-next/c/773ce33a4860
-  - [net-next,6/9] mlxsw: spectrum_switchdev: Add support of QinQ traffic
-    https://git.kernel.org/netdev/net-next/c/80dfeafd6479
-  - [net-next,7/9] bridge: switchdev: Notify about VLAN protocol changes
-    https://git.kernel.org/netdev/net-next/c/22ec19f3aee3
-  - [net-next,8/9] mlxsw: Add QinQ configuration vetoes
-    https://git.kernel.org/netdev/net-next/c/09139f67d346
-  - [net-next,9/9] selftests: forwarding: Add QinQ veto testing
-    https://git.kernel.org/netdev/net-next/c/008cb2ec4354
+Nik, is this the way you want to handle this?
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Should the notifier not fail if sysfs files cannot be created?
+Currently br_sysfs_addbr() returns an int but the only caller 
+ignores it.
 
+> diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+> index 7db06e3f642a..1e9cbf31d904 100644
+> --- a/net/bridge/br_sysfs_br.c
+> +++ b/net/bridge/br_sysfs_br.c
+> @@ -991,6 +991,9 @@ void br_sysfs_delbr(struct net_device *dev)
+>  	struct kobject *kobj = &dev->dev.kobj;
+>  	struct net_bridge *br = netdev_priv(dev);
+>  
+> +	if (!br->ifobj)
+> +		return;
+> +
+>  	kobject_put(br->ifobj);
+>  	sysfs_remove_bin_file(kobj, &bridge_forward);
+>  	sysfs_remove_group(kobj, &bridge_group);
 
