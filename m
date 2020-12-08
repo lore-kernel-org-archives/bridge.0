@@ -1,26 +1,24 @@
-Return-Path: <kuba@kernel.org>
-Date: Mon, 7 Dec 2020 17:20:15 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1607390416;
- bh=PBUakZSI/8fHqIXDH5E3y18maLAa5mtKjoEIZuFHY+M=;
- h=From:To:Cc:Subject:In-Reply-To:References:From;
- b=BhqtjXk6xWeLrCwKwGYXVkfULXcIt3S2h/OvxHAJZUNY7uVskIk3frX3CFUWK/Sgx
- 51oR0fz61/NPW4KE3Fe61xV00FzipnOi4sJG6Uogltxs+N8ANiOzgGwHam/C/6qL5e
- 5k88Lrs8gunDw81G3XlDFuRu5aNjU79iv6xnL9sdDEczeVcuAGHb9R9xtYWdocksjS
- zFHcswSpXza05xnRa2uM+Uj7wEi8mUIGOzP91CtMHlFCigkKpyftX5AztJI7dKOizx
- yw2YJU3wjtgpiD1G5Iv9NXgjblUqQDNyn6niCGuZ5b/4Is0g0ZInjB0Moems87kYth
- 3lx2KTvxiDw3w==
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201207172015.1f5a70b0@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
-In-Reply-To: <f16d76ed-5d93-d15b-e7da-5133e3b6c3e7@nvidia.com>
-References: <20201201214047.128948-1-Joseph.Huang@garmin.com>
- <20201204235628.50653-1-Joseph.Huang@garmin.com>
- <f16d76ed-5d93-d15b-e7da-5133e3b6c3e7@nvidia.com>
+Return-Path: <martin.petersen@oracle.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=1e3cV7XKyt5cBPHNeWYhYMHu3W87CKppja6U1Jvw5F4=;
+ b=V+G180Fh0lHbcmydQJqS5i+cerb42SoRrRI9QCXlQMjyWKKfj0acXqExTQUiK+7OEtft
+ OuMy/8L57grCegXY4FPi2mfpdUD9NETOrjU6XyLEGnB6yCKU9e30d2WSgQTsYBxq/cMN
+ 5junVfgiRpfFB5rc1EfDtZHP43anCs3FIrUtz16u4yPsKG0NCInMT5yeMTaPCX1MMJeq
+ qZ1GHIcbwNatFRQ/tELhwJDJybfqjlIskC/pDoCLpTPJ2KTrod7PX9rst5aaRTC3xIQA
+ veh/+mbPHLjYXfePq5oiUCHv2+7Gowf8M2KKiHFzojpZKSSSQD2meZy2nTRpI8CVh6TQ Yg== 
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Date: Mon,  7 Dec 2020 23:52:01 -0500
+Message-Id: <160740299787.710.4201881220590518200.b4-ty@oracle.com>
+In-Reply-To: <cover.1605896059.git.gustavoars@kernel.org>
+References: <cover.1605896059.git.gustavoars@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v3] bridge: Fix a deadlock when enabling
- multicast snooping
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] (subset) [PATCH 000/141] Fix fall-through warnings for
+	Clang
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,39 +27,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>, Joseph Huang <Joseph.Huang@garmin.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>
+To: linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: linux-fbdev@vger.kernel.org, linux-atm-general@lists.sourceforge.net, linux-stm32@st-md-mailman.stormreply.com, linux-iio@vger.kernel.org, linux-wireless@vger.kernel.org, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, linux-hardening@vger.kernel.org, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux-decnet-user@lists.sourceforge.net, ceph-devel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net, Kees Cook <keescook@chromium.org>, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, linux1394-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, x86@kernel.org, amd-gfx@lists.freedesktop.org, linux-afs@lists.infradead.org, cluster-devel@redhat.com, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, linux-watchdog@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, samba-technical@lists.samba.org, drbd-dev@tron.linbit.com, linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-can@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-mmc@vger.kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, tipc-discussion@lists.sourceforge.net, "Martin K . Petersen" <martin.petersen@oracle.com>, nouveau@lists.freedesktop.org, patches@opensource.cirrus.com, linux-usb@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, linux-sctp@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-security-module@vger.kernel.org, target-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, GR-everest-linux-l2@marvell.com
 
-On Sat, 5 Dec 2020 10:56:45 +0200 Nikolay Aleksandrov wrote:
-> On 05/12/2020 01:56, Joseph Huang wrote:
-> > When enabling multicast snooping, bridge module deadlocks on multicast_lock
-> > if 1) IPv6 is enabled, and 2) there is an existing querier on the same L2
-> > network.
-> > 
-> > The deadlock was caused by the following sequence: While holding the lock,
-> > br_multicast_open calls br_multicast_join_snoopers, which eventually causes
-> > IP stack to (attempt to) send out a Listener Report (in igmp6_join_group).
-> > Since the destination Ethernet address is a multicast address, br_dev_xmit
-> > feeds the packet back to the bridge via br_multicast_rcv, which in turn
-> > calls br_multicast_add_group, which then deadlocks on multicast_lock.
-> > 
-> > The fix is to move the call br_multicast_join_snoopers outside of the
-> > critical section. This works since br_multicast_join_snoopers only deals
-> > with IP and does not modify any multicast data structures of the bridge,
-> > so there's no need to hold the lock.
-> > 
-> > Steps to reproduce:
-> > 1. sysctl net.ipv6.conf.all.force_mld_version=1
-> > 2. have another querier
-> > 3. ip link set dev bridge type bridge mcast_snooping 0 && \
-> >    ip link set dev bridge type bridge mcast_snooping 1 < deadlock >
-> > 
-> > A typical call trace looks like the following:
+On Fri, 20 Nov 2020 12:21:39 -0600, Gustavo A. R. Silva wrote:
 
-> > Fixes: 4effd28c1245 ("bridge: join all-snoopers multicast address")
-> > Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
+> This series aims to fix almost all remaining fall-through warnings in
+> order to enable -Wimplicit-fallthrough for Clang.
 > 
-> LGTM, thanks!
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+> In preparation to enable -Wimplicit-fallthrough for Clang, explicitly
+> add multiple break/goto/return/fallthrough statements instead of just
+> letting the code fall through to the next case.
+> 
+> [...]
 
-Applied, thank you!
+Applied to 5.11/scsi-queue, thanks!
+
+[054/141] target: Fix fall-through warnings for Clang
+          https://git.kernel.org/mkp/scsi/c/492096ecfa39
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
