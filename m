@@ -1,29 +1,26 @@
 Return-Path: <kuba@kernel.org>
-Date: Fri, 4 Dec 2020 08:11:53 -0800
+Date: Mon, 7 Dec 2020 17:20:15 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1607098314;
- bh=t7l9nX5UkyKRq8h2G9WlrGZktfzK+n7e18YEE+2zpCE=;
+ s=k20201202; t=1607390416;
+ bh=PBUakZSI/8fHqIXDH5E3y18maLAa5mtKjoEIZuFHY+M=;
  h=From:To:Cc:Subject:In-Reply-To:References:From;
- b=h/AS4nNJ48FNWSpNFkSAToFJ+zj6dTgm1ogidDY9A+ScjDObCwrPJfBLaZZY4DczW
- 3q6mpw/NKC7fyD1HdLBZglXgK5sabbUr6MggDNZiyxgd662lL/KHQmflzw2tqZHiJv
- BnoBhUTUznIx3YSsScLRHMPVUOjQTnfQbrm5pYmlpNyB6ny978fBz3+utogOxhPXnd
- 0L4ECSf3ze8Blthlk/3F9LNGHHjyNcLcA5GcMWvmHUrnUMIZFOJduUZc82d1Kh1EnN
- vfowxW0x5nS4IeMtGaewsZDR1t7pxamDhrTWQEUFjwduhlRRVYzCvB8ocIU0PHM/cR
- IQo267aFJKdZQ==
+ b=BhqtjXk6xWeLrCwKwGYXVkfULXcIt3S2h/OvxHAJZUNY7uVskIk3frX3CFUWK/Sgx
+ 51oR0fz61/NPW4KE3Fe61xV00FzipnOi4sJG6Uogltxs+N8ANiOzgGwHam/C/6qL5e
+ 5k88Lrs8gunDw81G3XlDFuRu5aNjU79iv6xnL9sdDEczeVcuAGHb9R9xtYWdocksjS
+ zFHcswSpXza05xnRa2uM+Uj7wEi8mUIGOzP91CtMHlFCigkKpyftX5AztJI7dKOizx
+ yw2YJU3wjtgpiD1G5Iv9NXgjblUqQDNyn6niCGuZ5b/4Is0g0ZInjB0Moems87kYth
+ 3lx2KTvxiDw3w==
 From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20201204081153.496626f6@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
-In-Reply-To: <75cf7844-8df7-0ea2-1980-ff868a1bc34e@nvidia.com>
+Message-ID: <20201207172015.1f5a70b0@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
+In-Reply-To: <f16d76ed-5d93-d15b-e7da-5133e3b6c3e7@nvidia.com>
 References: <20201201214047.128948-1-Joseph.Huang@garmin.com>
- <20201203102802.62bc86ba@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
- <bd84ca4c-c694-6fd2-81ef-08e9253c18a4@nvidia.com>
- <c82ce96d74ed4d3897d2e68a258f7834@garmin.com>
- <2b96b845990e4a84a3b3fd46f4138ac6@garmin.com>
- <75cf7844-8df7-0ea2-1980-ff868a1bc34e@nvidia.com>
+ <20201204235628.50653-1-Joseph.Huang@garmin.com>
+ <f16d76ed-5d93-d15b-e7da-5133e3b6c3e7@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] bridge: Fix a deadlock when enabling multicast
-	snooping
+Subject: Re: [Bridge] [PATCH v3] bridge: Fix a deadlock when enabling
+ multicast snooping
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,16 +29,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Huang, Joseph" <Joseph.Huang@garmin.com>
-Cc: netdev@vger.kernel.org, "bridge@lists.linux-foundation.org\" <bridge@lists.linux-foundation.org>,
- "@osuosl.org, "  <netdev@vger.kernel.org>, "@osuosl.org, linux-kernel@vger.kernel.org, "  <linux-kernel@vger.kernel.org>,
- Linus =?UTF-8?B?TMO8c3Npbmc=?=  <linus.luessing@c0d3.blue>"@osuosl.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>
+To: Nikolay Aleksandrov <nikolay@nvidia.com>, Joseph Huang <Joseph.Huang@garmin.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>
 
-On Fri, 4 Dec 2020 01:34:57 +0200 Nikolay Aleksandrov wrote:
-> Please add a comment why it's needed, so we won't wonder about it
-> later. And also include the trace in the commit message so we'd have
-> it.
+On Sat, 5 Dec 2020 10:56:45 +0200 Nikolay Aleksandrov wrote:
+> On 05/12/2020 01:56, Joseph Huang wrote:
+> > When enabling multicast snooping, bridge module deadlocks on multicast_lock
+> > if 1) IPv6 is enabled, and 2) there is an existing querier on the same L2
+> > network.
+> > 
+> > The deadlock was caused by the following sequence: While holding the lock,
+> > br_multicast_open calls br_multicast_join_snoopers, which eventually causes
+> > IP stack to (attempt to) send out a Listener Report (in igmp6_join_group).
+> > Since the destination Ethernet address is a multicast address, br_dev_xmit
+> > feeds the packet back to the bridge via br_multicast_rcv, which in turn
+> > calls br_multicast_add_group, which then deadlocks on multicast_lock.
+> > 
+> > The fix is to move the call br_multicast_join_snoopers outside of the
+> > critical section. This works since br_multicast_join_snoopers only deals
+> > with IP and does not modify any multicast data structures of the bridge,
+> > so there's no need to hold the lock.
+> > 
+> > Steps to reproduce:
+> > 1. sysctl net.ipv6.conf.all.force_mld_version=1
+> > 2. have another querier
+> > 3. ip link set dev bridge type bridge mcast_snooping 0 && \
+> >    ip link set dev bridge type bridge mcast_snooping 1 < deadlock >
+> > 
+> > A typical call trace looks like the following:
 
-And please drop the empty line between the Fixes tag and your sign-off.
-We like tags all clustered together at the end, sort of reverse of
-email headers.
+> > Fixes: 4effd28c1245 ("bridge: join all-snoopers multicast address")
+> > Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
+> 
+> LGTM, thanks!
+> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+
+Applied, thank you!
