@@ -1,24 +1,24 @@
-Return-Path: <martin.petersen@oracle.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=1e3cV7XKyt5cBPHNeWYhYMHu3W87CKppja6U1Jvw5F4=;
- b=V+G180Fh0lHbcmydQJqS5i+cerb42SoRrRI9QCXlQMjyWKKfj0acXqExTQUiK+7OEtft
- OuMy/8L57grCegXY4FPi2mfpdUD9NETOrjU6XyLEGnB6yCKU9e30d2WSgQTsYBxq/cMN
- 5junVfgiRpfFB5rc1EfDtZHP43anCs3FIrUtz16u4yPsKG0NCInMT5yeMTaPCX1MMJeq
- qZ1GHIcbwNatFRQ/tELhwJDJybfqjlIskC/pDoCLpTPJ2KTrod7PX9rst5aaRTC3xIQA
- veh/+mbPHLjYXfePq5oiUCHv2+7Gowf8M2KKiHFzojpZKSSSQD2meZy2nTRpI8CVh6TQ Yg== 
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Date: Mon,  7 Dec 2020 23:52:01 -0500
-Message-Id: <160740299787.710.4201881220590518200.b4-ty@oracle.com>
-In-Reply-To: <cover.1605896059.git.gustavoars@kernel.org>
-References: <cover.1605896059.git.gustavoars@kernel.org>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1607678794; x=1639214794;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=GyMmX3D/jsJ9E6NpxK0JHdKPYb1uHzNbBgKwWLSpo6s=;
+ b=0V2eCZdj62qsdhq26taOGUL61+3yoyVmCE6L+mhjxEbugcZsCuNd+dG0
+ yXTCHM0Cddx+/f3DxPsF8nzK2kRsI6BnEnWLMP2iSd4ebeieceHG1tnY1
+ 5I05BI3LaP/xVrRB44h7+63Yk3T/hZwF/dW17EG0GckMM2AaRaDcyWUga
+ BzBM8onCEtPGG0ko5OwcrwLLOXW0RHVgG7Mu6EJr8S3FCDr/EXnp8sAwE
+ voEzCNc9kJsvRxk68YAmuOwH3FUk+8B9O9Vg7OAOWG07tIyV2RLfoU2wK
+ uBph391ZysHvVawE+eqFy9tKYn+nUGoQTLZ+T7bq3t5RGLPX1n+XJSflH w==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Fri, 11 Dec 2020 10:26:26 +0100
+Message-ID: <20201211092626.809206-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] (subset) [PATCH 000/141] Fix fall-through warnings for
-	Clang
+Content-Type: text/plain
+Subject: [Bridge] [RFC net-next] net: bridge: igmp: Extend IGMP query with
+	vlan support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,24 +27,107 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: linux-fbdev@vger.kernel.org, linux-atm-general@lists.sourceforge.net, linux-stm32@st-md-mailman.stormreply.com, linux-iio@vger.kernel.org, linux-wireless@vger.kernel.org, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, linux-hardening@vger.kernel.org, wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org, linux-decnet-user@lists.sourceforge.net, ceph-devel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net, Kees Cook <keescook@chromium.org>, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com, linux1394-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, oss-drivers@netronome.com, x86@kernel.org, amd-gfx@lists.freedesktop.org, linux-afs@lists.infradead.org, cluster-devel@redhat.com, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, linux-watchdog@vger.kernel.org, selinux@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, reiserfs-devel@vger.kernel.org, linux-geode@lists.infradead.org, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org, samba-technical@lists.samba.org, drbd-dev@tron.linbit.com, linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>, linux-can@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-mmc@vger.kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com, tipc-discussion@lists.sourceforge.net, "Martin K . Petersen" <martin.petersen@oracle.com>, nouveau@lists.freedesktop.org, patches@opensource.cirrus.com, linux-usb@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, linux-sctp@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-security-module@vger.kernel.org, target-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Joe Perches <joe@perches.com>, linux-integrity@vger.kernel.org, GR-everest-linux-l2@marvell.com
+To: nikolay@nvidia.com, roopa@nvidia.com, davem@davemloft.net, kuba@kernel.org, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, allan.nielsen@microchip.com
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On Fri, 20 Nov 2020 12:21:39 -0600, Gustavo A. R. Silva wrote:
+This patch tries to add vlan support to IGMP queries.
+It extends the function 'br_ip4_multicast_alloc_query' to add
+also a vlan tag if vlan is enabled. Therefore the bridge will send
+queries for each vlan the ports are in.
 
-> This series aims to fix almost all remaining fall-through warnings in
-> order to enable -Wimplicit-fallthrough for Clang.
-> 
-> In preparation to enable -Wimplicit-fallthrough for Clang, explicitly
-> add multiple break/goto/return/fallthrough statements instead of just
-> letting the code fall through to the next case.
-> 
-> [...]
+There are few other places that needs to be updated to be fully
+functional. But I am curious if this is the way to go forward or is
+there a different way of implementing this?
 
-Applied to 5.11/scsi-queue, thanks!
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ net/bridge/br_multicast.c | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-[054/141] target: Fix fall-through warnings for Clang
-          https://git.kernel.org/mkp/scsi/c/492096ecfa39
-
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 484820c223a3..4c2db8a9efe0 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -688,7 +688,8 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge *br,
+ 						    __be32 ip_dst, __be32 group,
+ 						    bool with_srcs, bool over_lmqt,
+ 						    u8 sflag, u8 *igmp_type,
+-						    bool *need_rexmit)
++						    bool *need_rexmit,
++						    __u16 vid)
+ {
+ 	struct net_bridge_port *p = pg ? pg->key.port : NULL;
+ 	struct net_bridge_group_src *ent;
+@@ -724,6 +725,9 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge *br,
+ 	}
+ 
+ 	pkt_size = sizeof(*eth) + sizeof(*iph) + 4 + igmp_hdr_size;
++	if (br_vlan_enabled(br->dev) && vid != 0)
++		pkt_size += 4;
++
+ 	if ((p && pkt_size > p->dev->mtu) ||
+ 	    pkt_size > br->dev->mtu)
+ 		return NULL;
+@@ -732,6 +736,9 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge *br,
+ 	if (!skb)
+ 		goto out;
+ 
++	if (br_vlan_enabled(br->dev) && vid != 0)
++		__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), vid);
++
+ 	skb->protocol = htons(ETH_P_IP);
+ 
+ 	skb_reset_mac_header(skb);
+@@ -1008,7 +1015,8 @@ static struct sk_buff *br_multicast_alloc_query(struct net_bridge *br,
+ 						    ip4_dst, group->dst.ip4,
+ 						    with_srcs, over_lmqt,
+ 						    sflag, igmp_type,
+-						    need_rexmit);
++						    need_rexmit,
++						    group->vid);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	case htons(ETH_P_IPV6): {
+ 		struct in6_addr ip6_dst;
+@@ -1477,6 +1485,8 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 				    struct bridge_mcast_own_query *own_query)
+ {
+ 	struct bridge_mcast_other_query *other_query = NULL;
++	struct net_bridge_vlan_group *vg;
++	struct net_bridge_vlan *v;
+ 	struct br_ip br_group;
+ 	unsigned long time;
+ 
+@@ -1485,7 +1495,7 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 	    !br_opt_get(br, BROPT_MULTICAST_QUERIER))
+ 		return;
+ 
+-	memset(&br_group.dst, 0, sizeof(br_group.dst));
++	memset(&br_group, 0, sizeof(br_group));
+ 
+ 	if (port ? (own_query == &port->ip4_own_query) :
+ 		   (own_query == &br->ip4_own_query)) {
+@@ -1501,8 +1511,19 @@ static void br_multicast_send_query(struct net_bridge *br,
+ 	if (!other_query || timer_pending(&other_query->timer))
+ 		return;
+ 
+-	__br_multicast_send_query(br, port, NULL, NULL, &br_group, false, 0,
+-				  NULL);
++	if (br_vlan_enabled(br->dev) && port) {
++		vg = nbp_vlan_group(port);
++
++		list_for_each_entry(v, &vg->vlan_list, vlist) {
++			br_group.vid = v->vid == vg->pvid ? 0 : v->vid;
++
++			__br_multicast_send_query(br, port, NULL, NULL,
++						  &br_group, false, 0, NULL);
++		}
++	} else {
++		__br_multicast_send_query(br, port, NULL, NULL, &br_group,
++					  false, 0, NULL);
++	}
+ 
+ 	time = jiffies;
+ 	time += own_query->startup_sent < br->multicast_startup_query_count ?
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.27.0
+
