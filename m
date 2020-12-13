@@ -1,22 +1,25 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4bNUNyX2OkcA/p7RRz8/0NoCDR167RI4yVLO7Zke4+Y=;
- b=Fy1N42YJw/0HIQ7RCvewEOSaC5jkv/k7IxyT191WspJzF4q+fwwpq8vVOMMXPJI4hDPmbsllLMYEwAvrtO8F0Rj2vPBrzHJc75GlwUszeba7SrxKTN22kvQBzUqvyDMNGAdk74jmKkMFrKeGnWYnxvie+neZ9bceWOQJd9ceyho=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Sun, 13 Dec 2020 13:57:58 +0000
-Message-ID: <20201213135757.wf7c7dkl4odnn44z@skbuf>
-References: <20201213024018.772586-1-vladimir.oltean@nxp.com>
- <20201213024018.772586-2-vladimir.oltean@nxp.com>
- <85b824ea-5f43-b483-55b6-4ffd0e8275d8@nvidia.com>
- <562e27af-ff7a-8dad-4303-19edd5b15af8@nvidia.com>
-In-Reply-To: <562e27af-ff7a-8dad-4303-19edd5b15af8@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <58F46658F1B9A4458E3B58A4F77D0D92@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:content-type:date:from:in-reply-to
+ :message-id:mime-version:references:subject:to:x-me-proxy
+ :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dpcwTT
+ z/sesD3B1rZoBYSQwgGPQNjssdt5XLEtahVEc=; b=HosWXGNIaVwtkVUadRZphf
+ vpGtRomJMH/cvw37j0NuQLej2sw8tqNCj9GFX9+Mg03v+Bk34NG37Po68y14S1s9
+ gtje7ny4yNPNulCrcApDMja4srFBDpTzz9q5+/A8KKThMczApn5Y8qoWp/XdF+ay
+ oE4safZdDFaCtLrv7kgXZLTEWtyP2IZ6KcSfgsx5T9L6dumu83jXTNVrb4gJWpIe
+ wlk7BCyyM5Mdz2+6E6vWvmA6GEK2G0b7G6tQbgSxB9KaEglCrNl2eFOnORiMpO1g
+ nqAEskOoS8nvrY63A8yj78ZefU02Qq4fg/4Xx4rnJmAGdIiBwQzwBdVJohAApAiQ
+ ==
+Date: Sun, 13 Dec 2020 16:55:43 +0200
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <20201213145543.GA2539586@shredder.lan>
+References: <20201213140710.1198050-1-vladimir.oltean@nxp.com>
+ <20201213140710.1198050-2-vladimir.oltean@nxp.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH v2 net-next 1/6] net: bridge: notify switchdev
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201213140710.1198050-2-vladimir.oltean@nxp.com>
+Subject: Re: [Bridge] [PATCH v3 net-next 1/7] net: bridge: notify switchdev
  of disappearance of old FDB entry upon migration
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -26,15 +29,121 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido Schimmel <idosch@idosch.org>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Marek Behun <marek.behun@nic.cz>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Marek Behun <marek.behun@nic.cz>, Vivien Didelot <vivien.didelot@gmail.com>, UNGLinuxDriver@microchip.com, Tobias Waldekranz <tobias@waldekranz.com>
 
-On Sun, Dec 13, 2020 at 03:36:13PM +0200, Nikolay Aleksandrov wrote:
-> Nevermind the whole comment. :) I was looking at the wrong code and got c=
-onfused.
->
-> All is well (thanks to Ido).
->
+On Sun, Dec 13, 2020 at 04:07:04PM +0200, Vladimir Oltean wrote:
+> Currently the bridge emits atomic switchdev notifications for
+> dynamically learnt FDB entries. Monitoring these notifications works
+> wonders for switchdev drivers that want to keep their hardware FDB in
+> sync with the bridge's FDB.
+> 
+> For example station A wants to talk to station B in the diagram below,
+> and we are concerned with the behavior of the bridge on the DUT device:
+> 
+>                    DUT
+>  +-------------------------------------+
+>  |                 br0                 |
+>  | +------+ +------+ +------+ +------+ |
+>  | |      | |      | |      | |      | |
+>  | | swp0 | | swp1 | | swp2 | | eth0 | |
+>  +-------------------------------------+
+>       |        |                  |
+>   Station A    |                  |
+>                |                  |
+>          +--+------+--+    +--+------+--+
+>          |  |      |  |    |  |      |  |
+>          |  | swp0 |  |    |  | swp0 |  |
+>  Another |  +------+  |    |  +------+  | Another
+>   switch |     br0    |    |     br0    | switch
+>          |  +------+  |    |  +------+  |
+>          |  |      |  |    |  |      |  |
+>          |  | swp1 |  |    |  | swp1 |  |
+>          +--+------+--+    +--+------+--+
+>                                   |
+>                               Station B
+> 
+> Interfaces swp0, swp1, swp2 are handled by a switchdev driver that has
+> the following property: frames injected from its control interface bypass
+> the internal address analyzer logic, and therefore, this hardware does
+> not learn from the source address of packets transmitted by the network
+> stack through it. So, since bridging between eth0 (where Station B is
+> attached) and swp0 (where Station A is attached) is done in software,
+> the switchdev hardware will never learn the source address of Station B.
+> So the traffic towards that destination will be treated as unknown, i.e.
+> flooded.
+> 
+> This is where the bridge notifications come in handy. When br0 on the
+> DUT sees frames with Station B's MAC address on eth0, the switchdev
+> driver gets these notifications and can install a rule to send frames
+> towards Station B's address that are incoming from swp0, swp1, swp2,
+> only towards the control interface. This is all switchdev driver private
+> business, which the notification makes possible.
+> 
+> All is fine until someone unplugs Station B's cable and moves it to the
+> other switch:
+> 
+>                    DUT
+>  +-------------------------------------+
+>  |                 br0                 |
+>  | +------+ +------+ +------+ +------+ |
+>  | |      | |      | |      | |      | |
+>  | | swp0 | | swp1 | | swp2 | | eth0 | |
+>  +-------------------------------------+
+>       |        |                  |
+>   Station A    |                  |
+>                |                  |
+>          +--+------+--+    +--+------+--+
+>          |  |      |  |    |  |      |  |
+>          |  | swp0 |  |    |  | swp0 |  |
+>  Another |  +------+  |    |  +------+  | Another
+>   switch |     br0    |    |     br0    | switch
+>          |  +------+  |    |  +------+  |
+>          |  |      |  |    |  |      |  |
+>          |  | swp1 |  |    |  | swp1 |  |
+>          +--+------+--+    +--+------+--+
+>                |
+>            Station B
+> 
+> Luckily for the use cases we care about, Station B is noisy enough that
+> the DUT hears it (on swp1 this time). swp1 receives the frames and
+> delivers them to the bridge, who enters the unlikely path in br_fdb_update
+> of updating an existing entry. It moves the entry in the software bridge
+> to swp1 and emits an addition notification towards that.
+> 
+> As far as the switchdev driver is concerned, all that it needs to ensure
+> is that traffic between Station A and Station B is not forever broken.
+> If it does nothing, then the stale rule to send frames for Station B
+> towards the control interface remains in place. But Station B is no
+> longer reachable via the control interface, but via a port that can
+> offload the bridge port learning attribute. It's just that the port is
+> prevented from learning this address, since the rule overrides FDB
+> updates. So the rule needs to go. The question is via what mechanism.
+
+Can you please clarify why the FDB replacement notification is not
+enough? Is it because the hardware you are working with manages MACs to
+CPU in a separate table from its FDB table? I assume that's why you
+refer to it as a "rule" instead of FDB entry? How common is this with
+DSA switches?
+
+Asking because it is not clear to me from the commit message. The patch
+looks fine.
+
+> 
+> It sure would be possible for this switchdev driver to keep track of all
+> addresses which are sent to the control interface, and then also listen
+> for bridge notifier events on its own ports, searching for the ones that
+> have a MAC address which was previously sent to the control interface.
+> But this is cumbersome and inefficient. Instead, with one small change,
+> the bridge could notify of the address deletion from the old port, in a
+> symmetrical manner with how it did for the insertion. Then the switchdev
+> driver would not be required to monitor learn/forget events for its own
+> ports. It could just delete the rule towards the control interface upon
+> bridge entry migration. This would make hardware address learning be
+> possible again. Then it would take a few more packets until the hardware
+> and software FDB would be in sync again.
+> 
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 > Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Ok, thanks. By the way, which wrong code were you looking at?=
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
