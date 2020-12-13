@@ -1,43 +1,18 @@
-Return-Path: <nikolay@nvidia.com>
-References: <20201211122921.40386-1-wanghai38@huawei.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <ca27bd77-a679-b410-386e-f7cbd4fe1960@nvidia.com>
-Date: Fri, 11 Dec 2020 14:34:31 +0200
-In-Reply-To: <20201211122921.40386-1-wanghai38@huawei.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XjIfc9bVDqxAkQp9AJV0erU3JosOeU8GAFNxw3Wmv8U=;
+ b=QI2ZUxtKlQJc/unHeIg8qibj3msuG831pc5liMUiqxfPmFpNcyV1R9HICkDvF/JC/Ajwg4xGi2s6BAGQ9cTpsjMGo5nOe2DgdEPmUMCXGAdeio9Yi0AA/yzYQ/tXwZUgLaZGUjnqTVQiE43ZH8i7Zu1QV4qH+4ImHWiakbvLQ4g=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Sun, 13 Dec 2020 04:40:16 +0200
+Message-Id: <20201213024018.772586-5-vladimir.oltean@nxp.com>
+In-Reply-To: <20201213024018.772586-1-vladimir.oltean@nxp.com>
+References: <20201213024018.772586-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1607690089; bh=a4dDkkvVeV8U82GM+m61Hub3z40BxGAHtYxTCYbI0/c=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
- Authentication-Results:Subject:To:CC:References:From:Message-ID:
- Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
- Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
- MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
- X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
- X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
- X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
- X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
- X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
- X-MS-Exchange-AntiSpam-MessageData:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-OriginalArrivalTime:
- X-MS-Exchange-CrossTenant-FromEntityHeader:
- X-MS-Exchange-CrossTenant-Id:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-MailboxType:
- X-MS-Exchange-CrossTenant-UserPrincipalName:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=n6VFr8g0caEeltIArqEojWcJHQ9DGQH4cUKWakIcFXTK5jQAmZx6Yf4zhA7qMaQx6
- 4PXMRxWlcpgtz1aNDbOazszzwc5ZsQbRBYOIHHiGMRZd8FsihwnbVzbVShsbVO2JE/
- O3tMX791HcYB5kkenUVmanof6cg9o5nRKrIwhkhqxTRKnHg2W2ZfO6xrvKR29fMWiD
- G4DWC9SlQrCayInJbPlzWr+0vsGyzIHN7hv96tWDAUDMTfVy3Dz5Iq6reywoUzOJ1B
- cOdMhVTRYuzt4yakmEkUYd9ubQyTByn3CFj7ieX1Ea61/uNfbSSQ/vl7QwcZQxSOAP
- LshxdtCPm9R6w==
-Subject: Re: [Bridge] [PATCH v2] net: bridge: Fix a warning when del bridge
-	sysfs
+Subject: [Bridge] [PATCH v2 net-next 4/6] net: dsa: exit early in
+	dsa_slave_switchdev_event if we can't program the FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -46,68 +21,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Wang Hai <wanghai38@huawei.com>, kuba@kernel.org, davem@davemloft.net, roopa@nvidia.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Andrew Lunn <andrew@lunn.ch>, Vivien Didelot <vivien.didelot@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido Schimmel <idosch@idosch.org>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, Marek Behun <marek.behun@nic.cz>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-On 11/12/2020 14:29, Wang Hai wrote:
-> I got a warining report:
-> 
-> br_sysfs_addbr: can't create group bridge4/bridge
-> ------------[ cut here ]------------
-> sysfs group 'bridge' not found for kobject 'bridge4'
-> WARNING: CPU: 2 PID: 9004 at fs/sysfs/group.c:279 sysfs_remove_group fs/sysfs/group.c:279 [inline]
-> WARNING: CPU: 2 PID: 9004 at fs/sysfs/group.c:279 sysfs_remove_group+0x153/0x1b0 fs/sysfs/group.c:270
-> Modules linked in: iptable_nat
-> ...
-> Call Trace:
->   br_dev_delete+0x112/0x190 net/bridge/br_if.c:384
->   br_dev_newlink net/bridge/br_netlink.c:1381 [inline]
->   br_dev_newlink+0xdb/0x100 net/bridge/br_netlink.c:1362
->   __rtnl_newlink+0xe11/0x13f0 net/core/rtnetlink.c:3441
->   rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3500
->   rtnetlink_rcv_msg+0x385/0x980 net/core/rtnetlink.c:5562
->   netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2494
->   netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
->   netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1330
->   netlink_sendmsg+0x793/0xc80 net/netlink/af_netlink.c:1919
->   sock_sendmsg_nosec net/socket.c:651 [inline]
->   sock_sendmsg+0x139/0x170 net/socket.c:671
->   ____sys_sendmsg+0x658/0x7d0 net/socket.c:2353
->   ___sys_sendmsg+0xf8/0x170 net/socket.c:2407
->   __sys_sendmsg+0xd3/0x190 net/socket.c:2440
->   do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
->   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> In br_device_event(), if the bridge sysfs fails to be added,
-> br_device_event() should return error. This can prevent warining
-> when removing bridge sysfs that do not exist.
-> 
-> Fixes: bb900b27a2f4 ("bridge: allow creating bridge devices with netlink")
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Wang Hai <wanghai38@huawei.com>
-> ---
-> v1->v2: Fix this by check br_sysfs_addbr() return value as Nik's suggestion
->  net/bridge/br.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br.c b/net/bridge/br.c
-> index 401eeb9142eb..1b169f8e7491 100644
-> --- a/net/bridge/br.c
-> +++ b/net/bridge/br.c
-> @@ -43,7 +43,10 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
->  
->  		if (event == NETDEV_REGISTER) {
->  			/* register of bridge completed, add sysfs entries */
-> -			br_sysfs_addbr(dev);
-> +			err = br_sysfs_addbr(dev);
-> +			if (err)
-> +				return notifier_from_errno(err);
-> +
->  			return NOTIFY_DONE;
->  		}
->  	}
-> 
+Right now, the following would happen for a switch driver that does not
+implement .port_fdb_add or .port_fdb_del.
 
-Patch looks good, I also tested it with a notifier error injecting.
-Tested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+dsa_slave_switchdev_event returns NOTIFY_OK and schedules:
+-> dsa_slave_switchdev_event_work
+   -> dsa_port_fdb_add
+      -> dsa_port_notify(DSA_NOTIFIER_FDB_ADD)
+         -> dsa_switch_fdb_add
+            -> if (!ds->ops->port_fdb_add) return -EOPNOTSUPP;
+   -> an error is printed with dev_dbg, and
+      dsa_fdb_offload_notify(switchdev_work) is not called.
+
+We can avoid scheduling the worker for nothing and say NOTIFY_OK.
+Because we don't call dsa_fdb_offload_notify, the static FDB entry will
+remain just in the software bridge.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+Changes in v2:
+Patch is new.
+
+ net/dsa/slave.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 99907e76770b..53d9d2ea9369 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -2129,6 +2129,9 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+ 
+ 		dp = dsa_slave_to_port(dev);
+ 
++		if (!dp->ds->ops->port_fdb_add || !dp->ds->ops->port_fdb_del)
++			return NOTIFY_DONE;
++
+ 		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
+ 		if (!switchdev_work)
+ 			return NOTIFY_BAD;
+-- 
+2.25.1
+
