@@ -1,18 +1,18 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ylaZDEo7pj/8yP1z7Gk7Po/YAjQTTxVqHWZyOAEa3Lg=;
- b=F5VcbLlBiwgglydu3hHcW4arJiQeJh4LFSIRZL127Q618WDTbc4EfFPZu3jbsNfpxwKD7iIi1ZyuoO4+W74IRtNgkBfIHZGPr7Jg6AVEsdIMTRz2pbDeketOAiaLt+PDu7g+fC4+PBRUCoGHxr6gDLVb3VvaSK5exWsGGzHiduM=
+ bh=WbIUbKJWWRf5XUw3Hxats9n5FRteTaPmQ+RwhMXIO/k=;
+ b=WDTzTrhHPBK77ufWvJA6WVKgQaxVg+e6ToLApaKJj3rztSTwgjLa6FYpsVC0iIS5a8LKYag88yGzEPTWVra1qmBTXRYjzZcdi69zcgaRKDtAECgZTY2rnZAHzKrRfu+gxzONKCXNAutuM0Z4GDA+q0IOZabL1YeyrMX7OpFahgg=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Sun, 13 Dec 2020 16:07:04 +0200
-Message-Id: <20201213140710.1198050-2-vladimir.oltean@nxp.com>
+Date: Sun, 13 Dec 2020 16:07:07 +0200
+Message-Id: <20201213140710.1198050-5-vladimir.oltean@nxp.com>
 In-Reply-To: <20201213140710.1198050-1-vladimir.oltean@nxp.com>
 References: <20201213140710.1198050-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v3 net-next 1/7] net: bridge: notify switchdev of
-	disappearance of old FDB entry upon migration
+Subject: [Bridge] [PATCH v3 net-next 4/7] net: dsa: move switchdev event
+	implementation under the same switch/case statement
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,130 +24,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Andrew Lunn <andrew@lunn.ch>, Vivien Didelot <vivien.didelot@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>
 Cc: Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido Schimmel <idosch@idosch.org>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, Marek Behun <marek.behun@nic.cz>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, UNGLinuxDriver@microchip.com, Tobias Waldekranz <tobias@waldekranz.com>
 
-Currently the bridge emits atomic switchdev notifications for
-dynamically learnt FDB entries. Monitoring these notifications works
-wonders for switchdev drivers that want to keep their hardware FDB in
-sync with the bridge's FDB.
+We'll need to start listening to SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE
+events even for interfaces where dsa_slave_dev_check returns false, so
+we need that check inside the switch-case statement for SWITCHDEV_FDB_*.
 
-For example station A wants to talk to station B in the diagram below,
-and we are concerned with the behavior of the bridge on the DUT device:
-
-                   DUT
- +-------------------------------------+
- |                 br0                 |
- | +------+ +------+ +------+ +------+ |
- | |      | |      | |      | |      | |
- | | swp0 | | swp1 | | swp2 | | eth0 | |
- +-------------------------------------+
-      |        |                  |
-  Station A    |                  |
-               |                  |
-         +--+------+--+    +--+------+--+
-         |  |      |  |    |  |      |  |
-         |  | swp0 |  |    |  | swp0 |  |
- Another |  +------+  |    |  +------+  | Another
-  switch |     br0    |    |     br0    | switch
-         |  +------+  |    |  +------+  |
-         |  |      |  |    |  |      |  |
-         |  | swp1 |  |    |  | swp1 |  |
-         +--+------+--+    +--+------+--+
-                                  |
-                              Station B
-
-Interfaces swp0, swp1, swp2 are handled by a switchdev driver that has
-the following property: frames injected from its control interface bypass
-the internal address analyzer logic, and therefore, this hardware does
-not learn from the source address of packets transmitted by the network
-stack through it. So, since bridging between eth0 (where Station B is
-attached) and swp0 (where Station A is attached) is done in software,
-the switchdev hardware will never learn the source address of Station B.
-So the traffic towards that destination will be treated as unknown, i.e.
-flooded.
-
-This is where the bridge notifications come in handy. When br0 on the
-DUT sees frames with Station B's MAC address on eth0, the switchdev
-driver gets these notifications and can install a rule to send frames
-towards Station B's address that are incoming from swp0, swp1, swp2,
-only towards the control interface. This is all switchdev driver private
-business, which the notification makes possible.
-
-All is fine until someone unplugs Station B's cable and moves it to the
-other switch:
-
-                   DUT
- +-------------------------------------+
- |                 br0                 |
- | +------+ +------+ +------+ +------+ |
- | |      | |      | |      | |      | |
- | | swp0 | | swp1 | | swp2 | | eth0 | |
- +-------------------------------------+
-      |        |                  |
-  Station A    |                  |
-               |                  |
-         +--+------+--+    +--+------+--+
-         |  |      |  |    |  |      |  |
-         |  | swp0 |  |    |  | swp0 |  |
- Another |  +------+  |    |  +------+  | Another
-  switch |     br0    |    |     br0    | switch
-         |  +------+  |    |  +------+  |
-         |  |      |  |    |  |      |  |
-         |  | swp1 |  |    |  | swp1 |  |
-         +--+------+--+    +--+------+--+
-               |
-           Station B
-
-Luckily for the use cases we care about, Station B is noisy enough that
-the DUT hears it (on swp1 this time). swp1 receives the frames and
-delivers them to the bridge, who enters the unlikely path in br_fdb_update
-of updating an existing entry. It moves the entry in the software bridge
-to swp1 and emits an addition notification towards that.
-
-As far as the switchdev driver is concerned, all that it needs to ensure
-is that traffic between Station A and Station B is not forever broken.
-If it does nothing, then the stale rule to send frames for Station B
-towards the control interface remains in place. But Station B is no
-longer reachable via the control interface, but via a port that can
-offload the bridge port learning attribute. It's just that the port is
-prevented from learning this address, since the rule overrides FDB
-updates. So the rule needs to go. The question is via what mechanism.
-
-It sure would be possible for this switchdev driver to keep track of all
-addresses which are sent to the control interface, and then also listen
-for bridge notifier events on its own ports, searching for the ones that
-have a MAC address which was previously sent to the control interface.
-But this is cumbersome and inefficient. Instead, with one small change,
-the bridge could notify of the address deletion from the old port, in a
-symmetrical manner with how it did for the insertion. Then the switchdev
-driver would not be required to monitor learn/forget events for its own
-ports. It could just delete the rule towards the control interface upon
-bridge entry migration. This would make hardware address learning be
-possible again. Then it would take a few more packets until the hardware
-and software FDB would be in sync again.
+This movement also avoids a useless allocation / free of switchdev_work
+on the untreated "default event" case.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
 Changes in v3:
 None.
 
 Changes in v2:
-Patch is new.
+None.
 
- net/bridge/br_fdb.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/dsa/slave.c | 35 ++++++++++++++++-------------------
+ 1 file changed, 16 insertions(+), 19 deletions(-)
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 32ac8343b0ba..b7490237f3fc 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -602,6 +602,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 			/* fastpath: update of existing entry */
- 			if (unlikely(source != fdb->dst &&
- 				     !test_bit(BR_FDB_STICKY, &fdb->flags))) {
-+				br_switchdev_fdb_notify(fdb, RTM_DELNEIGH);
- 				fdb->dst = source;
- 				fdb_modified = true;
- 				/* Take over HW learned entry */
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 5e4fb44c2820..42ec18a4c7ba 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -2119,31 +2119,29 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+ 	struct dsa_port *dp;
+ 	int err;
+ 
+-	if (event == SWITCHDEV_PORT_ATTR_SET) {
++	switch (event) {
++	case SWITCHDEV_PORT_ATTR_SET:
+ 		err = switchdev_handle_port_attr_set(dev, ptr,
+ 						     dsa_slave_dev_check,
+ 						     dsa_slave_port_attr_set);
+ 		return notifier_from_errno(err);
+-	}
+-
+-	if (!dsa_slave_dev_check(dev))
+-		return NOTIFY_DONE;
++	case SWITCHDEV_FDB_ADD_TO_DEVICE:
++	case SWITCHDEV_FDB_DEL_TO_DEVICE:
++		if (!dsa_slave_dev_check(dev))
++			return NOTIFY_DONE;
+ 
+-	dp = dsa_slave_to_port(dev);
++		dp = dsa_slave_to_port(dev);
+ 
+-	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
+-	if (!switchdev_work)
+-		return NOTIFY_BAD;
++		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
++		if (!switchdev_work)
++			return NOTIFY_BAD;
+ 
+-	INIT_WORK(&switchdev_work->work,
+-		  dsa_slave_switchdev_event_work);
+-	switchdev_work->ds = dp->ds;
+-	switchdev_work->port = dp->index;
+-	switchdev_work->event = event;
++		INIT_WORK(&switchdev_work->work,
++			  dsa_slave_switchdev_event_work);
++		switchdev_work->ds = dp->ds;
++		switchdev_work->port = dp->index;
++		switchdev_work->event = event;
+ 
+-	switch (event) {
+-	case SWITCHDEV_FDB_ADD_TO_DEVICE:
+-	case SWITCHDEV_FDB_DEL_TO_DEVICE:
+ 		fdb_info = ptr;
+ 
+ 		if (!fdb_info->added_by_user) {
+@@ -2156,13 +2154,12 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+ 		switchdev_work->vid = fdb_info->vid;
+ 
+ 		dev_hold(dev);
++		dsa_schedule_work(&switchdev_work->work);
+ 		break;
+ 	default:
+-		kfree(switchdev_work);
+ 		return NOTIFY_DONE;
+ 	}
+ 
+-	dsa_schedule_work(&switchdev_work->work);
+ 	return NOTIFY_OK;
+ }
+ 
 -- 
 2.25.1
 
