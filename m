@@ -1,15 +1,25 @@
-Return-Path: <andrew@lunn.ch>
-Date: Wed, 16 Dec 2020 16:43:00 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-Message-ID: <20201216154300.GF2901580@lunn.ch>
-References: <20201213140710.1198050-1-vladimir.oltean@nxp.com>
- <20201213140710.1198050-8-vladimir.oltean@nxp.com>
+Return-Path: <ericwouds@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=to:references:subject:from:message-id:date:user-agent:mime-version
+ :in-reply-to:content-transfer-encoding:content-language;
+ bh=uQ6jWd7pXbXYJmMcN/wu3/5WUx3HDf1UbMUwwUT3sRE=;
+ b=ffaxlezXtNYOmd9Wuuj+S52kq5XRKbUedXWne+5j9mGPr8QmyLawAcoWbmt0gHEbM3
+ XZ7yq9EKyd2WbavUdvQ3JvsSpyVjKX1YACyiH3KT1n4JcuqExwM+ZHvxzFHTn2WUonG9
+ QA6yloUiUzXIuATTJLvAFOXBZUmTjpIhJmZfzplIHzOwAS8JhVT/klrin1vzj3MkREwT
+ idv69zIebv3rJleFWRQqylXxvnwpExk37Fr2NYg3MnvaEPkinfqgbEZTxj9AlY62IEP9
+ qVCI/Ag3umsXrJPKOZLjx1GlKbhpjFaNjuNxtlwi+SiuA1+VE8ZyJmIagWHdwzk4AOdD
+ TS8A==
+References: <20200423213643.GC1054188@lunn.ch>
+From: Eric Woudstra <ericwouds@gmail.com>
+Message-ID: <e71e97fe-7594-67cd-4d6c-34cab81144ee@gmail.com>
+Date: Fri, 18 Dec 2020 15:54:08 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201213140710.1198050-8-vladimir.oltean@nxp.com>
-Subject: Re: [Bridge] [PATCH v3 net-next 7/7] net: dsa: ocelot: request DSA
- to fix up lack of address learning on CPU port
+In-Reply-To: <20200423213643.GC1054188@lunn.ch>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+Subject: Re: [Bridge] [RFC PATCH net-next] net: bridge: fix client roaming
+ from DSA user port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,31 +28,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido Schimmel <idosch@idosch.org>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Marek Behun <marek.behun@nic.cz>, Vivien Didelot <vivien.didelot@gmail.com>, UNGLinuxDriver@microchip.com, Tobias Waldekranz <tobias@waldekranz.com>
+To: bridge@lists.linux-foundation.org
 
-On Sun, Dec 13, 2020 at 04:07:10PM +0200, Vladimir Oltean wrote:
-> Given the following setup:
-> 
-> ip link add br0 type bridge
-> ip link set eno0 master br0
-> ip link set swp0 master br0
-> ip link set swp1 master br0
-> ip link set swp2 master br0
-> ip link set swp3 master br0
-> 
-> Currently, packets received on a DSA slave interface (such as swp0)
-> which should be routed by the software bridge towards a non-switch port
-> (such as eno0) are also flooded towards the other switch ports (swp1,
-> swp2, swp3) because the destination is unknown to the hardware switch.
-> 
-> This patch addresses the issue by monitoring the addresses learnt by the
-> software bridge on eno0, and adding/deleting them as static FDB entries
-> on the CPU port accordingly.
-> 
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Hi Andrew and Chuanhong,
 
-    Andrew
+What is the status of this patch?
+
+I am running into the same problem on my wrt3200acm and wrt1900acs, 
+running on linux kernel, dsa driver and ubuntu.
+
+I tried the patch below, without any luck. Although I have conceived two 
+other work-arounds, I am curious if there is a real fix for this issue.
+
+diff -Naur a/drivers/net/dsa/mv88e6xxx/chip.c 
+b/drivers/net/dsa/mv88e6xxx/chip.c
+--- a/drivers/net/dsa/mv88e6xxx/chip.c    2020-10-03 11:21:32.000000000 
++0200
++++ b/drivers/net/dsa/mv88e6xxx/chip.c    2020-12-18 15:01:58.010404773 
++0100
+@@ -2476,3 +2475,0 @@
+-    /* Disable learning for CPU port */
+-    if (dsa_is_cpu_port(ds, port))
+-        reg = 0;
+
+
+Regards,
+
+Eric Woudstra
+
+
