@@ -1,23 +1,23 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1608689998;
- bh=qvD3SMMH9TlnZI5UCoeyWYZQOxEJ1KO9nA3Cw6KRVG0=;
+ s=k20201202; t=1608690134;
+ bh=ehibb4dBB9FAdQTbVnYiGjKemvG7z4NvKt/eNNL2Fw0=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=PF+Fw7YiEmlhhPZY26Ne2Gf1OfJr2IydW3fjtbZmjfXlGApbMo1SqRc6R1E64DBEd
- MNCttHlt0PgkHxHVjtpbclFILu+iLiLfwNmSkkhf7xoqb82cpCGE1Qr2MntqsavG14
- e74JDFTmno9pQG0Jodm/7c31UgygPCXv9m1yA34xKUGX8YT/QN1yYT5cz37OAW4ABN
- M5you9eZU4S6TASr/SwEyxZzh+l1e2QbAUdOpOfhINvKhaYlQh2YTx0P5crzoibwcU
- 3g9sN59uECo+4Sz3vX2s0GODLHsbYeHoWx3Zl8BObIDw6+nFAYiYvN/CJgiJ2g5FnH
- CtQPZBrXmx2DQ==
+ b=d/X/Hpv+t6U4jnrSHthNRinI6iwlib1nglYQsbURn4K3pyk2chTDUKxjds3Zs3vBe
+ AiFR/CYNFLsJWs/oX6CPv3qCAIhbDYxBBebfPNkZ+jO7aXIwyKwMiweHK3OgkfdWRR
+ AYMoyCCy6NG7yZxwC79K2R+oLWpqQh775Hw7aTO45rR7WhJwn2Qc1+4aNKHiyADWsP
+ pDU+ZcG2SncEr5sxcj9FQMgKJb0A8P2G9dLWaB9ONJoZ33hsvJq/qlLiIbcxsO+1jq
+ F3scw2lLNh9bOWjpnD2smHOyH197IFGXdkNFgM5cnqLz4Xq0MYCbLiHImx8uyTTNdg
+ 4nar2suwV66Vw==
 From: Sasha Levin <sashal@kernel.org>
-Date: Tue, 22 Dec 2020 21:17:24 -0500
-Message-Id: <20201223021813.2791612-81-sashal@kernel.org>
-In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
-References: <20201223021813.2791612-1-sashal@kernel.org>
+Date: Tue, 22 Dec 2020 21:20:33 -0500
+Message-Id: <20201223022103.2792705-57-sashal@kernel.org>
+In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
+References: <20201223022103.2792705-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.4 081/130] bridge: switchdev: Notify
-	about VLAN protocol changes
+Subject: [Bridge] [PATCH AUTOSEL 4.19 57/87] bridge: switchdev: Notify about
+	VLAN protocol changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -52,10 +52,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index aee86a1894327..1d54d468934ac 100644
+index d574ce63bf220..59f73b94ec6b2 100644
 --- a/include/net/switchdev.h
 +++ b/include/net/switchdev.h
-@@ -38,6 +38,7 @@ enum switchdev_attr_id {
+@@ -50,6 +50,7 @@ enum switchdev_attr_id {
  	SWITCHDEV_ATTR_ID_PORT_MROUTER,
  	SWITCHDEV_ATTR_ID_BRIDGE_AGEING_TIME,
  	SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING,
@@ -63,7 +63,7 @@ index aee86a1894327..1d54d468934ac 100644
  	SWITCHDEV_ATTR_ID_BRIDGE_MC_DISABLED,
  	SWITCHDEV_ATTR_ID_BRIDGE_MROUTER,
  };
-@@ -54,6 +55,7 @@ struct switchdev_attr {
+@@ -68,6 +69,7 @@ struct switchdev_attr {
  		bool mrouter;				/* PORT_MROUTER */
  		clock_t ageing_time;			/* BRIDGE_AGEING_TIME */
  		bool vlan_filtering;			/* BRIDGE_VLAN_FILTERING */
@@ -72,10 +72,10 @@ index aee86a1894327..1d54d468934ac 100644
  	} u;
  };
 diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 48413b5eb61fc..5536e1c9d5537 100644
+index 5f3950f00f73b..bfc010e887564 100644
 --- a/net/bridge/br_vlan.c
 +++ b/net/bridge/br_vlan.c
-@@ -809,15 +809,25 @@ EXPORT_SYMBOL_GPL(br_vlan_get_proto);
+@@ -764,15 +764,25 @@ EXPORT_SYMBOL_GPL(br_vlan_enabled);
  
  int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
  {
@@ -102,7 +102,7 @@ index 48413b5eb61fc..5536e1c9d5537 100644
  	/* Add VLANs for the new proto to the device filter. */
  	list_for_each_entry(p, &br->port_list, list) {
  		vg = nbp_vlan_group(p);
-@@ -828,7 +838,6 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+@@ -783,7 +793,6 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
  		}
  	}
  
@@ -110,7 +110,7 @@ index 48413b5eb61fc..5536e1c9d5537 100644
  	br->vlan_proto = proto;
  
  	recalculate_group_addr(br);
-@@ -844,6 +853,9 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+@@ -799,6 +808,9 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
  	return 0;
  
  err_filt:
