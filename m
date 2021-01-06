@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=6GwxubxS6M2rVdSgX+DHIBvWrJ5pqmktudfc15+FH+Q=;
- b=gTEfdDvs5CXNu71g+z2O54TZXNuTcOcHLLtAuiADXCFi6FBKdM2zfMj+zKI/7c83HK
- S0uHH0Yeeg5hMlgPew3olFE5odQjTZZtK/Y75VB0OZKD9CGYD6ZB1blPvqM3zmd8ZpTq
- hgRF/uQbaPv4EryTncN6vXzqB0n0SKakqPUe1yaQkfMRZvw7qe3xj3tGOHHSuvqlO1bD
- KqDcsLMFS+UaeKpQ9HychKQ+TLrKnupDoTv04mEUAOjjpbof2lY/8Bd99v1TrUeMKCsE
- 36TY6OTH5NjN00njcXXlfB729bF21cixhnI6b+HFAJ7eBhjRrlVwXhKUXWQYsMUqJ4WU
- e0NA==
+ bh=McrtQ8obU5Om5cXyFjqgKkVkgEBA+mbnsrN4F43Q2fs=;
+ b=jzK6m5S0ncmUTayTpfPfajH1g/vkb6m6uIM5t+CYi3+GDEJ2E5MSJje4olEJucmKjK
+ 6MTAAaWiSueQ7f9bQgO/0Y6kJqewl35WcT75d2xq4ay91THc24lEIJWdBJ1/K+Gn4zZu
+ kq9UjT92OrKuu22umvEMcXClJqYV16mfe5NkgVa/KNWx5MKi3oumZfhRTOEpx4snyZaj
+ lBhg7PhL0BiBIOABeMHdl4IaEfrokt3/72F/hNIkQVpb8oPD6vd2l3Ix1q6vjLito+RX
+ Lb6Swc2ViJqzIOD/955ONw19MXOLO8UZXE8O5MmdA/vT+98p0bjgD8/UDvQSJSeEl/8V
+ AElg==
 References: <20210106095136.224739-1-olteanv@gmail.com>
- <20210106095136.224739-2-olteanv@gmail.com>
+ <20210106095136.224739-3-olteanv@gmail.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <f07659e1-e513-cecd-c6e4-90a2bf45d8bf@gmail.com>
-Date: Wed, 6 Jan 2021 09:43:25 -0800
+Message-ID: <96cdb139-fdcd-521f-4c19-f24a994afed5@gmail.com>
+Date: Wed, 6 Jan 2021 09:44:02 -0800
 MIME-Version: 1.0
-In-Reply-To: <20210106095136.224739-2-olteanv@gmail.com>
+In-Reply-To: <20210106095136.224739-3-olteanv@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 1/7] net: bridge: notify switchdev
- of disappearance of old FDB entry upon migration
+Subject: Re: [Bridge] [PATCH v4 net-next 2/7] net: dsa: be louder when a
+ non-legacy FDB operation fails
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,109 +35,19 @@ Cc: Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido
 On 1/6/21 1:51 AM, Vladimir Oltean wrote:
 > From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> Currently the bridge emits atomic switchdev notifications for
-> dynamically learnt FDB entries. Monitoring these notifications works
-> wonders for switchdev drivers that want to keep their hardware FDB in
-> sync with the bridge's FDB.
+> The dev_close() call was added in commit c9eb3e0f8701 ("net: dsa: Add
+> support for learning FDB through notification") "to indicate inconsistent
+> situation" when we could not delete an FDB entry from the port.
 > 
-> For example station A wants to talk to station B in the diagram below,
-> and we are concerned with the behavior of the bridge on the DUT device:
+> bridge fdb del d8:58:d7:00:ca:6d dev swp0 self master
 > 
->                    DUT
->  +-------------------------------------+
->  |                 br0                 |
->  | +------+ +------+ +------+ +------+ |
->  | |      | |      | |      | |      | |
->  | | swp0 | | swp1 | | swp2 | | eth0 | |
->  +-------------------------------------+
->       |        |                  |
->   Station A    |                  |
->                |                  |
->          +--+------+--+    +--+------+--+
->          |  |      |  |    |  |      |  |
->          |  | swp0 |  |    |  | swp0 |  |
->  Another |  +------+  |    |  +------+  | Another
->   switch |     br0    |    |     br0    | switch
->          |  +------+  |    |  +------+  |
->          |  |      |  |    |  |      |  |
->          |  | swp1 |  |    |  | swp1 |  |
->          +--+------+--+    +--+------+--+
->                                   |
->                               Station B
+> It is a bit drastic and at the same time not helpful if the above fails
+> to only print with netdev_dbg log level, but on the other hand to bring
+> the interface down.
 > 
-> Interfaces swp0, swp1, swp2 are handled by a switchdev driver that has
-> the following property: frames injected from its control interface bypass
-> the internal address analyzer logic, and therefore, this hardware does
-> not learn from the source address of packets transmitted by the network
-> stack through it. So, since bridging between eth0 (where Station B is
-> attached) and swp0 (where Station A is attached) is done in software,
-> the switchdev hardware will never learn the source address of Station B.
-> So the traffic towards that destination will be treated as unknown, i.e.
-> flooded.
-> 
-> This is where the bridge notifications come in handy. When br0 on the
-> DUT sees frames with Station B's MAC address on eth0, the switchdev
-> driver gets these notifications and can install a rule to send frames
-> towards Station B's address that are incoming from swp0, swp1, swp2,
-> only towards the control interface. This is all switchdev driver private
-> business, which the notification makes possible.
-> 
-> All is fine until someone unplugs Station B's cable and moves it to the
-> other switch:
-> 
->                    DUT
->  +-------------------------------------+
->  |                 br0                 |
->  | +------+ +------+ +------+ +------+ |
->  | |      | |      | |      | |      | |
->  | | swp0 | | swp1 | | swp2 | | eth0 | |
->  +-------------------------------------+
->       |        |                  |
->   Station A    |                  |
->                |                  |
->          +--+------+--+    +--+------+--+
->          |  |      |  |    |  |      |  |
->          |  | swp0 |  |    |  | swp0 |  |
->  Another |  +------+  |    |  +------+  | Another
->   switch |     br0    |    |     br0    | switch
->          |  +------+  |    |  +------+  |
->          |  |      |  |    |  |      |  |
->          |  | swp1 |  |    |  | swp1 |  |
->          +--+------+--+    +--+------+--+
->                |
->            Station B
-> 
-> Luckily for the use cases we care about, Station B is noisy enough that
-> the DUT hears it (on swp1 this time). swp1 receives the frames and
-> delivers them to the bridge, who enters the unlikely path in br_fdb_update
-> of updating an existing entry. It moves the entry in the software bridge
-> to swp1 and emits an addition notification towards that.
-> 
-> As far as the switchdev driver is concerned, all that it needs to ensure
-> is that traffic between Station A and Station B is not forever broken.
-> If it does nothing, then the stale rule to send frames for Station B
-> towards the control interface remains in place. But Station B is no
-> longer reachable via the control interface, but via a port that can
-> offload the bridge port learning attribute. It's just that the port is
-> prevented from learning this address, since the rule overrides FDB
-> updates. So the rule needs to go. The question is via what mechanism.
-> 
-> It sure would be possible for this switchdev driver to keep track of all
-> addresses which are sent to the control interface, and then also listen
-> for bridge notifier events on its own ports, searching for the ones that
-> have a MAC address which was previously sent to the control interface.
-> But this is cumbersome and inefficient. Instead, with one small change,
-> the bridge could notify of the address deletion from the old port, in a
-> symmetrical manner with how it did for the insertion. Then the switchdev
-> driver would not be required to monitor learn/forget events for its own
-> ports. It could just delete the rule towards the control interface upon
-> bridge entry migration. This would make hardware address learning be
-> possible again. Then it would take a few more packets until the hardware
-> and software FDB would be in sync again.
+> So increase the verbosity of the error message, and drop dev_close().
 > 
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
