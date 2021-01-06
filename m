@@ -2,22 +2,22 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=lC1LFiqDpicLin+YkECJxc7NkcTGlHpSR10OKpi+kks=;
- b=MMn0MBO1IZucAJil43VtDtQ9f/QhqzBoa/oWw9wIy2YCE59+Sjl2dDA9MMf0xia1H2
- eUh4zmvJqx2rP/Qv/ouqkMTvJXy8Yr+MrrOG+MndqjCTDdELMMS4PPSliKugftc7ZroU
- iFr1cfBkJDRuQQtas2XnCz52k8RQhJV6QO2Q1SNEM8mSSiyQmhIbnHINPhMfRAC2Qbnk
- HtqEpxtKGKfq1hO87BLdqKn2jXFW5EHdcccTUAyKT/FGDGl36rMc6m/ebNqE4sO+qR+Y
- hCOnFo6hSoNE9R3e9cKnBXuKq6YCAqkCnDaIFtwWEF8hxlet1OBxoCNs6zYtLu85UhRH
- U9wg==
+ bh=yF3rnLTyQNwA21TyP52ciWlNhWGg2itKNaVkTO2/cDA=;
+ b=V6RtY4DS+UNCW6fua0p/m79afdROsP11C0PquKtYRn2kbdiNrCrgy7y6M/h+MXGVQP
+ q4Dx+GPHMSamQ4qCkjtNGolJEYlY0fDQCEF36qoySnoe2UrtWpBQ5QdSydtSI68Clx5b
+ hMaGW05NJvB+f6iNIPZHZensNo0ntRUM4JNk9DZ9tz19cbBEQnvu0LMdFh4ehjOQ/k41
+ hMmY4DRE8QMJDh4eErCfywL82gw7kC31uiT/Px/XwK2JW6QK9oHLrwS+UcnrCUmdNSSL
+ A4oCXrvEQ4Rukl7UDY3nSBiHsmUGqghaca8EQuWNG08bIwGktNOLZ4kllyQfgJjPQDOT
+ L9oA==
 From: Vladimir Oltean <olteanv@gmail.com>
-Date: Wed,  6 Jan 2021 11:51:33 +0200
-Message-Id: <20210106095136.224739-5-olteanv@gmail.com>
+Date: Wed,  6 Jan 2021 11:51:34 +0200
+Message-Id: <20210106095136.224739-6-olteanv@gmail.com>
 In-Reply-To: <20210106095136.224739-1-olteanv@gmail.com>
 References: <20210106095136.224739-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v4 net-next 4/7] net: dsa: move switchdev event
-	implementation under the same switch/case statement
+Subject: [Bridge] [PATCH v4 net-next 5/7] net: dsa: exit early in
+	dsa_slave_switchdev_event if we can't program the FDB
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,94 +31,52 @@ Cc: Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-We'll need to start listening to SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE
-events even for interfaces where dsa_slave_dev_check returns false, so
-we need that check inside the switch-case statement for SWITCHDEV_FDB_*.
+Right now, the following would happen for a switch driver that does not
+implement .port_fdb_add or .port_fdb_del.
 
-This movement also avoids a useless allocation / free of switchdev_work
-on the untreated "default event" case.
+dsa_slave_switchdev_event returns NOTIFY_OK and schedules:
+-> dsa_slave_switchdev_event_work
+   -> dsa_port_fdb_add
+      -> dsa_port_notify(DSA_NOTIFIER_FDB_ADD)
+         -> dsa_switch_fdb_add
+            -> if (!ds->ops->port_fdb_add) return -EOPNOTSUPP;
+   -> an error is printed with dev_dbg, and
+      dsa_fdb_offload_notify(switchdev_work) is not called.
+
+We can avoid scheduling the worker for nothing and say NOTIFY_DONE.
+Because we don't call dsa_fdb_offload_notify, the static FDB entry will
+remain just in the software bridge.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 ---
 Changes in v4:
 None.
 
 Changes in v3:
-None.
+s/NOTIFY_OK/NOTIFY_DONE/ in commit description.
 
 Changes in v2:
-None.
+Patch is new.
 
- net/dsa/slave.c | 35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ net/dsa/slave.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 5e4fb44c2820..42ec18a4c7ba 100644
+index 42ec18a4c7ba..37dffe5bc46f 100644
 --- a/net/dsa/slave.c
 +++ b/net/dsa/slave.c
-@@ -2119,31 +2119,29 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
- 	struct dsa_port *dp;
- 	int err;
+@@ -2132,6 +2132,9 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
  
--	if (event == SWITCHDEV_PORT_ATTR_SET) {
-+	switch (event) {
-+	case SWITCHDEV_PORT_ATTR_SET:
- 		err = switchdev_handle_port_attr_set(dev, ptr,
- 						     dsa_slave_dev_check,
- 						     dsa_slave_port_attr_set);
- 		return notifier_from_errno(err);
--	}
--
--	if (!dsa_slave_dev_check(dev))
--		return NOTIFY_DONE;
-+	case SWITCHDEV_FDB_ADD_TO_DEVICE:
-+	case SWITCHDEV_FDB_DEL_TO_DEVICE:
-+		if (!dsa_slave_dev_check(dev))
+ 		dp = dsa_slave_to_port(dev);
+ 
++		if (!dp->ds->ops->port_fdb_add || !dp->ds->ops->port_fdb_del)
 +			return NOTIFY_DONE;
- 
--	dp = dsa_slave_to_port(dev);
-+		dp = dsa_slave_to_port(dev);
- 
--	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
--	if (!switchdev_work)
--		return NOTIFY_BAD;
-+		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
-+		if (!switchdev_work)
-+			return NOTIFY_BAD;
- 
--	INIT_WORK(&switchdev_work->work,
--		  dsa_slave_switchdev_event_work);
--	switchdev_work->ds = dp->ds;
--	switchdev_work->port = dp->index;
--	switchdev_work->event = event;
-+		INIT_WORK(&switchdev_work->work,
-+			  dsa_slave_switchdev_event_work);
-+		switchdev_work->ds = dp->ds;
-+		switchdev_work->port = dp->index;
-+		switchdev_work->event = event;
- 
--	switch (event) {
--	case SWITCHDEV_FDB_ADD_TO_DEVICE:
--	case SWITCHDEV_FDB_DEL_TO_DEVICE:
- 		fdb_info = ptr;
- 
- 		if (!fdb_info->added_by_user) {
-@@ -2156,13 +2154,12 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
- 		switchdev_work->vid = fdb_info->vid;
- 
- 		dev_hold(dev);
-+		dsa_schedule_work(&switchdev_work->work);
- 		break;
- 	default:
--		kfree(switchdev_work);
- 		return NOTIFY_DONE;
- 	}
- 
--	dsa_schedule_work(&switchdev_work->work);
- 	return NOTIFY_OK;
- }
- 
++
+ 		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
+ 		if (!switchdev_work)
+ 			return NOTIFY_BAD;
 -- 
 2.25.1
 
