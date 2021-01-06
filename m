@@ -1,25 +1,21 @@
 Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=4ZX/oY/UMh+zpGx1mdoH5h4IbrR1t26jLXfuR6PIHus=;
- b=gUfgl9ha7ZaX82C1DhmTvyl5Reu1sMt8IXJeECjnH1nCWXv+b8NtbsVWmnxpR45HBK
- u4bxL2Hjrv5ljk9QLG6kceFL2lSiJvzcHUANFwblBUWT3clOX5X2Su9S1fZnyLkmLosE
- Xevz3BMSemRImdclS/xbZ5gEmC5fPuPPT1ZeBICtF3oZlQ5KDWllYrJGuLkdF2BUZtEk
- qMZ0/j/o8wazvDsNdoOJpbAYEdSNwIagHJyIuLvxsaFdyMjeKEmStVf0EgviLykkrxZ8
- A6g1OUvG1USwp+UOqpjl1FZ9Fispt91vi8gJeoImli3s9th4KwMk7bEqMrPNjgflgAWU
- WCtQ==
-Date: Wed, 23 Dec 2020 17:31:52 +0200
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=wFYVdNCGZo254Md4m2v48sFF9I2fZhhCJRCbYo96ynw=;
+ b=r2hEt3YhyZtRbtTbKEgM7AOCqI7maZ7J138o7yqh2U812EyJXex68bYOO1VKErnc7a
+ TyfLHIvKIAN4jpLN8ISxdbLNv5IGt6zkxgcqC8Zfj+O0TPMTrjyfeYatRMLY3rPQnPV9
+ WHooaDbovRFSuCmtx1hbVe13OkZL+o8IkJwLi5v2X2etGgPp7z61ORFGyvkwknDoqaTy
+ OZgvBQoXxLT2LhjIOllhwVtZBGj7ehBLwJ8dh0AJZzj2qqWbu/Aj5n6inx9EBArJQlW/
+ EWDrGYPKnqKaayDO+8Ke/iXzt1PnKp22uvAd/uQlcBfKvO1YD7AYlqDdKMdg+UHGP8JK
+ 9zLg==
 From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20201223153152.zbzgs63dykehwk5x@skbuf>
-References: <20201223022253.2793452-1-sashal@kernel.org>
- <20201223022253.2793452-48-sashal@kernel.org>
+Date: Wed,  6 Jan 2021 11:51:29 +0200
+Message-Id: <20210106095136.224739-1-olteanv@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201223022253.2793452-48-sashal@kernel.org>
-Subject: Re: [Bridge] [PATCH AUTOSEL 4.14 48/66] bridge: switchdev: Notify
- about VLAN protocol changes
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v4 net-next 0/7] Offload software learnt bridge
+	addresses to DSA
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,29 +24,52 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sasha Levin <sashal@kernel.org>
-Cc: Petr Machata <petrm@nvidia.com>, Ivan Vecera <ivecera@redhat.com>, Danielle Ratson <danieller@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
+To: Andrew Lunn <andrew@lunn.ch>, Vivien Didelot <vivien.didelot@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido Schimmel <idosch@idosch.org>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, Marek Behun <marek.behun@nic.cz>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, UNGLinuxDriver@microchip.com, Tobias Waldekranz <tobias@waldekranz.com>
 
-On Tue, Dec 22, 2020 at 09:22:34PM -0500, Sasha Levin wrote:
-> From: Danielle Ratson <danieller@nvidia.com>
-> 
-> [ Upstream commit 22ec19f3aee327806c37c9fa1188741574bc6445 ]
-> 
-> Drivers that support bridge offload need to be notified about changes to
-> the bridge's VLAN protocol so that they could react accordingly and
-> potentially veto the change.
-> 
-> Add a new switchdev attribute to communicate the change to drivers.
-> 
-> Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-> Reviewed-by: Petr Machata <petrm@nvidia.com>
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> Reviewed-by: Ivan Vecera <ivecera@redhat.com>
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-This looks like a bit of an odd patch to backport?
-Are we also going to backport driver changes that make use of this new
-switchdev notifier?
+This series tries to make DSA behave a bit more sanely when bridged with
+"foreign" (non-DSA) interfaces and source address learning is not
+supported on the hardware CPU port (which would make things work more
+seamlessly without software intervention). When a station A connected to
+a DSA switch port needs to talk to another station B connected to a
+non-DSA port through the Linux bridge, DSA must explicitly add a route
+for station B towards its CPU port.
+
+Initial RFC was posted here:
+https://patchwork.ozlabs.org/project/netdev/cover/20201108131953.2462644-1-olteanv@gmail.com/
+
+v2 was posted here:
+https://patchwork.kernel.org/project/netdevbpf/cover/20201213024018.772586-1-vladimir.oltean@nxp.com/
+
+v3 was posted here:
+https://patchwork.kernel.org/project/netdevbpf/cover/20201213140710.1198050-1-vladimir.oltean@nxp.com/
+
+This is a resend of the previous v3 with some added Reviewed-by tags.
+
+Vladimir Oltean (7):
+  net: bridge: notify switchdev of disappearance of old FDB entry upon
+    migration
+  net: dsa: be louder when a non-legacy FDB operation fails
+  net: dsa: don't use switchdev_notifier_fdb_info in
+    dsa_switchdev_event_work
+  net: dsa: move switchdev event implementation under the same
+    switch/case statement
+  net: dsa: exit early in dsa_slave_switchdev_event if we can't program
+    the FDB
+  net: dsa: listen for SWITCHDEV_{FDB,DEL}_ADD_TO_DEVICE on foreign
+    bridge neighbors
+  net: dsa: ocelot: request DSA to fix up lack of address learning on
+    CPU port
+
+ drivers/net/dsa/ocelot/felix.c |   1 +
+ include/net/dsa.h              |   5 +
+ net/bridge/br_fdb.c            |   1 +
+ net/dsa/dsa_priv.h             |  12 +++
+ net/dsa/slave.c                | 174 +++++++++++++++++++++------------
+ 5 files changed, 130 insertions(+), 63 deletions(-)
+
+-- 
+2.25.1
+
