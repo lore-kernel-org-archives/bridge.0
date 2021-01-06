@@ -2,22 +2,22 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=yF3rnLTyQNwA21TyP52ciWlNhWGg2itKNaVkTO2/cDA=;
- b=V6RtY4DS+UNCW6fua0p/m79afdROsP11C0PquKtYRn2kbdiNrCrgy7y6M/h+MXGVQP
- q4Dx+GPHMSamQ4qCkjtNGolJEYlY0fDQCEF36qoySnoe2UrtWpBQ5QdSydtSI68Clx5b
- hMaGW05NJvB+f6iNIPZHZensNo0ntRUM4JNk9DZ9tz19cbBEQnvu0LMdFh4ehjOQ/k41
- hMmY4DRE8QMJDh4eErCfywL82gw7kC31uiT/Px/XwK2JW6QK9oHLrwS+UcnrCUmdNSSL
- A4oCXrvEQ4Rukl7UDY3nSBiHsmUGqghaca8EQuWNG08bIwGktNOLZ4kllyQfgJjPQDOT
- L9oA==
+ bh=EJz2f0BPU/V/WA7rRceP314TuPjibKG/K1RbisBajTo=;
+ b=rQffNnMRM7oY9+l+SpdWettB2i1OKHz8Lz3g09zgPf3ec3ndhAnOqlOVCtp5BKqPAM
+ GM31b+hc3zuVHBbAcpLec7UZYKcM3na7OcLpXOWW7Ra6EihpvYf2h2CwjUyaPkQRr4AW
+ yNSOkgVn0HHWvWLHPGek3GC2pYiNMpP7dOPvo1nXCjHlKomgd1Znxc7FDR/AJOLuzZvp
+ cvzV9WijdJ9epII9ZtODKpZytTr1MFouAn4P5mbxZ/MPaeZ1e3KkBgphqyTQpIgyDnR4
+ 1TGGWGRYZ+pj2w9/lL/ezmKT3iKMFaldyoxCcjtzkOJxVHrKmmlmCriikJbypo4rEfD4
+ OKhg==
 From: Vladimir Oltean <olteanv@gmail.com>
-Date: Wed,  6 Jan 2021 11:51:34 +0200
-Message-Id: <20210106095136.224739-6-olteanv@gmail.com>
+Date: Wed,  6 Jan 2021 11:51:36 +0200
+Message-Id: <20210106095136.224739-8-olteanv@gmail.com>
 In-Reply-To: <20210106095136.224739-1-olteanv@gmail.com>
 References: <20210106095136.224739-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v4 net-next 5/7] net: dsa: exit early in
-	dsa_slave_switchdev_event if we can't program the FDB
+Subject: [Bridge] [PATCH v4 net-next 7/7] net: dsa: ocelot: request DSA to
+	fix up lack of address learning on CPU port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,21 +31,23 @@ Cc: Jiri Pirko <jiri@resnulli.us>, Alexandra Winter <wintera@linux.ibm.com>, Ido
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Right now, the following would happen for a switch driver that does not
-implement .port_fdb_add or .port_fdb_del.
+Given the following setup:
 
-dsa_slave_switchdev_event returns NOTIFY_OK and schedules:
--> dsa_slave_switchdev_event_work
-   -> dsa_port_fdb_add
-      -> dsa_port_notify(DSA_NOTIFIER_FDB_ADD)
-         -> dsa_switch_fdb_add
-            -> if (!ds->ops->port_fdb_add) return -EOPNOTSUPP;
-   -> an error is printed with dev_dbg, and
-      dsa_fdb_offload_notify(switchdev_work) is not called.
+ip link add br0 type bridge
+ip link set eno0 master br0
+ip link set swp0 master br0
+ip link set swp1 master br0
+ip link set swp2 master br0
+ip link set swp3 master br0
 
-We can avoid scheduling the worker for nothing and say NOTIFY_DONE.
-Because we don't call dsa_fdb_offload_notify, the static FDB entry will
-remain just in the software bridge.
+Currently, packets received on a DSA slave interface (such as swp0)
+which should be routed by the software bridge towards a non-switch port
+(such as eno0) are also flooded towards the other switch ports (swp1,
+swp2, swp3) because the destination is unknown to the hardware switch.
+
+This patch addresses the issue by monitoring the addresses learnt by the
+software bridge on eno0, and adding/deleting them as static FDB entries
+on the CPU port accordingly.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
@@ -55,28 +57,26 @@ Changes in v4:
 None.
 
 Changes in v3:
-s/NOTIFY_OK/NOTIFY_DONE/ in commit description.
+s/learning_broken/assisted_learning/
 
 Changes in v2:
 Patch is new.
 
- net/dsa/slave.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/dsa/ocelot/felix.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 42ec18a4c7ba..37dffe5bc46f 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -2132,6 +2132,9 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
+index 7dc230677b78..90c3c76f21b2 100644
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -629,6 +629,7 @@ static int felix_setup(struct dsa_switch *ds)
  
- 		dp = dsa_slave_to_port(dev);
+ 	ds->mtu_enforcement_ingress = true;
+ 	ds->configure_vlan_while_not_filtering = true;
++	ds->assisted_learning_on_cpu_port = true;
  
-+		if (!dp->ds->ops->port_fdb_add || !dp->ds->ops->port_fdb_del)
-+			return NOTIFY_DONE;
-+
- 		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
- 		if (!switchdev_work)
- 			return NOTIFY_BAD;
+ 	return 0;
+ }
 -- 
 2.25.1
 
