@@ -1,21 +1,8 @@
-Return-Path: <menglong8.dong@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=OdOYvLKaoSgVaZejaz21ew2EF1idBOpu4EgqrpcWnb4=;
- b=HhFwKGeoVFs0hdiatK077VZ4s6B/4MfW+deARy0QD5c0MMKl0X5NPTMoCcLxWesLJC
- I82426ijG3cvoS8mdIRVftoXwhuY3Y8KXn/RyuJwbDxoPEPJUrIuWClOqR5UbdRBAsh8
- qEJb/5kRlgSwWvXrb2dxwBDUrWwvv1zsKaXhZMMiCMhnJAwdAbOCiWELAwwhMCixvmf0
- aEe9IazlXyWoyDnTEAs9Wu0Cj9lPhhLG3dhJYDMjN73AmFDc07y9JtgkiL2CxGV3Q3Or
- W3AxWOJISUIpirdvnk1uzrWMGsNybumRuJekmfPoqe2a1dwIoGZ58tiTYaTivfLL4wd4
- ZQpg==
-From: menglong8.dong@gmail.com
-Date: Wed, 13 Jan 2021 23:51:01 -0800
-Message-Id: <20210114075101.6501-1-dong.menglong@zte.com.cn>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: use eth_type_vlan in
-	br_dev_queue_push_xmit
+Return-Path: <abaci-bugfix@linux.alibaba.com>
+From: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+Date: Wed, 13 Jan 2021 17:36:24 +0800
+Message-Id: <1610530584-48554-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+Subject: [Bridge] [PATCH] net/bridge: Fix inconsistent format argument types
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,33 +11,88 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: kuba@kernel.org
-Cc: Menglong Dong <dong.menglong@zte.com.cn>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, davem@davemloft.net
+To: roopa@nvidia.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>, nikolay@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+Fix the following warnings:
 
-Replace the check for ETH_P_8021Q and ETH_P_8021AD in
-br_dev_queue_push_xmit with eth_type_vlan.
+net/bridge/br_sysfs_br.c(833): warning: %u in format string (no. 1)
+requires 'unsigned int' but the argument type is 'signed int'.
+net/bridge/br_sysfs_br.c(817): warning: %u in format string (no. 1)
+requires 'unsigned int' but the argument type is 'signed int'.
+net/bridge/br_sysfs_br.c(261): warning: %ld in format string (no. 1)
+requires 'long' but the argument type is 'unsigned long'.
+net/bridge/br_sysfs_br.c(253): warning: %ld in format string (no. 1)
+requires 'long' but the argument type is 'unsigned long'.
+net/bridge/br_sysfs_br.c(244): warning: %ld in format string (no. 1)
+requires 'long' but the argument type is 'unsigned long'.
+net/bridge/br_sysfs_br.c(236): warning: %ld in format string (no. 1)
+requires 'long' but the argument type is 'unsigned long'.
 
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+Reported-by: Abaci Robot<abaci@linux.alibaba.com>
 ---
- net/bridge/br_forward.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/bridge/br_sysfs_br.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index e28ffadd1371..6e9b049ae521 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -39,8 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
- 	br_drop_fake_rtable(skb);
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 7db06e3..7512921 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -233,7 +233,7 @@ static ssize_t hello_timer_show(struct device *d,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->hello_timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&br->hello_timer));
+ }
+ static DEVICE_ATTR_RO(hello_timer);
  
- 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    (skb->protocol == htons(ETH_P_8021Q) ||
--	     skb->protocol == htons(ETH_P_8021AD))) {
-+	    eth_type_vlan(skb->protocol)) {
- 		int depth;
+@@ -241,7 +241,7 @@ static ssize_t tcn_timer_show(struct device *d, struct device_attribute *attr,
+ 			      char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->tcn_timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&br->tcn_timer));
+ }
+ static DEVICE_ATTR_RO(tcn_timer);
  
- 		if (!__vlan_get_protocol(skb, skb->protocol, &depth))
+@@ -250,7 +250,7 @@ static ssize_t topology_change_timer_show(struct device *d,
+ 					  char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->topology_change_timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&br->topology_change_timer));
+ }
+ static DEVICE_ATTR_RO(topology_change_timer);
+ 
+@@ -258,7 +258,7 @@ static ssize_t gc_timer_show(struct device *d, struct device_attribute *attr,
+ 			     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->gc_work.timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&br->gc_work.timer));
+ }
+ static DEVICE_ATTR_RO(gc_timer);
+ 
+@@ -814,7 +814,7 @@ static ssize_t vlan_stats_enabled_show(struct device *d,
+ 				       char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_ENABLED));
++	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_VLAN_STATS_ENABLED));
+ }
+ 
+ static ssize_t vlan_stats_enabled_store(struct device *d,
+@@ -830,7 +830,7 @@ static ssize_t vlan_stats_per_port_show(struct device *d,
+ 					char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_PER_PORT));
++	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_VLAN_STATS_PER_PORT));
+ }
+ 
+ static ssize_t vlan_stats_per_port_store(struct device *d,
 -- 
-2.25.1
+1.8.3.1
 
