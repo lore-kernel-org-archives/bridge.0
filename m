@@ -1,7 +1,7 @@
 Return-Path: <abaci-bugfix@linux.alibaba.com>
 From: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
-Date: Wed, 13 Jan 2021 17:36:24 +0800
-Message-Id: <1610530584-48554-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+Date: Wed, 13 Jan 2021 17:44:19 +0800
+Message-Id: <1610531059-56212-1-git-send-email-abaci-bugfix@linux.alibaba.com>
 Subject: [Bridge] [PATCH] net/bridge: Fix inconsistent format argument types
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -16,83 +16,48 @@ Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger
 
 Fix the following warnings:
 
-net/bridge/br_sysfs_br.c(833): warning: %u in format string (no. 1)
-requires 'unsigned int' but the argument type is 'signed int'.
-net/bridge/br_sysfs_br.c(817): warning: %u in format string (no. 1)
-requires 'unsigned int' but the argument type is 'signed int'.
-net/bridge/br_sysfs_br.c(261): warning: %ld in format string (no. 1)
+net/bridge/br_sysfs_if.c(162): warning: %ld in format string (no. 1)
 requires 'long' but the argument type is 'unsigned long'.
-net/bridge/br_sysfs_br.c(253): warning: %ld in format string (no. 1)
+net/bridge/br_sysfs_if.c(155): warning: %ld in format string (no. 1)
 requires 'long' but the argument type is 'unsigned long'.
-net/bridge/br_sysfs_br.c(244): warning: %ld in format string (no. 1)
-requires 'long' but the argument type is 'unsigned long'.
-net/bridge/br_sysfs_br.c(236): warning: %ld in format string (no. 1)
+net/bridge/br_sysfs_if.c(148): warning: %ld in format string (no. 1)
 requires 'long' but the argument type is 'unsigned long'.
 
 Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
 Reported-by: Abaci Robot<abaci@linux.alibaba.com>
 ---
- net/bridge/br_sysfs_br.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/bridge/br_sysfs_if.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 7db06e3..7512921 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -233,7 +233,7 @@ static ssize_t hello_timer_show(struct device *d,
- 				struct device_attribute *attr, char *buf)
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 7a59cdd..16a7d41 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -145,21 +145,21 @@ static ssize_t show_port_state(struct net_bridge_port *p, char *buf)
+ static ssize_t show_message_age_timer(struct net_bridge_port *p,
+ 					    char *buf)
  {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%ld\n", br_timer_value(&br->hello_timer));
-+	return sprintf(buf, "%lu\n", br_timer_value(&br->hello_timer));
+-	return sprintf(buf, "%ld\n", br_timer_value(&p->message_age_timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&p->message_age_timer));
  }
- static DEVICE_ATTR_RO(hello_timer);
+ static BRPORT_ATTR(message_age_timer, 0444, show_message_age_timer, NULL);
  
-@@ -241,7 +241,7 @@ static ssize_t tcn_timer_show(struct device *d, struct device_attribute *attr,
- 			      char *buf)
+ static ssize_t show_forward_delay_timer(struct net_bridge_port *p,
+ 					    char *buf)
  {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%ld\n", br_timer_value(&br->tcn_timer));
-+	return sprintf(buf, "%lu\n", br_timer_value(&br->tcn_timer));
+-	return sprintf(buf, "%ld\n", br_timer_value(&p->forward_delay_timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&p->forward_delay_timer));
  }
- static DEVICE_ATTR_RO(tcn_timer);
+ static BRPORT_ATTR(forward_delay_timer, 0444, show_forward_delay_timer, NULL);
  
-@@ -250,7 +250,7 @@ static ssize_t topology_change_timer_show(struct device *d,
- 					  char *buf)
+ static ssize_t show_hold_timer(struct net_bridge_port *p,
+ 					    char *buf)
  {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%ld\n", br_timer_value(&br->topology_change_timer));
-+	return sprintf(buf, "%lu\n", br_timer_value(&br->topology_change_timer));
+-	return sprintf(buf, "%ld\n", br_timer_value(&p->hold_timer));
++	return sprintf(buf, "%lu\n", br_timer_value(&p->hold_timer));
  }
- static DEVICE_ATTR_RO(topology_change_timer);
+ static BRPORT_ATTR(hold_timer, 0444, show_hold_timer, NULL);
  
-@@ -258,7 +258,7 @@ static ssize_t gc_timer_show(struct device *d, struct device_attribute *attr,
- 			     char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%ld\n", br_timer_value(&br->gc_work.timer));
-+	return sprintf(buf, "%lu\n", br_timer_value(&br->gc_work.timer));
- }
- static DEVICE_ATTR_RO(gc_timer);
- 
-@@ -814,7 +814,7 @@ static ssize_t vlan_stats_enabled_show(struct device *d,
- 				       char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_ENABLED));
-+	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_VLAN_STATS_ENABLED));
- }
- 
- static ssize_t vlan_stats_enabled_store(struct device *d,
-@@ -830,7 +830,7 @@ static ssize_t vlan_stats_per_port_show(struct device *d,
- 					char *buf)
- {
- 	struct net_bridge *br = to_bridge(d);
--	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_PER_PORT));
-+	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_VLAN_STATS_PER_PORT));
- }
- 
- static ssize_t vlan_stats_per_port_store(struct device *d,
 -- 
 1.8.3.1
 
