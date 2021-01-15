@@ -1,43 +1,21 @@
-Return-Path: <nikolay@nvidia.com>
-References: <20210114075101.6501-1-dong.menglong@zte.com.cn>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <547a00ff-cc4a-05de-b3c5-14266a3b90e5@nvidia.com>
-Date: Thu, 14 Jan 2021 19:51:17 +0200
-In-Reply-To: <20210114075101.6501-1-dong.menglong@zte.com.cn>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <menglong8.dong@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=0+CNzsPI08lc0FEN4jQWPjCrTyVyDSMDwF2TyVIOOB0=;
+ b=W0HvD9T5SMroyQM1zDFU9Z+AoN9DEnCUXIuOY/TawBj4BB/GqU7nSgXjGnwYrQnye2
+ Et7mJ2fjIxmbpSQEe6s/WMsLb3duB74xtdcW6dleS+yuAwOVEooii9h7S4NyweaO94N2
+ jJcwHn1ALZjXAt1UxwIk3dq+jFqxPCFuiDn4p41riOdNAQQEcoz3PPkJbTuIEtNoImIS
+ 4H4xivrxtQFGRvGDM70dMlXLCKgSeQVeusJmzCUH/UGe3vIqYT9viDktBJsEqzg6asiR
+ UhUVzk107+g8Ft2GAhfHrVOVF0NHy4JQj+WWyr/p6Ko2JdO5kGNGrtwbyM2yuvf3TrR8
+ TCPg==
+From: menglong8.dong@gmail.com
+Date: Thu, 14 Jan 2021 18:23:44 -0800
+Message-Id: <20210115022344.4407-1-dong.menglong@zte.com.cn>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1610646686; bh=9ABF3mk6Qn7hIJTtomit0hYHqXXJiE31q4gqpI3Q3f0=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
- Authentication-Results:Subject:To:CC:References:From:Message-ID:
- Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
- Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
- MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
- X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
- X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
- X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
- X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
- X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
- X-MS-Exchange-AntiSpam-MessageData:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-OriginalArrivalTime:
- X-MS-Exchange-CrossTenant-FromEntityHeader:
- X-MS-Exchange-CrossTenant-Id:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-MailboxType:
- X-MS-Exchange-CrossTenant-UserPrincipalName:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=XDBm0hAE5MX9Bqa3nfMODIECWakC2+WwbFXGdVfnYPRc3COGneNhaNARBrUWfyO40
- bWGo8auZIA8a4dnSRHLTEm43zb/Ws1oEdF4qlqagyzr7tVTP4556XmEKZt9YvAWd8K
- SINZgagkJkbTAhtSgvVMp0Uwd1IE0hh5N0LnwzTTIX+MdJTuLmLP2a5wktUJ5HFZtj
- Pzuc+0DfnaP+0yZozmGbIGEJERfA1tO5qJ3+Hl4RUebWJBJeGfWpCQgn8aQPClQ2pG
- sTtpBXbEMamHOw9fD9wGRt9jK2I/F4VE4T3BdXaTj9KGF4WJnlDjSkrnuFRk363Q55
- +yysLB6LUtEKQ==
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: use eth_type_vlan in
- br_dev_queue_push_xmit
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v2 net-next] net: bridge: check vlan with
+	eth_type_vlan() method
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -46,39 +24,74 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: menglong8.dong@gmail.com, kuba@kernel.org
-Cc: Menglong Dong <dong.menglong@zte.com.cn>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, roopa@nvidia.com, davem@davemloft.net
+To: nikolay@nvidia.com
+Cc: Menglong Dong <dong.menglong@zte.com.cn>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On 14/01/2021 09:51, menglong8.dong@gmail.com wrote:
-> From: Menglong Dong <dong.menglong@zte.com.cn>
-> 
-> Replace the check for ETH_P_8021Q and ETH_P_8021AD in
-> br_dev_queue_push_xmit with eth_type_vlan.
-> 
-> Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
-> ---
->  net/bridge/br_forward.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index e28ffadd1371..6e9b049ae521 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -39,8 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
->  	br_drop_fake_rtable(skb);
->  
->  	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-> -	    (skb->protocol == htons(ETH_P_8021Q) ||
-> -	     skb->protocol == htons(ETH_P_8021AD))) {
-> +	    eth_type_vlan(skb->protocol)) {
->  		int depth;
->  
->  		if (!__vlan_get_protocol(skb, skb->protocol, &depth))
-> 
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
+Replace some checks for ETH_P_8021Q and ETH_P_8021AD with
+eth_type_vlan().
 
-Please change all similar checks, there are also:
-br_netlink.c - br_validate()
-br_vlan.c - br_vlan_set_proto()
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+---
+v2:
+- use eth_type_vlan() in br_validate() and __br_vlan_set_proto()
+  too.
+---
+ net/bridge/br_forward.c |  3 +--
+ net/bridge/br_netlink.c | 11 +++--------
+ net/bridge/br_vlan.c    |  2 +-
+ 3 files changed, 5 insertions(+), 11 deletions(-)
 
-Thanks.
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index e28ffadd1371..6e9b049ae521 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -39,8 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	br_drop_fake_rtable(skb);
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-	    (skb->protocol == htons(ETH_P_8021Q) ||
+-	     skb->protocol == htons(ETH_P_8021AD))) {
++	    eth_type_vlan(skb->protocol)) {
+ 		int depth;
+ 
+ 		if (!__vlan_get_protocol(skb, skb->protocol, &depth))
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 49700ce0e919..15cfcad846c5 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1096,14 +1096,9 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[],
+ 		return 0;
+ 
+ #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+-	if (data[IFLA_BR_VLAN_PROTOCOL]) {
+-		switch (nla_get_be16(data[IFLA_BR_VLAN_PROTOCOL])) {
+-		case htons(ETH_P_8021Q):
+-		case htons(ETH_P_8021AD):
+-			break;
+-		default:
+-			return -EPROTONOSUPPORT;
+-		}
++	if (data[IFLA_BR_VLAN_PROTOCOL] &&
++	    !eth_type_vlan(nla_get_be16(data[IFLA_BR_VLAN_PROTOCOL]))) {
++		return -EPROTONOSUPPORT;
+ 	}
+ 
+ 	if (data[IFLA_BR_VLAN_DEFAULT_PVID]) {
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 701cad646b20..24660fe33545 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -917,7 +917,7 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ 
+ int br_vlan_set_proto(struct net_bridge *br, unsigned long val)
+ {
+-	if (val != ETH_P_8021Q && val != ETH_P_8021AD)
++	if (!eth_type_vlan(val))
+ 		return -EPROTONOSUPPORT;
+ 
+ 	return __br_vlan_set_proto(br, htons(val));
+-- 
+2.25.1
+
