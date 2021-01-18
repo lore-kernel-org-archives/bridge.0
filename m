@@ -1,23 +1,16 @@
-Return-Path: <troglobit@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:subject:in-reply-to:references:date:message-id:mime-version;
- bh=z4leNzWR0o9Do22EpCpfCpRtm41HhzuAfaYRCquNCR0=;
- b=MCsW6wEKTxnKAuSRQO8c9OUoSTbZEBU5HojfvG84uvdpK1ANEYTa542H6s1mjmnJHn
- q9ervHHEO0uI6GLw8vV2XJq40dLAaPQO37MRMXJ5fYhoVQlZ9ZRM2O2lLj+wYeUaCNzz
- +QgiJ7DiPKuqFUOkkPNyPdKncBRC4gNPpxDqsEYT+hTS+h97HF/HNWZS8eq4nsaXk3DQ
- VzJlHjCOA2g9zalXA8yuqZRfqPndj7f9lMg1obaho6juf4TjgkbSt57qTSycTQFJjQf8
- yfAD3zCXL3vKLBPpxttr1ENT46a/sX4ObuMlXolAvBzTIEOZRqmt+Y4llaicDp+2k2fi
- DTcQ==
-From: Joachim Wiberg <troglobit@gmail.com>
-In-Reply-To: <32bf6a72-6aff-5e36-fb02-333f3c450f49@nvidia.com>
-References: <20210112135903.3730765-1-horatiu.vultur@microchip.com>
- <32bf6a72-6aff-5e36-fb02-333f3c450f49@nvidia.com>
-Date: Sat, 16 Jan 2021 16:39:24 +0100
-Message-ID: <8735z0zyab.fsf@gmail.com>
-MIME-Version: 1.0
+Return-Path: <rasmus.villemoes@prevas.dk>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zpkkFwXLIHzY8BlZXKg3oBEANHhM8BBvDNZNHRVaxXY=;
+ b=jQZqn3Pc242n/taN0tkL7gv9y/rmMRAa+phNukEx8mJfK58Gwm0I/DZPWZsPf/c+wERmjZNELSYu4M9l3NdGq33LI7c6M1AsKTJ0tGeNSWXfq7v62VUdWtZPubRw6OFmRS7avmTgIIrfLx/CDLBJApMfsLQAHGYOBSQMlP7szg0=
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Date: Mon, 18 Jan 2021 19:13:19 +0100
+Message-Id: <20210118181319.25419-1-rasmus.villemoes@prevas.dk>
+Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: Re: [Bridge] [RFC PATCH v2] net: bridge: igmp: Extend IGMP query to
-	be per vlan
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net] net: mrp: use stp state as substitute for
+	unimplemented mrp state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,52 +19,55 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, allan.nielsen@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Horatiu Vultur <horatiu.vultur@microchip.com>
 
-On Wed, Jan 13, 2021 at 14:15, Nikolay Aleksandrov <nikolay@nvidia.com> wrote:
-> On 12/01/2021 15:59, Horatiu Vultur wrote:
->> Based on the comments of the previous version, we started to work on a
->> new version, so it would be possible to enable/disable queries per vlan.
->> [snip]
->> We were wondering if this what you had in mind when you proposed to have
->> this per vlan? Or we are completely off? Or we should fix some of the
->> issues that I mentioned, before you can see more clearly the direction?
-> No, unfortunately not even close. We already have per-port per-vlan and global per-vlan
-> contexts which are also linked together for each vlan, those must be used for any vlan
-> configuration and state. The problem is that you'd have to mix igmp and vlan code and
-> those two live under two different kconfig options, and worse rely on different locks, so
-> extra care must be taken.
-> [snip]
-> If you don't need this asap, I'll probably get to it in two months
-> after EHT and the new bridge flush api, even we are still carrying an out-of-tree patch
-> for this which someone (not from cumulus) tried to upstream a few years back, but it also has
-> wrong design in general. :)
+When using MRP with hardware that does understand the concept of
+blocked or forwarding ports, but not the full MRP offload, we
+currently fail to tell the hardware what state it should put the port
+in when the ring is closed - resulting in a ring of forwarding ports
+and all the trouble that comes with that.
 
-Hi,
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+---
 
-very interesting thread this!  I believe I may be the one who posted the
-patch[1] a few years ago, and I fully agree with Nik here.  We developed
-the basic concepts further at Westermo, but it's been really difficult
-to get it stable.
+I don't really understand why SWITCHDEV_ATTR_ID_MRP_PORT_STATE even
+has to exist seperately from SWITCHDEV_ATTR_ID_PORT_STP_STATE, and
+it's hard to tell what the difference might be since no kernel code
+implements the former.
 
-We have discussed at length at work if an IGMP snooping implementation
-really belongs in the bridge, or if it's better suited as a user space
-daemon?  Similar to what was decided for RSTP/MSTP support, i.e., the
-bridge only has STP and RSTP/MSTP is handled by mstpd[2].
+ net/bridge/br_mrp_switchdev.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Most of what's required for a user space implementation is available,
-but it would've been nice if a single AF_PACKET socket on br0 could be
-used to catch what brport (ifindex) a query or report comes in on.  As
-it is now that information is lost/replaced with the ifindex of br0.
-And then there's the issue of detecting and forwarding to a multicast
-routing daemon on top of br0.  That br0 is not a brport in the MDB, or
-that host_joined cannot be set/seen with iproute2 is quite limiting.
-These issues can of course be addressed, but are they of interest to
-the community at large?
+diff --git a/net/bridge/br_mrp_switchdev.c b/net/bridge/br_mrp_switchdev.c
+index ed547e03ace1..8a1c7953e57a 100644
+--- a/net/bridge/br_mrp_switchdev.c
++++ b/net/bridge/br_mrp_switchdev.c
+@@ -180,6 +180,24 @@ int br_mrp_port_switchdev_set_state(struct net_bridge_port *p,
+ 	int err;
+ 
+ 	err = switchdev_port_attr_set(p->dev, &attr);
++	if (err == -EOPNOTSUPP) {
++		attr.id = SWITCHDEV_ATTR_ID_PORT_STP_STATE;
++		switch (state) {
++		case BR_MRP_PORT_STATE_DISABLED:
++		case BR_MRP_PORT_STATE_NOT_CONNECTED:
++			attr.u.stp_state = BR_STATE_DISABLED;
++			break;
++		case BR_MRP_PORT_STATE_BLOCKED:
++			attr.u.stp_state = BR_STATE_BLOCKING;
++			break;
++		case BR_MRP_PORT_STATE_FORWARDING:
++			attr.u.stp_state = BR_STATE_FORWARDING;
++			break;
++		default:
++			return err;
++		};
++		err = switchdev_port_attr_set(p->dev, &attr);
++	}
+ 	if (err && err != -EOPNOTSUPP)
+ 		br_warn(p->br, "error setting offload MRP state on port %u(%s)\n",
+ 			(unsigned int)p->port_no, p->dev->name);
+-- 
+2.23.0
 
-
-Best regards
- /Joachim
-
-[1]: https://lore.kernel.org/netdev/20180418120713.GA10742@troglobit/
-[2]: https://github.com/mstpd/mstpd
