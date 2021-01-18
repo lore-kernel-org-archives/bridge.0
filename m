@@ -1,21 +1,43 @@
-Return-Path: <menglong8.dong@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=rSY/jrqLE+xOv61lVEk8pIJIbYebtwDyEErxSngDBhg=;
- b=ocYqFyxFVb5XjD7dZxd1w0rFvPHUXzYyn3XZUO1XQWXe9+z1ED0cUz0zNfOqNfIM04
- S+qSoHGs16IrD2KvoIsMdW7Iw4qZWEk753xhhHUsirZCnCcVNmkAORt+o+jqS7Wqa812
- eerlXnZRZnmrsIVwnEUt2W5JwwIHUOcKPlvtQuZQLgsulAk4mH03I2MlgqdNMbvphJMl
- zR7J502XkNLbPhPoI3PW2fXE8UJDvfMOIa8i8HN2LfisET7joAVR9jnCAjNM5YwE8ur6
- 1x3ZHzZ0g9P5toOQRDE7yx7nsRbMKfqVg6aC2A/KtCnRc2+uyAOEYI31dpun4/7FliLy
- u5lg==
-From: menglong8.dong@gmail.com
-Date: Sun, 17 Jan 2021 16:09:50 +0800
-Message-Id: <20210117080950.122761-1-dong.menglong@zte.com.cn>
+Return-Path: <nikolay@nvidia.com>
+References: <20210112135903.3730765-1-horatiu.vultur@microchip.com>
+ <32bf6a72-6aff-5e36-fb02-333f3c450f49@nvidia.com> <8735z0zyab.fsf@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <b54644f6-b559-b13b-adf8-d95f7b2a6885@nvidia.com>
+Date: Mon, 18 Jan 2021 13:53:11 +0200
+In-Reply-To: <8735z0zyab.fsf@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v4 net-next] net: bridge: check vlan with
-	eth_type_vlan() method
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1610970803; bh=4Vm7Hkswa56DY+yAtX2oNmnN888f4LYixzf+BYvI4lQ=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
+ Authentication-Results:Subject:To:References:From:Message-ID:Date:
+ User-Agent:In-Reply-To:Content-Type:Content-Language:
+ Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
+ MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
+ X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
+ X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
+ X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
+ X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
+ X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+ X-MS-Exchange-AntiSpam-MessageData:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+ X-MS-Exchange-CrossTenant-FromEntityHeader:
+ X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+ X-MS-Exchange-CrossTenant-UserPrincipalName:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=k86O0TXGa727usO8x5KFBTRv5ipULY+mHMX/x5IzUBWYdsoZpwMJvP4JpwgZ9cAlV
+ lHNkWUXiWdEZV0Y2KsHozCo2r/j40ENqgiqBK0zUCNmGoUhMEDcCjjpJCqPoBaZGd5
+ V9c4Mn1AKmFIqg6TTjB66dNd+q/Zh6je/vHOQqNNU8u60onOcb7vSQC2DXQ2t/J9kI
+ S57QPxbw8efSdI2NQaYS93WN7wUUKEp77fV905WSBi1Cc2fY9GubyPZdrqAamcqLX8
+ 5TqP/POhL3CnMey8qPUa/1ovIdfgPTp3ZJ3CMuGvd9eIWolOGRZY2NgGhjMZA6W6to
+ srtWaKFGpy/vg==
+Subject: Re: [Bridge] [RFC PATCH v2] net: bridge: igmp: Extend IGMP query to
+ be per vlan
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,82 +46,68 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: kuba@kernel.org
-Cc: Menglong Dong <dong.menglong@zte.com.cn>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, davem@davemloft.net
+To: Joachim Wiberg <troglobit@gmail.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, allan.nielsen@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+On 16/01/2021 17:39, Joachim Wiberg wrote:
+> On Wed, Jan 13, 2021 at 14:15, Nikolay Aleksandrov <nikolay@nvidia.com> wrote:
+>> On 12/01/2021 15:59, Horatiu Vultur wrote:
+>>> Based on the comments of the previous version, we started to work on a
+>>> new version, so it would be possible to enable/disable queries per vlan.
+>>> [snip]
+>>> We were wondering if this what you had in mind when you proposed to have
+>>> this per vlan? Or we are completely off? Or we should fix some of the
+>>> issues that I mentioned, before you can see more clearly the direction?
+>> No, unfortunately not even close. We already have per-port per-vlan and global per-vlan
+>> contexts which are also linked together for each vlan, those must be used for any vlan
+>> configuration and state. The problem is that you'd have to mix igmp and vlan code and
+>> those two live under two different kconfig options, and worse rely on different locks, so
+>> extra care must be taken.
+>> [snip]
+>> If you don't need this asap, I'll probably get to it in two months
+>> after EHT and the new bridge flush api, even we are still carrying an out-of-tree patch
+>> for this which someone (not from cumulus) tried to upstream a few years back, but it also has
+>> wrong design in general. :)
+> 
+> Hi,
+> 
+> very interesting thread this!  I believe I may be the one who posted the
+> patch[1] a few years ago, and I fully agree with Nik here.  We developed
+> the basic concepts further at Westermo, but it's been really difficult
+> to get it stable.
+> 
+> We have discussed at length at work if an IGMP snooping implementation
+> really belongs in the bridge, or if it's better suited as a user space
+> daemon?  Similar to what was decided for RSTP/MSTP support, i.e., the
+> bridge only has STP and RSTP/MSTP is handled by mstpd[2].
+> 
+> Most of what's required for a user space implementation is available,
+> but it would've been nice if a single AF_PACKET socket on br0 could be
+> used to catch what brport (ifindex) a query or report comes in on.  As
+> it is now that information is lost/replaced with the ifindex of br0.
+> And then there's the issue of detecting and forwarding to a multicast
+> routing daemon on top of br0.  That br0 is not a brport in the MDB, or
+> that host_joined cannot be set/seen with iproute2 is quite limiting.
+> These issues can of course be addressed, but are they of interest to
+> the community at large?
+> 
+> 
+> Best regards
+>  /Joachim
+> 
+> [1]: https://lore.kernel.org/netdev/20180418120713.GA10742@troglobit/
+> [2]: https://github.com/mstpd/mstpd
+> 
 
-Replace some checks for ETH_P_8021Q and ETH_P_8021AD with
-eth_type_vlan().
+Hi Joachim,
+I actually had started implementing IGMPv3/MLDv2 as a user-space daemon part of
+FRRouting (since it already has a lot of the required infra to talk to the kernel).
+It also has IGMPv3/MLDv2 support within pimd, so a lot of code can be shared.
+Obviously there are pros and cons to each choice, but I'd be interested to see a
+full user-space implementation. I decided to make the kernel support more complete
+since it already did IGMPv2 and so stopped with the new FRR daemon. If needed I'd be
+happy to help with the kernel support for a new user-space daemon, and also can
+contribute to the daemon itself if time permits.
 
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
----
-v4:
-- remove unnecessary brackets.
-
-v3:
-- fix compile warning in br_vlan_set_proto() by casting 'val' to
-  be16.
-
-v2:
-- use eth_type_vlan() in br_validate() and __br_vlan_set_proto()
-  too.
----
- net/bridge/br_forward.c |  3 +--
- net/bridge/br_netlink.c | 12 +++---------
- net/bridge/br_vlan.c    |  2 +-
- 3 files changed, 5 insertions(+), 12 deletions(-)
-
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index e28ffadd1371..6e9b049ae521 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -39,8 +39,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
- 	br_drop_fake_rtable(skb);
- 
- 	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    (skb->protocol == htons(ETH_P_8021Q) ||
--	     skb->protocol == htons(ETH_P_8021AD))) {
-+	    eth_type_vlan(skb->protocol)) {
- 		int depth;
- 
- 		if (!__vlan_get_protocol(skb, skb->protocol, &depth))
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 49700ce0e919..762f273802cd 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1096,15 +1096,9 @@ static int br_validate(struct nlattr *tb[], struct nlattr *data[],
- 		return 0;
- 
- #ifdef CONFIG_BRIDGE_VLAN_FILTERING
--	if (data[IFLA_BR_VLAN_PROTOCOL]) {
--		switch (nla_get_be16(data[IFLA_BR_VLAN_PROTOCOL])) {
--		case htons(ETH_P_8021Q):
--		case htons(ETH_P_8021AD):
--			break;
--		default:
--			return -EPROTONOSUPPORT;
--		}
--	}
-+	if (data[IFLA_BR_VLAN_PROTOCOL] &&
-+	    !eth_type_vlan(nla_get_be16(data[IFLA_BR_VLAN_PROTOCOL])))
-+		return -EPROTONOSUPPORT;
- 
- 	if (data[IFLA_BR_VLAN_DEFAULT_PVID]) {
- 		__u16 defpvid = nla_get_u16(data[IFLA_BR_VLAN_DEFAULT_PVID]);
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 701cad646b20..bb2909738518 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -917,7 +917,7 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
- 
- int br_vlan_set_proto(struct net_bridge *br, unsigned long val)
- {
--	if (val != ETH_P_8021Q && val != ETH_P_8021AD)
-+	if (!eth_type_vlan(htons(val)))
- 		return -EPROTONOSUPPORT;
- 
- 	return __br_vlan_set_proto(br, htons(val));
--- 
-2.30.0
+Thanks,
+ Nik
 
