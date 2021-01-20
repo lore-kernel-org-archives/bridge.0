@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=RUfnxg7JDBFIwuUWLAhYbWYF3RttZk+VcieI3V+L2Fs=;
- b=gQ3nLuW4o4Eol9q5Pt15/DWuygHTU0A8Sdpm0AWwEy8iyn8a573G0TADPMcTJSCIzg
- EVxuFKmS9z3D+djEw2u++NT9/IA3+R/TcpL/jwWifrOjrihNZdWxR5fMANOPZ0ytmet/
- Qne0DHiIJuBWCqeQVP8VAdUvVMh+V/2Ca8dWxmDWjTIbiGq3Yy7SK2KxkciFuezAj723
- I177XCVmiM6dqnBP5lz+QexxHHHjFrquHeQ8wqwh3V2im49zYExsdWeLb9KiEyY35ef/
- OOAyHDLAL+e9gzJqQAiX8fi8WMnay4zIv2HoH3ykoR5WxnG/XDjKaaX9qSaR39iLvnET
- nPMA==
+ bh=uNE7y77lbdLDnfOJ4rQsshk9o2iRhWsVjlqN+VPgGno=;
+ b=rW+h8B8xiWjFYj3WWrGe+0J990O5dWr4rmDCAgOL/eeyfFnbSijgT5me8/0IrtIELB
+ gqmIrleJ3Aml3g0mfojvYzw4PknhuRpKaJTzzMwI4GUT2vdAYFTeY+MxOBEZYOqVFot6
+ Nfn7iQ3HJhlvwBQ3uetM12q2SdTJAksLP+dyVtJjZZRqojqsf5kQyoNkpe9l6zKentDt
+ zF7TRr3yOdt39VVukxOgUpkmS64TjON0oAuOjfiWFNxWRI0pmujy6BDU70G6T3Fjs6uT
+ 1iprFD+JG0ePqjPGZPHRVSNjfdShTirDt+2Ar6ShyN2rC7eH1CBpVKS50nupiNBCJzqn
+ tGgA==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 20 Jan 2021 16:51:55 +0200
-Message-Id: <20210120145203.1109140-7-razor@blackwall.org>
+Date: Wed, 20 Jan 2021 16:51:59 +0200
+Message-Id: <20210120145203.1109140-11-razor@blackwall.org>
 In-Reply-To: <20210120145203.1109140-1-razor@blackwall.org>
 References: <20210120145203.1109140-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 06/14] net: bridge: multicast: add EHT
-	host handling functions
+Subject: [Bridge] [PATCH net-next 10/14] net: bridge: multicast: add EHT
+	include and exclude handling
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,167 +32,438 @@ Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linu
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Add functions to create, destroy and lookup an EHT host. These are
-per-host entries contained in the eht_host_tree in net_bridge_port_group
-which are used to store a list of all sources (S,G) entries joined for that
-group by each host, the host's current filter mode and total number of
-joined entries.
-No functional changes yet, these would be used in later patches.
+Add support for IGMPv3/MLDv2 include and exclude EHT handling. Similar to
+how the reports are processed we have 2 cases when the group is in include
+or exclude mode, these are processed as follows:
+ - group include
+  - is_include: create missing entries
+  - to_include: flush existing entries and create a new set from the
+    report, obviously if the src set is empty then we delete the group
+
+ - group exclude
+  - is_exclude: create missing entries
+  - to_exclude: flush existing entries and create a new set from the
+    report, any empty source set entries are removed
+
+If the group is in a different mode then we just flush all entries reported
+by the host and we create a new set with the new mode entries created from
+the report. If the report is include type, the source list is empty and
+the group has empty sources' set then we remove it. Any source set entries
+which are empty are removed as well. If the group is in exclude mode it
+can exist without any S,G entries (allowing for all traffic to pass).
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- net/bridge/Makefile           |   2 +-
- net/bridge/br_multicast.c     |   1 +
- net/bridge/br_multicast_eht.c | 115 ++++++++++++++++++++++++++++++++++
- 3 files changed, 117 insertions(+), 1 deletion(-)
- create mode 100644 net/bridge/br_multicast_eht.c
+ net/bridge/br_multicast.c         |  84 ++++++++++++++++++-------
+ net/bridge/br_multicast_eht.c     | 100 +++++++++++++++++++++++++++++-
+ net/bridge/br_private_mcast_eht.h |   7 +++
+ 3 files changed, 168 insertions(+), 23 deletions(-)
 
-diff --git a/net/bridge/Makefile b/net/bridge/Makefile
-index 4702702a74d3..7fb9a021873b 100644
---- a/net/bridge/Makefile
-+++ b/net/bridge/Makefile
-@@ -18,7 +18,7 @@ br_netfilter-y := br_netfilter_hooks.o
- br_netfilter-$(subst m,y,$(CONFIG_IPV6)) += br_netfilter_ipv6.o
- obj-$(CONFIG_BRIDGE_NETFILTER) += br_netfilter.o
- 
--bridge-$(CONFIG_BRIDGE_IGMP_SNOOPING) += br_multicast.o br_mdb.o
-+bridge-$(CONFIG_BRIDGE_IGMP_SNOOPING) += br_multicast.o br_mdb.o br_multicast_eht.o
- 
- bridge-$(CONFIG_BRIDGE_VLAN_FILTERING) += br_vlan.o br_vlan_tunnel.o br_vlan_options.o
- 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 3aaa6adbff82..dc6e879dc840 100644
+index 3b8c5d1d0c55..9cfc004312ab 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -1173,6 +1173,7 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 	p->flags = flags;
- 	p->filter_mode = filter_mode;
- 	p->rt_protocol = rt_protocol;
-+	p->eht_host_tree = RB_ROOT;
- 	p->mcast_gc.destroy = br_multicast_destroy_port_group;
- 	INIT_HLIST_HEAD(&p->src_list);
+@@ -1841,7 +1841,8 @@ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg, void *h_a
+  *                                                       Group Timer=GMI
+  */
+ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg, void *h_addr,
+-				 void *srcs, u32 nsrcs, size_t addr_size)
++				 void *srcs, u32 nsrcs, size_t addr_size,
++				 int grec_type)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	struct br_ip src_ip;
+@@ -1863,6 +1864,8 @@ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg, void *h_addr,
+ 			br_multicast_fwd_src_handle(ent);
+ 	}
  
++	br_multicast_eht_handle(pg, h_addr, srcs, nsrcs, addr_size, grec_type);
++
+ 	__grp_src_delete_marked(pg);
+ }
+ 
+@@ -1873,7 +1876,8 @@ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg, void *h_addr,
+  *                                                       Group Timer=GMI
+  */
+ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg, void *h_addr,
+-				 void *srcs, u32 nsrcs, size_t addr_size)
++				 void *srcs, u32 nsrcs, size_t addr_size,
++				 int grec_type)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	struct net_bridge_group_src *ent;
+@@ -1902,6 +1906,9 @@ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg, void *h_addr,
+ 		}
+ 	}
+ 
++	if (br_multicast_eht_handle(pg, h_addr, srcs, nsrcs, addr_size, grec_type))
++		changed = true;
++
+ 	if (__grp_src_delete_marked(pg))
+ 		changed = true;
+ 
+@@ -1909,19 +1916,22 @@ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg, void *h_addr,
+ }
+ 
+ static bool br_multicast_isexc(struct net_bridge_port_group *pg, void *h_addr,
+-			       void *srcs, u32 nsrcs, size_t addr_size)
++			       void *srcs, u32 nsrcs, size_t addr_size,
++			       int grec_type)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		__grp_src_isexc_incl(pg, h_addr, srcs, nsrcs, addr_size);
++		__grp_src_isexc_incl(pg, h_addr, srcs, nsrcs, addr_size,
++				     grec_type);
+ 		br_multicast_star_g_handle_mode(pg, MCAST_EXCLUDE);
+ 		changed = true;
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_isexc_excl(pg, h_addr, srcs, nsrcs, addr_size);
++		changed = __grp_src_isexc_excl(pg, h_addr, srcs, nsrcs, addr_size,
++					       grec_type);
+ 		break;
+ 	}
+ 
+@@ -1936,7 +1946,8 @@ static bool br_multicast_isexc(struct net_bridge_port_group *pg, void *h_addr,
+  *                                                       Send Q(G,A-B)
+  */
+ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg, void *h_addr,
+-				void *srcs, u32 nsrcs, size_t addr_size)
++				void *srcs, u32 nsrcs, size_t addr_size,
++				int grec_type)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	u32 src_idx, to_send = pg->src_ents;
+@@ -1965,6 +1976,9 @@ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg, void *h_addr,
+ 			__grp_src_mod_timer(ent, now + br_multicast_gmi(br));
+ 	}
+ 
++	if (br_multicast_eht_handle(pg, h_addr, srcs, nsrcs, addr_size, grec_type))
++		changed = true;
++
+ 	if (to_send)
+ 		__grp_src_query_marked_and_rexmit(pg);
+ 
+@@ -1977,7 +1991,8 @@ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg, void *h_addr,
+  *                                                       Send Q(G)
+  */
+ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg, void *h_addr,
+-				void *srcs, u32 nsrcs, size_t addr_size)
++				void *srcs, u32 nsrcs, size_t addr_size,
++				int grec_type)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	u32 src_idx, to_send = pg->src_ents;
+@@ -2009,6 +2024,9 @@ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg, void *h_addr,
+ 			__grp_src_mod_timer(ent, now + br_multicast_gmi(br));
+ 	}
+ 
++	if (br_multicast_eht_handle(pg, h_addr, srcs, nsrcs, addr_size, grec_type))
++		changed = true;
++
+ 	if (to_send)
+ 		__grp_src_query_marked_and_rexmit(pg);
+ 
+@@ -2018,19 +2036,30 @@ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg, void *h_addr,
+ }
+ 
+ static bool br_multicast_toin(struct net_bridge_port_group *pg, void *h_addr,
+-			      void *srcs, u32 nsrcs, size_t addr_size)
++			      void *srcs, u32 nsrcs, size_t addr_size,
++			      int grec_type)
+ {
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		changed = __grp_src_toin_incl(pg, h_addr, srcs, nsrcs, addr_size);
++		changed = __grp_src_toin_incl(pg, h_addr, srcs, nsrcs, addr_size,
++					      grec_type);
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_toin_excl(pg, h_addr, srcs, nsrcs, addr_size);
++		changed = __grp_src_toin_excl(pg, h_addr, srcs, nsrcs, addr_size,
++					      grec_type);
+ 		break;
+ 	}
+ 
++	if (br_multicast_eht_should_del_pg(pg)) {
++		br_multicast_find_del_pg(pg->key.port->br, pg);
++		/* a notification has already been sent and we shouldn't
++		 * access pg after the delete so we have to return false
++		 */
++		changed = false;
++	}
++
+ 	return changed;
+ }
+ 
+@@ -2041,7 +2070,8 @@ static bool br_multicast_toin(struct net_bridge_port_group *pg, void *h_addr,
+  *                                                       Group Timer=GMI
+  */
+ static void __grp_src_toex_incl(struct net_bridge_port_group *pg, void *h_addr,
+-				void *srcs, u32 nsrcs, size_t addr_size)
++				void *srcs, u32 nsrcs, size_t addr_size,
++				int grec_type)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	u32 src_idx, to_send = 0;
+@@ -2066,6 +2096,8 @@ static void __grp_src_toex_incl(struct net_bridge_port_group *pg, void *h_addr,
+ 			br_multicast_fwd_src_handle(ent);
+ 	}
+ 
++	br_multicast_eht_handle(pg, h_addr, srcs, nsrcs, addr_size, grec_type);
++
+ 	__grp_src_delete_marked(pg);
+ 	if (to_send)
+ 		__grp_src_query_marked_and_rexmit(pg);
+@@ -2079,7 +2111,8 @@ static void __grp_src_toex_incl(struct net_bridge_port_group *pg, void *h_addr,
+  *                                                       Group Timer=GMI
+  */
+ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg, void *h_addr,
+-				void *srcs, u32 nsrcs, size_t addr_size)
++				void *srcs, u32 nsrcs, size_t addr_size,
++				int grec_type)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	u32 src_idx, to_send = 0;
+@@ -2109,6 +2142,9 @@ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg, void *h_addr,
+ 		}
+ 	}
+ 
++	if (br_multicast_eht_handle(pg, h_addr, srcs, nsrcs, addr_size, grec_type))
++		changed = true;
++
+ 	if (__grp_src_delete_marked(pg))
+ 		changed = true;
+ 	if (to_send)
+@@ -2118,19 +2154,22 @@ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg, void *h_addr,
+ }
+ 
+ static bool br_multicast_toex(struct net_bridge_port_group *pg, void *h_addr,
+-			      void *srcs, u32 nsrcs, size_t addr_size)
++			      void *srcs, u32 nsrcs, size_t addr_size,
++			      int grec_type)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		__grp_src_toex_incl(pg, h_addr, srcs, nsrcs, addr_size);
++		__grp_src_toex_incl(pg, h_addr, srcs, nsrcs, addr_size,
++				    grec_type);
+ 		br_multicast_star_g_handle_mode(pg, MCAST_EXCLUDE);
+ 		changed = true;
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_toex_excl(pg, h_addr, srcs, nsrcs, addr_size);
++		changed = __grp_src_toex_excl(pg, h_addr, srcs, nsrcs, addr_size,
++					      grec_type);
+ 		break;
+ 	}
+ 
+@@ -2347,15 +2386,15 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge *br,
+ 			break;
+ 		case IGMPV3_MODE_IS_EXCLUDE:
+ 			changed = br_multicast_isexc(pg, h_addr, grec->grec_src,
+-						     nsrcs, sizeof(__be32));
++						     nsrcs, sizeof(__be32), type);
+ 			break;
+ 		case IGMPV3_CHANGE_TO_INCLUDE:
+ 			changed = br_multicast_toin(pg, h_addr, grec->grec_src,
+-						    nsrcs, sizeof(__be32));
++						    nsrcs, sizeof(__be32), type);
+ 			break;
+ 		case IGMPV3_CHANGE_TO_EXCLUDE:
+ 			changed = br_multicast_toex(pg, h_addr, grec->grec_src,
+-						    nsrcs, sizeof(__be32));
++						    nsrcs, sizeof(__be32), type);
+ 			break;
+ 		case IGMPV3_BLOCK_OLD_SOURCES:
+ 			changed = br_multicast_block(pg, h_addr, grec->grec_src,
+@@ -2479,17 +2518,20 @@ static int br_ip6_multicast_mld2_report(struct net_bridge *br,
+ 		case MLD2_MODE_IS_EXCLUDE:
+ 			changed = br_multicast_isexc(pg, h_addr,
+ 						     grec->grec_src, nsrcs,
+-						     sizeof(struct in6_addr));
++						     sizeof(struct in6_addr),
++						     grec->grec_type);
+ 			break;
+ 		case MLD2_CHANGE_TO_INCLUDE:
+ 			changed = br_multicast_toin(pg, h_addr,
+ 						    grec->grec_src, nsrcs,
+-						    sizeof(struct in6_addr));
++						    sizeof(struct in6_addr),
++						    grec->grec_type);
+ 			break;
+ 		case MLD2_CHANGE_TO_EXCLUDE:
+ 			changed = br_multicast_toex(pg, h_addr,
+ 						    grec->grec_src, nsrcs,
+-						    sizeof(struct in6_addr));
++						    sizeof(struct in6_addr),
++						    grec->grec_type);
+ 			break;
+ 		case MLD2_BLOCK_OLD_SOURCES:
+ 			changed = br_multicast_block(pg, h_addr,
 diff --git a/net/bridge/br_multicast_eht.c b/net/bridge/br_multicast_eht.c
-new file mode 100644
-index 000000000000..5cebca45e72c
---- /dev/null
+index 43f60388df16..861ae63f4a1c 100644
+--- a/net/bridge/br_multicast_eht.c
 +++ b/net/bridge/br_multicast_eht.c
-@@ -0,0 +1,115 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+// Copyright (c) 2020, Nikolay Aleksandrov <nikolay@nvidia.com>
-+#include <linux/err.h>
-+#include <linux/export.h>
-+#include <linux/if_ether.h>
-+#include <linux/igmp.h>
-+#include <linux/in.h>
-+#include <linux/jhash.h>
-+#include <linux/kernel.h>
-+#include <linux/log2.h>
-+#include <linux/netdevice.h>
-+#include <linux/netfilter_bridge.h>
-+#include <linux/random.h>
-+#include <linux/rculist.h>
-+#include <linux/skbuff.h>
-+#include <linux/slab.h>
-+#include <linux/timer.h>
-+#include <linux/inetdevice.h>
-+#include <linux/mroute.h>
-+#include <net/ip.h>
-+#include <net/switchdev.h>
-+#if IS_ENABLED(CONFIG_IPV6)
-+#include <linux/icmpv6.h>
-+#include <net/ipv6.h>
-+#include <net/mld.h>
-+#include <net/ip6_checksum.h>
-+#include <net/addrconf.h>
-+#endif
-+
-+#include "br_private.h"
-+#include "br_private_mcast_eht.h"
-+
-+static struct net_bridge_group_eht_host *
-+br_multicast_eht_host_lookup(struct net_bridge_port_group *pg,
-+			     union net_bridge_eht_addr *h_addr)
+@@ -629,13 +629,79 @@ static bool br_multicast_eht_block(struct net_bridge_port_group *pg,
+ 	return changed;
+ }
+ 
++/* flush_entries is true when changing mode */
++static bool __eht_inc_exc(struct net_bridge_port_group *pg,
++			  union net_bridge_eht_addr *h_addr,
++			  void *srcs,
++			  u32 nsrcs,
++			  size_t addr_size,
++			  unsigned char filter_mode,
++			  bool to_report)
 +{
-+	struct rb_node *node = pg->eht_host_tree.rb_node;
++	bool changed = false, flush_entries = to_report;
++	union net_bridge_eht_addr eht_src_addr;
++	u32 src_idx;
 +
-+	while (node) {
-+		struct net_bridge_group_eht_host *this;
-+		int result;
++	if (br_multicast_eht_host_filter_mode(pg, h_addr) != filter_mode)
++		flush_entries = true;
 +
-+		this = rb_entry(node, struct net_bridge_group_eht_host,
-+				rb_node);
-+		result = memcmp(h_addr, &this->h_addr, sizeof(*h_addr));
-+		if (result < 0)
-+			node = node->rb_left;
-+		else if (result > 0)
-+			node = node->rb_right;
-+		else
-+			return this;
++	memset(&eht_src_addr, 0, sizeof(eht_src_addr));
++	/* if we're changing mode del host and its entries */
++	if (flush_entries)
++		br_multicast_del_eht_host(pg, h_addr);
++	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
++		memcpy(&eht_src_addr, srcs + (src_idx * addr_size), addr_size);
++		br_multicast_create_eht_set_entry(pg, &eht_src_addr, h_addr,
++						  filter_mode, false);
++	}
++	/* we can be missing sets only if we've deleted some entries */
++	if (flush_entries) {
++		struct net_bridge_group_src *src_ent;
++		struct hlist_node *tmp;
++
++		hlist_for_each_entry_safe(src_ent, tmp, &pg->src_list, node) {
++			br_multicast_ip_src_to_eht_addr(&src_ent->addr,
++							&eht_src_addr);
++			if (!br_multicast_eht_set_lookup(pg, &eht_src_addr)) {
++				br_multicast_del_group_src(src_ent);
++				changed = true;
++				continue;
++			}
++		}
 +	}
 +
-+	return NULL;
++	return changed;
 +}
 +
-+static int br_multicast_eht_host_filter_mode(struct net_bridge_port_group *pg,
-+					     union net_bridge_eht_addr *h_addr)
++static bool br_multicast_eht_inc(struct net_bridge_port_group *pg,
++				 union net_bridge_eht_addr *h_addr,
++				 void *srcs,
++				 u32 nsrcs,
++				 size_t addr_size,
++				 bool to_report)
 +{
-+	struct net_bridge_group_eht_host *eht_host;
-+
-+	eht_host = br_multicast_eht_host_lookup(pg, h_addr);
-+	if (!eht_host)
-+		return MCAST_INCLUDE;
-+
-+	return eht_host->filter_mode;
++	return __eht_inc_exc(pg, h_addr, srcs, nsrcs, addr_size, MCAST_INCLUDE,
++			     to_report);
 +}
 +
-+static void __eht_destroy_host(struct net_bridge_group_eht_host *eht_host)
++static bool br_multicast_eht_exc(struct net_bridge_port_group *pg,
++				 union net_bridge_eht_addr *h_addr,
++				 void *srcs,
++				 u32 nsrcs,
++				 size_t addr_size,
++				 bool to_report)
 +{
-+	WARN_ON(!hlist_empty(&eht_host->set_entries));
-+
-+	rb_erase(&eht_host->rb_node, &eht_host->pg->eht_host_tree);
-+	RB_CLEAR_NODE(&eht_host->rb_node);
-+	kfree(eht_host);
++	return __eht_inc_exc(pg, h_addr, srcs, nsrcs, addr_size, MCAST_EXCLUDE,
++			     to_report);
 +}
 +
-+static struct net_bridge_group_eht_host *
-+__eht_lookup_create_host(struct net_bridge_port_group *pg,
-+			 union net_bridge_eht_addr *h_addr,
-+			 unsigned char filter_mode)
+ static bool __eht_ip4_handle(struct net_bridge_port_group *pg,
+ 			     union net_bridge_eht_addr *h_addr,
+ 			     void *srcs,
+ 			     u32 nsrcs,
+ 			     int grec_type)
+ {
+-	bool changed = false;
++	bool changed = false, to_report = false;
+ 
+ 	switch (grec_type) {
+ 	case IGMPV3_ALLOW_NEW_SOURCES:
+@@ -645,6 +711,20 @@ static bool __eht_ip4_handle(struct net_bridge_port_group *pg,
+ 		changed = br_multicast_eht_block(pg, h_addr, srcs, nsrcs,
+ 						 sizeof(__be32));
+ 		break;
++	case IGMPV3_CHANGE_TO_INCLUDE:
++		to_report = true;
++		fallthrough;
++	case IGMPV3_MODE_IS_INCLUDE:
++		changed = br_multicast_eht_inc(pg, h_addr, srcs, nsrcs,
++					       sizeof(__be32), to_report);
++		break;
++	case IGMPV3_CHANGE_TO_EXCLUDE:
++		to_report = true;
++		fallthrough;
++	case IGMPV3_MODE_IS_EXCLUDE:
++		changed = br_multicast_eht_exc(pg, h_addr, srcs, nsrcs,
++					       sizeof(__be32), to_report);
++		break;
+ 	}
+ 
+ 	return changed;
+@@ -657,7 +737,7 @@ static bool __eht_ip6_handle(struct net_bridge_port_group *pg,
+ 			     u32 nsrcs,
+ 			     int grec_type)
+ {
+-	bool changed = false;
++	bool changed = false, to_report = false;
+ 
+ 	switch (grec_type) {
+ 	case MLD2_ALLOW_NEW_SOURCES:
+@@ -668,6 +748,22 @@ static bool __eht_ip6_handle(struct net_bridge_port_group *pg,
+ 		changed = br_multicast_eht_block(pg, h_addr, srcs, nsrcs,
+ 						 sizeof(struct in6_addr));
+ 		break;
++	case MLD2_CHANGE_TO_INCLUDE:
++		to_report = true;
++		fallthrough;
++	case MLD2_MODE_IS_INCLUDE:
++		changed = br_multicast_eht_inc(pg, h_addr, srcs, nsrcs,
++					       sizeof(struct in6_addr),
++					       to_report);
++		break;
++	case MLD2_CHANGE_TO_EXCLUDE:
++		to_report = true;
++		fallthrough;
++	case MLD2_MODE_IS_EXCLUDE:
++		changed = br_multicast_eht_exc(pg, h_addr, srcs, nsrcs,
++					       sizeof(struct in6_addr),
++					       to_report);
++		break;
+ 	}
+ 
+ 	return changed;
+diff --git a/net/bridge/br_private_mcast_eht.h b/net/bridge/br_private_mcast_eht.h
+index 92933822301d..9daffa3ad8d5 100644
+--- a/net/bridge/br_private_mcast_eht.h
++++ b/net/bridge/br_private_mcast_eht.h
+@@ -55,4 +55,11 @@ bool br_multicast_eht_handle(struct net_bridge_port_group *pg,
+ 			     size_t addr_size,
+ 			     int grec_type);
+ 
++static inline bool
++br_multicast_eht_should_del_pg(const struct net_bridge_port_group *pg)
 +{
-+	struct rb_node **link = &pg->eht_host_tree.rb_node, *parent = NULL;
-+	struct net_bridge_group_eht_host *eht_host;
-+
-+	while (*link) {
-+		struct net_bridge_group_eht_host *this;
-+		int result;
-+
-+		this = rb_entry(*link, struct net_bridge_group_eht_host,
-+				rb_node);
-+		result = memcmp(h_addr, &this->h_addr, sizeof(*h_addr));
-+		parent = *link;
-+		if (result < 0)
-+			link = &((*link)->rb_left);
-+		else if (result > 0)
-+			link = &((*link)->rb_right);
-+		else
-+			return this;
-+	}
-+
-+	eht_host = kzalloc(sizeof(*eht_host), GFP_ATOMIC);
-+	if (!eht_host)
-+		return NULL;
-+
-+	memcpy(&eht_host->h_addr, h_addr, sizeof(*h_addr));
-+	INIT_HLIST_HEAD(&eht_host->set_entries);
-+	eht_host->pg = pg;
-+	eht_host->filter_mode = filter_mode;
-+
-+	rb_link_node(&eht_host->rb_node, parent, link);
-+	rb_insert_color(&eht_host->rb_node, &pg->eht_host_tree);
-+
-+	return eht_host;
++	return !!((pg->key.port->flags & BR_MULTICAST_FAST_LEAVE) &&
++		  RB_EMPTY_ROOT(&pg->eht_host_tree));
 +}
++
+ #endif /* _BR_PRIVATE_MCAST_EHT_H_ */
 -- 
 2.29.2
 
