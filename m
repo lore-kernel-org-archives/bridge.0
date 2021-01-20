@@ -1,32 +1,24 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1611089983; x=1642625983;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=mwYgYrzxMbxsnnfaYbK7dQXBmCyRJjxIkznIATJAT00=;
- b=KqANe/qtnWogc9QIIuiVXKbt1wQUqOxgY0ZiEUarzOW6PuFfLlLsN6Ih
- 3Qy+NTvtzxDDKc6Qr7l6HkTx8tFEHHVc95OdJGX1z+aEH76iGUDsEA9gU
- Nsik6/lBdKo8SgqhdRWkKUr0kT2xeP/jS2uxSF5xMdViXB6KQZ6se+Isq
- dc7BWIIcjNS95yWwM8oXMZ/Jyf24B4O3vZW0Dx4bqqBKC67mnNN2Ntf7Y
- KJrFEFDcVs3ZAqSpfzGsp9UOo5i3zH9+kPat0JbT95ZBBCpxCGZsFQmLn
- eHfJwaNcMSpT0TUcX4AW5hH2nVCrDqqmQDoeNpx7l1C361CNhsxU17EG2 g==;
-Date: Tue, 19 Jan 2021 21:59:39 +0100
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Message-ID: <20210119205939.x3dxkbgjyuzzcxnk@soft-dev3.localdomain>
-References: <20210118181319.25419-1-rasmus.villemoes@prevas.dk>
- <20210118185618.75h45rjf6qqberic@soft-dev3.localdomain>
- <20210118194632.zn5yucjfibguemjq@skbuf>
- <20210118202036.wk2fuwa3hysg4dmj@soft-dev3.localdomain>
- <20210118212735.okoov5ndybszd6m5@skbuf>
- <20210119083240.37cxv3lxi25hwduj@soft-dev3.localdomain>
- <YAcAIcwfp8za9JUo@lunn.ch>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=MnBmjMXyQmfivJvallBlhYYXMX6/FH96w5B1UWhHM0o=;
+ b=wKwL3qap9nVEkDwBujNdVmLKwm2mOLFvcXORfuml+1JsXZEBFRRlkf4i4meoAvQqPO
+ a2V2DsrVv0t1eOsrTz0DIdzBkzHrsctILlBakd3HKi0/MepvTBd1kD41PyBaIPMfT7jw
+ EjwksAvJctlW8+xrdIZpSu/AmMnAWtpMtpTM6cYqgm7fVyeD6DEP514ipnbvsg/mOzBe
+ m4Zi5i/oZD7QLk7wXE4ClCyZaguE69ZYW8eht9a27uIHwNMoNK4f0LthN1WoBdezIv1w
+ cO/lgE6L0AJJIYQ9ZXjCvLQk3NrxW6MAWhi3+LLoZGczrjVO0dtDjGY8GNXNHbHC4Aih
+ +6xg==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Wed, 20 Jan 2021 16:51:50 +0200
+Message-Id: <20210120145203.1109140-2-razor@blackwall.org>
+In-Reply-To: <20210120145203.1109140-1-razor@blackwall.org>
+References: <20210120145203.1109140-1-razor@blackwall.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-In-Reply-To: <YAcAIcwfp8za9JUo@lunn.ch>
-Subject: Re: [Bridge] [PATCH net] net: mrp: use stp state as substitute for
- unimplemented mrp state
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 01/14] net: bridge: multicast: rename
+	src_size to addr_size
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,59 +27,351 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Vladimir Oltean <vladimir.oltean@nxp.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-The 01/19/2021 16:52, Andrew Lunn wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> On Tue, Jan 19, 2021 at 09:32:40AM +0100, Horatiu Vultur wrote:
-> > The 01/18/2021 21:27, Vladimir Oltean wrote:
-> > > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> > >
-> > > On Mon, Jan 18, 2021 at 09:20:36PM +0100, Horatiu Vultur wrote:
-> > > > The 01/18/2021 19:46, Vladimir Oltean wrote:
-> > > > >
-> > > > > On Mon, Jan 18, 2021 at 07:56:18PM +0100, Horatiu Vultur wrote:
-> > > > > > The reason was to stay away from STP, because you can't run these two
-> > > > > > protocols at the same time. Even though in SW, we reuse port's state.
-> > > > > > In our driver(which is not upstreamed), we currently implement
-> > > > > > SWITCHDEV_ATTR_ID_MRP_PORT_STATE and just call the
-> > > > > > SWITCHDEV_ATTR_ID_PORT_STP_STATE.
-> > > > >
-> > > > > And isn't Rasmus's approach reasonable, in that it allows unmodified
-> > > > > switchdev drivers to offload MRP port states without creating
-> > > > > unnecessary code churn?
-> > > >
-> > > > I am sorry but I don't see this as the correct solution. In my opinion,
-> > > > I would prefer to have 3 extra lines in the driver and have a better
-> > > > view of what is happening. Than having 2 calls in the driver for
-> > > > different protocols.
-> > >
-> > > I think the question boils down to: is a MRP-unaware driver expected to
-> > > work with the current bridge MRP code?
-> >
-> > If the driver has switchdev support, then is not expected to work with
-> > the current bridge MRP code.
-> 
-> >
-> > For example, the Ocelot driver, it has switchdev support but no MRP
-> > support so this is not expected to work.
-> 
-> Then ideally, we need switchdev core to be testing for the needed ops
-> and returning an error which prevents MRP being configured when it
-> cannot work.
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Yes, that would be great, I had a look at the handled attribute of the
-switchdev_notifier_port_attr_info but I am not sure.
+Rename src_size argument to addr_size in preparation for passing host
+address as an argument to IGMPv3/MLDv2 functions.
+No functional change.
 
-But what about adding some 'if (IS_ENBABLED(NET_SWITCHDEV))' in br_mrp.c
-and then calling the functions br_mrp_switchdev_ only if this is
-enabled.  Then whenever the switchdev call returns an error then is
-cleared that MRP can't be configured.
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ net/bridge/br_multicast.c | 78 +++++++++++++++++++--------------------
+ 1 file changed, 39 insertions(+), 39 deletions(-)
 
-> 
->        Andrew
-
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 257ac4e25f6d..3ae2cef6f7ec 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1800,7 +1800,7 @@ static void __grp_send_query_and_rexmit(struct net_bridge_port_group *pg)
+  * EXCLUDE (X,Y)  ALLOW (A)     EXCLUDE (X+A,Y-A)        (A)=GMI
+  */
+ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
+-				     void *srcs, u32 nsrcs, size_t src_size)
++				     void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	struct net_bridge_group_src *ent;
+@@ -1812,7 +1812,7 @@ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (!ent) {
+ 			ent = br_multicast_new_group_src(pg, &src_ip);
+@@ -1822,7 +1822,7 @@ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
+ 
+ 		if (ent)
+ 			__grp_src_mod_timer(ent, now + br_multicast_gmi(br));
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	return changed;
+@@ -1834,7 +1834,7 @@ static bool br_multicast_isinc_allow(struct net_bridge_port_group *pg,
+  *                                                       Group Timer=GMI
+  */
+ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg,
+-				 void *srcs, u32 nsrcs, size_t src_size)
++				 void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	struct br_ip src_ip;
+@@ -1846,7 +1846,7 @@ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent)
+ 			ent->flags &= ~BR_SGRP_F_DELETE;
+@@ -1854,7 +1854,7 @@ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg,
+ 			ent = br_multicast_new_group_src(pg, &src_ip);
+ 		if (ent)
+ 			br_multicast_fwd_src_handle(ent);
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	__grp_src_delete_marked(pg);
+@@ -1867,7 +1867,7 @@ static void __grp_src_isexc_incl(struct net_bridge_port_group *pg,
+  *                                                       Group Timer=GMI
+  */
+ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg,
+-				 void *srcs, u32 nsrcs, size_t src_size)
++				 void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	struct net_bridge_group_src *ent;
+@@ -1882,7 +1882,7 @@ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent) {
+ 			ent->flags &= ~BR_SGRP_F_DELETE;
+@@ -1894,7 +1894,7 @@ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg,
+ 				changed = true;
+ 			}
+ 		}
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	if (__grp_src_delete_marked(pg))
+@@ -1904,19 +1904,19 @@ static bool __grp_src_isexc_excl(struct net_bridge_port_group *pg,
+ }
+ 
+ static bool br_multicast_isexc(struct net_bridge_port_group *pg,
+-			       void *srcs, u32 nsrcs, size_t src_size)
++			       void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		__grp_src_isexc_incl(pg, srcs, nsrcs, src_size);
++		__grp_src_isexc_incl(pg, srcs, nsrcs, addr_size);
+ 		br_multicast_star_g_handle_mode(pg, MCAST_EXCLUDE);
+ 		changed = true;
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_isexc_excl(pg, srcs, nsrcs, src_size);
++		changed = __grp_src_isexc_excl(pg, srcs, nsrcs, addr_size);
+ 		break;
+ 	}
+ 
+@@ -1931,7 +1931,7 @@ static bool br_multicast_isexc(struct net_bridge_port_group *pg,
+  *                                                       Send Q(G,A-B)
+  */
+ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg,
+-				void *srcs, u32 nsrcs, size_t src_size)
++				void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	u32 src_idx, to_send = pg->src_ents;
+@@ -1946,7 +1946,7 @@ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent) {
+ 			ent->flags &= ~BR_SGRP_F_SEND;
+@@ -1958,7 +1958,7 @@ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg,
+ 		}
+ 		if (ent)
+ 			__grp_src_mod_timer(ent, now + br_multicast_gmi(br));
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	if (to_send)
+@@ -1973,7 +1973,7 @@ static bool __grp_src_toin_incl(struct net_bridge_port_group *pg,
+  *                                                       Send Q(G)
+  */
+ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg,
+-				void *srcs, u32 nsrcs, size_t src_size)
++				void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	u32 src_idx, to_send = pg->src_ents;
+@@ -1989,7 +1989,7 @@ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent) {
+ 			if (timer_pending(&ent->timer)) {
+@@ -2003,7 +2003,7 @@ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg,
+ 		}
+ 		if (ent)
+ 			__grp_src_mod_timer(ent, now + br_multicast_gmi(br));
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	if (to_send)
+@@ -2015,16 +2015,16 @@ static bool __grp_src_toin_excl(struct net_bridge_port_group *pg,
+ }
+ 
+ static bool br_multicast_toin(struct net_bridge_port_group *pg,
+-			      void *srcs, u32 nsrcs, size_t src_size)
++			      void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		changed = __grp_src_toin_incl(pg, srcs, nsrcs, src_size);
++		changed = __grp_src_toin_incl(pg, srcs, nsrcs, addr_size);
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_toin_excl(pg, srcs, nsrcs, src_size);
++		changed = __grp_src_toin_excl(pg, srcs, nsrcs, addr_size);
+ 		break;
+ 	}
+ 
+@@ -2038,7 +2038,7 @@ static bool br_multicast_toin(struct net_bridge_port_group *pg,
+  *                                                       Group Timer=GMI
+  */
+ static void __grp_src_toex_incl(struct net_bridge_port_group *pg,
+-				void *srcs, u32 nsrcs, size_t src_size)
++				void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	u32 src_idx, to_send = 0;
+@@ -2050,7 +2050,7 @@ static void __grp_src_toex_incl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent) {
+ 			ent->flags = (ent->flags & ~BR_SGRP_F_DELETE) |
+@@ -2061,7 +2061,7 @@ static void __grp_src_toex_incl(struct net_bridge_port_group *pg,
+ 		}
+ 		if (ent)
+ 			br_multicast_fwd_src_handle(ent);
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	__grp_src_delete_marked(pg);
+@@ -2077,7 +2077,7 @@ static void __grp_src_toex_incl(struct net_bridge_port_group *pg,
+  *                                                       Group Timer=GMI
+  */
+ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg,
+-				void *srcs, u32 nsrcs, size_t src_size)
++				void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	u32 src_idx, to_send = 0;
+@@ -2090,7 +2090,7 @@ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent) {
+ 			ent->flags &= ~BR_SGRP_F_DELETE;
+@@ -2105,7 +2105,7 @@ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg,
+ 			ent->flags |= BR_SGRP_F_SEND;
+ 			to_send++;
+ 		}
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	if (__grp_src_delete_marked(pg))
+@@ -2117,19 +2117,19 @@ static bool __grp_src_toex_excl(struct net_bridge_port_group *pg,
+ }
+ 
+ static bool br_multicast_toex(struct net_bridge_port_group *pg,
+-			      void *srcs, u32 nsrcs, size_t src_size)
++			      void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge *br = pg->key.port->br;
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		__grp_src_toex_incl(pg, srcs, nsrcs, src_size);
++		__grp_src_toex_incl(pg, srcs, nsrcs, addr_size);
+ 		br_multicast_star_g_handle_mode(pg, MCAST_EXCLUDE);
+ 		changed = true;
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_toex_excl(pg, srcs, nsrcs, src_size);
++		changed = __grp_src_toex_excl(pg, srcs, nsrcs, addr_size);
+ 		break;
+ 	}
+ 
+@@ -2143,7 +2143,7 @@ static bool br_multicast_toex(struct net_bridge_port_group *pg,
+  * INCLUDE (A)    BLOCK (B)     INCLUDE (A)              Send Q(G,A*B)
+  */
+ static void __grp_src_block_incl(struct net_bridge_port_group *pg,
+-				 void *srcs, u32 nsrcs, size_t src_size)
++				 void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	u32 src_idx, to_send = 0;
+@@ -2155,13 +2155,13 @@ static void __grp_src_block_incl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (ent) {
+ 			ent->flags |= BR_SGRP_F_SEND;
+ 			to_send++;
+ 		}
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	if (to_send)
+@@ -2176,7 +2176,7 @@ static void __grp_src_block_incl(struct net_bridge_port_group *pg,
+  *                                                       Send Q(G,A-Y)
+  */
+ static bool __grp_src_block_excl(struct net_bridge_port_group *pg,
+-				 void *srcs, u32 nsrcs, size_t src_size)
++				 void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	u32 src_idx, to_send = 0;
+@@ -2189,7 +2189,7 @@ static bool __grp_src_block_excl(struct net_bridge_port_group *pg,
+ 	memset(&src_ip, 0, sizeof(src_ip));
+ 	src_ip.proto = pg->key.addr.proto;
+ 	for (src_idx = 0; src_idx < nsrcs; src_idx++) {
+-		memcpy(&src_ip.src, srcs, src_size);
++		memcpy(&src_ip.src, srcs, addr_size);
+ 		ent = br_multicast_find_group_src(pg, &src_ip);
+ 		if (!ent) {
+ 			ent = br_multicast_new_group_src(pg, &src_ip);
+@@ -2202,7 +2202,7 @@ static bool __grp_src_block_excl(struct net_bridge_port_group *pg,
+ 			ent->flags |= BR_SGRP_F_SEND;
+ 			to_send++;
+ 		}
+-		srcs += src_size;
++		srcs += addr_size;
+ 	}
+ 
+ 	if (to_send)
+@@ -2212,16 +2212,16 @@ static bool __grp_src_block_excl(struct net_bridge_port_group *pg,
+ }
+ 
+ static bool br_multicast_block(struct net_bridge_port_group *pg,
+-			       void *srcs, u32 nsrcs, size_t src_size)
++			       void *srcs, u32 nsrcs, size_t addr_size)
+ {
+ 	bool changed = false;
+ 
+ 	switch (pg->filter_mode) {
+ 	case MCAST_INCLUDE:
+-		__grp_src_block_incl(pg, srcs, nsrcs, src_size);
++		__grp_src_block_incl(pg, srcs, nsrcs, addr_size);
+ 		break;
+ 	case MCAST_EXCLUDE:
+-		changed = __grp_src_block_excl(pg, srcs, nsrcs, src_size);
++		changed = __grp_src_block_excl(pg, srcs, nsrcs, addr_size);
+ 		break;
+ 	}
+ 
 -- 
-/Horatiu
+2.29.2
+
