@@ -1,22 +1,24 @@
 Return-Path: <razor@blackwall.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=wPcMQBvMi4L81CqXqUNlL27DFtJJ6AUlR/ZpxbIsss0=;
- b=d9dH+MgL/izcQtHIuCFBChiqwBlYNEApffYHF+cLXlOytooAGXYMxtjmA20xwvdEkB
- lusAqKqxHmUi59bUm2kcQUXp6oTBfC45O61JXeWJ7KAKNF2ErwcpkwBO73DchKAkBRot
- zXIxH15FOSngpnEBaEWzasfNfb+8zt1oEMte8caWGtKtjVjCRXpWgJFjlc09Kas3zYt9
- WfN/Rb8574+kfRuebMYntF2awBevyY+httkbxKrlLaqUiwSdQ3KOBon8tcqGM77A0A8/
- SSldHu6xC/rZBwtmqj1OQu0Te7m+1i4cOqzzu5CXWSSCZb4xysXtVqgREfR8Qi4a7Q0y
- vgrQ==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=r6eGbI5T1ZbJb6/fIDxJvPsg6g6XzCNDGMhxMVE7KiU=;
+ b=X6RzaWHtb8yw8tbOiXobIbN96Xov1DyWcra3y7BxsqYJIKK9CLufCSZpy2J8aMdKbs
+ 5Y6bktsicSNuNRz6Cnf75Z0KkpykgkzwA4PGU2NfD4+pAzb9bRzwXHhTAndAlWyaYOYP
+ e6qsYvV65es4JA4IrH1k3j5VLlPeokS5YbluFKwBKO9eyUHru/pV+haJPDblDIxPdiw2
+ I8AmJnHIjId0RmylS6Vn2mKiFFmlMiOc1217nq9p3wYchSyiVi8R0/paCjVKybhdzKl8
+ +uhCH7ihO2USs2Y55WZ3jn8LC2spYriGFELWL06G8TsMp7MimZ4RM9yFO0Lty8/mLOOB
+ Z5rw==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 20 Jan 2021 16:51:49 +0200
-Message-Id: <20210120145203.1109140-1-razor@blackwall.org>
+Date: Wed, 20 Jan 2021 16:51:54 +0200
+Message-Id: <20210120145203.1109140-6-razor@blackwall.org>
+In-Reply-To: <20210120145203.1109140-1-razor@blackwall.org>
+References: <20210120145203.1109140-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 00/14] net: bridge: multicast: add initial
-	EHT support
+Subject: [Bridge] [PATCH net-next 05/14] net: bridge: multicast: add EHT
+	structures and definitions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,97 +32,103 @@ Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linu
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Hi,
-This set adds explicit host tracking support for IGMPv3/MLDv2. The
-already present per-port fast leave flag is used to enable it since that
-is the primary goal of EHT, to track a group and its S,Gs usage per-host
-and when left without any interested hosts delete them before the standard
-timers. The EHT code is pretty self-contained and not enabled by default.
-There is no new uAPI added, all of the functionality is currently hidden
-behind the fast leave flag. In the future that will change (more below).
-The host tracking uses two new sets per port group: one having an entry for
-each host which contains that host's view of the group (source list and
-filter mode), and one set which contains an entry for each source having
-an internal set which contains an entry for each host that has reported
-an interest for that source. RB trees are used for all sets so they're
-compact when not used and fast when we need to do lookups.
-To illustrate it:
- [ bridge port group ]
-  ` [ host set (rb) ]
-   ` [ host entry with a list of sources and filter mode ]
-  ` [ source set (rb) ]
-   ` [ source entry ]
-    ` [ source host set (rb) ]
-     ` [ source host entry with a timer ]
+Add EHT structures for tracking hosts and sources per group. We keep one
+set for each host which has all of the host's S,G entries, and one set for
+each multicast source which has all hosts that have joined that S,G. For
+each host, source entry we record the filter_mode and we keep an expiry
+timer. There is also one global expiry timer per source set, it is
+updated with each set entry update, it will be later used to lower the
+set's timer instead of lowering each entry's timer separately.
 
-The number of tracked sources per host is limited to the maximum total
-number of S,G entries per port group - PG_SRC_ENT_LIMIT (currently 32).
-The number of hosts is unlimited, I think the argument that a local
-attacker can exhaust the memory/cause high CPU usage can be applied to
-fdb entries as well which are unlimited. In the future if needed we can
-add an option to limit these, but I don't think it's necessary for a
-start. All of the new sets are protected by the bridge's multicast lock.
-I'm pretty sure we'll be changing the cases and improving the
-convergence time in the future, but this seems like a good start.
-
-I'll post self-tests as a separate patch-set.
-
-Patch breakdown:
- patch 1 -  4: minor cleanups and preparations for EHT
- patch      5: adds the new structures which will be used in the
-               following patches
- patch      6: adds support to create, destroy and lookup host entries
- patch      7: adds support to create, delete and lokup source set entries
- patch      8: adds a host "delete" function which is just a host's
-               source list flush since that would automatically delete
-               the host
- patch 9 - 10: add support for handling all IGMPv3/MLDv2 report types
-               more information can be found in the individual patches
- patch     11: optmizes a specific TO_INCLUDE use-case with host timeouts
- patch     12: handles per-host filter mode changing (include <-> exclude)
- patch     13: pulls out block group deletion since now it can be
-               deleted in both filter modes
- patch     14: marks deletions done due to fast leave
-
-Future plans:
- - export host information
- - add an option to reduce queries
- - add an option to limit the number of host entries
- - tune more fast leave cases for quicker convergence
-
-By the way I think this is the first open-source EHT implementation, I
-couldn't find any while researching it. :)
-
-Thanks,
- Nik
-
-
-Nikolay Aleksandrov (14):
-  net: bridge: multicast: rename src_size to addr_size
-  net: bridge: multicast: pass host src address to IGMPv3/MLDv2
-    functions
-  net: bridge: multicast: __grp_src_block_incl can modify pg
-  net: bridge: multicast: calculate idx position without changing ptr
-  net: bridge: multicast: add EHT structures and definitions
-  net: bridge: multicast: add EHT host handling functions
-  net: bridge: multicast: add EHT source set handling functions
-  net: bridge: multicast: add EHT host delete function
-  net: bridge: multicast: add EHT allow/block handling
-  net: bridge: multicast: add EHT include and exclude handling
-  net: bridge: multicast: optimize TO_INCLUDE EHT timeouts
-  net: bridge: multicast: add EHT host filter_mode handling
-  net: bridge: multicast: handle block pg delete for all cases
-  net: bridge: multicast: mark IGMPv3/MLDv2 fast-leave deletes
-
- net/bridge/Makefile               |   2 +-
- net/bridge/br_multicast.c         | 254 +++++----
- net/bridge/br_multicast_eht.c     | 856 ++++++++++++++++++++++++++++++
- net/bridge/br_private.h           |   6 +
- net/bridge/br_private_mcast_eht.h |  65 +++
- 5 files changed, 1093 insertions(+), 90 deletions(-)
- create mode 100644 net/bridge/br_multicast_eht.c
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ net/bridge/br_multicast.c         |  1 +
+ net/bridge/br_private.h           |  2 ++
+ net/bridge/br_private_mcast_eht.h | 50 +++++++++++++++++++++++++++++++
+ 3 files changed, 53 insertions(+)
  create mode 100644 net/bridge/br_private_mcast_eht.h
 
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index f8b685ae56d4..3aaa6adbff82 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -33,6 +33,7 @@
+ #endif
+ 
+ #include "br_private.h"
++#include "br_private_mcast_eht.h"
+ 
+ static const struct rhashtable_params br_mdb_rht_params = {
+ 	.head_offset = offsetof(struct net_bridge_mdb_entry, rhnode),
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index d62c6e1af64a..0bf4c544a5da 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -252,6 +252,8 @@ struct net_bridge_port_group {
+ 	struct timer_list		timer;
+ 	struct timer_list		rexmit_timer;
+ 	struct hlist_node		mglist;
++	struct rb_root			eht_set_tree;
++	struct rb_root			eht_host_tree;
+ 
+ 	struct rhash_head		rhnode;
+ 	struct net_bridge_mcast_gc	mcast_gc;
+diff --git a/net/bridge/br_private_mcast_eht.h b/net/bridge/br_private_mcast_eht.h
+new file mode 100644
+index 000000000000..0c9c4267969d
+--- /dev/null
++++ b/net/bridge/br_private_mcast_eht.h
+@@ -0,0 +1,50 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later
++ * Copyright (c) 2020, Nikolay Aleksandrov <nikolay@nvidia.com>
++ */
++#ifndef _BR_PRIVATE_MCAST_EHT_H_
++#define _BR_PRIVATE_MCAST_EHT_H_
++
++union net_bridge_eht_addr {
++	__be32				ip4;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct in6_addr			ip6;
++#endif
++};
++
++/* single host's list of set entries and filter_mode */
++struct net_bridge_group_eht_host {
++	struct rb_node			rb_node;
++
++	union net_bridge_eht_addr	h_addr;
++	struct hlist_head		set_entries;
++	unsigned int			num_entries;
++	unsigned char			filter_mode;
++	struct net_bridge_port_group	*pg;
++};
++
++/* (host, src entry) added to a per-src set and host's list */
++struct net_bridge_group_eht_set_entry {
++	struct rb_node			rb_node;
++	struct hlist_node		host_list;
++
++	union net_bridge_eht_addr	h_addr;
++	struct timer_list		timer;
++	struct net_bridge		*br;
++	struct net_bridge_group_eht_set	*eht_set;
++	struct net_bridge_group_eht_host *h_parent;
++	struct net_bridge_mcast_gc	mcast_gc;
++};
++
++/* per-src set */
++struct net_bridge_group_eht_set {
++	struct rb_node			rb_node;
++
++	union net_bridge_eht_addr	src_addr;
++	struct rb_root			entry_tree;
++	struct timer_list		timer;
++	struct net_bridge_port_group	*pg;
++	struct net_bridge		*br;
++	struct net_bridge_mcast_gc	mcast_gc;
++};
++
++#endif /* _BR_PRIVATE_MCAST_EHT_H_ */
 -- 
 2.29.2
 
